@@ -1,0 +1,48 @@
+{
+  "name": "ashes",
+  "version": "0.0.1",
+  "description": "FoxCommerce CMS",
+  "main": "boot.js",
+  "scripts": {
+    "test": "make test",
+    "start": "iojs --harmony boot.js",
+    "restart": "kill -USR2 $(ps aux | grep '[m]-ashes' | awk '{print $2}')"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FoxComm/Ashes.git"
+  },
+  "keywords": [
+    "FoxCommerce",
+    "Ecommerce",
+    "CMS"
+  ],
+  "author": "Jonathan 'Tivs' Rainey",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/FoxComm/Ashes/issues"
+  },
+  "homepage": "https://github.com/FoxComm/Ashes#readme",
+  "dependencies": {
+    "cli-color": "^1.0.0",
+    "co": "^4.5.4",
+    "htmlescape": "^1.1.0",
+    "koa": "^0.20.0",
+    "koa-favicon": "^1.2.0",
+    "koa-json": "^1.1.1",
+    "koa-router": "^4.3.2",
+    "koa-static": "^1.4.9",
+    "moment": "^2.10.2",
+    "react": "^0.13.2",
+    "react-router": "^0.13.3",
+    "underscore": "^1.8.3"
+  },
+  "devDependencies": {
+    "chai": "^2.3.0",
+    "co-mocha": "^1.1.0",
+    "eslint": "^0.20.0",
+    "eslint-plugin-react": "^2.2.0",
+    "koa-logger": "^1.2.2",
+    "mocha": "^2.2.4"
+  }
+}
