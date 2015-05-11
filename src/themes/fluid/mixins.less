@@ -1,0 +1,46 @@
+@pxtorem-js-function: ~`pxtorem = function(px){ return (parseInt(px.replace(/(^\d+)(.+$)/i,'$1')) / 10 + 'rem') }`;
+
+.clearfix() {
+  zoom: 1;
+  &:before, &:after {content: ''; display: table;}
+  &:after {clear: both;}
+}
+
+// ===== Font Values =====
+.font-spec(@size) {
+  @base: unit(@size);
+  font-size: ~"@{base}px";
+  font-size: ~`pxtorem('@{size}')`;
+}
+
+.font-spec(@size, @weight) when (ispixel(@weight)) {
+  .line-height(@weight);
+  .font-spec(@size);
+}
+
+.font-spec(@size, @weight) when (isnumber(@weight)) and (@weight >= 100) {
+  font-weight: @weight;
+  .font-spec(@size);
+}
+
+.font-spec(@size, @weight, @lineHeight) {
+  font-weight: @weight;
+  .line-height(@lineHeight);
+  .font-spec(@size);
+}
+
+.font-spec(@size, @weight, @lineHeight, @letterSpacing) {
+  letter-spacing: @letterSpacing;
+  font-weight: @weight;
+  .line-height(@lineHeight);
+  .font-spec(@size);
+}
+
+.line-height(@value) {
+  line-height: @value;
+}
+
+.line-height(@value) when (ispixel(@value)) {
+  @rem-value: ~`pxtorem('@{value}')`;
+  line-height: @rem-value;
+}

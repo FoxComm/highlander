@@ -1,0 +1,29 @@
+.generate-grid(@columns) {
+  .grid-unit {
+    width: (100% / @columns);
+
+    .col-loop (@idx) when (@idx <= @columns) {
+      &.col-@{idx} { width: (100% / @columns) * @idx; }
+      .col-loop(@idx + 1);
+    }
+
+    .col-loop(1);
+  }
+}
+
+.grid-row {
+  width: @site_max-width;
+  margin: 0 auto;
+  position: relative;
+  .clearfix;
+
+  .grid-unit {
+    float: left;
+    display: inline;
+    position: relative;
+  }
+
+  .generate-grid(4);
+
+  &.row-3 { .generate-grid(3); }
+}
