@@ -2,7 +2,7 @@
   "name": "ashes",
   "version": "0.0.1",
   "description": "FoxCommerce CMS",
-  "main": "boot.js",
+  "main": "server/index.js",
   "scripts": {
     "test": "make test",
     "start": "iojs --harmony boot.js",
@@ -68,7 +68,7 @@
   },
   "dependencies": {
     "babelify": "^6.1.0",
-    "browserify": "^10.1.3",
+    "browserify": "^10.2.0",
     "cli-color": "^1.0.0",
     "co": "^4.5.4",
     "gulp": "^3.8.11",
@@ -92,11 +92,11 @@
     "less-plugin-group-css-media-queries": "^1.0.1",
     "less-plugin-npm-import": "^2.0.0",
     "merge-stream": "^0.1.7",
-    "moment": "^2.10.2",
+    "moment": "^2.10.3",
     "normalize.css": "^3.0.3",
     "react": "^0.13.3",
     "react-router": "^0.13.3",
-    "reactify": "^1.1.0",
+    "reactify": "^1.1.1",
     "underscore": "^1.8.3",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0"

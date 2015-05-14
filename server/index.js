@@ -16,6 +16,8 @@ app.init = co.wrap(function *() {
   if (app.env === 'development') {
     app.use(require('koa-logger')());
   }
+  require(`${__dirname}/middleware`)(app);
+  require(`${__dirname}/cms`)(app);
   require(`${__dirname}/web`)(app);
   app.server = app.listen(app.config.server.port);
 });
