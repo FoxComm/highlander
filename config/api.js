@@ -6,7 +6,7 @@ module.exports = function(env) {
   function uri() {
     switch(env) {
       case 'test': return `http://localhost:3000/api/${version}`;
-      default: return `http://apiary.io`;
+      default: return `http://private-5b93a4-foxcomm1.apiary-mock.com/`;
     }
   }
   return {
