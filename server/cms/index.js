@@ -4,9 +4,7 @@ const
   Router = require('koa-router');
 
 module.exports = function(app) {
-  let router = new Router({
-    prefix: '/admin'
-  });
+  let router = new Router();
 
   router.use(app.requireAdmin);
 
