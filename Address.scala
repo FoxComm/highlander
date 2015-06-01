@@ -144,30 +144,21 @@ object ShippingInformation extends DefaultJsonProtocol {
 
 sealed trait Destination
 case class Email(email: String) extends Destination
+case class Residence(address: Address) extends Destination
+case class StockLocation(stockLocation: StockLocation) extends Destination
 
 sealed trait Fulfillment
 case class Digital(id: Int, destination: Destination) extends Fulfillment
+case class Delivery(id: Int, destination: Destination) extends Fulfillment
+case class PickUp(id: Int, destination: Destination) extends Fulfillment
+
 
 case class Cart(id: Int, userId: Option[Int], lineItems: Seq[LineItem],
 //                payments: Seq[Payment],
                 fulfillments: Seq[Fulfillment],
                 coupons: Seq[Coupon], adjustments: List[Adjustment]) {
-  // TODO: probably make this a service class
-//  def checkout: Either[String, Order] = {
-//    if (payments.nonEmpty && !payments.forall(_.validate)) {
-//      return Left("Payments invalid!")
-//    }
-//
-////     capture payments and ignore error return values for now
-//    payments.foreach(_.process)
-//
-////     validate deliveries
-////     validate inventory
-//    Right(Order.fromCart(this))
-//  }
-
   // TODO: how do we handle adjustment/coupon
-  // coupons extends promotions + interaction rules
+  // specifically, promotions are handled at the checkout level, but need to display in the cart
   def addCoupon(coupon: Coupon) = {}
 
   // carts support guest checkout
