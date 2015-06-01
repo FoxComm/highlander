@@ -1,4 +1,4 @@
-import akka.http.scaladsl.unmarshalling.Unmarshal
+//import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshalling.ToResponseMarshallable
@@ -217,6 +217,11 @@ case class StockItem(id: Int, productId: Int, stockLocationId: Int, onHold: Int,
 
 class Checkout(cart: Cart) {
   def checkout: Either[List[String], Order] = {
+    // Realistically, what we'd do here is actually
+    // 1) Check Inventory
+    // 2) Verify Payment (re-auth)
+    // 3) Validate addresses
+    // 4) Validate promotions/coupons
     val order = Order(id = 0, cartId = cart.id, status = New, lineItems = cart.lineItems, deliveries = cart.deliveries, adjustments = cart.adjustments)
     Right(order)
   }
