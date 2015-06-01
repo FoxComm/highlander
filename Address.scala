@@ -337,8 +337,7 @@ class Service extends Protocols {
         } ~
         (post & path(IntNumber / "checkout")) { id =>
           complete {
-            val checkout = new Checkout(findCart(id))
-            checkout.checkout.toJson
+            new Checkout(findCart(id)).checkout.toJson
           }
         }
       }
@@ -350,3 +349,17 @@ class Service extends Protocols {
   }
 }
 
+
+/*
+ TODO(yax): consider/research/experiment w/ the following
+  - DB Migrations: https://github.com/flyway/flyway
+  - Validations:
+    - http://skinny-framework.org/documentation/validator.html (this seems simpler than accord but at what cost)
+    - https://github.com/wix/accord
+  - ORM: http://skinny-framework.org/documentation/orm.html
+  - non-ORM:
+    - https://github.com/mauricio/postgresql-async
+    - Slick: https://github.com/slick/slick
+  - Fixtures/Factories: http://skinny-framework.org/documentation/factory-girl.html
+  - JSON: should we replace spray-json w/ json4s?
+ */
