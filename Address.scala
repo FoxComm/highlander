@@ -3,6 +3,7 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshalling.ToResponseMarshallable
 import akka.http.scaladsl.model.HttpResponse
+import com.sun.org.apache.xml.internal.security.utils.ElementCheckerImpl.FullChecker
 import com.typesafe.config.{ConfigFactory, Config}
 import com.wix.accord.{validate => runValidation, Success => ValidationSuccess, Failure => ValidationFailure }
 import com.wix.accord._
@@ -141,9 +142,15 @@ object ShippingInformation extends DefaultJsonProtocol {
   implicit val shippingInformationFormat = jsonFormat3(ShippingInformation.apply)
 }
 
+sealed trait Destination
+case class Email(email: String) extends Destination
+
+sealed trait Fulfillment
+case class Digital(id: Int, destination: Destination) extends Fulfillment
+
 case class Cart(id: Int, userId: Option[Int], lineItems: Seq[LineItem],
 //                payments: Seq[Payment],
-                deliveries: Seq[ShippingInformation],
+                fulfillments: Seq[Fulfillment],
                 coupons: Seq[Coupon], adjustments: List[Adjustment]) {
   // TODO: probably make this a service class
 //  def checkout: Either[String, Order] = {
@@ -339,8 +346,7 @@ class Service extends Protocols {
         } ~
         (post & path(IntNumber / "checkout")) { id =>
           complete {
-            val cart = findCart(id)
-            val checkout = new Checkout(cart)
+            val checkout = new Checkout(findCart(id))
             checkout.checkout.toJson
           }
         }
