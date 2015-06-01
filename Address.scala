@@ -1,3 +1,4 @@
+import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshalling.ToResponseMarshallable
@@ -59,9 +60,9 @@ object Promotion extends DefaultJsonProtocol {
   implicit val promotionFormat = jsonFormat3(Promotion.apply)
 }
 
-case class LineItem(id: Int, skuId: Int, quantity: Int)
+case class LineItem(id: Int, skuId: Int)
 object LineItem extends DefaultJsonProtocol {
-  implicit val lineItemFormat = jsonFormat3(LineItem.apply)
+  implicit val lineItemFormat = jsonFormat2(LineItem.apply)
 }
 
 sealed trait PaymentStatus
@@ -140,7 +141,7 @@ object ShippingInformation extends DefaultJsonProtocol {
   implicit val shippingInformationFormat = jsonFormat3(ShippingInformation.apply)
 }
 
-case class Cart(id: Int, lineItems: Seq[LineItem],
+case class Cart(id: Int, userId: Option[Int], lineItems: Seq[LineItem],
 //                payments: Seq[Payment],
                 deliveries: Seq[ShippingInformation],
                 coupons: Seq[Coupon], adjustments: List[Adjustment]) {
@@ -161,10 +162,13 @@ case class Cart(id: Int, lineItems: Seq[LineItem],
   // TODO: how do we handle adjustment/coupon
   // coupons extends promotions + interaction rules
   def addCoupon(coupon: Coupon) = {}
+
+  // carts support guest checkout
+  def isGuest = this.userId.isDefined
 }
 
 object Cart extends DefaultJsonProtocol {
-  implicit val cartFormat = jsonFormat5(Cart.apply)
+  implicit val cartFormat = jsonFormat6(Cart.apply)
 }
 
 sealed trait OrderStatus
@@ -177,20 +181,26 @@ case object FulfillmentStarted extends OrderStatus
 case object PartiallyShipped extends OrderStatus
 case object Shipped extends OrderStatus
 
-case class Order(id: Int, cartId: Int, status: OrderStatus, lineItems: Seq[LineItem], payment: Seq[Payment], deliveries: Seq[ShippingInformation], adjustments: List[Adjustment]) {
-  // aggregated status (header) of lineItems => single Order status
-  def masterStatus: OrderStatus = New
+case class Order(id: Int, cartId: Int, status: OrderStatus, lineItems: Seq[LineItem],
+//                 payment: Seq[Payment],
+                 deliveries: Seq[ShippingInformation], adjustments: List[Adjustment]) {
+//  def masterStatus: OrderStatus = New
 }
 
-object Order {
-//  def fromCart(cart: Cart): Order = {
-//    Order(id = 0, cartId = cart.id, status = New, lineItems = cart.lineItems, payment = cart.payments, deliveries = cart.deliveries, adjustments = cart.adjustments)
-//  }
+object Order extends DefaultJsonProtocol {
+  implicit val orderFormat = jsonFormat6(Order.apply)
 }
 
 case class StockItem(id: Int, productId: Int, stockLocationId: Int, onHold: Int, onHand: Int, allocatedToSales: Int) {
   def available: Int = {
     this.onHand - this.onHold - this.allocatedToSales
+  }
+}
+
+class Checkout(cart: Cart) {
+  def checkout: Either[List[String], Order] = {
+    val order = Order(id = 0, cartId = cart.id, status = New, lineItems = cart.lineItems, deliveries = cart.deliveries, adjustments = cart.adjustments)
+    Right(order)
   }
 }
 
@@ -239,45 +249,18 @@ case class Collection(id: Int, name: String, isActive: Boolean) extends Validati
 object Main {
 
   def main(args: Array[String]): Unit = {
-    val cart = Cart(1, Seq[LineItem](), Seq[ShippingInformation](), Seq[Coupon](), List[Adjustment]())
-    println(cart.toJson)
-//    sanityCheck()
     val service = new Service()
     service.bind()
   }
-
-  def sanityCheck() = {
-    val payments = List[Payment](GiftCard(1, 1, InsufficientBalance, "123"), GiftCard(2, 1, SuccessfulDebit, "123"))
-
-    val cart = Cart(1, Seq[LineItem](), Seq[ShippingInformation](), Seq[Coupon](), List[Adjustment]())
-
-//    println(cart.checkout)
-
-    val invalidUser = User(1, "yax@yax.com", "password", "", "")
-    val validUser = User(1, "yax@yax.com", "password", "Yax", "Fuentes")
-
-    List(invalidUser, validUser).foreach { user =>
-      user.validate match {
-        case ValidationFailure(violations) => printf("%s is invalid: %s\n", user, violations)
-        case ValidationSuccess => printf("%s is invalid\n", user)
-      }
-    }
-
-//    val order = Order.fromCart(cart)
-
-    payments.foreach { payment =>
-      val status = payment match {
-        case GiftCard(_, _, InsufficientBalance, _) => "insufficient!"
-        case GiftCard(_, _, SuccessfulDebit, _) => "great success!"
-      }
-
-      println(status)
-    }
-  }
 }
+
+// Request cases
+case class UpdateCartRequest(lineItems: Seq[LineItem])
 
 // JSON formatters
 trait Protocols extends DefaultJsonProtocol {
+  implicit val updateCartRequestFormat = jsonFormat1(UpdateCartRequest.apply)
+
   implicit object DateJsonFormat extends JsonFormat[Date] {
 
     override def write(obj: Date) = JsString("")
@@ -307,24 +290,43 @@ class Service extends Protocols {
   val config: Config = ConfigFactory.parseString(conf)
 
   implicit val system = ActorSystem.create("Cart", config)
-//  implicit def executor = system.dispatcher
   implicit def executionContext = system.dispatcher
   implicit val materializer = ActorFlowMaterializer()
 
   val logger = Logging(system, getClass)
 
   val routes = {
+    val cart = Cart(0, None, Seq[LineItem](), Seq[ShippingInformation](), Seq[Coupon](), List[Adjustment]())
+
+    def findCart(id: Int): Cart = {
+      cart.copy(id = id)
+    }
+
     logRequestResult("cart") {
-        (get & path("v1" / "cart" / IntNumber)) { id =>
+      pathPrefix("v1" / "cart" ) {
+        (get & path(IntNumber)) { id =>
           complete {
-            val cart = Cart(id, Seq[LineItem](), Seq[ShippingInformation](), Seq[Coupon](), List[Adjustment]())
-            cart
+            findCart(id)
+          }
+        } ~
+        (patch & path(IntNumber) & entity(as[UpdateCartRequest])) { (id, updateCartRequest) =>
+          complete {
+            findCart(id).copy(lineItems = updateCartRequest.lineItems)
+          }
+        } ~
+        (post & path(IntNumber / "checkout")) { id =>
+          complete {
+            val cart = findCart(id)
+            val checkout = new Checkout(cart)
+            checkout.checkout.toJson
           }
         }
       }
     }
+  }
 
   def bind(): Unit = {
     Http().bindAndHandle(routes, config.getString("http.interface"), config.getInt("http.port"))
   }
 }
+
