@@ -181,6 +181,24 @@ case object FulfillmentStarted extends OrderStatus
 case object PartiallyShipped extends OrderStatus
 case object Shipped extends OrderStatus
 
+object OrderStatus extends DefaultJsonProtocol {
+  implicit object orderStatusFormat extends JsonFormat[OrderStatus] {
+    def write(obj: OrderStatus) = JsString(obj.toString)
+
+    def read(json: JsValue): OrderStatus = json match {
+      case JsString("New") => New
+      case JsString("FraudHold") => FraudHold
+      case JsString("RemorseHold") => RemorseHold
+      case JsString("ManualHold") => ManualHold
+      case JsString("Canceled") => Canceled
+      case JsString("FulfillmentStarted") => FulfillmentStarted
+      case JsString("PartiallyShipped") => PartiallyShipped
+      case JsString("Shipped") => Shipped
+      case _ => throw new Exception("could not parse")
+    }
+  }
+}
+
 case class Order(id: Int, cartId: Int, status: OrderStatus, lineItems: Seq[LineItem],
 //                 payment: Seq[Payment],
                  deliveries: Seq[ShippingInformation], adjustments: List[Adjustment]) {
