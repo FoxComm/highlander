@@ -14,22 +14,40 @@ object Json4sExample extends App {
   case class PaymentDemo(id: Int, status: PaymentStatus)
 
   /** Can be extracted in a trait and mixed in wherever we need it to provide that implicit format. */
-  implicit val formats = DefaultFormats + new CustomSerializer[PaymentStatus](format => (
+  val phoenixFormats = DefaultFormats + new CustomSerializer[PaymentStatus](format => (
     { case _ ⇒ sys.error("Reading not implemented") },
     { case x: PaymentStatus ⇒ JString(x.toString) }
   ))
 
   import org.json4s.jackson.Serialization.write
 
-  println(write(
-    Cart(id = 1, userId = Some(2), lineItems = Seq(LineItem(42, 48)))
-  ))
+  simpleExamples()
+  transformationExamples()
 
-  println(write(
-    PaymentDemo(1, Auth)
-  ))
+  def simpleExamples() {
+    implicit val formats = phoenixFormats
 
-  println(write(
-    PaymentDemo(2, CanceledAuth)
-  ))
+    println(write(
+      Cart(id = 1, userId = Some(2), lineItems = Seq(LineItem(42, 48)))
+    ))
+
+    println(write(
+      PaymentDemo(1, Auth)
+    ))
+
+    println(write(
+      PaymentDemo(2, CanceledAuth)
+    ))
+  }
+
+  def transformationExamples() {
+    /** transform the AST before output */
+    implicit val formatsAndTransformation = phoenixFormats + new FieldSerializer[Cart](
+      FieldSerializer.renameTo("lineItems", "line_items"),
+      FieldSerializer.renameFrom("lineItems", "line_items"))
+
+    println(write(
+      Cart(id = 1, userId = Some(2), lineItems = Seq(LineItem(42, 48)))
+    ))
+  }
 }
