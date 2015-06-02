@@ -1,4 +1,3 @@
-//import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshalling.ToResponseMarshallable
@@ -18,6 +17,8 @@ import akka.stream.{ActorFlowMaterializer, FlowMaterializer}
 import slick.driver.H2Driver.api._
 import slick.lifted.Tag
 
+import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
+import spray.json._
 import org.json4s.JsonAST.JString
 import org.json4s.{CustomSerializer, DefaultFormats}
 import org.json4s.jackson.Serialization.{write => render}
@@ -97,10 +98,6 @@ case class Cart(id: Int, userId: Option[Int] = None, lineItems: Seq[LineItem],
 
   // carts support guest checkout
   def isGuest = this.userId.isDefined
-
-  def update(request: UpdateCartRequest) = {
-    //lineItems = updateCartRequest.lineItems)
-  }
 
   // TODO: service class it?
   def addLineItems(items: Seq[LineItem]): Cart = {
@@ -201,9 +198,6 @@ object Main {
   }
 }
 
-// Request cases
-case class UpdateCartRequest(lineItems: Seq[LineItem])
-
 case class AddLineItemsRequest(skuId: Int, quantity: Int)
 
 // JSON formatters
@@ -215,6 +209,8 @@ trait Formats extends DefaultJsonProtocol {
       case x ⇒ JString(x.toString)
     }))
   }
+
+  implicit val addLineItemsRequestFormat = jsonFormat2(AddLineItemsRequest.apply)
 
   val phoenixFormats = DefaultFormats + new CustomSerializer[PaymentStatus](format => (
     { case _ ⇒ sys.error("Reading not implemented") },
@@ -271,7 +267,49 @@ class Service extends Formats {
             render(findCart(id))
           }
         }
-      }
+      } ~
+        (post & path(IntNumber / "checkout")) { id =>
+          complete {
+            render(new Checkout(findCart(id)).checkout)
+          }
+        } ~
+        (post & path(IntNumber / "line-items") & entity(as[Seq[AddLineItemsRequest]])) { (cartId, reqItems) =>
+          complete {
+            val lineItems = reqItems.flatMap { req =>
+              (1 to req.quantity).map{ i => LineItem(id = 0, skuId = req.skuId) }
+            }
+
+            val cart = findCart(cartId)
+            render(cart.addLineItems(lineItems))
+          }
+        } ~
+        (post & path(IntNumber / "persisted")) { id =>
+          complete {
+            val carts = TableQuery[Carts]
+            val db = Database.forURL("jdbc:h2:mem:hello", driver = "org.h2.Driver")
+
+            val actions = (for {
+              _ ← carts.schema.create
+              _ ← carts += BasicCart(1, 3)
+              _ ← carts += BasicCart(2, 2)
+              _ ← carts += BasicCart(2, 2)
+              _ ← carts.filter(_.id === 1).delete
+              l ← carts.length.result
+            } yield l).transactionally
+
+            /** If we are not using transactionally here then we need to run and await the schema creation first.
+              * For performance reasons slick does not guarantee that actions are executed in order by default.
+              *
+              * Use withPinnedSession if you want to share the same session but don’t want a transaction. */
+
+            /** Slick 3 now returns a Future. Spray-routing also accepts a Future to complete a route, so we’re fine. */
+            db.run(actions).map { length ⇒
+
+              /** Seems that spray-json can’t work with a Map[String, Any], so need to call toString here. */
+              render(Map("hi" → "hello", "length" → length.toString))
+            }
+          }
+        }
     }
   }
 
