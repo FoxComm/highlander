@@ -418,7 +418,6 @@ class Service extends Protocols {
                 carts.filter(_.id === 1).delete
 
                 val x = carts.filter(_.id === 2)
-                x.
 
                 Map("hi" -> "hello")
               }
