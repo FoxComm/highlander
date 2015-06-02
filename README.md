@@ -22,3 +22,16 @@ OSX:
 brew install scala
 ```
 
+### [Flyway](http://flywaydb.org/getstarted/)
+
+OSX:
+
+```bash
+brew install flyway
+```
+
+## Setup
+
+```bash
+make configure
+```
