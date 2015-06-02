@@ -10,15 +10,15 @@ import dsl.{validator => createValidator}
 import dsl._
 import java.util.Date
 import akka.event.Logging
+import slick.lifted.ProvenShape
 import spray.json.{JsValue, JsString, JsonFormat, DefaultJsonProtocol}
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.server.Directives._
 import akka.stream.{ActorFlowMaterializer, FlowMaterializer}
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
 import spray.json._
-import scala.slick.driver.H2Driver.simple._
-
-
+import slick.driver.H2Driver.api._
+import slick.lifted.Tag
 
 // Validation mixin
 trait Validation {
@@ -174,6 +174,11 @@ object Fulfillment extends DefaultJsonProtocol {
   implicit val fulfillmentFormat = jsonFormat2(Fulfillment.apply)
 }
 
+case class BasicCart(id: Int, userId: Int)
+object BasicCart extends DefaultJsonProtocol {
+  implicit val fulfillmentFormat = jsonFormat2(BasicCart.apply)
+}
+
 case class Cart(id: Int, userId: Option[Int] = None, lineItems: Seq[LineItem],
 //                payments: Seq[Payment],
                 fulfillments: Seq[Fulfillment],
@@ -200,10 +205,10 @@ object Cart extends DefaultJsonProtocol {
   implicit val cartFormat = jsonFormat6(Cart.apply)
 }
 
-class PersistedCarts(tag: Tag) extends Table[(Int, Int)](tag, "CARTS") {
-  def id = column[Int]("ID", O.PrimaryKey)
-  def userId = column[Int]("USER_ID")
-  def * = (id, userId)
+class Carts(tag: Tag) extends Table[BasicCart](tag, "carts") {
+  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def userId = column[Int]("user_id")
+  def * = (id, userId) <> ((BasicCart.apply _).tupled, BasicCart.unapply)
 }
 
 
@@ -401,13 +406,21 @@ class Service extends Protocols {
         } ~
           (post & path(IntNumber / "persisted")) { id =>
             complete {
-              val persistedCarts = TableQuery[PersistedCarts]
-              //val coffees: TableQuery[Coffees] = TableQuery[Coffees]
+              val carts = TableQuery[Carts]
               val db = Database.forURL("jdbc:h2:mem:hello", driver = "org.h2.Driver")
               db.withSession { implicit session =>
-                persistedCarts.ddl.create
+                carts.schema.create
 
-                persistedCarts += (1, 3)
+                carts += BasicCart(1,3)
+                carts += BasicCart(2,2)
+                carts += BasicCart(2,2)
+
+                carts.filter(_.id === 1).delete
+
+                val x = carts.filter(_.id === 2)
+                x.
+
+                Map("hi" -> "hello")
               }
             }
           }
