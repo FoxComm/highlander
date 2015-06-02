@@ -33,5 +33,5 @@ libraryDependencies ++= {
   )
 }
 
-//Resolver.settings
+Revolver.settings
 
