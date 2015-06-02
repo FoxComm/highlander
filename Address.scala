@@ -15,10 +15,12 @@ import spray.json.{JsValue, JsString, JsonFormat, DefaultJsonProtocol}
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.server.Directives._
 import akka.stream.{ActorFlowMaterializer, FlowMaterializer}
-import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
-import spray.json._
 import slick.driver.H2Driver.api._
 import slick.lifted.Tag
+
+import org.json4s.JsonAST.JString
+import org.json4s.{CustomSerializer, DefaultFormats}
+import org.json4s.jackson.Serialization.{write => render}
 
 // Validation mixin
 trait Validation {
@@ -28,50 +30,23 @@ trait Validation {
 }
 
 case class StockLocation(id: Int, name: String)
-object StockLocation extends DefaultJsonProtocol {
-  implicit val stockLocationFormat = jsonFormat2(StockLocation.apply)
-}
 
 // TODO: money/currency abstraction. Use joda-money, most likely
 case class Money(currency: String, amount: Int)
-object Money extends DefaultJsonProtocol {
-  implicit val moneyFormat = jsonFormat2(Money.apply)
-}
 
 case class State(id: Int, name: String, abbreviation: String)
-object State extends DefaultJsonProtocol {
-  implicit val stateFormat = jsonFormat3(State.apply)
-}
 
 case class City(id: Int, name: String)
-object City extends DefaultJsonProtocol {
-  implicit val cityFormat = jsonFormat2(City.apply)
-}
 
 case class Address(id: Int, name: String, streetAddresses: List[String], city: City, state: State, zip: String)
-object Address extends DefaultJsonProtocol {
-  implicit val addressFormat = jsonFormat6(Address.apply)
-}
 
 case class Adjustment(id: Int)
-object Adjustment extends DefaultJsonProtocol {
-  implicit val adjustmentFormat = jsonFormat1(Adjustment.apply)
-}
 
 case class Coupon(id: Int, cartId: Int, code: String, adjustment: List[Adjustment])
-object Coupon extends DefaultJsonProtocol {
-  implicit val couponFormat = jsonFormat4(Coupon.apply)
-}
 
 case class Promotion(id: Int, cartId: Int, adjustments: List[Adjustment])
-object Promotion extends DefaultJsonProtocol {
-  implicit val promotionFormat = jsonFormat3(Promotion.apply)
-}
 
 case class LineItem(id: Int, skuId: Int)
-object LineItem extends DefaultJsonProtocol {
-  implicit val lineItemFormat = jsonFormat2(LineItem.apply)
-}
 
 sealed trait PaymentStatus
 case object Auth extends PaymentStatus
@@ -83,19 +58,6 @@ sealed trait GiftCardPaymentStatus extends PaymentStatus
 case object InsufficientBalance extends GiftCardPaymentStatus
 case object SuccessfulDebit extends GiftCardPaymentStatus
 case object FailedDebit extends GiftCardPaymentStatus
-
-object GiftCardPaymentStatus extends DefaultJsonProtocol {
-  implicit object giftCardPaymentStatus extends JsonFormat[GiftCardPaymentStatus] {
-    def write(obj: GiftCardPaymentStatus) = JsString(obj.toString)
-
-    def read(json: JsValue): GiftCardPaymentStatus = json match {
-      case JsString("InsufficientBalance") => InsufficientBalance
-      case JsString("SuccessfulDebit")  => SuccessfulDebit
-      case JsString("FailedDebit")  => FailedDebit
-      case _ => throw new Exception("could not parse")
-    }
-  }
-}
 
 abstract class Payment extends DefaultJsonProtocol {
   def validate: Boolean = {
@@ -110,74 +72,20 @@ abstract class Payment extends DefaultJsonProtocol {
       Some("payment processing failed")
     }
   }
-
-  implicit object paymentFormat extends JsonFormat[Payment] {
-    def write(obj: Payment) = JsString(obj.toString)
-
-    def read(json: JsValue): Payment = json match {
-      case _ => throw new Exception("could not parse")
-    }
-  }
-}
-
-object PaymentStatus extends DefaultJsonProtocol {
-  implicit object paymentStatusFormat extends JsonFormat[PaymentStatus] {
-    def write(obj: PaymentStatus) = JsString(obj.toString)
-
-    def read(json: JsValue): PaymentStatus = json match {
-      case JsString("Auth") => Auth
-      case JsString("FailedCapture") => FailedCapture
-      case JsString("CanceledAuth") => CanceledAuth
-      case JsString("ExpiredAuth") => ExpiredAuth
-      case _ => throw new Exception("could not parse")
-    }
-  }
 }
 
 case class CreditCard(id: Int, cartId: Int, status: PaymentStatus, cvv: Int, number: String, expiration: String, address: Address) extends Payment
-object CreditCard extends DefaultJsonProtocol {
-  implicit val creditCardFormat = jsonFormat7(CreditCard.apply)
-}
 
 case class GiftCard(id: Int, cartId: Int, status: GiftCardPaymentStatus, code: String) extends Payment
-object GiftCard extends DefaultJsonProtocol {
-  implicit val giftCardFormat = jsonFormat4(GiftCard.apply)
-}
 
 sealed trait Destination
 case class EmailDestination(email: String) extends Destination
 case class ResidenceDestination(address: Address) extends Destination
 case class StockLocationDestination(stockLocation: StockLocation) extends Destination
 
-object Destination extends DefaultJsonProtocol {
-  implicit object destinationFormat extends JsonFormat[Destination] {
-    def write(obj: Destination) = JsString(obj.toString)
-
-    def read(json: JsValue): Destination = json match {
-      case _ => throw new Exception("could not parse")
-    }
-  }
-}
-
-object EmailDestination extends DefaultJsonProtocol {
-  implicit val emailDestinationFormat = jsonFormat1(EmailDestination.apply)
-}
-object ResidenceDestination extends DefaultJsonProtocol {
-  implicit val residenceDestination = jsonFormat1(ResidenceDestination.apply)
-}
-object StockLocationDestination extends DefaultJsonProtocol {
-  implicit val stockLocationDestinationFormat = jsonFormat1(StockLocationDestination.apply)
-}
-
 case class Fulfillment(id: Int, destination: Destination)
-object Fulfillment extends DefaultJsonProtocol {
-  implicit val fulfillmentFormat = jsonFormat2(Fulfillment.apply)
-}
 
 case class BasicCart(id: Int, userId: Int)
-object BasicCart extends DefaultJsonProtocol {
-  implicit val fulfillmentFormat = jsonFormat2(BasicCart.apply)
-}
 
 case class Cart(id: Int, userId: Option[Int] = None, lineItems: Seq[LineItem],
 //                payments: Seq[Payment],
@@ -201,17 +109,11 @@ case class Cart(id: Int, userId: Option[Int] = None, lineItems: Seq[LineItem],
   }
 }
 
-object Cart extends DefaultJsonProtocol {
-  implicit val cartFormat = jsonFormat6(Cart.apply)
-}
-
 class Carts(tag: Tag) extends Table[BasicCart](tag, "carts") {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def userId = column[Int]("user_id")
   def * = (id, userId) <> ((BasicCart.apply _).tupled, BasicCart.unapply)
 }
-
-
 
 sealed trait OrderStatus
 case object New extends OrderStatus
@@ -223,33 +125,11 @@ case object FulfillmentStarted extends OrderStatus
 case object PartiallyShipped extends OrderStatus
 case object Shipped extends OrderStatus
 
-object OrderStatus extends DefaultJsonProtocol {
-  implicit object orderStatusFormat extends JsonFormat[OrderStatus] {
-    def write(obj: OrderStatus) = JsString(obj.toString)
-
-    def read(json: JsValue): OrderStatus = json match {
-      case JsString("New") => New
-      case JsString("FraudHold") => FraudHold
-      case JsString("RemorseHold") => RemorseHold
-      case JsString("ManualHold") => ManualHold
-      case JsString("Canceled") => Canceled
-      case JsString("FulfillmentStarted") => FulfillmentStarted
-      case JsString("PartiallyShipped") => PartiallyShipped
-      case JsString("Shipped") => Shipped
-      case _ => throw new Exception("could not parse")
-    }
-  }
-}
-
 case class Order(id: Int, cartId: Int, status: OrderStatus, lineItems: Seq[LineItem],
 //                 payment: Seq[Payment],
                  //deliveries: Seq[ShippingInformation],
                  adjustments: List[Adjustment]) {
 //  def masterStatus: OrderStatus = New
-}
-
-object Order extends DefaultJsonProtocol {
-  implicit val orderFormat = jsonFormat5(Order.apply)
 }
 
 case class StockItem(id: Int, productId: Int, stockLocationId: Int, onHold: Int, onHand: Int, allocatedToSales: Int) {
@@ -327,22 +207,28 @@ case class UpdateCartRequest(lineItems: Seq[LineItem])
 case class AddLineItemsRequest(skuId: Int, quantity: Int)
 
 // JSON formatters
-trait Protocols extends DefaultJsonProtocol {
-  implicit val updateCartRequestFormat = jsonFormat1(UpdateCartRequest.apply)
-  implicit val addLineItemsRequestFormat = jsonFormat2(AddLineItemsRequest.apply)
-
-  implicit object DateJsonFormat extends JsonFormat[Date] {
-
-    override def write(obj: Date) = JsString("")
-
-    override def read(json: JsValue) : Date = json match {
-      case JsString(s) => new Date()
-      case _ => throw new Exception("Error info you want here ...")
-    }
+trait Formats extends DefaultJsonProtocol {
+  def adtSerializer[T : Manifest] = () => {
+    new CustomSerializer[T](format => ( {
+      case _ ⇒ sys.error("Reading not implemented")
+    }, {
+      case x ⇒ JString(x.toString)
+    }))
   }
+
+  val phoenixFormats = DefaultFormats + new CustomSerializer[PaymentStatus](format => (
+    { case _ ⇒ sys.error("Reading not implemented") },
+    { case x: PaymentStatus ⇒ JString(x.toString) }
+    )) + new CustomSerializer[GiftCardPaymentStatus](format => (
+    { case _ ⇒ sys.error("Reading not implemented") },
+    { case x: GiftCardPaymentStatus ⇒ JString(x.toString) }
+    )) + new CustomSerializer[OrderStatus](format => (
+    { case _ ⇒ sys.error("Reading not implemented") },
+    { case x: OrderStatus ⇒ JString(x.toString) }
+    ))
 }
 
-class Service extends Protocols {
+class Service extends Formats {
   val conf: String =
     """
       |akka {
@@ -363,6 +249,9 @@ class Service extends Protocols {
   implicit def executionContext = system.dispatcher
   implicit val materializer = ActorFlowMaterializer()
 
+  // required for (de)-serialization
+  implicit val formats = phoenixFormats
+
   val logger = Logging(system, getClass)
 
   val routes = {
@@ -379,57 +268,9 @@ class Service extends Protocols {
       pathPrefix("v1" / "cart" ) {
         (get & path(IntNumber)) { id =>
           complete {
-            findCart(id)
+            render(findCart(id))
           }
-        } ~
-        (patch & path(IntNumber) & entity(as[UpdateCartRequest])) { (id, updateCartRequest) =>
-          complete {
-            val cart = findCart(id)
-            cart
-            // cart.update(updateCartRequest)
-          }
-        } ~
-          (post & path(IntNumber / "line-items") & entity(as[Seq[AddLineItemsRequest]])) { (cartId, reqItems) =>
-            complete {
-              val lineItems = reqItems.flatMap { req =>
-                (1 to req.quantity).map{ i => LineItem(id = 0, skuId = req.skuId) }
-              }
-
-              val cart = findCart(cartId)
-              cart.addLineItems(lineItems)
-            }
-          } ~
-        (post & path(IntNumber / "checkout")) { id =>
-          complete {
-            new Checkout(findCart(id)).checkout
-          }
-        } ~
-          (post & path(IntNumber / "persisted")) { id =>
-            complete {
-              val carts = TableQuery[Carts]
-              val db    = Database.forURL("jdbc:h2:mem:hello", driver = "org.h2.Driver")
-
-              val actions = (for {
-                _ ← carts.schema.create
-                _ ← carts += BasicCart(1, 3)
-                _ ← carts += BasicCart(2, 2)
-                _ ← carts += BasicCart(2, 2)
-                _ ← carts.filter(_.id === 1).delete
-                l ← carts.length.result
-              } yield l).transactionally
-              /** If we are not using transactionally here then we need to run and await the schema creation first.
-                * For performance reasons slick does not guarantee that actions are executed in order by default.
-                *
-                * Use withPinnedSession if you want to share the same session but don’t want a transaction. */
-
-              /** Slick 3 now returns a Future. Spray-routing also accepts a Future to complete a route, so we’re fine. */
-              db.run(actions).map { length ⇒
-                /** Seems that spray-json can’t work with a Map[String, Any], so need to call toString here. */
-                Map("hi" → "hello", "length" → length.toString)
-              }
-            }
-          }
-
+        }
       }
     }
   }
