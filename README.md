@@ -1,5 +1,9 @@
 # phoenix-scala
 
+## Development
+
+`sbt '~re-start' will reload the application automatically on code changes`
+
 ## Dependencies
 
 - [JDK 1.8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
