@@ -3,7 +3,6 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshalling.ToResponseMarshallable
 import akka.http.scaladsl.model.HttpResponse
-import com.sun.org.apache.xml.internal.security.utils.ElementCheckerImpl.FullChecker
 import com.typesafe.config.{ConfigFactory, Config}
 import com.wix.accord.{validate => runValidation, Success => ValidationSuccess, Failure => ValidationFailure }
 import com.wix.accord._
@@ -23,6 +22,11 @@ trait Validation {
   def validator[T]: Validator[T]
   def validate: Result = { runValidation(this)(validator) }
   def isValid: Boolean = { validate == ValidationSuccess }
+}
+
+case class StockLocation(id: Int, name: String)
+object StockLocation extends DefaultJsonProtocol {
+  implicit val stockLocationFormat = jsonFormat2(StockLocation.apply)
 }
 
 // TODO: money/currency abstraction. Use joda-money, most likely
@@ -137,23 +141,37 @@ object GiftCard extends DefaultJsonProtocol {
   implicit val giftCardFormat = jsonFormat4(GiftCard.apply)
 }
 
-case class ShippingInformation(id: Int, cartId: Int, cost: Money)
-object ShippingInformation extends DefaultJsonProtocol {
-  implicit val shippingInformationFormat = jsonFormat3(ShippingInformation.apply)
+sealed trait Destination
+case class EmailDestination(email: String) extends Destination
+case class ResidenceDestination(address: Address) extends Destination
+case class StockLocationDestination(stockLocation: StockLocation) extends Destination
+
+object Destination extends DefaultJsonProtocol {
+  implicit object destinationFormat extends JsonFormat[Destination] {
+    def write(obj: Destination) = JsString(obj.toString)
+
+    def read(json: JsValue): Destination = json match {
+      case _ => throw new Exception("could not parse")
+    }
+  }
 }
 
-sealed trait Destination
-case class Email(email: String) extends Destination
-case class Residence(address: Address) extends Destination
-case class StockLocation(stockLocation: StockLocation) extends Destination
+object EmailDestination extends DefaultJsonProtocol {
+  implicit val emailDestinationFormat = jsonFormat1(EmailDestination.apply)
+}
+object ResidenceDestination extends DefaultJsonProtocol {
+  implicit val residenceDestination = jsonFormat1(ResidenceDestination.apply)
+}
+object StockLocationDestination extends DefaultJsonProtocol {
+  implicit val stockLocationDestinationFormat = jsonFormat1(StockLocationDestination.apply)
+}
 
-sealed trait Fulfillment
-case class Digital(id: Int, destination: Destination) extends Fulfillment
-case class Delivery(id: Int, destination: Destination) extends Fulfillment
-case class PickUp(id: Int, destination: Destination) extends Fulfillment
+case class Fulfillment(id: Int, destination: Destination)
+object Fulfillment extends DefaultJsonProtocol {
+  implicit val fulfillmentFormat = jsonFormat2(Fulfillment.apply)
+}
 
-
-case class Cart(id: Int, userId: Option[Int], lineItems: Seq[LineItem],
+case class Cart(id: Int, userId: Option[Int] = None, lineItems: Seq[LineItem],
 //                payments: Seq[Payment],
                 fulfillments: Seq[Fulfillment],
                 coupons: Seq[Coupon], adjustments: List[Adjustment]) {
@@ -163,6 +181,16 @@ case class Cart(id: Int, userId: Option[Int], lineItems: Seq[LineItem],
 
   // carts support guest checkout
   def isGuest = this.userId.isDefined
+
+  def update(request: UpdateCartRequest) = {
+    //lineItems = updateCartRequest.lineItems)
+  }
+
+  // TODO: service class it?
+  def addLineItems(items: Seq[LineItem]): Cart = {
+    this.copy(lineItems = this.lineItems ++ items)
+    // TODO: execute the fulfillment runner
+  }
 }
 
 object Cart extends DefaultJsonProtocol {
@@ -199,12 +227,13 @@ object OrderStatus extends DefaultJsonProtocol {
 
 case class Order(id: Int, cartId: Int, status: OrderStatus, lineItems: Seq[LineItem],
 //                 payment: Seq[Payment],
-                 deliveries: Seq[ShippingInformation], adjustments: List[Adjustment]) {
+                 //deliveries: Seq[ShippingInformation],
+                 adjustments: List[Adjustment]) {
 //  def masterStatus: OrderStatus = New
 }
 
 object Order extends DefaultJsonProtocol {
-  implicit val orderFormat = jsonFormat6(Order.apply)
+  implicit val orderFormat = jsonFormat5(Order.apply)
 }
 
 case class StockItem(id: Int, productId: Int, stockLocationId: Int, onHold: Int, onHand: Int, allocatedToSales: Int) {
@@ -220,12 +249,13 @@ class Checkout(cart: Cart) {
     // 2) Verify Payment (re-auth)
     // 3) Validate addresses
     // 4) Validate promotions/coupons
-    val order = Order(id = 0, cartId = cart.id, status = New, lineItems = cart.lineItems, deliveries = cart.deliveries, adjustments = cart.adjustments)
+    val order = Order(id = 0, cartId = cart.id, status = New, lineItems = cart.lineItems,
+      //deliveries = cart.deliveries,
+      adjustments = cart.adjustments)
+
     Right(order)
   }
 }
-
-case class StockLocation(id: Int, name: String)
 
 case class Store(id: Int, name: String)
 
@@ -278,9 +308,12 @@ object Main {
 // Request cases
 case class UpdateCartRequest(lineItems: Seq[LineItem])
 
+case class AddLineItemsRequest(skuId: Int, quantity: Int)
+
 // JSON formatters
 trait Protocols extends DefaultJsonProtocol {
   implicit val updateCartRequestFormat = jsonFormat1(UpdateCartRequest.apply)
+  implicit val addLineItemsRequestFormat = jsonFormat2(AddLineItemsRequest.apply)
 
   implicit object DateJsonFormat extends JsonFormat[Date] {
 
@@ -317,9 +350,12 @@ class Service extends Protocols {
   val logger = Logging(system, getClass)
 
   val routes = {
-    val cart = Cart(0, None, Seq[LineItem](), Seq[ShippingInformation](), Seq[Coupon](), List[Adjustment]())
+    val cart = Cart(id = 0, lineItems = Seq[LineItem](), fulfillments = Seq[Fulfillment](),
+                    coupons = Seq[Coupon](), adjustments = List[Adjustment]())
 
     def findCart(id: Int): Cart = {
+      // If we are going to punt on user authentication, then we sort of have to stub this piece out.
+      // If we do auth, then we should create a cart for a user if one doesn't exist.
       cart.copy(id = id)
     }
 
@@ -332,23 +368,36 @@ class Service extends Protocols {
         } ~
         (patch & path(IntNumber) & entity(as[UpdateCartRequest])) { (id, updateCartRequest) =>
           complete {
-            findCart(id).copy(lineItems = updateCartRequest.lineItems)
+            val cart = findCart(id)
+            cart
+            // cart.update(updateCartRequest)
           }
         } ~
-        (post & path(IntNumber / "checkout")) { id =>
+          (post & path(IntNumber / "line-items") & entity(as[Seq[AddLineItemsRequest]])) { (cartId, reqItems) =>
+            complete {
+              val lineItems = reqItems.flatMap { req =>
+                (1 to req.quantity).map{ i => LineItem(id = 0, skuId = req.skuId) }
+              }
+
+              val cart = findCart(cartId)
+              cart.addLineItems(lineItems)
+            }
+          } ~ (post & path(IntNumber / "checkout")) { id =>
           complete {
-            new Checkout(findCart(id)).checkout.toJson
+            new Checkout(findCart(id)).checkout
           }
         }
       }
     }
   }
 
+  // when lineItem is added to cart then execute fulfillment runner, digital item or something else? we'll create
+  // fulfillment at that moment
+
   def bind(): Unit = {
     Http().bindAndHandle(routes, config.getString("http.interface"), config.getInt("http.port"))
   }
 }
-
 
 /*
  TODO(yax): consider/research/experiment w/ the following
