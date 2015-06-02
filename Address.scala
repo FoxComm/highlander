@@ -407,19 +407,25 @@ class Service extends Protocols {
           (post & path(IntNumber / "persisted")) { id =>
             complete {
               val carts = TableQuery[Carts]
-              val db = Database.forURL("jdbc:h2:mem:hello", driver = "org.h2.Driver")
-              db.withSession { implicit session =>
-                carts.schema.create
+              val db    = Database.forURL("jdbc:h2:mem:hello", driver = "org.h2.Driver")
 
-                carts += BasicCart(1,3)
-                carts += BasicCart(2,2)
-                carts += BasicCart(2,2)
+              val actions = (for {
+                _ ← carts.schema.create
+                _ ← carts += BasicCart(1, 3)
+                _ ← carts += BasicCart(2, 2)
+                _ ← carts += BasicCart(2, 2)
+                _ ← carts.filter(_.id === 1).delete
+                l ← carts.length.result
+              } yield l).transactionally
+              /** If we are not using transactionally here then we need to run and await the schema creation first.
+                * For performance reasons slick does not guarantee that actions are executed in order by default.
+                *
+                * Use withPinnedSession if you want to share the same session but don’t want a transaction. */
 
-                carts.filter(_.id === 1).delete
-
-                val x = carts.filter(_.id === 2)
-
-                Map("hi" -> "hello")
+              /** Slick 3 now returns a Future. Spray-routing also accepts a Future to complete a route, so we’re fine. */
+              db.run(actions).map { length ⇒
+                /** Seems that spray-json can’t work with a Map[String, Any], so need to call toString here. */
+                Map("hi" → "hello", "length" → length.toString)
               }
             }
           }
