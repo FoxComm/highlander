@@ -16,6 +16,9 @@ import akka.http.scaladsl.server.Directives._
 import akka.stream.{ActorFlowMaterializer, FlowMaterializer}
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
 import spray.json._
+import scala.slick.driver.H2Driver.simple._
+
+
 
 // Validation mixin
 trait Validation {
@@ -196,6 +199,14 @@ case class Cart(id: Int, userId: Option[Int] = None, lineItems: Seq[LineItem],
 object Cart extends DefaultJsonProtocol {
   implicit val cartFormat = jsonFormat6(Cart.apply)
 }
+
+class PersistedCarts(tag: Tag) extends Table[(Int, Int)](tag, "CARTS") {
+  def id = column[Int]("ID", O.PrimaryKey)
+  def userId = column[Int]("USER_ID")
+  def * = (id, userId)
+}
+
+
 
 sealed trait OrderStatus
 case object New extends OrderStatus
@@ -382,11 +393,25 @@ class Service extends Protocols {
               val cart = findCart(cartId)
               cart.addLineItems(lineItems)
             }
-          } ~ (post & path(IntNumber / "checkout")) { id =>
+          } ~
+        (post & path(IntNumber / "checkout")) { id =>
           complete {
             new Checkout(findCart(id)).checkout
           }
-        }
+        } ~
+          (post & path(IntNumber / "persisted")) { id =>
+            complete {
+              val persistedCarts = TableQuery[PersistedCarts]
+              //val coffees: TableQuery[Coffees] = TableQuery[Coffees]
+              val db = Database.forURL("jdbc:h2:mem:hello", driver = "org.h2.Driver")
+              db.withSession { implicit session =>
+                persistedCarts.ddl.create
+
+                persistedCarts += (1, 3)
+              }
+            }
+          }
+
       }
     }
   }
