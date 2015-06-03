@@ -245,7 +245,8 @@ object LineItemUpdater {
   def apply(db: PostgresDriver.backend.DatabaseDef,
             cart: Cart,
             lineItems: Seq[LineItemsPayload])
-           (implicit ec: ExecutionContext): Future[Either[List[String], Seq[LineItem]]] = {
+           (implicit ec: ExecutionContext): Future[Seq[LineItem] Or List[ErrorMessage]] = {
+
     // TODO:
     //  validate sku in PIM
     //  execute the fulfillment runner -> creates fulfillments
@@ -340,32 +341,25 @@ class Service extends Formats {
         } ~
         (post & path(IntNumber / "line-items") & entity(as[Seq[LineItemsPayload]])) { (cartId, reqItems) =>
           complete {
-            findCart(cartId).map { cart =>
-              cart match {
-                case None => Future(notFoundResponse)
-                case Some(c) =>
+            findCart(cartId).map {
+              case None => Future(notFoundResponse)
+              case Some(c) =>
+                // incoming quantity is now *absolute* so we should delete records if we have to or insert them
+                // we just need to set cart.line_items = incoming.quantity
+                // but, we are not assuming that the whole set of line_items comes in as a payload.  so we are only updating the QTY of the
+                // SKUs that we hear about
 
+                LineItemUpdater(db, c, reqItems).map {
+                  case Bad(errors) => HttpResponse(BadRequest, entity = render(errors))
 
-
-                  // incoming quantity is now *absolute* so we should delete records if we have to or insert them
-                  // we just need to set cart.line_items = incoming.quantity
-                  // but, we are not assuming that the whole set of line_items comes in as a payload.  so we are only updating the QTY of the
-                  // SKUs that we hear about
-
-                  LineItemUpdater(db, c, Seq[LineItemsPayload]).map { result =>
-                    result match {
-                      case Left(errors) => HttpResponse(BadRequest, entity = render(errors))
-
-                      case Right(lineItems) =>
-                        val result = lineItems.foldLeft(Map[Int, LineItemsPayload]()) { (payload, item) =>
-                          val p = payload.getOrElse(item.skuId, LineItemsPayload(skuId = item.skuId, quantity = 0))
-                          payload.updated(item.skuId, p.copy(quantity = p.quantity + 1))
-                        }
-
-                        HttpResponse(OK, entity = render(result.values.toSeq))
+                  case Good(lineItems) =>
+                    val result = lineItems.foldLeft(Map[Int, LineItemsPayload]()) { (payload, item) =>
+                      val p = payload.getOrElse(item.skuId, LineItemsPayload(skuId = item.skuId, quantity = 0))
+                      payload.updated(item.skuId, p.copy(quantity = p.quantity + 1))
                     }
-                  }
-              }
+
+                    HttpResponse(OK, entity = render(result.values.toSeq))
+                }
             }
           }
         }
