@@ -157,7 +157,11 @@ class Checkout(cart: Cart) {
     // 4) Validate promotions/coupons
     val order = Order(id = 0, cartId = cart.id, status = New)
 
-    Right(order)
+    if (scala.util.Random.nextInt(2) == 1) {
+      Left(List("payment re-auth failed"))
+    } else {
+      Right(order)
+    }
   }
 }
 
@@ -277,10 +281,10 @@ class Service extends Formats {
     val notFoundResponse = HttpResponse(NotFound)
 
     def renderOrNotFound[T <: AnyRef](resource: Future[Option[T]],
-                                      onSuccess: T => HttpResponse = (r: T) => HttpResponse(OK, entity = render(r))) = {
+                                      onFound: T => HttpResponse = (r: T) => HttpResponse(OK, entity = render(r))) = {
       resource.map { resource =>
         resource match {
-          case Some(r) => onSuccess(r)
+          case Some(r) => onFound(r)
           case None => notFoundResponse
         }
       }
@@ -296,8 +300,10 @@ class Service extends Formats {
           (post & path(IntNumber / "checkout")) { id =>
             complete {
               renderOrNotFound(findCart(id), (c: Cart) => {
-                val result = new Checkout(c).checkout
-                HttpResponse(OK, entity = render(result))
+                new Checkout(c).checkout match {
+                  case Left(errors) => HttpResponse(BadRequest, entity = render(errors))
+                  case Right(order) => HttpResponse(OK, entity = render(order))
+                }
               })
             }
           } ~
