@@ -276,10 +276,11 @@ class Service extends Formats {
 
     val notFoundResponse = HttpResponse(NotFound)
 
-    def renderOrNotFound[T <: AnyRef](resource: Future[Option[T]]) = {
+    def renderOrNotFound[T <: AnyRef](resource: Future[Option[T]],
+                                      onSuccess: T => HttpResponse = (r: T) => HttpResponse(OK, entity = render(r))) = {
       resource.map { resource =>
         resource match {
-          case Some(r) => HttpResponse(OK, entity = render(r))
+          case Some(r) => onSuccess(r)
           case None => notFoundResponse
         }
       }
@@ -294,14 +295,10 @@ class Service extends Formats {
         } ~
           (post & path(IntNumber / "checkout")) { id =>
             complete {
-              findCart(id).map { cart =>
-                cart match {
-                  case Some(c) =>
-                    val result = new Checkout(c).checkout
-                    HttpResponse(OK, entity = render(result))
-                  case None => notFoundResponse
-                }
-              }
+              renderOrNotFound(findCart(id), (c: Cart) => {
+                val result = new Checkout(c).checkout
+                HttpResponse(OK, entity = render(result))
+              })
             }
           } ~
           (post & path(IntNumber / "line-items") & entity(as[Seq[AddLineItemsRequest]])) { (cartId, reqItems) =>
