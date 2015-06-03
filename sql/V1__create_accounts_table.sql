@@ -1,8 +1,8 @@
 CREATE TABLE accounts (
     id integer NOT NULL,
-    created_at timestamp with time zone,
-    updated_at timestamp with time zone,
-    deleted_at timestamp with time zone,
+    created_at timestamp without time zone default (now() at time zone 'utc')
+    updated_at timestamp without time zone null
+    deleted_at timestamp without time zone null
     email character varying(255) NOT NULL,
     hashed_password character varying(255),
     first_name character varying(255),
@@ -15,3 +15,6 @@ CREATE SEQUENCE accounts_id_seq
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
+
+ALTER TABLE ONLY accounts
+  ALTER COLUMN id SET DEFAULT nextval('accounts_id_seq'::regclass);

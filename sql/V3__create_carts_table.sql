@@ -1,7 +1,7 @@
 CREATE TABLE carts (
     id integer NOT NULL,
     account_id integer,
-    created_at timestamp with time zone
+    created_at timestamp without time zone default (now() at time zone 'utc')
 );
 
 CREATE SEQUENCE carts_id_seq
@@ -13,3 +13,6 @@ CREATE SEQUENCE carts_id_seq
 
 ALTER TABLE ONLY carts
     ADD CONSTRAINT carts_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY carts
+  ALTER COLUMN id SET DEFAULT nextval('carts_id_seq'::regclass);
