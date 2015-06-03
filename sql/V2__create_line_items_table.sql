@@ -1,5 +1,6 @@
 CREATE TABLE line_items (
     id integer NOT NULL,
+    cart_id integer NOT NULL,
     sku_id integer NOT NULL,
     created_at timestamp without time zone default (now() at time zone 'utc')
 );
