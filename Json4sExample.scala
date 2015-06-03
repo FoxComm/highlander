@@ -1,7 +1,7 @@
 import org.json4s.JsonAST.JString
 import org.json4s.{FieldSerializer, CustomSerializer, DefaultFormats}
 
-object Json4sExample extends App {
+object Json4sExample {
   sealed trait PaymentStatus
   case object Auth extends PaymentStatus
   case object FailedCapture extends PaymentStatus
