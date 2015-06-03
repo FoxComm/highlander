@@ -32,11 +32,9 @@ libraryDependencies ++= {
     "org.postgresql"    % "postgresql" % "9.3-1100-jdbc41",
     "org.json4s"         %% "json4s-jackson" % "3.2.11",
     "org.scalactic"     %% "scalactic"                            % "2.2.4",
-    "org.flywaydb"      %  "flyway-sbt"      % "3.1"              % "test"
+    "org.flywaydb"      %  "flyway-core"      % "3.2.1"              % "test"
   )
 }
-
-resolvers += "Flyway" at "http://flywaydb.org/repo"
 
 scalaSource in Compile <<= (baseDirectory in Compile)(_ / "app")
 
