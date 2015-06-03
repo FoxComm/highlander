@@ -25,7 +25,7 @@ import org.json4s.JsonAST.JString
 import org.json4s.{CustomSerializer, DefaultFormats}
 import org.json4s.jackson.Serialization.{write => render}
 
-import scala.concurrent.Await
+import scala.concurrent.{Future, Await}
 import scala.concurrent.duration._
 
 // Validation mixin
@@ -157,7 +157,11 @@ class Checkout(cart: Cart) {
     // 4) Validate promotions/coupons
     val order = Order(id = 0, cartId = cart.id, status = New)
 
-    Right(order)
+    if (scala.util.Random.nextInt(2) == 1) {
+      Left(List("payment re-auth failed"))
+    } else {
+      Right(order)
+    }
   }
 }
 
@@ -263,25 +267,44 @@ class Service extends Formats {
 
   val db = Database.forURL("jdbc:postgresql://localhost/phoenix_development?user=phoenix", driver = "slick.driver.PostgresDriver")
 
+  val carts = TableQuery[Carts]
+
   val routes = {
     val cart = Cart(id = 0, accountId = None)
 
-    def findCart(id: Int): Cart = {
+    def findCart(id: Int): Future[Option[Cart]] = {
       // If we are going to punt on user authentication, then we sort of have to stub this piece out.
       // If we do auth, then we should create a cart for a user if one doesn't exist.
-      cart.copy(id = id)
+      db.run(carts.filter(_.id === id).result.headOption)
+    }
+
+    val notFoundResponse = HttpResponse(NotFound)
+
+    def renderOrNotFound[T <: AnyRef](resource: Future[Option[T]],
+                                      onFound: T => HttpResponse = (r: T) => HttpResponse(OK, entity = render(r))) = {
+      resource.map { resource =>
+        resource match {
+          case Some(r) => onFound(r)
+          case None => notFoundResponse
+        }
+      }
     }
 
     logRequestResult("cart") {
       pathPrefix("v1" / "cart" ) {
         (get & path(IntNumber)) { id =>
           complete {
-            render(findCart(id))
+            renderOrNotFound(findCart(id))
           }
         } ~
           (post & path(IntNumber / "checkout")) { id =>
             complete {
-              render(new Checkout(findCart(id)).checkout)
+              renderOrNotFound(findCart(id), (c: Cart) => {
+                new Checkout(c).checkout match {
+                  case Left(errors) => HttpResponse(BadRequest, entity = render(errors))
+                  case Right(order) => HttpResponse(OK, entity = render(order))
+                }
+              })
             }
           } ~
           (post & path(IntNumber / "line-items") & entity(as[Seq[AddLineItemsRequest]])) { (cartId, reqItems) =>
@@ -291,7 +314,8 @@ class Service extends Formats {
               }
 
               val cart = findCart(cartId)
-              render(cart.addLineItems(lineItems))
+              renderOrNotFound(cart)
+              // render(cart.addLineItems(lineItems))
             }
           } ~
           (post & path(IntNumber / "persisted")) { id =>
