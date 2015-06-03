@@ -42,3 +42,6 @@ sudo -u postgres createuser -s vagrant || {
 }
 
 systemctl restart postgresql
+
+cd /vagrant
+make configure

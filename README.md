@@ -44,7 +44,4 @@ make configure
 
 ```bash
 vagrant up
-vagrant ssh
-cd /vagrant
-make configure
 ```
