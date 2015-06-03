@@ -214,7 +214,7 @@ object Main extends Formats {
   }
 }
 
-case class AddLineItemsRequest(skuId: Int, quantity: Int)
+case class LineItemsPayload(skuId: Int, quantity: Int)
 
 // JSON formatters
 trait Formats extends DefaultJsonProtocol {
@@ -226,7 +226,7 @@ trait Formats extends DefaultJsonProtocol {
     }))
   }
 
-  implicit val addLineItemsRequestFormat = jsonFormat2(AddLineItemsRequest.apply)
+  implicit val addLineItemsRequestFormat = jsonFormat2(LineItemsPayload.apply)
 
   val phoenixFormats = DefaultFormats + new CustomSerializer[PaymentStatus](format => (
     { case _ ⇒ sys.error("Reading not implemented") },
@@ -330,7 +330,7 @@ class Service extends Formats {
               })
             }
           } ~
-          (post & path(IntNumber / "line-items") & entity(as[Seq[AddLineItemsRequest]])) { (cartId, reqItems) =>
+          (post & path(IntNumber / "line-items") & entity(as[Seq[LineItemsPayload]])) { (cartId, reqItems) =>
             complete {
               findCart(cartId).map { cart =>
                 cart match {
@@ -343,7 +343,12 @@ class Service extends Formats {
                     LineItemsCreator(db, c, lineItems).map { result =>
                       result match {
                         case Left(errors) => HttpResponse(BadRequest, entity = render(errors))
-                        case Right(lineItems) => HttpResponse(OK, entity = render(lineItems))
+                        case Right(lineItems) =>
+                          val result = lineItems.foldLeft(Map[Int, LineItemsPayload]()) { (payload, item) =>
+                            val p = payload.getOrElse(item.skuId, LineItemsPayload(skuId = item.skuId, quantity = 0))
+                            payload.updated(item.skuId, p.copy(quantity = p.quantity + 1))
+                          }.values.toSeq
+                          HttpResponse(OK, entity = render(result))
                       }
                     }
                 }
