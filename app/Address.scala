@@ -1,5 +1,6 @@
 import java.util.Date
 
+import org.scalactic.{Bad, Good, ErrorMessage, Or}
 import slick.driver.PostgresDriver
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
@@ -149,7 +150,7 @@ case class StockItem(id: Int, productId: Int, stockLocationId: Int, onHold: Int,
 }
 
 class Checkout(cart: Cart) {
-  def checkout: Either[List[String], Order] = {
+  def checkout: Order Or List[ErrorMessage] = {
     // Realistically, what we'd do here is actually
     // 1) Check Inventory
     // 2) Verify Payment (re-auth)
@@ -158,9 +159,9 @@ class Checkout(cart: Cart) {
     val order = Order(id = 0, cartId = cart.id, status = New)
 
     if (scala.util.Random.nextInt(2) == 1) {
-      Left(List("payment re-auth failed"))
+      Bad(List("payment re-auth failed"))
     } else {
-      Right(order)
+      Good(order)
     }
   }
 }
@@ -301,8 +302,8 @@ class Service extends Formats {
           complete {
             renderOrNotFound(findCart(id), (c: Cart) => {
               new Checkout(c).checkout match {
-                case Left(errors) => HttpResponse(BadRequest, entity = render(errors))
-                case Right(order) => HttpResponse(OK, entity = render(order))
+                case Good(order) => HttpResponse(OK, entity = render(order))
+                case Bad(errors) => HttpResponse(BadRequest, entity = render(errors))
               }
             })
           }
