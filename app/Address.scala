@@ -340,15 +340,21 @@ class Service extends Formats {
                     (1 to req.quantity).map { i => LineItem(id = 0, cartId = cartId, skuId = req.skuId) }
                   }
 
+
+                  // incoming quantity is now *absolute* so we should delete records if we have to or insert them
+                  // we just need to set cart.line_items = incoming.quantity
+
                   LineItemsCreator(db, c, lineItems).map { result =>
                     result match {
                       case Left(errors) => HttpResponse(BadRequest, entity = render(errors))
+
                       case Right(lineItems) =>
                         val result = lineItems.foldLeft(Map[Int, LineItemsPayload]()) { (payload, item) =>
                           val p = payload.getOrElse(item.skuId, LineItemsPayload(skuId = item.skuId, quantity = 0))
                           payload.updated(item.skuId, p.copy(quantity = p.quantity + 1))
-                        }.values.toSeq
-                        HttpResponse(OK, entity = render(result))
+                        }
+
+                        HttpResponse(OK, entity = render(result.values.toSeq))
                     }
                   }
               }
