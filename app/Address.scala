@@ -1,6 +1,7 @@
 import java.util.Date
 
 import slick.driver.PostgresDriver
+import slick.driver.PostgresDriver.api._
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshalling.ToResponseMarshallable
@@ -16,7 +17,6 @@ import spray.json.{JsValue, JsString, JsonFormat, DefaultJsonProtocol}
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.server.Directives._
 import akka.stream.{ActorFlowMaterializer, FlowMaterializer}
-import slick.driver.H2Driver.api._
 import slick.lifted.Tag
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
@@ -24,8 +24,7 @@ import spray.json._
 import org.json4s.JsonAST.JString
 import org.json4s.{CustomSerializer, DefaultFormats}
 import org.json4s.jackson.Serialization.{write => render}
-
-import scala.concurrent.{Future, Await}
+import scala.concurrent.{ExecutionContext, Future, Await}
 import scala.concurrent.duration._
 
 // Validation mixin
@@ -52,7 +51,7 @@ case class Coupon(id: Int, cartId: Int, code: String, adjustment: List[Adjustmen
 
 case class Promotion(id: Int, cartId: Int, adjustments: List[Adjustment])
 
-case class LineItem(id: Int, skuId: Int)
+case class LineItem(id: Int, cartId: Int, skuId: Int)
 
 sealed trait PaymentStatus
 case object Auth extends PaymentStatus
@@ -93,7 +92,7 @@ case class Fulfillment(id: Int, destination: Destination)
 
 case class Cart(id: Int, accountId: Option[Int] = None) {
 
-  var lineItems: Seq[LineItem] = Seq.empty
+  val lineItems: Seq[LineItem] = Seq.empty
   val payments: Seq[Payment] = Seq.empty
   val fulfillments: Seq[Fulfillment] = Seq.empty
 
@@ -108,11 +107,6 @@ case class Cart(id: Int, accountId: Option[Int] = None) {
   def isGuest = this.accountId.isDefined
 
   // TODO: service class it?
-  def addLineItems(items: Seq[LineItem]): Cart = {
-    // TODO: execute the fulfillment runner
-    lineItems = items
-    this
-  }
 }
 
 trait RichTable {
@@ -126,6 +120,13 @@ class Carts(tag: Tag) extends Table[Cart](tag, "carts") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def accountId = column[Option[Int]]("account_id")
   def * = (id, accountId) <> ((Cart.apply _).tupled, Cart.unapply)
+}
+
+class LineItems(tag: Tag) extends Table[LineItem](tag, "line_items") with RichTable {
+  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def cartId = column[Int]("cart_id")
+  def skuId = column[Int]("sku_id")
+  def * = (id, cartId, skuId) <> ((LineItem.apply _).tupled, LineItem.unapply)
 }
 
 sealed trait OrderStatus
@@ -239,6 +240,28 @@ trait Formats extends DefaultJsonProtocol {
     ))
 }
 
+object LineItemsCreator {
+  def apply(db: PostgresDriver.backend.DatabaseDef,
+            cart: Cart,
+            lineItems: Seq[LineItem])
+           (implicit ec: ExecutionContext): Future[Either[List[String], Seq[LineItem]]] = {
+    // TODO:
+    //  validate sku in PIM
+    //  execute the fulfillment runner -> creates fulfillments
+    //  validate inventory (might be in PIM maybe not)
+    val lineItemsTable = TableQuery[LineItems]
+
+    val actions = (for {
+      _ <- lineItemsTable ++= lineItems
+      items ← lineItemsTable.filter(_.cartId === cart.id).result
+    } yield items).transactionally
+
+    db.run(actions).map { items =>
+      Right(items)
+    }
+  }
+}
+
 class Service extends Formats {
   val conf: String =
     """
@@ -281,7 +304,7 @@ class Service extends Formats {
     val notFoundResponse = HttpResponse(NotFound)
 
     def renderOrNotFound[T <: AnyRef](resource: Future[Option[T]],
-                                      onFound: T => HttpResponse = (r: T) => HttpResponse(OK, entity = render(r))) = {
+                                      onFound: (T => HttpResponse) = (r: T) => HttpResponse(OK, entity = render(r))) = {
       resource.map { resource =>
         resource match {
           case Some(r) => onFound(r)
@@ -309,13 +332,22 @@ class Service extends Formats {
           } ~
           (post & path(IntNumber / "line-items") & entity(as[Seq[AddLineItemsRequest]])) { (cartId, reqItems) =>
             complete {
-              val lineItems = reqItems.flatMap { req =>
-                (1 to req.quantity).map { i => LineItem(id = 0, skuId = req.skuId) }
-              }
+              findCart(cartId).map { cart =>
+                cart match {
+                  case None => Future(notFoundResponse)
+                  case Some(c) =>
+                    val lineItems = reqItems.flatMap { req =>
+                      (1 to req.quantity).map { i => LineItem(id = 0, cartId = cartId, skuId = req.skuId) }
+                    }
 
-              val cart = findCart(cartId)
-              renderOrNotFound(cart)
-              // render(cart.addLineItems(lineItems))
+                    LineItemsCreator(db, c, lineItems).map { result =>
+                      result match {
+                        case Left(errors) => HttpResponse(BadRequest, entity = render(errors))
+                        case Right(lineItems) => HttpResponse(OK, entity = render(lineItems))
+                      }
+                    }
+                }
+              }
             }
           } ~
           (post & path(IntNumber / "persisted")) { id =>
