@@ -253,21 +253,26 @@ object LineItemUpdater {
     //  validate inventory (might be in PIM maybe not)
     //  run hooks to manage promotions
 
-    
-    val lineItems = lineItems.flatMap { req =>
-      (1 to req.quantity).map { i => LineItem(id = 0, cartId = cartId, skuId = req.skuId) }
-    }
+//    val addedLineItems = lineItems.flatMap { req =>
+//      (1 to req.quantity).map { i => LineItem(id = 0, cartId = cart.id, skuId = req.skuId) }
+//    }
+//
+//    val lineItemsTable = TableQuery[LineItems]
+//    val query = for {
+//      blah <- lineItemsTable.filter(_.cartId === cart.id).groupBy(_.skuId)
+//    } yield blah
+//      //groupBy(_.skuId).sel
+//    val q = Compiled(query).compiledQuery.toString
+//    println(q)
 
-    val lineItemsTable = TableQuery[LineItems]
+//    val actions = (for {
+////      items <-
+////      items ← lineItemsTable.filter(_.cartId === cart.id).result
+//    } yield items).transactionally
 
-    val actions = (for {
-      _ <- lineItemsTable ++= lineItems
-      items ← lineItemsTable.filter(_.cartId === cart.id).result
-    } yield items).transactionally
-
-    db.run(actions).map { items =>
-      Right(items)
-    }
+//    db.run(actions).map { items =>
+      Future.successful(Good(Seq(LineItem(id = 1, skuId = 2, cartId = cart.id))))
+//    }
   }
 }
 
