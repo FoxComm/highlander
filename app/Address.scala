@@ -314,11 +314,9 @@ class Service extends Formats {
 
     def renderOrNotFound[T <: AnyRef](resource: Future[Option[T]],
                                       onFound: (T => HttpResponse) = (r: T) => HttpResponse(OK, entity = render(r))) = {
-      resource.map { resource =>
-        resource match {
-          case Some(r) => onFound(r)
-          case None => notFoundResponse
-        }
+      resource.map {
+        case Some(r) => onFound(r)
+        case None => notFoundResponse
       }
     }
 
