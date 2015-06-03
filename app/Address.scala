@@ -240,15 +240,22 @@ trait Formats extends DefaultJsonProtocol {
     ))
 }
 
-object LineItemsCreator {
+object LineItemUpdater {
   def apply(db: PostgresDriver.backend.DatabaseDef,
             cart: Cart,
-            lineItems: Seq[LineItem])
+            lineItems: Seq[LineItemsPayload])
            (implicit ec: ExecutionContext): Future[Either[List[String], Seq[LineItem]]] = {
     // TODO:
     //  validate sku in PIM
     //  execute the fulfillment runner -> creates fulfillments
     //  validate inventory (might be in PIM maybe not)
+    //  run hooks to manage promotions
+
+    
+    val lineItems = lineItems.flatMap { req =>
+      (1 to req.quantity).map { i => LineItem(id = 0, cartId = cartId, skuId = req.skuId) }
+    }
+
     val lineItemsTable = TableQuery[LineItems]
 
     val actions = (for {
@@ -336,15 +343,15 @@ class Service extends Formats {
               cart match {
                 case None => Future(notFoundResponse)
                 case Some(c) =>
-                  val lineItems = reqItems.flatMap { req =>
-                    (1 to req.quantity).map { i => LineItem(id = 0, cartId = cartId, skuId = req.skuId) }
-                  }
+
 
 
                   // incoming quantity is now *absolute* so we should delete records if we have to or insert them
                   // we just need to set cart.line_items = incoming.quantity
+                  // but, we are not assuming that the whole set of line_items comes in as a payload.  so we are only updating the QTY of the
+                  // SKUs that we hear about
 
-                  LineItemsCreator(db, c, lineItems).map { result =>
+                  LineItemUpdater(db, c, Seq[LineItemsPayload]).map { result =>
                     result match {
                       case Left(errors) => HttpResponse(BadRequest, entity = render(errors))
 
