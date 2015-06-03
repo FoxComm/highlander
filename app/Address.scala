@@ -320,65 +320,41 @@ class Service extends Formats {
             renderOrNotFound(findCart(id))
           }
         } ~
-          (post & path(IntNumber / "checkout")) { id =>
-            complete {
-              renderOrNotFound(findCart(id), (c: Cart) => {
-                new Checkout(c).checkout match {
-                  case Left(errors) => HttpResponse(BadRequest, entity = render(errors))
-                  case Right(order) => HttpResponse(OK, entity = render(order))
-                }
-              })
-            }
-          } ~
-          (post & path(IntNumber / "line-items") & entity(as[Seq[LineItemsPayload]])) { (cartId, reqItems) =>
-            complete {
-              findCart(cartId).map { cart =>
-                cart match {
-                  case None => Future(notFoundResponse)
-                  case Some(c) =>
-                    val lineItems = reqItems.flatMap { req =>
-                      (1 to req.quantity).map { i => LineItem(id = 0, cartId = cartId, skuId = req.skuId) }
-                    }
-
-                    LineItemsCreator(db, c, lineItems).map { result =>
-                      result match {
-                        case Left(errors) => HttpResponse(BadRequest, entity = render(errors))
-                        case Right(lineItems) =>
-                          val result = lineItems.foldLeft(Map[Int, LineItemsPayload]()) { (payload, item) =>
-                            val p = payload.getOrElse(item.skuId, LineItemsPayload(skuId = item.skuId, quantity = 0))
-                            payload.updated(item.skuId, p.copy(quantity = p.quantity + 1))
-                          }.values.toSeq
-                          HttpResponse(OK, entity = render(result))
-                      }
-                    }
-                }
+        (post & path(IntNumber / "checkout")) { id =>
+          complete {
+            renderOrNotFound(findCart(id), (c: Cart) => {
+              new Checkout(c).checkout match {
+                case Left(errors) => HttpResponse(BadRequest, entity = render(errors))
+                case Right(order) => HttpResponse(OK, entity = render(order))
               }
-            }
-          } ~
-          (post & path(IntNumber / "persisted")) { id =>
-            complete {
-              val carts = TableQuery[Carts]
-              val actions = (for {
-                _ ← carts += Cart(1, Some(3))
-                _ ← carts += Cart(2, None)
-                _ ← carts += Cart(3, Some(2))
-                _ ← carts.filter(_.id === 1).delete
-                l ← carts.length.result
-              } yield l).transactionally
+            })
+          }
+        } ~
+        (post & path(IntNumber / "line-items") & entity(as[Seq[LineItemsPayload]])) { (cartId, reqItems) =>
+          complete {
+            findCart(cartId).map { cart =>
+              cart match {
+                case None => Future(notFoundResponse)
+                case Some(c) =>
+                  val lineItems = reqItems.flatMap { req =>
+                    (1 to req.quantity).map { i => LineItem(id = 0, cartId = cartId, skuId = req.skuId) }
+                  }
 
-              /** If we are not using transactionally here then we need to run and await the schema creation first.
-                * For performance reasons slick does not guarantee that actions are executed in order by default.
-                *
-                * Use withPinnedSession if you want to share the same session but don’t want a transaction. */
-
-              /** Slick 3 now returns a Future. Spray-routing also accepts a Future to complete a route, so we’re fine. */
-              db.run(actions).map { length ⇒
-
-                /** Seems that spray-json can’t work with a Map[String, Any], so need to call toString here. */
-                render(Map("hi" → "hello", "length" → length.toString))
+                  LineItemsCreator(db, c, lineItems).map { result =>
+                    result match {
+                      case Left(errors) => HttpResponse(BadRequest, entity = render(errors))
+                      case Right(lineItems) =>
+                        val result = lineItems.foldLeft(Map[Int, LineItemsPayload]()) { (payload, item) =>
+                          val p = payload.getOrElse(item.skuId, LineItemsPayload(skuId = item.skuId, quantity = 0))
+                          payload.updated(item.skuId, p.copy(quantity = p.quantity + 1))
+                        }.values.toSeq
+                        HttpResponse(OK, entity = render(result))
+                    }
+                  }
               }
             }
           }
+        }
       }
     }
   }
