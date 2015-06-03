@@ -36,6 +36,8 @@ libraryDependencies ++= {
   )
 }
 
+resolvers += "Flyway" at "http://flywaydb.org/repo"
+
 scalaSource in Compile <<= (baseDirectory in Compile)(_ / "app")
 
 scalaSource in Test <<= (baseDirectory in Test)(_ / "test")
