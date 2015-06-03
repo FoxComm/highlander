@@ -31,7 +31,6 @@ libraryDependencies ++= {
     "org.slf4j"          % "slf4j-nop" % "1.6.4",
     "org.postgresql"    % "postgresql" % "9.3-1100-jdbc41",
     "org.json4s"         %% "json4s-jackson" % "3.2.11",
-    "com.h2database" % "h2" % "1.4.187",
     "org.scalactic"     %% "scalactic"                            % "2.2.4"
   )
 }
