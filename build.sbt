@@ -34,5 +34,9 @@ libraryDependencies ++= {
   )
 }
 
+scalaSource in Compile <<= (baseDirectory in Compile)(_ / "app")
+
+scalaSource in Test <<= (baseDirectory in Test)(_ / "test")
+
 Revolver.settings
 
