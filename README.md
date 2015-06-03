@@ -39,3 +39,12 @@ brew install flyway
 ```bash
 make configure
 ```
+
+## Using Vagrant
+
+```bash
+vagrant up
+vagrant ssh
+cd /vagrant
+make configure
+```
