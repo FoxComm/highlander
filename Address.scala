@@ -1,3 +1,6 @@
+import java.util.Date
+
+import slick.driver.PostgresDriver
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshalling.ToResponseMarshallable
@@ -7,7 +10,6 @@ import com.wix.accord.{validate => runValidation, Success => ValidationSuccess, 
 import com.wix.accord._
 import dsl.{validator => createValidator}
 import dsl._
-import java.util.Date
 import akka.event.Logging
 import slick.lifted.ProvenShape
 import spray.json.{JsValue, JsString, JsonFormat, DefaultJsonProtocol}
@@ -22,6 +24,9 @@ import spray.json._
 import org.json4s.JsonAST.JString
 import org.json4s.{CustomSerializer, DefaultFormats}
 import org.json4s.jackson.Serialization.{write => render}
+
+import scala.concurrent.Await
+import scala.concurrent.duration._
 
 // Validation mixin
 trait Validation {
@@ -86,30 +91,41 @@ case class StockLocationDestination(stockLocation: StockLocation) extends Destin
 
 case class Fulfillment(id: Int, destination: Destination)
 
-case class BasicCart(id: Int, userId: Int)
+case class Cart(id: Int, accountId: Option[Int] = None) {
 
-case class Cart(id: Int, userId: Option[Int] = None, lineItems: Seq[LineItem],
-//                payments: Seq[Payment],
-                fulfillments: Seq[Fulfillment],
-                coupons: Seq[Coupon], adjustments: List[Adjustment]) {
+  var lineItems: Seq[LineItem] = Seq.empty
+  val payments: Seq[Payment] = Seq.empty
+  val fulfillments: Seq[Fulfillment] = Seq.empty
+
+//  def coupons: Seq[Coupon] = Seq.empty
+//  def adjustments: Seq[Adjustment] = Seq.empty
+
   // TODO: how do we handle adjustment/coupon
   // specifically, promotions are handled at the checkout level, but need to display in the cart
   def addCoupon(coupon: Coupon) = {}
 
   // carts support guest checkout
-  def isGuest = this.userId.isDefined
+  def isGuest = this.accountId.isDefined
 
   // TODO: service class it?
   def addLineItems(items: Seq[LineItem]): Cart = {
-    this.copy(lineItems = this.lineItems ++ items)
     // TODO: execute the fulfillment runner
+    lineItems = items
+    this
   }
 }
 
-class Carts(tag: Tag) extends Table[BasicCart](tag, "carts") {
+trait RichTable {
+  implicit val JavaUtilDateMapper =
+    MappedColumnType .base[java.util.Date, java.sql.Timestamp] (
+      d => new java.sql.Timestamp(d.getTime),
+      d => new java.util.Date(d.getTime))
+}
+
+class Carts(tag: Tag) extends Table[Cart](tag, "carts") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def userId = column[Int]("user_id")
-  def * = (id, userId) <> ((BasicCart.apply _).tupled, BasicCart.unapply)
+  def accountId = column[Option[Int]]("account_id")
+  def * = (id, accountId) <> ((Cart.apply _).tupled, Cart.unapply)
 }
 
 sealed trait OrderStatus
@@ -122,11 +138,8 @@ case object FulfillmentStarted extends OrderStatus
 case object PartiallyShipped extends OrderStatus
 case object Shipped extends OrderStatus
 
-case class Order(id: Int, cartId: Int, status: OrderStatus, lineItems: Seq[LineItem],
-//                 payment: Seq[Payment],
-                 //deliveries: Seq[ShippingInformation],
-                 adjustments: List[Adjustment]) {
-//  def masterStatus: OrderStatus = New
+case class Order(id: Int, cartId: Int, status: OrderStatus) {
+  var lineItems: Seq[LineItem] = Seq.empty
 }
 
 case class StockItem(id: Int, productId: Int, stockLocationId: Int, onHold: Int, onHand: Int, allocatedToSales: Int) {
@@ -142,9 +155,7 @@ class Checkout(cart: Cart) {
     // 2) Verify Payment (re-auth)
     // 3) Validate addresses
     // 4) Validate promotions/coupons
-    val order = Order(id = 0, cartId = cart.id, status = New, lineItems = cart.lineItems,
-      //deliveries = cart.deliveries,
-      adjustments = cart.adjustments)
+    val order = Order(id = 0, cartId = cart.id, status = New)
 
     Right(order)
   }
@@ -190,7 +201,7 @@ case class Collection(id: Int, name: String, isActive: Boolean) extends Validati
   }.asInstanceOf[Validator[T]] // TODO: fix me
 }
 
-object Main {
+object Main extends Formats {
 
   def main(args: Array[String]): Unit = {
     val service = new Service()
@@ -250,9 +261,10 @@ class Service extends Formats {
 
   val logger = Logging(system, getClass)
 
+  val db = Database.forURL("jdbc:postgresql://localhost/phoenix_development?user=phoenix", driver = "slick.driver.PostgresDriver")
+
   val routes = {
-    val cart = Cart(id = 0, lineItems = Seq[LineItem](), fulfillments = Seq[Fulfillment](),
-                    coupons = Seq[Coupon](), adjustments = List[Adjustment]())
+    val cart = Cart(id = 0, accountId = None)
 
     def findCart(id: Int): Cart = {
       // If we are going to punt on user authentication, then we sort of have to stub this piece out.
@@ -266,50 +278,47 @@ class Service extends Formats {
           complete {
             render(findCart(id))
           }
-        }
-      } ~
-        (post & path(IntNumber / "checkout")) { id =>
-          complete {
-            render(new Checkout(findCart(id)).checkout)
-          }
         } ~
-        (post & path(IntNumber / "line-items") & entity(as[Seq[AddLineItemsRequest]])) { (cartId, reqItems) =>
-          complete {
-            val lineItems = reqItems.flatMap { req =>
-              (1 to req.quantity).map{ i => LineItem(id = 0, skuId = req.skuId) }
+          (post & path(IntNumber / "checkout")) { id =>
+            complete {
+              render(new Checkout(findCart(id)).checkout)
             }
+          } ~
+          (post & path(IntNumber / "line-items") & entity(as[Seq[AddLineItemsRequest]])) { (cartId, reqItems) =>
+            complete {
+              val lineItems = reqItems.flatMap { req =>
+                (1 to req.quantity).map { i => LineItem(id = 0, skuId = req.skuId) }
+              }
 
-            val cart = findCart(cartId)
-            render(cart.addLineItems(lineItems))
-          }
-        } ~
-        (post & path(IntNumber / "persisted")) { id =>
-          complete {
-            val carts = TableQuery[Carts]
-            val db = Database.forURL("jdbc:h2:mem:hello", driver = "org.h2.Driver")
+              val cart = findCart(cartId)
+              render(cart.addLineItems(lineItems))
+            }
+          } ~
+          (post & path(IntNumber / "persisted")) { id =>
+            complete {
+              val carts = TableQuery[Carts]
+              val actions = (for {
+                _ ← carts += Cart(1, Some(3))
+                _ ← carts += Cart(2, None)
+                _ ← carts += Cart(3, Some(2))
+                _ ← carts.filter(_.id === 1).delete
+                l ← carts.length.result
+              } yield l).transactionally
 
-            val actions = (for {
-              _ ← carts.schema.create
-              _ ← carts += BasicCart(1, 3)
-              _ ← carts += BasicCart(2, 2)
-              _ ← carts += BasicCart(2, 2)
-              _ ← carts.filter(_.id === 1).delete
-              l ← carts.length.result
-            } yield l).transactionally
+              /** If we are not using transactionally here then we need to run and await the schema creation first.
+                * For performance reasons slick does not guarantee that actions are executed in order by default.
+                *
+                * Use withPinnedSession if you want to share the same session but don’t want a transaction. */
 
-            /** If we are not using transactionally here then we need to run and await the schema creation first.
-              * For performance reasons slick does not guarantee that actions are executed in order by default.
-              *
-              * Use withPinnedSession if you want to share the same session but don’t want a transaction. */
+              /** Slick 3 now returns a Future. Spray-routing also accepts a Future to complete a route, so we’re fine. */
+              db.run(actions).map { length ⇒
 
-            /** Slick 3 now returns a Future. Spray-routing also accepts a Future to complete a route, so we’re fine. */
-            db.run(actions).map { length ⇒
-
-              /** Seems that spray-json can’t work with a Map[String, Any], so need to call toString here. */
-              render(Map("hi" → "hello", "length" → length.toString))
+                /** Seems that spray-json can’t work with a Map[String, Any], so need to call toString here. */
+                render(Map("hi" → "hello", "length" → length.toString))
+              }
             }
           }
-        }
+      }
     }
   }
 
