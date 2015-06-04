@@ -93,13 +93,12 @@ abstract class Payment extends DefaultJsonProtocol {
 
 abstract class PaymentGateway
 case object BraintreeGateway extends PaymentGateway
-case class StripeGateway(paymentToken: String, apiKey: String) extends PaymentGateway {
+case class StripeGateway(paymentToken: String, apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ") extends PaymentGateway {
   def validateToken: Boolean = {
-    val retrievedToken = new Token
     Stripe.apiKey = this.apiKey
     try {
-      val donkey = Token.retrieve(this.paymentToken)
-      val card = donkey.getCard
+      val retrievedToken = Token.retrieve(this.paymentToken)
+      val card = retrievedToken.getCard
       println(card)
     } catch {
       case ire: com.stripe.exception.InvalidRequestException =>
@@ -459,23 +458,25 @@ class Service extends Formats {
             findCart(cartId).map {
               case None => notFoundResponse
               case Some(c) =>
-                val stripeKey = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ"
+
                 // First, ensure that the token is valid.
-                new StripeGateway(reqPayment.paymentGatewayToken, stripeKey).validateToken match {
+                new StripeGateway(reqPayment.paymentGatewayToken).validateToken match {
                   case true =>
-                    HttpResponse (OK, entity = render ("Token is true") )
+                    println("This was a valid stripe payment token.")
+
+                    // Next, check to see if there is a user associated with the checkout.
+                    findAccount(c.accountId) match {
+                      case None =>
+                        HttpResponse(OK, entity = render("Guest checkout!!"))
+                      case Some(u) =>
+                        HttpResponse(OK, entity = render("Authed Checkout"))
+                    }
                   case false =>
-                    HttpResponse (OK, entity = render ("Go away") )
+                    println("Stripe payment token was invalid")
+                    HttpResponse (OK, entity = render ("Stripe payment token was invalid!") )
                 }
 
-                // Next, check to see if there is a user associated with the checkout.
-                findAccount(c.accountId) match {
-                  case None =>
-                    HttpResponse(OK, entity = render("Guest checkout!!"))
-                  case Some(u) =>
-                    HttpResponse(OK, entity = render("Authed Checkout"))
-                }
-            }
+           }
           }
         }
       }
