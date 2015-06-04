@@ -280,7 +280,7 @@ object LineItemUpdater {
           db.run(for {
             _ <- lineItems ++= (1 to delta).map { _ => LineItem(0, cart.id, skuId) }.toSeq
           } yield ())
-        } else if (newQuantity < current && current - newQuantity > 0) {
+        } else if (current - newQuantity > 0) {
           db.run(for {
             _ <- lineItems.filter(_.id in lineItems.filter(_.cartId === cart.id).filter(_.skuId === skuId).
                     sortBy(_.id.asc).take(current - newQuantity).map(_.id)).delete
