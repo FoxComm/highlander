@@ -8,9 +8,11 @@ migrate:
 
 resetdb:
 	dropdb phoenix_development || true
+	dropdb phoenix_test || true
 	dropuser phoenix || true
 	createuser -s phoenix
 	createdb phoenix_development
+	createdb phoenix_test
 	@make migrate
 
 .PHONY: configure clean migrate setup
