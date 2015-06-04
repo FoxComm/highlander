@@ -270,6 +270,7 @@ trait Formats extends DefaultJsonProtocol {
 
   implicit val addLineItemsRequestFormat = jsonFormat2(LineItemsPayload.apply)
   implicit val addPaymentMethodRequestFormat = jsonFormat4(PaymentMethodPayload.apply)
+  implicit val addTokenizedPaymentMethodRequestFormat = jsonFormat2(TokenizedPaymentMethodPayload.apply)
 
 
   val phoenixFormats = DefaultFormats + new CustomSerializer[PaymentStatus](format => (
@@ -377,8 +378,13 @@ class Service extends Formats {
       db.run(carts.filter(_.id === id).result.headOption)
     }
 
-    def findAccount(id: Int): Option[User] = {
-      Some(new User(1, "donkey@donkey.com", "donkeyPass", "Mister", "Donkey"))
+    def findAccount(id: Option[Int]): Option[User] = {
+      id match{
+        case None =>
+          None
+        case Some(id) =>
+          Some(new User(id, "donkey@donkey.com", "donkeyPass", "Mister", "Donkey"))
+      }
     }
 
     val notFoundResponse = HttpResponse(NotFound)
@@ -439,7 +445,7 @@ class Service extends Formats {
                 // TODO: How do I validate something that has a validator?
 
                 // Next, check to see if there is a user associated with the checkout.
-                findUser(c.userId).map {
+                findAccount(c.accountId) match {
                   case None =>
                     HttpResponse(OK, entity = render("Guest checkout!!"))
                   case Some(u) =>
