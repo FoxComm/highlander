@@ -288,9 +288,8 @@ object LineItemUpdater {
         }
       }
 
-      db.run(lineItems.filter(_.cartId === cart.id).result).map { results =>
-        Good(results)
-      }
+      val allCartItems = lineItems.filter(_.cartId === cart.id)
+      db.run(allCartItems.result).map(Good(_))
     }
   }
 }
