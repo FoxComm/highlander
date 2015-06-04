@@ -50,7 +50,16 @@ class States(tag: Tag) extends Table[State](tag, "states") with RichTable {
   def * = (id, name, abbreviation) <> ((State.apply _).tupled, State.unapply)
 }
 
-case class Address(id: Int, accountId: Int, stateId: Int, name: String, street1: String, street2: Option[String], city: String, zip: String)
+case class Address(id: Int, accountId: Int, name: String, street1: String, street2: Option[String], city: String, zip: String) extends Validation {
+  override def validator[T] = {
+    createValidator[Address] { address =>
+      address.name is notEmpty
+      address.street1 is notEmpty
+      address.city is notEmpty
+      address.zip.length is equalTo(5)
+    }
+  }.asInstanceOf[Validator[T]] // TODO: fix me
+}
 
 class Addresses(tag: Tag) extends Table[Address](tag, "addresses") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
@@ -62,7 +71,7 @@ class Addresses(tag: Tag) extends Table[Address](tag, "addresses") with RichTabl
   def city = column[String]("city")
   def zip = column[String]("zip")
 
-  def * = (id, accountId, stateId, name, street1, street2, city, zip) <> ((Address.apply _).tupled, Address.unapply)
+  def * = (id, accountId, name, street1, street2, city, zip) <> ((Address.apply _).tupled, Address.unapply)
 
   def sstate = foreignKey("addresses_state_id_fk", stateId, TableQuery[States])(_.id)
 }
@@ -76,6 +85,24 @@ object Addresses {
 
   def findById(db: PostgresDriver.backend.DatabaseDef, id: Int): Future[Option[Address]] = {
     db.run(table.filter(_.id === id).result.headOption)
+  }
+
+  def createFromPayload(db: PostgresDriver.backend.DatabaseDef, account: User, payload: Seq[CreateAddressPayload]): Future[Seq[Address] Or Seq[ErrorMessage]] = {
+    // map to Address & validate
+    val results = payload.map { a =>
+      val address = Address(id = 0, accountId = account.id, name = a.name,
+        street1 = a.street1, street2 = a.street2, city = a.city, zip = a.zip)
+      (address, address.validate)
+    }
+
+    if (results.filter(_._2 == Failure).nonEmpty) {
+      Future.successful(Bad(results.map(_._2.map(_.description).toSeq)))
+    } else {
+      db.run(for {
+        _ <- table ++= results.map(_._1)
+        addresses <- table.filter(_.accountId === accound.id).result
+      } yield (addresses)).transactionally
+    }
   }
 }
 
@@ -267,6 +294,7 @@ object Main extends Formats {
 }
 
 case class LineItemsPayload(skuId: Int, quantity: Int)
+case class CreateAddressPayload(name: String, street1: String, street2: Option[String], city: String, zip: String)
 
 // JSON formatters
 trait Formats extends DefaultJsonProtocol {
@@ -279,6 +307,7 @@ trait Formats extends DefaultJsonProtocol {
   }
 
   implicit val addLineItemsRequestFormat = jsonFormat2(LineItemsPayload.apply)
+  implicit val createAddressPayloadFormat = jsonFormat5(CreateAddressPayload.apply)
 
   val phoenixFormats = DefaultFormats + new CustomSerializer[PaymentStatus](format => (
     { case _ ⇒ sys.error("Reading not implemented") },
@@ -373,11 +402,9 @@ class Service extends Formats {
 
   val db = Database.forURL("jdbc:postgresql://localhost/phoenix_development?user=phoenix", driver = "slick.driver.PostgresDriver")
 
-  val carts = TableQuery[Carts]
+  val user = User(id = 1, email = "yax@foxcommerce.com", password = "donkey", firstName = "Yax", lastName = "Donkey")
 
   val routes = {
-    val cart = Cart(id = 0, accountId = None)
-
     val notFoundResponse = HttpResponse(NotFound)
 
     def renderOrNotFound[T <: AnyRef](resource: Future[Option[T]],
@@ -414,6 +441,25 @@ class Service extends Formats {
                   case Bad(errors)      => HttpResponse(BadRequest, entity = render(errors))
                   case Good(lineItems)  => HttpResponse(OK, entity = render(lineItems))
                 }
+            }
+          }
+        }
+      }
+    } ~
+    logRequestResult("addresses") {
+      pathPrefix("v1" / "addresses" ) {
+        get {
+          complete {
+            Addresses.findAllByAccount(db, user).map { addresses =>
+              HttpResponse(OK, entity = render(addresses))
+            }
+          }
+        } ~
+        (post & entity(as[Seq[CreateAddressPayload]])) { payload =>
+          complete {
+            Addresses.createFromPayload(db, user, payload).map {
+              case Good(addresses)  => HttpResponse(OK, entity = render(addresses))
+              case Bad(errors)      => HttpResponse(BadRequest, entity = render(errors))
             }
           }
         }

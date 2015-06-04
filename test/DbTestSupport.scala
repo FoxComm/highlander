@@ -81,6 +81,34 @@ class DbTestSupportTest extends FreeSpec
       }
     }
 
+    "Addresses" - {
+      val accounts = TableQuery[Users]
+      val states = TableQuery[States]
+      val addresses = TableQuery[Addresses]
+
+      def seedState(): State = {
+        db.run(for {
+          stateId <- states += State(0, "Washington", "WA")
+          state <- states.filter(_.id === stateId).result.head
+        } yield (state)).futureValue
+      }
+
+      "can be created" in {
+        val state = seedState()
+
+        // 1. validations
+        // 2. FK constraints might fail
+        val address = db.run(for {
+          accountId <- accounts += User(0, "yax@yax.com", "plaintext", "Yax", "Donkey")
+          addressId <- addresses += Address(id = 0, accountId = accountId, stateId = state.id, name = "Yax Home",
+                                            street1 = "555 E Lake Union St.", street2 = None, city = "Seattle", zip = "90000")
+          address <- addresses.filter(_.id === addressId).result.head
+        } yield (address)).futureValue
+
+        address.id must be (1)
+      }
+    }
+
     "allows access to the data base" in {
       val findById = carts.findBy(_.id)
       val insert = carts.returning(carts.map(_.id)) += Cart(0, Some(42))
