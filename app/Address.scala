@@ -123,6 +123,14 @@ class Carts(tag: Tag) extends Table[Cart](tag, "carts") with RichTable {
   def * = (id, accountId) <> ((Cart.apply _).tupled, Cart.unapply)
 }
 
+object Carts {
+  val table = TableQuery[Carts]
+
+  def findById(db: PostgresDriver.backend.DatabaseDef, id: Int): Future[Option[Cart]] = {
+    db.run(table.filter(_.id === id).result.headOption)
+  }
+}
+
 class LineItems(tag: Tag) extends Table[LineItem](tag, "line_items") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def cartId = column[Int]("cart_id")
@@ -327,12 +335,6 @@ class Service extends Formats {
   val routes = {
     val cart = Cart(id = 0, accountId = None)
 
-    def findCart(id: Int): Future[Option[Cart]] = {
-      // If we are going to punt on user authentication, then we sort of have to stub this piece out.
-      // If we do auth, then we should create a cart for a user if one doesn't exist.
-      db.run(carts.filter(_.id === id).result.headOption)
-    }
-
     val notFoundResponse = HttpResponse(NotFound)
 
     def renderOrNotFound[T <: AnyRef](resource: Future[Option[T]],
@@ -347,12 +349,12 @@ class Service extends Formats {
       pathPrefix("v1" / "cart" ) {
         (get & path(IntNumber)) { id =>
           complete {
-            renderOrNotFound(findCart(id))
+            renderOrNotFound(Carts.findById(db, id))
           }
         } ~
         (post & path(IntNumber / "checkout")) { id =>
           complete {
-            renderOrNotFound(findCart(id), (c: Cart) => {
+            renderOrNotFound(Carts.findById(db, id), (c: Cart) => {
               new Checkout(c).checkout match {
                 case Good(order) => HttpResponse(OK, entity = render(order))
                 case Bad(errors) => HttpResponse(BadRequest, entity = render(errors))
@@ -362,7 +364,7 @@ class Service extends Formats {
         } ~
         (post & path(IntNumber / "line-items") & entity(as[Seq[LineItemsPayload]])) { (cartId, reqItems) =>
           complete {
-            findCart(cartId).map {
+            Carts.findById(db, cartId).map {
               case None => Future(notFoundResponse)
               case Some(c) =>
                 LineItemUpdater(db, c, reqItems).map {
