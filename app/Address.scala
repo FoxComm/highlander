@@ -55,10 +55,12 @@ case class Promotion(id: Int, cartId: Int, adjustments: List[Adjustment])
 case class LineItem(id: Int, cartId: Int, skuId: Int)
 
 sealed trait PaymentStatus
-case object Auth extends PaymentStatus
-case object FailedCapture extends PaymentStatus
-case object CanceledAuth extends PaymentStatus
-case object ExpiredAuth extends PaymentStatus
+
+sealed trait CreditCardPaymentStatus extends PaymentStatus
+case object Auth extends CreditCardPaymentStatus
+case object FailedCapture extends CreditCardPaymentStatus
+case object CanceledAuth extends CreditCardPaymentStatus
+case object ExpiredAuth extends CreditCardPaymentStatus
 
 sealed trait GiftCardPaymentStatus extends PaymentStatus
 case object InsufficientBalance extends GiftCardPaymentStatus
@@ -66,9 +68,7 @@ case object SuccessfulDebit extends GiftCardPaymentStatus
 case object FailedDebit extends GiftCardPaymentStatus
 
 abstract class Payment extends DefaultJsonProtocol {
-  def validate: Boolean = {
-    scala.util.Random.nextInt(2) == 1
-  }
+  def authorize: {}
 
   def process: Option[String] = {
     println("processing payment")
@@ -80,9 +80,15 @@ abstract class Payment extends DefaultJsonProtocol {
   }
 }
 
-case class CreditCard(id: Int, cartId: Int, status: PaymentStatus, cvv: Int, number: String, expiration: String, address: Address) extends Payment
+abstract class PaymentMethod extends DefaultJsonProtocol {
+  def validate: Boolean = {
+    scala.util.Random.nextInt(2) == 1
+  }
+}
 
-case class GiftCard(id: Int, cartId: Int, status: GiftCardPaymentStatus, code: String) extends Payment
+// TODO: Figure out how to have the 'status' field on the payment and not the payment method.
+case class CreditCard(id: Int, cartId: Int, cardholderName: String, cardNumber: String, cvv: Int, status: CreditCardPaymentStatus, expiration: String, address: Address) extends PaymentMethod
+case class GiftCard(id: Int, cartId: Int, status: GiftCardPaymentStatus, code: String) extends PaymentMethod
 
 sealed trait Destination
 case class EmailDestination(email: String) extends Destination
@@ -156,7 +162,8 @@ class Checkout(cart: Cart) {
     // 1) Check Inventory
     // 2) Verify Payment (re-auth)
     // 3) Validate addresses
-    // 4) Validate promotions/coupons
+    // 4) Validate promotions/couponsi
+    // 5) Final Auth on the payment
     val order = Order(id = 0, cartId = cart.id, status = New)
 
     if (scala.util.Random.nextInt(2) == 1) {
@@ -216,6 +223,7 @@ object Main extends Formats {
 }
 
 case class LineItemsPayload(skuId: Int, quantity: Int)
+case class PaymentsPayload(cardholderName: String, cardNumber: String,  cvv: Int, expiration: String)
 
 // JSON formatters
 trait Formats extends DefaultJsonProtocol {
@@ -228,6 +236,8 @@ trait Formats extends DefaultJsonProtocol {
   }
 
   implicit val addLineItemsRequestFormat = jsonFormat2(LineItemsPayload.apply)
+  implicit val addPaymentsRequestFormat = jsonFormat4(PaymentsPayload.apply)
+
 
   val phoenixFormats = DefaultFormats + new CustomSerializer[PaymentStatus](format => (
     { case _ ⇒ sys.error("Reading not implemented") },
@@ -364,6 +374,11 @@ class Service extends Formats {
                     HttpResponse(OK, entity = render(result.values.toSeq))
                 }
             }
+          }
+        } ~
+        (post & path(IntNumber / "payments") & entity(as[Seq[LineItemsPayload]])) { (cartId, reqItems) =>
+          complete {
+            HttpResponse(OK, entity = render("HI"))
           }
         }
       }
