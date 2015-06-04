@@ -21,8 +21,8 @@ alter table only addresses
   alter column id set default nextval('addresses_id_seq'::regclass);
 
 alter table only addresses
-  add constraint addresses_city_id foreign key (city_id) references cities(id) on update restrict on delete cascade,
-  add constraint addresses_account_id foreign key (account_id) references accounts(id) on update restrict on delete cascade;
+  add constraint addresses_city_id_fk foreign key (city_id) references cities(id) on update restrict on delete cascade,
+  add constraint addresses_account_id_fk foreign key (account_id) references accounts(id) on update restrict on delete cascade;
 
 alter table only addresses
   add constraint addresses_pkey primary key (id);

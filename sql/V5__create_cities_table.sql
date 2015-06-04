@@ -16,7 +16,7 @@ alter table only cities
   alter column id set default nextval('cities_id_seq'::regclass);
 
 alter table only cities
-  add constraint cities_state_id_foreign foreign key (state_id) references states(id) on update restrict on delete cascade;
+  add constraint cities_state_id_fk foreign key (state_id) references states(id) on update restrict on delete cascade;
 
 alter table only cities
   add constraint cities_pkey primary key (id);
