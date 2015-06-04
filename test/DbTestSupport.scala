@@ -73,9 +73,9 @@ class DbTestSupportTest extends FreeSpec
           items.filter(_.skuId == 2).length must be (0)
           items.filter(_.skuId == 3).length must be (1)
 
-          val allRecords = db.run(lineItems.result).futureValue
+          val allCartItems = db.run(lineItems.filter(_.cartId === 1).result).futureValue
 
-          items must be (allRecords)
+          items must be (allCartItems)
 
         case Bad(s) => fail(s.mkString(";"))
       }
