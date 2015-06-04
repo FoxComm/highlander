@@ -223,7 +223,7 @@ object Main extends Formats {
 }
 
 case class LineItemsPayload(skuId: Int, quantity: Int)
-case class PaymentsPayload(cardholderName: String, cardNumber: String,  cvv: Int, expiration: String)
+case class PaymentMethodPayload(cardholderName: String, cardNumber: String,  cvv: Int, expiration: String)
 
 // JSON formatters
 trait Formats extends DefaultJsonProtocol {
@@ -236,7 +236,7 @@ trait Formats extends DefaultJsonProtocol {
   }
 
   implicit val addLineItemsRequestFormat = jsonFormat2(LineItemsPayload.apply)
-  implicit val addPaymentsRequestFormat = jsonFormat4(PaymentsPayload.apply)
+  implicit val addPaymentMethodRequestFormat = jsonFormat4(PaymentMethodPayload.apply)
 
 
   val phoenixFormats = DefaultFormats + new CustomSerializer[PaymentStatus](format => (
@@ -376,9 +376,14 @@ class Service extends Formats {
             }
           }
         } ~
-        (post & path(IntNumber / "payments") & entity(as[Seq[LineItemsPayload]])) { (cartId, reqItems) =>
+        (post & path(IntNumber / "payment-methods") & entity(as[PaymentMethodPayload])) { (cartId, reqPayment) =>
           complete {
-            HttpResponse(OK, entity = render("HI"))
+            findCart(cartId).map {
+              //can't add payment methods if the cart doesn't exist
+              case None => notFoundResponse
+              case Some(c) =>
+                HttpResponse(OK, entity = render("HI"))
+            }
           }
         }
       }
