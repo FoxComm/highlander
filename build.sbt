@@ -31,13 +31,18 @@ libraryDependencies ++= {
     "org.slf4j"          % "slf4j-nop" % "1.6.4",
     "org.postgresql"    % "postgresql" % "9.3-1100-jdbc41",
     "org.json4s"         %% "json4s-jackson" % "3.2.11",
-    "org.scalactic"     %% "scalactic"                            % "2.2.4"
+    "org.scalactic"     %% "scalactic"                            % "2.2.4",
+    "org.flywaydb"      %  "flyway-core"      % "3.2.1"              % "test"
   )
 }
 
 scalaSource in Compile <<= (baseDirectory in Compile)(_ / "app")
 
 scalaSource in Test <<= (baseDirectory in Test)(_ / "test")
+
+resourceDirectory in Compile := baseDirectory.value / "resources"
+
+resourceDirectory in Test := baseDirectory.value / "resources"
 
 Revolver.settings
 
