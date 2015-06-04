@@ -20,3 +20,6 @@ alter table only cities
 
 alter table only cities
   add constraint cities_pkey primary key (id);
+
+insert into cities (state_id, name, zip) values
+  (1, 'Burlingame', '50000'), (2, 'Seattle', '30000');

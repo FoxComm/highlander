@@ -22,3 +22,6 @@ alter table only accounts
 
 alter table only accounts
   add constraint accounts_pkey primary key (id);
+
+insert into accounts (email, plaintext_password, hashed_password, first_name, last_name) values
+  ('yax@yax.com', 'plaintext!', '=aAdAXSyz!@#0ax', 'Yakkity', 'Yax');

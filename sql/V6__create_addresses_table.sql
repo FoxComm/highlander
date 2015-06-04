@@ -26,3 +26,6 @@ alter table only addresses
 
 alter table only addresses
   add constraint addresses_pkey primary key (id);
+
+insert into addresses (account_id, city_id, name, street1) values
+  (1, 1, 'FC Office', '500 Burlingame Ave.'), (1, 2, 'Seattle Commune', '3000 E Lake Union St.');
