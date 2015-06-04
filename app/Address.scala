@@ -270,9 +270,9 @@ object LineItemUpdater {
     }
 
     // select sku_id, count(1) from line_items where cart_id = $ group by sku_id
-    val counts = (for {
+    val counts = for {
       (skuId, q) <- lineItems.filter(_.cartId === cart.id).groupBy(_.skuId)
-    } yield (skuId, q.length))
+    } yield (skuId, q.length)
 
     /*
       TODO: let's do this transactionally to avoid data racing
