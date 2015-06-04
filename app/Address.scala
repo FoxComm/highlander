@@ -35,6 +35,12 @@ trait Validation {
   def isValid: Boolean = { validate == ValidationSuccess }
 }
 
+case class Store(id: Int, name: String, Configuration: StoreConfiguration)
+
+//  This is a super quick placeholder for store configuration.  We will want to blow this out later.
+// TODO: Create full configuration data model
+case class StoreConfiguration(id: Int, storeId: Int, PaymentGateway: PaymentGateway)
+
 case class StockLocation(id: Int, name: String)
 
 // TODO: money/currency abstraction. Use joda-money, most likely
@@ -80,14 +86,33 @@ abstract class Payment extends DefaultJsonProtocol {
   }
 }
 
+
+
+abstract class PaymentGateway
+case object BraintreeGateway extends PaymentGateway
+case object StripeGateway extends PaymentGateway
+
+// Umm, how do I map this to a database? :) -AW
+case class Wallet(id: Int, userId: Int, PaymentMethods: Seq[PaymentMethod])
+
+
 abstract class PaymentMethod extends DefaultJsonProtocol {
   def validate: Boolean = {
     scala.util.Random.nextInt(2) == 1
   }
-}
 
+  def addToGuestCheckout: Boolean = {
+    true
+  }
+
+  def addToUserWallet: Boolean = {
+    true
+  }
+}
 // TODO: Figure out how to have the 'status' field on the payment and not the payment method.
 case class CreditCard(id: Int, cartId: Int, cardholderName: String, cardNumber: String, cvv: Int, status: CreditCardPaymentStatus, expiration: String, address: Address) extends PaymentMethod
+// We should probably store the payment gateway on the card itself.  This way, we can manage a world where a merchant changes processors.
+case class TokenizedCreditCard(id: Int, walletId: Int, paymentGateway: PaymentGateway, gatewayTokenId: String, gatewayUserEmail: String) extends PaymentMethod
 case class GiftCard(id: Int, cartId: Int, status: GiftCardPaymentStatus, code: String) extends PaymentMethod
 
 sealed trait Destination
@@ -174,7 +199,7 @@ class Checkout(cart: Cart) {
   }
 }
 
-case class Store(id: Int, name: String)
+
 
 case class User(id: Int, email: String, password: String, firstName: String, lastName: String) extends Validation {
   override def validator[T] = {
@@ -224,6 +249,14 @@ object Main extends Formats {
 
 case class LineItemsPayload(skuId: Int, quantity: Int)
 case class PaymentMethodPayload(cardholderName: String, cardNumber: String,  cvv: Int, expiration: String)
+case class TokenizedPaymentMethodPayload(paymentGateway: String, paymentGatewayToken: String) extends Validation {
+  override def validator[T] = {
+    createValidator[TokenizedPaymentMethodPayload] { tokenizedPaymentMethodPayload =>
+      tokenizedPaymentMethodPayload.paymentGateway is notEmpty
+      tokenizedPaymentMethodPayload.paymentGatewayToken is notEmpty
+    }
+  }.asInstanceOf[Validator[T]] // TODO: fix me!
+}
 
 // JSON formatters
 trait Formats extends DefaultJsonProtocol {
@@ -325,6 +358,10 @@ class Service extends Formats {
       db.run(carts.filter(_.id === id).result.headOption)
     }
 
+    def findAccount(id: Int): Option[User] = {
+      Some(new User(1, "donkey@donkey.com", "donkeyPass", "Mister", "Donkey"))
+    }
+
     val notFoundResponse = HttpResponse(NotFound)
 
     def renderOrNotFound[T <: AnyRef](resource: Future[Option[T]],
@@ -383,6 +420,24 @@ class Service extends Formats {
               case None => notFoundResponse
               case Some(c) =>
                 HttpResponse(OK, entity = render("HI"))
+            }
+          }
+        } ~
+        (post & path(IntNumber / "tokenized-payment-methods") & entity(as[TokenizedPaymentMethodPayload])) { (cartId, reqPayment) =>
+          complete {
+            findCart(cartId).map {
+              case None => notFoundResponse
+              case Some(c) =>
+                // First, check that the payload is good.
+                // TODO: How do I validate something that has a validator?
+
+                // Next, check to see if there is a user associated with the checkout.
+                findUser(c.userId).map {
+                  case None =>
+                    HttpResponse(OK, entity = render("Guest checkout!!"))
+                  case Some(u) =>
+                    HttpResponse(OK, entity = render("Authed Checkout"))
+                }
             }
           }
         }
