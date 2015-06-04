@@ -42,9 +42,42 @@ case class Money(currency: String, amount: Int)
 
 case class State(id: Int, name: String, abbreviation: String)
 
-case class City(id: Int, name: String)
+class States(tag: Tag) extends Table[State](tag, "states") with RichTable {
+  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def name = column[String]("name")
+  def abbreviation = column[String]("abbreviation")
 
-case class Address(id: Int, name: String, streetAddresses: List[String], city: City, state: State, zip: String)
+  def * = (id, name, abbreviation) <> ((State.apply _).tupled, State.unapply)
+}
+
+case class Address(id: Int, accountId: Int, stateId: Int, name: String, street1: String, street2: Option[String], city: String, zip: String)
+
+class Addresses(tag: Tag) extends Table[Address](tag, "addresses") with RichTable {
+  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def accountId = column[Int]("account_id")
+  def stateId = column[Int]("state_id")
+  def name = column[String]("name")
+  def street1 = column[String]("street1")
+  def street2 = column[Option[String]]("street2")
+  def city = column[String]("city")
+  def zip = column[String]("zip")
+
+  def * = (id, accountId, stateId, name, street1, street2, city, zip) <> ((Address.apply _).tupled, Address.unapply)
+
+  def sstate = foreignKey("addresses_state_id_fk", stateId, TableQuery[States])(_.id)
+}
+
+object Addresses {
+  val table = TableQuery[Addresses]
+
+  def findAllByAccount(db: PostgresDriver.backend.DatabaseDef, account: User): Future[Seq[Address]] = {
+    db.run(table.filter(_.accountId === account.id).result)
+  }
+
+  def findById(db: PostgresDriver.backend.DatabaseDef, id: Int): Future[Option[Address]] = {
+    db.run(table.filter(_.id === id).result.headOption)
+  }
+}
 
 case class Adjustment(id: Int)
 
@@ -185,6 +218,16 @@ case class User(id: Int, email: String, password: String, firstName: String, las
       user.email is notEmpty
     }
   }.asInstanceOf[Validator[T]] // TODO: fix me
+}
+
+class Users(tag: Tag) extends Table[User](tag, "accounts") with RichTable {
+  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def email = column[String]("email")
+  def hashedPassword = column[String]("hashed_password")
+  def firstName = column[String]("first_name")
+  def lastName = column[String]("last_name")
+
+  def * = (id, email, hashedPassword, firstName, lastName) <> ((User.apply _).tupled, User.unapply)
 }
 
 case class Archetype(id: Int, name: String) extends Validation {
