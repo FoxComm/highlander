@@ -1,4 +1,7 @@
 import java.util.Date
+import com.stripe.model.Token
+import com.stripe.model.Charge
+import com.stripe.Stripe
 
 import org.scalactic.{Bad, Good, ErrorMessage, Or}
 import slick.driver.PostgresDriver
@@ -90,7 +93,22 @@ abstract class Payment extends DefaultJsonProtocol {
 
 abstract class PaymentGateway
 case object BraintreeGateway extends PaymentGateway
-case object StripeGateway extends PaymentGateway
+case class StripeGateway(paymentToken: String, apiKey: String) extends PaymentGateway {
+  def validateToken: Boolean = {
+    val retrievedToken = new Token
+    Stripe.apiKey = this.apiKey
+    try {
+      val donkey = Token.retrieve(this.paymentToken)
+      val card = donkey.getCard
+      println(card)
+    } catch {
+      case ire: com.stripe.exception.InvalidRequestException =>
+        println(ire)
+        return false
+    }
+    true
+  }
+}
 
 // Umm, how do I map this to a database? :) -AW
 case class Wallet(id: Int, userId: Int, PaymentMethods: Seq[PaymentMethod])
@@ -441,8 +459,14 @@ class Service extends Formats {
             findCart(cartId).map {
               case None => notFoundResponse
               case Some(c) =>
-                // First, check that the payload is good.
-                // TODO: How do I validate something that has a validator?
+                val stripeKey = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ"
+                // First, ensure that the token is valid.
+                new StripeGateway(reqPayment.paymentGatewayToken, stripeKey).validateToken match {
+                  case true =>
+                    HttpResponse (OK, entity = render ("Token is true") )
+                  case false =>
+                    HttpResponse (OK, entity = render ("Go away") )
+                }
 
                 // Next, check to see if there is a user associated with the checkout.
                 findAccount(c.accountId) match {
