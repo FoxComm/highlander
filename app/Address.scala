@@ -244,7 +244,7 @@ trait Formats extends DefaultJsonProtocol {
 object LineItemUpdater {
   def apply(db: PostgresDriver.backend.DatabaseDef,
             cart: Cart,
-            lineItems: Seq[LineItemsPayload])
+            payload: Seq[LineItemsPayload])
            (implicit ec: ExecutionContext): Future[Seq[LineItem] Or List[ErrorMessage]] = {
 
     // TODO:
@@ -253,26 +253,45 @@ object LineItemUpdater {
     //  validate inventory (might be in PIM maybe not)
     //  run hooks to manage promotions
 
-//    val addedLineItems = lineItems.flatMap { req =>
-//      (1 to req.quantity).map { i => LineItem(id = 0, cartId = cart.id, skuId = req.skuId) }
-//    }
-//
-//    val lineItemsTable = TableQuery[LineItems]
-//    val query = for {
-//      blah <- lineItemsTable.filter(_.cartId === cart.id).groupBy(_.skuId)
-//    } yield blah
-//      //groupBy(_.skuId).sel
-//    val q = Compiled(query).compiledQuery.toString
-//    println(q)
+    val lineItems = TableQuery[LineItems]
 
-//    val actions = (for {
-////      items <-
-////      items ← lineItemsTable.filter(_.cartId === cart.id).result
-//    } yield items).transactionally
+    // reduce Seq[LineItemsPayload] -> Map(skuId: Int -> absoluteQuantity: Int)
+    val updateQuantities = payload.foldLeft(Map[Int, Int]()) { (acc, item) =>
+      val quantity = acc.getOrElse(item.skuId, 0)
+      acc.updated(item.skuId, quantity + item.quantity)
+    }
 
-//    db.run(actions).map { items =>
-      Future.successful(Good(Seq(LineItem(id = 1, skuId = 2, cartId = cart.id))))
-//    }
+    // select sku_id, count(1) from line_items where cart_id = $ group by sku_id
+    val counts = (for {
+      (skuId, q) <- lineItems.filter(_.cartId === cart.id).groupBy(_.skuId)
+    } yield (skuId, q.length))
+
+    /*
+      TODO: let's do this transactionally to avoid data racing
+            maybe we could also leverage slick for a single for comprehension?
+     */
+    db.run(counts.result).flatMap { items =>
+      items.foreach { case (skuId, current) =>
+        val newQuantity = updateQuantities.getOrElse(skuId, 0)
+
+        // we're using absolute values from payload, so if newQuantity is greater than create the N items
+        if (newQuantity > current) {
+          val delta = newQuantity - current
+          db.run(for {
+            _ <- lineItems ++= (1 to delta).map { _ => LineItem(0, cart.id, skuId) }.toSeq
+          } yield ())
+        } else if (newQuantity < current && current - newQuantity > 0) {
+          db.run(for {
+            _ <- lineItems.filter(_.id in lineItems.filter(_.cartId === cart.id).filter(_.skuId === skuId).
+                    sortBy(_.id.asc).take(current - newQuantity).map(_.id)).delete
+          } yield ())
+        }
+      }
+
+      db.run(lineItems.filter(_.cartId === cart.id).result).map { results =>
+        Good(results)
+      }
+    }
   }
 }
 
