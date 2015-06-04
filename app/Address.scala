@@ -366,21 +366,9 @@ class Service extends Formats {
             findCart(cartId).map {
               case None => Future(notFoundResponse)
               case Some(c) =>
-                // incoming quantity is now *absolute* so we should delete records if we have to or insert them
-                // we just need to set cart.line_items = incoming.quantity
-                // but, we are not assuming that the whole set of line_items comes in as a payload.  so we are only updating the QTY of the
-                // SKUs that we hear about
-
                 LineItemUpdater(db, c, reqItems).map {
-                  case Bad(errors) => HttpResponse(BadRequest, entity = render(errors))
-
-                  case Good(lineItems) =>
-                    val result = lineItems.foldLeft(Map[Int, LineItemsPayload]()) { (payload, item) =>
-                      val p = payload.getOrElse(item.skuId, LineItemsPayload(skuId = item.skuId, quantity = 0))
-                      payload.updated(item.skuId, p.copy(quantity = p.quantity + 1))
-                    }
-
-                    HttpResponse(OK, entity = render(result.values.toSeq))
+                  case Bad(errors)      => HttpResponse(BadRequest, entity = render(errors))
+                  case Good(lineItems)  => HttpResponse(OK, entity = render(lineItems))
                 }
             }
           }
@@ -388,9 +376,6 @@ class Service extends Formats {
       }
     }
   }
-
-  // when lineItem is added to cart then execute fulfillment runner, digital item or something else? we'll create
-  // fulfillment at that moment
 
   def bind(): Unit = {
     Http().bindAndHandle(routes, config.getString("http.interface"), config.getInt("http.port"))
