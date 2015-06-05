@@ -279,16 +279,17 @@ object LineItemUpdater {
             maybe we could also leverage slick for a single for comprehension?
      */
     db.run(counts.result).flatMap { items =>
-      items.foreach { case (skuId, current) =>
-        val newQuantity = updateQuantities.getOrElse(skuId, 0)
+      val existingSkuCounts = items.toMap
 
-        // we're using absolute values from payload, so if newQuantity is greater than create the N items
+      val newQuantities = updateQuantities.map { case (skuId, newQuantity) =>
+        val current = existingSkuCounts.getOrElse(skuId, 0)
+        // we're using absolute values from payload, so if newQuantity is greater then create N items
         if (newQuantity > current) {
           val delta = newQuantity - current
           db.run(for {
             _ <- lineItems ++= (1 to delta).map { _ => LineItem(0, cart.id, skuId) }.toSeq
           } yield ())
-        } else if (current - newQuantity > 0) {
+        } else if (current - newQuantity > 0) { //otherwise delete N items
           db.run(for {
             _ <- lineItems.filter(_.id in lineItems.filter(_.cartId === cart.id).filter(_.skuId === skuId).
                     sortBy(_.id.asc).take(current - newQuantity).map(_.id)).delete
