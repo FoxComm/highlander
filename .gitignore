@@ -20,7 +20,9 @@ project/plugins/project/
 .classpath  
 .project
 .settings
+workbench.xmi
 
 # IntelliJ specific
 .idea
 phoenix-scala.iml
+/bin/

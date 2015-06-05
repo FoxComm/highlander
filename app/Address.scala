@@ -129,8 +129,8 @@ object PaymentMethods {
   val tokenCardsTable = TableQuery[TokenizedCreditCards]
 
   // TODO: The right way to do this would be to return all the different payment methods available to the user.
-  def findAllByAccount(db: PostgresDriver.backend.DatabaseDef, account: Account): Future[Seq[PaymentMethod]] = {
-    db.run(table.filter(_.accountId === account.id).result)
+  def findAllByAccount(db: PostgresDriver.backend.DatabaseDef, account: Shopper): Future[Seq[PaymentMethod]] = {
+    db.run(tokenCardsTable.filter(_.accountId === account.id).result)
   }
 
 }
@@ -139,16 +139,17 @@ object PaymentMethods {
 // TODO: Figure out how to have the 'status' field on the payment and not the payment method.
 case class CreditCard(id: Int, cartId: Int, cardholderName: String, cardNumber: String, cvv: Int, status: CreditCardPaymentStatus, expiration: String, address: Address) extends PaymentMethod
 // We should probably store the payment gateway on the card itself.  This way, we can manage a world where a merchant changes processors.
-case class TokenizedCreditCard(id: Int, walletId: Int, paymentGateway: PaymentGateway, gatewayTokenId: String, gatewayUserEmail: String) extends PaymentMethod
+case class TokenizedCreditCard(id: Int, accountId: Int, paymentGateway: String, gatewayTokenId: String, gatewayUserEmail: String) extends PaymentMethod
 case class GiftCard(id: Int, cartId: Int, status: GiftCardPaymentStatus, code: String) extends PaymentMethod
 
 // TODO: Decide if we should take some kind of STI approach here!
 class TokenizedCreditCards(tag: Tag) extends Table[TokenizedCreditCard](tag, "tokenized_credit_cards") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def wallet_id = column[Int]("wallet_id")
-  def payment_gateway = column[String]("payment_gateway")
-  def gateway_token_id = column[String]("gateway_token_token_id")
-  def gateway_user_email = column[String]("gateway_user_email")
+  def accountId = column[Int]("account_id")
+  def paymentGateway = column[String]("payment_gateway")
+  def gatewayTokenId = column[String]("gateway_token_token_id")
+  def gatewayUserEmail = column[String]("gateway_user_email")
+  def * = (id, accountId, paymentGateway, gatewayTokenId, gatewayUserEmail) <> ((TokenizedCreditCard.apply _).tupled, TokenizedCreditCard.unapply)
 }
 
 sealed trait Destination
@@ -462,9 +463,9 @@ class Service extends Formats {
             }
           }
         } ~
-          (get & path(IntNumber) / "payment-methods") { cartId =>
+          (get & path(IntNumber / "payment-methods")) { cartId =>
             complete {
-              renderOrNotFound(findCart(id))
+              renderOrNotFound(findCart(cartId))
             }
           } ~
         (post & path(IntNumber / "payment-methods") & entity(as[PaymentMethodPayload])) { (cartId, reqPayment) =>
