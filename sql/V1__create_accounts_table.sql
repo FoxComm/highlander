@@ -18,3 +18,7 @@ CREATE SEQUENCE accounts_id_seq
 
 ALTER TABLE ONLY accounts
   ALTER COLUMN id SET DEFAULT nextval('accounts_id_seq'::regclass);
+
+
+ALTER TABLE ONLY accounts 
+  add constraint accounts_pkey primary key (id);
