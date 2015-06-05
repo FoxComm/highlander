@@ -110,21 +110,6 @@ case class StripeGateway(paymentToken: String, apiKey: String = "sk_test_eyVBk2N
   }
 }
 
-// Umm, how do I map this to a database? :) -AW
-case class Wallet(id: Int, userId: Int, PaymentMethods: Seq[PaymentMethod])
-class Wallets(tag: Tag) extends Table[Wallet](tag, "wallets") with RichTable {
-  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def accountId = column[Int]("account_id")
-}
-
-object Wallets {
-  val walletsTable = TableQuery[Wallets]
-  val tokenCardsTable = TableQuery[TokenizedCreditCards]
-
-  def paymentMethods(db: PostgresDriver.backend.DatabaseDef, id: Int): Future[Option[Seq[PaymentMethod]]] = {
-    db.run(tokenCardsTable.filter(_.wallet_id === id).result)
-  }
-}
 
 abstract class PaymentMethod extends DefaultJsonProtocol {
   def validate: Boolean = {
@@ -139,6 +124,18 @@ abstract class PaymentMethod extends DefaultJsonProtocol {
     true
   }
 }
+
+object PaymentMethods {
+  val tokenCardsTable = TableQuery[TokenizedCreditCards]
+
+  // TODO: The right way to do this would be to return all the different payment methods available to the user.
+  def findAllByAccount(db: PostgresDriver.backend.DatabaseDef, account: Account): Future[Seq[PaymentMethod]] = {
+    db.run(table.filter(_.accountId === account.id).result)
+  }
+
+}
+
+
 // TODO: Figure out how to have the 'status' field on the payment and not the payment method.
 case class CreditCard(id: Int, cartId: Int, cardholderName: String, cardNumber: String, cvv: Int, status: CreditCardPaymentStatus, expiration: String, address: Address) extends PaymentMethod
 // We should probably store the payment gateway on the card itself.  This way, we can manage a world where a merchant changes processors.
@@ -465,6 +462,11 @@ class Service extends Formats {
             }
           }
         } ~
+          (get & path(IntNumber) / "payment-methods") { cartId =>
+            complete {
+              renderOrNotFound(findCart(id))
+            }
+          } ~
         (post & path(IntNumber / "payment-methods") & entity(as[PaymentMethodPayload])) { (cartId, reqPayment) =>
           complete {
             findCart(cartId).map {
