@@ -1,4 +1,5 @@
 import com.typesafe.config.ConfigFactory
+import com.wix.accord.{Success => ValidationSuccess, Failure => ValidationFailure }
 import org.flywaydb.core.Flyway
 import org.postgresql.ds.PGSimpleDataSource
 import org.scalactic.{Good, Bad}
@@ -106,6 +107,21 @@ class DbTestSupportTest extends FreeSpec
         } yield (address)).futureValue
 
         address.id must be (1)
+      }
+    }
+
+    "Address" - {
+      ".validate" - {
+        "returns errors when zip is not 5 digit chars" in {
+          val address = Address(id = 0, accountId = 1, stateId = 1, name = "Yax Home",
+                                street1 = "555 E Lake Union St.", street2 = None, city = "Seattle", zip = "")
+          address.validate match {
+            case ValidationFailure(e) =>
+              info(e.flatMap(_.description).mkString(";"))
+
+            case ValidationSuccess    => fail("address should invalid")
+          }
+        }
       }
     }
 

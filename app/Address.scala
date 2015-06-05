@@ -50,7 +50,8 @@ class States(tag: Tag) extends Table[State](tag, "states") with RichTable {
   def * = (id, name, abbreviation) <> ((State.apply _).tupled, State.unapply)
 }
 
-case class Address(id: Int, accountId: Int, name: String, street1: String, street2: Option[String], city: String, zip: String) extends Validation {
+case class Address(id: Int, accountId: Int, stateId: Int, name: String, street1: String, street2: Option[String],
+                   city: String, zip: String) extends Validation {
   override def validator[T] = {
     createValidator[Address] { address =>
       address.name is notEmpty
@@ -71,9 +72,9 @@ class Addresses(tag: Tag) extends Table[Address](tag, "addresses") with RichTabl
   def city = column[String]("city")
   def zip = column[String]("zip")
 
-  def * = (id, accountId, name, street1, street2, city, zip) <> ((Address.apply _).tupled, Address.unapply)
+  def * = (id, accountId, stateId, name, street1, street2, city, zip) <> ((Address.apply _).tupled, Address.unapply)
 
-  def sstate = foreignKey("addresses_state_id_fk", stateId, TableQuery[States])(_.id)
+  def state = foreignKey("addresses_state_id_fk", stateId, TableQuery[States])(_.id)
 }
 
 object Addresses {
@@ -87,21 +88,27 @@ object Addresses {
     db.run(table.filter(_.id === id).result.headOption)
   }
 
-  def createFromPayload(db: PostgresDriver.backend.DatabaseDef, account: User, payload: Seq[CreateAddressPayload]): Future[Seq[Address] Or Seq[ErrorMessage]] = {
+  def createFromPayload(db: PostgresDriver.backend.DatabaseDef,
+                        account: User,
+                        payload: Seq[CreateAddressPayload])
+                       (implicit ec: ExecutionContext): Future[Seq[Address] Or Seq[ErrorMessage]] = {
     // map to Address & validate
     val results = payload.map { a =>
-      val address = Address(id = 0, accountId = account.id, name = a.name,
-        street1 = a.street1, street2 = a.street2, city = a.city, zip = a.zip)
+      val address = Address(id = 0, accountId = account.id, stateId = a.stateId, name = a.name,
+                            street1 = a.street1, street2 = a.street2, city = a.city, zip = a.zip)
       (address, address.validate)
     }
 
-    if (results.filter(_._2 == Failure).nonEmpty) {
-      Future.successful(Bad(results.map(_._2.map(_.description).toSeq)))
+    val failures = results.filter(_._2 == Failure)
+
+    if (failures.nonEmpty) {
+      Future.successful(Bad(failures.map(ErrorMessage(_._2)))
     } else {
       db.run(for {
         _ <- table ++= results.map(_._1)
-        addresses <- table.filter(_.accountId === accound.id).result
-      } yield (addresses)).transactionally
+        addresses <- table.filter(_.accountId === account.id).result
+      } yield (addresses))
+
     }
   }
 }
@@ -294,7 +301,7 @@ object Main extends Formats {
 }
 
 case class LineItemsPayload(skuId: Int, quantity: Int)
-case class CreateAddressPayload(name: String, street1: String, street2: Option[String], city: String, zip: String)
+case class CreateAddressPayload(name: String, stateId: Int, street1: String, street2: Option[String], city: String, zip: String)
 
 // JSON formatters
 trait Formats extends DefaultJsonProtocol {
@@ -307,7 +314,7 @@ trait Formats extends DefaultJsonProtocol {
   }
 
   implicit val addLineItemsRequestFormat = jsonFormat2(LineItemsPayload.apply)
-  implicit val createAddressPayloadFormat = jsonFormat5(CreateAddressPayload.apply)
+  implicit val createAddressPayloadFormat = jsonFormat6(CreateAddressPayload.apply)
 
   val phoenixFormats = DefaultFormats + new CustomSerializer[PaymentStatus](format => (
     { case _ ⇒ sys.error("Reading not implemented") },
