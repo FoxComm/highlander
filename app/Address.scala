@@ -93,6 +93,7 @@ abstract class Payment extends DefaultJsonProtocol {
 
 abstract class PaymentGateway
 case object BraintreeGateway extends PaymentGateway
+// TODO: Get the API key from somewhere more useful.
 case class StripeGateway(paymentToken: String, apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ") extends PaymentGateway {
   def validateToken: Boolean = {
     Stripe.apiKey = this.apiKey
@@ -111,7 +112,19 @@ case class StripeGateway(paymentToken: String, apiKey: String = "sk_test_eyVBk2N
 
 // Umm, how do I map this to a database? :) -AW
 case class Wallet(id: Int, userId: Int, PaymentMethods: Seq[PaymentMethod])
+class Wallets(tag: Tag) extends Table[Wallet](tag, "wallets") with RichTable {
+  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def accountId = column[Int]("account_id")
+}
 
+object Wallets {
+  val walletsTable = TableQuery[Wallets]
+  val tokenCardsTable = TableQuery[TokenizedCreditCards]
+
+  def paymentMethods(db: PostgresDriver.backend.DatabaseDef, id: Int): Future[Option[Seq[PaymentMethod]]] = {
+    db.run(tokenCardsTable.filter(_.wallet_id === id).result)
+  }
+}
 
 abstract class PaymentMethod extends DefaultJsonProtocol {
   def validate: Boolean = {
@@ -131,6 +144,15 @@ case class CreditCard(id: Int, cartId: Int, cardholderName: String, cardNumber: 
 // We should probably store the payment gateway on the card itself.  This way, we can manage a world where a merchant changes processors.
 case class TokenizedCreditCard(id: Int, walletId: Int, paymentGateway: PaymentGateway, gatewayTokenId: String, gatewayUserEmail: String) extends PaymentMethod
 case class GiftCard(id: Int, cartId: Int, status: GiftCardPaymentStatus, code: String) extends PaymentMethod
+
+// TODO: Decide if we should take some kind of STI approach here!
+class TokenizedCreditCards(tag: Tag) extends Table[TokenizedCreditCard](tag, "tokenized_credit_cards") with RichTable {
+  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def wallet_id = column[Int]("wallet_id")
+  def payment_gateway = column[String]("payment_gateway")
+  def gateway_token_id = column[String]("gateway_token_token_id")
+  def gateway_user_email = column[String]("gateway_user_email")
+}
 
 sealed trait Destination
 case class EmailDestination(email: String) extends Destination
@@ -217,13 +239,13 @@ class Checkout(cart: Cart) {
 }
 
 
-
-case class User(id: Int, email: String, password: String, firstName: String, lastName: String) extends Validation {
+// We should have accounts.  Users and Shoppers can have accounts.
+case class Shopper(id: Int, email: String, password: String, firstName: String, lastName: String) extends Validation {
   override def validator[T] = {
-    createValidator[User] { user =>
-      user.firstName is notEmpty
-      user.lastName is notEmpty
-      user.email is notEmpty
+    createValidator[Shopper] { shopper =>
+      shopper.firstName is notEmpty
+      shopper.lastName is notEmpty
+      shopper.email is notEmpty
     }
   }.asInstanceOf[Validator[T]] // TODO: fix me
 }
@@ -395,12 +417,12 @@ class Service extends Formats {
       db.run(carts.filter(_.id === id).result.headOption)
     }
 
-    def findAccount(id: Option[Int]): Option[User] = {
+    def findAccount(id: Option[Int]): Option[Shopper] = {
       id match{
         case None =>
           None
         case Some(id) =>
-          Some(new User(id, "donkey@donkey.com", "donkeyPass", "Mister", "Donkey"))
+          Some(new Shopper(id, "donkey@donkey.com", "donkeyPass", "Mister", "Donkey"))
       }
     }
 
@@ -468,7 +490,8 @@ class Service extends Formats {
                     findAccount(c.accountId) match {
                       case None =>
                         HttpResponse(OK, entity = render("Guest checkout!!"))
-                      case Some(u) =>
+                      case Some(s) =>
+
                         HttpResponse(OK, entity = render("Authed Checkout"))
                     }
                   case false =>
