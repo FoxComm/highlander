@@ -353,31 +353,31 @@ object LineItemUpdater {
       (skuId, q) <- lineItems.filter(_.cartId === cart.id).groupBy(_.skuId)
     } yield (skuId, q.length)
 
-    /*
-      TODO: let's do this transactionally to avoid data racing
-            maybe we could also leverage slick for a single for comprehension?
-     */
-    db.run(counts.result).flatMap { items =>
-      items.foreach { case (skuId, current) =>
-        val newQuantity = updateQuantities.getOrElse(skuId, 0)
+    val queries = counts.result.flatMap { (items: Seq[(Int, Int)]) =>
+      val existingSkuCounts = items.toMap
 
-        // we're using absolute values from payload, so if newQuantity is greater than create the N items
+      val changes = updateQuantities.map { case (skuId, newQuantity) =>
+        val current = existingSkuCounts.getOrElse(skuId, 0)
+        // we're using absolute values from payload, so if newQuantity is greater then create N items
         if (newQuantity > current) {
           val delta = newQuantity - current
-          db.run(for {
-            _ <- lineItems ++= (1 to delta).map { _ => LineItem(0, cart.id, skuId) }.toSeq
-          } yield ())
-        } else if (current - newQuantity > 0) {
-          db.run(for {
-            _ <- lineItems.filter(_.id in lineItems.filter(_.cartId === cart.id).filter(_.skuId === skuId).
-                    sortBy(_.id.asc).take(current - newQuantity).map(_.id)).delete
-          } yield ())
-        }
-      }
 
-      val allCartItems = lineItems.filter(_.cartId === cart.id)
-      db.run(allCartItems.result).map(Good(_))
+          lineItems ++= (1 to delta).map { _ => LineItem(0, cart.id, skuId) }.toSeq
+        } else if (current - newQuantity > 0) { //otherwise delete N items
+          lineItems.filter(_.id in lineItems.filter(_.cartId === cart.id).filter(_.skuId === skuId).
+                    sortBy(_.id.asc).take(current - newQuantity).map(_.id)).delete
+        } else {
+          // do nothing
+          DBIO.successful({})
+        }
+      }.to[Seq]
+
+      DBIO.seq(changes: _*)
+    }.flatMap { _ ⇒
+      lineItems.filter(_.cartId === cart.id).result
     }
+
+    db.run(queries.transactionally).map(items => Good(items))
   }
 }
 
@@ -412,6 +412,8 @@ class Service extends Formats {
   val user = User(id = 1, email = "yax@foxcommerce.com", password = "donkey", firstName = "Yax", lastName = "Donkey")
 
   val routes = {
+    val cart = Cart(id = 0, accountId = None)
+
     val notFoundResponse = HttpResponse(NotFound)
 
     def renderOrNotFound[T <: AnyRef](resource: Future[Option[T]],
