@@ -274,10 +274,10 @@ object LineItemUpdater {
       (skuId, q) <- lineItems.filter(_.cartId === cart.id).groupBy(_.skuId)
     } yield (skuId, q.length)
 
-    val action = counts.result.flatMap { (items: Seq[(Int, Int)]) =>
+    val queries = counts.result.flatMap { (items: Seq[(Int, Int)]) =>
       val existingSkuCounts = items.toMap
 
-      val actions = updateQuantities.map { case (skuId, newQuantity) =>
+      val changes = updateQuantities.map { case (skuId, newQuantity) =>
         val current = existingSkuCounts.getOrElse(skuId, 0)
         // we're using absolute values from payload, so if newQuantity is greater then create N items
         if (newQuantity > current) {
@@ -287,15 +287,18 @@ object LineItemUpdater {
         } else if (current - newQuantity > 0) { //otherwise delete N items
           lineItems.filter(_.id in lineItems.filter(_.cartId === cart.id).filter(_.skuId === skuId).
                     sortBy(_.id.asc).take(current - newQuantity).map(_.id)).delete
-        } else ??? /** Not handled in current branch */
+        } else {
+          // do nothing
+          DBIO.successful({})
+        }
       }.to[Seq]
 
-      DBIO.seq(actions: _*)
+      DBIO.seq(changes: _*)
     }.flatMap { _ ⇒
       lineItems.filter(_.cartId === cart.id).result
     }
 
-    db.run(action.transactionally).map(items => Good(items))
+    db.run(queries.transactionally).map(items => Good(items))
   }
 }
 
