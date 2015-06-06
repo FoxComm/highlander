@@ -179,6 +179,25 @@ class TokenizedCreditCards(tag: Tag) extends Table[TokenizedCreditCard](tag, "to
   def * = (id, accountId, paymentGateway, gatewayTokenId, lastFourDigits, expirationMonth, expirationYear, brand) <> ((TokenizedCreditCard.apply _).tupled, TokenizedCreditCard.unapply)
 }
 
+case class AppliedPayment(id: Int = 0,
+                           cartId: Int,
+                           paymentMethodId: Int,
+                           paymentMethodType: String,
+                           appliedAmount: Float,
+                           status: String,
+                           responseCode: String)
+
+class AppliedPayments(tag: Tag) extends Table[AppliedPayment](tag, "applied_payments") with RichTable {
+  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def cartId = column[Int]("cart_id")
+  def paymentMethodId = column[Int]("payment_method_id")
+  def paymentMethodType = column[String]("payment_method_type")
+  def appliedAmount = column[Float]("applied_amount")
+  def status = column[String]("status")
+  def responseCode = column[String]("response_code")
+  def * = (id, cartId, paymentMethodId, paymentMethodType, appliedAmount, status, responseCode) <> ((AppliedPayment.apply _).tupled, AppliedPayment.unapply )
+}
+
 sealed trait Destination
 case class EmailDestination(email: String) extends Destination
 case class ResidenceDestination(address: Address) extends Destination
@@ -214,9 +233,24 @@ class Carts(tag: Tag) extends Table[Cart](tag, "carts") with RichTable {
 
 object Carts {
   val cartsTable = TableQuery[Carts]
+  val tokenCardsTable = TableQuery[TokenizedCreditCards]
+  val appliedPaymentsTable = TableQuery[AppliedPayments]
 
-  def findPaymentMethods(db: PostgresDriver.backend.databaseDef, cartId: Int): Unit = {
-    //What do we return here?  I still don't have a clear STI approach in mind.  So maybe just tokenized cards for now.
+  // What do we return here?  I still don't have a clear STI approach in mind.  So maybe just tokenized cards for now.
+  // Ideally, we would return a generic list of payment methods of all types (eg. giftcards, creditcards, store-credit)
+  def findPaymentMethods(db: PostgresDriver.backend.DatabaseDef, cartId: Int): Future[Seq[TokenizedCreditCard]] = {
+
+    //val appliedIds = appliedPaymentsTable.returning(appliedPaymentsTable.map(_.paymentMethodId))
+
+    // I tried a monadic join here and failed.
+//    val filteredPayments = for {
+//      ap <- appliedPaymentsTable if ap.cartId === cartId
+//      tc <- tokenCardsTable if tc.id === ap.paymentMethodId
+//    } yield (tc.id, tc.accountId, tc.paymentGateway, tc.gatewayTokenId, tc.lastFourDigits, tc.expirationMonth, tc.expirationYear, tc.brand)
+//    db.run(filteredPayments.head)
+
+    // TODO: Yax or Ferdinand: Help me filter all the TokenizedCards through the mapping table of applied_payments that belong to this cart.
+    
   }
 }
 
