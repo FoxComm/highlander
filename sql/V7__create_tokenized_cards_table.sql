@@ -3,7 +3,10 @@ create table tokenized_credit_cards (
     account_id integer,
     payment_gateway character varying(255) not null,
     gateway_token_id character varying(255) not null,
-    gateway_user_email character varying(255)
+    last_four_digits character varying(4),
+    expiration_month integer,
+    expiration_year integer,
+    brand character varying(255)
 );
 
 create sequence tokenized_credit_cards_id_seq
