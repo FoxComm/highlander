@@ -224,6 +224,12 @@ case class Cart(id: Int, accountId: Option[Int] = None) {
   // TODO: service class it?
 }
 
+trait RichTable {
+  implicit val JavaUtilDateMapper =
+    MappedColumnType .base[java.util.Date, java.sql.Timestamp] (
+      d => new java.sql.Timestamp(d.getTime),
+      d => new java.util.Date(d.getTime))
+}
 
 class Carts(tag: Tag) extends Table[Cart](tag, "carts") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
@@ -239,6 +245,9 @@ object Carts {
   // What do we return here?  I still don't have a clear STI approach in mind.  So maybe just tokenized cards for now.
   // Ideally, we would return a generic list of payment methods of all types (eg. giftcards, creditcards, store-credit)
   def findPaymentMethods(db: PostgresDriver.backend.DatabaseDef, cartId: Int): Future[Seq[TokenizedCreditCard]] = {
+    val token = TokenizedCreditCard(accountId = cartId, paymentGateway = "Stripe", gatewayTokenId = "123abc",
+                                    lastFourDigits = "4444", expirationMonth = 2, expirationYear = 2016, brand = "Stripe")
+    Future.successful(Seq(token))
 
     //val appliedIds = appliedPaymentsTable.returning(appliedPaymentsTable.map(_.paymentMethodId))
 
@@ -250,15 +259,11 @@ object Carts {
 //    db.run(filteredPayments.head)
 
     // TODO: Yax or Ferdinand: Help me filter all the TokenizedCards through the mapping table of applied_payments that belong to this cart.
-    
   }
-}
 
-trait RichTable {
-  implicit val JavaUtilDateMapper =
-    MappedColumnType .base[java.util.Date, java.sql.Timestamp] (
-      d => new java.sql.Timestamp(d.getTime),
-      d => new java.util.Date(d.getTime))
+  def findById(db: PostgresDriver.backend.DatabaseDef, id: Int): Future[Option[Cart]] = {
+    db.run(cartsTable.filter(_.id === id).result.headOption)
+  }
 }
 
 class LineItems(tag: Tag) extends Table[LineItem](tag, "line_items") with RichTable {
@@ -417,36 +422,35 @@ object LineItemUpdater {
     }
 
     // select sku_id, count(1) from line_items where cart_id = $ group by sku_id
-    val counts = (for {
+    val counts = for {
       (skuId, q) <- lineItems.filter(_.cartId === cart.id).groupBy(_.skuId)
-    } yield (skuId, q.length))
+    } yield (skuId, q.length)
 
-    /*
-      TODO: let's do this transactionally to avoid data racing
-            maybe we could also leverage slick for a single for comprehension?
-     */
-    db.run(counts.result).flatMap { items =>
-      items.foreach { case (skuId, current) =>
-        val newQuantity = updateQuantities.getOrElse(skuId, 0)
+    val queries = counts.result.flatMap { (items: Seq[(Int, Int)]) =>
+      val existingSkuCounts = items.toMap
 
-        // we're using absolute values from payload, so if newQuantity is greater than create the N items
+      val changes = updateQuantities.map { case (skuId, newQuantity) =>
+        val current = existingSkuCounts.getOrElse(skuId, 0)
+        // we're using absolute values from payload, so if newQuantity is greater then create N items
         if (newQuantity > current) {
           val delta = newQuantity - current
-          db.run(for {
-            _ <- lineItems ++= (1 to delta).map { _ => LineItem(0, cart.id, skuId) }.toSeq
-          } yield ())
-        } else if (newQuantity < current && current - newQuantity > 0) {
-          db.run(for {
-            _ <- lineItems.filter(_.id in lineItems.filter(_.cartId === cart.id).filter(_.skuId === skuId).
-                    sortBy(_.id.asc).take(current - newQuantity).map(_.id)).delete
-          } yield ())
-        }
-      }
 
-      db.run(lineItems.filter(_.cartId === cart.id).result).map { results =>
-        Good(results)
-      }
+          lineItems ++= (1 to delta).map { _ => LineItem(0, cart.id, skuId) }.toSeq
+        } else if (current - newQuantity > 0) { //otherwise delete N items
+          lineItems.filter(_.id in lineItems.filter(_.cartId === cart.id).filter(_.skuId === skuId).
+                    sortBy(_.id.asc).take(current - newQuantity).map(_.id)).delete
+        } else {
+          // do nothing
+          DBIO.successful({})
+        }
+      }.to[Seq]
+
+      DBIO.seq(changes: _*)
+    }.flatMap { _ ⇒
+      lineItems.filter(_.cartId === cart.id).result
     }
+
+    db.run(queries.transactionally).map(items => Good(items))
   }
 }
 
@@ -483,11 +487,6 @@ class Service extends Formats {
   val routes = {
     val cart = Cart(id = 0, accountId = None)
 
-    def findCart(id: Int): Future[Option[Cart]] = {
-      // If we are going to punt on user authentication, then we sort of have to stub this piece out.
-      // If we do auth, then we should create a cart for a user if one doesn't exist.
-      db.run(carts.filter(_.id === id).result.headOption)
-    }
 
     def findAccount(id: Option[Int]): Option[Shopper] = {
       id match{
@@ -512,12 +511,12 @@ class Service extends Formats {
       pathPrefix("v1" / "cart" ) {
         (get & path(IntNumber)) { id =>
           complete {
-            renderOrNotFound(findCart(id))
+            renderOrNotFound(Carts.findById(db, id))
           }
         } ~
         (post & path(IntNumber / "checkout")) { id =>
           complete {
-            renderOrNotFound(findCart(id), (c: Cart) => {
+            renderOrNotFound(Carts.findById(db, id), (c: Cart) => {
               new Checkout(c).checkout match {
                 case Good(order) => HttpResponse(OK, entity = render(order))
                 case Bad(errors) => HttpResponse(BadRequest, entity = render(errors))
@@ -527,7 +526,7 @@ class Service extends Formats {
         } ~
         (post & path(IntNumber / "line-items") & entity(as[Seq[LineItemsPayload]])) { (cartId, reqItems) =>
           complete {
-            findCart(cartId).map {
+            Carts.findById(db, cartId).map {
               case None => Future(notFoundResponse)
               case Some(c) =>
                 LineItemUpdater(db, c, reqItems).map {
@@ -539,12 +538,12 @@ class Service extends Formats {
         } ~
           (get & path(IntNumber / "payment-methods")) { cartId =>
             complete {
-              renderOrNotFound(findCart(cartId))
+              renderOrNotFound(Carts.findById(db, cartId))
             }
           } ~
         (post & path(IntNumber / "payment-methods") & entity(as[PaymentMethodPayload])) { (cartId, reqPayment) =>
           complete {
-            findCart(cartId).map {
+            Carts.findById(db, cartId).map {
               //can't add payment methods if the cart doesn't exist
               case None => notFoundResponse
               case Some(c) =>
@@ -554,7 +553,7 @@ class Service extends Formats {
         } ~
         (post & path(IntNumber / "tokenized-payment-methods") & entity(as[TokenizedPaymentMethodPayload])) { (cartId, reqPayment) =>
           complete {
-            findCart(cartId).flatMap {
+            Carts.findById(db, cartId).flatMap {
               case None => Future.successful(notFoundResponse)
               case Some(c) =>
                 // Check to see if there is a user associated with the checkout.

@@ -55,51 +55,52 @@ class DbTestSupportTest extends FreeSpec
 
   "DB Test Support" - {
 
-    "Adds line_items when the sku doesn't exist in cart" in {
-      val cart = Cart(id = 1, accountId = None)
-      val payload = Seq[LineItemsPayload](
-        LineItemsPayload(skuId = 1, quantity = 3),
-        LineItemsPayload(skuId = 2, quantity = 0),
-        LineItemsPayload(skuId = 3, quantity = 1)
-      )
+    "LineItemUpdater" - {
 
-      LineItemUpdater(db, cart, payload).futureValue match {
-        case Good(items) =>
-          items.filter(_.skuId == 1).length must be (3)
-          items.filter(_.skuId == 2).length must be (0)
-          items.filter(_.skuId == 3).length must be (1)
+      "Adds line_items when the sku doesn't exist in cart" in {
+        val cart = Cart(id = 1, accountId = None)
+        val payload = Seq[LineItemsPayload](
+          LineItemsPayload(skuId = 1, quantity = 3),
+          LineItemsPayload(skuId = 2, quantity = 0)
+        )
 
-          val allRecords = db.run(lineItems.result).futureValue
+        LineItemUpdater(db, cart, payload).futureValue match {
+          case Good(items) =>
+            items.filter(_.skuId == 1).length must be(3)
+            items.filter(_.skuId == 2).length must be(0)
 
-          items must be (allRecords)
+            val allRecords = db.run(lineItems.result).futureValue
 
-        case Bad(s) => fail(s.mkString(";"))
+            items must be (allRecords)
+
+          case Bad(s) => fail(s.mkString(";"))
+        }
       }
-    }
 
-    // TODO: move me to model spec
-    "Updates line_items when the Sku already is in cart" in {
-      val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { skuId => LineItem(id = 0, cartId = 1, skuId = skuId) }
-      createLineItems(seedItems)
+      // TODO: move me to model spec
+      "Updates line_items when the Sku already is in cart" in {
+        val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { skuId => LineItem(id = 0, cartId = 1, skuId = skuId) }
+        createLineItems(seedItems)
 
-      val cart = Cart(id = 1, accountId = None)
-      val payload = Seq[LineItemsPayload](
-        LineItemsPayload(skuId = 1, quantity = 3),
-        LineItemsPayload(skuId = 2, quantity = 0),
-        LineItemsPayload(skuId = 3, quantity = 1)
-      )
+        val cart = Cart(id = 1, accountId = None)
+        val payload = Seq[LineItemsPayload](
+          LineItemsPayload(skuId = 1, quantity = 3),
+          LineItemsPayload(skuId = 2, quantity = 0),
+          LineItemsPayload(skuId = 3, quantity = 1)
+        )
 
-      LineItemUpdater(db, cart, payload).futureValue match {
-        case Good(items) =>
-          items.filter(_.skuId == 1).length must be (3)
-          items.filter(_.skuId == 2).length must be (0)
-          items.filter(_.skuId == 3).length must be (1)
+        LineItemUpdater(db, cart, payload).futureValue match {
+          case Good(items) =>
+            items.filter(_.skuId == 1).length must be(3)
+            items.filter(_.skuId == 2).length must be(0)
+            items.filter(_.skuId == 3).length must be(1)
 
-          val allRecords = db.run(lineItems.result).futureValue
+            val allRecords = db.run(lineItems.result).futureValue
 
-          items must be (allRecords)
+            items must be (allRecords)
 
-        case Bad(s) => fail(s.mkString(";"))
+          case Bad(s) => fail(s.mkString(";"))
+        }
       }
     }
 
