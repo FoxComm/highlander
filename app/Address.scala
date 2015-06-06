@@ -126,6 +126,8 @@ abstract class PaymentMethod extends DefaultJsonProtocol {
 }
 
 object PaymentMethods {
+  import scala.concurrent.ExecutionContext.Implicits.global
+
   // ONLY implmenting tokenized payment methods right now.
   // Next up will be full credit cards
   val tokenCardsTable = TableQuery[TokenizedCreditCards]
@@ -136,15 +138,19 @@ object PaymentMethods {
   }
 
   // TODO: Figure out our standard 'return' objects for all inserts and lookups
-  def addPaymentTokenToAccount(db: PostgresDriver.backend.DatabaseDef, paymentToken: String, account: Shopper) : Future[Option[PaymentMethod]] = {
+  def addPaymentTokenToAccount(db: PostgresDriver.backend.DatabaseDef, paymentToken: String, account: Shopper) : Future[TokenizedCreditCard] = {
     val insertablePaymentToken = TokenizedCreditCard(id = 0, accountId = account.id, paymentGateway = "stripe", gatewayTokenId = paymentToken, gatewayUserEmail = "")
-    
-    val insertAction = DBIO.seq(
-      tokenCardsTable += insertablePaymentToken
-    )
-    db.run(insertAction).result.headOption
-  }
 
+    /** Can be used like 'tokenCardsTable', but returns the newly inserted ID */
+    val newlyInsertedId = tokenCardsTable.returning(tokenCardsTable.map(_.id))
+
+    val insertAction = (newlyInsertedId += insertablePaymentToken).map { newId: Int ⇒
+      /** Transform the result of the database query after it is run from Int -> TokenizedCreditCard */
+      insertablePaymentToken.copy(id = newId)
+    }
+
+    db.run(insertAction)
+  }
 }
 
 
