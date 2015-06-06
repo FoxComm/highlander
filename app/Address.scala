@@ -205,17 +205,26 @@ case class Cart(id: Int, accountId: Option[Int] = None) {
   // TODO: service class it?
 }
 
-trait RichTable {
-  implicit val JavaUtilDateMapper =
-    MappedColumnType .base[java.util.Date, java.sql.Timestamp] (
-      d => new java.sql.Timestamp(d.getTime),
-      d => new java.util.Date(d.getTime))
-}
 
 class Carts(tag: Tag) extends Table[Cart](tag, "carts") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def accountId = column[Option[Int]]("account_id")
   def * = (id, accountId) <> ((Cart.apply _).tupled, Cart.unapply)
+}
+
+object Carts {
+  val cartsTable = TableQuery[Carts]
+
+  def findPaymentMethods(db: PostgresDriver.backend.databaseDef, cartId: Int): Unit = {
+    //What do we return here?  I still don't have a clear STI approach in mind.  So maybe just tokenized cards for now.
+  }
+}
+
+trait RichTable {
+  implicit val JavaUtilDateMapper =
+    MappedColumnType .base[java.util.Date, java.sql.Timestamp] (
+      d => new java.sql.Timestamp(d.getTime),
+      d => new java.util.Date(d.getTime))
 }
 
 class LineItems(tag: Tag) extends Table[LineItem](tag, "line_items") with RichTable {
