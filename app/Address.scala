@@ -1,4 +1,5 @@
 import java.util.Date
+import java.util.concurrent.TimeoutException
 import com.stripe.model.Token
 import com.stripe.model.Charge
 import com.stripe.Stripe
@@ -101,15 +102,28 @@ case class StripeGateway(paymentToken: String, apiKey: String = "sk_test_eyVBk2N
     Stripe.apiKey = this.apiKey
     try {
       val retrievedToken = Token.retrieve(this.paymentToken)
-      val card = retrievedToken.getCard
-      new TokenizedCreditCard()
-      println(card)
+      println(retrievedToken.getCard)
+      //val cardJson = JsonParser(retrievedToken.getCard)
+      //val stripeResp = cardJson.convertTo[StripeTokenizedPaymentPayload]
+//      new TokenizedCreditCard(paymentGateway = "stripe",
+//        gatewayTokenId = stripeResp.hi1,
+//        lastFourDigits = stripeResp.last4,
+//        expirationMonth = stripeResp.hi2,
+//        expirationYear = stripeResp.hi3,
+//        brand = stripeResp.hi4
+//      )
+      Some(new TokenizedCreditCard(paymentGateway = "stripe",
+        gatewayTokenId = "string",
+        lastFourDigits = 1234,
+        expirationMonth = 12,
+        expirationYear = 3333,
+        brand = "visa"
+      ))
     } catch {
       case ire: com.stripe.exception.InvalidRequestException =>
         println(ire)
         return None
     }
-    true
   }
 }
 
@@ -129,17 +143,27 @@ object PaymentMethods {
 
   // TODO: Figure out our standard 'return' objects for all inserts and lookups
   def addPaymentTokenToAccount(db: PostgresDriver.backend.DatabaseDef, paymentToken: String, account: Shopper) : Future[TokenizedCreditCard] = {
-    val insertablePaymentToken = TokenizedCreditCard(id = 0, accountId = account.id, paymentGateway = "stripe", gatewayTokenId = paymentToken, gatewayUserEmail = "")
+    // First, let's get this token from stripe.
+    // TODO: Let's handle a bad response from stripe and bubble up to the user
+    val gateWay = StripeGateway(paymentToken = paymentToken)
+    gateWay.getTokenizedCard match {
+      case Some(card) =>
+        val cardToSave = card.copy(accountId = account.id)
+        /** Can be used like 'tokenCardsTable', but returns the newly inserted ID */
+        val newlyInsertedId = tokenCardsTable.returning(tokenCardsTable.map(_.id))
 
-    /** Can be used like 'tokenCardsTable', but returns the newly inserted ID */
-    val newlyInsertedId = tokenCardsTable.returning(tokenCardsTable.map(_.id))
+        val insertAction = (newlyInsertedId += cardToSave).map { newId: Int ⇒
+          /** Transform the result of the database query after it is run from Int -> TokenizedCreditCard */
+          cardToSave.copy(id = newId)
+        }
 
-    val insertAction = (newlyInsertedId += insertablePaymentToken).map { newId: Int ⇒
-      /** Transform the result of the database query after it is run from Int -> TokenizedCreditCard */
-      insertablePaymentToken.copy(id = newId)
+        db.run(insertAction)
+      case None => Future.failed(new java.lang.RuntimeException())
     }
 
-    db.run(insertAction)
+    // val insertablePaymentToken = TokenizedCreditCard(id = 0, accountId = account.id, paymentGateway = "stripe", gatewayTokenId = paymentToken, gatewayUserEmail = "")
+
+
   }
 }
 
@@ -147,7 +171,8 @@ object PaymentMethods {
 // TODO: Figure out how to have the 'status' field on the payment and not the payment method.
 case class CreditCard(id: Int, cartId: Int, cardholderName: String, cardNumber: String, cvv: Int, status: CreditCardPaymentStatus, expiration: String, address: Address) extends PaymentMethod
 // We should probably store the payment gateway on the card itself.  This way, we can manage a world where a merchant changes processors.
-case class TokenizedCreditCard(id: Int, accountId: Int, paymentGateway: String, gatewayTokenId: String, lastFourDigits: String, expirationMonth: Int, ExpirationYear: Int, brand: String) extends PaymentMethod
+case class TokenizedCreditCard(id: Int = 0, accountId: Int = 0, paymentGateway: String, gatewayTokenId: String, lastFourDigits: Int, expirationMonth: Int, expirationYear: Int, brand: String) extends PaymentMethod {
+}
 case class GiftCard(id: Int, cartId: Int, status: GiftCardPaymentStatus, code: String) extends PaymentMethod
 
 // TODO: Decide if we should take some kind of STI approach here!
@@ -156,8 +181,11 @@ class TokenizedCreditCards(tag: Tag) extends Table[TokenizedCreditCard](tag, "to
   def accountId = column[Int]("account_id")
   def paymentGateway = column[String]("payment_gateway")
   def gatewayTokenId = column[String]("gateway_token_id")
-  def gatewayUserEmail = column[String]("gateway_user_email")
-  def * = (id, accountId, paymentGateway, gatewayTokenId, gatewayUserEmail) <> ((TokenizedCreditCard.apply _).tupled, TokenizedCreditCard.unapply)
+  def lastFourDigits = column[Int]("last_four_digits")
+  def expirationMonth = column[Int]("expiration_month")
+  def expirationYear = column[Int]("expiration_year")
+  def brand = column[String]("brand")
+  def * = (id, accountId, paymentGateway, gatewayTokenId, lastFourDigits, expirationMonth, expirationYear, brand) <> ((TokenizedCreditCard.apply _).tupled, TokenizedCreditCard.unapply)
 }
 
 sealed trait Destination
@@ -292,6 +320,9 @@ object Main extends Formats {
   }
 }
 
+////////////////////
+// PAYLOADS
+////////////////////
 case class LineItemsPayload(skuId: Int, quantity: Int)
 case class PaymentMethodPayload(cardholderName: String, cardNumber: String,  cvv: Int, expiration: String)
 case class TokenizedPaymentMethodPayload(paymentGateway: String, paymentGatewayToken: String) extends Validation {
@@ -302,6 +333,8 @@ case class TokenizedPaymentMethodPayload(paymentGateway: String, paymentGatewayT
     }
   }.asInstanceOf[Validator[T]] // TODO: fix me!
 }
+
+case class StripeTokenizedPaymentPayload(hi1: Int, hi2: Int, hi3: Int)
 
 // JSON formatters
 trait Formats extends DefaultJsonProtocol {
@@ -316,6 +349,7 @@ trait Formats extends DefaultJsonProtocol {
   implicit val addLineItemsRequestFormat = jsonFormat2(LineItemsPayload.apply)
   implicit val addPaymentMethodRequestFormat = jsonFormat4(PaymentMethodPayload.apply)
   implicit val addTokenizedPaymentMethodRequestFormat = jsonFormat2(TokenizedPaymentMethodPayload.apply)
+  implicit val stripeTokenizedPaymentResponseFormat = jsonFormat3(StripeTokenizedPaymentPayload.apply)
 
 
   val phoenixFormats = DefaultFormats + new CustomSerializer[PaymentStatus](format => (
@@ -491,9 +525,11 @@ class Service extends Formats {
             findCart(cartId).flatMap {
               case None => Future.successful(notFoundResponse)
               case Some(c) =>
-                val paymentGateway = new StripeGateway(reqPayment.paymentGatewayToken)
+                //val paymentGateway = new StripeGateway(reqPayment.paymentGatewayToken)
+
+
                 // First, ensure that the token is valid.
-                if (paymentGateway.validateToken) {
+                //if (paymentGateway.validateToken) {
                   println("This was a valid stripe payment token.")
 
                   // Next, check to see if there is a user associated with the checkout.
@@ -507,10 +543,10 @@ class Service extends Formats {
                         HttpResponse(OK, entity = render(x))
                       }
                   }
-                } else {
-                    println("Stripe payment token was invalid")
-                    Future.successful(HttpResponse(OK, entity = render("Stripe payment token was invalid!")))
-                }
+//                } else {
+//                    println("Stripe payment token was invalid")
+//                    Future.successful(HttpResponse(OK, entity = render("Stripe payment token was invalid!")))
+//                }
 
            }
           }
