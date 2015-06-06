@@ -126,11 +126,23 @@ abstract class PaymentMethod extends DefaultJsonProtocol {
 }
 
 object PaymentMethods {
+  // ONLY implmenting tokenized payment methods right now.
+  // Next up will be full credit cards
   val tokenCardsTable = TableQuery[TokenizedCreditCards]
 
   // TODO: The right way to do this would be to return all the different payment methods available to the user.
   def findAllByAccount(db: PostgresDriver.backend.DatabaseDef, account: Shopper): Future[Seq[PaymentMethod]] = {
     db.run(tokenCardsTable.filter(_.accountId === account.id).result)
+  }
+
+  // TODO: Figure out our standard 'return' objects for all inserts and lookups
+  def addPaymentTokenToAccount(db: PostgresDriver.backend.DatabaseDef, paymentToken: String, account: Shopper) : Future[Option[PaymentMethod]] = {
+    val insertablePaymentToken = TokenizedCreditCard(id = 0, accountId = account.id, paymentGateway = "stripe", gatewayTokenId = paymentToken, gatewayUserEmail = "")
+    
+    val insertAction = DBIO.seq(
+      tokenCardsTable += insertablePaymentToken
+    )
+    db.run(insertAction).result.headOption
   }
 
 }
@@ -483,9 +495,9 @@ class Service extends Formats {
             findCart(cartId).map {
               case None => notFoundResponse
               case Some(c) =>
-
+                val paymentGateway = new StripeGateway(reqPayment.paymentGatewayToken)
                 // First, ensure that the token is valid.
-                new StripeGateway(reqPayment.paymentGatewayToken).validateToken match {
+                paymentGateway.validateToken match {
                   case true =>
                     println("This was a valid stripe payment token.")
 
@@ -494,7 +506,8 @@ class Service extends Formats {
                       case None =>
                         HttpResponse(OK, entity = render("Guest checkout!!"))
                       case Some(s) =>
-
+                        // Persist the payment token to the user's account
+                        PaymentMethods.addPaymentTokenToAccount(db, reqPayment.paymentGatewayToken, s)
                         HttpResponse(OK, entity = render("Authed Checkout"))
                     }
                   case false =>
