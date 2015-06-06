@@ -123,6 +123,14 @@ class Carts(tag: Tag) extends Table[Cart](tag, "carts") with RichTable {
   def * = (id, accountId) <> ((Cart.apply _).tupled, Cart.unapply)
 }
 
+object Carts {
+  val table = TableQuery[Carts]
+
+  def findById(db: PostgresDriver.backend.DatabaseDef, id: Int): Future[Option[Cart]] = {
+    db.run(table.filter(_.id === id).result.headOption)
+  }
+}
+
 class LineItems(tag: Tag) extends Table[LineItem](tag, "line_items") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def cartId = column[Int]("cart_id")
@@ -244,7 +252,7 @@ trait Formats extends DefaultJsonProtocol {
 object LineItemUpdater {
   def apply(db: PostgresDriver.backend.DatabaseDef,
             cart: Cart,
-            lineItems: Seq[LineItemsPayload])
+            payload: Seq[LineItemsPayload])
            (implicit ec: ExecutionContext): Future[Seq[LineItem] Or List[ErrorMessage]] = {
 
     // TODO:
@@ -253,26 +261,44 @@ object LineItemUpdater {
     //  validate inventory (might be in PIM maybe not)
     //  run hooks to manage promotions
 
-//    val addedLineItems = lineItems.flatMap { req =>
-//      (1 to req.quantity).map { i => LineItem(id = 0, cartId = cart.id, skuId = req.skuId) }
-//    }
-//
-//    val lineItemsTable = TableQuery[LineItems]
-//    val query = for {
-//      blah <- lineItemsTable.filter(_.cartId === cart.id).groupBy(_.skuId)
-//    } yield blah
-//      //groupBy(_.skuId).sel
-//    val q = Compiled(query).compiledQuery.toString
-//    println(q)
+    val lineItems = TableQuery[LineItems]
 
-//    val actions = (for {
-////      items <-
-////      items ← lineItemsTable.filter(_.cartId === cart.id).result
-//    } yield items).transactionally
+    // reduce Seq[LineItemsPayload] -> Map(skuId: Int -> absoluteQuantity: Int)
+    val updateQuantities = payload.foldLeft(Map[Int, Int]()) { (acc, item) =>
+      val quantity = acc.getOrElse(item.skuId, 0)
+      acc.updated(item.skuId, quantity + item.quantity)
+    }
 
-//    db.run(actions).map { items =>
-      Future.successful(Good(Seq(LineItem(id = 1, skuId = 2, cartId = cart.id))))
-//    }
+    // select sku_id, count(1) from line_items where cart_id = $ group by sku_id
+    val counts = for {
+      (skuId, q) <- lineItems.filter(_.cartId === cart.id).groupBy(_.skuId)
+    } yield (skuId, q.length)
+
+    val queries = counts.result.flatMap { (items: Seq[(Int, Int)]) =>
+      val existingSkuCounts = items.toMap
+
+      val changes = updateQuantities.map { case (skuId, newQuantity) =>
+        val current = existingSkuCounts.getOrElse(skuId, 0)
+        // we're using absolute values from payload, so if newQuantity is greater then create N items
+        if (newQuantity > current) {
+          val delta = newQuantity - current
+
+          lineItems ++= (1 to delta).map { _ => LineItem(0, cart.id, skuId) }.toSeq
+        } else if (current - newQuantity > 0) { //otherwise delete N items
+          lineItems.filter(_.id in lineItems.filter(_.cartId === cart.id).filter(_.skuId === skuId).
+                    sortBy(_.id.asc).take(current - newQuantity).map(_.id)).delete
+        } else {
+          // do nothing
+          DBIO.successful({})
+        }
+      }.to[Seq]
+
+      DBIO.seq(changes: _*)
+    }.flatMap { _ ⇒
+      lineItems.filter(_.cartId === cart.id).result
+    }
+
+    db.run(queries.transactionally).map(items => Good(items))
   }
 }
 
@@ -309,12 +335,6 @@ class Service extends Formats {
   val routes = {
     val cart = Cart(id = 0, accountId = None)
 
-    def findCart(id: Int): Future[Option[Cart]] = {
-      // If we are going to punt on user authentication, then we sort of have to stub this piece out.
-      // If we do auth, then we should create a cart for a user if one doesn't exist.
-      db.run(carts.filter(_.id === id).result.headOption)
-    }
-
     val notFoundResponse = HttpResponse(NotFound)
 
     def renderOrNotFound[T <: AnyRef](resource: Future[Option[T]],
@@ -329,12 +349,12 @@ class Service extends Formats {
       pathPrefix("v1" / "cart" ) {
         (get & path(IntNumber)) { id =>
           complete {
-            renderOrNotFound(findCart(id))
+            renderOrNotFound(Carts.findById(db, id))
           }
         } ~
         (post & path(IntNumber / "checkout")) { id =>
           complete {
-            renderOrNotFound(findCart(id), (c: Cart) => {
+            renderOrNotFound(Carts.findById(db, id), (c: Cart) => {
               new Checkout(c).checkout match {
                 case Good(order) => HttpResponse(OK, entity = render(order))
                 case Bad(errors) => HttpResponse(BadRequest, entity = render(errors))
@@ -344,24 +364,12 @@ class Service extends Formats {
         } ~
         (post & path(IntNumber / "line-items") & entity(as[Seq[LineItemsPayload]])) { (cartId, reqItems) =>
           complete {
-            findCart(cartId).map {
+            Carts.findById(db, cartId).map {
               case None => Future(notFoundResponse)
               case Some(c) =>
-                // incoming quantity is now *absolute* so we should delete records if we have to or insert them
-                // we just need to set cart.line_items = incoming.quantity
-                // but, we are not assuming that the whole set of line_items comes in as a payload.  so we are only updating the QTY of the
-                // SKUs that we hear about
-
                 LineItemUpdater(db, c, reqItems).map {
-                  case Bad(errors) => HttpResponse(BadRequest, entity = render(errors))
-
-                  case Good(lineItems) =>
-                    val result = lineItems.foldLeft(Map[Int, LineItemsPayload]()) { (payload, item) =>
-                      val p = payload.getOrElse(item.skuId, LineItemsPayload(skuId = item.skuId, quantity = 0))
-                      payload.updated(item.skuId, p.copy(quantity = p.quantity + 1))
-                    }
-
-                    HttpResponse(OK, entity = render(result.values.toSeq))
+                  case Bad(errors)      => HttpResponse(BadRequest, entity = render(errors))
+                  case Good(lineItems)  => HttpResponse(OK, entity = render(lineItems))
                 }
             }
           }
@@ -369,9 +377,6 @@ class Service extends Formats {
       }
     }
   }
-
-  // when lineItem is added to cart then execute fulfillment runner, digital item or something else? we'll create
-  // fulfillment at that moment
 
   def bind(): Unit = {
     Http().bindAndHandle(routes, config.getString("http.interface"), config.getInt("http.port"))
