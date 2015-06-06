@@ -31,6 +31,8 @@ import org.json4s.jackson.Serialization.{write => render}
 import scala.concurrent.{ExecutionContext, Future, Await}
 import scala.concurrent.duration._
 
+import scala.util.Try._
+
 // Validation mixin
 trait Validation {
   def validator[T]: Validator[T]
@@ -498,30 +500,28 @@ class Service extends Formats {
         } ~
         (post & path(IntNumber / "tokenized-payment-methods") & entity(as[TokenizedPaymentMethodPayload])) { (cartId, reqPayment) =>
           complete {
-            findCart(cartId).map {
-              case None => notFoundResponse
+            findCart(cartId).flatMap {
+              case None => Future.successful(notFoundResponse)
               case Some(c) =>
                 val paymentGateway = new StripeGateway(reqPayment.paymentGatewayToken)
                 // First, ensure that the token is valid.
-                paymentGateway.validateToken match {
-                  case true =>
-                    println("This was a valid stripe payment token.")
+                if (paymentGateway.validateToken) {
+                  println("This was a valid stripe payment token.")
 
-                    // Next, check to see if there is a user associated with the checkout.
-                    findAccount(c.accountId) match {
-                      case None =>
-                        HttpResponse(OK, entity = render("Guest checkout!!"))
-                      case Some(s) =>
-                        // Persist the payment token to the user's account
-                        val persistAttempt = PaymentMethods.addPaymentTokenToAccount(db, reqPayment.paymentGatewayToken, s)
-                        persistAttempt onComplete{
-                          case Success(paymentToken) => HttpResponse(OK, entity = render(paymentToken))
-                          case Failure(errors) => HttpResponse(BadRequest, entity = render("Failed saving."))
-                        }
-                    }
-                  case false =>
+                  // Next, check to see if there is a user associated with the checkout.
+                  findAccount(c.accountId) match {
+                    case None     =>
+                      Future.successful(HttpResponse(OK, entity = render("Guest checkout!!")))
+
+                    case Some(s)  =>
+                      // Persist the payment token to the user's account
+                      PaymentMethods.addPaymentTokenToAccount(db, reqPayment.paymentGatewayToken, s).map { x =>
+                        HttpResponse(OK, entity = render(x))
+                      }
+                  }
+                } else {
                     println("Stripe payment token was invalid")
-                    HttpResponse (OK, entity = render ("Stripe payment token was invalid!") )
+                    Future.successful(HttpResponse(OK, entity = render("Stripe payment token was invalid!")))
                 }
 
            }
