@@ -513,8 +513,11 @@ class Service extends Formats {
                         HttpResponse(OK, entity = render("Guest checkout!!"))
                       case Some(s) =>
                         // Persist the payment token to the user's account
-                        PaymentMethods.addPaymentTokenToAccount(db, reqPayment.paymentGatewayToken, s)
-                        HttpResponse(OK, entity = render("Authed Checkout"))
+                        val persistAttempt = PaymentMethods.addPaymentTokenToAccount(db, reqPayment.paymentGatewayToken, s)
+                        persistAttempt onComplete{
+                          case Success(paymentToken) => HttpResponse(OK, entity = render(paymentToken))
+                          case Failure(errors) => HttpResponse(BadRequest, entity = render("Failed saving."))
+                        }
                     }
                   case false =>
                     println("Stripe payment token was invalid")
