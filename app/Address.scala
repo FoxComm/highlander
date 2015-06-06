@@ -97,35 +97,23 @@ abstract class PaymentGateway
 case object BraintreeGateway extends PaymentGateway
 // TODO: Get the API key from somewhere more useful.
 case class StripeGateway(paymentToken: String, apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ") extends PaymentGateway {
-  def validateToken: Boolean = {
+  def getTokenizedCard: Option[TokenizedCreditCard] = {
     Stripe.apiKey = this.apiKey
     try {
       val retrievedToken = Token.retrieve(this.paymentToken)
       val card = retrievedToken.getCard
+      new TokenizedCreditCard()
       println(card)
     } catch {
       case ire: com.stripe.exception.InvalidRequestException =>
         println(ire)
-        return false
+        return None
     }
     true
   }
 }
 
-
-abstract class PaymentMethod extends DefaultJsonProtocol {
-  def validate: Boolean = {
-    scala.util.Random.nextInt(2) == 1
-  }
-
-  def addToGuestCheckout: Boolean = {
-    true
-  }
-
-  def addToUserWallet: Boolean = {
-    true
-  }
-}
+abstract class PaymentMethod
 
 object PaymentMethods {
   import scala.concurrent.ExecutionContext.Implicits.global
@@ -135,7 +123,7 @@ object PaymentMethods {
   val tokenCardsTable = TableQuery[TokenizedCreditCards]
 
   // TODO: The right way to do this would be to return all the different payment methods available to the user.
-  def findAllByAccount(db: PostgresDriver.backend.DatabaseDef, account: Shopper): Future[Seq[PaymentMethod]] = {
+  def findAllByAccount(db: PostgresDriver.backend.DatabaseDef, account: Shopper): Future[Seq[TokenizedCreditCard]] = {
     db.run(tokenCardsTable.filter(_.accountId === account.id).result)
   }
 
@@ -159,7 +147,7 @@ object PaymentMethods {
 // TODO: Figure out how to have the 'status' field on the payment and not the payment method.
 case class CreditCard(id: Int, cartId: Int, cardholderName: String, cardNumber: String, cvv: Int, status: CreditCardPaymentStatus, expiration: String, address: Address) extends PaymentMethod
 // We should probably store the payment gateway on the card itself.  This way, we can manage a world where a merchant changes processors.
-case class TokenizedCreditCard(id: Int, accountId: Int, paymentGateway: String, gatewayTokenId: String, gatewayUserEmail: String) extends PaymentMethod
+case class TokenizedCreditCard(id: Int, accountId: Int, paymentGateway: String, gatewayTokenId: String, lastFourDigits: String, expirationMonth: Int, ExpirationYear: Int, brand: String) extends PaymentMethod
 case class GiftCard(id: Int, cartId: Int, status: GiftCardPaymentStatus, code: String) extends PaymentMethod
 
 // TODO: Decide if we should take some kind of STI approach here!
