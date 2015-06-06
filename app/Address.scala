@@ -167,7 +167,7 @@ class TokenizedCreditCards(tag: Tag) extends Table[TokenizedCreditCard](tag, "to
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def accountId = column[Int]("account_id")
   def paymentGateway = column[String]("payment_gateway")
-  def gatewayTokenId = column[String]("gateway_token_token_id")
+  def gatewayTokenId = column[String]("gateway_token_id")
   def gatewayUserEmail = column[String]("gateway_user_email")
   def * = (id, accountId, paymentGateway, gatewayTokenId, gatewayUserEmail) <> ((TokenizedCreditCard.apply _).tupled, TokenizedCreditCard.unapply)
 }
