@@ -69,6 +69,7 @@ case class LineItem(id: Int, cartId: Int, skuId: Int)
 sealed trait PaymentStatus
 
 sealed trait CreditCardPaymentStatus extends PaymentStatus
+case object Applied extends CreditCardPaymentStatus
 case object Auth extends CreditCardPaymentStatus
 case object FailedCapture extends CreditCardPaymentStatus
 case object CanceledAuth extends CreditCardPaymentStatus
@@ -118,9 +119,31 @@ case class StripeGateway(paymentToken: String, apiKey: String = "sk_test_eyVBk2N
         Failure(t)
     }
   }
+
+  def authorizeAmount(tokenizedCard: TokenizedCreditCard, amount: Int): String Or List[ErrorMessage] = {
+    import collection.JavaConversions._
+    Stripe.apiKey = this.apiKey
+
+    val funkyBool: java.lang.Boolean = false
+    val chargeMap: Map[String, Object] = Map("amount" -> "100", "currency" -> "usd", "source" -> tokenizedCard.gatewayTokenId, "capture" -> funkyBool)
+    val m = mapAsJavaMap(chargeMap).asInstanceOf[java.util.Map[java.lang.String, java.lang.Object]]
+
+    val reqOpts = new com.stripe.net.RequestOptions.RequestOptionsBuilder().setApiKey(this.apiKey).build()
+//    val charge = new Charge
+//    charge.setAmount(amount)
+//    charge.setCard(tokenizedCard.gatewayTokenId)
+    try {
+      val charge = com.stripe.model.Charge.create(m, reqOpts)
+      Good(charge.getId) // if it has an id, it succeeded... probably/maybe
+    } catch {
+      case t: com.stripe.exception.APIConnectionException => Bad(List(t.getMessage))
+    }
+  }
 }
 
-abstract class PaymentMethod
+abstract class PaymentMethod {
+  def authenticate(amount: Float): String Or List[ErrorMessage]
+}
 
 object PaymentMethods {
   import scala.concurrent.ExecutionContext.Implicits.global
@@ -154,15 +177,39 @@ object PaymentMethods {
       case Failure(t) => Future.failed(t)
     }
   }
+
+  // TODO: Make polymorphic for real.
+  def findById(db: PostgresDriver.backend.DatabaseDef, id: Int): Future[Option[TokenizedCreditCard]] = {
+    db.run(tokenCardsTable.filter(_.id === id).result.headOption)
+  }
 }
 
 
 // TODO: Figure out how to have the 'status' field on the payment and not the payment method.
-case class CreditCard(id: Int, cartId: Int, cardholderName: String, cardNumber: String, cvv: Int, status: CreditCardPaymentStatus, expiration: String, address: Address) extends PaymentMethod
+case class CreditCard(id: Int, cartId: Int, cardholderName: String, cardNumber: String, cvv: Int, status: CreditCardPaymentStatus, expiration: String, address: Address) extends PaymentMethod {
+  def authenticate(amount: Float): String Or List[ErrorMessage] = {
+    Good("authenticated")
+  }
+}
 // We should probably store the payment gateway on the card itself.  This way, we can manage a world where a merchant changes processors.
 case class TokenizedCreditCard(id: Int = 0, accountId: Int = 0, paymentGateway: String, gatewayTokenId: String, lastFourDigits: String, expirationMonth: Int, expirationYear: Int, brand: String) extends PaymentMethod {
+  def authenticate(amount: Float): String Or List[ErrorMessage] = {
+    this.paymentGateway.toLowerCase match {
+      case "stripe" =>
+        StripeGateway(paymentToken = this.gatewayTokenId).authorizeAmount(this, amount.toInt) match {
+          case Good(chargeId) => Good(chargeId)
+          case Bad(errorList) => Bad(errorList)
+        }
+      case gateway => Bad(List(s"Could Not Recognize Payment Gateway $gateway"))
+    }
+  }
+
 }
-case class GiftCard(id: Int, cartId: Int, status: GiftCardPaymentStatus, code: String) extends PaymentMethod
+case class GiftCard(id: Int, cartId: Int, status: GiftCardPaymentStatus, code: String) extends PaymentMethod {
+  def authenticate(amount: Float): String Or List[ErrorMessage] = {
+    Good("authenticated")
+  }
+}
 
 // TODO: Decide if we should take some kind of STI approach here!
 class TokenizedCreditCards(tag: Tag) extends Table[TokenizedCreditCard](tag, "tokenized_credit_cards") with RichTable {
@@ -176,6 +223,13 @@ class TokenizedCreditCards(tag: Tag) extends Table[TokenizedCreditCard](tag, "to
   def brand = column[String]("brand")
   def * = (id, accountId, paymentGateway, gatewayTokenId, lastFourDigits, expirationMonth, expirationYear, brand) <> ((TokenizedCreditCard.apply _).tupled, TokenizedCreditCard.unapply)
 }
+//
+//object TokenizedCreditCards {
+//
+//  import scala.concurrent.ExecutionContext.Implicits.global
+//
+//  def findById(db: PostgresDriver.backend.DatabaseDef = defaultdb)
+//}
 
 case class AppliedPayment(id: Int = 0,
                            cartId: Int,
@@ -204,9 +258,10 @@ case class StockLocationDestination(stockLocation: StockLocation) extends Destin
 case class Fulfillment(id: Int, destination: Destination)
 
 case class Cart(id: Int, accountId: Option[Int] = None) {
+  val db = Database.forURL("jdbc:postgresql://localhost/phoenix_development?user=phoenix", driver = "slick.driver.PostgresDriver")
 
   val lineItems: Seq[LineItem] = Seq.empty
-  val payments: Seq[Payment] = Seq.empty
+  //val payments: Seq[AppliedPayment] = Seq.empty
   val fulfillments: Seq[Fulfillment] = Seq.empty
 
 //  def coupons: Seq[Coupon] = Seq.empty
@@ -220,6 +275,18 @@ case class Cart(id: Int, accountId: Option[Int] = None) {
   def isGuest = this.accountId.isDefined
 
   // TODO: service class it?
+
+  def payments: Future[Seq[AppliedPayment]] = {
+    Carts.findPaymentMethods(db, this)
+  }
+
+  def subTotal: Int = {
+    10000 //in cents?
+  }
+
+  def grandTotal: Int = {
+    12550
+  }
 }
 
 trait RichTable {
@@ -242,10 +309,14 @@ object Carts {
 
   // What do we return here?  I still don't have a clear STI approach in mind.  So maybe just tokenized cards for now.
   // Ideally, we would return a generic list of payment methods of all types (eg. giftcards, creditcards, store-credit)
-  def findPaymentMethods(db: PostgresDriver.backend.DatabaseDef, cartId: Int): Future[Seq[TokenizedCreditCard]] = {
-    val token = TokenizedCreditCard(accountId = cartId, paymentGateway = "Stripe", gatewayTokenId = "123abc",
-                                    lastFourDigits = "4444", expirationMonth = 2, expirationYear = 2016, brand = "Stripe")
-    Future.successful(Seq(token))
+  def findPaymentMethods(db: PostgresDriver.backend.DatabaseDef, cart: Cart): Future[Seq[AppliedPayment]] = {
+    val appliedpayment = AppliedPayment(id = 1, cartId = cart.id, paymentMethodId = 1, paymentMethodType = "TokenizedCard", appliedAmount = 10000, status = Applied.toString, responseCode = "")
+    val appliedpayment2 = appliedpayment.copy(appliedAmount = 2550, paymentMethodId = 2)
+
+    // The whole of the above is to have one passing token and one failing token.  So paymentMethod with ID 1 should be real.
+    // PaymentMethod with ID 2 should be fake.
+
+    Future.successful(Seq(appliedpayment, appliedpayment2))
 
     //val appliedIds = appliedPaymentsTable.returning(appliedPaymentsTable.map(_.paymentMethodId))
 
@@ -257,6 +328,10 @@ object Carts {
 //    db.run(filteredPayments.head)
 
     // TODO: Yax or Ferdinand: Help me filter all the TokenizedCards through the mapping table of applied_payments that belong to this cart.
+  }
+
+  def addPaymentMethod(db: PostgresDriver.backend.DatabaseDef, cartId: Int, paymentMethod: PaymentMethod): Boolean = {
+    true
   }
 
   def findById(db: PostgresDriver.backend.DatabaseDef, id: Int): Future[Option[Cart]] = {
@@ -292,6 +367,10 @@ case class StockItem(id: Int, productId: Int, stockLocationId: Int, onHold: Int,
 }
 
 class Checkout(cart: Cart) {
+  import scala.concurrent.ExecutionContext.Implicits.global
+  // I don't really want to pass this around until I know we should!  - AW
+  val db = Database.forURL("jdbc:postgresql://localhost/phoenix_development?user=phoenix", driver = "slick.driver.PostgresDriver")
+
   def checkout: Order Or List[ErrorMessage] = {
     // Realistically, what we'd do here is actually
     // 1) Check Inventory
@@ -306,6 +385,35 @@ class Checkout(cart: Cart) {
     } else {
       Good(order)
     }
+  }
+
+  def verifyInventory: List[ErrorMessage] = {
+    // TODO: Call the inventory service and verify that inventory exists for all items in cart
+    List.empty
+  }
+
+  def authenticatePayments: List[ErrorMessage] = {
+    // Really, this should authenticate all payments, at their specified 'applied amount.'
+    val paymentMethods = cart.payments.flatMap { payments =>
+
+      payments.map { pmt =>
+        PaymentMethods.findById(db, pmt.paymentMethodId).flatMap  {
+            case Some(c) =>
+              val paymentAmount = pmt.appliedAmount
+              c.authenticate(paymentAmount) match {
+                case Bad(errors) => List(new ErrorMessage)
+                case Good(successStr) =>
+                  println("Happy as  motherfucker!")
+                  List.empty
+              }
+            case None => List(new ErrorMessage)
+          }
+      }
+    }
+  }
+
+  def validateAddresses: List[ErrorMessage] = {
+    List.empty
   }
 }
 
