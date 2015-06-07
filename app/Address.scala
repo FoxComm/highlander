@@ -594,13 +594,9 @@ class Service extends Formats {
     val cart = Cart(id = 0, accountId = None)
 
 
-    def findAccount(id: Option[Int]): Option[Shopper] = {
-      id match{
-        case None =>
-          None
-        case Some(id) =>
-          Some(new Shopper(id, "donkey@donkey.com", "donkeyPass", "Mister", "Donkey"))
-      }
+    def findAccount(id: Option[Int]): Option[Shopper] = id.flatMap { id =>
+      Some(Shopper(id = id, email = "donkey@donkey.com", password = "donkeyPass",
+                   firstName = "Mister", lastName = "Donkey"))
     }
 
     val notFoundResponse = HttpResponse(NotFound)
