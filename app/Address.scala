@@ -12,8 +12,8 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshalling.ToResponseMarshallable
 import akka.http.scaladsl.model.HttpResponse
 import com.typesafe.config.{ConfigFactory, Config}
-import com.wix.accord.{validate => runValidation, Success => ValidationSuccess, Failure => ValidationFailure }
 import com.wix.accord._
+import com.wix.accord.{validate => runValidation, Success => ValidationSuccess, Failure => ValidationFailure}
 import dsl.{validator => createValidator}
 import dsl._
 import akka.event.Logging
@@ -32,8 +32,7 @@ import org.json4s.jackson.Serialization.{write => render}
 import org.json4s.jackson.JsonMethods._
 import scala.concurrent.{ExecutionContext, Future, Await}
 import scala.concurrent.duration._
-
-import scala.util.Try._
+import scala.util.{Try, Failure, Success}
 
 // Validation mixin
 trait Validation {
@@ -99,7 +98,7 @@ abstract class PaymentGateway
 case object BraintreeGateway extends PaymentGateway
 // TODO: Get the API key from somewhere more useful.
 case class StripeGateway(paymentToken: String, apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ") extends PaymentGateway {
-  def getTokenizedCard: Option[TokenizedCreditCard] = {
+  def getTokenizedCard: Try[TokenizedCreditCard] = {
     println("Inside getTokenizedCard")
     Stripe.apiKey = this.apiKey
     try {
@@ -113,11 +112,10 @@ case class StripeGateway(paymentToken: String, apiKey: String = "sk_test_eyVBk2N
         expirationYear = stripeCard.getExpYear,
         brand = stripeCard.getBrand
       )
-      Some(mergedCard)
+      Success(mergedCard)
     } catch {
-      case ire: com.stripe.exception.InvalidRequestException =>
-        println(ire)
-        return None
+      case t: com.stripe.exception.InvalidRequestException =>
+        Failure(t)
     }
   }
 }
@@ -142,7 +140,7 @@ object PaymentMethods {
     // TODO: Let's handle a bad response from stripe and bubble up to the user
     val gateWay = StripeGateway(paymentToken = paymentToken)
     gateWay.getTokenizedCard match {
-      case Some(card) =>
+      case Success(card) =>
         val cardToSave = card.copy(accountId = account.id)
         /** Can be used like 'tokenCardsTable', but returns the newly inserted ID */
         val newlyInsertedId = tokenCardsTable.returning(tokenCardsTable.map(_.id))
@@ -153,7 +151,7 @@ object PaymentMethods {
         }
 
         db.run(insertAction)
-      case None => Future.failed(new java.lang.RuntimeException())
+      case Failure(t) => Future.failed(t)
     }
   }
 }
