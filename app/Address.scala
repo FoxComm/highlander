@@ -1,7 +1,8 @@
 import java.util.Date
 import java.util.concurrent.TimeoutException
 import com.stripe.model.Token
-import com.stripe.model.Charge
+import com.stripe.net.{RequestOptions => StripeRequestOptions}
+import com.stripe.model.{Charge => StripeCharge}
 import com.stripe.Stripe
 
 import org.scalactic.{Bad, Good, ErrorMessage, Or}
@@ -33,6 +34,7 @@ import org.json4s.jackson.JsonMethods._
 import scala.concurrent.{ExecutionContext, Future, Await}
 import scala.concurrent.duration._
 import scala.util.{Try, Failure, Success}
+import collection.JavaConversions.mapAsJavaMap
 
 // Validation mixin
 trait Validation {
@@ -106,22 +108,21 @@ case class StripeGateway(paymentToken: String, apiKey: String = "sk_test_eyVBk2N
   }
 
   def authorizeAmount(tokenizedCard: TokenizedCreditCard, amount: Int): String Or List[ErrorMessage] = {
-    import collection.JavaConversions._
-    Stripe.apiKey = this.apiKey
+    val capture: java.lang.Boolean = false
+    val chargeMap: Map[String, Object] = Map("amount" -> "100", "currency" -> "usd",
+                                             "source" -> tokenizedCard.gatewayTokenId, "capture" -> capture)
+    val reqOpts = StripeRequestOptions.builder().setApiKey(this.apiKey).build()
 
-    val funkyBool: java.lang.Boolean = false
-    val chargeMap: Map[String, Object] = Map("amount" -> "100", "currency" -> "usd", "source" -> tokenizedCard.gatewayTokenId, "capture" -> funkyBool)
-    val m = mapAsJavaMap(chargeMap).asInstanceOf[java.util.Map[java.lang.String, java.lang.Object]]
-
-    val reqOpts = new com.stripe.net.RequestOptions.RequestOptionsBuilder().setApiKey(this.apiKey).build()
-//    val charge = new Charge
-//    charge.setAmount(amount)
-//    charge.setCard(tokenizedCard.gatewayTokenId)
     try {
-      val charge = com.stripe.model.Charge.create(m, reqOpts)
-      Good(charge.getId) // if it has an id, it succeeded... probably/maybe
+      val charge = StripeCharge.create(mapAsJavaMap(chargeMap), reqOpts)
+      /*
+       TODO: https://stripe.com/docs/api#create_charge
+       Since we're using tokenized, we presumably pass verification process, but might want to handle here
+       */
+      Good(charge.getId)
     } catch {
-      case t: com.stripe.exception.APIConnectionException => Bad(List(t.getMessage))
+      case t: com.stripe.exception.StripeException =>
+        Bad(List(t.getMessage))
     }
   }
 }
