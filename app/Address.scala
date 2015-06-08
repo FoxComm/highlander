@@ -28,22 +28,6 @@ import org.json4s.jackson.Serialization.{write => render}
 import scala.concurrent.{ExecutionContext, Future, Await}
 import scala.concurrent.duration._
 
-// Validation mixin
-trait Validation {
-  def validator[T]: Validator[T]
-  def validate: Result = { runValidation(this)(validator) }
-  def isValid: Boolean = { validate == ValidationSuccess }
-
-}
-
-object Validation {
-  def validationFailureToSet(failure: Failure): Set[ErrorMessage] = {
-    failure.violations.map(formatViolation)
-  }
-
-  def formatViolation(v: Violation): String = v.description.getOrElse("") ++ " " ++ v.constraint
-}
-
 case class StockLocation(id: Int, name: String)
 
 // TODO: money/currency abstraction. Use joda-money, most likely
