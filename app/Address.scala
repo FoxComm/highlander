@@ -19,6 +19,7 @@ import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.server.Directives._
 import akka.stream.{ActorFlowMaterializer, FlowMaterializer}
 import slick.lifted.Tag
+import utils.{RichTable, Validation}
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
 import spray.json._
@@ -27,6 +28,7 @@ import org.json4s.{CustomSerializer, DefaultFormats}
 import org.json4s.jackson.Serialization.{write => render}
 import scala.concurrent.{ExecutionContext, Future, Await}
 import scala.concurrent.duration._
+import models.{Addresses, Address}
 
 case class StockLocation(id: Int, name: String)
 
@@ -170,13 +172,6 @@ case class Cart(id: Int, accountId: Option[Int] = None) {
   def isGuest = this.accountId.isDefined
 
   // TODO: service class it?
-}
-
-trait RichTable {
-  implicit val JavaUtilDateMapper =
-    MappedColumnType .base[java.util.Date, java.sql.Timestamp] (
-      d => new java.sql.Timestamp(d.getTime),
-      d => new java.util.Date(d.getTime))
 }
 
 class Carts(tag: Tag) extends Table[Cart](tag, "carts") with RichTable {
