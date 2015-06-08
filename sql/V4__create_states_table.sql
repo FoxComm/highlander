@@ -16,6 +16,3 @@ alter table only states
 
 alter table only states
   add constraint states_pkey primary key (id);
-
-insert into states (name, abbreviation) values
-  ('California', 'CA'), ('Washington', 'WA');
