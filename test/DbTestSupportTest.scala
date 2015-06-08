@@ -1,3 +1,4 @@
+<<<<<<< HEAD:test/DbTestSupport.scala
 import com.typesafe.config.ConfigFactory
 import com.wix.accord.{Success => ValidationSuccess, Failure => ValidationFailure }
 import org.flywaydb.core.Flyway
@@ -33,10 +34,14 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
     source.setServerName(config.getString(s"$section.host"))
     source.setUser(config.getString(s"$section.user"))
     source.setDatabaseName(config.getString(s"$section.name"))
+=======
+import org.scalactic.{Bad, Good}
+import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.{MustMatchers, FreeSpec}
+import util.DbTestSupport
+>>>>>>> master:test/DbTestSupportTest.scala
 
-    source
-  }
-}
+import scala.concurrent.ExecutionContext
 
 class DbTestSupportTest extends FreeSpec
   with MustMatchers
