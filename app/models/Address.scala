@@ -35,6 +35,7 @@ class Addresses(tag: Tag) extends Table[Address](tag, "addresses") with RichTabl
 
   def * = (id, accountId, stateId, name, street1, street2, city, zip) <> ((Address.apply _).tupled, Address.unapply)
 
+  // TODO(yax): add me back
   // def state = foreignKey("addresses_state_id_fk", stateId, TableQuery[States])(_.id)
 }
 
