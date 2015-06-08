@@ -1,7 +1,6 @@
 package models
 
 import utils.{Validation, RichTable}
-import models.User
 import payloads.CreateAddressPayload
 
 import com.wix.accord.dsl.{validator => createValidator}
@@ -61,7 +60,7 @@ object Addresses {
       (address, address.validate)
     }
 
-    val failures = results.filter { case (_, ValidationFailure(_)) => true }
+    val failures = results.filter { case (_, result) => result.isInstanceOf[ValidationFailure] }
 
     if (failures.nonEmpty) {
       val acc = Map[Address, Set[ErrorMessage]]()
