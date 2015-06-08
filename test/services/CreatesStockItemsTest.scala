@@ -12,9 +12,7 @@ class CreatesStockItemsTest extends FreeSpec
   with IntegrationPatience {
 
   import concurrent.ExecutionContext.Implicits.global
-
   import api._
-  implicit val database: api.Database = db
 
   before {
     db.run(StockItems.query.schema.create).futureValue

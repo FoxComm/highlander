@@ -9,7 +9,7 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
   val api = slick.driver.PostgresDriver.api
   import api._
 
-  lazy val db = Database.forConfig("db.test")
+  implicit lazy val db = Database.forConfig("db.test")
 
   override protected def beforeAll(): Unit = {
     super.beforeAll()
