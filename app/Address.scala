@@ -1,6 +1,6 @@
 import java.util.Date
 
-import org.scalactic.{Bad, Good, ErrorMessage, Or}
+import org.scalactic._
 import slick.driver.PostgresDriver
 import slick.driver.PostgresDriver.api._
 import akka.actor.ActorSystem
@@ -33,6 +33,15 @@ trait Validation {
   def validator[T]: Validator[T]
   def validate: Result = { runValidation(this)(validator) }
   def isValid: Boolean = { validate == ValidationSuccess }
+
+}
+
+object Validation {
+  def validationFailureToSet(failure: Failure): Set[ErrorMessage] = {
+    failure.violations.map(formatViolation)
+  }
+
+  def formatViolation(v: Violation): String = v.description.getOrElse("") ++ " " ++ v.constraint
 }
 
 case class StockLocation(id: Int, name: String)
@@ -42,9 +51,78 @@ case class Money(currency: String, amount: Int)
 
 case class State(id: Int, name: String, abbreviation: String)
 
-case class City(id: Int, name: String)
+class States(tag: Tag) extends Table[State](tag, "states") with RichTable {
+  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def name = column[String]("name")
+  def abbreviation = column[String]("abbreviation")
 
-case class Address(id: Int, name: String, streetAddresses: List[String], city: City, state: State, zip: String)
+  def * = (id, name, abbreviation) <> ((State.apply _).tupled, State.unapply)
+}
+
+case class Address(id: Int, accountId: Int, stateId: Int, name: String, street1: String, street2: Option[String],
+                   city: String, zip: String) extends Validation {
+  override def validator[T] = {
+    createValidator[Address] { address =>
+      address.name is notEmpty
+      address.street1 is notEmpty
+      address.city is notEmpty
+      address.zip should matchRegex("[0-9]{5}")
+    }
+  }.asInstanceOf[Validator[T]] // TODO: fix me
+}
+
+class Addresses(tag: Tag) extends Table[Address](tag, "addresses") with RichTable {
+  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def accountId = column[Int]("account_id")
+  def stateId = column[Int]("state_id")
+  def name = column[String]("name")
+  def street1 = column[String]("street1")
+  def street2 = column[Option[String]]("street2")
+  def city = column[String]("city")
+  def zip = column[String]("zip")
+
+  def * = (id, accountId, stateId, name, street1, street2, city, zip) <> ((Address.apply _).tupled, Address.unapply)
+
+  def state = foreignKey("addresses_state_id_fk", stateId, TableQuery[States])(_.id)
+}
+
+object Addresses {
+  val table = TableQuery[Addresses]
+
+  def findAllByAccount(db: PostgresDriver.backend.DatabaseDef, account: User): Future[Seq[Address]] = {
+    db.run(table.filter(_.accountId === account.id).result)
+  }
+
+  def findById(db: PostgresDriver.backend.DatabaseDef, id: Int): Future[Option[Address]] = {
+    db.run(table.filter(_.id === id).result.headOption)
+  }
+
+  def createFromPayload(account: User,
+                        payload: Seq[CreateAddressPayload])
+                       (implicit ec: ExecutionContext,
+                        db: PostgresDriver.backend.DatabaseDef): Future[Seq[Address] Or Map[Address, Set[ErrorMessage]]] = {
+    // map to Address & validate
+    val results = payload.map { a =>
+      val address = Address(id = 0, accountId = account.id, stateId = a.stateId, name = a.name,
+                            street1 = a.street1, street2 = a.street2, city = a.city, zip = a.zip)
+      (address, address.validate)
+    }
+
+    val failures = results.filter { case (_, result) => result.isInstanceOf[Failure] }
+
+    if (failures.nonEmpty) {
+      val errorMap = failures.foldLeft(Map[Address, Set[ErrorMessage]]()) { case (acc, (address, failure: Failure)) =>
+        acc.updated(address, Validation.validationFailureToSet(failure))
+      }
+      Future.successful(Bad(errorMap))
+    } else {
+      db.run(for {
+        _ <- table ++= results.map(_._1)
+        addresses <- table.filter(_.accountId === account.id).result
+      } yield (Good(addresses)))
+    }
+  }
+}
 
 case class Adjustment(id: Int)
 
@@ -181,6 +259,16 @@ case class User(id: Int, email: String, password: String, firstName: String, las
   }.asInstanceOf[Validator[T]] // TODO: fix me
 }
 
+class Users(tag: Tag) extends Table[User](tag, "accounts") with RichTable {
+  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def email = column[String]("email")
+  def hashedPassword = column[String]("hashed_password")
+  def firstName = column[String]("first_name")
+  def lastName = column[String]("last_name")
+
+  def * = (id, email, hashedPassword, firstName, lastName) <> ((User.apply _).tupled, User.unapply)
+}
+
 case class Archetype(id: Int, name: String) extends Validation {
   override def validator[T] = {
     createValidator[Archetype] { archetype =>
@@ -218,6 +306,7 @@ object Main extends Formats {
 }
 
 case class LineItemsPayload(skuId: Int, quantity: Int)
+case class CreateAddressPayload(name: String, stateId: Int, street1: String, street2: Option[String], city: String, zip: String)
 
 // JSON formatters
 trait Formats extends DefaultJsonProtocol {
@@ -230,6 +319,7 @@ trait Formats extends DefaultJsonProtocol {
   }
 
   implicit val addLineItemsRequestFormat = jsonFormat2(LineItemsPayload.apply)
+  implicit val createAddressPayloadFormat = jsonFormat6(CreateAddressPayload.apply)
 
   val phoenixFormats = DefaultFormats + new CustomSerializer[PaymentStatus](format => (
     { case _ ⇒ sys.error("Reading not implemented") },
@@ -323,8 +413,10 @@ class Service extends Formats {
   val logger = Logging(system, getClass)
 
   val db = Database.forURL("jdbc:postgresql://localhost/phoenix_development?user=phoenix", driver = "slick.driver.PostgresDriver")
+  // TODO: make DB above implicit
+  implicit val implicitDB = db
 
-  val carts = TableQuery[Carts]
+  val user = User(id = 1, email = "yax@foxcommerce.com", password = "donkey", firstName = "Yax", lastName = "Donkey")
 
   val routes = {
     val cart = Cart(id = 0, accountId = None)
@@ -365,6 +457,25 @@ class Service extends Formats {
                   case Bad(errors)      => HttpResponse(BadRequest, entity = render(errors))
                   case Good(lineItems)  => HttpResponse(OK, entity = render(lineItems))
                 }
+            }
+          }
+        }
+      }
+    } ~
+    logRequestResult("addresses") {
+      pathPrefix("v1" / "addresses" ) {
+        get {
+          complete {
+            Addresses.findAllByAccount(db, user).map { addresses =>
+              HttpResponse(OK, entity = render(addresses))
+            }
+          }
+        } ~
+        (post & entity(as[Seq[CreateAddressPayload]])) { payload =>
+          complete {
+            Addresses.createFromPayload(user, payload).map {
+              case Good(addresses)  => HttpResponse(OK, entity = render(addresses))
+              case Bad(errorMap)      => HttpResponse(BadRequest, entity = render(errorMap))
             }
           }
         }

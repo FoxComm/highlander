@@ -84,3 +84,4 @@ class DbTestSupportTest extends FreeSpec
     }
   }
 }
+
