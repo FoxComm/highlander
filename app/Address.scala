@@ -387,13 +387,13 @@ class Checkout(cart: Cart) {
               val paymentAmount = p.appliedAmount
               c.authenticate(paymentAmount) match {
                 case Bad(errors)    =>
-                  (p -> errors)
+                  p -> errors
                 case Good(success)  =>
                   println("Happy as  motherfucker!")
-                  (p -> List[ErrorMessage]())
+                  p -> List[ErrorMessage]()
               }
             case None =>
-              (p -> List[ErrorMessage]())
+              p -> List[ErrorMessage]()
         }
       }
 
@@ -581,7 +581,6 @@ class Service extends Formats {
 
   val routes = {
     val cart = Cart(id = 0, accountId = None)
-
 
     def findAccount(id: Option[Int]): Option[Shopper] = id.flatMap { id =>
       Some(Shopper(id = id, email = "donkey@donkey.com", password = "donkeyPass",
