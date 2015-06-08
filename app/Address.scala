@@ -19,6 +19,7 @@ import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.server.Directives._
 import akka.stream.{ActorFlowMaterializer, FlowMaterializer}
 import slick.lifted.Tag
+import utils.{RichTable, Validation}
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
 import spray.json._
@@ -28,21 +29,8 @@ import org.json4s.jackson.Serialization.{write => render}
 import scala.concurrent.{ExecutionContext, Future, Await}
 import scala.concurrent.duration._
 
-// Validation mixin
-trait Validation {
-  def validator[T]: Validator[T]
-  def validate: Result = { runValidation(this)(validator) }
-  def isValid: Boolean = { validate == ValidationSuccess }
-
-}
-
-object Validation {
-  def validationFailureToSet(failure: Failure): Set[ErrorMessage] = {
-    failure.violations.map(formatViolation)
-  }
-
-  def formatViolation(v: Violation): String = v.description.getOrElse("") ++ " " ++ v.constraint
-}
+import models.{Addresses, Address, Users, User}
+import payloads.CreateAddressPayload
 
 case class StockLocation(id: Int, name: String)
 
@@ -57,71 +45,6 @@ class States(tag: Tag) extends Table[State](tag, "states") with RichTable {
   def abbreviation = column[String]("abbreviation")
 
   def * = (id, name, abbreviation) <> ((State.apply _).tupled, State.unapply)
-}
-
-case class Address(id: Int, accountId: Int, stateId: Int, name: String, street1: String, street2: Option[String],
-                   city: String, zip: String) extends Validation {
-  override def validator[T] = {
-    createValidator[Address] { address =>
-      address.name is notEmpty
-      address.street1 is notEmpty
-      address.city is notEmpty
-      address.zip should matchRegex("[0-9]{5}")
-    }
-  }.asInstanceOf[Validator[T]] // TODO: fix me
-}
-
-class Addresses(tag: Tag) extends Table[Address](tag, "addresses") with RichTable {
-  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def accountId = column[Int]("account_id")
-  def stateId = column[Int]("state_id")
-  def name = column[String]("name")
-  def street1 = column[String]("street1")
-  def street2 = column[Option[String]]("street2")
-  def city = column[String]("city")
-  def zip = column[String]("zip")
-
-  def * = (id, accountId, stateId, name, street1, street2, city, zip) <> ((Address.apply _).tupled, Address.unapply)
-
-  def state = foreignKey("addresses_state_id_fk", stateId, TableQuery[States])(_.id)
-}
-
-object Addresses {
-  val table = TableQuery[Addresses]
-
-  def findAllByAccount(db: PostgresDriver.backend.DatabaseDef, account: User): Future[Seq[Address]] = {
-    db.run(table.filter(_.accountId === account.id).result)
-  }
-
-  def findById(db: PostgresDriver.backend.DatabaseDef, id: Int): Future[Option[Address]] = {
-    db.run(table.filter(_.id === id).result.headOption)
-  }
-
-  def createFromPayload(account: User,
-                        payload: Seq[CreateAddressPayload])
-                       (implicit ec: ExecutionContext,
-                        db: PostgresDriver.backend.DatabaseDef): Future[Seq[Address] Or Map[Address, Set[ErrorMessage]]] = {
-    // map to Address & validate
-    val results = payload.map { a =>
-      val address = Address(id = 0, accountId = account.id, stateId = a.stateId, name = a.name,
-                            street1 = a.street1, street2 = a.street2, city = a.city, zip = a.zip)
-      (address, address.validate)
-    }
-
-    val failures = results.filter { case (_, result) => result.isInstanceOf[Failure] }
-
-    if (failures.nonEmpty) {
-      val errorMap = failures.foldLeft(Map[Address, Set[ErrorMessage]]()) { case (acc, (address, failure: Failure)) =>
-        acc.updated(address, Validation.validationFailureToSet(failure))
-      }
-      Future.successful(Bad(errorMap))
-    } else {
-      db.run(for {
-        _ <- table ++= results.map(_._1)
-        addresses <- table.filter(_.accountId === account.id).result
-      } yield (Good(addresses)))
-    }
-  }
 }
 
 case class Adjustment(id: Int)
@@ -188,13 +111,6 @@ case class Cart(id: Int, accountId: Option[Int] = None) {
   // TODO: service class it?
 }
 
-trait RichTable {
-  implicit val JavaUtilDateMapper =
-    MappedColumnType .base[java.util.Date, java.sql.Timestamp] (
-      d => new java.sql.Timestamp(d.getTime),
-      d => new java.util.Date(d.getTime))
-}
-
 class Carts(tag: Tag) extends Table[Cart](tag, "carts") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def accountId = column[Option[Int]]("account_id")
@@ -249,26 +165,6 @@ class Checkout(cart: Cart) {
 
 case class Store(id: Int, name: String)
 
-case class User(id: Int, email: String, password: String, firstName: String, lastName: String) extends Validation {
-  override def validator[T] = {
-    createValidator[User] { user =>
-      user.firstName is notEmpty
-      user.lastName is notEmpty
-      user.email is notEmpty
-    }
-  }.asInstanceOf[Validator[T]] // TODO: fix me
-}
-
-class Users(tag: Tag) extends Table[User](tag, "accounts") with RichTable {
-  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def email = column[String]("email")
-  def hashedPassword = column[String]("hashed_password")
-  def firstName = column[String]("first_name")
-  def lastName = column[String]("last_name")
-
-  def * = (id, email, hashedPassword, firstName, lastName) <> ((User.apply _).tupled, User.unapply)
-}
-
 case class Archetype(id: Int, name: String) extends Validation {
   override def validator[T] = {
     createValidator[Archetype] { archetype =>
@@ -306,7 +202,6 @@ object Main extends Formats {
 }
 
 case class LineItemsPayload(skuId: Int, quantity: Int)
-case class CreateAddressPayload(name: String, stateId: Int, street1: String, street2: Option[String], city: String, zip: String)
 
 // JSON formatters
 trait Formats extends DefaultJsonProtocol {
