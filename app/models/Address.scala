@@ -71,7 +71,7 @@ object Addresses {
       Future.successful(Bad(errorMap))
     } else {
       db.run(for {
-        _ <- table ++= results.map { case (address, ) => address }
+        _ <- table ++= results.map { case (address, _) => address }
         addresses <- table.filter(_.accountId === account.id).result
       } yield (Good(addresses)))
     }
