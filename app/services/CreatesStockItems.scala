@@ -1,6 +1,6 @@
 package services
 
-import models.StockItem
+import models.{StockItems, StockItem}
 import org.scalactic.{Good, Bad, ErrorMessage, Or}
 
 import scala.concurrent.{Future, ExecutionContext}
@@ -26,7 +26,7 @@ object CreatesStockItems {
       )
 
       db.run(for {
-        id ← tables.StockItems.returningId += stockItem
+        id ← StockItems.returningId += stockItem
       } yield Good(stockItem.copy(id = id)))
     }
   }

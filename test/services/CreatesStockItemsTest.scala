@@ -1,5 +1,6 @@
 package services
 
+import models.StockItems
 import org.scalatest.{BeforeAndAfter, FreeSpec, MustMatchers, FunSuite}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 
@@ -16,11 +17,11 @@ class CreatesStockItemsTest extends FreeSpec
   implicit val database: api.Database = db
 
   before {
-    db.run(tables.StockItems.query.schema.create).futureValue
+    db.run(StockItems.query.schema.create).futureValue
   }
 
    after {
-    db.run(tables.StockItems.query.schema.drop).futureValue
+    db.run(models.StockItems.query.schema.drop).futureValue
   }
 
   "CreatesStockItems" - {
