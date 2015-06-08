@@ -378,23 +378,26 @@ class Checkout(cart: Cart) {
     List.empty
   }
 
-  def authenticatePayments: List[ErrorMessage] = {
+  def authenticatePayments: Future[Map[AppliedPayment, List[ErrorMessage]]] = {
     // Really, this should authenticate all payments, at their specified 'applied amount.'
-    val paymentMethods = cart.payments.flatMap { payments =>
-
-      payments.map { pmt =>
-        PaymentMethods.findById(db, pmt.paymentMethodId).flatMap  {
+    cart.payments.flatMap { payments =>
+      val seq = payments.map { p =>
+        PaymentMethods.findById(db, p.paymentMethodId).map {
             case Some(c) =>
-              val paymentAmount = pmt.appliedAmount
+              val paymentAmount = p.appliedAmount
               c.authenticate(paymentAmount) match {
-                case Bad(errors) => List(new ErrorMessage)
-                case Good(successStr) =>
+                case Bad(errors)    =>
+                  (p -> errors)
+                case Good(success)  =>
                   println("Happy as  motherfucker!")
-                  List.empty
+                  (p -> List[ErrorMessage]())
               }
-            case None => List(new ErrorMessage)
-          }
+            case None =>
+              (p -> List[ErrorMessage]())
+        }
       }
+
+      Future.sequence(seq).map(_.toMap)
     }
   }
 
