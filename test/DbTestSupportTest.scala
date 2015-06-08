@@ -1,39 +1,9 @@
-import com.typesafe.config.ConfigFactory
-import org.flywaydb.core.Flyway
-import org.postgresql.ds.PGSimpleDataSource
-import org.scalactic.{Good, Bad}
-import org.scalatest.{MustMatchers, Suite, SuiteMixin, BeforeAndAfterAll, FreeSpec}
+import org.scalactic.{Bad, Good}
 import org.scalatest.concurrent.ScalaFutures
-import slick.lifted.Tag
+import org.scalatest.{MustMatchers, FreeSpec}
+import util.DbTestSupport
+
 import scala.concurrent.ExecutionContext
-
-trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
-  val api = slick.driver.PostgresDriver.api
-  import api._
-
-  lazy val db = Database.forConfig("db.test")
-
-  override protected def beforeAll(): Unit = {
-    super.beforeAll()
-
-    val flyway = new Flyway
-    flyway.setDataSource(jdbcDataSourceFromConfig("db.test"))
-    flyway.setLocations("filesystem:./sql")
-    flyway.clean()
-    flyway.migrate()
-  }
-
-  def jdbcDataSourceFromConfig(section: String) = {
-    val config = ConfigFactory.load
-    val source = new PGSimpleDataSource
-
-    source.setServerName(config.getString(s"$section.host"))
-    source.setUser(config.getString(s"$section.user"))
-    source.setDatabaseName(config.getString(s"$section.name"))
-
-    source
-  }
-}
 
 class DbTestSupportTest extends FreeSpec
   with MustMatchers
