@@ -80,21 +80,6 @@ case object InsufficientBalance extends GiftCardPaymentStatus
 case object SuccessfulDebit extends GiftCardPaymentStatus
 case object FailedDebit extends GiftCardPaymentStatus
 
-abstract class Payment extends DefaultJsonProtocol {
-  def authorize: {}
-
-  def process: Option[String] = {
-    println("processing payment")
-    if (scala.util.Random.nextInt(2) == 1) {
-      None
-    } else {
-      Some("payment processing failed")
-    }
-  }
-}
-
-
-
 abstract class PaymentGateway
 case object BraintreeGateway extends PaymentGateway
 // TODO: Get the API key from somewhere more useful.
