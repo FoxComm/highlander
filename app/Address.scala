@@ -38,10 +38,10 @@ trait Validation {
 
 object Validation {
   def validationFailureToSet(failure: Failure): Set[ErrorMessage] = {
-    failure.violations.map { violation =>
-      violation.description.getOrElse("") ++ " " ++ violation.constraint
-    }
+    failure.violations.map(formatViolation)
   }
+
+  def formatViolation(v: Violation): String = v.description.getOrElse("") ++ " " ++ v.constraint
 }
 
 case class StockLocation(id: Int, name: String)
@@ -66,7 +66,7 @@ case class Address(id: Int, accountId: Int, stateId: Int, name: String, street1:
       address.name is notEmpty
       address.street1 is notEmpty
       address.city is notEmpty
-      address.zip.length is equalTo(5)
+      address.zip should matchRegex("[0-9]{5}")
     }
   }.asInstanceOf[Validator[T]] // TODO: fix me
 }
@@ -97,10 +97,10 @@ object Addresses {
     db.run(table.filter(_.id === id).result.headOption)
   }
 
-  def createFromPayload(db: PostgresDriver.backend.DatabaseDef,
-                        account: User,
+  def createFromPayload(account: User,
                         payload: Seq[CreateAddressPayload])
-                       (implicit ec: ExecutionContext): Future[Seq[Address] Or Map[Address, Set[ErrorMessage]]] = {
+                       (implicit ec: ExecutionContext,
+                        db: PostgresDriver.backend.DatabaseDef): Future[Seq[Address] Or Map[Address, Set[ErrorMessage]]] = {
     // map to Address & validate
     val results = payload.map { a =>
       val address = Address(id = 0, accountId = account.id, stateId = a.stateId, name = a.name,
@@ -419,6 +419,8 @@ class Service extends Formats {
   val logger = Logging(system, getClass)
 
   val db = Database.forURL("jdbc:postgresql://localhost/phoenix_development?user=phoenix", driver = "slick.driver.PostgresDriver")
+  // TODO: make DB above implicit
+  implicit val implicitDB = db
 
   val user = User(id = 1, email = "yax@foxcommerce.com", password = "donkey", firstName = "Yax", lastName = "Donkey")
 
@@ -477,9 +479,9 @@ class Service extends Formats {
         } ~
         (post & entity(as[Seq[CreateAddressPayload]])) { payload =>
           complete {
-            Addresses.createFromPayload(db, user, payload).map {
+            Addresses.createFromPayload(user, payload).map {
               case Good(addresses)  => HttpResponse(OK, entity = render(addresses))
-              case Bad(errors)      => HttpResponse(BadRequest, entity = render(errors))
+              case Bad(errorMap)      => HttpResponse(BadRequest, entity = render(errorMap))
             }
           }
         }

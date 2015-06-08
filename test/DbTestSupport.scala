@@ -5,7 +5,7 @@ import org.postgresql.ds.PGSimpleDataSource
 import org.scalactic.{Good, Bad}
 import org.scalatest.{MustMatchers, Suite, SuiteMixin, BeforeAndAfterAll, FreeSpec}
 import org.scalatest.concurrent.ScalaFutures
-import slick.lifted.Tag
+import org.scalatest.prop.TableDrivenPropertyChecks._
 import scala.concurrent.ExecutionContext
 
 trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
@@ -13,6 +13,8 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
   import api._
 
   lazy val db = Database.forConfig("db.test")
+
+  implicit val implicitDB = db
 
   override protected def beforeAll(): Unit = {
     super.beforeAll()
@@ -110,6 +112,13 @@ class DbTestSupportTest extends FreeSpec
       val states = TableQuery[States]
       val addresses = TableQuery[Addresses]
 
+      def seedAccount(): User = {
+        val acct = User(0, "yax@yax.com", "plaintext", "Yax", "Donkey")
+        db.run(for {
+          id <- accounts.returning(accounts.map(_.id)) += acct
+        } yield (acct.copy(id = id))).futureValue
+      }
+
       def seedState(): State = {
         db.run(for {
           stateId <- states += State(0, "Washington", "WA")
@@ -117,32 +126,66 @@ class DbTestSupportTest extends FreeSpec
         } yield (state)).futureValue
       }
 
-      "can be created" in {
-        val state = seedState()
+      "createFromPayload" - {
+        "fails if address(es) do not pass validations" in {
+          val state = seedState()
+          val acct = seedAccount()
+          val payload = Seq(CreateAddressPayload(name = "Office", stateId = state.id, street1 = "3000 Burlingame Ave.",
+                                                 street2 = None, city = "Burlingame", zip = "NOT-A-ZIP"))
 
-        // 1. validations
-        // 2. FK constraints might fail
-        val address = db.run(for {
-          accountId <- accounts += User(0, "yax@yax.com", "plaintext", "Yax", "Donkey")
-          addressId <- addresses += Address(id = 0, accountId = accountId, stateId = state.id, name = "Yax Home",
-                                            street1 = "555 E Lake Union St.", street2 = None, city = "Seattle", zip = "90000")
-          address <- addresses.filter(_.id === addressId).result.head
-        } yield (address)).futureValue
+          Addresses.createFromPayload(acct, payload).futureValue match {
+            case Good(_) =>
+              fail("address should have failed validation")
 
-        address.id must be (1)
+            case Bad(errorMap) =>
+              val (address, errors) = errorMap.head
+              address.name must be ("Office")
+              errors must contain ("zip must match regular expression '[0-9]{5}'")
+          }
+        }
+
+        "creates address(es) successfully" in {
+          val state = seedState()
+          val acct = seedAccount()
+          val payload = Seq(CreateAddressPayload(name = "Office", stateId = state.id, street1 = "3000 Burlingame Ave.",
+            street2 = None, city = "Burlingame", zip = "12345"))
+
+          Addresses.createFromPayload(acct, payload).futureValue match {
+            case Good(addresses) =>
+              addresses.length must be (1)
+              addresses.head.id must be > 0
+
+            case Bad(errorMap) =>
+              fail(errorMap.mkString(";") ++ "address should have passed validation")
+          }
+        }
       }
     }
 
     "Address" - {
       ".validate" - {
         "returns errors when zip is not 5 digit chars" in {
-          val address = Address(id = 0, accountId = 1, stateId = 1, name = "Yax Home",
-                                street1 = "555 E Lake Union St.", street2 = None, city = "Seattle", zip = "")
-          address.validate match {
-            case ValidationFailure(e) =>
-              info(e.flatMap(_.description).mkString(";"))
+          val valid = Address(id = 0, accountId = 1, stateId = 1, name = "Yax Home",
+                              street1 = "555 E Lake Union St.", street2 = None, city = "Seattle", zip = "12345")
 
-            case ValidationSuccess    => fail("address should invalid")
+          val badZip = valid.copy(zip = "AB123")
+          val wrongLengthZip = valid.copy(zip = "1")
+
+          val addresses = Table(
+            ("address", "errors"),
+            (badZip, Set("zip must match regular expression '[0-9]{5}'")),
+            (wrongLengthZip, Set("zip must match regular expression '[0-9]{5}'"))
+          )
+
+          forAll(addresses) { (address: Address, errors: Set[String]) =>
+            address.validate match {
+              case ValidationFailure(failures) =>
+                val actualErrors = failures.map(Validation.formatViolation)
+                actualErrors must be (errors)
+
+              case ValidationSuccess =>
+                fail(s"${address} should be invalid")
+            }
           }
         }
       }
