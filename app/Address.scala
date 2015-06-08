@@ -1,6 +1,6 @@
 import java.util.Date
 
-import org.scalactic.{Bad, Good, ErrorMessage, Or}
+import org.scalactic._
 import slick.driver.PostgresDriver
 import slick.driver.PostgresDriver.api._
 import akka.actor.ActorSystem
@@ -33,6 +33,15 @@ trait Validation {
   def validator[T]: Validator[T]
   def validate: Result = { runValidation(this)(validator) }
   def isValid: Boolean = { validate == ValidationSuccess }
+
+}
+
+object Validation {
+  def validationFailureToSet(failure: Failure): Set[ErrorMessage] = {
+    failure.violations.map { violation =>
+      violation.description.getOrElse("") ++ " " ++ violation.constraint
+    }
+  }
 }
 
 case class StockLocation(id: Int, name: String)
@@ -91,7 +100,7 @@ object Addresses {
   def createFromPayload(db: PostgresDriver.backend.DatabaseDef,
                         account: User,
                         payload: Seq[CreateAddressPayload])
-                       (implicit ec: ExecutionContext): Future[Seq[Address] Or Seq[ErrorMessage]] = {
+                       (implicit ec: ExecutionContext): Future[Seq[Address] Or Map[Address, Set[ErrorMessage]]] = {
     // map to Address & validate
     val results = payload.map { a =>
       val address = Address(id = 0, accountId = account.id, stateId = a.stateId, name = a.name,
@@ -99,16 +108,18 @@ object Addresses {
       (address, address.validate)
     }
 
-    val failures = results.filter(_._2 == Failure)
+    val failures = results.filter { case (_, result) => result.isInstanceOf[Failure] }
 
     if (failures.nonEmpty) {
-      Future.successful(Bad(failures.map(ErrorMessage(_._2)))
+      val errorMap = failures.foldLeft(Map[Address, Set[ErrorMessage]]()) { case (acc, (address, failure: Failure)) =>
+        acc.updated(address, Validation.validationFailureToSet(failure))
+      }
+      Future.successful(Bad(errorMap))
     } else {
       db.run(for {
         _ <- table ++= results.map(_._1)
         addresses <- table.filter(_.accountId === account.id).result
-      } yield (addresses))
-
+      } yield (Good(addresses)))
     }
   }
 }
