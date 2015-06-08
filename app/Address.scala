@@ -152,12 +152,6 @@ case class Order(id: Int, cartId: Int, status: OrderStatus) {
   var lineItems: Seq[LineItem] = Seq.empty
 }
 
-case class StockItem(id: Int, productId: Int, stockLocationId: Int, onHold: Int, onHand: Int, allocatedToSales: Int) {
-  def available: Int = {
-    this.onHand - this.onHold - this.allocatedToSales
-  }
-}
-
 class Checkout(cart: Cart) {
   def checkout: Order Or List[ErrorMessage] = {
     // Realistically, what we'd do here is actually
