@@ -20,3 +20,6 @@ class LineItems(tag: Tag) extends Table[LineItem](tag, "line_items") with RichTa
   def * = (id, cartId, skuId) <> ((LineItem.apply _).tupled, LineItem.unapply)
 }
 
+object LineItems {
+  val query = TableQuery[LineItems]
+}

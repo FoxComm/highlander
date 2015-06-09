@@ -1,12 +1,11 @@
 package services
 
-import models.{LineItems, LineItem}
+import models.{LineItems, LineItem, Cart}
 import payloads.{UpdateLineItemsPayload => Payload}
 
 import org.scalactic.{Good, Bad, ErrorMessage, Or}
 import org.scalatest.{BeforeAndAfter, FreeSpec, MustMatchers, FunSuite}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import slick.lifted.TableQuery
 
 class LineItemUpdaterTest extends FreeSpec
   with util.DbTestSupport
@@ -14,6 +13,9 @@ class LineItemUpdaterTest extends FreeSpec
   with ScalaFutures
   with BeforeAndAfter
   with IntegrationPatience {
+
+  import api._
+  import concurrent.ExecutionContext.Implicits.global
 
   val lineItems = TableQuery[LineItems]
 
@@ -31,7 +33,7 @@ class LineItemUpdaterTest extends FreeSpec
         Payload(skuId = 2, quantity = 0)
       )
 
-      LineItemUpdater(db, cart, payload).futureValue match {
+      LineItemUpdater(cart, payload).futureValue match {
         case Good(items) =>
           items.filter(_.skuId == 1).length must be(3)
           items.filter(_.skuId == 2).length must be(0)
@@ -55,7 +57,7 @@ class LineItemUpdaterTest extends FreeSpec
         Payload(skuId = 3, quantity = 1)
       )
 
-      LineItemUpdater(db, cart, payload).futureValue match {
+      LineItemUpdater(cart, payload).futureValue match {
         case Good(items) =>
           items.filter(_.skuId == 1).length must be(3)
           items.filter(_.skuId == 2).length must be(0)
