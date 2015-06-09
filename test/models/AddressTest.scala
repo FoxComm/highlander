@@ -1,4 +1,5 @@
-import models.{Addresses, Address, Users, User, States, State, LineItems, LineItem, Carts}
+package models
+
 import payloads.CreateAddressPayload
 import utils.Validation
 
@@ -29,20 +30,19 @@ class AddressTest extends FreeSpec
     "Addresses" - {
       val accounts = TableQuery[Users]
       val states = TableQuery[States]
-      val addresses = TableQuery[Addresses]
 
       def seedAccount(): User = {
         val acct = User(0, "yax@yax.com", "plaintext", "Yax", "Donkey")
         db.run(for {
           id <- accounts.returning(accounts.map(_.id)) += acct
-        } yield (acct.copy(id = id))).futureValue
+        } yield acct.copy(id = id)).futureValue
       }
 
       def seedState(): State = {
         db.run(for {
           stateId <- states += State(0, "Washington", "WA")
           state <- states.filter(_.id === stateId).result.head
-        } yield (state)).futureValue
+        } yield state).futureValue
       }
 
       "createFromPayload" - {
@@ -103,7 +103,7 @@ class AddressTest extends FreeSpec
                 actualErrors must be (errors)
 
               case ValidationSuccess =>
-                fail(s"${address} should be invalid")
+                fail(s"$address should be invalid")
             }
           }
         }

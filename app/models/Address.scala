@@ -35,7 +35,6 @@ class Addresses(tag: Tag) extends Table[Address](tag, "addresses") with RichTabl
 
   def * = (id, accountId, stateId, name, street1, street2, city, zip) <> ((Address.apply _).tupled, Address.unapply)
 
-  // TODO(yax): add me back
   def state = foreignKey("addresses_state_id_fk", stateId, TableQuery[States])(_.id)
 }
 
@@ -65,15 +64,15 @@ object Addresses {
 
     if (failures.nonEmpty) {
       val acc = Map[Address, Set[ErrorMessage]]()
-      val errorMap = failures.foldLeft(acc) { case (acc, (address, failure: ValidationFailure)) =>
-        acc.updated(address, Validation.validationFailureToSet(failure))
+      val errorMap = failures.foldLeft(acc) { case (map, (address, failure: ValidationFailure)) =>
+        map.updated(address, Validation.validationFailureToSet(failure))
       }
       Future.successful(Bad(errorMap))
     } else {
       db.run(for {
         _ <- table ++= results.map { case (address, _) => address }
         addresses <- table.filter(_.accountId === account.id).result
-      } yield (Good(addresses)))
+      } yield Good(addresses))
     }
   }
 }
