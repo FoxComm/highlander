@@ -6,7 +6,9 @@ const
 module.exports = function(app) {
   let router = new Router();
 
-  router.use(app.requireAdmin);
+  // @todo this will be reenabled once auth is available
+  // - Tivs
+  // router.use(app.requireAdmin);
 
   router.get('/:path*', function *(next) {
     this.theme = 'admin';

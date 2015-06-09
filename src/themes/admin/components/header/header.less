@@ -1,3 +1,26 @@
 header[role='banner'] {
-  font-size: 14px;
+  .height(92px);
+  .clearfix;
+  .padding-left(55px);
+  .padding-right(55px);
+  .font-spec(20px, 92px);
+  .margin-bottom(50px);
+  border-top: 1px solid #bbbdbf;
+  border-bottom: 1px solid #bbbdbf;
+
+  .breadcrumb {
+    float: left;
+  }
+
+  .sub-nav {
+    color: #bbb;
+    float: right;
+
+    > * {
+      display: inline-block;
+      vertical-align: top;
+      .margin-right(32px);
+      &:last-child { margin-right: 0; }
+    }
+  }
 }

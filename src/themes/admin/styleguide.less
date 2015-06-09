@@ -6,7 +6,16 @@
 
 // Site variables
 @site_max-width: 940px;
-@site_font-size: 12px;
+@site_font-size: 15px;
+
+// Site colors
+@color-body: #595959;
+@color-bg-menu: #484848;
+@color-bg-thead: #f7f7f7;
+@color-bg-tr-odd: #f0f0f1;
+@color-bg-tr-even: #f7f7f7;
+@color-border-td: #d7d7d7;
+@color-link-menu: #ededed;
 
 * {
   outline: 0;
@@ -19,8 +28,9 @@ html {
 }
 
 body {
+  color: @color-body;
   font-family: 'Open Sans', sans-serif;
-  .font-spec(@site_font-size, 14px);
+  .font-spec(@site_font-size);
 }
 
 ul,
@@ -51,4 +61,43 @@ fieldset {
   margin: 0;
   border: none;
   padding: 0;
+}
+
+table {
+  width: 100%;
+  text-align: left;
+}
+
+table.listing {
+  thead {
+    tr {
+      background-color: @color-bg-thead;
+
+      th {
+        .text-indent(15px);
+        .font-spec(15px, 700, 80px);
+        border-right: 1px solid @color-border-td;
+        &:last-child { border-right: none; }
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      &:nth-child(odd) { background-color: @color-bg-tr-odd; }
+      &:nth-child(even) { background-color: @color-bg-tr-even; }
+
+      td {
+        .text-indent(15px);
+        .line-height(70px);
+        border-right: 1px solid @color-border-td;
+        &:last-child { border-right: none; }
+      }
+    }
+  }
+}
+
+.gutter {
+  .padding-left(50px);
+  .padding-right(50px);
 }
