@@ -1,5 +1,6 @@
 import java.util.Date
 import java.util.concurrent.TimeoutException
+import akka.http.scaladsl.Http.ServerBinding
 import com.stripe.model.Token
 import com.stripe.net.{RequestOptions => StripeRequestOptions}
 import com.stripe.model.{Charge => StripeCharge}
@@ -128,7 +129,7 @@ trait Formats extends DefaultJsonProtocol {
     ))
 }
 
-class Service extends Formats {
+class Service(systemOverride: Option[ActorSystem] = None) extends Formats {
   val conf: String =
     """
       |akka {
@@ -145,7 +146,7 @@ class Service extends Formats {
 
   val config: Config = ConfigFactory.parseString(conf)
 
-  implicit val system = ActorSystem.create("Cart", config)
+  implicit val system = systemOverride.getOrElse { ActorSystem.create("Cart", config) }
   implicit def executionContext = system.dispatcher
   implicit val materializer = ActorFlowMaterializer()
 
@@ -262,7 +263,7 @@ class Service extends Formats {
     }
   }
 
-  def bind(): Unit = {
+  def bind(config: Config = ConfigFactory.parseString(conf)): Future[ServerBinding] = {
     Http().bindAndHandle(routes, config.getString("http.interface"), config.getInt("http.port"))
   }
 }
