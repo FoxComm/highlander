@@ -1,0 +1,19 @@
+package payloads
+
+import utils.Validation
+
+import com.wix.accord.dsl.{validator => createValidator}
+import com.wix.accord.{Failure => ValidationFailure, Validator}
+import com.wix.accord.dsl._
+
+case class PaymentMethodPayload(cardholderName: String, cardNumber: String,  cvv: Int, expiration: String)
+
+case class TokenizedPaymentMethodPayload(paymentGateway: String, paymentGatewayToken: String) extends Validation {
+  override def validator[T] = {
+    createValidator[TokenizedPaymentMethodPayload] { payload =>
+      payload.paymentGateway is notEmpty
+      payload.paymentGatewayToken is notEmpty
+    }
+  }.asInstanceOf[Validator[T]] // TODO: fix me!
+}
+

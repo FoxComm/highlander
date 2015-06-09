@@ -4,13 +4,13 @@
 
 `sbt '~re-start' will reload the application automatically on code changes`
 
-## Dependencies
+### Dependencies
 
 - [JDK 1.8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 
 http://computechtips.com/781/install-oracle-jdk-8-mac-os-x-10-10-yosemite
 
-### [SBT](http://www.scala-sbt.org/)
+#### [SBT](http://www.scala-sbt.org/)
 
 OSX:
 
@@ -18,7 +18,7 @@ OSX:
 brew install sbt
 ```
 
-### [Scala](http://www.scala-lang.org/)
+#### [Scala](http://www.scala-lang.org/)
 
 OSX:
 
@@ -26,7 +26,7 @@ OSX:
 brew install scala
 ```
 
-### [Flyway](http://flywaydb.org/getstarted/)
+#### [Flyway](http://flywaydb.org/getstarted/)
 
 OSX:
 
@@ -34,13 +34,13 @@ OSX:
 brew install flyway
 ```
 
-## Setup
+### Setup
 
 ```bash
 make configure
 ```
 
-## Using Vagrant
+### Using Vagrant
 
 ```bash
 vagrant up

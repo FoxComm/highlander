@@ -47,3 +47,4 @@ resourceDirectory in Test := baseDirectory.value / "resources"
 
 Revolver.settings
 
+parallelExecution in Test := false
