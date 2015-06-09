@@ -28,7 +28,7 @@ class Orders extends React.Component {
         orderStatus: status[~~(Math.random() * status.length)],
         paymentStatus: payments[~~(Math.random() * payments.length)],
         shippingStatus: shipping[~~(Math.random() * shipping.length)],
-        total: '$100.00'
+        total: Math.floor(Math.random() * (10000000 - 5000)) + 5000
       });
     }
     return orders;
@@ -55,12 +55,12 @@ Orders.propTypes = {
 Orders.defaultProps = {
   tableColumns: [
     {field: 'order', text: 'Order'},
-    {field: 'date', text: 'Date'},
+    {field: 'date', text: 'Date', type: 'date'},
     {field: 'email', text: 'Email'},
     {field: 'orderStatus', text: 'Order Status'},
     {field: 'paymentStatus', text: 'Payment Status'},
     {field: 'shippingStatus', text: 'Shipping Status'},
-    {field: 'total', text: 'Total'}
+    {field: 'total', text: 'Total', type: 'currency'}
   ]
 };
 
