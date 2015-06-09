@@ -37,16 +37,6 @@ case class StockLocation(id: Int, name: String)
 // TODO: money/currency abstraction. Use joda-money, most likely
 case class Money(currency: String, amount: Int)
 
-case class State(id: Int, name: String, abbreviation: String)
-
-class States(tag: Tag) extends Table[State](tag, "states") with RichTable {
-  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def name = column[String]("name")
-  def abbreviation = column[String]("abbreviation")
-
-  def * = (id, name, abbreviation) <> ((State.apply _).tupled, State.unapply)
-}
-
 case class Adjustment(id: Int)
 
 case class Coupon(id: Int, cartId: Int, code: String, adjustment: List[Adjustment])
