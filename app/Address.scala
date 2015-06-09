@@ -58,14 +58,6 @@ case class Coupon(id: Int, cartId: Int, code: String, adjustment: List[Adjustmen
 
 case class Promotion(id: Int, cartId: Int, adjustments: List[Adjustment])
 
-//
-//object TokenizedCreditCards {
-//
-//  import scala.concurrent.ExecutionContext.Implicits.global
-//
-//  def findById(db: PostgresDriver.backend.DatabaseDef = defaultdb)
-//}
-
 sealed trait Destination
 case class EmailDestination(email: String) extends Destination
 case class ResidenceDestination(address: Address) extends Destination
@@ -109,9 +101,6 @@ object Main extends Formats {
   }
 }
 
-////////////////////
-// PAYLOADS
-////////////////////
 // JSON formatters
 trait Formats extends DefaultJsonProtocol {
   def adtSerializer[T : Manifest] = () => {
