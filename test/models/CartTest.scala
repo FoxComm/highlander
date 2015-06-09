@@ -1,3 +1,5 @@
+package models
+
 import org.scalactic.TypeCheckedTripleEquals
 import org.scalatest.{MustMatchers, FreeSpec}
 

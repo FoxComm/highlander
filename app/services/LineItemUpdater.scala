@@ -1,6 +1,6 @@
 package services
 
-import models.{LineItems, LineItem}
+import models.{LineItems, LineItem, Cart}
 import payloads.UpdateLineItemsPayload
 
 import org.scalactic.{Good, Bad, ErrorMessage, Or}
