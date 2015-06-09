@@ -2,15 +2,24 @@ import java.net.ServerSocket
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.{HttpEntity, HttpMethods, HttpRequest}
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpMethods, HttpRequest, HttpResponse}
 import akka.stream.{ActorFlowMaterializer, FlowMaterializer}
 import com.typesafe.config.ConfigFactory
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import org.scalatest.time.{Seconds, Span, Milliseconds}
-import org.scalatest.{Outcome, OneInstancePerTest, FreeSpec}
+import org.json4s.JsonAST.JValue
+import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.time.{Milliseconds, Seconds, Span}
+import org.scalatest.{FreeSpec, OneInstancePerTest, Outcome}
+
+import scala.concurrent.Await.result
+import scala.concurrent.ExecutionContext
+import scala.concurrent.duration._
 
 class AddressIntegrationTest extends FreeSpec with OneInstancePerTest
   with ScalaFutures {
+
+  import Extensions.RichHttpResponse
+
+  import concurrent.ExecutionContext.Implicits.global
 
   override implicit def patienceConfig: PatienceConfig = PatienceConfig(
     timeout  = Span(5, Seconds),
@@ -19,6 +28,7 @@ class AddressIntegrationTest extends FreeSpec with OneInstancePerTest
 
   private val ActorSystemNameChars = ('a' to 'z').toSet | ('A' to 'Z').toSet | ('0' to '9').toSet | Set('-', '_')
   implicit var system: ActorSystem = _
+
 
   override protected def withFixture(test: NoArgTest): Outcome = {
     system = ActorSystem(test.name.filter(ActorSystemNameChars.contains))
@@ -48,25 +58,32 @@ class AddressIntegrationTest extends FreeSpec with OneInstancePerTest
       HttpRequest(
         HttpMethods.POST,
         uri    = s"http://127.0.0.1:${ port }/v1/addresses",
-        entity = HttpEntity(jsonMap(Map(
-          "name"    → "Ferdinand",
-          "stateId" → 1,
-          "street1" → "Hauptstrasse",
-          "city"    → "Achau",
-          "zip"     → 2481
-        ))
-      )).futureValue
+        entity = HttpEntity(ContentTypes.`application/json`,
+          """
+            | {
+            |   "name":    "Ferdinand",
+            |   "stateId": 1,
+            |   "street1": "Hauptstrasse",
+            |   "city":    "Achau",
+            |   "zip":     2481
+            | }
+          """.stripMargin))).futureValue
 
     info((response.status, response.headers, response.entity.getClass.toString).toString)
+    info(response.bodyText)
   }
 
-  def jsonMap(in: Map[String, Any]): String = {
-    import org.json4s.{ DefaultFormats, Extraction }
+  def toJson(in: JValue): String = {
     import org.json4s.jackson.JsonMethods.pretty
+    import org.json4s.{DefaultFormats, Extraction}
 
     implicit val formats = DefaultFormats
 
     pretty(Extraction.decompose(in))
+  }
+
+  def jsonMap(in: Map[String, _]): String = {
+    ???
   }
 
   /**
@@ -85,5 +102,12 @@ class AddressIntegrationTest extends FreeSpec with OneInstancePerTest
     sockets.foreach(_.close())
 
     ports
+  }
+}
+
+object Extensions {
+  implicit class RichHttpResponse(val res: HttpResponse) extends AnyVal {
+    def bodyText(implicit ec: ExecutionContext, mat: FlowMaterializer): String =
+      result(res.entity.toStrict(1.second).map(_.data.utf8String), 1.second)
   }
 }
