@@ -1,3 +1,5 @@
+import models.PaymentStatus
+
 import org.json4s
 import org.json4s.JsonAST.JString
 import org.json4s.{CustomSerializer, DefaultFormats, JValue, Serializer}
@@ -7,6 +9,12 @@ import org.scalatest.{FreeSpec, MustMatchers}
 class AdtSerializerTest  extends FreeSpec with MustMatchers with TypeCheckedTripleEquals {
   import org.json4s.jackson.JsonMethods.parse
   import org.json4s.jackson.Serialization.write
+
+  sealed trait PaymentStatus
+
+  sealed trait CreditCardPaymentStatus extends PaymentStatus
+  case object Auth extends CreditCardPaymentStatus
+  case object FailedCapture extends CreditCardPaymentStatus
 
   "Adt serialization" - {
     "with a CustomSerializer" in {
@@ -41,20 +49,5 @@ class AdtSerializerTest  extends FreeSpec with MustMatchers with TypeCheckedTrip
       (ast2 \ "status").extract[String] must === ("FailedCapture2")
     }
 
-    "with a low-level org.json4s.serializer" in {
-      implicit val formats = DefaultFormats + new Serializer[PaymentStatus] {
-        override def deserialize(implicit format: json4s.Formats) = ???
-
-        override def serialize(implicit format: json4s.Formats): PartialFunction[Any, JValue] = {
-          case t: PaymentStatus ⇒ JString(t.toString)
-        }
-      }
-
-      val ast = parse(write(Map("status" → Auth)))
-      (ast \ "status").extract[String] must === ("Auth")
-
-      val ast2 = parse(write(Map("status" → FailedCapture)))
-      (ast2 \ "status").extract[String] must === ("FailedCapture")
-    }
   }
 }

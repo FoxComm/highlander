@@ -1,4 +1,9 @@
 import java.util.Date
+import java.util.concurrent.TimeoutException
+import com.stripe.model.Token
+import com.stripe.net.{RequestOptions => StripeRequestOptions}
+import com.stripe.model.{Charge => StripeCharge}
+import com.stripe.Stripe
 
 import org.scalactic._
 import slick.driver.PostgresDriver
@@ -8,8 +13,8 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshalling.ToResponseMarshallable
 import akka.http.scaladsl.model.HttpResponse
 import com.typesafe.config.{ConfigFactory, Config}
-import com.wix.accord.{validate => runValidation, Success => ValidationSuccess, Failure => ValidationFailure }
 import com.wix.accord._
+import com.wix.accord.{validate => runValidation, Success => ValidationSuccess, Failure => ValidationFailure}
 import dsl.{validator => createValidator}
 import dsl._
 import akka.event.Logging
@@ -25,13 +30,22 @@ import spray.json._
 import org.json4s.JsonAST.JString
 import org.json4s.{CustomSerializer, DefaultFormats}
 import org.json4s.jackson.Serialization.{write => render}
+import org.json4s.jackson.JsonMethods._
 import scala.concurrent.{ExecutionContext, Future, Await}
 import scala.concurrent.duration._
+import scala.util.{Try, Failure, Success}
+import collection.JavaConversions.mapAsJavaMap
 
 import utils.{RichTable, Validation}
-import models.{Addresses, Address, User, LineItem, Carts, Cart}
-import payloads.{CreateAddressPayload, UpdateLineItemsPayload}
-import services.LineItemUpdater
+import models._
+import payloads._
+import services.{LineItemUpdater, PaymentGateway, Checkout}
+
+case class Store(id: Int, name: String, Configuration: StoreConfiguration)
+
+//  This is a super quick placeholder for store configuration.  We will want to blow this out later.
+// TODO: Create full configuration data model
+case class StoreConfiguration(id: Int, storeId: Int, PaymentGateway: PaymentGateway)
 
 case class StockLocation(id: Int, name: String)
 
@@ -44,75 +58,12 @@ case class Coupon(id: Int, cartId: Int, code: String, adjustment: List[Adjustmen
 
 case class Promotion(id: Int, cartId: Int, adjustments: List[Adjustment])
 
-sealed trait PaymentStatus
-case object Auth extends PaymentStatus
-case object FailedCapture extends PaymentStatus
-case object CanceledAuth extends PaymentStatus
-case object ExpiredAuth extends PaymentStatus
-
-sealed trait GiftCardPaymentStatus extends PaymentStatus
-case object InsufficientBalance extends GiftCardPaymentStatus
-case object SuccessfulDebit extends GiftCardPaymentStatus
-case object FailedDebit extends GiftCardPaymentStatus
-
-abstract class Payment extends DefaultJsonProtocol {
-  def validate: Boolean = {
-    scala.util.Random.nextInt(2) == 1
-  }
-
-  def process: Option[String] = {
-    println("processing payment")
-    if (scala.util.Random.nextInt(2) == 1) {
-      None
-    } else {
-      Some("payment processing failed")
-    }
-  }
-}
-
-case class CreditCard(id: Int, cartId: Int, status: PaymentStatus, cvv: Int, number: String, expiration: String, address: Address) extends Payment
-
-case class GiftCard(id: Int, cartId: Int, status: GiftCardPaymentStatus, code: String) extends Payment
-
 sealed trait Destination
 case class EmailDestination(email: String) extends Destination
 case class ResidenceDestination(address: Address) extends Destination
 case class StockLocationDestination(stockLocation: StockLocation) extends Destination
 
 case class Fulfillment(id: Int, destination: Destination)
-
-sealed trait OrderStatus
-case object New extends OrderStatus
-case object FraudHold extends OrderStatus
-case object RemorseHold extends OrderStatus
-case object ManualHold extends OrderStatus
-case object Canceled extends OrderStatus
-case object FulfillmentStarted extends OrderStatus
-case object PartiallyShipped extends OrderStatus
-case object Shipped extends OrderStatus
-
-case class Order(id: Int, cartId: Int, status: OrderStatus) {
-  var lineItems: Seq[LineItem] = Seq.empty
-}
-
-class Checkout(cart: Cart) {
-  def checkout: Order Or List[ErrorMessage] = {
-    // Realistically, what we'd do here is actually
-    // 1) Check Inventory
-    // 2) Verify Payment (re-auth)
-    // 3) Validate addresses
-    // 4) Validate promotions/coupons
-    val order = Order(id = 0, cartId = cart.id, status = New)
-
-    if (scala.util.Random.nextInt(2) == 1) {
-      Bad(List("payment re-auth failed"))
-    } else {
-      Good(order)
-    }
-  }
-}
-
-case class Store(id: Int, name: String)
 
 case class Archetype(id: Int, name: String) extends Validation {
   override def validator[T] = {
@@ -161,6 +112,8 @@ trait Formats extends DefaultJsonProtocol {
   }
 
   implicit val addLineItemsRequestFormat = jsonFormat2(UpdateLineItemsPayload.apply)
+  implicit val addPaymentMethodRequestFormat = jsonFormat4(PaymentMethodPayload.apply)
+  implicit val addTokenizedPaymentMethodRequestFormat = jsonFormat2(TokenizedPaymentMethodPayload.apply)
   implicit val createAddressPayloadFormat = jsonFormat6(CreateAddressPayload.apply)
 
   val phoenixFormats = DefaultFormats + new CustomSerializer[PaymentStatus](format => (
@@ -169,12 +122,11 @@ trait Formats extends DefaultJsonProtocol {
     )) + new CustomSerializer[GiftCardPaymentStatus](format => (
     { case _ ⇒ sys.error("Reading not implemented") },
     { case x: GiftCardPaymentStatus ⇒ JString(x.toString) }
-    )) + new CustomSerializer[OrderStatus](format => (
+    )) + new CustomSerializer[Order.Status](format => (
     { case _ ⇒ sys.error("Reading not implemented") },
-    { case x: OrderStatus ⇒ JString(x.toString) }
+    { case x: Order.Status ⇒ JString(x.toString) }
     ))
 }
-
 
 class Service extends Formats {
   val conf: String =
@@ -202,14 +154,17 @@ class Service extends Formats {
 
   val logger = Logging(system, getClass)
 
-  val db = Database.forURL("jdbc:postgresql://localhost/phoenix_development?user=phoenix", driver = "slick.driver.PostgresDriver")
-  // TODO: make DB above implicit
-  implicit val implicitDB = db
+  implicit val db = Database.forURL("jdbc:postgresql://localhost/phoenix_development?user=phoenix", driver = "slick.driver.PostgresDriver")
 
   val user = User(id = 1, email = "yax@foxcommerce.com", password = "donkey", firstName = "Yax", lastName = "Donkey")
 
   val routes = {
     val cart = Cart(id = 0, accountId = None)
+
+    def findAccount(id: Option[Int]): Option[Shopper] = id.flatMap { id =>
+      Some(Shopper(id = id, email = "donkey@donkey.com", password = "donkeyPass",
+                   firstName = "Mister", lastName = "Donkey"))
+    }
 
     val notFoundResponse = HttpResponse(NotFound)
 
@@ -225,12 +180,12 @@ class Service extends Formats {
       pathPrefix("v1" / "cart" ) {
         (get & path(IntNumber)) { id =>
           complete {
-            renderOrNotFound(Carts.findById(db, id))
+            renderOrNotFound(Carts.findById(id))
           }
         } ~
         (post & path(IntNumber / "checkout")) { id =>
           complete {
-            renderOrNotFound(Carts.findById(db, id), (c: Cart) => {
+            renderOrNotFound(Carts.findById(id), (c: Cart) => {
               new Checkout(c).checkout match {
                 case Good(order) => HttpResponse(OK, entity = render(order))
                 case Bad(errors) => HttpResponse(BadRequest, entity = render(errors))
@@ -240,7 +195,7 @@ class Service extends Formats {
         } ~
         (post & path(IntNumber / "line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { (cartId, reqItems) =>
           complete {
-            Carts.findById(db, cartId).map {
+            Carts.findById(cartId).map {
               case None => Future(notFoundResponse)
               case Some(c) =>
                 LineItemUpdater(c, reqItems).map {
@@ -248,6 +203,40 @@ class Service extends Formats {
                   case Good(lineItems)  => HttpResponse(OK, entity = render(lineItems))
                 }
             }
+          }
+        } ~
+          (get & path(IntNumber / "payment-methods")) { cartId =>
+            complete {
+              renderOrNotFound(Carts.findById(cartId))
+            }
+          } ~
+        (post & path(IntNumber / "payment-methods") & entity(as[PaymentMethodPayload])) { (cartId, reqPayment) =>
+          complete {
+            Carts.findById(cartId).map {
+              //can't add payment methods if the cart doesn't exist
+              case None => notFoundResponse
+              case Some(c) =>
+                HttpResponse(OK, entity = render("HI"))
+            }
+          }
+        } ~
+        (post & path(IntNumber / "tokenized-payment-methods") & entity(as[TokenizedPaymentMethodPayload])) { (cartId, reqPayment) =>
+          complete {
+            Carts.findById(cartId).flatMap {
+              case None => Future.successful(notFoundResponse)
+              case Some(c) =>
+                // Check to see if there is a user associated with the checkout.
+                findAccount(c.accountId) match {
+                  case None     =>
+                    Future.successful(HttpResponse(OK, entity = render("Guest checkout!!")))
+
+                  case Some(s)  =>
+                    // Persist the payment token to the user's account
+                    PaymentMethods.addPaymentTokenToAccount(reqPayment.paymentGatewayToken, s).map { x =>
+                      HttpResponse(OK, entity = render(x))
+                    }
+                }
+           }
           }
         }
       }
