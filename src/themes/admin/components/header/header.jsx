@@ -1,18 +1,17 @@
 'use strict';
 
 import React from 'react';
-import { Link } from 'react-router';
 
 class Header extends React.Component {
   render() {
     return (
       <header role='banner'>
-        <div className="grid-row">
-          <nav>
-            <ul>
-              <li><Link to='home'>Home</Link></li>
-            </ul>
-          </nav>
+        <div className="breadcrumb">Orders</div>
+        <div className="sub-nav">
+          <div className="notifications">
+            <i className="icon-bell-alt"></i>
+          </div>
+          <div className="sort">Name <i className="icon-down-open"></i></div>
         </div>
       </header>
     );

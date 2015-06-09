@@ -1,9 +1,26 @@
 @pxtorem-js-function: ~`pxtorem = function(px){ return (parseInt(px.replace(/(^\d+)(.+$)/i,'$1')) / 10 + 'rem') }`;
 
+// ===== Clearfix =====
 .clearfix() {
   zoom: 1;
   &:before, &:after {content: ''; display: table;}
   &:after {clear: both;}
+}
+
+// ===== Placeholder =====
+.placeholder(@rules) {
+  &::-webkit-input-placeholder {
+    @rules();
+  }
+  &:-moz-placeholder {
+    @rules();
+  }
+  &::-moz-placeholder {
+    @rules();
+  }
+  &:-ms-input-placeholder {
+    @rules();
+  }
 }
 
 // ===== Font Values =====
@@ -43,4 +60,217 @@
 .line-height(@value) when (ispixel(@value)) {
   @rem-value: ~`pxtorem('@{value}')`;
   line-height: @rem-value;
+}
+
+.text-indent(@value) {
+  text-indent: @value;
+}
+
+.text-indent(@value) when (ispixel(@value)) {
+  @rem-value: ~`pxtorem('@{value}')`;
+  text-indent: @rem-value;
+}
+
+// ===== Size Values =====
+
+.size(@square) {
+  .width(@square);
+  .height(@square);
+}
+
+.size(@width, @height) {
+  .width(@width);
+  .height(@height);
+}
+
+.circle(@size) {
+  border-radius: 50%;
+  .size(@size);
+}
+
+.width(@value) {
+  width: @value;
+}
+
+.width(@value) when (ispixel(@value)) {
+  @rem-value: ~`pxtorem('@{value}')`;
+  width: @rem-value;
+}
+
+.height(@value) {
+  height: @value;
+}
+
+.height(@value) when (ispixel(@value)) {
+  @rem-value: ~`pxtorem('@{value}')`;
+  height: @rem-value;
+}
+
+// ===== Mixin Values =====
+.margin(@value) {
+  margin: @value;
+}
+
+.margin(@vvalue, @hvalue) {
+  margin: @arguments;
+}
+
+.margin(@value) when (ispixel(@value)) {
+  @rem-value: ~`pxtorem('@{value}')`;
+  margin: @rem-value;
+}
+
+.margin(@vertical, @horizontal) when (ispixel(@vertical)) and (ispixel(@horizontal)) {
+  @rem-vvalue: ~`pxtorem('@{vertical}')`;
+  @rem-hvalue: ~`pxtorem('@{horizontal}')`;
+  margin: @rem-vvalue @rem-hvalue;
+}
+
+.margin(@vertical, @horizontal) when (ispixel(@vertical)) {
+  @rem-value: ~`pxtorem('@{vertical}')`;
+  .margin(@rem-value, @horizontal);
+}
+
+.margin(@vertical, @horizontal) when (ispixel(@horizontal)) {
+  @rem-value: ~`pxtorem('@{horizontal}')`;
+  .margin(@vertical, @rem-value);
+}
+
+.margin-top(@value) {
+  margin-top: @value;
+}
+
+.margin-top(@value) when (ispixel(@value)) {
+  @rem-value: ~`pxtorem('@{value}')`;
+  margin-top: @rem-value;
+}
+
+.margin-right(@value) {
+  margin-right: @value;
+}
+
+.margin-right(@value) when (ispixel(@value)) {
+  @rem-value: ~`pxtorem('@{value}')`;
+  margin-right: @rem-value;
+}
+
+.margin-bottom(@value) {
+  margin-bottom: @value;
+}
+
+.margin-bottom(@value) when (ispixel(@value)) {
+  @rem-value: ~`pxtorem('@{value}')`;
+  margin-bottom: @rem-value;
+}
+
+.margin-left(@value) {
+  margin-left: @value;
+}
+
+.margin-left(@value) when (ispixel(@value)) {
+  @rem-value: ~`pxtorem('@{value}')`;
+  margin-left: @rem-value;
+}
+
+// ===== Padding Values =====
+.padding(@value) {
+  padding: @value;
+}
+
+.padding(@vvalue, @hvalue) {
+  padding: @arguments;
+}
+
+.padding(@value) when (ispixel(@value)) {
+  @rem-value: ~`pxtorem('@{value}')`;
+  padding: @rem-value;
+}
+
+.padding(@vertical, @horizontal) when (ispixel(@vertical)) and (ispixel(@horizontal)) {
+  @rem-vvalue: ~`pxtorem('@{vertical}')`;
+  @rem-hvalue: ~`pxtorem('@{horizontal}')`;
+  padding: @rem-vvalue @rem-hvalue;
+}
+
+.padding(@vertical, @horizontal) when (ispixel(@vertical)) {
+  @rem-value: ~`pxtorem('@{vertical}')`;
+  .padding(@rem-value, @horizontal);
+}
+
+.padding(@vertical, @horizontal) when (ispixel(@horizontal)) {
+  @rem-value: ~`pxtorem('@{horizontal}')`;
+  .padding(@vertical, @rem-value);
+}
+
+.padding-top(@value) {
+  padding-top: @value;
+}
+
+.padding-top(@value) when (ispixel(@value)) {
+  @rem-value: ~`pxtorem('@{value}')`;
+  padding-top: @rem-value;
+}
+
+.padding-right(@value) {
+  padding-right: @value;
+}
+
+.padding-right(@value) when (ispixel(@value)) {
+  @rem-value: ~`pxtorem('@{value}')`;
+  padding-right: @rem-value;
+}
+
+.padding-bottom(@value) {
+  padding-bottom: @value;
+}
+
+.padding-bottom(@value) when (ispixel(@value)) {
+  @rem-value: ~`pxtorem('@{value}')`;
+  padding-bottom: @rem-value;
+}
+
+.padding-left(@value) {
+  padding-left: @value;
+}
+
+.padding-left(@value) when (ispixel(@value)) {
+  @rem-value: ~`pxtorem('@{value}')`;
+  padding-left: @rem-value;
+}
+
+// ===== Position Values =====
+.top(@value) {
+  top: @value;
+}
+
+.top(@value) when (ispixel(@value)) {
+  @rem-value: ~`pxtorem('@{value}')`;
+  top: @rem-value;
+}
+
+.left(@value) {
+  left: @value;
+}
+
+.left(@value) when (ispixel(@value)) {
+  @rem-value: ~`pxtorem('@{value}')`;
+  left: @rem-value;
+}
+
+.right(@value) {
+  right: @value;
+}
+
+.right(@value) when (ispixel(@value)) {
+  @rem-value: ~`pxtorem('@{value}')`;
+  right: @rem-value;
+}
+
+.bottom(@value) {
+  bottom: @value;
+}
+
+.bottom(@value) when (ispixel(@value)) {
+  @rem-value: ~`pxtorem('@{value}')`;
+  bottom: @rem-value;
 }

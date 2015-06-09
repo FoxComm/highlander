@@ -1,0 +1,59 @@
+aside[role='complementary'] {
+  background: @color-bg-menu;
+  .width(94px);
+  .height(100vh);
+  overflow-x: hidden;
+  overflow-y: auto;
+  position: fixed;
+  top: 0;
+  left: 0;
+  transition: width 250ms ease-in-out;
+
+  ~ header,
+  ~ main {
+    .margin-left(94px);
+    transition: margin 250ms ease-in-out;
+  }
+
+  &:hover {
+    .width(275px);
+
+    ~ header,
+    ~ main {
+      .margin-left(275px);
+    }
+  }
+
+  nav ul {
+    li {
+      border-top: 1px solid lighten(@color-bg-menu, 10%);
+      border-bottom: 1px solid darken(@color-bg-menu, 10%);
+
+      &:first-child { border-top: none; }
+      &:last-child { border-bottom: none; }
+
+      a, a:visited {
+        color: @color-link-menu;
+        display: block;
+        white-space: nowrap;
+        .clearfix;
+        .padding(20px);
+
+        i,
+        span {
+          display: inline-block;
+          vertical-align: top;
+        }
+
+        i {
+          .font-spec(38px);
+          .margin-right(20px);
+        }
+
+        span {
+          .font-spec(15px, 38px);
+        }
+      }
+    }
+  }
+}
