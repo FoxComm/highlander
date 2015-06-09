@@ -5,7 +5,7 @@ import com.stripe.net.{RequestOptions => StripeRequestOptions}
 import com.stripe.model.{Charge => StripeCharge}
 import com.stripe.Stripe
 
-import org.scalactic.{Bad, Good, ErrorMessage, Or}
+import org.scalactic._
 import slick.driver.PostgresDriver
 import slick.driver.PostgresDriver.api._
 import akka.actor.ActorSystem
@@ -36,12 +36,10 @@ import scala.concurrent.duration._
 import scala.util.{Try, Failure, Success}
 import collection.JavaConversions.mapAsJavaMap
 
-// Validation mixin
-trait Validation {
-  def validator[T]: Validator[T]
-  def validate: Result = { runValidation(this)(validator) }
-  def isValid: Boolean = { validate == ValidationSuccess }
-}
+import utils.{RichTable, Validation}
+import models.{Addresses, Address, User, LineItem, Carts, Cart}
+import payloads.{CreateAddressPayload, UpdateLineItemsPayload}
+import services.LineItemUpdater
 
 case class Store(id: Int, name: String, Configuration: StoreConfiguration)
 
@@ -54,19 +52,11 @@ case class StockLocation(id: Int, name: String)
 // TODO: money/currency abstraction. Use joda-money, most likely
 case class Money(currency: String, amount: Int)
 
-case class State(id: Int, name: String, abbreviation: String)
-
-case class City(id: Int, name: String)
-
-case class Address(id: Int, name: String, streetAddresses: List[String], city: City, state: State, zip: String)
-
 case class Adjustment(id: Int)
 
 case class Coupon(id: Int, cartId: Int, code: String, adjustment: List[Adjustment])
 
 case class Promotion(id: Int, cartId: Int, adjustments: List[Adjustment])
-
-case class LineItem(id: Int, cartId: Int, skuId: Int)
 
 sealed trait PaymentStatus
 
@@ -243,6 +233,7 @@ case class StockLocationDestination(stockLocation: StockLocation) extends Destin
 
 case class Fulfillment(id: Int, destination: Destination)
 
+<<<<<<< HEAD
 case class Cart(id: Int, accountId: Option[Int] = None) {
   val db = Database.forURL("jdbc:postgresql://localhost/phoenix_development?user=phoenix", driver = "slick.driver.PostgresDriver")
 
@@ -332,6 +323,8 @@ class LineItems(tag: Tag) extends Table[LineItem](tag, "line_items") with RichTa
   def * = (id, cartId, skuId) <> ((LineItem.apply _).tupled, LineItem.unapply)
 }
 
+=======
+>>>>>>> master
 sealed trait OrderStatus
 case object New extends OrderStatus
 case object FraudHold extends OrderStatus
@@ -344,12 +337,6 @@ case object Shipped extends OrderStatus
 
 case class Order(id: Int, cartId: Int, status: OrderStatus) {
   var lineItems: Seq[LineItem] = Seq.empty
-}
-
-case class StockItem(id: Int, productId: Int, stockLocationId: Int, onHold: Int, onHand: Int, allocatedToSales: Int) {
-  def available: Int = {
-    this.onHand - this.onHold - this.allocatedToSales
-  }
 }
 
 class Checkout(cart: Cart) {
@@ -407,6 +394,7 @@ class Checkout(cart: Cart) {
 }
 
 
+<<<<<<< HEAD
 // We should have accounts.  Users and Shoppers can have accounts.
 case class Shopper(id: Int, email: String, password: String, firstName: String, lastName: String) extends Validation {
   override def validator[T] = {
@@ -418,6 +406,8 @@ case class Shopper(id: Int, email: String, password: String, firstName: String, 
   }.asInstanceOf[Validator[T]] // TODO: fix me
 }
 
+=======
+>>>>>>> master
 case class Archetype(id: Int, name: String) extends Validation {
   override def validator[T] = {
     createValidator[Archetype] { archetype =>
@@ -454,6 +444,7 @@ object Main extends Formats {
   }
 }
 
+<<<<<<< HEAD
 ////////////////////
 // PAYLOADS
 ////////////////////
@@ -469,6 +460,8 @@ case class TokenizedPaymentMethodPayload(paymentGateway: String, paymentGatewayT
 }
 
 
+=======
+>>>>>>> master
 // JSON formatters
 trait Formats extends DefaultJsonProtocol {
   def adtSerializer[T : Manifest] = () => {
@@ -479,10 +472,15 @@ trait Formats extends DefaultJsonProtocol {
     }))
   }
 
+<<<<<<< HEAD
   implicit val addLineItemsRequestFormat = jsonFormat2(LineItemsPayload.apply)
   implicit val addPaymentMethodRequestFormat = jsonFormat4(PaymentMethodPayload.apply)
   implicit val addTokenizedPaymentMethodRequestFormat = jsonFormat2(TokenizedPaymentMethodPayload.apply)
 
+=======
+  implicit val addLineItemsRequestFormat = jsonFormat2(UpdateLineItemsPayload.apply)
+  implicit val createAddressPayloadFormat = jsonFormat6(CreateAddressPayload.apply)
+>>>>>>> master
 
   val phoenixFormats = DefaultFormats + new CustomSerializer[PaymentStatus](format => (
     { case _ ⇒ sys.error("Reading not implemented") },
@@ -496,58 +494,6 @@ trait Formats extends DefaultJsonProtocol {
     ))
 }
 
-object LineItemUpdater {
-  def apply(db: PostgresDriver.backend.DatabaseDef,
-            cart: Cart,
-            payload: Seq[LineItemsPayload])
-           (implicit ec: ExecutionContext): Future[Seq[LineItem] Or List[ErrorMessage]] = {
-
-    // TODO:
-    //  validate sku in PIM
-    //  execute the fulfillment runner -> creates fulfillments
-    //  validate inventory (might be in PIM maybe not)
-    //  run hooks to manage promotions
-
-    val lineItems = TableQuery[LineItems]
-
-    // reduce Seq[LineItemsPayload] -> Map(skuId: Int -> absoluteQuantity: Int)
-    val updateQuantities = payload.foldLeft(Map[Int, Int]()) { (acc, item) =>
-      val quantity = acc.getOrElse(item.skuId, 0)
-      acc.updated(item.skuId, quantity + item.quantity)
-    }
-
-    // select sku_id, count(1) from line_items where cart_id = $ group by sku_id
-    val counts = for {
-      (skuId, q) <- lineItems.filter(_.cartId === cart.id).groupBy(_.skuId)
-    } yield (skuId, q.length)
-
-    val queries = counts.result.flatMap { (items: Seq[(Int, Int)]) =>
-      val existingSkuCounts = items.toMap
-
-      val changes = updateQuantities.map { case (skuId, newQuantity) =>
-        val current = existingSkuCounts.getOrElse(skuId, 0)
-        // we're using absolute values from payload, so if newQuantity is greater then create N items
-        if (newQuantity > current) {
-          val delta = newQuantity - current
-
-          lineItems ++= (1 to delta).map { _ => LineItem(0, cart.id, skuId) }.toSeq
-        } else if (current - newQuantity > 0) { //otherwise delete N items
-          lineItems.filter(_.id in lineItems.filter(_.cartId === cart.id).filter(_.skuId === skuId).
-                    sortBy(_.id.asc).take(current - newQuantity).map(_.id)).delete
-        } else {
-          // do nothing
-          DBIO.successful({})
-        }
-      }.to[Seq]
-
-      DBIO.seq(changes: _*)
-    }.flatMap { _ ⇒
-      lineItems.filter(_.cartId === cart.id).result
-    }
-
-    db.run(queries.transactionally).map(items => Good(items))
-  }
-}
 
 class Service extends Formats {
   val conf: String =
@@ -576,8 +522,10 @@ class Service extends Formats {
   val logger = Logging(system, getClass)
 
   val db = Database.forURL("jdbc:postgresql://localhost/phoenix_development?user=phoenix", driver = "slick.driver.PostgresDriver")
+  // TODO: make DB above implicit
+  implicit val implicitDB = db
 
-  val carts = TableQuery[Carts]
+  val user = User(id = 1, email = "yax@foxcommerce.com", password = "donkey", firstName = "Yax", lastName = "Donkey")
 
   val routes = {
     val cart = Cart(id = 0, accountId = None)
@@ -614,12 +562,12 @@ class Service extends Formats {
             })
           }
         } ~
-        (post & path(IntNumber / "line-items") & entity(as[Seq[LineItemsPayload]])) { (cartId, reqItems) =>
+        (post & path(IntNumber / "line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { (cartId, reqItems) =>
           complete {
             Carts.findById(db, cartId).map {
               case None => Future(notFoundResponse)
               case Some(c) =>
-                LineItemUpdater(db, c, reqItems).map {
+                LineItemUpdater(c, reqItems).map {
                   case Bad(errors)      => HttpResponse(BadRequest, entity = render(errors))
                   case Good(lineItems)  => HttpResponse(OK, entity = render(lineItems))
                 }
@@ -658,6 +606,25 @@ class Service extends Formats {
                     }
                 }
            }
+          }
+        }
+      }
+    } ~
+    logRequestResult("addresses") {
+      pathPrefix("v1" / "addresses" ) {
+        get {
+          complete {
+            Addresses.findAllByAccount(db, user).map { addresses =>
+              HttpResponse(OK, entity = render(addresses))
+            }
+          }
+        } ~
+        (post & entity(as[Seq[CreateAddressPayload]])) { payload =>
+          complete {
+            Addresses.createFromPayload(user, payload).map {
+              case Good(addresses)  => HttpResponse(OK, entity = render(addresses))
+              case Bad(errorMap)      => HttpResponse(BadRequest, entity = render(errorMap))
+            }
           }
         }
       }

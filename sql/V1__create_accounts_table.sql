@@ -1,24 +1,24 @@
-CREATE TABLE accounts (
-    id integer NOT NULL,
-    created_at timestamp without time zone default (now() at time zone 'utc'),
-    updated_at timestamp without time zone null,
-    deleted_at timestamp without time zone null,
-    email character varying(255) NOT NULL,
-    hashed_password character varying(255),
+create table accounts (
+    id integer not null,
+    email character varying(255) not null,
+    plaintext_password character varying(255), -- are you paying attention?
+    hashed_password character varying(255) not null,
     first_name character varying(255),
-    last_name character varying(255)
+    last_name character varying(255),
+    created_at timestamp without time zone default (now() at time zone 'utc'),
+    updated_at timestamp without time zone default (now() at time zone 'utc'),
+    deleted_at timestamp without time zone null
 );
 
-CREATE SEQUENCE accounts_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
+create sequence accounts_id_seq
+    start with 1
+    increment by 1
+    no minvalue
+    no maxvalue
+    cache 1;
 
-ALTER TABLE ONLY accounts
-  ALTER COLUMN id SET DEFAULT nextval('accounts_id_seq'::regclass);
+alter table only accounts
+  alter column id set default nextval('accounts_id_seq'::regclass);
 
-
-ALTER TABLE ONLY accounts 
+alter table only accounts
   add constraint accounts_pkey primary key (id);
