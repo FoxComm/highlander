@@ -1,4 +1,4 @@
-import models.{Addresses, Address, Users, User}
+import models.{Addresses, Address, Users, User, States, State}
 import payloads.CreateAddressPayload
 import utils.Validation
 
