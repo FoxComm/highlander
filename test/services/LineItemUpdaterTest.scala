@@ -35,8 +35,8 @@ class LineItemUpdaterTest extends FreeSpec
 
       LineItemUpdater(cart, payload).futureValue match {
         case Good(items) =>
-          items.filter(_.skuId == 1).length must be(3)
-          items.filter(_.skuId == 2).length must be(0)
+          items.count(_.skuId == 1) must be(3)
+          items.count(_.skuId == 2) must be(0)
 
           val allRecords = db.run(lineItems.result).futureValue
 
@@ -59,9 +59,9 @@ class LineItemUpdaterTest extends FreeSpec
 
       LineItemUpdater(cart, payload).futureValue match {
         case Good(items) =>
-          items.filter(_.skuId == 1).length must be(3)
-          items.filter(_.skuId == 2).length must be(0)
-          items.filter(_.skuId == 3).length must be(1)
+          items.count(_.skuId == 1) must be(3)
+          items.count(_.skuId == 2) must be(0)
+          items.count(_.skuId == 3) must be(1)
 
           val allRecords = db.run(lineItems.result).futureValue
 
