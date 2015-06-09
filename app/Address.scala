@@ -276,7 +276,7 @@ class Service extends Formats {
             Carts.findById(db, cartId).map {
               case None => Future(notFoundResponse)
               case Some(c) =>
-                LineItemUpdater(db, c, reqItems).map {
+                LineItemUpdater(c, reqItems).map {
                   case Bad(errors)      => HttpResponse(BadRequest, entity = render(errors))
                   case Good(lineItems)  => HttpResponse(OK, entity = render(lineItems))
                 }
