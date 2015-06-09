@@ -19,7 +19,6 @@ import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.server.Directives._
 import akka.stream.{ActorFlowMaterializer, FlowMaterializer}
 import slick.lifted.Tag
-import utils.{RichTable, Validation}
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
 import spray.json._
@@ -29,8 +28,10 @@ import org.json4s.jackson.Serialization.{write => render}
 import scala.concurrent.{ExecutionContext, Future, Await}
 import scala.concurrent.duration._
 
-import models.{Addresses, Address, Users, User}
-import payloads.CreateAddressPayload
+import utils.{RichTable, Validation}
+import models.{Addresses, Address, Users, User, LineItems, LineItem}
+import payloads.{CreateAddressPayload, UpdateLineItemsPayload}
+import services.LineItemUpdater
 
 case class StockLocation(id: Int, name: String)
 
@@ -42,8 +43,6 @@ case class Adjustment(id: Int)
 case class Coupon(id: Int, cartId: Int, code: String, adjustment: List[Adjustment])
 
 case class Promotion(id: Int, cartId: Int, adjustments: List[Adjustment])
-
-case class LineItem(id: Int, cartId: Int, skuId: Int)
 
 sealed trait PaymentStatus
 case object Auth extends PaymentStatus
@@ -115,13 +114,6 @@ object Carts {
   }
 }
 
-class LineItems(tag: Tag) extends Table[LineItem](tag, "line_items") with RichTable {
-  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def cartId = column[Int]("cart_id")
-  def skuId = column[Int]("sku_id")
-  def * = (id, cartId, skuId) <> ((LineItem.apply _).tupled, LineItem.unapply)
-}
-
 sealed trait OrderStatus
 case object New extends OrderStatus
 case object FraudHold extends OrderStatus
@@ -191,8 +183,6 @@ object Main extends Formats {
   }
 }
 
-case class LineItemsPayload(skuId: Int, quantity: Int)
-
 // JSON formatters
 trait Formats extends DefaultJsonProtocol {
   def adtSerializer[T : Manifest] = () => {
@@ -203,7 +193,7 @@ trait Formats extends DefaultJsonProtocol {
     }))
   }
 
-  implicit val addLineItemsRequestFormat = jsonFormat2(LineItemsPayload.apply)
+  implicit val addLineItemsRequestFormat = jsonFormat2(UpdateLineItemsPayload.apply)
   implicit val createAddressPayloadFormat = jsonFormat6(CreateAddressPayload.apply)
 
   val phoenixFormats = DefaultFormats + new CustomSerializer[PaymentStatus](format => (
@@ -218,58 +208,6 @@ trait Formats extends DefaultJsonProtocol {
     ))
 }
 
-object LineItemUpdater {
-  def apply(db: PostgresDriver.backend.DatabaseDef,
-            cart: Cart,
-            payload: Seq[LineItemsPayload])
-           (implicit ec: ExecutionContext): Future[Seq[LineItem] Or List[ErrorMessage]] = {
-
-    // TODO:
-    //  validate sku in PIM
-    //  execute the fulfillment runner -> creates fulfillments
-    //  validate inventory (might be in PIM maybe not)
-    //  run hooks to manage promotions
-
-    val lineItems = TableQuery[LineItems]
-
-    // reduce Seq[LineItemsPayload] -> Map(skuId: Int -> absoluteQuantity: Int)
-    val updateQuantities = payload.foldLeft(Map[Int, Int]()) { (acc, item) =>
-      val quantity = acc.getOrElse(item.skuId, 0)
-      acc.updated(item.skuId, quantity + item.quantity)
-    }
-
-    // select sku_id, count(1) from line_items where cart_id = $ group by sku_id
-    val counts = for {
-      (skuId, q) <- lineItems.filter(_.cartId === cart.id).groupBy(_.skuId)
-    } yield (skuId, q.length)
-
-    val queries = counts.result.flatMap { (items: Seq[(Int, Int)]) =>
-      val existingSkuCounts = items.toMap
-
-      val changes = updateQuantities.map { case (skuId, newQuantity) =>
-        val current = existingSkuCounts.getOrElse(skuId, 0)
-        // we're using absolute values from payload, so if newQuantity is greater then create N items
-        if (newQuantity > current) {
-          val delta = newQuantity - current
-
-          lineItems ++= (1 to delta).map { _ => LineItem(0, cart.id, skuId) }.toSeq
-        } else if (current - newQuantity > 0) { //otherwise delete N items
-          lineItems.filter(_.id in lineItems.filter(_.cartId === cart.id).filter(_.skuId === skuId).
-                    sortBy(_.id.asc).take(current - newQuantity).map(_.id)).delete
-        } else {
-          // do nothing
-          DBIO.successful({})
-        }
-      }.to[Seq]
-
-      DBIO.seq(changes: _*)
-    }.flatMap { _ ⇒
-      lineItems.filter(_.cartId === cart.id).result
-    }
-
-    db.run(queries.transactionally).map(items => Good(items))
-  }
-}
 
 class Service extends Formats {
   val conf: String =
@@ -333,7 +271,7 @@ class Service extends Formats {
             })
           }
         } ~
-        (post & path(IntNumber / "line-items") & entity(as[Seq[LineItemsPayload]])) { (cartId, reqItems) =>
+        (post & path(IntNumber / "line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { (cartId, reqItems) =>
           complete {
             Carts.findById(db, cartId).map {
               case None => Future(notFoundResponse)
