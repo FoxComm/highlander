@@ -176,7 +176,7 @@ class Service extends Formats {
       }
     }
 
-    logRequestResult("cart") {
+    logRequestResult("carts") {
       pathPrefix("v1" / "carts" ) {
         (get & path(IntNumber)) { id =>
           complete {
