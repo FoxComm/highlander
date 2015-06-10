@@ -56,6 +56,7 @@ object Carts {
   val carts = TableQuery[Carts]
 
   val cartsTable = TableQuery[Carts]
+  val returningId = cartsTable.returning(cartsTable.map(_.id))
   val tokenCardsTable = TableQuery[TokenizedCreditCards]
   val appliedPaymentsTable = TableQuery[AppliedPayments]
 

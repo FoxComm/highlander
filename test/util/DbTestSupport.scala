@@ -3,22 +3,23 @@ package util
 import com.typesafe.config.ConfigFactory
 import org.flywaydb.core.Flyway
 import org.postgresql.ds.PGSimpleDataSource
-import org.scalatest.{BeforeAndAfterAll, Suite, SuiteMixin}
+import org.scalatest.{Outcome, BeforeAndAfterAll, Suite, SuiteMixin}
 
-trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
+trait DbTestSupport extends SuiteMixin { this: Suite ⇒
   val api = slick.driver.PostgresDriver.api
   import api._
 
   implicit lazy val db = Database.forConfig("db.test")
 
-  override protected def beforeAll(): Unit = {
-    super.beforeAll()
-
+  override abstract protected def withFixture(test: NoArgTest): Outcome = {
     val flyway = new Flyway
     flyway.setDataSource(jdbcDataSourceFromConfig("db.test"))
     flyway.setLocations("filesystem:./sql")
+
     flyway.clean()
     flyway.migrate()
+
+    super.withFixture(test)
   }
 
   def jdbcDataSourceFromConfig(section: String) = {
