@@ -177,7 +177,7 @@ class Service extends Formats {
     }
 
     logRequestResult("cart") {
-      pathPrefix("v1" / "cart" ) {
+      pathPrefix("v1" / "carts" ) {
         (get & path(IntNumber)) { id =>
           complete {
             renderOrNotFound(Carts.findById(id))
@@ -193,14 +193,17 @@ class Service extends Formats {
             })
           }
         } ~
-        (post & path(IntNumber / "line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { (cartId, reqItems) =>
+        (post & path(IntNumber / "line_items") & entity(as[Seq[UpdateLineItemsPayload]])) { (cartId, reqItems) =>
           complete {
+            // TODO: we should output cart here
             Carts.findById(cartId).map {
               case None => Future(notFoundResponse)
               case Some(c) =>
                 LineItemUpdater(c, reqItems).map {
-                  case Bad(errors)      => HttpResponse(BadRequest, entity = render(errors))
-                  case Good(lineItems)  => HttpResponse(OK, entity = render(lineItems))
+                  case Bad(errors)      =>
+                    HttpResponse(BadRequest, entity = render(errors))
+                  case Good(lineItems)  =>
+                    HttpResponse(OK, entity = render(c.toMap.updated("lineItems", lineItems)))
                 }
             }
           }
@@ -245,7 +248,7 @@ class Service extends Formats {
       pathPrefix("v1" / "addresses" ) {
         get {
           complete {
-            Addresses.findAllByAccount(db, user).map { addresses =>
+            Addresses.findAllByAccount(user).map { addresses =>
               HttpResponse(OK, entity = render(addresses))
             }
           }
@@ -266,17 +269,3 @@ class Service extends Formats {
     Http().bindAndHandle(routes, config.getString("http.interface"), config.getInt("http.port"))
   }
 }
-
-/*
- TODO(yax): consider/research/experiment w/ the following
-  - DB Migrations: https://github.com/flyway/flyway
-  - Validations:
-    - http://skinny-framework.org/documentation/validator.html (this seems simpler than accord but at what cost)
-    - https://github.com/wix/accord
-  - ORM: http://skinny-framework.org/documentation/orm.html
-  - non-ORM:
-    - https://github.com/mauricio/postgresql-async
-    - Slick: https://github.com/slick/slick
-  - Fixtures/Factories: http://skinny-framework.org/documentation/factory-girl.html
-  - JSON: should we replace spray-json w/ json4s?
- */

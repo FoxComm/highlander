@@ -41,7 +41,7 @@ class Addresses(tag: Tag) extends Table[Address](tag, "addresses") with RichTabl
 object Addresses {
   val table = TableQuery[Addresses]
 
-  def findAllByAccount(db: Database, account: User): Future[Seq[Address]] = {
+  def findAllByAccount(account: User)(implicit db: Database): Future[Seq[Address]] = {
     db.run(table.filter(_.accountId === account.id).result)
   }
 
