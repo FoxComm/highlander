@@ -16,3 +16,13 @@ npm install
 ```
 npm run dev
 ```
+
+### Vagrant setup
+```
+vagrant up
+vagrant ssh
+cd /vagrant
+npm run dev
+``
+
+You should then be able to access Ashes at `localhost:5000`.
