@@ -24,4 +24,14 @@ Order.propTypes = {
   order: React.PropTypes.object
 };
 
+Order.defaultProps = {
+  customer: {
+    name: 'Bruce Wayne'
+  },
+  order: {
+    id: 12345,
+    date: new Date().toISOString()
+  }
+};
+
 export default Order;

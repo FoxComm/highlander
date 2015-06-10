@@ -12,9 +12,8 @@ import User from './components/users/user';
 const routes = (
   <Route handler={Site}>
     <DefaultRoute name="home" handler={Home}/>
-    <Route name='orders' handler={Orders}>
-      <Route name='order' path=':order' handler={Order}/>
-    </Route>
+    <Route name='orders' handler={Orders}/>
+    <Route name='order' path='/orders/:order' handler={Order}/>
     <Route name='users' handler={Users}>
       <Route name='user' path=':user' handler={User}/>
     </Route>
