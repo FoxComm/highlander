@@ -5,4 +5,5 @@ apt-get -y update
 apt-get install -y iojs
 
 cd /vagrant
-npm install
+
+make setup
