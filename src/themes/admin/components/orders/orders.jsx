@@ -40,7 +40,7 @@ class Orders extends React.Component {
         <div className="gutter">
           <table className='listing'>
             <TableHead columns={this.props.tableColumns}/>
-            <TableBody columns={this.props.tableColumns} rows={this.state.tableRows}/>
+            <TableBody columns={this.props.tableColumns} rows={this.state.tableRows} model='order'/>
           </table>
         </div>
       </div>
@@ -54,7 +54,7 @@ Orders.propTypes = {
 
 Orders.defaultProps = {
   tableColumns: [
-    {field: 'order', text: 'Order'},
+    {field: 'order', text: 'Order', type: 'id'},
     {field: 'date', text: 'Date', type: 'date'},
     {field: 'email', text: 'Email'},
     {field: 'orderStatus', text: 'Order Status'},

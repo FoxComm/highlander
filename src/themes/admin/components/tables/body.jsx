@@ -2,6 +2,7 @@
 
 import React from 'react';
 import moment from 'moment';
+import { Link } from 'react-router';
 
 class TableBody extends React.Component {
   formatCurrency(num) {
@@ -13,8 +14,9 @@ class TableBody extends React.Component {
     return `$${dollars}.${cents}`;
   }
 
-  convert(field, type) {
-    switch(type) {
+  convert(field, column, model) {
+    switch(column.type) {
+      case 'id': return <Link to={model} params={{order: `${field}`}}>{field}</Link>;
       case 'currency': return this.formatCurrency(field);
       case 'date': return moment(field).format('DD/MM/YYYY');
       default: return field;
@@ -28,7 +30,7 @@ class TableBody extends React.Component {
       return (
         <tr key={idx}>
           {columns.map((column) => {
-            let data = this.convert(row[column.field], column.type);
+            let data = this.convert(row[column.field], column, this.props.model);
             return <td key={`${idx}-${column.field}`}>{data}</td>;
           })}
         </tr>
@@ -41,7 +43,8 @@ class TableBody extends React.Component {
 
 TableBody.propTypes = {
   columns: React.PropTypes.array,
-  rows: React.PropTypes.array
+  rows: React.PropTypes.array,
+  model: React.PropTypes.string
 };
 
 export default TableBody;
