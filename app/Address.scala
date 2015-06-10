@@ -129,7 +129,10 @@ trait Formats extends DefaultJsonProtocol {
     ))
 }
 
-class Service(systemOverride: Option[ActorSystem] = None) extends Formats {
+class Service(
+  systemOverride: Option[ActorSystem] = None,
+  dbOverride:     Option[slick.driver.PostgresDriver.backend.DatabaseDef] = None
+) extends Formats {
   val conf: String =
     """
       |akka {
@@ -155,7 +158,7 @@ class Service(systemOverride: Option[ActorSystem] = None) extends Formats {
 
   val logger = Logging(system, getClass)
 
-  implicit val db = Database.forURL("jdbc:postgresql://localhost/phoenix_development?user=phoenix", driver = "slick.driver.PostgresDriver")
+  implicit val db = dbOverride.getOrElse { Database.forURL("jdbc:postgresql://localhost/phoenix_development?user=phoenix", driver = "slick.driver.PostgresDriver") }
 
   val user = User(id = 1, email = "yax@foxcommerce.com", password = "donkey", firstName = "Yax", lastName = "Donkey")
 
