@@ -11,8 +11,6 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 case class Cart(id: Int, accountId: Option[Int] = None) {
-  val db = Database.forURL("jdbc:postgresql://localhost/phoenix_development?user=phoenix", driver = "slick.driver.PostgresDriver")
-
   val lineItems: Seq[LineItem] = Seq.empty
   //val payments: Seq[AppliedPayment] = Seq.empty
   // val fulfillments: Seq[Fulfillment] = Seq.empty
@@ -39,6 +37,12 @@ case class Cart(id: Int, accountId: Option[Int] = None) {
 
   def grandTotal: Int = {
     12550
+  }
+
+  def toMap: Map[String, Any] = {
+    val fields = this.getClass.getDeclaredFields.map(_.getName)
+    val values = Cart.unapply(this).get.productIterator.toSeq
+    fields.zip(values).toMap
   }
 }
 
