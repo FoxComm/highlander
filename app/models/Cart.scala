@@ -39,8 +39,6 @@ case class Cart(id: Int, accountId: Option[Int] = None) {
     12550
   }
 
-  def reload(implicit db: Database): Future[Option[Cart]] = Carts.findById(this.id)
-
   def toMap: Map[String, Any] = {
     val fields = this.getClass.getDeclaredFields.map(_.getName)
     val values = Cart.unapply(this).get.productIterator.toSeq
