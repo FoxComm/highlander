@@ -91,5 +91,5 @@ object Carts {
     db.run(_findById(id).result.headOption)
   }
 
-  def _findById(id: Int) = { carts.filter(_.id === id) }
+  def _findById(id: Rep[Int]) = { carts.filter(_.id === id) }
 }
