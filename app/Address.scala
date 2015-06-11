@@ -129,6 +129,46 @@ trait Formats extends DefaultJsonProtocol {
     ))
 }
 
+object TheWholeFuckingCart {
+  case class Totals(subTotal: Int, taxes: Int, adjustments: Int, total: Int)
+  case class Response(id: Int, lineItems: Seq[LineItem], totals: Totals) {
+  }
+
+  object Response {
+    def build(cart: Cart, lineItems: Seq[LineItem]): Response = {
+      Response(id = cart.id, lineItems = lineItems, totals =
+        Totals(subTotal = 500, taxes = 10, adjustments = 0, total = 510))
+    }
+  }
+
+  def findById(id: Int)
+              (implicit ec: ExecutionContext,
+               db: Database): Future[Option[Response]] = {
+
+    val queries = for {
+      cart <- TableQuery[Carts].filter(_.id === id)
+      lineItems <- TableQuery[LineItems].filter(_.cartId === cart.id)
+    } yield (cart, lineItems)
+
+    db.run(queries.result).map { results =>
+      results.headOption.map { case (cart, _) =>
+        Response.build(cart, results.map { case (_, items) => items })
+      }
+    }
+  }
+
+  def fromCart(cart: Cart)
+              (implicit ec: ExecutionContext,
+               db: Database): Future[Option[Response]] = {
+
+    val queries = for {
+      lineItems <- TableQuery[LineItems].filter(_.cartId === cart.id)
+    } yield lineItems
+
+    db.run(queries.result).map { lineItems => Some(Response.build(cart, lineItems)) }
+  }
+}
+
 class Service(
   systemOverride: Option[ActorSystem] = None,
   dbOverride:     Option[slick.driver.PostgresDriver.backend.DatabaseDef] = None
@@ -184,7 +224,7 @@ class Service(
       pathPrefix("v1" / "carts" ) {
         (get & path(IntNumber)) { id =>
           complete {
-            renderOrNotFound(Carts.findById(id))
+            renderOrNotFound(TheWholeFuckingCart.findById(id))
           }
         } ~
         (post & path(IntNumber / "checkout")) { id =>
@@ -207,7 +247,7 @@ class Service(
                   case Bad(errors)      =>
                     HttpResponse(BadRequest, entity = render(errors))
                   case Good(lineItems)  =>
-                    HttpResponse(OK, entity = render(c.toMap.updated("lineItems", lineItems)))
+                    HttpResponse(OK, entity = render(TheWholeFuckingCart.Response.build(c, lineItems)))
                 }
             }
           }
