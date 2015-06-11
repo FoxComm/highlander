@@ -261,7 +261,7 @@ class Service(
                   case Bad(errors) =>
                     HttpResponse(BadRequest, entity = render(errors))
                   case Good(lineItems) =>
-                    HttpResponse(OK, entity = render(cart.toMap.updated("lineItems", lineItems)))
+                    HttpResponse(OK, entity = render(TheWholeFuckingCart.Response.build(cart, lineItems)))
                 }
             }
           }
