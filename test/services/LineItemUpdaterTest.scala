@@ -33,7 +33,7 @@ class LineItemUpdaterTest extends FreeSpec
         Payload(skuId = 2, quantity = 0)
       )
 
-      LineItemUpdater(cart, payload).futureValue match {
+      LineItemUpdater.updateQuantities(cart, payload).futureValue match {
         case Good(items) =>
           items.count(_.skuId == 1) must be(3)
           items.count(_.skuId == 2) must be(0)
@@ -57,7 +57,7 @@ class LineItemUpdaterTest extends FreeSpec
         Payload(skuId = 3, quantity = 1)
       )
 
-      LineItemUpdater(cart, payload).futureValue match {
+      LineItemUpdater.updateQuantities(cart, payload).futureValue match {
         case Good(items) =>
           items.count(_.skuId == 1) must be(3)
           items.count(_.skuId == 2) must be(0)

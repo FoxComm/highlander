@@ -242,11 +242,26 @@ class Service(
             Carts.findById(cartId).map {
               case None => Future(notFoundResponse)
               case Some(c) =>
-                LineItemUpdater(c, reqItems).map {
+                LineItemUpdater.updateQuantities(c, reqItems).map {
                   case Bad(errors)      =>
                     HttpResponse(BadRequest, entity = render(errors))
                   case Good(lineItems)  =>
                     HttpResponse(OK, entity = render(TheWholeFuckingCart.Response.build(c, lineItems)))
+                }
+            }
+          }
+        } ~
+        (delete & path(IntNumber / "line_items" / IntNumber)) { (cartId, lineItemId) =>
+          complete {
+            Carts.findById(cartId).map {
+              case None => Future(notFoundResponse)
+              case Some(cart) =>
+              // TODO(yax): can the account delete this lineItem?
+                LineItemUpdater.deleteById(lineItemId, cart.id).map {
+                  case Bad(errors) =>
+                    HttpResponse(BadRequest, entity = render(errors))
+                  case Good(lineItems) =>
+                    HttpResponse(OK, entity = render(cart.toMap.updated("lineItems", lineItems)))
                 }
             }
           }

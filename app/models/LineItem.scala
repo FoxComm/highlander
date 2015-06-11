@@ -21,5 +21,6 @@ class LineItems(tag: Tag) extends Table[LineItem](tag, "line_items") with RichTa
 }
 
 object LineItems {
-  val query = TableQuery[LineItems]
+  val lineItems = TableQuery[LineItems]
+  val returningId = lineItems.returning(lineItems.map(_.id))
 }
