@@ -41,7 +41,7 @@ class Addresses(tag: Tag) extends Table[Address](tag, "addresses") with RichTabl
 object Addresses {
   val table = TableQuery[Addresses]
 
-  def findAllByAccount(account: User)(implicit db: Database): Future[Seq[Address]] = {
+  def findAllByAccount(account: Customer)(implicit db: Database): Future[Seq[Address]] = {
     db.run(table.filter(_.accountId === account.id).result)
   }
 
@@ -49,7 +49,7 @@ object Addresses {
     db.run(table.filter(_.id === id).result.headOption)
   }
 
-  def createFromPayload(account: User,
+  def createFromPayload(account: Customer,
                         payload: Seq[CreateAddressPayload])
                        (implicit ec: ExecutionContext,
                         db: Database): Future[Seq[Address] Or Map[Address, Set[ErrorMessage]]] = {

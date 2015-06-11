@@ -28,11 +28,11 @@ class AddressTest extends FreeSpec
   }
 
     "Addresses" - {
-      val accounts = TableQuery[Users]
+      val accounts = TableQuery[Shoppers]
       val states = TableQuery[States]
 
-      def seedAccount(): User = {
-        val acct = User(0, "yax@yax.com", "plaintext", "Yax", "Donkey")
+      def seedAccount(): Customer = {
+        val acct = Customer(0, "yax@yax.com", "plaintext", "Yax", "Donkey")
         db.run(for {
           id <- accounts.returning(accounts.map(_.id)) += acct
         } yield acct.copy(id = id)).futureValue
