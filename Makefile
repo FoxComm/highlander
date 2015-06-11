@@ -6,4 +6,3 @@ PHONY: test
 setup:
 	npm install
 	npm build
-	npm start

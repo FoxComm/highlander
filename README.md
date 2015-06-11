@@ -18,8 +18,16 @@ npm run dev
 ```
 
 ### Vagrant setup
+
+#### Local
 ```
-vagrant up
-``
+vagrant up --provider=virtualbox
+```
+
+### GCE Spinup
+```
+vagrant plugin install vagrant-google
+vagrant up --provider=google
+```
 
 You should then be able to access Ashes at `localhost:5000`.
