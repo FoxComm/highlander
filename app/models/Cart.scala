@@ -1,19 +1,12 @@
 package models
 
-import slick.ast.BaseTypedType
-import slick.driver.PostgresDriver
-import slick.lifted
-import slick.lifted.AbstractTable
-import utils.{TableWithIdQuery, TableWithId, Validation, RichTable}
-
-import com.wix.accord.dsl.{validator => createValidator}
+import com.wix.accord.dsl.{validator ⇒ createValidator}
+import com.wix.accord.{Failure ⇒ ValidationFailure}
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
-import org.scalactic._
-import com.wix.accord.{Failure => ValidationFailure, Validator}
-import com.wix.accord.dsl._
-import scala.concurrent.{ExecutionContext, Future}
-import scala.reflect.ClassTag
+import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
+import utils.{RichTable, TableWithId, TableWithIdQuery}
+
+import scala.concurrent.Future
 
 case class Cart(id: Int, accountId: Option[Int] = None) {
   val lineItems: Seq[LineItem] = Seq.empty
