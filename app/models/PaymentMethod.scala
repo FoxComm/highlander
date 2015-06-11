@@ -86,7 +86,7 @@ case class TokenizedCreditCard(id: Int = 0, accountId: Int = 0, paymentGateway: 
 }
 
 object TokenizedCreditCard {
-  def apply(card: StripeCard, tokenId: String) = {
+  def fromStripe(card: StripeCard, tokenId: String): TokenizedCreditCard = {
     apply(paymentGateway = "stripe", gatewayTokenId = tokenId, lastFourDigits = card.getLast4,
           expirationMonth = card.getExpMonth, expirationYear = card.getExpYear, brand = card.getBrand)
   }

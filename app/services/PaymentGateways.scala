@@ -20,7 +20,7 @@ case class StripeGateway(paymentToken: String, apiKey: String = "sk_test_eyVBk2N
 
     try {
       val retrievedToken = Token.retrieve(this.paymentToken, reqOpts)
-      Success(TokenizedCreditCard(retrievedToken.getCard, this.paymentToken))
+      Success(TokenizedCreditCard.fromStripe(retrievedToken.getCard, this.paymentToken))
     } catch {
       case t: com.stripe.exception.InvalidRequestException =>
         Failure(t)
