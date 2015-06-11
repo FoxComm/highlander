@@ -53,7 +53,7 @@ case class StockLocation(id: Int, name: String)
 // TODO: money/currency abstraction. Use joda-money, most likely
 case class Money(currency: String, amount: Int)
 
-case class Adjustment(id: Int)
+case class Adjustment(id: Int, amount: Int, sourceId: Int, sourceType: String, reason: String)
 
 case class Coupon(id: Int, cartId: Int, code: String, adjustment: List[Adjustment])
 
@@ -129,6 +129,46 @@ trait Formats extends DefaultJsonProtocol {
     ))
 }
 
+object TheWholeFuckingCart {
+  case class Totals(subTotal: Int, taxes: Int, adjustments: Int, total: Int)
+  case class Response(id: Int, lineItems: Seq[LineItem], adjustments: Seq[Adjustment], totals: Totals) {
+  }
+
+  object Response {
+    def build(cart: Cart, lineItems: Seq[LineItem] = Seq.empty, adjustments: Seq[Adjustment] = Seq.empty): Response = {
+      Response(id = cart.id, lineItems = lineItems, adjustments = adjustments, totals =
+        Totals(subTotal = 500, taxes = 10, adjustments = 0, total = 510))
+    }
+  }
+
+  def findById(id: Int)
+              (implicit ec: ExecutionContext,
+               db: Database): Future[Option[Response]] = {
+
+    val queries = for {
+      cart <- Carts._findById(id)
+      lineItems <- LineItems._findByCartId(cart.id)
+    } yield (cart, lineItems)
+
+    db.run(queries.result).map { results =>
+      results.headOption.map { case (cart, _) =>
+        Response.build(cart, results.map { case (_, items) => items })
+      }
+    }
+  }
+
+  def fromCart(cart: Cart)
+              (implicit ec: ExecutionContext,
+               db: Database): Future[Option[Response]] = {
+
+    val queries = for {
+      lineItems <- LineItems._findByCartId(cart.id)
+    } yield lineItems
+
+    db.run(queries.result).map { lineItems => Some(Response.build(cart, lineItems)) }
+  }
+}
+
 class Service(
   systemOverride: Option[ActorSystem] = None,
   dbOverride:     Option[slick.driver.PostgresDriver.backend.DatabaseDef] = None
@@ -184,7 +224,7 @@ class Service(
       pathPrefix("v1" / "carts" ) {
         (get & path(IntNumber)) { id =>
           complete {
-            renderOrNotFound(Carts.findById(id))
+            renderOrNotFound(TheWholeFuckingCart.findById(id))
           }
         } ~
         (post & path(IntNumber / "checkout")) { id =>
@@ -199,7 +239,6 @@ class Service(
         } ~
         (post & path(IntNumber / "line_items") & entity(as[Seq[UpdateLineItemsPayload]])) { (cartId, reqItems) =>
           complete {
-            // TODO: we should output cart here
             Carts.findById(cartId).map {
               case None => Future(notFoundResponse)
               case Some(c) =>
@@ -207,7 +246,7 @@ class Service(
                   case Bad(errors)      =>
                     HttpResponse(BadRequest, entity = render(errors))
                   case Good(lineItems)  =>
-                    HttpResponse(OK, entity = render(c.toMap.updated("lineItems", lineItems)))
+                    HttpResponse(OK, entity = render(TheWholeFuckingCart.Response.build(c, lineItems)))
                 }
             }
           }
@@ -222,7 +261,7 @@ class Service(
                   case Bad(errors) =>
                     HttpResponse(BadRequest, entity = render(errors))
                   case Good(lineItems) =>
-                    HttpResponse(OK, entity = render(cart.toMap.updated("lineItems", lineItems)))
+                    HttpResponse(OK, entity = render(TheWholeFuckingCart.Response.build(cart, lineItems)))
                 }
             }
           }
