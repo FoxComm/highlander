@@ -146,8 +146,8 @@ object TheWholeFuckingCart {
                db: Database): Future[Option[Response]] = {
 
     val queries = for {
-      cart <- TableQuery[Carts].filter(_.id === id)
-      lineItems <- TableQuery[LineItems].filter(_.cartId === cart.id)
+      cart <- Carts._findById(id)
+      lineItems <- LineItems._findByCartId(cart.id)
     } yield (cart, lineItems)
 
     db.run(queries.result).map { results =>
