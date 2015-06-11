@@ -29,9 +29,9 @@ class Users(tag: Tag) extends Table[User](tag, "accounts") with RichTable {
 object User {}
 
 // TODO(yax): we should be extending Accounts or User or something
-case class Shopper(id: Int, email: String, password: String, firstName: String, lastName: String) extends Validation {
+case class Customer(id: Int, email: String, password: String, firstName: String, lastName: String) extends Validation {
   override def validator[T] = {
-    createValidator[Shopper] { shopper =>
+    createValidator[Customer] { shopper =>
       shopper.firstName is notEmpty
       shopper.lastName is notEmpty
       shopper.email is notEmpty

@@ -25,12 +25,12 @@ object PaymentMethods {
   val tokenCardsTable = TableQuery[TokenizedCreditCards]
 
   // TODO: The right way to do this would be to return all the different payment methods available to the user.
-  def findAllByAccount(account: Shopper)(implicit db: Database): Future[Seq[TokenizedCreditCard]] = {
+  def findAllByAccount(account: Customer)(implicit db: Database): Future[Seq[TokenizedCreditCard]] = {
     db.run(tokenCardsTable.filter(_.accountId === account.id).result)
   }
 
   // TODO: Figure out our standard 'return' objects for all inserts and lookups
-  def addPaymentTokenToAccount(paymentToken: String, account: Shopper)(implicit db: Database) : Future[TokenizedCreditCard] = {
+  def addPaymentTokenToAccount(paymentToken: String, account: Customer)(implicit db: Database) : Future[TokenizedCreditCard] = {
     // First, let's get this token from stripe.
     // TODO: Let's handle a bad response from stripe and bubble up to the user
     val gateWay = StripeGateway(paymentToken = paymentToken)

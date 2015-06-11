@@ -165,8 +165,8 @@ class Service(
   val routes = {
     val cart = Cart(id = 0, accountId = None)
 
-    def findAccount(id: Option[Int]): Option[Shopper] = id.flatMap { id =>
-      Some(Shopper(id = id, email = "donkey@donkey.com", password = "donkeyPass",
+    def findAccount(id: Option[Int]): Option[Customer] = id.flatMap { id =>
+      Some(Customer(id = id, email = "donkey@donkey.com", password = "donkeyPass",
                    firstName = "Mister", lastName = "Donkey"))
     }
 
