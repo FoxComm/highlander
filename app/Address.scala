@@ -239,7 +239,6 @@ class Service(
         } ~
         (post & path(IntNumber / "line_items") & entity(as[Seq[UpdateLineItemsPayload]])) { (cartId, reqItems) =>
           complete {
-            // TODO: we should output cart here
             Carts.findById(cartId).map {
               case None => Future(notFoundResponse)
               case Some(c) =>
