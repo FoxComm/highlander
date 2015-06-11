@@ -1,5 +1,9 @@
 package models
 
+import slick.ast.BaseTypedType
+import slick.driver.PostgresDriver
+import slick.lifted
+import slick.lifted.AbstractTable
 import utils.{Validation, RichTable}
 
 import com.wix.accord.dsl.{validator => createValidator}
@@ -9,6 +13,7 @@ import org.scalactic._
 import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
+import scala.reflect.ClassTag
 
 case class Cart(id: Int, accountId: Option[Int] = None) {
   val lineItems: Seq[LineItem] = Seq.empty
@@ -46,17 +51,16 @@ case class Cart(id: Int, accountId: Option[Int] = None) {
   }
 }
 
-class Carts(tag: Tag) extends Table[Cart](tag, "carts") with RichTable {
+class Carts(tag: Tag) extends TableWithId[Cart, Int](tag, "carts") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def accountId = column[Option[Int]]("account_id")
   def * = (id, accountId) <> ((Cart.apply _).tupled, Cart.unapply)
 }
 
-object Carts {
-  val carts = TableQuery[Carts]
+object Carts extends TableWithIdQuery[Carts, Cart, Int](new Carts(_)) {
+  override def copyEntityId(m: Cart, id: Int): Cart = m.copy(id = id)
+  val carts = this
 
-  val cartsTable = TableQuery[Carts]
-  val returningId = cartsTable.returning(cartsTable.map(_.id))
   val tokenCardsTable = TableQuery[TokenizedCreditCards]
   val appliedPaymentsTable = TableQuery[AppliedPayments]
 
