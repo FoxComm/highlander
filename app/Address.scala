@@ -165,7 +165,7 @@ class Service(
   val routes = {
     val cart = Cart(id = 0, accountId = None)
 
-    def findAccount(id: Option[Int]): Option[Customer] = id.flatMap { id =>
+    def findCustomer(id: Option[Int]): Option[Customer] = id.flatMap { id =>
       Some(Customer(id = id, email = "donkey@donkey.com", password = "donkeyPass",
                    firstName = "Mister", lastName = "Donkey"))
     }
@@ -248,13 +248,13 @@ class Service(
               case None => Future.successful(notFoundResponse)
               case Some(c) =>
                 // Check to see if there is a user associated with the checkout.
-                findAccount(c.accountId) match {
+                findCustomer(c.accountId) match {
                   case None     =>
                     Future.successful(HttpResponse(OK, entity = render("Guest checkout!!")))
 
                   case Some(s)  =>
                     // Persist the payment token to the user's account
-                    PaymentMethods.addPaymentTokenToAccount(reqPayment.paymentGatewayToken, s).map { x =>
+                    PaymentMethods.addPaymentTokenToCustomer(reqPayment.paymentGatewayToken, s).map { x =>
                       HttpResponse(OK, entity = render(x))
                     }
                 }
@@ -267,7 +267,7 @@ class Service(
       pathPrefix("v1" / "addresses" ) {
         get {
           complete {
-            Addresses.findAllByAccount(user).map { addresses =>
+            Addresses.findAllByCustomer(user).map { addresses =>
               HttpResponse(OK, entity = render(addresses))
             }
           }

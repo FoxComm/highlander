@@ -16,7 +16,7 @@ case class Customer(id: Int, email: String, password: String, firstName: String,
   }.asInstanceOf[Validator[T]] // TODO: fix me
 }
 
-class Shoppers(tag: Tag) extends Table[Customer](tag, "accounts") with RichTable {
+class Customers(tag: Tag) extends Table[Customer](tag, "customers") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def email = column[String]("email")
   def hashedPassword = column[String]("hashed_password")

@@ -25,18 +25,18 @@ object PaymentMethods {
   val tokenCardsTable = TableQuery[TokenizedCreditCards]
 
   // TODO: The right way to do this would be to return all the different payment methods available to the user.
-  def findAllByAccount(account: Customer)(implicit db: Database): Future[Seq[TokenizedCreditCard]] = {
-    db.run(tokenCardsTable.filter(_.accountId === account.id).result)
+  def findAllByCustomer(customer: Customer)(implicit db: Database): Future[Seq[TokenizedCreditCard]] = {
+    db.run(tokenCardsTable.filter(_.customerId === customer.id).result)
   }
 
   // TODO: Figure out our standard 'return' objects for all inserts and lookups
-  def addPaymentTokenToAccount(paymentToken: String, account: Customer)(implicit db: Database) : Future[TokenizedCreditCard] = {
+  def addPaymentTokenToCustomer(paymentToken: String, customer: Customer)(implicit db: Database) : Future[TokenizedCreditCard] = {
     // First, let's get this token from stripe.
     // TODO: Let's handle a bad response from stripe and bubble up to the user
     val gateWay = StripeGateway(paymentToken = paymentToken)
     gateWay.getTokenizedCard match {
       case Success(card) =>
-        val cardToSave = card.copy(accountId = account.id)
+        val cardToSave = card.copy(customerId = customer.id)
         /** Can be used like 'tokenCardsTable', but returns the newly inserted ID */
         val newlyInsertedId = tokenCardsTable.returning(tokenCardsTable.map(_.id))
 
@@ -77,7 +77,7 @@ case class CreditCard(id: Int, cartId: Int, cardholderName: String, cardNumber: 
   }
 }
 // We should probably store the payment gateway on the card itself.  This way, we can manage a world where a merchant changes processors.
-case class TokenizedCreditCard(id: Int = 0, accountId: Int = 0, paymentGateway: String, gatewayTokenId: String, lastFourDigits: String, expirationMonth: Int, expirationYear: Int, brand: String) extends PaymentMethod {
+case class TokenizedCreditCard(id: Int = 0, customerId: Int = 0, paymentGateway: String, gatewayTokenId: String, lastFourDigits: String, expirationMonth: Int, expirationYear: Int, brand: String) extends PaymentMethod {
   def authenticate(amount: Float): String Or List[ErrorMessage] = {
     this.paymentGateway.toLowerCase match {
       case "stripe" =>
@@ -99,12 +99,12 @@ case class GiftCard(id: Int, cartId: Int, status: GiftCardPaymentStatus, code: S
 // TODO: Decide if we should take some kind of STI approach here!
 class TokenizedCreditCards(tag: Tag) extends Table[TokenizedCreditCard](tag, "tokenized_credit_cards") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def accountId = column[Int]("account_id")
+  def customerId = column[Int]("customer_id")
   def paymentGateway = column[String]("payment_gateway")
   def gatewayTokenId = column[String]("gateway_token_id")
   def lastFourDigits = column[String]("last_four_digits")
   def expirationMonth = column[Int]("expiration_month")
   def expirationYear = column[Int]("expiration_year")
   def brand = column[String]("brand")
-  def * = (id, accountId, paymentGateway, gatewayTokenId, lastFourDigits, expirationMonth, expirationYear, brand) <> ((TokenizedCreditCard.apply _).tupled, TokenizedCreditCard.unapply)
+  def * = (id, customerId, paymentGateway, gatewayTokenId, lastFourDigits, expirationMonth, expirationYear, brand) <> ((TokenizedCreditCard.apply _).tupled, TokenizedCreditCard.unapply)
 }
