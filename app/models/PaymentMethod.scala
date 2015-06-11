@@ -31,9 +31,9 @@ object PaymentMethods {
   }
 
   def addPaymentToken(paymentToken: String, account: Shopper, cart: Cart)
-                     (implicit db: Database) : Future[Try[(TokenizedCreditCard, AppliedPayment)]] = {
+                     (implicit db: Database) : Future[(TokenizedCreditCard, AppliedPayment) Or Throwable] = {
     StripeGateway(paymentToken = paymentToken).getTokenizedCard match {
-      case Success(card) =>
+      case Good(card) =>
         val newlyInsertedId = tokenCardsTable.returning(tokenCardsTable.map(_.id))
         val appliedPayment = AppliedPayment(cartId = cart.id, paymentMethodId = 0,
                                             paymentMethodType = card.paymentGateway,
@@ -46,10 +46,10 @@ object PaymentMethods {
         } yield (tokenId, appliedPaymentId)
 
         db.run(inserts).map { case (tokenId, appliedPaymentId) =>
-          Success((card.copy(id = tokenId), appliedPayment.copy(id = appliedPaymentId)))
+          Good((card.copy(id = tokenId), appliedPayment.copy(id = appliedPaymentId)))
         }
 
-      case Failure(t) =>
+      case Bad(t) =>
         Future.failed(t)
     }
   }

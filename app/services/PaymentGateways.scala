@@ -7,7 +7,6 @@ import com.stripe.model.Token
 import com.stripe.model.{Charge => StripeCharge}
 import com.stripe.net.{RequestOptions => StripeRequestOptions}
 import org.scalactic.{Good, Bad, ErrorMessage, Or}
-import scala.util.{Try, Failure, Success}
 import collection.JavaConversions.mapAsJavaMap
 
 abstract class PaymentGateway
@@ -15,15 +14,15 @@ case object BraintreeGateway extends PaymentGateway
 
 // TODO(yax): do not default apiKey, it should come from store
 case class StripeGateway(paymentToken: String, apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ") extends PaymentGateway {
-  def getTokenizedCard: Try[TokenizedCreditCard] = {
+  def getTokenizedCard: TokenizedCreditCard Or Throwable = {
     val reqOpts = StripeRequestOptions.builder().setApiKey(this.apiKey).build()
 
     try {
       val retrievedToken = Token.retrieve(this.paymentToken, reqOpts)
-      Success(TokenizedCreditCard.fromStripe(retrievedToken.getCard, this.paymentToken))
+      Good(TokenizedCreditCard.fromStripe(retrievedToken.getCard, this.paymentToken))
     } catch {
       case t: com.stripe.exception.InvalidRequestException =>
-        Failure(t)
+        Bad(t)
     }
   }
 
