@@ -56,6 +56,14 @@ trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with Patien
     Http().singleRequest(request).futureValue
   }
 
+  def delete(path: String): HttpResponse = {
+    val request = HttpRequest(
+      method = HttpMethods.DELETE,
+      uri    = pathToAbsoluteUrl(path))
+
+    Http().singleRequest(request).futureValue
+  }
+
   def pathToAbsoluteUrl(path: String) = {
     val host = serverBinding.localAddress.getHostString
     val port = serverBinding.localAddress.getPort

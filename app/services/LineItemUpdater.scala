@@ -1,9 +1,9 @@
 package services
 
-import models.{LineItems, LineItem, Cart}
+import models.{Carts, Cart, LineItems, LineItem}
 import payloads.UpdateLineItemsPayload
 
-import org.scalactic.{Good, Bad, ErrorMessage, Or}
+import org.scalactic._
 import scala.concurrent.{Future, ExecutionContext}
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
@@ -11,18 +11,19 @@ import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 import slick.driver.PostgresDriver.api._
 
 object LineItemUpdater {
-  def apply(cart: Cart,
-            payload: Seq[UpdateLineItemsPayload])
-           (implicit ec: ExecutionContext,
-            db: Database): Future[Seq[LineItem] Or List[ErrorMessage]] = {
+  val lineItems = TableQuery[LineItems]
+  val carts = TableQuery[Carts]
+
+  def updateQuantities(cart: Cart,
+                       payload: Seq[UpdateLineItemsPayload])
+                      (implicit ec: ExecutionContext,
+                       db: Database): Future[Seq[LineItem] Or List[ErrorMessage]] = {
 
     // TODO:
     //  validate sku in PIM
     //  execute the fulfillment runner -> creates fulfillments
     //  validate inventory (might be in PIM maybe not)
     //  run hooks to manage promotions
-
-    val lineItems = TableQuery[LineItems]
 
     // reduce Seq[LineItemsPayload] -> Map(skuId: Int -> absoluteQuantity: Int)
     val updateQuantities = payload.foldLeft(Map[Int, Int]()) { (acc, item) =>
@@ -60,5 +61,23 @@ object LineItemUpdater {
     }
 
     db.run(queries.transactionally).map(items => Good(items))
+  }
+
+  def deleteById(id: Int, cartId: Int)
+                (implicit ec: ExecutionContext,
+                 db: Database): Future[Seq[LineItem] Or One[ErrorMessage]] = {
+
+    val actions = for {
+      numDeleted <- lineItems.filter(_.id === id).delete
+      lineItems <- lineItems.filter(_.cartId === cartId).result
+    } yield (numDeleted, lineItems)
+
+    db.run(actions.transactionally).map { case (numDeleted, lineItems) =>
+      if (numDeleted == 0) {
+        Bad(One(s"could not find lineItem with id=$id"))
+      } else {
+        Good(lineItems)
+      }
+    }
   }
 }
