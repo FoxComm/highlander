@@ -4,7 +4,7 @@ import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver
 import slick.lifted
 import slick.lifted.AbstractTable
-import utils.{Validation, RichTable}
+import utils.{TableWithIdQuery, TableWithId, Validation, RichTable}
 
 import com.wix.accord.dsl.{validator => createValidator}
 import slick.driver.PostgresDriver.api._
