@@ -46,4 +46,3 @@ case class StripeGateway(paymentToken: String, apiKey: String = "sk_test_eyVBk2N
     }
   }
 }
-

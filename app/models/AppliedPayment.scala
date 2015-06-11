@@ -29,3 +29,8 @@ class AppliedPayments(tag: Tag) extends Table[AppliedPayment](tag, "applied_paym
   def responseCode = column[String]("response_code")
   def * = (id, cartId, paymentMethodId, paymentMethodType, appliedAmount, status, responseCode) <> ((AppliedPayment.apply _).tupled, AppliedPayment.unapply )
 }
+
+object AppliedPayments {
+  val table = TableQuery[AppliedPayments]
+  val returningId = table.returning(table.map(_.id))
+}

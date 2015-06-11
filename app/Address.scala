@@ -285,15 +285,15 @@ class Service(
           complete {
             Carts.findById(cartId).flatMap {
               case None => Future.successful(notFoundResponse)
-              case Some(c) =>
-                // Check to see if there is a user associated with the checkout.
-                findAccount(c.accountId) match {
+              case Some(cart) =>
+                // Check to see if there is a user associated with the cart.
+                findAccount(cart.accountId) match {
                   case None     =>
                     Future.successful(HttpResponse(OK, entity = render("Guest checkout!!")))
 
-                  case Some(s)  =>
+                  case Some(s) =>
                     // Persist the payment token to the user's account
-                    PaymentMethods.addPaymentTokenToAccount(reqPayment.paymentGatewayToken, s).map { x =>
+                    PaymentMethods.addPaymentToken(reqPayment.paymentGatewayToken, s, cart).map { x =>
                       HttpResponse(OK, entity = render(x))
                     }
                 }

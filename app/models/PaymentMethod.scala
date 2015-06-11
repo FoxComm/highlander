@@ -30,17 +30,24 @@ object PaymentMethods {
     db.run(tokenCardsTable.filter(_.accountId === account.id).result)
   }
 
-  def addPaymentTokenToAccount(paymentToken: String, account: Shopper)(implicit db: Database) : Future[Try[TokenizedCreditCard]] = {
+  def addPaymentToken(paymentToken: String, account: Shopper, cart: Cart)
+                     (implicit db: Database) : Future[Try[(TokenizedCreditCard, AppliedPayment)]] = {
     StripeGateway(paymentToken = paymentToken).getTokenizedCard match {
       case Success(card) =>
-        val cardToSave = card.copy(accountId = account.id)
         val newlyInsertedId = tokenCardsTable.returning(tokenCardsTable.map(_.id))
+        val appliedPayment = AppliedPayment(cartId = cart.id, paymentMethodId = 0,
+                                            paymentMethodType = card.paymentGateway,
+                                            appliedAmount = 5.0F, status = Auth.toString, // TODO: use type and marshalling
+                                            responseCode = "ok") // TODO: make this real
 
-        val insertAction = (newlyInsertedId += cardToSave).map { newId: Int ⇒
-          cardToSave.copy(id = newId)
+        val inserts = for {
+          tokenId <- tokenCardsTable.returning(tokenCardsTable.map(_.id)) += card.copy(accountId = account.id)
+          appliedPaymentId <- AppliedPayments.returningId += appliedPayment
+        } yield (tokenId, appliedPaymentId)
+
+        db.run(inserts).map { case (tokenId, appliedPaymentId) =>
+          Success((card.copy(id = tokenId), appliedPayment.copy(id = appliedPaymentId)))
         }
-
-        db.run(insertAction).map(Success(_))
 
       case Failure(t) =>
         Future.failed(t)
@@ -109,4 +116,5 @@ class TokenizedCreditCards(tag: Tag) extends Table[TokenizedCreditCard](tag, "to
   def expirationYear = column[Int]("expiration_year")
   def brand = column[String]("brand")
   def * = (id, accountId, paymentGateway, gatewayTokenId, lastFourDigits, expirationMonth, expirationYear, brand) <> ((TokenizedCreditCard.apply _).tupled, TokenizedCreditCard.unapply)
+
 }
