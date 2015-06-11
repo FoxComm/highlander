@@ -44,7 +44,7 @@ trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with Patien
     }
   }
 
-  def postJson(path: String, rawBody: String): HttpResponse = {
+  def POST(path: String, rawBody: String): HttpResponse = {
     val request = HttpRequest(
       method = HttpMethods.POST,
       uri    = pathToAbsoluteUrl(path),
@@ -52,6 +52,14 @@ trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with Patien
         ContentTypes.`application/json`,
         ByteString(rawBody)
       ))
+
+    Http().singleRequest(request).futureValue
+  }
+
+  def DELETE(path: String): HttpResponse = {
+    val request = HttpRequest(
+      method = HttpMethods.DELETE,
+      uri    = pathToAbsoluteUrl(path))
 
     Http().singleRequest(request).futureValue
   }
