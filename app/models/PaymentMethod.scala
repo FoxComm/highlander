@@ -42,7 +42,7 @@ object PaymentMethods {
 
         val inserts = for {
           tokenId <- tokenCardsTable.returning(tokenCardsTable.map(_.id)) += card.copy(accountId = account.id)
-          appliedPaymentId <- AppliedPayments.returningId += appliedPayment
+          appliedPaymentId <- AppliedPayments.returningId += appliedPayment.copy(paymentMethodId = tokenId)
         } yield (tokenId, appliedPaymentId)
 
         db.run(inserts).map { case (tokenId, appliedPaymentId) =>
