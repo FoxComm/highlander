@@ -25,6 +25,13 @@ vagrant up --provider=virtualbox
 ```
 
 ### GCE Spinup
+You need to set the following environment variables:
+
+- GOOGLE_CLIENT_EMAIL: The email for the oauth client
+- GOOGLE_JSON_KEY_LOCATION: The location of the oauth json file
+- GOOGLE_SSH_USERNAME: The username for ssh to google
+- GOOGLE_SSH_KEY: The location of your ssh key for google (eg. ~/.ssh/id_rsa)
+
 ```
 vagrant plugin install vagrant-google
 vagrant up --provider=google
