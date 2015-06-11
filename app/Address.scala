@@ -53,7 +53,7 @@ case class StockLocation(id: Int, name: String)
 // TODO: money/currency abstraction. Use joda-money, most likely
 case class Money(currency: String, amount: Int)
 
-case class Adjustment(id: Int)
+case class Adjustment(id: Int, amount: Int, sourceId: Int, sourceType: String, reason: String)
 
 case class Coupon(id: Int, cartId: Int, code: String, adjustment: List[Adjustment])
 
@@ -131,12 +131,12 @@ trait Formats extends DefaultJsonProtocol {
 
 object TheWholeFuckingCart {
   case class Totals(subTotal: Int, taxes: Int, adjustments: Int, total: Int)
-  case class Response(id: Int, lineItems: Seq[LineItem], totals: Totals) {
+  case class Response(id: Int, lineItems: Seq[LineItem], adjustments: Seq[Adjustment], totals: Totals) {
   }
 
   object Response {
-    def build(cart: Cart, lineItems: Seq[LineItem]): Response = {
-      Response(id = cart.id, lineItems = lineItems, totals =
+    def build(cart: Cart, lineItems: Seq[LineItem] = Seq.empty, adjustments: Seq[Adjustment] = Seq.empty): Response = {
+      Response(id = cart.id, lineItems = lineItems, adjustments = adjustments, totals =
         Totals(subTotal = 500, taxes = 10, adjustments = 0, total = 510))
     }
   }
@@ -146,8 +146,8 @@ object TheWholeFuckingCart {
                db: Database): Future[Option[Response]] = {
 
     val queries = for {
-      cart <- TableQuery[Carts].filter(_.id === id)
-      lineItems <- TableQuery[LineItems].filter(_.cartId === cart.id)
+      cart <- Carts._findById(id)
+      lineItems <- LineItems._findByCartId(cart.id)
     } yield (cart, lineItems)
 
     db.run(queries.result).map { results =>
@@ -162,7 +162,7 @@ object TheWholeFuckingCart {
                db: Database): Future[Option[Response]] = {
 
     val queries = for {
-      lineItems <- TableQuery[LineItems].filter(_.cartId === cart.id)
+      lineItems <- LineItems._findByCartId(cart.id)
     } yield lineItems
 
     db.run(queries.result).map { lineItems => Some(Response.build(cart, lineItems)) }

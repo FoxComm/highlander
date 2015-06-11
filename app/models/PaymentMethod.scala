@@ -79,17 +79,15 @@ case class CreditCard(id: Int, cartId: Int, cardholderName: String, cardNumber: 
 // We should probably store the payment gateway on the card itself.  This way, we can manage a world where a merchant changes processors.
 case class TokenizedCreditCard(id: Int = 0, accountId: Int = 0, paymentGateway: String, gatewayTokenId: String, lastFourDigits: String, expirationMonth: Int, expirationYear: Int, brand: String) extends PaymentMethod {
   def authenticate(amount: Float): String Or List[ErrorMessage] = {
-    this.paymentGateway.toLowerCase match {
-      case "stripe" =>
-        StripeGateway(paymentToken = this.gatewayTokenId).authorizeAmount(this, amount.toInt) match {
-          case Good(chargeId) => Good(chargeId)
-          case Bad(errorList) => Bad(errorList)
-        }
-      case gateway => Bad(List(s"Could Not Recognize Payment Gateway $gateway"))
+    val gateway = this.paymentGateway.toLowerCase
+    if (gateway == "stripe" ) {
+      StripeGateway(paymentToken = this.gatewayTokenId).authorizeAmount(this, amount.toInt)
+    } else {
+      Bad(List(s"Could Not Recognize Payment Gateway $gateway"))
     }
   }
-
 }
+
 case class GiftCard(id: Int, cartId: Int, status: GiftCardPaymentStatus, code: String) extends PaymentMethod {
   def authenticate(amount: Float): String Or List[ErrorMessage] = {
     Good("authenticated")
