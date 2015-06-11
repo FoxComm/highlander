@@ -30,24 +30,20 @@ object PaymentMethods {
     db.run(tokenCardsTable.filter(_.accountId === account.id).result)
   }
 
-  // TODO: Figure out our standard 'return' objects for all inserts and lookups
-  def addPaymentTokenToAccount(paymentToken: String, account: Shopper)(implicit db: Database) : Future[TokenizedCreditCard] = {
-    // First, let's get this token from stripe.
-    // TODO: Let's handle a bad response from stripe and bubble up to the user
-    val gateWay = StripeGateway(paymentToken = paymentToken)
-    gateWay.getTokenizedCard match {
+  def addPaymentTokenToAccount(paymentToken: String, account: Shopper)(implicit db: Database) : Future[Try[TokenizedCreditCard]] = {
+    StripeGateway(paymentToken = paymentToken).getTokenizedCard match {
       case Success(card) =>
         val cardToSave = card.copy(accountId = account.id)
-        /** Can be used like 'tokenCardsTable', but returns the newly inserted ID */
         val newlyInsertedId = tokenCardsTable.returning(tokenCardsTable.map(_.id))
 
         val insertAction = (newlyInsertedId += cardToSave).map { newId: Int ⇒
-          /** Transform the result of the database query after it is run from Int -> TokenizedCreditCard */
           cardToSave.copy(id = newId)
         }
 
-        db.run(insertAction)
-      case Failure(t) => Future.failed(t)
+        db.run(insertAction).map(Success(_))
+
+      case Failure(t) =>
+        Future.failed(t)
     }
   }
 
