@@ -13,23 +13,14 @@ import collection.JavaConversions.mapAsJavaMap
 abstract class PaymentGateway
 case object BraintreeGateway extends PaymentGateway
 
-// TODO: Get the API key from somewhere more useful.
+// TODO(yax): do not default apiKey, it should come from store
 case class StripeGateway(paymentToken: String, apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ") extends PaymentGateway {
   def getTokenizedCard: Try[TokenizedCreditCard] = {
-    println("Inside getTokenizedCard")
-    Stripe.apiKey = this.apiKey
+    val reqOpts = StripeRequestOptions.builder().setApiKey(this.apiKey).build()
+
     try {
-      val retrievedToken = Token.retrieve(this.paymentToken)
-      println(retrievedToken.getCard)
-      val stripeCard = retrievedToken.getCard
-      val mergedCard = new TokenizedCreditCard(paymentGateway = "stripe",
-        gatewayTokenId = this.paymentToken,
-        lastFourDigits = stripeCard.getLast4,
-        expirationMonth = stripeCard.getExpMonth,
-        expirationYear = stripeCard.getExpYear,
-        brand = stripeCard.getBrand
-      )
-      Success(mergedCard)
+      val retrievedToken = Token.retrieve(this.paymentToken, reqOpts)
+      Success(TokenizedCreditCard(retrievedToken.getCard, this.paymentToken))
     } catch {
       case t: com.stripe.exception.InvalidRequestException =>
         Failure(t)

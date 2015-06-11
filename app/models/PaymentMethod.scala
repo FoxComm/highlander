@@ -12,6 +12,7 @@ import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Try, Failure, Success}
+import com.stripe.model.{Card => StripeCard}
 
 abstract class PaymentMethod {
   def authenticate(amount: Float): String Or List[ErrorMessage]
@@ -85,6 +86,13 @@ case class TokenizedCreditCard(id: Int = 0, accountId: Int = 0, paymentGateway: 
     } else {
       Bad(List(s"Could Not Recognize Payment Gateway $gateway"))
     }
+  }
+}
+
+object TokenizedCreditCard {
+  def apply(card: StripeCard, tokenId: String) = {
+    apply(paymentGateway = "stripe", gatewayTokenId = tokenId, lastFourDigits = card.getLast4,
+          expirationMonth = card.getExpMonth, expirationYear = card.getExpYear, brand = card.getBrand)
   }
 }
 
