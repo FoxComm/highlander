@@ -1,6 +1,8 @@
 'use strict';
 
 import React from 'react';
+import { RouteHandler } from 'react-router';
+import { Link } from 'react-router';
 
 class Order extends React.Component {
   render() {
@@ -12,7 +14,18 @@ class Order extends React.Component {
         <div className="viewers"></div>
         <div className="gutter">
           <h1>Order {order.id}<em>for{customer.name}</em></h1>
-          <time datetime={order.date}>{order.date}</time>
+          <time dateTime={order.date}>{order.date}</time>
+        </div>
+        <div className="gutter sub-nav">
+          <ul>
+            <li><a href="">Details</a></li>
+            <li><a href="">Shipments</a></li>
+            <li><a href="">Returns</a></li>
+            <li><a href="">Emails</a></li>
+            <li><Link to="notes" params={{order: order.id}}>Notes</Link></li>
+            <li><a href="">Activity Trail</a></li>
+          </ul>
+          <RouteHandler/>
         </div>
       </div>
     );

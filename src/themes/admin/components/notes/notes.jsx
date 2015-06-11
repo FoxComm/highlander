@@ -8,11 +8,19 @@ class Notes extends React.Component {
   }
 
   render() {
-    <div id="notes">
-      <h3>Notes</h3>
-      <a onClick={this.addNote}> <i class="icon-plus"></i></a>
-    </div>
+    let { router } = this.context;
+    let id = router.getCurrentParams().order;
+    return (
+      <div id="notes">
+        <h3>Notes {id}</h3>
+        <a onClick={this.addNote}> <i className="icon-plus"></i></a>
+      </div>
+    );
   }
 }
+
+Notes.contextTypes = {
+  router: React.PropTypes.func
+};
 
 export default Notes;
