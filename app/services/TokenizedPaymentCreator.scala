@@ -10,7 +10,7 @@ import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 import slick.driver.PostgresDriver.api._
 import com.stripe.model.{Card => StripeCard}
 
-case class TokenizedPaymentCreator(cart: Cart, shopper: Shopper, paymentToken: String)
+case class TokenizedPaymentCreator(cart: Cart, customer: Customer, paymentToken: String)
                                   (implicit ec: ExecutionContext,
                                    db: Database) {
 
@@ -42,7 +42,7 @@ case class TokenizedPaymentCreator(cart: Cart, shopper: Shopper, paymentToken: S
       appliedAmount = 0, status = Auth.toString, // TODO: use type and marshalling
       responseCode = "ok") // TODO: make this real
 
-    val billingAddress = Address(accountId = shopper.id, stateId = state.id, name = "Stripe",
+    val billingAddress = Address(customerId = customer.id, stateId = state.id, name = "Stripe",
       street1 = stripeCard.getAddressLine1, street2 = Option(stripeCard.getAddressLine2),
       city = stripeCard.getAddressCity, zip = stripeCard.getAddressZip)
 
@@ -50,7 +50,7 @@ case class TokenizedPaymentCreator(cart: Cart, shopper: Shopper, paymentToken: S
       Create the TokenizedCreditCard, AppliedPayment, and billing Address (populated by the StripeCard)
      */
     val queries = for {
-      tokenId <- tokenCardsTable.returning(tokenCardsTable.map(_.id)) += card.copy(accountId = shopper.id)
+      tokenId <- tokenCardsTable.returning(tokenCardsTable.map(_.id)) += card.copy(customerId = customer.id)
       appliedPaymentId <- AppliedPayments.returningId += appliedPayment.copy(paymentMethodId = tokenId)
       addressId <- BillingAddresses._create(billingAddress, appliedPaymentId)
       c <- Carts._findById(cart.id).result.headOption
@@ -69,9 +69,9 @@ case class TokenizedPaymentCreator(cart: Cart, shopper: Shopper, paymentToken: S
 object TokenizedPaymentCreator {
   type Response = Future[FullCart.Root Or One[ErrorMessage]]
 
-  def run(cart: Cart, shopper: Shopper, paymentToken: String)
+  def run(cart: Cart, customer: Customer, paymentToken: String)
          (implicit ec: ExecutionContext,
           db: Database): Response = {
-    new TokenizedPaymentCreator(cart, shopper, paymentToken).run()
+    new TokenizedPaymentCreator(cart, customer, paymentToken).run()
   }
 }

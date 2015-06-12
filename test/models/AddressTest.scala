@@ -28,13 +28,13 @@ class AddressTest extends FreeSpec
   }
 
     "Addresses" - {
-      val accounts = TableQuery[Users]
+      val customers = TableQuery[Customers]
       val states = TableQuery[States]
 
-      def seedAccount(): User = {
-        val acct = User(0, "yax@yax.com", "plaintext", "Yax", "Donkey")
+      def seedAccount(): Customer = {
+        val acct = Customer(0, "yax@yax.com", "plaintext", "Yax", "Donkey")
         db.run(for {
-          id <- accounts.returning(accounts.map(_.id)) += acct
+          id <- customers.returning(customers.map(_.id)) += acct
         } yield acct.copy(id = id)).futureValue
       }
 
@@ -84,7 +84,7 @@ class AddressTest extends FreeSpec
     "Address" - {
       ".validate" - {
         "returns errors when zip is not 5 digit chars" in {
-          val valid = Address(id = 0, accountId = 1, stateId = 1, name = "Yax Home",
+          val valid = Address(id = 0, customerId = 1, stateId = 1, name = "Yax Home",
             street1 = "555 E Lake Union St.", street2 = None, city = "Seattle", zip = "12345")
 
           val badZip = valid.copy(zip = "AB123")
