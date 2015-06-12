@@ -19,7 +19,7 @@ case class StoreAdmin(id: Int, email: String, password: String, firstName: Strin
   }.asInstanceOf[Validator[T]] // TODO: fix me
 }
 
-class StoreAdmins(tag: Tag) extends Table[StoreAdmin](tag, "admin_users") with RichTable {
+class StoreAdmins(tag: Tag) extends Table[StoreAdmin](tag, "store_admins") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def email = column[String]("email")
   def password = column[String]("hashed_password")
