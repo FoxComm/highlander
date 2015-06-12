@@ -1,4 +1,6 @@
 import models._
+import responses.FullCart
+
 import org.json4s.DefaultFormats
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Milliseconds, Seconds, Span}
@@ -37,10 +39,9 @@ class CartIntegrationTest extends FreeSpec
        """.stripMargin)
 
     val responseBody = response.bodyText
-    val ast = parse(responseBody)
+    val cart = parse(responseBody).extract[FullCart.Root]
 
-    val lineItems = (ast \ "lineItems").extract[List[LineItem]]
-    lineItems.map(_.skuId).sortBy(identity)  mustBe List(1, 5, 5)
+    cart.lineItems.map(_.skuId).sortBy(identity)  mustBe List(1, 5, 5)
   }
 
   "deletes line items" in {
@@ -50,10 +51,9 @@ class CartIntegrationTest extends FreeSpec
 
     val response = DELETE(s"v1/carts/$cartId/line_items/1")
     val responseBody = response.bodyText
-    val ast = parse(responseBody)
+    val cart = parse(responseBody).extract[FullCart.Root]
 
-    val lineItems = (ast \ "lineItems").extract[List[LineItem]]
-    lineItems mustBe List(LineItem(id = 2, cartId = cartId, skuId = 1))
+    cart.lineItems mustBe List(LineItem(id = 2, cartId = cartId, skuId = 1))
   }
 }
 
