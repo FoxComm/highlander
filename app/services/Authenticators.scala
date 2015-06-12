@@ -33,7 +33,6 @@ object Authenticator {
       }
 
     case _ =>
-      println("Missing motherfucker")
-      Future(None)
+      Future.successful(None)
   }
 }
