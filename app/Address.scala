@@ -1,6 +1,7 @@
 import java.util.Date
 import java.util.concurrent.TimeoutException
 import akka.http.scaladsl.Http.ServerBinding
+import akka.http.scaladsl.model.headers.BasicHttpCredentials
 import com.stripe.model.Token
 import com.stripe.net.{RequestOptions => StripeRequestOptions}
 import com.stripe.model.{Charge => StripeCharge}
@@ -36,11 +37,12 @@ import scala.concurrent.{ExecutionContext, Future, Await}
 import scala.concurrent.duration._
 import scala.util.{Try, Failure, Success}
 import collection.JavaConversions.mapAsJavaMap
+import akka.http.scaladsl.server.directives._
 
 import utils.{RichTable, Validation}
 import models._
 import payloads._
-import services.{LineItemUpdater, PaymentGateway, Checkout}
+import services.{LineItemUpdater, PaymentGateway, Checkout, Authenticator}
 
 case class Store(id: Int, name: String, Configuration: StoreConfiguration)
 
@@ -189,8 +191,13 @@ class Service(
 
   val config: Config = ConfigFactory.parseString(conf)
 
-  implicit val system = systemOverride.getOrElse { ActorSystem.create("Cart", config) }
+
+  implicit val system = systemOverride.getOrElse {
+    ActorSystem.create("Cart", config)
+  }
+
   implicit def executionContext = system.dispatcher
+
   implicit val materializer = ActorFlowMaterializer()
 
   // required for (de)-serialization
@@ -198,16 +205,18 @@ class Service(
 
   val logger = Logging(system, getClass)
 
-  implicit val db = dbOverride.getOrElse { Database.forURL("jdbc:postgresql://localhost/phoenix_development?user=phoenix", driver = "slick.driver.PostgresDriver") }
+  implicit val db = dbOverride.getOrElse {
+    Database.forURL("jdbc:postgresql://localhost/phoenix_development?user=phoenix", driver = "slick.driver.PostgresDriver")
+  }
 
-  val user = User(id = 1, email = "yax@foxcommerce.com", password = "donkey", firstName = "Yax", lastName = "Donkey")
+  val user = Customer(id = 1, email = "yax@foxcommerce.com", password = "donkey", firstName = "Yax", lastName = "Donkey")
 
   val routes = {
     val cart = Cart(id = 0, accountId = None)
 
-    def findAccount(id: Option[Int]): Option[Shopper] = id.flatMap { id =>
-      Some(Shopper(id = id, email = "donkey@donkey.com", password = "donkeyPass",
-                   firstName = "Mister", lastName = "Donkey"))
+    def findCustomer(id: Option[Int]): Option[Customer] = id.flatMap { id =>
+      Some(Customer(id = id, email = "donkey@donkey.com", password = "donkeyPass",
+        firstName = "Mister", lastName = "Donkey"))
     }
 
     val notFoundResponse = HttpResponse(NotFound)
@@ -220,108 +229,125 @@ class Service(
       }
     }
 
+    def customerAuthenticator: AsyncAuthenticator[Customer] = services.Authenticator.authCustomer
+    def adminUserAuthenticator: AsyncAuthenticator[StoreAdmin] = services.Authenticator.authAdmin
+
+    /*
+      Admin Authenticated Routes
+     */
     logRequestResult("carts") {
-      pathPrefix("v1" / "carts" ) {
-        (get & path(IntNumber)) { id =>
-          complete {
-            renderOrNotFound(TheWholeFuckingCart.findById(id))
-          }
-        } ~
-        (post & path(IntNumber / "checkout")) { id =>
-          complete {
-            renderOrNotFound(Carts.findById(id), (c: Cart) => {
-              new Checkout(c).checkout match {
-                case Good(order) => HttpResponse(OK, entity = render(order))
-                case Bad(errors) => HttpResponse(BadRequest, entity = render(errors))
-              }
-            })
-          }
-        } ~
-        (post & path(IntNumber / "line_items") & entity(as[Seq[UpdateLineItemsPayload]])) { (cartId, reqItems) =>
-          complete {
-            Carts.findById(cartId).map {
-              case None => Future(notFoundResponse)
-              case Some(c) =>
-                LineItemUpdater.updateQuantities(c, reqItems).map {
-                  case Bad(errors)      =>
-                    HttpResponse(BadRequest, entity = render(errors))
-                  case Good(lineItems)  =>
-                    HttpResponse(OK, entity = render(TheWholeFuckingCart.Response.build(c, lineItems)))
-                }
-            }
-          }
-        } ~
-        (delete & path(IntNumber / "line_items" / IntNumber)) { (cartId, lineItemId) =>
-          complete {
-            Carts.findById(cartId).map {
-              case None => Future(notFoundResponse)
-              case Some(cart) =>
-              // TODO(yax): can the account delete this lineItem?
-                LineItemUpdater.deleteById(lineItemId, cart.id).map {
-                  case Bad(errors) =>
-                    HttpResponse(BadRequest, entity = render(errors))
-                  case Good(lineItems) =>
-                    HttpResponse(OK, entity = render(TheWholeFuckingCart.Response.build(cart, lineItems)))
-                }
-            }
-          }
-        } ~
-          (get & path(IntNumber / "payment-methods")) { cartId =>
+      pathPrefix("v1" / "carts") {
+        authenticateBasicAsync(realm = "cart and checkout", adminUserAuthenticator) { user =>
+          (get & path(IntNumber)) { id =>
             complete {
-              renderOrNotFound(Carts.findById(cartId))
+              renderOrNotFound(TheWholeFuckingCart.findById(id))
             }
           } ~
-        (post & path(IntNumber / "payment-methods") & entity(as[PaymentMethodPayload])) { (cartId, reqPayment) =>
-          complete {
-            Carts.findById(cartId).map {
-              //can't add payment methods if the cart doesn't exist
-              case None => notFoundResponse
-              case Some(c) =>
-                HttpResponse(OK, entity = render("HI"))
-            }
-          }
-        } ~
-        (post & path(IntNumber / "tokenized-payment-methods") & entity(as[TokenizedPaymentMethodPayload])) { (cartId, reqPayment) =>
-          complete {
-            Carts.findById(cartId).flatMap {
-              case None => Future.successful(notFoundResponse)
-              case Some(c) =>
-                // Check to see if there is a user associated with the checkout.
-                findAccount(c.accountId) match {
-                  case None     =>
-                    Future.successful(HttpResponse(OK, entity = render("Guest checkout!!")))
-
-                  case Some(s)  =>
-                    // Persist the payment token to the user's account
-                    PaymentMethods.addPaymentTokenToAccount(reqPayment.paymentGatewayToken, s).map { x =>
-                      HttpResponse(OK, entity = render(x))
+            (post & path(IntNumber / "checkout")) { id =>
+              complete {
+                renderOrNotFound(Carts.findById(id), (c: Cart) => {
+                  new Checkout(c).checkout match {
+                    case Good(order) => HttpResponse(OK, entity = render(order))
+                    case Bad(errors) => HttpResponse(BadRequest, entity = render(errors))
+                  }
+                })
+              }
+            } ~
+            (post & path(IntNumber / "line_items") & entity(as[Seq[UpdateLineItemsPayload]])) { (cartId, reqItems) =>
+              complete {
+                // TODO: we should output cart here
+                Carts.findById(cartId).map {
+                  case None => Future(notFoundResponse)
+                  case Some(c) =>
+                    LineItemUpdater.updateQuantities(c, reqItems).map {
+                      case Bad(errors) =>
+                        HttpResponse(BadRequest, entity = render(errors))
+                      case Good(lineItems) =>
+                        HttpResponse(OK, entity = render(TheWholeFuckingCart.Response.build(c, lineItems)))
                     }
                 }
-           }
-          }
+              }
+            } ~
+            (delete & path(IntNumber / "line_items" / IntNumber)) { (cartId, lineItemId) =>
+              complete {
+                Carts.findById(cartId).map {
+                  case None => Future(notFoundResponse)
+                  case Some(cart) =>
+                    // TODO(yax): can the account delete this lineItem?
+                    LineItemUpdater.deleteById(lineItemId, cart.id).map {
+                      case Bad(errors) =>
+                        HttpResponse(BadRequest, entity = render(errors))
+                      case Good(lineItems) =>
+                        HttpResponse(OK, entity = render(TheWholeFuckingCart.Response.build(cart, lineItems)))
+                    }
+                }
+              }
+            } ~
+            (get & path(IntNumber / "payment-methods")) { cartId =>
+              complete {
+                renderOrNotFound(Carts.findById(cartId))
+              }
+            } ~
+            (post & path(IntNumber / "payment-methods") & entity(as[PaymentMethodPayload])) { (cartId, reqPayment) =>
+              complete {
+                Carts.findById(cartId).map {
+                  //can't add payment methods if the cart doesn't exist
+                  case None => notFoundResponse
+                  case Some(c) =>
+                    HttpResponse(OK, entity = render("HI"))
+                }
+              }
+            } ~
+            (post & path(IntNumber / "tokenized-payment-methods") & entity(as[TokenizedPaymentMethodPayload])) { (cartId, reqPayment) =>
+              complete {
+                Carts.findById(cartId).flatMap {
+                  case None => Future.successful(notFoundResponse)
+                  case Some(c) =>
+                    // Check to see if there is a user associated with the checkout.
+                    findCustomer(c.accountId) match {
+                      case None =>
+                        Future.successful(HttpResponse(OK, entity = render("Guest checkout!!")))
+
+                      case Some(s) =>
+                        // Persist the payment token to the user's account
+                        PaymentMethods.addPaymentTokenToCustomer(reqPayment.paymentGatewayToken, s).map { x =>
+                          HttpResponse(OK, entity = render(x))
+                        }
+                    }
+                }
+              }
+            }
         }
       }
     } ~
-    logRequestResult("addresses") {
-      pathPrefix("v1" / "addresses" ) {
-        get {
-          complete {
-            Addresses.findAllByAccount(user).map { addresses =>
-              HttpResponse(OK, entity = render(addresses))
-            }
-          }
-        } ~
-        (post & entity(as[Seq[CreateAddressPayload]])) { payload =>
-          complete {
-            Addresses.createFromPayload(user, payload).map {
-              case Good(addresses)  => HttpResponse(OK, entity = render(addresses))
-              case Bad(errorMap)      => HttpResponse(BadRequest, entity = render(errorMap))
+    /*
+      Customer Authenticated Routes
+     */
+      logRequestResult("addresses") {
+        pathPrefix("v1" / "my") {
+          authenticateBasicAsync(realm = "private customer routes", customerAuthenticator) { user =>
+            pathPrefix("addresses") {
+              get {
+                complete {
+                  Addresses.findAllByCustomer(user).map { addresses =>
+                    HttpResponse(OK, entity = render(addresses))
+                  }
+                }
+              } ~
+                (post & entity(as[Seq[CreateAddressPayload]])) { payload =>
+                  complete {
+                    Addresses.createFromPayload(user, payload).map {
+                      case Good(addresses) => HttpResponse(OK, entity = render(addresses))
+                      case Bad(errorMap) => HttpResponse(BadRequest, entity = render(errorMap))
+                    }
+                  }
+                }
             }
           }
         }
       }
-    }
   }
+
 
   def bind(config: Config = ConfigFactory.parseString(conf)): Future[ServerBinding] = {
     Http().bindAndHandle(routes, config.getString("http.interface"), config.getInt("http.port"))
