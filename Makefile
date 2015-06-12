@@ -19,6 +19,6 @@ resetdb:
 	@make migrate
 
 create-migration:
-	$(EDITOR) V$(NEXT_MIGRATION)__create_$(table)_table.sql
+	$(EDITOR) sql/V$(NEXT_MIGRATION)__create_$(table)_table.sql
 
 .PHONY: configure clean migrate setup
