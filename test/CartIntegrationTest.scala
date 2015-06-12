@@ -29,18 +29,14 @@ class CartIntegrationTest extends FreeSpec
   // TODO: make this a MockedAuthTrait or equivalent
   override def makeService: Service = {
     new Service(dbOverride = Some(db), systemOverride = Some(as)) {
-      override def storeAdminAuth: AsyncAuthenticator[StoreAdmin] = {
-        (UserCredentials) => {
-          Future.successful(Some(StoreAdmin(id = 1, email = "donkey@donkey.com", password = "donkeyPass",
-            firstName = "Mister", lastName = "Donkey")))
-        }
+      override def storeAdminAuth: AsyncAuthenticator[StoreAdmin] = (UserCredentials) => {
+        Future.successful(Some(StoreAdmin(id = 1, email = "donkey@donkey.com", password = "donkeyPass",
+          firstName = "Mister", lastName = "Donkey")))
       }
 
-      override def customerAuth: AsyncAuthenticator[Customer] = {
-        (UserCredentials) => {
-          Future.successful(Some(Customer(id = 1, email = "donkey@donkey.com", password = "donkeyPass",
-            firstName = "Mister", lastName = "Donkey")))
-        }
+      override def customerAuth: AsyncAuthenticator[Customer] = (UserCredentials) => {
+        Future.successful(Some(Customer(id = 1, email = "donkey@donkey.com", password = "donkeyPass",
+          firstName = "Mister", lastName = "Donkey")))
       }
     }
   }
