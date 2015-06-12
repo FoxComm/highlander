@@ -53,13 +53,15 @@ case class TokenizedPaymentCreator(cart: Cart, shopper: Shopper, paymentToken: S
       tokenId <- tokenCardsTable.returning(tokenCardsTable.map(_.id)) += card.copy(accountId = shopper.id)
       appliedPaymentId <- AppliedPayments.returningId += appliedPayment.copy(paymentMethodId = tokenId)
       addressId <- Addresses.returningId += billingAddress
-      c <- Carts._findById(cart.id).result.head // TODO(yax): can we consider this dangerous?
+      c <- Carts._findById(cart.id).result.headOption
     } yield c
 
-    db.run(queries.transactionally).flatMap { c =>
-      FullCart.fromCart(c).map { root =>
-        root.map(Good(_)).getOrElse(Bad(One("could not render cart")))
-      }
+    db.run(queries.transactionally).flatMap { optCart =>
+      optCart.map { c =>
+        FullCart.fromCart(c).map { root =>
+          root.map(Good(_)).getOrElse(Bad(One("could not render cart")))
+        }
+      }.getOrElse(Future.successful(Bad(One(s"could not find cart with id=${cart.id}"))))
     }
   }
 }
