@@ -316,6 +316,35 @@ class Service(
                         }
                       })
                     }
+                  } ~
+                  (post & path("line_items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems =>
+                    complete {
+                      Carts.findByCustomer(customer).map {
+                        case None => Future(notFoundResponse)
+                        case Some(c) =>
+                          LineItemUpdater.updateQuantities(c, reqItems).map {
+                            case Bad(errors) =>
+                              HttpResponse(BadRequest, entity = render(errors))
+                            case Good(lineItems) =>
+                              HttpResponse(OK, entity = render(FullCart.build(c, lineItems)))
+                          }
+                      }
+                    }
+                  } ~
+                  (delete & path("line_items" / IntNumber)) { lineItemId =>
+                    complete {
+                      Carts.findByCustomer(customer).map {
+                        case None => Future(notFoundResponse)
+                        case Some(cart) =>
+                          // TODO(yax): can the account delete this lineItem?
+                          LineItemUpdater.deleteById(lineItemId, cart.id).map {
+                            case Bad(errors) =>
+                              HttpResponse(BadRequest, entity = render(errors))
+                            case Good(lineItems) =>
+                              HttpResponse(OK, entity = render(FullCart.build(cart, lineItems)))
+                          }
+                      }
+                    }
                   }
               }
           }
