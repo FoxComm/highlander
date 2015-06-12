@@ -80,4 +80,10 @@ object Carts {
   }
 
   def _findById(id: Rep[Int]) = { carts.filter(_.id === id) }
+
+  def findByCustomer(customer: Customer)(implicit db: Database): Future[Option[Cart]] = {
+    db.run(_findByCustomer(customer).result.headOption)
+  }
+
+  def _findByCustomer(cust: Customer) = {carts.filter(_.customerId === cust.id)}
 }

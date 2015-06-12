@@ -1,6 +1,6 @@
 package responses
 
-import models.{Cart, Carts, LineItem, LineItems, Adjustment}
+import models._
 
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
@@ -23,6 +23,23 @@ object FullCart {
 
     val queries = for {
       cart <- Carts._findById(id)
+      lineItems <- LineItems._findByCartId(cart.id)
+    } yield (cart, lineItems)
+
+    db.run(queries.result).map { results =>
+      results.headOption.map { case (cart, _) =>
+        build(cart, results.map { case (_, items) => items })
+      }
+    }
+  }
+
+  // Not sure if we want to unify/refactor this into one thing along with FindById.
+  def findByCustomer(cust: Customer)
+              (implicit ec: ExecutionContext,
+               db: Database): Response = {
+
+    val queries = for {
+      cart <- Carts._findByCustomer(cust)
       lineItems <- LineItems._findByCartId(cart.id)
     } yield (cart, lineItems)
 
