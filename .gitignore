@@ -32,3 +32,6 @@ node_modules
 public/themes
 
 .vagrant
+
+#NVM-Specific Files
+.nvmrc
