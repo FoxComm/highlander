@@ -16,13 +16,14 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
     // 3) Validate addresses
     // 4) Validate promotions/couponsi
     // 5) Final Auth on the payment
-    val order = Order(id = 0, cartId = cart.id, status = Order.New)
+    val order = Order(id = 0, customerId = cart.accountId.getOrElse(0), status = Order.Status.New, locked = 0)
 
     if (scala.util.Random.nextInt(2) == 1) {
       Bad(List("payment re-auth failed"))
     } else {
       Good(order)
     }
+
   }
 
   def verifyInventory: List[ErrorMessage] = {
