@@ -271,7 +271,7 @@ class Service(
                       case Some(customer) =>
                         TokenizedPaymentCreator.run(cart, customer, reqPayment.paymentGatewayToken).map { fullCart =>
                           fullCart.fold({ c => HttpResponse(OK, entity = render(c)) },
-                          { e => HttpResponse(BadRequest, entity = render(e)) })
+                                        { e => HttpResponse(BadRequest, entity = render(e)) })
                         }
                     }
                 }
