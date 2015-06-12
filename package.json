@@ -6,7 +6,7 @@
   "main": "server/index.js",
   "scripts": {
     "test": "make test",
-    "start": "iojs --harmony boot.js",
+    "start": "iojs --harmony --harmony_arrow_functions boot.js",
     "restart": "kill -USR2 $(ps aux | grep '[m]-ashes' | awk '{print $2}')",
     "build": "./node_modules/.bin/gulp",
     "dev": "./node_modules/.bin/gulp dev"
@@ -72,6 +72,8 @@
     "browserify": "^10.2.4",
     "cli-color": "^1.0.0",
     "co": "^4.5.4",
+    "co-body": "^2.0.0",
+    "fleck": "^0.5.1",
     "gulp": "^3.9.0",
     "gulp-concat": "^2.5.2",
     "gulp-if": "^1.2.5",

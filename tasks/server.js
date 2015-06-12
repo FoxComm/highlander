@@ -8,7 +8,7 @@ module.exports = function(gulp, opts, $) {
 
   gulp.task('server', function() {
     if (node) node.kill();
-    node = spawn('iojs', ['--harmony', 'boot.js'], {stdio: 'inherit'});
+    node = spawn('iojs', ['--harmony', '--harmony_arrow_functions', 'boot.js'], {stdio: 'inherit'});
   });
 
   process.on('exit', function() {
