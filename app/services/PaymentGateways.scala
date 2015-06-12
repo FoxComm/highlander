@@ -3,8 +3,7 @@ package services
 import models.TokenizedCreditCard
 
 import com.stripe.Stripe
-import com.stripe.model.Token
-import com.stripe.model.{Charge => StripeCharge}
+import com.stripe.model.{Token, Card => StripeCard, Charge => StripeCharge}
 import com.stripe.net.{RequestOptions => StripeRequestOptions}
 import org.scalactic.{Good, Bad, ErrorMessage, Or}
 import collection.JavaConversions.mapAsJavaMap
@@ -13,13 +12,15 @@ abstract class PaymentGateway
 case object BraintreeGateway extends PaymentGateway
 
 // TODO(yax): do not default apiKey, it should come from store
+// TODO(yax): make this a future b/c DON'T BLOCK
 case class StripeGateway(paymentToken: String, apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ") extends PaymentGateway {
-  def getTokenizedCard: TokenizedCreditCard Or Throwable = {
+  def getTokenizedCard: (TokenizedCreditCard, StripeCard) Or Throwable = {
     val reqOpts = StripeRequestOptions.builder().setApiKey(this.apiKey).build()
 
     try {
       val retrievedToken = Token.retrieve(this.paymentToken, reqOpts)
-      Good(TokenizedCreditCard.fromStripe(retrievedToken.getCard, this.paymentToken))
+      val stripeCard = retrievedToken.getCard
+      Good((TokenizedCreditCard.fromStripe(stripeCard, this.paymentToken), stripeCard))
     } catch {
       case t: com.stripe.exception.InvalidRequestException =>
         Bad(t)

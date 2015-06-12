@@ -30,30 +30,6 @@ object PaymentMethods {
     db.run(tokenCardsTable.filter(_.accountId === account.id).result)
   }
 
-  def addPaymentToken(paymentToken: String, account: Shopper, cart: Cart)
-                     (implicit db: Database) : Future[(TokenizedCreditCard, AppliedPayment) Or Throwable] = {
-    StripeGateway(paymentToken = paymentToken).getTokenizedCard match {
-      case Good(card) =>
-        val newlyInsertedId = tokenCardsTable.returning(tokenCardsTable.map(_.id))
-        val appliedPayment = AppliedPayment(cartId = cart.id, paymentMethodId = 0,
-                                            paymentMethodType = card.paymentGateway,
-                                            appliedAmount = 5.0F, status = Auth.toString, // TODO: use type and marshalling
-                                            responseCode = "ok") // TODO: make this real
-
-        val inserts = for {
-          tokenId <- tokenCardsTable.returning(tokenCardsTable.map(_.id)) += card.copy(accountId = account.id)
-          appliedPaymentId <- AppliedPayments.returningId += appliedPayment.copy(paymentMethodId = tokenId)
-        } yield (tokenId, appliedPaymentId)
-
-        db.run(inserts).map { case (tokenId, appliedPaymentId) =>
-          Good((card.copy(id = tokenId), appliedPayment.copy(id = appliedPaymentId)))
-        }
-
-      case Bad(t) =>
-        Future.failed(t)
-    }
-  }
-
   // TODO: Make polymorphic for real.
   def findById(id: Int)(implicit db: Database): Future[Option[TokenizedCreditCard]] = {
     db.run(tokenCardsTable.filter(_.id === id).result.headOption)

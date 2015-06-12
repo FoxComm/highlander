@@ -251,9 +251,9 @@ class Service(
                   case None     =>
                     Future.successful(HttpResponse(OK, entity = render("Guest checkout!!")))
 
-                  case Some(s) =>
-                    // Persist the payment token to the user's account
-                    PaymentMethods.addPaymentToken(reqPayment.paymentGatewayToken, s, cart).map { x =>
+                  case Some(shopper) =>
+                    // TODO: good -> render cart, bad -> error
+                    TokenizedPaymentCreator.run(cart, shopper, reqPayment.paymentGatewayToken).map { x =>
                       HttpResponse(OK, entity = render(x))
                     }
                 }
