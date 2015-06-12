@@ -7,11 +7,15 @@ module.exports = function(app, router) {
 
   router
     .param('customer', function *(id, next) {
-      this.customer = yield Customer.create(id);
+      this.customer = Customer.generate(id);
       yield next;
     })
     .get('/customers/:customer', function *() {
       this.body = this.customer.toJSON();
+    })
+    .get('/customers', function *() {
+      let customers = Customer.generateList();
+      this.body = customers;
     })
     .post('/customers', function *() {
       let

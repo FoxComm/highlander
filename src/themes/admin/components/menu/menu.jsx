@@ -11,7 +11,7 @@ class Menu extends React.Component {
           <ul>
             <li><Link to='home'><i className="icon-gauge"></i>Dashboard</Link></li>
             <li><Link to='orders'><i className="icon-docs"></i>Orders</Link></li>
-            <li><Link to="users"><i className="icon-group"></i>Users</Link></li>
+            <li><Link to="customers"><i className="icon-group"></i>Customers</Link></li>
             <li><a href=""><i className="icon-tags"></i>Products</a></li>
           </ul>
         </nav>

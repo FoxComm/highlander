@@ -6,7 +6,7 @@ const
   t     = require('thunkify-wrap'),
   fleck = require('fleck');
 
-module.exports = function(app) {
+module.exports = function *() {
   let
     db      = {},
     models  = yield t(fs.readdir)(`${__dirname}/models`);

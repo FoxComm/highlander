@@ -13,7 +13,7 @@ app.init = co.wrap(function *() {
   app.config = require(path.resolve('config'));
   app.use(serve(app.config.server.publicDir));
   app.use(favicon(app.config.layout.favicon));
-  app.seeds = require(`${__dirname}/seeds`);
+  app.seeds = yield* require(`${__dirname}/seeds`)();
   if (app.env === 'development') {
     app.use(require('koa-logger')());
   }

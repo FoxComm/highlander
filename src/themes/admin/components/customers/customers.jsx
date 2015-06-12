@@ -4,7 +4,7 @@ import React from 'react';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
 
-class Users extends React.Component {
+class Customers extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -48,11 +48,11 @@ class Users extends React.Component {
   }
 }
 
-Users.propTypes = {
+Customers.propTypes = {
   tableColumns: React.PropTypes.array
 };
 
-Users.defaultProps = {
+Customers.defaultProps = {
   tableColumns: [
     {field: 'firstName', text: 'First Name'},
     {field: 'lastName', text: 'Last Name'},
@@ -60,8 +60,8 @@ Users.defaultProps = {
     {field: 'role', text: 'Role'},
     {field: 'blocked', text: 'Blocked'},
     {field: 'cause', text: 'Cause'},
-    {field: 'dateJoined', text: 'Date Joined'}
+    {field: 'dateJoined', text: 'Date Joined', type: 'date'}
   ]
 };
 
-export default Users;
+export default Customers;
