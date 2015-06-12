@@ -21,7 +21,7 @@ class Order extends React.Component {
             <li><a href="">Details</a></li>
             <li><a href="">Shipments</a></li>
             <li><a href="">Returns</a></li>
-            <li><a href="">Emails</a></li>
+            <li><Link to="notifications" params={{order: order.id}}>Transcation Notifications</Link></li>
             <li><Link to="notes" params={{order: order.id}}>Notes</Link></li>
             <li><a href="">Activity Trail</a></li>
           </ul>

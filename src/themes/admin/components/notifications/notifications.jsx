@@ -1,6 +1,7 @@
 'use strict';
 
 import React from 'react';
+import { RouteHandler } from 'react-router';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
 
@@ -21,6 +22,7 @@ class Notifications extends React.Component {
 
     while (idx--) {
       notifications.push({
+        notification: 1000 + idx,
         date: new Date().toISOString(),
         status: status[~~(Math.random() * status.length)],
         subject: subject[~~(Math.random() * subject.length)]
@@ -35,23 +37,29 @@ class Notifications extends React.Component {
       <div id="notifications">
         <table className='listing'>
           <TableHead columns={this.props.tableColumns}/>
-          <TableBody columns={this.props.tableColumns} rows={this.state.tableRows} model='order'/>
+          <TableBody columns={this.props.tableColumns} rows={this.state.tableRows} model='notification'/>
         </table>
+        <RouteHandler/>
       </div>
     );
   }
 }
 
+Notifications.contextTypes = {
+  router: React.PropTypes.func
+};
+
 Notifications.propTypes = {
+  order: React.PropTypes.number,
   tableColumns: React.PropTypes.array
 };
 
 Notifications.defaultProps = {
   tableColumns: [
+    {field: 'notification', text: 'ID'},
     {field: 'date', text: 'Date', type: 'date'},
     {field: 'subject', text: 'Subject'},
-    {field: 'status', text: 'Status'},
-    {field: 'resend', text: 'Resend', type: 'button'}
+    {field: 'status', text: 'Status'}
   ]
 };
 
