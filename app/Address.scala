@@ -251,7 +251,6 @@ class Service(
             (post & path(IntNumber / "payment-methods") & entity(as[PaymentMethodPayload])) { (cartId, reqPayment) =>
               complete {
                 Carts.findById(cartId).map {
-                  //can't add payment methods if the cart doesn't exist
                   case None => notFoundResponse
                   case Some(c) =>
                     HttpResponse(OK, entity = render("HI"))
