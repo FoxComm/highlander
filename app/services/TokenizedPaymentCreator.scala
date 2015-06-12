@@ -52,7 +52,7 @@ case class TokenizedPaymentCreator(cart: Cart, shopper: Shopper, paymentToken: S
     val queries = for {
       tokenId <- tokenCardsTable.returning(tokenCardsTable.map(_.id)) += card.copy(accountId = shopper.id)
       appliedPaymentId <- AppliedPayments.returningId += appliedPayment.copy(paymentMethodId = tokenId)
-      addressId <- Addresses.returningId += billingAddress
+      addressId <- BillingAddresses._create(billingAddress, appliedPaymentId)
       c <- Carts._findById(cart.id).result.headOption
     } yield c
 
