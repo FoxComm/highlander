@@ -30,10 +30,10 @@ class AdminUsers(tag: Tag) extends Table[AdminUser](tag, "admin_users") with Ric
   def * = (id, email, password, firstName, lastName, department) <> ((AdminUser.apply _).tupled, AdminUser.unapply)
 }
 
-object AdminUser {
-  var adminUsers = TableQuery[AdminUsers]
+object AdminUsers {
+  var table = TableQuery[AdminUsers]
 
   def findByEmail(email: String)(implicit ec: ExecutionContext, db: Database): Future[Option[AdminUser]] = {
-    db.run(adminUsers.filter(_.email === email).result.headOption)
+    db.run(table.filter(_.email === email).result.headOption)
   }
 }

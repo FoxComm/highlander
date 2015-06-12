@@ -41,7 +41,7 @@ object AdminUserAuthenticator {
   {
     userCredentials match {
       case p: UserCredentials.Provided =>
-        AdminUser.findByEmail(p.username).map {
+        AdminUsers.findByEmail(p.username).map {
           case Some(u) =>
             // TODO: Actually hash passwords and check against those
             if (p.verifySecret(u.password)) {

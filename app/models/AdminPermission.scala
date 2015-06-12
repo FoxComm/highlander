@@ -6,4 +6,4 @@ case class AdminPermission (id: Int, storeId: Int, resource: String, grantedAcce
 
 class AdminPermissions {}
 
-object AdminPermission {}
+object AdminPermissions {}
