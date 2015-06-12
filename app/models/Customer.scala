@@ -30,7 +30,7 @@ class Customers(tag: Tag) extends Table[Customer](tag, "customers") with RichTab
   def * = (id, email, password, firstName, lastName) <> ((Customer.apply _).tupled, Customer.unapply)
 }
 
-object Customer {
+object Customers {
   val customers = TableQuery[Customers]
 
   def findByEmail(email: String)(implicit ec: ExecutionContext, db: Database): Future[Option[Customer]] = {
