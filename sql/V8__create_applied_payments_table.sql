@@ -4,7 +4,7 @@ create table applied_payments (
     cart_id integer,
     payment_method_id integer,
     payment_method_type character varying(255),
-    applied_amount float,
+    applied_amount integer,
     status character varying(255),
     response_code character varying(255)
 );

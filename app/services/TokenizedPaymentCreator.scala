@@ -39,7 +39,7 @@ case class TokenizedPaymentCreator(cart: Cart, shopper: Shopper, paymentToken: S
 
     val appliedPayment = AppliedPayment(cartId = cart.id, paymentMethodId = 1, // TODO: would do a lookup
       paymentMethodType = card.paymentGateway,
-      appliedAmount = 0.0F, status = Auth.toString, // TODO: use type and marshalling
+      appliedAmount = 0, status = Auth.toString, // TODO: use type and marshalling
       responseCode = "ok") // TODO: make this real
 
     val billingAddress = Address(accountId = shopper.id, stateId = state.id, name = "Stripe",

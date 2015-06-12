@@ -10,8 +10,7 @@ object FullCart {
   type Response = Future[Option[Root]]
 
   case class Totals(subTotal: Int, taxes: Int, adjustments: Int, total: Int)
-  case class Root(id: Int, lineItems: Seq[LineItem], adjustments: Seq[Adjustment], totals: Totals) {
-  }
+  case class Root(id: Int, lineItems: Seq[LineItem], adjustments: Seq[Adjustment], totals: Totals)
 
   def build(cart: Cart, lineItems: Seq[LineItem] = Seq.empty, adjustments: Seq[Adjustment] = Seq.empty): Root = {
     Root(id = cart.id, lineItems = lineItems, adjustments = adjustments, totals =
