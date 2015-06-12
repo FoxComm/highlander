@@ -42,7 +42,7 @@ import akka.http.scaladsl.server.directives._
 import utils.{RichTable, Validation}
 import models._
 import payloads._
-import services.{LineItemUpdater, PaymentGateway, Checkout, CustomerAuthenticator}
+import services.{LineItemUpdater, PaymentGateway, Checkout, Authenticator}
 
 case class Store(id: Int, name: String, Configuration: StoreConfiguration)
 
@@ -189,8 +189,8 @@ class Service(
       }
     }
 
-    def customerAuthenticator: AsyncAuthenticator[Customer] = services.CustomerAuthenticator.auth
-    def adminUserAuthenticator: AsyncAuthenticator[AdminUser] = services.AdminUserAuthenticator.auth
+    def customerAuthenticator: AsyncAuthenticator[Customer] = services.Authenticator.authCustomer
+    def adminUserAuthenticator: AsyncAuthenticator[AdminUser] = services.Authenticator.authAdmin
 
     /*
       Admin Authenticated Routes
