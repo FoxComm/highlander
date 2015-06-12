@@ -36,4 +36,10 @@ object StoreAdmins {
   def findByEmail(email: String)(implicit ec: ExecutionContext, db: Database): Future[Option[StoreAdmin]] = {
     db.run(table.filter(_.email === email).result.headOption)
   }
+
+  def findById(id: Int)(implicit db: Database): Future[Option[StoreAdmin]] = {
+    db.run(_findById(id).result.headOption)
+  }
+
+  def _findById(id: Rep[Int]) = { table.filter(_.id === id) }
 }

@@ -8,8 +8,6 @@ import com.wix.accord.Validator
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-
-
 case class Customer(id: Int, email: String, password: String, firstName: String, lastName: String) extends Validation {
   override def validator[T] = {
     createValidator[Customer] { user =>
@@ -31,9 +29,16 @@ class Customers(tag: Tag) extends Table[Customer](tag, "customers") with RichTab
 }
 
 object Customers {
-  val customers = TableQuery[Customers]
+  val table = TableQuery[Customers]
 
   def findByEmail(email: String)(implicit ec: ExecutionContext, db: Database): Future[Option[Customer]] = {
-    db.run(customers.filter(_.email === email).result.headOption)
+    db.run(table.filter(_.email === email).result.headOption)
   }
+
+  def findById(id: Int)(implicit db: Database): Future[Option[Customer]] = {
+    db.run(_findById(id).result.headOption)
+  }
+
+  def _findById(id: Rep[Int]) = { table.filter(_.id === id) }
 }
+

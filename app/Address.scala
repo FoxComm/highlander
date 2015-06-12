@@ -42,7 +42,8 @@ import akka.http.scaladsl.server.directives._
 import utils.{RichTable, Validation}
 import models._
 import payloads._
-import services.{LineItemUpdater, PaymentGateway, Checkout, Authenticator}
+import responses.FullCart
+import services.{LineItemUpdater, PaymentGateway, Checkout, TokenizedPaymentCreator, Authenticator}
 
 case class Store(id: Int, name: String, Configuration: StoreConfiguration)
 
@@ -54,8 +55,6 @@ case class StockLocation(id: Int, name: String)
 
 // TODO: money/currency abstraction. Use joda-money, most likely
 case class Money(currency: String, amount: Int)
-
-case class Adjustment(id: Int, amount: Int, sourceId: Int, sourceType: String, reason: String)
 
 case class Coupon(id: Int, cartId: Int, code: String, adjustment: List[Adjustment])
 
@@ -131,45 +130,6 @@ trait Formats extends DefaultJsonProtocol {
     ))
 }
 
-object TheWholeFuckingCart {
-  case class Totals(subTotal: Int, taxes: Int, adjustments: Int, total: Int)
-  case class Response(id: Int, lineItems: Seq[LineItem], adjustments: Seq[Adjustment], totals: Totals) {
-  }
-
-  object Response {
-    def build(cart: Cart, lineItems: Seq[LineItem] = Seq.empty, adjustments: Seq[Adjustment] = Seq.empty): Response = {
-      Response(id = cart.id, lineItems = lineItems, adjustments = adjustments, totals =
-        Totals(subTotal = 500, taxes = 10, adjustments = 0, total = 510))
-    }
-  }
-
-  def findById(id: Int)
-              (implicit ec: ExecutionContext,
-               db: Database): Future[Option[Response]] = {
-
-    val queries = for {
-      cart <- Carts._findById(id)
-      lineItems <- LineItems._findByCartId(cart.id)
-    } yield (cart, lineItems)
-
-    db.run(queries.result).map { results =>
-      results.headOption.map { case (cart, _) =>
-        Response.build(cart, results.map { case (_, items) => items })
-      }
-    }
-  }
-
-  def fromCart(cart: Cart)
-              (implicit ec: ExecutionContext,
-               db: Database): Future[Option[Response]] = {
-
-    val queries = for {
-      lineItems <- LineItems._findByCartId(cart.id)
-    } yield lineItems
-
-    db.run(queries.result).map { lineItems => Some(Response.build(cart, lineItems)) }
-  }
-}
 
 class Service(
   systemOverride: Option[ActorSystem] = None,
@@ -211,6 +171,7 @@ class Service(
 
   val user = Customer(id = 1, email = "yax@foxcommerce.com", password = "donkey", firstName = "Yax", lastName = "Donkey")
 
+
   val routes = {
     val cart = Cart(id = 0, accountId = None)
 
@@ -240,7 +201,7 @@ class Service(
         authenticateBasicAsync(realm = "cart and checkout", adminUserAuthenticator) { user =>
           (get & path(IntNumber)) { id =>
             complete {
-              renderOrNotFound(TheWholeFuckingCart.findById(id))
+              renderOrNotFound(FullCart.findById(id))
             }
           } ~
             (post & path(IntNumber / "checkout")) { id =>
@@ -263,7 +224,7 @@ class Service(
                       case Bad(errors) =>
                         HttpResponse(BadRequest, entity = render(errors))
                       case Good(lineItems) =>
-                        HttpResponse(OK, entity = render(TheWholeFuckingCart.Response.build(c, lineItems)))
+                        HttpResponse(OK, entity = render(FullCart.build(c, lineItems)))
                     }
                 }
               }
@@ -278,7 +239,7 @@ class Service(
                       case Bad(errors) =>
                         HttpResponse(BadRequest, entity = render(errors))
                       case Good(lineItems) =>
-                        HttpResponse(OK, entity = render(TheWholeFuckingCart.Response.build(cart, lineItems)))
+                        HttpResponse(OK, entity = render(FullCart.build(cart, lineItems)))
                     }
                 }
               }
@@ -302,16 +263,15 @@ class Service(
               complete {
                 Carts.findById(cartId).flatMap {
                   case None => Future.successful(notFoundResponse)
-                  case Some(c) =>
-                    // Check to see if there is a user associated with the checkout.
-                    findCustomer(c.accountId) match {
-                      case None =>
+                  case Some(cart) =>
+                    findCustomer(cart.accountId) match {
+                      case None     =>
                         Future.successful(HttpResponse(OK, entity = render("Guest checkout!!")))
 
-                      case Some(s) =>
-                        // Persist the payment token to the user's account
-                        PaymentMethods.addPaymentTokenToCustomer(reqPayment.paymentGatewayToken, s).map { x =>
-                          HttpResponse(OK, entity = render(x))
+                      case Some(customer) =>
+                        TokenizedPaymentCreator.run(cart, customer, reqPayment.paymentGatewayToken).map { fullCart =>
+                          fullCart.fold({ c => HttpResponse(OK, entity = render(c)) },
+                          { e => HttpResponse(BadRequest, entity = render(e)) })
                         }
                     }
                 }
@@ -320,9 +280,9 @@ class Service(
         }
       }
     } ~
-    /*
-      Customer Authenticated Routes
-     */
+      /*
+        Customer Authenticated Routes
+       */
       logRequestResult("addresses") {
         pathPrefix("v1" / "my") {
           authenticateBasicAsync(realm = "private customer routes", customerAuthenticator) { user =>

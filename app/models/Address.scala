@@ -11,7 +11,7 @@ import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-case class Address(id: Int, customerId: Int, stateId: Int, name: String, street1: String, street2: Option[String],
+case class Address(id: Int = 0, customerId: Int, stateId: Int, name: String, street1: String, street2: Option[String],
                    city: String, zip: String) extends Validation {
   override def validator[T] = {
     createValidator[Address] { address =>
@@ -40,6 +40,7 @@ class Addresses(tag: Tag) extends Table[Address](tag, "addresses") with RichTabl
 
 object Addresses {
   val table = TableQuery[Addresses]
+  val returningId = table.returning(table.map(_.id))
 
   def findAllByCustomer(customer: Customer)(implicit db: Database): Future[Seq[Address]] = {
     db.run(table.filter(_.customerId === customer.id).result)
@@ -53,14 +54,21 @@ object Addresses {
                         payload: Seq[CreateAddressPayload])
                        (implicit ec: ExecutionContext,
                         db: Database): Future[Seq[Address] Or Map[Address, Set[ErrorMessage]]] = {
-    // map to Address & validate
-    val results = payload.map { a =>
-      val address = Address(id = 0, customerId = customer.id, stateId = a.stateId, name = a.name,
-                            street1 = a.street1, street2 = a.street2, city = a.city, zip = a.zip)
-      (address, address.validate)
+
+    val addresses = payload.map { a =>
+      Address(id = 0, customerId = customer.id, stateId = a.stateId, name = a.name,
+        street1 = a.street1, street2 = a.street2, city = a.city, zip = a.zip)
     }
 
-    val failures = results.filter { case (_, result) => result.isInstanceOf[ValidationFailure] }
+    create(customer, addresses)
+  }
+
+  def create(customer: Customer, addresses: Seq[Address])
+            (implicit ec: ExecutionContext,
+             db: Database): Future[Seq[Address] Or Map[Address, Set[ErrorMessage]]] = {
+
+    val validatedAddresses = addresses.map { a => (a, a.validate) }
+    val failures = validatedAddresses.filter { case (_, result) => result.isInstanceOf[ValidationFailure] }
 
     if (failures.nonEmpty) {
       val acc = Map[Address, Set[ErrorMessage]]()
@@ -70,7 +78,7 @@ object Addresses {
       Future.successful(Bad(errorMap))
     } else {
       db.run(for {
-        _ <- table ++= results.map { case (address, _) => address }
+        _ <- table ++= addresses
         addresses <- table.filter(_.customerId === customer.id).result
       } yield Good(addresses))
     }
