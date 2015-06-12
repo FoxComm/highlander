@@ -1,9 +1,14 @@
-import models.{Cart, Carts, LineItems, LineItem}
+import akka.http.scaladsl.server.directives.UserCredentials
+import models._
+import akka.http.scaladsl.server.Directives._
 import org.json4s.DefaultFormats
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Milliseconds, Seconds, Span}
 import org.scalatest.{FreeSpec, MustMatchers}
 import util.DbTestSupport
+import akka.http.scaladsl.server.Directives.AsyncAuthenticator
+
+import scala.concurrent.Future
 
 /**
  * The Server is shut down by shutting down the ActorSystem
@@ -20,6 +25,21 @@ class CartIntegrationTest extends FreeSpec
     timeout  = Span(5, Seconds),
     interval = Span(20, Milliseconds)
   )
+
+  // TODO: make this a MockedAuthTrait or equivalent
+  override def makeService: Service = {
+    new Service(dbOverride = Some(db), systemOverride = Some(as)) {
+      override def storeAdminAuth: AsyncAuthenticator[StoreAdmin] = (UserCredentials) => {
+        Future.successful(Some(StoreAdmin(id = 1, email = "donkey@donkey.com", password = "donkeyPass",
+          firstName = "Mister", lastName = "Donkey")))
+      }
+
+      override def customerAuth: AsyncAuthenticator[Customer] = (UserCredentials) => {
+        Future.successful(Some(Customer(id = 1, email = "donkey@donkey.com", password = "donkeyPass",
+          firstName = "Mister", lastName = "Donkey")))
+      }
+    }
+  }
 
   import Extensions._
   import org.json4s.jackson.JsonMethods._
