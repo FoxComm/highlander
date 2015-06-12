@@ -183,11 +183,11 @@ class Service(
       }
     }
 
-    def customerAuthenticator: Authenticator[Customer] = services.CustomerAuthenticator.auth
+    def customerAuthenticator: AsyncAuthenticator[Customer] = services.CustomerAuthenticator.auth
 
     logRequestResult("carts") {
       pathPrefix("v1" / "carts" ) {
-        authenticateBasic(realm = "cart and checkout", customerAuthenticator) { user =>
+        authenticateBasicAsync(realm = "cart and checkout", customerAuthenticator) { user =>
           (get & path(IntNumber)) { id =>
             complete {
               renderOrNotFound(Carts.findById(id))

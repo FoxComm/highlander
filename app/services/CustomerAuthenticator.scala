@@ -10,7 +10,7 @@ import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 // TODO: Implement real session-based authentication with JWT
 class CustomerAuthenticator
 object CustomerAuthenticator {
-  def auth(userCredentials: UserCredentials)(implicit ec: ExecutionContext, db: Database): Option[Customer] =
+  def auth(userCredentials: UserCredentials)(implicit ec: ExecutionContext, db: Database): Future[Option[Customer]] =
   {
     userCredentials match {
       case p: UserCredentials.Provided =>
@@ -26,7 +26,7 @@ object CustomerAuthenticator {
         }
       case _ =>
         println("Missing motherfucker")
-        None
+        Future(None)
     }
   }
 }
