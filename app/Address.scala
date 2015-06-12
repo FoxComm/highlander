@@ -152,8 +152,12 @@ class Service(
   val config: Config = ConfigFactory.parseString(conf)
 
 
-  implicit val system = systemOverride.getOrElse { ActorSystem.create("Cart", config) }
+  implicit val system = systemOverride.getOrElse {
+    ActorSystem.create("Cart", config)
+  }
+
   implicit def executionContext = system.dispatcher
+
   implicit val materializer = ActorFlowMaterializer()
 
   // required for (de)-serialization
@@ -161,7 +165,9 @@ class Service(
 
   val logger = Logging(system, getClass)
 
-  implicit val db = dbOverride.getOrElse { Database.forURL("jdbc:postgresql://localhost/phoenix_development?user=phoenix", driver = "slick.driver.PostgresDriver") }
+  implicit val db = dbOverride.getOrElse {
+    Database.forURL("jdbc:postgresql://localhost/phoenix_development?user=phoenix", driver = "slick.driver.PostgresDriver")
+  }
 
   val user = Customer(id = 1, email = "yax@foxcommerce.com", password = "donkey", firstName = "Yax", lastName = "Donkey")
 
@@ -170,7 +176,7 @@ class Service(
 
     def findCustomer(id: Option[Int]): Option[Customer] = id.flatMap { id =>
       Some(Customer(id = id, email = "donkey@donkey.com", password = "donkeyPass",
-                   firstName = "Mister", lastName = "Donkey"))
+        firstName = "Mister", lastName = "Donkey"))
     }
 
     val notFoundResponse = HttpResponse(NotFound)
@@ -184,10 +190,18 @@ class Service(
     }
 
     def customerAuthenticator: AsyncAuthenticator[Customer] = services.CustomerAuthenticator.auth
+    def adminUserAuthenticator: AsyncAuthenticator[AdminUser] = services.AdminUserAuthenticator.auth
 
+
+
+
+
+    ///////////////////////////////////////////////
+    ///      Admin Authenticated Routes        ///
+    //////////////////////////////////////////////
     logRequestResult("carts") {
-      pathPrefix("v1" / "carts" ) {
-        authenticateBasicAsync(realm = "cart and checkout", customerAuthenticator) { user =>
+      pathPrefix("v1" / "carts") {
+        authenticateBasicAsync(realm = "cart and checkout", adminUserAuthenticator) { user =>
           (get & path(IntNumber)) { id =>
             complete {
               renderOrNotFound(Carts.findById(id))
@@ -270,26 +284,34 @@ class Service(
         }
       }
     } ~
-    logRequestResult("addresses") {
-      pathPrefix("v1" / "addresses" ) {
-        get {
-          complete {
-            Addresses.findAllByCustomer(user).map { addresses =>
-              HttpResponse(OK, entity = render(addresses))
-            }
-          }
-        } ~
-        (post & entity(as[Seq[CreateAddressPayload]])) { payload =>
-          complete {
-            Addresses.createFromPayload(user, payload).map {
-              case Good(addresses)  => HttpResponse(OK, entity = render(addresses))
-              case Bad(errorMap)      => HttpResponse(BadRequest, entity = render(errorMap))
+    ///////////////////////////////////////////////
+    ///    Customer Authenticated Routes       ///
+    //////////////////////////////////////////////
+      logRequestResult("addresses") {
+        pathPrefix("v1" / "my") {
+          authenticateBasicAsync(realm = "private customer routes", customerAuthenticator) { user =>
+            pathPrefix("addresses") {
+              get {
+                complete {
+                  Addresses.findAllByCustomer(user).map { addresses =>
+                    HttpResponse(OK, entity = render(addresses))
+                  }
+                }
+              } ~
+                (post & entity(as[Seq[CreateAddressPayload]])) { payload =>
+                  complete {
+                    Addresses.createFromPayload(user, payload).map {
+                      case Good(addresses) => HttpResponse(OK, entity = render(addresses))
+                      case Bad(errorMap) => HttpResponse(BadRequest, entity = render(errorMap))
+                    }
+                  }
+                }
             }
           }
         }
       }
-    }
   }
+
 
   def bind(config: Config = ConfigFactory.parseString(conf)): Future[ServerBinding] = {
     Http().bindAndHandle(routes, config.getString("http.interface"), config.getInt("http.port"))

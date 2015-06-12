@@ -23,11 +23,11 @@ case class Customer(id: Int, email: String, password: String, firstName: String,
 class Customers(tag: Tag) extends Table[Customer](tag, "customers") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def email = column[String]("email")
-  def hashedPassword = column[String]("hashed_password")
+  def password = column[String]("hashed_password")
   def firstName = column[String]("first_name")
   def lastName = column[String]("last_name")
 
-  def * = (id, email, hashedPassword, firstName, lastName) <> ((Customer.apply _).tupled, Customer.unapply)
+  def * = (id, email, password, firstName, lastName) <> ((Customer.apply _).tupled, Customer.unapply)
 }
 
 object Customer {
