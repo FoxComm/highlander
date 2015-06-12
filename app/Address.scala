@@ -253,8 +253,9 @@ class Service(
 
                   case Some(shopper) =>
                     // TODO: good -> render cart, bad -> error
-                    TokenizedPaymentCreator.run(cart, shopper, reqPayment.paymentGatewayToken).map { x =>
-                      HttpResponse(OK, entity = render(x))
+                    TokenizedPaymentCreator.run(cart, shopper, reqPayment.paymentGatewayToken).map { fullCart =>
+                      fullCart.fold({ c => HttpResponse(OK, entity = render(c)) },
+                                    { e => HttpResponse(BadRequest, entity = render(e)) })
                     }
                 }
            }
