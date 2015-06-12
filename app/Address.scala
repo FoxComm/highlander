@@ -190,7 +190,7 @@ class Service(
     }
 
     def customerAuthenticator: AsyncAuthenticator[Customer] = services.Authenticator.authCustomer
-    def adminUserAuthenticator: AsyncAuthenticator[AdminUser] = services.Authenticator.authAdmin
+    def adminUserAuthenticator: AsyncAuthenticator[StoreAdmin] = services.Authenticator.authAdmin
 
     /*
       Admin Authenticated Routes

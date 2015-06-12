@@ -21,8 +21,8 @@ object Authenticator {
   }
 
   def authAdmin(credentials: UserCredentials)
-               (implicit ec: ExecutionContext, db: Database): Future[Option[AdminUser]] = {
-    auth[AdminUser, EmailFinder[AdminUser]](credentials, AdminUsers.findByEmail)
+               (implicit ec: ExecutionContext, db: Database): Future[Option[StoreAdmin]] = {
+    auth[StoreAdmin, EmailFinder[StoreAdmin]](credentials, StoreAdmins.findByEmail)
   }
 
   private[this] def auth[M <: Model, F <: EmailFinder[M]](credentials: UserCredentials, finder: F)
