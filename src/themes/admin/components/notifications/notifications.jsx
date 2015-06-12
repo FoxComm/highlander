@@ -24,8 +24,10 @@ class Notifications extends React.Component {
       notifications.push({
         notification: 1000 + idx,
         date: new Date().toISOString(),
+        contact: 'jim@bob.com',
         status: status[~~(Math.random() * status.length)],
-        subject: subject[~~(Math.random() * subject.length)]
+        subject: subject[~~(Math.random() * subject.length)],
+        order: 1234
       });
     }
 
@@ -56,10 +58,11 @@ Notifications.propTypes = {
 
 Notifications.defaultProps = {
   tableColumns: [
-    {field: 'notification', text: 'ID'},
     {field: 'date', text: 'Date', type: 'date'},
     {field: 'subject', text: 'Subject'},
-    {field: 'status', text: 'Status'}
+    {field: 'contact', text: 'Contact Method'},
+    {field: 'status', text: 'Status'},
+    {field: 'notification', text: 'Resend', type: 'resend', order: 'order'}
   ]
 };
 

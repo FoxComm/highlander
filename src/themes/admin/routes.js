@@ -10,7 +10,7 @@ import Users from './components/users/users';
 import User from './components/users/user';
 import Notes from './components/notes/notes';
 import Notifications from './components/notifications/notifications';
-import ResendNotification from './components/notifications/resend';
+import Notification from './components/notifications/notification';
 
 const routes = (
   <Route handler={Site}>
@@ -19,7 +19,7 @@ const routes = (
     <Route name='order' path='/orders/:order' handler={Order}>
       <Route name='notes' path='notes' handler={Notes}/>
       <Route name='notifications' path='notifications' handler={Notifications}/>
-      <Route name='resend' path='notification/:notification/resend' handler={ResendNotification}/>
+      <Route name='notification' path='notification/:notification' handler={Notification}/>
     </Route>
     <Route name='users' handler={Users}>
       <Route name='user' path=':user' handler={User}/>
