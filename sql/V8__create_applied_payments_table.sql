@@ -10,11 +10,11 @@ create table applied_payments (
 );
 
 create sequence applied_payments_id_sequence
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
+    start with 1
+    increment by 1
+    no minvalue
+    no maxvalue
+    cache 1;
 
 
 alter table only applied_payments

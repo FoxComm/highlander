@@ -11,11 +11,11 @@ create table admin_users (
 );
 
 create sequence admin_users_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
+    start with 1
+    increment by 1
+    no minvalue
+    no maxvalue
+    cache 1;
 
 alter table only admin_users
     alter column id set default nextval('admin_users_id_seq'::regclass);

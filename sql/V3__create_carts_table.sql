@@ -1,18 +1,18 @@
-CREATE TABLE carts (
-    id integer NOT NULL,
+create table carts (
+    id integer not null,
     customer_id integer,
     created_at timestamp without time zone default (now() at time zone 'utc')
 );
 
-CREATE SEQUENCE carts_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
+create sequence carts_id_seq
+    start with 1
+    increment by 1
+    no minvalue
+    no maxvalue
+    cache 1;
 
-ALTER TABLE ONLY carts
-    ADD CONSTRAINT carts_pkey PRIMARY KEY (id);
+alter table only carts
+    add constraint carts_pkey primary key (id);
 
-ALTER TABLE ONLY carts
-  ALTER COLUMN id SET DEFAULT nextval('carts_id_seq'::regclass);
+alter table only carts
+  alter column id set default nextval('carts_id_seq'::regclass);
