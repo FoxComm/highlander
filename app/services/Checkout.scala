@@ -34,18 +34,17 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
     // Really, this should authenticate all payments, at their specified 'applied amount.'
     cart.payments.flatMap { payments =>
       val seq = payments.map { p =>
-        PaymentMethods.findById(p.paymentMethodId).map {
+        PaymentMethods.findById(p.paymentMethodId).flatMap {
           case Some(c) =>
             val paymentAmount = p.appliedAmount
-            c.authenticate(paymentAmount) match {
+            c.authenticate(paymentAmount).map {
               case Bad(errors)    =>
                 p -> errors
               case Good(success)  =>
-                println("Happy as  motherfucker!")
                 p -> List[ErrorMessage]()
             }
           case None =>
-            p -> List[ErrorMessage]()
+            Future.successful(p -> List[ErrorMessage]())
         }
       }
 

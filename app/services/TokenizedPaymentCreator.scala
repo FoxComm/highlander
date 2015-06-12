@@ -18,7 +18,7 @@ case class TokenizedPaymentCreator(cart: Cart, shopper: Shopper, paymentToken: S
   val tokenCardsTable = TableQuery[TokenizedCreditCards]
 
   def run(): Response = {
-    StripeGateway(paymentToken = paymentToken).getTokenizedCard match {
+    StripeGateway(paymentToken = paymentToken).getTokenizedCard.flatMap {
       case Good((card, stripeCard)) =>
         db.run(States._findByName(stripeCard.getAddressState)).flatMap { optState =>
           optState.map { s =>

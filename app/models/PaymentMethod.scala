@@ -15,7 +15,7 @@ import scala.util.{Try, Failure, Success}
 import com.stripe.model.{Card => StripeCard}
 
 abstract class PaymentMethod {
-  def authenticate(amount: Float): String Or List[ErrorMessage]
+  def authenticate(amount: Float)(implicit ec: ExecutionContext): Future[String Or List[ErrorMessage]]
 }
 
 object PaymentMethods {
@@ -52,18 +52,18 @@ case object FailedDebit extends GiftCardPaymentStatus
 
 // TODO: Figure out how to have the 'status' field on the payment and not the payment method.
 case class CreditCard(id: Int, cartId: Int, cardholderName: String, cardNumber: String, cvv: Int, status: CreditCardPaymentStatus, expiration: String, address: Address) extends PaymentMethod {
-  def authenticate(amount: Float): String Or List[ErrorMessage] = {
-    Good("authenticated")
+  def authenticate(amount: Float)(implicit ec: ExecutionContext): Future[String Or List[ErrorMessage]] = {
+    Future.successful(Good("authenticated"))
   }
 }
 // We should probably store the payment gateway on the card itself.  This way, we can manage a world where a merchant changes processors.
 case class TokenizedCreditCard(id: Int = 0, accountId: Int = 0, paymentGateway: String, gatewayTokenId: String, lastFourDigits: String, expirationMonth: Int, expirationYear: Int, brand: String) extends PaymentMethod {
-  def authenticate(amount: Float): String Or List[ErrorMessage] = {
+  def authenticate(amount: Float)(implicit ec: ExecutionContext): Future[String Or List[ErrorMessage]] = {
     val gateway = this.paymentGateway.toLowerCase
     if (gateway == "stripe" ) {
       StripeGateway(paymentToken = this.gatewayTokenId).authorizeAmount(this, amount.toInt)
     } else {
-      Bad(List(s"Could Not Recognize Payment Gateway $gateway"))
+      Future.successful(Bad(List(s"Could Not Recognize Payment Gateway $gateway")))
     }
   }
 }
@@ -76,8 +76,8 @@ object TokenizedCreditCard {
 }
 
 case class GiftCard(id: Int, cartId: Int, status: GiftCardPaymentStatus, code: String) extends PaymentMethod {
-  def authenticate(amount: Float): String Or List[ErrorMessage] = {
-    Good("authenticated")
+  def authenticate(amount: Float)(implicit ec: ExecutionContext): Future[String Or List[ErrorMessage]] = {
+    Future.successful(Good("authenticated"))
   }
 }
 
