@@ -2,9 +2,13 @@ package models
 
 import com.wix.accord.dsl.{validator => createValidator}
 import slick.driver.PostgresDriver.api._
+import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 import utils.{Validation, RichTable}
 import com.wix.accord.Validator
 import com.wix.accord.dsl._
+import scala.concurrent.{ExecutionContext, Future}
+
+
 
 case class Customer(id: Int, email: String, password: String, firstName: String, lastName: String) extends Validation {
   override def validator[T] = {
@@ -26,4 +30,10 @@ class Customers(tag: Tag) extends Table[Customer](tag, "customers") with RichTab
   def * = (id, email, hashedPassword, firstName, lastName) <> ((Customer.apply _).tupled, Customer.unapply)
 }
 
-object Customer {}
+object Customer {
+  val customers = TableQuery[Customers]
+
+  def findByEmail(email: String)(implicit ec: ExecutionContext, db: Database): Future[Option[Customer]] = {
+    db.run(customers.filter(_.email === email).result.headOption)
+  }
+}
