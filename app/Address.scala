@@ -192,13 +192,9 @@ class Service(
     def customerAuthenticator: AsyncAuthenticator[Customer] = services.CustomerAuthenticator.auth
     def adminUserAuthenticator: AsyncAuthenticator[AdminUser] = services.AdminUserAuthenticator.auth
 
-
-
-
-
-    ///////////////////////////////////////////////
-    ///      Admin Authenticated Routes        ///
-    //////////////////////////////////////////////
+    /*
+      Admin Authenticated Routes
+     */
     logRequestResult("carts") {
       pathPrefix("v1" / "carts") {
         authenticateBasicAsync(realm = "cart and checkout", adminUserAuthenticator) { user =>
@@ -284,9 +280,9 @@ class Service(
         }
       }
     } ~
-    ///////////////////////////////////////////////
-    ///    Customer Authenticated Routes       ///
-    //////////////////////////////////////////////
+    /*
+      Customer Authenticated Routes
+     */
       logRequestResult("addresses") {
         pathPrefix("v1" / "my") {
           authenticateBasicAsync(realm = "private customer routes", customerAuthenticator) { user =>
