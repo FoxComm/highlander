@@ -1,4 +1,4 @@
-import models.{Cart, Carts, LineItems, LineItem}
+import models._
 import org.json4s.DefaultFormats
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Milliseconds, Seconds, Span}
@@ -12,6 +12,7 @@ class CartIntegrationTest extends FreeSpec
   with MustMatchers
   with DbTestSupport
   with HttpSupport
+  with AutomaticAuth
   with ScalaFutures {
 
   import concurrent.ExecutionContext.Implicits.global
