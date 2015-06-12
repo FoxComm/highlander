@@ -48,8 +48,8 @@ case class Cart(id: Int, accountId: Option[Int] = None) {
 
 class Carts(tag: Tag) extends Table[Cart](tag, "carts") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def accountId = column[Option[Int]]("account_id")
-  def * = (id, accountId) <> ((Cart.apply _).tupled, Cart.unapply)
+  def customerId = column[Option[Int]]("customer_id")
+  def * = (id, customerId) <> ((Cart.apply _).tupled, Cart.unapply)
 }
 
 object Carts {

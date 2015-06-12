@@ -1,6 +1,6 @@
 CREATE TABLE carts (
     id integer NOT NULL,
-    account_id integer,
+    customer_id integer,
     created_at timestamp without time zone default (now() at time zone 'utc')
 );
 
