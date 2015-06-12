@@ -6,6 +6,8 @@ import utils.{Validation, RichTable}
 import com.wix.accord.Validator
 import com.wix.accord.dsl._
 
+import scala.concurrent.Future
+
 case class User(id: Int, email: String, password: String, firstName: String, lastName: String) extends Validation {
   override def validator[T] = {
     createValidator[User] { user =>
@@ -26,7 +28,15 @@ class Users(tag: Tag) extends Table[User](tag, "accounts") with RichTable {
   def * = (id, email, hashedPassword, firstName, lastName) <> ((User.apply _).tupled, User.unapply)
 }
 
-object User {}
+object Users {
+  val users = TableQuery[Users]
+
+  def findById(id: Int)(implicit db: Database): Future[Option[User]] = {
+    db.run(_findById(id).result.headOption)
+  }
+
+  def _findById(id: Rep[Int]) = { users.filter(_.id === id) }
+}
 
 // TODO(yax): we should be extending Accounts or User or something
 case class Shopper(id: Int, email: String, password: String, firstName: String, lastName: String) extends Validation {
