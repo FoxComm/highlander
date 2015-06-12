@@ -23,4 +23,6 @@ class LineItems(tag: Tag) extends Table[LineItem](tag, "line_items") with RichTa
 object LineItems {
   val lineItems = TableQuery[LineItems]
   val returningId = lineItems.returning(lineItems.map(_.id))
+
+  def _findByCartId(cartId: Rep[Int]) = { lineItems.filter(_.cartId === cartId) }
 }

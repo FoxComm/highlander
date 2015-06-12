@@ -88,6 +88,8 @@ object Carts {
   }
 
   def findById(id: Int)(implicit db: Database): Future[Option[Cart]] = {
-    db.run(carts.filter(_.id === id).result.headOption)
+    db.run(_findById(id).result.headOption)
   }
+
+  def _findById(id: Rep[Int]) = { carts.filter(_.id === id) }
 }
