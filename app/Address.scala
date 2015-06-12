@@ -53,8 +53,6 @@ case class StockLocation(id: Int, name: String)
 // TODO: money/currency abstraction. Use joda-money, most likely
 case class Money(currency: String, amount: Int)
 
-case class Adjustment(id: Int, amount: Int, sourceId: Int, sourceType: String, reason: String)
-
 case class Coupon(id: Int, cartId: Int, code: String, adjustment: List[Adjustment])
 
 case class Promotion(id: Int, cartId: Int, adjustments: List[Adjustment])
