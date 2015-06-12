@@ -171,6 +171,8 @@ class Service(
 
   val user = Customer(id = 1, email = "yax@foxcommerce.com", password = "donkey", firstName = "Yax", lastName = "Donkey")
 
+  def customerAuth: AsyncAuthenticator[Customer] = services.Authenticator.customer
+  def storeAdminAuth: AsyncAuthenticator[StoreAdmin] = services.Authenticator.storeAdmin
 
   val routes = {
     val cart = Cart(id = 0, accountId = None)
@@ -190,15 +192,12 @@ class Service(
       }
     }
 
-    def customerAuthenticator: AsyncAuthenticator[Customer] = services.Authenticator.authCustomer
-    def adminUserAuthenticator: AsyncAuthenticator[StoreAdmin] = services.Authenticator.authAdmin
-
     /*
       Admin Authenticated Routes
      */
     logRequestResult("carts") {
       pathPrefix("v1" / "carts") {
-        authenticateBasicAsync(realm = "cart and checkout", adminUserAuthenticator) { user =>
+        authenticateBasicAsync(realm = "cart and checkout", storeAdminAuth) { user =>
           (get & path(IntNumber)) { id =>
             complete {
               renderOrNotFound(FullCart.findById(id))
@@ -285,7 +284,7 @@ class Service(
        */
       logRequestResult("addresses") {
         pathPrefix("v1" / "my") {
-          authenticateBasicAsync(realm = "private customer routes", customerAuthenticator) { user =>
+          authenticateBasicAsync(realm = "private customer routes", customerAuth) { user =>
             pathPrefix("addresses") {
               get {
                 complete {

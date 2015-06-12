@@ -15,13 +15,13 @@ object Authenticator {
   type Model = { val password: String }
   type EmailFinder[M] = String => Future[Option[M]]
 
-  def authCustomer(credentials: UserCredentials)
-                  (implicit ec: ExecutionContext, db: Database): Future[Option[Customer]] = {
+  def customer(credentials: UserCredentials)
+              (implicit ec: ExecutionContext, db: Database): Future[Option[Customer]] = {
     auth[Customer, EmailFinder[Customer]](credentials, Customers.findByEmail)
   }
 
-  def authAdmin(credentials: UserCredentials)
-               (implicit ec: ExecutionContext, db: Database): Future[Option[StoreAdmin]] = {
+  def storeAdmin(credentials: UserCredentials)
+                (implicit ec: ExecutionContext, db: Database): Future[Option[StoreAdmin]] = {
     auth[StoreAdmin, EmailFinder[StoreAdmin]](credentials, StoreAdmins.findByEmail)
   }
 
