@@ -47,7 +47,7 @@ class LineItemUpdaterTest extends FreeSpec
     }
 
     "Updates line_items when the Sku already is in cart" in {
-      val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { skuId => LineItem(id = 0, cartId = 1, skuId = skuId) }
+      val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { skuId => LineItem(id = 0, parentId = 1, parentType = "cart", skuId = skuId) }
       createLineItems(seedItems)
 
       val cart = Cart(id = 1, accountId = None)

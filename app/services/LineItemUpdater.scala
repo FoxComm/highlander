@@ -33,7 +33,7 @@ object LineItemUpdater {
 
     // select sku_id, count(1) from line_items where cart_id = $ group by sku_id
     val counts = for {
-      (skuId, q) <- lineItems.filter(_.cartId === cart.id).groupBy(_.skuId)
+      (skuId, q) <- lineItems.filter(_.parentId === cart.id).filter(_.parentType === "cart").groupBy(_.skuId)
     } yield (skuId, q.length)
 
     val queries = counts.result.flatMap { (items: Seq[(Int, Int)]) =>
@@ -45,9 +45,9 @@ object LineItemUpdater {
         if (newQuantity > current) {
           val delta = newQuantity - current
 
-          lineItems ++= (1 to delta).map { _ => LineItem(0, cart.id, skuId) }.toSeq
+          lineItems ++= (1 to delta).map { _ => LineItem(0, cart.id, "cart", skuId) }.toSeq
         } else if (current - newQuantity > 0) { //otherwise delete N items
-          lineItems.filter(_.id in lineItems.filter(_.cartId === cart.id).filter(_.skuId === skuId).
+          lineItems.filter(_.id in lineItems.filter(_.parentId === cart.id).filter(_.parentType === "cart").filter(_.skuId === skuId).
             sortBy(_.id.asc).take(current - newQuantity).map(_.id)).delete
         } else {
           // do nothing
@@ -57,7 +57,7 @@ object LineItemUpdater {
 
       DBIO.seq(changes: _*)
     }.flatMap { _ ⇒
-      lineItems.filter(_.cartId === cart.id).result
+      lineItems.filter(_.parentId === cart.id).filter(_.parentType === "cart").result
     }
 
     db.run(queries.transactionally).map(items => Good(items))
@@ -69,7 +69,7 @@ object LineItemUpdater {
 
     val actions = for {
       numDeleted <- lineItems.filter(_.id === id).delete
-      lineItems <- lineItems.filter(_.cartId === cartId).result
+      lineItems <- lineItems.filter(_.parentId === cartId).filter(_.parentType === "cart").result
     } yield (numDeleted, lineItems)
 
     db.run(actions.transactionally).map { case (numDeleted, lineItems) =>
