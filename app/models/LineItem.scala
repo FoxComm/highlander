@@ -22,11 +22,11 @@ class LineItems(tag: Tag) extends Table[LineItem](tag, "line_items") with RichTa
 }
 
 object LineItems {
-  val lineItems = TableQuery[LineItems]
-  val returningId = lineItems.returning(lineItems.map(_.id))
+  val table = TableQuery[LineItems]
+  val returningId = table.returning(table.map(_.id))
 
   def findByCart(cart: Cart)(implicit db: Database) = {db.run(_findByCartId(cart.id).result) }
 
-  def _findByCartId(cartId: Rep[Int]) = { lineItems.filter(_.parentId === cartId).filter(_.parentType === "cart") }
-  def _findByOrderId(orderId: Rep[Int]) = { lineItems.filter(_.parentId === orderId).filter(_.parentType === "order") }
+  def _findByCartId(cartId: Rep[Int]) = { table.filter(_.parentId === cartId).filter(_.parentType === "cart") }
+  def _findByOrderId(orderId: Rep[Int]) = { table.filter(_.parentId === orderId).filter(_.parentType === "order") }
 }
