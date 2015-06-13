@@ -58,7 +58,8 @@ class CartIntegrationTest extends FreeSpec
   }
 
   "handles credit cards" - {
-    val payload = CreditCardPayload(holderName = "Jax", number = "1234123412341234", cvv = "123", expYear = 2017, expMonth = 2)
+    val payload = CreditCardPayload(holderName = "Jax", number = "1234123412341234",
+                                    cvv = "123", expYear = 2017, expMonth = 2)
 
     "fails if the cart is not found" in {
       val response = POST(
@@ -72,11 +73,23 @@ class CartIntegrationTest extends FreeSpec
       val cartId = db.run(Carts.returningId += Cart(id = 0, accountId = Some(1))).futureValue
       val response = POST(
         s"v1/carts/$cartId/payment-methods/credit-card",
-        payload.copy(cvv = ""))
+        payload.copy(cvv = "", holderName = ""))
 
-      val errors = parse(response.bodyText).extract[Map[String, List[String]]]
+      val errors = parse(response.bodyText).extract[Map[String, Seq[String]]]
 
-      errors mustBe Map("errors" -> List("cvv must match regular expression '[0-9]{3,4}'"))
+      errors mustBe Map("errors" -> Seq("holderName must not be empty", "cvv must match regular expression '[0-9]{3,4}'"))
+      response.status mustBe (StatusCodes.BadRequest)
+    }
+
+    "successfully creates records" in {
+      val cartId = db.run(Carts.returningId += Cart(id = 0, accountId = Some(1))).futureValue
+      val response = POST(
+        s"v1/carts/$cartId/payment-methods/credit-card",
+        payload)
+
+      val errors = parse(response.bodyText).extract[Map[String, Seq[String]]]
+
+      errors mustBe Map("errors" -> Seq("holderName must not be empty", "cvv must match regular expression '[0-9]{3,4}'"))
       response.status mustBe (StatusCodes.BadRequest)
     }
   }

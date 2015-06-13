@@ -21,7 +21,6 @@ case class CreditCardPaymentCreator(cart: Cart, customer: Customer, payload: Cre
     if (payload.isValid) {
       Future.successful(Bad(Set("implement me!")))
     } else {
-      println("invalid!")
       Future.successful(Bad(payload.validationFailures))
     }
   }
