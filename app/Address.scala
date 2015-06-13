@@ -169,8 +169,6 @@ class Service(
   def storeAdminAuth: AsyncAuthenticator[StoreAdmin] = services.Authenticator.storeAdmin
 
   val routes = {
-    val cart = Cart(id = 0, accountId = None)
-
     def findCustomer(id: Option[Int]): Option[Customer] = id.flatMap { id =>
       Some(Customer(id = id, email = "donkey@donkey.com", password = "donkeyPass",
         firstName = "Mister", lastName = "Donkey"))

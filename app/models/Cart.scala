@@ -10,7 +10,7 @@ import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-case class Cart(id: Int, accountId: Option[Int] = None) {
+case class Cart(id: Int, accountId: Option[Int] = None, status: Cart.Status = Cart.Status.Active) {
   val lineItems: Seq[LineItem] = Seq.empty
   //val payments: Seq[AppliedPayment] = Seq.empty
   // val fulfillments: Seq[Fulfillment] = Seq.empty
@@ -46,10 +46,40 @@ case class Cart(id: Int, accountId: Option[Int] = None) {
   }
 }
 
+object Cart {
+  sealed trait Status
+  object Status {
+    case object Active extends Status  // most will be here
+    case object Ordered extends Status // after order
+    case object Removed extends Status // admin could do this
+  }
+
+  implicit val StatusColumnType = MappedColumnType.base[Status, String](
+  { status =>
+     status match {
+        case t: Status.Active.type => "active"
+        case t: Status.Ordered.type => "ordered"
+        case t: Status.Removed.type => "removed"
+        case _ => "unknown"
+      }
+  },
+  { str =>
+    str match {
+      case "active" => Status.Active
+      case "ordered" => Status.Ordered
+      case "removed" => Status.Removed
+      case _ => Status.Active
+    }
+
+  }
+  )
+}
+
 class Carts(tag: Tag) extends Table[Cart](tag, "carts") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def customerId = column[Option[Int]]("customer_id")
-  def * = (id, customerId) <> ((Cart.apply _).tupled, Cart.unapply)
+  def status = column[Cart.Status]("status")
+  def * = (id, customerId, status) <> ((Cart.apply _).tupled, Cart.unapply)
 }
 
 object Carts {
