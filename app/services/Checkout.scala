@@ -58,20 +58,20 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
     List.empty
   }
 
-  def buildOrderFromCart(cart: Cart)(implicit ec: ExecutionContext, db: Database): Future[Seq] = {
+  // GAH!  I tried to do this transactionally, and failed miserably.
+  def buildOrderFromCart(cart: Cart)(implicit ec: ExecutionContext, db: Database): Future[Seq[Int]] = {
     val lineTable = TableQuery[LineItems]
     val returningLineItem = lineTable.returning(lineTable.map(_.id))
-    val queries = for {
-      insertOrder <- Orders._create(order = new Order(id = 0, customerId = cart.accountId.getOrElse(0), status = Status.New, locked = 0))
-      lineItemIds <- LineItems._findByCartId(cart.id).map { lineItems =>
-        lineItems.map { lineItem =>
-          returningLineItem += lineItem.copy(parentId = insertOrder.id, parentType = "order")
-        }
+    val insertOrder = Orders._create(order = new Order(id = 0, customerId = cart.accountId.getOrElse(0), status = Status.New, locked = 0))
+    db.run(insertOrder).flatMap { insertedOrder =>
+      val insertedItems = LineItems._findByCartId(cart.id).map { lineItems =>
+        lineItems.map({ lineItem =>
+          lineTable += lineItem.copy(parentId = insertedOrder.id, parentType = "order")
+        })
       }
-    } yield(lineItemIds)
-
-    db.run(queries.transactionally).flatMap { hithere =>
-      println("Sup")
+      db.run(insertedItems).map { donkey =>
+        Seq(1,2,3)
+      }
     }
   }
 }
