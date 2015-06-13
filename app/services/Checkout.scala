@@ -17,15 +17,31 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
     // 3) Validate addresses
     // 4) Validate promotions/couponsi
     // 5) Final Auth on the payment
-    val order = Order(id = 0, customerId = cart.accountId.getOrElse(0), status = Order.Status.New, locked = 0)
 
-    //Good(order)
-    Good(buildOrderFromCart(cart))
+    val newOrder = buildOrderFromCart(cart)
+
+
+    // We can asynchronously call the clearCart function because we don't necessarily need it to be cleared right away
+    // The next time we need an active cart is when the user adds another product to it.
+    // TODO: Implement more robust concurrency mechanism
+    clearCart(cart)
+
+    Good(newOrder)
   }
 
   def verifyInventory: List[ErrorMessage] = {
     // TODO: Call the inventory service and verify that inventory exists for all items in cart
     List.empty
+  }
+
+  def clearCart(cart: Cart): Unit = {
+    val oldCartStatus = for {c <- Carts.cartsTable if c.id === cart.id} yield c.status
+    val actions = for {
+      _ <- oldCartStatus.update(Cart.Status.Ordered)
+      insertCartId <- Carts.returningId += Cart(id =0, accountId = cart.accountId, status = Cart.Status.Active)
+    } yield (insertCartId)
+
+    db.run(actions)
   }
 
   def authenticatePayments: Future[Map[AppliedPayment, List[ErrorMessage]]] = {

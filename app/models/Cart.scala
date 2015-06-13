@@ -111,25 +111,32 @@ object Carts {
 
   def _findById(id: Rep[Int]) = { carts.filter(_.id === id) }
 
-  // If the user doesn't have a cart yet, let's create one.
-  def findByCustomer(customer: Customer)(implicit ec: ExecutionContext, db: Database): Future[Option[Cart]] = {
-    // TODO: AW needs Help on conditionally creating the user.  Went fast, moving on...
 
-//    val cartCount = carts.filter(_.customerId === customer.id).length
-//    val newCart = cartCount.result.flatMap { count =>
-//      if (count < 1) {
-//        val freshCart = Cart(id = 0, accountId = Some(customer.id))
-//        (returningId += freshCart) map { insertId =>
-//          freshCart.copy(id = insertId)
-//        }
-//      } else {
-//        carts.filter(_.customerId === customer.id).result.headOption
-//      }
-//    }
-//
-//    db.run(newCart)
+  def findByCustomer(customer: Customer)(implicit ec: ExecutionContext, db: Database): Future[Option[Cart]] = {
     db.run(_findByCustomer(customer).result.headOption)
   }
 
+  // TODO: Figure out how to handle status without hard coding the string here
+  // .filter(_.status === Cart.Status.Active)
   def _findByCustomer(cust: Customer) = {carts.filter(_.customerId === cust.id)}
+
+  // If the user doesn't have a cart yet, let's create one.
+  def findOrCreateByCustomer(customer: Customer)(implicit ec: ExecutionContext, db: Database): Future[Option[Cart]] = {
+    // TODO: AW needs Help on conditionally creating the user.  Went fast, moving on...
+
+    //    val cartCount = carts.filter(_.customerId === customer.id).length
+    //    val newCart = cartCount.result.flatMap { count =>
+    //      if (count < 1) {
+    //        val freshCart = Cart(id = 0, accountId = Some(customer.id))
+    //        (returningId += freshCart) map { insertId =>
+    //          freshCart.copy(id = insertId)
+    //        }
+    //      } else {
+    //        carts.filter(_.customerId === customer.id).result.headOption
+    //      }
+    //    }
+    //
+    //    db.run(newCart)
+    findByCustomer(customer)
+  }
 }
