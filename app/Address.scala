@@ -169,8 +169,6 @@ class Service(
     Database.forURL("jdbc:postgresql://localhost/phoenix_development?user=phoenix", driver = "slick.driver.PostgresDriver")
   }
 
-  val user = Customer(id = 1, email = "yax@foxcommerce.com", password = "donkey", firstName = "Yax", lastName = "Donkey")
-
   def customerAuth: AsyncAuthenticator[Customer] = services.Authenticator.customer
   def storeAdminAuth: AsyncAuthenticator[StoreAdmin] = services.Authenticator.storeAdmin
 
