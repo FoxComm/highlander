@@ -10,7 +10,7 @@ import slick.driver.PostgresDriver.api._
 
 class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
 
-  def checkout: Order Or List[ErrorMessage] = {
+  def checkout: Future[Order] Or List[ErrorMessage] = {
     // Realistically, what we'd do here is actually
     // 1) Check Inventory
     // 2) Verify Payment (re-auth)
@@ -19,12 +19,8 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
     // 5) Final Auth on the payment
     val order = Order(id = 0, customerId = cart.accountId.getOrElse(0), status = Order.Status.New, locked = 0)
 
-    //    if (scala.util.Random.nextInt(2) == 1) {
-    //      Bad(List("payment re-auth failed"))
-    //    } else {
-    //      Good(order)
-    //    }
-    Good(order)
+    //Good(order)
+    Good(buildOrderFromCart(cart))
   }
 
   def verifyInventory: List[ErrorMessage] = {

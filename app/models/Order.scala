@@ -61,7 +61,7 @@ object Order {
 
 class Orders(tag: Tag) extends Table[Order](tag, "orders") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def customer_id = column[Int]("email")
+  def customer_id = column[Int]("customer_id")
   def status = column[Order.Status]("status")
   def locked = column[Int]("locked") // 0 for no; 1 for yes
   def * = (id, customer_id, status, locked) <> ((Order.apply _).tupled, Order.unapply)
