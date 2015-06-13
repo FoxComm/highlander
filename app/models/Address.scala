@@ -12,15 +12,13 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 case class Address(id: Int = 0, customerId: Int, stateId: Int, name: String, street1: String, street2: Option[String],
-                   city: String, zip: String) extends Validation {
-  override def validator[T] = {
-    createValidator[Address] { address =>
-      address.name is notEmpty
-      address.street1 is notEmpty
-      address.city is notEmpty
-      address.zip should matchRegex("[0-9]{5}")
-    }
-  }.asInstanceOf[Validator[T]] // TODO: fix me
+                   city: String, zip: String) extends Validation[Address] {
+  override def validator = createValidator[Address] { address =>
+    address.name is notEmpty
+    address.street1 is notEmpty
+    address.city is notEmpty
+    address.zip should matchRegex("[0-9]{5}")
+  }
 }
 
 class Addresses(tag: Tag) extends Table[Address](tag, "addresses") with RichTable {

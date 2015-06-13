@@ -8,14 +8,13 @@ import com.wix.accord.Validator
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-case class Customer(id: Int, email: String, password: String, firstName: String, lastName: String) extends Validation {
-  override def validator[T] = {
-    createValidator[Customer] { user =>
-      user.firstName is notEmpty
-      user.lastName is notEmpty
-      user.email is notEmpty
-    }
-  }.asInstanceOf[Validator[T]] // TODO: fix me
+case class Customer(id: Int, email: String, password: String,
+                    firstName: String, lastName: String) extends Validation[Customer] {
+  override def validator = createValidator[Customer] { user =>
+    user.firstName is notEmpty
+    user.lastName is notEmpty
+    user.email is notEmpty
+  }
 }
 
 class Customers(tag: Tag) extends Table[Customer](tag, "customers") with RichTable {
