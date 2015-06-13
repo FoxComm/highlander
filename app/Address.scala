@@ -171,8 +171,8 @@ class Service(
 
   val user = Customer(id = 1, email = "yax@foxcommerce.com", password = "donkey", firstName = "Yax", lastName = "Donkey")
 
-  def customerAuth: AsyncAuthenticator[Customer] = services.Authenticator.customer
-  def storeAdminAuth: AsyncAuthenticator[StoreAdmin] = services.Authenticator.storeAdmin
+  def customerAuth: AsyncAuthenticator[Customer] = Authenticator.customer
+  def storeAdminAuth: AsyncAuthenticator[StoreAdmin] = Authenticator.storeAdmin
 
   val routes = {
     val cart = Cart(id = 0, accountId = None)
