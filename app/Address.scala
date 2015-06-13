@@ -43,7 +43,7 @@ import utils.{RichTable, Validation}
 import models._
 import payloads._
 import responses.FullCart
-import services.{LineItemUpdater, PaymentGateway, Checkout, TokenizedPaymentCreator, Authenticator}
+import services.{LineItemUpdater, PaymentGateway, Checkout, TokenizedPaymentCreator, Authenticator, CreditCardPaymentCreator}
 
 case class Store(id: Int, name: String, Configuration: StoreConfiguration)
 
@@ -115,6 +115,7 @@ trait Formats extends DefaultJsonProtocol {
 
   implicit val addLineItemsRequestFormat = jsonFormat2(UpdateLineItemsPayload.apply)
   implicit val addPaymentMethodRequestFormat = jsonFormat4(PaymentMethodPayload.apply)
+  implicit val creditCardPayloadFormat = jsonFormat5(CreditCardPayload.apply)
   implicit val addTokenizedPaymentMethodRequestFormat = jsonFormat2(TokenizedPaymentMethodPayload.apply)
   implicit val createAddressPayloadFormat = jsonFormat6(CreateAddressPayload.apply)
 
@@ -248,12 +249,21 @@ class Service(
                 renderOrNotFound(Carts.findById(cartId))
               }
             } ~
-            (post & path(IntNumber / "payment-methods") & entity(as[PaymentMethodPayload])) { (cartId, reqPayment) =>
+            (post & path(IntNumber / "payment-methods" / "credit-card") & entity(as[CreditCardPayload])) { (cartId, reqPayment) =>
               complete {
-                Carts.findById(cartId).map {
-                  case None => notFoundResponse
-                  case Some(c) =>
-                    HttpResponse(OK, entity = render("HI"))
+                Carts.findById(cartId).flatMap {
+                  case None => Future.successful(notFoundResponse)
+                  case Some(cart) =>
+                    findCustomer(cart.accountId) match {
+                      case None     =>
+                        Future.successful(HttpResponse(OK, entity = render(s"Guest checkout!!")))
+
+                      case Some(customer) =>
+                        CreditCardPaymentCreator.run(cart, customer, reqPayment).map { fullCart =>
+                          fullCart.fold({ c => HttpResponse(OK, entity = render(c)) },
+                                        { e => HttpResponse(BadRequest, entity = render("errors" -> e)) })
+                        }
+                    }
                 }
               }
             } ~

@@ -1,4 +1,6 @@
+import akka.http.scaladsl.model.StatusCodes
 import models._
+import payloads.CreditCardPayload
 import responses.FullCart
 
 import org.json4s.DefaultFormats
@@ -53,6 +55,30 @@ class CartIntegrationTest extends FreeSpec
     val cart = parse(responseBody).extract[FullCart.Root]
 
     cart.lineItems mustBe List(LineItem(id = 2, cartId = cartId, skuId = 1))
+  }
+
+  "handles credit cards" - {
+    val payload = CreditCardPayload(holderName = "Jax", number = "1234123412341234", cvv = "123", expYear = 2017, expMonth = 2)
+
+    "fails if the cart is not found" in {
+      val response = POST(
+        s"v1/carts/5/payment-methods/credit-card",
+        payload)
+
+      response.status mustBe (StatusCodes.NotFound)
+    }
+
+    "fails if the payload is invalid" in {
+      val cartId = db.run(Carts.returningId += Cart(id = 0, accountId = Some(1))).futureValue
+      val response = POST(
+        s"v1/carts/$cartId/payment-methods/credit-card",
+        payload.copy(cvv = ""))
+
+      val errors = parse(response.bodyText).extract[Map[String, List[String]]]
+
+      errors mustBe Map("errors" -> List("cvv must match regular expression '[0-9]{3,4}'"))
+      response.status mustBe (StatusCodes.BadRequest)
+    }
   }
 }
 

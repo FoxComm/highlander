@@ -7,8 +7,10 @@ import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpMethods, HttpRequ
 import akka.stream.{ActorFlowMaterializer, FlowMaterializer}
 import akka.util.ByteString
 import com.typesafe.config.ConfigFactory
+import org.json4s.DefaultFormats
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
 import org.scalatest.{Outcome, Suite, SuiteMixin}
+import org.json4s.jackson.Serialization.{write => writeJson}
 import util.DbTestSupport
 
 import scala.concurrent.Await.result
@@ -17,6 +19,9 @@ import scala.concurrent.duration._
 
 // TODO: Move away from root package when `Service' moverd
 trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with PatienceConfiguration with DbTestSupport ⇒
+
+  implicit val formats = DefaultFormats
+
   private val ActorSystemNameChars = ('a' to 'z').toSet | ('A' to 'Z').toSet | ('0' to '9').toSet | Set('-', '_')
 
   /* State shared that is set / reset in withFixture subtypes */
@@ -57,6 +62,8 @@ trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with Patien
 
     Http().singleRequest(request).futureValue
   }
+
+  def POST[T <: AnyRef](path: String, payload: T): HttpResponse = POST(path, writeJson(payload))
 
   def DELETE(path: String): HttpResponse = {
     val request = HttpRequest(
