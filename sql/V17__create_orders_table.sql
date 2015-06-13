@@ -16,7 +16,7 @@ create sequence orders_id_seq
     cache 1;
 
 alter table only orders
-    add constraints orders_pkey primary key (id);
+    add constraint orders_pkey primary key (id);
 
 alter table only orders
     alter column id set default nextval('orders_id_seq'::regclass);
