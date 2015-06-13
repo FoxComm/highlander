@@ -8,20 +8,51 @@ import org.scalactic._
 import scala.concurrent.{Future, ExecutionContext}
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
-import slick.driver.PostgresDriver.api._
-import com.stripe.model.{Card => StripeCard}
+import com.stripe.model.{Token, Card => StripeCard, Customer => StripeCustomer}
+import com.stripe.net.{RequestOptions => StripeRequestOptions}
+import collection.JavaConversions.mapAsJavaMap
 
-case class CreditCardPaymentCreator(cart: Cart, customer: Customer, payload: CreditCardPayload)
+case class CreditCardPaymentCreator(cart: Cart, customer: Customer, cardPayload: CreditCardPayload)
                                    (implicit ec: ExecutionContext,
                                    db: Database) {
 
   import CreditCardPaymentCreator._
 
   def run(): Response = {
-    if (payload.isValid) {
-      Future.successful(Bad(Set("implement me!")))
+    if (!cardPayload.isValid) {
+      Future.successful(Bad(cardPayload.validationFailures))
     } else {
-      Future.successful(Bad(payload.validationFailures))
+      createStripeCustomer()
+      Future.successful(Bad(Set("implement me!")))
+    }
+  }
+
+  def createStripeCustomer(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ") = {
+    val options = StripeRequestOptions.builder().setApiKey(apiKey).build()
+    val params: Map[String, Object] = Map(
+      "description" -> "FoxCommerce",
+      "email" -> this.customer.email,
+      "source" -> Map(
+        "object" -> "card",
+        "number" -> cardPayload.number,
+        "exp_month" -> cardPayload.expMonth,
+        "exp_year" -> cardPayload.expYear,
+        "cvc" -> cardPayload.cvv,
+        "name" -> cardPayload.holderName
+        // TODO(yax): would like to add fields "address_line1", "address_city", "address_state", "address_zip"
+      )
+    )
+
+    Future {
+      try {
+        val stripeCustomer = StripeCustomer.create(mapAsJavaMap(params), options)
+        // store stripeCustomer.getId to customer (maybe as JSON data?)
+        // Create card on their behalf in stripe —> https://stripe.com/docs/api#cards
+        // store card token to tokenized_credit_cards
+      } catch {
+        case t: com.stripe.exception.InvalidRequestException =>
+          Bad(t)
+      }
     }
   }
 }
