@@ -25,6 +25,8 @@ object LineItems {
   val lineItems = TableQuery[LineItems]
   val returningId = lineItems.returning(lineItems.map(_.id))
 
-  def _findByCartId(cartId: Rep[Int]) = { lineItems.filter(_.parentId === cartId).filter(_.parentType === "cart") }
+  def findByCart(cart: Cart)(implicit db: Database) = {db.run(_findByCartId(cart.id)) }
+
+  def _findByCartId(cartId: Rep[Int]) = { lineItems.filter(_.parentId === cartId).filter(_.parentType === "cart").result }
   def _findByOrderId(orderId: Rep[Int]) = { lineItems.filter(_.parentId === orderId).filter(_.parentType === "order") }
 }

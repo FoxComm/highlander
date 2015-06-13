@@ -1,6 +1,7 @@
 package services
 
-import models.{Cart, AppliedPayment, PaymentMethods, Order}
+import models._
+import models.Order.Status
 import org.scalactic.{Good, Bad, ErrorMessage, Or}
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 import scala.concurrent.{Future, ExecutionContext}
@@ -18,12 +19,12 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
     // 5) Final Auth on the payment
     val order = Order(id = 0, customerId = cart.accountId.getOrElse(0), status = Order.Status.New, locked = 0)
 
-    if (scala.util.Random.nextInt(2) == 1) {
-      Bad(List("payment re-auth failed"))
-    } else {
-      Good(order)
-    }
-
+    //    if (scala.util.Random.nextInt(2) == 1) {
+    //      Bad(List("payment re-auth failed"))
+    //    } else {
+    //      Good(order)
+    //    }
+    Good(order)
   }
 
   def verifyInventory: List[ErrorMessage] = {
@@ -39,9 +40,9 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
           case Some(c) =>
             val paymentAmount = p.appliedAmount
             c.authenticate(paymentAmount).map {
-              case Bad(errors)    =>
+              case Bad(errors) =>
                 p -> errors
-              case Good(success)  =>
+              case Good(success) =>
                 p -> List[ErrorMessage]()
             }
           case None =>
@@ -56,4 +57,33 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
   def validateAddresses: List[ErrorMessage] = {
     List.empty
   }
+
+  def buildOrderFromCart(cart: Cart)(implicit ec: ExecutionContext, db: Database): Option[Order] = {
+    // First, copy line items
+    //    db.run(LineItems._findByCartId(cart.id)).result map {
+    //      case Some(lines) =>
+    //
+    //
+    //    }
+    val lineTable = TableQuery[LineItems]
+    val returningLineItem = lineTable.returning(lineTable.map(_.id, _.parentId, _.parentType))
+    val insertOrder = Orders._create(order = new Order(id = 0, customerId = cart.accountId.getOrElse(0), status = Status.New, locked = 0))
+
+
+    val copiedLines =
+      for {
+        result <- insertOrder.flatMap { insertedOrder =>
+          LineItems._findByCartId(cart.id).map { lineItems =>
+            lineItems.foreach({ lineItem =>
+              returningLineItem += lineItem.copy(parentId = insertedOrder.id, parentType = "order")
+            })
+          }
+        }
+      } yield (result)
+
+        db.run(copiedLines).map { hi =>
+
+        }
+      }
+
 }

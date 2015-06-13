@@ -19,23 +19,14 @@ case class Order(id: Int, customerId: Int, status: Order.Status, locked: Int) {
 object Order {
   sealed trait Status
   object Status {
-
     case object New extends Status
-
     case object FraudHold extends Status
-
     case object RemorseHold extends Status
-
     case object ManualHold extends Status
-
     case object Canceled extends Status
-
     case object FulfillmentStarted extends Status
-
     case object PartiallyShipped extends Status
-
     case object Shipped extends Status
-
   }
 
   implicit val StatusColumnType = MappedColumnType.base[Status, String](
@@ -76,3 +67,12 @@ class Orders(tag: Tag) extends Table[Order](tag, "orders") with RichTable {
   def * = (id, customer_id, status, locked) <> ((Order.apply _).tupled, Order.unapply)
 }
 
+object Orders {
+  val table = TableQuery[Orders]
+  val returningId = table.returning(table.map(_.id))
+
+  def _create(order: Order)(implicit ec: ExecutionContext, db: Database): DBIOAction[models.Order, NoStream, Effect.Write] = {
+   for { newId <- Orders.returningId += order
+   } yield ( order.copy(id = newId) )
+  }
+}
