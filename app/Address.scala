@@ -112,6 +112,7 @@ trait Formats extends DefaultJsonProtocol {
   implicit val addPaymentMethodRequestFormat = jsonFormat4(PaymentMethodPayload.apply)
   implicit val addTokenizedPaymentMethodRequestFormat = jsonFormat2(TokenizedPaymentMethodPayload.apply)
   implicit val createAddressPayloadFormat = jsonFormat6(CreateAddressPayload.apply)
+  implicit val createCustomerPayloadFormat =jsonFormat4(CreateCustomerPayload.apply)
 
   val phoenixFormats = DefaultFormats + new CustomSerializer[PaymentStatus](format => (
     { case _ ⇒ sys.error("Reading not implemented") },
@@ -343,7 +344,24 @@ class Service(
               }
           }
         }
-      } 
+      } ~
+      /*
+        Public Routes
+       */
+      logRequestResult("public-routes") {
+        pathPrefix("v1") {
+          pathPrefix("registrations") {
+            (post & path("new") & entity(as[CreateCustomerPayload])) { regRequest =>
+              complete {
+                Customers.createFromPayload(regRequest).map {
+                  case Good(customer) => HttpResponse(OK, entity = render(customer))
+                  case Bad(error) => HttpResponse(BadRequest, entity = render(error))
+                }
+              }
+            }
+          }
+        }
+      }
   }
 
 
