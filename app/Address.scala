@@ -67,32 +67,27 @@ case class StockLocationDestination(stockLocation: StockLocation) extends Destin
 
 case class Fulfillment(id: Int, destination: Destination)
 
-case class Archetype(id: Int, name: String) extends Validation {
-  override def validator[T] = {
-    createValidator[Archetype] { archetype =>
-      archetype.name is notEmpty
-    }
-  }.asInstanceOf[Validator[T]] // TODO: fix me
+case class Archetype(id: Int, name: String) extends Validation[Archetype] {
+  override def validator = createValidator[Archetype] { a =>
+    a.name is notEmpty
+  }
 }
 
-case class Catalog(id: Int, name: String, archetypes: Seq[Archetype], products: Seq[Product]) extends Validation {
-  override def validator[T] = {
-    createValidator[Catalog] { catalog =>
-      catalog.name is notEmpty
-    }
-  }.asInstanceOf[Validator[T]] // TODO: fix me
+case class Catalog(id: Int, name: String,
+                   archetypes: Seq[Archetype], products: Seq[Product]) extends Validation[Catalog] {
+  override def validator = createValidator[Catalog] { c =>
+    c.name is notEmpty
+  }
 }
 
 case class Product(id: Int, name: String, sku: String, archetypes: Seq[Archetype])
 
 case class Asset(id: Int, url: String, rank: Int)
 
-case class Collection(id: Int, name: String, isActive: Boolean) extends Validation {
-  override def validator[T] = {
-    createValidator[Collection] { collection =>
-      collection.name is notEmpty
-    }
-  }.asInstanceOf[Validator[T]] // TODO: fix me
+case class Collection(id: Int, name: String, isActive: Boolean) extends Validation[Collection] {
+  override def validator = createValidator[Collection] { c =>
+    c.name is notEmpty
+  }
 }
 
 object Main extends Formats {

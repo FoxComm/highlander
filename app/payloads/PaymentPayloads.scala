@@ -8,12 +8,11 @@ import com.wix.accord.dsl._
 
 case class PaymentMethodPayload(cardholderName: String, cardNumber: String,  cvv: Int, expiration: String)
 
-case class TokenizedPaymentMethodPayload(paymentGateway: String, paymentGatewayToken: String) extends Validation {
-  override def validator[T] = {
-    createValidator[TokenizedPaymentMethodPayload] { payload =>
-      payload.paymentGateway is notEmpty
-      payload.paymentGatewayToken is notEmpty
-    }
-  }.asInstanceOf[Validator[T]] // TODO: fix me!
+case class TokenizedPaymentMethodPayload(paymentGateway: String,
+                                         paymentGatewayToken: String) extends Validation[TokenizedPaymentMethodPayload] {
+  override def validator = createValidator[TokenizedPaymentMethodPayload] { p =>
+    p.paymentGateway is notEmpty
+    p.paymentGatewayToken is notEmpty
+  }
 }
 
