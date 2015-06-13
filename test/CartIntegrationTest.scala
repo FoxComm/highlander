@@ -26,13 +26,12 @@ class CartIntegrationTest extends FreeSpec
 
   import Extensions._
   import org.json4s.jackson.JsonMethods._
-  implicit val formats = DefaultFormats
 
   "returns new items" in {
     val cartId = db.run(Carts.returningId += Cart(id = 0, accountId = None)).futureValue
 
     val response = POST(
-      s"v1/carts/$cartId/line_items",
+      s"v1/carts/$cartId/line-items",
        """
          | [ { "skuId": 1, "quantity": 1 },
          |   { "skuId": 5, "quantity": 2 } ]
@@ -49,7 +48,7 @@ class CartIntegrationTest extends FreeSpec
     val seedLineItems = (1 to 2).map { _ => LineItem(id = 0, cartId = cartId, skuId = 1) }
     db.run(LineItems.returningId ++= seedLineItems.toSeq).futureValue
 
-    val response = DELETE(s"v1/carts/$cartId/line_items/1")
+    val response = DELETE(s"v1/carts/$cartId/line-items/1")
     val responseBody = response.bodyText
     val cart = parse(responseBody).extract[FullCart.Root]
 

@@ -213,7 +213,7 @@ class Service(
                 })
               }
             } ~
-            (post & path(IntNumber / "line_items") & entity(as[Seq[UpdateLineItemsPayload]])) { (cartId, reqItems) =>
+            (post & path(IntNumber / "line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { (cartId, reqItems) =>
               complete {
                 // TODO: we should output cart here
                 Carts.findById(cartId).map {
@@ -228,7 +228,7 @@ class Service(
                 }
               }
             } ~
-            (delete & path(IntNumber / "line_items" / IntNumber)) { (cartId, lineItemId) =>
+            (delete & path(IntNumber / "line-items" / IntNumber)) { (cartId, lineItemId) =>
               complete {
                 Carts.findById(cartId).map {
                   case None => Future(notFoundResponse)
