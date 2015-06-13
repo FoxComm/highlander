@@ -58,32 +58,20 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
     List.empty
   }
 
-  def buildOrderFromCart(cart: Cart)(implicit ec: ExecutionContext, db: Database): Option[Order] = {
-    // First, copy line items
-    //    db.run(LineItems._findByCartId(cart.id)).result map {
-    //      case Some(lines) =>
-    //
-    //
-    //    }
+  def buildOrderFromCart(cart: Cart)(implicit ec: ExecutionContext, db: Database): Future[Seq] = {
     val lineTable = TableQuery[LineItems]
-    val returningLineItem = lineTable.returning(lineTable.map(_.id, _.parentId, _.parentType))
-    val insertOrder = Orders._create(order = new Order(id = 0, customerId = cart.accountId.getOrElse(0), status = Status.New, locked = 0))
-
-
-    val copiedLines =
-      for {
-        result <- insertOrder.flatMap { insertedOrder =>
-          LineItems._findByCartId(cart.id).map { lineItems =>
-            lineItems.foreach({ lineItem =>
-              returningLineItem += lineItem.copy(parentId = insertedOrder.id, parentType = "order")
-            })
-          }
-        }
-      } yield (result)
-
-        db.run(copiedLines).map { hi =>
-
+    val returningLineItem = lineTable.returning(lineTable.map(_.id))
+    val queries = for {
+      insertOrder <- Orders._create(order = new Order(id = 0, customerId = cart.accountId.getOrElse(0), status = Status.New, locked = 0))
+      lineItemIds <- LineItems._findByCartId(cart.id).map { lineItems =>
+        lineItems.map { lineItem =>
+          returningLineItem += lineItem.copy(parentId = insertOrder.id, parentType = "order")
         }
       }
+    } yield(lineItemIds)
 
+    db.run(queries.transactionally).flatMap { hithere =>
+      println("Sup")
+    }
+  }
 }
