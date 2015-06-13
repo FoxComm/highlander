@@ -1,6 +1,7 @@
 create table carts (
     id integer not null,
     customer_id integer,
+    status character varying(255),
     created_at timestamp without time zone default (now() at time zone 'utc')
 );
 
