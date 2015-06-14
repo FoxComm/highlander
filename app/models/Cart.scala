@@ -10,7 +10,9 @@ import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-case class Cart(id: Int, accountId: Option[Int] = None) {
+case class Cart(id: Int, accountId: Option[Int] = None) extends LineItemable {
+  def lineItemParentId = this.id
+
   val lineItems: Seq[LineItem] = Seq.empty
   //val payments: Seq[AppliedPayment] = Seq.empty
   // val fulfillments: Seq[Fulfillment] = Seq.empty

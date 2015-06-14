@@ -13,6 +13,11 @@ import scala.concurrent.{ExecutionContext, Future}
 
 case class LineItem(id: Int, parentId: Int, parentType: String, skuId: Int)
 
+trait LineItemable {
+  def lineItemParentId: Int
+  def lineItemParentType: String = this.getClass.toString
+}
+
 class LineItems(tag: Tag) extends Table[LineItem](tag, "line_items") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def parentId = column[Int]("parent_id")

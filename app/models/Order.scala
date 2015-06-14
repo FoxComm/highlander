@@ -12,8 +12,8 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class Order(id: Int, customerId: Int, status: Order.Status, locked: Int) {
-  var lineItems: Seq[LineItem] = Seq.empty
+case class Order(id: Int, customerId: Int, status: Order.Status, locked: Int) extends LineItemable {
+  def lineItemParentId = this.id
 }
 
 object Order {

@@ -1,6 +1,6 @@
 package services
 
-import models.{Carts, Cart, LineItems, LineItem, Order}
+import models.{Carts, Cart, LineItems, LineItem, Order, LineItemable}
 import payloads.UpdateLineItemsPayload
 
 import org.scalactic._
@@ -20,7 +20,7 @@ object LineItemUpdater {
   val lineItems = TableQuery[LineItems]
   val carts = TableQuery[Carts]
 
-  def updateQuantities[P: LineItemParent](parent: P,
+  def updateQuantities(parent: LineItemable,
                        payload: Seq[UpdateLineItemsPayload])
                       (implicit ec: ExecutionContext,
                        db: Database): Future[Seq[LineItem] Or List[ErrorMessage]] = {
@@ -32,11 +32,8 @@ object LineItemUpdater {
     //  run hooks to manage promotions
 
     // Quick method to make the method accept polymorphic parents.
-    val parentInfo: (String, Int) = parent match {
-      case c: Cart => ("cart", c.id)
-      case o: Order => ("order", o.id)
-      case _ => throw new UnsupportedOperationException(s"not implemented for type ${parent.getClass}")
-    }
+
+    val parentInfo = (parent.lineItemParentType, parent.lineItemParentId)
 
     val updateQuantities = payload.foldLeft(Map[Int, Int]()) { (acc, item) =>
       val quantity = acc.getOrElse(item.skuId, 0)
