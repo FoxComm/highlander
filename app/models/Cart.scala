@@ -10,7 +10,7 @@ import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-case class Cart(id: Int, accountId: Option[Int] = None, status: Cart.Status = Cart.Status.Active) {
+case class Cart(id: Int = 0, accountId: Option[Int] = None, status: Cart.Status = Cart.Status.Active) {
   val lineItems: Seq[LineItem] = Seq.empty
   //val payments: Seq[AppliedPayment] = Seq.empty
   // val fulfillments: Seq[Fulfillment] = Seq.empty
@@ -83,10 +83,8 @@ class Carts(tag: Tag) extends Table[Cart](tag, "carts") with RichTable {
 }
 
 object Carts {
-  val carts = TableQuery[Carts]
-
-  val cartsTable = TableQuery[Carts]
-  val returningId = cartsTable.returning(cartsTable.map(_.id))
+  val table = TableQuery[Carts]
+  val returningId = table.returning(table.map(_.id))
   val tokenCardsTable = TableQuery[TokenizedCreditCards]
   val appliedPaymentsTable = TableQuery[AppliedPayments]
 
@@ -109,7 +107,7 @@ object Carts {
     db.run(_findById(id).result.headOption)
   }
 
-  def _findById(id: Rep[Int]) = { carts.filter(_.id === id) }
+  def _findById(id: Rep[Int]) = { table.filter(_.id === id) }
 
 
   def findByCustomer(customer: Customer)(implicit ec: ExecutionContext, db: Database): Future[Option[Cart]] = {
@@ -118,25 +116,23 @@ object Carts {
 
   // TODO: Figure out how to handle status without hard coding the string here
   // .filter(_.status === Cart.Status.Active)
-  def _findByCustomer(cust: Customer) = {carts.filter(_.customerId === cust.id)}
+  def _findByCustomer(cust: Customer) = { table.filter(_.customerId === cust.id) }
 
   // If the user doesn't have a cart yet, let's create one.
-  def findOrCreateByCustomer(customer: Customer)(implicit ec: ExecutionContext, db: Database): Future[Option[Cart]] = {
-    // TODO: AW needs Help on conditionally creating the user.  Went fast, moving on...
+  def findOrCreateByCustomer(customer: Customer)
+                            (implicit ec: ExecutionContext, db: Database): Future[Option[Cart]] = {
+    val actions = for {
+      numCarts <- table.filter(_.customerId === customer.id).length.result
+      cart <- if (numCarts < 1) {
+        val freshCart = Cart(accountId = Some(customer.id))
+        (returningId += freshCart).map { insertId =>
+          freshCart.copy(id = insertId)
+        }.map(Some(_))
+      } else {
+        table.filter(_.customerId === customer.id).result.headOption
+      }
+    } yield cart
 
-    //    val cartCount = carts.filter(_.customerId === customer.id).length
-    //    val newCart = cartCount.result.flatMap { count =>
-    //      if (count < 1) {
-    //        val freshCart = Cart(id = 0, accountId = Some(customer.id))
-    //        (returningId += freshCart) map { insertId =>
-    //          freshCart.copy(id = insertId)
-    //        }
-    //      } else {
-    //        carts.filter(_.customerId === customer.id).result.headOption
-    //      }
-    //    }
-    //
-    //    db.run(newCart)
-    findByCustomer(customer)
+    db.run(actions.transactionally)
   }
 }
