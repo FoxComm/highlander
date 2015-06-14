@@ -29,34 +29,20 @@ object Order {
     case object Shipped extends Status
   }
 
-  implicit val StatusColumnType = MappedColumnType.base[Status, String](
-    { stat =>
-        stat match {
-          case t: Status.New.type => "new"
-          case t: Status.FraudHold.type => "fraudhold"
-          case t: Status.RemorseHold.type => "remorsehold"
-          case t: Status.ManualHold.type => "manualhold"
-          case t: Status.Canceled.type => "canceled"
-          case t: Status.FulfillmentStarted.type => "fulfillmentstarted"
-          case t: Status.PartiallyShipped.type => "partiallyshipped"
-          case t: Status.Shipped.type => "shipped"
-          case _ => "wtf"
-        }
-    },
-    { str =>
-        str match {
-          case "new" => Status.New
-          case "fraudhold" => Status.FraudHold
-          case "remorsehold" => Status.RemorseHold
-          case "manualhold" => Status.ManualHold
-          case "canceled" => Status.Canceled
-          case "fulfillmentstarted" => Status.FulfillmentStarted
-          case "partiallyshipped" => Status.PartiallyShipped
-          case "shipped" => Status.Shipped
-          case _ => Status.New
-        }
-    }
-  )
+  implicit val StatusColumnType = MappedColumnType.base[Status, String]({
+    case t => t.toString.toLowerCase
+  },
+  {
+    case "new" => Status.New
+    case "fraudhold" => Status.FraudHold
+    case "remorsehold" => Status.RemorseHold
+    case "manualhold" => Status.ManualHold
+    case "canceled" => Status.Canceled
+    case "fulfillmen_started" => Status.FulfillmentStarted
+    case "partiallyshipped" => Status.PartiallyShipped
+    case "shipped" => Status.Shipped
+    case t => throw new IllegalArgumentException(s"cannot map status column to type $t")
+  })
 }
 
 class Orders(tag: Tag) extends Table[Order](tag, "orders") with RichTable {
@@ -72,7 +58,8 @@ object Orders {
   val returningId = table.returning(table.map(_.id))
 
   def _create(order: Order)(implicit ec: ExecutionContext, db: Database): DBIOAction[models.Order, NoStream, Effect.Write] = {
-   for { newId <- Orders.returningId += order
-   } yield ( order.copy(id = newId) )
+   for {
+     newId <- Orders.returningId += order
+   } yield order.copy(id = newId)
   }
 }

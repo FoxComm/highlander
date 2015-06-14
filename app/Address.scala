@@ -197,12 +197,14 @@ class Service(
           } ~
             (post & path(IntNumber / "checkout")) { id =>
               complete {
-                renderOrNotFound(Carts.findById(id), (c: Cart) => {
-                  new Checkout(c).checkout match {
-                    case Good(order) => HttpResponse(OK, entity = render(order))
-                    case Bad(errors) => HttpResponse(BadRequest, entity = render(errors))
-                  }
-                })
+                Carts.findById(id).map { cart =>
+                  cart.map { c =>
+                    new Checkout(c).checkout.map {
+                      case Good(order) => HttpResponse(OK, entity = render(order))
+                      case Bad(errors) => HttpResponse(BadRequest, entity = render(errors))
+                    }
+                  }.getOrElse(Future.successful(notFoundResponse))
+                }
               }
             } ~
             (post & path(IntNumber / "line_items") & entity(as[Seq[UpdateLineItemsPayload]])) { (cartId, reqItems) =>

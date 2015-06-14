@@ -10,7 +10,7 @@ import slick.driver.PostgresDriver.api._
 
 class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
 
-  def checkout: Future[Order] Or List[ErrorMessage] = {
+  def checkout: Future[Order Or List[ErrorMessage]] = {
     // Realistically, what we'd do here is actually
     // 1) Check Inventory
     // 2) Verify Payment (re-auth)
@@ -26,7 +26,7 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
     // TODO: Implement more robust concurrency mechanism
     clearCart(cart)
 
-    Good(newOrder)
+    buildOrderFromCart(cart).map(Good(_))
   }
 
   def verifyInventory: List[ErrorMessage] = {
@@ -70,15 +70,15 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
     List.empty
   }
 
-  // GAH!  I tried to do this transactionally, and failed miserably.
   def buildOrderFromCart(cart: Cart)(implicit ec: ExecutionContext, db: Database): Future[Order] = {
-    val insertOrder = Orders._create(order = new Order(id = 0, customerId = cart.accountId.getOrElse(0), status = Status.New, locked = 0))
-    val order = Order(id = 0, customerId = cart.accountId.getOrElse(0), status = Status.New, locked = 0)
+    val order = Order(customerId = cart.accountId.getOrElse(0), status = Status.New, locked = 0)
+
     val actions = for {
       orderId <- Orders.returningId += order
       items <- CartLineItems.table.filter(_.cartId === cart.id).result
       copiedLineItemIds <- CartLineItems.returningId ++= items.map { i => i.copy(cartId = orderId) }
     } yield (order.copy(id = orderId))
+
     db.run(actions.transactionally)
   }
 }

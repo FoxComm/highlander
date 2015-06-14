@@ -11,6 +11,8 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 case class Cart(id: Int = 0, accountId: Option[Int] = None, status: Cart.Status = Cart.Status.Active) {
+  def lineItemParentId = this.id
+
   val lineItems: Seq[CartLineItem] = Seq.empty
   //val payments: Seq[AppliedPayment] = Seq.empty
   // val fulfillments: Seq[Fulfillment] = Seq.empty
