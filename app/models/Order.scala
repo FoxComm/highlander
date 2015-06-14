@@ -58,7 +58,8 @@ object Orders {
   val returningId = table.returning(table.map(_.id))
 
   def _create(order: Order)(implicit ec: ExecutionContext, db: Database): DBIOAction[models.Order, NoStream, Effect.Write] = {
-   for { newId <- Orders.returningId += order
-   } yield ( order.copy(id = newId) )
+   for {
+     newId <- Orders.returningId += order
+   } yield order.copy(id = newId)
   }
 }
