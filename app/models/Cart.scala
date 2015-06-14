@@ -10,7 +10,9 @@ import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-case class Cart(id: Int, accountId: Option[Int] = None) {
+case class Cart(id: Int, accountId: Option[Int] = None) extends LineItemable {
+  def lineItemParentId = this.id
+
   val lineItems: Seq[LineItem] = Seq.empty
   //val payments: Seq[AppliedPayment] = Seq.empty
   // val fulfillments: Seq[Fulfillment] = Seq.empty
@@ -66,21 +68,9 @@ object Carts {
     val appliedpayment = AppliedPayment(id = 1, cartId = cart.id, paymentMethodId = 1, paymentMethodType = "TokenizedCard", appliedAmount = 10000, status = Applied.toString, responseCode = "")
     val appliedpayment2 = appliedpayment.copy(appliedAmount = 2550, paymentMethodId = 2)
 
-    // The whole of the above is to have one passing token and one failing token.  So paymentMethod with ID 1 should be real.
-    // PaymentMethod with ID 2 should be fake.
 
     Future.successful(Seq(appliedpayment, appliedpayment2))
 
-    //val appliedIds = appliedPaymentsTable.returning(appliedPaymentsTable.map(_.paymentMethodId))
-
-    // I tried a monadic join here and failed.
-    //    val filteredPayments = for {
-    //      ap <- appliedPaymentsTable if ap.cartId === cartId
-    //      tc <- tokenCardsTable if tc.id === ap.paymentMethodId
-    //    } yield (tc.id, tc.accountId, tc.paymentGateway, tc.gatewayTokenId, tc.lastFourDigits, tc.expirationMonth, tc.expirationYear, tc.brand)
-    //    db.run(filteredPayments.head)
-
-    // TODO: Yax or Ferdinand: Help me filter all the TokenizedCards through the mapping table of applied_payments that belong to this cart.
   }
 
   def addPaymentMethod(cartId: Int, paymentMethod: PaymentMethod)(implicit db: Database): Boolean = {
@@ -92,4 +82,10 @@ object Carts {
   }
 
   def _findById(id: Rep[Int]) = { carts.filter(_.id === id) }
+
+  def findByCustomer(customer: Customer)(implicit db: Database): Future[Option[Cart]] = {
+    db.run(_findByCustomer(customer).result.headOption)
+  }
+
+  def _findByCustomer(cust: Customer) = {carts.filter(_.customerId === cust.id)}
 }

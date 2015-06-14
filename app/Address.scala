@@ -164,8 +164,6 @@ class Service(
     Database.forURL("jdbc:postgresql://localhost/phoenix_development?user=phoenix", driver = "slick.driver.PostgresDriver")
   }
 
-  val user = Customer(id = 1, email = "yax@foxcommerce.com", password = "donkey", firstName = "Yax", lastName = "Donkey")
-
   def customerAuth: AsyncAuthenticator[Customer] = services.Authenticator.customer
   def storeAdminAuth: AsyncAuthenticator[StoreAdmin] = services.Authenticator.storeAdmin
 
@@ -190,7 +188,7 @@ class Service(
     /*
       Admin Authenticated Routes
      */
-    logRequestResult("carts") {
+    logRequestResult("admin-routes") {
       pathPrefix("v1" / "carts") {
         authenticateBasicAsync(realm = "cart and checkout", storeAdminAuth) { user =>
           (get & path(IntNumber)) { id =>
@@ -200,17 +198,18 @@ class Service(
           } ~
             (post & path(IntNumber / "checkout")) { id =>
               complete {
-                renderOrNotFound(Carts.findById(id), (c: Cart) => {
-                  new Checkout(c).checkout match {
-                    case Good(order) => HttpResponse(OK, entity = render(order))
-                    case Bad(errors) => HttpResponse(BadRequest, entity = render(errors))
-                  }
-                })
+                Carts.findById(id).map { cart =>
+                  cart.map { c =>
+                    new Checkout(c).checkout.map {
+                      case Good(order) => HttpResponse(OK, entity = render(order))
+                      case Bad(errors) => HttpResponse(BadRequest, entity = render(errors))
+                    }
+                  }.getOrElse(Future.successful(notFoundResponse))
+                }
               }
             } ~
             (post & path(IntNumber / "line_items") & entity(as[Seq[UpdateLineItemsPayload]])) { (cartId, reqItems) =>
               complete {
-                // TODO: we should output cart here
                 Carts.findById(cartId).map {
                   case None => Future(notFoundResponse)
                   case Some(c) =>
@@ -277,29 +276,76 @@ class Service(
       /*
         Customer Authenticated Routes
        */
-      logRequestResult("addresses") {
+      logRequestResult("customer-routes") {
         pathPrefix("v1" / "my") {
-          authenticateBasicAsync(realm = "private customer routes", customerAuth) { user =>
+          authenticateBasicAsync(realm = "private customer routes", customerAuth) { customer =>
             pathPrefix("addresses") {
               get {
                 complete {
-                  Addresses.findAllByCustomer(user).map { addresses =>
+                  Addresses.findAllByCustomer(customer).map { addresses =>
                     HttpResponse(OK, entity = render(addresses))
                   }
                 }
               } ~
                 (post & entity(as[Seq[CreateAddressPayload]])) { payload =>
                   complete {
-                    Addresses.createFromPayload(user, payload).map {
+                    Addresses.createFromPayload(customer, payload).map {
                       case Good(addresses) => HttpResponse(OK, entity = render(addresses))
                       case Bad(errorMap) => HttpResponse(BadRequest, entity = render(errorMap))
                     }
                   }
                 }
-            }
+            } ~
+              pathPrefix("cart") {
+                get {
+                  complete {
+                    renderOrNotFound(FullCart.findByCustomer(customer))
+                  }
+                } ~
+                  (post & path("checkout")) {
+                    complete {
+                      renderOrNotFound(Carts.findByCustomer(customer), (c: Cart) => {
+                        // TODO: Figure out how to actually render the cart properly.  I think it's choking on status
+                        new Checkout(c).checkout match {
+                          case Good(order) => HttpResponse(OK, entity = render(order))
+                          case Bad(errors) => HttpResponse(BadRequest, entity = render(errors))
+                        }
+                      })
+                    }
+                  } ~
+                  (post & path("line_items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems =>
+                    complete {
+                      Carts.findByCustomer(customer).map {
+                        case None => Future(notFoundResponse)
+                        case Some(c) =>
+                          LineItemUpdater.updateQuantities(c, reqItems).map {
+                            case Bad(errors) =>
+                              HttpResponse(BadRequest, entity = render(errors))
+                            case Good(lineItems) =>
+                              HttpResponse(OK, entity = render(FullCart.build(c, lineItems)))
+                          }
+                      }
+                    }
+                  } ~
+                  (delete & path("line_items" / IntNumber)) { lineItemId =>
+                    complete {
+                      Carts.findByCustomer(customer).map {
+                        case None => Future(notFoundResponse)
+                        case Some(cart) =>
+                          // TODO(yax): can the account delete this lineItem?
+                          LineItemUpdater.deleteById(lineItemId, cart.id).map {
+                            case Bad(errors) =>
+                              HttpResponse(BadRequest, entity = render(errors))
+                            case Good(lineItems) =>
+                              HttpResponse(OK, entity = render(FullCart.build(cart, lineItems)))
+                          }
+                      }
+                    }
+                  }
+              }
           }
         }
-      }
+      } 
   }
 
 
