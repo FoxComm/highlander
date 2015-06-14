@@ -10,7 +10,7 @@ import slick.driver.PostgresDriver.api._
 
 class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
 
-  def checkout: Future[Order] Or List[ErrorMessage] = {
+  def checkout: Future[Order Or List[ErrorMessage]] = {
     // Realistically, what we'd do here is actually
     // 1) Check Inventory
     // 2) Verify Payment (re-auth)
@@ -20,7 +20,7 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
     val order = Order(id = 0, customerId = cart.accountId.getOrElse(0), status = Order.Status.New, locked = 0)
 
     //Good(order)
-    Good(buildOrderFromCart(cart))
+    buildOrderFromCart(cart).map(Good(_))
   }
 
   def verifyInventory: List[ErrorMessage] = {
