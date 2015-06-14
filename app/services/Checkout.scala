@@ -76,8 +76,8 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
     val order = Order(id = 0, customerId = cart.accountId.getOrElse(0), status = Status.New, locked = 0)
     val actions = for {
       orderId <- Orders.returningId += order
-      items <- LineItems.table.filter(_.parentId === cart.id).filter(_.parentType === "cart").result
-      copiedLineItemIds <- LineItems.returningId ++= items.map { i => i.copy(parentId = orderId, parentType = "order") }
+      items <- CartLineItems.table.filter(_.cartId === cart.id).result
+      copiedLineItemIds <- CartLineItems.returningId ++= items.map { i => i.copy(cartId = orderId) }
     } yield (order.copy(id = orderId))
     db.run(actions.transactionally)
   }

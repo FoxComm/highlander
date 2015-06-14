@@ -13,7 +13,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 
 case class Order(id: Int, customerId: Int, status: Order.Status, locked: Int) {
-  var lineItems: Seq[LineItem] = Seq.empty
+  var lineItems: Seq[CartLineItem] = Seq.empty
 }
 
 object Order {
