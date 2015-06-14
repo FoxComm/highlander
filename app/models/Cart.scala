@@ -125,9 +125,7 @@ object Carts {
       numCarts <- table.filter(_.customerId === customer.id).length.result
       cart <- if (numCarts < 1) {
         val freshCart = Cart(accountId = Some(customer.id))
-        (returningId += freshCart).map { insertId =>
-          freshCart.copy(id = insertId)
-        }.map(Some(_))
+        (returningId += freshCart).map { id => freshCart.copy(id = id) }.map(Some(_))
       } else {
         table.filter(_.customerId === customer.id).result.headOption
       }
