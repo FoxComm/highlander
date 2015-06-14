@@ -23,7 +23,7 @@ class Notification extends React.Component {
           </div>
           <div className='modal-footer'>
             <Link to="notifications" params={{order: notification.order}}>Cancel</Link>
-            <button type='submit'>Resend</button>
+            <button className='btn' type='submit'>Resend</button>
           </div>
         </form>
       </div>
