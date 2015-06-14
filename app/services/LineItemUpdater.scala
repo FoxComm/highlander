@@ -10,12 +10,6 @@ import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 
 import slick.driver.PostgresDriver.api._
 
-sealed class LineItemParent[T]
-object LineItemParent{
-  implicit object CartParent extends LineItemParent[Cart]
-  implicit object OrderParent extends LineItemParent[Order]
-}
-
 object LineItemUpdater {
   val lineItems = TableQuery[LineItems]
   val carts = TableQuery[Carts]
