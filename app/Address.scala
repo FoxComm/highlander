@@ -169,15 +169,30 @@ class Service(
   def customerAuth: AsyncAuthenticator[Customer] = services.Authenticator.customer
   def storeAdminAuth: AsyncAuthenticator[StoreAdmin] = services.Authenticator.storeAdmin
 
+  val notFoundResponse = HttpResponse(NotFound)
+
+  def whenFound[M](finder: Future[Option[M]])(f: M => Future[AnyRef Or List[ErrorMessage]]): Future[HttpResponse] = {
+    finder.flatMap { optModel =>
+      optModel.map { m =>
+        f(m).map {
+          case Bad(errors)    =>
+            HttpResponse(BadRequest, entity = render(("errors" -> errors)))
+          case Good(resource) =>
+            HttpResponse(OK, entity = render(resource))
+        }
+      }.getOrElse(Future.successful(notFoundResponse))
+    }
+  }
+
   val routes = {
     val cart = Cart(id = 0, accountId = None)
 
-    def findCustomer(id: Option[Int]): Option[Customer] = id.flatMap { id =>
-      Some(Customer(id = id, email = "donkey@donkey.com", password = "donkeyPass",
-        firstName = "Mister", lastName = "Donkey"))
+    def findCustomer(id: Option[Int]): Future[Option[Customer]] = {
+      id.map { id =>
+        Future.successful(Some(Customer(id = id, email = "donkey@donkey.com", password = "donkeyPass",
+          firstName = "Mister", lastName = "Donkey")))
+      }.getOrElse(Future.successful(None))
     }
-
-    val notFoundResponse = HttpResponse(NotFound)
 
     def renderOrNotFound[T <: AnyRef](resource: Future[Option[T]],
                                       onFound: (T => HttpResponse) = (r: T) => HttpResponse(OK, entity = render(r))) = {
@@ -193,49 +208,25 @@ class Service(
     logRequestResult("carts") {
       pathPrefix("v1" / "carts") {
         authenticateBasicAsync(realm = "cart and checkout", storeAdminAuth) { user =>
-          (get & path(IntNumber)) { id =>
+          (get & path(IntNumber)) { cartId =>
             complete {
-              renderOrNotFound(FullCart.findById(id))
+              renderOrNotFound(FullCart.findById(cartId))
             }
           } ~
-            (post & path(IntNumber / "checkout")) { id =>
+            (post & path(IntNumber / "checkout")) { cartId =>
               complete {
-                renderOrNotFound(Carts.findById(id), (c: Cart) => {
-                  new Checkout(c).checkout match {
-                    case Good(order) => HttpResponse(OK, entity = render(order))
-                    case Bad(errors) => HttpResponse(BadRequest, entity = render(errors))
-                  }
-                })
+                whenFound(Carts.findById(cartId)) { cart => new Checkout(cart).checkout }
               }
             } ~
             (post & path(IntNumber / "line_items") & entity(as[Seq[UpdateLineItemsPayload]])) { (cartId, reqItems) =>
               complete {
-                // TODO: we should output cart here
-                Carts.findById(cartId).map {
-                  case None => Future(notFoundResponse)
-                  case Some(c) =>
-                    LineItemUpdater.updateQuantities(c, reqItems).map {
-                      case Bad(errors) =>
-                        HttpResponse(BadRequest, entity = render(errors))
-                      case Good(lineItems) =>
-                        HttpResponse(OK, entity = render(FullCart.build(c, lineItems)))
-                    }
-                }
+                whenFound(Carts.findById(cartId)) { cart => LineItemUpdater.updateQuantities(cart, reqItems) }
               }
             } ~
             (delete & path(IntNumber / "line_items" / IntNumber)) { (cartId, lineItemId) =>
               complete {
-                Carts.findById(cartId).map {
-                  case None => Future(notFoundResponse)
-                  case Some(cart) =>
-                    // TODO(yax): can the account delete this lineItem?
-                    LineItemUpdater.deleteById(lineItemId, cart.id).map {
-                      case Bad(errors) =>
-                        HttpResponse(BadRequest, entity = render(errors))
-                      case Good(lineItems) =>
-                        HttpResponse(OK, entity = render(FullCart.build(cart, lineItems)))
-                    }
-                }
+                // TODO(yax): can the account delete this lineItem?
+                whenFound(Carts.findById(cartId)) { cart => LineItemUpdater.deleteById(lineItemId, cart.id) }
               }
             } ~
             (get & path(IntNumber / "payment-methods")) { cartId =>
@@ -245,29 +236,16 @@ class Service(
             } ~
             (post & path(IntNumber / "payment-methods") & entity(as[PaymentMethodPayload])) { (cartId, reqPayment) =>
               complete {
-                Carts.findById(cartId).map {
-                  //can't add payment methods if the cart doesn't exist
-                  case None => notFoundResponse
-                  case Some(c) =>
-                    HttpResponse(OK, entity = render("HI"))
-                }
+                renderOrNotFound(Carts.findById(cartId))
               }
             } ~
             (post & path(IntNumber / "tokenized-payment-methods") & entity(as[TokenizedPaymentMethodPayload])) { (cartId, reqPayment) =>
               complete {
-                Carts.findById(cartId).flatMap {
-                  case None => Future.successful(notFoundResponse)
-                  case Some(cart) =>
-                    findCustomer(cart.accountId) match {
-                      case None     =>
-                        Future.successful(HttpResponse(OK, entity = render("Guest checkout!!")))
-
-                      case Some(customer) =>
-                        TokenizedPaymentCreator.run(cart, customer, reqPayment.paymentGatewayToken).map { fullCart =>
-                          fullCart.fold({ c => HttpResponse(OK, entity = render(c)) },
-                                        { e => HttpResponse(BadRequest, entity = render(e)) })
-                        }
-                    }
+                whenFound(Carts.findById(cartId)) { cart =>
+                  new Checkout(cart).checkout
+//                  whenFound(Carts.findById(cart.id)) { cart =>
+//                    TokenizedPaymentCreator.run(cart, customer, reqPayment.paymentGatewayToken)
+//                  }
                 }
               }
             }

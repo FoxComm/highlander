@@ -65,7 +65,7 @@ object LineItemUpdater {
 
   def deleteById(id: Int, cartId: Int)
                 (implicit ec: ExecutionContext,
-                 db: Database): Future[Seq[LineItem] Or One[ErrorMessage]] = {
+                 db: Database): Future[Seq[LineItem] Or List[ErrorMessage]] = {
 
     val actions = for {
       numDeleted <- lineItems.filter(_.id === id).delete
@@ -74,7 +74,7 @@ object LineItemUpdater {
 
     db.run(actions.transactionally).map { case (numDeleted, lineItems) =>
       if (numDeleted == 0) {
-        Bad(One(s"could not find lineItem with id=$id"))
+        Bad(List(s"could not find lineItem with id=$id"))
       } else {
         Good(lineItems)
       }
