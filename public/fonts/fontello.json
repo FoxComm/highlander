@@ -25,6 +25,12 @@
       "src": "fontawesome"
     },
     {
+      "uid": "c76b7947c957c9b78b11741173c8349b",
+      "css": "attention",
+      "code": 59407,
+      "src": "fontawesome"
+    },
+    {
       "uid": "f48ae54adfb27d8ada53d0fd9e34ee10",
       "css": "trash-empty",
       "code": 59404,

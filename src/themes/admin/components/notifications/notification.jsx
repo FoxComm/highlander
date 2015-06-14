@@ -10,17 +10,22 @@ class Notification extends React.Component {
 
     return (
       <div className='modal resend-notification'>
-        <div className='modal-header'>
-          Resend Email?
-        </div>
-        <div className='modal-body'>
-          You will send another copy of this email to:
-          <ContactMethod type={notification.contactType} value={notification.contact} />
-        </div>
-        <div className='modal-footer'>
-          <Link to="notifications" params={{order: notification.order}}>Cancel</Link>
-          <a href="">Resend</a>
-        </div>
+        <form action="POST">
+          <div className='modal-header'>
+            <div>
+              <i className='icon-attention'></i>
+            </div>
+            <div>Resend Email?</div>
+          </div>
+          <div className='modal-body'>
+            You will send another copy of this email to:
+            <ContactMethod type={notification.contactType} value={notification.contact} />
+          </div>
+          <div className='modal-footer'>
+            <Link to="notifications" params={{order: notification.order}}>Cancel</Link>
+            <button type='submit'>Resend</button>
+          </div>
+        </form>
       </div>
     );
   }
