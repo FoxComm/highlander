@@ -303,13 +303,14 @@ class Service(
                 } ~
                   (post & path("checkout")) {
                     complete {
-                      renderOrNotFound(Carts.findByCustomer(customer), (c: Cart) => {
-                        // TODO: Figure out how to actually render the cart properly.  I think it's choking on status
-                        new Checkout(c).checkout match {
-                          case Good(order) => HttpResponse(OK, entity = render(order))
-                          case Bad(errors) => HttpResponse(BadRequest, entity = render(errors))
-                        }
-                      })
+                      Carts.findByCustomer(customer).map { cart =>
+                        cart.map { c =>
+                          new Checkout(c).checkout.map {
+                            case Good(order) => HttpResponse(OK, entity = render(order))
+                            case Bad(errors) => HttpResponse(BadRequest, entity = render(errors))
+                          }
+                        }.getOrElse(Future.successful(notFoundResponse))
+                      }
                     }
                   } ~
                   (post & path("line_items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems =>

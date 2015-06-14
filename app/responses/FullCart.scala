@@ -43,7 +43,7 @@ object FullCart {
                               db: Database): Response = {
     val queries = for {
       cart <- finder
-      lineItems <- LineItems._findByCartId(cart.id)
+      lineItems <- CartLineItems._findByCartId(cart.id)
     } yield (cart, lineItems)
 
     db.run(queries.result).map { results =>

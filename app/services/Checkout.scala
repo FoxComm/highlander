@@ -27,6 +27,7 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
     clearCart(cart)
 
     buildOrderFromCart(cart).map(Good(_))
+    //Good(newOrder)
   }
 
   def verifyInventory: List[ErrorMessage] = {

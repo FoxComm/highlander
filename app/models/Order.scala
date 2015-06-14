@@ -12,7 +12,7 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class Order(id: Int, customerId: Int, status: Order.Status, locked: Int) {
+case class Order(id: Int = 0, customerId: Int, status: Order.Status, locked: Int) {
   var lineItems: Seq[CartLineItem] = Seq.empty
 }
 
