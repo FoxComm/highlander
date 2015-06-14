@@ -54,15 +54,15 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
     List.empty
   }
 
-  // GAH!  I tried to do this transactionally, and failed miserably.
   def buildOrderFromCart(cart: Cart)(implicit ec: ExecutionContext, db: Database): Future[Order] = {
-    val insertOrder = Orders._create(order = new Order(id = 0, customerId = cart.accountId.getOrElse(0), status = Status.New, locked = 0))
-    val order = Order(id = 0, customerId = cart.accountId.getOrElse(0), status = Status.New, locked = 0)
+    val order = Order(customerId = cart.accountId.getOrElse(0), status = Status.New, locked = 0)
+
     val actions = for {
       orderId <- Orders.returningId += order
       items <- LineItems.table.filter(_.parentId === cart.id).filter(_.parentType === "cart").result
       copiedLineItemIds <- LineItems.returningId ++= items.map { i => i.copy(parentId = orderId, parentType = "order") }
-    } yield (order.copy(id = orderId))
+    } yield order.copy(id = orderId)
+
     db.run(actions.transactionally)
   }
 }
