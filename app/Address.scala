@@ -175,10 +175,9 @@ class Service(
   def whenFound[A, G <: AnyRef, B <: AnyRef](finder: Future[Option[A]])(f: A => Future[G Or B])
                                             (implicit ec: ExecutionContext,
                                              db: Database): Future[HttpResponse] = {
-    finder.flatMap { optModel =>
-      optModel.map { m =>
-        f(m).map(renderGoodOrBad)
-      }.getOrElse(Future.successful(notFoundResponse))
+    finder.flatMap { option =>
+      option.map(f(_).map(renderGoodOrBad)).
+        getOrElse(Future.successful(notFoundResponse))
     }
   }
 
