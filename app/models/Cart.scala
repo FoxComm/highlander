@@ -101,7 +101,7 @@ object Carts {
     db.run(_findByCustomer(customer).result.headOption)
   }
 
-  def _findByCustomer(cust: Customer) = { table.filter(_.customerId === cust.id) }
+  def _findByCustomer(cust: Customer) = { table.filter(_.customerId === cust.id).filter(_.status === Cart.Active) }
 
   // If the user doesn't have a cart yet, let's create one.
   def findOrCreateByCustomer(customer: Customer)
