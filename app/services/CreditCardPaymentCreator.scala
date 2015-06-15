@@ -20,45 +20,35 @@ case class CreditCardPaymentCreator(cart: Cart, customer: Customer, cardPayload:
 
   def run(): Response = {
     if (!cardPayload.isValid) {
-      Future.successful(Bad(cardPayload.validationFailures))
+      Future.successful(Bad(cardPayload.validationFailures.toList))
     } else {
-      createStripeCustomer()
-      Future.successful(Bad(Set("implement me!")))
+      createStripeCustomer().flatMap { result =>
+        FullCart.fromCart(cart).map { opt =>
+          opt.map(Good(_)).getOrElse(Bad(List(s"could not render cart with id=${cart.id}")))
+        }
+      }
     }
   }
 
-  def createStripeCustomer(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ") = {
-    val options = StripeRequestOptions.builder().setApiKey(apiKey).build()
-    val params: Map[String, Object] = Map(
-      "description" -> "FoxCommerce",
-      "email" -> this.customer.email,
-      "source" -> Map(
-        "object" -> "card",
-        "number" -> cardPayload.number,
-        "exp_month" -> cardPayload.expMonth,
-        "exp_year" -> cardPayload.expYear,
-        "cvc" -> cardPayload.cvv,
-        "name" -> cardPayload.holderName
-        // TODO(yax): would like to add fields "address_line1", "address_city", "address_state", "address_zip"
-      )
-    )
-
-    Future {
-      try {
-        val stripeCustomer = StripeCustomer.create(mapAsJavaMap(params), options)
-        // store stripeCustomer.getId to customer (maybe as JSON data?)
-        // Create card on their behalf in stripe —> https://stripe.com/docs/api#cards
-        // store card token to tokenized_credit_cards
-      } catch {
-        case t: com.stripe.exception.InvalidRequestException =>
-          Bad(t)
-      }
+  def createStripeCustomer(): Future[StripeCustomer Or List[ErrorMessage]] = {
+    val gateway = StripeGateway()
+    gateway.createCustomer(customer, this.cardPayload).map { result =>
+      result.fold({ stripeCustomer =>
+        Good(stripeCustomer)
+      }, { error =>
+        Bad(List(error))
+        // bad case
+      })
     }
+    // store stripeCustomer.getId to customer (maybe as JSON data?)
+    // Create card on their behalf in stripe —> https://stripe.com/docs/api#cards
+    // StripeCard.create
+    // store card token to tokenized_credit_cards
   }
 }
 
 object CreditCardPaymentCreator {
-  type Response = Future[FullCart.Root Or Set[ErrorMessage]]
+  type Response = Future[FullCart.Root Or List[ErrorMessage]]
 
   def run(cart: Cart, customer: Customer, payload: CreditCardPayload)
          (implicit ec: ExecutionContext,
