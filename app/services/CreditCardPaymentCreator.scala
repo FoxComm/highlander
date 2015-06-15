@@ -20,29 +20,23 @@ case class CreditCardPaymentCreator(cart: Cart, customer: Customer, cardPayload:
   import CreditCardPaymentCreator._
 
   def run(): Response = {
-    Future.successful(Bad(cardPayload.validationFailures.toList))
-//    if (!cardPayload.isValid) {
-//      Future.successful(Bad(cardPayload.validationFailures.toList))
-//    } else {
-//      for {
-//        result <- gateway.createCustomerAndCard(customer, this.cardPayload)
-//        stripeCustomer <- result
-//        //_ <- gateway.listCards(stripeCustomer)
-//      } yield stripeCustomer
-//      Future.successful(Bad(List("blah")))
-//    }
+    if (!cardPayload.isValid) {
+      Future.successful(Bad(cardPayload.validationFailures.toList))
+    } else {
+      for {
+        result <- gateway.createCustomerAndCard(customer, this.cardPayload)
+        stripeCustomer <- result
+        x = stripeCustomer
+        //_ <- gateway.listCards(stripeCustomer)
+      } yield stripeCustomer
+      Future.successful(Bad(List("blah")))
+    }
   }
 
     // store stripeCustomer.getId to customer (maybe as JSON data?)
     // Create card on their behalf in stripe —> https://stripe.com/docs/api#cards
     // StripeCard.create
     // store card token to tokenized_credit_cards
-
-  def createStripeCard(stripeCustomer: StripeCustomer): Unit = {
-//    for {
-//      // do stuff
-//    }
-  }
 }
 
 object CreditCardPaymentCreator {
