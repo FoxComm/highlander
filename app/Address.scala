@@ -112,6 +112,7 @@ trait Formats extends DefaultJsonProtocol {
   implicit val addPaymentMethodRequestFormat = jsonFormat4(PaymentMethodPayload.apply)
   implicit val addTokenizedPaymentMethodRequestFormat = jsonFormat2(TokenizedPaymentMethodPayload.apply)
   implicit val createAddressPayloadFormat = jsonFormat6(CreateAddressPayload.apply)
+  implicit val createCustomerPayloadFormat =jsonFormat4(CreateCustomerPayload.apply)
 
   val phoenixFormats = DefaultFormats + new CustomSerializer[PaymentStatus](format => (
     { case _ ⇒ sys.error("Reading not implemented") },
@@ -168,8 +169,6 @@ class Service(
   def storeAdminAuth: AsyncAuthenticator[StoreAdmin] = services.Authenticator.storeAdmin
 
   val routes = {
-    val cart = Cart(id = 0, accountId = None)
-
     def findCustomer(id: Option[Int]): Option[Customer] = id.flatMap { id =>
       Some(Customer(id = id, email = "donkey@donkey.com", password = "donkeyPass",
         firstName = "Mister", lastName = "Donkey"))
@@ -304,13 +303,14 @@ class Service(
                 } ~
                   (post & path("checkout")) {
                     complete {
-                      renderOrNotFound(Carts.findByCustomer(customer), (c: Cart) => {
-                        // TODO: Figure out how to actually render the cart properly.  I think it's choking on status
-                        new Checkout(c).checkout match {
-                          case Good(order) => HttpResponse(OK, entity = render(order))
-                          case Bad(errors) => HttpResponse(BadRequest, entity = render(errors))
-                        }
-                      })
+                      Carts.findByCustomer(customer).map { cart =>
+                        cart.map { c =>
+                          new Checkout(c).checkout.map {
+                            case Good(order) => HttpResponse(OK, entity = render(order))
+                            case Bad(errors) => HttpResponse(BadRequest, entity = render(errors))
+                          }
+                        }.getOrElse(Future.successful(notFoundResponse))
+                      }
                     }
                   } ~
                   (post & path("line_items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems =>
@@ -345,7 +345,24 @@ class Service(
               }
           }
         }
-      } 
+      } ~
+      /*
+        Public Routes
+       */
+      logRequestResult("public-routes") {
+        pathPrefix("v1") {
+          pathPrefix("registrations") {
+            (post & path("new") & entity(as[CreateCustomerPayload])) { regRequest =>
+              complete {
+                Customers.createFromPayload(regRequest).map {
+                  case Good(customer) => HttpResponse(OK, entity = render(customer))
+                  case Bad(error) => HttpResponse(BadRequest, entity = render(error))
+                }
+              }
+            }
+          }
+        }
+      }
   }
 
 

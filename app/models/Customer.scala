@@ -1,12 +1,14 @@
 package models
 
 import com.wix.accord.dsl.{validator => createValidator}
+import payloads.CreateCustomerPayload
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 import utils.{Validation, RichTable}
 import com.wix.accord.Validator
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
+import org.scalactic._
 
 case class Customer(id: Int, email: String, password: String,
                     firstName: String, lastName: String) extends Validation[Customer] {
@@ -29,6 +31,7 @@ class Customers(tag: Tag) extends Table[Customer](tag, "customers") with RichTab
 
 object Customers {
   val table = TableQuery[Customers]
+  val returningId = table.returning(table.map(_.id))
 
   def findByEmail(email: String)(implicit ec: ExecutionContext, db: Database): Future[Option[Customer]] = {
     db.run(table.filter(_.email === email).result.headOption)
@@ -39,5 +42,14 @@ object Customers {
   }
 
   def _findById(id: Rep[Int]) = { table.filter(_.id === id) }
+
+  def createFromPayload(payload: CreateCustomerPayload)
+                       (implicit ec: ExecutionContext, db: Database): Future[Customer Or List[ErrorMessage]] = {
+    val newCustomer = Customer(id = 0, email = payload.email, password = payload.password, firstName = payload.firstName, lastName = payload.firstName)
+
+    db.run(for {
+      customerId <- returningId += newCustomer
+    } yield Good(newCustomer.copy(id = customerId)))
+  }
 }
 

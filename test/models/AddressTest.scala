@@ -19,10 +19,10 @@ class AddressTest extends FreeSpec
   import api._
   import concurrent.ExecutionContext.Implicits.global
 
-  val lineItems = TableQuery[LineItems]
+  val lineItems = TableQuery[CartLineItems]
   val carts = TableQuery[Carts]
 
-  def createLineItems(items: Seq[LineItem]): Unit = {
+  def createLineItems(items: Seq[CartLineItem]): Unit = {
     val insert = lineItems ++= items
     db.run(insert).futureValue
   }
