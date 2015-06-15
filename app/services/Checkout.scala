@@ -18,16 +18,7 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
     // 4) Validate promotions/couponsi
     // 5) Final Auth on the payment
 
-    val newOrder = buildOrderFromCart(cart)
-
-
-    // We can asynchronously call the clearCart function because we don't necessarily need it to be cleared right away
-    // The next time we need an active cart is when the user adds another product to it.
-    // TODO: Implement more robust concurrency mechanism
-    clearCart(cart)
-
     buildOrderFromCart(cart).map(Good(_))
-    //Good(newOrder)
   }
 
   def verifyInventory: List[ErrorMessage] = {
@@ -35,14 +26,13 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
     List.empty
   }
 
-  def clearCart(cart: Cart): Unit = {
-    val oldCartStatus = for {c <- Carts.table if c.id === cart.id} yield c.status
-    val actions = for {
-      _ <- oldCartStatus.update(Cart.Ordered)
-      insertCartId <- Carts.returningId += Cart(id =0, accountId = cart.accountId, status = Cart.Active)
-    } yield (insertCartId)
-
-    db.run(actions)
+  // sets incoming cart.status == Cart.ordered and creates a new cart
+  def setCartToOrdered(cart: Cart): DBIOAction[Cart, NoStream, Effect.Write with Effect.Write] = {
+    val newCart = Cart(accountId = cart.accountId, status = Cart.Active)
+    for {
+      _ <- Carts._findById(cart.id).map(_.status).update(Cart.Ordered)
+      insertId <- Carts.returningId += newCart
+    } yield newCart.copy(id = insertId)
   }
 
   def authenticatePayments: Future[Map[AppliedPayment, List[ErrorMessage]]] = {
@@ -78,7 +68,8 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
       orderId <- Orders.returningId += order
       items <- CartLineItems.table.filter(_.cartId === cart.id).result
       copiedLineItemIds <- CartLineItems.returningId ++= items.map { i => i.copy(cartId = orderId) }
-    } yield (order.copy(id = orderId))
+      _ <- setCartToOrdered(cart)
+    } yield order.copy(id = orderId)
 
     db.run(actions.transactionally)
   }
