@@ -15,23 +15,18 @@ case object BraintreeGateway extends PaymentGateway
 
 // TODO(yax): do not default apiKey, it should come from store
 case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ") extends PaymentGateway {
-  def getTokenizedCard(paymentToken: String)(implicit ec: ExecutionContext): Future[(TokenizedCreditCard, StripeCard) Or Throwable] = {
-    val reqOpts = StripeRequestOptions.builder().setApiKey(this.apiKey).build()
-
-    Future {
-      try {
-        val retrievedToken = Token.retrieve(paymentToken, reqOpts)
-        val stripeCard = retrievedToken.getCard
-        Good((TokenizedCreditCard.fromStripe(stripeCard, paymentToken), stripeCard))
-      } catch {
-        case t: com.stripe.exception.InvalidRequestException =>
-          Bad(t)
-      }
+  def getTokenizedCard(paymentToken: String)(implicit ec: ExecutionContext): Future[(TokenizedCreditCard, StripeCard) Or List[ErrorMessage]] = {
+    wrap {
+      val retrievedToken = Token.retrieve(paymentToken, options)
+      val stripeCard = retrievedToken.getCard
+      Good((TokenizedCreditCard.fromStripe(stripeCard, paymentToken), stripeCard))
     }
   }
 
-  def createCustomer(customer: Customer, cardPayload: CreditCardPayload)
-                    (implicit ec: ExecutionContext): Future[StripeCustomer Or ErrorMessage] = {
+  // Creates a customer in Stripe along with their first CC
+  def createCustomerAndCard(customer: Customer, cardPayload: CreditCardPayload)
+                    (implicit ec: ExecutionContext): Future[StripeCustomer Or List[ErrorMessage]] = {
+
     val params: Map[String, Object] = Map(
       "description" -> "FoxCommerce",
       "email" -> customer.email,
@@ -46,14 +41,8 @@ case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ") ex
       )
     )
 
-    Future {
-      try {
-        val stripeCustomer = StripeCustomer.create(mapAsJavaMap(params), options)
-        Good(stripeCustomer)
-      } catch {
-        case t: com.stripe.exception.InvalidRequestException =>
-          Bad(t.getMessage)
-      }
+    wrap {
+      Good(StripeCustomer.create(mapAsJavaMap(params), options))
     }
   }
 
@@ -63,16 +52,23 @@ case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ") ex
     val chargeMap: Map[String, Object] = Map("amount" -> "100", "currency" -> "usd",
       "source" -> tokenizedCard.gatewayTokenId, "capture" -> capture)
 
+
+    wrap {
+      val charge = StripeCharge.create(mapAsJavaMap(chargeMap), options)
+      /*
+      TODO: https://stripe.com/docs/api#create_charge
+      Since we're using tokenized, we presumably pass verification process, but might want to handle here
+    */
+      Good(charge.getId)
+    }
+  }
+
+  private [this] def wrap[A](f: => A Or List[ErrorMessage])(implicit ec: ExecutionContext): Future[A Or List[ErrorMessage]] = {
     Future {
       try {
-        val charge = StripeCharge.create(mapAsJavaMap(chargeMap), options)
-        /*
-          TODO: https://stripe.com/docs/api#create_charge
-          Since we're using tokenized, we presumably pass verification process, but might want to handle here
-        */
-        Good(charge.getId)
+        f
       } catch {
-        case t: com.stripe.exception.StripeException =>
+        case t: com.stripe.exception.InvalidRequestException =>
           Bad(List(t.getMessage))
       }
     }

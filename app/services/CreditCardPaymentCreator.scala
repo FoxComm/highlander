@@ -16,34 +16,32 @@ case class CreditCardPaymentCreator(cart: Cart, customer: Customer, cardPayload:
                                    (implicit ec: ExecutionContext,
                                    db: Database) {
 
+  val gateway = StripeGateway()
   import CreditCardPaymentCreator._
 
   def run(): Response = {
-    if (!cardPayload.isValid) {
-      Future.successful(Bad(cardPayload.validationFailures.toList))
-    } else {
-      createStripeCustomer().flatMap { result =>
-        FullCart.fromCart(cart).map { opt =>
-          opt.map(Good(_)).getOrElse(Bad(List(s"could not render cart with id=${cart.id}")))
-        }
-      }
-    }
+    Future.successful(Bad(cardPayload.validationFailures.toList))
+//    if (!cardPayload.isValid) {
+//      Future.successful(Bad(cardPayload.validationFailures.toList))
+//    } else {
+//      for {
+//        result <- gateway.createCustomerAndCard(customer, this.cardPayload)
+//        stripeCustomer <- result
+//        //_ <- gateway.listCards(stripeCustomer)
+//      } yield stripeCustomer
+//      Future.successful(Bad(List("blah")))
+//    }
   }
 
-  def createStripeCustomer(): Future[StripeCustomer Or List[ErrorMessage]] = {
-    val gateway = StripeGateway()
-    gateway.createCustomer(customer, this.cardPayload).map { result =>
-      result.fold({ stripeCustomer =>
-        Good(stripeCustomer)
-      }, { error =>
-        Bad(List(error))
-        // bad case
-      })
-    }
     // store stripeCustomer.getId to customer (maybe as JSON data?)
     // Create card on their behalf in stripe —> https://stripe.com/docs/api#cards
     // StripeCard.create
     // store card token to tokenized_credit_cards
+
+  def createStripeCard(stripeCustomer: StripeCustomer): Unit = {
+//    for {
+//      // do stuff
+//    }
   }
 }
 

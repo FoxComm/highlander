@@ -28,8 +28,8 @@ case class TokenizedPaymentCreator(cart: Cart, customer: Customer, paymentToken:
           }
         }
 
-      case Bad(t) =>
-        Future.successful(Bad(List(t.getMessage)))
+      case Bad(errors) =>
+        Future.successful(Bad(errors))
     }
   }
 
