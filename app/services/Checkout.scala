@@ -12,6 +12,7 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
 
   def checkout: Future[Order Or List[ErrorMessage]] = {
     // Realistically, what we'd do here is actually
+    // 0) Check that line items exist -- DONE
     // 1) Check Inventory
     // 2) Verify Payment (re-auth)
     // 3) Validate addresses
@@ -26,11 +27,6 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
       }
     }
 
-  }
-
-  def verifyInventory: List[ErrorMessage] = {
-    // TODO: Call the inventory service and verify that inventory exists for all items in cart
-    List.empty
   }
 
   // sets incoming cart.status == Cart.ordered and creates a new cart
