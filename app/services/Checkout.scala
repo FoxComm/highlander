@@ -19,11 +19,6 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
     // 5) Final Auth on the payment
 
 
-    // We can asynchronously call the clearCart function because we don't necessarily need it to be cleared right away
-    // The next time we need an active cart is when the user adds another product to it.
-    // TODO: Implement more robust concurrency mechanism
-    clearCart(cart)
-
     buildOrderFromCart(cart).map(Good(_))
   }
 
@@ -32,14 +27,13 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
     List.empty
   }
 
-  def clearCart(cart: Cart): Unit = {
-    val oldCartStatus = for {c <- Carts.table if c.id === cart.id} yield c.status
-    val actions = for {
-      _ <- oldCartStatus.update(Cart.Ordered)
-      insertCartId <- Carts.returningId += Cart(id =0, accountId = cart.accountId, status = Cart.Active)
-    } yield (insertCartId)
-
-    db.run(actions)
+  // sets incoming cart.status == Cart.ordered and creates a new cart
+  def setCartToOrdered(cart: Cart): DBIOAction[Cart, NoStream, Effect.Write with Effect.Write] = {
+    val newCart = Cart(accountId = cart.accountId, status = Cart.Active)
+    for {
+      _ <- Carts._findById(cart.id).map(_.status).update(Cart.Ordered)
+      insertId <- Carts.returningId += newCart
+    } yield newCart.copy(id = insertId)
   }
 
   def authenticatePayments: Future[Map[AppliedPayment, List[ErrorMessage]]] = {
@@ -74,8 +68,9 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
     val actions = for {
       newOrderId <- Orders.returningId += order
       items <- CartLineItems.table.filter(_.cartId === cart.id).result
-      newOrderLineItemIds <- OrderLineItems.returningId ++= items.map { i => new OrderLineItem(orderId = newOrderId, skuId = i.skuId, status = OrderLineItem.New) }
-    } yield (order.copy(id = newOrderId))
+      copiedLineItemIds <- OrderLineItems.returningId ++= items.map { i => new OrderLineItem(orderId = newOrderId, skuId = i.skuId, status = OrderLineItem.New) }
+      _ <- setCartToOrdered(cart)
+    } yield order.copy(id = newOrderId)
 
     db.run(actions.transactionally)
   }
