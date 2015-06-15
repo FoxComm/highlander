@@ -300,12 +300,12 @@ class Service(
                       whenFound(Carts.findByCustomer(customer)) { cart => new Checkout(cart).checkout }
                     }
                   } ~
-                  (post & path("line_items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems =>
+                  (post & path("line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems =>
                     complete {
                       whenFound(Carts.findByCustomer(customer)) { cart => LineItemUpdater.updateQuantities(cart, reqItems) }
                     }
                   } ~
-                  (delete & path("line_items" / IntNumber)) { lineItemId =>
+                  (delete & path("line-items" / IntNumber)) { lineItemId =>
                     complete {
                       whenFound(Carts.findByCustomer(customer)) { cart => LineItemUpdater.deleteById(lineItemId, cart.id) }
                     }
