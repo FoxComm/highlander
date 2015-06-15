@@ -20,7 +20,7 @@ module.exports = function(app, router) {
     .post('/customers', function *() {
       let
         body = yield parse.json(this),
-        customer = new Customer(body).create();
+        customer = new Customer(body);
       this.status = 201;
       this.body = {customer: customer.toJSON()};
     });
