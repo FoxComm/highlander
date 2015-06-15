@@ -18,8 +18,6 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
     // 4) Validate promotions/couponsi
     // 5) Final Auth on the payment
 
-    val newOrder = buildOrderFromCart(cart)
-
 
     // We can asynchronously call the clearCart function because we don't necessarily need it to be cleared right away
     // The next time we need an active cart is when the user adds another product to it.
@@ -27,7 +25,6 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
     clearCart(cart)
 
     buildOrderFromCart(cart).map(Good(_))
-    //Good(newOrder)
   }
 
   def verifyInventory: List[ErrorMessage] = {
@@ -75,10 +72,10 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
     val order = Order(customerId = cart.accountId.getOrElse(0), status = Order.New, locked = 0)
 
     val actions = for {
-      orderId <- Orders.returningId += order
+      newOrderId <- Orders.returningId += order
       items <- CartLineItems.table.filter(_.cartId === cart.id).result
-      copiedLineItemIds <- CartLineItems.returningId ++= items.map { i => i.copy(cartId = orderId) }
-    } yield (order.copy(id = orderId))
+      newOrderLineItemIds <- OrderLineItems.returningId ++= items.map { i => new OrderLineItem(orderId = newOrderId, skuId = i.skuId, status = OrderLineItem.New) }
+    } yield (order.copy(id = newOrderId))
 
     db.run(actions.transactionally)
   }

@@ -19,9 +19,9 @@ case class Order(id: Int = 0, customerId: Int, status: Order.Status, locked: Int
 object Order {
   sealed trait Status
   case object New extends Status
-  case object FraudHold extends Status
-  case object RemorseHold extends Status
-  case object ManualHold extends Status
+  case object FraudHold extends Status //this only applies at the order_header level
+  case object RemorseHold extends Status //this only applies at the order_header level
+  case object ManualHold extends Status //this only applies at the order_header level
   case object Canceled extends Status
   case object FulfillmentStarted extends Status
   case object PartiallyShipped extends Status
