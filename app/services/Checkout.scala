@@ -17,15 +17,32 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
     // 3) Validate addresses
     // 4) Validate promotions/couponsi
     // 5) Final Auth on the payment
-    val order = Order(id = 0, customerId = cart.accountId.getOrElse(0), status = Order.Status.New, locked = 0)
 
-    //Good(order)
+    val newOrder = buildOrderFromCart(cart)
+
+
+    // We can asynchronously call the clearCart function because we don't necessarily need it to be cleared right away
+    // The next time we need an active cart is when the user adds another product to it.
+    // TODO: Implement more robust concurrency mechanism
+    clearCart(cart)
+
     buildOrderFromCart(cart).map(Good(_))
+    //Good(newOrder)
   }
 
   def verifyInventory: List[ErrorMessage] = {
     // TODO: Call the inventory service and verify that inventory exists for all items in cart
     List.empty
+  }
+
+  def clearCart(cart: Cart): Unit = {
+    val oldCartStatus = for {c <- Carts.table if c.id === cart.id} yield c.status
+    val actions = for {
+      _ <- oldCartStatus.update(Cart.Ordered)
+      insertCartId <- Carts.returningId += Cart(id =0, accountId = cart.accountId, status = Cart.Active)
+    } yield (insertCartId)
+
+    db.run(actions)
   }
 
   def authenticatePayments: Future[Map[AppliedPayment, List[ErrorMessage]]] = {
@@ -55,13 +72,13 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
   }
 
   def buildOrderFromCart(cart: Cart)(implicit ec: ExecutionContext, db: Database): Future[Order] = {
-    val order = Order(customerId = cart.accountId.getOrElse(0), status = Status.New, locked = 0)
+    val order = Order(customerId = cart.accountId.getOrElse(0), status = Order.New, locked = 0)
 
     val actions = for {
       orderId <- Orders.returningId += order
-      items <- LineItems.table.filter(_.parentId === cart.id).filter(_.parentType === "cart").result
-      copiedLineItemIds <- LineItems.returningId ++= items.map { i => i.copy(parentId = orderId, parentType = "order") }
-    } yield order.copy(id = orderId)
+      items <- CartLineItems.table.filter(_.cartId === cart.id).result
+      copiedLineItemIds <- CartLineItems.returningId ++= items.map { i => i.copy(cartId = orderId) }
+    } yield (order.copy(id = orderId))
 
     db.run(actions.transactionally)
   }
