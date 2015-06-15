@@ -18,6 +18,7 @@ private[utils] abstract class TableWithIdInternal[M <: ModelWithIdParameter, I](
   extends Table[M](tag, name) with TableWithIdColumn[I]
 
 object GenericTable {
+  /** This allows us to enforce that tables have the same ID column as their case class. */
   type TableWithId[MODEL <: ModelWithIdParameter] = TableWithIdInternal[MODEL, MODEL#Id]
 }
 
