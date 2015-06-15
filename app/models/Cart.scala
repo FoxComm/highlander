@@ -10,7 +10,7 @@ import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-case class Cart(id: Int = 0, accountId: Option[Int] = None, status: Cart.Status = Cart.Status.Active) {
+case class Cart(id: Int = 0, accountId: Option[Int] = None, status: Cart.Status = Cart.Active) {
   def lineItemParentId = this.id
 
   val lineItems: Seq[CartLineItem] = Seq.empty
@@ -50,31 +50,20 @@ case class Cart(id: Int = 0, accountId: Option[Int] = None, status: Cart.Status 
 
 object Cart {
   sealed trait Status
-  object Status {
-    case object Active extends Status  // most will be here
-    case object Ordered extends Status // after order
-    case object Removed extends Status // admin could do this
-  }
+  case object Active extends Status  // most will be here
+  case object Ordered extends Status // after order
+  case object Removed extends Status // admin could do this
 
   implicit val StatusColumnType = MappedColumnType.base[Status, String](
-  { status =>
-     status match {
-        case t: Status.Active.type => "active"
-        case t: Status.Ordered.type => "ordered"
-        case t: Status.Removed.type => "removed"
-        case _ => "unknown"
-      }
-  },
-  { str =>
-    str match {
-      case "active" => Status.Active
-      case "ordered" => Status.Ordered
-      case "removed" => Status.Removed
-      case _ => Status.Active
-    }
-
-  }
-  )
+  {
+    case t @ (Active | Ordered | Removed) => t.toString.toLowerCase
+    case unknown => throw new IllegalArgumentException(s"cannot map status column to type $unknown")
+  }, {
+    case "active" => Active
+    case "ordered" => Ordered
+    case "removed" => Removed
+    case unknown => throw new IllegalArgumentException(s"cannot map status column to type $unknown")
+  })
 }
 
 class Carts(tag: Tag) extends Table[Cart](tag, "carts") with RichTable {

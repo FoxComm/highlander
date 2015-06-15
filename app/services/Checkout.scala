@@ -38,8 +38,8 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
   def clearCart(cart: Cart): Unit = {
     val oldCartStatus = for {c <- Carts.table if c.id === cart.id} yield c.status
     val actions = for {
-      _ <- oldCartStatus.update(Cart.Status.Ordered)
-      insertCartId <- Carts.returningId += Cart(id =0, accountId = cart.accountId, status = Cart.Status.Active)
+      _ <- oldCartStatus.update(Cart.Ordered)
+      insertCartId <- Carts.returningId += Cart(id =0, accountId = cart.accountId, status = Cart.Active)
     } yield (insertCartId)
 
     db.run(actions)
