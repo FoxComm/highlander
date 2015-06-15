@@ -52,8 +52,7 @@ object Cart {
 
   implicit val StatusColumnType = MappedColumnType.base[Status, String](
   {
-    case t @ (Active | Ordered | Removed) => t.toString.toLowerCase
-    case unknown => throw new IllegalArgumentException(s"cannot map status column to type $unknown")
+    case t => t.toString.toLowerCase
   }, {
     case "active" => Active
     case "ordered" => Ordered
