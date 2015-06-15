@@ -13,10 +13,6 @@ import scala.concurrent.{ExecutionContext, Future}
 case class Cart(id: Int = 0, accountId: Option[Int] = None, status: Cart.Status = Cart.Active) {
   def lineItemParentId = this.id
 
-  val lineItems: Seq[CartLineItem] = Seq.empty
-  //val payments: Seq[AppliedPayment] = Seq.empty
-  // val fulfillments: Seq[Fulfillment] = Seq.empty
-
   //  def coupons: Seq[Coupon] = Seq.empty
   //  def adjustments: Seq[Adjustment] = Seq.empty
 
