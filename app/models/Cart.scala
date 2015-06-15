@@ -2,13 +2,16 @@ package models
 
 import com.wix.accord.dsl.{validator ⇒ createValidator}
 import com.wix.accord.{Failure ⇒ ValidationFailure}
+import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
-import utils.{RichTable, TableWithId, TableWithIdQuery}
+import utils.RichTable
 
 import scala.concurrent.Future
 
-case class Cart(id: Int, accountId: Option[Int] = None) {
+case class Cart(id: Int, accountId: Option[Int] = None) extends utils.ModelWithIdParameter {
+  override type Id = Int
+
   val lineItems: Seq[LineItem] = Seq.empty
   //val payments: Seq[AppliedPayment] = Seq.empty
   // val fulfillments: Seq[Fulfillment] = Seq.empty
@@ -44,14 +47,17 @@ case class Cart(id: Int, accountId: Option[Int] = None) {
   }
 }
 
-class Carts(tag: Tag) extends TableWithId[Cart, Int](tag, "carts") with RichTable {
-  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+import utils.{ GenericTable, TableQueryWithId }
+
+class Carts(tag: Tag) extends GenericTable.TableWithId[Cart](tag, "carts") with RichTable {
+  def id        = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def accountId = column[Option[Int]]("account_id")
-  def * = (id, accountId) <> ((Cart.apply _).tupled, Cart.unapply)
+  def *         = (id, accountId) <> ((Cart.apply _).tupled, Cart.unapply)
 }
 
-object Carts extends TableWithIdQuery[Carts, Cart, Int](new Carts(_)) {
-  override def copyEntityId(m: Cart, id: Int): Cart = m.copy(id = id)
+object Carts extends TableQueryWithId[Cart, Carts](
+  idLens = GenLens[Cart](_.id)
+)(new Carts(_)) {
   val carts = this
 
   val tokenCardsTable = TableQuery[TokenizedCreditCards]
