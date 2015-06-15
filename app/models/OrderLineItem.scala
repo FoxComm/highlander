@@ -24,7 +24,7 @@ object OrderLineItems {
   val table = TableQuery[OrderLineItems]
   val returningId = table.returning(table.map(_.id))
 
-  def findByOrder(order: Order)(implicit db: Database) = {db.run(_findByOrderId(order.id).result) }
+  def findByOrder(order: Order)(implicit ec: ExecutionContext, db: Database) = { db.run(_findByOrderId(order.id).result) }
 
   def _findByOrderId(orderId: Rep[Int]) = { table.filter(_.orderId === orderId) }
 }
