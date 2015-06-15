@@ -101,8 +101,6 @@ object Carts {
     db.run(_findByCustomer(customer).result.headOption)
   }
 
-  // TODO: Figure out how to handle status without hard coding the string here
-  // .filter(_.status === Cart.Status.Active)
   def _findByCustomer(cust: Customer) = { table.filter(_.customerId === cust.id) }
 
   // If the user doesn't have a cart yet, let's create one.
