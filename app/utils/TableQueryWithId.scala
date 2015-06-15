@@ -23,8 +23,8 @@ object GenericTable {
 
 abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.TableWithId[M]]
   (idLens: Lens[M, M#Id])
-  (cons: Tag ⇒ T)
-  (implicit ev: BaseTypedType[M#Id]) extends TableQuery[T](cons) {
+  (construct: Tag ⇒ T)
+  (implicit ev: BaseTypedType[M#Id]) extends TableQuery[T](construct) {
 
   val byId = for {
     id     ← Parameters[M#Id]
