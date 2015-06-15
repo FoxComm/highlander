@@ -18,30 +18,30 @@ case class Order(id: Int = 0, customerId: Int, status: Order.Status, locked: Int
 
 object Order {
   sealed trait Status
-  object Status {
-    case object New extends Status
-    case object FraudHold extends Status
-    case object RemorseHold extends Status
-    case object ManualHold extends Status
-    case object Canceled extends Status
-    case object FulfillmentStarted extends Status
-    case object PartiallyShipped extends Status
-    case object Shipped extends Status
-  }
+  case object New extends Status
+  case object FraudHold extends Status
+  case object RemorseHold extends Status
+  case object ManualHold extends Status
+  case object Canceled extends Status
+  case object FulfillmentStarted extends Status
+  case object PartiallyShipped extends Status
+  case object Shipped extends Status
 
   implicit val StatusColumnType = MappedColumnType.base[Status, String]({
-    case t => t.toString.toLowerCase
+    case t @ (New | FraudHold | RemorseHold | ManualHold | Canceled |
+             FulfillmentStarted | PartiallyShipped | Shipped) => t.toString.toLowerCase
+    case unknown => throw new IllegalArgumentException(s"cannot map status column to type $unknown")
   },
   {
-    case "new" => Status.New
-    case "fraudhold" => Status.FraudHold
-    case "remorsehold" => Status.RemorseHold
-    case "manualhold" => Status.ManualHold
-    case "canceled" => Status.Canceled
-    case "fulfillmen_started" => Status.FulfillmentStarted
-    case "partiallyshipped" => Status.PartiallyShipped
-    case "shipped" => Status.Shipped
-    case t => throw new IllegalArgumentException(s"cannot map status column to type $t")
+    case "new" => New
+    case "fraudhold" => FraudHold
+    case "remorsehold" => RemorseHold
+    case "manualhold" => ManualHold
+    case "canceled" => Canceled
+    case "fulfillmen_started" => FulfillmentStarted
+    case "partiallyshipped" => PartiallyShipped
+    case "shipped" => Shipped
+    case unknown => throw new IllegalArgumentException(s"cannot map status column to type $unknown")
   })
 }
 

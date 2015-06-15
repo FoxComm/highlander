@@ -72,7 +72,7 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
   }
 
   def buildOrderFromCart(cart: Cart)(implicit ec: ExecutionContext, db: Database): Future[Order] = {
-    val order = Order(customerId = cart.accountId.getOrElse(0), status = Status.New, locked = 0)
+    val order = Order(customerId = cart.accountId.getOrElse(0), status = Order.New, locked = 0)
 
     val actions = for {
       orderId <- Orders.returningId += order
