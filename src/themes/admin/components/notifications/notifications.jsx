@@ -62,7 +62,7 @@ Notifications.defaultProps = {
     {field: 'subject', text: 'Subject'},
     {field: 'contact', text: 'Contact Method'},
     {field: 'status', text: 'Status'},
-    {field: 'notification', text: 'Resend', type: 'resend', order: 'order'}
+    {field: 'notification', text: 'Resend', type: 'notification'}
   ]
 };
 

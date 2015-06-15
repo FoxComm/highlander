@@ -1,3 +1,11 @@
+.modal-overlay {
+    position: fixed;
+    .top(0);
+    .left(0);
+    width: 100vw;
+    height: 100vh;
+}
+
 .modal {
     position: absolute;
     top: 50%;
@@ -6,6 +14,7 @@
     border-radius: 5px;
     box-shadow: 0px 0px 3px 0px rgba(0, 0, 0, 0.25);
     min-width: 350px;
+    background-color: #fff;
 
     &.hide {
         display: none;
