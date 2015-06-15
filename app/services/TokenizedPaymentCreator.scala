@@ -24,12 +24,12 @@ case class TokenizedPaymentCreator(cart: Cart, customer: Customer, paymentToken:
           optState.map { s =>
             createRecords(card, stripeCard, s)
           }.getOrElse {
-            Future.successful(Bad(One(s"could not find state with name=${stripeCard.getAddressState}")))
+            Future.successful(Bad(List(s"could not find state with name=${stripeCard.getAddressState}")))
           }
         }
 
       case Bad(t) =>
-        Future.successful(Bad(One(t.getMessage)))
+        Future.successful(Bad(List(t.getMessage)))
     }
   }
 
@@ -59,15 +59,15 @@ case class TokenizedPaymentCreator(cart: Cart, customer: Customer, paymentToken:
     db.run(queries.transactionally).flatMap { optCart =>
       optCart.map { c =>
         FullCart.fromCart(c).map { root =>
-          root.map(Good(_)).getOrElse(Bad(One("could not render cart")))
+          root.map(Good(_)).getOrElse(Bad(List("could not render cart")))
         }
-      }.getOrElse(Future.successful(Bad(One(s"could not find cart with id=${cart.id}"))))
+      }.getOrElse(Future.successful(Bad(List(s"could not find cart with id=${cart.id}"))))
     }
   }
 }
 
 object TokenizedPaymentCreator {
-  type Response = Future[FullCart.Root Or One[ErrorMessage]]
+  type Response = Future[FullCart.Root Or List[ErrorMessage]]
 
   def run(cart: Cart, customer: Customer, paymentToken: String)
          (implicit ec: ExecutionContext,
