@@ -18,7 +18,7 @@ class ContactMethod extends React.Component {
   render() {
     let content = (
       <div className='contact'>
-        <span>{this.props.value}</span>
+        <strong>{this.props.value}</strong>
         <input type='hidden' name='resend_to' value={this.props.value}/>
         <a onClick={this.toggleEdit.bind(this)}>Edit</a>
       </div>
@@ -26,7 +26,7 @@ class ContactMethod extends React.Component {
     if (this.state.edit) {
       content = (
         <div className='contact'>
-          <input type={this.props.type === 'Email' ? 'email' : 'tel'} name='resend_to' />
+          <input type={this.props.type === 'Email' ? 'email' : 'tel'} className='control' name='resend_to' />
           <a onClick={this.toggleEdit.bind(this)}>Undo</a>
         </div>
       );

@@ -22,7 +22,7 @@ class Notification extends React.Component {
             <ContactMethod type={notification.contactType} value={notification.contact} />
           </div>
           <div className='modal-footer'>
-            <Link to="notifications" params={{order: notification.order}}>Cancel</Link>
+            <Link to="notifications" className='cancel' params={{order: notification.order}}>Cancel</Link>
             <button className='btn' type='submit'>Resend</button>
           </div>
         </form>
@@ -41,7 +41,7 @@ Notification.defaultProps = {
     date: new Date().toISOString(),
     status: 'Delivered',
     subject: 'Order confirmed',
-    contactType: 'SMS',
+    contactType: 'Email',
     contact: 'jim@bob.com',
     order: 1234
   }
