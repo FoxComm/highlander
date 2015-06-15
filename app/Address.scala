@@ -91,7 +91,6 @@ case class Collection(id: Int, name: String, isActive: Boolean) extends Validati
 }
 
 object Main extends Formats {
-
   def main(args: Array[String]): Unit = {
     val service = new Service()
     service.bind()
@@ -163,7 +162,7 @@ class Service(
 
   val notFoundResponse = HttpResponse(NotFound)
 
-  def whenFound[A, B <: AnyRef](finder: Future[Option[A]])(f: A => Future[B Or List[ErrorMessage]]): Future[HttpResponse] = {
+  def whenFound[A, G <: AnyRef](finder: Future[Option[A]])(f: A => Future[G Or List[ErrorMessage]]): Future[HttpResponse] = {
     finder.flatMap { optModel =>
       optModel.map { m =>
         f(m).map {
