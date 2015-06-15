@@ -28,9 +28,7 @@ object Order {
   case object Shipped extends Status
 
   implicit val StatusColumnType = MappedColumnType.base[Status, String]({
-    case t @ (New | FraudHold | RemorseHold | ManualHold | Canceled |
-             FulfillmentStarted | PartiallyShipped | Shipped) => t.toString.toLowerCase
-    case unknown => throw new IllegalArgumentException(s"cannot map status column to type $unknown")
+    case t => t.toString.toLowerCase
   },
   {
     case "new" => New
