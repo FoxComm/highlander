@@ -161,7 +161,9 @@ class Service(
 
   val notFoundResponse = HttpResponse(NotFound)
 
-  def whenFound[A, G <: AnyRef](finder: Future[Option[A]])(f: A => Future[G Or List[ErrorMessage]]): Future[HttpResponse] = {
+  def whenFound[A, G <: AnyRef](finder: Future[Option[A]])(f: A => Future[G Or List[ErrorMessage]])
+                               (implicit ec: ExecutionContext,
+                                db: Database): Future[HttpResponse] = {
     finder.flatMap { optModel =>
       optModel.map { m =>
         f(m).map {
