@@ -42,19 +42,19 @@ class CartIntegrationTest extends FreeSpec
     val responseBody = response.bodyText
     val cart = parse(responseBody).extract[FullCart.Root]
 
-    cart.lineItems.map(_.skuId).sortBy(identity)  mustBe List(1, 5, 5)
+    cart.lineItems.map(_.skuId).sortBy(identity) mustBe List(1, 5, 5)
   }
 
   "deletes line items" in {
     val cartId = db.run(Carts.returningId += Cart(id = 0, accountId = None)).futureValue
-    val seedLineItems = (1 to 2).map { _ => LineItem(id = 0, cartId = cartId, skuId = 1) }
-    db.run(LineItems.returningId ++= seedLineItems.toSeq).futureValue
+    val seedLineItems = (1 to 2).map { _ => CartLineItem(id = 0, cartId = cartId, skuId = 1) }
+    db.run(CartLineItems.returningId ++= seedLineItems.toSeq).futureValue
 
     val response = DELETE(s"v1/carts/$cartId/line-items/1")
     val responseBody = response.bodyText
     val cart = parse(responseBody).extract[FullCart.Root]
 
-    cart.lineItems mustBe List(LineItem(id = 2, cartId = cartId, skuId = 1))
+    cart.lineItems mustBe List(CartLineItem(id = 2, cartId = cartId, skuId = 1))
   }
 
   "handles credit cards" - {
