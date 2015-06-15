@@ -74,9 +74,7 @@ class Carts(tag: Tag) extends GenericTable.TableWithId[Cart](tag, "carts") with 
 object Carts extends TableQueryWithId[Cart, Carts](
   idLens = GenLens[Cart](_.id)
 )(new Carts(_)) {
-  val carts = this
-
-  val table = TableQuery[Carts]
+  val table = this
 
   val tokenCardsTable = TableQuery[TokenizedCreditCards]
   val appliedPaymentsTable = TableQuery[AppliedPayments]
@@ -95,13 +93,6 @@ object Carts extends TableQueryWithId[Cart, Carts](
   def addPaymentMethod(cartId: Int, paymentMethod: PaymentMethod)(implicit db: Database): Boolean = {
     true
   }
-
-  def findById(id: Int)(implicit db: Database): Future[Option[Cart]] = {
-    db.run(_findById(id).result.headOption)
-  }
-
-  def _findById(id: Rep[Int]) = { table.filter(_.id === id) }
-
 
   def findByCustomer(customer: Customer)(implicit ec: ExecutionContext, db: Database): Future[Option[Cart]] = {
     db.run(_findByCustomer(customer).result.headOption)

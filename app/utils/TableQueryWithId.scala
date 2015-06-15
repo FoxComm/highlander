@@ -4,7 +4,7 @@ import monocle.Lens
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{Future, ExecutionContext}
 
 trait ModelWithIdParameter {
   type Id
@@ -31,8 +31,10 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.Tab
     entity ← filter(_.id === id)
   } yield entity
 
-  def findById(i: M#Id): DBIO[Option[M]] =
-    byId(i).result.headOption
+  def _findById(i: M#Id) = filter(_.id === i)
+
+  def findById(i: M#Id)(implicit db: Database, ec: ExecutionContext): Future[Option[M]] =
+    db.run(_findById(i).result.headOption)
 
   val returningId =
     this.returning(map(_.id))
