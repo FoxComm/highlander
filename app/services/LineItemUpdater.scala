@@ -1,6 +1,6 @@
 package services
 
-import models.{Carts, Cart, LineItems, LineItem}
+import models.{Carts, Cart, CartLineItems, CartLineItem, Order}
 import payloads.UpdateLineItemsPayload
 
 import org.scalactic._
@@ -11,13 +11,13 @@ import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 import slick.driver.PostgresDriver.api._
 
 object LineItemUpdater {
-  val lineItems = TableQuery[LineItems]
+  val lineItems = TableQuery[CartLineItems]
   val carts = TableQuery[Carts]
 
   def updateQuantities(cart: Cart,
                        payload: Seq[UpdateLineItemsPayload])
                       (implicit ec: ExecutionContext,
-                       db: Database): Future[Seq[LineItem] Or List[ErrorMessage]] = {
+                       db: Database): Future[Seq[CartLineItem] Or List[ErrorMessage]] = {
 
     // TODO:
     //  validate sku in PIM
@@ -25,7 +25,7 @@ object LineItemUpdater {
     //  validate inventory (might be in PIM maybe not)
     //  run hooks to manage promotions
 
-    // reduce Seq[LineItemsPayload] -> Map(skuId: Int -> absoluteQuantity: Int)
+
     val updateQuantities = payload.foldLeft(Map[Int, Int]()) { (acc, item) =>
       val quantity = acc.getOrElse(item.skuId, 0)
       acc.updated(item.skuId, quantity + item.quantity)
@@ -45,7 +45,7 @@ object LineItemUpdater {
         if (newQuantity > current) {
           val delta = newQuantity - current
 
-          lineItems ++= (1 to delta).map { _ => LineItem(0, cart.id, skuId) }.toSeq
+          lineItems ++= (1 to delta).map { _ => CartLineItem(0, cart.id, skuId) }.toSeq
         } else if (current - newQuantity > 0) { //otherwise delete N items
           lineItems.filter(_.id in lineItems.filter(_.cartId === cart.id).filter(_.skuId === skuId).
             sortBy(_.id.asc).take(current - newQuantity).map(_.id)).delete
@@ -65,7 +65,7 @@ object LineItemUpdater {
 
   def deleteById(id: Int, cartId: Int)
                 (implicit ec: ExecutionContext,
-                 db: Database): Future[Seq[LineItem] Or List[ErrorMessage]] = {
+                 db: Database): Future[Seq[CartLineItem] Or List[ErrorMessage]] = {
 
     val actions = for {
       numDeleted <- lineItems.filter(_.id === id).delete

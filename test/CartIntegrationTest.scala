@@ -39,21 +39,21 @@ class CartIntegrationTest extends FreeSpec
     val responseBody = response.bodyText
     val ast = parse(responseBody)
 
-    val lineItems = (ast \ "lineItems").extract[List[LineItem]]
+    val lineItems = (ast \ "lineItems").extract[List[CartLineItem]]
     lineItems.map(_.skuId).sortBy(identity)  mustBe List(1, 5, 5)
   }
 
   "deletes line items" in {
     val cartId = db.run(Carts.returningId += Cart(id = 0, accountId = None)).futureValue
-    val seedLineItems = (1 to 2).map { _ => LineItem(id = 0, cartId = cartId, skuId = 1) }
-    db.run(LineItems.returningId ++= seedLineItems.toSeq).futureValue
+    val seedLineItems = (1 to 2).map { _ => CartLineItem(id = 0, cartId = cartId, skuId = 1) }
+    db.run(CartLineItems.returningId ++= seedLineItems.toSeq).futureValue
 
     val response = DELETE(s"v1/carts/$cartId/line_items/1")
     val responseBody = response.bodyText
     val ast = parse(responseBody)
 
-    val lineItems = (ast \ "lineItems").extract[List[LineItem]]
-    lineItems mustBe List(LineItem(id = 2, cartId = cartId, skuId = 1))
+    val lineItems = (ast \ "lineItems").extract[List[CartLineItem]]
+    lineItems mustBe List(CartLineItem(id = 2, cartId = cartId, skuId = 1))
   }
 }
 

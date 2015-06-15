@@ -10,10 +10,8 @@ import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-case class Cart(id: Int, accountId: Option[Int] = None) {
-  val lineItems: Seq[LineItem] = Seq.empty
-  //val payments: Seq[AppliedPayment] = Seq.empty
-  // val fulfillments: Seq[Fulfillment] = Seq.empty
+case class Cart(id: Int = 0, accountId: Option[Int] = None, status: Cart.Status = Cart.Active) {
+  def lineItemParentId = this.id
 
   //  def coupons: Seq[Coupon] = Seq.empty
   //  def adjustments: Seq[Adjustment] = Seq.empty
@@ -46,17 +44,34 @@ case class Cart(id: Int, accountId: Option[Int] = None) {
   }
 }
 
+object Cart {
+  sealed trait Status
+  case object Active extends Status  // most will be here
+  case object Ordered extends Status // after order
+  case object Removed extends Status // admin could do this
+
+  implicit val StatusColumnType = MappedColumnType.base[Status, String](
+  {
+    case t @ (Active | Ordered | Removed) => t.toString.toLowerCase
+    case unknown => throw new IllegalArgumentException(s"cannot map status column to type $unknown")
+  }, {
+    case "active" => Active
+    case "ordered" => Ordered
+    case "removed" => Removed
+    case unknown => throw new IllegalArgumentException(s"cannot map status column to type $unknown")
+  })
+}
+
 class Carts(tag: Tag) extends Table[Cart](tag, "carts") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def customerId = column[Option[Int]]("customer_id")
-  def * = (id, customerId) <> ((Cart.apply _).tupled, Cart.unapply)
+  def status = column[Cart.Status]("status")
+  def * = (id, customerId, status) <> ((Cart.apply _).tupled, Cart.unapply)
 }
 
 object Carts {
-  val carts = TableQuery[Carts]
-
-  val cartsTable = TableQuery[Carts]
-  val returningId = cartsTable.returning(cartsTable.map(_.id))
+  val table = TableQuery[Carts]
+  val returningId = table.returning(table.map(_.id))
   val tokenCardsTable = TableQuery[TokenizedCreditCards]
   val appliedPaymentsTable = TableQuery[AppliedPayments]
 
@@ -66,21 +81,9 @@ object Carts {
     val appliedpayment = AppliedPayment(id = 1, cartId = cart.id, paymentMethodId = 1, paymentMethodType = "TokenizedCard", appliedAmount = 10000, status = Applied.toString, responseCode = "")
     val appliedpayment2 = appliedpayment.copy(appliedAmount = 2550, paymentMethodId = 2)
 
-    // The whole of the above is to have one passing token and one failing token.  So paymentMethod with ID 1 should be real.
-    // PaymentMethod with ID 2 should be fake.
 
     Future.successful(Seq(appliedpayment, appliedpayment2))
 
-    //val appliedIds = appliedPaymentsTable.returning(appliedPaymentsTable.map(_.paymentMethodId))
-
-    // I tried a monadic join here and failed.
-    //    val filteredPayments = for {
-    //      ap <- appliedPaymentsTable if ap.cartId === cartId
-    //      tc <- tokenCardsTable if tc.id === ap.paymentMethodId
-    //    } yield (tc.id, tc.accountId, tc.paymentGateway, tc.gatewayTokenId, tc.lastFourDigits, tc.expirationMonth, tc.expirationYear, tc.brand)
-    //    db.run(filteredPayments.head)
-
-    // TODO: Yax or Ferdinand: Help me filter all the TokenizedCards through the mapping table of applied_payments that belong to this cart.
   }
 
   def addPaymentMethod(cartId: Int, paymentMethod: PaymentMethod)(implicit db: Database): Boolean = {
@@ -91,5 +94,28 @@ object Carts {
     db.run(_findById(id).result.headOption)
   }
 
-  def _findById(id: Rep[Int]) = { carts.filter(_.id === id) }
+  def _findById(id: Rep[Int]) = { table.filter(_.id === id) }
+
+
+  def findByCustomer(customer: Customer)(implicit ec: ExecutionContext, db: Database): Future[Option[Cart]] = {
+    db.run(_findByCustomer(customer).result.headOption)
+  }
+
+  def _findByCustomer(cust: Customer) = { table.filter(_.customerId === cust.id) }
+
+  // If the user doesn't have a cart yet, let's create one.
+  def findOrCreateByCustomer(customer: Customer)
+                            (implicit ec: ExecutionContext, db: Database): Future[Option[Cart]] = {
+    val actions = for {
+      numCarts <- table.filter(_.customerId === customer.id).length.result
+      cart <- if (numCarts < 1) {
+        val freshCart = Cart(accountId = Some(customer.id))
+        (returningId += freshCart).map { id => freshCart.copy(id = id) }.map(Some(_))
+      } else {
+        table.filter(_.customerId === customer.id).result.headOption
+      }
+    } yield cart
+
+    db.run(actions.transactionally)
+  }
 }

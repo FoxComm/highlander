@@ -1,6 +1,6 @@
 package services
 
-import models.{LineItems, LineItem, Cart}
+import models.{CartLineItems, CartLineItem, Cart}
 import payloads.{UpdateLineItemsPayload => Payload}
 
 import org.scalactic.{Good, Bad, ErrorMessage, Or}
@@ -17,9 +17,9 @@ class LineItemUpdaterTest extends FreeSpec
   import api._
   import concurrent.ExecutionContext.Implicits.global
 
-  val lineItems = TableQuery[LineItems]
+  val lineItems = TableQuery[CartLineItems]
 
-  def createLineItems(items: Seq[LineItem]): Unit = {
+  def createLineItems(items: Seq[CartLineItem]): Unit = {
     val insert = lineItems ++= items
     db.run(insert).futureValue
   }
@@ -47,7 +47,7 @@ class LineItemUpdaterTest extends FreeSpec
     }
 
     "Updates line_items when the Sku already is in cart" in {
-      val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { skuId => LineItem(id = 0, cartId = 1, skuId = skuId) }
+      val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { skuId => CartLineItem(id = 0, cartId = 1, skuId = skuId) }
       createLineItems(seedItems)
 
       val cart = Cart(id = 1, accountId = None)
