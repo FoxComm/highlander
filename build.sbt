@@ -11,7 +11,8 @@ scalacOptions ++= List(
   "-unchecked",
   "-deprecation",
   "-Xlint",
-  "-Xfatal-warnings"
+  "-Xfatal-warnings",
+  "-language:higherKinds"
 )
 
 libraryDependencies ++= {
@@ -33,7 +34,10 @@ libraryDependencies ++= {
     "org.json4s"         %% "json4s-jackson" % "3.2.11",
     "org.scalactic"     %% "scalactic"                            % "2.2.4",
     "org.flywaydb"      %  "flyway-core"      % "3.2.1"              % "test",
-    "com.stripe"        %  "stripe-java"    %  "1.31.0"
+    "com.stripe"        %  "stripe-java"    %  "1.31.0",
+    "com.github.julien-truffaut"  %%  "monocle-core"    % "1.1.1",
+    "com.github.julien-truffaut"  %%  "monocle-generic" % "1.1.1",
+    "com.github.julien-truffaut"  %%  "monocle-macro"   % "1.1.1"
   )
 }
 
