@@ -18,15 +18,14 @@ scalacOptions ++= List(
 libraryDependencies ++= {
   val akkaV       = "2.3.10"
   val akkaStreamV = "1.0-RC2"
+  val akkaHttpV = "1.0-RC3"
   val scalaTestV  = "2.2.4"
   Seq(
     "com.wix"           %% "accord-core"                          % "0.4.2",
     "com.typesafe.akka" %% "akka-actor"                           % akkaV,
-    "com.typesafe.akka" %% "akka-stream-experimental"             % akkaStreamV,
-    "com.typesafe.akka" %% "akka-http-core-experimental"          % akkaStreamV,
-    "com.typesafe.akka" %% "akka-http-scala-experimental"         % akkaStreamV,
-    "com.typesafe.akka" %% "akka-http-spray-json-experimental"    % akkaStreamV,
-    "com.typesafe.akka" %% "akka-http-testkit-scala-experimental" % akkaStreamV,
+    "com.typesafe.akka" %% "akka-stream-experimental"             % akkaHttpV,
+    "com.typesafe.akka" %% "akka-http-experimental"          % akkaHttpV,
+    "com.typesafe.akka" %% "akka-http-spray-json-experimental"    % akkaHttpV,
     "org.scalatest"     %% "scalatest"                            % scalaTestV % "test",
     "com.typesafe.slick" %% "slick" % "3.0.0",
     "org.slf4j"          % "slf4j-nop" % "1.6.4",

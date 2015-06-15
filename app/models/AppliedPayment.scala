@@ -15,7 +15,7 @@ case class AppliedPayment(id: Int = 0,
                           cartId: Int,
                           paymentMethodId: Int,
                           paymentMethodType: String,
-                          appliedAmount: Float,
+                          appliedAmount: Int,
                           status: String,
                           responseCode: String)
 
@@ -24,8 +24,13 @@ class AppliedPayments(tag: Tag) extends Table[AppliedPayment](tag, "applied_paym
   def cartId = column[Int]("cart_id")
   def paymentMethodId = column[Int]("payment_method_id")
   def paymentMethodType = column[String]("payment_method_type")
-  def appliedAmount = column[Float]("applied_amount")
+  def appliedAmount = column[Int]("applied_amount")
   def status = column[String]("status")
   def responseCode = column[String]("response_code")
   def * = (id, cartId, paymentMethodId, paymentMethodType, appliedAmount, status, responseCode) <> ((AppliedPayment.apply _).tupled, AppliedPayment.unapply )
+}
+
+object AppliedPayments {
+  val table = TableQuery[AppliedPayments]
+  val returningId = table.returning(table.map(_.id))
 }

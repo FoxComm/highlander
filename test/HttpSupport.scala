@@ -31,7 +31,7 @@ trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with Patien
     fm = ActorFlowMaterializer()
 
     try {
-      serverBinding = new Service(dbOverride = Some(db), systemOverride = Some(as)).bind(ConfigFactory.parseString(
+      serverBinding = makeService.bind(ConfigFactory.parseString(
         s"""
            |http.interface = 127.0.0.1
            |http.port      = ${ getFreePort }
@@ -43,6 +43,8 @@ trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with Patien
       as.awaitTermination()
     }
   }
+
+  def makeService: Service = new Service(dbOverride = Some(db), systemOverride = Some(as))
 
   def POST(path: String, rawBody: String): HttpResponse = {
     val request = HttpRequest(

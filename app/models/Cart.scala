@@ -6,11 +6,14 @@ import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.RichTable
+import utils.{ GenericTable, TableQueryWithId, ModelWithIdParameter }
 
 import scala.concurrent.Future
 
-case class Cart(id: Int, accountId: Option[Int] = None) extends utils.ModelWithIdParameter {
+case class Cart(id: Int, accountId: Option[Int] = None) extends LineItemable with ModelWithIdParameter {
   override type Id = Int
+
+  def lineItemParentId = this.id
 
   val lineItems: Seq[LineItem] = Seq.empty
   //val payments: Seq[AppliedPayment] = Seq.empty
@@ -47,12 +50,10 @@ case class Cart(id: Int, accountId: Option[Int] = None) extends utils.ModelWithI
   }
 }
 
-import utils.{ GenericTable, TableQueryWithId }
-
 class Carts(tag: Tag) extends GenericTable.TableWithId[Cart](tag, "carts") with RichTable {
-  def id        = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def accountId = column[Option[Int]]("account_id")
-  def *         = (id, accountId) <> ((Cart.apply _).tupled, Cart.unapply)
+  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def customerId = column[Option[Int]]("customer_id")
+  def * = (id, customerId) <> ((Cart.apply _).tupled, Cart.unapply)
 }
 
 object Carts extends TableQueryWithId[Cart, Carts](
@@ -69,21 +70,9 @@ object Carts extends TableQueryWithId[Cart, Carts](
     val appliedpayment = AppliedPayment(id = 1, cartId = cart.id, paymentMethodId = 1, paymentMethodType = "TokenizedCard", appliedAmount = 10000, status = Applied.toString, responseCode = "")
     val appliedpayment2 = appliedpayment.copy(appliedAmount = 2550, paymentMethodId = 2)
 
-    // The whole of the above is to have one passing token and one failing token.  So paymentMethod with ID 1 should be real.
-    // PaymentMethod with ID 2 should be fake.
 
     Future.successful(Seq(appliedpayment, appliedpayment2))
 
-    //val appliedIds = appliedPaymentsTable.returning(appliedPaymentsTable.map(_.paymentMethodId))
-
-    // I tried a monadic join here and failed.
-    //    val filteredPayments = for {
-    //      ap <- appliedPaymentsTable if ap.cartId === cartId
-    //      tc <- tokenCardsTable if tc.id === ap.paymentMethodId
-    //    } yield (tc.id, tc.accountId, tc.paymentGateway, tc.gatewayTokenId, tc.lastFourDigits, tc.expirationMonth, tc.expirationYear, tc.brand)
-    //    db.run(filteredPayments.head)
-
-    // TODO: Yax or Ferdinand: Help me filter all the TokenizedCards through the mapping table of applied_payments that belong to this cart.
   }
 
   def addPaymentMethod(cartId: Int, paymentMethod: PaymentMethod)(implicit db: Database): Boolean = {
@@ -95,4 +84,10 @@ object Carts extends TableQueryWithId[Cart, Carts](
   }
 
   def _findById(id: Rep[Int]) = { carts.filter(_.id === id) }
+
+  def findByCustomer(customer: Customer)(implicit db: Database): Future[Option[Cart]] = {
+    db.run(_findByCustomer(customer).result.headOption)
+  }
+
+  def _findByCustomer(cust: Customer) = {carts.filter(_.customerId === cust.id)}
 }

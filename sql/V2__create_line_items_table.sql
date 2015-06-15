@@ -1,19 +1,20 @@
-CREATE TABLE line_items (
-    id integer NOT NULL,
-    cart_id integer NOT NULL,
-    sku_id integer NOT NULL,
+create table line_items (
+    id integer not null,
+    parent_id integer not null,
+    parent_type character varying(255),
+    sku_id integer not null,
     created_at timestamp without time zone default (now() at time zone 'utc')
 );
 
-CREATE SEQUENCE line_items_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
+create sequence line_items_id_seq
+    start with 1
+    increment by 1
+    no minvalue
+    no maxvalue
+    cache 1;
 
-ALTER TABLE ONLY line_items
-    ADD CONSTRAINT line_items_pkey PRIMARY KEY (id);
+alter table only line_items
+    add constraint line_items_pkey primary key (id);
 
-ALTER TABLE ONLY line_items
-  ALTER COLUMN id SET DEFAULT nextval('line_items_id_seq'::regclass);
+alter table only line_items
+  alter column id set default nextval('line_items_id_seq'::regclass);

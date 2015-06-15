@@ -21,3 +21,12 @@ class States(tag: Tag) extends Table[State](tag, "states") with RichTable {
 
   def * = (id, name, abbreviation) <> ((State.apply _).tupled, State.unapply)
 }
+
+object States {
+  val table = TableQuery[States]
+
+  def findByName(name: String)
+                (implicit db: Database) = { db.run(_findByName(name)) }
+
+  def _findByName(name: String) = { table.filter(_.name === name).result.headOption }
+}
