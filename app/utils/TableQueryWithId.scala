@@ -7,7 +7,7 @@ import slick.driver.PostgresDriver.api._
 import scala.concurrent.{Future, ExecutionContext}
 
 trait ModelWithIdParameter {
-  type Id
+  type Id = Int
 }
 
 trait TableWithIdColumn[I] {

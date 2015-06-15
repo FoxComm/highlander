@@ -11,8 +11,6 @@ import utils.{ GenericTable, TableQueryWithId, ModelWithIdParameter }
 import scala.concurrent.{ExecutionContext, Future}
 
 case class Cart(id: Int = 0, accountId: Option[Int] = None, status: Cart.Status = Cart.Active) extends ModelWithIdParameter {
-  override type Id = Int
-
   def lineItemParentId = this.id
 
   //  def coupons: Seq[Coupon] = Seq.empty
