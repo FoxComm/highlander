@@ -17,6 +17,8 @@ module.exports = function(app) {
     prefix: `/api/${config.version}`
   });
 
+  router.use(app.jsonError);
+
   router.get('/:path*', function *() {
     let res = yield t(baseRequest.get)(this.params.path);
     this.status = res[0].statusCode;

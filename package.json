@@ -40,13 +40,10 @@
       "modules": true
     },
     "rules": {
-      "quotes": "single",
-      "curly": [
-        2,
-        "multi-line"
-      ],
-      "no-process-exit": false,
-      "no-underscore-dangle": false,
+      "quotes": [1, "single"],
+      "curly": [2, "multi-line"],
+      "no-process-exit": 0,
+      "no-underscore-dangle": 0,
       "no-multi-spaces": [
         1,
         {

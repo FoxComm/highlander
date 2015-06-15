@@ -25,8 +25,8 @@ class Api {
       };
 
       req.open(method, uri);
-      if (token) req.setRequestHeader("Authorization", `Bearer ${token}`);
-      if (data) req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+      if (token) req.setRequestHeader('Authorization', `Bearer ${token}`);
+      if (data) req.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
       req.send(data ? JSON.stringify(data) : null);
     });
   }
