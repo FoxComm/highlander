@@ -21,7 +21,23 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
 
     CartLineItems.countByCart(this.cart).flatMap { count =>
       if (count > 0) {
-        buildOrderFromCart(cart).map(Good(_))
+        authenticatePayments.flatMap { payments =>
+          var allSuccessful = true
+          var failedPayments: Map[AppliedPayment, List[ErrorMessage]] = Map.empty
+          for { p <- payments } yield {
+            if (p._2.nonEmpty ) {
+              allSuccessful = false
+              failedPayments += p
+            }
+          }
+          if (allSuccessful) { buildOrderFromCart(cart).map(Good(_)) }
+          else {
+            val returnedErrors: List[ErrorMessage] = List.empty
+            failedPayments.flatMap{ i => returnedErrors ++ i._2}
+            Future.successful(Bad(returnedErrors))
+          }
+        }
+
       } else {
         Future.successful(Bad(List("No Line Items in Cart!")))
       }
@@ -52,7 +68,7 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
                 p -> List[ErrorMessage]()
             }
           case None =>
-            Future.successful(p -> List[ErrorMessage]())
+            Future.successful(p -> List("There are no payment methods on this order!"))
         }
       }
 
