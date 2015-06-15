@@ -100,14 +100,6 @@ object Main extends Formats {
 
 // JSON formatters
 trait Formats extends DefaultJsonProtocol {
-  def adtSerializer[T : Manifest] = () => {
-    new CustomSerializer[T](format => ( {
-      case _ ⇒ sys.error("Reading not implemented")
-    }, {
-      case x ⇒ JString(x.toString)
-    }))
-  }
-
   implicit val addLineItemsRequestFormat = jsonFormat2(UpdateLineItemsPayload.apply)
   implicit val addPaymentMethodRequestFormat = jsonFormat4(PaymentMethodPayload.apply)
   implicit val addTokenizedPaymentMethodRequestFormat = jsonFormat2(TokenizedPaymentMethodPayload.apply)
@@ -171,7 +163,7 @@ class Service(
 
   val notFoundResponse = HttpResponse(NotFound)
 
-  def whenFound[M](finder: Future[Option[M]])(f: M => Future[AnyRef Or List[ErrorMessage]]): Future[HttpResponse] = {
+  def whenFound[A](finder: Future[Option[A]])(f: A => Future[AnyRef Or List[ErrorMessage]]): Future[HttpResponse] = {
     finder.flatMap { optModel =>
       optModel.map { m =>
         f(m).map {
@@ -194,8 +186,8 @@ class Service(
       }.getOrElse(Future.successful(None))
     }
 
-    def renderOrNotFound[T <: AnyRef](resource: Future[Option[T]],
-                                      onFound: (T => HttpResponse) = (r: T) => HttpResponse(OK, entity = render(r))) = {
+    def renderOrNotFound[A <: AnyRef](resource: Future[Option[A]],
+                                      onFound: (A => HttpResponse) = (r: A) => HttpResponse(OK, entity = render(r))) = {
       resource.map {
         case Some(r) => onFound(r)
         case None => notFoundResponse
