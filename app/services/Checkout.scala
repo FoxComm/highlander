@@ -15,11 +15,17 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
     // 1) Check Inventory
     // 2) Verify Payment (re-auth)
     // 3) Validate addresses
-    // 4) Validate promotions/couponsi
+    // 4) Validate promotions/coupons
     // 5) Final Auth on the payment
 
+    CartLineItems.countByCart(this.cart).flatMap { count =>
+      if (count > 0) {
+        buildOrderFromCart(cart).map(Good(_))
+      } else {
+        Future.successful(Bad(List("No Line Items in Cart!")))
+      }
+    }
 
-    buildOrderFromCart(cart).map(Good(_))
   }
 
   def verifyInventory: List[ErrorMessage] = {

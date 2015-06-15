@@ -28,4 +28,6 @@ object CartLineItems {
 
   def _findByCartId(cartId: Rep[Int]) = { table.filter(_.cartId === cartId) }
   def _findByOrderId(orderId: Rep[Int]) = { table.filter(_.cartId === orderId) }
+
+  def countByCart(cart: Cart)(implicit ec: ExecutionContext, db: Database) ={ db.run(_findByCartId(cart.id).length.result) }
 }
