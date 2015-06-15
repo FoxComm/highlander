@@ -12,18 +12,21 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
 
   def checkout: Future[Order Or List[ErrorMessage]] = {
     // Realistically, what we'd do here is actually
+    // 0) Check that line items exist -- DONE
     // 1) Check Inventory
     // 2) Verify Payment (re-auth)
     // 3) Validate addresses
-    // 4) Validate promotions/couponsi
+    // 4) Validate promotions/coupons
     // 5) Final Auth on the payment
 
-    buildOrderFromCart(cart).map(Good(_))
-  }
+    CartLineItems.countByCart(this.cart).flatMap { count =>
+      if (count > 0) {
+        buildOrderFromCart(cart).map(Good(_))
+      } else {
+        Future.successful(Bad(List("No Line Items in Cart!")))
+      }
+    }
 
-  def verifyInventory: List[ErrorMessage] = {
-    // TODO: Call the inventory service and verify that inventory exists for all items in cart
-    List.empty
   }
 
   // sets incoming cart.status == Cart.ordered and creates a new cart
@@ -65,11 +68,11 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
     val order = Order(customerId = cart.accountId.getOrElse(0), status = Order.New, locked = 0)
 
     val actions = for {
-      orderId <- Orders.returningId += order
+      newOrderId <- Orders.returningId += order
       items <- CartLineItems.table.filter(_.cartId === cart.id).result
-      copiedLineItemIds <- CartLineItems.returningId ++= items.map { i => i.copy(cartId = orderId) }
+      copiedLineItemIds <- OrderLineItems.returningId ++= items.map { i => new OrderLineItem(orderId = newOrderId, skuId = i.skuId, status = OrderLineItem.New) }
       _ <- setCartToOrdered(cart)
-    } yield order.copy(id = orderId)
+    } yield order.copy(id = newOrderId)
 
     db.run(actions.transactionally)
   }

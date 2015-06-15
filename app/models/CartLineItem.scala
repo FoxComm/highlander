@@ -11,7 +11,7 @@ import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-case class CartLineItem(id: Int, cartId: Int, skuId: Int)
+case class CartLineItem(id: Int = 0, cartId: Int, skuId: Int)
 
 class CartLineItems(tag: Tag) extends Table[CartLineItem](tag, "cart_line_items") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
@@ -28,4 +28,6 @@ object CartLineItems {
 
   def _findByCartId(cartId: Rep[Int]) = { table.filter(_.cartId === cartId) }
   def _findByOrderId(orderId: Rep[Int]) = { table.filter(_.cartId === orderId) }
+
+  def countByCart(cart: Cart)(implicit ec: ExecutionContext, db: Database) ={ db.run(_findByCartId(cart.id).length.result) }
 }
