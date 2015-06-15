@@ -32,4 +32,8 @@ tag:
 	git tag v$(version)
 	git push --tags origin master
 
+setup:
+	npm install
+	npm build
+
 .PHONY: test test-cov tag
