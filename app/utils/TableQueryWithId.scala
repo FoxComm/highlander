@@ -26,12 +26,7 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.Tab
   (construct: Tag ⇒ T)
   (implicit ev: BaseTypedType[M#Id]) extends TableQuery[T](construct) {
 
-  val byId = for {
-    id     ← Parameters[M#Id]
-    entity ← filter(_.id === id)
-  } yield entity
-
-  def _findById(i: M#Id) = filter(_.id === i)
+  def _findById(i: M#Id): Query[T, M, Seq] = filter(_.id === i)
 
   def findById(i: M#Id)(implicit db: Database, ec: ExecutionContext): Future[Option[M]] =
     db.run(_findById(i).result.headOption)
@@ -39,12 +34,11 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.Tab
   val returningId =
     this.returning(map(_.id))
 
-  def save(model: M)(implicit ec: ExecutionContext): DBIO[M] = for {
+  def save(model: M)(implicit db: Database, ec: ExecutionContext): Future[M] = db.run(for {
     id ← returningId += model
-  } yield idLens.set(id)(model)
+  } yield idLens.set(id)(model))
 
-
-  def deleteById(i: M#Id): DBIO[Int] =
-    byId(i).delete
+  def deleteById(i: M#Id)(implicit db: Database, ec: ExecutionContext): Future[Int] =
+    db.run(_findById(i).delete)
 }
 
