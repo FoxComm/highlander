@@ -27,13 +27,13 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.Tab
   (construct: Tag ⇒ T)
   (implicit ev: BaseTypedType[M#Id]) extends TableQuery[T](construct) {
 
+  val returningId =
+    this.returning(map(_.id))
+
   def _findById(i: M#Id): Query[T, M, Seq] = filter(_.id === i)
 
   def findById(i: M#Id)(implicit db: Database, ec: ExecutionContext): Future[Option[M]] =
     db.run(_findById(i).result.headOption)
-
-  val returningId =
-    this.returning(map(_.id))
 
   def save(model: M)(implicit db: Database, ec: ExecutionContext): Future[M] = db.run(for {
     id ← returningId += model
