@@ -91,7 +91,6 @@ case class Collection(id: Int, name: String, isActive: Boolean) extends Validati
 }
 
 object Main extends Formats {
-
   def main(args: Array[String]): Unit = {
     val service = new Service()
     service.bind()
@@ -100,14 +99,6 @@ object Main extends Formats {
 
 // JSON formatters
 trait Formats extends DefaultJsonProtocol {
-  def adtSerializer[T : Manifest] = () => {
-    new CustomSerializer[T](format => ( {
-      case _ ⇒ sys.error("Reading not implemented")
-    }, {
-      case x ⇒ JString(x.toString)
-    }))
-  }
-
   implicit val addLineItemsRequestFormat = jsonFormat2(UpdateLineItemsPayload.apply)
   implicit val addPaymentMethodRequestFormat = jsonFormat4(PaymentMethodPayload.apply)
   implicit val addTokenizedPaymentMethodRequestFormat = jsonFormat2(TokenizedPaymentMethodPayload.apply)
@@ -168,16 +159,38 @@ class Service(
   def customerAuth: AsyncAuthenticator[Customer] = services.Authenticator.customer
   def storeAdminAuth: AsyncAuthenticator[StoreAdmin] = services.Authenticator.storeAdmin
 
+  val notFoundResponse = HttpResponse(NotFound)
+
+  def renderGoodOrBad[G <: AnyRef, B <: AnyRef](goodOrBad: G Or B)
+                                               (implicit ec: ExecutionContext,
+                                                db: Database): HttpResponse = {
+    goodOrBad match {
+      case Bad(errors)    =>
+        HttpResponse(BadRequest, entity = render(("errors" -> errors)))
+      case Good(resource) =>
+        HttpResponse(OK, entity = render(resource))
+    }
+  }
+
+  def whenFound[A, G <: AnyRef, B <: AnyRef](finder: Future[Option[A]])(f: A => Future[G Or B])
+                                            (implicit ec: ExecutionContext,
+                                             db: Database): Future[HttpResponse] = {
+    finder.flatMap { option =>
+      option.map(f(_).map(renderGoodOrBad)).
+        getOrElse(Future.successful(notFoundResponse))
+    }
+  }
+
   val routes = {
-    def findCustomer(id: Option[Int]): Option[Customer] = id.flatMap { id =>
-      Some(Customer(id = id, email = "donkey@donkey.com", password = "donkeyPass",
-        firstName = "Mister", lastName = "Donkey"))
+    def findCustomer(id: Option[Int]): Future[Option[Customer]] = {
+      id.map { id =>
+        Future.successful(Some(Customer(id = id, email = "donkey@donkey.com", password = "donkeyPass",
+          firstName = "Mister", lastName = "Donkey")))
+      }.getOrElse(Future.successful(None))
     }
 
-    val notFoundResponse = HttpResponse(NotFound)
-
-    def renderOrNotFound[T <: AnyRef](resource: Future[Option[T]],
-                                      onFound: (T => HttpResponse) = (r: T) => HttpResponse(OK, entity = render(r))) = {
+    def renderOrNotFound[A <: AnyRef](resource: Future[Option[A]],
+                                      onFound: (A => HttpResponse) = (r: A) => HttpResponse(OK, entity = render(r))) = {
       resource.map {
         case Some(r) => onFound(r)
         case None => notFoundResponse
@@ -190,50 +203,25 @@ class Service(
     logRequestResult("admin-routes") {
       pathPrefix("v1" / "carts") {
         authenticateBasicAsync(realm = "cart and checkout", storeAdminAuth) { user =>
-          (get & path(IntNumber)) { id =>
+          (get & path(IntNumber)) { cartId =>
             complete {
-              renderOrNotFound(FullCart.findById(id))
+              renderOrNotFound(FullCart.findById(cartId))
             }
           } ~
-            (post & path(IntNumber / "checkout")) { id =>
+            (post & path(IntNumber / "checkout")) { cartId =>
               complete {
-                Carts.findById(id).map { cart =>
-                  cart.map { c =>
-                    new Checkout(c).checkout.map {
-                      case Good(order) => HttpResponse(OK, entity = render(order))
-                      case Bad(errors) => HttpResponse(BadRequest, entity = render(errors))
-                    }
-                  }.getOrElse(Future.successful(notFoundResponse))
-                }
+                whenFound(Carts.findById(cartId)) { cart => new Checkout(cart).checkout }
               }
             } ~
             (post & path(IntNumber / "line_items") & entity(as[Seq[UpdateLineItemsPayload]])) { (cartId, reqItems) =>
               complete {
-                Carts.findById(cartId).map {
-                  case None => Future(notFoundResponse)
-                  case Some(c) =>
-                    LineItemUpdater.updateQuantities(c, reqItems).map {
-                      case Bad(errors) =>
-                        HttpResponse(BadRequest, entity = render(errors))
-                      case Good(lineItems) =>
-                        HttpResponse(OK, entity = render(FullCart.build(c, lineItems)))
-                    }
-                }
+                whenFound(Carts.findById(cartId)) { cart => LineItemUpdater.updateQuantities(cart, reqItems) }
               }
             } ~
             (delete & path(IntNumber / "line_items" / IntNumber)) { (cartId, lineItemId) =>
               complete {
-                Carts.findById(cartId).map {
-                  case None => Future(notFoundResponse)
-                  case Some(cart) =>
-                    // TODO(yax): can the account delete this lineItem?
-                    LineItemUpdater.deleteById(lineItemId, cart.id).map {
-                      case Bad(errors) =>
-                        HttpResponse(BadRequest, entity = render(errors))
-                      case Good(lineItems) =>
-                        HttpResponse(OK, entity = render(FullCart.build(cart, lineItems)))
-                    }
-                }
+                // TODO(yax): can the account delete this lineItem?
+                whenFound(Carts.findById(cartId)) { cart => LineItemUpdater.deleteById(lineItemId, cart.id) }
               }
             } ~
             (get & path(IntNumber / "payment-methods")) { cartId =>
@@ -243,30 +231,17 @@ class Service(
             } ~
             (post & path(IntNumber / "payment-methods") & entity(as[PaymentMethodPayload])) { (cartId, reqPayment) =>
               complete {
-                Carts.findById(cartId).map {
-                  //can't add payment methods if the cart doesn't exist
-                  case None => notFoundResponse
-                  case Some(c) =>
-                    HttpResponse(OK, entity = render("HI"))
-                }
+                renderOrNotFound(Carts.findById(cartId))
               }
             } ~
             (post & path(IntNumber / "tokenized-payment-methods") & entity(as[TokenizedPaymentMethodPayload])) { (cartId, reqPayment) =>
               complete {
-                Carts.findById(cartId).flatMap {
-                  case None => Future.successful(notFoundResponse)
-                  case Some(cart) =>
-                    findCustomer(cart.accountId) match {
-                      case None     =>
-                        Future.successful(HttpResponse(OK, entity = render("Guest checkout!!")))
-
-                      case Some(customer) =>
-                        TokenizedPaymentCreator.run(cart, customer, reqPayment.paymentGatewayToken).map { fullCart =>
-                          fullCart.fold({ c => HttpResponse(OK, entity = render(c)) },
-                                        { e => HttpResponse(BadRequest, entity = render(e)) })
-                        }
-                    }
-                }
+                Future.successful(HttpResponse(BadRequest, entity = render(("errors" -> "fix me!"))))
+//                whenFound(Carts.findById(cartId)) { cart =>
+//                  whenFound(findCustomer(cart.accountId)) { customer =>
+//                    TokenizedPaymentCreator.run(cart, customer, reqPayment.paymentGatewayToken)
+//                  }
+//                }
               }
             }
         }
@@ -288,10 +263,7 @@ class Service(
               } ~
                 (post & entity(as[Seq[CreateAddressPayload]])) { payload =>
                   complete {
-                    Addresses.createFromPayload(customer, payload).map {
-                      case Good(addresses) => HttpResponse(OK, entity = render(addresses))
-                      case Bad(errorMap) => HttpResponse(BadRequest, entity = render(errorMap))
-                    }
+                    Addresses.createFromPayload(customer, payload).map(renderGoodOrBad)
                   }
                 }
             } ~
@@ -303,43 +275,17 @@ class Service(
                 } ~
                   (post & path("checkout")) {
                     complete {
-                      Carts.findByCustomer(customer).map { cart =>
-                        cart.map { c =>
-                          new Checkout(c).checkout.map {
-                            case Good(order) => HttpResponse(OK, entity = render(order))
-                            case Bad(errors) => HttpResponse(BadRequest, entity = render(errors))
-                          }
-                        }.getOrElse(Future.successful(notFoundResponse))
-                      }
+                      whenFound(Carts.findByCustomer(customer)) { cart => new Checkout(cart).checkout }
                     }
                   } ~
                   (post & path("line_items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems =>
                     complete {
-                      Carts.findByCustomer(customer).map {
-                        case None => Future(notFoundResponse)
-                        case Some(c) =>
-                          LineItemUpdater.updateQuantities(c, reqItems).map {
-                            case Bad(errors) =>
-                              HttpResponse(BadRequest, entity = render(errors))
-                            case Good(lineItems) =>
-                              HttpResponse(OK, entity = render(FullCart.build(c, lineItems)))
-                          }
-                      }
+                      whenFound(Carts.findByCustomer(customer)) { cart => LineItemUpdater.updateQuantities(cart, reqItems) }
                     }
                   } ~
                   (delete & path("line_items" / IntNumber)) { lineItemId =>
                     complete {
-                      Carts.findByCustomer(customer).map {
-                        case None => Future(notFoundResponse)
-                        case Some(cart) =>
-                          // TODO(yax): can the account delete this lineItem?
-                          LineItemUpdater.deleteById(lineItemId, cart.id).map {
-                            case Bad(errors) =>
-                              HttpResponse(BadRequest, entity = render(errors))
-                            case Good(lineItems) =>
-                              HttpResponse(OK, entity = render(FullCart.build(cart, lineItems)))
-                          }
-                      }
+                      whenFound(Carts.findByCustomer(customer)) { cart => LineItemUpdater.deleteById(lineItemId, cart.id) }
                     }
                   }
               }
@@ -354,10 +300,7 @@ class Service(
           pathPrefix("registrations") {
             (post & path("new") & entity(as[CreateCustomerPayload])) { regRequest =>
               complete {
-                Customers.createFromPayload(regRequest).map {
-                  case Good(customer) => HttpResponse(OK, entity = render(customer))
-                  case Bad(error) => HttpResponse(BadRequest, entity = render(error))
-                }
+                Customers.createFromPayload(regRequest).map(renderGoodOrBad)
               }
             }
           }
