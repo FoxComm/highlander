@@ -250,12 +250,20 @@ class Service(
             } ~
             (post & path(IntNumber / "tokenized-payment-methods") & entity(as[TokenizedPaymentMethodPayload])) { (cartId, reqPayment) =>
               complete {
-                Future.successful(HttpResponse(BadRequest, entity = render(("errors" -> "fix me!"))))
-//                whenFound(Carts.findById(cartId)) { cart =>
-//                  whenFound(findCustomer(cart.accountId)) { customer =>
-//                    TokenizedPaymentCreator.run(cart, customer, reqPayment.paymentGatewayToken)
-//                  }
-//                }
+                Carts.findById(cartId).flatMap {
+                  case None => Future.successful(notFoundResponse)
+                  case Some(cart) =>
+                    findCustomer(cart.accountId).flatMap {
+                      case None     =>
+                        Future.successful(HttpResponse(OK, entity = render(s"Guest checkout!!")))
+
+                      case Some(customer) =>
+                        TokenizedPaymentCreator.run(cart, customer, reqPayment.token).map { fullCart =>
+                          fullCart.fold({ c => HttpResponse(OK, entity = render(c)) },
+                                        { e => HttpResponse(BadRequest, entity = render("errors" -> e)) })
+                        }
+                    }
+                }
               }
             }
         }
