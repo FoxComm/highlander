@@ -1,7 +1,7 @@
 package models
 
 import com.wix.accord.dsl.{validator => createValidator}
-import payloads.CreateCustomerPayload
+import payloads.{CreditCardPayload, CreateCustomerPayload}
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 import utils.{Validation, RichTable}
@@ -9,25 +9,33 @@ import com.wix.accord.Validator
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 import org.scalactic._
+import com.stripe.model.{Customer => StripeCustomer}
 
-case class CreditCardGateway(id: Int = 0, customerId: Option[Int] = None, gatewayAccountId: Int,
-                             lastFour: String, expMonth: String, expYear: String) extends Validation[CreditCardGateway] {
-  override def validator = createValidator[CreditCardGateway] { m =>
-    m.lastFour should matchRegex("[0-9]{4}")
-    // p.expMonth.toInt b/t 1-12
-    //m.expYear should matchRegex("[0-9]+")
+case class CreditCardGateway(id: Int = 0, customerId: Int, gatewayCustomerId: String, lastFour: String,
+                             expMonth: Int, expYear: Int) extends Validation[CreditCardGateway] {
+  override def validator = createValidator[CreditCardGateway] { cc =>
+    cc.lastFour should matchRegex("[0-9]{4}")
+    cc.expYear is between(2015, 2050)
+    cc.expMonth is between(1, 12)
+  }
+}
+
+object CreditCardGateway {
+  def build(c: StripeCustomer, payload: CreditCardPayload): CreditCardGateway = {
+    CreditCardGateway(customerId = 0, gatewayCustomerId = c.getId, lastFour = payload.lastFour,
+      expMonth = payload.expMonth, expYear = payload.expYear)
   }
 }
 
 class CreditCardGateways(tag: Tag) extends Table[CreditCardGateway](tag, "credit_card_gateways") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def customerId = column[Option[Int]]("customer_id")
-  def gatewayAccountId = column[Int]("gateway")
+  def customerId = column[Int]("customer_id")
+  def gatewayCustomerId = column[String]("gateway_customer_id")
   def lastFour = column[String]("last_four")
-  def expMonth = column[String]("exp_month")
-  def expYear = column[String]("exp_year")
+  def expMonth = column[Int]("exp_month")
+  def expYear = column[Int]("exp_year")
 
-  def * = (id, customerId, gatewayAccountId,
+  def * = (id, customerId, gatewayCustomerId,
     lastFour, expMonth, expYear) <> ((CreditCardGateway.apply _).tupled, CreditCardGateway.unapply)
 }
 

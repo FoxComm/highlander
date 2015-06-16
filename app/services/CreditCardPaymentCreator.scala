@@ -27,8 +27,13 @@ case class CreditCardPaymentCreator(cart: Cart, customer: Customer, cardPayload:
       // creates the customer, card, and gives us getDefaultCard as the token
       gateway.createCustomerAndCard(customer, this.cardPayload).flatMap {
         case Good(stripeCustomer) =>
-          Future.successful(Bad(cardPayload.validationFailures.toList))
-//          createRecords(stripeCustomer, cart, customer)
+          createRecords(stripeCustomer, cart, customer).flatMap { optCart =>
+            optCart.map { c =>
+              FullCart.fromCart(c).map { root =>
+                root.map(Good(_)).getOrElse(Bad(List("could not render cart")))
+              }
+            }.getOrElse(Future.successful(Bad(List(s"could not find cart with id=${cart.id}"))))
+          }
 
         case Bad(errors)          =>
           Future.successful(Bad(errors))
@@ -36,36 +41,30 @@ case class CreditCardPaymentCreator(cart: Cart, customer: Customer, cardPayload:
     }
   }
 
-//  private [this] def createRecords(stripeCustomer: StripeCustomer, cart: Cart, customer: Customer)
-//                                  (implicit ec: ExecutionContext, db: Database): Response = {
-//
-//    val appliedPayment = AppliedPayment(cartId = cart.id, paymentMethodId = 1, // TODO: would do a lookup
-//      paymentMethodType = card.paymentGateway,
-//      appliedAmount = 0, status = Auth.toString, // TODO: use type and marshalling
-//      responseCode = "ok") // TODO: make this real
-//
+  private [this] def createRecords(stripeCustomer: StripeCustomer, cart: Cart, customer: Customer)
+                                  (implicit ec: ExecutionContext, db: Database): Future[Option[Cart]] = {
+
+    val appliedPayment = AppliedPayment.fromStripeCustomer(stripeCustomer, cart)
+
+    // TODO: attempt to get billingAddress
 //    val billingAddress = Address(customerId = customer.id, stateId = state.id, name = "Stripe",
 //      street1 = stripeCard.getAddressLine1, street2 = Option(stripeCard.getAddressLine2),
 //      city = stripeCard.getAddressCity, zip = stripeCard.getAddressZip)
-//
-//    /*
-//      Create the TokenizedCreditCard, AppliedPayment, and billing Address (populated by the StripeCard)
-//     */
-//    val queries = for {
-//      tokenId <- .returning(tokenCardsTable.map(_.id)) += card.copy(customerId = customer.id)
-//      appliedPaymentId <- AppliedPayments.returningId += appliedPayment.copy(paymentMethodId = tokenId)
-//      addressId <- BillingAddresses._create(billingAddress, appliedPaymentId)
-//      c <- Carts._findById(cart.id).result.headOption
-//    } yield c
-//
-//    db.run(queries.transactionally).flatMap { optCart =>
-//      optCart.map { c =>
-//        FullCart.fromCart(c).map { root =>
-//          root.map(Good(_)).getOrElse(Bad(List("could not render cart")))
-//        }
-//      }.getOrElse(Future.successful(Bad(List(s"could not find cart with id=${cart.id}"))))
-//    }
-//  }
+
+    val cc = CreditCardGateway.build(stripeCustomer, this.cardPayload).copy(customerId = customer.id)
+
+    /*
+      Create the TokenizedCreditCard, AppliedPayment, and billing Address (populated by the StripeCard)
+     */
+    val queries = for {
+      ccId <- CreditCardGateways.returningId += cc
+      appliedPaymentId <- AppliedPayments.returningId += appliedPayment.copy(paymentMethodId = ccId)
+      // addressId <- BillingAddresses._create(billingAddress, appliedPaymentId)
+      c <- Carts._findById(cart.id).result.headOption
+    } yield c
+
+    db.run(queries.transactionally)
+  }
 }
 
 object CreditCardPaymentCreator {
