@@ -218,12 +218,6 @@ class Service(
                 whenFound(Carts.findById(cartId)) { cart => LineItemUpdater.updateQuantities(cart, reqItems) }
               }
             } ~
-            (delete & path(IntNumber / "line-items" / IntNumber)) { (cartId, lineItemId) =>
-              complete {
-                // TODO(yax): can the account delete this lineItem?
-                whenFound(Carts.findById(cartId)) { cart => LineItemUpdater.deleteById(lineItemId, cart.id) }
-              }
-            } ~
             (get & path(IntNumber / "payment-methods")) { cartId =>
               complete {
                 renderOrNotFound(Carts.findById(cartId))
@@ -284,11 +278,6 @@ class Service(
                   (post & path("line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems =>
                     complete {
                       whenFound(Carts.findByCustomer(customer)) { cart => LineItemUpdater.updateQuantities(cart, reqItems) }
-                    }
-                  } ~
-                  (delete & path("line-items" / IntNumber)) { lineItemId =>
-                    complete {
-                      whenFound(Carts.findByCustomer(customer)) { cart => LineItemUpdater.deleteById(lineItemId, cart.id) }
                     }
                   }
               }
