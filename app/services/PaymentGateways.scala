@@ -41,7 +41,7 @@ case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ") ex
       )
     )
 
-    val paramsWithOptionalAddress = card.address.map { address =>
+    val paramsWithOptionalAddress = card.address.fold(params) { address =>
       params ++ Map(
         "address_line1" -> address.street1,
         "address_line2" -> address.street2.getOrElse(""),
@@ -49,7 +49,7 @@ case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ") ex
         "address_state" -> address.state.getOrElse(""),
         "address_zip" -> address.zip
       )
-    }.getOrElse(params)
+    }
 
     Good(StripeCustomer.create(mapAsJavaMap(paramsWithOptionalAddress), options))
   }

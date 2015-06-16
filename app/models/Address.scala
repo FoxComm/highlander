@@ -21,6 +21,13 @@ case class Address(id: Int = 0, customerId: Int, stateId: Int, name: String, str
   }
 }
 
+object Address {
+  def fromPayload(p: CreateAddressPayload) = {
+    Address(customerId = 0, stateId = p.stateId, name = p.name,
+            street1 = p.street1, street2 = p.street2, city = p.city, zip = p.zip)
+  }
+}
+
 class Addresses(tag: Tag) extends Table[Address](tag, "addresses") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def customerId = column[Int]("customer_id")
@@ -53,10 +60,7 @@ object Addresses {
                        (implicit ec: ExecutionContext,
                         db: Database): Future[Seq[Address] Or Map[Address, Set[ErrorMessage]]] = {
 
-    val addresses = payload.map { a =>
-      Address(id = 0, customerId = customer.id, stateId = a.stateId, name = a.name,
-        street1 = a.street1, street2 = a.street2, city = a.city, zip = a.zip)
-    }
+    val addresses = payload.map(Address.fromPayload(_).copy(customerId = customer.id))
 
     create(customer, addresses)
   }
