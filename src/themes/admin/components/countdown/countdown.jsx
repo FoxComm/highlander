@@ -11,29 +11,46 @@ class Countdown extends React.Component {
     };
   }
 
-  addTime(time) {
-    this.setState({millisecondsRemaining: this.state.millisecondsRemaining + time});
+  addMinutes(minutes) {
+    this.addTime(minutes * (1000 * 60));
   }
 
-  addFifteenMinutes() {
-    this.addTime(15 * (1000 * 60));
+  addHours(hours) {
+    this.addTime(hours * (1000 * 60 * 60));
+  }
+
+  addTime(time) {
+    this.setState({millisecondsRemaining: this.state.millisecondsRemaining + time});
+    if (!this.interval) {
+      this.startInterval();
+    }
+  }
+
+  startInterval() {
+    this.interval = setInterval(this.tick.bind(this), 1000);
+  }
+
+  stopInterval() {
+    clearInterval(this.interval);
   }
 
   tick() {
     this.setState({millisecondsRemaining: this.state.millisecondsRemaining - 1000});
     if (this.state.millisecondsRemaining <= 0) {
       this.setState({millisecondsRemaining: 0});
-      clearInterval(this.interval);
+      this.stopInterval();
     }
   }
 
   componentDidMount() {
     this.setState({millisecondsRemaining: moment(this.props.date).diff(moment())});
-    this.interval = setInterval(this.tick.bind(this), 1000);
+    if (this.state.millisecondsRemaining > 0) {
+      this.startInterval();
+    }
   }
 
   componentWillUnmount() {
-    clearInterval(this.interval);
+    this.stopInterval();
   }
 
   render() {
@@ -43,7 +60,7 @@ class Countdown extends React.Component {
     return (
       <div>
         <div>{hours}:{minutes}:{seconds}</div>
-        <a className='btn' onClick={this.addFifteenMinutes.bind(this)}>+15</a>
+        <a className='btn' onClick={this.addMinutes.bind(this, 15)}>+15</a>
       </div>
     );
   }
@@ -54,7 +71,7 @@ Countdown.propTypes = {
 };
 
 Countdown.defaultProps = {
-  date: moment('2016-10-20').toISOString()
+  date: moment('2015-10-20').toISOString()
 };
 
 export default Countdown;

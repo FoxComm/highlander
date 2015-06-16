@@ -17,7 +17,6 @@ const routes = (
     <Route name='orders' handler={Orders}>
       <Route name='order' path=':order' handler={Order}/>
     </Route>
-    <Route name='countdown' path='/countdown' handler={Countdown}/>
     <Route name='users' handler={Users}>
       <Route name='user' path=':user' handler={User}/>
     </Route>
