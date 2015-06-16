@@ -1,16 +1,16 @@
 package models
 
-import utils.{Validation, RichTable}
-
-import com.wix.accord.dsl.{validator => createValidator}
+import com.wix.accord.dsl.{validator ⇒ createValidator}
+import com.wix.accord.{Failure ⇒ ValidationFailure}
+import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
-import org.scalactic._
-import com.wix.accord.{Failure => ValidationFailure, Validator}
-import com.wix.accord.dsl._
+import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
+import utils.RichTable
+import utils.{ GenericTable, TableQueryWithId, ModelWithIdParameter }
+
 import scala.concurrent.{ExecutionContext, Future}
 
-case class Cart(id: Int = 0, accountId: Option[Int] = None, status: Cart.Status = Cart.Active) {
+case class Cart(id: Int = 0, accountId: Option[Int] = None, status: Cart.Status = Cart.Active) extends ModelWithIdParameter {
   def lineItemParentId = this.id
 
   //  def coupons: Seq[Coupon] = Seq.empty
@@ -61,16 +61,18 @@ object Cart {
   })
 }
 
-class Carts(tag: Tag) extends Table[Cart](tag, "carts") with RichTable {
+class Carts(tag: Tag) extends GenericTable.TableWithId[Cart](tag, "carts") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def customerId = column[Option[Int]]("customer_id")
   def status = column[Cart.Status]("status")
   def * = (id, customerId, status) <> ((Cart.apply _).tupled, Cart.unapply)
 }
 
-object Carts {
-  val table = TableQuery[Carts]
-  val returningId = table.returning(table.map(_.id))
+object Carts extends TableQueryWithId[Cart, Carts](
+  idLens = GenLens[Cart](_.id)
+)(new Carts(_)) {
+  val table = this
+
   val tokenCardsTable = TableQuery[TokenizedCreditCards]
   val appliedPaymentsTable = TableQuery[AppliedPayments]
 
@@ -88,13 +90,6 @@ object Carts {
   def addPaymentMethod(cartId: Int, paymentMethod: PaymentMethod)(implicit db: Database): Boolean = {
     true
   }
-
-  def findById(id: Int)(implicit db: Database): Future[Option[Cart]] = {
-    db.run(_findById(id).result.headOption)
-  }
-
-  def _findById(id: Rep[Int]) = { table.filter(_.id === id) }
-
 
   def findByCustomer(customer: Customer)(implicit ec: ExecutionContext, db: Database): Future[Option[Cart]] = {
     db.run(_findByCustomer(customer).result.headOption)
