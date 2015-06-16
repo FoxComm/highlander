@@ -15,55 +15,52 @@ case object BraintreeGateway extends PaymentGateway
 
 // TODO(yax): do not default apiKey, it should come from store
 case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ") extends PaymentGateway {
-  def getTokenizedCard(paymentToken: String)(implicit ec: ExecutionContext): Future[(TokenizedCreditCard, StripeCard) Or List[ErrorMessage]] = {
-    wrap {
-      val retrievedToken = Token.retrieve(paymentToken, options)
-      val stripeCard = retrievedToken.getCard
-      Good((TokenizedCreditCard.fromStripe(stripeCard, paymentToken), stripeCard))
-    }
+  def getTokenizedCard(paymentToken: String)
+                      (implicit ec: ExecutionContext):
+                      Future[(TokenizedCreditCard, StripeCard) Or List[ErrorMessage]] = tryFutureWrap {
+
+    val retrievedToken = Token.retrieve(paymentToken, options)
+    val stripeCard = retrievedToken.getCard
+    Good((TokenizedCreditCard.fromStripe(stripeCard, paymentToken), stripeCard))
   }
 
   // Creates a customer in Stripe along with their first CC
-  def createCustomerAndCard(customer: Customer, cardPayload: CreditCardPayload)
-                    (implicit ec: ExecutionContext): Future[StripeCustomer Or List[ErrorMessage]] = {
+  def createCustomerAndCard(customer: Customer, card: CreditCardPayload)
+                           (implicit ec: ExecutionContext): Future[StripeCustomer Or List[ErrorMessage]] = tryFutureWrap {
 
     val params: Map[String, Object] = Map(
       "description" -> "FoxCommerce",
       "email" -> customer.email,
       "source" -> Map(
         "object" -> "card",
-        "number" -> cardPayload.number,
-        "exp_month" -> cardPayload.expMonth.toString,
-        "exp_year" -> cardPayload.expYear.toString,
-        "cvc" -> cardPayload.cvv.toString,
-        "name" -> cardPayload.holderName
+        "number" -> card.number,
+        "exp_month" -> card.expMonth.toString,
+        "exp_year" -> card.expYear.toString,
+        "cvc" -> card.cvv.toString,
+        "name" -> card.holderName
         // TODO(yax): would like to add fields "address_line1", "address_city", "address_state", "address_zip"
       )
     )
 
-    wrap {
-      Good(StripeCustomer.create(mapAsJavaMap(params), options))
-    }
+    Good(StripeCustomer.create(mapAsJavaMap(params), options))
   }
 
   def authorizeAmount(tokenizedCard: TokenizedCreditCard, amount: Int)
-                     (implicit ec: ExecutionContext): Future[String Or List[ErrorMessage]] = {
+                     (implicit ec: ExecutionContext): Future[String Or List[ErrorMessage]] = tryFutureWrap {
     val capture: java.lang.Boolean = false
     val chargeMap: Map[String, Object] = Map("amount" -> "100", "currency" -> "usd",
       "source" -> tokenizedCard.gatewayTokenId, "capture" -> capture)
 
 
-    wrap {
-      val charge = StripeCharge.create(mapAsJavaMap(chargeMap), options)
-      /*
+    val charge = StripeCharge.create(mapAsJavaMap(chargeMap), options)
+    /*
       TODO: https://stripe.com/docs/api#create_charge
       Since we're using tokenized, we presumably pass verification process, but might want to handle here
     */
-      Good(charge.getId)
-    }
+    Good(charge.getId)
   }
 
-  private [this] def wrap[A](f: => A Or List[ErrorMessage])(implicit ec: ExecutionContext): Future[A Or List[ErrorMessage]] = {
+  private [this] def tryFutureWrap[A](f: => A Or List[ErrorMessage])(implicit ec: ExecutionContext): Future[A Or List[ErrorMessage]] = {
     Future {
       try {
         f
