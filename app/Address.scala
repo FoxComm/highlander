@@ -42,7 +42,7 @@ import akka.http.scaladsl.server.directives._
 import utils.{RichTable, Validation}
 import models._
 import payloads._
-import responses.FullCart
+import responses.FullOrder
 import services.{LineItemUpdater, PaymentGateway, Checkout, Authenticator, CreditCardPaymentCreator}
 
 case class Store(id: Int, name: String, Configuration: StoreConfiguration)
@@ -182,11 +182,9 @@ class Service(
   }
 
   val routes = {
-    def findCustomer(id: Option[Int]): Future[Option[Customer]] = {
-      id.map { id =>
+    def findCustomer(id: Int): Future[Option[Customer]] = {
         Future.successful(Some(Customer(id = id, email = "donkey@donkey.com", password = "donkeyPass",
           firstName = "Mister", lastName = "Donkey")))
-      }.getOrElse(Future.successful(None))
     }
 
     def renderOrNotFound[A <: AnyRef](resource: Future[Option[A]],
@@ -201,39 +199,39 @@ class Service(
       Admin Authenticated Routes
      */
     logRequestResult("admin-routes") {
-      pathPrefix("v1" / "carts") {
-        authenticateBasicAsync(realm = "cart and checkout", storeAdminAuth) { user =>
-          (get & path(IntNumber)) { cartId =>
+      pathPrefix("v1" / "orders") {
+        authenticateBasicAsync(realm = "order and checkout", storeAdminAuth) { user =>
+          (get & path(IntNumber)) { orderId =>
             complete {
-              renderOrNotFound(FullCart.findById(cartId))
+              renderOrNotFound(FullOrder.findById(orderId))
             }
           } ~
-            (post & path(IntNumber / "checkout")) { cartId =>
+            (post & path(IntNumber / "checkout")) { orderId =>
               complete {
-                whenFound(Carts.findById(cartId)) { cart => new Checkout(cart).checkout }
+                whenFound(Orders.findById(orderId)) { order => new Checkout(order).checkout }
               }
             } ~
-            (post & path(IntNumber / "line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { (cartId, reqItems) =>
+            (post & path(IntNumber / "line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { (orderId, reqItems) =>
               complete {
-                whenFound(Carts.findById(cartId)) { cart => LineItemUpdater.updateQuantities(cart, reqItems) }
+                whenFound(Orders.findById(orderId)) { order => LineItemUpdater.updateQuantities(order, reqItems) }
               }
             } ~
-            (get & path(IntNumber / "payment-methods")) { cartId =>
+            (get & path(IntNumber / "payment-methods")) { orderId =>
               complete {
-                renderOrNotFound(Carts.findById(cartId))
+                renderOrNotFound(Orders.findById(orderId))
               }
             } ~
-            (post & path(IntNumber / "payment-methods" / "credit-card") & entity(as[CreditCardPayload])) { (cartId, reqPayment) =>
+            (post & path(IntNumber / "payment-methods" / "credit-card") & entity(as[CreditCardPayload])) { (orderId, reqPayment) =>
               complete {
-                Carts.findById(cartId).flatMap {
+                Orders.findById(orderId).flatMap {
                   case None => Future.successful(notFoundResponse)
-                  case Some(cart) =>
-                    findCustomer(cart.accountId).flatMap {
+                  case Some(order) =>
+                    findCustomer(order.customerId).flatMap {
                       case None     =>
                         Future.successful(HttpResponse(OK, entity = render(s"Guest checkout!!")))
 
                       case Some(customer) =>
-                        CreditCardPaymentCreator.run(cart, customer, reqPayment).map { fullCart =>
+                        CreditCardPaymentCreator.run(order, customer, reqPayment).map { fullCart =>
                           fullCart.fold({ c => HttpResponse(OK, entity = render(c)) },
                                         { e => HttpResponse(BadRequest, entity = render("errors" -> e)) })
                         }
@@ -264,20 +262,20 @@ class Service(
                   }
                 }
             } ~
-              pathPrefix("cart") {
+              pathPrefix("order") {
                 get {
                   complete {
-                    renderOrNotFound(FullCart.findByCustomer(customer))
+                    renderOrNotFound(FullOrder.findByCustomer(customer))
                   }
                 } ~
                   (post & path("checkout")) {
                     complete {
-                      whenFound(Carts.findByCustomer(customer)) { cart => new Checkout(cart).checkout }
+                      whenFound(Orders.findActiveOrderByCustomer(customer)) { order => new Checkout(order).checkout }
                     }
                   } ~
                   (post & path("line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems =>
                     complete {
-                      whenFound(Carts.findByCustomer(customer)) { cart => LineItemUpdater.updateQuantities(cart, reqItems) }
+                      whenFound(Orders.findActiveOrderByCustomer(customer)) { order => LineItemUpdater.updateQuantities(order, reqItems) }
                     }
                   }
               }

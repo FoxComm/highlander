@@ -8,7 +8,7 @@ import scala.concurrent.{Future, ExecutionContext}
 
 import slick.driver.PostgresDriver.api._
 
-class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
+class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
 
   def checkout: Future[Order Or List[ErrorMessage]] = {
     // Realistically, what we'd do here is actually
@@ -19,9 +19,10 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
     // 4) Validate promotions/coupons
     // 5) Final Auth on the payment
 
-    CartLineItems.countByCart(this.cart).flatMap { count =>
+    OrderLineItems.countByOrder(this.order).flatMap { count =>
       if (count > 0) {
-        buildOrderFromCart(cart).map(Good(_))
+        // Figure out what to really return if an order status is completed.
+        completeOrderAndCreateNew(order).map(Good(_))
       } else {
         Future.successful(Bad(List("No Line Items in Cart!")))
       }
@@ -29,18 +30,20 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
 
   }
 
-  // sets incoming cart.status == Cart.ordered and creates a new cart
-  def setCartToOrdered(cart: Cart): DBIOAction[Cart, NoStream, Effect.Write with Effect.Write] = {
-    val newCart = Cart(accountId = cart.accountId, status = Cart.Active)
-    for {
-      _ <- Carts._findById(cart.id).map(_.status).update(Cart.Ordered)
-      insertId <- Carts.returningId += newCart
-    } yield newCart.copy(id = insertId)
+  // sets incoming order.status == Cart.ordered and creates a new order
+  def completeOrderAndCreateNew(order: Order): Future[Order] = {
+    val newOrder = Order(customerId = order.customerId, status = Order.Cart)
+
+
+    db.run(for {
+      _ <- Orders._findById(order.id).map(_.status).update(Order.Ordered)
+      insertId <- Orders.returningId += newOrder
+    } yield newOrder.copy(id = insertId))
   }
 
   def authenticatePayments: Future[Map[AppliedPayment, List[ErrorMessage]]] = {
     // Really, this should authenticate all payments, at their specified 'applied amount.'
-    cart.payments.flatMap { payments =>
+    order.payments.flatMap { payments =>
       val seq = payments.map { p =>
         PaymentMethods.findById(p.paymentMethodId).flatMap {
           case Some(c) =>
@@ -64,16 +67,4 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
     List.empty
   }
 
-  def buildOrderFromCart(cart: Cart)(implicit ec: ExecutionContext, db: Database): Future[Order] = {
-    val order = Order(customerId = cart.accountId.getOrElse(0), status = Order.New, locked = 0)
-
-    val actions = for {
-      newOrderId <- Orders.returningId += order
-      items <- CartLineItems.table.filter(_.cartId === cart.id).result
-      copiedLineItemIds <- OrderLineItems.returningId ++= items.map { i => new OrderLineItem(orderId = newOrderId, skuId = i.skuId, status = OrderLineItem.New) }
-      _ <- setCartToOrdered(cart)
-    } yield order.copy(id = newOrderId)
-
-    db.run(actions.transactionally)
-  }
 }

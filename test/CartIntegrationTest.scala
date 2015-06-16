@@ -1,7 +1,7 @@
 import akka.http.scaladsl.model.StatusCodes
 import models._
 import payloads.CreditCardPayload
-import responses.FullCart
+import responses.FullOrder
 
 import org.json4s.DefaultFormats
 import org.scalatest.concurrent.ScalaFutures
@@ -40,7 +40,7 @@ class CartIntegrationTest extends FreeSpec
        """.stripMargin)
 
     val responseBody = response.bodyText
-    val cart = parse(responseBody).extract[FullCart.Root]
+    val cart = parse(responseBody).extract[FullOrder.Root]
 
     cart.lineItems.map(_.skuId).sortBy(identity) mustBe List(1, 5, 5)
   }
@@ -52,7 +52,7 @@ class CartIntegrationTest extends FreeSpec
 
     val response = DELETE(s"v1/carts/$cartId/line-items/1")
     val responseBody = response.bodyText
-    val cart = parse(responseBody).extract[FullCart.Root]
+    val cart = parse(responseBody).extract[FullOrder.Root]
 
     cart.lineItems mustBe List(CartLineItem(id = 2, cartId = cartId, skuId = 1))
   }

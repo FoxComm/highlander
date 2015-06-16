@@ -2,7 +2,7 @@ package services
 
 import models._
 
-import responses.FullCart
+import responses.FullOrder
 import payloads.CreditCardPayload
 
 import org.scalactic._
@@ -14,7 +14,7 @@ import com.stripe.net.{RequestOptions => StripeRequestOptions}
 import collection.JavaConversions.mapAsJavaMap
 
 // TODO(yax): make this abstract to handle multiple Gateways
-case class CreditCardPaymentCreator(cart: Cart, customer: Customer, cardPayload: CreditCardPayload)
+case class CreditCardPaymentCreator(order: Order, customer: Customer, cardPayload: CreditCardPayload)
                                    (implicit ec: ExecutionContext, db: Database) {
 
   val gateway = StripeGateway()
@@ -27,12 +27,12 @@ case class CreditCardPaymentCreator(cart: Cart, customer: Customer, cardPayload:
       // creates the customer, card, and gives us getDefaultCard as the token
       gateway.createCustomerAndCard(customer, this.cardPayload).flatMap {
         case Good(stripeCustomer) =>
-          createRecords(stripeCustomer, cart, customer).flatMap { optCart =>
-            optCart.map { c =>
-              FullCart.fromCart(c).map { root =>
-                root.map(Good(_)).getOrElse(Bad(List("could not render cart")))
+          createRecords(stripeCustomer, order, customer).flatMap { optOrder =>
+            optOrder.map { c =>
+              FullOrder.fromOrder(c).map { root =>
+                root.map(Good(_)).getOrElse(Bad(List("could not render order")))
               }
-            }.getOrElse(Future.successful(Bad(List(s"could not find cart with id=${cart.id}"))))
+            }.getOrElse(Future.successful(Bad(List(s"could not find order with id=${order.id}"))))
           }
 
         case Bad(errors)          =>
@@ -43,10 +43,10 @@ case class CreditCardPaymentCreator(cart: Cart, customer: Customer, cardPayload:
 
   // creates CreditCardGateways, uses its id for an AppliedPayment record, and attempts to associate billing info
   // from stripe to a BillingAddress
-  private [this] def createRecords(stripeCustomer: StripeCustomer, cart: Cart, customer: Customer)
-                                  (implicit ec: ExecutionContext, db: Database): Future[Option[Cart]] = {
+  private [this] def createRecords(stripeCustomer: StripeCustomer, order: Order, customer: Customer)
+                                  (implicit ec: ExecutionContext, db: Database): Future[Option[Order]] = {
 
-    val appliedPayment = AppliedPayment.fromStripeCustomer(stripeCustomer, cart)
+    val appliedPayment = AppliedPayment.fromStripeCustomer(stripeCustomer, order)
 
     // TODO: attempt to get billingAddress
 //    val billingAddress = Address(customerId = customer.id, stateId = state.id, name = "Stripe",
@@ -62,7 +62,7 @@ case class CreditCardPaymentCreator(cart: Cart, customer: Customer, cardPayload:
       ccId <- CreditCardGateways.returningId += cc
       appliedPaymentId <- AppliedPayments.returningId += appliedPayment.copy(paymentMethodId = ccId)
       // addressId <- BillingAddresses._create(billingAddress, appliedPaymentId)
-      c <- Carts._findById(cart.id).result.headOption
+      c <- Orders._findById(order.id).result.headOption
     } yield c
 
     db.run(queries.transactionally)
@@ -70,11 +70,11 @@ case class CreditCardPaymentCreator(cart: Cart, customer: Customer, cardPayload:
 }
 
 object CreditCardPaymentCreator {
-  type Response = Future[FullCart.Root Or List[ErrorMessage]]
+  type Response = Future[FullOrder.Root Or List[ErrorMessage]]
 
-  def run(cart: Cart, customer: Customer, payload: CreditCardPayload)
+  def run(order: Order, customer: Customer, payload: CreditCardPayload)
          (implicit ec: ExecutionContext,
           db: Database): Response = {
-    new CreditCardPaymentCreator(cart, customer, payload).run()
+    new CreditCardPaymentCreator(order, customer, payload).run()
   }
 }
