@@ -22,10 +22,11 @@ class Checkout(cart: Cart)(implicit ec: ExecutionContext, db: Database) {
     CartLineItems.countByCart(this.cart).flatMap { count =>
       if (count > 0) {
         authenticatePayments.flatMap { payments =>
-          if (payments.values.isEmpty) {
+          val errors = payments.values.toList.flatten
+          if (errors.isEmpty) {
             buildOrderFromCart(cart).map(Good(_))
           } else {
-            Future.successful(Bad(payments.values.toList.flatten))
+            Future.successful(Bad(errors))
           }
         }
       } else {
