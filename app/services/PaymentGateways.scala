@@ -28,30 +28,34 @@ case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ") ex
   def createCustomerAndCard(customer: Customer, card: CreditCardPayload)
                            (implicit ec: ExecutionContext): Future[StripeCustomer Or List[ErrorMessage]] = tryFutureWrap {
 
-    val params: Map[String, Object] = Map(
+    val base = Map[String, Object](
       "description" -> "FoxCommerce",
-      "email" -> customer.email,
-      "source" -> mapAsJavaMap(Map[String, Object](
-        "object" -> "card",
-        "number" -> card.number,
-        "exp_month" -> card.expMonth.toString,
-        "exp_year" -> card.expYear.toString,
-        "cvc" -> card.cvv.toString,
-        "name" -> card.holderName
-      ))
+      "email" -> customer.email
     )
 
-    val paramsWithOptionalAddress = card.address.fold(params) { address =>
-      params ++ Map[String, Object](
+    val source = Map[String, Object](
+      "object" -> "card",
+      "number" -> card.number,
+      "exp_month" -> card.expMonth.toString,
+      "exp_year" -> card.expYear.toString,
+      "cvc" -> card.cvv.toString,
+      "name" -> card.holderName
+    )
+
+    val params = card.address.fold(base.updated("source", mapAsJavaMap(source))) { address =>
+      val sourceWithAddress = source ++ Map[String, Object](
         "address_line1" -> address.street1,
-        "address_line2" -> address.street2.getOrElse(""),
+        "address_line2" -> address.street2.orNull,
         "address_city" -> address.city,
-        "address_state" -> address.state.getOrElse(""),
+        "address_state" -> address.state.orNull,
         "address_zip" -> address.zip
       )
+      base.updated("source", mapAsJavaMap(sourceWithAddress))
     }
 
-    Good(StripeCustomer.create(mapAsJavaMap(paramsWithOptionalAddress), options))
+    println(mapAsJavaMap(params))
+
+    Good(StripeCustomer.create(mapAsJavaMap(params), options))
   }
 
   def authorizeAmount(tokenizedCard: TokenizedCreditCard, amount: Int)

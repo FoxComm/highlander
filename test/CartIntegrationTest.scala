@@ -58,15 +58,16 @@ class CartIntegrationTest extends FreeSpec
   }
 
   "handles credit cards" - {
-    val payload = CreditCardPayload(holderName = "Jax", number = "1234123412341234",
-                                    cvv = "123", expYear = 2017, expMonth = 2)
+    val today = new Date
+    val payload = CreditCardPayload(holderName = "Jax", number = "4242424242424242",
+                                    cvv = "123", expYear = 2017, expMonth = today.getMonth)
 
     "fails if the cart is not found" in {
       val response = POST(
         s"v1/carts/5/payment-methods/credit-card",
         payload)
 
-      response.status mustBe (StatusCodes.NotFound)
+      response.status mustBe StatusCodes.NotFound
     }
 
     "fails if the payload is invalid" in {
@@ -78,7 +79,7 @@ class CartIntegrationTest extends FreeSpec
       val errors = parse(response.bodyText).extract[Map[String, Seq[String]]]
 
       errors mustBe Map("errors" -> Seq("holderName must not be empty", "cvv must match regular expression '[0-9]{3,4}'"))
-      response.status mustBe (StatusCodes.BadRequest)
+      response.status mustBe StatusCodes.BadRequest
     }
 
     "successfully creates records" in {
@@ -90,7 +91,7 @@ class CartIntegrationTest extends FreeSpec
       val errors = parse(response.bodyText).extract[Map[String, Seq[String]]]
 
       errors mustBe Map("errors" -> Seq("holderName must not be empty", "cvv must match regular expression '[0-9]{3,4}'"))
-      response.status mustBe (StatusCodes.BadRequest)
+      response.status mustBe StatusCodes.BadRequest
     }
   }
 }
