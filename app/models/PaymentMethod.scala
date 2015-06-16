@@ -61,7 +61,7 @@ case class TokenizedCreditCard(id: Int = 0, customerId: Int = 0, paymentGateway:
   def authenticate(amount: Float)(implicit ec: ExecutionContext): Future[String Or List[ErrorMessage]] = {
     val gateway = this.paymentGateway.toLowerCase
     if (gateway == "stripe" ) {
-      StripeGateway(paymentToken = this.gatewayTokenId).authorizeAmount(this, amount.toInt)
+      StripeGateway().authorizeAmount(this, amount.toInt)
     } else {
       Future.successful(Bad(List(s"Could Not Recognize Payment Gateway $gateway")))
     }

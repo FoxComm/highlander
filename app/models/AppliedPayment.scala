@@ -10,6 +10,7 @@ import org.scalactic._
 import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
+import com.stripe.model.{Customer => StripeCustomer}
 
 case class AppliedPayment(id: Int = 0,
                           cartId: Int,
@@ -18,6 +19,16 @@ case class AppliedPayment(id: Int = 0,
                           appliedAmount: Int,
                           status: String,
                           responseCode: String)
+
+object AppliedPayment {
+  def fromStripeCustomer(stripeCustomer: StripeCustomer, cart: Cart): AppliedPayment = {
+    AppliedPayment(cartId = cart.id, paymentMethodId = 1, // TODO: would do a lookup
+      paymentMethodType = "stripe",
+      appliedAmount = 0, status = Auth.toString, // TODO: use type and marshalling
+      responseCode = "ok" // TODO: make this real
+    )
+  }
+}
 
 class AppliedPayments(tag: Tag) extends Table[AppliedPayment](tag, "applied_payments") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
