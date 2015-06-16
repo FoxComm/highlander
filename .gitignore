@@ -30,3 +30,8 @@ node_modules
 
 # Ignore compiled js/css
 public/themes
+
+.vagrant
+
+#NVM-Specific Files
+.nvmrc

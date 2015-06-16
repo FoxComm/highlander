@@ -1,0 +1,11 @@
+[Service]
+WorkingDirectory=/vagrant
+ExecStart=/usr/bin/npm start
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=ashes
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target

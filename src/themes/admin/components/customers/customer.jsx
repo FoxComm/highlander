@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-class User extends React.Component {
+class Customer extends React.Component {
   render() {
     return (
       <div id="user"></div>
@@ -10,4 +10,4 @@ class User extends React.Component {
   }
 }
 
-export default User;
+export default Customer;

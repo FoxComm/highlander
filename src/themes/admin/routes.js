@@ -6,8 +6,8 @@ import Site from './components/site/site';
 import Home from './components/home/home';
 import Orders from './components/orders/orders';
 import Order from './components/orders/order';
-import Users from './components/users/users';
-import User from './components/users/user';
+import Customers from './components/customers/customers';
+import Customer from './components/customers/customer';
 import Notes from './components/notes/notes';
 import Notifications from './components/notifications/notifications';
 
@@ -19,8 +19,8 @@ const routes = (
       <Route name='notes' path='notes' handler={Notes}/>
       <Route name='notifications' path='notifications' handler={Notifications}/>
     </Route>
-    <Route name='users' handler={Users}>
-      <Route name='user' path=':user' handler={User}/>
+    <Route name='customers' handler={Customers}>
+      <Route name='customer' path=':customer' handler={Customer}/>
     </Route>
   </Route>
 );
