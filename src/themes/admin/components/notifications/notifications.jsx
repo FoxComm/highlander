@@ -36,7 +36,6 @@ class Notifications extends React.Component {
   render() {
     return (
       <div id="notifications">
-        <a onClick={this.showModal}>Resend</a>
         <table className='listing'>
           <TableHead columns={this.props.tableColumns}/>
           <TableBody columns={this.props.tableColumns} rows={this.state.tableRows} model='notification'/>
