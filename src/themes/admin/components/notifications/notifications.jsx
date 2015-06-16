@@ -1,7 +1,6 @@
 'use strict';
 
 import React from 'react';
-import { RouteHandler } from 'react-router';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
 
@@ -37,11 +36,11 @@ class Notifications extends React.Component {
   render() {
     return (
       <div id="notifications">
+        <a onClick={this.showModal}>Resend</a>
         <table className='listing'>
           <TableHead columns={this.props.tableColumns}/>
           <TableBody columns={this.props.tableColumns} rows={this.state.tableRows} model='notification'/>
         </table>
-        <RouteHandler/>
       </div>
     );
   }
@@ -62,7 +61,7 @@ Notifications.defaultProps = {
     {field: 'subject', text: 'Subject'},
     {field: 'contact', text: 'Contact Method'},
     {field: 'status', text: 'Status'},
-    {field: 'notification', text: 'Resend', type: 'notification'}
+    {field: 'notification', text: 'Resend'}
   ]
 };
 

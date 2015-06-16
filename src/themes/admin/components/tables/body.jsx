@@ -19,10 +19,6 @@ class TableBody extends React.Component {
       case 'id': return <Link to={model} params={{order: field}}>{field}</Link>;
       case 'currency': return this.formatCurrency(field);
       case 'date': return moment(field).format('DD/MM/YYYY');
-      case 'notification':
-        let { router } = this.context;
-        let order = router.getCurrentParams().order;
-        return <Link to="notification" params={{notification: field, order: order}}>Resend</Link>;
       default: return field;
     }
   }
