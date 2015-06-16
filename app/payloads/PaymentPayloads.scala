@@ -16,12 +16,3 @@ case class CreditCardPayload(holderName: String, number: String,
 }
 
 case class PaymentMethodPayload(cardholderName: String, cardNumber: String,  cvv: Int, expiration: String)
-
-case class TokenizedPaymentMethodPayload(gateway: String,
-                                         token: String) extends Validation[TokenizedPaymentMethodPayload] {
-  override def validator = createValidator[TokenizedPaymentMethodPayload] { p =>
-    p.gateway is notEmpty
-    p.token is notEmpty
-  }
-}
-

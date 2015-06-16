@@ -43,7 +43,7 @@ import utils.{RichTable, Validation}
 import models._
 import payloads._
 import responses.FullCart
-import services.{LineItemUpdater, PaymentGateway, Checkout, TokenizedPaymentCreator, Authenticator, CreditCardPaymentCreator}
+import services.{LineItemUpdater, PaymentGateway, Checkout, Authenticator, CreditCardPaymentCreator}
 
 case class Store(id: Int, name: String, Configuration: StoreConfiguration)
 
@@ -102,7 +102,6 @@ trait Formats extends DefaultJsonProtocol {
   implicit val addLineItemsRequestFormat = jsonFormat2(UpdateLineItemsPayload.apply)
   implicit val addPaymentMethodRequestFormat = jsonFormat4(PaymentMethodPayload.apply)
   implicit val creditCardPayloadFormat = jsonFormat5(CreditCardPayload.apply)
-  implicit val addTokenizedPaymentMethodRequestFormat = jsonFormat2(TokenizedPaymentMethodPayload.apply)
   implicit val createAddressPayloadFormat = jsonFormat6(CreateAddressPayload.apply)
   implicit val createCustomerPayloadFormat =jsonFormat4(CreateCustomerPayload.apply)
 
@@ -241,24 +240,6 @@ class Service(
 
                       case Some(customer) =>
                         CreditCardPaymentCreator.run(cart, customer, reqPayment).map { fullCart =>
-                          fullCart.fold({ c => HttpResponse(OK, entity = render(c)) },
-                                        { e => HttpResponse(BadRequest, entity = render("errors" -> e)) })
-                        }
-                    }
-                }
-              }
-            } ~
-            (post & path(IntNumber / "tokenized-payment-methods") & entity(as[TokenizedPaymentMethodPayload])) { (cartId, reqPayment) =>
-              complete {
-                Carts.findById(cartId).flatMap {
-                  case None => Future.successful(notFoundResponse)
-                  case Some(cart) =>
-                    findCustomer(cart.accountId).flatMap {
-                      case None     =>
-                        Future.successful(HttpResponse(OK, entity = render(s"Guest checkout!!")))
-
-                      case Some(customer) =>
-                        TokenizedPaymentCreator.run(cart, customer, reqPayment.token).map { fullCart =>
                           fullCart.fold({ c => HttpResponse(OK, entity = render(c)) },
                                         { e => HttpResponse(BadRequest, entity = render("errors" -> e)) })
                         }
