@@ -1,7 +1,6 @@
 create table customers (
     id integer not null,
     email character varying(255) not null,
-    plaintext_password character varying(255), -- are you paying attention?
     hashed_password character varying(255) not null,
     first_name character varying(255),
     last_name character varying(255),
