@@ -10,17 +10,18 @@ class ResendModal extends React.Component {
     return (
       <form action="POST">
         <div className='modal-header'>
-          <div>
+          <div className='icon'>
             <i className='icon-attention'></i>
           </div>
-          <div>Resend Email?</div>
+          <div className='title'>Resend Email?</div>
+          <a className='close' aria-label='Close' onClick={this.props.closeHandler}><span aria-hidden="true">&times;</span></a>
         </div>
         <div className='modal-body'>
           You will send another copy of this email to:
           <ContactMethod type={notification.contactType} value={notification.contact} />
         </div>
         <div className='modal-footer'>
-          <a className='cancel' onClick={this.props.closeHandler}>Cancel</a>
+          <a className='close' onClick={this.props.closeHandler}>Cancel</a>
           <button className='btn' type='submit'>Resend</button>
         </div>
       </form>

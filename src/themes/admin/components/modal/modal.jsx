@@ -23,7 +23,7 @@ class Modal extends React.Component {
   render() {
     return (
       <div>
-        <div id='modal-wrap' className={this.props.isOpen ? "show" : "hide"}>
+        <div role='dialog' id='modal-wrap' className={this.props.isOpen ? "show" : "hide"}>
           <div className='modal-overlay'></div>
           <div className='modal'>
             {this.state.component}
