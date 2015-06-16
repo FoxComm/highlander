@@ -38,11 +38,20 @@ case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ") ex
         "exp_year" -> card.expYear.toString,
         "cvc" -> card.cvv.toString,
         "name" -> card.holderName
-        // TODO(yax): would like to add fields "address_line1", "address_city", "address_state", "address_zip"
       )
     )
 
-    Good(StripeCustomer.create(mapAsJavaMap(params), options))
+    val paramsWithOptionalAddress = card.address.map { address =>
+      params ++ Map(
+        "address_line1" -> address.street1,
+        "address_line2" -> address.street2.getOrElse(""),
+        "address_city" -> address.city,
+        "address_state" -> address.state.getOrElse(""),
+        "address_zip" -> address.zip
+      )
+    }.getOrElse(params)
+
+    Good(StripeCustomer.create(mapAsJavaMap(paramsWithOptionalAddress), options))
   }
 
   def authorizeAmount(tokenizedCard: TokenizedCreditCard, amount: Int)

@@ -7,7 +7,7 @@ import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._
 
 case class CreditCardPayload(holderName: String, number: String,
-                             cvv: String, expYear: Int, expMonth: Int) extends Validation[CreditCardPayload] {
+                             cvv: String, expYear: Int, expMonth: Int, address: Option[CreateAddressPayload]) extends Validation[CreditCardPayload] {
   override def validator = createValidator[CreditCardPayload] { cc =>
     cc.holderName is notEmpty
     cc.number should matchRegex("[0-9]+")

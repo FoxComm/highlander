@@ -1,4 +1,4 @@
 package payloads
 
-case class CreateAddressPayload(name: String, stateId: Int, street1: String, street2: Option[String],
-                                city: String, zip: String)
+case class CreateAddressPayload(name: String, stateId: Int, state: Option[String],
+                                street1: String, street2: Option[String], city: String, zip: String)
