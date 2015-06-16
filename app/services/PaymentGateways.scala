@@ -31,18 +31,18 @@ case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ") ex
     val params: Map[String, Object] = Map(
       "description" -> "FoxCommerce",
       "email" -> customer.email,
-      "source" -> Map(
+      "source" -> mapAsJavaMap(Map[String, Object](
         "object" -> "card",
         "number" -> card.number,
         "exp_month" -> card.expMonth.toString,
         "exp_year" -> card.expYear.toString,
         "cvc" -> card.cvv.toString,
         "name" -> card.holderName
-      )
+      ))
     )
 
     val paramsWithOptionalAddress = card.address.fold(params) { address =>
-      params ++ Map(
+      params ++ Map[String, Object](
         "address_line1" -> address.street1,
         "address_line2" -> address.street2.getOrElse(""),
         "address_city" -> address.city,
