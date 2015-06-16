@@ -41,6 +41,8 @@ case class CreditCardPaymentCreator(cart: Cart, customer: Customer, cardPayload:
     }
   }
 
+  // creates CreditCardGateways, uses its id for an AppliedPayment record, and attempts to associate billing info
+  // from stripe to a BillingAddress
   private [this] def createRecords(stripeCustomer: StripeCustomer, cart: Cart, customer: Customer)
                                   (implicit ec: ExecutionContext, db: Database): Future[Option[Cart]] = {
 
