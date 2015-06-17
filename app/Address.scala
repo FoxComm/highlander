@@ -101,8 +101,8 @@ object Main extends Formats {
 trait Formats extends DefaultJsonProtocol {
   implicit val addLineItemsRequestFormat = jsonFormat2(UpdateLineItemsPayload.apply)
   implicit val addPaymentMethodRequestFormat = jsonFormat4(PaymentMethodPayload.apply)
-  implicit val creditCardPayloadFormat = jsonFormat5(CreditCardPayload.apply)
-  implicit val createAddressPayloadFormat = jsonFormat6(CreateAddressPayload.apply)
+  implicit val createAddressPayloadFormat = jsonFormat7(CreateAddressPayload.apply)
+  implicit val creditCardPayloadFormat = jsonFormat6(CreditCardPayload.apply)
   implicit val createCustomerPayloadFormat =jsonFormat4(CreateCustomerPayload.apply)
 
   val phoenixFormats = DefaultFormats + new CustomSerializer[PaymentStatus](format => (

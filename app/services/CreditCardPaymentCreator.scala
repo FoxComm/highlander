@@ -28,8 +28,8 @@ case class CreditCardPaymentCreator(order: Order, customer: Customer, cardPayloa
       gateway.createCustomerAndCard(customer, this.cardPayload).flatMap {
         case Good(stripeCustomer) =>
           createRecords(stripeCustomer, order, customer).flatMap { optOrder =>
-            optOrder.map { c =>
-              FullOrder.fromOrder(c).map { root =>
+            optOrder.map { o =>
+              FullOrder.fromOrder(o).map { root =>
                 root.map(Good(_)).getOrElse(Bad(List("could not render order")))
               }
             }.getOrElse(Future.successful(Bad(List(s"could not find order with id=${order.id}"))))
@@ -47,21 +47,13 @@ case class CreditCardPaymentCreator(order: Order, customer: Customer, cardPayloa
                                   (implicit ec: ExecutionContext, db: Database): Future[Option[Order]] = {
 
     val appliedPayment = AppliedPayment.fromStripeCustomer(stripeCustomer, order)
-
-    // TODO: attempt to get billingAddress
-//    val billingAddress = Address(customerId = customer.id, stateId = state.id, name = "Stripe",
-//      street1 = stripeCard.getAddressLine1, street2 = Option(stripeCard.getAddressLine2),
-//      city = stripeCard.getAddressCity, zip = stripeCard.getAddressZip)
-
     val cc = CreditCardGateway.build(stripeCustomer, this.cardPayload).copy(customerId = customer.id)
+    val billingAddress = this.cardPayload.address.map(Address.fromPayload(_).copy(customerId = customer.id))
 
-    /*
-      Create the TokenizedCreditCard, AppliedPayment, and billing Address (populated by the StripeCard)
-     */
     val queries = for {
       ccId <- CreditCardGateways.returningId += cc
       appliedPaymentId <- AppliedPayments.returningId += appliedPayment.copy(paymentMethodId = ccId)
-      // addressId <- BillingAddresses._create(billingAddress, appliedPaymentId)
+      _ <- BillingAddresses._create(billingAddress.get, appliedPaymentId) if billingAddress.isDefined
       c <- Orders._findById(order.id).result.headOption
     } yield c
 
@@ -78,3 +70,4 @@ object CreditCardPaymentCreator {
     new CreditCardPaymentCreator(order, customer, payload).run()
   }
 }
+

@@ -24,7 +24,7 @@ object AppliedPayment {
   def fromStripeCustomer(stripeCustomer: StripeCustomer, order: Order): AppliedPayment = {
     AppliedPayment(orderId = order.id, paymentMethodId = 1, // TODO: would do a lookup
       paymentMethodType = "stripe",
-      appliedAmount = 0, status = Auth.toString, // TODO: use type and marshalling
+      appliedAmount = 0, status = Auth.toString.toLowerCase, // TODO: use type and marshalling
       responseCode = "ok" // TODO: make this real
     )
   }
@@ -44,4 +44,8 @@ class AppliedPayments(tag: Tag) extends Table[AppliedPayment](tag, "applied_paym
 object AppliedPayments {
   val table = TableQuery[AppliedPayments]
   val returningId = table.returning(table.map(_.id))
+
+  def findAllByOrderId(id: Int)(implicit ec: ExecutionContext, db: Database): Future[Seq[AppliedPayment]] = {
+    db.run(table.filter(_.id === id).result)
+  }
 }
