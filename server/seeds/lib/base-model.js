@@ -37,7 +37,7 @@ class BaseModel {
   get createdAt() { return this.model.createdAt.toISOString(); }
 
   update(values) {
-    let proto = Object.getProtypeOf(this);
+    let proto = Object.getProtoypeOf(this);
     for (let key in values) {
       let desc = Object.getOwnPropertyDescriptor(proto, key);
       if (desc && desc.set) this[key] = values[key];
