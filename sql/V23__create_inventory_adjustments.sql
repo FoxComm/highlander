@@ -27,7 +27,7 @@ alter table only inventory_adjustments
     add constraint inventory_adjustments_pkey primary key (id);
 
 alter table only inventory_adjustments
-    alter column id set default nextval('inventory_classification_id_seq'::regclass);
+    alter column id set default nextval('inventory_adjustments_id_seq'::regclass);
 
 alter table only inventory_adjustments
     add constraint inventory_adjustments_sku_id_fk foreign key (sku_id) references skus(id) on update restrict on delete restrict;
