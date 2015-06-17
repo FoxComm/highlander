@@ -40,6 +40,7 @@ import collection.JavaConversions.mapAsJavaMap
 import akka.http.scaladsl.server.directives._
 
 import utils.{RichTable, Validation}
+import utils.RunOnDbIO
 import models._
 import payloads._
 import responses.FullOrder
@@ -208,22 +209,22 @@ class Service(
           } ~
             (post & path(IntNumber / "checkout")) { orderId =>
               complete {
-                whenFound(Orders.findById(orderId)) { order => new Checkout(order).checkout }
+                whenFound(Orders.findById(orderId).run()) { order => new Checkout(order).checkout }
               }
             } ~
             (post & path(IntNumber / "line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { (orderId, reqItems) =>
               complete {
-                whenFound(Orders.findById(orderId)) { order => LineItemUpdater.updateQuantities(order, reqItems) }
+                whenFound(Orders.findById(orderId).run()) { order => LineItemUpdater.updateQuantities(order, reqItems) }
               }
             } ~
             (get & path(IntNumber / "payment-methods")) { orderId =>
               complete {
-                renderOrNotFound(Orders.findById(orderId))
+                renderOrNotFound(Orders.findById(orderId).run())
               }
             } ~
             (post & path(IntNumber / "payment-methods" / "credit-card") & entity(as[CreditCardPayload])) { (orderId, reqPayment) =>
               complete {
-                Orders.findById(orderId).flatMap {
+                Orders.findById(orderId).run().flatMap {
                   case None => Future.successful(notFoundResponse)
                   case Some(order) =>
                     findCustomer(order.customerId).flatMap {
