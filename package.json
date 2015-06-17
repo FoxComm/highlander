@@ -6,7 +6,7 @@
   "main": "server/index.js",
   "scripts": {
     "test": "make test",
-    "start": "iojs --harmony boot.js",
+    "start": "iojs --harmony --harmony_arrow_functions boot.js",
     "restart": "kill -USR2 $(ps aux | grep '[m]-ashes' | awk '{print $2}')",
     "build": "./node_modules/.bin/gulp",
     "dev": "./node_modules/.bin/gulp dev"
@@ -40,13 +40,10 @@
       "modules": true
     },
     "rules": {
-      "quotes": "single",
-      "curly": [
-        2,
-        "multi-line"
-      ],
-      "no-process-exit": false,
-      "no-underscore-dangle": false,
+      "quotes": [1, "single"],
+      "curly": [2, "multi-line"],
+      "no-process-exit": 0,
+      "no-underscore-dangle": 0,
       "no-multi-spaces": [
         1,
         {
@@ -70,8 +67,11 @@
   "dependencies": {
     "babelify": "^6.1.0",
     "browserify": "^10.2.4",
+    "chance": "^0.7.5",
     "cli-color": "^1.0.0",
     "co": "^4.5.4",
+    "co-body": "^2.0.0",
+    "fleck": "^0.5.1",
     "gulp": "^3.9.0",
     "gulp-concat": "^2.5.2",
     "gulp-if": "^1.2.5",
@@ -107,9 +107,9 @@
   "devDependencies": {
     "chai": "^3.0.0",
     "co-mocha": "^1.1.0",
-    "eslint": "^0.22.1",
-    "eslint-plugin-react": "^2.5.0",
-    "gulp-eslint": "^0.13.2",
+    "eslint": "^0.23.0",
+    "eslint-plugin-react": "^2.5.2",
+    "gulp-eslint": "^0.14.0",
     "koa-logger": "^1.2.2",
     "mocha": "^2.2.4"
   }
