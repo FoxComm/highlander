@@ -9,17 +9,17 @@ import utils._
 import com.wix.accord.Validator
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
-import org.scalactic.{Or, ErrorMessage}
+import org.scalactic.{Or, ErrorMessage, Good}
 import com.stripe.model.{Customer => StripeCustomer}
 
 case class CreditCardGateway(id: Int = 0, customerId: Int, gatewayCustomerId: String, lastFour: String,
                              expMonth: Int, expYear: Int)
-  extends ModelWithIdParameter
-  with Validation[CreditCardGateway]
-  with PaymentMethod {
+  extends PaymentMethod
+  with ModelWithIdParameter
+  with Validation[CreditCardGateway] {
 
   def authenticate(amount: Int)(implicit ec: ExecutionContext): Future[String Or List[ErrorMessage]] = {
-    Future.successful("all good!")
+    Future.successful(Good("all good!"))
   }
 
   override def validator = createValidator[CreditCardGateway] { cc =>
