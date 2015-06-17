@@ -1,9 +1,10 @@
 package models
 
-import utils.{Validation, RichTable}
+import utils.{GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
 import payloads.CreateAddressPayload
 
 import com.wix.accord.dsl.{validator => createValidator}
+import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 import org.scalactic._
@@ -12,13 +13,19 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class Order(id: Int = 0, customerId: Int, status: Order.Status, locked: Int) {
-  var lineItems: Seq[CartLineItem] = Seq.empty
+case class Order(id: Int = 0, customerId: Int, status: Order.Status = Order.Cart, locked: Int = 0) extends ModelWithIdParameter {
+  var lineItems: Seq[OrderLineItem] = Seq.empty
+
+
+  def payments: Future[Seq[AppliedPayment]] = {
+    Orders.collectPaymentMethods(this)
+  }
 }
 
 object Order {
   sealed trait Status
-  case object New extends Status
+  case object Cart extends Status
+  case object Ordered extends Status
   case object FraudHold extends Status //this only applies at the order_header level
   case object RemorseHold extends Status //this only applies at the order_header level
   case object ManualHold extends Status //this only applies at the order_header level
@@ -28,12 +35,11 @@ object Order {
   case object Shipped extends Status
 
   implicit val StatusColumnType = MappedColumnType.base[Status, String]({
-    case t @ (New | FraudHold | RemorseHold | ManualHold | Canceled |
-             FulfillmentStarted | PartiallyShipped | Shipped) => t.toString.toLowerCase
-    case unknown => throw new IllegalArgumentException(s"cannot map status column to type $unknown")
+    case t => t.toString.toLowerCase
   },
   {
-    case "new" => New
+    case "cart" => Cart
+    case "ordered" => Ordered
     case "fraudhold" => FraudHold
     case "remorsehold" => RemorseHold
     case "manualhold" => ManualHold
@@ -43,23 +49,67 @@ object Order {
     case "shipped" => Shipped
     case unknown => throw new IllegalArgumentException(s"cannot map status column to type $unknown")
   })
+
 }
 
-class Orders(tag: Tag) extends Table[Order](tag, "orders") with RichTable {
+class Orders(tag: Tag) extends GenericTable.TableWithId[Order](tag, "orders") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def customer_id = column[Int]("customer_id")
+  // TODO: Find a way to deal with guest checkouts...
+  def customerId = column[Int]("customer_id")
   def status = column[Order.Status]("status")
   def locked = column[Int]("locked") // 0 for no; 1 for yes
-  def * = (id, customer_id, status, locked) <> ((Order.apply _).tupled, Order.unapply)
+  def * = (id, customerId, status, locked) <> ((Order.apply _).tupled, Order.unapply)
 }
 
-object Orders {
+object Orders extends TableQueryWithId[Order, Orders](
+  idLens = GenLens[Order](_.id)
+  )(new Orders(_)){
   val table = TableQuery[Orders]
-  val returningId = table.returning(table.map(_.id))
+
+
+  // TODO: YAX: Get rid of this and replace with something real.
+  def collectPaymentMethods(order: Order): Future[Seq[AppliedPayment]] = {
+    val appliedpayment = AppliedPayment(id = 1, orderId = order.id, paymentMethodId = 1, paymentMethodType = "TokenizedCard", appliedAmount = 10000, status = Applied.toString, responseCode = "")
+    val appliedpayment2 = appliedpayment.copy(appliedAmount = 2550, paymentMethodId = 2)
+
+
+    Future.successful(Seq(appliedpayment, appliedpayment2))
+  }
+
+
 
   def _create(order: Order)(implicit ec: ExecutionContext, db: Database): DBIOAction[models.Order, NoStream, Effect.Write] = {
    for {
      newId <- Orders.returningId += order
    } yield order.copy(id = newId)
+  }
+
+  def findByCustomer(customer: Customer)(implicit ec: ExecutionContext, db: Database): Future[Seq[Order]] = {
+    db.run(_findByCustomer(customer).result)
+  }
+
+  def _findByCustomer(cust: Customer) = { table.filter(_.customerId === cust.id) }
+
+  def findActiveOrderByCustomer(cust: Customer)(implicit ec: ExecutionContext, db: Database): Future[Option[Order]] = {
+    // TODO: (AW): we should find a way to ensure that the customer only has one order with a cart status.
+    db.run(_findActiveOrderByCustomer(cust).result.headOption)
+  }
+
+  def _findActiveOrderByCustomer(cust: Customer) = { table.filter(_.customerId === cust.id).filter(_.status === (Order.Cart: Order.Status)) }
+
+  // If the user doesn't have an order yet, let's create one.
+  def findOrCreateActiveOrderByCustomer(customer: Customer)
+                            (implicit ec: ExecutionContext, db: Database): Future[Option[Order]] = {
+    val actions = for {
+      numOrders <- _findActiveOrderByCustomer(customer).length.result
+      order <- if (numOrders < 1) {
+        val freshOrder = Order(customerId = customer.id, status = Order.Cart)
+        (returningId += freshOrder).map { id => freshOrder.copy(id = id) }.map(Some(_))
+      } else {
+        _findActiveOrderByCustomer(customer).result.headOption
+      }
+    } yield order
+
+    db.run(actions.transactionally)
   }
 }
