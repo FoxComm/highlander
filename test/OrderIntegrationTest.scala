@@ -39,22 +39,8 @@ class OrderIntegrationTest extends FreeSpec
          |   { "skuId": 5, "quantity": 2 } ]
        """.stripMargin)
 
-    val responseBody = response.bodyText
-    val order = parse(responseBody).extract[FullOrder.Root]
-
+    val order = parse(response.bodyText).extract[FullOrder.Root]
     order.lineItems.map(_.skuId).sortBy(identity) mustBe List(1, 5, 5)
-  }
-
-  "deletes line items" in {
-    val orderId = db.run(Orders.returningId += Order(id = 0, customerId = 1)).futureValue
-    val seedLineItems = (1 to 2).map { _ => OrderLineItem(id = 0, orderId = orderId, skuId = 1) }
-    db.run(OrderLineItems.returningId ++= seedLineItems.toSeq).futureValue
-
-    val response = DELETE(s"v1/orders/$orderId/line-items/1")
-    val responseBody = response.bodyText
-    val order = parse(responseBody).extract[FullOrder.Root]
-
-    order.lineItems mustBe List(OrderLineItem(id = 2, orderId = orderId, skuId = 1))
   }
 
   "handles credit cards" - {
