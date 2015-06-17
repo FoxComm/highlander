@@ -32,14 +32,14 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.Tab
 
   def _findById(i: M#Id): Query[T, M, Seq] = filter(_.id === i)
 
-  def findById(i: M#Id)(implicit ec: ExecutionContext): DBIO[Option[M]] =
+  def findById(i: M#Id): DBIO[Option[M]] =
     _findById(i).result.headOption
 
   def save(model: M)(implicit ec: ExecutionContext): DBIO[M] = for {
     id ← returningId += model
   } yield idLens.set(id)(model)
 
-  def deleteById(i: M#Id)(implicit ec: ExecutionContext): DBIO[Int] =
+  def deleteById(i: M#Id): DBIO[Int] =
     _findById(i).delete
 }
 
