@@ -70,5 +70,4 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
   def validateAddresses: List[ErrorMessage] = {
     List.empty
   }
-
 }
