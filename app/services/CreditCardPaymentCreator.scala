@@ -53,16 +53,11 @@ case class CreditCardPaymentCreator(cart: Cart, customer: Customer, cardPayload:
     val queries = for {
       ccId <- CreditCardGateways.returningId += cc
       appliedPaymentId <- AppliedPayments.returningId += appliedPayment.copy(paymentMethodId = ccId)
+      _ <- BillingAddresses._create(billingAddress.get, appliedPaymentId) if billingAddress.isDefined
       c <- Carts._findById(cart.id).result.headOption
-    } yield (c, appliedPaymentId)
+    } yield c
 
-
-    db.run(queries.transactionally).map { case (optCart, appliedPaymentId) =>
-      billingAddress.map { address =>
-        db.run(BillingAddresses._create(address, appliedPaymentId))
-      }
-      optCart
-    }
+    db.run(queries.transactionally)
   }
 }
 
