@@ -14,9 +14,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 
 case class Order(id: Int = 0, customerId: Int, status: Order.Status = Order.Cart, locked: Int = 0) extends ModelWithIdParameter {
-  var lineItems: Seq[OrderLineItem] = Seq.empty
-
-
   def payments: Future[Seq[AppliedPayment]] = {
     Orders.collectPaymentMethods(this)
   }
