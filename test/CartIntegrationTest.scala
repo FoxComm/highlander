@@ -113,10 +113,8 @@ class CartIntegrationTest extends FreeSpec
       val body = response.bodyText
 
       val cc = CreditCardGateways.findById(1).futureValue.get
-      val numAddresses = Addresses.count().futureValue
-      val numBillingAddress = BillingAddresses.count().futureValue
-      //val address = Addresses.findAllByCustomer(customer).futureValue.head
       val payment = AppliedPayments.findAllByCartId(cartId).futureValue.head
+      val (address, billingAddress) = BillingAddresses.findByPaymentId(payment.id).futureValue.get
 
       val cart = parse(body).extract[FullCart.Root]
 
@@ -131,8 +129,8 @@ class CartIntegrationTest extends FreeSpec
 
       response.status mustBe StatusCodes.OK
 
-      numBillingAddress mustBe 1
-      numAddresses mustBe 1
+      address.stateId mustBe addressPayload.stateId
+      address.customerId mustBe customerId
     }
   }
 }

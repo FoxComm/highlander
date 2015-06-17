@@ -28,11 +28,25 @@ object BillingAddresses {
 
   def _create(address: Address, paymentId: Int)
              (implicit ec: ExecutionContext,
-              db: Database): DBIOAction[models.Address, NoStream, Effect.Write] = {
+              db: Database): DBIOAction[Address, NoStream, Effect.Write] = {
     for {
       addressId <- Addresses.returningId += address
       _ <- BillingAddresses.table += BillingAddress(addressId = addressId, paymentId = paymentId)
-    } yield (address.copy(id = addressId))
+    } yield address.copy(id = addressId)
+  }
+
+  def _findByPaymentId(id: Int)
+                      (implicit ec: ExecutionContext,
+                       db: Database) = {
+    for {
+      result <- Addresses.table.join(table).on(_.id === _.addressId).result.headOption
+    } yield result
+  }
+
+  def findByPaymentId(id: Int)
+                     (implicit ec: ExecutionContext,
+                      db: Database): Future[Option[(Address, BillingAddress)]] = {
+    db.run(this._findByPaymentId(id))
   }
 
   def count()(implicit ec: ExecutionContext, db: Database): Future[Int] = {
