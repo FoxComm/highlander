@@ -53,7 +53,7 @@ case class CreditCardPaymentCreator(order: Order, customer: Customer, cardPayloa
     val queries = for {
       ccId <- CreditCardGateways.returningId += cc
       appliedPaymentId <- AppliedPayments.returningId += appliedPayment.copy(paymentMethodId = ccId)
-      _ <- BillingAddresses._create(billingAddress.get, appliedPaymentId) if billingAddress.isDefined
+      _ <- billingAddress.map(BillingAddresses._create(_, appliedPaymentId)).getOrElse(DBIO.successful(Unit))
       c <- Orders._findById(order.id).result.headOption
     } yield c
 
