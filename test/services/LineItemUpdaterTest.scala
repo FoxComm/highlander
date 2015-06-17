@@ -1,6 +1,6 @@
 package services
 
-import models.{CartLineItems, CartLineItem, Cart}
+import models.{Orders, OrderLineItems, OrderLineItem, Order}
 import payloads.{UpdateLineItemsPayload => Payload}
 
 import org.scalactic.{Good, Bad, ErrorMessage, Or}
@@ -17,23 +17,23 @@ class LineItemUpdaterTest extends FreeSpec
   import api._
   import concurrent.ExecutionContext.Implicits.global
 
-  val lineItems = TableQuery[CartLineItems]
+  val lineItems = TableQuery[OrderLineItems]
 
-  def createLineItems(items: Seq[CartLineItem]): Unit = {
+  def createLineItems(items: Seq[OrderLineItem]): Unit = {
     val insert = lineItems ++= items
     db.run(insert).futureValue
   }
 
   "LineItemUpdater" - {
 
-    "Adds line_items when the sku doesn't exist in cart" in {
-      val cart = Cart(id = 1, accountId = None)
+    "Adds line_items when the sku doesn't exist in order" in {
+      val order = Orders.save(Order(customerId = 1)).futureValue
       val payload = Seq[Payload](
         Payload(skuId = 1, quantity = 3),
         Payload(skuId = 2, quantity = 0)
       )
 
-      LineItemUpdater.updateQuantities(cart, payload).futureValue match {
+      LineItemUpdater.updateQuantities(order, payload).futureValue match {
         case Good(items) =>
           items.count(_.skuId == 1) must be(3)
           items.count(_.skuId == 2) must be(0)
@@ -46,18 +46,18 @@ class LineItemUpdaterTest extends FreeSpec
       }
     }
 
-    "Updates line_items when the Sku already is in cart" in {
-      val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { skuId => CartLineItem(id = 0, cartId = 1, skuId = skuId) }
+    "Updates line_items when the Sku already is in order" in {
+      val order = Orders.save(Order(customerId = 1)).futureValue
+      val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { skuId => OrderLineItem(id = 0, orderId = 1, skuId = skuId) }
       createLineItems(seedItems)
 
-      val cart = Cart(id = 1, accountId = None)
       val payload = Seq[Payload](
         Payload(skuId = 1, quantity = 3),
         Payload(skuId = 2, quantity = 0),
         Payload(skuId = 3, quantity = 1)
       )
 
-      LineItemUpdater.updateQuantities(cart, payload).futureValue match {
+      LineItemUpdater.updateQuantities(order, payload).futureValue match {
         case Good(items) =>
           items.count(_.skuId == 1) must be(3)
           items.count(_.skuId == 2) must be(0)

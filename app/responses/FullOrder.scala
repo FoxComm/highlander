@@ -6,49 +6,49 @@ import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 import scala.concurrent.{ExecutionContext, Future}
 
-object FullCart {
+object FullOrder {
   type Response = Future[Option[Root]]
 
   case class Totals(subTotal: Int, taxes: Int, adjustments: Int, total: Int)
-  case class Root(id: Int, lineItems: Seq[CartLineItem], adjustments: Seq[Adjustment], totals: Totals)
+  case class Root(id: Int, lineItems: Seq[OrderLineItem], adjustments: Seq[Adjustment], totals: Totals)
 
-  def build(cart: Cart, lineItems: Seq[CartLineItem] = Seq.empty, adjustments: Seq[Adjustment] = Seq.empty): Root = {
-    Root(id = cart.id, lineItems = lineItems, adjustments = adjustments, totals =
+  def build(order: Order, lineItems: Seq[OrderLineItem] = Seq.empty, adjustments: Seq[Adjustment] = Seq.empty): Root = {
+    Root(id = order.id, lineItems = lineItems, adjustments = adjustments, totals =
       Totals(subTotal = 500, taxes = 10, adjustments = 0, total = 510))
   }
 
   def findById(id: Int)
               (implicit ec: ExecutionContext, db: Database): Response = {
-    this.findCart(Carts._findById(id))
+    this.findOrder(Orders._findById(id))
   }
 
   def findByCustomer(customer: Customer)
                     (implicit ec: ExecutionContext, db: Database): Response = {
-    this.findCart(Carts._findByCustomer(customer))
+    this.findOrder(Orders._findByCustomer(customer))
   }
 
-  def fromCart(cart: Cart)
+  def fromOrder(order: Order)
               (implicit ec: ExecutionContext,
                db: Database): Response = {
 
     val queries = for {
-      lineItems <- CartLineItems._findByCartId(cart.id)
+      lineItems <- OrderLineItems._findByOrderId(order.id)
     } yield (lineItems)
 
-    db.run(queries.result).map { lineItems => Some(build(cart, lineItems)) }
+    db.run(queries.result).map { lineItems => Some(build(order, lineItems)) }
   }
 
-  private [this] def findCart(finder: Query[Carts, Cart, Seq])
+  private [this] def findOrder(finder: Query[Orders, Order, Seq])
                              (implicit ec: ExecutionContext,
                               db: Database): Response = {
     val queries = for {
-      cart <- finder
-      lineItems <- CartLineItems._findByCartId(cart.id)
-    } yield (cart, lineItems)
+      order <- finder
+      lineItems <- OrderLineItems._findByOrderId(order.id)
+    } yield (order, lineItems)
 
     db.run(queries.result).map { results =>
-      results.headOption.map { case (cart, _) =>
-        build(cart, results.map { case (_, items) => items })
+      results.headOption.map { case (order, _) =>
+        build(order, results.map { case (_, items) => items })
       }
     }
   }

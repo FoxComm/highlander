@@ -20,4 +20,4 @@ alter table only order_line_items
   alter column id set default nextval('order_line_items_id_seq'::regclass);
 
 alter table only order_line_items
-    add constraint order_line_items_cart_id_fk foreign key (order_id) references orders(id) on update restrict on delete restrict;
+    add constraint order_line_items_order_id_fk foreign key (order_id) references orders(id) on update restrict on delete restrict;

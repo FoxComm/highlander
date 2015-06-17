@@ -51,7 +51,7 @@ case object SuccessfulDebit extends GiftCardPaymentStatus
 case object FailedDebit extends GiftCardPaymentStatus
 
 // TODO: Figure out how to have the 'status' field on the payment and not the payment method.
-case class CreditCard(id: Int, cartId: Int, cardholderName: String, cardNumber: String, cvv: Int, status: CreditCardPaymentStatus, expiration: String, address: Address) extends PaymentMethod {
+case class CreditCard(id: Int, orderId: Int, cardholderName: String, cardNumber: String, cvv: Int, status: CreditCardPaymentStatus, expiration: String, address: Address) extends PaymentMethod {
   def authenticate(amount: Float)(implicit ec: ExecutionContext): Future[String Or List[ErrorMessage]] = {
     Future.successful(Good("authenticated"))
   }
@@ -75,7 +75,7 @@ object TokenizedCreditCard {
   }
 }
 
-case class GiftCard(id: Int, cartId: Int, status: GiftCardPaymentStatus, code: String) extends PaymentMethod {
+case class GiftCard(id: Int, orderId: Int, status: GiftCardPaymentStatus, code: String) extends PaymentMethod {
   def authenticate(amount: Float)(implicit ec: ExecutionContext): Future[String Or List[ErrorMessage]] = {
     Future.successful(Good("authenticated"))
   }

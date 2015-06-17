@@ -11,11 +11,12 @@ import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-case class OrderLineItem(id: Int = 0, orderId: Int, skuId: Int, status: OrderLineItem.Status)
+case class OrderLineItem(id: Int = 0, orderId: Int, skuId: Int, status: OrderLineItem.Status = OrderLineItem.Cart)
 
 object OrderLineItem{
   sealed trait Status
-  case object New extends Status
+  case object Cart extends Status
+  case object Ordered extends Status
   case object Canceled extends Status
   case object ProductionStarted extends Status
   case object PostProductionStarted extends Status // can include creating, customizing, etc. eg. engraving
@@ -27,7 +28,8 @@ object OrderLineItem{
     case t => t.toString.toLowerCase
   },
   {
-    case "new" => New
+    case "cart" => Cart
+    case "ordered" => Ordered
     case "canceled" => Canceled
     case "productionstarted" => ProductionStarted
     case "postproductionstarted" => PostProductionStarted
@@ -54,4 +56,6 @@ object OrderLineItems {
   def findByOrder(order: Order)(implicit ec: ExecutionContext, db: Database) = { db.run(_findByOrderId(order.id).result) }
 
   def _findByOrderId(orderId: Rep[Int]) = { table.filter(_.orderId === orderId) }
+
+  def countByOrder(order: Order)(implicit ec: ExecutionContext, db: Database) = { db.run(_findByOrderId(order.id).length.result) }
 }

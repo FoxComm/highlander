@@ -10,7 +10,7 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 import org.scalactic._
 
-case class Customer(id: Int, email: String, password: String,
+case class Customer(id: Int = 0, email: String, password: String,
                     firstName: String, lastName: String) extends Validation[Customer] {
   override def validator = createValidator[Customer] { user =>
     user.firstName is notEmpty
