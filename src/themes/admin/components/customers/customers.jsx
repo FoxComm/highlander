@@ -3,35 +3,31 @@
 import React from 'react';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
+import CustomerStore from './store';
+import { listenTo, stopListeningTo } from '../../lib/dispatcher';
+
+const changeEvent = 'change-customer-store';
 
 export default class Customers extends React.Component {
   constructor(props) {
     super(props);
+    this.onChangeCustomerStore = this.onChangeCustomerStore.bind(this);
     this.state = {
-      tableRows: this.generateUsers()
+      customers: CustomerStore.getState()
     };
   }
 
-  generateUsers() {
-    let
-      idx = 50,
-      users = [],
-      roles = ['Admin', 'User'],
-      blocks = ['Yes', 'No'],
-      causes = ['Zoolander', 'Twoo Wuv'];
+  componentDidMount() {
+    listenTo(changeEvent, this);
+    CustomerStore.fetch();
+  }
 
-    while (idx--) {
-      users.push({
-        firstName: `Westley ${idx}`,
-        lastName: `Buttercup ${idx}`,
-        email: `roberts${idx}@dread.com`,
-        role: roles[~~(Math.random() * roles.length)],
-        blocked: blocks[~~(Math.random() * blocks.length)],
-        cause: causes[~~(Math.random() * causes.length)],
-        dateJoined: new Date().toISOString()
-      });
-    }
-    return users;
+  componentWillUnmount() {
+    stopListeningTo(changeEvent, this);
+  }
+
+  onChangeCustomerStore() {
+    this.setState({customers: CustomerStore.getState()});
   }
 
   render() {
@@ -40,7 +36,7 @@ export default class Customers extends React.Component {
         <div className="gutter">
           <table className='listing'>
             <TableHead columns={this.props.tableColumns}/>
-            <TableBody columns={this.props.tableColumns} rows={this.state.tableRows}/>
+            <TableBody columns={this.props.tableColumns} rows={this.state.customers}/>
           </table>
         </div>
       </div>

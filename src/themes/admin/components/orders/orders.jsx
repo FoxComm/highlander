@@ -6,24 +6,27 @@ import TableBody from '../tables/body';
 import OrderStore from './store';
 import { listenTo, stopListeningTo } from '../../lib/dispatcher';
 
+const changeEvent = 'change-order-store';
+
 export default class Orders extends React.Component {
   constructor(props) {
     super(props);
+    this.onChangeOrderStore = this.onChangeOrderStore.bind(this);
     this.state = {
       orders: OrderStore.getState()
     };
   }
 
   componentDidMount() {
-    listenTo('change', this);
+    listenTo(changeEvent, this);
     OrderStore.fetch();
   }
 
   componentWillUnmount() {
-    stopListeningTo('change', this);
+    stopListeningTo(changeEvent, this);
   }
 
-  onChange() {
+  onChangeOrderStore() {
     this.setState({orders: OrderStore.getState()});
   }
 
@@ -47,7 +50,7 @@ Orders.propTypes = {
 
 Orders.defaultProps = {
   tableColumns: [
-    {field: 'order', text: 'Order', type: 'id'},
+    {field: 'orderId', text: 'Order', type: 'id'},
     {field: 'date', text: 'Date', type: 'date'},
     {field: 'email', text: 'Email'},
     {field: 'orderStatus', text: 'Order Status'},

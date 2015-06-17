@@ -5,15 +5,13 @@ import { EventEmitter } from 'events';
 
 const emitter = new EventEmitter();
 
-function eventName(event) {
-  return fleck.upperCamelize(event);
-}
-
 function eventBinding(event, method, ctx) {
-  let pascal = eventName(event);
+  let
+    eventName = fleck.camelize(event),
+    pascal    = fleck.camelize(event, true);
+
   if (ctx && ctx[`on${pascal}`]) {
-    let cb = ctx[`on${pascal}`].bind(ctx);
-    emitter[method](event, cb);
+    emitter[method](eventName, ctx[`on${pascal}`]);
   }
 }
 

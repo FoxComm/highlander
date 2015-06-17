@@ -17,12 +17,13 @@ export default class BaseStore {
   }
 
   update(model) {
+    let storeName = this.constructor.name;
     if (Array.isArray(model)) {
       Array.prototype.push.apply(this.models, model);
     } else {
       this.models.push(model);
     }
-    dispatch('change', model);
+    dispatch(`change${storeName}`, model);
   }
 
   // @todo Error handling - Tivs
