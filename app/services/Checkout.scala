@@ -46,12 +46,15 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
   }
 
   def authenticatePayments: Future[Map[AppliedPayment, List[ErrorMessage]]] = {
-    AppliedPayments.findAllPaymentsFor(this.order).map { records =>
-      records.foldLeft(Map[AppliedPayment, List[ErrorMessage]]()) { case (errors, (payment, creditCard)) =>
-        errors.updated(payment, List.empty)
-        // creditCard.authenticate(payment.appliedAmount)
+    AppliedPayments.findAllPaymentsFor(this.order).flatMap { records =>
+      val accum = Future.successful(Map[AppliedPayment, List[ErrorMessage]]())
+      records.foldLeft(accum) { case (errors, (payment, creditCard)) =>
+        val e = errors.value.get.get // TODO: no, no, no
+        creditCard.authenticate(payment.appliedAmount).map { result =>
+          e.updated(payment,
+            result.fold({ good => List.empty }, { bad => bad }))
+        }
       }
-      //Future.successful(Map(ap -> List("There are no payment methods on this order!")))
     }
   }
 

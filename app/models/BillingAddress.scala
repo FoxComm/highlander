@@ -35,17 +35,13 @@ object BillingAddresses {
     } yield address.copy(id = addressId)
   }
 
-  def _findByPaymentId(id: Int)
-                      (implicit ec: ExecutionContext,
-                       db: Database) = {
+  def _findByPaymentId(id: Int)(implicit ec: ExecutionContext, db: Database) = {
     for {
       result <- Addresses.table.join(table).on(_.id === _.addressId).filter(_._2.paymentId === id).result.headOption
     } yield result
   }
 
-  def findByPaymentId(id: Int)
-                     (implicit ec: ExecutionContext,
-                      db: Database): Future[Option[(Address, BillingAddress)]] = {
+  def findByPaymentId(id: Int)(implicit ec: ExecutionContext, db: Database): Future[Option[(Address, BillingAddress)]] = {
     db.run(this._findByPaymentId(id))
   }
 
