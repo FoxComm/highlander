@@ -4,7 +4,7 @@ import React from 'react';
 import { RouteHandler } from 'react-router';
 import { Link } from 'react-router';
 
-class Order extends React.Component {
+export default class Order extends React.Component {
   render() {
     let
       customer  = this.props.customer,
@@ -46,5 +46,3 @@ Order.defaultProps = {
     date: new Date().toISOString()
   }
 };
-
-export default Order;

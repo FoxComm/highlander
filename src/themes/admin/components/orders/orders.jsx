@@ -3,35 +3,28 @@
 import React from 'react';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
+import OrderStore from './store';
+import { listenTo, stopListeningTo } from '../../lib/dispatcher';
 
-class Orders extends React.Component {
+export default class Orders extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      tableRows: this.generateOrders()
+      orders: OrderStore.getState()
     };
   }
 
-  generateOrders() {
-    let
-      idx       = 50,
-      orders    = [],
-      status    = ['Remorse Hold', 'Fulfillment Started', 'Shipped'],
-      payments  = ['Full Capture', 'Partial Capture'],
-      shipping  = [null, 'New'];
+  componentDidMount() {
+    listenTo('change', this);
+    OrderStore.fetch();
+  }
 
-    while (idx--) {
-      orders.push({
-        order: 10000 + idx,
-        date: new Date().toISOString(),
-        email: `bob${idx}@foxcommerce.com`,
-        orderStatus: status[~~(Math.random() * status.length)],
-        paymentStatus: payments[~~(Math.random() * payments.length)],
-        shippingStatus: shipping[~~(Math.random() * shipping.length)],
-        total: Math.floor(Math.random() * (10000000 - 5000)) + 5000
-      });
-    }
-    return orders;
+  componentWillUnmount() {
+    stopListeningTo('change', this);
+  }
+
+  onChange() {
+    this.setState({orders: OrderStore.getState()});
   }
 
   render() {
@@ -40,7 +33,7 @@ class Orders extends React.Component {
         <div className="gutter">
           <table className='listing'>
             <TableHead columns={this.props.tableColumns}/>
-            <TableBody columns={this.props.tableColumns} rows={this.state.tableRows} model='order'/>
+            <TableBody columns={this.props.tableColumns} rows={this.state.orders} model='order'/>
           </table>
         </div>
       </div>
@@ -63,5 +56,3 @@ Orders.defaultProps = {
     {field: 'total', text: 'Total', type: 'currency'}
   ]
 };
-
-export default Orders;

@@ -4,7 +4,7 @@ import React from 'react';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
 
-class Customers extends React.Component {
+export default class Customers extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -63,5 +63,3 @@ Customers.defaultProps = {
     {field: 'dateJoined', text: 'Date Joined', type: 'date'}
   ]
 };
-
-export default Customers;

@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-class Notes extends React.Component {
+export default class Notes extends React.Component {
   addNote() {
     console.log('herere');
   }
@@ -22,5 +22,3 @@ class Notes extends React.Component {
 Notes.contextTypes = {
   router: React.PropTypes.func
 };
-
-export default Notes;
