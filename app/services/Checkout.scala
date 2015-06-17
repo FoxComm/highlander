@@ -46,24 +46,12 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
   }
 
   def authenticatePayments: Future[Map[AppliedPayment, List[ErrorMessage]]] = {
-    // Really, this should authenticate all payments, at their specified 'applied amount.'
-    order.payments.flatMap { payments =>
-      val seq = payments.map { p =>
-        PaymentMethods.findById(p.paymentMethodId).flatMap {
-          case Some(c) =>
-            val paymentAmount = p.appliedAmount
-            c.authenticate(paymentAmount).map {
-              case Bad(errors) =>
-                p -> errors
-              case Good(success) =>
-                p -> List[ErrorMessage]()
-            }
-          case None =>
-            Future.successful(p -> List("There are no payment methods on this order!"))
-        }
+    AppliedPayments.findAllPaymentsFor(this.order).map { records =>
+      records.foldLeft(Map[AppliedPayment, List[ErrorMessage]]()) { case (errors, (payment, creditCard)) =>
+        errors.updated(payment, List.empty)
+        // creditCard.authenticate(payment.appliedAmount)
       }
-
-      Future.sequence(seq).map(_.toMap)
+      //Future.successful(Map(ap -> List("There are no payment methods on this order!")))
     }
   }
 
