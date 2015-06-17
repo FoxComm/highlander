@@ -1,6 +1,7 @@
 package models
 
-import utils.{Validation, RichTable}
+import monocle.macros.GenLens
+import utils._
 import payloads.CreateAddressPayload
 
 import com.wix.accord.dsl.{validator => createValidator}
@@ -19,6 +20,8 @@ case class AppliedPayment(id: Int = 0,
                           appliedAmount: Int,
                           status: String,
                           responseCode: String)
+  extends ModelWithIdParameter {
+}
 
 object AppliedPayment {
   def fromStripeCustomer(stripeCustomer: StripeCustomer, order: Order): AppliedPayment = {
@@ -30,7 +33,10 @@ object AppliedPayment {
   }
 }
 
-class AppliedPayments(tag: Tag) extends Table[AppliedPayment](tag, "applied_payments") with RichTable {
+class AppliedPayments(tag: Tag)
+  extends GenericTable.TableWithId[AppliedPayment](tag, "applied_payments")
+  with RichTable {
+
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def orderId = column[Int]("order_id")
   def paymentMethodId = column[Int]("payment_method_id")
@@ -41,11 +47,12 @@ class AppliedPayments(tag: Tag) extends Table[AppliedPayment](tag, "applied_paym
   def * = (id, orderId, paymentMethodId, paymentMethodType, appliedAmount, status, responseCode) <> ((AppliedPayment.apply _).tupled, AppliedPayment.unapply )
 }
 
-object AppliedPayments {
-  val table = TableQuery[AppliedPayments]
-  val returningId = table.returning(table.map(_.id))
+object AppliedPayments extends TableQueryWithId[AppliedPayment, AppliedPayments](
+  idLens = GenLens[AppliedPayment](_.id)
+)(new AppliedPayments(_)){
 
   def findAllByOrderId(id: Int)(implicit ec: ExecutionContext, db: Database): Future[Seq[AppliedPayment]] = {
-    db.run(table.filter(_.id === id).result)
+    db.run(this.filter(_.id === id).result)
   }
+
 }
