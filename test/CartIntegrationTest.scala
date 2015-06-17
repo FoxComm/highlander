@@ -1,13 +1,14 @@
 import akka.http.scaladsl.model.StatusCodes
 import models._
-import payloads.CreditCardPayload
+import org.joda.time.DateTime
+import payloads.{CreateAddressPayload, CreditCardPayload}
 import responses.FullCart
 
 import org.json4s.DefaultFormats
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Milliseconds, Seconds, Span}
 import org.scalatest.{FreeSpec, MustMatchers}
-import util.DbTestSupport
+import util.{StripeSupport, DbTestSupport}
 
 /**
  * The Server is shut down by shutting down the ActorSystem
@@ -58,9 +59,10 @@ class CartIntegrationTest extends FreeSpec
   }
 
   "handles credit cards" - {
-    val today = new Date
-    val payload = CreditCardPayload(holderName = "Jax", number = "4242424242424242",
-                                    cvv = "123", expYear = 2017, expMonth = today.getMonth)
+    val today = new DateTime
+    val customerStub = Customer(email = "yax@yax.com", password = "password", firstName = "Yax", lastName = "Fuentes")
+    val payload = CreditCardPayload(holderName = "Jax", number = StripeSupport.successfulCard,
+                                    cvv = "123", expYear = today.getYear + 1, expMonth = today.getMonthOfYear)
 
     "fails if the cart is not found" in {
       val response = POST(
@@ -82,16 +84,58 @@ class CartIntegrationTest extends FreeSpec
       response.status mustBe StatusCodes.BadRequest
     }
 
-    "successfully creates records" in {
+    "fails if the card is invalid according to Stripe" in {
       val cartId = db.run(Carts.returningId += Cart(id = 0, accountId = Some(1))).futureValue
       val response = POST(
         s"v1/carts/$cartId/payment-methods/credit-card",
-        payload)
+        payload.copy(number = StripeSupport.declinedCard))
 
-      val errors = parse(response.bodyText).extract[Map[String, Seq[String]]]
+      val body = response.bodyText
+
+      info(body)
+
+      val errors = parse(body).extract[Map[String, Seq[String]]]
 
       errors mustBe Map("errors" -> Seq("holderName must not be empty", "cvv must match regular expression '[0-9]{3,4}'"))
       response.status mustBe StatusCodes.BadRequest
+    }
+
+    "successfully creates records" in {
+      val cartId = db.run(Carts.returningId += Cart(id = 0, accountId = Some(1))).futureValue
+      val customerId = db.run(Customers.returningId += customerStub).futureValue
+      val customer = customerStub.copy(id = customerId)
+      val addressPayload = CreateAddressPayload(name = "Home", stateId = 46, state = Some("VA"), street1 = "500 Blah",
+                                                city = "Richmond", zip = "50000")
+      val payloadWithAddress = payload.copy(address = Some(addressPayload))
+
+      val response = POST(
+        s"v1/carts/$cartId/payment-methods/credit-card",
+        payloadWithAddress)
+
+      val body = response.bodyText
+
+
+      val cc = CreditCardGateways.findById(1).futureValue.get
+      val numAddresses = Addresses.count().futureValue
+      val numBillingAddress = BillingAddresses.count().futureValue
+      //val address = Addresses.findAllByCustomer(customer).futureValue.head
+      val payment = AppliedPayments.findAllByCartId(cartId).futureValue.head
+
+      val cart = parse(body).extract[FullCart.Root]
+
+      cc.customerId mustBe customerId
+      cc.lastFour mustBe payload.lastFour
+      cc.expMonth mustBe payload.expMonth
+      cc.expYear mustBe payload.expYear
+
+      payment.appliedAmount mustBe 0
+      payment.cartId mustBe cartId
+      payment.status mustBe "auth"
+
+      response.status mustBe StatusCodes.OK
+
+      numBillingAddress mustBe 1
+      numAddresses mustBe 1
     }
   }
 }

@@ -53,8 +53,6 @@ case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ") ex
       base.updated("source", mapAsJavaMap(sourceWithAddress))
     }
 
-    println(mapAsJavaMap(params))
-
     Good(StripeCustomer.create(mapAsJavaMap(params), options))
   }
 

@@ -34,4 +34,8 @@ object BillingAddresses {
       _ <- BillingAddresses.table += BillingAddress(addressId = addressId, paymentId = paymentId)
     } yield (address.copy(id = addressId))
   }
+
+  def count()(implicit ec: ExecutionContext, db: Database): Future[Int] = {
+    db.run(table.length.result)
+  }
 }

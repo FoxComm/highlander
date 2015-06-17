@@ -55,6 +55,10 @@ object Addresses {
     db.run(table.filter(_.id === id).result.headOption)
   }
 
+  def count()(implicit ec: ExecutionContext, db: Database): Future[Int] = {
+    db.run(table.length.result)
+  }
+
   def createFromPayload(customer: Customer,
                         payload: Seq[CreateAddressPayload])
                        (implicit ec: ExecutionContext,
