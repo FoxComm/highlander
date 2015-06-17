@@ -2,8 +2,7 @@ import akka.http.scaladsl.model.StatusCodes
 import models._
 import org.joda.time.DateTime
 import payloads.{CreateAddressPayload, CreditCardPayload}
-import responses.FullCart
-
+import responses.FullOrder
 import org.json4s.DefaultFormats
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Milliseconds, Seconds, Span}
@@ -13,7 +12,7 @@ import util.{StripeSupport, DbTestSupport}
 /**
  * The Server is shut down by shutting down the ActorSystem
  */
-class CartIntegrationTest extends FreeSpec
+class OrderIntegrationTest extends FreeSpec
   with MustMatchers
   with DbTestSupport
   with HttpSupport
@@ -31,31 +30,31 @@ class CartIntegrationTest extends FreeSpec
   import org.json4s.jackson.JsonMethods._
 
   "returns new items" in {
-    val cartId = db.run(Carts.returningId += Cart(id = 0, accountId = None)).futureValue
+    val orderId = db.run(Orders.returningId += Order(id = 0, customerId = 1)).futureValue
 
     val response = POST(
-      s"v1/carts/$cartId/line-items",
+      s"v1/orders/$orderId/line-items",
        """
          | [ { "skuId": 1, "quantity": 1 },
          |   { "skuId": 5, "quantity": 2 } ]
        """.stripMargin)
 
     val responseBody = response.bodyText
-    val cart = parse(responseBody).extract[FullCart.Root]
+    val order = parse(responseBody).extract[FullOrder.Root]
 
-    cart.lineItems.map(_.skuId).sortBy(identity) mustBe List(1, 5, 5)
+    order.lineItems.map(_.skuId).sortBy(identity) mustBe List(1, 5, 5)
   }
 
   "deletes line items" in {
-    val cartId = db.run(Carts.returningId += Cart(id = 0, accountId = None)).futureValue
-    val seedLineItems = (1 to 2).map { _ => CartLineItem(id = 0, cartId = cartId, skuId = 1) }
-    db.run(CartLineItems.returningId ++= seedLineItems.toSeq).futureValue
+    val orderId = db.run(Orders.returningId += Order(id = 0, customerId = 1)).futureValue
+    val seedLineItems = (1 to 2).map { _ => OrderLineItem(id = 0, orderId = orderId, skuId = 1) }
+    db.run(OrderLineItems.returningId ++= seedLineItems.toSeq).futureValue
 
-    val response = DELETE(s"v1/carts/$cartId/line-items/1")
+    val response = DELETE(s"v1/orders/$orderId/line-items/1")
     val responseBody = response.bodyText
-    val cart = parse(responseBody).extract[FullCart.Root]
+    val order = parse(responseBody).extract[FullOrder.Root]
 
-    cart.lineItems mustBe List(CartLineItem(id = 2, cartId = cartId, skuId = 1))
+    order.lineItems mustBe List(OrderLineItem(id = 2, orderId = orderId, skuId = 1))
   }
 
   "handles credit cards" - {
@@ -64,18 +63,18 @@ class CartIntegrationTest extends FreeSpec
     val payload = CreditCardPayload(holderName = "Jax", number = StripeSupport.successfulCard,
                                     cvv = "123", expYear = today.getYear + 1, expMonth = today.getMonthOfYear)
 
-    "fails if the cart is not found" in {
+    "fails if the order is not found" in {
       val response = POST(
-        s"v1/carts/5/payment-methods/credit-card",
+        s"v1/orders/5/payment-methods/credit-card",
         payload)
 
       response.status mustBe StatusCodes.NotFound
     }
 
     "fails if the payload is invalid" in {
-      val cartId = db.run(Carts.returningId += Cart(id = 0, accountId = Some(1))).futureValue
+      val orderId = db.run(Orders.returningId += Order(id = 0, customerId = 1)).futureValue
       val response = POST(
-        s"v1/carts/$cartId/payment-methods/credit-card",
+        s"v1/orders/$orderId/payment-methods/credit-card",
         payload.copy(cvv = "", holderName = ""))
 
       val errors = parse(response.bodyText).extract[Map[String, Seq[String]]]
@@ -85,10 +84,10 @@ class CartIntegrationTest extends FreeSpec
     }
 
     "fails if the card is invalid according to Stripe" in {
-      val cartId = db.run(Carts.returningId += Cart(id = 0, accountId = Some(1))).futureValue
+      val orderId = db.run(Orders.returningId += Order(id = 0, customerId = 1)).futureValue
       val customerId = db.run(Customers.returningId += customerStub).futureValue
       val response = POST(
-        s"v1/carts/$cartId/payment-methods/credit-card",
+        s"v1/orders/$orderId/payment-methods/credit-card",
         payload.copy(number = StripeSupport.declinedCard))
 
       val body = response.bodyText
@@ -99,7 +98,7 @@ class CartIntegrationTest extends FreeSpec
     }
 
     "successfully creates records" in {
-      val cartId = db.run(Carts.returningId += Cart(id = 0, accountId = Some(1))).futureValue
+      val orderId = db.run(Orders.returningId += Order(id = 0, customerId = 1)).futureValue
       val customerId = db.run(Customers.returningId += customerStub).futureValue
       val customer = customerStub.copy(id = customerId)
       val addressPayload = CreateAddressPayload(name = "Home", stateId = 46, state = Some("VA"), street1 = "500 Blah",
@@ -107,16 +106,16 @@ class CartIntegrationTest extends FreeSpec
       val payloadWithAddress = payload.copy(address = Some(addressPayload))
 
       val response = POST(
-        s"v1/carts/$cartId/payment-methods/credit-card",
+        s"v1/orders/$orderId/payment-methods/credit-card",
         payloadWithAddress)
 
       val body = response.bodyText
 
       val cc = CreditCardGateways.findById(1).futureValue.get
-      val payment = AppliedPayments.findAllByCartId(cartId).futureValue.head
+      val payment = AppliedPayments.findAllByOrderId(orderId).futureValue.head
       val (address, billingAddress) = BillingAddresses.findByPaymentId(payment.id).futureValue.get
 
-      val cart = parse(body).extract[FullCart.Root]
+      val order = parse(body).extract[FullOrder.Root]
 
       cc.customerId mustBe customerId
       cc.lastFour mustBe payload.lastFour
@@ -124,7 +123,7 @@ class CartIntegrationTest extends FreeSpec
       cc.expYear mustBe payload.expYear
 
       payment.appliedAmount mustBe 0
-      payment.cartId mustBe cartId
+      payment.orderId mustBe orderId
       payment.status mustBe "auth"
 
       response.status mustBe StatusCodes.OK
