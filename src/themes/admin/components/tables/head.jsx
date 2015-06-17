@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-class TableHead extends React.Component {
+export default class TableHead extends React.Component {
   render() {
     let createColumn = function(column, idx) {
       return <th key={`${idx}-${column.field}`}>{column.text}</th>;
@@ -14,5 +14,3 @@ class TableHead extends React.Component {
 TableHead.propTypes = {
   columns: React.PropTypes.array
 };
-
-export default TableHead;

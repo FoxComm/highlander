@@ -7,20 +7,22 @@ const
 
 module.exports = function(app) {
   const
+    config      = app.config.api,
     baseRequest = request.defaults({
-      baseUrl: app.config.api.uri,
+      baseUrl: config.uri,
       _json: true
     });
 
   let router = new Router({
-    prefix: '/api/v1'
+    prefix: `/api/${config.version}`
   });
 
+  router.use(app.jsonError);
+
   router.get('/:path*', function *() {
-    let
-      res   = yield t(baseRequest.get)(this.params.path),
-      data  = res[1];
-    this.body = data;
+    let res = yield t(baseRequest.get)(this.params.path);
+    this.status = res[0].statusCode;
+    this.body = res[1];
   });
 
   app

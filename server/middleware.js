@@ -27,6 +27,15 @@ module.exports = function(app) {
     yield next;
   };
 
+  app.jsonError = function *(next) {
+    try {
+      yield next;
+    } catch(err) {
+      this.status = err.status || 500;
+      this.body = {error: err.message};
+    }
+  };
+
   app.renderReact = function *() {
     const appFile = path.join(config.layout.publicDir, 'themes', this.theme, `${this.theme}.js`);
     const App     = require(appFile);
