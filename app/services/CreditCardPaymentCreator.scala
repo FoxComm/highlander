@@ -47,21 +47,13 @@ case class CreditCardPaymentCreator(cart: Cart, customer: Customer, cardPayload:
                                   (implicit ec: ExecutionContext, db: Database): Future[Option[Cart]] = {
 
     val appliedPayment = AppliedPayment.fromStripeCustomer(stripeCustomer, cart)
-
-    // TODO: attempt to get billingAddress
-//    val billingAddress = Address(customerId = customer.id, stateId = state.id, name = "Stripe",
-//      street1 = stripeCard.getAddressLine1, street2 = Option(stripeCard.getAddressLine2),
-//      city = stripeCard.getAddressCity, zip = stripeCard.getAddressZip)
-
     val cc = CreditCardGateway.build(stripeCustomer, this.cardPayload).copy(customerId = customer.id)
+    val billingAddress = this.cardPayload.address.map(Address.fromPayload(_).copy(customerId = customer.id))
 
-    /*
-      Create the TokenizedCreditCard, AppliedPayment, and billing Address (populated by the StripeCard)
-     */
     val queries = for {
       ccId <- CreditCardGateways.returningId += cc
       appliedPaymentId <- AppliedPayments.returningId += appliedPayment.copy(paymentMethodId = ccId)
-      // addressId <- BillingAddresses._create(billingAddress, appliedPaymentId)
+      _ <- BillingAddresses._create(billingAddress.get, appliedPaymentId) if billingAddress.isDefined
       c <- Carts._findById(cart.id).result.headOption
     } yield c
 
