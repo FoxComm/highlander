@@ -10,9 +10,12 @@ import Customers from './components/customers/customers';
 import Customer from './components/customers/customer';
 import Notes from './components/notes/notes';
 
+import AddressBook from './components/addresses/addresses';
+
 const routes = (
   <Route handler={Site}>
     <DefaultRoute name="home" handler={Home}/>
+    <Route name='addresses' handler={AddressBook} />
     <Route name='orders' handler={Orders}/>
     <Route name='order' path='/orders/:order' handler={Order}>
       <Route name='notes' path='notes' handler={Notes}/>
