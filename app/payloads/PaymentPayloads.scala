@@ -16,6 +16,7 @@ case class CreditCardPayload(holderName: String, number: String,
     cc.cvv should matchRegex("[0-9]{3,4}")
     cc.expYear is between(2015, 2050)
     cc.expMonth is between(1, 12)
+    // cc.address.map { a => a is valid }
   }
 
   def lastFour: String = this.number.takeRight(4)

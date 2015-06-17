@@ -86,17 +86,15 @@ class CartIntegrationTest extends FreeSpec
 
     "fails if the card is invalid according to Stripe" in {
       val cartId = db.run(Carts.returningId += Cart(id = 0, accountId = Some(1))).futureValue
+      val customerId = db.run(Customers.returningId += customerStub).futureValue
       val response = POST(
         s"v1/carts/$cartId/payment-methods/credit-card",
         payload.copy(number = StripeSupport.declinedCard))
 
       val body = response.bodyText
-
-      info(body)
-
       val errors = parse(body).extract[Map[String, Seq[String]]]
 
-      errors mustBe Map("errors" -> Seq("holderName must not be empty", "cvv must match regular expression '[0-9]{3,4}'"))
+      errors mustBe Map("errors" -> Seq("Your card was declined."))
       response.status mustBe StatusCodes.BadRequest
     }
 
@@ -113,7 +111,6 @@ class CartIntegrationTest extends FreeSpec
         payloadWithAddress)
 
       val body = response.bodyText
-
 
       val cc = CreditCardGateways.findById(1).futureValue.get
       val numAddresses = Addresses.count().futureValue

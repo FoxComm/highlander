@@ -76,7 +76,7 @@ case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ") ex
       try {
         f
       } catch {
-        case t: com.stripe.exception.InvalidRequestException =>
+        case t @ (_: com.stripe.exception.InvalidRequestException | _: com.stripe.exception.CardException) =>
           Bad(List(t.getMessage))
       }
     }
