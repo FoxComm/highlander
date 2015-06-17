@@ -214,7 +214,11 @@ class Service(
             } ~
             (post & path(IntNumber / "line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { (orderId, reqItems) =>
               complete {
-                whenFound(Orders.findById(orderId).run()) { order => LineItemUpdater.updateQuantities(order, reqItems) }
+                whenFound(Orders.findById(orderId).run) {order =>
+                  LineItemUpdater.updateQuantities(order, reqItems).map { response =>
+                    response.map(FullOrder.build(order, _))
+                  }
+                }
               }
             } ~
             (get & path(IntNumber / "payment-methods")) { orderId =>
@@ -276,7 +280,11 @@ class Service(
                   } ~
                   (post & path("line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems =>
                     complete {
-                      whenFound(Orders.findActiveOrderByCustomer(customer)) { order => LineItemUpdater.updateQuantities(order, reqItems) }
+                      whenFound(Orders.findActiveOrderByCustomer(customer)) { order =>
+                        LineItemUpdater.updateQuantities(order, reqItems).map { response =>
+                          response.map(FullOrder.build(order, _))
+                        }
+                      }
                     }
                   }
               }
