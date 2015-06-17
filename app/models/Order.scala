@@ -57,19 +57,6 @@ class Orders(tag: Tag) extends GenericTable.TableWithId[Order](tag, "orders") wi
 object Orders extends TableQueryWithId[Order, Orders](
   idLens = GenLens[Order](_.id)
   )(new Orders(_)){
-  val table = TableQuery[Orders]
-
-
-  // TODO: YAX: Get rid of this and replace with something real.
-  def collectPaymentMethods(order: Order): Future[Seq[AppliedPayment]] = {
-    val appliedpayment = AppliedPayment(id = 1, orderId = order.id, paymentMethodId = 1, paymentMethodType = "TokenizedCard", appliedAmount = 10000, status = Applied.toString, responseCode = "")
-    val appliedpayment2 = appliedpayment.copy(appliedAmount = 2550, paymentMethodId = 2)
-
-
-    Future.successful(Seq(appliedpayment, appliedpayment2))
-  }
-
-
 
   def _create(order: Order)(implicit ec: ExecutionContext, db: Database): DBIOAction[models.Order, NoStream, Effect.Write] = {
    for {

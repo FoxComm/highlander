@@ -55,4 +55,14 @@ object AppliedPayments extends TableQueryWithId[AppliedPayment, AppliedPayments]
     db.run(this.filter(_.id === id).result)
   }
 
+  def findAllPaymentsFor(order: Order)
+                        (implicit ec: ExecutionContext, db: Database): Future[Seq[(AppliedPayment, CreditCardGateway)]] = {
+    db.run(this._findAllPaymentsFor(order).result)
+  }
+
+  def _findAllPaymentsFor(order: Order) = {
+    for {
+      result <- this.filter(_.orderId === order.id).join(CreditCardGateways).on(_.id === _.id)
+    } yield result
+  }
 }
