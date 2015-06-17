@@ -27,7 +27,7 @@ class LineItemUpdaterTest extends FreeSpec
   "LineItemUpdater" - {
 
     "Adds line_items when the sku doesn't exist in order" in {
-      val order = Orders.save(Order(customerId = 1)).futureValue
+      val order = Orders.save(Order(customerId = 1)).run().futureValue
       val payload = Seq[Payload](
         Payload(skuId = 1, quantity = 3),
         Payload(skuId = 2, quantity = 0)
@@ -47,7 +47,7 @@ class LineItemUpdaterTest extends FreeSpec
     }
 
     "Updates line_items when the Sku already is in order" in {
-      val order = Orders.save(Order(customerId = 1)).futureValue
+      val order = Orders.save(Order(customerId = 1)).run().futureValue
       val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { skuId => OrderLineItem(id = 0, orderId = 1, skuId = skuId) }
       createLineItems(seedItems)
 
