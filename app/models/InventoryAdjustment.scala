@@ -10,14 +10,17 @@ case class InventoryAdjustment(id: Int, skuId: Int, orderId: Option[Int], purcha
 
 }
 
+// This is an exclusive arcs style sketchup.
 class InventoryAdjustments(tag: Tag) extends GenericTable.TableWithId[InventoryAdjustment](tag, "inventory_adjustments") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def skuId = column[Int]("sku_id")
-  def orderId = column[Option[Int]]("order_id")
+  def orderId = column[Option[Int]]("order_id") // this happens after order is placed
+  def shipmentId = column[Option[Int]]("shipment_id") // this happens after shipment.
   def purchaseOrderReceiptId = column[Option[Int]]("purchase_order_receipt_id")
   def rmaReceiptId = column[Option[Int]]("rma_receipt_id")
   def cycleCountId = column[Option[Int]]("cycle_count_id")
   def physicalInventoryEventId = column[Option[Int]]("order_id")
+  def reservedForFulfillment = column[Int]("reserved_for_fulfillment")
   def onHandAdjustment = column[Int]("available_on_hand")
   def availablePreOrder = column[Int]("available_pre_order")
   def availableBackOrder = column[Int]("available_pre_order")
