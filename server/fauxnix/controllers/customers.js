@@ -14,14 +14,13 @@ module.exports = function(app, router) {
       this.body = this.customer.toJSON();
     })
     .get('/customers', function *() {
-      let customers = Customer.generateList();
-      this.body = customers;
+      this.body = Customer.generateList();
     })
     .post('/customers', function *() {
       let
         body = yield parse.json(this),
         customer = new Customer(body);
       this.status = 201;
-      this.body = {customer: customer.toJSON()};
+      this.body = customer.toJSON();
     });
 };
