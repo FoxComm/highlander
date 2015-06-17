@@ -91,24 +91,24 @@ object Orders extends TableQueryWithId[Order, Orders](
   def _findByCustomer(cust: Customer) = { table.filter(_.customerId === cust.id) }
 
   def findActiveOrderByCustomer(cust: Customer)(implicit ec: ExecutionContext, db: Database): Future[Option[Order]] = {
-    // TODO: (AW): we should find a way to ensure that the customer only has one cart.
+    // TODO: (AW): we should find a way to ensure that the customer only has one order with a cart status.
     db.run(_findActiveOrderByCustomer(cust).result.headOption)
   }
 
   def _findActiveOrderByCustomer(cust: Customer) = { table.filter(_.customerId === cust.id).filter(_.status === (Order.Cart: Order.Status)) }
 
-  // If the user doesn't have a cart yet, let's create one.
+  // If the user doesn't have an order yet, let's create one.
   def findOrCreateActiveOrderByCustomer(customer: Customer)
                             (implicit ec: ExecutionContext, db: Database): Future[Option[Order]] = {
     val actions = for {
-      numCarts <- _findActiveOrderByCustomer(customer).length.result
-      cart <- if (numCarts < 1) {
-        val freshCart = Order(customerId = customer.id, status = Order.Cart)
-        (returningId += freshCart).map { id => freshCart.copy(id = id) }.map(Some(_))
+      numOrders <- _findActiveOrderByCustomer(customer).length.result
+      order <- if (numOrders < 1) {
+        val freshOrder = Order(customerId = customer.id, status = Order.Cart)
+        (returningId += freshOrder).map { id => freshOrder.copy(id = id) }.map(Some(_))
       } else {
         _findActiveOrderByCustomer(customer).result.headOption
       }
-    } yield cart
+    } yield order
 
     db.run(actions.transactionally)
   }

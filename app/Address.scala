@@ -56,9 +56,9 @@ case class StockLocation(id: Int, name: String)
 // TODO: money/currency abstraction. Use joda-money, most likely
 case class Money(currency: String, amount: Int)
 
-case class Coupon(id: Int, cartId: Int, code: String, adjustment: List[Adjustment])
+case class Coupon(id: Int, orderId: Int, code: String, adjustment: List[Adjustment])
 
-case class Promotion(id: Int, cartId: Int, adjustments: List[Adjustment])
+case class Promotion(id: Int, orderId: Int, adjustments: List[Adjustment])
 
 sealed trait Destination
 case class EmailDestination(email: String) extends Destination
@@ -140,7 +140,7 @@ class Service(
 
 
   implicit val system = systemOverride.getOrElse {
-    ActorSystem.create("Cart", config)
+    ActorSystem.create("Orders", config)
   }
 
   implicit def executionContext = system.dispatcher
@@ -231,8 +231,8 @@ class Service(
                         Future.successful(HttpResponse(OK, entity = render(s"Guest checkout!!")))
 
                       case Some(customer) =>
-                        CreditCardPaymentCreator.run(order, customer, reqPayment).map { fullCart =>
-                          fullCart.fold({ c => HttpResponse(OK, entity = render(c)) },
+                        CreditCardPaymentCreator.run(order, customer, reqPayment).map { fullOrder =>
+                          fullOrder.fold({ c => HttpResponse(OK, entity = render(c)) },
                                         { e => HttpResponse(BadRequest, entity = render("errors" -> e)) })
                         }
                     }

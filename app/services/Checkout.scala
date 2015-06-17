@@ -24,16 +24,15 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
         // Figure out what to really return if an order status is completed.
         completeOrderAndCreateNew(order).map(Good(_))
       } else {
-        Future.successful(Bad(List("No Line Items in Cart!")))
+        Future.successful(Bad(List("No Line Items in Order!")))
       }
     }
 
   }
 
-  // sets incoming order.status == Cart.ordered and creates a new order
+  // sets incoming order.status == Order.ordered and creates a new order
   def completeOrderAndCreateNew(order: Order): Future[Order] = {
     val newOrder = Order(customerId = order.customerId, status = Order.Cart)
-
 
     db.run(for {
       _ <- Orders._findById(order.id).map(_.status).update(Order.Ordered)

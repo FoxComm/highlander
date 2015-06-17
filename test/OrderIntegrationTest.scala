@@ -115,7 +115,7 @@ class OrderIntegrationTest extends FreeSpec
       val payment = AppliedPayments.findAllByOrderId(orderId).futureValue.head
       val (address, billingAddress) = BillingAddresses.findByPaymentId(payment.id).futureValue.get
 
-      val cart = parse(body).extract[FullOrder.Root]
+      val order = parse(body).extract[FullOrder.Root]
 
       cc.customerId mustBe customerId
       cc.lastFour mustBe payload.lastFour
