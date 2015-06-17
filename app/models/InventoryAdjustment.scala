@@ -1,9 +1,12 @@
 package models
 
-import utils.{RichTable, GenericTable}
+import utils.{TableQueryWithId, ModelWithIdParameter, RichTable, GenericTable}
+import monocle.macros.GenLens
+import slick.driver.PostgresDriver.api._
+import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 
 
-class InventoryAdjustment {
+case class InventoryAdjustment(id: Int, skuId: Int, orderId: Option[Int], purchaseOrderReceiptId: Option[Int], rmaReceiptId: Option[Int], cycleCountId: Option[Int], physicalInventoryEventId: Option[Int], onHandAdjustment: Int, availablePreOrder: Int, availableBackOrder: Int, outstandingPreOrders: Int, outstandingBackOrders: Int, description: Option[String], sourceNotes: Option[String]) extends ModelWithIdParameter {
 
 }
 
@@ -22,4 +25,11 @@ class InventoryAdjustments(tag: Tag) extends GenericTable.TableWithId[InventoryA
   def outstandingBackOrders = column[Int]("available_pre_order") // How many unreconciled backorders are there.
   def description = column[Option[String]]("description")
   def sourceNotes = column[Option[String]]("source_notes") //Notes about a third party source
+
+
+  def * = (id, skuId, orderId, purchaseOrderReceiptId, rmaReceiptId, cycleCountId, physicalInventoryEventId, onHandAdjustment, availablePreOrder, availableBackOrder, outstandingPreOrders, outstandingBackOrders, description, sourceNotes) <> ((InventoryAdjustment.apply _).tupled, InventoryAdjustment.unapply)
 }
+
+object InventoryAdjustments extends TableQueryWithId[InventoryAdjustment, InventoryAdjustments](
+  idLens = GenLens[InventoryAdjustment](_.id)
+)(new InventoryAdjustments(_)) {}
