@@ -39,7 +39,7 @@ object BillingAddresses {
                       (implicit ec: ExecutionContext,
                        db: Database) = {
     for {
-      result <- Addresses.table.join(table).on(_.id === _.addressId).result.headOption
+      result <- Addresses.table.join(table).on(_.id === _.addressId).filter(_._2.paymentId === id).result.headOption
     } yield result
   }
 
