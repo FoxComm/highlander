@@ -16,6 +16,7 @@ case class CreditCardPayload(holderName: String, number: String,
     cc.cvv should matchRegex("[0-9]{3,4}")
     cc.expYear is between(2015, 2050)
     cc.expMonth is between(1, 12)
+    // TODO: this is why we'd use implicit validators
     // cc.address.map { a => a is valid }
   }
 
