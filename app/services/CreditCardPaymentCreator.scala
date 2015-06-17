@@ -50,17 +50,19 @@ case class CreditCardPaymentCreator(cart: Cart, customer: Customer, cardPayload:
     val cc = CreditCardGateway.build(stripeCustomer, this.cardPayload).copy(customerId = customer.id)
     val billingAddress = this.cardPayload.address.map(Address.fromPayload(_).copy(customerId = customer.id))
 
-    /*
-      Create the TokenizedCreditCard, AppliedPayment, and billing Address (populated by the StripeCard)
-     */
     val queries = for {
       ccId <- CreditCardGateways.returningId += cc
       appliedPaymentId <- AppliedPayments.returningId += appliedPayment.copy(paymentMethodId = ccId)
-      _ = billingAddress.map(BillingAddresses._create(_, appliedPaymentId))
       c <- Carts._findById(cart.id).result.headOption
-    } yield c
+    } yield (c, appliedPaymentId)
 
-    db.run(queries.transactionally)
+
+    db.run(queries.transactionally).map { case (optCart, appliedPaymentId) =>
+      billingAddress.map { address =>
+        db.run(BillingAddresses._create(address, appliedPaymentId))
+      }
+      optCart
+    }
   }
 }
 
