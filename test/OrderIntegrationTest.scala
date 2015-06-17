@@ -39,9 +39,7 @@ class OrderIntegrationTest extends FreeSpec
          |   { "skuId": 5, "quantity": 2 } ]
        """.stripMargin)
 
-    val responseBody = response.bodyText
-    val order = parse(responseBody).extract[FullOrder.Root]
-
+    val order = parse(response.bodyText).extract[FullOrder.Root]
     order.lineItems.map(_.skuId).sortBy(identity) mustBe List(1, 5, 5)
   }
 
