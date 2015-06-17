@@ -214,7 +214,7 @@ class Service(
             } ~
             (post & path(IntNumber / "line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { (orderId, reqItems) =>
               complete {
-                whenFound(Orders.findById(orderId).run) {order =>
+                whenFound(Orders.findById(orderId).run()) {order =>
                   LineItemUpdater.updateQuantities(order, reqItems).map { response =>
                     response.map(FullOrder.build(order, _))
                   }
