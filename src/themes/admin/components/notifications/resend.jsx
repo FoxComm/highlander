@@ -15,14 +15,14 @@ class ResendModal extends React.Component {
             <i className='icon-attention'></i>
           </div>
           <div className='title'>Resend Email?</div>
-          <a className='close' aria-label='Close' onClick={dispatch('closeModal')}><span aria-hidden="true">&times;</span></a>
+          <a className='close' aria-label='Close' onClick={dispatch.bind(null, 'closeModal')}><span aria-hidden="true">&times;</span></a>
         </div>
         <div className='modal-body'>
           You will send another copy of this email to:
           <ContactMethod type={notification.contactType} value={notification.contact} />
         </div>
         <div className='modal-footer'>
-          <a className='close' onClick={dispatch('closeModal')}>Cancel</a>
+          <a className='close' onClick={dispatch.bind(null, 'closeModal')}>Cancel</a>
           <button className='btn' type='submit'>Resend</button>
         </div>
       </form>
@@ -31,9 +31,7 @@ class ResendModal extends React.Component {
 }
 
 ResendModal.propTypes = {
-  notification: React.PropTypes.object,
-  closeHandler: React.PropTypes.func,
-  openHandler: React.PropTypes.func
+  notification: React.PropTypes.object
 };
 
 ResendModal.defaultProps = {

@@ -10,9 +10,6 @@ import { dispatch } from '../../lib/dispatcher';
 export default class Site extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      isModalOpen: false
-    };
   }
 
   openModal() {
@@ -27,7 +24,7 @@ export default class Site extends React.Component {
         <main role='main'>
           <RouteHandler/>
         </main>
-        <Modal isOpen={this.state.isModalOpen} />
+        <Modal />
         <a className='modalbtn btn' onClick={this.openModal}>Toggle Modal</a>
       </div>
     );
