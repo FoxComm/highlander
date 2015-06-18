@@ -2,6 +2,7 @@
 
 import React from 'react';
 import ContactMethod from './method';
+import { dispatch } from '../../lib/dispatcher';
 
 class ResendModal extends React.Component {
   render() {
@@ -14,14 +15,14 @@ class ResendModal extends React.Component {
             <i className='icon-attention'></i>
           </div>
           <div className='title'>Resend Email?</div>
-          <a className='close' aria-label='Close' onClick={this.props.closeHandler}><span aria-hidden="true">&times;</span></a>
+          <a className='close' aria-label='Close' onClick={dispatch('closeModal')}><span aria-hidden="true">&times;</span></a>
         </div>
         <div className='modal-body'>
           You will send another copy of this email to:
           <ContactMethod type={notification.contactType} value={notification.contact} />
         </div>
         <div className='modal-footer'>
-          <a className='close' onClick={this.props.closeHandler}>Cancel</a>
+          <a className='close' onClick={dispatch('closeModal')}>Cancel</a>
           <button className='btn' type='submit'>Resend</button>
         </div>
       </form>

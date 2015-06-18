@@ -5,6 +5,7 @@ import { RouteHandler } from 'react-router';
 import Header from '../header/header';
 import Menu from '../menu/menu';
 import Modal from '../modal/modal';
+import { dispatch } from '../../lib/dispatcher';
 
 export default class Site extends React.Component {
   constructor(props) {
@@ -15,15 +16,7 @@ export default class Site extends React.Component {
   }
 
   openModal() {
-    this.setState({
-      isModalOpen: true
-    });
-  }
-
-  closeModal() {
-    this.setState({
-      isModalOpen: false
-    });
+    dispatch('openModal');
   }
 
   render() {
@@ -34,8 +27,8 @@ export default class Site extends React.Component {
         <main role='main'>
           <RouteHandler/>
         </main>
-        <Modal isOpen={this.state.isModalOpen} openHandler={this.openModal.bind(this)} closeHandler={this.closeModal.bind(this)} />
-        <a className='modalbtn btn' onClick={this.openModal.bind(this)}>Toggle Modal</a>
+        <Modal isOpen={this.state.isModalOpen} />
+        <a className='modalbtn btn' onClick={this.openModal}>Toggle Modal</a>
       </div>
     );
   }
