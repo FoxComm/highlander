@@ -1,33 +1,21 @@
 import akka.http.scaladsl.model.StatusCodes
 import models._
 import org.joda.time.DateTime
+import org.scalatest.time.{Milliseconds, Seconds, Span}
 import payloads.{CreateAddressPayload, CreditCardPayload}
 import responses.FullOrder
-import org.json4s.DefaultFormats
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.time.{Milliseconds, Seconds, Span}
-import org.scalatest.{FreeSpec, MustMatchers}
-import util.{StripeSupport, DbTestSupport}
+import util.{IntegrationTestBase, StripeSupport}
 
 /**
  * The Server is shut down by shutting down the ActorSystem
  */
-class OrderIntegrationTest extends FreeSpec
-  with MustMatchers
-  with DbTestSupport
-  with HttpSupport
-  with AutomaticAuth
-  with ScalaFutures {
+class OrderIntegrationTest extends IntegrationTestBase
+  with HttpSupport /** FIXME: Add to IntegrationTestBase once they no longer live in the root package */
+  with AutomaticAuth {
 
   import concurrent.ExecutionContext.Implicits.global
-
-  override implicit def patienceConfig: PatienceConfig = PatienceConfig(
-    timeout  = Span(5, Seconds),
-    interval = Span(20, Milliseconds)
-  )
-
-  import Extensions._
   import org.json4s.jackson.JsonMethods._
+  import Extensions._
 
   "returns new items" in {
     val orderId = db.run(Orders.returningId += Order(id = 0, customerId = 1)).futureValue

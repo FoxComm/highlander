@@ -1,6 +1,6 @@
 package services
 
-import models.{Customer, TokenizedCreditCard}
+import models.{CreditCardGateway, Customer}
 import payloads.CreditCardPayload
 
 import com.stripe.Stripe
@@ -15,15 +15,6 @@ case object BraintreeGateway extends PaymentGateway
 
 // TODO(yax): do not default apiKey, it should come from store
 case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ") extends PaymentGateway {
-  def getTokenizedCard(paymentToken: String)
-                      (implicit ec: ExecutionContext):
-                      Future[(TokenizedCreditCard, StripeCard) Or List[ErrorMessage]] = tryFutureWrap {
-
-    val retrievedToken = Token.retrieve(paymentToken, options)
-    val stripeCard = retrievedToken.getCard
-    Good((TokenizedCreditCard.fromStripe(stripeCard, paymentToken), stripeCard))
-  }
-
   // Creates a customer in Stripe along with their first CC
   def createCustomerAndCard(customer: Customer, card: CreditCardPayload)
                            (implicit ec: ExecutionContext): Future[StripeCustomer Or List[ErrorMessage]] = tryFutureWrap {
@@ -56,12 +47,11 @@ case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ") ex
     Good(StripeCustomer.create(mapAsJavaMap(params), options))
   }
 
-  def authorizeAmount(tokenizedCard: TokenizedCreditCard, amount: Int)
+  def authorizeAmount(card: CreditCardGateway, amount: Int)
                      (implicit ec: ExecutionContext): Future[String Or List[ErrorMessage]] = tryFutureWrap {
     val capture: java.lang.Boolean = false
     val chargeMap: Map[String, Object] = Map("amount" -> "100", "currency" -> "usd",
-      "source" -> tokenizedCard.gatewayTokenId, "capture" -> capture)
-
+      "source" -> card.customerId.toString, "capture" -> capture)
 
     val charge = StripeCharge.create(mapAsJavaMap(chargeMap), options)
     /*

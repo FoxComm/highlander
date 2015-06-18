@@ -1,18 +1,11 @@
 package services
 
 import models.StockItems
-import org.scalatest.{BeforeAndAfter, FreeSpec, MustMatchers, FunSuite}
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
+import util.IntegrationTestBase
 
-class CreatesStockItemsTest extends FreeSpec
-  with util.DbTestSupport
-  with MustMatchers
-  with ScalaFutures
-  with BeforeAndAfter
-  with IntegrationPatience {
-
-  import concurrent.ExecutionContext.Implicits.global
+class CreatesStockItemsTest extends IntegrationTestBase {
   import api._
+  import concurrent.ExecutionContext.Implicits.global
 
   "CreatesStockItems" - {
     "creates a new stock item" in withStockItemSchema {

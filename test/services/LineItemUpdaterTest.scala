@@ -1,19 +1,11 @@
 package services
 
-import models.{Orders, OrderLineItems, OrderLineItem, Order}
-import payloads.{UpdateLineItemsPayload => Payload}
+import models.{Order, OrderLineItem, OrderLineItems, Orders}
+import org.scalactic.{Bad, Good}
+import payloads.{UpdateLineItemsPayload ⇒ Payload}
+import util.IntegrationTestBase
 
-import org.scalactic.{Good, Bad, ErrorMessage, Or}
-import org.scalatest.{BeforeAndAfter, FreeSpec, MustMatchers, FunSuite}
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-
-class LineItemUpdaterTest extends FreeSpec
-  with util.DbTestSupport
-  with MustMatchers
-  with ScalaFutures
-  with BeforeAndAfter
-  with IntegrationPatience {
-
+class LineItemUpdaterTest extends IntegrationTestBase {
   import api._
   import concurrent.ExecutionContext.Implicits.global
 
@@ -27,7 +19,7 @@ class LineItemUpdaterTest extends FreeSpec
   "LineItemUpdater" - {
 
     "Adds line_items when the sku doesn't exist in order" in {
-      val order = Orders.save(Order(customerId = 1)).futureValue
+      val order = Orders.save(Order(customerId = 1)).run().futureValue
       val payload = Seq[Payload](
         Payload(skuId = 1, quantity = 3),
         Payload(skuId = 2, quantity = 0)
@@ -47,7 +39,7 @@ class LineItemUpdaterTest extends FreeSpec
     }
 
     "Updates line_items when the Sku already is in order" in {
-      val order = Orders.save(Order(customerId = 1)).futureValue
+      val order = Orders.save(Order(customerId = 1)).run().futureValue
       val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { skuId => OrderLineItem(id = 0, orderId = 1, skuId = skuId) }
       createLineItems(seedItems)
 
