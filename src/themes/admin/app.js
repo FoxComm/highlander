@@ -12,7 +12,7 @@ let app = {
 
   webStart() {
     Router.run(routes, Router.HistoryLocation, (Handler) => {
-      React.render(<Handler/>, document.body);
+      React.render(<Handler/>, document.getElementById('foxcom'));
     });
   },
 

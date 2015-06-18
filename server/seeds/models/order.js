@@ -18,19 +18,8 @@ class Order extends BaseModel {
   get orderStatus() { return this.model.orderStatus; }
   get paymentStatus() { return this.model.paymentStatus; }
   get shippingStatus() { return this.model.shippingStatus; }
+  get customer() { return Customer.generate(); }
   get total() { return this.model.total; }
-
-  toJSON() {
-    return {
-      id: this.id,
-      orderId: this.orderId,
-      orderStatus: this.orderStatus,
-      paymentStatus: this.paymentStatus,
-      shippingStatus: this.shippingStatus,
-      customer: Customer.generate(),
-      total: this.total
-    };
-  }
 }
 
 Object.defineProperty(Order, 'seed', {value: seed});
