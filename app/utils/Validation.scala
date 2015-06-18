@@ -52,11 +52,9 @@ object Validation {
       def isValid = false
     }
 
-    def fromAccord(r: accord.Result): Result = {
-      r match {
-        case accord.Failure(violations) => Failure(violations)
-        case accord.Success => Success
-      }
+    def fromAccord(r: accord.Result): Result = r match {
+      case accord.Failure(violations) => Failure(violations)
+      case accord.Success => Success
     }
   }
 }
