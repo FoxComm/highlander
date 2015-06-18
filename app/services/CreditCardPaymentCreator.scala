@@ -22,7 +22,7 @@ case class CreditCardPaymentCreator(order: Order, customer: Customer, cardPayloa
 
   def run(): Response = {
     if (!cardPayload.isValid) {
-      Future.successful(Bad(cardPayload.validationFailures.toList))
+      Future.successful(Bad(cardPayload.validate.messages.toList))
     } else {
       // creates the customer, card, and gives us getDefaultCard as the token
       gateway.createCustomerAndCard(customer, this.cardPayload).flatMap {

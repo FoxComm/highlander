@@ -3,30 +3,63 @@ package utils
 import com.wix.accord.transform.ValidationTransform
 import org.scalactic._
 import org.scalactic.Accumulation._
-import com.wix.accord.{validate => runValidation, Success}
-import com.wix.accord._
+import com.wix.accord.{validate => runValidation, Failure => AccordFailure, Violation, Validator}
+import com.wix.accord
 
 trait Validation[T] {
+  import Validation._
+
   def validator: ValidationTransform.TransformedValidator[T]
 
-  def validate: Result = { runValidation(this.asInstanceOf[T])(validator.asInstanceOf[Validator[T]]) }
-
-  def isValid: Boolean = { validate == Success }
-
-  def validationFailures: Set[ErrorMessage] = {
-    this.validate match {
-      case Success =>
-        Set.empty
-      case Failure(violations) =>
-        violations.map(Validation.formatViolation)
-    }
+  def validate: Result = {
+    val accordResult = runValidation(this.asInstanceOf[T])(validator.asInstanceOf[Validator[T]])
+    Result.fromAccord(accordResult)
   }
+
+  def isValid: Boolean = { validate.isValid }
 }
 
 object Validation {
-  def validationFailureToSet(failure: Failure): Set[ErrorMessage] = {
-    failure.violations.map(formatViolation)
+  import Result._
+
+  sealed abstract class Result {
+
+    import Result._
+
+    // A catamorphism that runs a Success fn, s, or a Failure fn, f.
+    final def cata[A](s: => A, f: Set[Violation] => A): A = {
+      this match {
+        case Success => s
+        case Failure(v) => f(v)
+      }
+    }
+
+    def isValid: Boolean
+
+    def messages: Set[ErrorMessage]
   }
 
-  def formatViolation(v: Violation): String = { v.description.getOrElse("") ++ " " ++ v.constraint }
+  object Result {
+
+    final case object Success extends Result {
+      def isValid = true
+
+      def messages: Set[ErrorMessage] = Set.empty
+    }
+
+    final case class Failure(violations: Set[Violation]) extends Result {
+      def isValid = false
+
+      def messages: Set[ErrorMessage] = {
+        violations.map { v => v.description.getOrElse("") ++ " " ++ v.constraint }
+      }
+    }
+
+    def fromAccord(r: accord.Result): Result = {
+      r match {
+        case accord.Failure(violations) => Failure(violations)
+        case accord.Success => Success
+      }
+    }
+  }
 }
