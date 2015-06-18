@@ -97,14 +97,7 @@ class AddressTest extends FreeSpec
           )
 
           forAll(addresses) { (address: Address, errors: Set[String]) =>
-            address.validate match {
-              case ValidationFailure(failures) =>
-                val actualErrors = failures.map(Validation.formatViolation)
-                actualErrors must be (errors)
-
-              case ValidationSuccess =>
-                fail(s"$address should be invalid")
-            }
+            address.validate.messages mustBe errors
           }
         }
       }
