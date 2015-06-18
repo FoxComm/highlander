@@ -17,9 +17,9 @@ class InventorySummaries(tag: Tag) extends GenericTable.TableWithId[InventorySum
   def skuId = column[Int]("sku_id")
   def availableOnHand = column[Int]("available_on_hand")
   def availablePreOrder = column[Int]("available_pre_order")
-  def availableBackOrder = column[Int]("available_pre_order")
-  def outstandingPreOrders =  column[Int]("available_pre_order") // How many have been preordered but not yet fulfilled
-  def outstandingBackOrders = column[Int]("available_pre_order") // How many unreconciled backorders are there.
+  def availableBackOrder = column[Int]("available_back_order")
+  def outstandingPreOrders =  column[Int]("outstanding_pre_orders") // How many have been preordered but not yet fulfilled
+  def outstandingBackOrders = column[Int]("outstanding_back_orders") // How many unreconciled backorders are there.
 
   def * = (id, skuId, availableOnHand, availablePreOrder, availableBackOrder, outstandingPreOrders, outstandingPreOrders) <> (( InventorySummary.apply _).tupled, InventorySummary.unapply)
 }

@@ -23,9 +23,9 @@ class InventoryAdjustments(tag: Tag) extends GenericTable.TableWithId[InventoryA
   def reservedForFulfillment = column[Int]("reserved_for_fulfillment")
   def onHandAdjustment = column[Int]("available_on_hand")
   def availablePreOrder = column[Int]("available_pre_order")
-  def availableBackOrder = column[Int]("available_pre_order")
-  def outstandingPreOrders =  column[Int]("available_pre_order") // How many have been preordered but not yet fulfilled
-  def outstandingBackOrders = column[Int]("available_pre_order") // How many unreconciled backorders are there.
+  def availableBackOrder = column[Int]("available_back_order")
+  def outstandingPreOrders =  column[Int]("outstanding_pre_orders") // How many have been preordered but not yet fulfilled
+  def outstandingBackOrders = column[Int]("outstanding_back_orders") // How many unreconciled backorders are there.
   def description = column[Option[String]]("description")
   def sourceNotes = column[Option[String]]("source_notes") //Notes about a third party source
 
