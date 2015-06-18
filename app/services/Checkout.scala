@@ -47,11 +47,11 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
 
   def authenticatePayments: Future[Map[AppliedPayment, List[ErrorMessage]]] = {
     AppliedPayments.findAllPaymentsFor(this.order).flatMap { records =>
-      val accum = Future.successful(Map[AppliedPayment, List[ErrorMessage]]())
-      records.foldLeft(accum) { case (errors, (payment, creditCard)) =>
-        val e = errors.value.get.get // TODO: no, no, no
-        creditCard.authenticate(payment.appliedAmount).map { result =>
-          e.updated(payment,
+      Future.sequence(records.map { case (payment, creditCard) =>
+        creditCard.authenticate(payment.appliedAmount).map((payment, _))
+      }).map { results =>
+        results.foldLeft(Map[AppliedPayment, List[ErrorMessage]]()) { case (errors, (payment, result)) =>
+          errors.updated(payment,
             result.fold({ good => List.empty }, { bad => bad }))
         }
       }
