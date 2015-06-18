@@ -1,25 +1,14 @@
-create table orders (
-    inventory_event_id integer not null,
-    customer_id integer,
-    status character varying(255) not null,
-    locked int,
+--Subclass/Sub-table of inventory_adjustment
+create purchase_order_receipts(
+    inventory_adjustment_id int not null,
+    purchase_order_id integer not null,
+    receiver_name character varying(255), -- just for fun
+    inventory_location_id int, -- just for fun
     created_at timestamp without time zone default (now() at time zone 'utc'),
     updated_at timestamp without time zone default (now() at time zone 'utc'),
     deleted_at timestamp without time zone null
 );
 
-create sequence orders_id_seq
-    start with 1
-    increment by 1
-    no minvalue
-    no maxvalue
-    cache 1;
-
-alter table only orders
-    add constraint orders_pkey primary key (id);
-
-alter table only orders
-    alter column id set default nextval('orders_id_seq'::regclass);
 
 alter table only purchase_orders_receipts
       add constraint purchase_order_receipts_pkey primary key (inventory_adjustment_id);

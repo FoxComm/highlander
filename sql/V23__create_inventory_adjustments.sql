@@ -1,8 +1,7 @@
 create table inventory_adjustments (
     id integer not null,
+    inventory_event_id integer not null,
     sku_id integer not null,
-    order_id integer,
-    purchase_order_receipt_id integer,
     rma_receipt_id integer,
     cycle_count_id integer,
     physical_inventory_event_id integer,
@@ -33,7 +32,7 @@ alter table only inventory_adjustments
     add constraint inventory_adjustments_sku_id_fk foreign key (sku_id) references skus(id) on update restrict on delete restrict;
 
 alter table only inventory_adjustments
-    add constraint inventory_adjustments_order_id_fk foreign key (order_id) references orders(id) on update restrict on delete restrict;
+    add constraint inventory_adjustments_inventory_event_id_fk foreign key (inventory_event_id) references inventory_events(id) on update restrict on delete restrict;
 
 
 --TODO: Create foreign key associations with other tables as they become created
