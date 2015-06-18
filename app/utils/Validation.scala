@@ -36,23 +36,20 @@ object Validation {
 
     def isValid: Boolean
 
-    def messages: Set[ErrorMessage]
+    def messages: Set[ErrorMessage] = {
+      cata(Set.empty,
+      _.map { v => v.description.getOrElse("") ++ " " ++ v.constraint })
+    }
   }
 
   object Result {
 
     final case object Success extends Result {
       def isValid = true
-
-      def messages: Set[ErrorMessage] = Set.empty
     }
 
     final case class Failure(violations: Set[Violation]) extends Result {
       def isValid = false
-
-      def messages: Set[ErrorMessage] = {
-        violations.map { v => v.description.getOrElse("") ++ " " ++ v.constraint }
-      }
     }
 
     def fromAccord(r: accord.Result): Result = {
