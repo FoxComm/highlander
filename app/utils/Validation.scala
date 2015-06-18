@@ -27,7 +27,7 @@ object Validation {
     import Result._
 
     // A catamorphism that runs a Success fn, s, or a Failure fn, f.
-    final def cata[A](s: => A, f: Set[Violation] => A): A = {
+    final def fold[A](s: => A, f: Set[Violation] => A): A = {
       this match {
         case Success => s
         case Failure(v) => f(v)
@@ -35,7 +35,7 @@ object Validation {
     }
 
     final def messages: Set[ErrorMessage] = {
-      cata(Set.empty,
+      fold(Set.empty,
         _.map { v => v.description.getOrElse("") ++ " " ++ v.constraint })
     }
 
