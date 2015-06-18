@@ -6,13 +6,13 @@ import org.scalactic.Accumulation._
 import com.wix.accord.{validate => runValidation, Failure => AccordFailure, Violation, Validator}
 import com.wix.accord
 
-trait Validation[T] {
+trait Validation[T] { this: T ⇒
   import Validation._
 
   def validator: ValidationTransform.TransformedValidator[T]
 
   def validate: Result = {
-    val accordResult = runValidation(this.asInstanceOf[T])(validator.asInstanceOf[Validator[T]])
+    val accordResult = runValidation(this)(validator)
     Result.fromAccord(accordResult)
   }
 
