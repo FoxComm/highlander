@@ -1,8 +1,9 @@
 package models
 
 import slick.dbio
-import slick.dbio.Effect.Read
+import slick.dbio.Effect.{Write, Read}
 import slick.driver.PostgresDriver
+import slick.profile.FixedSqlAction
 import utils.{Validation, RichTable}
 import payloads.CreateAddressPayload
 
@@ -28,6 +29,9 @@ class BillingAddresses(tag: Tag) extends Table[BillingAddress](tag, "billing_add
 
 object BillingAddresses {
   val table = TableQuery[BillingAddresses]
+
+  def save(address: BillingAddress)(implicit ec: ExecutionContext): DBIO[BillingAddress] =
+    (table += address).map(_ ⇒ address)
 
   def _create(address: Address, paymentId: Int)
              (implicit ec: ExecutionContext,
