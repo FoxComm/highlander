@@ -3,6 +3,7 @@ package models
 import com.wix.accord.dsl.{validator => createValidator}
 import monocle.macros.GenLens
 import payloads.{CreditCardPayload, CreateCustomerPayload}
+import services.StripeGateway
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 import utils._
@@ -18,8 +19,8 @@ case class CreditCardGateway(id: Int = 0, customerId: Int, gatewayCustomerId: St
   with ModelWithIdParameter
   with Validation[CreditCardGateway] {
 
-  def authenticate(amount: Int)(implicit ec: ExecutionContext): Future[String Or List[ErrorMessage]] = {
-    Future.successful(Good("all good!"))
+  def authorize(amount: Int)(implicit ec: ExecutionContext): Future[String Or List[ErrorMessage]] = {
+    new StripeGateway().authorizeAmount(gatewayCustomerId, amount)
   }
 
   override def validator = createValidator[CreditCardGateway] { cc =>

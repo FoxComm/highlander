@@ -6,7 +6,8 @@ create table applied_payments (
     payment_method_type character varying(255),
     applied_amount integer,
     status character varying(255),
-    response_code character varying(255)
+    response_code character varying(255),
+    charge_id character varying(255)
 );
 
 create sequence applied_payments_id_sequence

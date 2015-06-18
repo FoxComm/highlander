@@ -19,7 +19,8 @@ case class AppliedPayment(id: Int = 0,
                           paymentMethodType: String,
                           appliedAmount: Int,
                           status: String,
-                          responseCode: String)
+                          responseCode: String,
+                          chargeId: Option[String] = None)
   extends ModelWithIdParameter {
 }
 
@@ -44,12 +45,17 @@ class AppliedPayments(tag: Tag)
   def appliedAmount = column[Int]("applied_amount")
   def status = column[String]("status")
   def responseCode = column[String]("response_code")
-  def * = (id, orderId, paymentMethodId, paymentMethodType, appliedAmount, status, responseCode) <> ((AppliedPayment.apply _).tupled, AppliedPayment.unapply )
+  def chargeId = column[Option[String]]("charge_id")
+
+  def * = (id, orderId, paymentMethodId, paymentMethodType, appliedAmount, status, responseCode, chargeId) <> ((AppliedPayment.apply _).tupled, AppliedPayment.unapply )
 }
 
 object AppliedPayments extends TableQueryWithId[AppliedPayment, AppliedPayments](
   idLens = GenLens[AppliedPayment](_.id)
 )(new AppliedPayments(_)){
+
+  def update(payment: AppliedPayment)(implicit db: Database): Future[Int] =
+    this._findById(payment.id).update(payment).run()
 
   def findAllByOrderId(id: Int)(implicit ec: ExecutionContext, db: Database): Future[Seq[AppliedPayment]] = {
     db.run(this.filter(_.id === id).result)

@@ -21,7 +21,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
 
     OrderLineItems.countByOrder(this.order).flatMap { count =>
       if (count > 0) {
-        authenticatePayments.flatMap { payments =>
+        authorizePayments.flatMap { payments =>
           val errors = payments.values.toList.flatten
           if (errors.isEmpty) {
             completeOrderAndCreateNew(order).map(Good(_))
@@ -45,11 +45,20 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
     } yield newOrder.copy(id = insertId))
   }
 
-  def authenticatePayments: Future[Map[AppliedPayment, List[ErrorMessage]]] = {
+  def authorizePayments: Future[Map[AppliedPayment, List[ErrorMessage]]] = {
     AppliedPayments.findAllPaymentsFor(this.order).flatMap { records =>
       Future.sequence(records.map { case (payment, creditCard) =>
-        creditCard.authenticate(payment.appliedAmount).map((payment, _))
-      }).map { results =>
+        creditCard.authorize(payment.appliedAmount).flatMap { or ⇒
+          or.fold({ chargeId ⇒
+            val paymentWithCharge = payment.copy(chargeId = Some(chargeId))
+            AppliedPayments.update(paymentWithCharge).map { _ ⇒
+              (paymentWithCharge, or)
+            }
+          }, { _ ⇒
+            Future.successful((payment, or))
+          })
+        }
+      }).map { (results: Seq[(AppliedPayment, Or[String, List[ErrorMessage]])]) =>
         results.foldLeft(Map[AppliedPayment, List[ErrorMessage]]()) { case (errors, (payment, result)) =>
           errors.updated(payment,
             result.fold({ good => List.empty }, { bad => bad }))
