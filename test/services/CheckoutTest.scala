@@ -1,17 +1,40 @@
 package services
 
-import models.{CreditCardGateways, CreditCardGateway, BillingAddress, BillingAddresses, AppliedPayments, AppliedPayment, Orders, Order, Address, Addresses, Customers, Customer}
-import org.scalactic.{Bad, ErrorMessage}
+import models.OrderLineItem.Cart
+import models.{OrderLineItems, OrderLineItem, CreditCardGateways, CreditCardGateway, BillingAddress, BillingAddresses, AppliedPayments, AppliedPayment, Orders, Order, Address, Addresses, Customers, Customer}
+import org.scalactic.{TypeCheckedTripleEquals, Bad, ErrorMessage}
 import org.scalatest.Inside
 import util.IntegrationTestBase
+import utils._
 
-class CheckoutTest extends IntegrationTestBase with Inside {
+class CheckoutTest extends IntegrationTestBase with Inside with TypeCheckedTripleEquals {
   import concurrent.ExecutionContext.Implicits.global
 
   "Checkout" - {
     "checkout" - {
+      "returns a new Order with the 'Cart' status" in {
+        val (order, _) = testData()
+
+        val lineItemStub1 = OrderLineItem(id = 0, orderId = 0, skuId = 1)
+        val lineItemStub2 = OrderLineItem(id = 0, orderId = 0, skuId = 2)
+
+        val actions = for {
+          _ ← OrderLineItems.returningId += lineItemStub1.copy(orderId = order.id)
+          _ ← OrderLineItems.returningId += lineItemStub2.copy(orderId = order.id)
+        } yield ()
+
+        actions.run()
+
+        val checkout = new Checkout(order)
+        val result   = checkout.checkout.futureValue
+
+        val newOrder = result.get
+        newOrder.status must === (Order.Cart)
+        newOrder.id     must !== (order.id)
+      }
+
       "returns an errors if it has no line items" in {
-        val (order, payment) = testData
+        val (order, _) = testData()
         val checkout = new Checkout(order)
 
         val result = checkout.checkout.futureValue
@@ -22,10 +45,30 @@ class CheckoutTest extends IntegrationTestBase with Inside {
             message must include ("No Line Items")
         }
       }
+
+      "returns an error if authorizePayments fails" in {
+        val (order, _) = testData(gatewayCustomerId = "")
+
+        val lineItemStub1 = OrderLineItem(id = 0, orderId = 0, skuId = 1)
+        val lineItemStub2 = OrderLineItem(id = 0, orderId = 0, skuId = 2)
+
+        val actions = for {
+          _ ← OrderLineItems.returningId += lineItemStub1.copy(orderId = order.id)
+          _ ← OrderLineItems.returningId += lineItemStub2.copy(orderId = order.id)
+        } yield ()
+
+        actions.run()
+
+        val checkout = new Checkout(order)
+        val result   = checkout.checkout.futureValue
+
+        val (errorMessage :: Nil) = result.swap.get
+        errorMessage must include ("cannot set 'customer' to an empty string.")
+      }
     }
 
     "Authorizes each payment" in {
-      val (order, payment) = testData
+      val (order, payment) = testData()
 
       val checkout = new Checkout(order)
       val result   = checkout.authorizePayments.futureValue
@@ -39,12 +82,12 @@ class CheckoutTest extends IntegrationTestBase with Inside {
     }
   }
 
-  def testData = {
+  def testData(gatewayCustomerId:String = "cus_6Rh139qdpaFdRP") = {
     val customerStub = Customer(email = "yax@yax.com", password = "password", firstName = "Yax", lastName = "Fuentes")
     val orderStub    = Order(id = 0, customerId = 0)
     val addressStub  = Address(id = 0, customerId = 0, stateId = 1, name = "Yax Home", street1 = "555 E Lake Union St.", street2 = None, city = "Seattle", zip = "12345")
     val paymentStub  = AppliedPayment(id = 0, orderId = 0, paymentMethodId = 1, paymentMethodType = "stripe", appliedAmount = 10, status = "auth", responseCode = "ok")
-    val gatewayStub  = CreditCardGateway(id = 0, customerId = 0, gatewayCustomerId = "cus_6Rh139qdpaFdRP", lastFour = "4242", expMonth = 11, expYear = 18)
+    val gatewayStub  = CreditCardGateway(id = 0, customerId = 0, gatewayCustomerId = gatewayCustomerId, lastFour = "4242", expMonth = 11, expYear = 18)
 
     val (payment, order) = (for {
       customer ← (Customers.returningId += customerStub).map(id ⇒ customerStub.copy(id = id))
