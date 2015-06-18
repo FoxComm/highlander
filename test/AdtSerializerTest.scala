@@ -1,12 +1,9 @@
-import models.PaymentStatus
-
-import org.json4s
 import org.json4s.JsonAST.JString
-import org.json4s.{CustomSerializer, DefaultFormats, JValue, Serializer}
-import org.scalactic.TypeCheckedTripleEquals
-import org.scalatest.{FreeSpec, MustMatchers}
+import org.json4s.{CustomSerializer, DefaultFormats}
+import util.TestBase
 
-class AdtSerializerTest  extends FreeSpec with MustMatchers with TypeCheckedTripleEquals {
+class AdtSerializerTest  extends TestBase {
+
   import org.json4s.jackson.JsonMethods.parse
   import org.json4s.jackson.Serialization.write
 

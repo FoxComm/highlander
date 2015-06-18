@@ -1,22 +1,15 @@
 package models
 
+import com.wix.accord.{Failure ⇒ ValidationFailure, Success ⇒ ValidationSuccess}
+import org.scalactic.{Bad, Good}
+import org.scalatest.prop.TableDrivenPropertyChecks._
 import payloads.CreateAddressPayload
+import util.IntegrationTestBase
 import utils.Validation
 
-import com.wix.accord.{Success => ValidationSuccess, Failure => ValidationFailure}
-import org.scalactic.{Good, Bad}
-import org.scalatest.{MustMatchers, FreeSpec}
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import org.scalatest.prop.TableDrivenPropertyChecks._
-import util.DbTestSupport
-
-class AddressTest extends FreeSpec
-  with MustMatchers
-  with ScalaFutures
-  with IntegrationPatience
-  with DbTestSupport {
-
+class AddressTest extends IntegrationTestBase {
   import api._
+
   import concurrent.ExecutionContext.Implicits.global
 
   val lineItems = TableQuery[OrderLineItems]

@@ -1,19 +1,11 @@
 package services
 
-import models.{Orders, OrderLineItems, OrderLineItem, Order}
-import payloads.{UpdateLineItemsPayload => Payload}
+import models.{Order, OrderLineItem, OrderLineItems, Orders}
+import org.scalactic.{Bad, Good}
+import payloads.{UpdateLineItemsPayload ⇒ Payload}
+import util.IntegrationTestBase
 
-import org.scalactic.{Good, Bad, ErrorMessage, Or}
-import org.scalatest.{BeforeAndAfter, FreeSpec, MustMatchers, FunSuite}
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-
-class LineItemUpdaterTest extends FreeSpec
-  with util.DbTestSupport
-  with MustMatchers
-  with ScalaFutures
-  with BeforeAndAfter
-  with IntegrationPatience {
-
+class LineItemUpdaterTest extends IntegrationTestBase {
   import api._
   import concurrent.ExecutionContext.Implicits.global
 
