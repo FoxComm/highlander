@@ -5,7 +5,7 @@ import { RouteHandler } from 'react-router';
 import Header from '../header/header';
 import Menu from '../menu/menu';
 
-class Site extends React.Component {
+export default class Site extends React.Component {
   render() {
     return (
       <div>
@@ -18,5 +18,3 @@ class Site extends React.Component {
     );
   }
 }
-
-export default Site;
