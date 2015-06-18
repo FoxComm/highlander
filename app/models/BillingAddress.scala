@@ -37,7 +37,7 @@ object BillingAddresses {
 
   def _findByPaymentId(id: Int)(implicit ec: ExecutionContext, db: Database) = {
     for {
-      result <- Addresses.table.join(table).on(_.id === _.addressId).filter(_._2.paymentId === id).result.headOption
+      result <- Addresses.join(table).on(_.id === _.addressId).filter(_._2.paymentId === id).result.headOption
     } yield result
   }
 

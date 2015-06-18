@@ -1,6 +1,7 @@
 package models
 
-import utils.{Validation, RichTable}
+import monocle.macros.GenLens
+import utils.{TableQueryWithId, Validation, RichTable}
 import payloads.CreateAddressPayload
 
 import com.wix.accord.dsl.{validator => createValidator}
@@ -43,20 +44,22 @@ class Addresses(tag: Tag) extends Table[Address](tag, "addresses") with RichTabl
   def state = foreignKey("addresses_state_id_fk", stateId, TableQuery[States])(_.id)
 }
 
-object Addresses {
-  val table = TableQuery[Addresses]
-  val returningId = table.returning(table.map(_.id))
+object Addresses extends TableQueryWithId[Address, Addresses](
+  idLens = GenLens[Address](_.id)
+  )(new Addresses(_)) {
+
+  val table: Addresses.type = this
 
   def findAllByCustomer(customer: Customer)(implicit db: Database): Future[Seq[Address]] = {
-    db.run(table.filter(_.customerId === customer.id).result)
+    db.run(filter(_.customerId === customer.id).result)
   }
 
   def findById(db: Database, id: Int): Future[Option[Address]] = {
-    db.run(table.filter(_.id === id).result.headOption)
+    db.run(filter(_.id === id).result.headOption)
   }
 
   def count()(implicit ec: ExecutionContext, db: Database): Future[Int] = {
-    db.run(table.length.result)
+    db.run(length.result)
   }
 
   def createFromPayload(customer: Customer,
@@ -84,8 +87,8 @@ object Addresses {
       Future.successful(Bad(errorMap))
     } else {
       db.run(for {
-        _ <- table ++= addresses
-        addresses <- table.filter(_.customerId === customer.id).result
+        _ <- this ++= addresses
+        addresses <- filter(_.customerId === customer.id).result
       } yield Good(addresses))
     }
   }
