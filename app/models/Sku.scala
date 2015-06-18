@@ -27,4 +27,4 @@ class Skus(tag: Tag) extends GenericTable.TableWithId[Sku](tag, "skus") with Ric
 
 object Skus extends TableQueryWithId[Sku, Skus](
   idLens = GenLens[Sku](_.id)
-)(new Skus(_)) {}
+)(new Skus(_))
