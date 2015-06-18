@@ -3,34 +3,31 @@
 import React from 'react';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
+import NotificationStore from './store';
+import { listenTo, stopListeningTo } from '../../lib/dispatcher';
+
+const changeEvent = 'change-notification-store';
 
 class Notifications extends React.Component {
   constructor(props) {
     super(props);
+    this.onChangeNotificationStore = this.onChangeNotificationStore.bind(this);
     this.state = {
-      tableRows: this.generateNotifications()
+      notifications: NotificationStore.getState()
     };
   }
 
-  generateNotifications() {
-    let
-      idx           = 10,
-      notifications = [],
-      status        = ['Delivered', 'Failed'],
-      subject       = ['Shipment confirmation', 'Order confirmation', 'Review your items'];
+  componentDidMount() {
+    listenTo(changeEvent, this);
+    NotificationStore.fetch();
+  }
 
-    while (idx--) {
-      notifications.push({
-        notification: 1000 + idx,
-        date: new Date().toISOString(),
-        contact: 'jim@bob.com',
-        status: status[~~(Math.random() * status.length)],
-        subject: subject[~~(Math.random() * subject.length)],
-        order: 1234
-      });
-    }
+  componentWillUnmount() {
+    stopListeningTo(changeEvent, this);
+  }
 
-    return notifications;
+  onChangeNotificationStore() {
+    this.setState({orders: NotificationStore.getState()});
   }
 
   render() {
@@ -38,16 +35,12 @@ class Notifications extends React.Component {
       <div id="notifications">
         <table className='listing'>
           <TableHead columns={this.props.tableColumns}/>
-          <TableBody columns={this.props.tableColumns} rows={this.state.tableRows} model='notification'/>
+          <TableBody columns={this.props.tableColumns} rows={this.state.notifications} model='notification'/>
         </table>
       </div>
     );
   }
 }
-
-Notifications.contextTypes = {
-  router: React.PropTypes.func
-};
 
 Notifications.propTypes = {
   order: React.PropTypes.number,
@@ -56,11 +49,11 @@ Notifications.propTypes = {
 
 Notifications.defaultProps = {
   tableColumns: [
-    {field: 'date', text: 'Date', type: 'date'},
+    {field: 'sendDate', text: 'Date', type: 'date'},
     {field: 'subject', text: 'Subject'},
-    {field: 'contact', text: 'Contact Method'},
-    {field: 'status', text: 'Status'},
-    {field: 'notification', text: 'Resend', type: 'dispatch', event: 'openModal'}
+    //{field: 'contact', text: 'Contact Method'},
+    {field: 'notificationStatus', text: 'Status'},
+    {field: 'id', text: 'Resend', type: 'dispatch', event: 'openModal'}
   ]
 };
 
