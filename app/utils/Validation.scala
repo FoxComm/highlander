@@ -34,17 +34,17 @@ object Validation {
       }
     }
 
-    def isValid: Boolean
-
-    def messages: Set[ErrorMessage] = {
+    final def messages: Set[ErrorMessage] = {
       cata(Set.empty,
-      _.map { v => v.description.getOrElse("") ++ " " ++ v.constraint })
+        _.map { v => v.description.getOrElse("") ++ " " ++ v.constraint })
     }
+
+    def isValid: Boolean
   }
 
   object Result {
 
-    final case object Success extends Result {
+    case object Success extends Result {
       def isValid = true
     }
 
