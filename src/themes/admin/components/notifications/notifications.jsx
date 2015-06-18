@@ -51,7 +51,7 @@ Notifications.defaultProps = {
   tableColumns: [
     {field: 'sendDate', text: 'Date', type: 'date'},
     {field: 'subject', text: 'Subject'},
-    //{field: 'contact', text: 'Contact Method'},
+    {field: 'contact', text: 'Contact Method'},
     {field: 'notificationStatus', text: 'Status'},
     {field: 'id', text: 'Resend', type: 'dispatch', event: 'openModal'}
   ]
