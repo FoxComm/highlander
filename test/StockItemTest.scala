@@ -1,15 +1,11 @@
 import models.{StockItems, StockItem}
 import org.scalatest.{MustMatchers, FreeSpec}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import util.DbTestSupport
+import util.{IntegrationTestBase, DbTestSupport}
 import models.StockItems
 
 /** This is just for demonstration purposes. */
-class StockItemTest extends FreeSpec
- with MustMatchers
- with ScalaFutures
- with IntegrationPatience
- with DbTestSupport {
+class StockItemTest extends IntegrationTestBase {
 
   import api._
   import concurrent.ExecutionContext.Implicits.global
