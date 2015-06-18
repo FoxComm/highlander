@@ -1,6 +1,6 @@
 package services
 
-import models.{Orders, Order, OrderLineItems, OrderLineItem}
+import models._
 import payloads.UpdateLineItemsPayload
 
 import org.scalactic._
@@ -31,6 +31,9 @@ object LineItemUpdater {
       acc.updated(item.skuId, quantity + item.quantity)
     }
 
+    // TODO: AW: We should insert some errors/messages into an array for each item that is unavailable.
+    val inventoryValidatedQuantities = updateQuantities.filter( (skuId: Int, qty: Int) => Skus.qtyAvailableOnHand(skuId).map(_ > 0))
+
     // select sku_id, count(1) from line_items where order_id = $ group by sku_id
     val counts = for {
       (skuId, q) <- lineItems.filter(_.orderId === order.id).groupBy(_.skuId)
@@ -39,7 +42,7 @@ object LineItemUpdater {
     val queries = counts.result.flatMap { (items: Seq[(Int, Int)]) =>
       val existingSkuCounts = items.toMap
 
-      val changes = updateQuantities.map { case (skuId, newQuantity) =>
+      val changes = inventoryValidatedQuantities.map { case (skuId, newQuantity) =>
         val current = existingSkuCounts.getOrElse(skuId, 0)
         // we're using absolute values from payload, so if newQuantity is greater then create N items
         if (newQuantity > current) {

@@ -31,8 +31,10 @@ object Skus extends TableQueryWithId[Sku, Skus](
   val inventorySummaries = TableQuery[InventorySummaries]
 
 
-  def isAvailableOnHand(id: Int): Boolean = {
-    true
+  def isAvailableOnHand(id: Int)(implicit ec: ExecutionContext, db: Database): Future[Boolean] = {
+    db.run(_qtyAvailableOnHand(id).result.head).map { qty =>
+      qty > 0
+    }
   }
 
   def qtyAvailableOnHand(id: Int)(implicit ec: ExecutionContext, db: Database): Future[Int] = {
