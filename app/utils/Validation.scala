@@ -22,7 +22,7 @@ trait Validation[T] {
 object Validation {
   import Result._
 
-  sealed abstract class Result {
+  sealed trait Result {
 
     import Result._
 
