@@ -7,46 +7,59 @@ class Countdown extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      millisecondsRemaining: 0
+      seconds: '0',
+      minutes: '0',
+      hours: '0',
+      endDate: props.endDate
     };
   }
 
-  addMinutes(minutes) {
-    this.addTime(minutes * (1000 * 60));
-  }
-
-  addHours(hours) {
-    this.addTime(hours * (1000 * 60 * 60));
-  }
-
-  addTime(time) {
-    this.setState({millisecondsRemaining: this.state.millisecondsRemaining + time});
-    if (!this.interval) {
-      this.startInterval();
-    }
+  addTime(number, key) {
+    this.setState({
+      endDate: moment(this.state.endDate).add(number, key).toISOString()
+    });
+    this.startInterval();
   }
 
   startInterval() {
-    this.interval = setInterval(this.tick.bind(this), 1000);
+    this.interval = this.interval || setInterval(this.tick.bind(this), 1000);
   }
 
   stopInterval() {
-    clearInterval(this.interval);
+    if (this.interval) {
+      clearInterval(this.interval);
+    }
   }
 
   tick() {
-    this.setState({millisecondsRemaining: this.state.millisecondsRemaining - 1000});
-    if (this.state.millisecondsRemaining <= 0) {
-      this.setState({millisecondsRemaining: 0});
+    let difference = moment(this.state.endDate).diff(moment());
+    if (difference <= 0) {
+      this.setState({
+        seconds: '0',
+        minutes: '0',
+        hours: '0'
+      });
       this.stopInterval();
+      return;
     }
+    let duration = moment.duration(difference);
+    this.setState({
+      seconds: duration.seconds(),
+      minutes: duration.minutes()
+    });
+    this.setState({
+      hours: parseInt(
+        duration
+          .subtract(this.state.seconds, 'seconds')
+          .subtract(this.state.minutes, 'minutes')
+          .asHours(),
+        10
+      )
+    });
   }
 
   componentDidMount() {
-    this.setState({millisecondsRemaining: moment(this.props.date).diff(moment())});
-    if (this.state.millisecondsRemaining > 0) {
-      this.startInterval();
-    }
+    this.startInterval();
   }
 
   componentWillUnmount() {
@@ -54,24 +67,21 @@ class Countdown extends React.Component {
   }
 
   render() {
-    let seconds = parseInt((this.state.millisecondsRemaining / 1000) % 60, 10);
-    let minutes = parseInt((this.state.millisecondsRemaining / (1000 * 60)) % 60, 10);
-    let hours = parseInt((this.state.millisecondsRemaining / (1000 * 60 * 60)) % 24, 10);
     return (
       <div>
-        <div>{hours}:{minutes}:{seconds}</div>
-        <a className='btn' onClick={this.addMinutes.bind(this, 15)}>+15</a>
+        <div>{this.state.hours}:{this.state.minutes}:{this.state.seconds}</div>
+        <a className='btn' onClick={this.addTime.bind(this, 15, 'm')}>+15</a>
       </div>
     );
   }
 }
 
 Countdown.propTypes = {
-  date: React.PropTypes.string
+  endDate: React.PropTypes.string
 };
 
 Countdown.defaultProps = {
-  date: moment('2015-10-20').toISOString()
+  endDate: moment().add(24, 'h').toISOString()
 };
 
 export default Countdown;
