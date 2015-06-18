@@ -26,4 +26,4 @@ class InventorySummaries(tag: Tag) extends GenericTable.TableWithId[InventorySum
 
 object InventorySummaries extends TableQueryWithId[InventorySummary, InventorySummaries](
   idLens = GenLens[InventorySummary](_.id)
-)(new InventorySummaries(_)) {}
+)(new InventorySummaries(_)) 

@@ -35,4 +35,4 @@ class InventoryAdjustments(tag: Tag) extends GenericTable.TableWithId[InventoryA
 
 object InventoryAdjustments extends TableQueryWithId[InventoryAdjustment, InventoryAdjustments](
   idLens = GenLens[InventoryAdjustment](_.id)
-)(new InventoryAdjustments(_)) {}
+)(new InventoryAdjustments(_))

@@ -27,4 +27,4 @@ class InventoryClassifications(tag: Tag) extends GenericTable.TableWithId[Invent
 
 object InventoryClassifications extends TableQueryWithId[InventoryClassification, InventoryClassifications](
   idLens = GenLens[InventoryClassification](_.id)
-)(new InventoryClassifications(_)) {}
+)(new InventoryClassifications(_))
