@@ -5,15 +5,10 @@ import { RouteHandler } from 'react-router';
 import Header from '../header/header';
 import Menu from '../menu/menu';
 import Modal from '../modal/modal';
-import { dispatch } from '../../lib/dispatcher';
 
 export default class Site extends React.Component {
   constructor(props) {
     super(props);
-  }
-
-  openModal() {
-    dispatch('openModal');
   }
 
   render() {
@@ -25,7 +20,6 @@ export default class Site extends React.Component {
           <RouteHandler/>
         </main>
         <Modal />
-        <a className='modalbtn btn' onClick={this.openModal}>Toggle Modal</a>
       </div>
     );
   }
