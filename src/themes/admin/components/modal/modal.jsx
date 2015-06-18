@@ -8,14 +8,14 @@ import { listenTo, stopListeningTo } from '../../lib/dispatcher';
 const openEvent = 'open-modal';
 const closeEvent = 'close-modal';
 
-class Modal extends React.Component {
+export default class Modal extends React.Component {
   constructor(props) {
     super(props);
     this.onOpenModal = this.onOpenModal.bind(this);
     this.onCloseModal = this.onCloseModal.bind(this);
     this.state = {
       component: <ResendModal />,
-      isModalOpen: props.isOpen
+      isModalOpen: false
     };
   }
 
@@ -54,13 +54,3 @@ class Modal extends React.Component {
     );
   }
 }
-
-Modal.propTypes = {
-  isOpen: React.PropTypes.bool
-};
-
-Modal.defaultProps = {
-  isOpen: false
-};
-
-export default Modal;

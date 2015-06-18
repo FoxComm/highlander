@@ -1,15 +1,33 @@
 'use strict';
 
 import React from 'react';
-import ContactMethod from './method';
 import { dispatch } from '../../lib/dispatcher';
 
 class ResendModal extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      edit: false
+    };
+  }
+
+  toggleEdit() {
+    this.setState({edit: !this.state.edit});
+  }
+
   render() {
     let notification = this.props.notification;
+    let order = notification.order;
+
+    let innerContent = <strong>{notification.contact}</strong>;
+    if (this.state.edit) {
+      innerContent = <input type={notification.contactType === 'Email' ? 'email' : 'tel'} className='control' name='resend_to' />;
+    }
+
+    let url = `/order/${order.id}/notifications/${notification.id}`;
 
     return (
-      <form action="POST">
+      <form method="POST" action={url}>
         <div className='modal-header'>
           <div className='icon'>
             <i className='icon-attention'></i>
@@ -19,7 +37,10 @@ class ResendModal extends React.Component {
         </div>
         <div className='modal-body'>
           You will send another copy of this message to:
-          <ContactMethod type={notification.contactType} value={notification.contact} />
+          <div className='contact'>
+            {innerContent}
+            <a onClick={this.toggleEdit.bind(this)}>{this.state.edit ? 'Undo' : 'Edit'}</a>
+          </div>
         </div>
         <div className='modal-footer'>
           <a className='close' onClick={dispatch.bind(null, 'closeModal')}>Cancel</a>

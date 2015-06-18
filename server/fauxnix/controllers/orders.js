@@ -4,6 +4,7 @@ const parse = require('co-body');
 
 module.exports = function(app, router) {
   const Order = app.seeds.models.Order;
+  const Notification = app.seeds.models.Notification;
 
   router
     .param('order', function *(id, next) {
@@ -22,5 +23,8 @@ module.exports = function(app, router) {
         order = new Order(body);
       this.status = 201;
       this.body = order.toJSON();
+    })
+    .get('/order/:order/notifications', function *() {
+      this.body = Notification.generateList();
     });
 };

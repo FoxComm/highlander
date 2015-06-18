@@ -7,10 +7,6 @@ import Menu from '../menu/menu';
 import Modal from '../modal/modal';
 
 export default class Site extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     return (
       <div>
