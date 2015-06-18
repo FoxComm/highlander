@@ -1,6 +1,6 @@
 'use strict';
 
-class Api {
+export default class Api {
   static apiURI(uri) {
     uri = uri.replace(/^\/api\/v\d\/|^\//, '');
     return `/api/v1/${uri}`;
@@ -51,5 +51,3 @@ class Api {
     return this.request.apply(this, ['PUT'].concat(args));
   }
 }
-
-export default Api;

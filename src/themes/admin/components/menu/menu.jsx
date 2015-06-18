@@ -3,7 +3,7 @@
 import React from 'react';
 import { Link } from 'react-router';
 
-class Menu extends React.Component {
+export default class Menu extends React.Component {
   render() {
     return (
       <aside role='complementary'>
@@ -19,5 +19,3 @@ class Menu extends React.Component {
     );
   }
 }
-
-export default Menu;

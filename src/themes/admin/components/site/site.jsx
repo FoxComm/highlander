@@ -6,7 +6,7 @@ import Header from '../header/header';
 import Menu from '../menu/menu';
 import Modal from '../modal/modal';
 
-class Site extends React.Component {
+export default class Site extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -40,5 +40,3 @@ class Site extends React.Component {
     );
   }
 }
-
-export default Site;

@@ -4,7 +4,7 @@ import React from 'react';
 import moment from 'moment';
 import { Link } from 'react-router';
 
-class TableBody extends React.Component {
+export default class TableBody extends React.Component {
   formatCurrency(num) {
     num = num.toString();
     let
@@ -50,5 +50,3 @@ TableBody.propTypes = {
   rows: React.PropTypes.array,
   model: React.PropTypes.string
 };
-
-export default TableBody;
