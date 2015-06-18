@@ -3,20 +3,20 @@
 import React from 'react';
 import moment from 'moment';
 
+const zeroTime = '00:00:00';
+
 class Countdown extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      seconds: '0',
-      minutes: '0',
-      hours: '0',
+      difference: zeroTime,
       endDate: props.endDate
     };
   }
 
   addTime(number, key) {
     this.setState({
-      endDate: moment(this.state.endDate).add(number, key).toISOString()
+      endDate: this.state.endDate.add(number, key)
     });
     this.startInterval();
   }
@@ -32,30 +32,17 @@ class Countdown extends React.Component {
   }
 
   tick() {
-    let difference = moment(this.state.endDate).diff(moment());
+    let difference = this.state.endDate.diff(moment.utc());
     if (difference <= 0) {
       this.setState({
-        seconds: '0',
-        minutes: '0',
-        hours: '0'
+        difference: zeroTime
       });
       this.stopInterval();
-      return;
+    } else {
+      this.setState({
+        difference: moment.utc(difference).format('HH:mm:ss')
+      });
     }
-    let duration = moment.duration(difference);
-    this.setState({
-      seconds: duration.seconds(),
-      minutes: duration.minutes()
-    });
-    this.setState({
-      hours: parseInt(
-        duration
-          .subtract(this.state.seconds, 'seconds')
-          .subtract(this.state.minutes, 'minutes')
-          .asHours(),
-        10
-      )
-    });
   }
 
   componentDidMount() {
@@ -69,7 +56,7 @@ class Countdown extends React.Component {
   render() {
     return (
       <div>
-        <div>{this.state.hours}:{this.state.minutes}:{this.state.seconds}</div>
+        <div>{this.state.difference}</div>
         <a className='btn' onClick={this.addTime.bind(this, 15, 'm')}>+15</a>
       </div>
     );
@@ -81,7 +68,7 @@ Countdown.propTypes = {
 };
 
 Countdown.defaultProps = {
-  endDate: moment().add(24, 'h').toISOString()
+  endDate: moment.utc().add(10, 'h')
 };
 
 export default Countdown;
