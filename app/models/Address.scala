@@ -1,7 +1,8 @@
 package models
 
 import monocle.macros.GenLens
-import utils.{TableQueryWithId, Validation, RichTable}
+import utils.GenericTable.TableWithId
+import utils.{ModelWithIdParameter, TableQueryWithId, Validation, RichTable}
 import payloads.CreateAddressPayload
 
 import com.wix.accord.dsl.{validator => createValidator}
@@ -13,7 +14,7 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 case class Address(id: Int = 0, customerId: Int, stateId: Int, name: String, street1: String, street2: Option[String],
-                   city: String, zip: String) extends Validation[Address] {
+                   city: String, zip: String) extends Validation[Address] with ModelWithIdParameter {
   override def validator = createValidator[Address] { address =>
     address.name is notEmpty
     address.street1 is notEmpty
@@ -29,7 +30,7 @@ object Address {
   }
 }
 
-class Addresses(tag: Tag) extends Table[Address](tag, "addresses") with RichTable {
+class Addresses(tag: Tag) extends TableWithId[Address](tag, "addresses") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def customerId = column[Int]("customer_id")
   def stateId = column[Int]("state_id")

@@ -1,5 +1,8 @@
 package models
 
+import slick.dbio
+import slick.dbio.Effect.Read
+import slick.driver.PostgresDriver
 import utils.{Validation, RichTable}
 import payloads.CreateAddressPayload
 
@@ -35,14 +38,15 @@ object BillingAddresses {
     } yield address.copy(id = addressId)
   }
 
-  def _findByPaymentId(id: Int)(implicit ec: ExecutionContext, db: Database) = {
-    for {
-      result <- Addresses.join(table).on(_.id === _.addressId).filter(_._2.paymentId === id).result.headOption
-    } yield result
+  def _findByPaymentId(id: Int)(implicit ec: ExecutionContext, db: Database): Query[(Addresses, BillingAddresses), (Address, BillingAddress), Seq] = {
+    (for {
+      billingAddress ← table.filter(_.paymentId === id)
+      address        ← Addresses if address.id === billingAddress.addressId
+    } yield (address, billingAddress)).take(1)
   }
 
   def findByPaymentId(id: Int)(implicit ec: ExecutionContext, db: Database): Future[Option[(Address, BillingAddress)]] = {
-    db.run(this._findByPaymentId(id))
+    db.run(_findByPaymentId(id).result.headOption)
   }
 
   def count()(implicit ec: ExecutionContext, db: Database): Future[Int] = {
