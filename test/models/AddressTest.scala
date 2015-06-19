@@ -43,7 +43,7 @@ class AddressTest extends IntegrationTestBase {
           val state = seedState()
           val acct = seedAccount()
           val payload = Seq(CreateAddressPayload(name = "Office", stateId = state.id, street1 = "3000 Burlingame Ave.",
-            street2 = None, city = "Burlingame", zip = "NOT-A-ZIP"))
+            street2 = None, city = "Burlingame", zip = "NOPE"))
 
           Addresses.createFromPayload(acct, payload).futureValue match {
             case Good(_) =>

@@ -75,8 +75,7 @@ object Addresses extends TableQueryWithId[Address, Addresses](
             (implicit ec: ExecutionContext,
              db: Database): Future[Seq[Address] Or Map[Address, Set[ErrorMessage]]] = {
 
-    val validatedAddresses = addresses.map { a => (a, a.validate) }
-    val failures = validatedAddresses.filter { case (_, result) => !result.isValid }
+    val failures = addresses.map { a => (a, a.validate) }.filterNot { case (a, v) => v.isValid }
 
     if (failures.nonEmpty) {
       val acc = Map[Address, Set[ErrorMessage]]()

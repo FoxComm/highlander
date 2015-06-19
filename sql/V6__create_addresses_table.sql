@@ -1,5 +1,5 @@
 create table addresses (
-    id integer not null,
+    id serial primary key,
     customer_id integer not null, -- TODO: how do we handle guest addresses?
     state_id integer not null, -- TODO: nullable for foreign addresses?
     name character varying(255) not null, -- TODO: probably need > 255 chars?
@@ -9,22 +9,13 @@ create table addresses (
     zip character (5) not null, -- TODO: nullable for foreign addresses?
     created_at timestamp without time zone default (now() at time zone 'utc'),
     updated_at timestamp without time zone default (now() at time zone 'utc'),
-    deleted_at timestamp without time zone null
+    deleted_at timestamp without time zone null,
+    constraint valid_zip check (zip ~ '[0-9]{5}')
 );
-
-create sequence addresses_id_seq
-    start with 1
-    increment by 1
-    no minvalue
-    no maxvalue
-    cache 1;
-
-alter table only addresses
-  alter column id set default nextval('addresses_id_seq'::regclass);
 
 alter table only addresses
   add constraint addresses_state_id_fk foreign key (state_id) references states(id) on update restrict on delete cascade,
   add constraint addresses_customer_id_fk foreign key (customer_id) references customers(id) on update restrict on delete cascade;
 
-alter table only addresses
-  add constraint addresses_pkey primary key (id);
+create index addresses_customer_id_idx on addresses (customer_id)
+

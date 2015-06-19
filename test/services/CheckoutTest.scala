@@ -87,7 +87,7 @@ class CheckoutTest extends IntegrationTestBase with Inside with TypeCheckedTripl
     val orderStub    = Order(id = 0, customerId = 0)
     val addressStub  = Address(id = 0, customerId = 0, stateId = 1, name = "Yax Home", street1 = "555 E Lake Union St.", street2 = None, city = "Seattle", zip = "12345")
     val paymentStub  = AppliedPayment(id = 0, orderId = 0, paymentMethodId = 1, paymentMethodType = "stripe", appliedAmount = 10, status = "auth", responseCode = "ok")
-    val gatewayStub  = CreditCardGateway(id = 0, customerId = 0, gatewayCustomerId = gatewayCustomerId, lastFour = "4242", expMonth = 11, expYear = 18)
+    val gatewayStub  = CreditCardGateway(id = 0, customerId = 0, gatewayCustomerId = gatewayCustomerId, lastFour = "4242", expMonth = 11, expYear = 2018)
 
     val (payment, order) = (for {
       customer ← (Customers.returningId += customerStub).map(id ⇒ customerStub.copy(id = id))
