@@ -7,6 +7,7 @@ create table applied_payments (
     amount integer not null default 0,
     status character varying(255) not null,
     response_code character varying(255),
+    charge_id character varying(255)
     constraint positive_amount check (amount >= 0)
 );
 
@@ -18,4 +19,3 @@ alter table only applied_payments
 --    add constraint applied_payments_payment_method_fk foreign key (payment_method_id) references ???
 
 create index applied_payments_order_id_idx on applied_payments (order_id)
-
