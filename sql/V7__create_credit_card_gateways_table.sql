@@ -3,9 +3,9 @@ create table credit_card_gateways (
     customer_id integer,
     gateway_customer_id character varying(255) not null,
     -- gateway_id integer not null, TODO: add lookup table
-    last_four character(4),
-    exp_month integer,
-    exp_year integer
+    last_four character(4) not null,
+    exp_month integer not null,
+    exp_year integer not null
 );
 
 alter table only credit_card_gateways
