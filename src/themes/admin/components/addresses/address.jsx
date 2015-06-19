@@ -45,20 +45,4 @@ Address.propTypes = {
   address: React.PropTypes.object
 };
 
-Address.defaultProps = {
-  address: {
-    id: 4,
-    customerId: 10,
-    isDefault: true,
-    isActive: false,
-    state: 'NY',
-    name: 'Lucious Fox',
-    street1: 'Wayne Enterprises',
-    street2: '1001 Broadway Suite 500 ',
-    city: 'Gotham City',
-    zip: '100003',
-    country: 'United States'
-  }
-};
-
 export default Address;
