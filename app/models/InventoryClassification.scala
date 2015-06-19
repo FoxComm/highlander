@@ -10,12 +10,12 @@ import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 
 
 
-case class InventoryClassification(id: Int, skuId: Int, canSell: Boolean, canPreOrder: Boolean, canBackOrder: Boolean) extends ModelWithIdParameter{
+case class InventoryClassification(id: Int, skuId: Int, canSell: Boolean,
+                                   canPreOrder: Boolean, canBackOrder: Boolean) extends ModelWithIdParameter
 
-}
+class InventoryClassifications(tag: Tag)
+  extends GenericTable.TableWithId[InventoryClassification](tag, "inventory_classifications") with RichTable {
 
-
-class InventoryClassifications(tag: Tag) extends GenericTable.TableWithId[InventoryClassification](tag, "inventory_classifications") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def skuId = column[Int]("sku_id")
   def canSell = column[Boolean]("can_sell")

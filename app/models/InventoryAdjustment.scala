@@ -6,9 +6,10 @@ import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 
 
-case class InventoryAdjustment(id: Int, skuId: Int, inventoryEventId: Int, reservedForFulfillment: Int, fulfilled: Int, availableOnHand: Int, availablePreOrder: Int, availableBackOrder: Int, outstandingPreOrders: Int, outstandingBackOrders: Int, description: Option[String], sourceNotes: Option[String]) extends ModelWithIdParameter {
-
-}
+case class InventoryAdjustment(id: Int = 0, skuId: Int, inventoryEventId: Int, reservedForFulfillment: Int, fulfilled: Int,
+                               availableOnHand: Int, availablePreOrder: Int, availableBackOrder: Int,
+                               outstandingPreOrders: Int, outstandingBackOrders: Int, description: Option[String],
+                               sourceNotes: Option[String]) extends ModelWithIdParameter
 
 // This is an exclusive arcs style sketchup.
 class InventoryAdjustments(tag: Tag) extends GenericTable.TableWithId[InventoryAdjustment](tag, "inventory_adjustments") with RichTable {
@@ -25,8 +26,9 @@ class InventoryAdjustments(tag: Tag) extends GenericTable.TableWithId[InventoryA
   def description = column[Option[String]]("description")
   def sourceNotes = column[Option[String]]("source_notes") //Notes about a third party source
 
-
-  def * = (id, skuId, inventoryEventId, reservedForFulfillment, fulfilled, availableOnHand, availablePreOrder, availableBackOrder, outstandingPreOrders, outstandingBackOrders, description, sourceNotes) <> ((InventoryAdjustment.apply _).tupled, InventoryAdjustment.unapply)
+  def * = (id, skuId, inventoryEventId, reservedForFulfillment, fulfilled, availableOnHand, availablePreOrder,
+    availableBackOrder, outstandingPreOrders, outstandingBackOrders,
+    description, sourceNotes) <> ((InventoryAdjustment.apply _).tupled, InventoryAdjustment.unapply)
 }
 
 object InventoryAdjustments extends TableQueryWithId[InventoryAdjustment, InventoryAdjustments](
