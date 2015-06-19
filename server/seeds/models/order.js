@@ -20,6 +20,14 @@ class Order extends BaseModel {
   get shippingStatus() { return this.model.shippingStatus; }
   get customer() { return Customer.generate(); }
   get total() { return this.model.total; }
+
+  viewers() {
+    let
+      count = ~~((Math.random() * 5) + 2),
+      users = [];
+    while(count--) users.push(Customer.generate());
+    return users;
+  }
 }
 
 Object.defineProperty(Order, 'seed', {value: seed});

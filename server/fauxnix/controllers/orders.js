@@ -13,6 +13,9 @@ module.exports = function(app, router) {
     .get('/orders/:order', function *() {
       this.body = this.order.toJSON();
     })
+    .get('/orders/:order/viewers', function *() {
+      this.body = this.order.viewers();
+    })
     .get('/orders', function *() {
       this.body = Order.generateList();
     })

@@ -3,17 +3,48 @@
 import React from 'react';
 import { RouteHandler } from 'react-router';
 import { Link } from 'react-router';
+import { listenTo, stopListeningTo } from '../../lib/dispatcher';
+import OrderStore from './store';
+import OrderViewers from './viewers';
+
+const changeEvent = 'change-order-store';
 
 export default class Order extends React.Component {
-  render() {
+
+  constructor(props) {
+    super(props);
+    this.onChangeOrderStore = this.onChangeOrderStore.bind(this);
+    this.state = {
+      order: null
+    };
+  }
+
+  componentDidMount() {
     let
-      customer  = this.props.customer,
-      order     = this.props.order;
+      { router }  = this.context,
+      orderId     = router.getCurrentParams().order;
+    listenTo(changeEvent, this);
+    OrderStore.fetch(orderId);
+  }
+
+  componentWillUnmount() {
+    stopListeningTo(changeEvent, this);
+  }
+
+  onChangeOrderStore(order) {
+    this.setState({order: order});
+  }
+
+  render() {
+    if (!this.state.order) return <div id="order"></div>;
+    let
+      order     = this.state.order,
+      customer  = this.state.order.customer;
     return (
       <div id="order">
-        <div className="viewers"></div>
+        <OrderViewers orderId={order.id}/>
         <div className="gutter">
-          <h1>Order {order.id}<em>for{customer.name}</em></h1>
+          <h1>Order {order.orderId}<em>for{`${customer.firstName} ${customer.lastName}`}</em></h1>
           <time dateTime={order.date}>{order.date}</time>
         </div>
         <div className="gutter sub-nav">
@@ -32,17 +63,6 @@ export default class Order extends React.Component {
   }
 }
 
-Order.propTypes = {
-  customer: React.PropTypes.object,
-  order: React.PropTypes.object
-};
-
-Order.defaultProps = {
-  customer: {
-    name: 'Bruce Wayne'
-  },
-  order: {
-    id: 12345,
-    date: new Date().toISOString()
-  }
+Order.contextTypes = {
+  router: React.PropTypes.func
 };
