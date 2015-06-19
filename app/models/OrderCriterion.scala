@@ -14,29 +14,19 @@ import scala.concurrent.{ExecutionContext, Future}
 
 case class OrderCriterion(id:Int = 0, shippingPricingRuleId:Int, name: String, criterionType: OrderCriterion.CriterionType, target: String) extends ModelWithIdParameter
 
+
 object OrderCriterion{
   sealed trait CriterionType
+  // So, each of the below has it's own table.  I wonder if the right move is to just call this object and centralize all the finding and logic here?
   case object Destination extends CriterionType
   case object Weight extends CriterionType
-  case object SubTotal extends CriterionType // before discount
-  case object GrandTotal extends CriterionType // after discounts and tax
+  case object Price extends CriterionType // before discount
   case object Dimensions extends CriterionType
-  case object PriceAttribute extends CriterionType
 }
 
-// I can't decide if I want to make these fields generalizable or make a different table for each CriterionType.
-// Going to do it as one table for now
 class OrderCriteria(tag: Tag) extends GenericTable.TableWithId[OrderCriteria](tag, "shipping_methods") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def shippingPricingRuleId = column[Int]("shipping_pricing_rule_id")
   def name = column[String]("name")
-  def criterionType = column[OrderCriterion.CriterionType]("criterion_type")
-  def greaterThanInt = column[Int]("greater_than_int")
-  def lessThanInt = column[Int]("less_than_int")
-  def equalsInt = column[Int]("equals_int")
-  def unitOfMeasure = column[String]("unit_of_measure")
-  def includedInString = column[String]("included_in_string") // Destinations, mostly
-
 
   def * = (id, shippingPricingRuleId, name, criterionType, target) <> ((OrderCriteria.apply _).tupled, OrderCriteria.unapply)
 }
