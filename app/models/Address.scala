@@ -49,8 +49,6 @@ object Addresses extends TableQueryWithId[Address, Addresses](
   idLens = GenLens[Address](_.id)
   )(new Addresses(_)) {
 
-  val table: Addresses.type = this
-
   def findAllByCustomer(customer: Customer)(implicit db: Database): Future[Seq[Address]] = {
     db.run(filter(_.customerId === customer.id).result)
   }
