@@ -13,7 +13,12 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class Order(id: Int = 0, customerId: Int, status: Order.Status = Order.Cart, locked: Boolean = false) extends ModelWithIdParameter
+case class Order(id: Int = 0, customerId: Int, status: Order.Status = Order.Cart, locked: Boolean = false)
+  extends ModelWithIdParameter
+  with Validation[Order] {
+
+  override def validator = createValidator[Order] { order => }
+}
 
 object Order {
   sealed trait Status
