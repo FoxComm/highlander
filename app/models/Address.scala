@@ -74,7 +74,7 @@ object Addresses {
              db: Database): Future[Seq[Address] Or Map[Address, Set[ErrorMessage]]] = {
 
     val validatedAddresses = addresses.map { a => (a, a.validate) }
-    val failures = validatedAddresses.filter { case (_, result) => result.isValid }
+    val failures = validatedAddresses.filter { case (_, result) => !result.isValid }
 
     if (failures.nonEmpty) {
       val acc = Map[Address, Set[ErrorMessage]]()
