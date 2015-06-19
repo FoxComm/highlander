@@ -6,7 +6,7 @@ import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 
 
-case class InventoryAdjustment(id: Int, skuId: Int, inventoryEventId: Int, reservedForFulfillment: Int, availableOnHand: Int, availablePreOrder: Int, availableBackOrder: Int, outstandingPreOrders: Int, outstandingBackOrders: Int, description: Option[String], sourceNotes: Option[String]) extends ModelWithIdParameter {
+case class InventoryAdjustment(id: Int, skuId: Int, inventoryEventId: Int, reservedForFulfillment: Int, fulfilled: Int, availableOnHand: Int, availablePreOrder: Int, availableBackOrder: Int, outstandingPreOrders: Int, outstandingBackOrders: Int, description: Option[String], sourceNotes: Option[String]) extends ModelWithIdParameter {
 
 }
 
@@ -16,6 +16,7 @@ class InventoryAdjustments(tag: Tag) extends GenericTable.TableWithId[InventoryA
   def skuId = column[Int]("sku_id")
   def inventoryEventId = column[Int]("inventory_event_id")
   def reservedForFulfillment = column[Int]("reserved_for_fulfillment")
+  def fulfilled = column[Int]("fulfilled")
   def availableOnHand = column[Int]("available_on_hand")
   def availablePreOrder = column[Int]("available_pre_order")
   def availableBackOrder = column[Int]("available_back_order")
@@ -25,7 +26,7 @@ class InventoryAdjustments(tag: Tag) extends GenericTable.TableWithId[InventoryA
   def sourceNotes = column[Option[String]]("source_notes") //Notes about a third party source
 
 
-  def * = (id, skuId, inventoryEventId, reservedForFulfillment, availableOnHand, availablePreOrder, availableBackOrder, outstandingPreOrders, outstandingBackOrders, description, sourceNotes) <> ((InventoryAdjustment.apply _).tupled, InventoryAdjustment.unapply)
+  def * = (id, skuId, inventoryEventId, reservedForFulfillment, fulfilled, availableOnHand, availablePreOrder, availableBackOrder, outstandingPreOrders, outstandingBackOrders, description, sourceNotes) <> ((InventoryAdjustment.apply _).tupled, InventoryAdjustment.unapply)
 }
 
 object InventoryAdjustments extends TableQueryWithId[InventoryAdjustment, InventoryAdjustments](

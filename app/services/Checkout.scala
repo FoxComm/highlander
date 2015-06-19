@@ -45,6 +45,12 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
     } yield newOrder.copy(id = insertId))
   }
 
+  def decrementInventory(): Unit = {
+    // Step 1) Create inventory adjustment event and map it to the order_id. --> +1 to reserved_for_fullfilment and a -1 to available_on_hand
+    // Step 2) Adjust the inventory_summary table accordingly.  ExistingNumber-1 to available on hand.
+    // Step 3) Do the above as a transaction.
+  }
+
 //  def authenticatePayments: Future[Map[AppliedPayment, List[ErrorMessage]]] = {
 //    // Really, this should authenticate all payments, at their specified 'applied amount.'
 //    order.payments.flatMap { payments =>
