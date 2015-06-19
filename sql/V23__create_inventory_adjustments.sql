@@ -1,5 +1,5 @@
 create table inventory_adjustments (
-    id serial primary key,
+    id bigserial primary key,
     sku_id bigint not null,
     inventory_event_id bigint not null,
     reserved_for_fulfillment integer not null,

@@ -1,5 +1,5 @@
 --Subclass/Sub-table of inventory_adjustment
-create table purchase_order_receipts(
+create table purchase_order_receipts (
     id bigint primary key,
     purchase_order_id integer not null,
     receiver_name character varying(255), -- just for fun
@@ -8,4 +8,5 @@ create table purchase_order_receipts(
     updated_at timestamp without time zone default (now() at time zone 'utc'),
     deleted_at timestamp without time zone null,
     foreign key (id) references inventory_events(id) on update restrict on delete restrict
+    foreign key (purchase_order_id) references purchase_orders(id) on update restrict on delete restrict
 );

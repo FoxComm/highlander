@@ -1,3 +1,3 @@
 create table inventory_events (
-    id serial primary key
+    id bigserial primary key
 );
