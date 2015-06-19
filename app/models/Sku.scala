@@ -31,7 +31,7 @@ object Skus extends TableQueryWithId[Sku, Skus](
   def qtyAvailableOnHand(id: Int)(implicit ec: ExecutionContext, db: Database): Future[Int] =
     db.run(_qtyAvailableOnHand(id).result.head)
 
-  def _qtyAvailableOnHand(id: Int) =
+  def _qtyAvailableOnHand(id: Int): Query[Rep[Int], Int, Seq] =
     InventorySummaries._findById(id).map(_.availableOnHand)
 
   def qtyAvailableForGroup(ids: Seq[Int])(implicit ec: ExecutionContext, db: Database): Future[Map[Int, Int]] = {

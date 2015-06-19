@@ -30,5 +30,6 @@ object InventorySummaries extends TableQueryWithId[InventorySummary, InventorySu
   idLens = GenLens[InventorySummary](_.id)
 )(new InventorySummaries(_)) {
 
-  def _findBySkuId(id: Int) = filter(_.skuId === id)
+  def _findBySkuId(id: Int): Query[InventorySummaries, InventorySummary, Seq] =
+    filter(_.skuId === id)
 }
