@@ -13,14 +13,7 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class Order(id: Int = 0, customerId: Int, status: Order.Status = Order.Cart, locked: Int = 0) extends ModelWithIdParameter {
-  var lineItems: Seq[OrderLineItem] = Seq.empty
-
-
-  def payments: Future[Seq[AppliedPayment]] = {
-    Orders.collectPaymentMethods(this)
-  }
-}
+case class Order(id: Int = 0, customerId: Int, status: Order.Status = Order.Cart, locked: Int = 0) extends ModelWithIdParameter
 
 object Order {
   sealed trait Status
@@ -64,19 +57,6 @@ class Orders(tag: Tag) extends GenericTable.TableWithId[Order](tag, "orders") wi
 object Orders extends TableQueryWithId[Order, Orders](
   idLens = GenLens[Order](_.id)
   )(new Orders(_)){
-  val table = TableQuery[Orders]
-
-
-  // TODO: YAX: Get rid of this and replace with something real.
-  def collectPaymentMethods(order: Order): Future[Seq[AppliedPayment]] = {
-    val appliedpayment = AppliedPayment(id = 1, orderId = order.id, paymentMethodId = 1, paymentMethodType = "TokenizedCard", appliedAmount = 10000, status = Applied.toString, responseCode = "")
-    val appliedpayment2 = appliedpayment.copy(appliedAmount = 2550, paymentMethodId = 2)
-
-
-    Future.successful(Seq(appliedpayment, appliedpayment2))
-  }
-
-
 
   def _create(order: Order)(implicit ec: ExecutionContext, db: Database): DBIOAction[models.Order, NoStream, Effect.Write] = {
    for {
@@ -88,14 +68,14 @@ object Orders extends TableQueryWithId[Order, Orders](
     db.run(_findByCustomer(customer).result)
   }
 
-  def _findByCustomer(cust: Customer) = { table.filter(_.customerId === cust.id) }
+  def _findByCustomer(cust: Customer) = { filter(_.customerId === cust.id) }
 
   def findActiveOrderByCustomer(cust: Customer)(implicit ec: ExecutionContext, db: Database): Future[Option[Order]] = {
     // TODO: (AW): we should find a way to ensure that the customer only has one order with a cart status.
     db.run(_findActiveOrderByCustomer(cust).result.headOption)
   }
 
-  def _findActiveOrderByCustomer(cust: Customer) = { table.filter(_.customerId === cust.id).filter(_.status === (Order.Cart: Order.Status)) }
+  def _findActiveOrderByCustomer(cust: Customer) = { filter(_.customerId === cust.id).filter(_.status === (Order.Cart: Order.Status)) }
 
   // If the user doesn't have an order yet, let's create one.
   def findOrCreateActiveOrderByCustomer(customer: Customer)
