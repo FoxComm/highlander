@@ -1,4 +1,2 @@
-create table order_notes (
-    
-);
+create table order_notes ();
 

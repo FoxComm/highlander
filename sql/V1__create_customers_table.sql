@@ -1,5 +1,5 @@
 create table customers (
-    id integer not null,
+    id serial primary key,
     email character varying(255) not null,
     hashed_password character varying(255) not null,
     first_name character varying(255),
@@ -9,15 +9,5 @@ create table customers (
     deleted_at timestamp without time zone null
 );
 
-create sequence customers_id_seq
-    start with 1
-    increment by 1
-    no minvalue
-    no maxvalue
-    cache 1;
+create index customers_email_idx on customers (email)
 
-alter table only customers
-  alter column id set default nextval('customers_id_seq'::regclass);
-
-alter table only customers
-  add constraint customers_pkey primary key (id);
