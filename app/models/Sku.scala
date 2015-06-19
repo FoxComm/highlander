@@ -46,4 +46,14 @@ object Skus extends TableQueryWithId[Sku, Skus](
       iSum <- inventorySummaries.filter(_.skuId === id)
     } yield (iSum.availableOnHand)
   }
+
+  def qtyAvailableForGroup(ids: Seq[Int])(implicit ec: ExecutionContext, db: Database): Future[Seq[Int]] = {
+    val quantities: Seq[Int] = Seq.empty
+    val idTest: List[Int] = List.empty
+    db.run(
+      for {
+        iSum <- inventorySummaries.filter(_.skuId inSet ids)
+        onHands <- iSum.availableOnHand
+    } yield (onHands))
+  }
 }

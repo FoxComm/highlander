@@ -34,6 +34,12 @@ object LineItemUpdater {
     // TODO: AW: We should insert some errors/messages into an array for each item that is unavailable.
     val inventoryValidatedQuantities = updateQuantities.filter( (skuId: Int, qty: Int) => Skus.qtyAvailableOnHand(skuId).map(_ > 0))
 
+//    val inventoryValidatedQuantities = for {
+//      validQuantities <- updateQuantities.map( (skuId: Int, qty: Int) => Skus.qtyAvailableOnHand(skuId).map(_ > 0))
+//      //Skus.qtyAvailableOnHand
+//      //uq._2 > 0
+//    } yield (validQuantities)
+
     // select sku_id, count(1) from line_items where order_id = $ group by sku_id
     val counts = for {
       (skuId, q) <- lineItems.filter(_.orderId === order.id).groupBy(_.skuId)
