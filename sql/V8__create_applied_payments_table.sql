@@ -15,3 +15,4 @@ alter table only applied_payments
 -- TODO: We should probably actually make this polymorphic.
 -- alter table only applied_payments
 --    add constraint applied_payments_payment_method_fk foreign key (payment_method_id) references ???
+

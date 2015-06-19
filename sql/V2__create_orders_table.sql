@@ -7,3 +7,4 @@ create table orders (
     updated_at timestamp without time zone default (now() at time zone 'utc'),
     deleted_at timestamp without time zone null
 );
+

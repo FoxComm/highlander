@@ -8,3 +8,4 @@ create table order_line_items (
 
 alter table only order_line_items
     add constraint order_line_items_order_id_fk foreign key (order_id) references orders(id) on update restrict on delete restrict;
+

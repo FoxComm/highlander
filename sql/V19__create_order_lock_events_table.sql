@@ -1,3 +1,2 @@
-create table order_lock_events (
+create table order_lock_events ();
 
-);
