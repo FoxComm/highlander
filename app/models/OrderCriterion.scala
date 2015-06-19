@@ -12,9 +12,9 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class ShippingRuleCriterion(id:Int = 0, shippingPricingRuleId:Int, name: String, criterionType: ShippingRuleCriterion.CriterionType, target: String) extends ModelWithIdParameter
+case class OrderCriterion(id:Int = 0, shippingPricingRuleId:Int, name: String, criterionType: OrderCriterion.CriterionType, target: String) extends ModelWithIdParameter
 
-object ShippingRuleCriterion{
+object OrderCriterion{
   sealed trait CriterionType
   case object Destination extends CriterionType
   case object Weight extends CriterionType
@@ -26,11 +26,11 @@ object ShippingRuleCriterion{
 
 // I can't decide if I want to make these fields generalizable or make a different table for each CriterionType.
 // Going to do it as one table for now
-class ShippingRuleCriteria(tag: Tag) extends GenericTable.TableWithId[ShippingRuleCriteria](tag, "shipping_methods") with RichTable {
+class OrderCriteria(tag: Tag) extends GenericTable.TableWithId[OrderCriteria](tag, "shipping_methods") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def shippingPricingRuleId = column[Int]("shipping_pricing_rule_id")
   def name = column[String]("name")
-  def criterionType = column[ShippingRuleCriterion.CriterionType]("criterion_type")
+  def criterionType = column[OrderCriterion.CriterionType]("criterion_type")
   def greaterThanInt = column[Int]("greater_than_int")
   def lessThanInt = column[Int]("less_than_int")
   def equalsInt = column[Int]("equals_int")
@@ -38,9 +38,9 @@ class ShippingRuleCriteria(tag: Tag) extends GenericTable.TableWithId[ShippingRu
   def includedInString = column[String]("included_in_string") // Destinations, mostly
 
 
-  def * = (id, shippingPricingRuleId, name, criterionType, target) <> ((ShippingRuleCriteria.apply _).tupled, ShippingRuleCriteria.unapply)
+  def * = (id, shippingPricingRuleId, name, criterionType, target) <> ((OrderCriteria.apply _).tupled, OrderCriteria.unapply)
 }
 
-object ShippingRuleCriteria extends TableQueryWithId[ShippingRuleCriteria, ShippingRuleCriteria](
-  idLens = GenLens[ShippingRuleCriteria](_.id)
-)(new ShippingRuleCriteria(_))
+object OrderCriteria extends TableQueryWithId[OrderCriteria, OrderCriteria](
+  idLens = GenLens[OrderCriteria](_.id)
+)(new OrderCriteria(_))
