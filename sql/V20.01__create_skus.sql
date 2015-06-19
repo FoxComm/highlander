@@ -3,3 +3,4 @@ create table skus (
     name character varying(255),
     price int not null -- Yax needs this for real payments.
 );
+

@@ -5,3 +5,4 @@ create table cycle_counts (
     deleted_at timestamp without time zone null,
     foreign key (id) references inventory_events(id) on update restrict on delete restrict
 );
+

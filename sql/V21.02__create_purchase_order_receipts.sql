@@ -10,3 +10,4 @@ create table purchase_order_receipts (
     foreign key (id) references inventory_events(id) on update restrict on delete restrict
     foreign key (purchase_order_id) references purchase_orders(id) on update restrict on delete restrict
 );
+

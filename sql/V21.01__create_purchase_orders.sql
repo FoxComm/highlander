@@ -2,3 +2,4 @@
 create table purchase_orders (
     id serial primary key
 );
+

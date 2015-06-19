@@ -12,4 +12,5 @@ create table inventory_adjustments (
     source_notes text,
     foreign key (sku_id) references skus(id) on update restrict on delete restrict,
     foreign key (inventory_event_id) references inventory_events(id) on update restrict on delete restrict
- );
+);
+

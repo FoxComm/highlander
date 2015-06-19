@@ -9,3 +9,4 @@ create table rma_receipts (
     foreign key (id) references inventory_events(id) on update restrict on delete restrict,
     foreign key (rma_id) references rmas(id) on update restrict on delete restrict
 );
+

@@ -8,4 +8,3 @@ create table inventory_synchronizations (
     foreign key (id) references inventory_events(id) on update restrict on delete restrict
 );
 
-
