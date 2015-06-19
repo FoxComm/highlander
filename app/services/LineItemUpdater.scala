@@ -30,6 +30,7 @@ object LineItemUpdater {
       acc.updated(item.skuId, quantity + item.quantity)
     }
 
+    // TODO: AW: We should insert some errors/messages into an array for each item that is unavailable.
     Skus.qtyAvailableForGroup(updateQuantities.keys.toSeq).flatMap { availableQuantities =>
       val enoughOnHand = availableQuantities.filter { case (skuId, numAvailableOnHand) =>
         updateQuantities.get(skuId).exists { requested =>
@@ -37,7 +38,6 @@ object LineItemUpdater {
         }
       }
 
-      // TODO: AW: We should insert some errors/messages into an array for each item that is unavailable.
 
       // select sku_id, count(1) from line_items where order_id = $ group by sku_id
       val counts = for {
@@ -47,7 +47,7 @@ object LineItemUpdater {
       val queries = counts.result.flatMap { (items: Seq[(Int, Int)]) =>
         val existingSkuCounts = items.toMap
 
-        val changes = updateQuantities.map { case (skuId, newQuantity) =>
+        val changes = enoughOnHand.map { case (skuId, newQuantity) =>
           val current = existingSkuCounts.getOrElse(skuId, 0)
           // we're using absolute values from payload, so if newQuantity is greater then create N items
           if (newQuantity > current) {
