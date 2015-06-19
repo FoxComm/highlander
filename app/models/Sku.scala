@@ -25,21 +25,14 @@ object Skus extends TableQueryWithId[Sku, Skus](
   idLens = GenLens[Sku](_.id)
 )(new Skus(_)) {
 
-  def isAvailableOnHand(id: Int)(implicit ec: ExecutionContext, db: Database): Future[Boolean] = {
-    db.run(_qtyAvailableOnHand(id).result.head).map { qty =>
-      qty > 0
-    }
-  }
+  def isAvailableOnHand(id: Int)(implicit ec: ExecutionContext, db: Database): Future[Boolean] =
+    db.run(InventorySummaries._findBySkuId(id).filter(_.availableOnHand > 0).exists.result)
 
   def qtyAvailableOnHand(id: Int)(implicit ec: ExecutionContext, db: Database): Future[Int] = {
     db.run(_qtyAvailableOnHand(id).result.head)
   }
 
-  def _qtyAvailableOnHand(id: Int) = {
-    for {
-      iSum <- InventorySummaries.filter(_.skuId === id)
-    } yield iSum.availableOnHand
-  }
+  def _qtyAvailableOnHand(id: Int) = InventorySummaries._findById(id).map(_.availableOnHand)
 
   def qtyAvailableForGroup(ids: Seq[Int])(implicit ec: ExecutionContext, db: Database): Future[Map[Int, Int]] = {
     db.run((for {
