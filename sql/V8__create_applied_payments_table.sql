@@ -6,7 +6,8 @@ create table applied_payments (
     payment_method_type character varying(255) not null,
     amount integer not null default 0,
     status character varying(255) not null,
-    response_code character varying(255)
+    response_code character varying(255),
+    constraint positive_amount check (amount >= 0)
 );
 
 alter table only applied_payments

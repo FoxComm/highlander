@@ -9,7 +9,8 @@ create table addresses (
     zip character (5) not null, -- TODO: nullable for foreign addresses?
     created_at timestamp without time zone default (now() at time zone 'utc'),
     updated_at timestamp without time zone default (now() at time zone 'utc'),
-    deleted_at timestamp without time zone null
+    deleted_at timestamp without time zone null,
+    constraint valid_zip check (zip ~ '[0-9]{5}')
 );
 
 alter table only addresses
