@@ -33,18 +33,11 @@ object LineItemUpdater {
     // TODO: AW: We should insert some errors/messages into an array for each item that is unavailable.
     // TODO: AW: Add the maximum available to the order if there aren't as many as requested
     Skus.qtyAvailableForGroup(updateQuantities.keys.toSeq).flatMap { availableQuantities =>
-      val enoughOnHand = updateQuantities.filter { case (skuId, numAvailableOnHand) =>
-        updateQuantities.get(skuId).exists { requested =>
-          println("NUMAVAIL")
-          println(numAvailableOnHand)
-          println("NUMAVAIL2")
-          println(availableQuantities)
-          numAvailableOnHand >= requested && requested > 0
+      val enoughOnHand = updateQuantities.filter { case (skuId, numRequested) =>
+        availableQuantities.get(skuId).exists { numAvailable =>
+          numAvailable >= numRequested && numRequested > 0
         }
       }
-
-      enoughOnHand.map{ donkey => println(donkey)}
-
 
       // select sku_id, count(1) from line_items where order_id = $ group by sku_id
       val counts = for {
