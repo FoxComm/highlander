@@ -13,13 +13,13 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class Order(id: Int = 0, customerId: Int, status: Order.Status = Order.Cart, locked: Int = 0) extends ModelWithIdParameter {
-  var lineItems: Seq[OrderLineItem] = Seq.empty
+case class Order(id: Int = 0, customerId: Int, status: Order.Status = Order.Cart, locked: Int = 0)
+  extends ModelWithIdParameter
+  with Validation[Order] {
 
 
-  def payments: Future[Seq[AppliedPayment]] = {
+  override def validator = createValidator[Order] { order => }
     Orders.collectPaymentMethods(this)
-  }
 }
 
 object Order {
