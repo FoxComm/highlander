@@ -67,10 +67,6 @@ object AppliedPayments extends TableQueryWithId[AppliedPayment, AppliedPayments]
   }
 
   def _findAllPaymentsFor(order: Order): Query[(AppliedPayments, CreditCardGateways), (AppliedPayment, CreditCardGateway), Seq] = {
-/*    for {
-      result <- this.filter(_.orderId === order.id).join(CreditCardGateways).on(_.id === _.id)
-    } yield result
-    */
     for {
       payments ← this.filter(_.orderId === order.id)
       cards    ← CreditCardGateways if cards.id === payments.id
