@@ -68,14 +68,14 @@ object Orders extends TableQueryWithId[Order, Orders](
     db.run(_findByCustomer(customer).result)
   }
 
-  def _findByCustomer(cust: Customer) = { this.filter(_.customerId === cust.id) }
+  def _findByCustomer(cust: Customer) = { filter(_.customerId === cust.id) }
 
   def findActiveOrderByCustomer(cust: Customer)(implicit ec: ExecutionContext, db: Database): Future[Option[Order]] = {
     // TODO: (AW): we should find a way to ensure that the customer only has one order with a cart status.
     db.run(_findActiveOrderByCustomer(cust).result.headOption)
   }
 
-  def _findActiveOrderByCustomer(cust: Customer) = { this.filter(_.customerId === cust.id).filter(_.status === (Order.Cart: Order.Status)) }
+  def _findActiveOrderByCustomer(cust: Customer) = { filter(_.customerId === cust.id).filter(_.status === (Order.Cart: Order.Status)) }
 
   // If the user doesn't have an order yet, let's create one.
   def findOrCreateActiveOrderByCustomer(customer: Customer)

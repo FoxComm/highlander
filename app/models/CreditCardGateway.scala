@@ -60,6 +60,6 @@ object CreditCardGateways extends TableQueryWithId[CreditCardGateway, CreditCard
     db.run(_findById(id).result.headOption)
   }
 
-  def _findById(id: Rep[Int]) = { this.filter(_.id === id) }
+  def _findById(id: Rep[Int]) = { filter(_.id === id) }
 }
 
