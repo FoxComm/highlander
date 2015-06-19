@@ -32,7 +32,7 @@ class LineItemUpdaterTest extends IntegrationTestBase {
 
           val allRecords = db.run(lineItems.result).futureValue
 
-          items must be (allRecords)
+          items must contain theSameElementsAs allRecords
 
         case Bad(s) => fail(s.mkString(";"))
       }
@@ -57,7 +57,7 @@ class LineItemUpdaterTest extends IntegrationTestBase {
 
           val allRecords = db.run(lineItems.result).futureValue
 
-          items must be (allRecords)
+          items must contain theSameElementsAs allRecords
 
         case Bad(s) => fail(s.mkString(";"))
       }
