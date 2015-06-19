@@ -20,11 +20,11 @@ object PublicSku {
 
     val queries = for {
       sku <- Skus._findById(id)
-      qtyAvailable <- Skus._qtyAvailableOnHand(id)
-    } yield (sku, (qtyAvailable > 0) )
+      availableForSale <- Skus.isAvailableOnHand(id)
+    } yield (sku, availableForSale)
 
-    db.run(queries.result.head).map { skuAndQty =>
-      Some(build(skuAndQty._1, skuAndQty._2))
+    db.run(queries.result.head).map { case (sku, available) =>
+      Some(build(sku, available))
     }
   }
 
