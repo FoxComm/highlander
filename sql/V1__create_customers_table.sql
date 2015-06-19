@@ -9,3 +9,5 @@ create table customers (
     deleted_at timestamp without time zone null
 );
 
+create index customers_email_idx on customers (email)
+

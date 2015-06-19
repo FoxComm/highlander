@@ -10,3 +10,4 @@ create table store_admins (
     deleted_at timestamp without time zone null
 );
 
+create index store_admins_email_idx on store_admins (email)

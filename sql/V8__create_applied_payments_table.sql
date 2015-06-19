@@ -16,3 +16,5 @@ alter table only applied_payments
 -- alter table only applied_payments
 --    add constraint applied_payments_payment_method_fk foreign key (payment_method_id) references ???
 
+create index applied_payments_order_id_idx on applied_payments (order_id)
+

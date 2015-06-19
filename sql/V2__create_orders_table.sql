@@ -8,3 +8,5 @@ create table orders (
     deleted_at timestamp without time zone null
 );
 
+create index orders_customer_and_status_idx on orders (customer_id, status)
+

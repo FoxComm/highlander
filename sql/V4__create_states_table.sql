@@ -4,3 +4,5 @@ create table states (
     abbreviation character(2) not null
 );
 
+create index states_name_idx on states (name)
+

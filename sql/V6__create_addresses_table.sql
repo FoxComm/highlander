@@ -16,3 +16,5 @@ alter table only addresses
   add constraint addresses_state_id_fk foreign key (state_id) references states(id) on update restrict on delete cascade,
   add constraint addresses_customer_id_fk foreign key (customer_id) references customers(id) on update restrict on delete cascade;
 
+create index addresses_customer_id_idx on addresses (customer_id)
+
