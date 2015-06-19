@@ -6,7 +6,6 @@ import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 import scala.concurrent.{ExecutionContext, Future}
 
-
 object PublicSku {
   type Response = Future[Option[Root]]
 
