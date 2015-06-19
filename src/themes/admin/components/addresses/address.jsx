@@ -2,15 +2,17 @@
 
 import React from 'react';
 
+import { dispatch } from '../../lib/dispatcher';
+
 class Address extends React.Component {
   render() {
     let address = this.props.address;
 
-    let isDefault = (val) => {
-      return (
-        <div><input type='checkbox' checked={val} /> Default Address</div>
-      );
-    };
+    console.log(address);
+
+    let isDefault = (
+        <div><input type='checkbox' defaultChecked={address.isDefault} /> Default Address</div>
+    );
     let street2 = (val) => {
       return (
         <span><span>{val}</span><br/></span>
@@ -26,7 +28,7 @@ class Address extends React.Component {
     return (
       <li className={classes}>
         <div className='details'>
-          { address.isDefault ? isDefault(address.isDefault) : '' }
+          { address.isDefault ? isDefault : '' }
           <p><strong>{address.name}</strong></p>
           <p>
             <span>{address.street1}</span><br />
@@ -35,7 +37,7 @@ class Address extends React.Component {
             <span>{address.country}</span>
           </p>
         </div>
-        <a className='btn choose'>Choose</a>
+        { address.isActive ? '' : <a className='btn choose' onClick={dispatch('changeActiveAddress')}>Choose</a> }
       </li>
     );
   }

@@ -7,6 +7,8 @@ const
 
 const seed = [
   {field: 'createdAt', method: 'date', opts: {year: 2014}},
+  {field: 'isDefault', method: 'bool', opts: {likelihood: 0}},
+  {field: 'isActive', method: 'bool', opts: {likelihood: 0}},
   {field: 'state'},
   {field: 'name'},
   {field: 'street1', method: 'address'},
@@ -19,9 +21,9 @@ const
   chance = new Chance();
 
 class Address extends BaseModel {
-  get isDefault() { return false; }
+  get isDefault() { return this.model.isDefault; }
   set isDefault(val) { this.model.isDefault = val; }
-  get isActive() { return false; }
+  get isActive() { return this.model.isActive; }
   set isActive(val) { this.model.isActive = val; }
   get state() { return this.model.state; }
   get name() { return this.model.name; }
@@ -39,9 +41,10 @@ class Address extends BaseModel {
 
   static generateList(limit) {
     let models = super.generateList(limit);
-    models[0].isDefault = true;
-    models[0].isActive = true;
-
+    models[0].update({
+      isDefault: true,
+      isActive: true
+    });
     console.log(models);
     return models;
   }
