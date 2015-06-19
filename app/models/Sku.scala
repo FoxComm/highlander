@@ -45,9 +45,10 @@ object Skus extends TableQueryWithId[Sku, Skus](
     } yield iSum.availableOnHand
   }
 
-  def qtyAvailableForGroup(ids: Seq[Int])(implicit ec: ExecutionContext, db: Database): Future[Seq[(Int, Int)]] = {
+  def qtyAvailableForGroup(ids: Seq[Int])(implicit ec: ExecutionContext, db: Database): Future[Map[Int, Int]] = {
     db.run((for {
       x <- InventorySummaries.filter(_.skuId inSet ids)
-    } yield (x.skuId, x.availableOnHand)).result)
+      smong: Map[Int,int] = Map.empty
+    } yield (smong.updated(x.skuId, x.availableOnHand))).result)
   }
 }
