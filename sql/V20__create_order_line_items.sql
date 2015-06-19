@@ -3,7 +3,9 @@ create table order_line_items (
     order_id integer not null,
     sku_id integer not null,
     status character varying(255) not null,
-    created_at timestamp without time zone default (now() at time zone 'utc')
+    created_at timestamp without time zone default (now() at time zone 'utc'),
+    constraint valid_status check (status in ('cart','ordered','canceled', 'productionstarted', 'postproductionstarted',
+                                              'fulfillmentstarted','partiallyshipped','shipped'))
 );
 
 alter table only order_line_items
