@@ -28,8 +28,6 @@ class Skus(tag: Tag) extends GenericTable.TableWithId[Sku](tag, "skus") with Ric
 object Skus extends TableQueryWithId[Sku, Skus](
   idLens = GenLens[Sku](_.id)
 )(new Skus(_)) {
-  val inventorySummaries = TableQuery[InventorySummaries]
-
 
   def isAvailableOnHand(id: Int)(implicit ec: ExecutionContext, db: Database): Future[Boolean] = {
     db.run(_qtyAvailableOnHand(id).result.head).map { qty =>
@@ -43,17 +41,13 @@ object Skus extends TableQueryWithId[Sku, Skus](
 
   def _qtyAvailableOnHand(id: Int) = {
     for {
-      iSum <- inventorySummaries.filter(_.skuId === id)
-    } yield (iSum.availableOnHand)
+      iSum <- InventorySummaries.filter(_.skuId === id)
+    } yield iSum.availableOnHand
   }
 
-  def qtyAvailableForGroup(ids: Seq[Int])(implicit ec: ExecutionContext, db: Database): Future[Seq[Int]] = {
-    val quantities: Seq[Int] = Seq.empty
-    val idTest: List[Int] = List.empty
-    db.run(
-      for {
-        iSum <- inventorySummaries.filter(_.skuId inSet ids)
-        onHands <- iSum.availableOnHand
-    } yield (onHands))
+  def qtyAvailableForGroup(ids: Seq[Int])(implicit ec: ExecutionContext, db: Database): Future[Seq[(Int, Int)]] = {
+    db.run((for {
+      x <- InventorySummaries.filter(_.skuId inSet ids)
+    } yield (x.skuId, x.availableOnHand)).result)
   }
 }
