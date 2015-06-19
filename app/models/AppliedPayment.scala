@@ -35,10 +35,10 @@ class AppliedPayments(tag: Tag) extends Table[AppliedPayment](tag, "applied_paym
   def orderId = column[Int]("order_id")
   def paymentMethodId = column[Int]("payment_method_id")
   def paymentMethodType = column[String]("payment_method_type")
-  def appliedAmount = column[Int]("applied_amount")
+  def amount = column[Int]("amount")
   def status = column[String]("status")
   def responseCode = column[String]("response_code")
-  def * = (id, orderId, paymentMethodId, paymentMethodType, appliedAmount, status, responseCode) <> ((AppliedPayment.apply _).tupled, AppliedPayment.unapply )
+  def * = (id, orderId, paymentMethodId, paymentMethodType, amount, status, responseCode) <> ((AppliedPayment.apply _).tupled, AppliedPayment.unapply )
 }
 
 object AppliedPayments {

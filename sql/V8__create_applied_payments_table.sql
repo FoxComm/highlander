@@ -4,7 +4,7 @@ create table applied_payments (
     order_id integer not null,
     payment_method_id integer not null,
     payment_method_type character varying(255) not null,
-    applied_amount integer not null default 0,
+    amount integer not null default 0,
     status character varying(255) not null,
     response_code character varying(255)
 );
