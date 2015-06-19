@@ -13,7 +13,7 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class Order(id: Int = 0, customerId: Int, status: Order.Status = Order.Cart, locked: Int = 0)
+case class Order(id: Int = 0, customerId: Int, status: Order.Status = Order.Cart, locked: Boolean = false)
   extends ModelWithIdParameter
   with Validation[Order] {
 
@@ -55,7 +55,7 @@ class Orders(tag: Tag) extends GenericTable.TableWithId[Order](tag, "orders") wi
   // TODO: Find a way to deal with guest checkouts...
   def customerId = column[Int]("customer_id")
   def status = column[Order.Status]("status")
-  def locked = column[Int]("locked") // 0 for no; 1 for yes
+  def locked = column[Boolean]("locked")
   def * = (id, customerId, status, locked) <> ((Order.apply _).tupled, Order.unapply)
 }
 

@@ -1,5 +1,5 @@
 create table store_admins (
-    id integer not null,
+    id serial primary key,
     email character varying(255) not null,
     hashed_password character varying(255) not null,
     first_name character varying(255),
@@ -10,15 +10,4 @@ create table store_admins (
     deleted_at timestamp without time zone null
 );
 
-create sequence store_admins_id_seq
-    start with 1
-    increment by 1
-    no minvalue
-    no maxvalue
-    cache 1;
-
-alter table only store_admins
-    alter column id set default nextval('store_admins_id_seq'::regclass);
-
-alter table only store_admins
-    add constraint store_admins_pkey primary key (id);
+create index store_admins_email_idx on store_admins (email)
