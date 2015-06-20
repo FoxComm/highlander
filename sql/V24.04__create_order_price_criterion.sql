@@ -1,5 +1,5 @@
 create table order_price_criteria(
-    id primary key,
+    id integer primary key,
     price_type character varying(255) not null,
     greater_than integer,
     less_than integer,

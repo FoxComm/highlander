@@ -1,5 +1,5 @@
 create table order_dimension_criteria(
-    id primary key,
+    id integer primary key,
     dimension_type character varying(255) not null,
     greater_than integer,
     less_than integer,

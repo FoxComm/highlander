@@ -1,5 +1,5 @@
 create table order_destination_criteria(
-    id primary key,
+    id integer primary key,
     destination_type character varying(255) not null,
     destination json,
     exclude boolean,
