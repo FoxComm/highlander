@@ -12,9 +12,9 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class ShippingPricingRule(id:Int = 0, name: String, ruleType: ShippingPricingRule.RuleType, flatPrice: Int, flatMarkup: Int) extends ModelWithIdParameter
+case class ShippingPriceRule(id:Int = 0, name: String, ruleType: ShippingPriceRule.RuleType, flatPrice: Int, flatMarkup: Int) extends ModelWithIdParameter
 
-object ShippingPricingRule{
+object ShippingPriceRule{
   sealed trait RuleType
   case object Flat extends RuleType
   case object FromCarrier extends RuleType
@@ -31,16 +31,16 @@ object ShippingPricingRule{
 }
 
 
-class ShippingPricingRules(tag: Tag) extends GenericTable.TableWithId[ShippingPricingRule](tag, "shipping_pricing_rules") with RichTable {
+class ShippingPriceRules(tag: Tag) extends GenericTable.TableWithId[ShippingPriceRule](tag, "shipping_price_rules") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def name = column[String]("name")
-  def ruleType = column[ShippingPricingRule.RuleType]("rule_type")
+  def ruleType = column[ShippingPriceRule.RuleType]("rule_type")
   def flatPrice = column[Int]("flat_price")
   def flatMarkup = column[Int]("flat_markup") // can be negative.  eg. markdown
 
-  def * = (id, name, ruleType, flatPrice, flatMarkup) <> ((ShippingPricingRule.apply _).tupled, ShippingPricingRule.unapply)
+  def * = (id, name, ruleType, flatPrice, flatMarkup) <> ((ShippingPriceRule.apply _).tupled, ShippingPriceRule.unapply)
 }
 
-object ShippingPricingRules extends TableQueryWithId[ShippingPricingRule, ShippingPricingRules](
-  idLens = GenLens[ShippingPricingRule](_.id)
-)(new ShippingPricingRules(_))
+object ShippingPriceRules extends TableQueryWithId[ShippingPriceRule, ShippingPriceRules](
+  idLens = GenLens[ShippingPriceRule](_.id)
+)(new ShippingPriceRules(_))
