@@ -24,7 +24,7 @@ object OrderCriterion{
   case object Dimensions extends CriterionType
 }
 
-class OrderCriteria(tag: Tag) extends GenericTable.TableWithId[OrderCriterion](tag, "shipping_methods") with RichTable {
+class OrderCriteria(tag: Tag) extends GenericTable.TableWithId[OrderCriterion](tag, "order_criteria") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def name = column[String]("name")
 

@@ -12,7 +12,7 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class OrderPriceCriterion(id:Int = 0, priceType: OrderPriceCriterion.PriceType, greaterThan: Option[Int], lessThan: Option[Int], exactMatch: Option[Int], currency: String, exclude: Boolean) extends ModelWithIdParameter
+case class OrderPriceCriterion(id:Int = 0, priceType: OrderPriceCriterion.PriceType, greaterThan: Option[Int] = None, lessThan: Option[Int] = None, exactMatch: Option[Int] = None, currency: String, exclude: Boolean) extends ModelWithIdParameter
 
 object OrderPriceCriterion{
   sealed trait PriceType
@@ -34,8 +34,8 @@ object OrderPriceCriterion{
   })
 }
 
-class OrderPriceCriteria(tag: Tag) extends GenericTable.TableWithId[OrderPriceCriterion](tag, "shipping_methods") with RichTable {
-  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+class OrderPriceCriteria(tag: Tag) extends GenericTable.TableWithId[OrderPriceCriterion](tag, "order_price_criteria") with RichTable {
+  def id = column[Int]("id")
   def priceType = column[OrderPriceCriterion.PriceType]("price_type")
   def greaterThan = column[Option[Int]]("greater_than")
   def lessThan = column[Option[Int]]("less_than")
