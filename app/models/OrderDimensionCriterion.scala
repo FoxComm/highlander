@@ -16,11 +16,23 @@ case class OrderDimensionCriterion(id:Int = 0, priceType: OrderDimensionCriterio
 
 object OrderDimensionCriterion{
   sealed trait DimensionType
-  case object AllDimensionsAdded extends DimensionType //Length + Width + Height
+  case object LinearDimensions extends DimensionType //Length + Width + Height
   case object CubicDensity extends DimensionType //Like above, but fancier
   case object LengthOnly extends DimensionType
   case object HeightOnly extends DimensionType
   case object WidthOnly extends DimensionType
+
+  implicit val DimensionTypeColumn = MappedColumnType.base[DimensionType, String]({
+    case t => t.toString.toLowerCase
+  },
+  {
+    case "lineardimensions" => LinearDimensions
+    case "cubicdensity" => CubicDensity
+    case "lengthonly" => LengthOnly
+    case "heightonly" => HeightOnly
+    case "widthonly" => WidthOnly
+    case unknown => throw new IllegalArgumentException(s"cannot map dimension_type column to type $unknown")
+  })
 }
 
 class OrderDimensionCriteria(tag: Tag) extends GenericTable.TableWithId[OrderDimensionCriterion](tag, "shipping_methods") with RichTable {

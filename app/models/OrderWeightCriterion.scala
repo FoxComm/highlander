@@ -19,12 +19,12 @@ class OrderWeightCriteria(tag: Tag) extends GenericTable.TableWithId[OrderWeight
   def greaterThan = column[Int]("greater_than")
   def lessThan = column[Int]("less_than")
   def exactMatch = column[Int]("exact_match") // Doesn't seem likely that anyone would use this.  But the pattern applies..
-  def UnitOfMeasure = column[String]("unit_of_measure") // pounds, kg, etc.  Should this be an int?  How do we handle enumerables?
+  def unitOfMeasure = column[String]("unit_of_measure") // pounds, kg, etc.  Should this be an int?  How do we handle enumerables?
   def exclude = column[Boolean]("exclude") // Is this an inclusion or exclusion rule?
 
   def * = (id, greaterThan, lessThan, exactMatch, unitOfMeasure, exclude) <> ((OrderWeightCriterion.apply _).tupled, OrderWeightCriterion.unapply)
 }
 
 object OrderWeightCriteria extends TableQueryWithId[OrderWeightCriterion, OrderWeightCriteria](
-  idLens = GenLens[OrderWeightCriteria](_.id)
+  idLens = GenLens[OrderWeightCriterion](_.id)
 )(new OrderWeightCriteria(_))

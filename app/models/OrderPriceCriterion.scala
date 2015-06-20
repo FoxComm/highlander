@@ -19,7 +19,19 @@ object OrderPriceCriterion{
   case object SubTotal extends PriceType
   case object GrandTotal extends PriceType
   case object GrandTotalLessTax extends PriceType
-  case object GrandTotalLessShipping extends PriceType 
+  case object GrandTotalLessShipping extends PriceType
+
+  implicit val PriceTypeColumn = MappedColumnType.base[PriceType, String]({
+    case t => t.toString.toLowerCase
+  },
+  {
+    case "subtotal" => SubTotal
+    case "grandtotal" => GrandTotal
+    case "grandtotallesstax" => GrandTotalLessTax
+    case "grandtotallessshipping" => GrandTotalLessShipping
+    case unknown => throw new IllegalArgumentException(s"cannot map price_type column to type $unknown")
+
+  })
 }
 
 class OrderPriceCriteria(tag: Tag) extends GenericTable.TableWithId[OrderPriceCriterion](tag, "shipping_methods") with RichTable {
