@@ -20,17 +20,28 @@ object OrderDestinationCriterion{
   case object State extends DestinationType
   case object City extends DestinationType
   case object ShippingZone extends DestinationType // This will likely be carrier-specific
+
+  implicit val DestinationColumnType = MappedColumnType.base[DestinationType, String]({
+    case t=> t.toString.toLowerCase
+  },
+  {
+    case "country" => Country
+    case "state" => State
+    case "city" => City
+    case "country" => ShippingZone
+    case unknown => throw new IllegalArgumentException(s"cannot map destination_type column to type $unknown")
+  })
 }
 
-class OrderDestinationCriteria(tag: Tag) extends GenericTable.TableWithId[OrderDestinationCriteria](tag, "shipping_methods") with RichTable {
+class OrderDestinationCriteria(tag: Tag) extends GenericTable.TableWithId[OrderDestinationCriterion](tag, "shipping_methods") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def destinationType = column[OrderDestinationCriterion.DestinationType]("criterion_type")
+  def destinationType = column[OrderDestinationCriterion.DestinationType]("destination_type")
   def destination = column[String]("destination") //Great candidation for JSON schema
   def exclude = column[Boolean]("exclude") // Is this an inclusion or exclusion rule?
 
-  def * = (id, destinationType, destination, exclude) <> ((OrderDestinationCriteria.apply _).tupled, OrderDestinationCriteria.unapply)
+  def * = (id, destinationType, destination, exclude) <> ((OrderDestinationCriterion.apply _).tupled, OrderDestinationCriterion.unapply)
 }
 
-object OrderDestinationCriteria extends TableQueryWithId[OrderDestinationCriteria, OrderDestinationCriteria](
-  idLens = GenLens[OrderDestinationCriteria](_.id)
+object OrderDestinationCriteria extends TableQueryWithId[OrderDestinationCriterion, OrderDestinationCriteria](
+  idLens = GenLens[OrderDestinationCriterion](_.id)
 )(new OrderDestinationCriteria(_))

@@ -12,7 +12,7 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class OrderCriterion(id:Int = 0, shippingPricingRuleId:Int, name: String, criterionType: OrderCriterion.CriterionType, target: String) extends ModelWithIdParameter
+case class OrderCriterion(id:Int = 0, name: String) extends ModelWithIdParameter
 
 
 object OrderCriterion{
@@ -24,13 +24,13 @@ object OrderCriterion{
   case object Dimensions extends CriterionType
 }
 
-class OrderCriteria(tag: Tag) extends GenericTable.TableWithId[OrderCriteria](tag, "shipping_methods") with RichTable {
+class OrderCriteria(tag: Tag) extends GenericTable.TableWithId[OrderCriterion](tag, "shipping_methods") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def name = column[String]("name")
 
-  def * = (id, shippingPricingRuleId, name, criterionType, target) <> ((OrderCriteria.apply _).tupled, OrderCriteria.unapply)
+  def * = (id, name) <> ((OrderCriterion.apply _).tupled, OrderCriterion.unapply)
 }
 
-object OrderCriteria extends TableQueryWithId[OrderCriteria, OrderCriteria](
-  idLens = GenLens[OrderCriteria](_.id)
+object OrderCriteria extends TableQueryWithId[OrderCriterion, OrderCriteria](
+  idLens = GenLens[OrderCriterion](_.id)
 )(new OrderCriteria(_))

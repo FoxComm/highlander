@@ -23,7 +23,7 @@ object OrderDimensionCriterion{
   case object WidthOnly extends DimensionType
 }
 
-class OrderDimensionCriteria(tag: Tag) extends GenericTable.TableWithId[OrderDimensionCriteria](tag, "shipping_methods") with RichTable {
+class OrderDimensionCriteria(tag: Tag) extends GenericTable.TableWithId[OrderDimensionCriterion](tag, "shipping_methods") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def priceType = column[OrderDimensionCriterion.DimensionType]("price_type")
   def greaterThan = column[Int]("greater_than")
@@ -32,9 +32,9 @@ class OrderDimensionCriteria(tag: Tag) extends GenericTable.TableWithId[OrderDim
   def unitOfMeasure = column[String]("unit_of_measure") // Inches, CM, etc
   def exclude = column[Boolean]("exclude") // Is this an inclusion or exclusion rule?
 
-  def * = (id, priceType, greaterThan, lessThan, exactMatch, unitOfMeasure, exclude) <> ((OrderDimensionCriteria.apply _).tupled, OrderDimensionCriteria.unapply)
+  def * = (id, priceType, greaterThan, lessThan, exactMatch, unitOfMeasure, exclude) <> ((OrderDimensionCriterion.apply _).tupled, OrderDimensionCriterion.unapply)
 }
 
-object OrderDimensionCriteria extends TableQueryWithId[OrderDimensionCriteria, OrderDimensionCriteria](
-  idLens = GenLens[OrderDimensionCriteria](_.id)
+object OrderDimensionCriteria extends TableQueryWithId[OrderDimensionCriterion, OrderDimensionCriteria](
+  idLens = GenLens[OrderDimensionCriterion](_.id)
 )(new OrderDimensionCriteria(_))

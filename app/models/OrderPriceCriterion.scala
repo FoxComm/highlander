@@ -22,7 +22,7 @@ object OrderPriceCriterion{
   case object GrandTotalLessShipping extends PriceType 
 }
 
-class OrderPriceCriteria(tag: Tag) extends GenericTable.TableWithId[OrderPriceCriteria](tag, "shipping_methods") with RichTable {
+class OrderPriceCriteria(tag: Tag) extends GenericTable.TableWithId[OrderPriceCriterion](tag, "shipping_methods") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def priceType = column[OrderPriceCriterion.PriceType]("price_type")
   def greaterThan = column[Int]("greater_than")
@@ -31,9 +31,9 @@ class OrderPriceCriteria(tag: Tag) extends GenericTable.TableWithId[OrderPriceCr
   def currency = column[String]("currency") // USD, GBP, etc
   def exclude = column[Boolean]("exclude") // Is this an inclusion or exclusion rule?
 
-  def * = (id, priceType, greaterThan, lessThan, exactMatch, currency, exclude) <> ((OrderPriceCriteria.apply _).tupled, OrderPriceCriteria.unapply)
+  def * = (id, priceType, greaterThan, lessThan, exactMatch, currency, exclude) <> ((OrderPriceCriterion.apply _).tupled, OrderPriceCriterion.unapply)
 }
 
-object OrderPriceCriteria extends TableQueryWithId[OrderPriceCriteria, OrderPriceCriteria](
-  idLens = GenLens[OrderPriceCriteria](_.id)
+object OrderPriceCriteria extends TableQueryWithId[OrderPriceCriterion, OrderPriceCriteria](
+  idLens = GenLens[OrderPriceCriterion](_.id)
 )(new OrderPriceCriteria(_))

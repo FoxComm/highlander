@@ -14,7 +14,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 case class OrderWeightCriterion(id:Int = 0, greaterThan: Int, lessThan: Int, exactMatch: Int, unitOfMeasure: String, exclude: Boolean) extends ModelWithIdParameter
 
-class OrderWeightCriteria(tag: Tag) extends GenericTable.TableWithId[OrderWeightCriteria](tag, "shipping_methods") with RichTable {
+class OrderWeightCriteria(tag: Tag) extends GenericTable.TableWithId[OrderWeightCriterion](tag, "shipping_methods") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def greaterThan = column[Int]("greater_than")
   def lessThan = column[Int]("less_than")
@@ -22,9 +22,9 @@ class OrderWeightCriteria(tag: Tag) extends GenericTable.TableWithId[OrderWeight
   def UnitOfMeasure = column[String]("unit_of_measure") // pounds, kg, etc.  Should this be an int?  How do we handle enumerables?
   def exclude = column[Boolean]("exclude") // Is this an inclusion or exclusion rule?
 
-  def * = (id, greaterThan, lessThan, exactMatch, unitOfMeasure, exclude) <> ((OrderWeightCriteria.apply _).tupled, OrderWeightCriteria.unapply)
+  def * = (id, greaterThan, lessThan, exactMatch, unitOfMeasure, exclude) <> ((OrderWeightCriterion.apply _).tupled, OrderWeightCriterion.unapply)
 }
 
-object OrderWeightCriteria extends TableQueryWithId[OrderWeightCriteria, OrderWeightCriteria](
+object OrderWeightCriteria extends TableQueryWithId[OrderWeightCriterion, OrderWeightCriteria](
   idLens = GenLens[OrderWeightCriteria](_.id)
 )(new OrderWeightCriteria(_))

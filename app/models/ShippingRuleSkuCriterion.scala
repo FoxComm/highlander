@@ -21,9 +21,9 @@ class ShippingRuleSkuCriteria(tag: Tag) extends GenericTable.TableWithId[Shippin
   def skuCriterionId = column[Int]("sku_criterion_id")
   def shippingPricingRuleId = column[Int]("shipping_price_rule_id")
 
-  def * = (id, skuCriterionId, shippingPricingRuleId) <> ((ShippingRuleSkuCriteria.apply _).tupled, ShippingRuleSkuCriteria.unapply)
+  def * = (id, skuCriterionId, shippingPricingRuleId) <> ((ShippingRuleSkuCriterion.apply _).tupled, ShippingRuleSkuCriterion.unapply)
 }
 
-object ShippingRuleSkuCriteria extends TableQueryWithId[ShippingRuleSkuCriteria, ShippingRuleSkuCriteria](
-  idLens = GenLens[ShippingRuleSkuCriteria](_.id)
+object ShippingRuleSkuCriteria extends TableQueryWithId[ShippingRuleSkuCriterion, ShippingRuleSkuCriteria](
+  idLens = GenLens[ShippingRuleSkuCriterion](_.id)
 )(new ShippingRuleSkuCriteria(_))

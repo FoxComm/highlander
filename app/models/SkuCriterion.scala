@@ -22,13 +22,24 @@ object SkuCriterion{
   case object Price extends CriterionType // before discount
   case object Archetype extends CriterionType
   case object Attribute extends CriterionType
+
+  implicit val CriterionTypeColumnType = MappedColumnType.base[CriterionType, String]({
+    case t => t.toString.toLowerCase
+  },
+  {
+    case "taxonomy" => Taxonomy
+    case "collection" => Collection
+    case "price" => Price
+    case "archetype" => Archetype
+    case "attribute" => Attribute
+  })
 }
 
-class SkuCriteria(tag: Tag) extends GenericTable.TableWithId[SkuCriteria](tag, "shipping_methods") with RichTable {
+class SkuCriteria(tag: Tag) extends GenericTable.TableWithId[SkuCriterion](tag, "shipping_methods") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def name = column[String]("name")
 
-  def * = (id, name) <> ((SkuCriteria.apply _).tupled, SkuCriteria.unapply)
+  def * = (id, name) <> ((SkuCriterion.apply _).tupled, SkuCriterion.unapply)
 }
 
 object SkuCriteria extends TableQueryWithId[SkuCriteria, SkuCriteria](
