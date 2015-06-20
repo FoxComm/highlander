@@ -1,5 +1,9 @@
 package models
 
+import slick.dbio
+import slick.dbio.Effect.{Write, Read}
+import slick.driver.PostgresDriver
+import slick.profile.FixedSqlAction
 import utils.{Validation, RichTable}
 import payloads.CreateAddressPayload
 
@@ -26,6 +30,9 @@ class BillingAddresses(tag: Tag) extends Table[BillingAddress](tag, "billing_add
 object BillingAddresses {
   val table = TableQuery[BillingAddresses]
 
+  def save(address: BillingAddress)(implicit ec: ExecutionContext): DBIO[BillingAddress] =
+    (table += address).map(_ ⇒ address)
+
   def _create(address: Address, paymentId: Int)
              (implicit ec: ExecutionContext,
               db: Database): DBIOAction[Address, NoStream, Effect.Write] = {
@@ -35,18 +42,15 @@ object BillingAddresses {
     } yield address.copy(id = addressId)
   }
 
-  def _findByPaymentId(id: Int)
-                      (implicit ec: ExecutionContext,
-                       db: Database) = {
-    for {
-      result <- Addresses.table.join(table).on(_.id === _.addressId).filter(_._2.paymentId === id).result.headOption
-    } yield result
+  def _findByPaymentId(id: Int)(implicit ec: ExecutionContext, db: Database): Query[(Addresses, BillingAddresses), (Address, BillingAddress), Seq] = {
+    (for {
+      billingAddress ← table.filter(_.paymentId === id)
+      address        ← Addresses if address.id === billingAddress.addressId
+    } yield (address, billingAddress)).take(1)
   }
 
-  def findByPaymentId(id: Int)
-                     (implicit ec: ExecutionContext,
-                      db: Database): Future[Option[(Address, BillingAddress)]] = {
-    db.run(this._findByPaymentId(id))
+  def findByPaymentId(id: Int)(implicit ec: ExecutionContext, db: Database): Future[Option[(Address, BillingAddress)]] = {
+    db.run(_findByPaymentId(id).result.headOption)
   }
 
   def count()(implicit ec: ExecutionContext, db: Database): Future[Int] = {
