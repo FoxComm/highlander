@@ -12,16 +12,33 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class ShippingPricingRule(id:Int = 0, adminDisplayName: String, storefrontDisplayName: String, shippingCarrierId: Int, defaultPrice: Int, isActive: Boolean = true) extends ModelWithIdParameter
+case class ShippingPricingRule(id:Int = 0, name: String, ruleType: ShippingPricingRule.RuleType, flatPrice: Int, flatMarkup: Int) extends ModelWithIdParameter
 
-object ShippingPricingRule
+object ShippingPricingRule{
+  sealed trait RuleType
+  case object Flat extends RuleType
+  case object FromCarrier extends RuleType
+
+  implicit val RuleTypeColumn = MappedColumnType.base[RuleType, String]({
+    case t => t.toString.toLowerCase
+  },
+  {
+    case "flat" => Flat
+    case "fromcarrier" => FromCarrier
+    case unknown => throw new IllegalArgumentException(s"cannot map price_type column to type $unknown")
+
+  })
+}
+
 
 class ShippingPricingRules(tag: Tag) extends GenericTable.TableWithId[ShippingPricingRule](tag, "shipping_methods") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def name = column[String]("name")
-  def ruleType = column[RuleType]("rule_type")
+  def ruleType = column[ShippingPricingRule.RuleType]("rule_type")
+  def flatPrice = column[Int]("flat_price")
+  def flatMarkup = column[Int]("flat_markup") // can be negative.  eg. markdown
 
-  def * = (id, adminDisplayName, storefrontDisplayName, shippingCarrierId, defaultPrice, isActive) <> ((ShippingPricingRule.apply _).tupled, ShippingPricingRule.unapply)
+  def * = (id, name, ruleType, flatPrice, flatMarkup) <> ((ShippingPricingRule.apply _).tupled, ShippingPricingRule.unapply)
 }
 
 object ShippingPricingRules extends TableQueryWithId[ShippingPricingRule, ShippingPricingRules](

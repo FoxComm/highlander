@@ -16,7 +16,7 @@ case class ShippingRuleSkuCriterion(id:Int = 0, shippingPricingRuleId:Int, skuCr
 
 object ShippingRuleSkuCriterion
 
-class ShippingRuleSkuCriteria(tag: Tag) extends GenericTable.TableWithId[ShippingRuleSkuCriteria](tag, "shipping_methods") with RichTable {
+class ShippingRuleSkuCriteria(tag: Tag) extends GenericTable.TableWithId[ShippingRuleSkuCriterion](tag, "shipping_methods") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def skuCriterionId = column[Int]("sku_criterion_id")
   def shippingPricingRuleId = column[Int]("shipping_price_rule_id")

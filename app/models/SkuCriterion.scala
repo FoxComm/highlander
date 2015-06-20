@@ -42,6 +42,6 @@ class SkuCriteria(tag: Tag) extends GenericTable.TableWithId[SkuCriterion](tag, 
   def * = (id, name) <> ((SkuCriterion.apply _).tupled, SkuCriterion.unapply)
 }
 
-object SkuCriteria extends TableQueryWithId[SkuCriteria, SkuCriteria](
-  idLens = GenLens[SkuCriteria](_.id)
+object SkuCriteria extends TableQueryWithId[SkuCriterion, SkuCriteria](
+  idLens = GenLens[SkuCriterion](_.id)
 )(new SkuCriteria(_))

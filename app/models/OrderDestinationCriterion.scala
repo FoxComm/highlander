@@ -28,7 +28,7 @@ object OrderDestinationCriterion{
     case "country" => Country
     case "state" => State
     case "city" => City
-    case "country" => ShippingZone
+    case "shippingzone" => ShippingZone
     case unknown => throw new IllegalArgumentException(s"cannot map destination_type column to type $unknown")
   })
 }
