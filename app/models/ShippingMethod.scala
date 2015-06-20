@@ -12,7 +12,7 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class ShippingMethod(id:Int = 0, adminDisplayName: String, storefrontDisplayName: String, shippingCarrierId: Int, defaultPrice: Int, isActive: Boolean = true) extends ModelWithIdParameter
+case class ShippingMethod(id:Int = 0, adminDisplayName: String, storefrontDisplayName: String, shippingCarrierId: Option[Int] = None, defaultPrice: Int, isActive: Boolean = true) extends ModelWithIdParameter
 
 object ShippingMethod
 
@@ -20,7 +20,7 @@ class ShippingMethods(tag: Tag) extends GenericTable.TableWithId[ShippingMethod]
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def adminDisplayName = column[String]("admin_display_name")
   def storefrontDisplayName = column[String]("storefront_display_name")
-  def shippingCarrierId = column[Int]("shipping_carrier_id")
+  def shippingCarrierId = column[Option[Int]]("shipping_carrier_id")
   def defaultPrice = column[Int]("default_price") // this is only used if the pricing rules return an invalid response
   def isActive = column[Boolean]("is_active")
 
