@@ -31,7 +31,7 @@ object ShippingPricingRule{
 }
 
 
-class ShippingPricingRules(tag: Tag) extends GenericTable.TableWithId[ShippingPricingRule](tag, "shipping_methods") with RichTable {
+class ShippingPricingRules(tag: Tag) extends GenericTable.TableWithId[ShippingPricingRule](tag, "shipping_pricing_rules") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def name = column[String]("name")
   def ruleType = column[ShippingPricingRule.RuleType]("rule_type")
