@@ -12,7 +12,7 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class OrderDimensionCriterion(id:Int = 0, priceType: OrderDimensionCriterion.DimensionType, greaterThan: Int, lessThan: Int, exactMatch: Int, unitOfMeasure: String, exclude: Boolean) extends ModelWithIdParameter
+case class OrderDimensionCriterion(id:Int = 0, dimensionType: OrderDimensionCriterion.DimensionType, greaterThan: Option[Int], lessThan: Option[Int], exactMatch: Option[Int], unitOfMeasure: String, exclude: Boolean) extends ModelWithIdParameter
 
 object OrderDimensionCriterion{
   sealed trait DimensionType
@@ -37,14 +37,14 @@ object OrderDimensionCriterion{
 
 class OrderDimensionCriteria(tag: Tag) extends GenericTable.TableWithId[OrderDimensionCriterion](tag, "shipping_methods") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def priceType = column[OrderDimensionCriterion.DimensionType]("price_type")
-  def greaterThan = column[Int]("greater_than")
-  def lessThan = column[Int]("less_than")
-  def exactMatch = column[Int]("exact_match") // Doesn't seem likely that anyone would use this.  But the pattern applies..
+  def dimensionType = column[OrderDimensionCriterion.DimensionType]("dimension_type")
+  def greaterThan = column[Option[Int]]("greater_than")
+  def lessThan = column[Option[Int]]("less_than")
+  def exactMatch = column[Option[Int]]("exact_match") // Doesn't seem likely that anyone would use this.  But the pattern applies..
   def unitOfMeasure = column[String]("unit_of_measure") // Inches, CM, etc
   def exclude = column[Boolean]("exclude") // Is this an inclusion or exclusion rule?
 
-  def * = (id, priceType, greaterThan, lessThan, exactMatch, unitOfMeasure, exclude) <> ((OrderDimensionCriterion.apply _).tupled, OrderDimensionCriterion.unapply)
+  def * = (id, dimensionType, greaterThan, lessThan, exactMatch, unitOfMeasure, exclude) <> ((OrderDimensionCriterion.apply _).tupled, OrderDimensionCriterion.unapply)
 }
 
 object OrderDimensionCriteria extends TableQueryWithId[OrderDimensionCriterion, OrderDimensionCriteria](
