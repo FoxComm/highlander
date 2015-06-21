@@ -32,7 +32,7 @@ trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with Patien
   protected var serverBinding: ServerBinding = _
 
   override abstract protected def withFixture(test: NoArgTest): Outcome = {
-    as = ActorSystem(test.name.filter(ActorSystemNameChars.contains))
+    as = ActorSystem(test.name.filter(ActorSystemNameChars.contains), actorSystemConfig)
     fm = ActorFlowMaterializer()
 
     try {
@@ -48,6 +48,13 @@ trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with Patien
       as.awaitTermination()
     }
   }
+
+  private def actorSystemConfig = ConfigFactory.parseString(
+    """
+      |akka {
+      |  log-dead-letters = off
+      |}
+    """.stripMargin).withFallback(ConfigFactory.load)
 
   def makeService: Service = new Service(dbOverride = Some(db), systemOverride = Some(as))
 
