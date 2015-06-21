@@ -43,4 +43,15 @@ class ShippingPriceRules(tag: Tag) extends GenericTable.TableWithId[ShippingPric
 
 object ShippingPriceRules extends TableQueryWithId[ShippingPriceRule, ShippingPriceRules](
   idLens = GenLens[ShippingPriceRule](_.id)
-)(new ShippingPriceRules(_))
+)(new ShippingPriceRules(_)){
+  val methodPriceRuleMapping = ShippingMethodsPriceRules
+  def shippingPriceRuesForShippingMethod(id: Int)
+                                        (implicit ec: ExecutionContext, db: Database): Future[Seq[ShippingPriceRule]] = {
+    db.run(
+      ( for {
+      shippingMethods ← methodPriceRuleMapping.filter(_.shippingMethodId === id)
+      shippingPriceRule ← this.filter(_.id === shippingMethods.shippingPriceRuleId)
+    } yield (shippingPriceRule) ).result
+    )
+  }
+}

@@ -27,8 +27,10 @@ object ShippingMethodsBuilder {
                                  (implicit ec: ExecutionContext,
                                    db: Database): Future[Seq[ShippingMethodWithPrice]] = {
     val baseMethods = availableShippingMethods(order)
-    baseMethods.map{ methods =>
-
+    baseMethods.map{ _.map { shippingMethod =>
+      //shippingMethod.shippingPriceRules
+      ShippingMethodWithPrice(displayName = "donkey", estimatedTime = "FOREVER", price = 3333)
+    }
     }
   }
   // What is the price of a certain shipping method based on the current order details?
