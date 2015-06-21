@@ -28,7 +28,7 @@ object ShippingMethodsBuilder {
                                    db: Database): Future[Seq[ShippingMethodWithPrice]] = {
     val baseMethods = availableShippingMethods(order)
     baseMethods.map{ _.map { shippingMethod =>
-      //shippingMethod.shippingPriceRules
+      shippingMethod.shippingPriceRules
       ShippingMethodWithPrice(displayName = "donkey", estimatedTime = "FOREVER", price = 3333)
     }
     }
