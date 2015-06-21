@@ -28,7 +28,26 @@ object ShippingMethodsBuilder {
                                    db: Database): Future[Seq[ShippingMethodWithPrice]] = {
     val baseMethods = availableShippingMethods(order)
     baseMethods.map{ _.map { shippingMethod =>
-      shippingMethod.shippingPriceRules
+      shippingMethod.shippingPriceRules.map{
+        _.map { sRule =>
+          // TODO: AW: Come back and deal with SKU-specific criteria later.
+          sRule.orderCriteria.map {
+            _.map { oCriterion =>
+              oCriterion match {
+                case t: OrderPriceCriterion =>
+                  t.priceType match {
+                    case t: OrderPriceCriterion.GrandTotal.type =>
+                    case t: OrderPriceCriterion.SubTotal.type =>
+                    case t: OrderPriceCriterion.GrandTotalLessShipping.type =>
+                    case t: OrderPriceCriterion.GrandTotalLessTax.type =>
+                  }
+                case unknown => //could not find inherited objects or case classes
+              }
+            }
+          }
+        }
+
+      }
       ShippingMethodWithPrice(displayName = "donkey", estimatedTime = "FOREVER", price = 3333)
     }
     }
