@@ -8,6 +8,10 @@ export default class BaseStore {
     this.models = [];
   }
 
+  uri(id) {
+    return id ? `${this.baseUri}/${id}` : this.baseUri;
+  }
+
   getState(id) {
     if (!id) return this.models;
     let found = this.models.filter((item) => {
@@ -32,8 +36,7 @@ export default class BaseStore {
   }
 
   fetch(id) {
-    let uri = id ? `${this.baseUri}/${id}` : this.baseUri;
-    Api.get(uri)
+    Api.get(this.uri(id))
       .then((res) => { this.update(res); })
       .catch((err) => { this.fetchError(err); });
   }

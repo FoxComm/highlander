@@ -5,7 +5,7 @@ import { RouteHandler } from 'react-router';
 import { Link } from 'react-router';
 import { listenTo, stopListeningTo } from '../../lib/dispatcher';
 import OrderStore from './store';
-import OrderViewers from './viewers';
+import Viewers from '../viewers/viewers';
 
 const changeEvent = 'change-order-store';
 
@@ -15,7 +15,8 @@ export default class Order extends React.Component {
     super(props);
     this.onChangeOrderStore = this.onChangeOrderStore.bind(this);
     this.state = {
-      order: null
+      order: {},
+      customer: {}
     };
   }
 
@@ -32,21 +33,21 @@ export default class Order extends React.Component {
   }
 
   onChangeOrderStore(order) {
-    this.setState({order: order});
+    this.setState({
+      order: order,
+      customer: order.customer
+    });
   }
 
   render() {
-    if (!this.state.order) return <div id="order"></div>;
     let
       order     = this.state.order,
-      customer  = this.state.order.customer;
-    return (
-      <div id="order">
-        <OrderViewers orderId={order.id}/>
-        <div className="gutter">
-          <h1>Order {order.orderId}<em>for{`${customer.firstName} ${customer.lastName}`}</em></h1>
-          <time dateTime={order.date}>{order.date}</time>
-        </div>
+      customer  = this.state.customer,
+      subNav    = null,
+      viewers   = null;
+
+    if (order.id) {
+      subNav = (
         <div className="gutter sub-nav">
           <ul>
             <li><a href="">Details</a></li>
@@ -58,6 +59,19 @@ export default class Order extends React.Component {
           </ul>
           <RouteHandler/>
         </div>
+      );
+
+      viewers = <Viewers model='orders' modelId={order.id}/>;
+    }
+
+    return (
+      <div id="order">
+        {viewers}
+        <div className="gutter">
+          <h1>Order {order.orderId}<em>for{`${customer.firstName} ${customer.lastName}`}</em></h1>
+          <time dateTime={order.date}>{order.date}</time>
+        </div>
+        {subNav}
       </div>
     );
   }
