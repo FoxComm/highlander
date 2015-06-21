@@ -54,7 +54,7 @@ scalaSource in Test <<= (baseDirectory in Test)(_ / "test")
 
 resourceDirectory in Compile := baseDirectory.value / "resources"
 
-resourceDirectory in Test := baseDirectory.value / "resources"
+resourceDirectory in Test := baseDirectory.value / "test" / "resources"
 
 Revolver.settings
 
