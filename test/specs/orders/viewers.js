@@ -1,6 +1,6 @@
 'use strict';
 
-describe('Orders Viewers #GET', function() {
+describe('Order Viewers #GET', function() {
 
   it('should get a list of viewers', function *() {
     let

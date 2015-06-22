@@ -17,6 +17,7 @@
 @color-bg-tr-even: #f7f7f7;
 @color-border-td: #d7d7d7;
 @color-link-menu: #ededed;
+@color-link-tab: #595959;
 @color-bg-tooltip: #484848;
 
 * {
@@ -53,6 +54,11 @@ hr {
 
 img {
   max-width: 100%;
+}
+
+a,
+a:visited {
+  text-decoration: none;
 }
 
 textarea {
@@ -102,6 +108,25 @@ table.listing {
 .gutter {
   .padding-left(50px);
   .padding-right(50px);
+}
+
+.tabbed-nav {
+  li {
+    display: inline-block;
+    vertical-align: top;
+    .margin-right(45px);
+
+    a,
+    a:visited {
+      color: @color-link-tab;
+      display: block;
+      .font-spec(14px, 700, 16px);
+
+      &.active {
+        border-bottom: 2px solid @color-bg-tooltip;
+      }
+    }
+  }
 }
 
 [data-tooltip] {

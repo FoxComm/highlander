@@ -1,14 +1,14 @@
 'use strict';
 
-import fleck from 'fleck';
+import { camelize } from 'fleck';
 import { EventEmitter } from 'events';
 
 const emitter = new EventEmitter();
 
 function eventBinding(event, method, ctx) {
   let
-    eventName = fleck.camelize(event),
-    pascal    = fleck.camelize(event, true);
+    eventName = camelize(event),
+    pascal    = camelize(event, true);
 
   if (ctx && ctx[`on${pascal}`]) {
     emitter[method](eventName, ctx[`on${pascal}`]);

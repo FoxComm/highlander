@@ -16,6 +16,9 @@ module.exports = function(app, router) {
     .get('/orders/:order/viewers', function *() {
       this.body = this.order.viewers();
     })
+    .get('/orders/:order/notes', function *() {
+      this.body = this.order.notes();
+    })
     .get('/orders', function *() {
       this.body = Order.generateList();
     })

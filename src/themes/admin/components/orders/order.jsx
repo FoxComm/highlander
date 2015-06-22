@@ -6,6 +6,7 @@ import { Link } from 'react-router';
 import { listenTo, stopListeningTo } from '../../lib/dispatcher';
 import OrderStore from './store';
 import Viewers from '../viewers/viewers';
+import moment from 'moment';
 
 const changeEvent = 'change-order-store';
 
@@ -41,20 +42,21 @@ export default class Order extends React.Component {
 
   render() {
     let
-      order     = this.state.order,
-      customer  = this.state.customer,
-      subNav    = null,
-      viewers   = null;
+      order         = this.state.order,
+      customer      = this.state.customer,
+      subNav        = null,
+      viewers       = null,
+      customerLink  = null;
 
     if (order.id) {
       subNav = (
-        <div className="gutter sub-nav">
-          <ul>
-            <li><a href="">Details</a></li>
+        <div className="gutter">
+          <ul className="tabbed-nav">
+            <li><Link to="order-details" params={{order: order.id}}>Details</Link></li>
             <li><a href="">Shipments</a></li>
             <li><a href="">Returns</a></li>
             <li><a href="">Emails</a></li>
-            <li><Link to="notes" params={{order: order.id}}>Notes</Link></li>
+            <li><Link to="order-notes" params={{order: order.id}}>Notes</Link></li>
             <li><a href="">Activity Trail</a></li>
           </ul>
           <RouteHandler/>
@@ -62,14 +64,38 @@ export default class Order extends React.Component {
       );
 
       viewers = <Viewers model='orders' modelId={order.id}/>;
+      customerLink = <Link to="customer" params={{customer: customer.id}}>{`${customer.firstName} ${customer.lastName}`}</Link>;
     }
 
     return (
       <div id="order">
         {viewers}
         <div className="gutter">
-          <h1>Order {order.orderId}<em>for{`${customer.firstName} ${customer.lastName}`}</em></h1>
-          <time dateTime={order.date}>{order.date}</time>
+          <h1>Order {order.orderId} {customerLink}</h1>
+          <time dateTime={order.createdAt}>{moment(order.createdAt).format('MM/DD/YYYY h:mm A')}</time>
+        </div>
+        <div className="gutter statuses">
+          <dl>
+            <dt>Order Status</dt>
+            <dd>
+              <select name="orderStatus">
+                <option value="remorseHold">Remorse Hold</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </dd>
+          </dl>
+          <dl>
+            <dt>Shipment Status</dt>
+            <dd>{order.shippingStatus}</dd>
+          </dl>
+          <dl>
+            <dt>Payment Status</dt>
+            <dd>{order.paymentStatus}</dd>
+          </dl>
+          <dl>
+            <dt>Fraud Score</dt>
+            <dd>{order.fraudScore}</dd>
+          </dl>
         </div>
         {subNav}
       </div>
