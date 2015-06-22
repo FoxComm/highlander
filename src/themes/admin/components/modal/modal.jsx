@@ -5,40 +5,30 @@ import React from 'react';
 import ResendModal from '../notifications/resend.jsx';
 import { listenTo, stopListeningTo } from '../../lib/dispatcher';
 
-const openEvent = 'open-modal';
-const closeEvent = 'close-modal';
+const toggleEvent = 'toggle-modal';
 
 export default class Modal extends React.Component {
   constructor(props) {
     super(props);
-    this.onOpenModal = this.onOpenModal.bind(this);
-    this.onCloseModal = this.onCloseModal.bind(this);
+    this.onToggleModal = this.onToggleModal.bind(this);
     this.state = {
       component: <ResendModal />,
       isModalOpen: false
     };
   }
 
-  onOpenModal() {
+  onToggleModal() {
     this.setState({
-      isModalOpen: true
-    });
-  }
-
-  onCloseModal() {
-    this.setState({
-      isModalOpen: false
+      isModalOpen: !this.state.isModalOpen
     });
   }
 
   componentDidMount() {
-    listenTo(openEvent, this);
-    listenTo(closeEvent, this);
+    listenTo(toggleEvent, this);
   }
 
   componentWillUnmount() {
-    stopListeningTo(openEvent, this);
-    stopListeningTo(closeEvent, this);
+    stopListeningTo(toggleEvent, this);
   }
 
   render() {

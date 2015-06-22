@@ -24,7 +24,7 @@ module.exports = function(app, router) {
       this.status = 201;
       this.body = order.toJSON();
     })
-    .get('/order/:order/notifications', function *() {
+    .get('/orders/:order/notifications', function *() {
       this.body = Notification.generateList();
     });
 };

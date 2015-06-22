@@ -53,7 +53,7 @@ Notifications.defaultProps = {
     {field: 'subject', text: 'Subject'},
     {field: 'contact', text: 'Contact Method'},
     {field: 'notificationStatus', text: 'Status'},
-    {field: 'id', text: 'Resend', type: 'dispatch', event: 'openModal'}
+    {field: 'id', text: 'Resend', type: 'dispatch', event: 'toggleModal'}
   ]
 };
 
