@@ -1,0 +1,24 @@
+<configuration>
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>[%level] [%date{ISO8601,UTC}] [%logger] %message %ex{full}\n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="SQL" class="ch.qos.logback.core.FileAppender">
+        <file>log/sql.log</file>
+        <append>true</append>
+        <encoder>
+            <pattern>[%level] [%date{ISO8601,UTC}] %message %ex{full}\n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="slick.jdbc.JdbcBackend.statement" level="DEBUG">
+        <appender-ref ref="SQL" />
+        <additive>false</additive>
+    </logger>
+
+    <root level="WARN">
+        <appender-ref ref="Console" />
+    </root>
+</configuration>
