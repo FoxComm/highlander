@@ -18,7 +18,7 @@ object Seeds {
 
   def run(): Unit = {
     import scala.concurrent.ExecutionContext.Implicits.global
-    implicit val db = Database.forURL("jdbc:postgresql://localhost/phoenix_development?user=phoenix", driver = "slick.driver.PostgresDriver")
+    implicit val db = Database.forConfig("db.development")
 
     val s = TheWorld(
       customer = Factories.customer,
