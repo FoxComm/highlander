@@ -9,6 +9,7 @@
 @site_font-size: 15px;
 
 // Site colors
+@color-white: #ffffff;
 @color-body: #595959;
 @color-bg-menu: #484848;
 @color-bg-thead: #f7f7f7;
@@ -19,6 +20,7 @@
 @color-border: #bbbdbf;
 @color-btn-bg: #F1F1F2;
 @color-btn-bg-hover: #E3E3E4;
+@color-bg-tooltip: #484848;
 
 * {
   outline: 0;
@@ -131,4 +133,34 @@ input {
 
 .show {
   display: block;
+}
+
+[data-tooltip] {
+  position: relative;
+
+  &:hover {
+    &:after { display: block; }
+  }
+
+  &:after {
+    content: attr(data-tooltip);
+    color: @color-white;
+    display: none;
+    background: @color-bg-tooltip;
+    border-radius: 2px;
+    position: absolute;
+    box-shadow: 2px 2px 2px rgba(0,0,0,0.4);
+    white-space: pre;
+    text-align: left;
+    .margin-top(10px);
+    .padding(10px);
+    .font-spec(15px, 18px);
+  }
+
+  &.tooltip-bottom {
+    &:after {
+      top: 100%;
+      left: 0;
+    }
+  }
 }

@@ -36,24 +36,6 @@ class Customer extends BaseModel {
   get role() { return this.model.role; }
   get blocked() { return this.model.blocked; }
   get cause() { return this.model.cause; }
-
-  toJSON() {
-    return {
-      id: this.id,
-      firstName: this.firstName,
-      lastName: this.lastName,
-      email: this.email,
-      phone: this.phone,
-      address: this.address,
-      city: this.city,
-      state: this.state,
-      zip: this.zip,
-      role: this.role,
-      blocked: this.blocked,
-      cause: this.cause,
-      createdAt: this.createdAt
-    };
-  }
 }
 
 Object.defineProperty(Customer.prototype, 'whitelist', {value: whitelist});

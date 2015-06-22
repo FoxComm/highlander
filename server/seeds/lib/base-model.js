@@ -54,6 +54,23 @@ class BaseModel {
     }
     return this.update(values);
   }
+
+  toJSON() {
+    let
+      proto = Object.getPrototypeOf(this),
+      names = Object.getOwnPropertyNames(proto);
+
+    let json = {
+      id: this.id,
+      createdAt: this.createdAt
+    };
+
+    for (let key of names) {
+      let desc = Object.getOwnPropertyDescriptor(proto, key);
+      if (desc && desc.get) json[key] = this[key];
+    }
+    return json;
+  }
 }
 
 module.exports = BaseModel;
