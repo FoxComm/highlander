@@ -11,7 +11,6 @@ case class InventoryAdjustment(id: Int = 0, skuId: Int, inventoryEventId: Int, r
                                outstandingPreOrders: Int, outstandingBackOrders: Int, description: Option[String],
                                sourceNotes: Option[String]) extends ModelWithIdParameter
 
-// This is an exclusive arcs style sketchup.
 class InventoryAdjustments(tag: Tag) extends GenericTable.TableWithId[InventoryAdjustment](tag, "inventory_adjustments") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def skuId = column[Int]("sku_id")
