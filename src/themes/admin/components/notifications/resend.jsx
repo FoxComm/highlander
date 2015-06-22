@@ -24,16 +24,16 @@ class ResendModal extends React.Component {
       innerContent = <input type={notification.contactType === 'Email' ? 'email' : 'tel'} className='control' name='resend_to' />;
     }
 
-    let url = `/order/${order.id}/notifications/${notification.id}`;
+    let url = `/orders/${order.id}/notifications/${notification.id}`;
 
     return (
-      <form method="POST" action={url}>
+      <form method="POST" id='resend' action={url}>
         <div className='modal-header'>
           <div className='icon'>
             <i className='icon-attention'></i>
           </div>
           <div className='title'>Resend Message?</div>
-          <a className='close' aria-label='Close' onClick={dispatch.bind(null, 'closeModal')}><span aria-hidden="true">&times;</span></a>
+          <a className='close' aria-label='Close' onClick={dispatch.bind(null, 'toggleModal', null)}><span aria-hidden="true">&times;</span></a>
         </div>
         <div className='modal-body'>
           You will send another copy of this message to:
@@ -43,7 +43,7 @@ class ResendModal extends React.Component {
           </div>
         </div>
         <div className='modal-footer'>
-          <a className='close' onClick={dispatch.bind(null, 'closeModal')}>Cancel</a>
+          <a className='close' onClick={dispatch.bind(null, 'toggleModal', null)}>Cancel</a>
           <button className='btn' type='submit'>Resend</button>
         </div>
       </form>

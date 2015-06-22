@@ -1,6 +1,6 @@
 'use strict';
 
-import React from 'react';
+import React from 'react/addons';
 
 import { listenTo, stopListeningTo } from '../../lib/dispatcher';
 
@@ -18,9 +18,10 @@ export default class Modal extends React.Component {
 
   onToggleModal(component) {
     let isOpen = !this.state.isModalOpen;
+    component = component || null;
     this.setState({
       isModalOpen: isOpen,
-      component: isOpen ? component : null
+      component: React.addons.createFragment({'component': component})
     });
   }
 
