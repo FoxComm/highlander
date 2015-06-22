@@ -15,6 +15,8 @@ scalacOptions ++= List(
   "-language:higherKinds"
 )
 
+mainClass in Compile := Some("Main")
+
 libraryDependencies ++= {
   val akkaV       = "2.3.10"
   val akkaStreamV = "1.0-RC2"
@@ -35,7 +37,7 @@ libraryDependencies ++= {
     "org.postgresql"    % "postgresql" % "9.3-1100-jdbc41",
     "org.json4s"         %% "json4s-jackson" % "3.2.11",
     "org.scalactic"     %% "scalactic"                            % "2.2.4",
-    "org.flywaydb"      %  "flyway-core"      % "3.2.1"              % "test",
+    "org.flywaydb"      %  "flyway-core"      % "3.2.1",
     "com.stripe"        %  "stripe-java"    %  "1.31.0",
 
     "joda-time"            % "joda-time"          % "2.7",
@@ -47,6 +49,10 @@ libraryDependencies ++= {
     "com.github.julien-truffaut"  %%  "monocle-macro"   % "1.1.1"
   )
 }
+
+lazy val seed = inputKey[Unit]("Resets and seeds the database")
+
+seed := { (runMain in Compile).fullInput(" utils.Seeds").evaluated }
 
 scalaSource in Compile <<= (baseDirectory in Compile)(_ / "app")
 
