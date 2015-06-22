@@ -12,13 +12,7 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class ShippingMethod(id:Int = 0, adminDisplayName: String, storefrontDisplayName: String, shippingCarrierId: Option[Int] = None, defaultPrice: Int, isActive: Boolean = true) extends ModelWithIdParameter {
-
-  def shippingPriceRules()(implicit ec: ExecutionContext,
-                           db: Database): Future[Seq[ShippingPriceRule]] = {
-    ShippingPriceRules.shippingPriceRuesForShippingMethod((this.id))
-  }
-}
+case class ShippingMethod(id:Int = 0, adminDisplayName: String, storefrontDisplayName: String, shippingCarrierId: Option[Int] = None, defaultPrice: Int, isActive: Boolean = true) extends ModelWithIdParameter 
 
 object ShippingMethod
 

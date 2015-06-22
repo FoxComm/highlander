@@ -12,13 +12,7 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class ShippingPriceRule(id:Int = 0, name: String, ruleType: ShippingPriceRule.RuleType, flatPrice: Int, flatMarkup: Int) extends ModelWithIdParameter {
-
-  def orderCriteria()(implicit ec: ExecutionContext,
-                      db: Database): Future[Seq[OrderPriceCriterion]] = {
-    ShippingPriceRulesOrderCriteria.criteriaForPricingRule(this.id)
-  }
-}
+case class ShippingPriceRule(id:Int = 0, name: String, ruleType: ShippingPriceRule.RuleType, flatPrice: Int, flatMarkup: Int) extends ModelWithIdParameter
 
 object ShippingPriceRule{
   sealed trait RuleType

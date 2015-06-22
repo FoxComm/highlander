@@ -28,10 +28,10 @@ object ShippingMethodsBuilder {
                                    db: Database): Future[Seq[ShippingMethodWithPrice]] = {
     val baseMethods = availableShippingMethods(order)
     baseMethods.map{ _.map { shippingMethod =>
-      shippingMethod.shippingPriceRules.map{
+      ShippingPriceRules.shippingPriceRuesForShippingMethod(shippingMethod.id).map{
         _.map { sRule =>
           // TODO: AW: Come back and deal with SKU-specific criteria later.
-          sRule.orderCriteria.map {
+          ShippingPriceRulesOrderCriteria.criteriaForPricingRule(sRule.id).map {
             _.map { oCriterion =>
               oCriterion match {
                 case t: OrderPriceCriterion =>
