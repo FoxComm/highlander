@@ -1,8 +1,10 @@
 package utils
 
+import com.typesafe.config.ConfigFactory
 import models._
-
+import org.flywaydb.core.Flyway
 import org.joda.time.DateTime
+import org.postgresql.ds.PGSimpleDataSource
 import slick.driver.PostgresDriver.api._
 
 import scala.concurrent.Await
@@ -57,5 +59,32 @@ object Seeds {
     def creditCard =
       CreditCardGateway(customerId = 0, gatewayCustomerId = "", lastFour = "4242",
         expMonth = today.getMonthOfYear, expYear = today.getYear + 2)
+  }
+
+  def main(args: Array[String]) {
+    Console.err.println(s"Cleaning DB and running migrations")
+    flyWayMigrate()
+    Console.err.println(s"Inserting seeds")
+    run()
+  }
+
+  private def flyWayMigrate(): Unit = {
+    val flyway = new Flyway
+    flyway.setDataSource(jdbcDataSourceFromConfig("db.development"))
+    flyway.setLocations("filesystem:./sql")
+
+    flyway.clean()
+    flyway.migrate()
+  }
+
+  private def jdbcDataSourceFromConfig(section: String) = {
+    val config = ConfigFactory.load
+    val source = new PGSimpleDataSource
+
+    source.setServerName(config.getString(s"$section.host"))
+    source.setUser(config.getString(s"$section.user"))
+    source.setDatabaseName(config.getString(s"$section.name"))
+
+    source
   }
 }
