@@ -10,3 +10,9 @@ create table rma_receipts (
     foreign key (rma_id) references rmas(id) on update restrict on delete restrict
 );
 
+create trigger set_inventory_id_trigger
+    before insert
+    on rma_receipts
+    for each row
+    execute procedure set_inventory_event_id();
+

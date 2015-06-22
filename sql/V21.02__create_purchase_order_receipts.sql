@@ -11,3 +11,9 @@ create table purchase_order_receipts (
     foreign key (purchase_order_id) references purchase_orders(id) on update restrict on delete restrict
 );
 
+create trigger set_inventory_id_trigger
+    before insert
+    on purchase_order_receipts
+    for each row
+    execute procedure set_inventory_event_id();
+

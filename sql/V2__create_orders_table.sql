@@ -11,5 +11,11 @@ create table orders (
                                               'fulfillmentstarted','partiallyshipped','shipped'))
 );
 
-create index orders_customer_and_status_idx on orders (customer_id, status)
+create index orders_customer_and_status_idx on orders (customer_id, status);
+
+create trigger set_inventory_id_trigger
+    before insert
+    on orders
+    for each row
+    execute procedure set_inventory_event_id();
 
