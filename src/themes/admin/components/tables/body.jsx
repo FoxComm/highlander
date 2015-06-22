@@ -20,7 +20,7 @@ export default class TableBody extends React.Component {
       case 'id': return <Link to={model} params={{order: field}}>{field}</Link>;
       case 'currency': return this.formatCurrency(field);
       case 'date': return moment(field).format('DD/MM/YYYY');
-      case 'dispatch': return <a className='btn' onClick={dispatch.bind(null, column.event, field)}>{column.text}</a>;
+      case 'dispatch': return <a className='btn' onClick={dispatch.bind(null, column.event, column.data)}>{column.text}</a>;
       default: return field;
     }
   }

@@ -17,7 +17,7 @@ const routes = (
     <Route name='orders' handler={Orders}/>
     <Route name='order' path='/orders/:order' handler={Order}>
       <Route name='notes' path='notes' handler={Notes}/>
-      <Route name='notifications' path='notifications' handler={Notifications}/>
+      <Route name='order-notifications' path='notifications' handler={Notifications}/>
     </Route>
     <Route name='customers' handler={Customers}>
       <Route name='customer' path=':customer' handler={Customer}/>

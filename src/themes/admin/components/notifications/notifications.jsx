@@ -4,6 +4,7 @@ import React from 'react';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
 import NotificationStore from './store';
+import ResendModal from './resend';
 import { listenTo, stopListeningTo } from '../../lib/dispatcher';
 
 const changeEvent = 'change-notification-store';
@@ -53,7 +54,7 @@ Notifications.defaultProps = {
     {field: 'subject', text: 'Subject'},
     {field: 'contact', text: 'Contact Method'},
     {field: 'notificationStatus', text: 'Status'},
-    {field: 'id', text: 'Resend', type: 'dispatch', event: 'toggleModal'}
+    {field: 'id', text: 'Resend', type: 'dispatch', event: 'toggleModal', data: <ResendModal />}
   ]
 };
 
