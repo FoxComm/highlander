@@ -56,6 +56,6 @@ Customers.defaultProps = {
     {field: 'role', text: 'Role'},
     {field: 'blocked', text: 'Blocked'},
     {field: 'cause', text: 'Cause'},
-    {field: 'dateJoined', text: 'Date Joined', type: 'date'}
+    {field: 'createdAt', text: 'Date Joined', type: 'date'}
   ]
 };

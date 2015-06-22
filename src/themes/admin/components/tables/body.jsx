@@ -18,7 +18,7 @@ export default class TableBody extends React.Component {
     switch(column.type) {
       case 'id': return <Link to={model} params={{order: field}}>{field}</Link>;
       case 'currency': return this.formatCurrency(field);
-      case 'date': return moment(field).format('DD/MM/YYYY');
+      case 'date': return moment(field).format(column.format || 'DD/MM/YYYY');
       default: return field;
     }
   }

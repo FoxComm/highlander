@@ -1,6 +1,8 @@
 'use strict';
 
 import React from 'react';
+import TableHead from '../tables/head';
+import TableBody from '../tables/body';
 import NoteStore from './store';
 import { pluralize } from 'fleck';
 import { listenTo, stopListeningTo } from '../../lib/dispatcher';
@@ -33,7 +35,6 @@ export default class Notes extends React.Component {
   }
 
   onChangeNoteStore(notes) {
-    console.log(notes);
     this.setState({notes: notes});
   }
 
@@ -42,17 +43,20 @@ export default class Notes extends React.Component {
   }
 
   render() {
-    let notes = this.state.notes;
+    let empty = null;
+    if (!this.state.notes.length) {
+      empty = <div className="empty">No notes yet.</div>;
+    }
 
     return (
       <div id="notes">
-        <h3>Notes</h3>
-        <a onClick={this.addNote}> <i className="icon-plus"></i></a>
-        <ul>
-          {notes.map((note) => {
-            return <li>{note.body}</li>;
-          })}
-        </ul>
+        <h2>Notes</h2>
+        <a onClick={this.addNote} className="add-note"> <i className="icon-plus"></i></a>
+        <table>
+          <TableHead columns={this.props.tableColumns}/>
+          <TableBody columns={this.props.tableColumns} rows={this.state.notes} model='order'/>
+        </table>
+        {empty}
       </div>
     );
   }
@@ -60,4 +64,15 @@ export default class Notes extends React.Component {
 
 Notes.contextTypes = {
   router: React.PropTypes.func
+};
+
+Notes.propTypes = {
+  tableColumns: React.PropTypes.array
+};
+
+Notes.defaultProps = {
+  tableColumns: [
+    {field: 'createdAt', text: 'Date/Time', type: 'date', format: 'MM/DD/YYYY h:mm A'},
+    {field: 'body', text: 'Note'}
+  ]
 };
