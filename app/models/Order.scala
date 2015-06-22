@@ -20,6 +20,11 @@ case class Order(id: Int = 0, customerId: Int, status: Order.Status = Order.Cart
 
   override def validator = createValidator[Order] { order => }
     Orders.collectPaymentMethods(this)
+
+  // TODO: Add a real collector/builder here that assembles the subTotal
+  def subTotal: Int = {
+    25
+  }
 }
 
 object Order {
