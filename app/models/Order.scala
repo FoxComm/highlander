@@ -80,7 +80,8 @@ object Orders extends TableQueryWithId[Order, Orders](
     db.run(_findActiveOrderByCustomer(cust).result.headOption)
   }
 
-  def _findActiveOrderByCustomer(cust: Customer) = { filter(_.customerId === cust.id).filter(_.status === (Order.Cart: Order.Status)) }
+  def _findActiveOrderByCustomer(cust: Customer) =
+    filter(_.customerId === cust.id).filter(_.status === (Order.Cart: Order.Status))
 
   // If the user doesn't have an order yet, let's create one.
   def findOrCreateActiveOrderByCustomer(customer: Customer)
