@@ -32,11 +32,9 @@ class BaseModel {
   constructor(model) {
     this.model = model || {};
     if (!this.id) {
-      let
-        id        = chance.guid(),
-        createdAt = chance.date({year: 2014});
+      this.model.id = chance.guid();
+      this.model.createdAt = chance.date({year: 2014});
       this.amend(model);
-      this.update({id: id, createdAt: createdAt});
     }
   }
 
