@@ -50,4 +50,9 @@ export default class Api {
     let args = [].slice.call(arguments);
     return this.request.apply(this, ['PUT'].concat(args));
   }
+
+  static patch() {
+    let args = [].slice.call(arguments);
+    return this.request.apply(this, ['PATCH'].concat(args));
+  }
 }

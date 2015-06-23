@@ -13,6 +13,13 @@ module.exports = function(app, router) {
     .get('/addresses/:address', function *() {
       this.body = this.address.toJSON();
     })
+    .patch('/addresses/:address', function *() {
+      let
+        body = yield parse.json(this);
+      this.address.update(body);
+      this.status = 200;
+      this.body = this.address.toJSON();
+    })
     .get('/addresses', function *() {
       this.body = Address.generateList(7);
     })
@@ -22,12 +29,5 @@ module.exports = function(app, router) {
         address = new Address(body);
       this.status = 201;
       this.body = address.toJSON();
-    })
-    .post('/addresses/:address', function *() {
-      let
-        body = yield parse.json(this);
-      this.address.update(body);
-      this.status = 201;
-      this.body = this.address.toJSON();
     });
 };

@@ -1,14 +1,15 @@
 'use strict';
 
 import React from 'react';
-
-import { dispatch } from '../../lib/dispatcher';
+import AddressStore from './store';
 
 class Address extends React.Component {
+  setActiveAddress() {
+    AddressStore.patch(this.props.address.id, {active: true});
+  }
+
   render() {
     let address = this.props.address;
-
-    console.log(address);
 
     let isDefault = (
         <div><input type='checkbox' defaultChecked={address.isDefault} /> Default Address</div>
@@ -37,7 +38,7 @@ class Address extends React.Component {
             <span>{address.country}</span>
           </p>
         </div>
-        { address.isActive ? '' : <a className='btn choose' onClick={dispatch('changeActiveAddress')}>Choose</a> }
+        { address.isActive ? '' : <a className='btn choose' onClick={this.setActiveAddress.bind(this)}>Choose</a> }
       </li>
     );
   }
