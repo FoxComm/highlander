@@ -22,7 +22,7 @@ class InventorySummaries(tag: Tag)
   def outstandingBackOrders = column[Int]("outstanding_back_orders") // How many unreconciled backorders are there.
 
   def * = (id, skuId, availableOnHand, availablePreOrder, availableBackOrder,
-    outstandingPreOrders, outstandingPreOrders) <> (( InventorySummary.apply _).tupled, InventorySummary.unapply)
+    outstandingPreOrders, outstandingBackOrders) <> (( InventorySummary.apply _).tupled, InventorySummary.unapply)
 }
 
 object InventorySummaries extends TableQueryWithId[InventorySummary, InventorySummaries](
