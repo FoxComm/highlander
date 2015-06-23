@@ -1,5 +1,6 @@
 package models
 
+import slick.driver.PostgresDriver
 import util.IntegrationTestBase
 
 class InventorySummaryTest extends IntegrationTestBase {
@@ -8,33 +9,31 @@ class InventorySummaryTest extends IntegrationTestBase {
 
   "InventorySummary" - {
     "Postgres triggers" - {
-      def seed(reserved: Int): (Sku, Order) = {
+      def seed(): (Sku, Order) = {
         val sku = Skus.save(Sku(price = 5)).run().futureValue
         val order = Orders.save(Order(id = 0, customerId = 1)).run().futureValue
         (sku, order)
       }
 
-      def adjustment(skuId: Int, orderId: Int, reserved: Int): InventoryAdjustment = {
+      def adjustment(skuId: Int, orderId: Int, reserved: Int): PostgresDriver.api.DBIO[InventoryAdjustment] =
         InventoryAdjustments.save(InventoryAdjustment(skuId = skuId, inventoryEventId = orderId,
-          reservedForFulfillment = reserved)).run().futureValue
-      }
+          reservedForFulfillment = reserved))
 
       "inserts a new record if there is none after an insert to InventoryAdjustment" - {
-        val (sku, order) = seed(10)
-        adjustment(sku.id, order.id, reserved = 10)
+        val (sku, order) = seed()
+        adjustment(sku.id, order.id, reserved = 10).run()
         val summary = InventorySummaries.findBySkuId(sku.id).futureValue.get
 
         summary.availableOnHand mustBe (-10)
       }
 
-      "updates an existing record after insert to InventoryAdjustment" - {
-        val (sku, order) = seed(10)
-        adjustment(sku.id, order.id, reserved = 10)
-        adjustment(sku.id, order.id, reserved = 5)
+      "updates an existing record after multiple inserts to InventoryAdjustment" - {
+        val (sku, order) = seed()
+        List(10, 50, 0, 3, 2).foreach { r => adjustment(sku.id, order.id, reserved = r).run().futureValue }
 
         val summary = InventorySummaries.findBySkuId(sku.id).futureValue.get
 
-        summary.availableOnHand mustBe (-15)
+        summary.availableOnHand mustBe (-65)
       }
     }
   }
