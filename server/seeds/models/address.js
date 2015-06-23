@@ -49,7 +49,6 @@ class Address extends BaseModel {
       isDefault: true,
       isActive: true
     });
-    console.log(models);
     return models;
   }
 }

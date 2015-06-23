@@ -14,18 +14,35 @@ export default class BaseStore {
 
   getState(id) {
     if (!id) return this.models;
-    let found = this.models.filter((item) => {
+    return this.findModel(id);
+  }
+
+  findModel(id) {
+    return this.models.filter((item) => {
       return item.id === id;
-    });
-    return found[0];
+    })[0];
+  }
+
+  upsert(model) {
+    let exists = this.findModel(model.id);
+    if (exists) {
+      let idx = this.models.indexOf(exists);
+      if (idx !== -1) {
+        this.models[idx] = model;
+      }
+    } else {
+      this.models.push(model);
+    }
   }
 
   update(model) {
     let storeName = this.constructor.name;
     if (Array.isArray(model)) {
-      Array.prototype.push.apply(this.models, model);
+      model.forEach((item) => {
+        this.upsert(item);
+      });
     } else {
-      this.models.push(model);
+      this.upsert(model);
     }
     dispatch(`change${storeName}`, model);
   }

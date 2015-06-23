@@ -10,9 +10,6 @@ module.exports = function(app, router) {
       this.address = Address.generate(id);
       yield next;
     })
-    .get('/addresses/:address', function *() {
-      this.body = this.address.toJSON();
-    })
     .patch('/addresses/:address', function *() {
       let
         body = yield parse.json(this);
