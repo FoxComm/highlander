@@ -2,16 +2,13 @@
 
 const
   Router  = require('koa-router'),
-  t       = require('thunkify-wrap'),
-  request = require('request');
+  Api     = require('../lib/api'),
+  parse   = require('co-body');
 
 module.exports = function(app) {
   const
     config      = app.config.api,
-    baseRequest = request.defaults({
-      baseUrl: config.uri,
-      _json: true
-    });
+    api         = new Api(config.uri);
 
   let router = new Router({
     prefix: `/api/${config.version}`
@@ -19,10 +16,13 @@ module.exports = function(app) {
 
   router.use(app.jsonError);
 
-  router.get('/:path*', function *() {
-    let res = yield t(baseRequest.get)(this.params.path);
-    this.status = res[0].statusCode;
-    this.body = res[1];
+  router.all('/:path*', function *() {
+    let
+      method  = this.method.toLowerCase(),
+      body    = yield parse.json(this),
+      res     = yield api[method](this.params.path, body);
+    this.status = res.status;
+    this.body = res.response;
   });
 
   app

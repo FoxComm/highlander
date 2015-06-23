@@ -4,10 +4,9 @@ describe('Customers #GET', function() {
 
   it('should find a customer', function *() {
     let
-      res       = yield this.Api.get('/api/v1/customers/1'),
-      status    = res[0].statusCode,
-      customer  = res[1];
-    expect(status).to.equal(200);
+      res       = yield this.api.get('/customers/1'),
+      customer  = res.response;
+    expect(res.status).to.equal(200);
     expect(customer.id).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
     expect(customer.firstName).to.be.a('string');
     expect(customer.lastName).to.be.a('string');
@@ -20,10 +19,9 @@ describe('Customers #GET', function() {
 
   it('should get an array of customers', function *() {
     let
-      res       = yield this.Api.get('/api/v1/customers'),
-      status    = res[0].statusCode,
-      customers = res[1];
-    expect(status).to.equal(200);
+      res       = yield this.api.get('/customers'),
+      customers = res.response;
+    expect(res.status).to.equal(200);
     expect(customers).to.have.length(50);
   });
 });
