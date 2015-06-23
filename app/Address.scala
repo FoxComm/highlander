@@ -292,11 +292,11 @@ class Service(
                     }
                   }
                 } ~
-                  get {
+                  (get & path(PathEnd)) {
                     complete {
                       renderOrNotFound(FullOrder.findByCustomer(customer))
                     }
-                  } 
+                  }
               }
           }
         }
