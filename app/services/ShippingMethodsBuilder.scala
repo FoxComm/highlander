@@ -37,7 +37,12 @@ object ShippingMethodsBuilder {
                 case t: OrderPriceCriterion =>
                   t.priceType match {
                     case OrderPriceCriterion.GrandTotal =>
-                    // This is the only implementation I'm working on for now -- to demonstrate how the functionality should generally work.
+                      val exactApplies = oCriterion.exactMatch.contains(order.grandTotal)
+                      val greaterApplies = oCriterion.greaterThan.exists(gThan => order.grandTotal >= gThan)
+                      val lessApplies = oCriterion.lessThan.exists(lThan => order.grandTotal >= lThan)
+                      if (exactApplies || greaterApplies || lessApplies) {
+                        ShippingMethodWithPrice(displayName = shippingMethod.storefrontDisplayName, estimatedTime = "Long Time", price = sRule.flatPrice)
+                      }
                     case OrderPriceCriterion.SubTotal =>
                       val exactApplies = oCriterion.exactMatch.contains(order.subTotal)
                       val greaterApplies = oCriterion.greaterThan.exists(gThan => order.subTotal >= gThan)
