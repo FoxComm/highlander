@@ -17,7 +17,8 @@ object Seeds {
                       storeAdmin: StoreAdmin, shippingMethod: ShippingMethod,
                        shippingPriceRule: ShippingPriceRule, shippingMethodRuleMapping: ShippingMethodPriceRule,
                        orderCriterion: OrderCriterion, orderPriceCriterion: OrderPriceCriterion,
-                       priceRuleCriteriaMapping: ShippingPriceRuleOrderCriterion)
+                       priceRuleCriteriaMapping: ShippingPriceRuleOrderCriterion, skus: Seq[Sku],
+                       orderLineItems: Seq[OrderLineItem])
 
   def run(): Unit = {
     import scala.concurrent.ExecutionContext.Implicits.global
@@ -26,6 +27,7 @@ object Seeds {
     val s = TheWorld(
       customer = Factories.customer,
       storeAdmin = Factories.storeAdmin,
+      skus = Factories.skus,
       order = Factories.order,
       address = Factories.address,
       shippingMethod = Factories.shippingMethod,
@@ -34,7 +36,8 @@ object Seeds {
       shippingMethodRuleMapping = Factories.shippingMethodRuleMapping,
       orderCriterion = Factories.orderCriterion,
       orderPriceCriterion = Factories.orderPriceCriterion,
-      priceRuleCriteriaMapping = Factories.priceRuleCriteriaMapping
+      priceRuleCriteriaMapping = Factories.priceRuleCriteriaMapping,
+      orderLineItems = Factories.orderLineItems
     )
 
     val failures = List(s.customer.validate, s.storeAdmin.validate, s.order.validate, s.address.validate, s.cc.validate).
@@ -46,7 +49,9 @@ object Seeds {
     val actions = for {
       customer ← (Customers.returningId += s.customer).map(id => s.customer.copy(id = id))
       storeAdmin ← (StoreAdmins.returningId += s.storeAdmin).map(id => s.storeAdmin.copy(id = id))
+      skus ←  Skus ++= s.skus
       order ← Orders.save(s.order.copy(customerId = customer.id))
+      orderLineItem ← OrderLineItems ++= s.orderLineItems
       address ← Addresses.save(s.address.copy(customerId = customer.id))
       shippingMethod ← ShippingMethods.save(s.shippingMethod)
       gateway ← CreditCardGateways.save(s.cc.copy(customerId = customer.id))
@@ -64,6 +69,10 @@ object Seeds {
 
 
     def order = Order(customerId = 0)
+
+    def skus: Seq[Sku] = Seq(Sku(id = 0, name = Some("Flonkey"), price = 33), Sku(name = Some("Shark"), price = 45), Sku(name = Some("Dolphin"), price = 88))
+
+    def orderLineItems: Seq[OrderLineItem] = Seq(OrderLineItem(id = 0, orderId = 1, skuId = 1, status = OrderLineItem.Cart), OrderLineItem(id = 0, orderId = 1, skuId = 2, status = OrderLineItem.Cart), OrderLineItem(id = 0, orderId = 1, skuId = 3, status = OrderLineItem.Cart))
 
     def address =
       Address(customerId = 0, stateId = 1, name = "Home", street1 = "555 E Lake Union St.",
