@@ -18,6 +18,7 @@ class OrderIntegrationTest extends IntegrationTestBase
   import Extensions._
 
   "returns new items" in {
+    fail("fix me: must seed sku & inventory_summary!")
     val orderId = db.run(Orders.returningId += Order(id = 0, customerId = 1)).futureValue
 
     val response = POST(
