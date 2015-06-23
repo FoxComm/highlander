@@ -18,5 +18,5 @@ create trigger set_inventory_id_trigger
     before insert
     on inventory_adjustments
     for each row
-    execute procedure set_inventory_event_id();
+    execute procedure set_inventory_event_id_for_adjustments();
 
