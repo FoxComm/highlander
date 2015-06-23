@@ -253,6 +253,13 @@ class Service(
       logRequestResult("customer-routes") {
         pathPrefix("v1" / "my") {
           authenticateBasicAsync(realm = "private customer routes", customerAuth) { customer =>
+            (get & path("cart")) {
+              complete {
+                whenFound(Orders.findActiveOrderByCustomer(customer)) { activeOrder =>
+                  FullOrder.fromOrder(activeOrder).map(Good(_))
+                }
+              }
+            } ~
             pathPrefix("addresses") {
               get {
                 complete {
