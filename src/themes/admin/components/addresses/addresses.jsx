@@ -10,19 +10,29 @@ const changeEvent = 'change-address-store';
 const cancelEvent = 'cancel-new-address';
 
 export default class AddressBook extends React.Component {
-    constructor(props) {
+  constructor(props) {
     super(props);
     this.onChangeAddressStore = this.onChangeAddressStore.bind(this);
     this.onCancelNewAddress = this.onCancelNewAddress.bind(this);
     this.state = {
-      addresses: AddressStore.getState(),
+      addresses: [],
       new: false
     };
   }
 
   componentDidMount() {
+    let customerId;
     listenTo(changeEvent, this);
     listenTo(cancelEvent, this);
+    if (this.props.order) {
+      customerId = this.props.order.customer.id;
+    } else {
+      let { router } = this.context;
+      customerId = router.getCurrentParams().customer;
+    }
+
+    AddressStore.uriRoot = `/customers/${customerId}`;
+
     AddressStore.fetch();
   }
 
@@ -73,3 +83,11 @@ export default class AddressBook extends React.Component {
     );
   }
 }
+
+AddressBook.contextTypes = {
+  router: React.PropTypes.func
+};
+
+AddressBook.propTypes = {
+  order: React.PropTypes.object
+};
