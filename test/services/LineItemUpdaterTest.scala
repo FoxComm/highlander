@@ -1,6 +1,6 @@
 package services
 
-import models.{Order, OrderLineItem, OrderLineItems, Orders}
+import models.{Order, OrderLineItem, OrderLineItems, Orders, InventorySummaries, InventorySummary, Skus, Sku}
 import org.scalactic.{Bad, Good}
 import payloads.{UpdateLineItemsPayload ⇒ Payload}
 import util.IntegrationTestBase
@@ -16,10 +16,20 @@ class LineItemUpdaterTest extends IntegrationTestBase {
     db.run(insert).futureValue
   }
 
+  def createInventory(skuId: Int, availableOnHand: Int = 100): Unit = {
+    Skus.save(Sku(id = skuId, price = 5)).run().futureValue
+    val summary = InventorySummary(id = 0, skuId = skuId, availableOnHand = availableOnHand, availablePreOrder = 0,
+                                   availableBackOrder = 0, outstandingPreOrders = 0, outstandingBackOrders = 0)
+    InventorySummaries.save(summary).run().futureValue
+  }
+
   "LineItemUpdater" - {
 
     "Adds line_items when the sku doesn't exist in order" in {
       val order = Orders.save(Order(customerId = 1)).run().futureValue
+      createInventory(1, 100)
+      createInventory(2, 100)
+
       val payload = Seq[Payload](
         Payload(skuId = 1, quantity = 3),
         Payload(skuId = 2, quantity = 0)
@@ -32,7 +42,7 @@ class LineItemUpdaterTest extends IntegrationTestBase {
 
           val allRecords = db.run(lineItems.result).futureValue
 
-          items must be (allRecords)
+          items must contain theSameElementsAs allRecords
 
         case Bad(s) => fail(s.mkString(";"))
       }
@@ -40,7 +50,12 @@ class LineItemUpdaterTest extends IntegrationTestBase {
 
     "Updates line_items when the Sku already is in order" in {
       val order = Orders.save(Order(customerId = 1)).run().futureValue
-      val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { skuId => OrderLineItem(id = 0, orderId = 1, skuId = skuId) }
+      createInventory(1, 100)
+      createInventory(2, 100)
+      createInventory(3, 100)
+      val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { skuId =>
+        OrderLineItem(id = 0, orderId = 1, skuId = skuId)
+      }
       createLineItems(seedItems)
 
       val payload = Seq[Payload](
@@ -57,10 +72,15 @@ class LineItemUpdaterTest extends IntegrationTestBase {
 
           val allRecords = db.run(lineItems.result).futureValue
 
-          items must be (allRecords)
+          items must contain theSameElementsAs allRecords
 
         case Bad(s) => fail(s.mkString(";"))
       }
+    }
+
+    // if we've asked for more than available we will "reserve" up to available_on_hand in Skus
+    "Adds line_items up to availableOnHand" in {
+//      fail("implement me!")
     }
   }
 }

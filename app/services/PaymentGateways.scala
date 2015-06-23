@@ -47,17 +47,18 @@ case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ") ex
     Good(StripeCustomer.create(mapAsJavaMap(params), options))
   }
 
-  def authorizeAmount(card: CreditCardGateway, amount: Int)
+  def authorizeAmount(customerId: String, amount: Int)
                      (implicit ec: ExecutionContext): Future[String Or List[ErrorMessage]] = tryFutureWrap {
     val capture: java.lang.Boolean = false
     val chargeMap: Map[String, Object] = Map("amount" -> "100", "currency" -> "usd",
-      "source" -> card.customerId.toString, "capture" -> capture)
+      "customer" -> customerId, "capture" -> capture)
 
     val charge = StripeCharge.create(mapAsJavaMap(chargeMap), options)
     /*
       TODO: https://stripe.com/docs/api#create_charge
       Since we're using tokenized, we presumably pass verification process, but might want to handle here
     */
+
     Good(charge.getId)
   }
 

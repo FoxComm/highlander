@@ -1,14 +1,11 @@
 package models
 
-
 import utils.RichTable
 import utils.{ GenericTable, TableQueryWithId, ModelWithIdParameter }
 import monocle.macros.GenLens
 import scala.concurrent.{ExecutionContext, Future}
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
-
-
 
 case class InventoryClassification(id: Int, skuId: Int, canSell: Boolean,
                                    canPreOrder: Boolean, canBackOrder: Boolean) extends ModelWithIdParameter

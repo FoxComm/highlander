@@ -19,20 +19,20 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
     // 4) Validate promotions/coupons
     // 5) Final Auth on the payment
 
-//    OrderLineItems.countByOrder(this.order).flatMap { count =>
-//      if (count > 0) {
-//        authenticatePayments.flatMap { payments =>
-//          val errors = payments.values.toList.flatten
-//          if (errors.isEmpty) {
-//            completeOrderAndCreateNew(order).map(Good(_))
-//          } else {
-//            Future.successful(Bad(errors))
-//          }
-//        }
-//      } else {
+    OrderLineItems.countByOrder(this.order).flatMap { count =>
+      if (count > 0) {
+        authorizePayments.flatMap { payments =>
+          val errors = payments.values.toList.flatten
+          if (errors.isEmpty) {
+            completeOrderAndCreateNew(order).map(Good(_))
+          } else {
+            Future.successful(Bad(errors))
+          }
+        }
+      } else {
         Future.successful(Bad(List("No Line Items in Order!")))
-//      }
-//    }
+      }
+    }
   }
 
   // sets incoming order.status == Order.ordered and creates a new order
@@ -51,27 +51,27 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
     // Step 3) Do the above as a transaction.
   }
 
-//  def authenticatePayments: Future[Map[AppliedPayment, List[ErrorMessage]]] = {
-//    // Really, this should authenticate all payments, at their specified 'applied amount.'
-//    order.payments.flatMap { payments =>
-//      val seq = payments.map { p =>
-//        PaymentMethods.findById(p.paymentMethodId).flatMap {
-//          case Some(c) =>
-//            val paymentAmount = p.appliedAmount
-//            c.authenticate(paymentAmount).map {
-//              case Bad(errors) =>
-//                p -> errors
-//              case Good(success) =>
-//                p -> List[ErrorMessage]()
-//            }
-//          case None =>
-//            Future.successful(p -> List("There are no payment methods on this order!"))
-//        }
-//      }
-//
-//      Future.sequence(seq).map(_.toMap)
-//    }
-//  }
+  def authorizePayments: Future[Map[AppliedPayment, List[ErrorMessage]]] = {
+    AppliedPayments.findAllPaymentsFor(this.order).flatMap { records =>
+      Future.sequence(records.map { case (payment, creditCard) =>
+        creditCard.authorize(payment.appliedAmount).flatMap { or ⇒
+          or.fold({ chargeId ⇒
+            val paymentWithCharge = payment.copy(chargeId = Some(chargeId))
+            AppliedPayments.update(paymentWithCharge).map { _ ⇒
+              (paymentWithCharge, or)
+            }
+          }, { _ ⇒
+            Future.successful((payment, or))
+          })
+        }
+      }).map { (results: Seq[(AppliedPayment, Or[String, List[ErrorMessage]])]) =>
+        results.foldLeft(Map[AppliedPayment, List[ErrorMessage]]()) { case (errors, (payment, result)) =>
+          errors.updated(payment,
+            result.fold({ good => List.empty }, { bad => bad }))
+        }
+      }
+    }
+  }
 
   def validateAddresses: List[ErrorMessage] = {
     List.empty

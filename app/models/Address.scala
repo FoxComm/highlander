@@ -1,8 +1,9 @@
 package models
 
 import monocle.macros.GenLens
-import utils.{ModelWithIdParameter, Validation, RichTable, TableQueryWithId, GenericTable}
-import utils.Validation.Result.{Failure => ValidationFailure}
+import utils.GenericTable.TableWithId
+import utils.{ModelWithIdParameter, TableQueryWithId, Validation, RichTable}
+import utils.{Validation, RichTable}
 import payloads.CreateAddressPayload
 
 import com.wix.accord.dsl.{validator => createValidator}
@@ -13,7 +14,7 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 case class Address(id: Int = 0, customerId: Int, stateId: Int, name: String, street1: String, street2: Option[String],
-                   city: String, zip: String) extends ModelWithIdParameter with Validation[Address] {
+                   city: String, zip: String) extends Validation[Address] with ModelWithIdParameter {
   override def validator = createValidator[Address] { address =>
     address.name is notEmpty
     address.street1 is notEmpty
@@ -29,7 +30,7 @@ object Address {
   }
 }
 
-class Addresses(tag: Tag) extends GenericTable.TableWithId[Address](tag, "addresses") with RichTable {
+class Addresses(tag: Tag) extends TableWithId[Address](tag, "addresses") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def customerId = column[Int]("customer_id")
   def stateId = column[Int]("state_id")
@@ -46,7 +47,7 @@ class Addresses(tag: Tag) extends GenericTable.TableWithId[Address](tag, "addres
 
 object Addresses extends TableQueryWithId[Address, Addresses](
   idLens = GenLens[Address](_.id)
-)(new Addresses(_)){
+  )(new Addresses(_)) {
 
   def findAllByCustomer(customer: Customer)(implicit db: Database): Future[Seq[Address]] = {
     db.run(filter(_.customerId === customer.id).result)
@@ -74,12 +75,11 @@ object Addresses extends TableQueryWithId[Address, Addresses](
             (implicit ec: ExecutionContext,
              db: Database): Future[Seq[Address] Or Map[Address, Set[ErrorMessage]]] = {
 
-    val validatedAddresses = addresses.map { a => (a, a.validate) }
-    val failures = validatedAddresses.filter { case (_, result) => result.isValid }
+    val failures = addresses.map { a => (a, a.validate) }.filterNot { case (a, v) => v.isValid }
 
     if (failures.nonEmpty) {
       val acc = Map[Address, Set[ErrorMessage]]()
-      val errorMap = failures.foldLeft(acc) { case (map, (address, failure: ValidationFailure)) =>
+      val errorMap = failures.foldLeft(acc) { case (map, (address, failure)) =>
         map.updated(address, failure.messages)
       }
       Future.successful(Bad(errorMap))

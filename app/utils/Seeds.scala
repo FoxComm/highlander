@@ -1,8 +1,10 @@
 package utils
 
+import com.typesafe.config.ConfigFactory
 import models._
-
+import org.flywaydb.core.Flyway
 import org.joda.time.DateTime
+import org.postgresql.ds.PGSimpleDataSource
 import slick.driver.PostgresDriver.api._
 
 import scala.concurrent.Await
@@ -11,7 +13,7 @@ import scala.concurrent.duration._
 object Seeds {
   val today = new DateTime
 
-  case class TheWorld(customer: Customer,order: Order, address: Address,
+  case class TheWorld(customer: Customer,order: Order, address: Address, cc: CreditCardGateway,
                       storeAdmin: StoreAdmin, shippingMethod: ShippingMethod,
                        shippingPriceRule: ShippingPriceRule, shippingMethodRuleMapping: ShippingMethodPriceRule,
                        orderCriterion: OrderCriterion, orderPriceCriterion: OrderPriceCriterion,
@@ -19,7 +21,7 @@ object Seeds {
 
   def run(): Unit = {
     import scala.concurrent.ExecutionContext.Implicits.global
-    implicit val db = Database.forURL("jdbc:postgresql://localhost/phoenix_development?user=phoenix", driver = "slick.driver.PostgresDriver")
+    implicit val db = Database.forConfig("db.development")
 
     val s = TheWorld(
       customer = Factories.customer,
@@ -27,6 +29,7 @@ object Seeds {
       order = Factories.order,
       address = Factories.address,
       shippingMethod = Factories.shippingMethod,
+      cc = Factories.creditCard,
       shippingPriceRule = Factories.shippingPriceRule,
       shippingMethodRuleMapping = Factories.shippingMethodRuleMapping,
       orderCriterion = Factories.orderCriterion,
@@ -34,7 +37,7 @@ object Seeds {
       priceRuleCriteriaMapping = Factories.priceRuleCriteriaMapping
     )
 
-    val failures = List(s.customer.validate, s.storeAdmin.validate, s.order.validate, s.address.validate).
+    val failures = List(s.customer.validate, s.storeAdmin.validate, s.order.validate, s.address.validate, s.cc.validate).
       filterNot(_.isValid)
 
     if (failures.nonEmpty)
@@ -46,9 +49,10 @@ object Seeds {
       order ← Orders.save(s.order.copy(customerId = customer.id))
       address ← Addresses.save(s.address.copy(customerId = customer.id))
       shippingMethod ← ShippingMethods.save(s.shippingMethod)
+      gateway ← CreditCardGateways.save(s.cc.copy(customerId = customer.id))
       shippingPriceRule ← ShippingPriceRules.save(s.shippingPriceRule)
       shippingMethodRuleMapping ← ShippingMethodsPriceRules.save(s.shippingMethodRuleMapping)
-    } yield (customer, order, address)
+    } yield (customer, order, address, gateway)
 
     Await.result(actions.run(), 1.second)
   }
@@ -65,6 +69,9 @@ object Seeds {
       Address(customerId = 0, stateId = 1, name = "Home", street1 = "555 E Lake Union St.",
         street2 = None, city = "Seattle", zip = "12345")
 
+    def creditCard =
+      CreditCardGateway(customerId = 0, gatewayCustomerId = "", lastFour = "4242",
+        expMonth = today.getMonthOfYear, expYear = today.getYear + 2)
 
     def shippingMethod = ShippingMethod(adminDisplayName = "UPS Ground", storefrontDisplayName = "UPS Ground", defaultPrice = 10, isActive = true)
 
@@ -77,6 +84,33 @@ object Seeds {
     def orderPriceCriterion = OrderPriceCriterion(id = 1, priceType = OrderPriceCriterion.SubTotal, greaterThan = Some(20), currency = "USD", exclude = false)
 
     def priceRuleCriteriaMapping = ShippingPriceRuleOrderCriterion(orderCriterionId = 1, shippingPricingRuleId = 1)
+  }
+
+  def main(args: Array[String]) {
+    Console.err.println(s"Cleaning DB and running migrations")
+    flyWayMigrate()
+    Console.err.println(s"Inserting seeds")
+    run()
+  }
+
+  private def flyWayMigrate(): Unit = {
+    val flyway = new Flyway
+    flyway.setDataSource(jdbcDataSourceFromConfig("db.development"))
+    flyway.setLocations("filesystem:./sql")
+    flyway.clean()
+
+    flyway.migrate()
+  }
+
+  private def jdbcDataSourceFromConfig(section: String) = {
+    val config = ConfigFactory.load
+    val source = new PGSimpleDataSource
+
+    source.setServerName(config.getString(s"$section.host"))
+    source.setUser(config.getString(s"$section.user"))
+    source.setDatabaseName(config.getString(s"$section.name"))
+
+    source
 
   }
 }

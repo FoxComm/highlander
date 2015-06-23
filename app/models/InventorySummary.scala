@@ -7,7 +7,6 @@ import scala.concurrent.{ExecutionContext, Future}
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 
-
 case class InventorySummary(id: Int, skuId: Int, availableOnHand: Int, availablePreOrder: Int, availableBackOrder: Int,
                             outstandingPreOrders: Int, outstandingBackOrders: Int) extends ModelWithIdParameter
 
@@ -23,12 +22,13 @@ class InventorySummaries(tag: Tag)
   def outstandingBackOrders = column[Int]("outstanding_back_orders") // How many unreconciled backorders are there.
 
   def * = (id, skuId, availableOnHand, availablePreOrder, availableBackOrder,
-    outstandingPreOrders, outstandingPreOrders) <> (( InventorySummary.apply _).tupled, InventorySummary.unapply)
+    outstandingPreOrders, outstandingBackOrders) <> (( InventorySummary.apply _).tupled, InventorySummary.unapply)
 }
 
 object InventorySummaries extends TableQueryWithId[InventorySummary, InventorySummaries](
   idLens = GenLens[InventorySummary](_.id)
 )(new InventorySummaries(_)) {
 
-  def _findBySkuId(id: Int) = filter(_.skuId === id)
+  def _findBySkuId(id: Int): Query[InventorySummaries, InventorySummary, Seq] =
+    filter(_.skuId === id)
 }

@@ -6,7 +6,6 @@ import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 import scala.concurrent.{ExecutionContext, Future}
 
-
 object PublicSku {
   type Response = Future[Option[Root]]
 
@@ -21,11 +20,11 @@ object PublicSku {
 
     val queries = for {
       sku <- Skus._findById(id)
-      qtyAvailable <- Skus._qtyAvailableOnHand(id)
-    } yield (sku, (qtyAvailable > 0) )
+      availableForSale = Skus._isAvailableOnHand(id)
+    } yield (sku, availableForSale)
 
-    db.run(queries.result.head).map { skuAndQty =>
-      Some(build(skuAndQty._1, skuAndQty._2))
+    db.run(queries.take(1).result.headOption).map { result =>
+      result.map { case (sku, available) => build(sku, available) }
     }
   }
 
