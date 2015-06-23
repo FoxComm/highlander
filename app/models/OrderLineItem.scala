@@ -57,5 +57,17 @@ object OrderLineItems {
 
   def _findByOrderId(orderId: Rep[Int]) = { table.filter(_.orderId === orderId) }
 
-  def countByOrder(order: Order)(implicit ec: ExecutionContext, db: Database) = { db.run(_findByOrderId(order.id).length.result) }
+  def countByOrder(order: Order)(implicit ec: ExecutionContext, db: Database) =
+    db.run(this._countByOrder(order))
+
+  def _countByOrder(order: Order) =
+    _findByOrderId(order.id).length.result
+
+  def countBySkuIdForOrder(order: Order)(implicit ec: ExecutionContext, db: Database): Future[Seq[(Int, Int)]] =
+    db.run(_countBySkuIdForOrder(order))
+
+  def _countBySkuIdForOrder(order: Order) =
+    (for {
+      (skuId, group) <- _findByOrderId(order.id).groupBy(_.skuId)
+    } yield (skuId, group.length)).result
 }
