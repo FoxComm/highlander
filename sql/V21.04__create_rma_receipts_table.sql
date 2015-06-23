@@ -1,21 +1,18 @@
-create table orders (
+create table rma_receipts (
     id bigint primary key,
-    customer_id integer,
-    status character varying(255) not null,
-    locked boolean default false,
+    rma_id int not null,
+    receiver_name character varying(255), -- Placeholder
+    inventory_location_id int, -- Placeholder
     created_at timestamp without time zone default (now() at time zone 'utc'),
     updated_at timestamp without time zone default (now() at time zone 'utc'),
     deleted_at timestamp without time zone null,
     foreign key (id) references inventory_events(id) on update restrict on delete restrict,
-    constraint valid_status check (status in ('cart','ordered','fraudhold','remorsehold','manualhold','canceled',
-                                              'fulfillmentstarted','partiallyshipped','shipped'))
+    foreign key (rma_id) references rmas(id) on update restrict on delete restrict
 );
-
-create index orders_customer_and_status_idx on orders (customer_id, status);
 
 create trigger set_inventory_id_trigger
     before insert
-    on orders
+    on rma_receipts
     for each row
     execute procedure set_inventory_event_id();
 

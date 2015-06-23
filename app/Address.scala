@@ -43,7 +43,7 @@ import utils.{RichTable, Validation}
 import utils.RunOnDbIO
 import models._
 import payloads._
-import responses.FullOrder
+import responses.{FullOrder, PublicSku}
 import services.{LineItemUpdater, PaymentGateway, Checkout, Authenticator, CreditCardPaymentCreator}
 
 case class Store(id: Int, name: String, Configuration: StoreConfiguration)
@@ -300,6 +300,13 @@ class Service(
             (post & path("new") & entity(as[CreateCustomerPayload])) { regRequest =>
               complete {
                 Customers.createFromPayload(regRequest).map(renderGoodOrBad)
+              }
+            }
+          } ~
+          pathPrefix("skus") {
+            (get & path(IntNumber)) { skuId =>
+              complete {
+                renderOrNotFound(PublicSku.findById(skuId))
               }
             }
           }
