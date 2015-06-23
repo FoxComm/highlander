@@ -44,7 +44,7 @@ import utils.RunOnDbIO
 import models._
 import payloads._
 import responses.{FullOrder, PublicSku}
-import services.{LineItemUpdater, PaymentGateway, Checkout, Authenticator, CreditCardPaymentCreator}
+import services._
 
 case class Store(id: Int, name: String, Configuration: StoreConfiguration)
 
@@ -283,6 +283,16 @@ class Service(
                       whenFound(Orders.findActiveOrderByCustomer(customer)) { order =>
                         LineItemUpdater.updateQuantities(order, reqItems).map { response =>
                           response.map(FullOrder.build(order, _))
+                        }
+                      }
+                    }
+                  } ~
+                  (get & path("shipping-methods")) {
+                    complete {
+                      whenFound(Orders.findActiveOrderByCustomer(customer)) { order =>
+                        ShippingMethodsBuilder.fullShippingMethodsForOrder(order).map { x =>
+                          // we'll need to handle Bad
+                          Good(x)
                         }
                       }
                     }
