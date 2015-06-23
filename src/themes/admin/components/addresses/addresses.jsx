@@ -28,7 +28,10 @@ export default class AddressBook extends React.Component {
   }
 
   onChangeAddressStore() {
-    this.setState({addresses: AddressStore.getState()});
+    this.setState({
+      addresses: AddressStore.getState(),
+      new: false
+    });
   }
 
   addNew() {

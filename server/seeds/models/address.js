@@ -38,6 +38,7 @@ class Address extends BaseModel {
   get city() { return this.model.city; }
   get zip() { return this.model.zip; }
   get country() { return this.model.country; }
+  get customer() { return Customer.generate(); }
 
   static generateList(limit) {
     let models = super.generateList(limit);
@@ -47,22 +48,6 @@ class Address extends BaseModel {
     });
     console.log(models);
     return models;
-  }
-
-  toJSON() {
-    return {
-      id: this.id,
-      isDefault: this.isDefault,
-      isActive: this.isActive,
-      state: this.steate,
-      name: this.name,
-      street1: this.street1,
-      street2: this.street2,
-      city: this.city,
-      zip: this.zip,
-      country: this.country,
-      customer: Customer.generate()
-    };
   }
 }
 

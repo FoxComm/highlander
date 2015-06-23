@@ -5,7 +5,7 @@ import AddressStore from './store';
 
 class Address extends React.Component {
   setActiveAddress() {
-    AddressStore.patch(this.props.address.id, {active: true});
+    AddressStore.patch(this.props.address.id, {isActive: true});
   }
 
   render() {

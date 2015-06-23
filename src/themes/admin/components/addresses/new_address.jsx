@@ -21,7 +21,6 @@ export default class NewAddress extends React.Component {
   onSubmitForm(e) {
     e.preventDefault();
 
-    console.log(this.state);
     // Todo (cam-stitt): Alter this.state to be json of form.
     AddressStore.create(this.state);
   }
