@@ -40,4 +40,10 @@ export default class BaseStore {
       .then((res) => { this.update(res); })
       .catch((err) => { this.fetchError(err); });
   }
+
+  patch(id, changes) {
+    Api.patch(this.uri(id), changes)
+      .then((res) => { this.update(res); })
+      .catch((err) => { this.fetchError(err); });
+  }
 }
