@@ -200,8 +200,24 @@ class Service(
       Admin Authenticated Routes
      */
     logRequestResult("admin-routes") {
-      pathPrefix("v1" / "orders") {
-        authenticateBasicAsync(realm = "order and checkout", storeAdminAuth) { user =>
+      authenticateBasicAsync(realm = "admin", storeAdminAuth) { user =>
+        pathPrefix("v1" / "users" / IntNumber) { customerId =>
+          (get & path("addresses")) {
+            complete {
+              Addresses.findAllByCustomerId(customerId).map { addresses =>
+                HttpResponse(OK, entity = render(addresses))
+              }
+            }
+          } ~
+          (post & entity(as[Seq[CreateAddressPayload]])) { payload =>
+            complete {
+              whenFound(findCustomer(customerId)) { customer =>
+                Addresses.createFromPayload(customer, payload)
+              }
+            }
+          }
+        } ~
+        pathPrefix("v1" / "orders") {
           (get & path(IntNumber)) { orderId =>
             complete {
               renderOrNotFound(FullOrder.findById(orderId))
