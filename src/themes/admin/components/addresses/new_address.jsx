@@ -4,6 +4,12 @@ import React from 'react';
 import AddressStore from './store';
 
 export default class NewAddress extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isActive: true
+    }
+  }
   handleChanges(e) {
     let field = {},
       target = e.target;
