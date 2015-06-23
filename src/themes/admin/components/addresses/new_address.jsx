@@ -2,6 +2,7 @@
 
 import React from 'react';
 import AddressStore from './store';
+import { dispatch } from '../../lib/dispatcher';
 
 export default class NewAddress extends React.Component {
   constructor(props) {
@@ -25,9 +26,13 @@ export default class NewAddress extends React.Component {
     AddressStore.create(this.state);
   }
 
+  cancelAddress() {
+    dispatch('cancelNewAddress');
+  }
+
   render() {
     return (
-      <form className='vertical gutter' method='POST' onSubmit={this.onSubmitForm.bind(this)}>
+      <form className='vertical' method='POST' onSubmit={this.onSubmitForm.bind(this)}>
         <div>
           <label htmlFor="name">Name</label>
           <input type="text" name="name" className='control' onChange={this.handleChanges.bind(this)} required />
@@ -61,6 +66,7 @@ export default class NewAddress extends React.Component {
           <input type="tel" name="phone" className='control' onChange={this.handleChanges.bind(this)} required />
         </div>
         <div>
+          <a onClick={this.cancelAddress}>Cancel</a>
           <button type='submit' className='btn'>Submit</button>
         </div>
       </form>

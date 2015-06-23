@@ -29,6 +29,9 @@ class Address extends BaseModel {
   get name() { return this.model.name; }
   get street1() { return this.model.street1; }
   get street2() {
+    if (this.model.street2) {
+      return this.model.street2;
+    }
     if (chance.bool({likelihood: 30})) {
       return chance.address();
     } else {
