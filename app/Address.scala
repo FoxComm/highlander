@@ -268,35 +268,35 @@ class Service(
                 }
             } ~
               pathPrefix("order") {
-                get {
+                (post & path("checkout")) {
                   complete {
-                    renderOrNotFound(FullOrder.findByCustomer(customer))
+                    whenFound(Orders.findActiveOrderByCustomer(customer)) { order => new Checkout(order).checkout }
                   }
                 } ~
-                  (post & path("checkout")) {
-                    complete {
-                      whenFound(Orders.findActiveOrderByCustomer(customer)) { order => new Checkout(order).checkout }
-                    }
-                  } ~
-                  (post & path("line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems =>
-                    complete {
-                      whenFound(Orders.findActiveOrderByCustomer(customer)) { order =>
-                        LineItemUpdater.updateQuantities(order, reqItems).map { response =>
-                          response.map(FullOrder.build(order, _))
-                        }
-                      }
-                    }
-                  } ~
-                  (get & path("shipping-methods")) {
-                    complete {
-                      whenFound(Orders.findActiveOrderByCustomer(customer)) { order =>
-                        ShippingMethodsBuilder.fullShippingMethodsForOrder(order).map { x =>
-                          // we'll need to handle Bad
-                          Good(x)
-                        }
+                (post & path("line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems =>
+                  complete {
+                    whenFound(Orders.findActiveOrderByCustomer(customer)) { order =>
+                      LineItemUpdater.updateQuantities(order, reqItems).map { response =>
+                        response.map(FullOrder.build(order, _))
                       }
                     }
                   }
+                } ~
+                (get & path("shipping-methods")) {
+                  complete {
+                    whenFound(Orders.findActiveOrderByCustomer(customer)) { order =>
+                      ShippingMethodsBuilder.fullShippingMethodsForOrder(order).map { x =>
+                        // we'll need to handle Bad
+                        Good(x)
+                      }
+                    }
+                  }
+                } ~
+                  get {
+                    complete {
+                      renderOrNotFound(FullOrder.findByCustomer(customer))
+                    }
+                  } 
               }
           }
         }
