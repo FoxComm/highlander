@@ -3,21 +3,12 @@
 import React from 'react';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
+import UserInitials from '../users/initials';
 import NoteStore from './store';
 import { pluralize } from 'fleck';
 import { listenTo, stopListeningTo } from '../../lib/dispatcher';
 
 const changeEvent = 'change-note-store';
-
-class Author extends React.Component {
-  render() {
-    return <div>{this.props.model.id}</div>;
-  }
-}
-
-Author.propTypes = {
-  model: React.PropTypes.object
-};
 
 export default class Notes extends React.Component {
 
@@ -65,7 +56,7 @@ export default class Notes extends React.Component {
         <table>
           <TableHead columns={this.props.tableColumns}/>
           <TableBody columns={this.props.tableColumns} rows={this.state.notes} model='order'>
-            <Author/>
+            <UserInitials/>
           </TableBody>
         </table>
         {empty}
@@ -86,7 +77,7 @@ Notes.defaultProps = {
   tableColumns: [
     {field: 'createdAt', text: 'Date/Time', type: 'date', format: 'MM/DD/YYYY h:mm A'},
     {field: 'body', text: 'Note'},
-    {field: 'author', text: 'Author', component: 'Author'},
+    {field: 'author', text: 'Author', component: 'UserInitials'},
     {field: 'isEditable', text: ''}
   ]
 };

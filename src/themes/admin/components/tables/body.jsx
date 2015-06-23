@@ -24,11 +24,13 @@ export default class TableBody extends React.Component {
     }
   }
 
-  findComponent(name, row) {
-    let children = this.props.children;
+  findComponent(name, row, field) {
+    let
+      children  = this.props.children,
+      model     = row[field] ? row[field] : row;
     children = Array.isArray(children) ? children : [children];
     let element = children.filter((child) => { return child.type.name === name; })[0];
-    return React.cloneElement(element, {model: row});
+    return React.cloneElement(element, {model: model});
   }
 
   render() {
@@ -39,7 +41,7 @@ export default class TableBody extends React.Component {
           {columns.map((column) => {
             let data = (
               column.component
-                ? this.findComponent(column.component, row)
+                ? this.findComponent(column.component, row, column.field)
                 : this.convert(row[column.field], column)
             );
             return <td key={`${idx}-${column.field}`}>{data}</td>;

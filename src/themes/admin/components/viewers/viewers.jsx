@@ -1,6 +1,7 @@
 'use strict';
 
 import React from 'react';
+import UserInitials from '../users/initials';
 import ViewerStore from './store';
 import { listenTo, stopListeningTo } from '../../lib/dispatcher';
 
@@ -36,21 +37,13 @@ export default class Viewers extends React.Component {
     this.setState({viewers: viewers});
   }
 
-  initials(viewer) {
-    return `${viewer.firstName.charAt(0)}${viewer.lastName.charAt(0)}`;
-  }
-
-  tooltip(viewer) {
-    return `${viewer.firstName} ${viewer.lastName}\n${viewer.email}`;
-  }
-
   render() {
     let viewers = this.state.viewers;
 
     return (
       <ul className="viewers">
         {viewers.map((viewer) => {
-          return <li className="tooltip-bottom" key={viewer.id} data-tooltip={this.tooltip(viewer)}>{this.initials(viewer)}</li>;
+          return <li key={viewer.id}><UserInitials model={viewer}/></li>;
         })}
       </ul>
     );
