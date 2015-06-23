@@ -19,7 +19,7 @@ class InventorySummaryTest extends IntegrationTestBase {
         InventoryAdjustments.save(InventoryAdjustment(skuId = skuId, inventoryEventId = orderId,
           reservedForFulfillment = reserved))
 
-      "inserts a new record if there is none after an insert to InventoryAdjustment" - {
+      "inserts a new record if there is none after an insert to InventoryAdjustment" in {
         val (sku, order) = seed()
         adjustment(sku.id, order.id, reserved = 10).run()
         val summary = InventorySummaries.findBySkuId(sku.id).futureValue.get
@@ -27,13 +27,13 @@ class InventorySummaryTest extends IntegrationTestBase {
         summary.availableOnHand mustBe (-10)
       }
 
-      "updates an existing record after multiple inserts to InventoryAdjustment" - {
+      "updates an existing record after multiple inserts to InventoryAdjustment" in {
         val (sku, order) = seed()
-        List(10, 50, 0, 3, 2).foreach { r => adjustment(sku.id, order.id, reserved = r).run().futureValue }
+        List(10, 50, 0, 3, 2, -30, -30).foreach { r => adjustment(sku.id, order.id, reserved = r).run().futureValue }
 
         val summary = InventorySummaries.findBySkuId(sku.id).futureValue.get
 
-        summary.availableOnHand mustBe (-65)
+        summary.availableOnHand mustBe (-5)
       }
     }
   }
