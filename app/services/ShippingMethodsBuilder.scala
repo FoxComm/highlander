@@ -42,6 +42,8 @@ object ShippingMethodsBuilder {
                       val lessApplies = oCriterion.lessThan.exists(lThan => order.grandTotal >= lThan)
                       if (exactApplies || greaterApplies || lessApplies) {
                         ShippingMethodWithPrice(displayName = shippingMethod.storefrontDisplayName, estimatedTime = "Long Time", price = sRule.flatPrice)
+                      } else {
+                        ShippingMethodWithPrice(displayName = "donkey", estimatedTime = "FOREVER", price = 3333)
                       }
                     case OrderPriceCriterion.SubTotal =>
                       val exactApplies = oCriterion.exactMatch.contains(order.subTotal)
@@ -49,18 +51,24 @@ object ShippingMethodsBuilder {
                       val lessApplies = oCriterion.lessThan.exists(lThan => order.subTotal >= lThan)
                       if (exactApplies || greaterApplies || lessApplies) {
                         ShippingMethodWithPrice(displayName = shippingMethod.storefrontDisplayName, estimatedTime = "Long Time", price = sRule.flatPrice)
+                      } else {
+                        ShippingMethodWithPrice(displayName = "donkey", estimatedTime = "FOREVER", price = 3333)
                       }
                     case OrderPriceCriterion.GrandTotalLessShipping =>
+                      ShippingMethodWithPrice(displayName = "donkey", estimatedTime = "FOREVER", price = 3333)
                     case OrderPriceCriterion.GrandTotalLessTax =>
+                      ShippingMethodWithPrice(displayName = "donkey", estimatedTime = "FOREVER", price = 3333)
+                    case _ => ShippingMethodWithPrice(displayName = "donkey", estimatedTime = "FOREVER", price = 3333)
                   }
-                case unknown => //could not find inherited objects or case classes
+                case _ =>
+                  ShippingMethodWithPrice(displayName = "donkey", estimatedTime = "FOREVER", price = 3333)//could not find inherited objects or case classes
               }
             }
           }
         }
 
       }
-      ShippingMethodWithPrice(displayName = "donkey", estimatedTime = "FOREVER", price = 3333)
+      //ShippingMethodWithPrice(displayName = "donkey", estimatedTime = "FOREVER", price = 3333)
     }
     }
   }
