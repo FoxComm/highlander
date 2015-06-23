@@ -46,7 +46,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
   }
 
   def decrementInventory(): Unit = {
-    // Step 1) Create inventory adjustment event and map it to the order_id. --> +1 to reserved_for_fullfilment and a -1 to available_on_hand
+    // Step 1) Create inventory adjustment event and map it to the order_id. --> +1 to reserved_for_fullfilment
     // Step 2) Adjust the inventory_summary table accordingly.  ExistingNumber-1 to available on hand.
     // Step 3) Do the above as a transaction.
   }
