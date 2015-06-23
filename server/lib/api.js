@@ -16,31 +16,31 @@ class Api {
     let _this = this;
     if (_(data).isString()) {
       token = data;
-      data  = undefined;
+      data = undefined;
     }
 
     return new Promise(function(resolve, reject) {
       let opts = {
-        uri:    uri,
+        uri: uri,
         method: method,
         headers: {
           accept: 'application/json;q=0.9,*/*;q=0.8;',
           authorization: token ? `Bearer ${token}` : ''
         }
-      }
+      };
 
       if (data) {
         opts[(method === 'GET' ? 'qs' : 'json')] = data;
       }
       _this.baseRequest(opts, function(e, r, body) {
-        let data = {
+        let response = {
           status: r.statusCode,
           response: body
         };
         if (r.statusCode >= 200 && r.statusCode < 300) {
-          resolve(data);
+          resolve(response);
         } else {
-          reject(data);
+          reject(response);
         }
       });
     });
@@ -54,6 +54,7 @@ class Api {
   get() { return this.buildRequest('GET', arguments); }
   post() { return this.buildRequest('POST', arguments); }
   put() { return this.buildRequest('PUT', arguments); }
+  patch() { return this.buildRequest('PATCH', arguments); }
   delete() { return this.buildRequest('DELETE', arguments); }
 }
 
