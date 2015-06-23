@@ -57,6 +57,9 @@ object Seeds {
       gateway ← CreditCardGateways.save(s.cc.copy(customerId = customer.id))
       shippingPriceRule ← ShippingPriceRules.save(s.shippingPriceRule)
       shippingMethodRuleMapping ← ShippingMethodsPriceRules.save(s.shippingMethodRuleMapping)
+      orderCriterion ← OrderCriteria.save(s.orderCriterion)
+      orderPriceCriterion ← OrderPriceCriteria.save(s.orderPriceCriterion)
+      priceRuleCriteriaMapping ← ShippingPriceRulesOrderCriteria.save(s.priceRuleCriteriaMapping)
     } yield (customer, order, address, gateway)
 
     Await.result(actions.run(), 1.second)
