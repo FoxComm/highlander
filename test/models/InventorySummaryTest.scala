@@ -8,27 +8,31 @@ class InventorySummaryTest extends IntegrationTestBase {
 
   "InventorySummary" - {
     "Postgres triggers" - {
-      def seed(reserved: Int): (Sku, Order, InventoryAdjustment) = {
+      def seed(reserved: Int): (Sku, Order) = {
         val sku = Skus.save(Sku(price = 5)).run().futureValue
         val order = Orders.save(Order(id = 0, customerId = 1)).run().futureValue
-        val adjustment = InventoryAdjustments.save(InventoryAdjustment(skuId = sku.id, inventoryEventId = order.id,
-          reservedForFulfillment = reserved)).run().futureValue
+        (sku, order)
+      }
 
-        (sku, order, adjustment)
+      def adjustment(skuId: Int, orderId: Int, reserved: Int): InventoryAdjustment = {
+        InventoryAdjustments.save(InventoryAdjustment(skuId = skuId, inventoryEventId = orderId,
+          reservedForFulfillment = reserved)).run().futureValue
       }
 
       "inserts a new record if there is none after an insert to InventoryAdjustment" - {
-        val (sku, _, _) = seed(10)
-        val summary = db.run(InventorySummaries._findBySkuId(sku.id).result.head).futureValue
+        val (sku, order) = seed(10)
+        adjustment(sku.id, order.id, reserved = 10)
+        val summary = InventorySummaries.findBySkuId(sku.id).futureValue.get
 
         summary.availableOnHand mustBe (-10)
       }
 
       "updates an existing record after insert to InventoryAdjustment" - {
-        val (sku, order, adjustment) = seed(10)
-        InventoryAdjustments.save(InventoryAdjustment(skuId = sku.id, inventoryEventId = order.id,
-          reservedForFulfillment = 5)).run().futureValue
-        val summary = db.run(InventorySummaries._findBySkuId(sku.id).result.head).futureValue
+        val (sku, order) = seed(10)
+        adjustment(sku.id, order.id, reserved = 10)
+        adjustment(sku.id, order.id, reserved = 5)
+
+        val summary = InventorySummaries.findBySkuId(sku.id).futureValue.get
 
         summary.availableOnHand mustBe (-15)
       }
