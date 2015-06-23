@@ -27,8 +27,8 @@ object ShippingMethodsBuilder {
                                  (implicit ec: ExecutionContext,
                                    db: Database): Future[Seq[ShippingMethodWithPrice]] = {
     val baseMethods = availableShippingMethods(order)
-    baseMethods.map{ _.map { shippingMethod =>
-      ShippingPriceRules.shippingPriceRuesForShippingMethod(shippingMethod.id).map{
+    baseMethods.flatMap{ _.map { shippingMethod =>
+      ShippingPriceRules.shippingPriceRulesForShippingMethod(shippingMethod.id).map{
         _.map { sRule =>
           // TODO: AW: Come back and deal with SKU-specific criteria later.
           ShippingPriceRulesOrderCriteria.criteriaForPricingRule(sRule.id).map {
@@ -68,6 +68,7 @@ object ShippingMethodsBuilder {
         }
 
       }
+      // This is where I want to assemble the actual price.
       //ShippingMethodWithPrice(displayName = "donkey", estimatedTime = "FOREVER", price = 3333)
     }
     }
