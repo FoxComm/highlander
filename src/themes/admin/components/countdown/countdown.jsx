@@ -55,8 +55,8 @@ class Countdown extends React.Component {
 
   render() {
     return (
-      <div>
-        <div>{this.state.difference}</div>
+      <div className='countdown'>
+        <span>{this.state.difference}</span>
         <button className='btn' onClick={this.addTime.bind(this, 15, 'm')}>+15</button>
       </div>
     );

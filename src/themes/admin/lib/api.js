@@ -26,7 +26,7 @@ export default class Api {
 
       req.open(method, uri);
       if (token) req.setRequestHeader('Authorization', `Bearer ${token}`);
-      if (data && !data instanceof FormData) {
+      if (data && !(data instanceof FormData)) {
         req.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
         data = JSON.stringify(data);
       }
