@@ -295,9 +295,8 @@ class Service(
                 (post & path("shipping-methods" / IntNumber)) { shipMethodId =>
                   complete {
                     whenFound(Orders.findActiveOrderByCustomer(customer)) { order =>
-                      ShippingMethodsBuilder.addShippingMethodToOrder(shipMethodId, order).map { x =>
-                        // do something with FullOrder!!
-                        Good(x)
+                      ShippingMethodsBuilder.addShippingMethodToOrder(shipMethodId, order).map { response =>
+                        response.map(FullOrder.fromOrder(_))
                       }
                     }
                   }
