@@ -3,20 +3,30 @@
 import React from 'react';
 import { RouteHandler } from 'react-router';
 import { Link } from 'react-router';
-import { listenTo, stopListeningTo } from '../../lib/dispatcher';
+import { listenTo, stopListeningTo, dispatch } from '../../lib/dispatcher';
 import OrderStore from './store';
 import Viewers from '../viewers/viewers';
+import ConfirmModal from '../modal/confirm';
 
 const changeEvent = 'change-order-store';
+const confirmEvent = 'confirm-cancel';
+const modalOptions = {
+  header: 'Confirm',
+  body: 'Are you sure you want to cancel the order?',
+  cancel: 'No, Don\'t Cancel',
+  proceed: 'Yes, Cancel Order'
+};
 
 export default class Order extends React.Component {
 
   constructor(props) {
     super(props);
     this.onChangeOrderStore = this.onChangeOrderStore.bind(this);
+    this.onConfirmCancel = this.onConfirmCancel.bind(this);
     this.state = {
       order: {},
-      customer: {}
+      customer: {},
+      pendingStatus: null
     };
   }
 
@@ -25,11 +35,13 @@ export default class Order extends React.Component {
       { router }  = this.context,
       orderId     = router.getCurrentParams().order;
     listenTo(changeEvent, this);
+    listenTo(confirmEvent, this);
     OrderStore.fetch(orderId);
   }
 
   componentWillUnmount() {
     stopListeningTo(changeEvent, this);
+    stopListeningTo(confirmEvent, this);
   }
 
   onChangeOrderStore(order) {
@@ -39,11 +51,30 @@ export default class Order extends React.Component {
     });
   }
 
+  onConfirmCancel() {
+    dispatch('toggleModal', null);
+    this.patchOrder();
+  }
+
+  patchOrder() {
+    OrderStore.patch(this.state.order.id, {
+      'orderStatus': this.state.pendingStatus
+    });
+    this.setState({
+      pendingStatus: null
+    });
+  }
+
   changeOrderStatus(event) {
     let status = event.target.value;
-    OrderStore.patch(this.state.order.id, {
-      'orderStatus': status
+    this.setState({
+      pendingStatus: status
     });
+    if (status !== 'canceled') {
+      this.patchOrder();
+    } else {
+      dispatch('toggleModal', <ConfirmModal event={confirmEvent} details={modalOptions} />);
+    }
   }
 
   render() {

@@ -6,8 +6,6 @@ const
   Note      = require('./note'),
   Notification = require('./notification');
 
-
-
 const seed = [
   {field: 'orderId', method: 'string', opts: {length: 8, pool: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'}},
   {field: 'orderStatus', method: 'pick', opts: ['cart', 'fraudHold', 'remorseHold', 'manualHold', 'canceled', 'fulfillmentHold', 'partiallyShipped', 'shipped']},
