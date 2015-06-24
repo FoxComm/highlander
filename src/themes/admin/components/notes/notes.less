@@ -15,7 +15,14 @@
     text-align: center;
     border: 1px solid @color-bg-menu;
     .size(45px);
-    .font-spec(20px, 45px);
+    .font-spec(24px, 45px);
+
+    &[disabled] {
+      color: #b9b9b9;
+      background: #f1f1f2;
+      border: 1px solid #b9b9b9;
+      pointer-events: none;
+    }
   }
 
   .empty {
@@ -23,6 +30,49 @@
     background: #f1f1f2;
     .line-height(50px);
     .padding-left(35px);
+  }
+
+  form {
+    .clearfix;
+    .padding-left(35px);
+    .margin-bottom(30px);
+
+    legend {
+      display: block;
+      .margin-bottom(20px);
+      .font-spec(16px, 600);
+    }
+
+    .note-body {
+      .width(100%);
+      .max-width(890px);
+      .margin-bottom(25px);
+
+      textarea {
+        border-radius: 5px;
+        border: 1px solid @color-border-td;
+        .size(100%, 135px);
+        .padding(10px);
+      }
+    }
+
+    input[type=reset] {
+      background: none;
+      border: none;
+      float: left;
+      .height(30px);
+      .margin-right(25px);
+      .font-spec(40px, 30px);
+    }
+
+    input[type=submit] {
+      background: @color-white;
+      border-radius: 4px;
+      float: left;
+      .height(30px);
+      .line-height(30px);
+      border: 1px solid @color-bg-menu;
+    }
   }
 
   table {

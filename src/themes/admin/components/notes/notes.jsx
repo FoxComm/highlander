@@ -16,7 +16,8 @@ export default class Notes extends React.Component {
     super(props);
     this.onChangeNoteStore = this.onChangeNoteStore.bind(this);
     this.state = {
-      notes: []
+      notes: [],
+      open: false
     };
   }
 
@@ -39,8 +40,8 @@ export default class Notes extends React.Component {
     this.setState({notes: notes});
   }
 
-  addNote() {
-    console.log('herere');
+  toggleNote() {
+    this.setState({open: !this.state.open});
   }
 
   render() {
@@ -52,7 +53,19 @@ export default class Notes extends React.Component {
     return (
       <div id="notes">
         <h2>Notes</h2>
-        <a onClick={this.addNote} className="add-note"> <i className="icon-plus"></i></a>
+        <a onClick={this.toggleNote.bind(this)} className="add-note" disabled={this.state.open}><i className="icon-plus"></i></a>
+        <form action={NoteStore.baseUri} method="post">
+          <formset>
+            <legend>New Note</legend>
+            <div className="note-body">
+              <textarea name="body" required></textarea>
+            </div>
+            <div>
+              <input type="reset" value="&times;" onClick={this.toggleNote.bind(this)}/>
+              <input type="submit" value="Save"/>
+            </div>
+          </formset>
+        </form>
         <table>
           <TableHead columns={this.props.tableColumns}/>
           <TableBody columns={this.props.tableColumns} rows={this.state.notes} model='order'>

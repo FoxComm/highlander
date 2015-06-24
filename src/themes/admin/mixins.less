@@ -106,6 +106,15 @@
   min-width: @rem-value;
 }
 
+.max-width(@value) {
+  max-width: @value;
+}
+
+.max-width(@value) when (ispixel(@value)) {
+  @rem-value: ~`pxtorem('@{value}')`;
+  max-width: @rem-value;
+}
+
 .height(@value) {
   height: @value;
 }
@@ -122,6 +131,15 @@
 .min-height(@value) when (ispixel(@value)) {
   @rem-value: ~`pxtorem('@{value}')`;
   min-height: @rem-value;
+}
+
+.max-height(@value) {
+  max-height: @value;
+}
+
+.max-height(@value) when (ispixel(@value)) {
+  @rem-value: ~`pxtorem('@{value}')`;
+  max-height: @rem-value;
 }
 
 // ===== Mixin Values =====
