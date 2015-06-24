@@ -18,6 +18,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
     // 3) Validate addresses
     // 4) Validate promotions/coupons
     // 5) Final Auth on the payment
+    // 6) Check & Reserve inventory
 
     OrderLineItems.countByOrder(this.order).flatMap { count =>
       if (count > 0) {
@@ -45,11 +46,8 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
     } yield newOrder.copy(id = insertId))
   }
 
-  def decrementInventory(): Unit = {
-    // Step 1) Create inventory adjustment event and map it to the order_id. --> +1 to reserved_for_fullfilment and a -1 to available_on_hand
-    // Step 2) Adjust the inventory_summary table accordingly.  ExistingNumber-1 to available on hand.
-    // Step 3) Do the above as a transaction.
-  }
+  def decrementInventory(order: Order): Future[Int] =
+    InventoryAdjustments.createAdjustmentsForOrder(order)
 
   def authorizePayments: Future[Map[AppliedPayment, List[ErrorMessage]]] = {
     AppliedPayments.findAllPaymentsFor(this.order).flatMap { records =>
