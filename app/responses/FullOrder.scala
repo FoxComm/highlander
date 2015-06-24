@@ -10,11 +10,27 @@ object FullOrder {
   type Response = Future[Option[Root]]
 
   case class Totals(subTotal: Int, taxes: Int, adjustments: Int, total: Int)
-  case class Root(id: Int, referenceNumber: Option[String], orderStatus: Order.Status, lineItems: Seq[OrderLineItem], adjustments: Seq[Adjustment], totals: Totals, shippingMethod: Option[ShippingMethod])
+  case class Root(id: Int, referenceNumber: Option[String],
+                  orderStatus: Order.Status,
+                  shippingStatus: Order.Status,
+                  paymentStatus: Order.Status,
+                  lineItems: Seq[OrderLineItem],
+                  adjustments: Seq[Adjustment],
+                  fraudScore: Int,
+                  totals: Totals,
+                  shippingMethod: Option[ShippingMethod])
 
   def build(order: Order, lineItems: Seq[OrderLineItem] = Seq.empty, adjustments: Seq[Adjustment] = Seq.empty, shippingMethod: Option[ShippingMethod] = None): Root = {
-    Root(id = order.id, referenceNumber = order.referenceNumber, orderStatus = order.status, lineItems = lineItems, adjustments = adjustments, totals =
-      Totals(subTotal = 333, taxes = 10, adjustments = 0, total = 510), shippingMethod = shippingMethod)
+    val rand = scala.util.Random
+    Root(id = order.id,
+      referenceNumber = order.referenceNumber,
+      orderStatus = order.status,
+      shippingStatus = order.status,
+      paymentStatus = order.status,
+      lineItems = lineItems,
+      adjustments = adjustments,
+      fraudScore = rand.nextInt(100),
+      totals = Totals(subTotal = 333, taxes = 10, adjustments = 0, total = 510), shippingMethod = shippingMethod)
   }
 
   def findById(id: Int)
