@@ -18,6 +18,7 @@ class OrderIntegrationTest extends IntegrationTestBase
   import Extensions._
 
   "returns new items" in {
+    pending
     val orderId = db.run(Orders.returningId += Order(id = 0, customerId = 1)).futureValue
 
     val response = POST(
@@ -57,7 +58,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       response.status mustBe StatusCodes.BadRequest
     }
 
-    "fails if the card is invalid according to Stripe" in {
+    "fails if the card is invalid according to Stripe" ignore {
       val orderId = db.run(Orders.returningId += Order(id = 0, customerId = 1)).futureValue
       val customerId = db.run(Customers.returningId += customerStub).futureValue
       val response = POST(
@@ -71,7 +72,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       response.status mustBe StatusCodes.BadRequest
     }
 
-    "successfully creates records" in {
+    "successfully creates records" ignore {
       val orderId = db.run(Orders.returningId += Order(id = 0, customerId = 1)).futureValue
       val customerId = db.run(Customers.returningId += customerStub).futureValue
       val customer = customerStub.copy(id = customerId)

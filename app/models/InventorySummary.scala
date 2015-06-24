@@ -29,6 +29,9 @@ object InventorySummaries extends TableQueryWithId[InventorySummary, InventorySu
   idLens = GenLens[InventorySummary](_.id)
 )(new InventorySummaries(_)) {
 
+  def findBySkuId(id: Int)(implicit db: Database): Future[Option[InventorySummary]] =
+    db.run(_findBySkuId(id).result.headOption)
+
   def _findBySkuId(id: Int): Query[InventorySummaries, InventorySummary, Seq] =
     filter(_.skuId === id)
 }

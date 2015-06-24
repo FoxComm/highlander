@@ -27,6 +27,11 @@ object FullOrder {
     this.findOrder(Orders._findByCustomer(customer))
   }
 
+  def findCartByCustomer(customer: Customer)
+                        (implicit ec: ExecutionContext, db: Database): Response = {
+    this.findOrder(Orders._findActiveOrderByCustomer(customer))
+  }
+
   def fromOrder(order: Order)
               (implicit ec: ExecutionContext,
                db: Database): Response = {
