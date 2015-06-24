@@ -45,19 +45,8 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
     } yield newOrder.copy(id = insertId))
   }
 
-  def decrementInventory(order: Order): Future[Unit] = {
-    OrderLineItems.countBySkuIdForOrder(order).map { items =>
-      // TODO(yax): change to batch via foldLeft -> Map
-      items.map { case (skuId, count) =>
-        InventoryAdjustments.save(InventoryAdjustment(skuId = skuId, inventoryEventId = order.id,
-          reservedForFulfillment = count))
-      }
-    }
-
-    // Step 1) Create inventory adjustment event and map it to the order_id. --> +1 to reserved_for_fullfilment
-    // Step 2) Adjust the inventory_summary table accordingly.  ExistingNumber-1 to available on hand.
-    // Step 3) Do the above as a transaction.
-  }
+  def decrementInventory(order: Order): Future[Int] =
+    InventoryAdjustments.createAdjustmentsForOrder(order)
 
   def authorizePayments: Future[Map[AppliedPayment, List[ErrorMessage]]] = {
     AppliedPayments.findAllPaymentsFor(this.order).flatMap { records =>
