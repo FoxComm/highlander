@@ -51,7 +51,8 @@ object ShippingMethodsBuilder {
   // What is the price of a certain shipping method based on the current order details?
 
 
-  def criteriaMatchForShippingRule(oCriterion: OrderPriceCriterion, order: Order): Boolean = {
+  def criteriaMatchForShippingRule(oCriterion: OrderPriceCriterion, order: Order)
+                                  (implicit ec: ExecutionContext, db: Database): Future[Boolean] = {
     oCriterion match {
       case t: OrderPriceCriterion =>
         t.priceType match {
@@ -62,7 +63,7 @@ object ShippingMethodsBuilder {
             (exactApplies || greaterApplies || lessApplies)
           case OrderPriceCriterion.SubTotal =>
             val exactApplies = oCriterion.exactMatch.contains(order.subTotal)
-            val greaterApplies = oCriterion.greaterThan.exists(gThan => order.subTotal >= gThan)
+            val greaterApplies = oCriterion.greaterThan.exists(gThan => order.subTotal.flatMap(subTot => subTot.exists(_ >= gThan)))
             val lessApplies = oCriterion.lessThan.exists(lThan => order.subTotal >= lThan)
             (exactApplies || greaterApplies || lessApplies)
           case OrderPriceCriterion.GrandTotalLessShipping =>
