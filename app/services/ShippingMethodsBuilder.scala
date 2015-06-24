@@ -89,13 +89,15 @@ object ShippingMethodsBuilder {
   }
 
   def addShippingMethodToOrder(shippingMethodId: Int, order: Order)
-                              (implicit ec: ExecutionContext, db: Database): Future[Option[Order]] = {
-    db.run(ShippingMethods.findById(shippingMethodId)).map { shipMethod =>
-      if (shipMethod.nonEmpty) {
-        Some(order)
-      } else {
-        None
-      }
+                              (implicit ec: ExecutionContext, db: Database): Future[Order Or List[ErrorMessage]] = {
+    val queries = for {
+      shippingMethods <- ShippingMethods.findById(shippingMethodId)
+      shipId <- shippingMethods.map { s => OrdersShippingMethods.insertOrUpdate(OrderShippingMethod(orderId = order.id, shippingMethodId = s.id)) }.getOrElse(DBIO.successful(0))
+      updatedOrder <- Orders.findById(order.id) if shipId > 0
+    } yield (updatedOrder)
+
+    db.run(queries).map { optOrder =>
+      optOrder.map(Good(_)).getOrElse((Bad(List("Shipping method was not saved"))))
     }
   }
 }

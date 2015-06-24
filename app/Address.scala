@@ -296,7 +296,7 @@ class Service(
                   complete {
                     whenFound(Orders.findActiveOrderByCustomer(customer)) { order =>
                       ShippingMethodsBuilder.addShippingMethodToOrder(shipMethodId, order).map { x =>
-                        // we'll need to handle Bad
+                        // do something with FullOrder!!
                         Good(x)
                       }
                     }
