@@ -4,6 +4,7 @@ import React from 'react';
 import moment from 'moment';
 import { Link } from 'react-router';
 import { formatCurrency } from '../../lib/format';
+import OrderStore from '../orders/store';
 
 export default class TableBody extends React.Component {
   convert(field, column) {
@@ -13,6 +14,7 @@ export default class TableBody extends React.Component {
       case 'image': return <img src={field}/>;
       case 'currency': return formatCurrency(field);
       case 'date': return moment(field).format(column.format || 'DD/MM/YYYY');
+      case 'orderStatus': return OrderStore.statuses[field];
       default: return field;
     }
   }

@@ -53,7 +53,7 @@ Orders.defaultProps = {
     {field: 'id', text: 'Order', type: 'id'},
     {field: 'createdAt', text: 'Date', type: 'date'},
     {field: 'email', text: 'Email'},
-    {field: 'orderStatus', text: 'Order Status'},
+    {field: 'orderStatus', text: 'Order Status', type: 'orderStatus'},
     {field: 'paymentStatus', text: 'Payment Status'},
     {field: 'shippingStatus', text: 'Shipping Status'},
     {field: 'grandTotal', text: 'Total', type: 'currency'}
