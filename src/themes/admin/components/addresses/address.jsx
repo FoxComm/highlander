@@ -12,7 +12,7 @@ class Address extends React.Component {
     let address = this.props.address;
 
     let isDefault = (
-        <div><input type='checkbox' defaultChecked={address.isDefault} /> Default Address</div>
+        <div><input type='checkbox' defaultChecked={address.isDefault} disabled='disabled' /> Default Address</div>
     );
     let street2 = (val) => {
       return <span><span>{val}</span><br/></span>;
