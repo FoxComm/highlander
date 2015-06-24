@@ -17,9 +17,9 @@ class Address extends React.Component {
     let street2 = (val) => {
       return <span><span>{val}</span><br/></span>;
     };
-    let choose = '';
+    let choose = null;
     if (this.props.order) {
-      if (!address.isActive) choose = <a className='btn choose' onClick={this.setActiveAddress.bind(this)}>Choose</a>;
+      choose = <button className='btn choose' onClick={this.setActiveAddress.bind(this)} disabled={address.isActive}>Choose</button>;
     }
 
 
