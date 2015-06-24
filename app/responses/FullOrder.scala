@@ -12,9 +12,9 @@ object FullOrder {
   case class Totals(subTotal: Int, taxes: Int, adjustments: Int, total: Int)
   case class Root(id: Int, lineItems: Seq[OrderLineItem], adjustments: Seq[Adjustment], totals: Totals)
 
-  def build(order: Order, lineItems: Seq[OrderLineItem] = Seq.empty, adjustments: Seq[Adjustment] = Seq.empty): Root = {
+  def build(order: Order, lineItems: Seq[OrderLineItem] = Seq.empty, adjustments: Seq[Adjustment] = Seq.empty, subTote: Int): Root = {
     Root(id = order.id, lineItems = lineItems, adjustments = adjustments, totals =
-      Totals(subTotal = 500, taxes = 10, adjustments = 0, total = 510))
+      Totals(subTotal = subTote, taxes = 10, adjustments = 0, total = 510))
   }
 
   def findById(id: Int)
@@ -48,7 +48,10 @@ object FullOrder {
 
     db.run(queries.result).map { results =>
       results.headOption.map { case (order, _) =>
-        build(order, results.map { case (_, items) => items })
+
+          build(subTote = order.subTotal.map( subTotes => subTotes), order = order, lineItems = results.map { case (_, items) => items })
+
+
       }
     }
   }
