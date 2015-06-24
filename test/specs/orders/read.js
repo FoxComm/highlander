@@ -20,6 +20,7 @@ describe('Orders #GET', function() {
     expect(order.totals.taxes).to.be.a('number');
     expect(order.totals.adjustments).to.be.a('number');
     expect(order.totals.total).to.be.a('number');
+    expect(order.lineItems).to.be.a('array');
   });
 
   it('should get an array of orders', function *() {

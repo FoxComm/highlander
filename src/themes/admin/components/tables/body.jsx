@@ -10,6 +10,7 @@ export default class TableBody extends React.Component {
     let model = this.props.model;
     switch(column.type) {
       case 'id': return <Link to={model} params={{order: field}}>{field}</Link>;
+      case 'image': return <img src={field}/>;
       case 'currency': return formatCurrency(field);
       case 'date': return moment(field).format(column.format || 'DD/MM/YYYY');
       default: return field;

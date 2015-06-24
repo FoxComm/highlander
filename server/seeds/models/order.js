@@ -3,6 +3,7 @@
 const
   BaseModel = require('../lib/base-model'),
   Customer  = require('./customer'),
+  LineItem  = require('./line-item'),
   Note      = require('./note'),
   Notification = require('./notification');
 
@@ -26,6 +27,7 @@ class Order extends BaseModel {
   get shippingStatus() { return this.model.shippingStatus; }
   get fraudScore() { return this.model.fraudScore; }
   get customer() { return Customer.generate(); }
+  get lineItems() { return LineItem.generateList(~~((Math.random() * 5) + 1)); }
   get totals() {
     return {
       shipping: this.model.shippingTotal,
