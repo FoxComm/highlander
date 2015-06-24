@@ -1,8 +1,7 @@
 'use strict';
 
 const
-  BaseModel = require('../lib/base-model'),
-  Order = require('./order');
+  BaseModel = require('../lib/base-model');
 
 const seed = [
   {field: 'notificationStatus', method: 'pick', opts: ['Delivered', 'Failed']},
@@ -16,17 +15,6 @@ class Notification extends BaseModel {
   get subject() { return this.model.subject; }
   get sendDate() { return this.model.sendDate; }
   get contact() { return this.model.contact; }
-
-  toJSON() {
-    return {
-      id: this.id,
-      order: Order.generate(),
-      notificationStatus: this.notificationStatus,
-      subject: this.subject,
-      sendDate: this.sendDate,
-      contact: this.contact
-    };
-  }
 }
 
 Object.defineProperty(Notification, 'seed', {value: seed});

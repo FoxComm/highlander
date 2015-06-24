@@ -50,7 +50,7 @@ module.exports = function(app, router) {
       yield next;
     })
     .get('/orders/:order/notifications', function *() {
-      this.body = Notification.generateList();
+      this.body = this.order.notifications();
     })
     .post('/orders/:order/notifications/:notification', function *() {
       this.body = this.notification.toJSON();
