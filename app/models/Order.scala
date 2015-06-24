@@ -25,8 +25,8 @@ case class Order(id: Int = 0, customerId: Int, status: Order.Status = Order.Cart
     OrderTotaler.grandTotalForOrder(this)
   }
 
-  def grandTotal: Future[Option[Int]] = {
-    Future(Some(27))
+  def grandTotal: Future[Int] = {
+    Future.successful(27)
   }
 }
 
