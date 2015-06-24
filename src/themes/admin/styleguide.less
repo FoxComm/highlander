@@ -20,6 +20,7 @@
 @color-border: #bbbdbf;
 @color-btn-bg: #F1F1F2;
 @color-btn-bg-hover: #E3E3E4;
+@color-link-tab: #595959;
 @color-bg-tooltip: #484848;
 
 * {
@@ -58,6 +59,12 @@ img {
   max-width: 100%;
 }
 
+a,
+a:visited {
+  cursor: pointer;
+  text-decoration: none;
+}
+
 textarea {
   resize: none;
 }
@@ -73,38 +80,28 @@ table {
   text-align: left;
 }
 
-table.listing {
-  thead {
-    tr {
-      background-color: @color-bg-thead;
-
-      th {
-        .text-indent(15px);
-        .font-spec(15px, 700, 80px);
-        border-right: 1px solid @color-border-td;
-        &:last-child { border-right: none; }
-      }
-    }
-  }
-
-  tbody {
-    tr {
-      &:nth-child(odd) { background-color: @color-bg-tr-odd; }
-      &:nth-child(even) { background-color: @color-bg-tr-even; }
-
-      td {
-        .text-indent(15px);
-        .line-height(70px);
-        border-right: 1px solid @color-border-td;
-        &:last-child { border-right: none; }
-      }
-    }
-  }
-}
-
 .gutter {
   .padding-left(50px);
   .padding-right(50px);
+}
+
+.tabbed-nav {
+  li {
+    display: inline-block;
+    vertical-align: top;
+    .margin-right(45px);
+
+    a,
+    a:visited {
+      color: @color-link-tab;
+      display: block;
+      .font-spec(14px, 700, 16px);
+
+      &.active {
+        border-bottom: 2px solid @color-bg-tooltip;
+      }
+    }
+  }
 }
 
 .btn {

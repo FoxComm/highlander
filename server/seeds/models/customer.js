@@ -19,8 +19,7 @@ const seed = [
   {field: 'zip'},
   {field: 'role', method: 'pick', opts: ['admin', 'customer', 'vendor']},
   {field: 'blocked', method: 'bool'},
-  {field: 'cause', method: 'sentence', opts: {words: 2}},
-  {field: 'createdAt', method: 'date', opts: {year: 2014}}
+  {field: 'cause', method: 'sentence', opts: {words: 2}}
 ];
 
 class Customer extends BaseModel {

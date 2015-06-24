@@ -10,7 +10,11 @@ const
 class BaseModel {
 
   static generate() {
-    let model = {id: chance.guid()};
+    let model = {
+      id: chance.guid(),
+      createdAt: chance.date({year: 2014})
+    };
+
     for (let key of this.seed) {
       let method = key.method || key.field;
       model[key.field] = chance[method](key.opts);
@@ -28,8 +32,9 @@ class BaseModel {
   constructor(model) {
     this.model = model || {};
     if (!this.id) {
+      this.model.id = chance.guid();
+      this.model.createdAt = chance.date({year: 2014});
       this.amend(model);
-      this.update({id: chance.guid()});
     }
   }
 
