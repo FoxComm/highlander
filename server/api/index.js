@@ -8,7 +8,7 @@ const
 module.exports = function(app) {
   const
     config      = app.config.api,
-    api         = new Api(config.uri);
+    api         = new Api(config.uri, config.auth);
 
   let router = new Router({
     prefix: `/api/${config.version}`

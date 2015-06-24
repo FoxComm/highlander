@@ -14,6 +14,7 @@ const seed = [
   {field: 'fraudScore', method: 'integer', opts: {min: 0, max: 100}},
   {field: 'shippingTotal', method: 'integer', opts: {min: 0, max: 500}},
   {field: 'tax', method: 'integer', opts: {min: 100, max: 10000}},
+  {field: 'discount', method: 'integer', opts: {min: 0, max: 1000}},
   {field: 'subtotal', method: 'integer', opts: {min: 10000, max: 1000000}},
   {field: 'grandTotal', method: 'integer', opts: {min: 10000, max: 1000000}}
 ];
@@ -25,10 +26,15 @@ class Order extends BaseModel {
   get shippingStatus() { return this.model.shippingStatus; }
   get fraudScore() { return this.model.fraudScore; }
   get customer() { return Customer.generate(); }
-  get shippingTotal() { return this.model.shippingTotal; }
-  get subtotal() { return this.model.subtotal; }
-  get tax() { return this.model.tax; }
-  get grandTotal() { return this.model.grandTotal; }
+  get totals() {
+    return {
+      shipping: this.model.shippingTotal,
+      subTotal: this.model.subtotal,
+      taxes: this.model.tax,
+      adjustments: this.model.discount,
+      total: this.model.grandTotal
+    };
+  }
 
   viewers() {
     let
