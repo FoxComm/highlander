@@ -37,8 +37,9 @@ object ShippingMethodsBuilder {
   def fullShippingMethodsForOrder(order: Order)
     (implicit ec: ExecutionContext, db: Database): Future[Seq[ShippingMethodWithPrice]] = {
 
-/*    getAllTheShippingShit(order).map { (results: Seq[(ShippingMethod, ShippingMethodPriceRule, ShippingPriceRule, OrderPriceCriterion)]) ⇒
+    getAllTheShippingShit(order).map { (results: Seq[(ShippingMethod, ShippingMethodPriceRule, ShippingPriceRule, OrderPriceCriterion)]) ⇒
       results.map { case (method, methodRules, priceRule, criteria) ⇒
+        // TODO: YAX/Ferdinand --> What's the appropriate way to handle a Future[Bool] below?
         val shippingPrice = if (criteriaMatchForShippingRule(criteria, order)) {
           priceRule.flatPrice
         } else {
@@ -46,9 +47,8 @@ object ShippingMethodsBuilder {
         }
         ShippingMethodWithPrice(displayName = "donkey", estimatedTime = "FOREVER", price = shippingPrice)
       }
-    }*/
+    }
 
-    ???
   }
   // What is the price of a certain shipping method based on the current order details?
 
