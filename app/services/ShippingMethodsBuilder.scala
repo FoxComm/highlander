@@ -22,44 +22,30 @@ object ShippingMethodsBuilder {
     db.run(availMethods).map(methods => methods)
   }
 
+  def getAllTheShippingShit(order: Order)(implicit db: Database): Future[Seq[(ShippingMethod, ShippingMethodPriceRule, ShippingPriceRule, OrderPriceCriterion)]] = {
+    val queries = for {
+      methods ← ShippingMethods.filter(_.isActive)
+      methodRules ← ShippingMethodsPriceRules.filter(_.shippingMethodId === methods.id)
+      priceRules ← ShippingPriceRules.filter(_.id === methodRules.shippingPriceRuleId)
+      criteriaMappings ← ShippingPriceRulesOrderCriteria.filter(_.shippingPricingRuleId === priceRules.id)
+      criteria ← OrderPriceCriteria.filter(_.id === criteriaMappings.orderCriterionId)
+    } yield (methods, methodRules, priceRules, criteria)
+
+    db.run(queries.result)
+  }
 
   def fullShippingMethodsForOrder(order: Order)
-                                 (implicit ec: ExecutionContext,
-                                   db: Database): Future[Seq[ShippingMethodWithPrice]] = {
-    val baseMethods = availableShippingMethods(order)
-    baseMethods.flatMap { shippingMethods =>
-      val blah = shippingMethods.map { shippingMethod =>
+    (implicit ec: ExecutionContext, db: Database): Future[Seq[ShippingMethodWithPrice]] = {
 
-      ShippingPriceRules.shippingPriceRulesForShippingMethod(shippingMethod.id).flatMap { shippingRules =>
-        val x = shippingRules.map { sRule =>
-          // TODO: AW: Come back and deal with SKU-specific criteria later.
-          ShippingPriceRulesOrderCriteria.criteriaForPricingRule(sRule.id).map { oCriteria =>
-            val matches = oCriteria.filter { oCriterion =>
-              criteriaMatchForShippingRule(oCriterion, order)
-            }
-            val shippingPrice = if (matches.nonEmpty) {
-              sRule.flatPrice
-            } else {
-              shippingMethod.defaultPrice
-            }
-            ShippingMethodWithPrice(displayName = "donkey", estimatedTime = "FOREVER", price = shippingPrice)
-          }
+    getAllTheShippingShit(order).map { results ⇒
+      results.map { case (method, methodRules, priceRule, criteria) ⇒
+        val shippingPrice = if (criteriaMatchForShippingRule(criteria, order)) {
+          priceRule.flatPrice
+        } else {
+          method.defaultPrice
         }
-
-        Future.sequence(x)
+        ShippingMethodWithPrice(displayName = "donkey", estimatedTime = "FOREVER", price = shippingPrice)
       }
-    }
-      val accum: Future[Seq[ShippingMethodWithPrice]] = Future.successful(Seq())
-      blah.foldLeft(accum) { case (ac, futureSeq) =>
-        futureSeq.flatMap { seq =>
-          ac.map { finalSeq =>
-            finalSeq ++ seq
-          }
-        }
-      }
-
-      // This is where I want to assemble the actual price.
-
     }
   }
   // What is the price of a certain shipping method based on the current order details?

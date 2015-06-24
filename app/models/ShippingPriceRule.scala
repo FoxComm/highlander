@@ -45,6 +45,7 @@ object ShippingPriceRules extends TableQueryWithId[ShippingPriceRule, ShippingPr
   idLens = GenLens[ShippingPriceRule](_.id)
 )(new ShippingPriceRules(_)){
   val methodPriceRuleMapping = ShippingMethodsPriceRules
+
   def shippingPriceRulesForShippingMethod(id: Int)
                                         (implicit ec: ExecutionContext, db: Database): Future[Seq[ShippingPriceRule]] = {
     db.run(
