@@ -52,7 +52,7 @@ export default class Order extends React.Component {
             <li><Link to="order-details" params={{order: order.orderId}}>Details</Link></li>
             <li><a href="">Shipments</a></li>
             <li><a href="">Returns</a></li>
-            <li><a href="">Emails</a></li>
+            <li><Link to="order-notifications" params={{order: order.id}}>Transcation Notifications</Link></li>
             <li><Link to="order-notes" params={{order: order.orderId}}>Notes</Link></li>
             <li><a href="">Activity Trail</a></li>
           </ul>

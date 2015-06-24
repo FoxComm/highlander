@@ -7,7 +7,8 @@ const
 module.exports = function(app, router) {
   const
     Order = app.seeds.models.Order,
-    Note  = app.seeds.models.Note;
+    Note  = app.seeds.models.Note,
+    Notification = app.seeds.models.Notification;
 
   router
     .param('order', function *(id, next) {
@@ -43,5 +44,15 @@ module.exports = function(app, router) {
         order = new Order(body);
       this.status = 201;
       this.body = order.toJSON();
+    })
+    .param('notification', function *(id, next) {
+      this.notification = Notification.generate(id);
+      yield next;
+    })
+    .get('/orders/:order/notifications', function *() {
+      this.body = this.order.notifications();
+    })
+    .post('/orders/:order/notifications/:notification', function *() {
+      this.body = this.notification.toJSON();
     });
 };

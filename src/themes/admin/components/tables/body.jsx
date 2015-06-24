@@ -54,6 +54,10 @@ export default class TableBody extends React.Component {
   }
 }
 
+TableBody.contextTypes = {
+  router: React.PropTypes.func
+};
+
 TableBody.propTypes = {
   columns: React.PropTypes.array,
   rows: React.PropTypes.array,

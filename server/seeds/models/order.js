@@ -3,7 +3,8 @@
 const
   BaseModel = require('../lib/base-model'),
   Customer  = require('./customer'),
-  Note      = require('./note');
+  Note      = require('./note'),
+  Notification = require('./notification');
 
 const seed = [
   {field: 'orderId', method: 'string', opts: {length: 8, pool: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'}},
@@ -41,6 +42,14 @@ class Order extends BaseModel {
       notes = [];
     while(count--) notes.push(Note.generate());
     return notes;
+  }
+
+  notifications() {
+    let
+      count = ~~((Math.random() * 10) + 0),
+      notifications = [];
+    while(count--) notifications.push(Notification.generate());
+    return notifications;
   }
 }
 
