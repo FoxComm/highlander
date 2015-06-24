@@ -9,8 +9,14 @@ import Viewers from '../viewers/viewers';
 import ConfirmModal from '../modal/confirm';
 
 const changeEvent = 'change-order-store';
-const confirmEvent = 'confirm-cancel';
-const modalOptions = {
+const confirmEvent = 'confirm-change';
+const changeOptions = {
+  header: 'Confirm',
+  body: 'Are you sure you want to change the order status?',
+  cancel: 'Cancel',
+  proceed: 'Yes'
+};
+const cancelOptions = {
   header: 'Confirm',
   body: 'Are you sure you want to cancel the order?',
   cancel: 'No, Don\'t Cancel',
@@ -22,7 +28,7 @@ export default class Order extends React.Component {
   constructor(props) {
     super(props);
     this.onChangeOrderStore = this.onChangeOrderStore.bind(this);
-    this.onConfirmCancel = this.onConfirmCancel.bind(this);
+    this.onConfirmChange = this.onConfirmChange.bind(this);
     this.state = {
       order: {},
       customer: {},
@@ -51,7 +57,7 @@ export default class Order extends React.Component {
     });
   }
 
-  onConfirmCancel() {
+  onConfirmChange() {
     dispatch('toggleModal', null);
     this.patchOrder();
   }
@@ -70,11 +76,13 @@ export default class Order extends React.Component {
     this.setState({
       pendingStatus: status
     });
+    let options = {};
     if (status !== 'canceled') {
-      this.patchOrder();
+      options = changeOptions;
     } else {
-      dispatch('toggleModal', <ConfirmModal event={confirmEvent} details={modalOptions} />);
+      options = cancelOptions;
     }
+    dispatch('toggleModal', <ConfirmModal event={confirmEvent} details={options} />);
   }
 
   render() {
@@ -106,6 +114,7 @@ export default class Order extends React.Component {
       orderStatus = (
         <select name="orderStatus" value={order.orderStatus} onChange={this.changeOrderStatus.bind(this)}>
           {OrderStore.selectableStatusList.map((status, idx) => {
+            if (order.orderStatus === 'fulfillmentStarted' && ['fulfillmentStarted', 'canceled'].indexOf(status) === -1) return '';
             return <option key={`${idx}-${status}`} value={status}>{OrderStore.statuses[status]}</option>;
           })}
         </select>

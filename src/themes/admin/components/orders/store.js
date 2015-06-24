@@ -9,15 +9,15 @@ class OrderStore extends BaseStore {
       remorseHold: 'Remorse Hold',
       manualHold: 'Manual Hold',
       fraudHold: 'Fraud Hold',
-      fulfillmentHold: 'Fulfillment Hold',
+      fulfillmentStarted: 'Fulfillment Started',
       canceled: 'Canceled',
       partiallyShipped: 'Partially Shipped',
       shipped: 'Shipped'
     };
   }
 
-  get selectableStatusList() { return ['remorseHold', 'manualHold', 'fraudHold', 'fulfillmentHold', 'canceled']; }
-  get editableStatusList() { return ['remorseHold', 'manualHold', 'fraudHold']; }
+  get selectableStatusList() { return ['remorseHold', 'manualHold', 'fraudHold', 'fulfillmentStarted', 'canceled']; }
+  get editableStatusList() { return ['remorseHold', 'manualHold', 'fraudHold', 'fulfillmentStarted']; }
 
   get baseUri() { return '/orders'; }
 }
