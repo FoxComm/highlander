@@ -22,7 +22,7 @@ case class Order(id: Int = 0, customerId: Int, status: Order.Status = Order.Cart
 
   // TODO: Add a real collector/builder here that assembles the subTotal
   def subTotal(implicit ec: ExecutionContext, db: Database): Future[Int] = {
-    OrderTotaler.grandTotalForOrder(this)
+    OrderTotaler.subTotalForOrder(this)
   }
 
   def grandTotal: Future[Int] = {

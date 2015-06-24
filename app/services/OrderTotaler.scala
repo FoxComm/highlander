@@ -7,7 +7,7 @@ import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 import scala.concurrent.{ExecutionContext, Future}
 
 object OrderTotaler {
-  def grandTotalForOrder(order: Order)(implicit db: Database, ec: ExecutionContext): Future[Int] = {
+  def subTotalForOrder(order: Order)(implicit db: Database, ec: ExecutionContext): Future[Int] = {
     db.run((for {
       lineItems <- OrderLineItems._findByOrder(order)
       skus ← Skus if skus.id === lineItems.skuId

@@ -40,12 +40,12 @@ object ShippingMethodsBuilder {
     getAllTheShippingShit(order).map { (results: Seq[(ShippingMethod, ShippingMethodPriceRule, ShippingPriceRule, OrderPriceCriterion)]) ⇒
       results.map { case (method, methodRules, priceRule, criteria) ⇒
         // TODO: YAX/Ferdinand --> What's the appropriate way to handle a Future[Bool] below?
-        val shippingPrice = if (criteriaMatchForShippingRule(criteria, order)) {
-          priceRule.flatPrice
-        } else {
-          method.defaultPrice
-        }
-        ShippingMethodWithPrice(displayName = "donkey", estimatedTime = "FOREVER", price = shippingPrice)
+//        val shippingPrice = if (criteriaMatchForShippingRule(criteria, order)) {
+//          priceRule.flatPrice
+//        } else {
+//          method.defaultPrice
+//        }
+        ShippingMethodWithPrice(displayName = "donkey", estimatedTime = "FOREVER", price = 3333)
       }
     }
 
