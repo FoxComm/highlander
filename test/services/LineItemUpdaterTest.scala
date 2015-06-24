@@ -4,6 +4,7 @@ import models.{Order, OrderLineItem, OrderLineItems, Orders, InventorySummaries,
 import org.scalactic.{Bad, Good}
 import payloads.{UpdateLineItemsPayload ⇒ Payload}
 import util.IntegrationTestBase
+import utils._
 
 class LineItemUpdaterTest extends IntegrationTestBase {
   import api._
@@ -11,13 +12,15 @@ class LineItemUpdaterTest extends IntegrationTestBase {
 
   val lineItems = TableQuery[OrderLineItems]
 
+  def createSkus(num: Int): Unit =
+    (Skus.returningId ++= (1 to num).map { i ⇒ Sku(price = 5) }).run().futureValue
+
   def createLineItems(items: Seq[OrderLineItem]): Unit = {
     val insert = lineItems ++= items
     db.run(insert).futureValue
   }
 
   def createInventory(skuId: Int, availableOnHand: Int = 100): Unit = {
-    Skus.save(Sku(id = skuId, price = 5)).run().futureValue
     val summary = InventorySummary(id = 0, skuId = skuId, availableOnHand = availableOnHand, availablePreOrder = 0,
                                    availableBackOrder = 0, outstandingPreOrders = 0, outstandingBackOrders = 0)
     InventorySummaries.save(summary).run().futureValue
@@ -26,6 +29,7 @@ class LineItemUpdaterTest extends IntegrationTestBase {
   "LineItemUpdater" - {
 
     "Adds line_items when the sku doesn't exist in order" in {
+      createSkus(2)
       val order = Orders.save(Order(customerId = 1)).run().futureValue
       createInventory(1, 100)
       createInventory(2, 100)
@@ -49,6 +53,7 @@ class LineItemUpdaterTest extends IntegrationTestBase {
     }
 
     "Updates line_items when the Sku already is in order" in {
+      createSkus(3)
       val order = Orders.save(Order(customerId = 1)).run().futureValue
       createInventory(1, 100)
       createInventory(2, 100)
