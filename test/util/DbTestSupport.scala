@@ -8,38 +8,46 @@ import org.postgresql.ds.PGSimpleDataSource
 import org.scalatest.{BeforeAndAfterAll, Outcome, Suite, SuiteMixin}
 
 trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
+  import DbTestSupport._
   val api = slick.driver.PostgresDriver.api
   import api._
 
-  implicit lazy val db = Database.forConfig("db.test")
+  implicit lazy val db = database
 
   override protected def beforeAll(): Unit = {
+    if (!migrated) {
+      val flyway = new Flyway
+      flyway.setDataSource(jdbcDataSourceFromConfig("db.test"))
+      flyway.setLocations("filesystem:./sql")
+
+      flyway.clean()
+      flyway.migrate()
+
+      migrated = true
+    }
+  }
+
+  override abstract protected def withFixture(test: NoArgTest): Outcome = {
     val flyway = new Flyway
     flyway.setDataSource(jdbcDataSourceFromConfig("db.test"))
     flyway.setLocations("filesystem:./sql")
 
-    flyway.clean()
-    flyway.migrate()
-  }
-
-  override abstract protected def withFixture(test: NoArgTest): Outcome = {
-    val config  = jdbcDataSourceFromConfig("db.test")
-
-    val conn     = config.getConnection
-    val metaData = conn.getMetaData
-    val catalog  = conn.getCatalog
-    val tables   = metaData.getTables(catalog, "public", "%", Array("TABLE"))
+    val conn      = flyway.getDataSource.getConnection
+    val config    = conn.getMetaData
+    val allTables = conn.getMetaData.getTables(conn.getCatalog, "public", "%", Array("TABLE"))
 
     @tailrec
     def iterate(in: Seq[String]): Seq[String] = {
-      if (tables.next()) {
-        iterate(in :+ tables.getString(3))
+      if (allTables.next()) {
+        iterate(in :+ allTables.getString(3))
       } else {
         in
       }
     }
 
-    println(iterate(Seq.empty[String]).filterNot(_.startsWith("pg_")))
+    val tables = iterate(Seq()).filterNot { t ⇒ t.startsWith("pg_") || t == "states" }
+
+    conn.createStatement().execute(s"truncate ${tables.mkString(", ")} restart identity cascade;")
 
     super.withFixture(test)
   }
@@ -57,5 +65,9 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
 }
 
 object DbTestSupport {
+  import slick.driver.PostgresDriver.api.Database
 
+  @volatile var migrated = false
+
+  def database = Database.forConfig("db.test")
 }
