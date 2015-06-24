@@ -9,7 +9,7 @@ const
   moment    = require('moment');
 
 const seed = [
-  {field: 'orderId', method: 'string', opts: {length: 8, pool: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'}},
+  {field: 'referenceNumber', method: 'string', opts: {length: 8, pool: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'}},
   {field: 'orderStatus', method: 'pick', opts: ['cart', 'fraudHold', 'remorseHold', 'manualHold', 'canceled', 'fulfillmentStarted', 'partiallyShipped', 'shipped']},
   {field: 'paymentStatus', method: 'pick', opts: ['Partial Capture', 'Full Capture']},
   {field: 'shippingStatus', method: 'pick', opts: ['New', null]},
@@ -22,7 +22,7 @@ const seed = [
 ];
 
 class Order extends BaseModel {
-  get orderId() { return this.model.orderId; }
+  get referenceNumber() { return this.model.referenceNumber; }
   get orderStatus() { return this.model.orderStatus; }
   set orderStatus(status) { this.model.orderStatus = status; }
   get paymentStatus() { return this.model.paymentStatus; }

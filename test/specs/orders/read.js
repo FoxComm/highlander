@@ -9,7 +9,7 @@ describe('Orders #GET', function() {
     expect(res.status).to.equal(200);
     expect(order.id).to.equal('1');
     expect(order.createdAt).to.match(/\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/);
-    expect(order.orderId).to.be.a('string');
+    expect(order.referenceNumber).to.be.a('string');
     expect(order.orderStatus).to.be.a('string');
     expect(order.paymentStatus).to.be.a('string');
     expect(order).to.include.key('shippingStatus');

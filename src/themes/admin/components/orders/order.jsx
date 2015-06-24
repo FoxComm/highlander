@@ -136,7 +136,7 @@ export default class Order extends React.Component {
         {viewers}
         <div className="gutter title">
           <div>
-            <h1>Order {order.id}</h1>
+            <h1>Order {order.referenceNumber}</h1>
             {countdown}
           </div>
           <button className='btn cancel' onClick={() => { this.prepareStatusChange('canceled'); }}>Cancel Order</button>
