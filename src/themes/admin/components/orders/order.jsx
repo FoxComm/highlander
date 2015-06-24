@@ -7,6 +7,7 @@ import { listenTo, stopListeningTo, dispatch } from '../../lib/dispatcher';
 import OrderStore from './store';
 import Viewers from '../viewers/viewers';
 import ConfirmModal from '../modal/confirm';
+import Countdown from '../countdown/countdown';
 
 const changeEvent = 'change-order-store';
 const confirmEvent = 'confirm-change';
@@ -94,7 +95,8 @@ export default class Order extends React.Component {
       order         = this.state.order,
       subNav        = null,
       viewers       = null,
-      orderStatus   = null;
+      orderStatus   = null,
+      countdown     = null;
 
     if (order.id) {
       subNav = (
@@ -112,6 +114,8 @@ export default class Order extends React.Component {
       );
 
       viewers = <Viewers model='orders' modelId={order.id}/>;
+
+      if (order.orderStatus === 'remorseHold') countdown = <Countdown endDate={order.remorseEnd} />;
     }
 
     if (OrderStore.editableStatusList.indexOf(order.orderStatus) !== -1) {
@@ -131,7 +135,10 @@ export default class Order extends React.Component {
       <div id="order">
         {viewers}
         <div className="gutter title">
-          <h1>Order {order.orderId}</h1>
+          <div>
+            <h1>Order {order.orderId}</h1>
+            {countdown}
+          </div>
           <button className='btn cancel' onClick={() => { this.prepareStatusChange('canceled'); }}>Cancel Order</button>
         </div>
         <div className="gutter statuses">

@@ -39,7 +39,7 @@ export default class TableBody extends React.Component {
     let columns = this.props.columns;
     let createRow = (row, idx) => {
       return (
-        <tr key={idx}>
+        <tr key={idx} className={row.isNew ? 'new' : ''}>
           {columns.map((column) => {
             let data = (
               column.component

@@ -15,7 +15,16 @@
     text-align: center;
     border: 1px solid @color-bg-menu;
     .size(45px);
-    .font-spec(20px, 45px);
+    .font-spec(24px, 45px);
+
+    &[disabled] {
+      color: #b9b9b9;
+      background: #f1f1f2;
+      border: 1px solid #b9b9b9;
+      pointer-events: none;
+
+      + form { .max-height(232px); }
+    }
   }
 
   .empty {
@@ -23,6 +32,53 @@
     background: #f1f1f2;
     .line-height(50px);
     .padding-left(35px);
+  }
+
+  form {
+    overflow: hidden;
+    transition: max-height 500ms;
+    .clearfix;
+    .padding-left(35px);
+    .margin-bottom(30px);
+    .max-height(0);
+
+    legend {
+      display: block;
+      .margin-bottom(20px);
+      .font-spec(16px, 600);
+    }
+
+    .note-body {
+      position: relative;
+      .width(100%);
+      .max-width(890px);
+      .margin-bottom(25px);
+
+      .counter {
+        position: absolute;
+        .top(-20px);
+        .right(0);
+        font-weight: 400;
+      }
+
+      textarea {
+        border-radius: 5px;
+        border: 1px solid @color-border-td;
+        .size(100%, 135px);
+        .padding(10px);
+      }
+    }
+
+    input[type=reset] {
+      background: none;
+      border: none;
+      float: left;
+      .height(30px);
+      .margin-right(25px);
+      .font-spec(40px, 30px);
+    }
+
+    input[type=submit] { float: left; }
   }
 
   table {
@@ -36,6 +92,8 @@
       tr {
         &:nth-child(odd) { background-color: @color-bg-tr-odd; }
         &:nth-child(even) { background-color: @color-bg-tr-even; }
+        &.new { background-color: #dfe3ed;  }
+        transition: background-color 500ms;
       }
     }
 

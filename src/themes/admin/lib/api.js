@@ -26,9 +26,20 @@ export default class Api {
 
       req.open(method, uri);
       if (token) req.setRequestHeader('Authorization', `Bearer ${token}`);
-      if (data) req.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-      req.send(data ? JSON.stringify(data) : null);
+      if (data && !(data instanceof FormData)) {
+        req.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+        data = JSON.stringify(data);
+      }
+      req.send(data);
     });
+  }
+
+  static submitForm(form) {
+    let
+      method    = form.getAttribute('method').toLowerCase(),
+      uri       = form.getAttribute('action'),
+      formData  = new FormData(form);
+    return this[method](uri, formData);
   }
 
   static get() {

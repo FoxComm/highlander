@@ -16,7 +16,7 @@ class Countdown extends React.Component {
 
   addTime(number, key) {
     this.setState({
-      endDate: this.state.endDate.add(number, key)
+      endDate: moment(this.state.endDate).add(number, key)
     });
     this.startInterval();
   }
@@ -32,7 +32,7 @@ class Countdown extends React.Component {
   }
 
   tick() {
-    let difference = this.state.endDate.diff(moment.utc());
+    let difference = moment(this.state.endDate).diff(moment.utc());
     if (difference <= 0) {
       this.setState({
         difference: zeroTime
@@ -55,9 +55,9 @@ class Countdown extends React.Component {
 
   render() {
     return (
-      <div>
-        <div>{this.state.difference}</div>
-        <a className='btn' onClick={this.addTime.bind(this, 15, 'm')}>+15</a>
+      <div className='countdown'>
+        <span>{this.state.difference}</span>
+        <button className='btn' onClick={this.addTime.bind(this, 15, 'm')}>+15</button>
       </div>
     );
   }
@@ -68,7 +68,7 @@ Countdown.propTypes = {
 };
 
 Countdown.defaultProps = {
-  endDate: moment.utc().add(10, 'h')
+  endDate: moment.utc().add(3, 'h').format()
 };
 
 export default Countdown;

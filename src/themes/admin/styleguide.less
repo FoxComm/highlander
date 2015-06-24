@@ -63,6 +63,8 @@ a,
 a:visited {
   cursor: pointer;
   text-decoration: none;
+
+  &[disabled] { cursor: default; }
 }
 
 textarea {
@@ -101,18 +103,6 @@ table {
         border-bottom: 2px solid @color-bg-tooltip;
       }
     }
-  }
-}
-
-.btn {
-  background: @color-btn-bg;
-  border: 1px solid @color-border;
-  border-radius: 3px;
-  padding: 10px;
-  cursor: pointer;
-
-  &:hover {
-    background: @color-btn-bg-hover;
   }
 }
 
