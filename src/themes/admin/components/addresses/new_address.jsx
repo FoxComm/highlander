@@ -8,7 +8,9 @@ export default class NewAddress extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      isActive: true
+      isActive: true,
+      country: 'US',
+      state: 'CA'
     };
   }
 
@@ -47,11 +49,15 @@ export default class NewAddress extends React.Component {
         </div>
         <div>
           <label htmlFor="country">Country</label>
-          <input type="text" name="country" className='control' onChange={this.handleChanges.bind(this)} required />
+          <select name='country' onChange={this.handleChanges.bind(this)}>
+            <option val='US'>United States</option>
+          </select>
         </div>
         <div>
           <label htmlFor="state">State</label>
-          <input type="text" name="state" className='control' onChange={this.handleChanges.bind(this)} required />
+          <select name='state' onChange={this.handleChanges.bind(this)}>
+            <option val='CA'>California</option>
+          </select>
         </div>
         <div>
           <label htmlFor="city">City</label>
