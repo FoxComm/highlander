@@ -62,10 +62,14 @@ object ShippingMethodsBuilder {
             val lessApplies = oCriterion.lessThan.exists(lThan => order.grandTotal >= lThan)
             (exactApplies || greaterApplies || lessApplies)
           case OrderPriceCriterion.SubTotal =>
-            val exactApplies = oCriterion.exactMatch.contains(order.subTotal)
-            val greaterApplies = oCriterion.greaterThan.exists(gThan => order.subTotal.flatMap(subTot => subTot.exists(_ >= gThan)))
-            val lessApplies = oCriterion.lessThan.exists(lThan => order.subTotal >= lThan)
-            (exactApplies || greaterApplies || lessApplies)
+            order.subTotal.map { subTotal ⇒
+              val exactApplies = oCriterion.exactMatch.contains(subTotal)
+              val greaterApplies = oCriterion.greaterThan.exists(gThan => order.subTotal.flatMap(subTot => subTot.exists(_ >= gThan)))
+              val lessApplies = oCriterion.lessThan.exists(lThan => order.subTotal >= lThan)
+
+              (exactApplies || greaterApplies || lessApplies)
+            }
+
           case OrderPriceCriterion.GrandTotalLessShipping =>
             false
           case OrderPriceCriterion.GrandTotalLessTax =>

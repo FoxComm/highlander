@@ -21,7 +21,7 @@ case class Order(id: Int = 0, customerId: Int, status: Order.Status = Order.Cart
   override def validator = createValidator[Order] { order => }
 
   // TODO: Add a real collector/builder here that assembles the subTotal
-  def subTotal(implicit ec: ExecutionContext, db: Database): Future[Option[Int]] = {
+  def subTotal(implicit ec: ExecutionContext, db: Database): Future[Int] = {
     OrderTotaler.grandTotalForOrder(this)
   }
 
