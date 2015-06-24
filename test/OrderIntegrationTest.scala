@@ -17,7 +17,8 @@ class OrderIntegrationTest extends IntegrationTestBase
   import org.json4s.jackson.JsonMethods._
   import Extensions._
 
-  "returns new items" in (pending) /* {
+  "returns new items" in {
+    pending
     val orderId = db.run(Orders.returningId += Order(id = 0, customerId = 1)).futureValue
 
     val response = POST(
@@ -29,7 +30,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
     val order = parse(response.bodyText).extract[FullOrder.Root]
     order.lineItems.map(_.skuId).sortBy(identity) mustBe List(1, 5, 5)
-  } */
+  }
 
   "handles credit cards" - {
     val today = new DateTime
