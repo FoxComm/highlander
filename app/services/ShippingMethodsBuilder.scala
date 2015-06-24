@@ -37,7 +37,7 @@ object ShippingMethodsBuilder {
   def fullShippingMethodsForOrder(order: Order)
     (implicit ec: ExecutionContext, db: Database): Future[Seq[ShippingMethodWithPrice]] = {
 
-    getAllTheShippingShit(order).map { results ⇒
+/*    getAllTheShippingShit(order).map { (results: Seq[(ShippingMethod, ShippingMethodPriceRule, ShippingPriceRule, OrderPriceCriterion)]) ⇒
       results.map { case (method, methodRules, priceRule, criteria) ⇒
         val shippingPrice = if (criteriaMatchForShippingRule(criteria, order)) {
           priceRule.flatPrice
@@ -46,7 +46,9 @@ object ShippingMethodsBuilder {
         }
         ShippingMethodWithPrice(displayName = "donkey", estimatedTime = "FOREVER", price = shippingPrice)
       }
-    }
+    }*/
+
+    ???
   }
   // What is the price of a certain shipping method based on the current order details?
 
@@ -57,28 +59,32 @@ object ShippingMethodsBuilder {
       case t: OrderPriceCriterion =>
         t.priceType match {
           case OrderPriceCriterion.GrandTotal =>
-            val exactApplies = oCriterion.exactMatch.contains(order.grandTotal)
-            val greaterApplies = oCriterion.greaterThan.exists(gThan => order.grandTotal >= gThan)
-            val lessApplies = oCriterion.lessThan.exists(lThan => order.grandTotal >= lThan)
-            (exactApplies || greaterApplies || lessApplies)
+            order.grandTotal.map { grandTotal ⇒
+              val exactApplies = oCriterion.exactMatch.contains(grandTotal)
+              val greaterApplies = oCriterion.greaterThan.exists(gThan => grandTotal >= gThan)
+              val lessApplies = oCriterion.lessThan.exists(lThan => grandTotal <= lThan)
+
+              (exactApplies || greaterApplies || lessApplies)
+            }
           case OrderPriceCriterion.SubTotal =>
             order.subTotal.map { subTotal ⇒
               val exactApplies = oCriterion.exactMatch.contains(subTotal)
-              val greaterApplies = oCriterion.greaterThan.exists(gThan => order.subTotal.flatMap(subTot => subTot.exists(_ >= gThan)))
-              val lessApplies = oCriterion.lessThan.exists(lThan => order.subTotal >= lThan)
+              val greaterApplies = oCriterion.greaterThan.exists(gThan => subTotal >= gThan)
+              val lessApplies = oCriterion.lessThan.exists(lThan => subTotal <= lThan)
 
               (exactApplies || greaterApplies || lessApplies)
             }
 
-          case OrderPriceCriterion.GrandTotalLessShipping =>
+/*          case OrderPriceCriterion.GrandTotalLessShipping =>
             false
           case OrderPriceCriterion.GrandTotalLessTax =>
-            false
+            false*/
           case _ =>
-            false
+            Future.successful(false)
         }
       case _ =>
-        false //could not find inherited objects or case classes
+        Future.successful(false)
+//        false //could not find inherited objects or case classes
     }
   }
 }
