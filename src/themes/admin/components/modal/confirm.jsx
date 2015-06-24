@@ -27,7 +27,7 @@ export default class ConfirmModal extends React.Component {
         </div>
         <div className='modal-footer'>
           <a className='close' onClick={dispatch.bind(null, 'toggleModal', null)}>{modalOptions.cancel}</a>
-          <a className='submit' onClick={this.confirmModal.bind(this)}>{modalOptions.proceed}</a>
+          <button className='submit btn' onClick={this.confirmModal.bind(this)}>{modalOptions.proceed}</button>
         </div>
       </div>
     );

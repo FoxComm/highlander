@@ -71,8 +71,7 @@ export default class Order extends React.Component {
     });
   }
 
-  changeOrderStatus(event) {
-    let status = event.target.value;
+  prepareStatusChange(status) {
     this.setState({
       pendingStatus: status
     });
@@ -83,6 +82,11 @@ export default class Order extends React.Component {
       options = cancelOptions;
     }
     dispatch('toggleModal', <ConfirmModal event={confirmEvent} details={options} />);
+  }
+
+  changeOrderStatus(event) {
+    let status = event.target.value;
+    this.prepareStatusChange(status);
   }
 
   render() {
@@ -126,8 +130,9 @@ export default class Order extends React.Component {
     return (
       <div id="order">
         {viewers}
-        <div className="gutter">
+        <div className="gutter title">
           <h1>Order {order.orderId}</h1>
+          <button className='btn cancel' onClick={() => { this.prepareStatusChange('canceled'); }}>Cancel Order</button>
         </div>
         <div className="gutter statuses">
           <dl>
