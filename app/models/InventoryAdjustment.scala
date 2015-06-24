@@ -3,7 +3,7 @@ package models
 import scala.concurrent.Future
 
 import slick.profile.{SqlAction, SqlStreamingAction}
-import utils.{TableQueryWithId, ModelWithIdParameter, RichTable, GenericTable}
+import utils._
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.{ActionBasedSQLInterpolation ⇒ Q}
@@ -37,9 +37,9 @@ object InventoryAdjustments extends TableQueryWithId[InventoryAdjustment, Invent
 )(new InventoryAdjustments(_)) {
 
   def createAdjustmentsForOrder(order: Order)(implicit db: Database): Future[Int] =
-    db.run(_createAdjustmentsForOrder(order))
+    _createAdjustmentsForOrder(order).run()
 
-  def _createAdjustmentsForOrder(order: Order): SqlAction[Int, NoStream, Effect] = {
+  def _createAdjustmentsForOrder(order: Order): DBIO[Int] = {
     sqlu"""insert into inventory_adjustments (inventory_event_id, sku_id, reserved_for_fulfillment)
           select ${order.id} as order_id, sku_id, count(*) as n from order_line_items
           where order_id = ${order.id} group by sku_id"""
