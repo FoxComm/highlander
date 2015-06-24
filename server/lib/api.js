@@ -33,14 +33,14 @@ class Api {
         opts[(method === 'GET' ? 'qs' : 'json')] = data;
       }
       _this.baseRequest(opts, function(e, r, body) {
-        data = {
+        let response = {
           status: r.statusCode,
           response: body
         };
         if (r.statusCode >= 200 && r.statusCode < 300) {
-          resolve(data);
+          resolve(response);
         } else {
-          reject(data);
+          reject(response);
         }
       });
     });
@@ -54,8 +54,8 @@ class Api {
   get() { return this.buildRequest('GET', arguments); }
   post() { return this.buildRequest('POST', arguments); }
   put() { return this.buildRequest('PUT', arguments); }
-  delete() { return this.buildRequest('DELETE', arguments); }
   patch() { return this.buildRequest('PATCH', arguments); }
+  delete() { return this.buildRequest('DELETE', arguments); }
 }
 
 module.exports = Api;

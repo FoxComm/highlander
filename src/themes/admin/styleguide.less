@@ -77,35 +77,6 @@ table {
   text-align: left;
 }
 
-table.listing {
-  thead {
-    tr {
-      background-color: @color-bg-thead;
-
-      th {
-        .text-indent(15px);
-        .font-spec(15px, 700, 80px);
-        border-right: 1px solid @color-border-td;
-        &:last-child { border-right: none; }
-      }
-    }
-  }
-
-  tbody {
-    tr {
-      &:nth-child(odd) { background-color: @color-bg-tr-odd; }
-      &:nth-child(even) { background-color: @color-bg-tr-even; }
-
-      td {
-        .text-indent(15px);
-        .line-height(70px);
-        border-right: 1px solid @color-border-td;
-        &:last-child { border-right: none; }
-      }
-    }
-  }
-}
-
 .gutter {
   .padding-left(50px);
   .padding-right(50px);

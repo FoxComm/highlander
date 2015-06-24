@@ -1,6 +1,8 @@
 'use strict';
 
-const parse = require('co-body');
+const
+  _     = require('underscore'),
+  parse = require('co-body');
 
 module.exports = function(app, router) {
   const
@@ -19,7 +21,11 @@ module.exports = function(app, router) {
       this.body = this.order.viewers();
     })
     .get('/orders/:order/notes', function *() {
-      this.body = this.order.notes();
+      let
+        notes = this.order.notes(),
+        note  = _(notes).sample();
+      if (note) note.isEditable = true;
+      this.body = notes;
     })
     .post('/orders/:order/notes', function *() {
       let

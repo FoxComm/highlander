@@ -13,6 +13,8 @@ class Note extends BaseModel {
   get body() { return this.model.body; }
   get author() { return Customer.generate(); }
   get isEditable() { return this.model.isEditable; }
+
+  set isEditable(value) { this.model.isEditable = value; }
 }
 
 Object.defineProperty(Note, 'seed', {value: seed});

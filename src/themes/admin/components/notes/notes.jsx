@@ -3,6 +3,7 @@
 import React from 'react';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
+import UserInitials from '../users/initials';
 import NoteStore from './store';
 import { pluralize } from 'fleck';
 import { listenTo, stopListeningTo } from '../../lib/dispatcher';
@@ -54,7 +55,9 @@ export default class Notes extends React.Component {
         <a onClick={this.addNote} className="add-note"> <i className="icon-plus"></i></a>
         <table>
           <TableHead columns={this.props.tableColumns}/>
-          <TableBody columns={this.props.tableColumns} rows={this.state.notes} model='order'/>
+          <TableBody columns={this.props.tableColumns} rows={this.state.notes} model='order'>
+            <UserInitials/>
+          </TableBody>
         </table>
         {empty}
       </div>
@@ -74,7 +77,7 @@ Notes.defaultProps = {
   tableColumns: [
     {field: 'createdAt', text: 'Date/Time', type: 'date', format: 'MM/DD/YYYY h:mm A'},
     {field: 'body', text: 'Note'},
-    {field: 'author', text: 'Author'},
+    {field: 'author', text: 'Author', component: 'UserInitials'},
     {field: 'isEditable', text: ''}
   ]
 };
