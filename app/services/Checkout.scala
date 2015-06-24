@@ -18,6 +18,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
     // 3) Validate addresses
     // 4) Validate promotions/coupons
     // 5) Final Auth on the payment
+    // 6) Check & Reserve inventory
 
     OrderLineItems.countByOrder(this.order).flatMap { count =>
       if (count > 0) {
