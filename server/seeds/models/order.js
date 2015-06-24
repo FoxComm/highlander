@@ -6,9 +6,11 @@ const
   Note      = require('./note'),
   Notification = require('./notification');
 
+
+
 const seed = [
   {field: 'orderId', method: 'string', opts: {length: 8, pool: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'}},
-  {field: 'orderStatus', method: 'pick', opts: ['Shipped', 'Fullfillment Started', 'Remorse Hold']},
+  {field: 'orderStatus', method: 'pick', opts: ['cart', 'fraudHold', 'remorseHold', 'manualHold', 'canceled', 'fulfillmentHold', 'partiallyShipped', 'shipped']},
   {field: 'paymentStatus', method: 'pick', opts: ['Partial Capture', 'Full Capture']},
   {field: 'shippingStatus', method: 'pick', opts: ['New', null]},
   {field: 'fraudScore', method: 'integer', opts: {min: 0, max: 100}},
@@ -20,6 +22,7 @@ const seed = [
 class Order extends BaseModel {
   get orderId() { return this.model.orderId; }
   get orderStatus() { return this.model.orderStatus; }
+  set orderStatus(status) { this.model.orderStatus = status; }
   get paymentStatus() { return this.model.paymentStatus; }
   get shippingStatus() { return this.model.shippingStatus; }
   get fraudScore() { return this.model.fraudScore; }

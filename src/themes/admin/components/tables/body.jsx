@@ -3,6 +3,7 @@
 import React from 'react';
 import moment from 'moment';
 import { Link } from 'react-router';
+import OrderStore from '../orders/store';
 
 export default class TableBody extends React.Component {
   formatCurrency(num) {
@@ -20,6 +21,7 @@ export default class TableBody extends React.Component {
       case 'id': return <Link to={model} params={{order: field}}>{field}</Link>;
       case 'currency': return this.formatCurrency(field);
       case 'date': return moment(field).format(column.format || 'DD/MM/YYYY');
+      case 'orderStatus': return OrderStore.statuses[field];
       default: return field;
     }
   }

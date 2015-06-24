@@ -39,11 +39,19 @@ export default class Order extends React.Component {
     });
   }
 
+  changeOrderStatus(event) {
+    let status = event.target.value;
+    OrderStore.patch(this.state.order.id, {
+      'orderStatus': status
+    });
+  }
+
   render() {
     let
       order         = this.state.order,
       subNav        = null,
-      viewers       = null;
+      viewers       = null,
+      orderStatus   = null;
 
     if (order.id) {
       subNav = (
@@ -63,6 +71,18 @@ export default class Order extends React.Component {
       viewers = <Viewers model='orders' modelId={order.id}/>;
     }
 
+    if (OrderStore.editableStatusList.indexOf(order.orderStatus) !== -1) {
+      orderStatus = (
+        <select name="orderStatus" value={order.orderStatus} onChange={this.changeOrderStatus.bind(this)}>
+          {OrderStore.selectableStatusList.map((status, idx) => {
+            return <option key={`${idx}-${status}`} value={status}>{OrderStore.statuses[status]}</option>;
+          })}
+        </select>
+      );
+    } else {
+      orderStatus = OrderStore.statuses[order.orderStatus];
+    }
+
     return (
       <div id="order">
         {viewers}
@@ -71,14 +91,9 @@ export default class Order extends React.Component {
         </div>
         <div className="gutter statuses">
           <dl>
-            <dt>Order Status</dt>
-            <dd>
-              <select name="orderStatus">
-                <option value="remorseHold">Remorse Hold</option>
-                <option value="cancelled">Cancelled</option>
-              </select>
-            </dd>
-          </dl>
+          <dt>Order Status</dt>
+          <dd>{orderStatus}</dd>
+        </dl>
           <dl>
             <dt>Shipment Status</dt>
             <dd>{order.shippingStatus}</dd>

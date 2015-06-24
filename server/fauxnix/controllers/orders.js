@@ -18,6 +18,13 @@ module.exports = function(app, router) {
     .get('/orders/:order', function *() {
       this.body = this.order.toJSON();
     })
+    .patch('/orders/:order', function *() {
+      let
+        body = yield parse.json(this);
+      this.order.update(body);
+      this.status = 200;
+      this.body = this.order.toJSON();
+    })
     .get('/orders/:order/viewers', function *() {
       this.body = this.order.viewers();
     })
