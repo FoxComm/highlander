@@ -9,7 +9,7 @@ import scala.concurrent.{ExecutionContext, Future}
 object OrderTotaler {
   def grandTotalForOrder(order: Order)(implicit db: Database): Future[Option[Int]] = {
     db.run((for {
-      lineItems <- OrderLineItems
+      lineItems <- OrderLineItems._findByOrder(order)
       skus ← Skus if skus.id === lineItems.skuId
     } yield skus).map(_.price).sum.result)
   }
