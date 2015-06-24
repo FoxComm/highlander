@@ -30,7 +30,7 @@ libraryDependencies ++= {
     "com.typesafe.akka" %% "akka-http-experimental"          % akkaHttpV,
     "com.typesafe.akka" %% "akka-http-spray-json-experimental"    % akkaHttpV,
     "org.scalatest"     %% "scalatest"                            % scalaTestV % "test",
-    "com.typesafe.slick" %% "slick" % "3.0.0-RC3",
+    "com.typesafe.slick" %% "slick" % "3.0.0",
     "org.slf4j"          % "slf4j-api"       % "1.7.7",
     "ch.qos.logback"     % "logback-core"    % "1.1.3",
     "ch.qos.logback"     % "logback-classic" % "1.1.3",
