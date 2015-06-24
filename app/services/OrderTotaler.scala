@@ -18,17 +18,26 @@ object OrderTotaler {
 //      }
 //    }
 
-    OrderLineItems.findByOrder(order).map { lineItems =>
-      val ints = lineItems.foldLeft(Future(List[Int]())) { (sum, lineItem) =>
-        sum.flatMap { curSum =>
-          db.run(Skus.findById(lineItem.skuId)).map { sku =>
-            curSum :+ sku.getOrElse(Sku(price=0)).price
-          }
-        }
-      }
-      Future.sequence(ints).map { hi =>
-        hi._1.sum
-      }
-    }
+//    OrderLineItems.findByOrder(order).map { lineItems =>
+//      val ints = lineItems.foldLeft(Future(List[Int]())) { (sum, lineItem) =>
+//        sum.flatMap { curSum =>
+//          db.run(Skus.findById(lineItem.skuId)).map { sku =>
+//            curSum :+ sku.getOrElse(Sku(price=0)).price
+//          }
+//        }
+//      }
+//      Future.sequence(ints).map { hi =>
+//        hi._1.sum
+//      }
+//    }
+
+//    for {
+//      lineItems <- OrderLineItems.findByOrder(order)
+//      sku <- lineItems.map{ lineItem => db.run(Skus.findById(lineItem.skuId)) }
+//      summableSku <- sku.map{ nowSku => nowSku.getOrElse(Sku(price = 0)) }
+//      prices = summableSku.price
+//    } yield (prices)
+
+    Future(3)
   }
 }
