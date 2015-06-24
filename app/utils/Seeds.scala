@@ -18,7 +18,7 @@ object Seeds {
                        shippingPriceRules: Seq[ShippingPriceRule], shippingMethodRuleMappings: Seq[ShippingMethodPriceRule],
                        orderCriteria: Seq[OrderCriterion], orderPriceCriteria: Seq[OrderPriceCriterion],
                        priceRuleCriteriaMappings: Seq[ShippingPriceRuleOrderCriterion], skus: Seq[Sku],
-                       orderLineItems: Seq[OrderLineItem])
+                       orderLineItems: Seq[OrderLineItem], orderShippingMethod: OrderShippingMethod)
 
   def run(): Unit = {
     import scala.concurrent.ExecutionContext.Implicits.global
@@ -37,7 +37,8 @@ object Seeds {
       orderCriteria = Factories.orderCriteria,
       orderPriceCriteria = Factories.orderPriceCriteria,
       priceRuleCriteriaMappings = Factories.priceRuleCriteriaMappings,
-      orderLineItems = Factories.orderLineItems
+      orderLineItems = Factories.orderLineItems,
+      orderShippingMethod = Factories.orderShippingMethod
     )
 
     val failures = List(s.customer.validate, s.storeAdmin.validate, s.order.validate, s.address.validate, s.cc.validate).
@@ -60,6 +61,7 @@ object Seeds {
       orderCriterion ← OrderCriteria ++= s.orderCriteria
       orderPriceCriterion ← OrderPriceCriteria ++= s.orderPriceCriteria
       priceRuleCriteriaMapping ← ShippingPriceRulesOrderCriteria ++= s.priceRuleCriteriaMappings
+      orderShippingMethods ← OrdersShippingMethods.save(s.orderShippingMethod)
     } yield (customer, order, address, gateway)
 
     Await.result(actions.run(), 1.second)
@@ -71,7 +73,7 @@ object Seeds {
     def storeAdmin = StoreAdmin(email = "admin@admin.com", password = "password", firstName = "Frankly", lastName = "Admin")
 
 
-    def order = Order(customerId = 0)
+    def order = Order(customerId = 0, referenceNumber = Some("ABCD1234-11"))
 
     def skus: Seq[Sku] = Seq(Sku(id = 0, name = Some("Flonkey"), price = 33), Sku(name = Some("Shark"), price = 45), Sku(name = Some("Dolphin"), price = 88))
 
@@ -126,6 +128,8 @@ object Seeds {
       ShippingPriceRuleOrderCriterion(orderCriterionId = 2, shippingPricingRuleId = 2),
       ShippingPriceRuleOrderCriterion(orderCriterionId = 3, shippingPricingRuleId = 3)
     )
+
+    def orderShippingMethod = OrderShippingMethod(1, 1)
   }
 
   def main(args: Array[String]) {
