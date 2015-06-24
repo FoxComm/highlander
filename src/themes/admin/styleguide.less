@@ -17,6 +17,9 @@
 @color-bg-tr-even: #f7f7f7;
 @color-border-td: #d7d7d7;
 @color-link-menu: #ededed;
+@color-border: #bbbdbf;
+@color-btn-bg: #F1F1F2;
+@color-btn-bg-hover: #E3E3E4;
 @color-link-tab: #595959;
 @color-bg-tooltip: #484848;
 
@@ -99,6 +102,34 @@ table {
       }
     }
   }
+}
+
+.btn {
+  background: @color-btn-bg;
+  border: 1px solid @color-border;
+  border-radius: 3px;
+  padding: 10px;
+  cursor: pointer;
+
+  &:hover {
+    background: @color-btn-bg-hover;
+  }
+}
+
+input {
+  &.control {
+    border-radius: 5px;
+    padding: 5px;
+    border: 1px solid @color-border-td;
+  }
+}
+
+.hide {
+  display: none;
+}
+
+.show {
+  display: block;
 }
 
 [data-tooltip] {

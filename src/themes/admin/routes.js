@@ -10,6 +10,7 @@ import OrderDetails from './components/orders/details';
 import Customers from './components/customers/customers';
 import Customer from './components/customers/customer';
 import Notes from './components/notes/notes';
+import Notifications from './components/notifications/notifications';
 
 import AddressBook from './components/addresses/addresses';
 
@@ -20,6 +21,7 @@ const routes = (
     <Route name='order' path='/orders/:order' handler={Order}>
       <DefaultRoute name='order-details' handler={OrderDetails}/>
       <Route name='order-notes' path='notes' handler={Notes}/>
+      <Route name='order-notifications' path='notifications' handler={Notifications}/>
     </Route>
     <Route name='customers' handler={Customers}/>
     <Route name='customer' path='/customers/:customer' handler={Customer}>
