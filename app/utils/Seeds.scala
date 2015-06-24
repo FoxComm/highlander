@@ -14,10 +14,10 @@ object Seeds {
   val today = new DateTime
 
   case class TheWorld(customer: Customer,order: Order, address: Address, cc: CreditCardGateway,
-                      storeAdmin: StoreAdmin, shippingMethod: ShippingMethod,
-                       shippingPriceRule: ShippingPriceRule, shippingMethodRuleMapping: ShippingMethodPriceRule,
-                       orderCriterion: OrderCriterion, orderPriceCriterion: OrderPriceCriterion,
-                       priceRuleCriteriaMapping: ShippingPriceRuleOrderCriterion, skus: Seq[Sku],
+                      storeAdmin: StoreAdmin, shippingMethods: Seq[ShippingMethod],
+                       shippingPriceRules: Seq[ShippingPriceRule], shippingMethodRuleMappings: Seq[ShippingMethodPriceRule],
+                       orderCriteria: Seq[OrderCriterion], orderPriceCriteria: Seq[OrderPriceCriterion],
+                       priceRuleCriteriaMappings: Seq[ShippingPriceRuleOrderCriterion], skus: Seq[Sku],
                        orderLineItems: Seq[OrderLineItem])
 
   def run(): Unit = {
@@ -30,13 +30,13 @@ object Seeds {
       skus = Factories.skus,
       order = Factories.order,
       address = Factories.address,
-      shippingMethod = Factories.shippingMethod,
+      shippingMethods = Factories.shippingMethods,
       cc = Factories.creditCard,
-      shippingPriceRule = Factories.shippingPriceRule,
-      shippingMethodRuleMapping = Factories.shippingMethodRuleMapping,
-      orderCriterion = Factories.orderCriterion,
-      orderPriceCriterion = Factories.orderPriceCriterion,
-      priceRuleCriteriaMapping = Factories.priceRuleCriteriaMapping,
+      shippingPriceRules = Factories.shippingPriceRules,
+      shippingMethodRuleMappings = Factories.shippingMethodRuleMappings,
+      orderCriteria = Factories.orderCriteria,
+      orderPriceCriteria = Factories.orderPriceCriteria,
+      priceRuleCriteriaMappings = Factories.priceRuleCriteriaMappings,
       orderLineItems = Factories.orderLineItems
     )
 
@@ -53,13 +53,13 @@ object Seeds {
       order ← Orders.save(s.order.copy(customerId = customer.id))
       orderLineItem ← OrderLineItems ++= s.orderLineItems
       address ← Addresses.save(s.address.copy(customerId = customer.id))
-      shippingMethod ← ShippingMethods.save(s.shippingMethod)
+      shippingMethods ← ShippingMethods ++= s.shippingMethods
       gateway ← CreditCardGateways.save(s.cc.copy(customerId = customer.id))
-      shippingPriceRule ← ShippingPriceRules.save(s.shippingPriceRule)
-      shippingMethodRuleMapping ← ShippingMethodsPriceRules.save(s.shippingMethodRuleMapping)
-      orderCriterion ← OrderCriteria.save(s.orderCriterion)
-      orderPriceCriterion ← OrderPriceCriteria.save(s.orderPriceCriterion)
-      priceRuleCriteriaMapping ← ShippingPriceRulesOrderCriteria.save(s.priceRuleCriteriaMapping)
+      shippingPriceRule ← ShippingPriceRules ++= s.shippingPriceRules
+      shippingMethodRuleMappings ← ShippingMethodsPriceRules ++= s.shippingMethodRuleMappings
+      orderCriterion ← OrderCriteria ++= s.orderCriteria
+      orderPriceCriterion ← OrderPriceCriteria ++= s.orderPriceCriteria
+      priceRuleCriteriaMapping ← ShippingPriceRulesOrderCriteria ++= s.priceRuleCriteriaMappings
     } yield (customer, order, address, gateway)
 
     Await.result(actions.run(), 1.second)
@@ -85,17 +85,47 @@ object Seeds {
       CreditCardGateway(customerId = 0, gatewayCustomerId = "", lastFour = "4242",
         expMonth = today.getMonthOfYear, expYear = today.getYear + 2)
 
-    def shippingMethod = ShippingMethod(adminDisplayName = "UPS Ground", storefrontDisplayName = "UPS Ground", defaultPrice = 10, isActive = true)
+    def shippingMethods = Seq(
+      ShippingMethod(adminDisplayName = "UPS Ground", storefrontDisplayName = "UPS Ground", defaultPrice = 10, isActive = true),
+      ShippingMethod(adminDisplayName = "UPS Next day", storefrontDisplayName = "UPS Next day", defaultPrice = 20, isActive = true),
+      ShippingMethod(adminDisplayName = "DHL Express", storefrontDisplayName = "DHL Express", defaultPrice = 25, isActive = true)
+    )
 
-    def shippingPriceRule = ShippingPriceRule(name = "Flat Shipping Over 20", ruleType = ShippingPriceRule.Flat, flatPrice = 99938, flatMarkup = 0)
+    def shippingPriceRules = Seq(
+      ShippingPriceRule(name = "Flat Shipping Over 20", ruleType = ShippingPriceRule.Flat, flatPrice = 10000, flatMarkup = 0),
+      ShippingPriceRule(name = "Flat Shipping Over 50", ruleType = ShippingPriceRule.Flat, flatPrice =  5000, flatMarkup = 0),
+      ShippingPriceRule(name = "Flat Shipping Over 100", ruleType = ShippingPriceRule.Flat, flatPrice = 1000, flatMarkup = 0)
+    )
 
-    def shippingMethodRuleMapping = ShippingMethodPriceRule(shippingMethodId = 1, shippingPriceRuleId = 1, ruleRank = 1)
+    def shippingMethodRuleMappings = Seq(
+      ShippingMethodPriceRule(shippingMethodId = 1, shippingPriceRuleId = 1, ruleRank = 1),
+      ShippingMethodPriceRule(shippingMethodId = 1, shippingPriceRuleId = 2, ruleRank = 2),
+      ShippingMethodPriceRule(shippingMethodId = 1, shippingPriceRuleId = 3, ruleRank = 3),
 
-    def orderCriterion = OrderCriterion(name = "doesn'tmater")
+      ShippingMethodPriceRule(shippingMethodId = 2, shippingPriceRuleId = 1, ruleRank = 1),
+      ShippingMethodPriceRule(shippingMethodId = 2, shippingPriceRuleId = 2, ruleRank = 2),
+      ShippingMethodPriceRule(shippingMethodId = 2, shippingPriceRuleId = 3, ruleRank = 3),
 
-    def orderPriceCriterion = OrderPriceCriterion(id = 1, priceType = OrderPriceCriterion.SubTotal, greaterThan = Some(20), currency = "USD", exclude = false)
+      ShippingMethodPriceRule(shippingMethodId = 3, shippingPriceRuleId = 1, ruleRank = 1)
+    )
 
-    def priceRuleCriteriaMapping = ShippingPriceRuleOrderCriterion(orderCriterionId = 1, shippingPricingRuleId = 1)
+    def orderCriteria: Seq[OrderCriterion] = Seq(
+      OrderCriterion(name = "doesn'tmater"),
+      OrderCriterion(name = "doesn'tmater"),
+      OrderCriterion(name = "doesn'tmater")
+    )
+
+    def orderPriceCriteria = Seq(
+      OrderPriceCriterion(id = 1, priceType = OrderPriceCriterion.SubTotal, greaterThan = Some(20), currency = "USD", exclude = false),
+      OrderPriceCriterion(id = 2, priceType = OrderPriceCriterion.SubTotal, greaterThan = Some(50), currency = "USD", exclude = false),
+      OrderPriceCriterion(id = 3, priceType = OrderPriceCriterion.SubTotal, greaterThan = Some(100), currency = "USD", exclude = false)
+    )
+
+    def priceRuleCriteriaMappings = Seq(
+      ShippingPriceRuleOrderCriterion(orderCriterionId = 1, shippingPricingRuleId = 1),
+      ShippingPriceRuleOrderCriterion(orderCriterionId = 2, shippingPricingRuleId = 2),
+      ShippingPriceRuleOrderCriterion(orderCriterionId = 3, shippingPricingRuleId = 3)
+    )
   }
 
   def main(args: Array[String]) {
