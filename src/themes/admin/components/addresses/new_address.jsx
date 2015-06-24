@@ -15,7 +15,8 @@ export default class NewAddress extends React.Component {
   }
 
   handleChanges(e) {
-    let field = {},
+    let
+      field = {},
       target = e.target;
     field[target.name] = target.value;
     this.setState(field);

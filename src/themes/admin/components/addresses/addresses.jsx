@@ -73,14 +73,9 @@ export default class AddressBook extends React.Component {
         </ul>
       </div>
     );
-    if (this.state.new) {
-      innerContent = <NewAddress />;
-    }
-    return (
-      <div>
-        {innerContent}
-      </div>
-    );
+    if (this.state.new) innerContent = <NewAddress order={this.props.order} />;
+
+    return <div>{innerContent}</div>;
   }
 }
 

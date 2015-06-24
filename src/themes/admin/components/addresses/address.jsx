@@ -15,19 +15,20 @@ class Address extends React.Component {
         <div><input type='checkbox' defaultChecked={address.isDefault} /> Default Address</div>
     );
     let street2 = (val) => {
-      return (
-        <span><span>{val}</span><br/></span>
-      );
+      return <span><span>{val}</span><br/></span>;
     };
-
-    let classes = 'address';
-
-    if (address.isActive) {
-      classes += ' active';
+    let choose = '';
+    if (this.props.order) {
+      if (!address.isActive) choose = <a className='btn choose' onClick={this.setActiveAddress.bind(this)}>Choose</a>;
     }
 
+
+    let classes = ['address'];
+
+    if (address.isActive) classes.push('active');
+
     return (
-      <li className={classes}>
+      <li className={`${classes.join(' ')}`}>
         <div className='details'>
           { address.isDefault ? isDefault : '' }
           <p><strong>{address.name}</strong></p>
@@ -38,14 +39,15 @@ class Address extends React.Component {
             <span>{address.country}</span>
           </p>
         </div>
-        { address.isActive ? '' : <a className='btn choose' onClick={this.setActiveAddress.bind(this)}>Choose</a> }
+        { choose }
       </li>
     );
   }
 }
 
 Address.propTypes = {
-  address: React.PropTypes.object
+  address: React.PropTypes.object,
+  order: React.PropTypes.object
 };
 
 export default Address;
