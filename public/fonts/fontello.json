@@ -7,6 +7,12 @@
   "ascent": 850,
   "glyphs": [
     {
+      "uid": "ccc2329632396dc096bb638d4b46fb98",
+      "css": "mail-alt",
+      "code": 59409,
+      "src": "fontawesome"
+    },
+    {
       "uid": "44e04715aecbca7f266a17d5a7863c68",
       "css": "plus",
       "code": 59396,
@@ -21,7 +27,7 @@
     {
       "uid": "d35a1d35efeb784d1dc9ac18b9b6c2b6",
       "css": "pencil",
-      "code": 59407,
+      "code": 59408,
       "src": "fontawesome"
     },
     {
@@ -34,6 +40,12 @@
       "uid": "c76b7947c957c9b78b11741173c8349b",
       "css": "attention",
       "code": 59407,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "0d08dbb1dd648a43bdea81b7e6c9e036",
+      "css": "location",
+      "code": 59413,
       "src": "fontawesome"
     },
     {
@@ -85,9 +97,45 @@
       "src": "fontawesome"
     },
     {
+      "uid": "3d8cc269fdad8a4cda55a20542a84e5c",
+      "css": "credit-card",
+      "code": 59419,
+      "src": "fontawesome"
+    },
+    {
       "uid": "0bda4bc779d4c32623dec2e43bd67ee8",
       "css": "gauge",
       "code": 59393,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "e3ed188ab8569b45cf41e74ce81aa86e",
+      "css": "cc-visa",
+      "code": 59414,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "4b1bfce8593a2c1c7d60b9145ada2adf",
+      "css": "cc-mastercard",
+      "code": 59415,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "6413682e05e1c65d13cb76fbca6d67e1",
+      "css": "cc-discover",
+      "code": 59416,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "4e7a8235533632f4df7ba7a2c68cd39d",
+      "css": "cc-amex",
+      "code": 59417,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "b83f99fd47bff831e25255c9bbbbabe7",
+      "css": "cc-paypal",
+      "code": 59418,
       "src": "fontawesome"
     },
     {
@@ -97,10 +145,28 @@
       "src": "entypo"
     },
     {
+      "uid": "5854855e963044f93b15738a5bb27a29",
+      "css": "phone",
+      "code": 59411,
+      "src": "entypo"
+    },
+    {
+      "uid": "767fede84586366cd7d6c835be745454",
+      "css": "mobile",
+      "code": 59412,
+      "src": "entypo"
+    },
+    {
       "uid": "fc94b92194752796654c96c7b7dccebb",
       "css": "cog",
       "code": 59398,
       "src": "iconic"
+    },
+    {
+      "uid": "2c576f7c6c3233c31abad0899fc9f4af",
+      "css": "user",
+      "code": 59410,
+      "src": "elusive"
     },
     {
       "uid": "e36d581e4f2844db345bddc205d15dda",

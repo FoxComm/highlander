@@ -5,9 +5,10 @@ const
   request = require('request');
 
 class Api {
-  constructor(uri) {
+  constructor(uri, auth) {
     this.baseRequest = request.defaults({
       baseUrl: uri,
+      auth: auth,
       _json: true
     });
   }

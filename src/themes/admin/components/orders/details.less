@@ -1,0 +1,45 @@
+#order-details {
+  position: relative;
+
+  header {
+    background-color: @color-bg-thead;
+    .padding-left(15px);
+    .font-spec(20px, 600, 35px);
+  }
+
+  article {
+    .margin-right(270px);
+
+    section { .margin-bottom(20px); }
+  }
+
+  table {
+    background-color: @color-bg-tr-even;
+
+    thead {
+      tr {
+        .font-spec(14px, 600, 28px);
+
+        th {
+          &:first-child { .padding-left(15px); }
+          &:last-child { .padding-right(15px); }
+        }
+      }
+    }
+
+    tbody {
+      tr {
+        &:nth-child(odd) {
+          background-color: @color-bg-tr-odd;
+        }
+
+        td {
+          .padding-top(10px);
+          .padding-bottom(10px);
+          &:first-child { .padding-left(15px); }
+          &:last-child { .padding-right(15px); }
+        }
+      }
+    }
+  }
+}

@@ -15,6 +15,7 @@ describe('Customers #GET', function() {
     expect(customer.role).to.match(/^(admin|customer|vendor)/);
     expect(customer.blocked).to.be.a('boolean');
     expect(customer.cause).to.be.a('string');
+    expect(customer.modality).to.be.a('string');
   });
 
   it('should get an array of customers', function *() {

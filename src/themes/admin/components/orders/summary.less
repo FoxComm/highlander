@@ -1,0 +1,50 @@
+#order-summary {
+  position: absolute;
+  top: 0;
+  right: 0;
+  .width(250px);
+
+  header {
+    .padding-left(10px);
+  }
+
+  dl {
+    margin: 0;
+    .margin-bottom(15px);
+    .font-spec(14px, 30px);
+
+    &.order-totals {
+      dt,
+      dd {
+        .width(50%);
+
+        &.grand-total {
+          background-color: @color-bg-tr-odd;
+          .font-spec(16px, 600, 32px);
+        }
+      }
+
+      dd { text-align: right; }
+    }
+
+    &.order-customer {
+      dt {
+        color: #babdbe;
+        .width(15%);
+      }
+
+      dd { .width(85%); }
+    }
+
+    dt,
+    dd {
+      display: inline-block;
+      vertical-align: top;
+      background-color: @color-bg-thead;
+      margin: 0;
+    }
+
+    dt { .padding-left(10px); }
+    dd { .padding-right(10px); }
+  }
+}

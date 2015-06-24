@@ -102,14 +102,14 @@ export default class Order extends React.Component {
       subNav = (
         <div className="gutter">
           <ul className="tabbed-nav">
-            <li><Link to="order-details" params={{order: order.orderId}}>Details</Link></li>
+            <li><Link to="order-details" params={{order: order.id}}>Details</Link></li>
             <li><a href="">Shipments</a></li>
             <li><a href="">Returns</a></li>
             <li><Link to="order-notifications" params={{order: order.id}}>Transcation Notifications</Link></li>
-            <li><Link to="order-notes" params={{order: order.orderId}}>Notes</Link></li>
+            <li><Link to="order-notes" params={{order: order.id}}>Notes</Link></li>
             <li><a href="">Activity Trail</a></li>
           </ul>
-          <RouteHandler/>
+          <RouteHandler order={order}/>
         </div>
       );
 
@@ -136,7 +136,7 @@ export default class Order extends React.Component {
         {viewers}
         <div className="gutter title">
           <div>
-            <h1>Order {order.orderId}</h1>
+            <h1>Order {order.referenceNumber}</h1>
             {countdown}
           </div>
           <button className='btn cancel' onClick={() => { this.prepareStatusChange('canceled'); }}>Cancel Order</button>
