@@ -17,6 +17,7 @@ describe('Orders #GET', function() {
     expect(order.fraudScore).to.be.a('number');
     expect(order.subtotal).to.be.a('number');
     expect(order.shippingTotal).to.be.a('number');
+    expect(order.tax).to.be.a('number');
     expect(order.grandTotal).to.be.a('number');
   });
 

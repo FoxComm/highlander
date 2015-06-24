@@ -56,7 +56,7 @@ export default class Order extends React.Component {
             <li><Link to="order-notes" params={{order: order.orderId}}>Notes</Link></li>
             <li><a href="">Activity Trail</a></li>
           </ul>
-          <RouteHandler/>
+          <RouteHandler order={order}/>
         </div>
       );
 
