@@ -292,6 +292,16 @@ class Service(
                     }
                   }
                 } ~
+                (post & path("shipping-methods" / IntNumber)) { shipMethodId =>
+                  complete {
+                    whenFound(Orders.findActiveOrderByCustomer(customer)) { order =>
+                      ShippingMethodsBuilder.addShippingMethodToOrder(shipMethodId, order).map { x =>
+                        // we'll need to handle Bad
+                        Good(x)
+                      }
+                    }
+                  }
+                } ~
                   (get & path(PathEnd)) {
                     complete {
                       renderOrNotFound(FullOrder.findByCustomer(customer))

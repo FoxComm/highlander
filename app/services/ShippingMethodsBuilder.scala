@@ -87,4 +87,15 @@ object ShippingMethodsBuilder {
 //        false //could not find inherited objects or case classes
     }
   }
+
+  def addShippingMethodToOrder(shippingMethodId: Int, order: Order)
+                              (implicit ec: ExecutionContext, db: Database): Future[Option[Order]] = {
+    db.run(ShippingMethods.findById(shippingMethodId)).map { shipMethod =>
+      if (shipMethod.nonEmpty) {
+        Some(order)
+      } else {
+        None
+      }
+    }
+  }
 }
