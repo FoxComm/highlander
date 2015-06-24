@@ -31,9 +31,19 @@ export default class OrderSummary extends React.Component {
           <dd className="grand-total">{formatCurrency(order.totals.total)}</dd>
         </dl>
         <header>{customer.firstName} {customer.lastName}</header>
-        <dl>
-          <dt></dt>
+        <dl className="order-customer">
+          <dt><i className="icon-user"></i></dt>
           <dd>{customer.id}</dd>
+          <dt><i className="icon-mail-alt"></i></dt>
+          <dd>{customer.email}</dd>
+          <dt><i className="icon-phone"></i></dt>
+          <dd>{customer.phone}</dd>
+          <dt><i className="icon-location"></i></dt>
+          <dd>{customer.city}, {customer.state}</dd>
+          <dt><i className="icon-mobile"></i></dt>
+          <dd>{customer.modality}</dd>
+          <dt><i className="icon-group"></i></dt>
+          <dd>{customer.role}</dd>
         </dl>
       </div>
     );

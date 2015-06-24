@@ -49,11 +49,11 @@ export default class Order extends React.Component {
       subNav = (
         <div className="gutter">
           <ul className="tabbed-nav">
-            <li><Link to="order-details" params={{order: order.orderId}}>Details</Link></li>
+            <li><Link to="order-details" params={{order: order.id}}>Details</Link></li>
             <li><a href="">Shipments</a></li>
             <li><a href="">Returns</a></li>
             <li><Link to="order-notifications" params={{order: order.id}}>Transcation Notifications</Link></li>
-            <li><Link to="order-notes" params={{order: order.orderId}}>Notes</Link></li>
+            <li><Link to="order-notes" params={{order: order.id}}>Notes</Link></li>
             <li><a href="">Activity Trail</a></li>
           </ul>
           <RouteHandler order={order}/>
@@ -67,7 +67,7 @@ export default class Order extends React.Component {
       <div id="order">
         {viewers}
         <div className="gutter">
-          <h1>Order {order.orderId}</h1>
+          <h1>Order {order.id}</h1>
         </div>
         <div className="gutter statuses">
           <dl>

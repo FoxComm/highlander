@@ -11,7 +11,7 @@ class BaseModel {
 
   static generate(id) {
     let model = {
-      id: id || chance.guid(),
+      id: id || chance.integer({min: 1, max: 999999}),
       createdAt: chance.date({year: 2014})
     };
 

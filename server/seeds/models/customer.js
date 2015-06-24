@@ -18,6 +18,7 @@ const seed = [
   {field: 'state'},
   {field: 'zip'},
   {field: 'role', method: 'pick', opts: ['admin', 'customer', 'vendor']},
+  {field: 'modality', method: 'pick', opts: ['iPhone', 'Android', 'Web']},
   {field: 'blocked', method: 'bool'},
   {field: 'cause', method: 'sentence', opts: {words: 2}}
 ];
@@ -35,6 +36,7 @@ class Customer extends BaseModel {
   get role() { return this.model.role; }
   get blocked() { return this.model.blocked; }
   get cause() { return this.model.cause; }
+  get modality() { return this.model.modality; }
 }
 
 Object.defineProperty(Customer.prototype, 'whitelist', {value: whitelist});
