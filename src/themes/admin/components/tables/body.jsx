@@ -3,7 +3,6 @@
 import React from 'react';
 import moment from 'moment';
 import { Link } from 'react-router';
-import { dispatch } from '../../lib/dispatcher';
 
 export default class TableBody extends React.Component {
   formatCurrency(num) {

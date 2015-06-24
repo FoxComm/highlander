@@ -2,8 +2,9 @@
 
 import React from 'react';
 import { dispatch } from '../../lib/dispatcher';
+import NotificationStore from './store';
 
-class ResendModal extends React.Component {
+export default class ResendModal extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -15,19 +16,25 @@ class ResendModal extends React.Component {
     this.setState({edit: !this.state.edit});
   }
 
+  resendNotification(e) {
+    e.preventDefault();
+
+    let notification = this.props.notification;
+    NotificationStore.resend(notification.id);
+
+    dispatch('toggleModal', null);
+  }
+
   render() {
     let notification = this.props.notification;
-    let order = notification.order;
 
     let innerContent = <strong>{notification.contact}</strong>;
     if (this.state.edit) {
       innerContent = <input type={notification.contactType === 'Email' ? 'email' : 'tel'} className='control' name='resend_to' />;
     }
 
-    let url = `/orders/${order.id}/notifications/${notification.id}`;
-
     return (
-      <form method="POST" id='resend' action={url}>
+      <form method='POST' id='resend' onSubmit={this.resendNotification.bind(this)}>
         <div className='modal-header'>
           <div className='icon'>
             <i className='icon-attention'></i>
@@ -44,7 +51,7 @@ class ResendModal extends React.Component {
         </div>
         <div className='modal-footer'>
           <a className='close' onClick={dispatch.bind(null, 'toggleModal', null)}>Cancel</a>
-          <button className='btn' type='submit'>Resend</button>
+          <input type='submit' value='Resend' className='btn' />
         </div>
       </form>
     );
@@ -54,17 +61,3 @@ class ResendModal extends React.Component {
 ResendModal.propTypes = {
   notification: React.PropTypes.object
 };
-
-ResendModal.defaultProps = {
-  notification: {
-    id: 42,
-    date: new Date().toISOString(),
-    status: 'Delivered',
-    subject: 'Order confirmed',
-    contactType: 'Email',
-    contact: 'jim@bob.com',
-    order: 1234
-  }
-};
-
-export default ResendModal;

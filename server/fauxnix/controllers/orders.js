@@ -45,7 +45,14 @@ module.exports = function(app, router) {
       this.status = 201;
       this.body = order.toJSON();
     })
+    .param('notification', function *(id, next) {
+      this.notification = Notification.generate(id);
+      yield next;
+    })
     .get('/orders/:order/notifications', function *() {
       this.body = Notification.generateList();
+    })
+    .post('/orders/:order/notifications/:notification', function *() {
+      this.body = this.notification.toJSON();
     });
 };
