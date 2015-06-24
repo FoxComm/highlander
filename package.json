@@ -90,6 +90,7 @@
     "htmlescape": "^1.1.0",
     "imagemin-pngquant": "^4.1.0",
     "koa": "^0.21.0",
+    "koa-body": "^1.2.1",
     "koa-favicon": "^1.2.0",
     "koa-json": "^1.1.1",
     "koa-router": "^5.1.2",

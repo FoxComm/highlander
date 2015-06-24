@@ -1,6 +1,7 @@
 'use strict';
 
 import React from 'react';
+import Api from '../../lib/api';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
 import UserInitials from '../users/initials';
@@ -16,7 +17,9 @@ export default class Notes extends React.Component {
     super(props);
     this.onChangeNoteStore = this.onChangeNoteStore.bind(this);
     this.state = {
-      notes: []
+      notes: [],
+      open: false,
+      count: 0
     };
   }
 
@@ -39,8 +42,33 @@ export default class Notes extends React.Component {
     this.setState({notes: notes});
   }
 
-  addNote() {
-    console.log('herere');
+  handleChange(event) {
+    this.setState({count: event.target.value.length});
+  }
+
+  handleSubmit(event) {
+    event.preventDefault();
+    Api.submitForm(event.target)
+      .then((note) => {
+        note.isNew = true;
+        let notes = this.state.notes.slice(0);
+        notes.unshift(note);
+        this.setState({notes: notes});
+        this.toggleNote();
+        this.removeNew();
+      })
+      .catch((err) => { console.log(err); });
+  }
+
+  removeNew() {
+    setTimeout(() => {
+      let row = document.querySelector('tr.new');
+      row.classList.remove('new');
+    }, 5000);
+  }
+
+  toggleNote() {
+    this.setState({open: !this.state.open, count: 0});
   }
 
   render() {
@@ -52,7 +80,20 @@ export default class Notes extends React.Component {
     return (
       <div id="notes">
         <h2>Notes</h2>
-        <a onClick={this.addNote} className="add-note"> <i className="icon-plus"></i></a>
+        <a onClick={this.toggleNote.bind(this)} className="add-note" disabled={this.state.open}><i className="icon-plus"></i></a>
+        <form action={NoteStore.baseUri} method="post" onSubmit={this.handleSubmit.bind(this)}>
+          <fieldset>
+            <legend>New Note</legend>
+            <div className="note-body">
+              <div className="counter">{this.state.count}/1000</div>
+              <textarea name="body" maxLength="1000" onChange={this.handleChange.bind(this)} required></textarea>
+            </div>
+            <div>
+              <input type="reset" value="&times;" onClick={this.toggleNote.bind(this)}/>
+              <input type="submit" value="Save"/>
+            </div>
+          </fieldset>
+        </form>
         <table>
           <TableHead columns={this.props.tableColumns}/>
           <TableBody columns={this.props.tableColumns} rows={this.state.notes} model='order'>
