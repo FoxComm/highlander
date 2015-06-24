@@ -15,14 +15,9 @@ create table inventory_adjustments (
     foreign key (inventory_event_id) references inventory_events(id) on update restrict on delete restrict
 );
 
-create trigger set_inventory_id_trigger
-    before insert
-    on inventory_adjustments
-    for each row
-    execute procedure set_inventory_event_id_for_adjustments();
-
 create trigger update_inventory_summaries
     after insert
     on inventory_adjustments
     for each row
     execute procedure update_inventory_summaries();
+

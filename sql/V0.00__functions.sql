@@ -15,14 +15,6 @@ begin
 end;
 $$ language plpgsql;
 
--- same as set_inventory_event_id() but specifically for inventory_adjustments since the FK is inventory_event_id
-create function set_inventory_event_id_for_adjustments() returns trigger as $$
-begin
-    new.inventory_event_id = make_inventory_event_id();
-    return new;
-end;
-$$ language plpgsql;
-
 create function update_inventory_summaries() returns trigger as $$
 declare
     reserved_for_fulfillment integer default 0;
