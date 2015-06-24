@@ -12,6 +12,8 @@ import Customer from './components/customers/customer';
 import Notes from './components/notes/notes';
 import Notifications from './components/notifications/notifications';
 
+import AddressBook from './components/addresses/addresses';
+
 const routes = (
   <Route handler={Site}>
     <DefaultRoute name="home" handler={Home}/>
@@ -22,7 +24,9 @@ const routes = (
       <Route name='order-notifications' path='notifications' handler={Notifications}/>
     </Route>
     <Route name='customers' handler={Customers}/>
-    <Route name='customer' path='/customers/:customer' handler={Customer}/>
+    <Route name='customer' path='/customers/:customer' handler={Customer}>
+      <Route name='customer-addresses' path='addresses' handler={AddressBook} />
+    </Route>
   </Route>
 );
 

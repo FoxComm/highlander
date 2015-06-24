@@ -9,9 +9,9 @@ const
 
 class BaseModel {
 
-  static generate() {
+  static generate(id) {
     let model = {
-      id: chance.guid(),
+      id: id || chance.guid(),
       createdAt: chance.date({year: 2014})
     };
 

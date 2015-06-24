@@ -1,0 +1,32 @@
+.addresses {
+    .clearfix();
+    .margin-left(-15px);
+
+    li {
+        float: left;
+        display: inline-block;
+        border: 1px solid #979797;
+        background: #fff;
+        padding: 5px;
+        .margin-bottom(15px);
+        .margin-left(15px);
+        .font-spec(12px);
+        width: 200px;
+        .min-height(200px);
+        position: relative;
+        &.active {
+            background: #DFE3ED;
+        }
+        .details {
+            .margin-bottom(40px);
+        }
+        .choose {
+            position: absolute;
+            .bottom(10px);
+            .width(120px);
+            .left(50%);
+            .margin-left(-60px);
+            text-align: center;
+        }
+    }
+}
