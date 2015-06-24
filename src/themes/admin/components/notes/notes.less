@@ -22,6 +22,8 @@
       background: #f1f1f2;
       border: 1px solid #b9b9b9;
       pointer-events: none;
+
+      + form { .max-height(232px); }
     }
   }
 
@@ -33,9 +35,12 @@
   }
 
   form {
+    overflow: hidden;
+    transition: max-height 500ms;
     .clearfix;
     .padding-left(35px);
     .margin-bottom(30px);
+    .max-height(0);
 
     legend {
       display: block;
@@ -44,9 +49,17 @@
     }
 
     .note-body {
+      position: relative;
       .width(100%);
       .max-width(890px);
       .margin-bottom(25px);
+
+      .counter {
+        position: absolute;
+        .top(-20px);
+        .right(0);
+        font-weight: 400;
+      }
 
       textarea {
         border-radius: 5px;

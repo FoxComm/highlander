@@ -8,6 +8,8 @@ export default class BaseStore {
     this.models = [];
   }
 
+  get storeName() { return this.constructor.name; }
+
   uri(id) {
     return id ? `${this.baseUri}/${id}` : this.baseUri;
   }
@@ -20,14 +22,18 @@ export default class BaseStore {
     return found[0];
   }
 
+  add(model) {
+    this.models.push(model);
+    dispatch(`change${this.storeName}`, this.models);
+  }
+
   update(model) {
-    let storeName = this.constructor.name;
     if (Array.isArray(model)) {
       Array.prototype.push.apply(this.models, model);
     } else {
       this.models.push(model);
     }
-    dispatch(`change${storeName}`, model);
+    dispatch(`change${this.storeName}`, model);
   }
 
   // @todo Error handling - Tivs

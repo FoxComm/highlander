@@ -1,6 +1,7 @@
 'use strict';
 
 import React from 'react';
+import Api from '../../lib/api';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
 import UserInitials from '../users/initials';
@@ -17,7 +18,8 @@ export default class Notes extends React.Component {
     this.onChangeNoteStore = this.onChangeNoteStore.bind(this);
     this.state = {
       notes: [],
-      open: false
+      open: false,
+      count: 0
     };
   }
 
@@ -40,8 +42,22 @@ export default class Notes extends React.Component {
     this.setState({notes: notes});
   }
 
+  handleChange(event) {
+    this.setState({count: event.target.value.length});
+  }
+
+  handleSubmit(event) {
+    event.preventDefault();
+    Api.submitForm(event.target)
+      .then((note) => {
+        NoteStore.add(note);
+        this.toggleNote();
+      })
+      .catch((err) => { console.log(err); });
+  }
+
   toggleNote() {
-    this.setState({open: !this.state.open});
+    this.setState({open: !this.state.open, count: 0});
   }
 
   render() {
@@ -54,17 +70,18 @@ export default class Notes extends React.Component {
       <div id="notes">
         <h2>Notes</h2>
         <a onClick={this.toggleNote.bind(this)} className="add-note" disabled={this.state.open}><i className="icon-plus"></i></a>
-        <form action={NoteStore.baseUri} method="post">
-          <formset>
+        <form action={NoteStore.baseUri} method="post" onSubmit={this.handleSubmit.bind(this)}>
+          <fieldset>
             <legend>New Note</legend>
             <div className="note-body">
-              <textarea name="body" required></textarea>
+              <div className="counter">{this.state.count}/1000</div>
+              <textarea name="body" maxLength="1000" onChange={this.handleChange.bind(this)} required></textarea>
             </div>
             <div>
               <input type="reset" value="&times;" onClick={this.toggleNote.bind(this)}/>
               <input type="submit" value="Save"/>
             </div>
-          </formset>
+          </fieldset>
         </form>
         <table>
           <TableHead columns={this.props.tableColumns}/>
