@@ -97,6 +97,15 @@
   width: @rem-value;
 }
 
+.min-width(@value) {
+  min-width: @value;
+}
+
+.min-width(@value) when (ispixel(@value)) {
+  @rem-value: ~`pxtorem('@{value}')`;
+  min-width: @rem-value;
+}
+
 .height(@value) {
   height: @value;
 }
@@ -104,6 +113,15 @@
 .height(@value) when (ispixel(@value)) {
   @rem-value: ~`pxtorem('@{value}')`;
   height: @rem-value;
+}
+
+.min-height(@value) {
+  min-height: @value;
+}
+
+.min-height(@value) when (ispixel(@value)) {
+  @rem-value: ~`pxtorem('@{value}')`;
+  min-height: @rem-value;
 }
 
 // ===== Mixin Values =====

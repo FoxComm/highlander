@@ -3,10 +3,11 @@
 global.expect = require('chai').expect;
 
 const
-  path = require('path');
+  path  = require('path'),
+  Api   = require(path.resolve('server/lib/api'));
 
 before(function(done) {
-  this.Api = require('./api');
+  this.api = new Api('http://localhost:3001/api/v1');
   this.app = require(path.resolve('server'));
   this.app.init().then(done).catch(function(err) {
     console.error(err.stack);

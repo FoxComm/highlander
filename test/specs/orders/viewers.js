@@ -1,13 +1,12 @@
 'use strict';
 
-describe('Orders Viewers #GET', function() {
+describe('Order Viewers #GET', function() {
 
   it('should get a list of viewers', function *() {
     let
-      res     = yield this.Api.get('/api/v1/orders/1/viewers'),
-      status  = res[0].statusCode,
-      viewers = res[1];
-    expect(status).to.equal(200);
+      res     = yield this.api.get('/orders/1/viewers'),
+      viewers = res.response;
+    expect(res.status).to.equal(200);
     expect(viewers).to.have.length.above(1);
   });
 });

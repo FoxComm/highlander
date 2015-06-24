@@ -6,7 +6,7 @@
   "main": "server/index.js",
   "scripts": {
     "test": "make test",
-    "start": "iojs --harmony --harmony_arrow_functions boot.js",
+    "start": "iojs --harmony boot.js",
     "restart": "kill -USR2 $(ps aux | grep '[m]-ashes' | awk '{print $2}')",
     "build": "./node_modules/.bin/gulp",
     "dev": "./node_modules/.bin/gulp dev"
@@ -40,8 +40,14 @@
       "modules": true
     },
     "rules": {
-      "quotes": [1, "single"],
-      "curly": [2, "multi-line"],
+      "quotes": [
+        1,
+        "single"
+      ],
+      "curly": [
+        2,
+        "multi-line"
+      ],
       "no-process-exit": 0,
       "no-underscore-dangle": 0,
       "no-multi-spaces": [
@@ -75,7 +81,7 @@
     "gulp": "^3.9.0",
     "gulp-concat": "^2.5.2",
     "gulp-if": "^1.2.5",
-    "gulp-imagemin": "^2.2.1",
+    "gulp-imagemin": "^2.3.0",
     "gulp-less": "^3.0.3",
     "gulp-load-plugins": "^1.0.0-rc.1",
     "gulp-rename": "^1.2.2",
@@ -98,7 +104,7 @@
     "react": "^0.13.3",
     "react-router": "^0.13.3",
     "reactify": "^1.1.1",
-    "request": "^2.57.0",
+    "request": "^2.58.0",
     "thunkify-wrap": "^1.0.4",
     "underscore": "^1.8.3",
     "vinyl-buffer": "^1.0.0",
@@ -106,7 +112,7 @@
   },
   "devDependencies": {
     "chai": "^3.0.0",
-    "co-mocha": "^1.1.0",
+    "co-mocha": "^1.1.2",
     "eslint": "^0.23.0",
     "eslint-plugin-react": "^2.5.2",
     "gulp-eslint": "^0.14.0",
