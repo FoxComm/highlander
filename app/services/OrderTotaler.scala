@@ -10,11 +10,25 @@ import scala.concurrent.{ExecutionContext, Future}
 object OrderTotaler {
   def grandTotalForOrder(order: Order)
                         (implicit ec: ExecutionContext, db: Database): Future[Int] = {
-    OrderLineItems.findByOrder(order).map{ _.foldLeft(Future(List[Int]()))((sum, lineItem) =>
-      db.run(Skus.findById(lineItem.skuId)).map { sku =>
-        val skuToSum = sku.getOrElse(Sku(price=0))
-        sum. :+ skuToSum.price
+//    OrderLineItems.findByOrder(order).map { lineItems =>
+//      lineItems.map { lineItem =>
+//        db.run(Skus.findById(lineItem.skuId)).map { optSku =>
+//          optSku.getOrElse(Sku(price=0)).price
+//        }
+//      }
+//    }
+
+    OrderLineItems.findByOrder(order).map { lineItems =>
+      val ints = lineItems.foldLeft(Future(List[Int]())) { (sum, lineItem) =>
+        sum.flatMap { curSum =>
+          db.run(Skus.findById(lineItem.skuId)).map { sku =>
+            curSum :+ sku.getOrElse(Sku(price=0)).price
+          }
+        }
       }
-    )}
+      Future.sequence(ints).map { hi =>
+        hi._1.sum
+      }
+    }
   }
 }
