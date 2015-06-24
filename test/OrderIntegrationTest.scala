@@ -18,6 +18,7 @@ class OrderIntegrationTest extends IntegrationTestBase
   import Extensions._
 
   "returns new items" in {
+    pending
     val orderId = db.run(Orders.returningId += Order(id = 0, customerId = 1)).futureValue
 
     val response = POST(

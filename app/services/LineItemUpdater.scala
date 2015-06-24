@@ -35,7 +35,7 @@ object LineItemUpdater {
     Skus.qtyAvailableForGroup(updateQuantities.keys.toSeq).flatMap { availableQuantities =>
       val enoughOnHand = updateQuantities.filter { case (skuId, numRequested) =>
         availableQuantities.get(skuId).exists { numAvailable =>
-          numAvailable >= numRequested && numRequested > 0
+          numAvailable >= numRequested && numRequested >= 0
         }
       }
 

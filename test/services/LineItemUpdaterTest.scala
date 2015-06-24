@@ -79,8 +79,6 @@ class LineItemUpdaterTest extends IntegrationTestBase {
     }
 
     // if we've asked for more than available we will "reserve" up to available_on_hand in Skus
-    "Adds line_items up to availableOnHand" in {
-//      fail("implement me!")
-    }
+    "Adds line_items up to availableOnHand" in (pending)
   }
 }
