@@ -54,7 +54,10 @@ object OrderLineItems extends TableQueryWithId[OrderLineItem, OrderLineItems](
   idLens = GenLens[OrderLineItem](_.id)
 )(new OrderLineItems(_)) {
 
-  def findByOrder(order: Order)(implicit ec: ExecutionContext, db: Database) = { db.run(_findByOrderId(order.id).result) }
+  def findByOrder(order: Order)(implicit db: Database) = db.run(_findByOrderId(order.id).result)
+
+  def _findByOrder(order: Order): Query[OrderLineItems, OrderLineItem, Seq] =
+    _findByOrderId(order.id)
 
   def _findByOrderId(orderId: Rep[Int]) = { filter(_.orderId === orderId) }
 
