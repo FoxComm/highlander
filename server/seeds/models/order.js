@@ -4,7 +4,8 @@ const
   BaseModel = require('../lib/base-model'),
   Customer  = require('./customer'),
   Note      = require('./note'),
-  Notification = require('./notification');
+  Notification = require('./notification'),
+  moment    = require('moment');
 
 const seed = [
   {field: 'orderId', method: 'string', opts: {length: 8, pool: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'}},
@@ -27,6 +28,7 @@ class Order extends BaseModel {
   get shippingTotal() { return this.model.shippingTotal; }
   get subtotal() { return this.model.subtotal; }
   get grandTotal() { return this.model.grandTotal; }
+  get remorseEnd() { return moment.utc().add(3, 'h').format(); }
 
   viewers() {
     let

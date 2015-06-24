@@ -6,6 +6,7 @@ import { Link } from 'react-router';
 import { listenTo, stopListeningTo } from '../../lib/dispatcher';
 import OrderStore from './store';
 import Viewers from '../viewers/viewers';
+import Countdown from '../countdown/countdown';
 
 const changeEvent = 'change-order-store';
 
@@ -43,7 +44,8 @@ export default class Order extends React.Component {
     let
       order         = this.state.order,
       subNav        = null,
-      viewers       = null;
+      viewers       = null,
+      countdown     = null;
 
     if (order.id) {
       subNav = (
@@ -61,6 +63,8 @@ export default class Order extends React.Component {
       );
 
       viewers = <Viewers model='orders' modelId={order.id}/>;
+
+      if (order.orderStatus === 'remorseHold') countdown = <Countdown endDate={order.remorseEnd} />;
     }
 
     return (
@@ -68,6 +72,7 @@ export default class Order extends React.Component {
         {viewers}
         <div className="gutter">
           <h1>Order {order.orderId}</h1>
+          {countdown}
         </div>
         <div className="gutter statuses">
           <dl>
