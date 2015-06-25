@@ -254,7 +254,7 @@ class Service(
                       case Some(customer) =>
                         CreditCardPaymentCreator.run(order, customer, reqPayment).map { fullOrder =>
                           fullOrder.fold({ c => HttpResponse(OK, entity = render(c)) },
-                                        { e => HttpResponse(BadRequest, entity = render("errors" -> e)) })
+                                        { e => HttpResponse(BadRequest, entity = render("errors" -> e.flatMap(_.description))) })
                         }
                     }
                 }
