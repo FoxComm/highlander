@@ -21,7 +21,7 @@ libraryDependencies ++= {
   val akkaV       = "2.3.11"
   val akkaStreamV = "1.0-RC2"
   val akkaHttpV   = "1.0-RC4"
-  val scalaTestV  = "2.2.4"
+  val scalaTestV  = "2.2.5"
   Seq(
     "com.wix"           %% "accord-core"                          % "0.4.2",
     "com.typesafe.akka"      %% "akka-slf4j"          % akkaV,
@@ -36,7 +36,7 @@ libraryDependencies ++= {
     "ch.qos.logback"     % "logback-classic" % "1.1.3",
     "org.postgresql"    % "postgresql" % "9.3-1100-jdbc41",
     "org.json4s"         %% "json4s-jackson" % "3.2.11",
-    "org.scalactic"     %% "scalactic"                            % "2.2.4",
+    "org.scalactic"     %% "scalactic"                            % "2.2.5",
     "org.flywaydb"      %  "flyway-core"      % "3.2.1",
     "com.stripe"        %  "stripe-java"    %  "1.31.0",
 
