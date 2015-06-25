@@ -64,8 +64,8 @@ case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ") ex
 
   private [this] def tryFutureWrap[A](f: => A Or List[Failure])(implicit ec: ExecutionContext): Future[A Or List[Failure]] = {
     Future(f).recover {
-      case t: InvalidRequestException ⇒ Bad(List(StripeError(t)))
-      case t: CardException           ⇒ Bad(List(StripeError(t)))
+      case t: InvalidRequestException ⇒ Bad(List(StripeFailure(t)))
+      case t: CardException           ⇒ Bad(List(StripeFailure(t)))
     }
   }
 

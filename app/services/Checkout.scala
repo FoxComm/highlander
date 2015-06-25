@@ -30,7 +30,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
           }
         }
       } else {
-        Future.successful(Bad(List(NotFound("No Line Items in Order!"))))
+        Future.successful(Bad(List(NotFoundFailure("No Line Items in Order!"))))
       }
     }
   }

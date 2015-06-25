@@ -40,10 +40,12 @@ class CheckoutTest extends IntegrationTestBase with Inside with TypeCheckedTripl
         result mustBe 'bad
 
         inside(result) {
-          case Bad(NotFound(message) :: Nil) ⇒
+          case Bad(NotFoundFailure(message) :: Nil) ⇒
             message must include ("No Line Items")
         }
       }
+
+      /** Test data leak? */
 
       "returns an error if authorizePayments fails" in {
         val (order, _) = testData(gatewayCustomerId = "")
@@ -61,7 +63,7 @@ class CheckoutTest extends IntegrationTestBase with Inside with TypeCheckedTripl
         val checkout = new Checkout(order)
         val result   = checkout.checkout.futureValue
 
-        val (StripeError(errorMessage) :: Nil) = result.swap.get
+        val (StripeFailure(errorMessage) :: Nil) = result.swap.get
         errorMessage.getMessage must include ("cannot set 'customer' to an empty string.")
       }
     }

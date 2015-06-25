@@ -32,7 +32,7 @@ case class CreditCardPaymentCreator(order: Order, customer: Customer, cardPayloa
                 FullOrder.fromOrder(o).map { root =>
                   root.map(Good(_)).getOrElse(Bad(List(GeneralFailure("could not render order"))))
                 }
-              }.getOrElse(Future.successful(Bad(List(NotFound(s"could not find order with id=${order.id}")))))
+              }.getOrElse(Future.successful(Bad(List(NotFoundFailure(s"could not find order with id=${order.id}")))))
             }
 
           case Bad(errors)          =>
