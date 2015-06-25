@@ -1,16 +1,15 @@
 package services
 
-import models._
-import models.Order.Status
-import org.scalactic.{Good, Bad, ErrorMessage, Or}
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ExecutionContext, Future}
 
+import models._
+import org.scalactic.{Bad, Good, Or}
 import slick.driver.PostgresDriver.api._
+import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 
 class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
 
-  def checkout: Future[Order Or List[ErrorMessage]] = {
+  def checkout: Future[Order Or List[Failure]] = {
     // Realistically, what we'd do here is actually
     // 0) Check that line items exist -- DONE
     // 1) Check Inventory
@@ -31,7 +30,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
           }
         }
       } else {
-        Future.successful(Bad(List("No Line Items in Order!")))
+        Future.successful(Bad(List(NotFoundFailure("No Line Items in Order!"))))
       }
     }
   }
@@ -49,7 +48,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
   def decrementInventory(order: Order): Future[Int] =
     InventoryAdjustments.createAdjustmentsForOrder(order)
 
-  def authorizePayments: Future[Map[AppliedPayment, List[ErrorMessage]]] = {
+  def authorizePayments: Future[Map[AppliedPayment, List[Failure]]] = {
     AppliedPayments.findAllPaymentsFor(this.order).flatMap { records =>
       Future.sequence(records.map { case (payment, creditCard) =>
         creditCard.authorize(payment.appliedAmount).flatMap { or ⇒
@@ -62,8 +61,8 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
             Future.successful((payment, or))
           })
         }
-      }).map { (results: Seq[(AppliedPayment, Or[String, List[ErrorMessage]])]) =>
-        results.foldLeft(Map[AppliedPayment, List[ErrorMessage]]()) { case (errors, (payment, result)) =>
+      }).map { (results: Seq[(AppliedPayment, Or[String, List[Failure]])]) =>
+        results.foldLeft(Map[AppliedPayment, List[Failure]]()) { case (errors, (payment, result)) =>
           errors.updated(payment,
             result.fold({ good => List.empty }, { bad => bad }))
         }
@@ -71,7 +70,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
     }
   }
 
-  def validateAddresses: List[ErrorMessage] = {
+  def validateAddresses: List[Failure] = {
     List.empty
   }
 }

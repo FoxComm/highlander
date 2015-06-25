@@ -1,25 +1,35 @@
 package validators
 
-import com.wix.accord.BaseValidator
+import com.wix.accord.{Validator, BaseValidator}
 import com.wix.accord.ViolationBuilder._
-import com.wix.accord.dsl._
 import org.joda.time.DateTime
 
 object CreditCard {
-  def expirationMonth = new BaseValidator[Int]({ month ⇒
-    month >= DateTime.now().getMonthOfYear
-  }, _ → s"is in the past")
+  case class Expiraton(year: Int, month: Int)
 
-  def monthOfYear = new BaseValidator[Int]({ month ⇒
-    month >= 1 && month <= 12
-  }, _ → s"is not a month of the year" )
+  class ExpiredCard[T](exp: Expiraton)
+    extends BaseValidator[T]({ _ ⇒
+      val today = DateTime.now()
+      try {
+        val expDate = today.withDate(exp.year, exp.month, today.getDayOfMonth)
+        expDate.isEqual(today) || expDate.isAfter(today)
+      } catch {
+        case _: IllegalArgumentException ⇒ false
+      }
+    }, _ -> s"is expired" )
 
-  def expirationYear = new BaseValidator[Int]({ year ⇒
-    year >= DateTime.now().getYear()
-  }, _ → s"is in the past")
+  class WithinTwentyYears[T](exp: Expiraton)
+    extends BaseValidator[T]({ _ ⇒
+      val today = DateTime.now()
+      try {
+        val expDate = new DateTime(exp.year, exp.month, today.getDayOfMonth, today.getHourOfDay, today.getMinuteOfHour)
+        expDate.isBefore(today.plusYears(20))
+      } catch {
+        case _: IllegalArgumentException ⇒ false
+      }
+  }, _ -> s"expiration is too far in the future" )
 
-  def withinTwentyYears = new BaseValidator[Int]({ year ⇒
-    val currentYear = DateTime.now().getYear()
-    year <= currentYear + 20
-  }, _ → s"is too far in the future")
+  def notExpired[T](year: Int, month: Int) = new ExpiredCard[T](Expiraton(year = year, month = month))
+
+  def withinTwentyYears[T](year: Int, month: Int) = new WithinTwentyYears[T](Expiraton(year = year, month = month))
 }

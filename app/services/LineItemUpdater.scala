@@ -17,7 +17,7 @@ object LineItemUpdater {
   def updateQuantities(order: Order,
                        payload: Seq[UpdateLineItemsPayload])
                       (implicit ec: ExecutionContext,
-                       db: Database): Future[Seq[OrderLineItem] Or List[ErrorMessage]] = {
+                       db: Database): Future[Seq[OrderLineItem] Or List[Failure]] = {
 
     // TODO:
     //  validate sku in PIM

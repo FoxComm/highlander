@@ -1,5 +1,14 @@
 package models
 
+import scala.concurrent.{ExecutionContext, Future}
+
+import com.stripe.model.{Customer ⇒ StripeCustomer}
+import com.wix.accord.dsl.{validator ⇒ createValidator, _}
+import monocle.macros.GenLens
+import org.scalactic.Or
+import payloads.CreditCardPayload
+import services.{Failure, StripeGateway}
+import com.wix.accord.dsl.{validator => createValidator}
 import com.stripe.model.{Customer ⇒ StripeCustomer}
 import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import monocle.macros.GenLens
@@ -19,17 +28,15 @@ case class CreditCardGateway(id: Int = 0, customerId: Int, gatewayCustomerId: St
   with ModelWithIdParameter
   with Validation[CreditCardGateway] {
 
-  def authorize(amount: Int)(implicit ec: ExecutionContext): Future[String Or List[ErrorMessage]] = {
+  def authorize(amount: Int)(implicit ec: ExecutionContext): Future[String Or List[Failure]] = {
     new StripeGateway().authorizeAmount(gatewayCustomerId, amount)
   }
 
 
   override def validator = createValidator[CreditCardGateway] { cc =>
     cc.lastFour should matchRegex("[0-9]{4}")
-    cc.expYear  is expirationYear
-    cc.expYear  is withinTwentyYears
-    cc.expMonth is monthOfYear
-    cc.expMonth is expirationMonth
+    cc.expYear as "credit card" is notExpired(year = cc.expYear, month = cc.expMonth)
+    cc.expYear as "credit card" is withinTwentyYears(year = cc.expYear, month = cc.expMonth)
   }
 }
 

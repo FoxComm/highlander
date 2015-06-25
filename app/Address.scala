@@ -2,6 +2,7 @@ import java.util.Date
 import java.util.concurrent.TimeoutException
 import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.model.headers.BasicHttpCredentials
+import akka.stream.ActorMaterializer
 import com.stripe.model.Token
 import com.stripe.net.{RequestOptions => StripeRequestOptions}
 import com.stripe.model.{Charge => StripeCharge}
@@ -13,7 +14,7 @@ import slick.driver.PostgresDriver.api._
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshalling.ToResponseMarshallable
-import akka.http.scaladsl.model.HttpResponse
+import akka.http.scaladsl.model.{StatusCodes, HttpResponse}
 import com.typesafe.config.{ConfigFactory, Config}
 import com.wix.accord._
 import com.wix.accord.{validate => runValidation, Success => ValidationSuccess, Failure => ValidationFailure}
@@ -24,7 +25,6 @@ import slick.lifted.ProvenShape
 import spray.json.{JsValue, JsString, JsonFormat, DefaultJsonProtocol}
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.server.Directives._
-import akka.stream.{ActorFlowMaterializer, FlowMaterializer}
 import slick.lifted.Tag
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
@@ -146,7 +146,7 @@ class Service(
 
   implicit def executionContext = system.dispatcher
 
-  implicit val materializer = ActorFlowMaterializer()
+  implicit val materializer = ActorMaterializer()
 
   // required for (de)-serialization
   implicit val formats = phoenixFormats
@@ -160,7 +160,7 @@ class Service(
   def customerAuth: AsyncAuthenticator[Customer] = Authenticator.customer
   def storeAdminAuth: AsyncAuthenticator[StoreAdmin] = Authenticator.storeAdmin
 
-  val notFoundResponse = HttpResponse(NotFound)
+  val notFoundResponse = HttpResponse(StatusCodes.NotFound)
 
   def renderGoodOrBad[G <: AnyRef, B <: AnyRef](goodOrBad: G Or B)
                                                (implicit ec: ExecutionContext,
@@ -254,7 +254,7 @@ class Service(
                       case Some(customer) =>
                         CreditCardPaymentCreator.run(order, customer, reqPayment).map { fullOrder =>
                           fullOrder.fold({ c => HttpResponse(OK, entity = render(c)) },
-                                        { e => HttpResponse(BadRequest, entity = render("errors" -> e)) })
+                                        { e => HttpResponse(BadRequest, entity = render("errors" -> e.flatMap(_.description))) })
                         }
                     }
                 }
