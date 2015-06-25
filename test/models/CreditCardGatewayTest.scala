@@ -1,22 +1,48 @@
 package models
 
 import util.TestBase
+import org.scalatest.prop.TableDrivenPropertyChecks._
+import org.joda.time.DateTime
 
 class CreditCardGatewayTest extends TestBase {
-  val Template = CreditCardGateway(
+  val today = new DateTime
+  val card = CreditCardGateway(
     customerId = 1,
     gatewayCustomerId = "abcdef",
     lastFour = "4242",
-    expMonth = 11,
-    expYear  = 2018)
+    expMonth = today.getMonthOfYear,
+    expYear  = today.getYear)
 
   "CreditCardGateway" - {
     "validations" - {
-      "disallows cards with expiration in the past" in {
-        val result = Template.copy(expYear = 2015, expMonth = 4).validate
+      "disallows cards with expired dates" in {
+        val cards = Table(
+          ("card", "errors"),
+          (card.copy(expMonth = today.getMonthOfYear - 1), "expMonth is in the past"),
+          (card.copy(expYear = 2000), "expYear is in the past")
+        )
 
-        result.messages.size must === (1)
-        result.messages.head must include ("expiration")
+        forAll(cards) { (card, error) =>
+          val result = card.validate
+
+          result mustBe 'invalid
+          result.messages.size mustBe (1)
+          result.messages.head mustBe (error)
+        }
+      }
+
+      "disallows cards with dates past the singularity (> 20 years from today)" in {
+        val result = card.copy(expYear = card.expYear + 21).validate
+
+        result mustBe 'invalid
+        result.messages.size mustBe (1)
+        result.messages.head mustBe ("expYear is too far in the future")
+      }
+
+      "passes for valid cards" in {
+        val result = card.validate
+        result mustBe 'valid
+        result.messages mustBe empty
       }
     }
   }

@@ -9,7 +9,7 @@ import services.StripeGateway
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils._
-import validators.notExpired
+import validators.CreditCard._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -26,9 +26,10 @@ case class CreditCardGateway(id: Int = 0, customerId: Int, gatewayCustomerId: St
 
   override def validator = createValidator[CreditCardGateway] { cc =>
     cc.lastFour should matchRegex("[0-9]{4}")
-    cc.expYear  is between(2015, 2050)
-    cc.expMonth is between(1, 12)
-    cc.expMonth is notExpired
+    cc.expYear  is expirationYear
+    cc.expYear  is withinTwentyYears
+    cc.expMonth is monthOfYear
+    cc.expMonth is expirationMonth
   }
 }
 
