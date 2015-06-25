@@ -14,7 +14,7 @@ import com.stripe.net.{RequestOptions => StripeRequestOptions}
 import collection.JavaConversions.mapAsJavaMap
 
 import utils.Validation
-import utils.Validation.Result.{Success}
+import utils.Validation.Result.{ Success}
 import utils.{ Validation ⇒ validation }
 
 // TODO(yax): make this abstract to handle multiple Gateways
@@ -24,15 +24,10 @@ case class CreditCardPaymentCreator(order: Order, customer: Customer, cardPayloa
   val gateway = StripeGateway()
   import CreditCardPaymentCreator._
 
-  def run(): Response = {
-    if (!cardPayload.isValid) {
-      val failure = cardPayload.validate match {
-        case f @ validation.Result.Failure(_) ⇒ f
-        case Success                          ⇒ ???
-      }
-
+  def run(): Response = cardPayload.validate match {
+    case failure @ validation.Result.Failure(violations) ⇒
       Future.successful(Bad(List(ValidationFailure(failure))))
-    } else {
+    case Success ⇒
       // creates the customer, card, and gives us getDefaultCard as the token
       gateway.createCustomerAndCard(customer, this.cardPayload).flatMap {
         case Good(stripeCustomer) =>
@@ -44,10 +39,8 @@ case class CreditCardPaymentCreator(order: Order, customer: Customer, cardPayloa
             }.getOrElse(Future.successful(Bad(List(NotFoundFailure(s"could not find order with id=${order.id}")))))
           }
 
-        case Bad(errors)          =>
-          Future.successful(Bad(errors))
+        case Bad(errors) ⇒ Future.successful(Bad(errors))
       }
-    }
   }
 
   // creates CreditCardGateways, uses its id for an AppliedPayment record, and attempts to associate billing info
