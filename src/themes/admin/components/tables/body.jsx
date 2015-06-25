@@ -15,7 +15,7 @@ export default class TableBody extends React.Component {
       case 'currency': return formatCurrency(field);
       case 'date': return moment(field).format(column.format || 'DD/MM/YYYY');
       case 'orderStatus': return OrderStore.statuses[field];
-      default: return field instanceof Object ? this.displayObject(field) : field;
+      default: return typeof field === 'object' ? this.displayObject(field) : field;
     }
   }
 
@@ -31,7 +31,7 @@ export default class TableBody extends React.Component {
   displayObject(obj) {
     let divs = [];
     for (let field in obj) {
-      if (field !== 'createdAt') {
+      if (field !== 'createdAt' && typeof obj[field] !== 'object') {
         divs.push(<div key={field}>{obj[field]}</div>);
       }
     }
