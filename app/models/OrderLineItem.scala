@@ -1,6 +1,7 @@
 package models
 
-import utils.{Validation, RichTable}
+import monocle.macros.GenLens
+import utils._
 import payloads.CreateAddressPayload
 
 import com.wix.accord.dsl.{validator => createValidator}
@@ -11,7 +12,7 @@ import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-case class OrderLineItem(id: Int = 0, orderId: Int, skuId: Int, status: OrderLineItem.Status = OrderLineItem.Cart)
+case class OrderLineItem(id: Int = 0, orderId: Int, skuId: Int, status: OrderLineItem.Status = OrderLineItem.Cart) extends ModelWithIdParameter
 
 object OrderLineItem{
   sealed trait Status
@@ -41,7 +42,7 @@ object OrderLineItem{
 }
 
 
-class OrderLineItems(tag: Tag) extends Table[OrderLineItem](tag, "order_line_items") with RichTable {
+class OrderLineItems(tag: Tag) extends GenericTable.TableWithId[OrderLineItem](tag, "order_line_items") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def orderId = column[Int]("order_id")
   def skuId = column[Int]("sku_id")
@@ -49,13 +50,16 @@ class OrderLineItems(tag: Tag) extends Table[OrderLineItem](tag, "order_line_ite
   def * = (id, orderId, skuId, status) <> ((OrderLineItem.apply _).tupled, OrderLineItem.unapply)
 }
 
-object OrderLineItems {
-  val table = TableQuery[OrderLineItems]
-  val returningId = table.returning(table.map(_.id))
+object OrderLineItems extends TableQueryWithId[OrderLineItem, OrderLineItems](
+  idLens = GenLens[OrderLineItem](_.id)
+)(new OrderLineItems(_)) {
 
-  def findByOrder(order: Order)(implicit ec: ExecutionContext, db: Database) = { db.run(_findByOrderId(order.id).result) }
+  def findByOrder(order: Order)(implicit db: Database) = db.run(_findByOrderId(order.id).result)
 
-  def _findByOrderId(orderId: Rep[Int]) = { table.filter(_.orderId === orderId) }
+  def _findByOrder(order: Order): Query[OrderLineItems, OrderLineItem, Seq] =
+    _findByOrderId(order.id)
+
+  def _findByOrderId(orderId: Rep[Int]) = { filter(_.orderId === orderId) }
 
   def countByOrder(order: Order)(implicit ec: ExecutionContext, db: Database) =
     db.run(this._countByOrder(order))

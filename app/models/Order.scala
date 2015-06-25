@@ -1,5 +1,6 @@
 package models
 
+import services.OrderTotaler
 import utils.{GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
 import payloads.CreateAddressPayload
 
@@ -18,6 +19,15 @@ case class Order(id: Int = 0, customerId: Int, status: Order.Status = Order.Cart
   with Validation[Order] {
 
   override def validator = createValidator[Order] { order => }
+
+  // TODO: Add a real collector/builder here that assembles the subTotal
+  def subTotal(implicit ec: ExecutionContext, db: Database): Future[Int] = {
+    OrderTotaler.subTotalForOrder(this)
+  }
+
+  def grandTotal: Future[Int] = {
+    Future.successful(27)
+  }
 }
 
 object Order {
