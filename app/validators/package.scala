@@ -1,9 +1,5 @@
 package object validators {
-  def expirationMonth = CreditCard.expirationMonth
+  def notExpired[T](year: Int, month: Int) = CreditCard.notExpired[T](year, month)
 
-  def monthOfYear = CreditCard.expirationYear
-
-  def expirationYear = CreditCard.expirationYear
-
-  def withinTwentyYears = CreditCard.withinTwentyYears
+  def withinTwentyYears[T](year: Int, month: Int) = CreditCard.withinTwentyYears[T](year, month)
 }

@@ -26,10 +26,8 @@ case class CreditCardGateway(id: Int = 0, customerId: Int, gatewayCustomerId: St
 
   override def validator = createValidator[CreditCardGateway] { cc =>
     cc.lastFour should matchRegex("[0-9]{4}")
-    cc.expYear  is expirationYear
-    cc.expYear  is withinTwentyYears
-    cc.expMonth is monthOfYear
-    cc.expMonth is expirationMonth
+    cc.expYear as "credit card" is notExpired(year = cc.expYear, month = cc.expMonth)
+    cc.expYear as "credit card" is withinTwentyYears(year = cc.expYear, month = cc.expMonth)
   }
 }
 
