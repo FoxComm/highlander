@@ -106,7 +106,7 @@ Notes.propTypes = {
 
 Notes.defaultProps = {
   tableColumns: [
-    {field: 'createdAt', text: 'Date/Time', type: 'date', format: 'MM/DD/YYYY h:mm A'},
+    {field: 'createdAt', text: 'Date/Time', type: 'date', format: 'MM/DD/YYYY h:mm a'},
     {field: 'body', text: 'Note'},
     {field: 'author', text: 'Author', component: 'UserInitials'},
     {field: 'isEditable', text: ''}

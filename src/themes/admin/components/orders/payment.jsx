@@ -12,7 +12,7 @@ export default class OrderPayment extends React.Component {
     return (
       <section id="order-payment">
         <header>Payment</header>
-        <table>
+        <table className="inline">
           <TableHead columns={this.props.tableColumns}/>
           <TableBody columns={this.props.tableColumns} rows={order.payments} model='order'>
             <PaymentMethod/>
