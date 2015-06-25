@@ -24,7 +24,7 @@ Vagrant.configure("2") do |config|
         google.google_client_email = ENV['GOOGLE_CLIENT_EMAIL']
         google.google_json_key_location = ENV['GOOGLE_JSON_KEY_LOCATION']
 
-        google.name = "ashes-stage-01"
+        google.name = "ashes-stage-02"
         google.image = "ubuntu-1504-vivid-v20150422"
         google.zone = "us-central1-a"
 
