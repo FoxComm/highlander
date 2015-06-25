@@ -18,7 +18,7 @@ scalacOptions ++= List(
 mainClass in Compile := Some("Main")
 
 libraryDependencies ++= {
-  val akkaV       = "2.3.10"
+  val akkaV       = "2.3.11"
   val akkaStreamV = "1.0-RC2"
   val akkaHttpV = "1.0-RC3"
   val scalaTestV  = "2.2.4"
