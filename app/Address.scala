@@ -2,6 +2,7 @@ import java.util.Date
 import java.util.concurrent.TimeoutException
 import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.model.headers.BasicHttpCredentials
+import akka.stream.ActorMaterializer
 import com.stripe.model.Token
 import com.stripe.net.{RequestOptions => StripeRequestOptions}
 import com.stripe.model.{Charge => StripeCharge}
@@ -24,7 +25,6 @@ import slick.lifted.ProvenShape
 import spray.json.{JsValue, JsString, JsonFormat, DefaultJsonProtocol}
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.server.Directives._
-import akka.stream.{ActorFlowMaterializer, FlowMaterializer}
 import slick.lifted.Tag
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
@@ -146,7 +146,7 @@ class Service(
 
   implicit def executionContext = system.dispatcher
 
-  implicit val materializer = ActorFlowMaterializer()
+  implicit val materializer = ActorMaterializer()
 
   // required for (de)-serialization
   implicit val formats = phoenixFormats
