@@ -2,7 +2,11 @@
 
 const
   _     = require('underscore'),
-  parse = require('co-body');
+  parse = require('co-body'),
+  Chance = require('chance');
+
+const
+  chance = new Chance();
 
 module.exports = function(app, router) {
   const
@@ -23,6 +27,11 @@ module.exports = function(app, router) {
         body = yield parse.json(this);
       this.order.update(body);
       this.status = 200;
+      this.body = this.order.toJSON();
+    })
+    .post('/orders/:order/edit', function *() {
+      this.status = chance.weighted([202, 423], [50, 1]);
+      if (this.status === 423) return this.status;
       this.body = this.order.toJSON();
     })
     .get('/orders/:order/viewers', function *() {

@@ -20,7 +20,8 @@ const seed = [
   {field: 'role', method: 'pick', opts: ['admin', 'customer', 'vendor']},
   {field: 'modality', method: 'pick', opts: ['iPhone', 'Android', 'Web']},
   {field: 'blocked', method: 'bool'},
-  {field: 'cause', method: 'sentence', opts: {words: 2}}
+  {field: 'cause', method: 'sentence', opts: {words: 2}},
+  {field: 'isLocker', method: 'bool', opts: {likelihood: 30}}
 ];
 
 class Customer extends BaseModel {
@@ -37,6 +38,7 @@ class Customer extends BaseModel {
   get blocked() { return this.model.blocked; }
   get cause() { return this.model.cause; }
   get modality() { return this.model.modality; }
+  get isLocker() { return this.model.isLocker; }
 }
 
 Object.defineProperty(Customer.prototype, 'whitelist', {value: whitelist});
