@@ -14,12 +14,19 @@ object FullOrder {
                   orderStatus: Order.Status,
                   shippingStatus: Order.Status,
                   paymentStatus: Order.Status,
-                  lineItems: Seq[OrderLineItem],
+                  lineItems: Seq[DisplayLineItem],
                   adjustments: Seq[Adjustment],
                   fraudScore: Int,
                   totals: Totals,
                   customer: Option[Customer],
                   shippingMethod: Option[ShippingMethod])
+
+  case class DisplayLineItem(imagePath: String = "http://lorempixel.com/75/75/fashion" ,
+                              name: String = "donkey product",
+                              skuId: Int,
+                              price: Int = 33,
+                              qty: Int = 1,
+                              status: OrderLineItem.Status )
 
   def build(order: Order, lineItems: Seq[OrderLineItem] = Seq.empty, adjustments: Seq[Adjustment] = Seq.empty, shippingMethod: Option[ShippingMethod] = None, customer: Option[Customer] = None): Root = {
     val rand = scala.util.Random
@@ -28,7 +35,7 @@ object FullOrder {
       orderStatus = order.status,
       shippingStatus = order.status,
       paymentStatus = order.status,
-      lineItems = lineItems,
+      lineItems = lineItems.map{oli => DisplayLineItem(skuId = oli.skuId, status = oli.status)},
       adjustments = adjustments,
       fraudScore = rand.nextInt(100),
       customer = customer,
@@ -70,6 +77,7 @@ object FullOrder {
       shipMethodMapping <- OrdersShippingMethods.filter(_.orderId === order.id)
       customer <- Customers._findById(order.customerId)
       shipMethod <- ShippingMethods.filter(_.id === shipMethodMapping.shippingMethodId)
+      //payment <- PaymentMethods
     } yield (order, lineItems, shipMethod, customer)
 
     db.run(queries.result).map { results =>
