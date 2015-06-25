@@ -19,7 +19,8 @@ object FullOrder {
                   fraudScore: Int,
                   totals: Totals,
                   customer: Option[Customer],
-                  shippingMethod: Option[ShippingMethod])
+                  shippingMethod: Option[ShippingMethod],
+                  shippingAddress: Option[Address])
 
   case class DisplayLineItem(imagePath: String = "http://lorempixel.com/75/75/fashion" ,
                               name: String = "donkey product",
@@ -28,7 +29,7 @@ object FullOrder {
                               qty: Int = 1,
                               status: OrderLineItem.Status )
 
-  def build(order: Order, lineItems: Seq[OrderLineItem] = Seq.empty, adjustments: Seq[Adjustment] = Seq.empty, shippingMethod: Option[ShippingMethod] = None, customer: Option[Customer] = None): Root = {
+  def build(order: Order, lineItems: Seq[OrderLineItem] = Seq.empty, adjustments: Seq[Adjustment] = Seq.empty, shippingMethod: Option[ShippingMethod] = None, customer: Option[Customer] = None, shippingAddress: Option[Address] = None): Root = {
     val rand = scala.util.Random
     Root(id = order.id,
       referenceNumber = order.referenceNumber,
@@ -39,6 +40,7 @@ object FullOrder {
       adjustments = adjustments,
       fraudScore = rand.nextInt(100),
       customer = customer,
+      shippingAddress = shippingAddress,
       totals = Totals(subTotal = 333, taxes = 10, adjustments = 0, total = 510), shippingMethod = shippingMethod)
   }
 
@@ -78,12 +80,13 @@ object FullOrder {
       shipment <- Shipments.filter(_.orderId === order.id)
       customer <- Customers._findById(order.customerId)
       shipMethod <- ShippingMethods.filter(_.id === shipment.shippingMethodId)
+      address <- Addresses.filter(_.id === shipment.shippingAddressId)
       //payment <- PaymentMethods
-    } yield (order, lineItems, shipMethod, customer)
+    } yield (order, lineItems, shipMethod, customer, address)
 
     db.run(queries.result).map { results =>
-      results.headOption.map { case (order, _, shippingMethod, customer) =>
-        build(order = order, lineItems = results.map { case (_, items, _, _) => items }, shippingMethod = Some(shippingMethod), customer = Some(customer))
+      results.headOption.map { case (order, _, shippingMethod, customer, address) =>
+        build(order = order, lineItems = results.map { case (_, items, _, _, _) => items }, shippingMethod = Some(shippingMethod), customer = Some(customer), shippingAddress = Some(address))
       }
     }
   }
