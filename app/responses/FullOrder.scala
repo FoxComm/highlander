@@ -18,9 +18,10 @@ object FullOrder {
                   adjustments: Seq[Adjustment],
                   fraudScore: Int,
                   totals: Totals,
+                  customer: Option[Customer],
                   shippingMethod: Option[ShippingMethod])
 
-  def build(order: Order, lineItems: Seq[OrderLineItem] = Seq.empty, adjustments: Seq[Adjustment] = Seq.empty, shippingMethod: Option[ShippingMethod] = None): Root = {
+  def build(order: Order, lineItems: Seq[OrderLineItem] = Seq.empty, adjustments: Seq[Adjustment] = Seq.empty, shippingMethod: Option[ShippingMethod] = None, customer: Option[Customer] = None): Root = {
     val rand = scala.util.Random
     Root(id = order.id,
       referenceNumber = order.referenceNumber,
@@ -30,6 +31,7 @@ object FullOrder {
       lineItems = lineItems,
       adjustments = adjustments,
       fraudScore = rand.nextInt(100),
+      customer = customer,
       totals = Totals(subTotal = 333, taxes = 10, adjustments = 0, total = 510), shippingMethod = shippingMethod)
   }
 
@@ -66,12 +68,13 @@ object FullOrder {
       order <- finder
       lineItems <- OrderLineItems._findByOrderId(order.id)
       shipMethodMapping <- OrdersShippingMethods.filter(_.orderId === order.id)
+      customer <- Customers._findById(order.customerId)
       shipMethod <- ShippingMethods.filter(_.id === shipMethodMapping.shippingMethodId)
-    } yield (order, lineItems, shipMethod)
+    } yield (order, lineItems, shipMethod, customer)
 
     db.run(queries.result).map { results =>
-      results.headOption.map { case (order, _, shippingMethod) =>
-        build(order = order, lineItems = results.map { case (_, items, _) => items }, shippingMethod = Some(shippingMethod))
+      results.headOption.map { case (order, _, shippingMethod, customer) =>
+        build(order = order, lineItems = results.map { case (_, items, _, _) => items }, shippingMethod = Some(shippingMethod), customer = Some(customer))
       }
     }
   }
