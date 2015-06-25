@@ -13,7 +13,7 @@ import slick.driver.PostgresDriver.api._
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshalling.ToResponseMarshallable
-import akka.http.scaladsl.model.HttpResponse
+import akka.http.scaladsl.model.{StatusCodes, HttpResponse}
 import com.typesafe.config.{ConfigFactory, Config}
 import com.wix.accord._
 import com.wix.accord.{validate => runValidation, Success => ValidationSuccess, Failure => ValidationFailure}
@@ -160,7 +160,7 @@ class Service(
   def customerAuth: AsyncAuthenticator[Customer] = Authenticator.customer
   def storeAdminAuth: AsyncAuthenticator[StoreAdmin] = Authenticator.storeAdmin
 
-  val notFoundResponse = HttpResponse(NotFound)
+  val notFoundResponse = HttpResponse(StatusCodes.NotFound)
 
   def renderGoodOrBad[G <: AnyRef, B <: AnyRef](goodOrBad: G Or B)
                                                (implicit ec: ExecutionContext,

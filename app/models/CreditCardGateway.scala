@@ -1,17 +1,17 @@
 package models
 
+import scala.concurrent.{ExecutionContext, Future}
+
 import com.stripe.model.{Customer ⇒ StripeCustomer}
 import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import monocle.macros.GenLens
-import org.scalactic.{ErrorMessage, Or}
+import org.scalactic.Or
 import payloads.CreditCardPayload
-import services.StripeGateway
+import services.{Failure, StripeGateway}
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils._
 import validators._
-
-import scala.concurrent.{ExecutionContext, Future}
 
 case class CreditCardGateway(id: Int = 0, customerId: Int, gatewayCustomerId: String, lastFour: String,
                              expMonth: Int, expYear: Int)
@@ -19,7 +19,7 @@ case class CreditCardGateway(id: Int = 0, customerId: Int, gatewayCustomerId: St
   with ModelWithIdParameter
   with Validation[CreditCardGateway] {
 
-  def authorize(amount: Int)(implicit ec: ExecutionContext): Future[String Or List[ErrorMessage]] = {
+  def authorize(amount: Int)(implicit ec: ExecutionContext): Future[String Or List[Failure]] = {
     new StripeGateway().authorizeAmount(gatewayCustomerId, amount)
   }
 

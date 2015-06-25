@@ -1,14 +1,14 @@
 package services
 
-import models.{CreditCardGateway, Customer}
-import payloads.CreditCardPayload
-
-import com.stripe.Stripe
-import com.stripe.model.{Token, Card => StripeCard, Charge => StripeCharge, Customer => StripeCustomer}
-import com.stripe.net.{RequestOptions => StripeRequestOptions}
-import org.scalactic.{Good, Bad, ErrorMessage, Or}
-import collection.JavaConversions.mapAsJavaMap
+import scala.collection.JavaConversions.mapAsJavaMap
 import scala.concurrent.{ExecutionContext, Future}
+
+import com.stripe.exception.{CardException, InvalidRequestException}
+import com.stripe.model.{Card ⇒ StripeCard, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer}
+import com.stripe.net.{RequestOptions ⇒ StripeRequestOptions}
+import models.Customer
+import org.scalactic.{Bad, Good, Or}
+import payloads.CreditCardPayload
 
 abstract class PaymentGateway
 case object BraintreeGateway extends PaymentGateway
@@ -17,7 +17,7 @@ case object BraintreeGateway extends PaymentGateway
 case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ") extends PaymentGateway {
   // Creates a customer in Stripe along with their first CC
   def createCustomerAndCard(customer: Customer, card: CreditCardPayload)
-                           (implicit ec: ExecutionContext): Future[StripeCustomer Or List[ErrorMessage]] = tryFutureWrap {
+                           (implicit ec: ExecutionContext): Future[StripeCustomer Or List[Failure]] = tryFutureWrap {
 
     val base = Map[String, Object](
       "description" -> "FoxCommerce",
@@ -48,7 +48,7 @@ case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ") ex
   }
 
   def authorizeAmount(customerId: String, amount: Int)
-                     (implicit ec: ExecutionContext): Future[String Or List[ErrorMessage]] = tryFutureWrap {
+                     (implicit ec: ExecutionContext): Future[String Or List[Failure]] = tryFutureWrap {
     val capture: java.lang.Boolean = false
     val chargeMap: Map[String, Object] = Map("amount" -> "100", "currency" -> "usd",
       "customer" -> customerId, "capture" -> capture)
@@ -62,14 +62,10 @@ case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ") ex
     Good(charge.getId)
   }
 
-  private [this] def tryFutureWrap[A](f: => A Or List[ErrorMessage])(implicit ec: ExecutionContext): Future[A Or List[ErrorMessage]] = {
-    Future {
-      try {
-        f
-      } catch {
-        case t @ (_: com.stripe.exception.InvalidRequestException | _: com.stripe.exception.CardException) =>
-          Bad(List(t.getMessage))
-      }
+  private [this] def tryFutureWrap[A](f: => A Or List[Failure])(implicit ec: ExecutionContext): Future[A Or List[Failure]] = {
+    Future(f).recover {
+      case t: InvalidRequestException ⇒ Bad(List(StripeError(t)))
+      case t: CardException           ⇒ Bad(List(StripeError(t)))
     }
   }
 

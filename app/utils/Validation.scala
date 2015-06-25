@@ -1,10 +1,13 @@
 package utils
 
+import com.wix.accord.Failure
 import com.wix.accord.transform.ValidationTransform
 import org.scalactic._
 import org.scalactic.Accumulation._
 import com.wix.accord.{validate => runValidation, Failure => AccordFailure, Violation, Validator}
 import com.wix.accord
+import services.ValidationFailure
+import utils.Validation.Result.{Failure, Success}
 
 trait Validation[T] { this: T ⇒
   import Validation._
@@ -17,6 +20,11 @@ trait Validation[T] { this: T ⇒
   }
 
   def isValid: Boolean = { validate.isValid }
+
+  def validateToOr: T Or List[ValidationFailure] = validate match {
+    case Success               ⇒ Good(this)
+    case f @ Result.Failure(_) ⇒ Bad(List(ValidationFailure(f)))
+  }
 }
 
 object Validation {
@@ -30,7 +38,7 @@ object Validation {
     final def fold[A](s: => A, f: Set[Violation] => A): A = {
       this match {
         case Success => s
-        case Failure(v) => f(v)
+        case Result.Failure(v) => f(v)
       }
     }
 
