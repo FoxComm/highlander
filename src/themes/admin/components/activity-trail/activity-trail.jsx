@@ -56,7 +56,6 @@ ActivityTrail.defaultProps = {
   tableColumns: [
     {field: 'createdAt', text: 'Date/Time', type: 'date', format: 'MM/DD/YYYY h:mm a'},
     {field: 'user', text: 'Person', component: 'UserInitials'},
-    {field: 'orderId', text: 'Order'},
     {field: 'eventName', text: 'Event'},
     {field: 'previousState', text: 'Previous State'},
     {field: 'newState', text: 'New State'}
