@@ -1,5 +1,14 @@
 package models
 
+import scala.concurrent.{ExecutionContext, Future}
+
+import com.stripe.model.{Customer ⇒ StripeCustomer}
+import com.wix.accord.dsl.{validator ⇒ createValidator, _}
+import monocle.macros.GenLens
+import org.scalactic.Or
+import payloads.CreditCardPayload
+import services.{Failure, StripeGateway}
+import com.wix.accord.dsl.{validator => createValidator}
 import com.stripe.model.{Customer ⇒ StripeCustomer}
 import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import monocle.macros.GenLens
@@ -19,7 +28,7 @@ case class CreditCardGateway(id: Int = 0, customerId: Int, gatewayCustomerId: St
   with ModelWithIdParameter
   with Validation[CreditCardGateway] {
 
-  def authorize(amount: Int)(implicit ec: ExecutionContext): Future[String Or List[ErrorMessage]] = {
+  def authorize(amount: Int)(implicit ec: ExecutionContext): Future[String Or List[Failure]] = {
     new StripeGateway().authorizeAmount(gatewayCustomerId, amount)
   }
 

@@ -1,8 +1,7 @@
 package services
 
-import models.OrderLineItem.Cart
-import models.{OrderLineItems, OrderLineItem, CreditCardGateways, CreditCardGateway, BillingAddress, BillingAddresses, AppliedPayments, AppliedPayment, Orders, Order, Address, Addresses, Customers, Customer}
-import org.scalactic.{TypeCheckedTripleEquals, Bad, ErrorMessage}
+import models.{Address, Addresses, AppliedPayment, AppliedPayments, BillingAddress, BillingAddresses, CreditCardGateway, CreditCardGateways, Customer, Customers, Order, OrderLineItem, OrderLineItems, Orders}
+import org.scalactic.{Bad, TypeCheckedTripleEquals}
 import org.scalatest.Inside
 import util.IntegrationTestBase
 import utils._
@@ -41,12 +40,16 @@ class CheckoutTest extends IntegrationTestBase with Inside with TypeCheckedTripl
         result mustBe 'bad
 
         inside(result) {
-          case Bad(message :: Nil) ⇒
+          case Bad(NotFoundFailure(message) :: Nil) ⇒
             message must include ("No Line Items")
         }
       }
 
+      /** Test data leak? */
+
       "returns an error if authorizePayments fails" in {
+        pending /** Need a way to mock Stripe */
+
         val (order, _) = testData(gatewayCustomerId = "")
 
         val lineItemStub1 = OrderLineItem(id = 0, orderId = 0, skuId = 1)
@@ -62,8 +65,8 @@ class CheckoutTest extends IntegrationTestBase with Inside with TypeCheckedTripl
         val checkout = new Checkout(order)
         val result   = checkout.checkout.futureValue
 
-        val (errorMessage :: Nil) = result.swap.get
-        errorMessage must include ("cannot set 'customer' to an empty string.")
+        val (StripeFailure(errorMessage) :: Nil) = result.swap.get
+        errorMessage.getMessage must include ("cannot set 'customer' to an empty string.")
       }
     }
 
