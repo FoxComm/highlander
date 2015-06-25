@@ -33,5 +33,7 @@ public/themes
 
 .vagrant
 
+!.vagrant/machines/default/google
+
 #NVM-Specific Files
 .nvmrc
