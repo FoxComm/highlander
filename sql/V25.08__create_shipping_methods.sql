@@ -4,5 +4,5 @@ create table shipping_methods(
     storefront_display_name character varying(255) not null,
     shipping_carrier_id integer, --Nullable because we may ship ourselves?
     default_price integer not null,
-    is_active boolean
+    is_active boolean not null default false
 );

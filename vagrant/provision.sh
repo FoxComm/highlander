@@ -18,7 +18,7 @@ if [[ ! -f /etc/apt/sources.list.d/sbt.list ]]; then
 fi
 echo "installing a bunch of other stuff.."
 apt-get update -y
-apt-get install -y --force-yes sbt tmux openjdk-8-jre postgresql unzip
+apt-get install -y --force-yes sbt tmux openjdk-8-jdk postgresql unzip
 
 
 #install flyway
