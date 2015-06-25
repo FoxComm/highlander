@@ -16,6 +16,10 @@ npm install
 ```
 npm run dev
 ```
+If connecting to the real phoenix backend (instead of local Node.Js mock api), run:
+```
+npm run phoenix
+``` 
 
 ### Vagrant setup
 
