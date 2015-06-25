@@ -14,6 +14,7 @@ describe('Orders #GET', function() {
     expect(order.paymentStatus).to.be.a('string');
     expect(order).to.include.key('shippingStatus');
     expect(order.customer).to.be.a('object');
+    expect(order.shippingAddress).to.be.a('object');
     expect(order.fraudScore).to.be.a('number');
     expect(order.totals.subTotal).to.be.a('number');
     expect(order.totals.shipping).to.be.a('number');
@@ -21,6 +22,7 @@ describe('Orders #GET', function() {
     expect(order.totals.adjustments).to.be.a('number');
     expect(order.totals.total).to.be.a('number');
     expect(order.lineItems).to.be.a('array');
+    expect(order.payments).to.be.a('array');
   });
 
   it('should get an array of orders', function *() {

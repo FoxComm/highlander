@@ -3,6 +3,8 @@
 import React from 'react';
 import OrderSummary from './summary';
 import OrderLineItems from './line-items';
+import OrderShippingAddress from './shipping-address';
+import OrderPayment from './payment';
 
 export default class OrderDetails extends React.Component {
   render() {
@@ -13,6 +15,8 @@ export default class OrderDetails extends React.Component {
         <OrderSummary order={order}/>
         <article>
           <OrderLineItems order={order}/>
+          <OrderShippingAddress order={order}/>
+          <OrderPayment order={order}/>
         </article>
       </div>
     );
