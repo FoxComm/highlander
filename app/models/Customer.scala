@@ -2,6 +2,7 @@ package models
 
 import com.wix.accord.dsl.{validator => createValidator}
 import payloads.CreateCustomerPayload
+import services.Failure
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 import utils.{Validation, RichTable}
@@ -44,7 +45,7 @@ object Customers {
   def _findById(id: Rep[Int]) = { table.filter(_.id === id) }
 
   def createFromPayload(payload: CreateCustomerPayload)
-                       (implicit ec: ExecutionContext, db: Database): Future[Customer Or List[ErrorMessage]] = {
+                       (implicit ec: ExecutionContext, db: Database): Future[Customer Or List[Failure]] = {
     val newCustomer = Customer(id = 0, email = payload.email, password = payload.password, firstName = payload.firstName, lastName = payload.firstName)
 
     db.run(for {
