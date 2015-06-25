@@ -17,7 +17,7 @@ class CreatesStockItemsTest extends IntegrationTestBase {
       val result = CreatesStockItems(productId = 1, onHand = -1, onHold = 0).futureValue
       val error  = result.swap.get
 
-      error mustBe "On hand must be >= 0"
+      error mustBe List(GeneralFailure("On hand must be >= 0"))
     }
   }
 
