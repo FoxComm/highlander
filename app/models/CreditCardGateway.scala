@@ -1,17 +1,17 @@
 package models
 
-import com.wix.accord.dsl.{validator => createValidator}
+import com.stripe.model.{Customer ⇒ StripeCustomer}
+import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import monocle.macros.GenLens
-import payloads.{CreditCardPayload, CreateCustomerPayload}
+import org.scalactic.{ErrorMessage, Or}
+import payloads.CreditCardPayload
 import services.StripeGateway
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
+import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils._
-import com.wix.accord.Validator
-import com.wix.accord.dsl._
+import validators._
+
 import scala.concurrent.{ExecutionContext, Future}
-import org.scalactic.{Or, ErrorMessage, Good}
-import com.stripe.model.{Customer => StripeCustomer}
 
 case class CreditCardGateway(id: Int = 0, customerId: Int, gatewayCustomerId: String, lastFour: String,
                              expMonth: Int, expYear: Int)
@@ -23,10 +23,13 @@ case class CreditCardGateway(id: Int = 0, customerId: Int, gatewayCustomerId: St
     new StripeGateway().authorizeAmount(gatewayCustomerId, amount)
   }
 
+
   override def validator = createValidator[CreditCardGateway] { cc =>
     cc.lastFour should matchRegex("[0-9]{4}")
-    cc.expYear is between(2015, 2050)
-    cc.expMonth is between(1, 12)
+    cc.expYear  is expirationYear
+    cc.expYear  is withinTwentyYears
+    cc.expMonth is monthOfYear
+    cc.expMonth is expirationMonth
   }
 }
 
