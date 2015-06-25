@@ -92,12 +92,16 @@ object ShippingMethodsBuilder {
     }
   }
 
+  // This builder assumes that there is only one shipment per order.  In the future, we can add logic to handle multiple shipments per order.
   def addShippingMethodToOrder(shippingMethodId: Int, order: Order)
                               (implicit ec: ExecutionContext, db: Database): Future[Order Or List[ErrorMessage]] = {
     val queries = for {
       shippingMethods <- ShippingMethods.findById(shippingMethodId)
-      shipId <- shippingMethods.map { s => OrdersShippingMethods.insertOrUpdate(OrderShippingMethod(orderId = order.id, shippingMethodId = s.id)) }.getOrElse(DBIO.successful(0))
-      updatedOrder <- Orders.findById(order.id) if shipId > 0
+      shipment <- Shipments.findByOrderId(order.id) // Assume 1 or none.
+      newShipmentInsert <- Shipments.insertOrUpdate(Shipment(0, orderId = order.id, shippingMethodId = Some(shippingMethodId)))
+      shippingAddress <- shipment.map{ ship =>  Addresses.findById(ship.shippingAddressId.getOrElse(0))  }.getOrElse(DBIO.successful(None))
+      shippingMethod <- shipment.map{ ship =>  ShippingMethods.findById(ship.shippingMethodId.getOrElse(0)) }.getOrElse(DBIO.successful(None))
+      updatedOrder <- Orders.findById(order.id) if newShipmentInsert > 0
     } yield (updatedOrder)
 
     db.run(queries).map { optOrder =>

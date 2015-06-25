@@ -74,9 +74,10 @@ object FullOrder {
     val queries = for {
       order <- finder
       lineItems <- OrderLineItems._findByOrderId(order.id)
-      shipMethodMapping <- OrdersShippingMethods.filter(_.orderId === order.id)
+      //shipMethodMapping <- OrdersShippingMethods.filter(_.orderId === order.id)
+      shipment <- Shipments.filter(_.orderId === order.id)
       customer <- Customers._findById(order.customerId)
-      shipMethod <- ShippingMethods.filter(_.id === shipMethodMapping.shippingMethodId)
+      shipMethod <- ShippingMethods.filter(_.id === shipment.shippingMethodId)
       //payment <- PaymentMethods
     } yield (order, lineItems, shipMethod, customer)
 

@@ -57,10 +57,6 @@ object Addresses extends TableQueryWithId[Address, Addresses](
     db.run(filter(_.customerId === id).result)
   }
 
-  def findById(db: Database, id: Int): Future[Option[Address]] = {
-    db.run(filter(_.id === id).result.headOption)
-  }
-
   def count()(implicit ec: ExecutionContext, db: Database): Future[Int] = {
     db.run(length.result)
   }

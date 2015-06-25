@@ -18,7 +18,7 @@ object Seeds {
                        shippingPriceRules: Seq[ShippingPriceRule], shippingMethodRuleMappings: Seq[ShippingMethodPriceRule],
                        orderCriteria: Seq[OrderCriterion], orderPriceCriteria: Seq[OrderPriceCriterion],
                        priceRuleCriteriaMappings: Seq[ShippingPriceRuleOrderCriterion], skus: Seq[Sku],
-                       orderLineItems: Seq[OrderLineItem], orderShippingMethod: OrderShippingMethod)
+                       orderLineItems: Seq[OrderLineItem], shipment: Shipment)
 
   def run(): Unit = {
     import scala.concurrent.ExecutionContext.Implicits.global
@@ -38,7 +38,7 @@ object Seeds {
       orderPriceCriteria = Factories.orderPriceCriteria,
       priceRuleCriteriaMappings = Factories.priceRuleCriteriaMappings,
       orderLineItems = Factories.orderLineItems,
-      orderShippingMethod = Factories.orderShippingMethod
+      shipment = Factories.shipment
     )
 
     val failures = List(s.customer.validate, s.storeAdmin.validate, s.order.validate, s.address.validate, s.cc.validate).
@@ -61,7 +61,7 @@ object Seeds {
       orderCriterion ← OrderCriteria ++= s.orderCriteria
       orderPriceCriterion ← OrderPriceCriteria ++= s.orderPriceCriteria
       priceRuleCriteriaMapping ← ShippingPriceRulesOrderCriteria ++= s.priceRuleCriteriaMappings
-      orderShippingMethods ← OrdersShippingMethods.save(s.orderShippingMethod)
+      shipments ← Shipments.save(s.shipment)
     } yield (customer, order, address, gateway)
 
     Await.result(actions.run(), 1.second)
@@ -129,7 +129,7 @@ object Seeds {
       ShippingPriceRuleOrderCriterion(orderCriterionId = 3, shippingPricingRuleId = 3)
     )
 
-    def orderShippingMethod = OrderShippingMethod(1, 1)
+    def shipment = Shipment(1, 1, Some(1), Some(1))
   }
 
   def main(args: Array[String]) {
