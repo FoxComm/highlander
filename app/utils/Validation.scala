@@ -20,11 +20,6 @@ trait Validation[T] { this: T ⇒
   }
 
   def isValid: Boolean = { validate.isValid }
-
-  def validateToOr: T Or List[ValidationFailure] = validate match {
-    case Success               ⇒ Good(this)
-    case f @ Result.Failure(_) ⇒ Bad(List(ValidationFailure(f)))
-  }
 }
 
 object Validation {
