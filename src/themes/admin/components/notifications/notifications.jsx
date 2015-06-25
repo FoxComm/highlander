@@ -5,9 +5,6 @@ import TableHead from '../tables/head';
 import TableBody from '../tables/body';
 import NotificationStore from './store';
 import ResendButton from './button';
-import { listenTo, stopListeningTo } from '../../lib/dispatcher';
-
-const changeEvent = 'change-notification-store';
 
 export default class Notifications extends React.Component {
   constructor(props) {
@@ -19,7 +16,7 @@ export default class Notifications extends React.Component {
   }
 
   componentDidMount() {
-    listenTo(changeEvent, this);
+    NotificationStore.listenToEvent('change', this);
 
     let { router } = this.context,
       order = router.getCurrentParams().order;
@@ -29,7 +26,7 @@ export default class Notifications extends React.Component {
   }
 
   componentWillUnmount() {
-    stopListeningTo(changeEvent, this);
+    NotificationStore.stopListeningToEvent('change', this);
   }
 
   onChangeNotificationStore() {

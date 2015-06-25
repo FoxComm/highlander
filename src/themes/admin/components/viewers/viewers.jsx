@@ -3,11 +3,8 @@
 import React from 'react';
 import UserInitials from '../users/initials';
 import ViewerStore from './store';
-import { listenTo, stopListeningTo } from '../../lib/dispatcher';
 
-const
-  changeEvent = 'change-viewer-store',
-  updateTime  = 15000;
+const updateTime  = 15000;
 
 export default class Viewers extends React.Component {
   constructor(props) {
@@ -20,12 +17,12 @@ export default class Viewers extends React.Component {
   }
 
   componentDidMount() {
-    listenTo(changeEvent, this);
+    ViewerStore.listenToEvent('change', this);
     this.onTimeout();
   }
 
   componentWillUnmount() {
-    stopListeningTo(changeEvent, this);
+    ViewerStore.stopListeningToEvent('change', this);
   }
 
   onTimeout() {

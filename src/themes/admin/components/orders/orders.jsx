@@ -4,9 +4,6 @@ import React from 'react';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
 import OrderStore from './store';
-import { listenTo, stopListeningTo } from '../../lib/dispatcher';
-
-const changeEvent = 'change-order-store';
 
 export default class Orders extends React.Component {
   constructor(props) {
@@ -18,12 +15,12 @@ export default class Orders extends React.Component {
   }
 
   componentDidMount() {
-    listenTo(changeEvent, this);
+    OrderStore.listenToEvent('change', this);
     OrderStore.fetch();
   }
 
   componentWillUnmount() {
-    stopListeningTo(changeEvent, this);
+    OrderStore.stopListeningToEvent('change', this);
   }
 
   onChangeOrderStore() {
