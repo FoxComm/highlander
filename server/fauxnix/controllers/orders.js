@@ -30,8 +30,8 @@ module.exports = function(app, router) {
       this.body = this.order.toJSON();
     })
     .post('/orders/:order/edit', function *() {
-      this.status = chance.weighted([202, 403], [50, 1]);
-      if (this.status === 403) return this.status;
+      this.status = chance.weighted([202, 423], [50, 1]);
+      if (this.status === 423) return this.status;
       this.body = this.order.toJSON();
     })
     .get('/orders/:order/viewers', function *() {

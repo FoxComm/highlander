@@ -36,8 +36,8 @@ export default class Viewers extends React.Component {
 
   onChangeViewerStore(viewers) {
     this.setState({
-      viewers: viewers.filter((viewer) => { return viewer.isLocker === false; }),
-      lockedViewers: viewers.filter((viewer) => { return viewer.isLocker === true; })
+      viewers: viewers.filter((viewer) => { return !viewer.isLocker; }),
+      lockedViewers: viewers.filter((viewer) => { return viewer.isLocker; })
     });
   }
 
