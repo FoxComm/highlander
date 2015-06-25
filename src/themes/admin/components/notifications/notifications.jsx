@@ -55,13 +55,13 @@ Notifications.contextTypes = {
 };
 
 Notifications.propTypes = {
-  order: React.PropTypes.number,
+  order: React.PropTypes.object,
   tableColumns: React.PropTypes.array
 };
 
 Notifications.defaultProps = {
   tableColumns: [
-    {field: 'sendDate', text: 'Date', type: 'date'},
+    {field: 'sendDate', text: 'Date', type: 'date', format: 'DD/MM/YYYY hh:mm:ss a'},
     {field: 'subject', text: 'Subject'},
     {field: 'contact', text: 'Contact Method'},
     {field: 'notificationStatus', text: 'Status'},
