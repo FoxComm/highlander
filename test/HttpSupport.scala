@@ -1,21 +1,21 @@
 import java.net.ServerSocket
 
+import scala.concurrent.Await.result
+import scala.concurrent.ExecutionContext
+import scala.concurrent.duration._
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpMethods, HttpRequest, HttpResponse, Uri}
-import akka.stream.{ActorFlowMaterializer, FlowMaterializer}
+import akka.stream.{ActorMaterializer, Materializer}
 import akka.util.ByteString
+
 import com.typesafe.config.ConfigFactory
 import org.json4s.DefaultFormats
+import org.json4s.jackson.Serialization.{write ⇒ writeJson}
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
 import org.scalatest.{Outcome, Suite, SuiteMixin}
-import org.json4s.jackson.Serialization.{write => writeJson}
 import util.DbTestSupport
-
-import scala.concurrent.Await.result
-import scala.concurrent.ExecutionContext
-import scala.concurrent.duration._
 
 // TODO: Move away from root package when `Service' moverd
 trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with PatienceConfiguration with DbTestSupport ⇒
@@ -25,15 +25,15 @@ trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with Patien
   private val ActorSystemNameChars = ('a' to 'z').toSet | ('A' to 'Z').toSet | ('0' to '9').toSet | Set('-', '_')
 
   /* State shared that is set / reset in withFixture subtypes */
-  protected implicit var as: ActorSystem      = _
-  protected implicit var fm: FlowMaterializer = _
+  protected implicit var as: ActorSystem       = _
+  protected implicit var fm: ActorMaterializer = _
 
   /** of the currenly running server */
   protected var serverBinding: ServerBinding = _
 
   override abstract protected def withFixture(test: NoArgTest): Outcome = {
     as = ActorSystem(test.name.filter(ActorSystemNameChars.contains), actorSystemConfig)
-    fm = ActorFlowMaterializer()
+    fm = ActorMaterializer()
 
     try {
       serverBinding = makeService.bind(ConfigFactory.parseString(
@@ -108,7 +108,7 @@ trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with Patien
 
 object Extensions {
   implicit class RichHttpResponse(val res: HttpResponse) extends AnyVal {
-    def bodyText(implicit ec: ExecutionContext, mat: FlowMaterializer): String =
+    def bodyText(implicit ec: ExecutionContext, mat: Materializer): String =
       result(res.entity.toStrict(1.second).map(_.data.utf8String), 1.second)
   }
 }

@@ -20,7 +20,7 @@ mainClass in Compile := Some("Main")
 libraryDependencies ++= {
   val akkaV       = "2.3.11"
   val akkaStreamV = "1.0-RC2"
-  val akkaHttpV = "1.0-RC3"
+  val akkaHttpV   = "1.0-RC4"
   val scalaTestV  = "2.2.4"
   Seq(
     "com.wix"           %% "accord-core"                          % "0.4.2",
