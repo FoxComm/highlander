@@ -8,6 +8,7 @@ const
   Notification  = require('./notification'),
   Address       = require('./address'),
   Payment       = require('./payment'),
+  Activity      = require('./activity'),
   moment        = require('moment');
 
 const seed = [
@@ -59,6 +60,18 @@ class Order extends BaseModel {
       notes = [];
     while(count--) notes.push(Note.generate());
     return notes;
+  }
+
+  activityTrail() {
+    let
+      count = ~~((Math.random() * 15) + 3),
+      activities = [];
+    while(count--) {
+      let activity = Activity.generate();
+      activity.orderId = this.id;
+      activities.push(activity);
+    }
+    return activities;
   }
 
   notifications() {

@@ -9,7 +9,6 @@ import Viewers from '../viewers/viewers';
 import ConfirmModal from '../modal/confirm';
 import Countdown from '../countdown/countdown';
 
-const changeEvent = 'change-order-store';
 const confirmEvent = 'confirm-change';
 const changeOptions = {
   header: 'Confirm',
@@ -28,8 +27,6 @@ export default class Order extends React.Component {
 
   constructor(props) {
     super(props);
-    this.onChangeOrderStore = this.onChangeOrderStore.bind(this);
-    this.onConfirmChange = this.onConfirmChange.bind(this);
     this.state = {
       order: {},
       customer: {},
@@ -41,13 +38,13 @@ export default class Order extends React.Component {
     let
       { router }  = this.context,
       orderId     = router.getCurrentParams().order;
-    listenTo(changeEvent, this);
+    OrderStore.listenToEvent('change', this);
     listenTo(confirmEvent, this);
     OrderStore.fetch(orderId);
   }
 
   componentWillUnmount() {
-    stopListeningTo(changeEvent, this);
+    OrderStore.stopListeningToEvent('change', this);
     stopListeningTo(confirmEvent, this);
   }
 
@@ -76,12 +73,8 @@ export default class Order extends React.Component {
     this.setState({
       pendingStatus: status
     });
-    let options = {};
-    if (status !== 'canceled') {
-      options = changeOptions;
-    } else {
-      options = cancelOptions;
-    }
+    let options = status !== 'canceled' ? changeOptions : cancelOptions;
+
     dispatch('toggleModal', <ConfirmModal event={confirmEvent} details={options} />);
   }
 
@@ -99,17 +92,19 @@ export default class Order extends React.Component {
       countdown     = null;
 
     if (order.id) {
+      let params = {order: order.id};
+
       subNav = (
         <div className="gutter">
           <ul className="tabbed-nav">
-            <li><Link to="order-details" params={{order: order.id}}>Details</Link></li>
+            <li><Link to="order-details" params={params}>Details</Link></li>
             <li><a href="">Shipments</a></li>
             <li><a href="">Returns</a></li>
-            <li><Link to="order-notifications" params={{order: order.id}}>Transcation Notifications</Link></li>
-            <li><Link to="order-notes" params={{order: order.id}}>Notes</Link></li>
-            <li><a href="">Activity Trail</a></li>
+            <li><Link to="order-notifications" params={params}>Transcation Notifications</Link></li>
+            <li><Link to="order-notes" params={params}>Notes</Link></li>
+            <li><Link to="order-activity-trail" params={params}>Activity Trail</Link></li>
           </ul>
-          <RouteHandler order={order}/>
+          <RouteHandler order={order} modelName="order"/>
         </div>
       );
 

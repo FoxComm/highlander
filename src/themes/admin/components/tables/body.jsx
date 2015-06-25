@@ -15,7 +15,7 @@ export default class TableBody extends React.Component {
       case 'currency': return formatCurrency(field);
       case 'date': return moment(field).format(column.format || 'DD/MM/YYYY');
       case 'orderStatus': return OrderStore.statuses[field];
-      default: return field;
+      default: return typeof field === 'object' ? this.displayObject(field) : field;
     }
   }
 
@@ -26,6 +26,16 @@ export default class TableBody extends React.Component {
     children = Array.isArray(children) ? children : [children];
     let element = children.filter((child) => { return child.type.name === name; })[0];
     return React.cloneElement(element, {model: model});
+  }
+
+  displayObject(obj) {
+    let divs = [];
+    for (let field in obj) {
+      if (field !== 'createdAt' && typeof obj[field] !== 'object') {
+        divs.push(<div key={field}>{obj[field]}</div>);
+      }
+    }
+    return divs;
   }
 
   render() {
@@ -39,7 +49,7 @@ export default class TableBody extends React.Component {
                 ? this.findComponent(column.component, row, column.field)
                 : this.convert(row[column.field], column)
             );
-            return <td key={`${idx}-${column.field}`}>{data}</td>;
+            return <td key={`${idx}-${column.field}`} className={column.field}><div>{data}</div></td>;
           })}
         </tr>
       );

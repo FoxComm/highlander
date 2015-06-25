@@ -18,5 +18,4 @@ class Note extends BaseModel {
 }
 
 Object.defineProperty(Note, 'seed', {value: seed});
-
 module.exports = Note;

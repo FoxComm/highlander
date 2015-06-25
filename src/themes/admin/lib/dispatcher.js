@@ -11,6 +11,9 @@ function eventBinding(event, method, ctx) {
     pascal    = camelize(event, true);
 
   if (ctx && ctx[`on${pascal}`]) {
+    if (method === 'addListener') {
+      ctx[`on${pascal}`] = ctx[`on${pascal}`].bind(ctx);
+    }
     emitter[method](eventName, ctx[`on${pascal}`]);
   }
 }

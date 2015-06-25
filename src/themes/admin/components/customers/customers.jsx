@@ -4,26 +4,22 @@ import React from 'react';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
 import CustomerStore from './store';
-import { listenTo, stopListeningTo } from '../../lib/dispatcher';
-
-const changeEvent = 'change-customer-store';
 
 export default class Customers extends React.Component {
   constructor(props) {
     super(props);
-    this.onChangeCustomerStore = this.onChangeCustomerStore.bind(this);
     this.state = {
       customers: CustomerStore.getState()
     };
   }
 
   componentDidMount() {
-    listenTo(changeEvent, this);
+    CustomerStore.listenToEvent('change', this);
     CustomerStore.fetch();
   }
 
   componentWillUnmount() {
-    stopListeningTo(changeEvent, this);
+    CustomerStore.stopListeningToEvent('change', this);
   }
 
   onChangeCustomerStore() {

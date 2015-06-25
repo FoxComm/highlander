@@ -1,7 +1,8 @@
 'use strict';
 
 import Api from './api';
-import { dispatch } from './dispatcher';
+import { dispatch, listenTo, stopListeningTo } from './dispatcher';
+import { inflect } from 'fleck';
 
 export default class BaseStore {
   constructor() {
@@ -9,6 +10,7 @@ export default class BaseStore {
   }
 
   get storeName() { return this.constructor.name; }
+  get eventSuffix() { return inflect(this.storeName, 'underscore', 'dasherize'); }
 
   uri(id) {
     return id ? `${this.baseUri}/${id}` : this.baseUri;
@@ -23,6 +25,14 @@ export default class BaseStore {
     return this.models.filter((item) => {
       return item.id === id;
     })[0];
+  }
+
+  listenToEvent(event, ctx) {
+    listenTo(`${event}-${this.eventSuffix}`, ctx);
+  }
+
+  stopListeningToEvent(event, ctx) {
+    stopListeningTo(`${event}-${this.eventSuffix}`, ctx);
   }
 
   upsert(model) {

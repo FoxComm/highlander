@@ -19,6 +19,20 @@ module.exports = function(app, router) {
       this.order = Order.generate(id);
       yield next;
     })
+    .param('notification', function *(id, next) {
+      this.notification = Notification.generate(id);
+      yield next;
+    })
+    .get('/orders', function *() {
+      this.body = Order.generateList();
+    })
+    .post('/orders', function *() {
+      let
+        body = yield parse.json(this),
+        order = new Order(body);
+      this.status = 201;
+      this.body = order.toJSON();
+    })
     .get('/orders/:order', function *() {
       this.body = this.order.toJSON();
     })
@@ -51,19 +65,8 @@ module.exports = function(app, router) {
       this.status = 201;
       this.body = note.toJSON();
     })
-    .get('/orders', function *() {
-      this.body = Order.generateList();
-    })
-    .post('/orders', function *() {
-      let
-        body = yield parse.json(this),
-        order = new Order(body);
-      this.status = 201;
-      this.body = order.toJSON();
-    })
-    .param('notification', function *(id, next) {
-      this.notification = Notification.generate(id);
-      yield next;
+    .get('/orders/:order/activity-trail', function *() {
+      this.body = this.order.activityTrail();
     })
     .get('/orders/:order/notifications', function *() {
       this.body = this.order.notifications();

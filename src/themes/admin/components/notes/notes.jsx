@@ -7,15 +7,11 @@ import TableBody from '../tables/body';
 import UserInitials from '../users/initials';
 import NoteStore from './store';
 import { pluralize } from 'fleck';
-import { listenTo, stopListeningTo } from '../../lib/dispatcher';
-
-const changeEvent = 'change-note-store';
 
 export default class Notes extends React.Component {
 
   constructor(props) {
     super(props);
-    this.onChangeNoteStore = this.onChangeNoteStore.bind(this);
     this.state = {
       notes: [],
       open: false,
@@ -24,18 +20,14 @@ export default class Notes extends React.Component {
   }
 
   componentDidMount() {
-    let
-      { router }  = this.context,
-      params      = router.getCurrentParams(),
-      model       = Object.keys(params)[0];
-
-    NoteStore.uriRoot = `${pluralize(model)}/${params[model]}`;
-    listenTo(changeEvent, this);
+    let model = this.props.modelName;
+    NoteStore.uriRoot = `${pluralize(model)}/${this.props[model].id}`;
+    NoteStore.listenToEvent('change', this);
     NoteStore.fetch();
   }
 
   componentWillUnmount() {
-    stopListeningTo(changeEvent, this);
+    NoteStore.stopListeningToEvent('change', this);
   }
 
   onChangeNoteStore(notes) {
@@ -106,17 +98,15 @@ export default class Notes extends React.Component {
   }
 }
 
-Notes.contextTypes = {
-  router: React.PropTypes.func
-};
-
 Notes.propTypes = {
-  tableColumns: React.PropTypes.array
+  tableColumns: React.PropTypes.array,
+  order: React.PropTypes.object,
+  modelName: React.PropTypes.string
 };
 
 Notes.defaultProps = {
   tableColumns: [
-    {field: 'createdAt', text: 'Date/Time', type: 'date', format: 'MM/DD/YYYY h:mm A'},
+    {field: 'createdAt', text: 'Date/Time', type: 'date', format: 'MM/DD/YYYY h:mm a'},
     {field: 'body', text: 'Note'},
     {field: 'author', text: 'Author', component: 'UserInitials'},
     {field: 'isEditable', text: ''}

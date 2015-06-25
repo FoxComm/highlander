@@ -6,14 +6,11 @@ import NewAddress from './new_address';
 import AddressStore from './store';
 import { listenTo, stopListeningTo } from '../../lib/dispatcher';
 
-const changeEvent = 'change-address-store';
 const cancelEvent = 'cancel-new-address';
 
 export default class AddressBook extends React.Component {
   constructor(props) {
     super(props);
-    this.onChangeAddressStore = this.onChangeAddressStore.bind(this);
-    this.onCancelNewAddress = this.onCancelNewAddress.bind(this);
     this.state = {
       addresses: [],
       new: false
@@ -22,7 +19,7 @@ export default class AddressBook extends React.Component {
 
   componentDidMount() {
     let customerId;
-    listenTo(changeEvent, this);
+    AddressStore.listenToEvent('change', this);
     listenTo(cancelEvent, this);
     if (this.props.order) {
       customerId = this.props.order.customer.id;
@@ -32,12 +29,11 @@ export default class AddressBook extends React.Component {
     }
 
     AddressStore.uriRoot = `/customers/${customerId}`;
-
     AddressStore.fetch();
   }
 
   componentWillUnmount() {
-    stopListeningTo(changeEvent, this);
+    AddressStore.stopListeningToEvent('change', this);
     stopListeningTo(cancelEvent, this);
   }
 
