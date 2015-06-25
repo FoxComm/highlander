@@ -107,9 +107,9 @@ export default class Order extends React.Component {
             <li><a href="">Returns</a></li>
             <li><Link to="order-notifications" params={{order: order.id}}>Transcation Notifications</Link></li>
             <li><Link to="order-notes" params={{order: order.id}}>Notes</Link></li>
-            <li><a href="">Activity Trail</a></li>
+            <li><Link to="order-activity-trail">Activity Trail</Link></li>
           </ul>
-          <RouteHandler order={order}/>
+          <RouteHandler order={order} modelName="order"/>
         </div>
       );
 
