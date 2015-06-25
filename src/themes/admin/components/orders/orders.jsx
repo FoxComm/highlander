@@ -8,7 +8,6 @@ import OrderStore from './store';
 export default class Orders extends React.Component {
   constructor(props) {
     super(props);
-    this.onChangeOrderStore = this.onChangeOrderStore.bind(this);
     this.state = {
       orders: OrderStore.getState()
     };

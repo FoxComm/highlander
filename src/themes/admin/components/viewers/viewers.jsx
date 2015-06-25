@@ -10,7 +10,6 @@ export default class Viewers extends React.Component {
   constructor(props) {
     super(props);
     ViewerStore.uriRoot = `${this.props.model}/${this.props.modelId}`;
-    this.onChangeViewerStore = this.onChangeViewerStore.bind(this);
     this.state = {
       viewers: []
     };

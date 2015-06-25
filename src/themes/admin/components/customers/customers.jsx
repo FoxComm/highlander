@@ -8,7 +8,6 @@ import CustomerStore from './store';
 export default class Customers extends React.Component {
   constructor(props) {
     super(props);
-    this.onChangeCustomerStore = this.onChangeCustomerStore.bind(this);
     this.state = {
       customers: CustomerStore.getState()
     };

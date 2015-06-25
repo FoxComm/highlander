@@ -12,7 +12,6 @@ export default class Notes extends React.Component {
 
   constructor(props) {
     super(props);
-    this.onChangeNoteStore = this.onChangeNoteStore.bind(this);
     this.state = {
       notes: [],
       open: false,

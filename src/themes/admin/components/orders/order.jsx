@@ -27,8 +27,6 @@ export default class Order extends React.Component {
 
   constructor(props) {
     super(props);
-    this.onChangeOrderStore = this.onChangeOrderStore.bind(this);
-    this.onConfirmChange = this.onConfirmChange.bind(this);
     this.state = {
       order: {},
       customer: {},

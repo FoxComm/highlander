@@ -9,7 +9,6 @@ import ResendButton from './button';
 export default class Notifications extends React.Component {
   constructor(props) {
     super(props);
-    this.onChangeNotificationStore = this.onChangeNotificationStore.bind(this);
     this.state = {
       notifications: NotificationStore.getState()
     };

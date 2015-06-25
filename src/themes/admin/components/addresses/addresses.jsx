@@ -11,8 +11,6 @@ const cancelEvent = 'cancel-new-address';
 export default class AddressBook extends React.Component {
   constructor(props) {
     super(props);
-    this.onChangeAddressStore = this.onChangeAddressStore.bind(this);
-    this.onCancelNewAddress = this.onCancelNewAddress.bind(this);
     this.state = {
       addresses: [],
       new: false
