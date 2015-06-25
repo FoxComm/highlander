@@ -9,7 +9,7 @@ import services.StripeGateway
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils._
-import validators.CreditCard._
+import validators._
 
 import scala.concurrent.{ExecutionContext, Future}
 
