@@ -27,11 +27,11 @@ OrderLineItems.propTypes = {
 
 OrderLineItems.defaultProps = {
   tableColumns: [
-    {field: 'image', text: 'Image', type: 'image'},
+    {field: 'imagePath', text: 'Image', type: 'image'},
     {field: 'name', text: 'Name'},
     {field: 'skuId', text: 'SKU'},
     {field: 'price', text: 'Price', type: 'currency'},
-    {field: 'quantity', text: 'Quantity'},
+    {field: 'qty', text: 'Quantity'},
     {field: 'total', text: 'Total', type: 'currency'},
     {field: 'status', text: 'Shipping Status'}
   ]
