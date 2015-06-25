@@ -13,6 +13,11 @@ module.exports = function(app) {
 
   router
     .post('/gitup', function *() {
+      if (app.env === 'production') {
+        this.status = 400;
+        return;
+      }
+
       let
         hub       = this.get('X-Hub-Signature').split('='),
         algo      = hub[0],
@@ -24,8 +29,8 @@ module.exports = function(app) {
         .update(JSON.stringify(body))
         .digest('hex');
       if (hash !== signature) {
-          this.status = 400;
-          return;
+        this.status = 400;
+        return;
       }
 
       let spawn = require('child_process').spawn;
