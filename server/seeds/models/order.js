@@ -1,12 +1,14 @@
 'use strict';
 
 const
-  BaseModel = require('../lib/base-model'),
-  Customer  = require('./customer'),
-  LineItem  = require('./line-item'),
-  Note      = require('./note'),
-  Notification = require('./notification'),
-  moment    = require('moment');
+  BaseModel     = require('../lib/base-model'),
+  Customer      = require('./customer'),
+  LineItem      = require('./line-item'),
+  Note          = require('./note'),
+  Notification  = require('./notification'),
+  Address       = require('./address'),
+  Payment       = require('./payment'),
+  moment        = require('moment');
 
 const seed = [
   {field: 'referenceNumber', method: 'string', opts: {length: 8, pool: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'}},
@@ -29,7 +31,9 @@ class Order extends BaseModel {
   get shippingStatus() { return this.model.shippingStatus; }
   get fraudScore() { return this.model.fraudScore; }
   get customer() { return Customer.generate(); }
+  get shippingAddress() { return Address.generate(); }
   get lineItems() { return LineItem.generateList(~~((Math.random() * 5) + 1)); }
+  get payments() { return Payment.generateList(~~((Math.random() * 3) + 1)); }
   get totals() {
     return {
       shipping: this.model.shippingTotal,
