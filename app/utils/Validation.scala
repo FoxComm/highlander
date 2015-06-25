@@ -48,7 +48,6 @@ object Validation {
     }
 
     def isValid: Boolean
-    def isInvalid: Boolean = !isValid
   }
 
   object Result {
