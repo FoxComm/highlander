@@ -11,7 +11,8 @@ export default class Viewers extends React.Component {
     super(props);
     ViewerStore.uriRoot = `${this.props.model}/${this.props.modelId}`;
     this.state = {
-      viewers: []
+      viewers: [],
+      lockedViewers: []
     };
   }
 
@@ -30,18 +31,38 @@ export default class Viewers extends React.Component {
   }
 
   onChangeViewerStore(viewers) {
-    this.setState({viewers: viewers});
+    this.setState({
+      viewers: viewers.filter((viewer) => { return !viewer.isLocker; }),
+      lockedViewers: viewers.filter((viewer) => { return viewer.isLocker; })
+    });
   }
 
   render() {
-    let viewers = this.state.viewers;
+    let
+      viewers = this.state.viewers,
+      lockedViewers = this.state.lockedViewers,
+      lockedContent = null;
+
+    let viewerItem = (viewer) => {
+      return <li key={viewer.id}><UserInitials model={viewer}/></li>;
+    };
+
+    if (lockedViewers.length > 0) {
+      lockedContent = (
+        <ul>
+          <li className="lock"><i className='icon-lock'></i></li>
+          {lockedViewers.map(viewerItem)}
+        </ul>
+      );
+    }
 
     return (
-      <ul className="viewers">
-        {viewers.map((viewer) => {
-          return <li key={viewer.id}><UserInitials model={viewer}/></li>;
-        })}
-      </ul>
+      <div className="viewers">
+        <ul>
+          {viewers.map(viewerItem)}
+        </ul>
+        {lockedContent}
+      </div>
     );
   }
 }

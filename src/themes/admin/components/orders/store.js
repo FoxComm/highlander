@@ -18,6 +18,7 @@ class OrderStore extends BaseStore {
 
   get selectableStatusList() { return ['remorseHold', 'manualHold', 'fraudHold', 'fulfillmentStarted', 'canceled']; }
   get editableStatusList() { return ['remorseHold', 'manualHold', 'fraudHold', 'fulfillmentStarted']; }
+  get holdStatusList() { return ['remorseHold', 'manualHold', 'fraudHold']; }
 
   get baseUri() { return '/orders'; }
 }
