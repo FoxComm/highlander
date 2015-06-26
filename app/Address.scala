@@ -44,7 +44,7 @@ import utils.{RichTable, Validation, Strings}
 import utils.RunOnDbIO
 import models._
 import payloads._
-import responses.{FullOrder, PublicSku}
+import responses.{AdminNote, FullOrder, PublicSku}
 import services._
 
 case class Store(id: Int, name: String, Configuration: StoreConfiguration)
@@ -292,7 +292,8 @@ class Service(
             } ~
             (get & path(IntNumber / "notes")) { orderId ⇒
               complete {
-                renderOrNotFound(OrderNotes.filterByOrderId(orderId))
+                renderOrNotFound(AdminNote.findNotesByOrderId(orderId))
+
               }
             } ~
             (get & path(IntNumber / "payment-methods")) { orderId =>
