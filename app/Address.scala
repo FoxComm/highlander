@@ -23,15 +23,13 @@ import dsl.{validator => createValidator}
 import dsl._
 import akka.event.Logging
 import slick.lifted.ProvenShape
-import spray.json.{JsValue, JsString, JsonFormat, DefaultJsonProtocol}
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.server.Directives._
 import slick.lifted.Tag
+import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 
-import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
-import spray.json._
 import org.json4s.JsonAST.JString
-import org.json4s.{JValue, CustomSerializer, DefaultFormats}
+import org.json4s.{jackson, JValue, CustomSerializer, DefaultFormats}
 import org.json4s.jackson.Serialization.{write => render}
 import org.json4s.jackson.JsonMethods._
 import scala.concurrent.{ExecutionContext, Future, Await}
@@ -100,19 +98,14 @@ object Main extends Formats {
 }
 
 // JSON formatters
-trait Formats extends DefaultJsonProtocol {
-  implicit val addLineItemsRequestFormat = jsonFormat2(UpdateLineItemsPayload.apply)
-  implicit val addPaymentMethodRequestFormat = jsonFormat4(PaymentMethodPayload.apply)
-  implicit val createAddressPayloadFormat = jsonFormat7(CreateAddressPayload.apply)
-  implicit val creditCardPayloadFormat = jsonFormat6(CreditCardPayload.apply)
-  implicit val createCustomerPayloadFormat =jsonFormat4(CreateCustomerPayload.apply)
-  implicit val updateOrderPayloadFormat = jsonFormat1(UpdateOrderPayload.apply)
-
+trait Formats {
   import utils.Strings._
 
   def renderADTString[A](a: A) = JString(a.toString.lowerCaseFirstLetter)
 
-  val phoenixFormats = DefaultFormats +
+  implicit val serialization = jackson.Serialization
+
+  implicit val phoenixFormats = DefaultFormats +
     new CustomSerializer[CreditCardPaymentStatus](format => (
       {
         case JString(str) ⇒ str match {
@@ -177,9 +170,6 @@ class Service(
   implicit def executionContext = system.dispatcher
 
   implicit val materializer = ActorMaterializer()
-
-  // required for (de)-serialization
-  implicit val formats = phoenixFormats
 
   val logger = Logging(system, getClass)
 
