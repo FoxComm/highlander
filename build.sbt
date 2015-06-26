@@ -70,5 +70,9 @@ parallelExecution in Test := false
 
 fork in Test := true
 
+// add ms report for every test
+testOptions in Test += Tests.Argument("-oD")
+
 javaOptions in Test ++= Seq("-Xmx2G", "-XX:+UseConcMarkSweepGC")
+
 
