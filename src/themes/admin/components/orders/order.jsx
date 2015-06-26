@@ -100,7 +100,7 @@ export default class Order extends React.Component {
             <li><Link to="order-details" params={params}>Details</Link></li>
             <li><a href="">Shipments</a></li>
             <li><a href="">Returns</a></li>
-            <li><Link to="order-notifications" params={params}>Transcation Notifications</Link></li>
+            <li><Link to="order-notifications" params={params}>Transaction Notifications</Link></li>
             <li><Link to="order-notes" params={params}>Notes</Link></li>
             <li><Link to="order-activity-trail" params={params}>Activity Trail</Link></li>
           </ul>
