@@ -15,7 +15,7 @@ import scala.concurrent.duration._
 object Seeds {
   val today = new DateTime
 
-  case class TheWorld(customer: Customer,order: Order, address: Address, cc: CreditCardGateway,
+  case class TheWorld(customer: Customer, customerProfile: CustomerProfile, order: Order, address: Address, cc: CreditCardGateway,
                       storeAdmin: StoreAdmin, shippingMethods: Seq[ShippingMethod],
                        shippingPriceRules: Seq[ShippingPriceRule], shippingMethodRuleMappings: Seq[ShippingMethodPriceRule],
                        orderCriteria: Seq[OrderCriterion], orderPriceCriteria: Seq[OrderPriceCriterion],
@@ -27,6 +27,7 @@ object Seeds {
 
     val s = TheWorld(
       customer = Factories.customer,
+      customerProfile = Factories.customerProfile,
       storeAdmin = Factories.storeAdmin,
       skus = Factories.skus,
       order = Factories.order,
@@ -50,6 +51,7 @@ object Seeds {
 
     for {
       customer ← (Customers.returningId += s.customer).map(id => s.customer.copy(id = id))
+      customerProfile ← CustomerProfiles.save(s.customerProfile.copy(customerId = customer.id))
       storeAdmin ← (StoreAdmins.returningId += s.storeAdmin).map(id => s.storeAdmin.copy(id = id))
       skus ←  Skus ++= s.skus
       order ← Orders.save(s.order.copy(customerId = customer.id))
@@ -68,6 +70,8 @@ object Seeds {
 
   object Factories {
     def customer = Customer(email = "yax@yax.com", password = "password", firstName = "Yax", lastName = "Fuentes")
+
+    def customerProfile = CustomerProfile(phoneNumber = Some("123-444-4388"), location = Some("DonkeyVille, TN"), modality = Some("Desktop[PC]"))
 
     def storeAdmin = StoreAdmin(email = "admin@admin.com", password = "password", firstName = "Frankly", lastName = "Admin")
 

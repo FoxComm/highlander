@@ -13,13 +13,13 @@ import scala.concurrent.{ExecutionContext, Future}
 import org.scalactic._
 
 
-case class CustomerProfile(customerId: Int, phoneNumber: Option[String] = None, location: Option[String] = None, modality: Option[String] = None) extends ModelWithIdParameter {
+case class CustomerProfile(customerId: Int = 0, phoneNumber: Option[String] = None, location: Option[String] = None, modality: Option[String] = None) extends ModelWithIdParameter {
   def role = "Customer"
 }
 
 class CustomerProfiles(tag: Tag) extends GenericTable.TableWithId[CustomerProfile](tag, "customer_profiles") with RichTable {
   def id = customerId
-  def customerId = column[Int]("customer_id", O.PrimaryKey, O.AutoInc)
+  def customerId = column[Int]("customer_id", O.PrimaryKey)
   def phoneNumber = column[Option[String]]("phone_number")
   def location = column[Option[String]]("location")
   def modality = column[Option[String]]("modality")
