@@ -105,6 +105,7 @@ trait Formats extends DefaultJsonProtocol {
   implicit val createAddressPayloadFormat = jsonFormat7(CreateAddressPayload.apply)
   implicit val creditCardPayloadFormat = jsonFormat6(CreditCardPayload.apply)
   implicit val createCustomerPayloadFormat =jsonFormat4(CreateCustomerPayload.apply)
+  implicit val updateOrderPayloadFormat = jsonFormat1(UpdateOrderPayload.apply)
 
   val phoenixFormats = DefaultFormats + new CustomSerializer[PaymentStatus](format => (
     { case _ ⇒ sys.error("Reading not implemented") },
@@ -223,6 +224,15 @@ class Service(
               renderOrNotFound(FullOrder.findById(orderId))
             }
           } ~
+            (patch & path(IntNumber) & entity(as[UpdateOrderPayload]) ) { (orderId, orderPayload) =>
+              complete {
+                whenFound(Orders.findById(orderId).run()) { order =>
+                  OrderUpdater.updateStatus(order, orderPayload).map { response =>
+                    response.map(FullOrder.fromOrder(_))
+                  }
+                }
+              }
+            } ~
             (post & path(IntNumber / "checkout")) { orderId =>
               complete {
                 whenFound(Orders.findById(orderId).run()) { order => new Checkout(order).checkout }
