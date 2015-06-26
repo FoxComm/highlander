@@ -46,7 +46,9 @@ libraryDependencies ++= {
 
     "com.github.julien-truffaut"  %%  "monocle-core"    % "1.1.1",
     "com.github.julien-truffaut"  %%  "monocle-generic" % "1.1.1",
-    "com.github.julien-truffaut"  %%  "monocle-macro"   % "1.1.1"
+    "com.github.julien-truffaut"  %%  "monocle-macro"   % "1.1.1",
+
+    "com.zaxxer" % "HikariCP" % "2.3.8"
   )
 }
 
@@ -68,5 +70,9 @@ parallelExecution in Test := false
 
 fork in Test := true
 
+// add ms report for every test
+testOptions in Test += Tests.Argument("-oD")
+
 javaOptions in Test ++= Seq("-Xmx2G", "-XX:+UseConcMarkSweepGC")
+
 

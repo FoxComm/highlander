@@ -1,6 +1,6 @@
 package models
 
-import utils.RichTable
+import utils.{RichTable, RunOnDbIO}
 
 import com.wix.accord.dsl.{validator => createValidator}
 import slick.driver.PostgresDriver.api._
@@ -24,6 +24,12 @@ class States(tag: Tag) extends Table[State](tag, "states") with RichTable {
 
 object States {
   val table = TableQuery[States]
+
+  def findByAbbrev(abbrev: String)(implicit db: Database): Future[Option[State]] =
+    _findByAbbrev(abbrev).run()
+
+  def _findByAbbrev(abbrev: Rep[String]) =
+    table.filter(_.abbreviation === abbrev).take(1).result.headOption
 
   def findByName(name: String)
                 (implicit db: Database) = { db.run(_findByName(name)) }
