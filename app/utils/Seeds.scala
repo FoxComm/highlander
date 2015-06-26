@@ -14,7 +14,11 @@ object Seeds {
   val today = new DateTime
 
   case class TheWorld(customer: Customer,order: Order, address: Address, cc: CreditCardGateway,
-                      storeAdmin: StoreAdmin)
+                      storeAdmin: StoreAdmin, shippingMethods: Seq[ShippingMethod],
+                       shippingPriceRules: Seq[ShippingPriceRule], shippingMethodRuleMappings: Seq[ShippingMethodPriceRule],
+                       orderCriteria: Seq[OrderCriterion], orderPriceCriteria: Seq[OrderPriceCriterion],
+                       priceRuleCriteriaMappings: Seq[ShippingPriceRuleOrderCriterion], skus: Seq[Sku],
+                       orderLineItems: Seq[OrderLineItem])
 
   def run(): Unit = {
     import scala.concurrent.ExecutionContext.Implicits.global
@@ -23,9 +27,17 @@ object Seeds {
     val s = TheWorld(
       customer = Factories.customer,
       storeAdmin = Factories.storeAdmin,
+      skus = Factories.skus,
       order = Factories.order,
       address = Factories.address,
-      cc = Factories.creditCard
+      shippingMethods = Factories.shippingMethods,
+      cc = Factories.creditCard,
+      shippingPriceRules = Factories.shippingPriceRules,
+      shippingMethodRuleMappings = Factories.shippingMethodRuleMappings,
+      orderCriteria = Factories.orderCriteria,
+      orderPriceCriteria = Factories.orderPriceCriteria,
+      priceRuleCriteriaMappings = Factories.priceRuleCriteriaMappings,
+      orderLineItems = Factories.orderLineItems
     )
 
     val failures = List(s.customer.validate, s.storeAdmin.validate, s.order.validate, s.address.validate, s.cc.validate).
@@ -37,9 +49,17 @@ object Seeds {
     val actions = for {
       customer ← (Customers.returningId += s.customer).map(id => s.customer.copy(id = id))
       storeAdmin ← (StoreAdmins.returningId += s.storeAdmin).map(id => s.storeAdmin.copy(id = id))
+      skus ←  Skus ++= s.skus
       order ← Orders.save(s.order.copy(customerId = customer.id))
+      orderLineItem ← OrderLineItems ++= s.orderLineItems
       address ← Addresses.save(s.address.copy(customerId = customer.id))
+      shippingMethods ← ShippingMethods ++= s.shippingMethods
       gateway ← CreditCardGateways.save(s.cc.copy(customerId = customer.id))
+      shippingPriceRule ← ShippingPriceRules ++= s.shippingPriceRules
+      shippingMethodRuleMappings ← ShippingMethodsPriceRules ++= s.shippingMethodRuleMappings
+      orderCriterion ← OrderCriteria ++= s.orderCriteria
+      orderPriceCriterion ← OrderPriceCriteria ++= s.orderPriceCriteria
+      priceRuleCriteriaMapping ← ShippingPriceRulesOrderCriteria ++= s.priceRuleCriteriaMappings
     } yield (customer, order, address, gateway)
 
     Await.result(actions.run(), 1.second)
@@ -50,7 +70,12 @@ object Seeds {
 
     def storeAdmin = StoreAdmin(email = "admin@admin.com", password = "password", firstName = "Frankly", lastName = "Admin")
 
+
     def order = Order(customerId = 0)
+
+    def skus: Seq[Sku] = Seq(Sku(id = 0, name = Some("Flonkey"), price = 33), Sku(name = Some("Shark"), price = 45), Sku(name = Some("Dolphin"), price = 88))
+
+    def orderLineItems: Seq[OrderLineItem] = Seq(OrderLineItem(id = 0, orderId = 1, skuId = 1, status = OrderLineItem.Cart), OrderLineItem(id = 0, orderId = 1, skuId = 2, status = OrderLineItem.Cart), OrderLineItem(id = 0, orderId = 1, skuId = 3, status = OrderLineItem.Cart))
 
     def address =
       Address(customerId = 0, stateId = 1, name = "Home", street1 = "555 E Lake Union St.",
@@ -59,6 +84,48 @@ object Seeds {
     def creditCard =
       CreditCardGateway(customerId = 0, gatewayCustomerId = "", lastFour = "4242",
         expMonth = today.getMonthOfYear, expYear = today.getYear + 2)
+
+    def shippingMethods = Seq(
+      ShippingMethod(adminDisplayName = "UPS Ground", storefrontDisplayName = "UPS Ground", defaultPrice = 10, isActive = true),
+      ShippingMethod(adminDisplayName = "UPS Next day", storefrontDisplayName = "UPS Next day", defaultPrice = 20, isActive = true),
+      ShippingMethod(adminDisplayName = "DHL Express", storefrontDisplayName = "DHL Express", defaultPrice = 25, isActive = true)
+    )
+
+    def shippingPriceRules = Seq(
+      ShippingPriceRule(name = "Flat Shipping Over 20", ruleType = ShippingPriceRule.Flat, flatPrice = 10000, flatMarkup = 0),
+      ShippingPriceRule(name = "Flat Shipping Over 50", ruleType = ShippingPriceRule.Flat, flatPrice =  5000, flatMarkup = 0),
+      ShippingPriceRule(name = "Flat Shipping Over 100", ruleType = ShippingPriceRule.Flat, flatPrice = 1000, flatMarkup = 0)
+    )
+
+    def shippingMethodRuleMappings = Seq(
+      ShippingMethodPriceRule(shippingMethodId = 1, shippingPriceRuleId = 1, ruleRank = 1),
+      ShippingMethodPriceRule(shippingMethodId = 1, shippingPriceRuleId = 2, ruleRank = 2),
+      ShippingMethodPriceRule(shippingMethodId = 1, shippingPriceRuleId = 3, ruleRank = 3),
+
+      ShippingMethodPriceRule(shippingMethodId = 2, shippingPriceRuleId = 1, ruleRank = 1),
+      ShippingMethodPriceRule(shippingMethodId = 2, shippingPriceRuleId = 2, ruleRank = 2),
+      ShippingMethodPriceRule(shippingMethodId = 2, shippingPriceRuleId = 3, ruleRank = 3),
+
+      ShippingMethodPriceRule(shippingMethodId = 3, shippingPriceRuleId = 1, ruleRank = 1)
+    )
+
+    def orderCriteria: Seq[OrderCriterion] = Seq(
+      OrderCriterion(name = "doesn'tmater"),
+      OrderCriterion(name = "doesn'tmater"),
+      OrderCriterion(name = "doesn'tmater")
+    )
+
+    def orderPriceCriteria = Seq(
+      OrderPriceCriterion(id = 1, priceType = OrderPriceCriterion.SubTotal, greaterThan = Some(20), currency = "USD", exclude = false),
+      OrderPriceCriterion(id = 2, priceType = OrderPriceCriterion.SubTotal, greaterThan = Some(50), currency = "USD", exclude = false),
+      OrderPriceCriterion(id = 3, priceType = OrderPriceCriterion.SubTotal, greaterThan = Some(100), currency = "USD", exclude = false)
+    )
+
+    def priceRuleCriteriaMappings = Seq(
+      ShippingPriceRuleOrderCriterion(orderCriterionId = 1, shippingPricingRuleId = 1),
+      ShippingPriceRuleOrderCriterion(orderCriterionId = 2, shippingPricingRuleId = 2),
+      ShippingPriceRuleOrderCriterion(orderCriterionId = 3, shippingPricingRuleId = 3)
+    )
   }
 
   def main(args: Array[String]) {
@@ -72,8 +139,8 @@ object Seeds {
     val flyway = new Flyway
     flyway.setDataSource(jdbcDataSourceFromConfig("db.development"))
     flyway.setLocations("filesystem:./sql")
-
     flyway.clean()
+
     flyway.migrate()
   }
 
@@ -86,5 +153,6 @@ object Seeds {
     source.setDatabaseName(config.getString(s"$section.name"))
 
     source
+
   }
 }
