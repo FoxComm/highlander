@@ -52,7 +52,7 @@ object Order {
     case "remorsehold" => RemorseHold
     case "manualhold" => ManualHold
     case "canceled" => Canceled
-    case "fulfillmen_started" => FulfillmentStarted
+    case "fulfillmentstarted" => FulfillmentStarted
     case "partiallyshipped" => PartiallyShipped
     case "shipped" => Shipped
     case unknown => throw new IllegalArgumentException(s"cannot map status column to type $unknown")

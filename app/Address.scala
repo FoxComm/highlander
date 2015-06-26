@@ -39,7 +39,7 @@ import scala.util.{Try, Failure, Success}
 import collection.JavaConversions.mapAsJavaMap
 import akka.http.scaladsl.server.directives._
 
-import utils.{RichTable, Validation}
+import utils.{RichTable, Validation, StringStuff}
 import utils.RunOnDbIO
 import models._
 import payloads._
@@ -114,7 +114,7 @@ trait Formats extends DefaultJsonProtocol {
     { case x: GiftCardPaymentStatus ⇒ JString(x.toString) }
     )) + new CustomSerializer[Order.Status](format => (
     { case _ ⇒ sys.error("Reading not implemented") },
-    { case x: Order.Status ⇒ JString(x.toString) }
+    { case x: Order.Status ⇒ JString(StringStuff.lowerCaseFirstLetter(x.toString)) }
     ))
 }
 

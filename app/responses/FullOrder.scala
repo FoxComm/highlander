@@ -20,7 +20,8 @@ object FullOrder {
                   totals: Totals,
                   customer: Option[Customer],
                   shippingMethod: Option[ShippingMethod],
-                  shippingAddress: Option[Address])
+                  shippingAddress: Option[Address],
+                  paymentMethods: Seq[PaymentMethod] = Seq.empty)
 
   case class DisplayLineItem(imagePath: String = "http://lorempixel.com/75/75/fashion" ,
                               name: String = "donkey product",
@@ -43,6 +44,7 @@ object FullOrder {
       shippingAddress = shippingAddress,
       totals = Totals(subTotal = 333, taxes = 10, adjustments = 0, total = 510), shippingMethod = shippingMethod)
   }
+
 
   def findById(id: Int)
               (implicit ec: ExecutionContext, db: Database): Response = {
