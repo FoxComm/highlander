@@ -57,19 +57,21 @@ export default class AddressBook extends React.Component {
   }
 
   render() {
-    let addresses = this.state.addresses;
+    let
+      addresses = this.state.addresses,
+      order = this.props.order || null;
 
     let innerContent = (
       <div>
         <a className='btn' onClick={this.addNew.bind(this)}>+</a>
         <ul className='addresses'>
           {addresses.map((address, idx) => {
-            return <Address key={`${idx}-${address.id}`} address={address}/>;
+            return <Address key={`${idx}-${address.id}`} address={address} order={order}/>;
           })}
         </ul>
       </div>
     );
-    if (this.state.new) innerContent = <NewAddress order={this.props.order} />;
+    if (this.state.new) innerContent = <NewAddress order={order} />;
 
     return <div>{innerContent}</div>;
   }
