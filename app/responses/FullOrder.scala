@@ -18,10 +18,13 @@ object FullOrder {
                   adjustments: Seq[Adjustment],
                   fraudScore: Int,
                   totals: Totals,
-                  customer: Option[Customer],
+                  customer: Option[DisplayCustomer],
                   shippingMethod: Option[ShippingMethod],
                   shippingAddress: Option[Address],
                   paymentMethods: Seq[PaymentMethod] = Seq.empty)
+
+  // TODO: Consider moving this out to another class.  It may not be necessary, because we may have order-specific customer.
+  case class DisplayCustomer(id:Int, firstName: String, lastName: String,  email: String, phoneNumber: Option[String], location: Option[String], modality: Option[String], role: String)
 
   case class DisplayLineItem(imagePath: String = "http://lorempixel.com/75/75/fashion" ,
                               name: String = "donkey product",
@@ -32,7 +35,14 @@ object FullOrder {
 
   def build(order: Order, lineItems: Seq[OrderLineItem] = Seq.empty, adjustments: Seq[Adjustment] = Seq.empty,
     shippingMethod: Option[ShippingMethod] = None, customer: Option[Customer] = None,
+    customerProfile: Option[CustomerProfile] = None,
     shippingAddress: Option[Address] = None): Root = {
+
+    val dispCust = customer.flatMap{ c ⇒
+      customerProfile.map { cp ⇒
+        DisplayCustomer(c.id, c.firstName, c.lastName, c.email, cp.phoneNumber, cp.location, cp.modality, cp.role)
+      }
+    }
 
     Root(id = order.id,
       referenceNumber = order.referenceNumber,
@@ -42,7 +52,7 @@ object FullOrder {
       lineItems = lineItems.map{oli => DisplayLineItem(skuId = oli.skuId, status = oli.status)},
       adjustments = adjustments,
       fraudScore = scala.util.Random.nextInt(100),
-      customer = customer,
+      customer = dispCust,
       shippingAddress = shippingAddress,
       totals = Totals(subTotal = 333, taxes = 10, adjustments = 0, total = 510), shippingMethod = shippingMethod)
   }
@@ -74,21 +84,21 @@ object FullOrder {
                              (implicit ec: ExecutionContext,
                               db: Database): Response = {
     val queries = for {
-      order <- finder
-      lineItems <- OrderLineItems._findByOrderId(order.id)
-      //shipMethodMapping <- OrdersShippingMethods.filter(_.orderId === order.id)
-      shipment <- Shipments.filter(_.orderId === order.id)
-      customer <- Customers._findById(order.customerId)
-      shipMethod <- ShippingMethods.filter(_.id === shipment.shippingMethodId)
-      address <- Addresses.filter(_.id === shipment.shippingAddressId)
+      order ← finder
+      lineItems ← OrderLineItems._findByOrderId(order.id)
+      shipment ← Shipments.filter(_.orderId === order.id)
+      customer ← Customers._findById(order.customerId)
+      customerProfile ← CustomerProfiles.filter(_.customerId === order.customerId)
+      shipMethod ← ShippingMethods.filter(_.id === shipment.shippingMethodId)
+      address ← Addresses.filter(_.id === shipment.shippingAddressId)
       //payment <- PaymentMethods
-    } yield (order, lineItems, shipMethod, customer, address)
+    } yield (order, lineItems, shipMethod, customer, customerProfile, address)
 
     db.run(queries.result).map { results =>
-      results.headOption.map { case (order, _, shippingMethod, customer, address) =>
-        val lineItems = results.map { case (_, items, _, _, _) ⇒ items }
+      results.headOption.map { case (order, _, shippingMethod, customer, customerProfile, address) =>
+        val lineItems = results.map { case (_, items, _, _, _, _) ⇒ items }
         build(order = order, lineItems = lineItems, shippingMethod = Some(shippingMethod),
-              customer = Some(customer), shippingAddress = Some(address))
+              customer = Some(customer), customerProfile = Some(customerProfile), shippingAddress = Some(address))
       }
     }
   }
