@@ -28,13 +28,24 @@ module.exports = function(app) {
         .createHmac(algo, 'foxcomm')
         .update(JSON.stringify(body))
         .digest('hex');
-      if (hash !== signature) {
+      if (app.env !== 'development' && hash !== signature) {
         this.status = 400;
         return;
       }
 
       let spawn = require('child_process').spawn;
-      spawn('git', ['pull']);
+      let git = spawn('git', ['pull']);
+      git.stdout.on('data', function (data) {
+        console.log(data);
+      });
+
+      git.stderr.on('data', function (data) {
+        console.log('stderr: ' + data);
+      });
+      git.on('close', function (code) {
+        console.log('child process exited with code ' + code);
+      });
+
       this.status = 200;
     })
     .get('/:path*', function *(next) {
