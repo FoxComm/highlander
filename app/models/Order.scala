@@ -14,7 +14,7 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class Order(id: Int = 0, customerId: Int, status: Order.Status = Order.Cart, locked: Boolean = false)
+case class Order(id: Int = 0, referenceNumber: Option[String] = None, customerId: Int, status: Order.Status = Order.Cart, locked: Boolean = false)
   extends ModelWithIdParameter
   with Validation[Order] {
 
@@ -52,7 +52,7 @@ object Order {
     case "remorsehold" => RemorseHold
     case "manualhold" => ManualHold
     case "canceled" => Canceled
-    case "fulfillmen_started" => FulfillmentStarted
+    case "fulfillmentstarted" => FulfillmentStarted
     case "partiallyshipped" => PartiallyShipped
     case "shipped" => Shipped
     case unknown => throw new IllegalArgumentException(s"cannot map status column to type $unknown")
@@ -63,10 +63,11 @@ object Order {
 class Orders(tag: Tag) extends GenericTable.TableWithId[Order](tag, "orders") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   // TODO: Find a way to deal with guest checkouts...
+  def referenceNumber = column[Option[String]]("reference_number") //we should generate this based on certain rules; nullable until then
   def customerId = column[Int]("customer_id")
   def status = column[Order.Status]("status")
   def locked = column[Boolean]("locked")
-  def * = (id, customerId, status, locked) <> ((Order.apply _).tupled, Order.unapply)
+  def * = (id, referenceNumber, customerId, status, locked) <> ((Order.apply _).tupled, Order.unapply)
 }
 
 object Orders extends TableQueryWithId[Order, Orders](

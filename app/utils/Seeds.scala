@@ -5,6 +5,8 @@ import models._
 import org.flywaydb.core.Flyway
 import org.joda.time.DateTime
 import org.postgresql.ds.PGSimpleDataSource
+import slick.dbio
+import slick.dbio.Effect.{All, Write}
 import slick.driver.PostgresDriver.api._
 
 import scala.concurrent.Await
@@ -18,11 +20,10 @@ object Seeds {
                        shippingPriceRules: Seq[ShippingPriceRule], shippingMethodRuleMappings: Seq[ShippingMethodPriceRule],
                        orderCriteria: Seq[OrderCriterion], orderPriceCriteria: Seq[OrderPriceCriterion],
                        priceRuleCriteriaMappings: Seq[ShippingPriceRuleOrderCriterion], skus: Seq[Sku],
-                       orderLineItems: Seq[OrderLineItem])
+                       orderLineItems: Seq[OrderLineItem], shipment: Shipment)
 
-  def run(): Unit = {
+  def run()(implicit db: Database): dbio.DBIOAction[(Customer, Order, Address, CreditCardGateway), NoStream, Write with Write with Write with All with Write with All with Write with All with Write with Write with Write with Write with Write with All] = {
     import scala.concurrent.ExecutionContext.Implicits.global
-    implicit val db = Database.forConfig("db.development")
 
     val s = TheWorld(
       customer = Factories.customer,
@@ -37,7 +38,8 @@ object Seeds {
       orderCriteria = Factories.orderCriteria,
       orderPriceCriteria = Factories.orderPriceCriteria,
       priceRuleCriteriaMappings = Factories.priceRuleCriteriaMappings,
-      orderLineItems = Factories.orderLineItems
+      orderLineItems = Factories.orderLineItems,
+      shipment = Factories.shipment
     )
 
     val failures = List(s.customer.validate, s.storeAdmin.validate, s.order.validate, s.address.validate, s.cc.validate).
@@ -46,7 +48,7 @@ object Seeds {
     if (failures.nonEmpty)
       throw new Exception(failures.map(_.messages).mkString("\n"))
 
-    val actions = for {
+    for {
       customer ← (Customers.returningId += s.customer).map(id => s.customer.copy(id = id))
       storeAdmin ← (StoreAdmins.returningId += s.storeAdmin).map(id => s.storeAdmin.copy(id = id))
       skus ←  Skus ++= s.skus
@@ -60,9 +62,8 @@ object Seeds {
       orderCriterion ← OrderCriteria ++= s.orderCriteria
       orderPriceCriterion ← OrderPriceCriteria ++= s.orderPriceCriteria
       priceRuleCriteriaMapping ← ShippingPriceRulesOrderCriteria ++= s.priceRuleCriteriaMappings
+      shipments ← Shipments.save(s.shipment)
     } yield (customer, order, address, gateway)
-
-    Await.result(actions.run(), 1.second)
   }
 
   object Factories {
@@ -71,7 +72,7 @@ object Seeds {
     def storeAdmin = StoreAdmin(email = "admin@admin.com", password = "password", firstName = "Frankly", lastName = "Admin")
 
 
-    def order = Order(customerId = 0)
+    def order = Order(customerId = 0, referenceNumber = Some("ABCD1234-11"), status = Order.ManualHold)
 
     def skus: Seq[Sku] = Seq(Sku(id = 0, name = Some("Flonkey"), price = 33), Sku(name = Some("Shark"), price = 45), Sku(name = Some("Dolphin"), price = 88))
 
@@ -126,13 +127,16 @@ object Seeds {
       ShippingPriceRuleOrderCriterion(orderCriterionId = 2, shippingPricingRuleId = 2),
       ShippingPriceRuleOrderCriterion(orderCriterionId = 3, shippingPricingRuleId = 3)
     )
+
+    def shipment = Shipment(1, 1, Some(1), Some(1))
   }
 
-  def main(args: Array[String]) {
+  def main(args: Array[String]): Unit = {
     Console.err.println(s"Cleaning DB and running migrations")
     flyWayMigrate()
     Console.err.println(s"Inserting seeds")
-    run()
+    implicit val db = Database.forConfig("db.development")
+    Await.result(db.run(run()), 5.second)
   }
 
   private def flyWayMigrate(): Unit = {

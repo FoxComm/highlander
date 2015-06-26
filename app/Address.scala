@@ -7,6 +7,7 @@ import com.stripe.model.Token
 import com.stripe.net.{RequestOptions => StripeRequestOptions}
 import com.stripe.model.{Charge => StripeCharge}
 import com.stripe.Stripe
+import models.Order.{FulfillmentStarted, PartiallyShipped}
 
 import org.scalactic._
 import slick.driver.PostgresDriver
@@ -30,7 +31,7 @@ import slick.lifted.Tag
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
 import spray.json._
 import org.json4s.JsonAST.JString
-import org.json4s.{CustomSerializer, DefaultFormats}
+import org.json4s.{JValue, CustomSerializer, DefaultFormats}
 import org.json4s.jackson.Serialization.{write => render}
 import org.json4s.jackson.JsonMethods._
 import scala.concurrent.{ExecutionContext, Future, Await}
@@ -39,7 +40,7 @@ import scala.util.{Try, Failure, Success}
 import collection.JavaConversions.mapAsJavaMap
 import akka.http.scaladsl.server.directives._
 
-import utils.{RichTable, Validation}
+import utils.{RichTable, Validation, Strings}
 import utils.RunOnDbIO
 import models._
 import payloads._
@@ -105,17 +106,46 @@ trait Formats extends DefaultJsonProtocol {
   implicit val createAddressPayloadFormat = jsonFormat7(CreateAddressPayload.apply)
   implicit val creditCardPayloadFormat = jsonFormat6(CreditCardPayload.apply)
   implicit val createCustomerPayloadFormat =jsonFormat4(CreateCustomerPayload.apply)
+  implicit val updateOrderPayloadFormat = jsonFormat1(UpdateOrderPayload.apply)
 
-  val phoenixFormats = DefaultFormats + new CustomSerializer[PaymentStatus](format => (
-    { case _ ⇒ sys.error("Reading not implemented") },
-    { case x: PaymentStatus ⇒ JString(x.toString) }
-    )) + new CustomSerializer[GiftCardPaymentStatus](format => (
-    { case _ ⇒ sys.error("Reading not implemented") },
-    { case x: GiftCardPaymentStatus ⇒ JString(x.toString) }
-    )) + new CustomSerializer[Order.Status](format => (
-    { case _ ⇒ sys.error("Reading not implemented") },
-    { case x: Order.Status ⇒ JString(x.toString) }
-    ))
+  import utils.Strings._
+
+  def renderADTString[A](a: A) = JString(a.toString.lowerCaseFirstLetter)
+
+  val phoenixFormats = DefaultFormats +
+    new CustomSerializer[CreditCardPaymentStatus](format => (
+      {
+        case JString(str) ⇒ str match {
+          case "applied" ⇒ Applied
+          case "auth" ⇒ Auth
+          case "failedCapture" ⇒ FailedCapture
+          case "canceledAuth" ⇒ CanceledAuth
+          case "expiredAuth" ⇒ ExpiredAuth
+        }
+      },
+      { case x: PaymentStatus ⇒ renderADTString(x) })) +
+    new CustomSerializer[GiftCardPaymentStatus](format => (
+      {
+        case JString(str) ⇒ str match {
+          case "insufficientBalance" ⇒ InsufficientBalance
+          case "successfulDebit" ⇒ SuccessfulDebit
+          case "failedDebit" ⇒ FailedDebit
+        }
+      },
+      { case x: GiftCardPaymentStatus ⇒ renderADTString(x) })) +
+    new CustomSerializer[Order.Status](format => (
+      { case JString(str) ⇒ str match {
+        case "cart" ⇒ Order.Cart
+        case "ordered" ⇒ Order.Ordered
+        case "fraudHold" ⇒ Order.FraudHold
+        case "remorseHold" ⇒ Order.RemorseHold
+        case "manualHold" ⇒ Order.ManualHold
+        case "canceled" ⇒ Order.Canceled
+        case "fulfillmentStarted" ⇒ Order.FulfillmentStarted
+        case "partiallyShipped" ⇒ Order.PartiallyShipped
+        case "shipped" ⇒ Order.Shipped
+      } },
+      { case x: Order.Status ⇒ renderADTString(x) }))
 }
 
 
@@ -223,6 +253,22 @@ class Service(
               renderOrNotFound(FullOrder.findById(orderId))
             }
           } ~
+            (patch & path(IntNumber) & entity(as[UpdateOrderPayload]) ) { (orderId, payload) =>
+              complete {
+                whenFound(Orders.findById(orderId).run()) { order =>
+                  OrderUpdater.updateStatus(order, payload).flatMap {
+                    case Good(o) ⇒
+                      FullOrder.fromOrder(o).map {
+                        case Some(r)  ⇒ Good(r)
+                        case None     ⇒ Bad(List("order not found"))
+                      }
+
+                    case Bad(e) ⇒
+                      Future.successful(Bad(e))
+                  }
+                }
+              }
+            } ~
             (post & path(IntNumber / "checkout")) { orderId =>
               complete {
                 whenFound(Orders.findById(orderId).run()) { order => new Checkout(order).checkout }
@@ -230,9 +276,16 @@ class Service(
             } ~
             (post & path(IntNumber / "line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { (orderId, reqItems) =>
               complete {
-                whenFound(Orders.findById(orderId).run()) {order =>
-                  LineItemUpdater.updateQuantities(order, reqItems).map { response =>
-                    response.map(FullOrder.build(order, _))
+                whenFound(Orders.findById(orderId).run()) { order =>
+                  LineItemUpdater.updateQuantities(order, reqItems).flatMap {
+                    case Good(_) ⇒
+                      FullOrder.fromOrder(order).map {
+                        case Some(r) ⇒ Good(r)
+                        case None ⇒ Bad(List("order not found"))
+                      }
+
+                    case Bad(e) ⇒
+                      Future.successful(Bad(e))
                   }
                 }
               }
@@ -299,8 +352,15 @@ class Service(
                 (post & path("line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems =>
                   complete {
                     whenFound(Orders.findActiveOrderByCustomer(customer)) { order =>
-                      LineItemUpdater.updateQuantities(order, reqItems).map { response =>
-                        response.map(FullOrder.build(order, _))
+                      LineItemUpdater.updateQuantities(order, reqItems).flatMap {
+                        case Good(_) ⇒
+                          FullOrder.fromOrder(order).map {
+                            case Some(r) ⇒ Good(r)
+                            case None ⇒ Bad(List("order not found"))
+                          }
+
+                        case Bad(e) ⇒
+                          Future.successful(Bad(e))
                       }
                     }
                   }
@@ -318,8 +378,15 @@ class Service(
                 (post & path("shipping-methods" / IntNumber)) { shipMethodId =>
                   complete {
                     whenFound(Orders.findActiveOrderByCustomer(customer)) { order =>
-                      ShippingMethodsBuilder.addShippingMethodToOrder(shipMethodId, order).map { response =>
-                        response.map(FullOrder.fromOrder(_))
+                      ShippingMethodsBuilder.addShippingMethodToOrder(shipMethodId, order).flatMap {
+                        case Good(o) ⇒
+                          FullOrder.fromOrder(o).map {
+                            case Some(r) ⇒ Good(r)
+                            case None ⇒ Bad(List("order not found"))
+                          }
+
+                        case Bad(e) ⇒
+                          Future.successful(Bad(e))
                       }
                     }
                   }
