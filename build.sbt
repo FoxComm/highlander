@@ -17,6 +17,11 @@ scalacOptions ++= List(
 
 mainClass in Compile := Some("Main")
 
+resolvers ++= Seq(
+  "hseeberger at bintray" at "http://dl.bintray.com/hseeberger/maven",
+  "Pellucid Bintray" at "http://dl.bintray.com/pellucid/maven"
+)
+
 libraryDependencies ++= {
   val akkaV       = "2.3.11"
   val akkaStreamV = "1.0-RC2"
@@ -28,7 +33,6 @@ libraryDependencies ++= {
     "com.typesafe.akka" %% "akka-actor"                           % akkaV,
     "com.typesafe.akka" %% "akka-stream-experimental"             % akkaHttpV,
     "com.typesafe.akka" %% "akka-http-experimental"          % akkaHttpV,
-    "com.typesafe.akka" %% "akka-http-spray-json-experimental"    % akkaHttpV,
     "org.scalatest"     %% "scalatest"                            % scalaTestV % "test",
     "com.typesafe.slick" %% "slick" % "3.0.0",
     "org.slf4j"          % "slf4j-api"       % "1.7.7",
@@ -43,6 +47,8 @@ libraryDependencies ++= {
     "joda-time"            % "joda-time"          % "2.7",
     "org.joda"             %  "joda-convert"      % "1.7",
     "com.github.tototoshi" %% "slick-joda-mapper" % "2.0.0",
+    "com.pellucid" %% "sealerate" % "0.0.3",
+    "de.heikoseeberger" %% "akka-http-json4s" % "0.9.1",
 
     "com.github.julien-truffaut"  %%  "monocle-core"    % "1.1.1",
     "com.github.julien-truffaut"  %%  "monocle-generic" % "1.1.1",
