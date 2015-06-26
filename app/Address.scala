@@ -7,6 +7,7 @@ import com.stripe.model.Token
 import com.stripe.net.{RequestOptions => StripeRequestOptions}
 import com.stripe.model.{Charge => StripeCharge}
 import com.stripe.Stripe
+import models.Order.{FulfillmentStarted, PartiallyShipped}
 
 import org.scalactic._
 import slick.driver.PostgresDriver
@@ -30,7 +31,7 @@ import slick.lifted.Tag
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
 import spray.json._
 import org.json4s.JsonAST.JString
-import org.json4s.{CustomSerializer, DefaultFormats}
+import org.json4s.{JValue, CustomSerializer, DefaultFormats}
 import org.json4s.jackson.Serialization.{write => render}
 import org.json4s.jackson.JsonMethods._
 import scala.concurrent.{ExecutionContext, Future, Await}
@@ -39,7 +40,7 @@ import scala.util.{Try, Failure, Success}
 import collection.JavaConversions.mapAsJavaMap
 import akka.http.scaladsl.server.directives._
 
-import utils.{RichTable, Validation, StringStuff}
+import utils.{RichTable, Validation, Strings}
 import utils.RunOnDbIO
 import models._
 import payloads._
@@ -107,16 +108,44 @@ trait Formats extends DefaultJsonProtocol {
   implicit val createCustomerPayloadFormat =jsonFormat4(CreateCustomerPayload.apply)
   implicit val updateOrderPayloadFormat = jsonFormat1(UpdateOrderPayload.apply)
 
-  val phoenixFormats = DefaultFormats + new CustomSerializer[PaymentStatus](format => (
-    { case _ ⇒ sys.error("Reading not implemented") },
-    { case x: PaymentStatus ⇒ JString(x.toString) }
-    )) + new CustomSerializer[GiftCardPaymentStatus](format => (
-    { case _ ⇒ sys.error("Reading not implemented") },
-    { case x: GiftCardPaymentStatus ⇒ JString(x.toString) }
-    )) + new CustomSerializer[Order.Status](format => (
-    { case _ ⇒ sys.error("Reading not implemented") },
-    { case x: Order.Status ⇒ JString(StringStuff.lowerCaseFirstLetter(x.toString)) }
-    ))
+  import utils.Strings._
+
+  def renderADTString[A](a: A) = JString(a.toString.lowerCaseFirstLetter)
+
+  val phoenixFormats = DefaultFormats +
+    new CustomSerializer[CreditCardPaymentStatus](format => (
+      {
+        case JString(str) ⇒ str match {
+          case "applied" ⇒ Applied
+          case "auth" ⇒ Auth
+          case "failedCapture" ⇒ FailedCapture
+          case "canceledAuth" ⇒ CanceledAuth
+          case "expiredAuth" ⇒ ExpiredAuth
+        }
+      },
+      { case x: PaymentStatus ⇒ renderADTString(x) })) +
+    new CustomSerializer[GiftCardPaymentStatus](format => (
+      {
+        case JString(str) ⇒ str match {
+          case "insufficientBalance" ⇒ InsufficientBalance
+          case "successfulDebit" ⇒ SuccessfulDebit
+          case "failedDebit" ⇒ FailedDebit
+        }
+      },
+      { case x: GiftCardPaymentStatus ⇒ renderADTString(x) })) +
+    new CustomSerializer[Order.Status](format => (
+      { case JString(str) ⇒ str match {
+        case "cart" ⇒ Order.Cart
+        case "ordered" ⇒ Order.Ordered
+        case "fraudHold" ⇒ Order.FraudHold
+        case "remorseHold" ⇒ Order.RemorseHold
+        case "manualHold" ⇒ Order.ManualHold
+        case "canceled" ⇒ Order.Canceled
+        case "fulfillmentStarted" ⇒ Order.FulfillmentStarted
+        case "partiallyShipped" ⇒ Order.PartiallyShipped
+        case "shipped" ⇒ Order.Shipped
+      } },
+      { case x: Order.Status ⇒ renderADTString(x) }))
 }
 
 
