@@ -1,6 +1,7 @@
 package util
 
 import scala.annotation.tailrec
+import scala.slick.driver.PostgresDriver
 
 import com.typesafe.config.ConfigFactory
 import org.flywaydb.core.Flyway
@@ -48,6 +49,7 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
     val tables = iterate(Seq()).filterNot { t ⇒ t.startsWith("pg_") || t == "states" }
 
     conn.createStatement().execute(s"truncate ${tables.mkString(", ")} restart identity cascade;")
+    conn.close()
 
     super.withFixture(test)
   }
@@ -69,5 +71,5 @@ object DbTestSupport {
 
   @volatile var migrated = false
 
-  def database = Database.forConfig("db.test")
+  lazy val database = Database.forConfig("db.test")
 }
