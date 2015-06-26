@@ -30,8 +30,10 @@ object FullOrder {
                               qty: Int = 1,
                               status: OrderLineItem.Status )
 
-  def build(order: Order, lineItems: Seq[OrderLineItem] = Seq.empty, adjustments: Seq[Adjustment] = Seq.empty, shippingMethod: Option[ShippingMethod] = None, customer: Option[Customer] = None, shippingAddress: Option[Address] = None): Root = {
-    val rand = scala.util.Random
+  def build(order: Order, lineItems: Seq[OrderLineItem] = Seq.empty, adjustments: Seq[Adjustment] = Seq.empty,
+    shippingMethod: Option[ShippingMethod] = None, customer: Option[Customer] = None,
+    shippingAddress: Option[Address] = None): Root = {
+
     Root(id = order.id,
       referenceNumber = order.referenceNumber,
       orderStatus = order.status,
@@ -39,7 +41,7 @@ object FullOrder {
       paymentStatus = order.status,
       lineItems = lineItems.map{oli => DisplayLineItem(skuId = oli.skuId, status = oli.status)},
       adjustments = adjustments,
-      fraudScore = rand.nextInt(100),
+      fraudScore = scala.util.Random.nextInt(100),
       customer = customer,
       shippingAddress = shippingAddress,
       totals = Totals(subTotal = 333, taxes = 10, adjustments = 0, total = 510), shippingMethod = shippingMethod)
@@ -56,15 +58,11 @@ object FullOrder {
     this.findOrder(Orders._findByCustomer(customer))
   }
 
-  def findCartByCustomer(customer: Customer)
-                        (implicit ec: ExecutionContext, db: Database): Response = {
+  def findCartByCustomer(customer: Customer)(implicit ec: ExecutionContext, db: Database): Response = {
     this.findOrder(Orders._findActiveOrderByCustomer(customer))
   }
 
-  def fromOrder(order: Order)
-              (implicit ec: ExecutionContext,
-               db: Database): Response = {
-
+  def fromOrder(order: Order)(implicit ec: ExecutionContext, db: Database): Response = {
     val queries = for {
       lineItems <- OrderLineItems._findByOrderId(order.id)
     } yield (lineItems)
@@ -88,7 +86,9 @@ object FullOrder {
 
     db.run(queries.result).map { results =>
       results.headOption.map { case (order, _, shippingMethod, customer, address) =>
-        build(order = order, lineItems = results.map { case (_, items, _, _, _) => items }, shippingMethod = Some(shippingMethod), customer = Some(customer), shippingAddress = Some(address))
+        val lineItems = results.map { case (_, items, _, _, _) ⇒ items }
+        build(order = order, lineItems = lineItems, shippingMethod = Some(shippingMethod),
+              customer = Some(customer), shippingAddress = Some(address))
       }
     }
   }
