@@ -290,6 +290,11 @@ class Service(
                 }
               }
             } ~
+            (get & path(IntNumber / "notes")) { orderId ⇒
+              complete {
+                renderOrNotFound(OrderNotes.filterByOrderId(orderId))
+              }
+            } ~
             (get & path(IntNumber / "payment-methods")) { orderId =>
               complete {
                 renderOrNotFound(Orders.findById(orderId).run())
