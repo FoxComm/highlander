@@ -253,11 +253,18 @@ class Service(
               renderOrNotFound(FullOrder.findById(orderId))
             }
           } ~
-            (patch & path(IntNumber) & entity(as[UpdateOrderPayload]) ) { (orderId, orderPayload) =>
+            (patch & path(IntNumber) & entity(as[UpdateOrderPayload]) ) { (orderId, payload) =>
               complete {
                 whenFound(Orders.findById(orderId).run()) { order =>
-                  OrderUpdater.updateStatus(order, orderPayload).map { response =>
-                    response.map(FullOrder.fromOrder(_))
+                  OrderUpdater.updateStatus(order, payload).flatMap {
+                    case Good(o) ⇒
+                      FullOrder.fromOrder(o).map {
+                        case Some(r)  ⇒ Good(r)
+                        case None     ⇒ Bad(List("order not found"))
+                      }
+
+                    case Bad(e) ⇒
+                      Future.successful(Bad(e))
                   }
                 }
               }
@@ -269,9 +276,16 @@ class Service(
             } ~
             (post & path(IntNumber / "line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { (orderId, reqItems) =>
               complete {
-                whenFound(Orders.findById(orderId).run()) {order =>
-                  LineItemUpdater.updateQuantities(order, reqItems).map { response =>
-                    response.map(FullOrder.build(order, _))
+                whenFound(Orders.findById(orderId).run()) { order =>
+                  LineItemUpdater.updateQuantities(order, reqItems).flatMap {
+                    case Good(_) ⇒
+                      FullOrder.fromOrder(order).map {
+                        case Some(r) ⇒ Good(r)
+                        case None ⇒ Bad(List("order not found"))
+                      }
+
+                    case Bad(e) ⇒
+                      Future.successful(Bad(e))
                   }
                 }
               }
@@ -338,8 +352,15 @@ class Service(
                 (post & path("line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems =>
                   complete {
                     whenFound(Orders.findActiveOrderByCustomer(customer)) { order =>
-                      LineItemUpdater.updateQuantities(order, reqItems).map { response =>
-                        response.map(FullOrder.build(order, _))
+                      LineItemUpdater.updateQuantities(order, reqItems).flatMap {
+                        case Good(_) ⇒
+                          FullOrder.fromOrder(order).map {
+                            case Some(r) ⇒ Good(r)
+                            case None ⇒ Bad(List("order not found"))
+                          }
+
+                        case Bad(e) ⇒
+                          Future.successful(Bad(e))
                       }
                     }
                   }
@@ -357,14 +378,15 @@ class Service(
                 (post & path("shipping-methods" / IntNumber)) { shipMethodId =>
                   complete {
                     whenFound(Orders.findActiveOrderByCustomer(customer)) { order =>
-                      ShippingMethodsBuilder.addShippingMethodToOrder(shipMethodId, order).flatMap { response =>
-                        response.fold({ o: Order ⇒
+                      ShippingMethodsBuilder.addShippingMethodToOrder(shipMethodId, order).flatMap {
+                        case Good(o) ⇒
                           FullOrder.fromOrder(o).map {
                             case Some(r) ⇒ Good(r)
                             case None ⇒ Bad(List("order not found"))
-                          }: Future[FullOrder.Root Or List[ErrorMessage]]
-                        },
-                        { e ⇒ Future.successful(Bad(e)) })
+                          }
+
+                        case Bad(e) ⇒
+                          Future.successful(Bad(e))
                       }
                     }
                   }
