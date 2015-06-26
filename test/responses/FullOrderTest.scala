@@ -9,7 +9,8 @@ import org.scalatest.prop.TableDrivenPropertyChecks._
 import payloads.CreateAddressPayload
 import util.IntegrationTestBase
 import utils.{Seeds, Validation}
-import org.json4s.jackson.Serialization.{write => render}
+import org.json4s.jackson.JsonMethods.parse
+import org.json4s.jackson.Serialization.{write ⇒ render}
 
 class FullOrderTest extends IntegrationTestBase {
   import api._
@@ -21,8 +22,10 @@ class FullOrderTest extends IntegrationTestBase {
     "fromOrder" in {
       db.run(Seeds.run()).futureValue
       val order = Orders.findById(1).run().futureValue.get
-      val x = render(FullOrder.fromOrder(order).futureValue)
-      info(x)
+      val json = render(FullOrder.fromOrder(order).futureValue)
+      val root = parse(json)
+
+      (root \ "id").extract[Int] mustBe (1)
     }
   }
 }
