@@ -183,9 +183,7 @@ class Service(
 
   val logger = Logging(system, getClass)
 
-  implicit val db = dbOverride.getOrElse {
-    Database.forURL("jdbc:postgresql://localhost/phoenix_development?user=phoenix", driver = "slick.driver.PostgresDriver")
-  }
+  implicit val db = dbOverride.getOrElse(Database.forConfig("db.development"))
 
   def customerAuth: AsyncAuthenticator[Customer] = Authenticator.customer
   def storeAdminAuth: AsyncAuthenticator[StoreAdmin] = Authenticator.storeAdmin
