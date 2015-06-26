@@ -9,8 +9,9 @@ const
 
 const app = koa();
 
-app.init = co.wrap(function *() {
-  app.config = require(path.resolve('config'));
+app.init = co.wrap(function *(env) {
+  if (env) { app.env = env; }
+  app.config = require(path.resolve('config')(app.env));
   app.use(serve(app.config.server.publicDir));
   app.use(favicon(app.config.layout.favicon));
   app.seeds = yield* require(`${__dirname}/seeds`)();

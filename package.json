@@ -118,7 +118,11 @@
     "eslint": "^0.23.0",
     "eslint-plugin-react": "^2.5.2",
     "gulp-eslint": "^0.14.0",
+    "gulp-mocha": "^2.1.2",
+    "jsdom": "^5.4.3",
     "koa-logger": "^1.2.2",
-    "mocha": "^2.2.4"
+    "mocha": "^2.2.4",
+    "react-tools": "^0.13.3",
+    "testdom": "^1.1.0"
   }
 }

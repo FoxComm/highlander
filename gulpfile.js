@@ -10,6 +10,7 @@ const opts = {
   taskDir: path.resolve(__dirname, 'tasks'),
   themeDir: path.resolve('src', 'themes'),
   publicDir: path.resolve('public'),
+  testDir: path.resolve(__dirname, 'test'),
   serverSrc: path.resolve(__dirname, 'server', '**/*.{js,json}'),
   jsSrc: path.resolve('src', 'themes', '**/*.{js,jsx}'),
   lessSrc: path.resolve('src', 'themes', '**/*.less'),
@@ -28,5 +29,5 @@ for (let task of fs.readdirSync(opts.taskDir)) {
 }
 
 gulp.task('build', ['less', 'browserify', 'imagemin']);
-gulp.task('dev', ['lint', 'build', 'server', 'watch']);
+gulp.task('dev', ['lint', 'build', 'server', 'mocha', 'watch']);
 gulp.task('default', ['build']);
