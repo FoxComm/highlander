@@ -46,7 +46,9 @@ libraryDependencies ++= {
 
     "com.github.julien-truffaut"  %%  "monocle-core"    % "1.1.1",
     "com.github.julien-truffaut"  %%  "monocle-generic" % "1.1.1",
-    "com.github.julien-truffaut"  %%  "monocle-macro"   % "1.1.1"
+    "com.github.julien-truffaut"  %%  "monocle-macro"   % "1.1.1",
+
+    "com.zaxxer" % "HikariCP-java6" % "2.3.8"
   )
 }
 
