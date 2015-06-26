@@ -60,12 +60,12 @@ object Shipments extends TableQueryWithId[Shipment, Shipments](
   idLens = GenLens[Shipment](_.id)
 )(new Shipments(_)) {
 
-  def findByOrderId(id: Int) = {
-    _findByOrderId(id).result.headOption
+  def findByOrderId(id: Int)(implicit db: Database): Future[Option[Shipment]] = {
+    _findByOrderId(id).run()
   }
 
   def _findByOrderId(id: Int) = {
-    filter(_.orderId === id)
+    filter(_.orderId === id).result.headOption
   }
 
 }

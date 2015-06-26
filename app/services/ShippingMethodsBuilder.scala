@@ -97,10 +97,10 @@ object ShippingMethodsBuilder {
                               (implicit ec: ExecutionContext, db: Database): Future[Order Or List[ErrorMessage]] = {
     val queries = for {
       shippingMethods <- ShippingMethods.findById(shippingMethodId)
-      shipment <- Shipments.findByOrderId(order.id) // Assume 1 or none.
+      shipment <- Shipments._findByOrderId(order.id)
       newShipmentInsert <- Shipments.insertOrUpdate(Shipment(0, orderId = order.id, shippingMethodId = Some(shippingMethodId)))
-      shippingAddress <- shipment.map{ ship =>  Addresses.findById(ship.shippingAddressId.getOrElse(0))  }.getOrElse(DBIO.successful(None))
-      shippingMethod <- shipment.map{ ship =>  ShippingMethods.findById(ship.shippingMethodId.getOrElse(0)) }.getOrElse(DBIO.successful(None))
+      shippingAddress <- shipment.map { ship => Addresses.findById(ship.shippingAddressId.getOrElse(0)) }.getOrElse(DBIO.successful(None))
+      shippingMethod <- shipment.map { ship => ShippingMethods.findById(ship.shippingMethodId.getOrElse(0)) }.getOrElse(DBIO.successful(None))
       updatedOrder <- Orders.findById(order.id) if newShipmentInsert > 0
     } yield (updatedOrder)
 
