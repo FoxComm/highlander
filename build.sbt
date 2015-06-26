@@ -67,3 +67,6 @@ Revolver.settings
 parallelExecution in Test := false
 
 fork in Test := true
+
+javaOptions in Test ++= Seq("-Xmx2G", "-XX:+UseConcMarkSweepGC")
+
