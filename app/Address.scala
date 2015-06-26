@@ -357,8 +357,14 @@ class Service(
                 (post & path("shipping-methods" / IntNumber)) { shipMethodId =>
                   complete {
                     whenFound(Orders.findActiveOrderByCustomer(customer)) { order =>
-                      ShippingMethodsBuilder.addShippingMethodToOrder(shipMethodId, order).map { response =>
-                        response.map(FullOrder.fromOrder(_))
+                      ShippingMethodsBuilder.addShippingMethodToOrder(shipMethodId, order).flatMap { response =>
+                        response.fold({ o: Order ⇒
+                          FullOrder.fromOrder(o).map {
+                            case Some(r) ⇒ Good(r)
+                            case None ⇒ Bad(List("order not found"))
+                          }: Future[FullOrder.Root Or List[ErrorMessage]]
+                        },
+                        { e ⇒ Future.successful(Bad(e)) })
                       }
                     }
                   }
