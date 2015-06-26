@@ -37,9 +37,9 @@ export default class OrderSummary extends React.Component {
           <dt><i className="fa fa-envelope"></i></dt>
           <dd>{customer.email}</dd>
           <dt><i className="fa fa-phone"></i></dt>
-          <dd>{customer.phone}</dd>
+          <dd>{customer.phoneNumber}</dd>
           <dt><i className="fa fa-location-arrow"></i></dt>
-          <dd>{customer.city}, {customer.state}</dd>
+          <dd>{customer.location}</dd>
           <dt><i className="fa fa-mobile"></i></dt>
           <dd>{customer.modality}</dd>
           <dt><i className="fa fa-users"></i></dt>
