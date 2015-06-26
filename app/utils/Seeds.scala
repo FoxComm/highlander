@@ -5,6 +5,8 @@ import models._
 import org.flywaydb.core.Flyway
 import org.joda.time.DateTime
 import org.postgresql.ds.PGSimpleDataSource
+import slick.dbio
+import slick.dbio.Effect.{All, Write}
 import slick.driver.PostgresDriver.api._
 
 import scala.concurrent.Await
@@ -20,9 +22,8 @@ object Seeds {
                        priceRuleCriteriaMappings: Seq[ShippingPriceRuleOrderCriterion], skus: Seq[Sku],
                        orderLineItems: Seq[OrderLineItem], shipment: Shipment)
 
-  def run(): Unit = {
+  def run()(implicit db: Database): dbio.DBIOAction[(Customer, Order, Address, CreditCardGateway), NoStream, Write with Write with Write with All with Write with All with Write with All with Write with Write with Write with Write with Write with All] = {
     import scala.concurrent.ExecutionContext.Implicits.global
-    implicit val db = Database.forConfig("db.development")
 
     val s = TheWorld(
       customer = Factories.customer,
@@ -47,7 +48,7 @@ object Seeds {
     if (failures.nonEmpty)
       throw new Exception(failures.map(_.messages).mkString("\n"))
 
-    val actions = for {
+    for {
       customer ← (Customers.returningId += s.customer).map(id => s.customer.copy(id = id))
       storeAdmin ← (StoreAdmins.returningId += s.storeAdmin).map(id => s.storeAdmin.copy(id = id))
       skus ←  Skus ++= s.skus
@@ -63,8 +64,6 @@ object Seeds {
       priceRuleCriteriaMapping ← ShippingPriceRulesOrderCriteria ++= s.priceRuleCriteriaMappings
       shipments ← Shipments.save(s.shipment)
     } yield (customer, order, address, gateway)
-
-    Await.result(actions.run(), 1.second)
   }
 
   object Factories {
@@ -132,11 +131,12 @@ object Seeds {
     def shipment = Shipment(1, 1, Some(1), Some(1))
   }
 
-  def main(args: Array[String]) {
+  def main(args: Array[String]): Unit = {
     Console.err.println(s"Cleaning DB and running migrations")
     flyWayMigrate()
     Console.err.println(s"Inserting seeds")
-    run()
+    implicit val db = Database.forConfig("db.development")
+    Await.result(db.run(run()), 5.second)
   }
 
   private def flyWayMigrate(): Unit = {
