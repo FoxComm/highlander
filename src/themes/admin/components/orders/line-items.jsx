@@ -42,7 +42,7 @@ export default class OrderLineItems extends React.Component {
           <TableHead columns={this.props.tableColumns}/>
           <TableBody columns={this.props.tableColumns} rows={order.lineItems} model='order'/>
         </table>
-        { isEditing ? <Typeahead component={<SkuResult />} store={SkuStore} selectEvent="addLineItem" /> : null }
+        { isEditing ? <Typeahead component={SkuResult} store={SkuStore} selectEvent="addLineItem" /> : null }
       </section>
     );
   }

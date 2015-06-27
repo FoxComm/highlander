@@ -6,19 +6,12 @@ export default class TypeaheadResults extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      component: null,
       results: props.store.getState()
     };
   }
 
-  onComponentDidMount() {
-    this.setState({
-      component: React.addons.createFragment({'component': this.props.component})
-    });
-  }
-
-  cloneComponent(props) {
-    return React.cloneElement(this.state.component.name, props);
+  createComponent(props) {
+    return React.createElement(this.props.component, props);
   }
 
   render() {
@@ -26,14 +19,14 @@ export default class TypeaheadResults extends React.Component {
 
     if (this.state.results.length > 0) {
       innerContent = this.state.results.map((result) => {
-        return <li>{this.cloneComponent({result: result})}</li>;
+        return <li>{this.createComponent({result: result})}</li>;
       });
     } else {
       innerContent = <li>No results found.</li>;
     }
 
     return (
-      <ul className="typeahead-results">
+      <ul className={`typeahead-results ${this.state.results.length > 0 ? 'show' : null}`}>
         {innerContent}
       </ul>
     );

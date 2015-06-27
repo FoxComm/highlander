@@ -38,7 +38,7 @@ export default class Typeahead extends React.Component {
     return (
       <div>
         <input type="text" className="control" onChange={this.textChange.bind(this)} />
-        { this.state.showResults ? <TypeaheadResults selectEvent={this.props.selectEvent} component={this.props.component} store={this.props.store}/> : null }
+        <TypeaheadResults selectEvent={this.props.selectEvent} component={this.props.component} store={this.props.store}/>
       </div>
     );
   }
