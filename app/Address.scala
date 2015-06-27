@@ -7,6 +7,7 @@ import com.stripe.model.Token
 import com.stripe.net.{RequestOptions => StripeRequestOptions}
 import com.stripe.model.{Charge => StripeCharge}
 import com.stripe.Stripe
+import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import models.Order.{FulfillmentStarted, PartiallyShipped}
 
 import org.scalactic._
@@ -90,62 +91,21 @@ case class Collection(id: Int, name: String, isActive: Boolean) extends Validati
   }
 }
 
-object Main extends Formats {
+object Main {
   def main(args: Array[String]): Unit = {
     val service = new Service()
     service.bind()
   }
 }
 
-// JSON formatters
-trait Formats {
-  import utils.Strings._
-
-  def renderADTString[A](a: A) = JString(a.toString.lowerCaseFirstLetter)
-
-  implicit val serialization = jackson.Serialization
-
-  implicit val phoenixFormats = DefaultFormats +
-    new CustomSerializer[CreditCardPaymentStatus](format => (
-      {
-        case JString(str) ⇒ str match {
-          case "applied" ⇒ Applied
-          case "auth" ⇒ Auth
-          case "failedCapture" ⇒ FailedCapture
-          case "canceledAuth" ⇒ CanceledAuth
-          case "expiredAuth" ⇒ ExpiredAuth
-        }
-      },
-      { case x: PaymentStatus ⇒ renderADTString(x) })) +
-    new CustomSerializer[GiftCardPaymentStatus](format => (
-      {
-        case JString(str) ⇒ str match {
-          case "insufficientBalance" ⇒ InsufficientBalance
-          case "successfulDebit" ⇒ SuccessfulDebit
-          case "failedDebit" ⇒ FailedDebit
-        }
-      },
-      { case x: GiftCardPaymentStatus ⇒ renderADTString(x) })) +
-    new CustomSerializer[Order.Status](format => (
-      { case JString(str) ⇒ str match {
-        case "cart" ⇒ Order.Cart
-        case "ordered" ⇒ Order.Ordered
-        case "fraudHold" ⇒ Order.FraudHold
-        case "remorseHold" ⇒ Order.RemorseHold
-        case "manualHold" ⇒ Order.ManualHold
-        case "canceled" ⇒ Order.Canceled
-        case "fulfillmentStarted" ⇒ Order.FulfillmentStarted
-        case "partiallyShipped" ⇒ Order.PartiallyShipped
-        case "shipped" ⇒ Order.Shipped
-      } },
-      { case x: Order.Status ⇒ renderADTString(x) }))
-}
-
-
 class Service(
   systemOverride: Option[ActorSystem] = None,
   dbOverride:     Option[slick.driver.PostgresDriver.backend.DatabaseDef] = None
-) extends Formats {
+) {
+
+  import Json4sSupport._
+  import utils.JsonFormatters._
+
   val conf: String =
     """
       |akka {
@@ -161,7 +121,6 @@ class Service(
     """.stripMargin
 
   val config: Config = ConfigFactory.parseString(conf)
-
 
   implicit val system = systemOverride.getOrElse {
     ActorSystem.create("Orders", config)
