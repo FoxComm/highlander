@@ -14,16 +14,15 @@ scalacOptions ++= List(
   "-unchecked",
   "-deprecation",
   "-Xlint",
-  //"-Xfatal-warnings",
-  "-language:higherKinds",
-  "-language:experimental.macros"
+  "-Xfatal-warnings",
+  "-language:higherKinds"
 )
 
 mainClass in Compile := Some("Main")
 
 resolvers ++= Seq(
-  "hseeberger at bintray" at "http://dl.bintray.com/hseeberger/maven"
-  //"Pellucid Bintray" at "http://dl.bintray.com/pellucid/maven"
+  "hseeberger at bintray" at "http://dl.bintray.com/hseeberger/maven",
+  "Pellucid Bintray" at "http://dl.bintray.com/pellucid/maven"
 )
 
 libraryDependencies ++= {
