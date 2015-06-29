@@ -45,7 +45,7 @@ object Order {
   case object Shipped extends Status
 
   object Status extends ADT[Status] {
-    def types = sealerate.values[Order.Status]
+    def types = sealerate.values[Status]
   }
 
   implicit val statusColumnType = Status.slickColumn

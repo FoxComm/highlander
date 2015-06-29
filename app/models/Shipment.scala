@@ -1,7 +1,8 @@
 package models
 
+import com.pellucid.sealerate
 import models.Shipment.Cart
-import utils.{GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
+import utils.{ADT, GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
 
 import com.wix.accord.dsl.{validator => createValidator}
 import monocle.macros.GenLens
@@ -27,22 +28,11 @@ object Shipment {
   case object PartiallyShipped extends Status
   case object Shipped extends Status
 
-  implicit val StatusColumnType = MappedColumnType.base[Status, String]({
-    case t => t.toString.toLowerCase
-  },
-  {
-    case "cart" => Cart
-    case "ordered" => Ordered
-    case "fraudhold" => FraudHold
-    case "remorsehold" => RemorseHold
-    case "manualhold" => ManualHold
-    case "canceled" => Canceled
-    case "fulfillmen_started" => FulfillmentStarted
-    case "partiallyshipped" => PartiallyShipped
-    case "shipped" => Shipped
-    case unknown => throw new IllegalArgumentException(s"cannot map status column to type $unknown")
-  })
+  object Status extends ADT[Status] {
+    def types = sealerate.values[Status]
+  }
 
+  implicit val statusColumnType = Status.slickColumn
 }
 
 class Shipments(tag: Tag) extends GenericTable.TableWithId[Shipment](tag, "shipments") with RichTable {
