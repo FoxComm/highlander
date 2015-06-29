@@ -4,6 +4,9 @@ version := "1.0"
 
 scalaVersion := "2.11.7"
 
+dependencyOverrides += "org.scala-lang" % "scala-library" % scalaVersion.value
+ivyScala := ivyScala.value map { _.copy(overrideScalaVersion = true) }
+
 scalacOptions ++= List(
   "-encoding", "UTF-8",
   "-target:jvm-1.8",
@@ -11,15 +14,16 @@ scalacOptions ++= List(
   "-unchecked",
   "-deprecation",
   "-Xlint",
-  "-Xfatal-warnings",
-  "-language:higherKinds"
+  //"-Xfatal-warnings",
+  "-language:higherKinds",
+  "-language:experimental.macros"
 )
 
 mainClass in Compile := Some("Main")
 
 resolvers ++= Seq(
-  "hseeberger at bintray" at "http://dl.bintray.com/hseeberger/maven",
-  "Pellucid Bintray" at "http://dl.bintray.com/pellucid/maven"
+  "hseeberger at bintray" at "http://dl.bintray.com/hseeberger/maven"
+  //"Pellucid Bintray" at "http://dl.bintray.com/pellucid/maven"
 )
 
 libraryDependencies ++= {

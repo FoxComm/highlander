@@ -106,6 +106,9 @@ class Service(
   import Json4sSupport._
   import utils.JsonFormatters._
 
+  implicit val serialization = jackson.Serialization
+  implicit val formats = phoenixFormats
+
   val conf: String =
     """
       |akka {

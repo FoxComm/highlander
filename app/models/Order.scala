@@ -1,7 +1,8 @@
 package models
 
+import com.pellucid.sealerate
 import services.OrderTotaler
-import utils.{GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
+import utils.{ADT, GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
 import payloads.CreateAddressPayload
 
 import com.wix.accord.dsl.{validator => createValidator}
@@ -32,6 +33,7 @@ case class Order(id: Int = 0, referenceNumber: Option[String] = None, customerId
 
 object Order {
   sealed trait Status
+
   case object Cart extends Status
   case object Ordered extends Status
   case object FraudHold extends Status //this only applies at the order_header level
@@ -42,22 +44,11 @@ object Order {
   case object PartiallyShipped extends Status
   case object Shipped extends Status
 
-  implicit val StatusColumnType = MappedColumnType.base[Status, String]({
-    case t => t.toString.toLowerCase
-  },
-  {
-    case "cart" => Cart
-    case "ordered" => Ordered
-    case "fraudhold" => FraudHold
-    case "remorsehold" => RemorseHold
-    case "manualhold" => ManualHold
-    case "canceled" => Canceled
-    case "fulfillmentstarted" => FulfillmentStarted
-    case "partiallyshipped" => PartiallyShipped
-    case "shipped" => Shipped
-    case unknown => throw new IllegalArgumentException(s"cannot map status column to type $unknown")
-  })
+  object Status extends ADT[Status] {
+    def types = sealerate.values[Order.Status]
+  }
 
+  implicit val statusColumnType = Status.slickColumn
 }
 
 class Orders(tag: Tag) extends GenericTable.TableWithId[Order](tag, "orders") with RichTable {
