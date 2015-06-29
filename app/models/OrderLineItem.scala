@@ -1,5 +1,6 @@
 package models
 
+import com.pellucid.sealerate
 import monocle.macros.GenLens
 import utils._
 import payloads.CreateAddressPayload
@@ -25,22 +26,12 @@ object OrderLineItem{
   case object PartiallyShipped extends Status // would only be relevant for a complex product with componentry
   case object Shipped extends Status
 
-  implicit val StatusColumnType = MappedColumnType.base[Status, String]({
-    case t => t.toString.toLowerCase
-  },
-  {
-    case "cart" => Cart
-    case "ordered" => Ordered
-    case "canceled" => Canceled
-    case "productionstarted" => ProductionStarted
-    case "postproductionstarted" => PostProductionStarted
-    case "fulfillmentstarted" => FulfillmentStarted
-    case "partiallyshipped" => PartiallyShipped
-    case "shipped" => Shipped
-    case unknown => throw new IllegalArgumentException(s"cannot map status column to type $unknown")
-  })
-}
+  object Status extends ADT[Status] {
+    def types = sealerate.values[Status]
+  }
 
+  implicit val statusColumnType = Status.slickColumn
+}
 
 class OrderLineItems(tag: Tag) extends GenericTable.TableWithId[OrderLineItem](tag, "order_line_items") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)

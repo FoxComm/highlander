@@ -8,8 +8,8 @@ create table orders (
     updated_at timestamp without time zone default (now() at time zone 'utc'),
     deleted_at timestamp without time zone null,
     foreign key (id) references inventory_events(id) on update restrict on delete restrict,
-    constraint valid_status check (status in ('cart','ordered','fraudhold','remorsehold','manualhold','canceled',
-                                              'fulfillmentstarted','partiallyshipped','shipped'))
+    constraint valid_status check (status in ('cart','ordered','fraudHold','remorseHold','manualHold','canceled',
+                                              'fulfillmentStarted','partiallyShipped','shipped'))
 );
 
 create index orders_customer_and_status_idx on orders (customer_id, status);
