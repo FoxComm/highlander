@@ -5,7 +5,9 @@ import Strings._
 import org.json4s.JsonAST.JString
 import org.json4s.{jackson, CustomSerializer, DefaultFormats}
 import org.json4s.jackson.Serialization.{write ⇒ jsonWrite}
+import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
+import slick.jdbc.JdbcType
 
 trait Read[F] { self ⇒
   def read(f: String): Option[F]
@@ -20,7 +22,7 @@ trait ADT[F] extends Read[F] with Show[F] { self ⇒
   val typeMap: Map[String, F] =
     types.foldLeft(Map[String, F]()) { case (m, f) ⇒ m.updated(shows(f), f) }
 
-  def read(s: String) = typeMap.get(s)
+  def read(s: String): Option[F] = typeMap.get(s)
 
   override def shows(f: F): String = f.toString.lowerCaseFirstLetter
 
@@ -30,7 +32,7 @@ trait ADT[F] extends Read[F] with Show[F] { self ⇒
     case f: F ⇒ JString(shows(f))
   }))
 
-  def slickColumn(implicit m: Manifest[F]) = MappedColumnType.base[F, String]({
+  def slickColumn(implicit m: Manifest[F]): JdbcType[F] with BaseTypedType[F] = MappedColumnType.base[F, String]({
     case f ⇒ shows(f)
   },{
     case f ⇒ read(f).get
