@@ -10,8 +10,25 @@ export default class TypeaheadResults extends React.Component {
     };
   }
 
+  componentDidMount() {
+    let
+      store = this.props.store,
+      storeName = store.storeName;
+
+    this[`onChange${storeName}`] = this.onStoreChange;
+    store.listenToEvent('change', this);
+  }
+
+  componentWillUnmount() {
+    this.props.store.stopListeningToEvent('change', this);
+  }
+
   createComponent(props) {
     return React.createElement(this.props.component, props);
+  }
+
+  onStoreChange() {
+    this.setState({results: this.props.store.getState()});
   }
 
   render() {
@@ -19,7 +36,7 @@ export default class TypeaheadResults extends React.Component {
 
     if (this.state.results.length > 0) {
       innerContent = this.state.results.map((result) => {
-        return <li>{this.createComponent({result: result})}</li>;
+        return <li key={result.id}>{this.createComponent({result: result})}</li>;
       });
     } else {
       innerContent = <li>No results found.</li>;
@@ -35,5 +52,5 @@ export default class TypeaheadResults extends React.Component {
 
 TypeaheadResults.propTypes = {
   store: React.PropTypes.object,
-  component: React.PropTypes.element
+  component: React.PropTypes.func
 };
