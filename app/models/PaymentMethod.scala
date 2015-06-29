@@ -1,5 +1,6 @@
 package models
 
+import com.pellucid.sealerate
 import com.stripe.model.{Card ⇒ StripeCard}
 import com.wix.accord.dsl.{validator ⇒ createValidator}
 import com.wix.accord.{Failure ⇒ ValidationFailure}
@@ -8,6 +9,8 @@ import services.Failure
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 
 import scala.concurrent.{ExecutionContext, Future}
+
+import utils.ADT
 
 abstract class PaymentMethod {
   def authorize(amount: Int)(implicit ec: ExecutionContext): Future[String Or List[Failure]]
@@ -30,10 +33,18 @@ case object FailedCapture extends CreditCardPaymentStatus
 case object CanceledAuth extends CreditCardPaymentStatus
 case object ExpiredAuth extends CreditCardPaymentStatus
 
+object CreditCardPaymentStatus extends ADT[CreditCardPaymentStatus] {
+  def types = sealerate.values[CreditCardPaymentStatus]
+}
+
 sealed trait GiftCardPaymentStatus extends PaymentStatus
 case object InsufficientBalance extends GiftCardPaymentStatus
 case object SuccessfulDebit extends GiftCardPaymentStatus
 case object FailedDebit extends GiftCardPaymentStatus
+
+object GiftCardPaymentStatus extends ADT[GiftCardPaymentStatus] {
+  def types = sealerate.values[GiftCardPaymentStatus]
+}
 
 // TODO: Figure out how to have the 'status' field on the payment and not the payment method.
 case class CreditCard(id: Int, orderId: Int, cardholderName: String, cardNumber: String, cvv: Int, status: CreditCardPaymentStatus, expiration: String, address: Address) extends PaymentMethod {

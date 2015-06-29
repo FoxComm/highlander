@@ -1,5 +1,7 @@
 package payloads
 
-case class UpdateOrderPayload(orderStatus: String) 
+import models.Order.Status
+
+case class UpdateOrderPayload(status: Status)
 
 case class CreateOrderNotePayload(body: String)
