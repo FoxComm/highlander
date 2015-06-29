@@ -1,13 +1,15 @@
-# TODO: move me
-NEXT_MIGRATION=$(shell ls sql/*.sql | sed "s/.*V\([0-9?]\).*/\1/g" | sort -nr | head -n 1 | xargs expr 1 +)
+FLYWAY=flyway -configFile=sql/flyway.conf -locations=filesystem:sql/
 
 configure: resetdb
 
 clean:
-	flyway -configFile=conf/flyway.conf -locations=filesystem:sql/ clean
+	${FLYWAY} clean
 
 migrate:
-	flyway -configFile=conf/flyway.conf -locations=filesystem:sql/ migrate
+	${FLYWAY} migrate
+
+migrate-info:
+	${FLYWAY} info
 
 resetdb:
 	dropdb phoenix_development || true
@@ -18,7 +20,5 @@ resetdb:
 	createdb phoenix_test
 	@make migrate
 
-create-migration:
-	$(EDITOR) sql/V$(NEXT_MIGRATION)__create_$(table)_table.sql
-
 .PHONY: configure clean migrate setup
+
