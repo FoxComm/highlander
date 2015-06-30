@@ -15,7 +15,7 @@ import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-case class StoreCredit(id: Int = 0, currency: Currency, status: StoreCredit.Status)
+case class StoreCredit(id: Int = 0, currency: Currency, status: StoreCredit.Status = StoreCredit.New)
   extends PaymentMethod
   with ModelWithIdParameter
   with Validation[StoreCredit] {
@@ -30,9 +30,13 @@ case class StoreCredit(id: Int = 0, currency: Currency, status: StoreCredit.Stat
 
 object StoreCredit {
   sealed trait Status
+  case object New extends Status
+  case object Auth extends Status
   case object Hold extends Status
   case object Active extends Status
   case object Canceled extends Status
+  case object PartiallyApplied extends Status
+  case object Applied extends Status
 
   object Status extends ADT[Status] {
     def types = sealerate.values[Status]

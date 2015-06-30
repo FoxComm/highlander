@@ -4,6 +4,6 @@ create table gift_cards (
     currency currency,
     original_balance integer not null,
     current_balance integer not null,
-    constraint valid_status check (status in ('hold','active','canceled'))
+    constraint valid_status check (status in ('new', 'auth', 'hold','active','canceled', 'partiallyApplied', 'applied'))
 );
 

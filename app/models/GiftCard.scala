@@ -15,7 +15,10 @@ import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-case class GiftCard(id: Int = 0, currency: Currency, status: GiftCard.Status, originalBalance: Int, currentBalance: Int)
+// SC -> GC, why do we care about conersion? we just need to know what it bought.
+
+case class GiftCard(id: Int = 0, currency: Currency, status: GiftCard.Status = GiftCard.New,
+  originalBalance: Int, currentBalance: Int)
   extends PaymentMethod
   with ModelWithIdParameter
   with Validation[GiftCard] {
@@ -28,11 +31,18 @@ case class GiftCard(id: Int = 0, currency: Currency, status: GiftCard.Status, or
   }
 }
 
+// GC would be canceled if the order which purchased it is canceled -- get clarity here from Karin
+
 object GiftCard {
+  // in cart vs bought. partially applied, applied, fulfillment state
   sealed trait Status
+  case object New extends Status
+  case object Auth extends Status
   case object Hold extends Status
   case object Active extends Status
   case object Canceled extends Status
+  case object PartiallyApplied extends Status
+  case object Applied extends Status
 
   object Status extends ADT[Status] {
     def types = sealerate.values[Status]
