@@ -43,7 +43,7 @@ export default class TypeaheadResults extends React.Component {
     }
 
     return (
-      <ul className={`typeahead-results ${this.state.results.length > 0 ? 'show' : null}`}>
+      <ul className={`typeahead-results ${this.props.showResults ? 'show' : ''}`}>
         {innerContent}
       </ul>
     );
@@ -52,5 +52,6 @@ export default class TypeaheadResults extends React.Component {
 
 TypeaheadResults.propTypes = {
   store: React.PropTypes.object,
-  component: React.PropTypes.func
+  component: React.PropTypes.func,
+  showResults: React.PropTypes.bool
 };

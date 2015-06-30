@@ -1,44 +1,50 @@
 'use strict';
 
 import React from 'react';
+import Api from '../../lib/api';
 import TypeaheadResults from './results';
 
 export default class Typeahead extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      results: [],
       showResults: false
     };
   }
 
   textChange(event) {
-    let value = event.target.value;
-    if (value === '') {
-      this.setState({
-        showResults: false,
-        results: []
-      });
-      return;
-    }
+    let
+      target = event.target,
+      value = target.value,
+      store = this.props.store;
+
+    store.reset();
+    this.setState({
+      showResults: !(value === '')
+    });
 
     clearTimeout(this.timeout);
     this.timeout = setTimeout(() => {
       console.log(value);
-      this.setState({
-        showResults: true
-      });
+      Api.get(store.uri())
+         .then((res) => {
+           if (value !== target.value) {
+             return;
+           }
+           store.update(res);
+         })
+         .catch((err) => { store.fetchError(err); });
       this.props.store.fetch();
       clearTimeout(this.timeout);
       this.timeout = null;
-    }, 300);
+    }, 500);
   }
 
   render() {
     return (
-      <div>
+      <div className="typeahead">
         <input type="text" className="control" onChange={this.textChange.bind(this)} />
-        <TypeaheadResults selectEvent={this.props.selectEvent} component={this.props.component} store={this.props.store}/>
+        <TypeaheadResults selectEvent={this.props.selectEvent} component={this.props.component} store={this.props.store} showResults={this.state.showResults} />
       </div>
     );
   }

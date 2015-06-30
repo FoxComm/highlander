@@ -9,6 +9,6 @@ module.exports = function(app, router) {
       yield next;
     })
     .get('/products', function *() {
-      this.body = Sku.generateList();
+      this.body = Sku.generateList(10);
     });
 };
