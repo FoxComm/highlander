@@ -20,3 +20,7 @@ before(function(done) {
       done(err);
     });
 });
+
+after(function(done) {
+  this.app.server.close(done);
+});

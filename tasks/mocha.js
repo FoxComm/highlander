@@ -6,6 +6,7 @@ const
 const mochaOpts = {
   reporter: 'dot',
   ui: 'bdd',
+  timeout: 5000,
   require: ['co-mocha']
 };
 
@@ -17,12 +18,6 @@ module.exports = function(gulp, opts, $) {
 
   gulp.task('mocha', function() {
     return gulp.src([helper, specs], {read: false})
-      .pipe($.mocha(mochaOpts))
-      .once('error', function() {
-        if (isTest) { process.exit(1); }
-      })
-      .once('end', function() {
-        if (isTest) { process.exit(); }
-      });
+      .pipe($.mocha(mochaOpts));
   });
 }

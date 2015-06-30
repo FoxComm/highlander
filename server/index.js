@@ -5,13 +5,14 @@ const
   path    = require('path'),
   co      = require('co'),
   favicon = require('koa-favicon'),
-  serve   = require('koa-static');
+  serve   = require('koa-static'),
+  Config  = require(path.resolve('config'));
 
 const app = koa();
 
 app.init = co.wrap(function *(env) {
   if (env) { app.env = env; }
-  app.config = require(path.resolve('config')(app.env));
+  app.config = new Config(app.env);
   app.use(serve(app.config.server.publicDir));
   app.use(favicon(app.config.layout.favicon));
   app.seeds = yield* require(`${__dirname}/seeds`)();
