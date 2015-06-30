@@ -15,7 +15,7 @@ import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-case class StoreCredit(id: Int = 0, currency: Currency, status: StoreCredit.Status = StoreCredit.New)
+case class StoreCredit(id: Int = 0, customerId: Int, currency: Currency, status: StoreCredit.Status = StoreCredit.New)
   extends PaymentMethod
   with ModelWithIdParameter
   with Validation[StoreCredit] {
@@ -47,9 +47,10 @@ object StoreCredit {
 
 class StoreCredits(tag: Tag) extends GenericTable.TableWithId[StoreCredit](tag, "store_credits") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def customerId = column[Int]("customer_id")
   def currency = column[Currency]("currency")
   def status = column[StoreCredit.Status]("status")
-  def * = (id, currency, status) <> ((StoreCredit.apply _).tupled, StoreCredit.unapply)
+  def * = (id, customerId, currency, status) <> ((StoreCredit.apply _).tupled, StoreCredit.unapply)
 }
 
 object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
