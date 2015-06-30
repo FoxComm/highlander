@@ -74,7 +74,7 @@ export default class BaseStore {
   }
 
   fetch(id) {
-    return Api.get(this.uri(id))
+    Api.get(this.uri(id))
       .then((res) => { this.update(res); })
       .catch((err) => { this.fetchError(err); });
   }
