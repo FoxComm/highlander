@@ -1,7 +1,7 @@
 package utils
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
-import models.{GiftCard, Shipment, OrderLineItem, CreditCardPaymentStatus, Order}
+import models.{StoreCredit, GiftCard, Shipment, OrderLineItem, CreditCardPaymentStatus, Order}
 import com.pellucid.sealerate
 import org.json4s.JsonAST.JString
 import org.json4s.{jackson, CustomSerializer, DefaultFormats}
@@ -14,6 +14,7 @@ object JsonFormatters {
     OrderLineItem.Status.jsonFormat +
     Shipment.Status.jsonFormat +
     GiftCard.Status.jsonFormat +
+    StoreCredit.Status.jsonFormat +
     CreditCardPaymentStatus.jsonFormat
 }
 
