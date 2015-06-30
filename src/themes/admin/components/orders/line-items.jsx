@@ -8,6 +8,7 @@ import DeleteLineItem from './delete-line-item';
 import Typeahead from '../typeahead/typeahead';
 import SkuResult from './sku-result';
 import SkuStore from './sku-store';
+import { listenTo, stopListeningTo } from '../../lib/dispatcher';
 
 const defaultColumns = [
   {field: 'image', text: 'Image', type: 'image'},
@@ -32,6 +33,23 @@ const editColumns = [
 ];
 
 export default class OrderLineItems extends React.Component {
+  constructor(props) {
+    super(props);
+    this.onAddLineItem = this.onAddLineItem.bind(this);
+  }
+
+  onAddLineItem(sku) {
+    console.log(`Added: ${sku.skuId}`);
+  }
+
+  componentDidMount() {
+    listenTo('add-line-item', this);
+  }
+
+  componentWillUnmount() {
+    stopListeningTo('add-line-item', this);
+  }
+
   render() {
     let order = this.props.order;
 

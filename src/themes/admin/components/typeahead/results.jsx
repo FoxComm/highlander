@@ -1,6 +1,7 @@
 'use strict';
 
 import React from 'react/addons';
+import { dispatch } from '../../lib/dispatcher';
 
 export default class TypeaheadResults extends React.Component {
   constructor(props) {
@@ -31,12 +32,16 @@ export default class TypeaheadResults extends React.Component {
     this.setState({results: this.props.store.getState()});
   }
 
+  itemSelected(item) {
+    dispatch(this.props.selectEvent, item);
+  }
+
   render() {
     let innerContent = null;
 
     if (this.state.results.length > 0) {
       innerContent = this.state.results.map((result) => {
-        return <li key={result.id}>{this.createComponent({result: result})}</li>;
+        return <li onClick={() => { this.itemSelected(result); }} key={result.id}>{this.createComponent({model: result})}</li>;
       });
     } else {
       innerContent = <li>No results found.</li>;
@@ -53,5 +58,6 @@ export default class TypeaheadResults extends React.Component {
 TypeaheadResults.propTypes = {
   store: React.PropTypes.object,
   component: React.PropTypes.func,
-  showResults: React.PropTypes.bool
+  showResults: React.PropTypes.bool,
+  selectEvent: React.PropTypes.string
 };

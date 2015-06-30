@@ -12,6 +12,10 @@ export default class Typeahead extends React.Component {
     };
   }
 
+  inputKeyUp(event) {
+
+  }
+
   textChange(event) {
     let
       target = event.target,

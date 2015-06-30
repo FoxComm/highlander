@@ -1,12 +1,16 @@
 .typeahead {
   position: relative;
 
+  input[type=text] {
+    .width(500px);
+  }
+
   .typeahead-results {
     display: none;
     position: absolute;
     .top(30px);
     .left(0px);
-    .width(200px);
+    .width(500px);
     background-color: #fff;
     border: 1px solid #ccc;
     .max-height(200px);
@@ -14,6 +18,10 @@
     overflow-x: hidden;
     &.show {
       display: block;
+    }
+
+    li {
+      .padding(10px);
     }
   }
 }

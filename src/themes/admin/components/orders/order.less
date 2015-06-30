@@ -64,4 +64,31 @@
       dd { font-weight: 700; }
     }
   }
+
+  #order-line-items {
+    input[type=number] {
+      .width(30px);
+
+      &::-webkit-inner-spin-button,
+      &::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        .margin(0);
+      }
+    }
+
+    .typeahead {
+      .typeahead-results {
+        li {
+          > div {
+            display: table;
+            width: 100%;
+            span {
+              display: table-cell;
+              vertical-align: middle;
+            }
+          }
+        }
+      }
+    }
+  }
 }
