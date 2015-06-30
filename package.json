@@ -31,7 +31,8 @@
     "env": {
       "node": true,
       "browser": true,
-      "es6": true
+      "es6": true,
+      "mocha": true
     },
     "plugins": [
       "react"
@@ -39,6 +40,9 @@
     "ecmaFeatures": {
       "jsx": true,
       "modules": true
+    },
+    "globals": {
+      "expect": false
     },
     "rules": {
       "quotes": [

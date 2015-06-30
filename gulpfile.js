@@ -15,5 +15,6 @@ for (let task of fs.readdirSync(opts.taskDir)) {
 }
 
 gulp.task('build', ['less', 'browserify', 'imagemin']);
-gulp.task('dev', ['lint', 'build', 'mocha', 'server', 'watch']);
+gulp.task('test', ['lint', 'mocha']);
+gulp.task('dev', ['build', 'test', 'server', 'watch']);
 gulp.task('default', ['build']);

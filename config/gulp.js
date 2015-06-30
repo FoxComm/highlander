@@ -4,12 +4,13 @@ const
   fs    = require('fs'),
   path  = require('path');
 
-module.exports = function(env) {
+module.exports = function() {
   return {
     taskDir: path.resolve('tasks'),
     themeDir: path.resolve('src', 'themes'),
     publicDir: path.resolve('public'),
     testDir: path.resolve('test'),
+    testSrc: path.resolve('test', '**/*.js'),
     configSrc: path.resolve('config', '*.js'),
     serverSrc: path.resolve('server', '**/*.{js,json}'),
     jsSrc: path.resolve('src', 'themes', '**/*.{js,jsx}'),
@@ -21,5 +22,5 @@ module.exports = function(env) {
           return fs.statSync(path.join(dir, file)).isDirectory();
       });
     }
-  }
-}
+  };
+};

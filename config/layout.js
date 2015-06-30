@@ -3,7 +3,7 @@
 const
   path = require('path');
 
-module.exports = function(env) {
+module.exports = function() {
   return {
     theme: 'fluid',
     favicon: path.resolve('public/favicon.ico'),
@@ -13,5 +13,5 @@ module.exports = function(env) {
       analytics: 'UA-XXXXXXXX-1',
       appStart: 'App.start();'
     }
-  }
-}
+  };
+};

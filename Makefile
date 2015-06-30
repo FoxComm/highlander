@@ -7,7 +7,7 @@ version = $(shell iojs -e "console.log(JSON.parse(require('fs').readFileSync('pa
 
 test:
 	@NODE_ENV=$(NODE_ENV) \
-		./node_modules/.bin/gulp mocha
+		./node_modules/.bin/gulp test
 
 tag:
 	git push

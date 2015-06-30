@@ -2,7 +2,7 @@
 
 const
   fs          = require('fs'),
-  ReactTools  = require("react-tools");
+  ReactTools  = require('react-tools');
 
 require.extensions['.jsx'] = function(module, filename) {
   let content = fs.readFileSync(filename, 'utf8');

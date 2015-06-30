@@ -13,6 +13,6 @@ module.exports = function(env) {
 
   return {
     port: port(),
-    publicDir: path.resolve('public'),
-  }
-}
+    publicDir: path.resolve('public')
+  };
+};
