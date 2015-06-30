@@ -16,7 +16,8 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 case class StoreCredit(id: Int = 0, currency: Currency, status: StoreCredit.Status)
-  extends ModelWithIdParameter
+  extends PaymentMethod
+  with ModelWithIdParameter
   with Validation[StoreCredit] {
 
   override def validator = createValidator[StoreCredit] { gc => }
@@ -29,7 +30,6 @@ case class StoreCredit(id: Int = 0, currency: Currency, status: StoreCredit.Stat
 
 object StoreCredit {
   sealed trait Status
-
   case object Hold extends Status
   case object Active extends Status
   case object Canceled extends Status
