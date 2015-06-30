@@ -13,7 +13,12 @@ export default class Typeahead extends React.Component {
   }
 
   inputKeyUp(event) {
-
+    if (event.keyCode === 27) {
+      // They hit escape
+      this.setState({
+        showResults: false
+      });
+    }
   }
 
   textChange(event) {
@@ -47,7 +52,7 @@ export default class Typeahead extends React.Component {
   render() {
     return (
       <div className="typeahead">
-        <input type="text" className="control" onChange={this.textChange.bind(this)} />
+        <input type="text" className="control" onChange={this.textChange.bind(this)} onKeyUp={this.inputKeyUp.bind(this)} />
         <TypeaheadResults selectEvent={this.props.selectEvent} component={this.props.component} store={this.props.store} showResults={this.state.showResults} />
       </div>
     );

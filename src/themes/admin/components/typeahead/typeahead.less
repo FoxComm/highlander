@@ -12,7 +12,7 @@
     .left(0px);
     .width(500px);
     background-color: #fff;
-    border: 1px solid #ccc;
+    border: 1px solid @color-border;
     .max-height(200px);
     overflow-y: scroll;
     overflow-x: hidden;
@@ -22,6 +22,15 @@
 
     li {
       .padding(10px);
+      border-bottom: 1px solid @color-border;
+      &:last-child {
+        border-bottom: none;
+      }
+
+      &:hover {
+        background-color: @color-bg-tr-even;
+        cursor: pointer;
+      }
     }
   }
 }
