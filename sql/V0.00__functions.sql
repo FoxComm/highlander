@@ -30,3 +30,7 @@ begin
     return new;
 end;
 $$ language plpgsql;
+
+-- ISO4217 declares currency as alphanumeric-3
+create domain currency character(3) not null;
+

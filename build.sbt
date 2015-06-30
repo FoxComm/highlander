@@ -49,6 +49,7 @@ libraryDependencies ++= {
 
     "joda-time"            % "joda-time"          % "2.7",
     "org.joda"             %  "joda-convert"      % "1.7",
+    "org.joda"             % "joda-money" % "0.10.0",
     "com.github.tototoshi" %% "slick-joda-mapper" % "2.0.0",
     "com.pellucid" %% "sealerate" % "0.0.3",
     "de.heikoseeberger" %% "akka-http-json4s" % "0.9.1",
