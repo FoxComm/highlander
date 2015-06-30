@@ -4,23 +4,27 @@ import com.pellucid.sealerate
 import services.{Failure, OrderTotaler}
 import utils.Money._
 import utils.{ADT, GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
-import payloads.CreateAddressPayload
+import validators.nonEmptyIf
 
 import com.wix.accord.dsl.{validator => createValidator}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 import org.scalactic._
-import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-case class StoreCredit(id: Int = 0, customerId: Int, currency: Currency, status: StoreCredit.Status = StoreCredit.New)
+case class StoreCredit(id: Int = 0, customerId: Int, currency: Currency, status: StoreCredit.Status = StoreCredit.New,
+  canceledReason: Option[String] = None)
   extends PaymentMethod
   with ModelWithIdParameter
   with Validation[StoreCredit] {
 
-  override def validator = createValidator[StoreCredit] { gc => }
+  import StoreCredit._
+
+  override def validator = createValidator[StoreCredit] { storeCredit =>
+    storeCredit.status as "canceledReason" is nonEmptyIf(storeCredit.status == Canceled, storeCredit.canceledReason)
+  }
 
   // TODO: not sure we use this polymorphically
   def authorize(amount: Int)(implicit ec: ExecutionContext): Future[String Or List[Failure]] = {
@@ -50,7 +54,8 @@ class StoreCredits(tag: Tag) extends GenericTable.TableWithId[StoreCredit](tag, 
   def customerId = column[Int]("customer_id")
   def currency = column[Currency]("currency")
   def status = column[StoreCredit.Status]("status")
-  def * = (id, customerId, currency, status) <> ((StoreCredit.apply _).tupled, StoreCredit.unapply)
+  def canceledReason = column[Option[String]]("canceled_reason")
+  def * = (id, customerId, currency, status, canceledReason) <> ((StoreCredit.apply _).tupled, StoreCredit.unapply)
 }
 
 object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
