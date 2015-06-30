@@ -12,7 +12,6 @@ const mochaOpts = {
 
 module.exports = function(gulp, opts, $) {
   let
-    isTest  = (process.env.NODE_ENV === 'test'),
     helper  = path.join(opts.testDir, '/spec-helper.js'),
     specs   = path.join(opts.testDir, '/specs/**/*.js');
 
