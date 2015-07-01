@@ -12,6 +12,8 @@ import slick.driver.PostgresDriver.api._
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
+import utils.Money.Currency
+
 object Seeds {
   val today = new DateTime
 
@@ -131,9 +133,9 @@ object Seeds {
     )
 
     def orderPriceCriteria = Seq(
-      OrderPriceCriterion(id = 1, priceType = OrderPriceCriterion.SubTotal, greaterThan = Some(20), currency = "USD", exclude = false),
-      OrderPriceCriterion(id = 2, priceType = OrderPriceCriterion.SubTotal, greaterThan = Some(50), currency = "USD", exclude = false),
-      OrderPriceCriterion(id = 3, priceType = OrderPriceCriterion.SubTotal, greaterThan = Some(100), currency = "USD", exclude = false)
+      OrderPriceCriterion(id = 1, priceType = OrderPriceCriterion.SubTotal, greaterThan = Some(20), currency = Currency.USD, exclude = false),
+      OrderPriceCriterion(id = 2, priceType = OrderPriceCriterion.SubTotal, greaterThan = Some(50), currency = Currency.USD, exclude = false),
+      OrderPriceCriterion(id = 3, priceType = OrderPriceCriterion.SubTotal, greaterThan = Some(100), currency = Currency.USD, exclude = false)
     )
 
     def priceRuleCriteriaMappings = Seq(

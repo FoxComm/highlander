@@ -40,7 +40,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
     val newOrder = Order(customerId = order.customerId, status = Order.Cart)
 
     db.run(for {
-      _ <- Orders._findById(order.id).map(_.status).update(Order.Ordered)
+      _ <- Orders._findById(order.id).extract.map(_.status).update(Order.Ordered)
       insertId <- Orders.returningId += newOrder
     } yield newOrder.copy(id = insertId))
   }

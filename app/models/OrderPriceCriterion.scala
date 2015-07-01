@@ -1,5 +1,6 @@
 package models
 
+import utils.Money._
 import utils.{GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
 
 import com.wix.accord.dsl.{validator => createValidator}
@@ -12,7 +13,9 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class OrderPriceCriterion(id:Int = 0, priceType: OrderPriceCriterion.PriceType, greaterThan: Option[Int] = None, lessThan: Option[Int] = None, exactMatch: Option[Int] = None, currency: String, exclude: Boolean) extends ModelWithIdParameter
+case class OrderPriceCriterion(id:Int = 0, priceType: OrderPriceCriterion.PriceType, greaterThan: Option[Int] = None,
+  lessThan: Option[Int] = None, exactMatch: Option[Int] = None,
+  currency: Currency, exclude: Boolean) extends ModelWithIdParameter
 
 object OrderPriceCriterion{
   sealed trait PriceType
@@ -40,7 +43,7 @@ class OrderPriceCriteria(tag: Tag) extends GenericTable.TableWithId[OrderPriceCr
   def greaterThan = column[Option[Int]]("greater_than")
   def lessThan = column[Option[Int]]("less_than")
   def exactMatch = column[Option[Int]]("exact_match") // Doesn't seem likely that anyone would use this.  But the pattern applies..
-  def currency = column[String]("currency") // USD, GBP, etc
+  def currency = column[Currency]("currency")
   def exclude = column[Boolean]("exclude") // Is this an inclusion or exclusion rule?
 
   def * = (id, priceType, greaterThan, lessThan, exactMatch, currency, exclude) <> ((OrderPriceCriterion.apply _).tupled, OrderPriceCriterion.unapply)

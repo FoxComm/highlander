@@ -4,7 +4,7 @@ create table order_price_criteria(
     greater_than integer,
     less_than integer,
     exact_match integer,
-    currency character varying(255) not null,
+    currency currency,
     exclude boolean,
     foreign key (id) references order_criteria(id) on update restrict on delete restrict
 );
