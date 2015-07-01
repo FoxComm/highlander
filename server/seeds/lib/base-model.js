@@ -10,9 +10,16 @@ const
 
 class BaseModel {
 
-  static generate(id) {
+  static nextId() {
+    let
+      ids     = this.data.map(function(i) { return i.id; }),
+      nextId  = ids.length ? Math.max.apply(null, ids) + 1 : 1;
+    return nextId;
+  }
+
+  static generate() {
     let model = {
-      id: id || chance.integer({min: 1001, max: 999999}),
+      id: this.nextId(),
       createdAt: chance.date({year: 2014})
     };
 
@@ -20,23 +27,24 @@ class BaseModel {
       let method = key.method || key.field;
       model[key.field] = chance[method](key.opts);
     }
-    return new this(model);
+    this.data.push(model);
+    return model;
   }
 
   static generateList(limit) {
     limit = limit || 50;
     let models = [];
-    while(limit--) { models.push(this.generate(limit)); }
+    while(limit--) { models.push(this.generate()); }
     return models;
   }
 
   static findOne(id) {
     id = +id;
-    let result = this.data.filter(function(item) {
+    let results = this.data.filter(function(item) {
       return item.id === id;
     });
-    if (!result.length) { throw new errors.NotFound(`Cannot find ${this.name}`); }
-    return new this(result[0].model);
+    if (!results.length) { throw new errors.NotFound(`Cannot find ${this.name}`); }
+    return new this(results[0]);
   }
 
   static paginate(limit, page) {
@@ -48,8 +56,9 @@ class BaseModel {
   constructor(model) {
     this.model = model || {};
     if (!this.id) {
-      this.model.id = chance.guid();
-      this.model.createdAt = chance.date({year: 2014});
+      let newModel = this.constructor.generate();
+      this.model.id = newModel.id;
+      this.model.createdAt = newModel.createdAt;
       this.amend(model);
     }
   }

@@ -18,7 +18,8 @@ module.exports = function *() {
 
     let model = require(`${__dirname}/models/${file}`);
     db.models[modelName] = model;
-    model.data = model.generateList(1000);
+    model.data = [];
+    model.generateList(1000);
   }
 
   return db;

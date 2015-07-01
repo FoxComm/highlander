@@ -43,14 +43,14 @@ class Address extends BaseModel {
   get country() { return this.model.country; }
   get customer() { return Customer.generate(); }
 
-  static generateList(limit) {
-    let models = super.generateList(limit);
-    models[0].update({
-      isDefault: true,
-      isActive: true
-    });
-    return models;
-  }
+  // static generateList(limit) {
+  //   let models = super.generateList(limit);
+  //   models[0].update({
+  //     isDefault: true,
+  //     isActive: true
+  //   });
+  //   return models;
+  // }
 }
 
 Object.defineProperty(Address, 'seed', {value: seed});

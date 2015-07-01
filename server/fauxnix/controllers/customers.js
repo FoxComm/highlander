@@ -26,7 +26,7 @@ module.exports = function(app, router) {
       this.body = customer.toJSON();
     })
     .param('address', function *(id, next) {
-      this.address = Address.generate(id);
+      this.address = Address.generate();
       yield next;
     })
     .patch('/customers/:customer/addresses/:address', function *() {
