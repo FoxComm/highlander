@@ -22,9 +22,7 @@ const
 
 class Address extends BaseModel {
   get isDefault() { return this.model.isDefault; }
-  set isDefault(val) { this.model.isDefault = val; }
   get isActive() { return this.model.isActive; }
-  set isActive(val) { this.model.isActive = val; }
   get state() { return this.model.state; }
   get name() { return this.model.name; }
   get street1() { return this.model.street1; }
@@ -41,18 +39,25 @@ class Address extends BaseModel {
   get city() { return this.model.city; }
   get zip() { return this.model.zip; }
   get country() { return this.model.country; }
-  get customer() { return Customer.generate(); }
+  get customer() { return Customer.findOne(this.model.customerId); }
 
-  // static generateList(limit) {
-  //   let models = super.generateList(limit);
-  //   models[0].update({
-  //     isDefault: true,
-  //     isActive: true
-  //   });
-  //   return models;
-  // }
+  set isDefault(val) { this.model.isDefault = val; }
+  set isActive(val) { this.model.isActive = val; }
+  set customerId(id) { this.model.customerId = +id; }
+
+  static generateList(limit) {
+    let models = super.generateList(limit);
+    for (let item of models) {
+      if (item.id % 7 === 0) {
+        item.isDefault = true;
+        item.isActive = true;
+      }
+    }
+    return models;
+  }
 }
 
 Object.defineProperty(Address, 'seed', {value: seed});
+Object.defineProperty(Address, 'relationships', {value: ['customer']});
 
 module.exports = Address;

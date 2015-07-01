@@ -1,7 +1,6 @@
 'use strict';
 
 const
-  _     = require('underscore'),
   parse = require('co-body'),
   Chance = require('chance');
 
@@ -32,39 +31,38 @@ module.exports = function(app, router) {
         body = yield parse.json(this),
         order = new Order(body);
       this.status = 201;
-      this.body = order.toJSON();
+      this.body = order;
     })
     .get('/orders/:order', function *() {
-      this.body = this.order.toJSON();
+      this.body = this.order;
     })
     .patch('/orders/:order', function *() {
       let
         body = yield parse.json(this);
       this.order.update(body);
       this.status = 200;
-      this.body = this.order.toJSON();
+      this.body = this.order;
     })
     .post('/orders/:order/edit', function *() {
       this.status = chance.weighted([202, 423], [50, 1]);
       if (this.status === 423) return this.status;
-      this.body = this.order.toJSON();
+      this.body = this.order;
     })
     .get('/orders/:order/viewers', function *() {
       this.body = this.order.viewers();
     })
     .get('/orders/:order/notes', function *() {
-      let
-        notes = this.order.notes(),
-        note  = _(notes).sample();
-      if (note) note.isEditable = true;
-      this.body = notes;
+      this.body = Note.findByOrder(this.order.id);
     })
     .post('/orders/:order/notes', function *() {
       let
         body = yield parse.json(this),
         note = new Note(body);
+      note.orderId = this.order.id;
+      // @todo no notion of auth right now, hard coded to 1 - Tivs
+      note.customerId = 1;
       this.status = 201;
-      this.body = note.toJSON();
+      this.body = note;
     })
     .get('/orders/:order/activity-trail', function *() {
       this.body = this.order.activityTrail();
@@ -73,6 +71,6 @@ module.exports = function(app, router) {
       this.body = this.order.notifications();
     })
     .post('/orders/:order/notifications/:notification', function *() {
-      this.body = this.notification.toJSON();
+      this.body = this.notification;
     });
 };

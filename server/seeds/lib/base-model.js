@@ -38,13 +38,32 @@ class BaseModel {
     return models;
   }
 
-  static findOne(id) {
+  static find(field, id) {
     id = +id;
-    let results = this.data.filter(function(item) {
-      return item.id === id;
+    return this.data.filter(function(item) {
+      return item[field] === id;
     });
+  }
+
+  static findOne(id) {
+    let results = this.find('id', id);
     if (!results.length) { throw new errors.NotFound(`Cannot find ${this.name}`); }
     return new this(results[0]);
+  }
+
+  static findAll(field, id) {
+    let
+      Model = this,
+      results = this.find(field, id);
+    return results.map(function(i) { return new Model(i); });
+  }
+
+  static findByCustomer(customerId) {
+    return this.findAll('customerId', customerId);
+  }
+
+  static findByOrder(orderId) {
+    return this.findAll('orderId', orderId);
   }
 
   static paginate(limit, page) {

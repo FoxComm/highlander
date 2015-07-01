@@ -22,5 +22,15 @@ module.exports = function *() {
     model.generateList(1000);
   }
 
+  for (let modelName in db.models) {
+    let model = db.models[modelName];
+    if (!model.relationships) continue;
+    for (let item of model.data) {
+      for (let relation of model.relationships) {
+        item[`${relation}Id`] = ((item.id - 1) / 7 | 0) + 1;
+      }
+    }
+  }
+
   return db;
 };

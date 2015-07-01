@@ -7,7 +7,7 @@ describe('Order Notes #GET', function() {
       res     = yield this.api.get('/orders/1/notes'),
       notes   = res.response;
     expect(res.status).to.equal(200);
-    expect(notes).to.have.length.of.at.most(4);
+    expect(notes).to.have.length(7);
   });
 });
 
