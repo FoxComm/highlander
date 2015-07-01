@@ -21,6 +21,25 @@ const
   chance = new Chance();
 
 class Address extends BaseModel {
+  static generateList(limit) {
+    let models = super.generateList(limit);
+    for (let item of models) {
+      if (item.id % 7 === 0) {
+        item.isDefault = true;
+        item.isActive = true;
+      }
+    }
+    return models;
+  }
+
+  static defaultForCustomer(id) {
+    let
+      addresses       = this.findByCustomer(id),
+      defaultAddress  = addresses.filter(function(a) { return a.isDefault; });
+    if (!defaultAddress.length) return null;
+    return defaultAddress[0];
+  }
+
   get isDefault() { return this.model.isDefault; }
   get isActive() { return this.model.isActive; }
   get state() { return this.model.state; }
@@ -44,17 +63,6 @@ class Address extends BaseModel {
   set isDefault(val) { this.model.isDefault = val; }
   set isActive(val) { this.model.isActive = val; }
   set customerId(id) { this.model.customerId = +id; }
-
-  static generateList(limit) {
-    let models = super.generateList(limit);
-    for (let item of models) {
-      if (item.id % 7 === 0) {
-        item.isDefault = true;
-        item.isActive = true;
-      }
-    }
-    return models;
-  }
 }
 
 Object.defineProperty(Address, 'seed', {value: seed});

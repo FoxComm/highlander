@@ -11,7 +11,8 @@ module.exports = function(app, router) {
   const
     Order = app.seeds.models.Order,
     Note  = app.seeds.models.Note,
-    Notification = app.seeds.models.Notification;
+    Notification = app.seeds.models.Notification,
+    Activity = app.seeds.models.Activity;
 
   router
     .param('order', function *(id, next) {
@@ -19,7 +20,7 @@ module.exports = function(app, router) {
       yield next;
     })
     .param('notification', function *(id, next) {
-      this.notification = Notification.generate(id);
+      this.notification = Notification.findOne(id);
       yield next;
     })
     .get('/orders', function *() {
@@ -65,10 +66,10 @@ module.exports = function(app, router) {
       this.body = note;
     })
     .get('/orders/:order/activity-trail', function *() {
-      this.body = this.order.activityTrail();
+      this.body = Activity.findByOrder(this.order.id);
     })
     .get('/orders/:order/notifications', function *() {
-      this.body = this.order.notifications();
+      this.body = Notification.findByOrder(this.order.id);
     })
     .post('/orders/:order/notifications/:notification', function *() {
       this.body = this.notification;

@@ -58,12 +58,15 @@ class Activity extends BaseModel {
   get eventType() { return this.model.eventType; }
   get eventName() { return this.event().name; }
   get orderId() { return this.model.orderId; }
-  get user() { return Customer.generate(); }
+  get user() { return Customer.findOne(this.model.customerId); }
   get previousState() { return this.getPrevious(); }
   get newState() { return this.getNext(); }
 
-  set orderId(id) { this.model.orderId = id; }
+  set orderId(id) { this.model.customerId = +id; }
+  set customerId(id) { this.model.customerId = +id; }
 }
 
 Object.defineProperty(Activity, 'seed', {value: seed});
+Object.defineProperty(Activity, 'relationships', {value: ['order', 'customer']});
+
 module.exports = Activity;

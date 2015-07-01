@@ -18,5 +18,6 @@ class Notification extends BaseModel {
 }
 
 Object.defineProperty(Notification, 'seed', {value: seed});
+Object.defineProperty(Notification, 'relationships', {value: ['order']});
 
 module.exports = Notification;

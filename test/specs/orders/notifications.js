@@ -7,7 +7,7 @@ describe('Order Notifications #GET', function() {
       res     = yield this.api.get('/orders/1/notifications'),
       notifications   = res.response;
     expect(res.status).to.equal(200);
-    expect(notifications).to.have.length.of.at.most(9);
+    expect(notifications).to.have.length(7);
   });
 });
 
