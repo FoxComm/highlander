@@ -2,7 +2,8 @@
 
 const
   _       = require('underscore'),
-  Chance  = require('chance');
+  Chance  = require('chance'),
+  errors  = require('../../errors');
 
 const
   chance = new Chance();
@@ -11,7 +12,7 @@ class BaseModel {
 
   static generate(id) {
     let model = {
-      id: id || chance.integer({min: 1, max: 999999}),
+      id: id || chance.integer({min: 1001, max: 999999}),
       createdAt: chance.date({year: 2014})
     };
 
@@ -25,8 +26,23 @@ class BaseModel {
   static generateList(limit) {
     limit = limit || 50;
     let models = [];
-    while(limit--) { models.push(this.generate()); }
+    while(limit--) { models.push(this.generate(limit)); }
     return models;
+  }
+
+  static findOne(id) {
+    id = +id;
+    let result = this.data.filter(function(item) {
+      return item.id === id;
+    });
+    if (!result.length) { throw new errors.NotFound(`Cannot find ${this.name}`); }
+    return new this(result[0].model);
+  }
+
+  static paginate(limit, page) {
+    limit = +limit || 50;
+    page = page ? +page - 1 : 0;
+    return this.data.slice(limit * page, (limit * page) + limit);
   }
 
   constructor(model) {

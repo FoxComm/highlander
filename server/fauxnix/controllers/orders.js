@@ -16,7 +16,7 @@ module.exports = function(app, router) {
 
   router
     .param('order', function *(id, next) {
-      this.order = Order.generate(id);
+      this.order = Order.findOne(id);
       yield next;
     })
     .param('notification', function *(id, next) {
@@ -24,7 +24,8 @@ module.exports = function(app, router) {
       yield next;
     })
     .get('/orders', function *() {
-      this.body = Order.generateList();
+      let query = this.request.query;
+      this.body = Order.paginate(query.limit, query.page);
     })
     .post('/orders', function *() {
       let

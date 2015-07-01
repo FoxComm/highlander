@@ -19,10 +19,18 @@ module.exports = function(app) {
 
   router.all('/:path*', function *() {
     let
-      method  = this.method.toLowerCase(),
+      query   = this.request.query,
       body    = this.request.body,
-      data    = body.fields ? body.fields : body,
-      res     = yield api[method](this.params.path, data);
+      method  = this.method.toLowerCase();
+
+    function getData() {
+      switch(method) {
+        case 'get': return query;
+        default: return body.fields ? body.fields : body;
+      }
+    }
+
+    let res = yield api[method](this.params.path, getData());
     this.status = res.status;
     this.body = res.response;
   });

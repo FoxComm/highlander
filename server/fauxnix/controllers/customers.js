@@ -8,14 +8,15 @@ module.exports = function(app, router) {
 
   router
     .param('customer', function *(id, next) {
-      this.customer = Customer.generate(id);
+      this.customer = Customer.findOne(id);
       yield next;
     })
     .get('/customers/:customer', function *() {
       this.body = this.customer.toJSON();
     })
     .get('/customers', function *() {
-      this.body = Customer.generateList();
+      let query = this.request.query;
+      this.body = Customer.paginate(query.limit, query.page);
     })
     .post('/customers', function *() {
       let
