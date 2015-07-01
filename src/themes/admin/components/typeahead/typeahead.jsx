@@ -8,7 +8,8 @@ export default class Typeahead extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      showResults: false
+      showResults: false,
+      updating: false
     };
   }
 
@@ -29,7 +30,8 @@ export default class Typeahead extends React.Component {
 
     store.reset();
     this.setState({
-      showResults: !(value === '')
+      showResults: !(value === ''),
+      updating: true
     });
 
     clearTimeout(this.timeout);
@@ -40,6 +42,9 @@ export default class Typeahead extends React.Component {
            if (value !== target.value) {
              return;
            }
+           this.setState({
+             updating: false
+           });
            store.update(res);
          })
          .catch((err) => { store.fetchError(err); });
@@ -53,7 +58,7 @@ export default class Typeahead extends React.Component {
     return (
       <div className="typeahead">
         <input type="text" className="control" onChange={this.textChange.bind(this)} onKeyUp={this.inputKeyUp.bind(this)} />
-        <TypeaheadResults selectEvent={this.props.selectEvent} component={this.props.component} store={this.props.store} showResults={this.state.showResults} />
+        <TypeaheadResults selectEvent={this.props.selectEvent} component={this.props.component} store={this.props.store} showResults={this.state.showResults} updating={this.state.updating} />
       </div>
     );
   }
