@@ -50,7 +50,7 @@ object FullOrder {
 
   def findById(id: Int)
               (implicit ec: ExecutionContext, db: Database): Response = {
-    this.findOrder(Orders._findById(id))
+    this.findOrder(Orders._findById(id).extract)
   }
 
   def findByCustomer(customer: Customer)

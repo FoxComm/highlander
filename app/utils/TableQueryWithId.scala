@@ -30,7 +30,9 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.Tab
   val returningId =
     this.returning(map(_.id))
 
-  def _findById(i: M#Id): Query[T, M, Seq] = filter(_.id === i)
+  private val compiledById = this.findBy(_.id)
+
+  def _findById(i: M#Id) = compiledById(i)
 
   def findById(i: M#Id): DBIO[Option[M]] =
     _findById(i).result.headOption
