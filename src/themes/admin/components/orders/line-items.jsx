@@ -51,7 +51,31 @@ export default class OrderLineItems extends React.Component {
   }
 
   render() {
-    let order = this.props.order;
+    let
+      order     = this.props.order,
+      isEditing = this.props.isEditing,
+      columns   = this.props.tableColumns,
+      body      = null,
+      addItem   = null;
+
+    if (isEditing) {
+      columns = editColumns;
+      body = (
+        <TableBody columns={columns} rows={order.lineItems} model='order'>
+          <LineItemManager />
+          <DeleteLineItem />
+        </TableBody>
+      );
+      addItem = (
+        <div className="add-item">
+          <strong>Add Item</strong>
+          <Typeahead component={SkuResult} store={SkuStore} selectEvent="addLineItem" />
+        </div>
+      );
+    } else {
+      columns = defaultColumns;
+      body = <TableBody columns={columns} rows={order.lineItems} model='order'/>;
+    }
 
     return (
       <section id="order-line-items">
@@ -60,7 +84,7 @@ export default class OrderLineItems extends React.Component {
           <TableHead columns={this.props.tableColumns}/>
           <TableBody columns={this.props.tableColumns} rows={order.lineItems} model='order'/>
         </table>
-        { isEditing ? <Typeahead component={SkuResult} store={SkuStore} selectEvent="addLineItem" /> : null }
+        {addItem}
       </section>
     );
   }

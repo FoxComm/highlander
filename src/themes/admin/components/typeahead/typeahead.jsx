@@ -66,7 +66,10 @@ export default class Typeahead extends React.Component {
   render() {
     return (
       <div className="typeahead">
-        <input type="text" className="control" onChange={this.textChange.bind(this)} onKeyUp={this.inputKeyUp.bind(this)} />
+        <div className="form-icon">
+          <i className="icon-search"></i>
+          <input type="text" className="control" onChange={this.textChange.bind(this)} onKeyUp={this.inputKeyUp.bind(this)} />
+        </div>
         <TypeaheadResults onItemSelected={this.onItemSelected} selectEvent={this.props.selectEvent} component={this.props.component} store={this.props.store} showResults={this.state.showResults} updating={this.state.updating} />
       </div>
     );
