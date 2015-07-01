@@ -1,7 +1,6 @@
 'use strict';
 
 import React from 'react/addons';
-import { dispatch } from '../../lib/dispatcher';
 
 export default class TypeaheadResults extends React.Component {
   constructor(props) {
@@ -32,16 +31,12 @@ export default class TypeaheadResults extends React.Component {
     this.setState({results: this.props.store.getState()});
   }
 
-  itemSelected(item) {
-    dispatch(this.props.selectEvent, item);
-  }
-
   render() {
     let innerContent = null;
 
     if (this.state.results.length > 0) {
       innerContent = this.state.results.map((result) => {
-        return <li onClick={() => { this.itemSelected(result); }} key={result.id}>{this.createComponent({model: result})}</li>;
+        return <li onClick={() => { this.props.onItemSelected(result); }} key={result.id}>{this.createComponent({model: result})}</li>;
       });
     } else {
       if (this.props.updating) {
@@ -63,6 +58,6 @@ TypeaheadResults.propTypes = {
   store: React.PropTypes.object,
   component: React.PropTypes.func,
   showResults: React.PropTypes.bool,
-  selectEvent: React.PropTypes.string,
-  updating: React.PropTypes.bool
+  updating: React.PropTypes.bool,
+  onItemSelected: React.PropTypes.func
 };

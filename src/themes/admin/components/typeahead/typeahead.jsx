@@ -3,14 +3,23 @@
 import React from 'react';
 import Api from '../../lib/api';
 import TypeaheadResults from './results';
+import { dispatch } from '../../lib/dispatcher';
 
 export default class Typeahead extends React.Component {
   constructor(props) {
     super(props);
+    this.onItemSelected = this.onItemSelected.bind(this);
     this.state = {
       showResults: false,
       updating: false
     };
+  }
+
+  onItemSelected(item) {
+    this.setState({
+      showResults: false
+    });
+    dispatch(this.props.selectEvent, item);
   }
 
   inputKeyUp(event) {
@@ -58,7 +67,7 @@ export default class Typeahead extends React.Component {
     return (
       <div className="typeahead">
         <input type="text" className="control" onChange={this.textChange.bind(this)} onKeyUp={this.inputKeyUp.bind(this)} />
-        <TypeaheadResults selectEvent={this.props.selectEvent} component={this.props.component} store={this.props.store} showResults={this.state.showResults} updating={this.state.updating} />
+        <TypeaheadResults onItemSelected={this.onItemSelected} selectEvent={this.props.selectEvent} component={this.props.component} store={this.props.store} showResults={this.state.showResults} updating={this.state.updating} />
       </div>
     );
   }
