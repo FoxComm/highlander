@@ -1,15 +1,12 @@
 'use strict';
 
 const
-  BaseModel     = require('../lib/base-model'),
-  Customer      = require('./customer'),
-  LineItem      = require('./line-item'),
-  Note          = require('./note'),
-  Notification  = require('./notification'),
-  Address       = require('./address'),
-  Payment       = require('./payment'),
-  Activity      = require('./activity'),
-  moment        = require('moment');
+  BaseModel = require('../lib/base-model'),
+  Customer  = require('./customer'),
+  Address   = require('./address'),
+  LineItem  = require('./line-item'),
+  Payment   = require('./payment'),
+  moment    = require('moment');
 
 const seed = [
   {field: 'referenceNumber', method: 'string', opts: {length: 8, pool: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'}},
@@ -27,12 +24,11 @@ const seed = [
 class Order extends BaseModel {
   get referenceNumber() { return this.model.referenceNumber; }
   get orderStatus() { return this.model.orderStatus; }
-  set orderStatus(status) { this.model.orderStatus = status; }
   get paymentStatus() { return this.model.paymentStatus; }
   get shippingStatus() { return this.model.shippingStatus; }
   get fraudScore() { return this.model.fraudScore; }
-  get customer() { return Customer.generate(); }
-  get shippingAddress() { return Address.generate(); }
+  get customer() { return Customer.findOne(this.model.customerId); }
+  get shippingAddress() { return Address.defaultForCustomer(this.model.customerId); }
   get lineItems() { return LineItem.generateList(~~((Math.random() * 5) + 1)); }
   get payments() { return Payment.generateList(~~((Math.random() * 3) + 1)); }
   get totals() {
@@ -46,43 +42,18 @@ class Order extends BaseModel {
   }
   get remorseEnd() { return moment.utc().add(3, 'h').format(); }
 
+  set orderStatus(status) { this.model.orderStatus = status; }
+  set customerId(id) { this.model.customerId = +id; }
+
   viewers() {
     let
-      count = ~~((Math.random() * 5) + 2),
-      users = [];
-    while(count--) users.push(Customer.generate());
-    return users;
-  }
-
-  notes() {
-    let
-      count = ~~((Math.random() * 5) + 0),
-      notes = [];
-    while(count--) notes.push(Note.generate());
-    return notes;
-  }
-
-  activityTrail() {
-    let
-      count = ~~((Math.random() * 15) + 3),
-      activities = [];
-    while(count--) {
-      let activity = Activity.generate();
-      activity.orderId = this.id;
-      activities.push(activity);
-    }
-    return activities;
-  }
-
-  notifications() {
-    let
-      count = ~~((Math.random() * 10) + 0),
-      notifications = [];
-    while(count--) notifications.push(Notification.generate());
-    return notifications;
+      limit = ~~((Math.random() * 5) + 2),
+      page  = ~~(Math.random() * 15);
+    return Customer.paginate(limit, page);
   }
 }
 
 Object.defineProperty(Order, 'seed', {value: seed});
+Object.defineProperty(Order, 'relationships', {value: ['customer']});
 
 module.exports = Order;

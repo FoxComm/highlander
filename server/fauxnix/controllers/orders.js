@@ -1,7 +1,6 @@
 'use strict';
 
 const
-  _     = require('underscore'),
   parse = require('co-body'),
   Chance = require('chance');
 
@@ -12,66 +11,67 @@ module.exports = function(app, router) {
   const
     Order = app.seeds.models.Order,
     Note  = app.seeds.models.Note,
-    Notification = app.seeds.models.Notification;
+    Notification = app.seeds.models.Notification,
+    Activity = app.seeds.models.Activity;
 
   router
     .param('order', function *(id, next) {
-      this.order = Order.generate(id);
+      this.order = Order.findOne(id);
       yield next;
     })
     .param('notification', function *(id, next) {
-      this.notification = Notification.generate(id);
+      this.notification = Notification.findOne(id);
       yield next;
     })
     .get('/orders', function *() {
-      this.body = Order.generateList();
+      let query = this.request.query;
+      this.body = Order.paginate(query.limit, query.page);
     })
     .post('/orders', function *() {
       let
         body = yield parse.json(this),
         order = new Order(body);
       this.status = 201;
-      this.body = order.toJSON();
+      this.body = order;
     })
     .get('/orders/:order', function *() {
-      this.body = this.order.toJSON();
+      this.body = this.order;
     })
     .patch('/orders/:order', function *() {
       let
         body = yield parse.json(this);
       this.order.update(body);
       this.status = 200;
-      this.body = this.order.toJSON();
+      this.body = this.order;
     })
     .post('/orders/:order/edit', function *() {
       this.status = chance.weighted([202, 423], [50, 1]);
       if (this.status === 423) return this.status;
-      this.body = this.order.toJSON();
+      this.body = this.order;
     })
     .get('/orders/:order/viewers', function *() {
       this.body = this.order.viewers();
     })
     .get('/orders/:order/notes', function *() {
-      let
-        notes = this.order.notes(),
-        note  = _(notes).sample();
-      if (note) note.isEditable = true;
-      this.body = notes;
+      this.body = Note.findByOrder(this.order.id);
     })
     .post('/orders/:order/notes', function *() {
       let
         body = yield parse.json(this),
         note = new Note(body);
+      note.orderId = this.order.id;
+      // @todo no notion of auth right now, hard coded to 1 - Tivs
+      note.customerId = 1;
       this.status = 201;
-      this.body = note.toJSON();
+      this.body = note;
     })
     .get('/orders/:order/activity-trail', function *() {
-      this.body = this.order.activityTrail();
+      this.body = Activity.findByOrder(this.order.id);
     })
     .get('/orders/:order/notifications', function *() {
-      this.body = this.order.notifications();
+      this.body = Notification.findByOrder(this.order.id);
     })
     .post('/orders/:order/notifications/:notification', function *() {
-      this.body = this.notification.toJSON();
+      this.body = this.notification;
     });
 };

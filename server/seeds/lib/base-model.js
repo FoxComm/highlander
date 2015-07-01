@@ -2,16 +2,24 @@
 
 const
   _       = require('underscore'),
-  Chance  = require('chance');
+  Chance  = require('chance'),
+  errors  = require('../../errors');
 
 const
   chance = new Chance();
 
 class BaseModel {
 
-  static generate(id) {
+  static nextId() {
+    let
+      ids     = this.data.map(function(i) { return i.id; }),
+      nextId  = ids.length ? Math.max.apply(null, ids) + 1 : 1;
+    return nextId;
+  }
+
+  static generate() {
     let model = {
-      id: id || chance.integer({min: 1, max: 999999}),
+      id: this.nextId(),
       createdAt: chance.date({year: 2014})
     };
 
@@ -19,7 +27,8 @@ class BaseModel {
       let method = key.method || key.field;
       model[key.field] = chance[method](key.opts);
     }
-    return new this(model);
+    this.data.push(model);
+    return model;
   }
 
   static generateList(limit) {
@@ -29,11 +38,46 @@ class BaseModel {
     return models;
   }
 
+  static find(field, id) {
+    id = +id;
+    return this.data.filter(function(item) {
+      return item[field] === id;
+    });
+  }
+
+  static findOne(id) {
+    let results = this.find('id', id);
+    if (!results.length) { throw new errors.NotFound(`Cannot find ${this.name}`); }
+    return new this(results[0]);
+  }
+
+  static findAll(field, id) {
+    let
+      Model = this,
+      results = this.find(field, id);
+    return results.map(function(i) { return new Model(i); });
+  }
+
+  static findByCustomer(customerId) {
+    return this.findAll('customerId', customerId);
+  }
+
+  static findByOrder(orderId) {
+    return this.findAll('orderId', orderId);
+  }
+
+  static paginate(limit, page) {
+    limit = +limit || 50;
+    page = page ? +page - 1 : 0;
+    return this.data.slice(limit * page, (limit * page) + limit);
+  }
+
   constructor(model) {
     this.model = model || {};
     if (!this.id) {
-      this.model.id = chance.guid();
-      this.model.createdAt = chance.date({year: 2014});
+      let newModel = this.constructor.generate();
+      this.model.id = newModel.id;
+      this.model.createdAt = newModel.createdAt;
       this.amend(model);
     }
   }

@@ -8,41 +8,42 @@ module.exports = function(app, router) {
 
   router
     .param('customer', function *(id, next) {
-      this.customer = Customer.generate(id);
+      this.customer = Customer.findOne(id);
+      yield next;
+    })
+    .param('address', function *(id, next) {
+      this.address = Address.findOne(id);
       yield next;
     })
     .get('/customers/:customer', function *() {
-      this.body = this.customer.toJSON();
+      this.body = this.customer;
     })
     .get('/customers', function *() {
-      this.body = Customer.generateList();
+      let query = this.request.query;
+      this.body = Customer.paginate(query.limit, query.page);
     })
     .post('/customers', function *() {
       let
         body = yield parse.json(this),
         customer = new Customer(body);
       this.status = 201;
-      this.body = customer.toJSON();
-    })
-    .param('address', function *(id, next) {
-      this.address = Address.generate(id);
-      yield next;
+      this.body = customer;
     })
     .patch('/customers/:customer/addresses/:address', function *() {
-      let
-        body = yield parse.json(this);
+      let body = yield parse.json(this);
       this.address.update(body);
       this.status = 200;
-      this.body = this.address.toJSON();
+      this.body = this.address;
     })
     .get('/customers/:customer/addresses', function *() {
-      this.body = Address.generateList(7);
+      this.body = Address.findByCustomer(this.customer.id);
     })
     .post('/customers/:customer/addresses', function *() {
       let
         body = yield parse.json(this),
         address = new Address(body);
+      address.customerId = this.customer.id;
       this.status = 201;
-      this.body = address.toJSON();
+      this.body = address;
     });
 };

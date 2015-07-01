@@ -7,7 +7,7 @@ describe('Order Notifications #GET', function() {
       res     = yield this.api.get('/orders/1/notifications'),
       notifications   = res.response;
     expect(res.status).to.equal(200);
-    expect(notifications).to.have.length.of.at.most(9);
+    expect(notifications).to.have.length(7);
   });
 });
 
@@ -20,7 +20,7 @@ describe('Order Notifications #POST', function() {
       notification    = res.response;
 
     expect(res.status).to.equal(200);
-    expect(notification.id).to.be.an('string');
+    expect(notification.id).to.be.a('number');
     expect(notification.createdAt).to.match(/\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/);
     expect(notification.notificationStatus).to.be.an('string');
     expect(notification.subject).to.be.an('string');

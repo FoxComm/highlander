@@ -31,8 +31,9 @@ module.exports = function(app) {
     try {
       yield next;
     } catch(err) {
+      let message = err.message || err.response.error;
       this.status = err.status || 500;
-      this.body = {error: err.message};
+      this.body = {error: message};
     }
   };
 

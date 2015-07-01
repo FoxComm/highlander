@@ -7,7 +7,7 @@ describe('Orders #PATCH', function() {
       order   = res.response;
 
     expect(res.status).to.equal(200);
-    expect(order.id).to.equal('1');
+    expect(order.id).to.equal(1);
     expect(order.orderStatus).to.equal('remorseHold');
   });
 });
