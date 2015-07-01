@@ -24,7 +24,7 @@ class InventoryAdjustmentTest extends IntegrationTestBase {
       val numAdjustments = InventoryAdjustments.filter(_.inventoryEventId === order.id).length.result.run().futureValue
 
       numAdjustments mustBe (1)
-      summary.availableOnHand mustBe (-5)
+      summary.availableOnHand must === (-5)
     }
   }
 }

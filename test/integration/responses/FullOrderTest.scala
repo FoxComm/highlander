@@ -25,7 +25,7 @@ class FullOrderTest extends IntegrationTestBase {
       val json = render(FullOrder.fromOrder(order).futureValue)
       val root = parse(json)
 
-      (root \ "id").extract[Int] mustBe (1)
+      (root \ "id").extract[Int] must === (1)
     }
   }
 }
