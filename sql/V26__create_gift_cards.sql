@@ -3,7 +3,7 @@ create table gift_cards (
     status character varying(255) not null,
     currency currency,
     original_balance integer not null,
-    current_balance integer not null,
+    reloadable boolean not null default false,
     canceled_reason character varying(255) null,
     created_at timestamp without time zone default (now() at time zone 'utc'),
     updated_at timestamp without time zone default (now() at time zone 'utc'),

@@ -17,7 +17,7 @@ import scala.concurrent.{ExecutionContext, Future}
 // SC -> GC, why do we care about conersion? we just need to know what it bought.
 
 case class GiftCard(id: Int = 0, currency: Currency, status: GiftCard.Status = GiftCard.New,
-  originalBalance: Int, currentBalance: Int, canceledReason: Option[String] = None)
+  originalBalance: Int, currentBalance: Int, canceledReason: Option[String] = None, reloadable: Boolean = false)
   extends PaymentMethod
   with ModelWithIdParameter
   with Validation[GiftCard] {
@@ -63,8 +63,10 @@ class GiftCards(tag: Tag) extends GenericTable.TableWithId[GiftCard](tag, "gift_
   def originalBalance = column[Int]("original_balance")
   def currentBalance = column[Int]("current_balance")
   def canceledReason = column[Option[String]]("canceled_reason")
+  def reloadable = column[Boolean]("reloadable")
 
-  def * = (id, currency, status, originalBalance, currentBalance, canceledReason) <> ((GiftCard.apply _).tupled, GiftCard.unapply)
+  def * = (id, currency, status, originalBalance, currentBalance,
+    canceledReason, reloadable) <> ((GiftCard.apply _).tupled, GiftCard.unapply)
 }
 
 object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
