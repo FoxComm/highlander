@@ -7,7 +7,7 @@
   "scripts": {
     "test": "make test",
     "start": "iojs --harmony boot.js",
-    "phoenix": "npm run build && NODE_ENV=phoenix iojs --harmony boot.js",
+    "phoenix": "NODE_ENV=phoenix npm run dev",
     "restart": "kill -USR2 $(ps aux | grep '[m]-ashes' | awk '{print $2}')",
     "build": "./node_modules/.bin/gulp",
     "dev": "./node_modules/.bin/gulp dev"
@@ -26,12 +26,14 @@
   "bugs": {
     "url": "https://github.com/FoxComm/Ashes/issues"
   },
+  "contributors": "https://github.com/FoxComm/Ashes/graphs/contributors",
   "homepage": "https://github.com/FoxComm/Ashes#readme",
   "eslintConfig": {
     "env": {
       "node": true,
       "browser": true,
-      "es6": true
+      "es6": true,
+      "mocha": true
     },
     "plugins": [
       "react"
@@ -39,6 +41,9 @@
     "ecmaFeatures": {
       "jsx": true,
       "modules": true
+    },
+    "globals": {
+      "expect": false
     },
     "rules": {
       "quotes": [
@@ -74,13 +79,13 @@
   "dependencies": {
     "babelify": "^6.1.0",
     "browserify": "^10.2.4",
-    "chance": "^0.7.5",
+    "chance": "^0.7.6",
     "cli-color": "^1.0.0",
     "co": "^4.5.4",
     "co-body": "^2.0.0",
     "fleck": "^0.5.1",
     "gulp": "^3.9.0",
-    "gulp-concat": "^2.5.2",
+    "gulp-concat": "^2.6.0",
     "gulp-if": "^1.2.5",
     "gulp-imagemin": "^2.3.0",
     "gulp-less": "^3.0.3",
@@ -115,10 +120,14 @@
   "devDependencies": {
     "chai": "^3.0.0",
     "co-mocha": "^1.1.2",
-    "eslint": "^0.23.0",
-    "eslint-plugin-react": "^2.5.2",
+    "eslint": "^0.24.0",
+    "eslint-plugin-react": "^2.6.3",
     "gulp-eslint": "^0.14.0",
+    "gulp-mocha": "^2.1.2",
+    "jsdom": "^5.5.0",
     "koa-logger": "^1.2.2",
-    "mocha": "^2.2.4"
+    "mocha": "^2.2.4",
+    "react-tools": "^0.13.3",
+    "testdom": "^1.1.0"
   }
 }

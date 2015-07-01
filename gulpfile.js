@@ -1,26 +1,13 @@
 'use strict';
 
 const
-  gulp      = require('gulp'),
-  $         = require('gulp-load-plugins')(),
-  fs        = require('fs'),
-  path      = require('path');
+  gulp    = require('gulp'),
+  $       = require('gulp-load-plugins')(),
+  fs      = require('fs'),
+  path    = require('path'),
+  Config  = require('./config');
 
-const opts = {
-  taskDir: path.resolve(__dirname, 'tasks'),
-  themeDir: path.resolve('src', 'themes'),
-  publicDir: path.resolve('public'),
-  serverSrc: path.resolve(__dirname, 'server', '**/*.{js,json}'),
-  jsSrc: path.resolve('src', 'themes', '**/*.{js,jsx}'),
-  lessSrc: path.resolve('src', 'themes', '**/*.less'),
-  imageSrc: path.resolve('src', 'themes', '**/*.{png,jpg,gif}'),
-  getThemes: function(dir) {
-    return fs.readdirSync(dir)
-      .filter(function(file) {
-        return fs.statSync(path.join(dir, file)).isDirectory();
-    });
-  }
-};
+const opts = new Config().gulp;
 
 for (let task of fs.readdirSync(opts.taskDir)) {
   let file = path.join(opts.taskDir, task);
@@ -28,5 +15,6 @@ for (let task of fs.readdirSync(opts.taskDir)) {
 }
 
 gulp.task('build', ['less', 'browserify', 'imagemin']);
-gulp.task('dev', ['lint', 'build', 'server', 'watch']);
+gulp.task('test', ['lint', 'mocha']);
+gulp.task('dev', ['build', 'test', 'server', 'watch']);
 gulp.task('default', ['build']);
