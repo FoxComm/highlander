@@ -20,3 +20,7 @@ create trigger set_inventory_id_trigger
     for each row
     execute procedure set_inventory_event_id();
 
+-- partial index ensures we never have more than 1 cart per customer
+create unique index orders_has_only_one_cart on orders (customer_id, status)
+    where status = 'cart';
+

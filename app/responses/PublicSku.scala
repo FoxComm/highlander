@@ -19,7 +19,7 @@ object PublicSku {
               (implicit ec: ExecutionContext, db: Database): Response = {
 
     val queries = for {
-      sku <- Skus._findById(id)
+      sku <- Skus._findById(id).extract
       availableForSale = Skus._isAvailableOnHand(id)
     } yield (sku, availableForSale)
 
