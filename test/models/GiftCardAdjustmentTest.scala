@@ -4,18 +4,19 @@ import slick.driver.PostgresDriver
 import util.IntegrationTestBase
 import utils._
 
-class GiftCardBalanceTest extends IntegrationTestBase {
+class GiftCardAdjustmentTest extends IntegrationTestBase {
   import api._
   import concurrent.ExecutionContext.Implicits.global
 
-  def seed(): (Sku, Order) = {
+  def seed(): GiftCard = {
+    Seeds.Factories.giftCard
     val sku = Skus.save(Sku(price = 5)).run().futureValue
     val order = Orders.save(Order(id = 0, customerId = 1)).run().futureValue
     (sku, order)
   }
 
-  "InventoryAdjustment" - {
-    "createAdjustmentsForOrder creates an adjustment with the correct reservation based on line items" in {
+  "GiftCardBalanceTest" - {
+    "neither credit nor debit can be negative" in {
       val (sku, order) = seed()
       (OrderLineItems.returningId ++= (1 to 5).map { _ ⇒ OrderLineItem(orderId = order.id, skuId = sku.id) }).run()
 
