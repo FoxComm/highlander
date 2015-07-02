@@ -91,7 +91,7 @@ object Seeds {
 
     def storeCredit = StoreCredit(customerId = 0, currency = Currency.USD)
 
-    def giftCard = GiftCard(currency = Currency.USD, originalBalance = 50, currentBalance = 50)
+    def giftCard = GiftCard(currency = Currency.USD, code = "ABC-123", originalBalance = 50, currentBalance = 50)
 
     def shippingMethods = Seq(
       ShippingMethod(adminDisplayName = "UPS Ground", storefrontDisplayName = "UPS Ground", defaultPrice = 10, isActive = true),

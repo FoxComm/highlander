@@ -36,12 +36,12 @@ declare
     adjustment integer default 0;
 begin
     if new.debit > 0 and new.capture then
-        adjustment = -new.debit
-    elsif new.credit > 0
-        adjustment = new.credit
+        adjustment := -new.debit;
+    elsif new.credit > 0 then
+        adjustment := new.credit;
     end if;
 
-    update gift_cards set current_balance = current_balance + adjustment where id = new.gift_card_id
+    update gift_cards set current_balance = current_balance + adjustment where id = new.gift_card_id;
 
     return new;
 end;
