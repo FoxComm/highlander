@@ -3,6 +3,8 @@ create table store_credits (
     customer_id integer not null,
     status character varying(255) not null,
     currency currency,
+    original_balance integer not null,
+    current_balance integer not null,
     canceled_reason character varying(255) null,
     created_at timestamp without time zone default (now() at time zone 'utc'),
     updated_at timestamp without time zone default (now() at time zone 'utc'),
