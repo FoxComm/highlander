@@ -1,17 +1,10 @@
 package models
 
 import com.wix.accord.{Failure ⇒ ValidationFailure, Success ⇒ ValidationSuccess}
-import org.scalactic.{Bad, Good}
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.prop.TableDrivenPropertyChecks._
-import payloads.CreateAddressPayload
 import util.IntegrationTestBase
-import utils.{Seeds, Validation}
 import utils.Seeds.Factories
 
 class OrdersTest extends IntegrationTestBase {
-  import api._
-
   import concurrent.ExecutionContext.Implicits.global
 
   "Orders" - {
