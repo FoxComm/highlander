@@ -7,17 +7,15 @@ import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 import scala.concurrent.{ExecutionContext, Future}
 
-case class GiftCardBalance(id: Long = 0, giftCardId: Int, credit: Int, debit: Int)
+case class GiftCardBalance(id: Int = 0, giftCardId: Int, credit: Int, debit: Int)
   extends ModelWithIdParameter {
-
-  override type Id = Long
 }
 
 object GiftCardBalance {}
 
 
 class GiftCardBalances(tag: Tag) extends GenericTable.TableWithId[GiftCardBalance](tag, "gift_card_balances") with RichTable {
-  def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
+  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def giftCardId = column[Int]("gift_card_id")
   def credit = column[Int]("credit")
   def debit = column[Int]("debit")
