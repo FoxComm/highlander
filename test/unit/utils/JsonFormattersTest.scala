@@ -20,9 +20,9 @@ class JsonFormattersTest extends TestBase {
   "Adt serialization" - {
     "can (de-)serialize JSON" in {
       val ast = parse(write(Test(order = Order.Cart, cc = Auth, gc = InsufficientBalance)))
-      (ast \ "order").extract[Order.Status] mustBe Order.Cart
-      (ast \ "gc").extract[GiftCardPaymentStatus] mustBe InsufficientBalance
-      (ast \ "cc").extract[CreditCardPaymentStatus] mustBe Auth
+      (ast \ "order").extract[Order.Status] must === (Order.Cart)
+      (ast \ "gc").extract[GiftCardPaymentStatus] must === (InsufficientBalance)
+      (ast \ "cc").extract[CreditCardPaymentStatus] must === (Auth)
     }
   }
 }
