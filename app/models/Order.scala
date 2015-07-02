@@ -77,10 +77,8 @@ object Orders extends TableQueryWithId[Order, Orders](
 
   def _findByCustomer(cust: Customer) = { filter(_.customerId === cust.id) }
 
-  def findActiveOrderByCustomer(cust: Customer)(implicit ec: ExecutionContext, db: Database): Future[Option[Order]] = {
-    // TODO: (AW): we should find a way to ensure that the customer only has one order with a cart status.
+  def findActiveOrderByCustomer(cust: Customer)(implicit ec: ExecutionContext, db: Database): Future[Option[Order]] =
     db.run(_findActiveOrderByCustomer(cust).result.headOption)
-  }
 
   def _findActiveOrderByCustomer(cust: Customer) =
     filter(_.customerId === cust.id).filter(_.status === (Order.Cart: Order.Status))

@@ -15,6 +15,8 @@ lazy val commonSettings = Seq(
 
 lazy val phoenixScala = (project in file(".")).
   settings(commonSettings: _*).
+  configs(IT).
+  settings(inConfig(IT)(Defaults.testSettings): _*).
   settings(
     name      := "phoenix-scala",
     version   := "1.0",
@@ -67,17 +69,28 @@ lazy val phoenixScala = (project in file(".")).
       )
     },
     scalaSource in Compile <<= (baseDirectory in Compile)(_ / "app"),
-    scalaSource in Test <<= (baseDirectory in Test)(_ / "test"),
+    scalaSource in Test <<= (baseDirectory in Test)(_ / "test" / "unit"),
+    scalaSource in IT   <<= (baseDirectory in Test)(_ / "test" / "integration"),
     resourceDirectory in Compile := baseDirectory.value / "resources",
     resourceDirectory in Test := baseDirectory.value / "test" / "resources",
+    resourceDirectory in IT   := baseDirectory.value / "test" / "resources",
     Revolver.settings,
     (mainClass in Compile) := Some("Main"),
     // add ms report for every test
     testOptions in Test += Tests.Argument("-oD"),
     javaOptions in Test ++= Seq("-Xmx2G", "-XX:+UseConcMarkSweepGC"),
-    parallelExecution in Test := false,
-    fork in Test := true
+    parallelExecution in Test := true,
+    parallelExecution in IT   := false,
+    fork in Test := false,
+    fork in IT   := true, /** FIXME: We couldn’t run ITs in parallel if we fork */
+    test <<= Def.task {
+      /** We need to do nothing here. Unit and ITs will run in parallel
+        * and this task will fail if any of those fail. */
+      ()
+    }.dependsOn(test in Test, test in IT)
 )
+
+lazy val IT = config("it") extend Test
 
 lazy val seed = inputKey[Unit]("Resets and seeds the database")
 seed := { (runMain in Compile).fullInput(" utils.Seeds").evaluated }
