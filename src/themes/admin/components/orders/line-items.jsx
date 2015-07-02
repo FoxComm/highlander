@@ -35,7 +35,6 @@ const editColumns = [
 export default class OrderLineItems extends React.Component {
   constructor(props) {
     super(props);
-    this.onAddLineItem = this.onAddLineItem.bind(this);
   }
 
   onAddLineItem(sku) {

@@ -8,7 +8,6 @@ import { dispatch } from '../../lib/dispatcher';
 export default class Typeahead extends React.Component {
   constructor(props) {
     super(props);
-    this.onItemSelected = this.onItemSelected.bind(this);
     this.state = {
       showResults: false,
       updating: false
@@ -45,7 +44,6 @@ export default class Typeahead extends React.Component {
 
     clearTimeout(this.timeout);
     this.timeout = setTimeout(() => {
-      console.log(value);
       Api.get(store.uri())
          .then((res) => {
            if (value !== target.value) {
