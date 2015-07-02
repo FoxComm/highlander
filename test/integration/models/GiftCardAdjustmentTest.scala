@@ -30,12 +30,23 @@ class GiftCardAdjustmentTest extends IntegrationTestBase {
     }
 
     "one of credit or debit must be greater than zero" in {
-      val (gc, _) = (for {
+      val (_, adjustment) = (for {
         gc ← GiftCards.save(Factories.giftCard.copy(currentBalance = 0))
         adjustment ← GiftCards.adjust(giftCard = gc, debit = 50, credit = 0, capture = true)
       } yield (gc, adjustment)).run().futureValue
 
-      GiftCards.findById(gc.id).run().futureValue.get.currentBalance === (0)
+      adjustment.id === 1
+    }
+
+    "updates the GiftCard's currentBalance after insert" in {
+      val gc = (for {
+        gc ← GiftCards.save(Factories.giftCard.copy(originalBalance = 100))
+        _ ← GiftCards.adjust(giftCard = gc, debit = 50, credit = 0, capture = true)
+        _ ← GiftCards.adjust(giftCard = gc, debit = 25, credit = 0, capture = true)
+        _ ← GiftCards.adjust(giftCard = gc, debit = 15, credit = 0, capture = true)
+      } yield gc).run().futureValue
+
+      GiftCards.findById(gc.id).run().futureValue.get.currentBalance === (15)
     }
   }
 }
