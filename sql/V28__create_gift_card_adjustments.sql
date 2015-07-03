@@ -12,6 +12,22 @@ create table gift_card_adjustments (
         not (credit > 0 and debit > 0))
 );
 
+create function update_gift_card_current_balance() returns trigger as $$
+declare
+    adjustment integer default 0;
+begin
+    if new.debit > 0 and new.capture then
+        adjustment := -new.debit;
+    elsif new.credit > 0 then
+        adjustment := new.credit;
+    end if;
+
+    update gift_cards set current_balance = current_balance + adjustment where id = new.gift_card_id;
+
+    return new;
+end;
+$$ language plpgsql;
+
 create trigger update_gift_card_current_balance
     after insert
     on gift_card_adjustments
