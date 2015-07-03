@@ -37,22 +37,8 @@ object CreditCardPaymentStatus extends ADT[CreditCardPaymentStatus] {
   def types = sealerate.values[CreditCardPaymentStatus]
 }
 
-sealed trait GiftCardPaymentStatus extends PaymentStatus
-case object InsufficientBalance extends GiftCardPaymentStatus
-case object SuccessfulDebit extends GiftCardPaymentStatus
-case object FailedDebit extends GiftCardPaymentStatus
-
-object GiftCardPaymentStatus extends ADT[GiftCardPaymentStatus] {
-  def types = sealerate.values[GiftCardPaymentStatus]
-}
-
 // TODO: Figure out how to have the 'status' field on the payment and not the payment method.
 case class CreditCard(id: Int, orderId: Int, cardholderName: String, cardNumber: String, cvv: Int, status: CreditCardPaymentStatus, expiration: String, address: Address) extends PaymentMethod {
-  def authorize(amount: Int)(implicit ec: ExecutionContext): Future[String Or List[Failure]] = {
-    Future.successful(Good("authenticated"))
-  }
-}
-case class GiftCard(id: Int, orderId: Int, status: GiftCardPaymentStatus, code: String) extends PaymentMethod {
   def authorize(amount: Int)(implicit ec: ExecutionContext): Future[String Or List[Failure]] = {
     Future.successful(Good("authenticated"))
   }

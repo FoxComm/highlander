@@ -24,6 +24,8 @@ object Seeds {
                        priceRuleCriteriaMappings: Seq[ShippingPriceRuleOrderCriterion], skus: Seq[Sku],
                        orderLineItems: Seq[OrderLineItem], shipment: Shipment)
 
+  case class PaymentMethods(giftCard: GiftCard = Factories.giftCard, storeCredit: StoreCredit = Factories.storeCredit)
+
   def run()(implicit db: Database): dbio.DBIOAction[(Customer, Order, Address, CreditCardGateway), NoStream, Write with Write with Write with All with Write with All with Write with All with Write with Write with Write with Write with Write with All] = {
     import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -73,7 +75,6 @@ object Seeds {
 
     def storeAdmin = StoreAdmin(email = "admin@admin.com", password = "password", firstName = "Frankly", lastName = "Admin")
 
-
     def order = Order(customerId = 0, referenceNumber = Some("ABCD1234-11"), status = Order.ManualHold)
 
     def skus: Seq[Sku] = Seq(Sku(id = 0, name = Some("Flonkey"), price = 33), Sku(name = Some("Shark"), price = 45), Sku(name = Some("Dolphin"), price = 88))
@@ -87,6 +88,10 @@ object Seeds {
     def creditCard =
       CreditCardGateway(customerId = 0, gatewayCustomerId = "", lastFour = "4242",
         expMonth = today.getMonthOfYear, expYear = today.getYear + 2)
+
+    def storeCredit = StoreCredit(customerId = 0, originalBalance = 50, currentBalance = 50, currency = Currency.USD)
+
+    def giftCard = GiftCard(currency = Currency.USD, code = "ABC-123", originalBalance = 50, currentBalance = 50)
 
     def shippingMethods = Seq(
       ShippingMethod(adminDisplayName = "UPS Ground", storefrontDisplayName = "UPS Ground", defaultPrice = 10, isActive = true),
