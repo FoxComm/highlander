@@ -22,3 +22,5 @@ create trigger update_store_credit_current_balance
     for each row
     execute procedure update_store_credit_current_balance();
 
+create index store_credit_adjustments_idx on store_credit_adjustments (store_credit_id, capture);
+

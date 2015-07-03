@@ -13,3 +13,5 @@ create table gift_cards (
     constraint positive_balance check (original_balance >= 0 and current_balance >= 0)
 );
 
+create index gift_cards_idx on gift_cards (code, status);
+

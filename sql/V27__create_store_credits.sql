@@ -11,3 +11,5 @@ create table store_credits (
     constraint valid_status check (status in ('new', 'auth', 'hold','active','canceled', 'partiallyApplied', 'applied'))
 );
 
+create index store_credits_idx on store_credits (customer_id, status);
+

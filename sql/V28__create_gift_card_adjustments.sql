@@ -34,3 +34,5 @@ create trigger update_gift_card_current_balance
     for each row
     execute procedure update_gift_card_current_balance();
 
+create index gift_card_adjustments_idx on gift_card_adjustments (gift_card_id, capture);
+
