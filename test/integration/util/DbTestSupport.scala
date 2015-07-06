@@ -3,19 +3,14 @@ package util
 import javax.sql.DataSource
 
 import scala.annotation.tailrec
-import scala.slick.driver.PostgresDriver
 
-import com.typesafe.config.ConfigFactory
-import com.zaxxer.hikari.HikariDataSource
 import org.flywaydb.core.Flyway
-import org.postgresql.ds.PGSimpleDataSource
 import org.scalatest.{BeforeAndAfterAll, Outcome, Suite, SuiteMixin}
 import slick.jdbc.HikariCPJdbcDataSource
 
 trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
   import DbTestSupport._
   val api = slick.driver.PostgresDriver.api
-  import api._
 
   implicit lazy val db = database
 
