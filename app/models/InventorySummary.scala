@@ -7,7 +7,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 
-case class InventorySummary(id: Int, skuId: Int, availableOnHand: Int, availablePreOrder: Int, availableBackOrder: Int,
+final case class InventorySummary(id: Int, skuId: Int, availableOnHand: Int, availablePreOrder: Int, availableBackOrder: Int,
                             outstandingPreOrders: Int, outstandingBackOrders: Int) extends ModelWithIdParameter
 
 class InventorySummaries(tag: Tag)

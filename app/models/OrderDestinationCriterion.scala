@@ -12,7 +12,7 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class OrderDestinationCriterion(id:Int = 0, destinationType: OrderDestinationCriterion.DestinationType, destination: String, exclude: Boolean) extends ModelWithIdParameter
+final case class OrderDestinationCriterion(id:Int = 0, destinationType: OrderDestinationCriterion.DestinationType, destination: String, exclude: Boolean) extends ModelWithIdParameter
 
 object OrderDestinationCriterion{
   sealed trait DestinationType

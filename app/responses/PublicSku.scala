@@ -9,7 +9,7 @@ import scala.concurrent.{ExecutionContext, Future}
 object PublicSku {
   type Response = Future[Option[Root]]
 
-  case class Root(id: Int, name: String, availableForSale: Boolean)
+  final case class Root(id: Int, name: String, availableForSale: Boolean)
 
   def build(sku: Sku, availableForSale: Boolean): Root = {
     Root(id = sku.id, name = sku.name.getOrElse(""), availableForSale = availableForSale)

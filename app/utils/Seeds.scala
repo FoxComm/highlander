@@ -17,14 +17,14 @@ import utils.Money.Currency
 object Seeds {
   val today = new DateTime
 
-  case class TheWorld(customer: Customer,order: Order, address: Address, cc: CreditCardGateway,
+  final case class TheWorld(customer: Customer,order: Order, address: Address, cc: CreditCardGateway,
                       storeAdmin: StoreAdmin, shippingMethods: Seq[ShippingMethod],
                        shippingPriceRules: Seq[ShippingPriceRule], shippingMethodRuleMappings: Seq[ShippingMethodPriceRule],
                        orderCriteria: Seq[OrderCriterion], orderPriceCriteria: Seq[OrderPriceCriterion],
                        priceRuleCriteriaMappings: Seq[ShippingPriceRuleOrderCriterion], skus: Seq[Sku],
                        orderLineItems: Seq[OrderLineItem], shipment: Shipment)
 
-  case class PaymentMethods(giftCard: GiftCard = Factories.giftCard, storeCredit: StoreCredit = Factories.storeCredit)
+  final case class PaymentMethods(giftCard: GiftCard = Factories.giftCard, storeCredit: StoreCredit = Factories.storeCredit)
 
   def run()(implicit db: Database): dbio.DBIOAction[(Customer, Order, Address, CreditCardGateway), NoStream, Write with Write with Write with All with Write with All with Write with All with Write with Write with Write with Write with Write with All] = {
     import scala.concurrent.ExecutionContext.Implicits.global

@@ -12,7 +12,7 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class ShippingPriceRuleOrderCriterion(id:Int = 0, orderCriterionId: Int, shippingPricingRuleId:Int) extends ModelWithIdParameter
+final case class ShippingPriceRuleOrderCriterion(id:Int = 0, orderCriterionId: Int, shippingPricingRuleId:Int) extends ModelWithIdParameter
 
 object ShippingPriceRuleOrderCriterion
 

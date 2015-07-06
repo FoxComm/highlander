@@ -13,7 +13,7 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 import org.scalactic._
 
-case class Customer(id: Int = 0, email: String, password: String,
+final case class Customer(id: Int = 0, email: String, password: String,
                     firstName: String, lastName: String) extends Validation[Customer]
   with ModelWithIdParameter {
   override def validator = createValidator[Customer] { user =>

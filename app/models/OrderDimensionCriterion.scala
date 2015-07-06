@@ -12,7 +12,7 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class OrderDimensionCriterion(id:Int = 0, dimensionType: OrderDimensionCriterion.DimensionType, greaterThan: Option[Int], lessThan: Option[Int], exactMatch: Option[Int], unitOfMeasure: String, exclude: Boolean) extends ModelWithIdParameter
+final case class OrderDimensionCriterion(id:Int = 0, dimensionType: OrderDimensionCriterion.DimensionType, greaterThan: Option[Int], lessThan: Option[Int], exactMatch: Option[Int], unitOfMeasure: String, exclude: Boolean) extends ModelWithIdParameter
 
 object OrderDimensionCriterion{
   sealed trait DimensionType

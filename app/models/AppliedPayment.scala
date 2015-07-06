@@ -13,7 +13,7 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 import com.stripe.model.{Customer => StripeCustomer}
 
-case class AppliedPayment(id: Int = 0,
+final case class AppliedPayment(id: Int = 0,
                           orderId: Int,
                           paymentMethodId: Int,
                           paymentMethodType: String,

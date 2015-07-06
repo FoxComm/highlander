@@ -6,7 +6,7 @@ import com.wix.accord.dsl.{validator => createValidator}
 import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._
 
-case class CreditCardPayload(holderName: String, number: String,
+final case class CreditCardPayload(holderName: String, number: String,
                              cvv: String, expYear: Int, expMonth: Int, address: Option[CreateAddressPayload] = None)
   extends Validation[CreditCardPayload] {
 
@@ -23,4 +23,4 @@ case class CreditCardPayload(holderName: String, number: String,
   def lastFour: String = this.number.takeRight(4)
 }
 
-case class PaymentMethodPayload(cardholderName: String, cardNumber: String,  cvv: Int, expiration: String)
+final case class PaymentMethodPayload(cardholderName: String, cardNumber: String,  cvv: Int, expiration: String)

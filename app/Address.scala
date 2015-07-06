@@ -46,46 +46,46 @@ import payloads._
 import responses.{FullOrder, PublicSku}
 import services._
 
-case class Store(id: Int, name: String, Configuration: StoreConfiguration)
+final case class Store(id: Int, name: String, Configuration: StoreConfiguration)
 
 //  This is a super quick placeholder for store configuration.  We will want to blow this out later.
 // TODO: Create full configuration data model
-case class StoreConfiguration(id: Int, storeId: Int, PaymentGateway: PaymentGateway)
+final case class StoreConfiguration(id: Int, storeId: Int, PaymentGateway: PaymentGateway)
 
-case class StockLocation(id: Int, name: String)
+final case class StockLocation(id: Int, name: String)
 
 // TODO: money/currency abstraction. Use joda-money, most likely
-case class Money(currency: String, amount: Int)
+final case class Money(currency: String, amount: Int)
 
-case class Coupon(id: Int, orderId: Int, code: String, adjustment: List[Adjustment])
+final case class Coupon(id: Int, orderId: Int, code: String, adjustment: List[Adjustment])
 
-case class Promotion(id: Int, orderId: Int, adjustments: List[Adjustment])
+final case class Promotion(id: Int, orderId: Int, adjustments: List[Adjustment])
 
 sealed trait Destination
-case class EmailDestination(email: String) extends Destination
-case class ResidenceDestination(address: Address) extends Destination
-case class StockLocationDestination(stockLocation: StockLocation) extends Destination
+final case class EmailDestination(email: String) extends Destination
+final case class ResidenceDestination(address: Address) extends Destination
+final case class StockLocationDestination(stockLocation: StockLocation) extends Destination
 
-case class Fulfillment(id: Int, destination: Destination)
+final case class Fulfillment(id: Int, destination: Destination)
 
-case class Archetype(id: Int, name: String) extends Validation[Archetype] {
+final case class Archetype(id: Int, name: String) extends Validation[Archetype] {
   override def validator = createValidator[Archetype] { a =>
     a.name is notEmpty
   }
 }
 
-case class Catalog(id: Int, name: String,
+final case class Catalog(id: Int, name: String,
                    archetypes: Seq[Archetype], products: Seq[Product]) extends Validation[Catalog] {
   override def validator = createValidator[Catalog] { c =>
     c.name is notEmpty
   }
 }
 
-case class Product(id: Int, name: String, sku: String, archetypes: Seq[Archetype])
+final case class Product(id: Int, name: String, sku: String, archetypes: Seq[Archetype])
 
-case class Asset(id: Int, url: String, rank: Int)
+final case class Asset(id: Int, url: String, rank: Int)
 
-case class Collection(id: Int, name: String, isActive: Boolean) extends Validation[Collection] {
+final case class Collection(id: Int, name: String, isActive: Boolean) extends Validation[Collection] {
   override def validator = createValidator[Collection] { c =>
     c.name is notEmpty
   }

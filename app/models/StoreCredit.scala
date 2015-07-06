@@ -14,7 +14,7 @@ import org.scalactic._
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: String, currency: Currency,
+final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: String, currency: Currency,
   originalBalance: Int, currentBalance: Int, status: StoreCredit.Status = StoreCredit.New,
   canceledReason: Option[String] = None)
   extends PaymentMethod

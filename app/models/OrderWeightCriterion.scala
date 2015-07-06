@@ -12,7 +12,7 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class OrderWeightCriterion(id:Int = 0, greaterThan: Option[Int], lessThan: Option[Int], exactMatch: Option[Int], unitOfMeasure: String, exclude: Boolean) extends ModelWithIdParameter
+final case class OrderWeightCriterion(id:Int = 0, greaterThan: Option[Int], lessThan: Option[Int], exactMatch: Option[Int], unitOfMeasure: String, exclude: Boolean) extends ModelWithIdParameter
 
 class OrderWeightCriteria(tag: Tag) extends GenericTable.TableWithId[OrderWeightCriterion](tag, "shipping_methods") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)

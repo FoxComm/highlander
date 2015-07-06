@@ -38,7 +38,7 @@ object CreditCardPaymentStatus extends ADT[CreditCardPaymentStatus] {
 }
 
 // TODO: Figure out how to have the 'status' field on the payment and not the payment method.
-case class CreditCard(id: Int, orderId: Int, cardholderName: String, cardNumber: String, cvv: Int, status: CreditCardPaymentStatus, expiration: String, address: Address) extends PaymentMethod {
+final case class CreditCard(id: Int, orderId: Int, cardholderName: String, cardNumber: String, cvv: Int, status: CreditCardPaymentStatus, expiration: String, address: Address) extends PaymentMethod {
   def authorize(amount: Int)(implicit ec: ExecutionContext): Future[String Or List[Failure]] = {
     Future.successful(Good("authenticated"))
   }

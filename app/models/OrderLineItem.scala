@@ -13,7 +13,7 @@ import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-case class OrderLineItem(id: Int = 0, orderId: Int, skuId: Int, status: OrderLineItem.Status = OrderLineItem.Cart) extends ModelWithIdParameter
+final case class OrderLineItem(id: Int = 0, orderId: Int, skuId: Int, status: OrderLineItem.Status = OrderLineItem.Cart) extends ModelWithIdParameter
 
 object OrderLineItem{
   sealed trait Status
