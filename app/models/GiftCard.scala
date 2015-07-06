@@ -16,7 +16,7 @@ import org.scalactic._
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-case class GiftCard(id: Int = 0, code: String, currency: Currency, status: GiftCard.Status = GiftCard.New,
+final case class GiftCard(id: Int = 0, code: String, currency: Currency, status: GiftCard.Status = GiftCard.New,
   originalBalance: Int, currentBalance: Int, canceledReason: Option[String] = None, reloadable: Boolean = false)
   extends PaymentMethod
   with ModelWithIdParameter

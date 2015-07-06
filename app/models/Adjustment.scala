@@ -10,5 +10,5 @@ import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-case class Adjustment(id: Int, amount: Int, sourceId: Int, sourceType: String, reason: String)
+final case class Adjustment(id: Int, amount: Int, sourceId: Int, sourceType: String, reason: String)
 

@@ -9,8 +9,8 @@ import scala.concurrent.{ExecutionContext, Future}
 object FullOrder {
   type Response = Future[Option[Root]]
 
-  case class Totals(subTotal: Int, taxes: Int, adjustments: Int, total: Int)
-  case class Root(id: Int, referenceNumber: Option[String],
+  final case class Totals(subTotal: Int, taxes: Int, adjustments: Int, total: Int)
+  final case class Root(id: Int, referenceNumber: Option[String],
                   orderStatus: Order.Status,
                   shippingStatus: Order.Status,
                   paymentStatus: Order.Status,
@@ -23,7 +23,7 @@ object FullOrder {
                   shippingAddress: Option[Address],
                   paymentMethods: Seq[PaymentMethod] = Seq.empty)
 
-  case class DisplayLineItem(imagePath: String = "http://lorempixel.com/75/75/fashion" ,
+  final case class DisplayLineItem(imagePath: String = "http://lorempixel.com/75/75/fashion" ,
                               name: String = "donkey product",
                               skuId: Int,
                               price: Int = 33,

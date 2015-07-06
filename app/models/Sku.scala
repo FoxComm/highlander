@@ -9,7 +9,7 @@ import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class Sku(id: Int = 0, name: Option[String] = None, price: Int) extends ModelWithIdParameter
+final case class Sku(id: Int = 0, name: Option[String] = None, price: Int) extends ModelWithIdParameter
 
 // This table mostly acts a placeholder in our system.  We may or may not import skus from 'origin' into this.
 class Skus(tag: Tag) extends GenericTable.TableWithId[Sku](tag, "skus") with RichTable {

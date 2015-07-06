@@ -13,7 +13,7 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class OrderPriceCriterion(id:Int = 0, priceType: OrderPriceCriterion.PriceType, greaterThan: Option[Int] = None,
+final case class OrderPriceCriterion(id:Int = 0, priceType: OrderPriceCriterion.PriceType, greaterThan: Option[Int] = None,
   lessThan: Option[Int] = None, exactMatch: Option[Int] = None,
   currency: Currency, exclude: Boolean) extends ModelWithIdParameter
 

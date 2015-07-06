@@ -18,7 +18,7 @@ import utils.Validation.Result.{ Success}
 import utils.{ Validation ⇒ validation }
 
 // TODO(yax): make this abstract to handle multiple Gateways
-case class CreditCardPaymentCreator(order: Order, customer: Customer, cardPayload: CreditCardPayload)
+final case class CreditCardPaymentCreator(order: Order, customer: Customer, cardPayload: CreditCardPayload)
                                    (implicit ec: ExecutionContext, db: Database) {
 
   val gateway = StripeGateway()

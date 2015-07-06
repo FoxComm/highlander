@@ -5,7 +5,7 @@ import com.wix.accord.ViolationBuilder._
 import org.joda.time.DateTime
 
 object CreditCard {
-  case class Expiraton(year: Int, month: Int)
+  final case class Expiraton(year: Int, month: Int)
 
   class ExpiredCard[T](exp: Expiraton)
     extends BaseValidator[T]({ _ ⇒

@@ -7,7 +7,7 @@ import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 import scala.concurrent.{ExecutionContext, Future}
 
-case class GiftCardAdjustment(id: Int = 0, giftCardId: Int, credit: Int, debit: Int, capture: Boolean)
+final case class GiftCardAdjustment(id: Int = 0, giftCardId: Int, credit: Int, debit: Int, capture: Boolean)
   extends ModelWithIdParameter {
 }
 

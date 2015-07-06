@@ -15,7 +15,7 @@ import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-case class BillingAddress(addressId: Int, paymentId: Int)
+final case class BillingAddress(addressId: Int, paymentId: Int)
 
 class BillingAddresses(tag: Tag) extends Table[BillingAddress](tag, "billing_addresses") with RichTable {
   def addressId = column[Int]("address_id", O.PrimaryKey)

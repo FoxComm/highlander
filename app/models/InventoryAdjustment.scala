@@ -9,7 +9,7 @@ import slick.driver.PostgresDriver.api._
 import slick.jdbc.{ActionBasedSQLInterpolation ⇒ Q}
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 
-case class InventoryAdjustment(id: Int = 0, skuId: Int, inventoryEventId: Int, reservedForFulfillment: Int = 0, fulfilled: Int = 0,
+final case class InventoryAdjustment(id: Int = 0, skuId: Int, inventoryEventId: Int, reservedForFulfillment: Int = 0, fulfilled: Int = 0,
                                availablePreOrder: Int = 0, availableBackOrder: Int = 0, outstandingPreOrders: Int = 0,
                                outstandingBackOrders: Int = 0, description: Option[String] = None,
                                sourceNotes: Option[String] = None) extends ModelWithIdParameter
