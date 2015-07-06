@@ -10,7 +10,7 @@ import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-case class State(id: Int, name: String, abbreviation: String) {
+final case class State(id: Int, name: String, abbreviation: String) {
   val abbrev = this.abbreviation
 }
 

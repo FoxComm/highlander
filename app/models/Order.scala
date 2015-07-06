@@ -15,7 +15,7 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class Order(id: Int = 0, referenceNumber: Option[String] = None, customerId: Int, status: Order.Status = Order.Cart, locked: Boolean = false)
+final case class Order(id: Int = 0, referenceNumber: Option[String] = None, customerId: Int, status: Order.Status = Order.Cart, locked: Boolean = false)
   extends ModelWithIdParameter
   with Validation[Order] {
 

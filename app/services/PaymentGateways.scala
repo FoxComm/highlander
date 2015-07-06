@@ -14,7 +14,7 @@ abstract class PaymentGateway
 case object BraintreeGateway extends PaymentGateway
 
 // TODO(yax): do not default apiKey, it should come from store
-case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ") extends PaymentGateway {
+final case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ") extends PaymentGateway {
   // Creates a customer in Stripe along with their first CC
   def createCustomerAndCard(customer: Customer, card: CreditCardPayload)
                            (implicit ec: ExecutionContext): Future[StripeCustomer Or List[Failure]] = tryFutureWrap {

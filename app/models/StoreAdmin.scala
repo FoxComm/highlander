@@ -9,7 +9,7 @@ import com.wix.accord.dsl._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class StoreAdmin(id: Int = 0, email: String, password: String,
+final case class StoreAdmin(id: Int = 0, email: String, password: String,
                       firstName: String, lastName: String,
                       department: Option[String] = None) extends Validation[StoreAdmin] {
   override def validator = createValidator[StoreAdmin] { user =>

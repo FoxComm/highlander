@@ -6,7 +6,7 @@ import com.wix.accord.dsl.{validator => createValidator}
 import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._
 
-case class CreateAddressPayload(name: String, stateId: Int, state: Option[String] = None,
+final case class CreateAddressPayload(name: String, stateId: Int, state: Option[String] = None,
                                 street1: String, street2: Option[String] = None,
                                 city: String, zip: String) extends Validation[CreateAddressPayload] {
 
