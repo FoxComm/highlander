@@ -1,12 +1,16 @@
 package util
 
+import javax.sql.DataSource
+
 import scala.annotation.tailrec
 import scala.slick.driver.PostgresDriver
 
 import com.typesafe.config.ConfigFactory
+import com.zaxxer.hikari.HikariDataSource
 import org.flywaydb.core.Flyway
 import org.postgresql.ds.PGSimpleDataSource
 import org.scalatest.{BeforeAndAfterAll, Outcome, Suite, SuiteMixin}
+import slick.jdbc.HikariCPJdbcDataSource
 
 trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
   import DbTestSupport._
@@ -18,7 +22,7 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
   override protected def beforeAll(): Unit = {
     if (!migrated) {
       val flyway = new Flyway
-      flyway.setDataSource(jdbcDataSourceFromConfig("db.test"))
+      flyway.setDataSource(jdbcDataSourceFromSlickDB(db))
       flyway.setLocations("filesystem:./sql")
 
       flyway.clean()
@@ -30,7 +34,7 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
 
   override abstract protected def withFixture(test: NoArgTest): Outcome = {
     val flyway = new Flyway
-    flyway.setDataSource(jdbcDataSourceFromConfig("db.test"))
+    flyway.setDataSource(jdbcDataSourceFromSlickDB(db))
     flyway.setLocations("filesystem:./sql")
 
     val conn      = flyway.getDataSource.getConnection
@@ -54,15 +58,8 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
     super.withFixture(test)
   }
 
-  def jdbcDataSourceFromConfig(section: String) = {
-    val config = ConfigFactory.load
-    val source = new PGSimpleDataSource
-
-    source.setServerName(config.getString(s"$section.host"))
-    source.setUser(config.getString(s"$section.user"))
-    source.setDatabaseName(config.getString(s"$section.name"))
-
-    source
+  def jdbcDataSourceFromSlickDB(db: api.Database): DataSource = db.source match {
+    case source: HikariCPJdbcDataSource ⇒ source.ds
   }
 }
 
