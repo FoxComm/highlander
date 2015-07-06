@@ -18,6 +18,27 @@ lazy val phoenixScala = (project in file(".")).
   configs(IT).
   settings(inConfig(IT)(Defaults.testSettings): _*).
   settings(
+    wartremoverWarnings ++= {
+      val enabled = Warts.all.filter {
+        case Wart.Nothing  ⇒ false
+        case Wart.Throw    ⇒ false
+        /* This goes overboard. Wartremover’s justification is that those are hard to be used as functions. */
+        case Wart.DefaultArguments ⇒ false
+        /* Good is a case class and therefore has Product and Serializble. False positives. */
+        case Wart.Product | Wart.Serializable ⇒ false
+
+        // temp
+        // investigating
+        case Wart.NonUnitStatements ⇒ false
+        case _ ⇒ true
+      }
+
+      println(s"Still enabled = ${ enabled.map(_.clazz) }")
+
+      enabled
+    }
+  ).
+  settings(
     name      := "phoenix-scala",
     version   := "1.0",
     /** Work around SBT warning for multiple dependencies */
