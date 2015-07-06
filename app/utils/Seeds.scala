@@ -89,9 +89,11 @@ object Seeds {
       CreditCardGateway(customerId = 0, gatewayCustomerId = "", lastFour = "4242",
         expMonth = today.getMonthOfYear, expYear = today.getYear + 2)
 
-    def storeCredit = StoreCredit(customerId = 0, originalBalance = 50, currentBalance = 50, currency = Currency.USD)
+    def storeCredit = StoreCredit(customerId = 0, originId = 0, originType = "FIXME", originalBalance = 50,
+      currentBalance = 50, currency = Currency.USD)
 
-    def giftCard = GiftCard(currency = Currency.USD, code = "ABC-123", originalBalance = 50, currentBalance = 50)
+    def giftCard = GiftCard(currency = Currency.USD, originId = 0, originType = "FIXME", code = "ABC-123",
+      originalBalance = 50, currentBalance = 50)
 
     def shippingMethods = Seq(
       ShippingMethod(adminDisplayName = "UPS Ground", storefrontDisplayName = "UPS Ground", defaultPrice = 10, isActive = true),

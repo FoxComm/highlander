@@ -14,8 +14,9 @@ import org.scalactic._
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-case class StoreCredit(id: Int = 0, customerId: Int, currency: Currency, originalBalance: Int, currentBalance: Int,
-  status: StoreCredit.Status = StoreCredit.New, canceledReason: Option[String] = None)
+case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: String, currency: Currency,
+  originalBalance: Int, currentBalance: Int, status: StoreCredit.Status = StoreCredit.New,
+  canceledReason: Option[String] = None)
   extends PaymentMethod
   with ModelWithIdParameter
   with Validation[StoreCredit] {
@@ -51,13 +52,15 @@ object StoreCredit {
 
 class StoreCredits(tag: Tag) extends GenericTable.TableWithId[StoreCredit](tag, "store_credits") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def originId = column[Int]("origin_id")
+  def originType = column[String]("origin_type")
   def customerId = column[Int]("customer_id")
   def currency = column[Currency]("currency")
   def originalBalance = column[Int]("original_balance")
   def currentBalance = column[Int]("current_balance")
   def status = column[StoreCredit.Status]("status")
   def canceledReason = column[Option[String]]("canceled_reason")
-  def * = (id, customerId, currency, originalBalance, currentBalance,
+  def * = (id, customerId, originId, originType, currency, originalBalance, currentBalance,
     status, canceledReason) <> ((StoreCredit.apply _).tupled, StoreCredit.unapply)
 }
 
