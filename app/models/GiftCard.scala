@@ -3,7 +3,8 @@ package models
 import com.pellucid.sealerate
 import services.Failure
 import slick.dbio
-import slick.dbio.Effect.Write
+import slick.dbio.Effect.{Read, Write}
+import slick.profile.FixedSqlStreamingAction
 import utils.Money._
 import utils.{ADT, GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
 import validators.nonEmptyIf
@@ -16,8 +17,8 @@ import org.scalactic._
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-final case class GiftCard(id: Int = 0, originId: Int, originType: String, code: String, currency: Currency,
-  status: GiftCard.Status = GiftCard.New, originalBalance: Int, currentBalance: Int,
+final case class GiftCard(id: Int = 0, customerId: Option[Int] = None, originId: Int, originType: String, code: String,
+  currency: Currency, status: GiftCard.Status = GiftCard.New, originalBalance: Int, currentBalance: Int,
   canceledReason: Option[String] = None, reloadable: Boolean = false)
   extends PaymentMethod
   with ModelWithIdParameter
@@ -56,6 +57,7 @@ object GiftCard {
 
 class GiftCards(tag: Tag) extends GenericTable.TableWithId[GiftCard](tag, "gift_cards") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def customerId = column[Option[Int]]("customer_id")
   def originId = column[Int]("origin_id")
   def originType = column[String]("origin_type")
   def code = column[String]("code")
@@ -66,7 +68,7 @@ class GiftCards(tag: Tag) extends GenericTable.TableWithId[GiftCard](tag, "gift_
   def canceledReason = column[Option[String]]("canceled_reason")
   def reloadable = column[Boolean]("reloadable")
 
-  def * = (id, originId, originType, code, currency, status, originalBalance, currentBalance,
+  def * = (id, customerId, originId, originType, code, currency, status, originalBalance, currentBalance,
     canceledReason, reloadable) <> ((GiftCard.apply _).tupled, GiftCard.unapply)
 }
 
@@ -83,4 +85,10 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
   override def save(giftCard: GiftCard)(implicit ec: ExecutionContext): DBIO[GiftCard] = for {
     id ← returningId += giftCard.copy(currentBalance = giftCard.originalBalance)
   } yield giftCard.copy(id = id)
+
+  def findAllByCustomerId(customerId: Int)(implicit ec: ExecutionContext, db: Database): Future[Seq[GiftCard]] =
+    _findAllByCustomerId(customerId).run()
+
+  def _findAllByCustomerId(customerId: Int)(implicit ec: ExecutionContext): DBIO[Seq[GiftCard]] =
+    filter(_.customerId === customerId).result
 }

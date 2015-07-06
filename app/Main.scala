@@ -111,17 +111,26 @@ class Service(
     logRequestResult("admin-routes") {
       authenticateBasicAsync(realm = "admin", storeAdminAuth) { user =>
         pathPrefix("v1" / "users" / IntNumber) { customerId =>
-          (get & path("addresses")) {
-            complete {
-              Addresses.findAllByCustomerId(customerId).map { addresses =>
-                HttpResponse(OK, entity = render(addresses))
+          pathPrefix("addresses") {
+            get {
+              complete {
+                Addresses.findAllByCustomerId(customerId).map { addresses =>
+                  HttpResponse(OK, entity = render(addresses))
+                }
+              }
+            } ~
+            (post & entity(as[Seq[CreateAddressPayload]])) { payload =>
+              complete {
+                whenFound(findCustomer(customerId)) { customer =>
+                  Addresses.createFromPayload(customer, payload)
+                }
               }
             }
           } ~
-          (post & entity(as[Seq[CreateAddressPayload]])) { payload =>
-            complete {
-              whenFound(findCustomer(customerId)) { customer =>
-                Addresses.createFromPayload(customer, payload)
+          pathPrefix("payment-methods") {
+            (get & path("gift-cards")) {
+              complete {
+                renderOrNotFound(GiftCards.findAllByCustomerId(customerId).map(Some(_)))
               }
             }
           }
