@@ -128,14 +128,18 @@ class Service(
             }
           } ~
           pathPrefix("payment-methods") {
-            (get & path("gift-cards")) {
-              complete {
-                renderOrNotFound(GiftCards.findAllByCustomerId(customerId).map(Some(_)))
+            pathPrefix("gift-cards") {
+              get {
+                complete {
+                  renderOrNotFound(GiftCards.findAllByCustomerId(customerId).map(Some(_)))
+                }
               }
             } ~
-            (get & path("store-credits")) {
-              complete {
-                renderOrNotFound(StoreCredits.findAllByCustomerId(customerId).map(Some(_)))
+            pathPrefix("store-credits") {
+              get {
+                complete {
+                  renderOrNotFound(StoreCredits.findAllByCustomerId(customerId).map(Some(_)))
+                }
               }
             }
           }
