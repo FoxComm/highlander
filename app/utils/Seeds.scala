@@ -95,6 +95,8 @@ object Seeds {
     def giftCard = GiftCard(currency = Currency.USD, originId = 0, originType = "FIXME", code = "ABC-123",
       originalBalance = 50, currentBalance = 50)
 
+    def giftCardCsr = GiftCardCsr(adminId = 0, reason = "Because, reasons.")
+
     def shippingMethods = Seq(
       ShippingMethod(adminDisplayName = "UPS Ground", storefrontDisplayName = "UPS Ground", defaultPrice = 10, isActive = true),
       ShippingMethod(adminDisplayName = "UPS Next day", storefrontDisplayName = "UPS Next day", defaultPrice = 20, isActive = true),
