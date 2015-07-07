@@ -77,4 +77,10 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
   override def save(storeCredit: StoreCredit)(implicit ec: ExecutionContext): DBIO[StoreCredit] = for {
     id ← returningId += storeCredit.copy(currentBalance = storeCredit.originalBalance)
   } yield storeCredit.copy(id = id)
+
+  def findAllByCustomerId(customerId: Int)(implicit ec: ExecutionContext, db: Database): Future[Seq[StoreCredit]] =
+    _findAllByCustomerId(customerId).run()
+
+  def _findAllByCustomerId(customerId: Int)(implicit ec: ExecutionContext): DBIO[Seq[StoreCredit]] =
+    filter(_.customerId === customerId).result
 }

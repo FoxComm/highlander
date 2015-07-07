@@ -132,6 +132,11 @@ class Service(
               complete {
                 renderOrNotFound(GiftCards.findAllByCustomerId(customerId).map(Some(_)))
               }
+            } ~
+            (get & path("store-credits")) {
+              complete {
+                renderOrNotFound(StoreCredits.findAllByCustomerId(customerId).map(Some(_)))
+              }
             }
           }
         } ~
