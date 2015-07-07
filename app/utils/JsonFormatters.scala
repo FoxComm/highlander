@@ -15,6 +15,7 @@ object JsonFormatters {
     Shipment.Status.jsonFormat +
     GiftCard.Status.jsonFormat +
     StoreCredit.Status.jsonFormat +
-    CreditCardPaymentStatus.jsonFormat
+    CreditCardPaymentStatus.jsonFormat +
+    Money.jsonFormat
 }
 
