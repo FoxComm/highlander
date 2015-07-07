@@ -133,12 +133,26 @@ class Service(
                 complete {
                   renderOrNotFound(GiftCards.findAllByCustomerId(customerId).map(Some(_)))
                 }
+              } ~
+              (post & path(IntNumber / "convert")) { giftCardId ⇒
+                complete {
+                  whenFound(GiftCards.findById(giftCardId).run()) { gc ⇒
+                    CustomerCreditConverter.toStoreCredit(gc, customerId)
+                  }
+                }
               }
             } ~
             pathPrefix("store-credits") {
               get {
                 complete {
                   renderOrNotFound(StoreCredits.findAllByCustomerId(customerId).map(Some(_)))
+                }
+              } ~
+              (post & path(IntNumber / "convert")) { storeCreditId ⇒
+                complete {
+                  whenFound(StoreCredits.findById(storeCreditId).run()) { sc ⇒
+                    CustomerCreditConverter.toGiftCard(sc, customerId)
+                  }
                 }
               }
             }
