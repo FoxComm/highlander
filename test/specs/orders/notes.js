@@ -1,7 +1,6 @@
 'use strict';
 
 describe('Order Notes #GET', function() {
-
   it('should get a list of notes', function *() {
     let
       res     = yield this.api.get('/orders/1/notes'),
@@ -12,7 +11,6 @@ describe('Order Notes #GET', function() {
 });
 
 describe('Order Notes #POST', function() {
-
   it('should create a note', function *() {
     let
       data    = {body: 'this is a note'},
