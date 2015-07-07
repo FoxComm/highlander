@@ -16,7 +16,7 @@ import org.scalactic._
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-case class StoreCreditCsr(id: Int = 0, adminId: Int, reason: String, subReason: Option[String]) extends
+case class StoreCreditCsr(id: Int = 0, adminId: Int, reason: String, subReason: Option[String] = None) extends
 ModelWithIdParameter
 
 object StoreCreditCsr {}

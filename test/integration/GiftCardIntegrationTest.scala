@@ -1,6 +1,6 @@
 import akka.http.scaladsl.model.StatusCodes
 
-import models.{GiftCard, GiftCards, GiftCardCsr, GiftCardCsrs, Customer, Customers, StoreAdmin, StoreAdmins}
+import models.{Customers, GiftCard, GiftCardCsrs, GiftCards, StoreAdmins}
 import org.scalatest.BeforeAndAfterEach
 import util.IntegrationTestBase
 import utils.Seeds.Factories
@@ -11,8 +11,9 @@ class GiftCardIntegrationTest extends IntegrationTestBase
   with BeforeAndAfterEach {
 
   import concurrent.ExecutionContext.Implicits.global
-  import org.json4s.jackson.JsonMethods._
+
   import Extensions._
+  import org.json4s.jackson.JsonMethods._
 
   trait Fixture {
     val adminFactory = Factories.storeAdmin
@@ -33,6 +34,14 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
     response.status must === (StatusCodes.OK)
     giftCard.customerId must === (Some(customer.id))
+  }
+
+  "returns an empty array when the customer has no gift cards" in new Fixture {
+    val response = GET(s"v1/users/${customer.id}/payment-methods/gift-cards")
+    val giftCards = parse(response.bodyText).extract[Seq[GiftCard]]
+
+    response.status must === (StatusCodes.OK)
+    giftCards mustBe 'empty
   }
 }
 
