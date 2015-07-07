@@ -36,6 +36,8 @@ final case class GiftCard(id: Int = 0, customerId: Option[Int] = None, originId:
   def authorize(amount: Int)(implicit ec: ExecutionContext): Future[String Or List[Failure]] = {
     Future.successful(Good("authenticated"))
   }
+
+  def isActive: Boolean = activeStatuses.contains(status)
 }
 
 object GiftCard {
@@ -43,7 +45,6 @@ object GiftCard {
   case object New extends Status
   case object Auth extends Status
   case object Hold extends Status
-  case object Active extends Status
   case object Canceled extends Status
   case object PartiallyApplied extends Status
   case object Applied extends Status
@@ -51,6 +52,8 @@ object GiftCard {
   object Status extends ADT[Status] {
     def types = sealerate.values[Status]
   }
+
+  val activeStatuses = Set[Status](New, Auth, PartiallyApplied)
 
   implicit val statusColumnType = Status.slickColumn
 }
