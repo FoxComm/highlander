@@ -18,25 +18,40 @@ lazy val phoenixScala = (project in file(".")).
   configs(IT).
   settings(inConfig(IT)(Defaults.testSettings): _*).
   settings(
-    wartremoverWarnings ++= {
-      val enabled = Warts.all.filter {
+    wartremoverExcluded ++= ((baseDirectory.value / "test") ** ".scala").get,
+    wartremoverWarnings ++=
+      Warts.all.filter {
+        /** In the absence of type annotations, Good(v: A) is inferred as Or[A, Nothing] */
         case Wart.Nothing  ⇒ false
-        case Wart.Throw    ⇒ false
-        /* This goes overboard. Wartremover’s justification is that those are hard to be used as functions. */
-        case Wart.DefaultArguments ⇒ false
-        /* Good is a case class and therefore has Product and Serializble. False positives. */
+
+        /** Many library methods can throw, for example Future.map, but not much
+          * 3-rd party code uses @throws */
+        case Wart.Throw ⇒ false
+
+        /** Good is a case class and therefore has Product and Serializable */
         case Wart.Product | Wart.Serializable ⇒ false
 
-        // temp
-        // investigating
+        /**
+         * Can’t figure out how to resolve this issue.
+         *
+         * {{{
+         *   app/models/Address.scala:48: Statements must return Unit
+         *   [error] object Addresses extends TableQueryWithId[Address, Addresses](
+         *                                    ^
+         * }}}
+         */
         case Wart.NonUnitStatements ⇒ false
+
+        /** This goes overboard. Wart remover’s justification is that those are hard to be used as functions. */
+        case Wart.DefaultArguments ⇒ false
+
+        /** [[scala.collection.JavaConverters]] does not have methods for handling Maps */
+        case Wart.JavaConversions ⇒ false
+
+        /** While Applicatives might be simpler, there is no for comprehension sugar for them. **/
+        case Wart.NoNeedForMonad ⇒ false
         case _ ⇒ true
       }
-
-      println(s"Still enabled = ${ enabled.map(_.clazz) }")
-
-      enabled
-    }
   ).
   settings(
     name      := "phoenix-scala",
