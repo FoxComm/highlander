@@ -38,11 +38,25 @@ class BaseModel {
     return models;
   }
 
-  static find(field, id) {
+  static filterById(field, id) {
     id = +id;
     return this.data.filter(function(item) {
       return item[field] === id;
     });
+  }
+
+  static filterByQuery(query) {
+    let
+      filter  = query.q.split(':'),
+      field   = filter[0],
+      regex   = new RegExp(filter[1], 'i');
+    return this.data.filter(function(item) {
+      return regex.test(item[field]);
+    });
+  }
+
+  static find(field, id) {
+    return id ? this.filterById(field, id) : this.filterByQuery(field);
   }
 
   static findOne(id) {
