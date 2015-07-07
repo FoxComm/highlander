@@ -129,11 +129,21 @@ class Service(
           } ~
           pathPrefix("payment-methods") {
             pathPrefix("gift-cards") {
-              get {
+              (get & pathEnd) {
                 complete {
                   renderOrNotFound(GiftCards.findAllByCustomerId(customerId).map(Some(_)))
                 }
               } ~
+              (get & path(IntNumber)) { giftCardId ⇒
+                complete {
+                  renderOrNotFound(GiftCards.findById(giftCardId).run())
+                }
+              } ~
+//              (post & entity(as[CreateGiftCard])) { payload ⇒
+//                complete {
+//                  Future.successful(HttpResponse(OK))
+//                }
+//              } ~
               (post & path(IntNumber / "convert")) { giftCardId ⇒
                 complete {
                   whenFound(GiftCards.findById(giftCardId).run()) { gc ⇒
@@ -143,11 +153,21 @@ class Service(
               }
             } ~
             pathPrefix("store-credits") {
-              get {
+              (get & pathEnd) {
                 complete {
                   renderOrNotFound(StoreCredits.findAllByCustomerId(customerId).map(Some(_)))
                 }
               } ~
+              (get & path(IntNumber)) { storeCreditId ⇒
+                complete {
+                  renderOrNotFound(StoreCredits.findById(storeCreditId).run())
+                }
+              } ~
+//              (post & entity(as[CreateStoreCredit])) { payload ⇒
+//                complete {
+//                  Future.successful(HttpResponse(OK))
+//                }
+//              } ~
               (post & path(IntNumber / "convert")) { storeCreditId ⇒
                 complete {
                   whenFound(StoreCredits.findById(storeCreditId).run()) { sc ⇒

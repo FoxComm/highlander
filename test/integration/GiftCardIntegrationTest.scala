@@ -43,5 +43,21 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     response.status must === (StatusCodes.OK)
     giftCards mustBe 'empty
   }
+
+  "finds a gift card by id" in new Fixture {
+    val gc = (for {
+      origin ← GiftCardCsrs.save(Factories.giftCardCsr.copy(adminId = admin.id))
+      gc ← GiftCards.save(Factories.giftCard.copy(customerId = Some(customer.id), originId = origin.id))
+    } yield gc).run().futureValue
+
+    val response = GET(s"v1/users/${customer.id}/payment-methods/gift-cards/${gc.id}")
+    val giftCard = parse(response.bodyText).extract[GiftCard]
+
+    response.status must === (StatusCodes.OK)
+    giftCard.customerId must === (Some(customer.id))
+
+    val notFoundResponse = GET(s"v1/users/${customer.id}/payment-methods/gift-cards/99")
+    notFoundResponse.status must === (StatusCodes.NotFound)
+  }
 }
 

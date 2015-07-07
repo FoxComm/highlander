@@ -43,5 +43,21 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
     response.status must === (StatusCodes.OK)
     storeCredits mustBe 'empty
   }
+
+  "finds a store credit by id" in new Fixture {
+    val sc = (for {
+      origin ← StoreCreditCsrs.save(Factories.storeCreditCsr.copy(adminId = admin.id))
+      sc ← StoreCredits.save(Factories.storeCredit.copy(customerId = customer.id, originId = origin.id))
+    } yield sc).run().futureValue
+
+    val response = GET(s"v1/users/${customer.id}/payment-methods/store-credits")
+    val storeCredit = parse(response.bodyText).extract[Seq[StoreCredit]].head
+
+    response.status must === (StatusCodes.OK)
+    storeCredit.customerId must === (customer.id)
+
+    val notFoundResponse = GET(s"v1/users/${customer.id}/payment-methods/store-credits/99")
+    notFoundResponse.status must === (StatusCodes.NotFound)
+  }
 }
 
