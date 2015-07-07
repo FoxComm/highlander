@@ -7,7 +7,7 @@ declare
     origin_id int;
 begin
     insert into gift_card_origins default values returning id INTO origin_id;
-    new.origin_id = origin_id;
+    new.id = origin_id;
     return new;
 end;
 $$ language plpgsql;
