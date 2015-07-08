@@ -7,7 +7,7 @@ import utils.{GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId}
 
 final case class StoreCreditFromGiftCard(id: Int = 0, giftCardId: Int) extends ModelWithIdParameter
 
-object StoreCreditFromGiftCard {}
+object StoreCreditFromGiftCard
 
 class StoreCreditFromGiftCards(tag: Tag) extends GenericTable.TableWithId[StoreCreditFromGiftCard](tag,
   "store_credit_from_gift_cards") with RichTable {
