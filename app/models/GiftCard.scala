@@ -94,4 +94,11 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
 
   def _findAllByCustomerId(customerId: Int)(implicit ec: ExecutionContext): DBIO[Seq[GiftCard]] =
     filter(_.customerId === customerId).result
+
+  def findByIdAndCustomerId(id: Int, customerId: Int)
+    (implicit ec: ExecutionContext, db: Database): Future[Option[GiftCard]] =
+    _findByIdAndCustomerId(id, customerId).run()
+
+  def _findByIdAndCustomerId(id: Int, customerId: Int)(implicit ec: ExecutionContext): DBIO[Option[GiftCard]] =
+    filter(_.customerId === customerId).filter(_.id === id).take(1).result.headOption
 }

@@ -2,6 +2,8 @@ package models
 
 import com.pellucid.sealerate
 import services.{Failure, OrderTotaler}
+import slick.dbio.Effect.Read
+import slick.profile.SqlAction
 import utils.Money._
 import utils.{ADT, GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
 import validators.nonEmptyIf
@@ -86,4 +88,11 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
 
   def _findAllByCustomerId(customerId: Int)(implicit ec: ExecutionContext): DBIO[Seq[StoreCredit]] =
     filter(_.customerId === customerId).result
+
+  def findByIdAndCustomerId(id: Int, customerId: Int)
+    (implicit ec: ExecutionContext, db: Database): Future[Option[StoreCredit]] =
+    _findByIdAndCustomerId(id, customerId).run()
+
+  def _findByIdAndCustomerId(id: Int, customerId: Int)(implicit ec: ExecutionContext): DBIO[Option[StoreCredit]] =
+    filter(_.customerId === customerId).filter(_.id === id).take(1).result.headOption
 }

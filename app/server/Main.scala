@@ -274,6 +274,32 @@ class Service(
                   }
                 }
             } ~
+            pathPrefix("payment-methods") {
+              pathPrefix("gift-cards") {
+                (get & pathEnd) {
+                  complete {
+                    renderOrNotFound(GiftCards.findAllByCustomerId(customer.id).map(Some(_)))
+                  }
+                } ~
+                (get & path(IntNumber)) { giftCardId ⇒
+                  complete {
+                    renderOrNotFound(GiftCards.findByIdAndCustomerId(giftCardId, customer.id))
+                  }
+                }
+              } ~
+              pathPrefix("store-credits") {
+                (get & pathEnd) {
+                  complete {
+                    renderOrNotFound(StoreCredits.findAllByCustomerId(customer.id).map(Some(_)))
+                  }
+                } ~
+                (get & path(IntNumber)) { storeCreditId ⇒
+                  complete {
+                    renderOrNotFound(StoreCredits.findByIdAndCustomerId(storeCreditId, customer.id))
+                  }
+                }
+              }
+            } ~
               pathPrefix("order") {
                 (post & path("checkout")) {
                   complete {
