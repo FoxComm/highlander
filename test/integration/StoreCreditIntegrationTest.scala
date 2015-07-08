@@ -15,17 +15,9 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
   import Extensions._
   import org.json4s.jackson.JsonMethods._
 
-  trait Fixture {
-    val adminFactory = Factories.storeAdmin
-    val (admin, customer) = (for {
-      admin ← (StoreAdmins.returningId += adminFactory).map { id ⇒ adminFactory.copy(id = id) }
-      customer ← Customers.save(Factories.customer)
-    } yield (admin, customer)).run().futureValue
-  }
-
   "admin API" - {
     "returns store credits belonging to the customer" in new Fixture {
-      val sc = (for {
+      (for {
         origin ← StoreCreditCsrs.save(Factories.storeCreditCsr.copy(adminId = admin.id))
         sc ← StoreCredits.save(Factories.storeCredit.copy(customerId = customer.id, originId = origin.id))
       } yield sc).run().futureValue
@@ -51,7 +43,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         sc ← StoreCredits.save(Factories.storeCredit.copy(customerId = customer.id, originId = origin.id))
       } yield sc).run().futureValue
 
-      val response = GET(s"v1/users/${customer.id}/payment-methods/store-credits")
+      val response = GET(s"v1/users/${customer.id}/payment-methods/store-credits/${sc.id}")
       val storeCredit = parse(response.bodyText).extract[Seq[StoreCredit]].head
 
       response.status must ===(StatusCodes.OK)
@@ -61,5 +53,14 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       notFoundResponse.status must ===(StatusCodes.NotFound)
     }
   }
+
+  trait Fixture {
+    val adminFactory = Factories.storeAdmin
+    val (admin, customer) = (for {
+      admin ← (StoreAdmins.returningId += adminFactory).map { id ⇒ adminFactory.copy(id = id) }
+      customer ← Customers.save(Factories.customer)
+    } yield (admin, customer)).run().futureValue
+  }
+
 }
 

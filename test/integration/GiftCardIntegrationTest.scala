@@ -15,17 +15,9 @@ class GiftCardIntegrationTest extends IntegrationTestBase
   import Extensions._
   import org.json4s.jackson.JsonMethods._
 
-  trait Fixture {
-    val adminFactory = Factories.storeAdmin
-    val (admin, customer) = (for {
-      admin ← (StoreAdmins.returningId += adminFactory).map { id ⇒ adminFactory.copy(id = id) }
-      customer ← Customers.save(Factories.customer)
-    } yield (admin, customer)).run().futureValue
-  }
-
   "admin API" - {
     "returns gift cards belonging to the customer" in new Fixture {
-      val gc = (for {
+      (for {
         origin ← GiftCardCsrs.save(Factories.giftCardCsr.copy(adminId = admin.id))
         gc ← GiftCards.save(Factories.giftCard.copy(customerId = Some(customer.id), originId = origin.id))
       } yield gc).run().futureValue
@@ -60,6 +52,14 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       val notFoundResponse = GET(s"v1/users/${customer.id}/payment-methods/gift-cards/99")
       notFoundResponse.status must ===(StatusCodes.NotFound)
     }
+  }
+
+  trait Fixture {
+    val adminFactory = Factories.storeAdmin
+    val (admin, customer) = (for {
+      admin ← (StoreAdmins.returningId += adminFactory).map { id ⇒ adminFactory.copy(id = id) }
+      customer ← Customers.save(Factories.customer)
+    } yield (admin, customer)).run().futureValue
   }
 }
 
