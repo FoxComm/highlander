@@ -2,6 +2,8 @@ package models
 
 import com.pellucid.sealerate
 import services.{Failure, OrderTotaler}
+import slick.dbio.Effect.Read
+import slick.profile.SqlAction
 import utils.Money._
 import utils.{ADT, GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
 import validators.nonEmptyIf
@@ -31,6 +33,8 @@ final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, origin
   def authorize(amount: Int)(implicit ec: ExecutionContext): Future[String Or List[Failure]] = {
     Future.successful(Good("authenticated"))
   }
+
+  def isActive: Boolean = activeStatuses.contains(status)
 }
 
 object StoreCredit {
@@ -38,7 +42,6 @@ object StoreCredit {
   case object New extends Status
   case object Auth extends Status
   case object Hold extends Status
-  case object Active extends Status
   case object Canceled extends Status
   case object PartiallyApplied extends Status
   case object Applied extends Status
@@ -46,6 +49,8 @@ object StoreCredit {
   object Status extends ADT[Status] {
     def types = sealerate.values[Status]
   }
+
+  val activeStatuses = Set[Status](New, Auth, PartiallyApplied)
 
   implicit val statusColumnType = Status.slickColumn
 }
@@ -77,4 +82,17 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
   override def save(storeCredit: StoreCredit)(implicit ec: ExecutionContext): DBIO[StoreCredit] = for {
     id ← returningId += storeCredit.copy(currentBalance = storeCredit.originalBalance)
   } yield storeCredit.copy(id = id)
+
+  def findAllByCustomerId(customerId: Int)(implicit ec: ExecutionContext, db: Database): Future[Seq[StoreCredit]] =
+    _findAllByCustomerId(customerId).run()
+
+  def _findAllByCustomerId(customerId: Int)(implicit ec: ExecutionContext): DBIO[Seq[StoreCredit]] =
+    filter(_.customerId === customerId).result
+
+  def findByIdAndCustomerId(id: Int, customerId: Int)
+    (implicit ec: ExecutionContext, db: Database): Future[Option[StoreCredit]] =
+    _findByIdAndCustomerId(id, customerId).run()
+
+  def _findByIdAndCustomerId(id: Int, customerId: Int)(implicit ec: ExecutionContext): DBIO[Option[StoreCredit]] =
+    filter(_.customerId === customerId).filter(_.id === id).take(1).result.headOption
 }

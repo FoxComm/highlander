@@ -11,7 +11,7 @@ create table store_credits (
     created_at timestamp without time zone default (now() at time zone 'utc'),
     updated_at timestamp without time zone default (now() at time zone 'utc'),
     foreign key (origin_id) references store_credit_origins(id) on update restrict on delete restrict,
-    constraint valid_status check (status in ('new', 'auth', 'hold','active','canceled', 'partiallyApplied', 'applied'))
+    constraint valid_status check (status in ('new', 'auth', 'hold', 'canceled', 'partiallyApplied', 'applied'))
 );
 
 create index store_credits_idx on store_credits (customer_id, status);
