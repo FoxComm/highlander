@@ -111,17 +111,69 @@ class Service(
     logRequestResult("admin-routes") {
       authenticateBasicAsync(realm = "admin", storeAdminAuth) { user =>
         pathPrefix("v1" / "users" / IntNumber) { customerId =>
-          (get & path("addresses")) {
-            complete {
-              Addresses.findAllByCustomerId(customerId).map { addresses =>
-                HttpResponse(OK, entity = render(addresses))
+          pathPrefix("addresses") {
+            get {
+              complete {
+                Addresses.findAllByCustomerId(customerId).map { addresses =>
+                  HttpResponse(OK, entity = render(addresses))
+                }
+              }
+            } ~
+            (post & entity(as[Seq[CreateAddressPayload]])) { payload =>
+              complete {
+                whenFound(findCustomer(customerId)) { customer =>
+                  Addresses.createFromPayload(customer, payload)
+                }
               }
             }
           } ~
-          (post & entity(as[Seq[CreateAddressPayload]])) { payload =>
-            complete {
-              whenFound(findCustomer(customerId)) { customer =>
-                Addresses.createFromPayload(customer, payload)
+          pathPrefix("payment-methods") {
+            pathPrefix("gift-cards") {
+              (get & pathEnd) {
+                complete {
+                  renderOrNotFound(GiftCards.findAllByCustomerId(customerId).map(Some(_)))
+                }
+              } ~
+              (get & path(IntNumber)) { giftCardId ⇒
+                complete {
+                  renderOrNotFound(GiftCards.findById(giftCardId).run())
+                }
+              } ~
+//              (post & entity(as[CreateGiftCard])) { payload ⇒
+//                complete {
+//                  Future.successful(HttpResponse(OK))
+//                }
+//              } ~
+              (post & path(IntNumber / "convert")) { giftCardId ⇒
+                complete {
+                  whenFound(GiftCards.findById(giftCardId).run()) { gc ⇒
+                    CustomerCreditConverter.toStoreCredit(gc, customerId)
+                  }
+                }
+              }
+            } ~
+            pathPrefix("store-credits") {
+              (get & pathEnd) {
+                complete {
+                  renderOrNotFound(StoreCredits.findAllByCustomerId(customerId).map(Some(_)))
+                }
+              } ~
+              (get & path(IntNumber)) { storeCreditId ⇒
+                complete {
+                  renderOrNotFound(StoreCredits.findById(storeCreditId).run())
+                }
+              } ~
+//              (post & entity(as[CreateStoreCredit])) { payload ⇒
+//                complete {
+//                  Future.successful(HttpResponse(OK))
+//                }
+//              } ~
+              (post & path(IntNumber / "convert")) { storeCreditId ⇒
+                complete {
+                  whenFound(StoreCredits.findById(storeCreditId).run()) { sc ⇒
+                    CustomerCreditConverter.toGiftCard(sc, customerId)
+                  }
+                }
               }
             }
           }
@@ -221,6 +273,32 @@ class Service(
                     Addresses.createFromPayload(customer, payload).map(renderGoodOrBad)
                   }
                 }
+            } ~
+            pathPrefix("payment-methods") {
+              pathPrefix("gift-cards") {
+                (get & pathEnd) {
+                  complete {
+                    renderOrNotFound(GiftCards.findAllByCustomerId(customer.id).map(Some(_)))
+                  }
+                } ~
+                (get & path(IntNumber)) { giftCardId ⇒
+                  complete {
+                    renderOrNotFound(GiftCards.findByIdAndCustomerId(giftCardId, customer.id))
+                  }
+                }
+              } ~
+              pathPrefix("store-credits") {
+                (get & pathEnd) {
+                  complete {
+                    renderOrNotFound(StoreCredits.findAllByCustomerId(customer.id).map(Some(_)))
+                  }
+                } ~
+                (get & path(IntNumber)) { storeCreditId ⇒
+                  complete {
+                    renderOrNotFound(StoreCredits.findByIdAndCustomerId(storeCreditId, customer.id))
+                  }
+                }
+              }
             } ~
               pathPrefix("order") {
                 (post & path("checkout")) {
