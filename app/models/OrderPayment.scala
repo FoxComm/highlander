@@ -13,7 +13,7 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 import com.stripe.model.{Customer => StripeCustomer}
 
-final case class AppliedPayment(id: Int = 0,
+final case class OrderPayment(id: Int = 0,
                           orderId: Int,
                           paymentMethodId: Int,
                           paymentMethodType: String,
@@ -24,9 +24,9 @@ final case class AppliedPayment(id: Int = 0,
   extends ModelWithIdParameter {
 }
 
-object AppliedPayment {
-  def fromStripeCustomer(stripeCustomer: StripeCustomer, order: Order): AppliedPayment = {
-    AppliedPayment(orderId = order.id, paymentMethodId = 1, // TODO: would do a lookup
+object OrderPayment {
+  def fromStripeCustomer(stripeCustomer: StripeCustomer, order: Order): OrderPayment = {
+    OrderPayment(orderId = order.id, paymentMethodId = 1, // TODO: would do a lookup
       paymentMethodType = "stripe",
       appliedAmount = 0, status = Auth.toString.toLowerCase, // TODO: use type and marshalling
       responseCode = "ok" // TODO: make this real
@@ -34,8 +34,8 @@ object AppliedPayment {
   }
 }
 
-class AppliedPayments(tag: Tag)
-  extends GenericTable.TableWithId[AppliedPayment](tag, "applied_payments")
+class OrderPayments(tag: Tag)
+  extends GenericTable.TableWithId[OrderPayment](tag, "order_payments")
   with RichTable {
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
@@ -47,26 +47,26 @@ class AppliedPayments(tag: Tag)
   def responseCode = column[String]("response_code")
   def chargeId = column[Option[String]]("charge_id")
 
-  def * = (id, orderId, paymentMethodId, paymentMethodType, amount, status, responseCode, chargeId) <> ((AppliedPayment.apply _).tupled, AppliedPayment.unapply )
+  def * = (id, orderId, paymentMethodId, paymentMethodType, amount, status, responseCode, chargeId) <> ((OrderPayment.apply _).tupled, OrderPayment.unapply )
 }
 
-object AppliedPayments extends TableQueryWithId[AppliedPayment, AppliedPayments](
-  idLens = GenLens[AppliedPayment](_.id)
-)(new AppliedPayments(_)){
+object OrderPayments extends TableQueryWithId[OrderPayment, OrderPayments](
+  idLens = GenLens[OrderPayment](_.id)
+)(new OrderPayments(_)){
 
-  def update(payment: AppliedPayment)(implicit db: Database): Future[Int] =
+  def update(payment: OrderPayment)(implicit db: Database): Future[Int] =
     this._findById(payment.id).update(payment).run()
 
-  def findAllByOrderId(id: Int)(implicit ec: ExecutionContext, db: Database): Future[Seq[AppliedPayment]] = {
+  def findAllByOrderId(id: Int)(implicit ec: ExecutionContext, db: Database): Future[Seq[OrderPayment]] = {
     db.run(this.filter(_.id === id).result)
   }
 
   def findAllPaymentsFor(order: Order)
-                        (implicit ec: ExecutionContext, db: Database): Future[Seq[(AppliedPayment, CreditCardGateway)]] = {
+                        (implicit ec: ExecutionContext, db: Database): Future[Seq[(OrderPayment, CreditCardGateway)]] = {
     db.run(this._findAllPaymentsFor(order).result)
   }
 
-  def _findAllPaymentsFor(order: Order): Query[(AppliedPayments, CreditCardGateways), (AppliedPayment, CreditCardGateway), Seq] = {
+  def _findAllPaymentsFor(order: Order): Query[(OrderPayments, CreditCardGateways), (OrderPayment, CreditCardGateway), Seq] = {
     for {
       payments ← this.filter(_.orderId === order.id)
       cards    ← CreditCardGateways if cards.id === payments.id

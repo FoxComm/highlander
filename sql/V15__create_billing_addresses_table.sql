@@ -9,5 +9,6 @@ create table billing_addresses (
 
 alter table only billing_addresses
   add constraint billing_addresses_address_id_fk foreign key (address_id) references addresses(id) on update restrict on delete cascade,
-  add constraint billing_addresses_applied_payments_id_fk foreign key (payment_id) references applied_payments(id) on update restrict on delete cascade;
+  add constraint billing_addresses_order_payments_id_fk foreign key (payment_id) references order_payments(id) on
+  update restrict on delete cascade;
 

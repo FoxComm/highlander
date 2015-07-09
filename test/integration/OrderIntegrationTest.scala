@@ -88,7 +88,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       val body = response.bodyText
 
       val cc = CreditCardGateways.findById(1).futureValue.get
-      val payment = AppliedPayments.findAllByOrderId(orderId).futureValue.head
+      val payment = OrderPayments.findAllByOrderId(orderId).futureValue.head
       val (address, billingAddress) = BillingAddresses.findByPaymentId(payment.id).futureValue.get
 
       val order = parse(body).extract[FullOrder.Root]
