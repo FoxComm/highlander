@@ -44,7 +44,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       } yield sc).run().futureValue
 
       val response = GET(s"v1/users/${customer.id}/payment-methods/store-credits/${sc.id}")
-      val storeCredit = parse(response.bodyText).extract[Seq[StoreCredit]].head
+      val storeCredit = parse(response.bodyText).extract[StoreCredit]
 
       response.status must ===(StatusCodes.OK)
       storeCredit.customerId must ===(customer.id)
