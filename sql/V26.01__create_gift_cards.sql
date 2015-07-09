@@ -15,7 +15,7 @@ create table gift_cards (
     updated_at timestamp without time zone default (now() at time zone 'utc'),
     foreign key (origin_id) references gift_card_origins(id) on update restrict on delete restrict,
     constraint valid_status check (status in ('new', 'auth', 'hold', 'canceled', 'partiallyApplied', 'applied')),
-    constraint positive_balance check (original_balance >= 0 and current_balance >= 0)
+    constraint positive_balance check (original_balance >= 0 and current_balance >= 0 and available_balance >= 0)
 );
 
 create index gift_cards_idx on gift_cards (code, status);
