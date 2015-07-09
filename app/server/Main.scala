@@ -110,6 +110,13 @@ class Service(
      */
     logRequestResult("admin-routes") {
       authenticateBasicAsync(realm = "admin", storeAdminAuth) { user =>
+        pathPrefix("v1" / "gift-cards") {
+          (get & path(IntNumber) & pathEnd) { giftCardId ⇒
+            complete {
+              renderOrNotFound(GiftCards.findById(giftCardId).run())
+            }
+          }
+        } ~
         pathPrefix("v1" / "users" / IntNumber) { customerId =>
           pathPrefix("addresses") {
             get {
@@ -128,30 +135,6 @@ class Service(
             }
           } ~
           pathPrefix("payment-methods") {
-            pathPrefix("gift-cards") {
-              (get & pathEnd) {
-                complete {
-                  renderOrNotFound(GiftCards.findAllByCustomerId(customerId).map(Some(_)))
-                }
-              } ~
-              (get & path(IntNumber)) { giftCardId ⇒
-                complete {
-                  renderOrNotFound(GiftCards.findById(giftCardId).run())
-                }
-              } ~
-//              (post & entity(as[CreateGiftCard])) { payload ⇒
-//                complete {
-//                  Future.successful(HttpResponse(OK))
-//                }
-//              } ~
-              (post & path(IntNumber / "convert")) { giftCardId ⇒
-                complete {
-                  whenFound(GiftCards.findById(giftCardId).run()) { gc ⇒
-                    CustomerCreditConverter.toStoreCredit(gc, customerId)
-                  }
-                }
-              }
-            } ~
             pathPrefix("store-credits") {
               (get & pathEnd) {
                 complete {
@@ -275,18 +258,6 @@ class Service(
                 }
             } ~
             pathPrefix("payment-methods") {
-              pathPrefix("gift-cards") {
-                (get & pathEnd) {
-                  complete {
-                    renderOrNotFound(GiftCards.findAllByCustomerId(customer.id).map(Some(_)))
-                  }
-                } ~
-                (get & path(IntNumber)) { giftCardId ⇒
-                  complete {
-                    renderOrNotFound(GiftCards.findByIdAndCustomerId(giftCardId, customer.id))
-                  }
-                }
-              } ~
               pathPrefix("store-credits") {
                 (get & pathEnd) {
                   complete {

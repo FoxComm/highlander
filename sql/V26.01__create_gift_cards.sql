@@ -1,6 +1,5 @@
 create table gift_cards (
     id serial primary key,
-    customer_id integer null,
     origin_id integer not null,
     origin_type character varying(255) not null,
     code character varying(255) not null,
