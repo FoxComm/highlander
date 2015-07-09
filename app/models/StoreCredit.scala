@@ -17,7 +17,7 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: String, currency: Currency,
-  originalBalance: Int, currentBalance: Int, status: StoreCredit.Status = StoreCredit.New,
+  originalBalance: Int, currentBalance: Int = 0, availableBalance:Int = 0, status: StoreCredit.Status = StoreCredit.New,
   canceledReason: Option[String] = None)
   extends PaymentMethod
   with ModelWithIdParameter
@@ -63,10 +63,11 @@ class StoreCredits(tag: Tag) extends GenericTable.TableWithId[StoreCredit](tag, 
   def currency = column[Currency]("currency")
   def originalBalance = column[Int]("original_balance")
   def currentBalance = column[Int]("current_balance")
+  def availableBalance = column[Int]("available_balance")
   def status = column[StoreCredit.Status]("status")
   def canceledReason = column[Option[String]]("canceled_reason")
   def * = (id, customerId, originId, originType, currency, originalBalance, currentBalance,
-    status, canceledReason) <> ((StoreCredit.apply _).tupled, StoreCredit.unapply)
+    availableBalance, status, canceledReason) <> ((StoreCredit.apply _).tupled, StoreCredit.unapply)
 }
 
 object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
@@ -78,10 +79,6 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
     val adjustment = StoreCreditAdjustment(storeCreditId = storeCredit.id, debit = debit, capture = capture)
     StoreCreditAdjustments.save(adjustment)
   }
-
-  override def save(storeCredit: StoreCredit)(implicit ec: ExecutionContext): DBIO[StoreCredit] = for {
-    id ← returningId += storeCredit.copy(currentBalance = storeCredit.originalBalance)
-  } yield storeCredit.copy(id = id)
 
   def findAllByCustomerId(customerId: Int)(implicit ec: ExecutionContext, db: Database): Future[Seq[StoreCredit]] =
     _findAllByCustomerId(customerId).run()

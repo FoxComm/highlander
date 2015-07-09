@@ -95,7 +95,7 @@ object Seeds {
     def storeCreditCsr = StoreCreditCsr(adminId = 0, reason = "Because, reasons.")
 
     def giftCard = GiftCard(currency = Currency.USD, originId = 0, originType = "FIXME", code = "ABC-123",
-      originalBalance = 50, currentBalance = 50)
+      originalBalance = 50)
 
     def giftCardCsr = GiftCardCsr(adminId = 0, reason = "Because, reasons.")
 

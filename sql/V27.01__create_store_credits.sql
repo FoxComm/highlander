@@ -7,6 +7,7 @@ create table store_credits (
     currency currency,
     original_balance integer not null,
     current_balance integer not null,
+    available_balance integer not null,
     canceled_reason character varying(255) null,
     created_at timestamp without time zone default (now() at time zone 'utc'),
     updated_at timestamp without time zone default (now() at time zone 'utc'),
@@ -15,4 +16,19 @@ create table store_credits (
 );
 
 create index store_credits_idx on store_credits (customer_id, status);
+
+-- available_balance and current_balance should always be == original_balance upon insertion
+create function set_store_credits_balances() returns trigger as $$
+begin
+    new.current_balance = new.original_balance;
+    new.available_balance = new.original_balance;
+    return new;
+end;
+$$ language plpgsql;
+
+create trigger set_store_credits_balances_trg
+    before insert
+    on store_credits
+    for each row
+    execute procedure set_store_credits_balances();
 

@@ -8,6 +8,7 @@ create table gift_cards (
     currency currency,
     original_balance integer not null,
     current_balance integer not null,
+    available_balance integer not null,
     reloadable boolean not null default false,
     canceled_reason character varying(255) null,
     created_at timestamp without time zone default (now() at time zone 'utc'),
@@ -18,4 +19,19 @@ create table gift_cards (
 );
 
 create index gift_cards_idx on gift_cards (code, status);
+
+-- available_balance and current_balance should always be == original_balance upon insertion
+create function set_gift_cards_balances() returns trigger as $$
+begin
+    new.current_balance = new.original_balance;
+    new.available_balance = new.original_balance;
+    return new;
+end;
+$$ language plpgsql;
+
+create trigger set_gift_cards_balances_trg
+    before insert
+    on gift_cards
+    for each row
+    execute procedure set_gift_cards_balances();
 
