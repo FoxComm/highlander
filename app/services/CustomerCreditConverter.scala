@@ -28,7 +28,7 @@ object CustomerCreditConverter {
     (implicit ec: ExecutionContext, db: Database): Future[GiftCard Or Failure] = {
 
     if (sc.isActive) {
-      val giftCard = GiftCard(customerId = Some(customerId), code = "x", originId = 0, originType =
+      val giftCard = GiftCard(code = "x", originId = 0, originType =
         "giftCardFromStoreCredit", currency = sc.currency,
         originalBalance = sc.currentBalance, currentBalance = sc.currentBalance)
 

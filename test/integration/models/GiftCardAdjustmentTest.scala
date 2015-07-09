@@ -63,10 +63,9 @@ class GiftCardAdjustmentTest extends IntegrationTestBase {
 
   trait Fixture {
     val adminFactory = Factories.storeAdmin
-    val (admin, customer) = (for {
+    val admin = (for {
       admin ← (StoreAdmins.returningId += adminFactory).map { id ⇒ adminFactory.copy(id = id) }
-      customer ← Customers.save(Factories.customer)
-    } yield (admin, customer)).run().futureValue
+    } yield admin).run().futureValue
   }
 }
 

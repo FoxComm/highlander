@@ -17,7 +17,7 @@ import org.scalactic._
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-final case class GiftCard(id: Int = 0, customerId: Option[Int] = None, originId: Int, originType: String, code: String,
+final case class GiftCard(id: Int = 0, originId: Int, originType: String, code: String,
   currency: Currency, status: GiftCard.Status = GiftCard.New, originalBalance: Int, currentBalance: Int = 0,
   availableBalance: Int = 0, canceledReason: Option[String] = None, reloadable: Boolean = false)
   extends PaymentMethod
@@ -60,7 +60,6 @@ object GiftCard {
 
 class GiftCards(tag: Tag) extends GenericTable.TableWithId[GiftCard](tag, "gift_cards") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def customerId = column[Option[Int]]("customer_id")
   def originId = column[Int]("origin_id")
   def originType = column[String]("origin_type")
   def code = column[String]("code")
@@ -72,7 +71,7 @@ class GiftCards(tag: Tag) extends GenericTable.TableWithId[GiftCard](tag, "gift_
   def canceledReason = column[Option[String]]("canceled_reason")
   def reloadable = column[Boolean]("reloadable")
 
-  def * = (id, customerId, originId, originType, code, currency, status, originalBalance, currentBalance,
+  def * = (id, originId, originType, code, currency, status, originalBalance, currentBalance,
     availableBalance, canceledReason, reloadable) <> ((GiftCard.apply _).tupled, GiftCard.unapply)
 }
 
@@ -85,17 +84,4 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
     val adjustment = GiftCardAdjustment(giftCardId = giftCard.id, debit = debit, credit = credit, capture = capture)
     GiftCardAdjustments.save(adjustment)
   }
-
-  def findAllByCustomerId(customerId: Int)(implicit ec: ExecutionContext, db: Database): Future[Seq[GiftCard]] =
-    _findAllByCustomerId(customerId).run()
-
-  def _findAllByCustomerId(customerId: Int)(implicit ec: ExecutionContext): DBIO[Seq[GiftCard]] =
-    filter(_.customerId === customerId).result
-
-  def findByIdAndCustomerId(id: Int, customerId: Int)
-    (implicit ec: ExecutionContext, db: Database): Future[Option[GiftCard]] =
-    _findByIdAndCustomerId(id, customerId).run()
-
-  def _findByIdAndCustomerId(id: Int, customerId: Int)(implicit ec: ExecutionContext): DBIO[Option[GiftCard]] =
-    filter(_.customerId === customerId).filter(_.id === id).take(1).result.headOption
 }
