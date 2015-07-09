@@ -10,7 +10,9 @@ class GiftCardTest extends IntegrationTestBase {
 
   "GiftCardTest" - {
     "sets availableBalance and currentBalance equal to originalBalance upon insert" in new Fixture {
-      List(giftCard.originalBalance, giftCard.currentBalance, giftCard.availableBalance) must === (List(50, 50, 50))
+      giftCard.originalBalance must === (50)
+      giftCard.currentBalance must === (50)
+      giftCard.availableBalance must === (50)
     }
   }
 

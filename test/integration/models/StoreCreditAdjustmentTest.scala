@@ -44,7 +44,8 @@ class StoreCreditAdjustmentTest extends IntegrationTestBase {
         sc ← StoreCredits.findById(sc.id)
       } yield sc.get).run().futureValue
 
-      List(sc.availableBalance, sc.currentBalance) must === (List(0, 200))
+      sc.availableBalance must === (0)
+      sc.currentBalance must === (200)
     }
   }
 

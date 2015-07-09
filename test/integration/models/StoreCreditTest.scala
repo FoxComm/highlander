@@ -10,7 +10,9 @@ class StoreCreditTest extends IntegrationTestBase {
 
   "StoreCreditTest" - {
     "sets availableBalance and currentBalance equal to originalBalance upon insert" in new Fixture {
-      List(storeCredit.originalBalance, storeCredit.currentBalance, storeCredit.availableBalance) must === (List(50, 50, 50))
+      storeCredit.originalBalance must === (50)
+      storeCredit.currentBalance must === (50)
+      storeCredit.availableBalance must === (50)
     }
   }
 

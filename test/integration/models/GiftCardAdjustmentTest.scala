@@ -42,7 +42,7 @@ class GiftCardAdjustmentTest extends IntegrationTestBase {
     }
 
     "updates the GiftCard's currentBalance and availableBalance after insert" in new Fixture {
-      val finalGiftCard = (for {
+      val gc = (for {
         origin ← GiftCardCsrs.save(Factories.giftCardCsr.copy(adminId = admin.id))
         gc ← GiftCards.save(Factories.giftCard.copy(originId = origin.id, originalBalance = 500))
         _ ← GiftCards.adjust(giftCard = gc, debit = 50, credit = 0, capture = true)
@@ -56,7 +56,8 @@ class GiftCardAdjustmentTest extends IntegrationTestBase {
         gc ← GiftCards.findById(gc.id)
       } yield gc.get).run().futureValue
 
-      List(finalGiftCard.availableBalance, finalGiftCard.currentBalance) must === (List(0, 200))
+      gc.availableBalance must === (0)
+      gc.currentBalance must === (200)
     }
   }
 
