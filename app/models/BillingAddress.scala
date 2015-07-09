@@ -24,7 +24,7 @@ class BillingAddresses(tag: Tag) extends Table[BillingAddress](tag, "billing_add
   def * = (addressId, paymentId) <> ((BillingAddress.apply _).tupled, BillingAddress.unapply)
 
   def address = foreignKey("billing_addresses_address_id_fk", addressId, TableQuery[Addresses])(_.id)
-  def payment = foreignKey("billing_addresses_applied_payments_id_fk", paymentId, TableQuery[AppliedPayments])(_.id)
+  def payment = foreignKey("billing_addresses_applied_payments_id_fk", paymentId, TableQuery[OrderPayments])(_.id)
 }
 
 object BillingAddresses {

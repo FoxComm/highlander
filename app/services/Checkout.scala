@@ -48,21 +48,21 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
   def decrementInventory(order: Order): Future[Int] =
     InventoryAdjustments.createAdjustmentsForOrder(order)
 
-  def authorizePayments: Future[Map[AppliedPayment, List[Failure]]] = {
-    AppliedPayments.findAllPaymentsFor(this.order).flatMap { records =>
+  def authorizePayments: Future[Map[OrderPayment, List[Failure]]] = {
+    OrderPayments.findAllPaymentsFor(this.order).flatMap { records =>
       Future.sequence(records.map { case (payment, creditCard) =>
         creditCard.authorize(payment.appliedAmount).flatMap { or ⇒
           or.fold({ chargeId ⇒
             val paymentWithCharge = payment.copy(chargeId = Some(chargeId))
-            AppliedPayments.update(paymentWithCharge).map { _ ⇒
+            OrderPayments.update(paymentWithCharge).map { _ ⇒
               (paymentWithCharge, or)
             }
           }, { _ ⇒
             Future.successful((payment, or))
           })
         }
-      }).map { (results: Seq[(AppliedPayment, Or[String, List[Failure]])]) =>
-        results.foldLeft(Map[AppliedPayment, List[Failure]]()) { case (errors, (payment, result)) =>
+      }).map { (results: Seq[(OrderPayment, Or[String, List[Failure]])]) =>
+        results.foldLeft(Map[OrderPayment, List[Failure]]()) { case (errors, (payment, result)) =>
           errors.updated(payment,
             result.fold({ good => List.empty }, { bad => bad }))
         }
