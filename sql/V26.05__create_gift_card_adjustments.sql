@@ -16,13 +16,20 @@ create function update_gift_card_current_balance() returns trigger as $$
 declare
     adjustment integer default 0;
 begin
-    if new.debit > 0 and new.capture then
+    if new.debit > 0 then
         adjustment := -new.debit;
     elsif new.credit > 0 then
         adjustment := new.credit;
     end if;
 
-    update gift_cards set current_balance = current_balance + adjustment where id = new.gift_card_id;
+    if new.capture then
+        update gift_cards
+            set current_balance = current_balance + adjustment,
+                available_balance = available_balance + adjustment
+                where id = new.gift_card_id;
+    else
+        update gift_cards set available_balance = available_balance + adjustment where id = new.gift_card_id;
+    end if;
 
     return new;
 end;

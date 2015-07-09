@@ -1,12 +1,9 @@
 package models
 
-import util.IntegrationTestBase
+import util.TestBase
 import utils.Seeds.Factories
 
-class GiftCardTest extends IntegrationTestBase {
-  import api._
-  import concurrent.ExecutionContext.Implicits.global
-
+class GiftCardTest extends TestBase {
   "GiftCard" - {
     ".validate" - {
       "returns errors when canceled with no corresponding reason" in {

@@ -18,8 +18,8 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 final case class GiftCard(id: Int = 0, customerId: Option[Int] = None, originId: Int, originType: String, code: String,
-  currency: Currency, status: GiftCard.Status = GiftCard.New, originalBalance: Int, currentBalance: Int,
-  canceledReason: Option[String] = None, reloadable: Boolean = false)
+  currency: Currency, status: GiftCard.Status = GiftCard.New, originalBalance: Int, currentBalance: Int = 0,
+  availableBalance: Int = 0, canceledReason: Option[String] = None, reloadable: Boolean = false)
   extends PaymentMethod
   with ModelWithIdParameter
   with Validation[GiftCard] {
@@ -68,11 +68,12 @@ class GiftCards(tag: Tag) extends GenericTable.TableWithId[GiftCard](tag, "gift_
   def currency = column[Currency]("currency")
   def originalBalance = column[Int]("original_balance")
   def currentBalance = column[Int]("current_balance")
+  def availableBalance = column[Int]("available_balance")
   def canceledReason = column[Option[String]]("canceled_reason")
   def reloadable = column[Boolean]("reloadable")
 
   def * = (id, customerId, originId, originType, code, currency, status, originalBalance, currentBalance,
-    canceledReason, reloadable) <> ((GiftCard.apply _).tupled, GiftCard.unapply)
+    availableBalance, canceledReason, reloadable) <> ((GiftCard.apply _).tupled, GiftCard.unapply)
 }
 
 object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
@@ -84,10 +85,6 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
     val adjustment = GiftCardAdjustment(giftCardId = giftCard.id, debit = debit, credit = credit, capture = capture)
     GiftCardAdjustments.save(adjustment)
   }
-
-  override def save(giftCard: GiftCard)(implicit ec: ExecutionContext): DBIO[GiftCard] = for {
-    id ← returningId += giftCard.copy(currentBalance = giftCard.originalBalance)
-  } yield giftCard.copy(id = id)
 
   def findAllByCustomerId(customerId: Int)(implicit ec: ExecutionContext, db: Database): Future[Seq[GiftCard]] =
     _findAllByCustomerId(customerId).run()

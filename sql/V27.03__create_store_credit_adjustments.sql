@@ -10,8 +10,18 @@ create table store_credit_adjustments (
 );
 
 create function update_store_credit_current_balance() returns trigger as $$
+declare
+    adjustment integer default 0;
 begin
-    update store_credits set current_balance = current_balance - new.debit where id = new.store_credit_id;
+    adjustment = new.debit;
+    if new.capture then
+        update store_credits
+            set current_balance = current_balance - adjustment,
+                available_balance = available_balance - adjustment
+            where id = new.store_credit_id;
+    else
+        update store_credits set available_balance = available_balance - adjustment where id = new.store_credit_id;
+    end if;
     return new;
 end;
 $$ language plpgsql;
