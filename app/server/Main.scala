@@ -161,72 +161,74 @@ class Service(
             }
           }
         } ~
-        pathPrefix("v1" / "orders") {
-          (get & path(IntNumber)) { orderId =>
+        pathPrefix("v1" / "orders" / IntNumber) { orderId ⇒
+          (get & pathEnd) {
             complete {
               renderOrNotFound(FullOrder.findById(orderId))
             }
           } ~
-            (patch & path(IntNumber) & entity(as[UpdateOrderPayload]) ) { (orderId, payload) =>
-              complete {
-                whenFound(Orders.findById(orderId).run()) { order =>
-                  OrderUpdater.updateStatus(order, payload).flatMap {
-                    case Good(o) ⇒
-                      FullOrder.fromOrder(o).map {
-                        case Some(r)  ⇒ Good(r)
-                        case None     ⇒ Bad(List("order not found"))
-                      }
+          (patch & entity(as[UpdateOrderPayload]) ) { payload =>
+            complete {
+              whenFound(Orders.findById(orderId).run()) { order =>
+                OrderUpdater.updateStatus(order, payload).flatMap {
+                  case Good(o) ⇒
+                    FullOrder.fromOrder(o).map {
+                      case Some(r)  ⇒ Good(r)
+                      case None     ⇒ Bad(List("order not found"))
+                    }
 
-                    case Bad(e) ⇒
-                      Future.successful(Bad(e))
-                  }
+                  case Bad(e) ⇒
+                    Future.successful(Bad(e))
                 }
               }
-            } ~
-            (post & path(IntNumber / "checkout")) { orderId =>
-              complete {
-                whenFound(Orders.findById(orderId).run()) { order => new Checkout(order).checkout }
-              }
-            } ~
-            (post & path(IntNumber / "line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { (orderId, reqItems) =>
-              complete {
-                whenFound(Orders.findById(orderId).run()) { order =>
-                  LineItemUpdater.updateQuantities(order, reqItems).flatMap {
-                    case Good(_) ⇒
-                      FullOrder.fromOrder(order).map {
-                        case Some(r) ⇒ Good(r)
-                        case None ⇒ Bad(List("order not found"))
-                      }
+            }
+          } ~
+          (post & path("checkout")) {
+            complete {
+              whenFound(Orders.findById(orderId).run()) { order => new Checkout(order).checkout }
+            }
+          } ~
+          (post & path("line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems =>
+            complete {
+              whenFound(Orders.findById(orderId).run()) { order =>
+                LineItemUpdater.updateQuantities(order, reqItems).flatMap {
+                  case Good(_) ⇒
+                    FullOrder.fromOrder(order).map {
+                      case Some(r) ⇒ Good(r)
+                      case None ⇒ Bad(List("order not found"))
+                    }
 
-                    case Bad(e) ⇒
-                      Future.successful(Bad(e))
-                  }
+                  case Bad(e) ⇒
+                    Future.successful(Bad(e))
                 }
               }
-            } ~
-            (get & path(IntNumber / "payment-methods")) { orderId =>
+            }
+          } ~
+          pathPrefix("payment-methods") {
+            (get & pathEnd) {
               complete {
                 renderOrNotFound(Orders.findById(orderId).run())
               }
             } ~
-            (post & path(IntNumber / "payment-methods" / "credit-card") & entity(as[CreditCardPayload])) { (orderId, reqPayment) =>
+            (post & path("credit-card") & entity(as[CreditCardPayload])) { reqPayment =>
               complete {
                 Orders.findById(orderId).run().flatMap {
                   case None => Future.successful(notFoundResponse)
                   case Some(order) =>
                     findCustomer(order.customerId).flatMap {
-                      case None     =>
+                      case None =>
                         Future.successful(HttpResponse(OK, entity = render(s"Guest checkout!!")))
 
                       case Some(customer) =>
                         CreditCardPaymentCreator.run(order, customer, reqPayment).map { fullOrder =>
-                          fullOrder.fold({ c => HttpResponse(OK, entity = render(c)) },
-                                        { e => HttpResponse(BadRequest, entity = render("errors" -> e.flatMap(_.description))) })
+                          fullOrder.fold({ c => HttpResponse(OK, entity = render(c)) }, { e => HttpResponse(BadRequest, entity = render("errors" -> e.flatMap(_.description))) })
+
                         }
                     }
                 }
               }
             }
+          }
         }
       }
     } ~
@@ -251,11 +253,11 @@ class Service(
                   }
                 }
               } ~
-                (post & entity(as[Seq[CreateAddressPayload]])) { payload =>
-                  complete {
-                    Addresses.createFromPayload(customer, payload).map(renderGoodOrBad)
-                  }
+              (post & entity(as[Seq[CreateAddressPayload]])) { payload =>
+                complete {
+                  Addresses.createFromPayload(customer, payload).map(renderGoodOrBad)
                 }
+              }
             } ~
             pathPrefix("payment-methods") {
               pathPrefix("store-credits") {
@@ -271,60 +273,60 @@ class Service(
                 }
               }
             } ~
-              pathPrefix("order") {
-                (post & path("checkout")) {
-                  complete {
-                    whenFound(Orders.findActiveOrderByCustomer(customer)) { order => new Checkout(order).checkout }
-                  }
-                } ~
-                (post & path("line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems =>
-                  complete {
-                    whenFound(Orders.findActiveOrderByCustomer(customer)) { order =>
-                      LineItemUpdater.updateQuantities(order, reqItems).flatMap {
-                        case Good(_) ⇒
-                          FullOrder.fromOrder(order).map {
-                            case Some(r) ⇒ Good(r)
-                            case None ⇒ Bad(List("order not found"))
-                          }
+            pathPrefix("order") {
+              (post & path("checkout")) {
+                complete {
+                  whenFound(Orders.findActiveOrderByCustomer(customer)) { order => new Checkout(order).checkout }
+                }
+              } ~
+              (post & path("line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems =>
+                complete {
+                  whenFound(Orders.findActiveOrderByCustomer(customer)) { order =>
+                    LineItemUpdater.updateQuantities(order, reqItems).flatMap {
+                      case Good(_) ⇒
+                        FullOrder.fromOrder(order).map {
+                          case Some(r) ⇒ Good(r)
+                          case None ⇒ Bad(List("order not found"))
+                        }
 
-                        case Bad(e) ⇒
-                          Future.successful(Bad(e))
-                      }
+                      case Bad(e) ⇒
+                        Future.successful(Bad(e))
                     }
                   }
-                } ~
-                (get & path("shipping-methods")) {
-                  complete {
-                    whenFound(Orders.findActiveOrderByCustomer(customer)) { order =>
-                      ShippingMethodsBuilder.fullShippingMethodsForOrder(order).map { x =>
-                        // we'll need to handle Bad
-                        Good(x)
-                      }
+                }
+              } ~
+              (get & path("shipping-methods")) {
+                complete {
+                  whenFound(Orders.findActiveOrderByCustomer(customer)) { order =>
+                    ShippingMethodsBuilder.fullShippingMethodsForOrder(order).map { x =>
+                      // we'll need to handle Bad
+                      Good(x)
                     }
                   }
-                } ~
-                (post & path("shipping-methods" / IntNumber)) { shipMethodId =>
-                  complete {
-                    whenFound(Orders.findActiveOrderByCustomer(customer)) { order =>
-                      ShippingMethodsBuilder.addShippingMethodToOrder(shipMethodId, order).flatMap {
-                        case Good(o) ⇒
-                          FullOrder.fromOrder(o).map {
-                            case Some(r) ⇒ Good(r)
-                            case None ⇒ Bad(List("order not found"))
-                          }
+                }
+              } ~
+              (post & path("shipping-methods" / IntNumber)) { shipMethodId =>
+                complete {
+                  whenFound(Orders.findActiveOrderByCustomer(customer)) { order =>
+                    ShippingMethodsBuilder.addShippingMethodToOrder(shipMethodId, order).flatMap {
+                      case Good(o) ⇒
+                        FullOrder.fromOrder(o).map {
+                          case Some(r) ⇒ Good(r)
+                          case None ⇒ Bad(List("order not found"))
+                        }
 
-                        case Bad(e) ⇒
-                          Future.successful(Bad(e))
-                      }
+                      case Bad(e) ⇒
+                        Future.successful(Bad(e))
                     }
                   }
-                } ~
-                  (get & path(PathEnd)) {
-                    complete {
-                      renderOrNotFound(FullOrder.findByCustomer(customer))
-                    }
-                  }
+                }
+              } ~
+              (get & path(PathEnd)) {
+                complete {
+                  renderOrNotFound(FullOrder.findByCustomer(customer))
+                }
               }
+            }
           }
         }
       } ~
