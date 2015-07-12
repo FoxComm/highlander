@@ -22,12 +22,12 @@ object FullOrder {
                   shippingMethod: Option[ShippingMethod],
                   shippingAddress: Option[Address],
                   paymentMethods: Seq[PaymentMethod] = Seq.empty)
-  final case class DisplayLineItem(imagePath: String = "http://lorempixel.com/75/75/fashion" ,
+
 
   // TODO: Consider moving this out to another class.  It may not be necessary, because we may have order-specific customer.
   case class DisplayCustomer(id:Int, firstName: String, lastName: String,  email: String, phoneNumber: Option[String], location: Option[String], modality: Option[String], role: String)
 
-  case class DisplayLineItem(imagePath: String = "http://lorempixel.com/75/75/fashion" ,
+  final case class DisplayLineItem(imagePath: String = "http://lorempixel.com/75/75/fashion" ,
                               name: String = "donkey product",
                               skuId: Int,
                               price: Int = 33,
@@ -92,8 +92,8 @@ object FullOrder {
       customerProfile ← CustomerProfiles.filter(_.customerId === order.customerId)
       shipMethod ← ShippingMethods.filter(_.id === shipment.shippingMethodId)
       address ← Addresses.filter(_.id === shipment.shippingAddressId)
-      appliedPayments ← AppliedPayments.filter(_.orderId === order.id)
-      creditCard ← CreditCardGateways.filter(_.id === appliedPayments.paymentMethodId)
+      orderPayments ← OrderPayments.filter(_.orderId === order.id)
+      creditCard ← CreditCardGateways.filter(_.id === orderPayments.paymentMethodId)
     } yield (order, lineItems, shipMethod, customer, customerProfile, address)
 
     db.run(queries.result).map { results =>
