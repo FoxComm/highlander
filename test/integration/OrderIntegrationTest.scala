@@ -29,7 +29,7 @@ class OrderIntegrationTest extends IntegrationTestBase
        """.stripMargin)
 
     val order = parse(response.bodyText).extract[FullOrder.Root]
-    order.lineItems.map(_.skuId).sortBy(identity) mustBe List(1, 5, 5)
+    order.lineItems.map(_.skuId).sortBy(identity) must === (List(1, 5, 5))
   }
 
   "handles credit cards" - {
@@ -42,7 +42,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         s"v1/orders/5/payment-methods/credit-card",
         payload)
 
-      response.status mustBe StatusCodes.NotFound
+      response.status must === (StatusCodes.NotFound)
     }
 
     "fails if the payload is invalid" in {
@@ -53,8 +53,9 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       val errors = parse(response.bodyText).extract[Map[String, Seq[String]]]
 
-      errors mustBe Map("errors" -> Seq("holderName must not be empty", "cvv must match regular expression '[0-9]{3,4}'"))
-      response.status mustBe StatusCodes.BadRequest
+      errors must === (Map("errors" -> Seq("holderName must not be empty", "cvv must match regular expression " +
+        "'[0-9]{3,4}'")))
+      response.status must === (StatusCodes.BadRequest)
     }
 
     "fails if the card is invalid according to Stripe" ignore {
@@ -67,8 +68,8 @@ class OrderIntegrationTest extends IntegrationTestBase
       val body = response.bodyText
       val errors = parse(body).extract[Map[String, Seq[String]]]
 
-      errors mustBe Map("errors" -> Seq("Your card was declined."))
-      response.status mustBe StatusCodes.BadRequest
+      errors must === (Map("errors" -> Seq("Your card was declined.")))
+      response.status must === (StatusCodes.BadRequest)
     }
 
     "successfully creates records" ignore {
@@ -86,24 +87,24 @@ class OrderIntegrationTest extends IntegrationTestBase
       val body = response.bodyText
 
       val cc = CreditCardGateways.findById(1).futureValue.get
-      val payment = AppliedPayments.findAllByOrderId(orderId).futureValue.head
+      val payment = OrderPayments.findAllByOrderId(orderId).futureValue.head
       val (address, billingAddress) = BillingAddresses.findByPaymentId(payment.id).futureValue.get
 
       val order = parse(body).extract[FullOrder.Root]
 
-      cc.customerId mustBe customerId
-      cc.lastFour mustBe payload.lastFour
-      cc.expMonth mustBe payload.expMonth
-      cc.expYear mustBe payload.expYear
+      cc.customerId must === (customerId)
+      cc.lastFour must === (payload.lastFour)
+      cc.expMonth must === (payload.expMonth)
+      cc.expYear must === (payload.expYear)
 
-      payment.appliedAmount mustBe 0
-      payment.orderId mustBe orderId
-      payment.status mustBe "auth"
+      payment.appliedAmount must === (0)
+      payment.orderId must === (orderId)
+      payment.status must === ("auth")
 
-      response.status mustBe StatusCodes.OK
+      response.status must === (StatusCodes.OK)
 
-      address.stateId mustBe addressPayload.stateId
-      address.customerId mustBe customerId
+      address.stateId must === (addressPayload.stateId)
+      address.customerId must === (customerId)
     }
   }
 }

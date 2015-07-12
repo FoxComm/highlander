@@ -25,6 +25,8 @@ object Seeds {
     priceRuleCriteriaMappings: Seq[ShippingPriceRuleOrderCriterion], skus: Seq[Sku],
     orderLineItems: Seq[OrderLineItem], shipment: Shipment)
 
+  final case class PaymentMethods(giftCard: GiftCard = Factories.giftCard, storeCredit: StoreCredit = Factories.storeCredit)
+
   def run()(implicit db: Database): dbio.DBIOAction[(Customer, Order, Address, CreditCardGateway), NoStream, Write with Write with Write with All with Write with All with Write with All with Write with Write with Write with Write with Write with All] = {
     import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -80,7 +82,6 @@ object Seeds {
 
     def storeAdmin = StoreAdmin(email = "admin@admin.com", password = "password", firstName = "Frankly", lastName = "Admin")
 
-
     def order = Order(customerId = 0, referenceNumber = Some("ABCD1234-11"), status = Order.ManualHold)
 
     def orderNotes: Seq[OrderNote] = Seq(
@@ -101,6 +102,16 @@ object Seeds {
     def creditCard =
       CreditCardGateway(customerId = 0, gatewayCustomerId = "", lastFour = "4242",
         expMonth = today.getMonthOfYear, expYear = today.getYear + 2)
+
+    def storeCredit = StoreCredit(customerId = 0, originId = 0, originType = "FIXME", originalBalance = 50,
+      currency = Currency.USD)
+
+    def storeCreditCsr = StoreCreditCsr(adminId = 0, reason = "Because, reasons.")
+
+    def giftCard = GiftCard(currency = Currency.USD, originId = 0, originType = "FIXME", code = "ABC-123",
+      originalBalance = 50)
+
+    def giftCardCsr = GiftCardCsr(adminId = 0, reason = "Because, reasons.")
 
     def shippingMethods = Seq(
       ShippingMethod(adminDisplayName = "UPS Ground", storefrontDisplayName = "UPS Ground", defaultPrice = 10, isActive = true),

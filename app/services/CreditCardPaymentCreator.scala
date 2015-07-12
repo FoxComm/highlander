@@ -18,7 +18,7 @@ import utils.Validation.Result.{ Success}
 import utils.{ Validation ⇒ validation }
 
 // TODO(yax): make this abstract to handle multiple Gateways
-case class CreditCardPaymentCreator(order: Order, customer: Customer, cardPayload: CreditCardPayload)
+final case class CreditCardPaymentCreator(order: Order, customer: Customer, cardPayload: CreditCardPayload)
                                    (implicit ec: ExecutionContext, db: Database) {
 
   val gateway = StripeGateway()
@@ -48,13 +48,13 @@ case class CreditCardPaymentCreator(order: Order, customer: Customer, cardPayloa
   private [this] def createRecords(stripeCustomer: StripeCustomer, order: Order, customer: Customer)
                                   (implicit ec: ExecutionContext, db: Database): Future[Option[Order]] = {
 
-    val appliedPayment = AppliedPayment.fromStripeCustomer(stripeCustomer, order)
+    val appliedPayment = OrderPayment.fromStripeCustomer(stripeCustomer, order)
     val cc = CreditCardGateway.build(stripeCustomer, this.cardPayload).copy(customerId = customer.id)
     val billingAddress = this.cardPayload.address.map(Address.fromPayload(_).copy(customerId = customer.id))
 
     val queries = for {
       ccId <- CreditCardGateways.returningId += cc
-      appliedPaymentId <- AppliedPayments.returningId += appliedPayment.copy(paymentMethodId = ccId)
+      appliedPaymentId <- OrderPayments.returningId += appliedPayment.copy(paymentMethodId = ccId)
       _ <- billingAddress.map(BillingAddresses._create(_, appliedPaymentId)).getOrElse(DBIO.successful(Unit))
       c <- Orders._findById(order.id).result.headOption
     } yield c

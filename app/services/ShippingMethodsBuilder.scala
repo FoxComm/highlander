@@ -11,7 +11,7 @@ import slick.driver.PostgresDriver.api._
 
 
 object ShippingMethodsBuilder {
-  case class ShippingMethodWithPrice(method: ShippingMethod, displayName: String, estimatedTime: String, price: Int)
+  final case class ShippingMethodWithPrice(method: ShippingMethod, displayName: String, estimatedTime: String, price: Int)
 
   // Which shipping methods are active for this order?
   // 1) Do restriction check

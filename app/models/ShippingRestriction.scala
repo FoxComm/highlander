@@ -12,7 +12,7 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class ShippingRestriction(id:Int = 0, restrictionType: ShippingRestriction.RestrictionType, name: String, displayAnyway: Boolean) extends ModelWithIdParameter
+final case class ShippingRestriction(id:Int = 0, restrictionType: ShippingRestriction.RestrictionType, name: String, displayAnyway: Boolean) extends ModelWithIdParameter
 
 object ShippingRestriction{
   sealed trait RestrictionType

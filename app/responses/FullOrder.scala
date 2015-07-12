@@ -9,8 +9,8 @@ import scala.concurrent.{ExecutionContext, Future}
 object FullOrder {
   type Response = Future[Option[Root]]
 
-  case class Totals(subTotal: Int, taxes: Int, adjustments: Int, total: Int)
-  case class Root(id: Int, referenceNumber: Option[String],
+  final case class Totals(subTotal: Int, taxes: Int, adjustments: Int, total: Int)
+  final case class Root(id: Int, referenceNumber: Option[String],
                   orderStatus: Order.Status,
                   shippingStatus: Order.Status,
                   paymentStatus: Order.Status,
@@ -22,6 +22,7 @@ object FullOrder {
                   shippingMethod: Option[ShippingMethod],
                   shippingAddress: Option[Address],
                   paymentMethods: Seq[PaymentMethod] = Seq.empty)
+  final case class DisplayLineItem(imagePath: String = "http://lorempixel.com/75/75/fashion" ,
 
   // TODO: Consider moving this out to another class.  It may not be necessary, because we may have order-specific customer.
   case class DisplayCustomer(id:Int, firstName: String, lastName: String,  email: String, phoneNumber: Option[String], location: Option[String], modality: Option[String], role: String)

@@ -75,7 +75,7 @@ class AddressTest extends IntegrationTestBase {
         )
 
         forAll(addresses) { (address: Address, errors: Set[String]) =>
-          address.validate.messages mustBe errors
+          address.validate.messages must === (errors)
         }
       }
     }

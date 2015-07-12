@@ -12,7 +12,7 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class ShippingCarrier(id:Int = 0,
+final case class ShippingCarrier(id:Int = 0,
                            name:String,
                            accountNumber:Option[String],
                            regionsServed:String = "US") extends ModelWithIdParameter

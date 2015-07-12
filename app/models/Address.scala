@@ -13,7 +13,7 @@ import org.scalactic._
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-case class Address(id: Int = 0, customerId: Int, stateId: Int, name: String, street1: String, street2: Option[String],
+final case class Address(id: Int = 0, customerId: Int, stateId: Int, name: String, street1: String, street2: Option[String],
                    city: String, zip: String) extends Validation[Address] with ModelWithIdParameter {
   override def validator = createValidator[Address] { address =>
     address.name is notEmpty

@@ -5,7 +5,8 @@ import scalaz.Show
 import com.pellucid.sealerate
 import util.TestBase
 
-import models.{Auth, InsufficientBalance, GiftCardPaymentStatus, CreditCardPaymentStatus, Order}
+import models.{GiftCard, Auth, CreditCardPaymentStatus, Order}
+import utils.Money.Currency
 
 class JsonFormattersTest extends TestBase {
   import org.json4s.jackson.JsonMethods.parse
@@ -15,14 +16,21 @@ class JsonFormattersTest extends TestBase {
 
   implicit val formats = phoenixFormats
 
-  case class Test(order: Order.Status, gc: GiftCardPaymentStatus, cc: CreditCardPaymentStatus)
+  case class Test(order: Order.Status, gc: GiftCard.Status, cc: CreditCardPaymentStatus)
+  case class Product(price: Int, currency: Currency)
 
   "Adt serialization" - {
     "can (de-)serialize JSON" in {
-      val ast = parse(write(Test(order = Order.Cart, cc = Auth, gc = InsufficientBalance)))
+      val ast = parse(write(Test(order = Order.Cart, cc = Auth, gc = GiftCard.Hold)))
       (ast \ "order").extract[Order.Status] mustBe Order.Cart
-      (ast \ "gc").extract[GiftCardPaymentStatus] mustBe InsufficientBalance
+      (ast \ "gc").extract[GiftCard.Status] mustBe GiftCard.Hold
       (ast \ "cc").extract[CreditCardPaymentStatus] mustBe Auth
     }
+  }
+
+  "Can JSON (de-)serialize Currency" in {
+    val ast = parse(write(Product(price = 50, currency = Currency.USD)))
+    (ast \ "price").extract[Int] === (50)
+    (ast \ "currency").extract[Currency] === (Currency.USD)
   }
 }

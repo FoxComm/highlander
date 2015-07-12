@@ -1,3 +1,3 @@
 package payloads
 
-case class UpdateLineItemsPayload(skuId: Int, quantity: Int)
+final case class UpdateLineItemsPayload(skuId: Int, quantity: Int)

@@ -22,7 +22,7 @@ import validators._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class CreditCardGateway(id: Int = 0, customerId: Int, gatewayCustomerId: String, lastFour: String,
+final case class CreditCardGateway(id: Int = 0, customerId: Int, gatewayCustomerId: String, lastFour: String,
                              expMonth: Int, expYear: Int)
   extends PaymentMethod
   with ModelWithIdParameter

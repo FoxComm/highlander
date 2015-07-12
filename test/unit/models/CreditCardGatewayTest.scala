@@ -26,7 +26,7 @@ class CreditCardGatewayTest extends TestBase {
           val result = c.validate
 
           result mustBe 'invalid
-          result.messages.size mustBe (1)
+          result.messages.size must === (1)
           result.messages.head mustBe (error)
         }
       }
@@ -35,8 +35,8 @@ class CreditCardGatewayTest extends TestBase {
         val result = card.copy(expYear = card.expYear + 21).validate
 
         result mustBe 'invalid
-        result.messages.size mustBe (1)
-        result.messages.head mustBe ("credit card expiration is too far in the future")
+        result.messages.size must === (1)
+        result.messages.head must === ("credit card expiration is too far in the future")
       }
 
       "passes for valid cards" in {

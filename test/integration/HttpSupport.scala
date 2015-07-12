@@ -16,11 +16,12 @@ import org.json4s.jackson.Serialization.{write ⇒ writeJson}
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
 import org.scalatest.{Outcome, Suite, SuiteMixin}
 import util.DbTestSupport
+import utils.JsonFormatters
 
 // TODO: Move away from root package when `Service' moverd
 trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with PatienceConfiguration with DbTestSupport ⇒
 
-  implicit val formats = DefaultFormats
+  implicit val formats = JsonFormatters.phoenixFormats
 
   private val ActorSystemNameChars = ('a' to 'z').toSet | ('A' to 'Z').toSet | ('0' to '9').toSet | Set('-', '_')
 
@@ -66,6 +67,14 @@ trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with Patien
         ContentTypes.`application/json`,
         ByteString(rawBody)
       ))
+
+    Http().singleRequest(request).futureValue
+  }
+
+  def GET(path: String): HttpResponse = {
+    val request = HttpRequest(
+      method = HttpMethods.GET,
+      uri    = pathToAbsoluteUrl(path))
 
     Http().singleRequest(request).futureValue
   }
