@@ -91,7 +91,8 @@ object FullOrder {
       customerProfile ← CustomerProfiles.filter(_.customerId === order.customerId)
       shipMethod ← ShippingMethods.filter(_.id === shipment.shippingMethodId)
       address ← Addresses.filter(_.id === shipment.shippingAddressId)
-      //payment <- PaymentMethods
+      appliedPayments ← AppliedPayments.filter(_.orderId === order.id)
+      creditCard ← CreditCardGateways.filter(_.id === appliedPayments.paymentMethodId)
     } yield (order, lineItems, shipMethod, customer, customerProfile, address)
 
     db.run(queries.result).map { results =>
