@@ -6,7 +6,8 @@ const
   Address   = require('./address'),
   LineItem  = require('./line-item'),
   Payment   = require('./payment'),
-  moment    = require('moment');
+  moment    = require('moment'),
+  errors    = require('../../errors');
 
 const seed = [
   {field: 'referenceNumber', method: 'string', opts: {length: 8, pool: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'}},
@@ -22,6 +23,15 @@ const seed = [
 ];
 
 class Order extends BaseModel {
+
+  static findByIdOrRef(id) {
+    let results = this.data.filter(function(item) {
+      return item.id === +id || item.referenceNumber === id;
+    });
+    if (!results.length) { throw new errors.NotFound(`Cannot find ${this.name}`); }
+    return new this(results[0]);
+  }
+
   get referenceNumber() { return this.model.referenceNumber; }
   get orderStatus() { return this.model.orderStatus; }
   get paymentStatus() { return this.model.paymentStatus; }

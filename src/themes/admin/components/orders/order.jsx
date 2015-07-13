@@ -92,7 +92,7 @@ export default class Order extends React.Component {
       countdown     = null;
 
     if (order.id) {
-      let params = {order: order.id};
+      let params = {order: order.referenceNumber};
 
       subNav = (
         <div className="gutter">
