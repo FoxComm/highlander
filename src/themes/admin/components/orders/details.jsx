@@ -37,8 +37,8 @@ export default class OrderDetails extends React.Component {
     if (isEditing) {
       actions = (
         <span>
-          <button className='btn' onClick={this.toggleEdit.bind(this)}>Cancel</button>
-          <button className='btn'>Save Edits</button>
+          <button onClick={this.toggleEdit.bind(this)}>Cancel</button>
+          <button>Save Edits</button>
         </span>
       );
     } else if (OrderStore.holdStatusList.indexOf(order.orderStatus) !== -1) {
