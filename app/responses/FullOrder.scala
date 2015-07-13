@@ -21,7 +21,8 @@ object FullOrder {
                   customer: Option[DisplayCustomer],
                   shippingMethod: Option[ShippingMethod],
                   shippingAddress: Option[Address],
-                  paymentMethods: Seq[PaymentMethod] = Seq.empty)
+                  paymentMethods: Option[Seq[DisplayPaymentMethod]] = None
+    )
 
 
   // TODO: Consider moving this out to another class.  It may not be necessary, because we may have order-specific customer.
@@ -34,14 +35,28 @@ object FullOrder {
                               qty: Int = 1,
                               status: OrderLineItem.Status )
 
+  final case class DisplayPaymentMethod(cardType: String = "Visa", cardExp: String, cardNumber: String, amount: Int,
+    status: String)
+
   def build(order: Order, lineItems: Seq[OrderLineItem] = Seq.empty, adjustments: Seq[Adjustment] = Seq.empty,
     shippingMethod: Option[ShippingMethod] = None, customer: Option[Customer] = None,
     customerProfile: Option[CustomerProfile] = None,
-    shippingAddress: Option[Address] = None): Root = {
+    shippingAddress: Option[Address] = None, orderPayments: Seq[OrderPayment] = Seq.empty,
+    creditCards: Seq[CreditCardGateway] = Seq.empty
+    ): Root = {
 
     val dispCust = customer.flatMap{ c ⇒
       customerProfile.map { cp ⇒
         DisplayCustomer(c.id, c.firstName, c.lastName, c.email, cp.phoneNumber, cp.location, cp.modality, cp.role)
+      }
+    }
+
+    //TODO: This isn't very robust; make it elegantly handle multiple payments
+    val dispPayments = orderPayments.flatMap { op ⇒
+      creditCards.filter(_.id == op.paymentMethodId).map { cc ⇒
+        DisplayPaymentMethod(cardExp = (cc.expMonth + "/" + cc.expYear), cardNumber = ("xxx-xxxx-xxxx-" + cc.lastFour),
+          amount = op.appliedAmount,
+          status = op.status)
       }
     }
 
@@ -55,7 +70,9 @@ object FullOrder {
       fraudScore = scala.util.Random.nextInt(100),
       customer = dispCust,
       shippingAddress = shippingAddress,
-      totals = Totals(subTotal = 333, taxes = 10, adjustments = 0, total = 510), shippingMethod = shippingMethod)
+      totals = Totals(subTotal = 333, taxes = 10, adjustments = 0, total = 510), shippingMethod = shippingMethod,
+      paymentMethods = Some(dispPayments)
+    )
   }
 
 
@@ -93,14 +110,19 @@ object FullOrder {
       shipMethod ← ShippingMethods.filter(_.id === shipment.shippingMethodId)
       address ← Addresses.filter(_.id === shipment.shippingAddressId)
       orderPayments ← OrderPayments.filter(_.orderId === order.id)
-      creditCard ← CreditCardGateways.filter(_.id === orderPayments.paymentMethodId)
-    } yield (order, lineItems, shipMethod, customer, customerProfile, address)
+      creditCards ← CreditCardGateways.filter(_.id === orderPayments.paymentMethodId)
+    } yield (order, lineItems, shipMethod, customer, customerProfile, address, orderPayments, creditCards)
 
     db.run(queries.result).map { results =>
-      results.headOption.map { case (order, _, shippingMethod, customer, customerProfile, address) =>
-        val lineItems = results.map { case (_, items, _, _, _, _) ⇒ items }
+      results.headOption.map { case (order, _, shippingMethod, customer, customerProfile, address, orderPayments,
+      creditCards) =>
+        val lineItems = results.map { case (_, items, _, _, _, _, _, _) ⇒ items }
+        val orderPayments = results.map {case (_, _, _, _, _, _, payments, _) ⇒ payments }
+        val creditCards = results.map {case (_, _, _, _, _, _, _, creditCards) ⇒ creditCards }
+
         build(order = order, lineItems = lineItems, shippingMethod = Some(shippingMethod),
-              customer = Some(customer), customerProfile = Some(customerProfile), shippingAddress = Some(address))
+              customer = Some(customer), customerProfile = Some(customerProfile), shippingAddress = Some(address),
+          orderPayments = orderPayments, creditCards = creditCards)
       }
     }
   }
