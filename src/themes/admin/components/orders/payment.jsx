@@ -30,7 +30,7 @@ OrderPayment.propTypes = {
 
 OrderPayment.defaultProps = {
   tableColumns: [
-    {field: 'method', text: 'Method', component: 'PaymentMethod'},
+    {field: 'paymentMethod', text: 'Method', component: 'PaymentMethod'},
     {field: 'amount', text: 'Amount', type: 'currency'},
     {field: 'status', text: 'Status'},
     {field: 'createdAt', text: 'Date/Time', type: 'date'}
