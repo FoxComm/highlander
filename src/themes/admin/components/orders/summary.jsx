@@ -18,7 +18,7 @@ export default class OrderSummary extends React.Component {
           <dt>Date</dt>
           <dd>{date.format('MM/DD/YYYY')}</dd>
           <dt>Time</dt>
-          <dd>{date.format('h:mm a')}</dd>
+          <dd>{date.format('HH:mm:ss')}</dd>
           <dt>Subtotal</dt>
           <dd>{formatCurrency(order.totals.subTotal)}</dd>
           <dt>Discounts</dt>

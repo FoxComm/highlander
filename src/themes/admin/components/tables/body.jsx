@@ -13,7 +13,7 @@ export default class TableBody extends React.Component {
       case 'id': return <Link to={model} params={{order: field}}>{field}</Link>;
       case 'image': return <img src={field}/>;
       case 'currency': return formatCurrency(field);
-      case 'date': return moment(field).format(column.format || 'DD/MM/YYYY');
+      case 'date': return <time dateTime={field}>{moment(field).format('MM/DD/YYYY HH:mm:ss')}</time>;
       case 'orderStatus': return OrderStore.statuses[field];
       default: return typeof field === 'object' ? this.displayObject(field) : field;
     }
