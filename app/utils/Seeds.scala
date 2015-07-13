@@ -17,12 +17,13 @@ import utils.Money.Currency
 object Seeds {
   val today = new DateTime
 
-  final case class TheWorld(customer: Customer,order: Order, address: Address, cc: CreditCardGateway,
-                      storeAdmin: StoreAdmin, shippingMethods: Seq[ShippingMethod],
-                       shippingPriceRules: Seq[ShippingPriceRule], shippingMethodRuleMappings: Seq[ShippingMethodPriceRule],
-                       orderCriteria: Seq[OrderCriterion], orderPriceCriteria: Seq[OrderPriceCriterion],
-                       priceRuleCriteriaMappings: Seq[ShippingPriceRuleOrderCriterion], skus: Seq[Sku],
-                       orderLineItems: Seq[OrderLineItem], shipment: Shipment)
+  case class TheWorld(customer: Customer, customerProfile: CustomerProfile, order: Order, orderNotes: Seq[OrderNote],
+    address: Address, cc: CreditCardGateway,
+    storeAdmin: StoreAdmin, shippingMethods: Seq[ShippingMethod],
+    shippingPriceRules: Seq[ShippingPriceRule], shippingMethodRuleMappings: Seq[ShippingMethodPriceRule],
+    orderCriteria: Seq[OrderCriterion], orderPriceCriteria: Seq[OrderPriceCriterion],
+    priceRuleCriteriaMappings: Seq[ShippingPriceRuleOrderCriterion], skus: Seq[Sku],
+    orderLineItems: Seq[OrderLineItem], shipment: Shipment)
 
   final case class PaymentMethods(giftCard: GiftCard = Factories.giftCard, storeCredit: StoreCredit = Factories.storeCredit)
 
@@ -31,9 +32,11 @@ object Seeds {
 
     val s = TheWorld(
       customer = Factories.customer,
+      customerProfile = Factories.customerProfile,
       storeAdmin = Factories.storeAdmin,
       skus = Factories.skus,
       order = Factories.order,
+      orderNotes = Factories.orderNotes,
       address = Factories.address,
       shippingMethods = Factories.shippingMethods,
       cc = Factories.creditCard,
@@ -54,9 +57,11 @@ object Seeds {
 
     for {
       customer ← (Customers.returningId += s.customer).map(id => s.customer.copy(id = id))
+      customerProfile ← CustomerProfiles.save(s.customerProfile.copy(customerId = customer.id))
       storeAdmin ← (StoreAdmins.returningId += s.storeAdmin).map(id => s.storeAdmin.copy(id = id))
       skus ←  Skus ++= s.skus
       order ← Orders.save(s.order.copy(customerId = customer.id))
+      orderNotes ← OrderNotes ++= s.orderNotes
       orderLineItem ← OrderLineItems ++= s.orderLineItems
       address ← Addresses.save(s.address.copy(customerId = customer.id))
       shippingMethods ← ShippingMethods ++= s.shippingMethods
@@ -73,9 +78,18 @@ object Seeds {
   object Factories {
     def customer = Customer(email = "yax@yax.com", password = "password", firstName = "Yax", lastName = "Fuentes")
 
+    def customerProfile = CustomerProfile(phoneNumber = Some("123-444-4388"), location = Some("DonkeyVille, TN"), modality = Some("Desktop[PC]"))
+
     def storeAdmin = StoreAdmin(email = "admin@admin.com", password = "password", firstName = "Frankly", lastName = "Admin")
 
     def order = Order(customerId = 0, referenceNumber = Some("ABCD1234-11"), status = Order.ManualHold)
+
+    def orderNotes: Seq[OrderNote] = Seq(
+      OrderNote(orderId = 1, storeAdminId = 1, noteText = "This customer is a donkey."),
+      OrderNote(orderId = 1, storeAdminId = 1, noteText = "No, seriously."),
+      OrderNote(orderId = 1, storeAdminId = 1, noteText = "Like, an actual donkey."),
+      OrderNote(orderId = 1, storeAdminId = 1, noteText = "How did a donkey even place an order on our website?")
+    )
 
     def skus: Seq[Sku] = Seq(Sku(id = 0, name = Some("Flonkey"), price = 33), Sku(name = Some("Shark"), price = 45), Sku(name = Some("Dolphin"), price = 88))
 

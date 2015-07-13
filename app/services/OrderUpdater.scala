@@ -29,4 +29,6 @@ object OrderUpdater {
     }
     
   }
+
+  def createNote = "Note"
 }
