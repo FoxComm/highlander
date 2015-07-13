@@ -13,12 +13,12 @@ export default class OrderSummary extends React.Component {
 
     return (
       <div id="order-summary">
+        <dl className="order-time">
+          <dt>{date.format('MM/DD/YYYY')}</dt>
+          <dd>{date.format('HH:mm:ss')}</dd>
+        </dl>
         <header>Order Summary</header>
         <dl className="order-totals">
-          <dt>Date</dt>
-          <dd>{date.format('MM/DD/YYYY')}</dd>
-          <dt>Time</dt>
-          <dd>{date.format('h:mm a')}</dd>
           <dt>Subtotal</dt>
           <dd>{formatCurrency(order.totals.subTotal)}</dd>
           <dt>Discounts</dt>
