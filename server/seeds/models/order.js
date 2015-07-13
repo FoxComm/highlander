@@ -30,7 +30,7 @@ class Order extends BaseModel {
   get customer() { return Customer.findOne(this.model.customerId); }
   get shippingAddress() { return Address.defaultForCustomer(this.model.customerId); }
   get lineItems() { return LineItem.generateList(~~((Math.random() * 5) + 1)); }
-  get payments() { return Payment.generateList(~~((Math.random() * 3) + 1)); }
+  get payments() { return Payment.findByOrder(this.id); }
   get totals() {
     return {
       shipping: this.model.shippingTotal,
