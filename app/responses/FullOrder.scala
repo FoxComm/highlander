@@ -21,7 +21,7 @@ object FullOrder {
                   customer: Option[DisplayCustomer],
                   shippingMethod: Option[ShippingMethod],
                   shippingAddress: Option[Address],
-                  paymentMethods: Option[Seq[DisplayPaymentMethod]] = None
+                  payments: Option[Seq[DisplayPayment]] = None
     )
 
 
@@ -35,8 +35,12 @@ object FullOrder {
                               qty: Int = 1,
                               status: OrderLineItem.Status )
 
-  final case class DisplayPaymentMethod(cardType: String = "Visa", cardExp: String, cardNumber: String, amount: Int,
-    status: String)
+  final case class DisplayPayment(amount: Int, status: String, referenceNumber: String = "ABC123", paymentMethod: DisplayPaymentMethod)
+   //
+  // TODO:
+  // Capture reference number
+
+  final case class DisplayPaymentMethod(cardType: String = "visa", cardExp: String, cardNumber: String)
 
   def build(order: Order, lineItems: Seq[OrderLineItem] = Seq.empty, adjustments: Seq[Adjustment] = Seq.empty,
     shippingMethod: Option[ShippingMethod] = None, customer: Option[Customer] = None,
@@ -54,9 +58,11 @@ object FullOrder {
     //TODO: This isn't very robust; make it elegantly handle multiple payments
     val dispPayments = orderPayments.flatMap { op ⇒
       creditCards.filter(_.id == op.paymentMethodId).map { cc ⇒
-        DisplayPaymentMethod(cardExp = (cc.expMonth + "/" + cc.expYear), cardNumber = ("xxx-xxxx-xxxx-" + cc.lastFour),
-          amount = op.appliedAmount,
-          status = op.status)
+        DisplayPayment(
+          amount = op.appliedAmount, status = op.status,
+          paymentMethod = DisplayPaymentMethod(cardExp = (cc.expMonth + "/" + cc.expYear), cardNumber = ("xxx-xxxx-xxxx-" + cc.lastFour))
+        )
+
       }
     }
 
@@ -71,7 +77,7 @@ object FullOrder {
       customer = dispCust,
       shippingAddress = shippingAddress,
       totals = Totals(subTotal = 333, taxes = 10, adjustments = 0, total = 510), shippingMethod = shippingMethod,
-      paymentMethods = Some(dispPayments)
+      payments = Some(dispPayments)
     )
   }
 
