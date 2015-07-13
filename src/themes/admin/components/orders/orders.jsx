@@ -46,7 +46,7 @@ Orders.propTypes = {
 
 Orders.defaultProps = {
   tableColumns: [
-    {field: 'id', text: 'Order', type: 'id'},
+    {field: 'referenceNumber', text: 'Order', type: 'id'},
     {field: 'createdAt', text: 'Date', type: 'date'},
     {field: 'email', text: 'Email'},
     {field: 'orderStatus', text: 'Order Status', type: 'orderStatus'},
