@@ -19,8 +19,8 @@ abstract class PaymentMethod {
 object PaymentMethods {
 
   // TODO: Make polymorphic for real.
-  def findById(id: Int)(implicit db: Database): Future[Option[CreditCardGateway]] = {
-    CreditCardGateways.findById(id)
+  def findById(id: Int)(implicit db: Database): Future[Option[CreditCard]] = {
+    CreditCards.findById(id)
   }
 }
 
@@ -37,10 +37,4 @@ object CreditCardPaymentStatus extends ADT[CreditCardPaymentStatus] {
   def types = sealerate.values[CreditCardPaymentStatus]
 }
 
-// TODO: Figure out how to have the 'status' field on the payment and not the payment method.
-final case class CreditCard(id: Int, orderId: Int, cardholderName: String, cardNumber: String, cvv: Int, status: CreditCardPaymentStatus, expiration: String, address: Address) extends PaymentMethod {
-  def authorize(amount: Int)(implicit ec: ExecutionContext): Future[String Or List[Failure]] = {
-    Future.successful(Good("authenticated"))
-  }
-}
 

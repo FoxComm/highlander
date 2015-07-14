@@ -4,9 +4,9 @@ import util.TestBase
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.joda.time.DateTime
 
-class CreditCardGatewayTest extends TestBase {
+class CreditCardTest extends TestBase {
   val today = DateTime.now()
-  val card = CreditCardGateway(
+  val card = CreditCard(
     customerId = 1,
     gatewayCustomerId = "abcdef",
     lastFour = "4242",

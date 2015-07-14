@@ -22,33 +22,33 @@ import validators._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-final case class CreditCardGateway(id: Int = 0, customerId: Int, gatewayCustomerId: String, lastFour: String,
+final case class CreditCard(id: Int = 0, customerId: Int, gatewayCustomerId: String, lastFour: String,
                              expMonth: Int, expYear: Int)
   extends PaymentMethod
   with ModelWithIdParameter
-  with Validation[CreditCardGateway] {
+  with Validation[CreditCard] {
 
   def authorize(amount: Int)(implicit ec: ExecutionContext): Future[String Or List[Failure]] = {
     new StripeGateway().authorizeAmount(gatewayCustomerId, amount)
   }
 
 
-  override def validator = createValidator[CreditCardGateway] { cc =>
+  override def validator = createValidator[CreditCard] { cc =>
     cc.lastFour should matchRegex("[0-9]{4}")
     cc.expYear as "credit card" is notExpired(year = cc.expYear, month = cc.expMonth)
     cc.expYear as "credit card" is withinTwentyYears(year = cc.expYear, month = cc.expMonth)
   }
 }
 
-object CreditCardGateway {
-  def build(c: StripeCustomer, payload: CreditCardPayload): CreditCardGateway = {
-    CreditCardGateway(customerId = 0, gatewayCustomerId = c.getId, lastFour = payload.lastFour,
+object CreditCard {
+  def build(c: StripeCustomer, payload: CreditCardPayload): CreditCard = {
+    CreditCard(customerId = 0, gatewayCustomerId = c.getId, lastFour = payload.lastFour,
       expMonth = payload.expMonth, expYear = payload.expYear)
   }
 }
 
-class CreditCardGateways(tag: Tag)
-  extends GenericTable.TableWithId[CreditCardGateway](tag, "credit_card_gateways")
+class CreditCards(tag: Tag)
+  extends GenericTable.TableWithId[CreditCard](tag, "credit_cards")
   with RichTable {
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
@@ -59,14 +59,14 @@ class CreditCardGateways(tag: Tag)
   def expYear = column[Int]("exp_year")
 
   def * = (id, customerId, gatewayCustomerId,
-    lastFour, expMonth, expYear) <> ((CreditCardGateway.apply _).tupled, CreditCardGateway.unapply)
+    lastFour, expMonth, expYear) <> ((CreditCard.apply _).tupled, CreditCard.unapply)
 }
 
-object CreditCardGateways extends TableQueryWithId[CreditCardGateway, CreditCardGateways](
-  idLens = GenLens[CreditCardGateway](_.id)
-)(new CreditCardGateways(_)) {
+object CreditCards extends TableQueryWithId[CreditCard, CreditCards](
+  idLens = GenLens[CreditCard](_.id)
+)(new CreditCards(_)) {
 
-  def findById(id: Int)(implicit db: Database): Future[Option[CreditCardGateway]] = {
+  def findById(id: Int)(implicit db: Database): Future[Option[CreditCard]] = {
     db.run(_findById(id).result.headOption)
   }
 

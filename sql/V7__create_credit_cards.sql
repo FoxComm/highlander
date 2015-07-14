@@ -1,4 +1,4 @@
-create table credit_card_gateways (
+create table credit_cards (
     id serial primary key,
     customer_id integer,
     gateway_customer_id character varying(255) not null,
@@ -11,8 +11,8 @@ create table credit_card_gateways (
     constraint valid_exp_month check (exp_month between 1 and 12)
 );
 
-alter table only credit_card_gateways
+alter table only credit_cards
     add constraint credit_card_gateways_customer_fk foreign key (customer_id) references customers(id) on update restrict on delete restrict;
 
-create index credit_card_gateways_customer_id_idx on credit_card_gateways (customer_id)
+create index credit_cards_customer_id_idx on credit_cards (customer_id)
 

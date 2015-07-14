@@ -46,7 +46,7 @@ object FullOrder {
     shippingMethod: Option[ShippingMethod] = None, customer: Option[Customer] = None,
     customerProfile: Option[CustomerProfile] = None,
     shippingAddress: Option[Address] = None, orderPayments: Seq[OrderPayment] = Seq.empty,
-    creditCards: Seq[CreditCardGateway] = Seq.empty
+    creditCards: Seq[CreditCard] = Seq.empty
     ): Root = {
 
     val dispCust = customer.flatMap{ c ⇒
@@ -116,7 +116,7 @@ object FullOrder {
       shipMethod ← ShippingMethods.filter(_.id === shipment.shippingMethodId)
       address ← Addresses.filter(_.id === shipment.shippingAddressId)
       orderPayments ← OrderPayments.filter(_.orderId === order.id)
-      creditCards ← CreditCardGateways.filter(_.id === orderPayments.paymentMethodId)
+      creditCards ← CreditCards.filter(_.id === orderPayments.paymentMethodId)
     } yield (order, lineItems, shipMethod, customer, customerProfile, address, orderPayments, creditCards)
 
     db.run(queries.result).map { results =>

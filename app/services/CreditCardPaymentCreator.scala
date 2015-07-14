@@ -49,11 +49,11 @@ final case class CreditCardPaymentCreator(order: Order, customer: Customer, card
                                   (implicit ec: ExecutionContext, db: Database): Future[Option[Order]] = {
 
     val appliedPayment = OrderPayment.fromStripeCustomer(stripeCustomer, order)
-    val cc = CreditCardGateway.build(stripeCustomer, this.cardPayload).copy(customerId = customer.id)
+    val cc = CreditCard.build(stripeCustomer, this.cardPayload).copy(customerId = customer.id)
     val billingAddress = this.cardPayload.address.map(Address.fromPayload(_).copy(customerId = customer.id))
 
     val queries = for {
-      ccId <- CreditCardGateways.returningId += cc
+      ccId <- CreditCards.returningId += cc
       appliedPaymentId <- OrderPayments.returningId += appliedPayment.copy(paymentMethodId = ccId)
       _ <- billingAddress.map(BillingAddresses._create(_, appliedPaymentId)).getOrElse(DBIO.successful(Unit))
       c <- Orders._findById(order.id).result.headOption
