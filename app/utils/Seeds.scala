@@ -18,7 +18,7 @@ object Seeds {
   val today = new DateTime
 
   case class TheWorld(customer: Customer, customerProfile: CustomerProfile, order: Order, orderNotes: Seq[OrderNote],
-    address: Address, cc: CreditCardGateway,
+    address: Address, cc: CreditCard,
     storeAdmin: StoreAdmin, shippingMethods: Seq[ShippingMethod],
     shippingPriceRules: Seq[ShippingPriceRule], shippingMethodRuleMappings: Seq[ShippingMethodPriceRule],
     orderCriteria: Seq[OrderCriterion], orderPriceCriteria: Seq[OrderPriceCriterion],
@@ -27,7 +27,7 @@ object Seeds {
 
   final case class PaymentMethods(giftCard: GiftCard = Factories.giftCard, storeCredit: StoreCredit = Factories.storeCredit)
 
-  def run()(implicit db: Database): dbio.DBIOAction[(Customer, Order, Address, CreditCardGateway), NoStream, Write with Write with Write with All with Write with All with Write with All with Write with Write with Write with Write with Write with All] = {
+  def run()(implicit db: Database): dbio.DBIOAction[(Customer, Order, Address, CreditCard), NoStream, Write with Write with Write with All with Write with All with Write with All with Write with Write with Write with Write with Write with All] = {
     import scala.concurrent.ExecutionContext.Implicits.global
 
     val s = TheWorld(
@@ -65,7 +65,7 @@ object Seeds {
       orderLineItem ← OrderLineItems ++= s.orderLineItems
       address ← Addresses.save(s.address.copy(customerId = customer.id))
       shippingMethods ← ShippingMethods ++= s.shippingMethods
-      gateway ← CreditCardGateways.save(s.cc.copy(customerId = customer.id))
+      gateway ← CreditCards.save(s.cc.copy(customerId = customer.id))
       shippingPriceRule ← ShippingPriceRules ++= s.shippingPriceRules
       shippingMethodRuleMappings ← ShippingMethodsPriceRules ++= s.shippingMethodRuleMappings
       orderCriterion ← OrderCriteria ++= s.orderCriteria
@@ -100,7 +100,7 @@ object Seeds {
         street2 = None, city = "Seattle", zip = "12345")
 
     def creditCard =
-      CreditCardGateway(customerId = 0, gatewayCustomerId = "", lastFour = "4242",
+      CreditCard(customerId = 0, gatewayCustomerId = "", lastFour = "4242",
         expMonth = today.getMonthOfYear, expYear = today.getYear + 2)
 
     def storeCredit = StoreCredit(customerId = 0, originId = 0, originType = "FIXME", originalBalance = 50,

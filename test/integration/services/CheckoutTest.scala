@@ -1,6 +1,6 @@
 package services
 
-import models.{Address, Addresses, OrderPayment, OrderPayments, BillingAddress, BillingAddresses, CreditCardGateway, CreditCardGateways, Customer, Customers, Order, OrderLineItem, OrderLineItems, Orders}
+import models.{Address, Addresses, OrderPayment, OrderPayments, BillingAddress, BillingAddresses, CreditCard, CreditCards, Customer, Customers, Order, OrderLineItem, OrderLineItems, Orders}
 import org.scalactic.{Bad, TypeCheckedTripleEquals}
 import org.scalatest.Inside
 import util.IntegrationTestBase
@@ -90,7 +90,7 @@ class CheckoutTest extends IntegrationTestBase with Inside with TypeCheckedTripl
     val orderStub    = Order(id = 0, customerId = 0)
     val addressStub  = Address(id = 0, customerId = 0, stateId = 1, name = "Yax Home", street1 = "555 E Lake Union St.", street2 = None, city = "Seattle", zip = "12345")
     val paymentStub  = OrderPayment(id = 0, orderId = 0, paymentMethodId = 1, paymentMethodType = "stripe", appliedAmount = 10, status = "auth", responseCode = "ok")
-    val gatewayStub  = CreditCardGateway(id = 0, customerId = 0, gatewayCustomerId = gatewayCustomerId, lastFour = "4242", expMonth = 11, expYear = 2018)
+    val gatewayStub  = CreditCard(id = 0, customerId = 0, gatewayCustomerId = gatewayCustomerId, lastFour = "4242", expMonth = 11, expYear = 2018)
 
     val (payment, order) = (for {
       customer ← (Customers.returningId += customerStub).map(id ⇒ customerStub.copy(id = id))
@@ -98,7 +98,7 @@ class CheckoutTest extends IntegrationTestBase with Inside with TypeCheckedTripl
       address  ← Addresses.save(addressStub.copy(customerId = customer.id))
       payment  ← OrderPayments.save(paymentStub.copy(orderId = order.id))
       billingAddress ← BillingAddresses.save(BillingAddress(addressId = address.id, paymentId = payment.id))
-      gateway ← CreditCardGateways.save(gatewayStub.copy(customerId = customer.id))
+      gateway ← CreditCards.save(gatewayStub.copy(customerId = customer.id))
     } yield (payment, order)).run().futureValue
 
     (order, payment)
