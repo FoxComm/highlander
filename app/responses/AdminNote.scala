@@ -17,12 +17,10 @@ object Note {
   }
 
   def findNotesByOrderId(id: Int)(implicit ec: ExecutionContext, db:Database): Future[Seq[Root]] = {
-    val query = for {
+    (for {
       notes ← Notes._filterByOrderId(id)
       authors ← notes.author
-    } yield (notes, authors)
-
-    db.run(query.result).map { results ⇒
+    } yield (notes, authors)).result.run().map { results ⇒
       results.map { case (note, author) ⇒ build(note, author) }
     }
   }
