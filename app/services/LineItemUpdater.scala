@@ -14,6 +14,7 @@ object LineItemUpdater {
   val lineItems = TableQuery[OrderLineItems]
   val orders = TableQuery[Orders]
 
+  @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.Any"))
   def updateQuantities(order: Order,
                        payload: Seq[UpdateLineItemsPayload])
                       (implicit ec: ExecutionContext,

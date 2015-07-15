@@ -7,6 +7,7 @@ import org.joda.time.DateTime
 object CreditCard {
   final case class Expiraton(year: Int, month: Int)
 
+  @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.Any"))
   class ExpiredCard[T](exp: Expiraton)
     extends BaseValidator[T]({ _ ⇒
       val today = DateTime.now()
@@ -16,8 +17,9 @@ object CreditCard {
       } catch {
         case _: IllegalArgumentException ⇒ false
       }
-    }, _ -> s"is expired" )
+    }, _ -> s"is expired")
 
+  @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.Any"))
   class WithinTwentyYears[T](exp: Expiraton)
     extends BaseValidator[T]({ _ ⇒
       val today = DateTime.now()

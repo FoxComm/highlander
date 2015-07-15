@@ -14,6 +14,7 @@ package object validators {
 }
 
 object Validators {
+  @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.Any"))
   class NonEmptyIf[T](bool: Boolean, option: Option[_])
     extends BaseValidator[T]({ _ ⇒
       (bool, option) match {
