@@ -16,7 +16,7 @@ import org.scalactic._
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-case class GiftCardOrder(id: Int = 0, orderId: Int) extends ModelWithIdParameter
+final case class GiftCardOrder(id: Int = 0, orderId: Int) extends ModelWithIdParameter
 
 object GiftCardOrder {}
 
