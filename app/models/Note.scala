@@ -12,28 +12,28 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class OrderNote(id: Int = 0, orderId: Int, storeAdminId: Int, noteText: String) extends ModelWithIdParameter
+case class Note(id: Int = 0, orderId: Int, storeAdminId: Int, noteText: String) extends ModelWithIdParameter
 
-object OrderNote
+object Note
 
-class OrderNotes(tag: Tag) extends GenericTable.TableWithId[OrderNote](tag, "order_notes") with RichTable {
+class Notes(tag: Tag) extends GenericTable.TableWithId[Note](tag, "notes") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def orderId = column[Int]("order_id")
   def storeAdminId = column[Int]("store_admin_id")
   def noteText = column[String]("note_text")
 
-  def * = (id, orderId, storeAdminId, noteText) <> ((OrderNote.apply _).tupled, OrderNote.unapply)
+  def * = (id, orderId, storeAdminId, noteText) <> ((Note.apply _).tupled, Note.unapply)
 
   def author = foreignKey("store_admins", storeAdminId, TableQuery[StoreAdmins])(_.id) // what does this do? =]
 }
 
 
-object OrderNotes extends TableQueryWithId[OrderNote, OrderNotes](
-  idLens = GenLens[OrderNote](_.id)
-)(new OrderNotes(_)) {
+object Notes extends TableQueryWithId[Note, Notes](
+  idLens = GenLens[Note](_.id)
+)(new Notes(_)) {
 
   def filterByOrderId(id: Int)
-                      (implicit ec: ExecutionContext, db:Database): Future[Option[Seq[OrderNote]]] = {
+                      (implicit ec: ExecutionContext, db:Database): Future[Option[Seq[Note]]] = {
     _filterByOrderId(id).run().map{Some(_)}
   }
 

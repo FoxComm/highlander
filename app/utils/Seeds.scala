@@ -17,7 +17,7 @@ import utils.Money.Currency
 object Seeds {
   val today = new DateTime
 
-  case class TheWorld(customer: Customer, customerProfile: CustomerProfile, order: Order, orderNotes: Seq[OrderNote],
+  case class TheWorld(customer: Customer, customerProfile: CustomerProfile, order: Order, orderNotes: Seq[Note],
     address: Address, cc: CreditCard,
     storeAdmin: StoreAdmin, shippingMethods: Seq[ShippingMethod],
     shippingPriceRules: Seq[ShippingPriceRule], shippingMethodRuleMappings: Seq[ShippingMethodPriceRule],
@@ -61,7 +61,7 @@ object Seeds {
       storeAdmin ← (StoreAdmins.returningId += s.storeAdmin).map(id => s.storeAdmin.copy(id = id))
       skus ←  Skus ++= s.skus
       order ← Orders.save(s.order.copy(customerId = customer.id))
-      orderNotes ← OrderNotes ++= s.orderNotes
+      orderNotes ← Notes ++= s.orderNotes
       orderLineItem ← OrderLineItems ++= s.orderLineItems
       address ← Addresses.save(s.address.copy(customerId = customer.id))
       shippingMethods ← ShippingMethods ++= s.shippingMethods
@@ -84,11 +84,11 @@ object Seeds {
 
     def order = Order(customerId = 0, referenceNumber = Some("ABCD1234-11"), status = Order.ManualHold)
 
-    def orderNotes: Seq[OrderNote] = Seq(
-      OrderNote(orderId = 1, storeAdminId = 1, noteText = "This customer is a donkey."),
-      OrderNote(orderId = 1, storeAdminId = 1, noteText = "No, seriously."),
-      OrderNote(orderId = 1, storeAdminId = 1, noteText = "Like, an actual donkey."),
-      OrderNote(orderId = 1, storeAdminId = 1, noteText = "How did a donkey even place an order on our website?")
+    def orderNotes: Seq[Note] = Seq(
+      Note(orderId = 1, storeAdminId = 1, noteText = "This customer is a donkey."),
+      Note(orderId = 1, storeAdminId = 1, noteText = "No, seriously."),
+      Note(orderId = 1, storeAdminId = 1, noteText = "Like, an actual donkey."),
+      Note(orderId = 1, storeAdminId = 1, noteText = "How did a donkey even place an order on our website?")
     )
 
     def skus: Seq[Sku] = Seq(Sku(id = 0, name = Some("Flonkey"), price = 33), Sku(name = Some("Shark"), price = 45), Sku(name = Some("Dolphin"), price = 88))

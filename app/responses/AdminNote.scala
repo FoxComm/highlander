@@ -13,7 +13,7 @@ object AdminNote {
   case class Root(id: Int, noteText: String, author: NoteAuthor)
   case class NoteAuthor(firstName: String, lastName: String, email: String)
 
-  def build(note: OrderNote, author: StoreAdmin): Root = {
+  def build(note: Note, author: StoreAdmin): Root = {
     Root(id = note.id, noteText = note.noteText, author = NoteAuthor(firstName = author.firstName, lastName = author.lastName, email = author.email))
   }
 
@@ -21,7 +21,7 @@ object AdminNote {
                         (implicit ec: ExecutionContext, db:Database): NoteResponse = {
 
     val query = for {
-      orderNotes ← OrderNotes.filter(_.orderId === id)
+      orderNotes ← Notes.filter(_.orderId === id)
       noteAuthors ← orderNotes.author
     } yield (orderNotes, noteAuthors)
 

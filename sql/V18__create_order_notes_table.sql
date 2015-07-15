@@ -1,9 +1,9 @@
-create table order_notes (
+create table notes (
     id serial primary key,
-    order_id integer not null,
     store_admin_id integer not null,
-    note_text character varying(255) not null,
-    foreign key (order_id) references orders(id) on update restrict on delete cascade,
+    reference_id integer not null,
+    reference_type character varying(255) not null,
+    text character varying(1000) not null,
     foreign key (store_admin_id) references store_admins(id) on update restrict on delete restrict
 );
 
