@@ -16,6 +16,13 @@ import scala.concurrent.{ExecutionContext, Future}
 
 final case class Note(id: Int = 0, storeAdminId: Int, referenceId: Int, referenceType: Note.ReferenceType, body: String)
   extends ModelWithIdParameter
+  with Validation[Note] {
+
+  override def validator = createValidator[Note] { note =>
+    note.body is notEmpty
+    note.body have size <= 1000
+  }
+}
 
 object Note {
   sealed trait ReferenceType
