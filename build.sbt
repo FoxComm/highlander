@@ -18,7 +18,7 @@ lazy val phoenixScala = (project in file(".")).
   configs(IT).
   settings(inConfig(IT)(Defaults.testSettings): _*).
   settings(
-    wartremoverExcluded ++= ((baseDirectory.value / "test") ** ".scala").get,
+    wartremoverExcluded ++= ((baseDirectory.value / "test") ** "*.scala").get,
     wartremoverWarnings ++=
       Warts.all.filter {
         /** In the absence of type annotations, Good(v: A) is inferred as Or[A, Nothing] */
