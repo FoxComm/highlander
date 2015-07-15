@@ -14,7 +14,7 @@ import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-final case class Note(id: Int = 0, storeAdminId: Int, referenceId: Int, referenceType: Note.ReferenceType, text: String)
+final case class Note(id: Int = 0, storeAdminId: Int, referenceId: Int, referenceType: Note.ReferenceType, body: String)
   extends ModelWithIdParameter
 
 object Note {
@@ -33,9 +33,9 @@ class Notes(tag: Tag) extends GenericTable.TableWithId[Note](tag, "notes") with 
   def storeAdminId = column[Int]("store_admin_id")
   def referenceId = column[Int]("reference_id")
   def referenceType = column[Note.ReferenceType]("reference_type")
-  def text = column[String]("text")
+  def body = column[String]("body")
 
-  def * = (id, storeAdminId, referenceId, referenceType, text) <> ((Note.apply _).tupled, Note.unapply)
+  def * = (id, storeAdminId, referenceId, referenceType, body) <> ((Note.apply _).tupled, Note.unapply)
 
   def author = foreignKey("store_admins", storeAdminId, TableQuery[StoreAdmins])(_.id) // what does this do? =]
 }
@@ -51,5 +51,5 @@ object Notes extends TableQueryWithId[Note, Notes](
   def _filterByOrderId(id: Int): FixedSqlStreamingAction[Seq[Note], Note, Read] =
     _filterByType(Note.Order).filter(_.referenceId === id).result
 
-  private [this] def _filterByType(noteType: Note.ReferenceType) = filter(_.referenceType === noteType)
+  private [this] def _filterByType(referenceType: Note.ReferenceType) = filter(_.referenceType === referenceType)
 }

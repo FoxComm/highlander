@@ -9,7 +9,7 @@ class NoteTest extends IntegrationTestBase {
 
   "Note" - {
     "is limited to 1000 characters" in {
-      val failure = Notes.save(Factories.orderNotes.head.copy(text = "z" * 1001)).run().failed.futureValue
+      val failure = Notes.save(Factories.orderNotes.head.copy(body = "z" * 1001)).run().failed.futureValue
       failure.getMessage must include ("value too long")
     }
   }

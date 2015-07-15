@@ -8,17 +8,17 @@ import scala.concurrent.{ExecutionContext, Future}
 
 object AdminNote {
 
-  type NoteResponse = Future[Option[Seq[Root]]]
+  type Response = Future[Option[Seq[Root]]]
 
-  final case class Root(id: Int, noteText: String, author: NoteAuthor)
-  final case class NoteAuthor(firstName: String, lastName: String, email: String)
+  final case class Root(id: Int, noteText: String, author: Author)
+  final case class Author(firstName: String, lastName: String, email: String)
 
   def build(note: Note, author: StoreAdmin): Root = {
-    Root(id = note.id, noteText = note.text, author = NoteAuthor(firstName = author.firstName, lastName = author.lastName, email = author.email))
+    Root(id = note.id, noteText = note.body, author = Author(firstName = author.firstName, lastName = author.lastName, email = author.email))
   }
 
   def findNotesByOrderId(id: Int)
-                        (implicit ec: ExecutionContext, db:Database): NoteResponse = {
+                        (implicit ec: ExecutionContext, db:Database): Response = {
 
     Future.successful(None)
 //    val query = for {
