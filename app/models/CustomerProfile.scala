@@ -13,7 +13,8 @@ import scala.concurrent.{ExecutionContext, Future}
 import org.scalactic._
 
 
-case class CustomerProfile(customerId: Int = 0, phoneNumber: Option[String] = None, location: Option[String] = None, modality: Option[String] = None) extends ModelWithIdParameter {
+final case class CustomerProfile(customerId: Int = 0, phoneNumber: Option[String] = None, location: Option[String] =
+None, modality: Option[String] = None) extends ModelWithIdParameter {
   def role = "Customer"
 }
 

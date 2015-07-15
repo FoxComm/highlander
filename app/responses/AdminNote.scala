@@ -10,8 +10,8 @@ object AdminNote {
 
   type NoteResponse = Future[Option[Seq[Root]]]
 
-  case class Root(id: Int, noteText: String, author: NoteAuthor)
-  case class NoteAuthor(firstName: String, lastName: String, email: String)
+  final case class Root(id: Int, noteText: String, author: NoteAuthor)
+  final case class NoteAuthor(firstName: String, lastName: String, email: String)
 
   def build(note: OrderNote, author: StoreAdmin): Root = {
     Root(id = note.id, noteText = note.noteText, author = NoteAuthor(firstName = author.firstName, lastName = author.lastName, email = author.email))

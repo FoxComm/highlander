@@ -26,7 +26,8 @@ object FullOrder {
 
 
   // TODO: Consider moving this out to another class.  It may not be necessary, because we may have order-specific customer.
-  case class DisplayCustomer(id:Int, firstName: String, lastName: String,  email: String, phoneNumber: Option[String], location: Option[String], modality: Option[String], role: String)
+  final case class DisplayCustomer(id:Int, firstName: String, lastName: String,  email: String, phoneNumber:
+    Option[String], location: Option[String], modality: Option[String], role: String)
 
   final case class DisplayLineItem(imagePath: String = "http://lorempixel.com/75/75/fashion" ,
                               name: String = "donkey product",

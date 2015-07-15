@@ -20,6 +20,10 @@ object Money {
     { c => c.getCode },
     { s => Currency(s) })
 
+  /**
+   * Json4s works by matching types against Any at runtime so we need to support these features.
+   */
+  @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.Any", "org.brianmckenna.wartremover.warts.IsInstanceOf"))
   val jsonFormat = new CustomSerializer[Currency](format => ({
     case JString(str) ⇒ Currency(str.toUpperCase)
   }, {
