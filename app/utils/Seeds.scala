@@ -85,10 +85,10 @@ object Seeds {
     def order = Order(customerId = 0, referenceNumber = Some("ABCD1234-11"), status = Order.ManualHold)
 
     def orderNotes: Seq[Note] = Seq(
-      Note(orderId = 1, storeAdminId = 1, noteText = "This customer is a donkey."),
-      Note(orderId = 1, storeAdminId = 1, noteText = "No, seriously."),
-      Note(orderId = 1, storeAdminId = 1, noteText = "Like, an actual donkey."),
-      Note(orderId = 1, storeAdminId = 1, noteText = "How did a donkey even place an order on our website?")
+      Note(referenceId = 1, referenceType = Note.Order, storeAdminId = 1, text = "This customer is a donkey."),
+      Note(referenceId = 1, referenceType = Note.Order, storeAdminId = 1, text = "No, seriously."),
+      Note(referenceId = 1, referenceType = Note.Order, storeAdminId = 1, text = "Like, an actual donkey."),
+      Note(referenceId = 1, referenceType = Note.Order, storeAdminId = 1, text = "How did a donkey even place an order on our website?")
     )
 
     def skus: Seq[Sku] = Seq(Sku(id = 0, name = Some("Flonkey"), price = 33), Sku(name = Some("Shark"), price = 45), Sku(name = Some("Dolphin"), price = 88))

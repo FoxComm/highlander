@@ -14,23 +14,24 @@ object AdminNote {
   final case class NoteAuthor(firstName: String, lastName: String, email: String)
 
   def build(note: Note, author: StoreAdmin): Root = {
-    Root(id = note.id, noteText = note.noteText, author = NoteAuthor(firstName = author.firstName, lastName = author.lastName, email = author.email))
+    Root(id = note.id, noteText = note.text, author = NoteAuthor(firstName = author.firstName, lastName = author.lastName, email = author.email))
   }
 
   def findNotesByOrderId(id: Int)
                         (implicit ec: ExecutionContext, db:Database): NoteResponse = {
 
-    val query = for {
-      orderNotes ← Notes.filter(_.orderId === id)
-      noteAuthors ← orderNotes.author
-    } yield (orderNotes, noteAuthors)
-
-    db.run(query.result).map { results ⇒
-      Some(results.map {
-        case (orderNote, noteAuthor) ⇒
-          build(orderNote, noteAuthor)
-      })
-    }
+    Future.successful(None)
+//    val query = for {
+//      orderNotes ← Notes.filter(_.orderId === id)
+//      noteAuthors ← orderNotes.author
+//    } yield (orderNotes, noteAuthors)
+//
+//    db.run(query.result).map { results ⇒
+//      Some(results.map {
+//        case (orderNote, noteAuthor) ⇒
+//          build(orderNote, noteAuthor)
+//      })
+//    }
 
   }
 }
