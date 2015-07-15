@@ -45,11 +45,11 @@ object Notes extends TableQueryWithId[Note, Notes](
 )(new Notes(_)) {
 
   def filterByOrderId(id: Int)
-    (implicit ec: ExecutionContext, db:Database): Future[Option[Seq[Note]]] =
-    _filterByOrderId(id).run().map(Some(_))
+    (implicit ec: ExecutionContext, db:Database): Future[Seq[Note]] =
+    _filterByOrderId(id).result.run()
 
-  def _filterByOrderId(id: Int): FixedSqlStreamingAction[Seq[Note], Note, Read] =
-    _filterByType(Note.Order).filter(_.referenceId === id).result
+  def _filterByOrderId(id: Int): Query[Notes, Note, Seq] =
+    _filterByType(Note.Order).filter(_.referenceId === id)
 
   private [this] def _filterByType(referenceType: Note.ReferenceType) = filter(_.referenceType === referenceType)
 }
