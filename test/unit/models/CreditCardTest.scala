@@ -42,7 +42,7 @@ class CreditCardTest extends TestBase {
       "passes for valid cards" in {
         val result = card.validate
         result mustBe 'valid
-        result.messages mustBe empty
+        result.messages mustBe 'empty
       }
     }
   }

@@ -17,7 +17,7 @@ import utils.Money.Currency
 object Seeds {
   val today = new DateTime
 
-  case class TheWorld(customer: Customer, customerProfile: CustomerProfile, order: Order, orderNotes: Seq[Note],
+  final case class TheWorld(customer: Customer, customerProfile: CustomerProfile, order: Order, orderNotes: Seq[Note],
     address: Address, cc: CreditCard,
     storeAdmin: StoreAdmin, shippingMethods: Seq[ShippingMethod],
     shippingPriceRules: Seq[ShippingPriceRule], shippingMethodRuleMappings: Seq[ShippingMethodPriceRule],

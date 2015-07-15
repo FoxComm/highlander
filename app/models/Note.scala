@@ -12,7 +12,7 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-case class Note(id: Int = 0, orderId: Int, storeAdminId: Int, noteText: String) extends ModelWithIdParameter
+final case class Note(id: Int = 0, orderId: Int, storeAdminId: Int, noteText: String) extends ModelWithIdParameter
 
 object Note
 
