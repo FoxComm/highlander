@@ -12,10 +12,11 @@ object AdminNotes {
   final case class Root(id: Int, body: String, author: Author)
   final case class Author(firstName: String, lastName: String, email: String)
 
-  def build(note: Note, author: StoreAdmin): Root = {
-    Root(id = note.id, body = note.body,
-      author = Author(firstName = author.firstName, lastName = author.lastName, email = author.email))
-  }
+  def buildAuthor(author: StoreAdmin): Author =
+    Author(firstName = author.firstName, lastName = author.lastName, email = author.email)
+
+  def build(note: Note, author: StoreAdmin): Root =
+    Root(id = note.id, body = note.body, author = buildAuthor(author))
 
   def forOrder(order: Order)(implicit ec: ExecutionContext, db: Database): Future[Good[Seq[Root], Nothing]] = {
     (for {

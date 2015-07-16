@@ -237,10 +237,13 @@ class Service(
             (post & entity(as[payloads.CreateNote])) { payload ⇒
               complete {
                 whenFound(Orders.findById(orderId).run()) { order ⇒
-                  NoteCreator.createOrderNote(order, admin, payload)
+                  services.NoteManager.createOrderNote(order, admin, payload)
                 }
               }
-            } //~
+            } ~
+            (delete & path(IntNumber)) { noteId ⇒
+              complete { notFoundResponse }
+            }
 //            (patch & entity(as[payloads.UpdateNote])) { payload ⇒
 //              complete {
 //                whenFound(Orders.findById(orderId).run()) { order ⇒
