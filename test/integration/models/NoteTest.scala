@@ -8,14 +8,16 @@ class NoteTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global
 
   "Note" - {
-    "is limited to 1000 characters" in new Fixture {
-      val failure = Notes.save(note.copy(body = "z" * 1001)).run().failed.futureValue
-      failure.getMessage must include ("value too long")
-    }
+    "Postgres constraints" - {
+      "body is limited to 1000 characters" in new Fixture {
+        val failure = Notes.save(note.copy(body = "z" * 1001)).run().failed.futureValue
+        failure.getMessage must include("value too long")
+      }
 
-    "must have a body" in new Fixture {
-      val failure = Notes.save(note.copy(body = "")).run().failed.futureValue
-      failure.getMessage must include ("""violates check constraint "valid_body"""")
+      "must have a body" in new Fixture {
+        val failure = Notes.save(note.copy(body = "")).run().failed.futureValue
+        failure.getMessage must include( """violates check constraint "valid_body"""")
+      }
     }
 
     "validate" - {
