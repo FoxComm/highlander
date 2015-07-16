@@ -59,5 +59,8 @@ object Notes extends TableQueryWithId[Note, Notes](
   def _filterByOrderId(id: Int): Query[Notes, Note, Seq] =
     _filterByType(Note.Order).filter(_.referenceId === id)
 
+  def _filterByIdAndAdminId(id: Int, adminId: Int): Query[Notes, Note, Seq] =
+    filter(_.id === id).filter(_.storeAdminId === adminId)
+
   private [this] def _filterByType(referenceType: Note.ReferenceType) = filter(_.referenceType === referenceType)
 }

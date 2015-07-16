@@ -129,6 +129,13 @@ class OrderIntegrationTest extends IntegrationTestBase
       response.bodyText must include ("errors")
     }
 
+    "returns a 404 if the order is not found" in new Fixture {
+      val response = POST(s"v1/orders/99/notes", payloads.CreateNote(body = ""))
+
+      response.status must === (StatusCodes.NotFound)
+      response.bodyText must be ('empty)
+    }
+
 //    "are soft deleted" in {
 //      val response = DELETE(s"v1/orders/${order.id}/notes/${note.id}")
 //    }
@@ -145,6 +152,17 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       notes must have size (3)
       notes.map(_.body).toSet must === (Set("abc", "123", "xyz"))
+    }
+
+    "can update the body text" in new Fixture {
+      val rootNote = NoteManager.createOrderNote(order, storeAdmin,
+        payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue.get
+
+      val response = PATCH(s"v1/orders/${order.id}/notes/${rootNote.id}", payloads.UpdateNote(body = "donkey"))
+      response.status must === (StatusCodes.OK)
+
+      val note = parse(response.bodyText).extract[AdminNotes.Root]
+      note.body must === ("donkey")
     }
 
     trait Fixture {

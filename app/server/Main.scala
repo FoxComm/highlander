@@ -241,6 +241,13 @@ class Service(
                 }
               }
             } ~
+            (patch & path(IntNumber) & entity(as[payloads.UpdateNote])) { (noteId, payload) ⇒
+              complete {
+                whenFound(Orders.findById(orderId).run()) { order ⇒
+                  services.NoteManager.updateNote(noteId, admin, payload)
+                }
+              }
+            } ~
             (delete & path(IntNumber)) { noteId ⇒
               complete { notFoundResponse }
             }
