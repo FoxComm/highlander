@@ -1,9 +1,10 @@
 package models
 
 import com.wix.accord.dsl.{validator => createValidator}
+import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
-import utils.{Validation, RichTable}
+import utils.{TableQueryWithId, GenericTable, ModelWithIdParameter, Validation, RichTable}
 import com.wix.accord.Validator
 import com.wix.accord.dsl._
 
@@ -11,7 +12,9 @@ import scala.concurrent.{ExecutionContext, Future}
 
 final case class StoreAdmin(id: Int = 0, email: String, password: String,
                       firstName: String, lastName: String,
-                      department: Option[String] = None) extends Validation[StoreAdmin] {
+                      department: Option[String] = None)
+  extends ModelWithIdParameter
+  with Validation[StoreAdmin] {
   override def validator = createValidator[StoreAdmin] { user =>
     user.firstName is notEmpty
     user.lastName is notEmpty
@@ -19,7 +22,7 @@ final case class StoreAdmin(id: Int = 0, email: String, password: String,
   }
 }
 
-class StoreAdmins(tag: Tag) extends Table[StoreAdmin](tag, "store_admins") with RichTable {
+class StoreAdmins(tag: Tag) extends GenericTable.TableWithId[StoreAdmin](tag, "store_admins") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def email = column[String]("email")
   def password = column[String]("hashed_password")
@@ -30,17 +33,17 @@ class StoreAdmins(tag: Tag) extends Table[StoreAdmin](tag, "store_admins") with 
   def * = (id, email, password, firstName, lastName, department) <> ((StoreAdmin.apply _).tupled, StoreAdmin.unapply)
 }
 
-object StoreAdmins {
-  val table = TableQuery[StoreAdmins]
-  val returningId = table.returning(table.map(_.id))
+object StoreAdmins extends TableQueryWithId[StoreAdmin, StoreAdmins](
+  idLens = GenLens[StoreAdmin](_.id)
+)(new StoreAdmins(_)){
 
   def findByEmail(email: String)(implicit ec: ExecutionContext, db: Database): Future[Option[StoreAdmin]] = {
-    db.run(table.filter(_.email === email).result.headOption)
+    db.run(filter(_.email === email).result.headOption)
   }
 
   def findById(id: Int)(implicit db: Database): Future[Option[StoreAdmin]] = {
     db.run(_findById(id).result.headOption)
   }
 
-  def _findById(id: Rep[Int]) = { table.filter(_.id === id) }
+  def _findById(id: Rep[Int]) = { filter(_.id === id) }
 }
