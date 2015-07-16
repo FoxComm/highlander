@@ -4,7 +4,7 @@ import akka.event.Logging
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.model.StatusCodes._
-import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
+import akka.http.scaladsl.model.{HttpResponse, StatusCodes, StatusCode}
 import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
 
@@ -15,7 +15,7 @@ import org.json4s.jackson
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import org.scalactic._
 import payloads._
-import responses.{FullOrder, PublicSku}
+import responses.{FullOrder, PublicSku, AdminNotes}
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.RunOnDbIO
@@ -74,10 +74,8 @@ class Service(
   def renderGoodOrBad[G <: AnyRef, B <: AnyRef](goodOrBad: G Or B)
     (implicit ec: ExecutionContext, db: Database): HttpResponse = {
     goodOrBad match {
-      case Bad(errors)    =>
-        HttpResponse(BadRequest, entity = json(("errors" -> errors)))
-      case Good(resource) =>
-        HttpResponse(OK, entity = json(resource))
+      case Bad(errors)    => render(BadRequest, "errors" → errors)
+      case Good(resource) => render(OK, resource)
     }
   }
 
@@ -90,12 +88,15 @@ class Service(
   }
 
   def renderOrNotFound[A <: AnyRef](resource: Future[Option[A]],
-    onFound: (A => HttpResponse) = (r: A) => HttpResponse(OK, entity = json(r))) = {
+    onFound: (A => HttpResponse) = (r: A) => render(OK, r)) = {
     resource.map {
       case Some(r) => onFound(r)
       case None => notFoundResponse
     }
   }
+
+  def render[A <: AnyRef](statusCode: StatusCode = OK, resource: A) =
+    HttpResponse(statusCode, entity = json(resource))
 
   val routes = {
     def findCustomer(id: Int): Future[Option[Customer]] = {
@@ -107,7 +108,7 @@ class Service(
       Admin Authenticated Routes
      */
     logRequestResult("admin-routes") {
-      authenticateBasicAsync(realm = "admin", storeAdminAuth) { user =>
+      authenticateBasicAsync(realm = "admin", storeAdminAuth) { admin =>
         pathPrefix("v1" / "gift-cards") {
           (get & path(IntNumber) & pathEnd) { giftCardId ⇒
             complete {
@@ -226,6 +227,27 @@ class Service(
                 }
               }
             }
+          } ~
+          pathPrefix("notes") {
+            (get & pathEnd) {
+              complete {
+                whenFound(Orders.findById(orderId).run()) { order ⇒ AdminNotes.forOrder(order) }
+              }
+            } ~
+            (post & entity(as[payloads.CreateNote])) { payload ⇒
+              complete {
+                whenFound(Orders.findById(orderId).run()) { order ⇒
+                  NoteCreator.createOrderNote(order, admin, payload)
+                }
+              }
+            } //~
+//            (patch & entity(as[payloads.UpdateNote])) { payload ⇒
+//              complete {
+//                whenFound(Orders.findById(orderId).run()) { order ⇒
+//                  NoteCreator.createOrderNote(order, admin, payload)
+//                }
+//              }
+//            }
           }
         }
       }

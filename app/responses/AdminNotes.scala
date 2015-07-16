@@ -1,12 +1,13 @@
 package responses
 
-import models._
+import models.{Notes, Note, StoreAdmin, Order}
+import org.scalactic.Good
 
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 import scala.concurrent.{ExecutionContext, Future}
 
-object Note {
+object AdminNotes {
 
   final case class Root(id: Int, body: String, author: Author)
   final case class Author(firstName: String, lastName: String, email: String)
@@ -16,13 +17,14 @@ object Note {
       author = Author(firstName = author.firstName, lastName = author.lastName, email = author.email))
   }
 
-  def findNotesByOrderId(id: Int)(implicit ec: ExecutionContext, db:Database): Future[Seq[Root]] = {
+  def forOrder(order: Order)(implicit ec: ExecutionContext, db: Database): Future[Good[Seq[Root], Nothing]] = {
     (for {
-      notes ← Notes._filterByOrderId(id)
+      notes ← Notes._filterByOrderId(order.id)
       authors ← notes.author
     } yield (notes, authors)).result.run().map { results ⇒
       results.map { case (note, author) ⇒ build(note, author) }
-    }
+    }.map(Good(_))
   }
+
 }
 
