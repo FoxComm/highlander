@@ -12,7 +12,7 @@ import com.typesafe.config.{Config, ConfigFactory}
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import models._
 import org.json4s.jackson
-import org.json4s.jackson.Serialization.{write ⇒ render}
+import org.json4s.jackson.Serialization.{write ⇒ json}
 import org.scalactic._
 import payloads._
 import responses.{FullOrder, PublicSku}
@@ -72,22 +72,28 @@ class Service(
   val notFoundResponse = HttpResponse(StatusCodes.NotFound)
 
   def renderGoodOrBad[G <: AnyRef, B <: AnyRef](goodOrBad: G Or B)
-                                               (implicit ec: ExecutionContext,
-                                                db: Database): HttpResponse = {
+    (implicit ec: ExecutionContext, db: Database): HttpResponse = {
     goodOrBad match {
       case Bad(errors)    =>
-        HttpResponse(BadRequest, entity = render(("errors" -> errors)))
+        HttpResponse(BadRequest, entity = json(("errors" -> errors)))
       case Good(resource) =>
-        HttpResponse(OK, entity = render(resource))
+        HttpResponse(OK, entity = json(resource))
     }
   }
 
   def whenFound[A, G <: AnyRef, B <: AnyRef](finder: Future[Option[A]])(f: A => Future[G Or B])
-                                            (implicit ec: ExecutionContext,
-                                             db: Database): Future[HttpResponse] = {
+    (implicit ec: ExecutionContext, db: Database): Future[HttpResponse] = {
     finder.flatMap { option =>
       option.map(f(_).map(renderGoodOrBad)).
         getOrElse(Future.successful(notFoundResponse))
+    }
+  }
+
+  def renderOrNotFound[A <: AnyRef](resource: Future[Option[A]],
+    onFound: (A => HttpResponse) = (r: A) => HttpResponse(OK, entity = json(r))) = {
+    resource.map {
+      case Some(r) => onFound(r)
+      case None => notFoundResponse
     }
   }
 
@@ -95,14 +101,6 @@ class Service(
     def findCustomer(id: Int): Future[Option[Customer]] = {
         Future.successful(Some(Customer(id = id, email = "donkey@donkey.com", password = "donkeyPass",
           firstName = "Mister", lastName = "Donkey")))
-    }
-
-    def renderOrNotFound[A <: AnyRef](resource: Future[Option[A]],
-                                      onFound: (A => HttpResponse) = (r: A) => HttpResponse(OK, entity = render(r))) = {
-      resource.map {
-        case Some(r) => onFound(r)
-        case None => notFoundResponse
-      }
     }
 
     /*
@@ -122,7 +120,7 @@ class Service(
             get {
               complete {
                 Addresses.findAllByCustomerId(customerId).map { addresses =>
-                  HttpResponse(OK, entity = render(addresses))
+                  HttpResponse(OK, entity = json(addresses))
                 }
               }
             } ~
@@ -217,11 +215,11 @@ class Service(
                   case Some(order) =>
                     findCustomer(order.customerId).flatMap {
                       case None =>
-                        Future.successful(HttpResponse(OK, entity = render(s"Guest checkout!!")))
+                        Future.successful(HttpResponse(OK, entity = json(s"Guest checkout!!")))
 
                       case Some(customer) =>
                         CreditCardPaymentCreator.run(order, customer, reqPayment).map { fullOrder =>
-                          fullOrder.fold({ c => HttpResponse(OK, entity = render(c)) }, { e => HttpResponse(BadRequest, entity = render("errors" -> e.flatMap(_.description))) })
+                          fullOrder.fold({ c => HttpResponse(OK, entity = json(c)) }, { e => HttpResponse(BadRequest, entity = json("errors" -> e.flatMap(_.description))) })
 
                         }
                     }
@@ -249,7 +247,7 @@ class Service(
               get {
                 complete {
                   Addresses.findAllByCustomer(customer).map { addresses =>
-                    HttpResponse(OK, entity = render(addresses))
+                    HttpResponse(OK, entity = json(addresses))
                   }
                 }
               } ~
