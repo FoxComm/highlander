@@ -11,7 +11,7 @@ import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 
 import slick.driver.PostgresDriver.api._
 
-object NoteCreator {
+object NoteManager {
 
   def createOrderNote(order: Order, admin: StoreAdmin, payload: payloads.CreateNote)
     (implicit ec: ExecutionContext, db: Database) = {
