@@ -3,8 +3,10 @@ import models._
 import org.joda.time.DateTime
 import org.scalatest.time.{Milliseconds, Seconds, Span}
 import payloads.{CreateAddressPayload, CreditCardPayload}
-import responses.FullOrder
+import responses.{AdminNotes, FullOrder}
+import services.NoteManager
 import util.{IntegrationTestBase, StripeSupport}
+import utils.Seeds.Factories
 
 /**
  * The Server is shut down by shutting down the ActorSystem
@@ -105,6 +107,69 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       address.stateId must === (addressPayload.stateId)
       address.customerId must === (customerId)
+    }
+  }
+
+  "notes" - {
+    "can be created by an admin for an order" in new Fixture {
+      val response = POST(s"v1/orders/${order.id}/notes", payloads.CreateNote(body = "Hello, FoxCommerce!"))
+
+      response.status must === (StatusCodes.OK)
+
+      val note = parse(response.bodyText).extract[AdminNotes.Root]
+
+      note.body must === ("Hello, FoxCommerce!")
+      note.author must === (AdminNotes.buildAuthor(storeAdmin))
+    }
+
+    "returns a validation error if failed to create" in new Fixture {
+      val response = POST(s"v1/orders/${order.id}/notes", payloads.CreateNote(body = ""))
+
+      response.status must === (StatusCodes.BadRequest)
+      response.bodyText must include ("errors")
+    }
+
+    "returns a 404 if the order is not found" in new Fixture {
+      val response = POST(s"v1/orders/99/notes", payloads.CreateNote(body = ""))
+
+      response.status must === (StatusCodes.NotFound)
+      response.bodyText must be ('empty)
+    }
+
+//    "are soft deleted" in {
+//      val response = DELETE(s"v1/orders/${order.id}/notes/${note.id}")
+//    }
+
+    "can be listed" in new Fixture {
+      List("abc", "123", "xyz").map { body ⇒
+        NoteManager.createOrderNote(order, storeAdmin, payloads.CreateNote(body = body)).futureValue
+      }
+
+      val response = GET(s"v1/orders/${order.id}/notes")
+      response.status must === (StatusCodes.OK)
+
+      val notes = parse(response.bodyText).extract[Seq[AdminNotes.Root]]
+
+      notes must have size (3)
+      notes.map(_.body).toSet must === (Set("abc", "123", "xyz"))
+    }
+
+    "can update the body text" in new Fixture {
+      val rootNote = NoteManager.createOrderNote(order, storeAdmin,
+        payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue.get
+
+      val response = PATCH(s"v1/orders/${order.id}/notes/${rootNote.id}", payloads.UpdateNote(body = "donkey"))
+      response.status must === (StatusCodes.OK)
+
+      val note = parse(response.bodyText).extract[AdminNotes.Root]
+      note.body must === ("donkey")
+    }
+
+    trait Fixture {
+      val (order, storeAdmin) = (for {
+        order ← Orders.save(Factories.order)
+        storeAdmin ← StoreAdmins.save(authedStoreAdmin)
+      } yield (order, storeAdmin)).run().futureValue
     }
   }
 }

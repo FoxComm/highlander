@@ -71,6 +71,18 @@ trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with Patien
     Http().singleRequest(request).futureValue
   }
 
+  def PATCH(path: String, rawBody: String): HttpResponse = {
+    val request = HttpRequest(
+      method = HttpMethods.PATCH,
+      uri    = pathToAbsoluteUrl(path),
+      entity = HttpEntity.Strict(
+        ContentTypes.`application/json`,
+        ByteString(rawBody)
+      ))
+
+    Http().singleRequest(request).futureValue
+  }
+
   def GET(path: String): HttpResponse = {
     val request = HttpRequest(
       method = HttpMethods.GET,
@@ -80,6 +92,8 @@ trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with Patien
   }
 
   def POST[T <: AnyRef](path: String, payload: T): HttpResponse = POST(path, writeJson(payload))
+
+  def PATCH[T <: AnyRef](path: String, payload: T): HttpResponse = PATCH(path, writeJson(payload))
 
   def DELETE(path: String): HttpResponse = {
     val request = HttpRequest(

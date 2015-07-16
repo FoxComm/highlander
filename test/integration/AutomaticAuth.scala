@@ -10,16 +10,20 @@ trait AutomaticAuth extends SuiteMixin
   with ScalaFutures
   with HttpSupport { this: Suite with PatienceConfiguration with DbTestSupport ⇒
 
+  val authedStoreAdmin = StoreAdmin(id = 1, email = "donkey@donkey.com", password = "donkeyPass",
+          firstName = "Mister", lastName = "Donkey")
+
+  val authedCustomer = Customer(id = 1, email = "donkey@donkey.com", password = "donkeyPass",
+          firstName = "Mister", lastName = "Donkey")
+
   override def makeService: Service = {
     new Service(dbOverride = Some(db), systemOverride = Some(as)) {
       override def storeAdminAuth: AsyncAuthenticator[StoreAdmin] = (UserCredentials) => {
-        Future.successful(Some(StoreAdmin(id = 1, email = "donkey@donkey.com", password = "donkeyPass",
-          firstName = "Mister", lastName = "Donkey")))
+        Future.successful(Some(authedStoreAdmin))
       }
 
       override def customerAuth: AsyncAuthenticator[Customer] = (UserCredentials) => {
-        Future.successful(Some(Customer(id = 1, email = "donkey@donkey.com", password = "donkeyPass",
-          firstName = "Mister", lastName = "Donkey")))
+        Future.successful(Some(authedCustomer))
       }
     }
   }
