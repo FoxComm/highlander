@@ -26,3 +26,6 @@ workbench.xmi
 .idea
 phoenix-scala.iml
 /bin/
+
+# Vagrant
+.vagrant
