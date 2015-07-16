@@ -52,6 +52,7 @@ export default class OrderDetails extends React.Component {
         <article>
           <OrderLineItems order={order} isEditing={isEditing}/>
           <OrderShippingAddress order={order} isEditing={isEditing}/>
+          <OrderShippingMethod order={order} isEditing={isEditing} />
           <OrderPayment order={order} isEditing={isEditing}/>
         </article>
       </div>
