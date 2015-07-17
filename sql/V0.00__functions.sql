@@ -34,3 +34,5 @@ $$ language plpgsql;
 -- ISO4217 declares currency as alphanumeric-3
 create domain currency character(3) not null;
 
+-- RFC2821 + Errata 1690 limits max email size to 254 chars
+create domain email character varying(254);

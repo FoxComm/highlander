@@ -1,6 +1,6 @@
 create table store_admins (
     id serial primary key,
-    email character varying(255) not null,
+    email email not null,
     hashed_password character varying(255) not null,
     first_name character varying(255),
     last_name character varying(255),
@@ -11,3 +11,4 @@ create table store_admins (
 );
 
 create index store_admins_email_idx on store_admins (email)
+
