@@ -53,6 +53,8 @@ object Order {
   }
 
   implicit val statusColumnType = Status.slickColumn
+
+  def buildCart(customerId: Int): Order = Order(customerId = customerId, status = Order.Cart)
 }
 
 class Orders(tag: Tag) extends GenericTable.TableWithId[Order](tag, "orders") with RichTable {

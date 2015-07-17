@@ -60,7 +60,7 @@ object Seeds {
       customerProfile ← CustomerProfiles.save(s.customerProfile.copy(customerId = customer.id))
       storeAdmin ← (StoreAdmins.returningId += s.storeAdmin).map(id => s.storeAdmin.copy(id = id))
       skus ←  Skus ++= s.skus
-      order ← Orders.save(s.order.copy(customerId = customer.id))
+      order ← Orders._create(s.order.copy(customerId = customer.id))
       orderNotes ← Notes ++= s.orderNotes
       orderLineItem ← OrderLineItems ++= s.orderLineItems
       address ← Addresses.save(s.address.copy(customerId = customer.id))
