@@ -13,9 +13,11 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 import org.scalactic._
 
-final case class Customer(id: Int = 0, email: String, password: String,
-                    firstName: String, lastName: String) extends Validation[Customer]
+final case class Customer(id: Int = 0, email: String, password: String, firstName: String, lastName: String,
+  phoneNumber: Option[String] = None, location: Option[String] = None, modality: Option[String] = None)
+  extends Validation[Customer]
   with ModelWithIdParameter {
+
   override def validator = createValidator[Customer] { user =>
     user.firstName is notEmpty
     user.lastName is notEmpty
@@ -29,8 +31,12 @@ class Customers(tag: Tag) extends TableWithId[Customer](tag, "customers") with R
   def password = column[String]("hashed_password")
   def firstName = column[String]("first_name")
   def lastName = column[String]("last_name")
+  def phoneNumber = column[Option[String]]("phone_number")
+  def location = column[Option[String]]("location")
+  def modality = column[Option[String]]("modality")
 
-  def * = (id, email, password, firstName, lastName) <> ((Customer.apply _).tupled, Customer.unapply)
+  def * = (id, email, password, firstName, lastName,
+    phoneNumber, location, modality) <> ((Customer.apply _).tupled, Customer.unapply)
 }
 
 object Customers extends TableQueryWithId[Customer, Customers](
@@ -49,7 +55,8 @@ object Customers extends TableQueryWithId[Customer, Customers](
 
   def createFromPayload(payload: CreateCustomerPayload)
                        (implicit ec: ExecutionContext, db: Database): Future[Customer Or List[Failure]] = {
-    val newCustomer = Customer(id = 0, email = payload.email, password = payload.password, firstName = payload.firstName, lastName = payload.firstName)
+    val newCustomer = Customer(id = 0, email = payload.email,password = payload.password,
+      firstName = payload.firstName, lastName = payload.firstName)
 
     save(newCustomer).run().map(Good(_))
   }
