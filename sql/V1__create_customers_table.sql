@@ -1,5 +1,6 @@
 create table customers (
     id serial primary key,
+    disabled boolean not null default false,
     email email not null,
     hashed_password character varying(255) not null,
     first_name character varying(255),
