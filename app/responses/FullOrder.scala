@@ -10,7 +10,7 @@ object FullOrder {
   type Response = Future[Option[Root]]
 
   final case class Totals(subTotal: Int, taxes: Int, adjustments: Int, total: Int)
-  final case class Root(id: Int, referenceNumber: Option[String],
+  final case class Root(id: Int, referenceNumber: String,
                   orderStatus: Order.Status,
                   shippingStatus: Order.Status,
                   paymentStatus: Order.Status,

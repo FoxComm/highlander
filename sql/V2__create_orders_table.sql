@@ -1,6 +1,6 @@
 create table orders (
     id bigint primary key,
-    reference_number character varying(255), --TODO: Make non-nullable after we build a generator
+    reference_number character varying(255) not null,
     customer_id integer,
     status character varying(255) not null,
     locked boolean default false,

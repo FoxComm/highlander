@@ -1,6 +1,7 @@
 package models
 
 import com.pellucid.sealerate
+import models.Order.Status
 import services.OrderTotaler
 import utils.{ADT, GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
 import payloads.CreateAddressPayload
@@ -15,7 +16,8 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-final case class Order(id: Int = 0, referenceNumber: Option[String] = None, customerId: Int, status: Order.Status = Order.Cart, locked: Boolean = false)
+final case class Order(id: Int = 0, referenceNumber: String = "", customerId: Int,
+  status: Status = Order.Cart, locked: Boolean = false)
   extends ModelWithIdParameter
   with Validation[Order] {
 
@@ -54,7 +56,7 @@ object Order {
 class Orders(tag: Tag) extends GenericTable.TableWithId[Order](tag, "orders") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   // TODO: Find a way to deal with guest checkouts...
-  def referenceNumber = column[Option[String]]("reference_number") //we should generate this based on certain rules; nullable until then
+  def referenceNumber = column[String]("reference_number") //we should generate this based on certain rules; nullable until then
   def customerId = column[Int]("customer_id")
   def status = column[Order.Status]("status")
   def locked = column[Boolean]("locked")

@@ -82,7 +82,7 @@ object Seeds {
 
     def storeAdmin = StoreAdmin(email = "admin@admin.com", password = "password", firstName = "Frankly", lastName = "Admin")
 
-    def order = Order(customerId = 0, referenceNumber = Some("ABCD1234-11"), status = Order.ManualHold)
+    def order = Order(customerId = 0, referenceNumber = "ABCD1234-11", status = Order.ManualHold)
 
     def orderNotes: Seq[Note] = Seq(
       Note(referenceId = 1, referenceType = Note.Order, storeAdminId = 1, body = "This customer is a donkey."),
