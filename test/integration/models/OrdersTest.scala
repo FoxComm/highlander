@@ -8,10 +8,15 @@ class OrdersTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global
 
   "Orders" - {
-    "generates a referenceNumber in Postgres after insert" in new Fixture {
+    "generates a referenceNumber in Postgres after insert when blank" in new Fixture {
       val order = Orders.create(Factories.cart.copy(customerId = customer.id, referenceNumber = "")).futureValue
 
       order.referenceNumber must === ("BR10001")
+    }
+
+    "doesn't overwrite a non-empty referenceNumber after insert" in new Fixture {
+      val order = Orders.create(Factories.cart.copy(customerId = customer.id, referenceNumber = "R123456")).futureValue
+      order.referenceNumber must === ("R123456")
     }
 
     "can only have one record in 'cart' status" in new Fixture {
