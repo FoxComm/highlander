@@ -29,7 +29,7 @@ final case class Customer(id: Int = 0, disabled: Boolean = false, email: String,
 class Customers(tag: Tag) extends TableWithId[Customer](tag, "customers") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def disabled = column[Boolean]("disabled")
-  def disabledBy = column[Option[Int]]("disabledBy")
+  def disabledBy = column[Option[Int]]("disabled_by")
   def email = column[String]("email")
   def password = column[String]("hashed_password")
   def firstName = column[String]("first_name")

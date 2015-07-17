@@ -17,26 +17,27 @@ class CustomerIntegrationTest extends IntegrationTestBase
   import Extensions._
 
   "admin APIs" - {
-    "shows a customer" in new CustomerFixture {
+    "shows a customer" in new Fixture {
       val response = GET(s"v1/users/${customer.id}")
 
       response.status must === (StatusCodes.OK)
       parse(response.bodyText).extract[Customer] must === (customer)
     }
 
-    "enables a customer account" in new CustomerFixture {
-      val response = GET(s"v1/users/${customer.id}/enable")
+    "disables a customer account" in new Fixture {
+      val response = PATCH(s"v1/users/${customer.id}/disable")
 
       response.status must === (StatusCodes.OK)
-      val respCustomer = parse(response.bodyText).extract[Customer]
+      val changedCustomer = parse(response.bodyText).extract[Customer]
 
-      respCustomer.disabled must === (true)
-      respCustomer.disabled must !== (customer.disabled)
+      customer.disabled must === (false)
+      changedCustomer.disabled must === (true)
     }
   }
 
-  trait CustomerFixture {
+  trait Fixture {
     val customer = Customers.save(Factories.customer).run().futureValue
+    val admin = StoreAdmins.save(authedStoreAdmin).run().futureValue
   }
 }
 

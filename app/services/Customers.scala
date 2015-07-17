@@ -11,16 +11,16 @@ import slick.driver.PostgresDriver.api._
 object Customers {
   def toggleDisabled(customer: Customer, disabled: Boolean, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database): Future[Customer Or Failure] = {
-    if (disabled == customer.disabled) {
-      val state = if (customer.disabled) "disabled" else "enabled"
-      Future.successful(Bad(GeneralFailure(s"customer is already $state")))
-    } else {
-      for {
-        bah ← CustomersTable.filter(_.id === customer.id).
-          map { t ⇒ (t.disabled, t.disabledBy) }.
-          update((disabled, Some(admin.id)))
-      } yield bah
+    val actions = for {
+      _ ← CustomersTable.filter(_.id === customer.id).
+        map { t ⇒ (t.disabled, t.disabledBy) }.
+        update((disabled, Some(admin.id)))
+      updatedCustomer ← CustomersTable._findById(customer.id).result.headOption
+    } yield updatedCustomer
+
+    db.run(actions).map {
+      case Some(c) ⇒ Good(c)
+      case None ⇒ Bad(NotFoundFailure(s"customer id=${customer.id} not found"))
     }
-    Future.successful(Good(customer))
   }
 }
