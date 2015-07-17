@@ -6,6 +6,7 @@ import org.scalatest.prop.TableDrivenPropertyChecks._
 import payloads.CreateAddressPayload
 import util.IntegrationTestBase
 import utils.Validation
+import utils.Seeds.Factories
 
 class AddressTest extends IntegrationTestBase {
   import api._
@@ -13,25 +14,14 @@ class AddressTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global
 
   "Addresses" - {
-    val customers = TableQuery[Customers]
-    val states = TableQuery[States]
-
     lazy val state = States.findByAbbrev("WA").futureValue.get
 
-    def seedAccount(): Customer = {
-      val acct = Customer(0, "yax@yax.com", "plaintext", "Yax", "Donkey")
-      db.run(for {
-        id <- customers.returning(customers.map(_.id)) += acct
-      } yield acct.copy(id = id)).futureValue
-    }
-
     "createFromPayload" - {
-      "fails if address(es) do not pass validations" in {
-        val acct = seedAccount()
+      "fails if address(es) do not pass validations" in new CustomerFixture {
         val payload = Seq(CreateAddressPayload(name = "Office", stateId = state.id, street1 = "3000 Burlingame Ave.",
           street2 = None, city = "Burlingame", zip = "NOPE"))
 
-        Addresses.createFromPayload(acct, payload).futureValue match {
+        Addresses.createFromPayload(customer, payload).futureValue match {
           case Good(_) =>
             fail("address should have failed validation")
 
@@ -42,12 +32,11 @@ class AddressTest extends IntegrationTestBase {
         }
       }
 
-      "creates address(es) successfully" in {
-        val acct = seedAccount()
+      "creates address(es) successfully" in new CustomerFixture {
         val payload = Seq(CreateAddressPayload(name = "Office", stateId = state.id, street1 = "3000 Burlingame Ave.",
           street2 = None, city = "Burlingame", zip = "12345"))
 
-        Addresses.createFromPayload(acct, payload).futureValue match {
+        Addresses.createFromPayload(customer, payload).futureValue match {
           case Good(addresses) =>
             addresses.length must be(1)
             addresses.head.id must be > 0
@@ -79,5 +68,9 @@ class AddressTest extends IntegrationTestBase {
         }
       }
     }
+  }
+
+  trait CustomerFixture {
+    val customer = Customers.save(Factories.customer).run().futureValue
   }
 }

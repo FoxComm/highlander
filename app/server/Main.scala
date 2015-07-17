@@ -16,7 +16,7 @@ import org.json4s.jackson.Serialization.{write ⇒ json}
 import org.scalactic._
 import payloads._
 import responses.{FullOrder, PublicSku, AdminNotes}
-import services._
+import services.{Customers ⇒ CustomersService, _}
 import slick.driver.PostgresDriver.api._
 import utils.RunOnDbIO
 
@@ -116,7 +116,19 @@ class Service(
             }
           }
         } ~
-        pathPrefix("v1" / "users" / IntNumber) { customerId =>
+        pathPrefix("v1" / "users" / IntNumber) { customerId ⇒
+          (get & pathEnd) {
+            complete {
+              renderOrNotFound(Customers.findById(customerId))
+            }
+          } ~
+          (patch & path(Map("enable" → false, "disable" → true))) { disabled ⇒
+            complete {
+              whenFound(Customers.findById(customerId)) { customer ⇒
+                CustomersService.toggleDisabled(customer, disabled, admin)
+              }
+            }
+          } ~
           pathPrefix("addresses") {
             get {
               complete {
