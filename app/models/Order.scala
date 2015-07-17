@@ -31,6 +31,8 @@ final case class Order(id: Int = 0, referenceNumber: String = "", customerId: In
   def grandTotal: Future[Int] = {
     Future.successful(27)
   }
+
+  def isNew: Boolean = id == 0
 }
 
 object Order {
@@ -67,11 +69,22 @@ object Orders extends TableQueryWithId[Order, Orders](
   idLens = GenLens[Order](_.id)
   )(new Orders(_)){
 
-  def _create(order: Order)(implicit ec: ExecutionContext, db: Database): DBIOAction[models.Order, NoStream, Effect.Write] = {
-   for {
-     newId <- Orders.returningId += order
-   } yield order.copy(id = newId)
+  val returningIdAndReferenceNumber = this.returning(map { o ⇒ (o.id, o.referenceNumber) })
+
+  override def save(order: Order)(implicit ec: ExecutionContext) = {
+    if (order.isNew) {
+      _create(order)
+    } else {
+      super.save(order)
+    }
   }
+
+  def create(order: Order)(implicit ec: ExecutionContext, db: Database): Future[models.Order] =
+    _create(order).run()
+
+  def _create(order: Order)(implicit ec: ExecutionContext): DBIO[models.Order] = for {
+     (newId, refNum) <- returningIdAndReferenceNumber += order
+  } yield order.copy(id = newId, referenceNumber = refNum)
 
   def findByCustomer(customer: Customer)(implicit ec: ExecutionContext, db: Database): Future[Seq[Order]] = {
     db.run(_findByCustomer(customer).result)

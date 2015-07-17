@@ -84,6 +84,8 @@ object Seeds {
 
     def order = Order(customerId = 0, referenceNumber = "ABCD1234-11", status = Order.ManualHold)
 
+    def cart = order.copy(status = Order.Cart)
+
     def orderNotes: Seq[Note] = Seq(
       Note(referenceId = 1, referenceType = Note.Order, storeAdminId = 1, body = "This customer is a donkey."),
       Note(referenceId = 1, referenceType = Note.Order, storeAdminId = 1, body = "No, seriously."),
