@@ -23,7 +23,7 @@ import validators._
 import scala.concurrent.{ExecutionContext, Future}
 
 final case class CreditCard(id: Int = 0, customerId: Int, gatewayCustomerId: String, lastFour: String,
-                             expMonth: Int, expYear: Int)
+  expMonth: Int, expYear: Int, isDefault: Boolean = false)
   extends PaymentMethod
   with ModelWithIdParameter
   with Validation[CreditCard] {
@@ -31,7 +31,6 @@ final case class CreditCard(id: Int = 0, customerId: Int, gatewayCustomerId: Str
   def authorize(amount: Int)(implicit ec: ExecutionContext): Future[String Or List[Failure]] = {
     new StripeGateway().authorizeAmount(gatewayCustomerId, amount)
   }
-
 
   override def validator = createValidator[CreditCard] { cc =>
     cc.lastFour should matchRegex("[0-9]{4}")
@@ -57,9 +56,10 @@ class CreditCards(tag: Tag)
   def lastFour = column[String]("last_four")
   def expMonth = column[Int]("exp_month")
   def expYear = column[Int]("exp_year")
+  def isDefault = column[Boolean]("is_default")
 
   def * = (id, customerId, gatewayCustomerId,
-    lastFour, expMonth, expYear) <> ((CreditCard.apply _).tupled, CreditCard.unapply)
+    lastFour, expMonth, expYear, isDefault) <> ((CreditCard.apply _).tupled, CreditCard.unapply)
 }
 
 object CreditCards extends TableQueryWithId[CreditCard, CreditCards](
