@@ -8,7 +8,7 @@ import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 
 import slick.driver.PostgresDriver.api._
 
-object Customers {
+object CustomerManager {
   def toggleDisabled(customer: Customer, disabled: Boolean, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database): Future[Customer Or Failure] = {
     val actions = for {

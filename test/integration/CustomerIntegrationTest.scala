@@ -1,11 +1,7 @@
 import akka.http.scaladsl.model.StatusCodes
 import models._
-import org.joda.time.DateTime
-import org.scalatest.time.{Milliseconds, Seconds, Span}
-import payloads.{CreateAddressPayload, CreditCardPayload}
-import responses.{AdminNotes, FullOrder}
-import services.NoteManager
-import util.{IntegrationTestBase, StripeSupport}
+import org.scalatest.prop.TableDrivenPropertyChecks._
+import util.IntegrationTestBase
 import utils.Seeds.Factories
 
 class CustomerIntegrationTest extends IntegrationTestBase
@@ -24,14 +20,22 @@ class CustomerIntegrationTest extends IntegrationTestBase
       parse(response.bodyText).extract[Customer] must === (customer)
     }
 
-    "disables a customer account" in new Fixture {
-      val response = PATCH(s"v1/users/${customer.id}/disable")
-
-      response.status must === (StatusCodes.OK)
-      val changedCustomer = parse(response.bodyText).extract[Customer]
+    "toggles the disabled flag on a customer account" in new Fixture {
+      val states = Table(
+        ("action", "disabled"),
+        ("disable", true),
+        ("enable", false)
+      )
 
       customer.disabled must === (false)
-      changedCustomer.disabled must === (true)
+
+      forAll(states) { (action, disabled) ⇒
+        val response = PATCH(s"v1/users/${customer.id}/$action")
+        response.status must === (StatusCodes.OK)
+
+        val c = parse(response.bodyText).extract[Customer]
+        c.disabled must === (disabled)
+      }
     }
   }
 
