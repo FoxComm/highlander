@@ -1,6 +1,5 @@
 'use strict';
 
-const parse = require('co-body');
 
 module.exports = function(app, router) {
   const ShippingMethod = app.seeds.models.ShippingMethod;

@@ -25,20 +25,24 @@ export default class OrderShippingMethod extends React.Component {
     let innerContent = null;
 
     if (this.props.isEditing) {
-      innerContent = null;
+      innerContent = <ul></ul>;
     } else {
       innerContent = (
-        {this.state.methods.map((method) => {
-          <li>
-            <input type="radio">
-            {method.name}
-            {method.price}
-          </li>
-        })}
+        <ul>
+          {this.state.methods.map((method) => {
+            return (
+              <li>
+                <input type="radio" />
+                {method.name}
+                {method.price}
+              </li>
+            );
+           })}
+        </ul>
       );
     }
 
-    return <ul>{innerContent}</ul>;
+    return innerContent;
   }
 }
 
