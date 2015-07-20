@@ -2,6 +2,8 @@
 
 import React from 'react';
 import Api from '../../lib/api';
+import TableHead from '../tables/head';
+import TableBody from '../tables/body';
 
 export default class OrderShippingMethod extends React.Component {
   constructor(props) {
@@ -22,31 +24,27 @@ export default class OrderShippingMethod extends React.Component {
   }
 
   render() {
-    let innerContent = null;
-
-    if (this.props.isEditing) {
-      innerContent = <ul></ul>;
-    } else {
-      innerContent = (
-        <ul>
-          {this.state.methods.map((method) => {
-            return (
-              <li>
-                <input type="radio" />
-                {method.name}
-                {method.price}
-              </li>
-            );
-           })}
-        </ul>
-      );
-    }
-
-    return innerContent;
+    return (
+      <section id="order-shipping-method">
+        <header>Shipping Method</header>
+        <table className="inline">
+          <TableHead columns={this.props.tableColumns} />
+          <TableBody columns={this.props.tableColumns} rows={this.state.methods} model='shipping-method' />
+        </table>
+      </section>
+    );
   }
 }
 
 OrderShippingMethod.propTypes = {
   order: React.PropTypes.object,
-  isEditing: React.PropTypes.bool
+  isEditing: React.PropTypes.bool,
+  tableColumns: React.PropTypes.array
+};
+
+OrderShippingMethod.defaultProps = {
+  tableColumns: [
+    {field: 'name', text: 'Name'},
+    {field: 'price', text: 'Price', type: 'currency'}
+  ]
 };
