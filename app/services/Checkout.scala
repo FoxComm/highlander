@@ -37,12 +37,10 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
 
   // sets incoming order.status == Order.ordered and creates a new order
   def completeOrderAndCreateNew(order: Order): Future[Order] = {
-    val newOrder = Order(customerId = order.customerId, status = Order.Cart)
-
     db.run(for {
       _ <- Orders._findById(order.id).extract.map(_.status).update(Order.Ordered)
-      insertId <- Orders.returningId += newOrder
-    } yield newOrder.copy(id = insertId))
+      newOrder <- Orders._create(Order.buildCart(order.customerId))
+    } yield newOrder)
   }
 
   def decrementInventory(order: Order): Future[Int] =

@@ -1,6 +1,7 @@
 package models
 
 import com.pellucid.sealerate
+import models.Order.Status
 import services.OrderTotaler
 import utils.{ADT, GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
 import payloads.CreateAddressPayload
@@ -15,7 +16,8 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 
-final case class Order(id: Int = 0, referenceNumber: Option[String] = None, customerId: Int, status: Order.Status = Order.Cart, locked: Boolean = false)
+final case class Order(id: Int = 0, referenceNumber: String = "", customerId: Int,
+  status: Status = Order.Cart, locked: Boolean = false)
   extends ModelWithIdParameter
   with Validation[Order] {
 
@@ -29,6 +31,8 @@ final case class Order(id: Int = 0, referenceNumber: Option[String] = None, cust
   def grandTotal: Future[Int] = {
     Future.successful(27)
   }
+
+  def isNew: Boolean = id == 0
 }
 
 object Order {
@@ -49,12 +53,14 @@ object Order {
   }
 
   implicit val statusColumnType = Status.slickColumn
+
+  def buildCart(customerId: Int): Order = Order(customerId = customerId, status = Order.Cart)
 }
 
 class Orders(tag: Tag) extends GenericTable.TableWithId[Order](tag, "orders") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   // TODO: Find a way to deal with guest checkouts...
-  def referenceNumber = column[Option[String]]("reference_number") //we should generate this based on certain rules; nullable until then
+  def referenceNumber = column[String]("reference_number") //we should generate this based on certain rules; nullable until then
   def customerId = column[Int]("customer_id")
   def status = column[Order.Status]("status")
   def locked = column[Boolean]("locked")
@@ -65,11 +71,22 @@ object Orders extends TableQueryWithId[Order, Orders](
   idLens = GenLens[Order](_.id)
   )(new Orders(_)){
 
-  def _create(order: Order)(implicit ec: ExecutionContext, db: Database): DBIOAction[models.Order, NoStream, Effect.Write] = {
-   for {
-     newId <- Orders.returningId += order
-   } yield order.copy(id = newId)
+  val returningIdAndReferenceNumber = this.returning(map { o ⇒ (o.id, o.referenceNumber) })
+
+  override def save(order: Order)(implicit ec: ExecutionContext) = {
+    if (order.isNew) {
+      _create(order)
+    } else {
+      super.save(order)
+    }
   }
+
+  def create(order: Order)(implicit ec: ExecutionContext, db: Database): Future[models.Order] =
+    _create(order).run()
+
+  def _create(order: Order)(implicit ec: ExecutionContext): DBIO[models.Order] = for {
+     (newId, refNum) <- returningIdAndReferenceNumber += order
+  } yield order.copy(id = newId, referenceNumber = refNum)
 
   def findByCustomer(customer: Customer)(implicit ec: ExecutionContext, db: Database): Future[Seq[Order]] = {
     db.run(_findByCustomer(customer).result)
