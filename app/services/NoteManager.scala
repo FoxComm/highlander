@@ -42,7 +42,7 @@ object NoteManager {
     }
   }
 
-  def notFound(noteId: Int): NotFoundFailure = NotFoundFailure(s"note with id=$noteId not found")
+  def notFound(noteId: Int): NotFoundFailure = NotFoundFailure(Note, noteId)
 
 //  def deleteNote(noteId: Int, admin: StoreAdmin)
 //    (implicit ec: ExecutionContext, db: Database): Future[Int] = {
