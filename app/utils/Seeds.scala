@@ -57,7 +57,7 @@ object Seeds {
       customer ← (Customers.returningId += s.customer).map(id => s.customer.copy(id = id))
       storeAdmin ← (StoreAdmins.returningId += s.storeAdmin).map(id => s.storeAdmin.copy(id = id))
       skus ←  Skus ++= s.skus
-      order ← Orders.save(s.order.copy(customerId = customer.id))
+      order ← Orders._create(s.order.copy(customerId = customer.id))
       orderNotes ← Notes ++= s.orderNotes
       orderLineItem ← OrderLineItems ++= s.orderLineItems
       address ← Addresses.save(s.address.copy(customerId = customer.id))
@@ -79,7 +79,9 @@ object Seeds {
 
     def storeAdmin = StoreAdmin(email = "admin@admin.com", password = "password", firstName = "Frankly", lastName = "Admin")
 
-    def order = Order(customerId = 0, referenceNumber = Some("ABCD1234-11"), status = Order.ManualHold)
+    def order = Order(customerId = 0, referenceNumber = "ABCD1234-11", status = Order.ManualHold)
+
+    def cart = order.copy(status = Order.Cart)
 
     def orderNotes: Seq[Note] = Seq(
       Note(referenceId = 1, referenceType = Note.Order, storeAdminId = 1, body = "This customer is a donkey."),
