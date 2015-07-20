@@ -13,7 +13,8 @@ final case class NotFoundFailure(message: String) extends Failure {
 }
 
 object NotFoundFailure {
-  def fromModel[M <: ModelWithIdParameter](m: M) = NotFoundFailure(s"${m.modelName} with id=${m.id} not found")
+  def apply[M <: ModelWithIdParameter](m: M): NotFoundFailure =
+    NotFoundFailure(s"${m.modelName} with id=${m.id} not found")
 }
 
 final case class StripeFailure(exception: StripeException) extends Failure {
