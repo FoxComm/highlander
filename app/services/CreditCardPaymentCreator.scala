@@ -19,7 +19,7 @@ import utils.{ Validation ⇒ validation }
 
 // TODO(yax): make this abstract to handle multiple Gateways
 final case class CreditCardPaymentCreator(order: Order, customer: Customer, cardPayload: CreditCardPayload)
-                                   (implicit ec: ExecutionContext, db: Database) {
+  (implicit ec: ExecutionContext, db: Database) {
 
   val gateway = StripeGateway()
   import CreditCardPaymentCreator._
@@ -46,7 +46,7 @@ final case class CreditCardPaymentCreator(order: Order, customer: Customer, card
   // creates CreditCardGateways, uses its id for an AppliedPayment record, and attempts to associate billing info
   // from stripe to a BillingAddress
   private [this] def createRecords(stripeCustomer: StripeCustomer, order: Order, customer: Customer)
-                                  (implicit ec: ExecutionContext, db: Database): Future[Option[Order]] = {
+    (implicit ec: ExecutionContext, db: Database): Future[Option[Order]] = {
 
     val appliedPayment = OrderPayment.fromStripeCustomer(stripeCustomer, order)
     val cc = CreditCard.build(stripeCustomer, this.cardPayload).copy(customerId = customer.id)
@@ -67,8 +67,7 @@ object CreditCardPaymentCreator {
   type Response = Future[FullOrder.Root Or List[Failure]]
 
   def run(order: Order, customer: Customer, payload: CreditCardPayload)
-         (implicit ec: ExecutionContext,
-          db: Database): Response = {
+    (implicit ec: ExecutionContext, db: Database): Response = {
     new CreditCardPaymentCreator(order, customer, payload).run()
   }
 }

@@ -33,7 +33,7 @@ final case class CreditCard(id: Int = 0, customerId: Int, gatewayCustomerId: Str
 object CreditCard {
   def build(c: StripeCustomer, payload: CreditCardPayload): CreditCard = {
     CreditCard(customerId = 0, gatewayCustomerId = c.getId, lastFour = payload.lastFour,
-      expMonth = payload.expMonth, expYear = payload.expYear)
+      expMonth = payload.expMonth, expYear = payload.expYear, isDefault = payload.isDefault)
   }
 }
 

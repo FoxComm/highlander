@@ -37,7 +37,8 @@ class OrderIntegrationTest extends IntegrationTestBase
   "handles credit cards" - {
     val today = new DateTime
     val customerStub = Customer(email = "yax@yax.com", password = "password", firstName = "Yax", lastName = "Fuentes")
-    val payload = CreditCardPayload(holderName = "Jax", number = StripeSupport.successfulCard, cvv = "123", expYear = today.getYear + 1, expMonth = today.getMonthOfYear)
+    val payload = CreditCardPayload(holderName = "Jax", number = StripeSupport.successfulCard, cvv = "123",
+      expYear = today.getYear + 1, expMonth = today.getMonthOfYear, isDefault = true)
 
     "fails if the order is not found" in {
       val response = POST(
@@ -98,6 +99,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       cc.lastFour must === (payload.lastFour)
       cc.expMonth must === (payload.expMonth)
       cc.expYear must === (payload.expYear)
+      cc.isDefault must === (true)
 
       payment.appliedAmount must === (0)
       payment.orderId must === (orderId)

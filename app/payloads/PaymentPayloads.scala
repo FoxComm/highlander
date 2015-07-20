@@ -6,8 +6,8 @@ import com.wix.accord.dsl.{validator => createValidator}
 import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._
 
-final case class CreditCardPayload(holderName: String, number: String,
-                             cvv: String, expYear: Int, expMonth: Int, address: Option[CreateAddressPayload] = None)
+final case class CreditCardPayload(holderName: String, number: String, cvv: String, expYear: Int,
+  expMonth: Int, address: Option[CreateAddressPayload] = None, isDefault: Boolean = false)
   extends Validation[CreditCardPayload] {
 
   override def validator = createValidator[CreditCardPayload] { cc =>
