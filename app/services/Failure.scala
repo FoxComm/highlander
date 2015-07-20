@@ -2,7 +2,7 @@ package services
 
 import collection.immutable
 import com.stripe.exception.StripeException
-import utils.Validation
+import utils.{ModelWithIdParameter, Validation}
 
 sealed trait Failure {
   def description: immutable.Traversable[String]
@@ -10,6 +10,10 @@ sealed trait Failure {
 
 final case class NotFoundFailure(message: String) extends Failure {
   override def description = List(message)
+}
+
+object NotFoundFailure {
+  def fromModel[M <: ModelWithIdParameter](m: M) = NotFoundFailure(s"${m.modelName} with id=${m.id} not found")
 }
 
 final case class StripeFailure(exception: StripeException) extends Failure {

@@ -1,6 +1,6 @@
 package models
 
-import utils.{RichTable, RunOnDbIO}
+import utils.{RichTable, RunOnDbIO, Model}
 
 import com.wix.accord.dsl.{validator => createValidator}
 import slick.driver.PostgresDriver.api._
@@ -10,7 +10,7 @@ import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-final case class State(id: Int, name: String, abbreviation: String) {
+final case class State(id: Int, name: String, abbreviation: String) extends Model {
   val abbrev = this.abbreviation
 }
 
