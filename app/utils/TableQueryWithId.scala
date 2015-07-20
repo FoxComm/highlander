@@ -3,10 +3,15 @@ package utils
 import monocle.Lens
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
+import Strings._
 
 import scala.concurrent.ExecutionContext
 
-trait ModelWithIdParameter {
+trait Model {
+  def modelName: String = getClass.getCanonicalName.lowerCaseFirstLetter
+}
+
+trait ModelWithIdParameter extends Model {
   type Id = Int
 
   def id: Id
