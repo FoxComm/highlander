@@ -1,6 +1,7 @@
 import slick.dbio.DBIO
 
 import slick.driver.PostgresDriver.api._
+import utils.Strings._
 
 import scala.concurrent.Future
 
@@ -10,4 +11,6 @@ package object utils {
       db.run(dbio)
     }
   }
+
+  def friendlyClassName[A](a: A): String = a.getClass.getSimpleName.replaceAll("""\$""", "").lowerCaseFirstLetter
 }
