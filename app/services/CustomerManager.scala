@@ -28,7 +28,7 @@ object CustomerManager {
 
     CreditCards.returning(CreditCards).insertOrUpdate(cc.copy(isDefault = isDefault)).run().map {
       case Some(updated)  ⇒ Good(updated)
-      case None           ⇒ Bad(NotFoundFailure.fromModel(cc))
+      case None           ⇒ Bad(NotFoundFailure(cc))
     }
   }
 }
