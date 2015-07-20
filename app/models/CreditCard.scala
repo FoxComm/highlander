@@ -8,19 +8,10 @@ import monocle.macros.GenLens
 import org.scalactic.Or
 import payloads.CreditCardPayload
 import services.{Failure, StripeGateway}
-import com.wix.accord.dsl.{validator => createValidator}
-import com.stripe.model.{Customer ⇒ StripeCustomer}
-import com.wix.accord.dsl.{validator ⇒ createValidator, _}
-import monocle.macros.GenLens
-import org.scalactic.{ErrorMessage, Or}
-import payloads.CreditCardPayload
-import services.StripeGateway
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils._
 import validators._
-
-import scala.concurrent.{ExecutionContext, Future}
 
 final case class CreditCard(id: Int = 0, customerId: Int, gatewayCustomerId: String, lastFour: String,
   expMonth: Int, expYear: Int, isDefault: Boolean = false)
@@ -72,4 +63,5 @@ object CreditCards extends TableQueryWithId[CreditCard, CreditCards](
 
   def _findById(id: Rep[Int]) = { filter(_.id === id) }
 }
+
 

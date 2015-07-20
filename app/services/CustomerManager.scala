@@ -1,12 +1,11 @@
 package services
 
-import models.{Customers ⇒ CustomersTable, StoreAdmin, Customer}
-import org.scalactic._
-import scala.concurrent.{Future, ExecutionContext}
-import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
+import scala.concurrent.{ExecutionContext, Future}
 
+import models.{CreditCard, CreditCards, Customer, Customers ⇒ CustomersTable, StoreAdmin}
+import org.scalactic._
 import slick.driver.PostgresDriver.api._
+import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 
 object CustomerManager {
   def toggleDisabled(customer: Customer, disabled: Boolean, admin: StoreAdmin)
@@ -21,6 +20,15 @@ object CustomerManager {
     db.run(actions).map {
       case Some(c) ⇒ Good(c)
       case None ⇒ Bad(NotFoundFailure(s"customer id=${customer.id} not found"))
+    }
+  }
+
+  def toggleDefaultCreditCard(cc: CreditCard, isDefault: Boolean)
+    (implicit ec: ExecutionContext, db: Database): Future[CreditCard Or Failure] = {
+
+    CreditCards.returning(CreditCards).insertOrUpdate(cc.copy(isDefault = isDefault)).run().map {
+      case Some(updated)  ⇒ Good(updated)
+      case None           ⇒ Bad(NotFoundFailure.fromModel(cc))
     }
   }
 }

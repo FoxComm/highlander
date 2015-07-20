@@ -17,3 +17,4 @@ create index credit_cards_customer_id_idx on credit_cards (customer_id);
 
 create unique index credit_cards_default_idx on credit_cards (customer_id, is_default);
 
+

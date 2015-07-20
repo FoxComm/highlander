@@ -8,6 +8,8 @@ import scala.concurrent.ExecutionContext
 
 trait ModelWithIdParameter {
   type Id = Int
+
+  def id: Id
 }
 
 trait TableWithIdColumn[I] {
