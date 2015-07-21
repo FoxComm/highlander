@@ -11,6 +11,13 @@ import slick.relational.{CompiledMapping, ResultConverter}
 import slick.util.SQLBuilder
 
 object Slick {
+  /*
+    Provides an implicit conversion to allow for UDPATE _ RETURNING _ queries
+    Usage: Customers.filter(_.id === 1).map(_.firstName).
+      updateReturning(Customers.map(_.firstName), ("blah"))
+
+    This was generously copied from and upgraded to Slick 3.0 from: http://stackoverflow.com/a/28148606/310275
+   */
   object UpdateReturning {
     implicit class UpdateReturningInvoker[E, U, C[_]](updateQuery: Query[E, U, C]) {
 
