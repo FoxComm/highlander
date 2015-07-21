@@ -8,6 +8,7 @@ import monocle.macros.GenLens
 import org.scalactic.Or
 import payloads.CreditCardPayload
 import services.{Failure, StripeGateway}
+import slick.dbio.Effect
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils._
@@ -61,7 +62,17 @@ object CreditCards extends TableQueryWithId[CreditCard, CreditCards](
     db.run(_findById(id).result.headOption)
   }
 
-  def _findById(id: Rep[Int]) = { filter(_.id === id) }
+  def findAllByCustomerId(customerId: Int)(implicit db: Database): Future[Seq[CreditCard]] =
+    _findAllByCustomerId(customerId).run()
+
+  def _findAllByCustomerId(customerId: Int): DBIO[Seq[CreditCard]] =
+    filter(_.customerId === customerId).result
+
+  def findDefaultByCustomerId(customerId: Int)(implicit db: Database): Future[Option[CreditCard]] =
+    _findDefaultByCustomerId(customerId).run()
+
+  def _findDefaultByCustomerId(customerId: Int): DBIO[Option[CreditCard]] =
+    filter(_.customerId === customerId).filter(_.isDefault === true).result.headOption
 }
 
 

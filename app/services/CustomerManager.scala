@@ -19,16 +19,21 @@ object CustomerManager {
 
     db.run(actions).map {
       case Some(c) ⇒ Good(c)
-      case None ⇒ Bad(NotFoundFailure(s"customer id=${customer.id} not found"))
+      case None ⇒ Bad(NotFoundFailure(customer))
     }
   }
 
-  def toggleDefaultCreditCard(cc: CreditCard, isDefault: Boolean)
+  def toggleDefaultCreditCard(customer: Customer, cardId: Int, isDefault: Boolean)
     (implicit ec: ExecutionContext, db: Database): Future[CreditCard Or Failure] = {
-
-    CreditCards.returning(CreditCards).insertOrUpdate(cc.copy(isDefault = isDefault)).run().map {
-      case Some(updated)  ⇒ Good(updated)
-      case None           ⇒ Bad(NotFoundFailure(cc))
-    }
+    db.run(for {
+      default ← CreditCards.findDefaultByCustomerId(customer.id)
+      _ ← CreditCards._findById(cardId).extract.map(_.isDefault).
+        update(isDefault)
+      cc ← CreditCards._findById(cardId).result.headOption
+    } yield cc).map {
+      case Some(c) ⇒ Good(c)
+      case None ⇒ Bad(NotFoundFailure(CreditCard, cardId))
+    }.recoverWith()
   }
 }
+

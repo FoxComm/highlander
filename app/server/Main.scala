@@ -146,6 +146,18 @@ class Service(
             }
           } ~
           pathPrefix("payment-methods") {
+            pathPrefix("credit-cards") {
+              (get & pathEnd) {
+                complete { render(OK, CreditCards.findAllByCustomerId(customerId)) }
+              } ~
+              (patch & path(IntNumber) & entity(as[payloads.UpdateCreditCard])) { (cardId, payload) ⇒
+                complete {
+                  whenFound(CreditCards.findById(cardId)) { creditCard ⇒
+                    CustomerManager.toggleDefaultCreditCard(customer, cardId, payload.isDefault)
+                  }
+                }
+              }
+            } ~
             pathPrefix("store-credits") {
               (get & pathEnd) {
                 complete {
