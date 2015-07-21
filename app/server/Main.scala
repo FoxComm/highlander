@@ -150,10 +150,10 @@ class Service(
               (get & pathEnd) {
                 complete { render(OK, CreditCards.findAllByCustomerId(customerId)) }
               } ~
-              (patch & path(IntNumber) & entity(as[payloads.UpdateCreditCard])) { (cardId, payload) ⇒
+              (post & path(IntNumber / "default")) { cardId ⇒
                 complete {
-                  whenFound(CreditCards.findById(cardId)) { creditCard ⇒
-                    CustomerManager.toggleDefaultCreditCard(customer, cardId, payload.isDefault)
+                  whenFound(Customers.findById(customerId)) { customer ⇒
+                    CustomerManager.setDefaultCreditCard(customer, cardId)
                   }
                 }
               }

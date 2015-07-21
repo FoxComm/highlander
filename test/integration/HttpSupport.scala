@@ -71,6 +71,14 @@ trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with Patien
     Http().singleRequest(request).futureValue
   }
 
+  def POST(path: String): HttpResponse = {
+    val request = HttpRequest(
+      method = HttpMethods.POST,
+      uri    = pathToAbsoluteUrl(path))
+
+    Http().singleRequest(request).futureValue
+  }
+
   def PATCH(path: String, rawBody: String): HttpResponse = {
     val request = HttpRequest(
       method = HttpMethods.PATCH,

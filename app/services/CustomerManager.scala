@@ -8,6 +8,7 @@ import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 
 object CustomerManager {
+  // TODO: use UPDATE _ RETURNING *
   def toggleDisabled(customer: Customer, disabled: Boolean, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database): Future[Customer Or Failure] = {
     val actions = for {
@@ -23,17 +24,23 @@ object CustomerManager {
     }
   }
 
-  def toggleDefaultCreditCard(customer: Customer, cardId: Int, isDefault: Boolean)
+  // TODO: use UPDATE _ RETURNING *
+  def setDefaultCreditCard(customer: Customer, cardId: Int)
     (implicit ec: ExecutionContext, db: Database): Future[CreditCard Or Failure] = {
-    db.run(for {
-      default ← CreditCards.findDefaultByCustomerId(customer.id)
-      _ ← CreditCards._findById(cardId).extract.map(_.isDefault).
-        update(isDefault)
-      cc ← CreditCards._findById(cardId).result.headOption
-    } yield cc).map {
-      case Some(c) ⇒ Good(c)
-      case None ⇒ Bad(NotFoundFailure(CreditCard, cardId))
-    }.recoverWith()
+    val actions = for {
+      existing ← CreditCards._findDefaultByCustomerId(customer.id)
+      _ ← existing.fold(CreditCards._toggleDefault(cardId, true)) { cc ⇒ DBIO.successful(0) }
+      creditCard ← CreditCards._findById(cardId).result.headOption
+    } yield (existing, creditCard)
+
+    db.run(actions.transactionally).map {
+      case (None, None) ⇒
+        Bad(NotFoundFailure(CreditCards, cardId))
+      case (Some(_), _) ⇒
+        Bad(GeneralFailure("customer already has default credit card"))
+      case (None, Some(cc)) ⇒
+        Good(cc)
+    }
   }
 }
 

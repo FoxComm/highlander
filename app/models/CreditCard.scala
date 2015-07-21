@@ -9,8 +9,10 @@ import org.scalactic.Or
 import payloads.CreditCardPayload
 import services.{Failure, StripeGateway}
 import slick.dbio.Effect
+import slick.dbio.Effect.Write
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
+import slick.profile.{FixedSqlStreamingAction, FixedSqlAction}
 import utils._
 import validators._
 
@@ -73,6 +75,12 @@ object CreditCards extends TableQueryWithId[CreditCard, CreditCards](
 
   def _findDefaultByCustomerId(customerId: Int): DBIO[Option[CreditCard]] =
     filter(_.customerId === customerId).filter(_.isDefault === true).result.headOption
+
+  def _findByIdAndIsDefault(id: Int, isDefault: Boolean): DBIO[Option[CreditCard]] =
+    _findById(id).extract.filter(_.isDefault === isDefault).result.headOption
+
+  def _toggleDefault(id: Int, isDefault: Boolean): DBIO[Int] =
+    _findById(id).extract.map(_.isDefault).update(isDefault)
 }
 
 
