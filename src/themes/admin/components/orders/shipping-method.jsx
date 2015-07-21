@@ -4,6 +4,7 @@ import React from 'react';
 import Api from '../../lib/api';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
+import ShippingMethodActive from './shipping-method-active';
 
 export default class OrderShippingMethod extends React.Component {
   constructor(props) {
@@ -29,7 +30,9 @@ export default class OrderShippingMethod extends React.Component {
         <header>Shipping Method</header>
         <table className="inline">
           <TableHead columns={this.props.tableColumns} />
-          <TableBody columns={this.props.tableColumns} rows={this.state.methods} model='shipping-method' />
+          <TableBody columns={this.props.tableColumns} rows={this.state.methods} model='shipping-method'>
+            <ShippingMethodActive />
+          </TableBody>
         </table>
       </section>
     );
@@ -44,6 +47,7 @@ OrderShippingMethod.propTypes = {
 
 OrderShippingMethod.defaultProps = {
   tableColumns: [
+    {field: 'methodActive', text: 'Active', component: 'ShippingMethodActive'},
     {field: 'name', text: 'Name'},
     {field: 'price', text: 'Price', type: 'currency'}
   ]

@@ -13,7 +13,7 @@ class ShippingMethod extends BaseModel {
   static generateList(limit) {
     let models = super.generateList(limit);
     for (let item of models) {
-      if (item.id % 1 === 0) {
+      if (item.id % 4 === 0) {
         item.isActive = true;
       }
     }
