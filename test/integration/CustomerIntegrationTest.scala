@@ -22,15 +22,15 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
     "toggles the disabled flag on a customer account" in new Fixture {
       val states = Table(
-        ("action", "disabled"),
-        ("disable", true),
-        ("enable", false)
+        "disabled",
+        true,
+        false
       )
 
       customer.disabled must === (false)
 
-      forAll(states) { (action, disabled) ⇒
-        val response = PATCH(s"v1/users/${customer.id}/$action")
+      forAll(states) { disabled ⇒
+        val response = POST(s"v1/users/${customer.id}/disable", payloads.ToggleCustomerDisabled(disabled))
         response.status must === (StatusCodes.OK)
 
         val c = parse(response.bodyText).extract[Customer]
@@ -42,9 +42,9 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val creditCard = CreditCards.save(Factories.creditCard.copy(isDefault = false, customerId = customer.id)).run()
         .futureValue
 
-      val payload = payloads.UpdateCreditCard(isDefault = true)
+      val payload = payloads.ToggleDefaultCreditCard(isDefault = true)
       val response = POST(
-        s"v1/users/${customer.id}/payment-methods/credit-cards/${creditCard.id}",
+        s"v1/users/${customer.id}/payment-methods/credit-cards/${creditCard.id}/default",
         payload)
       response.status must ===(StatusCodes.OK)
 
@@ -58,9 +58,9 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val nonDefault = CreditCards.save(Factories.creditCard.copy(isDefault = false, customerId = customer.id))
         .run().futureValue
 
-      val payload = payloads.UpdateCreditCard(isDefault = true)
+      val payload = payloads.ToggleDefaultCreditCard(isDefault = true)
       val response = POST(
-        s"v1/users/${customer.id}/payment-methods/credit-cards/${nonDefault.id}",
+        s"v1/users/${customer.id}/payment-methods/credit-cards/${nonDefault.id}/default",
         payload)
 
       response.status must ===(StatusCodes.BadRequest)

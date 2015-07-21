@@ -122,9 +122,9 @@ class Service(
               renderOrNotFound(Customers.findById(customerId))
             }
           } ~
-          (patch & path(Map("enable" → false, "disable" → true))) { disabled ⇒
+          (post & path("disable") & entity(as[payloads.ToggleCustomerDisabled])) { payload ⇒
             complete {
-              CustomerManager.toggleDisabled(customerId, disabled, admin).map(renderGoodOrBad)
+              CustomerManager.toggleDisabled(customerId, payload.disabled, admin).map(renderGoodOrBad)
             }
           } ~
           pathPrefix("addresses") {
@@ -148,7 +148,7 @@ class Service(
               (get & pathEnd) {
                 complete { render(CreditCards.findAllByCustomerId(customerId)) }
               } ~
-              (post & path(IntNumber) & entity(as[payloads.UpdateCreditCard])) { (cardId, payload) ⇒
+              (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultCreditCard])) { (cardId, payload) ⇒
                 complete {
                   val result = CustomerManager.toggleCreditCardDefault(customerId, cardId, payload.isDefault)
                   result.map(renderGoodOrBad)

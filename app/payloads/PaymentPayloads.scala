@@ -25,5 +25,5 @@ final case class CreditCardPayload(holderName: String, number: String, cvv: Stri
 
 final case class PaymentMethodPayload(cardholderName: String, cardNumber: String,  cvv: Int, expiration: String)
 
-final case class UpdateCreditCard(isDefault: Boolean)
+final case class ToggleDefaultCreditCard(isDefault: Boolean)
 
