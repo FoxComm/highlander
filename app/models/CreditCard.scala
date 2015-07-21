@@ -78,9 +78,6 @@ object CreditCards extends TableQueryWithId[CreditCard, CreditCards](
 
   def _findByIdAndIsDefault(id: Int, isDefault: Boolean): DBIO[Option[CreditCard]] =
     _findById(id).extract.filter(_.isDefault === isDefault).result.headOption
-
-  def _toggleDefault(id: Int, isDefault: Boolean): DBIO[Int] =
-    _findById(id).extract.map(_.isDefault).update(isDefault)
 }
 
 

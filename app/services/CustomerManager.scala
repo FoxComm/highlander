@@ -20,15 +20,16 @@ object CustomerManager {
     }
   }
 
-  @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.AsInstanceOf"))
   def setDefaultCreditCard(customer: Customer, cardId: Int)
     (implicit ec: ExecutionContext, db: Database): Future[CreditCard Or Failure] = {
     val actions = for {
       existing ← CreditCards._findDefaultByCustomerId(customer.id)
-      updated ← existing.fold(CreditCards._findById(cardId).extract.map(_.isDefault).
-          updateReturning(CreditCards.map(identity), true).headOption.asInstanceOf[DBIOAction[Option[CreditCard],
-        NoStream, Effect]])
-        { cc ⇒ DBIO.successful(None) }
+      updated ← existing match {
+        case None ⇒ CreditCards._findById(cardId).extract.map(_.isDefault).
+          updateReturning(CreditCards.map(identity), true).headOption
+        case Some(_) =>
+          DBIO.successful(None)
+      }
     } yield (existing, updated)
 
     db.run(actions.transactionally).map {
