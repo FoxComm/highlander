@@ -2,36 +2,34 @@ package services
 
 import scala.concurrent.{ExecutionContext, Future}
 
-import models.{CreditCard, CreditCards, Customer, Customers ⇒ CustomersTable, StoreAdmin}
+import models.{Customers, CreditCard, CreditCards, Customer, StoreAdmin}
 import org.scalactic._
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
+import utils.Slick.UpdateReturning._
 
 object CustomerManager {
-  // TODO: use UPDATE _ RETURNING *
   def toggleDisabled(customer: Customer, disabled: Boolean, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database): Future[Customer Or Failure] = {
-    val actions = for {
-      _ ← CustomersTable.filter(_.id === customer.id).
-        map { t ⇒ (t.disabled, t.disabledBy) }.
-        update((disabled, Some(admin.id)))
-      updatedCustomer ← CustomersTable._findById(customer.id).result.headOption
-    } yield updatedCustomer
-
-    db.run(actions).map {
-      case Some(c) ⇒ Good(c)
-      case None ⇒ Bad(NotFoundFailure(customer))
+    db.run(for {
+      updated ← Customers.filter(_.id === customer.id).map { t ⇒ (t.disabled, t.disabledBy) }.
+        updateReturning(Customers.map(identity), (disabled, Some(admin.id))).headOption
+    } yield updated).map {
+      case Some(c)  ⇒ Good(c)
+      case None     ⇒ Bad(NotFoundFailure(customer))
     }
   }
 
-  // TODO: use UPDATE _ RETURNING *
+  @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.AsInstanceOf"))
   def setDefaultCreditCard(customer: Customer, cardId: Int)
     (implicit ec: ExecutionContext, db: Database): Future[CreditCard Or Failure] = {
     val actions = for {
       existing ← CreditCards._findDefaultByCustomerId(customer.id)
-      _ ← existing.fold(CreditCards._toggleDefault(cardId, true)) { cc ⇒ DBIO.successful(0) }
-      creditCard ← CreditCards._findById(cardId).result.headOption
-    } yield (existing, creditCard)
+      updated ← existing.fold(CreditCards._findById(cardId).extract.map(_.isDefault).
+          updateReturning(CreditCards.map(identity), true).headOption.asInstanceOf[DBIOAction[Option[CreditCard],
+        NoStream, Effect]])
+        { cc ⇒ DBIO.successful(None) }
+    } yield (existing, updated)
 
     db.run(actions.transactionally).map {
       case (None, None) ⇒
