@@ -16,7 +16,11 @@ Vagrant.configure("2") do |config|
         v.vmx["numvcpus"] = 2
     end
 
-    config.vm.provision :shell, :path => File.join("vagrant", "provision.sh")
+    config.vm.provision :shell, :path => File.join("ops", "provision.sh")
+
+    config.vm.provision "docker" do |d|
+        d.build_image "."
+    end
 
     config.vm.provider :google do |google, override|
         override.vm.box = "gce"
