@@ -124,9 +124,7 @@ class Service(
           } ~
           (patch & path(Map("enable" → false, "disable" → true))) { disabled ⇒
             complete {
-              whenFound(Customers.findById(customerId)) { customer ⇒
-                CustomerManager.toggleDisabled(customer, disabled, admin)
-              }
+              CustomerManager.toggleDisabled(customerId, disabled, admin).map(renderGoodOrBad)
             }
           } ~
           pathPrefix("addresses") {
@@ -152,9 +150,8 @@ class Service(
               } ~
               (post & path(IntNumber) & entity(as[payloads.UpdateCreditCard])) { (cardId, payload) ⇒
                 complete {
-                  whenFound(Customers.findById(customerId)) { customer ⇒
-                    CustomerManager.toggleCreditCardDefault(customer, cardId, payload.isDefault)
-                  }
+                  val result = CustomerManager.toggleCreditCardDefault(customerId, cardId, payload.isDefault)
+                  result.map(renderGoodOrBad)
                 }
               }
             } ~
@@ -390,7 +387,7 @@ class Service(
       logRequestResult("public-routes") {
         pathPrefix("v1") {
           pathPrefix("registrations") {
-            (post & path("new") & entity(as[CreateCustomerPayload])) { regRequest =>
+            (post & path("new") & entity(as[payloads.CreateCustomer])) { regRequest =>
               complete {
                 Customers.createFromPayload(regRequest).map(renderGoodOrBad)
               }

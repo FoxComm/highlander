@@ -9,24 +9,24 @@ import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.Slick.UpdateReturning._
 
 object CustomerManager {
-  def toggleDisabled(customer: Customer, disabled: Boolean, admin: StoreAdmin)
+  def toggleDisabled(customerId: Int, disabled: Boolean, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database): Future[Customer Or Failure] = {
     db.run(for {
-      updated ← Customers.filter(_.id === customer.id).map { t ⇒ (t.disabled, t.disabledBy) }.
+      updated ← Customers.filter(_.id === customerId).map { t ⇒ (t.disabled, t.disabledBy) }.
         updateReturning(Customers.map(identity), (disabled, Some(admin.id))).headOption
     } yield updated).map {
       case Some(c)  ⇒ Good(c)
-      case None     ⇒ Bad(NotFoundFailure(customer))
+      case None     ⇒ Bad(NotFoundFailure(Customer, customerId))
     }
   }
 
-  def toggleCreditCardDefault(customer: Customer, cardId: Int, isDefault: Boolean)
+  def toggleCreditCardDefault(customerId: Int, cardId: Int, isDefault: Boolean)
     (implicit ec: ExecutionContext, db: Database): Future[CreditCard Or Failure] = {
 
     if (isDefault) {
-      setDefaultCreditCard(customer, cardId)
+      setDefaultCreditCard(customerId, cardId)
     } else {
-      CreditCards._findById(cardId).extract.map(_.isDefault).
+      CreditCards._findById(cardId).extract.filter(_.customerId === customerId).map(_.isDefault).
         updateReturning(CreditCards.map(identity), false).headOption.run().map {
         case Some(cc) ⇒ Good(cc)
         case None     ⇒ Bad(NotFoundFailure(CreditCards, cardId))
@@ -34,11 +34,11 @@ object CustomerManager {
     }
   }
 
-  def setDefaultCreditCard(customer: Customer, cardId: Int)
+  def setDefaultCreditCard(customerId: Int, cardId: Int)
     (implicit ec: ExecutionContext, db: Database): Future[CreditCard Or Failure] = {
 
     val actions = for {
-      existing ← CreditCards._findDefaultByCustomerId(customer.id)
+      existing ← CreditCards._findDefaultByCustomerId(customerId)
       updated ← existing match {
         case None ⇒ CreditCards._findById(cardId).extract.map(_.isDefault).
           updateReturning(CreditCards.map(identity), true).headOption
