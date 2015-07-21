@@ -5,20 +5,12 @@ import scala.language.existentials
 import slick.ast._
 import slick.driver.PostgresDriver._
 import slick.driver.PostgresDriver.api._
-import slick.jdbc.{StaticQuery ⇒ Q, StreamingInvokerAction, PositionedParameters, SQLActionBuilder, GetResult,
-JdbcBackend, JdbcResultConverterDomain, SetParameter, StaticQueryInvoker}
+import slick.jdbc.{GetResult, JdbcResultConverterDomain, SetParameter, StaticQuery ⇒ Q, StaticQueryInvoker, StreamingInvokerAction}
+import slick.profile.SqlStreamingAction
 import slick.relational.{CompiledMapping, ResultConverter}
 import slick.util.SQLBuilder
-import slick.profile.{SqlAction, SqlStreamingAction}
 
 object Slick {
-//  trait Timestamps {
-//    implicit val jodaDateTimeColumnType =
-//      MappedColumnType.base[DateTime, java.sql.Timestamp] (
-//        d => new java.sql.Timestamp(d.getMillis),
-//        d => new DateTime(d.getTime))
-//  }
-
   object UpdateReturning {
     implicit class UpdateReturningInvoker[E, U, C[_]](updateQuery: Query[E, U, C]) {
 
