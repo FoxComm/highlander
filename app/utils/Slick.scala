@@ -1,7 +1,5 @@
 package utils
 
-import scala.language.existentials
-
 import slick.ast._
 import slick.driver.PostgresDriver._
 import slick.driver.PostgresDriver.api._
