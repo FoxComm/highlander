@@ -20,8 +20,23 @@ object CustomerManager {
     }
   }
 
+  def toggleCreditCardDefault(customer: Customer, cardId: Int, isDefault: Boolean)
+    (implicit ec: ExecutionContext, db: Database): Future[CreditCard Or Failure] = {
+
+    if (isDefault) {
+      setDefaultCreditCard(customer, cardId)
+    } else {
+      CreditCards._findById(cardId).extract.map(_.isDefault).
+        updateReturning(CreditCards.map(identity), false).headOption.run().map {
+        case Some(cc) ⇒ Good(cc)
+        case None     ⇒ Bad(NotFoundFailure(CreditCards, cardId))
+      }
+    }
+  }
+
   def setDefaultCreditCard(customer: Customer, cardId: Int)
     (implicit ec: ExecutionContext, db: Database): Future[CreditCard Or Failure] = {
+
     val actions = for {
       existing ← CreditCards._findDefaultByCustomerId(customer.id)
       updated ← existing match {

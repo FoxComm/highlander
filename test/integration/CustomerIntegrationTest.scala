@@ -42,7 +42,10 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val creditCard = CreditCards.save(Factories.creditCard.copy(isDefault = false, customerId = customer.id)).run()
         .futureValue
 
-      val response = POST(s"v1/users/${customer.id}/payment-methods/credit-cards/${creditCard.id}/default")
+      val payload = payloads.UpdateCreditCard(isDefault = true)
+      val response = POST(
+        s"v1/users/${customer.id}/payment-methods/credit-cards/${creditCard.id}",
+        payload)
       response.status must ===(StatusCodes.OK)
 
       val cc = parse(response.bodyText).extract[CreditCard]
@@ -55,7 +58,11 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val nonDefault = CreditCards.save(Factories.creditCard.copy(isDefault = false, customerId = customer.id))
         .run().futureValue
 
-      val response = POST(s"v1/users/${customer.id}/payment-methods/credit-cards/${nonDefault.id}/default")
+      val payload = payloads.UpdateCreditCard(isDefault = true)
+      val response = POST(
+        s"v1/users/${customer.id}/payment-methods/credit-cards/${nonDefault.id}",
+        payload)
+
       response.status must ===(StatusCodes.BadRequest)
       response.bodyText must include("customer already has default credit card")
     }

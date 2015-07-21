@@ -74,8 +74,8 @@ class Service(
   def renderGoodOrBad[G <: AnyRef, B <: AnyRef](goodOrBad: G Or B)
     (implicit ec: ExecutionContext, db: Database): HttpResponse = {
     goodOrBad match {
-      case Bad(errors)    => render(BadRequest, "errors" → errors)
-      case Good(resource) => render(OK, resource)
+      case Bad(errors)    => render("errors" → errors, BadRequest)
+      case Good(resource) => render(resource)
     }
   }
 
@@ -88,14 +88,14 @@ class Service(
   }
 
   def renderOrNotFound[A <: AnyRef](resource: Future[Option[A]],
-    onFound: (A => HttpResponse) = (r: A) => render(OK, r)) = {
+    onFound: (A => HttpResponse) = (r: A) => render(r)) = {
     resource.map {
       case Some(r) => onFound(r)
       case None => notFoundResponse
     }
   }
 
-  def render[A <: AnyRef](statusCode: StatusCode = OK, resource: A) =
+  def render[A <: AnyRef](resource: A, statusCode: StatusCode = OK) =
     HttpResponse(statusCode, entity = json(resource))
 
   val routes = {
@@ -148,12 +148,12 @@ class Service(
           pathPrefix("payment-methods") {
             pathPrefix("credit-cards") {
               (get & pathEnd) {
-                complete { render(OK, CreditCards.findAllByCustomerId(customerId)) }
+                complete { render(CreditCards.findAllByCustomerId(customerId)) }
               } ~
-              (post & path(IntNumber / "default")) { cardId ⇒
+              (post & path(IntNumber) & entity(as[payloads.UpdateCreditCard])) { (cardId, payload) ⇒
                 complete {
                   whenFound(Customers.findById(customerId)) { customer ⇒
-                    CustomerManager.setDefaultCreditCard(customer, cardId)
+                    CustomerManager.toggleCreditCardDefault(customer, cardId, payload.isDefault)
                   }
                 }
               }
