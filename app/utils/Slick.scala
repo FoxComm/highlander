@@ -18,8 +18,8 @@ object Slick {
         "org.brianmckenna.wartremover.warts.IsInstanceOf", "org.brianmckenna.wartremover.warts.AsInstanceOf"))
       def updateReturning[A, F](returningQuery: Query[A, F, C], v: U)(implicit db: Database) = {
         val ResultSetMapping(_,
-        CompiledStatement(_, sres: SQLBuilder.Result, _),
-        CompiledMapping(_updateConverter, _)) = updateCompiler.run(updateQuery.toNode).tree
+          CompiledStatement(_, sres: SQLBuilder.Result, _),
+          CompiledMapping(_updateConverter, _)) = updateCompiler.run(updateQuery.toNode).tree
 
         val returningNode = returningQuery.toNode
         val fieldNames = returningNode match {
