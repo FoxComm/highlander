@@ -41,7 +41,9 @@ GiftCards.defaultProps = {
   tableColumns: [
     {field: 'cardNumber', text: 'Gift Card Number'},
     {field: 'type', text: 'Type'},
-    {field: 'balance', text: 'Original Balance'},
+    {field: 'balance', text: 'Original Balance', type: 'currency'},
+    {field: 'currentBalance', text: 'Current Balance', type: 'currency'},
+    {field: 'availableBalance', text: 'Available Balance', type: 'currency'},
     {field: 'state', text: 'State'},
     {field: 'date', text: 'Date Issued', type: 'date'}
   ]
