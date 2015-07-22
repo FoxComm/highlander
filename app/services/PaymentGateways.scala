@@ -17,7 +17,7 @@ case object BraintreeGateway extends PaymentGateway
 final case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ") extends PaymentGateway {
   // Creates a customer in Stripe along with their first CC
   def createCustomerAndCard(customer: Customer, card: CreditCardPayload)
-                           (implicit ec: ExecutionContext): Future[StripeCustomer Or List[Failure]] = tryFutureWrap {
+    (implicit ec: ExecutionContext): Future[StripeCustomer Or List[Failure]] = tryFutureWrap {
 
     val base = Map[String, Object](
       "description" -> "FoxCommerce",

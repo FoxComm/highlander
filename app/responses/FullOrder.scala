@@ -18,16 +18,11 @@ object FullOrder {
                   adjustments: Seq[Adjustment],
                   fraudScore: Int,
                   totals: Totals,
-                  customer: Option[DisplayCustomer],
+                  customer: Option[Customer],
                   shippingMethod: Option[ShippingMethod],
                   shippingAddress: Option[Address],
                   payments: Option[Seq[DisplayPayment]] = None
     )
-
-
-  // TODO: Consider moving this out to another class.  It may not be necessary, because we may have order-specific customer.
-  final case class DisplayCustomer(id:Int, firstName: String, lastName: String,  email: String, phoneNumber:
-    Option[String], location: Option[String], modality: Option[String], role: String = "Customer")
 
   final case class DisplayLineItem(imagePath: String = "http://lorempixel.com/75/75/fashion" ,
                               name: String = "donkey product",
@@ -49,10 +44,6 @@ object FullOrder {
     creditCards: Seq[CreditCard] = Seq.empty
     ): Root = {
 
-    val dispCust = customer.map { c ⇒
-      DisplayCustomer(c.id, c.firstName, c.lastName, c.email, c.phoneNumber, c.location, c.modality)
-    }
-
     //TODO: This isn't very robust; make it elegantly handle multiple payments
     val dispPayments = orderPayments.flatMap { op ⇒
       creditCards.filter(_.id == op.paymentMethodId).map { cc ⇒
@@ -72,7 +63,7 @@ object FullOrder {
       lineItems = lineItems.map{oli => DisplayLineItem(skuId = oli.skuId, status = oli.status)},
       adjustments = adjustments,
       fraudScore = scala.util.Random.nextInt(100),
-      customer = dispCust,
+      customer = customer,
       shippingAddress = shippingAddress,
       totals = Totals(subTotal = 333, taxes = 10, adjustments = 0, total = 510), shippingMethod = shippingMethod,
       payments = Some(dispPayments)

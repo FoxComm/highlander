@@ -8,22 +8,16 @@ import monocle.macros.GenLens
 import org.scalactic.Or
 import payloads.CreditCardPayload
 import services.{Failure, StripeGateway}
-import com.wix.accord.dsl.{validator => createValidator}
-import com.stripe.model.{Customer ⇒ StripeCustomer}
-import com.wix.accord.dsl.{validator ⇒ createValidator, _}
-import monocle.macros.GenLens
-import org.scalactic.{ErrorMessage, Or}
-import payloads.CreditCardPayload
-import services.StripeGateway
+import slick.dbio.Effect
+import slick.dbio.Effect.Write
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
+import slick.profile.{FixedSqlStreamingAction, FixedSqlAction}
 import utils._
 import validators._
 
-import scala.concurrent.{ExecutionContext, Future}
-
 final case class CreditCard(id: Int = 0, customerId: Int, gatewayCustomerId: String, lastFour: String,
-                             expMonth: Int, expYear: Int)
+  expMonth: Int, expYear: Int, isDefault: Boolean = false)
   extends PaymentMethod
   with ModelWithIdParameter
   with Validation[CreditCard] {
@@ -31,7 +25,6 @@ final case class CreditCard(id: Int = 0, customerId: Int, gatewayCustomerId: Str
   def authorize(amount: Int)(implicit ec: ExecutionContext): Future[String Or List[Failure]] = {
     new StripeGateway().authorizeAmount(gatewayCustomerId, amount)
   }
-
 
   override def validator = createValidator[CreditCard] { cc =>
     cc.lastFour should matchRegex("[0-9]{4}")
@@ -43,7 +36,7 @@ final case class CreditCard(id: Int = 0, customerId: Int, gatewayCustomerId: Str
 object CreditCard {
   def build(c: StripeCustomer, payload: CreditCardPayload): CreditCard = {
     CreditCard(customerId = 0, gatewayCustomerId = c.getId, lastFour = payload.lastFour,
-      expMonth = payload.expMonth, expYear = payload.expYear)
+      expMonth = payload.expMonth, expYear = payload.expYear, isDefault = payload.isDefault)
   }
 }
 
@@ -57,9 +50,10 @@ class CreditCards(tag: Tag)
   def lastFour = column[String]("last_four")
   def expMonth = column[Int]("exp_month")
   def expYear = column[Int]("exp_year")
+  def isDefault = column[Boolean]("is_default")
 
   def * = (id, customerId, gatewayCustomerId,
-    lastFour, expMonth, expYear) <> ((CreditCard.apply _).tupled, CreditCard.unapply)
+    lastFour, expMonth, expYear, isDefault) <> ((CreditCard.apply _).tupled, CreditCard.unapply)
 }
 
 object CreditCards extends TableQueryWithId[CreditCard, CreditCards](
@@ -70,6 +64,20 @@ object CreditCards extends TableQueryWithId[CreditCard, CreditCards](
     db.run(_findById(id).result.headOption)
   }
 
-  def _findById(id: Rep[Int]) = { filter(_.id === id) }
+  def findAllByCustomerId(customerId: Int)(implicit db: Database): Future[Seq[CreditCard]] =
+    _findAllByCustomerId(customerId).run()
+
+  def _findAllByCustomerId(customerId: Int): DBIO[Seq[CreditCard]] =
+    filter(_.customerId === customerId).result
+
+  def findDefaultByCustomerId(customerId: Int)(implicit db: Database): Future[Option[CreditCard]] =
+    _findDefaultByCustomerId(customerId).run()
+
+  def _findDefaultByCustomerId(customerId: Int): DBIO[Option[CreditCard]] =
+    filter(_.customerId === customerId).filter(_.isDefault === true).result.headOption
+
+  def _findByIdAndIsDefault(id: Int, isDefault: Boolean): DBIO[Option[CreditCard]] =
+    _findById(id).extract.filter(_.isDefault === isDefault).result.headOption
 }
+
 

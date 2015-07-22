@@ -100,7 +100,7 @@ object Seeds {
 
     def creditCard =
       CreditCard(customerId = 0, gatewayCustomerId = "", lastFour = "4242",
-        expMonth = today.getMonthOfYear, expYear = today.getYear + 2)
+        expMonth = today.getMonthOfYear, expYear = today.getYear + 2, isDefault = true)
 
     def storeCredit = StoreCredit(customerId = 0, originId = 0, originType = "FIXME", originalBalance = 50,
       currency = Currency.USD)
