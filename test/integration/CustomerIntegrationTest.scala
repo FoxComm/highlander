@@ -21,21 +21,13 @@ class CustomerIntegrationTest extends IntegrationTestBase
     }
 
     "toggles the disabled flag on a customer account" in new Fixture {
-      val states = Table(
-        "disabled",
-        true,
-        false
-      )
+      customer.disabled must ===(false)
 
-      customer.disabled must === (false)
+      val response = POST(s"v1/users/${customer.id}/disable", payloads.ToggleCustomerDisabled(true))
+      response.status must === (StatusCodes.OK)
 
-      forAll(states) { disabled ⇒
-        val response = POST(s"v1/users/${customer.id}/disable", payloads.ToggleCustomerDisabled(disabled))
-        response.status must === (StatusCodes.OK)
-
-        val c = parse(response.bodyText).extract[Customer]
-        c.disabled must === (disabled)
-      }
+      val c = parse(response.bodyText).extract[Customer]
+      c.disabled must === (true)
     }
 
     "sets the isDefault flag on a credit card" in new Fixture {
