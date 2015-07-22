@@ -7,6 +7,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
 
 import com.typesafe.config.{Config, ConfigFactory}
+import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import models._
 import org.json4s.jackson
 import org.json4s.jackson.Serialization.{write ⇒ json}
@@ -25,6 +26,7 @@ class Service(
   dbOverride:     Option[slick.driver.PostgresDriver.backend.DatabaseDef] = None
 ) {
 
+  import Json4sSupport._
   import utils.JsonFormatters._
 
   implicit val serialization = jackson.Serialization

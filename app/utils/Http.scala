@@ -9,6 +9,7 @@ import org.json4s.jackson
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import org.scalactic.{Bad, Good, Or}
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
+import services.Failure
 
 object Http {
   import utils.JsonFormatters._
@@ -18,11 +19,21 @@ object Http {
 
   val notFoundResponse = HttpResponse(NotFound)
 
+  @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.AsInstanceOf"))
   def renderGoodOrBad[G <: AnyRef, B <: AnyRef](goodOrBad: G Or B)
     (implicit ec: ExecutionContext, db: Database): HttpResponse = {
     goodOrBad match {
-      case Bad(errors)    => render("errors" → errors, BadRequest)
-      case Good(resource) => render(resource)
+      case Bad(errors)    ⇒
+        errors match {
+          case _: Iterable[_] ⇒
+            render("errors" → errors.asInstanceOf[Iterable[Failure]].flatMap(_.description), BadRequest)
+          case _: Failure ⇒
+            render("errors" → errors.asInstanceOf[Failure].description, BadRequest)
+          case _ ⇒
+            render("errors" → errors, BadRequest)
+        }
+      case Good(resource) ⇒
+        render(resource)
     }
   }
 
