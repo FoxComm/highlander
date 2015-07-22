@@ -11,5 +11,7 @@ module.exports = function(app, router) {
     .get('/gift-cards', function *() {
       let query = this.request.query;
       this.body = GiftCard.paginate(query.limit, query.page);
+    })
+    .post('/gift-cards', function *() {
     });
 };
