@@ -16,6 +16,11 @@ export default class BaseStore {
     return id ? `${this.baseUri}/${id}` : this.baseUri;
   }
 
+  reset() {
+    this.models = [];
+    dispatch(`change${this.storeName}`, this.models);
+  }
+
   getState(id) {
     if (!id) return this.models;
     return this.findModel(id);
