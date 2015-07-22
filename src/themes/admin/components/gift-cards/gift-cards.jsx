@@ -14,17 +14,21 @@ export default class GiftCards extends React.Component {
   }
 
   componentDidMount() {
-    Api.get(``)
+    Api.get('/gift-cards')
        .then((cards) => { this.setState({cards: cards}); })
        .catch((err) => { console.log(err); });
   }
 
   render() {
     return (
-      <table className="inline">
-        <TableHead columns={this.props.tableColumns} />
-        <TableBody columns={this.props.tableColumns} rows={this.state.cards} model="gift-card" />
-      </table>
+      <div id="cards">
+        <div className="gutter">
+          <table className="inline">
+            <TableHead columns={this.props.tableColumns} />
+            <TableBody columns={this.props.tableColumns} rows={this.state.cards} model="gift-card" />
+          </table>
+        </div>
+      </div>
     );
   }
 }

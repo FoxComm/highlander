@@ -13,6 +13,7 @@ import Notes from './components/notes/notes';
 import Notifications from './components/notifications/notifications';
 import ActivityTrail from './components/activity-trail/activity-trail';
 import AddressBook from './components/addresses/addresses';
+import GiftCards from './components/gift-cards/gift-cards';
 
 const routes = (
   <Route handler={Site}>
@@ -28,6 +29,7 @@ const routes = (
     <Route name='customer' path='/customers/:customer' handler={Customer}>
       <Route name='customer-addresses' path='addresses' handler={AddressBook} />
     </Route>
+    <Route name='gift-cards' path='/gift-cards' handler={GiftCards} />
   </Route>
 );
 
