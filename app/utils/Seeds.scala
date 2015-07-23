@@ -90,6 +90,10 @@ object Seeds {
       Note(referenceId = 1, referenceType = Note.Order, storeAdminId = 1, body = "How did a donkey even place an order on our website?")
     )
 
+    def orderPayment =
+      OrderPayment(paymentMethodId = 1, paymentMethodType = "stripe", appliedAmount = 10, status = "auth",
+        responseCode = "ok")
+
     def skus: Seq[Sku] = Seq(Sku(id = 0, name = Some("Flonkey"), price = 33), Sku(name = Some("Shark"), price = 45), Sku(name = Some("Dolphin"), price = 88))
 
     def orderLineItems: Seq[OrderLineItem] = Seq(OrderLineItem(id = 0, orderId = 1, skuId = 1, status = OrderLineItem.Cart), OrderLineItem(id = 0, orderId = 1, skuId = 2, status = OrderLineItem.Cart), OrderLineItem(id = 0, orderId = 1, skuId = 3, status = OrderLineItem.Cart))
@@ -97,6 +101,8 @@ object Seeds {
     def address =
       Address(customerId = 0, stateId = 1, name = "Home", street1 = "555 E Lake Union St.",
         street2 = None, city = "Seattle", zip = "12345")
+
+    def billingAddress = BillingAddress()
 
     def creditCard =
       CreditCard(customerId = 0, gatewayCustomerId = "", lastFour = "4242",

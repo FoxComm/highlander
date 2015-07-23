@@ -7,8 +7,8 @@ import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._
 
 final case class CreateAddressPayload(name: String, stateId: Int, state: Option[String] = None,
-                                street1: String, street2: Option[String] = None,
-                                city: String, zip: String) extends Validation[CreateAddressPayload] {
+  street1: String, street2: Option[String] = None, city: String, zip: String, isDefault: Boolean = false)
+  extends Validation[CreateAddressPayload] {
 
   override def validator = createValidator[CreateAddressPayload] { address =>
     address.name is notEmpty
