@@ -116,7 +116,7 @@ lazy val phoenixScala = (project in file(".")).
     Revolver.settings,
     (mainClass in Compile) := Some("Main"),
     // add ms report for every test
-    testOptions in Test += Tests.Argument("-oD"),
+    testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD"),
     javaOptions in Test ++= Seq("-Xmx2G", "-XX:+UseConcMarkSweepGC"),
     parallelExecution in Test := true,
     parallelExecution in IT   := false,
