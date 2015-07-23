@@ -1,18 +1,17 @@
 package utils
 
-import Strings._
+import cats.Show
 import org.json4s.JsonAST.JString
-import org.json4s.{jackson, CustomSerializer, DefaultFormats}
 import org.json4s.jackson.Serialization.{write ⇒ jsonWrite}
+import org.json4s.{CustomSerializer, DefaultFormats, jackson}
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
+import utils.Strings._
 
 trait Read[F] { self ⇒
   def read(f: String): Option[F]
 }
-
-import cats.Show
 
 trait ADT[F] extends Read[F] with Show[F] { self ⇒
   implicit val jsonFormats = DefaultFormats
