@@ -1,10 +1,7 @@
 import akka.http.scaladsl.model.StatusCodes
-import models._
-import org.joda.time.DateTime
-import org.scalatest.time.{Milliseconds, Seconds, Span}
-import payloads.{CreateAddressPayload, CreditCardPayload}
-import services.NoteManager
-import util.{IntegrationTestBase, StripeSupport}
+
+import models.{Addresses, Customers}
+import util.IntegrationTestBase
 import utils.Seeds.Factories
 
 class AddressesIntegrationTest extends IntegrationTestBase
@@ -12,8 +9,9 @@ class AddressesIntegrationTest extends IntegrationTestBase
   with AutomaticAuth {
 
   import concurrent.ExecutionContext.Implicits.global
-  import org.json4s.jackson.JsonMethods._
+
   import Extensions._
+  import org.json4s.jackson.JsonMethods._
 
   "Addresses" - {
     "lists addresses" in new AddressFixture {
