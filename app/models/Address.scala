@@ -14,7 +14,7 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 final case class Address(id: Int = 0, customerId: Int, stateId: Int, name: String, street1: String, street2: Option[String],
-                   city: String, zip: String) extends Validation[Address] with ModelWithIdParameter {
+  city: String, zip: String) extends Validation[Address] with ModelWithIdParameter {
   override def validator = createValidator[Address] { address =>
     address.name is notEmpty
     address.street1 is notEmpty
@@ -26,7 +26,7 @@ final case class Address(id: Int = 0, customerId: Int, stateId: Int, name: Strin
 object Address {
   def fromPayload(p: CreateAddressPayload) = {
     Address(customerId = 0, stateId = p.stateId, name = p.name,
-            street1 = p.street1, street2 = p.street2, city = p.city, zip = p.zip)
+      street1 = p.street1, street2 = p.street2, city = p.city, zip = p.zip)
   }
 }
 
