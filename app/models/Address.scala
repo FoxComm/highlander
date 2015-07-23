@@ -59,23 +59,24 @@ object Addresses extends TableQueryWithId[Address, Addresses](
   def _findAllByCustomerId(customerId: Int): Query[Addresses, Address, Seq] =
     filter(_.customerId === customerId)
 
-  def count()(implicit ec: ExecutionContext, db: Database): Future[Int] = {
-    db.run(length.result)
-  }
+  def _findAllByCustomerIdWithStates(customerId: Int): Query[(Addresses, States), (Address, State), Seq] = for {
+    (addresses, states) ← _withStates(_findAllByCustomerId(customerId))
+  } yield (addresses, states)
 
-  def createFromPayload(customer: Customer,
-                        payload: Seq[CreateAddressPayload])
-                       (implicit ec: ExecutionContext,
-                        db: Database): Future[Seq[Address] Or Map[Address, Set[ErrorMessage]]] = {
+  def _withStates(q: Query[Addresses, Address, Seq]) = for {
+    addresses ← q
+    states ← States.table if states.id === addresses.id
+  } yield (addresses, states)
+
+  def createFromPayload(customer: Customer, payload: Seq[CreateAddressPayload])
+    (implicit ec: ExecutionContext, db: Database): Future[Seq[Address] Or Map[Address, Set[ErrorMessage]]] = {
 
     val addresses = payload.map(Address.fromPayload(_).copy(customerId = customer.id))
-
     create(customer, addresses)
   }
 
   def create(customer: Customer, addresses: Seq[Address])
-            (implicit ec: ExecutionContext,
-             db: Database): Future[Seq[Address] Or Map[Address, Set[ErrorMessage]]] = {
+    (implicit ec: ExecutionContext, db: Database): Future[Seq[Address] Or Map[Address, Set[ErrorMessage]]] = {
 
     val failures = addresses.map { a => (a, a.validate) }.filterNot { case (a, v) => v.isValid }
 

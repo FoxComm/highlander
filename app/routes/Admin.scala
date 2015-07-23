@@ -11,6 +11,7 @@ import org.scalactic._
 import payloads._
 import responses.{AdminNotes, FullOrder}
 import services._
+import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.RunOnDbIO
 
@@ -44,10 +45,12 @@ object Admin {
             CustomerManager.toggleDisabled(customerId, payload.disabled, admin).map(renderGoodOrBad)
           }
         } ~
-        pathPrefix("addresses") {
+        (pathPrefix("addresses") & pathEnd) {
           get {
             complete {
-              Addresses.findAllByCustomerId(customerId).map(render(_))
+              Addresses._findAllByCustomerIdWithStates(customerId).result.run().map { addresses ⇒
+                render(responses.Addresses.build(addresses))
+              }
             }
           } ~
           (post & entity(as[Seq[CreateAddressPayload]])) { payload =>
