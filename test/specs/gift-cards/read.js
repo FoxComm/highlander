@@ -19,7 +19,7 @@ describe('GiftCards #Get', function() {
 
   it('should get a new page of 10 gift cards', function *(){
     let
-      res  = yield this.api.get('/gift-cards', {limit: 10, page:2}),
+      res  = yield this.api.get('/gift-cards', {limit: 10, page: 2}),
       cards = res.response;
     expect(res.status).to.equal(200);
     expect(cards).to.have.length(10);

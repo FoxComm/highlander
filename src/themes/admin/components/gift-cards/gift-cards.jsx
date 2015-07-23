@@ -4,12 +4,14 @@ import React from 'react';
 import Api from '../../lib/api';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
+import NewGiftCard from './gift-cards-new';
 
 export default class GiftCards extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      cards: []
+      cards: [],
+      isNew: false
     };
   }
 
@@ -19,17 +21,32 @@ export default class GiftCards extends React.Component {
        .catch((err) => { console.log(err); });
   }
 
+  toggleNew() {
+    this.setState({
+      isNew: !this.state.isNew
+    });
+  }
+
   render() {
-    return (
-      <div id="cards">
-        <div className="gutter">
-          <table className="inline">
-            <TableHead columns={this.props.tableColumns} />
-            <TableBody columns={this.props.tableColumns} rows={this.state.cards} model="gift-card" />
-          </table>
+    let content = null;
+
+    if (this.state.isNew) {
+      content = <NewGiftCard />;
+    } else {
+      content = (
+        <div id="cards" className="gutter">
+          <h2>Gift Cards</h2>
+          <button onClick={this.toggleNew.bind(this)}>+ New Gift Card</button>
+          <div className="gutter">
+            <table className="inline">
+              <TableHead columns={this.props.tableColumns} />
+              <TableBody columns={this.props.tableColumns} rows={this.state.cards} model="gift-card" />
+            </table>
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
+    return content;
   }
 }
 
