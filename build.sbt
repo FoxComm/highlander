@@ -93,6 +93,7 @@ lazy val phoenixScala = (project in file(".")).
         "ch.qos.logback"       %  "logback-core"              % "1.1.3",
         "ch.qos.logback"       %  "logback-classic"           % "1.1.3",
         // Other
+        "org.spire-math"       %% "cats"                      % "0.1.2",
         "com.stripe"           %  "stripe-java"               % "1.31.0",
         "org.slf4j"            %  "slf4j-api"                 % "1.7.12",
         "joda-time"            %  "joda-time"                 % "2.8.1",
@@ -115,7 +116,7 @@ lazy val phoenixScala = (project in file(".")).
     Revolver.settings,
     (mainClass in Compile) := Some("Main"),
     // add ms report for every test
-    testOptions in Test += Tests.Argument("-oD"),
+    testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD"),
     javaOptions in Test ++= Seq("-Xmx2G", "-XX:+UseConcMarkSweepGC"),
     parallelExecution in Test := true,
     parallelExecution in IT   := false,
