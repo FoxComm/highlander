@@ -3,6 +3,18 @@
 import React from 'react';
 
 export default class NewGiftCard extends React.Component {
+  onChangeValue(event) {
+    this.setState({
+      value: event.target.value
+    });
+  }
+
+  setValue(value) {
+    this.setState({
+      value: value
+    });
+  }
+
   render() {
     return (
       <div id="new-gift-card" className="gutter">
@@ -20,15 +32,15 @@ export default class NewGiftCard extends React.Component {
             <fieldset>
               <label htmlFor="value">Value</label>
               <div className="form-icon">
-                <i className="icon-"></i>
-                <input type="number" name="value" />
+                <i className="icon-dollar"></i>
+                <input type="number" name="value" value={this.state.value} onChange={this.onChangeValue.bind(this)} />
               </div>
               <div>
-                <a className="btn" data-amount="10.00">$10</a>
-                <a className="btn" data-amount="10.00">$25</a>
-                <a className="btn" data-amount="10.00">$50</a>
-                <a className="btn" data-amount="10.00">$100</a>
-                <a className="btn" data-amount="10.00">$200</a>
+                <a className="btn" onClick={this.setValue.bind(this, '10.00')}>$10</a>
+                <a className="btn" onClick={this.setValue.bind(this, '25.00')}>$25</a>
+                <a className="btn" onClick={this.setValue.bind(this, '50.00')}>$50</a>
+                <a className="btn" onClick={this.setValue.bind(this, '100.00')}>$100</a>
+                <a className="btn" onClick={this.setValue.bind(this, '200.00')}>$200</a>
               </div>
             </fieldset>
             <fieldset>
