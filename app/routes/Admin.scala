@@ -48,8 +48,8 @@ object Admin {
         (pathPrefix("addresses") & pathEnd) {
           get {
             complete {
-              Addresses._findAllByCustomerIdWithStates(customerId).result.run().map { addresses ⇒
-                render(responses.Addresses.build(addresses))
+              Addresses._findAllByCustomerIdWithStates(customerId).result.run().map { records ⇒
+                render(responses.Addresses.build(records))
               }
             }
           } ~
@@ -57,6 +57,15 @@ object Admin {
             complete {
               whenFound(findCustomer(customerId)) { customer =>
                 Addresses.createFromPayload(customer, payload)
+              }
+            }
+          }
+        } ~
+        (pathPrefix("shipping-addresses") & pathEnd) {
+          get {
+            complete {
+              ShippingAddresses.findAllByCustomerIdWithStates(customerId).result.run().map { records ⇒
+                render(responses.Addresses.buildShipping(records))
               }
             }
           }

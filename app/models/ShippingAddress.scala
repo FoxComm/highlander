@@ -37,9 +37,20 @@ object ShippingAddresses extends TableQueryWithId[ShippingAddress, ShippingAddre
     shippingAddress <- save(address)
   } yield shippingAddress
 
-  def findAllByCustomerId(customerId: Int): Query[(Addresses, ShippingAddresses), (Address, ShippingAddress), Seq] =
-    for {
+  def findAllByCustomerId(customerId: Int):
+  Query[(Addresses, ShippingAddresses), (Address, ShippingAddress), Seq] = for {
     addresses ← Addresses._findAllByCustomerId(customerId)
     shippingAddresses ← this if shippingAddresses.id === addresses.id
   } yield (addresses, shippingAddresses)
+
+  def findAllByCustomerIdWithStates(customerId: Int):
+  Query[(Addresses, ShippingAddresses, States), (Address, ShippingAddress, State), Seq] = for {
+    records ← withStates(findAllByCustomerId(customerId))
+  } yield records
+
+  def withStates(q: Query[(Addresses, ShippingAddresses), (Address, ShippingAddress), Seq]):
+  Query[(Addresses, ShippingAddresses, States), (Address, ShippingAddress, State), Seq] = for {
+    (addresses, shippingAddresses) ← q
+    states ← States.table if states.id === addresses.id
+  } yield (addresses, shippingAddresses, states)
 }
