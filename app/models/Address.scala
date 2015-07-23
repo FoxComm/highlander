@@ -53,9 +53,11 @@ object Addresses extends TableQueryWithId[Address, Addresses](
     findAllByCustomerId(customer.id)
   }
 
-  def findAllByCustomerId(id: Int)(implicit db: Database): Future[Seq[Address]] = {
-    db.run(filter(_.customerId === id).result)
-  }
+  def findAllByCustomerId(customerId: Int)(implicit db: Database): Future[Seq[Address]] =
+    _findAllByCustomerId(customerId).result.run()
+
+  def _findAllByCustomerId(customerId: Int): Query[Addresses, Address, Seq] =
+    filter(_.customerId === customerId)
 
   def count()(implicit ec: ExecutionContext, db: Database): Future[Int] = {
     db.run(length.result)

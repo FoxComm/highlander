@@ -18,7 +18,7 @@ object Seeds {
   val today = new DateTime
 
   final case class TheWorld(customer: Customer, order: Order, orderNotes: Seq[Note], address: Address, cc: CreditCard,
-    storeAdmin: StoreAdmin, shippingMethods: Seq[ShippingMethod],
+    storeAdmin: StoreAdmin, shippingAddresses: Seq[ShippingAddress], shippingMethods: Seq[ShippingMethod],
     shippingPriceRules: Seq[ShippingPriceRule], shippingMethodRuleMappings: Seq[ShippingMethodPriceRule],
     orderCriteria: Seq[OrderCriterion], orderPriceCriteria: Seq[OrderPriceCriterion],
     priceRuleCriteriaMappings: Seq[ShippingPriceRuleOrderCriterion], skus: Seq[Sku],
@@ -26,7 +26,10 @@ object Seeds {
 
   final case class PaymentMethods(giftCard: GiftCard = Factories.giftCard, storeCredit: StoreCredit = Factories.storeCredit)
 
-  def run()(implicit db: Database): dbio.DBIOAction[(Customer, Order, Address, CreditCard), NoStream, Write with Write with Write with All with Write with All with Write with All with Write with Write with Write with Write with Write with All] = {
+  def run()(implicit db: Database): dbio.DBIOAction[(Customer, Order, Address, ShippingAddress, CreditCard),
+    NoStream, Write with Write with Write with All with Write with Write with All with All with Write with All with
+    Write with Write with Write with Write with Write with All] = {
+
     import scala.concurrent.ExecutionContext.Implicits.global
 
     val s = TheWorld(
@@ -36,6 +39,7 @@ object Seeds {
       order = Factories.order,
       orderNotes = Factories.orderNotes,
       address = Factories.address,
+      shippingAddresses = Seq(Factories.shippingAddress),
       shippingMethods = Factories.shippingMethods,
       cc = Factories.creditCard,
       shippingPriceRules = Factories.shippingPriceRules,
@@ -61,6 +65,7 @@ object Seeds {
       orderNotes ← Notes ++= s.orderNotes
       orderLineItem ← OrderLineItems ++= s.orderLineItems
       address ← Addresses.save(s.address.copy(customerId = customer.id))
+      shippingAddress ← ShippingAddresses.save(Factories.shippingAddress.copy(addressId = address.id))
       shippingMethods ← ShippingMethods ++= s.shippingMethods
       gateway ← CreditCards.save(s.cc.copy(customerId = customer.id))
       shippingPriceRule ← ShippingPriceRules ++= s.shippingPriceRules
@@ -69,7 +74,7 @@ object Seeds {
       orderPriceCriterion ← OrderPriceCriteria ++= s.orderPriceCriteria
       priceRuleCriteriaMapping ← ShippingPriceRulesOrderCriteria ++= s.priceRuleCriteriaMappings
       shipments ← Shipments.save(s.shipment)
-    } yield (customer, order, address, gateway)
+    } yield (customer, order, address, shippingAddress, gateway)
   }
 
   object Factories {
@@ -103,6 +108,8 @@ object Seeds {
         street2 = None, city = "Seattle", zip = "12345")
 
     def billingAddress = BillingAddress()
+
+    def shippingAddress = ShippingAddress(addressId = 0, isDefault = true)
 
     def creditCard =
       CreditCard(customerId = 0, gatewayCustomerId = "", lastFour = "4242",
