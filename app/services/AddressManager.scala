@@ -2,14 +2,18 @@ package services
 
 import scala.concurrent.{ExecutionContext, Future}
 
+import org.postgresql.util.PSQLException
 import org.scalactic.{Or, Good, Bad}
 import utils.Validation.Result.{Failure ⇒ Invalid, Success}
-import models.{Addresses ⇒ Table, Address, States, State, Customer}
+import models.{Addresses ⇒ Table, ShippingAddress, CreditCards, ShippingAddresses, Address, States, State, Customer}
 import payloads.CreateAddressPayload
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 import responses.{Addresses ⇒ Response}
 import responses.Addresses.Root
+import utils.Slick.UpdateReturning._
+import utils.jdbc.RecordNotUnique
+import utils.jdbc.withUniqueConstraint
 
 object AddressManager {
   def create(payload: CreateAddressPayload, customerId: Int)
@@ -25,6 +29,23 @@ object AddressManager {
           case (_, None)              ⇒ Bad(NotFoundFailure(State, address.stateId))
         }
       case f: Invalid ⇒ Future.successful(Bad(ValidationFailure(f)))
+    }
+  }
+
+  def toggleDefaultShippingAddress(id: Int, isDefault: Boolean)
+    (implicit ec: ExecutionContext, db: Database): Future[Option[Failure]] = {
+
+    withUniqueConstraint {
+      db.run(ShippingAddresses._findById(id).extract.map(_.isDefault).update(isDefault)).map { rows ⇒
+        if (rows != 1) {
+          Some(NotFoundFailure(ShippingAddress, id))
+        } else {
+          None
+        }
+      }
+    }.recover {
+      case e: utils.jdbc.RecordNotUnique ⇒
+        Some(CustomerHasDefaultShippingAddress)
     }
   }
 

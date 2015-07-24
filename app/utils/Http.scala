@@ -26,9 +26,9 @@ object Http {
       case Bad(errors)    ⇒
         errors match {
           case _: Iterable[_] ⇒
-            render("errors" → errors.asInstanceOf[Iterable[Failure]].flatMap(_.description), BadRequest)
+            renderFailure(errors.asInstanceOf[Iterable[Failure]])
           case _: Failure ⇒
-            render("errors" → errors.asInstanceOf[Failure].description, BadRequest)
+            renderFailure(Seq(errors.asInstanceOf[Failure]))
           case _ ⇒
             render("errors" → errors, BadRequest)
         }
@@ -55,4 +55,7 @@ object Http {
 
   def render[A <: AnyRef](resource: A, statusCode: StatusCode = OK) =
     HttpResponse(statusCode, entity = json(resource))
+
+  def renderFailure(failures: Traversable[Failure], statusCode: ClientError = BadRequest): HttpResponse =
+    HttpResponse(statusCode, entity = json("errors" → failures.flatMap(_.description)))
 }

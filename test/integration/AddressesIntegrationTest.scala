@@ -3,6 +3,7 @@ import akka.http.scaladsl.model.StatusCodes
 import models.{ShippingAddresses, Addresses, Customers}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
+import services.{CustomerHasDefaultShippingAddress, Failure}
 
 class AddressesIntegrationTest extends IntegrationTestBase
   with HttpSupport
@@ -51,6 +52,25 @@ class AddressesIntegrationTest extends IntegrationTestBase
       addresses.head.name must === (address.name)
       addresses.head.isDefault must === (Some(true))
     }
+
+    "sets the isDefault flag on a shipping address" in new ShippingAddressFixture {
+      val payload = payloads.ToggleDefaultShippingAddress(isDefault = false)
+      val response = POST(s"v1/users/${customer.id}/shipping-addresses/${shippingAddress.id}/default", payload)
+
+      response.status must === (StatusCodes.OK)
+      response.bodyText mustBe 'empty
+    }
+
+    "errors if there's already a default shipping address" in new ShippingAddressFixture {
+      val (_, another) = ShippingAddresses.createFromAddress(address.copy(id = 0)).run().futureValue
+      val payload = payloads.ToggleDefaultShippingAddress(isDefault = true)
+      val response = POST(s"v1/users/${customer.id}/shipping-addresses/${another.id}/default", payload)
+
+      response.status must === (StatusCodes.BadRequest)
+
+      val errors = parse(response.bodyText).extract[Map[String, Seq[String]]]
+      errors must === (Map("errors" -> CustomerHasDefaultShippingAddress.description))
+    }
   }
 
   trait CustomerFixture {
@@ -62,7 +82,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
   }
 
   trait ShippingAddressFixture extends AddressFixture {
-    val shippingAddress = ShippingAddresses.createFromAddress(address, isDefault = true).run().futureValue
+    val (_, shippingAddress) = ShippingAddresses.createFromAddress(address, isDefault = true).run().futureValue
   }
 }
 

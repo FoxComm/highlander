@@ -1,12 +1,14 @@
 package routes
 
 import scala.concurrent.{ExecutionContext, Future}
+import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import models._
 import org.json4s.jackson.Serialization.{write ⇒ json}
+import akka.http.scaladsl.model.StatusCodes._
 import org.scalactic._
 import payloads._
 import responses.{AdminNotes, FullOrder}
@@ -59,11 +61,19 @@ object Admin {
             }
           }
         } ~
-        (pathPrefix("shipping-addresses") & pathEnd) {
-          get {
+        pathPrefix("shipping-addresses") {
+          (get & pathEnd) {
             complete {
               ShippingAddresses.findAllByCustomerIdWithStates(customerId).result.run().map { records ⇒
                 render(responses.Addresses.buildShipping(records))
+              }
+            }
+          } ~
+          (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultShippingAddress]) & pathEnd) {
+            (id, payload) ⇒
+            complete {
+              AddressManager.toggleDefaultShippingAddress(id, payload.isDefault).map { optFailure ⇒
+                optFailure.fold(HttpResponse(OK)) { f ⇒ renderFailure(Seq(f)) }
               }
             }
           }
