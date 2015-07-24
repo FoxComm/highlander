@@ -35,7 +35,7 @@ object AddressManager {
   def toggleDefaultShippingAddress(id: Int, isDefault: Boolean)
     (implicit ec: ExecutionContext, db: Database): Future[Option[Failure]] = {
 
-    withUniqueConstraint {
+    val result = withUniqueConstraint {
       db.run(ShippingAddresses._findById(id).extract.map(_.isDefault).update(isDefault)).map { rows ⇒
         if (rows != 1) {
           Some(NotFoundFailure(ShippingAddress, id))
@@ -43,10 +43,9 @@ object AddressManager {
           None
         }
       }
-    }.recover {
-      case e: utils.jdbc.RecordNotUnique ⇒
-        Some(CustomerHasDefaultShippingAddress)
-    }
+    } { e ⇒ CustomerHasDefaultShippingAddress }
+
+    result.map(_.fold(identity, Some(_)))
   }
 
   /*

@@ -2,6 +2,7 @@ package utils
 
 import scala.concurrent.Future
 
+import services.GeneralFailure
 import util.TestBase
 import utils.jdbc._
 import org.postgresql.util.PSQLException
@@ -12,14 +13,13 @@ class JdbcTest extends TestBase {
 
   "withUniqueConstraint" in {
     val state = new PSQLState("23505")
-    val ex = withUniqueConstraint {
+    val future = Future {
       val msg = "ERROR: duplicate key value violates unique constraint 'person already has two legs"
-      Future.failed(new PSQLException(msg, state))
-    }.failed.futureValue
-
-    ex match {
-      case _: jdbc.RecordNotUnique ⇒
-      case _ ⇒ fail("throwable was not RecordNotUnique")
+      throw new PSQLException(msg, state)
     }
+
+    val or = withUniqueConstraint(future) { notUnique ⇒ GeneralFailure("record was not unique") }.futureValue
+    or mustBe 'bad
+    or.fold({ _ ⇒ Seq("wrong") }, _.description) must === (Seq("record was not unique"))
   }
 }

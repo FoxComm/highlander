@@ -3,7 +3,7 @@ package utils
 import org.postgresql.util.{PSQLException, PSQLState}
 import scala.language.implicitConversions
 import scala.concurrent.{ExecutionContext, Future}
-import utils.Validation.Result.Failure
+import services.Failure
 import org.scalactic.{Or, Good, Bad}
 
 object jdbc {
@@ -15,12 +15,11 @@ object jdbc {
 
   val uniqueConstraintError = """ERROR: duplicate key value violates unique constraint""".r
 
-  def withUniqueConstraint[A](f: ⇒ Future[A])(implicit ec: ExecutionContext): Future[A] = {
-    f.recoverWith {
+  def withUniqueConstraint[A](f: ⇒ Future[A])(failed: RecordNotUnique ⇒ Failure)(implicit ec: ExecutionContext):
+  Future[A Or Failure] = {
+    f.map(Good(_)).recover {
       case e: PSQLException if uniqueConstraintError.findFirstIn(e.getMessage).nonEmpty ⇒
-        Future.failed(RecordNotUnique(e))
-      case t ⇒
-        Future.failed(t)
+        Bad(failed(RecordNotUnique(e)))
     }
   }
 }
