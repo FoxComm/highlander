@@ -12,7 +12,7 @@ import responses.{Addresses ⇒ Response}
 import responses.Addresses.Root
 
 object AddressManager {
-  def createOne(customerId: Int, payload: CreateAddressPayload)
+  def create(payload: CreateAddressPayload, customerId: Int)
     (implicit ec: ExecutionContext, db: Database): Future[Root Or Failure] = {
     val address = Address.fromPayload(payload).copy(customerId = customerId)
     address.validate match {

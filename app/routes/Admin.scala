@@ -55,7 +55,7 @@ object Admin {
           } ~
           (post & entity(as[CreateAddressPayload])) { payload =>
             complete {
-              AddressManager.createOne(customerId, payload).map(renderGoodOrBad)
+              AddressManager.create(payload, customerId).map(renderGoodOrBad)
             }
           }
         } ~
