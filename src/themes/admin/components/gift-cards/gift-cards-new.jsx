@@ -1,20 +1,21 @@
 'use strict';
 
 import React from 'react';
+import Counter from '../forms/counter';
 
 const
-  types = ['Appeasement', 'Marketing'],
-  subTypes = [
-    [],
-    ['One', 'Two']
-  ];
+  types = {
+    Appeasement: [],
+    Marketing: ['One', 'Two']
+  };
 
 export default class NewGiftCard extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       amount: '0.00',
-      type: types[0]
+      type: 'Appeasement',
+      subTypes: types.Appeasement
     };
   }
 
@@ -32,23 +33,22 @@ export default class NewGiftCard extends React.Component {
 
   setType(event) {
     this.setState({
-      type: types[+event.target.value]
+      type: event.target.value,
+      subTypes: types[event.target.value]
     });
   }
 
   render() {
     let
-      subTypeContent = null,
-      typeIdx        = types.indexOf(this.state.type),
-      typesSubTypes  = null;
+      typeList = Object.keys(types),
+      subTypeContent = null;
 
-    if (typeIdx > -1) {
-      typeSubTypes = subTypes[typeIdx];
+    if (this.state.subTypes.length > 0) {
       subTypeContent = (
         <div>
           <label htmlFor="cardSubType">Subtype</label>
           <select name="cardSubType">
-            {typeSubTypes.map((subType, idx) => {
+            {this.state.subTypes.map((subType) => {
               return <option val={subType}>{subType}</option>;
              })};
           </select>
@@ -64,8 +64,8 @@ export default class NewGiftCard extends React.Component {
             <fieldset>
               <label htmlFor="cardType">Gift Card Type</label>
               <select name="cardType" onChange={this.setType.bind(this)}>
-                {types.map((type, idx) => {
-                  return <option val={idx} key={`${idx}-${type}`}>{type}</option>;
+                {typeList.map((type, idx) => {
+                  return <option val={type} key={`${idx}-${type}`}>{type}</option>;
                 })}
               </select>
               {subTypeContent}
@@ -89,6 +89,10 @@ export default class NewGiftCard extends React.Component {
                 <input type="checkbox" name="sendToCustomer" />
                 Send gift cards to customers?
               </label>
+            </fieldset>
+            <fieldset>
+              <label htmlFor="quantity">Quantity</label>
+              <Counter inputName="quantity" />
             </fieldset>
           </fieldset>
         </form>
