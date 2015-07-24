@@ -34,11 +34,11 @@ object Customer {
               Addresses.findAllByCustomer(customer).map(render(_))
             }
           } ~
-            (post & entity(as[CreateAddressPayload])) { payload =>
-              complete {
-                AddressManager.createOne(customer.id, payload).map(renderGoodOrBad)
-              }
+          (post & entity(as[CreateAddressPayload])) { payload =>
+            complete {
+              AddressManager.createOne(customer.id, payload).map(renderGoodOrBad)
             }
+          }
         } ~
         pathPrefix("payment-methods") {
           pathPrefix("store-credits") {
@@ -47,11 +47,11 @@ object Customer {
                 renderOrNotFound(StoreCredits.findAllByCustomerId(customer.id).map(Some(_)))
               }
             } ~
-              (get & path(IntNumber)) { storeCreditId ⇒
-                complete {
-                  renderOrNotFound(StoreCredits.findByIdAndCustomerId(storeCreditId, customer.id))
-                }
+            (get & path(IntNumber)) { storeCreditId ⇒
+              complete {
+                renderOrNotFound(StoreCredits.findByIdAndCustomerId(storeCreditId, customer.id))
               }
+            }
           }
         } ~
         pathPrefix("order") {
