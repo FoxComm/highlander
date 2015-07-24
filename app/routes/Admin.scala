@@ -53,11 +53,9 @@ object Admin {
               }
             }
           } ~
-          (post & entity(as[Seq[CreateAddressPayload]])) { payload =>
+          (post & entity(as[CreateAddressPayload])) { payload =>
             complete {
-              whenFound(findCustomer(customerId)) { customer =>
-                Addresses.createFromPayload(customer, payload)
-              }
+              AddressManager.createOne(customerId, payload).map(renderGoodOrBad)
             }
           }
         } ~

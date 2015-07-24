@@ -25,6 +25,18 @@ class AddressesIntegrationTest extends IntegrationTestBase
       addresses.head.name must === (address.name)
     }
 
+    "creates an address" in new CustomerFixture {
+      val payload = payloads.CreateAddressPayload(name = "Home Office", stateId = 1, street1 = "3000 Coolio Dr",
+        city = "Seattle", zip = "55555")
+      val response = POST(s"v1/users/${customer.id}/addresses", payload)
+
+      response.status must === (StatusCodes.OK)
+
+      val newAddress = parse(response.bodyText).extract[responses.Addresses.Root]
+
+      newAddress.name must === (payload.name)
+      newAddress.isDefault must === (None)
+    }
   }
 
   "ShippingAddresses" - {
@@ -41,11 +53,12 @@ class AddressesIntegrationTest extends IntegrationTestBase
     }
   }
 
-  trait AddressFixture {
-    val (customer, address) = (for {
-      customer ← Customers.save(Factories.customer)
-      address ← Addresses.save(Factories.address.copy(customerId = customer.id))
-    } yield (customer, address)).run().futureValue
+  trait CustomerFixture {
+    val customer = Customers.save(Factories.customer).run().futureValue
+  }
+
+  trait AddressFixture extends CustomerFixture {
+    val address = Addresses.save(Factories.address.copy(customerId = customer.id)).run().futureValue
   }
 
   trait ShippingAddressFixture extends AddressFixture {

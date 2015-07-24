@@ -65,7 +65,8 @@ object Seeds {
       orderNotes ← Notes ++= s.orderNotes
       orderLineItem ← OrderLineItems ++= s.orderLineItems
       address ← Addresses.save(s.address.copy(customerId = customer.id))
-      shippingAddress ← ShippingAddresses.save(Factories.shippingAddress.copy(id = address.id))
+      shippingAddress ← ShippingAddresses.save(Factories.shippingAddress.copy(id = address.id,
+        customerId = customer.id))
       shippingMethods ← ShippingMethods ++= s.shippingMethods
       gateway ← CreditCards.save(s.cc.copy(customerId = customer.id))
       shippingPriceRule ← ShippingPriceRules ++= s.shippingPriceRules
