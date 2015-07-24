@@ -1,17 +1,9 @@
 package models
 
-import com.wix.accord.{Failure ⇒ ValidationFailure, Success ⇒ ValidationSuccess}
-import org.scalactic.{Bad, Good}
 import org.scalatest.prop.TableDrivenPropertyChecks._
-import payloads.CreateAddressPayload
-import util.IntegrationTestBase
-import utils.Validation
-import utils.Seeds.Factories
+import util.TestBase
 
-class AddressTest extends IntegrationTestBase {
-  import api._
-
-  import concurrent.ExecutionContext.Implicits.global
+class AddressTest extends TestBase {
 
   "Address" - {
     ".validate" - {
@@ -33,9 +25,5 @@ class AddressTest extends IntegrationTestBase {
         }
       }
     }
-  }
-
-  trait CustomerFixture {
-    val customer = Customers.save(Factories.customer).run().futureValue
   }
 }
