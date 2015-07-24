@@ -62,5 +62,13 @@ object Customers extends TableQueryWithId[Customer, Customers](
 
     save(newCustomer).run().map(Good(_))
   }
+
+  def _findEmailById(id: Rep[Int]) = {
+    _findById(id).map(_.email)
+  }
+
+  def findEmailById(id: Int)(implicit db: Database): Future[Option[String]] = {
+    db.run(_findEmailById(id).result.headOption)
+  }
 }
 

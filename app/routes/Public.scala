@@ -7,7 +7,7 @@ import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import models._
 import org.json4s.jackson.Serialization.{write ⇒ json}
-import responses.PublicSku
+import responses.{AdminOrders, PublicSku}
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 
 object Public {
@@ -28,6 +28,13 @@ object Public {
           renderOrNotFound(PublicSku.findById(skuId))
         }
       }
-    }
+    } ~
+      pathPrefix("all-orders") {
+        (get & pathEnd) {
+          complete {
+            AdminOrders.findAll
+          }
+        }
+      }
   }
 }
