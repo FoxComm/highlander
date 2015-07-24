@@ -34,9 +34,9 @@ object Customer {
               Addresses.findAllByCustomer(customer).map(render(_))
             }
           } ~
-            (post & entity(as[Seq[CreateAddressPayload]])) { payload =>
+            (post & entity(as[CreateAddressPayload])) { payload =>
               complete {
-                Addresses.createFromPayload(customer, payload).map(renderGoodOrBad)
+                AddressManager.createOne(customer.id, payload).map(renderGoodOrBad)
               }
             }
         } ~

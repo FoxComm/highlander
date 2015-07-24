@@ -27,4 +27,32 @@ object AddressManager {
       case f: Invalid ⇒ Future.successful(Bad(ValidationFailure(f)))
     }
   }
+
+  /*
+  def createFromPayload(customer: Customer, payload: Seq[CreateAddressPayload])
+    (implicit ec: ExecutionContext, db: Database): Future[Seq[Address] Or Map[Address, Set[ErrorMessage]]] = {
+
+    val addresses = payload.map(Address.fromPayload(_).copy(customerId = customer.id))
+    create(customer, addresses)
+  }
+
+  def create(customer: Customer, addresses: Seq[Address])
+    (implicit ec: ExecutionContext, db: Database): Future[Seq[Address] Or Map[Address, Set[ErrorMessage]]] = {
+
+    val failures = addresses.map { a => (a, a.validate) }.filterNot { case (a, v) => v.isValid }
+
+    if (failures.nonEmpty) {
+      val acc = Map[Address, Set[ErrorMessage]]()
+      val errorMap = failures.foldLeft(acc) { case (map, (address, failure)) =>
+        map.updated(address, failure.messages)
+      }
+      Future.successful(Bad(errorMap))
+    } else {
+      db.run(for {
+        _ <- this ++= addresses
+        addresses <- filter(_.customerId === customer.id).result
+      } yield Good(addresses))
+    }
+  }
+  */
 }
