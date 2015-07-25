@@ -118,15 +118,15 @@ object Admin {
           }
         }
       } ~
-      pathPrefix("orders" / IntNumber) { orderId ⇒
+      pathPrefix("orders" / """([a-zA-Z0-9-_]*)""".r) { refNum ⇒
         (get & pathEnd) {
           complete {
-            renderOrNotFound(FullOrder.findById(orderId))
+            renderOrNotFound(FullOrder.findByRefNum(refNum))
           }
         } ~
         (patch & entity(as[UpdateOrderPayload])) { payload =>
           complete {
-            whenFound(Orders.findById(orderId).run()) { order =>
+            whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order =>
               OrderUpdater.updateStatus(order, payload).flatMap {
                 case Good(o) ⇒
                   FullOrder.fromOrder(o).map {
@@ -142,12 +142,12 @@ object Admin {
         } ~
         (post & path("checkout")) {
           complete {
-            whenFound(Orders.findById(orderId).run()) { order => new Checkout(order).checkout }
+            whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order => new Checkout(order).checkout }
           }
         } ~
         (post & path("line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems =>
           complete {
-            whenFound(Orders.findById(orderId).run()) { order =>
+            whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order =>
               LineItemUpdater.updateQuantities(order, reqItems).flatMap {
                 case Good(_) ⇒
                   FullOrder.fromOrder(order).map {
@@ -164,12 +164,12 @@ object Admin {
         pathPrefix("payment-methods") {
           (get & pathEnd) {
             complete {
-              renderOrNotFound(Orders.findById(orderId).run())
+              renderOrNotFound(Orders.findByRefNum(refNum).result.headOption.run())
             }
           } ~
           (post & path("credit-card") & entity(as[CreditCardPayload])) { reqPayment =>
             complete {
-              Orders.findById(orderId).run().flatMap {
+              Orders.findByRefNum(refNum).result.headOption.run().flatMap {
                 case None => Future.successful(notFoundResponse)
                 case Some(order) =>
                   findCustomer(order.customerId).flatMap {
@@ -186,19 +186,19 @@ object Admin {
         pathPrefix("notes") {
           (get & pathEnd) {
             complete {
-              whenFound(Orders.findById(orderId).run()) { order ⇒ AdminNotes.forOrder(order) }
+              whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒ AdminNotes.forOrder(order) }
             }
           } ~
           (post & entity(as[payloads.CreateNote])) { payload ⇒
             complete {
-              whenFound(Orders.findById(orderId).run()) { order ⇒
+              whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
                 services.NoteManager.createOrderNote(order, admin, payload)
               }
             }
           } ~
           (patch & path(IntNumber) & entity(as[payloads.UpdateNote])) { (noteId, payload) ⇒
             complete {
-              whenFound(Orders.findById(orderId).run()) { order ⇒
+              whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
                 services.NoteManager.updateNote(noteId, admin, payload)
               }
             }

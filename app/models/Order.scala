@@ -94,6 +94,9 @@ object Orders extends TableQueryWithId[Order, Orders](
 
   def _findByCustomer(cust: Customer) = { filter(_.customerId === cust.id) }
 
+  def findByRefNum(refNum: String): Query[Orders, Order, Seq] =
+    filter(_.referenceNumber === refNum)
+
   def findActiveOrderByCustomer(cust: Customer)(implicit ec: ExecutionContext, db: Database): Future[Option[Order]] =
     db.run(_findActiveOrderByCustomer(cust).result.headOption)
 
