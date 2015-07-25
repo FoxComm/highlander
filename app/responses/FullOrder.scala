@@ -71,10 +71,11 @@ object FullOrder {
   }
 
 
-  def findById(id: Int)
-              (implicit ec: ExecutionContext, db: Database): Response = {
+  def findById(id: Int)(implicit ec: ExecutionContext, db: Database): Response =
     this.findOrder(Orders._findById(id).extract)
-  }
+
+  def findByRefNum(refNum: String)(implicit ec: ExecutionContext, db: Database): Response =
+    this.findOrder(Orders.findByRefNum(refNum))
 
   def findByCustomer(customer: Customer)
                     (implicit ec: ExecutionContext, db: Database): Response = {
@@ -94,8 +95,7 @@ object FullOrder {
   }
 
   private [this] def findOrder(finder: Query[Orders, Order, Seq])
-                             (implicit ec: ExecutionContext,
-                              db: Database): Response = {
+    (implicit ec: ExecutionContext, db: Database): Response = {
     val queries = for {
       order ← finder
       lineItems ← OrderLineItems._findByOrderId(order.id)

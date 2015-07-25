@@ -49,9 +49,9 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
 
     "fails if the payload is invalid" in {
-      val orderId = db.run(Orders.returningId += Order(id = 0, customerId = 1)).futureValue
+      val order = Orders.save(Factories.order.copy(customerId = 1)).run().futureValue
       val response = POST(
-        s"v1/orders/$orderId/payment-methods/credit-card",
+        s"v1/orders/${order.referenceNumber}/payment-methods/credit-card",
         payload.copy(cvv = "", holderName = ""))
 
       val errors = parse(response.bodyText).extract[Map[String, Seq[String]]]
@@ -62,10 +62,10 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
 
     "fails if the card is invalid according to Stripe" ignore {
-      val orderId = db.run(Orders.returningId += Order(id = 0, customerId = 1)).futureValue
+      val order = Orders.save(Factories.order.copy(customerId = 1)).run().futureValue
       val customerId = db.run(Customers.returningId += customerStub).futureValue
       val response = POST(
-        s"v1/orders/$orderId/payment-methods/credit-card",
+        s"v1/orders/${order.referenceNumber}/payment-methods/credit-card",
         payload.copy(number = StripeSupport.declinedCard))
 
       val body = response.bodyText
@@ -76,7 +76,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
 
     "successfully creates records" ignore {
-      val orderId = db.run(Orders.returningId += Order(id = 0, customerId = 1)).futureValue
+      val order = Orders.save(Factories.order.copy(customerId = 1)).run().futureValue
       val customerId = db.run(Customers.returningId += customerStub).futureValue
       val customer = customerStub.copy(id = customerId)
       val addressPayload = CreateAddressPayload(name = "Home", stateId = 46, state = Some("VA"), street1 = "500 Blah",
@@ -84,16 +84,16 @@ class OrderIntegrationTest extends IntegrationTestBase
       val payloadWithAddress = payload.copy(address = Some(addressPayload))
 
       val response = POST(
-        s"v1/orders/$orderId/payment-methods/credit-card",
+        s"v1/orders/${order.referenceNumber}/payment-methods/credit-card",
         payloadWithAddress)
 
       val body = response.bodyText
 
       val cc = CreditCards.findById(1).futureValue.get
-      val payment = OrderPayments.findAllByOrderId(orderId).futureValue.head
+      val payment = OrderPayments.findAllByOrderId(order.id).futureValue.head
       val (address, billingAddress) = BillingAddresses.findByPaymentId(payment.id).futureValue.get
 
-      val order = parse(body).extract[FullOrder.Root]
+      val respOrder = parse(body).extract[FullOrder.Root]
 
       cc.customerId must === (customerId)
       cc.lastFour must === (payload.lastFour)
@@ -102,7 +102,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       cc.isDefault must === (true)
 
       payment.appliedAmount must === (0)
-      payment.orderId must === (orderId)
+      payment.orderId must === (order.id)
       payment.status must === ("auth")
 
       response.status must === (StatusCodes.OK)
@@ -114,7 +114,8 @@ class OrderIntegrationTest extends IntegrationTestBase
 
   "notes" - {
     "can be created by an admin for an order" in new Fixture {
-      val response = POST(s"v1/orders/${order.id}/notes", payloads.CreateNote(body = "Hello, FoxCommerce!"))
+      val response = POST(s"v1/orders/${order.referenceNumber}/notes",
+        payloads.CreateNote(body = "Hello, FoxCommerce!"))
 
       response.status must === (StatusCodes.OK)
 
@@ -125,14 +126,14 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
 
     "returns a validation error if failed to create" in new Fixture {
-      val response = POST(s"v1/orders/${order.id}/notes", payloads.CreateNote(body = ""))
+      val response = POST(s"v1/orders/${order.referenceNumber}/notes", payloads.CreateNote(body = ""))
 
       response.status must === (StatusCodes.BadRequest)
       response.bodyText must include ("errors")
     }
 
     "returns a 404 if the order is not found" in new Fixture {
-      val response = POST(s"v1/orders/99/notes", payloads.CreateNote(body = ""))
+      val response = POST(s"v1/orders/ABACADSF113/notes", payloads.CreateNote(body = ""))
 
       response.status must === (StatusCodes.NotFound)
       response.bodyText must be ('empty)
@@ -147,7 +148,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         NoteManager.createOrderNote(order, storeAdmin, payloads.CreateNote(body = body)).futureValue
       }
 
-      val response = GET(s"v1/orders/${order.id}/notes")
+      val response = GET(s"v1/orders/${order.referenceNumber}/notes")
       response.status must === (StatusCodes.OK)
 
       val notes = parse(response.bodyText).extract[Seq[AdminNotes.Root]]
@@ -160,7 +161,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       val rootNote = NoteManager.createOrderNote(order, storeAdmin,
         payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue.get
 
-      val response = PATCH(s"v1/orders/${order.id}/notes/${rootNote.id}", payloads.UpdateNote(body = "donkey"))
+      val response = PATCH(s"v1/orders/${order.referenceNumber}/notes/${rootNote.id}", payloads.UpdateNote(body = "donkey"))
       response.status must === (StatusCodes.OK)
 
       val note = parse(response.bodyText).extract[AdminNotes.Root]
