@@ -80,7 +80,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       val customerId = db.run(Customers.returningId += customerStub).futureValue
       val customer = customerStub.copy(id = customerId)
       val addressPayload = CreateAddressPayload(name = "Home", stateId = 46, state = Some("VA"), street1 = "500 Blah",
-                                                city = "Richmond", zip = "50000")
+        city = "Richmond", zip = "50000")
       val payloadWithAddress = payload.copy(address = Some(addressPayload))
 
       val response = POST(

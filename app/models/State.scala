@@ -35,4 +35,7 @@ object States {
                 (implicit db: Database) = { db.run(_findByName(name)) }
 
   def _findByName(name: String) = { table.filter(_.name === name).result.headOption }
+
+  def findById(id: Int): Query[States, State, Seq] =
+    table.filter(_.id === id)
 }

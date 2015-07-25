@@ -31,3 +31,7 @@ final case class ValidationFailure(violation: Validation.Result.Failure) extends
 final case class GeneralFailure(a: String) extends Failure {
   override def description = List(a)
 }
+
+final case object CustomerHasDefaultShippingAddress extends Failure {
+  override def description = List("customer already has default shipping address")
+}

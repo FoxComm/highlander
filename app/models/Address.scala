@@ -14,7 +14,7 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 final case class Address(id: Int = 0, customerId: Int, stateId: Int, name: String, street1: String, street2: Option[String],
-                   city: String, zip: String) extends Validation[Address] with ModelWithIdParameter {
+  city: String, zip: String) extends Validation[Address] with ModelWithIdParameter {
   override def validator = createValidator[Address] { address =>
     address.name is notEmpty
     address.street1 is notEmpty
@@ -26,7 +26,7 @@ final case class Address(id: Int = 0, customerId: Int, stateId: Int, name: Strin
 object Address {
   def fromPayload(p: CreateAddressPayload) = {
     Address(customerId = 0, stateId = p.stateId, name = p.name,
-            street1 = p.street1, street2 = p.street2, city = p.city, zip = p.zip)
+      street1 = p.street1, street2 = p.street2, city = p.city, zip = p.zip)
   }
 }
 
@@ -53,41 +53,18 @@ object Addresses extends TableQueryWithId[Address, Addresses](
     findAllByCustomerId(customer.id)
   }
 
-  def findAllByCustomerId(id: Int)(implicit db: Database): Future[Seq[Address]] = {
-    db.run(filter(_.customerId === id).result)
-  }
+  def findAllByCustomerId(customerId: Int)(implicit db: Database): Future[Seq[Address]] =
+    _findAllByCustomerId(customerId).result.run()
 
-  def count()(implicit ec: ExecutionContext, db: Database): Future[Int] = {
-    db.run(length.result)
-  }
+  def _findAllByCustomerId(customerId: Int): Query[Addresses, Address, Seq] =
+    filter(_.customerId === customerId)
 
-  def createFromPayload(customer: Customer,
-                        payload: Seq[CreateAddressPayload])
-                       (implicit ec: ExecutionContext,
-                        db: Database): Future[Seq[Address] Or Map[Address, Set[ErrorMessage]]] = {
+  def _findAllByCustomerIdWithStates(customerId: Int): Query[(Addresses, States), (Address, State), Seq] = for {
+    (addresses, states) ← _withStates(_findAllByCustomerId(customerId))
+  } yield (addresses, states)
 
-    val addresses = payload.map(Address.fromPayload(_).copy(customerId = customer.id))
-
-    create(customer, addresses)
-  }
-
-  def create(customer: Customer, addresses: Seq[Address])
-            (implicit ec: ExecutionContext,
-             db: Database): Future[Seq[Address] Or Map[Address, Set[ErrorMessage]]] = {
-
-    val failures = addresses.map { a => (a, a.validate) }.filterNot { case (a, v) => v.isValid }
-
-    if (failures.nonEmpty) {
-      val acc = Map[Address, Set[ErrorMessage]]()
-      val errorMap = failures.foldLeft(acc) { case (map, (address, failure)) =>
-        map.updated(address, failure.messages)
-      }
-      Future.successful(Bad(errorMap))
-    } else {
-      db.run(for {
-        _ <- this ++= addresses
-        addresses <- filter(_.customerId === customer.id).result
-      } yield Good(addresses))
-    }
-  }
+  def _withStates(q: Query[Addresses, Address, Seq]) = for {
+    addresses ← q
+    states ← States.table if states.id === addresses.id
+  } yield (addresses, states)
 }

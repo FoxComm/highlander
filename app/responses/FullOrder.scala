@@ -102,7 +102,7 @@ object FullOrder {
       shipment ← Shipments.filter(_.orderId === order.id)
       customer ← Customers._findById(order.customerId)
       shipMethod ← ShippingMethods.filter(_.id === shipment.shippingMethodId)
-      address ← Addresses.filter(_.id === shipment.shippingAddressId)
+      address ← models.Addresses.filter(_.id === shipment.shippingAddressId)
       orderPayments ← OrderPayments.filter(_.orderId === order.id)
       creditCards ← CreditCards.filter(_.id === orderPayments.paymentMethodId)
     } yield (order, lineItems, shipMethod, customer, address, orderPayments, creditCards)

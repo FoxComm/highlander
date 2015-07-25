@@ -14,7 +14,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import com.stripe.model.{Customer => StripeCustomer}
 
 final case class OrderPayment(id: Int = 0,
-                          orderId: Int,
+                          orderId: Int = 0,
                           paymentMethodId: Int,
                           paymentMethodType: String,
                           appliedAmount: Int,

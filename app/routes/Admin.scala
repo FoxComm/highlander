@@ -1,16 +1,19 @@
 package routes
 
 import scala.concurrent.{ExecutionContext, Future}
+import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import models._
 import org.json4s.jackson.Serialization.{write ⇒ json}
+import akka.http.scaladsl.model.StatusCodes._
 import org.scalactic._
 import payloads._
 import responses.{AdminNotes, FullOrder}
 import services._
+import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.RunOnDbIO
 
@@ -44,16 +47,33 @@ object Admin {
             CustomerManager.toggleDisabled(customerId, payload.disabled, admin).map(renderGoodOrBad)
           }
         } ~
-        pathPrefix("addresses") {
+        (pathPrefix("addresses") & pathEnd) {
           get {
             complete {
-              Addresses.findAllByCustomerId(customerId).map(render(_))
+              Addresses._findAllByCustomerIdWithStates(customerId).result.run().map { records ⇒
+                render(responses.Addresses.build(records))
+              }
             }
           } ~
-          (post & entity(as[Seq[CreateAddressPayload]])) { payload =>
+          (post & entity(as[CreateAddressPayload])) { payload =>
             complete {
-              whenFound(findCustomer(customerId)) { customer =>
-                Addresses.createFromPayload(customer, payload)
+              AddressManager.create(payload, customerId).map(renderGoodOrBad)
+            }
+          }
+        } ~
+        pathPrefix("shipping-addresses") {
+          (get & pathEnd) {
+            complete {
+              ShippingAddresses.findAllByCustomerIdWithStates(customerId).result.run().map { records ⇒
+                render(responses.Addresses.buildShipping(records))
+              }
+            }
+          } ~
+          (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultShippingAddress]) & pathEnd) {
+            (id, payload) ⇒
+            complete {
+              AddressManager.toggleDefaultShippingAddress(id, payload.isDefault).map { optFailure ⇒
+                optFailure.fold(HttpResponse(OK)) { f ⇒ renderFailure(Seq(f)) }
               }
             }
           }
