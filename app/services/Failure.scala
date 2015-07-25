@@ -35,3 +35,7 @@ final case class GeneralFailure(a: String) extends Failure {
 final case object CustomerHasDefaultShippingAddress extends Failure {
   override def description = List("customer already has default shipping address")
 }
+
+final case object CustomerHasDefaultCreditCard extends Failure {
+  override def description = List("customer already has default credit card")
+}
