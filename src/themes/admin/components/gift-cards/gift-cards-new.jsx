@@ -2,12 +2,17 @@
 
 import React from 'react';
 import Counter from '../forms/counter';
+import Typeahead from '../typeahead/typeahead';
+import CustomerResult from '../customers/result';
+import CustomerStore from '../customers/store';
+import { listenTo, stopListeningTo } from '../../lib/dispatcher';
 
 const
   types = {
     Appeasement: [],
     Marketing: ['One', 'Two']
-  };
+  },
+  selectEvent = 'gift-card-customer-selected';
 
 export default class NewGiftCard extends React.Component {
   constructor(props) {
@@ -15,8 +20,18 @@ export default class NewGiftCard extends React.Component {
     this.state = {
       amount: '0.00',
       type: 'Appeasement',
-      subTypes: types.Appeasement
+      subTypes: types.Appeasement,
+      sendToCustomer: false,
+      customers: []
     };
+  }
+
+  componentDidMount() {
+    listenTo(selectEvent, this);
+  }
+
+  componentWillUnMount() {
+    stopListeningTo(selectEvent, this);
   }
 
   onChangeValue(event) {
@@ -38,10 +53,35 @@ export default class NewGiftCard extends React.Component {
     });
   }
 
+  sendToCustomer() {
+    let customerList = this.state.sendToCustomer ? [] : this.state.customers;
+    this.setState({
+      sendToCustomer: !this.state.sendToCustomer,
+      customers: customerList
+    });
+  }
+
+  onGiftCardCustomerSelected(customer) {
+    let customerList = this.state.customers;
+
+    var exists = customerList.filter(function (item) {
+      return item.id === customer.id;
+    }).length > 0;
+
+    if (!exists) {
+      customerList.push(customer);
+    }
+
+    this.setState({
+      customers: customerList
+    });
+  }
+
   render() {
     let
-      typeList = Object.keys(types),
-      subTypeContent = null;
+      typeList       = Object.keys(types),
+      subTypeContent = null,
+      customerSearch = null;
 
     if (this.state.subTypes.length > 0) {
       subTypeContent = (
@@ -52,6 +92,24 @@ export default class NewGiftCard extends React.Component {
               return <option val={subType}>{subType}</option>;
              })};
           </select>
+        </div>
+      );
+    }
+
+    if (this.state.sendToCustomer) {
+      customerSearch = (
+        <div>
+          <Typeahead store={CustomerStore} component={CustomerResult} selectEvent="giftCardCustomerSelected" />
+          <ul id="customerList">
+            {this.state.customers.map((customer, idx) => {
+              return (
+                <li key={`customer-${customer.id}`}>
+                  {customer.firstName} {customer.lastName}
+                  <input type="hidden" name="customers[]" id={`customer_${idx}`} value={customer.id} />
+                </li>
+              );
+            })}
+          </ul>
         </div>
       );
     }
@@ -86,9 +144,10 @@ export default class NewGiftCard extends React.Component {
             </fieldset>
             <fieldset>
               <label htmlFor="sendToCustomer">
-                <input type="checkbox" name="sendToCustomer" />
+                <input type="checkbox" name="sendToCustomer" value={this.state.sendToCustomer} onChange={this.sendToCustomer.bind(this)} />
                 Send gift cards to customers?
               </label>
+              { customerSearch }
             </fieldset>
             <fieldset>
               <label htmlFor="quantity">Quantity</label>

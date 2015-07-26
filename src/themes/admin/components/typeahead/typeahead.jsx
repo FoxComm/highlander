@@ -77,6 +77,5 @@ export default class Typeahead extends React.Component {
 Typeahead.propTypes = {
   selectEvent: React.PropTypes.string,
   component: React.PropTypes.func,
-  path: React.PropTypes.string,
   store: React.PropTypes.object
 };
