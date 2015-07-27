@@ -12,7 +12,8 @@ const
     Appeasement: [],
     Marketing: ['One', 'Two']
   },
-  selectEvent = 'gift-card-customer-selected';
+  customerSelectEvent = 'gift-card-customer-selected',
+  userSelectEvent = 'email-csv-user-selected';
 
 export default class NewGiftCard extends React.Component {
   constructor(props) {
@@ -22,16 +23,20 @@ export default class NewGiftCard extends React.Component {
       type: 'Appeasement',
       subTypes: types.Appeasement,
       sendToCustomer: false,
-      customers: []
+      customers: [],
+      users: [],
+      emailCSV: false
     };
   }
 
   componentDidMount() {
-    listenTo(selectEvent, this);
+    listenTo(customerSelectEvent, this);
+    listenTo(userSelectEvent, this);
   }
 
   componentWillUnMount() {
-    stopListeningTo(selectEvent, this);
+    stopListeningTo(customerSelectEvent, this);
+    stopListeningTo(userSelectEvent, this);
   }
 
   onChangeValue(event) {
@@ -53,11 +58,19 @@ export default class NewGiftCard extends React.Component {
     });
   }
 
-  sendToCustomer() {
+  toggleSendToCustomer() {
     let customerList = this.state.sendToCustomer ? [] : this.state.customers;
     this.setState({
       sendToCustomer: !this.state.sendToCustomer,
       customers: customerList
+    });
+  }
+
+  toggleEmailCSV() {
+    let userList = this.state.emailCSV ? [] : this.state.users;
+    this.setState({
+      emailCSV: !this.state.emailCSV,
+      users: userList
     });
   }
 
@@ -77,11 +90,29 @@ export default class NewGiftCard extends React.Component {
     });
   }
 
+  onEmailCsvUserSelected(user) {
+    let userList = this.state.users;
+
+    var exists = userList.filter(function (item) {
+      return item.id === user.id;
+    }).length > 0;
+
+    if (!exists) {
+      userList.push(user);
+    }
+
+    this.setState({
+      users: userList
+    });
+  }
+
   render() {
     let
       typeList       = Object.keys(types),
       subTypeContent = null,
-      customerSearch = null;
+      customerSearch = null,
+      quantity       = null,
+      emailCSV       = null;
 
     if (this.state.subTypes.length > 0) {
       subTypeContent = (
@@ -108,8 +139,32 @@ export default class NewGiftCard extends React.Component {
                   <input type="hidden" name="customers[]" id={`customer_${idx}`} value={customer.id} />
                 </li>
               );
-            })}
+             })}
           </ul>
+          <textarea name="customer_message"></textarea>
+        </div>
+      );
+
+      quantity = <span>{this.state.customers.length}</span>;
+    } else {
+      quantity = <Counter inputName="quantity" />;
+    }
+
+    if (this.state.emailCSV) {
+      emailCSV = (
+        <div>
+          <Typeahead store={CustomerStore} component={CustomerResult} selectEvent="emailCsvUserSelected" />
+          <ul id="internalUserList">
+            {this.state.users.map((user, idx) => {
+              return (
+                <li key={`user-${user.id}`}>
+                  {user.firstName} {user.lastName}
+                  <input type="hidden" name="users[]" id={`user_${idx}`} value={user.id} />
+                </li>
+              );
+             })}
+          </ul>
+          <textarea name="internal_message"></textarea>
         </div>
       );
     }
@@ -144,15 +199,29 @@ export default class NewGiftCard extends React.Component {
             </fieldset>
             <fieldset>
               <label htmlFor="sendToCustomer">
-                <input type="checkbox" name="sendToCustomer" value={this.state.sendToCustomer} onChange={this.sendToCustomer.bind(this)} />
+                <input type="checkbox" name="sendToCustomer" value={this.state.sendToCustomer} onChange={this.toggleSendToCustomer.bind(this)} />
                 Send gift cards to customers?
               </label>
               { customerSearch }
             </fieldset>
             <fieldset>
               <label htmlFor="quantity">Quantity</label>
-              <Counter inputName="quantity" />
+              {quantity}
             </fieldset>
+            <fieldset>
+              A CSV file of the gift cards will be created. What would you like to do?
+              <label htmlFor="download_csv">
+                <input type="checkbox" name="download_csv" />
+                Download CSV file immediately after it is created.
+              </label>
+              <label htmlFor="email_csv">
+                <input type="checkbox" name="email_csv" value={this.state.emailCSV} onChange={this.toggleEmailCSV.bind(this)} />
+                Email the CSV file.
+              </label>
+              { emailCSV }
+            </fieldset>
+            <a>Cancel</a>
+            <input type="submit" value="Issue Gift Card" />
           </fieldset>
         </form>
       </div>
