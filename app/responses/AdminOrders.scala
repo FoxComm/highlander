@@ -1,6 +1,7 @@
 package responses
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContext, Future}
 
 import models._
 import org.joda.time.DateTime
@@ -16,7 +17,8 @@ object AdminOrders {
     email: String,
     orderStatus: Order.Status,
     paymentStatus: String,
-    placedAt: Option[DateTime]
+    placedAt: Option[DateTime],
+    total: Int
     )
 
   def findAll(implicit ec: ExecutionContext, db: Database): Response = {
@@ -40,7 +42,8 @@ object AdminOrders {
       email = email,
       orderStatus = order.status,
       paymentStatus = payment._1.status,
-      placedAt = order.placedAt
+      placedAt = order.placedAt,
+      total = Await.result(order.grandTotal, Duration.Zero) // It's stubbed anyway, right?
     )
   }
 }
