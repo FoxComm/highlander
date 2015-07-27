@@ -41,10 +41,23 @@ export default class GiftCards extends React.Component {
 
     this.toggleNew();
 
+    for (let card of cards) {
+      card.isNew = true;
+    }
+
     Array.prototype.unshift.apply(cardList, cards);
     this.setState({
       cards: cardList
     });
+
+    this.removeNew();
+  }
+
+  removeNew() {
+    setTimeout(() => {
+      let row = document.querySelector('tr.new');
+      row.classList.remove('new');
+    }, 5000);
   }
 
   render() {

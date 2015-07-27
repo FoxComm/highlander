@@ -16,6 +16,8 @@ table.listing {
     tr {
       &:nth-child(odd) { background-color: @color-bg-tr-odd; }
       &:nth-child(even) { background-color: @color-bg-tr-even; }
+      &.new { background-color: #dfe3ed;  }
+      transition: background-color 500ms;
 
       td {
         vertical-align: top;
@@ -47,6 +49,8 @@ table.inline {
       &:nth-child(odd) {
         background-color: @color-bg-tr-odd;
       }
+      &.new { background-color: #dfe3ed;  }
+      transition: background-color 500ms;
 
       td {
         vertical-align: top;
