@@ -3,6 +3,7 @@ package responses
 import scala.concurrent.{ExecutionContext, Future}
 
 import models._
+import org.joda.time.DateTime
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 
@@ -14,7 +15,8 @@ object AdminOrders {
     referenceNumber: String,
     email: String,
     orderStatus: Order.Status,
-    paymentStatus: String
+    paymentStatus: String,
+    placedAt: Option[DateTime]
     )
 
   def findAll(implicit ec: ExecutionContext, db: Database): Response = {
@@ -37,7 +39,8 @@ object AdminOrders {
       referenceNumber = order.referenceNumber,
       email = email,
       orderStatus = order.status,
-      paymentStatus = payment._1.status
+      paymentStatus = payment._1.status,
+      placedAt = order.placedAt
     )
   }
 }

@@ -4,6 +4,7 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import models.{StoreCredit, GiftCard, Shipment, OrderLineItem, CreditCardPaymentStatus, Order}
 import com.pellucid.sealerate
 import org.json4s.JsonAST.JString
+import org.json4s.ext.DateTimeSerializer
 import org.json4s.{jackson, CustomSerializer, DefaultFormats}
 
 object JsonFormatters {
@@ -16,6 +17,7 @@ object JsonFormatters {
     GiftCard.Status.jsonFormat +
     StoreCredit.Status.jsonFormat +
     CreditCardPaymentStatus.jsonFormat +
-    Money.jsonFormat
+    Money.jsonFormat +
+    DateTimeSerializer // Should not belong here?
 }
 

@@ -78,6 +78,7 @@ lazy val phoenixScala = (project in file(".")).
         "com.typesafe.akka"    %% "akka-http-experimental"   % akkaHttpV,
         // JSON
         "org.json4s"           %% "json4s-jackson"           % "3.2.11",
+        "org.json4s"           %% "json4s-ext"               % "3.2.11",
         ("de.heikoseeberger"    %% "akka-http-json4s"         % "0.9.1").
           excludeAll(ExclusionRule(organization = "com.typesafe.akka")),
         // Database

@@ -7,6 +7,9 @@ import org.scalactic.{Bad, Good, Or}
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 
+import com.github.tototoshi.slick.JdbcJodaSupport._
+import org.joda.time.{DateTimeZone, DateTime}
+
 class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
 
   def checkout: Future[Order Or List[Failure]] = {
@@ -39,6 +42,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
   def completeOrderAndCreateNew(order: Order): Future[Order] = {
     db.run(for {
       _ <- Orders._findById(order.id).extract.map(_.status).update(Order.Ordered)
+      _ ← Orders._findById(order.id).extract.map(_.placedAt).update(Some(DateTime.now))
       newOrder <- Orders._create(Order.buildCart(order.customerId))
     } yield newOrder)
   }
