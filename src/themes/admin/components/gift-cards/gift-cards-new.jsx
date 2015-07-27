@@ -190,55 +190,53 @@ export default class NewGiftCard extends React.Component {
         <h2>New Gift Cards</h2>
         <form action="/gift-cards" method="POST" className="vertical" onSubmit={this.submitForm.bind(this)}>
           <fieldset>
-            <fieldset>
-              <label htmlFor="cardType">Gift Card Type</label>
-              <select name="cardType" onChange={this.setType.bind(this)}>
-                {typeList.map((type, idx) => {
-                  return <option val={type} key={`${idx}-${type}`}>{type}</option>;
-                })}
-              </select>
-              {subTypeContent}
-            </fieldset>
-            <fieldset>
-              <label htmlFor="value">Value</label>
-              <div className="form-icon">
-                <i className="icon-dollar"></i>
-                <input type="number" name="value" value={this.state.amount} onChange={this.onChangeValue.bind(this)} />
-              </div>
-              <div>
-                <a className="btn" onClick={this.setValue.bind(this, '10.00')}>$10</a>
-                <a className="btn" onClick={this.setValue.bind(this, '25.00')}>$25</a>
-                <a className="btn" onClick={this.setValue.bind(this, '50.00')}>$50</a>
-                <a className="btn" onClick={this.setValue.bind(this, '100.00')}>$100</a>
-                <a className="btn" onClick={this.setValue.bind(this, '200.00')}>$200</a>
-              </div>
-            </fieldset>
-            <fieldset>
-              <label htmlFor="sendToCustomer">
-                <input type="checkbox" name="sendToCustomer" value={this.state.sendToCustomer} onChange={this.toggleSendToCustomer.bind(this)} />
-                Send gift cards to customers?
-              </label>
-              { customerSearch }
-            </fieldset>
-            <fieldset>
-              <label htmlFor="quantity">Quantity</label>
-              {quantity}
-            </fieldset>
-            <fieldset>
-              A CSV file of the gift cards will be created. What would you like to do?
-              <label htmlFor="download_csv">
-                <input type="checkbox" name="download_csv" />
-                Download CSV file immediately after it is created.
-              </label>
-              <label htmlFor="email_csv">
-                <input type="checkbox" name="email_csv" value={this.state.emailCSV} onChange={this.toggleEmailCSV.bind(this)} />
-                Email the CSV file.
-              </label>
-              { emailCSV }
-            </fieldset>
-            <a onClick={this.closeForm.bind(this)}>Cancel</a>
-            <input type="submit" value="Issue Gift Card" />
+            <label htmlFor="cardType">Gift Card Type</label>
+            <select name="cardType" onChange={this.setType.bind(this)}>
+              {typeList.map((type, idx) => {
+                return <option val={type} key={`${idx}-${type}`}>{type}</option>;
+               })}
+            </select>
+            {subTypeContent}
           </fieldset>
+          <fieldset>
+            <label htmlFor="value">Value</label>
+            <div className="form-icon">
+              <i className="icon-dollar"></i>
+              <input type="number" name="amount" value={this.state.amount} onChange={this.onChangeValue.bind(this)} />
+            </div>
+            <div>
+              <a className="btn" onClick={this.setValue.bind(this, '10.00')}>$10</a>
+              <a className="btn" onClick={this.setValue.bind(this, '25.00')}>$25</a>
+              <a className="btn" onClick={this.setValue.bind(this, '50.00')}>$50</a>
+              <a className="btn" onClick={this.setValue.bind(this, '100.00')}>$100</a>
+              <a className="btn" onClick={this.setValue.bind(this, '200.00')}>$200</a>
+            </div>
+          </fieldset>
+          <fieldset>
+            <label htmlFor="sendToCustomer">
+              <input type="checkbox" name="sendToCustomer" value={this.state.sendToCustomer} onChange={this.toggleSendToCustomer.bind(this)} />
+              Send gift cards to customers?
+            </label>
+            { customerSearch }
+          </fieldset>
+          <fieldset>
+            <label htmlFor="quantity">Quantity</label>
+            {quantity}
+          </fieldset>
+          <fieldset>
+            A CSV file of the gift cards will be created. What would you like to do?
+            <label htmlFor="download_csv">
+              <input type="checkbox" name="download_csv" />
+              Download CSV file immediately after it is created.
+            </label>
+            <label htmlFor="email_csv">
+              <input type="checkbox" name="email_csv" value={this.state.emailCSV} onChange={this.toggleEmailCSV.bind(this)} />
+              Email the CSV file.
+            </label>
+            { emailCSV }
+          </fieldset>
+          <a onClick={this.closeForm.bind(this)}>Cancel</a>
+          <input type="submit" value="Issue Gift Card" />
         </form>
       </div>
     );
