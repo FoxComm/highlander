@@ -217,7 +217,7 @@ object Admin {
           //            }
         }
       } ~
-      pathPrefix("all-orders") {
+      pathPrefix("orders") {
         (get & pathEnd) {
           complete {
             AdminOrders.findAll

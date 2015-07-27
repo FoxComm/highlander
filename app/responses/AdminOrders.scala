@@ -1,7 +1,6 @@
 package responses
 
-import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, Future}
 
 import models._
 import org.joda.time.DateTime
@@ -36,14 +35,16 @@ object AdminOrders {
   }
 
   def build(order: Order, email: String, payment: (OrderPayment, CreditCard)): Root = {
-    Root(
-      id = order.id,
-      referenceNumber = order.referenceNumber,
-      email = email,
-      orderStatus = order.status,
-      paymentStatus = payment._1.status,
-      placedAt = order.placedAt,
-      total = Await.result(order.grandTotal, Duration.Zero) // It's stubbed anyway, right?
-    )
+    order.grandTotal map { grandTotal ⇒
+      Root(
+        id = order.id,
+        referenceNumber = order.referenceNumber,
+        email = email,
+        orderStatus = order.status,
+        paymentStatus = payment._1.status,
+        placedAt = order.placedAt,
+        total = grandTotal
+      )
+    }
   }
 }

@@ -18,6 +18,6 @@ object JsonFormatters {
     StoreCredit.Status.jsonFormat +
     CreditCardPaymentStatus.jsonFormat +
     Money.jsonFormat +
-    DateTimeSerializer // Should not belong here?
+    DateTimeSerializer
 }
 
