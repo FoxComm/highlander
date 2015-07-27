@@ -28,13 +28,6 @@ object Public {
           renderOrNotFound(PublicSku.findById(skuId))
         }
       }
-    } ~
-      pathPrefix("all-orders") {
-        (get & pathEnd) {
-          complete {
-            AdminOrders.findAll
-          }
-        }
-      }
+    }
   }
 }

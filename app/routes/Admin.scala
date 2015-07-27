@@ -11,7 +11,7 @@ import org.json4s.jackson.Serialization.{write ⇒ json}
 import akka.http.scaladsl.model.StatusCodes._
 import org.scalactic._
 import payloads._
-import responses.{AdminNotes, FullOrder}
+import responses.{AdminOrders, AdminNotes, FullOrder}
 import services._
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
@@ -215,6 +215,13 @@ object Admin {
           //                }
           //              }
           //            }
+        }
+      } ~
+      pathPrefix("all-orders") {
+        (get & pathEnd) {
+          complete {
+            AdminOrders.findAll
+          }
         }
       }
     }
