@@ -5,7 +5,8 @@ import Counter from '../forms/counter';
 import Typeahead from '../typeahead/typeahead';
 import CustomerResult from '../customers/result';
 import CustomerStore from '../customers/store';
-import { listenTo, stopListeningTo } from '../../lib/dispatcher';
+import { dispatch, listenTo, stopListeningTo } from '../../lib/dispatcher';
+import Api from '../../lib/api';
 
 const
   types = {
@@ -106,6 +107,21 @@ export default class NewGiftCard extends React.Component {
     });
   }
 
+  submitForm(event) {
+    event.preventDefault();
+
+    Api.submitForm(event.target)
+       .then((res) => {
+         this.closeForm(res);
+       })
+       .catch((err) => { console.log(err); });
+  }
+
+  closeForm(cards) {
+    cards = cards || [];
+    dispatch('cardsAdded', cards);
+  }
+
   render() {
     let
       typeList       = Object.keys(types),
@@ -145,7 +161,7 @@ export default class NewGiftCard extends React.Component {
         </div>
       );
 
-      quantity = <span>{this.state.customers.length}</span>;
+      quantity = <span>{this.state.customers.length} <input type="hidden" name="quantity" value={this.state.customers.length} /></span>;
     } else {
       quantity = <Counter inputName="quantity" />;
     }
@@ -172,7 +188,7 @@ export default class NewGiftCard extends React.Component {
     return (
       <div id="new-gift-card" className="gutter">
         <h2>New Gift Cards</h2>
-        <form action="/gift-cards" method="POST" className="vertical">
+        <form action="/gift-cards" method="POST" className="vertical" onSubmit={this.submitForm.bind(this)}>
           <fieldset>
             <fieldset>
               <label htmlFor="cardType">Gift Card Type</label>
@@ -220,7 +236,7 @@ export default class NewGiftCard extends React.Component {
               </label>
               { emailCSV }
             </fieldset>
-            <a>Cancel</a>
+            <a onClick={this.closeForm.bind(this)}>Cancel</a>
             <input type="submit" value="Issue Gift Card" />
           </fieldset>
         </form>

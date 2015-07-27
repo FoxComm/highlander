@@ -1,5 +1,8 @@
 'use strict';
 
+const
+  parse = require('co-body');
+
 module.exports = function(app, router) {
   const GiftCard = app.seeds.models.GiftCard;
 
@@ -13,5 +16,14 @@ module.exports = function(app, router) {
       this.body = GiftCard.paginate(query.limit, query.page);
     })
     .post('/gift-cards', function *() {
+      let
+        body = yield parse.json(this),
+        cards = [];
+
+      for (let i in body.quantity) {
+        cards.push(new GiftCard());
+      }
+
+      this.body = cards;
     });
 };

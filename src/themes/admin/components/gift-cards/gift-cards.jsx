@@ -5,6 +5,10 @@ import Api from '../../lib/api';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
 import NewGiftCard from './gift-cards-new';
+import { listenTo, stopListeningTo } from '../../lib/dispatcher';
+
+const
+  createEvent = 'cards-added';
 
 export default class GiftCards extends React.Component {
   constructor(props) {
@@ -16,14 +20,30 @@ export default class GiftCards extends React.Component {
   }
 
   componentDidMount() {
+    listenTo(createEvent, this);
     Api.get('/gift-cards')
        .then((cards) => { this.setState({cards: cards}); })
        .catch((err) => { console.log(err); });
   }
 
+  componentWillUnmount() {
+    stopListeningTo(createEvent, this);
+  }
+
   toggleNew() {
     this.setState({
       isNew: !this.state.isNew
+    });
+  }
+
+  onCardsAdded(cards) {
+    let cardList = this.state.cards;
+
+    this.toggleNew();
+
+    Array.prototype.unshift.apply(cardList, cards);
+    this.setState({
+      cards: cardList
     });
   }
 
