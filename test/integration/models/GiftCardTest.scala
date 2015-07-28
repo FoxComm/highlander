@@ -20,7 +20,8 @@ class GiftCardTest extends IntegrationTestBase {
     val adminFactory = Factories.storeAdmin
     val (origin, giftCard) = (for {
       admin ← (StoreAdmins.returningId += adminFactory).map { id ⇒ adminFactory.copy(id = id) }
-      origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id))
+      reason ← Reasons.save(Factories.reason.copy(storeAdminId = admin.id))
+      origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
       gc ← GiftCards.save(Factories.giftCard.copy(originalBalance = 50, originId = origin.id))
       giftCard ← GiftCards.findById(gc.id)
     } yield (origin, giftCard.get)).run().futureValue

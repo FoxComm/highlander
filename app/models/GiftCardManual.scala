@@ -16,7 +16,7 @@ import org.scalactic._
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-final case class GiftCardManual(id: Int = 0, adminId: Int, reason: String, subReason: Option[String] = None) extends
+final case class GiftCardManual(id: Int = 0, adminId: Int, reasonId: Int) extends
 ModelWithIdParameter
 
 object GiftCardManual {}
@@ -24,10 +24,9 @@ object GiftCardManual {}
 class GiftCardManuals(tag: Tag) extends GenericTable.TableWithId[GiftCardManual](tag, "gift_card_manuals") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def adminId = column[Int]("admin_id")
-  def reason = column[String]("reason")
-  def subReason = column[Option[String]]("sub_reason")
+  def reasonId = column[Int]("reason_id")
 
-  def * = (id, adminId, reason, subReason) <> ((GiftCardManual.apply _).tupled, GiftCardManual.unapply)
+  def * = (id, adminId, reasonId) <> ((GiftCardManual.apply _).tupled, GiftCardManual.unapply)
 }
 
 object GiftCardManuals extends TableQueryWithId[GiftCardManual, GiftCardManuals](

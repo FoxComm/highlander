@@ -16,7 +16,7 @@ import org.scalactic._
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-final case class StoreCreditManual(id: Int = 0, adminId: Int, reason: String, subReason: Option[String] = None) extends
+final case class StoreCreditManual(id: Int = 0, adminId: Int, reasonId: Int) extends
 ModelWithIdParameter
 
 object StoreCreditManual {}
@@ -26,10 +26,9 @@ class StoreCreditManuals(tag: Tag) extends GenericTable.TableWithId[StoreCreditM
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def adminId = column[Int]("admin_id")
-  def reason = column[String]("reason")
-  def subReason = column[Option[String]]("sub_reason")
+  def reasonId = column[Int]("reason_id")
 
-  def * = (id, adminId, reason, subReason) <> ((StoreCreditManual.apply _).tupled, StoreCreditManual.unapply)
+  def * = (id, adminId, reasonId) <> ((StoreCreditManual.apply _).tupled, StoreCreditManual.unapply)
 }
 
 object StoreCreditManuals extends TableQueryWithId[StoreCreditManual, StoreCreditManuals](
