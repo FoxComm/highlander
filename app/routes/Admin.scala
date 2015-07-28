@@ -44,7 +44,7 @@ object Admin {
         } ~
         (post & path("disable") & entity(as[payloads.ToggleCustomerDisabled])) { payload ⇒
           complete {
-            CustomerManager.toggleDisabled(customerId, payload.disabled, admin).map(renderGoodOrBad)
+            CustomerManager.toggleDisabled(customerId, payload.disabled, admin).map(renderGoodOrFailures)
           }
         } ~
         (pathPrefix("addresses") & pathEnd) {
@@ -57,7 +57,7 @@ object Admin {
           } ~
           (post & entity(as[CreateAddressPayload])) { payload =>
             complete {
-              AddressManager.create(payload, customerId).map(renderGoodOrBad)
+              AddressManager.create(payload, customerId).map(renderGoodOrFailures)
             }
           }
         } ~
@@ -88,7 +88,7 @@ object Admin {
             (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultCreditCard])) { (cardId, payload) ⇒
               complete {
                 val result = CustomerManager.toggleCreditCardDefault(customerId, cardId, payload.isDefault)
-                result.map(renderGoodOrBad)
+                result.map(renderGoodOrFailures)
               }
             }
           } ~
@@ -177,7 +177,7 @@ object Admin {
                       Future.successful(render("Guest checkout!!"))
 
                     case Some(customer) =>
-                      CreditCardPaymentCreator.run(order, customer, reqPayment).map(renderGoodOrBad)
+                      CreditCardPaymentCreator.run(order, customer, reqPayment).map(renderGoodOrFailures)
                   }
               }
             }

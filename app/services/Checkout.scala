@@ -68,7 +68,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
     }
   }
 
-  def validateAddresses: List[Failure] = {
-    List.empty
+  def validateAddresses: Failures = {
+    Failures()
   }
 }

@@ -17,7 +17,7 @@ case object BraintreeGateway extends PaymentGateway
 final case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ") extends PaymentGateway {
   // Creates a customer in Stripe along with their first CC
   def createCustomerAndCard(customer: Customer, card: CreditCardPayload)
-    (implicit ec: ExecutionContext): Future[StripeCustomer Or List[Failure]] = tryFutureWrap {
+    (implicit ec: ExecutionContext): Future[StripeCustomer Or Failures] = tryFutureWrap {
 
     val base = Map[String, Object](
       "description" -> "FoxCommerce",
@@ -48,7 +48,7 @@ final case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVL
   }
 
   def authorizeAmount(customerId: String, amount: Int)
-                     (implicit ec: ExecutionContext): Future[String Or List[Failure]] = tryFutureWrap {
+                     (implicit ec: ExecutionContext): Future[String Or Failures] = tryFutureWrap {
     val capture: java.lang.Boolean = false
     val chargeMap: Map[String, Object] = Map("amount" -> "100", "currency" -> "usd",
       "customer" -> customerId, "capture" -> capture)
@@ -62,10 +62,11 @@ final case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVL
     Good(charge.getId)
   }
 
-  private [this] def tryFutureWrap[A](f: => A Or List[Failure])(implicit ec: ExecutionContext): Future[A Or List[Failure]] = {
+  private [this] def tryFutureWrap[A](f: ⇒ A Or Failures)
+                                     (implicit ec: ExecutionContext): Future[A Or Failures] = {
     Future(f).recover {
-      case t: InvalidRequestException ⇒ Bad(List(StripeFailure(t)))
-      case t: CardException           ⇒ Bad(List(StripeFailure(t)))
+      case t: InvalidRequestException ⇒ Bad(Failures(StripeFailure(t)))
+      case t: CardException           ⇒ Bad(Failures(StripeFailure(t)))
     }
   }
 

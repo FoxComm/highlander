@@ -1,7 +1,7 @@
 package models
 
 import com.pellucid.sealerate
-import services.Failure
+import services.{Failures, Failure}
 import slick.dbio
 import slick.dbio.Effect.{Read, Write}
 import slick.profile.FixedSqlStreamingAction
