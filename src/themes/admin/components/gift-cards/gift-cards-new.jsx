@@ -26,7 +26,9 @@ export default class NewGiftCard extends React.Component {
       sendToCustomer: false,
       customers: [],
       users: [],
-      emailCSV: false
+      emailCSV: false,
+      customerMessageCount: 0,
+      csvMessageCount: 0
     };
   }
 
@@ -76,11 +78,11 @@ export default class NewGiftCard extends React.Component {
   }
 
   onGiftCardCustomerSelected(customer) {
-    let customerList = this.state.customers;
-
-    var exists = customerList.filter(function (item) {
-      return item.id === customer.id;
-    }).length > 0;
+    let
+      customerList = this.state.customers,
+      exists = customerList.filter(function (item) {
+        return item.id === customer.id;
+      }).length > 0;
 
     if (!exists) {
       customerList.push(customer);
@@ -92,11 +94,11 @@ export default class NewGiftCard extends React.Component {
   }
 
   onEmailCsvUserSelected(user) {
-    let userList = this.state.users;
-
-    var exists = userList.filter(function (item) {
-      return item.id === user.id;
-    }).length > 0;
+    let
+      userList = this.state.users,
+      exists = userList.filter(function (item) {
+        return item.id === user.id;
+      }).length > 0;
 
     if (!exists) {
       userList.push(user);
@@ -122,6 +124,28 @@ export default class NewGiftCard extends React.Component {
     dispatch('cardsAdded', cards);
   }
 
+  removeCustomer(idx) {
+    let customerList = this.state.customers;
+
+    customerList.splice(idx, 1);
+    this.setState({customers: customerList});
+  }
+
+  removeUser(idx) {
+    let userList = this.state.users;
+
+    userList.splice(idx, 1);
+    this.setState({users: userList});
+  }
+
+  changeCustomerMessage(event) {
+    this.setState({customerMessageCount: event.target.value.length});
+  }
+
+  changeCSVMessage(event) {
+    this.setState({csvMessageCount: event.target.value.length});
+  }
+
   render() {
     let
       typeList       = Object.keys(types),
@@ -132,11 +156,11 @@ export default class NewGiftCard extends React.Component {
 
     if (this.state.subTypes.length > 0) {
       subTypeContent = (
-        <div>
+        <div id="subTypes">
           <label htmlFor="cardSubType">Subtype</label>
           <select name="cardSubType">
-            {this.state.subTypes.map((subType) => {
-              return <option val={subType}>{subType}</option>;
+            {this.state.subTypes.map((subType, idx) => {
+              return <option key={`subType-${idx}`} val={subType}>{subType}</option>;
              })};
           </select>
         </div>
@@ -145,19 +169,22 @@ export default class NewGiftCard extends React.Component {
 
     if (this.state.sendToCustomer) {
       customerSearch = (
-        <div>
-          <Typeahead store={CustomerStore} component={CustomerResult} selectEvent="giftCardCustomerSelected" />
+        <div id="customerSearch">
+          <Typeahead store={CustomerStore} component={CustomerResult} selectEvent="giftCardCustomerSelected" label="Choose customers:" name="customerQuery" />
           <ul id="customerList">
             {this.state.customers.map((customer, idx) => {
               return (
                 <li key={`customer-${customer.id}`}>
                   {customer.firstName} {customer.lastName}
                   <input type="hidden" name="customers[]" id={`customer_${idx}`} value={customer.id} />
+                  <a onClick={this.removeCustomer.bind(this, idx)}>&times;</a>
                 </li>
               );
              })}
           </ul>
-          <textarea name="customer_message"></textarea>
+          <label htmlFor="customerMessage">Write a message for customers (optional):</label>
+          <div className="counter">{this.state.customerMessageCount}/1000</div>
+          <textarea name="customerMessage" maxLength="1000" onChange={this.changeCustomerMessage.bind(this)}></textarea>
         </div>
       );
 
@@ -168,19 +195,22 @@ export default class NewGiftCard extends React.Component {
 
     if (this.state.emailCSV) {
       emailCSV = (
-        <div>
-          <Typeahead store={CustomerStore} component={CustomerResult} selectEvent="emailCsvUserSelected" />
+        <div id="userSearch">
+          <Typeahead store={CustomerStore} component={CustomerResult} selectEvent="emailCsvUserSelected" label="Choose users:" name="csvQuery" />
           <ul id="internalUserList">
             {this.state.users.map((user, idx) => {
               return (
                 <li key={`user-${user.id}`}>
                   {user.firstName} {user.lastName}
                   <input type="hidden" name="users[]" id={`user_${idx}`} value={user.id} />
+                  <a onClock={this.removeUser.bind(this, idx)}>&times;</a>
                 </li>
               );
              })}
           </ul>
-          <textarea name="internal_message"></textarea>
+          <label htmlFor="internalMessage">Write a message (optional):</label>
+          <div className="counter">{this.state.csvMessageCount}/1000</div>
+          <textarea name="internalMessage" maxLength="1000" onChange={this.changeCSVMessage.bind(this)}></textarea>
         </div>
       );
     }
@@ -190,21 +220,23 @@ export default class NewGiftCard extends React.Component {
         <h2>New Gift Cards</h2>
         <form action="/gift-cards" method="POST" className="vertical" onSubmit={this.submitForm.bind(this)}>
           <fieldset>
-            <label htmlFor="cardType">Gift Card Type</label>
-            <select name="cardType" onChange={this.setType.bind(this)}>
-              {typeList.map((type, idx) => {
-                return <option val={type} key={`${idx}-${type}`}>{type}</option>;
-               })}
-            </select>
+            <div id="cardTypes">
+              <label htmlFor="cardType">Gift Card Type</label>
+              <select name="cardType" onChange={this.setType.bind(this)}>
+                {typeList.map((type, idx) => {
+                  return <option val={type} key={`${idx}-${type}`}>{type}</option>;
+                 })}
+              </select>
+            </div>
             {subTypeContent}
           </fieldset>
           <fieldset>
             <label htmlFor="value">Value</label>
             <div className="form-icon">
               <i className="icon-dollar"></i>
-              <input type="number" name="balance" value={this.state.balance} onChange={this.onChangeValue.bind(this)} />
+              <input type="number" className="control" name="balance" value={this.state.balance} onChange={this.onChangeValue.bind(this)} />
             </div>
-            <div>
+            <div id="balances">
               <a className="btn" onClick={this.setValue.bind(this, '10.00')}>$10</a>
               <a className="btn" onClick={this.setValue.bind(this, '25.00')}>$25</a>
               <a className="btn" onClick={this.setValue.bind(this, '50.00')}>$50</a>
@@ -213,7 +245,7 @@ export default class NewGiftCard extends React.Component {
             </div>
           </fieldset>
           <fieldset>
-            <label htmlFor="sendToCustomer">
+            <label htmlFor="sendToCustomer" className="checkbox">
               <input type="checkbox" name="sendToCustomer" value={this.state.sendToCustomer} onChange={this.toggleSendToCustomer.bind(this)} />
               Send gift cards to customers?
             </label>
@@ -224,7 +256,7 @@ export default class NewGiftCard extends React.Component {
             {quantity}
           </fieldset>
           <fieldset>
-            A CSV file of the gift cards will be created. What would you like to do?
+            A CSV file of the gift cards can be created. What would you like to do?
             <label htmlFor="download_csv">
               <input type="checkbox" name="download_csv" />
               Download CSV file immediately after it is created.

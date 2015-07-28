@@ -62,11 +62,18 @@ export default class Typeahead extends React.Component {
   }
 
   render() {
+    let labelContent = null;
+
+    if (this.props.label) {
+      labelContent = <label htmlFor={this.props.name}>{this.props.label}</label>;
+    }
+
     return (
       <div className="typeahead">
+        {labelContent}
         <div className="form-icon">
           <i className="icon-search"></i>
-          <input type="text" className="control" onChange={this.textChange.bind(this)} onKeyUp={this.inputKeyUp.bind(this)} />
+          <input type="text" name={this.props.name} className="control" onChange={this.textChange.bind(this)} onKeyUp={this.inputKeyUp.bind(this)} />
         </div>
         <TypeaheadResults onItemSelected={this.onItemSelected.bind(this)} selectEvent={this.props.selectEvent} component={this.props.component} store={this.props.store} showResults={this.state.showResults} updating={this.state.updating} />
       </div>
@@ -77,5 +84,11 @@ export default class Typeahead extends React.Component {
 Typeahead.propTypes = {
   selectEvent: React.PropTypes.string,
   component: React.PropTypes.func,
-  store: React.PropTypes.object
+  store: React.PropTypes.object,
+  label: React.PropTypes.string,
+  name: React.PropTypes.string
+};
+
+Typeahead.defaultProps = {
+  name: 'typeahead'
 };

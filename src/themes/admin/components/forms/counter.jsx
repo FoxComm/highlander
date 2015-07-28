@@ -36,7 +36,7 @@ export default class Counter extends React.Component {
     return (
       <div>
         <button onClick={this.decreaseTotal.bind(this)}><i className="icon-down-dir"></i></button>
-        <input type="number" name={this.props.inputName} value={this.state.inputValue} onChange={this.onChange.bind(this)} />
+        <input type="number" name={this.props.inputName} value={this.state.inputValue} onChange={this.onChange.bind(this)} className="control" />
         <button onClick={this.increaseTotal.bind(this)}><i className="icon-up-dir"></i></button>
       </div>
     );
