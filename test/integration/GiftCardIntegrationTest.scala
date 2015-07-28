@@ -1,6 +1,6 @@
 import akka.http.scaladsl.model.StatusCodes
 
-import models.{Customers, GiftCard, GiftCardManuals, GiftCards, StoreAdmins}
+import models.{Reasons, Customers, GiftCard, GiftCardManuals, GiftCards, StoreAdmins}
 import org.scalatest.BeforeAndAfterEach
 import util.IntegrationTestBase
 import utils.Seeds.Factories
@@ -18,7 +18,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
   "admin API" - {
     "finds a gift card by id" in new Fixture {
       val gc = (for {
-        origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id))
+        origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
         gc ← GiftCards.save(Factories.giftCard.copy(originId = origin.id))
       } yield gc).run().futureValue
 
@@ -35,9 +35,10 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
   trait Fixture {
     val adminFactory = Factories.storeAdmin
-    val admin = (for {
+    val (admin, reason) = (for {
       admin ← (StoreAdmins.returningId += adminFactory).map { id ⇒ adminFactory.copy(id = id) }
-    } yield admin).run().futureValue
+      reason ← Reasons.save(Factories.reason.copy(storeAdminId = admin.id))
+    } yield (admin, reason)).run().futureValue
   }
 }
 
