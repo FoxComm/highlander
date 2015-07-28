@@ -20,7 +20,7 @@ module.exports = function(app, router) {
         body = yield parse.json(this),
         cards = [];
 
-      for (let i in body.quantity) {
+      for (let i = body.quantity; i > 0; i--) {
         cards.push(new GiftCard());
       }
 
