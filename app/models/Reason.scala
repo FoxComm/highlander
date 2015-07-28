@@ -29,7 +29,7 @@ class Reasons(tag: Tag) extends GenericTable.TableWithId[Reason](tag, "reasons")
 
   def * = (id, storeAdminId, body, parentId) <> ((Reason.apply _).tupled, Reason.unapply)
 
-  def author = foreignKey("store_admins", storeAdminId, TableQuery[StoreAdmins])(_.id)
+  def author = foreignKey(StoreAdmins.tableName, storeAdminId, StoreAdmins)(_.id)
 }
 
 object Reasons extends TableQueryWithId[Reason, Reasons](

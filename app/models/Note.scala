@@ -45,7 +45,7 @@ class Notes(tag: Tag) extends GenericTable.TableWithId[Note](tag, "notes") with 
 
   def * = (id, storeAdminId, referenceId, referenceType, body) <> ((Note.apply _).tupled, Note.unapply)
 
-  def author = foreignKey("store_admins", storeAdminId, TableQuery[StoreAdmins])(_.id) // what does this do? =]
+  def author = foreignKey(StoreAdmins.tableName, storeAdminId, StoreAdmins)(_.id)
 }
 
 object Notes extends TableQueryWithId[Note, Notes](
