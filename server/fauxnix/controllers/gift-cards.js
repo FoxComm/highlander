@@ -34,9 +34,12 @@ module.exports = function(app, router) {
           availableBalance: balance,
           state: 'Active',
           date: moment.utc().add(1, 'y').toDate()
-        };
+        },
+        quantity = body.quantity;
 
-      for (let i = 0; i < body.quantity; i++) {
+      if (body['customers[]']) quantity = body['customers[]'].length;
+
+      for (let i = 0; i < quantity; i++) {
         let
           cardData = _.extend({}, data);
         if (body.sendToCustomer) {
