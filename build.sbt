@@ -71,10 +71,11 @@ lazy val phoenixScala = (project in file(".")).
       "pellucid bintray"   at "http://dl.bintray.com/pellucid/maven"
     ),
     libraryDependencies ++= {
-      val akkaV       = "2.3.11"
-      val akkaHttpV   = "1.0"
-      val scalaTestV  = "2.2.5"
-      val monocleV    = "1.1.1"
+      val akkaV      = "2.3.11"
+      val akkaHttpV  = "1.0"
+      val scalaTestV = "2.2.5"
+      val monocleV   = "1.1.1"
+      val json4sVersion = "3.3.0.RC3"
 
       Seq(
         // Akka
@@ -83,9 +84,9 @@ lazy val phoenixScala = (project in file(".")).
         "com.typesafe.akka"    %% "akka-stream-experimental" % akkaHttpV,
         "com.typesafe.akka"    %% "akka-http-experimental"   % akkaHttpV,
         // JSON
-        "org.json4s"           %% "json4s-jackson"           % "3.2.11",
-        ("de.heikoseeberger"    %% "akka-http-json4s"         % "0.9.1").
-          excludeAll(ExclusionRule(organization = "com.typesafe.akka")),
+        "org.json4s"           %% "json4s-core"              % json4sVersion,
+        "org.json4s"           %% "json4s-jackson"           % json4sVersion,
+        "de.heikoseeberger"    %% "akka-http-json4s"         % "1.0.0",
         // Database
         "com.typesafe.slick"   %% "slick"                    % "3.0.0",
         "com.zaxxer"           %  "HikariCP"                 % "2.3.8",
