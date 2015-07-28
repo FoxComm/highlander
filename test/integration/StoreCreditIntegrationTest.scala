@@ -1,6 +1,6 @@
 import akka.http.scaladsl.model.StatusCodes
 
-import models.{Customers, StoreAdmins, StoreCredit, StoreCreditCsrs, StoreCredits}
+import models.{Customers, StoreAdmins, StoreCredit, StoreCreditManuals, StoreCredits}
 import org.scalatest.BeforeAndAfterEach
 import util.IntegrationTestBase
 import utils.Seeds.Factories
@@ -18,7 +18,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
   "admin API" - {
     "returns store credits belonging to the customer" in new Fixture {
       (for {
-        origin ← StoreCreditCsrs.save(Factories.storeCreditCsr.copy(adminId = admin.id))
+        origin ← StoreCreditManuals.save(Factories.storeCreditManual.copy(adminId = admin.id))
         sc ← StoreCredits.save(Factories.storeCredit.copy(customerId = customer.id, originId = origin.id))
       } yield sc).run().futureValue
 
@@ -39,7 +39,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
     "finds a store credit by id" in new Fixture {
       val sc = (for {
-        origin ← StoreCreditCsrs.save(Factories.storeCreditCsr.copy(adminId = admin.id))
+        origin ← StoreCreditManuals.save(Factories.storeCreditManual.copy(adminId = admin.id))
         sc ← StoreCredits.save(Factories.storeCredit.copy(customerId = customer.id, originId = origin.id))
       } yield sc).run().futureValue
 

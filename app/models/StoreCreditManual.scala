@@ -16,21 +16,22 @@ import org.scalactic._
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-final case class GiftCardCsr(id: Int = 0, adminId: Int, reason: String, subReason: Option[String] = None) extends
+final case class StoreCreditManual(id: Int = 0, adminId: Int, reasonId: Int) extends
 ModelWithIdParameter
 
-object GiftCardCsr {}
+object StoreCreditManual {}
 
-class GiftCardCsrs(tag: Tag) extends GenericTable.TableWithId[GiftCardCsr](tag, "gift_card_csrs") with RichTable {
+class StoreCreditManuals(tag: Tag) extends GenericTable.TableWithId[StoreCreditManual](tag, "store_credit_manuals")
+  with RichTable {
+
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def adminId = column[Int]("admin_id")
-  def reason = column[String]("reason")
-  def subReason = column[Option[String]]("sub_reason")
+  def reasonId = column[Int]("reason_id")
 
-  def * = (id, adminId, reason, subReason) <> ((GiftCardCsr.apply _).tupled, GiftCardCsr.unapply)
+  def * = (id, adminId, reasonId) <> ((StoreCreditManual.apply _).tupled, StoreCreditManual.unapply)
 }
 
-object GiftCardCsrs extends TableQueryWithId[GiftCardCsr, GiftCardCsrs](
-  idLens = GenLens[GiftCardCsr](_.id)
-  )(new GiftCardCsrs(_)){
+object StoreCreditManuals extends TableQueryWithId[StoreCreditManual, StoreCreditManuals](
+  idLens = GenLens[StoreCreditManual](_.id)
+  )(new StoreCreditManuals(_)){
 }

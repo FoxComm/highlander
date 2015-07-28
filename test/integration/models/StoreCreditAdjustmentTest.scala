@@ -13,7 +13,7 @@ class StoreCreditAdjustmentTest extends IntegrationTestBase {
   "StoreCreditAdjustment" - {
     "debit must be greater than zero" in new Fixture {
       val sc = (for {
-        origin ← StoreCreditCsrs.save(Factories.storeCreditCsr.copy(adminId = admin.id))
+        origin ← StoreCreditManuals.save(Factories.storeCreditManual.copy(adminId = admin.id, reasonId = reason.id))
         sc ← StoreCredits.save(Factories.storeCredit.copy(originId = origin.id))
       } yield sc).run().futureValue
 
@@ -31,7 +31,7 @@ class StoreCreditAdjustmentTest extends IntegrationTestBase {
 
     "updates the StoreCredit's currentBalance and availableBalance after insert" in new Fixture {
       val sc = (for {
-        origin ← StoreCreditCsrs.save(Factories.storeCreditCsr.copy(adminId = admin.id))
+        origin ← StoreCreditManuals.save(Factories.storeCreditManual.copy(adminId = admin.id, reasonId = reason.id))
         sc ← StoreCredits.save(Factories.storeCredit.copy(originalBalance = 500, originId = origin.id))
         _ ← StoreCredits.debit(storeCredit = sc, debit = 50, capture = true)
         _ ← StoreCredits.debit(storeCredit = sc, debit = 25, capture = true)
@@ -51,10 +51,11 @@ class StoreCreditAdjustmentTest extends IntegrationTestBase {
 
   trait Fixture {
     val adminFactory = Factories.storeAdmin
-    val (admin, customer) = (for {
+    val (admin, customer, reason) = (for {
       admin ← (StoreAdmins.returningId += adminFactory).map { id ⇒ adminFactory.copy(id = id) }
       customer ← Customers.save(Factories.customer)
-    } yield (admin, customer)).run().futureValue
+      reason ← Reasons.save(Factories.reason.copy(storeAdminId = admin.id))
+    } yield (admin, customer, reason)).run().futureValue
   }
 }
 
