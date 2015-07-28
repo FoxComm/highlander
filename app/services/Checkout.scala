@@ -26,7 +26,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
           if (errors.isEmpty) {
             completeOrderAndCreateNew(order).map(Good(_))
           } else {
-            Future.successful(Bad(Failures(errors: _*)))
+            Future.successful(Bad(errors))
           }
         }
       } else {
@@ -46,7 +46,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
   def decrementInventory(order: Order): Future[Int] =
     InventoryAdjustments.createAdjustmentsForOrder(order)
 
-  def authorizePayments: Future[Map[OrderPayment, List[Failure]]] = {
+  def authorizePayments: Future[Map[OrderPayment, Failures]] = {
     OrderPayments.findAllPaymentsFor(this.order).flatMap { records =>
       Future.sequence(records.map { case (payment, creditCard) =>
         creditCard.authorize(payment.appliedAmount).flatMap { or ⇒
@@ -59,8 +59,8 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
             Future.successful((payment, or))
           })
         }
-      }).map { (results: Seq[(OrderPayment, Or[String, List[Failure]])]) =>
-        results.foldLeft(Map[OrderPayment, List[Failure]]()) { case (errors, (payment, result)) =>
+      }).map { (results: Seq[(OrderPayment, Or[String, Failures])]) =>
+        results.foldLeft(Map.empty[OrderPayment, Failures]) { case (errors, (payment, result)) =>
           errors.updated(payment,
             result.fold({ good => List.empty }, { bad => bad }))
         }

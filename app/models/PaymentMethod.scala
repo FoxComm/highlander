@@ -5,7 +5,7 @@ import com.stripe.model.{Card ⇒ StripeCard}
 import com.wix.accord.dsl.{validator ⇒ createValidator}
 import com.wix.accord.{Failure ⇒ ValidationFailure}
 import org.scalactic._
-import services.Failure
+import services.{Failures, Failure}
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -13,7 +13,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import utils.ADT
 
 abstract class PaymentMethod {
-  def authorize(amount: Int)(implicit ec: ExecutionContext): Future[String Or List[Failure]]
+  def authorize(amount: Int)(implicit ec: ExecutionContext): Future[String Or Failures]
 }
 
 object PaymentMethods {

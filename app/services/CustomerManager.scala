@@ -11,18 +11,18 @@ import utils.jdbc.{RecordNotUnique, withUniqueConstraint}
 
 object CustomerManager {
   def toggleDisabled(customerId: Int, disabled: Boolean, admin: StoreAdmin)
-    (implicit ec: ExecutionContext, db: Database): Future[Customer Or Failure] = {
+    (implicit ec: ExecutionContext, db: Database): Future[Customer Or Failures] = {
     db.run(for {
       updated ← Customers.filter(_.id === customerId).map { t ⇒ (t.disabled, t.disabledBy) }.
         updateReturning(Customers.map(identity), (disabled, Some(admin.id))).headOption
     } yield updated).map {
       case Some(c) ⇒ Good(c)
-      case None ⇒ Bad(NotFoundFailure(Customer, customerId))
+      case None ⇒ Bad(NotFoundFailure(Customer, customerId).single)
     }
   }
 
   def toggleCreditCardDefault(customerId: Int, cardId: Int, isDefault: Boolean)
-    (implicit ec: ExecutionContext, db: Database): Future[CreditCard Or Failure] = {
+    (implicit ec: ExecutionContext, db: Database): Future[CreditCard Or Failures] = {
 
     val result = withUniqueConstraint {
       CreditCards._findById(cardId).extract.filter(_.customerId === customerId).map(_.isDefault).
@@ -31,8 +31,8 @@ object CustomerManager {
 
     result.map {
       case Good(Some(cc)) ⇒ Good(cc)
-      case Good(None)     ⇒ Bad(NotFoundFailure(CreditCards, cardId))
-      case Bad(f)         ⇒ Bad(f)
+      case Good(None)     ⇒ Bad(NotFoundFailure(CreditCards, cardId).single)
+      case Bad(f)         ⇒ Bad(f.single)
     }
   }
 }

@@ -7,7 +7,7 @@ import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import monocle.macros.GenLens
 import org.scalactic.Or
 import payloads.CreditCardPayload
-import services.{Failure, StripeGateway}
+import services.{Failures, Failure, StripeGateway}
 import slick.dbio.Effect
 import slick.dbio.Effect.Write
 import slick.driver.PostgresDriver.api._
@@ -22,7 +22,7 @@ final case class CreditCard(id: Int = 0, customerId: Int, gatewayCustomerId: Str
   with ModelWithIdParameter
   with Validation[CreditCard] {
 
-  def authorize(amount: Int)(implicit ec: ExecutionContext): Future[String Or List[Failure]] = {
+  def authorize(amount: Int)(implicit ec: ExecutionContext): Future[String Or Failures] = {
     new StripeGateway().authorizeAmount(gatewayCustomerId, amount)
   }
 

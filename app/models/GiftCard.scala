@@ -33,7 +33,7 @@ final case class GiftCard(id: Int = 0, originId: Int, originType: String, code: 
     giftCard.code is notEmpty
   }
 
-  def authorize(amount: Int)(implicit ec: ExecutionContext): Future[String Or List[Failure]] = {
+  def authorize(amount: Int)(implicit ec: ExecutionContext): Future[String Or Failures] = {
     Future.successful(Good("authenticated"))
   }
 

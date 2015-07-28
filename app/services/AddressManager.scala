@@ -26,9 +26,9 @@ object AddressManager {
           state ← States.findById(newAddress.stateId)
         } yield (newAddress, state)).map {
           case (address, Some(state)) ⇒ Good(Response.build(address, state))
-          case (_, None)              ⇒ Bad(Failures(NotFoundFailure(State, address.stateId)))
+          case (_, None)              ⇒ Bad(NotFoundFailure(State, address.stateId).single)
         }
-      case f: Invalid ⇒ Future.successful(Bad(Failures(ValidationFailure(f))))
+      case f: Invalid ⇒ Future.successful(Bad(ValidationFailure(f).single))
     }
   }
 

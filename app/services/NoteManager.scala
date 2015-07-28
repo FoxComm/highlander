@@ -18,7 +18,7 @@ import slick.driver.PostgresDriver.api._
 object NoteManager {
 
   def createOrderNote(order: Order, author: StoreAdmin, payload: payloads.CreateNote)
-    (implicit ec: ExecutionContext, db: Database): Future[Root Or ValidationFailure] = {
+    (implicit ec: ExecutionContext, db: Database): Future[Root Or Failures] = {
     createNote(Note(storeAdminId = author.id, referenceId = order.id, referenceType = Note.Order,
       body = payload.body)).map { result ⇒
       result.map(AdminNotes.build(_, author))
@@ -50,12 +50,12 @@ object NoteManager {
 //  }
 
   private def createNote(note: Note)
-    (implicit ec: ExecutionContext, db: Database): Future[Note Or ValidationFailure] = {
+    (implicit ec: ExecutionContext, db: Database): Future[Note Or Failures] = {
     note.validate match {
       case Success ⇒
         Notes.save(note).run().map(Good(_))
       case f @ Failure(_) ⇒
-        Future.successful(Bad(ValidationFailure(f)))
+        Future.successful(Bad(ValidationFailure(f).single))
     }
   }
 }
