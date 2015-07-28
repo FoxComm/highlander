@@ -18,6 +18,7 @@ lazy val commonSettings = Seq(
   )
 )
 
+
 lazy val phoenixScala = (project in file(".")).
   settings(commonSettings: _*).
   configs(IT).
@@ -98,7 +99,7 @@ lazy val phoenixScala = (project in file(".")).
         "ch.qos.logback"       %  "logback-core"              % "1.1.3",
         "ch.qos.logback"       %  "logback-classic"           % "1.1.3",
         // Other
-        "org.spire-math"       %% "cats"                      % "0.1.2",
+        ("org.spire-math"       %% "cats"                      % "0.1.2").excludeAll(noScalaCheckPlease),
         "com.stripe"           %  "stripe-java"               % "1.31.0",
         "org.slf4j"            %  "slf4j-api"                 % "1.7.12",
         "joda-time"            %  "joda-time"                 % "2.8.1",
@@ -138,3 +139,6 @@ lazy val IT = config("it") extend Test
 
 lazy val seed = inputKey[Unit]("Resets and seeds the database")
 seed := { (runMain in Compile).fullInput(" utils.Seeds").evaluated }
+
+/** Cats pulls in disciple which pulls in scalacheck, and SBT will notice and set up a test for ScalaCheck */
+lazy val noScalaCheckPlease: ExclusionRule = ExclusionRule(organization = "org.scalacheck")
