@@ -2,7 +2,7 @@ import akka.http.scaladsl.model.StatusCodes
 import models._
 import org.joda.time.DateTime
 import org.scalatest.time.{Milliseconds, Seconds, Span}
-import payloads.{CreateAddressPayload, CreditCardPayload}
+import payloads.{CreateAddressPayload, CreateCreditCard}
 import responses.{AdminNotes, FullOrder}
 import services.NoteManager
 import util.{IntegrationTestBase, StripeSupport}
@@ -37,7 +37,7 @@ class OrderIntegrationTest extends IntegrationTestBase
   "handles credit cards" - {
     val today = new DateTime
     val customerStub = Customer(email = "yax@yax.com", password = "password", firstName = "Yax", lastName = "Fuentes")
-    val payload = CreditCardPayload(holderName = "Jax", number = StripeSupport.successfulCard, cvv = "123",
+    val payload = CreateCreditCard(holderName = "Jax", number = StripeSupport.successfulCard, cvv = "123",
       expYear = today.getYear + 1, expMonth = today.getMonthOfYear, isDefault = true)
 
     "fails if the order is not found" in {

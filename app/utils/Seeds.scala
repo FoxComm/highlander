@@ -108,8 +108,6 @@ object Seeds {
       Address(customerId = 0, stateId = 1, name = "Home", street1 = "555 E Lake Union St.",
         street2 = None, city = "Seattle", zip = "12345")
 
-    def billingAddress = BillingAddress()
-
     def shippingAddress = ShippingAddress(id = 0, isDefault = true)
 
     def creditCard =

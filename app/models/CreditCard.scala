@@ -6,7 +6,7 @@ import com.stripe.model.{Customer ⇒ StripeCustomer}
 import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import monocle.macros.GenLens
 import org.scalactic.Or
-import payloads.CreditCardPayload
+import payloads.CreateCreditCard
 import services.{Failure, StripeGateway}
 import slick.dbio.Effect
 import slick.dbio.Effect.Write
@@ -16,8 +16,8 @@ import slick.profile.{FixedSqlStreamingAction, FixedSqlAction}
 import utils._
 import validators._
 
-final case class CreditCard(id: Int = 0, customerId: Int, gatewayCustomerId: String, lastFour: String,
-  expMonth: Int, expYear: Int, isDefault: Boolean = false)
+final case class CreditCard(id: Int = 0, customerId: Int, billingAddressId: Int = 0, gatewayCustomerId: String,
+  lastFour: String, expMonth: Int, expYear: Int, isDefault: Boolean = false)
   extends PaymentMethod
   with ModelWithIdParameter
   with Validation[CreditCard] {
@@ -34,7 +34,7 @@ final case class CreditCard(id: Int = 0, customerId: Int, gatewayCustomerId: Str
 }
 
 object CreditCard {
-  def build(c: StripeCustomer, payload: CreditCardPayload): CreditCard = {
+  def build(c: StripeCustomer, payload: CreateCreditCard): CreditCard = {
     CreditCard(customerId = 0, gatewayCustomerId = c.getId, lastFour = payload.lastFour,
       expMonth = payload.expMonth, expYear = payload.expYear, isDefault = payload.isDefault)
   }
@@ -46,14 +46,18 @@ class CreditCards(tag: Tag)
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def customerId = column[Int]("customer_id")
+  def billingAddressId = column[Int]("billing_address_id")
   def gatewayCustomerId = column[String]("gateway_customer_id")
   def lastFour = column[String]("last_four")
   def expMonth = column[Int]("exp_month")
   def expYear = column[Int]("exp_year")
   def isDefault = column[Boolean]("is_default")
 
-  def * = (id, customerId, gatewayCustomerId,
+  def * = (id, customerId, billingAddressId, gatewayCustomerId,
     lastFour, expMonth, expYear, isDefault) <> ((CreditCard.apply _).tupled, CreditCard.unapply)
+
+  def customer        = foreignKey(Customers.tableName, customerId, Customers)(_.id)
+  def billingAddress  = foreignKey(Addresses.tableName, billingAddressId, Addresses)(_.id)
 }
 
 object CreditCards extends TableQueryWithId[CreditCard, CreditCards](

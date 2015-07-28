@@ -167,7 +167,7 @@ object Admin {
               renderOrNotFound(Orders.findByRefNum(refNum).result.headOption.run())
             }
           } ~
-          (post & path("credit-card") & entity(as[CreditCardPayload])) { reqPayment =>
+          (post & path("credit-card") & entity(as[CreateCreditCard])) { reqPayment =>
             complete {
               Orders.findByRefNum(refNum).result.headOption.run().flatMap {
                 case None => Future.successful(notFoundResponse)
