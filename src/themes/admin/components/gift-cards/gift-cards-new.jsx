@@ -217,7 +217,7 @@ export default class NewGiftCard extends React.Component {
 
     return (
       <div id="new-gift-card" className="gutter">
-        <h2>New Gift Cards</h2>
+        <h2>Issue New Gift Cards</h2>
         <form action="/gift-cards" method="POST" className="vertical" onSubmit={this.submitForm.bind(this)}>
           <fieldset>
             <div id="cardTypes">
