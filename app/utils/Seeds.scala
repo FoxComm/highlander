@@ -119,12 +119,12 @@ object Seeds {
     def storeCredit = StoreCredit(customerId = 0, originId = 0, originType = "FIXME", originalBalance = 50,
       currency = Currency.USD)
 
-    def storeCreditCsr = StoreCreditCsr(adminId = 0, reason = "Because, reasons.")
+    def storeCreditManual = StoreCreditManual(adminId = 0, reason = "Because, reasons.")
 
     def giftCard = GiftCard(currency = Currency.USD, originId = 0, originType = "FIXME", code = "ABC-123",
       originalBalance = 50)
 
-    def giftCardCsr = GiftCardCsr(adminId = 0, reason = "Because, reasons.")
+    def giftCardManual = GiftCardManual(adminId = 0, reason = "Because, reasons.")
 
     def shippingMethods = Seq(
       ShippingMethod(adminDisplayName = "UPS Ground", storefrontDisplayName = "UPS Ground", defaultPrice = 10, isActive = true),

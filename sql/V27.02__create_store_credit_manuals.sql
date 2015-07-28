@@ -1,4 +1,4 @@
-create table store_credit_csrs (
+create table store_credit_manuals (
     id integer primary key,
     admin_id integer not null,
     reason character varying(255) not null,
@@ -8,11 +8,11 @@ create table store_credit_csrs (
     foreign key (admin_id) references store_admins(id) on update restrict on delete restrict
 );
 
-create index store_credit_csrs_idx on store_credit_csrs (admin_id);
+create index store_credit_manuals_idx on store_credit_manuals (admin_id);
 
-create trigger set_store_credits_csrs_id
+create trigger set_store_credits_manuals_id
     before insert
-    on store_credit_csrs
+    on store_credit_manuals
     for each row
     execute procedure set_store_credit_origin_id();
 

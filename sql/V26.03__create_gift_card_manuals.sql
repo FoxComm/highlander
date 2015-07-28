@@ -1,4 +1,4 @@
-create table gift_card_csrs (
+create table gift_card_manuals (
     id integer primary key,
     admin_id integer not null,
     reason character varying(255) not null,
@@ -8,11 +8,11 @@ create table gift_card_csrs (
     foreign key (admin_id) references store_admins(id) on update restrict on delete restrict
 );
 
-create index gift_card_csrs_idx on gift_card_csrs (admin_id);
+create index gift_card_manuals_idx on gift_card_manuals (admin_id);
 
-create trigger set_gift_card_csrs_id
+create trigger set_gift_card_manuals_id
     before insert
-    on gift_card_csrs
+    on gift_card_manuals
     for each row
     execute procedure set_gift_card_origin_id();
 
