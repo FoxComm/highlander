@@ -18,8 +18,8 @@ class ShippingAddresses(tag: Tag) extends TableWithId[ShippingAddress](tag, "shi
 
   def * = (id, customerId, isDefault) <> ((ShippingAddress.apply _).tupled, ShippingAddress.unapply)
 
-  def address = foreignKey("shipping_addresses_address_id_fkey", id, TableQuery[Addresses])(_.id)
-  def customer = foreignKey("shipping_addresses_address_id_fkey", customerId, TableQuery[Addresses])(_.id)
+  def address = foreignKey(Addresses.tableName, id, Addresses)(_.id)
+  def customer = foreignKey(Customers.tableName, customerId, Customers)(_.id)
 }
 
 object ShippingAddresses extends TableQueryWithId[ShippingAddress, ShippingAddresses](
@@ -51,6 +51,6 @@ object ShippingAddresses extends TableQueryWithId[ShippingAddress, ShippingAddre
   def withStates(q: Query[(Addresses, ShippingAddresses), (Address, ShippingAddress), Seq]):
   Query[(Addresses, ShippingAddresses, States), (Address, ShippingAddress, State), Seq] = for {
     (addresses, shippingAddresses) ← q
-    states ← States.table if states.id === addresses.id
+    states ← States if states.id === addresses.id
   } yield (addresses, shippingAddresses, states)
 }

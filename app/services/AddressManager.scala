@@ -23,7 +23,7 @@ object AddressManager {
       case Success ⇒
         db.run(for {
           newAddress ← Table.save(address)
-          state ← States.findById(newAddress.stateId).result.headOption
+          state ← States.findById(newAddress.stateId)
         } yield (newAddress, state)).map {
           case (address, Some(state)) ⇒ Good(Response.build(address, state))
           case (_, None)              ⇒ Bad(NotFoundFailure(State, address.stateId))

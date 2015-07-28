@@ -34,6 +34,8 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.Tab
   (construct: Tag ⇒ T)
   (implicit ev: BaseTypedType[M#Id]) extends TableQuery[T](construct) {
 
+  def tableName: String = baseTableRow.tableName
+
   val returningId =
     this.returning(map(_.id))
 
