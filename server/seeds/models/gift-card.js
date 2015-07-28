@@ -1,7 +1,8 @@
 'use strict';
 
 const
-  BaseModel = require('../lib/base-model');
+  BaseModel = require('../lib/base-model'),
+  Customer  = require('./customer');
 
 const seed = [
   {field: 'cardNumber', method: 'integer', opts: {min: 1000000000000000, max: 9999999999999999}},
@@ -16,13 +17,32 @@ const seed = [
 class GiftCard extends BaseModel {
   get cardNumber() { return this.model.cardNumber; }
   get type() { return this.model.type; }
+  get subType() { return this.model.subType; }
   get balance() { return this.model.balance; }
   get state() { return this.model.state; }
   get date() { return this.model.date; }
   get availableBalance() { return this.model.availableBalance; }
   get currentBalance() { return this.model.currentBalance; }
+  get customer() {
+    if (this.model.customerId) {
+      return Customer.findOne(this.model.customerId);
+    } else {
+      return undefined;
+    }
+  }
+
+  set type(val) { this.model.type = val; }
+  set subType(val) { this.model.subType = val; }
+  set balance(val) { this.model.balance = val; }
+  set currentBalance(val) { this.model.currentBalance = val; }
+  set availableBalance(val) { this.model.availableBalance = val; }
+  set state(val) { this.model.state = val; }
+  set date(val) { this.model.date = val; }
+
+  set customerId(val) { this.model.customerId = val; }
 }
 
 Object.defineProperty(GiftCard, 'seed', {value: seed});
+Object.defineProperty(GiftCard, 'relationships', {value: ['customer']});
 
 module.exports = GiftCard;

@@ -20,7 +20,7 @@ export default class NewGiftCard extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      amount: '0.00',
+      balance: '0.00',
       type: 'Appeasement',
       subTypes: types.Appeasement,
       sendToCustomer: false,
@@ -42,13 +42,13 @@ export default class NewGiftCard extends React.Component {
 
   onChangeValue(event) {
     this.setState({
-      amount: event.target.value
+      balance: event.target.value
     });
   }
 
   setValue(value) {
     this.setState({
-      amount: value
+      balance: value
     });
   }
 
@@ -202,7 +202,7 @@ export default class NewGiftCard extends React.Component {
             <label htmlFor="value">Value</label>
             <div className="form-icon">
               <i className="icon-dollar"></i>
-              <input type="number" name="amount" value={this.state.amount} onChange={this.onChangeValue.bind(this)} />
+              <input type="number" name="balance" value={this.state.balance} onChange={this.onChangeValue.bind(this)} />
             </div>
             <div>
               <a className="btn" onClick={this.setValue.bind(this, '10.00')}>$10</a>

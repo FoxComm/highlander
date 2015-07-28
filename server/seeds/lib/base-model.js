@@ -66,10 +66,52 @@ class BaseModel {
     return this.findAll('orderId', orderId);
   }
 
+  static findIndex(id) {
+    let index = -1;
+    this.data.some(function (item, idx) {
+      if (item.id === id) {
+        index = idx;
+        return true;
+      }
+      return false;
+    });
+    return index;
+  }
+
+  static deleteOne(id) {
+    let index = this.findIndex(id);
+    if (index > -1) {
+      this.data.splice(index, 1);
+      return true;
+    }
+    return false;
+  }
+
   static paginate(limit, page) {
     limit = +limit || 50;
     page = page ? +page - 1 : 0;
     return this.data.slice(limit * page, (limit * page) + limit);
+  }
+
+  static upsert(model) {
+    let idx = _(this.data).findIndex(function(item) {
+      return item.id === model.id;
+    });
+    if (idx > -1) {
+      this.data[idx] = model;
+    } else {
+      this.data.push(model);
+    }
+  }
+
+  static update(model) {
+    if (Array.isArray(model)) {
+      for (let item of model) {
+        this.upsert(item);
+      }
+    } else {
+      this.upsert(model);
+    }
   }
 
   constructor(model) {
@@ -91,6 +133,7 @@ class BaseModel {
       let desc = Object.getOwnPropertyDescriptor(proto, key);
       if (desc && desc.set) this[key] = values[key];
     }
+    this.constructor.update(this.model);
     return this;
   }
 

@@ -1,7 +1,13 @@
 'use strict';
 
 const
-  parse = require('co-body');
+  parse  = require('co-body'),
+  moment = require('moment'),
+  _      = require('underscore'),
+  Chance = require('chance');
+
+const
+  chance = new Chance();
 
 module.exports = function(app, router) {
   const GiftCard = app.seeds.models.GiftCard;
@@ -18,10 +24,26 @@ module.exports = function(app, router) {
     .post('/gift-cards', function *() {
       let
         body = yield parse.json(this),
-        cards = [];
+        cards = [],
+        balance = body.balance * 100,
+        data = {
+          type: body.cardType,
+          subType: body.subType,
+          balance: balance,
+          currentBalance: balance,
+          availableBalance: balance,
+          state: 'Active',
+          date: moment.utc().add(1, 'y').toDate()
+        };
 
-      for (let i = body.quantity; i > 0; i--) {
-        cards.push(new GiftCard());
+      for (let i = 0; i < body.quantity; i++) {
+        let
+          cardData = _.extend({}, data);
+        if (body.sendToCustomer) {
+          cardData.customerId = +body['customers[]'][i];
+        }
+        cardData.cardNumber = chance.integer({min: 1000000000000000, max: 9999999999999999});
+        cards.push(new GiftCard(cardData));
       }
 
       this.body = cards;
