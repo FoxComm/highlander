@@ -1,25 +1,16 @@
 package models
 
-import com.pellucid.sealerate
-import slick.dbio.Effect.Read
-import slick.profile.FixedSqlStreamingAction
-import utils.{ADT, GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
-
-import org.joda.time.DateTime
-import com.wix.accord.dsl.{validator => createValidator}
+import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
-import org.scalactic._
-import com.wix.accord.{Failure => ValidationFailure, Validator}
-import com.wix.accord.dsl._
-import scala.concurrent.{ExecutionContext, Future}
+import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
+import utils.{GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId, Validation}
 
 final case class Reason(id: Int = 0, storeAdminId: Int, body: String, parentId: Option[Int] = None)
   extends ModelWithIdParameter
   with Validation[Reason] {
 
-  override def validator = createValidator[Reason] { reason =>
+  override def validator = createValidator[Reason] { reason ⇒
     reason.body is notEmpty
     reason.body have size <= 255
   }
