@@ -9,7 +9,7 @@ import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 
 class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
 
-  def checkout: Future[Order Or List[Failure]] = {
+  def checkout: Future[Order Or Failures] = {
     // Realistically, what we'd do here is actually
     // 0) Check that line items exist -- DONE
     // 1) Check Inventory
@@ -26,11 +26,11 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
           if (errors.isEmpty) {
             completeOrderAndCreateNew(order).map(Good(_))
           } else {
-            Future.successful(Bad(errors))
+            Future.successful(Bad(Failures(errors: _*)))
           }
         }
       } else {
-        Future.successful(Bad(List(NotFoundFailure("No Line Items in Order!"))))
+        Future.successful(Bad(Failures(NotFoundFailure("No Line Items in Order!"))))
       }
     }
   }

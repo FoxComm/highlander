@@ -17,7 +17,7 @@ import utils.jdbc.withUniqueConstraint
 
 object AddressManager {
   def create(payload: CreateAddressPayload, customerId: Int)
-    (implicit ec: ExecutionContext, db: Database): Future[Root Or Failure] = {
+    (implicit ec: ExecutionContext, db: Database): Future[Root Or Failures] = {
     val address = Address.fromPayload(payload).copy(customerId = customerId)
     address.validate match {
       case Success ⇒
@@ -26,9 +26,9 @@ object AddressManager {
           state ← States.findById(newAddress.stateId)
         } yield (newAddress, state)).map {
           case (address, Some(state)) ⇒ Good(Response.build(address, state))
-          case (_, None)              ⇒ Bad(NotFoundFailure(State, address.stateId))
+          case (_, None)              ⇒ Bad(Failures(NotFoundFailure(State, address.stateId)))
         }
-      case f: Invalid ⇒ Future.successful(Bad(ValidationFailure(f)))
+      case f: Invalid ⇒ Future.successful(Bad(Failures(ValidationFailure(f))))
     }
   }
 
