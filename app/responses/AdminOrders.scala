@@ -13,35 +13,38 @@ object AdminOrders {
   final case class Root(
     id: Int,
     referenceNumber: String,
-    email: String,
+    email: Option[String],
     orderStatus: Order.Status,
-    paymentStatus: String,
+    paymentStatus: Option[String],
     placedAt: Option[DateTime],
     total: Int
     )
 
   def findAll(implicit ec: ExecutionContext, db: Database): Response = {
-    val queries = for {
-      order ← Orders
-      email ← Customers._findEmailById(order.customerId)
-      payment ← OrderPayments._findAllPaymentsFor(order.id) // Fails if there are no payments
-    } yield (order, email, payment)
 
-    db.run(queries.result).map { results ⇒
-      results.map { case (order, email, payment) ⇒
-        build(order, email, payment)
+    val orderQ = Orders joinLeft Customers on (_.customerId === _.id)
+
+    val paymentQ = for {
+      ((order, customer), payment) ← orderQ joinLeft OrderPayments on (_._1.id === _.orderId)
+      (_, _) ← OrderPayments joinLeft CreditCards on (_.id === _.id)
+    } yield (order, customer, payment)
+
+    db.run(paymentQ.result).map {
+      _.map { case (order, customer, payment) ⇒
+        build(order, customer, payment)
       }
-    }
+    }.flatMap(Future.sequence(_))
   }
 
-  def build(order: Order, email: String, payment: (OrderPayment, CreditCard)): Root = {
-    order.grandTotal map { grandTotal ⇒
+  def build(order: Order, customer: Option[Customer], payment: Option[OrderPayment])
+    (implicit ec: ExecutionContext): Future[Root] = {
+    order.grandTotal.map { grandTotal ⇒
       Root(
         id = order.id,
         referenceNumber = order.referenceNumber,
-        email = email,
+        email = customer.map(_.email),
         orderStatus = order.status,
-        paymentStatus = payment._1.status,
+        paymentStatus = payment.map(_.status),
         placedAt = order.placedAt,
         total = grandTotal
       )
