@@ -10,7 +10,11 @@ lazy val commonSettings = Seq(
     "-Xlint",
     "-Xfatal-warnings",
     "-language:higherKinds",
-    "-language:existentials"
+    "-language:existentials",
+    "-Ywarn-numeric-widen",
+    "-Ywarn-nullary-override",
+    "-Ywarn-nullary-unit",
+    "-Ywarn-infer-any"
   )
 )
 
@@ -22,6 +26,7 @@ lazy val phoenixScala = (project in file(".")).
     wartremoverExcluded ++= ((baseDirectory.value / "test") ** "*.scala").get,
     wartremoverWarnings ++=
       Warts.all.filter {
+        case Wart.Any      ⇒ false /** Covered by the compiler */
         /** In the absence of type annotations, Good(v: A) is inferred as Or[A, Nothing] */
         case Wart.Nothing  ⇒ false
 
