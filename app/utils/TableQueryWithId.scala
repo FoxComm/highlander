@@ -46,6 +46,8 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.Tab
   def findById(i: M#Id): DBIO[Option[M]] =
     _findById(i).result.headOption
 
+  def findAll: Query[T, M, Seq] = this.drop(0)
+
   def save(model: M)(implicit ec: ExecutionContext): DBIO[M] = for {
     id ← returningId += model
   } yield idLens.set(id)(model)

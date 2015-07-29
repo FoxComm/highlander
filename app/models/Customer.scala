@@ -44,6 +44,7 @@ class Customers(tag: Tag) extends TableWithId[Customer](tag, "customers") with R
 object Customers extends TableQueryWithId[Customer, Customers](
   idLens = GenLens[Customer](_.id)
   )(new Customers(_)){
+  val table = TableQuery[Customers]
 
   def findByEmail(email: String)(implicit ec: ExecutionContext, db: Database): Future[Option[Customer]] = {
     db.run(filter(_.email === email).result.headOption)

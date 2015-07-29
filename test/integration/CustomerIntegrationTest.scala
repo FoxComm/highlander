@@ -20,6 +20,14 @@ class CustomerIntegrationTest extends IntegrationTestBase
       parse(response.bodyText).extract[Customer] must === (customer)
     }
 
+    "shows a list of customers" in new Fixture {
+      val response = GET(s"v1/users")
+      val customers = Seq(customer)
+
+      response.status must === (StatusCodes.OK)
+      parse(response.bodyText).extract[Seq[Customer]] must === (customers)
+    }
+
     "toggles the disabled flag on a customer account" in new Fixture {
       customer.disabled must ===(false)
 
