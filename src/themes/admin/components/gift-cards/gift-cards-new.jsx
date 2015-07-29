@@ -20,7 +20,8 @@ export default class NewGiftCard extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      balance: '0.00',
+      balance: 100,
+      balanceText: '1.00',
       type: 'Appeasement',
       subTypes: types.Appeasement,
       sendToCustomer: false,
@@ -42,15 +43,17 @@ export default class NewGiftCard extends React.Component {
     stopListeningTo(userSelectEvent, this);
   }
 
-  onChangeValue(event) {
+  onChangeBalance(event) {
     this.setState({
-      balance: event.target.value
+      balance: (event.target.value * 100) | 0,
+      balanceText: event.target.value
     });
   }
 
   setValue(value) {
     this.setState({
-      balance: value
+      balance: value,
+      balanceText: (value / 100).toFixed(2)
     });
   }
 
@@ -79,7 +82,7 @@ export default class NewGiftCard extends React.Component {
 
   onGiftCardCustomerSelected(customer) {
     let
-      customerList = this.state.customers,
+      customerList = this.state.customers.slice(0, this.state.customers.length),
       exists = customerList.filter(function (item) {
         return item.id === customer.id;
       }).length > 0;
@@ -95,7 +98,7 @@ export default class NewGiftCard extends React.Component {
 
   onEmailCsvUserSelected(user) {
     let
-      userList = this.state.users,
+      userList = this.state.users.slice(0, this.state.users.length),
       exists = userList.filter(function (item) {
         return item.id === user.id;
       }).length > 0;
@@ -125,14 +128,14 @@ export default class NewGiftCard extends React.Component {
   }
 
   removeCustomer(idx) {
-    let customerList = this.state.customers;
+    let customerList = this.state.customers.slice(0, this.state.users.length);
 
     customerList.splice(idx, 1);
     this.setState({customers: customerList});
   }
 
   removeUser(idx) {
-    let userList = this.state.users;
+    let userList = this.state.users.slice(0, this.state.users.length);
 
     userList.splice(idx, 1);
     this.setState({users: userList});
@@ -203,7 +206,7 @@ export default class NewGiftCard extends React.Component {
                 <li key={`user-${user.id}`}>
                   {user.firstName} {user.lastName}
                   <input type="hidden" name="users[]" id={`user_${idx}`} value={user.id} />
-                  <a onClock={this.removeUser.bind(this, idx)}>&times;</a>
+                  <a onClick={this.removeUser.bind(this, idx)}>&times;</a>
                 </li>
               );
              })}
@@ -234,14 +237,15 @@ export default class NewGiftCard extends React.Component {
             <label htmlFor="value">Value</label>
             <div className="form-icon">
               <i className="icon-dollar"></i>
-              <input type="number" className="control" name="balance" value={this.state.balance} onChange={this.onChangeValue.bind(this)} />
+              <input type="hidden" name="balance" value={this.state.balance} />
+              <input type="number" className="control" value={this.state.balanceText} onChange={this.onChangeBalance.bind(this)} step="0.01" min="1" />
             </div>
             <div id="balances">
-              <a className="btn" onClick={this.setValue.bind(this, '10.00')}>$10</a>
-              <a className="btn" onClick={this.setValue.bind(this, '25.00')}>$25</a>
-              <a className="btn" onClick={this.setValue.bind(this, '50.00')}>$50</a>
-              <a className="btn" onClick={this.setValue.bind(this, '100.00')}>$100</a>
-              <a className="btn" onClick={this.setValue.bind(this, '200.00')}>$200</a>
+              <a className="btn" onClick={this.setValue.bind(this, '1000')}>$10</a>
+              <a className="btn" onClick={this.setValue.bind(this, '2500')}>$25</a>
+              <a className="btn" onClick={this.setValue.bind(this, '5000')}>$50</a>
+              <a className="btn" onClick={this.setValue.bind(this, '10000')}>$100</a>
+              <a className="btn" onClick={this.setValue.bind(this, '20000')}>$200</a>
             </div>
           </fieldset>
           <fieldset>
