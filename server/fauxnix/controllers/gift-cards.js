@@ -50,5 +50,8 @@ module.exports = function(app, router) {
       }
 
       this.body = cards;
+    })
+    .get('/gift-cards/:giftcard', function *() {
+      this.body = this.card;
     });
 };

@@ -32,7 +32,7 @@ const routes = (
     </Route>
     <Route name='gift-cards' path='/gift-cards' handler={GiftCards} />
     <Route name='gift-card' path='/gift-cards/:giftcard' handler={GiftCard}>
-      <DefaultRoute name='gift-card-notes' path='notes' handler={Notes} />
+      <Route name='gift-card-notes' path='notes' handler={Notes} />
       <Route name='gift-card-activity-trail' path='activity-trail' handler={ActivityTrail} />
     </Route>
   </Route>
