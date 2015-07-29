@@ -18,7 +18,7 @@ object Seeds {
   val today = new DateTime
 
   final case class TheWorld(customer: Customer, order: Order, orderNotes: Seq[Note], address: Address, cc: CreditCard,
-    storeAdmin: StoreAdmin, shippingAddresses: Seq[ShippingAddress], shippingMethods: Seq[ShippingMethod],
+    storeAdmin: StoreAdmin, shippingAddresses: Seq[OrderShippingAddress], shippingMethods: Seq[ShippingMethod],
     shippingPriceRules: Seq[ShippingPriceRule], shippingMethodRuleMappings: Seq[ShippingMethodPriceRule],
     orderCriteria: Seq[OrderCriterion], orderPriceCriteria: Seq[OrderPriceCriterion],
     priceRuleCriteriaMappings: Seq[ShippingPriceRuleOrderCriterion], skus: Seq[Sku],
@@ -26,7 +26,7 @@ object Seeds {
 
   final case class PaymentMethods(giftCard: GiftCard = Factories.giftCard, storeCredit: StoreCredit = Factories.storeCredit)
 
-  def run()(implicit db: Database): dbio.DBIOAction[(Customer, Order, Address, ShippingAddress, CreditCard),
+  def run()(implicit db: Database): dbio.DBIOAction[(Customer, Order, Address, OrderShippingAddress, CreditCard),
     NoStream, Write with Write with Write with All with Write with Write with All with All with Write with All with
     Write with Write with Write with Write with Write with All] = {
 
@@ -65,7 +65,7 @@ object Seeds {
       orderNotes ← Notes ++= s.orderNotes
       orderLineItem ← OrderLineItems ++= s.orderLineItems
       address ← Addresses.save(s.address.copy(customerId = customer.id))
-      shippingAddress ← ShippingAddresses.save(Factories.shippingAddress.copy(id = address.id,
+      shippingAddress ← OrderShippingAddresses.save(Factories.shippingAddress.copy(id = address.id,
         customerId = customer.id))
       shippingMethods ← ShippingMethods ++= s.shippingMethods
       gateway ← CreditCards.save(s.cc.copy(customerId = customer.id))
@@ -108,7 +108,7 @@ object Seeds {
       Address(customerId = 0, stateId = 1, name = "Home", street1 = "555 E Lake Union St.",
         street2 = None, city = "Seattle", zip = "12345")
 
-    def shippingAddress = ShippingAddress(id = 0, isDefault = true)
+    def shippingAddress = OrderShippingAddress(id = 0, isDefault = true)
 
     def creditCard =
       CreditCard(customerId = 0, gatewayCustomerId = "", lastFour = "4242",

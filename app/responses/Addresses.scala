@@ -1,6 +1,6 @@
 package responses
 
-import models.{ShippingAddress, Address, Customer, State}
+import models.{OrderShippingAddress, Address, Customer, State}
 
 object Addresses {
   final case class Root(id: Int, customer: Option[Customer] = None, state: State, name: String, street1: String,
@@ -13,7 +13,7 @@ object Addresses {
   def build(records: Seq[(models.Address, State)]): Seq[Root] =
     records.map { case (address, state) ⇒ build(address, state) }
 
-  def buildShipping(records: Seq[(models.Address, ShippingAddress, State)]): Seq[Root] = {
+  def buildShipping(records: Seq[(models.Address, OrderShippingAddress, State)]): Seq[Root] = {
     records.map { case (address, shippingAddress, state) ⇒
       build(address, state, isDefault = Some(shippingAddress.isDefault))
     }

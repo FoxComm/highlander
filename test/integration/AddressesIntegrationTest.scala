@@ -1,6 +1,6 @@
 import akka.http.scaladsl.model.StatusCodes
 
-import models.{ShippingAddresses, Addresses, Customers}
+import models.{OrderShippingAddresses$, Addresses, Customers}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import services.{CustomerHasDefaultShippingAddress, Failure}
@@ -62,7 +62,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
     }
 
     "errors if there's already a default shipping address" in new ShippingAddressFixture {
-      val (_, another) = ShippingAddresses.createFromAddress(address.copy(id = 0)).run().futureValue
+      val (_, another) = OrderShippingAddresses.createFromAddress(address.copy(id = 0)).run().futureValue
       val payload = payloads.ToggleDefaultShippingAddress(isDefault = true)
       val response = POST(s"v1/users/${customer.id}/shipping-addresses/${another.id}/default", payload)
 
@@ -82,7 +82,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
   }
 
   trait ShippingAddressFixture extends AddressFixture {
-    val (_, shippingAddress) = ShippingAddresses.createFromAddress(address, isDefault = true).run().futureValue
+    val (_, shippingAddress) = OrderShippingAddresses.createFromAddress(address, isDefault = true).run().futureValue
   }
 }
 

@@ -5,7 +5,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import org.postgresql.util.PSQLException
 import org.scalactic.{Or, Good, Bad}
 import utils.Validation.Result.{Failure ⇒ Invalid, Success}
-import models.{Addresses ⇒ Table, ShippingAddress, CreditCards, ShippingAddresses, Address, States, State, Customer}
+import models.{Addresses ⇒ Table, OrderShippingAddress, CreditCards, OrderShippingAddresses$, Address, States, State, Customer}
 import payloads.CreateAddressPayload
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
@@ -36,9 +36,9 @@ object AddressManager {
     (implicit ec: ExecutionContext, db: Database): Future[Option[Failure]] = {
 
     val result = withUniqueConstraint {
-      db.run(ShippingAddresses._findById(id).extract.map(_.isDefault).update(isDefault)).map { rows ⇒
+      db.run(OrderShippingAddresses._findById(id).extract.map(_.isDefault).update(isDefault)).map { rows ⇒
         if (rows != 1) {
-          Some(NotFoundFailure(ShippingAddress, id))
+          Some(NotFoundFailure(OrderShippingAddress, id))
         } else {
           None
         }

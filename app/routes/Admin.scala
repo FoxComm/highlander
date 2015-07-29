@@ -64,7 +64,7 @@ object Admin {
         pathPrefix("shipping-addresses") {
           (get & pathEnd) {
             complete {
-              ShippingAddresses.findAllByCustomerIdWithStates(customerId).result.run().map { records ⇒
+              OrderShippingAddresses.findAllByCustomerIdWithStates(customerId).result.run().map { records ⇒
                 render(responses.Addresses.buildShipping(records))
               }
             }
