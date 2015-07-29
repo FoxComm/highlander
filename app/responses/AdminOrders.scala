@@ -22,16 +22,19 @@ object AdminOrders {
 
   def findAll(implicit ec: ExecutionContext, db: Database): Response = {
 
-    val orderQ = Orders joinLeft Customers on (_.customerId === _.id)
+    val ordersAndCustomers = for {
+      (order, customer) ← Orders joinLeft Customers on (_.customerId === _.id)
+    } yield (order, customer)
 
-    val paymentQ = for {
-      ((order, customer), payment) ← orderQ joinLeft OrderPayments on (_._1.id === _.orderId)
-      (_, _) ← OrderPayments joinLeft CreditCards on (_.id === _.id)
-    } yield (order, customer, payment)
+    val creditCardPayments = for {
+      (orderPayment, creditCard) ← OrderPayments join CreditCards on (_.id === _.id)
+    } yield (orderPayment, creditCard)
 
-    db.run(paymentQ.result).map {
-      _.map { case (order, customer, payment) ⇒
-        build(order, customer, payment)
+    val query = ordersAndCustomers joinLeft creditCardPayments on (_._1.id === _._1.orderId)
+
+    db.run(query.result).map {
+      _.map { case ((order, customer), payment) ⇒
+        build(order, customer, payment.map(_._1))
       }
     }.flatMap(Future.sequence(_))
   }
