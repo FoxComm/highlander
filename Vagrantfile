@@ -2,7 +2,7 @@
 # vi: set ft=ruby :
 #
 Vagrant.configure("2") do |config|
-  config.vm.box = "ubuntu/vivid64"
+  config.vm.box = "ubuntu/trusty64"
 
   config.vm.provider :virtualbox do |vb|
     vb.cpus = 2
@@ -10,8 +10,7 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.provider :vmware_fusion do |v, override|
-    # TODO: find a better ubuntu/vivid64 for vmware_fusion
-    override.vm.box_url = "https://s3.eu-central-1.amazonaws.com/ffuenf-vagrantboxes/ubuntu/ubuntu-15.04-server-amd64_vmware.box"
+    override.vm.box_url = "https://oss-binaries.phusionpassenger.com/vagrant/boxes/latest/ubuntu-14.04-amd64-vmwarefusion.box"
     v.vmx["memsize"] = 2048
     v.vmx["numvcpus"] = 2
   end
