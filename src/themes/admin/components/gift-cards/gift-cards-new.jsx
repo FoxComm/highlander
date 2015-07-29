@@ -20,7 +20,8 @@ export default class NewGiftCard extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      balance: '0.00',
+      balance: 100,
+      balanceText: '1.00',
       type: 'Appeasement',
       subTypes: types.Appeasement,
       sendToCustomer: false,
@@ -42,15 +43,17 @@ export default class NewGiftCard extends React.Component {
     stopListeningTo(userSelectEvent, this);
   }
 
-  onChangeValue(event) {
+  onChangeBalance(event) {
     this.setState({
-      balance: event.target.value
+      balance: (event.target.value * 100) | 0,
+      balanceText: event.target.value
     });
   }
 
   setValue(value) {
     this.setState({
-      balance: value
+      balance: value,
+      balanceText: (value / 100).toFixed(2)
     });
   }
 
@@ -234,14 +237,15 @@ export default class NewGiftCard extends React.Component {
             <label htmlFor="value">Value</label>
             <div className="form-icon">
               <i className="icon-dollar"></i>
-              <input type="number" className="control" name="balance" value={this.state.balance} onChange={this.onChangeValue.bind(this)} />
+              <input type="hidden" name="balance" value={this.state.balance} />
+              <input type="number" className="control" value={this.state.balanceText} onChange={this.onChangeBalance.bind(this)} step="0.01" min="1" />
             </div>
             <div id="balances">
-              <a className="btn" onClick={this.setValue.bind(this, '10.00')}>$10</a>
-              <a className="btn" onClick={this.setValue.bind(this, '25.00')}>$25</a>
-              <a className="btn" onClick={this.setValue.bind(this, '50.00')}>$50</a>
-              <a className="btn" onClick={this.setValue.bind(this, '100.00')}>$100</a>
-              <a className="btn" onClick={this.setValue.bind(this, '200.00')}>$200</a>
+              <a className="btn" onClick={this.setValue.bind(this, '1000')}>$10</a>
+              <a className="btn" onClick={this.setValue.bind(this, '2500')}>$25</a>
+              <a className="btn" onClick={this.setValue.bind(this, '5000')}>$50</a>
+              <a className="btn" onClick={this.setValue.bind(this, '10000')}>$100</a>
+              <a className="btn" onClick={this.setValue.bind(this, '20000')}>$200</a>
             </div>
           </fieldset>
           <fieldset>

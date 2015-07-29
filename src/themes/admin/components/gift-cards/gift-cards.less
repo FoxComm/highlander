@@ -28,6 +28,11 @@
     .margin-left(25px);
   }
 
+  input[type="number"] {
+    &:invalid {
+      border: 1px solid red;
+    }
+  }
   #customerSearch, #userSearch {
     .padding(15px);
     .margin-top(20px);
