@@ -16,8 +16,8 @@ create table addresses (
     foreign key (customer_id) references customers(id) on update restrict on delete restrict
 );
 
-create index addresses_customer_id_idx on addresses (customer_id)
+create index addresses_customer_id_idx on addresses (customer_id);
 
-create unique index address_shipping_default_idx on orders (customer_id, is_default_shipping)
+create unique index address_shipping_default_idx on addresses (customer_id, is_default_shipping)
     where is_default_shipping = true;
 

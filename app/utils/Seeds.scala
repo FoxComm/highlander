@@ -65,17 +65,16 @@ object Seeds {
       orderNotes ← Notes ++= s.orderNotes
       orderLineItem ← OrderLineItems ++= s.orderLineItems
       address ← Addresses.save(s.address.copy(customerId = customer.id))
-      shippingAddress ← OrderShippingAddresses.save(Factories.shippingAddress.copy(id = address.id,
-        orderId = order.id))
+      shippingAddress ← OrderShippingAddresses.save(Factories.shippingAddress.copy(orderId = order.id))
       shippingMethods ← ShippingMethods ++= s.shippingMethods
-      gateway ← CreditCards.save(s.cc.copy(customerId = customer.id))
+      creditCard ← CreditCards.save(s.cc.copy(customerId = customer.id, billingAddressId = address.id))
       shippingPriceRule ← ShippingPriceRules ++= s.shippingPriceRules
       shippingMethodRuleMappings ← ShippingMethodsPriceRules ++= s.shippingMethodRuleMappings
       orderCriterion ← OrderCriteria ++= s.orderCriteria
       orderPriceCriterion ← OrderPriceCriteria ++= s.orderPriceCriteria
       priceRuleCriteriaMapping ← ShippingPriceRulesOrderCriteria ++= s.priceRuleCriteriaMappings
       shipments ← Shipments.save(s.shipment)
-    } yield (customer, order, address, shippingAddress, gateway)
+    } yield (customer, order, address, shippingAddress, creditCard)
   }
 
   object Factories {
@@ -104,9 +103,8 @@ object Seeds {
 
     def orderLineItems: Seq[OrderLineItem] = Seq(OrderLineItem(id = 0, orderId = 1, skuId = 1, status = OrderLineItem.Cart), OrderLineItem(id = 0, orderId = 1, skuId = 2, status = OrderLineItem.Cart), OrderLineItem(id = 0, orderId = 1, skuId = 3, status = OrderLineItem.Cart))
 
-    def address =
-      Address(customerId = 0, stateId = 1, name = "Home", street1 = "555 E Lake Union St.",
-        street2 = None, city = "Seattle", zip = "12345")
+    def address = Address(customerId = 0, stateId = 1, name = "Home", street1 = "555 E Lake Union St.",
+        street2 = None, city = "Seattle", zip = "12345", isDefaultShipping = true)
 
     def shippingAddress = OrderShippingAddress(stateId = 46, name = "Old Yax", street1 = "9313 Olde Mill Pond Dr",
       street2 = None, city = "Glen Allen", zip = "23060")
