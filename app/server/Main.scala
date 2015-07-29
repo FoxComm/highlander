@@ -42,7 +42,7 @@ class Service(
       |
       |http {
       |  interface = "localhost"
-      |  port = 9000
+      |  port = 9090
       |}
     """.stripMargin
 
