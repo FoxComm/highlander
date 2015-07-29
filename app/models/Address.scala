@@ -14,7 +14,10 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 final case class Address(id: Int = 0, customerId: Int, stateId: Int, name: String, street1: String, street2: Option[String],
-  city: String, zip: String) extends Validation[Address] with ModelWithIdParameter {
+  city: String, zip: String, isDefaultShipping: Boolean = false)
+  extends Validation[Address]
+  with ModelWithIdParameter {
+
   override def validator = createValidator[Address] { address =>
     address.name is notEmpty
     address.street1 is notEmpty
@@ -39,8 +42,10 @@ class Addresses(tag: Tag) extends TableWithId[Address](tag, "addresses") with Ri
   def street2 = column[Option[String]]("street2")
   def city = column[String]("city")
   def zip = column[String]("zip")
+  def isDefaultShipping = column[Boolean]("is_default_shipping")
 
-  def * = (id, customerId, stateId, name, street1, street2, city, zip) <> ((Address.apply _).tupled, Address.unapply)
+  def * = (id, customerId, stateId, name, street1, street2,
+    city, zip, isDefaultShipping) <> ((Address.apply _).tupled, Address.unapply)
 
   def state = foreignKey(States.tableName, stateId, States)(_.id)
 }

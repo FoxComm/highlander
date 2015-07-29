@@ -15,7 +15,7 @@ object Addresses {
 
   def buildShipping(records: Seq[(models.Address, OrderShippingAddress, State)]): Seq[Root] = {
     records.map { case (address, shippingAddress, state) ⇒
-      build(address, state, isDefault = Some(shippingAddress.isDefault))
+      build(address, state)
     }
   }
 }

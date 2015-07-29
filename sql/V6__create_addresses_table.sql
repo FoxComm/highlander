@@ -7,6 +7,7 @@ create table addresses (
     street2 character varying(255) null,
     city character varying(255) not null, -- TODO: nullable for foreign addresses?
     zip character (5) not null, -- TODO: nullable for foreign addresses?
+    is_default_shipping boolean default false not null,
     created_at timestamp without time zone default (now() at time zone 'utc'),
     updated_at timestamp without time zone default (now() at time zone 'utc'),
     deleted_at timestamp without time zone null,
@@ -16,4 +17,7 @@ create table addresses (
 );
 
 create index addresses_customer_id_idx on addresses (customer_id)
+
+create unique index address_shipping_default_idx on orders (customer_id, is_default_shipping)
+    where is_default_shipping = true;
 

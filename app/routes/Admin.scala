@@ -62,13 +62,13 @@ object Admin {
           }
         } ~
         pathPrefix("shipping-addresses") {
-          (get & pathEnd) {
-            complete {
-              OrderShippingAddresses.findAllByCustomerIdWithStates(customerId).result.run().map { records ⇒
-                render(responses.Addresses.buildShipping(records))
-              }
-            }
-          } ~
+//          (get & pathEnd) {
+//            complete {
+//              OrderShippingAddresses.findAllByCustomerIdWithStates(customerId).result.run().map { records ⇒
+//                render(responses.Addresses.buildShipping(records))
+//              }
+//            }
+//          } ~
           (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultShippingAddress]) & pathEnd) {
             (id, payload) ⇒
             complete {
