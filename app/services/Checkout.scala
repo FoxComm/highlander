@@ -43,7 +43,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
     db.run(for {
       _ ← Orders._findById(order.id).extract
         .map { o => (o.status, o.placedAt) }
-        .update(Order.Ordered, Some(DateTime.now))
+        .update((Order.Ordered, Some(DateTime.now)))
 
       newOrder <- Orders._create(Order.buildCart(order.customerId))
     } yield newOrder)
