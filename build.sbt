@@ -10,9 +10,14 @@ lazy val commonSettings = Seq(
     "-Xlint",
     "-Xfatal-warnings",
     "-language:higherKinds",
-    "-language:existentials"
+    "-language:existentials",
+    "-Ywarn-numeric-widen",
+    "-Ywarn-nullary-override",
+    "-Ywarn-nullary-unit",
+    "-Ywarn-infer-any"
   )
 )
+
 
 lazy val phoenixScala = (project in file(".")).
   settings(commonSettings: _*).
@@ -22,6 +27,7 @@ lazy val phoenixScala = (project in file(".")).
     wartremoverExcluded ++= ((baseDirectory.value / "test") ** "*.scala").get,
     wartremoverWarnings ++=
       Warts.all.filter {
+        case Wart.Any      ⇒ false /** Covered by the compiler */
         /** In the absence of type annotations, Good(v: A) is inferred as Or[A, Nothing] */
         case Wart.Nothing  ⇒ false
 
@@ -65,10 +71,11 @@ lazy val phoenixScala = (project in file(".")).
       "pellucid bintray"   at "http://dl.bintray.com/pellucid/maven"
     ),
     libraryDependencies ++= {
-      val akkaV       = "2.3.11"
-      val akkaHttpV   = "1.0"
-      val scalaTestV  = "2.2.5"
-      val monocleV    = "1.1.1"
+      val akkaV      = "2.3.11"
+      val akkaHttpV  = "1.0"
+      val scalaTestV = "2.2.5"
+      val monocleV   = "1.1.1"
+      val json4sVersion = "3.3.0.RC3"
 
       Seq(
         // Akka
@@ -77,10 +84,10 @@ lazy val phoenixScala = (project in file(".")).
         "com.typesafe.akka"    %% "akka-stream-experimental" % akkaHttpV,
         "com.typesafe.akka"    %% "akka-http-experimental"   % akkaHttpV,
         // JSON
-        "org.json4s"           %% "json4s-jackson"           % "3.2.11",
-        "org.json4s"           %% "json4s-ext"               % "3.2.11",
-        ("de.heikoseeberger"    %% "akka-http-json4s"         % "0.9.1").
-          excludeAll(ExclusionRule(organization = "com.typesafe.akka")),
+        "org.json4s"           %% "json4s-core"              % json4sVersion,
+        "org.json4s"           %% "json4s-jackson"           % json4sVersion,
+        "org.json4s"           %% "json4s-ext"               % json4sVersion,
+        "de.heikoseeberger"    %% "akka-http-json4s"         % "1.0.0",
         // Database
         "com.typesafe.slick"   %% "slick"                    % "3.0.0",
         "com.zaxxer"           %  "HikariCP"                 % "2.3.8",
@@ -94,7 +101,7 @@ lazy val phoenixScala = (project in file(".")).
         "ch.qos.logback"       %  "logback-core"              % "1.1.3",
         "ch.qos.logback"       %  "logback-classic"           % "1.1.3",
         // Other
-        "org.spire-math"       %% "cats"                      % "0.1.2",
+        ("org.spire-math"       %% "cats"                      % "0.1.2").excludeAll(noScalaCheckPlease),
         "com.stripe"           %  "stripe-java"               % "1.31.0",
         "org.slf4j"            %  "slf4j-api"                 % "1.7.12",
         "joda-time"            %  "joda-time"                 % "2.8.1",
@@ -134,3 +141,6 @@ lazy val IT = config("it") extend Test
 
 lazy val seed = inputKey[Unit]("Resets and seeds the database")
 seed := { (runMain in Compile).fullInput(" utils.Seeds").evaluated }
+
+/** Cats pulls in disciple which pulls in scalacheck, and SBT will notice and set up a test for ScalaCheck */
+lazy val noScalaCheckPlease: ExclusionRule = ExclusionRule(organization = "org.scalacheck")

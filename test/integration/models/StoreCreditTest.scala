@@ -21,7 +21,8 @@ class StoreCreditTest extends IntegrationTestBase {
     val (customer, origin, storeCredit) = (for {
       admin ← (StoreAdmins.returningId += adminFactory).map { id ⇒ adminFactory.copy(id = id) }
       customer ← Customers.save(Factories.customer)
-      origin ← StoreCreditCsrs.save(Factories.storeCreditCsr.copy(adminId = admin.id))
+      reason ← Reasons.save(Factories.reason.copy(storeAdminId = admin.id))
+      origin ← StoreCreditManuals.save(Factories.storeCreditManual.copy(adminId = admin.id, reasonId = reason.id))
       sc ← StoreCredits.save(Factories.storeCredit.copy(customerId = customer.id, originId = origin.id))
       storeCredit ← StoreCredits.findById(sc.id)
     } yield (customer, origin, storeCredit.get)).run().futureValue

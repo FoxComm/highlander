@@ -42,7 +42,7 @@ class Addresses(tag: Tag) extends TableWithId[Address](tag, "addresses") with Ri
 
   def * = (id, customerId, stateId, name, street1, street2, city, zip) <> ((Address.apply _).tupled, Address.unapply)
 
-  def state = foreignKey("addresses_state_id_fk", stateId, TableQuery[States])(_.id)
+  def state = foreignKey(States.tableName, stateId, States)(_.id)
 }
 
 object Addresses extends TableQueryWithId[Address, Addresses](
@@ -65,6 +65,6 @@ object Addresses extends TableQueryWithId[Address, Addresses](
 
   def _withStates(q: Query[Addresses, Address, Seq]) = for {
     addresses ← q
-    states ← States.table if states.id === addresses.id
+    states ← States if states.id === addresses.id
   } yield (addresses, states)
 }

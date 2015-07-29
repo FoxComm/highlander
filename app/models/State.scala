@@ -1,6 +1,8 @@
 package models
 
-import utils.{RichTable, RunOnDbIO, Model}
+import monocle.macros.GenLens
+import utils.GenericTable.TableWithId
+import utils.{TableQueryWithId, ModelWithIdParameter, RichTable, RunOnDbIO, Model}
 
 import com.wix.accord.dsl.{validator => createValidator}
 import slick.driver.PostgresDriver.api._
@@ -10,11 +12,11 @@ import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-final case class State(id: Int, name: String, abbreviation: String) extends Model {
+final case class State(id: Int, name: String, abbreviation: String) extends ModelWithIdParameter {
   val abbrev = this.abbreviation
 }
 
-class States(tag: Tag) extends Table[State](tag, "states") with RichTable {
+class States(tag: Tag) extends TableWithId[State](tag, "states") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def name = column[String]("name")
   def abbreviation = column[String]("abbreviation")
@@ -22,20 +24,18 @@ class States(tag: Tag) extends Table[State](tag, "states") with RichTable {
   def * = (id, name, abbreviation) <> ((State.apply _).tupled, State.unapply)
 }
 
-object States {
-  val table = TableQuery[States]
+object States extends TableQueryWithId[State, States](
+  idLens = GenLens[State](_.id)
+)(new States(_)) {
 
   def findByAbbrev(abbrev: String)(implicit db: Database): Future[Option[State]] =
     _findByAbbrev(abbrev).run()
 
   def _findByAbbrev(abbrev: Rep[String]) =
-    table.filter(_.abbreviation === abbrev).take(1).result.headOption
+    filter(_.abbreviation === abbrev).take(1).result.headOption
 
   def findByName(name: String)
                 (implicit db: Database) = { db.run(_findByName(name)) }
 
-  def _findByName(name: String) = { table.filter(_.name === name).result.headOption }
-
-  def findById(id: Int): Query[States, State, Seq] =
-    table.filter(_.id === id)
+  def _findByName(name: String) = { filter(_.name === name).result.headOption }
 }

@@ -11,7 +11,7 @@ class GiftCardAdjustmentTest extends IntegrationTestBase {
   "GiftCardAdjustment" - {
     "neither credit nor debit can be negative" in new Fixture {
       val inserts = for {
-        origin ← GiftCardCsrs.save(Factories.giftCardCsr.copy(adminId = admin.id))
+        origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
         gc ← GiftCards.save(Factories.giftCard.copy(originId = origin.id))
         adjustment ← GiftCards.adjust(giftCard = gc, debit = 0, credit = -1, capture = false)
       } yield (gc, adjustment)
@@ -22,7 +22,7 @@ class GiftCardAdjustmentTest extends IntegrationTestBase {
 
     "only one of credit or debit can be greater than zero" in new Fixture {
       val inserts = for {
-        origin ← GiftCardCsrs.save(Factories.giftCardCsr.copy(adminId = admin.id))
+        origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
         gc ← GiftCards.save(Factories.giftCard.copy(originId = origin.id))
         adjustment ← GiftCards.adjust(giftCard = gc, debit = 50, credit = 50, capture = false)
       } yield (gc, adjustment)
@@ -33,7 +33,7 @@ class GiftCardAdjustmentTest extends IntegrationTestBase {
 
     "one of credit or debit must be greater than zero" in new Fixture {
       val (_, adjustment) = (for {
-        origin ← GiftCardCsrs.save(Factories.giftCardCsr.copy(adminId = admin.id))
+        origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
         gc ← GiftCards.save(Factories.giftCard.copy(originId = origin.id, originalBalance = 50))
         adjustment ← GiftCards.adjust(giftCard = gc, debit = 50, credit = 0, capture = true)
       } yield (gc, adjustment)).run().futureValue
@@ -43,7 +43,7 @@ class GiftCardAdjustmentTest extends IntegrationTestBase {
 
     "updates the GiftCard's currentBalance and availableBalance after insert" in new Fixture {
       val gc = (for {
-        origin ← GiftCardCsrs.save(Factories.giftCardCsr.copy(adminId = admin.id))
+        origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
         gc ← GiftCards.save(Factories.giftCard.copy(originId = origin.id, originalBalance = 500))
         _ ← GiftCards.adjust(giftCard = gc, debit = 50, credit = 0, capture = true)
         _ ← GiftCards.adjust(giftCard = gc, debit = 25, credit = 0, capture = true)
@@ -63,9 +63,10 @@ class GiftCardAdjustmentTest extends IntegrationTestBase {
 
   trait Fixture {
     val adminFactory = Factories.storeAdmin
-    val admin = (for {
+    val (admin, reason) = (for {
       admin ← (StoreAdmins.returningId += adminFactory).map { id ⇒ adminFactory.copy(id = id) }
-    } yield admin).run().futureValue
+      reason ← Reasons.save(Factories.reason.copy(storeAdminId = admin.id))
+    } yield (admin, reason)).run().futureValue
   }
 }
 

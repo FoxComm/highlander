@@ -1,6 +1,6 @@
 import akka.http.scaladsl.model.StatusCodes
 
-import models.{Customers, StoreAdmins, StoreCredit, StoreCreditCsrs, StoreCredits}
+import models.{Reasons, Customers, StoreAdmins, StoreCredit, StoreCreditManuals, StoreCredits}
 import org.scalatest.BeforeAndAfterEach
 import util.IntegrationTestBase
 import utils.Seeds.Factories
@@ -18,7 +18,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
   "admin API" - {
     "returns store credits belonging to the customer" in new Fixture {
       (for {
-        origin ← StoreCreditCsrs.save(Factories.storeCreditCsr.copy(adminId = admin.id))
+        origin ← StoreCreditManuals.save(Factories.storeCreditManual.copy(adminId = admin.id, reasonId = reason.id))
         sc ← StoreCredits.save(Factories.storeCredit.copy(customerId = customer.id, originId = origin.id))
       } yield sc).run().futureValue
 
@@ -39,7 +39,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
     "finds a store credit by id" in new Fixture {
       val sc = (for {
-        origin ← StoreCreditCsrs.save(Factories.storeCreditCsr.copy(adminId = admin.id))
+        origin ← StoreCreditManuals.save(Factories.storeCreditManual.copy(adminId = admin.id, reasonId = reason.id))
         sc ← StoreCredits.save(Factories.storeCredit.copy(customerId = customer.id, originId = origin.id))
       } yield sc).run().futureValue
 
@@ -56,10 +56,11 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
   trait Fixture {
     val adminFactory = Factories.storeAdmin
-    val (admin, customer) = (for {
+    val (admin, customer, reason) = (for {
       admin ← (StoreAdmins.returningId += adminFactory).map { id ⇒ adminFactory.copy(id = id) }
       customer ← Customers.save(Factories.customer)
-    } yield (admin, customer)).run().futureValue
+      reason ← Reasons.save(Factories.reason.copy(storeAdminId = admin.id))
+    } yield (admin, customer, reason)).run().futureValue
   }
 
 }
