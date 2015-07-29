@@ -82,7 +82,7 @@ export default class NewGiftCard extends React.Component {
 
   onGiftCardCustomerSelected(customer) {
     let
-      customerList = this.state.customers,
+      customerList = this.state.customers.slice(0, this.state.customers.length),
       exists = customerList.filter(function (item) {
         return item.id === customer.id;
       }).length > 0;
@@ -98,7 +98,7 @@ export default class NewGiftCard extends React.Component {
 
   onEmailCsvUserSelected(user) {
     let
-      userList = this.state.users,
+      userList = this.state.users.slice(0, this.state.users.length),
       exists = userList.filter(function (item) {
         return item.id === user.id;
       }).length > 0;
@@ -128,14 +128,14 @@ export default class NewGiftCard extends React.Component {
   }
 
   removeCustomer(idx) {
-    let customerList = this.state.customers;
+    let customerList = this.state.customers.slice(0, this.state.users.length);
 
     customerList.splice(idx, 1);
     this.setState({customers: customerList});
   }
 
   removeUser(idx) {
-    let userList = this.state.users;
+    let userList = this.state.users.slice(0, this.state.users.length);
 
     userList.splice(idx, 1);
     this.setState({users: userList});
@@ -206,7 +206,7 @@ export default class NewGiftCard extends React.Component {
                 <li key={`user-${user.id}`}>
                   {user.firstName} {user.lastName}
                   <input type="hidden" name="users[]" id={`user_${idx}`} value={user.id} />
-                  <a onClock={this.removeUser.bind(this, idx)}>&times;</a>
+                  <a onClick={this.removeUser.bind(this, idx)}>&times;</a>
                 </li>
               );
              })}

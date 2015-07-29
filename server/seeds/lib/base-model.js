@@ -67,15 +67,7 @@ class BaseModel {
   }
 
   static findIndex(id) {
-    let index = -1;
-    this.data.some(function (item, idx) {
-      if (item.id === id) {
-        index = idx;
-        return true;
-      }
-      return false;
-    });
-    return index;
+    return this.data.map(function (item) { return item.id; }).indexOf(id);
   }
 
   static deleteOne(id) {
@@ -94,9 +86,7 @@ class BaseModel {
   }
 
   static upsert(model) {
-    let idx = _(this.data).findIndex(function(item) {
-      return item.id === model.id;
-    });
+    let idx = this.findIndex(model.id);
     if (idx > -1) {
       this.data[idx] = model;
     } else {

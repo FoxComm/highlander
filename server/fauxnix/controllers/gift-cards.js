@@ -25,7 +25,7 @@ module.exports = function(app, router) {
       let
         body = yield parse.json(this),
         cards = [],
-        balance = body.balance * 100,
+        balance = body.balance,
         data = {
           type: body.cardType,
           subType: body.subType,

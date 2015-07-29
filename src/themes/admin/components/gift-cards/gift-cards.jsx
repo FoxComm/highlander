@@ -37,7 +37,7 @@ export default class GiftCards extends React.Component {
   }
 
   onCardsAdded(cards) {
-    let cardList = this.state.cards;
+    let cardList = this.state.cards.slice(0, this.state.cards.length);
 
     this.toggleNew();
 
@@ -55,7 +55,7 @@ export default class GiftCards extends React.Component {
 
   removeNew() {
     setTimeout(() => {
-      let rows = document.querySelectorAll('tr.new');
+      let rows = [].slice.call(document.querySelectorAll('tr.new'));
       for (let i = 0; i < rows.length; i++) {
         rows[i].classList.remove('new');
       }
