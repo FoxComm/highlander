@@ -127,17 +127,17 @@ object FullOrder {
       orderDetails ← order.fold(noOrder)(order ⇒ fetchOrderDetails(order))
     } yield (order, orderDetails)
 
-    db.run(queries).map { case (order, (c, items, shipment, payments)) ⇒
-      order.map { o ⇒
-        val paymentsAndCards = payments.unzip
+    db.run(queries).map { case (maybeOrder, (customer, items, shipment, payments)) ⇒
+      maybeOrder.map { order ⇒
+        val (orderPayments, cards) = payments.unzip
         build(
-          order = o,
-          customer = c,
+          order = order,
+          customer = customer,
           lineItems = items,
-          shippingAddress = shipment.map(_._1),
-          shippingMethod = shipment.map(_._2),
-          orderPayments = paymentsAndCards._1,
-          creditCards = paymentsAndCards._2
+          shippingAddress = shipment.map { case (address, _) ⇒ address },
+          shippingMethod = shipment.map { case (_, method) ⇒ method },
+          orderPayments = orderPayments,
+          creditCards = cards
         )
       }
     }
