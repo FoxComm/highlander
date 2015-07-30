@@ -3,6 +3,7 @@ import akka.http.scaladsl.model.StatusCodes
 import models.{Orders, OrderShippingAddresses, Addresses, Customers}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
+import utils._
 import services.{CustomerHasDefaultShippingAddress, Failure}
 
 class AddressesIntegrationTest extends IntegrationTestBase
@@ -10,7 +11,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
   with AutomaticAuth {
 
   import concurrent.ExecutionContext.Implicits.global
-
+  import api._
   import Extensions._
   import org.json4s.jackson.JsonMethods._
 
@@ -57,6 +58,24 @@ class AddressesIntegrationTest extends IntegrationTestBase
 
       Addresses.findById(another.id).run().futureValue.get.isDefaultShipping mustBe true
       Addresses.findById(address.id).run().futureValue.get.isDefaultShipping mustBe false
+    }
+
+    "removes an existing default from a shipping address" in new AddressFixture {
+      val response = DELETE(s"v1/users/${customer.id}/addresses/default")
+
+      response.status must === (StatusCodes.NoContent)
+      response.bodyText mustBe 'empty
+
+      Addresses.findById(address.id).run().futureValue.get.isDefaultShipping mustBe false
+    }
+
+    "attempts to removes default shipping address when none is set" in new CustomerFixture {
+      val response = DELETE(s"v1/users/${customer.id}/addresses/default")
+
+      response.status must === (StatusCodes.NoContent)
+      response.bodyText mustBe 'empty
+
+      Addresses._findAllByCustomerId(customer.id).length.result.run().futureValue must === (0)
     }
   }
 

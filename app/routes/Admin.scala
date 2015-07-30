@@ -67,6 +67,13 @@ object Admin {
                   optFailure.fold(HttpResponse(OK)) { f ⇒ renderFailure(Seq(f)) }
                 }
               }
+          } ~
+          (delete & path("default")  & pathEnd) {
+            complete {
+              AddressManager.removeDefaultShippingAddress(customerId).map { _ ⇒
+                HttpResponse(NoContent)
+              }
+            }
           }
         } ~
         pathPrefix("payment-methods") {

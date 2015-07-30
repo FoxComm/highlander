@@ -46,6 +46,9 @@ object AddressManager {
     }
   }
 
+  def removeDefaultShippingAddress(customerId: Int)
+    (implicit ec: ExecutionContext, db: Database): Future[Int] =
+    db.run(Addresses._findDefaultByCustomerId(customerId).map(_.isDefaultShipping).update(false))
   /*
   def createFromPayload(customer: Customer, payload: Seq[CreateAddressPayload])
     (implicit ec: ExecutionContext, db: Database): Future[Seq[Address] Or Map[Address, Set[ErrorMessage]]] = {
