@@ -75,7 +75,7 @@ export default class GiftCards extends React.Component {
           <div className="gutter">
             <table className="inline">
               <TableHead columns={this.props.tableColumns} />
-              <TableBody columns={this.props.tableColumns} rows={this.state.cards} model="gift-card" />
+              <TableBody columns={this.props.tableColumns} rows={this.state.cards} model="giftcard" />
             </table>
           </div>
         </div>
@@ -91,7 +91,7 @@ GiftCards.propTypes = {
 
 GiftCards.defaultProps = {
   tableColumns: [
-    {field: 'cardNumber', text: 'Gift Card Number'},
+    {field: 'cardNumber', text: 'Gift Card Number', type: 'link', model: 'giftcard', id: 'id'},
     {field: 'type', text: 'Type'},
     {field: 'balance', text: 'Original Balance', type: 'currency'},
     {field: 'currentBalance', text: 'Current Balance', type: 'currency'},

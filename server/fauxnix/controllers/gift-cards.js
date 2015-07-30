@@ -11,9 +11,10 @@ const
 
 module.exports = function(app, router) {
   const
-    GiftCard = app.seeds.models.GiftCard,
-    Note     = app.seeds.models.Note,
-    Activity = app.seeds.models.Activity;
+    GiftCard            = app.seeds.models.GiftCard,
+    Note                = app.seeds.models.Note,
+    Activity            = app.seeds.models.Activity,
+    GiftCardTransaction = app.seeds.models.GiftCardTransaction;
 
   router
     .param('giftcard', function *(id, next) {
@@ -72,5 +73,8 @@ module.exports = function(app, router) {
     })
     .get('/gift-cards/:giftcard/activity-trail', function *() {
       this.body = Activity.findAll('giftCardId', this.card.id);
+    })
+    .get('/gift-cards/:giftcard/transactions', function *() {
+      this.body = GiftCardTransaction.findAll('giftCardId', this.card.id);
     });
 };
