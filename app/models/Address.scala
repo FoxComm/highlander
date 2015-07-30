@@ -72,4 +72,7 @@ object Addresses extends TableQueryWithId[Address, Addresses](
     addresses ← q
     states ← States if states.id === addresses.id
   } yield (addresses, states)
+
+  def _findDefaultByCustomerId(customerId: Int) =
+   filter(_.customerId === customerId).filter(_.isDefaultShipping === true)
 }

@@ -15,6 +15,4 @@ create table order_shipping_addresses (
     foreign key (order_id) references orders(id) on update restrict on delete restrict
 );
 
-create index order_shipping_addresses_order_id_idx on order_shipping_addresses (order_id);
-
-
+create unique index order_shipping_addresses_order_id_idx on order_shipping_addresses (order_id);

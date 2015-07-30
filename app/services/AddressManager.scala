@@ -32,20 +32,18 @@ object AddressManager {
     }
   }
 
-  def toggleDefaultShippingAddress(id: Int, isDefault: Boolean)
+  def setDefaultShippingAddress(customerId: Int, addressId: Int)
     (implicit ec: ExecutionContext, db: Database): Future[Option[Failure]] = {
-
-    val result = withUniqueConstraint {
-      db.run(Addresses._findById(id).extract.map(_.isDefaultShipping).update(isDefault)).map { rows ⇒
-        if (rows != 1) {
-          Some(NotFoundFailure(Address, id))
-        } else {
-          None
-        }
+    db.run((for {
+      _ ← Addresses._findDefaultByCustomerId(customerId).map(_.isDefaultShipping).update(false)
+      newDefault ← Addresses._findById(addressId).extract.map(_.isDefaultShipping).update(true)
+    } yield newDefault).transactionally).map { rows ⇒
+      if (rows != 1) {
+        Some(NotFoundFailure(Address, addressId))
+      } else {
+        None
       }
-    } { e ⇒ CustomerHasDefaultShippingAddress }
-
-    result.map(_.fold(identity, Some(_)))
+    }
   }
 
   /*

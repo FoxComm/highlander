@@ -47,15 +47,16 @@ class AddressesIntegrationTest extends IntegrationTestBase
       response.bodyText mustBe 'empty
     }
 
-    "errors if there's already a default shipping address" in new AddressFixture {
+    "sets a new shipping address if there's already a default shipping address" in new AddressFixture {
       val another = Addresses.save(address.copy(id = 0, isDefaultShipping = false)).run().futureValue
       val payload = payloads.ToggleDefaultShippingAddress(isDefault = true)
       val response = POST(s"v1/users/${customer.id}/addresses/${another.id}/default", payload)
 
-      response.status must === (StatusCodes.BadRequest)
+      response.status must === (StatusCodes.OK)
+      response.bodyText mustBe 'empty
 
-      val errors = parse(response.bodyText).extract[Map[String, Seq[String]]]
-      errors must === (Map("errors" -> CustomerHasDefaultShippingAddress.description))
+      Addresses.findById(another.id).run().futureValue.get.isDefaultShipping mustBe true
+      Addresses.findById(address.id).run().futureValue.get.isDefaultShipping mustBe false
     }
   }
 

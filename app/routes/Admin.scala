@@ -63,7 +63,7 @@ object Admin {
           (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultShippingAddress]) & pathEnd) {
             (id, payload) ⇒
               complete {
-                AddressManager.toggleDefaultShippingAddress(id, payload.isDefault).map { optFailure ⇒
+                AddressManager.setDefaultShippingAddress(customerId, id).map { optFailure ⇒
                   optFailure.fold(HttpResponse(OK)) { f ⇒ renderFailure(Seq(f)) }
                 }
               }
