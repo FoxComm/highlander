@@ -47,35 +47,26 @@ object Admin {
             CustomerManager.toggleDisabled(customerId, payload.disabled, admin).map(renderGoodOrBad)
           }
         } ~
-        (pathPrefix("addresses") & pathEnd) {
-          get {
+        pathPrefix("addresses") {
+          (get & pathEnd) {
             complete {
               Addresses._findAllByCustomerIdWithStates(customerId).result.run().map { records ⇒
                 render(responses.Addresses.build(records))
               }
             }
           } ~
-          (post & entity(as[CreateAddressPayload])) { payload =>
+          (post & entity(as[CreateAddressPayload]) & pathEnd) { payload =>
             complete {
               AddressManager.create(payload, customerId).map(renderGoodOrBad)
             }
-          }
-        } ~
-        pathPrefix("shipping-addresses") {
-//          (get & pathEnd) {
-//            complete {
-//              OrderShippingAddresses.findAllByCustomerIdWithStates(customerId).result.run().map { records ⇒
-//                render(responses.Addresses.buildShipping(records))
-//              }
-//            }
-//          } ~
+          } ~
           (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultShippingAddress]) & pathEnd) {
             (id, payload) ⇒
-            complete {
-              AddressManager.toggleDefaultShippingAddress(id, payload.isDefault).map { optFailure ⇒
-                optFailure.fold(HttpResponse(OK)) { f ⇒ renderFailure(Seq(f)) }
+              complete {
+                AddressManager.toggleDefaultShippingAddress(id, payload.isDefault).map { optFailure ⇒
+                  optFailure.fold(HttpResponse(OK)) { f ⇒ renderFailure(Seq(f)) }
+                }
               }
-            }
           }
         } ~
         pathPrefix("payment-methods") {

@@ -75,6 +75,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.BadRequest)
     }
 
+    /*
     "successfully creates records" ignore {
       val order = Orders.save(Factories.order.copy(customerId = 1)).run().futureValue
       val customerId = db.run(Customers.returningId += customerStub).futureValue
@@ -110,6 +111,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       address.stateId must === (addressPayload.stateId)
       address.customerId must === (customerId)
     }
+    */
   }
 
   "notes" - {

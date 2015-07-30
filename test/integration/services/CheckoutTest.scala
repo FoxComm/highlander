@@ -1,6 +1,6 @@
 package services
 
-import models.{Address, Addresses, OrderPayment, OrderPayments, BillingAddress, BillingAddresses, CreditCard, CreditCards, Customer, Customers, Order, OrderLineItem, OrderLineItems, Orders}
+import models.{Address, Addresses, OrderPayment, OrderPayments, CreditCard, CreditCards, Customer, Customers, Order, OrderLineItem, OrderLineItems, Orders}
 import org.scalactic.{Bad, TypeCheckedTripleEquals}
 import org.scalatest.Inside
 import util.IntegrationTestBase
@@ -97,8 +97,7 @@ class CheckoutTest extends IntegrationTestBase with Inside with TypeCheckedTripl
       order    ← Orders.save(orderStub.copy(customerId = customer.id))
       address  ← Addresses.save(addressStub.copy(customerId = customer.id))
       payment  ← OrderPayments.save(paymentStub.copy(orderId = order.id))
-      billingAddress ← BillingAddresses.save(BillingAddress(addressId = address.id, paymentId = payment.id))
-      gateway ← CreditCards.save(gatewayStub.copy(customerId = customer.id))
+      gateway ← CreditCards.save(gatewayStub.copy(customerId = customer.id, billingAddressId = address.id))
     } yield (payment, order)).run().futureValue
 
     (order, payment)

@@ -1,6 +1,6 @@
 import akka.http.scaladsl.model.StatusCodes
 
-import models.{OrderShippingAddresses$, Addresses, Customers}
+import models.{Orders, OrderShippingAddresses, Addresses, Customers}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import services.{CustomerHasDefaultShippingAddress, Failure}
@@ -38,33 +38,19 @@ class AddressesIntegrationTest extends IntegrationTestBase
       newAddress.name must === (payload.name)
       newAddress.isDefault must === (None)
     }
-  }
 
-  "ShippingAddresses" - {
-    "list shipping addresses" in new ShippingAddressFixture {
-      val response = GET(s"v1/users/${customer.id}/shipping-addresses")
-
-      response.status must === (StatusCodes.OK)
-
-      val addresses = parse(response.bodyText).extract[Seq[responses.Addresses.Root]]
-
-      addresses must have size (1)
-      addresses.head.name must === (address.name)
-      addresses.head.isDefault must === (Some(true))
-    }
-
-    "sets the isDefault flag on a shipping address" in new ShippingAddressFixture {
+    "sets the isDefaultShippingAddress flag on an address" in new AddressFixture {
       val payload = payloads.ToggleDefaultShippingAddress(isDefault = false)
-      val response = POST(s"v1/users/${customer.id}/shipping-addresses/${shippingAddress.id}/default", payload)
+      val response = POST(s"v1/users/${customer.id}/addresses/${address.id}/default", payload)
 
       response.status must === (StatusCodes.OK)
       response.bodyText mustBe 'empty
     }
 
-    "errors if there's already a default shipping address" in new ShippingAddressFixture {
-      val (_, another) = OrderShippingAddresses.createFromAddress(address.copy(id = 0)).run().futureValue
+    "errors if there's already a default shipping address" in new AddressFixture {
+      val another = Addresses.save(address.copy(id = 0, isDefaultShipping = false)).run().futureValue
       val payload = payloads.ToggleDefaultShippingAddress(isDefault = true)
-      val response = POST(s"v1/users/${customer.id}/shipping-addresses/${another.id}/default", payload)
+      val response = POST(s"v1/users/${customer.id}/addresses/${another.id}/default", payload)
 
       response.status must === (StatusCodes.BadRequest)
 
@@ -78,11 +64,15 @@ class AddressesIntegrationTest extends IntegrationTestBase
   }
 
   trait AddressFixture extends CustomerFixture {
-    val address = Addresses.save(Factories.address.copy(customerId = customer.id)).run().futureValue
+    val address = Addresses.save(Factories.address.copy(customerId = customer.id,
+      isDefaultShipping = true)).run().futureValue
   }
 
   trait ShippingAddressFixture extends AddressFixture {
-    val (_, shippingAddress) = OrderShippingAddresses.createFromAddress(address, isDefault = true).run().futureValue
+    (for {
+      order ← Orders.save(Factories.order.copy(customerId = customer.id))
+      shippingAddress ← OrderShippingAddresses.copyFromAddress(address, order.id)
+    } yield (order, shippingAddress)).run().futureValue
   }
 }
 

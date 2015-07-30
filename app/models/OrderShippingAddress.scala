@@ -22,6 +22,12 @@ final case class OrderShippingAddress(id: Int = 0, orderId: Int = 0, stateId: In
   }
 }
 
+object OrderShippingAddress {
+  def buildFromAddress(address: Address): OrderShippingAddress =
+    OrderShippingAddress(stateId = address.stateId, name = address.name, street1 = address.street1,
+      street2 = address.street2, city = address.city, zip = address.zip)
+}
+
 class OrderShippingAddresses(tag: Tag) extends TableWithId[OrderShippingAddress](tag, "order_shipping_addresses")
   with RichTable {
   def id = column[Int]("id", O.PrimaryKey)
@@ -45,12 +51,9 @@ object OrderShippingAddresses extends TableQueryWithId[OrderShippingAddress, Ord
   idLens = GenLens[OrderShippingAddress](_.id)
 )(new OrderShippingAddresses(_)) {
 
-//  def createFromAddress(address: Address, isDefault: Boolean = false)
-//    (implicit ec: ExecutionContext): DBIO[(Address, OrderShippingAddress)] = for {
-//    newAddress <- Addresses.save(address)
-//    shippingAddress <- save(OrderShippingAddress(id = newAddress.id, customerId = address.customerId,
-//      isDefault = isDefault))
-//  } yield (newAddress, shippingAddress)
+  def copyFromAddress(address: Address, orderId: Int)(implicit ec: ExecutionContext):
+  DBIO[OrderShippingAddress] =
+    save(OrderShippingAddress.buildFromAddress(address).copy(orderId = orderId))
 
 //  def create(address: OrderShippingAddress)(implicit ec: ExecutionContext): DBIO[OrderShippingAddress] = for {
 //    shippingAddress <- save(address)
