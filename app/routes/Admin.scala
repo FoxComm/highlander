@@ -110,7 +110,7 @@ object Admin {
               //              } ~
             (post & path(IntNumber / "convert")) { storeCreditId ⇒
               complete {
-                whenFound(StoreCredits.findById(storeCreditId).run()) { sc ⇒
+                whenFoundDispatchToService(StoreCredits.findById(storeCreditId).run()) { sc ⇒
                   CustomerCreditConverter.toGiftCard(sc, customerId)
                 }
               }
@@ -142,7 +142,7 @@ object Admin {
         } ~
         (post & path("checkout")) {
           complete {
-            whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order => new Checkout(order).checkout }
+            whenFoundDispatchToService(Orders.findByRefNum(refNum).result.headOption.run()) { order => new Checkout(order).checkout }
           }
         } ~
         (post & path("line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems =>
@@ -191,14 +191,14 @@ object Admin {
           } ~
           (post & entity(as[payloads.CreateNote])) { payload ⇒
             complete {
-              whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
+              whenFoundDispatchToService(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
                 services.NoteManager.createOrderNote(order, admin, payload)
               }
             }
           } ~
           (patch & path(IntNumber) & entity(as[payloads.UpdateNote])) { (noteId, payload) ⇒
             complete {
-              whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
+              whenFoundDispatchToService(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
                 services.NoteManager.updateNote(noteId, admin, payload)
               }
             }
