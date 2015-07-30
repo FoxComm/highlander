@@ -11,7 +11,8 @@ const seed = [
   {field: 'availableBalance', method: 'integer', opts: {min: 1000, max: 10000}},
   {field: 'currentBalance', method: 'integer', opts: {min: 1000, max: 10000}},
   {field: 'state', method: 'pick', opts: ['Active', 'On Hold', 'Canceled']},
-  {field: 'date', method: 'date', opts: {year: 2014}}
+  {field: 'date', method: 'date', opts: {year: 2014}},
+  {field: 'message', method: 'paragraph'}
 ];
 
 class GiftCard extends BaseModel {
@@ -30,6 +31,14 @@ class GiftCard extends BaseModel {
       return undefined;
     }
   }
+  get recipient() {
+    if (this.model.recipientId) {
+      return Customer.findOne(this.model.recipientId);
+    } else {
+      return undefined;
+    }
+  }
+  get message() { return this.model.message; }
 
   set type(val) { this.model.type = val; }
   set subType(val) { this.model.subType = val; }

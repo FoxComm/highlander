@@ -61,7 +61,20 @@ export default class GiftCard extends React.Component {
           </div>
           <div className="grid-unit col-3">
             <article className="panel">
-              <p>Blah</p>
+              <div className="grid-row">
+                <div className="grid-unit col-2" >
+                  <p><strong>Customer:</strong> { card.customer ? `${card.customer.firstName} ${card.customer.lastName}` : 'None' }</p>
+                  <p><strong>Recipient:</strong> None</p>
+                  <p><strong>Recipient Email:</strong> None</p>
+                  <p><strong>Recipient Cell (Optional):</strong> None</p>
+                </div>
+                <div className="grid-unit col-2">
+                  <p><strong>Message (optional):</strong></p>
+                  <p>
+                    {card.message}
+                  </p>
+                </div>
+              </div>
             </article>
           </div>
         </div>
