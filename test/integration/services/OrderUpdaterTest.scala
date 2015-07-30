@@ -8,24 +8,7 @@ import utils.Seeds.Factories
 import utils._
 
 class OrderUpdaterTest extends IntegrationTestBase {
-  import api._
   import concurrent.ExecutionContext.Implicits.global
-
-  val lineItems = TableQuery[OrderLineItems]
-
-  def createSkus(num: Int): Unit =
-    (Skus.returningId ++= (1 to num).map { i ⇒ Sku(price = 5) }).run().futureValue
-
-  def createLineItems(items: Seq[OrderLineItem]): Unit = {
-    val insert = lineItems ++= items
-    db.run(insert).futureValue
-  }
-
-  def createInventory(skuId: Int, availableOnHand: Int = 100): Unit = {
-    val summary = InventorySummary(id = 0, skuId = skuId, availableOnHand = availableOnHand, availablePreOrder = 0,
-                                   availableBackOrder = 0, outstandingPreOrders = 0, outstandingBackOrders = 0)
-    InventorySummaries.save(summary).run().futureValue
-  }
 
   "OrderUpdater" - {
 
