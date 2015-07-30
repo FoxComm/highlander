@@ -49,15 +49,17 @@ object Http {
     }
   }
 
-  // Todo: naming
-  def whenFoundDispatchToService[A, G <: AnyRef](finder: Future[Option[A]])
-    (f: A ⇒ Future[G Or Failures])
-    (implicit ec: ExecutionContext, db: Database): Future[HttpResponse] =
-    finder.flatMap { option: Option[A] ⇒
-      option.map(f(_).map(renderGoodOrFailures)).getOrElse(Future.successful(notFoundResponse)) }
+  def whenFoundDispatchToService[A, G <: AnyRef](finder: ⇒ Future[Option[A]])
+                                                (bind:   A ⇒ Future[G Or Failures])
+                                                (implicit ec: ExecutionContext): Future[HttpResponse] = {
+    finder flatMap {
+      case None    ⇒ Future.successful(notFoundResponse)
+      case Some(v) ⇒ bind(v).map(renderGoodOrFailures)
+    }
+  }
 
   def renderOrNotFound[A <: AnyRef](resource: Future[Option[A]],
-    onFound: (A => HttpResponse) = (r: A) => render(r))(implicit ec: ExecutionContext) = {
+    onFound: (A ⇒ HttpResponse) = (r: A) => render(r))(implicit ec: ExecutionContext) = {
     resource.map {
       case Some(r) => onFound(r)
       case None => notFoundResponse
