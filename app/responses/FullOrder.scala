@@ -96,27 +96,49 @@ object FullOrder {
 
   private [this] def findOrder(finder: Query[Orders, Order, Seq])
     (implicit ec: ExecutionContext, db: Database): Response = {
+
+    type OrderDetailsQuery = DBIOAction[(Option[Customer], Seq[OrderLineItem], Option[(Address, ShippingMethod)], Seq[
+      (OrderPayment, CreditCard)]), NoStream, Effect.Read]
+    val noOrder: OrderDetailsQuery = DBIO.successful((None, Seq.empty, None, Seq.empty))
+
+    def fetchOrderDetails(order: Order)(implicit ec: ExecutionContext): OrderDetailsQuery = {
+      val shipmentQ = for {
+        shipment ← Shipments.filter(_.orderId === order.id)
+        address ← models.Addresses.filter(_.id === shipment.shippingAddressId)
+        method ← ShippingMethods.filter(_.id === shipment.shippingMethodId)
+      } yield (address, method)
+
+      val paymentQ = for {
+        payment ← OrderPayments.filter(_.orderId === order.id)
+        creditCard ← CreditCards.filter(_.id === payment.paymentMethodId)
+      } yield (payment, creditCard)
+
+      for {
+        customer ← Customers._findById(order.customerId).extract.result.headOption
+        lineItems ← OrderLineItems._findByOrderId(order.id).result
+        shipment ← shipmentQ.result.headOption
+        payments ← paymentQ.result
+      } yield (customer, lineItems, shipment, payments)
+    }
+
+
     val queries = for {
-      order ← finder
-      lineItems ← OrderLineItems._findByOrderId(order.id)
-      shipment ← Shipments.filter(_.orderId === order.id)
-      customer ← Customers._findById(order.customerId)
-      shipMethod ← ShippingMethods.filter(_.id === shipment.shippingMethodId)
-      address ← models.Addresses.filter(_.id === shipment.shippingAddressId)
-      orderPayments ← OrderPayments.filter(_.orderId === order.id)
-      creditCards ← CreditCards.filter(_.id === orderPayments.paymentMethodId)
-    } yield (order, lineItems, shipMethod, customer, address, orderPayments, creditCards)
+      order ← finder.result.headOption
+      orderDetails ← order.fold(noOrder)(order ⇒ fetchOrderDetails(order))
+    } yield (order, orderDetails)
 
-    db.run(queries.result).map { results =>
-      results.headOption.map { case (order, _, shippingMethod, customer, address, orderPayments,
-      creditCards) =>
-        val lineItems = results.map { case (_, items, _, _, _, _, _) ⇒ items }
-        val orderPayments = results.map {case (_, _, _, _, _, payments, _) ⇒ payments }
-        val creditCards = results.map {case (_, _, _, _, _, _, creditCards) ⇒ creditCards }
-
-        build(order = order, lineItems = lineItems, shippingMethod = Some(shippingMethod),
-              customer = Some(customer), shippingAddress = Some(address),
-          orderPayments = orderPayments, creditCards = creditCards)
+    db.run(queries).map { case (order, (c, items, shipment, payments)) ⇒
+      order.map { o ⇒
+        val paymentsAndCards = payments.unzip
+        build(
+          order = o,
+          customer = c,
+          lineItems = items,
+          shippingAddress = shipment.map(_._1),
+          shippingMethod = shipment.map(_._2),
+          orderPayments = paymentsAndCards._1,
+          creditCards = paymentsAndCards._2
+        )
       }
     }
   }
