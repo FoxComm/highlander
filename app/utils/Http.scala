@@ -51,8 +51,8 @@ object Http {
 
   def whenFoundDispatchToService[A, G <: AnyRef](finder: ⇒ Future[Option[A]])
                                                 (bind:   A ⇒ Future[G Or Failures])
-                                                (implicit ec: ExecutionContext): Future[HttpResponse] = {
-    finder flatMap {
+                                               (implicit ec: ExecutionContext): Future[HttpResponse] = {
+    finder.flatMap {
       case None    ⇒ Future.successful(notFoundResponse)
       case Some(v) ⇒ bind(v).map(renderGoodOrFailures)
     }
