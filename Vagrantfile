@@ -2,7 +2,7 @@
 # vi: set ft=ruby :
 #
 Vagrant.configure("2") do |config|
-  config.vm.box = "ubuntu/vivid64"
+  config.vm.box = "ubuntu/trusty64"
 
   config.vm.provider :virtualbox do |vb|
     vb.cpus = 2
@@ -10,10 +10,23 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.provider :vmware_fusion do |v, override|
-    # TODO: find a better ubuntu/vivid64 for vmware_fusion
-    override.vm.box_url = "https://s3.eu-central-1.amazonaws.com/ffuenf-vagrantboxes/ubuntu/ubuntu-15.04-server-amd64_vmware.box"
+    override.vm.box_url = "https://oss-binaries.phusionpassenger.com/vagrant/boxes/latest/ubuntu-14.04-amd64-vmwarefusion.box"
     v.vmx["memsize"] = 2048
     v.vmx["numvcpus"] = 2
+  end
+
+  config.vm.provider :google do |g, override|
+    override.vm.box = "gce"
+    override.ssh.username = ENV['GOOGLE_SSH_USERNAME']
+    override.ssh.private_key_path = ENV['GOOGLE_SSH_KEY']
+
+    g.google_project_id = "foxcomm-stage"
+    g.google_client_email = ENV['GOOGLE_CLIENT_EMAIL']
+    g.google_json_key_location = ENV['GOOGLE_JSON_KEY_LOCATION']
+
+    g.name = "phoenix-stage-01"
+    g.image = "ubuntu-1404-trusty-v20150625"
+    g.zone = "us-central1-a"
   end
 
   config.vm.provision :shell, :path => File.join( "vagrant", "provision.sh" )
