@@ -1,13 +1,16 @@
 package services
 
 import models._
-import payloads.UpdateOrderPayload
+import payloads.{CreateShippingAddress, UpdateOrderPayload}
+import slick.dbio.Effect.All
+import slick.driver.PostgresDriver
 
+import utils.Validation.Result.{Failure ⇒ Invalid, Success}
 import org.scalactic._
 import scala.concurrent.{Future, ExecutionContext}
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
-
+import responses.{Addresses ⇒ Response}
 import slick.driver.PostgresDriver.api._
 
 
@@ -31,4 +34,48 @@ object OrderUpdater {
   }
 
   def createNote = "Note"
+
+  def createShippingAddress(order: Order, payload: CreateShippingAddress)
+    (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failure] = {
+
+    (payload.addressId, payload.address) match {
+      case (Some(addressId), _) ⇒ createShippingAddressFromAddressId(addressId, order.id)
+      case (None, Some(payloadAddress)) ⇒ createShippingAddressFromPayload(Address.fromPayload(payloadAddress), order)
+      case (None, None) ⇒ Future.successful(Bad(GeneralFailure("Not able to create the shipping address")))
+    }
+  }
+
+  private def createShippingAddressFromPayload(address: Address, order: Order)
+    (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failure] = {
+
+    address.validate match {
+      case Success ⇒
+        db.run(for {
+          newAddress ← Addresses.save(address.copy(customerId = order.customerId))
+          state ← States.findById(newAddress.stateId)
+          _ ← OrderShippingAddresses.copyFromAddress(newAddress, order.id)
+        } yield (newAddress, state)).map {
+          case (address, Some(state)) ⇒ Good(Response.build(address, state))
+          case (_, None)              ⇒ Bad(NotFoundFailure(State, address.stateId))
+        }
+      case f: Invalid ⇒ Future.successful(Bad(ValidationFailure(f)))
+    }
+  }
+
+  private def createShippingAddressFromAddressId(addressId: Int, orderId: Int)
+    (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failure] = {
+
+    val noState: DBIOAction[Option[State], NoStream, All] = DBIO.successful((None))
+    val noAddress: DBIOAction[Option[OrderShippingAddress], NoStream, All] = DBIO.successful((None))
+
+    db.run(for {
+      newAddress: Option[Address] ← Addresses.findById(addressId)
+      state ← newAddress.fold(noState)((a: Address) ⇒ States.findById(a.stateId))
+      _ ← newAddress.fold(noAddress)(OrderShippingAddresses.copyFromAddress(_, orderId).map(Some(_)))
+    } yield (newAddress, state)).map {
+      case (Some(address: Address), Some(state: State)) ⇒ Good(Response.build(address, state))
+      case (None, _) ⇒ Bad(NotFoundFailure(Address, addressId))
+      case (Some(address: Address), None) ⇒ Bad(NotFoundFailure(State, address.stateId))
+    }
+  }
 }
