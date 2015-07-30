@@ -37,9 +37,9 @@ object Http {
     }
   }
 
-  def renderGoodOrFailures[G <: AnyRef](that: G Or Failures)
+  def renderGoodOrFailures[G <: AnyRef](or: G Or Failures)
                                        (implicit ec: ExecutionContext): HttpResponse =
-    that.fold(render(_), renderFailure(_)) // Can’t pass eta expanded method because of by-name parameters
+    or.fold(render(_), renderFailure(_)) // Can’t pass eta expanded method because of by-name parameters
 
   def whenFound[A, G <: AnyRef, B <: AnyRef](finder: Future[Option[A]])(f: A => Future[G Or B])
     (implicit ec: ExecutionContext, db: Database): Future[HttpResponse] = {
