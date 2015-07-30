@@ -23,7 +23,7 @@ if [[ ! -f /etc/apt/sources.list.d/sbt.list ]]; then
 fi
 echo "installing a bunch of other stuff.."
 apt-get update -y
-apt-get install -y --force-yes sbt tmux postgresql unzip software-properties-common python-software-properties
+apt-get install -y --force-yes sbt tmux unzip software-properties-common python-software-properties
 
 
 #install flyway
@@ -38,15 +38,23 @@ if [[ ! -d /usr/local/share/flyway ]]; then
     echo "PATH=\$PATH:/usr/local/share/flyway/" >> /etc/profile
 fi
 
+if [[ ! -f /etc/apt/sources.list.d/postgres.list ]]; then
+    echo "deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main" | tee -a /etc/apt/sources.list.d/postgres.list
+    wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+    apt-get update
+fi
+
+apt-get install postgresql-9.4
+
 #setup postgresql
 #trust connections from localhost
 sed -i 's/127.0.0.1\/32\s*md5/127.0.0.1\/32 trust/' /etc/postgresql/9.4/main/pg_hba.conf
 sed -i 's/::1\/128\s*md5/::1\/128 trust/' /etc/postgresql/9.4/main/pg_hba.conf
-sudo -u postgres createuser -s vagrant || {
-    echo "postgres: vagrant user already created, ignoring"
-}
+#sudo -u postgres createuser -s vagrant || {
+    #echo "postgres: vagrant user already created, ignoring"
+#}
 
-systemctl restart postgresql
+service restart postgresql
 
 cd /vagrant
 make configure
