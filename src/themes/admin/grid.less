@@ -15,6 +15,7 @@
   width: @site_max-width;
   margin: 0 auto;
   position: relative;
+  .display-flex;
   .clearfix;
 
   &.grid-gutter {
@@ -29,6 +30,16 @@
     float: left;
     display: inline;
     position: relative;
+    .flex(none);
+  }
+
+  &.grid-match {
+    .grid-unit {
+      .display-flex;
+      >* {
+        .flex(none);
+      }
+    }
   }
 
   .generate-grid(4);
