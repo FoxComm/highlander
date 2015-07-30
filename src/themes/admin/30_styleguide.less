@@ -167,11 +167,14 @@ form.vertical {
 
 .panel {
   background-color: @color-bg-thead;
-  .padding(30px);
+  .padding(10px, 30px);
   width: 100%;
 
   &.featured {
     text-align: center;
-    .padding(60px);
+    .font-spec(25px);
+    > p {
+      .margin(20px, 0);
+    }
   }
 }
