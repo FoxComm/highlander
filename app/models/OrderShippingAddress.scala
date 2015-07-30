@@ -55,24 +55,17 @@ object OrderShippingAddresses extends TableQueryWithId[OrderShippingAddress, Ord
   DBIO[OrderShippingAddress] =
     save(OrderShippingAddress.buildFromAddress(address).copy(orderId = orderId))
 
-//  def create(address: OrderShippingAddress)(implicit ec: ExecutionContext): DBIO[OrderShippingAddress] = for {
-//    shippingAddress <- save(address)
-//  } yield shippingAddress
-//
-//  def findByOrderId(orderId: Int):
-//  Query[(Addresses, OrderShippingAddresses), (Address, OrderShippingAddress), Seq] = for {
-//    addresses ← Addresses._findAllByCustomerId(customerId)
-//    shippingAddresses ← this if shippingAddresses.id === addresses.id
-//  } yield (addresses, shippingAddresses)
-//
-//  def findAllByCustomerIdWithStates(customerId: Int):
-//  Query[(Addresses, OrderShippingAddresses, States), (Address, OrderShippingAddress, State), Seq] = for {
-//    records ← withStates(findAllByCustomerId(customerId))
-//  } yield records
-//
-//  def withStates(q: Query[(Addresses, OrderShippingAddresses), (Address, OrderShippingAddress), Seq]):
-//  Query[(Addresses, OrderShippingAddresses, States), (Address, OrderShippingAddress, State), Seq] = for {
-//    (addresses, shippingAddresses) ← q
-//    states ← States if states.id === addresses.id
-//  } yield (addresses, shippingAddresses, states)
+  def findByOrderId(orderId: Int): Query[OrderShippingAddresses, OrderShippingAddress, Seq] =
+    filter(_.orderId === orderId)
+
+  def findByOrderIdWithStates(orderId: Int):
+  Query[(OrderShippingAddresses, States), (OrderShippingAddress, State), Seq] = for {
+    records ← withStates(findByOrderId(orderId))
+  } yield records
+
+  def withStates(q: Query[(OrderShippingAddresses), (OrderShippingAddress), Seq]):
+  Query[(OrderShippingAddresses, States), (OrderShippingAddress, State), Seq] = for {
+    shippingAddresses ← q
+    states ← States if states.id === shippingAddresses.id
+  } yield (shippingAddresses, states)
 }
