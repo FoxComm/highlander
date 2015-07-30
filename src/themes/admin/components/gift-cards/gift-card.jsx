@@ -42,7 +42,7 @@ export default class GiftCard extends React.Component {
             <li><Link to="gift-card-notes" params={params}>Notes</Link></li>
             <li><Link to="gift-card-activity-trail" params={params}>Activity Trail</Link></li>
           </ul>
-          <RouteHandler giftcard={card} modelName="giftcard"/>
+          <RouteHandler gift-card={card} modelName="gift-card"/>
         </div>
       );
     }

@@ -10,7 +10,10 @@ const
   chance = new Chance();
 
 module.exports = function(app, router) {
-  const GiftCard = app.seeds.models.GiftCard;
+  const
+    GiftCard = app.seeds.models.GiftCard,
+    Note     = app.seeds.models.Note,
+    Activity = app.seeds.models.Activity;
 
   router
     .param('giftcard', function *(id, next) {
@@ -53,5 +56,21 @@ module.exports = function(app, router) {
     })
     .get('/gift-cards/:giftcard', function *() {
       this.body = this.card;
+    })
+    .get('/gift-cards/:giftcard/notes', function *() {
+      this.body = Note.findAll('giftCardId', this.card.id);
+    })
+    .post('/gift-cards/:giftcard/notes', function *() {
+      let
+        body = yield parse.json(this),
+        note = new Note(body);
+      note.giftCardId = this.card.id;
+      // @todo no notion of auth right now, hard coded to 1 - Tivs
+      note.customerId = 1;
+      this.status = 201;
+      this.body = note;
+    })
+    .get('/gift-cards/:giftcard/activity-trail', function *() {
+      this.body = Activity.findAll('giftCardId', this.card.id);
     });
 };
