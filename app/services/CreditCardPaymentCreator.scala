@@ -3,7 +3,7 @@ package services
 import models._
 
 import responses.FullOrder
-import payloads.CreditCardPayload
+import payloads.CreateCreditCard
 
 import org.scalactic._
 import scala.concurrent.{Future, ExecutionContext}
@@ -18,7 +18,7 @@ import utils.Validation.Result.{ Success}
 import utils.{ Validation ⇒ validation }
 
 // TODO(yax): make this abstract to handle multiple Gateways
-final case class CreditCardPaymentCreator(order: Order, customer: Customer, cardPayload: CreditCardPayload)
+final case class CreditCardPaymentCreator(order: Order, customer: Customer, cardPayload: CreateCreditCard)
   (implicit ec: ExecutionContext, db: Database) {
 
   val gateway = StripeGateway()
@@ -55,7 +55,7 @@ final case class CreditCardPaymentCreator(order: Order, customer: Customer, card
     val queries = for {
       ccId <- CreditCards.returningId += cc
       appliedPaymentId <- OrderPayments.returningId += appliedPayment.copy(paymentMethodId = ccId)
-      _ <- billingAddress.map(BillingAddresses._create(_, appliedPaymentId)).getOrElse(DBIO.successful(Unit))
+      _ <- billingAddress.map(Addresses.save(_)).getOrElse(DBIO.successful(Unit))
       c <- Orders._findById(order.id).result.headOption
     } yield c
 
@@ -66,7 +66,7 @@ final case class CreditCardPaymentCreator(order: Order, customer: Customer, card
 object CreditCardPaymentCreator {
   type Response = Future[FullOrder.Root Or List[Failure]]
 
-  def run(order: Order, customer: Customer, payload: CreditCardPayload)
+  def run(order: Order, customer: Customer, payload: CreateCreditCard)
     (implicit ec: ExecutionContext, db: Database): Response = {
     new CreditCardPaymentCreator(order, customer, payload).run()
   }

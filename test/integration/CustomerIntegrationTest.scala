@@ -31,8 +31,8 @@ class CustomerIntegrationTest extends IntegrationTestBase
     }
 
     "sets the isDefault flag on a credit card" in new Fixture {
-      val creditCard = CreditCards.save(Factories.creditCard.copy(isDefault = false, customerId = customer.id)).run()
-        .futureValue
+      val creditCard = CreditCards.save(Factories.creditCard.copy(isDefault = false,
+        customerId = customer.id, billingAddressId = address.id)).run().futureValue
 
       val payload = payloads.ToggleDefaultCreditCard(isDefault = true)
       val response = POST(
@@ -45,10 +45,10 @@ class CustomerIntegrationTest extends IntegrationTestBase
     }
 
     "fails to set the credit card as default if a default currently exists" in new Fixture {
-      val default = CreditCards.save(Factories.creditCard.copy(isDefault = true, customerId = customer.id))
-        .run().futureValue
-      val nonDefault = CreditCards.save(Factories.creditCard.copy(isDefault = false, customerId = customer.id))
-        .run().futureValue
+      val default = CreditCards.save(Factories.creditCard.copy(isDefault = true, customerId = customer.id,
+        billingAddressId = address.id)).run().futureValue
+      val nonDefault = CreditCards.save(Factories.creditCard.copy(isDefault = false, customerId = customer.id,
+        billingAddressId = address.id)).run().futureValue
 
       val payload = payloads.ToggleDefaultCreditCard(isDefault = true)
       val response = POST(
@@ -61,8 +61,11 @@ class CustomerIntegrationTest extends IntegrationTestBase
   }
 
   trait Fixture {
-    val customer = Customers.save(Factories.customer).run().futureValue
-    val admin = StoreAdmins.save(authedStoreAdmin).run().futureValue
+    val (customer, address, admin) = (for {
+      customer ← Customers.save(Factories.customer)
+      address ← Addresses.save(Factories.address.copy(customerId = customer.id))
+      admin ← StoreAdmins.save(authedStoreAdmin)
+    } yield (customer, address, admin)).run().futureValue
   }
 }
 

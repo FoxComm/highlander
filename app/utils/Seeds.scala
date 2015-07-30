@@ -18,7 +18,7 @@ object Seeds {
   val today = new DateTime
 
   final case class TheWorld(customer: Customer, order: Order, orderNotes: Seq[Note], address: Address, cc: CreditCard,
-    storeAdmin: StoreAdmin, shippingAddresses: Seq[ShippingAddress], shippingMethods: Seq[ShippingMethod],
+    storeAdmin: StoreAdmin, shippingAddresses: Seq[OrderShippingAddress], shippingMethods: Seq[ShippingMethod],
     shippingPriceRules: Seq[ShippingPriceRule], shippingMethodRuleMappings: Seq[ShippingMethodPriceRule],
     orderCriteria: Seq[OrderCriterion], orderPriceCriteria: Seq[OrderPriceCriterion],
     priceRuleCriteriaMappings: Seq[ShippingPriceRuleOrderCriterion], skus: Seq[Sku],
@@ -26,7 +26,7 @@ object Seeds {
 
   final case class PaymentMethods(giftCard: GiftCard = Factories.giftCard, storeCredit: StoreCredit = Factories.storeCredit)
 
-  def run()(implicit db: Database): dbio.DBIOAction[(Customer, Order, Address, ShippingAddress, CreditCard),
+  def run()(implicit db: Database): dbio.DBIOAction[(Customer, Order, Address, OrderShippingAddress, CreditCard),
     NoStream, Write with Write with Write with All with Write with Write with All with All with Write with All with
     Write with Write with Write with Write with Write with All] = {
 
@@ -65,17 +65,16 @@ object Seeds {
       orderNotes ← Notes ++= s.orderNotes
       orderLineItem ← OrderLineItems ++= s.orderLineItems
       address ← Addresses.save(s.address.copy(customerId = customer.id))
-      shippingAddress ← ShippingAddresses.save(Factories.shippingAddress.copy(id = address.id,
-        customerId = customer.id))
+      shippingAddress ← OrderShippingAddresses.save(Factories.shippingAddress.copy(orderId = order.id))
       shippingMethods ← ShippingMethods ++= s.shippingMethods
-      gateway ← CreditCards.save(s.cc.copy(customerId = customer.id))
+      creditCard ← CreditCards.save(s.cc.copy(customerId = customer.id, billingAddressId = address.id))
       shippingPriceRule ← ShippingPriceRules ++= s.shippingPriceRules
       shippingMethodRuleMappings ← ShippingMethodsPriceRules ++= s.shippingMethodRuleMappings
       orderCriterion ← OrderCriteria ++= s.orderCriteria
       orderPriceCriterion ← OrderPriceCriteria ++= s.orderPriceCriteria
       priceRuleCriteriaMapping ← ShippingPriceRulesOrderCriteria ++= s.priceRuleCriteriaMappings
       shipments ← Shipments.save(s.shipment)
-    } yield (customer, order, address, shippingAddress, gateway)
+    } yield (customer, order, address, shippingAddress, creditCard)
   }
 
   object Factories {
@@ -104,13 +103,11 @@ object Seeds {
 
     def orderLineItems: Seq[OrderLineItem] = Seq(OrderLineItem(id = 0, orderId = 1, skuId = 1, status = OrderLineItem.Cart), OrderLineItem(id = 0, orderId = 1, skuId = 2, status = OrderLineItem.Cart), OrderLineItem(id = 0, orderId = 1, skuId = 3, status = OrderLineItem.Cart))
 
-    def address =
-      Address(customerId = 0, stateId = 1, name = "Home", street1 = "555 E Lake Union St.",
-        street2 = None, city = "Seattle", zip = "12345")
+    def address = Address(customerId = 0, stateId = 1, name = "Home", street1 = "555 E Lake Union St.",
+        street2 = None, city = "Seattle", zip = "12345", isDefaultShipping = true)
 
-    def billingAddress = BillingAddress()
-
-    def shippingAddress = ShippingAddress(id = 0, isDefault = true)
+    def shippingAddress = OrderShippingAddress(stateId = 46, name = "Old Yax", street1 = "9313 Olde Mill Pond Dr",
+      street2 = None, city = "Glen Allen", zip = "23060")
 
     def creditCard =
       CreditCard(customerId = 0, gatewayCustomerId = "", lastFour = "4242",
