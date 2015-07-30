@@ -68,10 +68,10 @@ object OrderUpdater {
     db.run(for {
       address ← Addresses.findById(addressId)
       state ← address.map { a ⇒ States.findById(a.stateId) }.getOrElse(DBIO.successful(None))
-      newAddress ← address.map(OrderShippingAddresses.copyFromAddress(_, orderId).map(Some(_))).
+      _ ← address.map(OrderShippingAddresses.copyFromAddress(_, orderId).map(Some(_))).
         getOrElse(DBIO.successful(None))
-    } yield (address, state, newAddress)).map {
-      case (Some(address), Some(state), Some(_)) ⇒
+    } yield (address, state)).map {
+      case (Some(address), Some(state)) ⇒
         Good(Response.build(address, state))
       case _ ⇒
         Bad(NotFoundFailure(Address, addressId))
