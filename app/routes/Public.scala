@@ -7,7 +7,7 @@ import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import models._
 import org.json4s.jackson.Serialization.{write ⇒ json}
-import responses.{AdminOrders, PublicSku}
+import responses.PublicSku
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 
 object Public {

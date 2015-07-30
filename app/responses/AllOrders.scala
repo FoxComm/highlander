@@ -7,7 +7,7 @@ import org.joda.time.DateTime
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 
-object AdminOrders {
+object AllOrders {
   type Response = Future[Seq[Root]]
 
   final case class Root(
