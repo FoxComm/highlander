@@ -23,14 +23,14 @@ object AllOrders {
   def findAll(implicit ec: ExecutionContext, db: Database): Response = {
 
     val ordersAndCustomers = for {
-      (order, customer) ← Orders joinLeft Customers on (_.customerId === _.id)
+      (order, customer) ← Orders.joinLeft(Customers).on(_.customerId === _.id)
     } yield (order, customer)
 
     val creditCardPayments = for {
-      (orderPayment, creditCard) ← OrderPayments join CreditCards on (_.id === _.id)
+      (orderPayment, creditCard) ← OrderPayments.join(CreditCards).on(_.id === _.id)
     } yield (orderPayment, creditCard)
 
-    val query = ordersAndCustomers joinLeft creditCardPayments on (_._1.id === _._1.orderId)
+    val query = ordersAndCustomers.joinLeft(creditCardPayments).on(_._1.id === _._1.orderId)
 
     db.run(query.result).map {
       _.map { case ((order, customer), payment) ⇒
