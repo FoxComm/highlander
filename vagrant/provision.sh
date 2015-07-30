@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 #install scala
 if [[ ! -d /usr/local/share/scala ]]; then
     echo "downloading scala 2.11.6..."
@@ -11,6 +13,9 @@ if [[ ! -d /usr/local/share/scala ]]; then
     echo "PATH=\$PATH:\$SCALA_HOME/bin" >> /etc/profile
 fi
 
+add-apt-repository ppa:webupd8team/java -y
+apt-get update
+apt-get install -y --force-yes oracle-java8-installer oracle-java8-set-default
 
 #install sbt
 if [[ ! -f /etc/apt/sources.list.d/sbt.list ]]; then
@@ -18,7 +23,7 @@ if [[ ! -f /etc/apt/sources.list.d/sbt.list ]]; then
 fi
 echo "installing a bunch of other stuff.."
 apt-get update -y
-apt-get install -y --force-yes sbt tmux openjdk-8-jdk postgresql unzip
+apt-get install -y --force-yes sbt tmux postgresql unzip software-properties-common python-software-properties
 
 
 #install flyway
