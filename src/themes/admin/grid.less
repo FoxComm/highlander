@@ -17,6 +17,14 @@
   position: relative;
   .clearfix;
 
+  &.grid-gutter {
+    width: auto;
+    .margin-left(-35px);
+    .grid-unit {
+      .padding-left(35px);
+    }
+  }
+
   .grid-unit {
     float: left;
     display: inline;
@@ -26,4 +34,7 @@
   .generate-grid(4);
 
   &.row-3 { .generate-grid(3); }
+  &.row-5 { .generate-grid(5); }
+  &.row-6 { .generate-grid(6); }
+  &.row-10{ .generate-grid(10); }
 }

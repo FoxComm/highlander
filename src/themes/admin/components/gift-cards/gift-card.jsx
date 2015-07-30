@@ -4,6 +4,7 @@ import React from 'react';
 import { RouteHandler } from 'react-router';
 import Api from '../../lib/api';
 import { Link } from 'react-router';
+import { formatCurrency } from '../../lib/format';
 
 export default class GiftCard extends React.Component {
   constructor(props) {
@@ -18,7 +19,6 @@ export default class GiftCard extends React.Component {
       { router } = this.context,
       cardId     = router.getCurrentParams().giftcard;
 
-    console.log(cardId);
     Api.get(`/gift-cards/${cardId}`)
        .then((res) => {
          this.setState({
@@ -51,10 +51,17 @@ export default class GiftCard extends React.Component {
         <div className="gutter title">
           <h1>Gift Card { card.cardNumber }</h1>
         </div>
-        <div className="gutter details">
-          <div className="panel">
-            <span>Available Balance</span>
-            <strong>{ card.availableBalance }</strong>
+        <div className="gutter grid-row grid-gutter grid-match">
+          <div className="grid-unit col-1">
+            <article className="panel featured">
+              <span>Available Balance</span>
+              <strong>{ formatCurrency(card.availableBalance) }</strong>
+            </article>
+          </div>
+          <div className="grid-unit col-3">
+            <article className="panel">
+              <p>Blah</p>
+            </article>
           </div>
         </div>
         {subNav}

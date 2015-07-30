@@ -5,7 +5,7 @@
 @media_retina: ~"(min-resolution: 120dpi), (-webkit-min-device-pixel-ratio: 1.25), (min--moz-device-pixel-ratio: 1.25), (-o-min-device-pixel-ratio: 4/3), (min-device-pixel-ratio: 1.25)";
 
 // Site variables
-@site_max-width: 940px;
+@site_max-width: 100%;
 @site_font-size: 15px;
 
 // Site colors
@@ -162,5 +162,16 @@ form.vertical {
     &.checkbox {
       .margin-bottom(0);
     }
+  }
+}
+
+.panel {
+  background-color: @color-bg-thead;
+  .padding(30px);
+  width: 100%;
+
+  &.featured {
+    text-align: center;
+    .padding(60px);
   }
 }
