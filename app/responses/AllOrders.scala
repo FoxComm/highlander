@@ -13,7 +13,7 @@ object AllOrders {
   final case class Root(
     id: Int,
     referenceNumber: String,
-    email: Option[String],
+    email: String,
     orderStatus: Order.Status,
     paymentStatus: Option[String],
     placedAt: Option[DateTime],
@@ -23,7 +23,7 @@ object AllOrders {
   def findAll(implicit ec: ExecutionContext, db: Database): Response = {
 
     val ordersAndCustomers = for {
-      (order, customer) ← Orders.joinLeft(Customers).on(_.customerId === _.id)
+      (order, customer) ← Orders.join(Customers).on(_.customerId === _.id)
     } yield (order, customer)
 
     val creditCardPayments = for {
@@ -39,13 +39,13 @@ object AllOrders {
     }.flatMap(Future.sequence(_))
   }
 
-  def build(order: Order, customer: Option[Customer], payment: Option[OrderPayment])
+  def build(order: Order, customer: Customer, payment: Option[OrderPayment])
     (implicit ec: ExecutionContext): Future[Root] = {
     order.grandTotal.map { grandTotal ⇒
       Root(
         id = order.id,
         referenceNumber = order.referenceNumber,
-        email = customer.map(_.email),
+        email = customer.email,
         orderStatus = order.status,
         paymentStatus = payment.map(_.status),
         placedAt = order.placedAt,
