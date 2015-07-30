@@ -1,4 +1,4 @@
-[![Build status](https://badge.buildkite.com/ec4187f1eca5250c9d56ac493896a8daf83e7aa7db1303f4bd.svg)](https://buildkite.com/foxcommerce/phoenix)
+[![Build status](https://badge.buildkite.com/20bc913b3e06b49544cd4354c92f675bdfd0cf93f5a4640d3e.svg)](https://buildkite.com/foxcommerce/phoenix-scala)
 
 # Phoenix
 
