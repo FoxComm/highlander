@@ -7,7 +7,7 @@ module.exports = function(env) {
   function port() {
     switch(env) {
       case 'test': return 3001;
-      default: return process.env.PORT || 3000;
+      default: return process.env.PORT || 4000;
     }
   }
 
