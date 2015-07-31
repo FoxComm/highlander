@@ -197,6 +197,13 @@ class OrderIntegrationTest extends IntegrationTestBase
         response.status must === (StatusCodes.BadRequest)
         (parse(response.bodyText) \ "errors").extract[List[String]] must === (List("address with id=99 not found"))
       }
+
+      "fails if the order is not found" in new AddressFixture {
+        val response = DELETE(s"v1/orders/ABC-123/shipping-address")
+        response.status must === (StatusCodes.NotFound)
+
+        db.run(OrderShippingAddresses.length.result).futureValue must === (0)
+      }
     }
 
     "deleting the shipping address from an order" - {
