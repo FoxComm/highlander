@@ -11,7 +11,7 @@ import akka.http.scaladsl.model.StatusCodes._
 import org.scalactic._
 import payloads._
 import responses.FullOrder.Response
-import responses.{AllOrders, AdminNotes, FullOrder}
+import responses.{AllOrders, AllOrdersWithFailures, AdminNotes, FullOrder}
 import services._
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
@@ -126,6 +126,26 @@ object Admin {
           }
         }
       } ~
+      pathPrefix("orders") {
+        (get & pathEnd) {
+          complete {
+            AllOrders.findAll
+          }
+        } ~
+        (patch & entity(as[BulkUpdateOrdersPayload]) & pathEnd) { payload ⇒
+          complete {
+            for {
+              failures ← Future.sequence(payload.referenceNumbers.map { refNum ⇒
+                Orders.findByRefNum(refNum).result.headOption.run().flatMap {
+                  case Some(order) ⇒ OrderUpdater.updateStatus(order, UpdateOrderPayload(payload.status))
+                  case None ⇒ Future.successful(Some(GeneralFailure("Not found")))
+                }
+              })
+              orders ← AllOrders.findAll
+            } yield AllOrdersWithFailures(orders, failures)
+          }
+        }
+      } ~
       pathPrefix("orders" / """([a-zA-Z0-9-_]*)""".r) { refNum ⇒
         (get & pathEnd) {
           complete {
@@ -137,9 +157,9 @@ object Admin {
         (patch & entity(as[UpdateOrderPayload])) { payload =>
           complete {
             whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order =>
-              OrderUpdater.updateStatus(order, payload).flatMap {
-                case Good(_) ⇒ FullOrder.fromOrder(order).map(Good(_))
-                case Bad(e) ⇒ Future.successful(Bad(e))
+              OrderUpdater.updateStatus(order, payload).map {
+                case Some(failure) ⇒ Bad(GeneralFailure("Not found"))
+                case None ⇒ Good(FullOrder.fromOrder(order))
               }
             }
           }
@@ -231,13 +251,6 @@ object Admin {
                   Future.successful(notFoundResponse)
               }
             }
-          }
-        }
-      } ~
-      pathPrefix("orders") {
-        (get & pathEnd) {
-          complete {
-            AllOrders.findAll
           }
         }
       } ~

@@ -13,7 +13,7 @@ import responses.{Addresses ⇒ Response}
 object OrderUpdater {
 
   def updateStatus(order: Order, payLoad: UpdateOrderPayload)
-    (implicit db: Database, ec: ExecutionContext): Future[Order Or List[Failure]] = {
+    (implicit db: Database, ec: ExecutionContext): Future[Option[Failure]] = {
 
     import Order._
 
@@ -25,12 +25,12 @@ object OrderUpdater {
       } yield updatedOrder
 
       db.run(insertedQuery).map {
-        case Some(orderExists) ⇒ Good(orderExists)
-        case None ⇒ Bad(List(GeneralFailure("Not able to update order")))
+        case Some(orderExists) ⇒ None
+        case None ⇒ Some(GeneralFailure("Not able to update order"))
       }
     }
 
-    def fail(s: String) = Future.successful(Bad(List(GeneralFailure(s))))
+    def fail(s: String) = Future.successful(Some(GeneralFailure(s)))
 
     val newStatus = payLoad.status
     val currentStatus = order.status
