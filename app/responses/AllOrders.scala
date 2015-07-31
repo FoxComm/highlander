@@ -11,7 +11,6 @@ object AllOrders {
   type Response = Future[Seq[Root]]
 
   final case class Root(
-    id: Int,
     referenceNumber: String,
     email: String,
     orderStatus: Order.Status,
@@ -43,7 +42,6 @@ object AllOrders {
     (implicit ec: ExecutionContext): Future[Root] = {
     order.grandTotal.map { grandTotal ⇒
       Root(
-        id = order.id,
         referenceNumber = order.referenceNumber,
         email = customer.email,
         orderStatus = order.status,

@@ -18,7 +18,6 @@ class AllOrdersIntegrationTest extends IntegrationTestBase {
       val json = render(AllOrders.findAll.futureValue)
       val root = parse(json)
 
-      (root \ "id").extract[Int] must === (1)
       (root \ "referenceNumber").extract[String] must === ("ABCD1234-11")
       (root \ "email").extract[String] must === ("yax@yax.com")
       (root \ "orderStatus").extract[Order.Status] must === (Order.ManualHold)
