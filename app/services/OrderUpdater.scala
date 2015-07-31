@@ -41,7 +41,7 @@ object OrderUpdater {
       case (None, Some(payloadAddress)) ⇒
         createShippingAddressFromPayload(Address.fromPayload(payloadAddress), order)
       case (None, None) ⇒
-        Future.successful(Bad(GeneralFailure("Not able to create the shipping address")))
+        Future.successful(Bad(GeneralFailure("must supply either an addressId or an address")))
     }
   }
 

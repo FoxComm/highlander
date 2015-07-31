@@ -7,6 +7,7 @@ import responses.{AdminNotes, FullOrder}
 import services.NoteManager
 import util.{IntegrationTestBase, StripeSupport}
 import utils.Seeds.Factories
+import slick.driver.PostgresDriver.api._
 
 /**
  * The Server is shut down by shutting down the ActorSystem
@@ -170,11 +171,44 @@ class OrderIntegrationTest extends IntegrationTestBase
       note.body must === ("donkey")
     }
 
+    "copying a shipping address from a customer's book" - {
+
+      "succeeds if the address exists in their book" in new AddressFixture {
+        val response = POST(
+          s"v1/orders/${order.referenceNumber}/shipping-address",
+          payloads.CreateShippingAddress(addressId = Some(address.id)))
+
+        response.status must ===(StatusCodes.OK)
+        val (shippingAddress :: Nil) = OrderShippingAddresses.findByOrderId(order.id).result.run().futureValue.toList
+
+        val shippingAddressMap = shippingAddress.toMap -- Seq("id", "orderId", "createdAt", "deletedAt", "updatedAt")
+        val addressMap = address.toMap -- Seq("id", "customerId", "isDefaultShipping", "createdAt", "deletedAt",
+          "deletedAt", "updatedAt")
+
+        shippingAddressMap must ===(addressMap)
+        shippingAddress.orderId must ===(order.id)
+      }
+
+      "errors if the address does not exist" in new AddressFixture {
+        val response = POST(
+          s"v1/orders/${order.referenceNumber}/shipping-address",
+          payloads.CreateShippingAddress(addressId = Some(99)))
+
+        response.status must === (StatusCodes.BadRequest)
+        (parse(response.bodyText) \ "errors").extract[List[String]] must === (List("address with id=99 not found"))
+      }
+    }
+
     trait Fixture {
-      val (order, storeAdmin) = (for {
-        order ← Orders.save(Factories.order)
+      val (order, storeAdmin, customer) = (for {
+        customer ← Customers.save(Factories.customer)
+        order ← Orders.save(Factories.order.copy(customerId = customer.id))
         storeAdmin ← StoreAdmins.save(authedStoreAdmin)
-      } yield (order, storeAdmin)).run().futureValue
+      } yield (order, storeAdmin, customer)).run().futureValue
+    }
+
+    trait AddressFixture extends Fixture {
+      val address = Addresses.save(Factories.address.copy(customerId = customer.id)).run().futureValue
     }
   }
 }

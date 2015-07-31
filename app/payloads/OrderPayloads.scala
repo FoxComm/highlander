@@ -7,3 +7,4 @@ final case class UpdateOrderPayload(status: Status)
 final case class CreateOrderNotePayload(body: String)
 
 final case class CreateShippingAddress(addressId: Option[Int] = None, address: Option[CreateAddressPayload] = None)
+
