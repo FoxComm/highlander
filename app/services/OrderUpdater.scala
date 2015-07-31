@@ -57,6 +57,7 @@ object OrderUpdater {
         db.run(for {
           newAddress ← Addresses.save(address.copy(customerId = order.customerId))
           state ← States.findById(newAddress.stateId)
+          _ ← OrderShippingAddresses.findByOrderId(order.id).delete
           _ ← OrderShippingAddresses.copyFromAddress(newAddress, order.id)
         } yield (newAddress, state)).map {
           case (address, Some(state)) ⇒ Good(Response.build(address, state))
@@ -72,8 +73,15 @@ object OrderUpdater {
     db.run(for {
       address ← Addresses.findById(addressId)
       state ← address.map { a ⇒ States.findById(a.stateId) }.getOrElse(DBIO.successful(None))
-      _ ← address.map(OrderShippingAddresses.copyFromAddress(_, orderId).map(Some(_))).
-        getOrElse(DBIO.successful(None))
+      _ ← address match {
+        case Some(a) ⇒
+          for {
+            _ ← OrderShippingAddresses.findByOrderId(orderId).delete
+            shipAddress ← OrderShippingAddresses.copyFromAddress(a, orderId)
+          } yield Some(shipAddress)
+        case None ⇒
+          DBIO.successful(None)
+      }
     } yield (address, state)).map {
       case (Some(address), Some(state)) ⇒
         Good(Response.build(address, state))
