@@ -1,7 +1,7 @@
 package models
 
 import com.pellucid.sealerate
-import services.Failure
+import services.{Failures, Failure}
 import slick.dbio
 import slick.dbio.Effect.{Read, Write}
 import slick.profile.FixedSqlStreamingAction
@@ -33,7 +33,7 @@ final case class GiftCard(id: Int = 0, originId: Int, originType: String, code: 
     giftCard.code is notEmpty
   }
 
-  def authorize(amount: Int)(implicit ec: ExecutionContext): Future[String Or List[Failure]] = {
+  def authorize(amount: Int)(implicit ec: ExecutionContext): Future[String Or Failures] = {
     Future.successful(Good("authenticated"))
   }
 

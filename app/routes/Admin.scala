@@ -44,7 +44,7 @@ object Admin {
         } ~
         (post & path("disable") & entity(as[payloads.ToggleCustomerDisabled])) { payload ⇒
           complete {
-            CustomerManager.toggleDisabled(customerId, payload.disabled, admin).map(renderGoodOrBad)
+            CustomerManager.toggleDisabled(customerId, payload.disabled, admin).map(renderGoodOrFailures)
           }
         } ~
         pathPrefix("addresses") {
@@ -57,7 +57,7 @@ object Admin {
           } ~
           (post & entity(as[CreateAddressPayload]) & pathEnd) { payload =>
             complete {
-              AddressManager.create(payload, customerId).map(renderGoodOrBad)
+              AddressManager.create(payload, customerId).map(renderGoodOrFailures)
             }
           } ~
           (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultShippingAddress]) & pathEnd) {
@@ -86,7 +86,7 @@ object Admin {
             (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultCreditCard])) { (cardId, payload) ⇒
               complete {
                 val result = CustomerManager.toggleCreditCardDefault(customerId, cardId, payload.isDefault)
-                result.map(renderGoodOrBad)
+                result.map(renderGoodOrFailures)
               }
             }
           } ~
@@ -108,7 +108,7 @@ object Admin {
               //              } ~
             (post & path(IntNumber / "convert")) { storeCreditId ⇒
               complete {
-                whenFound(StoreCredits.findById(storeCreditId).run()) { sc ⇒
+                whenFoundDispatchToService(StoreCredits.findById(storeCreditId).run()) { sc ⇒
                   CustomerCreditConverter.toGiftCard(sc, customerId)
                 }
               }
@@ -140,7 +140,7 @@ object Admin {
         } ~
         (post & path("checkout")) {
           complete {
-            whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order => new Checkout(order).checkout }
+            whenFoundDispatchToService(Orders.findByRefNum(refNum).result.headOption.run()) { order => new Checkout(order).checkout }
           }
         } ~
         (post & path("line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems =>
@@ -175,7 +175,7 @@ object Admin {
                       Future.successful(render("Guest checkout!!"))
 
                     case Some(customer) =>
-                      CreditCardPaymentCreator.run(order, customer, reqPayment).map(renderGoodOrBad)
+                      CreditCardPaymentCreator.run(order, customer, reqPayment).map(renderGoodOrFailures)
                   }
               }
             }
@@ -189,14 +189,14 @@ object Admin {
           } ~
           (post & entity(as[payloads.CreateNote])) { payload ⇒
             complete {
-              whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
+              whenFoundDispatchToService(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
                 services.NoteManager.createOrderNote(order, admin, payload)
               }
             }
           } ~
           (patch & path(IntNumber) & entity(as[payloads.UpdateNote])) { (noteId, payload) ⇒
             complete {
-              whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
+              whenFoundDispatchToService(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
                 services.NoteManager.updateNote(noteId, admin, payload)
               }
             }

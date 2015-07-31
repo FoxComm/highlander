@@ -1,15 +1,15 @@
 package utils
 
 import scala.concurrent.{ExecutionContext, Future}
-import akka.http.scaladsl.model.{HttpResponse, StatusCode}
 import akka.http.scaladsl.model.StatusCodes._
+import akka.http.scaladsl.model.{HttpResponse, StatusCode}
 
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport
+import cats.std.future.futureInstance
 import org.json4s.jackson
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import org.scalactic.{Bad, Good, Or}
+import services.{Failure, Failures}
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
-import services.Failure
 
 object Http {
   import utils.JsonFormatters._
@@ -20,8 +20,8 @@ object Http {
   val notFoundResponse = HttpResponse(NotFound)
 
   @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.AsInstanceOf"))
-  def renderGoodOrBad[G <: AnyRef, B <: AnyRef](goodOrBad: G Or B)
-    (implicit ec: ExecutionContext, db: Database): HttpResponse = {
+  private[Http] def renderGoodOrBad[G <: AnyRef, B <: AnyRef](goodOrBad: G Or B)
+    (implicit ec: ExecutionContext): HttpResponse = {
     goodOrBad match {
       case Bad(errors)    ⇒
         errors match {
@@ -37,6 +37,10 @@ object Http {
     }
   }
 
+  def renderGoodOrFailures[G <: AnyRef](or: G Or Failures)
+                                       (implicit ec: ExecutionContext): HttpResponse =
+    or.fold(render(_), renderFailure(_)) // Can’t pass eta expanded method because of by-name parameters
+
   def whenFound[A, G <: AnyRef, B <: AnyRef](finder: Future[Option[A]])(f: A => Future[G Or B])
     (implicit ec: ExecutionContext, db: Database): Future[HttpResponse] = {
     finder.flatMap { option =>
@@ -45,8 +49,17 @@ object Http {
     }
   }
 
+  def whenFoundDispatchToService[A, G <: AnyRef](finder: ⇒ Future[Option[A]])
+                                                (bind:   A ⇒ Future[G Or Failures])
+                                               (implicit ec: ExecutionContext): Future[HttpResponse] = {
+    finder.flatMap {
+      case None    ⇒ Future.successful(notFoundResponse)
+      case Some(v) ⇒ bind(v).map(renderGoodOrFailures)
+    }
+  }
+
   def renderOrNotFound[A <: AnyRef](resource: Future[Option[A]],
-    onFound: (A => HttpResponse) = (r: A) => render(r))(implicit ec: ExecutionContext) = {
+    onFound: (A ⇒ HttpResponse) = (r: A) => render(r))(implicit ec: ExecutionContext) = {
     resource.map {
       case Some(r) => onFound(r)
       case None => notFoundResponse

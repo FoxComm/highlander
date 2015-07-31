@@ -64,7 +64,7 @@ final case class CreditCardPaymentCreator(order: Order, customer: Customer, card
 }
 
 object CreditCardPaymentCreator {
-  type Response = Future[FullOrder.Root Or List[Failure]]
+  type Response = Future[FullOrder.Root Or Failures]
 
   def run(order: Order, customer: Customer, payload: CreateCreditCard)
     (implicit ec: ExecutionContext, db: Database): Response = {

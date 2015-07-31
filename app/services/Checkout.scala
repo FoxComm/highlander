@@ -12,7 +12,7 @@ import org.joda.time.{DateTimeZone, DateTime}
 
 class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
 
-  def checkout: Future[Order Or List[Failure]] = {
+  def checkout: Future[Order Or Failures] = {
     // Realistically, what we'd do here is actually
     // 0) Check that line items exist -- DONE
     // 1) Check Inventory
@@ -33,7 +33,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
           }
         }
       } else {
-        Future.successful(Bad(List(NotFoundFailure("No Line Items in Order!"))))
+        Future.successful(Bad(Failures(NotFoundFailure("No Line Items in Order!"))))
       }
     }
   }
@@ -52,7 +52,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
   def decrementInventory(order: Order): Future[Int] =
     InventoryAdjustments.createAdjustmentsForOrder(order)
 
-  def authorizePayments: Future[Map[OrderPayment, List[Failure]]] = {
+  def authorizePayments: Future[Map[OrderPayment, Failures]] = {
     OrderPayments.findAllPaymentsFor(this.order).flatMap { records =>
       Future.sequence(records.map { case (payment, creditCard) =>
         creditCard.authorize(payment.appliedAmount).flatMap { or ⇒
@@ -65,8 +65,8 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
             Future.successful((payment, or))
           })
         }
-      }).map { (results: Seq[(OrderPayment, Or[String, List[Failure]])]) =>
-        results.foldLeft(Map[OrderPayment, List[Failure]]()) { case (errors, (payment, result)) =>
+      }).map { (results: Seq[(OrderPayment, Or[String, Failures])]) =>
+        results.foldLeft(Map.empty[OrderPayment, Failures]) { case (errors, (payment, result)) =>
           errors.updated(payment,
             result.fold({ good => List.empty }, { bad => bad }))
         }
@@ -74,7 +74,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
     }
   }
 
-  def validateAddresses: List[Failure] = {
-    List.empty
+  def validateAddresses: Failures = {
+    Failures()
   }
 }
