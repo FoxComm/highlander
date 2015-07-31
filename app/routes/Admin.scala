@@ -36,7 +36,7 @@ object Admin {
           }
         }
       } ~
-      pathPrefix("users") {
+      pathPrefix("customers") {
         (get & pathEnd) {
           complete { 
             models.Customers.findAll.result.run().map { records ⇒

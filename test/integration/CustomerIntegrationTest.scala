@@ -14,14 +14,14 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
   "admin APIs" - {
     "shows a customer" in new Fixture {
-      val response = GET(s"v1/users/${customer.id}")
+      val response = GET(s"v1/customers/${customer.id}")
 
       response.status must === (StatusCodes.OK)
       parse(response.bodyText).extract[Customer] must === (customer)
     }
 
     "shows a list of customers" in new Fixture {
-      val response = GET(s"v1/users")
+      val response = GET(s"v1/customers")
       val customers = Seq(customer)
 
       response.status must === (StatusCodes.OK)
@@ -31,7 +31,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
     "toggles the disabled flag on a customer account" in new Fixture {
       customer.disabled must ===(false)
 
-      val response = POST(s"v1/users/${customer.id}/disable", payloads.ToggleCustomerDisabled(true))
+      val response = POST(s"v1/customers/${customer.id}/disable", payloads.ToggleCustomerDisabled(true))
       response.status must === (StatusCodes.OK)
 
       val c = parse(response.bodyText).extract[Customer]
@@ -44,7 +44,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
       val payload = payloads.ToggleDefaultCreditCard(isDefault = true)
       val response = POST(
-        s"v1/users/${customer.id}/payment-methods/credit-cards/${creditCard.id}/default",
+        s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}/default",
         payload)
       response.status must ===(StatusCodes.OK)
 
@@ -60,7 +60,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
       val payload = payloads.ToggleDefaultCreditCard(isDefault = true)
       val response = POST(
-        s"v1/users/${customer.id}/payment-methods/credit-cards/${nonDefault.id}/default",
+        s"v1/customers/${customer.id}/payment-methods/credit-cards/${nonDefault.id}/default",
         payload)
 
       response.status must ===(StatusCodes.BadRequest)
