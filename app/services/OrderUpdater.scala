@@ -2,7 +2,6 @@ package services
 
 import models._
 import payloads.{CreateShippingAddress, UpdateOrderPayload}
-import slick.dbio.Effect.All
 
 import utils.Validation.Result.{Failure ⇒ Invalid, Success}
 import org.scalactic._
@@ -14,20 +13,42 @@ import responses.{Addresses ⇒ Response}
 object OrderUpdater {
 
   def updateStatus(order: Order, payLoad: UpdateOrderPayload)
-                  (implicit db: Database, ec: ExecutionContext): Future[Order Or List[ErrorMessage]]  = {
-    val newOrder = order.copy(status = Order.FulfillmentStarted)
-    val insertedQuery = for {
-      _ <- Orders.insertOrUpdate(newOrder)
-      updatedOrder <- Orders.findById(order.id)
-    } yield (updatedOrder)
+    (implicit db: Database, ec: ExecutionContext): Future[Order Or List[Failure]] = {
 
-    db.run(insertedQuery).map { optOrder =>
-      optOrder match {
-        case Some(orderExists) => Good(orderExists)
-        case None => Bad(List("Not able to update order"))
+    import Order._
+
+    def update(newStatus: Status) = {
+      val newOrder = order.copy(status = newStatus)
+      val insertedQuery = for {
+        _ ← Orders.insertOrUpdate(newOrder)
+        updatedOrder ← Orders.findById(order.id)
+      } yield updatedOrder
+
+      db.run(insertedQuery).map {
+        case Some(orderExists) ⇒ Good(orderExists)
+        case None ⇒ Bad(List(GeneralFailure("Not able to update order")))
       }
     }
 
+    def fail(s: String) = Future.successful(Bad(List(GeneralFailure(s))))
+
+    val newStatus = payLoad.status
+    val currentStatus = order.status
+    val allowedStateTransitions = Map[Order.Status, Seq[Order.Status]](
+      FraudHold → Seq(ManualHold, RemorseHold, FulfillmentStarted),
+      RemorseHold → Seq(FraudHold, ManualHold, FulfillmentStarted),
+      ManualHold → Seq(FraudHold, RemorseHold, FulfillmentStarted)
+    )
+
+    allowedStateTransitions.get(currentStatus) match {
+      case Some(allowed) ⇒
+        if (allowed.contains(newStatus)) {
+          update(newStatus)
+        } else {
+          fail(s"Transition from $currentStatus to $newStatus is not allowed")
+        }
+      case None ⇒ fail(s"Transition from current status $currentStatus is not allowed")
+    }
   }
 
   def createNote = "Note"
