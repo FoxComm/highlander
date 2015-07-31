@@ -17,23 +17,23 @@ import utils.Money.Currency
 object Seeds {
   val today = new DateTime
 
-  final case class TheWorld(customer: Customer, order: Order, orderNotes: Seq[Note], address: Address, cc: CreditCard,
-    storeAdmin: StoreAdmin, shippingAddresses: Seq[OrderShippingAddress], shippingMethods: Seq[ShippingMethod],
-    shippingPriceRules: Seq[ShippingPriceRule], shippingMethodRuleMappings: Seq[ShippingMethodPriceRule],
-    orderCriteria: Seq[OrderCriterion], orderPriceCriteria: Seq[OrderPriceCriterion],
-    priceRuleCriteriaMappings: Seq[ShippingPriceRuleOrderCriterion], skus: Seq[Sku],
-    orderLineItems: Seq[OrderLineItem], shipment: Shipment)
+  final case class TheWorld(customers: Seq[Customer], order: Order, orderNotes: Seq[Note], address: Address,
+    cc: CreditCard, storeAdmin: StoreAdmin, shippingAddresses: Seq[OrderShippingAddress],
+    shippingMethods: Seq[ShippingMethod], shippingPriceRules: Seq[ShippingPriceRule],
+    shippingMethodRuleMappings: Seq[ShippingMethodPriceRule], orderCriteria: Seq[OrderCriterion],
+    orderPriceCriteria: Seq[OrderPriceCriterion], priceRuleCriteriaMappings: Seq[ShippingPriceRuleOrderCriterion],
+    skus: Seq[Sku], orderLineItems: Seq[OrderLineItem], shipment: Shipment)
 
   final case class PaymentMethods(giftCard: GiftCard = Factories.giftCard, storeCredit: StoreCredit = Factories.storeCredit)
 
-  def run()(implicit db: Database): dbio.DBIOAction[(Customer, Order, Address, OrderShippingAddress, CreditCard),
+  def run()(implicit db: Database): dbio.DBIOAction[(Option[Int], Order, Address, OrderShippingAddress, CreditCard),
     NoStream, Write with Write with Write with All with Write with Write with All with All with Write with All with
     Write with Write with Write with Write with Write with All] = {
 
     import scala.concurrent.ExecutionContext.Implicits.global
 
     val s = TheWorld(
-      customer = Factories.customer,
+      customers = Factories.customers,
       storeAdmin = Factories.storeAdmin,
       skus = Factories.skus,
       order = Factories.order,
@@ -51,14 +51,15 @@ object Seeds {
       shipment = Factories.shipment
     )
 
-    val failures = List(s.customer.validate, s.storeAdmin.validate, s.order.validate, s.address.validate, s.cc.validate).
-      filterNot(_.isValid)
+    val failures = (s.customers.map { _.validate } ++ List(s.storeAdmin.validate, s.order.validate, s.address.validate,
+      s.cc.validate)).filterNot(_.isValid)
 
     if (failures.nonEmpty)
       throw new Exception(failures.map(_.messages).mkString("\n"))
 
     for {
-      customer ← (Customers.returningId += s.customer).map(id => s.customer.copy(id = id))
+      customer ← (Customers.returningId += Factories.customer).map(id => Factories.customer.copy(id = id))
+      customers ← Customers ++= s.customers
       storeAdmin ← (StoreAdmins.returningId += s.storeAdmin).map(id => s.storeAdmin.copy(id = id))
       skus ←  Skus ++= s.skus
       order ← Orders._create(s.order.copy(customerId = customer.id))
@@ -74,13 +75,27 @@ object Seeds {
       orderPriceCriterion ← OrderPriceCriteria ++= s.orderPriceCriteria
       priceRuleCriteriaMapping ← ShippingPriceRulesOrderCriteria ++= s.priceRuleCriteriaMappings
       shipments ← Shipments.save(s.shipment)
-    } yield (customer, order, address, shippingAddress, creditCard)
+    } yield (customers, order, address, shippingAddress, creditCard)
   }
 
   object Factories {
     def customer = Customer(email = "yax@yax.com", password = "password",
       firstName = "Yax", lastName = "Fuentes", phoneNumber = Some("123-444-4388"),
       location = Some("DonkeyVille, TN"), modality = Some("Desktop[PC]"))
+
+    def customers: Seq[Customer] = Seq(
+      Customer(email = "adil@adil.com", password = "password",
+        firstName = "Adil", lastName = "Wali", phoneNumber = Some("123-444-0909"),
+        location = Some("DonkeyHill, WA"), modality = Some("Desktop[PC]")),
+
+      Customer(email = "tivs@tivs.com", password = "password",
+        firstName = "Jonathan", lastName = "Rainey", phoneNumber = Some("858-867-5309"),
+        location = Some("DonkeyTown, NY"), modality = Some("Desktop[PC]")),
+
+      Customer(email = "cam@cam.com", password = "password",
+        firstName = "Cameron", lastName = "Stitt", phoneNumber = Some("883-444-4321"),
+        location = Some("Donkeysburg, AU"), modality = Some("Desktop[PC]"))
+    )
 
     def storeAdmin = StoreAdmin(email = "admin@admin.com", password = "password", firstName = "Frankly", lastName = "Admin")
 
