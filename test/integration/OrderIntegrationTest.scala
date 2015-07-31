@@ -199,6 +199,20 @@ class OrderIntegrationTest extends IntegrationTestBase
       }
     }
 
+    "deleting the shipping address from an order" - {
+      "succeeds if an address exists" in new AddressFixture {
+        val response = DELETE(s"v1/orders/${order.referenceNumber}/shipping-address")
+        Console.err.println(response)
+        response.status must === (StatusCodes.NoContent)
+      }
+
+      "fails if the order is not found" in new AddressFixture {
+        val response = DELETE(s"v1/orders/ABC-123/shipping-address")
+        Console.err.println(response)
+        response.status must === (StatusCodes.NotFound)
+      }
+    }
+
     trait Fixture {
       val (order, storeAdmin, customer) = (for {
         customer ← Customers.save(Factories.customer)

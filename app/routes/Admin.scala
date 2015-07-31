@@ -70,9 +70,7 @@ object Admin {
           } ~
           (delete & path("default")  & pathEnd) {
             complete {
-              AddressManager.removeDefaultShippingAddress(customerId).map { _ ⇒
-                HttpResponse(NoContent)
-              }
+              AddressManager.removeDefaultShippingAddress(customerId).map { _ ⇒ noContentResponse }
             }
           }
         } ~
@@ -214,11 +212,21 @@ object Admin {
           //              }
           //            }
         } ~
-        pathPrefix("shipping-address") {
+        pathPrefix("shipping-address")  {
           (post & entity(as[payloads.CreateShippingAddress]) & pathEnd) { payload ⇒
             complete {
               whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
                 services.OrderUpdater.createShippingAddress(order, payload)
+              }
+            }
+          } ~
+          (delete & pathEnd) {
+            complete {
+              Orders.findByRefNum(refNum).result.headOption.run().flatMap {
+                case Some(order) ⇒
+                  services.OrderUpdater.removeShippingAddress(order.id).map { _ ⇒ noContentResponse }
+                case None ⇒
+                  Future.successful(notFoundResponse)
               }
             }
           }

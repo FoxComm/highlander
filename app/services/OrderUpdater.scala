@@ -32,6 +32,10 @@ object OrderUpdater {
 
   def createNote = "Note"
 
+  def removeShippingAddress(orderId: Int)
+    (implicit db: Database, ec: ExecutionContext): Future[Int] =
+    db.run(OrderShippingAddresses.findByOrderId(orderId).delete)
+
   def createShippingAddress(order: Order, payload: CreateShippingAddress)
     (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failure] = {
 
