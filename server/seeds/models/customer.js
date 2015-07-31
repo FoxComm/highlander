@@ -19,7 +19,7 @@ const seed = [
   {field: 'zip'},
   {field: 'role', method: 'pick', opts: ['admin', 'customer', 'vendor']},
   {field: 'modality', method: 'pick', opts: ['iPhone', 'Android', 'Web']},
-  {field: 'blocked', method: 'bool'},
+  {field: 'disabled', method: 'bool', opts: {likelihood: 30}},
   {field: 'cause', method: 'sentence', opts: {words: 2}},
   {field: 'isLocker', method: 'bool', opts: {likelihood: 30}}
 ];
@@ -35,7 +35,7 @@ class Customer extends BaseModel {
   get state() { return this.model.state; }
   get zip() { return this.model.zip; }
   get role() { return this.model.role; }
-  get blocked() { return this.model.blocked; }
+  get disabled() { return this.model.disabled; }
   get cause() { return this.model.cause; }
   get modality() { return this.model.modality; }
   get isLocker() { return this.model.isLocker; }

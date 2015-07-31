@@ -13,7 +13,7 @@ describe('Customers #GET', function() {
     expect(customer.lastName).to.be.a('string');
     expect(customer.email).to.match(/^[a-z0-9_.%+\-]+@[0-9a-z.\-]+\.[a-z]{2,6}$/i);
     expect(customer.role).to.match(/^(admin|customer|vendor)/);
-    expect(customer.blocked).to.be.a('boolean');
+    expect(customer.disabled).to.be.a('boolean');
     expect(customer.cause).to.be.a('string');
     expect(customer.modality).to.be.a('string');
   });
