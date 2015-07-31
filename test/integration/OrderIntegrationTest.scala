@@ -189,6 +189,22 @@ class OrderIntegrationTest extends IntegrationTestBase
         shippingAddress.orderId must ===(order.id)
       }
 
+      "removes an existing shipping address before copying new address" in new AddressFixture {
+        val newAddress = Addresses.save(address.copy(name = "New", isDefaultShipping = false)).run().futureValue
+
+        val fst :: snd :: Nil = List(address.id, newAddress.id).map { id ⇒
+          POST(s"v1/orders/${order.referenceNumber}/shipping-address",
+            payloads.CreateShippingAddress(addressId = Some(id)))
+        }
+
+        fst.status must === (StatusCodes.OK)
+        snd.status must === (StatusCodes.OK)
+
+        val (shippingAddress :: Nil) = OrderShippingAddresses.findByOrderId(order.id).result.run().futureValue.toList
+
+        shippingAddress.name must === ("New")
+      }
+
       "errors if the address does not exist" in new AddressFixture {
         val response = POST(
           s"v1/orders/${order.referenceNumber}/shipping-address",
