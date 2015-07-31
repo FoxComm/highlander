@@ -2,7 +2,7 @@ package validators
 
 import com.wix.accord.{Validator, BaseValidator}
 import com.wix.accord.ViolationBuilder._
-import org.joda.time.DateTime
+import org.joda.time.{DateTimeZone, DateTime}
 
 object CreditCard {
   final case class Expiraton(year: Int, month: Int)
@@ -12,7 +12,7 @@ object CreditCard {
     extends BaseValidator[T]({ _ ⇒
       val today = DateTime.now()
       try {
-        val expDate = today.withDate(exp.year, exp.month, today.getDayOfMonth)
+        val expDate = new DateTime(exp.year, exp.month, 1, 0, 0).plusMonths(1).minusSeconds(1)
         expDate.isEqual(today) || expDate.isAfter(today)
       } catch {
         case _: IllegalArgumentException ⇒ false
@@ -24,7 +24,8 @@ object CreditCard {
     extends BaseValidator[T]({ _ ⇒
       val today = DateTime.now()
       try {
-        val expDate = new DateTime(exp.year, exp.month, today.getDayOfMonth, today.getHourOfDay, today.getMinuteOfHour)
+        // At the end of the month
+        val expDate = new DateTime(exp.year, exp.month, 1, 0, 0).plusMonths(1).minusSeconds(1)
         expDate.isBefore(today.plusYears(20))
       } catch {
         case _: IllegalArgumentException ⇒ false
@@ -35,3 +36,4 @@ object CreditCard {
 
   def withinTwentyYears[T](year: Int, month: Int) = new WithinTwentyYears[T](Expiraton(year = year, month = month))
 }
+
