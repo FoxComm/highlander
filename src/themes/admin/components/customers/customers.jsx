@@ -49,9 +49,7 @@ Customers.defaultProps = {
     {field: 'firstName', text: 'First Name'},
     {field: 'lastName', text: 'Last Name'},
     {field: 'email', text: 'Email'},
-    {field: 'role', text: 'Role'},
-    {field: 'blocked', text: 'Blocked'},
-    {field: 'cause', text: 'Cause'},
+    {field: 'disabled', text: 'Disabled', type: 'bool'},
     {field: 'createdAt', text: 'Date Joined', type: 'date'}
   ]
 };
