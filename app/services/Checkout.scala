@@ -7,9 +7,12 @@ import org.scalactic.{Bad, Good, Or}
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 
+import com.github.tototoshi.slick.JdbcJodaSupport._
+import org.joda.time.{DateTimeZone, DateTime}
+
 class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
 
-  def checkout: Future[Order Or List[Failure]] = {
+  def checkout: Future[Order Or Failures] = {
     // Realistically, what we'd do here is actually
     // 0) Check that line items exist -- DONE
     // 1) Check Inventory
@@ -30,7 +33,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
           }
         }
       } else {
-        Future.successful(Bad(List(NotFoundFailure("No Line Items in Order!"))))
+        Future.successful(Bad(Failures(NotFoundFailure("No Line Items in Order!"))))
       }
     }
   }
@@ -38,7 +41,10 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
   // sets incoming order.status == Order.ordered and creates a new order
   def completeOrderAndCreateNew(order: Order): Future[Order] = {
     db.run(for {
-      _ <- Orders._findById(order.id).extract.map(_.status).update(Order.Ordered)
+      _ ← Orders._findById(order.id).extract
+        .map { o => (o.status, o.placedAt) }
+        .update((Order.Ordered, Some(DateTime.now)))
+
       newOrder <- Orders._create(Order.buildCart(order.customerId))
     } yield newOrder)
   }
@@ -46,7 +52,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
   def decrementInventory(order: Order): Future[Int] =
     InventoryAdjustments.createAdjustmentsForOrder(order)
 
-  def authorizePayments: Future[Map[OrderPayment, List[Failure]]] = {
+  def authorizePayments: Future[Map[OrderPayment, Failures]] = {
     OrderPayments.findAllPaymentsFor(this.order).flatMap { records =>
       Future.sequence(records.map { case (payment, creditCard) =>
         creditCard.authorize(payment.appliedAmount).flatMap { or ⇒
@@ -59,8 +65,8 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
             Future.successful((payment, or))
           })
         }
-      }).map { (results: Seq[(OrderPayment, Or[String, List[Failure]])]) =>
-        results.foldLeft(Map[OrderPayment, List[Failure]]()) { case (errors, (payment, result)) =>
+      }).map { (results: Seq[(OrderPayment, Or[String, Failures])]) =>
+        results.foldLeft(Map.empty[OrderPayment, Failures]) { case (errors, (payment, result)) =>
           errors.updated(payment,
             result.fold({ good => List.empty }, { bad => bad }))
         }
@@ -68,7 +74,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
     }
   }
 
-  def validateAddresses: List[Failure] = {
-    List.empty
+  def validateAddresses: Failures = {
+    Failures()
   }
 }

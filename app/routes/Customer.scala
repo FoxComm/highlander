@@ -36,7 +36,7 @@ object Customer {
           } ~
           (post & entity(as[CreateAddressPayload])) { payload =>
             complete {
-              AddressManager.create(payload, customer.id).map(renderGoodOrBad)
+              AddressManager.create(payload, customer.id).map(renderGoodOrFailures)
             }
           }
         } ~
@@ -57,7 +57,7 @@ object Customer {
         pathPrefix("order") {
           (post & path("checkout")) {
             complete {
-              whenFound(Orders.findActiveOrderByCustomer(customer)) { order => new Checkout(order).checkout }
+              whenFoundDispatchToService(Orders.findActiveOrderByCustomer(customer)) { order => new Checkout(order).checkout }
             }
           } ~
           (post & path("line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems =>

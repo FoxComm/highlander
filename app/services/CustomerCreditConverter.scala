@@ -9,7 +9,7 @@ import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 
 object CustomerCreditConverter {
   def toStoreCredit(gc: GiftCard, customerId: Int)
-    (implicit ec: ExecutionContext, db: Database): Future[StoreCredit Or Failure] = {
+    (implicit ec: ExecutionContext, db: Database): Future[StoreCredit Or Failures] = {
 
     if (gc.isActive) {
       val storeCredit = StoreCredit(customerId = customerId, originId = 0, originType = "storeCreditFromGiftCard",
@@ -20,12 +20,12 @@ object CustomerCreditConverter {
         sc ← StoreCredits.save(storeCredit.copy(originId = conversion.id))
       } yield sc).map(Good(_))
     } else {
-      Future.successful(Bad(GeneralFailure(s"cannot convert a gift card with status '${gc.status}'")))
+      Future.successful(Bad(GeneralFailure(s"cannot convert a gift card with status '${gc.status}'").single))
     }
   }
 
   def toGiftCard(sc: StoreCredit, customerId: Int)
-    (implicit ec: ExecutionContext, db: Database): Future[GiftCard Or Failure] = {
+    (implicit ec: ExecutionContext, db: Database): Future[GiftCard Or Failures] = {
 
     if (sc.isActive) {
       val giftCard = GiftCard(code = "x", originId = 0, originType =
@@ -37,7 +37,7 @@ object CustomerCreditConverter {
         gc ← GiftCards.save(giftCard.copy(originId = conversion.id))
       } yield gc).map(Good(_))
     } else {
-      Future.successful(Bad(GeneralFailure(s"cannot convert a store credit with status '${sc.status}'")))
+      Future.successful(Bad(GeneralFailure(s"cannot convert a store credit with status '${sc.status}'").single))
     }
   }
 }

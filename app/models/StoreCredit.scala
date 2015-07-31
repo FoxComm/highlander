@@ -1,7 +1,7 @@
 package models
 
 import com.pellucid.sealerate
-import services.{Failure, OrderTotaler}
+import services.{Failures, Failure, OrderTotaler}
 import slick.dbio.Effect.Read
 import slick.profile.SqlAction
 import utils.Money._
@@ -30,7 +30,7 @@ final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, origin
   }
 
   // TODO: not sure we use this polymorphically
-  def authorize(amount: Int)(implicit ec: ExecutionContext): Future[String Or List[Failure]] = {
+  def authorize(amount: Int)(implicit ec: ExecutionContext): Future[String Or Failures] = {
     Future.successful(Good("authenticated"))
   }
 

@@ -14,10 +14,11 @@ import org.scalactic._
 import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
-
+import com.github.tototoshi.slick.JdbcJodaSupport._
+import org.joda.time.DateTime
 
 final case class Order(id: Int = 0, referenceNumber: String = "", customerId: Int,
-  status: Status = Order.Cart, locked: Boolean = false)
+  status: Status = Order.Cart, locked: Boolean = false, placedAt: Option[DateTime] = None)
   extends ModelWithIdParameter
   with Validation[Order] {
 
@@ -64,7 +65,8 @@ class Orders(tag: Tag) extends GenericTable.TableWithId[Order](tag, "orders") wi
   def customerId = column[Int]("customer_id")
   def status = column[Order.Status]("status")
   def locked = column[Boolean]("locked")
-  def * = (id, referenceNumber, customerId, status, locked) <> ((Order.apply _).tupled, Order.unapply)
+  def placedAt = column[Option[DateTime]]("placed_at")
+  def * = (id, referenceNumber, customerId, status, locked, placedAt) <>((Order.apply _).tupled, Order.unapply)
 }
 
 object Orders extends TableQueryWithId[Order, Orders](

@@ -18,7 +18,7 @@ object Public {
     pathPrefix("registrations") {
       (post & path("new") & entity(as[payloads.CreateCustomer])) { regRequest =>
         complete {
-          Customers.createFromPayload(regRequest).map(renderGoodOrBad)
+          Customers.createFromPayload(regRequest).map(renderGoodOrFailures)
         }
       }
     } ~
