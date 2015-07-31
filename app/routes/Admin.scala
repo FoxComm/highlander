@@ -38,99 +38,90 @@ object Admin {
       } ~
       pathPrefix("customers") {
         (get & pathEnd) {
-          complete { 
+          complete {
             models.Customers.findAll.result.run().map { records ⇒
               render(records)
             }
+          }
         } ~
-        pathPrefix(IntNumber) { ⇒ customerId
+        pathPrefix(IntNumber) { customerId ⇒
           (get & pathEnd) {
             complete {
               renderOrNotFound(models.Customers.findById(customerId))
             }
           } ~
-          (post & path("disable") & entity(as[payloads.ToggleCustomerDisabled])) { payload ⇒
-            complete {
-              CustomerManager.toggleDisabled(customerId, payload.disabled, admin).map(renderGoodOrFailures)
-            }
-          } ~
-          pathPrefix("addresses") {
-            (get & pathEnd) {
+            (post & path("disable") & entity(as[payloads.ToggleCustomerDisabled])) { payload ⇒
               complete {
-                Addresses._findAllByCustomerIdWithStates(customerId).result.run().map { records ⇒
-                  render(responses.Addresses.build(records))
-                }
+                CustomerManager.toggleDisabled(customerId, payload.disabled, admin).map(renderGoodOrFailures)
               }
             } ~
-            (post & entity(as[CreateAddressPayload]) & pathEnd) { payload =>
-              complete {
-                AddressManager.create(payload, customerId).map(renderGoodOrFailures)
-              }
-            } ~
-            (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultShippingAddress]) & pathEnd) {
-              (id, payload) ⇒
+            pathPrefix("addresses") {
+              (get & pathEnd) {
                 complete {
-                  AddressManager.setDefaultShippingAddress(customerId, id).map { optFailure ⇒
-                    optFailure.fold(HttpResponse(OK)) { f ⇒ renderFailure(Seq(f)) }
+                  Addresses._findAllByCustomerIdWithStates(customerId).result.run().map { records ⇒
+                    render(responses.Addresses.build(records))
                   }
                 }
-            } ~
-            (delete & path("default")  & pathEnd) {
-              complete {
-                AddressManager.removeDefaultShippingAddress(customerId).map { _ ⇒ noContentResponse }
-              }
-            }
-          } ~
-          pathPrefix("payment-methods") {
-            pathPrefix("credit-cards") {
-              (get & pathEnd) {
-                complete {
-                  CustomerManager.toggleDisabled(customerId, payload.disabled, admin).map(renderGoodOrBad)
-                }
               } ~
-              (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultCreditCard])) { (cardId, payload) ⇒
-                complete {
-                  val result = CustomerManager.toggleCreditCardDefault(customerId, cardId, payload.isDefault)
-                  result.map(renderGoodOrFailures)
-                }
-              }
-            } ~
-            pathPrefix("store-credits") {
-              (get & pathEnd) {
-                complete {
-                  renderOrNotFound(StoreCredits.findAllByCustomerId(customerId).map(Some(_)))
-                }
-              } ~
-              pathPrefix("shipping-addresses") {
-                (get & pathEnd) {
+                (post & entity(as[CreateAddressPayload]) & pathEnd) { payload =>
                   complete {
-                    ShippingAddresses.findAllByCustomerIdWithStates(customerId).result.run().map { records ⇒
-                      render(responses.Addresses.buildShipping(records))
-                    }
+                    AddressManager.create(payload, customerId).map(renderGoodOrFailures)
                   }
                 } ~
-                  (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultShippingAddress]) & pathEnd) {
-                    (id, payload) ⇒
-                      complete {
-                        AddressManager.toggleDefaultShippingAddress(id, payload.isDefault).map { optFailure ⇒
-                          optFailure.fold(HttpResponse(OK)) { f ⇒ renderFailure(Seq(f)) }
-                        }
+                (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultShippingAddress]) & pathEnd) {
+                  (id, payload) ⇒
+                    complete {
+                      AddressManager.setDefaultShippingAddress(customerId, id).map { optFailure ⇒
+                        optFailure.fold(HttpResponse(OK)) { f ⇒ renderFailure(Seq(f)) }
                       }
+                    }
+                } ~
+                (delete & path("default")  & pathEnd) {
+                  complete {
+                    AddressManager.removeDefaultShippingAddress(customerId).map { _ ⇒ noContentResponse }
+                  }
+                }
+            } ~
+            pathPrefix("payment-methods") {
+              pathPrefix("credit-cards") {
+                (get & pathEnd) {
+                  complete {
+                    render(CreditCards.findAllByCustomerId(customerId))
+                  }
+                } ~
+                  (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultCreditCard])) { (cardId, payload) ⇒
+                    complete {
+                      val result = CustomerManager.toggleCreditCardDefault(customerId, cardId, payload.isDefault)
+                      result.map(renderGoodOrFailures)
+                    }
                   }
               } ~
-                //              (post & entity(as[CreateStoreCredit])) { payload ⇒
-                //                complete {
-                //                  Future.successful(HttpResponse(OK))
-                //                }
-                //              } ~
-              (post & path(IntNumber / "convert")) { storeCreditId ⇒
-                complete {
-                  whenFoundDispatchToService(StoreCredits.findById(storeCreditId).run()) { sc ⇒
-                    CustomerCreditConverter.toGiftCard(sc, customerId)
-                  }
-              }
+                pathPrefix("store-credits") {
+                  (get & pathEnd) {
+                    complete {
+                      renderOrNotFound(StoreCredits.findAllByCustomerId(customerId).map(Some(_)))
+                    }
+                  } ~
+                    (get & path(IntNumber)) { storeCreditId ⇒
+                      complete {
+                        renderOrNotFound(StoreCredits.findById(storeCreditId).run())
+                      }
+                    } ~
+                    //              (post & entity(as[CreateStoreCredit])) { payload ⇒
+                    //                complete {
+                    //                  Future.successful(HttpResponse(OK))
+                    //                }
+                    //              } ~
+                    (post & path(IntNumber / "convert")) { storeCreditId ⇒
+                      complete {
+                        whenFoundDispatchToService(StoreCredits.findById(storeCreditId).run()) { sc ⇒
+                          CustomerCreditConverter.toGiftCard(sc, customerId)
+                        }
+                      }
+                    }
+                }
+            }
           }
-        }
       } ~
       pathPrefix("orders" / """([a-zA-Z0-9-_]*)""".r) { refNum ⇒
         (get & pathEnd) {
