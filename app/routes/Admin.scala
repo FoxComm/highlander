@@ -212,7 +212,7 @@ object Admin {
           //              }
           //            }
         } ~
-        pathPrefix("shipping-address")  {
+        pathPrefix("shipping-address") {
           (post & entity(as[payloads.CreateShippingAddress]) & pathEnd) { payload ⇒
             complete {
               whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
