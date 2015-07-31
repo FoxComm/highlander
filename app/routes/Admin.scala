@@ -215,10 +215,10 @@ object Admin {
           //            }
         } ~
         pathPrefix("shipping-address") {
-          (post & entity(as[payloads.LinkShippingAddressToOrder]) & pathEnd) { payload ⇒
+          (post & entity(as[payloads.CreateShippingAddress]) & pathEnd) { payload ⇒
             complete {
               whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
-                services.OrderUpdater.linkShippingAddress(order, payload)
+                services.OrderUpdater.createShippingAddress(order, payload)
               }
             }
           }

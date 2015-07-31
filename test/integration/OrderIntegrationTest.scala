@@ -176,7 +176,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       "succeeds if the address exists in their book" in new AddressFixture {
         val response = POST(
           s"v1/orders/${order.referenceNumber}/shipping-address",
-          payloads.LinkShippingAddressToOrder(addressId = address.id))
+          payloads.CreateShippingAddress(addressId = Some(address.id)))
 
         response.status must ===(StatusCodes.OK)
         val (shippingAddress :: Nil) = OrderShippingAddresses.findByOrderId(order.id).result.run().futureValue.toList
@@ -192,7 +192,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       "errors if the address does not exist" in new AddressFixture {
         val response = POST(
           s"v1/orders/${order.referenceNumber}/shipping-address",
-          payloads.LinkShippingAddressToOrder(addressId = 99))
+          payloads.CreateShippingAddress(addressId = Some(99)))
 
         response.status must === (StatusCodes.BadRequest)
         (parse(response.bodyText) \ "errors").extract[List[String]] must === (List("address with id=99 not found"))
