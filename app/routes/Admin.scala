@@ -39,9 +39,7 @@ object Admin {
       pathPrefix("customers") {
         (get & pathEnd) {
           complete {
-            models.Customers.findAll.result.run().map { records ⇒
-              render(records)
-            }
+            models.Customers.findAll.result.run().map(render(_))
           }
         } ~
         pathPrefix(IntNumber) { customerId ⇒
