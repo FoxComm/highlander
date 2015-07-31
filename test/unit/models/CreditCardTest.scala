@@ -26,7 +26,10 @@ class CreditCardTest extends TestBase {
           val result = c.validate
 
           result mustBe 'invalid
-          result.messages.size must === (1)
+
+          withClue(result.messages) {
+            result.messages.size must ===(1)
+          }
           result.messages.head mustBe (error)
         }
       }
