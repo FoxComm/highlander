@@ -42,7 +42,7 @@ object Admin {
             models.Customers.sortBy(_.firstName.desc).result.run().map(render(_))
           }
         }
-      }~
+      } ~
       pathPrefix("customers" / IntNumber) { customerId ⇒
         (get & pathEnd) {
           complete {
@@ -120,7 +120,7 @@ object Admin {
             }
           }
         }
-      }~
+      } ~
       pathPrefix("orders" / """([a-zA-Z0-9-_]*)""".r) { refNum ⇒
         (get & pathEnd) {
           complete {
