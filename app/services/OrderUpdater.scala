@@ -41,13 +41,9 @@ object OrderUpdater {
       case (None, Some(payloadAddress)) ⇒
         createShippingAddressFromPayload(Address.fromPayload(payloadAddress), order)
       case (None, None) ⇒
-        Future.successful(Bad(GeneralFailure("Not able to create the shipping address")))
+        Future.successful(Bad(GeneralFailure("must supply either an addressId or an address")))
     }
   }
-
-  def linkShippingAddress(order: Order, payload: payloads.LinkShippingAddressToOrder)
-    (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failure] =
-    createShippingAddressFromAddressId(payload.addressId, order.id)
 
   private def createShippingAddressFromPayload(address: Address, order: Order)
     (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failure] = {
