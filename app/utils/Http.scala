@@ -17,7 +17,8 @@ object Http {
   implicit val serialization = jackson.Serialization
   implicit val formats = phoenixFormats
 
-  val notFoundResponse = HttpResponse(NotFound)
+  val notFoundResponse:   HttpResponse  = HttpResponse(NotFound)
+  val noContentResponse:  HttpResponse  = HttpResponse(NoContent)
 
   @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.AsInstanceOf"))
   private[Http] def renderGoodOrBad[G <: AnyRef, B <: AnyRef](goodOrBad: G Or B)
