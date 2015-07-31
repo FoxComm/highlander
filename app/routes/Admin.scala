@@ -36,7 +36,14 @@ object Admin {
           }
         }
       } ~
-      pathPrefix("users" / IntNumber) { customerId ⇒
+      pathPrefix("customers") {
+        (get & pathEnd) {
+          complete {
+            models.Customers.sortBy(_.firstName.desc).result.run().map(render(_))
+          }
+        }
+      } ~
+      pathPrefix("customers" / IntNumber) { customerId ⇒
         (get & pathEnd) {
           complete {
             renderOrNotFound(models.Customers.findById(customerId))
