@@ -2,18 +2,14 @@ package services
 
 import scala.concurrent.{ExecutionContext, Future}
 
-import org.postgresql.util.PSQLException
-import org.scalactic.{Or, Good, Bad}
-import utils.Validation.Result.{Failure ⇒ Invalid, Success}
-import models.{Addresses ⇒ Table, ShippingAddress, CreditCards, ShippingAddresses, Address, States, State, Customer}
+import models.{Address, Addresses, State, States}
+import org.scalactic.{Bad, Good, Or}
 import payloads.CreateAddressPayload
-import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
-import responses.{Addresses ⇒ Response}
 import responses.Addresses.Root
-import utils.Slick.UpdateReturning._
-import utils.jdbc.RecordNotUnique
-import utils.jdbc.withUniqueConstraint
+import responses.{Addresses ⇒ Response}
+import slick.driver.PostgresDriver.api._
+import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
+import utils.Validation.Result.{Failure ⇒ Invalid, Success}
 
 object AddressManager {
   def create(payload: CreateAddressPayload, customerId: Int)
@@ -22,7 +18,7 @@ object AddressManager {
     address.validate match {
       case Success ⇒
         db.run(for {
-          newAddress ← Table.save(address)
+          newAddress ← Addresses.save(address)
           state ← States.findById(newAddress.stateId)
         } yield (newAddress, state)).map {
           case (address, Some(state)) ⇒ Good(Response.build(address, state))
@@ -32,47 +28,20 @@ object AddressManager {
     }
   }
 
-  def toggleDefaultShippingAddress(id: Int, isDefault: Boolean)
+  def setDefaultShippingAddress(customerId: Int, addressId: Int)
     (implicit ec: ExecutionContext, db: Database): Future[Option[Failure]] = {
-
-    val result = withUniqueConstraint {
-      db.run(ShippingAddresses._findById(id).extract.map(_.isDefault).update(isDefault)).map { rows ⇒
-        if (rows != 1) {
-          Some(NotFoundFailure(ShippingAddress, id))
-        } else {
-          None
-        }
-      }
-    } { e ⇒ CustomerHasDefaultShippingAddress }
-
-    result.map(_.fold(identity, Some(_)))
-  }
-
-  /*
-  def createFromPayload(customer: Customer, payload: Seq[CreateAddressPayload])
-    (implicit ec: ExecutionContext, db: Database): Future[Seq[Address] Or Map[Address, Set[ErrorMessage]]] = {
-
-    val addresses = payload.map(Address.fromPayload(_).copy(customerId = customer.id))
-    create(customer, addresses)
-  }
-
-  def create(customer: Customer, addresses: Seq[Address])
-    (implicit ec: ExecutionContext, db: Database): Future[Seq[Address] Or Map[Address, Set[ErrorMessage]]] = {
-
-    val failures = addresses.map { a => (a, a.validate) }.filterNot { case (a, v) => v.isValid }
-
-    if (failures.nonEmpty) {
-      val acc = Map[Address, Set[ErrorMessage]]()
-      val errorMap = failures.foldLeft(acc) { case (map, (address, failure)) =>
-        map.updated(address, failure.messages)
-      }
-      Future.successful(Bad(errorMap))
-    } else {
-      db.run(for {
-        _ <- this ++= addresses
-        addresses <- filter(_.customerId === customer.id).result
-      } yield Good(addresses))
+    db.run((for {
+      _ ← Addresses.findShippingDefaultByCustomerId(customerId).map(_.isDefaultShipping).update(false)
+      newDefault ← Addresses._findById(addressId).extract.map(_.isDefaultShipping).update(true)
+    } yield newDefault).transactionally).map {
+      case rowsAffected if rowsAffected == 1 ⇒
+        None
+      case _ ⇒
+        Some(NotFoundFailure(Address, addressId))
     }
   }
-  */
+
+  def removeDefaultShippingAddress(customerId: Int)
+    (implicit ec: ExecutionContext, db: Database): Future[Int] =
+    db.run(Addresses.findShippingDefaultByCustomerId(customerId).map(_.isDefaultShipping).update(false))
 }

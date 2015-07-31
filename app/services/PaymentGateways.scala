@@ -8,7 +8,7 @@ import com.stripe.model.{Card ⇒ StripeCard, Charge ⇒ StripeCharge, Customer 
 import com.stripe.net.{RequestOptions ⇒ StripeRequestOptions}
 import models.Customer
 import org.scalactic.{Bad, Good, Or}
-import payloads.CreditCardPayload
+import payloads.CreateCreditCard
 
 abstract class PaymentGateway
 case object BraintreeGateway extends PaymentGateway
@@ -16,7 +16,7 @@ case object BraintreeGateway extends PaymentGateway
 // TODO(yax): do not default apiKey, it should come from store
 final case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ") extends PaymentGateway {
   // Creates a customer in Stripe along with their first CC
-  def createCustomerAndCard(customer: Customer, card: CreditCardPayload)
+  def createCustomerAndCard(customer: Customer, card: CreateCreditCard)
     (implicit ec: ExecutionContext): Future[StripeCustomer Or Failures] = tryFutureWrap {
 
     val base = Map[String, Object](

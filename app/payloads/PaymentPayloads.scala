@@ -6,11 +6,11 @@ import com.wix.accord.dsl.{validator => createValidator}
 import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._
 
-final case class CreditCardPayload(holderName: String, number: String, cvv: String, expYear: Int,
+final case class CreateCreditCard(holderName: String, number: String, cvv: String, expYear: Int,
   expMonth: Int, address: Option[CreateAddressPayload] = None, isDefault: Boolean = false)
-  extends Validation[CreditCardPayload] {
+  extends Validation[CreateCreditCard] {
 
-  override def validator = createValidator[CreditCardPayload] { cc =>
+  override def validator = createValidator[CreateCreditCard] { cc =>
     cc.holderName is notEmpty
     cc.number should matchRegex("[0-9]+")
     cc.cvv should matchRegex("[0-9]{3,4}")

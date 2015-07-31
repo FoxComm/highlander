@@ -1,4 +1,10 @@
-# phoenix-scala
+[![Build status](https://badge.buildkite.com/20bc913b3e06b49544cd4354c92f675bdfd0cf93f5a4640d3e.svg)](https://buildkite.com/foxcommerce/phoenix-scala)
+
+# Phoenix
+
+<p align="center">
+  <img src="http://images2.alphacoders.com/451/451370.jpg">
+</p>
 
 ## Development
 

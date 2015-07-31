@@ -11,7 +11,7 @@ import org.json4s.jackson.Serialization.{write ⇒ json}
 import akka.http.scaladsl.model.StatusCodes._
 import org.scalactic._
 import payloads._
-import responses.{AdminNotes, FullOrder}
+import responses.{AllOrders, AdminNotes, FullOrder}
 import services._
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
@@ -47,33 +47,31 @@ object Admin {
             CustomerManager.toggleDisabled(customerId, payload.disabled, admin).map(renderGoodOrFailures)
           }
         } ~
-        (pathPrefix("addresses") & pathEnd) {
-          get {
+        pathPrefix("addresses") {
+          (get & pathEnd) {
             complete {
               Addresses._findAllByCustomerIdWithStates(customerId).result.run().map { records ⇒
                 render(responses.Addresses.build(records))
               }
             }
           } ~
-          (post & entity(as[CreateAddressPayload])) { payload =>
+          (post & entity(as[CreateAddressPayload]) & pathEnd) { payload =>
             complete {
               AddressManager.create(payload, customerId).map(renderGoodOrFailures)
-            }
-          }
-        } ~
-        pathPrefix("shipping-addresses") {
-          (get & pathEnd) {
-            complete {
-              ShippingAddresses.findAllByCustomerIdWithStates(customerId).result.run().map { records ⇒
-                render(responses.Addresses.buildShipping(records))
-              }
             }
           } ~
           (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultShippingAddress]) & pathEnd) {
             (id, payload) ⇒
+              complete {
+                AddressManager.setDefaultShippingAddress(customerId, id).map { optFailure ⇒
+                  optFailure.fold(HttpResponse(OK)) { f ⇒ renderFailure(Seq(f)) }
+                }
+              }
+          } ~
+          (delete & path("default")  & pathEnd) {
             complete {
-              AddressManager.toggleDefaultShippingAddress(id, payload.isDefault).map { optFailure ⇒
-                optFailure.fold(HttpResponse(OK)) { f ⇒ renderFailure(Seq(f)) }
+              AddressManager.removeDefaultShippingAddress(customerId).map { _ ⇒
+                HttpResponse(NoContent)
               }
             }
           }
@@ -167,7 +165,7 @@ object Admin {
               renderOrNotFound(Orders.findByRefNum(refNum).result.headOption.run())
             }
           } ~
-          (post & path("credit-card") & entity(as[CreditCardPayload])) { reqPayment =>
+          (post & path("credit-card") & entity(as[CreateCreditCard])) { reqPayment =>
             complete {
               Orders.findByRefNum(refNum).result.headOption.run().flatMap {
                 case None => Future.successful(notFoundResponse)
@@ -215,6 +213,22 @@ object Admin {
           //                }
           //              }
           //            }
+        } ~
+        pathPrefix("shipping-address") {
+          (patch & entity(as[payloads.CreateShippingAddress]) & pathEnd) { payload ⇒
+            complete {
+              whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
+                services.OrderUpdater.createShippingAddress(order, payload)
+              }
+            }
+          }
+        }
+      } ~
+      pathPrefix("orders") {
+        (get & pathEnd) {
+          complete {
+            AllOrders.findAll
+          }
         }
       }
     }

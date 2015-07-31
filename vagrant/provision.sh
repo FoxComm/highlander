@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 #install scala
 if [[ ! -d /usr/local/share/scala ]]; then
     echo "downloading scala 2.11.6..."
@@ -11,15 +13,21 @@ if [[ ! -d /usr/local/share/scala ]]; then
     echo "PATH=\$PATH:\$SCALA_HOME/bin" >> /etc/profile
 fi
 
+apt-get install -y software-properties-common python-software-properties debconf-utils
+add-apt-repository ppa:webupd8team/java -y
+apt-get update
+echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | sudo debconf-set-selections
+apt-get install -y oracle-java8-installer
+apt-get install -y oracle-java8-set-default
 
 #install sbt
 if [[ ! -f /etc/apt/sources.list.d/sbt.list ]]; then
     echo "deb http://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list
 fi
+
 echo "installing a bunch of other stuff.."
 apt-get update -y
-apt-get install -y --force-yes sbt tmux openjdk-8-jdk postgresql unzip
-
+apt-get install -y --force-yes sbt tmux unzip
 
 #install flyway
 if [[ ! -d /usr/local/share/flyway ]]; then
@@ -33,15 +41,23 @@ if [[ ! -d /usr/local/share/flyway ]]; then
     echo "PATH=\$PATH:/usr/local/share/flyway/" >> /etc/profile
 fi
 
+if [[ ! -f /etc/apt/sources.list.d/postgres.list ]]; then
+    echo "deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main" | tee -a /etc/apt/sources.list.d/postgres.list
+    wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+    apt-get update
+fi
+
+apt-get install -y postgresql-9.4
+
 #setup postgresql
 #trust connections from localhost
 sed -i 's/127.0.0.1\/32\s*md5/127.0.0.1\/32 trust/' /etc/postgresql/9.4/main/pg_hba.conf
 sed -i 's/::1\/128\s*md5/::1\/128 trust/' /etc/postgresql/9.4/main/pg_hba.conf
-sudo -u postgres createuser -s vagrant || {
-    echo "postgres: vagrant user already created, ignoring"
+sudo -u postgres createuser -s root || {
+    echo "postgres: root user already created, ignoring"
 }
 
-systemctl restart postgresql
+service postgresql restart
 
 cd /vagrant
 make configure
