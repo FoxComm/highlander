@@ -17,7 +17,8 @@ object NotFoundFailure {
   def apply[M <: ModelWithIdParameter](m: M): NotFoundFailure =
     NotFoundFailure(s"${m.modelName} with id=${m.id} not found")
 
-  def apply[A](a: A, id: Int): NotFoundFailure = NotFoundFailure(friendlyClassName(a))
+  def apply[A](a: A, id: Int): NotFoundFailure =
+    NotFoundFailure(s"${friendlyClassName(a)} with id=$id not found")
 }
 
 final case class StripeFailure(exception: StripeException) extends Failure {

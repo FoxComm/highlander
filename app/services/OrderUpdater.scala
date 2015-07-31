@@ -45,6 +45,10 @@ object OrderUpdater {
     }
   }
 
+  def linkShippingAddress(order: Order, payload: payloads.LinkShippingAddressToOrder)
+    (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failure] =
+    createShippingAddressFromAddressId(payload.addressId, order.id)
+
   private def createShippingAddressFromPayload(address: Address, order: Order)
     (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failure] = {
 
