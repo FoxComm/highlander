@@ -22,11 +22,11 @@ object Seeds {
     shippingMethods: Seq[ShippingMethod], shippingPriceRules: Seq[ShippingPriceRule],
     shippingMethodRuleMappings: Seq[ShippingMethodPriceRule], orderCriteria: Seq[OrderCriterion],
     orderPriceCriteria: Seq[OrderPriceCriterion], priceRuleCriteriaMappings: Seq[ShippingPriceRuleOrderCriterion],
-    skus: Seq[Sku], orderLineItems: Seq[OrderLineItem], shipment: Shipment)
+    skus: Seq[Sku], orderLineItems: Seq[OrderLineItem], shipment: Shipment, giftCard: GiftCard)
 
   final case class PaymentMethods(giftCard: GiftCard = Factories.giftCard, storeCredit: StoreCredit = Factories.storeCredit)
 
-  def run()(implicit db: Database): dbio.DBIOAction[(Option[Int], Order, Address, OrderShippingAddress, CreditCard),
+  def run()(implicit db: Database): dbio.DBIOAction[(Option[Int], Order, Address, OrderShippingAddress, CreditCard, GiftCard),
     NoStream, Write with Write with Write with All with Write with Write with All with All with Write with All with
     Write with Write with Write with Write with Write with All] = {
 
@@ -48,7 +48,8 @@ object Seeds {
       orderPriceCriteria = Factories.orderPriceCriteria,
       priceRuleCriteriaMappings = Factories.priceRuleCriteriaMappings,
       orderLineItems = Factories.orderLineItems,
-      shipment = Factories.shipment
+      shipment = Factories.shipment,
+      giftCard = Factories.giftCard
     )
 
     val failures = (s.customers.map { _.validate } ++ List(s.storeAdmin.validate, s.order.validate, s.address.validate,
@@ -75,7 +76,10 @@ object Seeds {
       orderPriceCriterion ← OrderPriceCriteria ++= s.orderPriceCriteria
       priceRuleCriteriaMapping ← ShippingPriceRulesOrderCriteria ++= s.priceRuleCriteriaMappings
       shipments ← Shipments.save(s.shipment)
-    } yield (customers, order, address, shippingAddress, creditCard)
+      reason ← Reasons.save(Factories.reason.copy(storeAdminId = storeAdmin.id))
+      origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = storeAdmin.id, reasonId = reason.id))
+      giftCard ← GiftCards.save(s.giftCard.copy(originId = origin.id))
+    } yield (customers, order, address, shippingAddress, creditCard, giftCard)
   }
 
   object Factories {
