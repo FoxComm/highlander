@@ -55,6 +55,14 @@ module.exports = function(app, router) {
 
       this.body = cards;
     })
+    .patch('/gift-cards/:giftcard', function *() {
+      let
+        body = yield parse.json(this);
+
+      this.card.amend(body);
+
+      this.body = this.card;
+    })
     .get('/gift-cards/:giftcard', function *() {
       this.body = this.card;
     })

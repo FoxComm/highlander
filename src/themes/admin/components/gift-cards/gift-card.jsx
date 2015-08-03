@@ -29,10 +29,21 @@ export default class GiftCard extends React.Component {
        .catch((err) => { console.log(err); });
   }
 
+  changeState(event) {
+    Api.patch(`/gift-cards/${this.state.card.id}`, {state: event.target.value})
+       .then((res) => {
+         this.setState({
+           card: res
+         });
+       })
+       .catch((err) => { console.log(err); });
+  }
+
   render() {
     let
       subNav = null,
-      card = this.state.card;
+      card   = this.state.card,
+      state  = null;
 
     if (card.id) {
       let params = {giftcard: card.id};
@@ -45,6 +56,18 @@ export default class GiftCard extends React.Component {
           </ul>
           <RouteHandler gift-card={card} modelName="gift-card"/>
         </div>
+      );
+    }
+
+    if (card.state === 'Canceled') {
+      state = <span>{card.state}</span>;
+    } else {
+      state = (
+        <select defaultValue={card.state} onChange={this.changeState.bind(this)}>
+          <option value="Active">Active</option>
+          <option value="On Hold">On Hold</option>
+          <option value="Canceled">Cancel Gift Card</option>
+        </select>
       );
     }
 
@@ -107,7 +130,7 @@ export default class GiftCard extends React.Component {
           <div className="grid-unit col-1">
             <article className="panel featured">
               <header>Current State</header>
-              <p>{ card.state }</p>
+              <p>{ state }</p>
             </article>
           </div>
         </div>

@@ -30,4 +30,20 @@ describe('GiftCards #POST', function() {
     expect(res.status).to.equal(200);
     expect(cards).to.have.length(3);
   });
+
+});
+
+describe('GiftCards #PATCH', function() {
+  it('should update a gift card state', function *(){
+    let
+      data = {
+        state: 'Canceled'
+      },
+      res = yield this.api.patch('/gift-cards/1', data),
+      card = res.response;
+
+    expect(res.status).to.equal(200);
+    expect(card.id).to.equal(1);
+  });
+
 });

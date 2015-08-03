@@ -18,7 +18,6 @@ export default class TableBody extends React.Component {
       case 'link': {
         let params = {};
         params[column.model] = row[column.id];
-        console.log(params);
         return <Link to={column.model} params={params}>{field}</Link>;
       }
       case 'image': return <img src={field}/>;
