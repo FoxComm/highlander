@@ -138,7 +138,7 @@ object Admin {
               failures ← Future.sequence(payload.referenceNumbers.map { refNum ⇒
                 Orders.findByRefNum(refNum).result.headOption.run().flatMap {
                   case Some(order) ⇒ OrderUpdater.updateStatus(order, UpdateOrderPayload(payload.status))
-                  case None ⇒ Future.successful(Some(GeneralFailure("Not found")))
+                  case None ⇒ Future.successful(Some(OrderUpdateFailure(refNum, "Not found")))
                 }
               })
               orders ← AllOrders.findAll

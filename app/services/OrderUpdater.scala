@@ -26,11 +26,11 @@ object OrderUpdater {
 
       db.run(insertedQuery).map {
         case Some(orderExists) ⇒ None
-        case None ⇒ Some(GeneralFailure("Not able to update order"))
+        case None ⇒ Some(OrderUpdateFailure(order.referenceNumber, "Not able to update order"))
       }
     }
 
-    def fail(s: String) = Future.successful(Some(GeneralFailure(s)))
+    def fail(s: String) = Future.successful(Some(OrderUpdateFailure(order.referenceNumber, s)))
 
     val newStatus = payLoad.status
     val currentStatus = order.status
