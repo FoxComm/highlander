@@ -26,7 +26,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       val giftCards = Seq(gc)
 
       response.status must === (StatusCodes.OK)
-      parse(response.bodyText).extract[Seq[GiftCard]].map { _.id } must === (giftCards.map { _.id })
+      parse(response.bodyText).extract[Seq[GiftCard]].map(_.id) must === (giftCards.map(_.id))
     }
 
     "finds a gift card by id" in new Fixture {
