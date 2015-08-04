@@ -74,56 +74,7 @@ Phoenix can be run in development by running either running the application nati
 
 ### Dependencies on Ubuntu
 
-- Java (must be Oracle version of Java, not OpenJDK)
-
-    ```bash
-    sudo apt-get install -y software-properties-common python-software-properties debconf-utils
-    sudo add-apt-repository ppa:webupd8team/java -y
-    sudo apt-get update
-    echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | sudo debconf-set-selections
-    sudo apt-get install -y oracle-java8-installer
-    sudo apt-get install -y oracle-java8-set-default
-    ```
-
-- SBT
-
-    ```bash
-    echo "deb http://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list
-    sudo apt-get update -y
-    sudo apt-get install -y sbt
-    ```
-
-- Scala
-
-    ```bash
-    wget -q http://downloads.typesafe.com/scala/2.11.6/scala-2.11.6.tgz
-    tar -zxf scala-2.11.6.tgz
-    sudo mv scala-2.11.6 /usr/local/share/scala
-    echo "SCALA_HOME=/usr/local/share/scala" >> $HOME/.bashrc
-    echo "PATH=\$PATH:\$SCALA_HOME/bin" >> $HOME/.bashrc
-    ```
-
-- Flyway
-
-    ```bash
-    wget -q http://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/3.2.1/flyway-commandline-3.2.1.zip
-    unzip flyway-commandline-3.2.1.zip
-    sudo mv flyway-3.2.1 /usr/local/share/flyway
-    sudo chown -R $USER /usr/local/share/flyway 
-    sudo chmod g+x /usr/local/share/flyway
-    echo "PATH=\$PATH:/usr/local/share/flyway/" >> $HOME/.bashrc
-    ```
-
-- PostgreSQL 9.4
-
-    ```bash
-    echo "deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main" | tee -a /etc/apt/sources.list.d/postgres.list
-    wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
-    sudo apt-get update
-    sudo apt-get install -y postgresql-9.4
-    ```
-
-    In `pg_hba.conf`, make sure that all connections from 127.0.0.1 are set to trust, not peer or md5.
+We use Ubuntu 14.04 (Trusty) as the base of our Vagrant image. For details about how to set this up on local Ubuntu, check out the provisioning script: [provision.sh](https://github.com/FoxComm/phoenix-scala/blob/master/vagrant/provision.sh).
 
 ### Setup
 
