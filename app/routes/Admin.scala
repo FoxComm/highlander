@@ -30,6 +30,11 @@ object Admin {
 
     authenticateBasicAsync(realm = "admin", storeAdminAuth) { admin =>
       pathPrefix("gift-cards") {
+        (get & pathEnd) {
+          complete {
+            models.GiftCards.sortBy(_.id.desc).result.run().map(render(_))
+          }
+        } ~
         (get & path(IntNumber) & pathEnd) { giftCardId ⇒
           complete {
             renderOrNotFound(GiftCards.findById(giftCardId).run())

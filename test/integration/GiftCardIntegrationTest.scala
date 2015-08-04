@@ -16,6 +16,19 @@ class GiftCardIntegrationTest extends IntegrationTestBase
   import org.json4s.jackson.JsonMethods._
 
   "admin API" - {
+    "queries the list of gift cards" in new Fixture {
+      val gc = (for {
+        origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
+        gc ← GiftCards.save(Factories.giftCard.copy(originId = origin.id))
+      } yield gc).run().futureValue
+
+      val response = GET(s"v1/gift-cards")
+      val giftCards = Seq(gc)
+
+      response.status must === (StatusCodes.OK)
+      parse(response.bodyText).extract[Seq[GiftCard]].map(_.id) must === (giftCards.map(_.id))
+    }
+
     "finds a gift card by id" in new Fixture {
       val gc = (for {
         origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
