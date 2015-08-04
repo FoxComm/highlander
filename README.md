@@ -76,6 +76,8 @@ Phoenix can be run in development by running either running the application nati
 
 We use Ubuntu 14.04 (Trusty) as the base of our Vagrant image. For details about how to set this up on local Ubuntu, check out the provisioning script: [provision.sh](https://github.com/FoxComm/phoenix-scala/blob/master/vagrant/provision.sh).
 
+_Note:_ OpenJDK has been known to cause issues in Ubuntu with Scala. Make sure to use the Oracle JDK.
+
 ### Setup
 
 1. Setup the database
