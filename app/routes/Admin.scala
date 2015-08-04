@@ -154,12 +154,17 @@ object Admin {
             }
           }
         } ~
-        (patch & entity(as[UpdateOrderPayload])) { payload =>
+        (patch & entity(as[UpdateOrderPayload])) { payload ⇒
           complete {
-            whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order =>
-              OrderUpdater.updateStatus(order, payload).map {
-                case Some(failure) ⇒ Bad(GeneralFailure("Not found"))
-                case None ⇒ Good(FullOrder.fromOrder(order))
+            def findOrder = Orders.findByRefNum(refNum).result.headOption.run()
+
+            whenFound(findOrder) { order ⇒
+              OrderUpdater.updateStatus(order, payload).flatMap {
+                case Some(failure) ⇒ Future.successful(Bad(failure))
+                case None ⇒ findOrder.flatMap {
+                  case Some(newOrder) ⇒ FullOrder.fromOrder(newOrder).map(Good(_))
+                  case None ⇒ Future.successful(Bad("This was really unexpected"))
+                }
               }
             }
           }
