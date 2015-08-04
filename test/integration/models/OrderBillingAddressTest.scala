@@ -10,7 +10,7 @@ class OrderBillingAddressTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global
 
   "OrderBillingAddress" - {
-    "has only one billing address per order per payment" in new Fixture {
+    "has only one billing address per order payment" in new Fixture {
       val result = withUniqueConstraint {
         OrderBillingAddresses.save(billingAddress.copy(name = "Jeff")).run()
       } { notUnique ⇒ GeneralFailure("There was already a billing address") }
@@ -24,8 +24,7 @@ class OrderBillingAddressTest extends IntegrationTestBase {
       customer ← Customers.save(Factories.customer)
       order ← Orders.save(Factories.order.copy(customerId = customer.id))
       orderPayment ← OrderPayments.save(Factories.orderPayment.copy(orderId = order.id))
-      billingAddress ← OrderBillingAddresses.save(
-        Factories.billingAddress.copy(orderId = order.id, orderPaymentId = orderPayment.id))
+      billingAddress ← OrderBillingAddresses.save(Factories.billingAddress.copy(orderPaymentId = orderPayment.id))
     } yield (order, billingAddress)).run().futureValue
   }
 }
