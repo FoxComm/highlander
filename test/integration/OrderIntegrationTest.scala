@@ -35,6 +35,58 @@ class OrderIntegrationTest extends IntegrationTestBase
     order.lineItems.map(_.skuId).sortBy(identity) must === (List(1, 5, 5))
   }
 
+  "updates status" - {
+
+    "successfully" in {
+
+      val order = Orders.save(Factories.order).run().futureValue
+
+      val response = PATCH(
+        s"v1/orders/${order.referenceNumber}",
+        """
+          |{
+          |  "status": "fraudHold"
+          |}
+        """.stripMargin)
+
+      response.status must === (StatusCodes.OK)
+
+      val responseOrder = parse(response.bodyText).extract[FullOrder.Root]
+      responseOrder.orderStatus must === (Order.FraudHold)
+    }
+
+    "fails if transition to destination status is not allowed" in {
+
+      val order = Orders.save(Factories.order).run().futureValue
+
+      val response = PATCH(
+        s"v1/orders/${order.referenceNumber}",
+        """
+          |{
+          |  "status": "cart"
+          |}
+        """.stripMargin)
+
+      response.status must === (StatusCodes.BadRequest)
+      response.bodyText must include("errors")
+    }
+
+    "fails if transition from current status is not allowed" in {
+      val order = Orders.save(Factories.order.copy(status = Order.Canceled)).run().futureValue
+
+      val response = PATCH(
+        s"v1/orders/${order.referenceNumber}",
+        """
+          |{
+          |  "status": "manualHold"
+          |}
+        """.stripMargin)
+
+      response.status must === (StatusCodes.BadRequest)
+      response.bodyText must include("errors")
+    }
+  }
+
   "handles credit cards" - {
     val today = new DateTime
     val customerStub = Customer(email = "yax@yax.com", password = "password", firstName = "Yax", lastName = "Fuentes")
