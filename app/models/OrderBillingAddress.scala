@@ -9,8 +9,8 @@ import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.GenericTable.TableWithId
 import utils.{Validation, ModelWithIdParameter, RichTable, TableQueryWithId}
 
-final case class OrderBillingAddress(id: Int = 0, orderId: Int = 0, stateId: Int, name: String,
-  street1: String, street2: Option[String], city: String, zip: String)
+final case class OrderBillingAddress(id: Int = 0, orderId: Int = 0, orderPaymentId: Int = 0,
+  stateId: Int, name: String, street1: String, street2: Option[String], city: String, zip: String)
   extends Validation[OrderBillingAddress]
   with ModelWithIdParameter {
 
@@ -28,10 +28,11 @@ object OrderBillingAddress {
       street2 = address.street2, city = address.city, zip = address.zip)
 }
 
-class OrderBillingAddresses(tag: Tag) extends TableWithId[OrderBillingAddress](tag, "order_shipping_addresses")
+class OrderBillingAddresses(tag: Tag) extends TableWithId[OrderBillingAddress](tag, "order_billing_addresses")
 with RichTable {
   def id = column[Int]("id", O.PrimaryKey)
   def orderId = column[Int]("order_id")
+  def orderPaymentId = column[Int]("order_payment_id")
   def stateId = column[Int]("state_id")
   def name = column[String]("name")
   def street1 = column[String]("street1")
@@ -39,19 +40,20 @@ with RichTable {
   def city = column[String]("city")
   def zip = column[String]("zip")
 
-  def * = (id, orderId, stateId, name, street1, street2,
+  def * = (id, orderId, orderPaymentId, stateId, name, street1, street2,
     city, zip) <> ((OrderBillingAddress.apply _).tupled, OrderBillingAddress.unapply)
 
   def address = foreignKey(Addresses.tableName, id, Addresses)(_.id)
   def order = foreignKey(Orders.tableName, orderId, Orders)(_.id)
   def state = foreignKey(States.tableName, stateId, States)(_.id)
+  def orderPayment = foreignKey(OrderPayments.tableName, orderPaymentId, OrderPayments)(_.id)
 }
 
 object OrderBillingAddresses extends TableQueryWithId[OrderBillingAddress, OrderBillingAddresses](
   idLens = GenLens[OrderBillingAddress](_.id)
 )(new OrderBillingAddresses(_)) {
 
-  def copyFromAddress(address: Address, orderId: Int)(implicit ec: ExecutionContext):
+  def copyFromAddress(address: Address, orderId: Int, orderPaymentId: Int)(implicit ec: ExecutionContext):
   DBIO[OrderBillingAddress] =
-    save(OrderBillingAddress.buildFromAddress(address).copy(orderId = orderId))
+    save(OrderBillingAddress.buildFromAddress(address).copy(orderId = orderId, orderPaymentId = orderPaymentId))
 }
