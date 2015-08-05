@@ -135,14 +135,9 @@ object Admin {
         (patch & entity(as[BulkUpdateOrdersPayload]) & pathEnd) { payload ⇒
           complete {
             for {
-              failures ← Future.sequence(payload.referenceNumbers.map { refNum ⇒
-                Orders.findByRefNum(refNum).result.headOption.run().flatMap {
-                  case Some(order) ⇒ OrderUpdater.updateStatus(order, UpdateOrderPayload(payload.status))
-                  case None ⇒ Future.successful(Some(OrderUpdateFailure(refNum, "Not found")))
-                }
-              })
+              failures ← OrderUpdater.updateMultipleOrders(payload)
               orders ← AllOrders.findAll
-            } yield AllOrdersWithFailures(orders, failures.flatMap(f ⇒ f))
+            } yield AllOrdersWithFailures(orders, failures)
           }
         }
       } ~
@@ -156,16 +151,9 @@ object Admin {
         } ~
         (patch & entity(as[UpdateOrderPayload])) { payload ⇒
           complete {
-            def findOrder = Orders.findByRefNum(refNum).result.headOption.run()
-
-            whenFound(findOrder) { order ⇒
-              OrderUpdater.updateStatus(order, payload).flatMap {
-                case Some(failure) ⇒ Future.successful(Bad(failure))
-                case None ⇒ findOrder.flatMap {
-                  case Some(newOrder) ⇒ FullOrder.fromOrder(newOrder).map(Good(_))
-                  case None ⇒ Future.successful(Bad("This was really unexpected"))
-                }
-              }
+            def finder = Orders.findByRefNum(refNum)
+            whenFound(finder.result.headOption.run()) { order ⇒
+              OrderUpdater.updateSingleOrder(order, finder, payload)
             }
           }
         } ~

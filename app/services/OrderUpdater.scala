@@ -1,16 +1,42 @@
 package services
 
 import models._
-import payloads.{CreateShippingAddress, UpdateOrderPayload}
+import payloads.{BulkUpdateOrdersPayload, CreateShippingAddress, UpdateOrderPayload}
+import utils.Http._
 
 import utils.Validation.Result.{Failure ⇒ Invalid, Success}
 import org.scalactic._
 import scala.concurrent.{Future, ExecutionContext}
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
-import responses.{Addresses ⇒ Response}
+import responses.{Addresses ⇒ Response, FullOrder}
 
 object OrderUpdater {
+
+  def updateSingleOrder(order: Order, finder: Query[Orders, Order, Seq], payload: UpdateOrderPayload)
+    (implicit db: Database, ec: ExecutionContext): Future[FullOrder.Root Or Failure]  = {
+
+    def unexpectedError = Bad(OrderUpdateFailure(order.referenceNumber, "This was really unexpected"))
+
+    OrderUpdater.updateStatus(order, payload).flatMap {
+      case Some(failure) ⇒ Future.successful(Bad(failure))
+      case None ⇒ finder.result.headOption.run().flatMap {
+        case Some(newOrder) ⇒ FullOrder.fromOrder(newOrder).map(_.get).map(Good(_))
+        case None ⇒ Future.successful(unexpectedError)
+      }
+    }
+  }
+
+  def updateMultipleOrders (payload: BulkUpdateOrdersPayload)
+    (implicit db: Database, ec: ExecutionContext): Future[Seq[OrderUpdateFailure]] = {
+    Future.sequence(payload.referenceNumbers.map {
+      refNum ⇒
+        Orders.findByRefNum(refNum).result.headOption.run().flatMap {
+          case Some(order) ⇒ OrderUpdater.updateStatus(order, UpdateOrderPayload(payload.status))
+          case None ⇒ Future.successful(Some(OrderUpdateFailure(refNum, "Not found")))
+        }
+    }).map(_.flatMap(f ⇒ f))
+  }
 
   def updateStatus(order: Order, payLoad: UpdateOrderPayload)
     (implicit db: Database, ec: ExecutionContext): Future[Option[OrderUpdateFailure]] = {
