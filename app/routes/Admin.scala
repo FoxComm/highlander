@@ -250,6 +250,13 @@ object Admin {
             AllOrders.findAll
           }
         }
+      } ~
+      pathPrefix("states") {
+        (get & pathEnd) {
+          complete {
+            models.States.sortBy(_.name.asc).result.run().map(render(_))
+          }
+        }
       }
     }
   }
