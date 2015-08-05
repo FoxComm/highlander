@@ -56,6 +56,12 @@ object Order {
   implicit val statusColumnType = Status.slickColumn
 
   def buildCart(customerId: Int): Order = Order(customerId = customerId, status = Order.Cart)
+
+  val allowedStateTransitions = Map[Order.Status, Set[Order.Status]](
+    FraudHold → Set(ManualHold, RemorseHold, FulfillmentStarted),
+    RemorseHold → Set(FraudHold, ManualHold, FulfillmentStarted),
+    ManualHold → Set(FraudHold, RemorseHold, FulfillmentStarted)
+  )
 }
 
 class Orders(tag: Tag) extends GenericTable.TableWithId[Order](tag, "orders") with RichTable {

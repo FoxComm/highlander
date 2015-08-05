@@ -34,11 +34,6 @@ object OrderUpdater {
 
     val newStatus = payLoad.status
     val currentStatus = order.status
-    val allowedStateTransitions = Map[Order.Status, Seq[Order.Status]](
-      FraudHold → Seq(ManualHold, RemorseHold, FulfillmentStarted),
-      RemorseHold → Seq(FraudHold, ManualHold, FulfillmentStarted),
-      ManualHold → Seq(FraudHold, RemorseHold, FulfillmentStarted)
-    )
 
     allowedStateTransitions.get(currentStatus) match {
       case Some(allowed) ⇒
