@@ -13,7 +13,7 @@ import responses.{Addresses ⇒ Response}
 object OrderUpdater {
 
   def updateStatus(order: Order, payLoad: UpdateOrderPayload)
-    (implicit db: Database, ec: ExecutionContext): Future[Option[Failure]] = {
+    (implicit db: Database, ec: ExecutionContext): Future[Option[OrderUpdateFailure]] = {
 
     import Order._
 

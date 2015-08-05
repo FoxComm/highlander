@@ -142,7 +142,7 @@ object Admin {
                 }
               })
               orders ← AllOrders.findAll
-            } yield AllOrdersWithFailures(orders, failures)
+            } yield AllOrdersWithFailures(orders, failures.flatMap(f ⇒ f))
           }
         }
       } ~

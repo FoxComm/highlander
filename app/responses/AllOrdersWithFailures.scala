@@ -1,5 +1,5 @@
 package responses
 
-import services.Failure
+import services.OrderUpdateFailure
 
-final case class AllOrdersWithFailures(orders: Seq[AllOrders.Root], failures: Seq[Option[Failure]])
+final case class AllOrdersWithFailures(orders: Seq[AllOrders.Root], failures: Seq[OrderUpdateFailure])
