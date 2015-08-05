@@ -22,12 +22,12 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
     // 5) Final Auth on the payment
     // 6) Check & Reserve inventory
 
-    OrderLineItems.countByOrder(this.order).flatMap { count =>
-      if (count > 0) {
+    hasLineItems.flatMap { has =>
+      if (has) {
         authorizePayments.flatMap { payments =>
           val errors = payments.values.toList.flatten
           if (errors.isEmpty) {
-            completeOrderAndCreateNew(order).map(Good(_))
+            completeOrderAndCreateNew(order).map(Good(_))  
           } else {
             Future.successful(Bad(errors))
           }
@@ -38,43 +38,74 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
     }
   }
 
-  // sets incoming order.status == Order.ordered and creates a new order
-  def completeOrderAndCreateNew(order: Order): Future[Order] = {
-    db.run(for {
-      _ ← Orders._findById(order.id).extract
-        .map { o => (o.status, o.placedAt) }
-        .update((Order.Ordered, Some(DateTime.now)))
-
-      newOrder <- Orders._create(Order.buildCart(order.customerId))
-    } yield newOrder)
+  def authorizePayments: Future[Map[OrderPayment, Failures]] = {
+    for {
+      payments <- OrderPayments.findAllPaymentsFor(order)
+      authorized <- Future.sequence(authorizePayments(payments))
+    } yield updatePaymentsWithAuthorizationErrors(authorized)
   }
 
   def decrementInventory(order: Order): Future[Int] =
     InventoryAdjustments.createAdjustmentsForOrder(order)
 
-  def authorizePayments: Future[Map[OrderPayment, Failures]] = {
-    OrderPayments.findAllPaymentsFor(this.order).flatMap { records =>
-      Future.sequence(records.map { case (payment, creditCard) =>
-        creditCard.authorize(payment.appliedAmount).flatMap { or ⇒
-          or.fold({ chargeId ⇒
-            val paymentWithCharge = payment.copy(chargeId = Some(chargeId))
-            OrderPayments.update(paymentWithCharge).map { _ ⇒
-              (paymentWithCharge, or)
-            }
-          }, { _ ⇒
-            Future.successful((payment, or))
-          })
-        }
-      }).map { (results: Seq[(OrderPayment, Or[String, Failures])]) =>
-        results.foldLeft(Map.empty[OrderPayment, Failures]) { case (errors, (payment, result)) =>
-          errors.updated(payment,
-            result.fold({ good => List.empty }, { bad => bad }))
-        }
-      }
-    }
-  }
-
   def validateAddresses: Failures = {
     Failures()
   }
+
+  private def authorizePayments(payments: Seq[(OrderPayment, CreditCard)]) = {
+    for { 
+      (payment, creditCard) <- payments 
+    } yield authorizePayment(payment, creditCard)
+  }
+
+  private def authorizePayment(payment : OrderPayment, creditCard : CreditCard) = {
+    creditCard.authorize(payment.appliedAmount).flatMap { or ⇒
+      or.fold(
+      { chargeId ⇒  updateOrderPaymentWithCharge(payment, chargeId, or) }, 
+      { _ ⇒ Future.successful((payment, or))})
+    }
+  }
+
+  private def updatePaymentsWithAuthorizationErrors(
+    payments: Seq[(OrderPayment, Or[String, Failures])]) = {
+      payments.foldLeft(Map.empty[OrderPayment, Failures]) { 
+        case (payments, (payment, result)) => 
+          updatePaymentWithAuthorizationErrors(payments, payment, result)
+      }
+  }
+
+  private def updatePaymentWithAuthorizationErrors(
+    payments: Map[OrderPayment, Failures], 
+    payment: OrderPayment, 
+    result: String Or Failures) = {
+      payments.updated(
+        payment, 
+        result.fold({ good => List.empty }, { bad => bad }))
+  }
+
+  // sets incoming order.status == Order.ordered and creates a new order
+  private def completeOrderAndCreateNew(order: Order): Future[Order] = {
+    db.run(for {
+      _ ← Orders._findById(order.id).extract
+        .map { o => (o.status, o.placedAt) }
+        .update((Order.Ordered, Some(DateTime.now)))
+
+        newOrder <- Orders._create(Order.buildCart(order.customerId))
+    } yield newOrder)
+  }
+
+  private def updateOrderPaymentWithCharge(
+    payment : OrderPayment, 
+    chargeId : String, 
+    or: String Or Failures) = {
+      val paymentWithCharge = payment.copy(chargeId = Some(chargeId))
+      OrderPayments.update(paymentWithCharge).map { _ ⇒ (paymentWithCharge, or) }
+  }
+
+  private def hasLineItems = {
+    for { count <- OrderLineItems.countByOrder(order) } yield (count > 0) 
+  }
+
+
+
 }
