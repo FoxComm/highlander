@@ -51,12 +51,14 @@ final case class CreditCardPaymentCreator(order: Order, customer: Customer, card
     val appliedPayment = OrderPayment.fromStripeCustomer(stripeCustomer, order)
     val cc = CreditCard.build(stripeCustomer, this.cardPayload).copy(customerId = customer.id)
     val billingAddress = this.cardPayload.address.map(Address.fromPayload(_).copy(customerId = customer.id))
+    val orderBillingAddress = billingAddress.map(OrderBillingAddress.buildFromAddress(_))
 
     val queries = for {
-      ccId <- CreditCards.returningId += cc
-      appliedPaymentId <- OrderPayments.returningId += appliedPayment.copy(paymentMethodId = ccId)
-      _ <- billingAddress.map(Addresses.save(_)).getOrElse(DBIO.successful(Unit))
-      c <- Orders._findById(order.id).result.headOption
+      ccId ← CreditCards.returningId += cc
+      appliedPaymentId ← OrderPayments.returningId += appliedPayment.copy(paymentMethodId = ccId)
+      _ ← billingAddress.map(Addresses.save(_)).getOrElse(DBIO.successful(None))
+      _ ← orderBillingAddress.map(OrderBillingAddresses.save(_)).getOrElse(DBIO.successful(None))
+      c ← Orders._findById(order.id).result.headOption
     } yield c
 
     db.run(queries.transactionally)
