@@ -35,14 +35,18 @@ object OrderUpdater {
     val newStatus = payLoad.status
     val currentStatus = order.status
 
-    allowedStateTransitions.get(currentStatus) match {
-      case Some(allowed) ⇒
-        if (allowed.contains(newStatus)) {
-          update(newStatus)
-        } else {
-          fail(s"Transition from $currentStatus to $newStatus is not allowed")
-        }
-      case None ⇒ fail(s"Transition from current status $currentStatus is not allowed")
+    if (newStatus == currentStatus) {
+      Future.successful(None)
+    } else {
+      allowedStateTransitions.get(currentStatus) match {
+        case Some(allowed) ⇒
+          if (allowed.contains(newStatus)) {
+            update(newStatus)
+          } else {
+            fail(s"Transition from $currentStatus to $newStatus is not allowed")
+          }
+        case None ⇒ fail(s"Transition from current status $currentStatus is not allowed")
+      }
     }
   }
 
