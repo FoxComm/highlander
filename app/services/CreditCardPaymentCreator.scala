@@ -7,12 +7,14 @@ import payloads.CreateCreditCard
 
 import org.scalactic._
 import scala.concurrent.{Future, ExecutionContext}
+import slick.dbio.Effect.All
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 import com.stripe.model.{Token, Card => StripeCard, Customer => StripeCustomer}
 import com.stripe.net.{RequestOptions => StripeRequestOptions}
 import collection.JavaConversions.mapAsJavaMap
 
+import slick.profile.FixedSqlAction
 import utils.Validation
 import utils.Validation.Result.{ Success}
 import utils.{ Validation ⇒ validation }
@@ -53,10 +55,17 @@ final case class CreditCardPaymentCreator(order: Order, customer: Customer, card
     val billingAddress = this.cardPayload.address.map(Address.fromPayload(_).copy(customerId = customer.id))
     val orderBillingAddress = billingAddress.map(OrderBillingAddress.buildFromAddress(_))
 
+    val noAddress: DBIOAction[Option[Address], NoStream, All] = DBIO.successful(None)
+
+    val c: FixedSqlAction[CreditCard#Id, NoStream, Effect.Write] = CreditCards.returningId += cc
+    val d = c.andFinally
+
     val queries = for {
+      ba ← billingAddress.fold(noAddress)(Addresses.save(_).map(Some(_)))
+      _ ← billingAddress.map(Addresses.save(_)).getOrElse(DBIO.successful(None))
+      _ ← ba.fold(None)((a: Address) ⇒ CreditCards.returningId += cc.copy(billingAddressId = a.id))
       ccId ← CreditCards.returningId += cc
       appliedPaymentId ← OrderPayments.returningId += appliedPayment.copy(paymentMethodId = ccId)
-      _ ← billingAddress.map(Addresses.save(_)).getOrElse(DBIO.successful(None))
       _ ← orderBillingAddress.map(OrderBillingAddresses.save(_)).getOrElse(DBIO.successful(None))
       c ← Orders._findById(order.id).result.headOption
     } yield c
