@@ -245,7 +245,7 @@ object Admin {
             AllOrders.findAll
           }
         }
-      }
+      } ~
       pathPrefix("states") {
         (get & pathEnd) {
           complete {
