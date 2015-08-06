@@ -14,7 +14,8 @@ const seed = [
   {field: 'street1', method: 'address'},
   {field: 'city'},
   {field: 'zip'},
-  {field: 'country'}
+  {field: 'country'},
+  {field: 'phoneNumber', method: 'phone'}
 ];
 
 const
@@ -58,6 +59,7 @@ class Address extends BaseModel {
   get city() { return this.model.city; }
   get zip() { return this.model.zip; }
   get country() { return this.model.country; }
+  get phoneNumber() { return this.model.phoneNumber; }
   get customer() { return Customer.findOne(this.model.customerId); }
 
   set isDefault(val) { this.model.isDefault = val; }
