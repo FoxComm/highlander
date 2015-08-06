@@ -53,22 +53,28 @@ final case class CreditCardPaymentCreator(order: Order, customer: Customer, card
     val appliedPayment = OrderPayment.fromStripeCustomer(stripeCustomer, order)
     val cc = CreditCard.build(stripeCustomer, this.cardPayload).copy(customerId = customer.id)
     val billingAddress = this.cardPayload.address.map(Address.fromPayload(_).copy(customerId = customer.id))
-    val orderBillingAddress = billingAddress.map(OrderBillingAddress.buildFromAddress(_))
-
-    val noAddress: DBIOAction[Option[Address], NoStream, All] = DBIO.successful(None)
-
-    val c: FixedSqlAction[CreditCard#Id, NoStream, Effect.Write] = CreditCards.returningId += cc
-    val d = c.andFinally
 
     val queries = for {
-      ba ← billingAddress.fold(noAddress)(Addresses.save(_).map(Some(_)))
-      _ ← billingAddress.map(Addresses.save(_)).getOrElse(DBIO.successful(None))
-      _ ← ba.fold(None)((a: Address) ⇒ CreditCards.returningId += cc.copy(billingAddressId = a.id))
-      ccId ← CreditCards.returningId += cc
-      appliedPaymentId ← OrderPayments.returningId += appliedPayment.copy(paymentMethodId = ccId)
-      _ ← orderBillingAddress.map(OrderBillingAddresses.save(_)).getOrElse(DBIO.successful(None))
-      c ← Orders._findById(order.id).result.headOption
-    } yield c
+      address ← billingAddress.map { address ⇒
+        Addresses.save(address.copy(customerId = customer.id)).map(Some(_))
+      }.getOrElse(DBIO.successful(None))
+
+      card ← address.map { address ⇒
+        CreditCards.save(cc.copy(billingAddressId = address.id)).map(Some(_))
+      }.getOrElse(DBIO.successful(None))
+
+      orderPayment ← card.map { card ⇒
+        OrderPayments.save(appliedPayment.copy(paymentMethodId = card.id)).map(Some(_))
+      }.getOrElse(DBIO.successful(None))
+
+      _ ← address.map { address ⇒
+        val builtAddress = OrderBillingAddress.buildFromAddress(address)
+        OrderBillingAddresses.save(orderPayment.fold(builtAddress)((orderPayment: OrderPayment) ⇒
+          builtAddress.copy(orderPaymentId = orderPayment.id))).map(Some(_))
+      }.getOrElse(DBIO.successful(None))
+
+      o ← Orders._findById(order.id).result.headOption
+    } yield o
 
     db.run(queries.transactionally)
   }
