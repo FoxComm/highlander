@@ -31,7 +31,7 @@ module.exports = function(app, router) {
     })
     .patch('/customers/:customer/addresses/:address', function *() {
       let body = yield parse.json(this);
-      this.address.update(body);
+      this.address.amend(body);
       this.status = 200;
       this.body = this.address;
     })
@@ -45,5 +45,12 @@ module.exports = function(app, router) {
       address.customerId = this.customer.id;
       this.status = 201;
       this.body = address;
+    })
+    .post('/customers/:customer/addresses/:address/default', function *() {
+      let
+        body = yield parse.json(this);
+
+      this.address.amend(body);
+      this.status = 200;
     });
 };
