@@ -8,46 +8,101 @@
 
 ## Development
 
-`sbt '~re-start' will reload the application automatically on code changes`
-
-### Dependencies
-
-- [JDK 1.8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
-
-http://computechtips.com/781/install-oracle-jdk-8-mac-os-x-10-10-yosemite
-
-#### [SBT](http://www.scala-sbt.org/)
-
-OSX:
-
-```bash
-brew install sbt
-```
-
-#### [Scala](http://www.scala-lang.org/)
-
-OSX:
-
-```bash
-brew install scala
-```
-
-#### [Flyway](http://flywaydb.org/getstarted/)
-
-OSX:
-
-```bash
-brew install flyway
-```
-
-### Setup
-
-```bash
-make configure
-```
+Phoenix can be run in development by running either running the application natively on your computer or through Vagrant. Instructions for both are below:
 
 ### Using Vagrant
 
-```bash
-vagrant up
-```
+1. Provision a new guest instance in Vagrant
+
+    ```bash
+    vagrant up
+    ```
+
+2. SSH into the guest and navigate to the working directory
+
+    ```bash
+    vagrant ssh
+    cd /vagrant
+    ```
+
+3. Run SBT and verify that the application compiles
+
+    ```bash
+    sbt compile
+    ```
+
+4. If you plan on running the local development server, execute the seeds and starte the server
+
+    ```bash
+    sbt seeds
+    sbt '~re-start'
+    ```
+
+    The server will now be accessible on port 9090 on the host.
+
+### Running Locally
+
+#### Dependencies on OSX
+
+- [JDK 1.8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+
+    http://computechtips.com/781/install-oracle-jdk-8-mac-os-x-10-10-yosemite
+
+- [SBT](http://www.scala-sbt.org/)
+
+    ```bash
+    brew install sbt
+    ```
+
+- [Scala](http://www.scala-lang.org/)
+
+    ```bash
+    brew install scala
+    ```
+
+- [Flyway](http://flywaydb.org/getstarted/)
+
+    ```bash
+    brew install flyway
+    ```
+
+- PostgreSQL 
+
+    ```bash
+    brew install postgresql
+    ```
+
+### Dependencies on Ubuntu
+
+We use Ubuntu 14.04 (Trusty) as the base of our Vagrant image. For details about how to set this up on local Ubuntu, check out the provisioning script: [provision.sh](https://github.com/FoxComm/phoenix-scala/blob/master/vagrant/provision.sh).
+
+_Note:_ OpenJDK has been known to cause issues in Ubuntu with Scala. Make sure to use the Oracle JDK.
+
+### Setup
+
+1. Setup the database
+
+    ```bash
+    make configure
+    ```
+2. Run SBT and verify that the application compiles
+
+    ```bash
+    sbt compile
+    ```
+
+3. If you plan on running the local development server, execute the seeds and starte the server
+
+    ```bash
+    sbt seeds
+    sbt '~re-start'
+    ```
+
+### Useful Commands  
+
+- `make resetdb`: resets the database (drops and reruns migrations)
+- `sbt '~re-start'`: reloads the application automatically on code changes
+- `sbt seeds`: execute the seeds
+- `sbt test`: run all of the unit and integration tests
+- `sbt '~test:compile`: re-compiles the application automatically on code changes
+

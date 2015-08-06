@@ -39,6 +39,7 @@ if [[ ! -d /usr/local/share/flyway ]]; then
     chown -R vagrant:vagrant /usr/local/share/flyway 
     chmod g+x /usr/local/share/flyway
     echo "PATH=\$PATH:/usr/local/share/flyway/" >> /etc/profile
+    export PATH=$PATH:/usr/local/share/flyway
 fi
 
 if [[ ! -f /etc/apt/sources.list.d/postgres.list ]]; then
@@ -55,6 +56,9 @@ sed -i 's/127.0.0.1\/32\s*md5/127.0.0.1\/32 trust/' /etc/postgresql/9.4/main/pg_
 sed -i 's/::1\/128\s*md5/::1\/128 trust/' /etc/postgresql/9.4/main/pg_hba.conf
 sudo -u postgres createuser -s root || {
     echo "postgres: root user already created, ignoring"
+}
+sudo -u postgres createuser -s vagrant || {
+    echo "postgres: vagrant user already created, ignorng" 
 }
 
 service postgresql restart
