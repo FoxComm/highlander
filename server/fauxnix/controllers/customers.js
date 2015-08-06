@@ -52,5 +52,14 @@ module.exports = function(app, router) {
 
       this.address.amend(body);
       this.status = 200;
+    })
+    .delete('/customers/:customer/addresses/default', function *() {
+      let addresses = Address.findByCustomer(this.customer.id).filter(function(item) {
+        return item.isDefault === true;
+      });
+      if (addresses.length > 0) {
+        addresses[0].amend({isDefault: false});
+      }
+      this.status = 200;
     });
 };
