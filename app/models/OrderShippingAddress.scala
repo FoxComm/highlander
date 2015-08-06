@@ -10,7 +10,7 @@ import utils.GenericTable.TableWithId
 import utils.{Validation, ModelWithIdParameter, RichTable, TableQueryWithId}
 
 final case class OrderShippingAddress(id: Int = 0, orderId: Int = 0, stateId: Int, name: String,
-  street1: String, street2: Option[String], city: String, zip: String)
+  street1: String, street2: Option[String], city: String, zip: String, phoneNumber: Option[String])
   extends Validation[OrderShippingAddress]
   with ModelWithIdParameter {
 
@@ -25,7 +25,7 @@ final case class OrderShippingAddress(id: Int = 0, orderId: Int = 0, stateId: In
 object OrderShippingAddress {
   def buildFromAddress(address: Address): OrderShippingAddress =
     OrderShippingAddress(stateId = address.stateId, name = address.name, street1 = address.street1,
-      street2 = address.street2, city = address.city, zip = address.zip)
+      street2 = address.street2, city = address.city, zip = address.zip, phoneNumber = address.phoneNumber)
 }
 
 class OrderShippingAddresses(tag: Tag) extends TableWithId[OrderShippingAddress](tag, "order_shipping_addresses")
@@ -38,9 +38,10 @@ class OrderShippingAddresses(tag: Tag) extends TableWithId[OrderShippingAddress]
   def street2 = column[Option[String]]("street2")
   def city = column[String]("city")
   def zip = column[String]("zip")
+  def phoneNumber = column[Option[String]]("phone_number")
 
   def * = (id, orderId, stateId, name, street1, street2,
-    city, zip) <> ((OrderShippingAddress.apply _).tupled, OrderShippingAddress.unapply)
+    city, zip, phoneNumber) <> ((OrderShippingAddress.apply _).tupled, OrderShippingAddress.unapply)
 
   def address = foreignKey(Addresses.tableName, id, Addresses)(_.id)
   def order = foreignKey(Orders.tableName, orderId, Orders)(_.id)

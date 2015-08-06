@@ -14,7 +14,7 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 final case class Address(id: Int = 0, customerId: Int, stateId: Int, name: String, street1: String, street2: Option[String],
-  city: String, zip: String, isDefaultShipping: Boolean = false)
+  city: String, zip: String, isDefaultShipping: Boolean = false, phoneNumber: Option[String])
   extends Validation[Address]
   with ModelWithIdParameter {
 
@@ -29,7 +29,7 @@ final case class Address(id: Int = 0, customerId: Int, stateId: Int, name: Strin
 object Address {
   def fromPayload(p: CreateAddressPayload) = {
     Address(customerId = 0, stateId = p.stateId, name = p.name,
-      street1 = p.street1, street2 = p.street2, city = p.city, zip = p.zip)
+      street1 = p.street1, street2 = p.street2, city = p.city, zip = p.zip, phoneNumber = p.phoneNumber)
   }
 }
 
@@ -43,9 +43,10 @@ class Addresses(tag: Tag) extends TableWithId[Address](tag, "addresses") with Ri
   def city = column[String]("city")
   def zip = column[String]("zip")
   def isDefaultShipping = column[Boolean]("is_default_shipping")
+  def phoneNumber = column[Option[String]]("phone_number")
 
   def * = (id, customerId, stateId, name, street1, street2,
-    city, zip, isDefaultShipping) <> ((Address.apply _).tupled, Address.unapply)
+    city, zip, isDefaultShipping, phoneNumber) <> ((Address.apply _).tupled, Address.unapply)
 
   def state = foreignKey(States.tableName, stateId, States)(_.id)
 }

@@ -127,10 +127,10 @@ object Seeds {
     def orderLineItems: Seq[OrderLineItem] = Seq(OrderLineItem(id = 0, orderId = 1, skuId = 1, status = OrderLineItem.Cart), OrderLineItem(id = 0, orderId = 1, skuId = 2, status = OrderLineItem.Cart), OrderLineItem(id = 0, orderId = 1, skuId = 3, status = OrderLineItem.Cart))
 
     def address = Address(customerId = 0, stateId = 1, name = "Home", street1 = "555 E Lake Union St.",
-        street2 = None, city = "Seattle", zip = "12345", isDefaultShipping = true)
+        street2 = None, city = "Seattle", zip = "12345", isDefaultShipping = true, phoneNumber = None)
 
     def shippingAddress = OrderShippingAddress(stateId = 46, name = "Old Yax", street1 = "9313 Olde Mill Pond Dr",
-      street2 = None, city = "Glen Allen", zip = "23060")
+      street2 = None, city = "Glen Allen", zip = "23060", phoneNumber = None)
 
     def creditCard =
       CreditCard(customerId = 0, gatewayCustomerId = "", lastFour = "4242",
