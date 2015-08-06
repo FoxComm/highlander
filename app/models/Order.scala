@@ -58,9 +58,9 @@ object Order {
   def buildCart(customerId: Int): Order = Order(customerId = customerId, status = Order.Cart)
 
   val allowedStateTransitions = Map[Order.Status, Set[Order.Status]](
-    FraudHold → Set(ManualHold, RemorseHold, FulfillmentStarted),
-    RemorseHold → Set(FraudHold, ManualHold, FulfillmentStarted),
-    ManualHold → Set(FraudHold, RemorseHold, FulfillmentStarted)
+    FraudHold → Set(ManualHold, RemorseHold, FulfillmentStarted, Canceled),
+    RemorseHold → Set(FraudHold, ManualHold, FulfillmentStarted, Canceled),
+    ManualHold → Set(FraudHold, RemorseHold, FulfillmentStarted, Canceled)
   )
 }
 

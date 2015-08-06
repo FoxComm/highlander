@@ -44,9 +44,11 @@ object OrderUpdater {
     import Order._
 
     def update(newStatus: Status) = {
-      val newOrder = order.copy(status = newStatus)
       val insertedQuery = for {
-        _ ← Orders.insertOrUpdate(newOrder)
+        _ ← newStatus match {
+          case Canceled ⇒ cancelOrder(order)
+          case _ ⇒ Orders.insertOrUpdate(order.copy(status = newStatus))
+        }
         updatedOrder ← Orders.findById(order.id)
       } yield updatedOrder
 
@@ -54,6 +56,14 @@ object OrderUpdater {
         case Some(orderExists) ⇒ None
         case None ⇒ Some(OrderUpdateFailure(order.referenceNumber, "Not able to update order"))
       }
+    }
+
+    def cancelOrder(order: Order) = {
+      val updateLineItems = OrderLineItems._findByOrder(order).map(_.status).update(OrderLineItem.Canceled)
+      val updateOrderPayments = OrderPayments.filter(_.orderId === order.id).map(_.status).update("cancelAuth")
+      val updateOrder = Orders.update(order.copy(status = Order.Canceled))
+
+      (updateLineItems >> updateOrderPayments >> updateOrder).transactionally
     }
 
     def fail(s: String) = Future.successful(Some(OrderUpdateFailure(order.referenceNumber, s)))

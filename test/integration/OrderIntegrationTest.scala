@@ -85,6 +85,27 @@ class OrderIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.BadRequest)
       response.bodyText must include("errors")
     }
+
+    "cancels order with line items and payments" in {
+      val order = Orders.save(Factories.order).run().futureValue
+      Factories.orderLineItems.map(li ⇒ OrderLineItems.save(li.copy(orderId = order.id)).run().futureValue)
+      OrderPayments.save(Factories.orderPayment.copy(orderId = order.id)).run().futureValue
+
+      val response = PATCH(
+        s"v1/orders/${order.referenceNumber}",
+        """
+          |{
+          |  "status": "canceled"
+          |}
+        """.stripMargin)
+
+      val responseOrder = parse(response.bodyText).extract[FullOrder.Root]
+      responseOrder.orderStatus must === (Order.Canceled)
+      responseOrder.lineItems.head.status must === (OrderLineItem.Canceled)
+
+      // Testing via DB as currently FullOrder returns 'order.status' as 'payment.status'
+      OrderPayments.findAllByOrderId(order.id).futureValue.head.status must === ("cancelAuth")
+    }
   }
 
   "handles credit cards" - {
