@@ -60,10 +60,10 @@ export default class GiftCard extends React.Component {
     }
 
     if (card.state === 'Canceled') {
-      state = <span>{card.state}</span>;
+      state = <span>{card.status}</span>;
     } else {
       state = (
-        <select defaultValue={card.state} onChange={this.changeState.bind(this)}>
+        <select defaultValue={card.status} onChange={this.changeState.bind(this)}>
           <option value="Active">Active</option>
           <option value="On Hold">On Hold</option>
           <option value="Canceled">Cancel Gift Card</option>
@@ -130,7 +130,7 @@ export default class GiftCard extends React.Component {
           <div className="grid-unit col-1">
             <article className="panel featured">
               <header>Current State</header>
-              <p>{ status }</p>
+              <p>{ state }</p>
             </article>
           </div>
         </div>
