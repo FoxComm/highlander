@@ -49,7 +49,7 @@ module.exports = function(app, router) {
         if (body.sendToCustomer) {
           cardData.customerId = +body['customers[]'][i];
         }
-        cardData.cardNumber = chance.integer({min: 1000000000000000, max: 9999999999999999});
+        cardData.code = chance.integer({min: 1000000000000000, max: 9999999999999999});
         cards.push(new GiftCard(cardData));
       }
 

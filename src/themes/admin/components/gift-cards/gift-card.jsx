@@ -74,7 +74,7 @@ export default class GiftCard extends React.Component {
     return (
       <div id="gift-card">
         <div className="gutter title">
-          <h1>Gift Card { card.cardNumber }</h1>
+          <h1>Gift Card { card.code }</h1>
         </div>
         <div className="gutter grid-row grid-gutter grid-match">
           <div className="grid-unit col-1">
@@ -106,7 +106,7 @@ export default class GiftCard extends React.Component {
           <div className="grid-unit col-1">
             <article className="panel featured">
               <header>Original Balance</header>
-              <p>{ formatCurrency(card.balance) }</p>
+              <p>{ formatCurrency(card.originalBalance) }</p>
             </article>
           </div>
           <div className="grid-unit col-1">
@@ -130,7 +130,7 @@ export default class GiftCard extends React.Component {
           <div className="grid-unit col-1">
             <article className="panel featured">
               <header>Current State</header>
-              <p>{ state }</p>
+              <p>{ status }</p>
             </article>
           </div>
         </div>

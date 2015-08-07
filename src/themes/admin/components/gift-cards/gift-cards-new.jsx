@@ -237,7 +237,7 @@ export default class NewGiftCard extends React.Component {
             <label htmlFor="value">Value</label>
             <div className="form-icon">
               <i className="icon-dollar"></i>
-              <input type="hidden" name="balance" value={this.state.balance} />
+              <input type="hidden" name="originalBalance" value={this.state.balance} />
               <input type="number" className="control" value={this.state.balanceText} onChange={this.onChangeBalance.bind(this)} step="0.01" min="1" />
             </div>
             <div id="balances">
