@@ -172,6 +172,13 @@ object Admin {
             }
           }
         } ~
+        (post & path("increase-remorse-period") & pathEnd) {
+          complete {
+            whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
+              OrderUpdater.increaseRemorsePeriod(order)
+            }
+          }
+        } ~
         (post & path("checkout")) {
           complete {
             whenFoundDispatchToService(Orders.findByRefNum(refNum).result.headOption.run()) { order => new Checkout(order).checkout }

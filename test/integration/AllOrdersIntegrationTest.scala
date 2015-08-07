@@ -34,7 +34,8 @@ class AllOrdersIntegrationTest extends IntegrationTestBase with HttpSupport with
         orderStatus = Order.ManualHold,
         placedAt = None,
         total = 27,
-        paymentStatus = None)
+        paymentStatus = None,
+        remorsePeriod = None)
 
       actual must === (expected)
     }

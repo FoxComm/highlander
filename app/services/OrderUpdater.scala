@@ -1,5 +1,6 @@
 package services
 
+import models.Order.RemorseHold
 import models._
 import payloads.{GiftCardPayment, UpdateAddressPayload, BulkUpdateOrdersPayload, CreateShippingAddress,
 UpdateShippingAddress, UpdateOrderPayload}
@@ -72,6 +73,24 @@ object OrderUpdater {
 
         invalid ++ notFound
       }
+    }
+  }
+
+  final case class NewRemorsePeriod(remorsePeriod: Int)
+
+  def increaseRemorsePeriod(order: Order)
+    (implicit db: Database, ec: ExecutionContext): Future[NewRemorsePeriod Or Failure] = {
+    order.status match {
+      case RemorseHold ⇒
+        val q = for {
+          _ ← Orders.update(order.copy(remorsePeriod = order.remorsePeriod + 15))
+          newOrder ← Orders._findById(order.id).result.headOption
+        } yield newOrder
+        db.run(q).map {
+          case Some(newOrder) ⇒ Good(NewRemorsePeriod(newOrder.remorsePeriod))
+          case None ⇒ Bad(GeneralFailure("Error during update"))
+        }
+      case _ ⇒ Future.successful(Bad(GeneralFailure("Order is not in RemorseHold status")))
     }
   }
 

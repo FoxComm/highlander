@@ -5,6 +5,8 @@ import org.scalatest.time.{Milliseconds, Seconds, Span}
 import payloads.{UpdateOrderPayload, CreateAddressPayload, CreateCreditCard}
 import responses.{AdminNotes, FullOrder}
 import services.NoteManager
+import services.OrderUpdater.NewRemorsePeriod
+import slick.driver.PostgresDriver.api._
 import util.{IntegrationTestBase, StripeSupport}
 import utils.Seeds.Factories
 import slick.driver.PostgresDriver.api._
@@ -90,6 +92,23 @@ class OrderIntegrationTest extends IntegrationTestBase
       // OrderPayments.findAllByOrderId(order.id).futureValue.head.status must === ("cancelAuth")
     }
     */
+
+    "increases remorse period" in {
+      val order = Orders.save(Factories.order.copy(status = Order.RemorseHold)).run().futureValue
+      val response = POST(s"v1/orders/${order.referenceNumber}/increase-remorse-period")
+
+      val result = parse(response.bodyText).extract[NewRemorsePeriod]
+      result.remorsePeriod must === (order.remorsePeriod + 15)
+    }
+
+    "increases remorse period only when in RemorseHold status" in {
+      val order = Orders.save(Factories.order).run().futureValue
+      val response = POST(s"v1/orders/${order.referenceNumber}/increase-remorse-period")
+      response.status must === (StatusCodes.BadRequest)
+
+      val newOrder = Orders._findById(order.id).extract.result.headOption.run().futureValue.get
+      newOrder.remorsePeriod must === (order.remorsePeriod)
+    }
   }
 
   /*
