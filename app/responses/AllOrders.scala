@@ -2,6 +2,7 @@ package responses
 
 import scala.concurrent.{ExecutionContext, Future}
 
+import models.Order.RemorseHold
 import models._
 import org.joda.time.DateTime
 import slick.driver.PostgresDriver.api._
@@ -16,6 +17,7 @@ object AllOrders {
     orderStatus: Order.Status,
     paymentStatus: Option[String],
     placedAt: Option[DateTime],
+    remorsePeriod: Option[Int],
     total: Int
     )
 
@@ -48,6 +50,10 @@ object AllOrders {
         // TODO: FIXME
         paymentStatus = None,
         placedAt = order.placedAt,
+        remorsePeriod = order.status match {
+          case RemorseHold ⇒ Some(order.remorsePeriod)
+          case _ ⇒ None
+        },
         total = grandTotal
       )
     }
