@@ -6,11 +6,11 @@ import akka.stream.Materializer
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import models._
-import org.json4s.jackson.Serialization.{write ⇒ json}
 import org.scalactic._
 import payloads._
 import responses.FullOrder
 import services._
+import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 
 object Customer {
@@ -64,14 +64,8 @@ object Customer {
             complete {
               whenFound(Orders.findActiveOrderByCustomer(customer)) { order =>
                 LineItemUpdater.updateQuantities(order, reqItems).flatMap {
-                  case Good(_) ⇒
-                    FullOrder.fromOrder(order).map {
-                      case Some(r) ⇒ Good(r)
-                      case None ⇒ Bad(List("order not found"))
-                    }
-
-                  case Bad(e) ⇒
-                    Future.successful(Bad(e))
+                  case Good(_) ⇒ FullOrder.fromOrder(order).map(Good(_))
+                  case Bad(e) ⇒ Future.successful(Bad(e))
                 }
               }
             }
@@ -90,21 +84,17 @@ object Customer {
             complete {
               whenFound(Orders.findActiveOrderByCustomer(customer)) { order =>
                 ShippingMethodsBuilder.addShippingMethodToOrder(shipMethodId, order).flatMap {
-                  case Good(o) ⇒
-                    FullOrder.fromOrder(o).map {
-                      case Some(r) ⇒ Good(r)
-                      case None ⇒ Bad(List("order not found"))
-                    }
-
-                  case Bad(e) ⇒
-                    Future.successful(Bad(e))
+                  case Good(_) ⇒ FullOrder.fromOrder(order).map(Good(_))
+                  case Bad(e) ⇒ Future.successful(Bad(e))
                 }
               }
             }
           } ~
           (get & path(PathEnd)) {
             complete {
-              renderOrNotFound(FullOrder.findByCustomer(customer))
+              whenFound(Orders._findActiveOrderByCustomer(customer).result.headOption.run()) { order ⇒
+                FullOrder.fromOrder(order).map(Good(_))
+              }
             }
           }
         }
@@ -112,4 +102,3 @@ object Customer {
     }
   }
 }
-
