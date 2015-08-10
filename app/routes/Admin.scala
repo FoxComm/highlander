@@ -7,10 +7,10 @@ import akka.stream.Materializer
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import models._
-import org.json4s.jackson.Serialization.{write ⇒ json}
 import akka.http.scaladsl.model.StatusCodes._
 import org.scalactic._
 import payloads._
+import responses.FullOrder.Response
 import responses.{AllOrders, AdminNotes, FullOrder}
 import services._
 import slick.driver.PostgresDriver.api._
@@ -129,21 +129,17 @@ object Admin {
       pathPrefix("orders" / """([a-zA-Z0-9-_]*)""".r) { refNum ⇒
         (get & pathEnd) {
           complete {
-            renderOrNotFound(FullOrder.findByRefNum(refNum))
+            whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
+              FullOrder.fromOrder(order).map(Good(_))
+            }
           }
         } ~
         (patch & entity(as[UpdateOrderPayload])) { payload =>
           complete {
             whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order =>
               OrderUpdater.updateStatus(order, payload).flatMap {
-                case Good(o) ⇒
-                  FullOrder.fromOrder(o).map {
-                    case Some(r) ⇒ Good(r)
-                    case None ⇒ Bad(List("order not found"))
-                  }
-
-                case Bad(e) ⇒
-                  Future.successful(Bad(e))
+                case Good(_) ⇒ FullOrder.fromOrder(order).map(Good(_))
+                case Bad(e) ⇒ Future.successful(Bad(e))
               }
             }
           }
@@ -157,14 +153,8 @@ object Admin {
           complete {
             whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order =>
               LineItemUpdater.updateQuantities(order, reqItems).flatMap {
-                case Good(_) ⇒
-                  FullOrder.fromOrder(order).map {
-                    case Some(r) ⇒ Good(r)
-                    case None ⇒ Bad(List("order not found"))
-                  }
-
-                case Bad(e) ⇒
-                  Future.successful(Bad(e))
+                case Good(_) ⇒ FullOrder.fromOrder(order).map(Good(_))
+                case Bad(e) ⇒ Future.successful(Bad(e))
               }
             }
           }

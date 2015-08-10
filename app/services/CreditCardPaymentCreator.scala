@@ -35,9 +35,7 @@ final case class CreditCardPaymentCreator(order: Order, customer: Customer, card
         case Good(stripeCustomer) =>
           createRecords(stripeCustomer, order, customer).flatMap { optOrder =>
             optOrder.map { (o: Order) =>
-              FullOrder.fromOrder(o).map { root =>
-                root.map(Good(_)).getOrElse(Bad(List(GeneralFailure("could not render order"))))
-              }
+              FullOrder.fromOrder(o).map(Good(_))
             }.getOrElse(Future.successful(Bad(List(NotFoundFailure(order)))))
           }
 
