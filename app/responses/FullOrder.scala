@@ -89,7 +89,7 @@ object FullOrder {
     )
   }
 
-  def fetchOrderDetails(order: Order)(implicit ec: ExecutionContext) = {
+  private def fetchOrderDetails(order: Order)(implicit ec: ExecutionContext) = {
     val shipmentQ = for {
       shipment ← Shipments.filter(_.orderId === order.id)
       address ← models.Addresses.filter(_.id === shipment.shippingAddressId)
