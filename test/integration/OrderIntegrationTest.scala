@@ -109,6 +109,29 @@ class OrderIntegrationTest extends IntegrationTestBase
       val newOrder = Orders._findById(order.id).extract.result.headOption.run().futureValue.get
       newOrder.remorsePeriod must === (order.remorsePeriod)
     }
+
+    "locks an order" in {
+      val order = Orders.save(Factories.order).run().futureValue
+      StoreAdmins.save(Factories.storeAdmin).run().futureValue
+
+      val response = POST(s"v1/orders/${order.referenceNumber}/lock")
+      response.status must === (StatusCodes.OK)
+
+      val lockedOrder = Orders.findByRefNum(order.referenceNumber).result.run().futureValue.head
+      lockedOrder.locked must === (true)
+
+      val locks = OrderLockEvents.findByOrder(order).result.run().futureValue
+      locks.length must === (1)
+      val lock = locks.head
+      lock.lockedBy must === (1)
+    }
+
+    "refuses to lock an already locked order" in {
+      val order = Orders.save(Factories.order.copy(locked = true)).run().futureValue
+
+      val response = POST(s"v1/orders/${order.referenceNumber}/lock")
+      response.status must === (StatusCodes.BadRequest)
+    }
   }
 
   /*

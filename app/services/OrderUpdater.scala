@@ -94,6 +94,21 @@ object OrderUpdater {
     }
   }
 
+  def lock(order: Order, admin: StoreAdmin)
+    (implicit db: Database, ec: ExecutionContext): Future[FullOrder.Root Or Failure] = {
+    if (order.locked) {
+      Future.successful(Bad(GeneralFailure("Order is already locked")))
+    } else {
+      val queries = DBIO.seq(
+        Orders.update(order.copy(locked = true)),
+        OrderLockEvents += OrderLockEvent(orderId = order.id, lockedBy = admin.id)
+      )
+      db.run(queries).flatMap { _ ⇒
+        FullOrder.fromOrder(order).map(Good(_))
+      }
+    }
+  }
+
   def createNote = "Note"
 
   def removeShippingAddress(orderId: Int)

@@ -179,6 +179,13 @@ object Admin {
             }
           }
         } ~
+        (post & path("lock") & pathEnd) {
+          complete {
+            whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
+             OrderUpdater.lock(order, admin)
+            }
+          }
+        } ~
         (post & path("checkout")) {
           complete {
             whenFoundDispatchToService(Orders.findByRefNum(refNum).result.headOption.run()) { order => new Checkout(order).checkout }
