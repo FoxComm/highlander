@@ -132,6 +132,9 @@ object Seeds {
     def shippingAddress = OrderShippingAddress(stateId = 46, name = "Old Yax", street1 = "9313 Olde Mill Pond Dr",
       street2 = None, city = "Glen Allen", zip = "23060", phoneNumber = None)
 
+    def billingAddress = OrderBillingAddress(stateId = 5, name = "Old Jeff", street1 = "95 W. 5th Ave.",
+      street2 = Some("Apt. 437"), city = "San Mateo", zip = "94402")
+
     def creditCard =
       CreditCard(customerId = 0, gatewayCustomerId = "", lastFour = "4242",
         expMonth = today.getMonthOfYear, expYear = today.getYear + 2, isDefault = true)

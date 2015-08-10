@@ -7,12 +7,14 @@ import payloads.CreateCreditCard
 
 import org.scalactic._
 import scala.concurrent.{Future, ExecutionContext}
+import slick.dbio.Effect.All
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 import com.stripe.model.{Token, Card => StripeCard, Customer => StripeCustomer}
 import com.stripe.net.{RequestOptions => StripeRequestOptions}
 import collection.JavaConversions.mapAsJavaMap
 
+import slick.profile.FixedSqlAction
 import utils.Validation
 import utils.Validation.Result.{ Success}
 import utils.{ Validation ⇒ validation }
@@ -53,11 +55,26 @@ final case class CreditCardPaymentCreator(order: Order, customer: Customer, card
     val billingAddress = this.cardPayload.address.map(Address.fromPayload(_).copy(customerId = customer.id))
 
     val queries = for {
-      ccId <- CreditCards.returningId += cc
-      appliedPaymentId <- OrderPayments.returningId += appliedPayment.copy(paymentMethodId = ccId)
-      _ <- billingAddress.map(Addresses.save(_)).getOrElse(DBIO.successful(Unit))
-      c <- Orders._findById(order.id).result.headOption
-    } yield c
+      address ← billingAddress.map { address ⇒
+        Addresses.save(address.copy(customerId = customer.id)).map(Some(_))
+      }.getOrElse(DBIO.successful(None))
+
+      card ← address.map { address ⇒
+        CreditCards.save(cc.copy(billingAddressId = address.id)).map(Some(_))
+      }.getOrElse(DBIO.successful(None))
+
+      orderPayment ← card.map { card ⇒
+        OrderPayments.save(appliedPayment.copy(paymentMethodId = card.id)).map(Some(_))
+      }.getOrElse(DBIO.successful(None))
+
+      _ ← address.map { address ⇒
+        val builtAddress = OrderBillingAddress.buildFromAddress(address)
+        OrderBillingAddresses.save(orderPayment.fold(builtAddress)((orderPayment: OrderPayment) ⇒
+          builtAddress.copy(orderPaymentId = orderPayment.id))).map(Some(_))
+      }.getOrElse(DBIO.successful(None))
+
+      o ← Orders._findById(order.id).result.headOption
+    } yield o
 
     db.run(queries.transactionally)
   }
