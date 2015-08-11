@@ -27,7 +27,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
         authorizePayments.flatMap { payments =>
           val errors = payments.values.toList.flatten
           if (errors.isEmpty) {
-            completeOrderAndCreateNew(order).map(Good(_))  
+            completeOrderAndCreateNew(order).map(Good(_))
           } else {
             Future.successful(Bad(errors))
           }
@@ -53,34 +53,31 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
   }
 
   private def authorizePayments(payments: Seq[(OrderPayment, CreditCard)]) = {
-    for { 
-      (payment, creditCard) <- payments 
+    for {
+      (payment, creditCard) <- payments
     } yield authorizePayment(payment, creditCard)
   }
 
   private def authorizePayment(payment : OrderPayment, creditCard : CreditCard) = {
     creditCard.authorize(payment.appliedAmount).flatMap { or ⇒
       or.fold(
-      { chargeId ⇒  updateOrderPaymentWithCharge(payment, chargeId, or) }, 
+      { chargeId ⇒  updateOrderPaymentWithCharge(payment, chargeId, or) },
       { _ ⇒ Future.successful((payment, or))})
     }
   }
 
-  private def updatePaymentsWithAuthorizationErrors(
-    payments: Seq[(OrderPayment, Or[String, Failures])]) = {
-      payments.foldLeft(Map.empty[OrderPayment, Failures]) { 
-        case (payments, (payment, result)) => 
-          updatePaymentWithAuthorizationErrors(payments, payment, result)
-      }
+  private def updatePaymentsWithAuthorizationErrors(payments: Seq[(OrderPayment, Or[String, Failures])]) = {
+    payments.foldLeft(Map.empty[OrderPayment, Failures]) {
+      case (payments, (payment, result)) =>
+        updatePaymentWithAuthorizationErrors(payments, payment, result)
+    }
   }
 
-  private def updatePaymentWithAuthorizationErrors(
-    payments: Map[OrderPayment, Failures], 
-    payment: OrderPayment, 
+  private def updatePaymentWithAuthorizationErrors(payments: Map[OrderPayment, Failures], payment: OrderPayment,
     result: String Or Failures) = {
-      payments.updated(
-        payment, 
-        result.fold({ good => List.empty }, { bad => bad }))
+    payments.updated(
+      payment,
+      result.fold({ good => List.empty }, { bad => bad }))
   }
 
   // sets incoming order.status == Order.ordered and creates a new order
@@ -94,16 +91,13 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
     } yield newOrder)
   }
 
-  private def updateOrderPaymentWithCharge(
-    payment : OrderPayment, 
-    chargeId : String, 
-    or: String Or Failures) = {
-      val paymentWithCharge = payment.copy(chargeId = Some(chargeId))
-      OrderPayments.update(paymentWithCharge).map { _ ⇒ (paymentWithCharge, or) }
+  private def updateOrderPaymentWithCharge(payment : OrderPayment, chargeId : String, or: String Or Failures) = {
+    val paymentWithCharge = payment.copy(chargeId = Some(chargeId))
+    OrderPayments.update(paymentWithCharge).map { _ ⇒ (paymentWithCharge, or) }
   }
 
   private def hasLineItems = {
-    for { count <- OrderLineItems.countByOrder(order) } yield (count > 0) 
+    for { count <- OrderLineItems.countByOrder(order) } yield (count > 0)
   }
 
 
