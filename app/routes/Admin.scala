@@ -80,9 +80,14 @@ object Admin {
                 }
               }
           } ~
-          (delete & path("default")  & pathEnd) {
+          (delete & path("default") & pathEnd) {
             complete {
               AddressManager.removeDefaultShippingAddress(customerId).map { _ ⇒ noContentResponse }
+            }
+          } ~
+          (patch & path(IntNumber) & entity(as[CreateAddressPayload]) & pathEnd) { (addressId, payload) =>
+            complete {
+              AddressManager.edit(addressId, customerId, payload).map(renderGoodOrFailures)
             }
           }
         } ~
