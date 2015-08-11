@@ -5,6 +5,7 @@ import Extensions._
 import models.Order._
 import models._
 import org.json4s.jackson.JsonMethods._
+import payloads.BulkUpdateOrdersPayload
 import responses.{AllOrdersWithFailures, AllOrders}
 import services.OrderUpdateFailure
 import util.IntegrationTestBase
@@ -25,24 +26,23 @@ class AllOrdersIntegrationTest extends IntegrationTestBase with HttpSupport with
       val allOrders = parse(responseJson.bodyText).extract[Seq[AllOrders.Root]]
       allOrders.size must === (1)
 
-      val order = allOrders.head
-      order.referenceNumber must === ("ABCD1234-11")
-      order.email must === ("yax@yax.com")
-      order.orderStatus must === (Order.ManualHold)
-      order.total must === (27)
-      order.paymentStatus must === (None)
-      order.placedAt must === (None)
+      val actual = allOrders.head
+
+      val expected = responses.AllOrders.Root(
+        referenceNumber = "ABCD1234-11",
+        email = "yax@yax.com",
+        orderStatus = Order.ManualHold,
+        placedAt = None,
+        total = 27,
+        paymentStatus = None)
+
+      actual must === (expected)
     }
 
     "bulk update statuses" in new Fixture {
       val responseJson = PATCH(
         "v1/orders",
-        """
-          |{
-          |  "status": "fulfillmentStarted",
-          |  "referenceNumbers": ["foo", "bar", "qux", "nonExistent"]
-          |}
-        """.stripMargin
+          BulkUpdateOrdersPayload(Seq("foo", "bar", "qux", "nonExistent"), FulfillmentStarted)
       )
 
       responseJson.status must === (StatusCodes.OK)

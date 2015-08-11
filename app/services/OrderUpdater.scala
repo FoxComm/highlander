@@ -21,7 +21,7 @@ object OrderUpdater {
 
     updateStatuses(Seq(refNum), newStatus).flatMap {
       case Seq(failure) ⇒ Future.successful(Bad(failure))
-      case Seq() ⇒ finder.result.run().flatMap(o ⇒ FullOrder.fromOrder(o.head).map(_.get).map(Good(_)))
+      case Seq() ⇒ finder.result.run().flatMap(o ⇒ FullOrder.fromOrder(o.head).map(Good(_)))
     }
   }
 

@@ -2,12 +2,13 @@ import akka.http.scaladsl.model.StatusCodes
 import models._
 import org.joda.time.DateTime
 import org.scalatest.time.{Milliseconds, Seconds, Span}
-import payloads.{CreateAddressPayload, CreateCreditCard}
+import payloads.{UpdateOrderPayload, CreateAddressPayload, CreateCreditCard}
 import responses.{AdminNotes, FullOrder}
 import services.NoteManager
 import util.{IntegrationTestBase, StripeSupport}
 import utils.Seeds.Factories
 import slick.driver.PostgresDriver.api._
+import Order._
 
 /**
  * The Server is shut down by shutting down the ActorSystem
@@ -38,49 +39,35 @@ class OrderIntegrationTest extends IntegrationTestBase
   "updates status" - {
 
     "successfully" in {
-
       val order = Orders.save(Factories.order).run().futureValue
 
       val response = PATCH(
         s"v1/orders/${order.referenceNumber}",
-        """
-          |{
-          |  "status": "fraudHold"
-          |}
-        """.stripMargin)
+        UpdateOrderPayload(FraudHold))
 
       response.status must === (StatusCodes.OK)
 
       val responseOrder = parse(response.bodyText).extract[FullOrder.Root]
-      responseOrder.orderStatus must === (Order.FraudHold)
+      responseOrder.orderStatus must === (FraudHold)
     }
 
     "fails if transition to destination status is not allowed" in {
-
       val order = Orders.save(Factories.order).run().futureValue
 
       val response = PATCH(
         s"v1/orders/${order.referenceNumber}",
-        """
-          |{
-          |  "status": "cart"
-          |}
-        """.stripMargin)
+        UpdateOrderPayload(Cart))
 
       response.status must === (StatusCodes.BadRequest)
       response.bodyText must include("errors")
     }
 
     "fails if transition from current status is not allowed" in {
-      val order = Orders.save(Factories.order.copy(status = Order.Canceled)).run().futureValue
+      val order = Orders.save(Factories.order.copy(status = Canceled)).run().futureValue
 
       val response = PATCH(
         s"v1/orders/${order.referenceNumber}",
-        """
-          |{
-          |  "status": "manualHold"
-          |}
-        """.stripMargin)
+        UpdateOrderPayload(ManualHold))
 
       response.status must === (StatusCodes.BadRequest)
       response.bodyText must include("errors")
@@ -93,14 +80,10 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       val response = PATCH(
         s"v1/orders/${order.referenceNumber}",
-        """
-          |{
-          |  "status": "canceled"
-          |}
-        """.stripMargin)
+        UpdateOrderPayload(Canceled))
 
       val responseOrder = parse(response.bodyText).extract[FullOrder.Root]
-      responseOrder.orderStatus must === (Order.Canceled)
+      responseOrder.orderStatus must === (Canceled)
       responseOrder.lineItems.head.status must === (OrderLineItem.Canceled)
 
       // Testing via DB as currently FullOrder returns 'order.status' as 'payment.status'
