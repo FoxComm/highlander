@@ -60,7 +60,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase with HttpSupport with
         ("qux", Cart))
 
       all.failures must contain allOf(
-        OrderUpdateFailure("qux", "Transition from current status Cart is not allowed"),
+        OrderUpdateFailure("qux", "Transition from Cart to FulfillmentStarted is not allowed"),
         OrderUpdateFailure("nonExistent", "Not found"))
     }
   }

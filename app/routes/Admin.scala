@@ -135,7 +135,7 @@ object Admin {
         (patch & entity(as[BulkUpdateOrdersPayload]) & pathEnd) { payload ⇒
           complete {
             for {
-              failures ← OrderUpdater.updateMultipleOrders(payload)
+              failures ← OrderUpdater.updateStatuses(payload.referenceNumbers, payload.status)
               orders ← AllOrders.findAll
             } yield AllOrdersWithFailures(orders, failures)
           }
@@ -153,7 +153,7 @@ object Admin {
           complete {
             def finder = Orders.findByRefNum(refNum)
             whenFound(finder.result.headOption.run()) { order ⇒
-              OrderUpdater.updateSingleOrder(order, finder, payload)
+              OrderUpdater.updateStatus(refNum, finder, payload.status)
             }
           }
         } ~
