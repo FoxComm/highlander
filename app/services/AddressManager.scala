@@ -37,14 +37,9 @@ object AddressManager {
           rowsAffected ← Addresses.insertOrUpdate(address)
           state ← States.findById(address.stateId)
         } yield (rowsAffected, address, state)).transactionally).map {
-          case (n, address, Some(state)) ⇒
-            if (n == 1) {
-              Good(Response.build(address, state))
-            } else {
-              Bad(NotFoundFailure(address).single)
-            }
-          case (_, _, None)              ⇒
-            Bad(NotFoundFailure(State, address.stateId).single)
+          case (1, address, Some(state)) ⇒ Good(Response.build(address, state))
+          case (_, address, Some(state)) ⇒ Bad(NotFoundFailure(address).single)
+          case (_, _, None)              ⇒ Bad(NotFoundFailure(State, address.stateId).single)
         }
       case f: Invalid ⇒ Future.successful(Bad(ValidationFailure(f).single))
     }
