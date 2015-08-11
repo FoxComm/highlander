@@ -1,5 +1,5 @@
 create table gift_cards (
-    id serial primary key,
+    id integer primary key,
     origin_id integer not null,
     origin_type character varying(255) not null,
     code character varying(255) not null,
@@ -12,6 +12,7 @@ create table gift_cards (
     canceled_reason character varying(255) null,
     created_at timestamp without time zone default (now() at time zone 'utc'),
     updated_at timestamp without time zone default (now() at time zone 'utc'),
+    foreign key (id) references payment_methods(id) on update restrict on delete restrict,
     foreign key (origin_id) references gift_card_origins(id) on update restrict on delete restrict,
     constraint valid_status check (status in ('new', 'auth', 'hold', 'canceled', 'partiallyApplied', 'applied')),
     constraint positive_balance check (original_balance >= 0 and current_balance >= 0 and available_balance >= 0)
@@ -27,6 +28,12 @@ begin
     return new;
 end;
 $$ language plpgsql;
+
+create trigger set_payment_method_id_trg
+    before insert
+    on gift_cards
+    for each row
+    execute procedure set_payment_method_id();
 
 create trigger set_gift_cards_balances_trg
     before insert
