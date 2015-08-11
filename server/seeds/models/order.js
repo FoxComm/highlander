@@ -50,6 +50,7 @@ class Order extends BaseModel {
       total: this.model.grandTotal
     };
   }
+  get total() { return this.model.grandTotal; }
   get remorseEnd() { return moment.utc().add(3, 'h').format(); }
 
   set orderStatus(status) { this.model.orderStatus = status; }
