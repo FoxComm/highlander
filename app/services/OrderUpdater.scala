@@ -1,33 +1,75 @@
 package services
 
 import models._
-import payloads.{CreateShippingAddress, UpdateOrderPayload}
-import slick.dbio.Effect.All
+import payloads.{BulkUpdateOrdersPayload, CreateShippingAddress, UpdateOrderPayload}
+import slick.dbio
+import slick.dbio.Effect.{Transactional, Write}
+import utils.Http._
+import utils.TableQueryWithId
 
 import utils.Validation.Result.{Failure ⇒ Invalid, Success}
 import org.scalactic._
 import scala.concurrent.{Future, ExecutionContext}
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
-import responses.{Addresses ⇒ Response}
+import responses.{Addresses ⇒ Response, FullOrder}
 
 object OrderUpdater {
 
-  def updateStatus(order: Order, payLoad: UpdateOrderPayload)
-                  (implicit db: Database, ec: ExecutionContext): Future[Order Or List[ErrorMessage]]  = {
-    val newOrder = order.copy(status = Order.FulfillmentStarted)
-    val insertedQuery = for {
-      _ <- Orders.insertOrUpdate(newOrder)
-      updatedOrder <- Orders.findById(order.id)
-    } yield (updatedOrder)
+  def updateStatus(refNum: String, finder: Query[Orders, Order, Seq], newStatus: Order.Status)
+    (implicit db: Database, ec: ExecutionContext): Future[FullOrder.Root Or Failure] = {
 
-    db.run(insertedQuery).map { optOrder =>
-      optOrder match {
-        case Some(orderExists) => Good(orderExists)
-        case None => Bad(List("Not able to update order"))
-      }
+    updateStatuses(Seq(refNum), newStatus).flatMap {
+      case Seq(failure) ⇒ Future.successful(Bad(failure))
+      case Seq() ⇒ finder.result.run().flatMap(o ⇒ FullOrder.fromOrder(o.head).map(Good(_)))
+    }
+  }
+
+  def updateStatuses(refNumbers: Seq[String], newStatus: Order.Status)
+    (implicit db: Database, ec: ExecutionContext): Future[Seq[OrderUpdateFailure]] = {
+
+    import Order._
+
+    def cancelOrders(orderIds: Seq[Int]) = {
+      val updateLineItems = OrderLineItems
+        .filter(_.orderId.inSetBind(orderIds))
+        .map(_.status)
+        .update(OrderLineItem.Canceled)
+
+      val updateOrderPayments = OrderPayments
+        .filter(_.orderId.inSetBind(orderIds))
+        .map(_.status)
+        .update("cancelAuth")
+
+      val updateOrder = Orders.filter(_.id.inSetBind(orderIds)).map(_.status).update(newStatus)
+
+      (updateLineItems >> updateOrderPayments >> updateOrder).transactionally
     }
 
+    def updateQueries(orderIds: Seq[Int]) = newStatus match {
+      case Canceled ⇒ cancelOrders(orderIds)
+      case _ ⇒ Orders.filter(_.id.inSet(orderIds)).map(_.status).update(newStatus)
+    }
+
+    db.run(Orders.filter(_.referenceNumber.inSet(refNumbers)).result).flatMap { orders ⇒
+
+      val (validTransitions, invalidTransitions) = orders
+        .filterNot(_.status == newStatus)
+        .partition(o ⇒ transitionAllowed(o.status, newStatus))
+
+      db.run(updateQueries(validTransitions.map(_.id))).map { _ ⇒
+        // Failure handling
+        val invalid = invalidTransitions.map { order ⇒
+          OrderUpdateFailure(order.referenceNumber,
+            s"Transition from ${order.status} to $newStatus is not allowed")
+        }
+        val notFound = refNumbers
+          .filterNot(refNum ⇒ orders.map(_.referenceNumber).contains(refNum))
+          .map(refNum ⇒ OrderUpdateFailure(refNum, "Not found"))
+
+        invalid ++ notFound
+      }
+    }
   }
 
   def createNote = "Note"

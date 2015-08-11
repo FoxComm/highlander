@@ -6,7 +6,6 @@ import responses.AdminNotes.Root
 import slick.dbio.Effect.Write
 import slick.profile.FixedSqlAction
 import utils.Validation.Result._
-import payloads.UpdateOrderPayload
 
 import org.scalactic._
 import scala.concurrent.{Future, ExecutionContext}

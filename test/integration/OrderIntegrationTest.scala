@@ -2,12 +2,13 @@ import akka.http.scaladsl.model.StatusCodes
 import models._
 import org.joda.time.DateTime
 import org.scalatest.time.{Milliseconds, Seconds, Span}
-import payloads.{CreateAddressPayload, CreateCreditCard}
+import payloads.{UpdateOrderPayload, CreateAddressPayload, CreateCreditCard}
 import responses.{AdminNotes, FullOrder}
 import services.NoteManager
 import util.{IntegrationTestBase, StripeSupport}
 import utils.Seeds.Factories
 import slick.driver.PostgresDriver.api._
+import Order._
 
 /**
  * The Server is shut down by shutting down the ActorSystem
@@ -33,6 +34,61 @@ class OrderIntegrationTest extends IntegrationTestBase
 
     val order = parse(response.bodyText).extract[FullOrder.Root]
     order.lineItems.map(_.skuId).sortBy(identity) must === (List(1, 5, 5))
+  }
+
+  "updates status" - {
+
+    "successfully" in {
+      val order = Orders.save(Factories.order).run().futureValue
+
+      val response = PATCH(
+        s"v1/orders/${order.referenceNumber}",
+        UpdateOrderPayload(FraudHold))
+
+      response.status must === (StatusCodes.OK)
+
+      val responseOrder = parse(response.bodyText).extract[FullOrder.Root]
+      responseOrder.orderStatus must === (FraudHold)
+    }
+
+    "fails if transition to destination status is not allowed" in {
+      val order = Orders.save(Factories.order).run().futureValue
+
+      val response = PATCH(
+        s"v1/orders/${order.referenceNumber}",
+        UpdateOrderPayload(Cart))
+
+      response.status must === (StatusCodes.BadRequest)
+      response.bodyText must include("errors")
+    }
+
+    "fails if transition from current status is not allowed" in {
+      val order = Orders.save(Factories.order.copy(status = Canceled)).run().futureValue
+
+      val response = PATCH(
+        s"v1/orders/${order.referenceNumber}",
+        UpdateOrderPayload(ManualHold))
+
+      response.status must === (StatusCodes.BadRequest)
+      response.bodyText must include("errors")
+    }
+
+    "cancels order with line items and payments" in {
+      val order = Orders.save(Factories.order).run().futureValue
+      Factories.orderLineItems.map(li ⇒ OrderLineItems.save(li.copy(orderId = order.id)).run().futureValue)
+      OrderPayments.save(Factories.orderPayment.copy(orderId = order.id)).run().futureValue
+
+      val response = PATCH(
+        s"v1/orders/${order.referenceNumber}",
+        UpdateOrderPayload(Canceled))
+
+      val responseOrder = parse(response.bodyText).extract[FullOrder.Root]
+      responseOrder.orderStatus must === (Canceled)
+      responseOrder.lineItems.head.status must === (OrderLineItem.Canceled)
+
+      // Testing via DB as currently FullOrder returns 'order.status' as 'payment.status'
+      OrderPayments.findAllByOrderId(order.id).futureValue.head.status must === ("cancelAuth")
+    }
   }
 
   "handles credit cards" - {
