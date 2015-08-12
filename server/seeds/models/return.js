@@ -24,7 +24,7 @@ class Return extends BaseModel {
 
   get totals() {
     return {
-      total: this.model.refundTotal
+      total: this.model.returnTotal
     };
   }
 
