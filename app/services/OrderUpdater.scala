@@ -97,7 +97,7 @@ object OrderUpdater {
   def lock(order: Order, admin: StoreAdmin)
     (implicit db: Database, ec: ExecutionContext): Future[FullOrder.Root Or Failures] = {
     if (order.locked) {
-      Future.successful(Bad(List(GeneralFailure("Order is already locked"))))
+      Future.successful(Bad(List(OrderLockedFailure(order.referenceNumber))))
     } else {
       val queries = DBIO.seq(
         Orders.update(order.copy(locked = true)),
@@ -106,6 +106,21 @@ object OrderUpdater {
       db.run(queries).flatMap { _ ⇒
         FullOrder.fromOrder(order).map(Good(_))
       }
+    }
+  }
+
+  def unlock(order: Order)(implicit db: Database, ec: ExecutionContext): Future[FullOrder.Root Or Failures] = {
+    if (order.locked) {
+      val queries = for {
+        _ ← Orders.update(order.copy(locked = false))
+        newOrder ← Orders.findByRefNum(order.referenceNumber).result.head
+      } yield newOrder
+
+      db.run(queries).flatMap { o ⇒
+        FullOrder.fromOrder(o).map(Good(_))
+      }
+    } else {
+      Future.successful(Bad(List(GeneralFailure("Order is not locked"))))
     }
   }
 

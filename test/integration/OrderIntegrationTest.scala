@@ -132,6 +132,21 @@ class OrderIntegrationTest extends IntegrationTestBase
       val response = POST(s"v1/orders/${order.referenceNumber}/lock")
       response.status must === (StatusCodes.BadRequest)
     }
+
+    "unlocks an order" in {
+      val order = Orders.save(Factories.order.copy(locked = true)).run().futureValue
+      val response = POST(s"v1/orders/${order.referenceNumber}/unlock")
+      response.status must === (StatusCodes.OK)
+
+      val unlockedOrder = Orders.findByRefNum(order.referenceNumber).result.run().futureValue.head
+      unlockedOrder.locked must === (false)
+    }
+
+    "refuses to unlock an already unlocked order" in {
+      val order = Orders.save(Factories.order).run().futureValue
+      val response = POST(s"v1/orders/${order.referenceNumber}/unlock")
+      response.status must === (StatusCodes.BadRequest)
+    }
   }
 
   /*

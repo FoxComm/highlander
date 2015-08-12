@@ -184,6 +184,13 @@ object Admin {
             }
           }
         } ~
+        (post & path("unlock") & pathEnd) {
+          complete {
+            whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
+              OrderUpdater.unlock(order)
+            }
+          }
+        } ~
         (post & path("checkout")) {
           complete {
             whenOrderFoundAndEditable(refNum) { order ⇒ new Checkout(order).checkout }
