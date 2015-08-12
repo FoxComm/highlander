@@ -1,6 +1,7 @@
 lazy val commonSettings = Seq(
-  version      := "1.0",
-  scalaVersion := "2.11.7",
+  version       := "1.0",
+  scalaVersion  := "2.11.7",
+  updateOptions := updateOptions.value.withCachedResolution(true),
   scalacOptions ++= List(
     "-encoding", "UTF-8",
     "-target:jvm-1.8",
@@ -20,9 +21,9 @@ lazy val commonSettings = Seq(
 
 
 lazy val phoenixScala = (project in file(".")).
-  settings(commonSettings: _*).
+  settings(commonSettings).
   configs(IT).
-  settings(inConfig(IT)(Defaults.testSettings): _*).
+  settings(inConfig(IT)(Defaults.testSettings)).
   settings(
     wartremoverExcluded ++= ((baseDirectory.value / "test") ** "*.scala").get,
     wartremoverWarnings ++=
