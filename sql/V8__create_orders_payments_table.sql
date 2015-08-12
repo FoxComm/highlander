@@ -15,7 +15,3 @@ create table order_payments (
 
 create index order_payments_order_id_idx on order_payments (order_id);
 
--- we allow only one CC payment per order
-create unique index order_has_only_one_credit_card_idx on order_payments (order_id, payment_method_type)
-    where payment_method_type = 'creditCard';
-
