@@ -240,6 +240,13 @@ object Admin {
               }
             }
           } ~
+          (patch & entity(as[payloads.UpdateShippingAddress]) & pathEnd) { payload ⇒
+            complete {
+              whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
+                services.OrderUpdater.updateShippingAddress(order, payload)
+              }
+            }
+          } ~
           (delete & pathEnd) {
             complete {
               Orders.findByRefNum(refNum).result.headOption.run().flatMap {

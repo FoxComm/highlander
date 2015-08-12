@@ -1,7 +1,7 @@
 package services
 
 import models._
-import payloads.{BulkUpdateOrdersPayload, CreateShippingAddress, UpdateOrderPayload}
+import payloads.{BulkUpdateOrdersPayload, CreateShippingAddress, UpdateShippingAddress, UpdateOrderPayload}
 import slick.dbio
 import slick.dbio.Effect.{Transactional, Write}
 import utils.Http._
@@ -89,6 +89,18 @@ object OrderUpdater {
       case (None, None) ⇒
         Future.successful(Bad(GeneralFailure("must supply either an addressId or an address")))
     }
+  }
+
+  def updateShippingAddress(order: Order, payload: UpdateShippingAddress)
+    (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failure] = {
+
+    (payload.addressId, payload.address) match {
+      case (Some(addressId), _) ⇒
+        createShippingAddressFromAddressId(addressId, order.id)
+      case (None, _) ⇒
+        Future.successful(Bad(GeneralFailure("must supply either an addressId or an address")))
+    }
+
   }
 
   private def createShippingAddressFromPayload(address: Address, order: Order)
