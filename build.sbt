@@ -89,7 +89,7 @@ lazy val phoenixScala = (project in file(".")).
         "org.json4s"           %% "json4s-ext"               % json4sVersion,
         "de.heikoseeberger"    %% "akka-http-json4s"         % "1.0.0",
         // Database
-        "com.typesafe.slick"   %% "slick"                    % "3.0.0",
+        "com.typesafe.slick"   %% "slick"                    % "3.0.1",
         "com.zaxxer"           %  "HikariCP"                 % "2.3.8",
         "com.github.tototoshi" %% "slick-joda-mapper"        % "2.0.0",
         "org.postgresql"       %  "postgresql"               % "9.4-1201-jdbc41",
