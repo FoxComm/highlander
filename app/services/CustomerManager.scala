@@ -9,15 +9,18 @@ import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.Slick.UpdateReturning._
 import utils.jdbc.{RecordNotUnique, withUniqueConstraint}
 
+import Temp0._
+
 object CustomerManager {
   def toggleDisabled(customerId: Int, disabled: Boolean, admin: StoreAdmin)
-    (implicit ec: ExecutionContext, db: Database): Future[Customer Or Failures] = {
+    (implicit ec: ExecutionContext, db: Database): ServiceResult0[Customer] = {
     db.run(for {
       updated ← Customers.filter(_.id === customerId).map { t ⇒ (t.disabled, t.disabledBy) }.
         updateReturning(Customers.map(identity), (disabled, Some(admin.id))).headOption
-    } yield updated).map {
-      case Some(c) ⇒ Good(c)
-      case None ⇒ Bad(NotFoundFailure(Customer, customerId).single)
+    } yield updated).flatMap {
+      /** We’d need to flatMap now */
+      case Some(c) ⇒ ServiceResult0.good(c)
+      case None    ⇒ ServiceResult0.failures(NotFoundFailure(Customer, customerId).single)
     }
   }
 

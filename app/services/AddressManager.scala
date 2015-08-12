@@ -2,7 +2,8 @@ package services
 
 import scala.concurrent.{ExecutionContext, Future}
 
-import models.{Address, Addresses, State, States}
+import cats.Functor
+import models.{Order, Address, Addresses, State, States}
 import org.scalactic.{Bad, Good, Or}
 import payloads.CreateAddressPayload
 import responses.Addresses.Root
@@ -11,9 +12,46 @@ import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.Validation.Result.{Failure ⇒ Invalid, Success}
 
+object Temp0 {
+  /**
+   * - Most of the results are created by >>=ing Futures, since we’ll talk with the
+   *   database, so it makes less sense to include Future as part of ServiceResult.
+   *
+   * - If we need to match in the
+   */
+  type ServiceResult[A] = A Or Failures
+
+  object ServiceResult {
+    def failures(failures: Failure*): Future[ServiceResult[Nothing]] =
+      Future.successful(Bad(Failures(failures: _*)))
+
+    def failure(failure: Failure): Future[ServiceResult[Nothing]] =
+      failures(failure)
+  }
+
+  /** Includes Future */
+  type ServiceResult0[A] = Future[A Or Failures]
+
+  object ServiceResult0 {
+    def good[A](order: A): ServiceResult0[A] =
+      Future.successful(Good(order).asInstanceOf[A Or Failures])
+
+    def failures(failures: Failure*): ServiceResult0[Nothing] =
+      Future.successful(Bad(Failures(failures: _*)))
+
+    def failures(theFailures: Failures): ServiceResult0[Nothing] =
+      failures(theFailures: _*)
+
+    def failure(failure: Failure): ServiceResult0[Nothing] =
+      failures(failure)
+  }
+}
+
+import Temp0._
+
 object AddressManager {
   def create(payload: CreateAddressPayload, customerId: Int)
-    (implicit ec: ExecutionContext, db: Database): Future[Root Or Failures] = {
+    (implicit ec: ExecutionContext, db: Database): Future[ServiceResult[Root]] = {
     val address = Address.fromPayload(payload).copy(customerId = customerId)
     address.validate match {
       case Success ⇒
@@ -24,12 +62,12 @@ object AddressManager {
           case (address, Some(state)) ⇒ Good(Response.build(address, state))
           case (_, None)              ⇒ Bad(NotFoundFailure(State, address.stateId).single)
         }
-      case f: Invalid ⇒ Future.successful(Bad(ValidationFailure(f).single))
+      case f: Invalid ⇒ ServiceResult.failure(ValidationFailure(f))
     }
   }
 
   def edit(addressId: Int, customerId: Int, payload: CreateAddressPayload)
-    (implicit ec: ExecutionContext, db: Database): Future[Root Or Failures] = {
+    (implicit ec: ExecutionContext, db: Database): ServiceResult0[Root] = {
     val address = Address.fromPayload(payload).copy(customerId = customerId, id = addressId)
     address.validate match {
       case Success ⇒
@@ -41,7 +79,7 @@ object AddressManager {
           case (_, address, Some(state)) ⇒ Bad(NotFoundFailure(address).single)
           case (_, _, None)              ⇒ Bad(NotFoundFailure(State, address.stateId).single)
         }
-      case f: Invalid ⇒ Future.successful(Bad(ValidationFailure(f).single))
+      case f: Invalid ⇒ ServiceResult0.failure(ValidationFailure(f))
     }
   }
 
