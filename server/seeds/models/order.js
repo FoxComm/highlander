@@ -32,6 +32,13 @@ class Order extends BaseModel {
     return new this(results[0]);
   }
 
+  /**
+   * @TODO should be removed, mock method - DM
+   */
+  static findRandom() {
+    return new this(this.data[~~(Math.random() * this.data.length)]);
+  }
+
   get referenceNumber() { return this.model.referenceNumber; }
   get orderStatus() { return this.model.orderStatus; }
   get paymentStatus() { return this.model.paymentStatus; }
