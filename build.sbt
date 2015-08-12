@@ -20,9 +20,9 @@ lazy val commonSettings = Seq(
 
 
 lazy val phoenixScala = (project in file(".")).
-  settings(commonSettings: _*).
+  settings(commonSettings).
   configs(IT).
-  settings(inConfig(IT)(Defaults.testSettings): _*).
+  settings(inConfig(IT)(Defaults.testSettings)).
   settings(
     wartremoverExcluded ++= ((baseDirectory.value / "test") ** "*.scala").get,
     wartremoverWarnings ++=
