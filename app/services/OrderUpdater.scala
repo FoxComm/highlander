@@ -1,7 +1,8 @@
 package services
 
 import models._
-import payloads.{BulkUpdateOrdersPayload, CreateShippingAddress, UpdateShippingAddress, UpdateOrderPayload}
+import payloads.{UpdateAddressPayload, BulkUpdateOrdersPayload, CreateShippingAddress, UpdateShippingAddress,
+UpdateOrderPayload}
 import slick.dbio
 import slick.dbio.Effect.{Transactional, Write}
 import utils.Http._
@@ -97,6 +98,8 @@ object OrderUpdater {
     (payload.addressId, payload.address) match {
       case (Some(addressId), _) ⇒
         createShippingAddressFromAddressId(addressId, order.id)
+      case (None, Some(address)) ⇒
+        updateShippingAddressFromPayload(address, order)
       case (None, _) ⇒
         Future.successful(Bad(GeneralFailure("must supply either an addressId or an address")))
     }
@@ -118,6 +121,27 @@ object OrderUpdater {
           case (_, None)              ⇒ Bad(NotFoundFailure(State, address.stateId))
         }
       case f: Invalid ⇒ Future.successful(Bad(ValidationFailure(f)))
+    }
+  }
+
+  private def updateShippingAddressFromPayload(payload: UpdateAddressPayload, order: Order)
+    (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failure] = {
+
+    val noState: DBIO[Option[State]] = DBIO.successful(None)
+
+    db.run(for {
+      osa ← OrderShippingAddresses.findByOrderId(order.id).result.headOption
+      newAddress ← osa.map { osa ⇒
+        OrderShippingAddresses.updateFromPatch(address = osa, payload = payload).map(Some(_))
+      }.getOrElse(DBIO.successful(None))
+      state ← newAddress.fold(noState)((a: OrderShippingAddress) ⇒ States.findById(a.id))
+    } yield (newAddress, state)).map {
+      case (Some(address), Some(state)) ⇒
+        Good(Response.build(Address.fromOrderShippingAddress(address), state))
+      case (None, _) ⇒
+        Bad(GeneralFailure("Unable to save address"))
+      case (Some(address), None) ⇒
+        Bad(NotFoundFailure(State, address.stateId))
     }
   }
 

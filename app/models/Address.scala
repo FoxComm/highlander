@@ -31,6 +31,11 @@ object Address {
     Address(customerId = 0, stateId = p.stateId, name = p.name,
       street1 = p.street1, street2 = p.street2, city = p.city, zip = p.zip, phoneNumber = p.phoneNumber)
   }
+
+  def fromOrderShippingAddress(osa: OrderShippingAddress) = {
+    Address(customerId = 0, stateId = osa.stateId, name = osa.name, street1 = osa.street1, street2 = osa.street2,
+      city = osa.city, zip = osa.zip, phoneNumber = osa.phoneNumber)
+  }
 }
 
 class Addresses(tag: Tag) extends TableWithId[Address](tag, "addresses") with RichTable {
