@@ -4,6 +4,7 @@ import React from 'react';
 import { Route, DefaultRoute } from 'react-router';
 import Site from './components/site/site';
 import Home from './components/home/home';
+import Returns from './components/returns/returns';
 import Orders from './components/orders/orders';
 import Order from './components/orders/order';
 import OrderDetails from './components/orders/details';
@@ -18,6 +19,7 @@ const routes = (
   <Route handler={Site}>
     <DefaultRoute name="home" handler={Home}/>
     <Route name='orders' handler={Orders}/>
+    <Route name='returns' handler={Returns}/>
     <Route name='order' path='/orders/:order' handler={Order}>
       <DefaultRoute name='order-details' handler={OrderDetails}/>
       <Route name='order-notes' path='notes' handler={Notes}/>
