@@ -63,5 +63,5 @@ object DbTestSupport {
 
   @volatile var migrated = false
 
-  lazy val database = Database.forConfig("db.test")
+  lazy val database = Database.forConfig("db", TestBase.config)
 }
