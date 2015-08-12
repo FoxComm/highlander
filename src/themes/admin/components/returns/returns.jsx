@@ -46,6 +46,7 @@ Returns.propTypes = {
 
 Returns.defaultProps = {
   tableColumns: [
+    {field: 'checked', text: ' ', type: 'checkbox'},
     {field: 'referenceNumber', text: 'Return', type: 'id'},
     {field: 'createdAt', text: 'Date', type: 'date'},
     {field: 'orderNumber', text: 'Order', type: 'id'},
