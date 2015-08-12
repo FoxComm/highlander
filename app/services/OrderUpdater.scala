@@ -18,12 +18,12 @@ import responses.{Addresses ⇒ Response, FullOrder}
 
 object OrderUpdater {
 
-  def updateStatus(refNum: String, finder: Query[Orders, Order, Seq], newStatus: Order.Status)
-    (implicit db: Database, ec: ExecutionContext): Future[FullOrder.Root Or Failure] = {
+  def updateStatus(refNum: String, newStatus: Order.Status)
+    (implicit db: Database, ec: ExecutionContext): Future[FullOrder.Root Or Failures] = {
 
     updateStatuses(Seq(refNum), newStatus).flatMap {
-      case Seq(failure) ⇒ Future.successful(Bad(failure))
-      case Seq() ⇒ finder.result.run().flatMap(o ⇒ FullOrder.fromOrder(o.head).map(Good(_)))
+      case Seq() ⇒ Orders.findByRefNum(refNum).result.run().flatMap(o ⇒ FullOrder.fromOrder(o.head).map(Good(_)))
+      case failures: Failures ⇒ Future.successful(Bad(failures))
     }
   }
 
@@ -79,7 +79,7 @@ object OrderUpdater {
   final case class NewRemorsePeriod(remorsePeriod: Int)
 
   def increaseRemorsePeriod(order: Order)
-    (implicit db: Database, ec: ExecutionContext): Future[NewRemorsePeriod Or Failure] = {
+    (implicit db: Database, ec: ExecutionContext): Future[NewRemorsePeriod Or Failures] = {
     order.status match {
       case RemorseHold ⇒
         val q = for {
@@ -88,16 +88,16 @@ object OrderUpdater {
         } yield newOrder
         db.run(q).map {
           case Some(newOrder) ⇒ Good(NewRemorsePeriod(newOrder.remorsePeriod))
-          case None ⇒ Bad(GeneralFailure("Error during update"))
+          case None ⇒ Bad(List(GeneralFailure("Error during update")))
         }
-      case _ ⇒ Future.successful(Bad(GeneralFailure("Order is not in RemorseHold status")))
+      case _ ⇒ Future.successful(Bad(List(GeneralFailure("Order is not in RemorseHold status"))))
     }
   }
 
   def lock(order: Order, admin: StoreAdmin)
-    (implicit db: Database, ec: ExecutionContext): Future[FullOrder.Root Or Failure] = {
+    (implicit db: Database, ec: ExecutionContext): Future[FullOrder.Root Or Failures] = {
     if (order.locked) {
-      Future.successful(Bad(GeneralFailure("Order is already locked")))
+      Future.successful(Bad(List(GeneralFailure("Order is already locked"))))
     } else {
       val queries = DBIO.seq(
         Orders.update(order.copy(locked = true)),
@@ -116,7 +116,7 @@ object OrderUpdater {
     db.run(OrderShippingAddresses.findByOrderId(orderId).delete)
 
   def createShippingAddress(order: Order, payload: CreateShippingAddress)
-    (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failure] = {
+    (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failures] = {
 
     (payload.addressId, payload.address) match {
       case (Some(addressId), _) ⇒
@@ -124,12 +124,12 @@ object OrderUpdater {
       case (None, Some(payloadAddress)) ⇒
         createShippingAddressFromPayload(Address.fromPayload(payloadAddress), order)
       case (None, None) ⇒
-        Future.successful(Bad(GeneralFailure("must supply either an addressId or an address")))
+        Future.successful(Bad(List(GeneralFailure("must supply either an addressId or an address"))))
     }
   }
 
   def updateShippingAddress(order: Order, payload: UpdateShippingAddress)
-    (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failure] = {
+    (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failures] = {
 
     (payload.addressId, payload.address) match {
       case (Some(addressId), _) ⇒
@@ -137,7 +137,7 @@ object OrderUpdater {
       case (None, Some(address)) ⇒
         updateShippingAddressFromPayload(address, order)
       case (None, _) ⇒
-        Future.successful(Bad(GeneralFailure("must supply either an addressId or an address")))
+        Future.successful(Bad(List(GeneralFailure("must supply either an addressId or an address"))))
     }
 
   }
@@ -203,7 +203,7 @@ object OrderUpdater {
   }
 
   private def createShippingAddressFromPayload(address: Address, order: Order)
-    (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failure] = {
+    (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failures] = {
 
     address.validate match {
       case Success ⇒
@@ -214,14 +214,14 @@ object OrderUpdater {
           _ ← OrderShippingAddresses.copyFromAddress(newAddress, order.id)
         } yield (newAddress, state)).map {
           case (address, Some(state)) ⇒ Good(Response.build(address, state))
-          case (_, None)              ⇒ Bad(NotFoundFailure(State, address.stateId))
+          case (_, None)              ⇒ Bad(List(NotFoundFailure(State, address.stateId)))
         }
-      case f: Invalid ⇒ Future.successful(Bad(ValidationFailure(f)))
+      case f: Invalid ⇒ Future.successful(Bad(List(ValidationFailure(f))))
     }
   }
 
   private def updateShippingAddressFromPayload(payload: UpdateAddressPayload, order: Order)
-    (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failure] = {
+    (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failures] = {
 
     val actions = for {
       oldAddress ← OrderShippingAddresses.findByOrderId(order.id).result.headOption
@@ -239,18 +239,18 @@ object OrderUpdater {
 
     db.run(actions.transactionally).map {
       case (_, None, _) ⇒
-        Bad(NotFoundFailure(OrderShippingAddress, order.id))
+        Bad(List(NotFoundFailure(OrderShippingAddress, order.id)))
       case (0, _, _) ⇒
-        Bad(GeneralFailure("Unable to update address"))
+        Bad(List(GeneralFailure("Unable to update address")))
       case (_, Some(address), None) ⇒
-        Bad(NotFoundFailure(State, address.stateId))
+        Bad(List(NotFoundFailure(State, address.stateId)))
       case (_, Some(address), Some(state)) ⇒
         Good(Response.build(Address.fromOrderShippingAddress(address), state))
     }
   }
 
   private def createShippingAddressFromAddressId(addressId: Int, orderId: Int)
-    (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failure] = {
+    (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failures] = {
 
     db.run(for {
       address ← Addresses.findById(addressId)
@@ -268,7 +268,7 @@ object OrderUpdater {
       case (Some(address), Some(state)) ⇒
         Good(Response.build(address, state))
       case _ ⇒
-        Bad(NotFoundFailure(Address, addressId))
+        Bad(List(NotFoundFailure(Address, addressId)))
     }
   }
 }
