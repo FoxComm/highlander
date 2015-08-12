@@ -13,23 +13,6 @@ import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.Validation.Result.{Failure ⇒ Invalid, Success}
 
 object Temp0 {
-  /**
-   * - Most of the results are created by >>=ing Futures, since we’ll talk with the
-   *   database, so it makes less sense to include Future as part of ServiceResult.
-   *
-   * - If we need to match in the
-   */
-  type ServiceResult[A] = A Or Failures
-
-  object ServiceResult {
-    def failures(failures: Failure*): Future[ServiceResult[Nothing]] =
-      Future.successful(Bad(Failures(failures: _*)))
-
-    def failure(failure: Failure): Future[ServiceResult[Nothing]] =
-      failures(failure)
-  }
-
-  /** Includes Future */
   type ServiceResult0[A] = Future[A Or Failures]
 
   object ServiceResult0 {
@@ -51,7 +34,7 @@ import Temp0._
 
 object AddressManager {
   def create(payload: CreateAddressPayload, customerId: Int)
-    (implicit ec: ExecutionContext, db: Database): Future[ServiceResult[Root]] = {
+    (implicit ec: ExecutionContext, db: Database): ServiceResult0[Root] = {
     val address = Address.fromPayload(payload).copy(customerId = customerId)
     address.validate match {
       case Success ⇒
@@ -62,7 +45,7 @@ object AddressManager {
           case (address, Some(state)) ⇒ Good(Response.build(address, state))
           case (_, None)              ⇒ Bad(NotFoundFailure(State, address.stateId).single)
         }
-      case f: Invalid ⇒ ServiceResult.failure(ValidationFailure(f))
+      case f: Invalid ⇒ ServiceResult0.failure(ValidationFailure(f))
     }
   }
 
