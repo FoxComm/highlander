@@ -7,7 +7,7 @@ const
 const seed = [
   {field: 'referenceNumber', method: 'string', opts: {length: 8, pool: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'}},
   {field: 'orderNumber', method: 'string', opts: {length: 8, pool: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'}},
-  {field: 'returnStatus', method: 'pick', opts: ['Processing', 'Fulfilled', 'Declined']},
+  {field: 'returnStatus', method: 'pick', opts: ['Pending', 'Processing', 'Complete']},
   {field: 'asignee', method: 'pick', opts: ['Unassigned']},
   {field: 'returnTotal', method: 'integer', opts: {min: 100, max: 10000}}
 ];
@@ -22,8 +22,6 @@ class Return extends BaseModel {
     return new this(results[0]);
   }
 
-  get referenceNumber() { return this.model.referenceNumber; }
-  get returnStatus() { return this.model.returnStatus; }
   get totals() {
     return {
       total: this.model.refundTotal
