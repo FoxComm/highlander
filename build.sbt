@@ -1,6 +1,7 @@
 lazy val commonSettings = Seq(
-  version      := "1.0",
-  scalaVersion := "2.11.7",
+  version       := "1.0",
+  scalaVersion  := "2.11.7",
+  updateOptions := updateOptions.value.withCachedResolution(true),
   scalacOptions ++= List(
     "-encoding", "UTF-8",
     "-target:jvm-1.8",
