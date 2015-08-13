@@ -61,7 +61,9 @@ object OrderUpdater {
         .filterNot(_.status == newStatus)
         .partition(_.transitionAllowed(newStatus))
 
-      db.run(updateQueries(validTransitions.map(_.id))).map { _ ⇒
+      val (lockedOrders, absolutelyPossibleUpdates) = validTransitions.partition(o ⇒ o.locked)
+
+      db.run(updateQueries(absolutelyPossibleUpdates.map(_.id))).map { _ ⇒
         // Failure handling
         val invalid = invalidTransitions.map { order ⇒
           OrderUpdateFailure(order.referenceNumber,
@@ -70,8 +72,11 @@ object OrderUpdater {
         val notFound = refNumbers
           .filterNot(refNum ⇒ orders.map(_.referenceNumber).contains(refNum))
           .map(refNum ⇒ OrderUpdateFailure(refNum, "Not found"))
+        val locked = lockedOrders.map { order ⇒
+          OrderUpdateFailure(order.referenceNumber, "Order is locked")
+        }
 
-        invalid ++ notFound
+        invalid ++ notFound ++ locked
       }
     }
   }
