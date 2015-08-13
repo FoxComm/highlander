@@ -1,7 +1,8 @@
 package services
 
 import models._
-import payloads.{BulkUpdateOrdersPayload, CreateShippingAddress, UpdateOrderPayload}
+import payloads.{UpdateAddressPayload, BulkUpdateOrdersPayload, CreateShippingAddress, UpdateShippingAddress,
+UpdateOrderPayload}
 import slick.dbio
 import slick.dbio.Effect.{Transactional, Write}
 import utils.Http._
@@ -91,6 +92,20 @@ object OrderUpdater {
     }
   }
 
+  def updateShippingAddress(order: Order, payload: UpdateShippingAddress)
+    (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failure] = {
+
+    (payload.addressId, payload.address) match {
+      case (Some(addressId), _) ⇒
+        createShippingAddressFromAddressId(addressId, order.id)
+      case (None, Some(address)) ⇒
+        updateShippingAddressFromPayload(address, order)
+      case (None, _) ⇒
+        Future.successful(Bad(GeneralFailure("must supply either an addressId or an address")))
+    }
+
+  }
+
   private def createShippingAddressFromPayload(address: Address, order: Order)
     (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failure] = {
 
@@ -106,6 +121,35 @@ object OrderUpdater {
           case (_, None)              ⇒ Bad(NotFoundFailure(State, address.stateId))
         }
       case f: Invalid ⇒ Future.successful(Bad(ValidationFailure(f)))
+    }
+  }
+
+  private def updateShippingAddressFromPayload(payload: UpdateAddressPayload, order: Order)
+    (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failure] = {
+
+    val actions = for {
+      oldAddress ← OrderShippingAddresses.findByOrderId(order.id).result.headOption
+
+      rowsAffected ← oldAddress.map { osa ⇒
+        OrderShippingAddresses.update(OrderShippingAddress.fromPatchPayload(a = osa, p = payload))
+      }.getOrElse(DBIO.successful(0))
+
+      newAddress ← OrderShippingAddresses.findByOrderId(order.id).result.headOption
+
+      state ← newAddress.map { address ⇒
+        States.findById(address.stateId)
+      }.getOrElse(DBIO.successful(None))
+    } yield (rowsAffected, newAddress, state)
+
+    db.run(actions.transactionally).map {
+      case (_, None, _) ⇒
+        Bad(NotFoundFailure(OrderShippingAddress, order.id))
+      case (0, _, _) ⇒
+        Bad(GeneralFailure("Unable to update address"))
+      case (_, Some(address), None) ⇒
+        Bad(NotFoundFailure(State, address.stateId))
+      case (_, Some(address), Some(state)) ⇒
+        Good(Response.build(Address.fromOrderShippingAddress(address), state))
     }
   }
 

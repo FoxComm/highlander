@@ -4,6 +4,7 @@ import scala.concurrent.ExecutionContext
 
 import com.wix.accord.dsl.{validator => createValidator, _}
 import monocle.macros.GenLens
+import payloads.UpdateAddressPayload
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.GenericTable.TableWithId
@@ -26,6 +27,20 @@ object OrderShippingAddress {
   def buildFromAddress(address: Address): OrderShippingAddress =
     OrderShippingAddress(stateId = address.stateId, name = address.name, street1 = address.street1,
       street2 = address.street2, city = address.city, zip = address.zip, phoneNumber = address.phoneNumber)
+
+  def fromPatchPayload(a: OrderShippingAddress, p: UpdateAddressPayload) = {
+    OrderShippingAddress(
+      id = a.id,
+      orderId = a.orderId,
+      stateId = p.stateId.getOrElse(a.stateId),
+      name = p.name.getOrElse(a.name),
+      street1 = p.street1.getOrElse(a.street1),
+      street2 = p.street2.fold(a.street2)(Some(_)),
+      city = p.city.getOrElse(a.city),
+      zip = p.zip.getOrElse(a.zip),
+      phoneNumber = p.phoneNumber.fold(a.phoneNumber)(Some(_))
+    )
+  }
 }
 
 class OrderShippingAddresses(tag: Tag) extends TableWithId[OrderShippingAddress](tag, "order_shipping_addresses")
