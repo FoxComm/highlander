@@ -76,7 +76,7 @@ object OrderUpdater {
     }
   }
 
-  final case class NewRemorsePeriod(remorsePeriod: Int)
+  final class NewRemorsePeriod(val remorsePeriod: Int)
 
   def increaseRemorsePeriod(order: Order)
     (implicit db: Database, ec: ExecutionContext): Future[NewRemorsePeriod Or Failures] = {
@@ -87,7 +87,7 @@ object OrderUpdater {
           newOrder ← Orders._findById(order.id).result.headOption
         } yield newOrder
         db.run(q).map {
-          case Some(newOrder) ⇒ Good(NewRemorsePeriod(newOrder.remorsePeriodInMinutes))
+          case Some(newOrder) ⇒ Good(new NewRemorsePeriod(newOrder.remorsePeriodInMinutes))
           case None ⇒ Bad(List(GeneralFailure("Error during update")))
         }
       case _ ⇒ Future.successful(Bad(List(GeneralFailure("Order is not in RemorseHold status"))))
