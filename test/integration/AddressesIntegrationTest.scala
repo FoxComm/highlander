@@ -77,6 +77,19 @@ class AddressesIntegrationTest extends IntegrationTestBase
 
       Addresses._findAllByCustomerId(customer.id).length.result.run().futureValue must === (0)
     }
+
+    "can be edited" in new AddressFixture {
+      val payload = payloads.CreateAddressPayload(name = "Home Office", stateId = 1, street1 = "3000 Coolio Dr",
+        city = "Seattle", zip = "55555")
+      (payload.name, payload.street1) must !== ((address.name, address.street1))
+
+      val response = PATCH(s"v1/customers/${customer.id}/addresses/${address.id}", payload)
+
+      val updated = parse(response.bodyText).extract[responses.Addresses.Root]
+      response.status must === (StatusCodes.OK)
+
+      (updated.name, updated.street1) must === ((payload.name, payload.street1))
+    }
   }
 
   trait CustomerFixture {

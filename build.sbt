@@ -1,6 +1,7 @@
 lazy val commonSettings = Seq(
-  version      := "1.0",
-  scalaVersion := "2.11.7",
+  version       := "1.0",
+  scalaVersion  := "2.11.7",
+  updateOptions := updateOptions.value.withCachedResolution(true),
   scalacOptions ++= List(
     "-encoding", "UTF-8",
     "-target:jvm-1.8",
@@ -20,9 +21,9 @@ lazy val commonSettings = Seq(
 
 
 lazy val phoenixScala = (project in file(".")).
-  settings(commonSettings: _*).
+  settings(commonSettings).
   configs(IT).
-  settings(inConfig(IT)(Defaults.testSettings): _*).
+  settings(inConfig(IT)(Defaults.testSettings)).
   settings(
     wartremoverExcluded ++= ((baseDirectory.value / "test") ** "*.scala").get,
     wartremoverWarnings ++=
@@ -89,7 +90,7 @@ lazy val phoenixScala = (project in file(".")).
         "org.json4s"           %% "json4s-ext"               % json4sVersion,
         "de.heikoseeberger"    %% "akka-http-json4s"         % "1.0.0",
         // Database
-        "com.typesafe.slick"   %% "slick"                    % "3.0.0",
+        "com.typesafe.slick"   %% "slick"                    % "3.0.1",
         "com.zaxxer"           %  "HikariCP"                 % "2.3.8",
         "com.github.tototoshi" %% "slick-joda-mapper"        % "2.0.0",
         "org.postgresql"       %  "postgresql"               % "9.4-1201-jdbc41",

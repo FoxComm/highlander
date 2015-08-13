@@ -11,7 +11,7 @@ import akka.http.scaladsl.model.StatusCodes._
 import org.scalactic._
 import payloads._
 import responses.FullOrder.Response
-import responses.{AllOrders, AdminNotes, FullOrder}
+import responses.{AllOrders, AllOrdersWithFailures, AdminNotes, FullOrder}
 import services._
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
@@ -80,9 +80,14 @@ object Admin {
                 }
               }
           } ~
-          (delete & path("default")  & pathEnd) {
+          (delete & path("default") & pathEnd) {
             complete {
               AddressManager.removeDefaultShippingAddress(customerId).map { _ ⇒ noContentResponse }
+            }
+          } ~
+          (patch & path(IntNumber) & entity(as[CreateAddressPayload]) & pathEnd) { (addressId, payload) =>
+            complete {
+              AddressManager.edit(addressId, customerId, payload).map(renderGoodOrFailures)
             }
           }
         } ~
@@ -126,6 +131,21 @@ object Admin {
           }
         }
       } ~
+      pathPrefix("orders") {
+        (get & pathEnd) {
+          complete {
+            AllOrders.findAll
+          }
+        } ~
+        (patch & entity(as[BulkUpdateOrdersPayload]) & pathEnd) { payload ⇒
+          complete {
+            for {
+              failures ← OrderUpdater.updateStatuses(payload.referenceNumbers, payload.status)
+              orders ← AllOrders.findAll
+            } yield AllOrdersWithFailures(orders, failures)
+          }
+        }
+      } ~
       pathPrefix("orders" / """([a-zA-Z0-9-_]*)""".r) { refNum ⇒
         (get & pathEnd) {
           complete {
@@ -134,13 +154,11 @@ object Admin {
             }
           }
         } ~
-        (patch & entity(as[UpdateOrderPayload])) { payload =>
+        (patch & entity(as[UpdateOrderPayload])) { payload ⇒
           complete {
-            whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order =>
-              OrderUpdater.updateStatus(order, payload).flatMap {
-                case Good(_) ⇒ FullOrder.fromOrder(order).map(Good(_))
-                case Bad(e) ⇒ Future.successful(Bad(e))
-              }
+            def finder = Orders.findByRefNum(refNum)
+            whenFound(finder.result.headOption.run()) { order ⇒
+              OrderUpdater.updateStatus(refNum, finder, payload.status)
             }
           }
         } ~
@@ -222,6 +240,13 @@ object Admin {
               }
             }
           } ~
+          (patch & entity(as[payloads.UpdateShippingAddress]) & pathEnd) { payload ⇒
+            complete {
+              whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
+                services.OrderUpdater.updateShippingAddress(order, payload)
+              }
+            }
+          } ~
           (delete & pathEnd) {
             complete {
               Orders.findByRefNum(refNum).result.headOption.run().flatMap {
@@ -231,13 +256,6 @@ object Admin {
                   Future.successful(notFoundResponse)
               }
             }
-          }
-        }
-      } ~
-      pathPrefix("orders") {
-        (get & pathEnd) {
-          complete {
-            AllOrders.findAll
           }
         }
       } ~
