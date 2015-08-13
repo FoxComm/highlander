@@ -127,21 +127,27 @@ object OrderUpdater {
   private def updateShippingAddressFromPayload(payload: UpdateAddressPayload, order: Order)
     (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failure] = {
 
-    val noState: DBIO[Option[State]] = DBIO.successful(None)
-
     db.run(for {
-      osa ← OrderShippingAddresses.findByOrderId(order.id).result.headOption
-      newAddress ← osa.map { osa ⇒
-        OrderShippingAddresses.updateFromPatch(address = osa, payload = payload).map(Some(_))
+      oldAddress ← OrderShippingAddresses.findByOrderId(order.id).result.headOption
+
+      rowsAffected ← oldAddress.map { osa ⇒
+        OrderShippingAddresses.update(OrderShippingAddress.fromPatchPayload(a = osa, p = payload))
+      }.getOrElse(DBIO.successful(0))
+
+      newAddress ← OrderShippingAddresses.findByOrderId(order.id).result.headOption
+
+      state ← newAddress.map { address ⇒
+        States.findById(address.stateId)
       }.getOrElse(DBIO.successful(None))
-      state ← newAddress.fold(noState)((a: OrderShippingAddress) ⇒ States.findById(a.id))
-    } yield (newAddress, state)).map {
-      case (Some(address), Some(state)) ⇒
-        Good(Response.build(Address.fromOrderShippingAddress(address), state))
-      case (None, _) ⇒
-        Bad(GeneralFailure("Unable to save address"))
-      case (Some(address), None) ⇒
+    } yield (rowsAffected, newAddress, state)).map {
+      case (_, None, _) ⇒
+        Bad(NotFoundFailure(OrderShippingAddress, order.id))
+      case (0, _, _) ⇒
+        Bad(GeneralFailure("Unable to update address"))
+      case (_, Some(address), None) ⇒
         Bad(NotFoundFailure(State, address.stateId))
+      case (_, Some(address), Some(state)) ⇒
+        Good(Response.build(Address.fromOrderShippingAddress(address), state))
     }
   }
 
