@@ -71,10 +71,6 @@ object OrderShippingAddresses extends TableQueryWithId[OrderShippingAddress, Ord
   DBIO[OrderShippingAddress] =
     save(OrderShippingAddress.buildFromAddress(address).copy(orderId = orderId))
 
-  def updateFromPatch(address: OrderShippingAddress, payload: UpdateAddressPayload)(implicit ec: ExecutionContext):
-  DBIO[OrderShippingAddress] =
-    save(OrderShippingAddress.fromPatchPayload(a = address, p = payload))
-
   def findByOrderId(orderId: Int): Query[OrderShippingAddresses, OrderShippingAddress, Seq] =
     filter(_.orderId === orderId)
 
