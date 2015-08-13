@@ -127,7 +127,7 @@ object OrderUpdater {
   private def updateShippingAddressFromPayload(payload: UpdateAddressPayload, order: Order)
     (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failure] = {
 
-    db.run(for {
+    val actions = for {
       oldAddress ← OrderShippingAddresses.findByOrderId(order.id).result.headOption
 
       rowsAffected ← oldAddress.map { osa ⇒
@@ -139,7 +139,9 @@ object OrderUpdater {
       state ← newAddress.map { address ⇒
         States.findById(address.stateId)
       }.getOrElse(DBIO.successful(None))
-    } yield (rowsAffected, newAddress, state)).map {
+    } yield (rowsAffected, newAddress, state)
+
+    db.run(actions.transactionally).map {
       case (_, None, _) ⇒
         Bad(NotFoundFailure(OrderShippingAddress, order.id))
       case (0, _, _) ⇒
