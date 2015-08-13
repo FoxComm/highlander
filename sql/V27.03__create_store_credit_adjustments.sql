@@ -1,6 +1,6 @@
 -- debit adjustments to store_credits
 create table store_credit_adjustments (
-    id serial,
+    id serial primary key,
     store_credit_id integer not null,
     order_payment_id integer not null,
     debit integer not null,

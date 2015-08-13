@@ -1,6 +1,6 @@
 -- ledger for all adjustments (credits/debits) to gift_cards
 create table gift_card_adjustments (
-    id serial,
+    id serial primary key,
     gift_card_id integer not null,
     order_payment_id integer not null,
     credit integer not null default 0,
