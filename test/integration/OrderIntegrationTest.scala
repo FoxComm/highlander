@@ -98,7 +98,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       val response = POST(s"v1/orders/${order.referenceNumber}/increase-remorse-period")
 
       val result = parse(response.bodyText).extract[NewRemorsePeriod]
-      result.remorsePeriod must === (order.remorsePeriod + 15)
+      result.remorsePeriod must === (order.remorsePeriodInMinutes + 15)
     }
 
     "increases remorse period only when in RemorseHold status" in {
@@ -107,7 +107,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.BadRequest)
 
       val newOrder = Orders._findById(order.id).extract.result.headOption.run().futureValue.get
-      newOrder.remorsePeriod must === (order.remorsePeriod)
+      newOrder.remorsePeriodInMinutes must === (order.remorsePeriodInMinutes)
     }
 
     "locks an order" in {

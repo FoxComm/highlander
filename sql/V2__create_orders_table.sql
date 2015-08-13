@@ -8,7 +8,7 @@ create table orders (
     updated_at timestamp without time zone default (now() at time zone 'utc'),
     deleted_at timestamp without time zone null,
     placed_at timestamp without time zone null,
-    remorse_period int default 30,
+    remorse_period_in_minutes int default 30,
     foreign key (id) references inventory_events(id) on update restrict on delete restrict,
     constraint valid_reference_number check (length(reference_number) > 0),
     constraint valid_status check (status in ('cart','ordered','fraudHold','remorseHold','manualHold','canceled',

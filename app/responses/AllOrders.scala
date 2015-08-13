@@ -51,7 +51,7 @@ object AllOrders {
         paymentStatus = None,
         placedAt = order.placedAt,
         remorsePeriod = order.status match {
-          case RemorseHold ⇒ Some(order.remorsePeriod)
+          case RemorseHold ⇒ Some(order.remorsePeriodInMinutes)
           case _ ⇒ None
         },
         total = grandTotal

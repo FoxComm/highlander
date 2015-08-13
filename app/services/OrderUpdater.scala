@@ -83,11 +83,11 @@ object OrderUpdater {
     order.status match {
       case RemorseHold ⇒
         val q = for {
-          _ ← Orders.update(order.copy(remorsePeriod = order.remorsePeriod + 15))
+          _ ← Orders.update(order.copy(remorsePeriodInMinutes = order.remorsePeriodInMinutes + 15))
           newOrder ← Orders._findById(order.id).result.headOption
         } yield newOrder
         db.run(q).map {
-          case Some(newOrder) ⇒ Good(NewRemorsePeriod(newOrder.remorsePeriod))
+          case Some(newOrder) ⇒ Good(NewRemorsePeriod(newOrder.remorsePeriodInMinutes))
           case None ⇒ Bad(List(GeneralFailure("Error during update")))
         }
       case _ ⇒ Future.successful(Bad(List(GeneralFailure("Order is not in RemorseHold status"))))
