@@ -15,6 +15,7 @@ module.exports = function(env) {
 
   function auth() {
     switch(env) {
+      case 'staging': return {user: 'admin@admin.com', password: 'password' };
       case 'phoenix': return {user: 'admin@admin.com', password: 'password' };
       default: return null;
     }
