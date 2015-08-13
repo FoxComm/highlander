@@ -65,10 +65,12 @@ object Http {
                                             (implicit ec: ExecutionContext, db: Database): Future[HttpResponse] = {
 
     finder.flatMap {
-      case Some(order) if !order.locked ⇒ f(order).map(renderGoodOrFailures)
+      case Some(order) if !order.locked ⇒
+        f(order).map(renderGoodOrFailures)
       case Some(order) if order.locked ⇒
         Future.successful(renderFailure(Seq(OrderLockedFailure(order.referenceNumber))))
-      case None ⇒ Future.successful(notFoundResponse)
+      case None ⇒
+        Future.successful(notFoundResponse)
     }
   }
 
