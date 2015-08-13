@@ -99,10 +99,9 @@ object OrderUpdater {
     if (order.locked) {
       Future.successful(Bad(List(OrderLockedFailure(order.referenceNumber))))
     } else {
-      val queries = DBIO.seq(
-        Orders.update(order.copy(locked = true)),
-        OrderLockEvents += OrderLockEvent(orderId = order.id, lockedBy = admin.id)
-      )
+      val lock = Orders.update(order.copy(locked = true))
+      val blame = OrderLockEvents += OrderLockEvent(orderId = order.id, lockedBy = admin.id)
+      val queries = (lock >> blame).transactionally
       db.run(queries).flatMap { _ ⇒
         FullOrder.fromOrder(order).map(Good(_))
       }
