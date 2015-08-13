@@ -4,7 +4,7 @@ import org.joda.time.DateTime
 import org.scalatest.time.{Milliseconds, Seconds, Span}
 import payloads.{UpdateOrderPayload, CreateAddressPayload, CreateCreditCard}
 import responses.{AdminNotes, FullOrder}
-import services.NoteManager
+import services.{GeneralFailure, Failures, NoteManager}
 import services.OrderUpdater.NewRemorsePeriod
 import slick.driver.PostgresDriver.api._
 import util.{IntegrationTestBase, StripeSupport}
@@ -19,6 +19,8 @@ class OrderIntegrationTest extends IntegrationTestBase
   import concurrent.ExecutionContext.Implicits.global
   import org.json4s.jackson.JsonMethods._
   import Extensions._
+
+  type Errors = Map[String, Seq[String]]
 
   "returns new items" in {
     pending
@@ -131,6 +133,8 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       val response = POST(s"v1/orders/${order.referenceNumber}/lock")
       response.status must === (StatusCodes.BadRequest)
+      val errors = parse(response.bodyText).extract[Errors]
+      errors.head must === ("errors" → Seq("Order is locked"))
     }
 
     "unlocks an order" in {
@@ -145,7 +149,10 @@ class OrderIntegrationTest extends IntegrationTestBase
     "refuses to unlock an already unlocked order" in {
       val order = Orders.save(Factories.order).run().futureValue
       val response = POST(s"v1/orders/${order.referenceNumber}/unlock")
+
       response.status must === (StatusCodes.BadRequest)
+      val errors = parse(response.bodyText).extract[Errors]
+      errors.head must === ("errors" → Seq("Order is not locked"))
     }
   }
 
@@ -170,7 +177,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         s"v1/orders/${order.referenceNumber}/payment-methods/credit-card",
         payload.copy(cvv = "", holderName = ""))
 
-      val errors = parse(response.bodyText).extract[Map[String, Seq[String]]]
+      val errors = parse(response.bodyText).extract[Errors]
 
       errors must === (Map("errors" -> Seq("holderName must not be empty", "cvv must match regular expression " +
         "'[0-9]{3,4}'")))
@@ -185,7 +192,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         payload.copy(number = StripeSupport.declinedCard))
 
       val body = response.bodyText
-      val errors = parse(body).extract[Map[String, Seq[String]]]
+      val errors = parse(body).extract[Errors]
 
       errors must === (Map("errors" -> Seq("Your card was declined.")))
       response.status must === (StatusCodes.BadRequest)
