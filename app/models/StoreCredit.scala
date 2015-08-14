@@ -74,9 +74,10 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
   idLens = GenLens[StoreCredit](_.id)
   )(new StoreCredits(_)){
 
-  def debit(storeCredit: StoreCredit, debit: Int = 0, capture: Boolean)
+  def debit(storeCredit: StoreCredit, orderPaymentId: Int, debit: Int = 0, capture: Boolean)
     (implicit ec: ExecutionContext): DBIO[StoreCreditAdjustment] = {
-    val adjustment = StoreCreditAdjustment(storeCreditId = storeCredit.id, debit = debit, capture = capture)
+    val adjustment = StoreCreditAdjustment(storeCreditId = storeCredit.id, orderPaymentId = orderPaymentId,
+      debit = debit, capture = capture)
     StoreCreditAdjustments.save(adjustment)
   }
 

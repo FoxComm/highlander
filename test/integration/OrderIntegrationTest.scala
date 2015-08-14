@@ -87,7 +87,8 @@ class OrderIntegrationTest extends IntegrationTestBase
       responseOrder.lineItems.head.status must === (OrderLineItem.Canceled)
 
       // Testing via DB as currently FullOrder returns 'order.status' as 'payment.status'
-      OrderPayments.findAllByOrderId(order.id).futureValue.head.status must === ("cancelAuth")
+      fail("fix me")
+      // OrderPayments.findAllByOrderId(order.id).futureValue.head.status must === ("cancelAuth")
     }
   }
 

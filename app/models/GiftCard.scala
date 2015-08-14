@@ -79,9 +79,10 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
   idLens = GenLens[GiftCard](_.id)
   )(new GiftCards(_)){
 
-  def adjust(giftCard: GiftCard, debit: Int = 0, credit: Int = 0, capture: Boolean)
+  def adjust(giftCard: GiftCard, orderPaymentId: Int, debit: Int = 0, credit: Int = 0, capture: Boolean)
     (implicit ec: ExecutionContext): DBIO[GiftCardAdjustment] = {
-    val adjustment = GiftCardAdjustment(giftCardId = giftCard.id, debit = debit, credit = credit, capture = capture)
+    val adjustment = GiftCardAdjustment(giftCardId = giftCard.id, orderPaymentId = orderPaymentId,
+      debit = debit, credit = credit, capture = capture)
     GiftCardAdjustments.save(adjustment)
   }
 }

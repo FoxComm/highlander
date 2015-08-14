@@ -13,7 +13,10 @@ class GiftCardAdjustmentTest extends IntegrationTestBase {
       val inserts = for {
         origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
         gc ← GiftCards.save(Factories.giftCard.copy(originId = origin.id))
-        adjustment ← GiftCards.adjust(giftCard = gc, debit = 0, credit = -1, capture = false)
+        payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id,
+          paymentMethodId = gc.id))
+        adjustment ← GiftCards.adjust(giftCard = gc, orderPaymentId = payment.id, debit = 0, credit = -1, capture =
+          false)
       } yield (gc, adjustment)
 
       val failure = inserts.run().failed.futureValue
@@ -24,7 +27,10 @@ class GiftCardAdjustmentTest extends IntegrationTestBase {
       val inserts = for {
         origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
         gc ← GiftCards.save(Factories.giftCard.copy(originId = origin.id))
-        adjustment ← GiftCards.adjust(giftCard = gc, debit = 50, credit = 50, capture = false)
+        payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id,
+          paymentMethodId = gc.id))
+        adjustment ← GiftCards.adjust(giftCard = gc, orderPaymentId = payment.id, debit = 50, credit = 50, capture =
+          false)
       } yield (gc, adjustment)
 
       val failure = inserts.run().failed.futureValue
@@ -35,7 +41,10 @@ class GiftCardAdjustmentTest extends IntegrationTestBase {
       val (_, adjustment) = (for {
         origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
         gc ← GiftCards.save(Factories.giftCard.copy(originId = origin.id, originalBalance = 50))
-        adjustment ← GiftCards.adjust(giftCard = gc, debit = 50, credit = 0, capture = true)
+        payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id,
+          paymentMethodId = gc.id))
+        adjustment ← GiftCards.adjust(giftCard = gc, orderPaymentId = payment.id, debit = 50, credit = 0, capture =
+          true)
       } yield (gc, adjustment)).run().futureValue
 
       adjustment.id must === (1)
@@ -45,14 +54,16 @@ class GiftCardAdjustmentTest extends IntegrationTestBase {
       val gc = (for {
         origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
         gc ← GiftCards.save(Factories.giftCard.copy(originId = origin.id, originalBalance = 500))
-        _ ← GiftCards.adjust(giftCard = gc, debit = 50, credit = 0, capture = true)
-        _ ← GiftCards.adjust(giftCard = gc, debit = 25, credit = 0, capture = true)
-        _ ← GiftCards.adjust(giftCard = gc, debit = 15, credit = 0, capture = true)
-        _ ← GiftCards.adjust(giftCard = gc, debit = 10, credit = 0, capture = true)
-        _ ← GiftCards.adjust(giftCard = gc, debit = 100, credit = 0, capture = false)
-        _ ← GiftCards.adjust(giftCard = gc, debit = 50, credit = 0, capture = false)
-        _ ← GiftCards.adjust(giftCard = gc, debit = 50, credit = 0, capture = false)
-        _ ← GiftCards.adjust(giftCard = gc, debit = 200, credit = 0, capture = true)
+        payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id,
+          paymentMethodId = gc.id))
+        _ ← GiftCards.adjust(giftCard = gc, orderPaymentId = payment.id, debit = 50, credit = 0, capture = true)
+        _ ← GiftCards.adjust(giftCard = gc, orderPaymentId = payment.id, debit = 25, credit = 0, capture = true)
+        _ ← GiftCards.adjust(giftCard = gc, orderPaymentId = payment.id, debit = 15, credit = 0, capture = true)
+        _ ← GiftCards.adjust(giftCard = gc, orderPaymentId = payment.id, debit = 10, credit = 0, capture = true)
+        _ ← GiftCards.adjust(giftCard = gc, orderPaymentId = payment.id, debit = 100, credit = 0, capture = false)
+        _ ← GiftCards.adjust(giftCard = gc, orderPaymentId = payment.id, debit = 50, credit = 0, capture = false)
+        _ ← GiftCards.adjust(giftCard = gc, orderPaymentId = payment.id, debit = 50, credit = 0, capture = false)
+        _ ← GiftCards.adjust(giftCard = gc, orderPaymentId = payment.id, debit = 200, credit = 0, capture = true)
         gc ← GiftCards.findById(gc.id)
       } yield gc.get).run().futureValue
 
@@ -63,10 +74,13 @@ class GiftCardAdjustmentTest extends IntegrationTestBase {
 
   trait Fixture {
     val adminFactory = Factories.storeAdmin
-    val (admin, reason) = (for {
+    val (admin, reason, order) = (for {
+      customer ← Customers.save(Factories.customer)
       admin ← (StoreAdmins.returningId += adminFactory).map { id ⇒ adminFactory.copy(id = id) }
       reason ← Reasons.save(Factories.reason.copy(storeAdminId = admin.id))
-    } yield (admin, reason)).run().futureValue
+      order ← Orders.save(Factories.order.copy(customerId = customer.id))
+      reason ← Reasons.save(Factories.reason.copy(storeAdminId = admin.id))
+    } yield (admin, reason, order)).run().futureValue
   }
 }
 
