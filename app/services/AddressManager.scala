@@ -1,9 +1,9 @@
 package services
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{Future, ExecutionContext}
 
 import cats.data.Validated.{Invalid, Valid}
-import models.{Address, Addresses, Region, Regions}
+import models.{OrderShippingAddresses, Address, Addresses, Region, Regions}
 import payloads.CreateAddressPayload
 import responses.Addresses.Root
 import responses.{Addresses ⇒ Response}
@@ -58,4 +58,50 @@ object AddressManager {
     (implicit ec: ExecutionContext, db: Database): Result[Int] =
     db.run(Addresses.findShippingDefaultByCustomerId(customerId).map(_.isDefaultShipping).update(false)).flatMap(Result
       .good)
+
+  def getDisplayAddress(customer: models.Customer)
+    (implicit ec: ExecutionContext, db: Database): Future[Option[Root]] = {
+    val actions = for {
+      defaultShipping ← Addresses.findShippingDefaultByCustomerId(customer.id).result.headOption
+
+      lastOrderShipping ← defaultShipping match {
+        case Some(a) ⇒
+          DBIO.successful(None)
+        case None ⇒
+          for {
+            order ← models.Orders._findByCustomer(customer)
+              .filter(_.status =!= (models.Order.Cart: models.Order.Status))
+              .sortBy(_.id.desc)
+              .result.headOption
+
+            address ← order.map { o ⇒
+              OrderShippingAddresses.findByOrderId(o.id).result.headOption
+            }.getOrElse(DBIO.successful(None))
+          } yield address
+      }
+
+      state ← (defaultShipping, lastOrderShipping) match {
+        case (Some(ds), _) ⇒
+          for {
+            state ← States.findById(ds.stateId)
+          } yield state
+        case (None, Some(los)) ⇒
+          for {
+            state ← States.findById(los.stateId)
+          } yield state
+        case (None, None) ⇒
+          DBIO.successful(None)
+      }
+    } yield (defaultShipping, lastOrderShipping, state)
+
+    db.run(actions.transactionally).map {
+      case (Some(address), _, Some(state)) ⇒
+        Some(Response.build(address, state))
+      case (None, Some(shippingAddress), Some(state)) ⇒
+        val address = Address.fromOrderShippingAddress(shippingAddress)
+        Some(Response.build(address, state))
+      case (_, _, None) ⇒ None
+      case (None, None, _) ⇒ None
+    }
+  }
 }
