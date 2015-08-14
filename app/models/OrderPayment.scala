@@ -1,14 +1,14 @@
 package models
 
+import scala.concurrent.{ExecutionContext, Future}
+
+import com.stripe.model.{Customer ⇒ StripeCustomer}
+import models.PaymentMethods._
 import monocle.macros.GenLens
+import slick.driver.PostgresDriver.api._
+import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.Money._
 import utils._
-import PaymentMethods._
-
-import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
-import scala.concurrent.{ExecutionContext, Future}
-import com.stripe.model.{Customer => StripeCustomer}
 
 final case class OrderPayment(id: Int = 0, orderId: Int = 0, amount: Option[Int] = None,
   currency: Currency = Currency.USD, paymentMethodId: Int, paymentMethodType: PaymentMethods.Type)
@@ -50,9 +50,8 @@ object OrderPayments extends TableQueryWithId[OrderPayment, OrderPayments](
   def update(payment: OrderPayment)(implicit db: Database): Future[Int] =
     this._findById(payment.id).update(payment).run()
 
-  def findAllByOrderId(id: Int)(implicit ec: ExecutionContext, db: Database): Future[Seq[OrderPayment]] = {
-    db.run(this.filter(_.id === id).result)
-  }
+  def findAllByOrderId(id: Int): Query[OrderPayments, OrderPayment, Seq] =
+    filter(_.id === id)
 
   def findAllPaymentsFor(order: Order)
                         (implicit ec: ExecutionContext, db: Database): Future[Seq[(OrderPayment, CreditCard)]] = {

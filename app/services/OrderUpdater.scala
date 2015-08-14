@@ -128,6 +128,19 @@ object OrderUpdater {
     }
   }
 
+  def deletePayment(order: Order, paymentId: Int)
+    (implicit ec: ExecutionContext, db: Database): Future[Int Or NotFoundFailure] = {
+    db.run(OrderPayments.findAllByOrderId(order.id)
+      .filter(_.paymentMethodId === paymentId)
+      .delete).map { rowsAffected ⇒
+      if (rowsAffected == 1) {
+        Good(1)
+      } else {
+        Bad(NotFoundFailure(s"order payment method with id=$paymentId not found"))
+      }
+    }
+  }
+
   private def createShippingAddressFromPayload(address: Address, order: Order)
     (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failure] = {
 
