@@ -119,14 +119,11 @@ object Seeds {
       Note(referenceId = 1, referenceType = Note.Order, storeAdminId = 1, body = "How did a donkey even place an order on our website?")
     )
 
-    def orderPayment =
-      OrderPayment(paymentMethodId = 1, paymentMethodType = PaymentMethods.CreditCard)
+    def orderPayment = OrderPayment.build(creditCard)
 
-    def giftCardPayment =
-      OrderPayment(paymentMethodId = 1, paymentMethodType = PaymentMethods.GiftCard)
+    def giftCardPayment = OrderPayment.build(giftCard)
 
-    def storeCreditPayment =
-      OrderPayment(paymentMethodId = 1, paymentMethodType = PaymentMethods.StoreCredit)
+    def storeCreditPayment = OrderPayment.build(storeCredit)
 
     def skus: Seq[Sku] = Seq(Sku(id = 0, name = Some("Flonkey"), price = 33), Sku(name = Some("Shark"), price = 45), Sku(name = Some("Dolphin"), price = 88))
 

@@ -197,6 +197,15 @@ object Admin {
                   }
               }
             }
+          } ~
+          (post & path("gift-cards") & entity(as[payloads.GiftCardPayment]) & pathEnd) { payload ⇒
+            complete {
+              OrderUpdater.addGiftCard(refNum, payload).map {
+                case Bad(NotFoundFailure(f))  ⇒ renderNotFoundFailure(NotFoundFailure(f))
+                case Bad(f)                   ⇒ renderFailure(Seq(f))
+                case Good(orderPayment)       ⇒ render(orderPayment)
+              }
+            }
           }
         } ~
         pathPrefix("notes") {
