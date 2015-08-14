@@ -71,19 +71,8 @@ class CheckoutTest extends IntegrationTestBase with Inside with TypeCheckedTripl
       }
     }
 
-    "Authorizes each payment" ignore { /** Needs Stripe mocks */
-      val (order, payment) = testData()
-
-      val checkout = new Checkout(order)
-      val result   = checkout.authorizePayments.futureValue
-
-      val (authedPayment, errors) = result.collectFirst {
-        case (p, e) if p.id == payment.id ⇒ (p, e)
-      }.get
-
+    "Authorizes each payment" in pendingUntilFixed { /** Needs Stripe mocks */
       fail("fix me")
-      // authedPayment.chargeId mustNot be ('empty)
-      errors mustBe ('empty)
     }
   }
 
