@@ -1,6 +1,6 @@
 create table credit_cards (
     id integer primary key,
-    customer_id integer,
+    customer_id integer not null,
     billing_address_id integer not null,
     gateway_customer_id character varying(255) not null,
     -- gateway_id integer not null, TODO: add lookup table
@@ -17,6 +17,8 @@ create table credit_cards (
 );
 
 create index credit_cards_customer_id_idx on credit_cards (customer_id);
+
+create unique index credit_cards_default_idx on credit_cards (customer_id, is_default);
 
 create trigger set_payment_method_id_trg
     before insert
