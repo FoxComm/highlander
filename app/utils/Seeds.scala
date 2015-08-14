@@ -21,9 +21,10 @@ object Seeds {
     shippingMethods: Seq[ShippingMethod], shippingPriceRules: Seq[ShippingPriceRule],
     shippingMethodRuleMappings: Seq[ShippingMethodPriceRule], orderCriteria: Seq[OrderCriterion],
     orderPriceCriteria: Seq[OrderPriceCriterion], priceRuleCriteriaMappings: Seq[ShippingPriceRuleOrderCriterion],
-    skus: Seq[Sku], orderLineItems: Seq[OrderLineItem], shipment: Shipment, paymentMethods: PaymentMethods)
+    skus: Seq[Sku], orderLineItems: Seq[OrderLineItem], shipment: Shipment, paymentMethods: AllPaymentMethods)
 
-  final case class PaymentMethods(giftCard: GiftCard = Factories.giftCard, storeCredit: StoreCredit = Factories.storeCredit)
+  final case class AllPaymentMethods(giftCard: GiftCard = Factories.giftCard, storeCredit: StoreCredit = Factories
+    .storeCredit)
 
   def run()(implicit db: Database): dbio.DBIOAction[(Option[Int], Order, Address, OrderShippingAddress, CreditCard,
     GiftCard, StoreCredit),
@@ -49,7 +50,7 @@ object Seeds {
       priceRuleCriteriaMappings = Factories.priceRuleCriteriaMappings,
       orderLineItems = Factories.orderLineItems,
       shipment = Factories.shipment,
-      paymentMethods = PaymentMethods(giftCard = Factories.giftCard, storeCredit = Factories.storeCredit)
+      paymentMethods = AllPaymentMethods(giftCard = Factories.giftCard, storeCredit = Factories.storeCredit)
     )
 
     val failures = (s.customers.map { _.validate } ++ List(s.storeAdmin.validate, s.order.validate, s.address.validate,
@@ -118,8 +119,13 @@ object Seeds {
     )
 
     def orderPayment =
-      OrderPayment(paymentMethodId = 1, paymentMethodType = "stripe", appliedAmount = 10, status = "auth",
-        responseCode = "ok")
+      OrderPayment(paymentMethodId = 1, paymentMethodType = PaymentMethods.CreditCard)
+
+    def giftCardPayment =
+      OrderPayment(paymentMethodId = 1, paymentMethodType = PaymentMethods.GiftCard)
+
+    def storeCreditPayment =
+      OrderPayment(paymentMethodId = 1, paymentMethodType = PaymentMethods.StoreCredit)
 
     def skus: Seq[Sku] = Seq(Sku(id = 0, name = Some("Flonkey"), price = 33), Sku(name = Some("Shark"), price = 45), Sku(name = Some("Dolphin"), price = 88))
 

@@ -7,7 +7,8 @@ import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 import scala.concurrent.{ExecutionContext, Future}
 
-final case class StoreCreditAdjustment(id: Int = 0, storeCreditId: Int, debit: Int, capture: Boolean)
+final case class StoreCreditAdjustment(id: Int = 0, storeCreditId: Int, orderPaymentId: Int,
+  debit: Int, capture: Boolean)
   extends ModelWithIdParameter
 
 object StoreCreditAdjustment {}
@@ -18,11 +19,14 @@ class StoreCreditAdjustments(tag: Tag)
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def storeCreditId = column[Int]("store_credit_id")
+  def orderPaymentId = column[Int]("order_payment_id")
   def debit = column[Int]("debit")
   def capture = column[Boolean]("capture")
 
-  def * = (id, storeCreditId, debit, capture) <> ((StoreCreditAdjustment.apply _).tupled,
-    StoreCreditAdjustment.unapply)
+  def * = (id, storeCreditId, orderPaymentId,
+    debit, capture) <> ((StoreCreditAdjustment.apply _).tupled, StoreCreditAdjustment.unapply)
+
+  def payment = foreignKey(OrderPayments.tableName, orderPaymentId, OrderPayments)(_.id)
 }
 
 object StoreCreditAdjustments

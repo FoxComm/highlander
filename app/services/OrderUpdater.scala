@@ -37,14 +37,16 @@ object OrderUpdater {
         .map(_.status)
         .update(OrderLineItem.Canceled)
 
-      val updateOrderPayments = OrderPayments
-        .filter(_.orderId.inSetBind(orderIds))
-        .map(_.status)
-        .update("cancelAuth")
+      // TODO: canceling an order must cascade to status on each payment type not order_payments
+//      val updateOrderPayments = OrderPayments
+//        .filter(_.orderId.inSetBind(orderIds))
+//        .map(_.status)
+//        .update("cancelAuth")
 
       val updateOrder = Orders.filter(_.id.inSetBind(orderIds)).map(_.status).update(newStatus)
 
-      (updateLineItems >> updateOrderPayments >> updateOrder).transactionally
+      // (updateLineItems >> updateOrderPayments >> updateOrder).transactionally
+      (updateLineItems >> updateOrder).transactionally
     }
 
     def updateQueries(orderIds: Seq[Int]) = newStatus match {

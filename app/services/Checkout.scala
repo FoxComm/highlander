@@ -58,8 +58,9 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
     } yield authorizePayment(payment, creditCard)
   }
 
+  // TODO: we must do this *after* auth'ing GC/SC
   private def authorizePayment(payment : OrderPayment, creditCard : CreditCard) = {
-    creditCard.authorize(payment.appliedAmount).flatMap { or ⇒
+    creditCard.authorize(payment.amount.getOrElse(-50)).flatMap { or ⇒
       or.fold(
       { chargeId ⇒  updateOrderPaymentWithCharge(payment, chargeId, or) },
       { _ ⇒ Future.successful((payment, or))})
@@ -92,8 +93,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
   }
 
   private def updateOrderPaymentWithCharge(payment : OrderPayment, chargeId : String, or: String Or Failures) = {
-    val paymentWithCharge = payment.copy(chargeId = Some(chargeId))
-    OrderPayments.update(paymentWithCharge).map { _ ⇒ (paymentWithCharge, or) }
+    OrderPayments.update(payment).map { _ ⇒ (payment, or) }
   }
 
   private def hasLineItems = {

@@ -64,8 +64,8 @@ object FullOrder {
 
     val displayPayment = payment.map { case (op, cc) ⇒
       DisplayPayment(
-        amount = op.appliedAmount,
-        status = op.status,
+        amount = op.amount.getOrElse(0),
+        status = "fixme",
         paymentMethod = DisplayPaymentMethod(
           cardExp = s"${cc.expMonth}/${cc.expYear}",
           cardNumber = s"xxx-xxxx-xxxx-${cc.lastFour}"
