@@ -23,7 +23,10 @@ class OrderBillingAddressTest extends IntegrationTestBase {
     val (order, billingAddress) = (for {
       customer ← Customers.save(Factories.customer)
       order ← Orders.save(Factories.order.copy(customerId = customer.id))
-      orderPayment ← OrderPayments.save(Factories.orderPayment.copy(orderId = order.id))
+      address ← Addresses.save(Factories.address.copy(customerId = customer.id))
+      creditCard ← CreditCards.save(Factories.creditCard.copy(customerId = customer.id, billingAddressId = address.id))
+      orderPayment ← OrderPayments.save(Factories.orderPayment.copy(orderId = order.id,
+        paymentMethodId = creditCard.id))
       billingAddress ← OrderBillingAddresses.save(Factories.billingAddress.copy(orderPaymentId = orderPayment.id))
     } yield (order, billingAddress)).run().futureValue
   }

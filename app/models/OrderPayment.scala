@@ -4,7 +4,6 @@ import monocle.macros.GenLens
 import utils.Money._
 import utils._
 import PaymentMethods._
-import cats.data.Validated.{invalid, valid}
 
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
@@ -12,17 +11,8 @@ import scala.concurrent.{ExecutionContext, Future}
 import com.stripe.model.{Customer => StripeCustomer}
 
 final case class OrderPayment(id: Int = 0, orderId: Int = 0, amount: Option[Int] = None,
-  paymentMethodId: Int, paymentMethodType: PaymentMethods.Type)
-  extends ModelWithIdParameter {
-
-  type Validated = cats.data.Validated[String, cats.Id[OrderPayment]]
-
-  // TODO: use me when we improve validators or drop me
-  def validate: Validated = (amount, paymentMethodType) match {
-    case (Some(_), PaymentMethods.CreditCard) ⇒ invalid("cannot use an amount for a credit card")
-    case (_, _) ⇒ valid(cats.Id.pure(this))
-  }
-}
+  currency: Currency = Currency.USD, paymentMethodId: Int, paymentMethodType: PaymentMethods.Type)
+  extends ModelWithIdParameter
 
 object OrderPayment {
   def fromStripeCustomer(stripeCustomer: StripeCustomer, order: Order): OrderPayment =
@@ -40,7 +30,7 @@ class OrderPayments(tag: Tag)
   def amount = column[Option[Int]]("amount")
   def currency = column[Currency]("currency")
 
-  def * = (id, orderId, amount, paymentMethodId, paymentMethodType) <> ((OrderPayment.apply _).tupled,
+  def * = (id, orderId, amount, currency, paymentMethodId, paymentMethodType) <> ((OrderPayment.apply _).tupled,
     OrderPayment.unapply )
 }
 

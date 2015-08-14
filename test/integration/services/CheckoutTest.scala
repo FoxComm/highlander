@@ -98,7 +98,7 @@ class CheckoutTest extends IntegrationTestBase with Inside with TypeCheckedTripl
       order    ← Orders.save(orderStub.copy(customerId = customer.id))
       address  ← Addresses.save(addressStub.copy(customerId = customer.id))
       creditCard ← CreditCards.save(gatewayStub.copy(customerId = customer.id, billingAddressId = address.id))
-      payment  ← OrderPayments.save(Factories.orderPayment.copy(paymentMethodId = creditCard.id))
+      payment  ← OrderPayments.save(Factories.orderPayment.copy(orderId = order.id, paymentMethodId = creditCard.id))
     } yield (payment, order)).run().futureValue
 
     (order, payment)
