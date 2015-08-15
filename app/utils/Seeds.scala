@@ -1,6 +1,5 @@
 package utils
 
-import com.typesafe.config.ConfigFactory
 import models._
 import org.flywaydb.core.Flyway
 import org.joda.time.DateTime
@@ -201,23 +200,23 @@ object Seeds {
 
   def main(args: Array[String]): Unit = {
     Console.err.println(s"Cleaning DB and running migrations")
-    flyWayMigrate()
+    val config: com.typesafe.config.Config = utils.Config.loadWithEnv()
+    flyWayMigrate(config)
     Console.err.println(s"Inserting seeds")
-    implicit val db = Database.forConfig("db.development")
+    implicit val db = Database.forConfig("db", config)
     Await.result(db.run(run()), 5.second)
   }
 
-  private def flyWayMigrate(): Unit = {
+  private def flyWayMigrate(config: com.typesafe.config.Config): Unit = {
     val flyway = new Flyway
-    flyway.setDataSource(jdbcDataSourceFromConfig("db.development"))
+    flyway.setDataSource(jdbcDataSourceFromConfig("db", config))
     flyway.setLocations("filesystem:./sql")
     flyway.clean()
 
     flyway.migrate()
   }
 
-  private def jdbcDataSourceFromConfig(section: String) = {
-    val config = ConfigFactory.load
+  private def jdbcDataSourceFromConfig(section: String, config: com.typesafe.config.Config) = {
     val source = new PGSimpleDataSource
 
     source.setServerName(config.getString(s"$section.host"))
