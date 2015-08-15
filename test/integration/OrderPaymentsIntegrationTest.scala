@@ -7,6 +7,7 @@ import responses.{AdminNotes, FullOrder}
 import services.{GiftCardNotEnoughBalance, GiftCardNotFoundFailure, NoteManager}
 import util.{IntegrationTestBase, StripeSupport}
 import utils.Seeds.Factories
+import utils._
 import slick.driver.PostgresDriver.api._
 import Order._
 
@@ -25,7 +26,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
 
         response.status must ===(StatusCodes.OK)
-        val (p :: Nil) = OrderPayments.findAllByOrderId(order.id).futureValue.toList
+        val (p :: Nil) = OrderPayments.findAllByOrderId(order.id).result.run().futureValue.toList
 
         p.paymentMethodType must ===(PaymentMethods.GiftCard)
         p.amount must ===((Some(payload.amount)))
@@ -53,6 +54,29 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         response.status must === (StatusCodes.BadRequest)
         parseErrors(response).get.head must === (GiftCardNotEnoughBalance(giftCard, payload.amount).description.head)
       }
+    }
+  }
+
+  "deleting a payment" - {
+    "successfully deletes" in new GiftCardFixture {
+      val payload = payloads.GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance)
+      val payment = services.OrderUpdater.addGiftCard(order.referenceNumber, payload).futureValue.get
+
+      val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/${payment.id}")
+      response.status must === (StatusCodes.NoContent)
+
+      val payments = OrderPayments.findAllByOrderId(order.id).result.run().futureValue
+      payments must have size(0)
+    }
+
+    "fails if the order is not found" in new GiftCardFixture {
+      val response = DELETE(s"v1/orders/ABCAYXADSF/payment-methods/1")
+      response.status must === (StatusCodes.NotFound)
+    }
+
+    "fails if the payment is not found" in new GiftCardFixture {
+      val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/1")
+      response.status must === (StatusCodes.NotFound)
     }
   }
 

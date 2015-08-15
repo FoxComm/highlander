@@ -183,6 +183,18 @@ object Admin {
               renderOrNotFound(Orders.findByRefNum(refNum).result.headOption.run())
             }
           } ~
+          (delete & path(IntNumber) & pathEnd) { paymentId ⇒
+            complete {
+              Orders.findByRefNum(refNum).result.headOption.run().flatMap {
+                case None         ⇒
+                  Future.successful(notFoundResponse)
+                case Some(order)  ⇒
+                  OrderUpdater.deletePayment(order, paymentId).map { res ⇒
+                    res.fold(_ ⇒ noContentResponse, renderNotFoundFailure)
+                  }
+              }
+            }
+          } ~
           (post & path("credit-card") & entity(as[CreateCreditCard])) { reqPayment =>
             complete {
               Orders.findByRefNum(refNum).result.headOption.run().flatMap {
