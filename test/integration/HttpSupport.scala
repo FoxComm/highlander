@@ -25,6 +25,9 @@ trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with Patien
 
   private val ActorSystemNameChars = ('a' to 'z').toSet | ('A' to 'Z').toSet | ('0' to '9').toSet | Set('-', '_')
 
+  import org.json4s.jackson.JsonMethods._
+  import Extensions._
+
   /* State shared that is set / reset in withFixture subtypes */
   protected implicit var as: ActorSystem       = _
   protected implicit var fm: ActorMaterializer = _
@@ -143,6 +146,12 @@ trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with Patien
 
     port
   }
+
+  def parseErrors(response: HttpResponse)(implicit ec: ExecutionContext): Option[List[String]] =
+    parseErrors(response.bodyText)
+
+  def parseErrors(errors: String): Option[List[String]] =
+    parse(errors).extract[Map[String, List[String]]].get("errors")
 }
 
 object Extensions {

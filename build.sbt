@@ -25,7 +25,8 @@ lazy val phoenixScala = (project in file(".")).
   configs(IT).
   settings(inConfig(IT)(Defaults.testSettings)).
   settings(
-    wartremoverExcluded ++= ((baseDirectory.value / "test") ** "*.scala").get,
+    wartremoverExcluded ++= ((baseDirectory.value / "test/unit") ** "*.scala").get,
+    wartremoverExcluded ++= ((baseDirectory.value / "test/integration") ** "*.scala").get,
     wartremoverWarnings ++=
       Warts.all.filter {
         case Wart.Any      ⇒ false /** Covered by the compiler */

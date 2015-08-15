@@ -17,6 +17,15 @@ final case class OrderPayment(id: Int = 0, orderId: Int = 0, amount: Option[Int]
 object OrderPayment {
   def fromStripeCustomer(stripeCustomer: StripeCustomer, order: Order): OrderPayment =
     OrderPayment(orderId = order.id, paymentMethodId = 1, paymentMethodType = PaymentMethods.CreditCard)
+
+  def build(method: PaymentMethod): OrderPayment = method match {
+    case gc: GiftCard ⇒
+      OrderPayment(paymentMethodId = gc.id, paymentMethodType = PaymentMethods.GiftCard)
+    case cc: CreditCard ⇒
+      OrderPayment(paymentMethodId = cc.id, paymentMethodType = PaymentMethods.CreditCard)
+    case sc: StoreCredit ⇒
+      OrderPayment(paymentMethodId = sc.id, paymentMethodType = PaymentMethods.StoreCredit)
+  }
 }
 
 class OrderPayments(tag: Tag)

@@ -38,6 +38,8 @@ final case class GiftCard(id: Int = 0, originId: Int, originType: String, code: 
   }
 
   def isActive: Boolean = activeStatuses.contains(status)
+
+  def hasAvailable(amount: Int): Boolean = availableBalance >= amount
 }
 
 object GiftCard {
@@ -85,4 +87,11 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
       debit = debit, credit = credit, capture = capture)
     GiftCardAdjustments.save(adjustment)
   }
+
+  def findByCode(code: String): Query[GiftCards, GiftCard, Seq] =
+    filter(_.code === code)
+
+  override def save(giftCard: GiftCard)(implicit ec: ExecutionContext): DBIO[GiftCard] = for {
+    (id, cb, ab) ← this.returning(map { gc ⇒ (gc.id, gc.currentBalance, gc.availableBalance) }) += giftCard
+  } yield giftCard.copy(id = id, currentBalance = cb, availableBalance = ab)
 }
