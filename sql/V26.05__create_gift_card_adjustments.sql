@@ -6,12 +6,14 @@ create table gift_card_adjustments (
     credit integer not null default 0,
     debit integer not null default 0,
     capture boolean not null default false,
+    status character varying(255) not null,
     created_at timestamp without time zone default (now() at time zone 'utc'),
     foreign key (gift_card_id) references gift_cards(id) on update restrict on delete restrict,
     foreign key (order_payment_id) references order_payments(id) on update restrict on delete restrict,
     -- both credit/debit are unsigned (never negative) and only one can be > 0
     constraint valid_entry check ((credit >= 0 and debit >= 0) and (credit > 0 or debit > 0) and
-        not (credit > 0 and debit > 0))
+        not (credit > 0 and debit > 0)),
+    constraint valid_status check (status in ('auth','canceled','captured'))
 );
 
 create function update_gift_card_current_balance() returns trigger as $$
