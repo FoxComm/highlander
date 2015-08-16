@@ -28,6 +28,9 @@ final case class CreditCard(id: Int = 0, customerId: Int, billingAddressId: Int 
     cc.expYear as "credit card" is notExpired(year = cc.expYear, month = cc.expMonth)
     cc.expYear as "credit card" is withinTwentyYears(year = cc.expYear, month = cc.expMonth)
   }
+
+  // TODO: this might be false based on a deletedAt column and/or some status
+  def isActive: Boolean = true
 }
 
 object CreditCard {

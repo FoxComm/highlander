@@ -4,7 +4,8 @@ import org.joda.time.DateTime
 import org.scalatest.time.{Milliseconds, Seconds, Span}
 import payloads.{UpdateOrderPayload, CreateAddressPayload, CreateCreditCard}
 import responses.{AdminNotes, FullOrder}
-import services.{GiftCardNotEnoughBalance, GiftCardNotFoundFailure, NoteManager}
+import services.{CannotUseInactiveCreditCard, NotFoundFailure, GiftCardNotEnoughBalance, GiftCardNotFoundFailure,
+NoteManager}
 import util.{IntegrationTestBase, StripeSupport}
 import utils.Seeds.Factories
 import utils._
@@ -63,20 +64,51 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       val payment = services.OrderUpdater.addGiftCard(order.referenceNumber, payload).futureValue.get
 
       val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/${payment.id}")
-      response.status must === (StatusCodes.NoContent)
+      response.status must ===(StatusCodes.NoContent)
 
       val payments = OrderPayments.findAllByOrderId(order.id).result.run().futureValue
-      payments must have size(0)
+      payments must have size (0)
     }
 
     "fails if the order is not found" in new GiftCardFixture {
       val response = DELETE(s"v1/orders/ABCAYXADSF/payment-methods/1")
-      response.status must === (StatusCodes.NotFound)
+      response.status must ===(StatusCodes.NotFound)
     }
 
     "fails if the payment is not found" in new GiftCardFixture {
       val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/1")
-      response.status must === (StatusCodes.NotFound)
+      response.status must ===(StatusCodes.NotFound)
+    }
+  }
+
+  "credit cards" - {
+    "when added as a payment method" - {
+      "succeeds" in new CreditCardFixture {
+        val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards/${creditCard.id}")
+
+        response.status must === (StatusCodes.OK)
+        val (p :: Nil) = OrderPayments.findAllByOrderId(order.id).result.run().futureValue.toList
+
+        p.paymentMethodType must === (PaymentMethods.CreditCard)
+        p.amount must === (None)
+      }
+
+      "fails if the order is not found" in new CreditCardFixture {
+        val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards/${creditCard.id}")
+        response.status must === (StatusCodes.NotFound)
+      }
+
+      "fails if the giftCard is not found" in new CreditCardFixture {
+        val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards/99")
+        response.status must === (StatusCodes.NotFound)
+        parseErrors(response).get.head must === (NotFoundFailure(CreditCard, 99).description.head)
+      }
+
+      pendingUntilFixed { "fails if the creditCard is inActive" in new CreditCardFixture {
+        val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards/${creditCard.id}")
+        response.status must === (StatusCodes.BadRequest)
+        parseErrors(response).get.head must === (CannotUseInactiveCreditCard(creditCard).description.head)
+      } }
     }
   }
 
@@ -98,6 +130,13 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
       giftCard ← GiftCards.save(Factories.giftCard.copy(originId = origin.id))
     } yield giftCard).run().futureValue
+  }
+
+  trait CreditCardFixture extends Fixture {
+    val creditCard = (for {
+      address ← Addresses.save(Factories.address.copy(customerId = customer.id))
+      cc ← CreditCards.save(Factories.creditCard.copy(customerId = customer.id, billingAddressId = address.id))
+    } yield cc).run().futureValue
   }
 }
 

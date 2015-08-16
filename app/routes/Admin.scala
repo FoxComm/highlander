@@ -195,18 +195,12 @@ object Admin {
               }
             }
           } ~
-          (post & path("credit-card") & entity(as[CreateCreditCard])) { reqPayment =>
+          (post & path("credit-cards" / IntNumber) & pathEnd) { creditCardId ⇒
             complete {
-              Orders.findByRefNum(refNum).result.headOption.run().flatMap {
-                case None => Future.successful(notFoundResponse)
-                case Some(order) =>
-                  findCustomer(order.customerId).flatMap {
-                    case None =>
-                      Future.successful(render("Guest checkout!!"))
-
-                    case Some(customer) =>
-                      CreditCardPaymentCreator.run(order, customer, reqPayment).map(renderGoodOrFailures)
-                  }
+              OrderUpdater.addCreditCard(refNum, creditCardId).map {
+                case Bad(NotFoundFailure(f))  ⇒ renderNotFoundFailure(NotFoundFailure(f))
+                case Bad(f)                   ⇒ renderFailure(Seq(f))
+                case Good(orderPayment)       ⇒ render(orderPayment)
               }
             }
           } ~
