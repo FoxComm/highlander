@@ -8,10 +8,8 @@ import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 import scala.concurrent.{ExecutionContext, Future}
 
-import GiftCardAdjustment._
-
 final case class GiftCardAdjustment(id: Int = 0, giftCardId: Int, orderPaymentId: Int,
-  credit: Int, debit: Int, capture: Boolean, status: StoreCreditAdjustment.Status = StoreCreditAdjustment.Auth)
+  credit: Int, debit: Int, status: GiftCardAdjustment.Status = GiftCardAdjustment.Auth)
   extends ModelWithIdParameter {
 }
 
@@ -37,11 +35,10 @@ class GiftCardAdjustments(tag: Tag)
   def orderPaymentId = column[Int]("order_payment_id")
   def credit = column[Int]("credit")
   def debit = column[Int]("debit")
-  def capture = column[Boolean]("capture")
-  def status = column[StoreCreditAdjustment.Status]("status")
+  def status = column[GiftCardAdjustment.Status]("status")
 
   def * = (id, giftCardId, orderPaymentId,
-    credit, debit, capture, status) <> ((GiftCardAdjustment.apply _).tupled, GiftCardAdjustment.unapply)
+    credit, debit, status) <> ((GiftCardAdjustment.apply _).tupled, GiftCardAdjustment.unapply)
 
   def payment = foreignKey(OrderPayments.tableName, orderPaymentId, OrderPayments)(_.id)
 }

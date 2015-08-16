@@ -21,8 +21,8 @@ class StoreCreditAdjustmentTest extends IntegrationTestBase {
 
       val adjustments = Table(
         ("adjustments"),
-        (StoreCredits.debit(storeCredit = sc, orderPaymentId = payment.id, debit = -1, capture = false)),
-        (StoreCredits.debit(storeCredit = sc, orderPaymentId = payment.id, debit = 0, capture = false))
+        (StoreCredits.auth(storeCredit = sc, orderPaymentId = payment.id, amount = -1)),
+        (StoreCredits.auth(storeCredit = sc, orderPaymentId = payment.id, amount = 0))
       )
 
       forAll(adjustments) { adjustment ⇒
@@ -37,14 +37,14 @@ class StoreCreditAdjustmentTest extends IntegrationTestBase {
         sc ← StoreCredits.save(Factories.storeCredit.copy(originalBalance = 500, originId = origin.id))
         payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id,
           paymentMethodId = sc.id))
-        _ ← StoreCredits.debit(storeCredit = sc, orderPaymentId = payment.id, debit = 50, capture = true)
-        _ ← StoreCredits.debit(storeCredit = sc, orderPaymentId = payment.id, debit = 25, capture = true)
-        _ ← StoreCredits.debit(storeCredit = sc, orderPaymentId = payment.id, debit = 15, capture = true)
-        _ ← StoreCredits.debit(storeCredit = sc, orderPaymentId = payment.id, debit = 10, capture = true)
-        _ ← StoreCredits.debit(storeCredit = sc, orderPaymentId = payment.id, debit = 100, capture = false)
-        _ ← StoreCredits.debit(storeCredit = sc, orderPaymentId = payment.id, debit = 50, capture = false)
-        _ ← StoreCredits.debit(storeCredit = sc, orderPaymentId = payment.id, debit = 50, capture = false)
-        _ ← StoreCredits.debit(storeCredit = sc, orderPaymentId = payment.id, debit = 200, capture = true)
+        _ ← StoreCredits.capture(storeCredit = sc, orderPaymentId = payment.id, amount = 50)
+        _ ← StoreCredits.capture(storeCredit = sc, orderPaymentId = payment.id, amount = 25)
+        _ ← StoreCredits.capture(storeCredit = sc, orderPaymentId = payment.id, amount = 15)
+        _ ← StoreCredits.capture(storeCredit = sc, orderPaymentId = payment.id, amount = 10)
+        _ ← StoreCredits.auth(storeCredit = sc, orderPaymentId = payment.id, amount = 100)
+        _ ← StoreCredits.auth(storeCredit = sc, orderPaymentId = payment.id, amount = 50)
+        _ ← StoreCredits.auth(storeCredit = sc, orderPaymentId = payment.id, amount = 50)
+        _ ← StoreCredits.capture(storeCredit = sc, orderPaymentId = payment.id, amount = 200)
         sc ← StoreCredits.findById(sc.id)
       } yield sc.get).run().futureValue
 

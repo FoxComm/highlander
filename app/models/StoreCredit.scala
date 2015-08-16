@@ -74,12 +74,15 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
   idLens = GenLens[StoreCredit](_.id)
   )(new StoreCredits(_)){
 
-  def debit(storeCredit: StoreCredit, orderPaymentId: Int, debit: Int = 0, capture: Boolean)
-    (implicit ec: ExecutionContext): DBIO[StoreCreditAdjustment] = {
-    val adjustment = StoreCreditAdjustment(storeCreditId = storeCredit.id, orderPaymentId = orderPaymentId,
-      debit = debit, capture = capture)
-    StoreCreditAdjustments.save(adjustment)
-  }
+  import StoreCreditAdjustment.{Status, Auth, Capture}
+
+  def auth(storeCredit: StoreCredit, orderPaymentId: Int, amount: Int = 0)
+    (implicit ec: ExecutionContext): DBIO[StoreCreditAdjustment] =
+    debit(storeCredit = storeCredit, orderPaymentId = orderPaymentId, amount = amount, status = Auth)
+
+  def capture(storeCredit: StoreCredit, orderPaymentId: Int, amount: Int = 0)
+    (implicit ec: ExecutionContext): DBIO[StoreCreditAdjustment] =
+    debit(storeCredit = storeCredit, orderPaymentId = orderPaymentId, amount = amount, status = Capture)
 
   def findAllByCustomerId(customerId: Int)(implicit ec: ExecutionContext, db: Database): Future[Seq[StoreCredit]] =
     _findAllByCustomerId(customerId).run()
@@ -93,4 +96,11 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
 
   def _findByIdAndCustomerId(id: Int, customerId: Int)(implicit ec: ExecutionContext): DBIO[Option[StoreCredit]] =
     filter(_.customerId === customerId).filter(_.id === id).take(1).result.headOption
+
+  private def debit(storeCredit: StoreCredit, orderPaymentId: Int, amount: Int = 0, status: Status = Auth)
+    (implicit ec: ExecutionContext): DBIO[StoreCreditAdjustment] = {
+    val adjustment = StoreCreditAdjustment(storeCreditId = storeCredit.id, orderPaymentId = orderPaymentId,
+      debit = amount, status = status)
+    StoreCreditAdjustments.save(adjustment)
+  }
 }
