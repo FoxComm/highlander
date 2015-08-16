@@ -51,6 +51,26 @@ class StoreCreditAdjustmentTest extends IntegrationTestBase {
       sc.availableBalance must === (0)
       sc.currentBalance must === (200)
     }
+
+    "cancels an adjustment and removes its effect on current/available balances" in new Fixture {
+      val (sc, payment) = (for {
+        origin ← StoreCreditManuals.save(Factories.storeCreditManual.copy(adminId = admin.id, reasonId = reason.id))
+        sc ← StoreCredits.save(Factories.storeCredit.copy(originalBalance = 500, originId = origin.id))
+        payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = sc.id))
+      } yield (sc, payment)).run().futureValue
+
+      val debits = List(50, 25, 15, 10)
+      val adjustments = db.run(DBIO.sequence(debits.map { amount ⇒
+        StoreCredits.capture(storeCredit = sc, orderPaymentId = payment.id, amount = amount)
+      })).futureValue
+
+      db.run(DBIO.sequence(adjustments.map { adj ⇒
+        StoreCreditAdjustments.cancel(adj.id)
+      })).futureValue
+
+      val finalSc = StoreCredits.findById(sc.id).run().futureValue.get
+      (finalSc.originalBalance, finalSc.availableBalance, finalSc.currentBalance) must === ((500, 500, 500))
+    }
   }
 
   trait Fixture {

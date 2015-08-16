@@ -17,6 +17,17 @@ declare
     adjustment integer default 0;
 begin
     adjustment = new.debit;
+
+    -- canceling an adjustment should remove its monetary change from the gc
+    if new.status = 'canceled' and old.status != 'canceled' then
+        update store_credits
+            set current_balance = current_balance + adjustment,
+                available_balance = available_balance + adjustment
+                where id = new.store_credit_id;
+        return new;
+    end if;
+
+    -- handle credit or debit for auth or capture
     if new.status = 'capture' then
         update store_credits
             set current_balance = current_balance - adjustment,
@@ -25,12 +36,19 @@ begin
     else
         update store_credits set available_balance = available_balance - adjustment where id = new.store_credit_id;
     end if;
+
     return new;
 end;
 $$ language plpgsql;
 
-create trigger update_store_credit_current_balance
+create trigger set_store_credit_current_balance_trg
     after insert
+    on store_credit_adjustments
+    for each row
+    execute procedure update_store_credit_current_balance();
+
+create trigger update_store_credit_current_balance_trg
+    after update
     on store_credit_adjustments
     for each row
     execute procedure update_store_credit_current_balance();

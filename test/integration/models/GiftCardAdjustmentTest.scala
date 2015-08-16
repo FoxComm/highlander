@@ -13,8 +13,7 @@ class GiftCardAdjustmentTest extends IntegrationTestBase {
       val inserts = for {
         origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
         gc ← GiftCards.save(Factories.giftCard.copy(originId = origin.id))
-        payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id,
-          paymentMethodId = gc.id))
+        payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = gc.id))
         adjustment ← GiftCards.auth(giftCard = gc, orderPaymentId = payment.id, debit = 0, credit = -1)
       } yield (gc, adjustment)
 
@@ -26,8 +25,7 @@ class GiftCardAdjustmentTest extends IntegrationTestBase {
       val inserts = for {
         origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
         gc ← GiftCards.save(Factories.giftCard.copy(originId = origin.id))
-        payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id,
-          paymentMethodId = gc.id))
+        payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = gc.id))
         adjustment ← GiftCards.auth(giftCard = gc, orderPaymentId = payment.id, debit = 50, credit = 50)
       } yield (gc, adjustment)
 
@@ -39,8 +37,7 @@ class GiftCardAdjustmentTest extends IntegrationTestBase {
       val (_, adjustment) = (for {
         origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
         gc ← GiftCards.save(Factories.giftCard.copy(originId = origin.id, originalBalance = 50))
-        payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id,
-          paymentMethodId = gc.id))
+        payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = gc.id))
         adjustment ← GiftCards.capture(giftCard = gc, orderPaymentId = payment.id, debit = 50, credit = 0)
       } yield (gc, adjustment)).run().futureValue
 
@@ -51,8 +48,7 @@ class GiftCardAdjustmentTest extends IntegrationTestBase {
       val gc = (for {
         origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
         gc ← GiftCards.save(Factories.giftCard.copy(originId = origin.id, originalBalance = 500))
-        payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id,
-          paymentMethodId = gc.id))
+        payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = gc.id))
         _ ← GiftCards.capture(giftCard = gc, orderPaymentId = payment.id, debit = 50, credit = 0)
         _ ← GiftCards.capture(giftCard = gc, orderPaymentId = payment.id, debit = 25, credit = 0)
         _ ← GiftCards.capture(giftCard = gc, orderPaymentId = payment.id, debit = 15, credit = 0)
@@ -66,6 +62,26 @@ class GiftCardAdjustmentTest extends IntegrationTestBase {
 
       gc.availableBalance must === (0)
       gc.currentBalance must === (200)
+    }
+
+    "cancels an adjustment and removes its effect on current/available balances" in new Fixture {
+      val (gc, payment) = (for {
+        origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
+        gc ← GiftCards.save(Factories.giftCard.copy(originId = origin.id, originalBalance = 500))
+        payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = gc.id))
+      } yield (gc, payment)).run().futureValue
+
+      val debits = List(50, 25, 15, 10)
+      val adjustments = db.run(DBIO.sequence(debits.map { amount ⇒
+        GiftCards.capture(giftCard = gc, orderPaymentId = payment.id, debit = amount, credit = 0)
+      })).futureValue
+
+      db.run(DBIO.sequence(adjustments.map { adj ⇒
+        GiftCardAdjustments.cancel(adj.id)
+      })).futureValue
+
+      val finalGc = GiftCards.findById(gc.id).run().futureValue.get
+      (finalGc.originalBalance, finalGc.availableBalance, finalGc.currentBalance) must === ((500, 500, 500))
     }
   }
 

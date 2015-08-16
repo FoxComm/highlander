@@ -1,6 +1,8 @@
 package models
 
 import com.pellucid.sealerate
+import slick.dbio.Effect.Write
+import slick.profile.FixedSqlAction
 import utils.{ADT, GenericTable, TableQueryWithId, ModelWithIdParameter, RichTable}
 
 import monocle.macros.GenLens
@@ -46,4 +48,8 @@ class GiftCardAdjustments(tag: Tag)
 object GiftCardAdjustments extends TableQueryWithId[GiftCardAdjustment, GiftCardAdjustments](
   idLens = GenLens[GiftCardAdjustment](_.id)
   )(new GiftCardAdjustments(_)){
+
+  import GiftCardAdjustment._
+
+  def cancel(id: Int): DBIO[Int] = filter(_.id === id).map(_.status).update(Canceled)
 }

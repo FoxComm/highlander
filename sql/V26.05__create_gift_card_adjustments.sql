@@ -25,6 +25,16 @@ begin
         adjustment := new.credit;
     end if;
 
+    -- canceling an adjustment should remove its monetary change from the gc
+    if new.status = 'canceled' and old.status != 'canceled' then
+        update gift_cards
+            set current_balance = current_balance - adjustment,
+                available_balance = available_balance - adjustment
+                where id = new.gift_card_id;
+        return new;
+    end if;
+
+    -- handle credit or debit for auth or capture
     if new.status = 'capture' then
         update gift_cards
             set current_balance = current_balance + adjustment,
@@ -38,8 +48,14 @@ begin
 end;
 $$ language plpgsql;
 
-create trigger update_gift_card_current_balance
+create trigger set_gift_card_current_balance_trg
     after insert
+    on gift_card_adjustments
+    for each row
+    execute procedure update_gift_card_current_balance();
+
+create trigger update_gift_card_current_balance_trg
+    after update
     on gift_card_adjustments
     for each row
     execute procedure update_gift_card_current_balance();

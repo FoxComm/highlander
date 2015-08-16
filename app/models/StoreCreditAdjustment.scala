@@ -45,5 +45,9 @@ object StoreCreditAdjustments
   extends TableQueryWithId[StoreCreditAdjustment, StoreCreditAdjustments](
   idLens = GenLens[StoreCreditAdjustment](_.id)
   )(new StoreCreditAdjustments(_)){
+
+  import StoreCreditAdjustment._
+
+  def cancel(id: Int): DBIO[Int] = filter(_.id === id).map(_.status).update(Canceled)
 }
 
