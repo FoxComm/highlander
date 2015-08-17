@@ -25,9 +25,7 @@ final case class CreditCardCharge(id: Int = 0, creditCardId: Int, orderPaymentId
 
   val fsm: Map[Status, Set[Status]] = Map(
     Auth →
-      Set(PartialCapture, FullCapture, FailedCapture, CanceledAuth, ExpiredAuth),
-    PartialCapture →
-      Set(FullCapture),
+      Set(FullCapture, FailedCapture, CanceledAuth, ExpiredAuth),
     ExpiredAuth →
       Set(Auth)
   )
@@ -40,7 +38,6 @@ object CreditCardCharge {
   case object CanceledAuth extends Status
   case object FailedCapture extends Status
   case object FullCapture extends Status
-  case object PartialCapture extends Status
 
   object Status extends ADT[Status] {
     def types = sealerate.values[Status]
