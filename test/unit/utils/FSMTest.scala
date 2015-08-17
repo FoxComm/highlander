@@ -36,6 +36,5 @@ class FSMTest extends TestBase {
     "cannot transition from a state which has no mapping step" in {
       Robot(state = BreakItDown).transition(Pop) mustBe 'left
     }
-
   }
 }
