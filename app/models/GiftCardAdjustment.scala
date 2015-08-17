@@ -1,6 +1,9 @@
 package models
 
-import utils.{GenericTable, TableQueryWithId, ModelWithIdParameter, RichTable}
+import com.pellucid.sealerate
+import slick.dbio.Effect.Write
+import slick.profile.FixedSqlAction
+import utils.{ADT, GenericTable, TableQueryWithId, ModelWithIdParameter, RichTable}
 
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
@@ -8,23 +11,36 @@ import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 import scala.concurrent.{ExecutionContext, Future}
 
 final case class GiftCardAdjustment(id: Int = 0, giftCardId: Int, orderPaymentId: Int,
-  credit: Int, debit: Int, capture: Boolean)
+  credit: Int, debit: Int, status: GiftCardAdjustment.Status = GiftCardAdjustment.Auth)
   extends ModelWithIdParameter {
 }
 
-object GiftCardAdjustment {}
+object GiftCardAdjustment {
+  sealed trait Status
+  case object Auth extends Status
+  case object Canceled extends Status
+  case object Capture extends Status
 
-class GiftCardAdjustments(tag: Tag) extends GenericTable.TableWithId[GiftCardAdjustment](tag, "gift_card_adjustments")
-with RichTable {
+  object Status extends ADT[Status] {
+    def types = sealerate.values[Status]
+  }
+
+  implicit val statusColumnType = Status.slickColumn
+}
+
+class GiftCardAdjustments(tag: Tag)
+  extends GenericTable.TableWithId[GiftCardAdjustment](tag, "gift_card_adjustments")
+  with RichTable {
+
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def giftCardId = column[Int]("gift_card_id")
   def orderPaymentId = column[Int]("order_payment_id")
   def credit = column[Int]("credit")
   def debit = column[Int]("debit")
-  def capture = column[Boolean]("capture")
+  def status = column[GiftCardAdjustment.Status]("status")
 
   def * = (id, giftCardId, orderPaymentId,
-    credit, debit, capture) <> ((GiftCardAdjustment.apply _).tupled, GiftCardAdjustment.unapply)
+    credit, debit, status) <> ((GiftCardAdjustment.apply _).tupled, GiftCardAdjustment.unapply)
 
   def payment = foreignKey(OrderPayments.tableName, orderPaymentId, OrderPayments)(_.id)
 }
@@ -32,4 +48,8 @@ with RichTable {
 object GiftCardAdjustments extends TableQueryWithId[GiftCardAdjustment, GiftCardAdjustments](
   idLens = GenLens[GiftCardAdjustment](_.id)
   )(new GiftCardAdjustments(_)){
+
+  import GiftCardAdjustment._
+
+  def cancel(id: Int): DBIO[Int] = filter(_.id === id).map(_.status).update(Canceled)
 }
