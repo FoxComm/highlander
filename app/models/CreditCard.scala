@@ -5,6 +5,8 @@ import scala.concurrent.{ExecutionContext, Future}
 import com.stripe.model.{Customer ⇒ StripeCustomer}
 import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import monocle.macros.GenLens
+import org.joda.time.DateTime
+import com.github.tototoshi.slick.JdbcJodaSupport._
 import org.scalactic.Or
 import payloads.CreateCreditCard
 import services.{Failures, StripeGateway}
@@ -14,7 +16,8 @@ import utils._
 import validators._
 
 final case class CreditCard(id: Int = 0, customerId: Int, billingAddressId: Int = 0, gatewayCustomerId: String,
-  lastFour: String, expMonth: Int, expYear: Int, isDefault: Boolean = false)
+  lastFour: String, expMonth: Int, expYear: Int, isDefault: Boolean = false,
+  deletedAt: Option[DateTime] = None, deletedBy: Option[Int] = None)
   extends PaymentMethod
   with ModelWithIdParameter
   with Validation[CreditCard] {
@@ -52,9 +55,11 @@ class CreditCards(tag: Tag)
   def expMonth = column[Int]("exp_month")
   def expYear = column[Int]("exp_year")
   def isDefault = column[Boolean]("is_default")
+  def deletedAt = column[Option[DateTime]]("deleted_at")
+  def deletedBy = column[Option[Int]]("deleted_by")
 
   def * = (id, customerId, billingAddressId, gatewayCustomerId,
-    lastFour, expMonth, expYear, isDefault) <> ((CreditCard.apply _).tupled, CreditCard.unapply)
+    lastFour, expMonth, expYear, isDefault, deletedAt, deletedBy) <> ((CreditCard.apply _).tupled, CreditCard.unapply)
 
   def customer        = foreignKey(Customers.tableName, customerId, Customers)(_.id)
   def billingAddress  = foreignKey(Addresses.tableName, billingAddressId, Addresses)(_.id)

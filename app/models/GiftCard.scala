@@ -81,12 +81,15 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
   idLens = GenLens[GiftCard](_.id)
   )(new GiftCards(_)){
 
-  def adjust(giftCard: GiftCard, orderPaymentId: Int, debit: Int = 0, credit: Int = 0, capture: Boolean)
-    (implicit ec: ExecutionContext): DBIO[GiftCardAdjustment] = {
-    val adjustment = GiftCardAdjustment(giftCardId = giftCard.id, orderPaymentId = orderPaymentId,
-      debit = debit, credit = credit, capture = capture)
-    GiftCardAdjustments.save(adjustment)
-  }
+  import GiftCardAdjustment.{Status, Auth, Capture}
+
+  def auth(giftCard: GiftCard, orderPaymentId: Int, debit: Int = 0, credit: Int = 0)
+    (implicit ec: ExecutionContext): DBIO[GiftCardAdjustment] =
+    adjust(giftCard, orderPaymentId, debit = debit, credit = credit, status = Auth)
+
+  def capture(giftCard: GiftCard, orderPaymentId: Int, debit: Int = 0, credit: Int = 0)
+    (implicit ec: ExecutionContext): DBIO[GiftCardAdjustment] =
+    adjust(giftCard, orderPaymentId, debit = debit, credit = credit, status = Capture)
 
   def findByCode(code: String): Query[GiftCards, GiftCard, Seq] =
     filter(_.code === code)
@@ -94,4 +97,11 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
   override def save(giftCard: GiftCard)(implicit ec: ExecutionContext): DBIO[GiftCard] = for {
     (id, cb, ab) ← this.returning(map { gc ⇒ (gc.id, gc.currentBalance, gc.availableBalance) }) += giftCard
   } yield giftCard.copy(id = id, currentBalance = cb, availableBalance = ab)
+
+  private def adjust(giftCard: GiftCard, orderPaymentId: Int, debit: Int = 0, credit: Int = 0, status: Status = Auth)
+    (implicit ec: ExecutionContext): DBIO[GiftCardAdjustment] = {
+    val adjustment = GiftCardAdjustment(giftCardId = giftCard.id, orderPaymentId = orderPaymentId,
+      debit = debit, credit = credit, status = status)
+    GiftCardAdjustments.save(adjustment)
+  }
 }

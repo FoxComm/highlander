@@ -38,33 +38,50 @@ class CustomerIntegrationTest extends IntegrationTestBase
       c.disabled must === (true)
     }
 
-    "sets the isDefault flag on a credit card" in new Fixture {
-      val creditCard = CreditCards.save(Factories.creditCard.copy(isDefault = false,
-        customerId = customer.id, billingAddressId = address.id)).run().futureValue
+    "credit cards" - {
+      "sets the isDefault flag on a credit card" in new Fixture {
+        val creditCard = CreditCards.save(Factories.creditCard.copy(isDefault = false,
+          customerId = customer.id, billingAddressId = address.id)).run().futureValue
 
-      val payload = payloads.ToggleDefaultCreditCard(isDefault = true)
-      val response = POST(
-        s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}/default",
-        payload)
-      response.status must ===(StatusCodes.OK)
+        val payload = payloads.ToggleDefaultCreditCard(isDefault = true)
+        val response = POST(
+          s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}/default",
+          payload)
+        response.status must ===(StatusCodes.OK)
 
-      val cc = parse(response.bodyText).extract[CreditCard]
-      cc.isDefault must === (true)
-    }
+        val cc = parse(response.bodyText).extract[CreditCard]
+        cc.isDefault must ===(true)
+      }
 
-    "fails to set the credit card as default if a default currently exists" in new Fixture {
-      val default = CreditCards.save(Factories.creditCard.copy(isDefault = true, customerId = customer.id,
-        billingAddressId = address.id)).run().futureValue
-      val nonDefault = CreditCards.save(Factories.creditCard.copy(isDefault = false, customerId = customer.id,
-        billingAddressId = address.id)).run().futureValue
+      "fails to set the credit card as default if a default currently exists" in new Fixture {
+        val default = CreditCards.save(Factories.creditCard.copy(isDefault = true, customerId = customer.id,
+          billingAddressId = address.id)).run().futureValue
+        val nonDefault = CreditCards.save(Factories.creditCard.copy(isDefault = false, customerId = customer.id,
+          billingAddressId = address.id)).run().futureValue
 
-      val payload = payloads.ToggleDefaultCreditCard(isDefault = true)
-      val response = POST(
-        s"v1/customers/${customer.id}/payment-methods/credit-cards/${nonDefault.id}/default",
-        payload)
+        val payload = payloads.ToggleDefaultCreditCard(isDefault = true)
+        val response = POST(
+          s"v1/customers/${customer.id}/payment-methods/credit-cards/${nonDefault.id}/default",
+          payload)
 
-      response.status must ===(StatusCodes.BadRequest)
-      response.bodyText must include("customer already has default credit card")
+        response.status must ===(StatusCodes.BadRequest)
+        response.bodyText must include("customer already has default credit card")
+      }
+
+      "when deleting a credit card" - {
+        "succeeds if the card exists" in new Fixture {
+          val creditCard = CreditCards.save(Factories.creditCard.copy(customerId = customer.id,
+            billingAddressId = address.id)).run().futureValue
+          val response = DELETE(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}")
+
+          response.status must ===(StatusCodes.NoContent)
+        }
+
+        "fails if the card cannot be found" in new Fixture {
+          val response = DELETE(s"v1/customers/${customer.id}/payment-methods/credit-cards/99")
+          response.status must ===(StatusCodes.NotFound)
+        }
+      }
     }
   }
 
