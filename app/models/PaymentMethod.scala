@@ -16,7 +16,7 @@ abstract class PaymentMethod {
   def authorize(amount: Int)(implicit ec: ExecutionContext): Future[String Or Failures]
 }
 
-object PaymentMethods {
+object PaymentMethod {
   sealed trait Type
   case object CreditCard extends Type
   case object GiftCard extends Type
@@ -27,14 +27,5 @@ object PaymentMethods {
   }
 
   implicit val paymentMethodTypeColumnType = Type.slickColumn
-
-  // TODO: Make polymorphic for real.
-  def findById(id: Int)(implicit db: Database): Future[Option[CreditCard]] = {
-    CreditCards.findById(id)
-  }
 }
-
-sealed trait PaymentStatus
-
-
 

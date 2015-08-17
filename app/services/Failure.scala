@@ -64,3 +64,7 @@ final case class GiftCardNotEnoughBalance(gc: GiftCard, requestedAmount: Int) ex
 final case class CannotUseInactiveCreditCard(cc: CreditCard) extends Failure {
   override def description = List(s"creditCard with id=${cc.id} is inactive")
 }
+
+final case class CartAlreadyHasCreditCard(order: Order) extends Failure {
+  override def description = List(s"order with referenceNumber=${order.referenceNumber} already has a credit card")
+}

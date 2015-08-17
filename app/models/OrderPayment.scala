@@ -3,7 +3,6 @@ package models
 import scala.concurrent.{ExecutionContext, Future}
 
 import com.stripe.model.{Customer ⇒ StripeCustomer}
-import models.PaymentMethods._
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
@@ -11,20 +10,20 @@ import utils.Money._
 import utils._
 
 final case class OrderPayment(id: Int = 0, orderId: Int = 0, amount: Option[Int] = None,
-  currency: Currency = Currency.USD, paymentMethodId: Int, paymentMethodType: PaymentMethods.Type)
+  currency: Currency = Currency.USD, paymentMethodId: Int, paymentMethodType: PaymentMethod.Type)
   extends ModelWithIdParameter
 
 object OrderPayment {
   def fromStripeCustomer(stripeCustomer: StripeCustomer, order: Order): OrderPayment =
-    OrderPayment(orderId = order.id, paymentMethodId = 1, paymentMethodType = PaymentMethods.CreditCard)
+    OrderPayment(orderId = order.id, paymentMethodId = 1, paymentMethodType = PaymentMethod.CreditCard)
 
   def build(method: PaymentMethod): OrderPayment = method match {
     case gc: GiftCard ⇒
-      OrderPayment(paymentMethodId = gc.id, paymentMethodType = PaymentMethods.GiftCard)
+      OrderPayment(paymentMethodId = gc.id, paymentMethodType = PaymentMethod.GiftCard)
     case cc: CreditCard ⇒
-      OrderPayment(paymentMethodId = cc.id, paymentMethodType = PaymentMethods.CreditCard)
+      OrderPayment(paymentMethodId = cc.id, paymentMethodType = PaymentMethod.CreditCard)
     case sc: StoreCredit ⇒
-      OrderPayment(paymentMethodId = sc.id, paymentMethodType = PaymentMethods.StoreCredit)
+      OrderPayment(paymentMethodId = sc.id, paymentMethodType = PaymentMethod.StoreCredit)
   }
 }
 
@@ -35,7 +34,7 @@ class OrderPayments(tag: Tag)
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def orderId = column[Int]("order_id")
   def paymentMethodId = column[Int]("payment_method_id")
-  def paymentMethodType = column[PaymentMethods.Type]("payment_method_type")
+  def paymentMethodType = column[PaymentMethod.Type]("payment_method_type")
   def amount = column[Option[Int]]("amount")
   def currency = column[Currency]("currency")
 
@@ -46,6 +45,8 @@ class OrderPayments(tag: Tag)
 object OrderPayments extends TableQueryWithId[OrderPayment, OrderPayments](
   idLens = GenLens[OrderPayment](_.id)
 )(new OrderPayments(_)){
+
+  import models.{PaymentMethod ⇒ Pay}
 
   def update(payment: OrderPayment)(implicit db: Database): Future[Int] =
     this._findById(payment.id).update(payment).run()
@@ -64,4 +65,7 @@ object OrderPayments extends TableQueryWithId[OrderPayment, OrderPayments](
       cards    ← CreditCards if cards.id === payments.id
     } yield (payments, cards)
   }
+
+  def findAllCreditCardsForOrder(orderId: Rep[Int]): Query[OrderPayments, OrderPayment, Seq] =
+    filter(_.orderId === orderId).filter(_.paymentMethodType === (Pay.CreditCard: Pay.Type))
 }
