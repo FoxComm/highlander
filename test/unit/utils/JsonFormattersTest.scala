@@ -5,7 +5,7 @@ import scalaz.Show
 import com.pellucid.sealerate
 import util.TestBase
 
-import models.{GiftCard, Auth, CreditCardPaymentStatus, Order}
+import models.{GiftCard, CreditCardCharge, Order}
 import utils.Money.Currency
 
 class JsonFormattersTest extends TestBase {
@@ -16,15 +16,15 @@ class JsonFormattersTest extends TestBase {
 
   implicit val formats = phoenixFormats
 
-  case class Test(order: Order.Status, gc: GiftCard.Status, cc: CreditCardPaymentStatus)
+  case class Test(order: Order.Status, gc: GiftCard.Status, cc: CreditCardCharge.Status)
   case class Product(price: Int, currency: Currency)
 
   "Adt serialization" - {
     "can (de-)serialize JSON" in {
-      val ast = parse(write(Test(order = Order.Cart, cc = Auth, gc = GiftCard.Hold)))
+      val ast = parse(write(Test(order = Order.Cart, cc = CreditCardCharge.Auth, gc = GiftCard.Hold)))
       (ast \ "order").extract[Order.Status] mustBe Order.Cart
       (ast \ "gc").extract[GiftCard.Status] mustBe GiftCard.Hold
-      (ast \ "cc").extract[CreditCardPaymentStatus] mustBe Auth
+      (ast \ "cc").extract[CreditCardCharge.Status] mustBe CreditCardCharge.Auth
     }
   }
 
