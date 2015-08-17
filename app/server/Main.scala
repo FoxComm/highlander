@@ -1,4 +1,5 @@
 import scala.concurrent.Future
+import scala.concurrent.duration._
 import scala.util.Success
 import akka.actor.ActorSystem
 import akka.agent.Agent
@@ -21,6 +22,7 @@ object Main {
   def main(args: Array[String]): Unit = {
     val service = new Service()
     service.bind()
+    service.startRemorseTimers
   }
 }
 
@@ -73,4 +75,23 @@ class Service(
       case Some(b) ⇒ b.unbind()
       case None    ⇒ Future.successful(())
     }
+
+  def startRemorseTimers() = {
+    system.scheduler.schedule(Duration.Zero, 1.minute)(checkRemorseTimers)
+
+    def checkRemorseTimers = {
+      val orders = Orders.filter(_.status === (Order.RemorseHold: Order.Status)).filterNot(_.locked)
+
+      val advanceToFulfillment = orders
+        .filterNot(_.remorsePeriodInMinutes > 0)
+        .map(_.status)
+        .update(Order.FulfillmentStarted)
+      db.run(advanceToFulfillment)
+
+      db.stream(orders
+        .filter(_.remorsePeriodInMinutes > 0)
+        .mutate.transactionally)
+        .foreach(mutate ⇒ mutate.row = mutate.row.copy(remorsePeriodInMinutes = mutate.row.remorsePeriodInMinutes - 1))
+    }
+  }
 }
