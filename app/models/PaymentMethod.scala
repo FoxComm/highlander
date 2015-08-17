@@ -36,15 +36,5 @@ object PaymentMethods {
 
 sealed trait PaymentStatus
 
-sealed trait CreditCardPaymentStatus extends PaymentStatus
-case object Applied extends CreditCardPaymentStatus
-case object Auth extends CreditCardPaymentStatus
-case object FailedCapture extends CreditCardPaymentStatus
-case object CanceledAuth extends CreditCardPaymentStatus
-case object ExpiredAuth extends CreditCardPaymentStatus
-
-object CreditCardPaymentStatus extends ADT[CreditCardPaymentStatus] {
-  def types = sealerate.values[CreditCardPaymentStatus]
-}
 
 
