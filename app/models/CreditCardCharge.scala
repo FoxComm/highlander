@@ -15,7 +15,7 @@ import utils._
 import validators._
 
 final case class CreditCardCharge(id: Int = 0, creditCardId: Int, orderPaymentId: Int,
-  chargeId: String, status: CreditCardCharge.Status)
+  chargeId: String, status: CreditCardCharge.Status = CreditCardCharge.Auth)
   extends ModelWithIdParameter
   with FSM[CreditCardCharge.Status] {
 
