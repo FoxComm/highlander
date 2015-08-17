@@ -17,6 +17,21 @@ import validators._
 final case class CreditCardCharge(id: Int = 0, creditCardId: Int, orderPaymentId: Int,
   chargeId: String, status: CreditCardCharge.Status)
   extends ModelWithIdParameter
+  with FSM[CreditCardCharge.Status] {
+
+  import CreditCardCharge._
+
+  val state: Status = status
+
+  val fsm: Map[Status, Set[Status]] = Map(
+    Auth →
+      Set(PartialCapture, FullCapture, FailedCapture, CanceledAuth, ExpiredAuth),
+    PartialCapture →
+      Set(FullCapture),
+    ExpiredAuth →
+      Set(Auth)
+  )
+}
 
 object CreditCardCharge {
   sealed trait Status

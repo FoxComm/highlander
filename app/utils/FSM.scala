@@ -4,9 +4,9 @@ import cats.data.Xor
 import Xor.{left, right}
 
 trait FSM[A] {
-  def state: A
+  val state: A
 
-  def fsm: Map[A, Set[A]]
+  val fsm: Map[A, Set[A]]
 
   def transition(newState: A): Xor[String, A] = fsm.get(state) match {
     case Some(states) if states.contains(newState) ⇒

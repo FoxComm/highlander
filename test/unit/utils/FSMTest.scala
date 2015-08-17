@@ -1,6 +1,5 @@
 package utils
 
-import models.{CreditCardCharge, GiftCard, Order}
 import util.TestBase
 
 class FSMTest extends TestBase {
@@ -13,19 +12,30 @@ class FSMTest extends TestBase {
   case object BreakItDown extends Operation
 
   case class Robot(state: Operation) extends FSM[Operation] {
-    def fsm: Map[Operation, Set[Operation]] = Map(
+    val fsm: Map[Operation, Set[Operation]] = Map(
       Pop → Set(Lock, LockAndPop),
       Lock → Set(Pop, PopAndLock),
       PopAndLock → Set(Pop, BreakItDown),
-      LockAndPop → Set(Lock, BreakItDown),
-      BreakItDown → Set(Pop, Lock, PopAndLock, LockAndPop)
+      LockAndPop → Set(Lock, BreakItDown)
     )
   }
 
   "FSM" - {
     "can transition" in {
       Robot(state = Pop).transition(Lock) mustBe 'right
-      Robot(state = Pop).transition(BreakItDown) mustBe 'left
     }
+
+    "returns new state upon valid transition" in {
+      Robot(state = Pop).transition(Lock).fold(identity, _.toString) must ===("Lock")
+    }
+
+    "cannot transition to an invalid state" in {
+      Robot(state = BreakItDown).transition(Pop) mustBe 'left
+    }
+
+    "cannot transition from a state which has no mapping step" in {
+      Robot(state = BreakItDown).transition(Pop) mustBe 'left
+    }
+
   }
 }
