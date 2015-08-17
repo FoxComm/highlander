@@ -1,6 +1,7 @@
 package utils
 
 import util.TestBase
+import org.scalatest.prop.TableDrivenPropertyChecks._
 
 class FSMTest extends TestBase {
 
@@ -21,20 +22,35 @@ class FSMTest extends TestBase {
   }
 
   "FSM" - {
-    "can transition" in {
+    "can transition successfully" in {
       Robot(state = Pop).transition(Lock) mustBe 'right
+    }
+
+    "can always transition to identity state" in {
+      val states = Table(
+        ("state"),
+        (Pop),
+        (Lock),
+        (PopAndLock),
+        (LockAndPop),
+        (BreakItDown)
+      )
+
+      forAll(states) { case (state) ⇒
+        Robot(state = state).transition(state) mustBe 'right
+      }
+    }
+
+    "cannot transition to an invalid state" in {
+      Robot(state = Pop).transition(PopAndLock) mustBe 'left
+    }
+
+    "cannot transition from a state which has no mapping step and is not identity" in {
+      Robot(state = BreakItDown).transition(Pop) mustBe 'left
     }
 
     "returns new state upon valid transition" in {
       Robot(state = Pop).transition(Lock).fold(identity, _.toString) must ===("Lock")
-    }
-
-    "cannot transition to an invalid state" in {
-      Robot(state = BreakItDown).transition(Pop) mustBe 'left
-    }
-
-    "cannot transition from a state which has no mapping step" in {
-      Robot(state = BreakItDown).transition(Pop) mustBe 'left
     }
   }
 }
