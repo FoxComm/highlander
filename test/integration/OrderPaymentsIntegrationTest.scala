@@ -111,6 +111,18 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         parseErrors(response).get.head must ===(CannotUseInactiveCreditCard(creditCard).description.head)
       }
 
+      "fails if the order is not in cart status" in new CreditCardFixture {
+        Orders.findCartByRefNum(order.referenceNumber).map(_.status).update(Order.RemorseHold)
+        val first = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards/${creditCard.id}")
+        first.status must ===(StatusCodes.OK)
+
+        val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards/${creditCard.id}")
+        response.status must === (StatusCodes.BadRequest)
+
+        val payments = OrderPayments.findAllCreditCardsForOrder(order.id).result.run().futureValue
+        payments must have size(1)
+      }
+
       "fails if the cart already has a credit card" in new CreditCardFixture {
         val first = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards/${creditCard.id}")
         first.status must ===(StatusCodes.OK)
@@ -127,7 +139,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
   trait Fixture {
     val (order, admin, customer) = (for {
       customer ← Customers.save(Factories.customer)
-      order ← Orders.save(Factories.order.copy(customerId = customer.id))
+      order ← Orders.save(Factories.order.copy(customerId = customer.id, status = Order.Cart))
       admin ← StoreAdmins.save(authedStoreAdmin)
     } yield (order, admin, customer)).run().futureValue
   }

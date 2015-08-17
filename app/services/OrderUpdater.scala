@@ -144,7 +144,7 @@ object OrderUpdater {
   def addCreditCard(refNum: String, id: Int)
     (implicit ec: ExecutionContext, db: Database): Future[OrderPayment Or Failure] = {
     db.run(for {
-      order ← Orders.findByRefNum(refNum).result.headOption
+      order ← Orders.findCartByRefNum(refNum).result.headOption
       creditCard ← CreditCards._findById(id).result.headOption
       numCards ← order.map { o ⇒
         OrderPayments.findAllCreditCardsForOrder(o.id).length.result

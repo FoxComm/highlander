@@ -103,6 +103,10 @@ object Orders extends TableQueryWithId[Order, Orders](
      (newId, refNum) <- returningIdAndReferenceNumber += order
   } yield order.copy(id = newId, referenceNumber = refNum)
 
+  // filter an existing query to carts only
+  def cartOnly(q: Query[Orders, Order, Seq]) =
+    q.filter(_.status === (Order.Cart: Order.Status))
+
   def findByCustomer(customer: Customer)(implicit ec: ExecutionContext, db: Database): Future[Seq[Order]] = {
     db.run(_findByCustomer(customer).result)
   }
@@ -111,6 +115,9 @@ object Orders extends TableQueryWithId[Order, Orders](
 
   def findByRefNum(refNum: String): Query[Orders, Order, Seq] =
     filter(_.referenceNumber === refNum)
+
+  def findCartByRefNum(refNum: String): Query[Orders, Order, Seq] =
+    cartOnly(findByRefNum(refNum))
 
   def findActiveOrderByCustomer(cust: Customer)(implicit ec: ExecutionContext, db: Database): Future[Option[Order]] =
     db.run(_findActiveOrderByCustomer(cust).result.headOption)
