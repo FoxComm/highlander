@@ -94,7 +94,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       }
 
       "fails if the order is not found" in new CreditCardFixture {
-        val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards/${creditCard.id}")
+        val response = POST(s"v1/orders/99/payment-methods/credit-cards/${creditCard.id}")
         response.status must === (StatusCodes.NotFound)
       }
 

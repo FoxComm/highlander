@@ -92,6 +92,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     */
   }
 
+  /*
   "handles credit cards" - {
     val today = new DateTime
     val customerStub = Customer(email = "yax@yax.com", password = "password", firstName = "Yax", lastName = "Fuentes")
@@ -171,6 +172,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
     */
   }
+  */
 
   "notes" - {
     "can be created by an admin for an order" in new Fixture {
