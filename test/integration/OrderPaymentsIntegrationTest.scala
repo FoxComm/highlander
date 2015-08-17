@@ -4,8 +4,8 @@ import org.joda.time.DateTime
 import org.scalatest.time.{Milliseconds, Seconds, Span}
 import payloads.{UpdateOrderPayload, CreateAddressPayload, CreateCreditCard}
 import responses.{AdminNotes, FullOrder}
-import services.{CannotUseInactiveCreditCard, NotFoundFailure, GiftCardNotEnoughBalance, GiftCardNotFoundFailure,
-NoteManager}
+import services.{CustomerManager, CannotUseInactiveCreditCard, NotFoundFailure, GiftCardNotEnoughBalance,
+GiftCardNotFoundFailure, NoteManager}
 import util.{IntegrationTestBase, StripeSupport}
 import utils.Seeds.Factories
 import utils._
@@ -104,11 +104,12 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         parseErrors(response).get.head must === (NotFoundFailure(CreditCard, 99).description.head)
       }
 
-      pendingUntilFixed { "fails if the creditCard is inActive" in new CreditCardFixture {
+      "fails if the creditCard is inActive" in new CreditCardFixture {
+        CustomerManager.deleteCreditCard(customerId = customer.id, adminId = admin.id, id = creditCard.id).futureValue
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards/${creditCard.id}")
-        response.status must === (StatusCodes.BadRequest)
-        parseErrors(response).get.head must === (CannotUseInactiveCreditCard(creditCard).description.head)
-      } }
+        response.status must ===(StatusCodes.BadRequest)
+        parseErrors(response).get.head must ===(CannotUseInactiveCreditCard(creditCard).description.head)
+      }
     }
   }
 

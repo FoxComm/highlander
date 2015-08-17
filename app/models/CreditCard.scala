@@ -32,8 +32,7 @@ final case class CreditCard(id: Int = 0, customerId: Int, billingAddressId: Int 
     cc.expYear as "credit card" is withinTwentyYears(year = cc.expYear, month = cc.expMonth)
   }
 
-  // TODO: this might be false based on a deletedAt column and/or some status
-  def isActive: Boolean = true
+  def isActive: Boolean = deletedAt.isEmpty
 }
 
 object CreditCard {
@@ -88,5 +87,4 @@ object CreditCards extends TableQueryWithId[CreditCard, CreditCards](
   def _findByIdAndIsDefault(id: Int, isDefault: Boolean): DBIO[Option[CreditCard]] =
     _findById(id).extract.filter(_.isDefault === isDefault).result.headOption
 }
-
 
