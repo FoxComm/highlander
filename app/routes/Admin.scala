@@ -104,16 +104,16 @@ object Admin {
                 result.map(renderGoodOrFailures)
               }
             } ~
-              (delete & path(IntNumber) & pathEnd) { cardId ⇒
-                complete {
-                  CustomerManager.deleteCreditCard(customerId = customerId, adminId = admin.id, id = cardId).map {
-                    case Good(_) ⇒
-                      noContentResponse
-                    case Bad(NotFoundFailure(f)) ⇒
-                      renderNotFoundFailure(NotFoundFailure(f))
-                  }
+            (delete & path(IntNumber) & pathEnd) { cardId ⇒
+              complete {
+                CustomerManager.deleteCreditCard(customerId = customerId, adminId = admin.id, id = cardId).map {
+                  case Good(_) ⇒
+                    noContentResponse
+                  case Bad(NotFoundFailure(f)) ⇒
+                    renderNotFoundFailure(NotFoundFailure(f))
                 }
               }
+            }
           } ~
           pathPrefix("store-credits") {
             (get & pathEnd) {
