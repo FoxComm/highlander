@@ -21,8 +21,8 @@ trait FSM[A, B] { self: B ⇒
 
   /** Returns a Right of a copy of the model in the correct state, or a Left if the state
     * can’t be changed. */
-  def transitionTo(newState: A): Xor[String, B] = transitionState(newState).map { newState ⇒
-    stateLens.set(newState)(this)
-  }
+  def transitionTo(newState: A): Xor[String, B] = for {
+    _ ← transitionState(newState)
+  } yield stateLens.set(newState)(this)
 }
 
