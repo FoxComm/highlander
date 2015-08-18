@@ -10,7 +10,8 @@ trait FSM[A, B] { self: B ⇒
 
   private def currentState = stateLens.get(this)
 
-  def transition(newState: A): Xor[String, A] = fsm.get(currentState) match {
+  /** Returns the new state, but does not change the model */
+  def transitionState(newState: A): Xor[String, A] = fsm.get(currentState) match {
     case Some(states) if states.contains(newState) || currentState == newState ⇒
       right(newState)
     case None if currentState == newState ⇒
@@ -19,7 +20,9 @@ trait FSM[A, B] { self: B ⇒
       left(s"could not transition from '${currentState}' to '${newState}'")
   }
 
-  def transitionTo(newState: A): Xor[String, B] = transition(newState).map { newState ⇒
+  /** Returns a Right of a copy of the model in the correct state, or a Left if the state
+    * can’t be changed. */
+  def transitionTo(newState: A): Xor[String, B] = transitionState(newState).map { newState ⇒
     stateLens.set(newState)(this)
   }
 }

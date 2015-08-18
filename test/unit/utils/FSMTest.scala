@@ -29,7 +29,7 @@ class FSMTest extends TestBase {
 
   "FSM" - {
     "can transition successfully" in {
-      Robot(state = Pop).transition(Lock) mustBe 'right
+      Robot(state = Pop).transitionState(Lock) mustBe 'right
     }
 
     "transitions the model" in {
@@ -52,20 +52,20 @@ class FSMTest extends TestBase {
       )
 
       forAll(states) { case (state) ⇒
-        Robot(state = state).transition(state) mustBe 'right
+        Robot(state = state).transitionState(state) mustBe 'right
       }
     }
 
     "cannot transition to an invalid state" in {
-      Robot(state = Pop).transition(PopAndLock) mustBe 'left
+      Robot(state = Pop).transitionState(PopAndLock) mustBe 'left
     }
 
     "cannot transition from a state which has no mapping step and is not identity" in {
-      Robot(state = BreakItDown).transition(Pop) mustBe 'left
+      Robot(state = BreakItDown).transitionState(Pop) mustBe 'left
     }
 
     "returns new state upon valid transition" in {
-      Robot(state = Pop).transition(Lock).fold(identity, _.toString) must ===("Lock")
+      Robot(state = Pop).transitionState(Lock).fold(identity, _.toString) must ===("Lock")
     }
   }
 }
