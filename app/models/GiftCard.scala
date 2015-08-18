@@ -18,7 +18,7 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 final case class GiftCard(id: Int = 0, originId: Int, originType: String, code: String,
-  currency: Currency, status: GiftCard.Status = GiftCard.New, originalBalance: Int, currentBalance: Int = 0,
+  currency: Currency, status: GiftCard.Status = GiftCard.OnHold, originalBalance: Int, currentBalance: Int = 0,
   availableBalance: Int = 0, canceledReason: Option[String] = None, reloadable: Boolean = false)
   extends PaymentMethod
   with ModelWithIdParameter
@@ -37,25 +37,20 @@ final case class GiftCard(id: Int = 0, originId: Int, originType: String, code: 
     Future.successful(Good("authenticated"))
   }
 
-  def isActive: Boolean = activeStatuses.contains(status)
+  def isActive: Boolean = status == Active
 
   def hasAvailable(amount: Int): Boolean = availableBalance >= amount
 }
 
 object GiftCard {
   sealed trait Status
-  case object New extends Status
-  case object Auth extends Status
-  case object Hold extends Status
+  case object OnHold extends Status
+  case object Active extends Status
   case object Canceled extends Status
-  case object PartiallyApplied extends Status
-  case object Applied extends Status
 
   object Status extends ADT[Status] {
     def types = sealerate.values[Status]
   }
-
-  val activeStatuses = Set[Status](New, Auth, PartiallyApplied)
 
   implicit val statusColumnType = Status.slickColumn
 }
