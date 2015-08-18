@@ -5,6 +5,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import com.pellucid.sealerate
 import com.stripe.model.{Customer ⇒ StripeCustomer}
 import com.wix.accord.dsl.{validator ⇒ createValidator, _}
+import monocle.Lens
 import monocle.macros.GenLens
 import org.scalactic.Or
 import payloads.CreateCreditCard
@@ -17,11 +18,12 @@ import validators._
 final case class CreditCardCharge(id: Int = 0, creditCardId: Int, orderPaymentId: Int,
   chargeId: String, status: CreditCardCharge.Status = CreditCardCharge.Auth)
   extends ModelWithIdParameter
-  with FSM[CreditCardCharge.Status] {
+  with FSM[CreditCardCharge.Status, CreditCardCharge] {
 
   import CreditCardCharge._
 
   val state: Status = status
+  override def stateLens: Lens[CreditCardCharge, Status] = GenLens[CreditCardCharge](_.status)
 
   val fsm: Map[Status, Set[Status]] = Map(
     Auth →

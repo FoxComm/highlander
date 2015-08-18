@@ -1,10 +1,12 @@
 package utils
 
 import cats.data.Xor
-import Xor.{left, right}
+import cats.data.Xor.{left, right}
+import monocle.Lens
 
-trait FSM[A] {
+trait FSM[A, B] { self: B ⇒
   val state: A
+  def stateLens: Lens[B, A]
 
   val fsm: Map[A, Set[A]]
 
@@ -15,6 +17,10 @@ trait FSM[A] {
       right(newState)
     case _ ⇒
       left(s"could not transition from '${state}' to '${newState}'")
+  }
+
+  def transitionTo(newState: A): Xor[String, B] = transition(newState).map { newState ⇒
+    stateLens.set(newState)(this)
   }
 }
 
