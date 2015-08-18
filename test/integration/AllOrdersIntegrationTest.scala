@@ -57,10 +57,10 @@ class AllOrdersIntegrationTest extends IntegrationTestBase with HttpSupport with
         ("foo", FulfillmentStarted),
         ("bar", FulfillmentStarted),
         ("baz", ManualHold),
-        ("qux", Cart))
+        ("qux", Canceled))
 
       all.failures must contain allOf(
-        OrderUpdateFailure("qux", "Transition from Cart to FulfillmentStarted is not allowed"),
+        OrderUpdateFailure("qux", "Transition from Canceled to FulfillmentStarted is not allowed"),
         OrderUpdateFailure("nonExistent", "Not found"))
     }
   }
@@ -71,7 +71,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase with HttpSupport with
       foo ← Orders.save(Factories.order.copy(customerId = customer.id, referenceNumber = "foo", status = FraudHold))
       bar ← Orders.save(Factories.order.copy(customerId = customer.id, referenceNumber = "bar", status = RemorseHold))
       baz ← Orders.save(Factories.order.copy(customerId = customer.id, referenceNumber = "baz", status = ManualHold))
-      qux ← Orders.save(Factories.order.copy(customerId = customer.id, referenceNumber = "qux", status = Cart))
+      qux ← Orders.save(Factories.order.copy(customerId = customer.id, referenceNumber = "qux", status = Canceled))
     } yield (customer, foo, bar)
     db.run(q).futureValue
   }

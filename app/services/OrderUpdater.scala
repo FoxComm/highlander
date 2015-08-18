@@ -53,7 +53,7 @@ object OrderUpdater {
 
       val (validTransitions, invalidTransitions) = orders
         .filterNot(_.status == newStatus)
-        .partition(o ⇒ transitionAllowed(o.status, newStatus))
+        .partition(_.transitionAllowed(newStatus))
 
       db.run(updateQueries(validTransitions.map(_.id))).map { _ ⇒
         // Failure handling
@@ -125,6 +125,8 @@ object OrderUpdater {
 
   def addStoreCredit(refNum: String, payload: StoreCreditPayment)
     (implicit ec: ExecutionContext, db: Database): Future[OrderPayment Or Failure] = {
+    Future.successful(Bad(GeneralFailure("failed")))
+    /*
     db.run(for {
       order ← Orders.findCartByRefNum(refNum)
       storeCredits ← StoreCredits._findAllByCustomerId()
@@ -141,6 +143,7 @@ object OrderUpdater {
       case (_, None) ⇒
         Future.successful(Bad(GiftCardNotFoundFailure(payload.code)))
     }
+    */
   }
 
   def deletePayment(order: Order, paymentId: Int)

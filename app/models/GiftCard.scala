@@ -1,28 +1,26 @@
 package models
 
-import com.pellucid.sealerate
-import services.{Failures, Failure}
-import slick.dbio
-import slick.dbio.Effect.{Read, Write}
-import slick.profile.FixedSqlStreamingAction
-import utils.Money._
-import utils.{ADT, GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
-import validators.nonEmptyIf
-
-import com.wix.accord.dsl.{validator => createValidator}
-import monocle.macros.GenLens
-import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
-import org.scalactic._
-import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
+import com.pellucid.sealerate
+import com.wix.accord.dsl.{validator ⇒ createValidator, _}
+import monocle.macros.GenLens
+import org.scalactic._
+import services.Failures
+import slick.driver.PostgresDriver.api._
+import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
+import utils.Money._
+import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId, Validation}
+import validators.nonEmptyIf
+import GiftCard.{Status, OnHold}
+
 final case class GiftCard(id: Int = 0, originId: Int, originType: String, code: String,
-  currency: Currency, status: GiftCard.Status = GiftCard.OnHold, originalBalance: Int, currentBalance: Int = 0,
+  currency: Currency, status: Status = OnHold, originalBalance: Int, currentBalance: Int = 0,
   availableBalance: Int = 0, canceledReason: Option[String] = None, reloadable: Boolean = false)
   extends PaymentMethod
   with ModelWithIdParameter
-  with Validation[GiftCard] {
+  with Validation[GiftCard]
+  with FSM[GiftCard.Status, GiftCard] {
 
   import GiftCard._
 
@@ -32,6 +30,13 @@ final case class GiftCard(id: Int = 0, originId: Int, originType: String, code: 
     giftCard.currentBalance should be >= 0
     giftCard.code is notEmpty
   }
+
+  def stateLens = GenLens[GiftCard](_.status)
+
+  val fsm: Map[Status, Set[Status]] = Map(
+    OnHold → Set(Active, Canceled),
+    Active → Set(OnHold, Canceled)
+  )
 
   def authorize(amount: Int)(implicit ec: ExecutionContext): Future[String Or Failures] = {
     Future.successful(Good("authenticated"))
@@ -76,7 +81,7 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
   idLens = GenLens[GiftCard](_.id)
   )(new GiftCards(_)){
 
-  import GiftCardAdjustment.{Status, Auth, Capture}
+  import GiftCardAdjustment.{Auth, Capture, Status}
 
   def auth(giftCard: GiftCard, orderPaymentId: Int, debit: Int = 0, credit: Int = 0)
     (implicit ec: ExecutionContext): DBIO[GiftCardAdjustment] =
