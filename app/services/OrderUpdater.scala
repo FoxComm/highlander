@@ -58,7 +58,7 @@ object OrderUpdater {
 
       val (validTransitions, invalidTransitions) = orders
         .filterNot(_.status == newStatus)
-        .partition(o ⇒ transitionAllowed(o.status, newStatus))
+        .partition(_.transitionAllowed(newStatus))
 
       db.run(updateQueries(validTransitions.map(_.id))).map { _ ⇒
         // Failure handling

@@ -1,16 +1,25 @@
 package models
 
 import com.pellucid.sealerate
-import utils.{ADT, GenericTable, TableQueryWithId, ModelWithIdParameter, RichTable}
-
+import models.StoreCreditAdjustment.{Auth, Status}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
-import scala.concurrent.{ExecutionContext, Future}
+import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
+import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId}
 
 final case class StoreCreditAdjustment(id: Int = 0, storeCreditId: Int, orderPaymentId: Int,
-  debit: Int, status: StoreCreditAdjustment.Status = StoreCreditAdjustment.Auth)
+  debit: Int, status: Status = Auth)
   extends ModelWithIdParameter
+  with FSM[StoreCreditAdjustment.Status, StoreCreditAdjustment] {
+
+  import StoreCreditAdjustment._
+
+  def stateLens = GenLens[StoreCreditAdjustment](_.status)
+
+  val fsm: Map[Status, Set[Status]] = Map(
+    Auth → Set(Canceled, Capture)
+  )
+}
 
 object StoreCreditAdjustment {
   sealed trait Status

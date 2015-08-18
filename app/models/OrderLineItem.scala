@@ -1,29 +1,44 @@
 package models
 
-import com.pellucid.sealerate
-import monocle.macros.GenLens
-import utils._
-import payloads.CreateAddressPayload
-
-import com.wix.accord.dsl.{validator => createValidator}
-import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
-import org.scalactic._
-import com.wix.accord.{Failure => ValidationFailure, Validator}
-import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-final case class OrderLineItem(id: Int = 0, orderId: Int, skuId: Int, status: OrderLineItem.Status = OrderLineItem.Cart) extends ModelWithIdParameter
+import com.pellucid.sealerate
+import com.wix.accord.dsl.{validator ⇒ createValidator}
+import com.wix.accord.{Failure ⇒ ValidationFailure}
+import monocle.macros.GenLens
+import slick.driver.PostgresDriver.api._
+import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
+import utils._
+import OrderLineItem.{Status, Cart}
+
+final case class OrderLineItem(id: Int = 0, orderId: Int, skuId: Int,
+  status: Status = Cart)
+  extends ModelWithIdParameter
+  with FSM[OrderLineItem.Status, OrderLineItem] {
+
+  import OrderLineItem._
+
+  def stateLens = GenLens[OrderLineItem](_.status)
+
+  val fsm: Map[Status, Set[Status]] = Map(
+    Cart →
+      Set(Pending, PreOrdered, BackOrdered, Canceled),
+    Pending →
+      Set(Shipped, Canceled),
+    PreOrdered →
+      Set(Shipped, Canceled),
+    BackOrdered →
+      Set(Shipped, Canceled)
+  )
+}
 
 object OrderLineItem{
   sealed trait Status
   case object Cart extends Status
-  case object Ordered extends Status
+  case object Pending extends Status
+  case object PreOrdered extends Status
+  case object BackOrdered extends Status
   case object Canceled extends Status
-  case object ProductionStarted extends Status
-  case object PostProductionStarted extends Status // can include creating, customizing, etc. eg. engraving
-  case object FulfillmentStarted extends Status
-  case object PartiallyShipped extends Status // would only be relevant for a complex product with componentry
   case object Shipped extends Status
 
   object Status extends ADT[Status] {
