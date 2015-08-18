@@ -48,5 +48,13 @@ class CreditCardTest extends TestBase {
         result.messages mustBe 'empty
       }
     }
+
+    "is inactive when deleted" in {
+      card.copy(deletedAt = Some(DateTime.now)).isActive must be (false)
+    }
+
+    "is active when not deleted" in {
+      card.copy(deletedAt = None).isActive must be (true)
+    }
   }
 }

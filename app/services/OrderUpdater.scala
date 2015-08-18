@@ -141,6 +141,31 @@ object OrderUpdater {
     }
   }
 
+  def addCreditCard(refNum: String, id: Int)
+    (implicit ec: ExecutionContext, db: Database): Future[OrderPayment Or Failure] = {
+    db.run(for {
+      order ← Orders.findCartByRefNum(refNum).result.headOption
+      creditCard ← CreditCards._findById(id).result.headOption
+      numCards ← order.map { o ⇒
+        OrderPayments.findAllCreditCardsForOrder(o.id).length.result
+      }.getOrElse(DBIO.successful(0))
+    } yield (order, creditCard, numCards)).flatMap {
+      case (Some(order), Some(creditCard), numCards) ⇒
+        if (creditCard.isActive && numCards == 0) {
+          val payment = OrderPayment.build(creditCard).copy(orderId = order.id, amount = None)
+          OrderPayments.save(payment).run().map(Good(_))
+        } else if (numCards > 0) {
+          Future.successful(Bad(CartAlreadyHasCreditCard(order)))
+        } else {
+          Future.successful(Bad(CannotUseInactiveCreditCard(creditCard)))
+        }
+      case (None, _, _) ⇒
+        Future.successful(Bad(OrderNotFoundFailure(refNum)))
+      case (_, None, _) ⇒
+        Future.successful(Bad(NotFoundFailure(CreditCard, id)))
+    }
+  }
+
   private def createShippingAddressFromPayload(address: Address, order: Order)
     (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failure] = {
 

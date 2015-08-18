@@ -2,7 +2,7 @@ package services
 
 import collection.immutable
 import com.stripe.exception.StripeException
-import models.{GiftCard, Order}
+import models.{CreditCard, GiftCard, Order}
 import utils.{ModelWithIdParameter, Validation}
 import utils.friendlyClassName
 
@@ -59,4 +59,12 @@ object GiftCardNotFoundFailure {
 final case class GiftCardNotEnoughBalance(gc: GiftCard, requestedAmount: Int) extends Failure {
   override def description =
     List(s"giftCard has availableBalance=${gc.availableBalance} less than requestedAmount=$requestedAmount")
+}
+
+final case class CannotUseInactiveCreditCard(cc: CreditCard) extends Failure {
+  override def description = List(s"creditCard with id=${cc.id} is inactive")
+}
+
+final case class CartAlreadyHasCreditCard(order: Order) extends Failure {
+  override def description = List(s"order with referenceNumber=${order.referenceNumber} already has a credit card")
 }
