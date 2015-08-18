@@ -1,7 +1,6 @@
 import scala.concurrent.Future
 import scala.concurrent.duration._
-import scala.util.Success
-import akka.actor.ActorSystem
+import akka.actor.{ActorSystem, Props}
 import akka.agent.Agent
 import akka.event.Logging
 import akka.http.scaladsl.Http
@@ -17,12 +16,12 @@ import org.json4s.jackson
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import services._
 import slick.driver.PostgresDriver.api._
+import utils.{RemorseTimer, Tick}
 
 object Main {
   def main(args: Array[String]): Unit = {
     val service = new Service()
     service.bind()
-    service.startRemorseTimers
   }
 }
 
@@ -76,22 +75,6 @@ class Service(
       case None    ⇒ Future.successful(())
     }
 
-  def startRemorseTimers() = {
-    system.scheduler.schedule(Duration.Zero, 1.minute)(checkRemorseTimers)
-
-    def checkRemorseTimers = {
-      val orders = Orders.filter(_.status === (Order.RemorseHold: Order.Status)).filterNot(_.locked)
-
-      val advanceToFulfillment = orders
-        .filterNot(_.remorsePeriodInMinutes > 0)
-        .map(_.status)
-        .update(Order.FulfillmentStarted)
-      db.run(advanceToFulfillment)
-
-      db.stream(orders
-        .filter(_.remorsePeriodInMinutes > 0)
-        .mutate.transactionally)
-        .foreach(mutate ⇒ mutate.row = mutate.row.copy(remorsePeriodInMinutes = mutate.row.remorsePeriodInMinutes - 1))
-    }
-  }
+  val remorseTimer = system.actorOf(Props(new RemorseTimer()))
+  system.scheduler.schedule(Duration.Zero, 1.minute, remorseTimer, Tick)
 }
