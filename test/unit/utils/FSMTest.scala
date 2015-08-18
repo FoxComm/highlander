@@ -52,7 +52,7 @@ class FSMTest extends TestBase {
       )
 
       forAll(states) { case (state) ⇒
-        Robot(state = state).transitionState(state) mustBe 'right
+        rightValue(Robot(state = state).transitionState(state))(_ must === (state))
       }
     }
 
