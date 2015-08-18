@@ -222,6 +222,15 @@ object Admin {
                 case Good(orderPayment)       ⇒ render(orderPayment)
               }
             }
+          } ~
+          (post & path("store-credit") & entity(as[payloads.StoreCreditPayment]) & pathEnd) { payload ⇒
+            complete {
+              OrderUpdater.addStoreCredit(refNum, payload).map {
+                case Bad(NotFoundFailure(f))  ⇒ renderNotFoundFailure(NotFoundFailure(f))
+                case Bad(f)                   ⇒ renderFailure(Seq(f))
+                case Good(orderPayment)       ⇒ render(orderPayment)
+              }
+            }
           }
         } ~
         pathPrefix("notes") {

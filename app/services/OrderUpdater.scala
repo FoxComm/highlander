@@ -1,19 +1,14 @@
 package services
 
-import models._
-import payloads.{GiftCardPayment, UpdateAddressPayload, BulkUpdateOrdersPayload, CreateShippingAddress,
-UpdateShippingAddress, UpdateOrderPayload}
-import slick.dbio
-import slick.dbio.Effect.{Transactional, Write}
-import utils.Http._
-import utils.TableQueryWithId
+import scala.concurrent.{ExecutionContext, Future}
 
-import utils.Validation.Result.{Failure ⇒ Invalid, Success}
+import models._
 import org.scalactic._
-import scala.concurrent.{Future, ExecutionContext}
-import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
+import payloads.{CreateShippingAddress, GiftCardPayment, StoreCreditPayment, UpdateAddressPayload, UpdateShippingAddress}
 import responses.{Addresses ⇒ Response, FullOrder}
+import slick.driver.PostgresDriver.api._
+import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
+import utils.Validation.Result.{Failure ⇒ Invalid, Success}
 
 object OrderUpdater {
 
@@ -113,6 +108,26 @@ object OrderUpdater {
     db.run(for {
       order ← Orders.findByRefNum(refNum).result.headOption
       giftCard ← GiftCards.findByCode(payload.code).result.headOption
+    } yield (order, giftCard)).flatMap {
+      case (Some(order), Some(giftCard)) ⇒
+        if (giftCard.hasAvailable(payload.amount)) {
+          val payment = OrderPayment.build(giftCard).copy(orderId = order.id, amount = Some(payload.amount))
+          OrderPayments.save(payment).run().map(Good(_))
+        } else {
+          Future.successful(Bad(GiftCardNotEnoughBalance(giftCard, payload.amount)))
+        }
+      case (None, _) ⇒
+        Future.successful(Bad(OrderNotFoundFailure(refNum)))
+      case (_, None) ⇒
+        Future.successful(Bad(GiftCardNotFoundFailure(payload.code)))
+    }
+  }
+
+  def addStoreCredit(refNum: String, payload: StoreCreditPayment)
+    (implicit ec: ExecutionContext, db: Database): Future[OrderPayment Or Failure] = {
+    db.run(for {
+      order ← Orders.findCartByRefNum(refNum)
+      storeCredits ← StoreCredits._findAllByCustomerId()
     } yield (order, giftCard)).flatMap {
       case (Some(order), Some(giftCard)) ⇒
         if (giftCard.hasAvailable(payload.amount)) {
