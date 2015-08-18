@@ -1,33 +1,40 @@
 package models
 
-import com.pellucid.sealerate
-import services.{Failures, Failure, OrderTotaler}
-import slick.dbio.Effect.Read
-import slick.profile.SqlAction
-import utils.Money._
-import utils.{ADT, GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
-import validators.nonEmptyIf
-
-import com.wix.accord.dsl.{validator => createValidator}
-import monocle.macros.GenLens
-import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
-import org.scalactic._
-import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
+
+import com.pellucid.sealerate
+import com.wix.accord.dsl.{validator ⇒ createValidator, _}
+import models.StoreCredit.{OnHold, Status}
+import monocle.macros.GenLens
+import org.scalactic._
+import services.Failures
+import slick.driver.PostgresDriver.api._
+import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
+import utils.Money._
+import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId, Validation}
+import validators.nonEmptyIf
 
 final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: String, currency: Currency,
   originalBalance: Int, currentBalance: Int = 0, availableBalance:Int = 0,
-  status: StoreCredit.Status = StoreCredit.OnHold, canceledReason: Option[String] = None)
+  status: Status = OnHold, canceledReason: Option[String] = None)
   extends PaymentMethod
   with ModelWithIdParameter
-  with Validation[StoreCredit] {
+  with Validation[StoreCredit]
+  with FSM[StoreCredit.Status, StoreCredit] {
 
   import StoreCredit._
 
   override def validator = createValidator[StoreCredit] { storeCredit =>
-    storeCredit.status as "canceledReason" is nonEmptyIf(storeCredit.status == Canceled, storeCredit.canceledReason)
+    storeCredit.status as "canceledReason" is nonEmptyIf(storeCredit.status == Canceled, storeCredit
+      .canceledReason)
   }
+
+  def stateLens = GenLens[StoreCredit](_.status)
+
+  val fsm: Map[Status, Set[Status]] = Map(
+    OnHold → Set(Active, Canceled),
+    Active → Set(OnHold, Canceled)
+  )
 
   // TODO: not sure we use this polymorphically
   def authorize(amount: Int)(implicit ec: ExecutionContext): Future[String Or Failures] = {
@@ -69,7 +76,7 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
   idLens = GenLens[StoreCredit](_.id)
   )(new StoreCredits(_)){
 
-  import StoreCreditAdjustment.{Status, Auth, Capture}
+  import StoreCreditAdjustment.{Auth, Capture, Status}
 
   def auth(storeCredit: StoreCredit, orderPaymentId: Int, amount: Int = 0)
     (implicit ec: ExecutionContext): DBIO[StoreCreditAdjustment] =
