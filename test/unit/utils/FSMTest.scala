@@ -1,10 +1,8 @@
 package utils
 
-import cats.data.Xor
-import monocle.Lens
 import monocle.macros.GenLens
-import util.TestBase
 import org.scalatest.prop.TableDrivenPropertyChecks._
+import util.TestBase
 
 class FSMTest extends TestBase {
 
