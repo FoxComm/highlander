@@ -45,7 +45,8 @@ object AllOrders {
         referenceNumber = order.referenceNumber,
         email = customer.email,
         orderStatus = order.status,
-        paymentStatus = payment.map(_.status),
+        // TODO: FIXME
+        paymentStatus = None,
         placedAt = order.placedAt,
         total = grandTotal
       )

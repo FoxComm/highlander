@@ -1,6 +1,5 @@
 package utils
 
-import com.typesafe.config.ConfigFactory
 import models._
 import org.flywaydb.core.Flyway
 import org.joda.time.DateTime
@@ -22,9 +21,10 @@ object Seeds {
     shippingMethods: Seq[ShippingMethod], shippingPriceRules: Seq[ShippingPriceRule],
     shippingMethodRuleMappings: Seq[ShippingMethodPriceRule], orderCriteria: Seq[OrderCriterion],
     orderPriceCriteria: Seq[OrderPriceCriterion], priceRuleCriteriaMappings: Seq[ShippingPriceRuleOrderCriterion],
-    skus: Seq[Sku], orderLineItems: Seq[OrderLineItem], shipment: Shipment, paymentMethods: PaymentMethods)
+    skus: Seq[Sku], orderLineItems: Seq[OrderLineItem], shipment: Shipment, paymentMethods: AllPaymentMethods)
 
-  final case class PaymentMethods(giftCard: GiftCard = Factories.giftCard, storeCredit: StoreCredit = Factories.storeCredit)
+  final case class AllPaymentMethods(giftCard: GiftCard = Factories.giftCard, storeCredit: StoreCredit = Factories
+    .storeCredit)
 
   def run()(implicit db: Database): dbio.DBIOAction[(Option[Int], Order, Address, OrderShippingAddress, CreditCard,
     GiftCard, StoreCredit),
@@ -50,7 +50,7 @@ object Seeds {
       priceRuleCriteriaMappings = Factories.priceRuleCriteriaMappings,
       orderLineItems = Factories.orderLineItems,
       shipment = Factories.shipment,
-      paymentMethods = PaymentMethods(giftCard = Factories.giftCard, storeCredit = Factories.storeCredit)
+      paymentMethods = AllPaymentMethods(giftCard = Factories.giftCard, storeCredit = Factories.storeCredit)
     )
 
     val failures = (s.customers.map { _.validate } ++ List(s.storeAdmin.validate, s.order.validate, s.address.validate,
@@ -118,9 +118,11 @@ object Seeds {
       Note(referenceId = 1, referenceType = Note.Order, storeAdminId = 1, body = "How did a donkey even place an order on our website?")
     )
 
-    def orderPayment =
-      OrderPayment(paymentMethodId = 1, paymentMethodType = "stripe", appliedAmount = 10, status = "auth",
-        responseCode = "ok")
+    def orderPayment = OrderPayment.build(creditCard)
+
+    def giftCardPayment = OrderPayment.build(giftCard)
+
+    def storeCreditPayment = OrderPayment.build(storeCredit)
 
     def skus: Seq[Sku] = Seq(Sku(id = 0, name = Some("Flonkey"), price = 33), Sku(name = Some("Shark"), price = 45), Sku(name = Some("Dolphin"), price = 88))
 
@@ -198,23 +200,23 @@ object Seeds {
 
   def main(args: Array[String]): Unit = {
     Console.err.println(s"Cleaning DB and running migrations")
-    flyWayMigrate()
+    val config: com.typesafe.config.Config = utils.Config.loadWithEnv()
+    flyWayMigrate(config)
     Console.err.println(s"Inserting seeds")
-    implicit val db = Database.forConfig("db.development")
+    implicit val db = Database.forConfig("db", config)
     Await.result(db.run(run()), 5.second)
   }
 
-  private def flyWayMigrate(): Unit = {
+  private def flyWayMigrate(config: com.typesafe.config.Config): Unit = {
     val flyway = new Flyway
-    flyway.setDataSource(jdbcDataSourceFromConfig("db.development"))
+    flyway.setDataSource(jdbcDataSourceFromConfig("db", config))
     flyway.setLocations("filesystem:./sql")
     flyway.clean()
 
     flyway.migrate()
   }
 
-  private def jdbcDataSourceFromConfig(section: String) = {
-    val config = ConfigFactory.load
+  private def jdbcDataSourceFromConfig(section: String, config: com.typesafe.config.Config) = {
     val source = new PGSimpleDataSource
 
     source.setServerName(config.getString(s"$section.host"))

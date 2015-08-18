@@ -32,21 +32,7 @@ class Service(
   implicit val serialization = jackson.Serialization
   implicit val formats = phoenixFormats
 
-  val conf: String =
-    """
-      |akka {
-      |  loglevel = "DEBUG"
-      |  loggers = ["akka.event.Logging$DefaultLogger"]
-      |  actor.debug.receive = on
-      |}
-      |
-      |http {
-      |  interface = "localhost"
-      |  port = 9090
-      |}
-    """.stripMargin
-
-  val config: Config = ConfigFactory.parseString(conf)
+  val config: Config = utils.Config.loadWithEnv()
 
   implicit val system = systemOverride.getOrElse {
     ActorSystem.create("Orders", config)
@@ -58,7 +44,7 @@ class Service(
 
   val logger = Logging(system, getClass)
 
-  implicit val db = dbOverride.getOrElse(Database.forConfig("db.development"))
+  implicit val db = dbOverride.getOrElse(Database.forConfig("db", config))
 
   implicit def storeAdminAuth: AsyncAuthenticator[StoreAdmin] = Authenticator.storeAdmin
 
@@ -72,7 +58,7 @@ class Service(
     }
   }
 
-  def bind(config: Config = ConfigFactory.parseString(conf)): Future[ServerBinding] = {
+  def bind(config: Config = config): Future[ServerBinding] = {
     Http().bindAndHandle(allRoutes, config.getString("http.interface"), config.getInt("http.port"))
   }
 }

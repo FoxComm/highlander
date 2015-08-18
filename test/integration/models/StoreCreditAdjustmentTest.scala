@@ -12,15 +12,17 @@ class StoreCreditAdjustmentTest extends IntegrationTestBase {
 
   "StoreCreditAdjustment" - {
     "debit must be greater than zero" in new Fixture {
-      val sc = (for {
+      val (sc, payment) = (for {
         origin ← StoreCreditManuals.save(Factories.storeCreditManual.copy(adminId = admin.id, reasonId = reason.id))
         sc ← StoreCredits.save(Factories.storeCredit.copy(originId = origin.id))
-      } yield sc).run().futureValue
+        payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id,
+          paymentMethodId = sc.id))
+      } yield (sc, payment)).run().futureValue
 
       val adjustments = Table(
         ("adjustments"),
-        (StoreCredits.debit(sc, -1, false)),
-        (StoreCredits.debit(sc, 0, false))
+        (StoreCredits.auth(storeCredit = sc, orderPaymentId = payment.id, amount = -1)),
+        (StoreCredits.auth(storeCredit = sc, orderPaymentId = payment.id, amount = 0))
       )
 
       forAll(adjustments) { adjustment ⇒
@@ -33,29 +35,52 @@ class StoreCreditAdjustmentTest extends IntegrationTestBase {
       val sc = (for {
         origin ← StoreCreditManuals.save(Factories.storeCreditManual.copy(adminId = admin.id, reasonId = reason.id))
         sc ← StoreCredits.save(Factories.storeCredit.copy(originalBalance = 500, originId = origin.id))
-        _ ← StoreCredits.debit(storeCredit = sc, debit = 50, capture = true)
-        _ ← StoreCredits.debit(storeCredit = sc, debit = 25, capture = true)
-        _ ← StoreCredits.debit(storeCredit = sc, debit = 15, capture = true)
-        _ ← StoreCredits.debit(storeCredit = sc, debit = 10, capture = true)
-        _ ← StoreCredits.debit(storeCredit = sc, debit = 100, capture = false)
-        _ ← StoreCredits.debit(storeCredit = sc, debit = 50, capture = false)
-        _ ← StoreCredits.debit(storeCredit = sc, debit = 50, capture = false)
-        _ ← StoreCredits.debit(storeCredit = sc, debit = 200, capture = true)
+        payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id,
+          paymentMethodId = sc.id))
+        _ ← StoreCredits.capture(storeCredit = sc, orderPaymentId = payment.id, amount = 50)
+        _ ← StoreCredits.capture(storeCredit = sc, orderPaymentId = payment.id, amount = 25)
+        _ ← StoreCredits.capture(storeCredit = sc, orderPaymentId = payment.id, amount = 15)
+        _ ← StoreCredits.capture(storeCredit = sc, orderPaymentId = payment.id, amount = 10)
+        _ ← StoreCredits.auth(storeCredit = sc, orderPaymentId = payment.id, amount = 100)
+        _ ← StoreCredits.auth(storeCredit = sc, orderPaymentId = payment.id, amount = 50)
+        _ ← StoreCredits.auth(storeCredit = sc, orderPaymentId = payment.id, amount = 50)
+        _ ← StoreCredits.capture(storeCredit = sc, orderPaymentId = payment.id, amount = 200)
         sc ← StoreCredits.findById(sc.id)
       } yield sc.get).run().futureValue
 
       sc.availableBalance must === (0)
       sc.currentBalance must === (200)
     }
+
+    "cancels an adjustment and removes its effect on current/available balances" in new Fixture {
+      val (sc, payment) = (for {
+        origin ← StoreCreditManuals.save(Factories.storeCreditManual.copy(adminId = admin.id, reasonId = reason.id))
+        sc ← StoreCredits.save(Factories.storeCredit.copy(originalBalance = 500, originId = origin.id))
+        payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = sc.id))
+      } yield (sc, payment)).run().futureValue
+
+      val debits = List(50, 25, 15, 10)
+      val adjustments = db.run(DBIO.sequence(debits.map { amount ⇒
+        StoreCredits.capture(storeCredit = sc, orderPaymentId = payment.id, amount = amount)
+      })).futureValue
+
+      db.run(DBIO.sequence(adjustments.map { adj ⇒
+        StoreCreditAdjustments.cancel(adj.id)
+      })).futureValue
+
+      val finalSc = StoreCredits.findById(sc.id).run().futureValue.get
+      (finalSc.originalBalance, finalSc.availableBalance, finalSc.currentBalance) must === ((500, 500, 500))
+    }
   }
 
   trait Fixture {
     val adminFactory = Factories.storeAdmin
-    val (admin, customer, reason) = (for {
+    val (admin, customer, reason, order) = (for {
       admin ← (StoreAdmins.returningId += adminFactory).map { id ⇒ adminFactory.copy(id = id) }
       customer ← Customers.save(Factories.customer)
+      order ← Orders.save(Factories.order.copy(customerId = customer.id))
       reason ← Reasons.save(Factories.reason.copy(storeAdminId = admin.id))
-    } yield (admin, customer, reason)).run().futureValue
+    } yield (admin, customer, reason, order)).run().futureValue
   }
 }
 

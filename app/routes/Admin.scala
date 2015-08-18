@@ -103,6 +103,16 @@ object Admin {
                 val result = CustomerManager.toggleCreditCardDefault(customerId, cardId, payload.isDefault)
                 result.map(renderGoodOrFailures)
               }
+            } ~
+            (delete & path(IntNumber) & pathEnd) { cardId ⇒
+              complete {
+                CustomerManager.deleteCreditCard(customerId = customerId, adminId = admin.id, id = cardId).map {
+                  case Good(_) ⇒
+                    noContentResponse
+                  case Bad(NotFoundFailure(f)) ⇒
+                    renderNotFoundFailure(NotFoundFailure(f))
+                }
+              }
             }
           } ~
           pathPrefix("store-credits") {
@@ -183,18 +193,33 @@ object Admin {
               renderOrNotFound(Orders.findByRefNum(refNum).result.headOption.run())
             }
           } ~
-          (post & path("credit-card") & entity(as[CreateCreditCard])) { reqPayment =>
+          (delete & path(IntNumber) & pathEnd) { paymentId ⇒
             complete {
               Orders.findByRefNum(refNum).result.headOption.run().flatMap {
-                case None => Future.successful(notFoundResponse)
-                case Some(order) =>
-                  findCustomer(order.customerId).flatMap {
-                    case None =>
-                      Future.successful(render("Guest checkout!!"))
-
-                    case Some(customer) =>
-                      CreditCardPaymentCreator.run(order, customer, reqPayment).map(renderGoodOrFailures)
+                case None         ⇒
+                  Future.successful(notFoundResponse)
+                case Some(order)  ⇒
+                  OrderUpdater.deletePayment(order, paymentId).map { res ⇒
+                    res.fold(_ ⇒ noContentResponse, renderNotFoundFailure)
                   }
+              }
+            }
+          } ~
+          (post & path("credit-cards" / IntNumber) & pathEnd) { creditCardId ⇒
+            complete {
+              OrderUpdater.addCreditCard(refNum, creditCardId).map {
+                case Bad(NotFoundFailure(f))  ⇒ renderNotFoundFailure(NotFoundFailure(f))
+                case Bad(f)                   ⇒ renderFailure(Seq(f))
+                case Good(orderPayment)       ⇒ render(orderPayment)
+              }
+            }
+          } ~
+          (post & path("gift-cards") & entity(as[payloads.GiftCardPayment]) & pathEnd) { payload ⇒
+            complete {
+              OrderUpdater.addGiftCard(refNum, payload).map {
+                case Bad(NotFoundFailure(f))  ⇒ renderNotFoundFailure(NotFoundFailure(f))
+                case Bad(f)                   ⇒ renderFailure(Seq(f))
+                case Good(orderPayment)       ⇒ render(orderPayment)
               }
             }
           }
@@ -237,6 +262,13 @@ object Admin {
             complete {
               whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
                 services.OrderUpdater.createShippingAddress(order, payload)
+              }
+            }
+          } ~
+          (patch & entity(as[payloads.UpdateShippingAddress]) & pathEnd) { payload ⇒
+            complete {
+              whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
+                services.OrderUpdater.updateShippingAddress(order, payload)
               }
             }
           } ~

@@ -8,7 +8,7 @@ import cats.std.future.futureInstance
 import org.json4s.jackson
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import org.scalactic.{Bad, Good, Or}
-import services.{Failure, Failures}
+import services.{NotFoundFailure, Failure, Failures}
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 
 object Http {
@@ -66,6 +66,9 @@ object Http {
       case None => notFoundResponse
     }
   }
+
+  def renderNotFoundFailure(f: NotFoundFailure): HttpResponse =
+    notFoundResponse.copy(entity = json("errors" → Seq(f.message)))
 
   def render[A <: AnyRef](resource: A, statusCode: StatusCode = OK) =
     HttpResponse(statusCode, entity = json(resource))

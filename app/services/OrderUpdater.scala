@@ -1,7 +1,8 @@
 package services
 
 import models._
-import payloads.{BulkUpdateOrdersPayload, CreateShippingAddress, UpdateOrderPayload}
+import payloads.{GiftCardPayment, UpdateAddressPayload, BulkUpdateOrdersPayload, CreateShippingAddress,
+UpdateShippingAddress, UpdateOrderPayload}
 import slick.dbio
 import slick.dbio.Effect.{Transactional, Write}
 import utils.Http._
@@ -36,14 +37,16 @@ object OrderUpdater {
         .map(_.status)
         .update(OrderLineItem.Canceled)
 
-      val updateOrderPayments = OrderPayments
-        .filter(_.orderId.inSetBind(orderIds))
-        .map(_.status)
-        .update("cancelAuth")
+      // TODO: canceling an order must cascade to status on each payment type not order_payments
+//      val updateOrderPayments = OrderPayments
+//        .filter(_.orderId.inSetBind(orderIds))
+//        .map(_.status)
+//        .update("cancelAuth")
 
       val updateOrder = Orders.filter(_.id.inSetBind(orderIds)).map(_.status).update(newStatus)
 
-      (updateLineItems >> updateOrderPayments >> updateOrder).transactionally
+      // (updateLineItems >> updateOrderPayments >> updateOrder).transactionally
+      (updateLineItems >> updateOrder).transactionally
     }
 
     def updateQueries(orderIds: Seq[Int]) = newStatus match {
@@ -91,6 +94,78 @@ object OrderUpdater {
     }
   }
 
+  def updateShippingAddress(order: Order, payload: UpdateShippingAddress)
+    (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failure] = {
+
+    (payload.addressId, payload.address) match {
+      case (Some(addressId), _) ⇒
+        createShippingAddressFromAddressId(addressId, order.id)
+      case (None, Some(address)) ⇒
+        updateShippingAddressFromPayload(address, order)
+      case (None, _) ⇒
+        Future.successful(Bad(GeneralFailure("must supply either an addressId or an address")))
+    }
+
+  }
+
+  def addGiftCard(refNum: String, payload: GiftCardPayment)
+    (implicit ec: ExecutionContext, db: Database): Future[OrderPayment Or Failure] = {
+    db.run(for {
+      order ← Orders.findByRefNum(refNum).result.headOption
+      giftCard ← GiftCards.findByCode(payload.code).result.headOption
+    } yield (order, giftCard)).flatMap {
+      case (Some(order), Some(giftCard)) ⇒
+        if (giftCard.hasAvailable(payload.amount)) {
+          val payment = OrderPayment.build(giftCard).copy(orderId = order.id, amount = Some(payload.amount))
+          OrderPayments.save(payment).run().map(Good(_))
+        } else {
+          Future.successful(Bad(GiftCardNotEnoughBalance(giftCard, payload.amount)))
+        }
+      case (None, _) ⇒
+        Future.successful(Bad(OrderNotFoundFailure(refNum)))
+      case (_, None) ⇒
+        Future.successful(Bad(GiftCardNotFoundFailure(payload.code)))
+    }
+  }
+
+  def deletePayment(order: Order, paymentId: Int)
+    (implicit ec: ExecutionContext, db: Database): Future[Int Or NotFoundFailure] = {
+    db.run(OrderPayments.findAllByOrderId(order.id)
+      .filter(_.paymentMethodId === paymentId)
+      .delete).map { rowsAffected ⇒
+      if (rowsAffected == 1) {
+        Good(1)
+      } else {
+        Bad(NotFoundFailure(s"order payment method with id=$paymentId not found"))
+      }
+    }
+  }
+
+  def addCreditCard(refNum: String, id: Int)
+    (implicit ec: ExecutionContext, db: Database): Future[OrderPayment Or Failure] = {
+    db.run(for {
+      order ← Orders.findCartByRefNum(refNum).result.headOption
+      creditCard ← CreditCards._findById(id).result.headOption
+      numCards ← order.map { o ⇒
+        OrderPayments.findAllCreditCardsForOrder(o.id).length.result
+      }.getOrElse(DBIO.successful(0))
+    } yield (order, creditCard, numCards)).flatMap {
+      case (Some(order), Some(creditCard), numCards) ⇒
+        if (creditCard.isActive && numCards == 0) {
+          val payment = OrderPayment.build(creditCard).copy(orderId = order.id, amount = None)
+          OrderPayments.save(payment).run().map(Good(_))
+        } else if (numCards > 0) {
+          Future.successful(Bad(CartAlreadyHasCreditCard(order)))
+        } else {
+          Future.successful(Bad(CannotUseInactiveCreditCard(creditCard)))
+        }
+      case (None, _, _) ⇒
+        Future.successful(Bad(OrderNotFoundFailure(refNum)))
+      case (_, None, _) ⇒
+        Future.successful(Bad(NotFoundFailure(CreditCard, id)))
+    }
+  }
+
   private def createShippingAddressFromPayload(address: Address, order: Order)
     (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failure] = {
 
@@ -106,6 +181,35 @@ object OrderUpdater {
           case (_, None)              ⇒ Bad(NotFoundFailure(State, address.stateId))
         }
       case f: Invalid ⇒ Future.successful(Bad(ValidationFailure(f)))
+    }
+  }
+
+  private def updateShippingAddressFromPayload(payload: UpdateAddressPayload, order: Order)
+    (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failure] = {
+
+    val actions = for {
+      oldAddress ← OrderShippingAddresses.findByOrderId(order.id).result.headOption
+
+      rowsAffected ← oldAddress.map { osa ⇒
+        OrderShippingAddresses.update(OrderShippingAddress.fromPatchPayload(a = osa, p = payload))
+      }.getOrElse(DBIO.successful(0))
+
+      newAddress ← OrderShippingAddresses.findByOrderId(order.id).result.headOption
+
+      state ← newAddress.map { address ⇒
+        States.findById(address.stateId)
+      }.getOrElse(DBIO.successful(None))
+    } yield (rowsAffected, newAddress, state)
+
+    db.run(actions.transactionally).map {
+      case (_, None, _) ⇒
+        Bad(NotFoundFailure(OrderShippingAddress, order.id))
+      case (0, _, _) ⇒
+        Bad(GeneralFailure("Unable to update address"))
+      case (_, Some(address), None) ⇒
+        Bad(NotFoundFailure(State, address.stateId))
+      case (_, Some(address), Some(state)) ⇒
+        Good(Response.build(Address.fromOrderShippingAddress(address), state))
     }
   }
 

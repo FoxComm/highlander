@@ -17,8 +17,8 @@ import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: String, currency: Currency,
-  originalBalance: Int, currentBalance: Int = 0, availableBalance:Int = 0, status: StoreCredit.Status = StoreCredit.New,
-  canceledReason: Option[String] = None)
+  originalBalance: Int, currentBalance: Int = 0, availableBalance:Int = 0,
+  status: StoreCredit.Status = StoreCredit.OnHold, canceledReason: Option[String] = None)
   extends PaymentMethod
   with ModelWithIdParameter
   with Validation[StoreCredit] {
@@ -34,23 +34,18 @@ final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, origin
     Future.successful(Good("authenticated"))
   }
 
-  def isActive: Boolean = activeStatuses.contains(status)
+  def isActive: Boolean = status == Active
 }
 
 object StoreCredit {
   sealed trait Status
-  case object New extends Status
-  case object Auth extends Status
-  case object Hold extends Status
+  case object OnHold extends Status
+  case object Active extends Status
   case object Canceled extends Status
-  case object PartiallyApplied extends Status
-  case object Applied extends Status
 
   object Status extends ADT[Status] {
     def types = sealerate.values[Status]
   }
-
-  val activeStatuses = Set[Status](New, Auth, PartiallyApplied)
 
   implicit val statusColumnType = Status.slickColumn
 }
@@ -74,11 +69,15 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
   idLens = GenLens[StoreCredit](_.id)
   )(new StoreCredits(_)){
 
-  def debit(storeCredit: StoreCredit, debit: Int = 0, capture: Boolean)
-    (implicit ec: ExecutionContext): DBIO[StoreCreditAdjustment] = {
-    val adjustment = StoreCreditAdjustment(storeCreditId = storeCredit.id, debit = debit, capture = capture)
-    StoreCreditAdjustments.save(adjustment)
-  }
+  import StoreCreditAdjustment.{Status, Auth, Capture}
+
+  def auth(storeCredit: StoreCredit, orderPaymentId: Int, amount: Int = 0)
+    (implicit ec: ExecutionContext): DBIO[StoreCreditAdjustment] =
+    debit(storeCredit = storeCredit, orderPaymentId = orderPaymentId, amount = amount, status = Auth)
+
+  def capture(storeCredit: StoreCredit, orderPaymentId: Int, amount: Int = 0)
+    (implicit ec: ExecutionContext): DBIO[StoreCreditAdjustment] =
+    debit(storeCredit = storeCredit, orderPaymentId = orderPaymentId, amount = amount, status = Capture)
 
   def findAllByCustomerId(customerId: Int)(implicit ec: ExecutionContext, db: Database): Future[Seq[StoreCredit]] =
     _findAllByCustomerId(customerId).run()
@@ -92,4 +91,11 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
 
   def _findByIdAndCustomerId(id: Int, customerId: Int)(implicit ec: ExecutionContext): DBIO[Option[StoreCredit]] =
     filter(_.customerId === customerId).filter(_.id === id).take(1).result.headOption
+
+  private def debit(storeCredit: StoreCredit, orderPaymentId: Int, amount: Int = 0, status: Status = Auth)
+    (implicit ec: ExecutionContext): DBIO[StoreCreditAdjustment] = {
+    val adjustment = StoreCreditAdjustment(storeCreditId = storeCredit.id, orderPaymentId = orderPaymentId,
+      debit = amount, status = status)
+    StoreCreditAdjustments.save(adjustment)
+  }
 }
