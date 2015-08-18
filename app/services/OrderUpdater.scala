@@ -115,7 +115,9 @@ object OrderUpdater {
       giftCard ← GiftCards.findByCode(payload.code).result.headOption
     } yield (order, giftCard)).flatMap {
       case (Some(order), Some(giftCard)) ⇒
-        if (giftCard.hasAvailable(payload.amount)) {
+        if (!giftCard.isActive) {
+          Future.successful(Bad(GiftCardIsInactive(giftCard)))
+        } else if (giftCard.hasAvailable(payload.amount)) {
           val payment = OrderPayment.build(giftCard).copy(orderId = order.id, amount = Some(payload.amount))
           OrderPayments.save(payment).run().map(Good(_))
         } else {
