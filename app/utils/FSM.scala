@@ -6,7 +6,7 @@ import monocle.Lens
 
 trait FSM[A, B] { self: B ⇒
   val state: A
-  def stateLens: Lens[B, A]
+  val stateLens: Lens[B, A]
 
   val fsm: Map[A, Set[A]]
 

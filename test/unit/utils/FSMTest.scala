@@ -16,7 +16,7 @@ class FSMTest extends TestBase {
   case object BreakItDown extends Operation
 
   case class Robot(state: Operation) extends FSM[Operation, Robot] {
-    override def stateLens: Lens[Robot, Operation] = GenLens[Robot](_.state)
+    val stateLens: Lens[Robot, Operation] = GenLens[Robot](_.state)
 
     val fsm: Map[Operation, Set[Operation]] = Map(
       Pop → Set(Lock, LockAndPop),
