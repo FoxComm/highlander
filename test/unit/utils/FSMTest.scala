@@ -43,12 +43,12 @@ class FSMTest extends TestBase {
 
     "can always transition to identity state" in {
       val states = Table(
-        ("state"),
-        (Pop),
-        (Lock),
-        (PopAndLock),
-        (LockAndPop),
-        (BreakItDown)
+        "state",
+        Pop,
+        Lock,
+        PopAndLock,
+        LockAndPop,
+        BreakItDown
       )
 
       forAll(states) { case (state) ⇒
