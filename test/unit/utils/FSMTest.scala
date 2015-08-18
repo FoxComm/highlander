@@ -63,9 +63,5 @@ class FSMTest extends TestBase {
     "cannot transition from a state which has no mapping step and is not identity" in {
       Robot(state = BreakItDown).transitionState(Pop) mustBe 'left
     }
-
-    "returns new state upon valid transition" in {
-      Robot(state = Pop).transitionState(Lock).fold(identity, _.toString) must ===("Lock")
-    }
   }
 }
