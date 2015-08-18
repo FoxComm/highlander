@@ -14,7 +14,7 @@ import Temp0._
 
 class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
 
-  def checkout: ServiceResult0[Order] = {
+  def checkout: Result[Order] = {
     // Realistically, what we'd do here is actually
     // 0) Check that line items exist -- DONE
     // 1) Check Inventory
@@ -30,13 +30,13 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
           val errors = payments.values.toList.flatten
           if (errors.isEmpty) {
 //            completeOrderAndCreateNew(order).map(Good(_))
-            ServiceResult0.good(order)
+            Result.good(order)
           } else {
-            ServiceResult0.failures(errors: _*)
+            Result.failures(errors: _*)
           }
         }
       } else {
-        ServiceResult0.failure(NotFoundFailure("No Line Items in Order!"))
+        Result.failure(NotFoundFailure("No Line Items in Order!"))
       }
     }
   }

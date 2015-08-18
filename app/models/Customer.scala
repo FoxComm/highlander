@@ -2,7 +2,7 @@ package models
 
 import com.wix.accord.dsl.{validator => createValidator}
 import monocle.macros.GenLens
-import services.{Failures, Failure}
+import services.{Result, Failures, Failure}
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 import utils.GenericTable.TableWithId
@@ -56,7 +56,7 @@ object Customers extends TableQueryWithId[Customer, Customers](
   def _findById(id: Rep[Int]) = { filter(_.id === id) }
 
   def createFromPayload(payload: payloads.CreateCustomer)
-                       (implicit ec: ExecutionContext, db: Database): Future[Customer Or Failures] = {
+                       (implicit ec: ExecutionContext, db: Database): Result[Customer] = {
     val newCustomer = Customer(id = 0, email = payload.email,password = payload.password,
       firstName = payload.firstName, lastName = payload.firstName)
 

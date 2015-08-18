@@ -109,8 +109,10 @@ object Admin {
                 CustomerManager.deleteCreditCard(customerId = customerId, adminId = admin.id, id = cardId).map {
                   case Good(_) ⇒
                     noContentResponse
-                  case Bad(NotFoundFailure(f)) ⇒
+                  case Bad(NotFoundFailure(f) :: _) ⇒
                     renderNotFoundFailure(NotFoundFailure(f))
+                  case Bad(xs) ⇒
+                    renderFailure(xs)
                 }
               }
             }

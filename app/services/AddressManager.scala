@@ -13,28 +13,13 @@ import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.Validation.Result.{Failure ⇒ Invalid, Success}
 
 object Temp0 {
-  type ServiceResult0[A] = Future[A Or Failures]
-
-  object ServiceResult0 {
-    def good[A](order: A): ServiceResult0[A] =
-      Future.successful(Good(order).asInstanceOf[A Or Failures])
-
-    def failures(failures: Failure*): ServiceResult0[Nothing] =
-      Future.successful(Bad(Failures(failures: _*)))
-
-    def failures(theFailures: Failures): ServiceResult0[Nothing] =
-      failures(theFailures: _*)
-
-    def failure(failure: Failure): ServiceResult0[Nothing] =
-      failures(failure)
-  }
 }
 
 import Temp0._
 
 object AddressManager {
   def create(payload: CreateAddressPayload, customerId: Int)
-    (implicit ec: ExecutionContext, db: Database): ServiceResult0[Root] = {
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
     val address = Address.fromPayload(payload).copy(customerId = customerId)
     address.validate match {
       case Success ⇒
@@ -45,12 +30,12 @@ object AddressManager {
           case (address, Some(state)) ⇒ Good(Response.build(address, state))
           case (_, None)              ⇒ Bad(NotFoundFailure(State, address.stateId).single)
         }
-      case f: Invalid ⇒ ServiceResult0.failure(ValidationFailure(f))
+      case f: Invalid ⇒ Result.failure(ValidationFailure(f))
     }
   }
 
   def edit(addressId: Int, customerId: Int, payload: CreateAddressPayload)
-    (implicit ec: ExecutionContext, db: Database): ServiceResult0[Root] = {
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
     val address = Address.fromPayload(payload).copy(customerId = customerId, id = addressId)
     address.validate match {
       case Success ⇒
@@ -62,7 +47,7 @@ object AddressManager {
           case (_, address, Some(state)) ⇒ Bad(NotFoundFailure(address).single)
           case (_, _, None)              ⇒ Bad(NotFoundFailure(State, address.stateId).single)
         }
-      case f: Invalid ⇒ ServiceResult0.failure(ValidationFailure(f))
+      case f: Invalid ⇒ Result.failure(ValidationFailure(f))
     }
   }
 
