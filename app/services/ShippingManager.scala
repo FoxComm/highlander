@@ -10,10 +10,19 @@ object ShippingManager {
     (implicit db: Database, ec: ExecutionContext): Future[Boolean] = {
 
     statement.conditions.foldLeft(Future.successful(false)) { (result, nextCond) ⇒
-      nextCond.rootObject match {
-        case "Order" ⇒ evaluateOrderCondition(order, nextCond)
-        case "ShippingAddress" ⇒ evaluateShippingAddressCondition(order, nextCond)
-        case _ ⇒ Future.successful(false)
+      result.flatMap { res ⇒
+        val isMatch = nextCond.rootObject match {
+          case "Order" ⇒ evaluateOrderCondition(order, nextCond)
+          case "ShippingAddress" ⇒ evaluateShippingAddressCondition(order, nextCond)
+          case _ ⇒ Future.successful(false)
+        }
+
+        isMatch.flatMap { im ⇒
+          statement.comparison match {
+            case models.ConditionStatement.And ⇒ Future.successful(im && res)
+            case models.ConditionStatement.Or ⇒ Future.successful(im || res)
+          }
+        }
       }
     }
 
