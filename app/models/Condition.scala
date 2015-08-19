@@ -1,41 +1,59 @@
 package models
 
 import com.pellucid.sealerate
-import monocle.macros.GenLens
-import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
-import slick.lifted.Tag
-import utils.{TableQueryWithId, GenericTable, RichTable, ADT}
+import utils.ADT
 
-final case class Condition(id: Int = 0, subject: String, field: String, operator: String,
+final case class Condition(rootObject: String, field: String, operator: Condition.Operator,
   valInt: Option[Int] = None, valString: Option[String] = None)
 
 object Condition {
   sealed trait Operator
 
+  // General operations
   case object Equals extends Operator
   case object NotEquals extends Operator
+
+  // Numeric operations
+  case object GreaterThan extends Operator
+  case object GreaterThanOrEquals extends Operator
+  case object LessThan extends Operator
+  case object LessThanOrEquals extends Operator
+
+  // String operations
+  case object Contains extends Operator
+  case object NotContains extends Operator
+  case object StartsWith extends Operator
 
   object Operator extends ADT[Operator] {
     def types = sealerate.values[Operator]
   }
 
-  implicit val operatorColumnType = Operator.slickColumn
-}
+  // TODO (Jeff): Return an actual error, rather than just a boolean.
+  def matches(comp: Int, statement: Condition): Boolean = {
+    statement.valInt.fold(false) { (v: Int) ⇒
+      statement.operator match {
+        case Equals ⇒ comp == v
+        case NotEquals ⇒ comp != v
+        case GreaterThan ⇒ comp > v
+        case GreaterThanOrEquals ⇒ comp >= v
+        case LessThan ⇒ comp < v
+        case LessThanOrEquals ⇒ comp <= v
+        case _ ⇒ false
+      }
+    }
+  }
 
-class Conditions(tag: Tag) extends GenericTable.TableWithId[Condition](tag, "conditions") with RichTable {
-  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def subject = column[String]("subject")
-  def field = column[String]("field")
-  def operator = column[Condition.Operator]("operator")
-  def valInt = column[Int]("valInt")
-  def valString = column[String]("valString")
-
-  def * = (id, subject, field, operator, valInt, valString) <> ((Condition.apply _).tupled, Condition.unapply)
-}
-
-object Conditions extends TableQueryWithId[Condition, Conditions](
-  idLens = GenLens[Condition](_.id)
-)(new Conditions(_)) {
-
+  // TODO (Jeff): Make this more robust and think about things like case-sensitivity.
+  def matches(comp: String, statement: Condition): Boolean = {
+    statement.valString.fold(false) { (v: String) ⇒
+      statement.operator match {
+        case Equals ⇒ comp == v
+        case NotEquals ⇒ comp != v
+        case Contains ⇒ comp.contains(v)
+        case NotContains ⇒ !comp.contains(v)
+        case StartsWith ⇒ comp.startsWith(v)
+        case _ ⇒ false
+      }
+    }
+  }
 }
