@@ -115,7 +115,7 @@ lazy val phoenixScala = (project in file(".")).
         "com.github.julien-truffaut" %% "monocle-generic"     % monocleV,
         "com.github.julien-truffaut" %% "monocle-macro"       % monocleV,
         // Testing
-        "com.typesafe.akka"    %% "akka-testkit"              % akkaV,
+        "com.typesafe.akka"    %% "akka-testkit"              % akkaV      % "test",
         "org.scalatest"        %% "scalatest"                 % scalaTestV % "test"
       )
     },

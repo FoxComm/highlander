@@ -2,11 +2,11 @@ package util
 
 import org.scalactic.TypeCheckedTripleEquals
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{FreeSpec, MustMatchers}
+import org.scalatest.{FreeSpecLike, FreeSpec, MustMatchers}
 import utils.Config._
 import cats.data.Xor
 
-trait TestBase extends FreeSpec
+trait TestBase extends FreeSpecLike
   with MustMatchers
   with ScalaFutures
   with TypeCheckedTripleEquals {

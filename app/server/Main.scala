@@ -16,7 +16,7 @@ import org.json4s.jackson
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import services._
 import slick.driver.PostgresDriver.api._
-import utils.{RemorseTimer, Tick}
+import utils.{RemorseTimerMate, Tick, RemorseTimer}
 
 object Main {
   def main(args: Array[String]): Unit = {
@@ -75,6 +75,7 @@ class Service(
       case None    ⇒ Future.successful(())
     }
 
-  val remorseTimer = system.actorOf(Props(new RemorseTimer()))
-  system.scheduler.schedule(Duration.Zero, 1.minute, remorseTimer, Tick)
+  val remorseTimer = system.actorOf(Props(new RemorseTimer()), "remorse-timer")
+  val remorseTimerBuddy = system.actorOf(Props(new RemorseTimerMate()), "remorse-timer-mate")
+  system.scheduler.schedule(Duration.Zero, 1.minute, remorseTimer, Tick)(executionContext, remorseTimerBuddy)
 }
