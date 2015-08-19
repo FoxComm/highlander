@@ -56,8 +56,8 @@ export default class GiftCards extends React.Component {
   removeNew() {
     setTimeout(() => {
       let rows = [].slice.call(document.querySelectorAll('tr.new'));
-      for (let i = 0; i < rows.length; i++) {
-        rows[i].classList.remove('new');
+      for (let row of rows) {
+        row.classList.remove('new');
       }
     }, 5000);
   }
