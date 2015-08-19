@@ -69,6 +69,6 @@ final case class CartAlreadyHasCreditCard(order: Order) extends Failure {
   override def description = List(s"order with referenceNumber=${order.referenceNumber} already has a credit card")
 }
 
-final case class CustomerHasNoStoreCredit(id: Int) extends Failure {
-  override def description = List(s"customer with id=$id has no available store credit")
+final case class CustomerHasInsufficientStoreCredit(id: Int, has: Int, want: Int) extends Failure {
+  override def description = List(s"customer with id=$id has storeCredit=$has less than requestedAmount=$want")
 }

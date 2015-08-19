@@ -4,8 +4,8 @@ import org.joda.time.DateTime
 import org.scalatest.time.{Milliseconds, Seconds, Span}
 import payloads.{UpdateOrderPayload, CreateAddressPayload, CreateCreditCard}
 import responses.{AdminNotes, FullOrder}
-import services.{CustomerHasNoStoreCredit, OrderNotFoundFailure, CustomerManager, CannotUseInactiveCreditCard,
-NotFoundFailure, GiftCardNotEnoughBalance, GiftCardNotFoundFailure, NoteManager}
+import services.{CustomerHasInsufficientStoreCredit, OrderNotFoundFailure, CustomerManager,
+CannotUseInactiveCreditCard, NotFoundFailure, GiftCardNotEnoughBalance, GiftCardNotFoundFailure, NoteManager}
 import util.{IntegrationTestBase, StripeSupport}
 import utils.Seeds.Factories
 import utils._
@@ -60,6 +60,17 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
   "store credit" - {
     "when added as a payment method" - {
+      "succeeds" in new StoreCreditFixture {
+        val payload = payloads.StoreCreditPayment(amount = 100)
+        val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
+
+        response.status must ===(StatusCodes.OK)
+        val payments = OrderPayments.findAllByOrderId(order.id).result.run().futureValue.toList
+
+        payments must have size(2)
+        payments.filter(_.paymentMethodType === PaymentMethod.StoreCredit) must have size(2)
+      }
+
       "fails if the order is not found" in new Fixture {
         val notFound = order.copy(referenceNumber = "ABC123")
         val payload = payloads.StoreCreditPayment(amount = 50)
@@ -69,12 +80,23 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         parseErrors(response).get.head must === (OrderNotFoundFailure(notFound).description.head)
       }
 
-      "fails if the customer has no store credit" in new Fixture {
+      "fails if the customer has no active store credit" in new Fixture {
         val payload = payloads.StoreCreditPayment(amount = 50)
         val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
 
         response.status must === (StatusCodes.BadRequest)
-        parseErrors(response).get.head must === (CustomerHasNoStoreCredit(customer.id).description.head)
+        val error = CustomerHasInsufficientStoreCredit(customer.id, 0, 50).description.head
+        parseErrors(response).get.head must === (error)
+      }
+
+      "fails if the customer has insufficient available store credit" in new StoreCreditFixture {
+        val payload = payloads.StoreCreditPayment(amount = 101)
+        val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
+
+        response.status must === (StatusCodes.BadRequest)
+        val has = storeCredits.map(_.availableBalance).sum
+        val error = CustomerHasInsufficientStoreCredit(customer.id, has, payload.amount).description.head
+        parseErrors(response).get.head must === (error)
       }
     }
   }
@@ -175,6 +197,19 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
       giftCard ← GiftCards.save(Factories.giftCard.copy(originId = origin.id))
     } yield giftCard).run().futureValue
+  }
+
+  trait StoreCreditFixture extends Fixture {
+    val storeCredits = (for {
+      reason ← Reasons.save(Factories.reason.copy(storeAdminId = admin.id))
+      _ ← StoreCreditManuals ++= (1 to 2).map { _ ⇒
+        Factories.storeCreditManual.copy(adminId = admin.id, reasonId = reason.id)
+      }
+      _ ← StoreCredits ++= (1 to 2).map { i ⇒
+        Factories.storeCredit.copy(status = StoreCredit.Active, customerId = customer.id, originId = i)
+      }
+      storeCredits ← StoreCredits._findAllByCustomerId(customer.id)
+    } yield storeCredits).run().futureValue
   }
 
   trait CreditCardFixture extends Fixture {
