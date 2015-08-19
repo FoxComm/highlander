@@ -1,7 +1,7 @@
 'use strict';
 
 const
-  _       = require('underscore'),
+  _       = require('lodash'),
   Chance  = require('chance'),
   errors  = require('../../errors');
 
@@ -46,9 +46,11 @@ class BaseModel {
   }
 
   static findOne(id) {
-    let results = this.find('id', id);
-    if (!results.length) { throw new errors.NotFound(`Cannot find ${this.name}`); }
-    return new this(results[0]);
+    let result = _.find(this.data, function(item) {
+      return item.id === id;
+    });
+    if (!result) { throw new errors.notFound(`Cannot find ${this.name}`); }
+    return result;
   }
 
   static findAll(field, id) {
