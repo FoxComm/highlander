@@ -115,7 +115,7 @@ object Admin {
               }
             }
           } ~
-          pathPrefix("store-credits") {
+          pathPrefix("store-credit") {
             (get & pathEnd) {
               complete {
                 renderOrNotFound(StoreCredits.findAllByCustomerId(customerId).map(Some(_)))

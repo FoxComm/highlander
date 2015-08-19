@@ -41,7 +41,7 @@ final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, origin
     Future.successful(Good("authenticated"))
   }
 
-  def isActive: Boolean = status == Active
+  def isActive: Boolean = activeStatuses.contains(status)
 }
 
 object StoreCredit {
@@ -53,6 +53,8 @@ object StoreCredit {
   object Status extends ADT[Status] {
     def types = sealerate.values[Status]
   }
+
+  val activeStatuses = Set[Status](Active)
 
   implicit val statusColumnType = Status.slickColumn
 }
@@ -93,7 +95,7 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
   def _findAllByCustomerId(customerId: Int)(implicit ec: ExecutionContext): DBIO[Seq[StoreCredit]] =
     filter(_.customerId === customerId).result
 
-  def findAllByCustomerIdAndUsable(customerId: Int) =
+  def findAllActiveByCustomerId(customerId: Int): Query[StoreCredits, StoreCredit, Seq] =
     filter(_.customerId === customerId).filter(_.status === (Active: Status))
 
   def findByIdAndCustomerId(id: Int, customerId: Int)

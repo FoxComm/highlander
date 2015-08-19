@@ -125,25 +125,24 @@ object OrderUpdater {
 
   def addStoreCredit(refNum: String, payload: StoreCreditPayment)
     (implicit ec: ExecutionContext, db: Database): Future[OrderPayment Or Failure] = {
-    Future.successful(Bad(GeneralFailure("failed")))
-    /*
+
     db.run(for {
-      order ← Orders.findCartByRefNum(refNum)
-      storeCredits ← StoreCredits._findAllByCustomerId()
-    } yield (order, giftCard)).flatMap {
-      case (Some(order), Some(giftCard)) ⇒
-        if (giftCard.hasAvailable(payload.amount)) {
-          val payment = OrderPayment.build(giftCard).copy(orderId = order.id, amount = Some(payload.amount))
-          OrderPayments.save(payment).run().map(Good(_))
+      order ← Orders.findCartByRefNum(refNum).result.headOption
+      storeCredits ← order.map { o ⇒
+        StoreCredits.findAllActiveByCustomerId(o.customerId).result
+      }.getOrElse(DBIO.successful(Seq.empty[StoreCredit]))
+    } yield (order, storeCredits)).flatMap {
+      case (Some(order), storeCredits) ⇒
+        if (storeCredits.isEmpty) {
+          Future.successful(Bad(CustomerHasNoStoreCredit(order.customerId)))
         } else {
-          Future.successful(Bad(GiftCardNotEnoughBalance(giftCard, payload.amount)))
+          Future.successful(Bad(GeneralFailure("failed")))
         }
       case (None, _) ⇒
         Future.successful(Bad(OrderNotFoundFailure(refNum)))
-      case (_, None) ⇒
-        Future.successful(Bad(GiftCardNotFoundFailure(payload.code)))
+//      case (_, None) ⇒
+//        Future.successful(Bad(GiftCardNotFoundFailure(payload.code)))
     }
-    */
   }
 
   def deletePayment(order: Order, paymentId: Int)

@@ -4,8 +4,8 @@ import org.joda.time.DateTime
 import org.scalatest.time.{Milliseconds, Seconds, Span}
 import payloads.{UpdateOrderPayload, CreateAddressPayload, CreateCreditCard}
 import responses.{AdminNotes, FullOrder}
-import services.{CustomerManager, CannotUseInactiveCreditCard, NotFoundFailure, GiftCardNotEnoughBalance,
-GiftCardNotFoundFailure, NoteManager}
+import services.{CustomerHasNoStoreCredit, OrderNotFoundFailure, CustomerManager, CannotUseInactiveCreditCard,
+NotFoundFailure, GiftCardNotEnoughBalance, GiftCardNotFoundFailure, NoteManager}
 import util.{IntegrationTestBase, StripeSupport}
 import utils.Seeds.Factories
 import utils._
@@ -54,6 +54,27 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
         response.status must === (StatusCodes.BadRequest)
         parseErrors(response).get.head must === (GiftCardNotEnoughBalance(giftCard, payload.amount).description.head)
+      }
+    }
+  }
+
+  "store credit" - {
+    "when added as a payment method" - {
+      "fails if the order is not found" in new Fixture {
+        val notFound = order.copy(referenceNumber = "ABC123")
+        val payload = payloads.StoreCreditPayment(amount = 50)
+        val response = POST(s"v1/orders/${notFound.refNum}/payment-methods/store-credit", payload)
+
+        response.status must === (StatusCodes.NotFound)
+        parseErrors(response).get.head must === (OrderNotFoundFailure(notFound).description.head)
+      }
+
+      "fails if the customer has no store credit" in new Fixture {
+        val payload = payloads.StoreCreditPayment(amount = 50)
+        val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
+
+        response.status must === (StatusCodes.BadRequest)
+        parseErrors(response).get.head must === (CustomerHasNoStoreCredit(customer.id).description.head)
       }
     }
   }

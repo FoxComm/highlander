@@ -68,3 +68,7 @@ final case class CannotUseInactiveCreditCard(cc: CreditCard) extends Failure {
 final case class CartAlreadyHasCreditCard(order: Order) extends Failure {
   override def description = List(s"order with referenceNumber=${order.referenceNumber} already has a credit card")
 }
+
+final case class CustomerHasNoStoreCredit(id: Int) extends Failure {
+  override def description = List(s"customer with id=$id has no available store credit")
+}
