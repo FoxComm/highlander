@@ -7,6 +7,7 @@ import CustomerResult from '../customers/result';
 import CustomerStore from '../customers/store';
 import { dispatch, listenTo, stopListeningTo } from '../../lib/dispatcher';
 import Api from '../../lib/api';
+import _ from 'lodash';
 
 const
   types = {
@@ -83,14 +84,13 @@ export default class NewGiftCard extends React.Component {
   onGiftCardCustomerSelected(customer) {
     let
       customerList = this.state.customers.slice(0, this.state.customers.length),
-      exists = customerList.filter(function (item) {
+      existing = _(customerList).find(function (item) {
         return item.id === customer.id;
-      }).length > 0;
+      });
 
-    if (!exists) {
-      customerList.push(customer);
-    }
+    if (existing) return;
 
+    customerList.push(customer);
     this.setState({
       customers: customerList
     });
@@ -99,14 +99,13 @@ export default class NewGiftCard extends React.Component {
   onEmailCsvUserSelected(user) {
     let
       userList = this.state.users.slice(0, this.state.users.length),
-      exists = userList.filter(function (item) {
+      existing = _(userList).find(function (item) {
         return item.id === user.id;
-      }).length > 0;
+      });
 
-    if (!exists) {
-      userList.push(user);
-    }
+    if (existing) return;
 
+    userList.push(user);
     this.setState({
       users: userList
     });

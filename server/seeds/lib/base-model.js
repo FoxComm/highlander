@@ -49,7 +49,7 @@ class BaseModel {
     let result = _.find(this.data, function(item) {
       return item.id === id;
     });
-    if (!result) { throw new errors.notFound(`Cannot find ${this.name}`); }
+    if (!result) { throw new errors.NotFound(`Cannot find ${this.name}`); }
     return result;
   }
 
