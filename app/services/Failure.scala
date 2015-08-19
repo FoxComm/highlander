@@ -61,6 +61,10 @@ final case class GiftCardNotEnoughBalance(gc: GiftCard, requestedAmount: Int) ex
     List(s"giftCard has availableBalance=${gc.availableBalance} less than requestedAmount=$requestedAmount")
 }
 
+final case class GiftCardIsInactive(gc: GiftCard) extends Failure {
+  override def description = List(s"giftCard with id=${gc.id} is inactive")
+}
+
 final case class CannotUseInactiveCreditCard(cc: CreditCard) extends Failure {
   override def description = List(s"creditCard with id=${cc.id} is inactive")
 }

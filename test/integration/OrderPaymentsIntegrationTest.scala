@@ -1,24 +1,19 @@
 import akka.http.scaladsl.model.StatusCodes
+
+import models.Order._
 import models._
-import org.joda.time.DateTime
-import org.scalatest.time.{Milliseconds, Seconds, Span}
-import payloads.{UpdateOrderPayload, CreateAddressPayload, CreateCreditCard}
-import responses.{AdminNotes, FullOrder}
-import services.{CustomerHasInsufficientStoreCredit, OrderNotFoundFailure, CustomerManager,
-CannotUseInactiveCreditCard, NotFoundFailure, GiftCardNotEnoughBalance, GiftCardNotFoundFailure, NoteManager}
-import util.{IntegrationTestBase, StripeSupport}
+import services.{CannotUseInactiveCreditCard, CustomerHasInsufficientStoreCredit, CustomerManager, GiftCardIsInactive,
+GiftCardNotEnoughBalance, GiftCardNotFoundFailure, NotFoundFailure, OrderNotFoundFailure}
+import slick.driver.PostgresDriver.api._
+import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils._
-import slick.driver.PostgresDriver.api._
-import Order._
 
 class OrderPaymentsIntegrationTest extends IntegrationTestBase
   with HttpSupport
   with AutomaticAuth {
 
   import concurrent.ExecutionContext.Implicits.global
-  import org.json4s.jackson.JsonMethods._
-  import Extensions._
 
   "gift cards" - {
     "when added as a payment method" - {
@@ -54,6 +49,15 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
         response.status must === (StatusCodes.BadRequest)
         parseErrors(response).get.head must === (GiftCardNotEnoughBalance(giftCard, payload.amount).description.head)
+      }
+
+      "fails if the giftCard is inactive" in new GiftCardFixture {
+        GiftCards.findByCode(giftCard.code).map(_.status).update(GiftCard.Canceled).run().futureValue
+        val payload = payloads.GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance + 1)
+        val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
+
+        response.status must === (StatusCodes.BadRequest)
+        parseErrors(response).get.head must === (GiftCardIsInactive(giftCard).description.head)
       }
     }
   }
@@ -195,7 +199,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
     val giftCard = (for {
       reason ← Reasons.save(Factories.reason.copy(storeAdminId = admin.id))
       origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
-      giftCard ← GiftCards.save(Factories.giftCard.copy(originId = origin.id))
+      giftCard ← GiftCards.save(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active))
     } yield giftCard).run().futureValue
   }
 
