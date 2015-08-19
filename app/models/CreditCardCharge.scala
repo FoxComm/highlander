@@ -22,7 +22,7 @@ final case class CreditCardCharge(id: Int = 0, creditCardId: Int, orderPaymentId
 
   import CreditCardCharge._
 
-  val stateLens = GenLens[CreditCardCharge](_.status)
+  def stateLens = GenLens[CreditCardCharge](_.status)
 
   val fsm: Map[Status, Set[Status]] = Map(
     Auth →
