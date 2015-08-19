@@ -2,6 +2,10 @@ package models
 
 import scala.concurrent.{ExecutionContext, Future}
 
+import cats.data.NonEmptyList
+import cats.implicits._
+import utils.Litterbox._
+import cats.data.Validated.{invalidNel, valid}
 import com.pellucid.sealerate
 import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import models.StoreCredit.{OnHold, Status}
@@ -11,8 +15,20 @@ import services.Failures
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.Money._
-import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId, Validation}
+import utils.{Model, ADT, FSM, GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId, Validation}
 import validators.nonEmptyIf
+
+
+trait NewModel extends Model {
+  /* We could give back XorNel instead of ValidatedNel and String could be a Error/Failure type for model
+     validation which would be distinct from our services.Failure type */
+  type XorNel = cats.data.Xor[NonEmptyList[String], Model]
+  type ValidatedNel = cats.data.Validated[NonEmptyList[String], Model]
+
+  def isNew: Boolean
+
+  def validateNew: ValidatedNel = cats.data.Validated.valid(this)
+}
 
 final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: String, currency: Currency,
   originalBalance: Int, currentBalance: Int = 0, availableBalance:Int = 0,
@@ -20,10 +36,30 @@ final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, origin
   extends PaymentMethod
   with ModelWithIdParameter
   with Validation[StoreCredit]
-  with FSM[StoreCredit.Status, StoreCredit] {
+  with FSM[StoreCredit.Status, StoreCredit]
+  with NewModel {
 
   import StoreCredit._
 
+  // would make this default on ModelWithIdParameter
+  def isNew: Boolean = id == 0
+
+  override def validateNew: ValidatedNel = {
+    def orValid(bad: Boolean, err: String) = if (bad) invalidNel(err) else valid(this)
+
+    val canceledWithReason = (status, canceledReason) match {
+      case (Canceled, None) ⇒ invalidNel("canceledReason must be present when canceled")
+      case _                ⇒ valid(this)
+    }
+
+    (canceledWithReason
+      |@| orValid(originalBalance < currentBalance, "originalBalance cannot be less than currentBalance")
+      |@| orValid(originalBalance < availableBalance, "originalBalance cannot be less than availableBalance")
+      |@| orValid(originalBalance <= 0, "originalBalance must be greater than zero")
+    ).map { case _ ⇒ this }
+  }
+
+  // we'll drop this entirely
   override def validator = createValidator[StoreCredit] { storeCredit =>
     storeCredit.status as "canceledReason" is nonEmptyIf(storeCredit.status == Canceled, storeCredit
       .canceledReason)
