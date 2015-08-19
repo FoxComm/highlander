@@ -1,7 +1,7 @@
 import java.net.ServerSocket
 
 import scala.concurrent.Await.result
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{Future, ExecutionContext}
 import scala.concurrent.duration._
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
@@ -17,6 +17,10 @@ import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
 import org.scalatest.{Outcome, Suite, SuiteMixin}
 import util.DbTestSupport
 import utils.JsonFormatters
+import concurrent.ExecutionContext.Implicits.global
+
+import cats.std.future._
+import cats.syntax.flatMap._
 
 // TODO: Move away from root package when `Service' moverd
 trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with PatienceConfiguration with DbTestSupport ⇒
@@ -38,9 +42,10 @@ trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with Patien
   override abstract protected def withFixture(test: NoArgTest): Outcome = {
     as = ActorSystem(test.name.filter(ActorSystemNameChars.contains), actorSystemConfig)
     fm = ActorMaterializer()
+    val service = makeService
 
     try {
-      serverBinding = makeService.bind(ConfigFactory.parseString(
+      serverBinding = service.bind(ConfigFactory.parseString(
         s"""
            |http.interface = 127.0.0.1
            |http.port      = ${ getFreePort }
@@ -48,6 +53,8 @@ trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with Patien
 
       super.withFixture(test)
     } finally {
+      (Http().shutdownAllConnectionPools() >> service.close()).futureValue
+
       as.shutdown()
       as.awaitTermination()
     }
