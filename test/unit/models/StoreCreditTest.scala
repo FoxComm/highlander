@@ -32,6 +32,16 @@ class StoreCreditTest extends TestBase {
         ))
       }
 
+      "returns an errs when something is wrong!!!!" in {
+        val sc = Factories.storeCredit.copy(originalBalance = 50, availableBalance = 100, currentBalance = 50)
+        val result = sc.validateNew
+
+        result mustBe 'invalid
+        result.fold(identity, m ⇒ NEL(m.modelName)) must ===(NEL(
+          "originalBalance cannot be less than availableBalance"
+        ))
+      }
+
       "is right when everything is okay!!!" in {
         val sc = Factories.storeCredit
         val result = sc.validateNew

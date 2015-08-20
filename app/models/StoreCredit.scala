@@ -23,7 +23,7 @@ trait NewModel extends Model {
   /* We could give back XorNel instead of ValidatedNel and String could be a Error/Failure type for model
      validation which would be distinct from our services.Failure type */
   type XorNel = cats.data.Xor[NonEmptyList[String], Model]
-  type ValidatedNel = cats.data.Validated[NonEmptyList[String], Model]
+  type ValidatedNel = cats.data.ValidatedNel[String, Model]
 
   def isNew: Boolean
 
@@ -45,17 +45,17 @@ final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, origin
   def isNew: Boolean = id == 0
 
   override def validateNew: ValidatedNel = {
-    def orValid(bad: Boolean, err: String) = if (bad) invalidNel(err) else valid(this)
+    def validate(isBad: Boolean, err: String) = if (isBad) invalidNel(err) else valid({})
 
     val canceledWithReason = (status, canceledReason) match {
       case (Canceled, None) ⇒ invalidNel("canceledReason must be present when canceled")
-      case _                ⇒ valid(this)
+      case _                ⇒ valid({})
     }
 
     (canceledWithReason
-      |@| orValid(originalBalance < currentBalance, "originalBalance cannot be less than currentBalance")
-      |@| orValid(originalBalance < availableBalance, "originalBalance cannot be less than availableBalance")
-      |@| orValid(originalBalance <= 0, "originalBalance must be greater than zero")
+      |@| validate(originalBalance < currentBalance, "originalBalance cannot be less than currentBalance")
+      |@| validate(originalBalance < availableBalance, "originalBalance cannot be less than availableBalance")
+      |@| validate(originalBalance <= 0, "originalBalance must be greater than zero")
     ).map { case _ ⇒ this }
   }
 
