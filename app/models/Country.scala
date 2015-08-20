@@ -11,16 +11,14 @@ import utils.Money._
 import utils.{ModelWithIdParameter, RichTable, TableQueryWithId}
 import Country._
 
-final case class Country(id: Int = 0, name: String, alpha2: Alpha2, alpha3: Alpha3, code: Option[Code],
-  continent: String, currency: Currency, languages: Language, postalCode: Boolean)
+final case class Country(id: Int = 0, name: String, alpha2: Alpha2, alpha3: Alpha3, code: Option[String],
+  continent: String, currency: Currency, languages: String, postalCode: Boolean)
   extends ModelWithIdParameter {
 }
 
 object Country {
-  type Code = String
   type Alpha2 = String
   type Alpha3 = String
-  type Language = String
 }
 
 class Countries(tag: Tag) extends TableWithId[Country](tag, "countries") with RichTable {
@@ -28,7 +26,7 @@ class Countries(tag: Tag) extends TableWithId[Country](tag, "countries") with Ri
   def name = column[String]("name")
   def alpha2 = column[Alpha2]("alpha2")
   def alpha3 = column[Alpha3]("alpha3")
-  def code = column[Option[Code]]("code")
+  def code = column[Option[String]]("code")
   def continent = column[String]("continent")
   def currency = column[Currency]("currency")
   def languages = column[String]("languages")
