@@ -2,6 +2,7 @@ package models
 
 import scala.concurrent.{ExecutionContext, Future}
 
+import cats.data.{Validated, ValidatedNel}
 import cats.implicits._
 import utils.Litterbox._
 import com.github.tototoshi.slick.JdbcJodaSupport._
@@ -22,14 +23,9 @@ import utils.{ADT, FSM, GenericTable, Model, ModelWithIdParameter, RichTable, Ta
 import validators.nonEmptyIf
 
 trait NewModel extends Model {
-  /* We could give back XorNel instead of ValidatedNel and String could be a Error/Failure type for model
-     validation which would be distinct from our services.Failure type */
-  type XorNel = cats.data.Xor[NonEmptyList[String], Model]
-  type ValidatedNel = cats.data.ValidatedNel[String, Model]
-
   def isNew: Boolean
 
-  def validateNew: ValidatedNel = cats.data.Validated.valid(this)
+  def validateNew: ValidatedNel[String, Model] = Validated.valid(this)
 }
 
 final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: String, currency: Currency,
@@ -46,7 +42,7 @@ final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, origin
   // would make this default on ModelWithIdParameter
   def isNew: Boolean = id == 0
 
-  override def validateNew: ValidatedNel = {
+  override def validateNew: ValidatedNel[String, Model] = {
     def validate(isBad: Boolean, err: String) = if (isBad) invalidNel(err) else valid({})
 
     val canceledWithReason = (status, canceledReason) match {
