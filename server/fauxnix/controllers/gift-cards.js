@@ -3,7 +3,7 @@
 const
   parse  = require('co-body'),
   moment = require('moment'),
-  _      = require('underscore'),
+  _      = require('lodash'),
   Chance = require('chance');
 
 const
