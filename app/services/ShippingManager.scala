@@ -9,7 +9,12 @@ object ShippingManager {
   def evaluateStatement(order: models.Order, statement: models.ConditionStatement)
     (implicit db: Database, ec: ExecutionContext): Future[Boolean] = {
 
-    statement.conditions.foldLeft(Future.successful(false)) { (result, nextCond) ⇒
+    val initial = statement.comparison match {
+      case models.ConditionStatement.And ⇒ Future.successful(true)
+      case models.ConditionStatement.Or ⇒ Future.successful(false)
+    }
+
+    statement.conditions.foldLeft(initial) { (result, nextCond) ⇒
       result.flatMap { res ⇒
         val isMatch = nextCond.rootObject match {
           case "Order" ⇒ evaluateOrderCondition(order, nextCond)
@@ -69,6 +74,7 @@ object ShippingManager {
         }
       }
     }
+
   }
 
 }

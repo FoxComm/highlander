@@ -13,12 +13,57 @@ class ShippingManagerTest extends IntegrationTestBase {
 
     "Evaluates rule: shipped to CA, OR, or WA" - {
 
-      "Succeeds when the order is shipped to CA" in new CaliforniaFixture {
+      "Is true when the order is shipped to CA" in new CaliforniaOrderFixture {
         val matches = ShippingManager.evaluateStatement(order, conditionStatement).futureValue
         matches must === (true)
       }
 
-      "Succeeds when the order is shipped to WA" in new WashingtonFixture {
+      "Is true when the order is shipped to WA" in new WashingtonOrderFixture {
+        val matches = ShippingManager.evaluateStatement(order, conditionStatement).futureValue
+        matches must === (true)
+      }
+
+      "Is false when the order is shipped to MI" in new MichiganOrderFixture {
+        val matches = ShippingManager.evaluateStatement(order, conditionStatement).futureValue
+        matches must === (false)
+      }
+
+    }
+
+    "Evaluates rule: order total is greater than $25" - {
+
+      "Is true when the order total is greater than $25" in new Fixture {
+        val orderTotalCondition = Condition(rootObject = "Order", field = "grandtotal",
+          operator = Condition.GreaterThan, valInt = Some(25))
+
+        val statement = ConditionStatement(comparison = ConditionStatement.And, conditions = Seq(orderTotalCondition))
+        val matches = ShippingManager.evaluateStatement(order, statement).futureValue
+        matches must ===(true)
+      }
+
+    }
+
+    "Evaluates rule: order total is greater than $100" - {
+
+      "Is false when the order total is less than $100" in new Fixture {
+        val orderTotalCondition = Condition(rootObject = "Order", field = "grandtotal",
+          operator = Condition.GreaterThan, valInt = Some(100))
+
+        val statement = ConditionStatement(comparison = ConditionStatement.And, conditions = Seq(orderTotalCondition))
+        val matches = ShippingManager.evaluateStatement(order, statement).futureValue
+        matches must === (false)
+      }
+
+    }
+
+    "Evaluates rule: order total is greater than $10 and is not shipped to a P.O. Box" - {
+
+      "Is true when the order total is greater than $10 and address1 doesn't contain a P.O. Box" in new POCondition {
+        val (address, orderShippingAddress) = (for {
+          address ← Addresses.save(Factories.address.copy(customerId = customer.id, stateId = washington.id, street1 = "a"))
+          orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
+        } yield (address, orderShippingAddress)).run().futureValue
+
         val matches = ShippingManager.evaluateStatement(order, conditionStatement).futureValue
         matches must === (true)
       }
@@ -28,42 +73,73 @@ class ShippingManagerTest extends IntegrationTestBase {
   }
 
   trait Fixture {
-    val customer = (for {
+    val (customer, order, california, michigan, oregon, washington) = (for {
       customer ← Customers.save(Factories.customer)
-    } yield customer).run().futureValue
-  }
-
-  trait WestCoastFixture extends Fixture {
-    val (california, oregon, washington, order) = (for {
+      order ← Orders.save(Factories.order.copy(customerId = customer.id))
       california ← States.save(State(id = 0, name = "California", abbreviation = "CA"))
+      michigan ← States.save(State(id = 0, name = "Michigan", abbreviation = "MI"))
       oregon ← States.save(State(id = 0, name = "Oregon", abbreviation = "OR"))
       washington ← States.save(State(id = 0, name = "Washington", abbreviation = "WA"))
-      order ← Orders.save(Factories.order.copy(customerId = customer.id))
-    } yield (california, oregon, washington, order)).run().futureValue
+    } yield (customer, order, california, michigan, oregon, washington)).run().futureValue
+  }
 
+  trait WestCoastConditionFixture extends Fixture {
     val stateConditions = Seq(
       Condition(rootObject = "ShippingAddress", field = "stateId",
-                operator = Condition.Equals, valInt = Some(california.id)),
+        operator = Condition.Equals, valInt = Some(california.id)),
       Condition(rootObject = "ShippingAddress", field = "stateId",
-                operator = Condition.Equals, valInt = Some(oregon.id)),
+        operator = Condition.Equals, valInt = Some(oregon.id)),
       Condition(rootObject = "ShippingAddress", field = "stateId",
-                operator = Condition.Equals, valInt = Some(washington.id))
+        operator = Condition.Equals, valInt = Some(washington.id))
     )
 
     val conditionStatement = ConditionStatement(comparison = ConditionStatement.Or, conditions = stateConditions)
   }
 
-  trait CaliforniaFixture extends WestCoastFixture {
+  trait CaliforniaOrderFixture extends WestCoastConditionFixture {
     val (address, orderShippingAddress) = (for {
       address ← Addresses.save(Factories.address.copy(customerId = customer.id, stateId = california.id))
       orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
     } yield (address, orderShippingAddress)).run().futureValue
   }
 
-  trait WashingtonFixture extends WestCoastFixture {
+  trait WashingtonOrderFixture extends WestCoastConditionFixture {
     val (address, orderShippingAddress) = (for {
       address ← Addresses.save(Factories.address.copy(customerId = customer.id, stateId = washington.id))
       orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
     } yield (address, orderShippingAddress)).run().futureValue
+  }
+
+  trait MichiganOrderFixture extends WestCoastConditionFixture {
+    val (address, orderShippingAddress) = (for {
+      michigan ← States.save(State(id = 0, name = "Michigan", abbreviation = "MI"))
+      address ← Addresses.save(Factories.address.copy(customerId = customer.id, stateId = michigan.id))
+      orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
+    } yield (address, orderShippingAddress)).run().futureValue
+  }
+
+  trait POCondition extends Fixture {
+    val conditions = Seq(
+      Condition(rootObject = "Order", field = "grandtotal",
+        operator = Condition.GreaterThan, valInt = Some(10)),
+      Condition(rootObject = "ShippingAddress", field = "street1",
+        operator = Condition.NotContains, valString = Some("P.O. Box")),
+      Condition(rootObject = "ShippingAddress", field = "street2",
+        operator = Condition.NotContains, valString = Some("P.O. Box")),
+      Condition(rootObject = "ShippingAddress", field = "street1",
+        operator = Condition.NotContains, valString = Some("PO Box")),
+      Condition(rootObject = "ShippingAddress", field = "street2",
+        operator = Condition.NotContains, valString = Some("PO Box")),
+      Condition(rootObject = "ShippingAddress", field = "street1",
+        operator = Condition.NotContains, valString = Some("p.o. box")),
+      Condition(rootObject = "ShippingAddress", field = "street2",
+        operator = Condition.NotContains, valString = Some("p.o. box")),
+      Condition(rootObject = "ShippingAddress", field = "street1",
+        operator = Condition.NotContains, valString = Some("po box")),
+      Condition(rootObject = "ShippingAddress", field = "street2",
+        operator = Condition.NotContains, valString = Some("po box"))
+    )
+
+    val conditionStatement = ConditionStatement(comparison = ConditionStatement.Or, conditions = conditions)
   }
 }
