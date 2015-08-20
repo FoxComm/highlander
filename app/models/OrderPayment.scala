@@ -52,12 +52,15 @@ object OrderPayments extends TableQueryWithId[OrderPayment, OrderPayments](
     this._findById(payment.id).update(payment).run()
 
   def findAllByOrderId(id: Int): Query[OrderPayments, OrderPayment, Seq] =
-    filter(_.id === id)
+    filter(_.orderId === id)
 
   def findAllPaymentsFor(order: Order)
                         (implicit ec: ExecutionContext, db: Database): Future[Seq[(OrderPayment, CreditCard)]] = {
     db.run(this._findAllPaymentsFor(order.id).result)
   }
+
+  def findAllStoreCredit: Query[OrderPayments, OrderPayment, Seq] =
+    filter(_.paymentMethodType === (Pay.StoreCredit: Pay.Type))
 
   def _findAllPaymentsFor(orderId: Int): Query[(OrderPayments, CreditCards), (OrderPayment, CreditCard), Seq] = {
     for {
