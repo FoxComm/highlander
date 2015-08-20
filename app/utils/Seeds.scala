@@ -200,6 +200,8 @@ object Seeds {
     )
 
     def shipment = Shipment(1, 1, Some(1), Some(1))
+
+    def condition = Condition(rootObject = "Order", field = "subtotal", operator = Condition.Equals, valInt = Some(50))
   }
 
   def main(args: Array[String]): Unit = {
