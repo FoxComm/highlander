@@ -31,7 +31,7 @@ module.exports = function(app, router) {
     })
     .patch('/customers/:customer/addresses/:address', function *() {
       let body = yield parse.json(this);
-      this.address.update(body);
+      this.address.amend(body);
       this.status = 200;
       this.body = this.address;
     })

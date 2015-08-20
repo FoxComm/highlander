@@ -40,17 +40,19 @@ class BaseModel {
 
   static find(field, id) {
     id = +id;
-    return this.data.filter(function(item) {
+    return _.filter(this.data, function(item) {
       return item[field] === id;
     });
   }
 
   static findOne(id) {
-    let result = _.find(this.data, function(item) {
-      return item.id === id;
-    });
+    let
+      Model = this,
+      result = _.find(this.data, function(item) {
+        return item.id === +id;
+      });
     if (!result) { throw new errors.NotFound(`Cannot find ${this.name}`); }
-    return result;
+    return new Model(result);
   }
 
   static findAll(field, id) {
