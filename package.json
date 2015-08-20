@@ -124,6 +124,7 @@
     "eslint-plugin-react": "^2.6.3",
     "gulp-eslint": "^0.14.0",
     "gulp-mocha": "^2.1.2",
+    "gulp-plumber": "^1.0.1",
     "jsdom": "^5.5.0",
     "koa-logger": "^1.2.2",
     "mocha": "^2.2.4",
