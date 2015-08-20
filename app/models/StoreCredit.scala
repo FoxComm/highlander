@@ -2,7 +2,12 @@ package models
 
 import scala.concurrent.{ExecutionContext, Future}
 
+import cats.data.{Validated, ValidatedNel}
+import cats.implicits._
+import utils.Litterbox._
 import com.github.tototoshi.slick.JdbcJodaSupport._
+import cats.data.NonEmptyList
+import cats.data.Validated.{invalidNel, valid}
 import com.pellucid.sealerate
 import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import models.StoreCredit.{OnHold, Status}
@@ -12,10 +17,16 @@ import org.scalactic._
 import services.Failures
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
-import utils.Money._
-import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId, Validation}
 import utils.Joda._
+import utils.Money._
+import utils.{ADT, FSM, GenericTable, Model, ModelWithIdParameter, RichTable, TableQueryWithId, Validation}
 import validators.nonEmptyIf
+
+trait NewModel extends Model {
+  def isNew: Boolean
+
+  def validateNew: ValidatedNel[String, Model] = Validated.valid(this)
+}
 
 final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: String, currency: Currency,
   originalBalance: Int, currentBalance: Int = 0, availableBalance:Int = 0,
@@ -23,10 +34,30 @@ final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, origin
   extends PaymentMethod
   with ModelWithIdParameter
   with Validation[StoreCredit]
-  with FSM[StoreCredit.Status, StoreCredit] {
+  with FSM[StoreCredit.Status, StoreCredit]
+  with NewModel {
 
   import StoreCredit._
 
+  // would make this default on ModelWithIdParameter
+  def isNew: Boolean = id == 0
+
+  override def validateNew: ValidatedNel[String, Model] = {
+    def validate(isBad: Boolean, err: String) = if (isBad) invalidNel(err) else valid({})
+
+    val canceledWithReason = (status, canceledReason) match {
+      case (Canceled, None) ⇒ invalidNel("canceledReason must be present when canceled")
+      case _                ⇒ valid({})
+    }
+
+    (canceledWithReason
+      |@| validate(originalBalance < currentBalance, "originalBalance cannot be less than currentBalance")
+      |@| validate(originalBalance < availableBalance, "originalBalance cannot be less than availableBalance")
+      |@| validate(originalBalance <= 0, "originalBalance must be greater than zero")
+    ).map { case _ ⇒ this }
+  }
+
+  // we'll drop this entirely
   override def validator = createValidator[StoreCredit] { storeCredit =>
     storeCredit.status as "canceledReason" is nonEmptyIf(storeCredit.status == Canceled, storeCredit
       .canceledReason)
@@ -101,8 +132,8 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
   idLens = GenLens[StoreCredit](_.id)
   )(new StoreCredits(_)){
 
-  import models.{StoreCreditAdjustment ⇒ Adj, StoreCreditAdjustments ⇒ Adjs}
   import StoreCredit._
+  import models.{StoreCreditAdjustment ⇒ Adj, StoreCreditAdjustments ⇒ Adjs}
 
   def auth(storeCredit: StoreCredit, orderPaymentId: Int, amount: Int = 0)
     (implicit ec: ExecutionContext): DBIO[Adj] =
