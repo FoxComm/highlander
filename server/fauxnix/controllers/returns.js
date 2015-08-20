@@ -53,24 +53,24 @@ module.exports = function(app, router) {
       this.body = this.return.viewers();
     })
     .get('/returns/:return/notes', function *() {
-      this.body = Note.findByOrder(this.return.id);
+      this.body = Note.findByOrder(this.return.orderId);
     })
     .post('/returns/:return/notes', function *() {
       let
         body = yield parse.json(this),
         note = new Note(body);
       note.amend({
-        orderId: this.return.id,
+        orderId: this.return.orderId,
         customerId: 1
       });
       this.status = 201;
       this.body = note;
     })
     .get('/returns/:return/activity-trail', function *() {
-      this.body = Activity.findByOrder(this.return.id);
+      this.body = Activity.findByOrder(this.return.orderId);
     })
     .get('/returns/:return/notifications', function *() {
-      this.body = Notification.findByOrder(this.return.id);
+      this.body = Notification.findByOrder(this.return.orderId);
     })
     .post('/returns/:return/notifications/:notification', function *() {
       this.body = this.notification;
