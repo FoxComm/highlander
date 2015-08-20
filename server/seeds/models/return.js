@@ -3,7 +3,7 @@
 const
   BaseModel = require('../lib/base-model'),
   Order = require('./order'),
-  errors    = require('../../errors');
+  errors = require('../../errors');
 
 const seed = [
   {field: 'referenceNumber', method: 'string', opts: {length: 8, pool: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'}},
@@ -20,7 +20,9 @@ class Return extends BaseModel {
     let results = this.data.filter(function(item) {
       return item.id === +id || item.referenceNumber === id;
     });
-    if (!results.length) { throw new errors.NotFound(`Cannot find ${this.name}`); }
+    if (!results.length) {
+      throw new errors.NotFound(`Cannot find ${this.name}`);
+    }
     return new this(results[0]);
   }
 
@@ -30,7 +32,9 @@ class Return extends BaseModel {
     };
   }
 
-  set returnStatus(status) { this.model.returnStatus = status; }
+  set returnStatus(status) {
+    this.model.returnStatus = status;
+  }
 }
 
 Object.defineProperty(Return, 'seed', {value: seed});

@@ -10,7 +10,7 @@ const
 module.exports = function(app, router) {
   const
     Return = app.seeds.models.Return,
-    Note  = app.seeds.models.Note,
+    Note = app.seeds.models.Note,
     Notification = app.seeds.models.Notification,
     Activity = app.seeds.models.Activity;
 
