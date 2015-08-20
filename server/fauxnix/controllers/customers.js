@@ -1,6 +1,8 @@
 'use strict';
 
-const parse = require('co-body');
+const
+  parse = require('co-body'),
+  _     = require('lodash');
 
 module.exports = function(app, router) {
   const Customer = app.seeds.models.Customer;
@@ -38,6 +40,10 @@ module.exports = function(app, router) {
     .get('/customers/:customer/addresses', function *() {
       this.body = Address.findByCustomer(this.customer.id);
     })
+    .get('/customers/:customer/addresses/:address', function *() {
+      this.body = this.address;
+      this.status = 200;
+    })
     .post('/customers/:customer/addresses', function *() {
       let
         body = yield parse.json(this),
@@ -47,10 +53,12 @@ module.exports = function(app, router) {
       this.body = address;
     })
     .post('/customers/:customer/addresses/:address/default', function *() {
-      let
-        body = yield parse.json(this);
+      let defaultAddress = _.find(Address.findByCustomer(this.customer.id), function(item) {
+        return item.isDefault === true;
+      });
+      defaultAddress.amend({isDefault: false});
 
-      this.address.amend(body);
+      this.address.amend({isDefault: true});
       this.status = 200;
     })
     .delete('/customers/:customer/addresses/default', function *() {
@@ -60,6 +68,6 @@ module.exports = function(app, router) {
       if (addresses.length > 0) {
         addresses[0].amend({isDefault: false});
       }
-      this.status = 200;
+      this.status = 204;
     });
 };
