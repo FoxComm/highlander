@@ -40,7 +40,7 @@ module.exports = function(app, router) {
     .patch('/returns/:return', function *() {
       let
         body = yield parse.json(this);
-      this.return.update(body);
+      this.return.amend(body);
       this.status = 200;
       this.body = this.return;
     })
@@ -59,9 +59,10 @@ module.exports = function(app, router) {
       let
         body = yield parse.json(this),
         note = new Note(body);
-      note.orderId = this.return.id;
-      // @todo no notion of auth right now, hard coded to 1 - Tivs
-      note.customerId = 1;
+      note.amend({
+        orderId: this.return.id,
+        customerId: 1
+      });
       this.status = 201;
       this.body = note;
     })
