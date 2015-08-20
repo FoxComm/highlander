@@ -1,7 +1,9 @@
 import akka.http.scaladsl.model.StatusCodes
 
+import com.github.tototoshi.slick.JdbcJodaSupport._
 import models.Order._
 import models._
+import org.joda.time.DateTime
 import services.{CannotUseInactiveCreditCard, CustomerHasInsufficientStoreCredit, CustomerManager, GiftCardIsInactive,
 GiftCardNotEnoughBalance, GiftCardNotFoundFailure, NotFoundFailure, OrderNotFoundFailure}
 import slick.driver.PostgresDriver.api._
@@ -64,43 +66,71 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
   "store credit" - {
     "when added as a payment method" - {
-      "succeeds" in new StoreCreditFixture {
-        val payload = payloads.StoreCreditPayment(amount = 100)
-        val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
+      "successfully" - {
+        "uses store credit records in FIFO order according to createdAt" in new StoreCreditFixture {
+          // ensure 3 & 4 are oldest so 5th should not be used
+          StoreCredits.filter(_.id === 3).map(_.createdAt).update(DateTime.now().minusMonths(2)).run().futureValue
+          StoreCredits.filter(_.id === 4).map(_.createdAt).update(DateTime.now().minusMonths(1)).run().futureValue
 
-        response.status must ===(StatusCodes.OK)
-        val payments = OrderPayments.findAllByOrderId(order.id).result.run().futureValue.toList
+          val payload = payloads.StoreCreditPayment(amount = 75)
+          val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
 
-        payments must have size(2)
-        payments.filter(_.paymentMethodType === PaymentMethod.StoreCredit) must have size(2)
+          response.status must ===(StatusCodes.OK)
+          OrderPayments.size.result.run().futureValue must === (2)
+
+          val (fst :: snd :: Nil) = OrderPayments.findAllStoreCredit.take(2).result.run().futureValue.toList
+
+          (fst.paymentMethodId, fst.amount) must === ((3, Some(50)))
+          (snd.paymentMethodId, snd.amount) must === ((4, Some(25)))
+        }
+
+        "only uses active store credit" in new StoreCreditFixture {
+          // inactive 1 and 2
+          StoreCredits.filter(_.id === 1).map(_.status).update(StoreCredit.Canceled).run().futureValue
+          StoreCredits.filter(_.id === 2).map(_.availableBalance).update(0).run().futureValue
+
+          val payload = payloads.StoreCreditPayment(amount = 75)
+          val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
+
+          response.status must ===(StatusCodes.OK)
+
+          val result = (for {
+            payments ← OrderPayments.filter(_.orderId === order.id)
+            usedStoreCredits ← StoreCredits.filter(_.id === payments.paymentMethodId)
+          } yield (payments, usedStoreCredits)).result.run().futureValue
+
+          result.map { case (_, sc) ⇒ sc.id } must contain noneOf (1, 2)
+        }
       }
 
-      "fails if the order is not found" in new Fixture {
-        val notFound = order.copy(referenceNumber = "ABC123")
-        val payload = payloads.StoreCreditPayment(amount = 50)
-        val response = POST(s"v1/orders/${notFound.refNum}/payment-methods/store-credit", payload)
+      "fails" - {
+        "if the order is not found" in new Fixture {
+          val notFound = order.copy(referenceNumber = "ABC123")
+          val payload = payloads.StoreCreditPayment(amount = 50)
+          val response = POST(s"v1/orders/${notFound.refNum}/payment-methods/store-credit", payload)
 
-        response.status must === (StatusCodes.NotFound)
-        parseErrors(response).get.head must === (OrderNotFoundFailure(notFound).description.head)
-      }
+          response.status must ===(StatusCodes.NotFound)
+          parseErrors(response).get.head must ===(OrderNotFoundFailure(notFound).description.head)
+        }
 
-      "fails if the customer has no active store credit" in new Fixture {
-        val payload = payloads.StoreCreditPayment(amount = 50)
-        val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
+        "if the customer has no active store credit" in new Fixture {
+          val payload = payloads.StoreCreditPayment(amount = 50)
+          val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
 
-        response.status must === (StatusCodes.BadRequest)
-        val error = CustomerHasInsufficientStoreCredit(customer.id, 0, 50).description.head
-        parseErrors(response).get.head must === (error)
-      }
+          response.status must ===(StatusCodes.BadRequest)
+          val error = CustomerHasInsufficientStoreCredit(customer.id, 0, 50).description.head
+          parseErrors(response).get.head must ===(error)
+        }
 
-      "fails if the customer has insufficient available store credit" in new StoreCreditFixture {
-        val payload = payloads.StoreCreditPayment(amount = 101)
-        val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
+        "if the customer has insufficient available store credit" in new StoreCreditFixture {
+          val payload = payloads.StoreCreditPayment(amount = 251)
+          val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
 
-        response.status must === (StatusCodes.BadRequest)
-        val has = storeCredits.map(_.availableBalance).sum
-        val error = CustomerHasInsufficientStoreCredit(customer.id, has, payload.amount).description.head
-        parseErrors(response).get.head must === (error)
+          response.status must ===(StatusCodes.BadRequest)
+          val has = storeCredits.map(_.availableBalance).sum
+          val error = CustomerHasInsufficientStoreCredit(customer.id, has, payload.amount).description.head
+          parseErrors(response).get.head must ===(error)
+        }
       }
     }
   }
@@ -206,10 +236,10 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
   trait StoreCreditFixture extends Fixture {
     val storeCredits = (for {
       reason ← Reasons.save(Factories.reason.copy(storeAdminId = admin.id))
-      _ ← StoreCreditManuals ++= (1 to 2).map { _ ⇒
+      _ ← StoreCreditManuals ++= (1 to 5).map { _ ⇒
         Factories.storeCreditManual.copy(adminId = admin.id, reasonId = reason.id)
       }
-      _ ← StoreCredits ++= (1 to 2).map { i ⇒
+      _ ← StoreCredits ++= (1 to 5).map { i ⇒
         Factories.storeCredit.copy(status = StoreCredit.Active, customerId = customer.id, originId = i)
       }
       storeCredits ← StoreCredits._findAllByCustomerId(customer.id)

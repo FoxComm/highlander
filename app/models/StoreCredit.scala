@@ -2,21 +2,24 @@ package models
 
 import scala.concurrent.{ExecutionContext, Future}
 
+import com.github.tototoshi.slick.JdbcJodaSupport._
 import com.pellucid.sealerate
 import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import models.StoreCredit.{OnHold, Status}
 import monocle.macros.GenLens
+import org.joda.time.DateTime
 import org.scalactic._
 import services.Failures
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.Money._
 import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId, Validation}
+import utils.Joda._
 import validators.nonEmptyIf
 
 final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: String, currency: Currency,
   originalBalance: Int, currentBalance: Int = 0, availableBalance:Int = 0,
-  status: Status = OnHold, canceledReason: Option[String] = None)
+  status: Status = OnHold, canceledReason: Option[String] = None, createdAt: DateTime = DateTime.now())
   extends PaymentMethod
   with ModelWithIdParameter
   with Validation[StoreCredit]
@@ -57,6 +60,24 @@ object StoreCredit {
   val activeStatuses = Set[Status](Active)
 
   implicit val statusColumnType = Status.slickColumn
+
+  def processFifo(storeCredits: List[StoreCredit], requestedAmount: Int): Map[StoreCredit, Int] = {
+    val fifo = storeCredits.sortBy(_.createdAt)
+    fifo.foldLeft(Map.empty[StoreCredit, Int]) { case (amounts, sc) ⇒
+      val total = amounts.values.sum
+      val missing = requestedAmount - total
+
+      if (total < requestedAmount) {
+        if ((total + sc.availableBalance) >= requestedAmount) {
+          amounts.updated(sc, missing)
+        } else {
+          amounts.updated(sc, sc.availableBalance)
+        }
+      } else {
+        amounts
+      }
+    }
+  }
 }
 
 class StoreCredits(tag: Tag) extends GenericTable.TableWithId[StoreCredit](tag, "store_credits") with RichTable {
@@ -70,8 +91,10 @@ class StoreCredits(tag: Tag) extends GenericTable.TableWithId[StoreCredit](tag, 
   def availableBalance = column[Int]("available_balance")
   def status = column[StoreCredit.Status]("status")
   def canceledReason = column[Option[String]]("canceled_reason")
+  def createdAt = column[DateTime]("created_at")
+
   def * = (id, customerId, originId, originType, currency, originalBalance, currentBalance,
-    availableBalance, status, canceledReason) <> ((StoreCredit.apply _).tupled, StoreCredit.unapply)
+    availableBalance, status, canceledReason, createdAt) <> ((StoreCredit.apply _).tupled, StoreCredit.unapply)
 }
 
 object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
@@ -96,7 +119,7 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
     filter(_.customerId === customerId).result
 
   def findAllActiveByCustomerId(customerId: Int): Query[StoreCredits, StoreCredit, Seq] =
-    filter(_.customerId === customerId).filter(_.status === (Active: Status))
+    filter(_.customerId === customerId).filter(_.status === (Active: Status)).filter(_.availableBalance > 0)
 
   def findByIdAndCustomerId(id: Int, customerId: Int)
     (implicit ec: ExecutionContext, db: Database): Future[Option[StoreCredit]] =

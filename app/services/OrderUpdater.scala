@@ -9,6 +9,8 @@ import responses.{Addresses ⇒ Response, FullOrder}
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.Validation.Result.{Failure ⇒ Invalid, Success}
+import com.github.tototoshi.slick.JdbcJodaSupport._
+import utils.Joda._
 
 object OrderUpdater {
 
@@ -127,7 +129,6 @@ object OrderUpdater {
 
   def addStoreCredit(refNum: String, payload: StoreCreditPayment)
     (implicit ec: ExecutionContext, db: Database): Future[Seq[OrderPayment] Or Failure] = {
-
     db.run(for {
       order ← Orders.findCartByRefNum(refNum).result.headOption
       storeCredits ← order.map { o ⇒
@@ -141,10 +142,11 @@ object OrderUpdater {
           val error = CustomerHasInsufficientStoreCredit(id = order.customerId, has = available, want = payload.amount)
           Future.successful(Bad(error))
         } else {
-          val payments = storeCredits.map { sc ⇒
-            OrderPayment.build(sc).copy(orderId = order.id, amount = Some(payload.amount))
+          val payments = StoreCredit.processFifo(storeCredits.toList, payload.amount).map { case (sc, amount) ⇒
+            OrderPayment.build(sc).copy(orderId = order.id, amount = Some(amount))
           }
-          db.run(OrderPayments ++= payments).map { _ ⇒ Good(payments) }
+
+          db.run(OrderPayments ++= payments).map { _ ⇒ Good(payments.toSeq) }
         }
 
       case (None, _) ⇒

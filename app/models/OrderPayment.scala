@@ -59,6 +59,9 @@ object OrderPayments extends TableQueryWithId[OrderPayment, OrderPayments](
     db.run(this._findAllPaymentsFor(order.id).result)
   }
 
+  def findAllStoreCredit: Query[OrderPayments, OrderPayment, Seq] =
+    filter(_.paymentMethodType === (Pay.StoreCredit: Pay.Type))
+
   def _findAllPaymentsFor(orderId: Int): Query[(OrderPayments, CreditCards), (OrderPayment, CreditCard), Seq] = {
     for {
       payments ← this.filter(_.orderId === orderId)

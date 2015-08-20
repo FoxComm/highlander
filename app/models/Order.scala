@@ -58,9 +58,9 @@ object Order {
 
   case object Cart extends Status
   case object Ordered extends Status
-  case object FraudHold extends Status //this only applies at the order_header level
-  case object RemorseHold extends Status //this only applies at the order_header level
-  case object ManualHold extends Status //this only applies at the order_header level
+  case object FraudHold extends Status
+  case object RemorseHold extends Status
+  case object ManualHold extends Status
   case object Canceled extends Status
   case object FulfillmentStarted extends Status
   case object Shipped extends Status
