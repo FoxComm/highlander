@@ -15,14 +15,17 @@ const
   autoPrefix  = new PluginAutoPrefix({browsers: ["last 2 versions"]});
 
 module.exports = function(gulp, opts, $) {
-  let production = (process.env.NODE_ENV === 'production');
-
   gulp.task('less', function() {
     let themes = opts.getThemes(opts.themeDir);
     let tasks = themes.map(function(theme) {
       let src = path.join(opts.themeDir, theme, '**/*.less');
       return gulp.src(src)
-        .pipe($.if(!production, plumber()))
+        .pipe($.if(opts.usePlumber, plumber({
+          errorHandler: function (err) {
+            console.log(err);
+            this.emit('end');
+          }
+        })))
         .pipe($.concat(`${theme}.less`))
         .pipe($.less({
           plugins: [npmImport, groupMediaQueries, autoPrefix, cleanCSS]
