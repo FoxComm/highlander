@@ -2,14 +2,12 @@ package models
 
 import scala.concurrent.{ExecutionContext, Future}
 
-import cats.data.{Validated, ValidatedNel}
+import cats.data.ValidatedNel
 import cats.implicits._
 import utils.Litterbox._
 import com.github.tototoshi.slick.JdbcJodaSupport._
-import cats.data.NonEmptyList
 import cats.data.Validated.{invalidNel, valid}
 import com.pellucid.sealerate
-import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import models.StoreCredit.{OnHold, Status}
 import monocle.macros.GenLens
 import org.joda.time.DateTime
@@ -19,21 +17,13 @@ import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.Joda._
 import utils.Money._
-import utils.{ADT, FSM, GenericTable, Model, ModelWithIdParameter, RichTable, TableQueryWithId, Validation}
-import validators.nonEmptyIf
-
-trait NewModel extends Model {
-  def isNew: Boolean
-
-  def validateNew: ValidatedNel[String, Model] = Validated.valid(this)
-}
+import utils.{ADT, NewModel, FSM, GenericTable, Model, ModelWithIdParameter, RichTable, TableQueryWithId}
 
 final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: String, currency: Currency,
   originalBalance: Int, currentBalance: Int = 0, availableBalance:Int = 0,
   status: Status = OnHold, canceledReason: Option[String] = None, createdAt: DateTime = DateTime.now())
   extends PaymentMethod
   with ModelWithIdParameter
-  with Validation[StoreCredit]
   with FSM[StoreCredit.Status, StoreCredit]
   with NewModel {
 
@@ -42,7 +32,7 @@ final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, origin
   // would make this default on ModelWithIdParameter
   def isNew: Boolean = id == 0
 
-  override def validateNew: ValidatedNel[String, Model] = {
+  def validateNew: ValidatedNel[String, Model] = {
     def validate(isBad: Boolean, err: String) = if (isBad) invalidNel(err) else valid({})
 
     val canceledWithReason = (status, canceledReason) match {
@@ -55,12 +45,6 @@ final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, origin
       |@| validate(originalBalance < availableBalance, "originalBalance cannot be less than availableBalance")
       |@| validate(originalBalance <= 0, "originalBalance must be greater than zero")
     ).map { case _ ⇒ this }
-  }
-
-  // we'll drop this entirely
-  override def validator = createValidator[StoreCredit] { storeCredit =>
-    storeCredit.status as "canceledReason" is nonEmptyIf(storeCredit.status == Canceled, storeCredit
-      .canceledReason)
   }
 
   def stateLens = GenLens[StoreCredit](_.status)

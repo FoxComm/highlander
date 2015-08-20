@@ -1,5 +1,6 @@
 package utils
 
+import cats.data.ValidatedNel
 import monocle.Lens
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
@@ -9,6 +10,13 @@ import scala.concurrent.ExecutionContext
 
 trait Model {
   def modelName: String = getClass.getCanonicalName.lowerCaseFirstLetter
+}
+
+trait NewModel extends Model {
+  // override me in ModelWithIdParameter with isNew = id == 0
+  def isNew: Boolean
+
+  def validateNew: ValidatedNel[String, Model]
 }
 
 trait ModelWithIdParameter extends Model {
