@@ -58,14 +58,38 @@ class ShippingManagerTest extends IntegrationTestBase {
 
     "Evaluates rule: order total is greater than $10 and is not shipped to a P.O. Box" - {
 
-      "Is true when the order total is greater than $10 and address1 doesn't contain a P.O. Box" in new POCondition {
+      // TODO (Jeff): Need to support case insensitivity.
+
+      "Is true when the order total is greater than $10 and no address field contains a P.O. Box" in new POCondition {
         val (address, orderShippingAddress) = (for {
-          address ← Addresses.save(Factories.address.copy(customerId = customer.id, stateId = washington.id, street1 = "a"))
+          address ← Addresses.save(Factories.address.copy(customerId = customer.id, stateId = washington.id))
           orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
         } yield (address, orderShippingAddress)).run().futureValue
 
         val matches = ShippingManager.evaluateStatement(order, conditionStatement).futureValue
         matches must === (true)
+      }
+
+      "Is false when the order total is greater than $10 and street1 contains a P.O. Box" in new POCondition {
+        val (address, orderShippingAddress) = (for {
+          address ← Addresses.save(Factories.address.copy(customerId = customer.id, stateId = washington.id,
+            street1 = "P.O. Box 1234"))
+          orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
+        } yield (address, orderShippingAddress)).run().futureValue
+
+        val matches = ShippingManager.evaluateStatement(order, conditionStatement).futureValue
+        matches must === (false)
+      }
+
+      "Is false when the order total is greater than $10 and street2 contains a P.O. Box" in new POCondition {
+        val (address, orderShippingAddress) = (for {
+          address ← Addresses.save(Factories.address.copy(customerId = customer.id, stateId = washington.id,
+            street2 = Some("P.O. Box 1234")))
+          orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
+        } yield (address, orderShippingAddress)).run().futureValue
+
+        val matches = ShippingManager.evaluateStatement(order, conditionStatement).futureValue
+        matches must === (false)
       }
 
     }
@@ -140,6 +164,6 @@ class ShippingManagerTest extends IntegrationTestBase {
         operator = Condition.NotContains, valString = Some("po box"))
     )
 
-    val conditionStatement = ConditionStatement(comparison = ConditionStatement.Or, conditions = conditions)
+    val conditionStatement = ConditionStatement(comparison = ConditionStatement.And, conditions = conditions)
   }
 }

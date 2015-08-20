@@ -44,16 +44,30 @@ object Condition {
   }
 
   // TODO (Jeff): Make this more robust and think about things like case-sensitivity.
-  def matches(comp: String, statement: Condition): Boolean = {
-    statement.valString.fold(false) { (v: String) ⇒
-      statement.operator match {
-        case Equals ⇒ comp == v
-        case NotEquals ⇒ comp != v
-        case Contains ⇒ comp.contains(v)
-        case NotContains ⇒ !comp.contains(v)
-        case StartsWith ⇒ comp.startsWith(v)
-        case _ ⇒ false
+  def matches(comp: String, statement: Condition): Boolean =
+    matches(Some(comp), statement)
+
+  def matches(comp: Option[String], statement: Condition): Boolean = {
+    comp.fold(matchAgainstEmptyStringOption(statement)) { (comp: String) ⇒
+      statement.valString.fold(false) { (v: String) ⇒
+        statement.operator match {
+          case Equals ⇒ comp == v
+          case NotEquals ⇒ comp != v
+          case Contains ⇒ comp.contains(v)
+          case NotContains ⇒ !comp.contains(v)
+          case StartsWith ⇒ comp.startsWith(v)
+          case _ ⇒ false
+        }
       }
+    }
+  }
+
+  private def matchAgainstEmptyStringOption(statement: Condition): Boolean = {
+    statement.operator match {
+      case Equals ⇒ statement.valString.isEmpty
+      case NotEquals ⇒ statement.valString.nonEmpty
+      case NotContains ⇒ true
+      case _ ⇒ false
     }
   }
 }

@@ -58,7 +58,7 @@ object ShippingManager {
           case "street1" ⇒
             models.Condition.matches(a._1.street1, condition)
           case "street2" ⇒
-            a._1.street2.fold(false)(models.Condition.matches(_, condition))
+            models.Condition.matches(a._1.street2, condition)
           case "city" ⇒
             models.Condition.matches(a._1.city, condition)
           case "stateId" ⇒
