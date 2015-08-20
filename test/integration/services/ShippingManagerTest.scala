@@ -56,6 +56,30 @@ class ShippingManagerTest extends IntegrationTestBase {
 
     }
 
+    "Evaluates rule: order total is between $10 and $100, and is shipped to WA, CA, or OR" - {
+
+      "Is true when the order total is $27 and shipped to CA" in new StateAndPriceCondition {
+        val (address, orderShippingAddress) = (for {
+          address ← Addresses.save(Factories.address.copy(customerId = customer.id, stateId = washington.id))
+          orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
+        } yield (address, orderShippingAddress)).run().futureValue
+
+        val matches = ShippingManager.evaluateStatement(order, statement).futureValue
+        matches must === (true)
+      }
+
+      "Is false when the order total is $27 and shipped to MI" in new StateAndPriceCondition {
+        val (address, orderShippingAddress) = (for {
+          address ← Addresses.save(Factories.address.copy(customerId = customer.id, stateId = michigan.id))
+          orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
+        } yield (address, orderShippingAddress)).run().futureValue
+
+        val matches = ShippingManager.evaluateStatement(order, statement).futureValue
+        matches must === (false)
+      }
+
+    }
+
     "Evaluates rule: order total is greater than $10 and is not shipped to a P.O. Box" - {
 
       // TODO (Jeff): Need to support case insensitivity.
@@ -165,5 +189,18 @@ class ShippingManagerTest extends IntegrationTestBase {
     )
 
     val conditionStatement = ConditionStatement(comparison = ConditionStatement.And, conditions = conditions)
+  }
+
+  trait StateAndPriceCondition extends WestCoastConditionFixture {
+    val priceConditions = Seq(
+      Condition(rootObject = "Order", field = "grandtotal",
+        operator = Condition.GreaterThanOrEquals, valInt = Some(10)),
+      Condition(rootObject = "Order", field = "grandtotal",
+        operator = Condition.LessThan, valInt = Some(100))
+    )
+
+    val priceStatement = ConditionStatement(comparison = ConditionStatement.And, conditions = priceConditions)
+    val statement = ConditionStatement(comparison = ConditionStatement.And,
+      statements = Seq(conditionStatement, priceStatement))
   }
 }

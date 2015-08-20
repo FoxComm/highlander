@@ -14,7 +14,7 @@ object ShippingManager {
       case models.ConditionStatement.Or ⇒ Future.successful(false)
     }
 
-    statement.conditions.foldLeft(initial) { (result, nextCond) ⇒
+    val condResult = statement.conditions.foldLeft(initial) { (result, nextCond) ⇒
       result.flatMap { res ⇒
         val isMatch = nextCond.rootObject match {
           case "Order" ⇒ evaluateOrderCondition(order, nextCond)
@@ -23,6 +23,17 @@ object ShippingManager {
         }
 
         isMatch.flatMap { im ⇒
+          statement.comparison match {
+            case models.ConditionStatement.And ⇒ Future.successful(im && res)
+            case models.ConditionStatement.Or ⇒ Future.successful(im || res)
+          }
+        }
+      }
+    }
+
+    statement.statements.foldLeft(condResult) { (result, nextStatement) ⇒
+      result.flatMap { res ⇒
+        evaluateStatement(order, nextStatement).flatMap { im ⇒
           statement.comparison match {
             case models.ConditionStatement.And ⇒ Future.successful(im && res)
             case models.ConditionStatement.Or ⇒ Future.successful(im || res)
