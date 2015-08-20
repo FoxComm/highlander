@@ -1,7 +1,7 @@
 'use strict';
 
 const
-  _       = require('underscore'),
+  _       = require('lodash'),
   request = require('request');
 
 class Api {

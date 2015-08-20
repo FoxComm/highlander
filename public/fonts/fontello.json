@@ -115,6 +115,12 @@
       "src": "fontawesome"
     },
     {
+      "uid": "026007bd17bfc67f3fe013199676f620",
+      "css": "dollar",
+      "code": 59422,
+      "src": "fontawesome"
+    },
+    {
       "uid": "0bda4bc779d4c32623dec2e43bd67ee8",
       "css": "gauge",
       "code": 59393,
@@ -184,6 +190,12 @@
       "uid": "e36d581e4f2844db345bddc205d15dda",
       "css": "group",
       "code": 59392,
+      "src": "elusive"
+    },
+    {
+      "uid": "5e5a88921aa39b292bdd56c3b9c923d3",
+      "css": "gift",
+      "code": 59423,
       "src": "elusive"
     }
   ]
