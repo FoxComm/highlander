@@ -13,7 +13,8 @@ export default class AddressBook extends React.Component {
     super(props);
     this.state = {
       addresses: [],
-      new: false
+      new: false,
+      customerId: null
     };
   }
 
@@ -27,6 +28,10 @@ export default class AddressBook extends React.Component {
       let { router } = this.context;
       customerId = router.getCurrentParams().customer;
     }
+
+    this.setState({
+      customerId: customerId
+    });
 
     AddressStore.uriRoot = `/customers/${customerId}`;
     AddressStore.fetch();
@@ -71,7 +76,7 @@ export default class AddressBook extends React.Component {
         </ul>
       </div>
     );
-    if (this.state.new) innerContent = <NewAddress order={order} />;
+    if (this.state.new) innerContent = <NewAddress order={order} customerId={this.state.customerId} />;
 
     return <div>{innerContent}</div>;
   }
