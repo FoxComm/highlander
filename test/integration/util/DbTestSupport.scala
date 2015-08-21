@@ -14,6 +14,9 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
 
   implicit lazy val db = database
 
+  /* tables which should *not* be truncated b/c they're static and seeded by migration */
+  val doNotTruncate = Set("states", "countries", "regions")
+
   override protected def beforeAll(): Unit = {
     if (!migrated) {
       val flyway = new Flyway
@@ -45,7 +48,7 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
       }
     }
 
-    val tables = iterate(Seq()).filterNot { t ⇒ t.startsWith("pg_") || t == "states" }
+    val tables = iterate(Seq()).filterNot { t ⇒ t.startsWith("pg_") || doNotTruncate.contains(t) }
 
     conn.createStatement().execute(s"truncate ${tables.mkString(", ")} restart identity cascade;")
     conn.close()

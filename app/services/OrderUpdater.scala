@@ -1,20 +1,15 @@
 package services
 
+import scala.concurrent.{ExecutionContext, Future}
+
 import models.Order.RemorseHold
 import models._
-import payloads.{GiftCardPayment, UpdateAddressPayload, BulkUpdateOrdersPayload, CreateShippingAddress,
-UpdateShippingAddress, UpdateOrderPayload}
-import slick.dbio
-import slick.dbio.Effect.{Transactional, Write}
-import utils.Http._
-import utils.TableQueryWithId
-
-import utils.Validation.Result.{Failure ⇒ Invalid, Success}
 import org.scalactic._
-import scala.concurrent.{Future, ExecutionContext}
-import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
+import payloads.{CreateShippingAddress, GiftCardPayment, StoreCreditPayment, UpdateAddressPayload, UpdateShippingAddress}
 import responses.{Addresses ⇒ Response, FullOrder}
+import slick.driver.PostgresDriver.api._
+import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
+import utils.Validation.Result.{Failure ⇒ Invalid, Success}
 
 object OrderUpdater {
 
@@ -180,6 +175,33 @@ object OrderUpdater {
         Future.successful(Bad(OrderNotFoundFailure(refNum)))
       case (_, None) ⇒
         Future.successful(Bad(GiftCardNotFoundFailure(payload.code)))
+    }
+  }
+
+  def addStoreCredit(refNum: String, payload: StoreCreditPayment)
+    (implicit ec: ExecutionContext, db: Database): Future[Seq[OrderPayment] Or Failure] = {
+    db.run(for {
+      order ← Orders.findCartByRefNum(refNum).result.headOption
+      storeCredits ← order.map { o ⇒
+        StoreCredits.findAllActiveByCustomerId(o.customerId).result
+      }.getOrElse(DBIO.successful(Seq.empty[StoreCredit]))
+    } yield (order, storeCredits)).flatMap {
+      case (Some(order), storeCredits) ⇒
+        val available = storeCredits.map(_.availableBalance).sum
+
+        if (available < payload.amount) {
+          val error = CustomerHasInsufficientStoreCredit(id = order.customerId, has = available, want = payload.amount)
+          Future.successful(Bad(error))
+        } else {
+          val payments = StoreCredit.processFifo(storeCredits.toList, payload.amount).map { case (sc, amount) ⇒
+            OrderPayment.build(sc).copy(orderId = order.id, amount = Some(amount))
+          }
+
+          db.run(OrderPayments ++= payments).map { _ ⇒ Good(payments.toSeq) }
+        }
+
+      case (None, _) ⇒
+        Future.successful(Bad(OrderNotFoundFailure(refNum)))
     }
   }
 

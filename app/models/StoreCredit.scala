@@ -1,32 +1,57 @@
 package models
 
+import com.pellucid.sealerate
+import services.{Result, Failures, Failure, OrderTotaler}
+import slick.dbio.Effect.Read
+import slick.profile.SqlAction
+import utils.Money._
+import utils.{ADT, GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
+import validators.nonEmptyIf
 import scala.concurrent.{ExecutionContext, Future}
 
+import cats.data.ValidatedNel
+import cats.implicits._
+import utils.Litterbox._
+import com.github.tototoshi.slick.JdbcJodaSupport._
+import cats.data.Validated.{invalidNel, valid}
 import com.pellucid.sealerate
-import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import models.StoreCredit.{OnHold, Status}
 import monocle.macros.GenLens
+import org.joda.time.DateTime
 import org.scalactic._
 import services.Failures
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
+import utils.Joda._
 import utils.Money._
-import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId, Validation}
-import validators.nonEmptyIf
+import utils.{ADT, NewModel, FSM, GenericTable, Model, ModelWithIdParameter, RichTable, TableQueryWithId}
 
 final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: String, currency: Currency,
   originalBalance: Int, currentBalance: Int = 0, availableBalance:Int = 0,
-  status: Status = OnHold, canceledReason: Option[String] = None)
+  status: Status = OnHold, canceledReason: Option[String] = None, createdAt: DateTime = DateTime.now())
   extends PaymentMethod
   with ModelWithIdParameter
-  with Validation[StoreCredit]
-  with FSM[StoreCredit.Status, StoreCredit] {
+  with FSM[StoreCredit.Status, StoreCredit]
+  with NewModel {
 
   import StoreCredit._
 
-  override def validator = createValidator[StoreCredit] { storeCredit =>
-    storeCredit.status as "canceledReason" is nonEmptyIf(storeCredit.status == Canceled, storeCredit
-      .canceledReason)
+  // would make this default on ModelWithIdParameter
+  def isNew: Boolean = id == 0
+
+  def validateNew: ValidatedNel[String, Model] = {
+    def validate(isBad: Boolean, err: String) = if (isBad) invalidNel(err) else valid({})
+
+    val canceledWithReason = (status, canceledReason) match {
+      case (Canceled, None) ⇒ invalidNel("canceledReason must be present when canceled")
+      case _                ⇒ valid({})
+    }
+
+    (canceledWithReason
+      |@| validate(originalBalance < currentBalance, "originalBalance cannot be less than currentBalance")
+      |@| validate(originalBalance < availableBalance, "originalBalance cannot be less than availableBalance")
+      |@| validate(originalBalance <= 0, "originalBalance must be greater than zero")
+    ).map { case _ ⇒ this }
   }
 
   def stateLens = GenLens[StoreCredit](_.status)
@@ -37,11 +62,11 @@ final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, origin
   )
 
   // TODO: not sure we use this polymorphically
-  def authorize(amount: Int)(implicit ec: ExecutionContext): Future[String Or Failures] = {
+  def authorize(amount: Int)(implicit ec: ExecutionContext): Result[String] = {
     Future.successful(Good("authenticated"))
   }
 
-  def isActive: Boolean = status == Active
+  def isActive: Boolean = activeStatuses.contains(status)
 }
 
 object StoreCredit {
@@ -54,7 +79,27 @@ object StoreCredit {
     def types = sealerate.values[Status]
   }
 
+  val activeStatuses = Set[Status](Active)
+
   implicit val statusColumnType = Status.slickColumn
+
+  def processFifo(storeCredits: List[StoreCredit], requestedAmount: Int): Map[StoreCredit, Int] = {
+    val fifo = storeCredits.sortBy(_.createdAt)
+    fifo.foldLeft(Map.empty[StoreCredit, Int]) { case (amounts, sc) ⇒
+      val total = amounts.values.sum
+      val missing = requestedAmount - total
+
+      if (total < requestedAmount) {
+        if ((total + sc.availableBalance) >= requestedAmount) {
+          amounts.updated(sc, missing)
+        } else {
+          amounts.updated(sc, sc.availableBalance)
+        }
+      } else {
+        amounts
+      }
+    }
+  }
 }
 
 class StoreCredits(tag: Tag) extends GenericTable.TableWithId[StoreCredit](tag, "store_credits") with RichTable {
@@ -68,29 +113,35 @@ class StoreCredits(tag: Tag) extends GenericTable.TableWithId[StoreCredit](tag, 
   def availableBalance = column[Int]("available_balance")
   def status = column[StoreCredit.Status]("status")
   def canceledReason = column[Option[String]]("canceled_reason")
+  def createdAt = column[DateTime]("created_at")
+
   def * = (id, customerId, originId, originType, currency, originalBalance, currentBalance,
-    availableBalance, status, canceledReason) <> ((StoreCredit.apply _).tupled, StoreCredit.unapply)
+    availableBalance, status, canceledReason, createdAt) <> ((StoreCredit.apply _).tupled, StoreCredit.unapply)
 }
 
 object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
   idLens = GenLens[StoreCredit](_.id)
   )(new StoreCredits(_)){
 
-  import StoreCreditAdjustment.{Auth, Capture, Status}
+  import StoreCredit._
+  import models.{StoreCreditAdjustment ⇒ Adj, StoreCreditAdjustments ⇒ Adjs}
 
   def auth(storeCredit: StoreCredit, orderPaymentId: Int, amount: Int = 0)
-    (implicit ec: ExecutionContext): DBIO[StoreCreditAdjustment] =
-    debit(storeCredit = storeCredit, orderPaymentId = orderPaymentId, amount = amount, status = Auth)
+    (implicit ec: ExecutionContext): DBIO[Adj] =
+    debit(storeCredit = storeCredit, orderPaymentId = orderPaymentId, amount = amount, status = Adj.Auth)
 
   def capture(storeCredit: StoreCredit, orderPaymentId: Int, amount: Int = 0)
-    (implicit ec: ExecutionContext): DBIO[StoreCreditAdjustment] =
-    debit(storeCredit = storeCredit, orderPaymentId = orderPaymentId, amount = amount, status = Capture)
+    (implicit ec: ExecutionContext): DBIO[Adj] =
+    debit(storeCredit = storeCredit, orderPaymentId = orderPaymentId, amount = amount, status = Adj.Capture)
 
   def findAllByCustomerId(customerId: Int)(implicit ec: ExecutionContext, db: Database): Future[Seq[StoreCredit]] =
     _findAllByCustomerId(customerId).run()
 
   def _findAllByCustomerId(customerId: Int)(implicit ec: ExecutionContext): DBIO[Seq[StoreCredit]] =
     filter(_.customerId === customerId).result
+
+  def findAllActiveByCustomerId(customerId: Int): Query[StoreCredits, StoreCredit, Seq] =
+    filter(_.customerId === customerId).filter(_.status === (Active: Status)).filter(_.availableBalance > 0)
 
   def findByIdAndCustomerId(id: Int, customerId: Int)
     (implicit ec: ExecutionContext, db: Database): Future[Option[StoreCredit]] =
@@ -99,10 +150,11 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
   def _findByIdAndCustomerId(id: Int, customerId: Int)(implicit ec: ExecutionContext): DBIO[Option[StoreCredit]] =
     filter(_.customerId === customerId).filter(_.id === id).take(1).result.headOption
 
-  private def debit(storeCredit: StoreCredit, orderPaymentId: Int, amount: Int = 0, status: Status = Auth)
-    (implicit ec: ExecutionContext): DBIO[StoreCreditAdjustment] = {
-    val adjustment = StoreCreditAdjustment(storeCreditId = storeCredit.id, orderPaymentId = orderPaymentId,
+  private def debit(storeCredit: StoreCredit, orderPaymentId: Int, amount: Int = 0,
+    status: Adj.Status = Adj.Auth)
+    (implicit ec: ExecutionContext): DBIO[Adj] = {
+    val adjustment = Adj(storeCreditId = storeCredit.id, orderPaymentId = orderPaymentId,
       debit = amount, status = status)
-    StoreCreditAdjustments.save(adjustment)
+    Adjs.save(adjustment)
   }
 }
