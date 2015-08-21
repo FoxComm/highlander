@@ -8,6 +8,7 @@ create table orders (
     updated_at timestamp without time zone default (now() at time zone 'utc'),
     deleted_at timestamp without time zone null,
     placed_at timestamp without time zone null,
+    remorse_period_in_minutes int default 30,
     foreign key (id) references inventory_events(id) on update restrict on delete restrict,
     constraint valid_reference_number check (length(reference_number) > 0),
     constraint valid_status check (status in ('cart','ordered','fraudHold','remorseHold','manualHold','canceled',
@@ -46,3 +47,16 @@ create trigger set_order_reference_number_trg
     for each row
     execute procedure set_order_reference_number();
 
+-- Reset remorse period when order moves from remorseHold status
+create function reset_remorse_period() returns trigger as $$
+declare
+begin
+  if old.status = 'remorseHold' and new.status != 'remorseHold' then
+    new.remorse_period_in_minutes = 30; -- FIXME: use retailer settings instead of hardcoding?
+  end if;
+  return new;
+end;
+$$ language plpgsql;
+
+create trigger remorse_hold_watch before update of status on orders
+for each row execute procedure reset_remorse_period();

@@ -4,11 +4,12 @@ import scala.concurrent.{ExecutionContext, Future}
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.model.{HttpResponse, StatusCode}
 
-import cats.std.future.futureInstance
+import models.{Customer, Orders, Order}
 import org.json4s.jackson
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import org.scalactic.{Bad, Good, Or}
-import services.{NotFoundFailure, Failure, Failures}
+import services.{NotFoundFailure, OrderLockedFailure, Failures, Failure}
+import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 
 object Http {
@@ -57,6 +58,36 @@ object Http {
       case None    ⇒ Future.successful(notFoundResponse)
       case Some(v) ⇒ bind(v).map(renderGoodOrFailures)
     }
+  }
+
+  def whenOrderFoundAndEditable[G <: AnyRef](finder: Future[Option[Order]])
+                                            (f: Order ⇒ Future[G Or Failures])
+                                            (implicit ec: ExecutionContext, db: Database): Future[HttpResponse] = {
+
+    finder.flatMap {
+      case Some(order) if !order.locked ⇒
+        f(order).map(renderGoodOrFailures)
+      case Some(order) if order.locked ⇒
+        Future.successful(renderFailure(Seq(OrderLockedFailure(order.referenceNumber))))
+      case None ⇒
+        Future.successful(notFoundResponse)
+    }
+  }
+
+  def whenOrderFoundAndEditable[G <: AnyRef](customer: Customer)
+                                            (f: Order ⇒ Future[G Or Failures])
+                                            (implicit ec: ExecutionContext, db: Database): Future[HttpResponse] = {
+
+    val finder = Orders._findActiveOrderByCustomer(customer).result.headOption.run()
+    whenOrderFoundAndEditable(finder)(f)
+  }
+
+  def whenOrderFoundAndEditable[G <: AnyRef](refNumber: String)
+                                            (f: Order ⇒ Future[G Or Failures])
+                                            (implicit ec: ExecutionContext, db: Database): Future[HttpResponse] = {
+
+    val finder = Orders.findByRefNum(refNumber).result.headOption.run()
+    whenOrderFoundAndEditable(finder)(f)
   }
 
   def renderOrNotFound[A <: AnyRef](resource: Future[Option[A]],

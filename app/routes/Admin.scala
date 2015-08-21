@@ -10,7 +10,6 @@ import models._
 import akka.http.scaladsl.model.StatusCodes._
 import org.scalactic._
 import payloads._
-import responses.FullOrder.Response
 import responses.{AllOrders, AllOrdersWithFailures, AdminNotes, FullOrder}
 import services._
 import slick.driver.PostgresDriver.api._
@@ -168,20 +167,40 @@ object Admin {
         } ~
         (patch & entity(as[UpdateOrderPayload])) { payload ⇒
           complete {
-            def finder = Orders.findByRefNum(refNum)
-            whenFound(finder.result.headOption.run()) { order ⇒
-              OrderUpdater.updateStatus(refNum, finder, payload.status)
+            whenOrderFoundAndEditable(refNum) { _ ⇒
+              OrderUpdater.updateStatus(refNum, payload.status)
+            }
+          }
+        } ~
+        (post & path("increase-remorse-period") & pathEnd) {
+          complete {
+            whenOrderFoundAndEditable(refNum) { order ⇒
+              OrderUpdater.increaseRemorsePeriod(order)
+            }
+          }
+        } ~
+        (post & path("lock") & pathEnd) {
+          complete {
+            whenOrderFoundAndEditable(refNum) { order ⇒
+             OrderUpdater.lock(order, admin)
+            }
+          }
+        } ~
+        (post & path("unlock") & pathEnd) {
+          complete {
+            whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
+              OrderUpdater.unlock(order)
             }
           }
         } ~
         (post & path("checkout")) {
           complete {
-            whenFoundDispatchToService(Orders.findByRefNum(refNum).result.headOption.run()) { order => new Checkout(order).checkout }
+            whenOrderFoundAndEditable(refNum) { order ⇒ new Checkout(order).checkout }
           }
         } ~
         (post & path("line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems =>
           complete {
-            whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order =>
+            whenOrderFoundAndEditable(refNum) { order ⇒
               LineItemUpdater.updateQuantities(order, reqItems).flatMap {
                 case Good(_) ⇒ FullOrder.fromOrder(order).map(Good(_))
                 case Bad(e) ⇒ Future.successful(Bad(e))
@@ -238,19 +257,19 @@ object Admin {
         pathPrefix("notes") {
           (get & pathEnd) {
             complete {
-              whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒ AdminNotes.forOrder(order) }
+              whenOrderFoundAndEditable(refNum) { order ⇒ AdminNotes.forOrder(order) }
             }
           } ~
           (post & entity(as[payloads.CreateNote])) { payload ⇒
             complete {
-              whenFoundDispatchToService(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
+              whenOrderFoundAndEditable(refNum) { order ⇒
                 services.NoteManager.createOrderNote(order, admin, payload)
               }
             }
           } ~
           (patch & path(IntNumber) & entity(as[payloads.UpdateNote])) { (noteId, payload) ⇒
             complete {
-              whenFoundDispatchToService(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
+              whenOrderFoundAndEditable(refNum) { order ⇒
                 services.NoteManager.updateNote(noteId, admin, payload)
               }
             }
@@ -271,7 +290,7 @@ object Admin {
         pathPrefix("shipping-address") {
           (post & entity(as[payloads.CreateShippingAddress]) & pathEnd) { payload ⇒
             complete {
-              whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
+              whenOrderFoundAndEditable(refNum) { order ⇒
                 services.OrderUpdater.createShippingAddress(order, payload)
               }
             }

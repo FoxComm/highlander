@@ -34,7 +34,8 @@ class AllOrdersIntegrationTest extends IntegrationTestBase with HttpSupport with
         orderStatus = Order.ManualHold,
         placedAt = None,
         total = 27,
-        paymentStatus = None)
+        paymentStatus = None,
+        remorsePeriod = None)
 
       actual must === (expected)
     }
@@ -48,19 +49,15 @@ class AllOrdersIntegrationTest extends IntegrationTestBase with HttpSupport with
       responseJson.status must === (StatusCodes.OK)
 
       val all = parse(responseJson.bodyText).extract[AllOrdersWithFailures]
-      all.orders.size must === (4)
-      all.failures.size must === (2)
-
       val allOrders = all.orders.map(o ⇒ (o.referenceNumber, o.orderStatus))
 
       allOrders must contain allOf(
         ("foo", FulfillmentStarted),
-        ("bar", FulfillmentStarted),
-        ("baz", ManualHold),
-        ("qux", Canceled))
+        ("bar", RemorseHold),
+        ("baz", ManualHold))
 
       all.failures must contain allOf(
-        OrderUpdateFailure("qux", "Transition from Canceled to FulfillmentStarted is not allowed"),
+        OrderUpdateFailure("bar", "Order is locked"),
         OrderUpdateFailure("nonExistent", "Not found"))
     }
   }
@@ -69,9 +66,9 @@ class AllOrdersIntegrationTest extends IntegrationTestBase with HttpSupport with
     val q = for {
       customer ← Customers.save(Factories.customer)
       foo ← Orders.save(Factories.order.copy(customerId = customer.id, referenceNumber = "foo", status = FraudHold))
-      bar ← Orders.save(Factories.order.copy(customerId = customer.id, referenceNumber = "bar", status = RemorseHold))
+      bar ← Orders.save(Factories.order.copy(customerId = customer.id, referenceNumber = "bar", status = RemorseHold,
+        locked = true))
       baz ← Orders.save(Factories.order.copy(customerId = customer.id, referenceNumber = "baz", status = ManualHold))
-      qux ← Orders.save(Factories.order.copy(customerId = customer.id, referenceNumber = "qux", status = Canceled))
     } yield (customer, foo, bar)
     db.run(q).futureValue
   }
