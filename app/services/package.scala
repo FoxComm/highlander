@@ -16,7 +16,7 @@ package object services {
 
   object Result {
     def good[A](order: A): Result[A] =
-      Future.successful(Good(order).asInstanceOf[A Or Failures])
+      Future.successful(Good[A, Failures](order))
 
     def failures(failures: Failure*): Result[Nothing] =
       Future.successful(Bad(Failures(failures: _*)))
