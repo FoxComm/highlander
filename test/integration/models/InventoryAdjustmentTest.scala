@@ -17,7 +17,9 @@ class InventoryAdjustmentTest extends IntegrationTestBase {
   "InventoryAdjustment" - {
     "createAdjustmentsForOrder creates an adjustment with the correct reservation based on line items" in {
       val (sku, order) = seed()
-      (OrderLineItems.returningId ++= (1 to 5).map { _ ⇒ OrderLineItem(orderId = order.id, skuId = sku.id) }).run()
+      (OrderLineItems.returningId ++= (1 to 5).map { _ ⇒
+        OrderLineItem(orderId = order.id, skuId = sku.id)
+      }).run().futureValue
 
       InventoryAdjustments.createAdjustmentsForOrder(order).futureValue
       val summary = InventorySummaries.findBySkuId(sku.id).futureValue.get
