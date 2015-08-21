@@ -18,6 +18,11 @@
       }
       .col-numerator(@fraction + 1);
     }
+    &.fc-grid-1-@{idx} {
+      >* {
+        width: (100% / @idx);
+      }
+    }
     .col-numerator(1);
     .col-denomenator(@idx + 1);
   }
