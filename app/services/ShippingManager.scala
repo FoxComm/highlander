@@ -6,86 +6,93 @@ import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 
 object ShippingManager {
 
+  final case class ShippingData(order: models.Order, orderTotal: Int, orderSubTotal: Int,
+    shippingAddress: models.OrderShippingAddress, shippingState: models.State)
+
   def evaluateStatement(order: models.Order, statement: models.ConditionStatement)
     (implicit db: Database, ec: ExecutionContext): Future[Boolean] = {
 
-    val initial = statement.comparison match {
-      case models.ConditionStatement.And ⇒ Future.successful(true)
-      case models.ConditionStatement.Or ⇒ Future.successful(false)
-    }
-
-    val condResult = statement.conditions.foldLeft(initial) { (result, nextCond) ⇒
-      result.flatMap { res ⇒
-        val isMatch = nextCond.rootObject match {
-          case "Order" ⇒ evaluateOrderCondition(order, nextCond)
-          case "ShippingAddress" ⇒ evaluateShippingAddressCondition(order, nextCond)
-          case _ ⇒ Future.successful(false)
-        }
-
-        isMatch.flatMap { im ⇒
-          statement.comparison match {
-            case models.ConditionStatement.And ⇒ Future.successful(im && res)
-            case models.ConditionStatement.Or ⇒ Future.successful(im || res)
-          }
-        }
+    getShippingData(order).map {
+      _ match {
+        case Some(shippingData) ⇒
+          evaluateStatementSync(shippingData, statement)
+        case None ⇒
+          // TODO (Jeff): We'll want real error handling here, not just false to be returned.
+          false
       }
     }
-
-    statement.statements.foldLeft(condResult) { (result, nextStatement) ⇒
-      result.flatMap { res ⇒
-        evaluateStatement(order, nextStatement).flatMap { im ⇒
-          statement.comparison match {
-            case models.ConditionStatement.And ⇒ Future.successful(im && res)
-            case models.ConditionStatement.Or ⇒ Future.successful(im || res)
-          }
-        }
-      }
-    }
-
   }
 
-  private def evaluateOrderCondition(order: models.Order, condition: models.Condition)
-    (implicit db: Database, ec: ExecutionContext): Future[Boolean] = {
+  private def evaluateStatementSync(shippingData: ShippingData, statement: models.ConditionStatement): Boolean = {
+    val initial = statement.comparison == models.ConditionStatement.And
+
+    val conditionsResult = statement.conditions.foldLeft(initial) { (result, nextCond) ⇒
+      val res = nextCond.rootObject match {
+        case "Order" ⇒ evaluateOrderCondition(shippingData, nextCond)
+        case "ShippingAddress" ⇒ evaluateShippingAddressCondition(shippingData, nextCond)
+        case _ ⇒ false
+      }
+
+      statement.comparison match {
+        case models.ConditionStatement.And ⇒ result && res
+        case models.ConditionStatement.Or ⇒ result || res
+      }
+    }
+
+    statement.statements.foldLeft(conditionsResult) { (result, nextCond) ⇒
+      statement.comparison match {
+        case models.ConditionStatement.And ⇒ evaluateStatementSync(shippingData, nextCond) && result
+        case models.ConditionStatement.Or ⇒ evaluateStatementSync(shippingData, nextCond) || result
+      }
+    }
+  }
+
+  private def getShippingData(order: models.Order)
+    (implicit db: Database, ec: ExecutionContext): Future[Option[ShippingData]] = {
+    db.run(models.OrderShippingAddresses.findByOrderIdWithStates(order.id).result.headOption).flatMap { x ⇒
+      val isNothing: Future[Option[ShippingData]] = Future.successful(None)
+
+      x.fold(isNothing) { addressWithState ⇒
+
+        order.grandTotal.flatMap { grandTotal ⇒
+          order.subTotal.flatMap { subTotal ⇒
+            val sd = ShippingData(order = order, orderTotal = grandTotal, orderSubTotal = subTotal,
+              shippingAddress = addressWithState._1, shippingState = addressWithState._2)
+
+            Future.successful(Some(sd))
+          }
+        }
+      }
+    }
+  }
+
+  private def evaluateOrderCondition(shippingData: ShippingData, condition: models.Condition): Boolean = {
     condition.field match {
-      case "subtotal" ⇒
-        order.subTotal.map { subTotal ⇒
-          models.Condition.matches(subTotal, condition)
-        }
-      case "grandtotal" ⇒
-        order.grandTotal.map { grandTotal ⇒
-          models.Condition.matches(grandTotal, condition)
-        }
-      case _ ⇒
-        Future.successful(false)
+      case "subtotal" ⇒ models.Condition.matches(shippingData.orderSubTotal, condition)
+      case "grandtotal" ⇒ models.Condition.matches(shippingData.orderTotal, condition)
+      case _ ⇒ false
     }
   }
 
-  private def evaluateShippingAddressCondition(order: models.Order, condition: models.Condition)
-    (implicit db: Database, ec: ExecutionContext): Future[Boolean] = {
-
-    db.run(models.OrderShippingAddresses.findByOrderIdWithStates(order.id).result.headOption).map { address ⇒
-      address.fold(false) { a ⇒
-        condition.field match {
-          case "street1" ⇒
-            models.Condition.matches(a._1.street1, condition)
-          case "street2" ⇒
-            models.Condition.matches(a._1.street2, condition)
-          case "city" ⇒
-            models.Condition.matches(a._1.city, condition)
-          case "stateId" ⇒
-            models.Condition.matches(a._1.stateId, condition)
-          case "stateName" ⇒
-            models.Condition.matches(a._2.name, condition)
-          case "stateAbbrev" ⇒
-            models.Condition.matches(a._2.abbreviation, condition)
-          case "zip" ⇒
-            models.Condition.matches(a._1.zip, condition)
-          case _ ⇒
-            false
-        }
-      }
+  private def evaluateShippingAddressCondition(shippingData: ShippingData, condition: models.Condition): Boolean = {
+    condition.field match {
+      case "street1" ⇒
+        models.Condition.matches(shippingData.shippingAddress.street1, condition)
+      case "street2" ⇒
+        models.Condition.matches(shippingData.shippingAddress.street2, condition)
+      case "city" ⇒
+        models.Condition.matches(shippingData.shippingAddress.city, condition)
+      case "stateId" ⇒
+        models.Condition.matches(shippingData.shippingAddress.stateId, condition)
+      case "stateName" ⇒
+        models.Condition.matches(shippingData.shippingState.name, condition)
+      case "stateAbbrev" ⇒
+        models.Condition.matches(shippingData.shippingState.abbreviation, condition)
+      case "zip" ⇒
+        models.Condition.matches(shippingData.shippingAddress.zip, condition)
+      case _ ⇒
+        false
     }
-
   }
 
 }

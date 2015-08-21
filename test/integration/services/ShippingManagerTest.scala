@@ -32,7 +32,7 @@ class ShippingManagerTest extends IntegrationTestBase {
 
     "Evaluates rule: order total is greater than $25" - {
 
-      "Is true when the order total is greater than $25" in new Fixture {
+      "Is true when the order total is greater than $25" in new OrderFixture {
         val orderTotalCondition = Condition(rootObject = "Order", field = "grandtotal",
           operator = Condition.GreaterThan, valInt = Some(25))
 
@@ -45,7 +45,7 @@ class ShippingManagerTest extends IntegrationTestBase {
 
     "Evaluates rule: order total is greater than $100" - {
 
-      "Is false when the order total is less than $100" in new Fixture {
+      "Is false when the order total is less than $100" in new OrderFixture {
         val orderTotalCondition = Condition(rootObject = "Order", field = "grandtotal",
           operator = Condition.GreaterThan, valInt = Some(100))
 
@@ -129,6 +129,13 @@ class ShippingManagerTest extends IntegrationTestBase {
       oregon ← States.save(State(id = 0, name = "Oregon", abbreviation = "OR"))
       washington ← States.save(State(id = 0, name = "Washington", abbreviation = "WA"))
     } yield (customer, order, california, michigan, oregon, washington)).run().futureValue
+  }
+
+  trait OrderFixture extends Fixture {
+    val (address, orderShippingAddress) = (for {
+      address ← Addresses.save(Factories.address.copy(customerId = customer.id, stateId = california.id))
+      orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
+    } yield (address, orderShippingAddress)).run().futureValue
   }
 
   trait WestCoastConditionFixture extends Fixture {
