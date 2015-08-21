@@ -12,11 +12,6 @@ import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.Validation.Result.{Failure ⇒ Invalid, Success}
 
-object Temp0 {
-}
-
-import Temp0._
-
 object AddressManager {
   def create(payload: CreateAddressPayload, customerId: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {

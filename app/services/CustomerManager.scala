@@ -11,8 +11,6 @@ import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.Slick.UpdateReturning._
 import utils.jdbc.{RecordNotUnique, withUniqueConstraint}
 
-import Temp0._
-
 object CustomerManager {
   def toggleDisabled(customerId: Int, disabled: Boolean, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database): Result[Customer] = {

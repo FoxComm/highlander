@@ -45,7 +45,7 @@ final case class GiftCard(id: Int = 0, originId: Int, originType: String, code: 
     OnHold → Set(Active, Canceled),
     Active → Set(OnHold, Canceled)
   )
-  
+
   def authorize(amount: Int)(implicit ec: ExecutionContext): Result[String] = {
     Future.successful(Good("authenticated"))
   }

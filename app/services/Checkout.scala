@@ -10,8 +10,6 @@ import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import com.github.tototoshi.slick.JdbcJodaSupport._
 import org.joda.time.{DateTimeZone, DateTime}
 
-import Temp0._
-
 class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
 
   def checkout: Result[Order] = {
