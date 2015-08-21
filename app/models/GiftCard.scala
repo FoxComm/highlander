@@ -1,5 +1,13 @@
 package models
 
+import com.pellucid.sealerate
+import services.{Result, Failures, Failure}
+import slick.dbio
+import slick.dbio.Effect.{Read, Write}
+import slick.profile.FixedSqlStreamingAction
+import utils.Money._
+import utils.{ADT, GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
+import validators.nonEmptyIf
 import scala.concurrent.{ExecutionContext, Future}
 
 import com.pellucid.sealerate
@@ -38,7 +46,7 @@ final case class GiftCard(id: Int = 0, originId: Int, originType: String, code: 
     Active → Set(OnHold, Canceled)
   )
 
-  def authorize(amount: Int)(implicit ec: ExecutionContext): Future[String Or Failures] = {
+  def authorize(amount: Int)(implicit ec: ExecutionContext): Result[String] = {
     Future.successful(Good("authenticated"))
   }
 

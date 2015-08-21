@@ -9,7 +9,7 @@ import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 
 object CustomerCreditConverter {
   def toStoreCredit(gc: GiftCard, customerId: Int)
-    (implicit ec: ExecutionContext, db: Database): Future[StoreCredit Or Failures] = {
+    (implicit ec: ExecutionContext, db: Database): Result[StoreCredit] = {
 
     if (gc.isActive) {
       val storeCredit = StoreCredit(customerId = customerId, originId = 0, originType = "storeCreditFromGiftCard",
@@ -20,12 +20,12 @@ object CustomerCreditConverter {
         sc ← StoreCredits.save(storeCredit.copy(originId = conversion.id))
       } yield sc).map(Good(_))
     } else {
-      Future.successful(Bad(GeneralFailure(s"cannot convert a gift card with status '${gc.status}'").single))
+      Result.failure(GeneralFailure(s"cannot convert a gift card with status '${gc.status}'"))
     }
   }
 
   def toGiftCard(sc: StoreCredit, customerId: Int)
-    (implicit ec: ExecutionContext, db: Database): Future[GiftCard Or Failures] = {
+    (implicit ec: ExecutionContext, db: Database): Result[GiftCard] = {
 
     if (sc.isActive) {
       val giftCard = GiftCard(code = "x", originId = 0, originType =

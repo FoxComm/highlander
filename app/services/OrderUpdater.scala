@@ -15,10 +15,10 @@ import utils.Joda._
 object OrderUpdater {
 
   def updateStatus(refNum: String, finder: Query[Orders, Order, Seq], newStatus: Order.Status)
-    (implicit db: Database, ec: ExecutionContext): Future[FullOrder.Root Or Failure] = {
+    (implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
 
     updateStatuses(Seq(refNum), newStatus).flatMap {
-      case Seq(failure) ⇒ Future.successful(Bad(failure))
+      case Seq(failure) ⇒ Result.failure(failure)
       case Seq() ⇒ finder.result.run().flatMap(o ⇒ FullOrder.fromOrder(o.head).map(Good(_)))
     }
   }

@@ -17,7 +17,7 @@ import slick.driver.PostgresDriver.api._
 object NoteManager {
 
   def createOrderNote(order: Order, author: StoreAdmin, payload: payloads.CreateNote)
-    (implicit ec: ExecutionContext, db: Database): Future[Root Or Failures] = {
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
     createNote(Note(storeAdminId = author.id, referenceId = order.id, referenceType = Note.Order,
       body = payload.body)).map { result ⇒
       result.map(AdminNotes.build(_, author))
@@ -25,7 +25,7 @@ object NoteManager {
   }
 
   def updateNote(noteId: Int, author: StoreAdmin, payload: payloads.UpdateNote)
-    (implicit ec: ExecutionContext, db: Database): Future[Or[Root, Failures]] = {
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
     val query = Notes._filterByIdAndAdminId(noteId, author.id)
     val update = query.map(_.body).update(payload.body)
 
@@ -36,12 +36,12 @@ object NoteManager {
           case None       ⇒ Bad(notFound(noteId).single)
         }
       } else {
-        Future.successful(Bad(notFound(noteId).single))
+        Result.failure(notFound(noteId))
       }
     }
   }
 
-  def notFound(noteId: Int): NotFoundFailure = NotFoundFailure(Note, noteId)
+  private def notFound(noteId: Int): NotFoundFailure = NotFoundFailure(Note, noteId)
 
 //  def deleteNote(noteId: Int, admin: StoreAdmin)
 //    (implicit ec: ExecutionContext, db: Database): Future[Int] = {
@@ -49,7 +49,7 @@ object NoteManager {
 //  }
 
   private def createNote(note: Note)
-    (implicit ec: ExecutionContext, db: Database): Future[Note Or Failures] = {
+    (implicit ec: ExecutionContext, db: Database): Result[Note] = {
     note.validate match {
       case Success ⇒
         Notes.save(note).run().map(Good(_))

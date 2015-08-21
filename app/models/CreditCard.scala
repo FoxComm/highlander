@@ -14,6 +14,7 @@ import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils._
 import validators._
+import services.Result
 
 final case class CreditCard(id: Int = 0, customerId: Int, billingAddressId: Int = 0, gatewayCustomerId: String,
   lastFour: String, expMonth: Int, expYear: Int, isDefault: Boolean = false,
@@ -22,7 +23,7 @@ final case class CreditCard(id: Int = 0, customerId: Int, billingAddressId: Int 
   with ModelWithIdParameter
   with Validation[CreditCard] {
 
-  def authorize(amount: Int)(implicit ec: ExecutionContext): Future[String Or Failures] = {
+  def authorize(amount: Int)(implicit ec: ExecutionContext): Result[String] = {
     new StripeGateway().authorizeAmount(gatewayCustomerId, amount)
   }
 

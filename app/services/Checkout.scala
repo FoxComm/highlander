@@ -12,7 +12,7 @@ import org.joda.time.{DateTimeZone, DateTime}
 
 class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
 
-  def checkout: Future[Order Or Failures] = {
+  def checkout: Result[Order] = {
     // Realistically, what we'd do here is actually
     // 0) Check that line items exist -- DONE
     // 1) Check Inventory
@@ -27,13 +27,14 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
         authorizePayments.flatMap { payments =>
           val errors = payments.values.toList.flatten
           if (errors.isEmpty) {
-            completeOrderAndCreateNew(order).map(Good(_))
+//            completeOrderAndCreateNew(order).map(Good(_))
+            Result.good(order)
           } else {
-            Future.successful(Bad(errors))
+            Result.failures(errors: _*)
           }
         }
       } else {
-        Future.successful(Bad(Failures(NotFoundFailure("No Line Items in Order!"))))
+        Result.failure(NotFoundFailure("No Line Items in Order!"))
       }
     }
   }
