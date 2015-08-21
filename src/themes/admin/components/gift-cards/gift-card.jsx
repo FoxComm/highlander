@@ -76,23 +76,23 @@ export default class GiftCard extends React.Component {
         <div className="gutter title">
           <h1>Gift Card { card.code }</h1>
         </div>
-        <div className="gutter grid-row grid-gutter grid-match">
-          <div className="grid-unit col-1">
+        <div className="gutter fc-grid fc-grid-match fc-grid-gutter">
+          <div className="fc-col-1-3">
             <article className="panel featured available-balance">
               <header>Available Balance</header>
               <p>{ formatCurrency(card.availableBalance) }</p>
             </article>
           </div>
-          <div className="grid-unit col-3">
+          <div className="fc-col-2-3">
             <article className="panel">
-              <div className="grid-row">
-                <div className="grid-unit col-2" >
+              <div className="fc-grid">
+                <div className="fc-col-1-2">
                   <p><strong>Customer:</strong> { card.customer ? `${card.customer.firstName} ${card.customer.lastName}` : 'None' }</p>
                   <p><strong>Recipient:</strong> None</p>
                   <p><strong>Recipient Email:</strong> None</p>
                   <p><strong>Recipient Cell (Optional):</strong> None</p>
                 </div>
-                <div className="grid-unit col-2">
+                <div className="fc-col-1-2">
                   <p><strong>Message (optional):</strong></p>
                   <p>
                     {card.message}
@@ -102,32 +102,32 @@ export default class GiftCard extends React.Component {
             </article>
           </div>
         </div>
-        <div className="gutter grid-row grid-gutter grid-match row-5">
-          <div className="grid-unit col-1">
+        <div className="gutter fc-grid fc-grid-match fc-grid-gutter">
+          <div className="fc-col-1-5">
             <article className="panel featured">
               <header>Original Balance</header>
               <p>{ formatCurrency(card.originalBalance) }</p>
             </article>
           </div>
-          <div className="grid-unit col-1">
+          <div className="fc-col-1-5">
             <article className="panel featured">
               <header>Current Balance</header>
               <p>{ formatCurrency(card.currentBalance) }</p>
             </article>
           </div>
-          <div className="grid-unit col-1">
+          <div className="fc-col-1-5">
             <article className="panel featured">
               <header>Date/Time Issued</header>
               <p>{ moment(card.date).format('MM/DD/YYYY HH:mm:ss') }</p>
             </article>
           </div>
-          <div className="grid-unit col-1">
+          <div className="fc-col-1-5">
             <article className="panel featured">
               <header>Gift Card Type</header>
               <p>{ card.type }</p>
             </article>
           </div>
-          <div className="grid-unit col-1">
+          <div className="fc-col-1-5">
             <article className="panel featured">
               <header>Current State</header>
               <p>{ state }</p>
