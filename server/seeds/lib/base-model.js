@@ -50,7 +50,7 @@ class BaseModel {
       filter  = query.q.split(':'),
       field   = filter[0],
       regex   = new RegExp(filter[1], 'i');
-    return this.data.filter(function(item) {
+    return _.filter(this.data, function(item) {
       return regex.test(item[field]);
     });
   }
