@@ -11,7 +11,6 @@ export default class TableBody extends React.Component {
     let model = this.props.model;
     switch(column.type) {
       case 'id': return <Link to={model} params={{order: field}}>{field}</Link>;
-      case 'checkbox': return <input type="checkbox" value={model.checked}/>;
       case 'image': return <img src={field}/>;
       case 'currency': return formatCurrency(field);
       case 'date': return <time dateTime={field}>{moment(field).format('MM/DD/YYYY HH:mm:ss')}</time>;

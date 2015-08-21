@@ -32,7 +32,9 @@ export default class Returns extends React.Component {
         <div className="gutter">
           <table className="listing">
             <TableHead columns={this.props.tableColumns}/>
-            <TableBody columns={this.props.tableColumns} rows={this.state.orders} model='order'/>
+            <TableBody columns={this.props.tableColumns} rows={this.state.orders} model='order'>
+              <input type="checkbox"/>
+            </TableBody>
           </table>
         </div>
       </div>
@@ -46,7 +48,7 @@ Returns.propTypes = {
 
 Returns.defaultProps = {
   tableColumns: [
-    {field: 'checked', text: ' ', type: 'checkbox'},
+    {field: 'checked', text: ' ', component: 'checkbox'},
     {field: 'referenceNumber', text: 'Return', type: 'id'},
     {field: 'createdAt', text: 'Date', type: 'date'},
     {field: 'orderNumber', text: 'Order', type: 'id'},
