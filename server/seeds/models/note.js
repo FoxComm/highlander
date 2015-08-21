@@ -17,9 +17,10 @@ class Note extends BaseModel {
   set isEditable(value) { this.model.isEditable = value; }
   set orderId(id) { this.model.customerId = +id; }
   set customerId(id) { this.model.customerId = +id; }
+  set giftCardId(id) { this.model.giftCardId = +id; }
 }
 
 Object.defineProperty(Note, 'seed', {value: seed});
-Object.defineProperty(Note, 'relationships', {value: ['order', 'customer']});
+Object.defineProperty(Note, 'relationships', {value: ['order', 'customer', 'giftCard']});
 
 module.exports = Note;

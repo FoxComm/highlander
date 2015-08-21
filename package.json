@@ -113,7 +113,7 @@
     "reactify": "^1.1.1",
     "request": "^2.58.0",
     "thunkify-wrap": "^1.0.4",
-    "underscore": "^1.8.3",
+    "lodash": "^3.10.1",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0"
   },
@@ -124,6 +124,7 @@
     "eslint-plugin-react": "^2.6.3",
     "gulp-eslint": "^0.14.0",
     "gulp-mocha": "^2.1.2",
+    "gulp-plumber": "^1.0.1",
     "jsdom": "^5.5.0",
     "koa-logger": "^1.2.2",
     "mocha": "^2.2.4",
