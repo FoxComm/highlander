@@ -13,10 +13,14 @@ const seed = [
 
 class Payment extends BaseModel {
   get method() {
+    let
+      cardNumber  = this.model.cardNumber.toString(),
+      lastFour    = cardNumber.replace(/.*(\d{4})$/, 'xxxx xxxx xxxx $1');
+
     return {
       cardType: this.model.cardType,
       cardExp: this.model.cardExp,
-      cardNumber: this.model.cardNumber
+      cardNumber: lastFour
     };
   }
   get amount() { return this.model.amount; }
@@ -24,5 +28,6 @@ class Payment extends BaseModel {
 }
 
 Object.defineProperty(Payment, 'seed', {value: seed});
+Object.defineProperty(Payment, 'relationships', {value: ['order']});
 
 module.exports = Payment;

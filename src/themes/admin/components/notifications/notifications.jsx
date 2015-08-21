@@ -57,7 +57,7 @@ Notifications.propTypes = {
 
 Notifications.defaultProps = {
   tableColumns: [
-    {field: 'sendDate', text: 'Date', type: 'date', format: 'DD/MM/YYYY hh:mm:ss a'},
+    {field: 'sendDate', text: 'Date', type: 'date'},
     {field: 'subject', text: 'Subject'},
     {field: 'contact', text: 'Contact Method'},
     {field: 'notificationStatus', text: 'Status'},

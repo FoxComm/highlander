@@ -1,7 +1,7 @@
 'use strict';
 
 const
-  _       = require('underscore'),
+  _       = require('lodash'),
   Chance  = require('chance'),
   errors  = require('../../errors');
 
@@ -40,7 +40,7 @@ class BaseModel {
 
   static filterById(field, id) {
     id = +id;
-    return this.data.filter(function(item) {
+    return _.filter(this.data, function(item) {
       return item[field] === id;
     });
   }
@@ -60,9 +60,13 @@ class BaseModel {
   }
 
   static findOne(id) {
-    let results = this.find('id', id);
-    if (!results.length) { throw new errors.NotFound(`Cannot find ${this.name}`); }
-    return new this(results[0]);
+    let
+      Model = this,
+      result = _.find(this.data, function(item) {
+        return item.id === +id;
+      });
+    if (!result) { throw new errors.NotFound(`Cannot find ${this.name}`); }
+    return new Model(result);
   }
 
   static findAll(field, id) {
@@ -80,10 +84,42 @@ class BaseModel {
     return this.findAll('orderId', orderId);
   }
 
+  static findIndex(id) {
+    return this.data.map(function (item) { return item.id; }).indexOf(id);
+  }
+
+  static deleteOne(id) {
+    let index = this.findIndex(id);
+    if (index > -1) {
+      this.data.splice(index, 1);
+      return true;
+    }
+    return false;
+  }
+
   static paginate(limit, page) {
     limit = +limit || 50;
     page = page ? +page - 1 : 0;
     return this.data.slice(limit * page, (limit * page) + limit);
+  }
+
+  static upsert(model) {
+    let idx = this.findIndex(model.id);
+    if (idx > -1) {
+      this.data[idx] = model;
+    } else {
+      this.data.push(model);
+    }
+  }
+
+  static update(model) {
+    if (Array.isArray(model)) {
+      for (let item of model) {
+        this.upsert(item);
+      }
+    } else {
+      this.upsert(model);
+    }
   }
 
   constructor(model) {
@@ -105,6 +141,7 @@ class BaseModel {
       let desc = Object.getOwnPropertyDescriptor(proto, key);
       if (desc && desc.set) this[key] = values[key];
     }
+    this.constructor.update(this.model);
     return this;
   }
 

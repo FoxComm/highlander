@@ -13,6 +13,9 @@ import Notes from './components/notes/notes';
 import Notifications from './components/notifications/notifications';
 import ActivityTrail from './components/activity-trail/activity-trail';
 import AddressBook from './components/addresses/addresses';
+import GiftCards from './components/gift-cards/gift-cards';
+import GiftCard from './components/gift-cards/gift-card';
+import GiftCardTransactions from './components/gift-cards/transactions';
 
 const routes = (
   <Route handler={Site}>
@@ -27,6 +30,12 @@ const routes = (
     <Route name='customers' handler={Customers}/>
     <Route name='customer' path='/customers/:customer' handler={Customer}>
       <Route name='customer-addresses' path='addresses' handler={AddressBook} />
+    </Route>
+    <Route name='gift-cards' path='/gift-cards' handler={GiftCards} />
+    <Route name='giftcard' path='/gift-cards/:giftcard' handler={GiftCard}>
+      <DefaultRoute name='gift-card-transactions' handler={GiftCardTransactions} />
+      <Route name='gift-card-notes' path='notes' handler={Notes} />
+      <Route name='gift-card-activity-trail' path='activity-trail' handler={ActivityTrail} />
     </Route>
   </Route>
 );

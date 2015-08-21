@@ -1,6 +1,8 @@
 'use strict';
 
-const parse = require('co-body');
+const
+  parse = require('co-body'),
+  _     = require('lodash');
 
 module.exports = function(app, router) {
   const Customer = app.seeds.models.Customer;
@@ -31,12 +33,16 @@ module.exports = function(app, router) {
     })
     .patch('/customers/:customer/addresses/:address', function *() {
       let body = yield parse.json(this);
-      this.address.update(body);
+      this.address.amend(body);
       this.status = 200;
       this.body = this.address;
     })
     .get('/customers/:customer/addresses', function *() {
       this.body = Address.findByCustomer(this.customer.id);
+    })
+    .get('/customers/:customer/addresses/:address', function *() {
+      this.body = this.address;
+      this.status = 200;
     })
     .post('/customers/:customer/addresses', function *() {
       let
@@ -45,5 +51,23 @@ module.exports = function(app, router) {
       address.customerId = this.customer.id;
       this.status = 201;
       this.body = address;
+    })
+    .post('/customers/:customer/addresses/:address/default', function *() {
+      let defaultAddress = _.find(Address.findByCustomer(this.customer.id), function(item) {
+        return item.isDefault === true;
+      });
+      defaultAddress.amend({isDefault: false});
+
+      this.address.amend({isDefault: true});
+      this.status = 200;
+    })
+    .delete('/customers/:customer/addresses/default', function *() {
+      let addresses = Address.findByCustomer(this.customer.id).filter(function(item) {
+        return item.isDefault === true;
+      });
+      if (addresses.length > 0) {
+        addresses[0].amend({isDefault: false});
+      }
+      this.status = 204;
     });
 };

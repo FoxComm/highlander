@@ -7,13 +7,22 @@ import { formatCurrency } from '../../lib/format';
 import OrderStore from '../orders/store';
 
 export default class TableBody extends React.Component {
-  convert(field, column) {
+  convert(field, column, row) {
     let model = this.props.model;
     switch(column.type) {
-      case 'id': return <Link to={model} params={{order: field}}>{field}</Link>;
+      case 'id': {
+        let params = {};
+        params[model] = field;
+        return <Link to={model} params={params}>{field}</Link>;
+      }
+      case 'link': {
+        let params = {};
+        params[column.model] = row[column.id];
+        return <Link to={column.model} params={params}>{field}</Link>;
+      }
       case 'image': return <img src={field}/>;
       case 'currency': return formatCurrency(field);
-      case 'date': return moment(field).format(column.format || 'DD/MM/YYYY');
+      case 'date': return <time dateTime={field}>{moment(field).format('MM/DD/YYYY HH:mm:ss')}</time>;
       case 'orderStatus': return OrderStore.statuses[field];
       default: return typeof field === 'object' ? this.displayObject(field) : field;
     }
@@ -47,7 +56,7 @@ export default class TableBody extends React.Component {
             let data = (
               column.component
                 ? this.findComponent(column.component, row, column.field)
-                : this.convert(row[column.field], column)
+                : this.convert(row[column.field], column, row)
             );
             return <td key={`${idx}-${column.field}`} className={column.field}><div>{data}</div></td>;
           })}

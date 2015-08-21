@@ -16,7 +16,7 @@ module.exports = function(app, router) {
 
   router
     .param('order', function *(id, next) {
-      this.order = Order.findOne(id);
+      this.order = Order.findByIdOrRef(id);
       yield next;
     })
     .param('notification', function *(id, next) {

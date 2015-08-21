@@ -36,3 +36,16 @@ describe('Customer Addresses #POST', function() {
     expect(address.isActive).to.equal(true);
   });
 });
+
+describe('Customer Addresses default #POST', function () {
+  it('should set an address to default', function *() {
+    let
+      res     = yield this.api.post('/customers/1/addresses/2/default', {isDefault: true});
+    expect(res.status).to.equal(200);
+    let
+      res2    = yield this.api.get('/customers/1/addresses/2'),
+    address2 = res2.response;
+    expect(res2.status).to.equal(200);
+    expect(address2.isDefault).to.equal(true);
+  });
+});

@@ -4,6 +4,7 @@ import React from 'react';
 import OrderSummary from './summary';
 import OrderLineItems from './line-items';
 import OrderShippingAddress from './shipping-address';
+import OrderShippingMethod from './shipping-method';
 import OrderPayment from './payment';
 import OrderStore from './store';
 import Api from '../../lib/api';
@@ -37,8 +38,8 @@ export default class OrderDetails extends React.Component {
     if (isEditing) {
       actions = (
         <span>
-          <button className='btn' onClick={this.toggleEdit.bind(this)}>Cancel</button>
-          <button className='btn'>Save Edits</button>
+          <button onClick={this.toggleEdit.bind(this)}>Cancel</button>
+          <button>Save Edits</button>
         </span>
       );
     } else if (OrderStore.holdStatusList.indexOf(order.orderStatus) !== -1) {
@@ -52,6 +53,7 @@ export default class OrderDetails extends React.Component {
         <article>
           <OrderLineItems order={order} isEditing={isEditing}/>
           <OrderShippingAddress order={order} isEditing={isEditing}/>
+          <OrderShippingMethod order={order} isEditing={isEditing} />
           <OrderPayment order={order} isEditing={isEditing}/>
         </article>
       </div>

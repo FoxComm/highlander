@@ -92,7 +92,7 @@ export default class Order extends React.Component {
       countdown     = null;
 
     if (order.id) {
-      let params = {order: order.id};
+      let params = {order: order.referenceNumber};
 
       subNav = (
         <div className="gutter">
@@ -134,7 +134,6 @@ export default class Order extends React.Component {
             <h1>Order {order.referenceNumber}</h1>
             {countdown}
           </div>
-          <button className='btn cancel' onClick={() => { this.prepareStatusChange('canceled'); }}>Cancel Order</button>
         </div>
         <div className="gutter statuses">
           <dl>

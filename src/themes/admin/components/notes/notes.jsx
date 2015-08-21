@@ -21,7 +21,12 @@ export default class Notes extends React.Component {
 
   componentDidMount() {
     let model = this.props.modelName;
-    NoteStore.uriRoot = `${pluralize(model)}/${this.props[model].id}`;
+    if (model === 'order') {
+      NoteStore.uriRoot = `${pluralize(model)}/${this.props[model].referenceNumber}`;
+    } else {
+      NoteStore.uriRoot = `${pluralize(model)}/${this.props[model].id}`;
+    }
+
     NoteStore.listenToEvent('change', this);
     NoteStore.fetch();
   }
@@ -106,7 +111,7 @@ Notes.propTypes = {
 
 Notes.defaultProps = {
   tableColumns: [
-    {field: 'createdAt', text: 'Date/Time', type: 'date', format: 'MM/DD/YYYY h:mm a'},
+    {field: 'createdAt', text: 'Date/Time', type: 'date'},
     {field: 'body', text: 'Note'},
     {field: 'author', text: 'Author', component: 'UserInitials'},
     {field: 'isEditable', text: ''}
