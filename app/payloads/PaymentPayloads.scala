@@ -29,3 +29,5 @@ final case class ToggleDefaultCreditCard(isDefault: Boolean)
 
 final case class GiftCardPayment(code: String, amount: Int)
 
+final case class StoreCreditPayment(amount: Int)
+

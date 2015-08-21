@@ -1,24 +1,21 @@
 import akka.http.scaladsl.model.StatusCodes
+
+import com.github.tototoshi.slick.JdbcJodaSupport._
+import models.Order._
 import models._
 import org.joda.time.DateTime
-import org.scalatest.time.{Milliseconds, Seconds, Span}
-import payloads.{UpdateOrderPayload, CreateAddressPayload, CreateCreditCard}
-import responses.{AdminNotes, FullOrder}
-import services.{CustomerManager, CannotUseInactiveCreditCard, NotFoundFailure, GiftCardNotEnoughBalance,
-GiftCardNotFoundFailure, NoteManager}
-import util.{IntegrationTestBase, StripeSupport}
+import services.{CannotUseInactiveCreditCard, CustomerHasInsufficientStoreCredit, CustomerManager, GiftCardIsInactive,
+GiftCardNotEnoughBalance, GiftCardNotFoundFailure, NotFoundFailure, OrderNotFoundFailure}
+import slick.driver.PostgresDriver.api._
+import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils._
-import slick.driver.PostgresDriver.api._
-import Order._
 
 class OrderPaymentsIntegrationTest extends IntegrationTestBase
   with HttpSupport
   with AutomaticAuth {
 
   import concurrent.ExecutionContext.Implicits.global
-  import org.json4s.jackson.JsonMethods._
-  import Extensions._
 
   "gift cards" - {
     "when added as a payment method" - {
@@ -54,6 +51,86 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
         response.status must === (StatusCodes.BadRequest)
         parseErrors(response).get.head must === (GiftCardNotEnoughBalance(giftCard, payload.amount).description.head)
+      }
+
+      "fails if the giftCard is inactive" in new GiftCardFixture {
+        GiftCards.findByCode(giftCard.code).map(_.status).update(GiftCard.Canceled).run().futureValue
+        val payload = payloads.GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance + 1)
+        val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
+
+        response.status must === (StatusCodes.BadRequest)
+        parseErrors(response).get.head must === (GiftCardIsInactive(giftCard).description.head)
+      }
+    }
+  }
+
+  "store credit" - {
+    "when added as a payment method" - {
+      "successfully" - {
+        "uses store credit records in FIFO order according to createdAt" in new StoreCreditFixture {
+          // ensure 3 & 4 are oldest so 5th should not be used
+          StoreCredits.filter(_.id === 3).map(_.createdAt).update(DateTime.now().minusMonths(2)).run().futureValue
+          StoreCredits.filter(_.id === 4).map(_.createdAt).update(DateTime.now().minusMonths(1)).run().futureValue
+
+          val payload = payloads.StoreCreditPayment(amount = 75)
+          val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
+
+          response.status must ===(StatusCodes.OK)
+          OrderPayments.size.result.run().futureValue must === (2)
+
+          val (fst :: snd :: Nil) = OrderPayments.findAllStoreCredit.take(2).result.run().futureValue.toList
+
+          (fst.paymentMethodId, fst.amount) must === ((3, Some(50)))
+          (snd.paymentMethodId, snd.amount) must === ((4, Some(25)))
+        }
+
+        "only uses active store credit" in new StoreCreditFixture {
+          // inactive 1 and 2
+          StoreCredits.filter(_.id === 1).map(_.status).update(StoreCredit.Canceled).run().futureValue
+          StoreCredits.filter(_.id === 2).map(_.availableBalance).update(0).run().futureValue
+
+          val payload = payloads.StoreCreditPayment(amount = 75)
+          val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
+
+          response.status must ===(StatusCodes.OK)
+
+          val result = (for {
+            payments ← OrderPayments.filter(_.orderId === order.id)
+            usedStoreCredits ← StoreCredits.filter(_.id === payments.paymentMethodId)
+          } yield (payments, usedStoreCredits)).result.run().futureValue
+
+          result.map { case (_, sc) ⇒ sc.id } must contain noneOf (1, 2)
+        }
+      }
+
+      "fails" - {
+        "if the order is not found" in new Fixture {
+          val notFound = order.copy(referenceNumber = "ABC123")
+          val payload = payloads.StoreCreditPayment(amount = 50)
+          val response = POST(s"v1/orders/${notFound.refNum}/payment-methods/store-credit", payload)
+
+          response.status must ===(StatusCodes.NotFound)
+          parseErrors(response).get.head must ===(OrderNotFoundFailure(notFound).description.head)
+        }
+
+        "if the customer has no active store credit" in new Fixture {
+          val payload = payloads.StoreCreditPayment(amount = 50)
+          val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
+
+          response.status must ===(StatusCodes.BadRequest)
+          val error = CustomerHasInsufficientStoreCredit(customer.id, 0, 50).description.head
+          parseErrors(response).get.head must ===(error)
+        }
+
+        "if the customer has insufficient available store credit" in new StoreCreditFixture {
+          val payload = payloads.StoreCreditPayment(amount = 251)
+          val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
+
+          response.status must ===(StatusCodes.BadRequest)
+          val has = storeCredits.map(_.availableBalance).sum
+          val error = CustomerHasInsufficientStoreCredit(customer.id, has, payload.amount).description.head
+          parseErrors(response).get.head must ===(error)
+        }
       }
     }
   }
@@ -152,8 +229,21 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
     val giftCard = (for {
       reason ← Reasons.save(Factories.reason.copy(storeAdminId = admin.id))
       origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
-      giftCard ← GiftCards.save(Factories.giftCard.copy(originId = origin.id))
+      giftCard ← GiftCards.save(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active))
     } yield giftCard).run().futureValue
+  }
+
+  trait StoreCreditFixture extends Fixture {
+    val storeCredits = (for {
+      reason ← Reasons.save(Factories.reason.copy(storeAdminId = admin.id))
+      _ ← StoreCreditManuals ++= (1 to 5).map { _ ⇒
+        Factories.storeCreditManual.copy(adminId = admin.id, reasonId = reason.id)
+      }
+      _ ← StoreCredits ++= (1 to 5).map { i ⇒
+        Factories.storeCredit.copy(status = StoreCredit.Active, customerId = customer.id, originId = i)
+      }
+      storeCredits ← StoreCredits._findAllByCustomerId(customer.id)
+    } yield storeCredits).run().futureValue
   }
 
   trait CreditCardFixture extends Fixture {

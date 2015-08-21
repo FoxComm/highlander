@@ -34,7 +34,7 @@ Phoenix can be run in development by running either running the application nati
 4. If you plan on running the local development server, execute the seeds and starte the server
 
     ```bash
-    sbt seeds
+    sbt seed
     sbt '~re-start'
     ```
 
@@ -91,10 +91,10 @@ _Note:_ OpenJDK has been known to cause issues in Ubuntu with Scala. Make sure t
     sbt compile
     ```
 
-3. If you plan on running the local development server, execute the seeds and starte the server
+3. If you plan on running the local development server, execute the seeds and start the server
 
     ```bash
-    sbt seeds
+    sbt seed
     sbt '~re-start'
     ```
 
@@ -102,7 +102,7 @@ _Note:_ OpenJDK has been known to cause issues in Ubuntu with Scala. Make sure t
 
 - `make resetdb`: resets the database (drops and reruns migrations)
 - `sbt '~re-start'`: reloads the application automatically on code changes
-- `sbt seeds`: execute the seeds
+- `sbt seed`: execute the seeds
 - `sbt test`: run all of the unit and integration tests
 - `sbt '~test:compile`: re-compiles the application automatically on code changes
 

@@ -1,26 +1,26 @@
 package models
 
-import com.pellucid.sealerate
-import models.Order.Status
-import services.OrderTotaler
-import utils.{ADT, GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
-import payloads.CreateAddressPayload
-
-import com.wix.accord.dsl.{validator => createValidator}
-import monocle.macros.GenLens
-import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
-import org.scalactic._
-import com.wix.accord.{Failure => ValidationFailure, Validator}
-import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
+
 import com.github.tototoshi.slick.JdbcJodaSupport._
+import com.pellucid.sealerate
+import com.wix.accord.dsl.{validator ⇒ createValidator}
+import com.wix.accord.{Failure ⇒ ValidationFailure}
+import models.Order.{Cart, Status}
+import monocle.macros.GenLens
 import org.joda.time.DateTime
+import services.OrderTotaler
+import slick.driver.PostgresDriver.api._
+import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
+import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId, Validation}
 
 final case class Order(id: Int = 0, referenceNumber: String = "", customerId: Int,
-  status: Status = Order.Cart, locked: Boolean = false, placedAt: Option[DateTime] = None)
+  status: Status = Cart, locked: Boolean = false, placedAt: Option[DateTime] = None)
   extends ModelWithIdParameter
-  with Validation[Order] {
+  with Validation[Order]
+  with FSM[Order.Status, Order] {
+
+  import Order._
 
   override def validator = createValidator[Order] { order => }
 
@@ -34,6 +34,23 @@ final case class Order(id: Int = 0, referenceNumber: String = "", customerId: In
   }
 
   def isNew: Boolean = id == 0
+
+  def refNum: String = referenceNumber
+
+  def stateLens = GenLens[Order](_.status)
+
+  val fsm: Map[Status, Set[Status]] = Map(
+    Cart →
+      Set(FraudHold, RemorseHold, Canceled, FulfillmentStarted),
+    FraudHold →
+      Set(ManualHold, RemorseHold, FulfillmentStarted, Canceled),
+    RemorseHold →
+      Set(FraudHold, ManualHold, FulfillmentStarted, Canceled),
+    ManualHold →
+      Set(FraudHold, RemorseHold, FulfillmentStarted, Canceled),
+    FulfillmentStarted →
+      Set(Shipped, Canceled)
+  )
 }
 
 object Order {
@@ -41,12 +58,11 @@ object Order {
 
   case object Cart extends Status
   case object Ordered extends Status
-  case object FraudHold extends Status //this only applies at the order_header level
-  case object RemorseHold extends Status //this only applies at the order_header level
-  case object ManualHold extends Status //this only applies at the order_header level
+  case object FraudHold extends Status
+  case object RemorseHold extends Status
+  case object ManualHold extends Status
   case object Canceled extends Status
   case object FulfillmentStarted extends Status
-  case object PartiallyShipped extends Status
   case object Shipped extends Status
 
   object Status extends ADT[Status] {
@@ -56,19 +72,6 @@ object Order {
   implicit val statusColumnType = Status.slickColumn
 
   def buildCart(customerId: Int): Order = Order(customerId = customerId, status = Order.Cart)
-
-  val allowedStateTransitions = Map[Order.Status, Set[Order.Status]](
-    FraudHold → Set(ManualHold, RemorseHold, FulfillmentStarted, Canceled),
-    RemorseHold → Set(FraudHold, ManualHold, FulfillmentStarted, Canceled),
-    ManualHold → Set(FraudHold, RemorseHold, FulfillmentStarted, Canceled)
-  )
-
-  def transitionAllowed(from: Order.Status, to: Order.Status): Boolean = {
-    allowedStateTransitions.get(from) match {
-      case Some(allowed) ⇒ from == to || allowed.contains(to)
-      case None ⇒ false
-    }
-  }
 }
 
 class Orders(tag: Tag) extends GenericTable.TableWithId[Order](tag, "orders") with RichTable {

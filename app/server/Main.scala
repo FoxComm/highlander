@@ -1,11 +1,14 @@
 import scala.concurrent.Future
+import scala.util.Success
 import akka.actor.ActorSystem
+import akka.agent.Agent
 import akka.event.Logging
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
 
+import cats.data.OptionT
 import com.typesafe.config.{Config, ConfigFactory}
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import models._
@@ -58,7 +61,16 @@ class Service(
     }
   }
 
-  def bind(config: Config = config): Future[ServerBinding] = {
-    Http().bindAndHandle(allRoutes, config.getString("http.interface"), config.getInt("http.port"))
-  }
+  private final val serverBinding = Agent[Option[ServerBinding]](None)
+
+  def bind(config: Config = config): Future[ServerBinding] =
+    Http().bindAndHandle(allRoutes, config.getString("http.interface"), config.getInt("http.port")).flatMap {
+      binding ⇒ serverBinding.alter(Some(binding)).map(_ ⇒ binding)
+    }
+
+  def close(): Future[Unit] =
+    serverBinding.future.flatMap {
+      case Some(b) ⇒ b.unbind()
+      case None    ⇒ Future.successful(())
+    }
 }

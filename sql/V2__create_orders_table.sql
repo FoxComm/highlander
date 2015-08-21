@@ -11,7 +11,7 @@ create table orders (
     foreign key (id) references inventory_events(id) on update restrict on delete restrict,
     constraint valid_reference_number check (length(reference_number) > 0),
     constraint valid_status check (status in ('cart','ordered','fraudHold','remorseHold','manualHold','canceled',
-                                              'fulfillmentStarted','partiallyShipped','shipped'))
+                                              'fulfillmentStarted','shipped'))
 );
 
 create index orders_customer_and_status_idx on orders (customer_id, status);

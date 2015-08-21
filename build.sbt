@@ -83,6 +83,7 @@ lazy val phoenixScala = (project in file(".")).
         // Akka
         "com.typesafe.akka"    %% "akka-slf4j"               % akkaV,
         "com.typesafe.akka"    %% "akka-actor"               % akkaV,
+        "com.typesafe.akka"    %% "akka-agent"               % akkaV,
         "com.typesafe.akka"    %% "akka-stream-experimental" % akkaHttpV,
         "com.typesafe.akka"    %% "akka-http-experimental"   % akkaHttpV,
         // JSON

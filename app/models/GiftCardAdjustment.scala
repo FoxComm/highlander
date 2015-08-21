@@ -1,18 +1,24 @@
 package models
 
 import com.pellucid.sealerate
-import slick.dbio.Effect.Write
-import slick.profile.FixedSqlAction
-import utils.{ADT, GenericTable, TableQueryWithId, ModelWithIdParameter, RichTable}
-
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
-import scala.concurrent.{ExecutionContext, Future}
+import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
+import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId}
+import GiftCardAdjustment.{Status, Auth}
 
 final case class GiftCardAdjustment(id: Int = 0, giftCardId: Int, orderPaymentId: Int,
-  credit: Int, debit: Int, status: GiftCardAdjustment.Status = GiftCardAdjustment.Auth)
-  extends ModelWithIdParameter {
+  credit: Int, debit: Int, status: Status = Auth)
+  extends ModelWithIdParameter
+  with FSM[GiftCardAdjustment.Status, GiftCardAdjustment] {
+
+  import GiftCardAdjustment._
+
+  def stateLens = GenLens[GiftCardAdjustment](_.status)
+
+  val fsm: Map[Status, Set[Status]] = Map(
+    Auth → Set(Canceled, Capture)
+  )
 }
 
 object GiftCardAdjustment {
