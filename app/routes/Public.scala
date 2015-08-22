@@ -28,6 +28,11 @@ object Public {
           renderOrNotFound(PublicSku.findById(skuId))
         }
       }
+    } ~
+    (get & path("countries") & pathEnd) {
+      complete {
+        services.Public.listCountries.map(render(_))
+      }
     }
   }
 }

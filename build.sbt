@@ -97,6 +97,7 @@ lazy val phoenixScala = (project in file(".")).
         "com.github.tototoshi" %% "slick-joda-mapper"        % "2.0.0",
         "org.postgresql"       %  "postgresql"               % "9.4-1201-jdbc41",
         "org.flywaydb"         %  "flyway-core"              % "3.2.1",
+        "com.github.tminglei"  %% "slick-pg"                 % "0.9.1",
         // Validations
         "com.wix"              %% "accord-core"              % "0.4.2",
         "org.scalactic"        %% "scalactic"                % "2.2.5",

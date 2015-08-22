@@ -1,4 +1,5 @@
-insert into countries (name, alpha2, alpha3, continent, currency, languages, postal_code, code) values ('Andorra','AD','AND','Europe','EUR','{"ca"}',true,'376'),
+insert into countries (name, alpha2, alpha3, continent, currency, languages, uses_postal_code, code) values
+('Andorra','AD','AND','Europe','EUR','{"ca"}',true,'376'),
 ('United Arab Emirates','AE','ARE','Asia','AED','{"ar"}',false,'971'),
 ('Afghanistan','AF','AFG','Asia','AFN','{"ps","uz","tk"}',true,'093'),
 ('Antigua and Barbuda','AG','ATG','North America','XCD','{"en"}',false,'001'),
