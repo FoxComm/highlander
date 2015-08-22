@@ -3,6 +3,7 @@
 import React from 'react';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
+import ItemChecked from './itemChecked';
 import ReturnsStore from './store';
 
 export default class Returns extends React.Component {
@@ -33,7 +34,7 @@ export default class Returns extends React.Component {
           <table className="listing">
             <TableHead columns={this.props.tableColumns}/>
             <TableBody columns={this.props.tableColumns} rows={this.state.orders} model='order'>
-              <input type="checkbox"/>
+              <ItemChecked/>
             </TableBody>
           </table>
         </div>
@@ -48,7 +49,7 @@ Returns.propTypes = {
 
 Returns.defaultProps = {
   tableColumns: [
-    {field: 'checked', text: ' ', component: 'input'},
+    {field: 'checked', text: ' ', component: 'ItemChecked'},
     {field: 'referenceNumber', text: 'Return', type: 'id'},
     {field: 'createdAt', text: 'Date', type: 'date'},
     {field: 'orderNumber', text: 'Order', type: 'id'},
