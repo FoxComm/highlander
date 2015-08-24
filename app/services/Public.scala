@@ -18,7 +18,7 @@ object Public {
 
     val jsonFormat = new CustomSerializer[CountryWithRegions](format ⇒ ({
       case obj: JObject ⇒
-        CountryWithRegions(obj.extract[Country], (obj \ "regions").extract[List[Region]])
+        CountryWithRegions(obj.extract[Country], (obj \ "regions").extract[Seq[Region]])
     },{
       case CountryWithRegions(c, regions) ⇒
         import org.json4s.JsonDSL._
