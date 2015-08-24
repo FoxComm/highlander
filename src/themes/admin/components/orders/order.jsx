@@ -143,9 +143,9 @@ export default class Order extends React.Component {
         </div>
         <div className="gutter statuses">
           <dl>
-          <dt>Order Status</dt>
-          <dd>{orderStatus}</dd>
-        </dl>
+            <dt>Order Status</dt>
+            <dd>{orderStatus}</dd>
+          </dl>
           <dl>
             <dt>Shipment Status</dt>
             <dd>{order.shippingStatus}</dd>
