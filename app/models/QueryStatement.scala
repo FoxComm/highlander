@@ -3,10 +3,10 @@ package models
 import com.pellucid.sealerate
 import utils.ADT
 
-final case class ConditionStatement(comparison: ConditionStatement.Comparison,
-  conditions: Seq[Condition] = Seq.empty, statements: Seq[ConditionStatement] = Seq.empty)
+final case class QueryStatement(comparison: QueryStatement.Comparison,
+  conditions: Seq[Condition] = Seq.empty, statements: Seq[QueryStatement] = Seq.empty)
 
-object ConditionStatement {
+object QueryStatement {
   sealed trait Comparison
 
   case object And extends Comparison

@@ -9,7 +9,7 @@ object ShippingManager {
   final case class ShippingData(order: models.Order, orderTotal: Int, orderSubTotal: Int,
     shippingAddress: models.OrderShippingAddress, shippingState: models.State)
 
-  def evaluateStatement(order: models.Order, statement: models.ConditionStatement)
+  def evaluateStatement(order: models.Order, statement: models.QueryStatement)
     (implicit db: Database, ec: ExecutionContext): Future[Boolean] = {
 
     getShippingData(order).map {
@@ -23,8 +23,8 @@ object ShippingManager {
     }
   }
 
-  private def evaluateStatementSync(shippingData: ShippingData, statement: models.ConditionStatement): Boolean = {
-    val initial = statement.comparison == models.ConditionStatement.And
+  private def evaluateStatementSync(shippingData: ShippingData, statement: models.QueryStatement): Boolean = {
+    val initial = statement.comparison == models.QueryStatement.And
 
     val conditionsResult = statement.conditions.foldLeft(initial) { (result, nextCond) ⇒
       val res = nextCond.rootObject match {
@@ -34,15 +34,15 @@ object ShippingManager {
       }
 
       statement.comparison match {
-        case models.ConditionStatement.And ⇒ result && res
-        case models.ConditionStatement.Or ⇒ result || res
+        case models.QueryStatement.And ⇒ result && res
+        case models.QueryStatement.Or ⇒ result || res
       }
     }
 
     statement.statements.foldLeft(conditionsResult) { (result, nextCond) ⇒
       statement.comparison match {
-        case models.ConditionStatement.And ⇒ evaluateStatementSync(shippingData, nextCond) && result
-        case models.ConditionStatement.Or ⇒ evaluateStatementSync(shippingData, nextCond) || result
+        case models.QueryStatement.And ⇒ evaluateStatementSync(shippingData, nextCond) && result
+        case models.QueryStatement.Or ⇒ evaluateStatementSync(shippingData, nextCond) || result
       }
     }
   }

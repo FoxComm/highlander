@@ -36,7 +36,7 @@ class ShippingManagerTest extends IntegrationTestBase {
         val orderTotalCondition = Condition(rootObject = "Order", field = "grandtotal",
           operator = Condition.GreaterThan, valInt = Some(25))
 
-        val statement = ConditionStatement(comparison = ConditionStatement.And, conditions = Seq(orderTotalCondition))
+        val statement = QueryStatement(comparison = QueryStatement.And, conditions = Seq(orderTotalCondition))
         val matches = ShippingManager.evaluateStatement(order, statement).futureValue
         matches must ===(true)
       }
@@ -49,7 +49,7 @@ class ShippingManagerTest extends IntegrationTestBase {
         val orderTotalCondition = Condition(rootObject = "Order", field = "grandtotal",
           operator = Condition.GreaterThan, valInt = Some(100))
 
-        val statement = ConditionStatement(comparison = ConditionStatement.And, conditions = Seq(orderTotalCondition))
+        val statement = QueryStatement(comparison = QueryStatement.And, conditions = Seq(orderTotalCondition))
         val matches = ShippingManager.evaluateStatement(order, statement).futureValue
         matches must === (false)
       }
@@ -148,7 +148,7 @@ class ShippingManagerTest extends IntegrationTestBase {
         operator = Condition.Equals, valInt = Some(washington.id))
     )
 
-    val conditionStatement = ConditionStatement(comparison = ConditionStatement.Or, conditions = stateConditions)
+    val conditionStatement = QueryStatement(comparison = QueryStatement.Or, conditions = stateConditions)
   }
 
   trait CaliforniaOrderFixture extends WestCoastConditionFixture {
@@ -195,7 +195,7 @@ class ShippingManagerTest extends IntegrationTestBase {
         operator = Condition.NotContains, valString = Some("po box"))
     )
 
-    val conditionStatement = ConditionStatement(comparison = ConditionStatement.And, conditions = conditions)
+    val conditionStatement = QueryStatement(comparison = QueryStatement.And, conditions = conditions)
   }
 
   trait StateAndPriceCondition extends WestCoastConditionFixture {
@@ -206,8 +206,8 @@ class ShippingManagerTest extends IntegrationTestBase {
         operator = Condition.LessThan, valInt = Some(100))
     )
 
-    val priceStatement = ConditionStatement(comparison = ConditionStatement.And, conditions = priceConditions)
-    val statement = ConditionStatement(comparison = ConditionStatement.And,
+    val priceStatement = QueryStatement(comparison = QueryStatement.And, conditions = priceConditions)
+    val statement = QueryStatement(comparison = QueryStatement.And,
       statements = Seq(conditionStatement, priceStatement))
   }
 }
