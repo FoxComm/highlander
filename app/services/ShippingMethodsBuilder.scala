@@ -94,7 +94,7 @@ object ShippingMethodsBuilder {
 
   // This builder assumes that there is only one shipment per order.  In the future, we can add logic to handle multiple shipments per order.
   def addShippingMethodToOrder(shippingMethodId: Int, order: Order)
-                              (implicit ec: ExecutionContext, db: Database): Future[Order Or List[ErrorMessage]] = {
+                              (implicit ec: ExecutionContext, db: Database): Future[Order Or Failures] = {
     val queries = for {
       shippingMethods <- ShippingMethods.findById(shippingMethodId)
       shipment <- Shipments._findByOrderId(order.id)
@@ -105,7 +105,7 @@ object ShippingMethodsBuilder {
     } yield (updatedOrder)
 
     db.run(queries).map { optOrder =>
-      optOrder.map(Good(_)).getOrElse((Bad(List("Shipping method was not saved"))))
+      optOrder.map(Good(_)).getOrElse(Bad(List(GeneralFailure("Shipping method was not saved"))))
     }
   }
 }

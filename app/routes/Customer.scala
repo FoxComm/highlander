@@ -23,7 +23,7 @@ object Customer {
       pathPrefix("my") {
         (get & path("cart")) {
           complete {
-            whenFound(Orders.findActiveOrderByCustomer(customer)) { activeOrder =>
+            whenOrderFoundAndEditable(customer) { activeOrder ⇒
               FullOrder.fromOrder(activeOrder).map(Good(_))
             }
           }
@@ -57,12 +57,14 @@ object Customer {
         pathPrefix("order") {
           (post & path("checkout")) {
             complete {
-              whenFoundDispatchToService(Orders.findActiveOrderByCustomer(customer)) { order => new Checkout(order).checkout }
+              whenOrderFoundAndEditable(customer) {
+                order ⇒ new Checkout(order).checkout
+              }
             }
           } ~
           (post & path("line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems =>
             complete {
-              whenFound(Orders.findActiveOrderByCustomer(customer)) { order =>
+              whenOrderFoundAndEditable(customer) { order ⇒
                 LineItemUpdater.updateQuantities(order, reqItems).flatMap {
                   case Good(_) ⇒ FullOrder.fromOrder(order).map(Good(_))
                   case Bad(e) ⇒ Future.successful(Bad(e))
@@ -72,7 +74,7 @@ object Customer {
           } ~
           (get & path("shipping-methods")) {
             complete {
-              whenFound(Orders.findActiveOrderByCustomer(customer)) { order =>
+              whenOrderFoundAndEditable(customer) { order ⇒
                 ShippingMethodsBuilder.fullShippingMethodsForOrder(order).map { x =>
                   // we'll need to handle Bad
                   Good(x)
@@ -82,7 +84,7 @@ object Customer {
           } ~
           (post & path("shipping-methods" / IntNumber)) { shipMethodId =>
             complete {
-              whenFound(Orders.findActiveOrderByCustomer(customer)) { order =>
+              whenOrderFoundAndEditable(customer) { order ⇒
                 ShippingMethodsBuilder.addShippingMethodToOrder(shipMethodId, order).flatMap {
                   case Good(_) ⇒ FullOrder.fromOrder(order).map(Good(_))
                   case Bad(e) ⇒ Future.successful(Bad(e))
@@ -102,3 +104,4 @@ object Customer {
     }
   }
 }
+

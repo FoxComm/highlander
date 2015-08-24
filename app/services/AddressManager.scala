@@ -2,7 +2,8 @@ package services
 
 import scala.concurrent.{ExecutionContext, Future}
 
-import models.{Address, Addresses, State, States}
+import cats.Functor
+import models.{Order, Address, Addresses, State, States}
 import org.scalactic.{Bad, Good, Or}
 import payloads.CreateAddressPayload
 import responses.Addresses.Root
@@ -13,7 +14,7 @@ import utils.Validation.Result.{Failure ⇒ Invalid, Success}
 
 object AddressManager {
   def create(payload: CreateAddressPayload, customerId: Int)
-    (implicit ec: ExecutionContext, db: Database): Future[Root Or Failures] = {
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
     val address = Address.fromPayload(payload).copy(customerId = customerId)
     address.validate match {
       case Success ⇒
@@ -24,12 +25,12 @@ object AddressManager {
           case (address, Some(state)) ⇒ Good(Response.build(address, state))
           case (_, None)              ⇒ Bad(NotFoundFailure(State, address.stateId).single)
         }
-      case f: Invalid ⇒ Future.successful(Bad(ValidationFailure(f).single))
+      case f: Invalid ⇒ Result.failure(ValidationFailure(f))
     }
   }
 
   def edit(addressId: Int, customerId: Int, payload: CreateAddressPayload)
-    (implicit ec: ExecutionContext, db: Database): Future[Root Or Failures] = {
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
     val address = Address.fromPayload(payload).copy(customerId = customerId, id = addressId)
     address.validate match {
       case Success ⇒
@@ -41,7 +42,7 @@ object AddressManager {
           case (_, address, Some(state)) ⇒ Bad(NotFoundFailure(address).single)
           case (_, _, None)              ⇒ Bad(NotFoundFailure(State, address.stateId).single)
         }
-      case f: Invalid ⇒ Future.successful(Bad(ValidationFailure(f).single))
+      case f: Invalid ⇒ Result.failure(ValidationFailure(f))
     }
   }
 

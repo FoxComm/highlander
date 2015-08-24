@@ -4,7 +4,9 @@ import org.joda.time.DateTime
 import org.scalatest.time.{Milliseconds, Seconds, Span}
 import payloads.{UpdateOrderPayload, CreateAddressPayload, CreateCreditCard}
 import responses.{AdminNotes, FullOrder}
-import services.NoteManager
+import services.{GeneralFailure, Failures, NoteManager}
+import services.OrderUpdater.NewRemorsePeriod
+import slick.driver.PostgresDriver.api._
 import util.{IntegrationTestBase, StripeSupport}
 import utils.Seeds.Factories
 import slick.driver.PostgresDriver.api._
@@ -17,6 +19,8 @@ class OrderIntegrationTest extends IntegrationTestBase
   import concurrent.ExecutionContext.Implicits.global
   import org.json4s.jackson.JsonMethods._
   import Extensions._
+
+  type Errors = Map[String, Seq[String]]
 
   "returns new items" in {
     pending
@@ -90,6 +94,66 @@ class OrderIntegrationTest extends IntegrationTestBase
       // OrderPayments.findAllByOrderId(order.id).futureValue.head.status must === ("cancelAuth")
     }
     */
+
+    "increases remorse period" in {
+      val order = Orders.save(Factories.order.copy(status = Order.RemorseHold)).run().futureValue
+      val response = POST(s"v1/orders/${order.referenceNumber}/increase-remorse-period")
+
+      val result = parse(response.bodyText).extract[NewRemorsePeriod]
+      result.remorsePeriod must === (order.remorsePeriodInMinutes + 15)
+    }
+
+    "increases remorse period only when in RemorseHold status" in {
+      val order = Orders.save(Factories.order).run().futureValue
+      val response = POST(s"v1/orders/${order.referenceNumber}/increase-remorse-period")
+      response.status must === (StatusCodes.BadRequest)
+
+      val newOrder = Orders._findById(order.id).extract.result.headOption.run().futureValue.get
+      newOrder.remorsePeriodInMinutes must === (order.remorsePeriodInMinutes)
+    }
+
+    "locks an order" in {
+      val order = Orders.save(Factories.order).run().futureValue
+      StoreAdmins.save(Factories.storeAdmin).run().futureValue
+
+      val response = POST(s"v1/orders/${order.referenceNumber}/lock")
+      response.status must === (StatusCodes.OK)
+
+      val lockedOrder = Orders.findByRefNum(order.referenceNumber).result.run().futureValue.head
+      lockedOrder.locked must === (true)
+
+      val locks = OrderLockEvents.findByOrder(order).result.run().futureValue
+      locks.length must === (1)
+      val lock = locks.head
+      lock.lockedBy must === (1)
+    }
+
+    "refuses to lock an already locked order" in {
+      val order = Orders.save(Factories.order.copy(locked = true)).run().futureValue
+
+      val response = POST(s"v1/orders/${order.referenceNumber}/lock")
+      response.status must === (StatusCodes.BadRequest)
+      val errors = parse(response.bodyText).extract[Errors]
+      errors.head must === ("errors" → Seq("Order is locked"))
+    }
+
+    "unlocks an order" in {
+      val order = Orders.save(Factories.order.copy(locked = true)).run().futureValue
+      val response = POST(s"v1/orders/${order.referenceNumber}/unlock")
+      response.status must === (StatusCodes.OK)
+
+      val unlockedOrder = Orders.findByRefNum(order.referenceNumber).result.run().futureValue.head
+      unlockedOrder.locked must === (false)
+    }
+
+    "refuses to unlock an already unlocked order" in {
+      val order = Orders.save(Factories.order).run().futureValue
+      val response = POST(s"v1/orders/${order.referenceNumber}/unlock")
+
+      response.status must === (StatusCodes.BadRequest)
+      val errors = parse(response.bodyText).extract[Errors]
+      errors.head must === ("errors" → Seq("Order is not locked"))
+    }
   }
 
   /*
@@ -113,7 +177,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         s"v1/orders/${order.referenceNumber}/payment-methods/credit-card",
         payload.copy(cvv = "", holderName = ""))
 
-      val errors = parse(response.bodyText).extract[Map[String, Seq[String]]]
+      val errors = parse(response.bodyText).extract[Errors]
 
       errors must === (Map("errors" -> Seq("holderName must not be empty", "cvv must match regular expression " +
         "'[0-9]{3,4}'")))
@@ -128,7 +192,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         payload.copy(number = StripeSupport.declinedCard))
 
       val body = response.bodyText
-      val errors = parse(body).extract[Map[String, Seq[String]]]
+      val errors = parse(body).extract[Errors]
 
       errors must === (Map("errors" -> Seq("Your card was declined.")))
       response.status must === (StatusCodes.BadRequest)

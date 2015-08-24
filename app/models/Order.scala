@@ -10,12 +10,18 @@ import models.Order.{Cart, Status}
 import monocle.macros.GenLens
 import org.joda.time.DateTime
 import services.OrderTotaler
+import utils.{ADT, GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
+import payloads.CreateAddressPayload
+
+import com.wix.accord.dsl.{validator => createValidator}
+import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId, Validation}
 
 final case class Order(id: Int = 0, referenceNumber: String = "", customerId: Int,
-  status: Status = Cart, locked: Boolean = false, placedAt: Option[DateTime] = None)
+  status: Status = Cart, locked: Boolean = false, placedAt: Option[DateTime] = None,
+  remorsePeriodInMinutes: Int = 30)
   extends ModelWithIdParameter
   with Validation[Order]
   with FSM[Order.Status, Order] {
@@ -82,7 +88,8 @@ class Orders(tag: Tag) extends GenericTable.TableWithId[Order](tag, "orders") wi
   def status = column[Order.Status]("status")
   def locked = column[Boolean]("locked")
   def placedAt = column[Option[DateTime]]("placed_at")
-  def * = (id, referenceNumber, customerId, status, locked, placedAt) <>((Order.apply _).tupled, Order.unapply)
+  def remorsePeriodInMinutes = column[Int]("remorse_period_in_minutes")
+  def * = (id, referenceNumber, customerId, status, locked, placedAt, remorsePeriodInMinutes) <>((Order.apply _).tupled, Order.unapply)
 }
 
 object Orders extends TableQueryWithId[Order, Orders](
