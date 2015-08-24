@@ -21,7 +21,7 @@ export default class OrderShippingMethod extends React.Component {
            methods: methods
          });
        })
-       .catch((err) => { console.log(err); });
+       .catch((err) => { console.error(err); });
   }
 
   render() {

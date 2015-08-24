@@ -26,7 +26,7 @@ export default class OrderDetails extends React.Component {
         });
         dispatch('toggleOrderEdit');
       })
-      .catch((err) => { console.log(err); });
+      .catch((err) => { console.error(err); });
   }
 
   render() {

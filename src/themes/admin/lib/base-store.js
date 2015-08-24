@@ -77,7 +77,7 @@ export default class BaseStore {
 
   // @todo Error handling - Tivs
   fetchError(err) {
-    console.log(err);
+    console.error(err);
   }
 
   fetch(id) {
