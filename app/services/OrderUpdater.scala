@@ -250,12 +250,12 @@ object OrderUpdater {
       case Success ⇒
         db.run(for {
           newAddress ← Addresses.save(address.copy(customerId = order.customerId))
-          state ← States.findById(newAddress.stateId)
+          region ← Regions.findById(newAddress.regionId)
           _ ← OrderShippingAddresses.findByOrderId(order.id).delete
           _ ← OrderShippingAddresses.copyFromAddress(newAddress, order.id)
-        } yield (newAddress, state)).map {
-          case (address, Some(state)) ⇒ Good(Response.build(address, state))
-          case (_, None)              ⇒ Bad(List(NotFoundFailure(State, address.stateId)))
+        } yield (newAddress, region)).map {
+          case (address, Some(region))  ⇒ Good(Response.build(address, region))
+          case (_, None)                ⇒ Bad(List(NotFoundFailure(Region, address.regionId)))
         }
       case f: Invalid ⇒ Future.successful(Bad(List(ValidationFailure(f))))
     }
@@ -273,10 +273,10 @@ object OrderUpdater {
 
       newAddress ← OrderShippingAddresses.findByOrderId(order.id).result.headOption
 
-      state ← newAddress.map { address ⇒
-        States.findById(address.stateId)
+      region ← newAddress.map { address ⇒
+        Regions.findById(address.regionId)
       }.getOrElse(DBIO.successful(None))
-    } yield (rowsAffected, newAddress, state)
+    } yield (rowsAffected, newAddress, region)
 
     db.run(actions.transactionally).map {
       case (_, None, _) ⇒
@@ -284,9 +284,9 @@ object OrderUpdater {
       case (0, _, _) ⇒
         Bad(List(GeneralFailure("Unable to update address")))
       case (_, Some(address), None) ⇒
-        Bad(List(NotFoundFailure(State, address.stateId)))
-      case (_, Some(address), Some(state)) ⇒
-        Good(Response.build(Address.fromOrderShippingAddress(address), state))
+        Bad(List(NotFoundFailure(Region, address.regionId)))
+      case (_, Some(address), Some(region)) ⇒
+        Good(Response.build(Address.fromOrderShippingAddress(address), region))
     }
   }
 
@@ -295,7 +295,7 @@ object OrderUpdater {
 
     db.run(for {
       address ← Addresses.findById(addressId)
-      state ← address.map { a ⇒ States.findById(a.stateId) }.getOrElse(DBIO.successful(None))
+      region ← address.map { a ⇒ Regions.findById(a.regionId) }.getOrElse(DBIO.successful(None))
       _ ← address match {
         case Some(a) ⇒
           for {
@@ -305,9 +305,9 @@ object OrderUpdater {
         case None ⇒
           DBIO.successful(None)
       }
-    } yield (address, state)).map {
-      case (Some(address), Some(state)) ⇒
-        Good(Response.build(address, state))
+    } yield (address, region)).map {
+      case (Some(address), Some(region)) ⇒
+        Good(Response.build(address, region))
       case _ ⇒
         Bad(List(NotFoundFailure(Address, addressId)))
     }

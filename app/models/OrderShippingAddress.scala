@@ -10,7 +10,7 @@ import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.GenericTable.TableWithId
 import utils.{Validation, ModelWithIdParameter, RichTable, TableQueryWithId}
 
-final case class OrderShippingAddress(id: Int = 0, orderId: Int = 0, stateId: Int, name: String,
+final case class OrderShippingAddress(id: Int = 0, orderId: Int = 0, regionId: Int, name: String,
   street1: String, street2: Option[String], city: String, zip: String, phoneNumber: Option[String])
   extends Validation[OrderShippingAddress]
   with ModelWithIdParameter {
@@ -25,14 +25,14 @@ final case class OrderShippingAddress(id: Int = 0, orderId: Int = 0, stateId: In
 
 object OrderShippingAddress {
   def buildFromAddress(address: Address): OrderShippingAddress =
-    OrderShippingAddress(stateId = address.stateId, name = address.name, street1 = address.street1,
+    OrderShippingAddress(regionId = address.regionId, name = address.name, street1 = address.street1,
       street2 = address.street2, city = address.city, zip = address.zip, phoneNumber = address.phoneNumber)
 
   def fromPatchPayload(a: OrderShippingAddress, p: UpdateAddressPayload) = {
     OrderShippingAddress(
       id = a.id,
       orderId = a.orderId,
-      stateId = p.stateId.getOrElse(a.stateId),
+      regionId = p.regionId.getOrElse(a.regionId),
       name = p.name.getOrElse(a.name),
       street1 = p.street1.getOrElse(a.street1),
       street2 = p.street2.fold(a.street2)(Some(_)),
@@ -47,7 +47,7 @@ class OrderShippingAddresses(tag: Tag) extends TableWithId[OrderShippingAddress]
   with RichTable {
   def id = column[Int]("id", O.PrimaryKey)
   def orderId = column[Int]("order_id")
-  def stateId = column[Int]("state_id")
+  def regionId = column[Int]("region_id")
   def name = column[String]("name")
   def street1 = column[String]("street1")
   def street2 = column[Option[String]]("street2")
@@ -55,12 +55,12 @@ class OrderShippingAddresses(tag: Tag) extends TableWithId[OrderShippingAddress]
   def zip = column[String]("zip")
   def phoneNumber = column[Option[String]]("phone_number")
 
-  def * = (id, orderId, stateId, name, street1, street2,
+  def * = (id, orderId, regionId, name, street1, street2,
     city, zip, phoneNumber) <> ((OrderShippingAddress.apply _).tupled, OrderShippingAddress.unapply)
 
   def address = foreignKey(Addresses.tableName, id, Addresses)(_.id)
   def order = foreignKey(Orders.tableName, orderId, Orders)(_.id)
-  def state = foreignKey(States.tableName, stateId, States)(_.id)
+  def region = foreignKey(Regions.tableName, regionId, Regions)(_.id)
 }
 
 object OrderShippingAddresses extends TableQueryWithId[OrderShippingAddress, OrderShippingAddresses](
@@ -75,13 +75,13 @@ object OrderShippingAddresses extends TableQueryWithId[OrderShippingAddress, Ord
     filter(_.orderId === orderId)
 
   def findByOrderIdWithStates(orderId: Int):
-  Query[(OrderShippingAddresses, States), (OrderShippingAddress, State), Seq] = for {
+  Query[(OrderShippingAddresses, Regions), (OrderShippingAddress, Region), Seq] = for {
     records ← withStates(findByOrderId(orderId))
   } yield records
 
   def withStates(q: Query[(OrderShippingAddresses), (OrderShippingAddress), Seq]):
-  Query[(OrderShippingAddresses, States), (OrderShippingAddress, State), Seq] = for {
+  Query[(OrderShippingAddresses, Regions), (OrderShippingAddress, Region), Seq] = for {
     shippingAddresses ← q
-    states ← States if states.id === shippingAddresses.id
-  } yield (shippingAddresses, states)
+    regions ← Regions if regions.id === shippingAddresses.id
+  } yield (shippingAddresses, regions)
 }

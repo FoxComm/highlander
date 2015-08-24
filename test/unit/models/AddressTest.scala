@@ -8,7 +8,7 @@ class AddressTest extends TestBase {
   "Address" - {
     ".validate" - {
       "returns errors when zip is not 5 digit chars" in {
-        val valid = Address(id = 0, customerId = 1, stateId = 1, name = "Yax Home",
+        val valid = Address(id = 0, customerId = 1, regionId = 1, name = "Yax Home",
           street1 = "555 E Lake Union St.", street2 = None, city = "Seattle", zip = "12345", phoneNumber = None)
 
         val badZip = valid.copy(zip = "AB123")

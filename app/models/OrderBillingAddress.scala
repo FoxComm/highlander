@@ -10,7 +10,7 @@ import utils.GenericTable.TableWithId
 import utils.{Validation, ModelWithIdParameter, RichTable, TableQueryWithId}
 
 final case class OrderBillingAddress(id: Int = 0, orderPaymentId: Int = 0,
-  stateId: Int, name: String, street1: String, street2: Option[String], city: String, zip: String)
+  regionId: Int, name: String, street1: String, street2: Option[String], city: String, zip: String)
   extends Validation[OrderBillingAddress]
   with ModelWithIdParameter {
 
@@ -24,7 +24,7 @@ final case class OrderBillingAddress(id: Int = 0, orderPaymentId: Int = 0,
 
 object OrderBillingAddress {
   def buildFromAddress(address: Address): OrderBillingAddress =
-    OrderBillingAddress(stateId = address.stateId, name = address.name, street1 = address.street1,
+    OrderBillingAddress(regionId = address.regionId, name = address.name, street1 = address.street1,
       street2 = address.street2, city = address.city, zip = address.zip)
 }
 
@@ -32,18 +32,18 @@ class OrderBillingAddresses(tag: Tag) extends TableWithId[OrderBillingAddress](t
 with RichTable {
   def id = column[Int]("id", O.PrimaryKey)
   def orderPaymentId = column[Int]("order_payment_id")
-  def stateId = column[Int]("state_id")
+  def regionId = column[Int]("region_id")
   def name = column[String]("name")
   def street1 = column[String]("street1")
   def street2 = column[Option[String]]("street2")
   def city = column[String]("city")
   def zip = column[String]("zip")
 
-  def * = (id, orderPaymentId, stateId, name, street1, street2,
+  def * = (id, orderPaymentId, regionId, name, street1, street2,
     city, zip) <> ((OrderBillingAddress.apply _).tupled, OrderBillingAddress.unapply)
 
   def address = foreignKey(Addresses.tableName, id, Addresses)(_.id)
-  def state = foreignKey(States.tableName, stateId, States)(_.id)
+  def region = foreignKey(Regions.tableName, regionId, Regions)(_.id)
   def orderPayment = foreignKey(OrderPayments.tableName, orderPaymentId, OrderPayments)(_.id)
 }
 
