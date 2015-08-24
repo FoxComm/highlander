@@ -8,6 +8,7 @@ import models.{StoreCreditAdjustment, GiftCardAdjustment, CreditCardCharge, Gift
 StoreCredit}
 import org.json4s.ext.DateTimeSerializer
 import org.json4s.{DefaultFormats, jackson}
+import responses.CountryWithRegions
 
 object JsonFormatters {
   val serialization = jackson.Serialization
@@ -22,6 +23,7 @@ object JsonFormatters {
     StoreCreditAdjustment.Status.jsonFormat +
     CreditCardCharge.Status.jsonFormat +
     Money.jsonFormat +
+    CountryWithRegions.jsonFormat +
     DateTimeSerializer
 }
 

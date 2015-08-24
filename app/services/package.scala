@@ -1,6 +1,6 @@
 import collection.immutable
-import concurrent.Future
-
+import scala.concurrent.{Future, ExecutionContext}
+import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import org.scalactic.{Bad, Good, Or}
 
 package object services {
@@ -15,8 +15,8 @@ package object services {
   type Result[A] = Future[A Or Failures]
 
   object Result {
-    def good[A](order: A): Result[A] =
-      Future.successful(Good[A, Failures](order))
+    def good[A](resource: A): Result[A] =
+      Future.successful(Good[A, Failures](resource))
 
     def failures(failures: Failure*): Result[Nothing] =
       Future.successful(Bad(Failures(failures: _*)))
