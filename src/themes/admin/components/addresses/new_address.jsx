@@ -10,48 +10,32 @@ export default class NewAddress extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      states: {},
-      // @TODO countries should be retrieved from server, when we'll have an endpoint for this
       countries: [
         {
-          id: 'us',
+          id: this.defaultCountryId(),
           name: 'United States'
         },
         {
-          id: 'other',
+          id: 2,
           name: 'Other'
         }
       ],
+      regions: [],
       formData: {
-        countryId: 'us'
+        country: this.defaultCountryId()
       }
     };
   }
 
-  componentDidMount() {
-    let formData = _.extend({}, this.state.formData);
-    let dummyRegions = [
-      {
-        id: 1,
-        name: 'Region 1'
-      },
-      {
-        id: 2,
-        name: 'Region 2'
-      }
-    ];
+  /**
+   * Default country (United States) id
+   */
+  defaultCountryId() {
+    return 1;
+  }
 
-    Api.get('/states')
-      .then((res) => {
-        formData.stateId = res[0].id;
-        this.setState({
-          states: {us: res, other: dummyRegions}, // @TODO this sould be fixed when server endpoint will be ready
-          formData: formData
-        });
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+  componentDidMount() {
+    this.updateRegions();
   }
 
   onSubmitForm(event) {
@@ -68,23 +52,36 @@ export default class NewAddress extends React.Component {
 
   onChangeValue(event) {
     let
-      formData = _.extend({}, this.state.formData),
-      target = event.target;
-
-    // reset selected region on country change
-    if (target.name === 'countryId' && formData[target.name] !== target.value) {
-      formData.stateId = this.state.states[target.value][0];
-    }
-
-    if (target.name === 'stateId') {
-      formData[target.name] = +target.value;
-    } else {
-      formData[target.name] = target.value;
-    }
+      target = event.target,
+      formData = _.extend({}, this.state.formData, {
+        [target.name]: target.name === 'country' ? +target.value : target.value
+      });
 
     this.setState({
       formData: formData
+    }, function() {
+      if (target.name === 'country') {
+        this.updateRegions(target.value);
+      }
     });
+  }
+
+  updateRegions(country) {
+    let
+      countryId = country || this.state.formData.country,
+      formData = _.extend({}, this.state.formData);
+
+    Api.get(`/countries/${countryId}`)
+      .then((data) => {
+        formData.region = data[0].id;
+        this.setState({
+          regions: data,
+          formData: formData
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
   cancelAddress() {
@@ -108,9 +105,9 @@ export default class NewAddress extends React.Component {
           <input type="text" name="street2" className='control'/>
         </div>
         <div>
-          <label htmlFor="stateId">{ this.state.formData.countryId === 'us' ? 'State' : 'Region'}</label>
-          <select name="stateId" value={this.state.formData.stateId}>
-            {(this.state.states[this.state.formData.countryId] || []).map((state, index) => {
+          <label htmlFor="region">{ this.state.formData.country === this.defaultCountryId() ? 'State' : 'Region'}</label>
+          <select name="region" value={this.state.formData.region}>
+            {this.state.regions.map((state, index) => {
               return <option value={state.id} key={`${index}-${state.id}`}>{state.name}</option>;
             })}
           </select>
@@ -120,15 +117,15 @@ export default class NewAddress extends React.Component {
           <input type="text" name="city" className='control' required/>
         </div>
         <div>
-          <label htmlFor="countryId">Country</label>
-          <select name="countryId">
+          <label htmlFor="country">Country</label>
+          <select name="country" value={this.state.formData.country}>
             {this.state.countries.map((country, index) => {
               return <option value={country.id} key={`${index}-${country.id}`}>{country.name}</option>;
             })}
           </select>
         </div>
         <div>
-          <label htmlFor="zip">{ this.state.formData.countryId === 'us' ? 'Zip Code' : 'Postal Code'}</label>
+          <label htmlFor="zip">{ this.state.formData.country === this.defaultCountryId() ? 'Zip Code' : 'Postal Code'}</label>
           <input type="text" name="zip" className='control' required/>
         </div>
         <div>
