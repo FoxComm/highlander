@@ -47,15 +47,19 @@ export default class BaseStore {
     stopListeningTo(`${event}-${this.eventSuffix}`, ctx);
   }
 
+  process(model) {
+    return model;
+  }
+
   upsert(model) {
     let exists = this.findModel(model.id);
     if (exists) {
       let idx = this.models.indexOf(exists);
       if (idx !== -1) {
-        this.models[idx] = model;
+        this.models[idx] = this.process(model) || model;
       }
     } else {
-      this.models.push(model);
+      this.models.push(this.process(model) || model);
     }
   }
 
