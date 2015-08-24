@@ -21,7 +21,7 @@ object Seeds {
     shippingMethods: Seq[ShippingMethod], shippingPriceRules: Seq[ShippingPriceRule],
     shippingMethodRuleMappings: Seq[ShippingMethodPriceRule], orderCriteria: Seq[OrderCriterion],
     orderPriceCriteria: Seq[OrderPriceCriterion], priceRuleCriteriaMappings: Seq[ShippingPriceRuleOrderCriterion],
-    skus: Seq[Sku], orderLineItems: Seq[OrderLineItem], shipment: Shipment, paymentMethods: AllPaymentMethods)
+    skus: Seq[Sku], orderLineItems: Seq[OrderLineItem], orderPayments: Seq[OrderPayment], shipment: Shipment, paymentMethods: AllPaymentMethods)
 
   final case class AllPaymentMethods(giftCard: GiftCard = Factories.giftCard, storeCredit: StoreCredit = Factories
     .storeCredit)
@@ -49,6 +49,7 @@ object Seeds {
       orderPriceCriteria = Factories.orderPriceCriteria,
       priceRuleCriteriaMappings = Factories.priceRuleCriteriaMappings,
       orderLineItems = Factories.orderLineItems,
+      orderPayments = Seq(Factories.orderPayment),
       shipment = Factories.shipment,
       paymentMethods = AllPaymentMethods(giftCard = Factories.giftCard, storeCredit = Factories.storeCredit)
     )
@@ -71,6 +72,7 @@ object Seeds {
       shippingAddress ← OrderShippingAddresses.save(Factories.shippingAddress.copy(orderId = order.id))
       shippingMethods ← ShippingMethods ++= s.shippingMethods
       creditCard ← CreditCards.save(s.cc.copy(customerId = customer.id, billingAddressId = address.id))
+      orderPayments ← OrderPayments.save(Factories.orderPayment.copy(orderId = order.id, paymentMethodId = creditCard.id))
       shippingPriceRule ← ShippingPriceRules ++= s.shippingPriceRules
       shippingMethodRuleMappings ← ShippingMethodsPriceRules ++= s.shippingMethodRuleMappings
       orderCriterion ← OrderCriteria ++= s.orderCriteria
