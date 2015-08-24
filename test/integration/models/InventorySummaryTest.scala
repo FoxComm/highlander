@@ -21,7 +21,7 @@ class InventorySummaryTest extends IntegrationTestBase {
 
       "inserts a negative new record if there is none after an insert to InventoryAdjustment" in {
         val (sku, order) = seed()
-        adjustment(sku.id, order.id, reserved = 10).run()
+        adjustment(sku.id, order.id, reserved = 10).run().futureValue
         val summary = InventorySummaries.findBySkuId(sku.id).futureValue.get
 
         summary.availableOnHand must === (-10)
@@ -29,7 +29,7 @@ class InventorySummaryTest extends IntegrationTestBase {
 
       "inserts a positive new record if there is none after an insert to InventoryAdjustment" in {
         val (sku, order) = seed()
-        adjustment(sku.id, order.id, reserved = -25).run()
+        adjustment(sku.id, order.id, reserved = -25).run().futureValue
         val summary = InventorySummaries.findBySkuId(sku.id).futureValue.get
 
         summary.availableOnHand must === (25)
