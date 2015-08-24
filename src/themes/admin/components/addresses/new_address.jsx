@@ -64,15 +64,15 @@ export default class NewAddress extends React.Component {
       <form action={`/customers/${this.props.customerId}/addresses`} className='vertical' method='POST' onSubmit={this.onSubmitForm.bind(this)} onChange={this.onChangeValue.bind(this)}>
         <div>
           <label htmlFor="name">Name</label>
-          <input type="text" name="name" className='control' required />
+          <input type="text" name="name" required />
         </div>
         <div>
           <label htmlFor="street1">Address 1</label>
-          <input type="text" name="street1" className='control' required />
+          <input type="text" name="street1" required />
         </div>
         <div>
           <label htmlFor="street2">Address 2 (option)</label>
-          <input type="text" name="street2" className='control' />
+          <input type="text" name="street2" />
         </div>
         <div>
           <label htmlFor="stateId">State</label>
@@ -84,15 +84,15 @@ export default class NewAddress extends React.Component {
         </div>
         <div>
           <label htmlFor="city">City</label>
-          <input type="text" name="city" className='control' required />
+          <input type="text" name="city" required />
         </div>
         <div>
           <label htmlFor="zip">Zip</label>
-          <input type="text" name="zip" className='control' required />
+          <input type="text" name="zip" required />
         </div>
         <div>
           <label htmlFor="phoneNumber">Phone</label>
-          <input type="tel" name="phoneNumber" className='control' required />
+          <input type="tel" name="phoneNumber" required />
         </div>
         <div>
           <a onClick={this.cancelAddress}>Cancel</a>

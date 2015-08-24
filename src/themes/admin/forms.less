@@ -11,3 +11,24 @@
     .padding-left(30px);
   }
 }
+
+input[type=text], input[type=number], textarea {
+  background-color: @color-decor0;
+  border: 1px solid @color-decor7;
+  box-shadow: inset 1px 1px 1px 0px rgba(0,0,0,0.1);
+  .border-radius(3px);
+  .padding(0 10px);
+  .height(40px);
+
+  &:hover {
+    border: 1px solid @color-decor3;
+  }
+
+  &:active, &:focus {
+    border: 1px solid @color-control-primary-bg;
+  }
+
+  &:invalid, &.error {
+    border: 1px solid @color-decor22;
+  }
+}

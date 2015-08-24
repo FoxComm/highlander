@@ -8,6 +8,8 @@ import CustomerStore from '../customers/store';
 import { dispatch, listenTo, stopListeningTo } from '../../lib/dispatcher';
 import Api from '../../lib/api';
 import _ from 'lodash';
+import Dropdown from '../dropdown/dropdown';
+import DropdownItem from '../dropdown/dropdown-item';
 
 const
   types = {
@@ -222,13 +224,20 @@ export default class NewGiftCard extends React.Component {
         <h2>Issue New Gift Cards</h2>
         <form action="/gift-cards" method="POST" className="vertical" onSubmit={this.submitForm.bind(this)}>
           <fieldset>
-            <div id="cardTypes">
-              <label htmlFor="cardType">Gift Card Type</label>
-              <select name="cardType" onChange={this.setType.bind(this)}>
-                {typeList.map((type, idx) => {
-                  return <option val={type} key={`${idx}-${type}`}>{type}</option>;
-                 })}
-              </select>
+            <div id="cardTypes" className="fc-grid">
+              <div className="fc-col-1-5">
+                <label htmlFor="cardType">Gift Card Type</label>
+                <Dropdown>
+                  {typeList.map((type, idx) => {
+                    return <DropdownItem key={`${idx}-${type}`} value={type}>{type}</DropdownItem>;
+                  })}
+                </Dropdown>
+                <select name="cardType" onChange={this.setType.bind(this)}>
+                  {typeList.map((type, idx) => {
+                    return <option val={type} key={`${idx}-${type}`}>{type}</option>;
+                   })}
+                </select>
+              </div>
             </div>
             {subTypeContent}
           </fieldset>
@@ -237,7 +246,7 @@ export default class NewGiftCard extends React.Component {
             <div className="form-icon">
               <i className="icon-dollar"></i>
               <input type="hidden" name="originalBalance" value={this.state.balance} />
-              <input type="number" className="control" value={this.state.balanceText} onChange={this.onChangeBalance.bind(this)} step="0.01" min="1" />
+              <input type="number" value={this.state.balanceText} onChange={this.onChangeBalance.bind(this)} step="0.01" min="1" />
             </div>
             <div id="balances">
               <a className="btn" onClick={this.setValue.bind(this, '1000')}>$10</a>

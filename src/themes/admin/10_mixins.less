@@ -315,3 +315,13 @@
   @rem-value: ~`pxtorem('@{value}')`;
   border-radius: @rem-value;
 }
+
+.inline-block(@valign: top) {
+  display: inline-block;
+  vertical-align: @valign;
+}
+
+.colors(@fg: @color-default-fg, @bg: @color-default-bg) {
+  color: @fg;
+  background-color: @bg;
+}
