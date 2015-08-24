@@ -120,16 +120,16 @@ export default class NewAddress extends React.Component {
           <input type="text" name="city" className='control' required/>
         </div>
         <div>
-          <label htmlFor="zip">{ this.state.formData.countryId === 'us' ? 'Zip Code' : 'Postal Code'}</label>
-          <input type="text" name="zip" className='control' required/>
-        </div>
-        <div>
           <label htmlFor="countryId">Country</label>
           <select name="countryId">
             {this.state.countries.map((country, index) => {
               return <option value={country.id} key={`${index}-${country.id}`}>{country.name}</option>;
             })}
           </select>
+        </div>
+        <div>
+          <label htmlFor="zip">{ this.state.formData.countryId === 'us' ? 'Zip Code' : 'Postal Code'}</label>
+          <input type="text" name="zip" className='control' required/>
         </div>
         <div>
           <label htmlFor="phoneNumber">Phone</label>
