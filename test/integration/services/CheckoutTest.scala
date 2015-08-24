@@ -79,7 +79,8 @@ class CheckoutTest extends IntegrationTestBase with Inside with TypeCheckedTripl
   def testData(gatewayCustomerId:String = "cus_6Rh139qdpaFdRP") = {
     val customerStub = Customer(email = "yax@yax.com", password = "password", firstName = "Yax", lastName = "Fuentes")
     val orderStub    = Order(id = 0, customerId = 0)
-    val addressStub  = Address(id = 0, customerId = 0, stateId = 1, name = "Yax Home", street1 = "555 E Lake Union St.", street2 = None, city = "Seattle", zip = "12345", phoneNumber = None)
+    val addressStub  = Address(id = 0, customerId = 0, regionId = 1, name = "Yax Home", street1 = "555 E Lake Union " +
+      "St.", street2 = None, city = "Seattle", zip = "12345", phoneNumber = None)
     val gatewayStub  = CreditCard(id = 0, customerId = 0, gatewayCustomerId = gatewayCustomerId, lastFour = "4242", expMonth = 11, expYear = 2018)
 
     val (payment, order) = (for {

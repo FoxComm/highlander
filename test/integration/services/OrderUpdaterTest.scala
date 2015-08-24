@@ -23,7 +23,7 @@ class OrderUpdaterTest extends IntegrationTestBase {
     }
 
     "Adds a shipping address by creating a new address in the payload" in new Fixture {
-      val newAddress = payloads.CreateAddressPayload(name = "Home Office", stateId = 1, street1 = "3000 Coolio Dr",
+      val newAddress = payloads.CreateAddressPayload(name = "Home Office", regionId = 1, street1 = "3000 Coolio Dr",
         city = "Seattle", zip = "55555")
       val payload = payloads.CreateShippingAddress(None, Some(newAddress))
 

@@ -3,7 +3,7 @@ package services
 import scala.concurrent.{ExecutionContext, Future}
 
 import cats.Functor
-import models.{Order, Address, Addresses, State, States}
+import models.{Order, Address, Addresses, Region, Regions}
 import org.scalactic.{Bad, Good, Or}
 import payloads.CreateAddressPayload
 import responses.Addresses.Root
@@ -20,10 +20,10 @@ object AddressManager {
       case Success ⇒
         db.run(for {
           newAddress ← Addresses.save(address)
-          state ← States.findById(newAddress.stateId)
-        } yield (newAddress, state)).map {
-          case (address, Some(state)) ⇒ Good(Response.build(address, state))
-          case (_, None)              ⇒ Bad(NotFoundFailure(State, address.stateId).single)
+          region ← Regions.findById(newAddress.regionId)
+        } yield (newAddress, region)).map {
+          case (address, Some(region))  ⇒ Good(Response.build(address, region))
+          case (_, None)                ⇒ Bad(NotFoundFailure(Region, address.regionId).single)
         }
       case f: Invalid ⇒ Result.failure(ValidationFailure(f))
     }
@@ -36,11 +36,11 @@ object AddressManager {
       case Success ⇒
         db.run((for {
           rowsAffected ← Addresses.insertOrUpdate(address)
-          state ← States.findById(address.stateId)
-        } yield (rowsAffected, address, state)).transactionally).map {
-          case (1, address, Some(state)) ⇒ Good(Response.build(address, state))
-          case (_, address, Some(state)) ⇒ Bad(NotFoundFailure(address).single)
-          case (_, _, None)              ⇒ Bad(NotFoundFailure(State, address.stateId).single)
+          region ← Regions.findById(address.regionId)
+        } yield (rowsAffected, address, region)).transactionally).map {
+          case (1, address, Some(region)) ⇒ Good(Response.build(address, region))
+          case (_, address, Some(region)) ⇒ Bad(NotFoundFailure(address).single)
+          case (_, _, None)               ⇒ Bad(NotFoundFailure(Region, address.regionId).single)
         }
       case f: Invalid ⇒ Result.failure(ValidationFailure(f))
     }

@@ -11,7 +11,7 @@ class CreditCardPaymentCreatorTest extends IntegrationTestBase {
 
   "CreditCardPaymentCreatorTest" - {
     "Adds a credit card with a billing address that does not exist in the address book" in new Fixture {
-      val addressPayload = CreateAddressPayload(name = "Home Office", stateId = 1,
+      val addressPayload = CreateAddressPayload(name = "Home Office", regionId = 1,
         street1 = "3000 Coolio Dr", city = "Seattle", zip = "55555")
       val ccPayload = CreateCreditCard(holderName = customer.firstName + " " + customer.lastName,
         number = "4242424242424242", cvv = "123", expMonth = 1, expYear = 2018, address = Some(addressPayload))
