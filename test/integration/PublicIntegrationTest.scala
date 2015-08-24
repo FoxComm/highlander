@@ -4,7 +4,7 @@ import com.github.tototoshi.slick.JdbcJodaSupport._
 import models.{Regions, Region, Countries, Country}
 import org.joda.money.CurrencyUnit
 import org.json4s.JsonAST.{JField, JArray, JObject}
-import services.Public.CountryWithRegions
+import responses.CountryWithRegions
 import util.IntegrationTestBase
 import slick.driver.PostgresDriver.api._
 import utils._
