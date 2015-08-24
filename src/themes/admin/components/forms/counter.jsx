@@ -28,10 +28,14 @@ export default class Counter extends React.Component {
 
   render() {
     return (
-      <div>
-        <button onClick={this.decreaseTotal.bind(this)}><i className="icon-down-dir"></i></button>
+      <div className="fc-input-group">
+        <div className="fc-input-prepend">
+          <button onClick={this.decreaseTotal.bind(this)}><i className="icon-down-dir"></i></button>
+        </div>
         <input type="number" id={this.props.inputName} name={this.props.inputName} value={this.state.inputValue} onChange={this.onChange.bind(this)} min={this.props.minValue} max={this.props.maxValue} step={this.props.stepAmount} />
-        <button onClick={this.increaseTotal.bind(this)}><i className="icon-up-dir"></i></button>
+        <div className="fc-input-append">
+          <button onClick={this.increaseTotal.bind(this)}><i className="icon-up-dir"></i></button>
+        </div>
       </div>
     );
   }
