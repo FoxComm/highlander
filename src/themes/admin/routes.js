@@ -23,6 +23,8 @@ const routes = (
     <DefaultRoute name="home" handler={Home}/>
     <Route name='orders' handler={Orders}/>
     <Route name='returns' handler={Returns}/>
+    <Route name='return' path='/returns/:return' handler={Order}>
+    </Route>
     <Route name='order' path='/orders/:order' handler={Order}>
       <DefaultRoute name='order-details' handler={OrderDetails}/>
       <Route name='order-notes' path='notes' handler={Notes}/>

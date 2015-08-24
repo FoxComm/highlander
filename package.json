@@ -95,6 +95,7 @@
     "gulp-uglify": "^1.2.0",
     "htmlescape": "^1.1.0",
     "imagemin-pngquant": "^4.1.0",
+    "immutable": "^3.7.4",
     "koa": "^0.21.0",
     "koa-body": "^1.2.1",
     "koa-favicon": "^1.2.0",
@@ -105,6 +106,7 @@
     "less-plugin-clean-css": "^1.5.0",
     "less-plugin-group-css-media-queries": "^1.0.1",
     "less-plugin-npm-import": "^2.1.0",
+    "lodash": "^3.10.1",
     "merge-stream": "^0.1.7",
     "moment": "^2.10.3",
     "normalize.css": "^3.0.3",
@@ -113,7 +115,6 @@
     "reactify": "^1.1.1",
     "request": "^2.58.0",
     "thunkify-wrap": "^1.0.4",
-    "lodash": "^3.10.1",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0"
   },
