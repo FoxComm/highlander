@@ -31,7 +31,12 @@ object Public {
     } ~
     (get & path("countries") & pathEnd) {
       complete {
-        services.Public.listCountries.map(render(_))
+        services.Public.countries.map(render(_))
+      }
+    } ~
+    (get & path("countries" / IntNumber) & pathEnd) { countryId ⇒
+      complete {
+        services.Public.findCountry(countryId).map(renderGoodOrFailures(_))
       }
     }
   }

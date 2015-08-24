@@ -17,7 +17,9 @@ final case class Country(id: Int = 0, name: String, alpha2: String, alpha3: Stri
   extends ModelWithIdParameter {
 }
 
-object Country
+object Country {
+  val unitedStatesId = 234
+}
 
 class Countries(tag: Tag) extends TableWithId[Country](tag, "countries") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)

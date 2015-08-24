@@ -1,7 +1,7 @@
 import akka.http.scaladsl.model.StatusCodes
 
 import com.github.tototoshi.slick.JdbcJodaSupport._
-import models.{Region, Countries, Country}
+import models.{Regions, Region, Countries, Country}
 import org.joda.money.CurrencyUnit
 import org.json4s.JsonAST.{JField, JArray, JObject}
 import services.Public.CountryWithRegions
@@ -17,17 +17,29 @@ class PublicIntegrationTest extends IntegrationTestBase
   import org.json4s.jackson.JsonMethods._
   import concurrent.ExecutionContext.Implicits.global
 
-  "countries-and-regions" - {
-    "lists countries and their regions along with shippable and payable flags on each country" in {
+  "GET /countries/:id" - {
+    "lists the country and its regions along with shippable and payable flags" in {
+      val response = GET(s"v1/countries/${Country.unitedStatesId}")
+
+      response.status must ===(StatusCodes.OK)
+
+      val usWithRegions = response.as[CountryWithRegions]
+      usWithRegions.regions.size must === (60)
+      val us = usWithRegions.country
+      (us.isBillable, us.isShippable) must === ((false, false))
+    }
+  }
+
+  "GET /countries" - {
+    "lists countries" in {
       val response = GET(s"v1/countries")
 
       response.status must ===(StatusCodes.OK)
 
-      val total = Countries.size.result.run().futureValue
-      val countriesWithRegions = parse(response.bodyText).extract[Seq[CountryWithRegions]]
-      countriesWithRegions.size must === (total)
-      val us = countriesWithRegions.find(_.country.name == "United States").get
-      us.regions must have size (60)
+      val countries = response.as[Seq[Country]]
+      val us = countries.find(_.id === Country.unitedStatesId)
+
+      us.get.name must === ("United States")
     }
   }
 }
