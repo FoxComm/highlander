@@ -23,7 +23,7 @@ export default class NewAddress extends React.Component {
         }
       ],
       formData: {
-        country: 'us'
+        countryId: 'us'
       }
     };
   }
@@ -77,8 +77,6 @@ export default class NewAddress extends React.Component {
       formData[target.name] = target.value;
     }
 
-    console.log('form change', formData);
-
     this.setState({
       formData: formData
     });
@@ -89,7 +87,7 @@ export default class NewAddress extends React.Component {
   }
 
   getCountryRegions() {
-    return this.state.states[this.state.formData.country] || [];
+    return this.state.states[this.state.formData.countryId] || [];
   }
 
   render() {
@@ -109,8 +107,8 @@ export default class NewAddress extends React.Component {
           <input type="text" name="street2" className='control'/>
         </div>
         <div>
-          <label htmlFor="stateId">{ this.state.formData.country === 'us' ? 'State' : 'Region'}</label>
-          <select name="stateId">
+          <label htmlFor="stateId">{ this.state.formData.countryId === 'us' ? 'State' : 'Region'}</label>
+          <select name="stateId" value={this.state.formData.stateId}>
             {this.getCountryRegions().map((state, index) => {
               return <option value={state.id} key={`${index}-${state.id}`}>{state.name}</option>;
             })}
@@ -121,12 +119,12 @@ export default class NewAddress extends React.Component {
           <input type="text" name="city" className='control' required/>
         </div>
         <div>
-          <label htmlFor="zip">{ this.state.formData.country === 'us' ? 'Zip Code' : 'Postal Code'}</label>
+          <label htmlFor="zip">{ this.state.formData.countryId === 'us' ? 'Zip Code' : 'Postal Code'}</label>
           <input type="text" name="zip" className='control' required/>
         </div>
         <div>
-          <label htmlFor="country">Country</label>
-          <select name="country">
+          <label htmlFor="countryId">Country</label>
+          <select name="countryId">
             {this.state.countries.map((country, index) => {
               return <option value={country.id} key={`${index}-${country.id}`}>{country.name}</option>;
             })}
