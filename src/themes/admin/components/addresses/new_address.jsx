@@ -71,6 +71,11 @@ export default class NewAddress extends React.Component {
       formData = _.extend({}, this.state.formData),
       target = event.target;
 
+    // reset selected region on country change
+    if (target.name === 'countryId' && formData[target.name] !== target.value) {
+      formData.stateId = this.state.states[target.value][0];
+    }
+
     if (target.name === 'stateId') {
       formData[target.name] = +target.value;
     } else {
@@ -84,10 +89,6 @@ export default class NewAddress extends React.Component {
 
   cancelAddress() {
     dispatch('cancelNewAddress');
-  }
-
-  getCountryRegions() {
-    return this.state.states[this.state.formData.countryId] || [];
   }
 
   render() {
@@ -109,7 +110,7 @@ export default class NewAddress extends React.Component {
         <div>
           <label htmlFor="stateId">{ this.state.formData.countryId === 'us' ? 'State' : 'Region'}</label>
           <select name="stateId" value={this.state.formData.stateId}>
-            {this.getCountryRegions().map((state, index) => {
+            {(this.state.states[this.state.formData.countryId] || []).map((state, index) => {
               return <option value={state.id} key={`${index}-${state.id}`}>{state.name}</option>;
             })}
           </select>
