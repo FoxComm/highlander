@@ -1,11 +1,14 @@
 'use strict';
 
+const _ = require('lodash');
+
 module.exports = function(gulp, opts, $) {
-  gulp.task('watch', function() {
-    opts.usePlumber = true;
-    gulp.watch(opts.jsSrc, ['browserify']);
-    gulp.watch(opts.lessSrc, ['less']);
-    gulp.watch(opts.imageSrc, ['imagemin']);
-    gulp.watch([opts.configSrc, opts.jsSrc, opts.serverSrc, opts.testSrc], ['test', 'server']);
-  });
-}
+  let watchTasks = _.reduce(gulp.tasks, function(acc, task, name) {
+    if (name.indexOf('watch') != -1) {
+      acc.push(name);
+    }
+    return acc;
+  }, []);
+
+  gulp.task('watch', watchTasks);
+};
