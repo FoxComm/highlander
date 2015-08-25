@@ -1,7 +1,7 @@
 'use strict';
 
 export function formatCurrency(num) {
-  if (!num) return null;
+  if (num === null || num === void 0) return null;
   num = num.toString();
   let
     dollars = num.slice(0, -2),
