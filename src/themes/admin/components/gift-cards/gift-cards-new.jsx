@@ -8,8 +8,6 @@ import CustomerStore from '../customers/store';
 import { dispatch, listenTo, stopListeningTo } from '../../lib/dispatcher';
 import Api from '../../lib/api';
 import _ from 'lodash';
-import Dropdown from '../dropdown/dropdown';
-import DropdownItem from '../dropdown/dropdown-item';
 
 const
   types = {
@@ -224,20 +222,13 @@ export default class NewGiftCard extends React.Component {
         <h2>Issue New Gift Cards</h2>
         <form action="/gift-cards" method="POST" className="vertical" onSubmit={this.submitForm.bind(this)}>
           <fieldset>
-            <div id="cardTypes" className="fc-grid">
-              <div className="fc-col-1-5">
-                <label htmlFor="cardType">Gift Card Type</label>
-                <Dropdown>
-                  {typeList.map((type, idx) => {
-                    return <DropdownItem key={`${idx}-${type}`} value={type}>{type}</DropdownItem>;
-                  })}
-                </Dropdown>
-                <select name="cardType" onChange={this.setType.bind(this)}>
-                  {typeList.map((type, idx) => {
-                    return <option val={type} key={`${idx}-${type}`}>{type}</option>;
-                   })}
-                </select>
-              </div>
+            <div id="cardTypes">
+              <label htmlFor="cardType">Gift Card Type</label>
+              <select name="cardType" onChange={this.setType.bind(this)}>
+                {typeList.map((type, idx) => {
+                  return <option val={type} key={`${idx}-${type}`}>{type}</option>;
+                 })}
+              </select>
             </div>
             {subTypeContent}
           </fieldset>
