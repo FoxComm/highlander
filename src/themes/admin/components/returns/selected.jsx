@@ -5,7 +5,7 @@ import React from 'react';
 export default class Selected extends React.Component {
   render() {
     return (
-      <input type="checkbox" checked={this.props.getValue(this.props.model)} onChange={this.props.onChange(this.props.model)} />
+      <input type="checkbox"/>
     );
   }
 }

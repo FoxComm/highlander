@@ -30,8 +30,7 @@ export default class Returns extends React.Component {
     this.setState({orders: ReturnsStore.getState()});
   }
 
-  onAction(event) {
-    console.log(event);
+  onAction() {
   }
 
   onSelectedChange(event) {
@@ -65,7 +64,7 @@ export default class Returns extends React.Component {
           <table className="listing">
             <TableHead columns={this.props.tableColumns}/>
             <TableBody columns={this.props.tableColumns} rows={this.state.returns} model='return'>
-              <Selected getValue={this.getSelectedValue.bind(this)} onChange={this.onSelectedChange.bind(this)}/>
+              <Selected/>
             </TableBody>
           </table>
         </div>
@@ -75,7 +74,8 @@ export default class Returns extends React.Component {
 }
 
 Returns.propTypes = {
-  tableColumns: React.PropTypes.array
+  tableColumns: React.PropTypes.array,
+  model: React.PropTypes.object
 };
 
 Returns.defaultProps = {
