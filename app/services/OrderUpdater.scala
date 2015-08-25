@@ -2,6 +2,7 @@ package services
 
 import scala.concurrent.{ExecutionContext, Future}
 
+import cats.data.Validated.{Valid, Invalid}
 import models.Order.RemorseHold
 import models._
 import org.scalactic._
@@ -9,7 +10,6 @@ import payloads.{CreateShippingAddress, GiftCardPayment, StoreCreditPayment, Upd
 import responses.{Addresses ⇒ Response, FullOrder}
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
-import utils.Validation.Result.{Failure ⇒ Invalid, Success}
 
 object OrderUpdater {
 
@@ -246,8 +246,8 @@ object OrderUpdater {
   private def createShippingAddressFromPayload(address: Address, order: Order)
     (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failures] = {
 
-    address.validate match {
-      case Success ⇒
+    address.validateNew match {
+      case Valid(_) ⇒
         db.run(for {
           newAddress ← Addresses.save(address.copy(customerId = order.customerId))
           region ← Regions.findById(newAddress.regionId)
@@ -257,7 +257,7 @@ object OrderUpdater {
           case (address, Some(region))  ⇒ Good(Response.build(address, region))
           case (_, None)                ⇒ Bad(List(NotFoundFailure(Region, address.regionId)))
         }
-      case f: Invalid ⇒ Future.successful(Bad(List(ValidationFailure(f))))
+      case Invalid(err) ⇒ Future.successful(Bad(List(ValidationFailureNew(err))))
     }
   }
 

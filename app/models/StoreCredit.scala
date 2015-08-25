@@ -36,7 +36,6 @@ final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, origin
 
   import StoreCredit._
 
-  // would make this default on ModelWithIdParameter
   def isNew: Boolean = id == 0
 
   def validateNew: ValidatedNel[String, Model] = {

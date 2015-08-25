@@ -1,6 +1,9 @@
 package services
 
 import collection.immutable
+import cats.data.NonEmptyList
+import cats.data.Validated.Invalid
+import cats.implicits._
 import com.stripe.exception.StripeException
 import models.{CreditCard, GiftCard, Order}
 import utils.{ModelWithIdParameter, Validation}
@@ -28,6 +31,10 @@ final case class StripeFailure(exception: StripeException) extends Failure {
 
 final case class ValidationFailure(violation: Validation.Result.Failure) extends Failure {
   override def description = violation.messages.map(_.toString)
+}
+
+final case class ValidationFailureNew(messages: NonEmptyList[String]) extends Failure {
+  override def description = messages.foldLeft(List.empty[String]) { case (list, err) ⇒ err :: list }
 }
 
 final case class GeneralFailure(a: String) extends Failure {
