@@ -4,7 +4,7 @@ import React from 'react';
 import UserInitials from '../users/initials';
 import ViewerStore from './store';
 
-const updateTime  = 15000;
+const updateTime  = 60000;
 
 export default class Viewers extends React.Component {
   constructor(props) {
