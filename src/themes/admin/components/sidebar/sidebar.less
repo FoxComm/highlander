@@ -5,10 +5,11 @@
 @color-sidebar-hover-fg: @color-white;
 
 @color-sidebar-border: @color-decor2;
+@color-sidebar-active: @color-decor15;
 
 aside[role='complementary'] {
   .colors(@color-sidebar-fg, @color-sidebar-bg);
-  .width(206px);
+  .width(84px);
   .height(100vh);
   overflow-x: hidden;
   overflow-y: auto;
@@ -19,7 +20,7 @@ aside[role='complementary'] {
 
   ~ header,
   ~ main {
-    .margin-left(206px);
+    .margin-left(84px);
     transition: margin 250ms ease-in-out;
   }
 
@@ -34,24 +35,19 @@ aside[role='complementary'] {
 
   nav ul {
     li {
-      .colors(@color-sidebar-fg, @color-sidebar-bg);
       border-bottom: 1px solid @color-sidebar-border;
+      user-select: none;
 
       &:last-child {
         border-bottom: none;
       }
 
-      &:hover {
-
-      }
-
-      a,
-      a:visited {
-        color: @color-link-menu;
-        display: block;
-        white-space: nowrap;
+      a {
         .clearfix;
-        .padding(20px);
+        .padding(0, 20px);
+        display: block;
+        border-left: 5px solid transparent;
+        white-space: nowrap;
 
         i,
         span {
@@ -60,13 +56,31 @@ aside[role='complementary'] {
         }
 
         i {
-          .font-spec(38px);
+          .font-spec(28px, 65px);
           .margin-right(20px);
         }
 
         span {
-          .font-spec(15px, 38px);
+          .font-spec(13px, 65px);
         }
+
+        &.active {
+          border-left-color: @color-sidebar-active;
+        }
+      }
+
+      a,
+      a:visited {
+        color: @color-sidebar-fg;
+
+        &:hover {
+          color: @color-sidebar-hover-fg;
+        }
+      }
+
+      a,
+      a:visited {
+        color: @color-sidebar-fg;
       }
 
       &:hover {
