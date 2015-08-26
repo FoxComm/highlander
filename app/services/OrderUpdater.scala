@@ -162,7 +162,7 @@ object OrderUpdater {
   def addGiftCard(refNum: String, payload: GiftCardPayment)
     (implicit ec: ExecutionContext, db: Database): Future[Failure Xor OrderPayment] = {
     db.run(for {
-      order ← Orders.findByRefNum(refNum).result.headOption
+      order ← Orders.findCartByRefNum(refNum).result.headOption
       giftCard ← GiftCards.findByCode(payload.code).result.headOption
     } yield (order, giftCard)).flatMap {
       case (Some(order), Some(giftCard)) ⇒
