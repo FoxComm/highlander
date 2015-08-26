@@ -15,7 +15,7 @@ class OrderShippingAddressTest extends IntegrationTestBase {
         OrderShippingAddresses.save(shippingAddress.copy(name = "Yax2")).run()
       } { notUnique ⇒ GeneralFailure("There was already a shipping address") }
 
-      result.futureValue mustBe 'bad
+      result.futureValue mustBe 'left
     }
   }
 
