@@ -1,5 +1,6 @@
 package services
 
+import cats.data.Xor
 import models.{Order, OrderLineItem, OrderLineItems, Orders, InventorySummaries, InventorySummary, Skus, Sku}
 import org.scalactic.{Bad, Good}
 import payloads.{UpdateLineItemsPayload ⇒ Payload}
@@ -40,7 +41,7 @@ class LineItemUpdaterTest extends IntegrationTestBase {
       )
 
       LineItemUpdater.updateQuantities(order, payload).futureValue match {
-        case Good(items) =>
+        case Xor.Right(items) =>
           items.count(_.skuId == 1) must be(3)
           items.count(_.skuId == 2) must be(0)
 
@@ -48,7 +49,7 @@ class LineItemUpdaterTest extends IntegrationTestBase {
 
           items must contain theSameElementsAs allRecords
 
-        case Bad(s) => fail(s.mkString(";"))
+        case Xor.Left(s) => fail(s.mkString(";"))
       }
     }
 
@@ -70,7 +71,7 @@ class LineItemUpdaterTest extends IntegrationTestBase {
       )
 
       LineItemUpdater.updateQuantities(order, payload).futureValue match {
-        case Good(items) =>
+        case Xor.Right(items) =>
           items.count(_.skuId == 1) must be(3)
           items.count(_.skuId == 2) must be(0)
           items.count(_.skuId == 3) must be(1)
@@ -79,7 +80,7 @@ class LineItemUpdaterTest extends IntegrationTestBase {
 
           items must contain theSameElementsAs allRecords
 
-        case Bad(s) => fail(s.mkString(";"))
+        case Xor.Left(s) => fail(s.mkString(";"))
       }
     }
 
