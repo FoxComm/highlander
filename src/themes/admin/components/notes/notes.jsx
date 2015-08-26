@@ -21,7 +21,12 @@ export default class Notes extends React.Component {
 
   componentDidMount() {
     let model = this.props.modelName;
-    NoteStore.uriRoot = `${pluralize(model)}/${this.props[model].id}`;
+    if (model === 'order') {
+      NoteStore.uriRoot = `${pluralize(model)}/${this.props[model].referenceNumber}`;
+    } else {
+      NoteStore.uriRoot = `${pluralize(model)}/${this.props[model].id}`;
+    }
+
     NoteStore.listenToEvent('change', this);
     NoteStore.fetch();
   }

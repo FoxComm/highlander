@@ -3,7 +3,7 @@
 const
   fs          = require('fs'),
   path        = require('path'),
-  _           = require('underscore'),
+  _           = require('lodash'),
   htmlescape  = require('htmlescape'),
   errors      = require('./errors');
 

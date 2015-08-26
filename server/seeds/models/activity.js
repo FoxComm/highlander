@@ -64,9 +64,10 @@ class Activity extends BaseModel {
 
   set orderId(id) { this.model.customerId = +id; }
   set customerId(id) { this.model.customerId = +id; }
+  set giftCardId(id) { this.model.giftCardId = +id; }
 }
 
 Object.defineProperty(Activity, 'seed', {value: seed});
-Object.defineProperty(Activity, 'relationships', {value: ['order', 'customer']});
+Object.defineProperty(Activity, 'relationships', {value: ['order', 'customer', 'giftCard']});
 
 module.exports = Activity;
