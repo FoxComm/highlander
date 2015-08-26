@@ -60,7 +60,7 @@ class ShippingManagerTest extends IntegrationTestBase {
 
       "Is true when the order total is $27 and shipped to CA" in new StateAndPriceCondition {
         val (address, orderShippingAddress) = (for {
-          address ← Addresses.save(Factories.address.copy(customerId = customer.id, stateId = washington.id))
+          address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = washingtonId))
           orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
         } yield (address, orderShippingAddress)).run().futureValue
 
@@ -70,7 +70,7 @@ class ShippingManagerTest extends IntegrationTestBase {
 
       "Is false when the order total is $27 and shipped to MI" in new StateAndPriceCondition {
         val (address, orderShippingAddress) = (for {
-          address ← Addresses.save(Factories.address.copy(customerId = customer.id, stateId = michigan.id))
+          address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = michiganId))
           orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
         } yield (address, orderShippingAddress)).run().futureValue
 
@@ -86,7 +86,7 @@ class ShippingManagerTest extends IntegrationTestBase {
 
       "Is true when the order total is greater than $10 and no address field contains a P.O. Box" in new POCondition {
         val (address, orderShippingAddress) = (for {
-          address ← Addresses.save(Factories.address.copy(customerId = customer.id, stateId = washington.id))
+          address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = washingtonId))
           orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
         } yield (address, orderShippingAddress)).run().futureValue
 
@@ -96,7 +96,7 @@ class ShippingManagerTest extends IntegrationTestBase {
 
       "Is false when the order total is greater than $10 and street1 contains a P.O. Box" in new POCondition {
         val (address, orderShippingAddress) = (for {
-          address ← Addresses.save(Factories.address.copy(customerId = customer.id, stateId = washington.id,
+          address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = washingtonId,
             street1 = "P.O. Box 1234"))
           orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
         } yield (address, orderShippingAddress)).run().futureValue
@@ -107,7 +107,7 @@ class ShippingManagerTest extends IntegrationTestBase {
 
       "Is false when the order total is greater than $10 and street2 contains a P.O. Box" in new POCondition {
         val (address, orderShippingAddress) = (for {
-          address ← Addresses.save(Factories.address.copy(customerId = customer.id, stateId = washington.id,
+          address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = washingtonId,
             street2 = Some("P.O. Box 1234")))
           orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
         } yield (address, orderShippingAddress)).run().futureValue
@@ -121,31 +121,32 @@ class ShippingManagerTest extends IntegrationTestBase {
   }
 
   trait Fixture {
-    val (customer, order, california, michigan, oregon, washington) = (for {
+    val (customer, order) = (for {
       customer ← Customers.save(Factories.customer)
       order ← Orders.save(Factories.order.copy(customerId = customer.id))
-      california ← States.save(State(id = 0, name = "California", abbreviation = "CA"))
-      michigan ← States.save(State(id = 0, name = "Michigan", abbreviation = "MI"))
-      oregon ← States.save(State(id = 0, name = "Oregon", abbreviation = "OR"))
-      washington ← States.save(State(id = 0, name = "Washington", abbreviation = "WA"))
-    } yield (customer, order, california, michigan, oregon, washington)).run().futureValue
+    } yield (customer, order)).run().futureValue
+
+    val californiaId = 4129
+    val michiganId = 4148
+    val oregonId = 4164
+    val washingtonId = 4177
   }
 
   trait OrderFixture extends Fixture {
     val (address, orderShippingAddress) = (for {
-      address ← Addresses.save(Factories.address.copy(customerId = customer.id, stateId = california.id))
+      address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = californiaId))
       orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
     } yield (address, orderShippingAddress)).run().futureValue
   }
 
   trait WestCoastConditionFixture extends Fixture {
     val stateConditions = Seq(
-      Condition(rootObject = "ShippingAddress", field = "stateId",
-        operator = Condition.Equals, valInt = Some(california.id)),
-      Condition(rootObject = "ShippingAddress", field = "stateId",
-        operator = Condition.Equals, valInt = Some(oregon.id)),
-      Condition(rootObject = "ShippingAddress", field = "stateId",
-        operator = Condition.Equals, valInt = Some(washington.id))
+      Condition(rootObject = "ShippingAddress", field = "regionId",
+        operator = Condition.Equals, valInt = Some(californiaId)),
+      Condition(rootObject = "ShippingAddress", field = "regionId",
+        operator = Condition.Equals, valInt = Some(oregonId)),
+      Condition(rootObject = "ShippingAddress", field = "regionId",
+        operator = Condition.Equals, valInt = Some(washingtonId))
     )
 
     val conditionStatement = QueryStatement(comparison = QueryStatement.Or, conditions = stateConditions)
@@ -153,22 +154,21 @@ class ShippingManagerTest extends IntegrationTestBase {
 
   trait CaliforniaOrderFixture extends WestCoastConditionFixture {
     val (address, orderShippingAddress) = (for {
-      address ← Addresses.save(Factories.address.copy(customerId = customer.id, stateId = california.id))
+      address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = californiaId))
       orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
     } yield (address, orderShippingAddress)).run().futureValue
   }
 
   trait WashingtonOrderFixture extends WestCoastConditionFixture {
     val (address, orderShippingAddress) = (for {
-      address ← Addresses.save(Factories.address.copy(customerId = customer.id, stateId = washington.id))
+      address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = washingtonId))
       orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
     } yield (address, orderShippingAddress)).run().futureValue
   }
 
   trait MichiganOrderFixture extends WestCoastConditionFixture {
     val (address, orderShippingAddress) = (for {
-      michigan ← States.save(State(id = 0, name = "Michigan", abbreviation = "MI"))
-      address ← Addresses.save(Factories.address.copy(customerId = customer.id, stateId = michigan.id))
+      address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = michiganId))
       orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
     } yield (address, orderShippingAddress)).run().futureValue
   }

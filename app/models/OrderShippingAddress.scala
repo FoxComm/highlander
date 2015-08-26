@@ -74,14 +74,14 @@ object OrderShippingAddresses extends TableQueryWithId[OrderShippingAddress, Ord
   def findByOrderId(orderId: Int): Query[OrderShippingAddresses, OrderShippingAddress, Seq] =
     filter(_.orderId === orderId)
 
-  def findByOrderIdWithStates(orderId: Int):
+  def findByOrderIdWithRegions(orderId: Int):
   Query[(OrderShippingAddresses, Regions), (OrderShippingAddress, Region), Seq] = for {
-    records ← withStates(findByOrderId(orderId))
+    records ← withRegions(findByOrderId(orderId))
   } yield records
 
-  def withStates(q: Query[(OrderShippingAddresses), (OrderShippingAddress), Seq]):
+  def withRegions(q: Query[(OrderShippingAddresses), (OrderShippingAddress), Seq]):
   Query[(OrderShippingAddresses, Regions), (OrderShippingAddress, Region), Seq] = for {
     shippingAddresses ← q
-    regions ← Regions if regions.id === shippingAddresses.id
+    regions ← Regions if regions.id === shippingAddresses.regionId
   } yield (shippingAddresses, regions)
 }

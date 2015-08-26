@@ -7,7 +7,7 @@ import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 object ShippingManager {
 
   final case class ShippingData(order: models.Order, orderTotal: Int, orderSubTotal: Int,
-    shippingAddress: models.OrderShippingAddress, shippingState: models.State)
+    shippingAddress: models.OrderShippingAddress, shippingRegion: models.Region)
 
   def evaluateStatement(order: models.Order, statement: models.QueryStatement)
     (implicit db: Database, ec: ExecutionContext): Future[Boolean] = {
@@ -49,15 +49,15 @@ object ShippingManager {
 
   private def getShippingData(order: models.Order)
     (implicit db: Database, ec: ExecutionContext): Future[Option[ShippingData]] = {
-    db.run(models.OrderShippingAddresses.findByOrderIdWithStates(order.id).result.headOption).flatMap { x ⇒
+    db.run(models.OrderShippingAddresses.findByOrderIdWithRegions(order.id).result.headOption).flatMap { x ⇒
       val isNothing: Future[Option[ShippingData]] = Future.successful(None)
 
-      x.fold(isNothing) { addressWithState ⇒
+      x.fold(isNothing) { addressWithRegion ⇒
 
         order.grandTotal.flatMap { grandTotal ⇒
           order.subTotal.flatMap { subTotal ⇒
             val sd = ShippingData(order = order, orderTotal = grandTotal, orderSubTotal = subTotal,
-              shippingAddress = addressWithState._1, shippingState = addressWithState._2)
+              shippingAddress = addressWithRegion._1, shippingRegion = addressWithRegion._2)
 
             Future.successful(Some(sd))
           }
@@ -82,12 +82,12 @@ object ShippingManager {
         models.Condition.matches(shippingData.shippingAddress.street2, condition)
       case "city" ⇒
         models.Condition.matches(shippingData.shippingAddress.city, condition)
-      case "stateId" ⇒
-        models.Condition.matches(shippingData.shippingAddress.stateId, condition)
-      case "stateName" ⇒
-        models.Condition.matches(shippingData.shippingState.name, condition)
-      case "stateAbbrev" ⇒
-        models.Condition.matches(shippingData.shippingState.abbreviation, condition)
+      case "regionId" ⇒
+        models.Condition.matches(shippingData.shippingAddress.regionId, condition)
+      case "regionName" ⇒
+        models.Condition.matches(shippingData.shippingRegion.name, condition)
+      case "regionAbbrev" ⇒
+        models.Condition.matches(shippingData.shippingRegion.abbreviation, condition)
       case "zip" ⇒
         models.Condition.matches(shippingData.shippingAddress.zip, condition)
       case _ ⇒
