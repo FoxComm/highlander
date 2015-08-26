@@ -1,6 +1,14 @@
+@color-sidebar-bg: @color-decor3;
+@color-sidebar-fg: @color-decor5;
+
+@color-sidebar-hover-bg: @color-decor2;
+@color-sidebar-hover-fg: @color-white;
+
+@color-sidebar-border: @color-decor2;
+
 aside[role='complementary'] {
-  background: @color-bg-menu;
-  .width(94px);
+  .colors(@color-sidebar-fg, @color-sidebar-bg);
+  .width(206px);
   .height(100vh);
   overflow-x: hidden;
   overflow-y: auto;
@@ -11,28 +19,34 @@ aside[role='complementary'] {
 
   ~ header,
   ~ main {
-    .margin-left(94px);
+    .margin-left(206px);
     transition: margin 250ms ease-in-out;
   }
 
   &:hover {
-    .width(275px);
+    .width(206px);
 
     ~ header,
     ~ main {
-      .margin-left(275px);
+      .margin-left(206px);
     }
   }
 
   nav ul {
     li {
-      border-top: 1px solid lighten(@color-bg-menu, 10%);
-      border-bottom: 1px solid darken(@color-bg-menu, 10%);
+      .colors(@color-sidebar-fg, @color-sidebar-bg);
+      border-bottom: 1px solid @color-sidebar-border;
 
-      &:first-child { border-top: none; }
-      &:last-child { border-bottom: none; }
+      &:last-child {
+        border-bottom: none;
+      }
 
-      a, a:visited {
+      &:hover {
+
+      }
+
+      a,
+      a:visited {
         color: @color-link-menu;
         display: block;
         white-space: nowrap;
@@ -53,6 +67,10 @@ aside[role='complementary'] {
         span {
           .font-spec(15px, 38px);
         }
+      }
+
+      &:hover {
+        .colors(@color-sidebar-hover-fg, @color-sidebar-hover-bg);
       }
     }
   }
