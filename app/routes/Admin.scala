@@ -210,11 +210,6 @@ object Admin {
           }
         } ~
         pathPrefix("payment-methods") {
-          (get & pathEnd) {
-            complete {
-              renderOrNotFound(Orders.findByRefNum(refNum).result.headOption.run())
-            }
-          } ~
           (delete & path(IntNumber) & pathEnd) { paymentId ⇒
             complete {
               Orders.findByRefNum(refNum).result.headOption.run().flatMap {
@@ -227,9 +222,9 @@ object Admin {
               }
             }
           } ~
-          (post & path("credit-cards" / IntNumber) & pathEnd) { creditCardId ⇒
+          (post & path("credit-cards") & entity(as[payloads.CreditCardPayment]) & pathEnd) { payload ⇒
             complete {
-              OrderUpdater.addCreditCard(refNum, creditCardId).map {
+              OrderUpdater.addCreditCard(refNum, payload.creditCardId).map {
                 case Xor.Left(NotFoundFailure(f)) ⇒ renderNotFoundFailure(NotFoundFailure(f))
                 case Xor.Left(f)                  ⇒ renderFailure(Seq(f))
                 case Xor.Right(orderPayment)      ⇒ render(orderPayment)

@@ -161,7 +161,8 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
   "credit cards" - {
     "when added as a payment method" - {
       "succeeds" in new CreditCardFixture {
-        val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards/${creditCard.id}")
+        val payload = payloads.CreditCardPayment(creditCard.id)
+        val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards", payload)
 
         response.status must === (StatusCodes.OK)
         val (p :: Nil) = OrderPayments.findAllByOrderId(order.id).result.run().futureValue.toList
@@ -171,29 +172,33 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       }
 
       "fails if the order is not found" in new CreditCardFixture {
+        val payload = payloads.CreditCardPayment(creditCard.id)
         val response = POST(s"v1/orders/99/payment-methods/credit-cards/${creditCard.id}")
         response.status must === (StatusCodes.NotFound)
       }
 
-      "fails if the giftCard is not found" in new CreditCardFixture {
-        val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards/99")
+      "fails if the creditCard is not found" in new CreditCardFixture {
+        val payload = payloads.CreditCardPayment(99)
+        val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards", payload)
         response.status must === (StatusCodes.NotFound)
         parseErrors(response).get.head must === (NotFoundFailure(CreditCard, 99).description.head)
       }
 
       "fails if the creditCard is inActive" in new CreditCardFixture {
+        val payload = payloads.CreditCardPayment(creditCard.id)
         CustomerManager.deleteCreditCard(customerId = customer.id, adminId = admin.id, id = creditCard.id).futureValue
-        val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards/${creditCard.id}")
+        val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards", payload)
         response.status must ===(StatusCodes.BadRequest)
         parseErrors(response).get.head must ===(CannotUseInactiveCreditCard(creditCard).description.head)
       }
 
       "fails if the order is not in cart status" in new CreditCardFixture {
         Orders.findCartByRefNum(order.referenceNumber).map(_.status).update(Order.RemorseHold)
-        val first = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards/${creditCard.id}")
+        val payload = payloads.CreditCardPayment(creditCard.id)
+        val first = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards", payload)
         first.status must ===(StatusCodes.OK)
 
-        val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards/${creditCard.id}")
+        val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards", payload)
         response.status must === (StatusCodes.BadRequest)
 
         val payments = OrderPayments.findAllCreditCardsForOrder(order.id).result.run().futureValue
@@ -201,10 +206,11 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       }
 
       "fails if the cart already has a credit card" in new CreditCardFixture {
-        val first = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards/${creditCard.id}")
+        val payload = payloads.CreditCardPayment(creditCard.id)
+        val first = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards", payload)
         first.status must ===(StatusCodes.OK)
 
-        val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards/${creditCard.id}")
+        val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards", payload)
         response.status must === (StatusCodes.BadRequest)
 
         val payments = OrderPayments.findAllCreditCardsForOrder(order.id).result.run().futureValue
