@@ -2,6 +2,7 @@ package services
 
 import scala.concurrent.{ExecutionContext, Future}
 
+import cats.data.Xor
 import models._
 import org.scalactic.{Bad, Good, Or}
 import slick.driver.PostgresDriver.api._
@@ -41,8 +42,8 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
 
   def authorizePayments: Future[Map[OrderPayment, Failures]] = {
     for {
-      payments <- OrderPayments.findAllPaymentsFor(order)
-      authorized <- Future.sequence(authorizePayments(payments))
+      payments ← OrderPayments.findAllPaymentsFor(order)
+      authorized ← Future.sequence(authorizePayments(payments))
     } yield updatePaymentsWithAuthorizationErrors(authorized)
   }
 
@@ -61,26 +62,27 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
 
   // TODO: we must do this *after* auth'ing GC/SC
   private def authorizePayment(payment : OrderPayment, creditCard : CreditCard) = {
-    creditCard.authorize(payment.amount.getOrElse(-50)).flatMap { or ⇒
-      or.fold(
-      { chargeId ⇒  updateOrderPaymentWithCharge(payment, chargeId, or) },
-      { _ ⇒ Future.successful((payment, or))})
+    creditCard.authorize(payment.amount.getOrElse(-50)).flatMap { xor ⇒
+      xor.fold(
+      { _ ⇒ Future.successful((payment, xor))},
+      { chargeId ⇒  updateOrderPaymentWithCharge(payment, chargeId, xor) })
     }
   }
 
-  private def updatePaymentsWithAuthorizationErrors(payments: Seq[(OrderPayment, Or[String, Failures])]) = {
+  private def updatePaymentsWithAuthorizationErrors(payments: Seq[(OrderPayment, Xor[Failures, String])]) = {
     payments.foldLeft(Map.empty[OrderPayment, Failures]) {
       case (payments, (payment, result)) =>
         updatePaymentWithAuthorizationErrors(payments, payment, result)
     }
   }
 
-  private def updatePaymentWithAuthorizationErrors(payments: Map[OrderPayment, Failures], payment: OrderPayment,
-    result: String Or Failures) = {
-    payments.updated(
-      payment,
-      result.fold({ good => List.empty }, { bad => bad }))
-  }
+  private def updatePaymentWithAuthorizationErrors(
+    payments: Map[OrderPayment, Failures],
+    payment:  OrderPayment,
+    result:  Failures Xor String) =
+      payments.updated(
+        payment,
+        result.fold(bad ⇒ bad, good ⇒ Nil))
 
   // sets incoming order.status == Order.ordered and creates a new order
   private def completeOrderAndCreateNew(order: Order): Future[Order] = {
@@ -93,7 +95,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
     } yield newOrder)
   }
 
-  private def updateOrderPaymentWithCharge(payment : OrderPayment, chargeId : String, or: String Or Failures) = {
+  private def updateOrderPaymentWithCharge(payment : OrderPayment, chargeId : String, or: Failures Xor String) = {
     OrderPayments.update(payment).map { _ ⇒ (payment, or) }
   }
 

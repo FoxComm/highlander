@@ -1,14 +1,11 @@
 package services
 
+import cats.data.Xor
 import models._
 
-import org.scalactic._
 import scala.concurrent.{Future, ExecutionContext}
-import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
-
 import slick.driver.PostgresDriver.api._
-
 
 object ShippingMethodsBuilder {
   final case class ShippingMethodWithPrice(method: ShippingMethod, displayName: String, estimatedTime: String, price: Int)
@@ -94,7 +91,7 @@ object ShippingMethodsBuilder {
 
   // This builder assumes that there is only one shipment per order.  In the future, we can add logic to handle multiple shipments per order.
   def addShippingMethodToOrder(shippingMethodId: Int, order: Order)
-                              (implicit ec: ExecutionContext, db: Database): Future[Order Or Failures] = {
+                              (implicit ec: ExecutionContext, db: Database): Future[Failures Xor Order] = {
     val queries = for {
       shippingMethods <- ShippingMethods.findById(shippingMethodId)
       shipment <- Shipments._findByOrderId(order.id)
@@ -105,7 +102,7 @@ object ShippingMethodsBuilder {
     } yield (updatedOrder)
 
     db.run(queries).map { optOrder =>
-      optOrder.map(Good(_)).getOrElse(Bad(List(GeneralFailure("Shipping method was not saved"))))
+      optOrder.map(Xor.right).getOrElse(Xor.left(List(GeneralFailure("Shipping method was not saved"))))
     }
   }
 }

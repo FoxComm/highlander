@@ -3,6 +3,7 @@ package services
 import scala.collection.JavaConversions.mapAsJavaMap
 import scala.concurrent.{ExecutionContext, Future}
 
+import cats.data.Xor
 import com.stripe.exception.{CardException, InvalidRequestException}
 import com.stripe.model.{Card ⇒ StripeCard, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer}
 import com.stripe.net.{RequestOptions ⇒ StripeRequestOptions}
@@ -44,7 +45,7 @@ final case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVL
       base.updated("source", mapAsJavaMap(sourceWithAddress))
     }
 
-    Good(StripeCustomer.create(mapAsJavaMap(params), options))
+    Xor.right(StripeCustomer.create(mapAsJavaMap(params), options))
   }
 
   def authorizeAmount(customerId: String, amount: Int)
@@ -59,14 +60,14 @@ final case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVL
       Since we're using tokenized, we presumably pass verification process, but might want to handle here
     */
 
-    Good(charge.getId)
+    Xor.right(charge.getId)
   }
 
-  private [this] def tryFutureWrap[A](f: ⇒ A Or Failures)
+  private [this] def tryFutureWrap[A](f: ⇒ Failures Xor A)
                                      (implicit ec: ExecutionContext): Result[A] = {
     Future(f).recover {
-      case t: InvalidRequestException ⇒ Bad(Failures(StripeFailure(t)))
-      case t: CardException           ⇒ Bad(Failures(StripeFailure(t)))
+      case t: InvalidRequestException ⇒ Xor.left(Failures(StripeFailure(t)))
+      case t: CardException           ⇒ Xor.left(Failures(StripeFailure(t)))
     }
   }
 

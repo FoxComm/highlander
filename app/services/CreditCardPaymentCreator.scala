@@ -1,5 +1,6 @@
 package services
 
+import cats.data.Xor
 import models._
 
 import responses.FullOrder
@@ -28,18 +29,18 @@ final case class CreditCardPaymentCreator(order: Order, customer: Customer, card
 
   def run(): Response = cardPayload.validate match {
     case failure @ validation.Result.Failure(violations) ⇒
-      Future.successful(Bad(List(ValidationFailure(failure))))
+      Future.successful(Xor.left(List(ValidationFailure(failure))))
     case Success ⇒
       // creates the customer, card, and gives us getDefaultCard as the token
       gateway.createCustomerAndCard(customer, this.cardPayload).flatMap {
-        case Good(stripeCustomer) =>
+        case Xor.Right(stripeCustomer) =>
           createRecords(stripeCustomer, order, customer).flatMap { optOrder =>
             optOrder.map { (o: Order) =>
-              FullOrder.fromOrder(o).map(Good(_))
-            }.getOrElse(Future.successful(Bad(List(NotFoundFailure(order)))))
+              FullOrder.fromOrder(o).map(Xor.right)
+            }.getOrElse(Future.successful(Xor.left(List(NotFoundFailure(order)))))
           }
 
-        case Bad(errors) ⇒ Future.successful(Bad(errors))
+        case Xor.Left(errors) ⇒ Future.successful(Xor.Left(errors))
       }
   }
 
@@ -79,7 +80,7 @@ final case class CreditCardPaymentCreator(order: Order, customer: Customer, card
 }
 
 object CreditCardPaymentCreator {
-  type Response = Future[FullOrder.Root Or Failures]
+  type Response = Future[Failures Xor FullOrder.Root]
 
   def run(order: Order, customer: Customer, payload: CreateCreditCard)
     (implicit ec: ExecutionContext, db: Database): Response = {

@@ -60,7 +60,7 @@ object Customers extends TableQueryWithId[Customer, Customers](
     val newCustomer = Customer(id = 0, email = payload.email,password = payload.password,
       firstName = payload.firstName, lastName = payload.firstName)
 
-    save(newCustomer).run().map(Good(_))
+    save(newCustomer).run().flatMap(Result.right)
   }
 }
 

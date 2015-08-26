@@ -24,9 +24,9 @@ object CreatesStockItems {
         allocatedToSales = 0
       )
 
-      db.run(for {
+      Result.fromFuture(db.run(for {
         id ← StockItems.returningId += stockItem
-      } yield Good(stockItem.copy(id = id)))
+      } yield stockItem.copy(id = id)))
     }
   }
 }

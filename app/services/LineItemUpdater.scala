@@ -15,10 +15,8 @@ object LineItemUpdater {
   val orders = TableQuery[Orders]
 
   @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.Any"))
-  def updateQuantities(order: Order,
-                       payload: Seq[UpdateLineItemsPayload])
-                      (implicit ec: ExecutionContext,
-                       db: Database): Result[Seq[OrderLineItem]] = {
+  def updateQuantities(order: Order, payload: Seq[UpdateLineItemsPayload])
+                      (implicit ec: ExecutionContext, db: Database): Result[Seq[OrderLineItem]] = {
 
     // TODO:
     //  validate sku in PIM
@@ -70,7 +68,7 @@ object LineItemUpdater {
         lineItems.filter(_.orderId === order.id).result
       }
 
-      db.run(queries.transactionally).map(items => Good(items))
+      Result.fromFuture(db.run(queries.transactionally))
     }
   }
 }

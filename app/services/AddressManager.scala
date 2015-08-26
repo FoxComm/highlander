@@ -3,6 +3,7 @@ package services
 import scala.concurrent.{ExecutionContext, Future}
 
 import cats.Functor
+import cats.data.Xor
 import models.{Order, Address, Addresses, State, States}
 import org.scalactic.{Bad, Good, Or}
 import payloads.CreateAddressPayload
@@ -22,8 +23,8 @@ object AddressManager {
           newAddress ← Addresses.save(address)
           state ← States.findById(newAddress.stateId)
         } yield (newAddress, state)).map {
-          case (address, Some(state)) ⇒ Good(Response.build(address, state))
-          case (_, None)              ⇒ Bad(NotFoundFailure(State, address.stateId).single)
+          case (address, Some(state)) ⇒ Xor.right(Response.build(address, state))
+          case (_, None)              ⇒ Xor.left(NotFoundFailure(State, address.stateId).single)
         }
       case f: Invalid ⇒ Result.failure(ValidationFailure(f))
     }
@@ -38,9 +39,9 @@ object AddressManager {
           rowsAffected ← Addresses.insertOrUpdate(address)
           state ← States.findById(address.stateId)
         } yield (rowsAffected, address, state)).transactionally).map {
-          case (1, address, Some(state)) ⇒ Good(Response.build(address, state))
-          case (_, address, Some(state)) ⇒ Bad(NotFoundFailure(address).single)
-          case (_, _, None)              ⇒ Bad(NotFoundFailure(State, address.stateId).single)
+          case (1, address, Some(state)) ⇒ Xor.right(Response.build(address, state))
+          case (_, address, Some(state)) ⇒ Xor.left(NotFoundFailure(address).single)
+          case (_, _, None)              ⇒ Xor.left(NotFoundFailure(State, address.stateId).single)
         }
       case f: Invalid ⇒ Result.failure(ValidationFailure(f))
     }
