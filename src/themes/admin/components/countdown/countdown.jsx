@@ -1,28 +1,13 @@
-  'use strict';
+'use strict';
 
 import React from 'react';
+import classNames from 'classnames';
 import moment from 'moment';
-import { listenTo, stopListeningTo } from '../../lib/dispatcher';
-
-const zeroTime = '00:00:00';
-const editEvent = 'toggle-order-edit';
 
 export default class Countdown extends React.Component {
   constructor(props) {
     super(props);
-    this.onToggleOrderEdit = this.onToggleOrderEdit.bind(this);
-    this.state = {
-      difference: zeroTime,
-      endDate: props.endDate,
-      frozen: false
-    };
-  }
-
-  addTime(number, key) {
-    this.setState({
-      endDate: moment(this.state.endDate).add(number, key)
-    });
-    this.startInterval();
+    this.state = {};
   }
 
   startInterval() {
@@ -37,60 +22,45 @@ export default class Countdown extends React.Component {
   }
 
   tick() {
-    let difference = moment(this.state.endDate).diff(moment.utc());
-    if (difference <= 0) {
-      this.setState({
-        difference: zeroTime
-      });
+    let timeLeft = Math.max(0, moment(this.props.endDate).utc().diff(moment.utc()));
+    this.setState({
+      ending: timeLeft < moment.duration(3, 'm'),
+      difference: moment.utc(timeLeft).format('HH:mm:ss')
+    });
+    if (!timeLeft || this.props.frozen) {
       this.stopInterval();
     } else {
-      this.setState({
-        difference: moment.utc(difference).format('HH:mm:ss')
-      });
+      this.startInterval();
     }
   }
 
   componentDidMount() {
-    listenTo(editEvent, this);
     this.tick();
     this.startInterval();
   }
 
   componentWillUnmount() {
-    stopListeningTo(editEvent, this);
     this.stopInterval();
   }
 
-  onToggleOrderEdit() {
-    this.setState({
-      frozen: !this.state.frozen
-    });
-  }
-
   render() {
-    let
-      rightContent = null;
+    let classnames = classNames({
+      'fc-countdown': true,
+      'fc-countdown_ending': this.state.ending,
+      'fc-countdown_frozen': this.props.frozen
+    });
 
-    if (this.state.frozen) {
-      this.stopInterval();
-      rightContent = <span>Frozen while editing.</span>;
-    } else {
-      this.startInterval();
-      rightContent = <button className='btn' onClick={this.addTime.bind(this, 15, 'm')}>+15</button>;
-    }
     return (
-      <div className='countdown'>
-        <span>{this.state.difference}</span>
-        {rightContent}
-      </div>
+      <div className={classnames}>{this.state.difference}</div>
     );
   }
 }
 
 Countdown.propTypes = {
-  endDate: React.PropTypes.string
+  endDate: React.PropTypes.string,
+  frozen: React.PropTypes.bool
 };
 
 Countdown.defaultProps = {
-  endDate: moment.utc().add(3, 'h').format()
+  endDate: moment.utc().format()
 };
