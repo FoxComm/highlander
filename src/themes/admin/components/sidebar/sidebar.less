@@ -1,0 +1,91 @@
+@color-sidebar-bg: @color-decor3;
+@color-sidebar-fg: @color-decor5;
+
+@color-sidebar-hover-bg: @color-decor2;
+@color-sidebar-hover-fg: @color-white;
+
+@color-sidebar-border: @color-decor2;
+@color-sidebar-active: @color-decor15;
+
+aside[role='complementary'] {
+  .colors(@color-sidebar-fg, @color-sidebar-bg);
+  .width(84px);
+  .height(100vh);
+  overflow-x: hidden;
+  overflow-y: auto;
+  position: fixed;
+  top: 0;
+  left: 0;
+  transition: width 250ms ease-in-out;
+
+  ~ header,
+  ~ main {
+    .margin-left(84px);
+    transition: margin 250ms ease-in-out;
+  }
+
+  &:hover {
+    .width(206px);
+
+    ~ header,
+    ~ main {
+      .margin-left(206px);
+    }
+  }
+
+  nav ul {
+    li {
+      border-bottom: 1px solid @color-sidebar-border;
+      user-select: none;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      a {
+        .clearfix;
+        .padding(0, 20px);
+        display: block;
+        border-left: 5px solid transparent;
+        white-space: nowrap;
+
+        i,
+        span {
+          display: inline-block;
+          vertical-align: top;
+        }
+
+        i {
+          .font-spec(28px, 65px);
+          .margin-right(20px);
+        }
+
+        span {
+          .font-spec(13px, 65px);
+        }
+
+        &.active {
+          border-left-color: @color-sidebar-active;
+        }
+      }
+
+      a,
+      a:visited {
+        color: @color-sidebar-fg;
+
+        &:hover {
+          color: @color-sidebar-hover-fg;
+        }
+      }
+
+      a,
+      a:visited {
+        color: @color-sidebar-fg;
+      }
+
+      &:hover {
+        .colors(@color-sidebar-hover-fg, @color-sidebar-hover-bg);
+      }
+    }
+  }
+}
