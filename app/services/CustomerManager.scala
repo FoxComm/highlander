@@ -3,13 +3,15 @@ package services
 import scala.concurrent.{ExecutionContext, Future}
 
 import models.{Customers, CreditCard, CreditCards, Customer, StoreAdmin}
-import org.scalactic._
+
 import com.github.tototoshi.slick.JdbcJodaSupport._
 import org.joda.time.DateTime
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.Slick.UpdateReturning._
 import utils.jdbc.{RecordNotUnique, withUniqueConstraint}
+
+import cats.data.Xor
 
 object CustomerManager {
   def toggleDisabled(customerId: Int, disabled: Boolean, admin: StoreAdmin)
@@ -32,9 +34,9 @@ object CustomerManager {
     } { notUnique ⇒ CustomerHasDefaultCreditCard }
 
     result.flatMap {
-      case Good(Some(cc)) ⇒ Result.good(cc)
-      case Good(None)     ⇒ Result.failure(NotFoundFailure(CreditCard, cardId))
-      case Bad(f)         ⇒ Result.failure(f)
+      case Xor.Right(Some(cc)) ⇒ Result.good(cc)
+      case Xor.Right(None)     ⇒ Result.failure(NotFoundFailure(CreditCard, cardId))
+      case Xor.Left(f)         ⇒ Result.failure(f)
     }
   }
 
@@ -46,8 +48,8 @@ object CustomerManager {
       .map { cc ⇒ (cc.isDefault, cc.deletedAt, cc.deletedBy) }
       .update((false, Some(DateTime.now()), Some(adminId)))
     ).flatMap {
-      case 1  ⇒ Result.good(1)
-      case _  ⇒ Result.failure(NotFoundFailure(CreditCard, id))
+      case 1 ⇒ Result.good(1)
+      case _ ⇒ Result.failure(NotFoundFailure(CreditCard, id))
     }
   }
 }

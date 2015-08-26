@@ -18,7 +18,7 @@ import com.pellucid.sealerate
 import models.StoreCredit.{OnHold, Status}
 import monocle.macros.GenLens
 import org.joda.time.DateTime
-import org.scalactic._
+
 import services.Failures
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}

@@ -4,7 +4,7 @@ import com.pellucid.sealerate
 import com.stripe.model.{Card ⇒ StripeCard}
 import com.wix.accord.dsl.{validator ⇒ createValidator}
 import com.wix.accord.{Failure ⇒ ValidationFailure}
-import org.scalactic._
+
 import services.{Result, Failures, Failure}
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 

@@ -4,7 +4,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Xor
 import models._
-import org.scalactic.{Bad, Good, Or}
+
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 

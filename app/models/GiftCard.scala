@@ -13,7 +13,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import com.pellucid.sealerate
 import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import monocle.macros.GenLens
-import org.scalactic._
+
 import services.Failures
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}

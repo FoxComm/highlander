@@ -5,7 +5,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import cats.Functor
 import cats.data.Xor
 import models.{Order, Address, Addresses, State, States}
-import org.scalactic.{Bad, Good, Or}
+
 import payloads.CreateAddressPayload
 import responses.Addresses.Root
 import responses.{Addresses ⇒ Response}

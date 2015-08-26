@@ -8,7 +8,7 @@ import cats.data.Xor
 import models.{Customer, Orders, Order}
 import org.json4s.jackson
 import org.json4s.jackson.Serialization.{write ⇒ json}
-import org.scalactic.{Bad, Good, Or}
+
 import services.{NotFoundFailure, OrderLockedFailure, Failures, Failure}
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}

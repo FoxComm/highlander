@@ -7,7 +7,7 @@ import akka.stream.Materializer
 import cats.data.Xor
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import models._
-import org.scalactic._
+
 import payloads._
 import responses.FullOrder
 import services._

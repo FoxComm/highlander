@@ -2,8 +2,8 @@ package utils
 
 import com.wix.accord.Failure
 import com.wix.accord.transform.ValidationTransform
-import org.scalactic._
-import org.scalactic.Accumulation._
+
+
 import com.wix.accord.{validate => runValidation, Failure => AccordFailure, Violation, Validator}
 import com.wix.accord
 import services.ValidationFailure
@@ -37,7 +37,7 @@ object Validation {
       }
     }
 
-    final def messages: Set[ErrorMessage] = {
+    final def messages: Set[String] = {
       fold(Set.empty,
         _.map { v => v.description.getOrElse("") ++ " " ++ v.constraint })
     }

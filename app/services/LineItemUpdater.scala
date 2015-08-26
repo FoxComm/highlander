@@ -3,7 +3,7 @@ package services
 import models._
 import payloads.UpdateLineItemsPayload
 
-import org.scalactic._
+
 import scala.concurrent.{Future, ExecutionContext}
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}

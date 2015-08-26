@@ -6,7 +6,7 @@ import models._
 import responses.FullOrder
 import payloads.CreateCreditCard
 
-import org.scalactic._
+
 import scala.concurrent.{Future, ExecutionContext}
 import slick.dbio.Effect.All
 import slick.driver.PostgresDriver.api._

@@ -2,13 +2,13 @@ package services
 
 import cats.data.Xor
 import models.{Address, Addresses, OrderPayment, OrderPayments, CreditCard, CreditCards, Customer, Customers, Order, OrderLineItem, OrderLineItems, Orders}
-import org.scalactic.{Bad, TypeCheckedTripleEquals}
+
 import org.scalatest.Inside
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils._
 
-class CheckoutTest extends IntegrationTestBase with Inside with TypeCheckedTripleEquals {
+class CheckoutTest extends IntegrationTestBase with Inside {
   import concurrent.ExecutionContext.Implicits.global
 
   "Checkout" - {

@@ -2,7 +2,7 @@ package services
 
 import cats.data.Xor
 import models.{Order, OrderLineItem, OrderLineItems, Orders, InventorySummaries, InventorySummary, Skus, Sku}
-import org.scalactic.{Bad, Good}
+
 import payloads.{UpdateLineItemsPayload ⇒ Payload}
 import util.IntegrationTestBase
 import utils._

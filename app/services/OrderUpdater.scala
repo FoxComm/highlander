@@ -5,7 +5,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import cats.data.Xor
 import models.Order.RemorseHold
 import models._
-import org.scalactic._
+
 import payloads.{CreateShippingAddress, GiftCardPayment, StoreCreditPayment, UpdateAddressPayload, UpdateShippingAddress}
 import responses.{Addresses ⇒ Response, FullOrder}
 import slick.driver.PostgresDriver.api._
@@ -160,29 +160,29 @@ object OrderUpdater {
   }
 
   def addGiftCard(refNum: String, payload: GiftCardPayment)
-    (implicit ec: ExecutionContext, db: Database): Future[OrderPayment Or Failure] = {
+    (implicit ec: ExecutionContext, db: Database): Future[Failure Xor OrderPayment] = {
     db.run(for {
       order ← Orders.findByRefNum(refNum).result.headOption
       giftCard ← GiftCards.findByCode(payload.code).result.headOption
     } yield (order, giftCard)).flatMap {
       case (Some(order), Some(giftCard)) ⇒
         if (!giftCard.isActive) {
-          Future.successful(Bad(GiftCardIsInactive(giftCard)))
+          Future.successful(Xor.left(GiftCardIsInactive(giftCard)))
         } else if (giftCard.hasAvailable(payload.amount)) {
           val payment = OrderPayment.build(giftCard).copy(orderId = order.id, amount = Some(payload.amount))
-          OrderPayments.save(payment).run().map(Good(_))
+          OrderPayments.save(payment).run().map(Xor.right)
         } else {
-          Future.successful(Bad(GiftCardNotEnoughBalance(giftCard, payload.amount)))
+          Future.successful(Xor.left(GiftCardNotEnoughBalance(giftCard, payload.amount)))
         }
       case (None, _) ⇒
-        Future.successful(Bad(OrderNotFoundFailure(refNum)))
+        Future.successful(Xor.left(OrderNotFoundFailure(refNum)))
       case (_, None) ⇒
-        Future.successful(Bad(GiftCardNotFoundFailure(payload.code)))
+        Future.successful(Xor.left(GiftCardNotFoundFailure(payload.code)))
     }
   }
 
   def addStoreCredit(refNum: String, payload: StoreCreditPayment)
-    (implicit ec: ExecutionContext, db: Database): Future[Seq[OrderPayment] Or Failure] = {
+    (implicit ec: ExecutionContext, db: Database): Future[Failure Xor Seq[OrderPayment]] = {
     db.run(for {
       order ← Orders.findCartByRefNum(refNum).result.headOption
       storeCredits ← order.map { o ⇒
@@ -194,35 +194,35 @@ object OrderUpdater {
 
         if (available < payload.amount) {
           val error = CustomerHasInsufficientStoreCredit(id = order.customerId, has = available, want = payload.amount)
-          Future.successful(Bad(error))
+          Future.successful(Xor.left(error))
         } else {
           val payments = StoreCredit.processFifo(storeCredits.toList, payload.amount).map { case (sc, amount) ⇒
             OrderPayment.build(sc).copy(orderId = order.id, amount = Some(amount))
           }
 
-          db.run(OrderPayments ++= payments).map { _ ⇒ Good(payments.toSeq) }
+          db.run(OrderPayments ++= payments).map { _ ⇒ Xor.right(payments.toSeq) }
         }
 
       case (None, _) ⇒
-        Future.successful(Bad(OrderNotFoundFailure(refNum)))
+        Future.successful(Xor.left(OrderNotFoundFailure(refNum)))
     }
   }
 
   def deletePayment(order: Order, paymentId: Int)
-    (implicit ec: ExecutionContext, db: Database): Future[Int Or NotFoundFailure] = {
+    (implicit ec: ExecutionContext, db: Database): Future[NotFoundFailure Xor Int] = {
     db.run(OrderPayments.findAllByOrderId(order.id)
       .filter(_.paymentMethodId === paymentId)
       .delete).map { rowsAffected ⇒
       if (rowsAffected == 1) {
-        Good(1)
+        Xor.right(1)
       } else {
-        Bad(NotFoundFailure(s"order payment method with id=$paymentId not found"))
+        Xor.left(NotFoundFailure(s"order payment method with id=$paymentId not found"))
       }
     }
   }
 
   def addCreditCard(refNum: String, id: Int)
-    (implicit ec: ExecutionContext, db: Database): Future[OrderPayment Or Failure] = {
+    (implicit ec: ExecutionContext, db: Database): Future[Failure Xor OrderPayment] = {
     db.run(for {
       order ← Orders.findCartByRefNum(refNum).result.headOption
       creditCard ← CreditCards._findById(id).result.headOption
@@ -233,16 +233,16 @@ object OrderUpdater {
       case (Some(order), Some(creditCard), numCards) ⇒
         if (creditCard.isActive && numCards == 0) {
           val payment = OrderPayment.build(creditCard).copy(orderId = order.id, amount = None)
-          OrderPayments.save(payment).run().map(Good(_))
+          OrderPayments.save(payment).run().map(Xor.right)
         } else if (numCards > 0) {
-          Future.successful(Bad(CartAlreadyHasCreditCard(order)))
+          Future.successful(Xor.left(CartAlreadyHasCreditCard(order)))
         } else {
-          Future.successful(Bad(CannotUseInactiveCreditCard(creditCard)))
+          Future.successful(Xor.left(CannotUseInactiveCreditCard(creditCard)))
         }
       case (None, _, _) ⇒
-        Future.successful(Bad(OrderNotFoundFailure(refNum)))
+        Future.successful(Xor.left(OrderNotFoundFailure(refNum)))
       case (_, None, _) ⇒
-        Future.successful(Bad(NotFoundFailure(CreditCard, id)))
+        Future.successful(Xor.left(NotFoundFailure(CreditCard, id)))
     }
   }
 

@@ -9,7 +9,7 @@ import cats.data.Xor
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import models._
 import akka.http.scaladsl.model.StatusCodes._
-import org.scalactic._
+
 import payloads._
 import responses.{AllOrders, AllOrdersWithFailures, AdminNotes, FullOrder}
 import services._
@@ -222,7 +222,7 @@ object Admin {
                   Future.successful(notFoundResponse)
                 case Some(order)  ⇒
                   OrderUpdater.deletePayment(order, paymentId).map { res ⇒
-                    res.fold(_ ⇒ noContentResponse, renderNotFoundFailure)
+                    res.fold(renderNotFoundFailure, _ ⇒ noContentResponse)
                   }
               }
             }
@@ -230,27 +230,27 @@ object Admin {
           (post & path("credit-cards" / IntNumber) & pathEnd) { creditCardId ⇒
             complete {
               OrderUpdater.addCreditCard(refNum, creditCardId).map {
-                case Bad(NotFoundFailure(f))  ⇒ renderNotFoundFailure(NotFoundFailure(f))
-                case Bad(f)                   ⇒ renderFailure(Seq(f))
-                case Good(orderPayment)       ⇒ render(orderPayment)
+                case Xor.Left(NotFoundFailure(f)) ⇒ renderNotFoundFailure(NotFoundFailure(f))
+                case Xor.Left(f)                  ⇒ renderFailure(Seq(f))
+                case Xor.Right(orderPayment)      ⇒ render(orderPayment)
               }
             }
           } ~
           (post & path("gift-cards") & entity(as[payloads.GiftCardPayment]) & pathEnd) { payload ⇒
             complete {
               OrderUpdater.addGiftCard(refNum, payload).map {
-                case Bad(NotFoundFailure(f))  ⇒ renderNotFoundFailure(NotFoundFailure(f))
-                case Bad(f)                   ⇒ renderFailure(Seq(f))
-                case Good(orderPayment)       ⇒ render(orderPayment)
+                case Xor.Left(NotFoundFailure(f)) ⇒ renderNotFoundFailure(NotFoundFailure(f))
+                case Xor.Left(f)                  ⇒ renderFailure(Seq(f))
+                case Xor.Right(orderPayment)      ⇒ render(orderPayment)
               }
             }
           } ~
           (post & path("store-credit") & entity(as[payloads.StoreCreditPayment]) & pathEnd) { payload ⇒
             complete {
               OrderUpdater.addStoreCredit(refNum, payload).map {
-                case Bad(NotFoundFailure(f))  ⇒ renderNotFoundFailure(NotFoundFailure(f))
-                case Bad(f)                   ⇒ renderFailure(Seq(f))
-                case Good(orderPayment)       ⇒ render(orderPayment)
+                case Xor.Left(NotFoundFailure(f)) ⇒ renderNotFoundFailure(NotFoundFailure(f))
+                case Xor.Left(f)                  ⇒ renderFailure(Seq(f))
+                case Xor.Right(orderPayment)      ⇒ render(orderPayment)
               }
             }
           }

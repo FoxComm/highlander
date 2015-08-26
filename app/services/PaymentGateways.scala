@@ -8,7 +8,7 @@ import com.stripe.exception.{CardException, InvalidRequestException}
 import com.stripe.model.{Card ⇒ StripeCard, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer}
 import com.stripe.net.{RequestOptions ⇒ StripeRequestOptions}
 import models.Customer
-import org.scalactic.{Bad, Good, Or}
+
 import payloads.CreateCreditCard
 
 abstract class PaymentGateway
