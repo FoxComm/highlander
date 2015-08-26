@@ -3,9 +3,11 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Xor, Xor.{ left, right }
 import models.Note
+import scala.concurrent.{Future, ExecutionContext}
+import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
+import org.scalactic.{Bad, Good, Or}
 
 package object services {
-
   type Failures = immutable.Seq[Failure]
   private [services] def Failures(failures: Failure*): Failures = immutable.Seq[Failure](failures: _*)
 

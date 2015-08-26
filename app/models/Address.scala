@@ -13,8 +13,9 @@ import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
-final case class Address(id: Int = 0, customerId: Int, stateId: Int, name: String, street1: String, street2: Option[String],
-  city: String, zip: String, isDefaultShipping: Boolean = false, phoneNumber: Option[String])
+final case class Address(id: Int = 0, customerId: Int, regionId: Int, name: String,
+  street1: String, street2: Option[String], city: String, zip: String,
+  isDefaultShipping: Boolean = false, phoneNumber: Option[String])
   extends Validation[Address]
   with ModelWithIdParameter {
 
@@ -28,12 +29,12 @@ final case class Address(id: Int = 0, customerId: Int, stateId: Int, name: Strin
 
 object Address {
   def fromPayload(p: CreateAddressPayload) = {
-    Address(customerId = 0, stateId = p.stateId, name = p.name,
+    Address(customerId = 0, regionId = p.regionId, name = p.name,
       street1 = p.street1, street2 = p.street2, city = p.city, zip = p.zip, phoneNumber = p.phoneNumber)
   }
 
   def fromOrderShippingAddress(osa: OrderShippingAddress) = {
-    Address(customerId = 0, stateId = osa.stateId, name = osa.name, street1 = osa.street1, street2 = osa.street2,
+    Address(customerId = 0, regionId = osa.regionId, name = osa.name, street1 = osa.street1, street2 = osa.street2,
       city = osa.city, zip = osa.zip, phoneNumber = osa.phoneNumber)
   }
 }
@@ -41,7 +42,7 @@ object Address {
 class Addresses(tag: Tag) extends TableWithId[Address](tag, "addresses") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def customerId = column[Int]("customer_id")
-  def stateId = column[Int]("state_id")
+  def regionId = column[Int]("region_id")
   def name = column[String]("name")
   def street1 = column[String]("street1")
   def street2 = column[Option[String]]("street2")
@@ -50,10 +51,10 @@ class Addresses(tag: Tag) extends TableWithId[Address](tag, "addresses") with Ri
   def isDefaultShipping = column[Boolean]("is_default_shipping")
   def phoneNumber = column[Option[String]]("phone_number")
 
-  def * = (id, customerId, stateId, name, street1, street2,
+  def * = (id, customerId, regionId, name, street1, street2,
     city, zip, isDefaultShipping, phoneNumber) <> ((Address.apply _).tupled, Address.unapply)
 
-  def state = foreignKey(States.tableName, stateId, States)(_.id)
+  def region = foreignKey(Regions.tableName, regionId, Regions)(_.id)
 }
 
 object Addresses extends TableQueryWithId[Address, Addresses](
@@ -70,14 +71,14 @@ object Addresses extends TableQueryWithId[Address, Addresses](
   def _findAllByCustomerId(customerId: Int): Query[Addresses, Address, Seq] =
     filter(_.customerId === customerId)
 
-  def _findAllByCustomerIdWithStates(customerId: Int): Query[(Addresses, States), (Address, State), Seq] = for {
-    (addresses, states) ← _withStates(_findAllByCustomerId(customerId))
-  } yield (addresses, states)
+  def _findAllByCustomerIdWithRegions(customerId: Int): Query[(Addresses, Regions), (Address, Region), Seq] = for {
+    (addresses, regions) ← _withRegions(_findAllByCustomerId(customerId))
+  } yield (addresses, regions)
 
-  def _withStates(q: Query[Addresses, Address, Seq]) = for {
+  def _withRegions(q: Query[Addresses, Address, Seq]) = for {
     addresses ← q
-    states ← States if states.id === addresses.id
-  } yield (addresses, states)
+    regions ← Regions if regions.id === addresses.regionId
+  } yield (addresses, regions)
 
   def findShippingDefaultByCustomerId(customerId: Int): Query[Addresses, Address, Seq] =
    filter(_.customerId === customerId).filter(_.isDefaultShipping === true)

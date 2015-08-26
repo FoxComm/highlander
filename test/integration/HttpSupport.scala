@@ -11,7 +11,7 @@ import akka.stream.{ActorMaterializer, Materializer}
 import akka.util.ByteString
 
 import com.typesafe.config.ConfigFactory
-import org.json4s.DefaultFormats
+import org.json4s.{Formats, DefaultFormats}
 import org.json4s.jackson.Serialization.{write ⇒ writeJson}
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
 import org.scalatest.{Outcome, Suite, SuiteMixin}
@@ -162,8 +162,14 @@ trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with Patien
 }
 
 object Extensions {
+
   implicit class RichHttpResponse(val res: HttpResponse) extends AnyVal {
     def bodyText(implicit ec: ExecutionContext, mat: Materializer): String =
       result(res.entity.toStrict(1.second).map(_.data.utf8String), 1.second)
+
+    def as[A <: AnyRef](implicit formats: Formats, mf: scala.reflect.Manifest[A], mat: Materializer): A = {
+      import org.json4s.jackson.JsonMethods._
+      parse(bodyText).extract[A]
+    }
   }
 }

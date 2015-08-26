@@ -411,7 +411,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         shippingAddress.city must === ("Queen Anne")
         shippingAddress.street1 must === (address.street1)
         shippingAddress.street2 must === (address.street2)
-        shippingAddress.stateId must === (address.stateId)
+        shippingAddress.regionId must === (address.regionId)
         shippingAddress.zip must === (address.zip)
       }
 
@@ -461,7 +461,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     val (orderShippingAddress, newAddress) = (for {
       orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
       newAddress ← Addresses.save(Factories.address.copy(customerId = customer.id, isDefaultShipping = false,
-        name = "New Shipping", street1 = "29918 Kenloch Dr", city = "Farmington Hills", stateId = 22))
+        name = "New Shipping", street1 = "29918 Kenloch Dr", city = "Farmington Hills", regionId = 4177))
     } yield(orderShippingAddress, newAddress)).run().futureValue
   }
 

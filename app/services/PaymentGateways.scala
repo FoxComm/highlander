@@ -39,7 +39,7 @@ final case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVL
         "address_line1" -> address.street1,
         "address_line2" -> address.street2.orNull,
         "address_city" -> address.city,
-        "address_state" -> address.state.orNull,
+        // "address_state" -> address.state.orNull,
         "address_zip" -> address.zip
       )
       base.updated("source", mapAsJavaMap(sourceWithAddress))

@@ -1,5 +1,6 @@
 package utils
 
+import cats.data.Xor
 import org.joda.money.CurrencyUnit
 import org.json4s.CustomSerializer
 import org.json4s.JsonAST.JString
@@ -9,10 +10,12 @@ import slick.driver.PostgresDriver.api._
 object Money {
   type Currency = CurrencyUnit
 
+  type BadCurrency = org.joda.money.IllegalCurrencyException
+
   object Currency {
     val USD = Currency("USD")
 
-    def apply(s: String): Currency = CurrencyUnit.of(s)
+    def apply(s: String): Currency = Xor.fromTryCatch[BadCurrency] { CurrencyUnit.of(s) }.fold(_ ⇒ USD, identity)
     def unapply(c: Currency): Option[String] = Some(c.getCode)
   }
 

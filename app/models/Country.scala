@@ -4,36 +4,38 @@ import java.io.{FilenameFilter, File}
 import java.nio.file.{Paths, SimpleFileVisitor, Files, Path}
 
 import monocle.macros.GenLens
-import slick.driver.PostgresDriver.api._
+import utils.ExPostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.GenericTable.TableWithId
 import utils.Money._
 import utils.{ModelWithIdParameter, RichTable, TableQueryWithId}
 import Country._
 
-final case class Country(id: Int = 0, name: String, alpha2: Alpha2, alpha3: Alpha3, code: Option[String],
-  continent: String, currency: Currency, languages: String, postalCode: Boolean)
+final case class Country(id: Int = 0, name: String, alpha2: String, alpha3: String, code: Option[String],
+  continent: String, currency: Currency, languages: List[String],
+  usesPostalCode: Boolean = false, isShippable: Boolean = false, isBillable: Boolean = false)
   extends ModelWithIdParameter {
 }
 
 object Country {
-  type Alpha2 = String
-  type Alpha3 = String
+  val unitedStatesId = 234
 }
 
 class Countries(tag: Tag) extends TableWithId[Country](tag, "countries") with RichTable {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def name = column[String]("name")
-  def alpha2 = column[Alpha2]("alpha2")
-  def alpha3 = column[Alpha3]("alpha3")
+  def alpha2 = column[String]("alpha2")
+  def alpha3 = column[String]("alpha3")
   def code = column[Option[String]]("code")
   def continent = column[String]("continent")
   def currency = column[Currency]("currency")
-  def languages = column[String]("languages")
-  def postalCode = column[Boolean]("postal_code")
+  def languages = column[List[String]]("languages")
+  def usesPostalCode = column[Boolean]("uses_postal_code")
+  def isShippable = column[Boolean]("is_shippable")
+  def isBillable = column[Boolean]("is_billable")
 
   def * = (id, name, alpha2, alpha3, code, continent, currency,
-    languages, postalCode) <> ((Country.apply _).tupled, Country.unapply)
+    languages, usesPostalCode, isShippable, isBillable) <> ((Country.apply _).tupled, Country.unapply)
 }
 
 object Countries extends TableQueryWithId[Country, Countries](

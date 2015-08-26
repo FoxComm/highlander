@@ -62,7 +62,7 @@ object Admin {
         pathPrefix("addresses") {
           (get & pathEnd) {
             complete {
-              Addresses._findAllByCustomerIdWithStates(customerId).result.run().map { records ⇒
+              Addresses._findAllByCustomerIdWithRegions(customerId).result.run().map { records ⇒
                 render(responses.Addresses.build(records))
               }
             }
@@ -312,13 +312,6 @@ object Admin {
                   Future.successful(notFoundResponse)
               }
             }
-          }
-        }
-      } ~
-      pathPrefix("states") {
-        (get & pathEnd) {
-          complete {
-            models.States.sortBy(_.name.asc).result.run().map(render(_))
           }
         }
       }

@@ -21,7 +21,7 @@ object Seeds {
     shippingMethods: Seq[ShippingMethod], shippingPriceRules: Seq[ShippingPriceRule],
     shippingMethodRuleMappings: Seq[ShippingMethodPriceRule], orderCriteria: Seq[OrderCriterion],
     orderPriceCriteria: Seq[OrderPriceCriterion], priceRuleCriteriaMappings: Seq[ShippingPriceRuleOrderCriterion],
-    skus: Seq[Sku], orderLineItems: Seq[OrderLineItem], shipment: Shipment, paymentMethods: AllPaymentMethods)
+    skus: Seq[Sku], orderLineItems: Seq[OrderLineItem], orderPayments: Seq[OrderPayment], shipment: Shipment, paymentMethods: AllPaymentMethods)
 
   final case class AllPaymentMethods(giftCard: GiftCard = Factories.giftCard, storeCredit: StoreCredit = Factories
     .storeCredit)
@@ -49,6 +49,7 @@ object Seeds {
       orderPriceCriteria = Factories.orderPriceCriteria,
       priceRuleCriteriaMappings = Factories.priceRuleCriteriaMappings,
       orderLineItems = Factories.orderLineItems,
+      orderPayments = Seq(Factories.orderPayment),
       shipment = Factories.shipment,
       paymentMethods = AllPaymentMethods(giftCard = Factories.giftCard, storeCredit = Factories.storeCredit)
     )
@@ -71,6 +72,7 @@ object Seeds {
       shippingAddress ← OrderShippingAddresses.save(Factories.shippingAddress.copy(orderId = order.id))
       shippingMethods ← ShippingMethods ++= s.shippingMethods
       creditCard ← CreditCards.save(s.cc.copy(customerId = customer.id, billingAddressId = address.id))
+      orderPayments ← OrderPayments.save(Factories.orderPayment.copy(orderId = order.id, paymentMethodId = creditCard.id))
       shippingPriceRule ← ShippingPriceRules ++= s.shippingPriceRules
       shippingMethodRuleMappings ← ShippingMethodsPriceRules ++= s.shippingMethodRuleMappings
       orderCriterion ← OrderCriteria ++= s.orderCriteria
@@ -128,13 +130,13 @@ object Seeds {
 
     def orderLineItems: Seq[OrderLineItem] = Seq(OrderLineItem(id = 0, orderId = 1, skuId = 1, status = OrderLineItem.Cart), OrderLineItem(id = 0, orderId = 1, skuId = 2, status = OrderLineItem.Cart), OrderLineItem(id = 0, orderId = 1, skuId = 3, status = OrderLineItem.Cart))
 
-    def address = Address(customerId = 0, stateId = 1, name = "Home", street1 = "555 E Lake Union St.",
+    def address = Address(customerId = 0, regionId = 4177, name = "Home", street1 = "555 E Lake Union St.",
         street2 = None, city = "Seattle", zip = "12345", isDefaultShipping = true, phoneNumber = None)
 
-    def shippingAddress = OrderShippingAddress(stateId = 46, name = "Old Yax", street1 = "9313 Olde Mill Pond Dr",
+    def shippingAddress = OrderShippingAddress(regionId = 4174, name = "Old Yax", street1 = "9313 Olde Mill Pond Dr",
       street2 = None, city = "Glen Allen", zip = "23060", phoneNumber = None)
 
-    def billingAddress = OrderBillingAddress(stateId = 5, name = "Old Jeff", street1 = "95 W. 5th Ave.",
+    def billingAddress = OrderBillingAddress(regionId = 4129, name = "Old Jeff", street1 = "95 W. 5th Ave.",
       street2 = Some("Apt. 437"), city = "San Mateo", zip = "94402")
 
     def creditCard =
