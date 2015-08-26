@@ -7,7 +7,7 @@ import com.stripe.model.{Customer ⇒ StripeCustomer}
 import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import monocle.Lens
 import monocle.macros.GenLens
-import org.scalactic.Or
+
 import payloads.CreateCreditCard
 import services.{Failures, StripeGateway}
 import slick.driver.PostgresDriver.api._

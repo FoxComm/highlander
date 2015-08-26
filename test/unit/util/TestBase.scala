@@ -13,6 +13,10 @@ trait TestBase extends FreeSpecLike
   with CatsHelpers {
 
   val config = TestBase.config
+
+  implicit class XorTestOps[G, B](val xor: B Xor G) {
+    def get: G = xor.fold(l ⇒ fail(s".get on a Xor.Left: ${ l }"), r ⇒ r)
+  }
 }
 
 object TestBase {

@@ -1,7 +1,7 @@
 package services
 
 import models._
-import org.scalactic.{Bad, Good}
+
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils._

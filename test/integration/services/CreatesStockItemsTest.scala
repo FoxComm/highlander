@@ -10,7 +10,7 @@ class CreatesStockItemsTest extends IntegrationTestBase {
   "CreatesStockItems" - {
     "creates a new stock item" in withStockItemSchema {
       val item = CreatesStockItems(productId = 1, onHand = 1, onHold = 0).futureValue
-      item mustBe 'good
+      item mustBe 'right
     }
 
     "returns error messages on invalid input parameters" in withStockItemSchema {

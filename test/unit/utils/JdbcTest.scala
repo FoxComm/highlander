@@ -19,7 +19,8 @@ class JdbcTest extends TestBase {
     }
 
     val or = withUniqueConstraint(future) { notUnique ⇒ GeneralFailure("record was not unique") }.futureValue
-    or mustBe 'bad
-    or.fold({ _ ⇒ Seq("wrong") }, _.description) must === (Seq("record was not unique"))
+    or mustBe 'left
+
+    or.fold(_.description,  _ ⇒ Seq("wrong")) must === (Seq("record was not unique"))
   }
 }

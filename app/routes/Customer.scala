@@ -4,9 +4,10 @@ import scala.concurrent.{ExecutionContext, Future}
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 
+import cats.data.Xor
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import models._
-import org.scalactic._
+
 import payloads._
 import responses.FullOrder
 import services._
@@ -24,7 +25,7 @@ object Customer {
         (get & path("cart")) {
           complete {
             whenOrderFoundAndEditable(customer) { activeOrder ⇒
-              FullOrder.fromOrder(activeOrder).map(Good(_))
+              FullOrder.fromOrder(activeOrder).map(Xor.right)
             }
           }
         } ~
@@ -66,8 +67,8 @@ object Customer {
             complete {
               whenOrderFoundAndEditable(customer) { order ⇒
                 LineItemUpdater.updateQuantities(order, reqItems).flatMap {
-                  case Good(_) ⇒ FullOrder.fromOrder(order).map(Good(_))
-                  case Bad(e) ⇒ Future.successful(Bad(e))
+                  case Xor.Right(_) ⇒ FullOrder.fromOrder(order).map(Xor.right)
+                  case Xor.Left(e)  ⇒ Future.successful(Xor.left(e))
                 }
               }
             }
@@ -77,7 +78,7 @@ object Customer {
               whenOrderFoundAndEditable(customer) { order ⇒
                 ShippingMethodsBuilder.fullShippingMethodsForOrder(order).map { x =>
                   // we'll need to handle Bad
-                  Good(x)
+                  Xor.right(x)
                 }
               }
             }
@@ -86,8 +87,8 @@ object Customer {
             complete {
               whenOrderFoundAndEditable(customer) { order ⇒
                 ShippingMethodsBuilder.addShippingMethodToOrder(shipMethodId, order).flatMap {
-                  case Good(_) ⇒ FullOrder.fromOrder(order).map(Good(_))
-                  case Bad(e) ⇒ Future.successful(Bad(e))
+                  case Xor.Right(_) ⇒ FullOrder.fromOrder(order).map(Xor.right)
+                  case Xor.Left(e)  ⇒ Future.successful(Xor.left(e))
                 }
               }
             }
@@ -95,7 +96,7 @@ object Customer {
           (get & path(PathEnd)) {
             complete {
               whenFound(Orders._findActiveOrderByCustomer(customer).result.headOption.run()) { order ⇒
-                FullOrder.fromOrder(order).map(Good(_))
+                FullOrder.fromOrder(order).map(Xor.right)
               }
             }
           }

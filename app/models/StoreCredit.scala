@@ -18,7 +18,7 @@ import com.pellucid.sealerate
 import models.StoreCredit.{OnHold, Status}
 import monocle.macros.GenLens
 import org.joda.time.DateTime
-import org.scalactic._
+
 import services.Failures
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
@@ -61,9 +61,8 @@ final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, origin
   )
 
   // TODO: not sure we use this polymorphically
-  def authorize(amount: Int)(implicit ec: ExecutionContext): Result[String] = {
-    Future.successful(Good("authenticated"))
-  }
+  def authorize(amount: Int)(implicit ec: ExecutionContext): Result[String] =
+    Result.good("authenticated")
 
   def isActive: Boolean = activeStatuses.contains(status)
 }

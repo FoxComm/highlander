@@ -3,6 +3,7 @@ package services
 import scala.collection.immutable.Seq
 import scala.concurrent.{ExecutionContext, Future}
 
+import cats.data.Xor
 import models.{Countries, Country, Region, Regions}
 import org.json4s.JsonAST.{JField, JObject}
 import org.json4s.{CustomSerializer, DefaultFormats, Extraction, JValue}
@@ -13,7 +14,7 @@ import responses.CountryWithRegions
 
 object Public {
   def findCountry(countryId: Int)
-    (implicit ec: ExecutionContext, db: Database): Future[CountryWithRegions Or Failures] = {
+    (implicit ec: ExecutionContext, db: Database): Future[Failures Xor CountryWithRegions] = {
     val query = for {
       cs ← queryCountries.filter(_.id === countryId)
       rs ← queryRegions if rs.countryId === cs.id
@@ -21,8 +22,8 @@ object Public {
 
     db.run(query.result).map { results ⇒
       results.headOption.map(_._1) match {
-        case None     ⇒ Bad(NotFoundFailure(Country, countryId).single)
-        case Some(c)  ⇒ Good(CountryWithRegions(c, results.map(_._2).to[Seq]))
+        case None    ⇒ Xor.left(NotFoundFailure(Country, countryId).single)
+        case Some(c) ⇒ Xor.right(CountryWithRegions(c, results.map(_._2).to[Seq]))
       }
     }
   }

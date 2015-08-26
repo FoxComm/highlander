@@ -4,7 +4,7 @@ import models.{Orders, Order}
 
 import com.wix.accord.{Failure ⇒ ValidationFailure, Success ⇒ ValidationSuccess}
 import org.json4s.DefaultFormats
-import org.scalactic.{Bad, Good}
+
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import payloads.CreateAddressPayload
 import util.IntegrationTestBase

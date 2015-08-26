@@ -3,9 +3,10 @@ package services
 import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Validated.{Valid, Invalid}
+import cats.data.Xor
 import models.Order.RemorseHold
 import models._
-import org.scalactic._
+
 import payloads.{CreateShippingAddress, GiftCardPayment, StoreCreditPayment, UpdateAddressPayload, UpdateShippingAddress}
 import responses.{Addresses ⇒ Response, FullOrder}
 import slick.driver.PostgresDriver.api._
@@ -14,11 +15,11 @@ import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 object OrderUpdater {
 
   def updateStatus(refNum: String, newStatus: Order.Status)
-    (implicit db: Database, ec: ExecutionContext): Future[FullOrder.Root Or Failures] = {
+    (implicit db: Database, ec: ExecutionContext): Future[Failures Xor FullOrder.Root] = {
 
     updateStatuses(Seq(refNum), newStatus).flatMap {
-      case Seq() ⇒ Orders.findByRefNum(refNum).result.run().flatMap(o ⇒ FullOrder.fromOrder(o.head).map(Good(_)))
-      case failures: Failures ⇒ Future.successful(Bad(failures))
+      case Seq() ⇒ Orders.findByRefNum(refNum).result.run().flatMap(o ⇒ FullOrder.fromOrder(o.head).map(Xor.right))
+      case failures: Failures ⇒ Result.failures(failures)
     }
   }
 
@@ -79,36 +80,39 @@ object OrderUpdater {
   final class NewRemorsePeriod(val remorsePeriod: Int)
 
   def increaseRemorsePeriod(order: Order)
-    (implicit db: Database, ec: ExecutionContext): Future[NewRemorsePeriod Or Failures] = {
+    (implicit db: Database, ec: ExecutionContext): Result[NewRemorsePeriod] = {
     order.status match {
       case RemorseHold ⇒
         val q = for {
-          _ ← Orders.update(order.copy(remorsePeriodInMinutes = order.remorsePeriodInMinutes + 15))
+          _        ← Orders.update(order.copy(remorsePeriodInMinutes = order.remorsePeriodInMinutes + 15))
           newOrder ← Orders._findById(order.id).result.headOption
         } yield newOrder
-        db.run(q).map {
-          case Some(newOrder) ⇒ Good(new NewRemorsePeriod(newOrder.remorsePeriodInMinutes))
-          case None ⇒ Bad(List(GeneralFailure("Error during update")))
+
+        db.run(q).flatMap {
+          case Some(newOrder) ⇒ Result.good(new NewRemorsePeriod(newOrder.remorsePeriodInMinutes))
+          case None           ⇒ Result.failure(GeneralFailure("Error during update"))
         }
-      case _ ⇒ Future.successful(Bad(List(GeneralFailure("Order is not in RemorseHold status"))))
+
+      case _ ⇒ Result.failure(GeneralFailure("Order is not in RemorseHold status"))
     }
   }
 
   def lock(order: Order, admin: StoreAdmin)
-    (implicit db: Database, ec: ExecutionContext): Future[FullOrder.Root Or Failures] = {
+    (implicit db: Database, ec: ExecutionContext): Future[Failures Xor FullOrder.Root] = {
     if (order.locked) {
-      Future.successful(Bad(List(OrderLockedFailure(order.referenceNumber))))
+      Result.failures(List(OrderLockedFailure(order.referenceNumber)))
     } else {
       val lock = Orders.update(order.copy(locked = true))
       val blame = OrderLockEvents += OrderLockEvent(orderId = order.id, lockedBy = admin.id)
       val queries = (lock >> blame).transactionally
       db.run(queries).flatMap { _ ⇒
-        FullOrder.fromOrder(order).map(Good(_))
+        FullOrder.fromOrder(order).map(Xor.right)
       }
     }
   }
 
-  def unlock(order: Order)(implicit db: Database, ec: ExecutionContext): Future[FullOrder.Root Or Failures] = {
+  def unlock(order: Order)(implicit db: Database, ec: ExecutionContext): Future[Failures Xor FullOrder.Root]
+  = {
     if (order.locked) {
       val queries = for {
         _ ← Orders.update(order.copy(locked = false))
@@ -116,10 +120,10 @@ object OrderUpdater {
       } yield newOrder
 
       db.run(queries).flatMap { o ⇒
-        FullOrder.fromOrder(o).map(Good(_))
+        FullOrder.fromOrder(o).map(Xor.right)
       }
     } else {
-      Future.successful(Bad(List(GeneralFailure("Order is not locked"))))
+      Future.successful(Xor.left(List(GeneralFailure("Order is not locked"))))
     }
   }
 
@@ -130,7 +134,7 @@ object OrderUpdater {
     db.run(OrderShippingAddresses.findByOrderId(orderId).delete)
 
   def createShippingAddress(order: Order, payload: CreateShippingAddress)
-    (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failures] = {
+    (implicit db: Database, ec: ExecutionContext): Future[Failures Xor responses.Addresses.Root] = {
 
     (payload.addressId, payload.address) match {
       case (Some(addressId), _) ⇒
@@ -138,12 +142,12 @@ object OrderUpdater {
       case (None, Some(payloadAddress)) ⇒
         createShippingAddressFromPayload(Address.fromPayload(payloadAddress), order)
       case (None, None) ⇒
-        Future.successful(Bad(List(GeneralFailure("must supply either an addressId or an address"))))
+        Result.failure(GeneralFailure("must supply either an addressId or an address"))
     }
   }
 
   def updateShippingAddress(order: Order, payload: UpdateShippingAddress)
-    (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failures] = {
+    (implicit db: Database, ec: ExecutionContext): Future[Failures Xor responses.Addresses.Root] = {
 
     (payload.addressId, payload.address) match {
       case (Some(addressId), _) ⇒
@@ -151,35 +155,34 @@ object OrderUpdater {
       case (None, Some(address)) ⇒
         updateShippingAddressFromPayload(address, order)
       case (None, _) ⇒
-        Future.successful(Bad(List(GeneralFailure("must supply either an addressId or an address"))))
+        Future.successful(Xor.left(List(GeneralFailure("must supply either an addressId or an address"))))
     }
-
   }
 
   def addGiftCard(refNum: String, payload: GiftCardPayment)
-    (implicit ec: ExecutionContext, db: Database): Future[OrderPayment Or Failure] = {
+    (implicit ec: ExecutionContext, db: Database): Future[Failure Xor OrderPayment] = {
     db.run(for {
       order ← Orders.findByRefNum(refNum).result.headOption
       giftCard ← GiftCards.findByCode(payload.code).result.headOption
     } yield (order, giftCard)).flatMap {
       case (Some(order), Some(giftCard)) ⇒
         if (!giftCard.isActive) {
-          Future.successful(Bad(GiftCardIsInactive(giftCard)))
+          Future.successful(Xor.left(GiftCardIsInactive(giftCard)))
         } else if (giftCard.hasAvailable(payload.amount)) {
           val payment = OrderPayment.build(giftCard).copy(orderId = order.id, amount = Some(payload.amount))
-          OrderPayments.save(payment).run().map(Good(_))
+          OrderPayments.save(payment).run().map(Xor.right)
         } else {
-          Future.successful(Bad(GiftCardNotEnoughBalance(giftCard, payload.amount)))
+          Future.successful(Xor.left(GiftCardNotEnoughBalance(giftCard, payload.amount)))
         }
       case (None, _) ⇒
-        Future.successful(Bad(OrderNotFoundFailure(refNum)))
+        Future.successful(Xor.left(OrderNotFoundFailure(refNum)))
       case (_, None) ⇒
-        Future.successful(Bad(GiftCardNotFoundFailure(payload.code)))
+        Future.successful(Xor.left(GiftCardNotFoundFailure(payload.code)))
     }
   }
 
   def addStoreCredit(refNum: String, payload: StoreCreditPayment)
-    (implicit ec: ExecutionContext, db: Database): Future[Seq[OrderPayment] Or Failure] = {
+    (implicit ec: ExecutionContext, db: Database): Future[Failure Xor Seq[OrderPayment]] = {
     db.run(for {
       order ← Orders.findCartByRefNum(refNum).result.headOption
       storeCredits ← order.map { o ⇒
@@ -191,35 +194,35 @@ object OrderUpdater {
 
         if (available < payload.amount) {
           val error = CustomerHasInsufficientStoreCredit(id = order.customerId, has = available, want = payload.amount)
-          Future.successful(Bad(error))
+          Future.successful(Xor.left(error))
         } else {
           val payments = StoreCredit.processFifo(storeCredits.toList, payload.amount).map { case (sc, amount) ⇒
             OrderPayment.build(sc).copy(orderId = order.id, amount = Some(amount))
           }
 
-          db.run(OrderPayments ++= payments).map { _ ⇒ Good(payments.toSeq) }
+          db.run(OrderPayments ++= payments).map { _ ⇒ Xor.right(payments.toSeq) }
         }
 
       case (None, _) ⇒
-        Future.successful(Bad(OrderNotFoundFailure(refNum)))
+        Future.successful(Xor.left(OrderNotFoundFailure(refNum)))
     }
   }
 
   def deletePayment(order: Order, paymentId: Int)
-    (implicit ec: ExecutionContext, db: Database): Future[Int Or NotFoundFailure] = {
+    (implicit ec: ExecutionContext, db: Database): Future[NotFoundFailure Xor Int] = {
     db.run(OrderPayments.findAllByOrderId(order.id)
       .filter(_.paymentMethodId === paymentId)
       .delete).map { rowsAffected ⇒
       if (rowsAffected == 1) {
-        Good(1)
+        Xor.right(1)
       } else {
-        Bad(NotFoundFailure(s"order payment method with id=$paymentId not found"))
+        Xor.left(NotFoundFailure(s"order payment method with id=$paymentId not found"))
       }
     }
   }
 
   def addCreditCard(refNum: String, id: Int)
-    (implicit ec: ExecutionContext, db: Database): Future[OrderPayment Or Failure] = {
+    (implicit ec: ExecutionContext, db: Database): Future[Failure Xor OrderPayment] = {
     db.run(for {
       order ← Orders.findCartByRefNum(refNum).result.headOption
       creditCard ← CreditCards._findById(id).result.headOption
@@ -230,21 +233,21 @@ object OrderUpdater {
       case (Some(order), Some(creditCard), numCards) ⇒
         if (creditCard.isActive && numCards == 0) {
           val payment = OrderPayment.build(creditCard).copy(orderId = order.id, amount = None)
-          OrderPayments.save(payment).run().map(Good(_))
+          OrderPayments.save(payment).run().map(Xor.right)
         } else if (numCards > 0) {
-          Future.successful(Bad(CartAlreadyHasCreditCard(order)))
+          Future.successful(Xor.left(CartAlreadyHasCreditCard(order)))
         } else {
-          Future.successful(Bad(CannotUseInactiveCreditCard(creditCard)))
+          Future.successful(Xor.left(CannotUseInactiveCreditCard(creditCard)))
         }
       case (None, _, _) ⇒
-        Future.successful(Bad(OrderNotFoundFailure(refNum)))
+        Future.successful(Xor.left(OrderNotFoundFailure(refNum)))
       case (_, None, _) ⇒
-        Future.successful(Bad(NotFoundFailure(CreditCard, id)))
+        Future.successful(Xor.left(NotFoundFailure(CreditCard, id)))
     }
   }
 
   private def createShippingAddressFromPayload(address: Address, order: Order)
-    (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failures] = {
+    (implicit db: Database, ec: ExecutionContext): Future[Failures Xor responses.Addresses.Root] = {
 
     address.validateNew match {
       case Valid(_) ⇒
@@ -254,15 +257,15 @@ object OrderUpdater {
           _ ← OrderShippingAddresses.findByOrderId(order.id).delete
           _ ← OrderShippingAddresses.copyFromAddress(newAddress, order.id)
         } yield (newAddress, region)).map {
-          case (address, Some(region))  ⇒ Good(Response.build(address, region))
-          case (_, None)                ⇒ Bad(List(NotFoundFailure(Region, address.regionId)))
+          case (address, Some(region))  ⇒ Xor.right(Response.build(address, region))
+          case (_, None)                ⇒ Xor.left(List(NotFoundFailure(Region, address.regionId)))
         }
-      case Invalid(err) ⇒ Future.successful(Bad(List(ValidationFailureNew(err))))
+      case Invalid(err) ⇒ Future.successful(Xor.left(List(ValidationFailureNew(err))))
     }
   }
 
   private def updateShippingAddressFromPayload(payload: UpdateAddressPayload, order: Order)
-    (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failures] = {
+    (implicit db: Database, ec: ExecutionContext): Future[Failures Xor responses.Addresses.Root] = {
 
     val actions = for {
       oldAddress ← OrderShippingAddresses.findByOrderId(order.id).result.headOption
@@ -280,18 +283,18 @@ object OrderUpdater {
 
     db.run(actions.transactionally).map {
       case (_, None, _) ⇒
-        Bad(List(NotFoundFailure(OrderShippingAddress, order.id)))
+        Xor.left(List(NotFoundFailure(OrderShippingAddress, order.id)))
       case (0, _, _) ⇒
-        Bad(List(GeneralFailure("Unable to update address")))
+        Xor.left(List(GeneralFailure("Unable to update address")))
       case (_, Some(address), None) ⇒
-        Bad(List(NotFoundFailure(Region, address.regionId)))
+        Xor.left(List(NotFoundFailure(Region, address.regionId)))
       case (_, Some(address), Some(region)) ⇒
-        Good(Response.build(Address.fromOrderShippingAddress(address), region))
+        Xor.right(Response.build(Address.fromOrderShippingAddress(address), region))
     }
   }
 
   private def createShippingAddressFromAddressId(addressId: Int, orderId: Int)
-    (implicit db: Database, ec: ExecutionContext): Future[responses.Addresses.Root Or Failures] = {
+    (implicit db: Database, ec: ExecutionContext): Future[Failures Xor responses.Addresses.Root] = {
 
     db.run(for {
       address ← Addresses.findById(addressId)
@@ -302,14 +305,15 @@ object OrderUpdater {
             _ ← OrderShippingAddresses.findByOrderId(orderId).delete
             shipAddress ← OrderShippingAddresses.copyFromAddress(a, orderId)
           } yield Some(shipAddress)
+
         case None ⇒
           DBIO.successful(None)
       }
     } yield (address, region)).map {
       case (Some(address), Some(region)) ⇒
-        Good(Response.build(address, region))
+        Xor.right(Response.build(address, region))
       case _ ⇒
-        Bad(List(NotFoundFailure(Address, addressId)))
+        Xor.left(List(NotFoundFailure(Address, addressId)))
     }
   }
 }

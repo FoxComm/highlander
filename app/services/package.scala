@@ -1,10 +1,13 @@
 import collection.immutable
+import scala.concurrent.{ExecutionContext, Future}
+
+import cats.data.Xor, Xor.{ left, right }
+import models.Note
 import scala.concurrent.{Future, ExecutionContext}
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import org.scalactic.{Bad, Good, Or}
 
 package object services {
-
   type Failures = immutable.Seq[Failure]
   private [services] def Failures(failures: Failure*): Failures = immutable.Seq[Failure](failures: _*)
 
@@ -12,14 +15,16 @@ package object services {
     def single: Failures = Failures(underlying)
   }
 
-  type Result[A] = Future[A Or Failures]
+  type Result[A] = Future[Failures Xor A]
 
   object Result {
-    def good[A](resource: A): Result[A] =
-      Future.successful(Good[A, Failures](resource))
+    def fromFuture[A](value: Future[A])(implicit ec: ExecutionContext): services.Result[A] = value.flatMap(good)
+
+    def good[A](value: A):  Result[A] = Future.successful(Xor.right(value))
+    def right[A](value: A): Result[A] = good(value)
 
     def failures(failures: Failure*): Result[Nothing] =
-      Future.successful(Bad(Failures(failures: _*)))
+      Future.successful(left(Failures(failures: _*)))
 
     def failures(theFailures: Failures): Result[Nothing] =
       failures(theFailures: _*)

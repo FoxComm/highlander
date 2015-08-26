@@ -2,6 +2,11 @@ package models
 
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
+import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
+
+import com.wix.accord.{Failure => ValidationFailure, Validator}
+import com.wix.accord.dsl._
+import scala.concurrent.{ExecutionContext, Future}
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.GenericTable.TableWithId
 import utils.{ModelWithIdParameter, RichTable, TableQueryWithId}

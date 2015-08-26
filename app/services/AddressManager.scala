@@ -4,8 +4,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import cats.Functor
 import cats.data.Validated.{Valid, Invalid}
+import cats.data.Xor
 import models.{Order, Address, Addresses, Region, Regions}
-import org.scalactic.{Bad, Good, Or}
 import payloads.CreateAddressPayload
 import responses.Addresses.Root
 import responses.{Addresses ⇒ Response}
@@ -21,10 +21,10 @@ object AddressManager {
       case Valid(_) ⇒
         db.run(for {
           newAddress ← Addresses.save(address)
-          region ← Regions.findById(newAddress.regionId)
+          region     ← Regions.findById(newAddress.regionId)
         } yield (newAddress, region)).map {
-          case (address, Some(region))  ⇒ Good(Response.build(address, region))
-          case (_, None)                ⇒ Bad(NotFoundFailure(Region, address.regionId).single)
+          case (address, Some(region))  ⇒ Xor.right(Response.build(address, region))
+          case (_, None)                ⇒ Xor.left(NotFoundFailure(Region, address.regionId).single)
         }
       case Invalid(errors) ⇒ Result.failure(ValidationFailureNew(errors))
     }
@@ -37,11 +37,11 @@ object AddressManager {
       case Valid(_) ⇒
         db.run((for {
           rowsAffected ← Addresses.insertOrUpdate(address)
-          region ← Regions.findById(address.regionId)
+          region       ← Regions.findById(address.regionId)
         } yield (rowsAffected, address, region)).transactionally).map {
-          case (1, address, Some(region)) ⇒ Good(Response.build(address, region))
-          case (_, address, Some(region)) ⇒ Bad(NotFoundFailure(address).single)
-          case (_, _, None)               ⇒ Bad(NotFoundFailure(Region, address.regionId).single)
+          case (1, address, Some(region)) ⇒ Xor.right(Response.build(address, region))
+          case (_, address, Some(region)) ⇒ Xor.left(NotFoundFailure(address).single)
+          case (_, _, None)               ⇒ Xor.left(NotFoundFailure(Region, address.regionId).single)
         }
       case Invalid(errors) ⇒ Result.failure(ValidationFailureNew(errors))
     }

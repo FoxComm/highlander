@@ -1,5 +1,6 @@
 package services
 
+import cats.data.Xor
 import models._
 import responses.AdminNotes
 import responses.AdminNotes.Root
@@ -7,7 +8,7 @@ import slick.dbio.Effect.Write
 import slick.profile.FixedSqlAction
 import utils.Validation.Result._
 
-import org.scalactic._
+
 import scala.concurrent.{Future, ExecutionContext}
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
@@ -31,9 +32,9 @@ object NoteManager {
 
     db.run(update).flatMap { rowsAffected ⇒
       if (rowsAffected == 1) {
-        db.run(query.result.headOption).map {
-          case Some(note) ⇒ Good(AdminNotes.build(note, author))
-          case None       ⇒ Bad(notFound(noteId).single)
+        db.run(query.result.headOption).flatMap {
+          case Some(note) ⇒ Result.right(AdminNotes.build(note, author))
+          case None       ⇒ Result.failure(notFound(noteId))
         }
       } else {
         Result.failure(notFound(noteId))
@@ -51,10 +52,8 @@ object NoteManager {
   private def createNote(note: Note)
     (implicit ec: ExecutionContext, db: Database): Result[Note] = {
     note.validate match {
-      case Success ⇒
-        Notes.save(note).run().map(Good(_))
-      case f @ Failure(_) ⇒
-        Future.successful(Bad(ValidationFailure(f).single))
+      case Success        ⇒ Result.fromFuture(Notes.save(note).run())
+      case f @ Failure(_) ⇒ Result.failure(ValidationFailure(f))
     }
   }
 }

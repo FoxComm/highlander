@@ -15,7 +15,7 @@ class OrderBillingAddressTest extends IntegrationTestBase {
         OrderBillingAddresses.save(billingAddress.copy(name = "Jeff")).run()
       } { notUnique ⇒ GeneralFailure("There was already a billing address") }
 
-      result.futureValue mustBe 'bad
+      result.futureValue mustBe 'left
     }
   }
 

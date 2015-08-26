@@ -5,10 +5,11 @@ import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 
+import cats.data.Xor
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import models._
 import akka.http.scaladsl.model.StatusCodes._
-import org.scalactic._
+
 import payloads._
 import responses.{AllOrders, AllOrdersWithFailures, AdminNotes, FullOrder}
 import services._
@@ -106,11 +107,11 @@ object Admin {
             (delete & path(IntNumber) & pathEnd) { cardId ⇒
               complete {
                 CustomerManager.deleteCreditCard(customerId = customerId, adminId = admin.id, id = cardId).map {
-                  case Good(_) ⇒
+                  case Xor.Right(_) ⇒
                     noContentResponse
-                  case Bad(NotFoundFailure(f) :: _) ⇒
+                  case Xor.Left(NotFoundFailure(f) :: _) ⇒
                     renderNotFoundFailure(NotFoundFailure(f))
-                  case Bad(xs) ⇒
+                  case Xor.Left(xs) ⇒
                     renderFailure(xs)
                 }
               }
@@ -161,7 +162,7 @@ object Admin {
         (get & pathEnd) {
           complete {
             whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
-              FullOrder.fromOrder(order).map(Good(_))
+              FullOrder.fromOrder(order).map(Xor.right)
             }
           }
         } ~
@@ -202,8 +203,8 @@ object Admin {
           complete {
             whenOrderFoundAndEditable(refNum) { order ⇒
               LineItemUpdater.updateQuantities(order, reqItems).flatMap {
-                case Good(_) ⇒ FullOrder.fromOrder(order).map(Good(_))
-                case Bad(e) ⇒ Future.successful(Bad(e))
+                case Xor.Right(_) ⇒ Result.fromFuture(FullOrder.fromOrder(order))
+                case Xor.Left(xs) ⇒ Result.failures(xs)
               }
             }
           }
@@ -221,7 +222,7 @@ object Admin {
                   Future.successful(notFoundResponse)
                 case Some(order)  ⇒
                   OrderUpdater.deletePayment(order, paymentId).map { res ⇒
-                    res.fold(_ ⇒ noContentResponse, renderNotFoundFailure)
+                    res.fold(renderNotFoundFailure, _ ⇒ noContentResponse)
                   }
               }
             }
@@ -229,27 +230,27 @@ object Admin {
           (post & path("credit-cards" / IntNumber) & pathEnd) { creditCardId ⇒
             complete {
               OrderUpdater.addCreditCard(refNum, creditCardId).map {
-                case Bad(NotFoundFailure(f))  ⇒ renderNotFoundFailure(NotFoundFailure(f))
-                case Bad(f)                   ⇒ renderFailure(Seq(f))
-                case Good(orderPayment)       ⇒ render(orderPayment)
+                case Xor.Left(NotFoundFailure(f)) ⇒ renderNotFoundFailure(NotFoundFailure(f))
+                case Xor.Left(f)                  ⇒ renderFailure(Seq(f))
+                case Xor.Right(orderPayment)      ⇒ render(orderPayment)
               }
             }
           } ~
           (post & path("gift-cards") & entity(as[payloads.GiftCardPayment]) & pathEnd) { payload ⇒
             complete {
               OrderUpdater.addGiftCard(refNum, payload).map {
-                case Bad(NotFoundFailure(f))  ⇒ renderNotFoundFailure(NotFoundFailure(f))
-                case Bad(f)                   ⇒ renderFailure(Seq(f))
-                case Good(orderPayment)       ⇒ render(orderPayment)
+                case Xor.Left(NotFoundFailure(f)) ⇒ renderNotFoundFailure(NotFoundFailure(f))
+                case Xor.Left(f)                  ⇒ renderFailure(Seq(f))
+                case Xor.Right(orderPayment)      ⇒ render(orderPayment)
               }
             }
           } ~
           (post & path("store-credit") & entity(as[payloads.StoreCreditPayment]) & pathEnd) { payload ⇒
             complete {
               OrderUpdater.addStoreCredit(refNum, payload).map {
-                case Bad(NotFoundFailure(f))  ⇒ renderNotFoundFailure(NotFoundFailure(f))
-                case Bad(f)                   ⇒ renderFailure(Seq(f))
-                case Good(orderPayment)       ⇒ render(orderPayment)
+                case Xor.Left(NotFoundFailure(f)) ⇒ renderNotFoundFailure(NotFoundFailure(f))
+                case Xor.Left(f)                  ⇒ renderFailure(Seq(f))
+                case Xor.Right(orderPayment)      ⇒ render(orderPayment)
               }
             }
           }

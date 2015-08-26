@@ -4,10 +4,11 @@ import scala.concurrent.{ExecutionContext, Future}
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.model.{HttpResponse, StatusCode}
 
+import cats.data.Xor
 import models.{Customer, Orders, Order}
 import org.json4s.jackson
 import org.json4s.jackson.Serialization.{write ⇒ json}
-import org.scalactic.{Bad, Good, Or}
+
 import services.{NotFoundFailure, OrderLockedFailure, Failures, Failure}
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
@@ -22,10 +23,10 @@ object Http {
   val noContentResponse:  HttpResponse  = HttpResponse(NoContent)
 
   @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.AsInstanceOf"))
-  private[Http] def renderGoodOrBad[G <: AnyRef, B <: AnyRef](goodOrBad: G Or B)
+  private[Http] def renderGoodOrBad[G <: AnyRef, B <: AnyRef](goodOrBad: B Xor G)
     (implicit ec: ExecutionContext): HttpResponse = {
     goodOrBad match {
-      case Bad(errors)    ⇒
+      case Xor.Left(errors)    ⇒
         errors match {
           case _: Iterable[_] ⇒
             renderFailure(errors.asInstanceOf[Iterable[Failure]])
@@ -34,26 +35,25 @@ object Http {
           case _ ⇒
             render("errors" → errors, BadRequest)
         }
-      case Good(resource) ⇒
-        render(resource)
+      case Xor.Right(resource) ⇒ render(resource)
     }
   }
 
-  def renderGoodOrFailures[G <: AnyRef](or: G Or Failures)
+  def renderGoodOrFailures[G <: AnyRef](or: Failures Xor G)
                                        (implicit ec: ExecutionContext): HttpResponse =
-    or.fold(render(_), renderFailure(_)) // Can’t pass eta expanded method because of by-name parameters
+    or.fold(renderFailure(_), render(_)) // Can’t pass eta expanded method because of by-name  parameters
 
-  def whenFound[A, G <: AnyRef, B <: AnyRef](finder: Future[Option[A]])(f: A => Future[G Or B])
-    (implicit ec: ExecutionContext, db: Database): Future[HttpResponse] = {
-    finder.flatMap { option =>
-      option.map(f(_).map(renderGoodOrBad)).
+  def whenFound[A, G <: AnyRef, B <: AnyRef](finder: Future[Option[A]])
+    (handle: A ⇒ Future[B Xor G])
+    (implicit ec: ExecutionContext, db: Database): Future[HttpResponse] =
+    finder.flatMap { option ⇒
+      option.map(handle(_).map(renderGoodOrBad)).
         getOrElse(Future.successful(notFoundResponse))
     }
-  }
 
   def whenFoundDispatchToService[A, G <: AnyRef](finder: ⇒ Future[Option[A]])
-                                                (bind:   A ⇒ Future[G Or Failures])
-                                               (implicit ec: ExecutionContext): Future[HttpResponse] = {
+                                                (bind:   A ⇒ Future[Failures Xor G])
+                                                (implicit ec: ExecutionContext): Future[HttpResponse] = {
     finder.flatMap {
       case None    ⇒ Future.successful(notFoundResponse)
       case Some(v) ⇒ bind(v).map(renderGoodOrFailures)
@@ -61,7 +61,7 @@ object Http {
   }
 
   def whenOrderFoundAndEditable[G <: AnyRef](finder: Future[Option[Order]])
-                                            (f: Order ⇒ Future[G Or Failures])
+                                            (f: Order ⇒ Future[Failures Xor G])
                                             (implicit ec: ExecutionContext, db: Database): Future[HttpResponse] = {
 
     finder.flatMap {
@@ -75,7 +75,7 @@ object Http {
   }
 
   def whenOrderFoundAndEditable[G <: AnyRef](customer: Customer)
-                                            (f: Order ⇒ Future[G Or Failures])
+                                            (f: Order ⇒ Future[Failures Xor G])
                                             (implicit ec: ExecutionContext, db: Database): Future[HttpResponse] = {
 
     val finder = Orders._findActiveOrderByCustomer(customer).result.headOption.run()
@@ -83,7 +83,7 @@ object Http {
   }
 
   def whenOrderFoundAndEditable[G <: AnyRef](refNumber: String)
-                                            (f: Order ⇒ Future[G Or Failures])
+                                            (f: Order ⇒ Future[Failures Xor G])
                                             (implicit ec: ExecutionContext, db: Database): Future[HttpResponse] = {
 
     val finder = Orders.findByRefNum(refNumber).result.headOption.run()

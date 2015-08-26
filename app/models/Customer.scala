@@ -10,7 +10,7 @@ import utils.{ModelWithIdParameter, TableQueryWithId, Validation, RichTable}
 import com.wix.accord.Validator
 import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
-import org.scalactic._
+
 
 final case class Customer(id: Int = 0, disabled: Boolean = false, email: String, password: String, firstName: String,
   lastName: String, phoneNumber: Option[String] = None, location: Option[String] = None,
@@ -60,7 +60,7 @@ object Customers extends TableQueryWithId[Customer, Customers](
     val newCustomer = Customer(id = 0, email = payload.email,password = payload.password,
       firstName = payload.firstName, lastName = payload.firstName)
 
-    save(newCustomer).run().map(Good(_))
+    save(newCustomer).run().flatMap(Result.right)
   }
 }
 
