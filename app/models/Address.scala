@@ -1,29 +1,43 @@
 package models
 
-import monocle.macros.GenLens
-import utils.GenericTable.TableWithId
-import utils.{ModelWithIdParameter, TableQueryWithId, Validation, RichTable}
-import utils.{Validation, RichTable}
-import payloads.CreateAddressPayload
-
-import com.wix.accord.dsl.{validator => createValidator}
-import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
-
-import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
+
+import cats.data.ValidatedNel
+import cats.data.Validated.{invalid, valid, invalidNel}
+import cats.implicits._
+import utils.Litterbox._
+import monocle.macros.GenLens
+import payloads.CreateAddressPayload
+import slick.driver.PostgresDriver.api._
+import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
+import utils.GenericTable.TableWithId
+import utils.Validation.{matches ⇒ matchesNew, notEmpty ⇒ notEmptyNew}
+import utils.{Model, ModelWithIdParameter, NewModel, RichTable, TableQueryWithId, Validation}
 
 final case class Address(id: Int = 0, customerId: Int, regionId: Int, name: String,
   street1: String, street2: Option[String], city: String, zip: String,
   isDefaultShipping: Boolean = false, phoneNumber: Option[String])
-  extends Validation[Address]
-  with ModelWithIdParameter {
+  extends ModelWithIdParameter
+  with NewModel {
 
-  override def validator = createValidator[Address] { address =>
-    address.name is notEmpty
-    address.street1 is notEmpty
-    address.city is notEmpty
-    address.zip should matchRegex("[0-9]{5}")
+  def isNew: Boolean = id == 0
+
+  def validateNew: ValidatedNel[String, Model] = {
+    val phone: ValidatedNel[String, Unit] = (Country.unitedStatesId == regionId, phoneNumber) match {
+      case (true, Some(number)) ⇒
+        matchesNew(number, "[0-9]{10}", "phoneNumber")
+      case (false, Some(number)) ⇒
+        matchesNew(number, "[0-9]{0,15}", "phoneNumber")
+      case (_, None) ⇒
+        valid({})
+    }
+
+    ( notEmptyNew(name, "name")
+      |@| notEmptyNew(street1, "street1")
+      |@| notEmptyNew(city, "city")
+      |@| matchesNew(zip, "[0-9]{5}", "zip")
+      |@| phone
+    ).map { case _ ⇒ this }
   }
 }
 

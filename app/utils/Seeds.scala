@@ -54,8 +54,10 @@ object Seeds {
       paymentMethods = AllPaymentMethods(giftCard = Factories.giftCard, storeCredit = Factories.storeCredit)
     )
 
-    val failures = (s.customers.map { _.validate } ++ List(s.storeAdmin.validate, s.order.validate, s.address.validate,
+    val failures = (s.customers.map { _.validate } ++ List(s.storeAdmin.validate, s.order.validate,
       s.cc.validate)).filterNot(_.isValid)
+
+    s.address.validateNew.fold(err ⇒ throw new Exception(err.mkString("\n")), _ ⇒ {})
 
     if (failures.nonEmpty)
       throw new Exception(failures.map(_.messages).mkString("\n"))

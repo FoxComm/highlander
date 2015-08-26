@@ -1,13 +1,19 @@
 package utils
 
-import com.wix.accord.Failure
+import cats.data.{Validated, ValidatedNel}
+import cats.data.Validated.{invalidNel, valid}
+import cats.data.NonEmptyList
+import com.wix.accord.{validate => runValidation, Failure => AccordFailure, GroupViolation, RuleViolation,
+Violation, Validator}
 import com.wix.accord.transform.ValidationTransform
-
-
-import com.wix.accord.{validate => runValidation, Failure => AccordFailure, Violation, Validator}
 import com.wix.accord
 import services.ValidationFailure
 import utils.Validation.Result.{Failure, Success}
+import com.wix.accord.combinators.Empty
+import com.wix.accord.combinators.NotEmpty
+import com.wix.accord.combinators.HasEmpty
+import com.wix.accord.combinators.MatchesRegex
+import cats.implicits._
 
 trait Validation[T] { this: T ⇒
   import Validation._
@@ -61,4 +67,23 @@ object Validation {
       case accord.Success => Success
     }
   }
+
+  private def toValidatedNel(constraint: String, r: accord.Result): ValidatedNel[String, Unit] = r match {
+    case accord.Failure(f)  ⇒
+      val errors = f.toList.map {
+        case RuleViolation(_, err, _) ⇒ s"$constraint $err"
+        case _ ⇒ "unknown error"
+      }
+
+      Validated.Invalid(NonEmptyList(errors.headOption.getOrElse("unknown error"), errors.tail))
+
+    case accord.Success     ⇒
+      valid({})
+  }
+
+  def notEmpty[A <: AnyRef <% HasEmpty](a: A, constraint: String): ValidatedNel[String, Unit] =
+    toValidatedNel(constraint, new NotEmpty[A].apply(a))
+
+  def matches(value: String, regex: String, constraint: String): ValidatedNel[String, Unit] =
+    toValidatedNel(constraint, new MatchesRegex(regex.r.pattern, partialMatchAllowed = false).apply(value))
 }
