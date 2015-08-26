@@ -44,7 +44,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
 
         response.status must === (StatusCodes.NotFound)
-        parseErrors(response).get.head must === (GiftCardNotFoundFailure(payload.code).description.head)
+        parseErrors(response) must === (GiftCardNotFoundFailure(payload.code).description)
         giftCardPayments(order) must have size(0)
       }
 
@@ -53,7 +53,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
 
         response.status must === (StatusCodes.BadRequest)
-        parseErrors(response).get.head must === (GiftCardNotEnoughBalance(giftCard, payload.amount).description.head)
+        parseErrors(response) must === (GiftCardNotEnoughBalance(giftCard, payload.amount).description)
         giftCardPayments(order) must have size(0)
       }
 
@@ -72,7 +72,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
 
         response.status must === (StatusCodes.BadRequest)
-        parseErrors(response).get.head must === (GiftCardIsInactive(giftCard).description.head)
+        parseErrors(response) must === (GiftCardIsInactive(giftCard).description)
         giftCardPayments(order) must have size(0)
       }
     }
@@ -119,7 +119,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
           val response = POST(s"v1/orders/${notFound.refNum}/payment-methods/store-credit", payload)
 
           response.status must ===(StatusCodes.NotFound)
-          parseErrors(response).get.head must ===(OrderNotFoundFailure(notFound).description.head)
+          parseErrors(response) must ===(OrderNotFoundFailure(notFound).description)
           storeCreditPayments(order) must have size(0)
         }
 
@@ -128,8 +128,8 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
           val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
 
           response.status must ===(StatusCodes.BadRequest)
-          val error = CustomerHasInsufficientStoreCredit(customer.id, 0, 50).description.head
-          parseErrors(response).get.head must ===(error)
+          val error = CustomerHasInsufficientStoreCredit(customer.id, 0, 50).description
+          parseErrors(response) must ===(error)
           storeCreditPayments(order) must have size(0)
         }
 
@@ -139,8 +139,8 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
           response.status must ===(StatusCodes.BadRequest)
           val has = storeCredits.map(_.availableBalance).sum
-          val error = CustomerHasInsufficientStoreCredit(customer.id, has, payload.amount).description.head
-          parseErrors(response).get.head must ===(error)
+          val error = CustomerHasInsufficientStoreCredit(customer.id, has, payload.amount).description
+          parseErrors(response) must ===(error)
           storeCreditPayments(order) must have size(0)
         }
 
@@ -204,7 +204,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards", payload)
 
         response.status must === (StatusCodes.NotFound)
-        parseErrors(response).get.head must === (NotFoundFailure(CreditCard, 99).description.head)
+        parseErrors(response) must === (NotFoundFailure(CreditCard, 99).description)
         creditCardPayments(order) must have size(0)
       }
 
@@ -214,7 +214,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards", payload)
 
         response.status must ===(StatusCodes.BadRequest)
-        parseErrors(response).get.head must ===(CannotUseInactiveCreditCard(creditCard).description.head)
+        parseErrors(response) must ===(CannotUseInactiveCreditCard(creditCard).description)
         creditCardPayments(order) must have size(0)
       }
 

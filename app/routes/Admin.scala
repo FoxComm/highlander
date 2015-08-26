@@ -23,11 +23,6 @@ object Admin {
     import Json4sSupport._
     import utils.Http._
 
-    def findCustomer(id: Int): Future[Option[models.Customer]] = {
-      Future.successful(Some(models.Customer(id = id, email = "donkey@donkey.com", password = "donkeyPass",
-        firstName = "Mister", lastName = "Donkey")))
-    }
-
     authenticateBasicAsync(realm = "admin", storeAdminAuth) { admin =>
       pathPrefix("gift-cards") {
         (get & pathEnd) {
@@ -128,11 +123,6 @@ object Admin {
                 renderOrNotFound(StoreCredits.findById(storeCreditId).run())
               }
             } ~
-              //              (post & entity(as[CreateStoreCredit])) { payload ⇒
-              //                complete {
-              //                  Future.successful(HttpResponse(OK))
-              //                }
-              //              } ~
             (post & path(IntNumber / "convert")) { storeCreditId ⇒
               complete {
                 whenFoundDispatchToService(StoreCredits.findById(storeCreditId).run()) { sc ⇒
@@ -275,13 +265,6 @@ object Admin {
               notFoundResponse
             }
           }
-          //            (patch & entity(as[payloads.UpdateNote])) { payload ⇒
-          //              complete {
-          //                whenFound(Orders.findById(orderId).run()) { order ⇒
-          //                  NoteCreator.createOrderNote(order, admin, payload)
-          //                }
-          //              }
-          //            }
         } ~
         pathPrefix("shipping-address") {
           (post & entity(as[payloads.CreateShippingAddress]) & pathEnd) { payload ⇒
