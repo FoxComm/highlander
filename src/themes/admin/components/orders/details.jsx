@@ -19,14 +19,10 @@ export default class OrderDetails extends React.Component {
   }
 
   toggleEdit() {
-    Api.post(`${OrderStore.uri(this.props.order.id)}/edit`)
-      .then(() => {
-        this.setState({
-          isEditing: !this.state.isEditing
-        });
-        dispatch('toggleOrderEdit');
-      })
-      .catch((err) => { console.error(err); });
+    this.setState({
+      isEditing: !this.state.isEditing
+    });
+    dispatch('toggleOrderEdit');
   }
 
   render() {
@@ -39,23 +35,29 @@ export default class OrderDetails extends React.Component {
       actions = (
         <span>
           <button onClick={this.toggleEdit.bind(this)}>Cancel</button>
-          <button>Save Edits</button>
+          <button className='primary'>Save Edits</button>
         </span>
       );
     } else if (OrderStore.holdStatusList.indexOf(order.orderStatus) !== -1) {
-      actions = <button className='btn' onClick={this.toggleEdit.bind(this)}>Edit Order Details</button>;
+      actions = <button onClick={this.toggleEdit.bind(this)}>Edit Order Details</button>;
     }
 
     return (
       <div id="order-details">
-        {actions}
         <OrderSummary order={order} isEditing={isEditing}/>
-        <article>
-          <OrderLineItems order={order} isEditing={isEditing}/>
-          <OrderShippingAddress order={order} isEditing={isEditing}/>
-          <OrderShippingMethod order={order} isEditing={isEditing} />
-          <OrderPayment order={order} isEditing={isEditing}/>
-        </article>
+
+        <div className="main">
+          <div className="controls">
+            {actions}
+          </div>
+
+          <article>
+            <OrderLineItems order={order} isEditing={isEditing}/>
+            <OrderShippingAddress order={order} isEditing={isEditing}/>
+            <OrderShippingMethod order={order} isEditing={isEditing} />
+            <OrderPayment order={order} isEditing={isEditing}/>
+          </article>
+        </div>
       </div>
     );
   }
