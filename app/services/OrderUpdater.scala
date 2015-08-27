@@ -223,25 +223,27 @@ object OrderUpdater {
 
   def addCreditCard(refNum: String, id: Int)
     (implicit ec: ExecutionContext, db: Database): Result[OrderPayment] = {
-    db.run(for {
+    val actions = for {
       order ← Orders.findCartByRefNum(refNum).result.headOption
       creditCard ← CreditCards._findById(id).result.headOption
-      numCards ← order.map { o ⇒
-        OrderPayments.findAllCreditCardsForOrder(o.id).length.result
-      }.getOrElse(DBIO.successful(0))
-    } yield (order, creditCard, numCards)).flatMap {
-      case (Some(order), Some(creditCard), numCards) ⇒
-        if (creditCard.isActive && numCards == 0) {
+    } yield (order, creditCard)
+
+    actions.run().flatMap {
+      case (Some(order), Some(creditCard)) ⇒
+        if (creditCard.isActive) {
           val payment = OrderPayment.build(creditCard).copy(orderId = order.id, amount = None)
-          OrderPayments.save(payment).run().map(Xor.right)
-        } else if (numCards > 0) {
-          Result.left(CartAlreadyHasCreditCard(order))
+          val delete = OrderPayments.creditCards.filter(_.orderId === order.id).delete
+          val replaceOrCreate = OrderPayments.save(payment)
+
+          (delete >> replaceOrCreate).transactionally.run().map(Xor.right)
         } else {
           Result.left(CannotUseInactiveCreditCard(creditCard))
         }
-      case (None, _, _) ⇒
+
+      case (None, _) ⇒
         Result.left(OrderNotFoundFailure(refNum))
-      case (_, None, _) ⇒
+
+      case (_, None) ⇒
         Result.left(NotFoundFailure(CreditCard, id))
     }
   }

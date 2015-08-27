@@ -227,17 +227,25 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         response.status must === (StatusCodes.NotFound)
         creditCardPayments(order) must have size(0)
       }
+    }
 
-      "fails if the cart already has a credit card" in new CreditCardFixture {
-        val payload = payloads.CreditCardPayment(creditCard.id)
-        val first = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards", payload)
+    "when edited" - {
+      "successfully replaces an existing card" in new CreditCardFixture {
+        val first = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards",
+          payloads.CreditCardPayment(creditCard.id))
         first.status must ===(StatusCodes.OK)
-        val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards", payload)
 
-        response.status must === (StatusCodes.BadRequest)
-        creditCardPayments(order) must have size(1)
+        val newCreditCard = CreditCards.save(creditCard.copy(id = 0, isDefault = false)).run().futureValue
+        val second = PATCH(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards",
+          payloads.CreditCardPayment(newCreditCard.id))
+        second.status must ===(StatusCodes.OK)
+
+        val payments = creditCardPayments(order)
+        payments must have size (1)
+        payments.head.paymentMethodId must === (newCreditCard.id)
       }
     }
+
   }
 
   def paymentsFor(order: Order, pmt: PaymentMethod.Type): Seq[OrderPayment] = {
