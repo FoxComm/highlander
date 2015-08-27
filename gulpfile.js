@@ -16,7 +16,7 @@ for (let task of fs.readdirSync(opts.taskDir)) {
   require(file)(gulp, opts, $);
 }
 
-gulp.task('build', ['hooks', 'less', 'browserify', 'imagemin']);
+gulp.task('build', ['less', 'browserify', 'imagemin']);
 
 gulp.task('test', function(cb) {
   runSequence('lint', 'mocha', cb);
@@ -24,7 +24,7 @@ gulp.task('test', function(cb) {
 
 gulp.task('dev', function(cb) {
   opts.devMode = true;
-  runSequence('build', 'server', 'watch', cb);
+  runSequence('build', 'test', 'server', 'watch', cb);
 });
 gulp.task('default', ['build']);
 
