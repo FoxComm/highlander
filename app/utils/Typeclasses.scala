@@ -14,7 +14,7 @@ trait Read[F] { self ⇒
 }
 
 trait ADT[F] extends Read[F] with Show[F] { self ⇒
-  implicit val jsonFormats = JsonFormatters.DefaultFormats
+  implicit lazy val jsonFormats = JsonFormatters.DefaultFormats
 
   def types: Set[F]
 
