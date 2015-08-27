@@ -154,11 +154,11 @@ trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with Patien
     port
   }
 
-  def parseErrors(response: HttpResponse)(implicit ec: ExecutionContext): Option[List[String]] =
+  def parseErrors(response: HttpResponse)(implicit ec: ExecutionContext): List[String] =
     parseErrors(response.bodyText)
 
-  def parseErrors(errors: String): Option[List[String]] =
-    parse(errors).extract[Map[String, List[String]]].get("errors")
+  def parseErrors(errors: String): List[String] =
+    parse(errors).extract[Map[String, List[String]]].getOrElse("errors", List.empty[String])
 }
 
 object Extensions {

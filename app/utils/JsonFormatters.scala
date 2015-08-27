@@ -13,6 +13,8 @@ import responses.CountryWithRegions
 object JsonFormatters {
   val serialization = jackson.Serialization
 
+  val DefaultFormats = org.json4s.DefaultFormats + DateTimeSerializer + Money.jsonFormat
+
   val phoenixFormats = DefaultFormats +
     Order.Status.jsonFormat +
     OrderLineItem.Status.jsonFormat +
@@ -22,8 +24,6 @@ object JsonFormatters {
     StoreCredit.Status.jsonFormat +
     StoreCreditAdjustment.Status.jsonFormat +
     CreditCardCharge.Status.jsonFormat +
-    Money.jsonFormat +
-    CountryWithRegions.jsonFormat +
-    DateTimeSerializer
+    CountryWithRegions.jsonFormat
 }
 

@@ -104,6 +104,10 @@ object Http {
   def render[A <: AnyRef](resource: A, statusCode: StatusCode = OK) =
     HttpResponse(statusCode, entity = json(resource))
 
-  def renderFailure(failures: Traversable[Failure], statusCode: ClientError = BadRequest): HttpResponse =
-    HttpResponse(statusCode, entity = json("errors" → failures.flatMap(_.description)))
+  def renderFailure(failures: Traversable[Failure], statusCode: ClientError = BadRequest): HttpResponse = {
+    val notFound = failures.collectFirst { case f: NotFoundFailure ⇒ f }
+    notFound.fold(HttpResponse(statusCode, entity = json("errors" → failures.flatMap(_.description)))) { nf ⇒
+      renderNotFoundFailure(nf)
+    }
+  }
 }

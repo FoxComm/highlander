@@ -31,3 +31,4 @@ final case class GiftCardPayment(code: String, amount: Int)
 
 final case class StoreCreditPayment(amount: Int)
 
+final case class CreditCardPayment(creditCardId: Int)

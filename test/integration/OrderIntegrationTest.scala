@@ -4,7 +4,7 @@ import org.joda.time.DateTime
 import org.scalatest.time.{Milliseconds, Seconds, Span}
 import payloads.{UpdateOrderPayload, CreateAddressPayload, CreateCreditCard}
 import responses.{AdminNotes, FullOrder}
-import services.{GeneralFailure, Failures, NoteManager}
+import services.{NotFoundFailure, GeneralFailure, Failures, NoteManager}
 import services.OrderUpdater.NewRemorsePeriod
 import slick.driver.PostgresDriver.api._
 import util.{IntegrationTestBase, StripeSupport}
@@ -333,8 +333,8 @@ class OrderIntegrationTest extends IntegrationTestBase
           s"v1/orders/${order.referenceNumber}/shipping-address",
           payloads.CreateShippingAddress(addressId = Some(99)))
 
-        response.status must === (StatusCodes.BadRequest)
-        (parse(response.bodyText) \ "errors").extract[List[String]] must === (List("address with id=99 not found"))
+        response.status must === (StatusCodes.NotFound)
+        parseErrors(response) must === (NotFoundFailure(Address, 99).description)
       }
 
       "fails if the order is not found" in new AddressFixture {
@@ -370,8 +370,8 @@ class OrderIntegrationTest extends IntegrationTestBase
           s"v1/orders/${order.referenceNumber}/shipping-address",
           payloads.UpdateShippingAddress(addressId = Some(99)))
 
-        response.status must === (StatusCodes.BadRequest)
-        (parse(response.bodyText) \ "errors").extract[List[String]] must === (List("address with id=99 not found"))
+        response.status must === (StatusCodes.NotFound)
+        parseErrors(response) must === (NotFoundFailure(Address, 99).description)
       }
 
       "does not change the current shipping address if the edit fails" in new ShippingAddressFixture {
@@ -380,7 +380,7 @@ class OrderIntegrationTest extends IntegrationTestBase
           payloads.UpdateShippingAddress(addressId = Some(101))
         )
 
-        response.status must === (StatusCodes.BadRequest)
+        response.status must === (StatusCodes.NotFound)
         val (shippingAddress :: Nil) = OrderShippingAddresses.findByOrderId(order.id).result.run().futureValue.toList
 
         val shippingAddressMap = shippingAddress.toMap -- Seq("id", "customerId", "orderId", "createdAt", "deletedAt",

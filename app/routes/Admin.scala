@@ -23,11 +23,6 @@ object Admin {
     import Json4sSupport._
     import utils.Http._
 
-    def findCustomer(id: Int): Future[Option[models.Customer]] = {
-      Future.successful(Some(models.Customer(id = id, email = "donkey@donkey.com", password = "donkeyPass",
-        firstName = "Mister", lastName = "Donkey")))
-    }
-
     authenticateBasicAsync(realm = "admin", storeAdminAuth) { admin =>
       pathPrefix("gift-cards") {
         (get & pathEnd) {
@@ -128,11 +123,6 @@ object Admin {
                 renderOrNotFound(StoreCredits.findById(storeCreditId).run())
               }
             } ~
-              //              (post & entity(as[CreateStoreCredit])) { payload ⇒
-              //                complete {
-              //                  Future.successful(HttpResponse(OK))
-              //                }
-              //              } ~
             (post & path(IntNumber / "convert")) { storeCreditId ⇒
               complete {
                 whenFoundDispatchToService(StoreCredits.findById(storeCreditId).run()) { sc ⇒
@@ -210,11 +200,6 @@ object Admin {
           }
         } ~
         pathPrefix("payment-methods") {
-          (get & pathEnd) {
-            complete {
-              renderOrNotFound(Orders.findByRefNum(refNum).result.headOption.run())
-            }
-          } ~
           (delete & path(IntNumber) & pathEnd) { paymentId ⇒
             complete {
               Orders.findByRefNum(refNum).result.headOption.run().flatMap {
@@ -222,36 +207,31 @@ object Admin {
                   Future.successful(notFoundResponse)
                 case Some(order)  ⇒
                   OrderUpdater.deletePayment(order, paymentId).map { res ⇒
-                    res.fold(renderNotFoundFailure, _ ⇒ noContentResponse)
+                    res.fold(renderFailure(_), _ ⇒ noContentResponse)
                   }
               }
             }
           } ~
-          (post & path("credit-cards" / IntNumber) & pathEnd) { creditCardId ⇒
-            complete {
-              OrderUpdater.addCreditCard(refNum, creditCardId).map {
-                case Xor.Left(NotFoundFailure(f)) ⇒ renderNotFoundFailure(NotFoundFailure(f))
-                case Xor.Left(f)                  ⇒ renderFailure(Seq(f))
-                case Xor.Right(orderPayment)      ⇒ render(orderPayment)
+          pathPrefix("credit-cards") {
+            (post & entity(as[payloads.CreditCardPayment]) & pathEnd) { payload ⇒
+              complete {
+                OrderUpdater.addCreditCard(refNum, payload.creditCardId).map(renderGoodOrFailures)
+              }
+            } ~
+            (patch & entity(as[payloads.CreditCardPayment]) & pathEnd) { payload ⇒
+              complete {
+                OrderUpdater.addCreditCard(refNum, payload.creditCardId).map(renderGoodOrFailures)
               }
             }
           } ~
           (post & path("gift-cards") & entity(as[payloads.GiftCardPayment]) & pathEnd) { payload ⇒
             complete {
-              OrderUpdater.addGiftCard(refNum, payload).map {
-                case Xor.Left(NotFoundFailure(f)) ⇒ renderNotFoundFailure(NotFoundFailure(f))
-                case Xor.Left(f)                  ⇒ renderFailure(Seq(f))
-                case Xor.Right(orderPayment)      ⇒ render(orderPayment)
-              }
+              OrderUpdater.addGiftCard(refNum, payload).map(renderGoodOrFailures)
             }
           } ~
           (post & path("store-credit") & entity(as[payloads.StoreCreditPayment]) & pathEnd) { payload ⇒
             complete {
-              OrderUpdater.addStoreCredit(refNum, payload).map {
-                case Xor.Left(NotFoundFailure(f)) ⇒ renderNotFoundFailure(NotFoundFailure(f))
-                case Xor.Left(f)                  ⇒ renderFailure(Seq(f))
-                case Xor.Right(orderPayment)      ⇒ render(orderPayment)
-              }
+              OrderUpdater.addStoreCredit(refNum, payload).map(renderGoodOrFailures)
             }
           }
         } ~
@@ -280,13 +260,6 @@ object Admin {
               notFoundResponse
             }
           }
-          //            (patch & entity(as[payloads.UpdateNote])) { payload ⇒
-          //              complete {
-          //                whenFound(Orders.findById(orderId).run()) { order ⇒
-          //                  NoteCreator.createOrderNote(order, admin, payload)
-          //                }
-          //              }
-          //            }
         } ~
         pathPrefix("shipping-address") {
           (post & entity(as[payloads.CreateShippingAddress]) & pathEnd) { payload ⇒
