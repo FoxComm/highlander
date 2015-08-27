@@ -9,8 +9,10 @@ import models._
 
 import payloads.{CreateShippingAddress, GiftCardPayment, StoreCreditPayment, UpdateAddressPayload, UpdateShippingAddress}
 import responses.{Addresses ⇒ Response, FullOrder}
+import slick.dbio.Effect.Write
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
+import slick.profile.FixedSqlAction
 
 object OrderUpdater {
 
@@ -208,19 +210,6 @@ object OrderUpdater {
     }
   }
 
-  def deletePayment(order: Order, paymentId: Int)
-    (implicit ec: ExecutionContext, db: Database): Result[Int] = {
-    db.run(OrderPayments.findAllByOrderId(order.id)
-      .filter(_.paymentMethodId === paymentId)
-      .delete).flatMap { rowsAffected ⇒
-      if (rowsAffected == 1) {
-        Result.right(1)
-      } else {
-        Result.left(NotFoundFailure(s"order payment method with id=$paymentId not found"))
-      }
-    }
-  }
-
   def addCreditCard(refNum: String, id: Int)
     (implicit ec: ExecutionContext, db: Database): Result[OrderPayment] = {
     val actions = for {
@@ -268,20 +257,26 @@ object OrderUpdater {
   def deleteGiftCard(refNum: String, code: String)
     (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
 
-    val actions = for {
-      order ← Orders.findCartByRefNum(refNum).result.headOption
-      payments ← order.map { o ⇒
-        for {
-          p ← OrderPayments.giftCards.filter(_.orderId === o.id).delete
-        }
-      }.getOrElse(DBIO.successful(0))
-    } yield (order, payments)
+    val finders = for {
+      order     ← Orders.findCartByRefNum(refNum).result.headOption
+      giftCard  ← GiftCards.findByCode(code).result.headOption
+    } yield (order, giftCard)
 
-    db.run(actions.transactionally).flatMap {
-      case (None, _)        ⇒ Result.failure(OrderNotFoundFailure(refNum))
-      case (Some(order), 0) ⇒ Result.failure(OrderPaymentNotFoundFailure(CreditCard))
-      case (Some(order), _) ⇒ Result.good({})
+    def deletePayment(f: (Option[Order], Option[GiftCard])): DBIO[Failures Xor Unit] = f match {
+      case (Some(order), Some(giftCard)) ⇒
+        val d = OrderPayments.giftCards.filter(_.paymentMethodId === giftCard.id)
+          .filter(_.orderId === order.id).delete
+        d.map { rows ⇒
+          if (rows == 1) Xor.right({}) else Xor.left(OrderPaymentNotFoundFailure(GiftCard).single)}
+
+      case (None, _) ⇒
+        DBIO.successful(Xor.left(OrderNotFoundFailure(refNum).single))
+
+      case (_, None) ⇒
+        DBIO.successful(Xor.left(GiftCardNotFoundFailure(code).single))
     }
+
+    db.run(finders.flatMap(deletePayment).transactionally)
   }
 
   private def createShippingAddressFromPayload(address: Address, order: Order)

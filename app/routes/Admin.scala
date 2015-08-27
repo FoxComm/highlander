@@ -200,18 +200,6 @@ object Admin {
           }
         } ~
         pathPrefix("payment-methods") {
-          (delete & path(IntNumber) & pathEnd) { paymentId ⇒
-            complete {
-              Orders.findByRefNum(refNum).result.headOption.run().flatMap {
-                case None         ⇒
-                  Future.successful(notFoundResponse)
-                case Some(order)  ⇒
-                  OrderUpdater.deletePayment(order, paymentId).map { res ⇒
-                    res.fold(renderFailure(_), _ ⇒ noContentResponse)
-                  }
-              }
-            }
-          } ~
           pathPrefix("credit-cards") {
             (post & entity(as[payloads.CreditCardPayment]) & pathEnd) { payload ⇒
               complete {

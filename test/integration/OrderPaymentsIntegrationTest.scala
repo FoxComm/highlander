@@ -4,8 +4,9 @@ import com.github.tototoshi.slick.JdbcJodaSupport._
 import models.Order._
 import models._
 import org.joda.time.DateTime
-import services.{CannotUseInactiveCreditCard, CustomerHasInsufficientStoreCredit, CustomerManager, GiftCardIsInactive,
-GiftCardNotEnoughBalance, GiftCardNotFoundFailure, NotFoundFailure, OrderNotFoundFailure}
+import services.{OrderPaymentNotFoundFailure, CannotUseInactiveCreditCard, CustomerHasInsufficientStoreCredit,
+CustomerManager, GiftCardIsInactive, GiftCardNotEnoughBalance, GiftCardNotFoundFailure, NotFoundFailure,
+OrderNotFoundFailure}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.Seeds.Factories
@@ -78,6 +79,41 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
     }
 
     "DELETE /v1/orders/:ref/payment-methods/gift-cards/:code" - {
+      "successfully deletes a giftCard" in new GiftCardFixture {
+        val payload = payloads.GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance)
+        val create = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
+        create.status must ===(StatusCodes.OK)
+
+        val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards/${giftCard.code}")
+        val payments = creditCardPayments(order)
+
+        response.status must ===(StatusCodes.NoContent)
+        payments must have size (0)
+      }
+
+      "fails if the order is not found" in new GiftCardFixture {
+        val response = DELETE(s"v1/orders/99/payment-methods/gift-cards/123")
+
+        response.status must === (StatusCodes.NotFound)
+        parseErrors(response) must === (OrderNotFoundFailure("99").description)
+        creditCardPayments(order) must have size(0)
+      }
+
+      "fails if the giftCard is not found" in new GiftCardFixture {
+        val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards/abc-123")
+
+        response.status must === (StatusCodes.NotFound)
+        parseErrors(response) must === (GiftCardNotFoundFailure("abc-123").description)
+        creditCardPayments(order) must have size(0)
+      }
+
+      "fails if the giftCard orderPayment is not found" in new GiftCardFixture {
+        val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards/${giftCard.code}")
+
+        response.status must === (StatusCodes.NotFound)
+        parseErrors(response) must === (OrderPaymentNotFoundFailure(GiftCard).description)
+        creditCardPayments(order) must have size(0)
+      }
     }
   }
 
@@ -159,29 +195,6 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
     }
   }
 
-//  "deleting a payment" - {
-//    "successfully deletes" in new GiftCardFixture {
-//      val payload = payloads.GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance)
-//      val payment = services.OrderUpdater.addGiftCard(order.referenceNumber, payload).futureValue.get
-//
-//      val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/${payment.id}")
-//      response.status must ===(StatusCodes.NoContent)
-//
-//      val payments = OrderPayments.findAllByOrderId(order.id).result.run().futureValue
-//      payments must have size (0)
-//    }
-//
-//    "fails if the order is not found" in new GiftCardFixture {
-//      val response = DELETE(s"v1/orders/ABCAYXADSF/payment-methods/1")
-//      response.status must ===(StatusCodes.NotFound)
-//    }
-//
-//    "fails if the payment is not found" in new GiftCardFixture {
-//      val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/1")
-//      response.status must ===(StatusCodes.NotFound)
-//    }
-//  }
-
   "credit cards" - {
     "POST /v1/orders/:ref/payment-methods/credit-cards" - {
       "succeeds" in new CreditCardFixture {
@@ -258,6 +271,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards")
         val payments = creditCardPayments(order)
 
+        response.status must ===(StatusCodes.NoContent)
         payments must have size (0)
       }
 
