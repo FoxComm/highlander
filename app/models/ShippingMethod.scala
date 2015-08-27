@@ -1,9 +1,9 @@
 package models
 
 import org.json4s.JValue
-import org.json4s.jackson.JsonMethods._
 import utils.{GenericTable, TableQueryWithId, ModelWithIdParameter, RichTable}
 import utils.ExPostgresDriver.api._
+import utils.ExPostgresDriver.jsonMethods._
 import monocle.macros.GenLens
 
 final case class ShippingMethod(id:Int = 0, adminDisplayName: String, storefrontDisplayName: String,
