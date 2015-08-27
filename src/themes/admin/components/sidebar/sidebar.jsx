@@ -3,7 +3,7 @@
 import React from 'react';
 import { Link } from 'react-router';
 
-export default class Menu extends React.Component {
+export default class Sidebar extends React.Component {
   render() {
     return (
       <aside role='complementary'>

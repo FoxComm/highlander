@@ -12,6 +12,7 @@ export default class UserInitials extends React.Component {
     let user = this.props.model;
     return `${user.firstName} ${user.lastName}\n${user.email}`;
   }
+
   render() {
     return <div className="initials tooltip-bottom" data-tooltip={this.tooltip()}>{this.initials()}</div>;
   }
