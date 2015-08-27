@@ -20,7 +20,7 @@ module.exports = function(gulp, opts, $) {
     let tasks = themes.map(function(theme) {
       let src = path.join(opts.themeDir, theme, '**/*.less');
       return gulp.src(src)
-        .pipe($.if(opts.usePlumber, plumber({
+        .pipe($.if(opts.devMode, plumber({
           errorHandler: function (err) {
             console.log(err);
             this.emit('end');
@@ -35,4 +35,8 @@ module.exports = function(gulp, opts, $) {
 
     return merge(tasks);
   });
-}
+
+  gulp.task('less.watch', function() {
+    gulp.watch(opts.lessSrc, ['less']);
+  });
+};
