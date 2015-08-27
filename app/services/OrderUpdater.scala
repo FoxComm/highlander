@@ -264,10 +264,10 @@ object OrderUpdater {
 
     def deletePayment(f: (Option[Order], Option[GiftCard])): DBIO[Failures Xor Unit] = f match {
       case (Some(order), Some(giftCard)) ⇒
-        val d = OrderPayments.giftCards.filter(_.paymentMethodId === giftCard.id)
-          .filter(_.orderId === order.id).delete
-        d.map { rows ⇒
-          if (rows == 1) Xor.right({}) else Xor.left(OrderPaymentNotFoundFailure(GiftCard).single)}
+        OrderPayments.giftCards.filter(_.paymentMethodId === giftCard.id)
+          .filter(_.orderId === order.id).delete.map { rows ⇒
+          if (rows == 1) Xor.right({}) else Xor.left(OrderPaymentNotFoundFailure(GiftCard).single)
+        }
 
       case (None, _) ⇒
         DBIO.successful(Xor.left(OrderNotFoundFailure(refNum).single))
