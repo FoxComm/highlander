@@ -7,7 +7,6 @@ import OrderShippingAddress from './shipping-address';
 import OrderShippingMethod from './shipping-method';
 import OrderPayment from './payment';
 import OrderStore from './store';
-import Api from '../../lib/api';
 import { dispatch } from '../../lib/dispatcher';
 
 export default class OrderDetails extends React.Component {
