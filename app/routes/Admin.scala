@@ -222,11 +222,23 @@ object Admin {
               complete {
                 OrderUpdater.addCreditCard(refNum, payload.creditCardId).map(renderGoodOrFailures)
               }
+            } ~
+            (delete & pathEnd) {
+              complete {
+                OrderUpdater.deleteCreditCard(refNum).map(_.fold(renderFailure(_), _ ⇒ noContentResponse))
+              }
             }
           } ~
-          (post & path("gift-cards") & entity(as[payloads.GiftCardPayment]) & pathEnd) { payload ⇒
-            complete {
-              OrderUpdater.addGiftCard(refNum, payload).map(renderGoodOrFailures)
+          pathPrefix("gift-cards") {
+            (post & entity(as[payloads.GiftCardPayment]) & pathEnd) { payload ⇒
+              complete {
+                OrderUpdater.addGiftCard(refNum, payload).map(renderGoodOrFailures)
+              }
+            } ~
+            (delete & path(Segment) & pathEnd) { code ⇒
+              complete {
+                OrderUpdater.deleteGiftCard(refNum, code).map(_.fold(renderFailure(_), _ ⇒ noContentResponse))
+              }
             }
           } ~
           (post & path("store-credit") & entity(as[payloads.StoreCreditPayment]) & pathEnd) { payload ⇒

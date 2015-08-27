@@ -63,6 +63,10 @@ object GiftCardNotFoundFailure {
   def apply(code: String): NotFoundFailure = NotFoundFailure(s"giftCard with code=$code not found")
 }
 
+object OrderPaymentNotFoundFailure {
+  def apply[M](m: M): NotFoundFailure = NotFoundFailure(s"${friendlyClassName(m)} payment not found")
+}
+
 final case class GiftCardNotEnoughBalance(gc: GiftCard, requestedAmount: Int) extends Failure {
   override def description =
     List(s"giftCard has availableBalance=${gc.availableBalance} less than requestedAmount=$requestedAmount")

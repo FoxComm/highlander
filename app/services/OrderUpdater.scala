@@ -248,6 +248,42 @@ object OrderUpdater {
     }
   }
 
+  def deleteCreditCard(refNum: String)
+    (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
+
+    val actions = for {
+      order ← Orders.findCartByRefNum(refNum).result.headOption
+      payments ← order.map { o ⇒
+        OrderPayments.creditCards.filter(_.orderId === o.id).delete
+      }.getOrElse(DBIO.successful(0))
+    } yield (order, payments)
+
+    db.run(actions.transactionally).flatMap {
+      case (None, _)        ⇒ Result.failure(OrderNotFoundFailure(refNum))
+      case (Some(order), 0) ⇒ Result.failure(OrderPaymentNotFoundFailure(CreditCard))
+      case (Some(order), _) ⇒ Result.good({})
+    }
+  }
+
+  def deleteGiftCard(refNum: String, code: String)
+    (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
+
+    val actions = for {
+      order ← Orders.findCartByRefNum(refNum).result.headOption
+      payments ← order.map { o ⇒
+        for {
+          p ← OrderPayments.giftCards.filter(_.orderId === o.id).delete
+        }
+      }.getOrElse(DBIO.successful(0))
+    } yield (order, payments)
+
+    db.run(actions.transactionally).flatMap {
+      case (None, _)        ⇒ Result.failure(OrderNotFoundFailure(refNum))
+      case (Some(order), 0) ⇒ Result.failure(OrderPaymentNotFoundFailure(CreditCard))
+      case (Some(order), _) ⇒ Result.good({})
+    }
+  }
+
   private def createShippingAddressFromPayload(address: Address, order: Order)
     (implicit db: Database, ec: ExecutionContext): Future[Failures Xor responses.Addresses.Root] = {
 

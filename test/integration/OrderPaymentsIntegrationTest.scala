@@ -18,7 +18,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
   import concurrent.ExecutionContext.Implicits.global
 
   "gift cards" - {
-    "when added as a payment method" - {
+    "POST /v1/orders/:ref/payment-methods/gift-cards" - {
       "succeeds" in new GiftCardFixture {
         val payload = payloads.GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance)
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
@@ -75,6 +75,9 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         parseErrors(response) must === (GiftCardIsInactive(giftCard).description)
         giftCardPayments(order) must have size(0)
       }
+    }
+
+    "DELETE /v1/orders/:ref/payment-methods/gift-cards/:code" - {
     }
   }
 
@@ -156,31 +159,31 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
     }
   }
 
-  "deleting a payment" - {
-    "successfully deletes" in new GiftCardFixture {
-      val payload = payloads.GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance)
-      val payment = services.OrderUpdater.addGiftCard(order.referenceNumber, payload).futureValue.get
-
-      val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/${payment.id}")
-      response.status must ===(StatusCodes.NoContent)
-
-      val payments = OrderPayments.findAllByOrderId(order.id).result.run().futureValue
-      payments must have size (0)
-    }
-
-    "fails if the order is not found" in new GiftCardFixture {
-      val response = DELETE(s"v1/orders/ABCAYXADSF/payment-methods/1")
-      response.status must ===(StatusCodes.NotFound)
-    }
-
-    "fails if the payment is not found" in new GiftCardFixture {
-      val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/1")
-      response.status must ===(StatusCodes.NotFound)
-    }
-  }
+//  "deleting a payment" - {
+//    "successfully deletes" in new GiftCardFixture {
+//      val payload = payloads.GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance)
+//      val payment = services.OrderUpdater.addGiftCard(order.referenceNumber, payload).futureValue.get
+//
+//      val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/${payment.id}")
+//      response.status must ===(StatusCodes.NoContent)
+//
+//      val payments = OrderPayments.findAllByOrderId(order.id).result.run().futureValue
+//      payments must have size (0)
+//    }
+//
+//    "fails if the order is not found" in new GiftCardFixture {
+//      val response = DELETE(s"v1/orders/ABCAYXADSF/payment-methods/1")
+//      response.status must ===(StatusCodes.NotFound)
+//    }
+//
+//    "fails if the payment is not found" in new GiftCardFixture {
+//      val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/1")
+//      response.status must ===(StatusCodes.NotFound)
+//    }
+//  }
 
   "credit cards" - {
-    "when added as a payment method" - {
+    "POST /v1/orders/:ref/payment-methods/credit-cards" - {
       "succeeds" in new CreditCardFixture {
         val payload = payloads.CreditCardPayment(creditCard.id)
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards", payload)
@@ -229,7 +232,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       }
     }
 
-    "when edited" - {
+    "PATCH /v1/orders/:ref/payment-methods/credit-cards" - {
       "successfully replaces an existing card" in new CreditCardFixture {
         val first = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards",
           payloads.CreditCardPayment(creditCard.id))
@@ -246,6 +249,35 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       }
     }
 
+    "DELETE /v1/orders/:ref/payment-methods/credit-cards" - {
+      "successfully deletes an existing card" in new CreditCardFixture {
+        val create = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards",
+          payloads.CreditCardPayment(creditCard.id))
+        create.status must ===(StatusCodes.OK)
+
+        val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards")
+        val payments = creditCardPayments(order)
+
+        payments must have size (0)
+      }
+
+      "fails if the order is not found" in new CreditCardFixture {
+        val payload = payloads.CreditCardPayment(creditCard.id)
+        val response = POST(s"v1/orders/99/payment-methods/credit-cards", payload)
+
+        response.status must === (StatusCodes.NotFound)
+        parseErrors(response) must === (OrderNotFoundFailure("99").description)
+        creditCardPayments(order) must have size(0)
+      }
+
+      "fails if there is no creditCard payment" in new CreditCardFixture {
+        val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards")
+        val payments = creditCardPayments(order)
+
+        response.status must ===(StatusCodes.NotFound)
+        payments must have size (0)
+      }
+    }
   }
 
   def paymentsFor(order: Order, pmt: PaymentMethod.Type): Seq[OrderPayment] = {
