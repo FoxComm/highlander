@@ -207,36 +207,31 @@ object Admin {
                   Future.successful(notFoundResponse)
                 case Some(order)  ⇒
                   OrderUpdater.deletePayment(order, paymentId).map { res ⇒
-                    res.fold(renderNotFoundFailure, _ ⇒ noContentResponse)
+                    res.fold(renderFailure(_), _ ⇒ noContentResponse)
                   }
               }
             }
           } ~
-          (post & path("credit-cards") & entity(as[payloads.CreditCardPayment]) & pathEnd) { payload ⇒
-            complete {
-              OrderUpdater.addCreditCard(refNum, payload.creditCardId).map {
-                case Xor.Left(NotFoundFailure(f)) ⇒ renderNotFoundFailure(NotFoundFailure(f))
-                case Xor.Left(f)                  ⇒ renderFailure(Seq(f))
-                case Xor.Right(orderPayment)      ⇒ render(orderPayment)
+          pathPrefix("credit-cards") {
+            (post & entity(as[payloads.CreditCardPayment]) & pathEnd) { payload ⇒
+              complete {
+                OrderUpdater.addCreditCard(refNum, payload.creditCardId).map(renderGoodOrFailures)
+              }
+            } ~
+            (patch & entity(as[payloads.CreditCardPayment]) & pathEnd) { payload ⇒
+              complete {
+                OrderUpdater.addCreditCard(refNum, payload.creditCardId).map(renderGoodOrFailures)
               }
             }
           } ~
           (post & path("gift-cards") & entity(as[payloads.GiftCardPayment]) & pathEnd) { payload ⇒
             complete {
-              OrderUpdater.addGiftCard(refNum, payload).map {
-                case Xor.Left(NotFoundFailure(f)) ⇒ renderNotFoundFailure(NotFoundFailure(f))
-                case Xor.Left(f)                  ⇒ renderFailure(Seq(f))
-                case Xor.Right(orderPayment)      ⇒ render(orderPayment)
-              }
+              OrderUpdater.addGiftCard(refNum, payload).map(renderGoodOrFailures)
             }
           } ~
           (post & path("store-credit") & entity(as[payloads.StoreCreditPayment]) & pathEnd) { payload ⇒
             complete {
-              OrderUpdater.addStoreCredit(refNum, payload).map {
-                case Xor.Left(NotFoundFailure(f)) ⇒ renderNotFoundFailure(NotFoundFailure(f))
-                case Xor.Left(f)                  ⇒ renderFailure(Seq(f))
-                case Xor.Right(orderPayment)      ⇒ render(orderPayment)
-              }
+              OrderUpdater.addStoreCredit(refNum, payload).map(renderGoodOrFailures)
             }
           }
         } ~

@@ -160,29 +160,29 @@ object OrderUpdater {
   }
 
   def addGiftCard(refNum: String, payload: GiftCardPayment)
-    (implicit ec: ExecutionContext, db: Database): Future[Failure Xor OrderPayment] = {
+    (implicit ec: ExecutionContext, db: Database): Result[OrderPayment] = {
     db.run(for {
       order ← Orders.findCartByRefNum(refNum).result.headOption
       giftCard ← GiftCards.findByCode(payload.code).result.headOption
     } yield (order, giftCard)).flatMap {
       case (Some(order), Some(giftCard)) ⇒
         if (!giftCard.isActive) {
-          Future.successful(Xor.left(GiftCardIsInactive(giftCard)))
+          Result.left(GiftCardIsInactive(giftCard))
         } else if (giftCard.hasAvailable(payload.amount)) {
           val payment = OrderPayment.build(giftCard).copy(orderId = order.id, amount = Some(payload.amount))
           OrderPayments.save(payment).run().map(Xor.right)
         } else {
-          Future.successful(Xor.left(GiftCardNotEnoughBalance(giftCard, payload.amount)))
+          Result.left(GiftCardNotEnoughBalance(giftCard, payload.amount))
         }
       case (None, _) ⇒
-        Future.successful(Xor.left(OrderNotFoundFailure(refNum)))
+        Result.left(OrderNotFoundFailure(refNum))
       case (_, None) ⇒
-        Future.successful(Xor.left(GiftCardNotFoundFailure(payload.code)))
+        Result.left(GiftCardNotFoundFailure(payload.code))
     }
   }
 
   def addStoreCredit(refNum: String, payload: StoreCreditPayment)
-    (implicit ec: ExecutionContext, db: Database): Future[Failure Xor Seq[OrderPayment]] = {
+    (implicit ec: ExecutionContext, db: Database): Result[Seq[OrderPayment]] = {
     db.run(for {
       order ← Orders.findCartByRefNum(refNum).result.headOption
       storeCredits ← order.map { o ⇒
@@ -194,7 +194,7 @@ object OrderUpdater {
 
         if (available < payload.amount) {
           val error = CustomerHasInsufficientStoreCredit(id = order.customerId, has = available, want = payload.amount)
-          Future.successful(Xor.left(error))
+          Result.left(error)
         } else {
           val payments = StoreCredit.processFifo(storeCredits.toList, payload.amount).map { case (sc, amount) ⇒
             OrderPayment.build(sc).copy(orderId = order.id, amount = Some(amount))
@@ -204,25 +204,25 @@ object OrderUpdater {
         }
 
       case (None, _) ⇒
-        Future.successful(Xor.left(OrderNotFoundFailure(refNum)))
+        Result.left(OrderNotFoundFailure(refNum))
     }
   }
 
   def deletePayment(order: Order, paymentId: Int)
-    (implicit ec: ExecutionContext, db: Database): Future[NotFoundFailure Xor Int] = {
+    (implicit ec: ExecutionContext, db: Database): Result[Int] = {
     db.run(OrderPayments.findAllByOrderId(order.id)
       .filter(_.paymentMethodId === paymentId)
-      .delete).map { rowsAffected ⇒
+      .delete).flatMap { rowsAffected ⇒
       if (rowsAffected == 1) {
-        Xor.right(1)
+        Result.right(1)
       } else {
-        Xor.left(NotFoundFailure(s"order payment method with id=$paymentId not found"))
+        Result.left(NotFoundFailure(s"order payment method with id=$paymentId not found"))
       }
     }
   }
 
   def addCreditCard(refNum: String, id: Int)
-    (implicit ec: ExecutionContext, db: Database): Future[Failure Xor OrderPayment] = {
+    (implicit ec: ExecutionContext, db: Database): Result[OrderPayment] = {
     db.run(for {
       order ← Orders.findCartByRefNum(refNum).result.headOption
       creditCard ← CreditCards._findById(id).result.headOption
@@ -235,14 +235,14 @@ object OrderUpdater {
           val payment = OrderPayment.build(creditCard).copy(orderId = order.id, amount = None)
           OrderPayments.save(payment).run().map(Xor.right)
         } else if (numCards > 0) {
-          Future.successful(Xor.left(CartAlreadyHasCreditCard(order)))
+          Result.left(CartAlreadyHasCreditCard(order))
         } else {
-          Future.successful(Xor.left(CannotUseInactiveCreditCard(creditCard)))
+          Result.left(CannotUseInactiveCreditCard(creditCard))
         }
       case (None, _, _) ⇒
-        Future.successful(Xor.left(OrderNotFoundFailure(refNum)))
+        Result.left(OrderNotFoundFailure(refNum))
       case (_, None, _) ⇒
-        Future.successful(Xor.left(NotFoundFailure(CreditCard, id)))
+        Result.left(NotFoundFailure(CreditCard, id))
     }
   }
 
