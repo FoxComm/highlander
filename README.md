@@ -6,6 +6,10 @@
 
 * iojs
 
+2.5.0 is required version for Ashes. 
+Newer version is incompatible with current version of project due to dependencies used.
+To install 2.5.0 version you can use [nvm](https://github.com/creationix/nvm) or [n](https://github.com/tj/n) node version manager.
+
 ### Install npm modules
 
 ```
