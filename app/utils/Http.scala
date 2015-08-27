@@ -16,8 +16,8 @@ import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 object Http {
   import utils.JsonFormatters._
 
-  implicit val serialization = jackson.Serialization
-  implicit val formats = phoenixFormats
+  implicit lazy val serialization = jackson.Serialization
+  implicit lazy val formats = phoenixFormats
 
   val notFoundResponse:   HttpResponse  = HttpResponse(NotFound)
   val noContentResponse:  HttpResponse  = HttpResponse(NoContent)
