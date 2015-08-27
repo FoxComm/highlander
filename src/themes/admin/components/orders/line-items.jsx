@@ -9,12 +9,14 @@ export default class OrderLineItems extends React.Component {
     let order = this.props.order;
 
     return (
-      <section id="order-line-items">
+      <section className="contentBox" id="order-line-items">
         <header>Items</header>
-        <table className="fc-table">
-          <TableHead columns={this.props.tableColumns}/>
-          <TableBody columns={this.props.tableColumns} rows={order.lineItems} model='order'/>
-        </table>
+        <div className="contentBox-body">
+          <table className="fc-table">
+            <TableHead columns={this.props.tableColumns}/>
+            <TableBody columns={this.props.tableColumns} rows={order.lineItems} model='order'/>
+          </table>
+        </div>
       </section>
     );
   }
