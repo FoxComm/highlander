@@ -10,7 +10,6 @@ const editEvent = 'toggle-order-edit';
 export default class RemorseTimer extends React.Component {
   constructor(props) {
     super(props);
-    this.onToggleOrderEdit = this.onToggleOrderEdit.bind(this);
     this.state = {
       endDate: props.endDate,
       frozen: false
