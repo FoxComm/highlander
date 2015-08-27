@@ -6,7 +6,8 @@ import org.joda.time.DateTime
 import org.postgresql.ds.PGSimpleDataSource
 import slick.dbio
 import slick.dbio.Effect.{All, Write}
-import slick.driver.PostgresDriver.api._
+//import slick.driver.PostgresDriver.api._
+import utils.ExPostgresDriver.api._
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -158,9 +159,12 @@ object Seeds {
     def giftCardManual = GiftCardManual(adminId = 0, reasonId = 0)
 
     def shippingMethods = Seq(
-      ShippingMethod(adminDisplayName = "UPS Ground", storefrontDisplayName = "UPS Ground", defaultPrice = 10, isActive = true),
-      ShippingMethod(adminDisplayName = "UPS Next day", storefrontDisplayName = "UPS Next day", defaultPrice = 20, isActive = true),
-      ShippingMethod(adminDisplayName = "DHL Express", storefrontDisplayName = "DHL Express", defaultPrice = 25, isActive = true)
+      ShippingMethod(adminDisplayName = "UPS Ground", storefrontDisplayName = "UPS Ground", defaultPrice = 10,
+        isActive = true),
+      ShippingMethod(adminDisplayName = "UPS Next day", storefrontDisplayName = "UPS Next day", defaultPrice = 20,
+        isActive = true),
+      ShippingMethod(adminDisplayName = "DHL Express", storefrontDisplayName = "DHL Express", defaultPrice = 25,
+        isActive = true)
     )
 
     def shippingPriceRules = Seq(
