@@ -1,10 +1,14 @@
 'use strict';
 
 module.exports = function (app, router) {
-  const State = app.seeds.models.State;
+  const Country = app.seeds.models.Country;
+  const Region = app.seeds.models.Region;
 
   router
-    .get('/states', function *() {
-      this.body = State.paginate(50, 1);
+    .get('/countries', function *() {
+      this.body = Country.paginate(50, 1);
+    })
+    .get('/countries/:id', function *() {
+      this.body = Region.paginate(50, 1);
     });
 };
