@@ -1,9 +1,8 @@
 'use strict';
 
-const
-  BaseModel = require('../lib/base-model'),
-  Order = require('./order'),
-  errors = require('../../errors');
+const BaseModel = require('../lib/base-model');
+const Order = require('./order');
+const errors = require('../../errors');
 
 const seed = [
   {field: 'referenceNumber', method: 'string', opts: {length: 8, pool: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'}},
@@ -15,7 +14,6 @@ const seed = [
 ];
 
 class Return extends BaseModel {
-
   static findByIdOrRef(id) {
     let results = this.data.filter(function(item) {
       return item.id === +id || item.referenceNumber === id;
