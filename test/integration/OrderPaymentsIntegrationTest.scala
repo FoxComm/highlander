@@ -118,8 +118,8 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
   }
 
   "store credit" - {
-    "when added as a payment method" - {
-      "successfully" - {
+    "POST /v1/orders/:ref/payment-methods/store-credit" - {
+      "when successful" - {
         "uses store credit records in FIFO order according to createdAt" in new StoreCreditFixture {
           // ensure 3 & 4 are oldest so 5th should not be used
           StoreCredits.filter(_.id === 3).map(_.createdAt).update(DateTime.now().minusMonths(2)).run().futureValue
@@ -130,10 +130,10 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
           val payments = storeCreditPayments(order)
 
           response.status must ===(StatusCodes.OK)
-          payments must have size(2)
+          payments must have size (2)
 
           val expected = payments.sortBy(_.paymentMethodId).map(p ⇒ (p.paymentMethodId, p.amount)).toList
-          expected must === (List((3, Some(50)), (4, Some(25))))
+          expected must ===(List((3, Some(50)), (4, Some(25))))
         }
 
         "only uses active store credit" in new StoreCreditFixture {
@@ -146,51 +146,63 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
           response.status must ===(StatusCodes.OK)
           val payments = storeCreditPayments(order)
-          payments.map(_.paymentMethodId) must contain noneOf (1,2)
-          payments must have size(2)
+          payments.map(_.paymentMethodId) must contain noneOf(1, 2)
+          payments must have size (2)
         }
       }
 
-      "fails" - {
-        "if the order is not found" in new Fixture {
-          val notFound = order.copy(referenceNumber = "ABC123")
-          val payload = payloads.StoreCreditPayment(amount = 50)
-          val response = POST(s"v1/orders/${notFound.refNum}/payment-methods/store-credit", payload)
+      "fails if the order is not found" in new Fixture {
+        val notFound = order.copy(referenceNumber = "ABC123")
+        val payload = payloads.StoreCreditPayment(amount = 50)
+        val response = POST(s"v1/orders/${notFound.refNum}/payment-methods/store-credit", payload)
 
-          response.status must ===(StatusCodes.NotFound)
-          parseErrors(response) must ===(OrderNotFoundFailure(notFound).description)
-          storeCreditPayments(order) must have size(0)
-        }
+        response.status must ===(StatusCodes.NotFound)
+        parseErrors(response) must ===(OrderNotFoundFailure(notFound).description)
+        storeCreditPayments(order) must have size (0)
+      }
 
-        "if the customer has no active store credit" in new Fixture {
-          val payload = payloads.StoreCreditPayment(amount = 50)
-          val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
+      "fails if the customer has no active store credit" in new Fixture {
+        val payload = payloads.StoreCreditPayment(amount = 50)
+        val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
 
-          response.status must ===(StatusCodes.BadRequest)
-          val error = CustomerHasInsufficientStoreCredit(customer.id, 0, 50).description
-          parseErrors(response) must ===(error)
-          storeCreditPayments(order) must have size(0)
-        }
+        response.status must ===(StatusCodes.BadRequest)
+        val error = CustomerHasInsufficientStoreCredit(customer.id, 0, 50).description
+        parseErrors(response) must ===(error)
+        storeCreditPayments(order) must have size (0)
+      }
 
-        "if the customer has insufficient available store credit" in new StoreCreditFixture {
-          val payload = payloads.StoreCreditPayment(amount = 251)
-          val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
+      "fails if the customer has insufficient available store credit" in new StoreCreditFixture {
+        val payload = payloads.StoreCreditPayment(amount = 251)
+        val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
 
-          response.status must ===(StatusCodes.BadRequest)
-          val has = storeCredits.map(_.availableBalance).sum
-          val error = CustomerHasInsufficientStoreCredit(customer.id, has, payload.amount).description
-          parseErrors(response) must ===(error)
-          storeCreditPayments(order) must have size(0)
-        }
+        response.status must ===(StatusCodes.BadRequest)
+        val has = storeCredits.map(_.availableBalance).sum
+        val error = CustomerHasInsufficientStoreCredit(customer.id, has, payload.amount).description
+        parseErrors(response) must ===(error)
+        storeCreditPayments(order) must have size (0)
+      }
 
-        "fails if the order is not in cart status" in new StoreCreditFixture {
-          Orders.findCartByRefNum(order.referenceNumber).map(_.status).update(Order.RemorseHold).run().futureValue
-          val payload = payloads.StoreCreditPayment(amount = 50)
-          val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
+      "fails if the order is not in cart status" in new StoreCreditFixture {
+        Orders.findCartByRefNum(order.referenceNumber).map(_.status).update(Order.RemorseHold).run().futureValue
+        val payload = payloads.StoreCreditPayment(amount = 50)
+        val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
 
-          response.status must === (StatusCodes.NotFound)
-          storeCreditPayments(order) must have size(0)
-        }
+        response.status must ===(StatusCodes.NotFound)
+        storeCreditPayments(order) must have size (0)
+      }
+    }
+
+    "DELETE /v1/orders/:ref/payment-methods/store-credit" - {
+      "successfully deletes all store credit payments" in new StoreCreditFixture {
+        val payload = payloads.StoreCreditPayment(amount = 75)
+        val create = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
+
+        create.status must ===(StatusCodes.NoContent)
+
+        val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/store-credit")
+
+        response.status must ===(StatusCodes.NoContent)
+        storeCreditPayments(order) must have size (0)
       }
     }
   }

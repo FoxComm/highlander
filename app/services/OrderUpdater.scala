@@ -237,19 +237,25 @@ object OrderUpdater {
     }
   }
 
-  def deleteCreditCard(refNum: String)
+  def deleteCreditCard(refNum: String)(implicit ec: ExecutionContext, db: Database): Result[Unit] =
+    deleteCreditCardOrStoreCredit(refNum, PaymentMethod.CreditCard)
+
+  def deleteStoreCredit(refNum: String)(implicit ec: ExecutionContext, db: Database): Result[Unit] =
+    deleteCreditCardOrStoreCredit(refNum, PaymentMethod.StoreCredit)
+
+  private def deleteCreditCardOrStoreCredit(refNum: String, pmt: PaymentMethod.Type)
     (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
 
     val actions = for {
       order ← Orders.findCartByRefNum(refNum).result.headOption
       payments ← order.map { o ⇒
-        OrderPayments.creditCards.filter(_.orderId === o.id).delete
+        OrderPayments.byType(pmt).filter(_.orderId === o.id).delete
       }.getOrElse(DBIO.successful(0))
     } yield (order, payments)
 
     db.run(actions.transactionally).flatMap {
       case (None, _)        ⇒ Result.failure(OrderNotFoundFailure(refNum))
-      case (Some(order), 0) ⇒ Result.failure(OrderPaymentNotFoundFailure(CreditCard))
+      case (Some(order), 0) ⇒ Result.failure(OrderPaymentNotFoundFailure(pmt))
       case (Some(order), _) ⇒ Result.good({})
     }
   }

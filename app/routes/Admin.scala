@@ -213,7 +213,7 @@ object Admin {
             } ~
             (delete & pathEnd) {
               complete {
-                OrderUpdater.deleteCreditCard(refNum).map(_.fold(renderFailure(_), _ ⇒ noContentResponse))
+                OrderUpdater.deleteCreditCard(refNum).map(renderNothingOrFailures)
               }
             }
           } ~
@@ -225,13 +225,20 @@ object Admin {
             } ~
             (delete & path(Segment) & pathEnd) { code ⇒
               complete {
-                OrderUpdater.deleteGiftCard(refNum, code).map(_.fold(renderFailure(_), _ ⇒ noContentResponse))
+                OrderUpdater.deleteGiftCard(refNum, code).map(renderNothingOrFailures)
               }
             }
           } ~
-          (post & path("store-credit") & entity(as[payloads.StoreCreditPayment]) & pathEnd) { payload ⇒
-            complete {
-              OrderUpdater.addStoreCredit(refNum, payload).map(renderGoodOrFailures)
+          pathPrefix("store-credit") {
+            (post & entity(as[payloads.StoreCreditPayment]) & pathEnd) { payload ⇒
+              complete {
+                OrderUpdater.addStoreCredit(refNum, payload).map(renderGoodOrFailures)
+              }
+            } ~
+            (delete & pathEnd) {
+              complete {
+                OrderUpdater.deleteStoreCredit(refNum).map(renderNothingOrFailures)
+              }
             }
           }
         } ~
