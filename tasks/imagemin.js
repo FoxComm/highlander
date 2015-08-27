@@ -20,4 +20,8 @@ module.exports = function(gulp, opts, $) {
 
     return merge(tasks);
   });
-}
+
+  gulp.task('imagemin.watch', function() {
+    gulp.watch(opts.imageSrc, ['imagemin']);
+  });
+};
