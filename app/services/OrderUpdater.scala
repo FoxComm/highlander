@@ -162,7 +162,7 @@ object OrderUpdater {
   }
 
   def addGiftCard(refNum: String, payload: GiftCardPayment)
-    (implicit ec: ExecutionContext, db: Database): Result[OrderPayment] = {
+    (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
     db.run(for {
       order ← Orders.findCartByRefNum(refNum).result.headOption
       giftCard ← GiftCards.findByCode(payload.code).result.headOption
@@ -172,7 +172,7 @@ object OrderUpdater {
           Result.left(GiftCardIsInactive(giftCard))
         } else if (giftCard.hasAvailable(payload.amount)) {
           val payment = OrderPayment.build(giftCard).copy(orderId = order.id, amount = Some(payload.amount))
-          OrderPayments.save(payment).run().map(Xor.right)
+          OrderPayments.save(payment).run().map(_ ⇒ Xor.right({}))
         } else {
           Result.left(GiftCardNotEnoughBalance(giftCard, payload.amount))
         }
@@ -184,7 +184,7 @@ object OrderUpdater {
   }
 
   def addStoreCredit(refNum: String, payload: StoreCreditPayment)
-    (implicit ec: ExecutionContext, db: Database): Result[Seq[OrderPayment]] = {
+    (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
     db.run(for {
       order ← Orders.findCartByRefNum(refNum).result.headOption
       storeCredits ← order.map { o ⇒
@@ -202,7 +202,7 @@ object OrderUpdater {
             OrderPayment.build(sc).copy(orderId = order.id, amount = Some(amount))
           }
 
-          db.run(OrderPayments ++= payments).map { _ ⇒ Xor.right(payments.toSeq) }
+          db.run(OrderPayments ++= payments).map(_ ⇒ Xor.right({}))
         }
 
       case (None, _) ⇒
@@ -211,7 +211,7 @@ object OrderUpdater {
   }
 
   def addCreditCard(refNum: String, id: Int)
-    (implicit ec: ExecutionContext, db: Database): Result[OrderPayment] = {
+    (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
     val actions = for {
       order ← Orders.findCartByRefNum(refNum).result.headOption
       creditCard ← CreditCards._findById(id).result.headOption
@@ -224,7 +224,7 @@ object OrderUpdater {
           val delete = OrderPayments.creditCards.filter(_.orderId === order.id).delete
           val replaceOrCreate = OrderPayments.save(payment)
 
-          (delete >> replaceOrCreate).transactionally.run().map(Xor.right)
+          (delete >> replaceOrCreate).transactionally.run().map(_ ⇒ Xor.right({}))
         } else {
           Result.left(CannotUseInactiveCreditCard(creditCard))
         }

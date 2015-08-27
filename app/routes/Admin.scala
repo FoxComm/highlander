@@ -203,12 +203,12 @@ object Admin {
           pathPrefix("credit-cards") {
             (post & entity(as[payloads.CreditCardPayment]) & pathEnd) { payload ⇒
               complete {
-                OrderUpdater.addCreditCard(refNum, payload.creditCardId).map(renderGoodOrFailures)
+                OrderUpdater.addCreditCard(refNum, payload.creditCardId).map(renderNothingOrFailures)
               }
             } ~
             (patch & entity(as[payloads.CreditCardPayment]) & pathEnd) { payload ⇒
               complete {
-                OrderUpdater.addCreditCard(refNum, payload.creditCardId).map(renderGoodOrFailures)
+                OrderUpdater.addCreditCard(refNum, payload.creditCardId).map(renderNothingOrFailures)
               }
             } ~
             (delete & pathEnd) {
@@ -220,7 +220,7 @@ object Admin {
           pathPrefix("gift-cards") {
             (post & entity(as[payloads.GiftCardPayment]) & pathEnd) { payload ⇒
               complete {
-                OrderUpdater.addGiftCard(refNum, payload).map(renderGoodOrFailures)
+                OrderUpdater.addGiftCard(refNum, payload).map(renderNothingOrFailures)
               }
             } ~
             (delete & path(Segment) & pathEnd) { code ⇒
@@ -232,7 +232,7 @@ object Admin {
           pathPrefix("store-credit") {
             (post & entity(as[payloads.StoreCreditPayment]) & pathEnd) { payload ⇒
               complete {
-                OrderUpdater.addStoreCredit(refNum, payload).map(renderGoodOrFailures)
+                OrderUpdater.addStoreCredit(refNum, payload).map(renderNothingOrFailures)
               }
             } ~
             (delete & pathEnd) {
