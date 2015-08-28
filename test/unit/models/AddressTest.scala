@@ -11,8 +11,8 @@ class AddressTest extends TestBase {
       val valid = Address(id = 0, customerId = 1, regionId = Country.unitedStatesId, name = "Yax Home",
         street1 = "555 E Lake Union St.", street2 = None, city = "Seattle", zip = "12345", phoneNumber = None)
 
-      "returns errors when zip is 1 digit char" in {
-        val badZip = valid.copy(zip = "AB123")
+      "returns errors when zip is invalid" in {
+        val badZip = valid.copy(zip = "AB+123")
         val wrongLengthZip = valid.copy(zip = "1")
 
         val addresses = Table(

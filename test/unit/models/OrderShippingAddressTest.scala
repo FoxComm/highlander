@@ -8,8 +8,8 @@ class OrderShippingAddressTest extends TestBase {
 
   "OrderShippingAddress" - {
     ".validate" - {
-      "returns errors when zip is not 1 digit char" in {
-        val badZip = Factories.shippingAddress.copy(zip = "AB123")
+      "returns errors when zip is invalid" in {
+        val badZip = Factories.shippingAddress.copy(zip = "AB+123")
         val wrongLengthZip = Factories.shippingAddress.copy(zip = "1")
 
         val addresses = Table(

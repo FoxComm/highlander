@@ -6,7 +6,7 @@ create table addresses (
     street1 character varying(255) not null,
     street2 character varying(255) null,
     city character varying(255) not null,
-    zip character (10) not null,
+    zip character varying(12) not null,
     is_default_shipping boolean default false not null,
     phone_number character varying(15) null,
     created_at timestamp without time zone default (now() at time zone 'utc'),
