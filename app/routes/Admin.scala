@@ -86,46 +86,33 @@ object Admin {
             }
           }
         } ~
-        pathPrefix("payment-methods") {
-          pathPrefix("credit-cards") {
-            (get & pathEnd) {
-              complete { CustomerManager.creditCardsInWalletFor(customerId).map(render(_)) }
-            } ~
-            (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultCreditCard])) { (cardId, payload) ⇒
-              complete {
-                val result = CustomerManager.toggleCreditCardDefault(customerId, cardId, payload.isDefault)
-                result.map(renderGoodOrFailures)
-              }
-            } ~
-            (delete & path(IntNumber) & pathEnd) { cardId ⇒
-              complete {
-                CustomerManager.deleteCreditCard(customerId = customerId, id = cardId).map {
-                  case Xor.Right(_) ⇒
-                    noContentResponse
-                  case Xor.Left(NotFoundFailure(f) :: _) ⇒
-                    renderNotFoundFailure(NotFoundFailure(f))
-                  case Xor.Left(xs) ⇒
-                    renderFailure(xs)
-                }
-              }
+        pathPrefix("payment-methods" / "credit-cards") {
+          (get & pathEnd) {
+            complete { CustomerManager.creditCardsInWalletFor(customerId).map(render(_)) }
+          } ~
+          (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultCreditCard])) { (cardId, payload) ⇒
+            complete {
+              val result = CustomerManager.toggleCreditCardDefault(customerId, cardId, payload.isDefault)
+              result.map(renderGoodOrFailures)
             }
           } ~
-          pathPrefix("store-credit") {
-            (get & pathEnd) {
-              complete {
-                renderOrNotFound(StoreCredits.findAllByCustomerId(customerId).map(Some(_)))
-              }
-            } ~
-            (get & path(IntNumber)) { storeCreditId ⇒
-              complete {
-                renderOrNotFound(StoreCredits.findById(storeCreditId).run())
-              }
-            } ~
-            (post & path(IntNumber / "convert")) { storeCreditId ⇒
-              complete {
-                whenFoundDispatchToService(StoreCredits.findById(storeCreditId).run()) { sc ⇒
-                  CustomerCreditConverter.toGiftCard(sc, customerId)
-                }
+          (delete & path(IntNumber) & pathEnd) { cardId ⇒
+            complete {
+              CustomerManager.deleteCreditCard(customerId = customerId, id = cardId).map(renderNothingOrFailures)
+            }
+          }
+        } ~
+        pathPrefix("payment-methods" / "store-credit") {
+          (get & pathEnd) {
+            complete { StoreCredits.findAllByCustomerId(customerId).map(render(_)) }
+          } ~
+          (get & path(IntNumber)) { storeCreditId ⇒
+            complete { StoreCredits.findById(storeCreditId).run().map(renderOrNotFound(_)) }
+          } ~
+          (post & path(IntNumber / "convert")) { storeCreditId ⇒
+            complete {
+              whenFoundDispatchToService(StoreCredits.findById(storeCreditId).run()) { sc ⇒
+                CustomerCreditConverter.toGiftCard(sc, customerId)
               }
             }
           }
