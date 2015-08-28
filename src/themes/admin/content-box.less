@@ -9,11 +9,16 @@
     > header {
         .padding(0 10px 0 20px);
         background-color: @color-decor12;
+        border-bottom: 1px solid @color-decor9;
 
         .font-spec(18px, 600, 24px);
         .height(60px);
         display: flex;
         align-items: center;
+    }
+
+    > .fc-table {
+        border: 0;
     }
 
     thead tr:first-child th {
@@ -23,5 +28,14 @@
     > article {
         .padding(20px);
         .padding-bottom(30px);
+    }
+
+    .highlighted {
+        background-color: @color-decor3;
+        color: @color-white;
+        .font-spec(17px, 700, 50px);
+        .padding(0, 20px);
+        margin: 0 -1px -1px -1px;
+        border-radius: 0 0 3px 3px;
     }
 }
