@@ -7,7 +7,7 @@ create table order_shipping_addresses (
     street2 character varying(255) null,
     city character varying(255) not null,
     zip character varying(12) not null,
-    phone_number character varying(12) null,
+    phone_number character varying(15) null,
     created_at timestamp without time zone default (now() at time zone 'utc'),
     updated_at timestamp without time zone default (now() at time zone 'utc'),
     deleted_at timestamp without time zone null,
