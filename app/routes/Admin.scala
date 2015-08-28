@@ -101,7 +101,7 @@ object Admin {
             } ~
             (delete & path(IntNumber) & pathEnd) { cardId ⇒
               complete {
-                CustomerManager.deleteCreditCard(customerId = customerId, adminId = admin.id, id = cardId).map {
+                CustomerManager.deleteCreditCard(customerId = customerId, id = cardId).map {
                   case Xor.Right(_) ⇒
                     noContentResponse
                   case Xor.Left(NotFoundFailure(f) :: _) ⇒

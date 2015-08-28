@@ -16,9 +16,9 @@ import utils._
 import validators._
 import services.Result
 
-final case class CreditCard(id: Int = 0, customerId: Int, billingAddressId: Int = 0, gatewayCustomerId: String,
-  lastFour: String, expMonth: Int, expYear: Int, isDefault: Boolean = false,
-  deletedAt: Option[DateTime] = None, deletedBy: Option[Int] = None)
+final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerId: Int, billingAddressId: Int = 0,
+  gatewayCustomerId: String, lastFour: String, expMonth: Int, expYear: Int, isDefault: Boolean = false,
+  inWallet: Boolean = true, deletedAt: Option[DateTime] = None)
   extends PaymentMethod
   with ModelWithIdParameter
   with Validation[CreditCard] {
@@ -33,7 +33,7 @@ final case class CreditCard(id: Int = 0, customerId: Int, billingAddressId: Int 
     cc.expYear as "credit card" is withinTwentyYears(year = cc.expYear, month = cc.expMonth)
   }
 
-  def isActive: Boolean = deletedAt.isEmpty
+  def isActive: Boolean = deletedAt.isEmpty && inWallet
 }
 
 object CreditCard {
@@ -48,6 +48,7 @@ class CreditCards(tag: Tag)
   with RichTable {
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def parentId = column[Option[Int]]("parent_id")
   def customerId = column[Int]("customer_id")
   def billingAddressId = column[Int]("billing_address_id")
   def gatewayCustomerId = column[String]("gateway_customer_id")
@@ -55,11 +56,12 @@ class CreditCards(tag: Tag)
   def expMonth = column[Int]("exp_month")
   def expYear = column[Int]("exp_year")
   def isDefault = column[Boolean]("is_default")
+  def inWallet = column[Boolean]("in_wallet")
   def deletedAt = column[Option[DateTime]]("deleted_at")
-  def deletedBy = column[Option[Int]]("deleted_by")
 
-  def * = (id, customerId, billingAddressId, gatewayCustomerId,
-    lastFour, expMonth, expYear, isDefault, deletedAt, deletedBy) <> ((CreditCard.apply _).tupled, CreditCard.unapply)
+  def * = (id, parentId, customerId, billingAddressId, gatewayCustomerId,
+    lastFour, expMonth, expYear, isDefault, inWallet, deletedAt) <> ((CreditCard.apply _).tupled, CreditCard
+    .unapply)
 
   def customer        = foreignKey(Customers.tableName, customerId, Customers)(_.id)
   def billingAddress  = foreignKey(Addresses.tableName, billingAddressId, Addresses)(_.id)

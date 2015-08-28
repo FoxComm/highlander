@@ -73,8 +73,11 @@ class CustomerIntegrationTest extends IntegrationTestBase
           val creditCard = CreditCards.save(Factories.creditCard.copy(customerId = customer.id,
             billingAddressId = address.id)).run().futureValue
           val response = DELETE(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}")
+          val deleted = CreditCards.findById(creditCard.id).futureValue.get
 
           response.status must ===(StatusCodes.NoContent)
+          deleted.inWallet must === (false)
+          deleted.deletedAt mustBe 'defined
         }
 
         "fails if the card cannot be found" in new Fixture {

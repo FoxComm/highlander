@@ -12,6 +12,7 @@ import utils.Slick.UpdateReturning._
 import utils.jdbc.{RecordNotUnique, withUniqueConstraint}
 
 import cats.data.Xor
+import cats.data.Xor.{left, right}
 
 object CustomerManager {
   def toggleDisabled(customerId: Int, disabled: Boolean, admin: StoreAdmin)
@@ -40,17 +41,19 @@ object CustomerManager {
     }
   }
 
-  def deleteCreditCard(customerId: Int, adminId: Int, id: Int)
-    (implicit ec: ExecutionContext, db: Database): Result[Int] = {
+  def deleteCreditCard(customerId: Int, id: Int)
+    (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
 
-    db.run(CreditCards._findById(id).extract
+    val updateCc = CreditCards._findById(id).extract
       .filter(_.customerId === customerId)
-      .map { cc ⇒ (cc.isDefault, cc.deletedAt, cc.deletedBy) }
-      .update((false, Some(DateTime.now()), Some(adminId)))
-    ).flatMap {
-      case 1 ⇒ Result.good(1)
-      case _ ⇒ Result.failure(NotFoundFailure(CreditCard, id))
-    }
+      .map { cc ⇒ (cc.inWallet, cc.deletedAt) }
+      .update((false, Some(DateTime.now())))
+
+    db.run(updateCc.map { rows ⇒
+      if (rows == 1) right({}) else left(creditCardNotFound(id))
+    })
   }
+
+  private def creditCardNotFound(id: Int)     = NotFoundFailure(CreditCard, id).single
 }
 
