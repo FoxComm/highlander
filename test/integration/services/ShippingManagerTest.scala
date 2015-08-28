@@ -5,6 +5,7 @@ import org.scalactic.{Bad, Good}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils._
+import utils.ExPostgresDriver.jsonMethods._
 
 class ShippingManagerTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global
@@ -14,17 +15,17 @@ class ShippingManagerTest extends IntegrationTestBase {
     "Evaluates rule: shipped to CA, OR, or WA" - {
 
       "Is true when the order is shipped to CA" in new CaliforniaOrderFixture {
-        val matches = ShippingManager.evaluateStatement(order, conditionStatement).futureValue
+        val matches = ShippingManager.evaluateShippingMethod(order, shippingMethod).futureValue
         matches must === (true)
       }
 
       "Is true when the order is shipped to WA" in new WashingtonOrderFixture {
-        val matches = ShippingManager.evaluateStatement(order, conditionStatement).futureValue
+        val matches = ShippingManager.evaluateShippingMethod(order, shippingMethod).futureValue
         matches must === (true)
       }
 
       "Is false when the order is shipped to MI" in new MichiganOrderFixture {
-        val matches = ShippingManager.evaluateStatement(order, conditionStatement).futureValue
+        val matches = ShippingManager.evaluateShippingMethod(order, shippingMethod).futureValue
         matches must === (false)
       }
 
@@ -33,11 +34,18 @@ class ShippingManagerTest extends IntegrationTestBase {
     "Evaluates rule: order total is greater than $25" - {
 
       "Is true when the order total is greater than $25" in new OrderFixture {
-        val orderTotalCondition = Condition(rootObject = "Order", field = "grandtotal",
-          operator = Condition.GreaterThan, valInt = Some(25))
+        val conditions =
+          """
+            | {
+            |   "comparison": "and",
+            |   "conditions": [{
+            |     "rootObject": "Order", "field": "grandtotal", "operator": "greaterThan", "valInt": 25
+            |   }]
+            | }
+          """.stripMargin
+        val shippingMethod = Factories.shippingMethods.head.copy(conditions = parse(conditions))
 
-        val statement = QueryStatement(comparison = QueryStatement.And, conditions = Seq(orderTotalCondition))
-        val matches = ShippingManager.evaluateStatement(order, statement).futureValue
+        val matches = ShippingManager.evaluateShippingMethod(order, shippingMethod).futureValue
         matches must ===(true)
       }
 
@@ -46,11 +54,18 @@ class ShippingManagerTest extends IntegrationTestBase {
     "Evaluates rule: order total is greater than $100" - {
 
       "Is false when the order total is less than $100" in new OrderFixture {
-        val orderTotalCondition = Condition(rootObject = "Order", field = "grandtotal",
-          operator = Condition.GreaterThan, valInt = Some(100))
+        val conditions =
+          """
+            | {
+            |   "comparison": "and",
+            |   "conditions": [{
+            |     "rootObject": "Order", "field": "grandtotal", "operator": "greaterThan", "valInt": 100
+            |   }]
+            | }
+          """.stripMargin
+        val shippingMethod = Factories.shippingMethods.head.copy(conditions = parse(conditions))
 
-        val statement = QueryStatement(comparison = QueryStatement.And, conditions = Seq(orderTotalCondition))
-        val matches = ShippingManager.evaluateStatement(order, statement).futureValue
+        val matches = ShippingManager.evaluateShippingMethod(order, shippingMethod).futureValue
         matches must === (false)
       }
 
@@ -64,7 +79,7 @@ class ShippingManagerTest extends IntegrationTestBase {
           orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
         } yield (address, orderShippingAddress)).run().futureValue
 
-        val matches = ShippingManager.evaluateStatement(order, statement).futureValue
+        val matches = ShippingManager.evaluateShippingMethod(order, shippingMethod).futureValue
         matches must === (true)
       }
 
@@ -74,7 +89,7 @@ class ShippingManagerTest extends IntegrationTestBase {
           orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
         } yield (address, orderShippingAddress)).run().futureValue
 
-        val matches = ShippingManager.evaluateStatement(order, statement).futureValue
+        val matches = ShippingManager.evaluateShippingMethod(order, shippingMethod).futureValue
         matches must === (false)
       }
 
@@ -90,7 +105,7 @@ class ShippingManagerTest extends IntegrationTestBase {
           orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
         } yield (address, orderShippingAddress)).run().futureValue
 
-        val matches = ShippingManager.evaluateStatement(order, conditionStatement).futureValue
+        val matches = ShippingManager.evaluateShippingMethod(order, shippingMethod).futureValue
         matches must === (true)
       }
 
@@ -101,7 +116,7 @@ class ShippingManagerTest extends IntegrationTestBase {
           orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
         } yield (address, orderShippingAddress)).run().futureValue
 
-        val matches = ShippingManager.evaluateStatement(order, conditionStatement).futureValue
+        val matches = ShippingManager.evaluateShippingMethod(order, shippingMethod).futureValue
         matches must === (false)
       }
 
@@ -112,7 +127,7 @@ class ShippingManagerTest extends IntegrationTestBase {
           orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
         } yield (address, orderShippingAddress)).run().futureValue
 
-        val matches = ShippingManager.evaluateStatement(order, conditionStatement).futureValue
+        val matches = ShippingManager.evaluateShippingMethod(order, shippingMethod).futureValue
         matches must === (false)
       }
 
@@ -140,16 +155,32 @@ class ShippingManagerTest extends IntegrationTestBase {
   }
 
   trait WestCoastConditionFixture extends Fixture {
-    val stateConditions = Seq(
-      Condition(rootObject = "ShippingAddress", field = "regionId",
-        operator = Condition.Equals, valInt = Some(californiaId)),
-      Condition(rootObject = "ShippingAddress", field = "regionId",
-        operator = Condition.Equals, valInt = Some(oregonId)),
-      Condition(rootObject = "ShippingAddress", field = "regionId",
-        operator = Condition.Equals, valInt = Some(washingtonId))
-    )
+    val conditions =
+      s"""
+        | {
+        |   "comparison": "or",
+        |   "conditions": [
+        |     {
+        |       "rootObject": "ShippingAddress",
+        |       "field": "regionId",
+        |       "operator": "equals",
+        |       "valInt": ${californiaId}
+        |     }, {
+        |       "rootObject": "ShippingAddress",
+        |       "field": "regionId",
+        |       "operator": "equals",
+        |       "valInt": ${oregonId}
+        |     }, {
+        |       "rootObject": "ShippingAddress",
+        |       "field": "regionId",
+        |       "operator": "equals",
+        |       "valInt": ${washingtonId}
+        |     }
+        |   ]
+        | }
+      """.stripMargin
 
-    val conditionStatement = QueryStatement(comparison = QueryStatement.Or, conditions = stateConditions)
+    val shippingMethod = Factories.shippingMethods.head.copy(conditions = parse(conditions))
   }
 
   trait CaliforniaOrderFixture extends WestCoastConditionFixture {
@@ -174,40 +205,73 @@ class ShippingManagerTest extends IntegrationTestBase {
   }
 
   trait POCondition extends Fixture {
-    val conditions = Seq(
-      Condition(rootObject = "Order", field = "grandtotal",
-        operator = Condition.GreaterThan, valInt = Some(10)),
-      Condition(rootObject = "ShippingAddress", field = "street1",
-        operator = Condition.NotContains, valString = Some("P.O. Box")),
-      Condition(rootObject = "ShippingAddress", field = "street2",
-        operator = Condition.NotContains, valString = Some("P.O. Box")),
-      Condition(rootObject = "ShippingAddress", field = "street1",
-        operator = Condition.NotContains, valString = Some("PO Box")),
-      Condition(rootObject = "ShippingAddress", field = "street2",
-        operator = Condition.NotContains, valString = Some("PO Box")),
-      Condition(rootObject = "ShippingAddress", field = "street1",
-        operator = Condition.NotContains, valString = Some("p.o. box")),
-      Condition(rootObject = "ShippingAddress", field = "street2",
-        operator = Condition.NotContains, valString = Some("p.o. box")),
-      Condition(rootObject = "ShippingAddress", field = "street1",
-        operator = Condition.NotContains, valString = Some("po box")),
-      Condition(rootObject = "ShippingAddress", field = "street2",
-        operator = Condition.NotContains, valString = Some("po box"))
-    )
+    val conditions =
+      """
+        | {
+        |   "comparison": "and",
+        |   "conditions": [
+        |     { "rootObject": "Order", "field": "grandtotal", "operator": "greaterThan", "valInt": 10 },
+        |     { "rootObject": "ShippingAddress", "field": "street1", "operator": "notContains", "valString": "P.O. Box" },
+        |     { "rootObject": "ShippingAddress", "field": "street2", "operator": "notContains", "valString": "P.O. Box" },
+        |     { "rootObject": "ShippingAddress", "field": "street1", "operator": "notContains", "valString": "PO Box" },
+        |     { "rootObject": "ShippingAddress", "field": "street2", "operator": "notContains", "valString": "PO Box" },
+        |     { "rootObject": "ShippingAddress", "field": "street1", "operator": "notContains", "valString": "p.o. box" },
+        |     { "rootObject": "ShippingAddress", "field": "street2", "operator": "notContains", "valString": "p.o. box" },
+        |     { "rootObject": "ShippingAddress", "field": "street1", "operator": "notContains", "valString": "po box" },
+        |     { "rootObject": "ShippingAddress", "field": "street2", "operator": "notContains", "valString": "po box" }
+        |   ]
+        | }
+      """.stripMargin
 
-    val conditionStatement = QueryStatement(comparison = QueryStatement.And, conditions = conditions)
+    val shippingMethod = Factories.shippingMethods.head.copy(conditions = parse(conditions))
   }
 
-  trait StateAndPriceCondition extends WestCoastConditionFixture {
-    val priceConditions = Seq(
-      Condition(rootObject = "Order", field = "grandtotal",
-        operator = Condition.GreaterThanOrEquals, valInt = Some(10)),
-      Condition(rootObject = "Order", field = "grandtotal",
-        operator = Condition.LessThan, valInt = Some(100))
-    )
+  trait StateAndPriceCondition extends Fixture {
+    val conditions =
+      s"""
+        | {
+        |   "comparison": "and",
+        |   "statements": [
+        |     {
+        |       "comparison": "or",
+        |       "conditions": [
+        |         {
+        |           "rootObject": "ShippingAddress",
+        |           "field": "regionId",
+        |           "operator": "equals",
+        |           "valInt": ${californiaId}
+        |         }, {
+        |           "rootObject": "ShippingAddress",
+        |           "field": "regionId",
+        |           "operator": "equals",
+        |           "valInt": ${oregonId}
+        |         }, {
+        |           "rootObject": "ShippingAddress",
+        |           "field": "regionId",
+        |           "operator": "equals",
+        |           "valInt": ${washingtonId}
+        |         }
+        |       ]
+        |     }, {
+        |       "comparison": "and",
+        |       "conditions": [
+        |         {
+        |           "rootObject": "Order",
+        |           "field": "grandtotal",
+        |           "operator": "greaterThanOrEquals",
+        |           "valInt": 10
+        |         }, {
+        |           "rootObject": "Order",
+        |           "field": "grandtotal",
+        |           "operator": "lessThan",
+        |           "valInt": 100
+        |         }
+        |       ]
+        |     }
+        |   ]
+        | }
+      """.stripMargin
 
-    val priceStatement = QueryStatement(comparison = QueryStatement.And, conditions = priceConditions)
-    val statement = QueryStatement(comparison = QueryStatement.And,
-      statements = Seq(conditionStatement, priceStatement))
+    val shippingMethod = Factories.shippingMethods.head.copy(conditions = parse(conditions))
   }
 }

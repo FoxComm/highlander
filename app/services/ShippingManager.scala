@@ -1,21 +1,25 @@
 package services
 
 import scala.concurrent.{Future, ExecutionContext}
+import com.fasterxml.jackson.annotation.JsonFormat
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
+import utils.JsonFormatters
 
 object ShippingManager {
+  implicit val formats = JsonFormatters.phoenixFormats
 
   final case class ShippingData(order: models.Order, orderTotal: Int, orderSubTotal: Int,
     shippingAddress: models.OrderShippingAddress, shippingRegion: models.Region)
 
-  def evaluateStatement(order: models.Order, statement: models.QueryStatement)
+  def evaluateShippingMethod(order: models.Order, shippingMethod: models.ShippingMethod)
     (implicit db: Database, ec: ExecutionContext): Future[Boolean] = {
 
     getShippingData(order).map {
       _ match {
         case Some(shippingData) ⇒
-          evaluateStatementSync(shippingData, statement)
+          val statement = shippingMethod.conditions.extract[models.QueryStatement]
+          evaluateStatement(shippingData, statement)
         case None ⇒
           // TODO (Jeff): We'll want real error handling here, not just false to be returned.
           false
@@ -23,7 +27,7 @@ object ShippingManager {
     }
   }
 
-  private def evaluateStatementSync(shippingData: ShippingData, statement: models.QueryStatement): Boolean = {
+  private def evaluateStatement(shippingData: ShippingData, statement: models.QueryStatement): Boolean = {
     val initial = statement.comparison == models.QueryStatement.And
 
     val conditionsResult = statement.conditions.foldLeft(initial) { (result, nextCond) ⇒
@@ -41,8 +45,8 @@ object ShippingManager {
 
     statement.statements.foldLeft(conditionsResult) { (result, nextCond) ⇒
       statement.comparison match {
-        case models.QueryStatement.And ⇒ evaluateStatementSync(shippingData, nextCond) && result
-        case models.QueryStatement.Or ⇒ evaluateStatementSync(shippingData, nextCond) || result
+        case models.QueryStatement.And ⇒ evaluateStatement(shippingData, nextCond) && result
+        case models.QueryStatement.Or ⇒ evaluateStatement(shippingData, nextCond) || result
       }
     }
   }
