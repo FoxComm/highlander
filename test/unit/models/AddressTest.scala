@@ -11,14 +11,14 @@ class AddressTest extends TestBase {
       val valid = Address(id = 0, customerId = 1, regionId = Country.unitedStatesId, name = "Yax Home",
         street1 = "555 E Lake Union St.", street2 = None, city = "Seattle", zip = "12345", phoneNumber = None)
 
-      "returns errors when zip is not 5 digit chars" in {
+      "returns errors when zip is 1 digit char" in {
         val badZip = valid.copy(zip = "AB123")
         val wrongLengthZip = valid.copy(zip = "1")
 
         val addresses = Table(
           ("address", "errors"),
-          (badZip, NonEmptyList("zip must fully match regular expression '[0-9]{5}'")),
-          (wrongLengthZip, NonEmptyList("zip must fully match regular expression '[0-9]{5}'"))
+          (badZip, NonEmptyList("zip must fully match regular expression '%s'".format(Address.zipCodePattern))),
+          (wrongLengthZip, NonEmptyList("zip must fully match regular expression '%s'".format(Address.zipCodePattern)))
         )
 
         forAll(addresses) { (address: Address, errors: NonEmptyList[String]) =>

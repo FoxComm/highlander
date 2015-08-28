@@ -11,7 +11,7 @@ create table order_shipping_addresses (
     created_at timestamp without time zone default (now() at time zone 'utc'),
     updated_at timestamp without time zone default (now() at time zone 'utc'),
     deleted_at timestamp without time zone null,
-    constraint valid_zip check (zip ~ '[0-9]{5}'),
+    constraint valid_zip check (zip ~ '(?i)^[a-z0-9][a-z0-9\- ]{0,10}[a-z0-9]$'),
     foreign key (order_id) references orders(id) on update restrict on delete restrict
 );
 

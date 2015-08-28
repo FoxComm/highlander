@@ -35,13 +35,15 @@ final case class Address(id: Int = 0, customerId: Int, regionId: Int, name: Stri
     ( notEmptyNew(name, "name")
       |@| notEmptyNew(street1, "street1")
       |@| notEmptyNew(city, "city")
-      |@| matchesNew(zip, "[0-9]{5}", "zip")
+      |@| matchesNew(zip, Address.zipCodePattern, "zip")
       |@| phone
     ).map { case _ ⇒ this }
   }
 }
 
 object Address {
+  val zipCodePattern = "(?i)^[a-z0-9][a-z0-9\\- ]{0,10}[a-z0-9]$"
+
   def fromPayload(p: CreateAddressPayload) = {
     Address(customerId = 0, regionId = p.regionId, name = p.name,
       street1 = p.street1, street2 = p.street2, city = p.city, zip = p.zip, phoneNumber = p.phoneNumber)
