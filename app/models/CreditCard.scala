@@ -71,26 +71,10 @@ object CreditCards extends TableQueryWithId[CreditCard, CreditCards](
   idLens = GenLens[CreditCard](_.id)
 )(new CreditCards(_)) {
 
-  def findById(id: Int)(implicit db: Database): Future[Option[CreditCard]] = {
-    db.run(_findById(id).result.headOption)
-  }
-
-  def findAllByCustomerId(customerId: Int)(implicit db: Database): Future[Seq[CreditCard]] =
-    _findAllByCustomerId(customerId).run()
-
   def findInWalletByCustomerId(customerId: Int)(implicit db: Database): Query[CreditCards, CreditCard, Seq] =
     filter(_.customerId === customerId).filter(_.inWallet === true)
 
-  def _findAllByCustomerId(customerId: Int): DBIO[Seq[CreditCard]] =
-    filter(_.customerId === customerId).result
-
-  def findDefaultByCustomerId(customerId: Int)(implicit db: Database): Future[Option[CreditCard]] =
-    _findDefaultByCustomerId(customerId).run()
-
-  def _findDefaultByCustomerId(customerId: Int): DBIO[Option[CreditCard]] =
-    filter(_.customerId === customerId).filter(_.isDefault === true).result.headOption
-
-  def _findByIdAndIsDefault(id: Int, isDefault: Boolean): DBIO[Option[CreditCard]] =
-    _findById(id).extract.filter(_.isDefault === isDefault).result.headOption
+  def findDefaultByCustomerId(customerId: Int)(implicit db: Database): Query[CreditCards, CreditCard, Seq] =
+    findInWalletByCustomerId(customerId).filter(_.isDefault === true)
 }
 
