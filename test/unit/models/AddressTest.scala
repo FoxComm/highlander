@@ -26,6 +26,21 @@ class AddressTest extends TestBase {
         }
       }
 
+      "return errors when US address and zip is not 5 or 9 digits" in {
+        val tooShortZip = valid.copy(zip = "1234")
+        val wrongLengthZip = valid.copy(zip = "123456")
+
+        val addresses = Table(
+          ("address", "errors"),
+          (tooShortZip, NonEmptyList("zip must fully match regular expression '%s'".format(Address.zipPatternUs))),
+          (wrongLengthZip, NonEmptyList("zip must fully match regular expression '%s'".format(Address.zipPatternUs)))
+        )
+
+        forAll(addresses) { (address: Address, errors: NonEmptyList[String]) =>
+          invalidValue(address.copy(regionId = Country.usRegions.head).validateNew) must === (errors)
+        }
+      }
+
       "returns errors when name or street1 is empty" in {
         val result = valid.copy(name = "", street1 = "").validateNew
         invalidValue(result) must === (NonEmptyList("name must not be empty", "street1 must not be empty"))
