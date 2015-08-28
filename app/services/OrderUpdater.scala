@@ -7,7 +7,7 @@ import cats.data.Xor
 import models.Order.RemorseHold
 import models._
 
-import payloads.{CreateShippingAddress, GiftCardPayment, StoreCreditPayment, UpdateAddressPayload, UpdateShippingAddress}
+import payloads.{CreateShippingAddress, UpdateAddressPayload, UpdateShippingAddress}
 import responses.{Addresses ⇒ Response, FullOrder}
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
@@ -156,95 +156,6 @@ object OrderUpdater {
         updateShippingAddressFromPayload(address, order)
       case (None, _) ⇒
         Future.successful(Xor.left(List(GeneralFailure("must supply either an addressId or an address"))))
-    }
-  }
-
-  def addGiftCard(refNum: String, payload: GiftCardPayment)
-    (implicit ec: ExecutionContext, db: Database): Result[OrderPayment] = {
-    db.run(for {
-      order ← Orders.findCartByRefNum(refNum).result.headOption
-      giftCard ← GiftCards.findByCode(payload.code).result.headOption
-    } yield (order, giftCard)).flatMap {
-      case (Some(order), Some(giftCard)) ⇒
-        if (!giftCard.isActive) {
-          Result.left(GiftCardIsInactive(giftCard))
-        } else if (giftCard.hasAvailable(payload.amount)) {
-          val payment = OrderPayment.build(giftCard).copy(orderId = order.id, amount = Some(payload.amount))
-          OrderPayments.save(payment).run().map(Xor.right)
-        } else {
-          Result.left(GiftCardNotEnoughBalance(giftCard, payload.amount))
-        }
-      case (None, _) ⇒
-        Result.left(OrderNotFoundFailure(refNum))
-      case (_, None) ⇒
-        Result.left(GiftCardNotFoundFailure(payload.code))
-    }
-  }
-
-  def addStoreCredit(refNum: String, payload: StoreCreditPayment)
-    (implicit ec: ExecutionContext, db: Database): Result[Seq[OrderPayment]] = {
-    db.run(for {
-      order ← Orders.findCartByRefNum(refNum).result.headOption
-      storeCredits ← order.map { o ⇒
-        StoreCredits.findAllActiveByCustomerId(o.customerId).result
-      }.getOrElse(DBIO.successful(Seq.empty[StoreCredit]))
-    } yield (order, storeCredits)).flatMap {
-      case (Some(order), storeCredits) ⇒
-        val available = storeCredits.map(_.availableBalance).sum
-
-        if (available < payload.amount) {
-          val error = CustomerHasInsufficientStoreCredit(id = order.customerId, has = available, want = payload.amount)
-          Result.left(error)
-        } else {
-          val payments = StoreCredit.processFifo(storeCredits.toList, payload.amount).map { case (sc, amount) ⇒
-            OrderPayment.build(sc).copy(orderId = order.id, amount = Some(amount))
-          }
-
-          db.run(OrderPayments ++= payments).map { _ ⇒ Xor.right(payments.toSeq) }
-        }
-
-      case (None, _) ⇒
-        Result.left(OrderNotFoundFailure(refNum))
-    }
-  }
-
-  def deletePayment(order: Order, paymentId: Int)
-    (implicit ec: ExecutionContext, db: Database): Result[Int] = {
-    db.run(OrderPayments.findAllByOrderId(order.id)
-      .filter(_.paymentMethodId === paymentId)
-      .delete).flatMap { rowsAffected ⇒
-      if (rowsAffected == 1) {
-        Result.right(1)
-      } else {
-        Result.left(NotFoundFailure(s"order payment method with id=$paymentId not found"))
-      }
-    }
-  }
-
-  def addCreditCard(refNum: String, id: Int)
-    (implicit ec: ExecutionContext, db: Database): Result[OrderPayment] = {
-    val actions = for {
-      order ← Orders.findCartByRefNum(refNum).result.headOption
-      creditCard ← CreditCards._findById(id).result.headOption
-    } yield (order, creditCard)
-
-    actions.run().flatMap {
-      case (Some(order), Some(creditCard)) ⇒
-        if (creditCard.isActive) {
-          val payment = OrderPayment.build(creditCard).copy(orderId = order.id, amount = None)
-          val delete = OrderPayments.creditCards.filter(_.orderId === order.id).delete
-          val replaceOrCreate = OrderPayments.save(payment)
-
-          (delete >> replaceOrCreate).transactionally.run().map(Xor.right)
-        } else {
-          Result.left(CannotUseInactiveCreditCard(creditCard))
-        }
-
-      case (None, _) ⇒
-        Result.left(OrderNotFoundFailure(refNum))
-
-      case (_, None) ⇒
-        Result.left(NotFoundFailure(CreditCard, id))
     }
   }
 

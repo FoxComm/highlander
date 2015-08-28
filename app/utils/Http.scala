@@ -41,7 +41,10 @@ object Http {
 
   def renderGoodOrFailures[G <: AnyRef](or: Failures Xor G)
                                        (implicit ec: ExecutionContext): HttpResponse =
-    or.fold(renderFailure(_), render(_)) // Can’t pass eta expanded method because of by-name  parameters
+    or.fold(renderFailure(_), render(_))
+
+  def renderNothingOrFailures(or: Failures Xor Unit)(implicit ec: ExecutionContext): HttpResponse =
+    or.fold(renderFailure(_), _ ⇒ noContentResponse)
 
   def whenFound[A, G <: AnyRef, B <: AnyRef](finder: Future[Option[A]])
     (handle: A ⇒ Future[B Xor G])

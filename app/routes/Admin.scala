@@ -199,40 +199,31 @@ object Admin {
             }
           }
         } ~
-        pathPrefix("payment-methods") {
-          (delete & path(IntNumber) & pathEnd) { paymentId ⇒
-            complete {
-              Orders.findByRefNum(refNum).result.headOption.run().flatMap {
-                case None         ⇒
-                  Future.successful(notFoundResponse)
-                case Some(order)  ⇒
-                  OrderUpdater.deletePayment(order, paymentId).map { res ⇒
-                    res.fold(renderFailure(_), _ ⇒ noContentResponse)
-                  }
-              }
-            }
+        pathPrefix("payment-methods" / "credit-cards") {
+          (post & entity(as[payloads.CreditCardPayment]) & pathEnd) { payload ⇒
+            complete { OrderPaymentUpdater.addCreditCard(refNum, payload.creditCardId).map(renderNothingOrFailures) }
           } ~
-          pathPrefix("credit-cards") {
-            (post & entity(as[payloads.CreditCardPayment]) & pathEnd) { payload ⇒
-              complete {
-                OrderUpdater.addCreditCard(refNum, payload.creditCardId).map(renderGoodOrFailures)
-              }
-            } ~
-            (patch & entity(as[payloads.CreditCardPayment]) & pathEnd) { payload ⇒
-              complete {
-                OrderUpdater.addCreditCard(refNum, payload.creditCardId).map(renderGoodOrFailures)
-              }
-            }
+          (patch & entity(as[payloads.CreditCardPayment]) & pathEnd) { payload ⇒
+            complete { OrderPaymentUpdater.addCreditCard(refNum, payload.creditCardId).map(renderNothingOrFailures) }
           } ~
-          (post & path("gift-cards") & entity(as[payloads.GiftCardPayment]) & pathEnd) { payload ⇒
-            complete {
-              OrderUpdater.addGiftCard(refNum, payload).map(renderGoodOrFailures)
-            }
+          (delete & pathEnd) {
+            complete { OrderPaymentUpdater.deleteCreditCard(refNum).map(renderNothingOrFailures) }
+          }
+        } ~
+        pathPrefix("payment-methods" / "gift-cards") {
+          (post & entity(as[payloads.GiftCardPayment]) & pathEnd) { payload ⇒
+            complete { OrderPaymentUpdater.addGiftCard(refNum, payload).map(renderNothingOrFailures) }
           } ~
-          (post & path("store-credit") & entity(as[payloads.StoreCreditPayment]) & pathEnd) { payload ⇒
-            complete {
-              OrderUpdater.addStoreCredit(refNum, payload).map(renderGoodOrFailures)
-            }
+          (delete & path(Segment) & pathEnd) { code ⇒
+            complete { OrderPaymentUpdater.deleteGiftCard(refNum, code).map(renderNothingOrFailures) }
+          }
+        } ~
+        pathPrefix("payment-methods" / "store-credit") {
+          (post & entity(as[payloads.StoreCreditPayment]) & pathEnd) { payload ⇒
+            complete { OrderPaymentUpdater.addStoreCredit(refNum, payload).map(renderNothingOrFailures) }
+          } ~
+          (delete & pathEnd) {
+            complete { OrderPaymentUpdater.deleteStoreCredit(refNum).map(renderNothingOrFailures) }
           }
         } ~
         pathPrefix("notes") {
