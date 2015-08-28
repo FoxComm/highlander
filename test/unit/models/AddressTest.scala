@@ -17,8 +17,8 @@ class AddressTest extends TestBase {
 
         val addresses = Table(
           ("address", "errors"),
-          (badZip, NonEmptyList("zip must fully match regular expression '%s'".format(Address.zipCodePattern))),
-          (wrongLengthZip, NonEmptyList("zip must fully match regular expression '%s'".format(Address.zipCodePattern)))
+          (badZip, NonEmptyList("zip must fully match regular expression '%s'".format(Address.zipPattern))),
+          (wrongLengthZip, NonEmptyList("zip must fully match regular expression '%s'".format(Address.zipPattern)))
         )
 
         forAll(addresses) { (address: Address, errors: NonEmptyList[String]) =>

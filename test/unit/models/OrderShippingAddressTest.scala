@@ -14,8 +14,8 @@ class OrderShippingAddressTest extends TestBase {
 
         val addresses = Table(
           ("address", "errors"),
-          (badZip, Set("zip must match regular expression '%s'".format(Address.zipCodePattern))),
-          (wrongLengthZip, Set("zip must match regular expression '%s'".format(Address.zipCodePattern)))
+          (badZip, Set("zip must match regular expression '%s'".format(Address.zipPattern))),
+          (wrongLengthZip, Set("zip must match regular expression '%s'".format(Address.zipPattern)))
         )
 
         forAll(addresses) { case (address, errors) =>

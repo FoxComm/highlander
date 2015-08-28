@@ -18,7 +18,7 @@ final case class OrderBillingAddress(id: Int = 0, orderPaymentId: Int = 0,
     address.name is notEmpty
     address.street1 is notEmpty
     address.city is notEmpty
-    address.zip should matchRegex(Address.zipCodePattern)
+    address.zip should matchRegex(Address.zipPattern)
   }
 }
 

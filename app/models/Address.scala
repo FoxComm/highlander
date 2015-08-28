@@ -22,8 +22,16 @@ final case class Address(id: Int = 0, customerId: Int, regionId: Int, name: Stri
 
   def isNew: Boolean = id == 0
 
+  def sanitize(): Address = {
+    if (Country.usRegions.contains(regionId)) {
+      this.copy(zip = zip.replace("-", ""))
+    } else {
+      this
+    }
+  }
+
   def validateNew: ValidatedNel[String, Model] = {
-    val phone: ValidatedNel[String, Unit] = (Country.unitedStatesId == regionId, phoneNumber) match {
+    val phone: ValidatedNel[String, Unit] = (Country.usRegions.contains(regionId), phoneNumber) match {
       case (true, Some(number)) ⇒
         matchesNew(number, "[0-9]{10}", "phoneNumber")
       case (false, Some(number)) ⇒
@@ -32,17 +40,25 @@ final case class Address(id: Int = 0, customerId: Int, regionId: Int, name: Stri
         valid({})
     }
 
+    val zipValidation: ValidatedNel[String, Unit] = (Country.usRegions.contains(regionId), zip) match {
+      case (true, zipValue) ⇒
+        matchesNew(zipValue, Address.zipPatternUs, "zip")
+      case (false, zipValue) ⇒
+        matchesNew(zipValue, Address.zipPattern, "zip")
+    }
+
     ( notEmptyNew(name, "name")
       |@| notEmptyNew(street1, "street1")
       |@| notEmptyNew(city, "city")
-      |@| matchesNew(zip, Address.zipCodePattern, "zip")
+      |@| zipValidation
       |@| phone
     ).map { case _ ⇒ this }
   }
 }
 
 object Address {
-  val zipCodePattern = "(?i)^[a-z0-9][a-z0-9\\- ]{0,10}[a-z0-9]$"
+  val zipPattern = "(?i)^[a-z0-9][a-z0-9\\- ]{0,10}[a-z0-9]$"
+  val zipPatternUs = "^\\d{5}(?:\\d{4})?$"
 
   def fromPayload(p: CreateAddressPayload) = {
     Address(customerId = 0, regionId = p.regionId, name = p.name,
