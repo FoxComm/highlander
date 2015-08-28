@@ -8,6 +8,8 @@ class CustomerIntegrationTest extends IntegrationTestBase
   with HttpSupport
   with AutomaticAuth {
 
+  import slick.driver.PostgresDriver.api._
+  import utils._
   import concurrent.ExecutionContext.Implicits.global
   import org.json4s.jackson.JsonMethods._
   import Extensions._
@@ -39,9 +41,20 @@ class CustomerIntegrationTest extends IntegrationTestBase
     }
 
     "credit cards" - {
-      "sets the isDefault flag on a credit card" in new Fixture {
-        val creditCard = CreditCards.save(Factories.creditCard.copy(isDefault = false,
-          customerId = customer.id, billingAddressId = address.id)).run().futureValue
+      "shows customer's credit cards only in their wallet" in new CreditCardFixture {
+        val deleted = CreditCards.save(creditCard.copy(id = 0, inWallet = false)).run().futureValue
+
+        val response = GET(s"v1/customers/${customer.id}/payment-methods/credit-cards")
+        val cc = response.as[Seq[CreditCard]]
+
+        response.status must ===(StatusCodes.OK)
+        cc must have size(1)
+        cc.head must ===(creditCard)
+        cc.head.id must !== (deleted.id)
+      }
+
+      "sets the isDefault flag on a credit card" in new CreditCardFixture {
+        CreditCards.filter(_.id === creditCard.id).map(_.isDefault).update(false).run().futureValue
 
         val payload = payloads.ToggleDefaultCreditCard(isDefault = true)
         val response = POST(
@@ -94,6 +107,12 @@ class CustomerIntegrationTest extends IntegrationTestBase
       address ← Addresses.save(Factories.address.copy(customerId = customer.id))
       admin ← StoreAdmins.save(authedStoreAdmin)
     } yield (customer, address, admin)).run().futureValue
+  }
+
+  trait CreditCardFixture extends Fixture {
+    val creditCard = (for {
+      cc ← CreditCards.save(Factories.creditCard.copy(customerId = customer.id, billingAddressId = address.id))
+    } yield cc).run().futureValue
   }
 }
 

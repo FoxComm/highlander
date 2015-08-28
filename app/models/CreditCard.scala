@@ -78,6 +78,9 @@ object CreditCards extends TableQueryWithId[CreditCard, CreditCards](
   def findAllByCustomerId(customerId: Int)(implicit db: Database): Future[Seq[CreditCard]] =
     _findAllByCustomerId(customerId).run()
 
+  def findInWalletByCustomerId(customerId: Int)(implicit db: Database): Query[CreditCards, CreditCard, Seq] =
+    filter(_.customerId === customerId).filter(_.inWallet === true)
+
   def _findAllByCustomerId(customerId: Int): DBIO[Seq[CreditCard]] =
     filter(_.customerId === customerId).result
 

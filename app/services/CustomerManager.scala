@@ -54,6 +54,10 @@ object CustomerManager {
     })
   }
 
+  def creditCardsInWalletFor(customerId: Int)
+    (implicit ec: ExecutionContext, db: Database): Future[Seq[CreditCard]] =
+    CreditCards.findInWalletByCustomerId(customerId).result.run()
+
   private def creditCardNotFound(id: Int)     = NotFoundFailure(CreditCard, id).single
 }
 

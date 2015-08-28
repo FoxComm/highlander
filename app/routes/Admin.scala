@@ -89,9 +89,7 @@ object Admin {
         pathPrefix("payment-methods") {
           pathPrefix("credit-cards") {
             (get & pathEnd) {
-              complete {
-                render(CreditCards.findAllByCustomerId(customerId))
-              }
+              complete { CustomerManager.creditCardsInWalletFor(customerId).map(render(_)) }
             } ~
             (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultCreditCard])) { (cardId, payload) ⇒
               complete {
