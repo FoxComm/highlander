@@ -8,7 +8,7 @@ class AddressTest extends TestBase {
 
   "Address" - {
     ".validateNew" - {
-      val valid = Address(id = 0, customerId = 1, regionId = Country.unitedStatesId, name = "Yax Home",
+      val valid = Address(id = 0, customerId = 1, regionId = 1, name = "Yax Home",
         street1 = "555 E Lake Union St.", street2 = None, city = "Seattle", zip = "12345", phoneNumber = None)
 
       "returns errors when zip is invalid" in {
@@ -32,7 +32,7 @@ class AddressTest extends TestBase {
       }
 
       "returns errors if US address and Some(phoneNumber) < 10 digits" in {
-        val result = valid.copy(phoneNumber = Some("5551234")).validateNew
+        val result = valid.copy(regionId = Country.usRegions.head, phoneNumber = Some("5551234")).validateNew
         invalidValue(result).head must (include("phoneNumber") and include("'[0-9]{10}'"))
       }
 
