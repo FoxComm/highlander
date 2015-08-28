@@ -15,9 +15,9 @@ object OrderPaymentUpdater {
     (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
 
    val orderAndGiftCard = for {
-      order ← Orders.findCartByRefNum(refNum).result.headOption
-      giftCard ← GiftCards.findByCode(payload.code).result.headOption
-    } yield (order, giftCard)
+     order ← Orders.findCartByRefNum(refNum).result.headOption
+     giftCard ← GiftCards.findByCode(payload.code).result.headOption
+   } yield (order, giftCard)
 
    db.run(orderAndGiftCard.flatMap {
 
@@ -30,7 +30,7 @@ object OrderPaymentUpdater {
        }
 
      case (Some(_), Some(gc)) if !gc.isActive ⇒
-      GiftCardIsInactive(gc).single.liftDBIOXor[Unit]
+       GiftCardIsInactive(gc).single.liftDBIOXor[Unit]
 
      case (None, _) ⇒
        orderNotFound(refNum).liftDBIOXor[Unit]
