@@ -22,7 +22,7 @@ final case class Address(id: Int = 0, customerId: Int, regionId: Int, name: Stri
 
   def isNew: Boolean = id == 0
 
-  def sanitize(): Address = {
+  def sanitize: Address = {
     if (Country.usRegions.contains(regionId)) {
       this.copy(zip = zip.replace("-", ""))
     } else {
