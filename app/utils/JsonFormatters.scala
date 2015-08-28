@@ -4,8 +4,8 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import com.pellucid.sealerate
 import org.json4s.JsonAST.JString
 
-import models.{StoreCreditAdjustment, GiftCardAdjustment, CreditCardCharge, GiftCard, Order, OrderLineItem, Shipment,
-StoreCredit}
+import models.{QueryStatement, StoreCreditAdjustment, GiftCardAdjustment, CreditCardCharge, GiftCard, Order,
+OrderLineItem, Shipment, StoreCredit, Condition}
 import org.json4s.ext.DateTimeSerializer
 import org.json4s.{DefaultFormats, jackson}
 import responses.CountryWithRegions
@@ -24,6 +24,8 @@ object JsonFormatters {
     StoreCredit.Status.jsonFormat +
     StoreCreditAdjustment.Status.jsonFormat +
     CreditCardCharge.Status.jsonFormat +
-    CountryWithRegions.jsonFormat
+    CountryWithRegions.jsonFormat +
+    QueryStatement.Comparison.jsonFormat +
+    Condition.Operator.jsonFormat
 }
 
