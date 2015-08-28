@@ -28,14 +28,12 @@ export default class OrderShippingMethod extends React.Component {
     return (
       <section className="fc-contentBox" id="order-shipping-method">
         <header>Shipping Method</header>
-        <div className="fc-contentBox-body">
-          <table className="fc-table">
-            <TableHead columns={this.props.tableColumns} />
-            <TableBody columns={this.props.tableColumns} rows={this.state.methods} model='shipping-method'>
-              <ShippingMethodActive />
-            </TableBody>
-          </table>
-        </div>
+        <table className="fc-table">
+          <TableHead columns={this.props.tableColumns} />
+          <TableBody columns={this.props.tableColumns} rows={this.state.methods} model='shipping-method'>
+            <ShippingMethodActive />
+          </TableBody>
+        </table>
       </section>
     );
   }

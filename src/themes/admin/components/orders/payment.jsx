@@ -13,14 +13,12 @@ export default class OrderPayment extends React.Component {
     return (
       <section className="fc-contentBox" id="order-payment">
         <header>Payment</header>
-        <div className="fc-contentBox-body">
-          <table className="fc-table">
-            <TableHead columns={this.props.tableColumns}/>
-            <TableBody columns={this.props.tableColumns} rows={_.compact([order.payment])} model='order'>
-              <PaymentMethod/>
-            </TableBody>
-          </table>
-        </div>
+        <table className="fc-table">
+          <TableHead columns={this.props.tableColumns}/>
+          <TableBody columns={this.props.tableColumns} rows={_.compact([order.payment])} model='order'>
+            <PaymentMethod/>
+          </TableBody>
+        </table>
       </section>
     );
   }
