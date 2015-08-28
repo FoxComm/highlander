@@ -30,8 +30,10 @@ npm run phoenix
 If you want to setup some Git hooks, run the following:
 
 ```
-./node_modules/bin/gulp hooks
+./node_modules/.bin/gulp hooks
 ```
+
+Now, installed hook runs tests and prevents push if they haven't passed.
 
 ### Vagrant setup
 
