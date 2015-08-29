@@ -51,13 +51,14 @@ module.exports = function(app, router) {
       this.body = this.return.viewers();
     })
     .get('/returns/:return/notes', function *() {
-      this.body = Note.findByOrder(this.return.orderId);
+      this.body = Note.findByReturn(this.return.id);
     })
     .post('/returns/:return/notes', function *() {
       let
         body = yield parse.json(this),
         note = new Note(body);
       note.amend({
+        returnId: this.return.id,
         orderId: this.return.orderId,
         customerId: 1
       });
@@ -65,10 +66,10 @@ module.exports = function(app, router) {
       this.body = note;
     })
     .get('/returns/:return/activity-trail', function *() {
-      this.body = Activity.findByOrder(this.return.orderId);
+      this.body = Activity.findByReturn(this.return.id);
     })
     .get('/returns/:return/notifications', function *() {
-      this.body = Notification.findByOrder(this.return.orderId);
+      this.body = Notification.findByReturn(this.return.id);
     })
     .post('/returns/:return/notifications/:notification', function *() {
       this.body = this.notification;
