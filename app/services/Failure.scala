@@ -87,3 +87,7 @@ final case class OrderLockedFailure(referenceNumber: String) extends Failure {
 final case class CustomerHasInsufficientStoreCredit(id: Int, has: Int, want: Int) extends Failure {
   override def description = List(s"customer with id=$id has storeCredit=$has less than requestedAmount=$want")
 }
+
+final case class OrderShippingMethodsCannotBeProcessed(referenceNumber: String) extends Failure {
+  override def description = List(s"Shipping methods for order ${referenceNumber} cannot be processed")
+}

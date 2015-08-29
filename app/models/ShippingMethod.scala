@@ -28,4 +28,7 @@ class ShippingMethods(tag: Tag) extends GenericTable.TableWithId[ShippingMethod]
 
 object ShippingMethods extends TableQueryWithId[ShippingMethod, ShippingMethods](
   idLens = GenLens[ShippingMethod](_.id)
-)(new ShippingMethods(_))
+)(new ShippingMethods(_)) {
+
+  def findActive(implicit db: Database) = filter(_.isActive === true)
+}

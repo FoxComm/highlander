@@ -15,18 +15,21 @@ class ShippingManagerTest extends IntegrationTestBase {
     "Evaluates rule: shipped to CA, OR, or WA" - {
 
       "Is true when the order is shipped to CA" in new CaliforniaOrderFixture {
-        val matches = ShippingManager.evaluateShippingMethod(order, shippingMethod).futureValue
-        matches must === (true)
+        val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).futureValue
+        matchingMethods.isRight must === (true)
+        matchingMethods.get.head must === (shippingMethod)
       }
 
       "Is true when the order is shipped to WA" in new WashingtonOrderFixture {
-        val matches = ShippingManager.evaluateShippingMethod(order, shippingMethod).futureValue
-        matches must === (true)
+        val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).futureValue
+        matchingMethods.isRight must === (true)
+        matchingMethods.get.head must === (shippingMethod)
       }
 
       "Is false when the order is shipped to MI" in new MichiganOrderFixture {
-        val matches = ShippingManager.evaluateShippingMethod(order, shippingMethod).futureValue
-        matches must === (false)
+        val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).futureValue
+        matchingMethods.isRight must === (true)
+        matchingMethods.get.isEmpty must === (true)
       }
 
     }
@@ -43,10 +46,13 @@ class ShippingManagerTest extends IntegrationTestBase {
             |   }]
             | }
           """.stripMargin
-        val shippingMethod = Factories.shippingMethods.head.copy(conditions = parse(conditions))
 
-        val matches = ShippingManager.evaluateShippingMethod(order, shippingMethod).futureValue
-        matches must ===(true)
+        val action = ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = parse(conditions)))
+        val shippingMethod = db.run(action).futureValue
+
+        val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).futureValue
+        matchingMethods.isRight must === (true)
+        matchingMethods.get.head must === (shippingMethod)
       }
 
     }
@@ -63,10 +69,13 @@ class ShippingManagerTest extends IntegrationTestBase {
             |   }]
             | }
           """.stripMargin
-        val shippingMethod = Factories.shippingMethods.head.copy(conditions = parse(conditions))
 
-        val matches = ShippingManager.evaluateShippingMethod(order, shippingMethod).futureValue
-        matches must === (false)
+        val action = ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = parse(conditions)))
+        val shippingMethod = db.run(action).futureValue
+
+        val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).futureValue
+        matchingMethods.isRight must === (true)
+        matchingMethods.get.isEmpty must === (true)
       }
 
     }
@@ -79,8 +88,9 @@ class ShippingManagerTest extends IntegrationTestBase {
           orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
         } yield (address, orderShippingAddress)).run().futureValue
 
-        val matches = ShippingManager.evaluateShippingMethod(order, shippingMethod).futureValue
-        matches must === (true)
+        val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).futureValue
+        matchingMethods.isRight must === (true)
+        matchingMethods.get.head must === (shippingMethod)
       }
 
       "Is false when the order total is $27 and shipped to MI" in new StateAndPriceCondition {
@@ -89,8 +99,9 @@ class ShippingManagerTest extends IntegrationTestBase {
           orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
         } yield (address, orderShippingAddress)).run().futureValue
 
-        val matches = ShippingManager.evaluateShippingMethod(order, shippingMethod).futureValue
-        matches must === (false)
+        val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).futureValue
+        matchingMethods.isRight must === (true)
+        matchingMethods.get.isEmpty must === (true)
       }
 
     }
@@ -105,8 +116,9 @@ class ShippingManagerTest extends IntegrationTestBase {
           orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
         } yield (address, orderShippingAddress)).run().futureValue
 
-        val matches = ShippingManager.evaluateShippingMethod(order, shippingMethod).futureValue
-        matches must === (true)
+        val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).futureValue
+        matchingMethods.isRight must === (true)
+        matchingMethods.get.head must === (shippingMethod)
       }
 
       "Is false when the order total is greater than $10 and street1 contains a P.O. Box" in new POCondition {
@@ -116,8 +128,9 @@ class ShippingManagerTest extends IntegrationTestBase {
           orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
         } yield (address, orderShippingAddress)).run().futureValue
 
-        val matches = ShippingManager.evaluateShippingMethod(order, shippingMethod).futureValue
-        matches must === (false)
+        val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).futureValue
+        matchingMethods.isRight must === (true)
+        matchingMethods.get.isEmpty must === (true)
       }
 
       "Is false when the order total is greater than $10 and street2 contains a P.O. Box" in new POCondition {
@@ -127,8 +140,9 @@ class ShippingManagerTest extends IntegrationTestBase {
           orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
         } yield (address, orderShippingAddress)).run().futureValue
 
-        val matches = ShippingManager.evaluateShippingMethod(order, shippingMethod).futureValue
-        matches must === (false)
+        val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).futureValue
+        matchingMethods.isRight must === (true)
+        matchingMethods.get.isEmpty must === (true)
       }
 
     }
@@ -180,7 +194,8 @@ class ShippingManagerTest extends IntegrationTestBase {
         | }
       """.stripMargin
 
-    val shippingMethod = Factories.shippingMethods.head.copy(conditions = parse(conditions))
+    val action = ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = parse(conditions)))
+    val shippingMethod = db.run(action).futureValue
   }
 
   trait CaliforniaOrderFixture extends WestCoastConditionFixture {
@@ -223,7 +238,8 @@ class ShippingManagerTest extends IntegrationTestBase {
         | }
       """.stripMargin
 
-    val shippingMethod = Factories.shippingMethods.head.copy(conditions = parse(conditions))
+    val action = ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = parse(conditions)))
+    val shippingMethod = db.run(action).futureValue
   }
 
   trait StateAndPriceCondition extends Fixture {
@@ -272,6 +288,7 @@ class ShippingManagerTest extends IntegrationTestBase {
         | }
       """.stripMargin
 
-    val shippingMethod = Factories.shippingMethods.head.copy(conditions = parse(conditions))
+    val action = ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = parse(conditions)))
+    val shippingMethod = db.run(action).futureValue
   }
 }

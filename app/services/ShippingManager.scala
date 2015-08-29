@@ -1,10 +1,11 @@
 package services
 
+import models.{ShippingMethods, ShippingMethod}
 import scala.concurrent.{Future, ExecutionContext}
-import com.fasterxml.jackson.annotation.JsonFormat
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.JsonFormatters
+import Result._
 
 object ShippingManager {
   implicit val formats = JsonFormatters.phoenixFormats
@@ -12,19 +13,22 @@ object ShippingManager {
   final case class ShippingData(order: models.Order, orderTotal: Int, orderSubTotal: Int,
     shippingAddress: models.OrderShippingAddress, shippingRegion: models.Region)
 
-  def evaluateShippingMethod(order: models.Order, shippingMethod: models.ShippingMethod)
-    (implicit db: Database, ec: ExecutionContext): Future[Boolean] = {
+  def getShippingMethodsForOrder(order: models.Order)(implicit db: Database, ec: ExecutionContext):
+    Result[Seq[ShippingMethod]] = {
 
-    getShippingData(order).map {
-      _ match {
-        case Some(shippingData) ⇒
-          val statement = shippingMethod.conditions.extract[models.QueryStatement]
-          evaluateStatement(shippingData, statement)
-        case None ⇒
-          // TODO (Jeff): We'll want real error handling here, not just false to be returned.
-          false
-      }
+    getShippingData(order).flatMap {
+      case Some(shippingData) ⇒
+        db.run(ShippingMethods.findActive.result).flatMap { shippingMethods ⇒
+          right(shippingMethods.filter(evaluateShippingMethod(shippingData, _)))
+        }
+      case None ⇒
+        left(OrderShippingMethodsCannotBeProcessed(order.refNum))
     }
+  }
+
+  def evaluateShippingMethod(shippingData: ShippingData, shippingMethod: ShippingMethod): Boolean = {
+    val statement = shippingMethod.conditions.extract[models.QueryStatement]
+    evaluateStatement(shippingData, statement)
   }
 
   private def evaluateStatement(shippingData: ShippingData, statement: models.QueryStatement): Boolean = {
@@ -68,6 +72,7 @@ object ShippingManager {
         }
       }
     }
+
   }
 
   private def evaluateOrderCondition(shippingData: ShippingData, condition: models.Condition): Boolean = {
