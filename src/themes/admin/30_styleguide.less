@@ -40,8 +40,7 @@
 @color-decor26: #47628D;
 @color-decor27: #B98BDC;
 @color-decor28: #DD63B9;
-@color-decor29: #F45758;
-@color-decor30: #A2DEE1;
+@color-decor29: #A2DEE1;
 
 @color-decor31: #959698;
 
@@ -50,7 +49,7 @@
 @color-user3: @color-decor15;
 @color-user4: @color-decor27;
 @color-user5: @color-decor28;
-@color-user6: @color-decor29;
+@color-user6: @color-decor22;
 @color-user7: @color-decor24;
 
 @color-default-fg: @color-decor1;
@@ -77,7 +76,7 @@
 @color-control-primary-bg: @color-decor15;
 @color-control-primary-hover-fg: @color-decor0;
 @color-control-primary-hover-bg: @color-decor14;
-@color-control-primary-disabled-fg: @color-decor30;
+@color-control-primary-disabled-fg: @color-decor29;
 @color-control-primary-disabled-bg: @color-decor15;
 
 @color-control-standard-fg: @color-default-fg;
@@ -91,7 +90,7 @@
 @color-control-yes-bg: @color-decor15;
 
 @color-control-no-fg: @color-decor0;
-@color-control-no-bg: @color-decor29;
+@color-control-no-bg: @color-decor22;
 
 @color-logo1: #754D29;
 @color-logo2: #DC8027;
@@ -160,6 +159,41 @@ fieldset {
 table {
   width: 100%;
   text-align: left;
+}
+
+button,
+.fc-btn,
+input[type=submit],
+input[type=reset] {
+  .colors(@color-control-standard-fg, @color-control-standard-bg);
+  .padding(0 20px);
+  .height(40px);
+  .font-spec(14px, 700, 40px);
+  border: none;
+  border-radius: 3px;
+  user-select: none;
+  cursor: pointer;
+
+  &:hover {
+    .colors(@color-control-standard-hover-fg, @color-control-standard-hover-bg);
+  }
+
+  &:disabled, &:disabled:hover {
+    cursor: default;
+    .colors(@color-control-standard-disabled-fg, @color-control-standard-disabled-bg);
+  }
+
+  &.primary {
+    .colors(@color-control-primary-fg, @color-control-primary-bg);
+
+    &:hover {
+      .colors(@color-control-primary-hover-fg, @color-control-primary-hover-bg);
+    }
+
+    &:disabled, &:disabled:hover {
+      .colors(@color-control-primary-disabled-fg, @color-control-primary-disabled-bg);
+    }
+  }
 }
 
 .gutter {
