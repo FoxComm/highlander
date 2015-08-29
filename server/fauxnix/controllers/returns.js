@@ -1,11 +1,9 @@
 'use strict';
 
-const
-  parse = require('co-body'),
-  Chance = require('chance');
+const  parse = require('co-body');
+const Chance = require('chance');
 
-const
-  chance = new Chance();
+const  chance = new Chance();
 
 module.exports = function(app, router) {
   const
