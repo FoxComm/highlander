@@ -23,20 +23,12 @@ const seed = [
 ];
 
 class Order extends BaseModel {
-
   static findByIdOrRef(id) {
     let results = this.data.filter(function(item) {
       return item.id === +id || item.referenceNumber === id;
     });
     if (!results.length) { throw new errors.NotFound(`Cannot find ${this.name}`); }
     return new this(results[0]);
-  }
-
-  /**
-   * @TODO should be removed, mock method - DM
-   */
-  static findRandom() {
-    return new this(this.data[~~(Math.random() * this.data.length)]);
   }
 
   get referenceNumber() { return this.model.referenceNumber; }

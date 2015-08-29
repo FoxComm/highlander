@@ -7,7 +7,7 @@ const errors = require('../../errors');
 const seed = [
   {field: 'referenceNumber', method: 'string', opts: {length: 8, pool: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'}},
   {field: 'email', method: 'pick', opts: ['bree@foxcommerce.com']},
-  {field: 'orderNumber', method: 'pick', opts: [Order.findRandom().referenceNumber]},
+  {field: 'orderNumber', method: 'pick', opts: [Order.data[0].referenceNumber]},
   {field: 'returnStatus', method: 'pick', opts: ['Pending', 'Processing', 'Complete']},
   {field: 'assignee', method: 'pick', opts: ['Unassigned']},
   {field: 'returnTotal', method: 'integer', opts: {min: 100, max: 10000}}
