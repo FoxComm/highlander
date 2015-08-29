@@ -15,41 +15,53 @@ import utils.Validation.{matches ⇒ matchesNew, notEmpty ⇒ notEmptyNew}
 import utils.{Model, ModelWithIdParameter, NewModel, RichTable, TableQueryWithId, Validation}
 
 trait Addressable {
-  this: Address =>
-    def sanitize: Address = {
-      if (Country.usRegions.contains(this.regionId)) {
-        this.copy(zip = this.zip.replace("-", ""))
-      } else {
-        this
-      }
+  def city: String
+  def name: String
+  def phoneNumber: Option[String]
+  def regionId: Int
+  def street1: String
+  def street2: Option[String]
+  def zip: String
+
+  def instance: Address = {
+    Address(id = 0, customerId = 0, regionId = regionId, name = name, street1 = street1,
+      street2 = street2, city = city, zip = zip, phoneNumber = phoneNumber)
+  }
+
+  def sanitize: Address = {
+    if (Country.usRegions.contains(regionId)) {
+      instance.copy(zip = zip.replace("-", ""))
+    } else {
+      instance
+    }
+  }
+
+  def validateNew: ValidatedNel[String, Model] = {
+    val isUsAddress = Country.usRegions.contains(regionId)
+
+    val phone: ValidatedNel[String, Unit] = (isUsAddress, phoneNumber) match {
+      case (true, Some(number)) ⇒
+        matchesNew(number, "[0-9]{10}", "phoneNumber")
+      case (false, Some(number)) ⇒
+        matchesNew(number, "[0-9]{0,15}", "phoneNumber")
+      case (_, None) ⇒
+        valid({})
     }
 
-    def validateNew: ValidatedNel[String, Model] = {
-      val isUsAddress = Country.usRegions.contains(this.regionId)
-
-      val phone: ValidatedNel[String, Unit] = (isUsAddress, this.phoneNumber) match {
-        case (true, Some(number)) ⇒
-          matchesNew(number, "[0-9]{10}", "phoneNumber")
-        case (false, Some(number)) ⇒
-          matchesNew(number, "[0-9]{0,15}", "phoneNumber")
-        case (_, None) ⇒
-          valid({})
-      }
-
-      val zipValidation: ValidatedNel[String, Unit] = (isUsAddress, this.zip) match {
-        case (true, zipValue) ⇒
-          matchesNew(zipValue, Address.zipPatternUs, "zip")
-        case (false, zipValue) ⇒
-          matchesNew(zipValue, Address.zipPattern, "zip")
-      }
-
-      ( notEmptyNew(this.name, "name")
-        |@| notEmptyNew(this.street1, "street1")
-        |@| notEmptyNew(this.city, "city")
-        |@| zipValidation
-        |@| phone
-        ).map { case _ ⇒ this }
+    val zipValidation: ValidatedNel[String, Unit] = (isUsAddress, zip) match {
+      case (true, zipValue) ⇒
+        matchesNew(zipValue, Address.zipPatternUs, "zip")
+      case (false, zipValue) ⇒
+        matchesNew(zipValue, Address.zipPattern, "zip")
     }
+
+    ( notEmptyNew(name, "name")
+      |@| notEmptyNew(street1, "street1")
+      |@| notEmptyNew(city, "city")
+      |@| zipValidation
+      |@| phone
+      ).map { case _ ⇒ instance }
+  }
 }
 
 final case class Address(id: Int = 0, customerId: Int, regionId: Int, name: String,
