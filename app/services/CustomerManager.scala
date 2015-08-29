@@ -6,10 +6,11 @@ import models.{Customers, CreditCard, CreditCards, Customer, StoreAdmin}
 
 import com.github.tototoshi.slick.JdbcJodaSupport._
 import org.joda.time.DateTime
+import payloads.EditCreditCard
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.Slick.UpdateReturning._
-import utils.jdbc.{RecordNotUnique, withUniqueConstraint}
+import utils.jdbc.withUniqueConstraint
 
 import cats.data.Xor
 import cats.data.Xor.{left, right}
@@ -52,6 +53,26 @@ object CustomerManager {
     db.run(updateCc.map { rows ⇒
       if (rows == 1) right({}) else left(creditCardNotFound(id))
     })
+  }
+
+  def editCreditCard(customerId: Int, id: Int, payload: EditCreditCard)
+    (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
+
+    val actions = (for {
+      cc ← CreditCards._findById(id).extract.filter(_.customerId === customerId).result.headOption
+    } yield cc).map {
+      case None     ⇒
+        left(creditCardNotFound(id))
+
+      case Some(cc) ⇒
+        if (!cc.inWallet) {
+          left(CannotUseInactiveCreditCard(cc).single)
+        } else {
+          right({})
+        }
+    }
+
+    db.run(actions)
   }
 
   def creditCardsInWalletFor(customerId: Int)

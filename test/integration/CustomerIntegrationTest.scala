@@ -1,8 +1,13 @@
 import akka.http.scaladsl.model.StatusCodes
+import akka.stream.Materializer
 import models._
+import org.scalatest.matchers.{MatchResult, Matcher}
 import org.scalatest.prop.TableDrivenPropertyChecks._
+import services.{CannotUseInactiveCreditCard, Failure, NotFoundFailure, CustomerManager}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
+
+import akka.http.scaladsl.model.{HttpResponse}
 
 class CustomerIntegrationTest extends IntegrationTestBase
   with HttpSupport
@@ -82,9 +87,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       }
 
       "when deleting a credit card" - {
-        "succeeds if the card exists" in new Fixture {
-          val creditCard = CreditCards.save(Factories.creditCard.copy(customerId = customer.id,
-            billingAddressId = address.id)).run().futureValue
+        "succeeds if the card exists" in new CreditCardFixture {
           val response = DELETE(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}")
           val deleted = CreditCards.findById(creditCard.id).run().futureValue.get
 
@@ -93,9 +96,24 @@ class CustomerIntegrationTest extends IntegrationTestBase
           deleted.deletedAt mustBe 'defined
         }
 
-        "fails if the card cannot be found" in new Fixture {
-          val response = DELETE(s"v1/customers/${customer.id}/payment-methods/credit-cards/99")
+      }
+
+      "editing a credit card" - {
+        "fails if the card cannot be found" in new CreditCardFixture {
+          val payload = payloads.EditCreditCard
+          val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/99", payload)
+
           response.status must ===(StatusCodes.NotFound)
+          response.errors must ===(NotFoundFailure(CreditCard, 99).description)
+        }
+
+        "fails if the card is not inWallet" in new CreditCardFixture {
+          CustomerManager.deleteCreditCard(customer.id, creditCard.id).futureValue
+          val payload = payloads.EditCreditCard
+          val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
+
+          response.status must ===(StatusCodes.BadRequest)
+          response.errors must ===(CannotUseInactiveCreditCard(creditCard).description)
         }
       }
     }

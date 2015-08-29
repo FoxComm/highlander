@@ -96,6 +96,11 @@ object Admin {
               result.map(renderGoodOrFailures)
             }
           } ~
+          (patch & path(IntNumber) & entity(as[payloads.EditCreditCard])) { (cardId, payload) ⇒
+            complete {
+              CustomerManager.editCreditCard(customerId, cardId, payload).map(renderNothingOrFailures)
+            }
+          } ~
           (delete & path(IntNumber) & pathEnd) { cardId ⇒
             complete {
               CustomerManager.deleteCreditCard(customerId = customerId, id = cardId).map(renderNothingOrFailures)
