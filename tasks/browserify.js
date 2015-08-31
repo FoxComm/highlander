@@ -25,7 +25,7 @@ module.exports = function(gulp, opts, $) {
       let bundler = browserify({
         entries: [entries],
         standalone: 'App',
-        transform: ['babelify', 'reactify'],
+        transform: ['babelify'],
         extensions: ['.jsx'],
         debug: !production,
         cache: {},
@@ -37,14 +37,19 @@ module.exports = function(gulp, opts, $) {
       }
 
       let bundle = function() {
-        return bundler
+        let stream = bundler
           .bundle()
+          .on('error', function(err) {
+            stream.emit('error', err);
+          })
           .pipe(source(`${theme}.js`))
           .pipe(buffer())
           //.pipe($.sourcemaps.init())
           .pipe($.if(production, $.uglify()))
           //.pipe($.sourcemaps.write('./maps'))
           .pipe(gulp.dest(path.join(opts.publicDir, 'themes', theme)));
+
+        return stream;
       };
 
       const taskName = 'browserify.' + theme;
@@ -67,9 +72,14 @@ module.exports = function(gulp, opts, $) {
 
 
   gulp.task('browserify', function() {
-    return merge(getBundlers().map(function(entry) {
-      return entry.bundle();
-    }))
+    let stream = merge(getBundlers().map(function(entry) {
+        return entry.bundle()
+          .on('error', function(err) {
+            stream.emit('error', err);
+          });
+    }));
+
+    return stream;
   });
   affectsServer('browserify');
 
