@@ -4,7 +4,7 @@ import React from 'react';
 import AddressStore from './store';
 import { dispatch } from '../../lib/dispatcher';
 import Api from '../../lib/api';
-import _ from 'underscore';
+import _ from 'lodash';
 
 export default class NewAddress extends React.Component {
   constructor(props) {
