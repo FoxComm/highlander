@@ -1,12 +1,19 @@
 
+@color-thead-bg: @color-decor12;
+@color-tr-odd-bg: @color-decor0;
+@color-tr-even-bg: @color-decor12;
+@color-th-bg-hover: #e5e7e8;
+@color-border-td: @color-decor9;
+
 .fc-table {
     border: 1px solid @color-border-td;
 
     thead {
         tr {
-            background-color: @color-bg-thead;
+            background-color: @color-thead-bg;
 
             th {
+                color: @color-decor1;
                 .padding(10px, 15px);
                 .font-spec(13px, 700, 18px);
                 .height(62px);
@@ -16,7 +23,7 @@
             }
 
             th:hover {
-                background-color: @color-bg-th-hover;
+                background-color: @color-th-bg-hover;
                 cursor: pointer;
             }
         }
@@ -24,8 +31,8 @@
 
     tbody {
         tr {
-            &:nth-child(odd) { background-color: @color-bg-tr-odd; }
-            &:nth-child(even) { background-color: @color-bg-tr-even; }
+            &:nth-child(odd) { background-color: @color-tr-odd-bg; }
+            &:nth-child(even) { background-color: @color-tr-even-bg; }
             &.new { background-color: #dfe3ed;  }
             transition: background-color 500ms;
 

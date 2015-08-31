@@ -1,7 +1,7 @@
 table.listing {
   thead {
     tr {
-      background-color: @color-bg-thead;
+      background-color: @color-thead-bg;
 
       th {
         .text-indent(15px);
@@ -14,8 +14,8 @@ table.listing {
 
   tbody {
     tr {
-      &:nth-child(odd) { background-color: @color-bg-tr-odd; }
-      &:nth-child(even) { background-color: @color-bg-tr-even; }
+      &:nth-child(odd) { background-color: @color-tr-odd-bg; }
+      &:nth-child(even) { background-color: @color-tr-even-bg; }
       &.new { background-color: #dfe3ed;  }
       transition: background-color 500ms;
 
@@ -31,7 +31,7 @@ table.listing {
 }
 
 table.inline {
-  background-color: @color-bg-tr-even;
+  background-color: @color-tr-even-bg;
 
   thead {
     tr {
@@ -47,7 +47,7 @@ table.inline {
   tbody {
     tr {
       &:nth-child(odd) {
-        background-color: @color-bg-tr-odd;
+        background-color: @color-tr-odd-bg;
       }
       &.new { background-color: #dfe3ed;  }
       transition: background-color 500ms;
