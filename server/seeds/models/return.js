@@ -2,6 +2,7 @@
 
 const BaseModel = require('../lib/base-model');
 const Order = require('./order');
+const Customer  = require('./customer');
 const errors = require('../../errors');
 
 const seed = [
@@ -32,6 +33,13 @@ class Return extends BaseModel {
 
   set returnStatus(status) {
     this.model.returnStatus = status;
+  }
+
+  viewers() {
+    let
+      limit = ~~((Math.random() * 5) + 2),
+      page  = ~~(Math.random() * 15);
+    return Customer.paginate(limit, page);
   }
 }
 
