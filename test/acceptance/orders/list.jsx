@@ -3,16 +3,16 @@
 require('testdom')('<html><body></body></html>');
 
 const
-  React     = require('react/addons'),
+  React = require('react/addons'),
   TestUtils = React.addons.TestUtils,
-  path      = require('path');
+  path = require('path');
 
 describe('Orders List', function() {
   let
     Orders = null,
     orders = null;
 
-  before(function () {
+  before(function() {
   });
 
   afterEach(function(done) {

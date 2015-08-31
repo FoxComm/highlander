@@ -11,8 +11,7 @@ describe('Countdown', function() {
   let Countdown = require(path.resolve('src/themes/admin/components/countdown/countdown.jsx'));
   let container = null;
 
-
-  beforeEach(function () {
+  beforeEach(function() {
     container = document.createElement('div');
   });
 
@@ -24,7 +23,7 @@ describe('Countdown', function() {
   it('should render', function *() {
     let countdown = React.render(
       <Countdown endDate={moment().add(5, 'm').utc().format()}/>
-    , container);
+      , container);
     let countdownNode = TestUtils.findRenderedDOMComponentWithTag(countdown, 'div').getDOMNode();
 
     expect(countdownNode).to.be.instanceof(Object);
@@ -35,7 +34,7 @@ describe('Countdown', function() {
   it('should create ending mode', function *() {
     let countdown = React.render(
       <Countdown endDate={moment().add(1, 'm').utc().format()}/>
-    , container);
+      , container);
     let countdownNode = TestUtils.findRenderedDOMComponentWithTag(countdown, 'div').getDOMNode();
 
     expect(countdownNode).to.be.instanceof(Object);
