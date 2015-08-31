@@ -18,14 +18,8 @@ for (let task of fs.readdirSync(opts.taskDir)) {
 
 gulp.task('build', ['less', 'browserify', 'imagemin']);
 
-gulp.task('test', function(cb) {
-  runSequence('lint', 'mocha', cb);
-});
+gulp.task('dev', ['build', 'test', 'server', 'watch']);
 
-gulp.task('dev', function(cb) {
-  opts.devMode = true;
-  runSequence('build', 'test', 'server', 'watch', cb);
-});
 gulp.task('default', ['build']);
 
 
