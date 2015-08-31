@@ -30,7 +30,7 @@ export default class ResendModal extends React.Component {
 
     let innerContent = <strong>{notification.contact}</strong>;
     if (this.state.edit) {
-      innerContent = <input type={notification.contactType === 'Email' ? 'email' : 'tel'} className='control' name='resend_to' />;
+      innerContent = <input type={notification.contactType === 'Email' ? 'email' : 'tel'} name='resend_to' />;
     }
 
     return (

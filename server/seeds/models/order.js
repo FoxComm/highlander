@@ -25,7 +25,6 @@ const seed = [
 ];
 
 class Order extends BaseModel {
-
   static findByIdOrRef(id) {
     let results = this.data.filter(function(item) {
       return item.id === +id || item.referenceNumber === id;

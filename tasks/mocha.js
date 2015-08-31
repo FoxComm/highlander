@@ -6,7 +6,7 @@ const
 const mochaOpts = {
   reporter: 'dot',
   ui: 'bdd',
-  timeout: 5000,
+  timeout: 30000,
   require: ['co-mocha']
 };
 
