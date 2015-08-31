@@ -1,13 +1,11 @@
 'use strict';
 
-const
-  path              = require('path'),
-  merge             = require('merge-stream'),
-  plumber           = require('gulp-plumber'),
-  PluginCleanCSS    = require("less-plugin-clean-css"),
-  PluginAutoPrefix  = require('less-plugin-autoprefix'),
-  PluginNpmImport   = require('less-plugin-npm-import'),
-  groupMediaQueries = require('less-plugin-group-css-media-queries');
+const path = require('path');
+const merge = require('merge-stream');
+const PluginCleanCSS = require("less-plugin-clean-css");
+const PluginAutoPrefix = require('less-plugin-autoprefix');
+const PluginNpmImport = require('less-plugin-npm-import');
+const groupMediaQueries = require('less-plugin-group-css-media-queries');
 
 const
   npmImport   = new PluginNpmImport(),
@@ -20,11 +18,9 @@ module.exports = function(gulp, opts, $) {
     let tasks = themes.map(function(theme) {
       let src = path.join(opts.themeDir, theme, '**/*.less');
       return gulp.src(src)
-        .pipe($.if(opts.devMode, plumber({
-          errorHandler: function (err) {
-            console.log(err);
-            this.emit('end');
-          }
+        .pipe($.if(opts.devMode, $.plumber(function (err) {
+          console.log(err);
+          this.emit('end');
         })))
         .pipe($.concat(`${theme}.less`))
         .pipe($.less({
