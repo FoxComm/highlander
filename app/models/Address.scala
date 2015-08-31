@@ -14,7 +14,7 @@ import utils.GenericTable.TableWithId
 import utils.Validation.{matches ⇒ matchesNew, notEmpty ⇒ notEmptyNew}
 import utils.{Model, ModelWithIdParameter, NewModel, RichTable, TableQueryWithId, Validation}
 
-trait Addressable {
+trait Addressable[M] {
   def city: String
   def name: String
   def phoneNumber: Option[String]
@@ -23,20 +23,17 @@ trait Addressable {
   def street2: Option[String]
   def zip: String
 
-  def instance: Address = {
-    Address(id = 0, customerId = 0, regionId = regionId, name = name, street1 = street1,
-      street2 = street2, city = city, zip = zip, phoneNumber = phoneNumber)
-  }
+  def instance(zip: String): M
 
-  def sanitize: Address = {
+  def sanitize: M = {
     if (Country.usRegions.contains(regionId)) {
-      instance.copy(zip = zip.replace("-", ""))
+      instance(zip.replace("-", ""))
     } else {
-      instance
+      instance(zip)
     }
   }
 
-  def validateNew: ValidatedNel[String, Model] = {
+  def validateNew: ValidatedNel[String, M] = {
     val isUsAddress = Country.usRegions.contains(regionId)
 
     val phone: ValidatedNel[String, Unit] = (isUsAddress, phoneNumber) match {
@@ -60,7 +57,7 @@ trait Addressable {
       |@| notEmptyNew(city, "city")
       |@| zipValidation
       |@| phone
-      ).map { case _ ⇒ instance }
+      ).map { case _ ⇒ instance(zip) }
   }
 }
 
@@ -69,9 +66,10 @@ final case class Address(id: Int = 0, customerId: Int, regionId: Int, name: Stri
   isDefaultShipping: Boolean = false, phoneNumber: Option[String])
   extends ModelWithIdParameter
   with NewModel
-  with Addressable {
+  with Addressable[Address] {
 
   def isNew: Boolean = id == 0
+  def instance(zip: String): Address = { this.copy(zip = zip) }
 }
 
 object Address {
