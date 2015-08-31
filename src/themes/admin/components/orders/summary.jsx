@@ -43,20 +43,22 @@ export default class OrderSummary extends React.Component {
 
         <div className="customer-info fc-contentBox">
           <header>{customer.firstName} {customer.lastName}</header>
-          <dl className="order-customer">
-            <dt><i className="fa fa-user"></i></dt>
-            <dd>{customer.id}</dd>
-            <dt><i className="fa fa-envelope"></i></dt>
-            <dd>{customer.email}</dd>
-            <dt><i className="fa fa-phone"></i></dt>
-            <dd>{customer.phoneNumber}</dd>
-            <dt><i className="fa fa-location-arrow"></i></dt>
-            <dd>{customer.location}</dd>
-            <dt><i className="fa fa-mobile"></i></dt>
-            <dd>{customer.modality}</dd>
-            <dt><i className="fa fa-users"></i></dt>
-            <dd>{customer.role}</dd>
-          </dl>
+          <article>
+            <dl className="order-customer">
+              <dt><i className="fa fa-user"></i></dt>
+              <dd>{customer.id}</dd>
+              <dt><i className="fa fa-envelope"></i></dt>
+              <dd>{customer.email}</dd>
+              <dt><i className="fa fa-phone"></i></dt>
+              <dd>{customer.phoneNumber}</dd>
+              <dt><i className="fa fa-location-arrow"></i></dt>
+              <dd>{customer.location}</dd>
+              <dt><i className="fa fa-mobile"></i></dt>
+              <dd>{customer.modality}</dd>
+              <dt><i className="fa fa-users"></i></dt>
+              <dd>{customer.role}</dd>
+            </dl>
+          </article>
         </div>
       </div>
     );
