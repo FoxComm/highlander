@@ -10,8 +10,7 @@
     "phoenix": "NODE_ENV=phoenix npm run dev",
     "restart": "kill -USR2 $(ps aux | grep '[m]-ashes' | awk '{print $2}')",
     "build": "./node_modules/.bin/gulp",
-    "dev": "./node_modules/.bin/gulp dev",
-    "dev-hooks": "USE_HOOKS=true npm run dev"
+    "dev": "./node_modules/.bin/gulp dev"
   },
   "repository": {
     "type": "git",
