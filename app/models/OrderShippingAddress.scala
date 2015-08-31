@@ -3,6 +3,7 @@ package models
 import scala.concurrent.ExecutionContext
 
 import com.wix.accord.dsl.{validator => createValidator, _}
+import monocle.Lens
 import monocle.macros.GenLens
 import payloads.UpdateAddressPayload
 import slick.driver.PostgresDriver.api._
@@ -17,7 +18,9 @@ final case class OrderShippingAddress(id: Int = 0, orderId: Int = 0, regionId: I
   with Addressable[OrderShippingAddress] {
 
   def isNew: Boolean = id == 0
-  def instance(zip: String): OrderShippingAddress = { this.copy(zip = zip) }
+
+  def instance: OrderShippingAddress = { this }
+  def zipLens = Lens[OrderShippingAddress, String](_.zip)(n ⇒ a ⇒ a.copy(zip = n))
 }
 
 object OrderShippingAddress {

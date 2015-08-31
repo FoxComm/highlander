@@ -6,7 +6,8 @@ import cats.data.ValidatedNel
 import cats.data.Validated.{invalid, valid, invalidNel}
 import cats.implicits._
 import utils.Litterbox._
-import monocle.macros.GenLens
+import monocle.Lens
+import monocle.macros.{GenLens, Lenses}
 import payloads.CreateAddressPayload
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
@@ -23,13 +24,15 @@ trait Addressable[M] {
   def street2: Option[String]
   def zip: String
 
-  def instance(zip: String): M
+  def instance: M
 
-  def sanitize: M = {
+  def zipLens: Lens[M, String]
+
+  def sanitize(model: M): M = {
     if (Country.usRegions.contains(regionId)) {
-      instance(zip.replace("-", ""))
+      zipLens.set(zip.replace("-", ""))(model)
     } else {
-      instance(zip)
+      zipLens.set(zip)(model)
     }
   }
 
@@ -57,7 +60,7 @@ trait Addressable[M] {
       |@| notEmptyNew(city, "city")
       |@| zipValidation
       |@| phone
-      ).map { case _ ⇒ instance(zip) }
+      ).map { case _ ⇒ instance }
   }
 }
 
@@ -69,7 +72,9 @@ final case class Address(id: Int = 0, customerId: Int, regionId: Int, name: Stri
   with Addressable[Address] {
 
   def isNew: Boolean = id == 0
-  def instance(zip: String): Address = { this.copy(zip = zip) }
+
+  def instance: Address = { this }
+  def zipLens = Lens[Address, String](_.zip)(n ⇒ a ⇒ a.copy(zip = n))
 }
 
 object Address {
