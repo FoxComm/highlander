@@ -13,10 +13,6 @@ describe('Orders List', function() {
     orders = null;
 
   before(function () {
-    Orders = require(path.resolve('src/themes/admin/components/orders/orders'));
-    orders = TestUtils.renderIntoDocument(
-      <Orders/>
-    );
   });
 
   afterEach(function(done) {
@@ -25,8 +21,5 @@ describe('Orders List', function() {
   });
 
   it('should have a list of orders', function *() {
-    let inputComponent = TestUtils.findRenderedDOMComponentWithTag(order, 'input');
-    let input = inputComponent.getDOMNode();
-    expect(input.getAttribute('type')).to.equal('checkbox');
   });
 });

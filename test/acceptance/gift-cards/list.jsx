@@ -13,8 +13,6 @@ describe('GiftCards List', function() {
     giftcards = null;
 
   before(function () {
-    GiftCards = require(path.resolve('src/themes/admin/components/gift-cards/gift-cards'));
-    giftcards = TestUtils.renderIntoDocument(<GiftCards />);
   });
 
   afterEach(function(done) {
@@ -23,6 +21,5 @@ describe('GiftCards List', function() {
   });
 
   it('should have a list of gift-cards', function *() {
-
   });
 });
