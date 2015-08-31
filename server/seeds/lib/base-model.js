@@ -84,6 +84,10 @@ class BaseModel {
     return this.findAll('orderId', orderId);
   }
 
+  static findByReturn(returnId) {
+    return this.findAll('returnId', returnId);
+  }
+
   static findIndex(id) {
     return this.data.map(function (item) { return item.id; }).indexOf(id);
   }

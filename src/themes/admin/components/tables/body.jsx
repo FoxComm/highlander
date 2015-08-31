@@ -8,7 +8,7 @@ import OrderStore from '../orders/store';
 
 export default class TableBody extends React.Component {
   convert(field, column, row) {
-    let model = this.props.model;
+    let model = column.model || row.model || this.props.model;
     switch(column.type) {
       case 'id': {
         let params = {};

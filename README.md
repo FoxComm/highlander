@@ -6,6 +6,10 @@
 
 * iojs
 
+2.5.0 is required version for Ashes.
+Newer version is incompatible with current version of project due to dependencies used.
+To install 2.5.0 version you can use [nvm](https://github.com/creationix/nvm) or [n](https://github.com/tj/n) node version manager.
+
 ### Install npm modules
 
 ```
@@ -19,7 +23,17 @@ npm run dev
 If connecting to the real phoenix backend (instead of local Node.Js mock api), run:
 ```
 npm run phoenix
-``` 
+```
+
+### Git Hooks
+
+If you want to setup some Git hooks, run the following:
+
+```
+./node_modules/.bin/gulp hooks
+```
+
+Now, installed hook runs tests and prevents push if they haven't passed.
 
 ### Vagrant setup
 
