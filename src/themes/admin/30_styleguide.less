@@ -62,16 +62,19 @@
 @color-white: #ffffff;
 @color-body: #595959;
 @color-bg-menu: #484848;
-@color-bg-thead: #f7f7f7;
-@color-bg-tr-odd: #f0f0f1;
-@color-bg-tr-even: #f7f7f7;
-@color-border-td: #d7d7d7;
 @color-link-menu: #ededed;
 @color-border: #bbbdbf;
 @color-btn-bg: #f1f1f2;
 @color-btn-bg-hover: #e3e3e4;
 @color-link-tab: #595959;
 @color-tooltip-bg: @color-decor3;
+
+// Tables
+@color-thead-bg: @color-decor12;
+@color-tr-odd-bg: @color-decor0;
+@color-tr-even-bg: @color-decor12;
+@color-th-bg-hover: #e5e7e8;
+@color-border-td: @color-decor9;
 
 // Control colors
 @color-control-primary-fg: @color-decor0;
@@ -291,7 +294,7 @@ form.vertical {
 }
 
 .panel {
-  background-color: @color-bg-thead;
+  background-color: @color-thead-bg;
   .padding(10px, 30px);
   width: 100%;
 

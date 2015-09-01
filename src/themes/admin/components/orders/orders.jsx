@@ -30,7 +30,7 @@ export default class Orders extends React.Component {
     return (
       <div id="orders">
         <div className="gutter">
-          <table className="listing">
+          <table className="fc-table">
             <TableHead columns={this.props.tableColumns}/>
             <TableBody columns={this.props.tableColumns} rows={this.state.orders} model='order' />
           </table>

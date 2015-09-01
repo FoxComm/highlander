@@ -29,7 +29,7 @@ export default class GiftCardTransactions extends React.Component {
   render() {
     return (
       <div id="gift-card-transactions">
-        <table className="inline">
+        <table className="fc-table">
           <TableHead columns={this.props.tableColumns} />
           <TableBody columns={this.props.tableColumns} rows={this.state.transactions} model="gift-card-transaction" />
         </table>

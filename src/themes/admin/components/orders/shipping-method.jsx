@@ -28,7 +28,7 @@ export default class OrderShippingMethod extends React.Component {
     return (
       <section id="order-shipping-method">
         <header>Shipping Method</header>
-        <table className="inline">
+        <table className="fc-table">
           <TableHead columns={this.props.tableColumns} />
           <TableBody columns={this.props.tableColumns} rows={this.state.methods} model='shipping-method'>
             <ShippingMethodActive />
