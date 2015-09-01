@@ -1,15 +1,16 @@
 package services
 
 import scala.collection.JavaConversions.mapAsJavaMap
+import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future}
 
-import cats.data.Xor
+import cats.data.{XorT, Xor}
 import com.stripe.exception.{CardException, InvalidRequestException}
-import com.stripe.model.{Card ⇒ StripeCard, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer}
+import com.stripe.model.{Card ⇒ StripeCard, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer, ExternalAccount}
 import com.stripe.net.{RequestOptions ⇒ StripeRequestOptions}
-import models.Customer
+import models.{CreditCard, Customer}
 
-import payloads.CreateCreditCard
+import payloads.{EditCreditCard, CreateCreditCard}
 
 abstract class PaymentGateway
 case object BraintreeGateway extends PaymentGateway
@@ -18,7 +19,7 @@ case object BraintreeGateway extends PaymentGateway
 final case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ") extends PaymentGateway {
   // Creates a customer in Stripe along with their first CC
   def createCustomerAndCard(customer: Customer, card: CreateCreditCard)
-    (implicit ec: ExecutionContext): Result[StripeCustomer] = tryFutureWrap {
+    (implicit ec: ExecutionContext): Result[(StripeCustomer, StripeCard)] = tryFutureWrap {
 
     val base = Map[String, Object](
       "description" -> "FoxCommerce",
@@ -45,7 +46,12 @@ final case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVL
       base.updated("source", mapAsJavaMap(sourceWithAddress))
     }
 
-    Xor.right(StripeCustomer.create(mapAsJavaMap(params), options))
+
+    val stripeCustomer = StripeCustomer.create(mapAsJavaMap(params), options)
+    stripeCustomer.getCards.getData.asScala.toList.headOption match {
+      case Some(stripeCard) ⇒ Xor.right((stripeCustomer, stripeCard))
+      case None ⇒ Xor.left(StripeCouldNotCreateCard.single)
+    }
   }
 
   def authorizeAmount(customerId: String, amount: Int)
@@ -61,6 +67,28 @@ final case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVL
     */
 
     Xor.right(charge.getId)
+  }
+
+  def editCard(cc: CreditCard, payload: EditCreditCard)
+    (implicit ec: ExecutionContext): Result[ExternalAccount] = tryFutureWrap {
+
+    val stripeCustomer = StripeCustomer.retrieve(cc.gatewayCustomerId)
+    val stripeCard = stripeCustomer.getSources.retrieve(cc.gatewayCardId)
+
+    val options = List[Option[(String, String)]](
+      payload.address.map("address_line1" → _),
+      payload.address2.map("address_line2" → _),
+      payload.state.map("address_state" → _),
+      payload.zip.map("address_zip" → _),
+      payload.city.map("address_city" → _),
+      payload.holderName.map("name" → _),
+      payload.expYear.map("exp_year" → _.toString),
+      payload.expMonth.map("exp_month" → _.toString)
+    )
+
+    val params = options.filter(_.isDefined).flatten.toMap[String, Object]
+
+    Xor.right(stripeCard.update(mapAsJavaMap(params)))
   }
 
   private [this] def tryFutureWrap[A](f: ⇒ Failures Xor A)

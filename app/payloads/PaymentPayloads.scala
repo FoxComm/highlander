@@ -28,10 +28,14 @@ final case class PaymentMethodPayload(cardholderName: String, cardNumber: String
 final case class ToggleDefaultCreditCard(isDefault: Boolean)
 
 final case class EditCreditCard(
-  cvv:      Option[String] = None,
-  expYear:  Option[Int] = None,
-  expMonth: Option[Int] = None,
-  address:  Option[UpdateAddressPayload] = None)
+  holderName: Option[String] = None,
+  expYear:    Option[Int] = None,
+  expMonth:   Option[Int] = None,
+  address:    Option[String] = None,
+  address2:   Option[String] = None,
+  state:      Option[String] = None,
+  city:       Option[String] = None,
+  zip:        Option[String] = None)
 
 final case class GiftCardPayment(code: String, amount: Int)
 

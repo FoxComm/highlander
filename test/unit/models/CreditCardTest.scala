@@ -9,6 +9,7 @@ class CreditCardTest extends TestBase {
   val card = CreditCard(
     customerId = 1,
     gatewayCustomerId = "abcdef",
+    gatewayCardId = "card_abcdef",
     lastFour = "4242",
     expMonth = today.getMonthOfYear,
     expYear  = today.getYear)

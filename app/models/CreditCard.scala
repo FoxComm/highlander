@@ -2,7 +2,7 @@ package models
 
 import scala.concurrent.{ExecutionContext, Future}
 
-import com.stripe.model.{Customer ⇒ StripeCustomer}
+import com.stripe.model.{Customer ⇒ StripeCustomer, Card ⇒ StripeCard}
 import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import monocle.macros.GenLens
 import org.joda.time.DateTime
@@ -17,8 +17,8 @@ import validators._
 import services.Result
 
 final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerId: Int, billingAddressId: Int = 0,
-  gatewayCustomerId: String, lastFour: String, expMonth: Int, expYear: Int, isDefault: Boolean = false,
-  inWallet: Boolean = true, deletedAt: Option[DateTime] = None)
+  gatewayCustomerId: String, gatewayCardId: String, lastFour: String, expMonth: Int, expYear: Int,
+  isDefault: Boolean = false, inWallet: Boolean = true, deletedAt: Option[DateTime] = None)
   extends PaymentMethod
   with ModelWithIdParameter
   with Validation[CreditCard] {
@@ -35,8 +35,8 @@ final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerI
 }
 
 object CreditCard {
-  def build(c: StripeCustomer, payload: CreateCreditCard): CreditCard = {
-    CreditCard(customerId = 0, gatewayCustomerId = c.getId, lastFour = payload.lastFour,
+  def build(cust: StripeCustomer, card: StripeCard, payload: CreateCreditCard): CreditCard = {
+    CreditCard(customerId = 0, gatewayCustomerId = cust.getId, gatewayCardId = card.getId, lastFour = payload.lastFour,
       expMonth = payload.expMonth, expYear = payload.expYear, isDefault = payload.isDefault)
   }
 }
@@ -50,6 +50,7 @@ class CreditCards(tag: Tag)
   def customerId = column[Int]("customer_id")
   def billingAddressId = column[Int]("billing_address_id")
   def gatewayCustomerId = column[String]("gateway_customer_id")
+  def gatewayCardId = column[String]("gateway_card_id")
   def lastFour = column[String]("last_four")
   def expMonth = column[Int]("exp_month")
   def expYear = column[Int]("exp_year")
@@ -57,7 +58,7 @@ class CreditCards(tag: Tag)
   def inWallet = column[Boolean]("in_wallet")
   def deletedAt = column[Option[DateTime]]("deleted_at")
 
-  def * = (id, parentId, customerId, billingAddressId, gatewayCustomerId,
+  def * = (id, parentId, customerId, billingAddressId, gatewayCustomerId, gatewayCardId,
     lastFour, expMonth, expYear, isDefault, inWallet, deletedAt) <> ((CreditCard.apply _).tupled, CreditCard
     .unapply)
 

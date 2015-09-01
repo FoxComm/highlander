@@ -7,8 +7,10 @@ import models.{Customers, CreditCard, CreditCards, Customer, StoreAdmin}
 import com.github.tototoshi.slick.JdbcJodaSupport._
 import org.joda.time.DateTime
 import payloads.EditCreditCard
+import slick.dbio.Effect.Read
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
+import slick.profile.SqlAction
 import utils.Slick.UpdateReturning._
 import utils.jdbc.withUniqueConstraint
 
@@ -58,26 +60,39 @@ object CustomerManager {
   def editCreditCard(customerId: Int, id: Int, payload: EditCreditCard)
     (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
 
-    val actions = (for {
-      cc ← CreditCards._findById(id).extract.filter(_.customerId === customerId).result.headOption
-    } yield cc).map {
+    def edit(cc: CreditCard) = {
+      new StripeGateway().editCard(cc, payload).flatMap {
+        case Xor.Left(f) ⇒
+          Result.failures(f)
+
+        case Xor.Right(acct) ⇒
+          val copyVersion = CreditCards.save(cc.copy(parentId = Some(cc.id)))
+          val deactivate  = CreditCards.filter(_.id === cc.id).map(_.inWallet).update(false)
+
+          db.run((copyVersion >> deactivate).transactionally).map(_ ⇒ right({}))
+      }
+    }
+
+    db.run(getCard(customerId, id)).flatMap {
       case None     ⇒
-        left(creditCardNotFound(id))
+        Result.failures(creditCardNotFound(id))
 
       case Some(cc) ⇒
         if (!cc.inWallet) {
-          left(CannotUseInactiveCreditCard(cc).single)
+          Result.failure(CannotUseInactiveCreditCard(cc))
         } else {
-          right({})
+          edit(cc)
         }
     }
-
-    db.run(actions)
   }
 
   def creditCardsInWalletFor(customerId: Int)
     (implicit ec: ExecutionContext, db: Database): Future[Seq[CreditCard]] =
     CreditCards.findInWalletByCustomerId(customerId).result.run()
+
+  def getCard(customerId: Int, id: Int)
+    (implicit ec: ExecutionContext, db: Database): DBIO[Option[CreditCard]] =
+    CreditCards._findById(id).extract.filter(_.customerId === customerId).result.headOption
 
   private def creditCardNotFound(id: Int)     = NotFoundFailure(CreditCard, id).single
 }
