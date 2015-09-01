@@ -32,7 +32,7 @@ export default class Orders extends React.Component {
         <div className="gutter">
           <table className="listing">
             <TableHead columns={this.props.tableColumns}/>
-            <TableBody columns={this.props.tableColumns} rows={this.state.orders} model='order'/>
+            <TableBody columns={this.props.tableColumns} rows={this.state.orders} model='order' />
           </table>
         </div>
       </div>
@@ -51,7 +51,6 @@ Orders.defaultProps = {
     {field: 'email', text: 'Email'},
     {field: 'orderStatus', text: 'Order Status', type: 'orderStatus'},
     {field: 'paymentStatus', text: 'Payment Status'},
-    {field: 'shippingStatus', text: 'Shipping Status'},
-    {field: 'grandTotal', text: 'Total', type: 'currency'}
+    {field: 'total', text: 'Total', type: 'currency'}
   ]
 };

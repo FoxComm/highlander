@@ -19,7 +19,8 @@ const seed = [
   {field: 'tax', method: 'integer', opts: {min: 100, max: 10000}},
   {field: 'discount', method: 'integer', opts: {min: 0, max: 1000}},
   {field: 'subtotal', method: 'integer', opts: {min: 10000, max: 1000000}},
-  {field: 'grandTotal', method: 'integer', opts: {min: 10000, max: 1000000}}
+  {field: 'total', method: 'integer', opts: {min: 10000, max: 1000000}},
+  {field: 'email', method: 'email'}
 ];
 
 class Order extends BaseModel {
@@ -46,9 +47,11 @@ class Order extends BaseModel {
       subTotal: this.model.subtotal,
       taxes: this.model.tax,
       adjustments: this.model.discount,
-      total: this.model.grandTotal
+      total: this.model.total
     };
   }
+  get email() { return this.model.email; }
+  get total() { return this.model.total; }
   get remorseEnd() { return moment.utc().add(3, 'h').format(); }
 
   set orderStatus(status) { this.model.orderStatus = status; }
