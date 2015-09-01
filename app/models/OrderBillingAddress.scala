@@ -3,7 +3,6 @@ package models
 import scala.concurrent.ExecutionContext
 
 import com.wix.accord.dsl.{validator => createValidator, _}
-import monocle.Lens
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
@@ -19,7 +18,7 @@ final case class OrderBillingAddress(id: Int = 0, orderPaymentId: Int = 0,
   def isNew: Boolean = id == 0
 
   def instance: OrderBillingAddress = { this }
-  def zipLens = Lens[OrderBillingAddress, String](_.zip)(n ⇒ a ⇒ a.copy(zip = n))
+  def zipLens = GenLens[OrderBillingAddress](_.zip)
 
   def phoneNumber: Option[String] = { None }
 }
