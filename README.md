@@ -12,7 +12,9 @@ To install 3.x.x version you can use [nvm](https://github.com/creationix/nvm) or
 
 If using nvm, run the following to install the version listed in `.nvmrc`:
 
-`nvm install`
+```
+nvm install
+```
 
 ### Install npm modules
 
