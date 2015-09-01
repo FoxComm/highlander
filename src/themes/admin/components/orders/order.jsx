@@ -7,7 +7,7 @@ import { listenTo, stopListeningTo, dispatch } from '../../lib/dispatcher';
 import OrderStore from './store';
 import Viewers from '../viewers/viewers';
 import ConfirmModal from '../modal/confirm';
-import Countdown from '../countdown/countdown';
+import RemorseTimer from './remorseTimer';
 
 const confirmEvent = 'confirm-change';
 const changeOptions = {
@@ -89,7 +89,7 @@ export default class Order extends React.Component {
       subNav        = null,
       viewers       = null,
       orderStatus   = null,
-      countdown     = null;
+      remorseTimer  = null;
 
     if (order.id) {
       let params = {order: order.referenceNumber};
@@ -110,7 +110,7 @@ export default class Order extends React.Component {
 
       viewers = <Viewers model='orders' modelId={order.id}/>;
 
-      if (order.orderStatus === 'remorseHold') countdown = <Countdown endDate={order.remorseEnd} />;
+      if (order.orderStatus === 'remorseHold') remorseTimer = <RemorseTimer endDate={order.remorseEnd} />;
     }
 
     if (OrderStore.editableStatusList.indexOf(order.orderStatus) !== -1) {
@@ -132,7 +132,7 @@ export default class Order extends React.Component {
         <div className="gutter title">
           <div>
             <h1>Order {order.referenceNumber}</h1>
-            {countdown}
+            {remorseTimer}
           </div>
         </div>
         <div className="gutter statuses">

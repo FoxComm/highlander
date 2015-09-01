@@ -3,18 +3,16 @@
 require('testdom')('<html><body></body></html>');
 
 const
-  React     = require('react/addons'),
+  React = require('react/addons'),
   TestUtils = React.addons.TestUtils,
-  path      = require('path');
+  path = require('path');
 
 describe('GiftCards List', function() {
   let
     GiftCards = null,
     giftcards = null;
 
-  before(function () {
-    GiftCards = require(path.resolve('src/themes/admin/components/gift-cards/gift-cards'));
-    giftcards = TestUtils.renderIntoDocument(<GiftCards />);
+  before(function() {
   });
 
   afterEach(function(done) {
@@ -23,6 +21,5 @@ describe('GiftCards List', function() {
   });
 
   it('should have a list of gift-cards', function *() {
-
   });
 });
