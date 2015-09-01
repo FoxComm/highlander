@@ -30,9 +30,6 @@ export default class Returns extends React.Component {
     this.setState({orders: ReturnsStore.getState()});
   }
 
-  onAction() {
-  }
-
   onSelectedChange(event) {
     let model = this.props.model;
     let checked = event.target.checked;
@@ -48,18 +45,6 @@ export default class Returns extends React.Component {
   render() {
     return (
       <div id="returns">
-        <div className="controls gutter">
-          <select name="action" onChange={this.onAction.bind(this)}>
-            <option>Actions</option>
-            <option value="action1">Action 1</option>
-            <option value="action2">Action 2</option>
-          </select>
-          <button>
-            <i className="fa fa-trash-o"></i>
-          </button>
-          <span>
-          </span>
-        </div>
         <div className="gutter">
           <table className="fc-table">
             <TableHead columns={this.props.tableColumns}/>

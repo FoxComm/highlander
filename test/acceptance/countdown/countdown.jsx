@@ -28,7 +28,7 @@ describe('Countdown', function() {
 
     expect(countdownNode).to.be.instanceof(Object);
     expect(countdownNode.className).to.contain('fc-countdown');
-    expect(countdownNode.innerHTML).to.be.equal('00:04:59');
+    expect(countdownNode.innerHTML).to.match(/\d{2}:\d{2}:\d{2}/);
   });
 
   it('should create ending mode', function *() {
@@ -40,6 +40,6 @@ describe('Countdown', function() {
     expect(countdownNode).to.be.instanceof(Object);
     expect(countdownNode.className).to.contain('fc-countdown');
     expect(countdownNode.className).to.contain('fc-countdown_ending');
-    expect(countdownNode.innerHTML).to.be.equal('00:00:59');
+    expect(countdownNode.innerHTML).to.match(/\d{2}:\d{2}:\d{2}/);
   });
 });
