@@ -9,12 +9,13 @@ class CreditCardTest extends TestBase {
   val today = DateTime.now()
   val card = Factories.creditCard
 
-  "CreditCardGateway" - {
+  "CreditCard" - {
     "validations" - {
       "disallows cards with expired dates" in {
         val cards = Table(
           ("card", "errors"),
-          (card.copy(expMonth = today.minusMonths(1).getMonthOfYear), "credit card is expired"),
+          (card.copy(expMonth = today.minusMonths(1).getMonthOfYear,
+            expYear = today.getYear), "credit card is expired"),
           (card.copy(expYear  = 2000), "credit card is expired")
         )
 
