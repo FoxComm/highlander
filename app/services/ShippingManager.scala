@@ -16,17 +16,27 @@ object ShippingManager {
   def getShippingMethodsForOrder(order: models.Order)(implicit db: Database, ec: ExecutionContext):
     Result[Seq[ShippingMethod]] = {
 
-    getShippingData(order).flatMap {
-      case Some(shippingData) ⇒
-        db.run(ShippingMethods.findActive.result).flatMap { shippingMethods ⇒
-          val matchingMethods = shippingMethods.filter { shippingMethod ⇒
-            val statement = shippingMethod.conditions.extract[models.QueryStatement]
-            evaluateStatement(shippingData, statement)
-          }
+    val queries = for {
+      orderShippingAddresses ← models.OrderShippingAddresses.findByOrderIdWithRegions(order.id).result.headOption
+      subTotal ← OrderTotaler._subTotalForOrder(order)
+      grandTotal ← OrderTotaler._grandTotalForOrder(order)
+      shippingMethods ← ShippingMethods.findActive.result
+    } yield (orderShippingAddresses, subTotal, grandTotal, shippingMethods)
 
-          right(matchingMethods)
+    db.run(queries).flatMap {
+      case (Some(addressWithRegion), subTotal, grandTotal, shippingMethods) ⇒
+
+        val shippingData = ShippingData(order, grandTotal.getOrElse(0), subTotal.getOrElse(0),
+          addressWithRegion._1, addressWithRegion._2)
+
+        val matchingMethods = shippingMethods.filter { shippingMethod ⇒
+          val statement = shippingMethod.conditions.extract[models.QueryStatement]
+          evaluateStatement(shippingData, statement)
         }
-      case None ⇒
+
+        right(matchingMethods)
+
+      case (None, _, _, _) ⇒
         left(OrderShippingMethodsCannotBeProcessed(order.refNum))
     }
   }
@@ -52,24 +62,6 @@ object ShippingManager {
         case models.QueryStatement.And ⇒ evaluateStatement(shippingData, nextCond) && result
         case models.QueryStatement.Or ⇒ evaluateStatement(shippingData, nextCond) || result
       }
-    }
-  }
-
-  private def getShippingData(order: models.Order)
-    (implicit db: Database, ec: ExecutionContext): Future[Option[ShippingData]] = {
-    val actions = for {
-      orderShippingAddresses ← models.OrderShippingAddresses.findByOrderIdWithRegions(order.id).result.headOption
-      subTotal ← OrderTotaler._subTotalForOrder(order)
-      grandTotal ← OrderTotaler._grandTotalForOrder(order)
-    } yield (orderShippingAddresses, subTotal, grandTotal)
-
-    db.run(actions).map {
-      case (Some(addressWithRegion), subTotal, grandTotal) ⇒
-        Some(ShippingData(order, grandTotal.getOrElse(0), subTotal.getOrElse(0),
-          addressWithRegion._1, addressWithRegion._2))
-
-      case (None, _, _) ⇒
-        None
     }
   }
 
