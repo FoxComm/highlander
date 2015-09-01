@@ -144,7 +144,7 @@ object OrderPaymentUpdater {
     }.transactionally)
   }
 
-  private def deletedOrFailure(rowsDeleted: Int, pmt: PaymentMethod.Type) = {
+  private def deletedOrFailure(rowsDeleted: Int, pmt: PaymentMethod.Type): Failures Xor Unit = {
     if (rowsDeleted == 0)
       Xor.left(OrderPaymentNotFoundFailure(pmt).single)
     else

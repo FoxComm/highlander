@@ -22,9 +22,9 @@ object AddressManager {
         db.run(for {
           newAddress ← Addresses.save(address)
           region     ← Regions.findById(newAddress.regionId)
-        } yield (newAddress, region)).map {
-          case (address, Some(region))  ⇒ Xor.right(Response.build(address, region))
-          case (_, None)                ⇒ Xor.left(NotFoundFailure(Region, address.regionId).single)
+        } yield (newAddress, region)).flatMap {
+          case (address, Some(region))  ⇒ Result.good(Response.build(address, region))
+          case (_, None)                ⇒ Result.failure(NotFoundFailure(Region, address.regionId))
         }
       case Invalid(errors) ⇒ Result.failure(ValidationFailureNew(errors))
     }
@@ -38,10 +38,10 @@ object AddressManager {
         db.run((for {
           rowsAffected ← Addresses.insertOrUpdate(address)
           region       ← Regions.findById(address.regionId)
-        } yield (rowsAffected, address, region)).transactionally).map {
-          case (1, address, Some(region)) ⇒ Xor.right(Response.build(address, region))
-          case (_, address, Some(region)) ⇒ Xor.left(NotFoundFailure(address).single)
-          case (_, _, None)               ⇒ Xor.left(NotFoundFailure(Region, address.regionId).single)
+        } yield (rowsAffected, address, region)).transactionally).flatMap {
+          case (1, address, Some(region)) ⇒ Result.good(Response.build(address, region))
+          case (_, address, Some(region)) ⇒ Result.failure(NotFoundFailure(address))
+          case (_, _, None)               ⇒ Result.failure(NotFoundFailure(Region, address.regionId))
         }
       case Invalid(errors) ⇒ Result.failure(ValidationFailureNew(errors))
     }
