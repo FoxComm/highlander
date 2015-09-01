@@ -43,7 +43,7 @@ object Http {
                                        (implicit ec: ExecutionContext): HttpResponse =
     or.fold(renderFailure(_), render(_))
 
-  def renderNothingOrFailures(or: Failures Xor Unit)(implicit ec: ExecutionContext): HttpResponse =
+  def renderNothingOrFailures(or: Failures Xor _)(implicit ec: ExecutionContext): HttpResponse =
     or.fold(renderFailure(_), _ ⇒ noContentResponse)
 
   def whenFound[A, G <: AnyRef, B <: AnyRef](finder: Future[Option[A]])

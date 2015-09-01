@@ -20,6 +20,8 @@ package object services {
   object Result {
     def fromFuture[A](value: Future[A])(implicit ec: ExecutionContext): services.Result[A] = value.flatMap(good)
 
+    val unit = right(())
+
     def good[A](value: A):  Result[A] = Future.successful(Xor.right(value))
     def right[A](value: A): Result[A] = good(value)
     def left[A](failure: Failure): Result[A] = failures(failure)
