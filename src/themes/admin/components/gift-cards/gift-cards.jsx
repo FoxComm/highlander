@@ -73,7 +73,7 @@ export default class GiftCards extends React.Component {
           <h2>Gift Cards</h2>
           <button onClick={this.toggleNew.bind(this)}>+ New Gift Card</button>
           <div className="gutter">
-            <table className="inline">
+            <table className="fc-table">
               <TableHead columns={this.props.tableColumns} />
               <TableBody columns={this.props.tableColumns} rows={this.state.cards} model="giftcard" />
             </table>

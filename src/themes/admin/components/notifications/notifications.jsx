@@ -35,7 +35,7 @@ export default class Notifications extends React.Component {
   render() {
     return (
       <div id="notifications">
-        <table className='listing'>
+        <table className="fc-table">
           <TableHead columns={this.props.tableColumns}/>
           <TableBody columns={this.props.tableColumns} rows={this.state.notifications} model='notification'>
             <ResendButton />

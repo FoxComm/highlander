@@ -11,7 +11,7 @@ export default class OrderLineItems extends React.Component {
     return (
       <section id="order-line-items">
         <header>Items</header>
-        <table className="inline">
+        <table className="fc-table">
           <TableHead columns={this.props.tableColumns}/>
           <TableBody columns={this.props.tableColumns} rows={order.lineItems} model='order'/>
         </table>

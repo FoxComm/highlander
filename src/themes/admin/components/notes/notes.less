@@ -80,37 +80,4 @@
 
     input[type=submit] { float: left; }
   }
-
-  table {
-    thead {
-      tr {
-        th { .line-height(50px); }
-      }
-    }
-
-    tbody {
-      tr {
-        &:nth-child(odd) { background-color: @color-tr-odd-bg; }
-        &:nth-child(even) { background-color: @color-tr-even-bg; }
-        &.new { background-color: #dfe3ed;  }
-        transition: background-color 500ms;
-      }
-    }
-
-    tr {
-
-      th,
-      td {
-        .padding-left(35px);
-        .padding-right(35px);
-      }
-
-      td {
-        vertical-align: top;
-        .padding-top(30px);
-        .padding-bottom(30px);
-        &:first-child { white-space: nowrap; }
-      }
-    }
-  }
 }

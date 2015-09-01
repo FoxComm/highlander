@@ -61,7 +61,7 @@ export default class Returns extends React.Component {
           </span>
         </div>
         <div className="gutter">
-          <table className="listing">
+          <table className="fc-table">
             <TableHead columns={this.props.tableColumns}/>
             <TableBody columns={this.props.tableColumns} rows={this.state.returns} model='return'>
               <Selected/>
