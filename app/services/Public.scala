@@ -20,10 +20,10 @@ object Public {
       rs ← queryRegions if rs.countryId === cs.id
     } yield (cs, rs)
 
-    db.run(query.result).map { results ⇒
+    db.run(query.result).flatMap { results ⇒
       results.headOption.map(_._1) match {
-        case None    ⇒ Xor.left(NotFoundFailure(Country, countryId).single)
-        case Some(c) ⇒ Xor.right(CountryWithRegions(c, results.map(_._2).to[Seq]))
+        case Some(c) ⇒ Result.good(CountryWithRegions(c, results.map(_._2).to[Seq]))
+        case None    ⇒ Result.failure(NotFoundFailure(Country, countryId))
       }
     }
   }

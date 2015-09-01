@@ -65,9 +65,9 @@ final case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVL
 
   private [this] def tryFutureWrap[A](f: ⇒ Failures Xor A)
                                      (implicit ec: ExecutionContext): Result[A] = {
-    Future(f).recover {
-      case t: InvalidRequestException ⇒ Xor.left(Failures(StripeFailure(t)))
-      case t: CardException           ⇒ Xor.left(Failures(StripeFailure(t)))
+    Future(f).recoverWith {
+      case t: InvalidRequestException ⇒ Result.failure(StripeFailure(t))
+      case t: CardException           ⇒ Result.failure(StripeFailure(t))
     }
   }
 

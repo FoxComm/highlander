@@ -29,18 +29,18 @@ final case class CreditCardPaymentCreator(order: Order, customer: Customer, card
 
   def run(): Response = cardPayload.validate match {
     case failure @ validation.Result.Failure(violations) ⇒
-      Future.successful(Xor.left(List(ValidationFailure(failure))))
+      Result.failure(ValidationFailure(failure))
     case Success ⇒
       // creates the customer, card, and gives us getDefaultCard as the token
       gateway.createCustomerAndCard(customer, this.cardPayload).flatMap {
         case Xor.Right(stripeCustomer) =>
           createRecords(stripeCustomer, order, customer).flatMap { optOrder =>
             optOrder.map { (o: Order) =>
-              FullOrder.fromOrder(o).map(Xor.right)
+              Result.fromFuture(FullOrder.fromOrder(o))
             }.getOrElse(Future.successful(Xor.left(List(NotFoundFailure(order)))))
           }
 
-        case Xor.Left(errors) ⇒ Future.successful(Xor.Left(errors))
+        case left @ Xor.Left(errors) ⇒ Future.successful(left)
       }
   }
 
