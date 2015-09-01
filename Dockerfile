@@ -2,7 +2,7 @@ FROM ubuntu:vivid
 
 RUN apt-get install -y curl
 
-RUN curl -sL https://deb.nodesource.com/setup_iojs_2.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_iojs_3.x | bash -
 RUN apt-get -y update
 RUN apt-get install -y iojs make
 
