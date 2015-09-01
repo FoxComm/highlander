@@ -325,3 +325,12 @@
   color: @fg;
   background-color: @bg;
 }
+
+.border(@size, @type, @color) {
+  border: @size @type @color;
+}
+
+.border(@size, @type, @color) when (ispixel(@size)) {
+  @rem-value: ~`pxtorem('@{size}')`;
+  border: @rem-value @type @color;
+}
