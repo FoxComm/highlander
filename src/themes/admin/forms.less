@@ -54,3 +54,66 @@ input[type=text], input[type=number], textarea {
     border: 1px solid @color-decor22;
   }
 }
+
+input[type=radio]:not(old) {
+  .width(24px);
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+}
+
+input[type=radio]:not(old) + label {
+  display: inline-block;
+  .margin-left(-24px);
+  .line-height(24px);
+  position: relative;
+}
+
+input[type=radio]:not(old) {
+  ~ label:before {
+    content: "";
+    display: inline-block;
+    .size(24px);
+    margin: 0.25em 0.5em 0.25em 0.25em;
+    .border(2px, solid, @color-decor9);
+    .border-radius(13px);
+    background: @color-decor0;
+    vertical-align: middle;
+  }
+
+  &:hover ~ label:before {
+    border-color: @color-decor3;
+  }
+
+  &:disabled {
+    ~ label:before {
+      border-color: @color-decor9;
+      background: @color-decor12;
+    }
+  }
+}
+
+input[type=radio]:not(old):checked {
+  ~ label:before {
+    border-color: @color-decor3;
+  }
+  &:hover ~ label:before {
+    border-color: @color-decor4;
+  }
+  ~ label:after {
+    content: "";
+    display: block;
+    position: absolute;
+    .size(16px);
+    margin: 0.25em;
+    .top(4px);
+    .left(4px);
+    .border-radius(9px);
+    background: @color-decor3;
+    z-index: 1;
+  }
+  &:hover ~ label:after {
+    background: @color-decor4;
+  }
+
+}
