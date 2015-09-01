@@ -13,7 +13,7 @@ export default class Header extends React.Component {
 
     if (model) {
       let modelName = inflect(model, 'pluralize', 'capitalize');
-      breadcrumb = <div className="breadcrumb">{modelName} <i className="icon-right-open"></i> {params[model]}</div>;
+      breadcrumb = <div className="breadcrumb">{modelName} <i className="fa fa-chevron-right"></i> {params[model]}</div>;
     } else {
       let modelName = router.getCurrentPathname();
       modelName = modelName.replace(/^\//, '');
@@ -26,9 +26,9 @@ export default class Header extends React.Component {
         {breadcrumb}
         <div className="sub-nav">
           <div className="notifications">
-            <i className="icon-bell-alt"></i>
+            <i className="fa fa-bell"></i>
           </div>
-          <div className="sort">Name <i className="icon-down-open"></i></div>
+          <div className="sort">Name <i className="fa fa-chevron-down"></i></div>
         </div>
       </header>
     );

@@ -8,7 +8,7 @@ export default class PaymentMethod extends React.Component {
 
     return (
       <div className="payment-method">
-        <i className={`icon-cc-${model.cardType}`}></i>
+        <i className={`fa fa-${model.cardType}`}></i>
         <div>
           <div>{model.cardNumber}</div>
           <div>{model.cardExp}</div>

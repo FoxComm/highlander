@@ -105,6 +105,7 @@
     "thunkify-wrap": "^1.0.4"
   },
   "devDependencies": {
+    "babel": "^5.8.23",
     "babelify": "^6.3.0",
     "browserify": "^11.0.1",
     "chai": "^3.0.0",
@@ -117,12 +118,12 @@
     "gulp-imagemin": "^2.3.0",
     "gulp-less": "^3.0.3",
     "gulp-load-plugins": "^1.0.0-rc.1",
+    "gulp-plumber": "^1.0.1",
     "gulp-rename": "^1.2.2",
     "gulp-sourcemaps": "^1.5.2",
     "gulp-uglify": "^1.2.0",
     "gulp-eslint": "^1.0.0",
     "gulp-mocha": "^2.1.2",
-    "gulp-plumber": "^1.0.1",
     "gulp-util": "^3.0.6",
     "jsdom": "^6.3.0",
     "koa-logger": "^1.2.2",
