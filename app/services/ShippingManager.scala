@@ -23,7 +23,7 @@ object ShippingManager {
       shippingMethods ← ShippingMethods.findActive.result
     } yield (orderShippingAddresses, subTotal, grandTotal, shippingMethods)
 
-    db.run(queries).flatMap {
+    db.run(queries.transactionally).flatMap {
       case (Some(addressWithRegion), subTotal, grandTotal, shippingMethods) ⇒
 
         val shippingData = ShippingData(order, grandTotal.getOrElse(0), subTotal.getOrElse(0),

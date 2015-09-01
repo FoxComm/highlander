@@ -445,6 +445,32 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
   }
 
+  "shipping methods" - {
+
+    "Evaluates shipping rule: order total is greater than $25" - {
+
+      "Shipping method is returned when actual order total is greater than $25" in new ShippingMethodsFixture {
+        val conditions =
+          """
+            | {
+            |   "comparison": "and",
+            |   "conditions": [{
+            |     "rootObject": "Order", "field": "grandtotal", "operator": "greaterThan", "valInt": 25
+            |   }]
+            | }
+          """.stripMargin
+
+        val action = ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = parse(conditions)))
+        val shippingMethod = db.run(action).futureValue
+
+        val response = GET(s"v1/orders/${order.referenceNumber}/shipping-methods")
+        response.status must === (StatusCodes.OK)
+      }
+
+    }
+
+  }
+
   trait Fixture {
     val (order, storeAdmin, customer) = (for {
       customer ← Customers.save(Factories.customer)
@@ -466,6 +492,21 @@ class OrderIntegrationTest extends IntegrationTestBase
   }
 
   trait PaymentMethodsFixture extends AddressFixture {
+  }
+
+  trait ShippingMethodsFixture extends Fixture {
+    val californiaId = 4129
+    val michiganId = 4148
+    val oregonId = 4164
+    val washingtonId = 4177
+
+    val (address, orderShippingAddress) = (for {
+      address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = californiaId))
+      orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
+      sku ← Skus.save(Sku(name = Some("Donkey"), price = 27))
+      lineItems ← OrderLineItems.save(OrderLineItem(orderId = order.id, skuId = sku.id))
+    } yield (address, orderShippingAddress)).run().futureValue
+
   }
 }
 

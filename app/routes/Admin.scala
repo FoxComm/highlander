@@ -277,6 +277,18 @@ object Admin {
               }
             }
           }
+        } ~
+        pathPrefix("shipping-methods") {
+          (get & pathEnd) {
+            complete {
+              Orders.findByRefNum(refNum).result.headOption.run().flatMap {
+                case Some(order) ⇒
+                  services.ShippingManager.getShippingMethodsForOrder(order).map(renderGoodOrFailures)
+                case None ⇒
+                  Future.successful(notFoundResponse)
+              }
+            }
+          }
         }
       }
     }
