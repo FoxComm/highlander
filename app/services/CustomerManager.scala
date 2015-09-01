@@ -65,11 +65,12 @@ object CustomerManager {
         case Xor.Left(f) ⇒
           Result.failures(f)
 
-        case Xor.Right(acct) ⇒
+        case Xor.Right(_) ⇒
           val copied = cc.copy(
-            parentId = Some(cc.id),
-            expYear = payload.expYear.getOrElse(cc.expYear),
-            expMonth = payload.expMonth.getOrElse(cc.expMonth)
+            parentId    = Some(cc.id),
+            holderName  = payload.holderName.getOrElse(cc.holderName),
+            expYear     = payload.expYear.getOrElse(cc.expYear),
+            expMonth    = payload.expMonth.getOrElse(cc.expMonth)
           )
 
           val copyVersion = CreditCards.save(copied)
@@ -84,11 +85,10 @@ object CustomerManager {
         Result.failures(creditCardNotFound(id))
 
       case Some(cc) ⇒
-        if (!cc.inWallet) {
+        if (!cc.inWallet)
           Result.failure(CannotUseInactiveCreditCard(cc))
-        } else {
+        else
           edit(cc)
-        }
     }
   }
 

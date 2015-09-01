@@ -8,7 +8,7 @@ create table credit_cards (
     billing_address_id integer not null,
     gateway_customer_id character varying(255) not null,
     gateway_card_id character varying(255) not null,
-    -- gateway_id integer not null, TODO: add lookup table
+    holder_name character varying(255) not null,
     last_four character(4) not null,
     exp_month integer not null,
     exp_year integer not null,

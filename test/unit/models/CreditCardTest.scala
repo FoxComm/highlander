@@ -3,16 +3,11 @@ package models
 import util.TestBase
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.joda.time.DateTime
+import utils.Seeds.Factories
 
 class CreditCardTest extends TestBase {
   val today = DateTime.now()
-  val card = CreditCard(
-    customerId = 1,
-    gatewayCustomerId = "abcdef",
-    gatewayCardId = "card_abcdef",
-    lastFour = "4242",
-    expMonth = today.getMonthOfYear,
-    expYear  = today.getYear)
+  val card = Factories.creditCard
 
   "CreditCardGateway" - {
     "validations" - {

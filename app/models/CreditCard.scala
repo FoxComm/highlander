@@ -17,7 +17,7 @@ import validators._
 import services.Result
 
 final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerId: Int, billingAddressId: Int = 0,
-  gatewayCustomerId: String, gatewayCardId: String, lastFour: String, expMonth: Int, expYear: Int,
+  gatewayCustomerId: String, gatewayCardId: String, holderName: String, lastFour: String, expMonth: Int, expYear: Int,
   isDefault: Boolean = false, inWallet: Boolean = true, deletedAt: Option[DateTime] = None)
   extends PaymentMethod
   with ModelWithIdParameter
@@ -35,9 +35,9 @@ final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerI
 }
 
 object CreditCard {
-  def build(cust: StripeCustomer, card: StripeCard, payload: CreateCreditCard): CreditCard = {
-    CreditCard(customerId = 0, gatewayCustomerId = cust.getId, gatewayCardId = card.getId, lastFour = payload.lastFour,
-      expMonth = payload.expMonth, expYear = payload.expYear, isDefault = payload.isDefault)
+  def build(cust: StripeCustomer, card: StripeCard, p: CreateCreditCard): CreditCard = {
+    CreditCard(customerId = 0, gatewayCustomerId = cust.getId, gatewayCardId = card.getId, holderName =
+      p.holderName, lastFour = p.lastFour, expMonth = p.expMonth, expYear = p.expYear, isDefault = p.isDefault)
   }
 }
 
@@ -51,6 +51,7 @@ class CreditCards(tag: Tag)
   def billingAddressId = column[Int]("billing_address_id")
   def gatewayCustomerId = column[String]("gateway_customer_id")
   def gatewayCardId = column[String]("gateway_card_id")
+  def holderName = column[String]("holder_name")
   def lastFour = column[String]("last_four")
   def expMonth = column[Int]("exp_month")
   def expYear = column[Int]("exp_year")
@@ -58,7 +59,7 @@ class CreditCards(tag: Tag)
   def inWallet = column[Boolean]("in_wallet")
   def deletedAt = column[Option[DateTime]]("deleted_at")
 
-  def * = (id, parentId, customerId, billingAddressId, gatewayCustomerId, gatewayCardId,
+  def * = (id, parentId, customerId, billingAddressId, gatewayCustomerId, gatewayCardId, holderName,
     lastFour, expMonth, expYear, isDefault, inWallet, deletedAt) <> ((CreditCard.apply _).tupled, CreditCard
     .unapply)
 
