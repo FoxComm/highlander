@@ -91,7 +91,7 @@ export default class Notes extends React.Component {
             </div>
           </fieldset>
         </form>
-        <table className="fc-table">
+        <table className="fc-table fc-table-expanded">
           <TableHead columns={this.props.tableColumns}/>
           <TableBody columns={this.props.tableColumns} rows={this.state.notes} model='order'>
             <UserInitials/>
