@@ -98,7 +98,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
       }
 
-      "editing a credit card" - {
+      "when editing a credit card" - {
         "fails if the card cannot be found" in new CreditCardFixture {
           val payload = payloads.EditCreditCard
           val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/99", payload)
@@ -115,6 +115,15 @@ class CustomerIntegrationTest extends IntegrationTestBase
           response.status must ===(StatusCodes.BadRequest)
           response.errors must ===(CannotUseInactiveCreditCard(creditCard).description)
         }
+
+        /* TODO: enable me when we've introduced Stripe mocking
+        "fails if stripe returns an error" in new CreditCardFixture {
+          val payload = payloads.EditCreditCard(expYear = Some(2000))
+          val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
+
+          response.status must ===(StatusCodes.BadRequest)
+          response.errors must ===(CannotUseInactiveCreditCard(creditCard).description)
+        } */
       }
     }
   }
