@@ -19,16 +19,16 @@ object ShippingManager {
     getShippingData(order).flatMap {
       case Some(shippingData) ⇒
         db.run(ShippingMethods.findActive.result).flatMap { shippingMethods ⇒
-          right(shippingMethods.filter(evaluateShippingMethod(shippingData, _)))
+          val matchingMethods = shippingMethods.filter { shippingMethod ⇒
+            val statement = shippingMethod.conditions.extract[models.QueryStatement]
+            evaluateStatement(shippingData, statement)
+          }
+
+          right(matchingMethods)
         }
       case None ⇒
         left(OrderShippingMethodsCannotBeProcessed(order.refNum))
     }
-  }
-
-  def evaluateShippingMethod(shippingData: ShippingData, shippingMethod: ShippingMethod): Boolean = {
-    val statement = shippingMethod.conditions.extract[models.QueryStatement]
-    evaluateStatement(shippingData, statement)
   }
 
   private def evaluateStatement(shippingData: ShippingData, statement: models.QueryStatement): Boolean = {
@@ -57,22 +57,20 @@ object ShippingManager {
 
   private def getShippingData(order: models.Order)
     (implicit db: Database, ec: ExecutionContext): Future[Option[ShippingData]] = {
-    db.run(models.OrderShippingAddresses.findByOrderIdWithRegions(order.id).result.headOption).flatMap { x ⇒
-      val isNothing: Future[Option[ShippingData]] = Future.successful(None)
+    val actions = for {
+      orderShippingAddresses ← models.OrderShippingAddresses.findByOrderIdWithRegions(order.id).result.headOption
+      subTotal ← OrderTotaler._subTotalForOrder(order)
+      grandTotal ← OrderTotaler._grandTotalForOrder(order)
+    } yield (orderShippingAddresses, subTotal, grandTotal)
 
-      x.fold(isNothing) { addressWithRegion ⇒
+    db.run(actions).map {
+      case (Some(addressWithRegion), subTotal, grandTotal) ⇒
+        Some(ShippingData(order, grandTotal.getOrElse(0), subTotal.getOrElse(0),
+          addressWithRegion._1, addressWithRegion._2))
 
-        order.grandTotal.flatMap { grandTotal ⇒
-          order.subTotal.flatMap { subTotal ⇒
-            val sd = ShippingData(order = order, orderTotal = grandTotal, orderSubTotal = subTotal,
-              shippingAddress = addressWithRegion._1, shippingRegion = addressWithRegion._2)
-
-            Future.successful(Some(sd))
-          }
-        }
-      }
+      case (None, _, _) ⇒
+        None
     }
-
   }
 
   private def evaluateOrderCondition(shippingData: ShippingData, condition: models.Condition): Boolean = {

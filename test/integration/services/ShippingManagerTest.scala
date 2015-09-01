@@ -153,6 +153,8 @@ class ShippingManagerTest extends IntegrationTestBase {
     val (customer, order) = (for {
       customer ← Customers.save(Factories.customer)
       order ← Orders.save(Factories.order.copy(customerId = customer.id))
+      sku ← Skus.save(Sku(name = Some("Donkey"), price = 27))
+      lineItem ← OrderLineItems.save(OrderLineItem(orderId = order.id, skuId = sku.id))
     } yield (customer, order)).run().futureValue
 
     val californiaId = 4129
