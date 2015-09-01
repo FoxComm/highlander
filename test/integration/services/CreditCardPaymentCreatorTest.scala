@@ -10,6 +10,7 @@ class CreditCardPaymentCreatorTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global
 
   "CreditCardPaymentCreatorTest" - {
+    /* TODO: enable me when we've introduced Stripe mocking
     "Adds a credit card with a billing address that does not exist in the address book" in new Fixture {
       val addressPayload = CreateAddressPayload(name = "Home Office", regionId = 1,
         street1 = "3000 Coolio Dr", city = "Seattle", zip = "55555")
@@ -18,7 +19,7 @@ class CreditCardPaymentCreatorTest extends IntegrationTestBase {
 
       val fullOrder = CreditCardPaymentCreator(order = order, customer = customer, cardPayload = ccPayload).run()
         .futureValue.get
-    }
+    } */
   }
 
   trait Fixture {
