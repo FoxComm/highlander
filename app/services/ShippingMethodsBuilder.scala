@@ -7,6 +7,8 @@ import scala.concurrent.{Future, ExecutionContext}
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 import slick.driver.PostgresDriver.api._
 
+import cats.implicits._
+
 object ShippingMethodsBuilder {
   final case class ShippingMethodWithPrice(method: ShippingMethod, displayName: String, estimatedTime: String, price: Int)
 
@@ -102,7 +104,7 @@ object ShippingMethodsBuilder {
     } yield (updatedOrder)
 
     db.run(queries).map { optOrder =>
-      optOrder.map(Xor.right).getOrElse(Xor.left(List(GeneralFailure("Shipping method was not saved"))))
+      optOrder.toRightXor(List(GeneralFailure("Shipping method was not saved")))
     }
   }
 }
