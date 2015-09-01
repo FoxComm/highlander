@@ -19,6 +19,7 @@ final case class Country(id: Int = 0, name: String, alpha2: String, alpha3: Stri
 
 object Country {
   val unitedStatesId = 234
+  val usRegions = (4121 to 4180).toSeq
 }
 
 class Countries(tag: Tag) extends TableWithId[Country](tag, "countries") with RichTable {

@@ -2,46 +2,30 @@ package models
 
 import scala.concurrent.{ExecutionContext, Future}
 
-import cats.data.ValidatedNel
-import cats.data.Validated.{invalid, valid, invalidNel}
-import cats.implicits._
-import utils.Litterbox._
 import monocle.macros.GenLens
 import payloads.CreateAddressPayload
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.GenericTable.TableWithId
-import utils.Validation.{matches ⇒ matchesNew, notEmpty ⇒ notEmptyNew}
-import utils.{Model, ModelWithIdParameter, NewModel, RichTable, TableQueryWithId, Validation}
+import utils.{ModelWithIdParameter, NewModel, RichTable, TableQueryWithId}
 
 final case class Address(id: Int = 0, customerId: Int, regionId: Int, name: String,
   street1: String, street2: Option[String], city: String, zip: String,
   isDefaultShipping: Boolean = false, phoneNumber: Option[String])
   extends ModelWithIdParameter
-  with NewModel {
+  with NewModel
+  with Addressable[Address] {
 
   def isNew: Boolean = id == 0
 
-  def validateNew: ValidatedNel[String, Model] = {
-    val phone: ValidatedNel[String, Unit] = (Country.unitedStatesId == regionId, phoneNumber) match {
-      case (true, Some(number)) ⇒
-        matchesNew(number, "[0-9]{10}", "phoneNumber")
-      case (false, Some(number)) ⇒
-        matchesNew(number, "[0-9]{0,15}", "phoneNumber")
-      case (_, None) ⇒
-        valid({})
-    }
-
-    ( notEmptyNew(name, "name")
-      |@| notEmptyNew(street1, "street1")
-      |@| notEmptyNew(city, "city")
-      |@| matchesNew(zip, "[0-9]{5}", "zip")
-      |@| phone
-    ).map { case _ ⇒ this }
-  }
+  def instance: Address = { this }
+  def zipLens = GenLens[Address](_.zip)
 }
 
 object Address {
+  val zipPattern = "(?i)^[a-z0-9][a-z0-9\\- ]{0,10}[a-z0-9]$"
+  val zipPatternUs = "^\\d{5}(?:\\d{4})?$"
+
   def fromPayload(p: CreateAddressPayload) = {
     Address(customerId = 0, regionId = p.regionId, name = p.name,
       street1 = p.street1, street2 = p.street2, city = p.city, zip = p.zip, phoneNumber = p.phoneNumber)
