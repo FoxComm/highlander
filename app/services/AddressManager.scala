@@ -48,19 +48,18 @@ object AddressManager {
   }
 
   def setDefaultShippingAddress(customerId: Int, addressId: Int)
-    (implicit ec: ExecutionContext, db: Database): Future[Option[Failure]] = {
+    (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
     db.run((for {
       _ ← Addresses.findShippingDefaultByCustomerId(customerId).map(_.isDefaultShipping).update(false)
       newDefault ← Addresses._findById(addressId).extract.map(_.isDefaultShipping).update(true)
-    } yield newDefault).transactionally).map {
-      case rowsAffected if rowsAffected == 1 ⇒
-        None
-      case _ ⇒
-        Some(NotFoundFailure(Address, addressId))
+    } yield newDefault).transactionally).flatMap {
+      case rowsAffected if rowsAffected == 1 ⇒ Result.unit
+      case _                                 ⇒ Result.failure(NotFoundFailure(Address, addressId))
     }
   }
 
   def removeDefaultShippingAddress(customerId: Int)
-    (implicit ec: ExecutionContext, db: Database): Future[Int] =
-    db.run(Addresses.findShippingDefaultByCustomerId(customerId).map(_.isDefaultShipping).update(false))
+    (implicit ec: ExecutionContext, db: Database): Result[Int] =
+    db.run(Addresses.findShippingDefaultByCustomerId(customerId).map(_.isDefaultShipping).update(false)).flatMap(Result
+      .good)
 }

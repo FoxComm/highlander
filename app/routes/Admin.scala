@@ -70,14 +70,12 @@ object Admin {
           (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultShippingAddress]) & pathEnd) {
             (id, payload) ⇒
               complete {
-                AddressManager.setDefaultShippingAddress(customerId, id).map { optFailure ⇒
-                  optFailure.fold(HttpResponse(OK)) { f ⇒ renderFailure(Seq(f)) }
-                }
+                AddressManager.setDefaultShippingAddress(customerId, id).map(renderNothingOrFailures)
               }
           } ~
           (delete & path("default") & pathEnd) {
             complete {
-              AddressManager.removeDefaultShippingAddress(customerId).map { _ ⇒ noContentResponse }
+              AddressManager.removeDefaultShippingAddress(customerId).map(renderNothingOrFailures)
             }
           } ~
           (patch & path(IntNumber) & entity(as[CreateAddressPayload]) & pathEnd) { (addressId, payload) =>
