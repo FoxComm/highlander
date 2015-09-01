@@ -2,7 +2,7 @@
 
 const BaseModel = require('../lib/base-model');
 const Order = require('./order');
-const Customer  = require('./customer');
+const Customer = require('./customer');
 const errors = require('../../errors');
 
 const seed = [
@@ -25,40 +25,22 @@ class Return extends BaseModel {
     return new this(results[0]);
   }
 
-  get referenceNumber() {
-    return this.model.referenceNumber;
-  }
-
-  get email() {
-    return this.model.email;
-  }
-
-  get orderNumber() {
-    return this.model.orderNumber;
-  }
-
-  get returnStatus() {
-    return this.model.returnStatus;
-  }
-
-  get assignee() {
-    return this.model.assignee;
-  }
-
+  get referenceNumber() { return this.model.referenceNumber; }
+  get email() { return this.model.email; }
+  get orderNumber() { return this.model.orderNumber; }
+  get returnStatus() { return this.model.returnStatus; }
+  get assignee() { return this.model.assignee; }
   get totals() {
     return {
       total: this.model.returnTotal
     };
   }
 
-  set returnStatus(status) {
-    this.model.returnStatus = status;
-  }
+  set returnStatus(status) { this.model.returnStatus = status; }
 
   viewers() {
-    let
-      limit = ~~((Math.random() * 5) + 2),
-      page  = ~~(Math.random() * 15);
+    let limit = ~~((Math.random() * 5) + 2);
+    let page = ~~(Math.random() * 15);
     return Customer.paginate(limit, page);
   }
 }
