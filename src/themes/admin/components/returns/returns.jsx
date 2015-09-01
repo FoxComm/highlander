@@ -55,7 +55,7 @@ export default class Returns extends React.Component {
             <option value="action2">Action 2</option>
           </select>
           <button>
-            <i className="icon-trash-empty"></i>
+            <i className="fa fa-trash-o"></i>
           </button>
           <span>
           </span>

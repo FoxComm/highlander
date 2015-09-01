@@ -9,12 +9,12 @@ export default class Sidebar extends React.Component {
       <aside role='complementary'>
         <nav>
           <ul>
-            <li><Link to='home'><i className="icon-gauge"></i>Dashboard</Link></li>
-            <li><Link to='returns'><i className="icon-docs"></i>Returns</Link></li>
-            <li><Link to='orders'><i className="icon-docs"></i>Orders</Link></li>
-            <li><Link to="customers"><i className="icon-group"></i>Customers</Link></li>
-            <li><a href=""><i className="icon-tags"></i>Products</a></li>
-            <li><Link to="gift-cards"><i className="icon-gift"></i>Gift Cards</Link></li>
+            <li><Link to='home'><i className="fa fa-tachometer"></i>Dashboard</Link></li>
+            <li><Link to='returns'><i className="fa fa-exchange"></i>Returns</Link></li>
+            <li><Link to='orders'><i className="fa fa-files-o"></i>Orders</Link></li>
+            <li><Link to="customers"><i className="fa fa-users"></i>Customers</Link></li>
+            <li><a href=""><i className="fa fa-tags"></i>Products</a></li>
+            <li><Link to="gift-cards"><i className="fa fa-gift"></i>Gift Cards</Link></li>
           </ul>
         </nav>
       </aside>
