@@ -66,7 +66,13 @@ object CustomerManager {
           Result.failures(f)
 
         case Xor.Right(acct) ⇒
-          val copyVersion = CreditCards.save(cc.copy(parentId = Some(cc.id)))
+          val copied = cc.copy(
+            parentId = Some(cc.id),
+            expYear = payload.expYear.getOrElse(cc.expYear),
+            expMonth = payload.expMonth.getOrElse(cc.expMonth)
+          )
+
+          val copyVersion = CreditCards.save(copied)
           val deactivate  = CreditCards.filter(_.id === cc.id).map(_.inWallet).update(false)
 
           db.run((copyVersion >> deactivate).transactionally).map(_ ⇒ right({}))

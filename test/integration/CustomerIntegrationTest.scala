@@ -99,6 +99,19 @@ class CustomerIntegrationTest extends IntegrationTestBase
       }
 
       "when editing a credit card" - {
+        /* TODO: enable me when we've introduced Stripe mocking
+        "succeeds" in new CreditCardFixture {
+          val payload = payloads.EditCreditCard(holderName = Some("Bob"))
+          val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
+          val inactive = CreditCards.findById(creditCard.id).run().futureValue.get
+          val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).result.run().futureValue.toList
+
+          response.status must ===(StatusCodes.NoContent)
+          inactive.inWallet mustBe false
+          newVersion.inWallet mustBe true
+          newVersion.isDefault must ===(inactive.isDefault)
+        } */
+
         "fails if the card cannot be found" in new CreditCardFixture {
           val payload = payloads.EditCreditCard
           val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/99", payload)
