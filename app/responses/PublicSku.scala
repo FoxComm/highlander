@@ -1,10 +1,9 @@
 package responses
 
-import models._
-
-import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 import scala.concurrent.{ExecutionContext, Future}
+
+import models._
+import slick.driver.PostgresDriver.api._
 
 object PublicSku {
   type Response = Future[Option[Root]]

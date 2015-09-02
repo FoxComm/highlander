@@ -1,26 +1,16 @@
 package models
 
-import com.pellucid.sealerate
-import services.{Result, Failures, Failure}
-import slick.dbio
-import slick.dbio.Effect.{Read, Write}
-import slick.profile.FixedSqlStreamingAction
-import utils.Money._
-import utils.{ADT, GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
-import validators.nonEmptyIf
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 import com.pellucid.sealerate
 import com.wix.accord.dsl.{validator ⇒ createValidator, _}
+import models.GiftCard.{OnHold, Status}
 import monocle.macros.GenLens
-
-import services.Failures
+import services.Result
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.Money._
 import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId, Validation}
 import validators.nonEmptyIf
-import GiftCard.{Status, OnHold}
 
 final case class GiftCard(id: Int = 0, originId: Int, originType: String, code: String,
   currency: Currency, status: Status = OnHold, originalBalance: Int, currentBalance: Int = 0,
@@ -90,8 +80,8 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
   idLens = GenLens[GiftCard](_.id)
   )(new GiftCards(_)){
 
-  import models.{GiftCardAdjustment ⇒ Adj, GiftCardAdjustments ⇒ Adjs}
   import GiftCard._
+  import models.{GiftCardAdjustment ⇒ Adj, GiftCardAdjustments ⇒ Adjs}
 
   def auth(giftCard: GiftCard, orderPaymentId: Int, debit: Int = 0, credit: Int = 0)
     (implicit ec: ExecutionContext): DBIO[Adj] =

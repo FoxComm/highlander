@@ -5,13 +5,11 @@ import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.model.{HttpResponse, StatusCode}
 
 import cats.data.Xor
-import models.{Customer, Orders, Order}
+import models.{Customer, Order, Orders}
 import org.json4s.jackson
 import org.json4s.jackson.Serialization.{write ⇒ json}
-
-import services.{NotFoundFailure, OrderLockedFailure, Failures, Failure}
+import services.{Failure, Failures, NotFoundFailure, OrderLockedFailure}
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 
 object Http {
   import utils.JsonFormatters._

@@ -1,5 +1,8 @@
 package utils
 
+import scala.concurrent.Await
+import scala.concurrent.duration._
+
 import models._
 import org.flywaydb.core.Flyway
 import org.joda.time.DateTime
@@ -7,10 +10,6 @@ import org.postgresql.ds.PGSimpleDataSource
 import slick.dbio
 import slick.dbio.Effect.{All, Write}
 import slick.driver.PostgresDriver.api._
-
-import scala.concurrent.Await
-import scala.concurrent.duration._
-
 import utils.Money.Currency
 
 object Seeds {

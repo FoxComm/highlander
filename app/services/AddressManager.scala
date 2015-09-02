@@ -1,17 +1,13 @@
 package services
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
-import cats.Functor
-import cats.data.Validated.{Valid, Invalid}
-import cats.data.Xor
-import models.{Order, Address, Addresses, Region, Regions}
+import cats.data.Validated.{Invalid, Valid}
+import models.{Address, Addresses, Region, Regions}
 import payloads.CreateAddressPayload
 import responses.Addresses.Root
 import responses.{Addresses ⇒ Response}
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
-// import utils.Validation.Result.{Failure ⇒ Invalid, Success}
 
 object AddressManager {
   def create(payload: CreateAddressPayload, customerId: Int)

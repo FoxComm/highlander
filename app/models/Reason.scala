@@ -3,7 +3,6 @@ package models
 import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.{GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId, Validation}
 
 final case class Reason(id: Int = 0, storeAdminId: Int, body: String, parentId: Option[Int] = None)

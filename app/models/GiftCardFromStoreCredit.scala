@@ -2,7 +2,6 @@ package models
 
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.{GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId}
 
 final case class GiftCardFromStoreCredit(id: Int = 0, storeCreditId: Int) extends ModelWithIdParameter

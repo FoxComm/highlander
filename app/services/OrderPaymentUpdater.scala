@@ -8,7 +8,6 @@ StoreCredits, StoreCredit, CreditCards}
 
 import payloads.{GiftCardPayment, StoreCreditPayment}
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 
 object OrderPaymentUpdater {
   def addGiftCard(refNum: String, payload: GiftCardPayment)

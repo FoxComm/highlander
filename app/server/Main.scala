@@ -8,15 +8,13 @@ import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
 
-import cats.data.OptionT
-import com.typesafe.config.{Config, ConfigFactory}
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport
+import com.typesafe.config.Config
 import models._
 import org.json4s.jackson
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import services._
 import slick.driver.PostgresDriver.api._
-import utils.{RemorseTimerMate, Tick, RemorseTimer}
+import utils.{RemorseTimer, RemorseTimerMate, Tick}
 
 object Main {
   def main(args: Array[String]): Unit = {
@@ -27,10 +25,9 @@ object Main {
 
 class Service(
   systemOverride: Option[ActorSystem] = None,
-  dbOverride:     Option[slick.driver.PostgresDriver.backend.DatabaseDef] = None
+  dbOverride:     Option[Database]    = None
 ) {
 
-  import Json4sSupport._
   import utils.JsonFormatters._
 
   implicit val serialization = jackson.Serialization

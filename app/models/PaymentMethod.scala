@@ -1,15 +1,12 @@
 package models
 
+import scala.concurrent.ExecutionContext
+
 import com.pellucid.sealerate
 import com.stripe.model.{Card ⇒ StripeCard}
 import com.wix.accord.dsl.{validator ⇒ createValidator}
 import com.wix.accord.{Failure ⇒ ValidationFailure}
-
-import services.{Result, Failures, Failure}
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
-
-import scala.concurrent.{ExecutionContext, Future}
-
+import services.Result
 import utils.ADT
 
 abstract class PaymentMethod {

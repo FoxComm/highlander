@@ -1,11 +1,10 @@
 package models
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 import monocle.macros.GenLens
 import payloads.CreateAddressPayload
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.GenericTable.TableWithId
 import utils.{ModelWithIdParameter, NewModel, RichTable, TableQueryWithId}
 

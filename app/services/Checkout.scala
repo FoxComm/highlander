@@ -7,7 +7,6 @@ import models._
 import collection.immutable
 
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 
 import com.github.tototoshi.slick.JdbcJodaSupport._
 import org.joda.time.{DateTimeZone, DateTime}

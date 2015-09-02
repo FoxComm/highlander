@@ -6,7 +6,6 @@ import com.wix.accord.dsl.{validator => createValidator, _}
 import monocle.macros.GenLens
 import payloads.UpdateAddressPayload
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.GenericTable.TableWithId
 import utils.{NewModel, ModelWithIdParameter, RichTable, TableQueryWithId}
 

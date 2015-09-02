@@ -1,11 +1,10 @@
 package models
 
 import com.pellucid.sealerate
+import models.GiftCardAdjustment.{Auth, Status}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId}
-import GiftCardAdjustment.{Status, Auth}
 
 final case class GiftCardAdjustment(id: Int = 0, giftCardId: Int, orderPaymentId: Int,
   credit: Int, debit: Int, status: Status = Auth)
