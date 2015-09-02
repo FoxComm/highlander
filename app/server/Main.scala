@@ -1,3 +1,5 @@
+package server
+
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import akka.actor.{ActorSystem, Props}
