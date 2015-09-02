@@ -41,7 +41,7 @@ object CreditCardCharge {
 
 class CreditCardCharges(tag: Tag)
   extends GenericTable.TableWithId[CreditCardCharge](tag, "credit_card_charges")
-  with RichTable {
+   {
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def creditCardId = column[Int]("credit_card_id")

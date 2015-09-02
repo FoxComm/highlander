@@ -3,7 +3,7 @@ package models
 import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import utils.{GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId, Validation}
+import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
 
 final case class Reason(id: Int = 0, storeAdminId: Int, body: String, parentId: Option[Int] = None)
   extends ModelWithIdParameter
@@ -20,7 +20,7 @@ final case class Reason(id: Int = 0, storeAdminId: Int, body: String, parentId: 
 object Reason {
 }
 
-class Reasons(tag: Tag) extends GenericTable.TableWithId[Reason](tag, "reasons") with RichTable {
+class Reasons(tag: Tag) extends GenericTable.TableWithId[Reason](tag, "reasons")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def storeAdminId = column[Int]("store_admin_id")
   def parentId = column[Option[Int]]("parent_id")

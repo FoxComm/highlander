@@ -1,6 +1,6 @@
 package models
 
-import utils.{GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
+import utils.{GenericTable, Validation, TableQueryWithId, ModelWithIdParameter}
 
 import com.wix.accord.dsl.{validator => createValidator}
 import monocle.macros.GenLens
@@ -34,7 +34,7 @@ object OrderDimensionCriterion{
   })
 }
 
-class OrderDimensionCriteria(tag: Tag) extends GenericTable.TableWithId[OrderDimensionCriterion](tag, "shipping_methods") with RichTable {
+class OrderDimensionCriteria(tag: Tag) extends GenericTable.TableWithId[OrderDimensionCriterion](tag, "shipping_methods")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def dimensionType = column[OrderDimensionCriterion.DimensionType]("dimension_type")
   def greaterThan = column[Option[Int]]("greater_than")

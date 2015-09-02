@@ -47,7 +47,7 @@ object OrderLineItem{
   implicit val statusColumnType = Status.slickColumn
 }
 
-class OrderLineItems(tag: Tag) extends GenericTable.TableWithId[OrderLineItem](tag, "order_line_items") with RichTable {
+class OrderLineItems(tag: Tag) extends GenericTable.TableWithId[OrderLineItem](tag, "order_line_items")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def orderId = column[Int]("order_id")
   def skuId = column[Int]("sku_id")

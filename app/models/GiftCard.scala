@@ -9,7 +9,7 @@ import monocle.macros.GenLens
 import services.Result
 import slick.driver.PostgresDriver.api._
 import utils.Money._
-import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId, Validation}
+import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
 import validators.nonEmptyIf
 
 final case class GiftCard(id: Int = 0, originId: Int, originType: String, code: String,
@@ -59,7 +59,7 @@ object GiftCard {
   implicit val statusColumnType = Status.slickColumn
 }
 
-class GiftCards(tag: Tag) extends GenericTable.TableWithId[GiftCard](tag, "gift_cards") with RichTable {
+class GiftCards(tag: Tag) extends GenericTable.TableWithId[GiftCard](tag, "gift_cards")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def originId = column[Int]("origin_id")
   def originType = column[String]("origin_type")

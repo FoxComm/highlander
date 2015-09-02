@@ -1,7 +1,7 @@
 package models
 
 import utils.Money._
-import utils.{GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
+import utils.{GenericTable, Validation, TableQueryWithId, ModelWithIdParameter}
 
 import com.wix.accord.dsl.{validator => createValidator}
 import monocle.macros.GenLens
@@ -36,7 +36,7 @@ object OrderPriceCriterion{
   })
 }
 
-class OrderPriceCriteria(tag: Tag) extends GenericTable.TableWithId[OrderPriceCriterion](tag, "order_price_criteria") with RichTable {
+class OrderPriceCriteria(tag: Tag) extends GenericTable.TableWithId[OrderPriceCriterion](tag, "order_price_criteria")  {
   def id = column[Int]("id")
   def priceType = column[OrderPriceCriterion.PriceType]("price_type")
   def greaterThan = column[Option[Int]]("greater_than")

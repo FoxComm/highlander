@@ -4,7 +4,7 @@ import com.wix.accord.dsl.{validator ⇒ createValidator}
 import com.wix.accord.{Failure ⇒ ValidationFailure}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import utils.{GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId}
+import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 
 final case class OrderCriterion(id:Int = 0, name: String) extends ModelWithIdParameter
@@ -19,7 +19,7 @@ object OrderCriterion{
   case object Dimensions extends CriterionType
 }
 
-class OrderCriteria(tag: Tag) extends GenericTable.TableWithId[OrderCriterion](tag, "order_criteria") with RichTable {
+class OrderCriteria(tag: Tag) extends GenericTable.TableWithId[OrderCriterion](tag, "order_criteria")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def name = column[String]("name")
 

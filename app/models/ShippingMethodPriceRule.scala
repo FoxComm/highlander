@@ -1,6 +1,6 @@
 package models
 
-import utils.{GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
+import utils.{GenericTable, Validation, TableQueryWithId, ModelWithIdParameter}
 
 import com.wix.accord.dsl.{validator => createValidator}
 import monocle.macros.GenLens
@@ -15,7 +15,7 @@ final case class ShippingMethodPriceRule(id:Int = 0, shippingMethodId: Int, ship
 
 object ShippingMethodPriceRule
 
-class ShippingMethodsPriceRules(tag: Tag) extends GenericTable.TableWithId[ShippingMethodPriceRule](tag, "shipping_methods_price_rules") with RichTable {
+class ShippingMethodsPriceRules(tag: Tag) extends GenericTable.TableWithId[ShippingMethodPriceRule](tag, "shipping_methods_price_rules")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def shippingMethodId = column[Int]("shipping_method_id")
   def shippingPriceRuleId = column[Int]("shipping_price_rule_id")
