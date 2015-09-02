@@ -26,6 +26,11 @@ export default class TableView extends React.Component {
     });
   }
 
+  onLimitChange(event) {
+    event.preventDefault();
+    this.setLimit(+event.target.value);
+  }
+
   render() {
     return (
       <div className="fc-table-view gutter">
@@ -48,6 +53,13 @@ export default class TableView extends React.Component {
             />
         </table>
         <div className="fc-table-footer">
+          <select onChange={this.onLimitChange.bind(this)} value={this.state.limit}>
+            <option value="10">Show 10</option>
+            <option value="25">Show 25</option>
+            <option value="50">Show 50</option>
+            <option value="100">Show 100</option>
+            <option value="Infinity">Show all</option>
+          </select>
           <TablePaginator
             start={this.state.start}
             limit={this.state.limit}
