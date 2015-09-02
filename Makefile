@@ -1,5 +1,4 @@
 FLYWAY=flyway -configFile=sql/flyway.conf -locations=filesystem:sql/
-VERSION := `git rev-parse HEAD`
 
 configure: resetdb
 
