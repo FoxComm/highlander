@@ -1,10 +1,7 @@
 package services
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.language.reflectiveCalls
 import akka.http.scaladsl.server.directives._
-import monocle.macros.GenLens
-import monocle.Lens
 import slick.driver.PostgresDriver.api._
 
 import models._
