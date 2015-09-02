@@ -18,9 +18,9 @@ export default class TableView extends React.Component {
           {this.props.start + 1}&thinsp;-&thinsp;{this.props.start + this.props.limit} of {this.props.total}
         </span>
         &nbsp;
-        <button onClick={this.onPrevPageClick.bind(this)}><i className="fa-arrow-left"/></button>
+        <button onClick={this.onPrevPageClick.bind(this)}><i className="fa fa-arrow-left"/></button>
         &nbsp;
-        <button onClick={this.onNextPageClick.bind(this)}><i className="fa-arrow-right"/></button>
+        <button onClick={this.onNextPageClick.bind(this)}><i className="fa fa-arrow-right"/></button>
       </div>
     );
   }
