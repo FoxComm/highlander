@@ -12,10 +12,13 @@ export default class TableView extends React.Component {
   }
 
   render() {
+    let total = this.props.total;
+    let start = this.props.start + 1;
+    let end = Math.min(total, this.props.start + this.props.limit);
     return (
       <div className="fc-table-paginator">
         <span>
-          {this.props.start + 1}&thinsp;-&thinsp;{this.props.start + this.props.limit} of {this.props.total}
+          {start}&thinsp;-&thinsp;{end} of {total}
         </span>
         &nbsp;
         <button onClick={this.onPrevPageClick.bind(this)}><i className="fa fa-arrow-left"/></button>
