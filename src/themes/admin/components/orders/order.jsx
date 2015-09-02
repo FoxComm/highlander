@@ -117,8 +117,14 @@ export default class Order extends React.Component {
       orderStatus = (
         <select name="orderStatus" value={order.orderStatus} onChange={this.changeOrderStatus.bind(this)}>
           {OrderStore.selectableStatusList.map((status, idx) => {
-            if (order.orderStatus === 'fulfillmentStarted' && ['fulfillmentStarted', 'canceled'].indexOf(status) === -1) return '';
-            return <option key={`${idx}-${status}`} value={status}>{OrderStore.statuses[status]}</option>;
+            if (
+              (order.orderStatus === 'fulfillmentStarted') &&
+              (['fulfillmentStarted', 'canceled'].indexOf(status) === -1)
+            ) {
+              return '';
+            } else {
+              return <option key={`${idx}-${status}`} value={status}>{OrderStore.statuses[status]}</option>;
+            }
           })}
         </select>
       );

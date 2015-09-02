@@ -105,7 +105,9 @@ export default class NewAddress extends React.Component {
           <input type="text" name="street2" />
         </div>
         <div>
-          <label htmlFor="region">{ this.state.formData.country === this.defaultCountryId() ? 'State' : 'Region'}</label>
+          <label htmlFor="region">
+            {this.state.formData.country === this.defaultCountryId() ? 'State' : 'Region'}
+          </label>
           <select name="region" value={this.state.formData.region}>
             {this.state.regions.map((state, index) => {
               return <option value={state.id} key={`${index}-${state.id}`}>{state.name}</option>;
@@ -129,7 +131,9 @@ export default class NewAddress extends React.Component {
           </select>
         </div>
         <div>
-          <label htmlFor="zip">{ this.state.formData.country === this.defaultCountryId() ? 'Zip Code' : 'Postal Code'}</label>
+          <label htmlFor="zip">
+            {this.state.formData.country === this.defaultCountryId() ? 'Zip Code' : 'Postal Code'}
+          </label>
           <input type="text" name="zip" className='control' required/>
         </div>
         <div>

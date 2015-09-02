@@ -172,7 +172,13 @@ export default class NewGiftCard extends React.Component {
     if (this.state.sendToCustomer) {
       customerSearch = (
         <div id="customerSearch">
-          <Typeahead store={CustomerStore} component={CustomerResult} selectEvent="giftCardCustomerSelected" label="Choose customers:" name="customerQuery" />
+          <Typeahead
+            store={CustomerStore}
+            component={CustomerResult}
+            selectEvent="giftCardCustomerSelected"
+            label="Choose customers:"
+            name="customerQuery"
+          />
           <ul id="customerList">
             {this.state.customers.map((customer, idx) => {
               return (
@@ -190,7 +196,11 @@ export default class NewGiftCard extends React.Component {
         </div>
       );
 
-      quantity = <span>{this.state.customers.length} <input type="hidden" name="quantity" value={this.state.customers.length} /></span>;
+      quantity = (
+        <span>
+          {this.state.customers.length} <input type="hidden" name="quantity" value={this.state.customers.length} />
+        </span>
+      );
     } else {
       quantity = <Counter inputName="quantity" />;
     }
@@ -198,7 +208,13 @@ export default class NewGiftCard extends React.Component {
     if (this.state.emailCSV) {
       emailCSV = (
         <div id="userSearch">
-          <Typeahead store={CustomerStore} component={CustomerResult} selectEvent="emailCsvUserSelected" label="Choose users:" name="csvQuery" />
+          <Typeahead
+            store={CustomerStore}
+            component={CustomerResult}
+            selectEvent="emailCsvUserSelected"
+            label="Choose users:"
+            name="csvQuery"
+          />
           <ul id="internalUserList">
             {this.state.users.map((user, idx) => {
               return (
@@ -237,7 +253,9 @@ export default class NewGiftCard extends React.Component {
             <div className="fc-input-group">
               <div className="fc-input-prepend"><i className="fa fa-usd"></i></div>
               <input type="hidden" name="originalBalance" value={this.state.balance} />
-              <input type="number" value={this.state.balanceText} onChange={this.onChangeBalance.bind(this)} step="0.01" min="1" />
+              <input type="number" value={this.state.balanceText} step="0.01" min="1"
+                     onChange={this.onChangeBalance.bind(this)}
+              />
             </div>
             <div id="balances">
               <a className="btn" onClick={this.setValue.bind(this, '1000')}>$10</a>
@@ -249,7 +267,9 @@ export default class NewGiftCard extends React.Component {
           </fieldset>
           <fieldset>
             <label htmlFor="sendToCustomer" className="checkbox">
-              <input type="checkbox" name="sendToCustomer" value={this.state.sendToCustomer} onChange={this.toggleSendToCustomer.bind(this)} />
+              <input type="checkbox" name="sendToCustomer" value={this.state.sendToCustomer}
+                     onChange={this.toggleSendToCustomer.bind(this)}
+              />
               Send gift cards to customers?
             </label>
             { customerSearch }
@@ -265,7 +285,9 @@ export default class NewGiftCard extends React.Component {
               Download CSV file immediately after it is created.
             </label>
             <label htmlFor="email_csv">
-              <input type="checkbox" name="email_csv" value={this.state.emailCSV} onChange={this.toggleEmailCSV.bind(this)} />
+              <input type="checkbox" name="email_csv" value={this.state.emailCSV}
+                     onChange={this.toggleEmailCSV.bind(this)}
+              />
               Email the CSV file.
             </label>
             { emailCSV }

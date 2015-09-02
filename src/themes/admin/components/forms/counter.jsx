@@ -32,7 +32,16 @@ export default class Counter extends React.Component {
         <div className="fc-input-prepend">
           <button onClick={this.decreaseTotal.bind(this)}><i className="fa fa-chevron-down"></i></button>
         </div>
-        <input type="number" id={this.props.inputName} name={this.props.inputName} value={this.state.inputValue} onChange={this.onChange.bind(this)} min={this.props.minValue} max={this.props.maxValue} step={this.props.stepAmount} />
+        <input
+          type="number"
+          id={this.props.inputName}
+          name={this.props.inputName}
+          value={this.state.inputValue}
+          min={this.props.minValue}
+          max={this.props.maxValue}
+          step={this.props.stepAmount}
+          onChange={this.onChange.bind(this)}
+        />
         <div className="fc-input-append">
           <button onClick={this.increaseTotal.bind(this)}><i className="fa fa-chevron-up"></i></button>
         </div>
