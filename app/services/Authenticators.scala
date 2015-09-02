@@ -1,7 +1,6 @@
 package services
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.language.reflectiveCalls
 import akka.http.scaladsl.server.directives._
 import slick.driver.PostgresDriver.api._
 
@@ -12,24 +11,24 @@ import models._
 // TODO: Add Roles and Permissions.  Check those before taking on an action
 // TODO: Investigate 2-factor Authentication
 object Authenticator {
-  type Model = { val password: String }
   type EmailFinder[M] = String => Future[Option[M]]
 
   def customer(credentials: UserCredentials)
               (implicit ec: ExecutionContext, db: Database): Future[Option[Customer]] = {
-    auth[Customer, EmailFinder[Customer]](credentials, Customers.findByEmail)
+    auth[Customer, EmailFinder[Customer]](credentials, Customers.findByEmail, _.password)
   }
 
   def storeAdmin(credentials: UserCredentials)
                 (implicit ec: ExecutionContext, db: Database): Future[Option[StoreAdmin]] = {
-    auth[StoreAdmin, EmailFinder[StoreAdmin]](credentials, StoreAdmins.findByEmail)
+    auth[StoreAdmin, EmailFinder[StoreAdmin]](credentials, StoreAdmins.findByEmail, _.password)
   }
 
-  private[this] def auth[M <: Model, F <: EmailFinder[M]](credentials: UserCredentials, finder: F)
-                                                         (implicit ec: ExecutionContext, db: Database): Future[Option[M]] = credentials match {
+  private[this] def auth[M, F <: EmailFinder[M]](credentials: UserCredentials, finder: F, getPassword: M => String)
+   (implicit ec: ExecutionContext, db: Database): Future[Option[M]] = credentials match {
+
     case p: UserCredentials.Provided =>
       finder(p.username).map { optModel =>
-        optModel.filter { m => p.verifySecret(m.password) }
+        optModel.filter { m => p.verifySecret(getPassword(m)) }
       }
 
     case _ =>
