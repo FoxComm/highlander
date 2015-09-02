@@ -1,8 +1,8 @@
 'use strict';
 
 import React from 'react';
-import TableHead from '../table/head';
-import TableBody from '../table/body';
+import TableHead from '../tables/head';
+import TableBody from '../tables/body';
 import UserInitials from '../users/initials';
 import ActivityTrailStore from './store';
 import { pluralize } from 'fleck';

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Api from '../../lib/api';
-import TableView from '../table/tableview';
+import TableView from '../tables/tableview';
 import NewGiftCard from './gift-cards-new';
 import { listenTo, stopListeningTo } from '../../lib/dispatcher';
 

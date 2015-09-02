@@ -2,8 +2,8 @@
 
 import React from 'react';
 import PaymentMethod from './payment-method';
-import TableHead from '../table/head';
-import TableBody from '../table/body';
+import TableHead from '../tables/head';
+import TableBody from '../tables/body';
 
 export default class OrderPayment extends React.Component {
   render() {

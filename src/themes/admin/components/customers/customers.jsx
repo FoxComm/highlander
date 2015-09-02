@@ -1,7 +1,7 @@
 'use strict';
 
 import React from 'react';
-import TableView from '../table/tableview';
+import TableView from '../tables/tableview';
 import CustomerStore from './store';
 
 export default class Customers extends React.Component {

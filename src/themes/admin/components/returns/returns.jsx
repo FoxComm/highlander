@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Immutable from 'immutable';
-import TableView from '../table/tableview';
+import TableView from '../tables/tableview';
 import ReturnsStore from './store';
 
 export default class Returns extends React.Component {

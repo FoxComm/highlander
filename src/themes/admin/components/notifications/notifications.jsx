@@ -1,8 +1,8 @@
 'use strict';
 
 import React from 'react';
-import TableHead from '../table/head';
-import TableBody from '../table/body';
+import TableHead from '../tables/head';
+import TableBody from '../tables/body';
 import NotificationStore from './store';
 import ResendButton from './button';
 

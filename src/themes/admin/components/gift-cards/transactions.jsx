@@ -2,8 +2,8 @@
 
 import React from 'react';
 import Api from '../../lib/api';
-import TableHead from '../table/head';
-import TableBody from '../table/body';
+import TableHead from '../tables/head';
+import TableBody from '../tables/body';
 
 export default class GiftCardTransactions extends React.Component {
   constructor(props) {
