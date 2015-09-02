@@ -1,6 +1,8 @@
 package models
 
-import cats.data.{ValidatedNel}
+import cats.data.ValidatedNel
+import cats.implicits._
+import utils.Litterbox._
 import utils.Validation.{notEmpty ⇒ notEmptyNew}
 
 import monocle.macros.GenLens

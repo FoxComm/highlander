@@ -1,24 +1,27 @@
 package models
 
-import com.wix.accord.dsl.{validator => createValidator}
+import cats.data.ValidatedNel
+import cats.implicits._
+import utils.Litterbox._
+import utils.Validation.{notEmpty ⇒ notEmptyNew}
+
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
-import utils.{TableQueryWithId, GenericTable, ModelWithIdParameter, Validation, RichTable}
-import com.wix.accord.Validator
-import com.wix.accord.dsl._
+import utils.{TableQueryWithId, GenericTable, ModelWithIdParameter, RichTable}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 final case class StoreAdmin(id: Int = 0, email: String, password: String,
                       firstName: String, lastName: String,
                       department: Option[String] = None)
-  extends ModelWithIdParameter
-  with Validation[StoreAdmin] {
-  override def validator = createValidator[StoreAdmin] { user =>
-    user.firstName is notEmpty
-    user.lastName is notEmpty
-    user.email is notEmpty
+  extends ModelWithIdParameter {
+
+  def validateNew: ValidatedNel[String, StoreAdmin] = {
+    ( notEmptyNew(firstName, "firstName")
+      |@| notEmptyNew(lastName, "lastName")
+      |@| notEmptyNew(email, "email")
+      ).map { case _ ⇒ this }
   }
 }
 

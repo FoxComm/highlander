@@ -84,15 +84,15 @@ object Validation {
   def matches(value: String, regex: String, constraint: String): ValidatedNel[String, Unit] =
     toValidatedNel(constraint, new MatchesRegex(regex.r.pattern, partialMatchAllowed = false).apply(value))
 
-  def lesserThan[A](a: A, size: A, constraint: String): ValidatedNel[String, Unit] =
-    toValidatedNel(constraint, new LesserThan[A](size, "got").apply(a))
+  def lesserThan(a: Int, size: Int, constraint: String): ValidatedNel[String, Unit] =
+    toValidatedNel(constraint, new LesserThan[Int](size, "got").apply(a))
 
-  def lesserThanOrEqual[A](a: A, size: A, constraint: String): ValidatedNel[String, Unit] =
-    toValidatedNel(constraint, new LesserThanOrEqual[A](size, "got").apply(a))
+  def lesserThanOrEqual(a: Int, size: Int, constraint: String): ValidatedNel[String, Unit] =
+    toValidatedNel(constraint, new LesserThanOrEqual[Int](size, "got").apply(a))
 
-  def greaterThan[A](a: A, size: A, constraint: String): ValidatedNel[String, Unit] =
-    toValidatedNel(constraint, new GreaterThan[A](size, "got").apply(a))
+  def greaterThan(a: Int, size: Int, constraint: String): ValidatedNel[String, Unit] =
+    toValidatedNel(constraint, new GreaterThan[Int](size, "got").apply(a))
 
-  def greaterThanOrEqual[A](a: A, size: A, constraint: String): ValidatedNel[String, Unit] =
-    toValidatedNel(constraint, new GreaterThanOrEqual[A](size, "got").apply(a))
+  def greaterThanOrEqual(a: Int, size: Int, constraint: String): ValidatedNel[String, Unit] =
+    toValidatedNel(constraint, new GreaterThanOrEqual[Int](size, "got").apply(a))
 }

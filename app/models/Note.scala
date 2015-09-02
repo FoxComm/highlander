@@ -1,6 +1,8 @@
 package models
 
-import cats.data.{ValidatedNel}
+import cats.data.ValidatedNel
+import cats.implicits._
+import utils.Litterbox._
 import utils.Validation.{notEmpty ⇒ notEmptyNew, lesserThanOrEqual ⇒ lesserThanOrEqualNew}
 
 import com.pellucid.sealerate
@@ -15,7 +17,7 @@ import scala.concurrent.{ExecutionContext, Future}
 final case class Note(id: Int = 0, storeAdminId: Int, referenceId: Int, referenceType: Note.ReferenceType, body: String)
   extends ModelWithIdParameter {
 
-  def validateNew: ValidatedNel[String, Customer] = {
+  def validateNew: ValidatedNel[String, Note] = {
     ( notEmptyNew(body, "body")
       |@| lesserThanOrEqualNew(body.length, 1000, "bodySize")
       ).map { case _ ⇒ this }

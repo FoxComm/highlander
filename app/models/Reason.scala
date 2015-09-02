@@ -1,18 +1,22 @@
 package models
 
-import com.wix.accord.dsl.{validator ⇒ createValidator, _}
+import cats.data.ValidatedNel
+import cats.implicits._
+import utils.Litterbox._
+import utils.Validation.{notEmpty ⇒ notEmptyNew, lesserThanOrEqual ⇒ lesserThanOrEqualNew}
+
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
-import utils.{GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId, Validation}
+import utils.{GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId}
 
 final case class Reason(id: Int = 0, storeAdminId: Int, body: String, parentId: Option[Int] = None)
-  extends ModelWithIdParameter
-  with Validation[Reason] {
+  extends ModelWithIdParameter {
 
-  override def validator = createValidator[Reason] { reason ⇒
-    reason.body is notEmpty
-    reason.body have size <= 255
+  def validateNew: ValidatedNel[String, Reason] = {
+    ( notEmptyNew(body, "body")
+      |@| lesserThanOrEqualNew(body.length, 255, "bodySize")
+      ).map { case _ ⇒ this }
   }
 
   def isSubReason: Boolean = parentId.isDefined

@@ -1,11 +1,14 @@
 package models
 
+import cats.data.ValidatedNel
+import cats.implicits._
+import utils.Litterbox._
+import utils.Validation.{notEmpty ⇒ notEmptyNew}
+
 import scala.concurrent.{ExecutionContext, Future}
 
 import com.github.tototoshi.slick.JdbcJodaSupport._
 import com.pellucid.sealerate
-import com.wix.accord.dsl.{validator ⇒ createValidator}
-import com.wix.accord.{Failure ⇒ ValidationFailure}
 import models.Order.{Cart, Status}
 import monocle.macros.GenLens
 import org.joda.time.DateTime
@@ -13,7 +16,6 @@ import services.OrderTotaler
 import utils.{ADT, GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
 import payloads.CreateAddressPayload
 
-import com.wix.accord.dsl.{validator => createValidator}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
@@ -23,12 +25,13 @@ final case class Order(id: Int = 0, referenceNumber: String = "", customerId: In
   status: Status = Cart, locked: Boolean = false, placedAt: Option[DateTime] = None,
   remorsePeriodInMinutes: Int = 30)
   extends ModelWithIdParameter
-  with Validation[Order]
   with FSM[Order.Status, Order] {
 
   import Order._
 
-  override def validator = createValidator[Order] { order => }
+  def validateNew: ValidatedNel[String, Order] = {
+    notEmptyNew(referenceNumber, "referenceNumber").map { case _ ⇒ this }
+  }
 
   // TODO: Add a real collector/builder here that assembles the subTotal
   def subTotal(implicit ec: ExecutionContext, db: Database): Future[Int] = {
