@@ -65,21 +65,27 @@ object OrderShippingAddresses extends TableQueryWithId[OrderShippingAddress, Ord
   idLens = GenLens[OrderShippingAddress](_.id)
 )(new OrderShippingAddresses(_)) {
 
+  import scope._
+
+  type QuerySeq = Query[OrderShippingAddresses, OrderShippingAddress, Seq]
+
   def copyFromAddress(address: Address, orderId: Int)(implicit ec: ExecutionContext):
   DBIO[OrderShippingAddress] =
     save(OrderShippingAddress.buildFromAddress(address).copy(orderId = orderId))
 
-  def findByOrderId(orderId: Int): Query[OrderShippingAddresses, OrderShippingAddress, Seq] =
+  def findByOrderId(orderId: Int): QuerySeq =
     filter(_.orderId === orderId)
 
   def findByOrderIdWithStates(orderId: Int):
-  Query[(OrderShippingAddresses, Regions), (OrderShippingAddress, Region), Seq] = for {
-    records ← withStates(findByOrderId(orderId))
-  } yield records
+  Query[(OrderShippingAddresses, Regions), (OrderShippingAddress, Region), Seq] =
+    findByOrderId(orderId).withStates
 
-  def withStates(q: Query[(OrderShippingAddresses), (OrderShippingAddress), Seq]):
-  Query[(OrderShippingAddresses, Regions), (OrderShippingAddress, Region), Seq] = for {
-    shippingAddresses ← q
-    regions ← Regions if regions.id === shippingAddresses.id
-  } yield (shippingAddresses, regions)
+  object scope {
+    implicit class QueryConversions(q: QuerySeq) {
+      def withStates: Query[(OrderShippingAddresses, Regions), (OrderShippingAddress, Region), Seq] = for {
+        shippingAddresses ← q
+        regions ← Regions if regions.id === shippingAddresses.id
+      } yield (shippingAddresses, regions)
+    }
+  }
 }

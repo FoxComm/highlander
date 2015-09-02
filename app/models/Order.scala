@@ -90,6 +90,10 @@ object Orders extends TableQueryWithId[Order, Orders](
   idLens = GenLens[Order](_.id)
   )(new Orders(_)){
 
+  type QuerySeq = Query[Orders, Order, Seq]
+
+  import scope._
+
   val returningIdAndReferenceNumber = this.returning(map { o ⇒ (o.id, o.referenceNumber) })
 
   override def save(order: Order)(implicit ec: ExecutionContext) = {
@@ -107,21 +111,17 @@ object Orders extends TableQueryWithId[Order, Orders](
      (newId, refNum) <- returningIdAndReferenceNumber += order
   } yield order.copy(id = newId, referenceNumber = refNum)
 
-  // filter an existing query to carts only
-  def cartOnly(q: Query[Orders, Order, Seq]) =
-    q.filter(_.status === (Order.Cart: Order.Status))
-
   def findByCustomer(customer: Customer)(implicit ec: ExecutionContext, db: Database): Future[Seq[Order]] = {
     db.run(_findByCustomer(customer).result)
   }
 
   def _findByCustomer(cust: Customer) = { filter(_.customerId === cust.id) }
 
-  def findByRefNum(refNum: String): Query[Orders, Order, Seq] =
+  def findByRefNum(refNum: String): QuerySeq =
     filter(_.referenceNumber === refNum)
 
-  def findCartByRefNum(refNum: String): Query[Orders, Order, Seq] =
-    cartOnly(findByRefNum(refNum))
+  def findCartByRefNum(refNum: String): QuerySeq =
+    findByRefNum(refNum).cartOnly
 
   def findActiveOrderByCustomer(cust: Customer)(implicit ec: ExecutionContext, db: Database): Future[Option[Order]] =
     db.run(_findActiveOrderByCustomer(cust).result.headOption)
@@ -143,5 +143,12 @@ object Orders extends TableQueryWithId[Order, Orders](
     } yield order
 
     db.run(actions.transactionally)
+  }
+
+  object scope {
+    implicit class QuerySeqConversions(q: QuerySeq) {
+      def cartOnly: QuerySeq =
+        q.filter(_.status === (Order.Cart: Order.Status))
+    }
   }
 }
