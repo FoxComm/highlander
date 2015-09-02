@@ -10,14 +10,8 @@ import models.Order.{Cart, Status}
 import monocle.macros.GenLens
 import org.joda.time.DateTime
 import services.OrderTotaler
-import utils.{ADT, GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
-import payloads.CreateAddressPayload
-
-import com.wix.accord.dsl.{validator => createValidator}
-import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
-import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId, Validation}
+import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
 
 final case class Order(id: Int = 0, referenceNumber: String = "", customerId: Int,
   status: Status = Cart, locked: Boolean = false, placedAt: Option[DateTime] = None,
@@ -80,7 +74,7 @@ object Order {
   def buildCart(customerId: Int): Order = Order(customerId = customerId, status = Order.Cart)
 }
 
-class Orders(tag: Tag) extends GenericTable.TableWithId[Order](tag, "orders") with RichTable {
+class Orders(tag: Tag) extends GenericTable.TableWithId[Order](tag, "orders")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   // TODO: Find a way to deal with guest checkouts...
   def referenceNumber = column[String]("reference_number") //we should generate this based on certain rules; nullable until then
@@ -95,6 +89,10 @@ class Orders(tag: Tag) extends GenericTable.TableWithId[Order](tag, "orders") wi
 object Orders extends TableQueryWithId[Order, Orders](
   idLens = GenLens[Order](_.id)
   )(new Orders(_)){
+
+  type QuerySeq = Query[Orders, Order, Seq]
+
+  import scope._
 
   val returningIdAndReferenceNumber = this.returning(map { o ⇒ (o.id, o.referenceNumber) })
 
@@ -113,10 +111,6 @@ object Orders extends TableQueryWithId[Order, Orders](
      (newId, refNum) <- returningIdAndReferenceNumber += order
   } yield order.copy(id = newId, referenceNumber = refNum)
 
-  // filter an existing query to carts only
-  def cartOnly(q: Query[Orders, Order, Seq]) =
-    q.filter(_.status === (Order.Cart: Order.Status))
-
   def findByCustomer(customer: Customer)(implicit ec: ExecutionContext, db: Database): Future[Seq[Order]] = {
     db.run(_findByCustomer(customer).result)
   }
@@ -125,11 +119,11 @@ object Orders extends TableQueryWithId[Order, Orders](
 
   def findByCustomerId(customerId: Int) = filter(_.customerId === customerId)
 
-  def findByRefNum(refNum: String): Query[Orders, Order, Seq] =
+  def findByRefNum(refNum: String): QuerySeq =
     filter(_.referenceNumber === refNum)
 
-  def findCartByRefNum(refNum: String): Query[Orders, Order, Seq] =
-    cartOnly(findByRefNum(refNum))
+  def findCartByRefNum(refNum: String): QuerySeq =
+    findByRefNum(refNum).cartOnly
 
   def findActiveOrderByCustomer(cust: Customer)(implicit ec: ExecutionContext, db: Database): Future[Option[Order]] =
     db.run(_findActiveOrderByCustomer(cust).result.headOption)
@@ -154,8 +148,9 @@ object Orders extends TableQueryWithId[Order, Orders](
   }
 
   object scope {
-    implicit class OrdersQueryConversions(q: Query[Orders, Order, Seq]) {
-      def cartOnly: Query[Orders, Order, Seq] = Orders.cartOnly(q)
+    implicit class QuerySeqConversions(q: QuerySeq) {
+      def cartOnly: QuerySeq =
+        q.filter(_.status === (Order.Cart: Order.Status))
     }
   }
 }

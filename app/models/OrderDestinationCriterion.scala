@@ -1,11 +1,10 @@
 package models
 
-import utils.{GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
+import utils.{GenericTable, Validation, TableQueryWithId, ModelWithIdParameter}
 
 import com.wix.accord.dsl.{validator => createValidator}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 
 import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._
@@ -33,7 +32,7 @@ object OrderDestinationCriterion{
   })
 }
 
-class OrderDestinationCriteria(tag: Tag) extends GenericTable.TableWithId[OrderDestinationCriterion](tag, "shipping_methods") with RichTable {
+class OrderDestinationCriteria(tag: Tag) extends GenericTable.TableWithId[OrderDestinationCriterion](tag, "shipping_methods")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def destinationType = column[OrderDestinationCriterion.DestinationType]("destination_type")
   def destination = column[String]("destination") //Great candidation for JSON schema

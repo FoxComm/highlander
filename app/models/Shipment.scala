@@ -1,17 +1,14 @@
 package models
 
-import com.pellucid.sealerate
-import models.Shipment.Cart
-import utils.{ADT, GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
+import scala.concurrent.Future
 
-import com.wix.accord.dsl.{validator => createValidator}
+import com.pellucid.sealerate
+import com.wix.accord.dsl.{validator ⇒ createValidator}
+import com.wix.accord.{Failure ⇒ ValidationFailure}
+import models.Shipment.Cart
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
-
-import com.wix.accord.{Failure => ValidationFailure, Validator}
-import com.wix.accord.dsl._
-import scala.concurrent.{ExecutionContext, Future}
+import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 
 final case class Shipment(id: Int = 0, orderId: Int, shippingMethodId: Option[Int] = None, shippingAddressId: Option[Int] = None, status: Shipment.Status = Cart, shippingPrice: Option[Int] = None) extends ModelWithIdParameter
@@ -35,7 +32,7 @@ object Shipment {
   implicit val statusColumnType = Status.slickColumn
 }
 
-class Shipments(tag: Tag) extends GenericTable.TableWithId[Shipment](tag, "shipments") with RichTable {
+class Shipments(tag: Tag) extends GenericTable.TableWithId[Shipment](tag, "shipments")  {
   def id = column[Int]("id", O.PrimaryKey)
   def orderId = column[Int]("order_id")
   def shippingMethodId = column[Option[Int]]("shipping_method_id")

@@ -11,9 +11,6 @@ import utils.Validation.Result._
 
 import scala.concurrent.{Future, ExecutionContext}
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
-
-import slick.driver.PostgresDriver.api._
 
 object NoteManager {
 

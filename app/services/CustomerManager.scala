@@ -11,7 +11,6 @@ import payloads.EditCreditCard
 import slick.dbio
 import slick.dbio.Effect.{All, Write, Read}
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import slick.profile.SqlAction
 import utils.Slick.UpdateReturning._
 import utils.jdbc.withUniqueConstraint

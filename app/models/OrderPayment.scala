@@ -5,7 +5,6 @@ import scala.concurrent.{ExecutionContext, Future}
 import com.stripe.model.{Customer ⇒ StripeCustomer}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.Money._
 import utils._
 
@@ -29,7 +28,7 @@ object OrderPayment {
 
 class OrderPayments(tag: Tag)
   extends GenericTable.TableWithId[OrderPayment](tag, "order_payments")
-  with RichTable {
+   {
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def orderId = column[Int]("order_id")

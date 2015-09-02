@@ -1,19 +1,11 @@
 package utils
 
-import cats.data.{Validated, ValidatedNel}
-import cats.data.Validated.{invalidNel, valid}
-import cats.data.NonEmptyList
-import com.wix.accord.{validate => runValidation, Failure => AccordFailure, GroupViolation, RuleViolation,
-Violation, Validator}
-import com.wix.accord.transform.ValidationTransform
+import cats.data.Validated.valid
+import cats.data.{NonEmptyList, Validated, ValidatedNel}
 import com.wix.accord
-import services.ValidationFailure
-import utils.Validation.Result.{Failure, Success}
-import com.wix.accord.combinators.Empty
-import com.wix.accord.combinators.NotEmpty
-import com.wix.accord.combinators.HasEmpty
-import com.wix.accord.combinators.MatchesRegex
-import cats.implicits._
+import com.wix.accord.combinators.{HasEmpty, MatchesRegex, NotEmpty}
+import com.wix.accord.transform.ValidationTransform
+import com.wix.accord.{Failure ⇒ AccordFailure, RuleViolation, Violation, validate ⇒ runValidation}
 
 trait Validation[T] { this: T ⇒
   import Validation._
@@ -29,7 +21,6 @@ trait Validation[T] { this: T ⇒
 }
 
 object Validation {
-  import Result._
 
   sealed trait Result {
 

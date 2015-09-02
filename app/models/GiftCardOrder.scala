@@ -1,26 +1,15 @@
 package models
 
-import com.pellucid.sealerate
-import services.Failure
-import slick.dbio
-import slick.dbio.Effect.Write
-import utils.Money._
-import utils.{ADT, GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
-import validators.nonEmptyIf
-
-import com.wix.accord.dsl.{validator => createValidator}
+import com.wix.accord.dsl.{validator ⇒ createValidator}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
-
-import com.wix.accord.dsl._
-import scala.concurrent.{ExecutionContext, Future}
+import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 final case class GiftCardOrder(id: Int = 0, orderId: Int) extends ModelWithIdParameter
 
 object GiftCardOrder {}
 
-class GiftCardOrders(tag: Tag) extends GenericTable.TableWithId[GiftCardOrder](tag, "gift_card_orders") with RichTable {
+class GiftCardOrders(tag: Tag) extends GenericTable.TableWithId[GiftCardOrder](tag, "gift_card_orders")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def orderId = column[Int]("order_id")
 

@@ -15,6 +15,7 @@ import org.json4s.{Formats, DefaultFormats}
 import org.json4s.jackson.Serialization.{write ⇒ writeJson}
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
 import org.scalatest.{Outcome, Suite, SuiteMixin}
+import server.Service
 import util.DbTestSupport
 import utils.JsonFormatters
 import concurrent.ExecutionContext.Implicits.global
