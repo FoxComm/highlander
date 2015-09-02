@@ -2,19 +2,21 @@ package services
 
 import scala.concurrent.{ExecutionContext, Future}
 
-import models.{Customers, CreditCard, CreditCards, Customer, StoreAdmin}
+import models.{OrderPayments, Orders, Customers, CreditCard, CreditCards, Customer, StoreAdmin}
+import models.Orders.Scope._
 
 import com.github.tototoshi.slick.JdbcJodaSupport._
 import org.joda.time.DateTime
 import payloads.EditCreditCard
-import slick.dbio.Effect.Read
+import slick.dbio
+import slick.dbio.Effect.{All, Write, Read}
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import slick.profile.SqlAction
 import utils.Slick.UpdateReturning._
 import utils.jdbc.withUniqueConstraint
 
-import cats.data.Xor
+import cats.data.{XorT, Xor}
 import cats.data.Xor.{left, right}
 
 object CustomerManager {
@@ -60,24 +62,33 @@ object CustomerManager {
   def editCreditCard(customerId: Int, id: Int, payload: EditCreditCard)
     (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
 
-    def edit(cc: CreditCard) = {
-      new StripeGateway().editCard(cc, payload).flatMap {
+    def edit(cc: CreditCard): Result[DBIO[CreditCard]] = {
+      new StripeGateway().editCard(cc, payload).map {
         case Xor.Left(f) ⇒
-          Result.failures(f)
+          left(f)
 
         case Xor.Right(_) ⇒
-          val copied = cc.copy(
+          val updated = cc.copy(
             parentId    = Some(cc.id),
             holderName  = payload.holderName.getOrElse(cc.holderName),
             expYear     = payload.expYear.getOrElse(cc.expYear),
             expMonth    = payload.expMonth.getOrElse(cc.expMonth)
           )
 
-          val copyVersion = CreditCards.save(copied)
+          val version     = CreditCards.save(updated)
           val deactivate  = CreditCards._findById(cc.id).extract.map(_.inWallet).update(false)
 
-          db.run((copyVersion >> deactivate).transactionally).map(_ ⇒ right({}))
+          right(deactivate >> version)
       }
+    }
+
+    def cascadeChangesToCarts(old: CreditCard, updated: CreditCard) = {
+      val paymentIds = for {
+        orders  ← Orders.findByCustomerId(customerId).cartOnly
+        pmts    ← OrderPayments.creditCards.filter(_.paymentMethodId === old.id) if pmts.orderId == orders.id
+      } yield pmts.id
+
+      OrderPayments.filter(_.id in paymentIds).map(_.paymentMethodId).update(updated.id)
     }
 
     db.run(getCard(customerId, id)).flatMap {
@@ -87,8 +98,14 @@ object CustomerManager {
       case Some(cc) ⇒
         if (!cc.inWallet)
           Result.failure(CannotUseInactiveCreditCard(cc))
-        else
-          edit(cc)
+        else {
+          edit(cc).map { result ⇒
+            for {
+              dbio ← result
+              r ← right(dbio.flatMap(cascadeChangesToCarts(cc, _)))
+            } yield r
+          }
+        }
     }
   }
 

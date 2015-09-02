@@ -123,6 +123,8 @@ object Orders extends TableQueryWithId[Order, Orders](
 
   def _findByCustomer(cust: Customer) = { filter(_.customerId === cust.id) }
 
+  def findByCustomerId(customerId: Int) = { filter(_.customerId === customerId) }
+
   def findByRefNum(refNum: String): Query[Orders, Order, Seq] =
     filter(_.referenceNumber === refNum)
 
@@ -149,5 +151,11 @@ object Orders extends TableQueryWithId[Order, Orders](
     } yield order
 
     db.run(actions.transactionally)
+  }
+
+  object Scope {
+    implicit class OrdersQueryConversions(q: Query[Orders, Order, Seq]) {
+      def cartOnly: Query[Orders, Order, Seq] = Orders.cartOnly(q)
+    }
   }
 }
