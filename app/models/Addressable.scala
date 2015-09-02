@@ -1,11 +1,11 @@
 package models
 
+import cats.data.Validated.valid
 import cats.data.ValidatedNel
-import cats.data.Validated.{invalid, valid, invalidNel}
-import cats.implicits._
-import utils.Litterbox._
 import monocle.Lens
 import utils.Validation.{matches ⇒ matchesNew, notEmpty ⇒ notEmptyNew}
+import utils.Litterbox._
+import cats.syntax.apply._
 
 trait Addressable[M] {
   def city: String

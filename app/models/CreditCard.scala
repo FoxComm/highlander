@@ -1,20 +1,17 @@
 package models
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
-import com.stripe.model.{Customer ⇒ StripeCustomer, Card ⇒ StripeCard}
+import com.github.tototoshi.slick.JdbcJodaSupport._
+import com.stripe.model.{Card ⇒ StripeCard, Customer ⇒ StripeCustomer}
 import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import monocle.macros.GenLens
 import org.joda.time.DateTime
-import com.github.tototoshi.slick.JdbcJodaSupport._
-
 import payloads.CreateCreditCard
-import services.{Failures, StripeGateway}
+import services.{Result, StripeGateway}
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils._
 import validators._
-import services.Result
 
 final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerId: Int, billingAddressId: Int = 0,
   gatewayCustomerId: String, gatewayCardId: String, holderName: String, lastFour: String, expMonth: Int, expYear: Int,

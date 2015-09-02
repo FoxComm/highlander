@@ -1,8 +1,8 @@
 package validators
 
-import com.wix.accord.{Validator, BaseValidator}
+import com.wix.accord.BaseValidator
 import com.wix.accord.ViolationBuilder._
-import org.joda.time.{DateTimeZone, DateTime}
+import org.joda.time.DateTime
 
 object CreditCard {
   final case class Expiraton(year: Int, month: Int)

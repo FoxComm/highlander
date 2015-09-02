@@ -10,7 +10,6 @@ import payloads.CreateCreditCard
 import scala.concurrent.{Future, ExecutionContext}
 import slick.dbio.Effect.All
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 import com.stripe.model.{Token, Card => StripeCard, Customer => StripeCustomer}
 import com.stripe.net.{RequestOptions => StripeRequestOptions}
 import collection.JavaConversions.mapAsJavaMap

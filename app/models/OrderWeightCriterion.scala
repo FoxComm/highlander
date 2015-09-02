@@ -5,7 +5,6 @@ import utils.{GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, 
 import com.wix.accord.dsl.{validator => createValidator}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 
 import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._

@@ -10,13 +10,7 @@ import models.Order.{Cart, Status}
 import monocle.macros.GenLens
 import org.joda.time.DateTime
 import services.OrderTotaler
-import utils.{ADT, GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
-import payloads.CreateAddressPayload
-
-import com.wix.accord.dsl.{validator => createValidator}
-import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId, Validation}
 
 final case class Order(id: Int = 0, referenceNumber: String = "", customerId: Int,

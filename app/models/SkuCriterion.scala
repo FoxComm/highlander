@@ -1,15 +1,10 @@
 package models
 
-import utils.{GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
-
-import com.wix.accord.dsl.{validator => createValidator}
+import com.wix.accord.dsl.{validator ⇒ createValidator}
+import com.wix.accord.{Failure ⇒ ValidationFailure}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
-
-import com.wix.accord.{Failure => ValidationFailure, Validator}
-import com.wix.accord.dsl._
-import scala.concurrent.{ExecutionContext, Future}
+import utils.{GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId}
 
 
 final case class SkuCriterion(id:Int = 0, name:String) extends ModelWithIdParameter

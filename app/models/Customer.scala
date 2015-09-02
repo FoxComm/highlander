@@ -1,16 +1,13 @@
 package models
 
-import com.wix.accord.dsl.{validator => createValidator}
-import monocle.macros.GenLens
-import services.{Result, Failures, Failure}
-import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
-import utils.GenericTable.TableWithId
-import utils.{ModelWithIdParameter, TableQueryWithId, Validation, RichTable}
-import com.wix.accord.Validator
-import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
+import com.wix.accord.dsl.{validator ⇒ createValidator, _}
+import monocle.macros.GenLens
+import services.Result
+import slick.driver.PostgresDriver.api._
+import utils.GenericTable.TableWithId
+import utils.{ModelWithIdParameter, RichTable, TableQueryWithId, Validation}
 
 final case class Customer(id: Int = 0, disabled: Boolean = false, email: String, password: String, firstName: String,
   lastName: String, phoneNumber: Option[String] = None, location: Option[String] = None,

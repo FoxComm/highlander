@@ -1,11 +1,10 @@
 package models
 
+import scala.concurrent.Future
+
 import monocle.macros.GenLens
-import utils.RichTable
-import utils.{ GenericTable, TableQueryWithId, ModelWithIdParameter }
-import scala.concurrent.{ExecutionContext, Future}
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
+import utils.{GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId}
 
 final case class InventorySummary(id: Int, skuId: Int, availableOnHand: Int, availablePreOrder: Int, availableBackOrder: Int,
                             outstandingPreOrders: Int, outstandingBackOrders: Int) extends ModelWithIdParameter

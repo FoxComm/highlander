@@ -6,7 +6,6 @@ import com.wix.accord.{Failure ⇒ ValidationFailure}
 import monocle.macros.GenLens
 import org.joda.time.DateTime
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.{GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId}
 
 final case class OrderLockEvent(id: Int = 0, orderId: Int = 0, lockedOn: DateTime = DateTime.now, lockedBy: Int = 0)

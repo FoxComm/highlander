@@ -5,11 +5,10 @@ import scala.concurrent.{ExecutionContext, Future}
 import com.pellucid.sealerate
 import com.wix.accord.dsl.{validator ⇒ createValidator}
 import com.wix.accord.{Failure ⇒ ValidationFailure}
+import models.OrderLineItem.{Cart, Status}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils._
-import OrderLineItem.{Status, Cart}
 
 final case class OrderLineItem(id: Int = 0, orderId: Int, skuId: Int,
   status: Status = Cart)

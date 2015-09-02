@@ -5,12 +5,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Xor
 import models.{Countries, Country, Region, Regions}
-import org.json4s.JsonAST.{JField, JObject}
-import org.json4s.{CustomSerializer, DefaultFormats, Extraction, JValue}
-import org.scalactic.{Bad, Good, Or}
-import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import responses.CountryWithRegions
+import slick.driver.PostgresDriver.api._
 
 object Public {
   def findCountry(countryId: Int)

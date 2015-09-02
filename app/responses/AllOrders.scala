@@ -6,7 +6,6 @@ import models.Order.RemorseHold
 import models._
 import org.joda.time.DateTime
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 
 object AllOrders {
   type Response = Future[Seq[Root]]

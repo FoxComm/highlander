@@ -1,13 +1,10 @@
 package models
 
-import utils.RichTable
-import utils.{ GenericTable, TableQueryWithId, ModelWithIdParameter }
+import scala.concurrent.{ExecutionContext, Future}
+
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
-
-
-import scala.concurrent.{ExecutionContext, Future}
+import utils.{GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId}
 
 final case class Sku(id: Int = 0, name: Option[String] = None, price: Int) extends ModelWithIdParameter
 

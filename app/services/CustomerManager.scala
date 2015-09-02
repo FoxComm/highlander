@@ -9,7 +9,6 @@ import org.joda.time.DateTime
 import payloads.EditCreditCard
 import slick.dbio.Effect.Read
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import slick.profile.SqlAction
 import utils.Slick.UpdateReturning._
 import utils.jdbc.withUniqueConstraint
