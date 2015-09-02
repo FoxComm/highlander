@@ -2,9 +2,7 @@
 
 import React from 'react';
 import Immutable from 'immutable';
-import TableHead from '../table/head';
-import TableBody from '../table/body';
-import Selected from './selected';
+import TableView from '../table/tableview';
 import ReturnsStore from './store';
 
 export default class Returns extends React.Component {
@@ -45,14 +43,11 @@ export default class Returns extends React.Component {
   render() {
     return (
       <div id="returns">
-        <div className="gutter">
-          <table className="fc-table">
-            <TableHead columns={this.props.tableColumns}/>
-            <TableBody columns={this.props.tableColumns} rows={this.state.returns} model='return'>
-              <Selected/>
-            </TableBody>
-          </table>
-        </div>
+        <TableView
+          columns={this.props.tableColumns}
+          rows={this.state.returns}
+          model='return'
+        />
       </div>
     );
   }
@@ -65,7 +60,6 @@ Returns.propTypes = {
 
 Returns.defaultProps = {
   tableColumns: [
-    {field: 'checked', text: ' ', component: 'Selected'},
     {field: 'referenceNumber', text: 'Return', type: 'id'},
     {field: 'createdAt', text: 'Date', type: 'date'},
     {field: 'orderNumber', text: 'Order', model: 'order', type: 'id'},
