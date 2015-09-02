@@ -3,7 +3,6 @@ package services
 import models.{ShippingMethods, ShippingMethod}
 import scala.concurrent.{Future, ExecutionContext}
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.JsonFormatters
 import Result._
 
