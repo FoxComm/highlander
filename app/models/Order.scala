@@ -2,7 +2,7 @@ package models
 
 import scala.concurrent.{ExecutionContext, Future}
 
-import com.github.tototoshi.slick.JdbcJodaSupport._
+import com.github.tototoshi.slick.PostgresJodaSupport._
 import com.pellucid.sealerate
 import com.wix.accord.dsl.{validator ⇒ createValidator}
 import com.wix.accord.{Failure ⇒ ValidationFailure}
