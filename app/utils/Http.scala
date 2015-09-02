@@ -101,6 +101,9 @@ object Http {
     }
   }
 
+  def renderOrNotFound[A <: AnyRef](resource: Option[A])(implicit ec: ExecutionContext): HttpResponse =
+    resource.fold(notFoundResponse)(render(_))
+
   def renderNotFoundFailure(f: NotFoundFailure): HttpResponse =
     notFoundResponse.copy(entity = json("errors" → Seq(f.message)))
 

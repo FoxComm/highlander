@@ -3,22 +3,19 @@ package models
 import util.TestBase
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.joda.time.DateTime
+import utils.Seeds.Factories
 
 class CreditCardTest extends TestBase {
   val today = DateTime.now()
-  val card = CreditCard(
-    customerId = 1,
-    gatewayCustomerId = "abcdef",
-    lastFour = "4242",
-    expMonth = today.getMonthOfYear,
-    expYear  = today.getYear)
+  val card = Factories.creditCard
 
-  "CreditCardGateway" - {
+  "CreditCard" - {
     "validations" - {
       "disallows cards with expired dates" in {
         val cards = Table(
           ("card", "errors"),
-          (card.copy(expMonth = today.minusMonths(1).getMonthOfYear), "credit card is expired"),
+          (card.copy(expMonth = today.minusMonths(1).getMonthOfYear,
+            expYear = today.getYear), "credit card is expired"),
           (card.copy(expYear  = 2000), "credit card is expired")
         )
 
@@ -47,14 +44,6 @@ class CreditCardTest extends TestBase {
         result mustBe 'valid
         result.messages mustBe 'empty
       }
-    }
-
-    "is inactive when deleted" in {
-      card.copy(deletedAt = Some(DateTime.now)).isActive must be (false)
-    }
-
-    "is active when not deleted" in {
-      card.copy(deletedAt = None).isActive must be (true)
     }
   }
 }

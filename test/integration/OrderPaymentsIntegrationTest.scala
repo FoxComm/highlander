@@ -239,7 +239,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
       "fails if the creditCard is inActive" in new CreditCardFixture {
         val payload = payloads.CreditCardPayment(creditCard.id)
-        CustomerManager.deleteCreditCard(customerId = customer.id, adminId = admin.id, id = creditCard.id).futureValue
+        CustomerManager.deleteCreditCard(customerId = customer.id, id = creditCard.id).futureValue
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards", payload)
 
         response.status must ===(StatusCodes.BadRequest)

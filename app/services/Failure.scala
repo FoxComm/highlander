@@ -29,6 +29,10 @@ final case class StripeFailure(exception: StripeException) extends Failure {
   override def description = List(exception.getMessage)
 }
 
+final case object StripeCouldNotCreateCard extends Failure {
+  override def description = List("could not create card in stripe")
+}
+
 final case class ValidationFailure(violation: Validation.Result.Failure) extends Failure {
   override def description = violation.messages.map(_.toString)
 }
