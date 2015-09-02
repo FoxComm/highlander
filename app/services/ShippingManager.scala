@@ -30,8 +30,10 @@ object ShippingManager {
           addressWithRegion._1, addressWithRegion._2)
 
         val matchingMethods = shippingMethods.filter { shippingMethod ⇒
-          val statement = shippingMethod.conditions.extract[models.QueryStatement]
-          evaluateStatement(shippingData, statement)
+          shippingMethod.conditions.fold(false) { condition ⇒
+            val statement = condition.extract[models.QueryStatement]
+            evaluateStatement(shippingData, statement)
+          }
         }
 
         right(matchingMethods)

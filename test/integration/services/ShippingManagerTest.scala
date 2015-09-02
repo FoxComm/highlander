@@ -47,7 +47,7 @@ class ShippingManagerTest extends IntegrationTestBase {
             | }
           """.stripMargin
 
-        val action = ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = parse(conditions)))
+        val action = ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(parse(conditions))))
         val shippingMethod = db.run(action).futureValue
 
         val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).futureValue
@@ -70,7 +70,7 @@ class ShippingManagerTest extends IntegrationTestBase {
             | }
           """.stripMargin
 
-        val action = ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = parse(conditions)))
+        val action = ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(parse(conditions))))
         val shippingMethod = db.run(action).futureValue
 
         val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).futureValue
@@ -196,7 +196,7 @@ class ShippingManagerTest extends IntegrationTestBase {
         | }
       """.stripMargin
 
-    val action = ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = parse(conditions)))
+    val action = ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(parse(conditions))))
     val shippingMethod = db.run(action).futureValue
   }
 
@@ -240,7 +240,7 @@ class ShippingManagerTest extends IntegrationTestBase {
         | }
       """.stripMargin
 
-    val action = ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = parse(conditions)))
+    val action = ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(parse(conditions))))
     val shippingMethod = db.run(action).futureValue
   }
 
@@ -290,7 +290,7 @@ class ShippingManagerTest extends IntegrationTestBase {
         | }
       """.stripMargin
 
-    val action = ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = parse(conditions)))
+    val action = ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(parse(conditions))))
     val shippingMethod = db.run(action).futureValue
   }
 }
