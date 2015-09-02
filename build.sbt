@@ -135,6 +135,7 @@ lazy val phoenixScala = (project in file(".")).
     parallelExecution in IT   := false,
     fork in Test := false,
     fork in IT   := true, /** FIXME: We couldn’t run ITs in parallel if we fork */
+    test in assembly := {},
     test <<= Def.task {
       /** We need to do nothing here. Unit and ITs will run in parallel
         * and this task will fail if any of those fail. */
