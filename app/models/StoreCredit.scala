@@ -4,7 +4,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Validated.{invalidNel, valid}
 import cats.data.ValidatedNel
-import com.github.tototoshi.slick.JdbcJodaSupport._
+import com.github.tototoshi.slick.PostgresJodaSupport._
 import com.pellucid.sealerate
 import models.StoreCredit.{OnHold, Status}
 import monocle.macros.GenLens

@@ -4,7 +4,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import models.{Customers, CreditCard, CreditCards, Customer, StoreAdmin}
 
-import com.github.tototoshi.slick.JdbcJodaSupport._
+import com.github.tototoshi.slick.PostgresJodaSupport._
 import org.joda.time.DateTime
 import payloads.EditCreditCard
 import slick.dbio.Effect.Read

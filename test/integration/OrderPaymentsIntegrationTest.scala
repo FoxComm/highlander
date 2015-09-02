@@ -1,6 +1,6 @@
 import akka.http.scaladsl.model.StatusCodes
 
-import com.github.tototoshi.slick.JdbcJodaSupport._
+import com.github.tototoshi.slick.PostgresJodaSupport._
 import models.Order._
 import models._
 import org.joda.time.DateTime
