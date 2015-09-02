@@ -80,7 +80,7 @@ object OrderPaymentUpdater {
 
     db.run(orderAndCreditCard.flatMap {
 
-      case (Some(order), Some(cc)) if cc.isActive ⇒
+      case (Some(order), Some(cc)) if cc.inWallet ⇒
         val payment = OrderPayment.build(cc).copy(orderId = order.id, amount = None)
         val delete = OrderPayments.creditCards.filter(_.orderId === order.id).delete
 

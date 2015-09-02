@@ -82,7 +82,8 @@ class CheckoutTest extends IntegrationTestBase with Inside {
     val orderStub    = Order(id = 0, customerId = 0)
     val addressStub  = Address(id = 0, customerId = 0, regionId = 1, name = "Yax Home", street1 = "555 E Lake Union " +
       "St.", street2 = None, city = "Seattle", zip = "12345", phoneNumber = None)
-    val gatewayStub  = CreditCard(id = 0, customerId = 0, gatewayCustomerId = gatewayCustomerId, lastFour = "4242", expMonth = 11, expYear = 2018)
+    val gatewayStub  = Factories.creditCard.copy(gatewayCustomerId = gatewayCustomerId, lastFour = "4242",
+      expMonth = 11, expYear = 2018)
 
     val (payment, order) = (for {
       customer ← (Customers.returningId += customerStub).map(id ⇒ customerStub.copy(id = id))
