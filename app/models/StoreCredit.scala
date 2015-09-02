@@ -13,7 +13,7 @@ import services.Result
 import slick.driver.PostgresDriver.api._
 import utils.Joda._
 import utils.Money._
-import utils.{ADT, FSM, GenericTable, Model, ModelWithIdParameter, NewModel, RichTable, TableQueryWithId}
+import utils.{ADT, FSM, GenericTable, Model, ModelWithIdParameter, NewModel, TableQueryWithId}
 import utils.Litterbox.nelSemigroup
 import cats.syntax.apply._
 
@@ -91,7 +91,7 @@ object StoreCredit {
   }
 }
 
-class StoreCredits(tag: Tag) extends GenericTable.TableWithId[StoreCredit](tag, "store_credits") with RichTable {
+class StoreCredits(tag: Tag) extends GenericTable.TableWithId[StoreCredit](tag, "store_credits")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def originId = column[Int]("origin_id")
   def originType = column[String]("origin_type")

@@ -6,7 +6,7 @@ import monocle.macros.GenLens
 import payloads.CreateAddressPayload
 import slick.driver.PostgresDriver.api._
 import utils.GenericTable.TableWithId
-import utils.{ModelWithIdParameter, NewModel, RichTable, TableQueryWithId}
+import utils.{ModelWithIdParameter, NewModel, TableQueryWithId}
 
 final case class Address(id: Int = 0, customerId: Int, regionId: Int, name: String,
   street1: String, street2: Option[String], city: String, zip: String,
@@ -36,7 +36,7 @@ object Address {
   }
 }
 
-class Addresses(tag: Tag) extends TableWithId[Address](tag, "addresses") with RichTable {
+class Addresses(tag: Tag) extends TableWithId[Address](tag, "addresses")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def customerId = column[Int]("customer_id")
   def regionId = column[Int]("region_id")

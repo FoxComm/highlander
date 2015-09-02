@@ -4,7 +4,7 @@ import com.wix.accord.dsl.{validator ⇒ createValidator}
 import com.wix.accord.{Failure ⇒ ValidationFailure}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import utils.{GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId}
+import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 
 final case class ShippingCarrier(id:Int = 0,
@@ -13,7 +13,7 @@ final case class ShippingCarrier(id:Int = 0,
                            regionsServed:String = "US") extends ModelWithIdParameter
 object ShippingCarrier
 
-class ShippingCarriers(tag: Tag) extends GenericTable.TableWithId[ShippingCarrier](tag, "shipping_methods") with RichTable {
+class ShippingCarriers(tag: Tag) extends GenericTable.TableWithId[ShippingCarrier](tag, "shipping_methods")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def name = column[String]("name")
   def accountNumber = column[Option[String]]("account_number")

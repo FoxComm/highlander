@@ -6,13 +6,12 @@ import com.wix.accord.{Failure ⇒ ValidationFailure}
 import monocle.macros.GenLens
 import org.joda.time.DateTime
 import slick.driver.PostgresDriver.api._
-import utils.{GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId}
+import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 final case class OrderLockEvent(id: Int = 0, orderId: Int = 0, lockedOn: DateTime = DateTime.now, lockedBy: Int = 0)
   extends ModelWithIdParameter
 
-class OrderLockEvents(tag: Tag) extends GenericTable.TableWithId[OrderLockEvent](tag, "order_lock_events") with
-RichTable {
+class OrderLockEvents(tag: Tag) extends GenericTable.TableWithId[OrderLockEvent](tag, "order_lock_events") {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def orderId = column[Int]("order_id")
   def lockedOn = column[DateTime]("locked_on")

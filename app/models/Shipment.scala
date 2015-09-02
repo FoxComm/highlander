@@ -8,7 +8,7 @@ import com.wix.accord.{Failure ⇒ ValidationFailure}
 import models.Shipment.Cart
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import utils.{ADT, GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId}
+import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 
 final case class Shipment(id: Int = 0, orderId: Int, shippingMethodId: Option[Int] = None, shippingAddressId: Option[Int] = None, status: Shipment.Status = Cart, shippingPrice: Option[Int] = None) extends ModelWithIdParameter
@@ -32,7 +32,7 @@ object Shipment {
   implicit val statusColumnType = Status.slickColumn
 }
 
-class Shipments(tag: Tag) extends GenericTable.TableWithId[Shipment](tag, "shipments") with RichTable {
+class Shipments(tag: Tag) extends GenericTable.TableWithId[Shipment](tag, "shipments")  {
   def id = column[Int]("id", O.PrimaryKey)
   def orderId = column[Int]("order_id")
   def shippingMethodId = column[Option[Int]]("shipping_method_id")

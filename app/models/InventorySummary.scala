@@ -4,13 +4,13 @@ import scala.concurrent.Future
 
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import utils.{GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId}
+import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 final case class InventorySummary(id: Int, skuId: Int, availableOnHand: Int, availablePreOrder: Int, availableBackOrder: Int,
                             outstandingPreOrders: Int, outstandingBackOrders: Int) extends ModelWithIdParameter
 
 class InventorySummaries(tag: Tag)
-  extends GenericTable.TableWithId[InventorySummary](tag, "inventory_summaries") with RichTable {
+  extends GenericTable.TableWithId[InventorySummary](tag, "inventory_summaries")  {
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def skuId = column[Int]("sku_id")

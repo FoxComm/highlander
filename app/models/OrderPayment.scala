@@ -28,7 +28,7 @@ object OrderPayment {
 
 class OrderPayments(tag: Tag)
   extends GenericTable.TableWithId[OrderPayment](tag, "order_payments")
-  with RichTable {
+   {
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def orderId = column[Int]("order_id")

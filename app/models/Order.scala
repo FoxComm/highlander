@@ -11,7 +11,7 @@ import monocle.macros.GenLens
 import org.joda.time.DateTime
 import services.OrderTotaler
 import slick.driver.PostgresDriver.api._
-import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId, Validation}
+import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
 
 final case class Order(id: Int = 0, referenceNumber: String = "", customerId: Int,
   status: Status = Cart, locked: Boolean = false, placedAt: Option[DateTime] = None,
@@ -74,7 +74,7 @@ object Order {
   def buildCart(customerId: Int): Order = Order(customerId = customerId, status = Order.Cart)
 }
 
-class Orders(tag: Tag) extends GenericTable.TableWithId[Order](tag, "orders") with RichTable {
+class Orders(tag: Tag) extends GenericTable.TableWithId[Order](tag, "orders")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   // TODO: Find a way to deal with guest checkouts...
   def referenceNumber = column[String]("reference_number") //we should generate this based on certain rules; nullable until then

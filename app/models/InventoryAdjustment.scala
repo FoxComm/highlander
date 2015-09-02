@@ -12,7 +12,7 @@ final case class InventoryAdjustment(id: Int = 0, skuId: Int, inventoryEventId: 
                                outstandingBackOrders: Int = 0, description: Option[String] = None,
                                sourceNotes: Option[String] = None) extends ModelWithIdParameter
 
-class InventoryAdjustments(tag: Tag) extends GenericTable.TableWithId[InventoryAdjustment](tag, "inventory_adjustments") with RichTable {
+class InventoryAdjustments(tag: Tag) extends GenericTable.TableWithId[InventoryAdjustment](tag, "inventory_adjustments")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def skuId = column[Int]("sku_id")
   def inventoryEventId = column[Int]("inventory_event_id")

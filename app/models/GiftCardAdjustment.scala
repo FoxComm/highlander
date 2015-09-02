@@ -4,7 +4,7 @@ import com.pellucid.sealerate
 import models.GiftCardAdjustment.{Auth, Status}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId}
+import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 final case class GiftCardAdjustment(id: Int = 0, giftCardId: Int, orderPaymentId: Int,
   credit: Int, debit: Int, status: Status = Auth)
@@ -35,7 +35,7 @@ object GiftCardAdjustment {
 
 class GiftCardAdjustments(tag: Tag)
   extends GenericTable.TableWithId[GiftCardAdjustment](tag, "gift_card_adjustments")
-  with RichTable {
+   {
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def giftCardId = column[Int]("gift_card_id")

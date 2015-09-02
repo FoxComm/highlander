@@ -1,6 +1,5 @@
 package models
 
-import utils.RichTable
 import utils.{ GenericTable, TableQueryWithId, ModelWithIdParameter }
 import monocle.macros.GenLens
 import scala.concurrent.{ExecutionContext, Future}
@@ -10,7 +9,7 @@ final case class InventoryClassification(id: Int, skuId: Int, canSell: Boolean,
                                    canPreOrder: Boolean, canBackOrder: Boolean) extends ModelWithIdParameter
 
 class InventoryClassifications(tag: Tag)
-  extends GenericTable.TableWithId[InventoryClassification](tag, "inventory_classifications") with RichTable {
+  extends GenericTable.TableWithId[InventoryClassification](tag, "inventory_classifications")  {
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def skuId = column[Int]("sku_id")

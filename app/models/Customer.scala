@@ -7,7 +7,7 @@ import monocle.macros.GenLens
 import services.Result
 import slick.driver.PostgresDriver.api._
 import utils.GenericTable.TableWithId
-import utils.{ModelWithIdParameter, RichTable, TableQueryWithId, Validation}
+import utils.{ModelWithIdParameter, TableQueryWithId, Validation}
 
 final case class Customer(id: Int = 0, disabled: Boolean = false, email: String, password: String, firstName: String,
   lastName: String, phoneNumber: Option[String] = None, location: Option[String] = None,
@@ -22,7 +22,7 @@ final case class Customer(id: Int = 0, disabled: Boolean = false, email: String,
   }
 }
 
-class Customers(tag: Tag) extends TableWithId[Customer](tag, "customers") with RichTable {
+class Customers(tag: Tag) extends TableWithId[Customer](tag, "customers")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def disabled = column[Boolean]("disabled")
   def disabledBy = column[Option[Int]]("disabled_by")

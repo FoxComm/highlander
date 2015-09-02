@@ -6,7 +6,7 @@ import com.wix.accord.dsl.{validator ⇒ createValidator}
 import com.wix.accord.{Failure ⇒ ValidationFailure}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import utils.{GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId}
+import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 
 final case class ShippingPriceRule(id:Int = 0, name: String, ruleType: ShippingPriceRule.RuleType, flatPrice: Int, flatMarkup: Int) extends ModelWithIdParameter
@@ -28,7 +28,7 @@ object ShippingPriceRule{
 }
 
 
-class ShippingPriceRules(tag: Tag) extends GenericTable.TableWithId[ShippingPriceRule](tag, "shipping_price_rules") with RichTable {
+class ShippingPriceRules(tag: Tag) extends GenericTable.TableWithId[ShippingPriceRule](tag, "shipping_price_rules")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def name = column[String]("name")
   def ruleType = column[ShippingPriceRule.RuleType]("rule_type")
