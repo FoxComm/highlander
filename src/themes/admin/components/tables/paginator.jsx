@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-export default class TableView extends React.Component {
+export default class TablePaginator extends React.Component {
   onPrevPageClick() {
     this.props.setStart(Math.max(0, this.props.start - this.props.limit));
   }
@@ -29,7 +29,7 @@ export default class TableView extends React.Component {
   }
 }
 
-TableView.propTypes = {
+TablePaginator.propTypes = {
   columns: React.PropTypes.array,
   rows: React.PropTypes.array,
   start: React.PropTypes.number,
