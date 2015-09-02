@@ -74,7 +74,7 @@ object CustomerManager {
           )
 
           val copyVersion = CreditCards.save(copied)
-          val deactivate  = CreditCards.filter(_.id === cc.id).map(_.inWallet).update(false)
+          val deactivate  = CreditCards._findById(cc.id).extract.map(_.inWallet).update(false)
 
           db.run((copyVersion >> deactivate).transactionally).map(_ ⇒ right({}))
       }

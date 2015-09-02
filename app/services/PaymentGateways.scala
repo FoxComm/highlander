@@ -86,7 +86,7 @@ final case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVL
       payload.expMonth.map("exp_month" → _.toString)
     )
 
-    val params = options.filter(_.isDefined).flatten.toMap[String, Object]
+    val params = options.collect { case Some(o) ⇒ o }.toMap[String, Object]
 
     Xor.right(stripeCard.update(mapAsJavaMap(params)))
   }
