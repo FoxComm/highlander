@@ -1,17 +1,15 @@
 package utils
 
+import scala.concurrent.Await
+import scala.concurrent.duration._
+
 import models._
 import org.flywaydb.core.Flyway
 import org.joda.time.DateTime
 import org.postgresql.ds.PGSimpleDataSource
 import slick.dbio
 import slick.dbio.Effect.{All, Write}
-//import slick.driver.PostgresDriver.api._
 import utils.ExPostgresDriver.api._
-
-import scala.concurrent.Await
-import scala.concurrent.duration._
-
 import utils.Money.Currency
 
 object Seeds {
@@ -143,7 +141,7 @@ object Seeds {
       street2 = Some("Apt. 437"), city = "San Mateo", zip = "94402")
 
     def creditCard =
-      CreditCard(customerId = 0, gatewayCustomerId = "", lastFour = "4242",
+      CreditCard(customerId = 0, gatewayCustomerId = "", gatewayCardId = "", holderName = "Yax", lastFour = "4242",
         expMonth = today.getMonthOfYear, expYear = today.getYear + 2, isDefault = true)
 
     def reason = Reason(id = 0, storeAdminId = 0, body = "I'm a reason", parentId = None)

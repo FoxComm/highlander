@@ -1,6 +1,6 @@
 package responses
 
-import models.{OrderShippingAddress, Address, Customer, Region}
+import models.{Address, Customer, OrderShippingAddress, Region}
 
 object Addresses {
   final case class Root(id: Int, customer: Option[Customer] = None, region: Region, name: String, street1: String,

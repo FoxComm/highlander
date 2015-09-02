@@ -1,7 +1,7 @@
 package models
 
-import utils.Model
 import slick.driver.PostgresDriver.api._
+import utils.Model
 
 final case class StockItem(id: Int, productId: Int, stockLocationId: Int, onHold: Int, onHand: Int,
   allocatedToSales: Int) extends Model {

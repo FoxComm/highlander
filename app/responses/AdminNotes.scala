@@ -1,11 +1,10 @@
 package responses
 
-import cats.data.Xor
-import models.{Notes, Note, StoreAdmin, Order}
-
-import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 import scala.concurrent.{ExecutionContext, Future}
+
+import cats.data.Xor
+import models.{Note, Notes, Order, StoreAdmin}
+import slick.driver.PostgresDriver.api._
 
 object AdminNotes {
   final case class Root(id: Int, body: String, author: Author)

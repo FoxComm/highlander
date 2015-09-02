@@ -1,10 +1,10 @@
 package services
 
-import cats.data.Xor
-import models._
+import scala.concurrent.{ExecutionContext, Future}
 
-import scala.concurrent.{Future, ExecutionContext}
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
+import cats.data.Xor
+import cats.implicits._
+import models._
 import slick.driver.PostgresDriver.api._
 
 object ShippingMethodsBuilder {
@@ -102,7 +102,7 @@ object ShippingMethodsBuilder {
     } yield (updatedOrder)
 
     db.run(queries).map { optOrder =>
-      optOrder.map(Xor.right).getOrElse(Xor.left(List(GeneralFailure("Shipping method was not saved"))))
+      optOrder.toRightXor(List(GeneralFailure("Shipping method was not saved")))
     }
   }
 }

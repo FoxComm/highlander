@@ -4,7 +4,6 @@ import scala.concurrent.{ExecutionContext, Future}
 import cats.data.Xor, Xor.{ left, right }
 import models.Note
 import scala.concurrent.{Future, ExecutionContext}
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import org.scalactic.{Bad, Good, Or}
 
 package object services {
@@ -19,6 +18,8 @@ package object services {
 
   object Result {
     def fromFuture[A](value: Future[A])(implicit ec: ExecutionContext): services.Result[A] = value.flatMap(good)
+
+    val unit = right(())
 
     def good[A](value: A):  Result[A] = Future.successful(Xor.right(value))
     def right[A](value: A): Result[A] = good(value)

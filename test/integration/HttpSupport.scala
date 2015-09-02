@@ -15,6 +15,7 @@ import org.json4s.{Formats, DefaultFormats}
 import org.json4s.jackson.Serialization.{write ⇒ writeJson}
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
 import org.scalatest.{Outcome, Suite, SuiteMixin}
+import server.Service
 import util.DbTestSupport
 import utils.JsonFormatters
 import concurrent.ExecutionContext.Implicits.global
@@ -155,21 +156,20 @@ trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with Patien
   }
 
   def parseErrors(response: HttpResponse)(implicit ec: ExecutionContext): List[String] =
-    parseErrors(response.bodyText)
-
-  def parseErrors(errors: String): List[String] =
-    parse(errors).extract[Map[String, List[String]]].getOrElse("errors", List.empty[String])
+    response.errors
 }
 
 object Extensions {
-
   implicit class RichHttpResponse(val res: HttpResponse) extends AnyVal {
+    import org.json4s.jackson.JsonMethods._
+
     def bodyText(implicit ec: ExecutionContext, mat: Materializer): String =
       result(res.entity.toStrict(1.second).map(_.data.utf8String), 1.second)
 
-    def as[A <: AnyRef](implicit formats: Formats, mf: scala.reflect.Manifest[A], mat: Materializer): A = {
-      import org.json4s.jackson.JsonMethods._
+    def as[A <: AnyRef](implicit fm: Formats, mf: scala.reflect.Manifest[A], mat: Materializer): A =
       parse(bodyText).extract[A]
-    }
+
+    def errors(implicit fm: Formats, mat: Materializer): List[String] =
+      parse(bodyText).extract[Map[String, List[String]]].getOrElse("errors", List.empty[String])
   }
 }

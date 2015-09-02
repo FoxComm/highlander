@@ -1,12 +1,12 @@
 package utils
 
+import scala.concurrent.ExecutionContext
+
 import cats.data.ValidatedNel
 import monocle.Lens
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
-import Strings._
-
-import scala.concurrent.ExecutionContext
+import utils.Strings._
 
 trait Model {
   def modelName: String = getClass.getCanonicalName.lowerCaseFirstLetter

@@ -8,21 +8,36 @@ class AddressTest extends TestBase {
 
   "Address" - {
     ".validateNew" - {
-      val valid = Address(id = 0, customerId = 1, regionId = Country.unitedStatesId, name = "Yax Home",
+      val valid = Address(id = 0, customerId = 1, regionId = 1, name = "Yax Home",
         street1 = "555 E Lake Union St.", street2 = None, city = "Seattle", zip = "12345", phoneNumber = None)
 
-      "returns errors when zip is not 5 digit chars" in {
-        val badZip = valid.copy(zip = "AB123")
+      "returns errors when zip is invalid" in {
+        val badZip = valid.copy(zip = "AB+123")
         val wrongLengthZip = valid.copy(zip = "1")
 
         val addresses = Table(
           ("address", "errors"),
-          (badZip, NonEmptyList("zip must fully match regular expression '[0-9]{5}'")),
-          (wrongLengthZip, NonEmptyList("zip must fully match regular expression '[0-9]{5}'"))
+          (badZip, NonEmptyList("zip must fully match regular expression '%s'".format(Address.zipPattern))),
+          (wrongLengthZip, NonEmptyList("zip must fully match regular expression '%s'".format(Address.zipPattern)))
         )
 
         forAll(addresses) { (address: Address, errors: NonEmptyList[String]) =>
           invalidValue(address.validateNew) must === (errors)
+        }
+      }
+
+      "return errors when US address and zip is not 5 or 9 digits" in {
+        val tooShortZip = valid.copy(zip = "1234")
+        val wrongLengthZip = valid.copy(zip = "123456")
+
+        val addresses = Table(
+          ("address", "errors"),
+          (tooShortZip, NonEmptyList("zip must fully match regular expression '%s'".format(Address.zipPatternUs))),
+          (wrongLengthZip, NonEmptyList("zip must fully match regular expression '%s'".format(Address.zipPatternUs)))
+        )
+
+        forAll(addresses) { (address: Address, errors: NonEmptyList[String]) =>
+          invalidValue(address.copy(regionId = Country.usRegions.head).validateNew) must === (errors)
         }
       }
 
@@ -32,7 +47,7 @@ class AddressTest extends TestBase {
       }
 
       "returns errors if US address and Some(phoneNumber) < 10 digits" in {
-        val result = valid.copy(phoneNumber = Some("5551234")).validateNew
+        val result = valid.copy(regionId = Country.usRegions.head, phoneNumber = Some("5551234")).validateNew
         invalidValue(result).head must (include("phoneNumber") and include("'[0-9]{10}'"))
       }
 

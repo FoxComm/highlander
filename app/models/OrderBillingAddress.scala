@@ -5,21 +5,21 @@ import scala.concurrent.ExecutionContext
 import com.wix.accord.dsl.{validator => createValidator, _}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.GenericTable.TableWithId
-import utils.{Validation, ModelWithIdParameter, RichTable, TableQueryWithId}
+import utils.{NewModel, ModelWithIdParameter, TableQueryWithId}
 
 final case class OrderBillingAddress(id: Int = 0, orderPaymentId: Int = 0,
   regionId: Int, name: String, street1: String, street2: Option[String], city: String, zip: String)
-  extends Validation[OrderBillingAddress]
-  with ModelWithIdParameter {
+  extends ModelWithIdParameter
+  with NewModel
+  with Addressable[OrderBillingAddress] {
 
-  override def validator = createValidator[OrderBillingAddress] { address =>
-    address.name is notEmpty
-    address.street1 is notEmpty
-    address.city is notEmpty
-    address.zip should matchRegex("[0-9]{5}")
-  }
+  def isNew: Boolean = id == 0
+
+  def instance: OrderBillingAddress = { this }
+  def zipLens = GenLens[OrderBillingAddress](_.zip)
+
+  def phoneNumber: Option[String] = { None }
 }
 
 object OrderBillingAddress {
@@ -29,7 +29,7 @@ object OrderBillingAddress {
 }
 
 class OrderBillingAddresses(tag: Tag) extends TableWithId[OrderBillingAddress](tag, "order_billing_addresses")
-with RichTable {
+ {
   def id = column[Int]("id", O.PrimaryKey)
   def orderPaymentId = column[Int]("order_payment_id")
   def regionId = column[Int]("region_id")

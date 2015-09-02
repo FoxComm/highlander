@@ -4,6 +4,6 @@ import utils.Model
 
 final case class AdminRole (id: Int, name: String, description: String) extends Model
 
-class AdminRoles {}
+class AdminRoles
 
-object AdminRoles {}
+object AdminRoles

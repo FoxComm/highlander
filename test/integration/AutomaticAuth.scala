@@ -3,6 +3,7 @@ import models._
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
 import org.scalatest.{Suite, SuiteMixin}
 import akka.http.scaladsl.server.Directives.AsyncAuthenticator
+import server.Service
 import util.DbTestSupport
 import scala.concurrent.Future
 

@@ -10,7 +10,6 @@ import payloads.CreateCreditCard
 import scala.concurrent.{Future, ExecutionContext}
 import slick.dbio.Effect.All
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 import com.stripe.model.{Token, Card => StripeCard, Customer => StripeCustomer}
 import com.stripe.net.{RequestOptions => StripeRequestOptions}
 import collection.JavaConversions.mapAsJavaMap
@@ -29,28 +28,27 @@ final case class CreditCardPaymentCreator(order: Order, customer: Customer, card
 
   def run(): Response = cardPayload.validate match {
     case failure @ validation.Result.Failure(violations) ⇒
-      Future.successful(Xor.left(List(ValidationFailure(failure))))
+      Result.failure(ValidationFailure(failure))
     case Success ⇒
       // creates the customer, card, and gives us getDefaultCard as the token
       gateway.createCustomerAndCard(customer, this.cardPayload).flatMap {
-        case Xor.Right(stripeCustomer) =>
-          createRecords(stripeCustomer, order, customer).flatMap { optOrder =>
+        case Xor.Right((stripeCustomer, stripeCard)) =>
+          createRecords(stripeCustomer, stripeCard, order, customer).flatMap { optOrder =>
             optOrder.map { (o: Order) =>
-              FullOrder.fromOrder(o).map(Xor.right)
+              Result.fromFuture(FullOrder.fromOrder(o))
             }.getOrElse(Future.successful(Xor.left(List(NotFoundFailure(order)))))
           }
 
-        case Xor.Left(errors) ⇒ Future.successful(Xor.Left(errors))
+        case left @ Xor.Left(errors) ⇒ Future.successful(left)
       }
   }
 
-  // creates CreditCardGateways, uses its id for an AppliedPayment record, and attempts to associate billing info
-  // from stripe to a BillingAddress
-  private [this] def createRecords(stripeCustomer: StripeCustomer, order: Order, customer: Customer)
+  private [this] def createRecords(stripeCustomer: StripeCustomer, stripeCard: StripeCard,
+    order: Order, customer: Customer)
     (implicit ec: ExecutionContext, db: Database): Future[Option[Order]] = {
 
     val appliedPayment = OrderPayment.fromStripeCustomer(stripeCustomer, order)
-    val cc = CreditCard.build(stripeCustomer, this.cardPayload).copy(customerId = customer.id)
+    val cc = CreditCard.build(stripeCustomer, stripeCard, this.cardPayload).copy(customerId = customer.id)
     val billingAddress = this.cardPayload.address.map(Address.fromPayload(_).copy(customerId = customer.id))
 
     val queries = for {

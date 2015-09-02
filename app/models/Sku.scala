@@ -1,18 +1,15 @@
 package models
 
-import utils.RichTable
-import utils.{ GenericTable, TableQueryWithId, ModelWithIdParameter }
+import scala.concurrent.{ExecutionContext, Future}
+
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
-
-
-import scala.concurrent.{ExecutionContext, Future}
+import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 final case class Sku(id: Int = 0, name: Option[String] = None, price: Int) extends ModelWithIdParameter
 
 // This table mostly acts a placeholder in our system.  We may or may not import skus from 'origin' into this.
-class Skus(tag: Tag) extends GenericTable.TableWithId[Sku](tag, "skus") with RichTable {
+class Skus(tag: Tag) extends GenericTable.TableWithId[Sku](tag, "skus")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def name = column[Option[String]]("name")
   def price = column[Int]("price")

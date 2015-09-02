@@ -44,8 +44,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
       val payload = payloads.ToggleDefaultShippingAddress(isDefault = false)
       val response = POST(s"v1/customers/${customer.id}/addresses/${address.id}/default", payload)
 
-      response.status must === (StatusCodes.OK)
-      response.bodyText mustBe 'empty
+      response.status must === (StatusCodes.NoContent)
     }
 
     "sets a new shipping address if there's already a default shipping address" in new AddressFixture {
@@ -53,8 +52,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
       val payload = payloads.ToggleDefaultShippingAddress(isDefault = true)
       val response = POST(s"v1/customers/${customer.id}/addresses/${another.id}/default", payload)
 
-      response.status must === (StatusCodes.OK)
-      response.bodyText mustBe 'empty
+      response.status must === (StatusCodes.NoContent)
 
       Addresses.findById(another.id).run().futureValue.get.isDefaultShipping mustBe true
       Addresses.findById(address.id).run().futureValue.get.isDefaultShipping mustBe false

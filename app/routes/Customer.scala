@@ -12,7 +12,6 @@ import payloads._
 import responses.FullOrder
 import services._
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 
 object Customer {
   def routes(implicit ec: ExecutionContext, db: Database,

@@ -5,13 +5,11 @@ import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.model.{HttpResponse, StatusCode}
 
 import cats.data.Xor
-import models.{Customer, Orders, Order}
+import models.{Customer, Order, Orders}
 import org.json4s.jackson
 import org.json4s.jackson.Serialization.{write ⇒ json}
-
-import services.{NotFoundFailure, OrderLockedFailure, Failures, Failure}
+import services.{Failure, Failures, NotFoundFailure, OrderLockedFailure}
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 
 object Http {
   import utils.JsonFormatters._
@@ -43,7 +41,7 @@ object Http {
                                        (implicit ec: ExecutionContext): HttpResponse =
     or.fold(renderFailure(_), render(_))
 
-  def renderNothingOrFailures(or: Failures Xor Unit)(implicit ec: ExecutionContext): HttpResponse =
+  def renderNothingOrFailures(or: Failures Xor _)(implicit ec: ExecutionContext): HttpResponse =
     or.fold(renderFailure(_), _ ⇒ noContentResponse)
 
   def whenFound[A, G <: AnyRef, B <: AnyRef](finder: Future[Option[A]])
@@ -100,6 +98,9 @@ object Http {
       case None => notFoundResponse
     }
   }
+
+  def renderOrNotFound[A <: AnyRef](resource: Option[A])(implicit ec: ExecutionContext): HttpResponse =
+    resource.fold(notFoundResponse)(render(_))
 
   def renderNotFoundFailure(f: NotFoundFailure): HttpResponse =
     notFoundResponse.copy(entity = json("errors" → Seq(f.message)))

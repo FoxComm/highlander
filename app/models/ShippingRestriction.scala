@@ -1,11 +1,10 @@
 package models
 
-import utils.{GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
+import utils.{GenericTable, Validation, TableQueryWithId, ModelWithIdParameter}
 
 import com.wix.accord.dsl.{validator => createValidator}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 
 import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._
@@ -29,7 +28,7 @@ object ShippingRestriction{
   })
 }
 
-class ShippingRestrictions(tag: Tag) extends GenericTable.TableWithId[ShippingRestriction](tag, "shipping_methods") with RichTable {
+class ShippingRestrictions(tag: Tag) extends GenericTable.TableWithId[ShippingRestriction](tag, "shipping_methods")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def restrictionType = column[ShippingRestriction.RestrictionType]("restriction_type")
   def name = column[String]("name")

@@ -4,11 +4,11 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Xor
 import models._
+import collection.immutable
 
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 
-import com.github.tototoshi.slick.JdbcJodaSupport._
+import com.github.tototoshi.slick.PostgresJodaSupport._
 import org.joda.time.{DateTimeZone, DateTime}
 
 class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
@@ -31,7 +31,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
 //            completeOrderAndCreateNew(order).map(Good(_))
             Result.good(order)
           } else {
-            Result.failures(errors: _*)
+            Result.failures(errors.toList)
           }
         }
       } else {
@@ -40,7 +40,8 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
     }
   }
 
-  def authorizePayments: Future[Map[OrderPayment, Failures]] = {
+  // TODO: This needs to return a `List[Failure]` instead of NEL, can we make this cleaner?
+  def authorizePayments: Future[Map[OrderPayment, immutable.Seq[Failure]]] = {
     for {
       payments ← OrderPayments.findAllPaymentsFor(order)
       authorized ← Future.sequence(authorizePayments(payments))

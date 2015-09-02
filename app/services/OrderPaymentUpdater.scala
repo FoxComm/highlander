@@ -8,7 +8,6 @@ StoreCredits, StoreCredit, CreditCards}
 
 import payloads.{GiftCardPayment, StoreCreditPayment}
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 
 object OrderPaymentUpdater {
   def addGiftCard(refNum: String, payload: GiftCardPayment)
@@ -80,7 +79,7 @@ object OrderPaymentUpdater {
 
     db.run(orderAndCreditCard.flatMap {
 
-      case (Some(order), Some(cc)) if cc.isActive ⇒
+      case (Some(order), Some(cc)) if cc.inWallet ⇒
         val payment = OrderPayment.build(cc).copy(orderId = order.id, amount = None)
         val delete = OrderPayments.creditCards.filter(_.orderId === order.id).delete
 
@@ -144,7 +143,7 @@ object OrderPaymentUpdater {
     }.transactionally)
   }
 
-  private def deletedOrFailure(rowsDeleted: Int, pmt: PaymentMethod.Type) = {
+  private def deletedOrFailure(rowsDeleted: Int, pmt: PaymentMethod.Type): Failures Xor Unit = {
     if (rowsDeleted == 0)
       Xor.left(OrderPaymentNotFoundFailure(pmt).single)
     else

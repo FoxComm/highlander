@@ -1,47 +1,30 @@
 package models
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
-import cats.data.ValidatedNel
-import cats.data.Validated.{invalid, valid, invalidNel}
-import cats.implicits._
-import utils.Litterbox._
 import monocle.macros.GenLens
 import payloads.CreateAddressPayload
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.GenericTable.TableWithId
-import utils.Validation.{matches ⇒ matchesNew, notEmpty ⇒ notEmptyNew}
-import utils.{Model, ModelWithIdParameter, NewModel, RichTable, TableQueryWithId, Validation}
+import utils.{ModelWithIdParameter, NewModel, TableQueryWithId}
 
 final case class Address(id: Int = 0, customerId: Int, regionId: Int, name: String,
   street1: String, street2: Option[String], city: String, zip: String,
   isDefaultShipping: Boolean = false, phoneNumber: Option[String])
   extends ModelWithIdParameter
-  with NewModel {
+  with NewModel
+  with Addressable[Address] {
 
   def isNew: Boolean = id == 0
 
-  def validateNew: ValidatedNel[String, Model] = {
-    val phone: ValidatedNel[String, Unit] = (Country.unitedStatesId == regionId, phoneNumber) match {
-      case (true, Some(number)) ⇒
-        matchesNew(number, "[0-9]{10}", "phoneNumber")
-      case (false, Some(number)) ⇒
-        matchesNew(number, "[0-9]{0,15}", "phoneNumber")
-      case (_, None) ⇒
-        valid({})
-    }
-
-    ( notEmptyNew(name, "name")
-      |@| notEmptyNew(street1, "street1")
-      |@| notEmptyNew(city, "city")
-      |@| matchesNew(zip, "[0-9]{5}", "zip")
-      |@| phone
-    ).map { case _ ⇒ this }
-  }
+  def instance: Address = { this }
+  def zipLens = GenLens[Address](_.zip)
 }
 
 object Address {
+  val zipPattern = "(?i)^[a-z0-9][a-z0-9\\- ]{0,10}[a-z0-9]$"
+  val zipPatternUs = "^\\d{5}(?:\\d{4})?$"
+
   def fromPayload(p: CreateAddressPayload) = {
     Address(customerId = 0, regionId = p.regionId, name = p.name,
       street1 = p.street1, street2 = p.street2, city = p.city, zip = p.zip, phoneNumber = p.phoneNumber)
@@ -53,7 +36,7 @@ object Address {
   }
 }
 
-class Addresses(tag: Tag) extends TableWithId[Address](tag, "addresses") with RichTable {
+class Addresses(tag: Tag) extends TableWithId[Address](tag, "addresses")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def customerId = column[Int]("customer_id")
   def regionId = column[Int]("region_id")
@@ -75,6 +58,10 @@ object Addresses extends TableQueryWithId[Address, Addresses](
   idLens = GenLens[Address](_.id)
   )(new Addresses(_)) {
 
+  type QuerySeq = Query[Addresses, Address, Seq]
+
+  import scope._
+
   def findAllByCustomer(customer: Customer)(implicit db: Database): Future[Seq[Address]] = {
     findAllByCustomerId(customer.id)
   }
@@ -82,18 +69,22 @@ object Addresses extends TableQueryWithId[Address, Addresses](
   def findAllByCustomerId(customerId: Int)(implicit db: Database): Future[Seq[Address]] =
     _findAllByCustomerId(customerId).result.run()
 
-  def _findAllByCustomerId(customerId: Int): Query[Addresses, Address, Seq] =
+  def _findAllByCustomerId(customerId: Int): QuerySeq =
     filter(_.customerId === customerId)
 
   def _findAllByCustomerIdWithRegions(customerId: Int): Query[(Addresses, Regions), (Address, Region), Seq] = for {
-    (addresses, regions) ← _withRegions(_findAllByCustomerId(customerId))
+    (addresses, regions) ← _findAllByCustomerId(customerId).withRegions
   } yield (addresses, regions)
 
-  def _withRegions(q: Query[Addresses, Address, Seq]) = for {
-    addresses ← q
-    regions ← Regions if regions.id === addresses.regionId
-  } yield (addresses, regions)
-
-  def findShippingDefaultByCustomerId(customerId: Int): Query[Addresses, Address, Seq] =
+  def findShippingDefaultByCustomerId(customerId: Int): QuerySeq =
    filter(_.customerId === customerId).filter(_.isDefaultShipping === true)
+
+  object scope {
+    implicit class QuerySeqConversions(q: QuerySeq) {
+      def withRegions: Query[(Addresses, Regions), (Address, Region), Seq] = for {
+        addresses ← q
+        regions ← Regions if regions.id === addresses.regionId
+      } yield (addresses, regions)
+    }
+  }
 }

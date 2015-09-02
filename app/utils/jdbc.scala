@@ -1,10 +1,11 @@
 package utils
 
-import org.postgresql.util.{PSQLException, PSQLState}
-import scala.language.implicitConversions
 import scala.concurrent.{ExecutionContext, Future}
-import services.Failure
+import scala.language.implicitConversions
+
 import cats.data.Xor
+import org.postgresql.util.{PSQLException, PSQLState}
+import services.Failure
 
 object jdbc {
   final case class RecordNotUnique(p: PSQLException)

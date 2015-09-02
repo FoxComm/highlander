@@ -107,7 +107,7 @@ lazy val phoenixScala = (project in file(".")).
         "ch.qos.logback"       %  "logback-core"              % "1.1.3",
         "ch.qos.logback"       %  "logback-classic"           % "1.1.3",
         // Other
-        ("org.spire-math"       %% "cats"                      % "0.1.2").excludeAll(noScalaCheckPlease),
+        ("org.spire-math"       %% "cats"                      % "0.2.0").excludeAll(noScalaCheckPlease),
         "com.stripe"           %  "stripe-java"               % "1.31.0",
         "org.slf4j"            %  "slf4j-api"                 % "1.7.12",
         "joda-time"            %  "joda-time"                 % "2.8.1",
@@ -129,7 +129,7 @@ lazy val phoenixScala = (project in file(".")).
     resourceDirectory in Test := baseDirectory.value / "test" / "resources",
     resourceDirectory in IT   := baseDirectory.value / "test" / "resources",
     Revolver.settings,
-    (mainClass in Compile) := Some("Main"),
+    (mainClass in Compile) := Some("server.Main"),
     // add ms report for every test
     testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD"),
     javaOptions in Test ++= Seq("-Xmx2G", "-XX:+UseConcMarkSweepGC"),
@@ -137,6 +137,7 @@ lazy val phoenixScala = (project in file(".")).
     parallelExecution in IT   := false,
     fork in Test := false,
     fork in IT   := true, /** FIXME: We couldn’t run ITs in parallel if we fork */
+    test in assembly := {},
     test <<= Def.task {
       /** We need to do nothing here. Unit and ITs will run in parallel
         * and this task will fail if any of those fail. */

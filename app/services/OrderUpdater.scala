@@ -10,7 +10,6 @@ import models._
 import payloads.{CreateShippingAddress, UpdateAddressPayload, UpdateShippingAddress}
 import responses.{Addresses ⇒ Response, FullOrder}
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 
 object OrderUpdater {
 
@@ -111,8 +110,7 @@ object OrderUpdater {
     }
   }
 
-  def unlock(order: Order)(implicit db: Database, ec: ExecutionContext): Future[Failures Xor FullOrder.Root]
-  = {
+  def unlock(order: Order)(implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
     if (order.locked) {
       val queries = for {
         _ ← Orders.update(order.copy(locked = false))
@@ -120,11 +118,9 @@ object OrderUpdater {
       } yield newOrder
 
       db.run(queries).flatMap { o ⇒
-        FullOrder.fromOrder(o).map(Xor.right)
+        Result.fromFuture(FullOrder.fromOrder(o))
       }
-    } else {
-      Future.successful(Xor.left(List(GeneralFailure("Order is not locked"))))
-    }
+    } else Result.failure(GeneralFailure("Order is not locked"))
   }
 
   def createNote = "Note"
@@ -147,7 +143,7 @@ object OrderUpdater {
   }
 
   def updateShippingAddress(order: Order, payload: UpdateShippingAddress)
-    (implicit db: Database, ec: ExecutionContext): Future[Failures Xor responses.Addresses.Root] = {
+    (implicit db: Database, ec: ExecutionContext): Result[responses.Addresses.Root] = {
 
     (payload.addressId, payload.address) match {
       case (Some(addressId), _) ⇒
@@ -155,12 +151,12 @@ object OrderUpdater {
       case (None, Some(address)) ⇒
         updateShippingAddressFromPayload(address, order)
       case (None, _) ⇒
-        Future.successful(Xor.left(List(GeneralFailure("must supply either an addressId or an address"))))
+        Result.failure(GeneralFailure("must supply either an addressId or an address"))
     }
   }
 
   private def createShippingAddressFromPayload(address: Address, order: Order)
-    (implicit db: Database, ec: ExecutionContext): Future[Failures Xor responses.Addresses.Root] = {
+    (implicit db: Database, ec: ExecutionContext): Result[responses.Addresses.Root] = {
 
     address.validateNew match {
       case Valid(_) ⇒
@@ -169,16 +165,16 @@ object OrderUpdater {
           region ← Regions.findById(newAddress.regionId)
           _ ← OrderShippingAddresses.findByOrderId(order.id).delete
           _ ← OrderShippingAddresses.copyFromAddress(newAddress, order.id)
-        } yield (newAddress, region)).map {
-          case (address, Some(region))  ⇒ Xor.right(Response.build(address, region))
-          case (_, None)                ⇒ Xor.left(List(NotFoundFailure(Region, address.regionId)))
+        } yield (newAddress, region)).flatMap {
+          case (address, Some(region))  ⇒ Result.good(Response.build(address, region))
+          case (_, None)                ⇒ Result.failure(NotFoundFailure(Region, address.regionId))
         }
-      case Invalid(err) ⇒ Future.successful(Xor.left(List(ValidationFailureNew(err))))
+      case Invalid(err) ⇒ Result.failure(ValidationFailureNew(err))
     }
   }
 
   private def updateShippingAddressFromPayload(payload: UpdateAddressPayload, order: Order)
-    (implicit db: Database, ec: ExecutionContext): Future[Failures Xor responses.Addresses.Root] = {
+    (implicit db: Database, ec: ExecutionContext): Result[responses.Addresses.Root] = {
 
     val actions = for {
       oldAddress ← OrderShippingAddresses.findByOrderId(order.id).result.headOption
@@ -194,20 +190,20 @@ object OrderUpdater {
       }.getOrElse(DBIO.successful(None))
     } yield (rowsAffected, newAddress, region)
 
-    db.run(actions.transactionally).map {
+    db.run(actions.transactionally).flatMap {
       case (_, None, _) ⇒
-        Xor.left(List(NotFoundFailure(OrderShippingAddress, order.id)))
+        Result.failure(NotFoundFailure(OrderShippingAddress, order.id))
       case (0, _, _) ⇒
-        Xor.left(List(GeneralFailure("Unable to update address")))
+        Result.failure(GeneralFailure("Unable to update address"))
       case (_, Some(address), None) ⇒
-        Xor.left(List(NotFoundFailure(Region, address.regionId)))
+        Result.failure(NotFoundFailure(Region, address.regionId))
       case (_, Some(address), Some(region)) ⇒
-        Xor.right(Response.build(Address.fromOrderShippingAddress(address), region))
+        Result.right(Response.build(Address.fromOrderShippingAddress(address), region))
     }
   }
 
   private def createShippingAddressFromAddressId(addressId: Int, orderId: Int)
-    (implicit db: Database, ec: ExecutionContext): Future[Failures Xor responses.Addresses.Root] = {
+    (implicit db: Database, ec: ExecutionContext): Result[responses.Addresses.Root] = {
 
     db.run(for {
       address ← Addresses.findById(addressId)
@@ -222,11 +218,11 @@ object OrderUpdater {
         case None ⇒
           DBIO.successful(None)
       }
-    } yield (address, region)).map {
+    } yield (address, region)).flatMap {
       case (Some(address), Some(region)) ⇒
-        Xor.right(Response.build(address, region))
+        Result.good(Response.build(address, region))
       case _ ⇒
-        Xor.left(List(NotFoundFailure(Address, addressId)))
+        Result.failure(NotFoundFailure(Address, addressId))
     }
   }
 }

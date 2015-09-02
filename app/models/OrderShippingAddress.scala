@@ -6,21 +6,19 @@ import com.wix.accord.dsl.{validator => createValidator, _}
 import monocle.macros.GenLens
 import payloads.UpdateAddressPayload
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.GenericTable.TableWithId
-import utils.{Validation, ModelWithIdParameter, RichTable, TableQueryWithId}
+import utils.{NewModel, ModelWithIdParameter, TableQueryWithId}
 
 final case class OrderShippingAddress(id: Int = 0, orderId: Int = 0, regionId: Int, name: String,
   street1: String, street2: Option[String], city: String, zip: String, phoneNumber: Option[String])
-  extends Validation[OrderShippingAddress]
-  with ModelWithIdParameter {
+  extends ModelWithIdParameter
+  with NewModel
+  with Addressable[OrderShippingAddress] {
 
-  override def validator = createValidator[OrderShippingAddress] { address =>
-    address.name is notEmpty
-    address.street1 is notEmpty
-    address.city is notEmpty
-    address.zip should matchRegex("[0-9]{5}")
-  }
+  def isNew: Boolean = id == 0
+
+  def instance: OrderShippingAddress = { this }
+  def zipLens = GenLens[OrderShippingAddress](_.zip)
 }
 
 object OrderShippingAddress {
@@ -44,7 +42,7 @@ object OrderShippingAddress {
 }
 
 class OrderShippingAddresses(tag: Tag) extends TableWithId[OrderShippingAddress](tag, "order_shipping_addresses")
-  with RichTable {
+   {
   def id = column[Int]("id", O.PrimaryKey)
   def orderId = column[Int]("order_id")
   def regionId = column[Int]("region_id")
@@ -67,21 +65,27 @@ object OrderShippingAddresses extends TableQueryWithId[OrderShippingAddress, Ord
   idLens = GenLens[OrderShippingAddress](_.id)
 )(new OrderShippingAddresses(_)) {
 
+  import scope._
+
+  type QuerySeq = Query[OrderShippingAddresses, OrderShippingAddress, Seq]
+
   def copyFromAddress(address: Address, orderId: Int)(implicit ec: ExecutionContext):
   DBIO[OrderShippingAddress] =
     save(OrderShippingAddress.buildFromAddress(address).copy(orderId = orderId))
 
-  def findByOrderId(orderId: Int): Query[OrderShippingAddresses, OrderShippingAddress, Seq] =
+  def findByOrderId(orderId: Int): QuerySeq =
     filter(_.orderId === orderId)
 
   def findByOrderIdWithRegions(orderId: Int):
-  Query[(OrderShippingAddresses, Regions), (OrderShippingAddress, Region), Seq] = for {
-    records ← withRegions(findByOrderId(orderId))
-  } yield records
+  Query[(OrderShippingAddresses, Regions), (OrderShippingAddress, Region), Seq] =
+    findByOrderId(orderId).withRegions
 
-  def withRegions(q: Query[(OrderShippingAddresses), (OrderShippingAddress), Seq]):
-  Query[(OrderShippingAddresses, Regions), (OrderShippingAddress, Region), Seq] = for {
-    shippingAddresses ← q
-    regions ← Regions if regions.id === shippingAddresses.regionId
-  } yield (shippingAddresses, regions)
+  object scope {
+    implicit class QueryConversions(q: QuerySeq) {
+      def withRegions: Query[(OrderShippingAddresses, Regions), (OrderShippingAddress, Region), Seq] = for {
+        shippingAddresses ← q
+        regions ← Regions if regions.id === shippingAddresses.regionId
+      } yield (shippingAddresses, regions)
+    }
+  }
 }

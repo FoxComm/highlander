@@ -1,7 +1,6 @@
 import com.wix.accord.BaseValidator
 
 import com.wix.accord.ViolationBuilder._
-import scala.language.reflectiveCalls
 
 package object validators {
   import Validators._
