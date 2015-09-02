@@ -3,7 +3,7 @@ package services
 import scala.concurrent.{ExecutionContext, Future}
 
 import models.{OrderPayments, Orders, Customers, CreditCard, CreditCards, Customer, StoreAdmin}
-import models.Orders.Scope._
+import models.Orders.scope._
 
 import com.github.tototoshi.slick.JdbcJodaSupport._
 import org.joda.time.DateTime
