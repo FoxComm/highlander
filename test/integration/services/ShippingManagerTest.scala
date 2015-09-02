@@ -13,16 +13,10 @@ class ShippingManagerTest extends IntegrationTestBase {
 
     "Evaluates rule: shipped to CA, OR, or WA" - {
 
-      "Is true when the order is shipped to CA" in new CaliforniaOrderFixture {
-        val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).futureValue
-        matchingMethods.isRight must === (true)
-        matchingMethods.get.head must === (shippingMethod)
-      }
-
       "Is true when the order is shipped to WA" in new WashingtonOrderFixture {
         val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).futureValue
         matchingMethods.isRight must === (true)
-        matchingMethods.get.head must === (shippingMethod)
+        matchingMethods.get.head.name must === (shippingMethod.adminDisplayName)
       }
 
       "Is false when the order is shipped to MI" in new MichiganOrderFixture {
@@ -85,7 +79,7 @@ class ShippingManagerTest extends IntegrationTestBase {
 
         val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).futureValue
         matchingMethods.isRight must === (true)
-        matchingMethods.get.head must === (shippingMethod)
+        matchingMethods.get.head.name must === (shippingMethod.adminDisplayName)
       }
 
       "Is false when the order total is greater than $10 and address1 contains a P.O. Box" in new POCondition {

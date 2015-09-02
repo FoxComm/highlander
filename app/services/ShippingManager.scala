@@ -14,7 +14,7 @@ object ShippingManager {
     shippingAddress: models.OrderShippingAddress, shippingRegion: models.Region)
 
   def getShippingMethodsForOrder(order: models.Order)(implicit db: Database, ec: ExecutionContext):
-    Result[Seq[ShippingMethod]] = {
+    Result[Seq[responses.ShippingMethods.Root]] = {
 
     val queries = for {
       orderShippingAddresses ← models.OrderShippingAddresses.findByOrderIdWithRegions(order.id).result.headOption
@@ -35,7 +35,7 @@ object ShippingManager {
           }
         }
 
-        right(matchingMethods)
+        right(responses.ShippingMethods.build(matchingMethods))
 
       case (None, _, _, _) ⇒
         left(OrderShippingMethodsCannotBeProcessed(order.refNum).single)
