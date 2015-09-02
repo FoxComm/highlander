@@ -14,15 +14,18 @@ export default class TableView extends React.Component {
     };
   }
 
-  setStart(start) {
+  setStart(value) {
     this.setState({
-      start: Math.max(0, Math.min(this.props.rows.length - this.state.limit, start))
+      start: Math.max(0, Math.min(this.props.rows.length - this.state.limit, value))
     });
   }
 
-  setLimit(limit) {
+  setLimit(value) {
+    let limit = Math.max(0, Math.min(this.props.rows.length, value));
+    let start = Math.min(this.state.start, this.props.rows.length - limit);
     this.setState({
-      limit: Math.max(0, Math.min(this.props.rows.length, limit))
+      start: start,
+      limit: limit
     });
   }
 
