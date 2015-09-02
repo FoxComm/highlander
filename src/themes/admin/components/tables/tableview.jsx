@@ -36,7 +36,7 @@ export default class TableView extends React.Component {
 
   render() {
     return (
-      <div className="fc-table-view gutter">
+      <div className="gutter">
         <div className="fc-table-header">
           <TablePaginator
             start={this.state.start}
