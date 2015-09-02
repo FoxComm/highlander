@@ -56,7 +56,7 @@ export default class TableView extends React.Component {
             />
         </table>
         <div className="fc-table-footer">
-          <select onChange={this.onLimitChange.bind(this)} value={this.state.limit}>
+          <select onChange={this.onLimitChange.bind(this)}>
             <option value="10">Show 10</option>
             <option value="25">Show 25</option>
             <option value="50">Show 50</option>
