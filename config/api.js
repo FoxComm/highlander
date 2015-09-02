@@ -9,6 +9,7 @@ module.exports = function(env) {
       case 'apiary': return 'http://private-5b93a4-foxcomm1.apiary-mock.com/';
       case 'phoenix': return `http://localhost:9090/${version}`;
       case 'staging': return `http://10.240.230.233:9090/${version}`;
+      case 'production': return `http://10.240.230.233:9090/${version}`;
       default: return `http://localhost:4000/fauxnix/${version}`;
     }
   }
