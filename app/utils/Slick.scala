@@ -17,7 +17,7 @@ object Slick {
     This was generously copied from and upgraded to Slick 3.0 from: http://stackoverflow.com/a/28148606/310275
    */
   object UpdateReturning {
-    implicit class UpdateReturningInvoker[E, U, C[_]](updateQuery: Query[E, U, C]) {
+    implicit class UpdateReturningInvoker[E, U, C[_]](val updateQuery: Query[E, U, C]) extends AnyVal {
 
       @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.Any",
         "org.brianmckenna.wartremover.warts.IsInstanceOf", "org.brianmckenna.wartremover.warts.AsInstanceOf"))
