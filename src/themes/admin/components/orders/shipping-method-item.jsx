@@ -1,5 +1,6 @@
 'use strict';
 
+import _ from 'lodash';
 import React from 'react';
 import { listenTo, stopListeningTo, dispatch } from '../../lib/dispatcher';
 
@@ -9,17 +10,22 @@ export default class ShippingMethodItem extends React.Component {
 
   render() {
     let model = this.props.model;
+    let id = _.uniqueId('shipping-method');
 
-    let input = this.props.isEditing ? <input type="radio" defaultChecked={model.isActive} name="shipping-method-active" /> : null;
-
-    return (
-      <div>
-        <label>
-          {input}
-          {model.name}
-        </label>
+    let editInput = (
+      <div className="fc-radio">
+        <input id={id} type="radio" defaultChecked={model.isActive} name="shipping-method-active" />
+        <label htmlFor={id}>{model.name}</label>
       </div>
     );
+
+    let readOnlyName = (
+      <div>
+        {model.name}
+      </div>
+    );
+
+    return this.props.isEditing ? editInput : readOnlyName;
   }
 }
 
