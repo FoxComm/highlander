@@ -6,9 +6,9 @@
 
 * iojs
 
-3.x.x is required version for Ashes.
+2.x.x is required version for Ashes.
 Newer version is incompatible with current version of project due to dependencies used.
-To install 3.x.x version you can use [nvm](https://github.com/creationix/nvm) or [n](https://github.com/tj/n) node version manager.
+To install 2.x.x version you can use [nvm](https://github.com/creationix/nvm) or [n](https://github.com/tj/n) node version manager.
 
 If using nvm, run the following to install the version listed in `.nvmrc`:
 
