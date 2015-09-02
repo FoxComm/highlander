@@ -17,11 +17,11 @@ class ShippingMethods(tag: Tag) extends GenericTable.TableWithId[ShippingMethod]
   def adminDisplayName = column[String]("admin_display_name")
   def storefrontDisplayName = column[String]("storefront_display_name")
   def shippingCarrierId = column[Option[Int]]("shipping_carrier_id")
-  def defaultPrice = column[Int]("default_price") // this is only used if the pricing rules return an invalid response
+  def price = column[Int]("price")
   def isActive = column[Boolean]("is_active")
   def conditions = column[Option[JValue]]("conditions")
 
-  def * = (id, adminDisplayName, storefrontDisplayName, shippingCarrierId, defaultPrice,
+  def * = (id, adminDisplayName, storefrontDisplayName, shippingCarrierId, price,
     isActive, conditions) <> ((ShippingMethod.apply _).tupled, ShippingMethod.unapply)
 }
 
