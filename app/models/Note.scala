@@ -1,27 +1,24 @@
 package models
 
-import com.pellucid.sealerate
-import slick.dbio.Effect.Read
-import slick.profile.FixedSqlStreamingAction
-import utils.{ADT, GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
+import cats.data.{ValidatedNel}
+import utils.Validation.{notEmpty ⇒ notEmptyNew, lesserThanOrEqual ⇒ lesserThanOrEqualNew}
 
-import org.joda.time.DateTime
-import com.wix.accord.dsl.{validator => createValidator}
+import com.pellucid.sealerate
+import utils.{ADT, GenericTable, TableQueryWithId, ModelWithIdParameter, RichTable}
+
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 
-import com.wix.accord.{Failure => ValidationFailure, Validator}
-import com.wix.accord.dsl._
 import scala.concurrent.{ExecutionContext, Future}
 
 final case class Note(id: Int = 0, storeAdminId: Int, referenceId: Int, referenceType: Note.ReferenceType, body: String)
-  extends ModelWithIdParameter
-  with Validation[Note] {
+  extends ModelWithIdParameter {
 
-  override def validator = createValidator[Note] { note =>
-    note.body is notEmpty
-    note.body have size <= 1000
+  def validateNew: ValidatedNel[String, Customer] = {
+    ( notEmptyNew(body, "body")
+      |@| lesserThanOrEqualNew(body.length, 1000, "bodySize")
+      ).map { case _ ⇒ this }
   }
 }
 

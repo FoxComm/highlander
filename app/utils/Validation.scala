@@ -9,10 +9,7 @@ import com.wix.accord.transform.ValidationTransform
 import com.wix.accord
 import services.ValidationFailure
 import utils.Validation.Result.{Failure, Success}
-import com.wix.accord.combinators.Empty
-import com.wix.accord.combinators.NotEmpty
-import com.wix.accord.combinators.HasEmpty
-import com.wix.accord.combinators.MatchesRegex
+import com.wix.accord.combinators._
 import cats.implicits._
 
 trait Validation[T] { this: T ⇒
@@ -86,4 +83,16 @@ object Validation {
 
   def matches(value: String, regex: String, constraint: String): ValidatedNel[String, Unit] =
     toValidatedNel(constraint, new MatchesRegex(regex.r.pattern, partialMatchAllowed = false).apply(value))
+
+  def lesserThan[A](a: A, size: A, constraint: String): ValidatedNel[String, Unit] =
+    toValidatedNel(constraint, new LesserThan[A](size, "got").apply(a))
+
+  def lesserThanOrEqual[A](a: A, size: A, constraint: String): ValidatedNel[String, Unit] =
+    toValidatedNel(constraint, new LesserThanOrEqual[A](size, "got").apply(a))
+
+  def greaterThan[A](a: A, size: A, constraint: String): ValidatedNel[String, Unit] =
+    toValidatedNel(constraint, new GreaterThan[A](size, "got").apply(a))
+
+  def greaterThanOrEqual[A](a: A, size: A, constraint: String): ValidatedNel[String, Unit] =
+    toValidatedNel(constraint, new GreaterThanOrEqual[A](size, "got").apply(a))
 }
