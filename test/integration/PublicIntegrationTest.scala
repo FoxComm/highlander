@@ -1,6 +1,6 @@
 import akka.http.scaladsl.model.StatusCodes
 
-import com.github.tototoshi.slick.JdbcJodaSupport._
+import com.github.tototoshi.slick.PostgresJodaSupport._
 import models.{Regions, Region, Countries, Country}
 import org.joda.money.CurrencyUnit
 import org.json4s.JsonAST.{JField, JArray, JObject}

@@ -8,7 +8,7 @@ import collection.immutable
 
 import slick.driver.PostgresDriver.api._
 
-import com.github.tototoshi.slick.JdbcJodaSupport._
+import com.github.tototoshi.slick.PostgresJodaSupport._
 import org.joda.time.{DateTimeZone, DateTime}
 
 class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {

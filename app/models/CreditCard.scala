@@ -2,7 +2,7 @@ package models
 
 import scala.concurrent.ExecutionContext
 
-import com.github.tototoshi.slick.JdbcJodaSupport._
+import com.github.tototoshi.slick.PostgresJodaSupport._
 import com.stripe.model.{Card ⇒ StripeCard, Customer ⇒ StripeCustomer}
 import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import monocle.macros.GenLens
