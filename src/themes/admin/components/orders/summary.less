@@ -1,35 +1,10 @@
-#aside-blocks {
-  position: absolute;
-  top: 0;
-  right: 0;
-  .width(250px);
 
-  > .fc-contentBox {
-    .margin-bottom(20px);
-  }
+.order-summary {
+  .font-spec(14px, 31px);
 
-
-  .order-summary {
-    .font-spec(14px, 31px);
-
-    & > article {
-      .padding-top(34px);
-      .padding-bottom(50px);
-    }
-  }
-
-  .customer-info {
-    .font-spec(14px, 31px);
-
-    dt {
-      color: #babdbe;
-      .width(15%);
-    }
-
-    dd {
-      .width(85%);
-      text-align: left;
-    }
+  & > article {
+    .padding-top(34px);
+    .padding-bottom(50px);
   }
 
   dl {
@@ -38,18 +13,15 @@
     dt,
     dd {
       .width(50%);
-
-    }
-
-    dd { text-align: right; }
-
-
-    dt,
-    dd {
       display: inline-block;
       vertical-align: top;
       margin: 0;
     }
 
+    dd { text-align: right; }
+  }
+
+  &-new-subtotal {
+    font-weight: 700;
   }
 }

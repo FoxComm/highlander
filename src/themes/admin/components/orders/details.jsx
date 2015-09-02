@@ -2,6 +2,7 @@
 
 import React from 'react';
 import OrderSummary from './summary';
+import CustomerInfo from './customer-info';
 import OrderLineItems from './line-items';
 import OrderShippingAddress from './shipping-address';
 import OrderShippingMethod from './shipping-method';
@@ -37,25 +38,27 @@ export default class OrderDetails extends React.Component {
           <button className='primary'>Save Edits</button>
         </span>
       );
-    } else if (OrderStore.holdStatusList.indexOf(order.orderStatus) !== -1) {
+    } else if (OrderStore.holdStatusList.indexOf(order.orderStatus) !== -1 || 1) {
       actions = <button onClick={this.toggleEdit.bind(this)}>Edit Order Details</button>;
     }
 
     return (
-      <div id="order-details">
-        <OrderSummary order={order} isEditing={isEditing}/>
+      <div className="order-details">
+        <div className="order-details-controls">
+          {actions}
+        </div>
 
-        <div className="main">
-          <div className="controls">
-            {actions}
-          </div>
-
-          <article>
+        <div className="order-details-body">
+          <div className="order-details-main">
             <OrderLineItems order={order} isEditing={isEditing}/>
             <OrderShippingAddress order={order} isEditing={isEditing}/>
             <OrderShippingMethod order={order} isEditing={isEditing} />
             <OrderPayment order={order} isEditing={isEditing}/>
-          </article>
+          </div>
+          <div className="order-details-aside">
+            <OrderSummary order={order} isEditing={isEditing}/>
+            <CustomerInfo order={order} isEditing={isEditing}/>
+          </div>
         </div>
       </div>
     );
