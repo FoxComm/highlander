@@ -59,6 +59,10 @@ object Addresses extends TableQueryWithId[Address, Addresses](
   idLens = GenLens[Address](_.id)
   )(new Addresses(_)) {
 
+  type QuerySeq = Query[Addresses, Address, Seq]
+
+  import scope._
+
   def findAllByCustomer(customer: Customer)(implicit db: Database): Future[Seq[Address]] = {
     findAllByCustomerId(customer.id)
   }
@@ -66,18 +70,22 @@ object Addresses extends TableQueryWithId[Address, Addresses](
   def findAllByCustomerId(customerId: Int)(implicit db: Database): Future[Seq[Address]] =
     _findAllByCustomerId(customerId).result.run()
 
-  def _findAllByCustomerId(customerId: Int): Query[Addresses, Address, Seq] =
+  def _findAllByCustomerId(customerId: Int): QuerySeq =
     filter(_.customerId === customerId)
 
   def _findAllByCustomerIdWithRegions(customerId: Int): Query[(Addresses, Regions), (Address, Region), Seq] = for {
-    (addresses, regions) ← _withRegions(_findAllByCustomerId(customerId))
+    (addresses, regions) ← _findAllByCustomerId(customerId).withRegions
   } yield (addresses, regions)
 
-  def _withRegions(q: Query[Addresses, Address, Seq]) = for {
-    addresses ← q
-    regions ← Regions if regions.id === addresses.regionId
-  } yield (addresses, regions)
-
-  def findShippingDefaultByCustomerId(customerId: Int): Query[Addresses, Address, Seq] =
+  def findShippingDefaultByCustomerId(customerId: Int): QuerySeq =
    filter(_.customerId === customerId).filter(_.isDefaultShipping === true)
+
+  object scope {
+    implicit class QuerySeqConversions(q: QuerySeq) {
+      def withRegions: Query[(Addresses, Regions), (Address, Region), Seq] = for {
+        addresses ← q
+        regions ← Regions if regions.id === addresses.regionId
+      } yield (addresses, regions)
+    }
+  }
 }
