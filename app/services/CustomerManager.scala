@@ -15,6 +15,7 @@ import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import slick.profile.SqlAction
 import utils.Slick.UpdateReturning._
 import utils.jdbc.withUniqueConstraint
+import utils._
 
 import cats.data.{XorT, Xor}
 import cats.data.Xor.{left, right}
@@ -60,7 +61,7 @@ object CustomerManager {
   }
 
   def editCreditCard(customerId: Int, id: Int, payload: EditCreditCard)
-    (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
+    (implicit ec: ExecutionContext, db: Database): Result[Int] = {
 
     def edit(cc: CreditCard): Result[DBIO[CreditCard]] = {
       new StripeGateway().editCard(cc, payload).map {
@@ -75,17 +76,17 @@ object CustomerManager {
             expMonth    = payload.expMonth.getOrElse(cc.expMonth)
           )
 
-          val version     = CreditCards.save(updated)
+          val newVersion  = CreditCards.save(updated)
           val deactivate  = CreditCards._findById(cc.id).extract.map(_.inWallet).update(false)
 
-          right(deactivate >> version)
+          right(deactivate >> newVersion)
       }
     }
 
-    def cascadeChangesToCarts(old: CreditCard, updated: CreditCard) = {
+    def cascadeChangesToCarts(edits: DBIO[CreditCard], old: CreditCard) = edits.flatMap { updated ⇒
       val paymentIds = for {
-        orders  ← Orders.findByCustomerId(customerId).cartOnly
-        pmts    ← OrderPayments.creditCards.filter(_.paymentMethodId === old.id) if pmts.orderId == orders.id
+        orders ← Orders.findByCustomerId(customerId).cartOnly
+        pmts ← OrderPayments.creditCards.filter(_.paymentMethodId === old.id) if pmts.orderId == orders.id
       } yield pmts.id
 
       OrderPayments.filter(_.id in paymentIds).map(_.paymentMethodId).update(updated.id)
@@ -99,11 +100,8 @@ object CustomerManager {
         if (!cc.inWallet)
           Result.failure(CannotUseInactiveCreditCard(cc))
         else {
-          edit(cc).map { result ⇒
-            for {
-              dbio ← result
-              r ← right(dbio.flatMap(cascadeChangesToCarts(cc, _)))
-            } yield r
+          edit(cc).flatMap { result ⇒
+            result.fold(Result.left(_), cascadeChangesToCarts(_, cc).run().map(Xor.right))
           }
         }
     }
