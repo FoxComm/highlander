@@ -2,8 +2,8 @@
 
 import React from 'react';
 import Api from '../../lib/api';
-import TableHead from '../tables/head';
-import TableBody from '../tables/body';
+import TableHead from '../table/head';
+import TableBody from '../table/body';
 import NewGiftCard from './gift-cards-new';
 import { listenTo, stopListeningTo } from '../../lib/dispatcher';
 
