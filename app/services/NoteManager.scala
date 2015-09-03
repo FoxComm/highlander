@@ -1,5 +1,6 @@
 package services
 
+import cats.data.Validated.{Valid, Invalid}
 import cats.data.Xor
 import models._
 import responses.AdminNotes
@@ -48,9 +49,9 @@ object NoteManager {
 
   private def createNote(note: Note)
     (implicit ec: ExecutionContext, db: Database): Result[Note] = {
-    note.validate match {
-      case Success        ⇒ Result.fromFuture(Notes.save(note).run())
-      case f @ Failure(_) ⇒ Result.failure(ValidationFailure(f))
+    note.validateNew match {
+      case Valid(_)         ⇒ Result.fromFuture(Notes.save(note).run())
+      case Invalid(errors)  ⇒ Result.failure(errors.head)
     }
   }
 }

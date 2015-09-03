@@ -22,7 +22,7 @@ object AddressManager {
           case (address, Some(region))  ⇒ Result.good(Response.build(address, region))
           case (_, None)                ⇒ Result.failure(NotFoundFailure(Region, address.regionId))
         }
-      case Invalid(errors) ⇒ Result.failure(ValidationFailureNew(errors))
+      case Invalid(errors) ⇒ Result.failure(errors.head)
     }
   }
 
@@ -39,7 +39,7 @@ object AddressManager {
           case (_, address, Some(region)) ⇒ Result.failure(NotFoundFailure(address))
           case (_, _, None)               ⇒ Result.failure(NotFoundFailure(Region, address.regionId))
         }
-      case Invalid(errors) ⇒ Result.failure(ValidationFailureNew(errors))
+      case Invalid(errors) ⇒ Result.failure(errors.head)
     }
   }
 

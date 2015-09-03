@@ -2,6 +2,7 @@ package models
 
 import cats.data.NonEmptyList
 import org.scalatest.prop.TableDrivenPropertyChecks._
+import services._
 import utils.Seeds.Factories
 import util.TestBase
 import utils.Slick.implicits._
@@ -15,12 +16,12 @@ class OrderBillingAddressTest extends TestBase {
 
         val addresses = Table(
           ("address", "errors"),
-          (badZip, NonEmptyList("zip must fully match regular expression '%s'".format(Address.zipPattern))),
-          (wrongLengthZip, NonEmptyList("zip must fully match regular expression '%s'".format(Address.zipPattern)))
+          (badZip, NonEmptyList(GeneralFailure("zip must fully match regular expression '%s'".format(Address.zipPattern)))),
+          (wrongLengthZip, NonEmptyList(GeneralFailure("zip must fully match regular expression '%s'".format(Address.zipPattern))))
         )
 
-        forAll(addresses) { (address: OrderBillingAddress, errors: NonEmptyList[String]) =>
-          invalidValue(address.validateNew) must === (errors)
+        forAll(addresses) { (address: OrderBillingAddress, errors: NonEmptyList[GeneralFailure]) =>
+          invalidValue(address.validateNew) mustBe (errors)
         }
       }
     }
