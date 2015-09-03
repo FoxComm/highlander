@@ -1,5 +1,6 @@
 package models
 
+import cats.data.Validated.valid
 import cats.data.ValidatedNel
 import cats.implicits._
 import utils.Litterbox._
@@ -30,7 +31,7 @@ final case class Order(id: Int = 0, referenceNumber: String = "", customerId: In
   import Order._
 
   def validateNew: ValidatedNel[String, Order] = {
-    Checks.notEmpty(referenceNumber, "referenceNumber").map { case _ ⇒ this }
+    valid(this)
   }
 
   // TODO: Add a real collector/builder here that assembles the subTotal
