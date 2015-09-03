@@ -1,30 +1,22 @@
 package services
 
+import scala.concurrent.{ExecutionContext, Future}
+
 import cats.data.Xor
-import models._
-
-import responses.FullOrder
+import com.stripe.model.{Card ⇒ StripeCard, Customer ⇒ StripeCustomer}
+import models.{Order, Orders, Customer, Addresses, Address, CreditCard, CreditCards, OrderPayments, OrderPayment,
+OrderBillingAddress, OrderBillingAddresses}
 import payloads.CreateCreditCard
-
-
-import scala.concurrent.{Future, ExecutionContext}
-import slick.dbio.Effect.All
+import responses.FullOrder
 import slick.driver.PostgresDriver.api._
-import com.stripe.model.{Token, Card => StripeCard, Customer => StripeCustomer}
-import com.stripe.net.{RequestOptions => StripeRequestOptions}
-import collection.JavaConversions.mapAsJavaMap
+import utils.Validation.Result.Success
+import utils.{Validation ⇒ validation}
 
-import slick.profile.FixedSqlAction
-import utils.Validation
-import utils.Validation.Result.{ Success}
-import utils.{ Validation ⇒ validation }
-
-// TODO(yax): make this abstract to handle multiple Gateways
-final case class CreditCardPaymentCreator(order: Order, customer: Customer, cardPayload: CreateCreditCard)
+final case class CreditCardManager(order: Order, customer: Customer, cardPayload: CreateCreditCard)
   (implicit ec: ExecutionContext, db: Database) {
 
   val gateway = StripeGateway()
-  import CreditCardPaymentCreator._
+  import CreditCardManager._
 
   def run(): Response = cardPayload.validate match {
     case failure @ validation.Result.Failure(violations) ⇒
@@ -77,12 +69,12 @@ final case class CreditCardPaymentCreator(order: Order, customer: Customer, card
   }
 }
 
-object CreditCardPaymentCreator {
+object CreditCardManager {
   type Response = Future[Failures Xor FullOrder.Root]
 
   def run(order: Order, customer: Customer, payload: CreateCreditCard)
     (implicit ec: ExecutionContext, db: Database): Response = {
-    new CreditCardPaymentCreator(order, customer, payload).run()
+    new CreditCardManager(order, customer, payload).run()
   }
 }
 

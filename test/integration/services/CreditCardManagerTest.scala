@@ -6,17 +6,17 @@ import util.{IntegrationTestBase, StripeSupport}
 import utils.Seeds.Factories
 import utils._
 
-class CreditCardPaymentCreatorTest extends IntegrationTestBase {
+class CreditCardManagerTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global
 
-  "CreditCardPaymentCreatorTest" - {
+  "CreditCardManagerTest" - {
     "Adds a credit card with a billing address that does not exist in the address book" ignore new Fixture {
       val addressPayload = CreateAddressPayload(name = "Home Office", regionId = 1,
         street1 = "3000 Coolio Dr", city = "Seattle", zip = "55555")
       val ccPayload = CreateCreditCard(holderName = customer.firstName + " " + customer.lastName,
         number = StripeSupport.successfulCard, cvv = "123", expMonth = 1, expYear = 2018, address = Some(addressPayload))
 
-      val fullOrder = CreditCardPaymentCreator(order = order, customer = customer, cardPayload = ccPayload).run()
+      val fullOrder = CreditCardManager(order = order, customer = customer, cardPayload = ccPayload).run()
         .futureValue.get
     }
   }
