@@ -6,6 +6,7 @@ import services._
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.joda.time.DateTime
 import utils.Seeds.Factories
+import util.CustomMatchers._
 
 class CreditCardTest extends TestBase {
   val today = DateTime.now()
@@ -18,18 +19,18 @@ class CreditCardTest extends TestBase {
 
         val cards = Table(
           ("card", "errors"),
-          (expiredCard, NonEmptyList[Failure](GeneralFailure("credit card is expired"))),
-          (card.copy(expYear = 2000), NonEmptyList[Failure](GeneralFailure("credit card is expired")))
+          (expiredCard, NonEmptyList(GeneralFailure("credit card is expired"))),
+          (card.copy(expYear = 2000), NonEmptyList(GeneralFailure("credit card is expired")))
         )
 
-        forAll(cards) { (card: CreditCard, errors: NonEmptyList[Failure]) =>
-          invalidValue(card.validateNew) must === (errors)
+        forAll(cards) { (card: CreditCard, errors: NonEmptyList[GeneralFailure]) =>
+          invalidValue(card.validateNew) mustBe (errors)
         }
       }
 
       "disallows cards with dates past the singularity (> 20 years from today)" in {
         val result = card.copy(expYear = card.expYear + 21).validateNew
-        invalidValue(result).head.description.head must include("credit card expiration is too far in the future")
+        invalidValue(result) must includeFailure("credit card expiration is too far in the future")
       }
 
       "passes for valid cards" in {
