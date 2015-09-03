@@ -354,7 +354,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
   trait CreditCardFixture extends Fixture {
     val creditCard = (for {
       address ← Addresses.save(Factories.address.copy(customerId = customer.id))
-      cc ← CreditCards.save(Factories.creditCard.copy(customerId = customer.id, billingAddressId = address.id))
+      cc ← CreditCards.save(Factories.creditCard.copy(customerId = customer.id))
     } yield cc).run().futureValue
   }
 }

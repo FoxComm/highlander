@@ -91,3 +91,7 @@ final case class OrderLockedFailure(referenceNumber: String) extends Failure {
 final case class CustomerHasInsufficientStoreCredit(id: Int, has: Int, want: Int) extends Failure {
   override def description = List(s"customer with id=$id has storeCredit=$has less than requestedAmount=$want")
 }
+
+final case object CreditCardMustHaveAddress extends Failure {
+  override def description = List("cannot create creditCard without an address")
+}

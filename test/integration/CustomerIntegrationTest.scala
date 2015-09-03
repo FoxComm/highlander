@@ -70,10 +70,10 @@ class CustomerIntegrationTest extends IntegrationTestBase
       }
 
       "fails to set the credit card as default if a default currently exists" in new Fixture {
-        val default = CreditCards.save(Factories.creditCard.copy(isDefault = true, customerId = customer.id,
-          billingAddressId = address.id)).run().futureValue
-        val nonDefault = CreditCards.save(Factories.creditCard.copy(isDefault = false, customerId = customer.id,
-          billingAddressId = address.id)).run().futureValue
+        val default = CreditCards.save(Factories.creditCard.copy(isDefault = true, customerId = customer.id))
+          .run().futureValue
+        val nonDefault = CreditCards.save(Factories.creditCard.copy(isDefault = false, customerId = customer.id))
+          .run().futureValue
 
         val payload = payloads.ToggleDefaultCreditCard(isDefault = true)
         val response = POST(
@@ -172,8 +172,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
   }
 
   trait CreditCardFixture extends Fixture {
-    val creditCard = CreditCards.save(Factories.creditCard.copy(customerId = customer.id,
-      billingAddressId = address.id)).run().futureValue
+    val creditCard = CreditCards.save(Factories.creditCard.copy(customerId = customer.id)).run().futureValue
   }
 }
 

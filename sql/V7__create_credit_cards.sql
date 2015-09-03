@@ -5,7 +5,6 @@ create table credit_cards (
     -- the card as an immutable fact
     parent_id integer null references credit_cards(id) on update restrict on delete restrict,
     customer_id integer not null,
-    billing_address_id integer not null,
     gateway_customer_id character varying(255) not null,
     gateway_card_id character varying(255) not null,
     holder_name character varying(255) not null,
@@ -28,11 +27,10 @@ create table credit_cards (
     zip character varying(12) not null,
     foreign key (id) references payment_methods(id) on update restrict on delete restrict,
     foreign key (customer_id) references customers(id) on update restrict on delete restrict,
-    foreign key (billing_address_id) references addresses(id) on update restrict on delete restrict,
     constraint valid_last_four check (last_four ~ '[0-9]{4}'),
     constraint valid_exp_year check (exp_year between 2015 and 3000),
     constraint valid_exp_month check (exp_month between 1 and 12),
-    constraint valid_zip check (zip ~ '(?i)^[a-z0-9][a-z0-9\- ]{0,10}[a-z0-9]$'),
+    constraint valid_zip check (zip ~ '(?i)^[a-z0-9][a-z0-9\- ]{0,10}[a-z0-9]$')
 );
 
 create index credit_cards_customer_id_idx on credit_cards (customer_id);

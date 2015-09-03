@@ -24,7 +24,7 @@ class CreditCardTest extends IntegrationTestBase {
     val (customer, cc) = (for {
       customer ← Customers.save(Factories.customer)
       address ← Addresses.save(Factories.address.copy(customerId = customer.id))
-      cc ← CreditCards.save(Factories.creditCard.copy(customerId = customer.id, billingAddressId = address.id))
+      cc ← CreditCards.save(Factories.creditCard.copy(customerId = customer.id))
     } yield (customer, cc)).run().futureValue
   }
 }
