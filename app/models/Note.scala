@@ -4,7 +4,7 @@ import cats.data.ValidatedNel
 import cats.implicits._
 import services.Failure
 import utils.Litterbox._
-import utils.Checks
+import utils.Validation
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -13,14 +13,14 @@ import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import com.wix.accord.{Failure ⇒ ValidationFailure}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
+import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 final case class Note(id: Int = 0, storeAdminId: Int, referenceId: Int, referenceType: Note.ReferenceType, body: String)
   extends ModelWithIdParameter {
 
   def validateNew: ValidatedNel[Failure, Note] = {
-    ( Checks.notEmpty(body, "body")
-      |@| Checks.lesserThanOrEqual(body.length, 1000, "bodySize")
+    ( Validation.notEmpty(body, "body")
+      |@| Validation.lesserThanOrEqual(body.length, 1000, "bodySize")
       ).map { case _ ⇒ this }
   }
 }

@@ -3,7 +3,7 @@ package models
 import cats.data.ValidatedNel
 import services._
 import utils.Litterbox._
-import utils.Checks
+import utils.Validation
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -18,7 +18,7 @@ import services.Result
 import slick.driver.PostgresDriver.api._
 import utils.Joda._
 import utils.Money._
-import utils.{ADT, FSM, GenericTable, Model, ModelWithIdParameter, NewModel, TableQueryWithId}
+import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, NewModel, TableQueryWithId}
 import cats.syntax.apply._
 
 final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: String, currency: Currency,
@@ -40,9 +40,9 @@ final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, origin
     }
 
     (canceledWithReason
-      |@| Checks.invalidExpr(originalBalance < currentBalance, "originalBalance cannot be less than currentBalance")
-      |@| Checks.invalidExpr(originalBalance < availableBalance, "originalBalance cannot be less than availableBalance")
-      |@| Checks.invalidExpr(originalBalance < 0, "originalBalance must be greater than zero")
+      |@| Validation.invalidExpr(originalBalance < currentBalance, "originalBalance cannot be less than currentBalance")
+      |@| Validation.invalidExpr(originalBalance < availableBalance, "originalBalance cannot be less than availableBalance")
+      |@| Validation.invalidExpr(originalBalance < 0, "originalBalance must be greater than zero")
     ).map { case _ ⇒ this }
   }
 

@@ -4,7 +4,7 @@ import cats.data.ValidatedNel
 import cats.implicits._
 import services.Failure
 import utils.Litterbox._
-import utils.Checks
+import utils.Validation
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -19,9 +19,9 @@ final case class StoreAdmin(id: Int = 0, email: String, password: String,
   extends ModelWithIdParameter {
 
   def validateNew: ValidatedNel[Failure, StoreAdmin] = {
-    ( Checks.notEmpty(firstName, "firstName")
-      |@| Checks.notEmpty(lastName, "lastName")
-      |@| Checks.notEmpty(email, "email")
+    ( Validation.notEmpty(firstName, "firstName")
+      |@| Validation.notEmpty(lastName, "lastName")
+      |@| Validation.notEmpty(email, "email")
       ).map { case _ ⇒ this }
   }
 }

@@ -6,7 +6,7 @@ import cats.data.ValidatedNel
 import cats.implicits._
 import services.Failure
 import utils.Litterbox._
-import utils.Checks
+import utils.Validation
 
 import com.pellucid.sealerate
 import com.wix.accord.dsl.{validator ⇒ createValidator, _}
@@ -27,10 +27,10 @@ final case class GiftCard(id: Int = 0, originId: Int, originType: String, code: 
   import GiftCard._
 
   def validateNew: ValidatedNel[Failure, GiftCard] = {
-    ( Checks.notEmpty(code, "code")
-      |@| Checks.notEmptyIf(canceledReason, status == Canceled, "canceledReason")
-      |@| Checks.validExpr(originalBalance >= 0, "originalBalance should be greater or equal than zero")
-      |@| Checks.validExpr(currentBalance >= 0, "currentBalance should be greater or equal than zero")
+    ( Validation.notEmpty(code, "code")
+      |@| Validation.notEmptyIf(canceledReason, status == Canceled, "canceledReason")
+      |@| Validation.validExpr(originalBalance >= 0, "originalBalance should be greater or equal than zero")
+      |@| Validation.validExpr(currentBalance >= 0, "currentBalance should be greater or equal than zero")
       ).map { case _ ⇒ this }
   }
 

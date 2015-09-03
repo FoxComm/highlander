@@ -3,7 +3,7 @@ package models
 import cats.data.ValidatedNel
 import services.Failure
 import utils.Litterbox._
-import utils.Checks
+import utils.Validation
 
 import cats.data.Validated.valid
 import monocle.Lens
@@ -35,23 +35,23 @@ trait Addressable[M] {
 
     val phone: ValidatedNel[Failure, Unit] = (isUsAddress, phoneNumber) match {
       case (true, Some(number)) ⇒
-        Checks.matches(number, "[0-9]{10}", "phoneNumber")
+        Validation.matches(number, "[0-9]{10}", "phoneNumber")
       case (false, Some(number)) ⇒
-        Checks.matches(number, "[0-9]{0,15}", "phoneNumber")
+        Validation.matches(number, "[0-9]{0,15}", "phoneNumber")
       case (_, None) ⇒
         valid({})
     }
 
     val zipValidation: ValidatedNel[Failure, Unit] = (isUsAddress, zip) match {
       case (true, zipValue) ⇒
-        Checks.matches(zipValue, Address.zipPatternUs, "zip")
+        Validation.matches(zipValue, Address.zipPatternUs, "zip")
       case (false, zipValue) ⇒
-        Checks.matches(zipValue, Address.zipPattern, "zip")
+        Validation.matches(zipValue, Address.zipPattern, "zip")
     }
 
     ( Checks.notEmpty(name, "name")
-      |@| Checks.notEmpty(street1, "street1")
-      |@| Checks.notEmpty(city, "city")
+      |@| Validation.notEmpty(street1, "street1")
+      |@| Validation.notEmpty(city, "city")
       |@| zipValidation
       |@| phone
       ).map { case _ ⇒ instance }

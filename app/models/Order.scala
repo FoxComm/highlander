@@ -5,7 +5,7 @@ import cats.data.ValidatedNel
 import cats.implicits._
 import services.Failure
 import utils.Litterbox._
-import utils.Checks
+import utils.Validation
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -18,7 +18,7 @@ import monocle.macros.GenLens
 import org.joda.time.DateTime
 import services.OrderTotaler
 import slick.driver.PostgresDriver.api._
-import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
+import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 final case class Order(id: Int = 0, referenceNumber: String = "", customerId: Int,
   status: Status = Cart, locked: Boolean = false, placedAt: Option[DateTime] = None,
