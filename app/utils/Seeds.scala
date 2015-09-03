@@ -60,7 +60,7 @@ object Seeds {
     s.address.validateNew.fold(err ⇒ throw new Exception(err.mkString("\n")), _ ⇒ {})
 
     if (failures.nonEmpty)
-      throw new Exception(failures.map(_.messages).mkString("\n"))
+      throw new Exception(failures.map(_.mkString("\n")).mkString("\n"))
 
     for {
       customer ← (Customers.returningId += Factories.customer).map(id => Factories.customer.copy(id = id))

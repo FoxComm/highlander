@@ -30,6 +30,7 @@ final case class Order(id: Int = 0, referenceNumber: String = "", customerId: In
 
   import Order._
 
+  // TODO: Add order validations
   def validateNew: ValidatedNel[String, Order] = {
     valid(this)
   }
