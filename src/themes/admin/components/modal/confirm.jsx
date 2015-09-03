@@ -20,7 +20,9 @@ export default class ConfirmModal extends React.Component {
             <i className='fa fa-warning'></i>
           </div>
           <div className='title'>{modalOptions.header}</div>
-          <a className='close' aria-label='close' onClick={dispatch.bind(null, 'toggleModal', null)}><span aria-hidden='true'>&times;</span></a>
+          <a className='close' aria-label='close' onClick={dispatch.bind(null, 'toggleModal', null)}>
+            <span aria-hidden='true'>&times;</span>
+          </a>
         </div>
         <div className='modal-body'>
           {modalOptions.body}
