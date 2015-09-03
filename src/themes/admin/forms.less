@@ -67,21 +67,25 @@ input[type=text], input[type=number], textarea {
       .margin-left(-24px);
       .line-height(24px);
       position: relative;
+
+      &:before {
+        content: "";
+        display: inline-block;
+        .size(24px);
+        margin: 0.25em 0.5em 0.25em 0.25em;
+        .border(2px, solid, @color-decor9);
+        .border-radius(13px);
+        background: @color-decor0;
+        vertical-align: middle;
+      }
     }
 
-    + label:before {
-      content: "";
-      display: inline-block;
-      .size(24px);
-      margin: 0.25em 0.5em 0.25em 0.25em;
-      .border(2px, solid, @color-decor9);
-      .border-radius(13px);
-      background: @color-decor0;
-      vertical-align: middle;
-    }
+    // states
 
-    &:hover + label:before {
-      border-color: @color-decor3;
+    &:hover {
+      + label:before {
+        border-color: @color-decor3;
+      }
     }
 
     &:disabled {
@@ -91,28 +95,34 @@ input[type=text], input[type=number], textarea {
       }
     }
 
-
     &:checked {
-      + label:before {
-        border-color: @color-decor3;
+      + label {
+        &:before {
+          border-color: @color-decor3;
+        }
+
+        &:after {
+          content: "";
+          display: block;
+          position: absolute;
+          .size(16px);
+          margin: 0.25em;
+          .top(4px);
+          .left(4px);
+          .border-radius(9px);
+          background: @color-decor3;
+          z-index: 1;
+        }
       }
-      &:hover + label:before {
-        border-color: @color-decor4;
-      }
-      + label:after {
-        content: "";
-        display: block;
-        position: absolute;
-        .size(16px);
-        margin: 0.25em;
-        .top(4px);
-        .left(4px);
-        .border-radius(9px);
-        background: @color-decor3;
-        z-index: 1;
-      }
-      &:hover + label:after {
-        background: @color-decor4;
+
+      &:hover + label {
+        &:before {
+          border-color: @color-decor4;
+        }
+
+        &:after {
+          background: @color-decor4;
+        }
       }
     }
   }
