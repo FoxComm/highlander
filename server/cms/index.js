@@ -13,22 +13,7 @@ module.exports = function(app) {
 
   router
     .post('/gitup', function *() {
-      if (app.env === 'production') {
-        this.status = 400;
-        return;
-      }
-
-      let
-        hub       = this.get('X-Hub-Signature').split('='),
-        algo      = hub[0],
-        signature = hub[1],
-        body      = yield parse.json(this);
-
-      let hash = require('crypto')
-        .createHmac(algo, 'foxcomm')
-        .update(JSON.stringify(body))
-        .digest('hex');
-      if (app.env !== 'development' && hash !== signature) {
+      if (app.env === 'production' || app.env !== 'development') {
         this.status = 400;
         return;
       }
