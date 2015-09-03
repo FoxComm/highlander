@@ -1,8 +1,7 @@
 'use strict';
 
 import React from 'react';
-import TableHead from '../tables/head';
-import TableBody from '../tables/body';
+import TableView from '../tables/tableview';
 import CustomerStore from './store';
 
 export default class Customers extends React.Component {
@@ -29,12 +28,11 @@ export default class Customers extends React.Component {
   render() {
     return (
       <div id="users">
-        <div className="gutter">
-          <table className='fc-table'>
-            <TableHead columns={this.props.tableColumns}/>
-            <TableBody columns={this.props.tableColumns} rows={this.state.customers}/>
-          </table>
-        </div>
+        <TableView
+          columns={this.props.tableColumns}
+          rows={this.state.customers}
+          model='customer'
+          />
       </div>
     );
   }

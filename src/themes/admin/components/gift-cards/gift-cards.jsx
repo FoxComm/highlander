@@ -2,8 +2,7 @@
 
 import React from 'react';
 import Api from '../../lib/api';
-import TableHead from '../tables/head';
-import TableBody from '../tables/body';
+import TableView from '../tables/tableview';
 import NewGiftCard from './gift-cards-new';
 import { listenTo, stopListeningTo } from '../../lib/dispatcher';
 
@@ -69,15 +68,16 @@ export default class GiftCards extends React.Component {
       content = <NewGiftCard />;
     } else {
       content = (
-        <div id="cards" className="gutter">
-          <h2>Gift Cards</h2>
-          <button onClick={this.toggleNew.bind(this)}>+ New Gift Card</button>
+        <div id="cards">
           <div className="gutter">
-            <table className="fc-table">
-              <TableHead columns={this.props.tableColumns} />
-              <TableBody columns={this.props.tableColumns} rows={this.state.cards} model="giftcard" />
-            </table>
+            <h2>Gift Cards</h2>
+            <button onClick={this.toggleNew.bind(this)}>+ New Gift Card</button>
           </div>
+          <TableView
+            columns={this.props.tableColumns}
+            rows={this.state.cards}
+            model='giftcard'
+          />
         </div>
       );
     }
