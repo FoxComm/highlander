@@ -13,11 +13,13 @@ import slick.driver.PostgresDriver.api._
 import utils._
 import validators._
 
-final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerId: Int, billingAddressId: Int = 0,
-  gatewayCustomerId: String, gatewayCardId: String, holderName: String, lastFour: String, expMonth: Int, expYear: Int,
-  isDefault: Boolean = false, inWallet: Boolean = true, deletedAt: Option[DateTime] = None)
+final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerId: Int, gatewayCustomerId: String,
+  gatewayCardId: String, holderName: String, lastFour: String, expMonth: Int, expYear: Int,
+  isDefault: Boolean = false, inWallet: Boolean = true, deletedAt: Option[DateTime] = None,
+  regionId: Int, addressName: String, street1: String, street2: String, city: String, zip: String)
   extends PaymentMethod
   with ModelWithIdParameter
+  with Addressable[CreditCard]
   with Validation[CreditCard] {
 
   def authorize(amount: Int)(implicit ec: ExecutionContext): Result[String] = {
