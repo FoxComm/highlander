@@ -6,14 +6,14 @@ import services.Failure
 import utils.Litterbox._
 import utils.Checks
 
-import com.pellucid.sealerate
-import utils.{ADT, GenericTable, TableQueryWithId, ModelWithIdParameter, RichTable}
+import scala.concurrent.{ExecutionContext, Future}
 
+import com.pellucid.sealerate
+import com.wix.accord.dsl.{validator ⇒ createValidator, _}
+import com.wix.accord.{Failure ⇒ ValidationFailure}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
-
-import scala.concurrent.{ExecutionContext, Future}
+import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
 
 final case class Note(id: Int = 0, storeAdminId: Int, referenceId: Int, referenceType: Note.ReferenceType, body: String)
   extends ModelWithIdParameter {
@@ -36,7 +36,7 @@ object Note {
   implicit val noteColumnType = ReferenceType.slickColumn
 }
 
-class Notes(tag: Tag) extends GenericTable.TableWithId[Note](tag, "notes") with RichTable {
+class Notes(tag: Tag) extends GenericTable.TableWithId[Note](tag, "notes")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def storeAdminId = column[Int]("store_admin_id")
   def referenceId = column[Int]("reference_id")

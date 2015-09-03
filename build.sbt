@@ -127,7 +127,7 @@ lazy val phoenixScala = (project in file(".")).
     resourceDirectory in Test := baseDirectory.value / "test" / "resources",
     resourceDirectory in IT   := baseDirectory.value / "test" / "resources",
     Revolver.settings,
-    (mainClass in Compile) := Some("Main"),
+    (mainClass in Compile) := Some("server.Main"),
     // add ms report for every test
     testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD"),
     javaOptions in Test ++= Seq("-Xmx2G", "-XX:+UseConcMarkSweepGC"),

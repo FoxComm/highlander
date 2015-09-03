@@ -1,12 +1,13 @@
 package models
 
 import cats.data.ValidatedNel
-import cats.data.Validated.{invalid, valid, invalidNel}
-import cats.implicits._
 import services.Failure
 import utils.Litterbox._
-import monocle.Lens
 import utils.Checks
+
+import cats.data.Validated.valid
+import monocle.Lens
+import cats.syntax.apply._
 
 trait Addressable[M] {
   def city: String

@@ -6,12 +6,12 @@ import services.Failure
 import utils.Litterbox._
 import utils.Checks
 
+import scala.concurrent.{ExecutionContext, Future}
+
+import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
-import utils.{TableQueryWithId, GenericTable, ModelWithIdParameter, RichTable}
-
-import scala.concurrent.{ExecutionContext, Future}
+import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
 
 final case class StoreAdmin(id: Int = 0, email: String, password: String,
                       firstName: String, lastName: String,
@@ -26,7 +26,7 @@ final case class StoreAdmin(id: Int = 0, email: String, password: String,
   }
 }
 
-class StoreAdmins(tag: Tag) extends GenericTable.TableWithId[StoreAdmin](tag, "store_admins") with RichTable {
+class StoreAdmins(tag: Tag) extends GenericTable.TableWithId[StoreAdmin](tag, "store_admins")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def email = column[String]("email")
   def password = column[String]("hashed_password")

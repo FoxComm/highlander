@@ -3,7 +3,6 @@ package services
 import models._
 
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 import scala.concurrent.{ExecutionContext, Future}
 
 object OrderTotaler {

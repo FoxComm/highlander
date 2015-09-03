@@ -1,15 +1,10 @@
 package models
 
-import java.io.{FilenameFilter, File}
-import java.nio.file.{Paths, SimpleFileVisitor, Files, Path}
-
 import monocle.macros.GenLens
 import utils.ExPostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.GenericTable.TableWithId
 import utils.Money._
-import utils.{ModelWithIdParameter, RichTable, TableQueryWithId}
-import Country._
+import utils.{ModelWithIdParameter, TableQueryWithId}
 
 final case class Country(id: Int = 0, name: String, alpha2: String, alpha3: String, code: Option[String],
   continent: String, currency: Currency, languages: List[String],
@@ -18,11 +13,11 @@ final case class Country(id: Int = 0, name: String, alpha2: String, alpha3: Stri
 }
 
 object Country {
-  val unitedStatesId = 234
-  val usRegions = (4121 to 4180).toSeq
+  val unitedStatesId: Int = 234
+  val usRegions: Range    = 4121 to 4180
 }
 
-class Countries(tag: Tag) extends TableWithId[Country](tag, "countries") with RichTable {
+class Countries(tag: Tag) extends TableWithId[Country](tag, "countries")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def name = column[String]("name")
   def alpha2 = column[String]("alpha2")

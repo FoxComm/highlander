@@ -1,27 +1,21 @@
 package models
 
-import cats.data._
-import com.pellucid.sealerate
-import services.{Result, Failures, Failure}
-import slick.dbio
-import slick.dbio.Effect.{Read, Write}
-import slick.profile.FixedSqlStreamingAction
-import utils.Money._
-import utils.{Checks, ADT, GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable, FSM}
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
+
+import cats.data.ValidatedNel
+import cats.implicits._
+import services.Failure
+import utils.Litterbox._
+import utils.Checks
 
 import com.pellucid.sealerate
 import com.wix.accord.dsl.{validator ⇒ createValidator, _}
+import models.GiftCard.{OnHold, Status}
 import monocle.macros.GenLens
-
-import cats.implicits._
-import services._
-import utils.Litterbox._
-
+import services.Result
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.Money._
-import GiftCard.{Status, OnHold}
+import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
 
 final case class GiftCard(id: Int = 0, originId: Int, originType: String, code: String,
   currency: Currency, status: Status = OnHold, originalBalance: Int, currentBalance: Int = 0,
@@ -70,7 +64,7 @@ object GiftCard {
   implicit val statusColumnType = Status.slickColumn
 }
 
-class GiftCards(tag: Tag) extends GenericTable.TableWithId[GiftCard](tag, "gift_cards") with RichTable {
+class GiftCards(tag: Tag) extends GenericTable.TableWithId[GiftCard](tag, "gift_cards")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def originId = column[Int]("origin_id")
   def originType = column[String]("origin_type")
@@ -91,8 +85,8 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
   idLens = GenLens[GiftCard](_.id)
   )(new GiftCards(_)){
 
-  import models.{GiftCardAdjustment ⇒ Adj, GiftCardAdjustments ⇒ Adjs}
   import GiftCard._
+  import models.{GiftCardAdjustment ⇒ Adj, GiftCardAdjustments ⇒ Adjs}
 
   def auth(giftCard: GiftCard, orderPaymentId: Int, debit: Int = 0, credit: Int = 0)
     (implicit ec: ExecutionContext): DBIO[Adj] =

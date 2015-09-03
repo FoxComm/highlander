@@ -1,13 +1,12 @@
 package models
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 import monocle.macros.GenLens
 import payloads.CreateAddressPayload
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.GenericTable.TableWithId
-import utils.{ModelWithIdParameter, NewModel, RichTable, TableQueryWithId}
+import utils.{ModelWithIdParameter, NewModel, TableQueryWithId}
 
 final case class Address(id: Int = 0, customerId: Int, regionId: Int, name: String,
   street1: String, street2: Option[String], city: String, zip: String,
@@ -37,7 +36,7 @@ object Address {
   }
 }
 
-class Addresses(tag: Tag) extends TableWithId[Address](tag, "addresses") with RichTable {
+class Addresses(tag: Tag) extends TableWithId[Address](tag, "addresses")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def customerId = column[Int]("customer_id")
   def regionId = column[Int]("region_id")
@@ -59,6 +58,10 @@ object Addresses extends TableQueryWithId[Address, Addresses](
   idLens = GenLens[Address](_.id)
   )(new Addresses(_)) {
 
+  type QuerySeq = Query[Addresses, Address, Seq]
+
+  import scope._
+
   def findAllByCustomer(customer: Customer)(implicit db: Database): Future[Seq[Address]] = {
     findAllByCustomerId(customer.id)
   }
@@ -66,18 +69,22 @@ object Addresses extends TableQueryWithId[Address, Addresses](
   def findAllByCustomerId(customerId: Int)(implicit db: Database): Future[Seq[Address]] =
     _findAllByCustomerId(customerId).result.run()
 
-  def _findAllByCustomerId(customerId: Int): Query[Addresses, Address, Seq] =
+  def _findAllByCustomerId(customerId: Int): QuerySeq =
     filter(_.customerId === customerId)
 
   def _findAllByCustomerIdWithRegions(customerId: Int): Query[(Addresses, Regions), (Address, Region), Seq] = for {
-    (addresses, regions) ← _withRegions(_findAllByCustomerId(customerId))
+    (addresses, regions) ← _findAllByCustomerId(customerId).withRegions
   } yield (addresses, regions)
 
-  def _withRegions(q: Query[Addresses, Address, Seq]) = for {
-    addresses ← q
-    regions ← Regions if regions.id === addresses.regionId
-  } yield (addresses, regions)
-
-  def findShippingDefaultByCustomerId(customerId: Int): Query[Addresses, Address, Seq] =
+  def findShippingDefaultByCustomerId(customerId: Int): QuerySeq =
    filter(_.customerId === customerId).filter(_.isDefaultShipping === true)
+
+  object scope {
+    implicit class AddressesQuerySeqConversions(q: QuerySeq) {
+      def withRegions: Query[(Addresses, Regions), (Address, Region), Seq] = for {
+        addresses ← q
+        regions ← Regions if regions.id === addresses.regionId
+      } yield (addresses, regions)
+    }
+  }
 }

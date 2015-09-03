@@ -1,11 +1,10 @@
 package models
 
-import utils.{GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
+import utils.{GenericTable, Validation, TableQueryWithId, ModelWithIdParameter}
 
 import com.wix.accord.dsl.{validator => createValidator}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}
 
 import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._
@@ -14,7 +13,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 final case class OrderWeightCriterion(id:Int = 0, greaterThan: Option[Int], lessThan: Option[Int], exactMatch: Option[Int], unitOfMeasure: String, exclude: Boolean) extends ModelWithIdParameter
 
-class OrderWeightCriteria(tag: Tag) extends GenericTable.TableWithId[OrderWeightCriterion](tag, "shipping_methods") with RichTable {
+class OrderWeightCriteria(tag: Tag) extends GenericTable.TableWithId[OrderWeightCriterion](tag, "shipping_methods")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def greaterThan = column[Option[Int]]("greater_than")
   def lessThan = column[Option[Int]]("less_than")

@@ -1,13 +1,12 @@
 package utils
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Success
-import akka.actor.{ActorLogging, Actor}
-import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
+import akka.actor.{Actor, ActorLogging}
 
+import models.Order._
 import models.{Order, Orders}
-import Order._
+import slick.driver.PostgresDriver.api._
 
 case object Tick
 

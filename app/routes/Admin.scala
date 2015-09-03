@@ -14,7 +14,6 @@ import payloads._
 import responses.{AllOrders, AllOrdersWithFailures, AdminNotes, FullOrder}
 import services._
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.RunOnDbIO
 
 object Admin {

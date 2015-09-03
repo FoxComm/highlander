@@ -1,30 +1,25 @@
 package models
 
-import com.pellucid.sealerate
-import services._
-import slick.dbio.Effect.Read
-import slick.profile.SqlAction
-import utils.Money._
-import utils.{ADT, GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
-import scala.concurrent.{ExecutionContext, Future}
-
 import cats.data.ValidatedNel
-import cats.implicits._
+import services._
 import utils.Litterbox._
 import utils.Checks
 
-import com.github.tototoshi.slick.JdbcJodaSupport._
+import scala.concurrent.{ExecutionContext, Future}
+
 import cats.data.Validated.{invalidNel, valid}
+import cats.data.ValidatedNel
+import com.github.tototoshi.slick.PostgresJodaSupport._
 import com.pellucid.sealerate
 import models.StoreCredit.{OnHold, Status}
 import monocle.macros.GenLens
 import org.joda.time.DateTime
-
+import services.Result
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.Joda._
 import utils.Money._
-import utils.{ADT, NewModel, FSM, GenericTable, Model, ModelWithIdParameter, RichTable, TableQueryWithId}
+import utils.{ADT, FSM, GenericTable, Model, ModelWithIdParameter, NewModel, TableQueryWithId}
+import cats.syntax.apply._
 
 final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: String, currency: Currency,
   originalBalance: Int, currentBalance: Int = 0, availableBalance:Int = 0,
@@ -98,7 +93,7 @@ object StoreCredit {
   }
 }
 
-class StoreCredits(tag: Tag) extends GenericTable.TableWithId[StoreCredit](tag, "store_credits") with RichTable {
+class StoreCredits(tag: Tag) extends GenericTable.TableWithId[StoreCredit](tag, "store_credits")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def originId = column[Int]("origin_id")
   def originType = column[String]("origin_type")

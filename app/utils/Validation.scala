@@ -1,14 +1,13 @@
 package utils
 
-import cats.data._
-import cats.data.Validated.{invalidNel, valid}
-import com.wix.accord.{validate => runValidation, RuleViolation, Violation}
-import com.wix.accord.transform.ValidationTransform
+import cats.data.Validated.{valid, invalidNel}
+import cats.data.{NonEmptyList, Validated, ValidatedNel}
 import com.wix.accord
+import com.wix.accord.combinators._
+import com.wix.accord.transform.ValidationTransform
+import com.wix.accord.{Failure ⇒ AccordFailure, RuleViolation, Violation, validate ⇒ runValidation}
 import org.joda.time.DateTime
 import services._
-import com.wix.accord.combinators._
-import cats.implicits._
 
 trait Validation[T] { this: T ⇒
   import Validation._
@@ -24,7 +23,6 @@ trait Validation[T] { this: T ⇒
 }
 
 object Validation {
-  import Result._
 
   sealed trait Result {
 
@@ -61,19 +59,6 @@ object Validation {
       case accord.Failure(violations) => Failure(violations)
       case accord.Success => Success
     }
-  }
-
-  private def toValidatedNel(constraint: String, r: accord.Result): ValidatedNel[String, Unit] = r match {
-    case accord.Failure(f)  ⇒
-      val errors = f.toList.map {
-        case RuleViolation(_, err, _) ⇒ s"$constraint $err"
-        case _ ⇒ "unknown error"
-      }
-
-      Validated.Invalid(NonEmptyList(errors.headOption.getOrElse("unknown error"), errors.tail))
-
-    case accord.Success     ⇒
-      valid({})
   }
 }
 

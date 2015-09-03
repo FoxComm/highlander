@@ -1,17 +1,10 @@
 package models
 
-import scala.concurrent.{ExecutionContext, Future}
-
 import com.pellucid.sealerate
 import com.stripe.model.{Customer ⇒ StripeCustomer}
-import com.wix.accord.dsl.{validator ⇒ createValidator, _}
-import monocle.Lens
+import com.wix.accord.dsl.{validator ⇒ createValidator}
 import monocle.macros.GenLens
-
-import payloads.CreateCreditCard
-import services.{Failures, StripeGateway}
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils._
 
 final case class CreditCardCharge(id: Int = 0, creditCardId: Int, orderPaymentId: Int,
@@ -48,7 +41,7 @@ object CreditCardCharge {
 
 class CreditCardCharges(tag: Tag)
   extends GenericTable.TableWithId[CreditCardCharge](tag, "credit_card_charges")
-  with RichTable {
+   {
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def creditCardId = column[Int]("credit_card_id")

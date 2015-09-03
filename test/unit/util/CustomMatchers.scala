@@ -1,17 +1,18 @@
 package util
 
+import cats.implicits._
 import cats.data._
 import org.scalatest._
 import matchers._
-import services.Failure
+import services._
 
 object CustomMatchers {
   // Same as `include`, used for Failure inner Strings
   class IncludeFailureMatcher(expectedSubstring: String) extends Matcher[NonEmptyList[Failure]] {
     def apply(left: NonEmptyList[Failure]) = {
-      val stringValue = left.head.description.head
+      val stringValue = left.foldLeft("")(_ + _.description)
       MatchResult(
-        stringValue.indexOf(expectedSubstring) >= 0,
+        stringValue.contains(expectedSubstring),
         s"""String $stringValue does not contain "$expectedSubstring"""",
         s"""String $stringValue contains "$expectedSubstring""""
       )

@@ -4,8 +4,7 @@ import com.pellucid.sealerate
 import models.StoreCreditAdjustment.{Auth, Status}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
-import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId}
+import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 final case class StoreCreditAdjustment(id: Int = 0, storeCreditId: Int, orderPaymentId: Int,
   debit: Int, status: Status = Auth)
@@ -36,7 +35,7 @@ object StoreCreditAdjustment {
 
 class StoreCreditAdjustments(tag: Tag)
   extends GenericTable.TableWithId[StoreCreditAdjustment](tag, "store_credit_adjustments")
-  with RichTable {
+   {
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def storeCreditId = column[Int]("store_credit_id")
