@@ -6,7 +6,7 @@ import slick.driver.PostgresDriver.api._
 import scala.concurrent.{ExecutionContext, Future}
 
 object OrderTotaler {
-  def _subTotalForOrder(order: Order): DBIOAction[Option[Int], NoStream, Effect.Read] = {
+  def _subTotalForOrder(order: Order): DBIO[Option[Int]] = {
     (for {
       lineItems ← OrderLineItems._findByOrder(order)
       skus ← Skus if skus.id === lineItems.skuId
@@ -17,7 +17,7 @@ object OrderTotaler {
     db.run(_subTotalForOrder(order)).map(_.getOrElse(0))
   }
 
-  def _grandTotalForOrder(order: Order): DBIOAction[Option[Int], NoStream, Effect.Read] = {
+  def _grandTotalForOrder(order: Order): DBIO[Option[Int]] = {
     (for {
       lineItems ← OrderLineItems._findByOrder(order)
       skus ← Skus if skus.id === lineItems.skuId

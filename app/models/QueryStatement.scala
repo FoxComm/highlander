@@ -1,6 +1,7 @@
 package models
 
 import com.pellucid.sealerate
+import scala.collection.immutable.Seq
 import utils.ADT
 
 final case class QueryStatement(comparison: QueryStatement.Comparison,

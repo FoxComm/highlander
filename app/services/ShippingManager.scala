@@ -22,11 +22,10 @@ object ShippingManager {
       shippingMethods ← ShippingMethods.findActive.result
     } yield (orderShippingAddresses, subTotal, grandTotal, shippingMethods)
 
-    db.run(queries.transactionally).flatMap {
-      case (Some(addressWithRegion), subTotal, grandTotal, shippingMethods) ⇒
+    db.run(queries).flatMap {
+      case (Some((address, region)), subTotal, grandTotal, shippingMethods) ⇒
 
-        val shippingData = ShippingData(order, grandTotal.getOrElse(0), subTotal.getOrElse(0),
-          addressWithRegion._1, addressWithRegion._2)
+        val shippingData = ShippingData(order, grandTotal.getOrElse(0), subTotal.getOrElse(0), address, region)
 
         val matchingMethods = shippingMethods.filter { shippingMethod ⇒
           shippingMethod.conditions.fold(false) { condition ⇒
