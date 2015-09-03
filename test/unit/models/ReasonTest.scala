@@ -3,6 +3,7 @@ package models
 import cats.data.NonEmptyList
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.scalatest.prop.Tables.Table
+import services._
 import util.TestBase
 import utils.Seeds.Factories
 
@@ -14,10 +15,10 @@ class ReasonTest extends TestBase {
 
         val reasons = Table(
           ("reason", "errors"),
-          (emptyBodyReason, NonEmptyList("body must not be empty"))
+          (emptyBodyReason, NonEmptyList[Failure](GeneralFailure("body must not be empty")))
         )
 
-        forAll(reasons) { (reason: Reason, errors: NonEmptyList[String]) =>
+        forAll(reasons) { (reason: Reason, errors: NonEmptyList[Failure]) =>
           invalidValue(reason.validateNew) must === (errors)
         }
       }

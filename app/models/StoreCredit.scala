@@ -1,7 +1,7 @@
 package models
 
 import com.pellucid.sealerate
-import services.{Result, Failures, Failure, OrderTotaler}
+import services._
 import slick.dbio.Effect.Read
 import slick.profile.SqlAction
 import utils.Money._
@@ -20,7 +20,6 @@ import models.StoreCredit.{OnHold, Status}
 import monocle.macros.GenLens
 import org.joda.time.DateTime
 
-import services.Failures
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.Joda._
@@ -39,9 +38,9 @@ final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, origin
 
   def isNew: Boolean = id == 0
 
-  def validateNew: ValidatedNel[String, Model] = {
-    val canceledWithReason = (status, canceledReason) match {
-      case (Canceled, None) ⇒ invalidNel("canceledReason must be present when canceled")
+  def validateNew: ValidatedNel[Failure, StoreCredit] = {
+    val canceledWithReason: ValidatedNel[Failure, Unit] = (status, canceledReason) match {
+      case (Canceled, None) ⇒ invalidNel(GeneralFailure("canceledReason must be present when canceled"))
       case _                ⇒ valid({})
     }
 

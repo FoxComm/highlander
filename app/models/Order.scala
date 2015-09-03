@@ -3,6 +3,7 @@ package models
 import cats.data.Validated.valid
 import cats.data.ValidatedNel
 import cats.implicits._
+import services.Failure
 import utils.Litterbox._
 import utils.Checks
 
@@ -31,7 +32,7 @@ final case class Order(id: Int = 0, referenceNumber: String = "", customerId: In
   import Order._
 
   // TODO: Add order validations
-  def validateNew: ValidatedNel[String, Order] = {
+  def validateNew: ValidatedNel[Failure, Order] = {
     valid(this)
   }
 

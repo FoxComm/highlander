@@ -2,6 +2,7 @@ package models
 
 import cats.data.ValidatedNel
 import cats.implicits._
+import services.Failure
 import utils.Litterbox._
 import utils.Checks
 
@@ -17,7 +18,7 @@ final case class StoreAdmin(id: Int = 0, email: String, password: String,
                       department: Option[String] = None)
   extends ModelWithIdParameter {
 
-  def validateNew: ValidatedNel[String, StoreAdmin] = {
+  def validateNew: ValidatedNel[Failure, StoreAdmin] = {
     ( Checks.notEmpty(firstName, "firstName")
       |@| Checks.notEmpty(lastName, "lastName")
       |@| Checks.notEmpty(email, "email")

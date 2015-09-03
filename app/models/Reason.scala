@@ -2,6 +2,7 @@ package models
 
 import cats.data.ValidatedNel
 import cats.implicits._
+import services.Failure
 import utils.Litterbox._
 import utils.Checks
 
@@ -13,7 +14,7 @@ import utils.{GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId}
 final case class Reason(id: Int = 0, storeAdminId: Int, body: String, parentId: Option[Int] = None)
   extends ModelWithIdParameter {
 
-  def validateNew: ValidatedNel[String, Reason] = {
+  def validateNew: ValidatedNel[Failure, Reason] = {
     ( Checks.notEmpty(body, "body")
       |@| Checks.lesserThanOrEqual(body.length, 255, "bodySize")
       ).map { case _ ⇒ this }

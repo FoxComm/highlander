@@ -2,6 +2,7 @@ package models
 
 import cats.data.ValidatedNel
 import cats.implicits._
+import services.Failure
 import utils.Litterbox._
 import utils.Checks
 
@@ -17,7 +18,7 @@ import scala.concurrent.{ExecutionContext, Future}
 final case class Note(id: Int = 0, storeAdminId: Int, referenceId: Int, referenceType: Note.ReferenceType, body: String)
   extends ModelWithIdParameter {
 
-  def validateNew: ValidatedNel[String, Note] = {
+  def validateNew: ValidatedNel[Failure, Note] = {
     ( Checks.notEmpty(body, "body")
       |@| Checks.lesserThanOrEqual(body.length, 1000, "bodySize")
       ).map { case _ ⇒ this }

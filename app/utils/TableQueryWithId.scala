@@ -2,6 +2,7 @@ package utils
 
 import cats.data.ValidatedNel
 import monocle.Lens
+import services._
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import Strings._
@@ -16,7 +17,7 @@ trait NewModel extends Model {
   // override me in ModelWithIdParameter with isNew = id == 0
   def isNew: Boolean
 
-  def validateNew: ValidatedNel[String, Model]
+  def validateNew: ValidatedNel[Failure, Model]
 }
 
 trait ModelWithIdParameter extends Model {

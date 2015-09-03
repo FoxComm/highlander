@@ -1,8 +1,8 @@
 package models
 
-import cats.data.Validated.{invalid, valid, invalidNel}
 import cats.data.ValidatedNel
 import cats.implicits._
+import services.Failure
 import utils.Litterbox._
 import utils.Checks
 
@@ -30,7 +30,7 @@ final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerI
     new StripeGateway().authorizeAmount(gatewayCustomerId, amount)
   }
 
-  def validateNew: ValidatedNel[String, CreditCard] = {
+  def validateNew: ValidatedNel[Failure, CreditCard] = {
     def notExpired: Boolean = {
       val today = DateTime.now()
       val expDate = new DateTime(expYear, expMonth, 1, 0, 0).plusMonths(1).minusSeconds(1)

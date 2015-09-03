@@ -3,12 +3,10 @@ package utils
 import cats.data.{Validated, ValidatedNel}
 import cats.data.Validated.{invalidNel, valid}
 import cats.data.NonEmptyList
-import com.wix.accord.{validate => runValidation, Failure => AccordFailure, BaseValidator, GroupViolation,
-RuleViolation, Violation, Validator}
+import com.wix.accord.{validate => runValidation, RuleViolation, Violation}
 import com.wix.accord.transform.ValidationTransform
 import com.wix.accord
-import services.ValidationFailure
-import utils.Validation.Result.{Failure, Success}
+import services._
 import com.wix.accord.combinators._
 import cats.implicits._
 
@@ -80,42 +78,42 @@ object Validation {
 }
 
 object Checks {
-  def validExpr(expression: Boolean, message: String) = expression match {
-    case false ⇒ invalidNel(message)
+  def validExpr(expression: Boolean, message: String): ValidatedNel[Failure, Unit] = expression match {
+    case false ⇒ invalidNel(GeneralFailure(message))
     case _     ⇒ valid({})
   }
 
-  def invalidExpr(expression: Boolean, message: String) = expression match {
-    case true ⇒ invalidNel(message)
+  def invalidExpr(expression: Boolean, message: String): ValidatedNel[Failure, Unit] = expression match {
+    case true ⇒ invalidNel(GeneralFailure(message))
     case _    ⇒ valid({})
   }
 
-  def notEmpty[A <: AnyRef <% HasEmpty](a: A, constraint: String): ValidatedNel[String, Unit] =
+  def notEmpty[A <: AnyRef <% HasEmpty](a: A, constraint: String): ValidatedNel[Failure, Unit] =
     toValidatedNel(constraint, new NotEmpty[A].apply(a))
 
-  def matches(value: String, regex: String, constraint: String): ValidatedNel[String, Unit] =
+  def matches(value: String, regex: String, constraint: String): ValidatedNel[Failure, Unit] =
     toValidatedNel(constraint, new MatchesRegex(regex.r.pattern, partialMatchAllowed = false).apply(value))
 
-  def lesserThan(value: Int, limit: Int, constraint: String): ValidatedNel[String, Unit] =
+  def lesserThan(value: Int, limit: Int, constraint: String): ValidatedNel[Failure, Unit] =
     toValidatedNel(constraint, new LesserThan[Int](limit, "got").apply(value))
 
-  def lesserThanOrEqual(value: Int, limit: Int, constraint: String): ValidatedNel[String, Unit] =
+  def lesserThanOrEqual(value: Int, limit: Int, constraint: String): ValidatedNel[Failure, Unit] =
     toValidatedNel(constraint, new LesserThanOrEqual[Int](limit, "got").apply(value))
 
-  def greaterThan(value: Int, limit: Int, constraint: String): ValidatedNel[String, Unit] =
+  def greaterThan(value: Int, limit: Int, constraint: String): ValidatedNel[Failure, Unit] =
     toValidatedNel(constraint, new GreaterThan[Int](limit, "got").apply(value))
 
-  def greaterThanOrEqual(value: Int, limit: Int, constraint: String): ValidatedNel[String, Unit] =
+  def greaterThanOrEqual(value: Int, limit: Int, constraint: String): ValidatedNel[Failure, Unit] =
     toValidatedNel(constraint, new GreaterThanOrEqual[Int](limit, "got").apply(value))
 
-  private def toValidatedNel(constraint: String, r: accord.Result): ValidatedNel[String, Unit] = r match {
+  private def toValidatedNel(constraint: String, r: accord.Result): ValidatedNel[Failure, Unit] = r match {
     case accord.Failure(f) ⇒
       val errors = f.toList.map {
-        case RuleViolation(_, err, _) ⇒ s"$constraint $err"
-        case _ ⇒ "unknown error"
+        case RuleViolation(_, err, _) ⇒ GeneralFailure(s"$constraint $err")
+        case _ ⇒ GeneralFailure("unknown error")
       }
 
-      Validated.Invalid(NonEmptyList(errors.headOption.getOrElse("unknown error"), errors.tail))
+      Validated.Invalid(NonEmptyList(errors.headOption.getOrElse(GeneralFailure("unknown error")), errors.tail))
 
     case accord.Success ⇒
       valid({})

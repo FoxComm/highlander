@@ -54,7 +54,7 @@ object NoteManager {
     (implicit ec: ExecutionContext, db: Database): Result[Note] = {
     note.validateNew match {
       case Valid(_)         ⇒ Result.fromFuture(Notes.save(note).run())
-      case Invalid(errors)  ⇒ Result.failure(ValidationFailureNew(errors))
+      case Invalid(errors)  ⇒ Result.failure(errors.head)
     }
   }
 }

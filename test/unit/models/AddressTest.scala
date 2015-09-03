@@ -1,6 +1,7 @@
 package models
 
 import cats.data.NonEmptyList
+import services._
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import util.TestBase
 
@@ -17,11 +18,13 @@ class AddressTest extends TestBase {
 
         val addresses = Table(
           ("address", "errors"),
-          (badZip, NonEmptyList("zip must fully match regular expression '%s'".format(Address.zipPattern))),
-          (wrongLengthZip, NonEmptyList("zip must fully match regular expression '%s'".format(Address.zipPattern)))
+          (badZip, NonEmptyList[Failure](GeneralFailure("zip must fully match regular expression '%s'".format(Address
+            .zipPattern)))),
+          (wrongLengthZip, NonEmptyList[Failure](GeneralFailure("zip must fully match regular expression '%s'".format(Address
+            .zipPattern))))
         )
 
-        forAll(addresses) { (address: Address, errors: NonEmptyList[String]) =>
+        forAll(addresses) { (address: Address, errors: NonEmptyList[Failure]) =>
           invalidValue(address.validateNew) must === (errors)
         }
       }
@@ -32,28 +35,31 @@ class AddressTest extends TestBase {
 
         val addresses = Table(
           ("address", "errors"),
-          (tooShortZip, NonEmptyList("zip must fully match regular expression '%s'".format(Address.zipPatternUs))),
-          (wrongLengthZip, NonEmptyList("zip must fully match regular expression '%s'".format(Address.zipPatternUs)))
+          (tooShortZip, NonEmptyList[Failure](GeneralFailure("zip must fully match regular expression '%s'".format
+            (Address.zipPatternUs)))),
+          (wrongLengthZip, NonEmptyList[Failure](GeneralFailure("zip must fully match regular expression '%s'".format
+            (Address.zipPatternUs))))
         )
 
-        forAll(addresses) { (address: Address, errors: NonEmptyList[String]) =>
+        forAll(addresses) { (address: Address, errors: NonEmptyList[Failure]) =>
           invalidValue(address.copy(regionId = Country.usRegions.head).validateNew) must === (errors)
         }
       }
 
       "returns errors when name or street1 is empty" in {
         val result = valid.copy(name = "", street1 = "").validateNew
-        invalidValue(result) must === (NonEmptyList("name must not be empty", "street1 must not be empty"))
+        invalidValue(result) must === (NonEmptyList[Failure](GeneralFailure("name must not be empty"), GeneralFailure("street1 must " +
+          "not be empty")))
       }
 
       "returns errors if US address and Some(phoneNumber) < 10 digits" in {
         val result = valid.copy(regionId = Country.usRegions.head, phoneNumber = Some("5551234")).validateNew
-        invalidValue(result).head must (include("phoneNumber") and include("'[0-9]{10}'"))
+        invalidValue(result).head.description.head must (include("phoneNumber") and include("'[0-9]{10}'"))
       }
 
       "returns errors if non-US address and Some(phoneNumber) > 15 digits" in {
         val result = valid.copy(regionId = 1, phoneNumber = Some("1" * 16)).validateNew
-        invalidValue(result).head must (include("phoneNumber") and include("'[0-9]{0,15}'"))
+        invalidValue(result).head.description.head must (include("phoneNumber") and include("'[0-9]{0,15}'"))
       }
     }
   }

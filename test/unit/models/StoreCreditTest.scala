@@ -2,6 +2,7 @@ package models
 
 import util.TestBase
 import utils.Seeds.Factories
+import services._
 import StoreCredit._
 import cats.data.{NonEmptyList ⇒ NEL}
 
@@ -13,7 +14,7 @@ class StoreCreditTest extends TestBase {
         val result = sc.validateNew
 
         result mustBe 'invalid
-        result.fold(identity, m ⇒ NEL(m.modelName)) must ===(NEL(
+        result.fold(identity, m ⇒ NEL(m.modelName)) must === (NEL(
           "originalBalance cannot be less than currentBalance",
           "originalBalance cannot be less than availableBalance",
           "originalBalance must be greater than zero"
@@ -25,7 +26,7 @@ class StoreCreditTest extends TestBase {
         val result = sc.validateNew
 
         result mustBe 'invalid
-        result.fold(identity, m ⇒ NEL(m.modelName)) must ===(NEL(
+        result.fold(identity, m ⇒ NEL(m.modelName)) must === (NEL(
           "canceledReason must be present when canceled"
         ))
       }
@@ -35,7 +36,7 @@ class StoreCreditTest extends TestBase {
         val result = sc.validateNew
 
         result mustBe 'valid
-        result.toOption.get === (sc)
+        result.toOption.get === sc
       }
     }
   }
