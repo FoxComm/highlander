@@ -16,7 +16,7 @@ class CreditCardManagerTest extends IntegrationTestBase {
       val ccPayload = CreateCreditCard(holderName = customer.firstName + " " + customer.lastName,
         number = StripeSupport.successfulCard, cvv = "123", expMonth = 1, expYear = 2018, address = Some(addressPayload))
 
-      val fullOrder = CreditCardManager(order = order, customer = customer, cardPayload = ccPayload).run()
+      val fullOrder = CreditCardManager.createCardForOrder(order = order, customer = customer, payload = ccPayload)
         .futureValue.get
     }
   }

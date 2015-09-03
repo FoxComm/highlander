@@ -12,36 +12,37 @@ import slick.driver.PostgresDriver.api._
 import utils.Validation.Result.Success
 import utils.{Validation ⇒ validation}
 
-final case class CreditCardManager(order: Order, customer: Customer, cardPayload: CreateCreditCard)
-  (implicit ec: ExecutionContext, db: Database) {
+object CreditCardManager {
+  def createCardForOrder(order: Order, customer: Customer, payload: CreateCreditCard)
+    (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
 
-  val gateway = StripeGateway()
-  import CreditCardManager._
+    val gateway = StripeGateway()
+    payload.validate match {
+      case failure@validation.Result.Failure(violations) ⇒
+        Result.failure(ValidationFailure(failure))
+      case Success ⇒
+        // creates the customer, card, and gives us getDefaultCard as the token
+        gateway.createCustomerAndCard(customer, payload).flatMap {
+          case Xor.Right((stripeCustomer, stripeCard)) =>
+            createRecords(stripeCustomer, stripeCard, order, customer, payload).flatMap { optOrder =>
+              optOrder.map { (o: Order) =>
+                Result.fromFuture(FullOrder.fromOrder(o))
+              }.getOrElse(Future.successful(Xor.left(List(NotFoundFailure(order)))))
+            }
 
-  def run(): Response = cardPayload.validate match {
-    case failure @ validation.Result.Failure(violations) ⇒
-      Result.failure(ValidationFailure(failure))
-    case Success ⇒
-      // creates the customer, card, and gives us getDefaultCard as the token
-      gateway.createCustomerAndCard(customer, this.cardPayload).flatMap {
-        case Xor.Right((stripeCustomer, stripeCard)) =>
-          createRecords(stripeCustomer, stripeCard, order, customer).flatMap { optOrder =>
-            optOrder.map { (o: Order) =>
-              Result.fromFuture(FullOrder.fromOrder(o))
-            }.getOrElse(Future.successful(Xor.left(List(NotFoundFailure(order)))))
-          }
+          case left@Xor.Left(errors) ⇒ Future.successful(left)
+        }
 
-        case left @ Xor.Left(errors) ⇒ Future.successful(left)
-      }
+    }
   }
 
-  private [this] def createRecords(stripeCustomer: StripeCustomer, stripeCard: StripeCard,
-    order: Order, customer: Customer)
+  private def createRecords(stripeCustomer: StripeCustomer, stripeCard: StripeCard,
+    order: Order, customer: Customer, payload: CreateCreditCard)
     (implicit ec: ExecutionContext, db: Database): Future[Option[Order]] = {
 
     val appliedPayment = OrderPayment.fromStripeCustomer(stripeCustomer, order)
-    val cc = CreditCard.build(stripeCustomer, stripeCard, this.cardPayload).copy(customerId = customer.id)
-    val billingAddress = this.cardPayload.address.map(Address.fromPayload(_).copy(customerId = customer.id))
+    val cc = CreditCard.build(stripeCustomer, stripeCard, payload).copy(customerId = customer.id)
+    val billingAddress = payload.address.map(Address.fromPayload(_).copy(customerId = customer.id))
 
     val queries = for {
       address ← billingAddress.map { address ⇒
@@ -69,12 +70,4 @@ final case class CreditCardManager(order: Order, customer: Customer, cardPayload
   }
 }
 
-object CreditCardManager {
-  type Response = Future[Failures Xor FullOrder.Root]
-
-  def run(order: Order, customer: Customer, payload: CreateCreditCard)
-    (implicit ec: ExecutionContext, db: Database): Response = {
-    new CreditCardManager(order, customer, payload).run()
-  }
-}
 
