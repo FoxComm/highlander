@@ -45,8 +45,8 @@ final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerI
     }
 
     ( Checks.matches(lastFour, "[0-9]{4}", "lastFour")
-      |@| Checks.isTrue(notExpired, "Credit card should not be expired")
-      |@| Checks.isTrue(withinTwentyYears, "Expiration date should be withing 20 years")
+      |@| Checks.validExpr(notExpired, "credit card is expired")
+      |@| Checks.validExpr(withinTwentyYears, "credit card expiration is too far in the future")
       ).map { case _ ⇒ this }
   }
 }

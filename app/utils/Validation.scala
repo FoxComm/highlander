@@ -80,11 +80,15 @@ object Validation {
 }
 
 object Checks {
-  def isTrue(a: Boolean, constraint: String): ValidatedNel[String, Unit] =
-    toValidatedNel(constraint, (new IsTrue).apply(a))
+  def validExpr(expression: Boolean, message: String) = expression match {
+    case false ⇒ invalidNel(message)
+    case _     ⇒ valid({})
+  }
 
-  def isFalse(a: Boolean, constraint: String): ValidatedNel[String, Unit] =
-    toValidatedNel(constraint, (new IsFalse).apply(a))
+  def invalidExpr(expression: Boolean, message: String) = expression match {
+    case true ⇒ invalidNel(message)
+    case _    ⇒ valid({})
+  }
 
   def notEmpty[A <: AnyRef <% HasEmpty](a: A, constraint: String): ValidatedNel[String, Unit] =
     toValidatedNel(constraint, new NotEmpty[A].apply(a))

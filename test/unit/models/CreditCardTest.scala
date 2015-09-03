@@ -1,5 +1,6 @@
 package models
 
+import cats.data._
 import util.TestBase
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.joda.time.DateTime
@@ -10,39 +11,29 @@ class CreditCardTest extends TestBase {
   val card = Factories.creditCard
 
   "CreditCard" - {
-    "validations" - {
+    "validateNew" - {
       "disallows cards with expired dates" in {
+        val expiredCard = card.copy(expMonth = today.minusMonths(1).getMonthOfYear, expYear = today.getYear)
+
         val cards = Table(
           ("card", "errors"),
-          (card.copy(expMonth = today.minusMonths(1).getMonthOfYear,
-            expYear = today.getYear), "credit card is expired"),
-          (card.copy(expYear  = 2000), "credit card is expired")
+          (expiredCard, NonEmptyList("credit card is expired")),
+          (card.copy(expYear = 2000), NonEmptyList("credit card is expired"))
         )
 
-        forAll(cards) { (c, error) =>
-          val result = c.validate
-
-          result mustBe 'invalid
-
-          withClue(result.messages) {
-            result.messages.size must ===(1)
-          }
-          result.messages.head mustBe (error)
+        forAll(cards) { (card: CreditCard, errors: NonEmptyList[String]) =>
+          invalidValue(card.validateNew) must === (errors)
         }
       }
 
       "disallows cards with dates past the singularity (> 20 years from today)" in {
-        val result = card.copy(expYear = card.expYear + 21).validate
-
-        result mustBe 'invalid
-        result.messages.size must === (1)
-        result.messages.head must === ("credit card expiration is too far in the future")
+        val result = card.copy(expYear = card.expYear + 21).validateNew
+        invalidValue(result).head must include("credit card expiration is too far in the future")
       }
 
       "passes for valid cards" in {
-        val result = card.validate
-        result mustBe 'valid
-        result.messages mustBe 'empty
+        val result = card.validateNew
+        result.isValid mustBe true
       }
     }
   }

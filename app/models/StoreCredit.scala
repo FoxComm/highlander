@@ -46,9 +46,9 @@ final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, origin
     }
 
     (canceledWithReason
-      |@| Checks.lesserThan(originalBalance, currentBalance, "originalBalance cannot be less than currentBalance")
-      |@| Checks.lesserThan(originalBalance, availableBalance, "originalBalance cannot be less than availableBalance")
-      |@| Checks.greaterThanOrEqual(originalBalance, 0, "originalBalance must be greater than zero")
+      |@| Checks.invalidExpr(originalBalance < currentBalance, "originalBalance cannot be less than currentBalance")
+      |@| Checks.invalidExpr(originalBalance < availableBalance, "originalBalance cannot be less than availableBalance")
+      |@| Checks.invalidExpr(originalBalance < 0, "originalBalance must be greater than zero")
     ).map { case _ ⇒ this }
   }
 
