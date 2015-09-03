@@ -37,6 +37,23 @@ class CreditCardTest extends TestBase {
         val result = card.validateNew
         result.isValid mustBe true
       }
+
+      "returns errors when zip is invalid" in {
+        val badZip = card.copy(zip = "AB+123")
+        val wrongLengthZip = card.copy(zip = "1")
+
+        val cards = Table(
+          ("creditCards", "errors"),
+          (badZip, NonEmptyList(GeneralFailure("zip must fully match regular expression '%s'".format(Address
+            .zipPatternUs)))),
+          (wrongLengthZip, NonEmptyList(GeneralFailure("zip must fully match regular expression '%s'".format(Address
+            .zipPatternUs))))
+        )
+
+        forAll(cards) { (cc, errors) =>
+          invalidValue(cc.validateNew) mustBe (errors)
+        }
+      }
     }
   }
 }

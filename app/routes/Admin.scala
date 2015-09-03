@@ -93,6 +93,15 @@ object Admin {
               result.map(renderGoodOrFailures)
             }
           } ~
+          (post & entity(as[payloads.CreateCreditCard])) { payload ⇒
+            complete {
+              whenFound(Customers.findById(customerId)) { customer ⇒
+                CreditCardManager.createCardThroughGateway(customer, payload)
+              }
+//              val cust = utils.Seeds.Factories.customer.copy(id = customerId)
+//              result.map(renderGoodOrFailures)
+            }
+          } ~
           (patch & path(IntNumber) & entity(as[payloads.EditCreditCard])) { (cardId, payload) ⇒
             complete {
               CustomerManager.editCreditCard(customerId, cardId, payload).map(renderNothingOrFailures)

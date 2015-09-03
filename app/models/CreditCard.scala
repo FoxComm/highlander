@@ -25,8 +25,7 @@ final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerI
   regionId: Int, addressName: String, street1: String, street2: Option[String] = None, city: String, zip: String)
   extends PaymentMethod
   with ModelWithIdParameter
-  with Addressable[CreditCard]
-  with Validation[CreditCard] {
+  with Addressable[CreditCard] {
 
   def instance: CreditCard = this
 
@@ -39,7 +38,7 @@ final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerI
     new StripeGateway().authorizeAmount(gatewayCustomerId, amount)
   }
 
-  def validateNew: ValidatedNel[Failure, CreditCard] = {
+  override def validateNew: ValidatedNel[Failure, CreditCard] = {
     def withinTwentyYears: Boolean = {
       val today = DateTime.now()
       // At the end of the month
@@ -50,6 +49,7 @@ final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerI
     ( Checks.matches(lastFour, "[0-9]{4}", "lastFour")
       |@| Checks.notExpired(expYear, expMonth, "credit card is expired")
       |@| Checks.withinNumberOfYears(expYear, expMonth, 20, "credit card expiration is too far in the future")
+      |@| super.validateNew
       ).map { case _ ⇒ this }
   }
 }

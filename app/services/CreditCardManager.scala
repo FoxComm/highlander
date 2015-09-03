@@ -4,35 +4,34 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Xor
 import com.stripe.model.{Card ⇒ StripeCard, Customer ⇒ StripeCustomer}
-import models.{Order, Customer, Addresses, Address, CreditCard, CreditCards, OrderPayment}
+import models.{Customer, Addresses, Address, CreditCard, CreditCards}
 import payloads.{CreateAddressPayload, CreateCreditCard}
 import slick.driver.PostgresDriver.api._
 import utils.Validation.Result.Success
 import utils.{Validation ⇒ validation}
 
 object CreditCardManager {
-  def createCardForOrder(order: Order, customer: Customer, payload: CreateCreditCard)
+  val gateway = StripeGateway()
+
+  def createCardThroughGateway(customer: Customer, payload: CreateCreditCard)
     (implicit ec: ExecutionContext, db: Database): Result[CreditCard] = {
 
-    val gateway = StripeGateway()
     payload.validate match {
       case failure@validation.Result.Failure(violations) ⇒
         Result.failure(ValidationFailure(failure))
+
       case Success ⇒
         // creates the customer, card, and gives us getDefaultCard as the token
         gateway.createCustomerAndCard(customer, payload).flatMap {
-          case Xor.Right((sCust, sCard))  ⇒ createRecords(sCust, sCard, order, customer, payload)
+          case Xor.Right((sCust, sCard))  ⇒ createRecords(sCust, sCard, customer, payload)
           case left@Xor.Left(errors)      ⇒ Future.successful(left)
         }
-
     }
   }
 
   private def createRecords(stripeCustomer: StripeCustomer, stripeCard: StripeCard,
-    order: Order, customer: Customer, payload: CreateCreditCard)
+    customer: Customer, payload: CreateCreditCard)
     (implicit ec: ExecutionContext, db: Database): Result[CreditCard] = {
-
-    val appliedPayment = OrderPayment.fromStripeCustomer(stripeCustomer, order)
 
     def copyAddressToNewCard(addressId: Int) = {
       Addresses._findById(addressId).extract.filter(_.customerId === customer.id).result.headOption.flatMap {
