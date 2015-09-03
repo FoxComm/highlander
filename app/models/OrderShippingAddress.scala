@@ -81,7 +81,7 @@ object OrderShippingAddresses extends TableQueryWithId[OrderShippingAddress, Ord
     findByOrderId(orderId).withStates
 
   object scope {
-    implicit class QueryConversions(q: QuerySeq) {
+    implicit class OrderShippingAddressesQueryConversions(q: QuerySeq) {
       def withStates: Query[(OrderShippingAddresses, Regions), (OrderShippingAddress, Region), Seq] = for {
         shippingAddresses ← q
         regions ← Regions if regions.id === shippingAddresses.id

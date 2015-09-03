@@ -2,22 +2,18 @@ package services
 
 import scala.concurrent.{ExecutionContext, Future}
 
-import models.{OrderPayments, Orders, Customers, CreditCard, CreditCards, Customer, StoreAdmin}
-import models.Orders.scope._
-
+import cats.data.Xor
+import cats.data.Xor.{left, right}
 import com.github.tototoshi.slick.PostgresJodaSupport._
+import models.{CreditCard, CreditCards, Customer, Customers, OrderPayments, Orders, StoreAdmin}
+import models.Orders.scope._
+import models.OrderPayments.scope._
 import org.joda.time.DateTime
 import payloads.EditCreditCard
-import slick.dbio
-import slick.dbio.Effect.{All, Write, Read}
 import slick.driver.PostgresDriver.api._
-import slick.profile.SqlAction
 import utils.Slick.UpdateReturning._
-import utils.jdbc.withUniqueConstraint
 import utils._
-
-import cats.data.{XorT, Xor}
-import cats.data.Xor.{left, right}
+import utils.jdbc.withUniqueConstraint
 
 object CustomerManager {
   def toggleDisabled(customerId: Int, disabled: Boolean, admin: StoreAdmin)
@@ -85,7 +81,7 @@ object CustomerManager {
     def cascadeChangesToCarts(edits: DBIO[CreditCard], old: CreditCard) = edits.flatMap { updated ⇒
       val paymentIds = for {
         orders ← Orders.findByCustomerId(customerId).cartOnly
-        pmts ← OrderPayments.creditCards.filter(_.paymentMethodId === old.id) if pmts.orderId == orders.id
+        pmts ← OrderPayments.filter(_.paymentMethodId === old.id).giftCards if pmts.orderId == orders.id
       } yield pmts.id
 
       OrderPayments.filter(_.id in paymentIds).map(_.paymentMethodId).update(updated.id)
@@ -98,11 +94,10 @@ object CustomerManager {
       case Some(cc) ⇒
         if (!cc.inWallet)
           Result.failure(CannotUseInactiveCreditCard(cc))
-        else {
-          edit(cc).flatMap { result ⇒
-            result.fold(Result.left(_), cascadeChangesToCarts(_, cc).run().map(Xor.right))
+        else
+          edit(cc).flatMap { xor ⇒
+            xor.fold(Result.left(_), cascadeChangesToCarts(_, cc).run().map(Xor.right))
           }
-        }
     }
   }
 

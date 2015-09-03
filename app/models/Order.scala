@@ -115,9 +115,11 @@ object Orders extends TableQueryWithId[Order, Orders](
     db.run(_findByCustomer(customer).result)
   }
 
-  def _findByCustomer(cust: Customer) = findByCustomerId(cust.id)
+  def _findByCustomer(cust: Customer): QuerySeq =
+    findByCustomerId(cust.id)
 
-  def findByCustomerId(customerId: Int) = filter(_.customerId === customerId)
+  def findByCustomerId(customerId: Int): QuerySeq =
+    filter(_.customerId === customerId)
 
   def findByRefNum(refNum: String): QuerySeq =
     filter(_.referenceNumber === refNum)
@@ -148,7 +150,7 @@ object Orders extends TableQueryWithId[Order, Orders](
   }
 
   object scope {
-    implicit class QuerySeqConversions(q: QuerySeq) {
+    implicit class OrdersQuerySeqConversions(q: QuerySeq) {
       def cartOnly: QuerySeq =
         q.filter(_.status === (Order.Cart: Order.Status))
     }

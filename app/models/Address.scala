@@ -80,7 +80,7 @@ object Addresses extends TableQueryWithId[Address, Addresses](
    filter(_.customerId === customerId).filter(_.isDefaultShipping === true)
 
   object scope {
-    implicit class QuerySeqConversions(q: QuerySeq) {
+    implicit class AddressesQuerySeqConversions(q: QuerySeq) {
       def withRegions: Query[(Addresses, Regions), (Address, Region), Seq] = for {
         addresses ← q
         regions ← Regions if regions.id === addresses.regionId

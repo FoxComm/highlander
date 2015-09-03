@@ -45,12 +45,14 @@ object OrderPayments extends TableQueryWithId[OrderPayment, OrderPayments](
   idLens = GenLens[OrderPayment](_.id)
 )(new OrderPayments(_)){
 
+  type QuerySeq = Query[OrderPayments, OrderPayment, Seq]
+
   import models.{PaymentMethod ⇒ Pay}
 
   def update(payment: OrderPayment)(implicit db: Database): Future[Int] =
     this._findById(payment.id).update(payment).run()
 
-  def findAllByOrderId(id: Int): Query[OrderPayments, OrderPayment, Seq] =
+  def findAllByOrderId(id: Int): QuerySeq =
     filter(_.orderId === id)
 
   def findAllPaymentsFor(order: Order)
@@ -58,7 +60,7 @@ object OrderPayments extends TableQueryWithId[OrderPayment, OrderPayments](
     db.run(this._findAllPaymentsFor(order.id).result)
   }
 
-  def findAllStoreCredit: Query[OrderPayments, OrderPayment, Seq] =
+  def findAllStoreCredit: QuerySeq =
     filter(_.paymentMethodType === (Pay.StoreCredit: Pay.Type))
 
   def _findAllPaymentsFor(orderId: Int): Query[(OrderPayments, CreditCards), (OrderPayment, CreditCard), Seq] = {
@@ -68,15 +70,16 @@ object OrderPayments extends TableQueryWithId[OrderPayment, OrderPayments](
     } yield (payments, cards)
   }
 
-  def findAllCreditCardsForOrder(orderId: Rep[Int]): Query[OrderPayments, OrderPayment, Seq] =
+  def findAllCreditCardsForOrder(orderId: Rep[Int]): QuerySeq =
     filter(_.orderId === orderId).filter(_.paymentMethodType === (Pay.CreditCard: Pay.Type))
 
-  def byType(pmt: Pay.Type): Query[OrderPayments, OrderPayment, Seq] =
-    filter(_.paymentMethodType === (pmt: Pay.Type))
+  object scope {
+    implicit class OrderPaymentsQuerySeqConversions(q: QuerySeq) {
+      def giftCards:    QuerySeq = q.byType(Pay.GiftCard)
+      def creditCards:  QuerySeq = q.byType(Pay.CreditCard)
+      def storeCredits: QuerySeq = q.byType(Pay.StoreCredit)
 
-  def giftCards: Query[OrderPayments, OrderPayment, Seq]    = byType(Pay.GiftCard)
-
-  def creditCards: Query[OrderPayments, OrderPayment, Seq]  = byType(Pay.CreditCard)
-
-  def storeCredits: Query[OrderPayments, OrderPayment, Seq] = byType(Pay.StoreCredit)
+      def byType(pmt: Pay.Type): QuerySeq = filter(_.paymentMethodType === (pmt: Pay.Type))
+    }
+  }
 }

@@ -5,6 +5,7 @@ import scala.concurrent.ExecutionContext
 import cats.data.Xor
 import models.{PaymentMethod, CreditCard, Orders, Order, OrderPayment, OrderPayments, GiftCards, GiftCard,
 StoreCredits, StoreCredit, CreditCards}
+import models.OrderPayments.scope._
 
 import payloads.{GiftCardPayment, StoreCreditPayment}
 import slick.driver.PostgresDriver.api._
@@ -81,7 +82,7 @@ object OrderPaymentUpdater {
 
       case (Some(order), Some(cc)) if cc.inWallet ⇒
         val payment = OrderPayment.build(cc).copy(orderId = order.id, amount = None)
-        val delete = OrderPayments.creditCards.filter(_.orderId === order.id).delete
+        val delete = OrderPayments.filter(_.orderId === order.id).creditCards.delete
 
         (delete >> OrderPayments.save(payment)).map(_ ⇒ Xor.right({}))
 
@@ -114,7 +115,7 @@ object OrderPaymentUpdater {
         orderNotFound(refNum).liftDBIOXor[Unit]
 
       case Some(order) ⇒
-        OrderPayments.byType(pmt).filter(_.orderId === order.id)
+        OrderPayments.filter(_.orderId === order.id).byType(pmt)
           .delete.map(deletedOrFailure(_, pmt))
 
     }.transactionally)
@@ -131,8 +132,8 @@ object OrderPaymentUpdater {
     db.run(orderAndGiftCard.flatMap {
 
       case (Some(order), Some(giftCard)) ⇒
-        OrderPayments.giftCards.filter(_.paymentMethodId === giftCard.id)
-          .filter(_.orderId === order.id).delete.map(deletedOrFailure(_, PaymentMethod.GiftCard))
+        OrderPayments.filter(_.paymentMethodId === giftCard.id)
+          .filter(_.orderId === order.id).giftCards.delete.map(deletedOrFailure(_, PaymentMethod.GiftCard))
 
       case (None, _) ⇒
         orderNotFound(refNum).liftDBIOXor[Unit]
