@@ -1,8 +1,7 @@
 'use strict';
 
 import React from 'react';
-import TableHead from '../tables/head';
-import TableBody from '../tables/body';
+import TableView from '../tables/tableview';
 import OrderStore from './store';
 import TabView from '../tabs/tabs';
 
@@ -42,10 +41,11 @@ export default class Orders extends React.Component {
           <li>What</li>
           <li>What</li>
         </TabView>
-        <table className="fc-table">
-          <TableHead columns={this.props.tableColumns}/>
-          <TableBody columns={this.props.tableColumns} rows={this.state.orders} model='order' />
-        </table>
+        <TableView
+          columns={this.props.tableColumns}
+          rows={this.state.orders}
+          model='order'
+        />
       </div>
     );
   }

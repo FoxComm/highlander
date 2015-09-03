@@ -1,4 +1,5 @@
 .fc-table {
+  table-layout: fixed;
   border: 1px solid @color-border-td;
 
   thead {
@@ -54,4 +55,15 @@
       }
     }
   }
+}
+
+.fc-table-header,
+.fc-table-footer {
+  .margin(20px, 0);
+  overflow: hidden;
+}
+
+.fc-table-paginator {
+  .inline-block;
+  float: right;
 }
