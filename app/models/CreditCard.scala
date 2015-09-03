@@ -30,12 +30,6 @@ final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerI
   }
 
   def validateNew: ValidatedNel[Failure, CreditCard] = {
-    def notExpired: Boolean = {
-      val today = DateTime.now()
-      val expDate = new DateTime(expYear, expMonth, 1, 0, 0).plusMonths(1).minusSeconds(1)
-      expDate.isEqual(today) || expDate.isAfter(today)
-    }
-
     def withinTwentyYears: Boolean = {
       val today = DateTime.now()
       // At the end of the month
@@ -44,8 +38,8 @@ final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerI
     }
 
     ( Checks.matches(lastFour, "[0-9]{4}", "lastFour")
-      |@| Checks.validExpr(notExpired, "credit card is expired")
-      |@| Checks.validExpr(withinTwentyYears, "credit card expiration is too far in the future")
+      |@| Checks.notExpired(expYear, expMonth, "credit card is expired")
+      |@| Checks.withinNumberOfYears(expYear, expMonth, 20, "credit card expiration is too far in the future")
       ).map { case _ ⇒ this }
   }
 }

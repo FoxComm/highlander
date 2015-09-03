@@ -3,7 +3,6 @@ package models
 import util.TestBase
 import utils.Seeds.Factories
 import services._
-import StoreCredit._
 import cats.data.{NonEmptyList ⇒ NEL}
 
 class StoreCreditTest extends TestBase {
@@ -14,11 +13,11 @@ class StoreCreditTest extends TestBase {
         val result = sc.validateNew
 
         result mustBe 'invalid
-        result.fold(identity, m ⇒ NEL(m.modelName)) must === (NEL(
+        result.fold(identity, m ⇒ NEL(m.modelName)) mustBe NEL(
           GeneralFailure("originalBalance cannot be less than currentBalance"),
           GeneralFailure("originalBalance cannot be less than availableBalance"),
           GeneralFailure("originalBalance must be greater than zero")
-        ))
+        )
       }
 
       "fails when canceled with no corresponding reason" in {
@@ -26,9 +25,9 @@ class StoreCreditTest extends TestBase {
         val result = sc.validateNew
 
         result mustBe 'invalid
-        result.fold(identity, m ⇒ NEL(m.modelName)) must === (NEL(
+        result.fold(identity, m ⇒ NEL(m.modelName)) mustBe NEL(
           GeneralFailure("canceledReason must be present when canceled")
-        ))
+        )
       }
 
       "succeeds when valid" in {

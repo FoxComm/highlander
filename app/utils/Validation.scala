@@ -1,11 +1,11 @@
 package utils
 
-import cats.data.{Validated, ValidatedNel}
+import cats.data._
 import cats.data.Validated.{invalidNel, valid}
-import cats.data.NonEmptyList
 import com.wix.accord.{validate => runValidation, RuleViolation, Violation}
 import com.wix.accord.transform.ValidationTransform
 import com.wix.accord
+import org.joda.time.DateTime
 import services._
 import com.wix.accord.combinators._
 import cats.implicits._
@@ -95,6 +95,26 @@ object Checks {
     expression match {
       case true ⇒ notEmpty(a, constraint)
       case _    ⇒ valid({})
+    }
+  }
+
+  def notExpired(expYear: Int, expMonth: Int, message: String): ValidatedNel[Failure, Unit] = {
+    val today = DateTime.now()
+    val expDate = new DateTime(expYear, expMonth, 1, 0, 0).plusMonths(1).minusSeconds(1)
+
+    expDate.isEqual(today) || expDate.isAfter(today) match {
+      case false ⇒ invalidNel(GeneralFailure(message))
+      case _     ⇒ valid({})
+    }
+  }
+
+  def withinNumberOfYears(expYear: Int, expMonth: Int, numYears: Int, message: String): ValidatedNel[Failure, Unit] = {
+    val today = DateTime.now()
+    val expDate = new DateTime(expYear, expMonth, 1, 0, 0).plusMonths(1).minusSeconds(1)
+
+    expDate.isBefore(today.plusYears(numYears)) match {
+      case false ⇒ invalidNel(GeneralFailure(message))
+      case _     ⇒ valid({})
     }
   }
 
