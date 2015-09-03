@@ -2,14 +2,15 @@ package services
 
 import scala.concurrent.{ExecutionContext, Future}
 
-import cats.data.Validated.{Valid, Invalid}
+import cats.data.Validated.{Invalid, Valid}
 import cats.data.Xor
 import models.Order.RemorseHold
 import models._
-
+import org.joda.time.{Seconds, DateTime}
 import payloads.{CreateShippingAddress, UpdateAddressPayload, UpdateShippingAddress}
 import responses.{Addresses ⇒ Response, FullOrder}
 import slick.driver.PostgresDriver.api._
+import com.github.tototoshi.slick.PostgresJodaSupport._
 
 object OrderUpdater {
 
@@ -76,19 +77,20 @@ object OrderUpdater {
     }
   }
 
-  final class NewRemorsePeriod(val remorsePeriod: Int)
+  // Should never be None as this response is sent only when increasing remorse period
+  final class NewRemorsePeriodEnd(val remorsePeriodEnd: Option[DateTime])
 
   def increaseRemorsePeriod(order: Order)
-    (implicit db: Database, ec: ExecutionContext): Result[NewRemorsePeriod] = {
+    (implicit db: Database, ec: ExecutionContext): Result[NewRemorsePeriodEnd] = {
     order.status match {
       case RemorseHold ⇒
         val q = for {
-          _        ← Orders.update(order.copy(remorsePeriodInMinutes = order.remorsePeriodInMinutes + 15))
+          _ ← Orders.update(order.copy(remorsePeriodEnd = order.remorsePeriodEnd.map(_.plusMinutes(15))))
           newOrder ← Orders._findById(order.id).result.headOption
         } yield newOrder
 
         db.run(q).flatMap {
-          case Some(newOrder) ⇒ Result.good(new NewRemorsePeriod(newOrder.remorsePeriodInMinutes))
+          case Some(newOrder) ⇒ Result.good(new NewRemorsePeriodEnd(newOrder.remorsePeriodEnd))
           case None           ⇒ Result.failure(GeneralFailure("Error during update"))
         }
 
@@ -113,7 +115,13 @@ object OrderUpdater {
   def unlock(order: Order)(implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
     if (order.locked) {
       val queries = for {
-        _ ← Orders.update(order.copy(locked = false))
+        lockedAt ← OrderLockEvents.findByOrder(order).sortBy(_.lockedAt).take(1).map(_.lockedAt).result.head
+        _ ← Orders.update(order.copy(
+          locked = false,
+          remorsePeriodEnd = order.remorsePeriodEnd.map { currentRemorseEnd ⇒
+            val timePassedAfterLock = Seconds.secondsBetween(lockedAt, DateTime.now)
+            currentRemorseEnd.plus(timePassedAfterLock)
+          }))
         newOrder ← Orders.findByRefNum(order.referenceNumber).result.head
       } yield newOrder
 

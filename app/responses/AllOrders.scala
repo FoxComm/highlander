@@ -16,7 +16,7 @@ object AllOrders {
     orderStatus: Order.Status,
     paymentStatus: Option[String],
     placedAt: Option[DateTime],
-    remorsePeriod: Option[Int],
+    remorsePeriodEnd: Option[DateTime],
     total: Int
     )
 
@@ -49,8 +49,9 @@ object AllOrders {
         // TODO: FIXME
         paymentStatus = None,
         placedAt = order.placedAt,
-        remorsePeriod = order.status match {
-          case RemorseHold ⇒ Some(order.remorsePeriodInMinutes)
+        // If order is not in RemorseHold, remorsePeriodEnd should be None, but extra check wouldn't hurt here.
+        remorsePeriodEnd = order.status match {
+          case RemorseHold if !order.locked ⇒ order.remorsePeriodEnd
           case _ ⇒ None
         },
         total = grandTotal
