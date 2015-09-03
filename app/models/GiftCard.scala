@@ -2,6 +2,12 @@ package models
 
 import scala.concurrent.ExecutionContext
 
+import cats.data.ValidatedNel
+import cats.implicits._
+import services.Failure
+import utils.Litterbox._
+import utils.Checks
+
 import com.pellucid.sealerate
 import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import models.GiftCard.{OnHold, Status}
@@ -10,23 +16,22 @@ import services.Result
 import slick.driver.PostgresDriver.api._
 import utils.Money._
 import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
-import validators.nonEmptyIf
 
 final case class GiftCard(id: Int = 0, originId: Int, originType: String, code: String,
   currency: Currency, status: Status = OnHold, originalBalance: Int, currentBalance: Int = 0,
   availableBalance: Int = 0, canceledReason: Option[String] = None, reloadable: Boolean = false)
   extends PaymentMethod
   with ModelWithIdParameter
-  with Validation[GiftCard]
   with FSM[GiftCard.Status, GiftCard] {
 
   import GiftCard._
 
-  override def validator = createValidator[GiftCard] { giftCard =>
-    giftCard.status as "canceledReason" is nonEmptyIf(giftCard.status == Canceled, giftCard.canceledReason)
-    giftCard.originalBalance should be >= 0
-    giftCard.currentBalance should be >= 0
-    giftCard.code is notEmpty
+  def validateNew: ValidatedNel[Failure, GiftCard] = {
+    ( Checks.notEmpty(code, "code")
+      |@| Checks.notEmptyIf(canceledReason, status == Canceled, "canceledReason")
+      |@| Checks.validExpr(originalBalance >= 0, "originalBalance should be greater or equal than zero")
+      |@| Checks.validExpr(currentBalance >= 0, "currentBalance should be greater or equal than zero")
+      ).map { case _ ⇒ this }
   }
 
   def stateLens = GenLens[GiftCard](_.status)

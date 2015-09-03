@@ -169,7 +169,7 @@ object OrderUpdater {
           case (address, Some(region))  ⇒ Result.good(Response.build(address, region))
           case (_, None)                ⇒ Result.failure(NotFoundFailure(Region, address.regionId))
         }
-      case Invalid(err) ⇒ Result.failure(ValidationFailureNew(err))
+      case Invalid(err) ⇒ Result.failure(err.head)
     }
   }
 
