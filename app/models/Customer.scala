@@ -1,5 +1,11 @@
 package models
 
+import cats.data.ValidatedNel
+import cats.implicits._
+import services.Failure
+import utils.Litterbox._
+import utils.Checks
+
 import scala.concurrent.{ExecutionContext, Future}
 
 import com.wix.accord.dsl.{validator ⇒ createValidator, _}
@@ -12,13 +18,13 @@ import utils.{ModelWithIdParameter, TableQueryWithId, Validation}
 final case class Customer(id: Int = 0, disabled: Boolean = false, email: String, password: String, firstName: String,
   lastName: String, phoneNumber: Option[String] = None, location: Option[String] = None,
   modality: Option[String] = None)
-  extends Validation[Customer]
-  with ModelWithIdParameter {
+  extends ModelWithIdParameter {
 
-  override def validator = createValidator[Customer] { user =>
-    user.firstName is notEmpty
-    user.lastName is notEmpty
-    user.email is notEmpty
+  def validateNew: ValidatedNel[Failure, Customer] = {
+    ( Checks.notEmpty(firstName, "firstName")
+      |@| Checks.notEmpty(lastName, "lastName")
+      |@| Checks.notEmpty(email, "email")
+      ).map { case _ ⇒ this }
   }
 }
 

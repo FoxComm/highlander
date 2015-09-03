@@ -1,5 +1,12 @@
 package models
 
+import cats.data.Validated.valid
+import cats.data.ValidatedNel
+import cats.implicits._
+import services.Failure
+import utils.Litterbox._
+import utils.Checks
+
 import scala.concurrent.{ExecutionContext, Future}
 
 import com.github.tototoshi.slick.PostgresJodaSupport._
@@ -17,12 +24,14 @@ final case class Order(id: Int = 0, referenceNumber: String = "", customerId: In
   status: Status = Cart, locked: Boolean = false, placedAt: Option[DateTime] = None,
   remorsePeriodInMinutes: Int = 30)
   extends ModelWithIdParameter
-  with Validation[Order]
   with FSM[Order.Status, Order] {
 
   import Order._
 
-  override def validator = createValidator[Order] { order => }
+  // TODO: Add order validations
+  def validateNew: ValidatedNel[Failure, Order] = {
+    valid(this)
+  }
 
   // TODO: Add a real collector/builder here that assembles the subTotal
   def subTotal(implicit ec: ExecutionContext, db: Database): Future[Int] = {

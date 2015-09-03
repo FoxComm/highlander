@@ -1,5 +1,11 @@
 package models
 
+import cats.data.ValidatedNel
+import cats.implicits._
+import services.Failure
+import utils.Litterbox._
+import utils.Checks
+
 import scala.concurrent.{ExecutionContext, Future}
 
 import com.pellucid.sealerate
@@ -10,12 +16,12 @@ import slick.driver.PostgresDriver.api._
 import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
 
 final case class Note(id: Int = 0, storeAdminId: Int, referenceId: Int, referenceType: Note.ReferenceType, body: String)
-  extends ModelWithIdParameter
-  with Validation[Note] {
+  extends ModelWithIdParameter {
 
-  override def validator = createValidator[Note] { note =>
-    note.body is notEmpty
-    note.body have size <= 1000
+  def validateNew: ValidatedNel[Failure, Note] = {
+    ( Checks.notEmpty(body, "body")
+      |@| Checks.lesserThanOrEqual(body.length, 1000, "bodySize")
+      ).map { case _ ⇒ this }
   }
 }
 
