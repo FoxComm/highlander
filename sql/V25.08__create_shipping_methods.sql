@@ -5,5 +5,5 @@ create table shipping_methods(
     shipping_carrier_id integer, --Nullable because we may ship ourselves?
     default_price integer not null,
     is_active boolean not null default false,
-    conditions jsonb
+    conditions jsonb null
 );

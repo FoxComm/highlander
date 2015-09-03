@@ -29,5 +29,5 @@ object ShippingMethods extends TableQueryWithId[ShippingMethod, ShippingMethods]
   idLens = GenLens[ShippingMethod](_.id)
 )(new ShippingMethods(_)) {
 
-  def findActive(implicit db: Database) = filter(_.isActive === true)
+  def findActive(implicit db: Database): Query[ShippingMethods, ShippingMethod, Seq] = filter(_.isActive === true)
 }
