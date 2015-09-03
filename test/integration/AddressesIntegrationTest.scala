@@ -3,7 +3,7 @@ import akka.http.scaladsl.model.StatusCodes
 import models.{Orders, OrderShippingAddresses, Addresses, Customers}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
-import utils._
+import utils.Slick.implicits._
 import services.{CustomerHasDefaultShippingAddress, Failure}
 
 class AddressesIntegrationTest extends IntegrationTestBase

@@ -7,7 +7,7 @@ import responses.AdminNotes.Root
 import slick.dbio.Effect.Write
 import slick.profile.FixedSqlAction
 import utils.Validation.Result._
-
+import utils.Slick.implicits._
 
 import scala.concurrent.{Future, ExecutionContext}
 import slick.driver.PostgresDriver.api._

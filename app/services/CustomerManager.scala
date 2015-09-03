@@ -12,7 +12,7 @@ import org.joda.time.DateTime
 import payloads.EditCreditCard
 import slick.driver.PostgresDriver.api._
 import utils.Slick.UpdateReturning._
-import utils._
+import utils.Slick.implicits._
 import utils.jdbc.withUniqueConstraint
 
 object CustomerManager {

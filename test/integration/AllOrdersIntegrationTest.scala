@@ -10,6 +10,7 @@ import responses.{AllOrdersWithFailures, AllOrders}
 import services.OrderUpdateFailure
 import util.IntegrationTestBase
 import utils.Seeds.Factories
+import utils.Slick.implicits._
 
 class AllOrdersIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 

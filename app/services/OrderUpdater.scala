@@ -10,6 +10,7 @@ import models._
 import payloads.{CreateShippingAddress, UpdateAddressPayload, UpdateShippingAddress}
 import responses.{Addresses ⇒ Response, FullOrder}
 import slick.driver.PostgresDriver.api._
+import utils.Slick.implicits._
 
 object OrderUpdater {
 

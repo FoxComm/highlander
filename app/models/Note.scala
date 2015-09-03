@@ -8,6 +8,7 @@ import com.wix.accord.{Failure ⇒ ValidationFailure}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
+import utils.Slick.implicits._
 
 final case class Note(id: Int = 0, storeAdminId: Int, referenceId: Int, referenceType: Note.ReferenceType, body: String)
   extends ModelWithIdParameter

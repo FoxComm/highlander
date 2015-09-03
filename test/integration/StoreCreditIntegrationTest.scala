@@ -4,6 +4,7 @@ import models.{Reasons, Customers, StoreAdmins, StoreCredit, StoreCreditManuals,
 import org.scalatest.BeforeAndAfterEach
 import util.IntegrationTestBase
 import utils.Seeds.Factories
+import utils.Slick.implicits._
 
 class StoreCreditIntegrationTest extends IntegrationTestBase
   with HttpSupport

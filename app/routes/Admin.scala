@@ -14,7 +14,7 @@ import payloads._
 import responses.{AllOrders, AllOrdersWithFailures, AdminNotes, FullOrder}
 import services._
 import slick.driver.PostgresDriver.api._
-import utils.RunOnDbIO
+import utils.Slick.implicits._
 
 object Admin {
   def routes(implicit ec: ExecutionContext, db: Database,

@@ -1,5 +1,7 @@
 package utils
 
+import scala.concurrent.Future
+
 import slick.ast._
 import slick.driver.PostgresDriver._
 import slick.driver.PostgresDriver.api._
@@ -65,4 +67,10 @@ object Slick {
     }
   }
 
+  object implicits {
+    implicit class RunOnDbIO[R](val dbio: DBIO[R]) extends AnyVal {
+      def run()(implicit db: Database): Future[R] =
+        db.run(dbio)
+    }
+  }
 }

@@ -12,6 +12,7 @@ import org.joda.time.DateTime
 import services.OrderTotaler
 import slick.driver.PostgresDriver.api._
 import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
+import utils.Slick.implicits._
 
 final case class Order(id: Int = 0, referenceNumber: String = "", customerId: Int,
   status: Status = Cart, locked: Boolean = false, placedAt: Option[DateTime] = None,

@@ -15,6 +15,7 @@ import utils.Joda._
 import utils.Money._
 import utils.{ADT, FSM, GenericTable, Model, ModelWithIdParameter, NewModel, TableQueryWithId}
 import utils.Litterbox.nelSemigroup
+import utils.Slick.implicits._
 import cats.syntax.apply._
 
 final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: String, currency: Currency,

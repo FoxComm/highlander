@@ -5,6 +5,7 @@ import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.UpdateReturning._
+import utils.Slick.implicits._
 
 class SlickTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global

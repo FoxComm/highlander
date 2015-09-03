@@ -10,6 +10,7 @@ import org.json4s.jackson
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import services.{Failure, Failures, NotFoundFailure, OrderLockedFailure}
 import slick.driver.PostgresDriver.api._
+import utils.Slick.implicits._
 
 object Http {
   import utils.JsonFormatters._

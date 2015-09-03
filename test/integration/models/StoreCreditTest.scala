@@ -3,6 +3,7 @@ package models
 import slick.driver.PostgresDriver
 import util.IntegrationTestBase
 import utils.Seeds.Factories
+import utils.Slick.implicits._
 
 class StoreCreditTest extends IntegrationTestBase {
   import api._

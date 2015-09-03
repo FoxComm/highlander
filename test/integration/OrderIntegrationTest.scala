@@ -9,6 +9,7 @@ import services.OrderUpdater.NewRemorsePeriod
 import slick.driver.PostgresDriver.api._
 import util.{IntegrationTestBase, StripeSupport}
 import utils.Seeds.Factories
+import utils.Slick.implicits._
 import slick.driver.PostgresDriver.api._
 import Order._
 

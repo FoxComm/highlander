@@ -3,6 +3,7 @@ package models
 import com.wix.accord.{Failure ⇒ ValidationFailure, Success ⇒ ValidationSuccess}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
+import utils.Slick.implicits._
 
 class NoteTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global

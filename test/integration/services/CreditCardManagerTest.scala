@@ -4,7 +4,7 @@ import models._
 import payloads.{CreateCreditCard, CreateAddressPayload}
 import util.{IntegrationTestBase, StripeSupport}
 import utils.Seeds.Factories
-import utils._
+import utils.Slick.implicits._
 
 class CreditCardManagerTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global

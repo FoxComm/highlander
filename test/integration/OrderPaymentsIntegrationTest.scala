@@ -13,7 +13,7 @@ OrderNotFoundFailure}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.Seeds.Factories
-import utils._
+import utils.Slick.implicits._
 
 class OrderPaymentsIntegrationTest extends IntegrationTestBase
   with HttpSupport
