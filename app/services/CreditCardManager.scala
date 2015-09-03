@@ -4,10 +4,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Xor
 import com.stripe.model.{Card ⇒ StripeCard, Customer ⇒ StripeCustomer}
-import models.{Order, Orders, Customer, Addresses, Address, CreditCard, CreditCards, OrderPayments, OrderPayment,
-OrderBillingAddress, OrderBillingAddresses}
+import models.{Order, Customer, Addresses, Address, CreditCard, CreditCards, OrderPayment}
 import payloads.{CreateAddressPayload, CreateCreditCard}
-import responses.FullOrder
 import slick.driver.PostgresDriver.api._
 import utils.Validation.Result.Success
 import utils.{Validation ⇒ validation}
