@@ -31,9 +31,22 @@ final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerI
   }
 
   def validateNew: ValidatedNel[String, CreditCard] = {
+    def notExpired: Boolean = {
+      val today = DateTime.now()
+      val expDate = new DateTime(expYear, expMonth, 1, 0, 0).plusMonths(1).minusSeconds(1)
+      expDate.isEqual(today) || expDate.isAfter(today)
+    }
+
+    def withinTwentyYears: Boolean = {
+      val today = DateTime.now()
+      // At the end of the month
+      val expDate = new DateTime(expYear, expMonth, 1, 0, 0).plusMonths(1).minusSeconds(1)
+      expDate.isBefore(today.plusYears(20))
+    }
+
     ( Checks.matches(lastFour, "[0-9]{4}", "lastFour")
-      |@| Checks.isTrue(notExpired(year = expYear, month = expMonth), "creditCard")
-      |@| Checks.isTrue(withinTwentyYears(year = expYear, month = expMonth), "creditCard")
+      |@| Checks.isTrue(notExpired, "Credit card should not be expired")
+      |@| Checks.isTrue(withinTwentyYears, "Expiration date should be withing 20 years")
       ).map { case _ ⇒ this }
   }
 }

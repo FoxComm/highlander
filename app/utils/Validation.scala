@@ -80,19 +80,6 @@ object Validation {
 }
 
 object Checks {
-  private def toValidatedNel(constraint: String, r: accord.Result): ValidatedNel[String, Unit] = r match {
-    case accord.Failure(f) ⇒
-      val errors = f.toList.map {
-        case RuleViolation(_, err, _) ⇒ s"$constraint $err"
-        case _ ⇒ "unknown error"
-      }
-
-      Validated.Invalid(NonEmptyList(errors.headOption.getOrElse("unknown error"), errors.tail))
-
-    case accord.Success ⇒
-      valid({})
-  }
-
   def isTrue(a: Boolean, constraint: String): ValidatedNel[String, Unit] =
     toValidatedNel(constraint, (new IsTrue).apply(a))
 
@@ -116,4 +103,17 @@ object Checks {
 
   def greaterThanOrEqual(value: Int, limit: Int, constraint: String): ValidatedNel[String, Unit] =
     toValidatedNel(constraint, new GreaterThanOrEqual[Int](limit, "got").apply(value))
+
+  private def toValidatedNel(constraint: String, r: accord.Result): ValidatedNel[String, Unit] = r match {
+    case accord.Failure(f) ⇒
+      val errors = f.toList.map {
+        case RuleViolation(_, err, _) ⇒ s"$constraint $err"
+        case _ ⇒ "unknown error"
+      }
+
+      Validated.Invalid(NonEmptyList(errors.headOption.getOrElse("unknown error"), errors.tail))
+
+    case accord.Success ⇒
+      valid({})
+  }
 }
