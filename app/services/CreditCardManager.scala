@@ -11,6 +11,7 @@ import responses.FullOrder
 import slick.driver.PostgresDriver.api._
 import utils.Validation.Result.Success
 import utils.{Validation ⇒ validation}
+import utils.Slick.implicits._
 
 object CreditCardManager {
   def createCardForOrder(order: Order, customer: Customer, payload: CreateCreditCard)
@@ -63,7 +64,7 @@ object CreditCardManager {
           builtAddress.copy(orderPaymentId = orderPayment.id))).map(Some(_))
       }.getOrElse(DBIO.successful(None))
 
-      o ← Orders._findById(order.id).result.headOption
+      o ← Orders._findById(order.id).extract.one
     } yield o
 
     db.run(queries.transactionally)

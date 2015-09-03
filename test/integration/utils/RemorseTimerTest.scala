@@ -24,7 +24,7 @@ class RemorseTimerTest(_system: ActorSystem) extends TestKit(_system) with Integ
 
   def byRefNum = Orders.findByRefNum("ABCD1234-11")
 
-  def updated = db.run(byRefNum.result.headOption).futureValue.get
+  def updated = byRefNum.one.run().futureValue.get
 
   "Remorse timer" - {
     "decrement remorse period once a tick" in new Fixture {

@@ -140,7 +140,7 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
     _findByIdAndCustomerId(id, customerId).run()
 
   def _findByIdAndCustomerId(id: Int, customerId: Int)(implicit ec: ExecutionContext): DBIO[Option[StoreCredit]] =
-    filter(_.customerId === customerId).filter(_.id === id).take(1).result.headOption
+    filter(_.customerId === customerId).filter(_.id === id).one
 
   private def debit(storeCredit: StoreCredit, orderPaymentId: Int, amount: Int = 0,
     status: Adj.Status = Adj.Auth)

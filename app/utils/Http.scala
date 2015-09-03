@@ -80,7 +80,7 @@ object Http {
                                             (f: Order ⇒ Future[Failures Xor G])
                                             (implicit ec: ExecutionContext, db: Database): Future[HttpResponse] = {
 
-    val finder = Orders._findActiveOrderByCustomer(customer).result.headOption.run()
+    val finder = Orders._findActiveOrderByCustomer(customer).one.run()
     whenOrderFoundAndEditable(finder)(f)
   }
 
@@ -88,7 +88,7 @@ object Http {
                                             (f: Order ⇒ Future[Failures Xor G])
                                             (implicit ec: ExecutionContext, db: Database): Future[HttpResponse] = {
 
-    val finder = Orders.findByRefNum(refNumber).result.headOption.run()
+    val finder = Orders.findByRefNum(refNumber).one.run()
     whenOrderFoundAndEditable(finder)(f)
   }
 

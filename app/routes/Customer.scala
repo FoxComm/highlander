@@ -95,7 +95,7 @@ object Customer {
           } ~
           (get & path(PathEnd)) {
             complete {
-              whenFound(Orders._findActiveOrderByCustomer(customer).result.headOption.run()) { order ⇒
+              whenFound(Orders._findActiveOrderByCustomer(customer).one.run()) { order ⇒
                 FullOrder.fromOrder(order).map(Xor.right)
               }
             }

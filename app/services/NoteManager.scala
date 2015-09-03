@@ -30,7 +30,7 @@ object NoteManager {
 
     db.run(update).flatMap { rowsAffected ⇒
       if (rowsAffected == 1) {
-        db.run(query.result.headOption).flatMap {
+        db.run(query.one).flatMap {
           case Some(note) ⇒ Result.right(AdminNotes.build(note, author))
           case None       ⇒ Result.failure(notFound(noteId))
         }

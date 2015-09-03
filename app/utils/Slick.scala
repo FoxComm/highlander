@@ -6,6 +6,8 @@ import slick.ast._
 import slick.driver.PostgresDriver._
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.{GetResult, JdbcResultConverterDomain, SetParameter, StaticQuery ⇒ Q, StaticQueryInvoker, StreamingInvokerAction}
+
+import slick.lifted.AppliedCompiledFunction
 import slick.profile.SqlStreamingAction
 import slick.relational.{CompiledMapping, ResultConverter}
 import slick.util.SQLBuilder
@@ -68,6 +70,10 @@ object Slick {
   }
 
   object implicits {
+    implicit class EnrichedQuery[E, U, C[_]](val query: Query[E, U, C]) extends AnyVal {
+      def one: DBIO[Option[U]] = query.result.headOption
+    }
+
     implicit class RunOnDbIO[R](val dbio: DBIO[R]) extends AnyVal {
       def run()(implicit db: Database): Future[R] =
         db.run(dbio)

@@ -109,7 +109,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       val response = POST(s"v1/orders/${order.referenceNumber}/increase-remorse-period")
       response.status must === (StatusCodes.BadRequest)
 
-      val newOrder = Orders._findById(order.id).extract.result.headOption.run().futureValue.get
+      val newOrder = Orders._findById(order.id).extract.one.run().futureValue.get
       newOrder.remorsePeriodInMinutes must === (order.remorsePeriodInMinutes)
     }
 

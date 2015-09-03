@@ -107,7 +107,7 @@ object CustomerManager {
 
   def getCard(customerId: Int, id: Int)
     (implicit ec: ExecutionContext, db: Database): DBIO[Option[CreditCard]] =
-    CreditCards._findById(id).extract.filter(_.customerId === customerId).result.headOption
+    CreditCards._findById(id).extract.filter(_.customerId === customerId).one
 
   private def creditCardNotFound(id: Int)     = NotFoundFailure(CreditCard, id).single
 }

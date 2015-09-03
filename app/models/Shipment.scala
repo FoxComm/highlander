@@ -52,7 +52,7 @@ object Shipments extends TableQueryWithId[Shipment, Shipments](
   }
 
   def _findByOrderId(id: Int) = {
-    filter(_.orderId === id).result.headOption
+    filter(_.orderId === id).one
   }
 
 }

@@ -85,7 +85,7 @@ object OrderUpdater {
       case RemorseHold ⇒
         val q = for {
           _        ← Orders.update(order.copy(remorsePeriodInMinutes = order.remorsePeriodInMinutes + 15))
-          newOrder ← Orders._findById(order.id).result.headOption
+          newOrder ← Orders._findById(order.id).extract.one
         } yield newOrder
 
         db.run(q).flatMap {
@@ -178,13 +178,13 @@ object OrderUpdater {
     (implicit db: Database, ec: ExecutionContext): Result[responses.Addresses.Root] = {
 
     val actions = for {
-      oldAddress ← OrderShippingAddresses.findByOrderId(order.id).result.headOption
+      oldAddress ← OrderShippingAddresses.findByOrderId(order.id).one
 
       rowsAffected ← oldAddress.map { osa ⇒
         OrderShippingAddresses.update(OrderShippingAddress.fromPatchPayload(a = osa, p = payload))
       }.getOrElse(DBIO.successful(0))
 
-      newAddress ← OrderShippingAddresses.findByOrderId(order.id).result.headOption
+      newAddress ← OrderShippingAddresses.findByOrderId(order.id).one
 
       region ← newAddress.map { address ⇒
         Regions.findById(address.regionId)
