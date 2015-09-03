@@ -29,12 +29,14 @@ export default class Orders extends React.Component {
   render() {
     return (
       <div id="orders">
-        <div className="fc-grid">
-          <div className="fc-col-2-6">
-            <h1>Orders - {this.state.orders.length}</h1>
-          </div>
-          <div className="fc-col-2-6 fc-push-2-6">
-            <button className="fc-btn fc-btn-primary"><i className="fa fa-plus"></i> Order</button>
+        <div className="gutter fc-list-header">
+          <div className="fc-grid fc-grid-gutter">
+            <div className="fc-col-2-6">
+              <h1 className="fc-title">Orders <span className="fc-subtitle">{this.state.orders.length}</span></h1>
+            </div>
+            <div className="fc-col-2-6 fc-push-2-6 fc-actions">
+              <button className="fc-btn fc-btn-primary"><i className="fa fa-plus"></i> Order</button>
+            </div>
           </div>
         </div>
         <TabView>
