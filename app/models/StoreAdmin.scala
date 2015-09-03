@@ -3,7 +3,7 @@ package models
 import cats.data.ValidatedNel
 import cats.implicits._
 import utils.Litterbox._
-import utils.Validation.{notEmpty ⇒ notEmptyNew}
+import utils.Checks
 
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
@@ -18,9 +18,9 @@ final case class StoreAdmin(id: Int = 0, email: String, password: String,
   extends ModelWithIdParameter {
 
   def validateNew: ValidatedNel[String, StoreAdmin] = {
-    ( notEmptyNew(firstName, "firstName")
-      |@| notEmptyNew(lastName, "lastName")
-      |@| notEmptyNew(email, "email")
+    ( Checks.notEmpty(firstName, "firstName")
+      |@| Checks.notEmpty(lastName, "lastName")
+      |@| Checks.notEmpty(email, "email")
       ).map { case _ ⇒ this }
   }
 }

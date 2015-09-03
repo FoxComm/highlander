@@ -3,7 +3,7 @@ package models
 import cats.data.ValidatedNel
 import cats.implicits._
 import utils.Litterbox._
-import utils.Validation.{notEmpty ⇒ notEmptyNew}
+import utils.Checks
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -30,7 +30,7 @@ final case class Order(id: Int = 0, referenceNumber: String = "", customerId: In
   import Order._
 
   def validateNew: ValidatedNel[String, Order] = {
-    notEmptyNew(referenceNumber, "referenceNumber").map { case _ ⇒ this }
+    Checks.notEmpty(referenceNumber, "referenceNumber").map { case _ ⇒ this }
   }
 
   // TODO: Add a real collector/builder here that assembles the subTotal

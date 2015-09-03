@@ -3,7 +3,7 @@ package models
 import cats.data.ValidatedNel
 import cats.implicits._
 import utils.Litterbox._
-import utils.Validation.{notEmpty ⇒ notEmptyNew, lesserThanOrEqual ⇒ lesserThanOrEqualNew}
+import utils.Checks
 
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
@@ -14,8 +14,8 @@ final case class Reason(id: Int = 0, storeAdminId: Int, body: String, parentId: 
   extends ModelWithIdParameter {
 
   def validateNew: ValidatedNel[String, Reason] = {
-    ( notEmptyNew(body, "body")
-      |@| lesserThanOrEqualNew(body.length, 255, "bodySize")
+    ( Checks.notEmpty(body, "body")
+      |@| Checks.lesserThanOrEqual(body.length, 255, "bodySize")
       ).map { case _ ⇒ this }
   }
 

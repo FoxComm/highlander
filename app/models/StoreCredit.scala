@@ -6,12 +6,13 @@ import slick.dbio.Effect.Read
 import slick.profile.SqlAction
 import utils.Money._
 import utils.{ADT, GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
-import validators.nonEmptyIf
 import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.ValidatedNel
 import cats.implicits._
 import utils.Litterbox._
+import utils.Checks
+
 import com.github.tototoshi.slick.JdbcJodaSupport._
 import cats.data.Validated.{invalidNel, valid}
 import com.pellucid.sealerate
@@ -39,17 +40,15 @@ final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, origin
   def isNew: Boolean = id == 0
 
   def validateNew: ValidatedNel[String, Model] = {
-    def validate(isBad: Boolean, err: String) = if (isBad) invalidNel(err) else valid({})
-
     val canceledWithReason = (status, canceledReason) match {
       case (Canceled, None) ⇒ invalidNel("canceledReason must be present when canceled")
       case _                ⇒ valid({})
     }
 
     (canceledWithReason
-      |@| validate(originalBalance < currentBalance, "originalBalance cannot be less than currentBalance")
-      |@| validate(originalBalance < availableBalance, "originalBalance cannot be less than availableBalance")
-      |@| validate(originalBalance <= 0, "originalBalance must be greater than zero")
+      |@| Checks.lesserThan(originalBalance, currentBalance, "originalBalance cannot be less than currentBalance")
+      |@| Checks.lesserThan(originalBalance, availableBalance, "originalBalance cannot be less than availableBalance")
+      |@| Checks.greaterThanOrEqual(originalBalance, 0, "originalBalance must be greater than zero")
     ).map { case _ ⇒ this }
   }
 

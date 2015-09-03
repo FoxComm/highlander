@@ -5,7 +5,7 @@ import cats.data.Validated.{invalid, valid, invalidNel}
 import cats.implicits._
 import utils.Litterbox._
 import monocle.Lens
-import utils.Validation.{matches ⇒ matchesNew, notEmpty ⇒ notEmptyNew}
+import utils.Checks
 
 trait Addressable[M] {
   def city: String
@@ -33,23 +33,23 @@ trait Addressable[M] {
 
     val phone: ValidatedNel[String, Unit] = (isUsAddress, phoneNumber) match {
       case (true, Some(number)) ⇒
-        matchesNew(number, "[0-9]{10}", "phoneNumber")
+        Checks.matches(number, "[0-9]{10}", "phoneNumber")
       case (false, Some(number)) ⇒
-        matchesNew(number, "[0-9]{0,15}", "phoneNumber")
+        Checks.matches(number, "[0-9]{0,15}", "phoneNumber")
       case (_, None) ⇒
         valid({})
     }
 
     val zipValidation: ValidatedNel[String, Unit] = (isUsAddress, zip) match {
       case (true, zipValue) ⇒
-        matchesNew(zipValue, Address.zipPatternUs, "zip")
+        Checks.matches(zipValue, Address.zipPatternUs, "zip")
       case (false, zipValue) ⇒
-        matchesNew(zipValue, Address.zipPattern, "zip")
+        Checks.matches(zipValue, Address.zipPattern, "zip")
     }
 
-    ( notEmptyNew(name, "name")
-      |@| notEmptyNew(street1, "street1")
-      |@| notEmptyNew(city, "city")
+    ( Checks.notEmpty(name, "name")
+      |@| Checks.notEmpty(street1, "street1")
+      |@| Checks.notEmpty(city, "city")
       |@| zipValidation
       |@| phone
       ).map { case _ ⇒ instance }

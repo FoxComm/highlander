@@ -1,15 +1,19 @@
 package models
 
+import cats.data.Validated.{invalid, valid, invalidNel}
+import cats.data.ValidatedNel
+import cats.implicits._
+import utils.Litterbox._
+import utils.Checks
+
 import scala.concurrent.{ExecutionContext, Future}
 
 import com.stripe.model.{Customer ⇒ StripeCustomer, Card ⇒ StripeCard}
-import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import monocle.macros.GenLens
 import org.joda.time.DateTime
-import com.github.tototoshi.slick.JdbcJodaSupport._
 
 import payloads.CreateCreditCard
-import services.{Failures, StripeGateway}
+import services.StripeGateway
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils._
@@ -20,17 +24,17 @@ final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerI
   gatewayCustomerId: String, gatewayCardId: String, holderName: String, lastFour: String, expMonth: Int, expYear: Int,
   isDefault: Boolean = false, inWallet: Boolean = true, deletedAt: Option[DateTime] = None)
   extends PaymentMethod
-  with ModelWithIdParameter
-  with Validation[CreditCard] {
+  with ModelWithIdParameter {
 
   def authorize(amount: Int)(implicit ec: ExecutionContext): Result[String] = {
     new StripeGateway().authorizeAmount(gatewayCustomerId, amount)
   }
 
-  override def validator = createValidator[CreditCard] { cc =>
-    cc.lastFour should matchRegex("[0-9]{4}")
-    cc.expYear as "credit card" is notExpired(year = cc.expYear, month = cc.expMonth)
-    cc.expYear as "credit card" is withinTwentyYears(year = cc.expYear, month = cc.expMonth)
+  def validateNew: ValidatedNel[String, CreditCard] = {
+    ( Checks.matches(lastFour, "[0-9]{4}", "lastFour")
+      |@| Checks.isTrue(notExpired(year = expYear, month = expMonth), "creditCard")
+      |@| Checks.isTrue(withinTwentyYears(year = expYear, month = expMonth), "creditCard")
+      ).map { case _ ⇒ this }
   }
 }
 
