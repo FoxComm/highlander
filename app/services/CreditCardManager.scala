@@ -9,8 +9,7 @@ OrderBillingAddress, OrderBillingAddresses}
 import payloads.CreateCreditCard
 import responses.FullOrder
 import slick.driver.PostgresDriver.api._
-import utils.Validation.Result.Success
-import utils.{Validation ⇒ validation}
+import utils.Validation
 
 object CreditCardManager {
   def createCardForOrder(order: Order, customer: Customer, payload: CreateCreditCard)

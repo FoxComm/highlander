@@ -4,7 +4,7 @@ import cats.data.ValidatedNel
 import cats.implicits._
 import services.Failure
 import utils.Litterbox._
-import utils.Checks
+import utils.Validation
 
 import scala.concurrent.ExecutionContext
 
@@ -29,16 +29,9 @@ final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerI
   }
 
   def validateNew: ValidatedNel[Failure, CreditCard] = {
-    def withinTwentyYears: Boolean = {
-      val today = DateTime.now()
-      // At the end of the month
-      val expDate = new DateTime(expYear, expMonth, 1, 0, 0).plusMonths(1).minusSeconds(1)
-      expDate.isBefore(today.plusYears(20))
-    }
-
-    ( Checks.matches(lastFour, "[0-9]{4}", "lastFour")
-      |@| Checks.notExpired(expYear, expMonth, "credit card is expired")
-      |@| Checks.withinNumberOfYears(expYear, expMonth, 20, "credit card expiration is too far in the future")
+    ( Validation.matches(lastFour, "[0-9]{4}", "lastFour")
+      |@| Validation.notExpired(expYear, expMonth, "credit card is expired")
+      |@| Validation.withinNumberOfYears(expYear, expMonth, 20, "credit card expiration is too far in the future")
       ).map { case _ ⇒ this }
   }
 }

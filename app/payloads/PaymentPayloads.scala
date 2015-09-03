@@ -7,8 +7,7 @@ import com.wix.accord.{Failure => ValidationFailure, Validator}
 import com.wix.accord.dsl._
 
 final case class CreateCreditCard(holderName: String, number: String, cvv: String, expYear: Int,
-  expMonth: Int, address: Option[CreateAddressPayload] = None, isDefault: Boolean = false)
-  extends Validation[CreateCreditCard] {
+  expMonth: Int, address: Option[CreateAddressPayload] = None, isDefault: Boolean = false) {
 
   override def validator = createValidator[CreateCreditCard] { cc =>
     cc.holderName is notEmpty

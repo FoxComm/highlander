@@ -49,7 +49,7 @@ trait Addressable[M] {
         Validation.matches(zipValue, Address.zipPattern, "zip")
     }
 
-    ( Checks.notEmpty(name, "name")
+    ( Validation.notEmpty(name, "name")
       |@| Validation.notEmpty(street1, "street1")
       |@| Validation.notEmpty(city, "city")
       |@| zipValidation
