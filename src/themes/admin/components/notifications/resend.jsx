@@ -40,7 +40,9 @@ export default class ResendModal extends React.Component {
             <i className='fa fa-warning'></i>
           </div>
           <div className='title'>Resend Message?</div>
-          <a className='close' aria-label='Close' onClick={dispatch.bind(null, 'toggleModal', null)}><span aria-hidden="true">&times;</span></a>
+          <a className='close' aria-label='Close' onClick={dispatch.bind(null, 'toggleModal', null)}>
+            <span aria-hidden="true">&times;</span>
+          </a>
         </div>
         <div className='modal-body'>
           You will send another copy of this message to:

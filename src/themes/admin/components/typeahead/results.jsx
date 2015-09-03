@@ -36,7 +36,11 @@ export default class TypeaheadResults extends React.Component {
 
     if (this.state.results.length > 0) {
       innerContent = this.state.results.map((result) => {
-        return <li onClick={() => { this.props.onItemSelected(result); }} key={result.id}>{this.createComponent({model: result})}</li>;
+        return (
+          <li onClick={() => { this.props.onItemSelected(result); }} key={result.id}>
+            {this.createComponent({model: result})}
+          </li>
+        );
       });
     } else {
       if (this.props.updating) {

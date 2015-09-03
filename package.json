@@ -46,6 +46,11 @@
       "expect": false
     },
     "rules": {
+      "max-len": [1, 120, 2, {
+        "ignoreComments": true,
+        "ignoreUrls": true,
+        "ignorePattern": "^.+=\\s*require\\s*\\("
+      }],
       "quotes": [
         1,
         "single"

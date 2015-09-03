@@ -19,7 +19,11 @@ class Address extends React.Component {
     };
     let choose = null;
     if (this.props.order) {
-      choose = <button className='btn choose' onClick={this.setActiveAddress.bind(this)} disabled={address.isActive}>Choose</button>;
+      choose = (
+        <button className='btn choose' onClick={this.setActiveAddress.bind(this)} disabled={address.isActive}>
+          Choose
+        </button>
+      );
     }
 
 
