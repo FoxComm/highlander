@@ -96,7 +96,7 @@ object CustomerManager {
           Result.failure(CannotUseInactiveCreditCard(cc))
         else
           edit(cc).flatMap { xor ⇒
-            xor.fold(Result.left(_), cascadeChangesToCarts(_, cc).run().map(Xor.right))
+            xor.fold(Result.left(_), cascadeChangesToCarts(_, cc).transactionally.run().map(Xor.right))
           }
     }
   }
