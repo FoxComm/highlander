@@ -5,10 +5,8 @@ import services.Failure
 import slick.dbio
 import slick.dbio.Effect.Write
 import utils.Money._
-import utils.{ADT, GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
-import validators.nonEmptyIf
+import utils.{ADT, GenericTable, TableQueryWithId, ModelWithIdParameter, RichTable}
 
-import com.wix.accord.dsl.{validator => createValidator}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef => Database}

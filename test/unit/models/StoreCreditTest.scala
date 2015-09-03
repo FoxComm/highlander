@@ -15,9 +15,9 @@ class StoreCreditTest extends TestBase {
 
         result mustBe 'invalid
         result.fold(identity, m ⇒ NEL(m.modelName)) must === (NEL(
-          "originalBalance cannot be less than currentBalance",
-          "originalBalance cannot be less than availableBalance",
-          "originalBalance must be greater than zero"
+          GeneralFailure("originalBalance cannot be less than currentBalance"),
+          GeneralFailure("originalBalance cannot be less than availableBalance"),
+          GeneralFailure("originalBalance must be greater than zero")
         ))
       }
 
@@ -27,7 +27,7 @@ class StoreCreditTest extends TestBase {
 
         result mustBe 'invalid
         result.fold(identity, m ⇒ NEL(m.modelName)) must === (NEL(
-          "canceledReason must be present when canceled"
+          GeneralFailure("canceledReason must be present when canceled")
         ))
       }
 

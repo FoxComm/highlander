@@ -91,6 +91,13 @@ object Checks {
   def notEmpty[A <: AnyRef <% HasEmpty](a: A, constraint: String): ValidatedNel[Failure, Unit] =
     toValidatedNel(constraint, new NotEmpty[A].apply(a))
 
+  def notEmptyIf[A <: AnyRef <% HasEmpty](a: A, expression: Boolean, constraint: String): ValidatedNel[Failure, Unit] = {
+    expression match {
+      case true ⇒ notEmpty(a, constraint)
+      case _    ⇒ valid({})
+    }
+  }
+
   def matches(value: String, regex: String, constraint: String): ValidatedNel[Failure, Unit] =
     toValidatedNel(constraint, new MatchesRegex(regex.r.pattern, partialMatchAllowed = false).apply(value))
 

@@ -17,7 +17,6 @@ import services.StripeGateway
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils._
-import validators._
 import services.Result
 
 final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerId: Int, billingAddressId: Int = 0,

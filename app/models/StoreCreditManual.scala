@@ -6,7 +6,6 @@ import slick.dbio
 import slick.dbio.Effect.Write
 import utils.Money._
 import utils.{ADT, GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
-import validators.nonEmptyIf
 
 import com.wix.accord.dsl.{validator => createValidator}
 import monocle.macros.GenLens

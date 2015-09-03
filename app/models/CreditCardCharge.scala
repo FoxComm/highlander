@@ -13,7 +13,6 @@ import services.{Failures, StripeGateway}
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils._
-import validators._
 
 final case class CreditCardCharge(id: Int = 0, creditCardId: Int, orderPaymentId: Int,
   chargeId: String, status: CreditCardCharge.Status = CreditCardCharge.Auth)

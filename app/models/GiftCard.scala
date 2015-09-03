@@ -1,25 +1,26 @@
 package models
 
+import cats.data._
 import com.pellucid.sealerate
 import services.{Result, Failures, Failure}
 import slick.dbio
 import slick.dbio.Effect.{Read, Write}
 import slick.profile.FixedSqlStreamingAction
 import utils.Money._
-import utils.{ADT, GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable}
-import validators.nonEmptyIf
+import utils.{Checks, ADT, GenericTable, Validation, TableQueryWithId, ModelWithIdParameter, RichTable, FSM}
 import scala.concurrent.{ExecutionContext, Future}
 
 import com.pellucid.sealerate
 import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import monocle.macros.GenLens
 
-import services.Failures
+import cats.implicits._
+import services._
+import utils.Litterbox._
+
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.Money._
-import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, RichTable, TableQueryWithId, Validation}
-import validators.nonEmptyIf
 import GiftCard.{Status, OnHold}
 
 final case class GiftCard(id: Int = 0, originId: Int, originType: String, code: String,
@@ -27,16 +28,16 @@ final case class GiftCard(id: Int = 0, originId: Int, originType: String, code: 
   availableBalance: Int = 0, canceledReason: Option[String] = None, reloadable: Boolean = false)
   extends PaymentMethod
   with ModelWithIdParameter
-  with Validation[GiftCard]
   with FSM[GiftCard.Status, GiftCard] {
 
   import GiftCard._
 
-  override def validator = createValidator[GiftCard] { giftCard =>
-    giftCard.status as "canceledReason" is nonEmptyIf(giftCard.status == Canceled, giftCard.canceledReason)
-    giftCard.originalBalance should be >= 0
-    giftCard.currentBalance should be >= 0
-    giftCard.code is notEmpty
+  def validateNew: ValidatedNel[Failure, GiftCard] = {
+    ( Checks.notEmpty(code, "code")
+      |@| Checks.notEmptyIf(canceledReason, status == Canceled, "canceledReason")
+      |@| Checks.validExpr(originalBalance >= 0, "originalBalance should be greater or equal than zero")
+      |@| Checks.validExpr(currentBalance >= 0, "currentBalance should be greater or equal than zero")
+      ).map { case _ ⇒ this }
   }
 
   def stateLens = GenLens[GiftCard](_.status)
