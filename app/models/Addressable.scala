@@ -30,7 +30,7 @@ trait Addressable[M] {
     }
   }
 
-  def validateNew: ValidatedNel[Failure, M] = {
+  def validate: ValidatedNel[Failure, M] = {
     val isUsAddress = Country.usRegions.contains(regionId)
 
     val phone: ValidatedNel[Failure, Unit] = (isUsAddress, phoneNumber) match {

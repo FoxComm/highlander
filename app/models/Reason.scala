@@ -14,7 +14,7 @@ import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 final case class Reason(id: Int = 0, storeAdminId: Int, body: String, parentId: Option[Int] = None)
   extends ModelWithIdParameter {
 
-  def validateNew: ValidatedNel[Failure, Reason] = {
+  def validate: ValidatedNel[Failure, Reason] = {
     ( Validation.notEmpty(body, "body")
       |@| Validation.lesserThanOrEqual(body.length, 255, "bodySize")
       ).map { case _ ⇒ this }

@@ -47,7 +47,7 @@ object NoteManager {
 
   private def createNote(note: Note)
     (implicit ec: ExecutionContext, db: Database): Result[Note] = {
-    note.validateNew match {
+    note.validate match {
       case Valid(_)         ⇒ Result.fromFuture(Notes.save(note).run())
       case Invalid(errors)  ⇒ Result.failure(errors.head)
     }

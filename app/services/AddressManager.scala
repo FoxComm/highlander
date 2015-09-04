@@ -13,7 +13,7 @@ object AddressManager {
   def create(payload: CreateAddressPayload, customerId: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
     val address = Address.fromPayload(payload).copy(customerId = customerId)
-    address.validateNew match {
+    address.validate match {
       case Valid(_) ⇒
         db.run(for {
           newAddress ← Addresses.save(address)
@@ -29,7 +29,7 @@ object AddressManager {
   def edit(addressId: Int, customerId: Int, payload: CreateAddressPayload)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
     val address = Address.fromPayload(payload).copy(customerId = customerId, id = addressId)
-    address.validateNew match {
+    address.validate match {
       case Valid(_) ⇒
         db.run((for {
           rowsAffected ← Addresses.insertOrUpdate(address)

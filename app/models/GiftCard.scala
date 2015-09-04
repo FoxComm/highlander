@@ -26,7 +26,7 @@ final case class GiftCard(id: Int = 0, originId: Int, originType: String, code: 
 
   import GiftCard._
 
-  def validateNew: ValidatedNel[Failure, GiftCard] = {
+  def validate: ValidatedNel[Failure, GiftCard] = {
     ( Validation.notEmpty(code, "code")
       |@| Validation.notEmptyIf(canceledReason, status == Canceled, "canceledReason")
       |@| Validation.validExpr(originalBalance >= 0, "originalBalance should be greater or equal than zero")

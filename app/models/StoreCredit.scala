@@ -33,7 +33,7 @@ final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, origin
 
   def isNew: Boolean = id == 0
 
-  def validateNew: ValidatedNel[Failure, StoreCredit] = {
+  def validate: ValidatedNel[Failure, StoreCredit] = {
     val canceledWithReason: ValidatedNel[Failure, Unit] = (status, canceledReason) match {
       case (Canceled, None) ⇒ invalidNel(GeneralFailure("canceledReason must be present when canceled"))
       case _                ⇒ valid({})

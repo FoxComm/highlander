@@ -18,7 +18,7 @@ final case class StoreAdmin(id: Int = 0, email: String, password: String,
                       department: Option[String] = None)
   extends ModelWithIdParameter {
 
-  def validateNew: ValidatedNel[Failure, StoreAdmin] = {
+  def validate: ValidatedNel[Failure, StoreAdmin] = {
     ( Validation.notEmpty(firstName, "firstName")
       |@| Validation.notEmpty(lastName, "lastName")
       |@| Validation.notEmpty(email, "email")

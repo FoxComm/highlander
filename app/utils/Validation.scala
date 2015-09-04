@@ -9,6 +9,8 @@ import org.joda.time.DateTime
 import services._
 
 object Validation {
+  val prefix = "got"
+
   def validExpr(expression: Boolean, message: String): ValidatedNel[Failure, Unit] = expression match {
     case false ⇒ invalidNel(GeneralFailure(message))
     case _     ⇒ valid({})
@@ -52,17 +54,20 @@ object Validation {
   def matches(value: String, regex: String, constraint: String): ValidatedNel[Failure, Unit] =
     toValidatedNel(constraint, new MatchesRegex(regex.r.pattern, partialMatchAllowed = false).apply(value))
 
+  def between(value: Int, lowerBound: Int, upperBound: Int, constraint: String): ValidatedNel[Failure, Unit] =
+    toValidatedNel(constraint, new Between[Int](lowerBound, upperBound, prefix).apply(value))
+
   def lesserThan(value: Int, limit: Int, constraint: String): ValidatedNel[Failure, Unit] =
-    toValidatedNel(constraint, new LesserThan[Int](limit, "got").apply(value))
+    toValidatedNel(constraint, new LesserThan[Int](limit, prefix).apply(value))
 
   def lesserThanOrEqual(value: Int, limit: Int, constraint: String): ValidatedNel[Failure, Unit] =
-    toValidatedNel(constraint, new LesserThanOrEqual[Int](limit, "got").apply(value))
+    toValidatedNel(constraint, new LesserThanOrEqual[Int](limit, prefix).apply(value))
 
   def greaterThan(value: Int, limit: Int, constraint: String): ValidatedNel[Failure, Unit] =
-    toValidatedNel(constraint, new GreaterThan[Int](limit, "got").apply(value))
+    toValidatedNel(constraint, new GreaterThan[Int](limit, prefix).apply(value))
 
   def greaterThanOrEqual(value: Int, limit: Int, constraint: String): ValidatedNel[Failure, Unit] =
-    toValidatedNel(constraint, new GreaterThanOrEqual[Int](limit, "got").apply(value))
+    toValidatedNel(constraint, new GreaterThanOrEqual[Int](limit, prefix).apply(value))
 
   private def toValidatedNel(constraint: String, r: accord.Result): ValidatedNel[Failure, Unit] = r match {
     case accord.Failure(f) ⇒

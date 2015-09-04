@@ -28,7 +28,7 @@ final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerI
     new StripeGateway().authorizeAmount(gatewayCustomerId, amount)
   }
 
-  def validateNew: ValidatedNel[Failure, CreditCard] = {
+  def validate: ValidatedNel[Failure, CreditCard] = {
     ( Validation.matches(lastFour, "[0-9]{4}", "lastFour")
       |@| Validation.notExpired(expYear, expMonth, "credit card is expired")
       |@| Validation.withinNumberOfYears(expYear, expMonth, 20, "credit card expiration is too far in the future")

@@ -20,7 +20,7 @@ final case class Customer(id: Int = 0, disabled: Boolean = false, email: String,
   modality: Option[String] = None)
   extends ModelWithIdParameter {
 
-  def validateNew: ValidatedNel[Failure, Customer] = {
+  def validate: ValidatedNel[Failure, Customer] = {
     ( Validation.notEmpty(firstName, "firstName")
       |@| Validation.notEmpty(lastName, "lastName")
       |@| Validation.notEmpty(email, "email")

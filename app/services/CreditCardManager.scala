@@ -9,17 +9,19 @@ OrderBillingAddress, OrderBillingAddresses}
 import payloads.CreateCreditCard
 import responses.FullOrder
 import slick.driver.PostgresDriver.api._
-import utils.Validation
 
 object CreditCardManager {
   def createCardForOrder(order: Order, customer: Customer, payload: CreateCreditCard)
     (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
 
     val gateway = StripeGateway()
-    payload.validate match {
-      case failure@validation.Result.Failure(violations) ⇒
-        Result.failure(ValidationFailure(failure))
-      case Success ⇒
+    val payloadValidation = payload.validate
+
+    payloadValidation.isInvalid match {
+      case true ⇒
+        val failures = payloadValidation.foldLeft(List.empty[Failure]) { case (list, _) ⇒ list }
+        Result.failure(failures.head)
+      case false ⇒
         // creates the customer, card, and gives us getDefaultCard as the token
         gateway.createCustomerAndCard(customer, payload).flatMap {
           case Xor.Right((stripeCustomer, stripeCard)) =>
@@ -31,7 +33,6 @@ object CreditCardManager {
 
           case left@Xor.Left(errors) ⇒ Future.successful(left)
         }
-
     }
   }
 

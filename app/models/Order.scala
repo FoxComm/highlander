@@ -11,8 +11,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import com.github.tototoshi.slick.PostgresJodaSupport._
 import com.pellucid.sealerate
-import com.wix.accord.dsl.{validator ⇒ createValidator}
-import com.wix.accord.{Failure ⇒ ValidationFailure}
 import models.Order.{Cart, Status}
 import monocle.macros.GenLens
 import org.joda.time.DateTime
@@ -29,7 +27,7 @@ final case class Order(id: Int = 0, referenceNumber: String = "", customerId: In
   import Order._
 
   // TODO: Add order validations
-  def validateNew: ValidatedNel[Failure, Order] = {
+  def validate: ValidatedNel[Failure, Order] = {
     valid(this)
   }
 

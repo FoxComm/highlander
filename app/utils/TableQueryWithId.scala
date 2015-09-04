@@ -17,7 +17,7 @@ trait NewModel extends Model {
   // override me in ModelWithIdParameter with isNew = id == 0
   def isNew: Boolean
 
-  def validateNew: ValidatedNel[Failure, Model]
+  def validate: ValidatedNel[Failure, Model]
 }
 
 trait ModelWithIdParameter extends Model {

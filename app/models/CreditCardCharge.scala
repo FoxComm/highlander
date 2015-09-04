@@ -1,8 +1,6 @@
 package models
 
 import com.pellucid.sealerate
-import com.stripe.model.{Customer ⇒ StripeCustomer}
-import com.wix.accord.dsl.{validator ⇒ createValidator}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import utils._

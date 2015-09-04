@@ -18,7 +18,7 @@ import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId}
 final case class Note(id: Int = 0, storeAdminId: Int, referenceId: Int, referenceType: Note.ReferenceType, body: String)
   extends ModelWithIdParameter {
 
-  def validateNew: ValidatedNel[Failure, Note] = {
+  def validate: ValidatedNel[Failure, Note] = {
     ( Validation.notEmpty(body, "body")
       |@| Validation.lesserThanOrEqual(body.length, 1000, "bodySize")
       ).map { case _ ⇒ this }

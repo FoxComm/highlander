@@ -19,7 +19,7 @@ class ReasonTest extends TestBase {
         )
 
         forAll(reasons) { (reason: Reason, errors: NonEmptyList[GeneralFailure]) =>
-          invalidValue(reason.validateNew) mustBe (errors)
+          invalidValue(reason.validate) mustBe (errors)
         }
       }
     }

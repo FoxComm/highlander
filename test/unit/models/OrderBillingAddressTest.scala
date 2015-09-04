@@ -20,7 +20,7 @@ class OrderBillingAddressTest extends TestBase {
         )
 
         forAll(addresses) { (address: OrderBillingAddress, errors: NonEmptyList[GeneralFailure]) =>
-          invalidValue(address.validateNew) mustBe (errors)
+          invalidValue(address.validate) mustBe (errors)
         }
       }
     }

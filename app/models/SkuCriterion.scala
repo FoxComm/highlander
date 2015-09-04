@@ -1,14 +1,10 @@
 package models
 
-import com.wix.accord.dsl.{validator ⇒ createValidator}
-import com.wix.accord.{Failure ⇒ ValidationFailure}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
-
 final case class SkuCriterion(id:Int = 0, name:String) extends ModelWithIdParameter
-
 
 object SkuCriterion{
   sealed trait CriterionType
