@@ -23,8 +23,8 @@ class CreditCardTest extends TestBase {
           (card.copy(expYear = 2000), NonEmptyList(GeneralFailure("credit card is expired")))
         )
 
-        forAll(cards) { (card: CreditCard, errors: NonEmptyList[GeneralFailure]) =>
-          invalidValue(card.validateNew) mustBe (errors)
+        forAll(cards) { (card, errors) =>
+          invalidValue(card.validateNew) mustBe errors
         }
       }
 
@@ -39,19 +39,20 @@ class CreditCardTest extends TestBase {
       }
 
       "returns errors when zip is invalid" in {
+        val zipFailure: NonEmptyList[Failure] =
+          NonEmptyList(GeneralFailure(s"zip must fully match regular expression ${Address.zipPatternUs}"))
+
         val badZip = card.copy(zip = "AB+123")
         val wrongLengthZip = card.copy(zip = "1")
 
         val cards = Table(
           ("creditCards", "errors"),
-          (badZip, NonEmptyList(GeneralFailure("zip must fully match regular expression '%s'".format(Address
-            .zipPatternUs)))),
-          (wrongLengthZip, NonEmptyList(GeneralFailure("zip must fully match regular expression '%s'".format(Address
-            .zipPatternUs))))
+          (badZip, zipFailure),
+          (wrongLengthZip, zipFailure)
         )
 
         forAll(cards) { (cc, errors) =>
-          invalidValue(cc.validateNew) mustBe (errors)
+          invalidValue(cc.validateNew) mustBe errors
         }
       }
     }
