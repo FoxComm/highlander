@@ -3,8 +3,8 @@ package utils
 import cats.data.Validated.{valid, invalidNel}
 import cats.data.{NonEmptyList, Validated, ValidatedNel}
 import com.wix.accord
-import com.wix.accord.RuleViolation
 import com.wix.accord.combinators._
+import com.wix.accord.RuleViolation
 import org.joda.time.DateTime
 import services._
 

@@ -13,17 +13,20 @@ class AddressTest extends TestBase {
       val valid = Address(id = 0, customerId = 1, regionId = 1, name = "Yax Home",
         street1 = "555 E Lake Union St.", street2 = None, city = "Seattle", zip = "12345", phoneNumber = None)
 
+      def zipFailure(pattern: String): NonEmptyList[Failure] =
+        NonEmptyList(GeneralFailure(s"zip must fully match regular expression '$pattern'"))
+
       "returns errors when zip is invalid" in {
         val badZip = valid.copy(zip = "AB+123")
         val wrongLengthZip = valid.copy(zip = "1")
 
         val addresses = Table(
           ("address", "errors"),
-          (badZip, NonEmptyList(GeneralFailure("zip must fully match regular expression '%s'".format(Address.zipPattern)))),
-          (wrongLengthZip, NonEmptyList(GeneralFailure("zip must fully match regular expression '%s'".format(Address.zipPattern))))
+          (badZip, zipFailure(Address.zipPattern)),
+          (wrongLengthZip, zipFailure(Address.zipPattern))
         )
 
-        forAll(addresses) { (address: Address, errors: NonEmptyList[GeneralFailure]) =>
+        forAll(addresses) { (address, errors) =>
           invalidValue(address.validate) mustBe (errors)
         }
       }
@@ -34,11 +37,11 @@ class AddressTest extends TestBase {
 
         val addresses = Table(
           ("address", "errors"),
-          (tooShortZip, NonEmptyList(GeneralFailure("zip must fully match regular expression '%s'".format(Address.zipPatternUs)))),
-          (wrongLengthZip, NonEmptyList(GeneralFailure("zip must fully match regular expression '%s'".format(Address.zipPatternUs))))
+          (tooShortZip, zipFailure(Address.zipPatternUs)),
+          (wrongLengthZip, zipFailure(Address.zipPatternUs))
         )
 
-        forAll(addresses) { (address: Address, errors: NonEmptyList[GeneralFailure]) =>
+        forAll(addresses) { (address, errors) =>
           invalidValue(address.copy(regionId = Country.usRegions.head).validate) mustBe (errors)
         }
       }

@@ -2,10 +2,11 @@ package services
 
 import collection.immutable
 import cats.data.NonEmptyList
+import cats.data.Validated.Invalid
 import cats.implicits._
 import com.stripe.exception.StripeException
 import models.{CreditCard, GiftCard, Order}
-import utils.ModelWithIdParameter
+import utils.{ModelWithIdParameter, Validation}
 import utils.friendlyClassName
 
 sealed trait Failure {
@@ -30,10 +31,6 @@ final case class StripeFailure(exception: StripeException) extends Failure {
 
 case object StripeCouldNotCreateCard extends Failure {
   override def description = List("could not create card in stripe")
-}
-
-final case class ValidationFailureNew(messages: NonEmptyList[String]) extends Failure {
-  override def description = messages.foldLeft(List.empty[String]) { case (list, err) ⇒ err :: list }
 }
 
 final case class GeneralFailure(a: String) extends Failure {
@@ -85,4 +82,8 @@ final case class OrderLockedFailure(referenceNumber: String) extends Failure {
 
 final case class CustomerHasInsufficientStoreCredit(id: Int, has: Int, want: Int) extends Failure {
   override def description = List(s"customer with id=$id has storeCredit=$has less than requestedAmount=$want")
+}
+
+case object CreditCardMustHaveAddress extends Failure {
+  override def description = List("cannot create creditCard without an address")
 }

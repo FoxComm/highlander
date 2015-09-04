@@ -87,13 +87,21 @@ object Admin {
           (get & pathEnd) {
             complete { CustomerManager.creditCardsInWalletFor(customerId).map(render(_)) }
           } ~
-          (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultCreditCard])) { (cardId, payload) ⇒
+          (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultCreditCard]) & pathEnd) {
+            (cardId, payload) ⇒
+              complete {
+                val result = CustomerManager.toggleCreditCardDefault(customerId, cardId, payload.isDefault)
+                result.map(renderGoodOrFailures)
+              }
+          } ~
+          (post & entity(as[payloads.CreateCreditCard]) & pathEnd) { payload ⇒
             complete {
-              val result = CustomerManager.toggleCreditCardDefault(customerId, cardId, payload.isDefault)
-              result.map(renderGoodOrFailures)
+              whenFound(Customers.findById(customerId)) { customer ⇒
+                CreditCardManager.createCardThroughGateway(customer, payload)
+              }
             }
           } ~
-          (patch & path(IntNumber) & entity(as[payloads.EditCreditCard])) { (cardId, payload) ⇒
+          (patch & path(IntNumber) & entity(as[payloads.EditCreditCard]) & pathEnd) { (cardId, payload) ⇒
             complete {
               CustomerManager.editCreditCard(customerId, cardId, payload).map(renderNothingOrFailures)
             }

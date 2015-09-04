@@ -2,71 +2,65 @@ package services
 
 import scala.concurrent.{ExecutionContext, Future}
 
+import cats.data.Validated.{Invalid, Valid}
 import cats.data.Xor
-import cats.data.Validated.{Valid, Invalid}
 import com.stripe.model.{Card ⇒ StripeCard, Customer ⇒ StripeCustomer}
-import models.{Order, Orders, Customer, Addresses, Address, CreditCard, CreditCards, OrderPayments, OrderPayment,
-OrderBillingAddress, OrderBillingAddresses}
-import payloads.CreateCreditCard
-import responses.FullOrder
+import models.{Customer, Addresses, Address, CreditCard, CreditCards}
+import payloads.{CreateAddressPayload, CreateCreditCard}
 import slick.driver.PostgresDriver.api._
+import cats.implicits._
 import utils.Slick.implicits._
 
 object CreditCardManager {
-  def createCardForOrder(order: Order, customer: Customer, payload: CreateCreditCard)
-    (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
+  val gateway = StripeGateway()
 
-    val gateway = StripeGateway()
+  def createCardThroughGateway(customer: Customer, payload: CreateCreditCard)
+    (implicit ec: ExecutionContext, db: Database): Result[CreditCard] = {
 
-      payload.validate match {
-      case Invalid(errors) ⇒
-        Result.failure(errors.head)
-      case Valid(_) ⇒
+    payload.validate match {
+      case Invalid(f) ⇒
+        Result.failures(f.unwrap)
+
+      case Valid(_)   ⇒
         // creates the customer, card, and gives us getDefaultCard as the token
         gateway.createCustomerAndCard(customer, payload).flatMap {
-          case Xor.Right((stripeCustomer, stripeCard)) =>
-            createRecords(stripeCustomer, stripeCard, order, customer, payload).flatMap { optOrder =>
-              optOrder.map { (o: Order) =>
-                Result.fromFuture(FullOrder.fromOrder(o))
-              }.getOrElse(Future.successful(Xor.left(List(NotFoundFailure(order)))))
-            }
-
-          case left@Xor.Left(errors) ⇒ Future.successful(left)
+          case Xor.Right((sCust, sCard))  ⇒ createRecords(sCust, sCard, customer, payload)
+          case left @ Xor.Left(errors)    ⇒ Future.successful(left)
         }
     }
   }
 
   private def createRecords(stripeCustomer: StripeCustomer, stripeCard: StripeCard,
-    order: Order, customer: Customer, payload: CreateCreditCard)
-    (implicit ec: ExecutionContext, db: Database): Future[Option[Order]] = {
+    customer: Customer, payload: CreateCreditCard)
+    (implicit ec: ExecutionContext, db: Database): Result[CreditCard] = {
 
-    val appliedPayment = OrderPayment.fromStripeCustomer(stripeCustomer, order)
-    val cc = CreditCard.build(stripeCustomer, stripeCard, payload).copy(customerId = customer.id)
-    val billingAddress = payload.address.map(Address.fromPayload(_).copy(customerId = customer.id))
+    def copyAddressToNewCard(addressId: Int) = {
+      Addresses._findById(addressId).extract.filter(_.customerId === customer.id).result.headOption.flatMap {
+        case None ⇒
+          DBIO.successful(Xor.left(NotFoundFailure(Address, addressId).single))
 
-    val queries = for {
-      address ← billingAddress.map { address ⇒
-        Addresses.save(address.copy(customerId = customer.id)).map(Some(_))
-      }.getOrElse(DBIO.successful(None))
+        case Some(address) ⇒
+          val cc = CreditCard.build(customer.id, stripeCustomer, stripeCard, payload, address)
+          CreditCards.save(cc).map(Xor.right)
+      }
+    }
 
-      card ← address.map { address ⇒
-        CreditCards.save(cc.copy(billingAddressId = address.id)).map(Some(_))
-      }.getOrElse(DBIO.successful(None))
+    def createAddressAndCard(cap: CreateAddressPayload) = {
+      val newAddress = Address.fromPayload(cap)
 
-      orderPayment ← card.map { card ⇒
-        OrderPayments.save(appliedPayment.copy(paymentMethodId = card.id)).map(Some(_))
-      }.getOrElse(DBIO.successful(None))
+      (for {
+        address ← Addresses.save(newAddress)
+        cc ← CreditCards.save(CreditCard.build(customer.id, stripeCustomer, stripeCard, payload, newAddress))
+      } yield cc).map(Xor.right)
+    }
 
-      _ ← address.map { address ⇒
-        val builtAddress = OrderBillingAddress.buildFromAddress(address)
-        OrderBillingAddresses.save(orderPayment.fold(builtAddress)((orderPayment: OrderPayment) ⇒
-          builtAddress.copy(orderPaymentId = orderPayment.id))).map(Some(_))
-      }.getOrElse(DBIO.successful(None))
+    val savedCard = (payload.address, payload.addressId) match {
+      case (_, Some(addressId)) ⇒ copyAddressToNewCard(addressId)
+      case (Some(cap), _)       ⇒ createAddressAndCard(cap)
+      case (None, None)         ⇒ DBIO.successful(Xor.left(CreditCardMustHaveAddress.single))
+    }
 
-      o ← Orders._findById(order.id).extract.one
-    } yield o
-
-    db.run(queries.transactionally)
+    db.run(savedCard.transactionally)
   }
 }
 
