@@ -21,6 +21,7 @@ import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
+import utils.Slick.implicits._
 
 final case class Order(id: Int = 0, referenceNumber: String = "", customerId: Int,
   status: Status = Cart, locked: Boolean = false, placedAt: Option[DateTime] = None,
@@ -145,7 +146,7 @@ object Orders extends TableQueryWithId[Order, Orders](
     findByRefNum(refNum).cartOnly
 
   def findActiveOrderByCustomer(cust: Customer)(implicit ec: ExecutionContext, db: Database): Future[Option[Order]] =
-    db.run(_findActiveOrderByCustomer(cust).result.headOption)
+    db.run(_findActiveOrderByCustomer(cust).one)
 
   def _findActiveOrderByCustomer(cust: Customer) =
     filter(_.customerId === cust.id).filter(_.status === (Order.Cart: Order.Status))
@@ -159,7 +160,7 @@ object Orders extends TableQueryWithId[Order, Orders](
         val freshOrder = Order(customerId = customer.id, status = Order.Cart)
         (returningId += freshOrder).map { id => freshOrder.copy(id = id) }.map(Some(_))
       } else {
-        _findActiveOrderByCustomer(customer).result.headOption
+        _findActiveOrderByCustomer(customer).one
       }
     } yield order
 

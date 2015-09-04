@@ -11,6 +11,7 @@ import org.json4s.jackson.Serialization
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import services.{Failure, Failures, NotFoundFailure, OrderLockedFailure}
 import slick.driver.PostgresDriver.api._
+import utils.Slick.implicits._
 
 object Http {
   import utils.JsonFormatters._
@@ -80,7 +81,7 @@ object Http {
                                             (f: Order ⇒ Future[Failures Xor G])
                                             (implicit ec: ExecutionContext, db: Database): Future[HttpResponse] = {
 
-    val finder = Orders._findActiveOrderByCustomer(customer).result.headOption.run()
+    val finder = Orders._findActiveOrderByCustomer(customer).one.run()
     whenOrderFoundAndEditable(finder)(f)
   }
 
@@ -88,7 +89,7 @@ object Http {
                                             (f: Order ⇒ Future[Failures Xor G])
                                             (implicit ec: ExecutionContext, db: Database): Future[HttpResponse] = {
 
-    val finder = Orders.findByRefNum(refNumber).result.headOption.run()
+    val finder = Orders.findByRefNum(refNumber).one.run()
     whenOrderFoundAndEditable(finder)(f)
   }
 

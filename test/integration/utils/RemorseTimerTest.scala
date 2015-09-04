@@ -15,6 +15,7 @@ import services.OrderUpdater
 import slick.driver.PostgresDriver.api._
 import util.{DbTestSupport, IntegrationTestBase}
 import utils.Seeds.Factories
+import utils.Slick.implicits._
 
 class RemorseTimerTest(_system: ActorSystem) extends TestKit(_system) with IntegrationTestBase with BeforeAndAfterAll {
 
@@ -26,7 +27,7 @@ class RemorseTimerTest(_system: ActorSystem) extends TestKit(_system) with Integ
 
   def byRefNum = Orders.findByRefNum("ABCD1234-11")
 
-  def updated = db.run(byRefNum.result.headOption).futureValue.get
+  def updated = byRefNum.one.run().futureValue.get
 
   "Remorse timer" - {
 

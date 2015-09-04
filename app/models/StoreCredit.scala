@@ -20,7 +20,8 @@ import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.Joda._
 import utils.Money._
-import utils.{ADT, FSM, GenericTable, Model, ModelWithIdParameter, NewModel, TableQueryWithId}
+import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, NewModel, TableQueryWithId}
+import utils.Slick.implicits._
 import cats.syntax.apply._
 
 final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: String, currency: Currency,
@@ -141,7 +142,7 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
     _findByIdAndCustomerId(id, customerId).run()
 
   def _findByIdAndCustomerId(id: Int, customerId: Int)(implicit ec: ExecutionContext): DBIO[Option[StoreCredit]] =
-    filter(_.customerId === customerId).filter(_.id === id).take(1).result.headOption
+    filter(_.customerId === customerId).filter(_.id === id).one
 
   private def debit(storeCredit: StoreCredit, orderPaymentId: Int, amount: Int = 0,
     status: Adj.Status = Adj.Auth)

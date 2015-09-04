@@ -6,6 +6,7 @@ import monocle.macros.GenLens
 import payloads.CreateAddressPayload
 import slick.driver.PostgresDriver.api._
 import utils.GenericTable.TableWithId
+import utils.Slick.implicits._
 import utils.{ModelWithIdParameter, NewModel, TableQueryWithId}
 
 final case class Address(id: Int = 0, customerId: Int, regionId: Int, name: String,
