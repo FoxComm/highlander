@@ -33,14 +33,6 @@ final case object StripeCouldNotCreateCard extends Failure {
   override def description = List("could not create card in stripe")
 }
 
-final case class ValidationFailure(violation: Validation.Result.Failure) extends Failure {
-  override def description = violation.messages.map(_.toString)
-}
-
-final case class ValidationFailureNew(messages: NonEmptyList[String]) extends Failure {
-  override def description = messages.foldLeft(List.empty[String]) { case (list, err) ⇒ err :: list }
-}
-
 final case class GeneralFailure(a: String) extends Failure {
   override def description = List(a)
 }
@@ -90,4 +82,8 @@ final case class OrderLockedFailure(referenceNumber: String) extends Failure {
 
 final case class CustomerHasInsufficientStoreCredit(id: Int, has: Int, want: Int) extends Failure {
   override def description = List(s"customer with id=$id has storeCredit=$has less than requestedAmount=$want")
+}
+
+case object CreditCardMustHaveAddress extends Failure {
+  override def description = List("cannot create creditCard without an address")
 }

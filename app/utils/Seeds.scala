@@ -73,8 +73,8 @@ object Seeds {
       address ← Addresses.save(s.address.copy(customerId = customer.id))
       shippingAddress ← OrderShippingAddresses.save(Factories.shippingAddress.copy(orderId = order.id))
       shippingMethods ← ShippingMethods ++= s.shippingMethods
-      creditCard ← CreditCards.save(s.cc.copy(customerId = customer.id, billingAddressId = address.id))
-      orderPayments ← OrderPayments.save(Factories.orderPayment.copy(orderId = order.id, paymentMethodId = creditCard.id))
+      creditCard ← CreditCards.save(s.cc.copy(customerId = customer.id))
+      orderPayments ← OrderPayments.save(Factories.orderPayment.copy(orderId = order.id,paymentMethodId = creditCard.id))
       shippingPriceRule ← ShippingPriceRules ++= s.shippingPriceRules
       shippingMethodRuleMappings ← ShippingMethodsPriceRules ++= s.shippingMethodRuleMappings
       orderCriterion ← OrderCriteria ++= s.orderCriteria
@@ -138,12 +138,11 @@ object Seeds {
     def shippingAddress = OrderShippingAddress(regionId = 4174, name = "Old Yax", street1 = "9313 Olde Mill Pond Dr",
       street2 = None, city = "Glen Allen", zip = "23060", phoneNumber = None)
 
-    def billingAddress = OrderBillingAddress(regionId = 4129, name = "Old Jeff", street1 = "95 W. 5th Ave.",
-      street2 = Some("Apt. 437"), city = "San Mateo", zip = "94402")
-
     def creditCard =
       CreditCard(customerId = 0, gatewayCustomerId = "", gatewayCardId = "", holderName = "Yax", lastFour = "4242",
-        expMonth = today.getMonthOfYear, expYear = today.getYear + 2, isDefault = true)
+        expMonth = today.getMonthOfYear, expYear = today.getYear + 2, isDefault = true,
+        regionId = 4129, addressName = "Old Jeff", street1 = "95 W. 5th Ave.", street2 = Some("Apt. 437"),
+        city = "San Mateo", zip = "94402")
 
     def reason = Reason(id = 0, storeAdminId = 0, body = "I'm a reason", parentId = None)
 

@@ -17,7 +17,9 @@ case object BraintreeGateway extends PaymentGateway
 
 // TODO(yax): do not default apiKey, it should come from store
 final case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ") extends PaymentGateway {
+
   // Creates a customer in Stripe along with their first CC
+  @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.AsInstanceOf"))
   def createCustomerAndCard(customer: Customer, card: CreateCreditCard)
     (implicit ec: ExecutionContext): Result[(StripeCustomer, StripeCard)] = tryFutureWrap {
 
@@ -48,9 +50,13 @@ final case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVL
 
 
     val stripeCustomer = StripeCustomer.create(mapAsJavaMap(params), options)
-    stripeCustomer.getCards.getData.asScala.toList.headOption match {
-      case Some(stripeCard) ⇒ Xor.right((stripeCustomer, stripeCard))
-      case None ⇒ Xor.left(StripeCouldNotCreateCard.single)
+    val extAccount = stripeCustomer.getSources.retrieve(stripeCustomer.getDefaultSource, options)
+
+    // lol, really?
+    if (extAccount.getObject.equals("card")) {
+      Xor.right((stripeCustomer, extAccount.asInstanceOf[StripeCard]))
+    } else {
+      Xor.left(StripeCouldNotCreateCard.single)
     }
   }
 

@@ -9,6 +9,10 @@ import com.wix.accord.{Failure ⇒ AccordFailure, RuleViolation, Violation, vali
 import org.joda.time.DateTime
 import services._
 
+trait ValidationNew[T] { this: T ⇒
+  def validate: ValidatedNel[Failure, T]
+}
+
 trait Validation[T] { this: T ⇒
   import Validation._
 
