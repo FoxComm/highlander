@@ -19,7 +19,7 @@ export default class TableHead extends React.Component {
   }
 
   render() {
-    let createColumn = function(column, idx) {
+    let createColumn = (column, idx) => {
       return (
         <th key={`${idx}-${column.field}`} onClick={this.onHeaderItemClick.bind(this, column.field)}>
           {column.text}
