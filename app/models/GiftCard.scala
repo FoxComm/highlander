@@ -24,15 +24,17 @@ final case class GiftCard(id: Int = 0, originId: Int, originType: String, code: 
   availableBalance: Int = 0, canceledReason: Option[String] = None, reloadable: Boolean = false)
   extends PaymentMethod
   with ModelWithIdParameter
-  with FSM[GiftCard.Status, GiftCard] {
+  with FSM[GiftCard.Status, GiftCard]
+  with Validation[GiftCard] {
 
   import GiftCard._
+  import Validation._
 
   def validate: ValidatedNel[Failure, GiftCard] = {
-    ( Validation.notEmpty(code, "code")
-      |@| Validation.notEmptyIf(canceledReason, status == Canceled, "canceledReason")
-      |@| Validation.validExpr(originalBalance >= 0, "originalBalance should be greater or equal than zero")
-      |@| Validation.validExpr(currentBalance >= 0, "currentBalance should be greater or equal than zero")
+    ( notEmpty(code, "code")
+      |@| notEmptyIf(canceledReason, status == Canceled, "canceledReason")
+      |@| validExpr(originalBalance >= 0, "originalBalance should be greater or equal than zero")
+      |@| validExpr(currentBalance >= 0, "currentBalance should be greater or equal than zero")
       ).map { case _ ⇒ this }
   }
 

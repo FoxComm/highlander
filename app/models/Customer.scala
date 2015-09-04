@@ -19,12 +19,15 @@ import utils.Slick.implicits._
 final case class Customer(id: Int = 0, disabled: Boolean = false, email: String, password: String, firstName: String,
   lastName: String, phoneNumber: Option[String] = None, location: Option[String] = None,
   modality: Option[String] = None)
-  extends ModelWithIdParameter {
+  extends ModelWithIdParameter
+  with Validation[Customer] {
+
+  import Validation._
 
   def validate: ValidatedNel[Failure, Customer] = {
-    ( Validation.notEmpty(firstName, "firstName")
-      |@| Validation.notEmpty(lastName, "lastName")
-      |@| Validation.notEmpty(email, "email")
+    ( notEmpty(firstName, "firstName")
+      |@| notEmpty(lastName, "lastName")
+      |@| notEmpty(email, "email")
       ).map { case _ ⇒ this }
   }
 }

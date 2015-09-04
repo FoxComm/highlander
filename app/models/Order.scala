@@ -25,9 +25,11 @@ final case class Order(id: Int = 0, referenceNumber: String = "", customerId: In
   status: Status = Cart, locked: Boolean = false, placedAt: Option[DateTime] = None,
   remorsePeriodEnd: Option[DateTime] = None)
   extends ModelWithIdParameter
-  with FSM[Order.Status, Order] {
+  with FSM[Order.Status, Order]
+  with Validation[Order] {
 
   import Order._
+  import Validation._
 
   // TODO: Add order validations
   def validate: ValidatedNel[Failure, Order] = {

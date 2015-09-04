@@ -1,10 +1,7 @@
 package models
 
-import cats.data.ValidatedNel
 import cats.implicits._
-import services.Failure
 import utils.Litterbox._
-import utils.Validation
 
 import scala.concurrent.ExecutionContext
 
@@ -25,7 +22,10 @@ final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerI
   regionId: Int, addressName: String, street1: String, street2: Option[String] = None, city: String, zip: String)
   extends PaymentMethod
   with ModelWithIdParameter
-  with Addressable[CreditCard] {
+  with Addressable[CreditCard]
+  with Validation[CreditCard] {
+
+  import Validation._
 
   def instance: CreditCard = this
 
@@ -39,9 +39,9 @@ final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerI
   }
 
   override def validate: ValidatedNel[Failure, CreditCard] = {
-    ( Validation.matches(lastFour, "[0-9]{4}", "lastFour")
-      |@| Validation.notExpired(expYear, expMonth, "credit card is expired")
-      |@| Validation.withinNumberOfYears(expYear, expMonth, 20, "credit card expiration is too far in the future")
+    ( matches(lastFour, "[0-9]{4}", "lastFour")
+      |@| notExpired(expYear, expMonth, "credit card is expired")
+      |@| withinNumberOfYears(expYear, expMonth, 20, "credit card expiration is too far in the future")
       |@| super.validate
       ).map { case _ ⇒ this }
   }

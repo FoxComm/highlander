@@ -19,11 +19,14 @@ import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId, Validat
 import utils.Slick.implicits._
 
 final case class Note(id: Int = 0, storeAdminId: Int, referenceId: Int, referenceType: Note.ReferenceType, body: String)
-  extends ModelWithIdParameter {
+  extends ModelWithIdParameter
+  with Validation[Note] {
+
+  import Validation._
 
   def validate: ValidatedNel[Failure, Note] = {
-    ( Validation.notEmpty(body, "body")
-      |@| Validation.lesserThanOrEqual(body.length, 1000, "bodySize")
+    ( notEmpty(body, "body")
+      |@| lesserThanOrEqual(body.length, 1000, "bodySize")
       ).map { case _ ⇒ this }
   }
 }
