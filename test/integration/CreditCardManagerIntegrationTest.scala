@@ -6,7 +6,7 @@ import payloads.CreateAddressPayload
 import services.NotFoundFailure
 import util.{StripeSupport, IntegrationTestBase}
 import utils.Seeds.Factories
-import utils.RunOnDbIO
+import utils.Slick.implicits._
 
 class CreditCardManagerIntegrationTest extends IntegrationTestBase
   with HttpSupport
