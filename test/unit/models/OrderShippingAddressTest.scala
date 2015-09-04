@@ -11,7 +11,7 @@ class OrderShippingAddressTest extends TestBase {
   "OrderShippingAddress" - {
     ".validateNew" - {
       def zipFailure(pattern: String): NonEmptyList[Failure] =
-        NonEmptyList(GeneralFailure(s"zip must fully match regular expression $pattern"))
+        NonEmptyList(GeneralFailure(s"zip must fully match regular expression '$pattern'"))
 
       "returns errors when zip is invalid" in {
         val badZip = Factories.shippingAddress.copy(regionId = 1, zip = "AB+123")

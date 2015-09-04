@@ -14,7 +14,7 @@ class AddressTest extends TestBase {
         street1 = "555 E Lake Union St.", street2 = None, city = "Seattle", zip = "12345", phoneNumber = None)
 
       def zipFailure(pattern: String): NonEmptyList[Failure] =
-        NonEmptyList(GeneralFailure(s"zip must fully match regular expression $pattern"))
+        NonEmptyList(GeneralFailure(s"zip must fully match regular expression '$pattern'"))
 
       "returns errors when zip is invalid" in {
         val badZip = valid.copy(zip = "AB+123")
