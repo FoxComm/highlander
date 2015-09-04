@@ -1,8 +1,11 @@
 import akka.http.scaladsl.model.StatusCodes
 
-import com.github.tototoshi.slick.JdbcJodaSupport._
+import com.github.tototoshi.slick.PostgresJodaSupport._
 import models.Order._
-import models._
+import models.{CreditCards, CreditCard, Addresses, Order, Orders, StoreCredits, StoreCredit, StoreCreditManuals,
+OrderPayments, OrderPayment, Customers, GiftCards, GiftCard, GiftCardManuals, StoreAdmins, Reasons,
+PaymentMethod}
+import models.OrderPayments.scope._
 import org.joda.time.DateTime
 import services.{OrderPaymentNotFoundFailure, CannotUseInactiveCreditCard, CustomerHasInsufficientStoreCredit,
 CustomerManager, GiftCardIsInactive, GiftCardNotEnoughBalance, GiftCardNotFoundFailure, NotFoundFailure,
@@ -307,7 +310,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
   }
 
   def paymentsFor(order: Order, pmt: PaymentMethod.Type): Seq[OrderPayment] = {
-    val q = OrderPayments.byType(pmt).filter(_.orderId === order.id)
+    val q = OrderPayments.filter(_.orderId === order.id).byType(pmt)
     q.result.run().futureValue
   }
 

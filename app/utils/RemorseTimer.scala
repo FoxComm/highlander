@@ -4,39 +4,30 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Success
 import akka.actor.{Actor, ActorLogging}
 
+import com.github.tototoshi.slick.PostgresJodaSupport._
 import models.Order._
 import models.{Order, Orders}
+import org.joda.time.DateTime
 import slick.driver.PostgresDriver.api._
 
 case object Tick
 
-class RemorseTimer(implicit db: Database) extends Actor {
-  import context.dispatcher
+final case class RemorseTimerResponse(updatedQuantity: Future[Int])
 
+class RemorseTimer(implicit ec: ExecutionContext, db: Database) extends Actor {
   override def receive = {
     case Tick ⇒ sender() ! tick
   }
 
-  private def tick: Future[Unit] = {
-    val orders = Orders
+  private def tick(implicit ec: ExecutionContext, db: Database): RemorseTimerResponse = {
+    val advance = Orders
       .filter(_.status === (RemorseHold: Status))
       .filterNot(_.locked)
-
-    val advance = db.run(orders
-      .filterNot(_.remorsePeriodInMinutes > 0)
+      .filter(_.remorsePeriodEnd.map(_ < DateTime.now))
       .map(_.status)
       .update(Order.FulfillmentStarted)
-      .transactionally)
 
-    val decrement = db.stream(orders
-      .filter(_.remorsePeriodInMinutes > 0)
-      .mutate.transactionally)
-      .foreach(mutate ⇒ mutate.row = mutate.row.copy(remorsePeriodInMinutes = mutate.row.remorsePeriodInMinutes - 1))
-
-    for {
-      _ ← advance
-      _ ← decrement
-    } yield ()
+    RemorseTimerResponse(db.run(advance))
   }
 }
 
@@ -47,8 +38,8 @@ RemorseTimer replies with (currently empty) future, so this may be extended to l
 class RemorseTimerMate(implicit ec: ExecutionContext) extends Actor with ActorLogging {
 
   override def receive = {
-    case response: Future[_] ⇒ response.onComplete {
-      case Success(_) ⇒ // log.debug("Remorse timer completed successfully")
+    case response: RemorseTimerResponse ⇒ response.updatedQuantity.onComplete {
+      case Success(quantity) ⇒ log.debug(s"Remorse timer updated $quantity orders")
       case _ ⇒ log.error("Remorse timer failed")
     }
     case _ ⇒ log.error("Remorse timer is in trouble, it can't communicate properly :(")

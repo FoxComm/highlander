@@ -1,10 +1,15 @@
 package models
 
+import cats.data.ValidatedNel
+import services._
+import utils.Litterbox._
+import utils.Checks
+
 import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Validated.{invalidNel, valid}
 import cats.data.ValidatedNel
-import com.github.tototoshi.slick.JdbcJodaSupport._
+import com.github.tototoshi.slick.PostgresJodaSupport._
 import com.pellucid.sealerate
 import models.StoreCredit.{OnHold, Status}
 import monocle.macros.GenLens
@@ -16,7 +21,6 @@ import slick.jdbc.JdbcType
 import utils.Joda._
 import utils.Money._
 import utils.{ADT, FSM, GenericTable, Model, ModelWithIdParameter, NewModel, TableQueryWithId}
-import utils.Litterbox.nelSemigroup
 import cats.syntax.apply._
 
 final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: String, currency: Currency,
@@ -31,18 +35,16 @@ final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, origin
 
   def isNew: Boolean = id == 0
 
-  def validateNew: ValidatedNel[String, Model] = {
-    def validate(isBad: Boolean, err: String) = if (isBad) invalidNel(err) else valid({})
-
-    val canceledWithReason = (status, canceledReason) match {
-      case (Canceled, None) ⇒ invalidNel("canceledReason must be present when canceled")
+  def validateNew: ValidatedNel[Failure, StoreCredit] = {
+    val canceledWithReason: ValidatedNel[Failure, Unit] = (status, canceledReason) match {
+      case (Canceled, None) ⇒ invalidNel(GeneralFailure("canceledReason must be present when canceled"))
       case _                ⇒ valid({})
     }
 
     (canceledWithReason
-      |@| validate(originalBalance < currentBalance, "originalBalance cannot be less than currentBalance")
-      |@| validate(originalBalance < availableBalance, "originalBalance cannot be less than availableBalance")
-      |@| validate(originalBalance <= 0, "originalBalance must be greater than zero")
+      |@| Checks.invalidExpr(originalBalance < currentBalance, "originalBalance cannot be less than currentBalance")
+      |@| Checks.invalidExpr(originalBalance < availableBalance, "originalBalance cannot be less than availableBalance")
+      |@| Checks.invalidExpr(originalBalance < 0, "originalBalance must be greater than zero")
     ).map { case _ ⇒ this }
   }
 

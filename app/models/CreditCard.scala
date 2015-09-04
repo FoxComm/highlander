@@ -1,8 +1,14 @@
 package models
 
+import cats.data.ValidatedNel
+import cats.implicits._
+import services.Failure
+import utils.Litterbox._
+import utils.Checks
+
 import scala.concurrent.ExecutionContext
 
-import com.github.tototoshi.slick.JdbcJodaSupport._
+import com.github.tototoshi.slick.PostgresJodaSupport._
 import com.stripe.model.{Card ⇒ StripeCard, Customer ⇒ StripeCustomer}
 import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import monocle.macros.GenLens
@@ -11,23 +17,29 @@ import payloads.CreateCreditCard
 import services.{Result, StripeGateway}
 import slick.driver.PostgresDriver.api._
 import utils._
-import validators._
 
 final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerId: Int, billingAddressId: Int = 0,
   gatewayCustomerId: String, gatewayCardId: String, holderName: String, lastFour: String, expMonth: Int, expYear: Int,
   isDefault: Boolean = false, inWallet: Boolean = true, deletedAt: Option[DateTime] = None)
   extends PaymentMethod
-  with ModelWithIdParameter
-  with Validation[CreditCard] {
+  with ModelWithIdParameter {
 
   def authorize(amount: Int)(implicit ec: ExecutionContext): Result[String] = {
     new StripeGateway().authorizeAmount(gatewayCustomerId, amount)
   }
 
-  override def validator = createValidator[CreditCard] { cc =>
-    cc.lastFour should matchRegex("[0-9]{4}")
-    cc.expYear as "credit card" is notExpired(year = cc.expYear, month = cc.expMonth)
-    cc.expYear as "credit card" is withinTwentyYears(year = cc.expYear, month = cc.expMonth)
+  def validateNew: ValidatedNel[Failure, CreditCard] = {
+    def withinTwentyYears: Boolean = {
+      val today = DateTime.now()
+      // At the end of the month
+      val expDate = new DateTime(expYear, expMonth, 1, 0, 0).plusMonths(1).minusSeconds(1)
+      expDate.isBefore(today.plusYears(20))
+    }
+
+    ( Checks.matches(lastFour, "[0-9]{4}", "lastFour")
+      |@| Checks.notExpired(expYear, expMonth, "credit card is expired")
+      |@| Checks.withinNumberOfYears(expYear, expMonth, 20, "credit card expiration is too far in the future")
+      ).map { case _ ⇒ this }
   }
 }
 
