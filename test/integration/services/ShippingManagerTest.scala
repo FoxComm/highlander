@@ -1,7 +1,6 @@
 package services
 
 import models._
-import org.scalactic.{Bad, Good}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils._
@@ -29,53 +28,23 @@ class ShippingManagerTest extends IntegrationTestBase {
       "Is false when the order is shipped to MI" in new MichiganOrderFixture {
         val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).futureValue
         matchingMethods.isRight must === (true)
-        matchingMethods.get.isEmpty must === (true)
+        matchingMethods.get mustBe 'empty
       }
 
     }
 
     "Evaluates rule: order total is greater than $25" - {
 
-      "Is true when the order total is greater than $25" in new OrderFixture {
-        val conditions =
-          """
-            | {
-            |   "comparison": "and",
-            |   "conditions": [{
-            |     "rootObject": "Order", "field": "grandtotal", "operator": "greaterThan", "valInt": 25
-            |   }]
-            | }
-          """.stripMargin
-
-        val action = ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(parse(conditions))))
-        val shippingMethod = db.run(action).futureValue
-
-        val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).futureValue
+      "Is true when the order total is greater than $25" in new PriceConditionFixture {
+        val matchingMethods = ShippingManager.getShippingMethodsForOrder(expensiveOrder).futureValue
         matchingMethods.isRight must === (true)
         matchingMethods.get.head must === (shippingMethod)
       }
 
-    }
-
-    "Evaluates rule: order total is greater than $100" - {
-
-      "Is false when the order total is less than $100" in new OrderFixture {
-        val conditions =
-          """
-            | {
-            |   "comparison": "and",
-            |   "conditions": [{
-            |     "rootObject": "Order", "field": "grandtotal", "operator": "greaterThan", "valInt": 100
-            |   }]
-            | }
-          """.stripMargin
-
-        val action = ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(parse(conditions))))
-        val shippingMethod = db.run(action).futureValue
-
-        val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).futureValue
+      "Is false when the order total is less than $25" in new PriceConditionFixture {
+        val matchingMethods = ShippingManager.getShippingMethodsForOrder(cheapOrder).futureValue
         matchingMethods.isRight must === (true)
-        matchingMethods.get.isEmpty must === (true)
+        matchingMethods.get mustBe 'empty
       }
 
     }
@@ -101,7 +70,7 @@ class ShippingManagerTest extends IntegrationTestBase {
 
         val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).futureValue
         matchingMethods.isRight must === (true)
-        matchingMethods.get.isEmpty must === (true)
+        matchingMethods.get mustBe 'empty
       }
 
     }
@@ -130,7 +99,7 @@ class ShippingManagerTest extends IntegrationTestBase {
 
         val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).futureValue
         matchingMethods.isRight must === (true)
-        matchingMethods.get.isEmpty must === (true)
+        matchingMethods.get mustBe 'empty
       }
 
       "Is false when the order total is greater than $10 and street2 contains a P.O. Box" in new POCondition {
@@ -142,7 +111,7 @@ class ShippingManagerTest extends IntegrationTestBase {
 
         val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).futureValue
         matchingMethods.isRight must === (true)
-        matchingMethods.get.isEmpty must === (true)
+        matchingMethods.get mustBe 'empty
       }
 
     }
@@ -242,6 +211,32 @@ class ShippingManagerTest extends IntegrationTestBase {
 
     val action = ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(parse(conditions))))
     val shippingMethod = db.run(action).futureValue
+  }
+
+  trait PriceConditionFixture extends Fixture {
+    val conditions =
+      """
+        | {
+        |   "comparison": "and",
+        |   "conditions": [{
+        |     "rootObject": "Order", "field": "grandtotal", "operator": "greaterThan", "valInt": 25
+        |   }]
+        | }
+      """.stripMargin
+
+    val (shippingMethod, cheapOrder, expensiveOrder) = (for {
+      shippingMethod ← ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(parse(conditions))))
+      cheapOrder ← Orders.save(Factories.order.copy(customerId = customer.id, referenceNumber = "CS1234-AA"))
+      cheapSku ← Skus.save(Sku(name = Some("Cheap Donkey"), price = 10))
+      cheapLineItem ← OrderLineItems.save(OrderLineItem(orderId = cheapOrder.id, skuId = cheapSku.id))
+      cheapAddress ← Addresses.save(Factories.address.copy(customerId = customer.id, isDefaultShipping = false))
+      _ ← OrderShippingAddresses.copyFromAddress(address = cheapAddress, orderId = cheapOrder.id)
+      expensiveOrder ← Orders.save(Factories.order.copy(customerId = customer.id, referenceNumber = "CS1234-AA"))
+      expensiveSku ← Skus.save(Sku(name = Some("Expensive Donkey"), price = 100))
+      expensiveLineItem ← OrderLineItems.save(OrderLineItem(orderId = expensiveOrder.id, skuId = expensiveSku.id))
+      expensiveAddress ← Addresses.save(Factories.address.copy(customerId = customer.id, isDefaultShipping = false))
+      _ ← OrderShippingAddresses.copyFromAddress(address = expensiveAddress, orderId = expensiveOrder.id)
+    } yield(shippingMethod, cheapOrder, expensiveOrder)).run().futureValue
   }
 
   trait StateAndPriceCondition extends Fixture {

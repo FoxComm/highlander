@@ -43,7 +43,7 @@ object OrderShippingAddress {
 
 class OrderShippingAddresses(tag: Tag) extends TableWithId[OrderShippingAddress](tag, "order_shipping_addresses")
    {
-  def id = column[Int]("id", O.PrimaryKey)
+  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def orderId = column[Int]("order_id")
   def regionId = column[Int]("region_id")
   def name = column[String]("name")
