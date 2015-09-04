@@ -15,15 +15,18 @@ export default class TableHead extends React.Component {
       sortingField: field,
       sortingOrder: (field === this.state.sortingField) ? !this.state.sortingOrder : true
     }, () => {
-      this.props.setSorting(this.state.sortingField, this.state.sortingOrder);
+      if (this.props.setSorting) {
+        this.props.setSorting(this.state.sortingField, this.state.sortingOrder);
+      }
     });
   }
 
   render() {
     let createColumn = (column, idx) => {
       let classnames = ClassNames({
-        'sorting-desc': (this.state.sortingField === column.field) && this.state.sortingOrder,
-        'sorting-asc': (this.state.sortingField === column.field) && !this.state.sortingOrder
+        'sorting': this.props.setSorting,
+        'sorting-desc': this.props.setSorting && (this.state.sortingField === column.field) && this.state.sortingOrder,
+        'sorting-asc': this.props.setSorting && (this.state.sortingField === column.field) && !this.state.sortingOrder
       });
       return (
         <th className={classnames} key={`${idx}-${column.field}`}
