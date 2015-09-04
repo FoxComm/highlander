@@ -49,11 +49,7 @@ object AllOrders {
         // TODO: FIXME
         paymentStatus = None,
         placedAt = order.placedAt,
-        // If order is not in RemorseHold, remorsePeriodEnd should be None, but extra check wouldn't hurt here.
-        remorsePeriodEnd = order.status match {
-          case RemorseHold if !order.locked ⇒ order.remorsePeriodEnd
-          case _ ⇒ None
-        },
+        remorsePeriodEnd = order.getRemorsePeriodEnd,
         total = grandTotal
       )
     }

@@ -60,6 +60,12 @@ final case class Order(id: Int = 0, referenceNumber: String = "", customerId: In
     FulfillmentStarted →
       Set(Shipped, Canceled)
   )
+
+  // If order is not in RemorseHold, remorsePeriodEnd should be None, but extra check wouldn't hurt
+  val getRemorsePeriodEnd: Option[DateTime] = status match {
+    case RemorseHold if !locked ⇒ remorsePeriodEnd
+    case _ ⇒ None
+  }
 }
 
 object Order {
