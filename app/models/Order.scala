@@ -22,7 +22,7 @@ import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId, Va
 
 final case class Order(id: Int = 0, referenceNumber: String = "", customerId: Int,
   status: Status = Cart, locked: Boolean = false, placedAt: Option[DateTime] = None,
-  remorsePeriodInMinutes: Int = 30)
+  remorsePeriodEnd: Option[DateTime] = None)
   extends ModelWithIdParameter
   with FSM[Order.Status, Order] {
 
@@ -60,6 +60,12 @@ final case class Order(id: Int = 0, referenceNumber: String = "", customerId: In
     FulfillmentStarted →
       Set(Shipped, Canceled)
   )
+
+  // If order is not in RemorseHold, remorsePeriodEnd should be None, but extra check wouldn't hurt
+  val getRemorsePeriodEnd: Option[DateTime] = status match {
+    case RemorseHold if !locked ⇒ remorsePeriodEnd
+    case _ ⇒ None
+  }
 }
 
 object Order {
@@ -91,8 +97,8 @@ class Orders(tag: Tag) extends GenericTable.TableWithId[Order](tag, "orders")  {
   def status = column[Order.Status]("status")
   def locked = column[Boolean]("locked")
   def placedAt = column[Option[DateTime]]("placed_at")
-  def remorsePeriodInMinutes = column[Int]("remorse_period_in_minutes")
-  def * = (id, referenceNumber, customerId, status, locked, placedAt, remorsePeriodInMinutes) <>((Order.apply _).tupled, Order.unapply)
+  def remorsePeriodEnd = column[Option[DateTime]]("remorse_period_end")
+  def * = (id, referenceNumber, customerId, status, locked, placedAt, remorsePeriodEnd) <>((Order.apply _).tupled, Order.unapply)
 }
 
 object Orders extends TableQueryWithId[Order, Orders](
