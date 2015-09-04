@@ -6,10 +6,13 @@ import cats.data.Validated.{Invalid, Valid}
 import cats.data.Xor
 import models.Order.RemorseHold
 import models._
+import models.OrderLockEvents.scope._
+import org.joda.time.Seconds.secondsBetween
 import org.joda.time.{Seconds, DateTime}
 import payloads.{CreateShippingAddress, UpdateAddressPayload, UpdateShippingAddress}
 import responses.{Addresses ⇒ Response, FullOrder}
 import slick.driver.PostgresDriver.api._
+import utils.Slick.UpdateReturning._
 import com.github.tototoshi.slick.PostgresJodaSupport._
 
 object OrderUpdater {
@@ -112,21 +115,27 @@ object OrderUpdater {
     }
   }
 
+  private def newRemorseEnd(maybeRemorseEnd: Option[DateTime], lockedAt: DateTime): Option[DateTime] = {
+    maybeRemorseEnd.map(_.plus(secondsBetween(lockedAt, DateTime.now)))
+  }
+
+  private def updateUnlock(orderId: Int, remorseEnd: Option[DateTime])
+    (implicit db: Database) = {
+    Orders._findById(orderId).extract
+      .map { o ⇒ (o.locked, o.remorsePeriodEnd) }
+      .updateReturning(Orders.map(identity), (false, remorseEnd))
+  }
+
   def unlock(order: Order)(implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
     if (order.locked) {
-      val queries = for {
-        lockedAt ← OrderLockEvents.findByOrder(order).sortBy(_.lockedAt).take(1).map(_.lockedAt).result.head
-        _ ← Orders.update(order.copy(
-          locked = false,
-          remorsePeriodEnd = order.remorsePeriodEnd.map { currentRemorseEnd ⇒
-            val timePassedAfterLock = Seconds.secondsBetween(lockedAt, DateTime.now)
-            currentRemorseEnd.plus(timePassedAfterLock)
-          }))
-        newOrder ← Orders.findByRefNum(order.referenceNumber).result.head
-      } yield newOrder
-
+      val queries = OrderLockEvents.findByOrder(order).mostRecentLock.result.headOption.flatMap {
+        case Some(lockEvent) ⇒
+          updateUnlock(order.id, newRemorseEnd(order.remorsePeriodEnd, lockEvent.lockedAt))
+        case None ⇒
+          updateUnlock(order.id, order.remorsePeriodEnd.map(_.plusMinutes(15)))
+      }
       db.run(queries).flatMap { o ⇒
-        Result.fromFuture(FullOrder.fromOrder(o))
+        Result.fromFuture(FullOrder.fromOrder(o.head))
       }
     } else Result.failure(GeneralFailure("Order is not locked"))
   }
