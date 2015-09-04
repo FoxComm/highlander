@@ -1,7 +1,9 @@
 package models
 
 import monocle.macros.GenLens
+import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
+import slick.jdbc.JdbcType
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 final case class SkuCriterion(id:Int = 0, name:String) extends ModelWithIdParameter
@@ -14,7 +16,7 @@ object SkuCriterion{
   case object Archetype extends CriterionType
   case object Attribute extends CriterionType
 
-  implicit val CriterionTypeColumnType = MappedColumnType.base[CriterionType, String]({
+  implicit val CriterionTypeColumnType: JdbcType[CriterionType] with BaseTypedType[CriterionType] = MappedColumnType.base[CriterionType, String]({
     case t => t.toString.toLowerCase
   },
   {

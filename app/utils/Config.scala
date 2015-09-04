@@ -11,7 +11,7 @@ object Config {
   case object Staging extends Environment
   case object Production extends Environment
 
-  implicit val environmentShow = new Show[Environment] {
+  implicit val environmentShow: Show[Environment] = new Show[Environment] {
     def show(e: Environment) = friendlyClassName(e).toLowerCase
   }
 

@@ -3,6 +3,7 @@ package utils
 import scalaz.Show
 
 import com.pellucid.sealerate
+import org.json4s.Formats
 import util.TestBase
 
 import models.{GiftCard, CreditCardCharge, Order}
@@ -14,7 +15,7 @@ class JsonFormattersTest extends TestBase {
 
   import utils.JsonFormatters._
 
-  implicit val formats = phoenixFormats
+  implicit val formats: Formats = phoenixFormats
 
   case class Test(order: Order.Status, gc: GiftCard.Status, cc: CreditCardCharge.Status)
   case class Product(price: Int, currency: Currency)

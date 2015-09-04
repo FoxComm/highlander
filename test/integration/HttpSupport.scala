@@ -26,7 +26,7 @@ import cats.syntax.flatMap._
 // TODO: Move away from root package when `Service' moverd
 trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with PatienceConfiguration with DbTestSupport ⇒
 
-  implicit val formats = JsonFormatters.phoenixFormats
+  implicit val formats: Formats = JsonFormatters.phoenixFormats
 
   private val ActorSystemNameChars = ('a' to 'z').toSet | ('A' to 'Z').toSet | ('0' to '9').toSet | Set('-', '_')
 

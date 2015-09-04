@@ -9,6 +9,7 @@ import org.joda.time.DateTime
 import org.postgresql.ds.PGSimpleDataSource
 import slick.dbio
 import slick.dbio.Effect.{All, Write}
+import slick.driver.PostgresDriver
 import slick.driver.PostgresDriver.api._
 import utils.Money.Currency
 
@@ -205,7 +206,7 @@ object Seeds {
     val config: com.typesafe.config.Config = utils.Config.loadWithEnv()
     flyWayMigrate(config)
     Console.err.println(s"Inserting seeds")
-    implicit val db = Database.forConfig("db", config)
+    implicit val db: PostgresDriver.backend.DatabaseDef = Database.forConfig("db", config)
     Await.result(db.run(run()), 5.second)
   }
 

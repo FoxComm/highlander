@@ -3,7 +3,9 @@ package models
 import scala.concurrent.{ExecutionContext, Future}
 
 import monocle.macros.GenLens
+import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
+import slick.jdbc.JdbcType
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 
@@ -14,7 +16,7 @@ object ShippingPriceRule{
   case object Flat extends RuleType
   case object FromCarrier extends RuleType
 
-  implicit val RuleTypeColumn = MappedColumnType.base[RuleType, String]({
+  implicit val RuleTypeColumn: JdbcType[RuleType] with BaseTypedType[RuleType] = MappedColumnType.base[RuleType, String]({
     case t => t.toString.toLowerCase
   },
   {

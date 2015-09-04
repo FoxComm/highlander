@@ -16,7 +16,7 @@ class FullOrderTest extends IntegrationTestBase {
   import api._
   import concurrent.ExecutionContext.Implicits.global
 
-  implicit val formats = DefaultFormats
+  implicit val formats: DefaultFormats.type = DefaultFormats
 
   "FullOrder" - {
     "fromOrder" in {
