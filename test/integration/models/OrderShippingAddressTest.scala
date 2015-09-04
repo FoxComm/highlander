@@ -5,6 +5,7 @@ import services.GeneralFailure
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.jdbc.withUniqueConstraint
+import utils.Slick.implicits._
 
 class OrderShippingAddressTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global

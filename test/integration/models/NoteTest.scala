@@ -3,6 +3,10 @@ package models
 import com.wix.accord.{Failure ⇒ ValidationFailure, Success ⇒ ValidationSuccess}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
+import utils.Slick.implicits._
+
+import services._
+import util.CustomMatchers._
 
 class NoteTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global
@@ -26,7 +30,7 @@ class NoteTest extends IntegrationTestBase {
         val result = note.validate
 
         result must be ('invalid)
-        result.messages.head must include ("body must not be empty")
+        invalidValue(result) must includeFailure("body must not be empty")
       }
 
       "fails when body is more than 1000 characters" in {
@@ -34,7 +38,7 @@ class NoteTest extends IntegrationTestBase {
         val result = note.validate
 
         result must be ('invalid)
-        result.messages.head must include ("expected 1000 or less")
+        invalidValue(result) must includeFailure("expected 1000 or less")
       }
     }
   }

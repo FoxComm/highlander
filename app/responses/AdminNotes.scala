@@ -5,6 +5,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import cats.data.Xor
 import models.{Note, Notes, Order, StoreAdmin}
 import slick.driver.PostgresDriver.api._
+import utils.Slick.implicits._
 
 object AdminNotes {
   final case class Root(id: Int, body: String, author: Author)

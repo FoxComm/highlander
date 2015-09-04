@@ -14,7 +14,7 @@ import payloads._
 import responses.{AllOrders, AllOrdersWithFailures, AdminNotes, FullOrder}
 import services._
 import slick.driver.PostgresDriver.api._
-import utils.RunOnDbIO
+import utils.Slick.implicits._
 
 object Admin {
   def routes(implicit ec: ExecutionContext, db: Database,
@@ -87,13 +87,21 @@ object Admin {
           (get & pathEnd) {
             complete { CustomerManager.creditCardsInWalletFor(customerId).map(render(_)) }
           } ~
-          (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultCreditCard])) { (cardId, payload) ⇒
+          (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultCreditCard]) & pathEnd) {
+            (cardId, payload) ⇒
+              complete {
+                val result = CustomerManager.toggleCreditCardDefault(customerId, cardId, payload.isDefault)
+                result.map(renderGoodOrFailures)
+              }
+          } ~
+          (post & entity(as[payloads.CreateCreditCard]) & pathEnd) { payload ⇒
             complete {
-              val result = CustomerManager.toggleCreditCardDefault(customerId, cardId, payload.isDefault)
-              result.map(renderGoodOrFailures)
+              whenFound(Customers.findById(customerId)) { customer ⇒
+                CreditCardManager.createCardThroughGateway(customer, payload)
+              }
             }
           } ~
-          (patch & path(IntNumber) & entity(as[payloads.EditCreditCard])) { (cardId, payload) ⇒
+          (patch & path(IntNumber) & entity(as[payloads.EditCreditCard]) & pathEnd) { (cardId, payload) ⇒
             complete {
               CustomerManager.editCreditCard(customerId, cardId, payload).map(renderNothingOrFailures)
             }
@@ -138,7 +146,7 @@ object Admin {
       pathPrefix("orders" / """([a-zA-Z0-9-_]*)""".r) { refNum ⇒
         (get & pathEnd) {
           complete {
-            whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
+            whenFound(Orders.findByRefNum(refNum).one.run()) { order ⇒
               FullOrder.fromOrder(order).map(Xor.right)
             }
           }
@@ -166,7 +174,7 @@ object Admin {
         } ~
         (post & path("unlock") & pathEnd) {
           complete {
-            whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
+            whenFound(Orders.findByRefNum(refNum).one.run()) { order ⇒
               OrderUpdater.unlock(order)
             }
           }
@@ -249,14 +257,14 @@ object Admin {
           } ~
           (patch & entity(as[payloads.UpdateShippingAddress]) & pathEnd) { payload ⇒
             complete {
-              whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
+              whenFound(Orders.findByRefNum(refNum).one.run()) { order ⇒
                 services.OrderUpdater.updateShippingAddress(order, payload)
               }
             }
           } ~
           (delete & pathEnd) {
             complete {
-              Orders.findByRefNum(refNum).result.headOption.run().flatMap {
+              Orders.findByRefNum(refNum).one.run().flatMap {
                 case Some(order) ⇒
                   services.OrderUpdater.removeShippingAddress(order.id).map { _ ⇒ noContentResponse }
                 case None ⇒

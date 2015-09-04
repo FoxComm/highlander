@@ -4,7 +4,7 @@ import models._
 
 import util.IntegrationTestBase
 import utils.Seeds.Factories
-import utils._
+import utils.Slick.implicits._
 
 class OrderUpdaterTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global

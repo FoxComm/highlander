@@ -5,12 +5,18 @@ import scala.concurrent.{ExecutionContext, Future}
 import com.stripe.model.{Customer ⇒ StripeCustomer}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
+import utils.{TableQueryWithId, GenericTable, ModelWithIdParameter}
 import utils.Money._
-import utils._
+import utils.Slick.implicits._
 
 final case class OrderPayment(id: Int = 0, orderId: Int = 0, amount: Option[Int] = None,
   currency: Currency = Currency.USD, paymentMethodId: Int, paymentMethodType: PaymentMethod.Type)
-  extends ModelWithIdParameter
+  extends ModelWithIdParameter {
+
+  def isCreditCard:   Boolean = paymentMethodType == PaymentMethod.CreditCard
+  def isGiftCard:     Boolean = paymentMethodType == PaymentMethod.GiftCard
+  def isStoreCredit:  Boolean = paymentMethodType == PaymentMethod.StoreCredit
+}
 
 object OrderPayment {
   def fromStripeCustomer(stripeCustomer: StripeCustomer, order: Order): OrderPayment =
@@ -24,6 +30,7 @@ object OrderPayment {
     case sc: StoreCredit ⇒
       OrderPayment(paymentMethodId = sc.id, paymentMethodType = PaymentMethod.StoreCredit)
   }
+
 }
 
 class OrderPayments(tag: Tag)
@@ -45,12 +52,14 @@ object OrderPayments extends TableQueryWithId[OrderPayment, OrderPayments](
   idLens = GenLens[OrderPayment](_.id)
 )(new OrderPayments(_)){
 
+  type QuerySeq = Query[OrderPayments, OrderPayment, Seq]
+
   import models.{PaymentMethod ⇒ Pay}
 
   def update(payment: OrderPayment)(implicit db: Database): Future[Int] =
     this._findById(payment.id).update(payment).run()
 
-  def findAllByOrderId(id: Int): Query[OrderPayments, OrderPayment, Seq] =
+  def findAllByOrderId(id: Int): QuerySeq =
     filter(_.orderId === id)
 
   def findAllPaymentsFor(order: Order)
@@ -58,7 +67,7 @@ object OrderPayments extends TableQueryWithId[OrderPayment, OrderPayments](
     db.run(this._findAllPaymentsFor(order.id).result)
   }
 
-  def findAllStoreCredit: Query[OrderPayments, OrderPayment, Seq] =
+  def findAllStoreCredit: QuerySeq =
     filter(_.paymentMethodType === (Pay.StoreCredit: Pay.Type))
 
   def _findAllPaymentsFor(orderId: Int): Query[(OrderPayments, CreditCards), (OrderPayment, CreditCard), Seq] = {
@@ -68,15 +77,16 @@ object OrderPayments extends TableQueryWithId[OrderPayment, OrderPayments](
     } yield (payments, cards)
   }
 
-  def findAllCreditCardsForOrder(orderId: Rep[Int]): Query[OrderPayments, OrderPayment, Seq] =
+  def findAllCreditCardsForOrder(orderId: Rep[Int]): QuerySeq =
     filter(_.orderId === orderId).filter(_.paymentMethodType === (Pay.CreditCard: Pay.Type))
 
-  def byType(pmt: Pay.Type): Query[OrderPayments, OrderPayment, Seq] =
-    filter(_.paymentMethodType === (pmt: Pay.Type))
+  object scope {
+    implicit class OrderPaymentsQuerySeqConversions(q: QuerySeq) {
+      def giftCards:    QuerySeq = q.byType(Pay.GiftCard)
+      def creditCards:  QuerySeq = q.byType(Pay.CreditCard)
+      def storeCredits: QuerySeq = q.byType(Pay.StoreCredit)
 
-  def giftCards: Query[OrderPayments, OrderPayment, Seq]    = byType(Pay.GiftCard)
-
-  def creditCards: Query[OrderPayments, OrderPayment, Seq]  = byType(Pay.CreditCard)
-
-  def storeCredits: Query[OrderPayments, OrderPayment, Seq] = byType(Pay.StoreCredit)
+      def byType(pmt: Pay.Type): QuerySeq = filter(_.paymentMethodType === (pmt: Pay.Type))
+    }
+  }
 }

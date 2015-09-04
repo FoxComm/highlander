@@ -1,26 +1,36 @@
 import akka.http.scaladsl.model.StatusCodes
+import akka.pattern.ask
+import akka.testkit.TestActorRef
+
+import models.Order._
 import models._
-import org.joda.time.DateTime
-import org.scalatest.time.{Milliseconds, Seconds, Span}
-import payloads.{UpdateOrderPayload, CreateAddressPayload, CreateCreditCard}
+import org.joda.time.Minutes.minutesBetween
+import org.joda.time.{Minutes, DateTime}
+import org.joda.time.Seconds.secondsBetween
+import payloads.UpdateOrderPayload
 import responses.{AdminNotes, FullOrder}
-import services.{NotFoundFailure, GeneralFailure, Failures, NoteManager}
-import services.OrderUpdater.NewRemorsePeriod
-import slick.driver.PostgresDriver.api._
-import util.{IntegrationTestBase, StripeSupport}
+import services.OrderUpdater.NewRemorsePeriodEnd
+import services.{NotFoundFailure, NoteManager}
+import util.IntegrationTestBase
 import utils.Seeds.Factories
+import utils.Slick.implicits._
 import slick.driver.PostgresDriver.api._
 import Order._
+import utils.{RemorseTimer, Tick}
+import models.OrderLockEvents.scope._
 
 class OrderIntegrationTest extends IntegrationTestBase
   with HttpSupport
   with AutomaticAuth {
 
   import concurrent.ExecutionContext.Implicits.global
-  import org.json4s.jackson.JsonMethods._
+
   import Extensions._
+  import org.json4s.jackson.JsonMethods._
 
   type Errors = Map[String, Seq[String]]
+
+  def getUpdated(refNum: String) = db.run(Orders.findByRefNum(refNum).result.headOption).futureValue.get
 
   "returns new items" in {
     pending
@@ -99,8 +109,8 @@ class OrderIntegrationTest extends IntegrationTestBase
       val order = Orders.save(Factories.order.copy(status = Order.RemorseHold)).run().futureValue
       val response = POST(s"v1/orders/${order.referenceNumber}/increase-remorse-period")
 
-      val result = parse(response.bodyText).extract[NewRemorsePeriod]
-      result.remorsePeriod must === (order.remorsePeriodInMinutes + 15)
+      val result = parse(response.bodyText).extract[NewRemorsePeriodEnd]
+      result.remorsePeriodEnd must ===(order.remorsePeriodEnd.map(_.plusMinutes(15)))
     }
 
     "increases remorse period only when in RemorseHold status" in {
@@ -108,8 +118,8 @@ class OrderIntegrationTest extends IntegrationTestBase
       val response = POST(s"v1/orders/${order.referenceNumber}/increase-remorse-period")
       response.status must === (StatusCodes.BadRequest)
 
-      val newOrder = Orders._findById(order.id).extract.result.headOption.run().futureValue.get
-      newOrder.remorsePeriodInMinutes must === (order.remorsePeriodInMinutes)
+      val newOrder = Orders._findById(order.id).extract.one.run().futureValue.get
+      newOrder.remorsePeriodEnd must ===(order.remorsePeriodEnd)
     }
 
     "locks an order" in {
@@ -138,7 +148,11 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
 
     "unlocks an order" in {
-      val order = Orders.save(Factories.order.copy(locked = true)).run().futureValue
+      StoreAdmins.save(Factories.storeAdmin).run().futureValue
+      val order = Orders.save(Factories.order).run().futureValue
+
+      POST(s"v1/orders/${order.referenceNumber}/lock")
+
       val response = POST(s"v1/orders/${order.referenceNumber}/unlock")
       response.status must === (StatusCodes.OK)
 
@@ -153,6 +167,48 @@ class OrderIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.BadRequest)
       val errors = parse(response.bodyText).extract[Errors]
       errors.head must === ("errors" → Seq("Order is not locked"))
+    }
+
+    "adjusts remorse period when order is unlocked" in new RemorseFixture {
+      val timer = TestActorRef(new RemorseTimer())
+
+      POST(s"v1/orders/$refNum/lock")
+
+      (timer ? Tick).futureValue // Nothing should happen
+      val order1 = getUpdated(refNum)
+      order1.remorsePeriodEnd must ===(order.remorsePeriodEnd)
+      order1.status must ===(Order.RemorseHold)
+
+      Thread.sleep(3000)
+
+      POST(s"v1/orders/$refNum/unlock")
+
+      (timer ? Tick).futureValue
+
+      val order2 = getUpdated(refNum)
+      val newRemorseEnd = order2.remorsePeriodEnd.get
+
+      secondsBetween(originalRemorseEnd, newRemorseEnd).getSeconds mustBe >=(3)
+      order2.status must ===(Order.RemorseHold)
+    }
+
+    "use most recent lock record" in new RemorseFixture {
+      OrderLockEvents.save(OrderLockEvent(id = 1, lockedBy = 1, orderId = 1, lockedAt = DateTime.now.minusMinutes(30)))
+
+      POST(s"v1/orders/$refNum/lock")
+      POST(s"v1/orders/$refNum/unlock")
+
+      val newRemorseEnd = getUpdated(order.referenceNumber).remorsePeriodEnd.get
+      minutesBetween(originalRemorseEnd, newRemorseEnd).getMinutes mustBe 0
+    }
+
+    "adds 15 minutes if order lock event is absent" in new RemorseFixture {
+      POST(s"v1/orders/$refNum/lock")
+      db.run(OrderLockEvents.deleteById(1)).futureValue
+      // Sanity check
+      OrderLockEvents.findByOrder(order).mostRecentLock.result.headOption.run().futureValue must ===(None)
+      POST(s"v1/orders/$refNum/unlock")
+      getUpdated(refNum).remorsePeriodEnd.get must ===(originalRemorseEnd.plusMinutes(15))
     }
   }
 
@@ -506,7 +562,18 @@ class OrderIntegrationTest extends IntegrationTestBase
       sku ← Skus.save(Sku(name = Some("Donkey"), price = 27))
       lineItems ← OrderLineItems.save(OrderLineItem(orderId = order.id, skuId = sku.id))
     } yield (address, orderShippingAddress)).run().futureValue
+  }
 
+  trait RemorseFixture {
+    val (admin, order) = (for {
+      admin ← StoreAdmins.save(Factories.storeAdmin)
+      order ← Orders.save(Factories.order.copy(
+        status = Order.RemorseHold,
+        remorsePeriodEnd = Some(DateTime.now.plusMinutes(30))))
+    } yield (admin, order)).run().futureValue
+
+    val refNum = order.referenceNumber
+    val originalRemorseEnd = order.remorsePeriodEnd.get
   }
 }
 

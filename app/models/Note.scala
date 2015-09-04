@@ -1,21 +1,33 @@
 package models
 
+import cats.data.ValidatedNel
+import cats.implicits._
+import services.Failure
+import utils.Litterbox._
+import utils.Validation
+
 import scala.concurrent.{ExecutionContext, Future}
 
 import com.pellucid.sealerate
 import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import com.wix.accord.{Failure ⇒ ValidationFailure}
 import monocle.macros.GenLens
+import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
+import slick.jdbc.JdbcType
 import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
+import utils.Slick.implicits._
 
 final case class Note(id: Int = 0, storeAdminId: Int, referenceId: Int, referenceType: Note.ReferenceType, body: String)
   extends ModelWithIdParameter
   with Validation[Note] {
 
-  override def validator = createValidator[Note] { note =>
-    note.body is notEmpty
-    note.body have size <= 1000
+  import Validation._
+
+  def validate: ValidatedNel[Failure, Note] = {
+    ( notEmpty(body, "body")
+      |@| lesserThanOrEqual(body.length, 1000, "bodySize")
+      ).map { case _ ⇒ this }
   }
 }
 
@@ -27,7 +39,7 @@ object Note {
     def types = sealerate.values[ReferenceType]
   }
 
-  implicit val noteColumnType = ReferenceType.slickColumn
+  implicit val noteColumnType: JdbcType[ReferenceType] with BaseTypedType[ReferenceType] = ReferenceType.slickColumn
 }
 
 class Notes(tag: Tag) extends GenericTable.TableWithId[Note](tag, "notes")  {

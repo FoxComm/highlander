@@ -1,23 +1,26 @@
 package payloads
 
-import utils.Validation
-
-import com.wix.accord.dsl.{validator => createValidator}
-import com.wix.accord.{Failure => ValidationFailure, Validator}
-import com.wix.accord.dsl._
+import cats.data.ValidatedNel
+import cats.implicits._
+import services.Failure
+import utils.Litterbox._
+import utils._
 
 final case class CreateCreditCard(holderName: String, number: String, cvv: String, expYear: Int,
-  expMonth: Int, address: Option[CreateAddressPayload] = None, isDefault: Boolean = false)
-  extends Validation[CreateCreditCard] {
+  expMonth: Int, address: Option[CreateAddressPayload] = None, addressId: Option[Int] = None,
+  isDefault: Boolean = false) {
 
-  override def validator = createValidator[CreateCreditCard] { cc =>
-    cc.holderName is notEmpty
-    cc.number should matchRegex("[0-9]+")
-    cc.cvv should matchRegex("[0-9]{3,4}")
-    cc.expYear is between(2015, 2050)
-    cc.expMonth is between(1, 12)
-    // TODO: this is why we'd use implicit validators
-    // cc.address.map { a => a is valid }
+  def validate: ValidatedNel[Failure, CreateCreditCard] = {
+    def someAddress: ValidatedNel[Failure, _] =
+      Validation.validExpr(address.isDefined || addressId.isDefined, "address or addressId must be defined")
+
+    ( Validation.notEmpty(holderName, "holderName")
+      |@| Validation.matches(number, "[0-9]+", "bodySize")
+      |@| Validation.matches(cvv, "[0-9]{3,4}", "cvv")
+      |@| Validation.between(expYear, 2015, 2050, "Expiration year should be between 2015 and 2050")
+      |@| Validation.between(expMonth, 1, 12, "Expiration month should be between 1 and 12")
+      |@| someAddress
+      ).map { case _ ⇒ this }
   }
 
   def lastFour: String = this.number.takeRight(4)

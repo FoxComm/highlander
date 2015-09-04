@@ -29,27 +29,19 @@ final case class StripeFailure(exception: StripeException) extends Failure {
   override def description = List(exception.getMessage)
 }
 
-final case object StripeCouldNotCreateCard extends Failure {
+case object StripeCouldNotCreateCard extends Failure {
   override def description = List("could not create card in stripe")
-}
-
-final case class ValidationFailure(violation: Validation.Result.Failure) extends Failure {
-  override def description = violation.messages.map(_.toString)
-}
-
-final case class ValidationFailureNew(messages: NonEmptyList[String]) extends Failure {
-  override def description = messages.foldLeft(List.empty[String]) { case (list, err) ⇒ err :: list }
 }
 
 final case class GeneralFailure(a: String) extends Failure {
   override def description = List(a)
 }
 
-final case object CustomerHasDefaultShippingAddress extends Failure {
+case object CustomerHasDefaultShippingAddress extends Failure {
   override def description = List("customer already has default shipping address")
 }
 
-final case object CustomerHasDefaultCreditCard extends Failure {
+case object CustomerHasDefaultCreditCard extends Failure {
   override def description = List("customer already has default credit card")
 }
 
@@ -94,4 +86,8 @@ final case class CustomerHasInsufficientStoreCredit(id: Int, has: Int, want: Int
 
 final case class OrderShippingMethodsCannotBeProcessed(referenceNumber: String) extends Failure {
   override def description = List(s"Shipping methods for order ${referenceNumber} cannot be processed")
+}
+
+case object CreditCardMustHaveAddress extends Failure {
+  override def description = List("cannot create creditCard without an address")
 }

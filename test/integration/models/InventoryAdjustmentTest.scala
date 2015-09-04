@@ -2,7 +2,7 @@ package models
 
 import slick.driver.PostgresDriver
 import util.IntegrationTestBase
-import utils._
+import utils.Slick.implicits._
 
 class InventoryAdjustmentTest extends IntegrationTestBase {
   import api._

@@ -2,20 +2,30 @@ package models
 
 import scala.concurrent.{ExecutionContext, Future}
 
-import com.wix.accord.dsl.{validator ⇒ createValidator, _}
+import cats.data.ValidatedNel
+import cats.implicits._
+import services.Failure
+import utils.Litterbox._
+import utils.Validation
+import utils.Slick.implicits._
+
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
+import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 final case class StoreAdmin(id: Int = 0, email: String, password: String,
                       firstName: String, lastName: String,
                       department: Option[String] = None)
   extends ModelWithIdParameter
   with Validation[StoreAdmin] {
-  override def validator = createValidator[StoreAdmin] { user =>
-    user.firstName is notEmpty
-    user.lastName is notEmpty
-    user.email is notEmpty
+
+  import Validation._
+
+  def validate: ValidatedNel[Failure, StoreAdmin] = {
+    ( notEmpty(firstName, "firstName")
+      |@| notEmpty(lastName, "lastName")
+      |@| notEmpty(email, "email")
+      ).map { case _ ⇒ this }
   }
 }
 
@@ -35,11 +45,11 @@ object StoreAdmins extends TableQueryWithId[StoreAdmin, StoreAdmins](
 )(new StoreAdmins(_)){
 
   def findByEmail(email: String)(implicit ec: ExecutionContext, db: Database): Future[Option[StoreAdmin]] = {
-    db.run(filter(_.email === email).result.headOption)
+    db.run(filter(_.email === email).one)
   }
 
   def findById(id: Int)(implicit db: Database): Future[Option[StoreAdmin]] = {
-    db.run(_findById(id).result.headOption)
+    db.run(_findById(id).extract.one)
   }
 
   def _findById(id: Rep[Int]) = { filter(_.id === id) }

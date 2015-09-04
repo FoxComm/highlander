@@ -1,10 +1,10 @@
 package models
 
 import com.pellucid.sealerate
-import com.stripe.model.{Customer ⇒ StripeCustomer}
-import com.wix.accord.dsl.{validator ⇒ createValidator}
 import monocle.macros.GenLens
+import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
+import slick.jdbc.JdbcType
 import utils._
 
 final case class CreditCardCharge(id: Int = 0, creditCardId: Int, orderPaymentId: Int,
@@ -36,7 +36,7 @@ object CreditCardCharge {
     def types = sealerate.values[Status]
   }
 
-  implicit val statusColumnType = Status.slickColumn
+  implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
 }
 
 class CreditCardCharges(tag: Tag)

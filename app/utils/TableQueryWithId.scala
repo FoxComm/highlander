@@ -4,6 +4,7 @@ import scala.concurrent.ExecutionContext
 
 import cats.data.ValidatedNel
 import monocle.Lens
+import services._
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import utils.Strings._
@@ -16,7 +17,7 @@ trait NewModel extends Model {
   // override me in ModelWithIdParameter with isNew = id == 0
   def isNew: Boolean
 
-  def validateNew: ValidatedNel[String, Model]
+  def validate: ValidatedNel[Failure, Model]
 }
 
 trait ModelWithIdParameter extends Model {

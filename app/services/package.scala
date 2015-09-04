@@ -24,12 +24,13 @@ package object services {
     def good[A](value: A):  Result[A] = Future.successful(Xor.right(value))
     def right[A](value: A): Result[A] = good(value)
     def left[A](failure: Failure): Result[A] = failures(failure)
+    def left[A](fs: Failures): Result[A] = failures(fs: _*)
 
     def failures(failures: Failure*): Result[Nothing] =
       Future.successful(Xor.left(Failures(failures: _*)))
 
-    def failures(theFailures: Failures): Result[Nothing] =
-      failures(theFailures: _*)
+    def failures(fs: Failures): Result[Nothing] =
+      failures(fs: _*)
 
     def failure(failure: Failure): Result[Nothing] =
       failures(failure)

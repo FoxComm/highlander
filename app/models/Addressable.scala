@@ -1,13 +1,17 @@
 package models
 
-import cats.data.Validated.valid
 import cats.data.ValidatedNel
-import monocle.Lens
-import utils.Validation.{matches ⇒ matchesNew, notEmpty ⇒ notEmptyNew}
+import services.Failure
 import utils.Litterbox._
+import utils.Validation
+
+import cats.data.Validated.valid
+import monocle.Lens
 import cats.syntax.apply._
 
 trait Addressable[M] {
+  import Validation._
+
   def city: String
   def name: String
   def phoneNumber: Option[String]
@@ -28,28 +32,28 @@ trait Addressable[M] {
     }
   }
 
-  def validateNew: ValidatedNel[String, M] = {
+  def validate: ValidatedNel[Failure, M] = {
     val isUsAddress = Country.usRegions.contains(regionId)
 
-    val phone: ValidatedNel[String, Unit] = (isUsAddress, phoneNumber) match {
+    val phone: ValidatedNel[Failure, Unit] = (isUsAddress, phoneNumber) match {
       case (true, Some(number)) ⇒
-        matchesNew(number, "[0-9]{10}", "phoneNumber")
+        matches(number, "[0-9]{10}", "phoneNumber")
       case (false, Some(number)) ⇒
-        matchesNew(number, "[0-9]{0,15}", "phoneNumber")
+        matches(number, "[0-9]{0,15}", "phoneNumber")
       case (_, None) ⇒
         valid({})
     }
 
-    val zipValidation: ValidatedNel[String, Unit] = (isUsAddress, zip) match {
+    val zipValidation: ValidatedNel[Failure, Unit] = (isUsAddress, zip) match {
       case (true, zipValue) ⇒
-        matchesNew(zipValue, Address.zipPatternUs, "zip")
+        matches(zipValue, Address.zipPatternUs, "zip")
       case (false, zipValue) ⇒
-        matchesNew(zipValue, Address.zipPattern, "zip")
+        matches(zipValue, Address.zipPattern, "zip")
     }
 
-    ( notEmptyNew(name, "name")
-      |@| notEmptyNew(street1, "street1")
-      |@| notEmptyNew(city, "city")
+    ( notEmpty(name, "name")
+      |@| notEmpty(street1, "street1")
+      |@| notEmpty(city, "city")
       |@| zipValidation
       |@| phone
       ).map { case _ ⇒ instance }

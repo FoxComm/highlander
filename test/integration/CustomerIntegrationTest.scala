@@ -1,23 +1,21 @@
 import akka.http.scaladsl.model.StatusCodes
-import akka.stream.Materializer
-import models._
-import org.scalatest.matchers.{MatchResult, Matcher}
-import org.scalatest.prop.TableDrivenPropertyChecks._
-import services.{CannotUseInactiveCreditCard, Failure, NotFoundFailure, CustomerManager}
+
+import models.{Orders, Customer, CreditCards, CreditCard, Customers, Addresses, StoreAdmins, OrderPayments}
+import models.OrderPayments.scope._
+import services.{CannotUseInactiveCreditCard, CustomerManager, NotFoundFailure}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
-
-import akka.http.scaladsl.model.{HttpResponse}
+import utils.Slick.implicits._
 
 class CustomerIntegrationTest extends IntegrationTestBase
   with HttpSupport
   with AutomaticAuth {
 
-  import slick.driver.PostgresDriver.api._
-  import utils._
   import concurrent.ExecutionContext.Implicits.global
-  import org.json4s.jackson.JsonMethods._
+
   import Extensions._
+  import org.json4s.jackson.JsonMethods._
+  import slick.driver.PostgresDriver.api._
 
   "admin APIs" - {
     "shows a customer" in new Fixture {
@@ -72,10 +70,10 @@ class CustomerIntegrationTest extends IntegrationTestBase
       }
 
       "fails to set the credit card as default if a default currently exists" in new Fixture {
-        val default = CreditCards.save(Factories.creditCard.copy(isDefault = true, customerId = customer.id,
-          billingAddressId = address.id)).run().futureValue
-        val nonDefault = CreditCards.save(Factories.creditCard.copy(isDefault = false, customerId = customer.id,
-          billingAddressId = address.id)).run().futureValue
+        val default = CreditCards.save(Factories.creditCard.copy(isDefault = true, customerId = customer.id))
+          .run().futureValue
+        val nonDefault = CreditCards.save(Factories.creditCard.copy(isDefault = false, customerId = customer.id))
+          .run().futureValue
 
         val payload = payloads.ToggleDefaultCreditCard(isDefault = true)
         val response = POST(
@@ -100,16 +98,40 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
       "when editing a credit card" - {
         /* TODO: enable me when we've introduced Stripe mocking */
-        "succeeds" ignore new CreditCardFixture {
-          val payload = payloads.EditCreditCard(holderName = Some("Bob"))
-          val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
-          val inactive = CreditCards.findById(creditCard.id).run().futureValue.get
-          val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).result.run().futureValue.toList
+        "when successful" - {
+          "removes the original card from wallet" ignore new CreditCardFixture {
+            val payload = payloads.EditCreditCard(holderName = Some("Bob"))
+            val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
+            val inactive = CreditCards.findById(creditCard.id).run().futureValue.get
 
-          response.status must ===(StatusCodes.NoContent)
-          inactive.inWallet mustBe false
-          newVersion.inWallet mustBe true
-          newVersion.isDefault must ===(inactive.isDefault)
+            response.status must ===(StatusCodes.NoContent)
+            inactive.inWallet mustBe false
+          }
+
+          "creates a new version of the edited card in the wallet" ignore new CreditCardFixture {
+            val payload = payloads.EditCreditCard(holderName = Some("Bob"))
+            val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
+            val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).result.run().futureValue.toList
+
+            response.status must ===(StatusCodes.NoContent)
+            newVersion.inWallet mustBe true
+            newVersion.isDefault must ===(creditCard.isDefault)
+          }
+
+          "updates the customer's cart to use the new version" ignore new CreditCardFixture {
+            val order = Orders.save(Factories.cart.copy(customerId = customer.id)).run().futureValue
+            services.OrderPaymentUpdater.addCreditCard(order.refNum, creditCard.id).futureValue
+
+            val payload = payloads.EditCreditCard(holderName = Some("Bob"))
+            val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
+            val (pmt :: Nil) = OrderPayments.filter(_.orderId === order.id).creditCards.result.run().futureValue.toList
+            val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).result.run().futureValue.toList
+
+            response.status must ===(StatusCodes.NoContent)
+            pmt.amount mustBe 'empty
+            pmt.isCreditCard mustBe true
+            pmt.paymentMethodId must ===(newVersion.id)
+          }
         }
 
         "fails if the card cannot be found" in new CreditCardFixture {
@@ -150,8 +172,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
   }
 
   trait CreditCardFixture extends Fixture {
-    val creditCard = CreditCards.save(Factories.creditCard.copy(customerId = customer.id,
-      billingAddressId = address.id)).run().futureValue
+    val creditCard = CreditCards.save(Factories.creditCard.copy(customerId = customer.id)).run().futureValue
   }
 }
 

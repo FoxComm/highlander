@@ -2,31 +2,40 @@ package models
 
 import scala.concurrent.ExecutionContext
 
+import cats.data.ValidatedNel
+import cats.implicits._
+import services.Failure
+import utils.Litterbox._
+import utils.Validation
+
 import com.pellucid.sealerate
 import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import models.GiftCard.{OnHold, Status}
 import monocle.macros.GenLens
 import services.Result
+import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
+import slick.jdbc.JdbcType
 import utils.Money._
 import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
-import validators.nonEmptyIf
 
 final case class GiftCard(id: Int = 0, originId: Int, originType: String, code: String,
   currency: Currency, status: Status = OnHold, originalBalance: Int, currentBalance: Int = 0,
   availableBalance: Int = 0, canceledReason: Option[String] = None, reloadable: Boolean = false)
   extends PaymentMethod
   with ModelWithIdParameter
-  with Validation[GiftCard]
-  with FSM[GiftCard.Status, GiftCard] {
+  with FSM[GiftCard.Status, GiftCard]
+  with Validation[GiftCard] {
 
   import GiftCard._
+  import Validation._
 
-  override def validator = createValidator[GiftCard] { giftCard =>
-    giftCard.status as "canceledReason" is nonEmptyIf(giftCard.status == Canceled, giftCard.canceledReason)
-    giftCard.originalBalance should be >= 0
-    giftCard.currentBalance should be >= 0
-    giftCard.code is notEmpty
+  def validate: ValidatedNel[Failure, GiftCard] = {
+    ( notEmpty(code, "code")
+      |@| notEmptyIf(canceledReason, status == Canceled, "canceledReason")
+      |@| validExpr(originalBalance >= 0, "originalBalance should be greater or equal than zero")
+      |@| validExpr(currentBalance >= 0, "currentBalance should be greater or equal than zero")
+      ).map { case _ ⇒ this }
   }
 
   def stateLens = GenLens[GiftCard](_.status)
@@ -56,7 +65,7 @@ object GiftCard {
 
   val activeStatuses = Set[Status](Active)
 
-  implicit val statusColumnType = Status.slickColumn
+  implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
 }
 
 class GiftCards(tag: Tag) extends GenericTable.TableWithId[GiftCard](tag, "gift_cards")  {

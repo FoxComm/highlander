@@ -9,7 +9,8 @@ import org.joda.time.DateTime
 import org.postgresql.ds.PGSimpleDataSource
 import slick.dbio
 import slick.dbio.Effect.{All, Write}
-import utils.ExPostgresDriver.api._
+import slick.driver.PostgresDriver
+import slick.driver.PostgresDriver.api._
 import utils.Money.Currency
 
 object Seeds {
@@ -53,13 +54,15 @@ object Seeds {
       paymentMethods = AllPaymentMethods(giftCard = Factories.giftCard, storeCredit = Factories.storeCredit)
     )
 
-    val failures = (s.customers.map { _.validate } ++ List(s.storeAdmin.validate, s.order.validate,
-      s.cc.validate)).filterNot(_.isValid)
+    s.address.validate.fold(err ⇒ throw new Exception(err.mkString("\n")), _ ⇒ {})
+    s.storeAdmin.validate.fold(err ⇒ throw new Exception(err.mkString("\n")), _ ⇒ {})
+    s.order.validate.fold(err ⇒ throw new Exception(err.mkString("\n")), _ ⇒ {})
+    s.cc.validate.fold(err ⇒ throw new Exception(err.mkString("\n")), _ ⇒ {})
 
-    s.address.validateNew.fold(err ⇒ throw new Exception(err.mkString("\n")), _ ⇒ {})
+    val failures = s.customers.map { _.validate }.filterNot(_.isValid)
 
     if (failures.nonEmpty)
-      throw new Exception(failures.map(_.messages).mkString("\n"))
+      throw new Exception(failures.map(_.mkString("\n")).mkString("\n"))
 
     for {
       customer ← (Customers.returningId += Factories.customer).map(id => Factories.customer.copy(id = id))
@@ -72,8 +75,8 @@ object Seeds {
       address ← Addresses.save(s.address.copy(customerId = customer.id))
       shippingAddress ← OrderShippingAddresses.save(Factories.shippingAddress.copy(orderId = order.id))
       shippingMethods ← ShippingMethods ++= s.shippingMethods
-      creditCard ← CreditCards.save(s.cc.copy(customerId = customer.id, billingAddressId = address.id))
-      orderPayments ← OrderPayments.save(Factories.orderPayment.copy(orderId = order.id, paymentMethodId = creditCard.id))
+      creditCard ← CreditCards.save(s.cc.copy(customerId = customer.id))
+      orderPayments ← OrderPayments.save(Factories.orderPayment.copy(orderId = order.id,paymentMethodId = creditCard.id))
       shippingPriceRule ← ShippingPriceRules ++= s.shippingPriceRules
       shippingMethodRuleMappings ← ShippingMethodsPriceRules ++= s.shippingMethodRuleMappings
       orderCriterion ← OrderCriteria ++= s.orderCriteria
@@ -137,12 +140,11 @@ object Seeds {
     def shippingAddress = OrderShippingAddress(regionId = 4174, name = "Old Yax", street1 = "9313 Olde Mill Pond Dr",
       street2 = None, city = "Glen Allen", zip = "23060", phoneNumber = None)
 
-    def billingAddress = OrderBillingAddress(regionId = 4129, name = "Old Jeff", street1 = "95 W. 5th Ave.",
-      street2 = Some("Apt. 437"), city = "San Mateo", zip = "94402")
-
     def creditCard =
       CreditCard(customerId = 0, gatewayCustomerId = "", gatewayCardId = "", holderName = "Yax", lastFour = "4242",
-        expMonth = today.getMonthOfYear, expYear = today.getYear + 2, isDefault = true)
+        expMonth = today.getMonthOfYear, expYear = today.getYear + 2, isDefault = true,
+        regionId = 4129, addressName = "Old Jeff", street1 = "95 W. 5th Ave.", street2 = Some("Apt. 437"),
+        city = "San Mateo", zip = "94402")
 
     def reason = Reason(id = 0, storeAdminId = 0, body = "I'm a reason", parentId = None)
 
@@ -211,7 +213,7 @@ object Seeds {
     val config: com.typesafe.config.Config = utils.Config.loadWithEnv()
     flyWayMigrate(config)
     Console.err.println(s"Inserting seeds")
-    implicit val db = Database.forConfig("db", config)
+    implicit val db: PostgresDriver.backend.DatabaseDef = Database.forConfig("db", config)
     Await.result(db.run(run()), 5.second)
   }
 

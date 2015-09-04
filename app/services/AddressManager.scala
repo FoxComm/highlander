@@ -13,7 +13,7 @@ object AddressManager {
   def create(payload: CreateAddressPayload, customerId: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
     val address = Address.fromPayload(payload).copy(customerId = customerId)
-    address.validateNew match {
+    address.validate match {
       case Valid(_) ⇒
         db.run(for {
           newAddress ← Addresses.save(address)
@@ -22,14 +22,14 @@ object AddressManager {
           case (address, Some(region))  ⇒ Result.good(Response.build(address, region))
           case (_, None)                ⇒ Result.failure(NotFoundFailure(Region, address.regionId))
         }
-      case Invalid(errors) ⇒ Result.failure(ValidationFailureNew(errors))
+      case Invalid(errors) ⇒ Result.failure(errors.head)
     }
   }
 
   def edit(addressId: Int, customerId: Int, payload: CreateAddressPayload)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
     val address = Address.fromPayload(payload).copy(customerId = customerId, id = addressId)
-    address.validateNew match {
+    address.validate match {
       case Valid(_) ⇒
         db.run((for {
           rowsAffected ← Addresses.insertOrUpdate(address)
@@ -39,7 +39,7 @@ object AddressManager {
           case (_, address, Some(region)) ⇒ Result.failure(NotFoundFailure(address))
           case (_, _, None)               ⇒ Result.failure(NotFoundFailure(Region, address.regionId))
         }
-      case Invalid(errors) ⇒ Result.failure(ValidationFailureNew(errors))
+      case Invalid(errors) ⇒ Result.failure(errors.head)
     }
   }
 

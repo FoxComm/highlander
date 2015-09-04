@@ -52,10 +52,10 @@ class ShippingManagerTest extends IntegrationTestBase {
     "Evaluates rule: order total is between $10 and $100, and is shipped to WA, CA, or OR" - {
 
       "Is true when the order total is $27 and shipped to CA" in new StateAndPriceCondition {
-        val (address, orderShippingAddress) = (for {
+        val (address, orderShippingAddress) = db.run(for {
           address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = washingtonId))
           orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
-        } yield (address, orderShippingAddress)).run().futureValue
+        } yield (address, orderShippingAddress)).futureValue
 
         val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).futureValue
         matchingMethods.isRight must === (true)
@@ -63,10 +63,10 @@ class ShippingManagerTest extends IntegrationTestBase {
       }
 
       "Is false when the order total is $27 and shipped to MI" in new StateAndPriceCondition {
-        val (address, orderShippingAddress) = (for {
+        val (address, orderShippingAddress) = db.run(for {
           address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = michiganId))
           orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
-        } yield (address, orderShippingAddress)).run().futureValue
+        } yield (address, orderShippingAddress)).futureValue
 
         val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).futureValue
         matchingMethods.isRight must === (true)
@@ -78,10 +78,10 @@ class ShippingManagerTest extends IntegrationTestBase {
     "Evaluates rule: order total is greater than $10 and is not shipped to a P.O. Box" - {
 
       "Is true when the order total is greater than $10 and no address field contains a P.O. Box" in new POCondition {
-        val (address, orderShippingAddress) = (for {
+        val (address, orderShippingAddress) = db.run(for {
           address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = washingtonId))
           orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
-        } yield (address, orderShippingAddress)).run().futureValue
+        } yield (address, orderShippingAddress)).futureValue
 
         val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).futureValue
         matchingMethods.isRight must === (true)
@@ -89,11 +89,11 @@ class ShippingManagerTest extends IntegrationTestBase {
       }
 
       "Is false when the order total is greater than $10 and street1 contains a P.O. Box" in new POCondition {
-        val (address, orderShippingAddress) = (for {
+        val (address, orderShippingAddress) = db.run(for {
           address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = washingtonId,
             street1 = "P.O. Box 1234"))
           orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
-        } yield (address, orderShippingAddress)).run().futureValue
+        } yield (address, orderShippingAddress)).futureValue
 
         val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).futureValue
         matchingMethods.isRight must === (true)
@@ -101,11 +101,11 @@ class ShippingManagerTest extends IntegrationTestBase {
       }
 
       "Is false when the order total is greater than $10 and street2 contains a P.O. Box" in new POCondition {
-        val (address, orderShippingAddress) = (for {
+        val (address, orderShippingAddress) = db.run(for {
           address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = washingtonId,
             street2 = Some("P.O. Box 1234")))
           orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
-        } yield (address, orderShippingAddress)).run().futureValue
+        } yield (address, orderShippingAddress)).futureValue
 
         val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).futureValue
         matchingMethods.isRight must === (true)
@@ -117,12 +117,12 @@ class ShippingManagerTest extends IntegrationTestBase {
   }
 
   trait Fixture {
-    val (customer, order) = (for {
+    val (customer, order) = db.run(for {
       customer ← Customers.save(Factories.customer)
       order ← Orders.save(Factories.order.copy(customerId = customer.id))
       sku ← Skus.save(Sku(name = Some("Donkey"), price = 27))
       lineItem ← OrderLineItems.save(OrderLineItem(orderId = order.id, skuId = sku.id))
-    } yield (customer, order)).run().futureValue
+    } yield (customer, order)).futureValue
 
     val californiaId = 4129
     val michiganId = 4148
@@ -131,10 +131,10 @@ class ShippingManagerTest extends IntegrationTestBase {
   }
 
   trait OrderFixture extends Fixture {
-    val (address, orderShippingAddress) = (for {
+    val (address, orderShippingAddress) = db.run(for {
       address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = californiaId))
       orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
-    } yield (address, orderShippingAddress)).run().futureValue
+    } yield (address, orderShippingAddress)).futureValue
   }
 
   trait WestCoastConditionFixture extends Fixture {
@@ -168,24 +168,24 @@ class ShippingManagerTest extends IntegrationTestBase {
   }
 
   trait CaliforniaOrderFixture extends WestCoastConditionFixture {
-    val (address, orderShippingAddress) = (for {
+    val (address, orderShippingAddress) = db.run(for {
       address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = californiaId))
       orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
-    } yield (address, orderShippingAddress)).run().futureValue
+    } yield (address, orderShippingAddress)).futureValue
   }
 
   trait WashingtonOrderFixture extends WestCoastConditionFixture {
-    val (address, orderShippingAddress) = (for {
+    val (address, orderShippingAddress) = db.run(for {
       address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = washingtonId))
       orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
-    } yield (address, orderShippingAddress)).run().futureValue
+    } yield (address, orderShippingAddress)).futureValue
   }
 
   trait MichiganOrderFixture extends WestCoastConditionFixture {
-    val (address, orderShippingAddress) = (for {
+    val (address, orderShippingAddress) = db.run(for {
       address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = michiganId))
       orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
-    } yield (address, orderShippingAddress)).run().futureValue
+    } yield (address, orderShippingAddress)).futureValue
   }
 
   trait POCondition extends Fixture {
@@ -222,7 +222,7 @@ class ShippingManagerTest extends IntegrationTestBase {
         | }
       """.stripMargin
 
-    val (shippingMethod, cheapOrder, expensiveOrder) = (for {
+    val (shippingMethod, cheapOrder, expensiveOrder) = db.run(for {
       shippingMethod ← ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(parse(conditions))))
       cheapOrder ← Orders.save(Factories.order.copy(customerId = customer.id, referenceNumber = "CS1234-AA"))
       cheapSku ← Skus.save(Sku(name = Some("Cheap Donkey"), price = 10))
@@ -234,7 +234,7 @@ class ShippingManagerTest extends IntegrationTestBase {
       expensiveLineItem ← OrderLineItems.save(OrderLineItem(orderId = expensiveOrder.id, skuId = expensiveSku.id))
       expensiveAddress ← Addresses.save(Factories.address.copy(customerId = customer.id, isDefaultShipping = false))
       _ ← OrderShippingAddresses.copyFromAddress(address = expensiveAddress, orderId = expensiveOrder.id)
-    } yield(shippingMethod, cheapOrder, expensiveOrder)).run().futureValue
+    } yield(shippingMethod, cheapOrder, expensiveOrder)).futureValue
   }
 
   trait StateAndPriceCondition extends Fixture {

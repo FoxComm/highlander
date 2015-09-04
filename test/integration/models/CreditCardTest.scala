@@ -1,12 +1,8 @@
 package models
 
-import com.wix.accord.{Failure ⇒ ValidationFailure, Success ⇒ ValidationSuccess}
-
-import org.scalatest.prop.TableDrivenPropertyChecks._
-import payloads.CreateAddressPayload
 import util.IntegrationTestBase
-import utils.Validation
 import utils.Seeds.Factories
+import utils.Slick.implicits._
 
 class CreditCardTest extends IntegrationTestBase {
   import api._
@@ -24,7 +20,7 @@ class CreditCardTest extends IntegrationTestBase {
     val (customer, cc) = (for {
       customer ← Customers.save(Factories.customer)
       address ← Addresses.save(Factories.address.copy(customerId = customer.id))
-      cc ← CreditCards.save(Factories.creditCard.copy(customerId = customer.id, billingAddressId = address.id))
+      cc ← CreditCards.save(Factories.creditCard.copy(customerId = customer.id))
     } yield (customer, cc)).run().futureValue
   }
 }

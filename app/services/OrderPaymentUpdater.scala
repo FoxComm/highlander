@@ -5,17 +5,18 @@ import scala.concurrent.ExecutionContext
 import cats.data.Xor
 import models.{PaymentMethod, CreditCard, Orders, Order, OrderPayment, OrderPayments, GiftCards, GiftCard,
 StoreCredits, StoreCredit, CreditCards}
-
+import models.OrderPayments.scope._
 import payloads.{GiftCardPayment, StoreCreditPayment}
 import slick.driver.PostgresDriver.api._
+import utils.Slick.implicits._
 
 object OrderPaymentUpdater {
   def addGiftCard(refNum: String, payload: GiftCardPayment)
     (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
 
    val orderAndGiftCard = for {
-     order ← Orders.findCartByRefNum(refNum).result.headOption
-     giftCard ← GiftCards.findByCode(payload.code).result.headOption
+     order ← Orders.findCartByRefNum(refNum).one
+     giftCard ← GiftCards.findByCode(payload.code).one
    } yield (order, giftCard)
 
    db.run(orderAndGiftCard.flatMap {
@@ -44,7 +45,7 @@ object OrderPaymentUpdater {
     (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
 
     db.run(for {
-      order ← Orders.findCartByRefNum(refNum).result.headOption
+      order ← Orders.findCartByRefNum(refNum).one
       storeCredits ← order.map { o ⇒
         StoreCredits.findAllActiveByCustomerId(o.customerId).result
       }.getOrElse(DBIO.successful(Seq.empty[StoreCredit]))
@@ -73,15 +74,15 @@ object OrderPaymentUpdater {
     (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
 
     val orderAndCreditCard = for {
-      order ← Orders.findCartByRefNum(refNum).result.headOption
-      creditCard ← CreditCards._findById(id).result.headOption
+      order ← Orders.findCartByRefNum(refNum).one
+      creditCard ← CreditCards._findById(id).extract.one
     } yield (order, creditCard)
 
     db.run(orderAndCreditCard.flatMap {
 
       case (Some(order), Some(cc)) if cc.inWallet ⇒
         val payment = OrderPayment.build(cc).copy(orderId = order.id, amount = None)
-        val delete = OrderPayments.creditCards.filter(_.orderId === order.id).delete
+        val delete = OrderPayments.filter(_.orderId === order.id).creditCards.delete
 
         (delete >> OrderPayments.save(payment)).map(_ ⇒ Xor.right({}))
 
@@ -106,7 +107,7 @@ object OrderPaymentUpdater {
   private def deleteCreditCardOrStoreCredit(refNum: String, pmt: PaymentMethod.Type)
     (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
 
-    val order = Orders.findCartByRefNum(refNum).result.headOption
+    val order = Orders.findCartByRefNum(refNum).one
 
     db.run(order.flatMap {
 
@@ -114,7 +115,7 @@ object OrderPaymentUpdater {
         orderNotFound(refNum).liftDBIOXor[Unit]
 
       case Some(order) ⇒
-        OrderPayments.byType(pmt).filter(_.orderId === order.id)
+        OrderPayments.filter(_.orderId === order.id).byType(pmt)
           .delete.map(deletedOrFailure(_, pmt))
 
     }.transactionally)
@@ -124,15 +125,15 @@ object OrderPaymentUpdater {
     (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
 
     val orderAndGiftCard = for {
-      order ← Orders.findCartByRefNum(refNum).result.headOption
-      giftCard ← GiftCards.findByCode(code).result.headOption
+      order ← Orders.findCartByRefNum(refNum).one
+      giftCard ← GiftCards.findByCode(code).one
     } yield (order, giftCard)
 
     db.run(orderAndGiftCard.flatMap {
 
       case (Some(order), Some(giftCard)) ⇒
-        OrderPayments.giftCards.filter(_.paymentMethodId === giftCard.id)
-          .filter(_.orderId === order.id).delete.map(deletedOrFailure(_, PaymentMethod.GiftCard))
+        OrderPayments.filter(_.paymentMethodId === giftCard.id)
+          .filter(_.orderId === order.id).giftCards.delete.map(deletedOrFailure(_, PaymentMethod.GiftCard))
 
       case (None, _) ⇒
         orderNotFound(refNum).liftDBIOXor[Unit]

@@ -34,8 +34,10 @@ trait ExPostgresDriver extends PostgresDriver
   with HStoreImplicits
   with SearchImplicits
   with SearchAssistants {
-    implicit val strListTypeMapper = new SimpleArrayJdbcType[String]("text").to(_.toList)
-    implicit val json4sJsonArrayTypeMapper =
+    implicit val strListTypeMapper: DriverJdbcType[List[String]] =
+      new SimpleArrayJdbcType[String]("text").to(_.toList)
+
+    implicit val json4sJsonArrayTypeMapper: DriverJdbcType[List[JValue]] =
       new AdvancedArrayJdbcType[JValue](pgjson,
         (s) => utils.SimpleArrayUtils.fromString[JValue](jsonMethods.parse(_))(s).orNull,
         (v) => utils.SimpleArrayUtils.mkString[JValue](_.toString())(v)
