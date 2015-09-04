@@ -23,7 +23,7 @@ export default class BaseStore {
 
   sort(field, order) {
     this.models = this.models.sort((a, b) => {
-      return a[field] < b[field] ? -1 : 1;
+      return (1 - 2 * order) * (a[field] < b[field] ? 1 : a[field] > b[field] ? -1 : 0);
     });
     dispatch(`change${this.storeName}`, this.models);
   }
