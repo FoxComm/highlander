@@ -39,4 +39,16 @@ class SlickTest extends IntegrationTestBase {
     customer must !== (updatedCustomer)
     updatedCustomer.firstName must === ("Sally")
   }
+
+  "supports update with returning query for mapping to a new model for multiple columns" in {
+    val (customer, updatedCustomer) = db.run(for {
+      customer ← Customers.save(Factories.customer.copy(firstName = "Jane"))
+      updatedCustomer ← Customers.filter(_.id === 1).map{c ⇒ (c.firstName, c.lastName) }.
+        updateReturning(Customers.map(identity), ("Sally", "Doe")).headOption
+    } yield (customer, updatedCustomer.get)).futureValue
+
+    customer must !== (updatedCustomer)
+    updatedCustomer.firstName must === ("Sally")
+    updatedCustomer.lastName must === ("Doe")
+  }
 }

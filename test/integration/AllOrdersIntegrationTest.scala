@@ -36,7 +36,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase with HttpSupport with
         placedAt = None,
         total = 27,
         paymentStatus = None,
-        remorsePeriod = None)
+        remorsePeriodEnd = None)
 
       actual must === (expected)
     }
