@@ -1,6 +1,7 @@
 'use strict';
 
 import React from 'react';
+import ClassNames from 'classnames';
 
 export default class TableHead extends React.Component {
   constructor(props) {
@@ -20,8 +21,13 @@ export default class TableHead extends React.Component {
 
   render() {
     let createColumn = (column, idx) => {
+      let classnames = ClassNames({
+        'sorting-desc': (this.state.sortingField === column.field) && this.state.sortingOrder,
+        'sorting-asc': (this.state.sortingField === column.field) && !this.state.sortingOrder
+      });
       return (
-        <th key={`${idx}-${column.field}`} onClick={this.onHeaderItemClick.bind(this, column.field)}>
+        <th className={classnames} key={`${idx}-${column.field}`}
+            onClick={this.onHeaderItemClick.bind(this, column.field)}>
           {column.text}
         </th>
       );
