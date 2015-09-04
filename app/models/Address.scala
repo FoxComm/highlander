@@ -7,14 +7,15 @@ import payloads.CreateAddressPayload
 import slick.driver.PostgresDriver.api._
 import utils.GenericTable.TableWithId
 import utils.Slick.implicits._
-import utils.{ModelWithIdParameter, NewModel, TableQueryWithId}
+import utils.{ModelWithIdParameter, NewModel, TableQueryWithId, Validation}
 
 final case class Address(id: Int = 0, customerId: Int, regionId: Int, name: String,
   street1: String, street2: Option[String], city: String, zip: String,
   isDefaultShipping: Boolean = false, phoneNumber: Option[String])
   extends ModelWithIdParameter
   with NewModel
-  with Addressable[Address] {
+  with Addressable[Address]
+  with Validation[Address] {
 
   def isNew: Boolean = id == 0
 

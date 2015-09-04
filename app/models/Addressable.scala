@@ -10,6 +10,8 @@ import monocle.Lens
 import cats.syntax.apply._
 
 trait Addressable[M] {
+  import Validation._
+
   def city: String
   def name: String
   def phoneNumber: Option[String]
@@ -35,23 +37,23 @@ trait Addressable[M] {
 
     val phone: ValidatedNel[Failure, Unit] = (isUsAddress, phoneNumber) match {
       case (true, Some(number)) ⇒
-        Validation.matches(number, "[0-9]{10}", "phoneNumber")
+        matches(number, "[0-9]{10}", "phoneNumber")
       case (false, Some(number)) ⇒
-        Validation.matches(number, "[0-9]{0,15}", "phoneNumber")
+        matches(number, "[0-9]{0,15}", "phoneNumber")
       case (_, None) ⇒
         valid({})
     }
 
     val zipValidation: ValidatedNel[Failure, Unit] = (isUsAddress, zip) match {
       case (true, zipValue) ⇒
-        Validation.matches(zipValue, Address.zipPatternUs, "zip")
+        matches(zipValue, Address.zipPatternUs, "zip")
       case (false, zipValue) ⇒
-        Validation.matches(zipValue, Address.zipPattern, "zip")
+        matches(zipValue, Address.zipPattern, "zip")
     }
 
-    ( Validation.notEmpty(name, "name")
-      |@| Validation.notEmpty(street1, "street1")
-      |@| Validation.notEmpty(city, "city")
+    ( notEmpty(name, "name")
+      |@| notEmpty(street1, "street1")
+      |@| notEmpty(city, "city")
       |@| zipValidation
       |@| phone
       ).map { case _ ⇒ instance }

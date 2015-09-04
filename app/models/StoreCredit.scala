@@ -30,9 +30,11 @@ final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, origin
   extends PaymentMethod
   with ModelWithIdParameter
   with FSM[StoreCredit.Status, StoreCredit]
-  with NewModel {
+  with NewModel
+  with Validation[StoreCredit] {
 
   import StoreCredit._
+  import Validation._
 
   def isNew: Boolean = id == 0
 
@@ -43,9 +45,9 @@ final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, origin
     }
 
     (canceledWithReason
-      |@| Validation.invalidExpr(originalBalance < currentBalance, "originalBalance cannot be less than currentBalance")
-      |@| Validation.invalidExpr(originalBalance < availableBalance, "originalBalance cannot be less than availableBalance")
-      |@| Validation.invalidExpr(originalBalance < 0, "originalBalance must be greater than zero")
+      |@| invalidExpr(originalBalance < currentBalance, "originalBalance cannot be less than currentBalance")
+      |@| invalidExpr(originalBalance < availableBalance, "originalBalance cannot be less than availableBalance")
+      |@| invalidExpr(originalBalance < 0, "originalBalance must be greater than zero")
     ).map { case _ ⇒ this }
   }
 

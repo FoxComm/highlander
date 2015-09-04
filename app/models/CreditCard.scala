@@ -14,7 +14,7 @@ import org.joda.time.DateTime
 import payloads.CreateCreditCard
 import services.{Failure, Result, StripeGateway}
 import slick.driver.PostgresDriver.api._
-import utils.{ModelWithIdParameter, Validation}
+import utils._
 
 final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerId: Int, gatewayCustomerId: String,
   gatewayCardId: String, holderName: String, lastFour: String, expMonth: Int, expYear: Int,
@@ -24,6 +24,8 @@ final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerI
   with ModelWithIdParameter
   with Addressable[CreditCard]
   with Validation[CreditCard] {
+
+  import Validation._
 
   def instance: CreditCard = this
 

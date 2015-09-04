@@ -55,8 +55,11 @@ object Seeds {
     )
 
     s.address.validate.fold(err ⇒ throw new Exception(err.mkString("\n")), _ ⇒ {})
+    s.storeAdmin.validate.fold(err ⇒ throw new Exception(err.mkString("\n")), _ ⇒ {})
+    s.order.validate.fold(err ⇒ throw new Exception(err.mkString("\n")), _ ⇒ {})
+    s.cc.validate.fold(err ⇒ throw new Exception(err.mkString("\n")), _ ⇒ {})
 
-    val failures = (s.customers.map { _.validate } ++ List(s.storeAdmin.validate, s.order.validate, s.cc.validate)).filterNot(_.isValid)
+    val failures = s.customers.map { _.validate }.filterNot(_.isValid)
 
     if (failures.nonEmpty)
       throw new Exception(failures.map(_.mkString("\n")).mkString("\n"))

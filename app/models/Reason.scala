@@ -12,11 +12,14 @@ import slick.driver.PostgresDriver.api._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 final case class Reason(id: Int = 0, storeAdminId: Int, body: String, parentId: Option[Int] = None)
-  extends ModelWithIdParameter {
+  extends ModelWithIdParameter
+  with Validation[Reason] {
+
+  import Validation._
 
   def validate: ValidatedNel[Failure, Reason] = {
-    ( Validation.notEmpty(body, "body")
-      |@| Validation.lesserThanOrEqual(body.length, 255, "bodySize")
+    ( notEmpty(body, "body")
+      |@| lesserThanOrEqual(body.length, 255, "bodySize")
       ).map { case _ ⇒ this }
   }
 
