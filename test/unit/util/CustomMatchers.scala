@@ -10,12 +10,10 @@ object CustomMatchers {
   // Same as `include`, used for Failure inner Strings
   class IncludeFailureMatcher(expectedSubstring: String) extends Matcher[NonEmptyList[Failure]] {
     def apply(left: NonEmptyList[Failure]) = {
-      // TODO: Find another way, keeping it as a List
-      val stringValue = left.foldLeft("")(_ + _.description)
       MatchResult(
-        stringValue.contains(expectedSubstring),
-        s"""String $stringValue does not contain "$expectedSubstring"""",
-        s"""String $stringValue contains "$expectedSubstring""""
+        left.exists(_.description.exists(_.contains(expectedSubstring))),
+        s"""NonEmptyList of Failures does not contain "$expectedSubstring"""",
+        s"""NonEmptyList of Failure contains "$expectedSubstring""""
       )
     }
   }
