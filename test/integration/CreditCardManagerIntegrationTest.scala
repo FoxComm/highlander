@@ -17,9 +17,10 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
   import Extensions._
   import org.json4s.jackson.JsonMethods._
   import slick.driver.PostgresDriver.api._
+  import util.SlickSupport.implicits._
 
   "CreditCardManagerTest" - {
-    "when creating a credit card" - {
+    "POST /v1/customers/:id/payment-methods/credit-cards" - {
       val tomorrow = DateTime.now().plusDays(1)
       val payloadStub = payloads.CreateCreditCard(holderName = "yax", number = StripeSupport.successfulCard,
         cvv = "123", expYear = tomorrow.getYear, expMonth = tomorrow.getMonthOfYear)
@@ -34,7 +35,7 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
         "copies an existing address to the new creditCard" ignore new AddressFixture {
           val payload = payloadStub.copy(addressId = Some(address.id), isDefault = true)
           val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
-          val (cc :: Nil) = CreditCards.filter(_.customerId === customer.id).result.run().futureValue.toList
+          val (cc :: Nil) = CreditCards.filter(_.customerId === customer.id).futureValue.toList
 
           val a             = address
           val ccAddressVals = (cc.street1, cc.street2, cc.city, cc.regionId, cc.zip, cc.addressName, cc.phoneNumber)
@@ -54,8 +55,8 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
           val payload = payloadWithFullAddress(payloadStub, a)
 
           val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
-          val (cc :: Nil) = CreditCards.filter(_.customerId === customer.id).result.run().futureValue.toList
-          val (savedAddress :: Nil) = Addresses.result.run().futureValue.toList
+          val (cc :: Nil) = CreditCards.filter(_.customerId === customer.id).futureValue.toList
+          val (savedAddress :: Nil) = Addresses.futureValue.toList
           val s = savedAddress
 
           val ccAddressVals = (cc.street1, cc.street2, cc.city, cc.regionId, cc.zip, cc.addressName, cc.phoneNumber)
@@ -111,11 +112,11 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
   }
 
   trait Fixture {
-    val customer = Customers.save(Factories.customer).run().futureValue
+    val customer = Customers.save(Factories.customer).futureValue
   }
 
   trait AddressFixture extends Fixture {
-    val address = Addresses.save(Factories.address.copy(customerId = customer.id)).run().futureValue
+    val address = Addresses.save(Factories.address.copy(customerId = customer.id)).futureValue
   }
 }
 
