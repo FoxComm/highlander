@@ -4,6 +4,7 @@ import models.{Reasons, Customers, GiftCard, GiftCardManuals, GiftCards, StoreAd
 import org.scalatest.BeforeAndAfterEach
 import util.IntegrationTestBase
 import utils.Seeds.Factories
+import utils.Slick.implicits._
 
 class GiftCardIntegrationTest extends IntegrationTestBase
   with HttpSupport

@@ -10,6 +10,7 @@ import responses.{AllOrdersWithFailures, AllOrders}
 import services.OrderUpdateFailure
 import util.IntegrationTestBase
 import utils.Seeds.Factories
+import utils.Slick.implicits._
 
 class AllOrdersIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 
@@ -35,7 +36,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase with HttpSupport with
         placedAt = None,
         total = 27,
         paymentStatus = None,
-        remorsePeriod = None)
+        remorsePeriodEnd = None)
 
       actual must === (expected)
     }

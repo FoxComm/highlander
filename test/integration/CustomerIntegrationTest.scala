@@ -5,7 +5,7 @@ import models.OrderPayments.scope._
 import services.{CannotUseInactiveCreditCard, CustomerManager, NotFoundFailure}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
-import utils.RunOnDbIO
+import utils.Slick.implicits._
 
 class CustomerIntegrationTest extends IntegrationTestBase
   with HttpSupport

@@ -6,7 +6,7 @@ import models.{Address, Addresses, OrderPayment, OrderPayments, CreditCard, Cred
 import org.scalatest.Inside
 import util.IntegrationTestBase
 import utils.Seeds.Factories
-import utils._
+import utils.Slick.implicits._
 
 class CheckoutTest extends IntegrationTestBase with Inside {
   import concurrent.ExecutionContext.Implicits.global

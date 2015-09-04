@@ -16,7 +16,7 @@ object AllOrders {
     orderStatus: Order.Status,
     paymentStatus: Option[String],
     placedAt: Option[DateTime],
-    remorsePeriod: Option[Int],
+    remorsePeriodEnd: Option[DateTime],
     total: Int
     )
 
@@ -49,10 +49,7 @@ object AllOrders {
         // TODO: FIXME
         paymentStatus = None,
         placedAt = order.placedAt,
-        remorsePeriod = order.status match {
-          case RemorseHold ⇒ Some(order.remorsePeriodInMinutes)
-          case _ ⇒ None
-        },
+        remorsePeriodEnd = order.getRemorsePeriodEnd,
         total = grandTotal
       )
     }

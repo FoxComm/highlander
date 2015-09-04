@@ -9,6 +9,7 @@ import org.scalatest.prop.TableDrivenPropertyChecks._
 import payloads.CreateAddressPayload
 import util.IntegrationTestBase
 import utils.{Seeds, Validation}
+import utils.Slick.implicits._
 import org.json4s.jackson.JsonMethods.parse
 import org.json4s.jackson.Serialization.{write ⇒ render}
 
@@ -16,7 +17,7 @@ class FullOrderTest extends IntegrationTestBase {
   import api._
   import concurrent.ExecutionContext.Implicits.global
 
-  implicit val formats = DefaultFormats
+  implicit val formats: DefaultFormats.type = DefaultFormats
 
   "FullOrder" - {
     "fromOrder" in {

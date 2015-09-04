@@ -1,5 +1,7 @@
 package models
 
+import slick.ast.BaseTypedType
+import slick.jdbc.JdbcType
 import utils.{GenericTable, Validation, TableQueryWithId, ModelWithIdParameter}
 
 import com.wix.accord.dsl.{validator => createValidator}
@@ -18,7 +20,7 @@ object ShippingRestriction{
   case object ShipTo extends RestrictionType //Use OrderCriterion
   case object ItemAttribute extends RestrictionType //Use SkuCriterion
 
-  implicit val DestinationColumnType = MappedColumnType.base[RestrictionType, String]({
+  implicit val DestinationColumnType: JdbcType[RestrictionType] with BaseTypedType[RestrictionType] = MappedColumnType.base[RestrictionType, String]({
     case t=> t.toString.toLowerCase
   },
   {

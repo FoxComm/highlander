@@ -9,6 +9,7 @@ import models.{Customer, Addresses, Address, CreditCard, CreditCards}
 import payloads.{CreateAddressPayload, CreateCreditCard}
 import slick.driver.PostgresDriver.api._
 import cats.implicits._
+import utils.Slick.implicits._
 
 object CreditCardManager {
   val gateway = StripeGateway()

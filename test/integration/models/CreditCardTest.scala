@@ -7,6 +7,7 @@ import payloads.CreateAddressPayload
 import util.IntegrationTestBase
 import utils.Validation
 import utils.Seeds.Factories
+import utils.Slick.implicits._
 
 class CreditCardTest extends IntegrationTestBase {
   import api._

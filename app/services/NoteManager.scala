@@ -8,7 +8,7 @@ import responses.AdminNotes.Root
 import slick.dbio.Effect.Write
 import slick.profile.FixedSqlAction
 import utils.Validation.Result._
-
+import utils.Slick.implicits._
 
 import scala.concurrent.{Future, ExecutionContext}
 import slick.driver.PostgresDriver.api._
@@ -30,7 +30,7 @@ object NoteManager {
 
     db.run(update).flatMap { rowsAffected ⇒
       if (rowsAffected == 1) {
-        db.run(query.result.headOption).flatMap {
+        db.run(query.one).flatMap {
           case Some(note) ⇒ Result.right(AdminNotes.build(note, author))
           case None       ⇒ Result.failure(notFound(noteId))
         }

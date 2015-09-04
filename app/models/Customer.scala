@@ -14,6 +14,7 @@ import services.Result
 import slick.driver.PostgresDriver.api._
 import utils.GenericTable.TableWithId
 import utils.{ModelWithIdParameter, TableQueryWithId, Validation}
+import utils.Slick.implicits._
 
 final case class Customer(id: Int = 0, disabled: Boolean = false, email: String, password: String, firstName: String,
   lastName: String, phoneNumber: Option[String] = None, location: Option[String] = None,
@@ -49,11 +50,11 @@ object Customers extends TableQueryWithId[Customer, Customers](
   )(new Customers(_)){
 
   def findByEmail(email: String)(implicit ec: ExecutionContext, db: Database): Future[Option[Customer]] = {
-    db.run(filter(_.email === email).result.headOption)
+    db.run(filter(_.email === email).one)
   }
 
   def findById(id: Int)(implicit db: Database): Future[Option[Customer]] = {
-    db.run(_findById(id).result.headOption)
+    db.run(_findById(id).extract.one)
   }
 
   def _findById(id: Rep[Int]) = { filter(_.id === id) }

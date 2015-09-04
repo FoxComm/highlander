@@ -5,6 +5,7 @@ import org.scalatest.prop.Tables.Table
 import slick.driver.PostgresDriver
 import util.IntegrationTestBase
 import utils.Seeds.Factories
+import utils.Slick.implicits._
 
 class StoreCreditAdjustmentTest extends IntegrationTestBase {
   import api._

@@ -1,5 +1,7 @@
 package models
 
+import slick.ast.BaseTypedType
+import slick.jdbc.JdbcType
 import utils.{GenericTable, Validation, TableQueryWithId, ModelWithIdParameter}
 
 import com.wix.accord.dsl.{validator => createValidator}
@@ -20,7 +22,7 @@ object OrderDestinationCriterion{
   case object City extends DestinationType
   case object ShippingZone extends DestinationType // This will likely be carrier-specific
 
-  implicit val DestinationColumnType = MappedColumnType.base[DestinationType, String]({
+  implicit val DestinationColumnType: JdbcType[DestinationType] with BaseTypedType[DestinationType] = MappedColumnType.base[DestinationType, String]({
     case t=> t.toString.toLowerCase
   },
   {

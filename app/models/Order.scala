@@ -17,12 +17,15 @@ import models.Order.{Cart, Status}
 import monocle.macros.GenLens
 import org.joda.time.DateTime
 import services.OrderTotaler
+import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
+import slick.jdbc.JdbcType
 import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
+import utils.Slick.implicits._
 
 final case class Order(id: Int = 0, referenceNumber: String = "", customerId: Int,
   status: Status = Cart, locked: Boolean = false, placedAt: Option[DateTime] = None,
-  remorsePeriodInMinutes: Int = 30)
+  remorsePeriodEnd: Option[DateTime] = None)
   extends ModelWithIdParameter
   with FSM[Order.Status, Order] {
 
@@ -60,6 +63,12 @@ final case class Order(id: Int = 0, referenceNumber: String = "", customerId: In
     FulfillmentStarted →
       Set(Shipped, Canceled)
   )
+
+  // If order is not in RemorseHold, remorsePeriodEnd should be None, but extra check wouldn't hurt
+  val getRemorsePeriodEnd: Option[DateTime] = status match {
+    case RemorseHold if !locked ⇒ remorsePeriodEnd
+    case _ ⇒ None
+  }
 }
 
 object Order {
@@ -78,7 +87,7 @@ object Order {
     def types = sealerate.values[Status]
   }
 
-  implicit val statusColumnType = Status.slickColumn
+  implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
 
   def buildCart(customerId: Int): Order = Order(customerId = customerId, status = Order.Cart)
 }
@@ -91,8 +100,8 @@ class Orders(tag: Tag) extends GenericTable.TableWithId[Order](tag, "orders")  {
   def status = column[Order.Status]("status")
   def locked = column[Boolean]("locked")
   def placedAt = column[Option[DateTime]]("placed_at")
-  def remorsePeriodInMinutes = column[Int]("remorse_period_in_minutes")
-  def * = (id, referenceNumber, customerId, status, locked, placedAt, remorsePeriodInMinutes) <>((Order.apply _).tupled, Order.unapply)
+  def remorsePeriodEnd = column[Option[DateTime]]("remorse_period_end")
+  def * = (id, referenceNumber, customerId, status, locked, placedAt, remorsePeriodEnd) <>((Order.apply _).tupled, Order.unapply)
 }
 
 object Orders extends TableQueryWithId[Order, Orders](
@@ -137,7 +146,7 @@ object Orders extends TableQueryWithId[Order, Orders](
     findByRefNum(refNum).cartOnly
 
   def findActiveOrderByCustomer(cust: Customer)(implicit ec: ExecutionContext, db: Database): Future[Option[Order]] =
-    db.run(_findActiveOrderByCustomer(cust).result.headOption)
+    db.run(_findActiveOrderByCustomer(cust).one)
 
   def _findActiveOrderByCustomer(cust: Customer) =
     filter(_.customerId === cust.id).filter(_.status === (Order.Cart: Order.Status))
@@ -151,7 +160,7 @@ object Orders extends TableQueryWithId[Order, Orders](
         val freshOrder = Order(customerId = customer.id, status = Order.Cart)
         (returningId += freshOrder).map { id => freshOrder.copy(id = id) }.map(Some(_))
       } else {
-        _findActiveOrderByCustomer(customer).result.headOption
+        _findActiveOrderByCustomer(customer).one
       }
     } yield order
 

@@ -2,14 +2,19 @@ package services
 
 import scala.concurrent.{ExecutionContext, Future}
 
-import cats.data.Validated.{Valid, Invalid}
+import cats.data.Validated.{Invalid, Valid}
 import cats.data.Xor
 import models.Order.RemorseHold
 import models._
-
+import models.OrderLockEvents.scope._
+import org.joda.time.Seconds.secondsBetween
+import org.joda.time.{Seconds, DateTime}
 import payloads.{CreateShippingAddress, UpdateAddressPayload, UpdateShippingAddress}
 import responses.{Addresses ⇒ Response, FullOrder}
 import slick.driver.PostgresDriver.api._
+import utils.Slick.implicits._
+import utils.Slick.UpdateReturning._
+import com.github.tototoshi.slick.PostgresJodaSupport._
 
 object OrderUpdater {
 
@@ -76,19 +81,20 @@ object OrderUpdater {
     }
   }
 
-  final class NewRemorsePeriod(val remorsePeriod: Int)
+  // Should never be None as this response is sent only when increasing remorse period
+  final class NewRemorsePeriodEnd(val remorsePeriodEnd: Option[DateTime])
 
   def increaseRemorsePeriod(order: Order)
-    (implicit db: Database, ec: ExecutionContext): Result[NewRemorsePeriod] = {
+    (implicit db: Database, ec: ExecutionContext): Result[NewRemorsePeriodEnd] = {
     order.status match {
       case RemorseHold ⇒
         val q = for {
-          _        ← Orders.update(order.copy(remorsePeriodInMinutes = order.remorsePeriodInMinutes + 15))
-          newOrder ← Orders._findById(order.id).result.headOption
+          _ ← Orders.update(order.copy(remorsePeriodEnd = order.remorsePeriodEnd.map(_.plusMinutes(15))))
+          newOrder ← Orders._findById(order.id).extract.one
         } yield newOrder
 
         db.run(q).flatMap {
-          case Some(newOrder) ⇒ Result.good(new NewRemorsePeriod(newOrder.remorsePeriodInMinutes))
+          case Some(newOrder) ⇒ Result.good(new NewRemorsePeriodEnd(newOrder.remorsePeriodEnd))
           case None           ⇒ Result.failure(GeneralFailure("Error during update"))
         }
 
@@ -110,15 +116,27 @@ object OrderUpdater {
     }
   }
 
+  private def newRemorseEnd(maybeRemorseEnd: Option[DateTime], lockedAt: DateTime): Option[DateTime] = {
+    maybeRemorseEnd.map(_.plus(secondsBetween(lockedAt, DateTime.now)))
+  }
+
+  private def updateUnlock(orderId: Int, remorseEnd: Option[DateTime])
+    (implicit db: Database) = {
+    Orders._findById(orderId).extract
+      .map { o ⇒ (o.locked, o.remorsePeriodEnd) }
+      .updateReturning(Orders.map(identity), (false, remorseEnd))
+  }
+
   def unlock(order: Order)(implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
     if (order.locked) {
-      val queries = for {
-        _ ← Orders.update(order.copy(locked = false))
-        newOrder ← Orders.findByRefNum(order.referenceNumber).result.head
-      } yield newOrder
-
+      val queries = OrderLockEvents.findByOrder(order).mostRecentLock.result.headOption.flatMap {
+        case Some(lockEvent) ⇒
+          updateUnlock(order.id, newRemorseEnd(order.remorsePeriodEnd, lockEvent.lockedAt))
+        case None ⇒
+          updateUnlock(order.id, order.remorsePeriodEnd.map(_.plusMinutes(15)))
+      }
       db.run(queries).flatMap { o ⇒
-        Result.fromFuture(FullOrder.fromOrder(o))
+        Result.fromFuture(FullOrder.fromOrder(o.head))
       }
     } else Result.failure(GeneralFailure("Order is not locked"))
   }
@@ -177,13 +195,13 @@ object OrderUpdater {
     (implicit db: Database, ec: ExecutionContext): Result[responses.Addresses.Root] = {
 
     val actions = for {
-      oldAddress ← OrderShippingAddresses.findByOrderId(order.id).result.headOption
+      oldAddress ← OrderShippingAddresses.findByOrderId(order.id).one
 
       rowsAffected ← oldAddress.map { osa ⇒
         OrderShippingAddresses.update(OrderShippingAddress.fromPatchPayload(a = osa, p = payload))
       }.getOrElse(DBIO.successful(0))
 
-      newAddress ← OrderShippingAddresses.findByOrderId(order.id).result.headOption
+      newAddress ← OrderShippingAddresses.findByOrderId(order.id).one
 
       region ← newAddress.map { address ⇒
         Regions.findById(address.regionId)

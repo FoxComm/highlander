@@ -7,7 +7,9 @@ import com.wix.accord.dsl.{validator ⇒ createValidator}
 import com.wix.accord.{Failure ⇒ ValidationFailure}
 import models.OrderLineItem.{Cart, Status}
 import monocle.macros.GenLens
+import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
+import slick.jdbc.JdbcType
 import utils._
 
 final case class OrderLineItem(id: Int = 0, orderId: Int, skuId: Int,
@@ -44,7 +46,7 @@ object OrderLineItem{
     def types = sealerate.values[Status]
   }
 
-  implicit val statusColumnType = Status.slickColumn
+  implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
 }
 
 class OrderLineItems(tag: Tag) extends GenericTable.TableWithId[OrderLineItem](tag, "order_line_items")  {
