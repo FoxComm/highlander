@@ -32,6 +32,7 @@ export default class Orders extends React.Component {
           columns={this.props.tableColumns}
           rows={this.state.orders}
           model='order'
+          sort={OrderStore.sort.bind(this.state.orders)}
         />
       </div>
     );
