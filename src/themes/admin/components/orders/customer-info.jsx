@@ -11,16 +11,22 @@ export default class CustomerInfo extends React.Component {
     // @TODO: remove mock when api will be ready
     const customerRank = isGuest ? 'Guest' : customer.rank || 'Top 10%';
 
-    // @TODO: remove mock when api will be ready
-    const customerGroupsList = customer.groups || ['East Coast Customers', 'Lorem Ipsum Dolor Sit Amet', 'New York Customers', 'VIP', 'VIP Private Sale'];
+    let customerGroups = null;
 
-    let customerGroups = (
-      <div>
-        {customerGroupsList.map((customer) => {
-          return <div className="customer-info-group">{customer}</div>
-        })}
-      </div>
-    );
+    if (isGuest) {
+      customerGroups = <div className="customer-info-guest">Guest</div>;
+    } else {
+      // @TODO: remove mock when api will be ready
+      const customerGroupsList = customer.groups || ['East Coast Customers', 'Lorem Ipsum Dolor Sit Amet', 'New York Customers', 'VIP', 'VIP Private Sale'];
+
+      customerGroups = (
+        <div>
+          {customerGroupsList.map((customer) => {
+            return <div className="customer-info-group">{customer}</div>
+          })}
+        </div>
+      );
+    }
 
     return (
       <div className="customer-info fc-contentBox">
