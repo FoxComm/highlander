@@ -3,7 +3,7 @@ package models
 import cats.data.ValidatedNel
 import services._
 import utils.Litterbox._
-import utils.Checks
+import utils.Validation
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -36,16 +36,16 @@ final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, origin
 
   def isNew: Boolean = id == 0
 
-  def validateNew: ValidatedNel[Failure, StoreCredit] = {
+  def validate: ValidatedNel[Failure, StoreCredit] = {
     val canceledWithReason: ValidatedNel[Failure, Unit] = (status, canceledReason) match {
       case (Canceled, None) ⇒ invalidNel(GeneralFailure("canceledReason must be present when canceled"))
       case _                ⇒ valid({})
     }
 
     (canceledWithReason
-      |@| Checks.invalidExpr(originalBalance < currentBalance, "originalBalance cannot be less than currentBalance")
-      |@| Checks.invalidExpr(originalBalance < availableBalance, "originalBalance cannot be less than availableBalance")
-      |@| Checks.invalidExpr(originalBalance < 0, "originalBalance must be greater than zero")
+      |@| Validation.invalidExpr(originalBalance < currentBalance, "originalBalance cannot be less than currentBalance")
+      |@| Validation.invalidExpr(originalBalance < availableBalance, "originalBalance cannot be less than availableBalance")
+      |@| Validation.invalidExpr(originalBalance < 0, "originalBalance must be greater than zero")
     ).map { case _ ⇒ this }
   }
 

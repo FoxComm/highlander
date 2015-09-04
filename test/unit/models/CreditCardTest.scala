@@ -24,17 +24,17 @@ class CreditCardTest extends TestBase {
         )
 
         forAll(cards) { (card, errors) =>
-          invalidValue(card.validateNew) mustBe errors
+          invalidValue(card.validate) mustBe errors
         }
       }
 
       "disallows cards with dates past the singularity (> 20 years from today)" in {
-        val result = card.copy(expYear = card.expYear + 21).validateNew
+        val result = card.copy(expYear = card.expYear + 21).validate
         invalidValue(result) must includeFailure("credit card expiration is too far in the future")
       }
 
       "passes for valid cards" in {
-        val result = card.validateNew
+        val result = card.validate
         result.isValid mustBe true
       }
 
@@ -52,7 +52,7 @@ class CreditCardTest extends TestBase {
         )
 
         forAll(cards) { (cc, errors) =>
-          invalidValue(cc.validateNew) mustBe errors
+          invalidValue(cc.validate) mustBe errors
         }
       }
     }

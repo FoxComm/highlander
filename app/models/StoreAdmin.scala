@@ -6,7 +6,7 @@ import cats.data.ValidatedNel
 import cats.implicits._
 import services.Failure
 import utils.Litterbox._
-import utils.Checks
+import utils.Validation
 import utils.Slick.implicits._
 
 import monocle.macros.GenLens
@@ -18,10 +18,10 @@ final case class StoreAdmin(id: Int = 0, email: String, password: String,
                       department: Option[String] = None)
   extends ModelWithIdParameter {
 
-  def validateNew: ValidatedNel[Failure, StoreAdmin] = {
-    ( Checks.notEmpty(firstName, "firstName")
-      |@| Checks.notEmpty(lastName, "lastName")
-      |@| Checks.notEmpty(email, "email")
+  def validate: ValidatedNel[Failure, StoreAdmin] = {
+    ( Validation.notEmpty(firstName, "firstName")
+      |@| Validation.notEmpty(lastName, "lastName")
+      |@| Validation.notEmpty(email, "email")
       ).map { case _ ⇒ this }
   }
 }

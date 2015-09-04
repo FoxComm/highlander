@@ -27,7 +27,7 @@ class AddressTest extends TestBase {
         )
 
         forAll(addresses) { (address, errors) =>
-          invalidValue(address.validateNew) mustBe (errors)
+          invalidValue(address.validate) mustBe (errors)
         }
       }
 
@@ -42,23 +42,23 @@ class AddressTest extends TestBase {
         )
 
         forAll(addresses) { (address, errors) =>
-          invalidValue(address.copy(regionId = Country.usRegions.head).validateNew) mustBe (errors)
+          invalidValue(address.copy(regionId = Country.usRegions.head).validate) mustBe (errors)
         }
       }
 
       "returns errors when name or street1 is empty" in {
-        val result = valid.copy(name = "", street1 = "").validateNew
+        val result = valid.copy(name = "", street1 = "").validate
         invalidValue(result) must === (NonEmptyList[Failure](GeneralFailure("name must not be empty"), GeneralFailure("street1 must " +
           "not be empty")))
       }
 
       "returns errors if US address and Some(phoneNumber) < 10 digits" in {
-        val result = valid.copy(regionId = Country.usRegions.head, phoneNumber = Some("5551234")).validateNew
+        val result = valid.copy(regionId = Country.usRegions.head, phoneNumber = Some("5551234")).validate
         invalidValue(result) must (includeFailure("phoneNumber") and includeFailure("'[0-9]{10}'"))
       }
 
       "returns errors if non-US address and Some(phoneNumber) > 15 digits" in {
-        val result = valid.copy(regionId = 1, phoneNumber = Some("1" * 16)).validateNew
+        val result = valid.copy(regionId = 1, phoneNumber = Some("1" * 16)).validate
         invalidValue(result) must (includeFailure("phoneNumber") and includeFailure("'[0-9]{0,15}'"))
       }
     }

@@ -1,16 +1,12 @@
 package services
 
 import cats.data.Validated.{Valid, Invalid}
-import cats.data.Xor
 import models._
 import responses.AdminNotes
 import responses.AdminNotes.Root
-import slick.dbio.Effect.Write
-import slick.profile.FixedSqlAction
-import utils.Validation.Result._
 import utils.Slick.implicits._
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.ExecutionContext
 import slick.driver.PostgresDriver.api._
 
 object NoteManager {
@@ -49,7 +45,7 @@ object NoteManager {
 
   private def createNote(note: Note)
     (implicit ec: ExecutionContext, db: Database): Result[Note] = {
-    note.validateNew match {
+    note.validate match {
       case Valid(_)         ⇒ Result.fromFuture(Notes.save(note).run())
       case Invalid(errors)  ⇒ Result.failure(errors.head)
     }

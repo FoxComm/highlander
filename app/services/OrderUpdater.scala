@@ -176,7 +176,7 @@ object OrderUpdater {
   private def createShippingAddressFromPayload(address: Address, order: Order)
     (implicit db: Database, ec: ExecutionContext): Result[responses.Addresses.Root] = {
 
-    address.validateNew match {
+    address.validate match {
       case Valid(_) ⇒
         db.run(for {
           newAddress ← Addresses.save(address.copy(customerId = order.customerId))

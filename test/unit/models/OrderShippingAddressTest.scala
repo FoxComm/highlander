@@ -24,7 +24,7 @@ class OrderShippingAddressTest extends TestBase {
         )
 
         forAll(addresses) { (address, errors) =>
-          invalidValue(address.validateNew) mustBe (errors)
+          invalidValue(address.validate) mustBe (errors)
         }
       }
     }

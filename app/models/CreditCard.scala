@@ -1,5 +1,11 @@
 package models
 
+import cats.data.ValidatedNel
+import cats.implicits._
+import services.Failure
+import utils.Litterbox._
+import utils.Validation
+
 import scala.concurrent.ExecutionContext
 
 import cats.data.ValidatedNel
@@ -11,9 +17,7 @@ import org.joda.time.DateTime
 import payloads.CreateCreditCard
 import services.{Failure, Result, StripeGateway}
 import slick.driver.PostgresDriver.api._
-import utils.{Checks, _}
-import cats.implicits._
-import utils.Litterbox._
+import utils._
 
 final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerId: Int, gatewayCustomerId: String,
   gatewayCardId: String, holderName: String, lastFour: String, expMonth: Int, expYear: Int,
@@ -34,12 +38,12 @@ final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerI
     new StripeGateway().authorizeAmount(gatewayCustomerId, amount)
   }
 
-  override def validateNew: ValidatedNel[Failure, CreditCard] = {
-    ( Checks.matches(lastFour, "[0-9]{4}", "lastFour")
-      |@| Checks.notExpired(expYear, expMonth, "credit card is expired")
-      |@| Checks.withinNumberOfYears(expYear, expMonth, 20, "credit card expiration is too far in the future")
-      |@| super.validateNew
-    ).map { case _ ⇒ this }
+  override def validate: ValidatedNel[Failure, CreditCard] = {
+    ( Validation.matches(lastFour, "[0-9]{4}", "lastFour")
+      |@| Validation.notExpired(expYear, expMonth, "credit card is expired")
+      |@| Validation.withinNumberOfYears(expYear, expMonth, 20, "credit card expiration is too far in the future")
+      |@| super.validate
+      ).map { case _ ⇒ this }
   }
 }
 

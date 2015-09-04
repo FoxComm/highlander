@@ -27,7 +27,7 @@ class NoteTest extends IntegrationTestBase {
     "validate" - {
       "fails when body is empty" in {
         val note = Note(storeAdminId = 0, referenceId = 0, referenceType = Note.Order, body = "")
-        val result = note.validateNew
+        val result = note.validate
 
         result must be ('invalid)
         invalidValue(result) must includeFailure("body must not be empty")
@@ -35,7 +35,7 @@ class NoteTest extends IntegrationTestBase {
 
       "fails when body is more than 1000 characters" in {
         val note = Note(storeAdminId = 0, referenceId = 0, referenceType = Note.Order, body = "z" * 1001)
-        val result = note.validateNew
+        val result = note.validate
 
         result must be ('invalid)
         invalidValue(result) must includeFailure("expected 1000 or less")

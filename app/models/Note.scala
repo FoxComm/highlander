@@ -4,7 +4,7 @@ import cats.data.ValidatedNel
 import cats.implicits._
 import services.Failure
 import utils.Litterbox._
-import utils.Checks
+import utils.Validation
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -21,9 +21,9 @@ import utils.Slick.implicits._
 final case class Note(id: Int = 0, storeAdminId: Int, referenceId: Int, referenceType: Note.ReferenceType, body: String)
   extends ModelWithIdParameter {
 
-  def validateNew: ValidatedNel[Failure, Note] = {
-    ( Checks.notEmpty(body, "body")
-      |@| Checks.lesserThanOrEqual(body.length, 1000, "bodySize")
+  def validate: ValidatedNel[Failure, Note] = {
+    ( Validation.notEmpty(body, "body")
+      |@| Validation.lesserThanOrEqual(body.length, 1000, "bodySize")
       ).map { case _ ⇒ this }
   }
 }

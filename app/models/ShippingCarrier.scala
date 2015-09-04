@@ -1,7 +1,5 @@
 package models
 
-import com.wix.accord.dsl.{validator ⇒ createValidator}
-import com.wix.accord.{Failure ⇒ ValidationFailure}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}

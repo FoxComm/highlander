@@ -3,8 +3,6 @@ package models
 import scala.concurrent.Future
 
 import com.pellucid.sealerate
-import com.wix.accord.dsl.{validator ⇒ createValidator}
-import com.wix.accord.{Failure ⇒ ValidationFailure}
 import models.Shipment.Cart
 import monocle.macros.GenLens
 import slick.ast.BaseTypedType

@@ -4,7 +4,7 @@ import cats.data.ValidatedNel
 import cats.implicits._
 import services.Failure
 import utils.Litterbox._
-import utils.Checks
+import utils.Validation
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -21,10 +21,10 @@ final case class Customer(id: Int = 0, disabled: Boolean = false, email: String,
   modality: Option[String] = None)
   extends ModelWithIdParameter {
 
-  def validateNew: ValidatedNel[Failure, Customer] = {
-    ( Checks.notEmpty(firstName, "firstName")
-      |@| Checks.notEmpty(lastName, "lastName")
-      |@| Checks.notEmpty(email, "email")
+  def validate: ValidatedNel[Failure, Customer] = {
+    ( Validation.notEmpty(firstName, "firstName")
+      |@| Validation.notEmpty(lastName, "lastName")
+      |@| Validation.notEmpty(email, "email")
       ).map { case _ ⇒ this }
   }
 }

@@ -29,7 +29,7 @@ final case class StripeFailure(exception: StripeException) extends Failure {
   override def description = List(exception.getMessage)
 }
 
-final case object StripeCouldNotCreateCard extends Failure {
+case object StripeCouldNotCreateCard extends Failure {
   override def description = List("could not create card in stripe")
 }
 
@@ -37,11 +37,11 @@ final case class GeneralFailure(a: String) extends Failure {
   override def description = List(a)
 }
 
-final case object CustomerHasDefaultShippingAddress extends Failure {
+case object CustomerHasDefaultShippingAddress extends Failure {
   override def description = List("customer already has default shipping address")
 }
 
-final case object CustomerHasDefaultCreditCard extends Failure {
+case object CustomerHasDefaultCreditCard extends Failure {
   override def description = List("customer already has default credit card")
 }
 
