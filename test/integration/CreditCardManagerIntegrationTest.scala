@@ -1,6 +1,6 @@
 import akka.http.scaladsl.model.StatusCodes
 
-import models.{Orders, Customer, CreditCards, CreditCard, Customers, Addresses, StoreAdmins, OrderPayments}
+import models.{Address, Orders, Customer, CreditCards, CreditCard, Customers, Addresses, StoreAdmins, OrderPayments}
 import models.OrderPayments.scope._
 import org.joda.time.DateTime
 import payloads.CreateAddressPayload
@@ -21,11 +21,17 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
 
   "CreditCardManagerTest" - {
     "when creating a credit card" - {
-      "successfully" - {
-        val tomorrow = DateTime.now().plusDays(1)
-        val payloadStub = payloads.CreateCreditCard(holderName = "yax", number = StripeSupport.successfulCard,
-          cvv = "123", expYear = tomorrow.getYear, expMonth = tomorrow.getMonthOfYear)
+      val tomorrow = DateTime.now().plusDays(1)
+      val payloadStub = payloads.CreateCreditCard(holderName = "yax", number = StripeSupport.successfulCard,
+        cvv = "123", expYear = tomorrow.getYear, expMonth = tomorrow.getMonthOfYear)
 
+      def payloadWithFullAddress(p: payloads.CreateCreditCard, a: Address): payloads.CreateCreditCard = {
+        p.copy(address = Some(CreateAddressPayload(
+          name = a.name, street1 = a.street1, street2 = a.street2,
+          city = a.city, zip = a.zip, regionId = a.regionId)))
+      }
+
+      "successfully" - {
         "copies an existing address to the new creditCard" ignore new AddressFixture {
           val payload = payloadStub.copy(addressId = Some(address.id), isDefault = true)
           val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
@@ -46,9 +52,7 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
 
         "creates a new address in the book and copies it to the new creditCard" ignore new Fixture {
           val a = Factories.address
-          val payload = payloadStub.copy(address = Some(CreateAddressPayload(
-            name = a.name, street1 = a.street1, street2 = a.street2,
-            city = a.city, zip = a.zip, regionId = a.regionId)))
+          val payload = payloadWithFullAddress(payloadStub, a)
 
           val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
           val (cc :: Nil) = CreditCards.filter(_.customerId === customer.id).result.run().futureValue.toList
@@ -67,6 +71,37 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
           cc.deletedAt mustBe 'empty
           cc.lastFour must === (payload.lastFour)
           (cc.expYear, cc.expMonth) must === ((payload.expYear, payload.expMonth))
+        }
+      }
+
+      "fails" - {
+        "if neither addressId nor full address was provided" ignore new Fixture {
+          val payload = payloadStub.copy(address = None, addressId = None)
+          val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
+
+          response.status must ===(StatusCodes.BadRequest)
+        }
+
+        "if the addressId cannot be found in address book" ignore new Fixture {
+          val payload = payloadStub.copy(addressId = Some(1))
+          val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
+
+          response.status must ===(StatusCodes.BadRequest)
+        }
+
+        "if card info is invalid" ignore new Fixture {
+          val payload = payloadWithFullAddress(payloadStub, Factories.address)
+          val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
+
+          response.status must ===(StatusCodes.BadRequest)
+        }
+
+        "if customer cannot be found" ignore {
+          val payload = payloadWithFullAddress(payloadStub, Factories.address)
+          val response = POST(s"v1/customers/99/payment-methods/credit-cards", payload)
+
+          response.status must ===(StatusCodes.NotFound)
+          response.errors must ===(NotFoundFailure(Customer, 99).description)
         }
       }
     }
