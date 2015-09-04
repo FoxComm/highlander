@@ -8,6 +8,10 @@ import com.wix.accord.RuleViolation
 import org.joda.time.DateTime
 import services._
 
+trait Validation[M] {
+  def validate: ValidatedNel[Failure, M]
+}
+
 object Validation {
   val prefix = "got"
 
