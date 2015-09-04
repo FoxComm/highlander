@@ -39,7 +39,7 @@ object CreditCardManager {
           DBIO.successful(Xor.left(NotFoundFailure(Address, addressId).single))
 
         case Some(address) ⇒
-          val cc = CreditCard.build(stripeCustomer, stripeCard, payload, address)
+          val cc = CreditCard.build(customer.id, stripeCustomer, stripeCard, payload, address)
           CreditCards.save(cc).map(Xor.right)
       }
     }
@@ -49,7 +49,7 @@ object CreditCardManager {
 
       (for {
         address ← Addresses.save(newAddress)
-        cc ← CreditCards.save(CreditCard.build(stripeCustomer, stripeCard, payload, newAddress))
+        cc ← CreditCards.save(CreditCard.build(customer.id, stripeCustomer, stripeCard, payload, newAddress))
       } yield cc).map(Xor.right)
     }
 

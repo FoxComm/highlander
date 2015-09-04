@@ -21,11 +21,11 @@ object StripeSupport {
     "expired_card" -> "4000000000000069"
   )
 
-  def successfulCard = this.successfulCards.get("Visa").get
+  def successfulCard:       String = this.successfulCards.get("Visa").get
 
-  def declinedCard = this.failureCards.get("card_declined").get
+  def declinedCard:         String = this.failureCards.get("card_declined").get
 
-  def failureCard = this.declinedCard
+  def failureCard:          String = this.declinedCard
 
-  def incorrectNumberCard = this.failureCards.get("incorrect_number").get
+  def incorrectNumberCard:  String = this.failureCards.get("incorrect_number").get
 }

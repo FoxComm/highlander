@@ -55,8 +55,8 @@ final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerI
 }
 
 object CreditCard {
-  def build(cust: StripeCustomer, card: StripeCard, p: CreateCreditCard, a: Address): CreditCard = {
-    CreditCard(customerId = 0, gatewayCustomerId = cust.getId, gatewayCardId = card.getId, holderName =
+  def build(customerId: Int, sCust: StripeCustomer, card: StripeCard, p: CreateCreditCard, a: Address): CreditCard = {
+    CreditCard(customerId = customerId, gatewayCustomerId = sCust.getId, gatewayCardId = card.getId, holderName =
       p.holderName, lastFour = p.lastFour, expMonth = p.expMonth, expYear = p.expYear, isDefault = p.isDefault,
       regionId = a.regionId, addressName = a.name, street1 = a.street1, street2 = a.street2,
       city = a.city, zip = a.zip)
