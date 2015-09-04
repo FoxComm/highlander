@@ -9,12 +9,14 @@ import Modal from '../modal/modal';
 export default class Site extends React.Component {
   render() {
     return (
-      <div>
+      <div className="fc-admin">
         <Sidebar/>
-        <Header/>
-        <main role='main'>
-          <RouteHandler/>
-        </main>
+        <div className="fc-container">
+          <Header/>
+          <main role='main' className="fc-main">
+            <RouteHandler/>
+          </main>
+        </div>
         <Modal />
       </div>
     );
