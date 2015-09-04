@@ -1,4 +1,4 @@
-package models
+package models.rules
 
 import com.pellucid.sealerate
 import utils.ADT

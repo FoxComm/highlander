@@ -1,4 +1,4 @@
-package models
+package models.rules
 
 import util.TestBase
 import utils.Seeds.Factories

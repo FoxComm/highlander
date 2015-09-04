@@ -1,6 +1,7 @@
 package services
 
 import models.{ShippingMethods, ShippingMethod}
+import models.rules.{Condition, QueryStatement}
 import scala.concurrent.{Future, ExecutionContext}
 import slick.driver.PostgresDriver.api._
 import utils.JsonFormatters
@@ -29,7 +30,7 @@ object ShippingManager {
 
         val matchingMethods = shippingMethods.filter { shippingMethod ⇒
           shippingMethod.conditions.fold(false) { condition ⇒
-            val statement = condition.extract[models.QueryStatement]
+            val statement = condition.extract[QueryStatement]
             evaluateStatement(shippingData, statement)
           }
         }
@@ -41,8 +42,8 @@ object ShippingManager {
     }
   }
 
-  private def evaluateStatement(shippingData: ShippingData, statement: models.QueryStatement): Boolean = {
-    val initial = statement.comparison == models.QueryStatement.And
+  private def evaluateStatement(shippingData: ShippingData, statement: QueryStatement): Boolean = {
+    val initial = statement.comparison == QueryStatement.And
 
     val conditionsResult = statement.conditions.foldLeft(initial) { (result, nextCond) ⇒
       val res = nextCond.rootObject match {
@@ -52,43 +53,43 @@ object ShippingManager {
       }
 
       statement.comparison match {
-        case models.QueryStatement.And ⇒ result && res
-        case models.QueryStatement.Or ⇒ result || res
+        case QueryStatement.And ⇒ result && res
+        case QueryStatement.Or ⇒ result || res
       }
     }
 
     statement.statements.foldLeft(conditionsResult) { (result, nextCond) ⇒
       statement.comparison match {
-        case models.QueryStatement.And ⇒ evaluateStatement(shippingData, nextCond) && result
-        case models.QueryStatement.Or ⇒ evaluateStatement(shippingData, nextCond) || result
+        case QueryStatement.And ⇒ evaluateStatement(shippingData, nextCond) && result
+        case QueryStatement.Or ⇒ evaluateStatement(shippingData, nextCond) || result
       }
     }
   }
 
-  private def evaluateOrderCondition(shippingData: ShippingData, condition: models.Condition): Boolean = {
+  private def evaluateOrderCondition(shippingData: ShippingData, condition: Condition): Boolean = {
     condition.field match {
-      case "subtotal" ⇒ models.Condition.matches(shippingData.orderSubTotal, condition)
-      case "grandtotal" ⇒ models.Condition.matches(shippingData.orderTotal, condition)
+      case "subtotal" ⇒ Condition.matches(shippingData.orderSubTotal, condition)
+      case "grandtotal" ⇒ Condition.matches(shippingData.orderTotal, condition)
       case _ ⇒ false
     }
   }
 
-  private def evaluateShippingAddressCondition(shippingData: ShippingData, condition: models.Condition): Boolean = {
+  private def evaluateShippingAddressCondition(shippingData: ShippingData, condition: Condition): Boolean = {
     condition.field match {
       case "street1" ⇒
-        models.Condition.matches(shippingData.shippingAddress.street1, condition)
+        Condition.matches(shippingData.shippingAddress.street1, condition)
       case "street2" ⇒
-        models.Condition.matches(shippingData.shippingAddress.street2, condition)
+        Condition.matches(shippingData.shippingAddress.street2, condition)
       case "city" ⇒
-        models.Condition.matches(shippingData.shippingAddress.city, condition)
+        Condition.matches(shippingData.shippingAddress.city, condition)
       case "regionId" ⇒
-        models.Condition.matches(shippingData.shippingAddress.regionId, condition)
+        Condition.matches(shippingData.shippingAddress.regionId, condition)
       case "regionName" ⇒
-        models.Condition.matches(shippingData.shippingRegion.name, condition)
+        Condition.matches(shippingData.shippingRegion.name, condition)
       case "regionAbbrev" ⇒
-        models.Condition.matches(shippingData.shippingRegion.abbreviation, condition)
+        Condition.matches(shippingData.shippingRegion.abbreviation, condition)
       case "zip" ⇒
-        models.Condition.matches(shippingData.shippingAddress.zip, condition)
+        Condition.matches(shippingData.shippingAddress.zip, condition)
       case _ ⇒
         false
     }

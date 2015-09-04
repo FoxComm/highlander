@@ -1,7 +1,8 @@
 package utils
 
-import models.{Condition, CreditCardCharge, GiftCard, GiftCardAdjustment, Order, OrderLineItem, QueryStatement,
+import models.{CreditCardCharge, GiftCard, GiftCardAdjustment, Order, OrderLineItem,
 Shipment, StoreCredit, StoreCreditAdjustment}
+import models.rules.{Condition, QueryStatement}
 import org.json4s.ext.DateTimeSerializer
 import org.json4s.jackson
 import responses.CountryWithRegions

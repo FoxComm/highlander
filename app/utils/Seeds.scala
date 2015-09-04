@@ -4,6 +4,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 
 import models._
+import models.rules._
 import org.flywaydb.core.Flyway
 import org.joda.time.DateTime
 import org.postgresql.ds.PGSimpleDataSource

@@ -1,4 +1,4 @@
-package models
+package models.rules
 
 import com.pellucid.sealerate
 import scala.collection.immutable.Seq
