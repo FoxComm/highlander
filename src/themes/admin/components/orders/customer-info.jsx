@@ -17,7 +17,11 @@ export default class CustomerInfo extends React.Component {
       customerGroups = <div className="customer-info-guest">Guest</div>;
     } else {
       // @TODO: remove mock when api will be ready
-      const customerGroupsList = customer.groups || ['East Coast Customers', 'Lorem Ipsum Dolor Sit Amet', 'New York Customers', 'VIP', 'VIP Private Sale'];
+      const mockList = [
+        'East Coast Customers', 'Lorem Ipsum Dolor Sit Amet',
+        'New York Customers', 'VIP', 'VIP Private Sale'
+      ];
+      const customerGroupsList = customer.groups || mockList;
 
       customerGroups = (
         <div>
