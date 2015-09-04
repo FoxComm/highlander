@@ -77,8 +77,6 @@ class ShippingManagerTest extends IntegrationTestBase {
 
     "Evaluates rule: order total is greater than $10 and is not shipped to a P.O. Box" - {
 
-      // TODO (Jeff): Need to support case insensitivity.
-
       "Is true when the order total is greater than $10 and no address field contains a P.O. Box" in new POCondition {
         val (address, orderShippingAddress) = (for {
           address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = washingtonId))
