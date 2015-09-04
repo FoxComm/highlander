@@ -1,24 +1,28 @@
 package payloads
 
-import utils.Validation
-
-import com.wix.accord.dsl.{validator => createValidator}
-import com.wix.accord.{Failure => ValidationFailure, Validator}
-import com.wix.accord.dsl._
+import services.Failure
+import utils.{Checks, ValidationNew}
+import cats.data.ValidatedNel
+import cats.implicits._
+import utils.Litterbox._
 
 final case class CreateCreditCard(holderName: String, number: String, cvv: String, expYear: Int,
   expMonth: Int, address: Option[CreateAddressPayload] = None, addressId: Option[Int] = None,
   isDefault: Boolean = false)
-  extends Validation[CreateCreditCard] {
+  extends ValidationNew[CreateCreditCard] {
 
-  override def validator = createValidator[CreateCreditCard] { cc =>
-    cc.holderName is notEmpty
-    cc.number should matchRegex("[0-9]+")
-    cc.cvv should matchRegex("[0-9]{3,4}")
-    cc.expYear is between(2015, 2050)
-    cc.expMonth is between(1, 12)
-    // TODO: this is why we'd use implicit validators
-    // cc.address.map { a => a is valid }
+  def validate: ValidatedNel[Failure, CreateCreditCard] = {
+    def someAddress: ValidatedNel[Failure, _] =
+      Checks.validExpr((address.isDefined || addressId.isDefined), "address or addressId must be defined")
+
+    (Checks.notEmpty(holderName, "holderName")
+      |@| Checks.matches(number, "[0-9]+", "number")
+      |@| Checks.matches(cvv, "[0-9]{3,4}", "cvv")
+      |@| Checks.notExpired(expYear, expMonth, "credit card is expired")
+      |@| Checks.withinNumberOfYears(expYear, expMonth, 20, "credit card expiration is too far in the future")
+      |@| Checks.matches(number, "[0-9]+", "number")
+      |@| someAddress
+    ).map { case _ ⇒ this }
   }
 
   def lastFour: String = this.number.takeRight(4)

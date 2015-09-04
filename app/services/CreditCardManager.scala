@@ -2,13 +2,13 @@ package services
 
 import scala.concurrent.{ExecutionContext, Future}
 
+import cats.data.Validated.{Invalid, Valid}
 import cats.data.Xor
 import com.stripe.model.{Card ⇒ StripeCard, Customer ⇒ StripeCustomer}
 import models.{Customer, Addresses, Address, CreditCard, CreditCards}
 import payloads.{CreateAddressPayload, CreateCreditCard}
 import slick.driver.PostgresDriver.api._
-import utils.Validation.Result.Success
-import utils.{Validation ⇒ validation}
+import cats.implicits._
 
 object CreditCardManager {
   val gateway = StripeGateway()
@@ -17,14 +17,14 @@ object CreditCardManager {
     (implicit ec: ExecutionContext, db: Database): Result[CreditCard] = {
 
     payload.validate match {
-      case failure@validation.Result.Failure(violations) ⇒
-        Result.failure(ValidationFailure(failure))
+      case Invalid(f) ⇒
+        Result.failures(f.unwrap)
 
-      case Success ⇒
+      case Valid(_)   ⇒
         // creates the customer, card, and gives us getDefaultCard as the token
         gateway.createCustomerAndCard(customer, payload).flatMap {
           case Xor.Right((sCust, sCard))  ⇒ createRecords(sCust, sCard, customer, payload)
-          case left@Xor.Left(errors)      ⇒ Future.successful(left)
+          case left @ Xor.Left(errors)    ⇒ Future.successful(left)
         }
     }
   }

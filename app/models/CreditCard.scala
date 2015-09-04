@@ -1,23 +1,19 @@
 package models
 
-import cats.data.ValidatedNel
-import cats.implicits._
-import services.Failure
-import utils.Litterbox._
-import utils.Checks
-
 import scala.concurrent.ExecutionContext
 
+import cats.data.ValidatedNel
 import com.github.tototoshi.slick.PostgresJodaSupport._
 import com.stripe.model.{Card ⇒ StripeCard, Customer ⇒ StripeCustomer}
-import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import monocle.Lens
 import monocle.macros.GenLens
 import org.joda.time.DateTime
 import payloads.CreateCreditCard
-import services.{Result, StripeGateway}
+import services.{Failure, Result, StripeGateway}
 import slick.driver.PostgresDriver.api._
-import utils._
+import utils.{Checks, _}
+import cats.implicits._
+import utils.Litterbox._
 
 final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerId: Int, gatewayCustomerId: String,
   gatewayCardId: String, holderName: String, lastFour: String, expMonth: Int, expYear: Int,
@@ -39,18 +35,11 @@ final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerI
   }
 
   override def validateNew: ValidatedNel[Failure, CreditCard] = {
-    def withinTwentyYears: Boolean = {
-      val today = DateTime.now()
-      // At the end of the month
-      val expDate = new DateTime(expYear, expMonth, 1, 0, 0).plusMonths(1).minusSeconds(1)
-      expDate.isBefore(today.plusYears(20))
-    }
-
     ( Checks.matches(lastFour, "[0-9]{4}", "lastFour")
       |@| Checks.notExpired(expYear, expMonth, "credit card is expired")
       |@| Checks.withinNumberOfYears(expYear, expMonth, 20, "credit card expiration is too far in the future")
       |@| super.validateNew
-      ).map { case _ ⇒ this }
+    ).map { case _ ⇒ this }
   }
 }
 

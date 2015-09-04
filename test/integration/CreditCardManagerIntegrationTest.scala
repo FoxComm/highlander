@@ -1,10 +1,9 @@
 import akka.http.scaladsl.model.StatusCodes
 
-import models.{Address, Orders, Customer, CreditCards, CreditCard, Customers, Addresses, StoreAdmins, OrderPayments}
-import models.OrderPayments.scope._
+import models.{Address, Customer, CreditCards, CreditCard, Customers, Addresses}
 import org.joda.time.DateTime
 import payloads.CreateAddressPayload
-import services.{CannotUseInactiveCreditCard, CustomerManager, NotFoundFailure}
+import services.NotFoundFailure
 import util.{StripeSupport, IntegrationTestBase}
 import utils.Seeds.Factories
 import utils.RunOnDbIO
@@ -80,6 +79,7 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
           val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
 
           response.status must ===(StatusCodes.BadRequest)
+          response.errors must contain ("address or addressId must be defined")
         }
 
         "if the addressId cannot be found in address book" ignore new Fixture {
@@ -87,13 +87,16 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
           val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
 
           response.status must ===(StatusCodes.BadRequest)
+          response.errors must contain (NotFoundFailure(Address, 1).description)
         }
 
         "if card info is invalid" ignore new Fixture {
-          val payload = payloadWithFullAddress(payloadStub, Factories.address)
+          val payload = payloadWithFullAddress(payloadStub.copy(number = StripeSupport.incorrectNumberCard),
+            Factories.address)
           val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
 
           response.status must ===(StatusCodes.BadRequest)
+          response.errors must contain ("incorrect_number")
         }
 
         "if customer cannot be found" ignore {
