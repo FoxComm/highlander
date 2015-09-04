@@ -4,6 +4,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 
 import models._
+import models.rules._
 import org.flywaydb.core.Flyway
 import org.joda.time.DateTime
 import org.postgresql.ds.PGSimpleDataSource
@@ -159,9 +160,12 @@ object Seeds {
     def giftCardManual = GiftCardManual(adminId = 0, reasonId = 0)
 
     def shippingMethods = Seq(
-      ShippingMethod(adminDisplayName = "UPS Ground", storefrontDisplayName = "UPS Ground", defaultPrice = 10, isActive = true),
-      ShippingMethod(adminDisplayName = "UPS Next day", storefrontDisplayName = "UPS Next day", defaultPrice = 20, isActive = true),
-      ShippingMethod(adminDisplayName = "DHL Express", storefrontDisplayName = "DHL Express", defaultPrice = 25, isActive = true)
+      ShippingMethod(adminDisplayName = "UPS Ground", storefrontDisplayName = "UPS Ground", defaultPrice = 10,
+        isActive = true),
+      ShippingMethod(adminDisplayName = "UPS Next day", storefrontDisplayName = "UPS Next day", defaultPrice = 20,
+        isActive = true),
+      ShippingMethod(adminDisplayName = "DHL Express", storefrontDisplayName = "DHL Express", defaultPrice = 25,
+        isActive = true)
     )
 
     def shippingPriceRules = Seq(
@@ -201,6 +205,8 @@ object Seeds {
     )
 
     def shipment = Shipment(1, 1, Some(1), Some(1))
+
+    def condition = Condition(rootObject = "Order", field = "subtotal", operator = Condition.Equals, valInt = Some(50))
   }
 
   def main(args: Array[String]): Unit = {

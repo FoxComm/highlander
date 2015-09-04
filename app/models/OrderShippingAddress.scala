@@ -43,7 +43,7 @@ object OrderShippingAddress {
 
 class OrderShippingAddresses(tag: Tag) extends TableWithId[OrderShippingAddress](tag, "order_shipping_addresses")
    {
-  def id = column[Int]("id", O.PrimaryKey)
+  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def orderId = column[Int]("order_id")
   def regionId = column[Int]("region_id")
   def name = column[String]("name")
@@ -76,15 +76,15 @@ object OrderShippingAddresses extends TableQueryWithId[OrderShippingAddress, Ord
   def findByOrderId(orderId: Int): QuerySeq =
     filter(_.orderId === orderId)
 
-  def findByOrderIdWithStates(orderId: Int):
+  def findByOrderIdWithRegions(orderId: Int):
   Query[(OrderShippingAddresses, Regions), (OrderShippingAddress, Region), Seq] =
-    findByOrderId(orderId).withStates
+    findByOrderId(orderId).withRegions
 
   object scope {
     implicit class OrderShippingAddressesQueryConversions(q: QuerySeq) {
-      def withStates: Query[(OrderShippingAddresses, Regions), (OrderShippingAddress, Region), Seq] = for {
+      def withRegions: Query[(OrderShippingAddresses, Regions), (OrderShippingAddress, Region), Seq] = for {
         shippingAddresses ← q
-        regions ← Regions if regions.id === shippingAddresses.id
+        regions ← Regions if regions.id === shippingAddresses.regionId
       } yield (shippingAddresses, regions)
     }
   }

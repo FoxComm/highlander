@@ -19,10 +19,13 @@ lazy val commonSettings = Seq(
   )
 )
 
+/** Work around slick-pg issue with json4s until fix gets merged. */
+lazy val jmatayaSlickPG = RootProject(uri("git://github.com/jmataya/slick-pg.git#temp/json4s-3.3.0"))
 
 lazy val phoenixScala = (project in file(".")).
   settings(commonSettings).
   configs(IT).
+  dependsOn(jmatayaSlickPG).
   settings(inConfig(IT)(Defaults.testSettings)).
   settings(
     wartremoverExcluded ++= ((baseDirectory.value / "test/unit") ** "*.scala").get,
@@ -97,7 +100,6 @@ lazy val phoenixScala = (project in file(".")).
         "com.github.tototoshi" %% "slick-joda-mapper"        % "2.0.0",
         "org.postgresql"       %  "postgresql"               % "9.4-1201-jdbc41",
         "org.flywaydb"         %  "flyway-core"              % "3.2.1",
-        "com.github.tminglei"  %% "slick-pg"                 % "0.9.1",
         // Validations
         "com.wix"              %% "accord-core"              % "0.4.2",
         "org.scalactic"        %% "scalactic"                % "2.2.5",

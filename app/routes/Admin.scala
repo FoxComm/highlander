@@ -272,6 +272,15 @@ object Admin {
               }
             }
           }
+        } ~
+        pathPrefix("shipping-methods") {
+          (get & pathEnd) {
+            complete {
+              whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
+                services.ShippingManager.getShippingMethodsForOrder(order)
+              }
+            }
+          }
         }
       }
     }
