@@ -3,7 +3,8 @@
 import React from 'react';
 import TableView from '../tables/tableview';
 import OrderStore from './store';
-import TabView from '../tabs/tabs';
+import TabListView from '../tabs/tabs';
+import TabView from '../tabs/tab';
 
 export default class Orders extends React.Component {
   constructor(props) {
@@ -29,8 +30,8 @@ export default class Orders extends React.Component {
   render() {
     return (
       <div id="orders">
-        <div className="gutter fc-list-header">
-          <div className="fc-grid fc-grid-gutter">
+        <div className="fc-list-header">
+          <div className="fc-grid gutter">
             <div className="fc-col-2-6">
               <h1 className="fc-title">Orders <span className="fc-subtitle">{this.state.orders.length}</span></h1>
             </div>
@@ -38,11 +39,11 @@ export default class Orders extends React.Component {
               <button className="fc-btn fc-btn-primary"><i className="fa fa-plus"></i> Order</button>
             </div>
           </div>
+          <TabListView>
+            <TabView>What</TabView>
+            <TabView>What</TabView>
+          </TabListView>
         </div>
-        <TabView>
-          <li>What</li>
-          <li>What</li>
-        </TabView>
         <TableView
           columns={this.props.tableColumns}
           rows={this.state.orders}

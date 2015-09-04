@@ -1,0 +1,29 @@
+.fc-tab-list {
+  .margin-top(40px);
+  border-bottom: pxtorem(1px) solid @color-decor9;
+
+  .fc-tab {
+    display: inline-block;
+    background-color: @color-decor11;
+    .padding(0px 20px);
+    .border(1px, solid, @color-decor9);
+    .line-height(58px);
+    border-radius: pxtorem(6px) pxtorem(6px) 0 0;
+    border-bottom-width: 0;
+
+    .fa {
+      color: @color-decor8;
+    }
+
+    &.is-active {
+      background-color: @color-white;
+      margin-bottom: -1px;
+      padding-bottom: 1px;
+    }
+
+    &:hover {
+      background-color: @color-decor35;
+      cursor: pointer;
+    }
+  }
+}

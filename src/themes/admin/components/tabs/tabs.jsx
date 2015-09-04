@@ -2,10 +2,10 @@
 
 import React from 'react';
 
-export default class TabView extends React.Component {
+export default class TabListView extends React.Component {
   render() {
     return (
-      <ul>
+      <ul className="fc-tab-list">
         {React.Children.map(this.props.children, (child, idx) => {
           return React.cloneElement(child, {
               key: `tab-${idx}`
@@ -16,6 +16,6 @@ export default class TabView extends React.Component {
   }
 }
 
-TabView.propTypes = {
+TabListView.propTypes = {
   children: React.PropTypes.array
 }
