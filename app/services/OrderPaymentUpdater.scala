@@ -6,17 +6,17 @@ import cats.data.Xor
 import models.{PaymentMethod, CreditCard, Orders, Order, OrderPayment, OrderPayments, GiftCards, GiftCard,
 StoreCredits, StoreCredit, CreditCards}
 import models.OrderPayments.scope._
-
 import payloads.{GiftCardPayment, StoreCreditPayment}
 import slick.driver.PostgresDriver.api._
+import utils.Slick.implicits._
 
 object OrderPaymentUpdater {
   def addGiftCard(refNum: String, payload: GiftCardPayment)
     (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
 
    val orderAndGiftCard = for {
-     order ← Orders.findCartByRefNum(refNum).result.headOption
-     giftCard ← GiftCards.findByCode(payload.code).result.headOption
+     order ← Orders.findCartByRefNum(refNum).one
+     giftCard ← GiftCards.findByCode(payload.code).one
    } yield (order, giftCard)
 
    db.run(orderAndGiftCard.flatMap {
@@ -45,7 +45,7 @@ object OrderPaymentUpdater {
     (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
 
     db.run(for {
-      order ← Orders.findCartByRefNum(refNum).result.headOption
+      order ← Orders.findCartByRefNum(refNum).one
       storeCredits ← order.map { o ⇒
         StoreCredits.findAllActiveByCustomerId(o.customerId).result
       }.getOrElse(DBIO.successful(Seq.empty[StoreCredit]))
@@ -74,8 +74,8 @@ object OrderPaymentUpdater {
     (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
 
     val orderAndCreditCard = for {
-      order ← Orders.findCartByRefNum(refNum).result.headOption
-      creditCard ← CreditCards._findById(id).result.headOption
+      order ← Orders.findCartByRefNum(refNum).one
+      creditCard ← CreditCards._findById(id).extract.one
     } yield (order, creditCard)
 
     db.run(orderAndCreditCard.flatMap {
@@ -107,7 +107,7 @@ object OrderPaymentUpdater {
   private def deleteCreditCardOrStoreCredit(refNum: String, pmt: PaymentMethod.Type)
     (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
 
-    val order = Orders.findCartByRefNum(refNum).result.headOption
+    val order = Orders.findCartByRefNum(refNum).one
 
     db.run(order.flatMap {
 
@@ -125,8 +125,8 @@ object OrderPaymentUpdater {
     (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
 
     val orderAndGiftCard = for {
-      order ← Orders.findCartByRefNum(refNum).result.headOption
-      giftCard ← GiftCards.findByCode(code).result.headOption
+      order ← Orders.findCartByRefNum(refNum).one
+      giftCard ← GiftCards.findByCode(code).one
     } yield (order, giftCard)
 
     db.run(orderAndGiftCard.flatMap {

@@ -7,12 +7,6 @@ import slick.driver.PostgresDriver.api._
 import utils.Strings._
 
 package object utils {
-  implicit class RunOnDbIO[R](val dbio: DBIO[R]) extends AnyVal {
-    def run()(implicit db: Database): Future[R] = {
-      db.run(dbio)
-    }
-  }
-
   def friendlyClassName[A](a: A): String = a.getClass.getSimpleName.replaceAll("""\$""", "").lowerCaseFirstLetter
 
   implicit def caseClassToMap(cc: Product): Map[String, Any] = {

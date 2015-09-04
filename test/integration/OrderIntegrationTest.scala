@@ -11,9 +11,11 @@ import payloads.UpdateOrderPayload
 import responses.{AdminNotes, FullOrder}
 import services.OrderUpdater.NewRemorsePeriodEnd
 import services.{NotFoundFailure, NoteManager}
-import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.Seeds.Factories
+import utils.Slick.implicits._
+import slick.driver.PostgresDriver.api._
+import Order._
 import utils.{RemorseTimer, Tick}
 import models.OrderLockEvents.scope._
 
@@ -116,7 +118,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       val response = POST(s"v1/orders/${order.referenceNumber}/increase-remorse-period")
       response.status must === (StatusCodes.BadRequest)
 
-      val newOrder = Orders._findById(order.id).extract.result.headOption.run().futureValue.get
+      val newOrder = Orders._findById(order.id).extract.one.run().futureValue.get
       newOrder.remorsePeriodEnd must ===(order.remorsePeriodEnd)
     }
 

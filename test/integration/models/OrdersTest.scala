@@ -5,6 +5,7 @@ import org.joda.time.DateTime
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.Seeds.Factories
+import utils.Slick.implicits._
 import com.github.tototoshi.slick.PostgresJodaSupport._
 
 class OrdersTest extends IntegrationTestBase {

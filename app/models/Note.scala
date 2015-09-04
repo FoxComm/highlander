@@ -16,6 +16,7 @@ import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
+import utils.Slick.implicits._
 
 final case class Note(id: Int = 0, storeAdminId: Int, referenceId: Int, referenceType: Note.ReferenceType, body: String)
   extends ModelWithIdParameter {

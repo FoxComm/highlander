@@ -14,7 +14,7 @@ import payloads._
 import responses.{AllOrders, AllOrdersWithFailures, AdminNotes, FullOrder}
 import services._
 import slick.driver.PostgresDriver.api._
-import utils.RunOnDbIO
+import utils.Slick.implicits._
 
 object Admin {
   def routes(implicit ec: ExecutionContext, db: Database,
@@ -138,7 +138,7 @@ object Admin {
       pathPrefix("orders" / """([a-zA-Z0-9-_]*)""".r) { refNum ⇒
         (get & pathEnd) {
           complete {
-            whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
+            whenFound(Orders.findByRefNum(refNum).one.run()) { order ⇒
               FullOrder.fromOrder(order).map(Xor.right)
             }
           }
@@ -166,7 +166,7 @@ object Admin {
         } ~
         (post & path("unlock") & pathEnd) {
           complete {
-            whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
+            whenFound(Orders.findByRefNum(refNum).one.run()) { order ⇒
               OrderUpdater.unlock(order)
             }
           }
@@ -249,14 +249,14 @@ object Admin {
           } ~
           (patch & entity(as[payloads.UpdateShippingAddress]) & pathEnd) { payload ⇒
             complete {
-              whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
+              whenFound(Orders.findByRefNum(refNum).one.run()) { order ⇒
                 services.OrderUpdater.updateShippingAddress(order, payload)
               }
             }
           } ~
           (delete & pathEnd) {
             complete {
-              Orders.findByRefNum(refNum).result.headOption.run().flatMap {
+              Orders.findByRefNum(refNum).one.run().flatMap {
                 case Some(order) ⇒
                   services.OrderUpdater.removeShippingAddress(order.id).map { _ ⇒ noContentResponse }
                 case None ⇒

@@ -1,14 +1,12 @@
 package services
 
 import cats.data.Validated.{Valid, Invalid}
-import cats.data.Xor
 import models._
 import responses.AdminNotes
 import responses.AdminNotes.Root
-import slick.dbio.Effect.Write
-import slick.profile.FixedSqlAction
+import utils.Slick.implicits._
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.ExecutionContext
 import slick.driver.PostgresDriver.api._
 
 object NoteManager {
@@ -28,7 +26,7 @@ object NoteManager {
 
     db.run(update).flatMap { rowsAffected ⇒
       if (rowsAffected == 1) {
-        db.run(query.result.headOption).flatMap {
+        db.run(query.one).flatMap {
           case Some(note) ⇒ Result.right(AdminNotes.build(note, author))
           case None       ⇒ Result.failure(notFound(noteId))
         }

@@ -5,7 +5,7 @@ import models.{Order, OrderLineItem, OrderLineItems, Orders, InventorySummaries,
 
 import payloads.{UpdateLineItemsPayload ⇒ Payload}
 import util.IntegrationTestBase
-import utils._
+import utils.Slick.implicits._
 
 class LineItemUpdaterTest extends IntegrationTestBase {
   import api._

@@ -3,25 +3,25 @@ package services
 import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Xor
+import cats.data.Validated.{Valid, Invalid}
 import com.stripe.model.{Card ⇒ StripeCard, Customer ⇒ StripeCustomer}
 import models.{Order, Orders, Customer, Addresses, Address, CreditCard, CreditCards, OrderPayments, OrderPayment,
 OrderBillingAddress, OrderBillingAddresses}
 import payloads.CreateCreditCard
 import responses.FullOrder
 import slick.driver.PostgresDriver.api._
+import utils.Slick.implicits._
 
 object CreditCardManager {
   def createCardForOrder(order: Order, customer: Customer, payload: CreateCreditCard)
     (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
 
     val gateway = StripeGateway()
-    val payloadValidation = payload.validate
 
-    payloadValidation.isInvalid match {
-      case true ⇒
-        val failures = payloadValidation.foldLeft(List.empty[Failure]) { case (list, _) ⇒ list }
-        Result.failure(failures.head)
-      case false ⇒
+      payload.validate match {
+      case Invalid(errors) ⇒
+        Result.failure(errors.head)
+      case Valid(_) ⇒
         // creates the customer, card, and gives us getDefaultCard as the token
         gateway.createCustomerAndCard(customer, payload).flatMap {
           case Xor.Right((stripeCustomer, stripeCard)) =>
@@ -63,7 +63,7 @@ object CreditCardManager {
           builtAddress.copy(orderPaymentId = orderPayment.id))).map(Some(_))
       }.getOrElse(DBIO.successful(None))
 
-      o ← Orders._findById(order.id).result.headOption
+      o ← Orders._findById(order.id).extract.one
     } yield o
 
     db.run(queries.transactionally)

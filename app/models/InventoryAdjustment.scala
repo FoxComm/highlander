@@ -4,8 +4,8 @@ import scala.concurrent.Future
 
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import slick.jdbc.{ActionBasedSQLInterpolation ⇒ Q}
-import utils._
+import utils.{TableQueryWithId, GenericTable, ModelWithIdParameter}
+import utils.Slick.implicits._
 
 final case class InventoryAdjustment(id: Int = 0, skuId: Int, inventoryEventId: Int, reservedForFulfillment: Int = 0, fulfilled: Int = 0,
                                availablePreOrder: Int = 0, availableBackOrder: Int = 0, outstandingPreOrders: Int = 0,

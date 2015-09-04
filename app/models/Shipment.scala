@@ -9,7 +9,7 @@ import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId}
-
+import utils.Slick.implicits._
 
 final case class Shipment(id: Int = 0, orderId: Int, shippingMethodId: Option[Int] = None, shippingAddressId: Option[Int] = None, status: Shipment.Status = Cart, shippingPrice: Option[Int] = None) extends ModelWithIdParameter
 
@@ -52,7 +52,7 @@ object Shipments extends TableQueryWithId[Shipment, Shipments](
   }
 
   def _findByOrderId(id: Int) = {
-    filter(_.orderId === id).result.headOption
+    filter(_.orderId === id).one
   }
 
 }

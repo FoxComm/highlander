@@ -5,6 +5,7 @@ import org.scalatest.prop.TableDrivenPropertyChecks._
 import services._
 import utils.Seeds.Factories
 import util.TestBase
+import utils.Slick.implicits._
 
 class OrderBillingAddressTest extends TestBase {
   "OrderBillingAddress" - {

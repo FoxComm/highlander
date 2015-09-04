@@ -5,6 +5,8 @@ import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.UpdateReturning._
+import utils.Slick.implicits._
+import util.SlickSupport.implicits._
 
 class SlickTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global
@@ -14,7 +16,7 @@ class SlickTest extends IntegrationTestBase {
     val update = Customers.filter(_.id === 1).map(_.firstName).
       updateReturning(Customers.map(_.firstName), "Sally")
 
-    val firstName = db.run(update.headOption).futureValue.get
+    val firstName = update.one.futureValue.get
     firstName must === ("Sally")
   }
 
@@ -23,7 +25,7 @@ class SlickTest extends IntegrationTestBase {
     val update = Customers.filter(_.id === 1).map { c ⇒ (c.firstName, c.lastName) }.
       updateReturning(Customers.map { c ⇒ (c.firstName, c.lastName) }, ("Sally", "Doe"))
 
-    val names = db.run(update.headOption).futureValue.get
+    val names = update.one.futureValue.get
     names must === (("Sally", "Doe"))
   }
 
