@@ -52,7 +52,7 @@ class CreditCardTest extends TestBase {
         )
 
         forAll(cards) { (cc, errors) =>
-          invalidValue(cc.validateNew) mustBe errors
+          invalidValue(cc.validate) mustBe errors
         }
       }
     }
