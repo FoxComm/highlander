@@ -6,7 +6,9 @@ import com.pellucid.sealerate
 import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import com.wix.accord.{Failure ⇒ ValidationFailure}
 import monocle.macros.GenLens
+import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
+import slick.jdbc.JdbcType
 import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
 
 final case class Note(id: Int = 0, storeAdminId: Int, referenceId: Int, referenceType: Note.ReferenceType, body: String)
@@ -27,7 +29,7 @@ object Note {
     def types = sealerate.values[ReferenceType]
   }
 
-  implicit val noteColumnType = ReferenceType.slickColumn
+  implicit val noteColumnType: JdbcType[ReferenceType] with BaseTypedType[ReferenceType] = ReferenceType.slickColumn
 }
 
 class Notes(tag: Tag) extends GenericTable.TableWithId[Note](tag, "notes")  {

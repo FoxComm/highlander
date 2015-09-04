@@ -1,5 +1,7 @@
 package models
 
+import slick.ast.BaseTypedType
+import slick.jdbc.JdbcType
 import utils.Money._
 import utils.{GenericTable, Validation, TableQueryWithId, ModelWithIdParameter}
 
@@ -23,7 +25,7 @@ object OrderPriceCriterion{
   case object GrandTotalLessTax extends PriceType
   case object GrandTotalLessShipping extends PriceType
 
-  implicit val PriceTypeColumn = MappedColumnType.base[PriceType, String]({
+  implicit val PriceTypeColumn: JdbcType[PriceType] with BaseTypedType[PriceType] = MappedColumnType.base[PriceType, String]({
     case t => t.toString.toLowerCase
   },
   {

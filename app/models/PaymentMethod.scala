@@ -7,6 +7,8 @@ import com.stripe.model.{Card ⇒ StripeCard}
 import com.wix.accord.dsl.{validator ⇒ createValidator}
 import com.wix.accord.{Failure ⇒ ValidationFailure}
 import services.Result
+import slick.ast.BaseTypedType
+import slick.jdbc.JdbcType
 import utils.ADT
 
 abstract class PaymentMethod {
@@ -23,6 +25,6 @@ object PaymentMethod {
     def types = sealerate.values[Type]
   }
 
-  implicit val paymentMethodTypeColumnType = Type.slickColumn
+  implicit val paymentMethodTypeColumnType: JdbcType[Type] with BaseTypedType[Type] = Type.slickColumn
 }
 

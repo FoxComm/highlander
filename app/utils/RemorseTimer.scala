@@ -10,13 +10,14 @@ import slick.driver.PostgresDriver.api._
 
 case object Tick
 
-class RemorseTimer(implicit ec: ExecutionContext, db: Database) extends Actor {
+class RemorseTimer(implicit db: Database) extends Actor {
+  import context.dispatcher
 
   override def receive = {
     case Tick ⇒ sender() ! tick
   }
 
-  private def tick(implicit ec: ExecutionContext, db: Database): Future[Unit] = {
+  private def tick: Future[Unit] = {
     val orders = Orders
       .filter(_.status === (RemorseHold: Status))
       .filterNot(_.locked)

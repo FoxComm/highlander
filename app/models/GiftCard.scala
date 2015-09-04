@@ -7,7 +7,9 @@ import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import models.GiftCard.{OnHold, Status}
 import monocle.macros.GenLens
 import services.Result
+import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
+import slick.jdbc.JdbcType
 import utils.Money._
 import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
 import validators.nonEmptyIf
@@ -56,7 +58,7 @@ object GiftCard {
 
   val activeStatuses = Set[Status](Active)
 
-  implicit val statusColumnType = Status.slickColumn
+  implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
 }
 
 class GiftCards(tag: Tag) extends GenericTable.TableWithId[GiftCard](tag, "gift_cards")  {
