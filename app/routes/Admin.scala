@@ -99,8 +99,6 @@ object Admin {
               whenFound(Customers.findById(customerId)) { customer ⇒
                 CreditCardManager.createCardThroughGateway(customer, payload)
               }
-//              val cust = utils.Seeds.Factories.customer.copy(id = customerId)
-//              result.map(renderGoodOrFailures)
             }
           } ~
           (patch & path(IntNumber) & entity(as[payloads.EditCreditCard]) & pathEnd) { (cardId, payload) ⇒
