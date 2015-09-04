@@ -15,7 +15,9 @@ import models.StoreCredit.{OnHold, Status}
 import monocle.macros.GenLens
 import org.joda.time.DateTime
 import services.Result
+import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
+import slick.jdbc.JdbcType
 import utils.Joda._
 import utils.Money._
 import utils.{ADT, FSM, GenericTable, Model, ModelWithIdParameter, NewModel, TableQueryWithId}
@@ -72,7 +74,7 @@ object StoreCredit {
 
   val activeStatuses = Set[Status](Active)
 
-  implicit val statusColumnType = Status.slickColumn
+  implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
 
   def processFifo(storeCredits: List[StoreCredit], requestedAmount: Int): Map[StoreCredit, Int] = {
     val fifo = storeCredits.sortBy(_.createdAt)

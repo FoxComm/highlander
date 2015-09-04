@@ -15,7 +15,6 @@ case object Tick
 final case class RemorseTimerResponse(updatedQuantity: Future[Int])
 
 class RemorseTimer(implicit ec: ExecutionContext, db: Database) extends Actor {
-
   override def receive = {
     case Tick ⇒ sender() ! tick
   }

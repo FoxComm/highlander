@@ -4,7 +4,9 @@ import cats.data.Xor
 import org.joda.money.CurrencyUnit
 import org.json4s.CustomSerializer
 import org.json4s.JsonAST.JString
+import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
+import slick.jdbc.JdbcType
 
 // ALWAYS use BigMoney
 object Money {
@@ -19,7 +21,7 @@ object Money {
     def unapply(c: Currency): Option[String] = Some(c.getCode)
   }
 
-  implicit val currencyColumnType = MappedColumnType.base[Currency, String](
+  implicit val currencyColumnType: JdbcType[Currency] with BaseTypedType[Currency] = MappedColumnType.base[Currency, String](
     { c => c.getCode },
     { s => Currency(s) })
 

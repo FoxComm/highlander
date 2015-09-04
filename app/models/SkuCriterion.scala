@@ -3,7 +3,9 @@ package models
 import com.wix.accord.dsl.{validator ⇒ createValidator}
 import com.wix.accord.{Failure ⇒ ValidationFailure}
 import monocle.macros.GenLens
+import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
+import slick.jdbc.JdbcType
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 
@@ -18,7 +20,7 @@ object SkuCriterion{
   case object Archetype extends CriterionType
   case object Attribute extends CriterionType
 
-  implicit val CriterionTypeColumnType = MappedColumnType.base[CriterionType, String]({
+  implicit val CriterionTypeColumnType: JdbcType[CriterionType] with BaseTypedType[CriterionType] = MappedColumnType.base[CriterionType, String]({
     case t => t.toString.toLowerCase
   },
   {

@@ -17,7 +17,9 @@ import models.Order.{Cart, Status}
 import monocle.macros.GenLens
 import org.joda.time.DateTime
 import services.OrderTotaler
+import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
+import slick.jdbc.JdbcType
 import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
 
 final case class Order(id: Int = 0, referenceNumber: String = "", customerId: Int,
@@ -84,7 +86,7 @@ object Order {
     def types = sealerate.values[Status]
   }
 
-  implicit val statusColumnType = Status.slickColumn
+  implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
 
   def buildCart(customerId: Int): Order = Order(customerId = customerId, status = Order.Cart)
 }

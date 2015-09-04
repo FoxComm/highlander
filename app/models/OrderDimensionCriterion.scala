@@ -1,5 +1,7 @@
 package models
 
+import slick.ast.BaseTypedType
+import slick.jdbc.JdbcType
 import utils.{GenericTable, Validation, TableQueryWithId, ModelWithIdParameter}
 
 import com.wix.accord.dsl.{validator => createValidator}
@@ -21,7 +23,7 @@ object OrderDimensionCriterion{
   case object HeightOnly extends DimensionType
   case object WidthOnly extends DimensionType
 
-  implicit val DimensionTypeColumn = MappedColumnType.base[DimensionType, String]({
+  implicit val DimensionTypeColumn: JdbcType[DimensionType] with BaseTypedType[DimensionType] = MappedColumnType.base[DimensionType, String]({
     case t => t.toString.toLowerCase
   },
   {

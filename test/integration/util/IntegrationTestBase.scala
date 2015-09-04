@@ -16,5 +16,5 @@ trait IntegrationTestBase extends TestBase
     interval = Span(1, Millisecond)
   )
 
-  implicit val timeout = Timeout(6, TimeUnit.SECONDS)
+  implicit val timeout: Timeout = Timeout(6, TimeUnit.SECONDS)
 }
