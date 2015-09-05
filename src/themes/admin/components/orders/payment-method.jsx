@@ -8,9 +8,9 @@ export default class PaymentMethod extends React.Component {
 
     return (
       <div className="payment-method">
-        <i className={`fa fa-${model.cardType}`}></i>
+        <i className={`fa fa-cc-${model.cardType}`}></i>
         <div>
-          <div>{model.cardNumber}</div>
+          <div className="payment-method-number">{model.cardNumber}</div>
           <div>{model.cardExp}</div>
         </div>
       </div>
