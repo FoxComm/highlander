@@ -217,6 +217,9 @@ object Admin {
           (post & entity(as[payloads.StoreCreditPayment]) & pathEnd) { payload ⇒
             complete { OrderPaymentUpdater.addStoreCredit(refNum, payload).map(renderNothingOrFailures) }
           } ~
+          (patch & entity(as[payloads.StoreCreditPayment]) & pathEnd) { payload ⇒
+            complete { OrderPaymentUpdater.addStoreCredit(refNum, payload).map(renderNothingOrFailures) }
+          } ~
           (delete & pathEnd) {
             complete { OrderPaymentUpdater.deleteStoreCredit(refNum).map(renderNothingOrFailures) }
           }
