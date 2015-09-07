@@ -64,7 +64,7 @@ object OrderPaymentUpdater {
           }
 
           val queries = (delete >> (OrderPayments ++= payments)).transactionally
-          db.run(queries).map(_ ⇒ Xor.right({}))
+          db.run(queries).map(_ ⇒ Xor.right(Unit))
         }
 
       case (None, _) ⇒
