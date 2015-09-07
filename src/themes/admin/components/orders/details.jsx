@@ -39,7 +39,9 @@ export default class OrderDetails extends React.Component {
         </span>
       );
     } else if (OrderStore.holdStatusList.indexOf(order.orderStatus) !== -1 || 1) {
-      actions = <button onClick={this.toggleEdit.bind(this)}>Edit Order Details</button>;
+      actions = (
+        <button className="order-details-edit-order" onClick={this.toggleEdit.bind(this)}>Edit Order Details</button>
+      );
     }
 
     return (

@@ -1,0 +1,79 @@
+{
+  "id": 1,
+  "referenceNumber": "ABCD1234-11",
+  "orderStatus": "manualHold",
+  "shippingStatus": "manualHold",
+  "paymentStatus": "manualHold",
+  "lineItems": [
+    {
+      "imagePath": "http://lorempixel.com/75/75/fashion",
+      "name": "donkey product",
+      "skuId": 1,
+      "price": 33,
+      "qty": 1,
+      "status": "cart"
+    },
+    {
+      "imagePath": "http://lorempixel.com/75/75/fashion",
+      "name": "donkey product",
+      "skuId": 2,
+      "price": 33,
+      "qty": 1,
+      "status": "cart"
+    },
+    {
+      "imagePath": "http://lorempixel.com/75/75/fashion",
+      "name": "donkey product",
+      "skuId": 3,
+      "price": 33,
+      "qty": 1,
+      "status": "cart"
+    }
+  ],
+  "adjustments": [],
+  "fraudScore": 77,
+  "totals": {
+    "subTotal": 333,
+    "taxes": 10,
+    "adjustments": 0,
+    "total": 510
+  },
+  "customer": {
+    "id": 1,
+    "disabled": false,
+    "email": "yax@yax.com",
+    "password": "password",
+    "firstName": "Yax",
+    "lastName": "Fuentes",
+    "phoneNumber": "123-444-4388",
+    "location": "DonkeyVille, TN",
+    "modality": "Desktop[PC]"
+  },
+  "shippingMethod": {
+    "id": 1,
+    "adminDisplayName": "UPS Ground",
+    "storefrontDisplayName": "UPS Ground",
+    "defaultPrice": 10,
+    "isActive": true
+  },
+  "shippingAddress": {
+    "id": 1,
+    "customerId": 1,
+    "regionId": 4177,
+    "name": "Home",
+    "street1": "555 E Lake Union St.",
+    "city": "Seattle",
+    "zip": "12345",
+    "isDefaultShipping": true
+  },
+  "payment": {
+    "amount": 0,
+    "status": "fixme",
+    "referenceNumber": "ABC123",
+    "paymentMethod": {
+      "cardType": "visa",
+      "cardExp": "9/2017",
+      "cardNumber": "xxx-xxxx-xxxx-4242"
+    }
+  }
+}
