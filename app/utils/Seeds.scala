@@ -20,7 +20,8 @@ object Seeds {
     shippingMethods: Seq[ShippingMethod], shippingPriceRules: Seq[ShippingPriceRule],
     shippingMethodRuleMappings: Seq[ShippingMethodPriceRule], orderCriteria: Seq[OrderCriterion],
     orderPriceCriteria: Seq[OrderPriceCriterion], priceRuleCriteriaMappings: Seq[ShippingPriceRuleOrderCriterion],
-    skus: Seq[Sku], orderLineItems: Seq[OrderLineItem], orderPayments: Seq[OrderPayment], shipment: Shipment, paymentMethods: AllPaymentMethods)
+    skus: Seq[Sku], orderLineItems: Seq[OrderLineItem], orderPayments: Seq[OrderPayment], shipment: Shipment,
+    paymentMethods: AllPaymentMethods)
 
   final case class AllPaymentMethods(giftCard: GiftCard = Factories.giftCard, storeCredit: StoreCredit = Factories
     .storeCredit)
@@ -86,6 +87,7 @@ object Seeds {
       scReason ← Reasons.save(Factories.reason.copy(storeAdminId = storeAdmin.id))
       scOrigin ← StoreCreditManuals.save(Factories.storeCreditManual.copy(adminId = storeAdmin.id, reasonId = scReason.id))
       storeCredit ← StoreCredits.save(s.paymentMethods.storeCredit.copy(originId = scOrigin.id))
+      storeCreditAdjustments ← StoreCredits.auth(storeCredit, orderPayments.id, 10)
     } yield (customers, order, address, shippingAddress, creditCard, giftCard, storeCredit)
   }
 
