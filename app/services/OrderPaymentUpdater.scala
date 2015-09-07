@@ -58,11 +58,13 @@ object OrderPaymentUpdater {
           val error = CustomerHasInsufficientStoreCredit(id = order.customerId, has = available, want = payload.amount)
           Result.left(error)
         } else {
+          val delete = OrderPayments.filter(_.orderId === order.id).storeCredits.delete
           val payments = StoreCredit.processFifo(storeCredits.toList, payload.amount).map { case (sc, amount) ⇒
             OrderPayment.build(sc).copy(orderId = order.id, amount = Some(amount))
           }
 
-          db.run(OrderPayments ++= payments).map(_ ⇒ Xor.right({}))
+          val queries = (delete >> (OrderPayments ++= payments)).transactionally
+          db.run(queries).map(_ ⇒ Xor.right(Unit))
         }
 
       case (None, _) ⇒

@@ -152,6 +152,23 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
           payments.map(_.paymentMethodId) must contain noneOf(1, 2)
           payments must have size (2)
         }
+
+        "adding or editing store credit should remove previous order payments" in new StoreCreditFixture {
+          val payload = payloads.StoreCreditPayment(amount = 75)
+          val createdResponse = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
+          val createdPayments = storeCreditPayments(order)
+
+          createdResponse.status must ===(StatusCodes.NoContent)
+          createdPayments must have size (2)
+
+          val createdPaymentIds = createdPayments.map(_.id).toList
+          val editedResponse = PATCH(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
+          val editedPayments = storeCreditPayments(order)
+
+          editedResponse.status must ===(StatusCodes.NoContent)
+          editedPayments must have size (2)
+          editedPayments.map(_.id) mustNot contain theSameElementsAs(createdPaymentIds)
+        }
       }
 
       "fails if the order is not found" in new Fixture {
