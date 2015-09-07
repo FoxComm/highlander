@@ -36,7 +36,7 @@ if [[ ! -d /usr/local/share/flyway ]]; then
     echo "installing flyway.."
     unzip flyway-commandline-3.2.1.zip
     mv flyway-3.2.1 /usr/local/share/flyway
-    chown -R vagrant:vagrant /usr/local/share/flyway 
+    chown -R vagrant:vagrant /usr/local/share/flyway
     chmod g+x /usr/local/share/flyway
     echo "PATH=\$PATH:/usr/local/share/flyway/" >> /etc/profile
     export PATH=$PATH:/usr/local/share/flyway
@@ -57,8 +57,11 @@ sed -i 's/::1\/128\s*md5/::1\/128 trust/' /etc/postgresql/9.4/main/pg_hba.conf
 sudo -u postgres createuser -s root || {
     echo "postgres: root user already created, ignoring"
 }
+sudo -u postgres createuser -s phoenix || {
+    echo "postgres: root user already created, ignoring"
+}
 sudo -u postgres createuser -s vagrant || {
-    echo "postgres: vagrant user already created, ignorng" 
+    echo "postgres: vagrant user already created, ignorng"
 }
 
 service postgresql restart
