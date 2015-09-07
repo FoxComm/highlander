@@ -4,6 +4,7 @@ import cats.data.ValidatedNel
 import cats.implicits._
 import services.Failure
 import utils.Litterbox._
+import utils.Money.Currency
 import utils._
 
 final case class CreateCreditCard(holderName: String, number: String, cvv: String, expYear: Int,
@@ -45,3 +46,6 @@ final case class GiftCardPayment(code: String, amount: Int)
 final case class StoreCreditPayment(amount: Int)
 
 final case class CreditCardPayment(creditCardId: Int)
+
+final case class CreateManualStoreCredit(amount: Int, currency: Currency = Currency.USD,
+  reasonId: Int, subReasonId: Option[Int] = None)
