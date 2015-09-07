@@ -7,7 +7,6 @@ export default class OrderSummary extends React.Component {
   render() {
     let order = this.props.order;
     let discounts = null;
-    order.totals.adjustments = -4000;
 
     const adjustments = order.totals.adjustments || 0;
 
