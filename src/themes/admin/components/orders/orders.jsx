@@ -5,6 +5,7 @@ import TableView from '../tables/tableview';
 import OrderStore from './store';
 import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
+import SubNav from '../subnav/subnav';
 
 export default class Orders extends React.Component {
   constructor(props) {
@@ -37,6 +38,14 @@ export default class Orders extends React.Component {
             </div>
             <div className="fc-col-2-6 fc-push-2-6 fc-actions">
               <button className="fc-btn fc-btn-primary"><i className="fa fa-plus"></i> Order</button>
+            </div>
+          </div>
+          <div className="fc-grid gutter">
+            <div className="fc-col-1-1">
+              <SubNav>
+                <li><a>G'day</a></li>
+                <li className="is-active"><a>Two</a></li>
+              </SubNav>
             </div>
           </div>
           <TabListView>

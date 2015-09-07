@@ -4,7 +4,10 @@ import React from 'react';
 
 export default class TabView extends React.Component {
   constructor(props) {
-
+    super(props);
+    this.state = {
+      selected: false
+    };
   }
 
   render() {
