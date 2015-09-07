@@ -161,12 +161,13 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
           createdResponse.status must ===(StatusCodes.NoContent)
           createdPayments must have size (2)
 
+          val createdPaymentIds = createdPayments.map(_.id).toList
           val editedResponse = PATCH(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
           val editedPayments = storeCreditPayments(order)
 
           editedResponse.status must ===(StatusCodes.NoContent)
           editedPayments must have size (2)
-          editedPayments.map(_.paymentMethodId) must contain noneOf(1, 2)
+          editedPayments.map(_.id) mustNot contain theSameElementsAs(createdPaymentIds)
         }
       }
 
