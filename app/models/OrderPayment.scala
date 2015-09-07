@@ -52,8 +52,6 @@ object OrderPayments extends TableQueryWithId[OrderPayment, OrderPayments](
   idLens = GenLens[OrderPayment](_.id)
 )(new OrderPayments(_)){
 
-  type QuerySeq = Query[OrderPayments, OrderPayment, Seq]
-
   import models.{PaymentMethod ⇒ Pay}
 
   def update(payment: OrderPayment)(implicit db: Database): Future[Int] =
