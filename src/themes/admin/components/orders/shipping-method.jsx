@@ -29,7 +29,7 @@ export default class OrderShippingMethod extends React.Component {
     let methods = this.props.isEditing ? this.state.methods : _.filter(this.state.methods, {isActive: true});
 
     return (
-      <section className="fc-contentBox" id="order-shipping-method">
+      <section className="fc-content-box" id="order-shipping-method">
         <header>Shipping Method</header>
         <table className="fc-table">
           <TableHead columns={this.props.tableColumns} />

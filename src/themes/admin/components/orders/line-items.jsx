@@ -9,7 +9,7 @@ export default class OrderLineItems extends React.Component {
     let order = this.props.order;
 
     return (
-      <section className="fc-contentBox order-line-items">
+      <section className="fc-content-box order-line-items">
         <header>
           <span>Items</span>
         </header>

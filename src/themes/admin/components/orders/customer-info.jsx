@@ -33,7 +33,7 @@ export default class CustomerInfo extends React.Component {
     }
 
     return (
-      <div className="customer-info fc-contentBox">
+      <div className="customer-info fc-content-box">
         <div className="customer-info-header">
           <div className="customer-info-head">
             <div className="customer-info-rank">

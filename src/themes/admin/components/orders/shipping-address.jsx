@@ -24,7 +24,7 @@ export default class OrderShippingAddress extends React.Component {
     }
 
     return (
-      <section className="fc-contentBox" id="order-shipping-address">
+      <section className="fc-content-box" id="order-shipping-address">
         <header>Shipping Address</header>
         <article>
           {innercontent}

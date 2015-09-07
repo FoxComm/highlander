@@ -11,7 +11,7 @@ export default class OrderPayment extends React.Component {
     let order = this.props.order;
 
     return (
-      <section className="fc-contentBox" id="order-payment">
+      <section className="fc-content-box" id="order-payment">
         <header>Payment</header>
         <table className="fc-table">
           <TableHead columns={this.props.tableColumns}/>
