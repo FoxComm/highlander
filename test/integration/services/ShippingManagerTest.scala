@@ -32,7 +32,7 @@ class ShippingManagerTest extends IntegrationTestBase {
       "Is true when the order total is greater than $25" in new PriceConditionFixture {
         val matchingMethods = ShippingManager.getShippingMethodsForOrder(expensiveOrder).futureValue
         matchingMethods.isRight must === (true)
-        matchingMethods.get.head must === (shippingMethod)
+        matchingMethods.get.head.name must === (shippingMethod.adminDisplayName)
       }
 
       "Is false when the order total is less than $25" in new PriceConditionFixture {
@@ -53,7 +53,7 @@ class ShippingManagerTest extends IntegrationTestBase {
 
         val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).futureValue
         matchingMethods.isRight must === (true)
-        matchingMethods.get.head must === (shippingMethod)
+        matchingMethods.get.head.name must === (shippingMethod.adminDisplayName)
       }
 
       "Is false when the order total is $27 and shipped to MI" in new StateAndPriceCondition {

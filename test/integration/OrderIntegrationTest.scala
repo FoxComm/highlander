@@ -604,7 +604,8 @@ class OrderIntegrationTest extends IntegrationTestBase
             | }
           """.stripMargin
 
-        val action = ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(parse(conditions))))
+        val action = models.ShippingMethods.save(Factories.shippingMethods.head.copy(
+          conditions = Some(parse(conditions))))
         val shippingMethod = db.run(action).futureValue
 
         val response = GET(s"v1/orders/${order.referenceNumber}/shipping-methods")
