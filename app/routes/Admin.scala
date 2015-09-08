@@ -11,7 +11,7 @@ import models._
 import akka.http.scaladsl.model.StatusCodes._
 
 import payloads._
-import responses.{AllOrders, AllOrdersWithFailures, AdminNotes, FullOrder}
+import responses.{AllOrders, AllOrdersWithFailures, AdminNotes, GiftCardResponse, FullOrder}
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
@@ -31,7 +31,10 @@ object Admin {
         } ~
         (get & path(Segment) & pathEnd) { code ⇒
           complete {
-            GiftCards.findByCode(code).result.run().map(renderOrNotFound(_))
+            GiftCards.findByCode(code).one.run().map(
+              case Some(_) ⇒ render(GiftCardResponse.build(_))
+              case None ⇒ notFoundResponse
+            )
           }
         }
       } ~

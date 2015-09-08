@@ -5,7 +5,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import models.{GiftCard, GiftCardAdjustment}
 import org.joda.time.DateTime
 
-object GiftCard {
+object GiftCardResponse {
   final case class Root(
     id: Int,
     //createdAt: DateTime,
