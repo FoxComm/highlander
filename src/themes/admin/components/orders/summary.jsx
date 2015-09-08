@@ -18,14 +18,14 @@ export default class OrderSummary extends React.Component {
         <div>
           <dt>Discounts</dt>
           <dd>{formatCurrency(order.totals.adjustments)}</dd>
-          <dt className="order-summary-new-subtotal">New Subtotal</dt>
-          <dd className="order-summary-new-subtotal">{formatCurrency(subTotalWithDiscounts)}</dd>
+          <dt className="fc-order-summary-new-subtotal">New Subtotal</dt>
+          <dd className="fc-order-summary-new-subtotal">{formatCurrency(subTotalWithDiscounts)}</dd>
         </div>
       );
     }
 
     return (
-      <div className="order-summary fc-content-box">
+      <div className="fc-order-summary fc-content-box">
         <header>Order Summary</header>
         <article>
           <dl className="order-totals">

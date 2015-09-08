@@ -14,7 +14,7 @@ export default class CustomerInfo extends React.Component {
     let customerGroups = null;
 
     if (isGuest) {
-      customerGroups = <div className="customer-info-guest">Guest</div>;
+      customerGroups = <div className="fc-customer-info-guest">Guest</div>;
     } else {
       // @TODO: remove mock when api will be ready
       const mockList = [
@@ -26,33 +26,33 @@ export default class CustomerInfo extends React.Component {
       customerGroups = (
         <div>
           {customerGroupsList.map((customer) => {
-            return <div className="customer-info-group">{customer}</div>
+            return <div className="fc-customer-info-group">{customer}</div>
           })}
         </div>
       );
     }
 
     return (
-      <div className="customer-info fc-content-box">
-        <div className="customer-info-header">
-          <div className="customer-info-head">
-            <div className="customer-info-rank">
+      <div className="fc-customer-info fc-content-box">
+        <div className="fc-customer-info-header">
+          <div className="fc-customer-info-head">
+            <div className="fc-customer-info-rank">
               {customerRank}
             </div>
           </div>
-          <div className="customer-info-avatar">
+          <div className="fc-customer-info-avatar">
             <img src="http://www.gravatar.com/avatar/85b84caf905342803800a673141341a4?s=84"/>
           </div>
-          <div className="customer-info-name">
+          <div className="fc-customer-info-name">
             {customer.firstName} {customer.lastName}
           </div>
-          <div className="customer-info-email">
+          <div className="fc-customer-info-email">
             {customer.email}
           </div>
 
         </div>
         <article>
-          <ul className="customer-info-fields fa-ul">
+          <ul className="fc-customer-info-fields fa-ul">
             <li>
               <i className="fa fa-li fa-user"></i>
               <div>{customer.id}</div>
@@ -69,7 +69,7 @@ export default class CustomerInfo extends React.Component {
               <i className="fa fa-li fa-mobile"></i>
               <div>{customer.modality}</div>
             </li>
-            <li className="customer-info-groups">
+            <li className="fc-customer-info-groups">
               <i className="fa fa-li fa-users"></i>
               {customerGroups}
             </li>
