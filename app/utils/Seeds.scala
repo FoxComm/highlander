@@ -86,7 +86,8 @@ object Seeds {
       giftCard ← GiftCards.save(s.paymentMethods.giftCard.copy(originId = gcOrigin.id))
       scReason ← Reasons.save(Factories.reason.copy(storeAdminId = storeAdmin.id))
       scOrigin ← StoreCreditManuals.save(Factories.storeCreditManual.copy(adminId = storeAdmin.id, reasonId = scReason.id))
-      storeCredit ← StoreCredits.save(s.paymentMethods.storeCredit.copy(originId = scOrigin.id))
+      storeCredit ← StoreCredits.save(s.paymentMethods.storeCredit.copy(originId = scOrigin.id, customerId = customer
+        .id))
       storeCreditAdjustments ← StoreCredits.auth(storeCredit, orderPayments.id, 10)
     } yield (customers, order, address, shippingAddress, creditCard, giftCard, storeCredit)
   }
