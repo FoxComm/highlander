@@ -45,6 +45,9 @@ final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerI
       |@| super.validate
       ).map { case _ ⇒ this }
   }
+
+  def copyFromAddress(a: Address): CreditCard = this.copy(
+    regionId = a.regionId, addressName = a.name, street1 = a.street1, street2 = a.street2, city = a.city, zip = a.zip)
 }
 
 object CreditCard {

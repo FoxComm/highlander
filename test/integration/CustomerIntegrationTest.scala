@@ -2,10 +2,12 @@ import akka.http.scaladsl.model.StatusCodes
 
 import models.{Orders, Customer, CreditCards, CreditCard, Customers, Addresses, StoreAdmins, OrderPayments}
 import models.OrderPayments.scope._
+import payloads.CreateAddressPayload
 import services.{CannotUseInactiveCreditCard, CustomerManager, NotFoundFailure}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.implicits._
+import cats.implicits._
 
 class CustomerIntegrationTest extends IntegrationTestBase
   with HttpSupport
@@ -16,6 +18,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
   import Extensions._
   import org.json4s.jackson.JsonMethods._
   import slick.driver.PostgresDriver.api._
+  import util.SlickSupport.implicits._
 
   "admin APIs" - {
     "shows a customer" in new Fixture {
@@ -97,17 +100,18 @@ class CustomerIntegrationTest extends IntegrationTestBase
       }
 
       "when editing a credit card" - {
-        /* TODO: enable me when we've introduced Stripe mocking */
         "when successful" - {
+          /* TODO: enable me when we've introduced Stripe mocking */
           "removes the original card from wallet" ignore new CreditCardFixture {
             val payload = payloads.EditCreditCard(holderName = Some("Bob"))
             val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
             val inactive = CreditCards.findById(creditCard.id).run().futureValue.get
 
             response.status must ===(StatusCodes.NoContent)
-            inactive.inWallet mustBe false
+
           }
 
+          /* TODO: enable me when we've introduced Stripe mocking */
           "creates a new version of the edited card in the wallet" ignore new CreditCardFixture {
             val payload = payloads.EditCreditCard(holderName = Some("Bob"))
             val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
@@ -118,6 +122,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
             newVersion.isDefault must ===(creditCard.isDefault)
           }
 
+          /* TODO: enable me when we've introduced Stripe mocking */
           "updates the customer's cart to use the new version" ignore new CreditCardFixture {
             val order = Orders.save(Factories.cart.copy(customerId = customer.id)).run().futureValue
             services.OrderPaymentUpdater.addCreditCard(order.refNum, creditCard.id).futureValue
@@ -131,6 +136,34 @@ class CustomerIntegrationTest extends IntegrationTestBase
             pmt.amount mustBe 'empty
             pmt.isCreditCard mustBe true
             pmt.paymentMethodId must ===(newVersion.id)
+          }
+
+          /* TODO: enable me when we've introduced Stripe mocking */
+          "copies an existing address book entry to the creditCard" ignore new CreditCardFixture {
+            val payload = payloads.EditCreditCard(holderName = Some("Bob"), addressId = address.id.some)
+            val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
+            val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).result.futureValue.toList
+            val numAddresses = Addresses.length.result.futureValue
+
+            response.status must ===(StatusCodes.NoContent)
+            numAddresses must === (1)
+            (newVersion.zip, newVersion.regionId) must ===((address.zip, address.regionId))
+          }
+
+          /* TODO: enable me when we've introduced Stripe mocking */
+          "creates a new address book entry if a full address was given" ignore new CreditCardFixture {
+            val payload = payloads.EditCreditCard(holderName = Some("Bob"),
+              address = CreateAddressPayload(name = "Home Office", regionId = address.regionId + 1,
+                street1 = "3000 Coolio Dr", city = "Seattle", zip = "54321").some)
+            val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
+            val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).result.futureValue.toList
+            val addresses = Addresses.futureValue
+            val newAddress = addresses.last
+
+            response.status must ===(StatusCodes.NoContent)
+            addresses must have size(2)
+            (newVersion.zip, newVersion.regionId) must ===(("54321", address.regionId + 1))
+            (newVersion.zip, newVersion.regionId) must ===((newAddress.zip, newAddress.regionId))
           }
         }
 
@@ -149,6 +182,14 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
           response.status must ===(StatusCodes.BadRequest)
           response.errors must ===(CannotUseInactiveCreditCard(creditCard).description)
+        }
+
+        "fails if the payload is invalid" in new CreditCardFixture {
+          val payload = payloads.EditCreditCard(holderName = "".some)
+          val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
+
+          response.status must ===(StatusCodes.BadRequest)
+          response.errors must contain("holderName must not be empty")
         }
 
         /* TODO: enable me when we've introduced Stripe mocking */

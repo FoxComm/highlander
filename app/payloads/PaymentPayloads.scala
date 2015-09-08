@@ -1,6 +1,7 @@
 package payloads
 
 import cats.data.ValidatedNel
+import cats.data.Validated.valid
 import cats.implicits._
 import services.Failure
 import utils.Litterbox._
@@ -12,14 +13,17 @@ final case class CreateCreditCard(holderName: String, number: String, cvv: Strin
   isDefault: Boolean = false) {
 
   def validate: ValidatedNel[Failure, CreateCreditCard] = {
-    def someAddress: ValidatedNel[Failure, _] =
-      Validation.validExpr(address.isDefined || addressId.isDefined, "address or addressId must be defined")
+    import Validation._
 
-    ( Validation.notEmpty(holderName, "holderName")
-      |@| Validation.matches(number, "[0-9]+", "bodySize")
-      |@| Validation.matches(cvv, "[0-9]{3,4}", "cvv")
-      |@| Validation.between(expYear, 2015, 2050, "Expiration year should be between 2015 and 2050")
-      |@| Validation.between(expMonth, 1, 12, "Expiration month should be between 1 and 12")
+    def someAddress: ValidatedNel[Failure, _] =
+      validExpr(address.isDefined || addressId.isDefined, "address or addressId")
+
+    ( notEmpty(holderName, "holderName")
+      |@| matches(number, "[0-9]+", "number")
+      |@| matches(cvv, "[0-9]{3,4}", "cvv")
+      |@| withinTwentyYears(expYear, "expiration")
+      |@| isMonth(expMonth, "expiration")
+      |@| notExpired(expYear, expMonth, "credit card is expired")
       |@| someAddress
       ).map { case _ ⇒ this }
   }
@@ -31,15 +35,24 @@ final case class PaymentMethodPayload(cardholderName: String, cardNumber: String
 
 final case class ToggleDefaultCreditCard(isDefault: Boolean)
 
-final case class EditCreditCard(
-  holderName: Option[String] = None,
-  expYear:    Option[Int] = None,
-  expMonth:   Option[Int] = None,
-  address:    Option[String] = None,
-  address2:   Option[String] = None,
-  state:      Option[String] = None,
-  city:       Option[String] = None,
-  zip:        Option[String] = None)
+final case class EditCreditCard(holderName: Option[String] = None, expYear: Option[Int] = None,
+  expMonth: Option[Int] = None, addressId: Option[Int] = None, address: Option[CreateAddressPayload] = None) {
+
+  def validate: ValidatedNel[Failure, EditCreditCard] = {
+    import Validation._
+
+    val ok: ValidatedNel[Failure, Unit] = valid(Unit)
+
+    val expired: ValidatedNel[Failure, Unit] =
+      (expYear |@| expMonth).tupled.fold(ok) { case (y, m) ⇒ notExpired(y, m, "credit card is expired") }
+
+    ( holderName.fold(ok)(notEmpty(_, "holderName"))
+      |@| expYear.fold(ok)(withinTwentyYears(_, "expiration"))
+      |@| expMonth.fold(ok)(isMonth(_, "expiration"))
+      |@| expired
+    ).map { case _ ⇒ this }
+  }
+}
 
 final case class GiftCardPayment(code: String, amount: Int)
 
