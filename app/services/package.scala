@@ -1,10 +1,11 @@
 import collection.immutable
 import scala.concurrent.{ExecutionContext, Future}
 
-import cats.data.Xor, Xor.{ left, right }
+import cats.data.{XorT, Xor, NonEmptyList}, Xor.{ left, right }
 import models.Note
 import scala.concurrent.{Future, ExecutionContext}
 import org.scalactic.{Bad, Good, Or}
+import cats.implicits._
 
 package object services {
   type Failures = immutable.Seq[Failure]
@@ -12,6 +13,11 @@ package object services {
 
   implicit class FailuresOps(val underlying: Failure) extends AnyVal {
     def single: Failures = Failures(underlying)
+  }
+
+  implicit class NonEmptyListFailuresOps(val underlying: NonEmptyList[Failure]) extends AnyVal {
+    import cats.implicits._
+    def failure: Failures = Failures(underlying.unwrap.toSeq: _*)
   }
 
   type Result[A] = Future[Failures Xor A]
@@ -23,8 +29,8 @@ package object services {
 
     def good[A](value: A):  Result[A] = Future.successful(Xor.right(value))
     def right[A](value: A): Result[A] = good(value)
-    def left[A](failure: Failure): Result[A] = failures(failure)
     def left[A](fs: Failures): Result[A] = failures(fs: _*)
+    def leftNel[A](fs: NonEmptyList[Failure]): Result[A] = Future.successful(Xor.left(fs.unwrap.toSeq))
 
     def failures(failures: Failure*): Result[Nothing] =
       Future.successful(Xor.left(Failures(failures: _*)))
@@ -34,5 +40,21 @@ package object services {
 
     def failure(failure: Failure): Result[Nothing] =
       failures(failure)
+  }
+
+  type ResultT[A] = XorT[Future, Failures, A]
+
+  object ResultT {
+    def apply[A](xor: Failures Xor A)
+      (implicit ec: ExecutionContext): ResultT[A] = xor.fold(leftAsync, rightAsync)
+
+    def apply[A](xor: Future[Failures Xor A])
+      (implicit ec: ExecutionContext): ResultT[A] = XorT[Future, Failures, A](xor)
+
+    def rightAsync[A](value: A)(implicit ec: ExecutionContext):     ResultT[A] = XorT.right(Future.successful(value))
+    def right[A](value: Future[A])(implicit ec: ExecutionContext):  ResultT[A] = XorT.right(value)
+
+    def left[A](f: Future[Failures])(implicit ec: ExecutionContext):  ResultT[A] = XorT.left(f)
+    def leftAsync[A](f: Failures)(implicit ec: ExecutionContext):     ResultT[A] = XorT.left(Future.successful(f))
   }
 }

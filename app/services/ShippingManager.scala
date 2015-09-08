@@ -38,7 +38,7 @@ object ShippingManager {
         right(matchingMethods)
 
       case (None, _, _, _) ⇒
-        left(OrderShippingMethodsCannotBeProcessed(order.refNum))
+        left(OrderShippingMethodsCannotBeProcessed(order.refNum).single)
     }
   }
 
