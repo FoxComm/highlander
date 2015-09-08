@@ -2,11 +2,14 @@ package utils
 
 import scala.concurrent.ExecutionContext
 
-import cats.data.ValidatedNel
+import cats.data.{Xor, ValidatedNel}
 import monocle.Lens
 import services._
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
+import utils.Slick._
+import utils.Slick.DbResult._
+import utils.Slick.implicits._
 import utils.Strings._
 
 trait Model {
@@ -26,16 +29,28 @@ trait ModelWithIdParameter extends Model {
   def id: Id
 }
 
+trait ModelWithLockParameter extends ModelWithIdParameter {
+  def locked: Boolean
+}
+
 trait TableWithIdColumn[I] {
   def id: Rep[I]
+}
+
+trait TableWithLockColumn[I] extends TableWithIdColumn[I] {
+  def locked: Rep[Boolean]
 }
 
 private[utils] abstract class TableWithIdInternal[M <: ModelWithIdParameter, I](tag: Tag, name: String)
   extends Table[M](tag, name) with TableWithIdColumn[I]
 
+private[utils] abstract class TableWithLockInternal[M <: ModelWithLockParameter, I](tag: Tag, name: String)
+  extends TableWithIdInternal[M, I](tag, name) with TableWithLockColumn[I]
+
 object GenericTable {
   /** This allows us to enforce that tables have the same ID column as their case class. */
   type TableWithId[MODEL <: ModelWithIdParameter] = TableWithIdInternal[MODEL, MODEL#Id]
+  type TableWithLock[MODEL <: ModelWithLockParameter] = TableWithLockInternal[MODEL, MODEL#Id]
 }
 
 abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.TableWithId[M]]
@@ -61,5 +76,56 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.Tab
 
   def deleteById(i: M#Id): DBIO[Int] =
     _findById(i).delete
+
+  type QuerySeq = Query[T, M, Seq]
+
+  implicit class TableQuerySeqConversions(q: QuerySeq) {
+
+    def findOneAndRun[R](action: M ⇒ DbResult[R])
+      (implicit ec: ExecutionContext, db: Database): Result[R] = {
+      selectForUpdate(q).flatMap {
+        case Xor.Right(value) ⇒ action(value)
+        case failures @ Xor.Left(_) ⇒ lift(failures)
+      }.transactionally.run().map {
+        case result @ Xor.Right(value) ⇒ value match {
+          case failure: Failure ⇒ Xor.left(failure.single)
+          case _ ⇒ result
+        }
+        case failures@Xor.Left(_) ⇒ failures
+      }
+    }
+
+    protected def selectForUpdate(finder: QuerySeq)
+      (implicit ec: ExecutionContext, db: Database): DbResult[M] = {
+
+      Slick.appendForUpdate(finder.result.headOption).map(runChecks)
+    }
+
+    protected def runChecks(maybe: Option[M])
+      (implicit ec: ExecutionContext, db: Database): Xor[Failures, M] = {
+      Xor.fromOption(maybe, NotFoundFailure("Not found").single)
+    }
+  }
 }
 
+abstract class TableQueryWithLock[M <: ModelWithLockParameter, T <: GenericTable.TableWithLock[M]]
+  (idLens: Lens[M, M#Id])
+  (construct: Tag ⇒ T)
+  (implicit ev: BaseTypedType[M#Id]) extends TableQueryWithId[M, T](idLens)(construct) {
+
+  implicit class TableWithLockQuerySeqConversions(q: QuerySeq) extends TableQuerySeqConversions(q) {
+
+    override def runChecks(maybe: Option[M])
+      (implicit ec: ExecutionContext, db: Database): Xor[Failures, M] = {
+      maybe match {
+        case Some(lockable) if lockable.locked ⇒
+          Xor.left(GeneralFailure(s"Model is locked").single)
+        case Some(lockable) if !lockable.locked ⇒
+          Xor.right(lockable)
+        case None ⇒
+          Xor.left(NotFoundFailure("Not found").single)
+      }
+    }
+  }
+
+}
