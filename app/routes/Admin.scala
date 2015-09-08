@@ -31,9 +31,11 @@ object Admin {
         } ~
         (get & path(Segment) & pathEnd) { code ⇒
           complete {
-            GiftCards.findByCode(code).one.run().map(
-              case Some(_) ⇒ render(GiftCardResponse.build(_))
-              case None ⇒ notFoundResponse
+            GiftCards.findByCode(code).one.run().map(gc ⇒
+              gc match {
+                case Some(_) ⇒ render(GiftCardResponse.build(_))
+                case None ⇒ notFoundResponse
+              }
             )
           }
         }
