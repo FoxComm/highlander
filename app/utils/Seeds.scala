@@ -28,9 +28,7 @@ object Seeds {
     .storeCredit)
 
   def run()(implicit db: Database): dbio.DBIOAction[(Option[Int], Order, Address, OrderShippingAddress, CreditCard,
-    GiftCard, StoreCredit),
-    NoStream, Write with Write with Write with All with Write with Write with All with All with Write with All with
-    Write with Write with Write with Write with Write with All] = {
+    GiftCard, StoreCredit), NoStream, All] = {
 
     import scala.concurrent.ExecutionContext.Implicits.global
 
