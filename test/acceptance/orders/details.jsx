@@ -30,7 +30,7 @@ describe('OrderDetails', function() {
     expect(orderDetailsNode.className).to.contain('order-details');
   });
 
-  it('should switch to edit mode when click on Edit Order Detaisl button', function *() {
+  it('should switch to edit mode when click on Edit Order Details button', function *() {
     let orderDetails = React.render(
       <OrderDetails order={order}/>
       , container);
