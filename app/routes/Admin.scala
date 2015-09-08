@@ -1,17 +1,14 @@
 package routes
 
 import scala.concurrent.{ExecutionContext, Future}
-import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 
 import cats.data.Xor
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import models._
-import akka.http.scaladsl.model.StatusCodes._
-
 import payloads._
-import responses.{AllOrders, AllOrdersWithFailures, AdminNotes, FullOrder}
+import responses.{AdminNotes, AllOrders, AllOrdersWithFailures, FullOrder}
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
@@ -26,12 +23,40 @@ object Admin {
       pathPrefix("gift-cards") {
         (get & pathEnd) {
           complete {
-            models.GiftCards.sortBy(_.id.desc).result.run().map(render(_))
+            GiftCards.sortBy(_.id.desc).result.run().map(render(_))
           }
         } ~
-        (get & path(IntNumber) & pathEnd) { giftCardId ⇒
-          complete {
-            renderOrNotFound(GiftCards.findById(giftCardId).run())
+        pathPrefix(IntNumber) { giftCardId ⇒
+          (get & pathEnd) {
+            complete {
+              renderOrNotFound(GiftCards.findById(giftCardId).run())
+            }
+          } ~
+          pathPrefix("notes") {
+            (get & pathEnd) {
+              complete {
+                whenFound(GiftCards.findById(giftCardId).run()) { giftCard ⇒ AdminNotes.forGiftCard(giftCard) }
+              }
+            } ~
+            (post & entity(as[payloads.CreateNote]) & pathEnd) { payload ⇒
+              complete {
+                whenFound(GiftCards.findById(giftCardId).run()) { giftCard ⇒
+                  NoteManager.createGiftCardNote(giftCard, admin, payload)
+                }
+              }
+            } ~
+            (patch & path(IntNumber) & entity(as[payloads.UpdateNote]) & pathEnd) { (noteId, payload) ⇒
+              complete {
+                whenFound(GiftCards.findById(giftCardId).run()) { _ ⇒
+                  NoteManager.updateNote(noteId, admin, payload)
+                }
+              }
+            } ~
+            (delete & path(IntNumber) & pathEnd) { noteId ⇒
+              complete {
+                notFoundResponse
+              }
+            }
           }
         }
       } ~
@@ -236,14 +261,14 @@ object Admin {
           (post & entity(as[payloads.CreateNote])) { payload ⇒
             complete {
               whenOrderFoundAndEditable(refNum) { order ⇒
-                services.NoteManager.createOrderNote(order, admin, payload)
+                NoteManager.createOrderNote(order, admin, payload)
               }
             }
           } ~
           (patch & path(IntNumber) & entity(as[payloads.UpdateNote])) { (noteId, payload) ⇒
             complete {
               whenOrderFoundAndEditable(refNum) { order ⇒
-                services.NoteManager.updateNote(noteId, admin, payload)
+                NoteManager.updateNote(noteId, admin, payload)
               }
             }
           } ~
