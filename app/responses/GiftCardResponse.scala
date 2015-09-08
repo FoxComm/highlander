@@ -15,9 +15,7 @@ object GiftCardResponse {
     availableBalance: Int,
     currentBalance: Int)
 
-  def _build(gc: GiftCard): Root =
+  def build(gc: GiftCard): Root =
     Root(id = gc.id, createdAt = gc.createdAt, code = gc.code, `type` = gc.originType, status = gc.status,
       originalBalance = gc.originalBalance, availableBalance = gc.availableBalance, currentBalance = gc.currentBalance)
-
-  def build(gc: GiftCard): Root = _build(gc)
 }
