@@ -14,7 +14,7 @@ package object utils {
     cc.getClass.getDeclaredFields.map( _.getName -> values.next ).toMap
   }
 
-  object  Joda {
+  object Joda {
     implicit def dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
   }
 }
