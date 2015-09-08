@@ -11,7 +11,7 @@ import cats.data.Validated.{invalidNel, valid}
 import cats.data.ValidatedNel
 import com.github.tototoshi.slick.PostgresJodaSupport._
 import com.pellucid.sealerate
-import models.StoreCredit.{OnHold, Status}
+import models.StoreCredit.{Active, Status}
 import monocle.macros.GenLens
 import org.joda.time.DateTime
 import services.Result
@@ -24,9 +24,9 @@ import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, NewModel, TableQuery
 import utils.Slick.implicits._
 import cats.syntax.apply._
 
-final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: String, currency: Currency,
-  originalBalance: Int, currentBalance: Int = 0, availableBalance:Int = 0,
-  status: Status = OnHold, canceledReason: Option[String] = None, createdAt: DateTime = DateTime.now())
+final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: String,
+  currency: Currency = Currency.USD, originalBalance: Int, currentBalance: Int = 0, availableBalance:Int = 0,
+  status: Status = Active, canceledReason: Option[String] = None, createdAt: DateTime = DateTime.now())
   extends PaymentMethod
   with ModelWithIdParameter
   with FSM[StoreCredit.Status, StoreCredit]
