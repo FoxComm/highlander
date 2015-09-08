@@ -11,7 +11,7 @@ import models._
 import akka.http.scaladsl.model.StatusCodes._
 
 import payloads._
-import responses.{AllOrders, AllOrdersWithFailures, AdminNotes, FullOrder}
+import responses.{AllOrders, AllOrdersWithFailures, AdminNotes, FullOrder, StoreCreditResponse}
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.RunOnDbIO
@@ -109,7 +109,11 @@ object Admin {
             complete { StoreCredits.findAllByCustomerId(customerId).map(render(_)) }
           } ~
           (get & path(IntNumber)) { storeCreditId ⇒
-            complete { StoreCredits.findById(storeCreditId).run().map(renderOrNotFound(_)) }
+            complete {
+              whenFound(StoreCredits.findById(storeCreditId).run()) { storeCredit ⇒
+                responses.StoreCreditResponse.fromStoreCredit(storeCredit).map(Xor.right)
+              }
+            }
           } ~
           (post & path(IntNumber / "convert")) { storeCreditId ⇒
             complete {
