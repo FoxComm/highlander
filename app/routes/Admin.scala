@@ -119,6 +119,11 @@ object Admin {
           (get & path(IntNumber)) { storeCreditId ⇒
             complete { StoreCredits.findById(storeCreditId).run().map(renderOrNotFound(_)) }
           } ~
+          (post & entity(as[payloads.CreateManualStoreCredit])) { payload ⇒
+            complete {
+              StoreCreditService.createManual(admin, customerId, payload).map(renderGoodOrFailures)
+            }
+          } ~
           (post & path(IntNumber / "convert")) { storeCreditId ⇒
             complete {
               whenFoundDispatchToService(StoreCredits.findById(storeCreditId).run()) { sc ⇒
