@@ -47,12 +47,15 @@ class StoreCreditAdjustments(tag: Tag)
     debit, status) <> ((StoreCreditAdjustment.apply _).tupled, StoreCreditAdjustment.unapply)
 
   def payment = foreignKey(OrderPayments.tableName, orderPaymentId, OrderPayments)(_.id)
+  def storeCredit = foreignKey(StoreCredits.tableName, storeCreditId, StoreCredits)(_.id)
 }
 
 object StoreCreditAdjustments
   extends TableQueryWithId[StoreCreditAdjustment, StoreCreditAdjustments](
   idLens = GenLens[StoreCreditAdjustment](_.id)
   )(new StoreCreditAdjustments(_)){
+
+  type QuerySeq = Query[StoreCreditAdjustments, StoreCreditAdjustment, Seq]
 
   import StoreCreditAdjustment._
 
