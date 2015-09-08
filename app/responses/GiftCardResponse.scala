@@ -16,7 +16,9 @@ object GiftCardResponse {
     availableBalance: Int,
     currentBalance: Int)
 
-  def build(gc: models.GiftCard): Root =
+  def _build(gc: models.GiftCard): Root =
     Root(id = gc.id, code = gc.code, `type` = gc.originType, status = gc.status, originalBalance = gc.originalBalance,
       availableBalance = gc.availableBalance, currentBalance = gc.currentBalance)
+
+  def build(gc: models.GiftCard): Root = _build(gc)
 }
