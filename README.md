@@ -40,6 +40,7 @@ If you want to setup some Git hooks, run the following:
 ```
 
 Now, installed hook runs tests and prevents push if they haven't passed.
+If you prefer skip test run on each file change you can define env variable ASHES_NO_WATCH_FOR_TEST.
 
 ### Vagrant setup
 
