@@ -1,0 +1,33 @@
+.fc-tabbed-nav {
+  .margin-bottom(15px);
+  border-bottom: pxtorem(2px) solid @color-decor7;
+
+  li {
+    .font-spec(14px);
+    font-weight: 600;
+    color: @color-decor36;
+    display: inline-block;
+    .margin-right(5px);
+    &:last-child {
+      .margin-right(0);
+    }
+
+    a,
+    a:visited {
+      color: @color-decor36;
+      display: block;
+      .padding(0px 20px);
+      .padding-bottom(10px);
+      &:hover {
+        cursor: pointer;
+        color: @color-decor37;
+      }
+
+      &.active {
+        color: @color-decor37;
+        margin-bottom: pxtorem(-2px);
+        border-bottom: pxtorem(2px) solid @color-decor3;
+      }
+    }
+  }
+}

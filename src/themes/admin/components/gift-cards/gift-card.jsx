@@ -49,7 +49,7 @@ export default class GiftCard extends React.Component {
       let params = {giftcard: card.id};
       subNav = (
         <div className="gutter">
-          <ul className="tabbed-nav">
+          <ul className="fc-tabbed-nav">
             <li><Link to="gift-card-transactions" params={params}>Transactions</Link></li>
             <li><Link to="gift-card-notes" params={params}>Notes</Link></li>
             <li><Link to="gift-card-activity-trail" params={params}>Activity Trail</Link></li>
