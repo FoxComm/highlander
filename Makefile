@@ -21,9 +21,9 @@ migrate-info:
 	${FLYWAY} info
 
 resetdb:
-	dropdb phoenix_development || true
-	dropdb phoenix_test || true
-	dropuser phoenix || true
+	dropdb --if-exists phoenix_development
+	dropdb --if-exists phoenix_test
+	dropuser --if-exists phoenix
 	createuser -s phoenix
 	createdb phoenix_development
 	createdb phoenix_test
