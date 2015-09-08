@@ -29,9 +29,9 @@ object Admin {
             models.GiftCards.sortBy(_.id.desc).result.run().map(render(_))
           }
         } ~
-        (get & path(Segment) & pathEnd) { giftCardId ⇒
+        (get & path(Segment) & pathEnd) { code ⇒
           complete {
-            renderOrNotFound(GiftCards.findByCode(giftCardId))
+            GiftCards.findByCode(code).result.run().map(renderOrNotFound(_))
           }
         }
       } ~
