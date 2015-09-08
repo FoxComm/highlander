@@ -1,17 +1,15 @@
 package routes
 
 import scala.concurrent.{ExecutionContext, Future}
-import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 
 import cats.data.Xor
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import models._
-import akka.http.scaladsl.model.StatusCodes._
 
 import payloads._
-import responses.{AllOrders, AllOrdersWithFailures, AdminNotes, GiftCardResponse, FullOrder}
+import responses.{AllOrders, AllOrdersWithFailures, AdminNotes, FullOrder}
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
@@ -31,10 +29,7 @@ object Admin {
         } ~
         (get & path(Segment) & pathEnd) { code ⇒
           complete {
-            GiftCards.findByCode(code).one.run().map {
-              case Some(gc) ⇒ render(GiftCardResponse.build(gc))
-              case None ⇒ notFoundResponse
-            }
+            GiftCardService.getByCode(code)
           }
         }
       } ~
