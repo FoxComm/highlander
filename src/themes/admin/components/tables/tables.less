@@ -7,6 +7,7 @@
       background-color: @color-thead-bg;
 
       th {
+        position: relative;
         color: @color-decor1;
         .padding(10px, 15px);
         .font-spec(13px, 700, 18px);
@@ -20,7 +21,28 @@
 
         &:hover {
           background-color: @color-th-bg-hover;
+        }
+
+        &.sorting {
           cursor: pointer;
+        }
+
+        &.sorting-asc:after,
+        &.sorting-desc:after {
+            position: absolute;
+            top: 0;
+            right: pxtorem(10px);
+            color: @color-decor1;
+            .font-spec(13px, 700, 62px);
+            transform:scale(1, .5);
+        }
+
+        &.sorting-asc:after {
+          content: '\25b2';
+        }
+
+        &.sorting-desc:after {
+          content: '\25bc';
         }
       }
     }

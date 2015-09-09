@@ -32,6 +32,7 @@ export default class Customers extends React.Component {
           columns={this.props.tableColumns}
           rows={this.state.customers}
           model='customer'
+          sort={CustomerStore.sort.bind(CustomerStore)}
           />
       </div>
     );

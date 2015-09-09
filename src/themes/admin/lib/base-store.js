@@ -21,6 +21,13 @@ export default class BaseStore {
     dispatch(`change${this.storeName}`, this.models);
   }
 
+  sort(field, order) {
+    this.models = this.models.sort((a, b) => {
+      return (1 - 2 * order) * (a[field] < b[field] ? 1 : a[field] > b[field] ? -1 : 0);
+    });
+    dispatch(`change${this.storeName}`, this.models);
+  }
+
   getState(id) {
     if (!id) return this.models;
     return this.findModel(id);

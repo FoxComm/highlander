@@ -48,6 +48,7 @@ export default class TableView extends React.Component {
         <table className='fc-table'>
           <TableHead
             columns={this.props.columns}
+            setSorting={this.props.sort}
             />
           <TableBody
             columns={this.props.columns}
@@ -80,7 +81,8 @@ TableView.propTypes = {
   columns: React.PropTypes.array,
   rows: React.PropTypes.array,
   start: React.PropTypes.number,
-  limit: React.PropTypes.number
+  limit: React.PropTypes.number,
+  sort: React.PropTypes.func
 };
 
 TableView.defaultProps = {
