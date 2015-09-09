@@ -172,9 +172,7 @@ object Admin {
         } ~
         (post & path("lock") & pathEnd) {
           complete {
-            whenOrderFoundAndEditable(refNum) { order ⇒
-             OrderUpdater.lock(order, admin)
-            }
+            LockAwareOrderUpdater.lock(refNum, admin).map(renderGoodOrFailures)
           }
         } ~
         (post & path("unlock") & pathEnd) {
