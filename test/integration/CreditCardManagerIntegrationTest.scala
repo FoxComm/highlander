@@ -3,7 +3,7 @@ import akka.http.scaladsl.model.StatusCodes
 import models.{Address, Customer, CreditCards, CreditCard, Customers, Addresses}
 import org.joda.time.DateTime
 import payloads.CreateAddressPayload
-import services.NotFoundFailure
+import services.{CVCFailure, NotFoundFailure}
 import util.{StripeSupport, IntegrationTestBase}
 import utils.Seeds.Factories
 import utils.Slick.implicits._
@@ -76,36 +76,54 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
 
       "fails" - {
         "if neither addressId nor full address was provided" ignore new Fixture {
-          val payload = payloadStub.copy(address = None, addressId = None)
-          val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
+          val payload   = payloadStub.copy(address = None, addressId = None)
+          val response  = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
+          val cards     = CreditCards.futureValue
 
           response.status must ===(StatusCodes.BadRequest)
           response.errors must contain ("address or addressId must be defined")
+          cards mustBe 'empty
         }
 
         "if the addressId cannot be found in address book" ignore new Fixture {
-          val payload = payloadStub.copy(addressId = Some(1))
-          val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
+          val payload   = payloadStub.copy(addressId = Some(1))
+          val response  = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
+          val cards     = CreditCards.futureValue
 
           response.status must ===(StatusCodes.BadRequest)
           response.errors must contain (NotFoundFailure(Address, 1).description)
+          cards mustBe 'empty
         }
 
         "if card info is invalid" ignore new Fixture {
-          val payload = payloadWithFullAddress(payloadStub.copy(number = StripeSupport.incorrectNumberCard),
+          val payload   = payloadWithFullAddress(payloadStub.copy(number = StripeSupport.incorrectNumberCard),
             Factories.address)
-          val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
+          val response  = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
+          val cards     = CreditCards.futureValue
 
           response.status must ===(StatusCodes.BadRequest)
           response.errors must contain ("incorrect_number")
+          cards mustBe 'empty
+        }
+
+        "if Stripe's CVC check fails" ignore new AddressFixture {
+          val payload   = payloadStub.copy(number = StripeSupport.incorrectCVC, addressId = Some(1))
+          val response  = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
+          val cards     = CreditCards.futureValue
+
+          response.status must ===(StatusCodes.BadRequest)
+          response.errors must ===(CVCFailure.description)
+          cards mustBe 'empty
         }
 
         "if customer cannot be found" ignore {
-          val payload = payloadWithFullAddress(payloadStub, Factories.address)
-          val response = POST(s"v1/customers/99/payment-methods/credit-cards", payload)
+          val payload   = payloadWithFullAddress(payloadStub, Factories.address)
+          val response  = POST(s"v1/customers/99/payment-methods/credit-cards", payload)
+          val cards     = CreditCards.futureValue
 
           response.status must ===(StatusCodes.NotFound)
           response.errors must ===(NotFoundFailure(Customer, 99).description)
+          cards mustBe 'empty
         }
       }
     }
