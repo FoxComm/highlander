@@ -23,6 +23,9 @@ object NotFoundFailure {
 
   def apply[A](a: A, id: Int): NotFoundFailure =
     NotFoundFailure(s"${friendlyClassName(a)} with id=$id not found")
+
+  def apply[A](a: A, id: String): NotFoundFailure =
+    NotFoundFailure(s"${friendlyClassName(a)} with id=$id not found")
 }
 
 final case class StripeFailure(exception: StripeException) extends Failure {

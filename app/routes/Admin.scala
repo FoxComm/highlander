@@ -29,7 +29,7 @@ object Admin {
         } ~
         (get & path(Segment) & pathEnd) { code ⇒
           complete {
-            GiftCardService.getByCode(code)
+            GiftCardService.getByCode(code).map(renderGoodOrFailures)
           }
         }
       } ~
