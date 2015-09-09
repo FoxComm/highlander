@@ -38,36 +38,29 @@ object Admin {
             }
           }
         } ~
-        path(Segment) { code ⇒
+        path(Segment / "notes") { code ⇒
           (get & pathEnd) {
             complete {
-              GiftCardService.getByCode(code).map(renderGoodOrFailures)
+              whenFound(GiftCards.findByCode(code).one.run()) { giftCard ⇒ AdminNotes.forGiftCard(giftCard) }
             }
           } ~
-          pathPrefix("notes") {
-            (get & pathEnd) {
-              complete {
-                whenFound(GiftCards.findByCode(code).one.run()) { giftCard ⇒ AdminNotes.forGiftCard(giftCard) }
+          (post & entity(as[payloads.CreateNote]) & pathEnd) { payload ⇒
+            complete {
+              whenFound(GiftCards.findByCode(code).one.run()) { giftCard ⇒
+                NoteManager.createGiftCardNote(giftCard, admin, payload)
               }
-            } ~
-            (post & entity(as[payloads.CreateNote]) & pathEnd) { payload ⇒
-              complete {
-                whenFound(GiftCards.findByCode(code).one.run()) { giftCard ⇒
-                  NoteManager.createGiftCardNote(giftCard, admin, payload)
-                }
+            }
+          } ~
+          (patch & path(IntNumber) & entity(as[payloads.UpdateNote]) & pathEnd) { (noteId, payload) ⇒
+            complete {
+              whenFound(GiftCards.findByCode(code).one.run()) { _ ⇒
+                NoteManager.updateNote(noteId, admin, payload)
               }
-            } ~
-            (patch & path(IntNumber) & entity(as[payloads.UpdateNote]) & pathEnd) { (noteId, payload) ⇒
-              complete {
-                whenFound(GiftCards.findByCode(code).one.run()) { _ ⇒
-                  NoteManager.updateNote(noteId, admin, payload)
-                }
-              }
-            } ~
-            (delete & path(IntNumber) & pathEnd) { noteId ⇒
-              complete {
-                notFoundResponse
-              }
+            }
+          } ~
+          (delete & path(IntNumber) & pathEnd) { noteId ⇒
+            complete {
+              notFoundResponse
             }
           }
         }
