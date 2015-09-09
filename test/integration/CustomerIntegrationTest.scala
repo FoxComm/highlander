@@ -3,7 +3,7 @@ import akka.http.scaladsl.model.StatusCodes
 import models.{Orders, Customer, CreditCards, CreditCard, Customers, Addresses, StoreAdmins, OrderPayments}
 import models.OrderPayments.scope._
 import payloads.CreateAddressPayload
-import services.{CannotUseInactiveCreditCard, CustomerManager, NotFoundFailure}
+import services.{CannotUseInactiveCreditCard, CreditCardManager, NotFoundFailure}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.implicits._
@@ -176,7 +176,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
         }
 
         "fails if the card is not inWallet" in new CreditCardFixture {
-          CustomerManager.deleteCreditCard(customer.id, creditCard.id).futureValue
+          CreditCardManager.deleteCreditCard(customer.id, creditCard.id).futureValue
           val payload = payloads.EditCreditCard
           val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
 
