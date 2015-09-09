@@ -3,7 +3,7 @@ package services
 import scala.concurrent.ExecutionContext
 
 import models.{Customers, GiftCards}
-import responses.GiftCardResponse
+import responses.{CustomerResponse, GiftCardResponse}
 import responses.GiftCardResponse.Root
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
@@ -19,8 +19,7 @@ object GiftCardService {
   def getByCode(code: String)(implicit db: Database, ec: ExecutionContext): Result[Root] = {
     fetchDetails(code).flatMap {
       case (Some(giftCard), Some(customer)) ⇒
-        val mockCustomer = customer.copy(password = "")
-        Result.right(GiftCardResponse.build(giftCard, Some(mockCustomer)))
+        Result.right(GiftCardResponse.build(giftCard, Some(CustomerResponse.build(customer))))
       case (Some(giftCard), None) ⇒
         Result.right(GiftCardResponse.build(giftCard))
       case (None, _) ⇒
