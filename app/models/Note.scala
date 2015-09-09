@@ -32,6 +32,7 @@ final case class Note(id: Int = 0, storeAdminId: Int, referenceId: Int, referenc
 object Note {
   sealed trait ReferenceType
   case object Order extends ReferenceType
+  case object GiftCard extends ReferenceType
 
   object ReferenceType extends ADT[ReferenceType] {
     def types = sealerate.values[ReferenceType]
@@ -56,15 +57,14 @@ object Notes extends TableQueryWithId[Note, Notes](
   idLens = GenLens[Note](_.id)
 )(new Notes(_)) {
 
-  def filterByOrderId(id: Int)
-    (implicit ec: ExecutionContext, db:Database): Future[Seq[Note]] =
-    _filterByOrderId(id).result.run()
+  def filterByOrderId(id: Int): QuerySeq =
+    filterByType(Note.Order).filter(_.referenceId === id)
 
-  def _filterByOrderId(id: Int): Query[Notes, Note, Seq] =
-    _filterByType(Note.Order).filter(_.referenceId === id)
+  def filterByGiftCardId(id: Int): QuerySeq =
+    filterByType(Note.GiftCard).filter(_.referenceId === id)
 
-  def _filterByIdAndAdminId(id: Int, adminId: Int): Query[Notes, Note, Seq] =
+  def filterByIdAndAdminId(id: Int, adminId: Int): QuerySeq =
     filter(_.id === id).filter(_.storeAdminId === adminId)
 
-  private [this] def _filterByType(referenceType: Note.ReferenceType) = filter(_.referenceType === referenceType)
+  private [this] def filterByType(referenceType: Note.ReferenceType) = filter(_.referenceType === referenceType)
 }

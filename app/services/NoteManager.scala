@@ -4,6 +4,7 @@ import cats.data.Validated.{Valid, Invalid}
 import models._
 import responses.AdminNotes
 import responses.AdminNotes.Root
+import utils.ModelWithIdParameter
 import utils.Slick.implicits._
 
 import scala.concurrent.ExecutionContext
@@ -13,15 +14,27 @@ object NoteManager {
 
   def createOrderNote(order: Order, author: StoreAdmin, payload: payloads.CreateNote)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
-    createNote(Note(storeAdminId = author.id, referenceId = order.id, referenceType = Note.Order,
-      body = payload.body)).map { result ⇒
-      result.map(AdminNotes.build(_, author))
-    }
+    createModelNote(order.id, Note.Order, author, payload)
+  }
+
+  def createGiftCardNote(giftCard: GiftCard, author: StoreAdmin, payload: payloads.CreateNote)
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
+    createModelNote(giftCard.id, Note.GiftCard, author, payload)
+  }
+
+  private def createModelNote(refId: Int, refType: Note.ReferenceType, author: StoreAdmin,
+    payload: payloads.CreateNote)(implicit ec: ExecutionContext, db: Database): Result[Root] = {
+    createNote(Note(
+      storeAdminId = author.id,
+      referenceId = refId,
+      referenceType = refType,
+      body = payload.body)
+    ).map(_.map(AdminNotes.build(_, author)))
   }
 
   def updateNote(noteId: Int, author: StoreAdmin, payload: payloads.UpdateNote)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
-    val query = Notes._filterByIdAndAdminId(noteId, author.id)
+    val query = Notes.filterByIdAndAdminId(noteId, author.id)
     val update = query.map(_.body).update(payload.body)
 
     db.run(update).flatMap { rowsAffected ⇒

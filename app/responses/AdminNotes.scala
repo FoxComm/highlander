@@ -3,9 +3,11 @@ package responses
 import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Xor
-import models.{Note, Notes, Order, StoreAdmin}
+import models.{GiftCard, Note, Notes, Order, StoreAdmin}
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
+import utils.ModelWithIdParameter
+import models.Notes
 
 object AdminNotes {
   final case class Root(id: Int, body: String, author: Author)
@@ -17,9 +19,16 @@ object AdminNotes {
   def build(note: Note, author: StoreAdmin): Root =
     Root(id = note.id, body = note.body, author = buildAuthor(author))
 
-  def forOrder(order: Order)(implicit ec: ExecutionContext, db: Database): Future[Nothing Xor Seq[Root]] = {
+  def forOrder(order: Order)(implicit ec: ExecutionContext, db: Database): Future[Nothing Xor Seq[Root]] =
+    forModel(Notes.filterByOrderId(order.id))
+
+  def forGiftCard(giftCard: GiftCard)(implicit ec: ExecutionContext, db: Database): Future[Nothing Xor Seq[Root]] =
+    forModel(Notes.filterByGiftCardId(giftCard.id))
+
+  private def forModel[M <: ModelWithIdParameter](finder: Query[Notes, Note, Seq])
+    (implicit ec: ExecutionContext, db: Database): Future[Nothing Xor Seq[Root]] = {
     (for {
-      notes   ← Notes._filterByOrderId(order.id)
+      notes ← finder
       authors ← notes.author
     } yield (notes, authors)).result.run().map { results ⇒
       results.map { case (note, author) ⇒ build(note, author) }
