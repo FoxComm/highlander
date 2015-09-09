@@ -12,19 +12,19 @@ object GiftCardService {
   def fetchDetails(code: String)(implicit db: Database, ec: ExecutionContext) = {
     for {
       giftCard ← GiftCards.findByCode(code).one.run()
-      customer ← Customers.findById(1) // Mock Jacques
-    } yield (giftCard, customer)
+      mockCustomer ← Customers.findById(1)
+    } yield (giftCard, mockCustomer)
   }
 
   def getByCode(code: String)(implicit db: Database, ec: ExecutionContext): Result[Root] = {
     fetchDetails(code).flatMap {
       case (Some(giftCard), Some(customer)) ⇒
-        val mockCustomer = customer.copy(password = null)
+        val mockCustomer = customer.copy(password = "")
         Result.right(GiftCardResponse.build(giftCard, Some(mockCustomer)))
       case (Some(giftCard), None) ⇒
         Result.right(GiftCardResponse.build(giftCard))
       case (None, _) ⇒
-        Result.left(NotFoundFailure(GiftCards, code).single)
+        Result.left(GiftCardNotFoundFailure(code).single)
     }
   }
 }

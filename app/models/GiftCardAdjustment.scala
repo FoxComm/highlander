@@ -1,5 +1,7 @@
 package models
 
+import scala.concurrent.{Future, ExecutionContext}
+
 import com.pellucid.sealerate
 import models.GiftCardAdjustment.{Auth, Status}
 import monocle.macros.GenLens
@@ -7,6 +9,7 @@ import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.Slick.implicits._
 
 final case class GiftCardAdjustment(id: Int = 0, giftCardId: Int, orderPaymentId: Int,
   credit: Int, debit: Int, status: Status = Auth)
@@ -57,6 +60,13 @@ object GiftCardAdjustments extends TableQueryWithId[GiftCardAdjustment, GiftCard
   )(new GiftCardAdjustments(_)){
 
   import GiftCardAdjustment._
+
+  def filterByGiftCardId(id: Int)
+    (implicit ec: ExecutionContext, db:Database): Future[Seq[GiftCardAdjustment]] =
+    _filterByGiftCardId(id).result.run()
+
+  def _filterByGiftCardId(id: Int): Query[GiftCardAdjustments, GiftCardAdjustment, Seq] =
+    filter(_.giftCardId === id)
 
   def cancel(id: Int): DBIO[Int] = filter(_.id === id).map(_.status).update(Canceled)
 }

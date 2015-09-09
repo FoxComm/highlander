@@ -31,6 +31,11 @@ object Admin {
           complete {
             GiftCardService.getByCode(code).map(renderGoodOrFailures)
           }
+        } ~
+        (get & path(Segment / "transactions") & pathEnd) { code ⇒
+          complete {
+            GiftCardAdjustmentsService.getByCode(code).map(renderGoodOrFailures)
+          }
         }
       } ~
       pathPrefix("customers") {
