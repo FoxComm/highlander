@@ -8,7 +8,7 @@ import cats.data.Xor
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import models._
 import payloads._
-import responses.{AdminNotes, AllOrders, AllOrdersWithFailures, FullOrder}
+import responses.{AdminNotes, AllOrders, AllOrdersWithFailures, FullOrder, GiftCardAdjustmentsResponse}
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
@@ -33,31 +33,33 @@ object Admin {
         } ~
         (get & path(Segment / "transactions") & pathEnd) { code ⇒
           complete {
-            GiftCardAdjustmentsService.getByCode(code).map(renderGoodOrFailures)
+            whenFound(GiftCards.findByCode(code).one.run()) { giftCard ⇒
+              GiftCardAdjustmentsResponse.forGiftCard(giftCard)
+            }
           }
         } ~
-        pathPrefix(IntNumber) { giftCardId ⇒
+        path(Segment) { code ⇒
           (get & pathEnd) {
             complete {
-              renderOrNotFound(GiftCards.findById(giftCardId).run())
+              GiftCardService.getByCode(code).map(renderGoodOrFailures)
             }
           } ~
           pathPrefix("notes") {
             (get & pathEnd) {
               complete {
-                whenFound(GiftCards.findById(giftCardId).run()) { giftCard ⇒ AdminNotes.forGiftCard(giftCard) }
+                whenFound(GiftCards.findByCode(code).one.run()) { giftCard ⇒ AdminNotes.forGiftCard(giftCard) }
               }
             } ~
             (post & entity(as[payloads.CreateNote]) & pathEnd) { payload ⇒
               complete {
-                whenFound(GiftCards.findById(giftCardId).run()) { giftCard ⇒
+                whenFound(GiftCards.findByCode(code).one.run()) { giftCard ⇒
                   NoteManager.createGiftCardNote(giftCard, admin, payload)
                 }
               }
             } ~
             (patch & path(IntNumber) & entity(as[payloads.UpdateNote]) & pathEnd) { (noteId, payload) ⇒
               complete {
-                whenFound(GiftCards.findById(giftCardId).run()) { _ ⇒
+                whenFound(GiftCards.findByCode(code).one.run()) { _ ⇒
                   NoteManager.updateNote(noteId, admin, payload)
                 }
               }

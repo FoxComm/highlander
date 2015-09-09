@@ -8,7 +8,12 @@ import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 
 object GiftCardAdjustmentsResponse {
-  final case class Root(id: Int, amount: Int, availableBalance: Int, orderId: Int, orderRef: String)
+  final case class Root(
+    id: Int,
+    amount: Int,
+    availableBalance: Int,
+    orderId: Int,
+    orderRef: String)
 
   def build(adjustment: GiftCardAdjustment): Root =
     Root(id = adjustment.id, amount = 0, availableBalance = 0, orderId = 0, orderRef = "")
