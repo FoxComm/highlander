@@ -6,7 +6,8 @@ import scala.concurrent.{ExecutionContext, Future}
 import cats.implicits._
 
 import cats.data.{XorT, Xor}
-import com.stripe.exception.{CardException, InvalidRequestException}
+import cats.data.Xor.{left, right}
+import com.stripe.exception.{StripeException, CardException, InvalidRequestException}
 import com.stripe.model.{Card ⇒ StripeCard, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer, ExternalAccount}
 import com.stripe.net.{RequestOptions ⇒ StripeRequestOptions}
 import models.{CreditCard, Customer}
@@ -55,6 +56,7 @@ final case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVL
     (for {
       sCustomer ← create
       card      ← ResultT(getCard(sCustomer))
+      _         ← ResultT.fromXor(cvcCheck(card))
     } yield (sCustomer, card)).value
   }
 
@@ -90,7 +92,7 @@ final case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVL
         "exp_month" → cc.expMonth.toString
       )
 
-      tryFutureWrap[ExternalAccount]{ Xor.right(stripeCard.update(mapAsJavaMap(params), options)) }
+      tryFutureWrap[ExternalAccount]{ right(stripeCard.update(mapAsJavaMap(params), options)) }
     }
 
     (for {
@@ -102,29 +104,38 @@ final case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVL
 
   private def getCustomer(id: String)
     (implicit ec: ExecutionContext): Result[StripeCustomer] =
-    tryFutureWrap[StripeCustomer] { Xor.right(StripeCustomer.retrieve(id, options)) }
+    tryFutureWrap[StripeCustomer] { right(StripeCustomer.retrieve(id, options)) }
 
   private def getCard(customer: StripeCustomer)
     (implicit ec: ExecutionContext): Result[StripeCard] = (for {
     account ← ResultT(tryFutureWrap[ExternalAccount] {
-      Xor.right(customer.getSources.retrieve(customer.getDefaultSource, options))
+      right(customer.getSources.retrieve(customer.getDefaultSource, options))
     })
     card ← ResultT(Future.successful(toCard(account)))
   } yield card).value
+
+  private def cvcCheck(card: StripeCard): Failures Xor StripeCard = {
+    card.getCvcCheck.some.getOrElse("").toLowerCase match {
+      case "pass" ⇒ right(card)
+      case _      ⇒ left(CVCFailure.single)
+    }
+  }
 
   @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.AsInstanceOf", "org.brianmckenna.wartremover.warts.Null"))
   private def toCard(extAccount: ExternalAccount)
     (implicit ec: ExecutionContext): Failures Xor StripeCard =
     if (extAccount.getObject.equals("card"))
-      Xor.right(extAccount.asInstanceOf[StripeCard])
+      right(extAccount.asInstanceOf[StripeCard])
     else
-      Xor.left(GeneralFailure("externalAccount is not a stripe card").single)
+      left(GeneralFailure("externalAccount is not a stripe card").single)
 
   private [this] def tryFutureWrap[A](f: ⇒ Failures Xor A)
                                      (implicit ec: ExecutionContext): Result[A] = {
     Future(f).recoverWith {
-      case t: InvalidRequestException ⇒ Result.failure(StripeFailure(t))
-      case t: CardException           ⇒ Result.failure(StripeFailure(t))
+      case t: CardException if t.getCode == "incorrect_cvc" ⇒
+        Result.failure(CVCFailure)
+      case t: StripeException ⇒
+        Result.failure(StripeFailure(t))
     }
   }
 
