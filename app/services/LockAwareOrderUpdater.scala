@@ -5,7 +5,6 @@ import scala.concurrent.ExecutionContext
 import models._
 import responses.FullOrder
 import slick.driver.PostgresDriver.api._
-import slick.driver.PostgresDriver.backend.{DatabaseDef ⇒ Database}
 import utils.Slick._
 import utils.Slick.UpdateReturning._
 

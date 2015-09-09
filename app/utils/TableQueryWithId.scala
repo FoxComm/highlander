@@ -86,13 +86,7 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.Tab
       selectForUpdate(q).flatMap {
         case Xor.Right(value) ⇒ action(value)
         case failures @ Xor.Left(_) ⇒ lift(failures)
-      }.transactionally.run().map {
-        case result @ Xor.Right(value) ⇒ value match {
-          case failure: Failure ⇒ Xor.left(failure.single)
-          case _ ⇒ result
-        }
-        case failures@Xor.Left(_) ⇒ failures
-      }
+      }.transactionally.run()
     }
 
     protected def selectForUpdate(finder: QuerySeq)
