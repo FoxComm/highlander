@@ -11,8 +11,11 @@ import utils.Slick.implicits._
 object GiftCardResponse {
   // Mocks
   final val message = "Not implemented yet"
-  def getCustomer(id: Int)(implicit db: Database, ec: ExecutionContext): Future[Option[StoreAdmin]] = {
-    StoreAdmins.findById(id)
+  def getCustomer(id: Int)(implicit db: Database, ec: ExecutionContext): Option[StoreAdmin] = {
+    StoreAdmins.findById(id).flatMap {
+      case Some(x) ⇒ x
+      case None ⇒ Future(None)
+    }
   }
 
   final case class Root(
@@ -24,7 +27,7 @@ object GiftCardResponse {
     originalBalance: Int,
     availableBalance: Int,
     currentBalance: Int,
-    customer: Future[Option[StoreAdmin]],
+    customer: Option[StoreAdmin],
     message: String)
 
   def build(gc: GiftCard)(implicit db: Database, ec: ExecutionContext): Root =
