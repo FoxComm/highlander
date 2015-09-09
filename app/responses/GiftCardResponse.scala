@@ -22,8 +22,8 @@ object GiftCardResponse {
     customer: Option[StoreAdmin],
     message: String)
 
-  def build(gc: GiftCard)(implicit db: Database, ec: ExecutionContext): Root =
+  def build(gc: GiftCard, customer: Option[StoreAdmin] = None)(implicit db: Database, ec: ExecutionContext): Root =
     Root(id = gc.id, createdAt = gc.createdAt, code = gc.code, `type` = gc.originType, status = gc.status,
       originalBalance = gc.originalBalance, availableBalance = gc.availableBalance, currentBalance = gc.currentBalance,
-      customer = None, message = message)
+      customer = customer, message = message)
 }
