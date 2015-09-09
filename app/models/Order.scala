@@ -2,10 +2,7 @@ package models
 
 import cats.data.Validated.valid
 import cats.data.ValidatedNel
-import cats.implicits._
 import services.Failure
-import utils.Litterbox._
-import utils.Validation
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -18,18 +15,17 @@ import services.OrderTotaler
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
-import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
+import utils.{ADT, FSM, GenericTable, ModelWithLockParameter, TableQueryWithLock, Validation}
 import utils.Slick.implicits._
 
 final case class Order(id: Int = 0, referenceNumber: String = "", customerId: Int,
   status: Status = Cart, locked: Boolean = false, placedAt: Option[DateTime] = None,
   remorsePeriodEnd: Option[DateTime] = None)
-  extends ModelWithIdParameter
+  extends ModelWithLockParameter
   with FSM[Order.Status, Order]
   with Validation[Order] {
 
   import Order._
-  import Validation._
 
   // TODO: Add order validations
   def validate: ValidatedNel[Failure, Order] = {
@@ -92,7 +88,7 @@ object Order {
   def buildCart(customerId: Int): Order = Order(customerId = customerId, status = Order.Cart)
 }
 
-class Orders(tag: Tag) extends GenericTable.TableWithId[Order](tag, "orders")  {
+class Orders(tag: Tag) extends GenericTable.TableWithLock[Order](tag, "orders")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   // TODO: Find a way to deal with guest checkouts...
   def referenceNumber = column[String]("reference_number") //we should generate this based on certain rules; nullable until then
@@ -104,11 +100,9 @@ class Orders(tag: Tag) extends GenericTable.TableWithId[Order](tag, "orders")  {
   def * = (id, referenceNumber, customerId, status, locked, placedAt, remorsePeriodEnd) <>((Order.apply _).tupled, Order.unapply)
 }
 
-object Orders extends TableQueryWithId[Order, Orders](
+object Orders extends TableQueryWithLock[Order, Orders](
   idLens = GenLens[Order](_.id)
   )(new Orders(_)){
-
-  type QuerySeq = Query[Orders, Order, Seq]
 
   import scope._
 

@@ -1,11 +1,11 @@
 package utils
 
-import cats.data.Validated.{valid, invalidNel}
+import cats.data.Validated.{Valid, Invalid, valid, invalidNel}
 import cats.data.{NonEmptyList, Validated, ValidatedNel}
 import com.wix.accord
 import com.wix.accord.combinators._
 import com.wix.accord.RuleViolation
-import org.joda.time.DateTime
+import org.joda.time.{IllegalFieldValueException, DateTime}
 import services._
 
 trait Validation[M] {
@@ -37,11 +37,20 @@ object Validation {
 
   def notExpired(expYear: Int, expMonth: Int, message: String): ValidatedNel[Failure, Unit] = {
     val today = DateTime.now()
-    val expDate = new DateTime(expYear, expMonth, 1, 0, 0).plusMonths(1).minusSeconds(1)
 
-    expDate.isEqual(today) || expDate.isAfter(today) match {
-      case false ⇒ invalidNel(GeneralFailure(message))
-      case _     ⇒ valid({})
+    val validDate = Validated.fromTryCatch[org.joda.time.IllegalFieldValueException] {
+      new DateTime(expYear, expMonth, 1, 0, 0).plusMonths(1).minusSeconds(1)
+    }
+
+    validDate match {
+      case Valid(expDate) if expDate.isEqual(today) || expDate.isAfter(today) ⇒
+        valid(Unit)
+
+      case Invalid(e) ⇒
+        invalidNel(GeneralFailure(e.getMessage))
+
+      case _ ⇒
+        invalidNel(GeneralFailure(message))
     }
   }
 
@@ -55,11 +64,23 @@ object Validation {
     }
   }
 
+  // valid credit cards for us cannot have more than 20 years expiration from this year
+  def withinTwentyYears(year: Int, message: String): ValidatedNel[Failure, Unit] = {
+    val today = DateTime.now()
+    val expDate = new DateTime(year, today.getMonthOfYear, 1, 0, 0).plusMonths(1).minusSeconds(1)
+    val msg = message ++ s" year should be between ${today.getYear} and ${expDate.getYear}"
+
+    withinNumberOfYears(year, today.getMonthOfYear, 20, message)
+  }
+
   def matches(value: String, regex: String, constraint: String): ValidatedNel[Failure, Unit] =
     toValidatedNel(constraint, new MatchesRegex(regex.r.pattern, partialMatchAllowed = false).apply(value))
 
   def between(value: Int, lowerBound: Int, upperBound: Int, constraint: String): ValidatedNel[Failure, Unit] =
     toValidatedNel(constraint, new Between[Int](lowerBound, upperBound, prefix).apply(value))
+
+  def isMonth(month: Int, constraint: String): ValidatedNel[Failure, Unit] =
+    toValidatedNel(s"$constraint month", new Between[Int](1, 12, prefix).apply(month))
 
   def lesserThan(value: Int, limit: Int, constraint: String): ValidatedNel[Failure, Unit] =
     toValidatedNel(constraint, new LesserThan[Int](limit, prefix).apply(value))
@@ -86,3 +107,4 @@ object Validation {
       valid({})
   }
 }
+

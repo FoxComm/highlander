@@ -144,7 +144,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       val response = POST(s"v1/orders/${order.referenceNumber}/lock")
       response.status must === (StatusCodes.BadRequest)
       val errors = parse(response.bodyText).extract[Errors]
-      errors.head must === ("errors" → Seq("Order is locked"))
+      errors.head must === ("errors" → Seq("Model is locked"))
     }
 
     "unlocks an order" in {
@@ -167,6 +167,17 @@ class OrderIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.BadRequest)
       val errors = parse(response.bodyText).extract[Errors]
       errors.head must === ("errors" → Seq("Order is not locked"))
+    }
+
+    "avoids race condition" in {
+      StoreAdmins.save(Factories.storeAdmin).run().futureValue
+      val order = Orders.save(Factories.order).run().futureValue
+
+      def request = POST(s"v1/orders/${order.referenceNumber}/lock")
+
+      val responses = Seq(0, 1).par.map(_ ⇒ request)
+      responses.map(_.status) must contain allOf(StatusCodes.OK, StatusCodes.BadRequest)
+      OrderLockEvents.result.run().futureValue.length mustBe 1
     }
 
     "adjusts remorse period when order is unlocked" in new RemorseFixture {

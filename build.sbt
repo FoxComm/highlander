@@ -130,6 +130,14 @@ lazy val phoenixScala = (project in file(".")).
     resourceDirectory in IT   := baseDirectory.value / "test" / "resources",
     Revolver.settings,
     (mainClass in Compile) := Some("server.Main"),
+    initialCommands in console :=
+      """
+        |import scala.concurrent.ExecutionContext.Implicits.global
+        |import slick.driver.PostgresDriver.api._
+        |import models._
+        |val config: com.typesafe.config.Config = utils.Config.loadWithEnv()
+        |implicit val db = Database.forConfig("db", config)
+        """.stripMargin,
     // add ms report for every test
     testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD"),
     javaOptions in Test ++= Seq("-Xmx2G", "-XX:+UseConcMarkSweepGC"),

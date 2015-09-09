@@ -38,7 +38,7 @@ class NoteTest extends IntegrationTestBase {
         val result = note.validate
 
         result must be ('invalid)
-        invalidValue(result) must includeFailure("expected 1000 or less")
+        invalidValue(result) must includeFailure("bodySize got 1001, expected 1000 or less")
       }
     }
   }

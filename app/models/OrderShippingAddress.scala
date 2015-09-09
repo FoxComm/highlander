@@ -67,8 +67,6 @@ object OrderShippingAddresses extends TableQueryWithId[OrderShippingAddress, Ord
 
   import scope._
 
-  type QuerySeq = Query[OrderShippingAddresses, OrderShippingAddress, Seq]
-
   def copyFromAddress(address: Address, orderId: Int)(implicit ec: ExecutionContext):
   DBIO[OrderShippingAddress] =
     save(OrderShippingAddress.buildFromAddress(address).copy(orderId = orderId))

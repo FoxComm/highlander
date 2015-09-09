@@ -56,7 +56,7 @@ object OrderPaymentUpdater {
 
         if (available < payload.amount) {
           val error = CustomerHasInsufficientStoreCredit(id = order.customerId, has = available, want = payload.amount)
-          Result.left(error)
+          Result.left(error.single)
         } else {
           val delete = OrderPayments.filter(_.orderId === order.id).storeCredits.delete
           val payments = StoreCredit.processFifo(storeCredits.toList, payload.amount).map { case (sc, amount) ⇒
@@ -68,7 +68,7 @@ object OrderPaymentUpdater {
         }
 
       case (None, _) ⇒
-        Result.left(OrderNotFoundFailure(refNum))
+        Result.left(OrderNotFoundFailure(refNum).single)
     }
   }
 

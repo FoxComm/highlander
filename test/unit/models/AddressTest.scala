@@ -54,12 +54,12 @@ class AddressTest extends TestBase {
 
       "returns errors if US address and Some(phoneNumber) < 10 digits" in {
         val result = valid.copy(regionId = Country.usRegions.head, phoneNumber = Some("5551234")).validate
-        invalidValue(result) must (includeFailure("phoneNumber") and includeFailure("'[0-9]{10}'"))
+        invalidValue(result) must includeFailure("phoneNumber must fully match regular expression '[0-9]{10}'")
       }
 
       "returns errors if non-US address and Some(phoneNumber) > 15 digits" in {
         val result = valid.copy(regionId = 1, phoneNumber = Some("1" * 16)).validate
-        invalidValue(result) must (includeFailure("phoneNumber") and includeFailure("'[0-9]{0,15}'"))
+        invalidValue(result) must includeFailure("phoneNumber must fully match regular expression '[0-9]{0,15}'")
       }
     }
   }
