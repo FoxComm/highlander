@@ -28,12 +28,12 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       cards.map(_.id) must ===(giftCards.map(_.id))
     }
 
-    "finds a gift card by id" in new Fixture {
-      val response = GET(s"v1/gift-cards/${giftCard.id}")
+    "finds a gift card by code" in new Fixture {
+      val response = GET(s"v1/gift-cards/${giftCard.code}")
       val giftCardResp = response.as[GiftCard]
 
       response.status must ===(StatusCodes.OK)
-      giftCardResp.id must ===(giftCard.id)
+      giftCardResp.code must ===(giftCard.code)
 
       val notFoundResponse = GET(s"v1/gift-cards/99")
       notFoundResponse.status must ===(StatusCodes.NotFound)
@@ -42,7 +42,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
   "gift card note" - {
     "can be created by an admin for a gift card" in new Fixture {
-      val response = POST(s"v1/gift-cards/${giftCard.id}/notes",
+      val response = POST(s"v1/gift-cards/${giftCard.code}/notes",
         payloads.CreateNote(body = "Hello, FoxCommerce!"))
 
       response.status must ===(StatusCodes.OK)
@@ -53,7 +53,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     }
 
     "returns a validation error if failed to create" in new Fixture {
-      val response = POST(s"v1/gift-cards/${giftCard.id}/notes", payloads.CreateNote(body = ""))
+      val response = POST(s"v1/gift-cards/${giftCard.code}/notes", payloads.CreateNote(body = ""))
 
       response.status must ===(StatusCodes.BadRequest)
       response.bodyText must include("errors")
@@ -71,7 +71,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
         NoteManager.createGiftCardNote(giftCard, admin, payloads.CreateNote(body = body)).futureValue
       }
 
-      val response = GET(s"v1/gift-cards/${giftCard.id}/notes")
+      val response = GET(s"v1/gift-cards/${giftCard.code}/notes")
       response.status must ===(StatusCodes.OK)
 
       val notes = response.as[Seq[AdminNotes.Root]]
@@ -83,7 +83,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       val rootNote = NoteManager.createGiftCardNote(giftCard, admin,
         payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue.get
 
-      val response = PATCH(s"v1/gift-cards/${giftCard.id}/notes/${rootNote.id}", payloads.UpdateNote(body = "donkey"))
+      val response = PATCH(s"v1/gift-cards/${giftCard.code}/notes/${rootNote.id}", payloads.UpdateNote(body = "donkey"))
       response.status must ===(StatusCodes.OK)
 
       val note = response.as[AdminNotes.Root]
