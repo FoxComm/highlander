@@ -29,10 +29,6 @@ final case class StripeFailure(exception: StripeException) extends Failure {
   override def description = List(exception.getMessage)
 }
 
-case object StripeCouldNotCreateCard extends Failure {
-  override def description = List("could not create card in stripe")
-}
-
 final case class GeneralFailure(a: String) extends Failure {
   override def description = List(a)
 }

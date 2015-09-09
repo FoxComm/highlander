@@ -45,11 +45,11 @@ package object services {
   type ResultT[A] = XorT[Future, Failures, A]
 
   object ResultT {
-    def apply[A](xor: Failures Xor A)
-      (implicit ec: ExecutionContext): ResultT[A] = xor.fold(leftAsync, rightAsync)
-
-    def apply[A](xor: Future[Failures Xor A])
+    def apply[A](xor: Result[A])
       (implicit ec: ExecutionContext): ResultT[A] = XorT[Future, Failures, A](xor)
+
+    def fromXor[A](xor: Failures Xor A)
+      (implicit ec: ExecutionContext): ResultT[A] = xor.fold(leftAsync, rightAsync)
 
     def rightAsync[A](value: A)(implicit ec: ExecutionContext):     ResultT[A] = XorT.right(Future.successful(value))
     def right[A](value: Future[A])(implicit ec: ExecutionContext):  ResultT[A] = XorT.right(value)

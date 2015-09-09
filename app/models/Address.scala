@@ -11,7 +11,7 @@ import utils.{ModelWithIdParameter, NewModel, TableQueryWithId, Validation}
 
 final case class Address(id: Int = 0, customerId: Int, regionId: Int, name: String,
   street1: String, street2: Option[String], city: String, zip: String,
-  isDefaultShipping: Boolean = false, phoneNumber: Option[String])
+  isDefaultShipping: Boolean = false, phoneNumber: Option[String] = None)
   extends ModelWithIdParameter
   with NewModel
   with Addressable[Address]
@@ -27,15 +27,17 @@ object Address {
   val zipPattern = "(?i)^[a-z0-9][a-z0-9\\- ]{0,10}[a-z0-9]$"
   val zipPatternUs = "^\\d{5}(?:\\d{4})?$"
 
-  def fromPayload(p: CreateAddressPayload) = {
+  def fromPayload(p: CreateAddressPayload): Address =
     Address(customerId = 0, regionId = p.regionId, name = p.name,
       street1 = p.street1, street2 = p.street2, city = p.city, zip = p.zip, phoneNumber = p.phoneNumber)
-  }
 
-  def fromOrderShippingAddress(osa: OrderShippingAddress) = {
+  def fromOrderShippingAddress(osa: OrderShippingAddress): Address =
     Address(customerId = 0, regionId = osa.regionId, name = osa.name, street1 = osa.street1, street2 = osa.street2,
       city = osa.city, zip = osa.zip, phoneNumber = osa.phoneNumber)
-  }
+
+  def fromCreditCard(cc: CreditCard): Address =
+    Address(customerId = 0, regionId = cc.regionId, name = cc.addressName,
+      street1 = cc.street1, street2 = cc.street2, city = cc.city, zip = cc.zip)
 }
 
 class Addresses(tag: Tag) extends TableWithId[Address](tag, "addresses")  {
