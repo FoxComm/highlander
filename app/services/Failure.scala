@@ -1,6 +1,6 @@
 package services
 
-import collection.immutable
+import scala.collection.immutable
 import cats.data.NonEmptyList
 import cats.data.Validated.Invalid
 import cats.implicits._
@@ -94,4 +94,8 @@ final case class OrderShippingMethodsCannotBeProcessed(referenceNumber: String) 
 
 case object CreditCardMustHaveAddress extends Failure {
   override def description = List("cannot create creditCard without an address")
+}
+
+final case class RuntimeExceptionFailure[A <: RuntimeException](a: A) extends Failure {
+  val description = List(a.getMessage)
 }
