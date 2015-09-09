@@ -28,6 +28,14 @@ export default class CustomerInfo extends React.Component {
       return val || <span>&nbsp;</span>;
     }
 
+    let avatar = null;
+
+    if (customer.avatarUrl) {
+      avatar = <img src={customer.avatarUrl} />
+    } else {
+      avatar = <i className="fa fa-user"></i>
+    }
+
     return (
       <div className="fc-customer-info fc-content-box">
         <div className="fc-customer-info-header">
@@ -37,7 +45,7 @@ export default class CustomerInfo extends React.Component {
             </div>
           </div>
           <div className="fc-customer-info-avatar">
-            <img src={customer.avatarUrl} />
+            {avatar}
           </div>
           <div className="fc-customer-info-name">
             {customer.firstName} {customer.lastName}

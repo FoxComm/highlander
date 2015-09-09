@@ -35,12 +35,18 @@
     .margin-top(@avatar-margin-top);
     .margin-bottom(4px);
 
-    img {
+    img, i {
       overflow: hidden;
       border-radius: 50%;
       .size(@img_size);
       .margin-top(@circle_size/2 - @img_size/2);
       box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.50);
+    }
+
+    i {
+      .font-spec(60px, @img_size);
+      background-color: @color-decor15;
+      color: @color-decor0;
     }
   }
 
