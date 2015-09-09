@@ -4,6 +4,7 @@ import scala.concurrent.{Future, ExecutionContext}
 
 import com.pellucid.sealerate
 import models.GiftCardAdjustment.{Auth, Status}
+import models.Notes._
 import monocle.macros.GenLens
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
@@ -62,10 +63,10 @@ object GiftCardAdjustments extends TableQueryWithId[GiftCardAdjustment, GiftCard
   import GiftCardAdjustment._
 
   def filterByGiftCardId(id: Int)
-    (implicit ec: ExecutionContext, db:Database): Future[Seq[GiftCardAdjustment]] =
-    _filterByGiftCardId(id).result.run()
+    (implicit ec: ExecutionContext, db:Database): QuerySeq =
+    _filterByGiftCardId(id)
 
-  def _filterByGiftCardId(id: Int): Query[GiftCardAdjustments, GiftCardAdjustment, Seq] =
+  def _filterByGiftCardId(id: Int): QuerySeq =
     filter(_.giftCardId === id)
 
   def cancel(id: Int): DBIO[Int] = filter(_.id === id).map(_.status).update(Canceled)

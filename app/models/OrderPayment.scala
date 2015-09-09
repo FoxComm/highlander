@@ -46,6 +46,8 @@ class OrderPayments(tag: Tag)
 
   def * = (id, orderId, amount, currency, paymentMethodId, paymentMethodType) <> ((OrderPayment.apply _).tupled,
     OrderPayment.unapply )
+
+  def order = foreignKey(Orders.tableName, orderId, Orders)(_.id)
 }
 
 object OrderPayments extends TableQueryWithId[OrderPayment, OrderPayments](
