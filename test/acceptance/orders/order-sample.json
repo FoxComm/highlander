@@ -68,7 +68,7 @@
   },
   "payment": {
     "amount": 0,
-    "status": "fixme",
+    "status": "Authorized",
     "referenceNumber": "ABC123",
     "paymentMethod": {
       "cardType": "visa",
