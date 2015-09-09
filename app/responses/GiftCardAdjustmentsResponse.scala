@@ -12,17 +12,25 @@ object GiftCardAdjustmentsResponse {
     id: Int,
     amount: Int,
     availableBalance: Int,
-    orderId: Int,
+    state: String,
     orderRef: String)
 
-  def build(adjustment: GiftCardAdjustment): Root =
-    Root(id = adjustment.id, amount = 0, availableBalance = 0, orderId = 0, orderRef = "")
+  def build(adjustment: GiftCardAdjustment, gc: GiftCard): Root = {
+    val amount = (adjustment.credit, adjustment.debit) match {
+      case (credit, 0) ⇒ credit
+      case (0, debit) ⇒ -debit
+    }
+
+    Root(id = adjustment.id, amount = amount, availableBalance = gc.availableBalance + amount,
+      state = adjustment.status.toString, orderRef = "")
+  }
+
 
   def forGiftCard(gc: GiftCard)(implicit ec: ExecutionContext, db: Database): Future[Nothing Xor Seq[Root]] = {
     (for {
       adjustments ← GiftCardAdjustments.filterByGiftCardId(gc.id)
     } yield adjustments).map { results ⇒
-      results.map { case (adjustment) ⇒ build(adjustment) }
+      results.map { case (adjustment) ⇒ build(adjustment, gc) }
     }.map(Xor.right)
   }
 }
