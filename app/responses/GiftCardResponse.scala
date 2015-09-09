@@ -2,7 +2,7 @@ package responses
 
 import scala.concurrent.ExecutionContext
 
-import models.{GiftCard, StoreAdmin}
+import models.{Customer, GiftCard}
 import org.joda.time.DateTime
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
@@ -19,10 +19,10 @@ object GiftCardResponse {
     originalBalance: Int,
     availableBalance: Int,
     currentBalance: Int,
-    customer: Option[StoreAdmin],
+    customer: Option[Customer],
     message: String)
 
-  def build(gc: GiftCard, customer: Option[StoreAdmin] = None)(implicit db: Database, ec: ExecutionContext): Root =
+  def build(gc: GiftCard, customer: Option[Customer] = None)(implicit db: Database, ec: ExecutionContext): Root =
     Root(id = gc.id, createdAt = gc.createdAt, code = gc.code, `type` = gc.originType, status = gc.status,
       originalBalance = gc.originalBalance, availableBalance = gc.availableBalance, currentBalance = gc.currentBalance,
       customer = customer, message = message)

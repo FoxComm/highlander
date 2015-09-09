@@ -2,7 +2,7 @@ package services
 
 import scala.concurrent.ExecutionContext
 
-import models.{StoreAdmins, GiftCards}
+import models.{Customers, GiftCards}
 import responses.GiftCardResponse
 import responses.GiftCardResponse.Root
 import slick.driver.PostgresDriver.api._
@@ -12,14 +12,19 @@ object GiftCardService {
   def fetchDetails(code: String)(implicit db: Database, ec: ExecutionContext) = {
     for {
       giftCard ← GiftCards.findByCode(code).one.run()
-      storeAdmin ← StoreAdmins.findById(1) // Mock
-    } yield (giftCard, storeAdmin)
+      customer ← Customers.findById(1) // Mock Jacques
+    } yield (giftCard, customer)
   }
 
   def getByCode(code: String)(implicit db: Database, ec: ExecutionContext): Result[Root] = {
     fetchDetails(code).flatMap {
-      case (Some(giftCard), storeAdmin)       ⇒ Result.right(GiftCardResponse.build(giftCard, storeAdmin))
-      case (None, _)                          ⇒ Result.left(NotFoundFailure(GiftCards, code).single)
+      case (Some(giftCard), Some(customer)) ⇒
+        val mockCustomer = customer.copy(password = null)
+        Result.right(GiftCardResponse.build(giftCard, Some(mockCustomer)))
+      case (Some(giftCard), None) ⇒
+        Result.right(GiftCardResponse.build(giftCard))
+      case (None, _) ⇒
+        Result.left(NotFoundFailure(GiftCards, code).single)
     }
   }
 }
