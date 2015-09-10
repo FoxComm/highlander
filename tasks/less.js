@@ -20,7 +20,7 @@ module.exports = function(gulp, opts, $) {
       let src = path.join(opts.themeDir, theme, '**/*.less');
       return gulp.src(src)
         .pipe($.if(opts.devMode, $.plumber(function (err) {
-          console.log(err);
+          console.error(err);
           this.emit('end');
         })))
         .pipe($.concat(`${theme}.less`))

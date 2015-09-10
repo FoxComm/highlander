@@ -118,7 +118,7 @@ export default class NewGiftCard extends React.Component {
        .then((res) => {
          this.closeForm(res);
        })
-       .catch((err) => { console.log(err); });
+       .catch((err) => { console.error(err); });
   }
 
   closeForm(cards) {
