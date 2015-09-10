@@ -172,6 +172,9 @@ object Admin {
             AllOrders.findAll
           }
         } ~
+        (post & entity(as[CreateOrder]) & pathEnd) { payload ⇒
+          complete { OrderCreator.createCart(payload).map(renderGoodOrFailures) }
+        } ~
         (patch & entity(as[BulkUpdateOrdersPayload]) & pathEnd) { payload ⇒
           complete {
             for {
