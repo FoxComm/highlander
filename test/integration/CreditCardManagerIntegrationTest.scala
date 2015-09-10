@@ -49,6 +49,8 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
           cc.deletedAt mustBe 'empty
           cc.lastFour must === (payload.lastFour)
           (cc.expYear, cc.expMonth) must === ((payload.expYear, payload.expMonth))
+          cc.zipCheck mustBe 'defined
+          cc.street1Check mustBe 'defined
         }
 
         "creates a new address in the book and copies it to the new creditCard" ignore new Fixture {
@@ -72,6 +74,8 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
           cc.deletedAt mustBe 'empty
           cc.lastFour must === (payload.lastFour)
           (cc.expYear, cc.expMonth) must === ((payload.expYear, payload.expMonth))
+          cc.zipCheck mustBe 'defined
+          cc.street1Check mustBe 'defined
         }
 
         "uses an existing stripe customerId when it exists" ignore new AddressFixture {

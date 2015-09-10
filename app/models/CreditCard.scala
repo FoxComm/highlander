@@ -18,8 +18,9 @@ import utils._
 
 final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerId: Int, gatewayCustomerId: String,
   gatewayCardId: String, holderName: String, lastFour: String, expMonth: Int, expYear: Int,
-  isDefault: Boolean = false, inWallet: Boolean = true, deletedAt: Option[DateTime] = None,
-  regionId: Int, addressName: String, street1: String, street2: Option[String] = None, city: String, zip: String)
+  isDefault: Boolean = false, street1Check: Option[String] = None, zipCheck: Option[String] = None,
+  inWallet: Boolean = true, deletedAt: Option[DateTime] = None, regionId: Int, addressName: String,
+  street1: String, street2: Option[String] = None, city: String, zip: String)
   extends PaymentMethod
   with ModelWithIdParameter
   with Addressable[CreditCard]
@@ -54,6 +55,7 @@ object CreditCard {
   def build(customerId: Int, sCust: StripeCustomer, card: StripeCard, p: CreateCreditCard, a: Address): CreditCard = {
     CreditCard(customerId = customerId, gatewayCustomerId = sCust.getId, gatewayCardId = card.getId, holderName =
       p.holderName, lastFour = p.lastFour, expMonth = p.expMonth, expYear = p.expYear, isDefault = p.isDefault,
+      street1Check = card.getAddressLine1Check.some, zipCheck = card.getAddressZipCheck.some,
       regionId = a.regionId, addressName = a.name, street1 = a.street1, street2 = a.street2,
       city = a.city, zip = a.zip)
   }
@@ -72,6 +74,8 @@ class CreditCards(tag: Tag)
   def expMonth = column[Int]("exp_month")
   def expYear = column[Int]("exp_year")
   def isDefault = column[Boolean]("is_default")
+  def street1Check = column[Option[String]]("street1_check")
+  def zipCheck = column[Option[String]]("zip_check")
   def inWallet = column[Boolean]("in_wallet")
   def deletedAt = column[Option[DateTime]]("deleted_at")
 
@@ -83,8 +87,7 @@ class CreditCards(tag: Tag)
   def zip = column[String]("zip")
 
   def * = (id, parentId, customerId, gatewayCustomerId, gatewayCardId, holderName,
-    lastFour, expMonth, expYear, isDefault, inWallet, deletedAt,
-    //blah
+    lastFour, expMonth, expYear, isDefault, street1Check, zipCheck, inWallet, deletedAt,
     regionId, addressName, street1, street2, city, zip) <> ((CreditCard.apply _).tupled, CreditCard.unapply)
 
   def customer        = foreignKey(Customers.tableName, customerId, Customers)(_.id)
