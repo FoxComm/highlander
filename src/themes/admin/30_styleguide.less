@@ -210,11 +210,14 @@ input[type=reset] {
 
 .tabbed-nav {
   .margin-bottom(15px);
+  border-bottom: 2px solid @color-decor7;
 
   li {
     display: inline-block;
     vertical-align: top;
-    .margin-right(45px);
+    .margin-top(20px);
+    position: relative;
+    .top(2px);
 
     a,
     a:visited {
@@ -222,8 +225,16 @@ input[type=reset] {
       display: block;
       .font-spec(14px, 19px);
 
+      .padding(0 25px 10px 25px);
+      border-bottom: 2px solid @color-decor7;
+
+      &:hover {
+        color: #37BAC2;
+      }
+
       &.active {
-        border-bottom: 2px solid @color-tooltip-bg;
+        border-bottom: 2px solid @color-decor3;
+        color: #37BAC2;
       }
     }
   }

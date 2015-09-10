@@ -74,7 +74,7 @@ TableBody.contextTypes = {
 
 TableBody.propTypes = {
   columns: React.PropTypes.array,
-  rows: React.PropTypes.array,
+  rows: React.PropTypes.array.isRequired,
   model: React.PropTypes.string,
   children: React.PropTypes.node
 };

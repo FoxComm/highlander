@@ -46,7 +46,7 @@ export default class NewAddress extends React.Component {
         AddressStore.update(res);
       })
       .catch((err) => {
-        console.log(err);
+        console.error(err);
       });
   }
 
@@ -80,7 +80,7 @@ export default class NewAddress extends React.Component {
         });
       })
       .catch((error) => {
-        console.log(error);
+        console.error(error);
       });
   }
 

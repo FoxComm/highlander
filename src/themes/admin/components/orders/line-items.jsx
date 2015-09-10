@@ -61,7 +61,7 @@ export default class OrderLineItems extends React.Component {
       body = <TableBody columns={columns} rows={order.lineItems} model='order'/>;
     }
     return (
-      <section id="order-line-items">
+      <section className="fc-content-box order-line-items">
         <header>
           <div className='fc-grid'>
             <div className="fc-col-2-3">Items</div>
