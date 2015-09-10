@@ -7,6 +7,7 @@ import services.{CVCFailure, NotFoundFailure}
 import util.{StripeSupport, IntegrationTestBase}
 import utils.Seeds.Factories
 import utils.Slick.implicits._
+import cats.implicits._
 
 class CreditCardManagerIntegrationTest extends IntegrationTestBase
   with HttpSupport
@@ -26,7 +27,7 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
         cvv = "123", expYear = tomorrow.getYear, expMonth = tomorrow.getMonthOfYear)
 
       def payloadWithFullAddress(p: payloads.CreateCreditCard, a: Address): payloads.CreateCreditCard = {
-        p.copy(address = Some(CreateAddressPayload(
+        p.copy(addressId = None, address = Some(CreateAddressPayload(
           name = a.name, street1 = a.street1, street2 = a.street2,
           city = a.city, zip = a.zip, regionId = a.regionId)))
       }
@@ -52,7 +53,7 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
 
         "creates a new address in the book and copies it to the new creditCard" ignore new Fixture {
           val a = Factories.address
-          val payload = payloadWithFullAddress(payloadStub, a)
+          val payload = payloadWithFullAddress(payloadStub.copy(isDefault = true), a)
 
           val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
           val (cc :: Nil) = CreditCards.filter(_.customerId === customer.id).futureValue.toList
@@ -71,6 +72,21 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
           cc.deletedAt mustBe 'empty
           cc.lastFour must === (payload.lastFour)
           (cc.expYear, cc.expMonth) must === ((payload.expYear, payload.expMonth))
+        }
+
+        "uses an existing stripe customerId when it exists" ignore new AddressFixture {
+          val payload = payloadStub.copy(addressId = address.id.some)
+          val seed = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
+
+          seed.status must ===(StatusCodes.OK)
+
+          val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
+          val cards = CreditCards.filter(_.customerId === customer.id).futureValue
+
+          response.status must ===(StatusCodes.OK)
+          cards must have size(2)
+          cards.map(_.gatewayCustomerId).toSet must have size(1)
+          cards.map(_.gatewayCardId).toSet must have size(2)
         }
       }
 

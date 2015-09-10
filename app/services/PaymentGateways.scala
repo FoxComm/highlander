@@ -8,7 +8,7 @@ import cats.implicits._
 import cats.data.{XorT, Xor}
 import cats.data.Xor.{left, right}
 import com.stripe.exception.{StripeException, CardException, InvalidRequestException}
-import com.stripe.model.{Card ⇒ StripeCard, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer, ExternalAccount}
+import com.stripe.model.{Card ⇒ StripeCard, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer, Account, ExternalAccount}
 import com.stripe.net.{RequestOptions ⇒ StripeRequestOptions}
 import models.{CreditCard, Customer, Address}
 
@@ -22,42 +22,50 @@ final case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVL
 
   // Creates a customer in Stripe along with their first CC
   @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.AsInstanceOf"))
-  def createCustomerAndCard(customer: Customer, card: CreateCreditCard, stripeId: Option[String], address: Address)
+  def createCard(email: String, card: CreateCreditCard, stripeCustomerId: Option[String], address: Address)
     (implicit ec: ExecutionContext): Result[(StripeCustomer, StripeCard)] = {
 
-    val base = Map[String, Object](
-      "description" -> "FoxCommerce",
-      "email" -> customer.email
-    )
-
     val source = Map[String, Object](
-      "object" -> "card",
-      "number" -> card.number,
-      "exp_month" -> card.expMonth.toString,
-      "exp_year" -> card.expYear.toString,
-      "cvc" -> card.cvv.toString,
-      "name" -> card.holderName
+      "object"        → "card",
+      "number"        → card.number,
+      "exp_month"     → card.expMonth.toString,
+      "exp_year"      → card.expYear.toString,
+      "cvc"           → card.cvv.toString,
+      "name"          → card.holderName,
+      "address_line1" → address.street1,
+      "address_line2" → address.street2.orNull,
+      "address_city"  → address.city,
+      "address_zip"   → address.zip
     )
 
-    val params = card.address.fold(base.updated("source", mapAsJavaMap(source))) { address =>
-      val sourceWithAddress = source ++ Map[String, Object](
-        "address_line1" -> address.street1,
-        "address_line2" -> address.street2.orNull,
-        "address_city" -> address.city,
-        // "address_state" -> address.state.orNull,
-        "address_zip" -> address.zip
-      )
-      base.updated("source", mapAsJavaMap(sourceWithAddress))
+    def existingCustomer(id: String): ResultT[(StripeCustomer, StripeCard)] = {
+      val params = Map[String, Object]("source" → mapAsJavaMap(source))
+
+      for {
+        cust ← ResultT(getCustomer(id))
+        card ← ResultT(tryFutureWrap[StripeCard] {
+          Xor.right(cust.createCard(mapAsJavaMap(params), options))
+        })
+      } yield (cust, card)
     }
 
-    def create: ResultT[StripeCustomer] =
-      ResultT(tryFutureWrap[StripeCustomer]{ Xor.right(StripeCustomer.create(mapAsJavaMap(params), options)) })
+    def newCustomer: ResultT[(StripeCustomer, StripeCard)] = {
+      val params = Map[String, Object](
+        "description" → "FoxCommerce",
+        "email"       → email,
+        "source"      → mapAsJavaMap(source)
+      )
 
-    (for {
-      sCustomer ← create
-      card      ← ResultT(getCard(sCustomer))
-      _         ← ResultT.fromXor(cvcCheck(card))
-    } yield (sCustomer, card)).value
+      for {
+        cust  ← ResultT(tryFutureWrap[StripeCustomer] {
+          Xor.right(StripeCustomer.create(mapAsJavaMap(params), options))
+        })
+        card  ← ResultT(getCard(cust))
+        _     ← ResultT.fromXor(cvcCheck(card))
+      } yield (cust, card)
+    }
+
+    stripeCustomerId.fold(newCustomer)(existingCustomer).value
   }
 
   def authorizeAmount(customerId: String, amount: Int)

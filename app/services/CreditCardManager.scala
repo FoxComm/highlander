@@ -26,12 +26,13 @@ object CreditCardManager {
   def createCardThroughGateway(customer: Customer, payload: CreateCreditCard)
     (implicit ec: ExecutionContext, db: Database): Result[CreditCard] = {
 
-    // case class Right(stripeId: Option[String], address: Address, dbio: DBIO[CreditCard])
-
     def saveCardAndAddress(stripeCustomer: StripeCustomer, stripeCard: StripeCard, address: Address):
     ResultT[DBIO[CreditCard]] = {
       val cc = CreditCard.build(customer.id, stripeCustomer, stripeCard, payload, address)
-      val saveAddress = if (address.isNew) Addresses.save(address) else DBIO.successful(address)
+      val saveAddress = if (address.isNew)
+        Addresses.save(address.copy(customerId = customer.id))
+      else
+        DBIO.successful(address)
 
       ResultT.rightAsync(saveAddress >> CreditCards.save(cc))
     }
@@ -52,7 +53,7 @@ object CreditCardManager {
       _       ← ResultT.fromXor(payload.validate.toXor.leftMap(_.failure))
       res     ← getExistingStripeIdAndAddress
       res2    ← res match { case (sId, address) ⇒
-        ResultT(gateway.createCustomerAndCard(customer, payload, sId, address))
+        ResultT(gateway.createCard(customer.email, payload, sId, address))
       }
       newCard ← res2 match { case (sCustomer, sCard) ⇒
         saveCardAndAddress(sCustomer, sCard, res._2)
