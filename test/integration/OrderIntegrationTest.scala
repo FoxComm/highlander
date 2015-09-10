@@ -2,10 +2,9 @@ import akka.http.scaladsl.model.StatusCodes
 import akka.pattern.ask
 import akka.testkit.TestActorRef
 
-import models.Order._
 import models._
 import org.joda.time.Minutes.minutesBetween
-import org.joda.time.{Minutes, DateTime}
+import org.joda.time.DateTime
 import org.joda.time.Seconds.secondsBetween
 import payloads.UpdateOrderPayload
 import responses.{AdminNotes, FullOrder}
@@ -104,8 +103,11 @@ class OrderIntegrationTest extends IntegrationTestBase
       // OrderPayments.findAllByOrderId(order.id).futureValue.head.status must === ("cancelAuth")
     }
     */
+  }
 
-    "increases remorse period" in {
+  "increases remorse period" - {
+
+    "successfully" in {
       val order = Orders.save(Factories.order.copy(status = Order.RemorseHold)).run().futureValue
       val response = POST(s"v1/orders/${order.referenceNumber}/increase-remorse-period")
 
@@ -113,16 +115,19 @@ class OrderIntegrationTest extends IntegrationTestBase
       result.remorsePeriodEnd must ===(order.remorsePeriodEnd.map(_.plusMinutes(15)))
     }
 
-    "increases remorse period only when in RemorseHold status" in {
+    "only when in RemorseHold status" in {
       val order = Orders.save(Factories.order).run().futureValue
       val response = POST(s"v1/orders/${order.referenceNumber}/increase-remorse-period")
-      response.status must === (StatusCodes.BadRequest)
+      response.status must ===(StatusCodes.BadRequest)
 
       val newOrder = Orders._findById(order.id).extract.one.run().futureValue.get
       newOrder.remorsePeriodEnd must ===(order.remorsePeriodEnd)
     }
+  }
 
-    "locks an order" in {
+  "locking" - {
+
+    "successfully locks an order" in {
       val order = Orders.save(Factories.order).run().futureValue
       StoreAdmins.save(Factories.storeAdmin).run().futureValue
 
@@ -203,7 +208,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       order2.status must ===(Order.RemorseHold)
     }
 
-    "use most recent lock record" in new RemorseFixture {
+    "uses most recent lock record" in new RemorseFixture {
       OrderLockEvents.save(OrderLockEvent(id = 1, lockedBy = 1, orderId = 1, lockedAt = DateTime.now.minusMinutes(30)))
 
       POST(s"v1/orders/$refNum/lock")
@@ -213,7 +218,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       minutesBetween(originalRemorseEnd, newRemorseEnd).getMinutes mustBe 0
     }
 
-    "adds 15 minutes if order lock event is absent" in new RemorseFixture {
+    "adds 15 minutes to remorse if order lock event is absent" in new RemorseFixture {
       POST(s"v1/orders/$refNum/lock")
       db.run(OrderLockEvents.deleteById(1)).futureValue
       // Sanity check
@@ -332,10 +337,6 @@ class OrderIntegrationTest extends IntegrationTestBase
       response.bodyText must be ('empty)
     }
 
-//    "are soft deleted" in {
-//      val response = DELETE(s"v1/orders/${order.id}/notes/${note.id}")
-//    }
-
     "can be listed" in new Fixture {
       List("abc", "123", "xyz").map { body ⇒
         NoteManager.createOrderNote(order, storeAdmin, payloads.CreateNote(body = body)).futureValue
@@ -346,7 +347,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       val notes = parse(response.bodyText).extract[Seq[AdminNotes.Root]]
 
-      notes must have size (3)
+      notes must have size 3
       notes.map(_.body).toSet must === (Set("abc", "123", "xyz"))
     }
 
@@ -360,6 +361,9 @@ class OrderIntegrationTest extends IntegrationTestBase
       val note = parse(response.bodyText).extract[AdminNotes.Root]
       note.body must === ("donkey")
     }
+  }
+
+  "shipping addresses" - {
 
     "copying a shipping address from a customer's book" - {
 
