@@ -16,11 +16,7 @@ object GiftCardAdjustmentsResponse {
     orderRef: String)
 
   def build(adjustment: GiftCardAdjustment, gc: GiftCard, order: Order): Root = {
-    val amount = (adjustment.credit, adjustment.debit) match {
-      case (credit, 0) if credit >= 0   ⇒ credit
-      case (0, debit) if debit >= 0     ⇒ -debit
-    }
-
+    val amount = adjustment.getAmount
     Root(id = adjustment.id, amount = amount, availableBalance = gc.currentBalance + amount,
       state = adjustment.status.toString, orderRef = order.referenceNumber)
   }

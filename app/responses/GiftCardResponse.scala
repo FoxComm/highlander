@@ -15,7 +15,7 @@ object GiftCardResponse {
     createdAt: DateTime,
     code: String,
     `type`: String,
-    status: models.GiftCard.Status,
+    status: GiftCard.Status,
     originalBalance: Int,
     availableBalance: Int,
     currentBalance: Int,

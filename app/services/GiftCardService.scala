@@ -9,13 +9,6 @@ import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 
 object GiftCardService {
-  def fetchDetails(code: String)(implicit db: Database, ec: ExecutionContext) = {
-    for {
-      giftCard ← GiftCards.findByCode(code).one.run()
-      mockCustomer ← Customers.findById(1)
-    } yield (giftCard, mockCustomer)
-  }
-
   def getByCode(code: String)(implicit db: Database, ec: ExecutionContext): Result[Root] = {
     fetchDetails(code).flatMap {
       case (Some(giftCard), Some(customer)) ⇒
@@ -25,5 +18,12 @@ object GiftCardService {
       case (None, _) ⇒
         Result.left(GiftCardNotFoundFailure(code).single)
     }
+  }
+
+  private def fetchDetails(code: String)(implicit db: Database, ec: ExecutionContext) = {
+    for {
+      giftCard ← GiftCards.findByCode(code).one.run()
+      mockCustomer ← Customers.findById(1)
+    } yield (giftCard, mockCustomer)
   }
 }

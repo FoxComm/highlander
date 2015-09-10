@@ -21,6 +21,10 @@ final case class GiftCardAdjustment(id: Int = 0, giftCardId: Int, orderPaymentId
 
   def stateLens = GenLens[GiftCardAdjustment](_.status)
 
+  def getAmount: Int = {
+    if (credit > 0) credit else -debit
+  }
+
   val fsm: Map[Status, Set[Status]] = Map(
     Auth → Set(Canceled, Capture)
   )
