@@ -19,11 +19,11 @@ object GiftCardResponse {
     originalBalance: Int,
     availableBalance: Int,
     currentBalance: Int,
-    customer: Option[CustomerResponse.Root],
+    createdBy: Option[Any],
     message: String)
 
-  def build(gc: GiftCard, customer: Option[CustomerResponse.Root] = None): Root =
+  def build(gc: GiftCard, createdBy: Option[Any] = None): Root =
     Root(id = gc.id, createdAt = gc.createdAt, code = gc.code, `type` = gc.originType, status = gc.status,
       originalBalance = gc.originalBalance, availableBalance = gc.availableBalance, currentBalance = gc.currentBalance,
-      customer = customer, message = mockMessage)
+      createdBy = createdBy, message = mockMessage)
 }

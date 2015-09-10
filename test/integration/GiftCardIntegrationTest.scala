@@ -41,8 +41,8 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     }
   }
 
-  "gift card adjustments" - {
-    "queries the list of adjustments" in new Fixture {
+  "GET /v1/gift-cards/:code/transactions" - {
+    "returns the list of adjustments" in new Fixture {
       val response = GET(s"v1/gift-cards/${giftCard.code}/transactions")
       val adjustments = response.as[Seq[GiftCardAdjustmentsResponse.Root]]
 
