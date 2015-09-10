@@ -66,9 +66,7 @@ object GiftCardAdjustments extends TableQueryWithId[GiftCardAdjustment, GiftCard
 
   import GiftCardAdjustment._
 
-  def filterByGiftCardId(id: Int): QuerySeq = _filterByGiftCardId(id)
-
-  def _filterByGiftCardId(id: Int): QuerySeq = filter(_.giftCardId === id)
+  def filterByGiftCardId(id: Int): QuerySeq = filter(_.giftCardId === id)
 
   def cancel(id: Int): DBIO[Int] = filter(_.id === id).map(_.status).update(Canceled)
 }
