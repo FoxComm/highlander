@@ -106,6 +106,14 @@ object Admin {
             complete {
               AddressManager.edit(addressId, customerId, payload).map(renderGoodOrFailures)
             }
+          } ~
+          (get & path("display") & pathEnd) {
+            complete {
+              Customers._findById(customerId).result.headOption.run().flatMap {
+                case None           ⇒ Future.successful(notFoundResponse)
+                case Some(customer) ⇒ AddressManager.getDisplayAddress(customer).map(renderOrNotFound(_))
+              }
+            }
           }
         } ~
         pathPrefix("payment-methods" / "credit-cards") {
