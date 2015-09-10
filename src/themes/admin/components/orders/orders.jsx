@@ -23,8 +23,8 @@ export default class Orders extends React.Component {
     OrderStore.stopListeningToEvent('change', this);
   }
 
-  onChangeOrderStore() {
-    this.setState({orders: OrderStore.getState()});
+  onChangeOrderStore(orders) {
+    this.setState({orders});
   }
 
   render() {

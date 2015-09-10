@@ -1,31 +1,33 @@
 'use strict';
 
+import _ from 'lodash';
 import Api from './api';
-import { dispatch, listenTo, stopListeningTo } from './dispatcher';
-import { inflect } from 'fleck';
+import EventedStore from './evented-store';
 
-export default class BaseStore {
+export default class BaseStore extends EventedStore {
   constructor() {
+    super();
     this.models = [];
   }
-
-  get storeName() { return this.constructor.name; }
-  get eventSuffix() { return inflect(this.storeName, 'underscore', 'dasherize'); }
 
   uri(id) {
     return id ? `${this.baseUri}/${id}` : this.baseUri;
   }
 
+  notifyChanged() {
+    this.dispatch('change', this.models);
+  }
+
   reset() {
     this.models = [];
-    dispatch(`change${this.storeName}`, this.models);
+    this.notifyChanged();
   }
 
   sort(field, order) {
     this.models = this.models.sort((a, b) => {
       return (1 - 2 * order) * (a[field] < b[field] ? 1 : a[field] > b[field] ? -1 : 0);
     });
-    dispatch(`change${this.storeName}`, this.models);
+    this.notifyChanged();
   }
 
   getState(id) {
@@ -34,17 +36,11 @@ export default class BaseStore {
   }
 
   findModel(id) {
-    return this.models.filter((item) => {
-      return item.id === id;
-    })[0];
+    return _.find(this.models, 'id', id);
   }
 
-  listenToEvent(event, ctx) {
-    listenTo(`${event}-${this.eventSuffix}`, ctx);
-  }
-
-  stopListeningToEvent(event, ctx) {
-    stopListeningTo(`${event}-${this.eventSuffix}`, ctx);
+  findWhere(...args) {
+    return _.findWhere(this.models, ...args);
   }
 
   process(model) {
@@ -65,7 +61,7 @@ export default class BaseStore {
 
   add(model) {
     this.models.push(model);
-    dispatch(`change${this.storeName}`, this.models);
+    this.notifyChanged();
   }
 
   update(model) {
@@ -73,32 +69,28 @@ export default class BaseStore {
       model.forEach((item) => {
         this.upsert(item);
       });
+      this.notifyChanged();
     } else {
       this.upsert(model);
+      this.dispatch('changeItem', model);
     }
-    dispatch(`change${this.storeName}`, model);
-  }
-
-  // @todo Error handling - Tivs
-  fetchError(err) {
-    console.error(err);
   }
 
   fetch(id) {
-    Api.get(this.uri(id))
-      .then((res) => { this.update(res); })
-      .catch((err) => { this.fetchError(err); });
+    return Api.get(this.uri(id))
+      .then((res) => { this.update(res); return res; })
+      .catch((err) => { this.apiError(err); return err; });
   }
 
   patch(id, changes) {
-    Api.patch(this.uri(id), changes)
-      .then((res) => { this.update(res); })
-      .catch((err) => { this.fetchError(err); });
+    return Api.patch(this.uri(id), changes)
+      .then((res) => { this.update(res); return res; })
+      .catch((err) => { this.apiError(err); return err; });
   }
 
   create(data) {
-    Api.post(this.uri(), data)
-      .then((res) => { this.update(res); })
-      .catch((err) => { this.fetchError(err); });
+    return Api.post(this.uri(), data)
+      .then((res) => { this.update(res); return res; })
+      .catch((err) => { this.apiError(err); return err; });
   }
 }

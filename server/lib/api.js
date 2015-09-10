@@ -1,8 +1,7 @@
 'use strict';
 
-const
-  _       = require('lodash'),
-  request = require('request');
+const _ = require('lodash');
+const request = require('request');
 
 class Api {
   constructor(uri, auth) {
@@ -34,9 +33,8 @@ class Api {
         opts[(method === 'GET' ? 'qs' : 'json')] = data;
       }
       _this.baseRequest(opts, function(err, r, body) {
-        if (err) {
-          return reject(err);
-        }
+        if (err) return reject(err);
+
         let response = {
           status: r.statusCode,
           response: body
@@ -51,7 +49,7 @@ class Api {
   }
 
   buildRequest(method, args) {
-    args = [].slice.call(args);
+    args = _.toArray(args);
     return this.request.apply(this, [method].concat(args));
   }
 

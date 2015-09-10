@@ -1,5 +1,27 @@
 'use strict';
 
+import _ from 'lodash';
+
+class ErrorResponse {
+  constructor(responseOrError) {
+    this.data = responseOrError;
+    this.isNativeError = responseOrError instanceof Error;
+
+    if (!this.isNativeError) {
+      // just plain object about error from server
+      _.extend(this, _.omit(responseOrError, 'errors'));
+    }
+  }
+
+  get errors() {
+    if (this.isNativeError) {
+      return [this.data];
+    } else {
+      return this.data.errors
+    }
+  }
+}
+
 export default class Api {
   static apiURI(uri) {
     uri = uri.replace(/^\/api\/v\d\/|^\//, '');
@@ -9,17 +31,17 @@ export default class Api {
   static request(method, uri, data) {
     uri = this.apiURI(uri);
     return new Promise((resolve, reject) => {
-      let
-        req   = new XMLHttpRequest(),
-        token = localStorage.getItem('token');
+      let req = new XMLHttpRequest();
+      let token = localStorage.getItem('token');
+
       req.onload = function() {
         if (req.status >= 200 && req.status < 300) {
           resolve(JSON.parse(req.response));
         } else {
           try {
-            reject(JSON.parse(req.response));
+            reject(new ErrorResponse(JSON.parse(req.response)));
           } catch(err) {
-            reject(err);
+            reject(new ErrorResponse(err));
           }
         }
       };

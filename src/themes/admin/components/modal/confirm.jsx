@@ -14,8 +14,8 @@ export default class ConfirmModal extends React.Component {
     let modalOptions = this.props.details;
 
     return (
-      <div>
-        <div className='modal-header'>
+      <div className="fc-modal-confirm">
+        <div className='fc-modal-header'>
           <div className='icon'>
             <i className='icon-warning'></i>
           </div>
@@ -24,10 +24,10 @@ export default class ConfirmModal extends React.Component {
             <span aria-hidden='true'>&times;</span>
           </a>
         </div>
-        <div className='modal-body'>
+        <div className='fc-modal-body'>
           {modalOptions.body}
         </div>
-        <div className='modal-footer'>
+        <div className='fc-modal-footer'>
           <a className='close' onClick={dispatch.bind(null, 'toggleModal', null)}>{modalOptions.cancel}</a>
           <button className='submit btn' onClick={this.confirmModal.bind(this)}>{modalOptions.proceed}</button>
         </div>

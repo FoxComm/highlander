@@ -15,8 +15,8 @@ export default class OrderShippingAddress extends React.Component {
       innercontent = (
         <div>
           <div className="address-line">{address.name}</div>
-          <div className="address-line">{address.street1}</div>
-          <div className="address-line">{address.street2}</div>
+          <div className="address-line">{address.address1}</div>
+          <div className="address-line">{address.address2}</div>
           <div className="address-line">{address.city}, {address.state} {address.zip}</div>
           <div className="address-line">{address.country}</div>
         </div>
