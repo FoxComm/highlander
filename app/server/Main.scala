@@ -2,7 +2,7 @@ package server
 
 import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.concurrent.duration._
-import akka.actor.{ActorSystem, Props}
+import akka.actor.{Cancellable, ActorSystem, Props}
 import akka.agent.Agent
 import akka.event.Logging
 import akka.http.scaladsl.Http
@@ -24,6 +24,7 @@ object Main {
   def main(args: Array[String]): Unit = {
     val service = new Service()
     service.bind()
+    service.setupRemorseTimers
   }
 }
 
@@ -76,7 +77,9 @@ class Service(
       case None    ⇒ Future.successful(())
     }
 
-  val remorseTimer = system.actorOf(Props(new RemorseTimer()), "remorse-timer")
-  val remorseTimerBuddy = system.actorOf(Props(new RemorseTimerMate()), "remorse-timer-mate")
-  system.scheduler.schedule(Duration.Zero, 1.minute, remorseTimer, Tick)(executionContext, remorseTimerBuddy)
+  def setupRemorseTimers: Cancellable = {
+    val remorseTimer = system.actorOf(Props(new RemorseTimer()), "remorse-timer")
+    val remorseTimerBuddy = system.actorOf(Props(new RemorseTimerMate()), "remorse-timer-mate")
+    system.scheduler.schedule(Duration.Zero, 1.minute, remorseTimer, Tick)(executionContext, remorseTimerBuddy)
+  }
 }
