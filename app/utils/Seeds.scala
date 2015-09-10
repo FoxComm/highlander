@@ -157,6 +157,8 @@ object Seeds {
 
     def giftCardManual = GiftCardManual(adminId = 0, reasonId = 0)
 
+    def giftCardAdjusment = GiftCardAdjustment.build(giftCard, giftCardPayment)
+
     def shippingMethods = Seq(
       ShippingMethod(adminDisplayName = "UPS Ground", storefrontDisplayName = "UPS Ground", defaultPrice = 10,
         isActive = true),

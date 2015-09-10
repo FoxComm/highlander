@@ -1,8 +1,9 @@
 import akka.http.scaladsl.model.StatusCodes
 
-import models.{Reasons, GiftCard, GiftCardManuals, GiftCards, StoreAdmins}
+import models.{Customers, Reasons, GiftCard, GiftCardAdjustment, GiftCardAdjustments, GiftCardManuals, GiftCards,
+Orders, OrderPayments, PaymentMethod, StoreAdmins}
 import org.scalatest.BeforeAndAfterEach
-import responses.{AdminNotes, GiftCardResponse}
+import responses.{AdminNotes, GiftCardResponse, GiftCardAdjustmentsResponse}
 import services.NoteManager
 import util.IntegrationTestBase
 import utils.Seeds.Factories
@@ -37,6 +38,20 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
       val notFoundResponse = GET(s"v1/gift-cards/99")
       notFoundResponse.status must ===(StatusCodes.NotFound)
+    }
+  }
+
+  "gift card adjustments" - {
+    "queries the list of adjustments" in new Fixture {
+      val response = GET(s"v1/gift-cards/${giftCard.code}/transactions")
+      val adjustments = response.as[Seq[GiftCardAdjustmentsResponse.Root]]
+
+      response.status must ===(StatusCodes.OK)
+      adjustments.size mustBe 1
+
+      val firstAdjustment = adjustments.head
+      adjustments.head.amount mustBe -10
+      adjustments.head.availableBalance mustBe 40
     }
   }
 
@@ -93,10 +108,16 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
   trait Fixture {
     val (admin, giftCard) = (for {
+      customer ← Customers.save(Factories.customer)
+      order ← Orders.save(Factories.order.copy(customerId = customer.id))
       admin ← StoreAdmins.save(authedStoreAdmin)
       reason ← Reasons.save(Factories.reason.copy(storeAdminId = admin.id))
       origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
       giftCard ← GiftCards.save(Factories.giftCard.copy(originId = origin.id))
+      payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = giftCard.id,
+        paymentMethodType = PaymentMethod.GiftCard))
+      adjustment ← GiftCardAdjustments.save(Factories.giftCardAdjusment.copy(giftCardId = giftCard.id, debit = 10,
+        orderPaymentId = payment.id, status = GiftCardAdjustment.Auth))
     } yield (admin, giftCard)).run().futureValue
   }
 }

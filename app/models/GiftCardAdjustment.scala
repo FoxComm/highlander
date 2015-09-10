@@ -37,6 +37,10 @@ object GiftCardAdjustment {
   }
 
   implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
+
+  def build(gc: GiftCard, orderPayment: OrderPayment): GiftCardAdjustment = {
+    GiftCardAdjustment(giftCardId = gc.id, orderPaymentId = orderPayment.id, credit = 0, debit = 0)
+  }
 }
 
 class GiftCardAdjustments(tag: Tag)
