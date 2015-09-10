@@ -2,9 +2,11 @@ package services
 
 import cats.data.Validated.{Valid, Invalid}
 import models._
+import org.joda.time.DateTime
 import responses.AdminNotes
 import responses.AdminNotes.Root
 import utils.ModelWithIdParameter
+import utils.Slick.DbResult
 import utils.Slick.implicits._
 
 import scala.concurrent.ExecutionContext
@@ -51,10 +53,15 @@ object NoteManager {
 
   private def notFound(noteId: Int): NotFoundFailure = NotFoundFailure(Note, noteId)
 
-//  def deleteNote(noteId: Int, admin: StoreAdmin)
-//    (implicit ec: ExecutionContext, db: Database): Future[Int] = {
-//    db.run(Notes._findById(noteId).delete)
-//  }
+  def deleteNote(noteId: Int, admin: StoreAdmin)
+    (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
+    Notes._findById(noteId).extract.findOneAndRun { note ⇒
+      Notes.update(note.copy(
+        deletedAt = Some(DateTime.now),
+        deletedBy = Some(admin.id))
+      ) >> DbResult.unit
+    }
+  }
 
   private def createNote(note: Note)
     (implicit ec: ExecutionContext, db: Database): Result[Note] = {

@@ -1,6 +1,6 @@
 import akka.http.scaladsl.model.StatusCodes
 
-import models.{Reasons, GiftCard, GiftCardManuals, GiftCards, StoreAdmins}
+import models.{Note, Reasons, GiftCard, GiftCardManuals, GiftCards, Notes, StoreAdmins}
 import org.scalatest.BeforeAndAfterEach
 import responses.AdminNotes
 import services.NoteManager
@@ -88,6 +88,20 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
       val note = response.as[AdminNotes.Root]
       note.body must ===("donkey")
+    }
+
+    "can soft delete note" in new Fixture {
+      val note = NoteManager.createGiftCardNote(giftCard, admin,
+        payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue.get
+      StoreAdmins.save(Factories.storeAdmin).run().futureValue
+
+      val response = DELETE(s"v1/gift-cards/${giftCard.id}/notes/${note.id}")
+      response.status must ===(StatusCodes.NoContent)
+      response.bodyText mustBe empty
+
+      val updatedNote = db.run(Notes.findById(note.id)).futureValue.get
+      updatedNote.deletedBy.get mustBe 1
+      updatedNote.deletedAt.get.isBeforeNow mustBe true
     }
   }
 

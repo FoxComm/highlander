@@ -332,10 +332,6 @@ class OrderIntegrationTest extends IntegrationTestBase
       response.bodyText must be ('empty)
     }
 
-//    "are soft deleted" in {
-//      val response = DELETE(s"v1/orders/${order.id}/notes/${note.id}")
-//    }
-
     "can be listed" in new Fixture {
       List("abc", "123", "xyz").map { body ⇒
         NoteManager.createOrderNote(order, storeAdmin, payloads.CreateNote(body = body)).futureValue
@@ -359,6 +355,20 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       val note = parse(response.bodyText).extract[AdminNotes.Root]
       note.body must === ("donkey")
+    }
+
+    "can soft delete note" in new Fixture {
+      val note = NoteManager.createOrderNote(order, storeAdmin,
+        payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue.get
+      StoreAdmins.save(Factories.storeAdmin).run().futureValue
+
+      val response = DELETE(s"v1/orders/${order.referenceNumber}/notes/${note.id}")
+      response.status must ===(StatusCodes.NoContent)
+      response.bodyText mustBe empty
+
+      val updatedNote = db.run(Notes.findById(note.id)).futureValue.get
+      updatedNote.deletedBy.get mustBe 1
+      updatedNote.deletedAt.get.isBeforeNow mustBe true
     }
 
     "copying a shipping address from a customer's book" - {
