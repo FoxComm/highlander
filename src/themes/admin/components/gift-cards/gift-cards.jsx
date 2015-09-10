@@ -22,7 +22,7 @@ export default class GiftCards extends React.Component {
     listenTo(createEvent, this);
     Api.get('/gift-cards')
        .then((cards) => { this.setState({cards: cards}); })
-       .catch((err) => { console.log(err); });
+       .catch((err) => { console.error(err); });
   }
 
   componentWillUnmount() {

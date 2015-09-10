@@ -2,12 +2,12 @@
 
 import React from 'react';
 import OrderSummary from './summary';
+import CustomerInfo from './customer-info';
 import OrderLineItems from './line-items';
 import OrderShippingAddress from './shipping-address';
 import OrderShippingMethod from './shipping-method';
 import OrderPayment from './payment';
 import OrderStore from './store';
-import Api from '../../lib/api';
 import { dispatch } from '../../lib/dispatcher';
 
 export default class OrderDetails extends React.Component {
@@ -19,14 +19,10 @@ export default class OrderDetails extends React.Component {
   }
 
   toggleEdit() {
-    Api.post(`${OrderStore.uri(this.props.order.id)}/edit`)
-      .then(() => {
-        this.setState({
-          isEditing: !this.state.isEditing
-        });
-        dispatch('toggleOrderEdit');
-      })
-      .catch((err) => { console.log(err); });
+    this.setState({
+      isEditing: !this.state.isEditing
+    });
+    dispatch('toggleOrderEdit');
   }
 
   render() {
@@ -39,23 +35,33 @@ export default class OrderDetails extends React.Component {
       actions = (
         <span>
           <button onClick={this.toggleEdit.bind(this)}>Cancel</button>
-          <button>Save Edits</button>
+          <button className='primary'>Save Edits</button>
         </span>
       );
-    } else if (OrderStore.holdStatusList.indexOf(order.orderStatus) !== -1) {
-      actions = <button className='btn' onClick={this.toggleEdit.bind(this)}>Edit Order Details</button>;
+    } else if (OrderStore.holdStatusList.indexOf(order.orderStatus) !== -1 || 1) {
+      actions = (
+        <button className="order-details-edit-order" onClick={this.toggleEdit.bind(this)}>Edit Order Details</button>
+      );
     }
 
     return (
-      <div id="order-details">
-        {actions}
-        <OrderSummary order={order} isEditing={isEditing}/>
-        <article>
-          <OrderLineItems order={order} isEditing={isEditing}/>
-          <OrderShippingAddress order={order} isEditing={isEditing}/>
-          <OrderShippingMethod order={order} isEditing={isEditing} />
-          <OrderPayment order={order} isEditing={isEditing}/>
-        </article>
+      <div className="order-details">
+        <div className="order-details-controls">
+          {actions}
+        </div>
+
+        <div className="order-details-body">
+          <div className="order-details-main">
+            <OrderLineItems order={order} isEditing={isEditing}/>
+            <OrderShippingAddress order={order} isEditing={isEditing}/>
+            <OrderShippingMethod order={order} isEditing={isEditing} />
+            <OrderPayment order={order} isEditing={isEditing}/>
+          </div>
+          <div className="order-details-aside">
+            <OrderSummary order={order} isEditing={isEditing}/>
+            <CustomerInfo order={order} isEditing={isEditing}/>
+          </div>
+        </div>
       </div>
     );
   }

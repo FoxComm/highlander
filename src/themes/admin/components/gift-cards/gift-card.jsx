@@ -26,7 +26,7 @@ export default class GiftCard extends React.Component {
            card: res
          });
        })
-       .catch((err) => { console.log(err); });
+       .catch((err) => { console.error(err); });
   }
 
   changeState(event) {
@@ -36,7 +36,7 @@ export default class GiftCard extends React.Component {
            card: res
          });
        })
-       .catch((err) => { console.log(err); });
+       .catch((err) => { console.error(err); });
   }
 
   render() {

@@ -1,5 +1,6 @@
 'use strict';
 
+import _ from 'lodash';
 import React from 'react';
 import PaymentMethod from './payment-method';
 import TableHead from '../tables/head';
@@ -10,11 +11,11 @@ export default class OrderPayment extends React.Component {
     let order = this.props.order;
 
     return (
-      <section id="order-payment">
+      <section className="fc-content-box" id="order-payment">
         <header>Payment</header>
         <table className="fc-table">
           <TableHead columns={this.props.tableColumns}/>
-          <TableBody columns={this.props.tableColumns} rows={order.payments} model='order'>
+          <TableBody columns={this.props.tableColumns} rows={_.compact([order.payment])} model='order'>
             <PaymentMethod/>
           </TableBody>
         </table>
@@ -30,7 +31,7 @@ OrderPayment.propTypes = {
 
 OrderPayment.defaultProps = {
   tableColumns: [
-    {field: 'method', text: 'Method', component: 'PaymentMethod'},
+    {field: 'paymentMethod', text: 'Method', component: 'PaymentMethod'},
     {field: 'amount', text: 'Amount', type: 'currency'},
     {field: 'status', text: 'Status'},
     {field: 'createdAt', text: 'Date/Time', type: 'date'}

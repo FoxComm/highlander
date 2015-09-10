@@ -1,5 +1,6 @@
 'use strict';
 
+import _ from 'lodash';
 import BaseStore from '../../lib/base-store';
 
 class OrderStore extends BaseStore {
@@ -21,6 +22,12 @@ class OrderStore extends BaseStore {
   get holdStatusList() { return ['remorseHold', 'manualHold', 'fraudHold']; }
 
   get baseUri() { return '/orders'; }
+
+  process(model) {
+    _.each(model.lineItems, lineItem => {
+      lineItem.total = lineItem.qty * lineItem.price;
+    });
+  }
 }
 
 export default new OrderStore();

@@ -7,7 +7,9 @@ module.exports = function (gulp, opts, $) {
     runSequence('lint', 'mocha', cb);
   });
 
-  gulp.task('test.watch', function() {
-    gulp.watch([opts.configSrc, opts.jsSrc, opts.serverSrc, opts.testSrc], ['test']);
-  });
+  if (!process.env.ASHES_NO_WATCH_FOR_TEST) {
+    gulp.task('test.watch', function() {
+      gulp.watch([opts.configSrc, opts.jsSrc, opts.serverSrc, opts.testSrc], ['test']);
+    });
+  }
 };
