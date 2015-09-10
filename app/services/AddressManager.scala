@@ -3,11 +3,16 @@ package services
 import scala.concurrent.{Future, ExecutionContext}
 
 import cats.data.Validated.{Invalid, Valid}
-import models.{OrderShippingAddresses, Address, Addresses, Region, Regions}
+import models.{OrderShippingAddress, Order, Orders, Customer, OrderShippingAddresses, Address, Addresses, Region,
+Regions}
+import models.Order._
 import payloads.CreateAddressPayload
 import responses.Addresses.Root
 import responses.{Addresses ⇒ Response}
+import slick.driver.PostgresDriver
 import slick.driver.PostgresDriver.api._
+import utils.Slick.implicits._
+import cats.implicits._
 
 object AddressManager {
   def create(payload: CreateAddressPayload, customerId: Int)
@@ -59,49 +64,31 @@ object AddressManager {
     db.run(Addresses.findShippingDefaultByCustomerId(customerId).map(_.isDefaultShipping).update(false)).flatMap(Result
       .good)
 
-  def getDisplayAddress(customer: models.Customer)
+  def getDisplayAddress(customer: Customer)
     (implicit ec: ExecutionContext, db: Database): Future[Option[Root]] = {
-    val actions = for {
-      defaultShipping ← Addresses.findShippingDefaultByCustomerId(customer.id).result.headOption
 
-      lastOrderShipping ← defaultShipping match {
-        case Some(a) ⇒
-          DBIO.successful(None)
-        case None ⇒
-          for {
-            order ← models.Orders._findByCustomer(customer)
-              .filter(_.status =!= (models.Order.Cart: models.Order.Status))
-              .sortBy(_.id.desc)
-              .result.headOption
-
-            address ← order.map { o ⇒
-              OrderShippingAddresses.findByOrderId(o.id).result.headOption
-            }.getOrElse(DBIO.successful(None))
-          } yield address
-      }
-
-      state ← (defaultShipping, lastOrderShipping) match {
-        case (Some(ds), _) ⇒
-          for {
-            state ← States.findById(ds.stateId)
-          } yield state
-        case (None, Some(los)) ⇒
-          for {
-            state ← States.findById(los.stateId)
-          } yield state
-        case (None, None) ⇒
-          DBIO.successful(None)
-      }
-    } yield (defaultShipping, lastOrderShipping, state)
-
-    db.run(actions.transactionally).map {
-      case (Some(address), _, Some(state)) ⇒
-        Some(Response.build(address, state))
-      case (None, Some(shippingAddress), Some(state)) ⇒
-        val address = Address.fromOrderShippingAddress(shippingAddress)
-        Some(Response.build(address, state))
-      case (_, _, None) ⇒ None
-      case (None, None, _) ⇒ None
+    defaultShipping(customer.id).run().flatMap {
+      case Some((address, region)) ⇒
+        Future.successful(Response.build(address, region, true.some).some)
+      case None ⇒
+        lastShippedTo(customer.id).run().map {
+          case Some((ship, region)) ⇒ Response.buildOneShipping(ship, region, false).some
+          case None ⇒ None
+        }
     }
   }
+
+  def defaultShipping(customerId: Int): DBIO[Option[(Address, Region)]] = (for {
+    address ← Addresses.findShippingDefaultByCustomerId(customerId)
+    region  ← Regions if region.id === address.regionId
+  } yield (address, region)).one
+
+  def lastShippedTo(customerId: Int)
+    (implicit db: Database, ec: ExecutionContext): DBIO[Option[(OrderShippingAddress, Region)]] = (for {
+    order ← Orders.findByCustomerId(customerId)
+      .filter(_.status =!= (Order.Cart: models.Order.Status))
+      .sortBy(_.id.desc)
+    shipping ← OrderShippingAddresses if shipping.orderId === order.id
+    region   ← Regions if region.id === shipping.regionId
+  } yield (shipping, region)).take(1).one
 }

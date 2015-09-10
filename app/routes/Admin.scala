@@ -110,8 +110,8 @@ object Admin {
           (get & path("display") & pathEnd) {
             complete {
               Customers._findById(customerId).result.headOption.run().flatMap {
-                case None ⇒ Future.successful(notFoundResponse)
-                case Some(customer) ⇒ renderOrNotFound(AddressManager.getDisplayAddress(customer))
+                case None           ⇒ Future.successful(notFoundResponse)
+                case Some(customer) ⇒ AddressManager.getDisplayAddress(customer).map(renderOrNotFound(_))
               }
             }
           }
