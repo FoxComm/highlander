@@ -12,6 +12,8 @@ create table credit_cards (
     exp_month integer not null,
     exp_year integer not null,
     is_default boolean default false not null,
+    street1_check character varying(255) null,
+    zip_check character varying(255) null,
     -- in_wallet: controls whether or not we display this as CC in customer's wallet. it's false when CC
     -- has been deleted and false when deprecated by a versioned child.
     in_wallet boolean default true not null,

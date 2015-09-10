@@ -8,7 +8,7 @@ PaymentMethod}
 import models.OrderPayments.scope._
 import org.joda.time.DateTime
 import services.{OrderPaymentNotFoundFailure, CannotUseInactiveCreditCard, CustomerHasInsufficientStoreCredit,
-CustomerManager, GiftCardIsInactive, GiftCardNotEnoughBalance, GiftCardNotFoundFailure, NotFoundFailure,
+CreditCardManager, GiftCardIsInactive, GiftCardNotEnoughBalance, GiftCardNotFoundFailure, NotFoundFailure,
 OrderNotFoundFailure}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
@@ -259,7 +259,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
       "fails if the creditCard is inActive" in new CreditCardFixture {
         val payload = payloads.CreditCardPayment(creditCard.id)
-        CustomerManager.deleteCreditCard(customerId = customer.id, id = creditCard.id).futureValue
+        CreditCardManager.deleteCreditCard(customerId = customer.id, id = creditCard.id).futureValue
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards", payload)
 
         response.status must ===(StatusCodes.BadRequest)

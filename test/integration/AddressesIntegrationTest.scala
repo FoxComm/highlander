@@ -89,6 +89,23 @@ class AddressesIntegrationTest extends IntegrationTestBase
 
       (updated.name, updated.street1) must === ((payload.name, payload.street1))
     }
+
+    "display address" - {
+      "succeeds when there is a default shipping address" in new AddressFixture {
+        val response = GET(s"v1/customers/${customer.id}/addresses/display")
+        response.status must === (StatusCodes.OK)
+      }
+
+      "succeeds when there is no default shipping address but a previous order" in new NoDefaultAddressFixture {
+        val response = GET(s"v1/customers/${customer.id}/addresses/display")
+        response.status must === (StatusCodes.OK)
+      }
+
+      "fails when there are no orders or default shipping addresses" in new CustomerFixture {
+        val response = GET(s"v1/customers/${customer.id}/addresses/display")
+        response.status must === (StatusCodes.NotFound)
+      }
+    }
   }
 
   trait CustomerFixture {
@@ -105,6 +122,14 @@ class AddressesIntegrationTest extends IntegrationTestBase
       order ← Orders.save(Factories.order.copy(customerId = customer.id))
       shippingAddress ← OrderShippingAddresses.copyFromAddress(address, order.id)
     } yield (order, shippingAddress)).futureValue
+  }
+
+  trait NoDefaultAddressFixture extends CustomerFixture {
+    val (address, order, shippingAddress) = (for {
+      address ← Addresses.save(Factories.address.copy(customerId = customer.id, isDefaultShipping = false))
+      order ← Orders.save(Factories.order.copy(customerId = customer.id))
+      shippingAddress ← OrderShippingAddresses.copyFromAddress(address, order.id)
+    } yield (address, order, shippingAddress)).run().futureValue
   }
 }
 

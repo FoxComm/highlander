@@ -3,10 +3,11 @@ import akka.http.scaladsl.model.StatusCodes
 import models.{Address, Customer, CreditCards, CreditCard, Customers, Addresses}
 import org.joda.time.DateTime
 import payloads.CreateAddressPayload
-import services.NotFoundFailure
+import services.{CVCFailure, NotFoundFailure}
 import util.{StripeSupport, IntegrationTestBase}
 import utils.Seeds.Factories
 import utils.Slick.implicits._
+import cats.implicits._
 
 class CreditCardManagerIntegrationTest extends IntegrationTestBase
   with HttpSupport
@@ -26,7 +27,7 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
         cvv = "123", expYear = tomorrow.getYear, expMonth = tomorrow.getMonthOfYear)
 
       def payloadWithFullAddress(p: payloads.CreateCreditCard, a: Address): payloads.CreateCreditCard = {
-        p.copy(address = Some(CreateAddressPayload(
+        p.copy(addressId = None, address = Some(CreateAddressPayload(
           name = a.name, street1 = a.street1, street2 = a.street2,
           city = a.city, zip = a.zip, regionId = a.regionId)))
       }
@@ -48,11 +49,13 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
           cc.deletedAt mustBe 'empty
           cc.lastFour must === (payload.lastFour)
           (cc.expYear, cc.expMonth) must === ((payload.expYear, payload.expMonth))
+          cc.zipCheck mustBe 'defined
+          cc.street1Check mustBe 'defined
         }
 
         "creates a new address in the book and copies it to the new creditCard" ignore new Fixture {
           val a = Factories.address
-          val payload = payloadWithFullAddress(payloadStub, a)
+          val payload = payloadWithFullAddress(payloadStub.copy(isDefault = true), a)
 
           val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
           val (cc :: Nil) = CreditCards.filter(_.customerId === customer.id).futureValue.toList
@@ -71,41 +74,76 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
           cc.deletedAt mustBe 'empty
           cc.lastFour must === (payload.lastFour)
           (cc.expYear, cc.expMonth) must === ((payload.expYear, payload.expMonth))
+          cc.zipCheck mustBe 'defined
+          cc.street1Check mustBe 'defined
+        }
+
+        "uses an existing stripe customerId when it exists" ignore new AddressFixture {
+          val payload = payloadStub.copy(addressId = address.id.some)
+          val seed = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
+
+          seed.status must ===(StatusCodes.OK)
+
+          val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
+          val cards = CreditCards.filter(_.customerId === customer.id).futureValue
+
+          response.status must ===(StatusCodes.OK)
+          cards must have size(2)
+          cards.map(_.gatewayCustomerId).toSet must have size(1)
+          cards.map(_.gatewayCardId).toSet must have size(2)
         }
       }
 
       "fails" - {
         "if neither addressId nor full address was provided" ignore new Fixture {
-          val payload = payloadStub.copy(address = None, addressId = None)
-          val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
+          val payload   = payloadStub.copy(address = None, addressId = None)
+          val response  = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
+          val cards     = CreditCards.futureValue
 
           response.status must ===(StatusCodes.BadRequest)
           response.errors must contain ("address or addressId must be defined")
+          cards mustBe 'empty
         }
 
         "if the addressId cannot be found in address book" ignore new Fixture {
-          val payload = payloadStub.copy(addressId = Some(1))
-          val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
+          val payload   = payloadStub.copy(addressId = Some(1))
+          val response  = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
+          val cards     = CreditCards.futureValue
 
           response.status must ===(StatusCodes.BadRequest)
           response.errors must contain (NotFoundFailure(Address, 1).description)
+          cards mustBe 'empty
         }
 
         "if card info is invalid" ignore new Fixture {
-          val payload = payloadWithFullAddress(payloadStub.copy(number = StripeSupport.incorrectNumberCard),
+          val payload   = payloadWithFullAddress(payloadStub.copy(number = StripeSupport.incorrectNumberCard),
             Factories.address)
-          val response = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
+          val response  = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
+          val cards     = CreditCards.futureValue
 
           response.status must ===(StatusCodes.BadRequest)
           response.errors must contain ("incorrect_number")
+          cards mustBe 'empty
+        }
+
+        "if Stripe's CVC check fails" ignore new AddressFixture {
+          val payload   = payloadStub.copy(number = StripeSupport.incorrectCVC, addressId = Some(1))
+          val response  = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
+          val cards     = CreditCards.futureValue
+
+          response.status must ===(StatusCodes.BadRequest)
+          response.errors must ===(CVCFailure.description)
+          cards mustBe 'empty
         }
 
         "if customer cannot be found" ignore {
-          val payload = payloadWithFullAddress(payloadStub, Factories.address)
-          val response = POST(s"v1/customers/99/payment-methods/credit-cards", payload)
+          val payload   = payloadWithFullAddress(payloadStub, Factories.address)
+          val response  = POST(s"v1/customers/99/payment-methods/credit-cards", payload)
+          val cards     = CreditCards.futureValue
 
           response.status must ===(StatusCodes.NotFound)
           response.errors must ===(NotFoundFailure(Customer, 99).description)
+          cards mustBe 'empty
         }
       }
     }

@@ -140,7 +140,7 @@ object Seeds {
       street2 = None, city = "Glen Allen", zip = "23060", phoneNumber = None)
 
     def creditCard =
-      CreditCard(customerId = 0, gatewayCustomerId = "", gatewayCardId = "", holderName = "Yax", lastFour = "4242",
+      CreditCard(customerId = 0, gatewayCustomerId = "cus_6uzC8j5doSTWth", gatewayCardId = "", holderName = "Yax", lastFour = "4242",
         expMonth = today.getMonthOfYear, expYear = today.getYear + 2, isDefault = true,
         regionId = 4129, addressName = "Old Jeff", street1 = "95 W. 5th Ave.", street2 = Some("Apt. 437"),
         city = "San Mateo", zip = "94402")

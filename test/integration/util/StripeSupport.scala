@@ -18,7 +18,8 @@ object StripeSupport {
   private [this] val failureCards = Map(
     "card_declined" -> "4000000000000002",
     "incorrect_number" -> "4242424242424241", // fails the Luhn check
-    "expired_card" -> "4000000000000069"
+    "expired_card" -> "4000000000000069",
+    "incorrect_cvc_code" → "4000000000000127"
   )
 
   def successfulCard:       String = this.successfulCards.get("Visa").get
@@ -28,4 +29,6 @@ object StripeSupport {
   def failureCard:          String = this.declinedCard
 
   def incorrectNumberCard:  String = this.failureCards.get("incorrect_number").get
+
+  def incorrectCVC:         String = this.failureCards.get("incorrect_cvc_code").get
 }

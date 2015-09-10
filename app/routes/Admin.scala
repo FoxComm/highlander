@@ -113,16 +113,24 @@ object Admin {
             complete {
               AddressManager.edit(addressId, customerId, payload).map(renderGoodOrFailures)
             }
+          } ~
+          (get & path("display") & pathEnd) {
+            complete {
+              Customers._findById(customerId).result.headOption.run().flatMap {
+                case None           ⇒ Future.successful(notFoundResponse)
+                case Some(customer) ⇒ AddressManager.getDisplayAddress(customer).map(renderOrNotFound(_))
+              }
+            }
           }
         } ~
         pathPrefix("payment-methods" / "credit-cards") {
           (get & pathEnd) {
-            complete { CustomerManager.creditCardsInWalletFor(customerId).map(render(_)) }
+            complete { CreditCardManager.creditCardsInWalletFor(customerId).map(render(_)) }
           } ~
           (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultCreditCard]) & pathEnd) {
             (cardId, payload) ⇒
               complete {
-                val result = CustomerManager.toggleCreditCardDefault(customerId, cardId, payload.isDefault)
+                val result = CreditCardManager.toggleCreditCardDefault(customerId, cardId, payload.isDefault)
                 result.map(renderGoodOrFailures)
               }
           } ~
@@ -135,12 +143,12 @@ object Admin {
           } ~
           (patch & path(IntNumber) & entity(as[payloads.EditCreditCard]) & pathEnd) { (cardId, payload) ⇒
             complete {
-              CustomerManager.editCreditCard(customerId, cardId, payload).map(renderNothingOrFailures)
+              CreditCardManager.editCreditCard(customerId, cardId, payload).map(renderNothingOrFailures)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { cardId ⇒
             complete {
-              CustomerManager.deleteCreditCard(customerId = customerId, id = cardId).map(renderNothingOrFailures)
+              CreditCardManager.deleteCreditCard(customerId = customerId, id = cardId).map(renderNothingOrFailures)
             }
           }
         } ~
