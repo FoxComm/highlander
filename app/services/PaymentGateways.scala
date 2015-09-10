@@ -10,7 +10,7 @@ import cats.data.Xor.{left, right}
 import com.stripe.exception.{StripeException, CardException, InvalidRequestException}
 import com.stripe.model.{Card ⇒ StripeCard, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer, ExternalAccount}
 import com.stripe.net.{RequestOptions ⇒ StripeRequestOptions}
-import models.{CreditCard, Customer}
+import models.{CreditCard, Customer, Address}
 
 import payloads.{EditCreditCard, CreateCreditCard}
 
@@ -22,7 +22,7 @@ final case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVL
 
   // Creates a customer in Stripe along with their first CC
   @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.AsInstanceOf"))
-  def createCustomerAndCard(customer: Customer, card: CreateCreditCard)
+  def createCustomerAndCard(customer: Customer, card: CreateCreditCard, stripeId: Option[String], address: Address)
     (implicit ec: ExecutionContext): Result[(StripeCustomer, StripeCard)] = {
 
     val base = Map[String, Object](
