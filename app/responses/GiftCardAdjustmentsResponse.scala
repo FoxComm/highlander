@@ -4,6 +4,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Xor
 import models.{GiftCard, GiftCardAdjustment, GiftCardAdjustments, Order}
+import services.Result
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 

@@ -11,8 +11,8 @@ import utils.Slick.implicits._
 object GiftCardService {
   def getByCode(code: String)(implicit db: Database, ec: ExecutionContext): Result[Root] = {
     fetchDetails(code).flatMap {
-      case (Some(giftCard), Some(customer)) ⇒
-        Result.right(GiftCardResponse.build(giftCard, Some(StoreAdminResponse.build(customer))))
+      case (Some(giftCard), Some(createdBy)) ⇒
+        Result.right(GiftCardResponse.build(giftCard, Some(StoreAdminResponse.build(createdBy))))
       case (Some(giftCard), _) ⇒
         Result.right(GiftCardResponse.build(giftCard))
       case _ ⇒
@@ -23,7 +23,7 @@ object GiftCardService {
   private def fetchDetails(code: String)(implicit db: Database, ec: ExecutionContext) = {
     for {
       giftCard ← GiftCards.findByCode(code).one.run()
-      mockCreator ← StoreAdmins.findById(1)
-    } yield (giftCard, mockCreator)
+      createdBy ← StoreAdmins.findById(1)
+    } yield (giftCard, createdBy)
   }
 }

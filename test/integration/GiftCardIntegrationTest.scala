@@ -35,7 +35,10 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
       response.status must ===(StatusCodes.OK)
       giftCardResp.code must ===(giftCard.code)
+    }
 
+    "returns not found when GC doesn't exist" in new Fixture {
+      val response = GET(s"v1/gift-cards/somePrefix${giftCard.code}")
       val notFoundResponse = GET(s"v1/gift-cards/99")
       notFoundResponse.status must ===(StatusCodes.NotFound)
     }
@@ -50,8 +53,8 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       adjustments.size mustBe 1
 
       val firstAdjustment = adjustments.head
-      adjustments.head.amount mustBe -10
-      adjustments.head.availableBalance mustBe 40
+      firstAdjustment.amount mustBe -10
+      firstAdjustment.availableBalance mustBe 40
     }
   }
 
