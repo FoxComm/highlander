@@ -138,6 +138,7 @@ lazy val phoenixScala = (project in file(".")).
         |val config: com.typesafe.config.Config = utils.Config.loadWithEnv()
         |implicit val db = Database.forConfig("db", config)
         """.stripMargin,
+    initialCommands in (Compile, consoleQuick) := "",
     // add ms report for every test
     testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD"),
     javaOptions in Test ++= Seq("-Xmx2G", "-XX:+UseConcMarkSweepGC"),
