@@ -5,8 +5,14 @@ import React from 'react';
 export default class Counter extends React.Component {
   constructor(props) {
     super(props);
+    let value = null;
+    if (props.model) {
+      value = +props.model[props.defaultValue];
+    } else {
+      value = +props.defaultValue;
+    }
     this.state = {
-      inputValue: +props.defaultValue
+      inputValue: value
     };
   }
 
@@ -23,6 +29,10 @@ export default class Counter extends React.Component {
   onChange(event) {
     this.setState({
       inputValue: event.target.value
+    }, () => {
+      if (this.props.onChange) {
+        this.props.onChange();
+      }
     });
   }
 
@@ -52,15 +62,17 @@ export default class Counter extends React.Component {
 
 Counter.propTypes = {
   inputName: React.PropTypes.string,
-  defaultValue: React.PropTypes.number,
+  defaultValue: React.PropTypes.node,
   stepAmount: React.PropTypes.number,
   minValue: React.PropTypes.number,
-  maxValue: React.PropTypes.number
+  maxValue: React.PropTypes.number,
+  onChange: React.PropTypes.func
 };
 
 Counter.defaultProps = {
   defaultValue: 1,
   stepAmount: 1,
   minValue: 1,
-  maxValue: 100
+  maxValue: 100,
+  inputName: 'counter'
 };
