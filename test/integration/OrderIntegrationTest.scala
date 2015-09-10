@@ -2,14 +2,13 @@ import akka.http.scaladsl.model.StatusCodes
 import akka.pattern.ask
 import akka.testkit.TestActorRef
 
-import models.Order._
 import models._
 import org.joda.time.Minutes.minutesBetween
-import org.joda.time.{Minutes, DateTime}
+import org.joda.time.DateTime
 import org.joda.time.Seconds.secondsBetween
 import payloads.UpdateOrderPayload
 import responses.{AdminNotes, FullOrder}
-import services.OrderUpdater.NewRemorsePeriodEnd
+import services.LockAwareOrderUpdater.NewRemorsePeriodEnd
 import services.{NotFoundFailure, NoteManager}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
