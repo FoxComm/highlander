@@ -22,7 +22,7 @@ object GiftCardAdjustmentsResponse {
       state = adjustment.status.toString, orderRef = order.referenceNumber)
   }
 
-  def forGiftCard(gc: GiftCard)(implicit ec: ExecutionContext, db: Database): Future[Nothing Xor Seq[Root]] = {
+  def forGiftCard(gc: GiftCard)(implicit ec: ExecutionContext, db: Database): Result[Seq[Root]] = {
     (for {
       adjustments ← GiftCardAdjustments.filterByGiftCardId(gc.id)
       payments ← adjustments.payment
