@@ -2,7 +2,7 @@ import akka.http.scaladsl.model.StatusCodes
 
 import models.{Reasons, GiftCard, GiftCardManuals, GiftCards, StoreAdmins}
 import org.scalatest.BeforeAndAfterEach
-import responses.AdminNotes
+import responses.{AdminNotes, GiftCardResponse}
 import services.NoteManager
 import util.IntegrationTestBase
 import utils.Seeds.Factories
@@ -30,7 +30,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
     "finds a gift card by code" in new Fixture {
       val response = GET(s"v1/gift-cards/${giftCard.code}")
-      val giftCardResp = response.as[GiftCard]
+      val giftCardResp = response.as[GiftCardResponse.Root]
 
       response.status must ===(StatusCodes.OK)
       giftCardResp.code must ===(giftCard.code)

@@ -50,15 +50,17 @@ object Admin {
                 NoteManager.createGiftCardNote(giftCard, admin, payload)
               }
             }
-          } ~
-          (patch & path(IntNumber) & entity(as[payloads.UpdateNote]) & pathEnd) { (noteId, payload) ⇒
+          }
+        } ~
+        path(Segment / "notes" / IntNumber) { (code, noteId) ⇒
+          (patch & entity(as[payloads.UpdateNote]) & pathEnd) { payload ⇒
             complete {
               whenFound(GiftCards.findByCode(code).one.run()) { _ ⇒
                 NoteManager.updateNote(noteId, admin, payload)
               }
             }
           } ~
-          (delete & path(IntNumber) & pathEnd) { noteId ⇒
+          (delete & pathEnd) {
             complete {
               notFoundResponse
             }
