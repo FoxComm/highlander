@@ -18,17 +18,21 @@ import utils.Slick.implicits._
 
 final case class Customer(id: Int = 0, disabled: Boolean = false, email: String, password: String, firstName: String,
   lastName: String, phoneNumber: Option[String] = None, location: Option[String] = None,
-  modality: Option[String] = None)
+  modality: Option[String] = None, isGuest: Boolean = false)
   extends ModelWithIdParameter
   with Validation[Customer] {
 
   import Validation._
 
   def validate: ValidatedNel[Failure, Customer] = {
-    ( notEmpty(firstName, "firstName")
-      |@| notEmpty(lastName, "lastName")
-      |@| notEmpty(email, "email")
+    if (isGuest) {
+      notEmpty(email, "email").map { case _ ⇒ this }
+    } else {
+      ( notEmpty(firstName, "firstName")
+        |@| notEmpty(lastName, "lastName")
+        |@| notEmpty(email, "email")
       ).map { case _ ⇒ this }
+    }
   }
 }
 
@@ -43,9 +47,10 @@ class Customers(tag: Tag) extends TableWithId[Customer](tag, "customers")  {
   def phoneNumber = column[Option[String]]("phone_number")
   def location = column[Option[String]]("location")
   def modality = column[Option[String]]("modality")
+  def isGuest = column[Boolean]("is_guest")
 
   def * = (id, disabled, email, password, firstName, lastName,
-    phoneNumber, location, modality) <> ((Customer.apply _).tupled, Customer.unapply)
+    phoneNumber, location, modality, isGuest) <> ((Customer.apply _).tupled, Customer.unapply)
 }
 
 object Customers extends TableQueryWithId[Customer, Customers](
