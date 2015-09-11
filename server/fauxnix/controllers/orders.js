@@ -12,6 +12,7 @@ module.exports = function(app, router) {
     Order = app.seeds.models.Order,
     Note  = app.seeds.models.Note,
     Notification = app.seeds.models.Notification,
+    LineItem = app.seeds.models.LineItem,
     Activity = app.seeds.models.Activity;
 
   router
@@ -21,6 +22,10 @@ module.exports = function(app, router) {
     })
     .param('notification', function *(id, next) {
       this.notification = Notification.findOne(id);
+      yield next;
+    })
+    .param('lineitem', function *(id, next) {
+      this.lineitem = LineItem.findOne(id);
       yield next;
     })
     .get('/orders', function *() {
@@ -73,5 +78,30 @@ module.exports = function(app, router) {
     })
     .post('/orders/:order/notifications/:notification', function *() {
       this.body = this.notification;
+    })
+    .post('/orders/:order/line-items', function *() {
+      let
+        body = yield parse.json(this);
+
+      let findItem = function(item, line) {
+        return line.skuId === item.skuId;
+      };
+
+      for (let item of body) {
+        let lineItem = this.order.lineItems.filter(findItem.bind(this, item));
+        if (lineItem.length > 0) {
+          lineItem = lineItem[0];
+          if (item.quantity > 0) {
+            lineItem.amend({quantity: item.quantity});
+          } else {
+            LineItem.deleteOne(lineItem.id);
+          }
+        } else {
+          lineItem = new LineItem(body);
+        }
+      }
+
+      this.status = 202;
+      this.body = this.order;
     });
 };

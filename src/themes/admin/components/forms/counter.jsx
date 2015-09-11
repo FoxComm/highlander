@@ -16,23 +16,37 @@ export default class Counter extends React.Component {
     };
   }
 
+  triggerChange() {
+    if (this.props.onChange) {
+      this.props.onChange(this.state.inputValue);
+    }
+  }
+
   decreaseTotal(event) {
     event.preventDefault();
     document.getElementById(this.props.inputName).stepDown(this.props.stepAmount);
+    this.setState({
+      inputValue: this.state.inputValue - 1
+    }, () => {
+      this.triggerChange();
+    });
   }
 
   increaseTotal(event) {
     event.preventDefault();
     document.getElementById(this.props.inputName).stepUp(this.props.stepAmount);
+    this.setState({
+      inputValue: this.state.inputValue + 1
+    }, () => {
+      this.triggerChange();
+    });
   }
 
   onChange(event) {
     this.setState({
       inputValue: event.target.value
     }, () => {
-      if (this.props.onChange) {
-        this.props.onChange();
-      }
+      this.triggerChange();
     });
   }
 

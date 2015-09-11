@@ -9,6 +9,7 @@ import OrderShippingMethod from './shipping-method';
 import OrderPayment from './payment';
 import OrderStore from './store';
 import { dispatch } from '../../lib/dispatcher';
+import Api from '../../lib/api';
 
 export default class OrderDetails extends React.Component {
   constructor(props) {
@@ -23,6 +24,16 @@ export default class OrderDetails extends React.Component {
       isEditing: !this.state.isEditing
     });
     dispatch('toggleOrderEdit');
+  }
+
+  updateLineItems(data) {
+    Api.post(`/orders/${this.props.order.id}/line-items`, data)
+      .then((res) => {
+        OrderStore.update(res);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   }
 
   render() {
@@ -52,7 +63,7 @@ export default class OrderDetails extends React.Component {
 
         <div className="order-details-body">
           <div className="order-details-main">
-            <OrderLineItems order={order} isEditing={isEditing}/>
+            <OrderLineItems order={order} isEditing={isEditing} onChange={this.updateLineItems.bind(this)} />
             <OrderShippingAddress order={order} isEditing={isEditing}/>
             <OrderShippingMethod order={order} isEditing={isEditing} />
             <OrderPayment order={order} isEditing={isEditing}/>

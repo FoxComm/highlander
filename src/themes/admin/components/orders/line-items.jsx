@@ -6,14 +6,14 @@ import TableBody from '../tables/body';
 import SkuStore from './sku-store';
 import SkuResult from './sku-result';
 import Typeahead from '../typeahead/typeahead';
-import Counter from '../forms/counter';
+import LineItemCounter from './line-item-counter';
 
 const defaultColumns = [
   {field: 'image', text: 'Image', type: 'image'},
   {field: 'name', text: 'Name'},
   {field: 'skuId', text: 'SKU'},
   {field: 'price', text: 'Price', type: 'currency'},
-  {field: 'quantity', text: 'Quantity'},
+  {field: 'qty', text: 'Quantity'},
   {field: 'total', text: 'Total', type: 'currency'}
 ];
 
@@ -22,7 +22,7 @@ const editColumns = [
   {field: 'name', text: 'Name'},
   {field: 'skuId', text: 'SKU'},
   {field: 'price', text: 'Price', type: 'currency'},
-  {field: 'lineItem', text: 'Quantity', component: 'Counter'},
+  {field: 'lineItem', text: 'Quantity', component: 'LineItemCounter'},
   {field: 'total', text: 'Total', type: 'currency'}
   //{field: 'delete', text: 'Delete', component: 'DeleteLineItem'}
 ];
@@ -53,7 +53,7 @@ export default class OrderLineItems extends React.Component {
       typeahead = <Typeahead component={SkuResult} store={SkuStore} selectEvent="addLineItem" />
       body = (
         <TableBody columns={columns} rows={order.lineItems} model='order'>
-          <Counter defaultValue='quantity' stepAmount="1" minValue="0" maxValue="1000000" />
+          <LineItemCounter order={this.props.order} onChange={this.props.onChange} />
         </TableBody>
       );
     } else {
@@ -82,5 +82,6 @@ export default class OrderLineItems extends React.Component {
 }
 
 OrderLineItems.propTypes = {
-  order: React.PropTypes.object
+  order: React.PropTypes.object,
+  onChange: React.PropTypes.func
 };
