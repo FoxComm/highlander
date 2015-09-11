@@ -96,7 +96,7 @@ export default class Order extends React.Component {
 
       subNav = (
         <div className="gutter">
-          <ul className="tabbed-nav">
+          <ul className="fc-tabbed-nav">
             <li><Link to="order-details" params={params}>Details</Link></li>
             <li><a href="">Shipments</a></li>
             <li><a href="">Returns</a></li>

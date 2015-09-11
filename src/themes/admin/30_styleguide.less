@@ -48,6 +48,11 @@
 @color-decor32: #3e4d61;
 @color-decor33: #f2595c;
 
+@color-decor34: #F2F2F2;
+@color-decor35: #e5e7e8;
+@color-decor36: #333C49;
+@color-decor37: #37BAC2;
+
 @color-user1: @color-decor26;
 @color-user2: @color-decor18;
 @color-user3: @color-decor15;
@@ -70,12 +75,13 @@
 @color-btn-bg-hover: #e3e3e4;
 @color-link-tab: #595959;
 @color-tooltip-bg: @color-decor3;
+@color-subtitle: #ABB2B6;
 
 // Tables
 @color-thead-bg: @color-decor12;
 @color-tr-odd-bg: @color-decor0;
 @color-tr-even-bg: @color-decor12;
-@color-th-bg-hover: #e5e7e8;
+@color-th-bg-hover: @color-decor35;
 @color-border-td: @color-decor9;
 
 // Control colors
@@ -190,7 +196,7 @@ input[type=reset] {
     .colors(@color-control-standard-disabled-fg, @color-control-standard-disabled-bg);
   }
 
-  &.primary {
+  &.fc-btn-primary {
     .colors(@color-control-primary-fg, @color-control-primary-bg);
 
     &:hover {
@@ -206,38 +212,6 @@ input[type=reset] {
 .gutter {
   .padding-left(50px);
   .padding-right(50px);
-}
-
-.tabbed-nav {
-  .margin-bottom(15px);
-  border-bottom: 2px solid @color-decor7;
-
-  li {
-    display: inline-block;
-    vertical-align: top;
-    .margin-top(20px);
-    position: relative;
-    .top(2px);
-
-    a,
-    a:visited {
-      color: @color-link-tab;
-      display: block;
-      .font-spec(14px, 19px);
-
-      .padding(0 25px 10px 25px);
-      border-bottom: 2px solid @color-decor7;
-
-      &:hover {
-        color: #37BAC2;
-      }
-
-      &.active {
-        border-bottom: 2px solid @color-decor3;
-        color: #37BAC2;
-      }
-    }
-  }
 }
 
 .hide {
