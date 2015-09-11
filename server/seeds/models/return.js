@@ -12,7 +12,9 @@ const seed = [
   {field: 'returnStatus', method: 'pick', opts: ['Pending', 'Processing', 'Complete']},
   {field: 'returnType', method: 'pick', opts: ['Standard Return']},
   {field: 'assignee', method: 'pick', opts: ['Unassigned']},
-  {field: 'returnTotal', method: 'integer', opts: {min: 100, max: 10000}}
+  {field: 'shipping', method: 'integer', opts: {min: 20, max: 80}},
+  {field: 'taxes', method: 'integer', opts: {min: 5, max: 15}},
+  {field: 'subtotal', method: 'integer', opts: {min: 500, max: 10000}}
 ];
 
 class Return extends BaseModel {
@@ -34,7 +36,10 @@ class Return extends BaseModel {
   get assignee() { return this.model.assignee; }
   get totals() {
     return {
-      total: this.model.returnTotal
+      shipping: this.model.shipping,
+      subtotal: this.model.subtotal,
+      taxes: this.model.taxes,
+      total: this.model.subtotal + this.model.shipping + this.model.taxes
     };
   }
 
