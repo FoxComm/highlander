@@ -4,17 +4,16 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Validated.{Invalid, Valid}
 import cats.data.Xor
-import models.Order.RemorseHold
-import models._
+import com.github.tototoshi.slick.PostgresJodaSupport._
 import models.OrderLockEvents.scope._
+import models._
+import org.joda.time.DateTime
 import org.joda.time.Seconds.secondsBetween
-import org.joda.time.{Seconds, DateTime}
 import payloads.{CreateShippingAddress, UpdateAddressPayload, UpdateShippingAddress}
 import responses.{Addresses ⇒ Response, FullOrder}
 import slick.driver.PostgresDriver.api._
-import utils.Slick.implicits._
 import utils.Slick.UpdateReturning._
-import com.github.tototoshi.slick.PostgresJodaSupport._
+import utils.Slick.implicits._
 
 object OrderUpdater {
 
@@ -78,27 +77,6 @@ object OrderUpdater {
 
         invalid ++ notFound ++ locked
       }
-    }
-  }
-
-  // Should never be None as this response is sent only when increasing remorse period
-  final class NewRemorsePeriodEnd(val remorsePeriodEnd: Option[DateTime])
-
-  def increaseRemorsePeriod(order: Order)
-    (implicit db: Database, ec: ExecutionContext): Result[NewRemorsePeriodEnd] = {
-    order.status match {
-      case RemorseHold ⇒
-        val q = for {
-          _ ← Orders.update(order.copy(remorsePeriodEnd = order.remorsePeriodEnd.map(_.plusMinutes(15))))
-          newOrder ← Orders._findById(order.id).extract.one
-        } yield newOrder
-
-        db.run(q).flatMap {
-          case Some(newOrder) ⇒ Result.good(new NewRemorsePeriodEnd(newOrder.remorsePeriodEnd))
-          case None           ⇒ Result.failure(GeneralFailure("Error during update"))
-        }
-
-      case _ ⇒ Result.failure(GeneralFailure("Order is not in RemorseHold status"))
     }
   }
 

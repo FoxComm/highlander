@@ -10,7 +10,7 @@ import utils.GenericTable.TableWithId
 import utils.{NewModel, ModelWithIdParameter, TableQueryWithId}
 
 final case class OrderShippingAddress(id: Int = 0, orderId: Int = 0, regionId: Int, name: String,
-  street1: String, street2: Option[String], city: String, zip: String, phoneNumber: Option[String])
+  address1: String, address2: Option[String], city: String, zip: String, phoneNumber: Option[String])
   extends ModelWithIdParameter
   with NewModel
   with Addressable[OrderShippingAddress] {
@@ -23,8 +23,8 @@ final case class OrderShippingAddress(id: Int = 0, orderId: Int = 0, regionId: I
 
 object OrderShippingAddress {
   def buildFromAddress(address: Address): OrderShippingAddress =
-    OrderShippingAddress(regionId = address.regionId, name = address.name, street1 = address.street1,
-      street2 = address.street2, city = address.city, zip = address.zip, phoneNumber = address.phoneNumber)
+    OrderShippingAddress(regionId = address.regionId, name = address.name, address1 = address.address1,
+      address2 = address.address2, city = address.city, zip = address.zip, phoneNumber = address.phoneNumber)
 
   def fromPatchPayload(a: OrderShippingAddress, p: UpdateAddressPayload) = {
     OrderShippingAddress(
@@ -32,8 +32,8 @@ object OrderShippingAddress {
       orderId = a.orderId,
       regionId = p.regionId.getOrElse(a.regionId),
       name = p.name.getOrElse(a.name),
-      street1 = p.street1.getOrElse(a.street1),
-      street2 = p.street2.fold(a.street2)(Some(_)),
+      address1 = p.address1.getOrElse(a.address1),
+      address2 = p.address2.fold(a.address2)(Some(_)),
       city = p.city.getOrElse(a.city),
       zip = p.zip.getOrElse(a.zip),
       phoneNumber = p.phoneNumber.fold(a.phoneNumber)(Some(_))
@@ -47,13 +47,13 @@ class OrderShippingAddresses(tag: Tag) extends TableWithId[OrderShippingAddress]
   def orderId = column[Int]("order_id")
   def regionId = column[Int]("region_id")
   def name = column[String]("name")
-  def street1 = column[String]("street1")
-  def street2 = column[Option[String]]("street2")
+  def address1 = column[String]("address1")
+  def address2 = column[Option[String]]("address2")
   def city = column[String]("city")
   def zip = column[String]("zip")
   def phoneNumber = column[Option[String]]("phone_number")
 
-  def * = (id, orderId, regionId, name, street1, street2,
+  def * = (id, orderId, regionId, name, address1, address2,
     city, zip, phoneNumber) <> ((OrderShippingAddress.apply _).tupled, OrderShippingAddress.unapply)
 
   def address = foreignKey(Addresses.tableName, id, Addresses)(_.id)

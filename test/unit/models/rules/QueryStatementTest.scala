@@ -18,7 +18,7 @@ class QueryStatementTest extends TestBase {
             |   "conditions": [
             |     {
             |       "rootObject": "ShippingAddress",
-            |       "field": "street1",
+            |       "field": "address1",
             |       "operator": "notContains",
             |       "valString": "p.o. box"
             |     },
@@ -37,7 +37,7 @@ class QueryStatementTest extends TestBase {
 
         val condition1 :: condition2 :: Nil = statement.conditions
         condition1.rootObject must === ("ShippingAddress")
-        condition1.field must === ("street1")
+        condition1.field must === ("address1")
         condition1.operator must === (Condition.NotContains)
         condition1.valString must === (Some("p.o. box"))
 

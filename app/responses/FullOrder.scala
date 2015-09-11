@@ -59,8 +59,7 @@ object FullOrder {
 
   def build(order: Order, lineItems: Seq[OrderLineItem] = Seq.empty, adjustments: Seq[Adjustment] = Seq.empty,
     shippingMethod: Option[ShippingMethod] = None, customer: Option[Customer] = None,
-    shippingAddress: Option[Address] = None, payment: Option[(OrderPayment, CreditCard)]
-    ): Root = {
+    shippingAddress: Option[Address] = None, payment: Option[(OrderPayment, CreditCard)] = None): Root = {
 
     val displayPayment = payment.map { case (op, cc) ⇒
       DisplayPayment(

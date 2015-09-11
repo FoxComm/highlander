@@ -62,7 +62,7 @@ object Admin {
           } ~
           (delete & pathEnd) {
             complete {
-              notFoundResponse
+              NoteManager.deleteNote(noteId, admin).map(renderNothingOrFailures)
             }
           }
         }
@@ -179,6 +179,9 @@ object Admin {
             AllOrders.findAll
           }
         } ~
+        (post & entity(as[CreateOrder]) & pathEnd) { payload ⇒
+          complete { OrderCreator.createCart(payload).map(renderGoodOrFailures) }
+        } ~
         (patch & entity(as[BulkUpdateOrdersPayload]) & pathEnd) { payload ⇒
           complete {
             for {
@@ -205,9 +208,7 @@ object Admin {
         } ~
         (post & path("increase-remorse-period") & pathEnd) {
           complete {
-            whenOrderFoundAndEditable(refNum) { order ⇒
-              OrderUpdater.increaseRemorsePeriod(order)
-            }
+            LockAwareOrderUpdater.increaseRemorsePeriod(refNum).map(renderGoodOrFailures)
           }
         } ~
         (post & path("lock") & pathEnd) {
@@ -289,7 +290,7 @@ object Admin {
           } ~
           (delete & path(IntNumber)) { noteId ⇒
             complete {
-              notFoundResponse
+              NoteManager.deleteNote(noteId, admin).map(renderNothingOrFailures)
             }
           }
         } ~

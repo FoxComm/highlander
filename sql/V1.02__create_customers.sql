@@ -9,6 +9,7 @@ create table customers (
     phone_number character varying(12),
     location character varying(255),
     modality character varying(255),
+    is_guest boolean default false not null,
     created_at timestamp without time zone default (now() at time zone 'utc'),
     updated_at timestamp without time zone default (now() at time zone 'utc'),
     deleted_at timestamp without time zone null,

@@ -2,21 +2,19 @@ package models
 
 import cats.data.ValidatedNel
 import cats.implicits._
-import services.Failure
 import utils.Litterbox._
-import utils.Validation
-
-import scala.concurrent.{ExecutionContext, Future}
-
 import com.pellucid.sealerate
 import monocle.macros.GenLens
+import org.joda.time.DateTime
+import services.Failure
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
-import utils.Slick.implicits._
+import com.github.tototoshi.slick.PostgresJodaSupport._
 
-final case class Note(id: Int = 0, storeAdminId: Int, referenceId: Int, referenceType: Note.ReferenceType, body: String)
+final case class Note(id: Int = 0, storeAdminId: Int, referenceId: Int, referenceType: Note.ReferenceType, body: String,
+  deletedAt: Option[DateTime] = None, deletedBy: Option[Int] = None)
   extends ModelWithIdParameter
   with Validation[Note] {
 
@@ -47,8 +45,10 @@ class Notes(tag: Tag) extends GenericTable.TableWithId[Note](tag, "notes")  {
   def referenceId = column[Int]("reference_id")
   def referenceType = column[Note.ReferenceType]("reference_type")
   def body = column[String]("body")
+  def deletedAt = column[Option[DateTime]]("deleted_at")
+  def deletedBy = column[Option[Int]]("deleted_by")
 
-  def * = (id, storeAdminId, referenceId, referenceType, body) <> ((Note.apply _).tupled, Note.unapply)
+  def * = (id, storeAdminId, referenceId, referenceType, body, deletedAt, deletedBy) <> ((Note.apply _).tupled, Note.unapply)
 
   def author = foreignKey(StoreAdmins.tableName, storeAdminId, StoreAdmins)(_.id)
 }

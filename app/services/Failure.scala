@@ -45,6 +45,10 @@ case object CustomerHasDefaultCreditCard extends Failure {
   override def description = List("customer already has default credit card")
 }
 
+final case class CustomerHasCart(id: Int) extends Failure {
+  override def description = List(s"customer with id=$id already has an active cart")
+}
+
 final case class OrderUpdateFailure(referenceNumber: String, reason: String) extends Failure {
   override def description = List(reason)
 }

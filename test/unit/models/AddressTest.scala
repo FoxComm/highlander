@@ -11,7 +11,7 @@ class AddressTest extends TestBase {
   "Address" - {
     ".validateNew" - {
       val valid = Address(id = 0, customerId = 1, regionId = 1, name = "Yax Home",
-        street1 = "555 E Lake Union St.", street2 = None, city = "Seattle", zip = "12345", phoneNumber = None)
+        address1 = "555 E Lake Union St.", address2 = None, city = "Seattle", zip = "12345", phoneNumber = None)
 
       def zipFailure(pattern: String): NonEmptyList[Failure] =
         NonEmptyList(GeneralFailure(s"zip must fully match regular expression '$pattern'"))
@@ -46,10 +46,10 @@ class AddressTest extends TestBase {
         }
       }
 
-      "returns errors when name or street1 is empty" in {
-        val result = valid.copy(name = "", street1 = "").validate
-        invalidValue(result) must === (NonEmptyList[Failure](GeneralFailure("name must not be empty"), GeneralFailure("street1 must " +
-          "not be empty")))
+      "returns errors when name or address1 is empty" in {
+        val result = valid.copy(name = "", address1 = "").validate
+        invalidValue(result) must === (NonEmptyList[Failure](GeneralFailure("name must not be empty"),
+          GeneralFailure("address1 must not be empty")))
       }
 
       "returns errors if US address and Some(phoneNumber) < 10 digits" in {

@@ -133,16 +133,16 @@ object Seeds {
 
     def orderLineItems: Seq[OrderLineItem] = Seq(OrderLineItem(id = 0, orderId = 1, skuId = 1, status = OrderLineItem.Cart), OrderLineItem(id = 0, orderId = 1, skuId = 2, status = OrderLineItem.Cart), OrderLineItem(id = 0, orderId = 1, skuId = 3, status = OrderLineItem.Cart))
 
-    def address = Address(customerId = 0, regionId = 4177, name = "Home", street1 = "555 E Lake Union St.",
-        street2 = None, city = "Seattle", zip = "12345", isDefaultShipping = true, phoneNumber = None)
+    def address = Address(customerId = 0, regionId = 4177, name = "Home", address1 = "555 E Lake Union St.",
+        address2 = None, city = "Seattle", zip = "12345", isDefaultShipping = true, phoneNumber = None)
 
-    def shippingAddress = OrderShippingAddress(regionId = 4174, name = "Old Yax", street1 = "9313 Olde Mill Pond Dr",
-      street2 = None, city = "Glen Allen", zip = "23060", phoneNumber = None)
+    def shippingAddress = OrderShippingAddress(regionId = 4174, name = "Old Yax", address1 = "9313 Olde Mill Pond Dr",
+      address2 = None, city = "Glen Allen", zip = "23060", phoneNumber = None)
 
     def creditCard =
       CreditCard(customerId = 0, gatewayCustomerId = "cus_6uzC8j5doSTWth", gatewayCardId = "", holderName = "Yax", lastFour = "4242",
         expMonth = today.getMonthOfYear, expYear = today.getYear + 2, isDefault = true,
-        regionId = 4129, addressName = "Old Jeff", street1 = "95 W. 5th Ave.", street2 = Some("Apt. 437"),
+        regionId = 4129, addressName = "Old Jeff", address1 = "95 W. 5th Ave.", address2 = Some("Apt. 437"),
         city = "San Mateo", zip = "94402")
 
     def reason = Reason(id = 0, storeAdminId = 0, body = "I'm a reason", parentId = None)
