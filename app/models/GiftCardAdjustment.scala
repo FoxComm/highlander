@@ -21,9 +21,7 @@ final case class GiftCardAdjustment(id: Int = 0, giftCardId: Int, orderPaymentId
 
   def stateLens = GenLens[GiftCardAdjustment](_.status)
 
-  def getAmount: Int = {
-    if (credit > 0) credit else -debit
-  }
+  def getAmount: Int = if (credit > 0) credit else -debit
 
   val fsm: Map[Status, Set[Status]] = Map(
     Auth → Set(Canceled, Capture)
@@ -42,9 +40,8 @@ object GiftCardAdjustment {
 
   implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
 
-  def build(gc: GiftCard, orderPayment: OrderPayment): GiftCardAdjustment = {
+  def build(gc: GiftCard, orderPayment: OrderPayment): GiftCardAdjustment =
     GiftCardAdjustment(giftCardId = gc.id, orderPaymentId = orderPayment.id, credit = 0, debit = 0)
-  }
 }
 
 class GiftCardAdjustments(tag: Tag)
