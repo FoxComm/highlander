@@ -4,8 +4,8 @@ create table customers (
     disabled_by integer null,
     email email not null,
     hashed_password character varying(255) not null,
-    first_name character varying(255),
-    last_name character varying(255),
+    first_name character varying(255) not null,
+    last_name character varying(255) not null,
     phone_number character varying(12),
     location character varying(255),
     modality character varying(255),
@@ -16,5 +16,8 @@ create table customers (
     foreign key (disabled_by) references store_admins(id) on update restrict on delete restrict
 );
 
-create index customers_email_idx on customers (email)
+create index customers_email_idx on customers (email);
+
+create unique index customers_active_non_guest_email on customers (email, disabled, is_guest) where
+    disabled = false and is_guest = false;
 

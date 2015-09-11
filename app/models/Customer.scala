@@ -36,6 +36,11 @@ final case class Customer(id: Int = 0, disabled: Boolean = false, email: String,
   }
 }
 
+object Customer {
+  def buildGuest(email: String): Customer =
+    Customer(isGuest = true, email = email, firstName = "guest", lastName = "guest", password = "guest")
+}
+
 class Customers(tag: Tag) extends TableWithId[Customer](tag, "customers")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def disabled = column[Boolean]("disabled")

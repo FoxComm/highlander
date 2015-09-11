@@ -15,6 +15,8 @@ trait Validation[M] {
 object Validation {
   val prefix = "got"
 
+  val ok: ValidatedNel[Failure, Unit] = valid(Unit)
+
   def validExpr(expression: Boolean, message: String): ValidatedNel[Failure, Unit] = expression match {
     case false ⇒ invalidNel(GeneralFailure(message))
     case _     ⇒ valid({})
