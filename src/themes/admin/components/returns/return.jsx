@@ -37,59 +37,14 @@ export default class Return extends React.Component {
     });
   }
 
-  onConfirmChange() {
-    dispatch('toggleModal', null);
-    this.patchOrder();
-  }
-
   render() {
     let retrn = this.state.return;
-    let subNav = null;
-    let viewers = null;
-    let returnStatus = null;
-
-    //if (retrn.id) {
-    //  let params = {return: retrn.referenceNumber};
-    //
-    //  subNav = (
-    //    <div className="gutter">
-    //      <ul className="tabbed-nav">
-    //        <li><Link to="order-details" params={params}>Details</Link></li>
-    //        <li><a href="">Shipments</a></li>
-    //        <li><a href="">Returns</a></li>
-    //        <li><Link to="order-notifications" params={params}>Transaction Notifications</Link></li>
-    //        <li><Link to="order-notes" params={params}>Notes</Link></li>
-    //        <li><Link to="order-activity-trail" params={params}>Activity Trail</Link></li>
-    //      </ul>
-    //      <RouteHandler order={order} modelName="order"/>
-    //    </div>
-    //  );
-    //
-    //  viewers = <Viewers model='returns' modelId={retrn.id}/>;
-    //}
-    //
-    //if (ReturnsStore.editableStatusList.indexOf(order.orderStatus) !== -1) {
-    //  returnStatus = (
-    //    <select name="orderStatus" value={order.orderStatus} onChange={this.changeOrderStatus.bind(this)}>
-    //      {ReturnsStore.selectableStatusList.map((status, idx) => {
-    //        if (
-    //          (order.orderStatus === 'fulfillmentStarted') &&
-    //          (['fulfillmentStarted', 'canceled'].indexOf(status) === -1)
-    //        ) {
-    //          return '';
-    //        } else {
-    //          return <option key={`${idx}-${status}`} value={status}>{ReturnsStore.statuses[status]}</option>;
-    //        }
-    //      })}
-    //    </select>
-    //  );
-    //} else {
-    //  returnStatus = ReturnsStore.statuses[order.orderStatus];
-    //}
+    let params = {return: retrn && retrn.referenceNumber || ''};
 
     return (
       <div id="return">
-        {viewers}
+        <Viewers model='returns' modelId={retrn.id}/>
+
         <div className="gutter title">
           <div>
             <h1>Return {retrn.referenceNumber}</h1>
@@ -113,7 +68,14 @@ export default class Return extends React.Component {
           <h2>notes</h2>
           <Notes/>
         </div>
-        {subNav}
+        <div className="gutter">
+          <ul className="tabbed-nav">
+            <li><Link to="return-details" params={params}>Details</Link></li>
+            <li><Link to="return-notifications" params={params}>Transaction Notifications</Link></li>
+            <li><Link to="return-activity-trail" params={params}>Activity Trail</Link></li>
+          </ul>
+          <RouteHandler return={retrn} modelName="return"/>
+        </div>
       </div>
     );
   }
