@@ -16,22 +16,22 @@ class OrderUpdaterTest extends IntegrationTestBase {
       val orderAddress = OrderUpdater.createShippingAddress(order, payload).futureValue.get
 
       orderAddress.name mustBe address.name
-      orderAddress.street1 mustBe address.street1
-      orderAddress.street2 mustBe address.street2
+      orderAddress.address1 mustBe address.address1
+      orderAddress.address2 mustBe address.address2
       orderAddress.city mustBe address.city
       orderAddress.zip mustBe address.zip
     }
 
     "Adds a shipping address by creating a new address in the payload" in new Fixture {
-      val newAddress = payloads.CreateAddressPayload(name = "Home Office", regionId = 1, street1 = "3000 Coolio Dr",
+      val newAddress = payloads.CreateAddressPayload(name = "Home Office", regionId = 1, address1 = "3000 Coolio Dr",
         city = "Seattle", zip = "55555")
       val payload = payloads.CreateShippingAddress(None, Some(newAddress))
 
       val orderAddress = OrderUpdater.createShippingAddress(order, payload).futureValue.get
 
       orderAddress.name mustBe newAddress.name
-      orderAddress.street1 mustBe newAddress.street1
-      orderAddress.street2 mustBe newAddress.street2
+      orderAddress.address1 mustBe newAddress.address1
+      orderAddress.address2 mustBe newAddress.address2
       orderAddress.city mustBe newAddress.city
       orderAddress.zip mustBe newAddress.zip
     }
@@ -41,8 +41,8 @@ class OrderUpdaterTest extends IntegrationTestBase {
       val orderAddress = OrderUpdater.updateShippingAddress(order, payload).futureValue.get
 
       orderAddress.name mustBe newAddress.name
-      orderAddress.street1 mustBe newAddress.street1
-      orderAddress.street2 mustBe newAddress.street2
+      orderAddress.address1 mustBe newAddress.address1
+      orderAddress.address2 mustBe newAddress.address2
       orderAddress.city mustBe newAddress.city
       orderAddress.zip mustBe newAddress.zip
     }

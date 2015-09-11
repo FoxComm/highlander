@@ -76,10 +76,10 @@ object ShippingManager {
 
   private def evaluateShippingAddressCondition(shippingData: ShippingData, condition: Condition): Boolean = {
     condition.field match {
-      case "street1" ⇒
-        Condition.matches(shippingData.shippingAddress.street1, condition)
-      case "street2" ⇒
-        Condition.matches(shippingData.shippingAddress.street2, condition)
+      case "address1" ⇒
+        Condition.matches(shippingData.shippingAddress.address1, condition)
+      case "address2" ⇒
+        Condition.matches(shippingData.shippingAddress.address2, condition)
       case "city" ⇒
         Condition.matches(shippingData.shippingAddress.city, condition)
       case "regionId" ⇒

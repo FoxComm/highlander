@@ -12,7 +12,7 @@ create table credit_cards (
     exp_month integer not null,
     exp_year integer not null,
     is_default boolean default false not null,
-    street1_check character varying(255) null,
+    address1_check character varying(255) null,
     zip_check character varying(255) null,
     -- in_wallet: controls whether or not we display this as CC in customer's wallet. it's false when CC
     -- has been deleted and false when deprecated by a versioned child.
@@ -23,8 +23,8 @@ create table credit_cards (
     -- address related fields
     region_id integer not null references regions(id) on update restrict on delete restrict,
     address_name character varying(255) not null,
-    street1 character varying(255) not null,
-    street2 character varying(255) null,
+    address1 character varying(255) not null,
+    address2 character varying(255) null,
     city character varying(255) not null,
     zip character varying(12) not null,
     foreign key (id) references payment_methods(id) on update restrict on delete restrict,

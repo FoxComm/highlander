@@ -28,7 +28,7 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
 
       def payloadWithFullAddress(p: payloads.CreateCreditCard, a: Address): payloads.CreateCreditCard = {
         p.copy(addressId = None, address = Some(CreateAddressPayload(
-          name = a.name, street1 = a.street1, street2 = a.street2,
+          name = a.name, address1 = a.address1, address2 = a.address2,
           city = a.city, zip = a.zip, regionId = a.regionId)))
       }
 
@@ -39,8 +39,8 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
           val (cc :: Nil) = CreditCards.filter(_.customerId === customer.id).futureValue.toList
 
           val a             = address
-          val ccAddressVals = (cc.street1, cc.street2, cc.city, cc.regionId, cc.zip, cc.addressName, cc.phoneNumber)
-          val addressVals   = (a.street1, a.street2, a.city, a.regionId, a.zip, a.name, a.phoneNumber)
+          val ccAddressVals = (cc.address1, cc.address2, cc.city, cc.regionId, cc.zip, cc.addressName, cc.phoneNumber)
+          val addressVals   = (a.address1, a.address2, a.city, a.regionId, a.zip, a.name, a.phoneNumber)
 
           response.status must ===(StatusCodes.OK)
           ccAddressVals must === (addressVals)
@@ -50,7 +50,7 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
           cc.lastFour must === (payload.lastFour)
           (cc.expYear, cc.expMonth) must === ((payload.expYear, payload.expMonth))
           cc.zipCheck mustBe 'defined
-          cc.street1Check mustBe 'defined
+          cc.address1Check mustBe 'defined
         }
 
         "creates a new address in the book and copies it to the new creditCard" ignore new Fixture {
@@ -62,9 +62,9 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
           val (savedAddress :: Nil) = Addresses.futureValue.toList
           val s = savedAddress
 
-          val ccAddressVals = (cc.street1, cc.street2, cc.city, cc.regionId, cc.zip, cc.addressName, cc.phoneNumber)
-          val addressVals   = (a.street1, a.street2, a.city, a.regionId, a.zip, a.name, a.phoneNumber)
-          val savedVals     = (s.street1, s.street2, s.city, s.regionId, s.zip, s.name, s.phoneNumber)
+          val ccAddressVals = (cc.address1, cc.address2, cc.city, cc.regionId, cc.zip, cc.addressName, cc.phoneNumber)
+          val addressVals   = (a.address1, a.address2, a.city, a.regionId, a.zip, a.name, a.phoneNumber)
+          val savedVals     = (s.address1, s.address2, s.city, s.regionId, s.zip, s.name, s.phoneNumber)
 
           response.status must ===(StatusCodes.OK)
           ccAddressVals must === (addressVals)
@@ -75,7 +75,7 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
           cc.lastFour must === (payload.lastFour)
           (cc.expYear, cc.expMonth) must === ((payload.expYear, payload.expMonth))
           cc.zipCheck mustBe 'defined
-          cc.street1Check mustBe 'defined
+          cc.address1Check mustBe 'defined
         }
 
         "uses an existing stripe customerId when it exists" ignore new AddressFixture {

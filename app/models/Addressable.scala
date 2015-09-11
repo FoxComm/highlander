@@ -16,8 +16,8 @@ trait Addressable[M] {
   def name: String
   def phoneNumber: Option[String]
   def regionId: Int
-  def street1: String
-  def street2: Option[String]
+  def address1: String
+  def address2: Option[String]
   def zip: String
 
   def instance: M
@@ -52,7 +52,7 @@ trait Addressable[M] {
     }
 
     ( notEmpty(name, "name")
-      |@| notEmpty(street1, "street1")
+      |@| notEmpty(address1, "address1")
       |@| notEmpty(city, "city")
       |@| zipValidation
       |@| phone

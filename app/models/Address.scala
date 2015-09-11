@@ -10,7 +10,7 @@ import utils.Slick.implicits._
 import utils.{ModelWithIdParameter, NewModel, TableQueryWithId, Validation}
 
 final case class Address(id: Int = 0, customerId: Int, regionId: Int, name: String,
-  street1: String, street2: Option[String], city: String, zip: String,
+  address1: String, address2: Option[String], city: String, zip: String,
   isDefaultShipping: Boolean = false, phoneNumber: Option[String] = None)
   extends ModelWithIdParameter
   with NewModel
@@ -29,15 +29,15 @@ object Address {
 
   def fromPayload(p: CreateAddressPayload): Address =
     Address(customerId = 0, regionId = p.regionId, name = p.name,
-      street1 = p.street1, street2 = p.street2, city = p.city, zip = p.zip, phoneNumber = p.phoneNumber)
+      address1 = p.address1, address2 = p.address2, city = p.city, zip = p.zip, phoneNumber = p.phoneNumber)
 
   def fromOrderShippingAddress(osa: OrderShippingAddress): Address =
-    Address(customerId = 0, regionId = osa.regionId, name = osa.name, street1 = osa.street1, street2 = osa.street2,
+    Address(customerId = 0, regionId = osa.regionId, name = osa.name, address1 = osa.address1, address2 = osa.address2,
       city = osa.city, zip = osa.zip, phoneNumber = osa.phoneNumber)
 
   def fromCreditCard(cc: CreditCard): Address =
     Address(customerId = 0, regionId = cc.regionId, name = cc.addressName,
-      street1 = cc.street1, street2 = cc.street2, city = cc.city, zip = cc.zip)
+      address1 = cc.address1, address2 = cc.address2, city = cc.city, zip = cc.zip)
 }
 
 class Addresses(tag: Tag) extends TableWithId[Address](tag, "addresses")  {
@@ -45,14 +45,14 @@ class Addresses(tag: Tag) extends TableWithId[Address](tag, "addresses")  {
   def customerId = column[Int]("customer_id")
   def regionId = column[Int]("region_id")
   def name = column[String]("name")
-  def street1 = column[String]("street1")
-  def street2 = column[Option[String]]("street2")
+  def address1 = column[String]("address1")
+  def address2 = column[Option[String]]("address2")
   def city = column[String]("city")
   def zip = column[String]("zip")
   def isDefaultShipping = column[Boolean]("is_default_shipping")
   def phoneNumber = column[Option[String]]("phone_number")
 
-  def * = (id, customerId, regionId, name, street1, street2,
+  def * = (id, customerId, regionId, name, address1, address2,
     city, zip, isDefaultShipping, phoneNumber) <> ((Address.apply _).tupled, Address.unapply)
 
   def region = foreignKey(Regions.tableName, regionId, Regions)(_.id)
