@@ -10,7 +10,7 @@ import collection.JavaConversions.mapAsJavaMap
 
 import cats.data.Xor
 import com.stripe.net.RequestOptions
-import services.{RuntimeExceptionFailure, Result, Failures}
+import services.{GeneralFailure, RuntimeExceptionFailure, Result, Failures}
 
 final case class Apis(stripe: StripeApi)
 
@@ -18,7 +18,7 @@ trait StripeApi {
   def createCustomer(options: Map[String, AnyRef], secretKey: String): Result[StripeCustomer]
   def getExtAccount(customer: StripeCustomer, id: String, secretKey: String): Result[ExternalAccount]
   def findCustomer(id: String, secretKey: String): Result[StripeCustomer]
-  def findCard(customer: StripeCustomer, id: String, secretKey: String): Result[ExternalAccount]
+  def findDefaultCard(customer: StripeCustomer, secretKey: String): Result[StripeCard]
   def updateExternalAccount(card: ExternalAccount, options: Map[String, AnyRef], secretKey: String): Result[ExternalAccount]
 }
 
@@ -30,8 +30,18 @@ class WiredStripeApi extends StripeApi {
   def findCustomer(id: String, secretKey: String): Result[StripeCustomer] =
     async(secretKey)(requestOptions ⇒ StripeCustomer.retrieve(id, requestOptions))
 
-  def findCard(customer: StripeCustomer, id: String, secretKey: String): Result[ExternalAccount] =
-    async(secretKey)(requestOptions ⇒ customer.getSources.retrieve(id, requestOptions))
+  def findDefaultCard(customer: StripeCustomer, secretKey: String): Result[StripeCard] =
+    async(secretKey)(requestOptions ⇒ customer.getSources.retrieve(customer.getDefaultSource, requestOptions)).flatMap(accountToCard)(concurrent.ExecutionContext.global)
+
+  @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.IsInstanceOf", "org.brianmckenna.wartremover.warts.AsInstanceOf"))
+  final def accountToCard(account: Failures Xor ExternalAccount): Result[StripeCard] = account match {
+    case Xor.Left(xs) ⇒
+      Result.failures(xs)
+    case Xor.Right(c: StripeCard) if c.getObject.equals("card") ⇒
+      Result.good(c)
+    case _ ⇒
+      Result.failure(GeneralFailure("Not a stripe card: " ++ account.toString))
+  }
 
   def createCustomer(options: Map[String, AnyRef], secretKey: String): Result[StripeCustomer] =
     async(secretKey)(requestOptions ⇒ StripeCustomer.create(mapAsJavaMap(options), requestOptions))
@@ -39,8 +49,9 @@ class WiredStripeApi extends StripeApi {
   def getExtAccount(customer: StripeCustomer, id: String, secretKey: String): Result[ExternalAccount] =
     async(secretKey)(requestOptions ⇒ customer.getSources.retrieve(id, requestOptions))
 
-  def updateExternalAccount(card: ExternalAccount, options: Map[String, AnyRef], secretKey: String): Result[ExternalAccount] =
-    async(secretKey)(requestOptions ⇒ card.update(options))
+  def updateExternalAccount(card: ExternalAccount, options: Map[String, AnyRef], secretKey: String): Result[ExternalAccount] = {
+    async(secretKey)(requestOptions ⇒ card.update(options, requestOptions))
+  }
 
   // TODO: This needs a life-cycle hook so we can shut it down.
   //       It does not share the Actor system’s thread pool by design,
