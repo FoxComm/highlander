@@ -32,9 +32,9 @@ ReturnLineItems.defaultProps = {
     {field: 'imagePath', text: 'Image', type: 'image'},
     {field: 'name', text: 'Name'},
     {field: 'skuId', text: 'SKU'},
-    {field: 'price', text: 'Price', type: 'currency'},
     {field: 'qty', text: 'Quantity'},
-    {field: 'total', text: 'Total', type: 'currency'},
-    {field: 'status', text: 'Shipping Status'}
+    {field: 'inventoryDisposition', text: 'Inventory Disposition'},
+    {field: 'refund', text: 'Refund', type: 'currency'},
+    {field: 'reason', text: 'Reason'}
   ]
 };
