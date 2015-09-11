@@ -9,8 +9,10 @@ import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 
 object GiftCardService {
+  val mockCustomerId = 1
+
   def getByCode(code: String)(implicit db: Database, ec: ExecutionContext): Result[Root] = {
-    fetchDetails(code).flatMap {
+    fetchDetails(code).run().flatMap {
       case (Some(giftCard), Some(customer), _) ⇒
         val customerResponse = Some(CustomerResponse.build(customer))
         Result.right(GiftCardResponse.build(giftCard, customerResponse))
@@ -24,27 +26,28 @@ object GiftCardService {
 
   private def fetchDetails(code: String)(implicit db: Database, ec: ExecutionContext) = {
     for {
-      giftCard ← GiftCards.findByCode(code).one.run()
+      giftCard ← GiftCards.findByCode(code).one
       customer ← fetchCustomer(giftCard)
       storeAdmin ← fetchStoreAdmin(giftCard)
     } yield (giftCard, customer, storeAdmin)
   }
 
-  private def fetchCustomer(gc: Option[GiftCard])(implicit db: Database, ec: ExecutionContext): Future[Option[Customer]] = {
-    val default = Future.successful(None)
+  private def fetchCustomer(gc: Option[GiftCard])(implicit db: Database, ec: ExecutionContext): DBIO[Option[Customer]]
+  = {
+    val default = DBIO.successful(None)
     gc.map {
       _.originType match {
-        case GiftCard.CustomerPurchase ⇒ Customers.findById(1)
+        case GiftCard.CustomerPurchase ⇒ Customers._findById(mockCustomerId).extract.one
         case _                         ⇒ default
       }
     }.getOrElse(default)
   }
 
-  private def fetchStoreAdmin(gc: Option[GiftCard])(implicit db: Database, ec: ExecutionContext): Future[Option[StoreAdmin]] = {
-    val default = Future.successful(None)
+  private def fetchStoreAdmin(gc: Option[GiftCard])(implicit db: Database, ec: ExecutionContext): DBIO[Option[StoreAdmin]] = {
+    val default = DBIO.successful(None)
     gc.map { giftCard ⇒
       giftCard.originType match {
-        case GiftCard.CsrAppeasement  ⇒ StoreAdmins.findById(giftCard.originId)
+        case GiftCard.CsrAppeasement  ⇒ StoreAdmins._findById(giftCard.originId).extract.one
         case _                        ⇒ default
       }
     }.getOrElse(default)
