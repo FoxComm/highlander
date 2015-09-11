@@ -15,15 +15,17 @@ object GiftCardResponse {
     createdAt: DateTime,
     code: String,
     `type`: String,
-    status: GiftCard.Status,
+    status: String,
     originalBalance: Int,
     availableBalance: Int,
     currentBalance: Int,
-    createdBy: Option[Any],
+    customer: Option[CustomerResponse.Root],
+    storeAdmin: Option[StoreAdminResponse.Root],
     message: String)
 
-  def build(gc: GiftCard, createdBy: Option[Any] = None): Root =
-    Root(id = gc.id, createdAt = gc.createdAt, code = gc.code, `type` = gc.originType, status = gc.status,
+  def build(gc: GiftCard, customer: Option[CustomerResponse.Root] = None, admin: Option[StoreAdminResponse.Root] = None):
+  Root =
+    Root(id = gc.id, createdAt = gc.createdAt, code = gc.code, `type` = gc.originType.toString, status = gc.status.toString,
       originalBalance = gc.originalBalance, availableBalance = gc.availableBalance, currentBalance = gc.currentBalance,
-      createdBy = createdBy, message = mockMessage)
+      customer = customer, storeAdmin = admin, message = mockMessage)
 }
