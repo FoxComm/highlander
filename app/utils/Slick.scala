@@ -16,11 +16,11 @@ object Slick {
 
   type DbResult[T] = DBIO[Failures Xor T]
 
-  def appendForUpdate[A, B <: slick.dbio.NoStream](sql: SqlAction[A, B, Effect.Read]) = {
+  def appendForUpdate[A, B <: slick.dbio.NoStream](sql: SqlAction[A, B, Effect.Read]): DBIO[A] = {
     sql.overrideStatements(sql.statements.map(_ + " for update"))
   }
 
-  def lift[A](value: A): DBIO[A] = DBIO.from(Future.successful(value))
+  def lift[A](value: A): DBIO[A] = DBIO.successful(value)
 
   def liftFuture[A](future: Future[A]): DBIO[A] = DBIO.from(future)
 

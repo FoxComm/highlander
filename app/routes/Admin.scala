@@ -219,9 +219,7 @@ object Admin {
         } ~
         (post & path("unlock") & pathEnd) {
           complete {
-            whenFound(Orders.findByRefNum(refNum).one.run()) { order ⇒
-              OrderUpdater.unlock(order)
-            }
+            LockAwareOrderUpdater.unlock(refNum).map(renderGoodOrFailures)
           }
         } ~
         (post & path("checkout")) {
