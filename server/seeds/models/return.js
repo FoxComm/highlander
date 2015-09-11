@@ -10,6 +10,7 @@ const seed = [
   {field: 'email', method: 'pick', opts: ['bree@foxcommerce.com']},
   {field: 'orderNumber', method: 'pick', opts: [Order.data[0].referenceNumber]},
   {field: 'returnStatus', method: 'pick', opts: ['Pending', 'Processing', 'Complete']},
+  {field: 'returnType', method: 'pick', opts: ['Standard Return']},
   {field: 'assignee', method: 'pick', opts: ['Unassigned']},
   {field: 'returnTotal', method: 'integer', opts: {min: 100, max: 10000}}
 ];
