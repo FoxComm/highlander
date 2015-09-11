@@ -28,12 +28,15 @@ export default class Orders extends React.Component {
   render() {
     return (
       <div id="orders">
-        <TableView
-          columns={this.props.tableColumns}
-          rows={this.state.orders}
-          model='order'
-          sort={OrderStore.sort.bind(OrderStore)}
-        />
+        <div className="gutter">
+          <TableView
+            columns={this.props.tableColumns}
+            rows={this.state.orders}
+            model='order'
+            paginator={true}
+            sort={OrderStore.sort.bind(OrderStore)}
+            />
+        </div>u
       </div>
     );
   }

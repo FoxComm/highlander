@@ -43,12 +43,15 @@ export default class Returns extends React.Component {
   render() {
     return (
       <div id="returns">
-        <TableView
-          columns={this.props.tableColumns}
-          rows={this.state.returns}
-          model='return'
-          sort={ReturnsStore.sort.bind(ReturnsStore)}
-          />
+        <div className="gutter">
+          <TableView
+            columns={this.props.tableColumns}
+            rows={this.state.returns}
+            model='return'
+            paginator={true}
+            sort={ReturnsStore.sort.bind(ReturnsStore)}
+            />
+        </div>
       </div>
     );
   }
