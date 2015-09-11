@@ -2,11 +2,13 @@ package models
 
 import com.pellucid.sealerate
 import models.GiftCardAdjustment.{Auth, Status}
+import models.Notes._
 import monocle.macros.GenLens
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.Slick.implicits._
 
 final case class GiftCardAdjustment(id: Int = 0, giftCardId: Int, orderPaymentId: Int,
   credit: Int, debit: Int, status: Status = Auth)
@@ -16,6 +18,8 @@ final case class GiftCardAdjustment(id: Int = 0, giftCardId: Int, orderPaymentId
   import GiftCardAdjustment._
 
   def stateLens = GenLens[GiftCardAdjustment](_.status)
+
+  def getAmount: Int = if (credit > 0) credit else -debit
 
   val fsm: Map[Status, Set[Status]] = Map(
     Auth → Set(Canceled, Capture)
@@ -33,6 +37,9 @@ object GiftCardAdjustment {
   }
 
   implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
+
+  def build(gc: GiftCard, orderPayment: OrderPayment): GiftCardAdjustment =
+    GiftCardAdjustment(giftCardId = gc.id, orderPaymentId = orderPayment.id, credit = 0, debit = 0)
 }
 
 class GiftCardAdjustments(tag: Tag)
@@ -57,6 +64,8 @@ object GiftCardAdjustments extends TableQueryWithId[GiftCardAdjustment, GiftCard
   )(new GiftCardAdjustments(_)){
 
   import GiftCardAdjustment._
+
+  def filterByGiftCardId(id: Int): QuerySeq = filter(_.giftCardId === id)
 
   def cancel(id: Int): DBIO[Int] = filter(_.id === id).map(_.status).update(Canceled)
 }

@@ -4,13 +4,14 @@ import scala.concurrent.ExecutionContext
 
 import cats.data.ValidatedNel
 import cats.implicits._
+import org.joda.time.DateTime
 import services.Failure
 import utils.Litterbox._
 import utils.Validation
 
+import com.github.tototoshi.slick.PostgresJodaSupport._
 import com.pellucid.sealerate
-import com.wix.accord.dsl.{validator ⇒ createValidator, _}
-import models.GiftCard.{OnHold, Status}
+import models.GiftCard.{CustomerPurchase, OnHold, OriginType, Status}
 import monocle.macros.GenLens
 import services.Result
 import slick.ast.BaseTypedType
@@ -19,9 +20,10 @@ import slick.jdbc.JdbcType
 import utils.Money._
 import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
 
-final case class GiftCard(id: Int = 0, originId: Int, originType: String, code: String,
+final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = CustomerPurchase, code: String,
   currency: Currency, status: Status = OnHold, originalBalance: Int, currentBalance: Int = 0,
-  availableBalance: Int = 0, canceledReason: Option[String] = None, reloadable: Boolean = false)
+  availableBalance: Int = 0, canceledReason: Option[String] = None, reloadable: Boolean = false,
+  createdAt: DateTime = DateTime.now())
   extends PaymentMethod
   with ModelWithIdParameter
   with FSM[GiftCard.Status, GiftCard]
@@ -59,19 +61,29 @@ object GiftCard {
   case object Active extends Status
   case object Canceled extends Status
 
+  sealed trait OriginType
+  case object CustomerPurchase extends OriginType
+  case object CsrAppeasement extends OriginType
+  case object FromStoreCredit extends OriginType
+
   object Status extends ADT[Status] {
     def types = sealerate.values[Status]
+  }
+
+  object OriginType extends ADT[OriginType] {
+    def types = sealerate.values[OriginType]
   }
 
   val activeStatuses = Set[Status](Active)
 
   implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
+  implicit val originTypeColumnType: JdbcType[OriginType] with BaseTypedType[OriginType] = OriginType.slickColumn
 }
 
 class GiftCards(tag: Tag) extends GenericTable.TableWithId[GiftCard](tag, "gift_cards")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def originId = column[Int]("origin_id")
-  def originType = column[String]("origin_type")
+  def originType = column[GiftCard.OriginType]("origin_type")
   def code = column[String]("code")
   def status = column[GiftCard.Status]("status")
   def currency = column[Currency]("currency")
@@ -80,9 +92,10 @@ class GiftCards(tag: Tag) extends GenericTable.TableWithId[GiftCard](tag, "gift_
   def availableBalance = column[Int]("available_balance")
   def canceledReason = column[Option[String]]("canceled_reason")
   def reloadable = column[Boolean]("reloadable")
+  def createdAt = column[DateTime]("created_at")
 
   def * = (id, originId, originType, code, currency, status, originalBalance, currentBalance,
-    availableBalance, canceledReason, reloadable) <> ((GiftCard.apply _).tupled, GiftCard.unapply)
+    availableBalance, canceledReason, reloadable, createdAt) <> ((GiftCard.apply _).tupled, GiftCard.unapply)
 }
 
 object GiftCards extends TableQueryWithId[GiftCard, GiftCards](

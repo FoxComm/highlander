@@ -1,8 +1,9 @@
 import akka.http.scaladsl.model.StatusCodes
 
-import models.{Note, Reasons, GiftCard, GiftCardManuals, GiftCards, Notes, StoreAdmins}
+import models.{Customers, Reasons, GiftCard, GiftCardAdjustment, GiftCardAdjustments, GiftCardManuals, GiftCards,
+Orders, OrderPayments, Note, Notes, PaymentMethod, StoreAdmins}
 import org.scalatest.BeforeAndAfterEach
-import responses.AdminNotes
+import responses.{AdminNotes, GiftCardResponse, GiftCardAdjustmentsResponse}
 import services.NoteManager
 import util.IntegrationTestBase
 import utils.Seeds.Factories
@@ -28,21 +29,38 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       cards.map(_.id) must ===(giftCards.map(_.id))
     }
 
-    "finds a gift card by id" in new Fixture {
-      val response = GET(s"v1/gift-cards/${giftCard.id}")
-      val giftCardResp = response.as[GiftCard]
+    "finds a gift card by code" in new Fixture {
+      val response = GET(s"v1/gift-cards/${giftCard.code}")
+      val giftCardResp = response.as[GiftCardResponse.Root]
 
       response.status must ===(StatusCodes.OK)
-      giftCardResp.id must ===(giftCard.id)
+      giftCardResp.code must ===(giftCard.code)
+    }
 
+    "returns not found when GC doesn't exist" in new Fixture {
+      val response = GET(s"v1/gift-cards/somePrefix${giftCard.code}")
       val notFoundResponse = GET(s"v1/gift-cards/99")
       notFoundResponse.status must ===(StatusCodes.NotFound)
     }
   }
 
+  "GET /v1/gift-cards/:code/transactions" - {
+    "returns the list of adjustments" in new Fixture {
+      val response = GET(s"v1/gift-cards/${giftCard.code}/transactions")
+      val adjustments = response.as[Seq[GiftCardAdjustmentsResponse.Root]]
+
+      response.status must ===(StatusCodes.OK)
+      adjustments.size mustBe 1
+
+      val firstAdjustment = adjustments.head
+      firstAdjustment.amount mustBe -10
+      firstAdjustment.availableBalance mustBe 40
+    }
+  }
+
   "gift card note" - {
     "can be created by an admin for a gift card" in new Fixture {
-      val response = POST(s"v1/gift-cards/${giftCard.id}/notes",
+      val response = POST(s"v1/gift-cards/${giftCard.code}/notes",
         payloads.CreateNote(body = "Hello, FoxCommerce!"))
 
       response.status must ===(StatusCodes.OK)
@@ -53,7 +71,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     }
 
     "returns a validation error if failed to create" in new Fixture {
-      val response = POST(s"v1/gift-cards/${giftCard.id}/notes", payloads.CreateNote(body = ""))
+      val response = POST(s"v1/gift-cards/${giftCard.code}/notes", payloads.CreateNote(body = ""))
 
       response.status must ===(StatusCodes.BadRequest)
       response.bodyText must include("errors")
@@ -71,7 +89,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
         NoteManager.createGiftCardNote(giftCard, admin, payloads.CreateNote(body = body)).futureValue
       }
 
-      val response = GET(s"v1/gift-cards/${giftCard.id}/notes")
+      val response = GET(s"v1/gift-cards/${giftCard.code}/notes")
       response.status must ===(StatusCodes.OK)
 
       val notes = response.as[Seq[AdminNotes.Root]]
@@ -83,7 +101,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       val rootNote = NoteManager.createGiftCardNote(giftCard, admin,
         payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue.get
 
-      val response = PATCH(s"v1/gift-cards/${giftCard.id}/notes/${rootNote.id}", payloads.UpdateNote(body = "donkey"))
+      val response = PATCH(s"v1/gift-cards/${giftCard.code}/notes/${rootNote.id}", payloads.UpdateNote(body = "donkey"))
       response.status must ===(StatusCodes.OK)
 
       val note = response.as[AdminNotes.Root]
@@ -107,10 +125,16 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
   trait Fixture {
     val (admin, giftCard) = (for {
+      customer ← Customers.save(Factories.customer)
+      order ← Orders.save(Factories.order.copy(customerId = customer.id))
       admin ← StoreAdmins.save(authedStoreAdmin)
       reason ← Reasons.save(Factories.reason.copy(storeAdminId = admin.id))
       origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
       giftCard ← GiftCards.save(Factories.giftCard.copy(originId = origin.id))
+      payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = giftCard.id,
+        paymentMethodType = PaymentMethod.GiftCard))
+      adjustment ← GiftCardAdjustments.save(Factories.giftCardAdjusment.copy(giftCardId = giftCard.id, debit = 10,
+        orderPaymentId = payment.id, status = GiftCardAdjustment.Auth))
     } yield (admin, giftCard)).run().futureValue
   }
 }

@@ -8,7 +8,7 @@ import cats.data.Xor
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import models._
 import payloads._
-import responses.{AdminNotes, AllOrders, AllOrdersWithFailures, FullOrder}
+import responses.{AdminNotes, AllOrders, AllOrdersWithFailures, FullOrder, GiftCardAdjustmentsResponse}
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
@@ -26,36 +26,43 @@ object Admin {
             GiftCards.sortBy(_.id.desc).result.run().map(render(_))
           }
         } ~
-        pathPrefix(IntNumber) { giftCardId ⇒
+        (get & path(Segment) & pathEnd) { code ⇒
+          complete {
+            GiftCardService.getByCode(code).map(renderGoodOrFailures)
+          }
+        } ~
+        (get & path(Segment / "transactions") & pathEnd) { code ⇒
+          complete {
+            whenFound(GiftCards.findByCode(code).one.run()) { giftCard ⇒
+              GiftCardAdjustmentsResponse.forGiftCard(giftCard)
+            }
+          }
+        } ~
+        path(Segment / "notes") { code ⇒
           (get & pathEnd) {
             complete {
-              renderOrNotFound(GiftCards.findById(giftCardId).run())
+              whenFound(GiftCards.findByCode(code).one.run()) { giftCard ⇒ AdminNotes.forGiftCard(giftCard) }
             }
           } ~
-          pathPrefix("notes") {
-            (get & pathEnd) {
-              complete {
-                whenFound(GiftCards.findById(giftCardId).run()) { giftCard ⇒ AdminNotes.forGiftCard(giftCard) }
+          (post & entity(as[payloads.CreateNote]) & pathEnd) { payload ⇒
+            complete {
+              whenFound(GiftCards.findByCode(code).one.run()) { giftCard ⇒
+                NoteManager.createGiftCardNote(giftCard, admin, payload)
               }
-            } ~
-            (post & entity(as[payloads.CreateNote]) & pathEnd) { payload ⇒
-              complete {
-                whenFound(GiftCards.findById(giftCardId).run()) { giftCard ⇒
-                  NoteManager.createGiftCardNote(giftCard, admin, payload)
-                }
+            }
+          }
+        } ~
+        path(Segment / "notes" / IntNumber) { (code, noteId) ⇒
+          (patch & entity(as[payloads.UpdateNote]) & pathEnd) { payload ⇒
+            complete {
+              whenFound(GiftCards.findByCode(code).one.run()) { _ ⇒
+                NoteManager.updateNote(noteId, admin, payload)
               }
-            } ~
-            (patch & path(IntNumber) & entity(as[payloads.UpdateNote]) & pathEnd) { (noteId, payload) ⇒
-              complete {
-                whenFound(GiftCards.findById(giftCardId).run()) { _ ⇒
-                  NoteManager.updateNote(noteId, admin, payload)
-                }
-              }
-            } ~
-            (delete & path(IntNumber) & pathEnd) { noteId ⇒
-              complete {
-                NoteManager.deleteNote(noteId, admin).map(renderNothingOrFailures)
-              }
+            }
+          } ~
+          (delete & pathEnd) {
+            complete {
+              NoteManager.deleteNote(noteId, admin).map(renderNothingOrFailures)
             }
           }
         }
