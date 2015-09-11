@@ -26,7 +26,7 @@ export default class Header extends React.Component {
     }
 
     return (
-      <header role='banner'>
+      <header role='banner' className="fc-header">
         {breadcrumb}
         <div className="sub-nav">
           <div className="notifications">

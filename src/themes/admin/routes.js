@@ -34,6 +34,7 @@ const routes = (
     <Route name='order' path='/orders/:order' handler={Order}>
       <DefaultRoute name='order-details' handler={OrderDetails}/>
       <Route name='order-notes' path='notes' handler={Notes}/>
+      <Route name='order-returns' path='returns' handler={Returns}/>
       <Route name='order-notifications' path='notifications' handler={Notifications}/>
       <Route name='order-activity-trail' path='activity-trail' handler={ActivityTrail}/>
     </Route>

@@ -25,7 +25,7 @@ class Api {
         uri: uri,
         method: method,
         headers: {
-          accept: '​application/json',
+          accept: 'application/json',
           authorization: token ? `Bearer ${token}` : ''
         }
       };

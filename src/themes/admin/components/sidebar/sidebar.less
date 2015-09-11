@@ -7,16 +7,11 @@
 @color-sidebar-border: @color-decor2;
 @color-sidebar-active: @color-decor15;
 
-aside[role='complementary'] {
+.fc-sidebar {
   .colors(@color-sidebar-fg, @color-sidebar-bg);
-  .width(64px);
-  .height(100vh);
   overflow-x: hidden;
   overflow-y: auto;
-  position: fixed;
-  top: 0;
-  left: 0;
-  transition: width 250ms ease-in-out;
+  transition: flex 250ms ease-in-out;
 
   ~ header,
   ~ main {
@@ -25,6 +20,7 @@ aside[role='complementary'] {
   }
 
   &:hover {
+    flex: 0 0 206px;
     .width(206px);
 
     ~ header,

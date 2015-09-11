@@ -3,6 +3,8 @@
 import React from 'react';
 import TableView from '../tables/tableview';
 import OrderStore from './store';
+import TabListView from '../tabs/tabs';
+import TabView from '../tabs/tab';
 
 export default class Orders extends React.Component {
   constructor(props) {
@@ -28,22 +30,42 @@ export default class Orders extends React.Component {
   render() {
     return (
       <div id="orders">
-        <div className="gutter">
-          <TableView
-            columns={this.props.tableColumns}
-            rows={this.state.orders}
-            model='order'
-            paginator={true}
-            sort={OrderStore.sort.bind(OrderStore)}
-            />
-        </div>u
+        <div className="fc-list-header">
+          <div className="fc-grid gutter">
+            <div className="fc-col-2-6">
+              <h1 className="fc-title">Orders <span className="fc-subtitle">{this.state.orders.length}</span></h1>
+            </div>
+            <div className="fc-col-2-6 fc-push-2-6 fc-actions">
+              <button className="fc-btn fc-btn-primary"><i className="fa fa-plus"></i> Order</button>
+            </div>
+          </div>
+          <div className="fc-grid gutter">
+            <div className="fc-col-1-1">
+              <ul className="fc-tabbed-nav">
+                <li><a href="">Lists</a></li>
+                <li><a href="">Returns</a></li>
+              </ul>
+            </div>
+          </div>
+          <TabListView>
+            <TabView>What</TabView>
+            <TabView>What</TabView>
+          </TabListView>
+        </div>
+        <TableView
+          columns={this.props.tableColumns}
+          rows={this.state.orders}
+          model='order'
+          sort={OrderStore.sort.bind(OrderStore)}
+        />
       </div>
     );
   }
 }
 
 Orders.propTypes = {
-  tableColumns: React.PropTypes.array
+  tableColumns: React.PropTypes.array,
+  subNav: React.PropTypes.array
 };
 
 Orders.defaultProps = {
