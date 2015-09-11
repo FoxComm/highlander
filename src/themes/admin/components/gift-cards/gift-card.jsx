@@ -122,7 +122,7 @@ export default class GiftCard extends React.Component {
             <div className="fc-col-1-5">
               <article className="panel featured">
                 <header>Date/Time Issued</header>
-                <p>{ moment(card.date).format('MM/DD/YYYY HH:mm:ss') }</p>
+                <p>{ moment(card.date).format('L LTS') }</p>
               </article>
             </div>
             <div className="fc-col-1-5">
