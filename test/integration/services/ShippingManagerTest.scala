@@ -88,10 +88,10 @@ class ShippingManagerTest extends IntegrationTestBase {
         matchingMethods.get.head must === (shippingMethod)
       }
 
-      "Is false when the order total is greater than $10 and street1 contains a P.O. Box" in new POCondition {
+      "Is false when the order total is greater than $10 and address1 contains a P.O. Box" in new POCondition {
         val (address, orderShippingAddress) = db.run(for {
           address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = washingtonId,
-            street1 = "P.O. Box 1234"))
+            address1 = "P.O. Box 1234"))
           orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
         } yield (address, orderShippingAddress)).futureValue
 
@@ -100,10 +100,10 @@ class ShippingManagerTest extends IntegrationTestBase {
         matchingMethods.get mustBe 'empty
       }
 
-      "Is false when the order total is greater than $10 and street2 contains a P.O. Box" in new POCondition {
+      "Is false when the order total is greater than $10 and address2 contains a P.O. Box" in new POCondition {
         val (address, orderShippingAddress) = db.run(for {
           address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = washingtonId,
-            street2 = Some("P.O. Box 1234")))
+            address2 = Some("P.O. Box 1234")))
           orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
         } yield (address, orderShippingAddress)).futureValue
 
@@ -189,23 +189,23 @@ class ShippingManagerTest extends IntegrationTestBase {
   }
 
   trait POCondition extends Fixture {
-    val conditions =
-      """
-        | {
-        |   "comparison": "and",
-        |   "conditions": [
-        |     { "rootObject": "Order", "field": "grandtotal", "operator": "greaterThan", "valInt": 10 },
-        |     { "rootObject": "ShippingAddress", "field": "street1", "operator": "notContains", "valString": "P.O. Box" },
-        |     { "rootObject": "ShippingAddress", "field": "street2", "operator": "notContains", "valString": "P.O. Box" },
-        |     { "rootObject": "ShippingAddress", "field": "street1", "operator": "notContains", "valString": "PO Box" },
-        |     { "rootObject": "ShippingAddress", "field": "street2", "operator": "notContains", "valString": "PO Box" },
-        |     { "rootObject": "ShippingAddress", "field": "street1", "operator": "notContains", "valString": "p.o. box" },
-        |     { "rootObject": "ShippingAddress", "field": "street2", "operator": "notContains", "valString": "p.o. box" },
-        |     { "rootObject": "ShippingAddress", "field": "street1", "operator": "notContains", "valString": "po box" },
-        |     { "rootObject": "ShippingAddress", "field": "street2", "operator": "notContains", "valString": "po box" }
-        |   ]
-        | }
-      """.stripMargin
+val conditions =
+  """
+    | {
+    |   "comparison": "and",
+    |   "conditions": [
+    |     { "rootObject": "Order", "field": "grandtotal", "operator": "greaterThan", "valInt": 10 },
+    |     { "rootObject": "ShippingAddress", "field": "address1", "operator": "notContains", "valString": "P.O. Box" },
+    |     { "rootObject": "ShippingAddress", "field": "address2", "operator": "notContains", "valString": "P.O. Box" },
+    |     { "rootObject": "ShippingAddress", "field": "address1", "operator": "notContains", "valString": "PO Box" },
+    |     { "rootObject": "ShippingAddress", "field": "address2", "operator": "notContains", "valString": "PO Box" },
+    |     { "rootObject": "ShippingAddress", "field": "address1", "operator": "notContains", "valString": "p.o. box" },
+    |     { "rootObject": "ShippingAddress", "field": "address2", "operator": "notContains", "valString": "p.o. box" },
+    |     { "rootObject": "ShippingAddress", "field": "address1", "operator": "notContains", "valString": "po box" },
+    |     { "rootObject": "ShippingAddress", "field": "address2", "operator": "notContains", "valString": "po box" }
+    |   ]
+    | }
+  """.stripMargin
 
     val action = ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(parse(conditions))))
     val shippingMethod = db.run(action).futureValue

@@ -29,7 +29,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
     }
 
     "creates an address" in new CustomerFixture {
-      val payload = payloads.CreateAddressPayload(name = "Home Office", regionId = 1, street1 = "3000 Coolio Dr",
+      val payload = payloads.CreateAddressPayload(name = "Home Office", regionId = 1, address1 = "3000 Coolio Dr",
         city = "Seattle", zip = "55555")
       val response = POST(s"v1/customers/${customer.id}/addresses", payload)
 
@@ -78,16 +78,16 @@ class AddressesIntegrationTest extends IntegrationTestBase
     }
 
     "can be edited" in new AddressFixture {
-      val payload = payloads.CreateAddressPayload(name = "Home Office", regionId = 1, street1 = "3000 Coolio Dr",
+      val payload = payloads.CreateAddressPayload(name = "Home Office", regionId = 1, address1 = "3000 Coolio Dr",
         city = "Seattle", zip = "55555")
-      (payload.name, payload.street1) must !== ((address.name, address.street1))
+      (payload.name, payload.address1) must !== ((address.name, address.address1))
 
       val response = PATCH(s"v1/customers/${customer.id}/addresses/${address.id}", payload)
 
       val updated = parse(response.bodyText).extract[responses.Addresses.Root]
       response.status must === (StatusCodes.OK)
 
-      (updated.name, updated.street1) must === ((payload.name, payload.street1))
+      (updated.name, updated.address1) must === ((payload.name, payload.address1))
     }
 
     "display address" - {

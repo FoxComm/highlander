@@ -32,8 +32,8 @@ final case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVL
       "exp_year"      → card.expYear.toString,
       "cvc"           → card.cvv.toString,
       "name"          → card.holderName,
-      "address_line1" → address.street1,
-      "address_line2" → address.street2.orNull,
+      "address_line1" → address.address1,
+      "address_line2" → address.address2.orNull,
       "address_city"  → address.city,
       "address_zip"   → address.zip
     )
@@ -90,8 +90,8 @@ final case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVL
       (implicit ec: ExecutionContext): Result[ExternalAccount] = {
 
       val params = Map[String, Object](
-        "address_line1" → cc.street1,
-        "address_line2" → cc.street2,
+        "address_line1" → cc.address1,
+        "address_line2" → cc.address2,
         // ("address_state" → cc.region),
         "address_zip" → cc.zip,
         "address_city" → cc.city,

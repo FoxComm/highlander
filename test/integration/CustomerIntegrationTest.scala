@@ -154,7 +154,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
           "creates a new address book entry if a full address was given" ignore new CreditCardFixture {
             val payload = payloads.EditCreditCard(holderName = Some("Bob"),
               address = CreateAddressPayload(name = "Home Office", regionId = address.regionId + 1,
-                street1 = "3000 Coolio Dr", city = "Seattle", zip = "54321").some)
+                address1 = "3000 Coolio Dr", city = "Seattle", zip = "54321").some)
             val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
             val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).result.futureValue.toList
             val addresses = Addresses.futureValue
