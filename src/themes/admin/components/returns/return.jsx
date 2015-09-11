@@ -31,6 +31,7 @@ export default class Return extends React.Component {
   }
 
   onChangeReturnsStore(retrn) {
+    debugger;
     this.setState({
       return: retrn,
       customer: retrn.customer
@@ -40,11 +41,28 @@ export default class Return extends React.Component {
   render() {
     let retrn = this.state.return;
     let params = {return: retrn && retrn.referenceNumber || ''};
+    let viewers = null;
+    let subNav = null;
+
+    if (retrn.id) {
+      viewers = (
+        <Viewers model='returns' modelId={retrn.id}/>
+      );
+      subNav = (
+        <div className="gutter">
+          <ul className="tabbed-nav">
+            <li><Link to="return-details" params={params}>Details</Link></li>
+            <li><Link to="return-notifications" params={params}>Transaction Notifications</Link></li>
+            <li><Link to="return-activity-trail" params={params}>Activity Trail</Link></li>
+          </ul>
+          <RouteHandler return={retrn} modelName="return"/>
+        </div>
+      );
+    }
 
     return (
       <div id="return">
-        <Viewers model='returns' modelId={retrn.id}/>
-
+        {viewers}
         <div className="gutter title">
           <div>
             <h1>Return {retrn.referenceNumber}</h1>
@@ -65,17 +83,9 @@ export default class Return extends React.Component {
           </dl>
         </div>
         <div className="gutter">
-          <h2>notes</h2>
           <Notes/>
         </div>
-        <div className="gutter">
-          <ul className="tabbed-nav">
-            <li><Link to="return-details" params={params}>Details</Link></li>
-            <li><Link to="return-notifications" params={params}>Transaction Notifications</Link></li>
-            <li><Link to="return-activity-trail" params={params}>Activity Trail</Link></li>
-          </ul>
-          <RouteHandler return={retrn} modelName="return"/>
-        </div>
+        {subNav}
       </div>
     );
   }
