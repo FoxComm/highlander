@@ -25,7 +25,7 @@ export default class Returns extends React.Component {
   }
 
   onChangeReturnsStore() {
-    this.setState({orders: ReturnsStore.getState()});
+    this.setState({returns: ReturnsStore.getState()});
   }
 
   onSelectedChange(event) {

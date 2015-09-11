@@ -1,6 +1,7 @@
 'use strict';
 
 const BaseModel = require('../lib/base-model');
+const LineItem  = require('./return-line-item');
 const Order = require('./order');
 const Customer = require('./customer');
 const errors = require('../../errors');
@@ -34,6 +35,9 @@ class Return extends BaseModel {
   get returnStatus() { return this.model.returnStatus; }
   get returnType() { return this.model.returnType; }
   get assignee() { return this.model.assignee; }
+  set customerId(id) { this.model.customerId = +id; }
+  get customer() { return Customer.findOne(this.model.customerId); }
+  get lineItems() { return LineItem.generateList(~~((Math.random() * 5) + 1)); }
   get totals() {
     return {
       shipping: this.model.shipping,
@@ -53,6 +57,6 @@ class Return extends BaseModel {
 }
 
 Object.defineProperty(Return, 'seed', {value: seed});
-Object.defineProperty(Return, 'relationships', {value: ['order']});
+Object.defineProperty(Return, 'relationships', {value: ['order', 'customer']});
 
 module.exports = Return;

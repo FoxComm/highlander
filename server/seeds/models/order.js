@@ -4,7 +4,7 @@ const
   BaseModel = require('../lib/base-model'),
   Customer  = require('./customer'),
   Address   = require('./address'),
-  LineItem  = require('./line-item'),
+  LineItem  = require('./order-line-item'),
   Payment   = require('./payment'),
   moment    = require('moment'),
   errors    = require('../../errors');

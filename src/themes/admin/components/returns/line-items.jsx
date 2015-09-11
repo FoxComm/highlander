@@ -1,8 +1,7 @@
 'use strict';
 
 import React from 'react';
-import TableHead from '../tables/head';
-import TableBody from '../tables/body';
+import TableView from '../tables/tableview';
 
 export default class ReturnLineItems extends React.Component {
   render() {
@@ -13,10 +12,11 @@ export default class ReturnLineItems extends React.Component {
         <header className="header">
           <span>Items</span>
         </header>
-        <table className="fc-table">
-          <TableHead columns={this.props.tableColumns}/>
-          <TableBody columns={this.props.tableColumns} rows={retrn.lineItems} model='order'/>
-        </table>
+        <TableView
+          columns={this.props.tableColumns}
+          rows={retrn.lineItems}
+          model='return'
+          />
       </section>
     );
   }

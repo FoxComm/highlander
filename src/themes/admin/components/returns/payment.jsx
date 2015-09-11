@@ -11,7 +11,7 @@ export default class ReturnPayment extends React.Component {
     let retrn = this.props.return;
 
     return (
-      <section className="fc-content-box" id="order-payment">
+      <section className="fc-content-box" id="return-payment">
         <header className="header">Payment</header>
         <table className="fc-table">
           <TableHead columns={this.props.tableColumns}/>

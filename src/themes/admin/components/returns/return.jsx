@@ -14,7 +14,6 @@ export default class Return extends React.Component {
     super(props);
     this.state = {
       return: {},
-      customer: {},
       pendingStatus: null
     };
   }
@@ -31,10 +30,8 @@ export default class Return extends React.Component {
   }
 
   onChangeReturnsStore(retrn) {
-    debugger;
     this.setState({
-      return: retrn,
-      customer: retrn.customer
+      return: retrn
     });
   }
 
@@ -42,11 +39,17 @@ export default class Return extends React.Component {
     let retrn = this.state.return;
     let params = {return: retrn && retrn.referenceNumber || ''};
     let viewers = null;
+    let notes = null;
     let subNav = null;
 
     if (retrn.id) {
       viewers = (
         <Viewers model='returns' modelId={retrn.id}/>
+      );
+      notes = (
+        <div className="gutter">
+          <Notes return={retrn} modelName={'return'}/>
+        </div>
       );
       subNav = (
         <div className="gutter">
@@ -82,9 +85,7 @@ export default class Return extends React.Component {
             <dd>{0}</dd>
           </dl>
         </div>
-        <div className="gutter">
-          <Notes/>
-        </div>
+        {notes}
         {subNav}
       </div>
     );

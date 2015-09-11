@@ -8,10 +8,10 @@ export default class ReturnSummary extends React.Component {
     let retrn = this.props.return;
 
     return (
-      <div className="fc-order-summary fc-content-box">
-        <header className="header">Order Summary</header>
+      <div className="fc-return-summary fc-content-box">
+        <header className="header">Return Summary</header>
         <article>
-          <dl className="order-totals">
+          <dl className="return-totals">
             <dt>Subtotal</dt>
             <dd>{formatCurrency(retrn.totals.subtotal)}</dd>
             <dt>Shipping</dt>
