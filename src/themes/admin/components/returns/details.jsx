@@ -48,9 +48,11 @@ export default class ReturnDetails extends React.Component {
           {actions}
         </div>
 
-        <div className="return-details-body">
-          <div className="return-details-aside">
+        <div className="return-details-body fc-grid fc-grid-match">
+          <div className="fc-col-3-10">
             <ReturnSummary return={retrn} isEditing={isEditing}/>
+          </div>
+          <div className="fc-col-7-10">
             <CustomerInfo return={retrn} isEditing={isEditing}/>
           </div>
           <div className="return-details-main">

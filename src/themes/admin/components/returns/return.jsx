@@ -41,6 +41,7 @@ export default class Return extends React.Component {
     let viewers = null;
     let notes = null;
     let subNav = null;
+    let itemsCount = 0;
 
     if (retrn.id) {
       viewers = (
@@ -61,6 +62,7 @@ export default class Return extends React.Component {
           <RouteHandler return={retrn} modelName="return"/>
         </div>
       );
+      itemsCount = retrn.lineItems.length;
     }
 
     return (
@@ -82,7 +84,7 @@ export default class Return extends React.Component {
           </dl>
           <dl>
             <dt>Items</dt>
-            <dd>{0}</dd>
+            <dd>{itemsCount}</dd>
           </dl>
         </div>
         {notes}
