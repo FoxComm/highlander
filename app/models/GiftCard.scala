@@ -2,8 +2,6 @@ package models
 
 import scala.concurrent.ExecutionContext
 
-import akka.http.scaladsl.model.headers.Origin
-
 import cats.data.ValidatedNel
 import cats.implicits._
 import org.joda.time.DateTime

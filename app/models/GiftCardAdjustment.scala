@@ -1,7 +1,5 @@
 package models
 
-import scala.concurrent.{Future, ExecutionContext}
-
 import com.pellucid.sealerate
 import models.GiftCardAdjustment.{Auth, Status}
 import models.Notes._

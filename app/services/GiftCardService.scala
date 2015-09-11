@@ -18,7 +18,7 @@ object GiftCardService {
         val storeAdminResponse = Some(StoreAdminResponse.build(storeAdmin))
         Result.right(GiftCardResponse.build(giftCard, None, storeAdminResponse))
       case _ ⇒
-        Result.left(GiftCardNotFoundFailure(code).single)
+        Result.failure(GiftCardNotFoundFailure(code))
     }
   }
 
