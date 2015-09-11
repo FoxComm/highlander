@@ -28,7 +28,7 @@ object OrderCreator {
       case (Some(customer), false) ⇒
         Result.fromFuture(Orders.save(Order.buildCart(customerId)).run().map(root(_, customer)))
 
-      case (Some(customer), true) ⇒
+      case (Some(_), true) ⇒
         Result.failure(CustomerHasCart(customerId))
 
       case _ ⇒

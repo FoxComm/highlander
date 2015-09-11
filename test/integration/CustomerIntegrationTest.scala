@@ -3,8 +3,9 @@ import akka.http.scaladsl.model.StatusCodes
 import models.{Orders, Customer, CreditCards, CreditCard, Customers, Addresses, StoreAdmins, OrderPayments}
 import models.OrderPayments.scope._
 import payloads.CreateAddressPayload
-import services.{CannotUseInactiveCreditCard, CreditCardManager, NotFoundFailure}
+import services.{GeneralFailure, CannotUseInactiveCreditCard, CreditCardManager, NotFoundFailure}
 import util.IntegrationTestBase
+import utils.jdbc._
 import utils.Seeds.Factories
 import utils.Slick.implicits._
 import cats.implicits._
@@ -19,6 +20,23 @@ class CustomerIntegrationTest extends IntegrationTestBase
   import org.json4s.jackson.JsonMethods._
   import slick.driver.PostgresDriver.api._
   import util.SlickSupport.implicits._
+
+  "Customer" - {
+    "accounts are unique based on email, non-guest, and active" in {
+      val stub = Factories.customer.copy(isGuest = false, disabled = false)
+      Customers.save(stub).futureValue
+      val failure = GeneralFailure("record was not unique")
+      val xor = withUniqueConstraint(Customers.save(stub).run())(_ ⇒ failure).futureValue
+
+      leftValue(xor) must ===(failure)
+    }
+
+    "accounts are NOT unique for guest account and email" in {
+      val stub = Factories.customer.copy(isGuest = true)
+      val customers = (1 to 3).map(_ ⇒ Customers.save(stub).futureValue)
+      customers.map(_.id) must contain allOf(1,2,3)
+    }
+  }
 
   "admin APIs" - {
     "shows a customer" in new Fixture {
