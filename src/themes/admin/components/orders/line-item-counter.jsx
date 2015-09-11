@@ -19,6 +19,5 @@ export default class LineItemCounter extends React.Component {
 
 LineItemCounter.propTypes = {
   model: React.PropTypes.object,
-  order: React.PropTypes.object,
   onChange: React.PropTypes.func
 };

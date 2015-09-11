@@ -7,6 +7,7 @@ import SkuStore from './sku-store';
 import SkuResult from './sku-result';
 import Typeahead from '../typeahead/typeahead';
 import LineItemCounter from './line-item-counter';
+import DeleteLineItem from './line-item-delete';
 
 const defaultColumns = [
   {field: 'image', text: 'Image', type: 'image'},
@@ -23,8 +24,8 @@ const editColumns = [
   {field: 'skuId', text: 'SKU'},
   {field: 'price', text: 'Price', type: 'currency'},
   {field: 'lineItem', text: 'Quantity', component: 'LineItemCounter'},
-  {field: 'total', text: 'Total', type: 'currency'}
-  //{field: 'delete', text: 'Delete', component: 'DeleteLineItem'}
+  {field: 'total', text: 'Total', type: 'currency'},
+  {field: 'delete', text: 'Delete', component: 'DeleteLineItem'}
 ];
 
 export default class OrderLineItems extends React.Component {
@@ -53,7 +54,8 @@ export default class OrderLineItems extends React.Component {
       typeahead = <Typeahead component={SkuResult} store={SkuStore} selectEvent="addLineItem" />
       body = (
         <TableBody columns={columns} rows={order.lineItems} model='order'>
-          <LineItemCounter order={this.props.order} onChange={this.props.onChange} />
+          <LineItemCounter onChange={this.props.onChange} />
+          <DeleteLineItem onDelete={this.props.onChange} />
         </TableBody>
       );
     } else {
