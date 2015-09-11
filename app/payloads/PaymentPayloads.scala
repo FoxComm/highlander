@@ -41,8 +41,6 @@ final case class EditCreditCard(holderName: Option[String] = None, expYear: Opti
   def validate: ValidatedNel[Failure, EditCreditCard] = {
     import Validation._
 
-    val ok: ValidatedNel[Failure, Unit] = valid(Unit)
-
     val expired: ValidatedNel[Failure, Unit] =
       (expYear |@| expMonth).tupled.fold(ok) { case (y, m) ⇒ notExpired(y, m, "credit card is expired") }
 
