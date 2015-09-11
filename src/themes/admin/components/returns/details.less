@@ -1,0 +1,47 @@
+.return-details {
+  position: relative;
+
+  &-controls {
+    .margin-bottom(20px);
+
+    button {
+      .margin-right(10px);
+    }
+  }
+
+  .gutter {
+    .margin(-20px 0 0 -20px);
+
+    > * {
+      .padding(20px 0 0 20px);
+    }
+  }
+
+  &-body {
+    display: flex;
+    flex-wrap: wrap;
+    .gutter();
+    .margin-bottom(20px);
+  }
+
+  &-main {
+    flex: 1;
+    .min-width(500px);
+  }
+
+  &-aside {
+    flex: none;
+    width: 309px;
+  }
+
+  &-main,
+  &-aside {
+    > * {
+      .margin-bottom(20px);
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}

@@ -5,6 +5,7 @@ import { Route, DefaultRoute } from 'react-router';
 import Site from './components/site/site';
 import Home from './components/home/home';
 import Returns from './components/returns/returns';
+import ReturnDetails from './components/returns/details';
 import Orders from './components/orders/orders';
 import Order from './components/orders/order';
 import OrderDetails from './components/orders/details';
@@ -23,7 +24,12 @@ const routes = (
     <DefaultRoute name="home" handler={Home}/>
     <Route name='orders' handler={Orders}/>
     <Route name='returns' handler={Returns}/>
-    <Route name='return' path='/returns/:return' handler={Order}/>
+    <Route name='return' path='/returns/:return' handler={Order}>
+      <DefaultRoute name='return-details' handler={ReturnDetails}/>
+      <Route name='return-notes' path='notes' handler={Notes}/>
+      <Route name='return-notifications' path='notifications' handler={Notifications}/>
+      <Route name='return-activity-trail' path='activity-trail' handler={ActivityTrail}/>
+    </Route>
     <Route name='order' path='/orders/:order' handler={Order}>
       <DefaultRoute name='order-details' handler={OrderDetails}/>
       <Route name='order-notes' path='notes' handler={Notes}/>
