@@ -201,9 +201,7 @@ object Admin {
         } ~
         (post & path("increase-remorse-period") & pathEnd) {
           complete {
-            whenOrderFoundAndEditable(refNum) { order ⇒
-              OrderUpdater.increaseRemorsePeriod(order)
-            }
+            LockAwareOrderUpdater.increaseRemorsePeriod(refNum).map(renderGoodOrFailures)
           }
         } ~
         (post & path("lock") & pathEnd) {
