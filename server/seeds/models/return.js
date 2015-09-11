@@ -30,6 +30,7 @@ class Return extends BaseModel {
   get email() { return this.model.email; }
   get orderNumber() { return this.model.orderNumber; }
   get returnStatus() { return this.model.returnStatus; }
+  get returnType() { return this.model.returnType; }
   get assignee() { return this.model.assignee; }
   get totals() {
     return {

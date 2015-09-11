@@ -5,6 +5,7 @@ import { RouteHandler } from 'react-router';
 import { Link } from 'react-router';
 import { listenTo, stopListeningTo, dispatch } from '../../lib/dispatcher';
 import ReturnsStore from './store';
+import Notes from '../notes/notes';
 import Viewers from '../viewers/viewers';
 
 export default class Return extends React.Component {
@@ -107,6 +108,10 @@ export default class Return extends React.Component {
             <dt>Items</dt>
             <dd>{0}</dd>
           </dl>
+        </div>
+        <div className="gutter">
+          <h2>notes</h2>
+          <Notes/>
         </div>
         {subNav}
       </div>
