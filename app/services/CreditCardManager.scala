@@ -16,6 +16,7 @@ import slick.dbio
 import slick.dbio.Effect.{All, Read}
 import slick.driver.PostgresDriver
 import slick.driver.PostgresDriver.api._
+import utils.Apis
 import utils.Slick.UpdateReturning._
 import utils.Slick.implicits._
 import utils.jdbc.withUniqueConstraint
@@ -24,7 +25,7 @@ object CreditCardManager {
   val gateway = StripeGateway()
 
   def createCardThroughGateway(customer: Customer, payload: CreateCreditCard)
-    (implicit ec: ExecutionContext, db: Database): Result[CreditCard] = {
+    (implicit ec: ExecutionContext, db: Database, apis: Apis): Result[CreditCard] = {
 
     def saveCardAndAddress(stripeCustomer: StripeCustomer, stripeCard: StripeCard, address: Address):
     ResultT[DBIO[CreditCard]] = {
@@ -91,7 +92,7 @@ object CreditCardManager {
   }
 
   def editCreditCard(customerId: Int, id: Int, payload: EditCreditCard)
-    (implicit ec: ExecutionContext, db: Database): Result[CreditCard] = {
+    (implicit ec: ExecutionContext, db: Database, api: Apis): Result[CreditCard] = {
 
     def update(cc: CreditCard): ResultT[DBIO[CreditCard]] = {
       if (!cc.inWallet)
