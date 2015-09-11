@@ -365,6 +365,20 @@ class OrderIntegrationTest extends IntegrationTestBase
 
   "shipping addresses" - {
 
+    "can soft delete note" in new Fixture {
+      val note = NoteManager.createOrderNote(order, storeAdmin,
+        payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue.get
+      StoreAdmins.save(Factories.storeAdmin).run().futureValue
+
+      val response = DELETE(s"v1/orders/${order.referenceNumber}/notes/${note.id}")
+      response.status must ===(StatusCodes.NoContent)
+      response.bodyText mustBe empty
+
+      val updatedNote = db.run(Notes.findById(note.id)).futureValue.get
+      updatedNote.deletedBy.get mustBe 1
+      updatedNote.deletedAt.get.isBeforeNow mustBe true
+    }
+
     "copying a shipping address from a customer's book" - {
 
       "succeeds if the address exists in their book" in new AddressFixture {

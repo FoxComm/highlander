@@ -54,7 +54,7 @@ object Admin {
             } ~
             (delete & path(IntNumber) & pathEnd) { noteId ⇒
               complete {
-                notFoundResponse
+                NoteManager.deleteNote(noteId, admin).map(renderNothingOrFailures)
               }
             }
           }
@@ -283,7 +283,7 @@ object Admin {
           } ~
           (delete & path(IntNumber)) { noteId ⇒
             complete {
-              notFoundResponse
+              NoteManager.deleteNote(noteId, admin).map(renderNothingOrFailures)
             }
           }
         } ~
