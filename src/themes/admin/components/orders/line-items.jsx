@@ -10,9 +10,9 @@ export default class OrderLineItems extends React.Component {
 
     return (
       <section className="fc-content-box order-line-items">
-        <div className="fc-content-box-header">
+        <header className="header">
           <span>Items</span>
-        </div>
+        </header>
         <table className="fc-table">
           <TableHead columns={this.props.tableColumns}/>
           <TableBody columns={this.props.tableColumns} rows={order.lineItems} model='order'/>
