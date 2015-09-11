@@ -54,7 +54,7 @@ export default class Return extends React.Component {
       );
       subNav = (
         <div className="gutter">
-          <ul className="tabbed-nav">
+          <ul className="fc-tabbed-nav">
             <li><Link to="return-details" params={params}>Details</Link></li>
             <li><Link to="return-notifications" params={params}>Transaction Notifications</Link></li>
             <li><Link to="return-activity-trail" params={params}>Activity Trail</Link></li>
