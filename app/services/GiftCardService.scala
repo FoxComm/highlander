@@ -42,10 +42,10 @@ object GiftCardService {
 
   private def fetchStoreAdmin(gc: Option[GiftCard])(implicit db: Database, ec: ExecutionContext): Future[Option[StoreAdmin]] = {
     val default = Future.successful(None)
-    gc.map {
-      _.originType match {
-        case GiftCard.CsrAppeasement   ⇒ StoreAdmins.findById(1)
-        case _                         ⇒ default
+    gc.map { giftCard ⇒
+      giftCard.originType match {
+        case GiftCard.CsrAppeasement  ⇒ StoreAdmins.findById(giftCard.originId)
+        case _                        ⇒ default
       }
     }.getOrElse(default)
   }
