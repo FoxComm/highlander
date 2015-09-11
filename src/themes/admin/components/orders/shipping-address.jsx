@@ -14,7 +14,6 @@ export default class OrderShippingAddress extends React.Component {
     } else {
       innercontent = (
         <div>
-          <header>Shipping Address</header>
           <div className="address-line">{address.name}</div>
           <div className="address-line">{address.street1}</div>
           <div className="address-line">{address.street2}</div>
@@ -25,8 +24,11 @@ export default class OrderShippingAddress extends React.Component {
     }
 
     return (
-      <section id="order-shipping-address">
-        {innercontent}
+      <section className="fc-content-box" id="order-shipping-address">
+        <header className="header">Shipping Address</header>
+        <article>
+          {innercontent}
+        </article>
       </section>
     );
   }

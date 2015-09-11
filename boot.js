@@ -9,10 +9,9 @@ const
   moment      = require('moment'),
   exec        = require('child_process').exec;
 
-let
-  forks = null;
+process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
-process.env.NODE_ENV = process.env.NODE_ENV || 'development'
+let forks = process.env.NODE_ENV === 'production' ? cpus : 1;
 
 if (cluster.isWorker) {
   return require('./server').init()
@@ -36,15 +35,6 @@ function disconnectWorker(worker) {
     console.log(`${timestamp()}: ${description} worker ${worker.id} shutdown.`);
     clearTimeout(timeout);
   });
-}
-
-switch (process.env.NODE_ENV) {
-  case 'development':
-  case 'test':
-    forks = 1;
-    break;
-  default:
-    forks = cpus;
 }
 
 process.on('SIGUSR2', function() {

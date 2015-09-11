@@ -1,10 +1,11 @@
 'use strict';
 
+import _ from 'lodash';
 import React from 'react';
 import Api from '../../lib/api';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
-import ShippingMethodActive from './shipping-method-active';
+import ShippingMethodItem from './shipping-method-item';
 
 export default class OrderShippingMethod extends React.Component {
   constructor(props) {
@@ -21,17 +22,19 @@ export default class OrderShippingMethod extends React.Component {
            methods: methods
          });
        })
-       .catch((err) => { console.log(err); });
+       .catch((err) => { console.error(err); });
   }
 
   render() {
+    let methods = this.props.isEditing ? this.state.methods : _.filter(this.state.methods, {isActive: true});
+
     return (
-      <section id="order-shipping-method">
-        <header>Shipping Method</header>
+      <section className="fc-content-box" id="order-shipping-method">
+        <header className="header">Shipping Method</header>
         <table className="fc-table">
           <TableHead columns={this.props.tableColumns} />
-          <TableBody columns={this.props.tableColumns} rows={this.state.methods} model='shipping-method'>
-            <ShippingMethodActive />
+          <TableBody columns={this.props.tableColumns} rows={methods} model='shipping-method'>
+            <ShippingMethodItem isEditing={this.props.isEditing} />
           </TableBody>
         </table>
       </section>
@@ -47,8 +50,7 @@ OrderShippingMethod.propTypes = {
 
 OrderShippingMethod.defaultProps = {
   tableColumns: [
-    {field: 'methodActive', text: 'Active', component: 'ShippingMethodActive'},
-    {field: 'name', text: 'Name'},
+    {field: null, text: 'Method', component: 'ShippingMethodItem'},
     {field: 'price', text: 'Price', type: 'currency'}
   ]
 };

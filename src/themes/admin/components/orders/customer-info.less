@@ -1,0 +1,114 @@
+
+.fc-customer-info {
+  .font-spec(14px, 31px);
+
+  &-header {
+    text-align: center;
+  }
+
+  @head-height: 91px;
+  @circle_size: 98px;
+  @img_size: 84px;
+
+  @avatar-margin-top: -@circle_size/2;
+
+  &-head {
+    .height(@head-height);
+    .colors(@fg: @color-decor0, @bg: #3A4350);
+    border-radius: 3px 3px 0 0;
+    margin: -1px -1px 0 -1px;
+    border: 0;
+  }
+
+  &-rank {
+    @line-height: 19px;
+    .font-spec(14px, 700, @line-height);
+    .padding-top( (@head-height + @avatar-margin-top - @line-height)/2 );
+  }
+
+  &-avatar {
+    .size(@circle_size);
+    background-color: @color-decor0;
+    border-radius: 50%;
+    text-align: center;
+    .inline-block(top);
+    .margin-top(@avatar-margin-top);
+    .margin-bottom(4px);
+
+    img, i {
+      overflow: hidden;
+      border-radius: 50%;
+      .size(@img_size);
+      .margin-top(@circle_size/2 - @img_size/2);
+      box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.50);
+    }
+
+    i {
+      .font-spec(60px, @img_size);
+      background-color: @color-decor15;
+      color: @color-decor0;
+    }
+  }
+
+  @name-font-size: 18px;
+  @name-line-height: 24px;
+  @email-font-size: 14px;
+  @email-line-height: 19px;
+
+  &-name {
+    .font-spec(@name-font-size, 700, @name-line-height);
+    color: @color-decor1;
+
+    .padding-bottom(7px);
+  }
+
+  &-email {
+    .font-spec(@email-font-size, @email-line-height);
+    color: @color-decor1;
+  }
+
+  > article {
+    .font-spec(14px, 19px);
+    color: @color-decor1;
+    .padding(9px 10px 20px 10px);
+  }
+
+  &-fields {
+
+    li {
+      .margin-top(9px);
+      .padding-top(5px);
+
+      &.customer-info-groups {
+        padding-top: 0;
+        .margin-top(14px);
+      }
+
+      > i {
+        .font-spec(22px, 24px);
+        text-align: center;
+        color: @color-decor6;
+
+        &.fa-mobile {
+          .font-spec(22px);
+        }
+      }
+    }
+  }
+
+  &-group {
+    .padding(5px 10px);
+    .margin-right(5px);
+    .margin-bottom(5px);
+    .inline-block(top);
+    .font-spec(14px, 19px);
+    .colors(@fg: @color-decor0, @bg: @color-decor3);
+    box-shadow: inset 0 -2px 3px 0 rgba(0, 0, 0, 0.50), inset 1px 1px 1px 0 rgba(255, 255, 255, 0.89);
+    border-radius: 3px; // don't depend in root font size
+  }
+
+  &-guest {
+    color: @color-decor8;
+    .padding-top(5px);
+  }
+}

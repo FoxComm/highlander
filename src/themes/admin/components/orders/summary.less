@@ -1,51 +1,27 @@
-#order-summary {
-  position: absolute;
-  top: 0;
-  right: 0;
-  .width(250px);
 
-  header {
-    .padding-left(10px);
+.fc-order-summary {
+  .font-spec(14px, 31px);
+
+  & > article {
+    .padding-top(34px);
+    .padding-bottom(50px);
   }
 
   dl {
     margin: 0;
-    .margin-bottom(15px);
-    .font-spec(14px, 30px);
-
-    &.order-totals,
-    &.order-time {
-      dt,
-      dd {
-        .width(50%);
-
-        &.grand-total {
-          background-color: @color-tr-odd-bg;
-          .font-spec(16px, 600, 32px);
-        }
-      }
-
-      dd { text-align: right; }
-    }
-
-    &.order-customer {
-      dt {
-        color: #babdbe;
-        .width(15%);
-      }
-
-      dd { .width(85%); }
-    }
 
     dt,
     dd {
+      .width(50%);
       display: inline-block;
       vertical-align: top;
-      background-color: @color-thead-bg;
       margin: 0;
     }
 
-    dt { .padding-left(10px); }
-    dd { .padding-right(10px); }
+    dd { text-align: right; }
+  }
+
+  &-new-subtotal {
+    font-weight: 700;
   }
 }

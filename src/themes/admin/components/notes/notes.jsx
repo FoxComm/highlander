@@ -54,7 +54,7 @@ export default class Notes extends React.Component {
         this.toggleNote();
         this.removeNew();
       })
-      .catch((err) => { console.log(err); });
+      .catch((err) => { console.error(err); });
   }
 
   removeNew() {

@@ -25,7 +25,7 @@ class Api {
         uri: uri,
         method: method,
         headers: {
-          accept: 'application/json;q=0.9,*/*;q=0.8;',
+          accept: '​application/json',
           authorization: token ? `Bearer ${token}` : ''
         }
       };
@@ -33,7 +33,10 @@ class Api {
       if (data) {
         opts[(method === 'GET' ? 'qs' : 'json')] = data;
       }
-      _this.baseRequest(opts, function(e, r, body) {
+      _this.baseRequest(opts, function(err, r, body) {
+        if (err) {
+          return reject(err);
+        }
         let response = {
           status: r.statusCode,
           response: body

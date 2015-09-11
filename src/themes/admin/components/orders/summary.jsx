@@ -1,50 +1,49 @@
 'use strict';
 
 import React from 'react';
-import moment from 'moment';
 import { formatCurrency } from '../../lib/format';
 
 export default class OrderSummary extends React.Component {
   render() {
-    let
-      order     = this.props.order,
-      customer  = order.customer,
-      date      = moment(order.createdAt);
+    let order = this.props.order;
+    let discounts = null;
 
-    return (
-      <div id="order-summary">
-        <dl className="order-time">
-          <dt>{date.format('MM/DD/YYYY')}</dt>
-          <dd>{date.format('HH:mm:ss')}</dd>
-        </dl>
-        <header>Order Summary</header>
-        <dl className="order-totals">
-          <dt>Subtotal</dt>
-          <dd>{formatCurrency(order.totals.subTotal)}</dd>
+    const adjustments = order.totals.adjustments || 0;
+
+    const subtotalWithoutDiscounts = order.totals.subTotal - adjustments;
+    const subTotalWithDiscounts = order.totals.subTotal;
+
+    if (order.totals.adjustments) {
+      discounts = (
+        <div>
           <dt>Discounts</dt>
           <dd>{formatCurrency(order.totals.adjustments)}</dd>
-          <dt>Shipping</dt>
-          <dd>{formatCurrency(order.totals.shipping)}</dd>
-          <dt>Tax</dt>
-          <dd>{formatCurrency(order.totals.taxes)}</dd>
-          <dt className="grand-total">Grand Total</dt>
-          <dd className="grand-total">{formatCurrency(order.totals.total)}</dd>
-        </dl>
-        <header>{customer.firstName} {customer.lastName}</header>
-        <dl className="order-customer">
-          <dt><i className="fa fa-user"></i></dt>
-          <dd>{customer.id}</dd>
-          <dt><i className="fa fa-envelope"></i></dt>
-          <dd>{customer.email}</dd>
-          <dt><i className="fa fa-phone"></i></dt>
-          <dd>{customer.phone}</dd>
-          <dt><i className="fa fa-location-arrow"></i></dt>
-          <dd>{customer.city}, {customer.state}</dd>
-          <dt><i className="fa fa-mobile"></i></dt>
-          <dd>{customer.modality}</dd>
-          <dt><i className="fa fa-users"></i></dt>
-          <dd>{customer.role}</dd>
-        </dl>
+          <dt className="fc-order-summary-new-subtotal">New Subtotal</dt>
+          <dd className="fc-order-summary-new-subtotal">{formatCurrency(subTotalWithDiscounts)}</dd>
+        </div>
+      );
+    }
+
+    return (
+      <div className="fc-order-summary fc-content-box">
+        <header className="header">Order Summary</header>
+        <article>
+          <dl className="order-totals">
+            <dt>Subtotal</dt>
+            <dd>{formatCurrency(subtotalWithoutDiscounts)}</dd>
+            {discounts}
+            <dt>Shipping</dt>
+            <dd>{formatCurrency(order.totals.shipping)}</dd>
+            <dt>Tax</dt>
+            <dd>{formatCurrency(order.totals.taxes)}</dd>
+          </dl>
+        </article>
+        <div className="highlighted">
+          <dl className="grand-total">
+            <dt>Grand Total</dt>
+            <dd>{formatCurrency(order.totals.total)}</dd>
+          </dl>
+        </div>
       </div>
     );
   }
