@@ -1,20 +1,36 @@
 import akka.http.scaladsl.model.StatusCodes
 
+import algebra.Monoid
+import cats.data.Xor
+import com.stripe.model
+import com.stripe.model.{Customer ⇒ StripeCustomer, Card, ExternalAccount}
 import models.{Orders, Customer, CreditCards, CreditCard, Customers, Addresses, StoreAdmins, OrderPayments}
 import models.OrderPayments.scope._
+import org.mockito.Mockito
+import org.mockito.Mockito.RETURNS_DEFAULTS
+import org.mockito.invocation.InvocationOnMock
+import org.mockito.stubbing.Answer
+import org.scalatest.mock.MockitoSugar
 import payloads.CreateAddressPayload
 import services.{GeneralFailure, CannotUseInactiveCreditCard, CreditCardManager, NotFoundFailure}
+import services.{RuntimeExceptionFailure, GeneralFailure, Result, CannotUseInactiveCreditCard, CreditCardManager,
+NotFoundFailure}
 import util.IntegrationTestBase
 import utils.jdbc._
 import utils.Seeds.Factories
 import utils.Slick.implicits._
 import cats.implicits._
+import utils.{Apis, StripeApi}
 
 class CustomerIntegrationTest extends IntegrationTestBase
   with HttpSupport
-  with AutomaticAuth {
+  with AutomaticAuth
+  with MockitoSugar {
 
   import concurrent.ExecutionContext.Implicits.global
+
+  override def makeApis: Option[Apis] = Some(Apis(stripeApi))
+  private  var stripeApi: StripeApi   = mock[StripeApi]
 
   import Extensions._
   import org.json4s.jackson.JsonMethods._
@@ -130,8 +146,20 @@ class CustomerIntegrationTest extends IntegrationTestBase
           }
 
           /* TODO: enable me when we've introduced Stripe mocking */
-          "creates a new version of the edited card in the wallet" ignore new CreditCardFixture {
-            val payload = payloads.EditCreditCard(holderName = Some("Bob"))
+          "creates a new version of the edited card in the wallet" in new CreditCardFixture {
+            import org.mockito.Mockito.{ when }
+            import org.mockito.{ Matchers ⇒ m }
+
+            when(stripeApi.findCustomer(m.any(), m.any())).
+              thenReturn(Result.good(new StripeCustomer))
+
+            when(stripeApi.findDefaultCard(m.any(), m.any())).
+              thenReturn(Result.good(new Card))
+
+            when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any())).
+              thenReturn(Result.good(new Card))
+
+            val payload  = payloads.EditCreditCard(holderName = Some("Bob"))
             val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
             val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).result.run().futureValue.toList
 
@@ -221,6 +249,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       }
     }
   }
+
 
   trait Fixture {
     val (customer, address, admin) = (for {
