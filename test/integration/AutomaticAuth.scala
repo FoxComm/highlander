@@ -7,6 +7,8 @@ import server.Service
 import util.DbTestSupport
 import scala.concurrent.Future
 
+import utils.Apis
+
 trait AutomaticAuth extends SuiteMixin
   with ScalaFutures
   with HttpSupport { this: Suite with PatienceConfiguration with DbTestSupport ⇒
@@ -17,8 +19,10 @@ trait AutomaticAuth extends SuiteMixin
   val authedCustomer = Customer(id = 1, email = "donkey@donkey.com", password = "donkeyPass",
           firstName = "Mister", lastName = "Donkey")
 
+  def makeApis: Option[Apis] = None
+
   override def makeService: Service = {
-    new Service(dbOverride = Some(db), systemOverride = Some(as)) {
+    new Service(dbOverride = Some(db), systemOverride = Some(as), apisOverride = makeApis) {
       override def storeAdminAuth: AsyncAuthenticator[StoreAdmin] = (UserCredentials) => {
         Future.successful(Some(authedStoreAdmin))
       }

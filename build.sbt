@@ -119,8 +119,8 @@ lazy val phoenixScala = (project in file(".")).
         "com.github.julien-truffaut" %% "monocle-macro"       % monocleV,
         // Testing
         "com.typesafe.akka"    %% "akka-testkit"              % akkaV      % "test",
-        "org.scalatest"        %% "scalatest"                 % scalaTestV % "test"
-      )
+        "org.scalatest"        %% "scalatest"                 % scalaTestV % "test",
+        "org.mockito"          %  "mockito-core"              % "1.10.19"  % "test")
     },
     scalaSource in Compile <<= (baseDirectory in Compile)(_ / "app"),
     scalaSource in Test <<= (baseDirectory in Test)(_ / "test" / "unit"),
