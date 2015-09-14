@@ -1,11 +1,11 @@
 'use strict';
 
-const auth    = require('koa-basic-auth');
-const koa     = require('koa');
-const path    = require('path');
-const co      = require('co');
+const auth = require('koa-basic-auth');
+const koa = require('koa');
+const path = require('path');
+const co = require('co');
 const favicon = require('koa-favicon');
-const serve   = require('koa-static');
+const serve = require('koa-static');
 const Config  = require(path.resolve('config'));
 
 const app = koa();
@@ -14,8 +14,7 @@ app.init = co.wrap(function *(env) {
   if (env) { app.env = env; }
   app.config = new Config(app.env);
   if (app.env == 'staging') {
-    app.use(function *(next) {
-      try { 
+    app.use(function *(next) { try { 
         yield next;
       } catch (err) {
         if (401 == err.status) {
