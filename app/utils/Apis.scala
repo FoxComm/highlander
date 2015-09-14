@@ -2,15 +2,14 @@ package utils
 
 import java.util.concurrent.Executors
 
-import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
-import com.stripe.exception.StripeException
-import com.stripe.model.{Customer ⇒ StripeCustomer, ExternalAccount}
-import com.stripe.model.{Card ⇒ StripeCard, ExternalAccount}
-import collection.JavaConversions.mapAsJavaMap
+import scala.collection.JavaConversions.mapAsJavaMap
+import scala.concurrent.{ExecutionContext, Future}
 
-import cats.data.Xor
+import cats.data.Xor, Xor.right
+import com.stripe.exception.StripeException
+import com.stripe.model.{Card ⇒ StripeCard, Customer ⇒ StripeCustomer, ExternalAccount}
 import com.stripe.net.RequestOptions
-import services.{GeneralFailure, StripeRuntimeException, Result, Failures}
+import services.{Failures, GeneralFailure, Result, StripeRuntimeException}
 
 final case class Apis(stripe: StripeApi)
 
@@ -60,11 +59,9 @@ class WiredStripeApi extends StripeApi {
 
     implicit val ec: ExecutionContext = blockingEC
 
-    Future(code(requestOptions)).
-      flatMap(Result.good).
-      recoverWith {
-        case e: StripeException ⇒ Result.failure(StripeRuntimeException(e))
-      }
+    Future(right(code(requestOptions))).recoverWith {
+      case e: StripeException ⇒ Result.failure(StripeRuntimeException(e))
+    }
   }
 }
 
