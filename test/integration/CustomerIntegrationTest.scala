@@ -21,6 +21,9 @@ import utils.Seeds.Factories
 import utils.Slick.implicits._
 import cats.implicits._
 import utils.{Apis, StripeApi}
+import org.mockito.Mockito.{ when }
+import org.mockito.{ Matchers ⇒ m }
+import org.mockito.Mockito.reset
 
 class CustomerIntegrationTest extends IntegrationTestBase
   with HttpSupport
@@ -135,8 +138,18 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
       "when editing a credit card" - {
         "when successful" - {
-          /* TODO: enable me when we've introduced Stripe mocking */
-          "removes the original card from wallet" ignore new CreditCardFixture {
+          "removes the original card from wallet" in new CreditCardFixture {
+            reset(stripeApi)
+
+            when(stripeApi.findCustomer(m.any(), m.any())).
+              thenReturn(Result.good(new StripeCustomer))
+
+            when(stripeApi.findDefaultCard(m.any(), m.any())).
+              thenReturn(Result.good(new Card))
+
+            when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any())).
+              thenReturn(Result.good(new Card))
+
             val payload = payloads.EditCreditCard(holderName = Some("Bob"))
             val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
             val inactive = CreditCards.findById(creditCard.id).run().futureValue.get
@@ -145,10 +158,8 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
           }
 
-          /* TODO: enable me when we've introduced Stripe mocking */
           "creates a new version of the edited card in the wallet" in new CreditCardFixture {
-            import org.mockito.Mockito.{ when }
-            import org.mockito.{ Matchers ⇒ m }
+            reset(stripeApi)
 
             when(stripeApi.findCustomer(m.any(), m.any())).
               thenReturn(Result.good(new StripeCustomer))
@@ -168,8 +179,18 @@ class CustomerIntegrationTest extends IntegrationTestBase
             newVersion.isDefault must ===(creditCard.isDefault)
           }
 
-          /* TODO: enable me when we've introduced Stripe mocking */
-          "updates the customer's cart to use the new version" ignore new CreditCardFixture {
+          "updates the customer's cart to use the new version" in new CreditCardFixture {
+            reset(stripeApi)
+
+            when(stripeApi.findCustomer(m.any(), m.any())).
+              thenReturn(Result.good(new StripeCustomer))
+
+            when(stripeApi.findDefaultCard(m.any(), m.any())).
+              thenReturn(Result.good(new Card))
+
+            when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any())).
+              thenReturn(Result.good(mock[Card]))
+
             val order = Orders.save(Factories.cart.copy(customerId = customer.id)).run().futureValue
             services.OrderPaymentUpdater.addCreditCard(order.refNum, creditCard.id).futureValue
 
@@ -181,11 +202,14 @@ class CustomerIntegrationTest extends IntegrationTestBase
             response.status must ===(StatusCodes.NoContent)
             pmt.amount mustBe 'empty
             pmt.isCreditCard mustBe true
-            pmt.paymentMethodId must ===(newVersion.id)
+
+            // This seems to be unrelated to Stripe
+            pendingUntilFixed {
+              pmt.paymentMethodId must ===(newVersion.id)
+            }
           }
 
-          /* TODO: enable me when we've introduced Stripe mocking */
-          "copies an existing address book entry to the creditCard" ignore new CreditCardFixture {
+          "copies an existing address book entry to the creditCard" in new CreditCardFixture {
             val payload = payloads.EditCreditCard(holderName = Some("Bob"), addressId = address.id.some)
             val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
             val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).result.futureValue.toList
@@ -196,8 +220,18 @@ class CustomerIntegrationTest extends IntegrationTestBase
             (newVersion.zip, newVersion.regionId) must ===((address.zip, address.regionId))
           }
 
-          /* TODO: enable me when we've introduced Stripe mocking */
-          "creates a new address book entry if a full address was given" ignore new CreditCardFixture {
+          "creates a new address book entry if a full address was given" in new CreditCardFixture {
+            reset(stripeApi)
+
+            when(stripeApi.findCustomer(m.any(), m.any())).
+              thenReturn(Result.good(new StripeCustomer))
+
+            when(stripeApi.findDefaultCard(m.any(), m.any())).
+              thenReturn(Result.good(new Card))
+
+            when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any())).
+              thenReturn(Result.good(mock[Card]))
+
             val payload = payloads.EditCreditCard(holderName = Some("Bob"),
               address = CreateAddressPayload(name = "Home Office", regionId = address.regionId + 1,
                 address1 = "3000 Coolio Dr", city = "Seattle", zip = "54321").some)
@@ -238,8 +272,24 @@ class CustomerIntegrationTest extends IntegrationTestBase
           response.errors must contain("holderName must not be empty")
         }
 
-        /* TODO: enable me when we've introduced Stripe mocking */
         "fails if stripe returns an error" ignore new CreditCardFixture {
+          reset(stripeApi)
+
+          when(stripeApi.findCustomer(m.any(), m.any())).
+            thenReturn(Result.good(new StripeCustomer))
+
+          when(stripeApi.findDefaultCard(m.any(), m.any())).
+            thenReturn(Result.good(new Card))
+
+          when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any())).
+            thenReturn(Result.good(mock[Card]))
+
+          /**
+          * This returns a failure unrelated to Stripe, what is this test supposed to test?
+          *
+          * ERROR: new row for relation "credit_cards" violates check constraint "valid_exp_year"
+          *  Detail: Failing row contains (2, 1, 1, cus_6uzC8j5doSTWth, , Yax, 4242, 9, 2000, t, null, null, t, 2015-09-14 04:57:37.692703, 2015-09-14 04:57:37.692703, null, 4129, Old Jeff, 95 W. 5th Ave., Apt. 437, San Mateo, 94402)
+          */
           val payload = payloads.EditCreditCard(expYear = Some(2000))
           val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
 
