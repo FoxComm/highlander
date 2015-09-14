@@ -10,13 +10,11 @@ class WiredStripeApiTest extends TestBase {
   "Wired Stripe API" - {
     "catches StripeException and returns a Result.failure" in {
       val api    = new WiredStripeApi
-      val result = api.inBlockingPool("abc")(_ ⇒ throw someStripException)
+      val result = api.inBlockingPool("abc")(_ ⇒ throw someStripeException)
 
-      leftValue(result.futureValue).head must matchPattern  {
-        case StripeRuntimeException(someStripException) ⇒
-      }
+      leftValue(result.futureValue).head must === (StripeRuntimeException(someStripeException))
     }
   }
 
-  private object someStripException extends StripeException("Some error") with NoStackTrace
+  private object someStripeException extends StripeException("Some error") with NoStackTrace
 }
