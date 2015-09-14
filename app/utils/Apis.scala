@@ -22,15 +22,13 @@ trait StripeApi {
 }
 
 class WiredStripeApi extends StripeApi {
-  // TODO: Name threads sensibly
-  private val blockingEC: ExecutionContext =
-    ExecutionContext.fromExecutor(Executors.newCachedThreadPool)
+  private val blockingIOPool: ExecutionContext = ExecutionContext.fromExecutor(Executors.newCachedThreadPool)
 
   def findCustomer(id: String, secretKey: String): Result[StripeCustomer] =
-    async(secretKey)(requestOptions ⇒ StripeCustomer.retrieve(id, requestOptions))
+    inBlockingPool(secretKey)(requestOptions ⇒ StripeCustomer.retrieve(id, requestOptions))
 
   def findDefaultCard(customer: StripeCustomer, secretKey: String): Result[StripeCard] =
-    async(secretKey)(requestOptions ⇒ customer.getSources.retrieve(customer.getDefaultSource, requestOptions)).flatMap(accountToCard)(concurrent.ExecutionContext.global)
+    inBlockingPool(secretKey)(requestOptions ⇒ customer.getSources.retrieve(customer.getDefaultSource, requestOptions)).flatMap(accountToCard)(concurrent.ExecutionContext.global)
 
   @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.IsInstanceOf", "org.brianmckenna.wartremover.warts.AsInstanceOf"))
   final def accountToCard(account: Failures Xor ExternalAccount): Result[StripeCard] = account match {
@@ -43,21 +41,24 @@ class WiredStripeApi extends StripeApi {
   }
 
   def createCustomer(options: Map[String, AnyRef], secretKey: String): Result[StripeCustomer] =
-    async(secretKey)(requestOptions ⇒ StripeCustomer.create(mapAsJavaMap(options), requestOptions))
+    inBlockingPool(secretKey)(requestOptions ⇒ StripeCustomer.create(mapAsJavaMap(options), requestOptions))
 
   def getExtAccount(customer: StripeCustomer, id: String, secretKey: String): Result[ExternalAccount] =
-    async(secretKey)(requestOptions ⇒ customer.getSources.retrieve(id, requestOptions))
+    inBlockingPool(secretKey)(requestOptions ⇒ customer.getSources.retrieve(id, requestOptions))
 
   def updateExternalAccount(card: ExternalAccount, options: Map[String, AnyRef], secretKey: String): Result[ExternalAccount] =
-    async(secretKey)(requestOptions ⇒ card.update(options, requestOptions))
+    inBlockingPool(secretKey)(requestOptions ⇒ card.update(options, requestOptions))
 
   // TODO: This needs a life-cycle hook so we can shut it down.
-  //       It does not share the Actor system’s thread pool by design,
-  //       since it does blocking IO like it’s 1991.
-  @inline protected [utils] final def async[A](secretKey: String)(code: RequestOptions ⇒ A): Future[Failures Xor A] = {
+
+  /**
+  * Executes code inside an execution context that is optimised for blocking I/O operations and returns a Future.
+  * Stripe exceptions are caught and turned into a [[StripeRuntimeException]].
+  */
+  @inline protected [utils] final def inBlockingPool[A](secretKey: String)(code: RequestOptions ⇒ A): Future[Failures Xor A] = {
     val requestOptions = RequestOptions.builder().setApiKey(secretKey).build()
 
-    implicit val ec: ExecutionContext = blockingEC
+    implicit val ec: ExecutionContext = blockingIOPool
 
     Future(right(code(requestOptions))).recoverWith {
       case e: StripeException ⇒ Result.failure(StripeRuntimeException(e))
