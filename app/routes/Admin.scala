@@ -232,10 +232,7 @@ object Admin {
         (post & path("line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems =>
           complete {
             whenOrderFoundAndEditable(refNum) { order ⇒
-              LineItemUpdater.updateQuantities(order, reqItems).flatMap {
-                case Xor.Right(_) ⇒ Result.fromFuture(FullOrder.fromOrder(order))
-                case Xor.Left(xs) ⇒ Result.failures(xs)
-              }
+              LineItemUpdater.updateQuantities(order, reqItems)
             }
           }
         } ~

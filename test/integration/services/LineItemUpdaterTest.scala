@@ -2,7 +2,7 @@ package services
 
 import cats.data.Xor
 import models.{Order, OrderLineItem, OrderLineItems, Orders, InventorySummaries, InventorySummary, Skus, Sku}
-
+import utils.Seeds.Factories
 import payloads.{UpdateLineItemsPayload ⇒ Payload}
 import util.IntegrationTestBase
 import utils.Slick.implicits._
@@ -14,7 +14,9 @@ class LineItemUpdaterTest extends IntegrationTestBase {
   val lineItems = TableQuery[OrderLineItems]
 
   def createSkus(num: Int): Unit =
-    (Skus.returningId ++= (1 to num).map { i ⇒ Sku(price = 5) }).run().futureValue
+    (Skus.returningId ++= (1 to num).map { i ⇒
+      Factories.skus.head.copy(sku = i.toString, price = 5)
+    }).run().futureValue
 
   def createLineItems(items: Seq[OrderLineItem]): Unit = {
     val insert = lineItems ++= items
@@ -36,18 +38,17 @@ class LineItemUpdaterTest extends IntegrationTestBase {
       createInventory(2, 100)
 
       val payload = Seq[Payload](
-        Payload(skuId = 1, quantity = 3),
-        Payload(skuId = 2, quantity = 0)
+        Payload(sku = "1", quantity = 3),
+        Payload(sku = "2", quantity = 0)
       )
 
       LineItemUpdater.updateQuantities(order, payload).futureValue match {
-        case Xor.Right(items) =>
-          items.count(_.skuId == 1) must be(3)
-          items.count(_.skuId == 2) must be(0)
+        case Xor.Right(root) =>
+          root.lineItems.count(_.sku == "1") must be(3)
+          root.lineItems.count(_.sku == "2") must be(0)
 
           val allRecords = db.run(lineItems.result).futureValue
-
-          items must contain theSameElementsAs allRecords
+          root.lineItems.size must === (allRecords.size)
 
         case Xor.Left(s) => fail(s.mkString(";"))
       }
@@ -65,20 +66,20 @@ class LineItemUpdaterTest extends IntegrationTestBase {
       createLineItems(seedItems)
 
       val payload = Seq[Payload](
-        Payload(skuId = 1, quantity = 3),
-        Payload(skuId = 2, quantity = 0),
-        Payload(skuId = 3, quantity = 1)
+        Payload(sku = "1", quantity = 3),
+        Payload(sku = "2", quantity = 0),
+        Payload(sku = "3", quantity = 1)
       )
 
       LineItemUpdater.updateQuantities(order, payload).futureValue match {
-        case Xor.Right(items) =>
-          items.count(_.skuId == 1) must be(3)
-          items.count(_.skuId == 2) must be(0)
-          items.count(_.skuId == 3) must be(1)
+        case Xor.Right(root) =>
+          root.lineItems.count(_.sku == "1") must be(3)
+          root.lineItems.count(_.sku == "2") must be(0)
+          root.lineItems.count(_.sku == "3") must be(1)
 
           val allRecords = db.run(lineItems.result).futureValue
 
-          items must contain theSameElementsAs allRecords
+          root.lineItems.size must === (allRecords.size)
 
         case Xor.Left(s) => fail(s.mkString(";"))
       }

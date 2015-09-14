@@ -39,12 +39,12 @@ class OrderIntegrationTest extends IntegrationTestBase
     val response = POST(
       s"v1/orders/$orderId/line-items",
        """
-         | [ { "skuId": 1, "quantity": 1 },
-         |   { "skuId": 5, "quantity": 2 } ]
+         | [ { "sku": 1, "quantity": 1 },
+         |   { "sku": 5, "quantity": 2 } ]
        """.stripMargin)
 
     val order = parse(response.bodyText).extract[FullOrder.Root]
-    order.lineItems.map(_.skuId).sortBy(identity) must === (List(1, 5, 5))
+    order.lineItems.map(_.sku).sortBy(identity) must === (List("1", "5", "5"))
   }
 
   "updates status" - {
@@ -589,7 +589,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     val (address, orderShippingAddress) = (for {
       address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = californiaId))
       orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
-      sku ← Skus.save(Sku(name = Some("Donkey"), price = 27))
+      sku ← Skus.save(Factories.skus.head.copy(name = Some("Donkey"), price = 27))
       lineItems ← OrderLineItems.save(OrderLineItem(orderId = order.id, skuId = sku.id))
     } yield (address, orderShippingAddress)).run().futureValue
   }
