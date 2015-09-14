@@ -2,6 +2,7 @@ import akka.http.scaladsl.model.StatusCodes
 
 import algebra.Monoid
 import cats.data.Xor
+import com.stripe.exception.CardException
 import com.stripe.model
 import com.stripe.model.{Customer ⇒ StripeCustomer, Card, ExternalAccount}
 import models.{Orders, Customer, CreditCards, CreditCard, Customers, Addresses, StoreAdmins, OrderPayments}
@@ -13,7 +14,7 @@ import org.mockito.stubbing.Answer
 import org.scalatest.mock.MockitoSugar
 import payloads.CreateAddressPayload
 import services.{GeneralFailure, CannotUseInactiveCreditCard, CreditCardManager, NotFoundFailure}
-import services.{RuntimeExceptionFailure, GeneralFailure, Result, CannotUseInactiveCreditCard, CreditCardManager,
+import services.{StripeExceptionError, GeneralFailure, Result, CannotUseInactiveCreditCard, CreditCardManager,
 NotFoundFailure}
 import util.IntegrationTestBase
 import utils.jdbc._
@@ -272,7 +273,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
           response.errors must contain("holderName must not be empty")
         }
 
-        "fails if stripe returns an error" ignore new CreditCardFixture {
+        "fails if stripe returns an error" in new CreditCardFixture {
           reset(stripeApi)
 
           when(stripeApi.findCustomer(m.any(), m.any())).
@@ -282,19 +283,21 @@ class CustomerIntegrationTest extends IntegrationTestBase
             thenReturn(Result.good(new Card))
 
           when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any())).
-            thenReturn(Result.good(mock[Card]))
+            thenReturn(Result.failure(
+              StripeExceptionError(
+                new CardException(
+                  "Your card's expiration year is invalid",
+                  "invalid_expiry_year",
+                  "exp_year",
+                  null,
+                  null,
+                  null))))
 
-          /**
-          * This returns a failure unrelated to Stripe, what is this test supposed to test?
-          *
-          * ERROR: new row for relation "credit_cards" violates check constraint "valid_exp_year"
-          *  Detail: Failing row contains (2, 1, 1, cus_6uzC8j5doSTWth, , Yax, 4242, 9, 2000, t, null, null, t, 2015-09-14 04:57:37.692703, 2015-09-14 04:57:37.692703, null, 4129, Old Jeff, 95 W. 5th Ave., Apt. 437, San Mateo, 94402)
-          */
           val payload = payloads.EditCreditCard(expYear = Some(2000))
           val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
 
-          response.status must ===(StatusCodes.BadRequest)
-          response.errors must ===(CannotUseInactiveCreditCard(creditCard).description)
+          response.status must === (StatusCodes.BadRequest)
+          response.errors must === (List("Your card's expiration year is invalid"))
         }
       }
     }
