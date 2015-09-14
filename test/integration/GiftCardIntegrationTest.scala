@@ -11,7 +11,7 @@ import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.implicits._
 
-import time.RichInstant
+import utils.time.RichInstant
 
 class GiftCardIntegrationTest extends IntegrationTestBase
   with HttpSupport

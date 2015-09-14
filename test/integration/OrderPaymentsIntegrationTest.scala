@@ -16,7 +16,7 @@ import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.implicits._
 
-import time.JavaTimeSlickMapper.instantAndTimestampWithoutZone
+import utils.time.JavaTimeSlickMapper.instantAndTimestampWithoutZone
 
 class OrderPaymentsIntegrationTest extends IntegrationTestBase
   with HttpSupport

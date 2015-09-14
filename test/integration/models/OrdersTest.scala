@@ -7,8 +7,7 @@ import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.implicits._
-
-import time._
+import utils.time._
 
 class OrdersTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global

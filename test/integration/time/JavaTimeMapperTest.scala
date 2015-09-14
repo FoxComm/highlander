@@ -8,7 +8,7 @@ class JavaTimeMapperTest extends IntegrationTestBase with DbTestSupport {
   import concurrent.ExecutionContext.Implicits.global
 
   import api._
-  import time.JavaTimeSlickMapper.instantAndTimestampWithoutZone
+  import utils.time.JavaTimeSlickMapper.instantAndTimestampWithoutZone
 
   "java.time mapper" - {
     class Cards(tag: Tag) extends Table[(Long, Instant)](tag, "java_time_test") {

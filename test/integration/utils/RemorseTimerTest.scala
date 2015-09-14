@@ -17,7 +17,7 @@ import util.{DbTestSupport, IntegrationTestBase}
 import utils.Seeds.Factories
 import utils.Slick.implicits._
 
-import time.JavaTimeSlickMapper._
+import utils.time.JavaTimeSlickMapper._
 
 class RemorseTimerTest(_system: ActorSystem) extends TestKit(_system) with IntegrationTestBase with BeforeAndAfterAll {
 

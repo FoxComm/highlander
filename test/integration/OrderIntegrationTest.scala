@@ -17,7 +17,7 @@ import Order._
 import utils.{RemorseTimer, Tick}
 import models.OrderLockEvents.scope._
 
-import time._
+import utils.time._
 
 class OrderIntegrationTest extends IntegrationTestBase
   with HttpSupport

@@ -11,7 +11,7 @@ import models.Order._
 import models.{Order, Orders}
 import slick.driver.PostgresDriver.api._
 
-import time.JavaTimeSlickMapper.instantAndTimestampWithoutZone
+import utils.time.JavaTimeSlickMapper._
 
 case object Tick
 

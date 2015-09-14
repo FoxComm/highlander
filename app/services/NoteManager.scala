@@ -13,7 +13,7 @@ import utils.Slick.implicits._
 import scala.concurrent.ExecutionContext
 import slick.driver.PostgresDriver.api._
 
-import time.JavaTimeSlickMapper.instantAndTimestampWithoutZone
+import utils.time.JavaTimeSlickMapper.instantAndTimestampWithoutZone
 
 object NoteManager {
 

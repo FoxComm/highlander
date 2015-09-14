@@ -21,7 +21,7 @@ import utils.Slick.UpdateReturning._
 import utils.Slick.implicits._
 import utils.jdbc.withUniqueConstraint
 
-import time.JavaTimeSlickMapper.instantAndTimestampWithoutZone
+import utils.time.JavaTimeSlickMapper.instantAndTimestampWithoutZone
 
 object CreditCardManager {
   val gateway = StripeGateway()

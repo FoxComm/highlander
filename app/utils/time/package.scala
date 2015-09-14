@@ -1,3 +1,5 @@
+package utils
+
 import java.time.{Duration, ZoneId, Instant}
 
 package object time {
