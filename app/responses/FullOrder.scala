@@ -32,7 +32,7 @@ object FullOrder {
     name: String = "donkey product",
     skuId: Int,
     price: Int = 33,
-    qty: Int = 1,
+    quantity: Int = 1,
     status: OrderLineItem.Status
     )
 
