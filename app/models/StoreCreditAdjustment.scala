@@ -57,8 +57,6 @@ object StoreCreditAdjustments
   idLens = GenLens[StoreCreditAdjustment](_.id)
   )(new StoreCreditAdjustments(_)){
 
-  type QuerySeq = Query[StoreCreditAdjustments, StoreCreditAdjustment, Seq]
-
   import StoreCreditAdjustment._
 
   def cancel(id: Int): DBIO[Int] = filter(_.id === id).map(_.status).update(Canceled)

@@ -1,12 +1,10 @@
 package responses
 
 import org.joda.time.DateTime
-import models._
+import models.{StoreCreditAdjustment, StoreCreditAdjustments}
 import scala.concurrent.{ExecutionContext, Future}
-import utils.Money.Currency
-
 import slick.driver.PostgresDriver.api._
-
+import utils.Money.Currency
 
 object StoreCreditResponse {
   type Response = Future[Root]
@@ -19,7 +17,7 @@ object StoreCreditResponse {
     originalBalance: Int,
     currentBalance: Int,
     availableBalance: Int,
-    status: StoreCredit.Status,
+    status: models.StoreCredit.Status,
     createdAt: DateTime,
     canceledReason: Option[String] = None,
     adjustments: Seq[DisplayAdjustment])
@@ -30,7 +28,7 @@ object StoreCreditResponse {
     status: StoreCreditAdjustment.Status
     )
 
-  def fromStoreCredit(storeCredit: StoreCredit)(implicit ec: ExecutionContext, db: Database): Response = {
+  def fromStoreCredit(storeCredit: models.StoreCredit)(implicit ec: ExecutionContext, db: Database): Response = {
     db.run(fetchStoreCreditDetails(storeCredit).result).map { case (adjustments) ⇒
       build(
         storeCredit = storeCredit,
@@ -39,7 +37,7 @@ object StoreCreditResponse {
     }
   }
 
-  def build(storeCredit: StoreCredit, adjustments: Seq[StoreCreditAdjustment] = Seq.empty): Root = {
+  def build(storeCredit: models.StoreCredit, adjustments: Seq[StoreCreditAdjustment] = Seq.empty): Root = {
     Root(id = storeCredit.id,
       originId = storeCredit.originId,
       originType = storeCredit.originType,
@@ -57,10 +55,10 @@ object StoreCreditResponse {
     )
   }
 
-  private def fetchStoreCreditDetails(storeCredit: StoreCredit)(implicit ec: ExecutionContext) = {
+  private def fetchStoreCreditDetails(storeCredit: models.StoreCredit)(implicit ec: ExecutionContext) = {
     for {
       adjustments ← StoreCreditAdjustments.filter(_.storeCreditId === storeCredit.id)
-    } yield (adjustments)
+    } yield adjustments
   }
 
 

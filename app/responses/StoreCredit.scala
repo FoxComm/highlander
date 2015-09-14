@@ -1,7 +1,5 @@
 package responses
 
-import scala.concurrent.{ExecutionContext, Future}
-
 import models.{StoreCreditAdjustment, StoreCreditManual}
 import org.joda.time.DateTime
 import utils.Money.Currency
