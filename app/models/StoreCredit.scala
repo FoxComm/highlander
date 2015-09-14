@@ -1,5 +1,7 @@
 package models
 
+import java.time.Instant
+
 import cats.data.ValidatedNel
 import services._
 import utils.Litterbox._
@@ -9,16 +11,15 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Validated.{invalidNel, valid}
 import cats.data.ValidatedNel
-import com.github.tototoshi.slick.PostgresJodaSupport._
+
 import com.pellucid.sealerate
 import models.StoreCredit.{Active, Status}
 import monocle.macros.GenLens
-import org.joda.time.DateTime
 import services.Result
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
-import utils.Joda._
+//import utils.Joda._
 import utils.Money._
 import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, NewModel, TableQueryWithId}
 import utils.Slick.implicits._
@@ -26,7 +27,7 @@ import cats.syntax.apply._
 
 final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: String,
   currency: Currency = Currency.USD, originalBalance: Int, currentBalance: Int = 0, availableBalance:Int = 0,
-  status: Status = Active, canceledReason: Option[String] = None, createdAt: DateTime = DateTime.now())
+  status: Status = Active, canceledReason: Option[String] = None, createdAt: Instant = Instant.now())
   extends PaymentMethod
   with ModelWithIdParameter
   with FSM[StoreCredit.Status, StoreCredit]
@@ -109,7 +110,7 @@ class StoreCredits(tag: Tag) extends GenericTable.TableWithId[StoreCredit](tag, 
   def availableBalance = column[Int]("available_balance")
   def status = column[StoreCredit.Status]("status")
   def canceledReason = column[Option[String]]("canceled_reason")
-  def createdAt = column[DateTime]("created_at")
+  def createdAt = column[Instant]("created_at")
 
   def * = (id, customerId, originId, originType, currency, originalBalance, currentBalance,
     availableBalance, status, canceledReason, createdAt) <> ((StoreCredit.apply _).tupled, StoreCredit.unapply)

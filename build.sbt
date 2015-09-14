@@ -97,7 +97,6 @@ lazy val phoenixScala = (project in file(".")).
         // Database
         "com.typesafe.slick"   %% "slick"                    % "3.0.1",
         "com.zaxxer"           %  "HikariCP"                 % "2.3.8",
-        "com.github.tototoshi" %% "slick-joda-mapper"        % "2.0.0",
         "org.postgresql"       %  "postgresql"               % "9.4-1201-jdbc41",
         "org.flywaydb"         %  "flyway-core"              % "3.2.1",
         // Validations
@@ -110,8 +109,6 @@ lazy val phoenixScala = (project in file(".")).
         ("org.spire-math"       %% "cats"                      % "0.2.0").excludeAll(noScalaCheckPlease),
         "com.stripe"           %  "stripe-java"               % "1.31.0",
         "org.slf4j"            %  "slf4j-api"                 % "1.7.12",
-        "joda-time"            %  "joda-time"                 % "2.8.1",
-        "org.joda"             %  "joda-convert"              % "1.7",
         "org.joda"             %  "joda-money"                % "0.10.0",
         "com.pellucid"         %% "sealerate"                 % "0.0.3",
         "com.github.julien-truffaut" %% "monocle-core"        % monocleV,

@@ -1,3 +1,5 @@
+import java.time.Instant
+
 import akka.http.scaladsl.model.StatusCodes
 
 import models.{Customers, Reasons, GiftCard, GiftCardAdjustment, GiftCardAdjustments, GiftCardManuals, GiftCards,
@@ -8,6 +10,8 @@ import services.NoteManager
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.implicits._
+
+import utils.time.RichInstant
 
 class GiftCardIntegrationTest extends IntegrationTestBase
   with HttpSupport
@@ -119,7 +123,10 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
       val updatedNote = db.run(Notes.findById(note.id)).futureValue.get
       updatedNote.deletedBy.get mustBe 1
-      updatedNote.deletedAt.get.isBeforeNow mustBe true
+
+      withClue(updatedNote.deletedAt.get → Instant.now) {
+        updatedNote.deletedAt.get.isBeforeNow mustBe true
+      }
     }
   }
 

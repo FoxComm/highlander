@@ -1,14 +1,14 @@
 package utils
 
+import java.time.Instant
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import akka.actor.ActorSystem
 import akka.pattern.ask
 import akka.testkit.{TestActorRef, TestKit}
 
-import com.github.tototoshi.slick.PostgresJodaSupport._
 import models.Order.FulfillmentStarted
 import models.{OrderLockEvents, StoreAdmins, Order, Orders}
-import org.joda.time.{Seconds, DateTime}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.ScalaFutures
 import services.OrderUpdater
@@ -16,6 +16,8 @@ import slick.driver.PostgresDriver.api._
 import util.{DbTestSupport, IntegrationTestBase}
 import utils.Seeds.Factories
 import utils.Slick.implicits._
+
+import utils.time.JavaTimeSlickMapper._
 
 class RemorseTimerTest(_system: ActorSystem) extends TestKit(_system) with IntegrationTestBase with BeforeAndAfterAll {
 
@@ -32,7 +34,7 @@ class RemorseTimerTest(_system: ActorSystem) extends TestKit(_system) with Integ
   "Remorse timer" - {
 
     "advances to fulfillment once remorse period ends" in new Fixture {
-      val overdue = Some(DateTime.now.minusMinutes(1))
+      val overdue = Option(Instant.now.minusSeconds(60))
       byRefNum.map(_.remorsePeriodEnd).update(overdue).run().futureValue
       tick()
       updated.remorsePeriodEnd must ===(None)
@@ -51,8 +53,7 @@ class RemorseTimerTest(_system: ActorSystem) extends TestKit(_system) with Integ
   trait Fixture {
     val order = Orders.save(Factories.order.copy(
       status = Order.RemorseHold,
-      remorsePeriodEnd = Some(DateTime.now.plusMinutes(30))))
+      remorsePeriodEnd = Some(Instant.now.plusSeconds(30 * 60))))
       .run().futureValue
   }
-
 }
