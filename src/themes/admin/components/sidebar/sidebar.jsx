@@ -6,7 +6,7 @@ import { Link } from 'react-router';
 export default class Sidebar extends React.Component {
   render() {
     return (
-      <aside role='complementary'>
+      <aside role='complementary' className='fc-sidebar'>
         <nav>
           <ul>
             <li><Link to='home'><i className="fa fa-tachometer"></i>Dashboard</Link></li>
