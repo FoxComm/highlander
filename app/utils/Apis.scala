@@ -3,9 +3,9 @@ package utils
 import java.util.concurrent.Executors
 
 import scala.collection.JavaConversions.mapAsJavaMap
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, Future, blocking}
 
-import cats.data.Xor, Xor.right
+import cats.data.Xor
 import com.stripe.exception.StripeException
 import com.stripe.model.{Card ⇒ StripeCard, Customer ⇒ StripeCustomer, ExternalAccount}
 import com.stripe.net.RequestOptions
@@ -56,12 +56,12 @@ class WiredStripeApi extends StripeApi {
   * Executes code inside an execution context that is optimised for blocking I/O operations and returns a Future.
   * Stripe exceptions are caught and turned into a [[StripeRuntimeException]].
   */
-  @inline protected [utils] final def inBlockingPool[A](secretKey: String)(code: RequestOptions ⇒ A): Future[Failures Xor A] = {
+  @inline protected [utils] final def inBlockingPool[A](secretKey: String)(thunk: RequestOptions ⇒ A): Future[Failures Xor A] = {
     val requestOptions = RequestOptions.builder().setApiKey(secretKey).build()
 
     implicit val ec: ExecutionContext = blockingIOPool
 
-    Future(right(code(requestOptions))).recoverWith {
+    Future(Xor.right(blocking(thunk(requestOptions)))).recoverWith {
       case e: StripeException ⇒ Result.failure(StripeRuntimeException(e))
     }
   }
