@@ -4,6 +4,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import models._
 import slick.driver.PostgresDriver.api._
+import utils.Slick.implicits._
 
 object FullOrder {
   type Response = Future[Root]
@@ -58,8 +59,7 @@ object FullOrder {
 
   def build(order: Order, lineItems: Seq[OrderLineItem] = Seq.empty, adjustments: Seq[Adjustment] = Seq.empty,
     shippingMethod: Option[ShippingMethod] = None, customer: Option[Customer] = None,
-    shippingAddress: Option[Address] = None, payment: Option[(OrderPayment, CreditCard)]
-    ): Root = {
+    shippingAddress: Option[Address] = None, payment: Option[(OrderPayment, CreditCard)] = None): Root = {
 
     val displayPayment = payment.map { case (op, cc) ⇒
       DisplayPayment(
@@ -101,10 +101,10 @@ object FullOrder {
     } yield (payment, creditCard)
 
     for {
-      customer ← Customers._findById(order.customerId).extract.result.headOption
+      customer ← Customers._findById(order.customerId).extract.one
       lineItems ← OrderLineItems._findByOrderId(order.id).result
-      shipment ← shipmentQ.result.headOption
-      payments ← paymentQ.result.headOption
+      shipment ← shipmentQ.one
+      payments ← paymentQ.one
     } yield (customer, lineItems, shipment, payments)
   }
 }

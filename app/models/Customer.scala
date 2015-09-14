@@ -1,5 +1,11 @@
 package models
 
+import cats.data.ValidatedNel
+import cats.implicits._
+import services.Failure
+import utils.Litterbox._
+import utils.Validation
+
 import scala.concurrent.{ExecutionContext, Future}
 
 import com.wix.accord.dsl.{validator ⇒ createValidator, _}
@@ -8,18 +14,31 @@ import services.Result
 import slick.driver.PostgresDriver.api._
 import utils.GenericTable.TableWithId
 import utils.{ModelWithIdParameter, TableQueryWithId, Validation}
+import utils.Slick.implicits._
 
 final case class Customer(id: Int = 0, disabled: Boolean = false, email: String, password: String, firstName: String,
   lastName: String, phoneNumber: Option[String] = None, location: Option[String] = None,
-  modality: Option[String] = None)
-  extends Validation[Customer]
-  with ModelWithIdParameter {
+  modality: Option[String] = None, isGuest: Boolean = false)
+  extends ModelWithIdParameter
+  with Validation[Customer] {
 
-  override def validator = createValidator[Customer] { user =>
-    user.firstName is notEmpty
-    user.lastName is notEmpty
-    user.email is notEmpty
+  import Validation._
+
+  def validate: ValidatedNel[Failure, Customer] = {
+    if (isGuest) {
+      notEmpty(email, "email").map { case _ ⇒ this }
+    } else {
+      ( notEmpty(firstName, "firstName")
+        |@| notEmpty(lastName, "lastName")
+        |@| notEmpty(email, "email")
+      ).map { case _ ⇒ this }
+    }
   }
+}
+
+object Customer {
+  def buildGuest(email: String): Customer =
+    Customer(isGuest = true, email = email, firstName = "guest", lastName = "guest", password = "guest")
 }
 
 class Customers(tag: Tag) extends TableWithId[Customer](tag, "customers")  {
@@ -33,9 +52,10 @@ class Customers(tag: Tag) extends TableWithId[Customer](tag, "customers")  {
   def phoneNumber = column[Option[String]]("phone_number")
   def location = column[Option[String]]("location")
   def modality = column[Option[String]]("modality")
+  def isGuest = column[Boolean]("is_guest")
 
   def * = (id, disabled, email, password, firstName, lastName,
-    phoneNumber, location, modality) <> ((Customer.apply _).tupled, Customer.unapply)
+    phoneNumber, location, modality, isGuest) <> ((Customer.apply _).tupled, Customer.unapply)
 }
 
 object Customers extends TableQueryWithId[Customer, Customers](
@@ -43,11 +63,11 @@ object Customers extends TableQueryWithId[Customer, Customers](
   )(new Customers(_)){
 
   def findByEmail(email: String)(implicit ec: ExecutionContext, db: Database): Future[Option[Customer]] = {
-    db.run(filter(_.email === email).result.headOption)
+    db.run(filter(_.email === email).one)
   }
 
   def findById(id: Int)(implicit db: Database): Future[Option[Customer]] = {
-    db.run(_findById(id).result.headOption)
+    db.run(_findById(id).extract.one)
   }
 
   def _findById(id: Rep[Int]) = { filter(_.id === id) }

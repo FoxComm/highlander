@@ -4,11 +4,13 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 
 import models._
+import models.rules._
 import org.flywaydb.core.Flyway
 import org.joda.time.DateTime
 import org.postgresql.ds.PGSimpleDataSource
 import slick.dbio
 import slick.dbio.Effect.{All, Write}
+import slick.driver.PostgresDriver
 import slick.driver.PostgresDriver.api._
 import utils.Money.Currency
 
@@ -27,9 +29,7 @@ object Seeds {
     .storeCredit)
 
   def run()(implicit db: Database): dbio.DBIOAction[(Option[Int], Order, Address, OrderShippingAddress, CreditCard,
-    GiftCard, StoreCredit),
-    NoStream, Write with Write with Write with All with Write with Write with All with All with Write with All with
-    Write with Write with Write with Write with Write with All] = {
+    GiftCard, StoreCredit), NoStream, All] = {
 
     import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -54,13 +54,15 @@ object Seeds {
       paymentMethods = AllPaymentMethods(giftCard = Factories.giftCard, storeCredit = Factories.storeCredit)
     )
 
-    val failures = (s.customers.map { _.validate } ++ List(s.storeAdmin.validate, s.order.validate,
-      s.cc.validate)).filterNot(_.isValid)
+    s.address.validate.fold(err ⇒ throw new Exception(err.mkString("\n")), _ ⇒ {})
+    s.storeAdmin.validate.fold(err ⇒ throw new Exception(err.mkString("\n")), _ ⇒ {})
+    s.order.validate.fold(err ⇒ throw new Exception(err.mkString("\n")), _ ⇒ {})
+    s.cc.validate.fold(err ⇒ throw new Exception(err.mkString("\n")), _ ⇒ {})
 
-    s.address.validateNew.fold(err ⇒ throw new Exception(err.mkString("\n")), _ ⇒ {})
+    val failures = s.customers.map { _.validate }.filterNot(_.isValid)
 
     if (failures.nonEmpty)
-      throw new Exception(failures.map(_.messages).mkString("\n"))
+      throw new Exception(failures.map(_.mkString("\n")).mkString("\n"))
 
     for {
       customer ← (Customers.returningId += Factories.customer).map(id => Factories.customer.copy(id = id))
@@ -73,8 +75,8 @@ object Seeds {
       address ← Addresses.save(s.address.copy(customerId = customer.id))
       shippingAddress ← OrderShippingAddresses.save(Factories.shippingAddress.copy(orderId = order.id))
       shippingMethods ← ShippingMethods ++= s.shippingMethods
-      creditCard ← CreditCards.save(s.cc.copy(customerId = customer.id, billingAddressId = address.id))
-      orderPayments ← OrderPayments.save(Factories.orderPayment.copy(orderId = order.id, paymentMethodId = creditCard.id))
+      creditCard ← CreditCards.save(s.cc.copy(customerId = customer.id))
+      orderPayments ← OrderPayments.save(Factories.orderPayment.copy(orderId = order.id,paymentMethodId = creditCard.id))
       shippingPriceRule ← ShippingPriceRules ++= s.shippingPriceRules
       shippingMethodRuleMappings ← ShippingMethodsPriceRules ++= s.shippingMethodRuleMappings
       orderCriterion ← OrderCriteria ++= s.orderCriteria
@@ -134,18 +136,17 @@ object Seeds {
 
     def orderLineItems: Seq[OrderLineItem] = Seq(OrderLineItem(id = 0, orderId = 1, skuId = 1, status = OrderLineItem.Cart), OrderLineItem(id = 0, orderId = 1, skuId = 2, status = OrderLineItem.Cart), OrderLineItem(id = 0, orderId = 1, skuId = 3, status = OrderLineItem.Cart))
 
-    def address = Address(customerId = 0, regionId = 4177, name = "Home", street1 = "555 E Lake Union St.",
-        street2 = None, city = "Seattle", zip = "12345", isDefaultShipping = true, phoneNumber = None)
+    def address = Address(customerId = 0, regionId = 4177, name = "Home", address1 = "555 E Lake Union St.",
+        address2 = None, city = "Seattle", zip = "12345", isDefaultShipping = true, phoneNumber = None)
 
-    def shippingAddress = OrderShippingAddress(regionId = 4174, name = "Old Yax", street1 = "9313 Olde Mill Pond Dr",
-      street2 = None, city = "Glen Allen", zip = "23060", phoneNumber = None)
-
-    def billingAddress = OrderBillingAddress(regionId = 4129, name = "Old Jeff", street1 = "95 W. 5th Ave.",
-      street2 = Some("Apt. 437"), city = "San Mateo", zip = "94402")
+    def shippingAddress = OrderShippingAddress(regionId = 4174, name = "Old Yax", address1 = "9313 Olde Mill Pond Dr",
+      address2 = None, city = "Glen Allen", zip = "23060", phoneNumber = None)
 
     def creditCard =
-      CreditCard(customerId = 0, gatewayCustomerId = "", gatewayCardId = "", holderName = "Yax", lastFour = "4242",
-        expMonth = today.getMonthOfYear, expYear = today.getYear + 2, isDefault = true)
+      CreditCard(customerId = 0, gatewayCustomerId = "cus_6uzC8j5doSTWth", gatewayCardId = "", holderName = "Yax", lastFour = "4242",
+        expMonth = today.getMonthOfYear, expYear = today.getYear + 2, isDefault = true,
+        regionId = 4129, addressName = "Old Jeff", address1 = "95 W. 5th Ave.", address2 = Some("Apt. 437"),
+        city = "San Mateo", zip = "94402")
 
     def reason = Reason(id = 0, storeAdminId = 0, body = "I'm a reason", parentId = None)
 
@@ -154,15 +155,20 @@ object Seeds {
 
     def storeCreditManual = StoreCreditManual(adminId = 0, reasonId = 0)
 
-    def giftCard = GiftCard(currency = Currency.USD, originId = 0, originType = "FIXME", code = "ABC-123",
+    def giftCard = GiftCard(currency = Currency.USD, originId = 0, originType = GiftCard.CsrAppeasement, code = "ABC-123",
       originalBalance = 50)
 
     def giftCardManual = GiftCardManual(adminId = 0, reasonId = 0)
 
+    def giftCardAdjusment = GiftCardAdjustment.build(giftCard, giftCardPayment)
+
     def shippingMethods = Seq(
-      ShippingMethod(adminDisplayName = "UPS Ground", storefrontDisplayName = "UPS Ground", defaultPrice = 10, isActive = true),
-      ShippingMethod(adminDisplayName = "UPS Next day", storefrontDisplayName = "UPS Next day", defaultPrice = 20, isActive = true),
-      ShippingMethod(adminDisplayName = "DHL Express", storefrontDisplayName = "DHL Express", defaultPrice = 25, isActive = true)
+      ShippingMethod(adminDisplayName = "UPS Ground", storefrontDisplayName = "UPS Ground", defaultPrice = 10,
+        isActive = true),
+      ShippingMethod(adminDisplayName = "UPS Next day", storefrontDisplayName = "UPS Next day", defaultPrice = 20,
+        isActive = true),
+      ShippingMethod(adminDisplayName = "DHL Express", storefrontDisplayName = "DHL Express", defaultPrice = 25,
+        isActive = true)
     )
 
     def shippingPriceRules = Seq(
@@ -202,6 +208,8 @@ object Seeds {
     )
 
     def shipment = Shipment(1, 1, Some(1), Some(1))
+
+    def condition = Condition(rootObject = "Order", field = "subtotal", operator = Condition.Equals, valInt = Some(50))
   }
 
   def main(args: Array[String]): Unit = {
@@ -209,7 +217,7 @@ object Seeds {
     val config: com.typesafe.config.Config = utils.Config.loadWithEnv()
     flyWayMigrate(config)
     Console.err.println(s"Inserting seeds")
-    implicit val db = Database.forConfig("db", config)
+    implicit val db: PostgresDriver.backend.DatabaseDef = Database.forConfig("db", config)
     Await.result(db.run(run()), 5.second)
   }
 

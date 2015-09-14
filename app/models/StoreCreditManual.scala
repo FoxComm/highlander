@@ -5,19 +5,18 @@ import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
-final case class StoreCreditManual(id: Int = 0, adminId: Int, reasonId: Int) extends
-ModelWithIdParameter
+final case class StoreCreditManual(id: Int = 0, adminId: Int, reasonId: Int, subReasonId: Option[Int] = None) extends
+  ModelWithIdParameter
 
 object StoreCreditManual {}
 
-class StoreCreditManuals(tag: Tag) extends GenericTable.TableWithId[StoreCreditManual](tag, "store_credit_manuals")
-   {
-
+class StoreCreditManuals(tag: Tag) extends GenericTable.TableWithId[StoreCreditManual](tag, "store_credit_manuals") {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def adminId = column[Int]("admin_id")
   def reasonId = column[Int]("reason_id")
+  def subReasonId = column[Option[Int]]("sub_reason_id")
 
-  def * = (id, adminId, reasonId) <> ((StoreCreditManual.apply _).tupled, StoreCreditManual.unapply)
+  def * = (id, adminId, reasonId, subReasonId) <> ((StoreCreditManual.apply _).tupled, StoreCreditManual.unapply)
 }
 
 object StoreCreditManuals extends TableQueryWithId[StoreCreditManual, StoreCreditManuals](

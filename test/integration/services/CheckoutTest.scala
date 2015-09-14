@@ -6,7 +6,7 @@ import models.{Address, Addresses, OrderPayment, OrderPayments, CreditCard, Cred
 import org.scalatest.Inside
 import util.IntegrationTestBase
 import utils.Seeds.Factories
-import utils._
+import utils.Slick.implicits._
 
 class CheckoutTest extends IntegrationTestBase with Inside {
   import concurrent.ExecutionContext.Implicits.global
@@ -80,8 +80,8 @@ class CheckoutTest extends IntegrationTestBase with Inside {
   def testData(gatewayCustomerId:String = "cus_6Rh139qdpaFdRP") = {
     val customerStub = Customer(email = "yax@yax.com", password = "password", firstName = "Yax", lastName = "Fuentes")
     val orderStub    = Order(id = 0, customerId = 0)
-    val addressStub  = Address(id = 0, customerId = 0, regionId = 1, name = "Yax Home", street1 = "555 E Lake Union " +
-      "St.", street2 = None, city = "Seattle", zip = "12345", phoneNumber = None)
+    val addressStub  = Address(id = 0, customerId = 0, regionId = 1, name = "Yax Home", address1 = "555 E Lake Union " +
+      "St.", address2 = None, city = "Seattle", zip = "12345", phoneNumber = None)
     val gatewayStub  = Factories.creditCard.copy(gatewayCustomerId = gatewayCustomerId, lastFour = "4242",
       expMonth = 11, expYear = 2018)
 
@@ -89,7 +89,7 @@ class CheckoutTest extends IntegrationTestBase with Inside {
       customer ← (Customers.returningId += customerStub).map(id ⇒ customerStub.copy(id = id))
       order    ← Orders.save(orderStub.copy(customerId = customer.id))
       address  ← Addresses.save(addressStub.copy(customerId = customer.id))
-      creditCard ← CreditCards.save(gatewayStub.copy(customerId = customer.id, billingAddressId = address.id))
+      creditCard ← CreditCards.save(gatewayStub.copy(customerId = customer.id))
       payment  ← OrderPayments.save(Factories.orderPayment.copy(orderId = order.id, paymentMethodId = creditCard.id))
     } yield (payment, order)).run().futureValue
 

@@ -1,9 +1,12 @@
 package models
 
 import models.Order._
+import org.joda.time.DateTime
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.Seeds.Factories
+import utils.Slick.implicits._
+import com.github.tototoshi.slick.PostgresJodaSupport._
 
 class OrdersTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global
@@ -27,13 +30,27 @@ class OrdersTest extends IntegrationTestBase {
       failure.getMessage must include( """value violates unique constraint "orders_has_only_one_cart"""")
     }
 
+    "trigger sets remorse period end when order moves to RemorseHold" in {
+      val order = Orders.save(Factories.order).run().futureValue
+
+      order.remorsePeriodEnd must ===(None)
+
+      db.run(Orders.update(order.copy(status = RemorseHold))).futureValue
+
+      val updatedOrder = Orders.findByRefNum(order.referenceNumber).result.run().futureValue.head
+      updatedOrder.remorsePeriodEnd.get.minuteOfHour() must === (DateTime.now.plusMinutes(30).minuteOfHour())
+    }
+
     "trigger resets remorse period after status changes from RemorseHold" in {
-      val order = Orders.save(Factories.order.copy(remorsePeriodInMinutes = 11, status = RemorseHold)).run().futureValue
+      val order = Orders.save(Factories.order.copy(
+        remorsePeriodEnd = Some(DateTime.now),
+        status = RemorseHold))
+        .run().futureValue
 
       db.run(Orders.findByRefNum(order.referenceNumber).map(_.status).update(ManualHold)).futureValue
 
       val updated = db.run(Orders.findByRefNum(order.referenceNumber).result).futureValue.head
-      updated.remorsePeriodInMinutes must ===(30)
+      updated.remorsePeriodEnd must ===(None)
     }
   }
 

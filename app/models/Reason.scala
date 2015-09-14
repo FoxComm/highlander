@@ -1,17 +1,26 @@
 package models
 
+import cats.data.ValidatedNel
+import cats.implicits._
+import services.Failure
+import utils.Litterbox._
+import utils.Validation
+
 import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
+import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 final case class Reason(id: Int = 0, storeAdminId: Int, body: String, parentId: Option[Int] = None)
   extends ModelWithIdParameter
   with Validation[Reason] {
 
-  override def validator = createValidator[Reason] { reason ⇒
-    reason.body is notEmpty
-    reason.body have size <= 255
+  import Validation._
+
+  def validate: ValidatedNel[Failure, Reason] = {
+    ( notEmpty(body, "body")
+      |@| lesserThanOrEqual(body.length, 255, "bodySize")
+      ).map { case _ ⇒ this }
   }
 
   def isSubReason: Boolean = parentId.isDefined

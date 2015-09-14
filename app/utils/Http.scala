@@ -6,16 +6,18 @@ import akka.http.scaladsl.model.{HttpResponse, StatusCode}
 
 import cats.data.Xor
 import models.{Customer, Order, Orders}
-import org.json4s.jackson
+import org.json4s.{Formats, jackson}
+import org.json4s.jackson.Serialization
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import services.{Failure, Failures, NotFoundFailure, OrderLockedFailure}
 import slick.driver.PostgresDriver.api._
+import utils.Slick.implicits._
 
 object Http {
   import utils.JsonFormatters._
 
-  implicit lazy val serialization = jackson.Serialization
-  implicit lazy val formats = phoenixFormats
+  implicit lazy val serialization: Serialization.type = jackson.Serialization
+  implicit lazy val formats:       Formats = phoenixFormats
 
   val notFoundResponse:   HttpResponse  = HttpResponse(NotFound)
   val noContentResponse:  HttpResponse  = HttpResponse(NoContent)
@@ -79,7 +81,7 @@ object Http {
                                             (f: Order ⇒ Future[Failures Xor G])
                                             (implicit ec: ExecutionContext, db: Database): Future[HttpResponse] = {
 
-    val finder = Orders._findActiveOrderByCustomer(customer).result.headOption.run()
+    val finder = Orders._findActiveOrderByCustomer(customer).one.run()
     whenOrderFoundAndEditable(finder)(f)
   }
 
@@ -87,7 +89,7 @@ object Http {
                                             (f: Order ⇒ Future[Failures Xor G])
                                             (implicit ec: ExecutionContext, db: Database): Future[HttpResponse] = {
 
-    val finder = Orders.findByRefNum(refNumber).result.headOption.run()
+    val finder = Orders.findByRefNum(refNumber).one.run()
     whenOrderFoundAndEditable(finder)(f)
   }
 

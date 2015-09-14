@@ -30,3 +30,6 @@ phoenix-scala.iml
 
 # Vagrant
 .vagrant
+
+.DS_Store
+.gce

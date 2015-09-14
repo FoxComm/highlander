@@ -1,26 +1,35 @@
 import akka.http.scaladsl.model.StatusCodes
+import akka.pattern.ask
+import akka.testkit.TestActorRef
+
 import models._
+import org.joda.time.Minutes.minutesBetween
 import org.joda.time.DateTime
-import org.scalatest.time.{Milliseconds, Seconds, Span}
-import payloads.{UpdateOrderPayload, CreateAddressPayload, CreateCreditCard}
+import org.joda.time.Seconds.secondsBetween
+import payloads.UpdateOrderPayload
 import responses.{AdminNotes, FullOrder}
-import services.{NotFoundFailure, GeneralFailure, Failures, NoteManager}
-import services.OrderUpdater.NewRemorsePeriod
-import slick.driver.PostgresDriver.api._
-import util.{IntegrationTestBase, StripeSupport}
+import services.LockAwareOrderUpdater.NewRemorsePeriodEnd
+import services.{NotFoundFailure, NoteManager}
+import util.IntegrationTestBase
 import utils.Seeds.Factories
+import utils.Slick.implicits._
 import slick.driver.PostgresDriver.api._
 import Order._
+import utils.{RemorseTimer, Tick}
+import models.OrderLockEvents.scope._
 
 class OrderIntegrationTest extends IntegrationTestBase
   with HttpSupport
   with AutomaticAuth {
 
   import concurrent.ExecutionContext.Implicits.global
-  import org.json4s.jackson.JsonMethods._
+
   import Extensions._
+  import org.json4s.jackson.JsonMethods._
 
   type Errors = Map[String, Seq[String]]
+
+  def getUpdated(refNum: String) = db.run(Orders.findByRefNum(refNum).result.headOption).futureValue.get
 
   "returns new items" in {
     pending
@@ -94,25 +103,31 @@ class OrderIntegrationTest extends IntegrationTestBase
       // OrderPayments.findAllByOrderId(order.id).futureValue.head.status must === ("cancelAuth")
     }
     */
+  }
 
-    "increases remorse period" in {
+  "increases remorse period" - {
+
+    "successfully" in {
       val order = Orders.save(Factories.order.copy(status = Order.RemorseHold)).run().futureValue
       val response = POST(s"v1/orders/${order.referenceNumber}/increase-remorse-period")
 
-      val result = parse(response.bodyText).extract[NewRemorsePeriod]
-      result.remorsePeriod must === (order.remorsePeriodInMinutes + 15)
+      val result = parse(response.bodyText).extract[NewRemorsePeriodEnd]
+      result.remorsePeriodEnd must ===(order.remorsePeriodEnd.map(_.plusMinutes(15)))
     }
 
-    "increases remorse period only when in RemorseHold status" in {
+    "only when in RemorseHold status" in {
       val order = Orders.save(Factories.order).run().futureValue
       val response = POST(s"v1/orders/${order.referenceNumber}/increase-remorse-period")
-      response.status must === (StatusCodes.BadRequest)
+      response.status must ===(StatusCodes.BadRequest)
 
-      val newOrder = Orders._findById(order.id).extract.result.headOption.run().futureValue.get
-      newOrder.remorsePeriodInMinutes must === (order.remorsePeriodInMinutes)
+      val newOrder = Orders._findById(order.id).extract.one.run().futureValue.get
+      newOrder.remorsePeriodEnd must ===(order.remorsePeriodEnd)
     }
+  }
 
-    "locks an order" in {
+  "locking" - {
+
+    "successfully locks an order" in {
       val order = Orders.save(Factories.order).run().futureValue
       StoreAdmins.save(Factories.storeAdmin).run().futureValue
 
@@ -134,11 +149,15 @@ class OrderIntegrationTest extends IntegrationTestBase
       val response = POST(s"v1/orders/${order.referenceNumber}/lock")
       response.status must === (StatusCodes.BadRequest)
       val errors = parse(response.bodyText).extract[Errors]
-      errors.head must === ("errors" → Seq("Order is locked"))
+      errors.head must === ("errors" → Seq("Model is locked"))
     }
 
     "unlocks an order" in {
-      val order = Orders.save(Factories.order.copy(locked = true)).run().futureValue
+      StoreAdmins.save(Factories.storeAdmin).run().futureValue
+      val order = Orders.save(Factories.order).run().futureValue
+
+      POST(s"v1/orders/${order.referenceNumber}/lock")
+
       val response = POST(s"v1/orders/${order.referenceNumber}/unlock")
       response.status must === (StatusCodes.OK)
 
@@ -153,6 +172,59 @@ class OrderIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.BadRequest)
       val errors = parse(response.bodyText).extract[Errors]
       errors.head must === ("errors" → Seq("Order is not locked"))
+    }
+
+    "avoids race condition" in {
+      StoreAdmins.save(Factories.storeAdmin).run().futureValue
+      val order = Orders.save(Factories.order).run().futureValue
+
+      def request = POST(s"v1/orders/${order.referenceNumber}/lock")
+
+      val responses = Seq(0, 1).par.map(_ ⇒ request)
+      responses.map(_.status) must contain allOf(StatusCodes.OK, StatusCodes.BadRequest)
+      OrderLockEvents.result.run().futureValue.length mustBe 1
+    }
+
+    "adjusts remorse period when order is unlocked" in new RemorseFixture {
+      val timer = TestActorRef(new RemorseTimer())
+
+      POST(s"v1/orders/$refNum/lock")
+
+      (timer ? Tick).futureValue // Nothing should happen
+      val order1 = getUpdated(refNum)
+      order1.remorsePeriodEnd must ===(order.remorsePeriodEnd)
+      order1.status must ===(Order.RemorseHold)
+
+      Thread.sleep(3000)
+
+      POST(s"v1/orders/$refNum/unlock")
+
+      (timer ? Tick).futureValue
+
+      val order2 = getUpdated(refNum)
+      val newRemorseEnd = order2.remorsePeriodEnd.get
+
+      secondsBetween(originalRemorseEnd, newRemorseEnd).getSeconds mustBe >=(3)
+      order2.status must ===(Order.RemorseHold)
+    }
+
+    "uses most recent lock record" in new RemorseFixture {
+      OrderLockEvents.save(OrderLockEvent(id = 1, lockedBy = 1, orderId = 1, lockedAt = DateTime.now.minusMinutes(30)))
+
+      POST(s"v1/orders/$refNum/lock")
+      POST(s"v1/orders/$refNum/unlock")
+
+      val newRemorseEnd = getUpdated(order.referenceNumber).remorsePeriodEnd.get
+      minutesBetween(originalRemorseEnd, newRemorseEnd).getMinutes mustBe 0
+    }
+
+    "adds 15 minutes to remorse if order lock event is absent" in new RemorseFixture {
+      POST(s"v1/orders/$refNum/lock")
+      db.run(OrderLockEvents.deleteById(1)).futureValue
+      // Sanity check
+      OrderLockEvents.findByOrder(order).mostRecentLock.result.headOption.run().futureValue must ===(None)
+      POST(s"v1/orders/$refNum/unlock")
+      getUpdated(refNum).remorsePeriodEnd.get must ===(originalRemorseEnd.plusMinutes(15))
     }
   }
 
@@ -265,10 +337,6 @@ class OrderIntegrationTest extends IntegrationTestBase
       response.bodyText must be ('empty)
     }
 
-//    "are soft deleted" in {
-//      val response = DELETE(s"v1/orders/${order.id}/notes/${note.id}")
-//    }
-
     "can be listed" in new Fixture {
       List("abc", "123", "xyz").map { body ⇒
         NoteManager.createOrderNote(order, storeAdmin, payloads.CreateNote(body = body)).futureValue
@@ -279,7 +347,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       val notes = parse(response.bodyText).extract[Seq[AdminNotes.Root]]
 
-      notes must have size (3)
+      notes must have size 3
       notes.map(_.body).toSet must === (Set("abc", "123", "xyz"))
     }
 
@@ -292,6 +360,23 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       val note = parse(response.bodyText).extract[AdminNotes.Root]
       note.body must === ("donkey")
+    }
+  }
+
+  "shipping addresses" - {
+
+    "can soft delete note" in new Fixture {
+      val note = NoteManager.createOrderNote(order, storeAdmin,
+        payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue.get
+      StoreAdmins.save(Factories.storeAdmin).run().futureValue
+
+      val response = DELETE(s"v1/orders/${order.referenceNumber}/notes/${note.id}")
+      response.status must ===(StatusCodes.NoContent)
+      response.bodyText mustBe empty
+
+      val updatedNote = db.run(Notes.findById(note.id)).futureValue.get
+      updatedNote.deletedBy.get mustBe 1
+      updatedNote.deletedAt.get.isBeforeNow mustBe true
     }
 
     "copying a shipping address from a customer's book" - {
@@ -409,8 +494,8 @@ class OrderIntegrationTest extends IntegrationTestBase
 
         shippingAddress.name must === ("New name")
         shippingAddress.city must === ("Queen Anne")
-        shippingAddress.street1 must === (address.street1)
-        shippingAddress.street2 must === (address.street2)
+        shippingAddress.address1 must === (address.address1)
+        shippingAddress.address2 must === (address.address2)
         shippingAddress.regionId must === (address.regionId)
         shippingAddress.zip must === (address.zip)
       }
@@ -445,6 +530,32 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
   }
 
+  "shipping methods" - {
+
+    "Evaluates shipping rule: order total is greater than $25" - {
+
+      "Shipping method is returned when actual order total is greater than $25" in new ShippingMethodsFixture {
+        val conditions =
+          """
+            | {
+            |   "comparison": "and",
+            |   "conditions": [{
+            |     "rootObject": "Order", "field": "grandtotal", "operator": "greaterThan", "valInt": 25
+            |   }]
+            | }
+          """.stripMargin
+
+        val action = ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(parse(conditions))))
+        val shippingMethod = db.run(action).futureValue
+
+        val response = GET(s"v1/orders/${order.referenceNumber}/shipping-methods")
+        response.status must === (StatusCodes.OK)
+      }
+
+    }
+
+  }
+
   trait Fixture {
     val (order, storeAdmin, customer) = (for {
       customer ← Customers.save(Factories.customer)
@@ -461,11 +572,37 @@ class OrderIntegrationTest extends IntegrationTestBase
     val (orderShippingAddress, newAddress) = (for {
       orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
       newAddress ← Addresses.save(Factories.address.copy(customerId = customer.id, isDefaultShipping = false,
-        name = "New Shipping", street1 = "29918 Kenloch Dr", city = "Farmington Hills", regionId = 4177))
+        name = "New Shipping", address1 = "29918 Kenloch Dr", city = "Farmington Hills", regionId = 4177))
     } yield(orderShippingAddress, newAddress)).run().futureValue
   }
 
   trait PaymentMethodsFixture extends AddressFixture {
+  }
+
+  trait ShippingMethodsFixture extends Fixture {
+    val californiaId = 4129
+    val michiganId = 4148
+    val oregonId = 4164
+    val washingtonId = 4177
+
+    val (address, orderShippingAddress) = (for {
+      address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = californiaId))
+      orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
+      sku ← Skus.save(Sku(name = Some("Donkey"), price = 27))
+      lineItems ← OrderLineItems.save(OrderLineItem(orderId = order.id, skuId = sku.id))
+    } yield (address, orderShippingAddress)).run().futureValue
+  }
+
+  trait RemorseFixture {
+    val (admin, order) = (for {
+      admin ← StoreAdmins.save(Factories.storeAdmin)
+      order ← Orders.save(Factories.order.copy(
+        status = Order.RemorseHold,
+        remorsePeriodEnd = Some(DateTime.now.plusMinutes(30))))
+    } yield (admin, order)).run().futureValue
+
+    val refNum = order.referenceNumber
+    val originalRemorseEnd = order.remorsePeriodEnd.get
   }
 }
 

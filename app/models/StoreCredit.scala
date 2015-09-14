@@ -1,46 +1,53 @@
 package models
 
+import cats.data.ValidatedNel
+import services._
+import utils.Litterbox._
+import utils.Validation
+
 import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Validated.{invalidNel, valid}
 import cats.data.ValidatedNel
 import com.github.tototoshi.slick.PostgresJodaSupport._
 import com.pellucid.sealerate
-import models.StoreCredit.{OnHold, Status}
+import models.StoreCredit.{Active, Status}
 import monocle.macros.GenLens
 import org.joda.time.DateTime
 import services.Result
+import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
+import slick.jdbc.JdbcType
 import utils.Joda._
 import utils.Money._
-import utils.{ADT, FSM, GenericTable, Model, ModelWithIdParameter, NewModel, TableQueryWithId}
-import utils.Litterbox.nelSemigroup
+import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, NewModel, TableQueryWithId}
+import utils.Slick.implicits._
 import cats.syntax.apply._
 
-final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: String, currency: Currency,
-  originalBalance: Int, currentBalance: Int = 0, availableBalance:Int = 0,
-  status: Status = OnHold, canceledReason: Option[String] = None, createdAt: DateTime = DateTime.now())
+final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: String,
+  currency: Currency = Currency.USD, originalBalance: Int, currentBalance: Int = 0, availableBalance:Int = 0,
+  status: Status = Active, canceledReason: Option[String] = None, createdAt: DateTime = DateTime.now())
   extends PaymentMethod
   with ModelWithIdParameter
   with FSM[StoreCredit.Status, StoreCredit]
-  with NewModel {
+  with NewModel
+  with Validation[StoreCredit] {
 
   import StoreCredit._
+  import Validation._
 
   def isNew: Boolean = id == 0
 
-  def validateNew: ValidatedNel[String, Model] = {
-    def validate(isBad: Boolean, err: String) = if (isBad) invalidNel(err) else valid({})
-
-    val canceledWithReason = (status, canceledReason) match {
-      case (Canceled, None) ⇒ invalidNel("canceledReason must be present when canceled")
+  def validate: ValidatedNel[Failure, StoreCredit] = {
+    val canceledWithReason: ValidatedNel[Failure, Unit] = (status, canceledReason) match {
+      case (Canceled, None) ⇒ invalidNel(GeneralFailure("canceledReason must be present when canceled"))
       case _                ⇒ valid({})
     }
 
     (canceledWithReason
-      |@| validate(originalBalance < currentBalance, "originalBalance cannot be less than currentBalance")
-      |@| validate(originalBalance < availableBalance, "originalBalance cannot be less than availableBalance")
-      |@| validate(originalBalance <= 0, "originalBalance must be greater than zero")
+      |@| invalidExpr(originalBalance < currentBalance, "originalBalance cannot be less than currentBalance")
+      |@| invalidExpr(originalBalance < availableBalance, "originalBalance cannot be less than availableBalance")
+      |@| invalidExpr(originalBalance < 0, "originalBalance must be greater than zero")
     ).map { case _ ⇒ this }
   }
 
@@ -70,7 +77,7 @@ object StoreCredit {
 
   val activeStatuses = Set[Status](Active)
 
-  implicit val statusColumnType = Status.slickColumn
+  implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
 
   def processFifo(storeCredits: List[StoreCredit], requestedAmount: Int): Map[StoreCredit, Int] = {
     val fifo = storeCredits.sortBy(_.createdAt)
@@ -137,7 +144,7 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
     _findByIdAndCustomerId(id, customerId).run()
 
   def _findByIdAndCustomerId(id: Int, customerId: Int)(implicit ec: ExecutionContext): DBIO[Option[StoreCredit]] =
-    filter(_.customerId === customerId).filter(_.id === id).take(1).result.headOption
+    filter(_.customerId === customerId).filter(_.id === id).one
 
   private def debit(storeCredit: StoreCredit, orderPaymentId: Int, amount: Int = 0,
     status: Adj.Status = Adj.Auth)

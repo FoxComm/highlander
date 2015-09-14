@@ -8,12 +8,12 @@ PaymentMethod}
 import models.OrderPayments.scope._
 import org.joda.time.DateTime
 import services.{OrderPaymentNotFoundFailure, CannotUseInactiveCreditCard, CustomerHasInsufficientStoreCredit,
-CustomerManager, GiftCardIsInactive, GiftCardNotEnoughBalance, GiftCardNotFoundFailure, NotFoundFailure,
+CreditCardManager, GiftCardIsInactive, GiftCardNotEnoughBalance, GiftCardNotFoundFailure, NotFoundFailure,
 OrderNotFoundFailure}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.Seeds.Factories
-import utils._
+import utils.Slick.implicits._
 
 class OrderPaymentsIntegrationTest extends IntegrationTestBase
   with HttpSupport
@@ -152,6 +152,23 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
           payments.map(_.paymentMethodId) must contain noneOf(1, 2)
           payments must have size (2)
         }
+
+        "adding or editing store credit should remove previous order payments" in new StoreCreditFixture {
+          val payload = payloads.StoreCreditPayment(amount = 75)
+          val createdResponse = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
+          val createdPayments = storeCreditPayments(order)
+
+          createdResponse.status must ===(StatusCodes.NoContent)
+          createdPayments must have size (2)
+
+          val createdPaymentIds = createdPayments.map(_.id).toList
+          val editedResponse = PATCH(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
+          val editedPayments = storeCreditPayments(order)
+
+          editedResponse.status must ===(StatusCodes.NoContent)
+          editedPayments must have size (2)
+          editedPayments.map(_.id) mustNot contain theSameElementsAs(createdPaymentIds)
+        }
       }
 
       "fails if the order is not found" in new Fixture {
@@ -242,7 +259,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
       "fails if the creditCard is inActive" in new CreditCardFixture {
         val payload = payloads.CreditCardPayment(creditCard.id)
-        CustomerManager.deleteCreditCard(customerId = customer.id, id = creditCard.id).futureValue
+        CreditCardManager.deleteCreditCard(customerId = customer.id, id = creditCard.id).futureValue
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards", payload)
 
         response.status must ===(StatusCodes.BadRequest)
@@ -354,7 +371,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
   trait CreditCardFixture extends Fixture {
     val creditCard = (for {
       address ← Addresses.save(Factories.address.copy(customerId = customer.id))
-      cc ← CreditCards.save(Factories.creditCard.copy(customerId = customer.id, billingAddressId = address.id))
+      cc ← CreditCards.save(Factories.creditCard.copy(customerId = customer.id))
     } yield cc).run().futureValue
   }
 }

@@ -1,19 +1,24 @@
 package services
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{Future, ExecutionContext}
 
 import cats.data.Validated.{Invalid, Valid}
-import models.{Address, Addresses, Region, Regions}
+import models.{OrderShippingAddress, Order, Orders, Customer, OrderShippingAddresses, Address, Addresses, Region,
+Regions}
+import models.Order._
 import payloads.CreateAddressPayload
 import responses.Addresses.Root
 import responses.{Addresses ⇒ Response}
+import slick.driver.PostgresDriver
 import slick.driver.PostgresDriver.api._
+import utils.Slick.implicits._
+import cats.implicits._
 
 object AddressManager {
   def create(payload: CreateAddressPayload, customerId: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
     val address = Address.fromPayload(payload).copy(customerId = customerId)
-    address.validateNew match {
+    address.validate match {
       case Valid(_) ⇒
         db.run(for {
           newAddress ← Addresses.save(address)
@@ -22,14 +27,14 @@ object AddressManager {
           case (address, Some(region))  ⇒ Result.good(Response.build(address, region))
           case (_, None)                ⇒ Result.failure(NotFoundFailure(Region, address.regionId))
         }
-      case Invalid(errors) ⇒ Result.failure(ValidationFailureNew(errors))
+      case Invalid(errors) ⇒ Result.failure(errors.head)
     }
   }
 
   def edit(addressId: Int, customerId: Int, payload: CreateAddressPayload)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
     val address = Address.fromPayload(payload).copy(customerId = customerId, id = addressId)
-    address.validateNew match {
+    address.validate match {
       case Valid(_) ⇒
         db.run((for {
           rowsAffected ← Addresses.insertOrUpdate(address)
@@ -39,7 +44,7 @@ object AddressManager {
           case (_, address, Some(region)) ⇒ Result.failure(NotFoundFailure(address))
           case (_, _, None)               ⇒ Result.failure(NotFoundFailure(Region, address.regionId))
         }
-      case Invalid(errors) ⇒ Result.failure(ValidationFailureNew(errors))
+      case Invalid(errors) ⇒ Result.failure(errors.head)
     }
   }
 
@@ -58,4 +63,32 @@ object AddressManager {
     (implicit ec: ExecutionContext, db: Database): Result[Int] =
     db.run(Addresses.findShippingDefaultByCustomerId(customerId).map(_.isDefaultShipping).update(false)).flatMap(Result
       .good)
+
+  def getDisplayAddress(customer: Customer)
+    (implicit ec: ExecutionContext, db: Database): Future[Option[Root]] = {
+
+    defaultShipping(customer.id).run().flatMap {
+      case Some((address, region)) ⇒
+        Future.successful(Response.build(address, region, true.some).some)
+      case None ⇒
+        lastShippedTo(customer.id).run().map {
+          case Some((ship, region)) ⇒ Response.buildOneShipping(ship, region, false).some
+          case None ⇒ None
+        }
+    }
+  }
+
+  def defaultShipping(customerId: Int): DBIO[Option[(Address, Region)]] = (for {
+    address ← Addresses.findShippingDefaultByCustomerId(customerId)
+    region  ← Regions if region.id === address.regionId
+  } yield (address, region)).one
+
+  def lastShippedTo(customerId: Int)
+    (implicit db: Database, ec: ExecutionContext): DBIO[Option[(OrderShippingAddress, Region)]] = (for {
+    order ← Orders.findByCustomerId(customerId)
+      .filter(_.status =!= (Order.Cart: models.Order.Status))
+      .sortBy(_.id.desc)
+    shipping ← OrderShippingAddresses if shipping.orderId === order.id
+    region   ← Regions if region.id === shipping.regionId
+  } yield (shipping, region)).take(1).one
 }

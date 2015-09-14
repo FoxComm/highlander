@@ -1,20 +1,17 @@
 package routes
 
 import scala.concurrent.{ExecutionContext, Future}
-import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 
 import cats.data.Xor
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import models._
-import akka.http.scaladsl.model.StatusCodes._
-
 import payloads._
-import responses.{AllOrders, AllOrdersWithFailures, AdminNotes, FullOrder, StoreCreditResponse}
+import responses.{AllOrders, AllOrdersWithFailures, AdminNotes, FullOrder, GiftCardAdjustmentsResponse, StoreCreditResponse}
 import services._
 import slick.driver.PostgresDriver.api._
-import utils.RunOnDbIO
+import utils.Slick.implicits._
 
 object Admin {
   def routes(implicit ec: ExecutionContext, db: Database,
@@ -26,12 +23,47 @@ object Admin {
       pathPrefix("gift-cards") {
         (get & pathEnd) {
           complete {
-            models.GiftCards.sortBy(_.id.desc).result.run().map(render(_))
+            GiftCards.sortBy(_.id.desc).result.run().map(render(_))
           }
         } ~
-        (get & path(IntNumber) & pathEnd) { giftCardId ⇒
+        (get & path(Segment) & pathEnd) { code ⇒
           complete {
-            renderOrNotFound(GiftCards.findById(giftCardId).run())
+            GiftCardService.getByCode(code).map(renderGoodOrFailures)
+          }
+        } ~
+        (get & path(Segment / "transactions") & pathEnd) { code ⇒
+          complete {
+            whenFound(GiftCards.findByCode(code).one.run()) { giftCard ⇒
+              GiftCardAdjustmentsResponse.forGiftCard(giftCard)
+            }
+          }
+        } ~
+        path(Segment / "notes") { code ⇒
+          (get & pathEnd) {
+            complete {
+              whenFound(GiftCards.findByCode(code).one.run()) { giftCard ⇒ AdminNotes.forGiftCard(giftCard) }
+            }
+          } ~
+          (post & entity(as[payloads.CreateNote]) & pathEnd) { payload ⇒
+            complete {
+              whenFound(GiftCards.findByCode(code).one.run()) { giftCard ⇒
+                NoteManager.createGiftCardNote(giftCard, admin, payload)
+              }
+            }
+          }
+        } ~
+        path(Segment / "notes" / IntNumber) { (code, noteId) ⇒
+          (patch & entity(as[payloads.UpdateNote]) & pathEnd) { payload ⇒
+            complete {
+              whenFound(GiftCards.findByCode(code).one.run()) { _ ⇒
+                NoteManager.updateNote(noteId, admin, payload)
+              }
+            }
+          } ~
+          (delete & pathEnd) {
+            complete {
+              NoteManager.deleteNote(noteId, admin).map(renderNothingOrFailures)
+            }
           }
         }
       } ~
@@ -81,26 +113,42 @@ object Admin {
             complete {
               AddressManager.edit(addressId, customerId, payload).map(renderGoodOrFailures)
             }
+          } ~
+          (get & path("display") & pathEnd) {
+            complete {
+              Customers._findById(customerId).result.headOption.run().flatMap {
+                case None           ⇒ Future.successful(notFoundResponse)
+                case Some(customer) ⇒ AddressManager.getDisplayAddress(customer).map(renderOrNotFound(_))
+              }
+            }
           }
         } ~
         pathPrefix("payment-methods" / "credit-cards") {
           (get & pathEnd) {
-            complete { CustomerManager.creditCardsInWalletFor(customerId).map(render(_)) }
+            complete { CreditCardManager.creditCardsInWalletFor(customerId).map(render(_)) }
           } ~
-          (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultCreditCard])) { (cardId, payload) ⇒
+          (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultCreditCard]) & pathEnd) {
+            (cardId, payload) ⇒
+              complete {
+                val result = CreditCardManager.toggleCreditCardDefault(customerId, cardId, payload.isDefault)
+                result.map(renderGoodOrFailures)
+              }
+          } ~
+          (post & entity(as[payloads.CreateCreditCard]) & pathEnd) { payload ⇒
             complete {
-              val result = CustomerManager.toggleCreditCardDefault(customerId, cardId, payload.isDefault)
-              result.map(renderGoodOrFailures)
+              whenFound(Customers.findById(customerId)) { customer ⇒
+                CreditCardManager.createCardThroughGateway(customer, payload)
+              }
             }
           } ~
-          (patch & path(IntNumber) & entity(as[payloads.EditCreditCard])) { (cardId, payload) ⇒
+          (patch & path(IntNumber) & entity(as[payloads.EditCreditCard]) & pathEnd) { (cardId, payload) ⇒
             complete {
-              CustomerManager.editCreditCard(customerId, cardId, payload).map(renderNothingOrFailures)
+              CreditCardManager.editCreditCard(customerId, cardId, payload).map(renderNothingOrFailures)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { cardId ⇒
             complete {
-              CustomerManager.deleteCreditCard(customerId = customerId, id = cardId).map(renderNothingOrFailures)
+              CreditCardManager.deleteCreditCard(customerId = customerId, id = cardId).map(renderNothingOrFailures)
             }
           }
         } ~
@@ -113,6 +161,11 @@ object Admin {
               whenFound(StoreCredits.findById(storeCreditId).run()) { storeCredit ⇒
                 responses.StoreCreditResponse.fromStoreCredit(storeCredit).map(Xor.right)
               }
+            }
+          } ~
+          (post & entity(as[payloads.CreateManualStoreCredit])) { payload ⇒
+            complete {
+              StoreCreditService.createManual(admin, customerId, payload).map(renderGoodOrFailures)
             }
           } ~
           (post & path(IntNumber / "convert")) { storeCreditId ⇒
@@ -130,6 +183,9 @@ object Admin {
             AllOrders.findAll
           }
         } ~
+        (post & entity(as[CreateOrder]) & pathEnd) { payload ⇒
+          complete { OrderCreator.createCart(payload).map(renderGoodOrFailures) }
+        } ~
         (patch & entity(as[BulkUpdateOrdersPayload]) & pathEnd) { payload ⇒
           complete {
             for {
@@ -142,7 +198,7 @@ object Admin {
       pathPrefix("orders" / """([a-zA-Z0-9-_]*)""".r) { refNum ⇒
         (get & pathEnd) {
           complete {
-            whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
+            whenFound(Orders.findByRefNum(refNum).one.run()) { order ⇒
               FullOrder.fromOrder(order).map(Xor.right)
             }
           }
@@ -156,21 +212,17 @@ object Admin {
         } ~
         (post & path("increase-remorse-period") & pathEnd) {
           complete {
-            whenOrderFoundAndEditable(refNum) { order ⇒
-              OrderUpdater.increaseRemorsePeriod(order)
-            }
+            LockAwareOrderUpdater.increaseRemorsePeriod(refNum).map(renderGoodOrFailures)
           }
         } ~
         (post & path("lock") & pathEnd) {
           complete {
-            whenOrderFoundAndEditable(refNum) { order ⇒
-             OrderUpdater.lock(order, admin)
-            }
+            LockAwareOrderUpdater.lock(refNum, admin).map(renderGoodOrFailures)
           }
         } ~
         (post & path("unlock") & pathEnd) {
           complete {
-            whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
+            whenFound(Orders.findByRefNum(refNum).one.run()) { order ⇒
               OrderUpdater.unlock(order)
             }
           }
@@ -213,6 +265,9 @@ object Admin {
           (post & entity(as[payloads.StoreCreditPayment]) & pathEnd) { payload ⇒
             complete { OrderPaymentUpdater.addStoreCredit(refNum, payload).map(renderNothingOrFailures) }
           } ~
+          (patch & entity(as[payloads.StoreCreditPayment]) & pathEnd) { payload ⇒
+            complete { OrderPaymentUpdater.addStoreCredit(refNum, payload).map(renderNothingOrFailures) }
+          } ~
           (delete & pathEnd) {
             complete { OrderPaymentUpdater.deleteStoreCredit(refNum).map(renderNothingOrFailures) }
           }
@@ -226,20 +281,20 @@ object Admin {
           (post & entity(as[payloads.CreateNote])) { payload ⇒
             complete {
               whenOrderFoundAndEditable(refNum) { order ⇒
-                services.NoteManager.createOrderNote(order, admin, payload)
+                NoteManager.createOrderNote(order, admin, payload)
               }
             }
           } ~
           (patch & path(IntNumber) & entity(as[payloads.UpdateNote])) { (noteId, payload) ⇒
             complete {
               whenOrderFoundAndEditable(refNum) { order ⇒
-                services.NoteManager.updateNote(noteId, admin, payload)
+                NoteManager.updateNote(noteId, admin, payload)
               }
             }
           } ~
           (delete & path(IntNumber)) { noteId ⇒
             complete {
-              notFoundResponse
+              NoteManager.deleteNote(noteId, admin).map(renderNothingOrFailures)
             }
           }
         } ~
@@ -253,18 +308,27 @@ object Admin {
           } ~
           (patch & entity(as[payloads.UpdateShippingAddress]) & pathEnd) { payload ⇒
             complete {
-              whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
+              whenFound(Orders.findByRefNum(refNum).one.run()) { order ⇒
                 services.OrderUpdater.updateShippingAddress(order, payload)
               }
             }
           } ~
           (delete & pathEnd) {
             complete {
-              Orders.findByRefNum(refNum).result.headOption.run().flatMap {
+              Orders.findByRefNum(refNum).one.run().flatMap {
                 case Some(order) ⇒
                   services.OrderUpdater.removeShippingAddress(order.id).map { _ ⇒ noContentResponse }
                 case None ⇒
                   Future.successful(notFoundResponse)
+              }
+            }
+          }
+        } ~
+        pathPrefix("shipping-methods") {
+          (get & pathEnd) {
+            complete {
+              whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
+                services.ShippingManager.getShippingMethodsForOrder(order)
               }
             }
           }

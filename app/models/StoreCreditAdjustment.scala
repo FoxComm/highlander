@@ -3,7 +3,9 @@ package models
 import com.pellucid.sealerate
 import models.StoreCreditAdjustment.{Auth, Status}
 import monocle.macros.GenLens
+import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
+import slick.jdbc.JdbcType
 import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 final case class StoreCreditAdjustment(id: Int = 0, storeCreditId: Int, orderPaymentId: Int,
@@ -30,7 +32,7 @@ object StoreCreditAdjustment {
     def types = sealerate.values[Status]
   }
 
-  implicit val statusColumnType = Status.slickColumn
+  implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
 }
 
 class StoreCreditAdjustments(tag: Tag)

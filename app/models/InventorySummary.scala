@@ -5,6 +5,7 @@ import scala.concurrent.Future
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.Slick.implicits._
 
 final case class InventorySummary(id: Int, skuId: Int, availableOnHand: Int, availablePreOrder: Int, availableBackOrder: Int,
                             outstandingPreOrders: Int, outstandingBackOrders: Int) extends ModelWithIdParameter
@@ -29,7 +30,7 @@ object InventorySummaries extends TableQueryWithId[InventorySummary, InventorySu
 )(new InventorySummaries(_)) {
 
   def findBySkuId(id: Int)(implicit db: Database): Future[Option[InventorySummary]] =
-    db.run(_findBySkuId(id).result.headOption)
+    db.run(_findBySkuId(id).one)
 
   def _findBySkuId(id: Int): Query[InventorySummaries, InventorySummary, Seq] =
     filter(_.skuId === id)

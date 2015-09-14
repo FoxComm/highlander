@@ -5,8 +5,9 @@ import scala.concurrent.{ExecutionContext, Future}
 import com.stripe.model.{Customer ⇒ StripeCustomer}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
+import utils.{TableQueryWithId, GenericTable, ModelWithIdParameter}
 import utils.Money._
-import utils._
+import utils.Slick.implicits._
 
 final case class OrderPayment(id: Int = 0, orderId: Int = 0, amount: Option[Int] = None,
   currency: Currency = Currency.USD, paymentMethodId: Int, paymentMethodType: PaymentMethod.Type)
@@ -45,13 +46,13 @@ class OrderPayments(tag: Tag)
 
   def * = (id, orderId, amount, currency, paymentMethodId, paymentMethodType) <> ((OrderPayment.apply _).tupled,
     OrderPayment.unapply )
+
+  def order = foreignKey(Orders.tableName, orderId, Orders)(_.id)
 }
 
 object OrderPayments extends TableQueryWithId[OrderPayment, OrderPayments](
   idLens = GenLens[OrderPayment](_.id)
 )(new OrderPayments(_)){
-
-  type QuerySeq = Query[OrderPayments, OrderPayment, Seq]
 
   import models.{PaymentMethod ⇒ Pay}
 

@@ -1,14 +1,40 @@
 package utils
 
+import scala.concurrent.{ExecutionContext, Future}
+
+import cats.data.Xor
+import services.{Failure, Failures, Result}
 import slick.ast._
 import slick.driver.PostgresDriver._
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.{GetResult, JdbcResultConverterDomain, SetParameter, StaticQuery ⇒ Q, StaticQueryInvoker, StreamingInvokerAction}
-import slick.profile.SqlStreamingAction
+import slick.profile.{SqlAction, SqlStreamingAction}
 import slick.relational.{CompiledMapping, ResultConverter}
 import slick.util.SQLBuilder
 
 object Slick {
+
+  type DbResult[T] = DBIO[Failures Xor T]
+
+  def appendForUpdate[A, B <: slick.dbio.NoStream](sql: SqlAction[A, B, Effect.Read]) = {
+    sql.overrideStatements(sql.statements.map(_ + " for update"))
+  }
+
+  object DbResult {
+
+    val unit: DbResult[Unit] = DBIO.successful(Xor.right(Unit))
+
+    def good[A](v: A): DbResult[A] = lift(Xor.right(v))
+
+    def dbio[A](dbio: DBIO[A])(implicit ec: ExecutionContext): DbResult[A] = dbio.map(Xor.right)
+
+    def failure[A](failure: Failure): DbResult[A] = liftFuture(Result.failures(failure))
+
+    def lift[A](value: A): DBIO[A] = DBIO.from(Future.successful(value))
+
+    def liftFuture[A](future: Future[A]): DBIO[A] = DBIO.from(future)
+  }
+
   /*
     Provides an implicit conversion to allow for UDPATE _ RETURNING _ queries
     Usage: Customers.filter(_.id === 1).map(_.firstName).
@@ -65,4 +91,21 @@ object Slick {
     }
   }
 
+  object implicits {
+    implicit class EnrichedQuery[E, U, C[_]](val query: Query[E, U, C]) extends AnyVal {
+      def one: DBIO[Option[U]] = query.result.headOption
+    }
+
+    implicit class EnrichedSqlStreamingAction[R, T, E <: Effect](val action: SqlStreamingAction[R, T, E])
+      extends AnyVal {
+
+      def one(implicit db: Database, ec: ExecutionContext): Future[Option[T]] =
+        db.run(action.headOption)
+    }
+
+    implicit class RunOnDbIO[R](val dbio: DBIO[R]) extends AnyVal {
+      def run()(implicit db: Database): Future[R] =
+        db.run(dbio)
+    }
+  }
 }

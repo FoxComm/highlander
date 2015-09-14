@@ -12,6 +12,7 @@ import payloads._
 import responses.FullOrder
 import services._
 import slick.driver.PostgresDriver.api._
+import utils.Slick.implicits._
 
 object Customer {
   def routes(implicit ec: ExecutionContext, db: Database,
@@ -94,7 +95,7 @@ object Customer {
           } ~
           (get & path(PathEnd)) {
             complete {
-              whenFound(Orders._findActiveOrderByCustomer(customer).result.headOption.run()) { order ⇒
+              whenFound(Orders._findActiveOrderByCustomer(customer).one.run()) { order ⇒
                 FullOrder.fromOrder(order).map(Xor.right)
               }
             }
