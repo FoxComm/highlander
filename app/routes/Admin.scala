@@ -8,7 +8,8 @@ import cats.data.Xor
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import models._
 import payloads._
-import responses.{AllOrders, AllOrdersWithFailures, AdminNotes, FullOrder, GiftCardAdjustmentsResponse, StoreCreditResponse}
+import responses.{StoreCreditAdjustmentsResponse, AllOrders, AllOrdersWithFailures, AdminNotes, FullOrder,
+GiftCardAdjustmentsResponse, StoreCreditResponse}
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
@@ -63,6 +64,22 @@ object Admin {
           (delete & pathEnd) {
             complete {
               NoteManager.deleteNote(noteId, admin).map(renderNothingOrFailures)
+            }
+          }
+        }
+      } ~
+      pathPrefix("store-credits" / IntNumber) { storeCreditId ⇒
+        (get & pathEnd) {
+          complete {
+            whenFound(StoreCredits.findById(storeCreditId).run()) { storeCredit ⇒
+              Result.right(responses.StoreCreditResponse.build(storeCredit))
+            }
+          }
+        } ~
+        (get & path("transactions") & pathEnd) {
+          complete {
+            whenFound(StoreCredits.findById(storeCreditId).run()) { storeCredit ⇒
+              StoreCreditAdjustmentsResponse.forStoreCredit(storeCredit)
             }
           }
         }
@@ -154,12 +171,9 @@ object Admin {
         } ~
         pathPrefix("payment-methods" / "store-credit") {
           (get & pathEnd) {
-            complete { StoreCredits.findAllByCustomerId(customerId).map(render(_)) }
-          } ~
-          (get & path(IntNumber)) { storeCreditId ⇒
             complete {
-              whenFound(StoreCredits.findById(storeCreditId).run()) { storeCredit ⇒
-                Result.right(responses.StoreCreditResponse.build(storeCredit))
+              whenFound(Customers.findById(customerId)) { customer ⇒
+                StoreCredits.findAllByCustomerId(customer.id).map(Xor.right)
               }
             }
           } ~

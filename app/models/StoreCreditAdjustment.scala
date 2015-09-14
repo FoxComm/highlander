@@ -1,6 +1,7 @@
 package models
 
 import com.pellucid.sealerate
+import models.GiftCardAdjustments._
 import models.StoreCreditAdjustment.{Auth, Status}
 import monocle.macros.GenLens
 import slick.ast.BaseTypedType
@@ -58,6 +59,8 @@ object StoreCreditAdjustments
   )(new StoreCreditAdjustments(_)){
 
   import StoreCreditAdjustment._
+
+  def filterByStoreCreditId(id: Int): QuerySeq = filter(_.storeCreditId === id)
 
   def cancel(id: Int): DBIO[Int] = filter(_.id === id).map(_.status).update(Canceled)
 }
