@@ -1,21 +1,22 @@
 package models
 
+import java.time.ZonedDateTime
+
 import cats.data._
 import util.TestBase
 import services._
 import org.scalatest.prop.TableDrivenPropertyChecks._
-import org.joda.time.DateTime
 import utils.Seeds.Factories
 import util.CustomMatchers._
 
 class CreditCardTest extends TestBase {
-  val today = DateTime.now()
+  val today = ZonedDateTime.now()
   val card = Factories.creditCard
 
   "CreditCard" - {
     "validateNew" - {
       "disallows cards with expired dates" in {
-        val expiredCard = card.copy(expMonth = today.minusMonths(1).getMonthOfYear, expYear = today.getYear)
+        val expiredCard = card.copy(expMonth = today.minusMonths(1).getMonthValue, expYear = today.getYear)
 
         val cards = Table(
           ("card", "errors"),

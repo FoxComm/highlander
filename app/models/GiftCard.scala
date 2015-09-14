@@ -1,10 +1,11 @@
 package models
 
+import java.time.Instant
+
 import scala.concurrent.ExecutionContext
 
 import cats.data.ValidatedNel
 import cats.implicits._
-import org.joda.time.DateTime
 import services.Failure
 import utils.Litterbox._
 import utils.Validation
@@ -23,7 +24,7 @@ import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId, Va
 final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = CustomerPurchase, code: String,
   currency: Currency, status: Status = OnHold, originalBalance: Int, currentBalance: Int = 0,
   availableBalance: Int = 0, canceledReason: Option[String] = None, reloadable: Boolean = false,
-  createdAt: DateTime = DateTime.now())
+  createdAt: Instant = Instant.now())
   extends PaymentMethod
   with ModelWithIdParameter
   with FSM[GiftCard.Status, GiftCard]
@@ -92,7 +93,7 @@ class GiftCards(tag: Tag) extends GenericTable.TableWithId[GiftCard](tag, "gift_
   def availableBalance = column[Int]("available_balance")
   def canceledReason = column[Option[String]]("canceled_reason")
   def reloadable = column[Boolean]("reloadable")
-  def createdAt = column[DateTime]("created_at")
+  def createdAt = column[Instant]("created_at")
 
   def * = (id, originId, originType, code, currency, status, originalBalance, currentBalance,
     availableBalance, canceledReason, reloadable, createdAt) <> ((GiftCard.apply _).tupled, GiftCard.unapply)

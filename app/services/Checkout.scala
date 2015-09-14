@@ -1,5 +1,7 @@
 package services
 
+import java.time.Instant
+
 import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Xor
@@ -9,7 +11,6 @@ import collection.immutable
 import slick.driver.PostgresDriver.api._
 
 import com.github.tototoshi.slick.PostgresJodaSupport._
-import org.joda.time.{DateTimeZone, DateTime}
 
 class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
 
@@ -90,7 +91,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
     db.run(for {
       _ ← Orders._findById(order.id).extract
         .map { o => (o.status, o.placedAt) }
-        .update((Order.Ordered, Some(DateTime.now)))
+        .update((Order.Ordered, Some(Instant.now)))
 
         newOrder <- Orders._create(Order.buildCart(order.customerId))
     } yield newOrder)

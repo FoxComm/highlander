@@ -1,5 +1,7 @@
 package services
 
+import java.time.Instant
+
 import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Validated.{Invalid, Valid}
@@ -10,7 +12,6 @@ import com.stripe.model.{Card ⇒ StripeCard, Customer ⇒ StripeCustomer}
 import models.OrderPayments.scope._
 import models.Orders.scope._
 import models.{Address, Addresses, CreditCard, CreditCards, Customer, OrderPayments, Orders}
-import org.joda.time.DateTime
 import payloads.{CreateAddressPayload, CreateCreditCard, EditCreditCard}
 import slick.dbio
 import slick.dbio.Effect.{All, Read}
@@ -19,6 +20,8 @@ import slick.driver.PostgresDriver.api._
 import utils.Slick.UpdateReturning._
 import utils.Slick.implicits._
 import utils.jdbc.withUniqueConstraint
+
+import time.JavaTimeSlickMapper.instantAndTimestampWithoutZone
 
 object CreditCardManager {
   val gateway = StripeGateway()
@@ -83,7 +86,7 @@ object CreditCardManager {
     val updateCc = CreditCards._findById(id).extract
       .filter(_.customerId === customerId)
       .map { cc ⇒ (cc.inWallet, cc.deletedAt) }
-      .update((false, Some(DateTime.now())))
+      .update((false, Some(Instant.now())))
 
     db.run(updateCc.map { rows ⇒
       if (rows == 1) Xor.right(Unit) else Xor.left(creditCardNotFound(id))

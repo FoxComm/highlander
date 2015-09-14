@@ -1,10 +1,11 @@
 package responses
 
+import java.time.Instant
+
 import scala.concurrent.{ExecutionContext, Future}
 
 import models.Order.RemorseHold
 import models._
-import org.joda.time.DateTime
 import slick.driver.PostgresDriver.api._
 
 object AllOrders {
@@ -15,8 +16,8 @@ object AllOrders {
     email: String,
     orderStatus: Order.Status,
     paymentStatus: Option[String],
-    placedAt: Option[DateTime],
-    remorsePeriodEnd: Option[DateTime],
+    placedAt: Option[Instant],
+    remorsePeriodEnd: Option[Instant],
     total: Int
     )
 

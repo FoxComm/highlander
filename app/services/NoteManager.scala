@@ -1,8 +1,9 @@
 package services
 
+import java.time.Instant
+
 import cats.data.Validated.{Valid, Invalid}
 import models._
-import org.joda.time.DateTime
 import responses.AdminNotes
 import responses.AdminNotes.Root
 import utils.ModelWithIdParameter
@@ -11,6 +12,8 @@ import utils.Slick.implicits._
 
 import scala.concurrent.ExecutionContext
 import slick.driver.PostgresDriver.api._
+
+import time.JavaTimeSlickMapper.instantAndTimestampWithoutZone
 
 object NoteManager {
 
@@ -57,7 +60,7 @@ object NoteManager {
     (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
     Notes._findById(noteId).extract.findOneAndRun { note ⇒
       Notes.update(note.copy(
-        deletedAt = Some(DateTime.now),
+        deletedAt = Some(Instant.now),
         deletedBy = Some(admin.id))
       ) >> DbResult.unit
     }

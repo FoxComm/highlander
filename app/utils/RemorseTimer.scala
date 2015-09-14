@@ -1,5 +1,7 @@
 package utils
 
+import java.time.Instant
+
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Success
 import akka.actor.{Actor, ActorLogging}
@@ -7,8 +9,9 @@ import akka.actor.{Actor, ActorLogging}
 import com.github.tototoshi.slick.PostgresJodaSupport._
 import models.Order._
 import models.{Order, Orders}
-import org.joda.time.DateTime
 import slick.driver.PostgresDriver.api._
+
+import time.JavaTimeSlickMapper.instantAndTimestampWithoutZone
 
 case object Tick
 
@@ -23,7 +26,7 @@ class RemorseTimer(implicit ec: ExecutionContext, db: Database) extends Actor {
     val advance = Orders
       .filter(_.status === (RemorseHold: Status))
       .filterNot(_.locked)
-      .filter(_.remorsePeriodEnd.map(_ < DateTime.now))
+      .filter(_.remorsePeriodEnd.map(_ < Instant.now))
       .map(_.status)
       .update(Order.FulfillmentStarted)
 

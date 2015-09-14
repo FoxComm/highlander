@@ -1,16 +1,17 @@
 package payloads
 
+import java.time.ZonedDateTime
+
 import services.{Failure, GeneralFailure}
 import util.TestBase
 import org.scalatest.prop.TableDrivenPropertyChecks._
-import org.joda.time.DateTime
 import utils.Seeds.Factories
 import util.CustomMatchers._
 import cats.data.NonEmptyList
 import cats.implicits._
 
 class OrderPayloadsTest extends TestBase {
-  val today = DateTime.now()
+  val today = ZonedDateTime.now()
   val cc = Factories.creditCard
 
   "CreateOrder" - {

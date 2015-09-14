@@ -1,11 +1,12 @@
 package services
 
+import java.time.Instant
+
 import scala.concurrent.ExecutionContext
 
 import com.github.tototoshi.slick.PostgresJodaSupport._
 import models.Order.RemorseHold
 import models._
-import org.joda.time.DateTime
 import responses.FullOrder
 import slick.driver.PostgresDriver.api._
 import utils.Slick.UpdateReturning._
@@ -28,7 +29,7 @@ object LockAwareOrderUpdater {
   }
 
   // Should never be None as this response is sent only when increasing remorse period
-  final class NewRemorsePeriodEnd(val remorsePeriodEnd: Option[DateTime])
+  final class NewRemorsePeriodEnd(val remorsePeriodEnd: Option[Instant])
 
   def increaseRemorsePeriod(refNum: String)
     (implicit db: Database, ec: ExecutionContext): Result[NewRemorsePeriodEnd] = {
@@ -39,7 +40,7 @@ object LockAwareOrderUpdater {
         case RemorseHold ⇒
           DbResult.dbio(finder
             .map(_.remorsePeriodEnd)
-            .updateReturning(updatedOrder, order.remorsePeriodEnd.map(_.plusMinutes(15))).head
+            .updateReturning(updatedOrder, order.remorsePeriodEnd.map(_.plusSeconds(15 * 60))).head
             .map(order ⇒ new NewRemorsePeriodEnd(order.remorsePeriodEnd)))
 
         case _ ⇒ DbResult.failure(GeneralFailure("Order is not in RemorseHold status"))

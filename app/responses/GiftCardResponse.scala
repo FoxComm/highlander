@@ -1,9 +1,10 @@
 package responses
 
+import java.time.Instant
+
 import scala.concurrent.ExecutionContext
 
 import models.GiftCard
-import org.joda.time.DateTime
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 
@@ -12,7 +13,7 @@ object GiftCardResponse {
 
   final case class Root(
     id: Int,
-    createdAt: DateTime,
+    createdAt: Instant,
     code: String,
     `type`: GiftCard.OriginType,
     status: GiftCard.Status,

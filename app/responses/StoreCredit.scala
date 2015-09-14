@@ -1,9 +1,10 @@
 package responses
 
+import java.time.Instant
+
 import scala.concurrent.{ExecutionContext, Future}
 
 import models.{StoreCreditAdjustment, StoreCreditManual}
-import org.joda.time.DateTime
 import utils.Money.Currency
 
 object StoreCredit {
@@ -17,7 +18,7 @@ object StoreCredit {
     availableBalance: Int,
     canceledReason: Option[String],
     createdBy: Int,
-    createdAt: DateTime,
+    createdAt: Instant,
     transactions: List[StoreCreditAdjustment] = List.empty)
 
   def build(sc: models.StoreCredit, manual: StoreCreditManual,

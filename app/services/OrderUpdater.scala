@@ -1,14 +1,13 @@
 package services
 
+import java.time.Instant
+
 import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Validated.{Invalid, Valid}
 import cats.data.Xor
-import com.github.tototoshi.slick.PostgresJodaSupport._
 import models.OrderLockEvents.scope._
 import models._
-import org.joda.time.DateTime
-import org.joda.time.Seconds.secondsBetween
 import payloads.{CreateShippingAddress, UpdateAddressPayload, UpdateShippingAddress}
 import responses.{Addresses ⇒ Response, FullOrder}
 import slick.driver.PostgresDriver.api._
@@ -94,11 +93,11 @@ object OrderUpdater {
     }
   }
 
-  private def newRemorseEnd(maybeRemorseEnd: Option[DateTime], lockedAt: DateTime): Option[DateTime] = {
-    maybeRemorseEnd.map(_.plus(secondsBetween(lockedAt, DateTime.now)))
+  private def newRemorseEnd(maybeRemorseEnd: Option[Instant], lockedAt: Instant): Option[Instant] = {
+    maybeRemorseEnd.map(_.plusMillis(Instant.now.toEpochMilli - lockedAt.toEpochMilli))
   }
 
-  private def updateUnlock(orderId: Int, remorseEnd: Option[DateTime])
+  private def updateUnlock(orderId: Int, remorseEnd: Option[Instant])
     (implicit db: Database) = {
     Orders._findById(orderId).extract
       .map { o ⇒ (o.locked, o.remorsePeriodEnd) }
@@ -111,7 +110,7 @@ object OrderUpdater {
         case Some(lockEvent) ⇒
           updateUnlock(order.id, newRemorseEnd(order.remorsePeriodEnd, lockEvent.lockedAt))
         case None ⇒
-          updateUnlock(order.id, order.remorsePeriodEnd.map(_.plusMinutes(15)))
+          updateUnlock(order.id, order.remorsePeriodEnd.map(_.plusSeconds(15 * 60)))
       }
       db.run(queries).flatMap { o ⇒
         Result.fromFuture(FullOrder.fromOrder(o.head))

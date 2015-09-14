@@ -1,11 +1,12 @@
 package models
 
+import java.time.Instant
+
 import cats.data.ValidatedNel
 import cats.implicits._
 import utils.Litterbox._
 import com.pellucid.sealerate
 import monocle.macros.GenLens
-import org.joda.time.DateTime
 import services.Failure
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
@@ -14,7 +15,7 @@ import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId, Validat
 import com.github.tototoshi.slick.PostgresJodaSupport._
 
 final case class Note(id: Int = 0, storeAdminId: Int, referenceId: Int, referenceType: Note.ReferenceType, body: String,
-  deletedAt: Option[DateTime] = None, deletedBy: Option[Int] = None)
+  deletedAt: Option[Instant] = None, deletedBy: Option[Int] = None)
   extends ModelWithIdParameter
   with Validation[Note] {
 
@@ -45,7 +46,7 @@ class Notes(tag: Tag) extends GenericTable.TableWithId[Note](tag, "notes")  {
   def referenceId = column[Int]("reference_id")
   def referenceType = column[Note.ReferenceType]("reference_type")
   def body = column[String]("body")
-  def deletedAt = column[Option[DateTime]]("deleted_at")
+  def deletedAt = column[Option[Instant]]("deleted_at")
   def deletedBy = column[Option[Int]]("deleted_by")
 
   def * = (id, storeAdminId, referenceId, referenceType, body, deletedAt, deletedBy) <> ((Note.apply _).tupled, Note.unapply)

@@ -10,7 +10,7 @@ import responses.CountryWithRegions
 object JsonFormatters {
   val serialization = jackson.Serialization
 
-  val DefaultFormats = org.json4s.DefaultFormats + DateTimeSerializer + Money.jsonFormat
+  val DefaultFormats = org.json4s.DefaultFormats + time.JavaTimeJson4sSerializer.jsonFormat + Money.jsonFormat
 
   val phoenixFormats = DefaultFormats +
     Order.Status.jsonFormat +

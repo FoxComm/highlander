@@ -1,5 +1,7 @@
 package models
 
+import java.time.Instant
+
 import cats.data.Validated.valid
 import cats.data.ValidatedNel
 import services.Failure
@@ -10,7 +12,6 @@ import com.github.tototoshi.slick.PostgresJodaSupport._
 import com.pellucid.sealerate
 import models.Order.{Cart, Status}
 import monocle.macros.GenLens
-import org.joda.time.DateTime
 import services.OrderTotaler
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
@@ -19,8 +20,8 @@ import utils.{ADT, FSM, GenericTable, ModelWithLockParameter, TableQueryWithLock
 import utils.Slick.implicits._
 
 final case class Order(id: Int = 0, referenceNumber: String = "", customerId: Int,
-  status: Status = Cart, locked: Boolean = false, placedAt: Option[DateTime] = None,
-  remorsePeriodEnd: Option[DateTime] = None)
+  status: Status = Cart, locked: Boolean = false, placedAt: Option[Instant] = None,
+  remorsePeriodEnd: Option[Instant] = None)
   extends ModelWithLockParameter
   with FSM[Order.Status, Order]
   with Validation[Order] {
@@ -61,7 +62,7 @@ final case class Order(id: Int = 0, referenceNumber: String = "", customerId: In
   )
 
   // If order is not in RemorseHold, remorsePeriodEnd should be None, but extra check wouldn't hurt
-  val getRemorsePeriodEnd: Option[DateTime] = status match {
+  val getRemorsePeriodEnd: Option[Instant] = status match {
     case RemorseHold if !locked ⇒ remorsePeriodEnd
     case _ ⇒ None
   }
@@ -95,8 +96,8 @@ class Orders(tag: Tag) extends GenericTable.TableWithLock[Order](tag, "orders") 
   def customerId = column[Int]("customer_id")
   def status = column[Order.Status]("status")
   def locked = column[Boolean]("locked")
-  def placedAt = column[Option[DateTime]]("placed_at")
-  def remorsePeriodEnd = column[Option[DateTime]]("remorse_period_end")
+  def placedAt = column[Option[Instant]]("placed_at")
+  def remorsePeriodEnd = column[Option[Instant]]("remorse_period_end")
   def * = (id, referenceNumber, customerId, status, locked, placedAt, remorsePeriodEnd) <>((Order.apply _).tupled, Order.unapply)
 }
 
