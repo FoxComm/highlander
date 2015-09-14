@@ -2,7 +2,7 @@ package models
 
 import java.time.Instant
 
-import com.github.tototoshi.slick.PostgresJodaSupport._
+
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}

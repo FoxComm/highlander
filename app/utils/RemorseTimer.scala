@@ -6,7 +6,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Success
 import akka.actor.{Actor, ActorLogging}
 
-import com.github.tototoshi.slick.PostgresJodaSupport._
+
 import models.Order._
 import models.{Order, Orders}
 import slick.driver.PostgresDriver.api._

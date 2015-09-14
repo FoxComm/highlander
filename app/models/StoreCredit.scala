@@ -11,7 +11,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Validated.{invalidNel, valid}
 import cats.data.ValidatedNel
-import com.github.tototoshi.slick.PostgresJodaSupport._
+
 import com.pellucid.sealerate
 import models.StoreCredit.{Active, Status}
 import monocle.macros.GenLens

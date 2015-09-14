@@ -8,7 +8,7 @@ import services.Failure
 
 import scala.concurrent.{ExecutionContext, Future}
 
-import com.github.tototoshi.slick.PostgresJodaSupport._
+
 import com.pellucid.sealerate
 import models.Order.{Cart, Status}
 import monocle.macros.GenLens

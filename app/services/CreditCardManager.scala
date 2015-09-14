@@ -7,7 +7,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import cats.data.Validated.{Invalid, Valid}
 import cats.data.Xor
 import cats.implicits._
-import com.github.tototoshi.slick.PostgresJodaSupport._
+
 import com.stripe.model.{Card ⇒ StripeCard, Customer ⇒ StripeCustomer}
 import models.OrderPayments.scope._
 import models.Orders.scope._

@@ -2,7 +2,7 @@ import java.time.ZonedDateTime
 
 import akka.http.scaladsl.model.StatusCodes
 
-import com.github.tototoshi.slick.PostgresJodaSupport._
+
 import models.Order._
 import models.{CreditCards, CreditCard, Addresses, Order, Orders, StoreCredits, StoreCredit, StoreCreditManuals,
 OrderPayments, OrderPayment, Customers, GiftCards, GiftCard, GiftCardManuals, StoreAdmins, Reasons,

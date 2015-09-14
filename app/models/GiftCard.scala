@@ -10,7 +10,7 @@ import services.Failure
 import utils.Litterbox._
 import utils.Validation
 
-import com.github.tototoshi.slick.PostgresJodaSupport._
+
 import com.pellucid.sealerate
 import models.GiftCard.{CustomerPurchase, OnHold, OriginType, Status}
 import monocle.macros.GenLens

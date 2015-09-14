@@ -4,7 +4,7 @@ import java.time.Instant
 
 import scala.concurrent.ExecutionContext
 
-import com.github.tototoshi.slick.PostgresJodaSupport._
+
 import models.Order.RemorseHold
 import models._
 import responses.FullOrder
