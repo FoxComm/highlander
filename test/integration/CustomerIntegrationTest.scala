@@ -14,7 +14,7 @@ import org.mockito.stubbing.Answer
 import org.scalatest.mock.MockitoSugar
 import payloads.CreateAddressPayload
 import services.{GeneralFailure, CannotUseInactiveCreditCard, CreditCardManager, NotFoundFailure}
-import services.{StripeExceptionError, GeneralFailure, Result, CannotUseInactiveCreditCard, CreditCardManager,
+import services.{StripeRuntimeException, GeneralFailure, Result, CannotUseInactiveCreditCard, CreditCardManager,
 NotFoundFailure}
 import util.IntegrationTestBase
 import utils.jdbc._
@@ -284,7 +284,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
           when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any())).
             thenReturn(Result.failure(
-              StripeExceptionError(
+              StripeRuntimeException(
                 new CardException(
                   "Your card's expiration year is invalid",
                   "invalid_expiry_year",

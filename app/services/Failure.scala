@@ -96,6 +96,6 @@ case object CreditCardMustHaveAddress extends Failure {
   override def description = List("cannot create creditCard without an address")
 }
 
-final case class RuntimeExceptionFailure[A <: RuntimeException](a: A) extends Failure {
-  val description = List(a.getMessage)
+final case class StripeRuntimeException[E <: StripeException](exception: E) extends Failure {
+  val description = List(exception.getMessage)
 }

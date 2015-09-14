@@ -10,7 +10,7 @@ import collection.JavaConversions.mapAsJavaMap
 
 import cats.data.Xor
 import com.stripe.net.RequestOptions
-import services.{GeneralFailure, RuntimeExceptionFailure, Result, Failures}
+import services.{GeneralFailure, StripeRuntimeException, Result, Failures}
 
 final case class Apis(stripe: StripeApi)
 
@@ -49,22 +49,21 @@ class WiredStripeApi extends StripeApi {
   def getExtAccount(customer: StripeCustomer, id: String, secretKey: String): Result[ExternalAccount] =
     async(secretKey)(requestOptions ⇒ customer.getSources.retrieve(id, requestOptions))
 
-  def updateExternalAccount(card: ExternalAccount, options: Map[String, AnyRef], secretKey: String): Result[ExternalAccount] = {
+  def updateExternalAccount(card: ExternalAccount, options: Map[String, AnyRef], secretKey: String): Result[ExternalAccount] =
     async(secretKey)(requestOptions ⇒ card.update(options, requestOptions))
-  }
 
   // TODO: This needs a life-cycle hook so we can shut it down.
   //       It does not share the Actor system’s thread pool by design,
   //       since it does blocking IO like it’s 1991.
-  private def async[A](secretKey: String)(code: RequestOptions ⇒ A): Future[Failures Xor A] = {
+  @inline protected [utils] final def async[A](secretKey: String)(code: RequestOptions ⇒ A): Future[Failures Xor A] = {
     val requestOptions = RequestOptions.builder().setApiKey(secretKey).build()
 
     implicit val ec: ExecutionContext = blockingEC
 
-    Future(code(requestOptions))(blockingEC).
+    Future(code(requestOptions)).
       flatMap(Result.good).
       recoverWith {
-        case re: RuntimeException ⇒ Result.failure(RuntimeExceptionFailure(re))
+        case e: StripeException ⇒ Result.failure(StripeRuntimeException(e))
       }
   }
 }
