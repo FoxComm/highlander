@@ -17,7 +17,7 @@ app.init = co.wrap(function *(env) {
     app.use(function *(next) { try { 
         yield next;
       } catch (err) {
-        if (401 == err.status) {
+        if (401 === err.status) {
           this.status = 401;
           this.set('WWW-Authenticate', 'Basic');
           this.body = 'the fox says you cannot pass';
