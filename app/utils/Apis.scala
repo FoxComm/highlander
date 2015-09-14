@@ -28,7 +28,8 @@ class WiredStripeApi extends StripeApi {
     inBlockingPool(secretKey)(requestOptions ⇒ StripeCustomer.retrieve(id, requestOptions))
 
   def findDefaultCard(customer: StripeCustomer, secretKey: String): Result[StripeCard] =
-    inBlockingPool(secretKey)(requestOptions ⇒ customer.getSources.retrieve(customer.getDefaultSource, requestOptions)).flatMap(accountToCard)(concurrent.ExecutionContext.global)
+    inBlockingPool(secretKey)(requestOptions ⇒ customer.getSources.retrieve(customer.getDefaultSource, requestOptions)).
+      flatMap(accountToCard)(blockingIOPool)
 
   @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.IsInstanceOf", "org.brianmckenna.wartremover.warts.AsInstanceOf"))
   final def accountToCard(account: Failures Xor ExternalAccount): Result[StripeCard] = account match {
