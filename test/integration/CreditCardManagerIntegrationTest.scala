@@ -1,7 +1,8 @@
+import java.time.ZonedDateTime
+
 import akka.http.scaladsl.model.StatusCodes
 
 import models.{Address, Customer, CreditCards, CreditCard, Customers, Addresses}
-import org.joda.time.DateTime
 import payloads.CreateAddressPayload
 import services.{CVCFailure, NotFoundFailure}
 import util.{StripeSupport, IntegrationTestBase}
@@ -22,9 +23,9 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
 
   "CreditCardManagerTest" - {
     "POST /v1/customers/:id/payment-methods/credit-cards" - {
-      val tomorrow = DateTime.now().plusDays(1)
+      val tomorrow = ZonedDateTime.now().plusDays(1)
       val payloadStub = payloads.CreateCreditCard(holderName = "yax", number = StripeSupport.successfulCard,
-        cvv = "123", expYear = tomorrow.getYear, expMonth = tomorrow.getMonthOfYear)
+        cvv = "123", expYear = tomorrow.getYear, expMonth = tomorrow.getMonthValue)
 
       def payloadWithFullAddress(p: payloads.CreateCreditCard, a: Address): payloads.CreateCreditCard = {
         p.copy(addressId = None, address = Some(CreateAddressPayload(

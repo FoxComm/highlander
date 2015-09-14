@@ -12,11 +12,12 @@ import responses.{StoreCreditAdjustmentsResponse, AllOrders, AllOrdersWithFailur
 GiftCardAdjustmentsResponse, StoreCreditResponse}
 import services._
 import slick.driver.PostgresDriver.api._
+import utils.Apis
 import utils.Slick.implicits._
 
 object Admin {
   def routes(implicit ec: ExecutionContext, db: Database,
-    mat: Materializer, storeAdminAuth: AsyncAuthenticator[StoreAdmin]) = {
+    mat: Materializer, storeAdminAuth: AsyncAuthenticator[StoreAdmin], apis: Apis) = {
     import Json4sSupport._
     import utils.Http._
 

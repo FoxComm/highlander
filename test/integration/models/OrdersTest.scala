@@ -1,12 +1,13 @@
 package models
 
+import java.time.{ZoneId, Instant, ZonedDateTime}
+
 import models.Order._
-import org.joda.time.DateTime
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.implicits._
-import com.github.tototoshi.slick.PostgresJodaSupport._
+import utils.time._
 
 class OrdersTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global
@@ -38,12 +39,12 @@ class OrdersTest extends IntegrationTestBase {
       db.run(Orders.update(order.copy(status = RemorseHold))).futureValue
 
       val updatedOrder = Orders.findByRefNum(order.referenceNumber).result.run().futureValue.head
-      updatedOrder.remorsePeriodEnd.get.minuteOfHour() must === (DateTime.now.plusMinutes(30).minuteOfHour())
+      updatedOrder.remorsePeriodEnd.get.minuteOfHour must === (Instant.now.plusMinutes(30).minuteOfHour)
     }
 
     "trigger resets remorse period after status changes from RemorseHold" in {
       val order = Orders.save(Factories.order.copy(
-        remorsePeriodEnd = Some(DateTime.now),
+        remorsePeriodEnd = Some(Instant.now),
         status = RemorseHold))
         .run().futureValue
 

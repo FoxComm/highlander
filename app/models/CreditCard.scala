@@ -1,16 +1,16 @@
 package models
 
+import java.time.Instant
+
 import cats.implicits._
 import utils.Litterbox._
 
 import scala.concurrent.ExecutionContext
 
 import cats.data.ValidatedNel
-import com.github.tototoshi.slick.PostgresJodaSupport._
 import com.stripe.model.{Card ⇒ StripeCard, Customer ⇒ StripeCustomer}
 import monocle.Lens
 import monocle.macros.GenLens
-import org.joda.time.DateTime
 import payloads.CreateCreditCard
 import services.{Failure, Result, StripeGateway}
 import slick.driver.PostgresDriver.api._
@@ -19,7 +19,7 @@ import utils._
 final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerId: Int, gatewayCustomerId: String,
   gatewayCardId: String, holderName: String, lastFour: String, expMonth: Int, expYear: Int,
   isDefault: Boolean = false, address1Check: Option[String] = None, zipCheck: Option[String] = None,
-  inWallet: Boolean = true, deletedAt: Option[DateTime] = None, regionId: Int, addressName: String,
+  inWallet: Boolean = true, deletedAt: Option[Instant] = None, regionId: Int, addressName: String,
   address1: String, address2: Option[String] = None, city: String, zip: String)
   extends PaymentMethod
   with ModelWithIdParameter
@@ -77,7 +77,7 @@ class CreditCards(tag: Tag)
   def address1Check = column[Option[String]]("address1_check")
   def zipCheck = column[Option[String]]("zip_check")
   def inWallet = column[Boolean]("in_wallet")
-  def deletedAt = column[Option[DateTime]]("deleted_at")
+  def deletedAt = column[Option[Instant]]("deleted_at")
 
   def regionId = column[Int]("region_id")
   def addressName = column[String]("address_name")

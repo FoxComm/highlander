@@ -1,11 +1,10 @@
+import java.time.Instant
+
 import akka.http.scaladsl.model.StatusCodes
 import akka.pattern.ask
 import akka.testkit.TestActorRef
 
 import models._
-import org.joda.time.Minutes.minutesBetween
-import org.joda.time.DateTime
-import org.joda.time.Seconds.secondsBetween
 import payloads.UpdateOrderPayload
 import responses.{AdminNotes, FullOrder}
 import services.LockAwareOrderUpdater.NewRemorsePeriodEnd
@@ -17,6 +16,8 @@ import slick.driver.PostgresDriver.api._
 import Order._
 import utils.{RemorseTimer, Tick}
 import models.OrderLockEvents.scope._
+
+import utils.time._
 
 class OrderIntegrationTest extends IntegrationTestBase
   with HttpSupport
@@ -204,18 +205,18 @@ class OrderIntegrationTest extends IntegrationTestBase
       val order2 = getUpdated(refNum)
       val newRemorseEnd = order2.remorsePeriodEnd.get
 
-      secondsBetween(originalRemorseEnd, newRemorseEnd).getSeconds mustBe >=(3)
+      originalRemorseEnd.durationUntil(newRemorseEnd).getSeconds mustBe >= (3L)
       order2.status must ===(Order.RemorseHold)
     }
 
     "uses most recent lock record" in new RemorseFixture {
-      OrderLockEvents.save(OrderLockEvent(id = 1, lockedBy = 1, orderId = 1, lockedAt = DateTime.now.minusMinutes(30)))
+      OrderLockEvents.save(OrderLockEvent(id = 1, lockedBy = 1, orderId = 1, lockedAt = Instant.now.minusMinutes(30)))
 
       POST(s"v1/orders/$refNum/lock")
       POST(s"v1/orders/$refNum/unlock")
 
       val newRemorseEnd = getUpdated(order.referenceNumber).remorsePeriodEnd.get
-      minutesBetween(originalRemorseEnd, newRemorseEnd).getMinutes mustBe 0
+      originalRemorseEnd.durationUntil(newRemorseEnd).getMinutes mustBe 0
     }
 
     "adds 15 minutes to remorse if order lock event is absent" in new RemorseFixture {
@@ -598,7 +599,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       admin ← StoreAdmins.save(Factories.storeAdmin)
       order ← Orders.save(Factories.order.copy(
         status = Order.RemorseHold,
-        remorsePeriodEnd = Some(DateTime.now.plusMinutes(30))))
+        remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
     } yield (admin, order)).run().futureValue
 
     val refNum = order.referenceNumber

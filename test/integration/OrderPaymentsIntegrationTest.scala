@@ -1,12 +1,13 @@
+import java.time.ZonedDateTime
+
 import akka.http.scaladsl.model.StatusCodes
 
-import com.github.tototoshi.slick.PostgresJodaSupport._
+
 import models.Order._
 import models.{CreditCards, CreditCard, Addresses, Order, Orders, StoreCredits, StoreCredit, StoreCreditManuals,
 OrderPayments, OrderPayment, Customers, GiftCards, GiftCard, GiftCardManuals, StoreAdmins, Reasons,
 PaymentMethod}
 import models.OrderPayments.scope._
-import org.joda.time.DateTime
 import services.{OrderPaymentNotFoundFailure, CannotUseInactiveCreditCard, CustomerHasInsufficientStoreCredit,
 CreditCardManager, GiftCardIsInactive, GiftCardNotEnoughBalance, GiftCardNotFoundFailure, NotFoundFailure,
 OrderNotFoundFailure}
@@ -14,6 +15,8 @@ import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.implicits._
+
+import utils.time.JavaTimeSlickMapper.instantAndTimestampWithoutZone
 
 class OrderPaymentsIntegrationTest extends IntegrationTestBase
   with HttpSupport
@@ -125,8 +128,8 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       "when successful" - {
         "uses store credit records in FIFO order according to createdAt" in new StoreCreditFixture {
           // ensure 3 & 4 are oldest so 5th should not be used
-          StoreCredits.filter(_.id === 3).map(_.createdAt).update(DateTime.now().minusMonths(2)).run().futureValue
-          StoreCredits.filter(_.id === 4).map(_.createdAt).update(DateTime.now().minusMonths(1)).run().futureValue
+          StoreCredits.filter(_.id === 3).map(_.createdAt).update(ZonedDateTime.now().minusMonths(2).toInstant).run().futureValue
+          StoreCredits.filter(_.id === 4).map(_.createdAt).update(ZonedDateTime.now().minusMonths(1).toInstant).run().futureValue
 
           val payload = payloads.StoreCreditPayment(amount = 75)
           val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)

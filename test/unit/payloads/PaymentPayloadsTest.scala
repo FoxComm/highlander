@@ -1,16 +1,17 @@
 package payloads
 
+import java.time.ZonedDateTime
+
 import services.{Failure, GeneralFailure}
 import util.TestBase
 import org.scalatest.prop.TableDrivenPropertyChecks._
-import org.joda.time.DateTime
 import utils.Seeds.Factories
 import util.CustomMatchers._
 import cats.data.NonEmptyList
 import cats.implicits._
 
 class PaymentPayloadsTest extends TestBase {
-  val today = DateTime.now()
+  val today = ZonedDateTime.now()
   val cc = Factories.creditCard
 
   "CreateCreditCard" - {
@@ -48,7 +49,7 @@ class PaymentPayloadsTest extends TestBase {
       }
 
       "fails with expired date" in {
-        val expired = valid.copy(expMonth = today.minusMonths(1).getMonthOfYear.some, expYear = today.getYear.some)
+        val expired = valid.copy(expMonth = today.minusMonths(1).getMonthValue.some, expYear = today.getYear.some)
 
         val cards = Table(
           ("payload", "errors"),

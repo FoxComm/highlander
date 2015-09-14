@@ -1,12 +1,14 @@
 package utils
 
+import java.time.{ZoneId, Instant}
+import java.time.temporal.ChronoField
+
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
 import models._
 import models.rules._
 import org.flywaydb.core.Flyway
-import org.joda.time.DateTime
 import org.postgresql.ds.PGSimpleDataSource
 import slick.dbio
 import slick.dbio.Effect.{All, Write}
@@ -15,7 +17,7 @@ import slick.driver.PostgresDriver.api._
 import utils.Money.Currency
 
 object Seeds {
-  val today = new DateTime
+  val today = Instant.now().atZone(ZoneId.of("UTC"))
 
   final case class TheWorld(customers: Seq[Customer], order: Order, orderNotes: Seq[Note], address: Address,
     cc: CreditCard, storeAdmin: StoreAdmin, shippingAddresses: Seq[OrderShippingAddress],
@@ -143,11 +145,12 @@ object Seeds {
     def shippingAddress = OrderShippingAddress(regionId = 4174, name = "Old Yax", address1 = "9313 Olde Mill Pond Dr",
       address2 = None, city = "Glen Allen", zip = "23060", phoneNumber = None)
 
-    def creditCard =
+    def creditCard = {
       CreditCard(customerId = 0, gatewayCustomerId = "cus_6uzC8j5doSTWth", gatewayCardId = "", holderName = "Yax", lastFour = "4242",
-        expMonth = today.getMonthOfYear, expYear = today.getYear + 2, isDefault = true,
+        expMonth = today.getMonthValue, expYear = today.getYear + 2, isDefault = true,
         regionId = 4129, addressName = "Old Jeff", address1 = "95 W. 5th Ave.", address2 = Some("Apt. 437"),
         city = "San Mateo", zip = "94402")
+    }
 
     def reason = Reason(id = 0, storeAdminId = 0, body = "I'm a reason", parentId = None)
 

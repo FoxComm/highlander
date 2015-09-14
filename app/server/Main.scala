@@ -18,7 +18,7 @@ import org.json4s.jackson.Serialization.{write ⇒ json}
 import services._
 import slick.driver.PostgresDriver
 import slick.driver.PostgresDriver.api._
-import utils.{RemorseTimer, RemorseTimerMate, Tick}
+import utils.{WiredStripeApi, Apis, RemorseTimer, RemorseTimerMate, Tick}
 
 object Main {
   def main(args: Array[String]): Unit = {
@@ -30,7 +30,8 @@ object Main {
 
 class Service(
   systemOverride: Option[ActorSystem] = None,
-  dbOverride:     Option[Database]    = None
+  dbOverride:     Option[Database]    = None,
+  apisOverride:   Option[Apis]        = None
 ) {
 
   import utils.JsonFormatters._
@@ -50,7 +51,8 @@ class Service(
 
   val logger = Logging(system, getClass)
 
-  implicit val db: Database = dbOverride.getOrElse(Database.forConfig("db", config))
+  implicit val db:   Database = dbOverride.getOrElse(Database.forConfig("db", config))
+  implicit val apis: Apis     = apisOverride.getOrElse(Apis(new WiredStripeApi))
 
   implicit def storeAdminAuth: AsyncAuthenticator[StoreAdmin] = Authenticator.storeAdmin
 
