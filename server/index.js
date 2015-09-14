@@ -34,7 +34,7 @@ app.init = co.wrap(function *(env) {
   if (app.env !== 'production') {
     app.use(require('koa-logger')());
   }
-  if 
+  
   require(`${__dirname}/middleware`)(app);
   require(`${__dirname}/api`)(app);
   require(`${__dirname}/fauxnix`)(app);
