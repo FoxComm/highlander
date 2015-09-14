@@ -133,7 +133,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       giftCard ← GiftCards.save(Factories.giftCard.copy(originId = origin.id))
       payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = giftCard.id,
         paymentMethodType = PaymentMethod.GiftCard))
-      adjustment ← GiftCardAdjustments.save(Factories.giftCardAdjusment.copy(giftCardId = giftCard.id, debit = 10,
+      adjustment ← GiftCardAdjustments.save(Factories.giftCardAdjustment.copy(giftCardId = giftCard.id, debit = 10,
         orderPaymentId = payment.id, status = GiftCardAdjustment.Auth))
     } yield (admin, giftCard)).run().futureValue
   }

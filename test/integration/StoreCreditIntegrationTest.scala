@@ -20,13 +20,12 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
   "StoreCredits" - {
     "POST /v1/customers/:id/payment-methods/store-credit" - {
       "when successful" - {
-        "responds with the new storeCredit and empty adjustments" in new Fixture {
+        "responds with the new storeCredit" in new Fixture {
           val payload = payloads.CreateManualStoreCredit(amount = 25, reasonId = reason.id)
           val response = POST(s"v1/customers/${customer.id}/payment-methods/store-credit", payload)
-          val sc = response.as[responses.StoreCredit.Root]
+          val sc = response.as[responses.StoreCreditResponse.Root]
 
           response.status must === (StatusCodes.OK)
-          sc.transactions mustBe 'empty
           sc.status must === (StoreCredit.Active)
         }
       }

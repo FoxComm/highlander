@@ -86,6 +86,8 @@ object Seeds {
       gcReason ← Reasons.save(Factories.reason.copy(storeAdminId = storeAdmin.id))
       gcOrigin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = storeAdmin.id, reasonId = gcReason.id))
       giftCard ← GiftCards.save(s.paymentMethods.giftCard.copy(originId = gcOrigin.id))
+      gcAdjustments ← GiftCardAdjustments.save(Factories.giftCardAdjustment.copy(giftCardId = giftCard.id, debit = 10,
+        orderPaymentId = orderPayments.id, status = GiftCardAdjustment.Auth))
       scReason ← Reasons.save(Factories.reason.copy(storeAdminId = storeAdmin.id))
       scOrigin ← StoreCreditManuals.save(Factories.storeCreditManual.copy(adminId = storeAdmin.id, reasonId = scReason.id))
       storeCredit ← StoreCredits.save(s.paymentMethods.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))
@@ -159,7 +161,7 @@ object Seeds {
 
     def giftCardManual = GiftCardManual(adminId = 0, reasonId = 0)
 
-    def giftCardAdjusment = GiftCardAdjustment.build(giftCard, giftCardPayment)
+    def giftCardAdjustment = GiftCardAdjustment.build(giftCard, giftCardPayment)
 
     def shippingMethods = Seq(
       ShippingMethod(adminDisplayName = "UPS Ground", storefrontDisplayName = "UPS Ground", defaultPrice = 10,
