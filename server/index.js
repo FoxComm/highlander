@@ -13,7 +13,7 @@ const app = koa();
 app.init = co.wrap(function *(env) {
   if (env) { app.env = env; }
   app.config = new Config(app.env);
-  if (app.env == 'staging') {
+  if (app.env === 'staging') {
     app.use(function *(next) { try { 
         yield next;
       } catch (err) {
