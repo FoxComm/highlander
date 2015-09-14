@@ -7,7 +7,7 @@ import { dispatch } from '../../lib/dispatcher';
 
 export default class LineItemCounter extends React.Component {
   onChange(newValue) {
-    this.props.onChange([{'skuId': this.props.model.skuId, 'qty': +newValue}]);
+    this.props.onChange([{'skuId': this.props.model.skuId, 'quantity': +newValue}]);
   }
 
   render() {

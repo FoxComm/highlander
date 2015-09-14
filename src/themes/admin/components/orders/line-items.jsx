@@ -10,7 +10,7 @@ import LineItemCounter from './line-item-counter';
 import DeleteLineItem from './line-item-delete';
 
 const defaultColumns = [
-  {field: 'image', text: 'Image', type: 'image'},
+  {field: 'imagePath', text: 'Image', type: 'image'},
   {field: 'name', text: 'Name'},
   {field: 'skuId', text: 'SKU'},
   {field: 'price', text: 'Price', type: 'currency'},
@@ -19,7 +19,7 @@ const defaultColumns = [
 ];
 
 const editColumns = [
-  {field: 'image', text: 'Image', type: 'image'},
+  {field: 'imagePath', text: 'Image', type: 'image'},
   {field: 'name', text: 'Name'},
   {field: 'skuId', text: 'SKU'},
   {field: 'price', text: 'Price', type: 'currency'},

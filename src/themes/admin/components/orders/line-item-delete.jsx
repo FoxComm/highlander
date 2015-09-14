@@ -6,7 +6,7 @@ export default class DeleteLineItem extends React.Component {
   onClick() {
     let success = confirm('Do you want to delete the item?');
     if (success) {
-      this.props.onDelete([{'skuId': this.props.model.skuId, 'qty': 0}]);
+      this.props.onDelete([{'skuId': this.props.model.skuId, 'quantity': 0}]);
     }
   }
 
