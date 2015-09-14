@@ -20,6 +20,7 @@ object JsonFormatters {
     GiftCard.Status.jsonFormat +
     GiftCardAdjustment.Status.jsonFormat +
     StoreCredit.Status.jsonFormat +
+    StoreCredit.OriginType.jsonFormat +
     StoreCreditAdjustment.Status.jsonFormat +
     CreditCardCharge.Status.jsonFormat +
     CountryWithRegions.jsonFormat +

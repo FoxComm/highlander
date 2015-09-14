@@ -1,8 +1,7 @@
 package responses
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
-import cats.data.Xor
 import models.{GiftCard, GiftCardAdjustment, GiftCardAdjustments, Order}
 import services.Result
 import slick.driver.PostgresDriver.api._

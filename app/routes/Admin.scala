@@ -159,7 +159,7 @@ object Admin {
           (get & path(IntNumber)) { storeCreditId ⇒
             complete {
               whenFound(StoreCredits.findById(storeCreditId).run()) { storeCredit ⇒
-                responses.StoreCreditResponse.fromStoreCredit(storeCredit).map(Xor.right)
+                Result.right(responses.StoreCreditResponse.build(storeCredit))
               }
             }
           } ~
