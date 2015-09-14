@@ -88,8 +88,7 @@ object Seeds {
       giftCard ← GiftCards.save(s.paymentMethods.giftCard.copy(originId = gcOrigin.id))
       scReason ← Reasons.save(Factories.reason.copy(storeAdminId = storeAdmin.id))
       scOrigin ← StoreCreditManuals.save(Factories.storeCreditManual.copy(adminId = storeAdmin.id, reasonId = scReason.id))
-      storeCredit ← StoreCredits.save(s.paymentMethods.storeCredit.copy(originId = scOrigin.id, customerId = customer
-        .id))
+      storeCredit ← StoreCredits.save(s.paymentMethods.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))
       storeCreditAdjustments ← StoreCredits.auth(storeCredit, orderPayments.id, 10)
     } yield (customers, order, address, shippingAddress, creditCard, giftCard, storeCredit)
   }
@@ -150,7 +149,7 @@ object Seeds {
 
     def reason = Reason(id = 0, storeAdminId = 0, body = "I'm a reason", parentId = None)
 
-    def storeCredit = StoreCredit(customerId = 0, originId = 0, originType = "FIXME", originalBalance = 50,
+    def storeCredit = StoreCredit(customerId = 0, originId = 0, originType = StoreCredit.CsrAppeasement, originalBalance = 50,
       currency = Currency.USD)
 
     def storeCreditManual = StoreCreditManual(adminId = 0, reasonId = 0)

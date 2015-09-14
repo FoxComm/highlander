@@ -17,8 +17,8 @@ object StoreCreditService {
         val actions = for {
           origin  ← StoreCreditManuals.save(StoreCreditManual(adminId = admin.id, reasonId = payload.reasonId, subReasonId =
             payload.subReasonId))
-          sc      ← StoreCredits.save(StoreCredit(customerId = customerId, originId = origin.id, originType = "CSR",
-            currency = payload.currency, originalBalance = payload.amount))
+          sc      ← StoreCredits.save(StoreCredit(customerId = customerId, originId = origin.id, originType =
+            StoreCredit.CsrAppeasement, currency = payload.currency, originalBalance = payload.amount))
           adjustments = List.empty[StoreCreditAdjustment]
         } yield (sc, origin, adjustments)
 

@@ -12,7 +12,7 @@ object StoreCreditResponse {
   final case class Root(
     id: Int,
     originId: Int,
-    originType: String,
+    originType: models.StoreCredit.OriginType,
     currency: Currency,
     originalBalance: Int,
     currentBalance: Int,
