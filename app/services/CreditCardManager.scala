@@ -92,7 +92,7 @@ object CreditCardManager {
   }
 
   def editCreditCard(customerId: Int, id: Int, payload: EditCreditCard)
-    (implicit ec: ExecutionContext, db: Database, api: Apis): Result[CreditCard] = {
+    (implicit ec: ExecutionContext, db: Database, apis: Apis): Result[CreditCard] = {
 
     def update(cc: CreditCard): ResultT[DBIO[CreditCard]] = {
       if (!cc.inWallet)
