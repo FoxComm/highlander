@@ -35,9 +35,7 @@ object Admin {
         } ~
         (get & path(Segment / "transactions") & pathEnd) { code ⇒
           complete {
-            whenFound(GiftCards.findByCode(code).one.run()) { giftCard ⇒
-              GiftCardAdjustmentsResponse.forGiftCard(giftCard)
-            }
+            GiftCardAdjustmentsService.forGiftCard(code).map(renderGoodOrFailures)
           }
         } ~
         path(Segment / "notes") { code ⇒
@@ -77,9 +75,7 @@ object Admin {
         } ~
         (get & path("transactions") & pathEnd) {
           complete {
-            whenFound(StoreCredits.findById(storeCreditId).run()) { storeCredit ⇒
-              StoreCreditAdjustmentsResponse.forStoreCredit(storeCredit)
-            }
+            StoreCreditAdjustmentsService.forStoreCredit(storeCreditId).map(renderGoodOrFailures)
           }
         }
       } ~
