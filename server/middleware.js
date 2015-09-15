@@ -31,9 +31,18 @@ module.exports = function(app) {
     try {
       yield next;
     } catch(err) {
-      let message = err.message || err.response.error;
       this.status = err.status || 500;
-      this.body = {error: message};
+
+      let body;
+
+      if (err.response) {
+        body = err.response;
+      } else if (err.stack && this.env !== 'production') {
+        body = {error: err.stack};
+      } else {
+        body = {error: err.message ? err.message : String(err)};
+      }
+      this.body = body;
     }
   };
 
