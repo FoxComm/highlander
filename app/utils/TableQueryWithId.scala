@@ -7,6 +7,7 @@ import monocle.Lens
 import services._
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
+import utils.Slick.DbResult
 import utils.Slick._
 import utils.Slick.DbResult._
 import utils.Slick.implicits._
@@ -81,18 +82,22 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.Tab
 
   implicit class TableQuerySeqConversions(q: QuerySeq) {
 
-    def findOneAndRun[R](action: M ⇒ DbResult[R])
+    protected def findOneAndRunInner[R](checks: Option[M] ⇒ Failures Xor M)(action: M ⇒ DbResult[R])
       (implicit ec: ExecutionContext, db: Database): Result[R] = {
-      selectForUpdate(q).flatMap {
+      selectForUpdate(q).map(checks).flatMap {
         case Xor.Right(value) ⇒ action(value)
         case failures @ Xor.Left(_) ⇒ lift(failures)
       }.transactionally.run()
     }
 
-    protected def selectForUpdate(finder: QuerySeq)
-      (implicit ec: ExecutionContext, db: Database): DbResult[M] = {
+    def findOneAndRun[R](action: M ⇒ DbResult[R])
+      (implicit ec: ExecutionContext, db: Database): Result[R] = {
+      findOneAndRunInner(runChecks)(action)
+    }
 
-      Slick.appendForUpdate(finder.result.headOption).map(runChecks)
+    protected def selectForUpdate(finder: QuerySeq)
+      (implicit ec: ExecutionContext, db: Database): DBIO[Option[M]] = {
+      Slick.appendForUpdate(finder.result.headOption)
     }
 
     protected def runChecks(maybe: Option[M])
@@ -108,6 +113,11 @@ abstract class TableQueryWithLock[M <: ModelWithLockParameter, T <: GenericTable
   (implicit ev: BaseTypedType[M#Id]) extends TableQueryWithId[M, T](idLens)(construct) {
 
   implicit class TableWithLockQuerySeqConversions(q: QuerySeq) extends TableQuerySeqConversions(q) {
+
+    def findOneAndRunIgnoringLock[R](action: M ⇒ DbResult[R])
+      (implicit ec: ExecutionContext, db: Database): Result[R] = {
+      findOneAndRunInner(super.runChecks)(action)
+    }
 
     override def runChecks(maybe: Option[M])
       (implicit ec: ExecutionContext, db: Database): Xor[Failures, M] = {
