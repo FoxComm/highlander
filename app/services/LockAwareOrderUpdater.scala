@@ -1,16 +1,17 @@
 package services
 
-import java.time.Instant
-
+import java.time.{Duration, Instant}
+import utils.time._
 import scala.concurrent.ExecutionContext
 
-
 import models.Order.RemorseHold
+import models.OrderLockEvents.scope._
 import models._
 import responses.FullOrder
 import slick.driver.PostgresDriver.api._
 import utils.Slick.UpdateReturning._
 import utils.Slick._
+import utils.Slick.implicits._
 
 object LockAwareOrderUpdater {
 
@@ -40,11 +41,33 @@ object LockAwareOrderUpdater {
         case RemorseHold ⇒
           DbResult.fromDbio(finder
             .map(_.remorsePeriodEnd)
-            .updateReturning(updatedOrder, order.remorsePeriodEnd.map(_.plusSeconds(15 * 60))).head
+            .updateReturning(updatedOrder, order.remorsePeriodEnd.map(_.plusMinutes(15))).head
             .map(order ⇒ new NewRemorsePeriodEnd(order.remorsePeriodEnd)))
 
         case _ ⇒ DbResult.failure(GeneralFailure("Order is not in RemorseHold status"))
       }
+    }
+  }
+
+  private def doUnlock(orderId: Int, remorseEnd: Option[Instant])(implicit ec: ExecutionContext, db: Database) = {
+    Orders._findById(orderId).extract
+      .map { o ⇒ (o.locked, o.remorsePeriodEnd) }
+      .updateReturning(updatedOrder, (false, remorseEnd)).head
+      .flatMap { o ⇒ DbResult.fromFuture(FullOrder.fromOrder(o)) }
+  }
+
+  def unlock(refNum: String)(implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
+    Orders.findByRefNum(refNum).findOneAndRunIgnoringLock { order ⇒
+      if (order.locked) {
+        OrderLockEvents.findByOrder(order).mostRecentLock.one.flatMap {
+          case Some(lockEvent) ⇒
+            val lockedPeriod = Duration.between(lockEvent.lockedAt, Instant.now)
+            val newEnd = order.remorsePeriodEnd.map(_.plus(lockedPeriod))
+            doUnlock(order.id, newEnd)
+          case None ⇒
+            doUnlock(order.id, order.remorsePeriodEnd.map(_.plusMinutes(15)))
+        }
+      } else DbResult.failure(GeneralFailure("Order is not locked"))
     }
   }
 }
