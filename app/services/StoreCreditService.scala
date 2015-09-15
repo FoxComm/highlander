@@ -2,6 +2,7 @@ package services
 
 import scala.concurrent.ExecutionContext
 
+import cats.data.Xor
 import models.{Customer, Customers, StoreAdmin, StoreCredit, StoreCreditManual, StoreCreditManuals, StoreCredits}
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
@@ -18,13 +19,26 @@ object StoreCreditService {
             subReasonId = payload.subReasonId))
           sc      ← StoreCredits.save(StoreCredit(customerId = customerId, originId = origin.id, originType =
             StoreCredit.CsrAppeasement, currency = payload.currency, originalBalance = payload.amount))
-        } yield (sc, origin)
+        } yield sc
 
-        actions.run().flatMap(res ⇒ Result.right(build(res._1)))
+        actions.run().flatMap(sc ⇒ Result.right(build(sc)))
 
       case None ⇒
         Result.left(NotFoundFailure(Customer, customerId).single)
     }
   }
+
+  def getById(id: Int)(implicit db: Database, ec: ExecutionContext): Result[Root] = {
+    fetchDetails(id).run().flatMap {
+      case Some(storeCredit) ⇒
+        Result.right(responses.StoreCreditResponse.build(storeCredit))
+      case _ ⇒
+        Result.failure(StoreCreditNotFoundFailure(id))
+    }
+  }
+
+  private def fetchDetails(id: Int)(implicit db: Database, ec: ExecutionContext) = for {
+    storeCredit ← StoreCredits.findById(id)
+  } yield storeCredit
 }
 

@@ -5,7 +5,7 @@ import cats.data.NonEmptyList
 import cats.data.Validated.Invalid
 import cats.implicits._
 import com.stripe.exception.StripeException
-import models.{CreditCard, GiftCard, Order}
+import models.{CreditCard, GiftCard, Order, StoreCredit}
 import utils.{ModelWithIdParameter, Validation}
 import utils.friendlyClassName
 
@@ -61,6 +61,11 @@ object OrderNotFoundFailure {
 object GiftCardNotFoundFailure {
   def apply(giftCard: GiftCard): NotFoundFailure = apply(giftCard.code)
   def apply(code: String): NotFoundFailure = NotFoundFailure(s"giftCard with code=$code not found")
+}
+
+object StoreCreditNotFoundFailure {
+  def apply(storeCredit: StoreCredit): NotFoundFailure = apply(storeCredit.id)
+  def apply(id: Int): NotFoundFailure = NotFoundFailure(s"storeCredit with id=$id not found")
 }
 
 object OrderPaymentNotFoundFailure {

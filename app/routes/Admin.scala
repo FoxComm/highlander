@@ -72,9 +72,7 @@ object Admin {
       pathPrefix("store-credits" / IntNumber) { storeCreditId ⇒
         (get & pathEnd) {
           complete {
-            whenFound(StoreCredits.findById(storeCreditId).run()) { storeCredit ⇒
-              Result.right(responses.StoreCreditResponse.build(storeCredit))
-            }
+            StoreCreditService.getById(storeCreditId).map(renderGoodOrFailures)
           }
         } ~
         (get & path("transactions") & pathEnd) {
