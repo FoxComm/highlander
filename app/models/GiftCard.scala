@@ -97,7 +97,8 @@ class GiftCards(tag: Tag) extends GenericTable.TableWithId[GiftCard](tag, "gift_
   def createdAt = column[Instant]("created_at")
 
   def * = (id, originId, originType, code, currency, status, originalBalance, currentBalance,
-    availableBalance, canceledReason, reloadable, createdAt) <> ((GiftCard.apply _).tupled, GiftCard.unapply)
+    availableBalance, canceledAmount, canceledReason, reloadable, createdAt) <> ((GiftCard.apply _).tupled, GiftCard
+    .unapply)
 }
 
 object GiftCards extends TableQueryWithId[GiftCard, GiftCards](

@@ -115,7 +115,8 @@ class StoreCredits(tag: Tag) extends GenericTable.TableWithId[StoreCredit](tag, 
   def createdAt = column[Instant]("created_at")
 
   def * = (id, customerId, originId, originType, currency, originalBalance, currentBalance,
-    availableBalance, status, canceledReason, createdAt) <> ((StoreCredit.apply _).tupled, StoreCredit.unapply)
+    availableBalance, status, canceledAmount, canceledReason, createdAt) <> ((StoreCredit.apply _).tupled, StoreCredit
+    .unapply)
 }
 
 object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
