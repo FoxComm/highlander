@@ -9,6 +9,7 @@
     "start": "iojs --harmony boot.js",
     "phoenix": "NODE_ENV=phoenix npm run dev",
     "restart": "kill -USR2 $(ps aux | grep '[m]-ashes' | awk '{print $2}')",
+    "stop": "kill -USR2 $(ps aux | grep '[m]-ashes' | awk '{print $2}')",
     "build": "./node_modules/.bin/gulp",
     "dev": "./node_modules/.bin/gulp dev"
   },
