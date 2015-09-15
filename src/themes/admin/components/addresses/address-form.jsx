@@ -40,7 +40,7 @@ export default class AddressForm extends React.Component {
   onChangeCountryStore(countries) {
     this.setState({countries});
 
-    if (!this.state.country) {
+    if (!this.state.country && !this.countryWillFetch) {
       this.updateRegions();
     }
   }
@@ -51,15 +51,17 @@ export default class AddressForm extends React.Component {
       countryId = country.id;
     }
 
+    this.countryWillFetch = true;
     CountryStore.fetch(countryId)
       .then(country => {
         this.setState({
           country,
-          countryId
+          countryId,
+          formData: _.extend(this.state.formData, {regionId: country.regions[0].id})
         });
       })
-      .catch(err => {
-        console.error(err);
+      .catch(({errors}) => {
+        this.setState({errors});
       });
   }
 

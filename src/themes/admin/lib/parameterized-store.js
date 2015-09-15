@@ -1,5 +1,6 @@
 'use strict';
 
+import _ from 'lodash';
 import Api from './api';
 import EventedStore from './evented-store';
 
@@ -19,30 +20,35 @@ export default class ParameterizedStore extends EventedStore {
     return id !== null ? `${uri}/${id}` : uri;
   }
 
+  findModel(baseId, id) {
+    return this._findModel(this.models[baseId], id);
+  }
+
+  findWhere(baseId, ...args) {
+    return this._findWhere(this.models[baseId], ...args);
+  }
+
   notifyChanged(baseId) {
     this.dispatch('change', baseId, this.models[baseId]);
   }
 
   update(baseId, res) {
-    this.models[baseId] = res;
+    if (!this.models[baseId]) {
+      this.models[baseId] = _.isArray(res) ? res : [res];
+    }
+    this._update(this.models[baseId], res);
     this.notifyChanged(baseId);
   }
 
-  fetch(baseId, id=null) {
-    return Api.get(this.uri(baseId, id))
-      .then((res) => { this.update(baseId, res); return res; })
-      .catch((err) => { this.apiError(err); return err; });
+  updateBehaviour(res, baseId) {
+    this.update(baseId, res);
   }
 
   patch(baseId, id, changes) {
-    return Api.patch(this.uri(baseId, id), changes)
-      .then((res) => { this.update(res); return res; })
-      .catch((err) => { this.apiError(err); return err; });
+    return super.patch(changes, baseId, id);
   }
 
   create(baseId, data) {
-    return Api.post(this.uri(baseId), data)
-      .then((res) => { this.update(res); return res; })
-      .catch((err) => { this.apiError(err); return err; });
+    return super.create(data, baseId);
   }
 }
