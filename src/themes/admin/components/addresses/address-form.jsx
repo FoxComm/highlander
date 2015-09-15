@@ -186,7 +186,7 @@ export default class AddressForm extends React.Component {
               </li>
               <li>
                 <label htmlFor={nextId()}>Phone</label>
-                <input id={nextId()} type="tel" name="phoneNumber" required />
+                <input id={nextId()} type="tel" name="phoneNumber"  />
               </li>
               <li className="fc-address-form-controls">
                 <a onClick={this.close.bind(this)} className="fc-address-form-cancel" href="javascript:void(0)">Cancel</a>

@@ -17,7 +17,7 @@ class ErrorResponse {
     if (this.isNativeError) {
       return [this.data];
     } else {
-      return this.data.errors
+      return this.data.errors || [this.data.error];
     }
   }
 }
