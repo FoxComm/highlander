@@ -14,7 +14,7 @@ const defaultColumns = [
   {field: 'name', text: 'Name'},
   {field: 'skuId', text: 'SKU'},
   {field: 'price', text: 'Price', type: 'currency'},
-  {field: 'qty', text: 'Quantity'},
+  {field: 'quantity', text: 'Quantity'},
   {field: 'total', text: 'Total', type: 'currency'}
 ];
 

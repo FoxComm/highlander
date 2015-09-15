@@ -12,7 +12,7 @@ export default class LineItemCounter extends React.Component {
 
   render() {
     return (
-      <Counter defaultValue={this.props.model.qty} stepAmount={1} minValue={0} maxValue={1000000} onChange={this.onChange.bind(this)} />
+      <Counter defaultValue={this.props.model.quantity} stepAmount={1} minValue={0} maxValue={1000000} onChange={this.onChange.bind(this)} />
     );
   }
 }
