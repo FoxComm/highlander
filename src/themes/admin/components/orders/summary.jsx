@@ -26,7 +26,7 @@ export default class OrderSummary extends React.Component {
 
     return (
       <div className="fc-order-summary fc-content-box">
-        <header className="header">Order Summary</header>
+        <header>Order Summary</header>
         <article>
           <dl className="order-totals">
             <dt>Subtotal</dt>
