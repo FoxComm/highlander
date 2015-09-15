@@ -33,6 +33,7 @@ object FullOrder {
     sku: String,
     price: Int = 33,
     quantity: Int = 1,
+    totalPrice: Int = 33,
     status: OrderLineItem.Status
     )
 
