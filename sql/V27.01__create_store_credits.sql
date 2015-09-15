@@ -8,6 +8,7 @@ create table store_credits (
     original_balance integer not null,
     current_balance integer not null,
     available_balance integer not null,
+    canceled_amount integer not null,
     canceled_reason character varying(255) null,
     created_at timestamp without time zone default (now() at time zone 'utc'),
     updated_at timestamp without time zone default (now() at time zone 'utc'),

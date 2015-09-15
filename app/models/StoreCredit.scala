@@ -27,7 +27,8 @@ import cats.syntax.apply._
 
 final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: String,
   currency: Currency = Currency.USD, originalBalance: Int, currentBalance: Int = 0, availableBalance:Int = 0,
-  status: Status = Active, canceledReason: Option[String] = None, createdAt: Instant = Instant.now())
+  status: Status = Active, canceledAmount: Option[Int] = None, canceledReason: Option[String] = None,
+  createdAt: Instant = Instant.now())
   extends PaymentMethod
   with ModelWithIdParameter
   with FSM[StoreCredit.Status, StoreCredit]
@@ -109,6 +110,7 @@ class StoreCredits(tag: Tag) extends GenericTable.TableWithId[StoreCredit](tag, 
   def currentBalance = column[Int]("current_balance")
   def availableBalance = column[Int]("available_balance")
   def status = column[StoreCredit.Status]("status")
+  def canceledAmount = column[Option[Int]]("canceled_amount")
   def canceledReason = column[Option[String]]("canceled_reason")
   def createdAt = column[Instant]("created_at")
 
