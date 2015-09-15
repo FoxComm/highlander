@@ -31,7 +31,7 @@ class TableQueryIntegrationTest extends IntegrationTestBase with CatsHelpers {
       val order = db.run(Orders.save(Factories.order.copy(locked = true))).futureValue
 
       val result = Orders.findByRefNum(order.referenceNumber).findOneAndRun { order ⇒
-        DbResult.dbio(Orders.save(order.copy(status = Order.FraudHold)))
+        DbResult.fromDbio(Orders.save(order.copy(status = Order.FraudHold)))
       }.futureValue
 
       result.isLeft mustBe true

@@ -24,7 +24,7 @@ object LockAwareOrderUpdater {
       val lock = finder.map(_.locked).updateReturning(updatedOrder, true).head
       val blame = OrderLockEvents += OrderLockEvent(orderId = order.id, lockedBy = admin.id)
 
-      DbResult.dbio(blame >> lock.flatMap(o ⇒ DbResult.liftFuture(FullOrder.fromOrder(o))))
+      DbResult.fromDbio(blame >> lock.flatMap(o ⇒ liftFuture(FullOrder.fromOrder(o))))
     }
   }
 
@@ -38,7 +38,7 @@ object LockAwareOrderUpdater {
     finder.findOneAndRun { order ⇒
       order.status match {
         case RemorseHold ⇒
-          DbResult.dbio(finder
+          DbResult.fromDbio(finder
             .map(_.remorsePeriodEnd)
             .updateReturning(updatedOrder, order.remorsePeriodEnd.map(_.plusSeconds(15 * 60))).head
             .map(order ⇒ new NewRemorsePeriodEnd(order.remorsePeriodEnd)))
