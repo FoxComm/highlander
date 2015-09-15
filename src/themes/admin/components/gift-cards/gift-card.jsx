@@ -18,9 +18,9 @@ export default class GiftCard extends React.Component {
   componentDidMount() {
     let
       { router } = this.context,
-      cardId     = router.getCurrentParams().giftcard;
+      cardCode     = router.getCurrentParams().giftcard;
 
-    Api.get(`/gift-cards/${cardId}`)
+    Api.get(`/gift-cards/${cardCode}`)
        .then((res) => {
          this.setState({
            card: res
@@ -30,7 +30,7 @@ export default class GiftCard extends React.Component {
   }
 
   changeState(event) {
-    Api.patch(`/gift-cards/${this.state.card.id}`, {state: event.target.value})
+    Api.patch(`/gift-cards/${this.state.card.code}`, {state: event.target.value})
        .then((res) => {
          this.setState({
            card: res
@@ -45,8 +45,8 @@ export default class GiftCard extends React.Component {
       card   = this.state.card,
       state  = null;
 
-    if (card.id) {
-      let params = {giftcard: card.id};
+    if (card.code) {
+      let params = {giftcard: card.code};
       subNav = (
         <div className="gutter">
           <ul className="fc-tabbed-nav">
