@@ -10,7 +10,7 @@ export default class SkuResult extends React.Component {
       <div>
         <span><img src={model.image} /></span>
         <span>{model.name}</span>
-        <span>{model.skuId}</span>
+        <span>{model.sku}</span>
         <span>{formatCurrency(model.price)}</span>
       </div>
     );

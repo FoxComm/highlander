@@ -12,7 +12,7 @@ import DeleteLineItem from './line-item-delete';
 const defaultColumns = [
   {field: 'imagePath', text: 'Image', type: 'image'},
   {field: 'name', text: 'Name'},
-  {field: 'skuId', text: 'SKU'},
+  {field: 'sku', text: 'SKU'},
   {field: 'price', text: 'Price', type: 'currency'},
   {field: 'quantity', text: 'Quantity'},
   {field: 'total', text: 'Total', type: 'currency'}
@@ -21,7 +21,7 @@ const defaultColumns = [
 const editColumns = [
   {field: 'imagePath', text: 'Image', type: 'image'},
   {field: 'name', text: 'Name'},
-  {field: 'skuId', text: 'SKU'},
+  {field: 'sku', text: 'SKU'},
   {field: 'price', text: 'Price', type: 'currency'},
   {field: 'lineItem', text: 'Quantity', component: 'LineItemCounter'},
   {field: 'total', text: 'Total', type: 'currency'},

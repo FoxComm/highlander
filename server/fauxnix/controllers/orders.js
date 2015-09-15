@@ -84,7 +84,7 @@ module.exports = function(app, router) {
         body = yield parse.json(this);
 
       let findItem = function(item, line) {
-        return line.skuId === item.skuId;
+        return line.sku === item.sku;
       };
 
       for (let item of body) {

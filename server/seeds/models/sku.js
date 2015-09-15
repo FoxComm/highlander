@@ -5,13 +5,13 @@ const
 
 const seed = [
   { field: 'name', method: 'word'},
-  { field: 'skuId', method: 'integer', opts: {min: 1, max: 99999}},
-  { field: 'price', method: 'integer', opts: {min: 1000, max: 1000000}}
+  { field: 'sku', method: 'string'},
+  { field: 'price', method: 'integer', opts: {min: 1000, max: 1000000}},
 ];
 
 class Sku extends BaseModel {
   get name() { return this.model.name; }
-  get skuId() { return this.model.skuId; }
+  get sku() { return this.model.sku; }
   get price() { return this.model.price; }
   get image() { return 'http://lorempixel.com/75/75/fashion'; }
 }
