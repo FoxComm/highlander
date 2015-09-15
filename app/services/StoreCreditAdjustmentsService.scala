@@ -3,7 +3,7 @@ package services
 import scala.concurrent.ExecutionContext
 
 import responses.StoreCreditAdjustmentsResponse
-import models.StoreCredits
+import models.{StoreCredit, StoreCredits}
 import responses.StoreCreditAdjustmentsResponse.Root
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
@@ -14,7 +14,7 @@ object StoreCreditAdjustmentsService {
       case Some(storeCredit) ⇒
         StoreCreditAdjustmentsResponse.forStoreCredit(storeCredit)
       case _ ⇒
-        Result.failure(StoreCreditNotFoundFailure(id))
+        Result.failure(NotFoundFailure(StoreCredit, id))
     }
   }
 }

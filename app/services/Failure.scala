@@ -63,11 +63,6 @@ object GiftCardNotFoundFailure {
   def apply(code: String): NotFoundFailure = NotFoundFailure(s"giftCard with code=$code not found")
 }
 
-object StoreCreditNotFoundFailure {
-  def apply(storeCredit: StoreCredit): NotFoundFailure = apply(storeCredit.id)
-  def apply(id: Int): NotFoundFailure = NotFoundFailure(s"storeCredit with id=$id not found")
-}
-
 object OrderPaymentNotFoundFailure {
   def apply[M](m: M): NotFoundFailure = NotFoundFailure(s"${friendlyClassName(m)} payment not found")
 }

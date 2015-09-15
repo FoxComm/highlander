@@ -62,6 +62,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       "returns not found when SC doesn't exist" in new Fixture {
         val notFoundResponse = GET(s"v1/store-credits/99")
         notFoundResponse.status must ===(StatusCodes.NotFound)
+        notFoundResponse.errors.head mustBe "storeCredit with id=99 not found"
       }
     }
 

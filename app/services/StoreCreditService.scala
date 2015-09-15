@@ -33,7 +33,7 @@ object StoreCreditService {
       case Some(storeCredit) ⇒
         Result.right(responses.StoreCreditResponse.build(storeCredit))
       case _ ⇒
-        Result.failure(StoreCreditNotFoundFailure(id))
+        Result.failure(NotFoundFailure(StoreCredit, id))
     }
   }
 

@@ -25,7 +25,7 @@ object GiftCardAdjustmentsResponse {
     (for {
       adjustments ← GiftCardAdjustments.filterByGiftCardId(gc.id)
       payments ← adjustments.payment
-      orderRef ← payments.order.map { _.referenceNumber }
+      orderRef ← payments.order.map(_.referenceNumber)
     } yield (adjustments, orderRef)).result.run().flatMap { results ⇒
       Result.good(results.map { case (adjustment, orderRef) ⇒ build(adjustment, gc, orderRef) })
     }

@@ -44,6 +44,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     "returns not found when GC doesn't exist" in new Fixture {
       val notFoundResponse = GET(s"v1/gift-cards/99")
       notFoundResponse.status must ===(StatusCodes.NotFound)
+      notFoundResponse.errors.head mustBe "giftCard with code=99 not found"
     }
   }
 
