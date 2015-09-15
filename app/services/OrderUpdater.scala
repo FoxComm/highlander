@@ -79,45 +79,6 @@ object OrderUpdater {
     }
   }
 
-  def lock(order: Order, admin: StoreAdmin)
-    (implicit db: Database, ec: ExecutionContext): Future[Failures Xor FullOrder.Root] = {
-    if (order.locked) {
-      Result.failures(List(OrderLockedFailure(order.referenceNumber)))
-    } else {
-      val lock = Orders.update(order.copy(locked = true))
-      val blame = OrderLockEvents += OrderLockEvent(orderId = order.id, lockedBy = admin.id)
-      val queries = (lock >> blame).transactionally
-      db.run(queries).flatMap { _ ⇒
-        FullOrder.fromOrder(order).map(Xor.right)
-      }
-    }
-  }
-
-  private def newRemorseEnd(maybeRemorseEnd: Option[Instant], lockedAt: Instant): Option[Instant] = {
-    maybeRemorseEnd.map(_.plusMillis(Instant.now.toEpochMilli - lockedAt.toEpochMilli))
-  }
-
-  private def updateUnlock(orderId: Int, remorseEnd: Option[Instant])
-    (implicit db: Database) = {
-    Orders._findById(orderId).extract
-      .map { o ⇒ (o.locked, o.remorsePeriodEnd) }
-      .updateReturning(Orders.map(identity), (false, remorseEnd))
-  }
-
-  def unlock(order: Order)(implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
-    if (order.locked) {
-      val queries = OrderLockEvents.findByOrder(order).mostRecentLock.result.headOption.flatMap {
-        case Some(lockEvent) ⇒
-          updateUnlock(order.id, newRemorseEnd(order.remorsePeriodEnd, lockEvent.lockedAt))
-        case None ⇒
-          updateUnlock(order.id, order.remorsePeriodEnd.map(_.plusSeconds(15 * 60)))
-      }
-      db.run(queries).flatMap { o ⇒
-        Result.fromFuture(FullOrder.fromOrder(o.head))
-      }
-    } else Result.failure(GeneralFailure("Order is not locked"))
-  }
-
   def createNote = "Note"
 
   def removeShippingAddress(orderId: Int)

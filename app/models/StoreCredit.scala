@@ -13,7 +13,7 @@ import cats.data.Validated.{invalidNel, valid}
 import cats.data.ValidatedNel
 
 import com.pellucid.sealerate
-import models.StoreCredit.{Active, Status}
+import models.StoreCredit.{CsrAppeasement, Active, Status, OriginType}
 import monocle.macros.GenLens
 import services.Result
 import slick.ast.BaseTypedType
@@ -25,7 +25,7 @@ import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, NewModel, TableQuery
 import utils.Slick.implicits._
 import cats.syntax.apply._
 
-final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: String,
+final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: OriginType = CsrAppeasement,
   currency: Currency = Currency.USD, originalBalance: Int, currentBalance: Int = 0, availableBalance:Int = 0,
   status: Status = Active, canceledAmount: Option[Int] = None, canceledReason: Option[String] = None,
   createdAt: Instant = Instant.now())
@@ -73,13 +73,23 @@ object StoreCredit {
   case object Active extends Status
   case object Canceled extends Status
 
+  sealed trait OriginType
+  case object GiftCardTransfer extends OriginType
+  case object CsrAppeasement extends OriginType
+  case object ReturnProcess extends OriginType
+
   object Status extends ADT[Status] {
     def types = sealerate.values[Status]
+  }
+
+  object OriginType extends ADT[OriginType] {
+    def types = sealerate.values[OriginType]
   }
 
   val activeStatuses = Set[Status](Active)
 
   implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
+  implicit val originTypeColumnType: JdbcType[OriginType] with BaseTypedType[OriginType] = OriginType.slickColumn
 
   def processFifo(storeCredits: List[StoreCredit], requestedAmount: Int): Map[StoreCredit, Int] = {
     val fifo = storeCredits.sortBy(_.createdAt)
@@ -103,7 +113,7 @@ object StoreCredit {
 class StoreCredits(tag: Tag) extends GenericTable.TableWithId[StoreCredit](tag, "store_credits")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def originId = column[Int]("origin_id")
-  def originType = column[String]("origin_type")
+  def originType = column[StoreCredit.OriginType]("origin_type")
   def customerId = column[Int]("customer_id")
   def currency = column[Currency]("currency")
   def originalBalance = column[Int]("original_balance")

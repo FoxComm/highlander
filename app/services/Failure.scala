@@ -5,7 +5,7 @@ import cats.data.NonEmptyList
 import cats.data.Validated.Invalid
 import cats.implicits._
 import com.stripe.exception.StripeException
-import models.{CreditCard, GiftCard, Order}
+import models.{CreditCard, GiftCard, Order, StoreCredit}
 import utils.{ModelWithIdParameter, Validation}
 import utils.friendlyClassName
 
