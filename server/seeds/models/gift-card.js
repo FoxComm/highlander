@@ -10,7 +10,7 @@ const seed = [
   {field: 'originalBalance', method: 'integer', opts: {min: 1000, max: 10000}},
   {field: 'availableBalance', method: 'integer', opts: {min: 1000, max: 10000}},
   {field: 'currentBalance', method: 'integer', opts: {min: 1000, max: 10000}},
-  {field: 'status', method: 'pick', opts: ['Active', 'On Hold', 'Canceled']},
+  {field: 'status', method: 'pick', opts: ['active', 'onHold', 'canceled']},
   {field: 'date', method: 'date', opts: {year: 2014}},
   {field: 'message', method: 'paragraph'}
 ];
