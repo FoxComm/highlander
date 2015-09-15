@@ -11,7 +11,7 @@ object CustomerCreditConverter {
     (implicit ec: ExecutionContext, db: Database): Result[StoreCredit] = {
 
     if (gc.isActive) {
-      val storeCredit = StoreCredit(customerId = customerId, originId = 0, originType = "storeCreditFromGiftCard",
+      val storeCredit = StoreCredit(customerId = customerId, originId = 0, originType = StoreCredit.GiftCardTransfer,
         currency = gc.currency, originalBalance = gc.currentBalance, currentBalance = gc.currentBalance)
 
       Result.fromFuture(db.run(for {

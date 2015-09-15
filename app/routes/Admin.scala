@@ -8,7 +8,8 @@ import cats.data.Xor
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import models._
 import payloads._
-import responses.{AdminNotes, AllOrders, AllOrdersWithFailures, FullOrder, GiftCardAdjustmentsResponse}
+import responses.{StoreCreditAdjustmentsResponse, AllOrders, AllOrdersWithFailures, AdminNotes, FullOrder,
+GiftCardAdjustmentsResponse, StoreCreditResponse}
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.Apis
@@ -34,9 +35,7 @@ object Admin {
         } ~
         (get & path(Segment / "transactions") & pathEnd) { code ⇒
           complete {
-            whenFound(GiftCards.findByCode(code).one.run()) { giftCard ⇒
-              GiftCardAdjustmentsResponse.forGiftCard(giftCard)
-            }
+            GiftCardAdjustmentsService.forGiftCard(code).map(renderGoodOrFailures)
           }
         } ~
         path(Segment / "notes") { code ⇒
@@ -65,6 +64,18 @@ object Admin {
             complete {
               NoteManager.deleteNote(noteId, admin).map(renderNothingOrFailures)
             }
+          }
+        }
+      } ~
+      pathPrefix("store-credits" / IntNumber) { storeCreditId ⇒
+        (get & pathEnd) {
+          complete {
+            StoreCreditService.getById(storeCreditId).map(renderGoodOrFailures)
+          }
+        } ~
+        (get & path("transactions") & pathEnd) {
+          complete {
+            StoreCreditAdjustmentsService.forStoreCredit(storeCreditId).map(renderGoodOrFailures)
           }
         }
       } ~
@@ -155,10 +166,11 @@ object Admin {
         } ~
         pathPrefix("payment-methods" / "store-credit") {
           (get & pathEnd) {
-            complete { StoreCredits.findAllByCustomerId(customerId).map(render(_)) }
-          } ~
-          (get & path(IntNumber)) { storeCreditId ⇒
-            complete { StoreCredits.findById(storeCreditId).run().map(renderOrNotFound(_)) }
+            complete {
+              whenFound(Customers.findById(customerId)) { customer ⇒
+                StoreCredits.findAllByCustomerId(customer.id).map(Xor.right)
+              }
+            }
           } ~
           (post & entity(as[payloads.CreateManualStoreCredit])) { payload ⇒
             complete {

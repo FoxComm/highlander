@@ -24,7 +24,8 @@ object Seeds {
     shippingMethods: Seq[ShippingMethod], shippingPriceRules: Seq[ShippingPriceRule],
     shippingMethodRuleMappings: Seq[ShippingMethodPriceRule], orderCriteria: Seq[OrderCriterion],
     orderPriceCriteria: Seq[OrderPriceCriterion], priceRuleCriteriaMappings: Seq[ShippingPriceRuleOrderCriterion],
-    skus: Seq[Sku], orderLineItems: Seq[OrderLineItem], orderPayments: Seq[OrderPayment], shipment: Shipment, paymentMethods: AllPaymentMethods)
+    skus: Seq[Sku], orderLineItems: Seq[OrderLineItem], orderPayments: Seq[OrderPayment], shipment: Shipment,
+    paymentMethods: AllPaymentMethods)
 
   final case class AllPaymentMethods(giftCard: GiftCard = Factories.giftCard, storeCredit: StoreCredit = Factories
     .storeCredit)
@@ -87,9 +88,12 @@ object Seeds {
       gcReason ← Reasons.save(Factories.reason.copy(storeAdminId = storeAdmin.id))
       gcOrigin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = storeAdmin.id, reasonId = gcReason.id))
       giftCard ← GiftCards.save(s.paymentMethods.giftCard.copy(originId = gcOrigin.id))
+      gcAdjustments ← GiftCardAdjustments.save(Factories.giftCardAdjustment.copy(giftCardId = giftCard.id, debit = 10,
+        orderPaymentId = orderPayments.id, status = GiftCardAdjustment.Auth))
       scReason ← Reasons.save(Factories.reason.copy(storeAdminId = storeAdmin.id))
       scOrigin ← StoreCreditManuals.save(Factories.storeCreditManual.copy(adminId = storeAdmin.id, reasonId = scReason.id))
-      storeCredit ← StoreCredits.save(s.paymentMethods.storeCredit.copy(originId = scOrigin.id))
+      storeCredit ← StoreCredits.save(s.paymentMethods.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))
+      storeCreditAdjustments ← StoreCredits.auth(storeCredit, orderPayments.id, 10)
     } yield (customers, order, address, shippingAddress, creditCard, giftCard, storeCredit)
   }
 
@@ -153,7 +157,7 @@ object Seeds {
 
     def reason = Reason(id = 0, storeAdminId = 0, body = "I'm a reason", parentId = None)
 
-    def storeCredit = StoreCredit(customerId = 0, originId = 0, originType = "FIXME", originalBalance = 50,
+    def storeCredit = StoreCredit(customerId = 0, originId = 0, originType = StoreCredit.CsrAppeasement, originalBalance = 50,
       currency = Currency.USD)
 
     def storeCreditManual = StoreCreditManual(adminId = 0, reasonId = 0)
@@ -163,7 +167,7 @@ object Seeds {
 
     def giftCardManual = GiftCardManual(adminId = 0, reasonId = 0)
 
-    def giftCardAdjusment = GiftCardAdjustment.build(giftCard, giftCardPayment)
+    def giftCardAdjustment = GiftCardAdjustment.build(giftCard, giftCardPayment)
 
     def shippingMethods = Seq(
       ShippingMethod(adminDisplayName = "UPS Ground", storefrontDisplayName = "UPS Ground", defaultPrice = 10,

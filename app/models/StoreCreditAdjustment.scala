@@ -1,6 +1,7 @@
 package models
 
 import com.pellucid.sealerate
+import models.GiftCardAdjustments._
 import models.StoreCreditAdjustment.{Auth, Status}
 import monocle.macros.GenLens
 import slick.ast.BaseTypedType
@@ -49,6 +50,7 @@ class StoreCreditAdjustments(tag: Tag)
     debit, status) <> ((StoreCreditAdjustment.apply _).tupled, StoreCreditAdjustment.unapply)
 
   def payment = foreignKey(OrderPayments.tableName, orderPaymentId, OrderPayments)(_.id)
+  def storeCredit = foreignKey(StoreCredits.tableName, storeCreditId, StoreCredits)(_.id)
 }
 
 object StoreCreditAdjustments
@@ -57,6 +59,8 @@ object StoreCreditAdjustments
   )(new StoreCreditAdjustments(_)){
 
   import StoreCreditAdjustment._
+
+  def filterByStoreCreditId(id: Int): QuerySeq = filter(_.storeCreditId === id)
 
   def cancel(id: Int): DBIO[Int] = filter(_.id === id).map(_.status).update(Canceled)
 }
