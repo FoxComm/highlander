@@ -26,7 +26,7 @@ class StoreCreditTest extends TestBase {
 
         result mustBe 'invalid
         result.fold(identity, m ⇒ NEL(m.modelName)) mustBe NEL(
-          GeneralFailure("canceledReason must be present when canceled")
+          GeneralFailure("canceledAmount must be present when canceled")
         )
       }
 
