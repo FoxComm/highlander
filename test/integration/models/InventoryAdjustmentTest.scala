@@ -1,6 +1,7 @@
 package models
 
 import slick.driver.PostgresDriver
+import utils.Seeds.Factories
 import util.IntegrationTestBase
 import utils.Slick.implicits._
 
@@ -9,7 +10,7 @@ class InventoryAdjustmentTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global
 
   def seed(): (Sku, Order) = {
-    val sku = Skus.save(Sku(price = 5)).run().futureValue
+    val sku = Skus.save(Factories.skus.head.copy(price = 5)).run().futureValue
     val order = Orders.save(Order(id = 0, customerId = 1)).run().futureValue
     (sku, order)
   }

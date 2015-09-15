@@ -131,7 +131,10 @@ object Seeds {
 
     def storeCreditPayment = OrderPayment.build(storeCredit)
 
-    def skus: Seq[Sku] = Seq(Sku(id = 0, name = Some("Flonkey"), price = 33), Sku(name = Some("Shark"), price = 45), Sku(name = Some("Dolphin"), price = 88))
+    def skus: Seq[Sku] = Seq(
+      Sku(sku = "SKU-YAX", name = Some("Flonkey"), price = 33),
+      Sku(sku = "SKU-ABC", name = Some("Shark"), price = 45),
+      Sku(sku = "SKU-ZYA", name = Some("Dolphin"), price = 88))
 
     def orderLineItems: Seq[OrderLineItem] = Seq(OrderLineItem(id = 0, orderId = 1, skuId = 1, status = OrderLineItem.Cart), OrderLineItem(id = 0, orderId = 1, skuId = 2, status = OrderLineItem.Cart), OrderLineItem(id = 0, orderId = 1, skuId = 3, status = OrderLineItem.Cart))
 
