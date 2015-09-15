@@ -38,9 +38,9 @@ module.exports = function(app) {
       if (err.response) {
         body = err.response;
       } else if (err.stack && this.env !== 'production') {
-        body = err.stack;
+        body = {error: err.stack};
       } else {
-        body = {error: err.message ? err.message : String(err)}
+        body = {error: err.message ? err.message : String(err)};
       }
       this.body = body;
     }
