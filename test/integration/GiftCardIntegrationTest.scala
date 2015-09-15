@@ -58,6 +58,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       val firstAdjustment = adjustments.head
       firstAdjustment.amount mustBe -10
       firstAdjustment.availableBalance mustBe 40
+      firstAdjustment.orderRef mustBe order.referenceNumber
     }
   }
 
@@ -130,7 +131,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
   }
 
   trait Fixture {
-    val (admin, giftCard) = (for {
+    val (admin, giftCard, order) = (for {
       customer ← Customers.save(Factories.customer)
       order ← Orders.save(Factories.order.copy(customerId = customer.id))
       admin ← StoreAdmins.save(authedStoreAdmin)
@@ -141,6 +142,6 @@ class GiftCardIntegrationTest extends IntegrationTestBase
         paymentMethodType = PaymentMethod.GiftCard))
       adjustment ← GiftCardAdjustments.save(Factories.giftCardAdjustment.copy(giftCardId = giftCard.id, debit = 10,
         orderPaymentId = payment.id, status = GiftCardAdjustment.Auth))
-    } yield (admin, giftCard)).run().futureValue
+    } yield (admin, giftCard, order)).run().futureValue
   }
 }

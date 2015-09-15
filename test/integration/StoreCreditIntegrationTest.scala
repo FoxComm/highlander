@@ -75,12 +75,13 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
         val firstAdjustment = adjustments.head
         firstAdjustment.debit mustBe 10
+        firstAdjustment.orderRef mustBe order.referenceNumber
       }
     }
   }
 
   trait Fixture {
-    val (admin, customer, scReason, storeCredit) = (for {
+    val (admin, customer, scReason, storeCredit, order) = (for {
       admin       ← StoreAdmins.save(authedStoreAdmin)
       customer    ← Customers.save(Factories.customer)
       order       ← Orders.save(Factories.order.copy(customerId = customer.id))
@@ -91,7 +92,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       payment ← OrderPayments.save(Factories.storeCreditPayment.copy(orderId = order.id,
         paymentMethodId = storeCredit.id, paymentMethodType = PaymentMethod.StoreCredit))
       storeCreditAdjustments ← StoreCredits.auth(storeCredit, payment.id, 10)
-    } yield (admin, customer, scReason, storeCredit)).run().futureValue
+    } yield (admin, customer, scReason, storeCredit, order)).run().futureValue
   }
 }
 
