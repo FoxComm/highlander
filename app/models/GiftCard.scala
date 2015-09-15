@@ -4,9 +4,10 @@ import java.time.Instant
 
 import scala.concurrent.ExecutionContext
 
+import cats.data.Validated._
 import cats.data.ValidatedNel
 import cats.implicits._
-import services.Failure
+import services.{GeneralFailure, Failure, Result}
 import utils.Litterbox._
 import utils.Validation
 
@@ -14,17 +15,17 @@ import utils.Validation
 import com.pellucid.sealerate
 import models.GiftCard.{CustomerPurchase, OnHold, OriginType, Status}
 import monocle.macros.GenLens
-import services.Result
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.Money._
+import utils.Validation._
 import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
 
 final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = CustomerPurchase, code: String,
   currency: Currency, status: Status = OnHold, originalBalance: Int, currentBalance: Int = 0,
-  availableBalance: Int = 0, canceledReason: Option[String] = None, reloadable: Boolean = false,
-  createdAt: Instant = Instant.now())
+  availableBalance: Int = 0, canceledAmount: Option[Int] = None, canceledReason: Option[String] = None,
+  reloadable: Boolean = false, createdAt: Instant = Instant.now())
   extends PaymentMethod
   with ModelWithIdParameter
   with FSM[GiftCard.Status, GiftCard]
@@ -34,8 +35,14 @@ final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = C
   import Validation._
 
   def validate: ValidatedNel[Failure, GiftCard] = {
-    ( notEmpty(code, "code")
-      |@| notEmptyIf(canceledReason, status == Canceled, "canceledReason")
+    val canceledWithReason: ValidatedNel[Failure, Unit] = (status, canceledAmount, canceledReason) match {
+      case (Canceled, None, _) ⇒ invalidNel(GeneralFailure("canceledAmount must be present when canceled"))
+      case (Canceled, _, None) ⇒ invalidNel(GeneralFailure("canceledReason must be present when canceled"))
+      case _                   ⇒ valid({})
+    }
+
+    ( canceledWithReason
+      |@| notEmpty(code, "code")
       |@| validExpr(originalBalance >= 0, "originalBalance should be greater or equal than zero")
       |@| validExpr(currentBalance >= 0, "currentBalance should be greater or equal than zero")
       ).map { case _ ⇒ this }
@@ -91,12 +98,14 @@ class GiftCards(tag: Tag) extends GenericTable.TableWithId[GiftCard](tag, "gift_
   def originalBalance = column[Int]("original_balance")
   def currentBalance = column[Int]("current_balance")
   def availableBalance = column[Int]("available_balance")
+  def canceledAmount = column[Option[Int]]("canceled_amount")
   def canceledReason = column[Option[String]]("canceled_reason")
   def reloadable = column[Boolean]("reloadable")
   def createdAt = column[Instant]("created_at")
 
   def * = (id, originId, originType, code, currency, status, originalBalance, currentBalance,
-    availableBalance, canceledReason, reloadable, createdAt) <> ((GiftCard.apply _).tupled, GiftCard.unapply)
+    availableBalance, canceledAmount, canceledReason, reloadable, createdAt) <> ((GiftCard.apply _).tupled, GiftCard
+    .unapply)
 }
 
 object GiftCards extends TableQueryWithId[GiftCard, GiftCards](

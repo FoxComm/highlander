@@ -27,7 +27,8 @@ import cats.syntax.apply._
 
 final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: OriginType = CsrAppeasement,
   currency: Currency = Currency.USD, originalBalance: Int, currentBalance: Int = 0, availableBalance:Int = 0,
-  status: Status = Active, canceledReason: Option[String] = None, createdAt: Instant = Instant.now())
+  status: Status = Active, canceledAmount: Option[Int] = None, canceledReason: Option[String] = None,
+  createdAt: Instant = Instant.now())
   extends PaymentMethod
   with ModelWithIdParameter
   with FSM[StoreCredit.Status, StoreCredit]
@@ -40,9 +41,10 @@ final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, origin
   def isNew: Boolean = id == 0
 
   def validate: ValidatedNel[Failure, StoreCredit] = {
-    val canceledWithReason: ValidatedNel[Failure, Unit] = (status, canceledReason) match {
-      case (Canceled, None) ⇒ invalidNel(GeneralFailure("canceledReason must be present when canceled"))
-      case _                ⇒ valid({})
+    val canceledWithReason: ValidatedNel[Failure, Unit] = (status, canceledAmount, canceledReason) match {
+      case (Canceled, None, _) ⇒ invalidNel(GeneralFailure("canceledAmount must be present when canceled"))
+      case (Canceled, _, None) ⇒ invalidNel(GeneralFailure("canceledReason must be present when canceled"))
+      case _                   ⇒ valid({})
     }
 
     (canceledWithReason
@@ -119,11 +121,13 @@ class StoreCredits(tag: Tag) extends GenericTable.TableWithId[StoreCredit](tag, 
   def currentBalance = column[Int]("current_balance")
   def availableBalance = column[Int]("available_balance")
   def status = column[StoreCredit.Status]("status")
+  def canceledAmount = column[Option[Int]]("canceled_amount")
   def canceledReason = column[Option[String]]("canceled_reason")
   def createdAt = column[Instant]("created_at")
 
   def * = (id, customerId, originId, originType, currency, originalBalance, currentBalance,
-    availableBalance, status, canceledReason, createdAt) <> ((StoreCredit.apply _).tupled, StoreCredit.unapply)
+    availableBalance, status, canceledAmount, canceledReason, createdAt) <> ((StoreCredit.apply _).tupled, StoreCredit
+    .unapply)
 }
 
 object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](

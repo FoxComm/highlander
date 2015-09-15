@@ -20,13 +20,26 @@ object GiftCardResponse {
     originalBalance: Int,
     availableBalance: Int,
     currentBalance: Int,
+    canceledAmount: Option[Int],
+    canceledReason: Option[String],
     customer: Option[CustomerResponse.Root],
     storeAdmin: Option[StoreAdminResponse.Root],
     message: String)
 
   def build(gc: GiftCard, customer: Option[CustomerResponse.Root] = None, admin: Option[StoreAdminResponse.Root] = None):
   Root =
-    Root(id = gc.id, createdAt = gc.createdAt, code = gc.code, `type` = gc.originType, status = gc.status,
-      originalBalance = gc.originalBalance, availableBalance = gc.availableBalance, currentBalance = gc.currentBalance,
-      customer = customer, storeAdmin = admin, message = mockMessage)
+    Root(
+      id = gc.id,
+      createdAt = gc.createdAt,
+      code = gc.code,
+      `type` = gc.originType,
+      status = gc.status,
+      originalBalance = gc.originalBalance,
+      availableBalance = gc.availableBalance,
+      currentBalance = gc.currentBalance,
+      canceledAmount = gc.canceledAmount,
+      canceledReason = gc.canceledReason,
+      customer = customer,
+      storeAdmin = admin,
+      message = mockMessage)
 }

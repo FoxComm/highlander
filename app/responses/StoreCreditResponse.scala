@@ -14,9 +14,10 @@ object StoreCreditResponse {
     originalBalance: Int,
     currentBalance: Int,
     availableBalance: Int,
+    canceledAmount: Option[Int],
+    canceledReason: Option[String],
     status: models.StoreCredit.Status,
-    createdAt: Instant,
-    canceledReason: Option[String] = None)
+    createdAt: Instant)
 
   def build(storeCredit: models.StoreCredit): Root = {
     Root(id = storeCredit.id,
@@ -27,9 +28,9 @@ object StoreCreditResponse {
       originalBalance = storeCredit.originalBalance,
       currentBalance = storeCredit.currentBalance,
       availableBalance = storeCredit.availableBalance,
+      canceledAmount = storeCredit.canceledAmount,
+      canceledReason = storeCredit.canceledReason,
       status = storeCredit.status,
-      createdAt = storeCredit.createdAt,
-      canceledReason = storeCredit.canceledReason
-    )
+      createdAt = storeCredit.createdAt)
   }
 }
