@@ -20,19 +20,21 @@ object Slick {
     sql.overrideStatements(sql.statements.map(_ + " for update"))
   }
 
+  def lift[A](value: A): DBIO[A] = DBIO.from(Future.successful(value))
+
+  def liftFuture[A](future: Future[A]): DBIO[A] = DBIO.from(future)
+
   object DbResult {
 
     val unit: DbResult[Unit] = DBIO.successful(Xor.right(Unit))
 
     def good[A](v: A): DbResult[A] = lift(Xor.right(v))
 
-    def dbio[A](dbio: DBIO[A])(implicit ec: ExecutionContext): DbResult[A] = dbio.map(Xor.right)
+    def fromDbio[A](dbio: DBIO[A])(implicit ec: ExecutionContext): DbResult[A] = dbio.map(Xor.right)
+
+    def fromFuture[A](future: Future[A])(implicit ec: ExecutionContext): DbResult[A] = fromDbio(liftFuture(future))
 
     def failure[A](failure: Failure): DbResult[A] = liftFuture(Result.failures(failure))
-
-    def lift[A](value: A): DBIO[A] = DBIO.from(Future.successful(value))
-
-    def liftFuture[A](future: Future[A]): DBIO[A] = DBIO.from(future)
   }
 
   /*
