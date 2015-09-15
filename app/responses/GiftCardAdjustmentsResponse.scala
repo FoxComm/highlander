@@ -15,19 +15,19 @@ object GiftCardAdjustmentsResponse {
     state: GiftCardAdjustment.Status,
     orderRef: String)
 
-  def build(adjustment: GiftCardAdjustment, gc: GiftCard, order: Order): Root = {
+  def build(adjustment: GiftCardAdjustment, gc: GiftCard, orderRef: String): Root = {
     val amount = adjustment.getAmount
     Root(id = adjustment.id, amount = amount, availableBalance = gc.currentBalance + amount,
-      state = adjustment.status, orderRef = order.referenceNumber)
+      state = adjustment.status, orderRef = orderRef)
   }
 
   def forGiftCard(gc: GiftCard)(implicit ec: ExecutionContext, db: Database): Result[Seq[Root]] = {
     (for {
       adjustments ← GiftCardAdjustments.filterByGiftCardId(gc.id)
       payments ← adjustments.payment
-      orders ← payments.order
-    } yield (adjustments, payments, orders)).result.run().flatMap { results ⇒
-      Result.good(results.map { case (adjustment, payment, order) ⇒ build(adjustment, gc, order) })
+      orderRef ← payments.order.map { _.referenceNumber }
+    } yield (adjustments, orderRef)).result.run().flatMap { results ⇒
+      Result.good(results.map { case (adjustment, orderRef) ⇒ build(adjustment, gc, orderRef) })
     }
   }
 }
