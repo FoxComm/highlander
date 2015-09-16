@@ -36,7 +36,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
   "POST /v1/gift-cards" - {
     "successfully creates gift card from payload" in new Fixture {
-      val response = POST(s"v1/gift-cards", payloads.GiftCardCreateByCsrPayload(balance = 555))
+      val response = POST(s"v1/gift-cards", payloads.GiftCardCreateByCsr(balance = 555))
       val root = response.as[GiftCardResponse.Root]
 
       response.status must ===(StatusCodes.OK)
@@ -46,7 +46,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     }
 
     "fails to create gift card with negative balance" in new Fixture {
-      val response = POST(s"v1/gift-cards", payloads.GiftCardCreateByCsrPayload(balance = -555))
+      val response = POST(s"v1/gift-cards", payloads.GiftCardCreateByCsr(balance = -555))
       response.status must ===(StatusCodes.BadRequest)
       response.errors.head must ===("originalBalance should be greater or equal than zero")
     }
