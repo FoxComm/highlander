@@ -46,11 +46,16 @@
       "expect": false
     },
     "rules": {
-      "max-len": [1, 120, 2, {
-        "ignoreComments": true,
-        "ignoreUrls": true,
-        "ignorePattern": "^.+=\\s*require\\s*\\("
-      }],
+      "max-len": [
+        1,
+        120,
+        2,
+        {
+          "ignoreComments": true,
+          "ignoreUrls": true,
+          "ignorePattern": "^.+=\\s*require\\s*\\("
+        }
+      ],
       "quotes": [
         1,
         "single"
@@ -92,6 +97,7 @@
     "imagemin-pngquant": "^4.2.0",
     "immutable": "^3.7.4",
     "koa": "^1.0.0",
+    "koa-basic-auth": "^1.1.2",
     "koa-body": "^1.2.1",
     "koa-favicon": "^1.2.0",
     "koa-json": "^1.1.1",
