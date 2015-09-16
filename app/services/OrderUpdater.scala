@@ -126,7 +126,7 @@ object OrderUpdater {
           case (address, Some(region))  ⇒ Result.good(Response.build(address, region))
           case (_, None)                ⇒ Result.failure(NotFoundFailure(Region, address.regionId))
         }
-      case Invalid(errors) ⇒ Result.failures(errors.unwrap.toSeq)
+      case Invalid(errors) ⇒ Result.failures(errors.failure)
     }
   }
 

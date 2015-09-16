@@ -90,7 +90,7 @@ object GiftCard {
     r.alphanumeric.take(length).mkString.toUpperCase
   }
 
-  def buildAppeasement(admin: StoreAdmin, payload: payloads.GiftCardCreateByCsrPayload) = {
+  def buildAppeasement(admin: StoreAdmin, payload: payloads.GiftCardCreateByCsr): GiftCard = {
     GiftCard(
       code = generateCode(defaultCodeLength),
       originId = admin.id,

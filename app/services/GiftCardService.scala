@@ -1,10 +1,9 @@
 package services
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 import cats.data.Xor
 import cats.data.Validated.{Valid, Invalid}
-import cats.implicits._
 import shapeless._
 import models.{GiftCard, Customer, Customers, GiftCards, StoreAdmin, StoreAdmins}
 import responses.{GiftCardResponse, CustomerResponse, StoreAdminResponse}
@@ -33,13 +32,13 @@ object GiftCardService {
     }
   }
 
-  def createByAdmin(admin: StoreAdmin, payload: payloads.GiftCardCreateByCsrPayload)
+  def createByAdmin(admin: StoreAdmin, payload: payloads.GiftCardCreateByCsr)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
 
     createGiftCardModel(admin, payload)
   }
 
-  private def createGiftCardModel(admin: StoreAdmin, payload: payloads.GiftCardCreateByCsrPayload)
+  private def createGiftCardModel(admin: StoreAdmin, payload: payloads.GiftCardCreateByCsr)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
 
     val storeAdminResponse = Some(StoreAdminResponse.build(admin))
@@ -51,7 +50,7 @@ object GiftCardService {
   private def createGiftCard(gc: GiftCard)(implicit ec: ExecutionContext, db: Database): Result[GiftCard] = {
     gc.validate match {
       case Valid(_)             ⇒ Result.fromFuture(GiftCards.save(gc).run())
-      case Invalid(errors)      ⇒ Result.failures(errors.unwrap.toSeq)
+      case Invalid(errors)      ⇒ Result.failures(errors.failure)
     }
   }
 
