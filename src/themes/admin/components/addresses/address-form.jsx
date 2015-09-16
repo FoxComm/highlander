@@ -5,6 +5,7 @@ import React from 'react';
 import { listenTo, stopListeningTo, dispatch } from '../../lib/dispatcher';
 import CountryStore from '../../stores/countries';
 import AddressStore from '../../stores/addresses';
+import OrderStore from '../../stores/orders'
 import {idGenerator} from '../../lib/forms';
 
 const DEFAULT_COUNTRY = 'US';
@@ -84,8 +85,13 @@ export default class AddressForm extends React.Component {
     }
 
     willSaved
+      .then((address) => {
+        if (this.props.order) {
+          return OrderStore.setShippingAddress(this.props.order.id, address.id);
+        }
+      })
       .then(() => {
-        this.close()
+        this.close();
       })
       .catch(({errors}) => {
         this.setState({errors});

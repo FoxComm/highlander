@@ -4,7 +4,7 @@ import React from 'react';
 import { RouteHandler } from 'react-router';
 import { Link } from 'react-router';
 import { listenTo, stopListeningTo, dispatch } from '../../lib/dispatcher';
-import OrderStore from './store';
+import OrderStore from './../../stores/orders';
 import Viewers from '../viewers/viewers';
 import ConfirmModal from '../modal/confirm';
 import RemorseTimer from './remorseTimer';

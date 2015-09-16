@@ -2,6 +2,7 @@
 
 import React from 'react';
 import AddressStore from '../../stores/addresses';
+import OrderStore from '../../stores/orders'
 import { listenTo, stopListeningTo, dispatch } from '../../lib/dispatcher';
 import AddressForm from './address-form.jsx';
 import _ from 'lodash';
@@ -9,7 +10,7 @@ import _ from 'lodash';
 class Address extends React.Component {
 
   setActiveAddress() {
-    AddressStore.patch(this.props.customerId, this.props.address.id, {isActive: true});
+    OrderStore.setShippingAddress(this.props.order.id, this.props.address.id);
   }
 
   toggleEdit() {
@@ -20,7 +21,7 @@ class Address extends React.Component {
     let address = this.props.address;
 
     let isDefault = (
-        <div><input type="checkbox" defaultChecked={address.isDefault} disabled /> Default Address</div>
+        <div><input type="checkbox" defaultChecked={address.isDefault} disabled />Default Address</div>
     );
     let address2 = (val) => {
       return <span><span>{val}</span><br/></span>;

@@ -40,7 +40,7 @@ export default class AddressBook extends React.Component {
   }
 
   addNew() {
-    dispatch('toggleModal', <AddressForm customerId={this.state.customerId}/>);
+    dispatch('toggleModal', <AddressForm customerId={this.state.customerId} order={this.props.order}/>);
   }
 
   render() {

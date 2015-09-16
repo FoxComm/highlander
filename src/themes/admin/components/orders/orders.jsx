@@ -2,7 +2,7 @@
 
 import React from 'react';
 import TableView from '../tables/tableview';
-import OrderStore from './store';
+import OrderStore from './../../stores/orders';
 import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
 
