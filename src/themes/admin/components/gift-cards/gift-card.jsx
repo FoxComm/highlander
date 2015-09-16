@@ -18,9 +18,9 @@ export default class GiftCard extends React.Component {
   componentDidMount() {
     let
       { router } = this.context,
-      cardId     = router.getCurrentParams().giftcard;
+      cardCode     = router.getCurrentParams().giftcard;
 
-    Api.get(`/gift-cards/${cardId}`)
+    Api.get(`/gift-cards/${cardCode}`)
        .then((res) => {
          this.setState({
            card: res
@@ -30,7 +30,7 @@ export default class GiftCard extends React.Component {
   }
 
   changeState(event) {
-    Api.patch(`/gift-cards/${this.state.card.id}`, {state: event.target.value})
+    Api.patch(`/gift-cards/${this.state.card.code}`, {state: event.target.value})
        .then((res) => {
          this.setState({
            card: res
@@ -43,10 +43,10 @@ export default class GiftCard extends React.Component {
     let
       subNav = null,
       card   = this.state.card,
-      state  = null;
+      status  = null;
 
-    if (card.id) {
-      let params = {giftcard: card.id};
+    if (card.code) {
+      let params = {giftcard: card.code};
       subNav = (
         <div className="gutter">
           <ul className="fc-tabbed-nav">
@@ -59,14 +59,14 @@ export default class GiftCard extends React.Component {
       );
     }
 
-    if (card.state === 'Canceled') {
-      state = <span>{card.status}</span>;
+    if (card.status === 'Canceled') {
+      status = <span>{card.status}</span>;
     } else {
-      state = (
-        <select defaultValue={card.status} onChange={this.changeState.bind(this)}>
-          <option value="Active">Active</option>
-          <option value="On Hold">On Hold</option>
-          <option value="Canceled">Cancel Gift Card</option>
+      status = (
+        <select value={this.state.card.status} onChange={this.changeState.bind(this)}>
+          <option value="active">Active</option>
+          <option value="onHold">On Hold</option>
+          <option value="canceled">Cancel Gift Card</option>
         </select>
       );
     }
@@ -89,12 +89,12 @@ export default class GiftCard extends React.Component {
                 <div className="fc-grid">
                   <div className="fc-col-1-2">
                     <p>
-                      <strong>Customer:</strong>
+                      <strong>Customer: </strong>
                       {card.customer ? `${card.customer.firstName} ${card.customer.lastName}` : 'None'}
                     </p>
-                    <p><strong>Recipient:</strong> None</p>
-                    <p><strong>Recipient Email:</strong> None</p>
-                    <p><strong>Recipient Cell (Optional):</strong> None</p>
+                    <p><strong>Recipient: </strong>None</p>
+                    <p><strong>Recipient Email: </strong>None</p>
+                    <p><strong>Recipient Cell (Optional): </strong>None</p>
                   </div>
                   <div className="fc-col-1-2">
                     <p><strong>Message (optional):</strong></p>
@@ -134,7 +134,7 @@ export default class GiftCard extends React.Component {
             <div className="fc-col-1-5">
               <article className="panel featured">
                 <header>Current State</header>
-                <p>{ state }</p>
+                <p>{ status }</p>
               </article>
             </div>
           </div>
