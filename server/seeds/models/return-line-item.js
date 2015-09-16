@@ -14,7 +14,7 @@ const seed = [
   {field: 'imagePath', method: 'image', opts: {topic: 'technics'}}
 ];
 
-class LineItem extends BaseModel {
+class ReturnLineItem extends BaseModel {
   get name() { return this.model.name; }
   get orderId() { return this.model.orderId; }
   get sku() { return this.model.sku; }
@@ -26,6 +26,6 @@ class LineItem extends BaseModel {
   get imagePath() { return this.model.imagePath }
 }
 
-Object.defineProperty(LineItem, 'seed', {value: seed});
+Object.defineProperty(ReturnLineItem, 'seed', {value: seed});
 
-module.exports = LineItem;
+module.exports = ReturnLineItem;
