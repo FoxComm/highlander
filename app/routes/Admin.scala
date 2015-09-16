@@ -38,6 +38,11 @@ object Admin {
             GiftCardAdjustmentsService.forGiftCard(code).map(renderGoodOrFailures)
           }
         } ~
+        (post & entity(as[payloads.GiftCardCreateByCsr])) { payload ⇒
+          complete {
+            GiftCardService.createByAdmin(admin, payload).map(renderGoodOrFailures)
+          }
+        } ~
         path(Segment / "notes") { code ⇒
           (get & pathEnd) {
             complete {

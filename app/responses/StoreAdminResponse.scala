@@ -11,5 +11,10 @@ object StoreAdminResponse {
     department: Option[String])
 
   def build(admin: StoreAdmin): Root =
-    Root(email = admin.email, firstName = admin.firstName, lastName = admin.lastName, department = admin.department)
+    Root(
+      id = admin.id,
+      email = admin.email,
+      firstName = admin.firstName,
+      lastName = admin.lastName,
+      department = admin.department)
 }

@@ -23,7 +23,7 @@ import utils.Validation._
 import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
 
 final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = CustomerPurchase, code: String,
-  currency: Currency, status: Status = OnHold, originalBalance: Int, currentBalance: Int = 0,
+  currency: Currency = Currency.USD, status: Status = OnHold, originalBalance: Int, currentBalance: Int = 0,
   availableBalance: Int = 0, canceledAmount: Option[Int] = None, canceledReason: Option[String] = None,
   reloadable: Boolean = false, createdAt: Instant = Instant.now())
   extends PaymentMethod
@@ -83,6 +83,25 @@ object GiftCard {
   }
 
   val activeStatuses = Set[Status](Active)
+  val defaultCodeLength = 16
+
+  def generateCode(length: Int): String = {
+    val r = scala.util.Random
+    r.alphanumeric.take(length).mkString.toUpperCase
+  }
+
+  def buildAppeasement(admin: StoreAdmin, payload: payloads.GiftCardCreateByCsr): GiftCard = {
+    GiftCard(
+      code = generateCode(defaultCodeLength),
+      originId = admin.id,
+      originType = GiftCard.CsrAppeasement,
+      status = GiftCard.Active,
+      currency = payload.currency,
+      originalBalance = payload.balance,
+      availableBalance = payload.balance,
+      currentBalance = payload.balance
+    )
+  }
 
   implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
   implicit val originTypeColumnType: JdbcType[OriginType] with BaseTypedType[OriginType] = OriginType.slickColumn

@@ -10,8 +10,8 @@ import services.NoteManager
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.implicits._
-
 import utils.time.RichInstant
+import utils.Money._
 
 class GiftCardIntegrationTest extends IntegrationTestBase
   with HttpSupport
@@ -23,8 +23,8 @@ class GiftCardIntegrationTest extends IntegrationTestBase
   import Extensions._
   import org.json4s.jackson.JsonMethods._
 
-  "admin API" - {
-    "queries the list of gift cards" in new Fixture {
+  "GET /v1/gift-cards" - {
+    "returns list of gift cards" in new Fixture {
       val response = GET(s"v1/gift-cards")
       val giftCards = Seq(giftCard)
 
@@ -32,7 +32,27 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       val cards = response.as[Seq[GiftCard]]
       cards.map(_.id) must ===(giftCards.map(_.id))
     }
+  }
 
+  "POST /v1/gift-cards" - {
+    "successfully creates gift card from payload" in new Fixture {
+      val response = POST(s"v1/gift-cards", payloads.GiftCardCreateByCsr(balance = 555))
+      val root = response.as[GiftCardResponse.Root]
+
+      response.status must ===(StatusCodes.OK)
+      root.`type` must ===(GiftCard.CsrAppeasement)
+      root.currency must ===(Currency.USD)
+      root.availableBalance must ===(555)
+    }
+
+    "fails to create gift card with negative balance" in new Fixture {
+      val response = POST(s"v1/gift-cards", payloads.GiftCardCreateByCsr(balance = -555))
+      response.status must ===(StatusCodes.BadRequest)
+      response.errors.head must ===("originalBalance should be greater or equal than zero")
+    }
+  }
+
+  "GET /v1/gift-cards/:code" - {
     "finds a gift card by code" in new Fixture {
       val response = GET(s"v1/gift-cards/${giftCard.code}")
       val giftCardResp = response.as[GiftCardResponse.Root]
@@ -44,7 +64,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     "returns not found when GC doesn't exist" in new Fixture {
       val notFoundResponse = GET(s"v1/gift-cards/99")
       notFoundResponse.status must ===(StatusCodes.NotFound)
-      notFoundResponse.errors.head mustBe "giftCard with code=99 not found"
+      notFoundResponse.errors.head must ===("giftCard with code=99 not found")
     }
   }
 

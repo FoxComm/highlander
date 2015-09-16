@@ -6,6 +6,7 @@ import scala.concurrent.ExecutionContext
 
 import models.GiftCard
 import slick.driver.PostgresDriver.api._
+import utils.Money._
 import utils.Slick.implicits._
 
 object GiftCardResponse {
@@ -17,6 +18,7 @@ object GiftCardResponse {
     code: String,
     `type`: GiftCard.OriginType,
     status: GiftCard.Status,
+    currency: Currency,
     originalBalance: Int,
     availableBalance: Int,
     currentBalance: Int,
@@ -34,6 +36,7 @@ object GiftCardResponse {
       code = gc.code,
       `type` = gc.originType,
       status = gc.status,
+      currency = gc.currency,
       originalBalance = gc.originalBalance,
       availableBalance = gc.availableBalance,
       currentBalance = gc.currentBalance,

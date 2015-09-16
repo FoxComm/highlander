@@ -6,6 +6,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Validated.{Invalid, Valid}
 import cats.data.Xor
+import cats.implicits._
 import models.OrderLockEvents.scope._
 import models._
 import payloads.{CreateShippingAddress, UpdateAddressPayload, UpdateShippingAddress}
@@ -125,7 +126,7 @@ object OrderUpdater {
           case (address, Some(region))  ⇒ Result.good(Response.build(address, region))
           case (_, None)                ⇒ Result.failure(NotFoundFailure(Region, address.regionId))
         }
-      case Invalid(err) ⇒ Result.failure(err.head)
+      case Invalid(errors) ⇒ Result.failures(errors.failure)
     }
   }
 
