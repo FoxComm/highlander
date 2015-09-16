@@ -83,6 +83,25 @@ object GiftCard {
   }
 
   val activeStatuses = Set[Status](Active)
+  val defaultCodeLength = 16
+
+  def generateCode(length: Int): String = {
+    val r = scala.util.Random
+    r.alphanumeric.take(length).mkString.toUpperCase
+  }
+
+  def buildAppeasement(admin: StoreAdmin, payload: payloads.GiftCardCreateByCsrPayload) = {
+    GiftCard(
+      code = generateCode(defaultCodeLength),
+      originId = admin.id,
+      originType = GiftCard.CsrAppeasement,
+      status = GiftCard.Active,
+      currency = payload.currency,
+      originalBalance = payload.balance,
+      availableBalance = payload.balance,
+      currentBalance = payload.balance
+    )
+  }
 
   implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
   implicit val originTypeColumnType: JdbcType[OriginType] with BaseTypedType[OriginType] = OriginType.slickColumn
