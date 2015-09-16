@@ -3,7 +3,7 @@
 import React from 'react';
 import ReturnSummary from './summary';
 import CustomerInfo from './customer-info';
-import ReturnLineItems from './line-items';
+import LineItems from '../line-items/line-items';
 import ReturnShippingMethod from './shipping-method';
 import ReturnPayment from './payment';
 import ReturnStore from './store';
@@ -18,6 +18,15 @@ export default class ReturnDetails extends React.Component {
     let retrn = this.props.return;
     let isEditing = this.state.isEditing;
     let actions = null;
+    let lineColumns = [
+      {field: 'imagePath', text: 'Image', type: 'image'},
+      {field: 'name', text: 'Name'},
+      {field: 'sku', text: 'SKU'},
+      {field: 'quantity', text: 'Quantity'},
+      {field: 'inventoryDisposition', text: 'Inventory Disposition'},
+      {field: 'refund', text: 'Refund', type: 'currency'},
+      {field: 'reason', text: 'Reason'}
+    ];
 
     return (
       <div className="return-details">
@@ -32,8 +41,13 @@ export default class ReturnDetails extends React.Component {
             <CustomerInfo return={retrn} isEditing={isEditing}/>
           </div>
           <div className="return-details-main">
-            <ReturnLineItems return={retrn} isEditing={isEditing}/>
-            <ReturnShippingMethod return={retrn} isEditing={isEditing} />
+            <LineItems
+              entity={retrn}
+              isEditing={isEditing}
+              tableColumns={lineColumns}
+              model={'return'}
+              />
+            <ReturnShippingMethod return={retrn} isEditing={isEditing}/>
             <ReturnPayment return={retrn} isEditing={isEditing}/>
           </div>
         </div>
