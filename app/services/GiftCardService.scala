@@ -15,8 +15,9 @@ import utils.Money.Currency
 import utils.Slick.implicits._
 
 object GiftCardService {
-  val mockCustomerId = 1
-  val generator = scala.util.Random
+  val mockCustomerId  = 1
+  val codeLength      = 16
+  val generator       = scala.util.Random
 
   type Account = Customer :+: StoreAdmin :+: CNil
 
@@ -49,7 +50,7 @@ object GiftCardService {
       originId = 0,
       originType = GiftCard.CsrAppeasement,
       status = GiftCard.Active,
-      currency = Currency.USD,
+      currency = payload.currency,
       originalBalance = payload.balance,
       availableBalance = payload.balance,
       currentBalance = payload.balance
@@ -57,7 +58,7 @@ object GiftCardService {
   }
 
   private def generateCode: String = {
-    generator.alphanumeric.take(10).mkString.toUpperCase
+    generator.alphanumeric.take(codeLength).mkString.toUpperCase
   }
 
   private def createGiftCard(gc: GiftCard)(implicit ec: ExecutionContext, db: Database): Result[GiftCard] = {

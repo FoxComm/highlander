@@ -23,7 +23,7 @@ import utils.Validation._
 import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
 
 final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = CustomerPurchase, code: String,
-  currency: Currency, status: Status = OnHold, originalBalance: Int, currentBalance: Int = 0,
+  currency: Currency = Currency.USD, status: Status = OnHold, originalBalance: Int, currentBalance: Int = 0,
   availableBalance: Int = 0, canceledAmount: Option[Int] = None, canceledReason: Option[String] = None,
   reloadable: Boolean = false, createdAt: Instant = Instant.now())
   extends PaymentMethod
