@@ -3,11 +3,11 @@
 const
   BaseModel = require('../lib/base-model'),
   Customer  = require('./customer'),
-  Address   = require('./address'),
-  LineItem  = require('./order-line-item'),
-  Payment   = require('./payment'),
-  moment    = require('moment'),
-  errors    = require('../../errors');
+  Address = require('./address'),
+  OrderLineItem  = require('./order-line-item'),
+  Payment = require('./payment'),
+  moment = require('moment'),
+  errors = require('../../errors');
 
 const seed = [
   {field: 'referenceNumber', method: 'string', opts: {length: 8, pool: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'}},
@@ -40,7 +40,7 @@ class Order extends BaseModel {
   get fraudScore() { return this.model.fraudScore; }
   get customer() { return Customer.findOne(this.model.customerId); }
   get shippingAddress() { return Address.defaultForCustomer(this.model.customerId); }
-  get lineItems() { return LineItem.generateList(~~((Math.random() * 5) + 1)); }
+  get lineItems() { return OrderLineItem.generateList(~~((Math.random() * 5) + 1)); }
   get payments() { return Payment.findByOrder(this.id); }
   get totals() {
     return {
