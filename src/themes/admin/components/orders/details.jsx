@@ -27,7 +27,7 @@ export default class OrderDetails extends React.Component {
   }
 
   updateLineItems(data) {
-    Api.post(`/orders/${this.props.order.id}/line-items`, data)
+    Api.post(`/orders/${this.props.order.referenceNumber}/line-items`, data)
       .then((res) => {
         OrderStore.update(res);
       })

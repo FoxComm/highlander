@@ -53,14 +53,14 @@ export default class OrderLineItems extends React.Component {
       columns = editColumns;
       typeahead = <Typeahead component={SkuResult} store={SkuStore} selectEvent="addLineItem" />
       body = (
-        <TableBody columns={columns} rows={order.lineItems} model='order'>
+        <TableBody columns={columns} rows={order.lineItems} model='line-item'>
           <LineItemCounter onChange={this.props.onChange} />
           <DeleteLineItem onDelete={this.props.onChange} />
         </TableBody>
       );
     } else {
       columns = defaultColumns;
-      body = <TableBody columns={columns} rows={order.lineItems} model='order'/>;
+      body = <TableBody columns={columns} rows={order.lineItems} model='line-item'/>;
     }
     return (
       <section className="fc-content-box order-line-items">
