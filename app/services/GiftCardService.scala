@@ -34,13 +34,13 @@ object GiftCardService {
     }
   }
 
-  def createByAdmin(admin: StoreAdmin, payload: payloads.GiftCardCreatePayload)
+  def createByAdmin(admin: StoreAdmin, payload: payloads.GiftCardCreateByCsrPayload)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
 
     createGiftCardModel(admin, payload)
   }
 
-  private def createGiftCardModel(admin: StoreAdmin, payload: payloads.GiftCardCreatePayload)
+  private def createGiftCardModel(admin: StoreAdmin, payload: payloads.GiftCardCreateByCsrPayload)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
 
     val storeAdminResponse = Some(StoreAdminResponse.build(admin))

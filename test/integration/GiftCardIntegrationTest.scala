@@ -35,18 +35,18 @@ class GiftCardIntegrationTest extends IntegrationTestBase
   }
 
   "POST /v1/gift-cards" - {
-    "creates gift card from payload" in new Fixture {
-      val response = POST(s"v1/gift-cards", payloads.GiftCardCreatePayload(balance = 555))
-      val gcResponse = response.as[GiftCardResponse.Root]
+    "successfully creates gift card from payload" in new Fixture {
+      val response = POST(s"v1/gift-cards", payloads.GiftCardCreateByCsrPayload(balance = 555))
+      val root = response.as[GiftCardResponse.Root]
 
       response.status must ===(StatusCodes.OK)
-      gcResponse.`type` must ===(GiftCard.CsrAppeasement)
-      gcResponse.currency must ===(Currency.USD)
-      gcResponse.availableBalance must ===(555)
+      root.`type` must ===(GiftCard.CsrAppeasement)
+      root.currency must ===(Currency.USD)
+      root.availableBalance must ===(555)
     }
 
     "fails to create gift card with negative balance" in new Fixture {
-      val response = POST(s"v1/gift-cards", payloads.GiftCardCreatePayload(balance = -555))
+      val response = POST(s"v1/gift-cards", payloads.GiftCardCreateByCsrPayload(balance = -555))
       response.status must ===(StatusCodes.BadRequest)
       response.errors.head must ===("originalBalance should be greater or equal than zero")
     }
@@ -64,7 +64,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     "returns not found when GC doesn't exist" in new Fixture {
       val notFoundResponse = GET(s"v1/gift-cards/99")
       notFoundResponse.status must ===(StatusCodes.NotFound)
-      notFoundResponse.errors.head ===("giftCard with code=99 not found")
+      notFoundResponse.errors.head must ===("giftCard with code=99 not found")
     }
   }
 

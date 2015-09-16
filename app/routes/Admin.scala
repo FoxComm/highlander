@@ -38,7 +38,7 @@ object Admin {
             GiftCardAdjustmentsService.forGiftCard(code).map(renderGoodOrFailures)
           }
         } ~
-        (post & entity(as[payloads.GiftCardCreatePayload])) { payload ⇒
+        (post & entity(as[payloads.GiftCardCreateByCsrPayload])) { payload ⇒
           complete {
             GiftCardService.createByAdmin(admin, payload).map(renderGoodOrFailures)
           }
