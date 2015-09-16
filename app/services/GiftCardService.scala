@@ -4,6 +4,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Xor
 import cats.data.Validated.{Valid, Invalid}
+import cats.implicits._
 import shapeless._
 import models.{GiftCard, Customer, Customers, GiftCards, StoreAdmin, StoreAdmins}
 import responses.{GiftCardResponse, CustomerResponse, StoreAdminResponse}
@@ -63,8 +64,8 @@ object GiftCardService {
 
   private def createGiftCard(gc: GiftCard)(implicit ec: ExecutionContext, db: Database): Result[GiftCard] = {
     gc.validate match {
-      case Valid(_)         ⇒ Result.fromFuture(GiftCards.save(gc).run())
-      case Invalid(errors)  ⇒ Result.failure(errors.head)
+      case Valid(_)             ⇒ Result.fromFuture(GiftCards.save(gc).run())
+      case Invalid(errors)      ⇒ Result.failures(errors.unwrap.toSeq)
     }
   }
 

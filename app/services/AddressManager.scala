@@ -3,6 +3,7 @@ package services
 import scala.concurrent.{Future, ExecutionContext}
 
 import cats.data.Validated.{Invalid, Valid}
+import cats.implicits._
 import models.{OrderShippingAddress, Order, Orders, Customer, OrderShippingAddresses, Address, Addresses, Region,
 Regions}
 import models.Order._
@@ -27,7 +28,7 @@ object AddressManager {
           case (address, Some(region))  ⇒ Result.good(Response.build(address, region))
           case (_, None)                ⇒ Result.failure(NotFoundFailure(Region, address.regionId))
         }
-      case Invalid(errors) ⇒ Result.failure(errors.head)
+      case Invalid(errors) ⇒ Result.failures(errors.unwrap.toSeq)
     }
   }
 
@@ -44,7 +45,7 @@ object AddressManager {
           case (_, address, Some(region)) ⇒ Result.failure(NotFoundFailure(address))
           case (_, _, None)               ⇒ Result.failure(NotFoundFailure(Region, address.regionId))
         }
-      case Invalid(errors) ⇒ Result.failure(errors.head)
+      case Invalid(errors) ⇒ Result.failures(errors.unwrap.toSeq)
     }
   }
 

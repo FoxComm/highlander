@@ -3,6 +3,7 @@ package services
 import java.time.Instant
 
 import cats.data.Validated.{Valid, Invalid}
+import cats.implicits._
 import models._
 import responses.AdminNotes
 import responses.AdminNotes.Root
@@ -70,7 +71,7 @@ object NoteManager {
     (implicit ec: ExecutionContext, db: Database): Result[Note] = {
     note.validate match {
       case Valid(_)         ⇒ Result.fromFuture(Notes.save(note).run())
-      case Invalid(errors)  ⇒ Result.failure(errors.head)
+      case Invalid(errors)  ⇒ Result.failures(errors.unwrap.toSeq)
     }
   }
 }
