@@ -47,7 +47,7 @@ object GiftCardService {
 
     createGiftCard(GiftCard(
       code = generateCode,
-      originId = 0,
+      originId = admin.id,
       originType = GiftCard.CsrAppeasement,
       status = GiftCard.Active,
       currency = payload.currency,
