@@ -7,7 +7,7 @@ const seed = [
   {field: 'name', method: 'word'},
   {field: 'orderId', method: 'integer', opts: {min: 1, max: 99999}},
   {field: 'sku', method: 'string', opts: {length: 8, pool: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'}},
-  {field: 'qty', method: 'integer', opts: {min: 1, max: 3}},
+  {field: 'quantity', method: 'integer', opts: {min: 1, max: 3}},
   {field: 'refund', method: 'integer', opts: {min: 1000, max: 10000}},
   {field: 'inventoryDisposition', method: 'pick', opts: ['Putaway']},
   {field: 'reason', method: 'pick', opts: ['Doesn\'t fit']},
@@ -19,7 +19,7 @@ class LineItem extends BaseModel {
   get orderId() { return this.model.orderId; }
   get sku() { return this.model.sku; }
   get price() { return this.model.price; }
-  get qty() { return this.model.qty; }
+  get quantity() { return this.model.qty; }
   get inventoryDisposition() { return this.model.inventoryDisposition; }
   get reason() { return this.model.reason; }
   get refund() { return this.model.refund; }
