@@ -31,7 +31,7 @@ ReturnLineItems.defaultProps = {
   tableColumns: [
     {field: 'imagePath', text: 'Image', type: 'image'},
     {field: 'name', text: 'Name'},
-    {field: 'skuId', text: 'SKU'},
+    {field: 'sku', text: 'SKU'},
     {field: 'qty', text: 'Quantity'},
     {field: 'inventoryDisposition', text: 'Inventory Disposition'},
     {field: 'refund', text: 'Refund', type: 'currency'},
