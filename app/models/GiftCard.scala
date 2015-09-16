@@ -24,7 +24,7 @@ import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId, Va
 
 final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = CustomerPurchase, code: String,
   currency: Currency = Currency.USD, status: Status = OnHold, originalBalance: Int, currentBalance: Int = 0,
-  availableBalance: Int = 0, canceledAmount: Option[Int] = None, canceledReason: Option[String] = None,
+  availableBalance: Int = 0, canceledAmount: Option[Int] = None, canceledReason: Option[Int] = None,
   reloadable: Boolean = false, createdAt: Instant = Instant.now())
   extends PaymentMethod
   with ModelWithIdParameter
@@ -118,7 +118,7 @@ class GiftCards(tag: Tag) extends GenericTable.TableWithId[GiftCard](tag, "gift_
   def currentBalance = column[Int]("current_balance")
   def availableBalance = column[Int]("available_balance")
   def canceledAmount = column[Option[Int]]("canceled_amount")
-  def canceledReason = column[Option[String]]("canceled_reason")
+  def canceledReason = column[Option[Int]]("canceled_reason")
   def reloadable = column[Boolean]("reloadable")
   def createdAt = column[Instant]("created_at")
 

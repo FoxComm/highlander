@@ -27,11 +27,16 @@ begin
 
     -- canceling an adjustment should remove its monetary change from the gc
     if new.status = 'canceled' and old.status != 'canceled' then
-        update gift_cards
-            set current_balance = current_balance - adjustment,
-                available_balance = available_balance - adjustment
-                where id = new.gift_card_id;
-        return new;
+        if old.status = 'capture' then
+            update gift_cards
+                set current_balance = current_balance - adjustment,
+                    available_balance = available_balance - adjustment
+                    where id = new.gift_card_id;
+            return new;
+        else
+            update gift_cards set available_balance = available_balance - adjustment where id = new.gift_card_id;
+            return new;
+        end if;
     end if;
 
     -- handle credit or debit for auth or capture

@@ -23,7 +23,7 @@ object GiftCardResponse {
     availableBalance: Int,
     currentBalance: Int,
     canceledAmount: Option[Int],
-    canceledReason: Option[String],
+    canceledReason: Option[Int],
     customer: Option[CustomerResponse.Root],
     storeAdmin: Option[StoreAdminResponse.Root],
     message: String)

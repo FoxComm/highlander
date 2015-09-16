@@ -10,11 +10,12 @@ create table gift_cards (
     available_balance integer not null,
     reloadable boolean not null default false,
     canceled_amount integer null,
-    canceled_reason character varying(255) null,
+    canceled_reason integer null,
     created_at timestamp without time zone default (now() at time zone 'utc'),
     updated_at timestamp without time zone default (now() at time zone 'utc'),
     foreign key (id) references payment_methods(id) on update restrict on delete restrict,
     foreign key (origin_id) references gift_card_origins(id) on update restrict on delete restrict,
+    foreign key (canceled_reason) references reasons(id) on update restrict on delete restrict,
     constraint valid_status check (status in ('onHold', 'active', 'canceled')),
     constraint positive_balance check (original_balance >= 0 and current_balance >= 0 and available_balance >= 0)
 );
