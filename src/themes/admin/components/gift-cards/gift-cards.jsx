@@ -80,7 +80,6 @@ export default class GiftCards extends React.Component {
               columns={this.props.tableColumns}
               rows={this.state.cards}
               model='giftcard'
-              paginator={true}
               />
           </div>
         </div>

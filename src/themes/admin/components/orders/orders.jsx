@@ -57,7 +57,6 @@ export default class Orders extends React.Component {
             columns={this.props.tableColumns}
             rows={this.state.orders}
             model='order'
-            paginator={true}
             sort={OrderStore.sort.bind(OrderStore)}
             />
         </div>

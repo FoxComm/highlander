@@ -48,7 +48,6 @@ export default class Returns extends React.Component {
             columns={this.props.tableColumns}
             rows={this.state.returns}
             model='return'
-            paginator={true}
             sort={ReturnsStore.sort.bind(ReturnsStore)}
             />
         </div>

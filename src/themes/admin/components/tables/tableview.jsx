@@ -35,7 +35,8 @@ export default class TableView extends React.Component {
   }
 
   render() {
-    let paginator = this.props.paginator && (
+    let showPaginator = this.props.paginator && this.props.rows.length > this.state.limit;
+    let paginator = showPaginator && (
         <TablePaginator
           start={this.state.start}
           limit={this.state.limit}
@@ -45,7 +46,7 @@ export default class TableView extends React.Component {
       );
     return (
       <div className="fc-tableview">
-        {this.props.paginator && (
+        {showPaginator && (
           <div className="fc-table-header">
             {paginator}
           </div>
@@ -61,7 +62,7 @@ export default class TableView extends React.Component {
             model={this.props.model}
             />
         </table>
-        {this.props.paginator && (
+        {showPaginator && (
           <div className="fc-table-footer">
             <select onChange={this.onLimitChange.bind(this)}>
               <option value="10">Show 10</option>
@@ -90,6 +91,6 @@ TableView.propTypes = {
 
 TableView.defaultProps = {
   start: 0,
-  limit: 10,
-  paginator: false
+  limit: 25,
+  paginator: true
 };
