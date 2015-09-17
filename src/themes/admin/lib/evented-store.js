@@ -72,7 +72,7 @@ export default class EventedStore {
         return res;
       })
       .catch((err) => {
-        return this.apiError(err);
+        throw this.apiError(err);
       });
   }
 
@@ -83,7 +83,7 @@ export default class EventedStore {
         return res;
       })
       .catch((err) => {
-        return this.apiError(err);
+        throw this.apiError(err);
       });
   }
 
@@ -94,12 +94,12 @@ export default class EventedStore {
         return res;
       })
       .catch((err) => {
-        return this.apiError(err);
+        throw this.apiError(err);
       });
   }
 
   apiError(err) {
-    console.error(err.stack);
+    console.error(String(err));
     this.dispatch('error', err);
     return err;
   }

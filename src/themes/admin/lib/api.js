@@ -20,6 +20,14 @@ class ErrorResponse {
       return this.data.errors || [this.data.error];
     }
   }
+
+  toString() {
+    return this.errors.join('\n');
+  }
+
+  get message() {
+    return this.toString();
+  }
 }
 
 export default class Api {
