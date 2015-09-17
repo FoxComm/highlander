@@ -2,10 +2,10 @@
 
 import BaseStore from '../../lib/base-store';
 
-class ReturnsStore extends BaseStore {
+class RmaStore extends BaseStore {
   get baseUri() {
     return '/returns';
   }
 }
 
-export default new ReturnsStore();
+export default new RmaStore();

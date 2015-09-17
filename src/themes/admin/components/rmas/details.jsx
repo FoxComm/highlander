@@ -1,21 +1,21 @@
 'use strict';
 
 import React from 'react';
-import ReturnSummary from './summary';
+import RmaSummary from './summary';
 import CustomerInfo from './customer-info';
 import LineItems from '../line-items/line-items';
-import ReturnShippingMethod from './shipping-method';
-import ReturnPayment from './payment';
-import ReturnStore from './store';
+import RmaShippingMethod from './shipping-method';
+import RmaPayment from './payment';
+import RmaStore from './store';
 
-export default class ReturnDetails extends React.Component {
+export default class RmaDetails extends React.Component {
   constructor(props) {
     super(props);
     this.state = {};
   }
 
   render() {
-    let retrn = this.props.return;
+    let rma = this.props.rma;
     let isEditing = this.state.isEditing;
     let lineColumns = [
       {field: 'imagePath', text: 'Image', type: 'image'},
@@ -28,32 +28,32 @@ export default class ReturnDetails extends React.Component {
     ];
 
     return (
-      <div className="return-details fc-grid fc-grid-match">
+      <div className="rma-details fc-grid fc-grid-match">
         <div className="fc-col-3-10">
-          <ReturnSummary return={retrn} isEditing={isEditing}/>
+          <RmaSummary rma={rma} isEditing={isEditing}/>
         </div>
         <div className="fc-col-7-10">
-          <CustomerInfo return={retrn} isEditing={isEditing}/>
+          <CustomerInfo rma={rma} isEditing={isEditing}/>
         </div>
         <div className="fc-col-1-1">
           <LineItems
-            entity={retrn}
+            entity={rma}
             isEditing={isEditing}
             tableColumns={lineColumns}
-            model={'return'}
+            model={'rma'}
             />
         </div>
         <div className="fc-col-1-1">
-          <ReturnShippingMethod return={retrn} isEditing={isEditing}/>
+          <RmaShippingMethod rma={rma} isEditing={isEditing}/>
         </div>
         <div className="fc-col-1-1">
-          <ReturnPayment return={retrn} isEditing={isEditing}/>
+          <RmaPayment rma={rma} isEditing={isEditing}/>
         </div>
       </div>
     );
   }
 }
 
-ReturnDetails.propTypes = {
-  return: React.PropTypes.object
+RmaDetails.propTypes = {
+  rma: React.PropTypes.object
 };

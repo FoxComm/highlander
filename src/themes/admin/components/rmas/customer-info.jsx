@@ -5,10 +5,10 @@ import React from 'react';
 export default class CustomerInfo extends React.Component {
   render() {
     return (
-      <div className="fc-return-summary fc-content-box">
+      <div className="fc-rma-summary fc-content-box">
         <header className="header">Message for Customer</header>
         <article>
-          {this.props.return.customerMessage}
+          {this.props.rma.customerMessage}
         </article>
       </div>
     );
@@ -16,5 +16,5 @@ export default class CustomerInfo extends React.Component {
 }
 
 CustomerInfo.propTypes = {
-  return: React.PropTypes.object
+  rma: React.PropTypes.object
 };

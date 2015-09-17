@@ -4,83 +4,82 @@ import React from 'react';
 import { RouteHandler } from 'react-router';
 import { Link } from 'react-router';
 import { listenTo, stopListeningTo, dispatch } from '../../lib/dispatcher';
-import ReturnsStore from './store';
+import RmaStore from './store';
 import Notes from '../notes/notes';
 import Viewers from '../viewers/viewers';
 
-export default class Return extends React.Component {
+export default class Rma extends React.Component {
 
   constructor(props) {
     super(props);
     this.state = {
-      return: {},
+      rma: {},
       pendingStatus: null
     };
   }
 
   componentDidMount() {
     let { router }  = this.context;
-    let returnId = router.getCurrentParams().return;
-    ReturnsStore.listenToEvent('change', this);
-    ReturnsStore.fetch(returnId);
+    RmaStore.listenToEvent('change', this);
+    RmaStore.fetch(router.getCurrentParams().rma);
   }
 
   componentWillUnmount() {
-    ReturnsStore.stopListeningToEvent('change', this);
+    RmaStore.stopListeningToEvent('change', this);
   }
 
-  onChangeReturnsStore(retrn) {
+  onChangeRmaStore(rma) {
     this.setState({
-      return: retrn
+      rma: rma
     });
   }
 
   render() {
-    let retrn = this.state.return;
-    let params = {return: retrn && retrn.referenceNumber || ''};
+    let rma = this.state.rma;
+    let params = {rma: rma && rma.referenceNumber || ''};
     let viewers = null;
     let notes = null;
     let subNav = null;
     let itemsCount = 0;
 
-    if (retrn.id) {
+    if (rma.id) {
       viewers = (
-        <Viewers model='returns' modelId={retrn.id}/>
+        <Viewers model='returns' modelId={rma.id}/>
       );
       notes = (
         <div className="gutter">
-          <Notes return={retrn} modelName={'return'}/>
+          <Notes return={rma} modelName={'return'}/>
         </div>
       );
       subNav = (
         <div className="gutter">
           <ul className="fc-tabbed-nav">
-            <li><Link to="return-details" params={params}>Details</Link></li>
-            <li><Link to="return-notifications" params={params}>Transaction Notifications</Link></li>
-            <li><Link to="return-activity-trail" params={params}>Activity Trail</Link></li>
+            <li><Link to="rma-details" params={params}>Details</Link></li>
+            <li><Link to="rma-notifications" params={params}>Transaction Notifications</Link></li>
+            <li><Link to="rma-activity-trail" params={params}>Activity Trail</Link></li>
           </ul>
-          <RouteHandler return={retrn} modelName="return"/>
+          <RouteHandler rma={rma} modelName="rma"/>
         </div>
       );
-      itemsCount = retrn.lineItems.length;
+      itemsCount = rma.lineItems.length;
     }
 
     return (
-      <div id="return">
+      <div id="rma">
         {viewers}
         <div className="gutter title">
           <div>
-            <h1>Return {retrn.referenceNumber}</h1>
+            <h1>Return {rma.referenceNumber}</h1>
           </div>
         </div>
         <div className="gutter statuses">
           <dl>
             <dt>Return State</dt>
-            <dd>{retrn.returnStatus}</dd>
+            <dd>{rma.returnStatus}</dd>
           </dl>
           <dl>
             <dt>Return Type</dt>
-            <dd>{retrn.returnType}</dd>
+            <dd>{rma.returnType}</dd>
           </dl>
           <dl>
             <dt>Items</dt>
@@ -94,6 +93,6 @@ export default class Return extends React.Component {
   }
 }
 
-Return.contextTypes = {
+Rma.contextTypes = {
   router: React.PropTypes.func
 };

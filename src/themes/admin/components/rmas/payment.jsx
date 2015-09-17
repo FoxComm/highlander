@@ -6,16 +6,14 @@ import PaymentMethod from './payment-method';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
 
-export default class ReturnPayment extends React.Component {
+export default class RmaPayment extends React.Component {
   render() {
-    let retrn = this.props.return;
-
     return (
-      <section className="fc-content-box" id="return-payment">
+      <section className="fc-content-box" id="rma-payment">
         <header className="header">Payment</header>
         <table className="fc-table">
           <TableHead columns={this.props.tableColumns}/>
-          <TableBody columns={this.props.tableColumns} rows={_.compact([retrn.payment])} model='return'>
+          <TableBody columns={this.props.tableColumns} rows={_.compact([this.props.rma.payment])} model='rma'>
             <PaymentMethod/>
           </TableBody>
         </table>
@@ -24,12 +22,12 @@ export default class ReturnPayment extends React.Component {
   }
 }
 
-ReturnPayment.propTypes = {
-  return: React.PropTypes.object,
+RmaPayment.propTypes = {
+  rma: React.PropTypes.object,
   tableColumns: React.PropTypes.array
 };
 
-ReturnPayment.defaultProps = {
+RmaPayment.defaultProps = {
   tableColumns: [
     {field: 'paymentMethod', text: 'Method', component: 'PaymentMethod'},
     {field: 'amount', text: 'Amount', type: 'currency'},
