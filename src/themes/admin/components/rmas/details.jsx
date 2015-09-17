@@ -4,8 +4,8 @@ import React from 'react';
 import RmaSummary from './summary';
 import CustomerInfo from './customer-info';
 import LineItems from '../line-items/line-items';
-import RmaShippingMethod from './shipping-method';
-import RmaPayment from './payment';
+import ShippingMethod from '../shipping/shipping-method';
+import Payment from '../payment/payment';
 import RmaStore from './store';
 
 export default class RmaDetails extends React.Component {
@@ -44,10 +44,10 @@ export default class RmaDetails extends React.Component {
             />
         </div>
         <div className="fc-col-1-1">
-          <RmaShippingMethod rma={rma} isEditing={isEditing}/>
+          <ShippingMethod rma={rma} isEditing={isEditing}/>
         </div>
         <div className="fc-col-1-1">
-          <RmaPayment rma={rma} isEditing={isEditing}/>
+          <Payment rma={rma} isEditing={isEditing}/>
         </div>
       </div>
     );
