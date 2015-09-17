@@ -5,25 +5,14 @@ import { inflect } from 'fleck';
 
 export default class Header extends React.Component {
   render() {
-    let
-      { router }  = this.context,
-      params      = router.getCurrentParams(),
-      model       = Object.keys(params)[0],
-      breadcrumb  = null;
-
-    if (model) {
-      let modelName = inflect(model, 'pluralize', 'capitalize');
-      breadcrumb = (
-        <div className="breadcrumb">
-          {modelName} <i className="fa fa-chevron-right"></i> {params[model]}
-        </div>
-      );
-    } else {
-      let modelName = router.getCurrentPathname();
-      modelName = modelName.replace(/^\//, '');
-      modelName = inflect(modelName, 'pluralize', 'capitalize');
-      breadcrumb = <div className="breadcrumb">{modelName}</div>;
-    }
+    let { router }  = this.context;
+    let pathname = router.getCurrentPathname().replace(/^\/|\/$/gm, '');
+    let items = pathname.split('/').map((item, index) => {
+      let classname = index > 0 ? 'fa fa-chevron-right' : null;
+      let itemName = inflect(item, 'capitalize');
+      return <span className={classname}>{` ${itemName} `}</span>;
+    });
+    let breadcrumb = <div className="breadcrumb">{items}</div>;
 
     return (
       <header role='banner' className="fc-header">
