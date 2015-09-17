@@ -70,6 +70,12 @@ export default class AddressForm extends React.Component {
     dispatch('toggleModal', null);
   }
 
+  componentDidUpdate() {
+    if (this.state.errors) {
+      React.findDOMNode(this.refs.errorMessages).scrollIntoView();
+    }
+  }
+
   onSubmitForm(event) {
     event.preventDefault();
 
@@ -86,8 +92,10 @@ export default class AddressForm extends React.Component {
 
     willSaved
       .then((address) => {
+        this.setState({errors: null});
+
         if (this.props.order) {
-          return OrderStore.setShippingAddress(this.props.order.id, address.id);
+          return OrderStore.setShippingAddress(this.props.order.referenceNumber, address.id);
         }
       })
       .then(() => {
@@ -129,7 +137,7 @@ export default class AddressForm extends React.Component {
 
     if (this.state.errors) {
       messages = (
-        <div class="messages">
+        <div className="messages" ref="errorMessages">
           {this.state.errors.map((error, index) => {
             return <div className="fc-error"><i className="fa fa-times-circle-o"></i>{error}</div>
           })}
@@ -195,8 +203,8 @@ export default class AddressForm extends React.Component {
                 <input id={nextId()} type="tel" name="phoneNumber"  />
               </li>
               <li className="fc-address-form-controls">
-                <a onClick={this.close.bind(this)} className="fc-address-form-cancel" href="javascript:void(0)">Cancel</a>
-                <button type="submit">Save and choose</button>
+                <a onClick={this.close.bind(this)} className="fc-btn-link" href="javascript:void(0)">Cancel</a>
+                <button className="fc-btn-primary" type="submit">Save and choose</button>
               </li>
             </ul>
             </form>

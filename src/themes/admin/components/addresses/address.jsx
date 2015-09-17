@@ -10,7 +10,7 @@ import _ from 'lodash';
 class Address extends React.Component {
 
   setActiveAddress() {
-    OrderStore.setShippingAddress(this.props.order.id, this.props.address.id);
+    OrderStore.setShippingAddress(this.props.order.referenceNumber, this.props.address.id);
   }
 
   toggleEdit() {

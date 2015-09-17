@@ -30,12 +30,12 @@ class OrderStore extends BaseStore {
     });
   }
 
-  setShippingAddress(orderId, addressId) {
-    let uri = `${this.uri(orderId)}/shipping-address`;
+  setShippingAddress(refNum, addressId) {
+    let uri = `${this.uri(refNum)}/shipping-address`;
     return Api.patch(uri, {addressId})
       .then((res) => {
         // update shipping addres for order in store
-        this.fetch(orderId);
+        this.fetch(refNum);
       });
   }
 }
