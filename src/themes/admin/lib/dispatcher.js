@@ -5,10 +5,10 @@ import { EventEmitter } from 'events';
 
 const emitter = new EventEmitter();
 
-function eventBinding(event, method, ctx, callback) {
+function eventBinding(event, method, ctx) {
   let eventName = camelize(event);
   let pascal = camelize(event, true);
-  let func = callback || ctx[`on${pascal}`];
+  let func = ctx[`on${pascal}`];
 
   if (ctx && func) {
     if (method === 'addListener') {
@@ -22,8 +22,8 @@ export function dispatch(event, data) {
   emitter.emit(event, data);
 }
 
-export function listenTo(event, ctx, callback) {
-  eventBinding(event, 'addListener', ctx, callback);
+export function listenTo(event, ctx) {
+  eventBinding(event, 'addListener', ctx);
 }
 
 export function stopListeningTo(event, ctx) {

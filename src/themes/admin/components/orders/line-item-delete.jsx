@@ -12,29 +12,12 @@ const confirmOptions = {
 };
 
 export default class DeleteLineItem extends React.Component {
-  constructor(props) {
-    super(props);
-    if (this.props.model) {
-      this.state = {
-        confirmEvent: `confirm-order-line-item-delete-${this.props.model.sku}`
-      };
-    }
-  }
-  componentDidMount() {
-    listenTo(this.state.confirmEvent, this, this.onConfirmDelete);
-  }
-
-  componentWillUnmount() {
-    stopListeningTo(this.state.confirmEvent, this);
-  }
-
   onConfirmDelete() {
-    dispatch('toggleModal', null);
     this.props.onDelete([{'sku': this.props.model.sku, 'quantity': 0}]);
   }
 
   onClick() {
-    dispatch('toggleModal', <ConfirmModal event={this.state.confirmEvent} details={confirmOptions} />);
+    dispatch('toggleModal', <ConfirmModal details={confirmOptions} callback={this.onConfirmDelete.bind(this)} />);
   }
 
   render() {

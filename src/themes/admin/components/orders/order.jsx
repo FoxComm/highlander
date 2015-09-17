@@ -9,7 +9,6 @@ import Viewers from '../viewers/viewers';
 import ConfirmModal from '../modal/confirm';
 import RemorseTimer from './remorseTimer';
 
-const confirmEvent = 'confirm-change';
 const changeOptions = {
   header: 'Confirm',
   body: 'Are you sure you want to change the order status?',
@@ -39,13 +38,11 @@ export default class Order extends React.Component {
       { router }  = this.context,
       orderId     = router.getCurrentParams().order;
     OrderStore.listenToEvent('change', this);
-    listenTo(confirmEvent, this);
     OrderStore.fetch(orderId);
   }
 
   componentWillUnmount() {
     OrderStore.stopListeningToEvent('change', this);
-    stopListeningTo(confirmEvent, this);
   }
 
   onChangeOrderStore(order) {
@@ -55,8 +52,9 @@ export default class Order extends React.Component {
     });
   }
 
-  onConfirmChange() {
-    dispatch('toggleModal', null);
+  onConfirmChange(success) {
+    if (!success) return;
+
     this.patchOrder();
   }
 
@@ -75,7 +73,7 @@ export default class Order extends React.Component {
     });
     let options = status !== 'canceled' ? changeOptions : cancelOptions;
 
-    dispatch('toggleModal', <ConfirmModal event={confirmEvent} details={options} />);
+    dispatch('toggleModal', <ConfirmModal callback={this.onConfirmChange.bind(this)} details={options} />);
   }
 
   changeOrderStatus(event) {

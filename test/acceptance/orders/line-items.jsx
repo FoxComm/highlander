@@ -30,7 +30,7 @@ describe('OrderLineItems', function() {
     expect(orderLineItemsNode.className).to.contain('order-line-items');
   });
 
-  it('should switch to edit mode when click on Edit Order Details button', function *() {
+  it('should switch to edit mode when click on Edit line items button', function *() {
     let orderLineItems = React.render(
       <OrderLineItems order={order}/>
       , container);
