@@ -53,7 +53,7 @@ export default class OrderLineItems extends React.Component {
       columns = editColumns;
       typeahead = <Typeahead component={SkuResult} store={SkuStore} selectEvent="addLineItem" />
       body = (
-        <TableBody columns={columns} rows={order.lineItems} model='line-item'>
+        <TableBody columns={columns} rows={order.lineItems} model='lineItem'>
           <LineItemCounter onChange={this.props.onChange} />
           <DeleteLineItem onDelete={this.props.onChange} />
         </TableBody>

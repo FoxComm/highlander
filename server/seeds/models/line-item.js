@@ -21,8 +21,11 @@ class LineItem extends BaseModel {
   get quantity() { return this.model.quantity; }
   get total() { return this.model.quantity * this.model.price; }
   get imagePath() { return 'http://lorempixel.com/75/75/fashion'; }
+
+  set quantity(val) { this.model.quantity = val; }
 }
 
 Object.defineProperty(LineItem, 'seed', {value: seed});
+Object.defineProperty(LineItem, 'relationships', {value: ['order']});
 
 module.exports = LineItem;

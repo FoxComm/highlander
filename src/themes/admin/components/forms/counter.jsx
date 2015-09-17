@@ -5,20 +5,22 @@ import React from 'react';
 export default class Counter extends React.Component {
   constructor(props) {
     super(props);
+
     let value = null;
-    if (props.model) {
-      value = +props.model[props.defaultValue];
+    if (this.props.model) {
+      value = +this.props.model[props.defaultValue];
     } else {
-      value = +props.defaultValue;
+      value = +this.props.defaultValue;
     }
+
     this.state = {
-      inputValue: value
+      value: value
     };
   }
 
   triggerChange() {
     if (this.props.onChange) {
-      this.props.onChange(this.state.inputValue);
+      this.props.onChange(this.state.value);
     }
   }
 
@@ -26,7 +28,7 @@ export default class Counter extends React.Component {
     event.preventDefault();
     document.getElementById(this.props.inputName).stepDown(this.props.stepAmount);
     this.setState({
-      inputValue: this.state.inputValue - 1
+      value: this.state.value - 1
     }, () => {
       this.triggerChange();
     });
@@ -36,7 +38,7 @@ export default class Counter extends React.Component {
     event.preventDefault();
     document.getElementById(this.props.inputName).stepUp(this.props.stepAmount);
     this.setState({
-      inputValue: this.state.inputValue + 1
+      value: this.state.value + 1
     }, () => {
       this.triggerChange();
     });
@@ -44,13 +46,20 @@ export default class Counter extends React.Component {
 
   onChange(event) {
     this.setState({
-      inputValue: event.target.value
+      value: event.target.value
     }, () => {
       this.triggerChange();
     });
   }
 
   render() {
+    let value = null;
+    if (this.props.model) {
+      value = this.props.model[this.props.defaultValue];
+    } else {
+      value = this.state.value;
+    }
+
     return (
       <div className="fc-input-group">
         <div className="fc-input-prepend">
@@ -60,12 +69,11 @@ export default class Counter extends React.Component {
           type="number"
           id={this.props.inputName}
           name={this.props.inputName}
-          value={this.state.inputValue}
+          value={value}
           min={this.props.minValue}
           max={this.props.maxValue}
           step={this.props.stepAmount}
-          onChange={this.onChange.bind(this)}
-        />
+          onChange={this.onChange.bind(this)} />
         <div className="fc-input-append">
           <button onClick={this.increaseTotal.bind(this)}><i className="fa fa-chevron-up"></i></button>
         </div>
@@ -80,7 +88,8 @@ Counter.propTypes = {
   stepAmount: React.PropTypes.number,
   minValue: React.PropTypes.number,
   maxValue: React.PropTypes.number,
-  onChange: React.PropTypes.func
+  onChange: React.PropTypes.func,
+  model: React.PropTypes.object
 };
 
 Counter.defaultProps = {

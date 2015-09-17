@@ -2,7 +2,8 @@
 
 const
   parse = require('co-body'),
-  Chance = require('chance');
+  Chance = require('chance'),
+  _ = require('lodash');
 
 const
   chance = new Chance();
@@ -97,7 +98,8 @@ module.exports = function(app, router) {
             LineItem.deleteOne(lineItem.id);
           }
         } else {
-          lineItem = new LineItem(body);
+          let itemBody = _.assign({}, item, {'orderId': this.order.id});
+          lineItem = new LineItem(itemBody);
         }
       }
 

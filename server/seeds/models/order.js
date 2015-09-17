@@ -40,7 +40,7 @@ class Order extends BaseModel {
   get fraudScore() { return this.model.fraudScore; }
   get customer() { return Customer.findOne(this.model.customerId); }
   get shippingAddress() { return Address.defaultForCustomer(this.model.customerId); }
-  get lineItems() { return LineItem.generateList(~~((Math.random() * 5) + 1)); }
+  get lineItems() { return LineItem.findByOrder(this.id); }
   get payments() { return Payment.findByOrder(this.id); }
   get totals() {
     return {
