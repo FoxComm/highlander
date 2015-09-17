@@ -9,7 +9,6 @@ describe('OrderLineItems', function() {
       let order = res.response;
 
       expect (res.status).to.equal(202);
-      console.log(order.lineItems);
       let lineItem = _.find(order.lineItems, function (item) {
         return item.sku === 'HELLO';
       });

@@ -69,7 +69,7 @@ export default class OrderLineItems extends React.Component {
       columns = defaultColumns;
       body = <TableBody columns={columns} rows={order.lineItems} model='line-item'/>;
       editButton = (
-        <button className="fc-btn fc-btn-primary" onClick={this.toggleEdit.bind(this)}>
+        <button className="fc-btn" onClick={this.toggleEdit.bind(this)}>
           <i className="fa fa-pencil"></i>
         </button>
       );
