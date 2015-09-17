@@ -17,7 +17,6 @@ export default class ReturnDetails extends React.Component {
   render() {
     let retrn = this.props.return;
     let isEditing = this.state.isEditing;
-    let actions = null;
     let lineColumns = [
       {field: 'imagePath', text: 'Image', type: 'image'},
       {field: 'name', text: 'Name'},
@@ -29,27 +28,26 @@ export default class ReturnDetails extends React.Component {
     ];
 
     return (
-      <div className="return-details">
-        <div className="return-details-controls">
-          {actions}
+      <div className="return-details fc-grid fc-grid-match">
+        <div className="fc-col-3-10">
+          <ReturnSummary return={retrn} isEditing={isEditing}/>
         </div>
-        <div className="return-details-body fc-grid fc-grid-match">
-          <div className="fc-col-3-10">
-            <ReturnSummary return={retrn} isEditing={isEditing}/>
-          </div>
-          <div className="fc-col-7-10">
-            <CustomerInfo return={retrn} isEditing={isEditing}/>
-          </div>
-          <div className="return-details-main">
-            <LineItems
-              entity={retrn}
-              isEditing={isEditing}
-              tableColumns={lineColumns}
-              model={'return'}
-              />
-            <ReturnShippingMethod return={retrn} isEditing={isEditing}/>
-            <ReturnPayment return={retrn} isEditing={isEditing}/>
-          </div>
+        <div className="fc-col-7-10">
+          <CustomerInfo return={retrn} isEditing={isEditing}/>
+        </div>
+        <div className="fc-col-1-1">
+          <LineItems
+            entity={retrn}
+            isEditing={isEditing}
+            tableColumns={lineColumns}
+            model={'return'}
+            />
+        </div>
+        <div className="fc-col-1-1">
+          <ReturnShippingMethod return={retrn} isEditing={isEditing}/>
+        </div>
+        <div className="fc-col-1-1">
+          <ReturnPayment return={retrn} isEditing={isEditing}/>
         </div>
       </div>
     );
