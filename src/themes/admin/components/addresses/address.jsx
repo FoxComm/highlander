@@ -1,6 +1,7 @@
 'use strict';
 
 import React from 'react';
+import classNames from 'classnames';
 import AddressStore from '../../stores/addresses';
 import OrderStore from '../../stores/orders'
 import { listenTo, stopListeningTo, dispatch } from '../../lib/dispatcher';
@@ -36,12 +37,13 @@ class Address extends React.Component {
       );
     }
 
-    let classes = ['fc-address'];
-
-    if (address.isActive) classes.push('is-active');
+    let classes = classNames({
+      'fc-address': true,
+      'is-active': this.props.order ? address.id === this.props.order.shippingAddress.id : false
+    });
 
     return (
-      <li className={`${classes.join(' ')}`}>
+      <li className={classes}>
         <div className="fc-address-controls">
           <button onClick={this.toggleEdit.bind(this)}><i className="fa fa-pencil"></i></button>
         </div>
