@@ -20,7 +20,7 @@ export default class ReturnSummary extends React.Component {
             <dd>{formatCurrency(retrn.totals.taxes)}</dd>
           </dl>
         </article>
-        <div className="highlighted">
+        <div className="footer">
           <dl className="grand-total">
             <dt>Refunds Total</dt>
             <dd>{formatCurrency(retrn.totals.total)}</dd>
