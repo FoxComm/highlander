@@ -14,16 +14,6 @@ import Api from '../../lib/api';
 export default class OrderDetails extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      isEditing: false
-    };
-  }
-
-  toggleEdit() {
-    this.setState({
-      isEditing: !this.state.isEditing
-    });
-    dispatch('toggleOrderEdit');
   }
 
   updateLineItems(data) {
@@ -39,38 +29,20 @@ export default class OrderDetails extends React.Component {
   render() {
     let
       order     = this.props.order,
-      isEditing = this.state.isEditing,
       actions   = null;
-
-    if (isEditing) {
-      actions = (
-        <span>
-          <button onClick={this.toggleEdit.bind(this)}>Cancel</button>
-          <button className='primary'>Save Edits</button>
-        </span>
-      );
-    } else if (OrderStore.holdStatusList.indexOf(order.orderStatus) !== -1 || 1) {
-      actions = (
-        <button className="order-details-edit-order" onClick={this.toggleEdit.bind(this)}>Edit Order Details</button>
-      );
-    }
 
     return (
       <div className="order-details">
-        <div className="order-details-controls">
-          {actions}
-        </div>
-
         <div className="order-details-body">
           <div className="order-details-main">
-            <OrderLineItems order={order} isEditing={isEditing} onChange={this.updateLineItems.bind(this)} />
-            <OrderShippingAddress order={order} isEditing={isEditing}/>
-            <OrderShippingMethod order={order} isEditing={isEditing} />
-            <OrderPayment order={order} isEditing={isEditing}/>
+            <OrderLineItems order={order} onChange={this.updateLineItems.bind(this)} />
+            <OrderShippingAddress order={order} />
+            <OrderShippingMethod order={order} />
+            <OrderPayment order={order} />
           </div>
           <div className="order-details-aside">
-            <OrderSummary order={order} isEditing={isEditing}/>
-            <CustomerInfo order={order} isEditing={isEditing}/>
+            <OrderSummary order={order} />
+            <CustomerInfo order={order} />
           </div>
         </div>
       </div>

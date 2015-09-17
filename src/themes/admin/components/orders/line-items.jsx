@@ -48,6 +48,8 @@ export default class OrderLineItems extends React.Component {
     let typeahead = null;
     let body = null;
     let columns = null;
+    let actions = null;
+    let editButton = null;
 
     if (editing) {
       columns = editColumns;
@@ -58,19 +60,28 @@ export default class OrderLineItems extends React.Component {
           <DeleteLineItem onDelete={this.props.onChange} />
         </TableBody>
       );
+      actions = (
+        <footer>
+          <button className="fc-btn fc-btn-primary" onClick={this.toggleEdit.bind(this)}>Done</button>
+        </footer>
+      );
     } else {
       columns = defaultColumns;
       body = <TableBody columns={columns} rows={order.lineItems} model='line-item'/>;
+      editButton = (
+        <button className="fc-btn fc-btn-primary" onClick={this.toggleEdit.bind(this)}>
+          <i className="fa fa-pencil"></i>
+        </button>
+      );
     }
+
     return (
       <section className="fc-content-box order-line-items">
         <header>
           <div className='fc-grid'>
             <div className="fc-col-2-3">Items</div>
             <div className="fc-col-1-3">
-              <button className="fc-button" onClick={this.toggleEdit.bind(this)}>
-                <i className="fa fa-pencil"></i>
-              </button>
+              {editButton}
             </div>
           </div>
         </header>
@@ -78,6 +89,7 @@ export default class OrderLineItems extends React.Component {
           <TableHead columns={columns}/>
           {body}
         </table>
+        {actions}
       </section>
     );
   }
