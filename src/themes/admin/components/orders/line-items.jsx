@@ -67,14 +67,12 @@ export default class OrderLineItems extends React.Component {
           <DeleteLineItem onDelete={this.props.onChange} />
         </TableBody>
       );
-      addItem = (
-        <div>
-          <strong>Add Item</strong>
-          <Typeahead callback={this.itemSelected.bind(this)} component={SkuResult} store={SkuStore} />
-        </div>
-      );
       actions = (
         <footer>
+          <div>
+            <strong>Add Item</strong>
+            <Typeahead callback={this.itemSelected.bind(this)} component={SkuResult} store={SkuStore} />
+          </div>
           <button className="fc-btn fc-btn-primary" onClick={this.toggleEdit.bind(this)}>Done</button>
         </footer>
       );
@@ -102,7 +100,6 @@ export default class OrderLineItems extends React.Component {
           <TableHead columns={columns}/>
           {body}
         </table>
-        {addItem}
         {actions}
       </section>
     );
