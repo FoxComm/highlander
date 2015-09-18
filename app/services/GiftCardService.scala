@@ -36,15 +36,43 @@ object GiftCardService {
     createGiftCardModel(admin, payload)
   }
 
-  def updateStatusByCsr2(code: String, payload: payloads.GiftCardUpdateStatusByCsr)
+  private def isUpdateAllowed(gc: GiftCard, payload: payloads.GiftCardUpdateStatusByCsr): Xor[Failure, GiftCard] = {
+    val hasAuths = gc.availableBalance != gc.currentBalance
+
+    gc.transitionTo(payload.status) match {
+      case Xor.Left(message)  ⇒ Xor.Left(GeneralFailure(message))
+      case Xor.Right(_)       ⇒ (payload.status, payload.reason) match {
+        case (Canceled, Some(reason)) if hasAuths ⇒
+          Xor.Left(GeneralFailure("Open transactions should be canceled/completed"))
+        case (Canceled, Some(reason)) if !hasAuths ⇒
+          Xor.Right(gc.copy(status = payload.status, canceledAmount = Some(gc.availableBalance),
+            canceledReason = payload.reason))
+        case (Canceled, None)                     ⇒
+          Xor.Left(GeneralFailure("Please provide cancellation reason"))
+        case (_, _)                               ⇒
+          Xor.Right(gc.copy(status = payload.status))
+      }
+    }
+  }
+
+  def updateStatusByCsr(code: String, payload: payloads.GiftCardUpdateStatusByCsr)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
 
     val actions = for {
       oldGiftCard ← GiftCards.findByCode(code).one
 
       rowsAffected ← oldGiftCard.map { gc ⇒
-        GiftCards.update(gc.copy(status = payload.status))
-        //GiftCards._findById(gc.id).extract.map(_.status).update(payload.status)
+        isUpdateAllowed(gc, payload) match {
+          case Xor.Right(updatedGc) ⇒
+            val updateData = (payload.status, payload.reason, gc.availableBalance, gc.canceledAmount)
+
+            GiftCards._findById(gc.id).extract.map { x ⇒
+              (x.status, x.canceledReason, x.availableBalance, x.canceledAmount)
+            }.update(updateData)
+
+          //GiftCards.update(gc.copy(status = payload.status))
+          case Xor.Left(_) ⇒ DBIO.successful(0)
+        }
       }.getOrElse(DBIO.successful(0))
 
       newGiftCard ← GiftCards.findByCode(code).one
@@ -54,56 +82,9 @@ object GiftCardService {
       case (_, None) ⇒
         Result.failure(GiftCardNotFoundFailure(code))
       case (0, _) ⇒
-        Result.failure(GeneralFailure("Unable to update address"))
+        Result.failure(GeneralFailure("Unable to update GiftCard"))
       case (_, Some(gc)) ⇒
         Result.good(GiftCardResponse.build(gc))
-    }
-  }
-
-  def updateStatusByCsr(code: String, payload: payloads.GiftCardUpdateStatusByCsr)
-    (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
-      giftCard ← GiftCards.findByCode(code).one
-
-    } yield giftCard).run().flatMap {
-      case Some(gc) ⇒
-        val hasAuths = gc.availableBalance != gc.currentBalance
-
-        (gc.transitionTo(payload.status) match {
-          case Xor.Left(message)  ⇒ Result.failure(GeneralFailure(message))
-          case Xor.Right(_)       ⇒ (payload.status, payload.reason) match {
-            case (Canceled, Some(reason)) if hasAuths ⇒
-              Result.failure(GeneralFailure("Open transactions should be canceled/completed"))
-            case (Canceled, Some(reason)) if !hasAuths ⇒
-              val canceledGc = gc.copy(status = payload.status, canceledAmount = Some(gc.availableBalance),
-                canceledReason = payload.reason)
-              updateModel(canceledGc, payload)
-            case (Canceled, None)                     ⇒
-              Result.failure(GeneralFailure("Please provide cancellation reason"))
-            case (_, _)                               ⇒
-              updateModel(gc.copy(status = payload.status), payload)
-          }
-        }).map(_.map(GiftCardResponse.build(_, None, None)))
-      case _              ⇒
-        Result.failure(GiftCardNotFoundFailure(code))
-    }
-
-  private def updateModel(gc: GiftCard, payload: payloads.GiftCardUpdateStatusByCsr)
-    (implicit ec: ExecutionContext, db: Database): Result[GiftCard] = {
-
-    val query = GiftCards.findByCode(gc.code)
-    val update = query.map { x ⇒
-      (x.status, x.canceledReason, x.availableBalance, x.canceledAmount)
-    }.update((payload.status, payload.reason, gc.availableBalance, gc.canceledAmount))
-
-    db.run(update).flatMap { rowsAffected ⇒
-      if (rowsAffected == 1) {
-        db.run(query.one).flatMap {
-          case Some(giftCard) ⇒ Result.right(giftCard)
-          case None           ⇒ Result.failure(GiftCardNotFoundFailure(gc.code))
-        }
-      } else {
-        Result.failure(GiftCardNotFoundFailure(gc.code))
-      }
     }
   }
 

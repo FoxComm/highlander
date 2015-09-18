@@ -44,7 +44,7 @@ object Admin {
         } ~
         (patch & path(Segment) & entity(as[payloads.GiftCardUpdateStatusByCsr]) & pathEnd) { (code, payload) =>
           complete {
-            GiftCardService.updateStatusByCsr2(code, payload).map(renderGoodOrFailures)
+            GiftCardService.updateStatusByCsr(code, payload).map(renderGoodOrFailures)
           }
         } ~
         path(Segment / "notes") { code ⇒

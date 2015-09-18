@@ -102,20 +102,6 @@ object GiftCard {
     )
   }
 
-  def fromStatusUpdatePayload(gc: GiftCard, payload: payloads.GiftCardUpdateStatusByCsr): GiftCard = {
-    GiftCard(
-      id = gc.id,
-      code = gc.code,
-      originId = gc.originId,
-      originType = gc.originType,
-      status = payload.status,
-      currency = gc.currency,
-      originalBalance = gc.originalBalance,
-      availableBalance = gc.availableBalance,
-      currentBalance = gc.currentBalance
-    )
-  }
-
   implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
   implicit val originTypeColumnType: JdbcType[OriginType] with BaseTypedType[OriginType] = OriginType.slickColumn
 }
