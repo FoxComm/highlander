@@ -23,7 +23,7 @@ export default class NewGiftCard extends React.Component {
     this.state = {
       balance: 100,
       balanceText: '1.00',
-      type: 'Appeasement',
+      originType: 'Appeasement',
       subTypes: types.Appeasement,
       sendToCustomer: false,
       customers: [],
@@ -60,7 +60,7 @@ export default class NewGiftCard extends React.Component {
 
   setType(event) {
     this.setState({
-      type: event.target.value,
+      originType: event.target.value,
       subTypes: types[event.target.value]
     });
   }
@@ -239,8 +239,8 @@ export default class NewGiftCard extends React.Component {
         <form action="/gift-cards" method="POST" className="vertical" onSubmit={this.submitForm.bind(this)}>
           <fieldset>
             <div id="cardTypes">
-              <label htmlFor="cardType">Gift Card Type</label>
-              <select name="cardType" onChange={this.setType.bind(this)}>
+              <label htmlFor="originType">Gift Card Type</label>
+              <select name="originType" onChange={this.setType.bind(this)}>
                 {typeList.map((type, idx) => {
                   return <option val={type} key={`${idx}-${type}`}>{type}</option>;
                  })}
