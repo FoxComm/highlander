@@ -2,14 +2,14 @@ package models
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Validated._
 import cats.data.ValidatedNel
 import cats.implicits._
 import services.{GeneralFailure, Failure, Result}
 import utils.Litterbox._
-import utils.Validation
+import utils.{NewModel, Validation, ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 
 import com.pellucid.sealerate
@@ -20,7 +20,6 @@ import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.Money._
 import utils.Validation._
-import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
 
 final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = CustomerPurchase, code: String,
   currency: Currency = Currency.USD, status: Status = OnHold, originalBalance: Int, currentBalance: Int = 0,
@@ -100,6 +99,20 @@ object GiftCard {
       originalBalance = payload.balance,
       availableBalance = payload.balance,
       currentBalance = payload.balance
+    )
+  }
+
+  def fromStatusUpdatePayload(gc: GiftCard, payload: payloads.GiftCardUpdateStatusByCsr): GiftCard = {
+    GiftCard(
+      id = gc.id,
+      code = gc.code,
+      originId = gc.originId,
+      originType = gc.originType,
+      status = payload.status,
+      currency = gc.currency,
+      originalBalance = gc.originalBalance,
+      availableBalance = gc.availableBalance,
+      currentBalance = gc.currentBalance
     )
   }
 

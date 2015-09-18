@@ -5,10 +5,10 @@ import scala.concurrent.ExecutionContext
 import cats.data.Xor
 import cats.data.Validated.{Valid, Invalid}
 import shapeless._
-import models.{GiftCard, Customer, Customers, GiftCards, StoreAdmin, StoreAdmins}
+import models.{GiftCardAdjustments, GiftCard, Customer, Customers, GiftCards, StoreAdmin, StoreAdmins}
 import models.GiftCard.{Canceled, Active, OnHold}
 import responses.{GiftCardResponse, CustomerResponse, StoreAdminResponse}
-import responses.GiftCardResponse.Root
+import responses.GiftCardResponse.{Root, build}
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 
@@ -36,33 +36,56 @@ object GiftCardService {
     createGiftCardModel(admin, payload)
   }
 
-  def updateStatusByCsr(gc: GiftCard, payload: payloads.GiftCardUpdateStatusByCsr)
+  def updateStatusByCsr2(code: String, payload: payloads.GiftCardUpdateStatusByCsr)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
 
-    updateStatusModel(gc, payload).map(_.map(GiftCardResponse.build(_, None, None)))
-  }
+    val actions = for {
+      oldGiftCard ← GiftCards.findByCode(code).one
 
-  private def updateStatusModel(gc: GiftCard, payload: payloads.GiftCardUpdateStatusByCsr)
-    (implicit ec: ExecutionContext, db: Database): Result[GiftCard] = {
+      rowsAffected ← oldGiftCard.map { gc ⇒
+        GiftCards.update(gc.copy(status = payload.status))
+        //GiftCards._findById(gc.id).extract.map(_.status).update(payload.status)
+      }.getOrElse(DBIO.successful(0))
 
-    val hasAuths = gc.availableBalance != gc.currentBalance
+      newGiftCard ← GiftCards.findByCode(code).one
+    } yield (rowsAffected, newGiftCard)
 
-    gc.transitionTo(payload.status) match {
-      case Xor.Left(message)  ⇒ Result.failure(GeneralFailure(message))
-      case Xor.Right(_)       ⇒ payload.status match {
-        case Canceled ⇒ (payload.reason.isEmpty, hasAuths) match {
-          case (true, _) ⇒ Result.failure(GeneralFailure("Please provide cancellation reason"))
-          case (_, true) ⇒ Result.failure(GeneralFailure("Open transactions should be canceled/completed"))
-          case (_, _)    ⇒
-            val canceledGc = gc.copy(status = payload.status, canceledAmount = Some(gc.availableBalance),
-              canceledReason = payload.reason)
-
-            updateModel(canceledGc, payload)
-        }
-        case _ ⇒ updateModel(gc.copy(status = payload.status), payload)
-      }
+    db.run(actions.transactionally).flatMap {
+      case (_, None) ⇒
+        Result.failure(GiftCardNotFoundFailure(code))
+      case (0, _) ⇒
+        Result.failure(GeneralFailure("Unable to update address"))
+      case (_, Some(gc)) ⇒
+        Result.good(GiftCardResponse.build(gc))
     }
   }
+
+  def updateStatusByCsr(code: String, payload: payloads.GiftCardUpdateStatusByCsr)
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
+      giftCard ← GiftCards.findByCode(code).one
+
+    } yield giftCard).run().flatMap {
+      case Some(gc) ⇒
+        val hasAuths = gc.availableBalance != gc.currentBalance
+
+        (gc.transitionTo(payload.status) match {
+          case Xor.Left(message)  ⇒ Result.failure(GeneralFailure(message))
+          case Xor.Right(_)       ⇒ (payload.status, payload.reason) match {
+            case (Canceled, Some(reason)) if hasAuths ⇒
+              Result.failure(GeneralFailure("Open transactions should be canceled/completed"))
+            case (Canceled, Some(reason)) if !hasAuths ⇒
+              val canceledGc = gc.copy(status = payload.status, canceledAmount = Some(gc.availableBalance),
+                canceledReason = payload.reason)
+              updateModel(canceledGc, payload)
+            case (Canceled, None)                     ⇒
+              Result.failure(GeneralFailure("Please provide cancellation reason"))
+            case (_, _)                               ⇒
+              updateModel(gc.copy(status = payload.status), payload)
+          }
+        }).map(_.map(GiftCardResponse.build(_, None, None)))
+      case _              ⇒
+        Result.failure(GiftCardNotFoundFailure(code))
+    }
 
   private def updateModel(gc: GiftCard, payload: payloads.GiftCardUpdateStatusByCsr)
     (implicit ec: ExecutionContext, db: Database): Result[GiftCard] = {

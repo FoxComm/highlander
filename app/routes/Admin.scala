@@ -44,9 +44,7 @@ object Admin {
         } ~
         (patch & path(Segment) & entity(as[payloads.GiftCardUpdateStatusByCsr]) & pathEnd) { (code, payload) =>
           complete {
-            whenFound(GiftCards.findByCode(code).one.run()) { giftCard ⇒
-              GiftCardService.updateStatusByCsr(giftCard, payload)
-            }
+            GiftCardService.updateStatusByCsr2(code, payload).map(renderGoodOrFailures)
           }
         } ~
         path(Segment / "notes") { code ⇒
