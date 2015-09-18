@@ -17,7 +17,6 @@ class GiftCardTransaction extends BaseModel {
   get availableBalance() { return this.model.availableBalance; }
   get order() { return Order.findOne(this.model.orderId); }
   get giftCard() { return GiftCard.findOne(this.model.giftCardId); }
-  get orderId() { return this.model.orderId; }
   get orderRef() { return this.order.referenceNumber; }
 
   set orderId(val) { this.model.orderId = +val; }

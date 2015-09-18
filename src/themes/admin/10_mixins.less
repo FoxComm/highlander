@@ -50,13 +50,13 @@
   font-size: pxtorem(@size);
 }
 
-.font-spec(@size, @line-height) {
-  .line-height(@line-height);
+.font-spec(@size, @weight) {
+  font-weight: @weight;
   .font-spec(@size);
 }
 
-.font-spec(@size, @weight) when (@weight >= 100) {
-  font-weight: @weight;
+.font-spec(@size, @line-height) when (ispixel(@line-height)) {
+  .line-height(@line-height);
   .font-spec(@size);
 }
 
