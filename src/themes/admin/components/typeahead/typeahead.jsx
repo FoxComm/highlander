@@ -18,7 +18,9 @@ export default class Typeahead extends React.Component {
     this.setState({
       showResults: false
     });
-    dispatch(this.props.selectEvent, item);
+    if (this.props.callback) {
+      this.props.callback(item);
+    }
   }
 
   inputKeyUp(event) {
@@ -79,7 +81,7 @@ export default class Typeahead extends React.Component {
         </div>
         <TypeaheadResults
           onItemSelected={this.onItemSelected.bind(this)}
-          selectEvent={this.props.selectEvent}
+          callback={this.props.callback}
           component={this.props.component}
           store={this.props.store}
           showResults={this.state.showResults}
@@ -91,7 +93,7 @@ export default class Typeahead extends React.Component {
 }
 
 Typeahead.propTypes = {
-  selectEvent: React.PropTypes.string,
+  callback: React.PropTypes.func,
   component: React.PropTypes.func,
   store: React.PropTypes.object,
   label: React.PropTypes.string,

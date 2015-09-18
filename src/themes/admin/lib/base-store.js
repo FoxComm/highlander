@@ -96,6 +96,18 @@ export default class BaseStore {
       .catch((err) => { this.fetchError(err); });
   }
 
+  post(id, data) {
+    Api.post(this.uri(id), data)
+      .then((res) => { this.update(res); })
+      .catch((err) => { this.fetchError(err); });
+  }
+
+  post(data) {
+    Api.post(this.uri(), data)
+      .then((res) => { this.update(res); })
+      .catch((err) => { this.fetchError(err); });
+  }
+
   create(data) {
     Api.post(this.uri(), data)
       .then((res) => { this.update(res); })

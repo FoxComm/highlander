@@ -42,6 +42,12 @@ export default class OrderLineItems extends React.Component {
     });
   }
 
+  itemSelected(sku) {
+    if (this.props.onChange) {
+      this.props.onChange([{'sku': sku.sku, 'quantity': 1}]);
+    }
+  }
+
   render() {
     let order = this.props.order;
     let editing = this.state.isEditing;
@@ -50,6 +56,7 @@ export default class OrderLineItems extends React.Component {
     let columns = null;
     let actions = null;
     let editButton = null;
+    let addItem = null;
 
     if (editing) {
       columns = editColumns;
@@ -59,6 +66,12 @@ export default class OrderLineItems extends React.Component {
           <LineItemCounter onChange={this.props.onChange} />
           <DeleteLineItem onDelete={this.props.onChange} />
         </TableBody>
+      );
+      addItem = (
+        <div>
+          <strong>Add Item</strong>
+          <Typeahead callback={this.itemSelected.bind(this)} component={SkuResult} store={SkuStore} />
+        </div>
       );
       actions = (
         <footer>
@@ -89,6 +102,7 @@ export default class OrderLineItems extends React.Component {
           <TableHead columns={columns}/>
           {body}
         </table>
+        {addItem}
         {actions}
       </section>
     );

@@ -81,8 +81,7 @@ module.exports = function(app, router) {
       this.body = this.notification;
     })
     .post('/orders/:order/line-items', function *() {
-      let
-        body = yield parse.json(this);
+      let body = yield parse.json(this);
 
       let findItem = function(item, line) {
         return line.sku === item.sku;

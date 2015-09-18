@@ -6,7 +6,6 @@ const React = require('react/addons');
 const TestUtils = React.addons.TestUtils;
 const path = require('path');
 const order = require('./order-sample.json');
-const sinon = require('sinon');
 
 describe('LineItemDelete', function() {
   let DeleteLineItem = require(path.resolve('src/themes/admin/components/orders/line-item-delete.jsx'));
