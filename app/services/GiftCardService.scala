@@ -67,12 +67,7 @@ object GiftCardService {
 
         isUpdateAllowed(gc, payload, hasAuths) match {
           case Xor.Right(updatedGc) ⇒
-            //GiftCards.update(gc.copy(status = payload.status))
-            val updateData = (payload.status, payload.reason, gc.availableBalance, gc.canceledAmount)
-
-            GiftCards._findById(gc.id).extract.map { x ⇒
-              (x.status, x.canceledReason, x.availableBalance, x.canceledAmount)
-            }.update(updateData).map(Xor.right)
+            GiftCards.update(gc.copy(status = payload.status)).map(Xor.right)
           case Xor.Left(failure) ⇒ DBIO.successful(Xor.left(failure))
         }
       }.getOrElse(DBIO.successful(Xor.left(GeneralFailure("Unable to update GiftCard"))))
