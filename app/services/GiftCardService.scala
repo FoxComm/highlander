@@ -67,7 +67,7 @@ object GiftCardService {
 
         isUpdateAllowed(gc, payload, hasAuths) match {
           case Xor.Right(updatedGc) ⇒
-            GiftCards.update(gc.copy(status = payload.status)).map(Xor.right)
+            GiftCards.update(updatedGc).map(Xor.right)
           case Xor.Left(failure) ⇒ DBIO.successful(Xor.left(failure))
         }
       }.getOrElse(DBIO.successful(Xor.left(GeneralFailure("Unable to update GiftCard"))))
