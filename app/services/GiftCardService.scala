@@ -64,16 +64,15 @@ object GiftCardService {
       rowsAffected ← oldGiftCard.map { gc ⇒
         isUpdateAllowed(gc, payload) match {
           case Xor.Right(updatedGc) ⇒
+            //GiftCards.update(gc.copy(status = payload.status))
             val updateData = (payload.status, payload.reason, gc.availableBalance, gc.canceledAmount)
 
             GiftCards._findById(gc.id).extract.map { x ⇒
               (x.status, x.canceledReason, x.availableBalance, x.canceledAmount)
-            }.update(updateData)
-
-          //GiftCards.update(gc.copy(status = payload.status))
-          case Xor.Left(_) ⇒ DBIO.successful(0)
+            }.update(updateData).map(Xor.right)
+          case Xor.Left(failure) ⇒ DBIO.successful(Xor.left(failure))
         }
-      }.getOrElse(DBIO.successful(0))
+      }.getOrElse(DBIO.successful(Xor.left(GeneralFailure("Unable to update GiftCard"))))
 
       newGiftCard ← GiftCards.findByCode(code).one
     } yield (rowsAffected, newGiftCard)
@@ -81,9 +80,9 @@ object GiftCardService {
     db.run(actions.transactionally).flatMap {
       case (_, None) ⇒
         Result.failure(GiftCardNotFoundFailure(code))
-      case (0, _) ⇒
-        Result.failure(GeneralFailure("Unable to update GiftCard"))
-      case (_, Some(gc)) ⇒
+      case (Xor.Left(failure), _) ⇒
+        Result.failure(failure)
+      case (Xor.Right(_), Some(gc)) ⇒
         Result.good(GiftCardResponse.build(gc))
     }
   }
