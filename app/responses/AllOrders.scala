@@ -6,7 +6,10 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import models.Order.RemorseHold
 import models._
+import services.OrderUpdateFailure
 import slick.driver.PostgresDriver.api._
+
+final case class AllOrdersWithFailures(orders: Seq[AllOrders.Root], failures: Seq[OrderUpdateFailure])
 
 object AllOrders {
   type Response = Future[Seq[Root]]

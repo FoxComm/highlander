@@ -13,6 +13,7 @@ import responses.{AllOrders, AllOrdersWithFailures, AdminNotes, FullOrder, Store
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.Apis
+import utils.Slick.DbResult
 import utils.Slick.implicits._
 
 object Admin {
@@ -328,6 +329,13 @@ object Admin {
           (delete & path(IntNumber)) { noteId ⇒
             complete {
               NoteManager.deleteNote(noteId, admin).map(renderNothingOrFailures)
+            }
+          }
+        } ~
+        pathPrefix("assignees") {
+          (post & entity(as[Assignment])) { payload ⇒
+            complete {
+              LockAwareOrderUpdater.assign(refNum, payload.assignees).map(renderGoodOrFailures)
             }
           }
         } ~

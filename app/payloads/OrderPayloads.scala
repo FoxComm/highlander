@@ -29,3 +29,4 @@ final case class CreateOrder(customerId: Option[Int] = None, email: Option[Strin
   }
 }
 
+final case class Assignment(assignees: Seq[Int])

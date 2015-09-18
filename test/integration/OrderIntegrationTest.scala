@@ -5,8 +5,8 @@ import akka.pattern.ask
 import akka.testkit.TestActorRef
 
 import models._
-import payloads.UpdateOrderPayload
-import responses.{AdminNotes, FullOrder}
+import payloads.{Assignment, UpdateOrderPayload}
+import responses.{StoreAdminResponse, FullOrderWithWarnings, AdminNotes, FullOrder}
 import services.LockAwareOrderUpdater.NewRemorsePeriodEnd
 import services.{NotFoundFailure, NoteManager}
 import util.IntegrationTestBase
@@ -226,6 +226,64 @@ class OrderIntegrationTest extends IntegrationTestBase
       OrderLockEvents.findByOrder(order).mostRecentLock.result.headOption.run().futureValue must ===(None)
       POST(s"v1/orders/$refNum/unlock")
       getUpdated(refNum).remorsePeriodEnd.get must ===(originalRemorseEnd.plusMinutes(15))
+    }
+  }
+
+  "assignees" - {
+
+    "can be assigned to order" in new Fixture {
+      val response = POST(s"v1/orders/${order.referenceNumber}/assignees", Assignment(Seq(storeAdmin.id)))
+      response.status mustBe StatusCodes.OK
+
+      val fullOrderWithWarnings = parse(response.bodyText).extract[FullOrderWithWarnings]
+      fullOrderWithWarnings.order.assignees must not be empty
+      fullOrderWithWarnings.order.assignees mustBe Seq(StoreAdminResponse.build(storeAdmin))
+      fullOrderWithWarnings.warnings mustBe empty
+    }
+
+    "can be assigned to locked order" in {
+      val (order, storeAdmin) = (for {
+        customer ← Customers.save(Factories.customer)
+        order ← Orders.save(Factories.order.copy(locked = true, customerId = customer.id))
+        storeAdmin ← StoreAdmins.save(authedStoreAdmin)
+      } yield (order, storeAdmin)).run().futureValue
+      val response = POST(s"v1/orders/${order.referenceNumber}/assignees", Assignment(Seq(storeAdmin.id)))
+      response.status mustBe StatusCodes.OK
+    }
+
+    "404 if order is not found" in new Fixture {
+      val response = POST(s"v1/orders/NOPE/assignees", Assignment(Seq(storeAdmin.id)))
+      response.status mustBe StatusCodes.NotFound
+    }
+
+    "warning if assignee is not found" in new Fixture {
+      val response = POST(s"v1/orders/${order.referenceNumber}/assignees", Assignment(Seq(1, 999)))
+      response.status mustBe StatusCodes.OK
+
+      val fullOrderWithWarnings = parse(response.bodyText).extract[FullOrderWithWarnings]
+      fullOrderWithWarnings.order.assignees mustBe Seq(StoreAdminResponse.build(storeAdmin))
+      fullOrderWithWarnings.warnings mustBe Seq(NotFoundFailure("storeAdmin with id=999 not found"))
+    }
+
+    "can be viewed with order" in new Fixture {
+      val response1 = GET(s"v1/orders/${order.referenceNumber}")
+      response1.status mustBe StatusCodes.OK
+      val responseOrder1 = parse(response1.bodyText).extract[FullOrder.Root]
+      responseOrder1.assignees mustBe empty
+
+      POST(s"v1/orders/${order.referenceNumber}/assignees", Assignment(Seq(storeAdmin.id)))
+      val response2 = GET(s"v1/orders/${order.referenceNumber}")
+      response2.status mustBe StatusCodes.OK
+      val responseOrder2 = parse(response2.bodyText).extract[FullOrder.Root]
+      responseOrder2.assignees must not be empty
+      responseOrder2.assignees mustBe Seq(StoreAdminResponse.build(storeAdmin))
+    }
+
+    "do not create duplicate records" in new Fixture {
+      POST(s"v1/orders/${order.referenceNumber}/assignees", Assignment(Seq(storeAdmin.id)))
+      POST(s"v1/orders/${order.referenceNumber}/assignees", Assignment(Seq(storeAdmin.id)))
+
+      OrderAssignments.byOrder(order).result.run().futureValue.size mustBe 1
     }
   }
 
