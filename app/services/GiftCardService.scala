@@ -80,8 +80,10 @@ object GiftCardService {
         Result.failure(GiftCardNotFoundFailure(code))
       case (Xor.Left(failure), _) ⇒
         Result.failure(failure)
-      case (Xor.Right(_), Some(gc)) ⇒
+      case (Xor.Right(1), Some(gc)) ⇒
         Result.good(GiftCardResponse.build(gc))
+      case (_, _) ⇒
+        Result.failure(GeneralFailure("Unable to update GiftCard"))
     }
   }
 
