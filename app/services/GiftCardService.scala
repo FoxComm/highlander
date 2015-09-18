@@ -5,7 +5,8 @@ import scala.concurrent.ExecutionContext
 import cats.data.Xor
 import cats.data.Validated.{Valid, Invalid}
 import shapeless._
-import models.{GiftCardAdjustments, GiftCard, Customer, Customers, GiftCards, StoreAdmin, StoreAdmins}
+import models.{GiftCardAdjustment, GiftCardAdjustments, GiftCard, Customer, Customers, GiftCards, StoreAdmin,
+StoreAdmins}
 import models.GiftCard.{Canceled, Active, OnHold}
 import responses.{GiftCardResponse, CustomerResponse, StoreAdminResponse}
 import responses.GiftCardResponse.{Root, build}
@@ -36,9 +37,8 @@ object GiftCardService {
     createGiftCardModel(admin, payload)
   }
 
-  private def isUpdateAllowed(gc: GiftCard, payload: payloads.GiftCardUpdateStatusByCsr): Xor[Failure, GiftCard] = {
-    val hasAuths = gc.availableBalance != gc.currentBalance
-
+  private def isUpdateAllowed(gc: GiftCard, payload: payloads.GiftCardUpdateStatusByCsr, hasAuths: Boolean):
+  Xor[Failure, GiftCard] = {
     gc.transitionTo(payload.status) match {
       case Xor.Left(message)  ⇒ Xor.Left(GeneralFailure(message))
       case Xor.Right(_)       ⇒ (payload.status, payload.reason) match {
@@ -62,7 +62,10 @@ object GiftCardService {
       oldGiftCard ← GiftCards.findByCode(code).one
 
       rowsAffected ← oldGiftCard.map { gc ⇒
-        isUpdateAllowed(gc, payload) match {
+        //val hasAuths = GiftCardAdjustments.filterAuthByGiftCardId(oldGiftCard.get.id).exists.result
+        val hasAuths = gc.availableBalance != gc.currentBalance
+
+        isUpdateAllowed(gc, payload, hasAuths) match {
           case Xor.Right(updatedGc) ⇒
             //GiftCards.update(gc.copy(status = payload.status))
             val updateData = (payload.status, payload.reason, gc.availableBalance, gc.canceledAmount)
