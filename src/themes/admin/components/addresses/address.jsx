@@ -22,11 +22,11 @@ class Address extends React.Component {
     let address = this.props.address;
 
     let isDefault = (
-        <div><input type="checkbox" defaultChecked={address.isDefault} disabled />Default Address</div>
+        <label className="fc-address-default">
+          <input type="checkbox" defaultChecked={address.isDefault} disabled />
+          <span>Default Address</span>
+        </label>
     );
-    let address2 = (val) => {
-      return <span><span>{val}</span><br/></span>;
-    };
     let choose = null;
     if (this.props.order) {
       let onClick = this.setActiveAddress.bind(this);
@@ -48,16 +48,17 @@ class Address extends React.Component {
           <button onClick={this.toggleEdit.bind(this)}><i className="fa fa-pencil"></i></button>
         </div>
         <div >
-          <div className="fc-address-details">
+          <ul className="fc-address-details">
             { address.isDefault ? isDefault : '' }
-            <p><strong>{address.name}</strong></p>
-            <p>
-              <span>{address.address1}</span><br />
-              { address.address2 ? address2(address.address2) : '' }
-              <span>{address.city}</span>, <span>{address.state}</span> <span>{address.zip}</span><br />
-              <span>{address.country}</span>
-            </p>
-          </div>
+            <li className="name"><strong>{address.name}</strong></li>
+            <li>{address.address1}</li>
+            { address.address2 ? <li>{address.address2}</li> : '' }
+            <li>
+              {address.city}, <span>{address.region.name}</span> <span>{address.zip}</span>
+            </li>
+            <li>{address.country}</li>
+            { address.phoneNumber ? <li>{address.phoneNumber}</li> : '' }
+          </ul>
         </div>
         { choose }
       </li>

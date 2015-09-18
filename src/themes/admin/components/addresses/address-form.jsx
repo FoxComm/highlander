@@ -196,7 +196,7 @@ export default class AddressForm extends React.Component {
                 <label htmlFor={nextId()}>
                   {CountryStore.zipName(countryCode)}
                 </label>
-                <input id={nextId()} type="text" name="zip" className='control' required/>
+                <input id={nextId()} type="text" name="zip" value={formData.zip} className='control' required/>
               </li>
               <li>
                 <label htmlFor={nextId()}>Phone</label>

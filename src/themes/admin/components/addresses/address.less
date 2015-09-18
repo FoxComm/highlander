@@ -4,12 +4,12 @@
   display: inline-block;
   border: 1px solid @color-decor9;
   background: @color-decor12;
-  .padding(10px);
+  .padding(20px 10px);
   .margin-bottom(15px);
   .margin-left(15px);
   .font-spec(12px);
-  width: 200px;
-  .min-height(200px);
+  width: 278px;
+  .min-height(278px);
   position: relative;
 
   &.is-active {
@@ -19,7 +19,7 @@
 
   &-controls {
     position: absolute;
-    .top(10px);
+    .top(20px);
     .right(10px);
 
     button {
@@ -31,16 +31,37 @@
     }
   }
 
+  &-default {
+    color: @color-decor31;
+    .font-spec(12px, 16px);
+
+    input {
+      .size(16px);
+      vertical-align: bottom;
+    }
+
+    span {
+      .padding-left(5px);
+    }
+  }
+
   &-details {
     .margin-bottom(40px);
+    list-style-type: none;
+    .font-spec(14px, 19px);
+
+    .name {
+      .font-spec(17px, 23px);
+    }
   }
 
   &-choose {
+    .font-spec(14px, 19px);
     position: absolute;
     .bottom(10px);
-    .width(120px);
+    .width(140px);
     .left(50%);
-    .margin-left(-60px);
+    .margin-left(-70px);
     text-align: center;
   }
 }

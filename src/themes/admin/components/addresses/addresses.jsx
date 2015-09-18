@@ -49,9 +49,12 @@ export default class AddressBook extends React.Component {
       order = this.props.order || null;
 
     return (
-      <div>
-        <a className='btn' onClick={this.addNew.bind(this)}>+</a>
-        <ul className='addresses'>
+      <div className="fc-addresses">
+        <header>
+          <div className="fc-addresses-title">Address Book</div>
+          <button onClick={this.addNew.bind(this)}><i className="fa fa-plus"></i></button>
+        </header>
+        <ul className="fc-addresses-list">
           {addresses.map((address, idx) => {
             return <Address key={`${idx}-${address.id}`} address={address} order={order} customerId={this.state.customerId}/>;
           })}
