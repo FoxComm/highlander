@@ -8,13 +8,12 @@ const emitter = new EventEmitter();
 function eventBinding(event, method, ctx) {
   let eventName = camelize(event);
   let pascal = camelize(event, true);
-  let func = ctx[`on${pascal}`];
 
-  if (ctx && func) {
+  if (ctx && ctx[`on${pascal}`]) {
     if (method === 'addListener') {
-      func = func.bind(ctx);
+      ctx[`on${pascal}`] = ctx[`on${pascal}`].bind(ctx);
     }
-    emitter[method](eventName, func);
+    emitter[method](eventName, ctx[`on${pascal}`]);
   }
 }
 

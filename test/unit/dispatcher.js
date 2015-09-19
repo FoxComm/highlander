@@ -8,12 +8,11 @@ describe('dispatcher', function() {
   const dispatcher = require(path.resolve('src/themes/admin/lib/dispatcher'));
 
   it('should stop listening events', function() {
-    let spy = sinon.spy();
     let ctx = {
       onEvent: function(arg) {
-        spy(arg);
       }
     };
+    let spy = sinon.spy(ctx, 'onEvent');
 
     dispatcher.listenTo('event', ctx);
 
