@@ -56,7 +56,13 @@ export default class AddressBook extends React.Component {
         </header>
         <ul className="fc-addresses-list">
           {addresses.map((address, idx) => {
-            return <Address key={`${idx}-${address.id}`} address={address} order={order} customerId={this.state.customerId}/>;
+            return (
+              <Address key={`${idx}-${address.id}`}
+                address={address}
+                order={order}
+                customerId={this.state.customerId}
+              />
+            );
           })}
         </ul>
       </div>

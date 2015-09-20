@@ -153,7 +153,9 @@ export default class AddressForm extends React.Component {
         </header>
         {messages}
         <article>
-          <form action={AddressStore.uri(this.props.customerId)} onSubmit={this.onSubmitForm.bind(this)} onChange={this.onChangeValue.bind(this)}>
+          <form action={AddressStore.uri(this.props.customerId)}
+                onSubmit={this.onSubmitForm.bind(this)}
+                onChange={this.onChangeValue.bind(this)}>
             <ul className="fc-address-form-fields">
               <li>
                 <div className="fc-address-form-field-title">{title}</div>
@@ -175,7 +177,9 @@ export default class AddressForm extends React.Component {
                 <input id={nextId()} name="address1" type="text" value={formData.address1} required />
               </li>
               <li>
-                <label htmlFor={nextId()}>Street Address 2<span className="fc-address-form-comment">(optional)</span></label>
+                <label htmlFor={nextId()}>
+                  Street Address 2<span className="fc-address-form-comment">(optional)</span>
+                </label>
                 <input id={nextId()} name="address2" type="text" value={formData.address2} />
               </li>
               <li>
@@ -200,7 +204,7 @@ export default class AddressForm extends React.Component {
               </li>
               <li>
                 <label htmlFor={nextId()}>Phone</label>
-                <input id={nextId()} type="tel" name="phoneNumber"  />
+                <input id={nextId()} type="tel" name="phoneNumber"/>
               </li>
               <li className="fc-address-form-controls">
                 <a onClick={this.close.bind(this)} className="fc-btn-link" href="javascript:void(0)">Cancel</a>
@@ -216,6 +220,9 @@ export default class AddressForm extends React.Component {
 
 AddressForm.propTypes = {
   address: React.PropTypes.object,
-  customerId: React.PropTypes.number
+  customerId: React.PropTypes.number,
+  order: React.PropTypes.shape({
+    referenceNumber: React.PropTypes.string
+  })
 };
 

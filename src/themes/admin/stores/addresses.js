@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 import ParameterizedStore from '../lib/parameterized-store';
 
