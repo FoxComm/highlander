@@ -96,7 +96,7 @@ GiftCards.propTypes = {
 GiftCards.defaultProps = {
   tableColumns: [
     {field: 'code', text: 'Gift Card Number', type: 'link', model: 'giftcard', id: 'code'},
-    {field: 'type', text: 'Type'},
+    {field: 'originType', text: 'Type'},
     {field: 'originalBalance', text: 'Original Balance', type: 'currency'},
     {field: 'currentBalance', text: 'Current Balance', type: 'currency'},
     {field: 'availableBalance', text: 'Available Balance', type: 'currency'},
