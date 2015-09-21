@@ -22,7 +22,7 @@ trait AutomaticAuth extends SuiteMixin
   def makeApis: Option[Apis] = None
 
   override def makeService: Service = {
-    new Service(dbOverride = Some(db), systemOverride = Some(as), apisOverride = makeApis) {
+    new Service(dbOverride = Some(db), systemOverride = Some(system), apisOverride = makeApis) {
       override def storeAdminAuth: AsyncAuthenticator[StoreAdmin] = (UserCredentials) => {
         Future.successful(Some(authedStoreAdmin))
       }
