@@ -66,7 +66,7 @@ export default class OrderDetails extends React.Component {
               tableColumns={lineColumns}
               model={'order'}
               />
-            <OrderShippingAddress order={order} isEditing={isEditing}/>
+            <OrderShippingAddress order={order}/>
             <OrderShippingMethod order={order} isEditing={isEditing}/>
             <OrderPayment order={order} isEditing={isEditing}/>
           </div>
