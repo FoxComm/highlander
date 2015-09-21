@@ -1,17 +1,18 @@
 package services
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Xor
 import cats.data.Validated.{Valid, Invalid}
 import shapeless._
-import models.{GiftCardAdjustment, GiftCardAdjustments, GiftCard, Customer, Customers, GiftCards, StoreAdmin,
+import models.{GiftCardAdjustment, GiftCardAdjustments, GiftCard, Customer, Customers, GiftCards, Reasons, StoreAdmin,
 StoreAdmins}
 import models.GiftCard.{Canceled, Active, OnHold}
 import responses.{GiftCardResponse, CustomerResponse, StoreAdminResponse}
 import responses.GiftCardResponse.{Root, build}
 import slick.driver.PostgresDriver.api._
-import utils.Slick.DbResult
+import utils.Slick._
+import utils.Slick.UpdateReturning._
 import utils.Slick.implicits._
 
 object GiftCardService {
@@ -41,47 +42,33 @@ object GiftCardService {
   def updateStatusByCsr(code: String, payload: payloads.GiftCardUpdateStatusByCsr)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
 
-    val genericFailure = GeneralFailure("Unable to update GiftCard")
+    val finder = GiftCards.findByCode(code)
 
-    val actions = for {
-      oldGiftCard ← GiftCards.findByCode(code).one
+    finder.findOneAndRun { gc ⇒
+      gc.transitionTo(payload.status) match {
+        case Xor.Left(message) ⇒ DbResult.failure(GeneralFailure(message))
+        case Xor.Right(_) ⇒ (payload.status, payload.reason) match {
+          case (Canceled, Some(reason)) ⇒
+            GiftCardAdjustments.lastAuthByGiftCardId(gc.id).one.flatMap {
+              case Some(adjustment) ⇒ DbResult.failure(GeneralFailure("Open transactions should be canceled/completed"))
+              case None ⇒
+                Reasons.findById(payload.reason.get).flatMap {
+                  case None ⇒ DbResult.failure(GeneralFailure("Cancellation reason doesn't exist"))
+                  case _ ⇒
+                    val data = (payload.status, Some(gc.availableBalance), payload.reason)
+                    val cancellation = finder
+                      .map { gc ⇒ (gc.status, gc.canceledAmount, gc.canceledReason) }
+                      .updateReturning(GiftCards.map(identity), data)
+                      .head
 
-      rowsAffected ← oldGiftCard.map { gc ⇒
-        isUpdateAllowed(gc, payload) match {
-          case Xor.Right(updatedGc) ⇒ GiftCards.update(updatedGc).map(Xor.right)
-          case Xor.Left(failure)    ⇒ DBIO.successful(Xor.left(failure))
+                    DbResult.fromDbio(cancellation.flatMap { gc ⇒ DBIO.successful(GiftCardResponse.build(gc)) })
+                }
+            }
+          case (Canceled, None) ⇒ DbResult.failure(GeneralFailure("Please provide cancellation reason"))
+          case (_, _) ⇒
+            val update = finder.map(_.status).updateReturning(GiftCards.map(identity), payload.status).head
+            DbResult.fromDbio(update.flatMap { gc ⇒ DBIO.successful(GiftCardResponse.build(gc)) })
         }
-      }.getOrElse(DBIO.successful(Xor.left(genericFailure)))
-
-      newGiftCard ← GiftCards.findByCode(code).one
-    } yield (rowsAffected, newGiftCard)
-
-    db.run(actions.transactionally).flatMap {
-      case (_, None)                ⇒ Result.failure(GiftCardNotFoundFailure(code))
-      case (Xor.Left(failure), _)   ⇒ Result.failure(failure)
-      case (Xor.Right(1), Some(gc)) ⇒ Result.good(GiftCardResponse.build(gc))
-      case (_, _)                   ⇒ Result.failure(genericFailure)
-    }
-  }
-
-  private def isUpdateAllowed(gc: GiftCard, payload: payloads.GiftCardUpdateStatusByCsr): Xor[Failure, GiftCard] = {
-    //val hasAuths = GiftCardAdjustments.filterAuthByGiftCardId(gc.id).run()
-    val hasAuths = gc.availableBalance != gc.currentBalance
-
-    gc.transitionTo(payload.status) match {
-      case Xor.Left(message)  ⇒ Xor.Left(GeneralFailure(message))
-      case Xor.Right(_)       ⇒ (payload.status, payload.reason) match {
-        case (Canceled, Some(reason)) ⇒
-          if (hasAuths) {
-            Xor.Left(GeneralFailure("Open transactions should be canceled/completed"))
-          } else {
-            Xor.Right(gc.copy(status = payload.status, canceledAmount = Some(gc.availableBalance),
-              canceledReason = payload.reason))
-          }
-        case (Canceled, None)                     ⇒
-          Xor.Left(GeneralFailure("Please provide cancellation reason"))
-        case (_, _)                               ⇒
-          Xor.Right(gc.copy(status = payload.status))
       }
     }
   }

@@ -103,6 +103,16 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       val root = response.as[GiftCardResponse.Root]
       root.canceledAmount must ===(Some(giftCard.originalBalance))
     }
+
+    "fails to cancel gift card if invalid reason provided" in new Fixture {
+      // Cancel pending adjustment
+      GiftCardAdjustments.cancel(adjustment.id).run().futureValue
+
+      val response = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStatusByCsr(status = Canceled,
+        reason = Some(999)))
+      response.status must ===(StatusCodes.BadRequest)
+      response.errors.head must ===("Cancellation reason doesn't exist")
+    }
   }
 
   "GET /v1/gift-cards/:code/transactions" - {
