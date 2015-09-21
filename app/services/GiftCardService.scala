@@ -19,6 +19,7 @@ object GiftCardService {
   val mockCustomerId = 1
 
   type Account = Customer :+: StoreAdmin :+: CNil
+  type QuerySeq = Query[GiftCards, GiftCard, Seq]
 
   def getByCode(code: String)(implicit db: Database, ec: ExecutionContext): Result[Root] = {
     fetchDetails(code).run().flatMap {
@@ -49,27 +50,36 @@ object GiftCardService {
         case Xor.Left(message) ⇒ DbResult.failure(GeneralFailure(message))
         case Xor.Right(_) ⇒ (payload.status, payload.reason) match {
           case (Canceled, Some(reason)) ⇒
-            GiftCardAdjustments.lastAuthByGiftCardId(gc.id).one.flatMap {
-              case Some(adjustment) ⇒ DbResult.failure(GeneralFailure("Open transactions should be canceled/completed"))
-              case None ⇒
-                Reasons.findById(payload.reason.get).flatMap {
-                  case None ⇒ DbResult.failure(GeneralFailure("Cancellation reason doesn't exist"))
-                  case _ ⇒
-                    val data = (payload.status, Some(gc.availableBalance), payload.reason)
-                    val cancellation = finder
-                      .map { gc ⇒ (gc.status, gc.canceledAmount, gc.canceledReason) }
-                      .updateReturning(GiftCards.map(identity), data)
-                      .head
-
-                    DbResult.fromDbio(cancellation.flatMap { gc ⇒ DBIO.successful(GiftCardResponse.build(gc)) })
-                }
-            }
-          case (Canceled, None) ⇒ DbResult.failure(GeneralFailure("Please provide cancellation reason"))
+            cancelByCsr(finder, gc, payload)
+          case (Canceled, None) ⇒
+            DbResult.failure(GeneralFailure("Please provide cancellation reason"))
           case (_, _) ⇒
             val update = finder.map(_.status).updateReturning(GiftCards.map(identity), payload.status).head
             DbResult.fromDbio(update.flatMap { gc ⇒ DBIO.successful(GiftCardResponse.build(gc)) })
         }
       }
+    }
+  }
+
+  private def cancelByCsr(finder: QuerySeq, gc: GiftCard, payload: payloads.GiftCardUpdateStatusByCsr)
+    (implicit ec: ExecutionContext, db: Database) = {
+
+    GiftCardAdjustments.lastAuthByGiftCardId(gc.id).one.flatMap {
+      case Some(adjustment) ⇒
+        DbResult.failure(GeneralFailure("Open transactions should be canceled/completed"))
+      case None ⇒
+        Reasons.findById(payload.reason.get).flatMap {
+          case None ⇒
+            DbResult.failure(GeneralFailure("Cancellation reason doesn't exist"))
+          case _ ⇒
+            val data = (payload.status, Some(gc.availableBalance), payload.reason)
+            val cancellation = finder
+              .map { gc ⇒ (gc.status, gc.canceledAmount, gc.canceledReason) }
+              .updateReturning(GiftCards.map(identity), data)
+              .head
+
+            DbResult.fromDbio(cancellation.flatMap { gc ⇒ DBIO.successful(GiftCardResponse.build(gc)) })
+        }
     }
   }
 

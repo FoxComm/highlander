@@ -1,5 +1,7 @@
 package models
 
+import java.time.Instant
+
 import com.pellucid.sealerate
 import models.GiftCardAdjustment.{Auth, Status}
 import models.Notes._
@@ -11,7 +13,7 @@ import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId}
 import utils.Slick.implicits._
 
 final case class GiftCardAdjustment(id: Int = 0, giftCardId: Int, orderPaymentId: Int,
-  credit: Int, debit: Int, status: Status = Auth)
+  credit: Int, debit: Int, status: Status = Auth, createdAt: Instant = Instant.now())
   extends ModelWithIdParameter
   with FSM[GiftCardAdjustment.Status, GiftCardAdjustment] {
 
@@ -54,9 +56,10 @@ class GiftCardAdjustments(tag: Tag)
   def credit = column[Int]("credit")
   def debit = column[Int]("debit")
   def status = column[GiftCardAdjustment.Status]("status")
+  def createdAt = column[Instant]("created_at")
 
   def * = (id, giftCardId, orderPaymentId,
-    credit, debit, status) <> ((GiftCardAdjustment.apply _).tupled, GiftCardAdjustment.unapply)
+    credit, debit, status, createdAt) <> ((GiftCardAdjustment.apply _).tupled, GiftCardAdjustment.unapply)
 
   def payment = foreignKey(OrderPayments.tableName, orderPaymentId, OrderPayments)(_.id)
 }
@@ -69,7 +72,8 @@ object GiftCardAdjustments extends TableQueryWithId[GiftCardAdjustment, GiftCard
 
   def filterByGiftCardId(id: Int): QuerySeq = filter(_.giftCardId === id)
 
-  def lastAuthByGiftCardId(id: Int): QuerySeq = filterByGiftCardId(id).filter(_.status inSet authStatuses).take(1)
+  def lastAuthByGiftCardId(id: Int): QuerySeq =
+    filterByGiftCardId(id).filter(_.status inSet authStatuses).sortBy(_.createdAt).take(1)
 
   def cancel(id: Int): DBIO[Int] = filter(_.id === id).map(_.status).update(Canceled)
 }
