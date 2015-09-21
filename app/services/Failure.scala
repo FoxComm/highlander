@@ -37,6 +37,18 @@ final case class GeneralFailure(a: String) extends Failure {
   override def description = List(a)
 }
 
+case object EmptyCancellationReasonFailure extends Failure {
+  override def description = List("Please provide valid cancellation reason")
+}
+
+case object InvalidCancellationReasonFailure extends Failure {
+  override def description = List("Cancellation reason doesn't exist")
+}
+
+case object OpenTransactionsFailure extends Failure {
+  override def description = List("Open transactions should be canceled/completed")
+}
+
 case object CustomerHasDefaultShippingAddress extends Failure {
   override def description = List("customer already has default shipping address")
 }

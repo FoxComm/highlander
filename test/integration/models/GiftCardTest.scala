@@ -17,8 +17,7 @@ class GiftCardTest extends IntegrationTestBase {
     }
 
     "updates availableBalance if auth adjustment is created + cancel handling" in new Fixture {
-      val adjustment = GiftCardAdjustments.save(Factories.giftCardAdjustment.copy(giftCardId = giftCard.id, debit = 10,
-        orderPaymentId = payment.id, status = GiftCardAdjustment.Auth)).run().futureValue
+      val adjustment = GiftCards.capture(giftCard, payment.id, 10).run().futureValue
 
       val updatedGiftCard = GiftCards.findById(giftCard.id).run().futureValue.get
       updatedGiftCard.availableBalance must === (giftCard.availableBalance - 10)
@@ -29,8 +28,7 @@ class GiftCardTest extends IntegrationTestBase {
     }
 
     "updates availableBalance and currentBalance if capture adjustment is created + cancel handling" in new Fixture {
-      val adjustment = GiftCardAdjustments.save(Factories.giftCardAdjustment.copy(giftCardId = giftCard.id, credit = 10,
-        orderPaymentId = payment.id, status = GiftCardAdjustment.Capture)).run().futureValue
+      val adjustment = GiftCards.capture(giftCard, payment.id, 0, 10).run().futureValue
 
       val updatedGiftCard = GiftCards.findById(giftCard.id).run().futureValue.get
       updatedGiftCard.availableBalance must === (giftCard.availableBalance + 10)

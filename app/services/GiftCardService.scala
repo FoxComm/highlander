@@ -1,15 +1,15 @@
 package services
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 import cats.data.Xor
 import cats.data.Validated.{Valid, Invalid}
 import shapeless._
-import models.{GiftCardAdjustment, GiftCardAdjustments, GiftCard, Customer, Customers, GiftCards, Reasons, StoreAdmin,
+import models.{GiftCardAdjustments, GiftCard, Customer, Customers, GiftCards, Reasons, StoreAdmin,
 StoreAdmins}
-import models.GiftCard.{Canceled, Active, OnHold}
+import models.GiftCard.Canceled
 import responses.{GiftCardResponse, CustomerResponse, StoreAdminResponse}
-import responses.GiftCardResponse.{Root, build}
+import responses.GiftCardResponse.Root
 import slick.driver.PostgresDriver.api._
 import utils.Slick._
 import utils.Slick.UpdateReturning._
@@ -52,7 +52,7 @@ object GiftCardService {
           case (Canceled, Some(reason)) ⇒
             cancelByCsr(finder, gc, payload)
           case (Canceled, None) ⇒
-            DbResult.failure(GeneralFailure("Please provide cancellation reason"))
+            DbResult.failure(EmptyCancellationReasonFailure)
           case (_, _) ⇒
             val update = finder.map(_.status).updateReturning(GiftCards.map(identity), payload.status).head
             DbResult.fromDbio(update.flatMap { gc ⇒ DBIO.successful(GiftCardResponse.build(gc)) })
@@ -66,11 +66,11 @@ object GiftCardService {
 
     GiftCardAdjustments.lastAuthByGiftCardId(gc.id).one.flatMap {
       case Some(adjustment) ⇒
-        DbResult.failure(GeneralFailure("Open transactions should be canceled/completed"))
+        DbResult.failure(OpenTransactionsFailure)
       case None ⇒
         Reasons.findById(payload.reason.get).flatMap {
           case None ⇒
-            DbResult.failure(GeneralFailure("Cancellation reason doesn't exist"))
+            DbResult.failure(InvalidCancellationReasonFailure)
           case _ ⇒
             val data = (payload.status, Some(gc.availableBalance), payload.reason)
             val cancellation = finder

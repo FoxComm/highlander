@@ -3,12 +3,19 @@ package services
 import scala.concurrent.ExecutionContext
 
 import cats.data.Xor
-import models.{Customer, Customers, StoreAdmin, StoreCredit, StoreCreditManual, StoreCreditManuals, StoreCredits}
-import slick.driver.PostgresDriver.api._
-import utils.Slick.implicits._
+import models.StoreCredit.Canceled
+import models.{Reasons, Customer, Customers, StoreAdmin, StoreCredit, StoreCreditManual,
+StoreCreditManuals, StoreCredits, StoreCreditAdjustments}
+import responses.StoreCreditResponse
 import responses.StoreCreditResponse.{Root, build}
+import slick.driver.PostgresDriver.api._
+import utils.Slick._
+import utils.Slick.UpdateReturning._
+import utils.Slick.implicits._
 
 object StoreCreditService {
+  type QuerySeq = Query[StoreCredits, StoreCredit, Seq]
+
   def createManual(admin: StoreAdmin, customerId: Int, payload: payloads.CreateManualStoreCredit)
     (implicit db: Database, ec: ExecutionContext): Result[Root] = {
 
@@ -34,6 +41,49 @@ object StoreCreditService {
         Result.right(responses.StoreCreditResponse.build(storeCredit))
       case _ ⇒
         Result.failure(NotFoundFailure(StoreCredit, id))
+    }
+  }
+
+  def updateStatusByCsr(id: Int, payload: payloads.StoreCreditUpdateStatusByCsr)
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
+
+    val finder = StoreCredits.filter(_.id === id)
+
+    finder.findOneAndRun { sc ⇒
+      sc.transitionTo(payload.status) match {
+        case Xor.Left(message) ⇒ DbResult.failure(GeneralFailure(message))
+        case Xor.Right(_) ⇒ (payload.status, payload.reason) match {
+          case (Canceled, Some(reason)) ⇒
+            cancelByCsr(finder, sc, payload)
+          case (Canceled, None) ⇒
+            DbResult.failure(EmptyCancellationReasonFailure)
+          case (_, _) ⇒
+            val update = finder.map(_.status).updateReturning(StoreCredits.map(identity), payload.status).head
+            DbResult.fromDbio(update.flatMap { sc ⇒ DBIO.successful(StoreCreditResponse.build(sc)) })
+        }
+      }
+    }
+  }
+
+  private def cancelByCsr(finder: QuerySeq, sc: StoreCredit, payload: payloads.StoreCreditUpdateStatusByCsr)
+    (implicit ec: ExecutionContext, db: Database) = {
+
+    StoreCreditAdjustments.lastAuthByStoreCreditId(sc.id).one.flatMap {
+      case Some(adjustment) ⇒
+        DbResult.failure(OpenTransactionsFailure)
+      case None ⇒
+        Reasons.findById(payload.reason.get).flatMap {
+          case None ⇒
+            DbResult.failure(InvalidCancellationReasonFailure)
+          case _ ⇒
+            val data = (payload.status, Some(sc.availableBalance), payload.reason)
+            val cancellation = finder
+              .map { gc ⇒ (gc.status, gc.canceledAmount, gc.canceledReason) }
+              .updateReturning(StoreCredits.map(identity), data)
+              .head
+
+            DbResult.fromDbio(cancellation.flatMap { sc ⇒ DBIO.successful(StoreCreditResponse.build(sc)) })
+        }
     }
   }
 

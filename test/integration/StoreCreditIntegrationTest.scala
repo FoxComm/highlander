@@ -1,8 +1,9 @@
 import akka.http.scaladsl.model.StatusCodes
 
-import models.{PaymentMethod, OrderPayments, Orders, StoreCreditManuals, Customer, Reasons, Customers, StoreCredit,
-StoreCredits, StoreAdmins}
-import responses.{GiftCardAdjustmentsResponse, StoreCreditResponse, StoreCreditAdjustmentsResponse}
+import models.StoreCredit.{Canceled, Active, OnHold}
+import models.{PaymentMethod, OrderPayments, Orders, StoreCreditManuals, Customer, Reasons,
+Customers, StoreCredit, StoreCredits, StoreAdmins, StoreCreditAdjustments}
+import responses.{StoreCreditResponse, StoreCreditAdjustmentsResponse}
 import org.scalatest.BeforeAndAfterEach
 import services.NotFoundFailure
 import util.IntegrationTestBase
@@ -79,10 +80,55 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         firstAdjustment.orderRef mustBe order.referenceNumber
       }
     }
+
+    "PATCH /v1/gift-cards/:code" - {
+      "successfully changes status from Active to OnHold and vice-versa" in new Fixture {
+        val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStatusByCsr(status = OnHold))
+        response.status must ===(StatusCodes.OK)
+
+        val responseBack = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStatusByCsr(status = Active))
+        responseBack.status must ===(StatusCodes.OK)
+      }
+
+      "returns error if no cancellation reason provided" in new Fixture {
+        val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStatusByCsr(status = Canceled))
+        response.status must ===(StatusCodes.BadRequest)
+        response.errors.head must ===("Please provide valid cancellation reason")
+      }
+
+      "returns error on cancellation if store credit has auths" in new Fixture {
+        val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStatusByCsr(status = Canceled,
+          reason = Some(1)))
+        response.status must ===(StatusCodes.BadRequest)
+        response.errors.head must ===("Open transactions should be canceled/completed")
+      }
+
+      "successfully cancels store credit with provided reason" in new Fixture {
+        // Cancel pending adjustment
+        StoreCreditAdjustments.cancel(adjustment.id).run().futureValue
+
+        val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStatusByCsr(status = Canceled,
+          reason = Some(1)))
+        response.status must ===(StatusCodes.OK)
+
+        val root = response.as[StoreCreditResponse.Root]
+        root.canceledAmount must ===(Some(storeCredit.originalBalance))
+      }
+
+      "fails to cancel store credit if invalid reason provided" in new Fixture {
+        // Cancel pending adjustment
+        StoreCreditAdjustments.cancel(adjustment.id).run().futureValue
+
+        val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStatusByCsr(status = Canceled,
+          reason = Some(999)))
+        response.status must ===(StatusCodes.BadRequest)
+        response.errors.head must ===("Cancellation reason doesn't exist")
+      }
+    }
   }
 
   trait Fixture {
-    val (admin, customer, scReason, storeCredit, order) = (for {
+    val (admin, customer, scReason, storeCredit, order, adjustment) = (for {
       admin       ← StoreAdmins.save(authedStoreAdmin)
       customer    ← Customers.save(Factories.customer)
       order       ← Orders.save(Factories.order.copy(customerId = customer.id))
@@ -92,8 +138,8 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       storeCredit ← StoreCredits.save(Factories.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))
       payment ← OrderPayments.save(Factories.storeCreditPayment.copy(orderId = order.id,
         paymentMethodId = storeCredit.id, paymentMethodType = PaymentMethod.StoreCredit))
-      storeCreditAdjustments ← StoreCredits.auth(storeCredit, payment.id, 10)
-    } yield (admin, customer, scReason, storeCredit, order)).run().futureValue
+      adjustment ← StoreCredits.auth(storeCredit, payment.id, 10)
+    } yield (admin, customer, scReason, storeCredit, order, adjustment)).run().futureValue
   }
 }
 

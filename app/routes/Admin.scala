@@ -82,6 +82,11 @@ object Admin {
             StoreCreditService.getById(storeCreditId).map(renderGoodOrFailures)
           }
         } ~
+        (patch & entity(as[payloads.StoreCreditUpdateStatusByCsr]) & pathEnd) { payload ⇒
+          complete {
+            StoreCreditService.updateStatusByCsr(storeCreditId, payload).map(renderGoodOrFailures)
+          }
+        } ~
         (get & path("transactions") & pathEnd) {
           complete {
             StoreCreditAdjustmentsService.forStoreCredit(storeCreditId).map(renderGoodOrFailures)

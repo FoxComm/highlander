@@ -1,7 +1,8 @@
 package models
 
+import java.time.Instant
+
 import com.pellucid.sealerate
-import models.GiftCardAdjustments._
 import models.StoreCreditAdjustment.{Auth, Status}
 import monocle.macros.GenLens
 import slick.ast.BaseTypedType
@@ -10,7 +11,7 @@ import slick.jdbc.JdbcType
 import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 final case class StoreCreditAdjustment(id: Int = 0, storeCreditId: Int, orderPaymentId: Int,
-  debit: Int, status: Status = Auth)
+  debit: Int, status: Status = Auth, createdAt: Instant = Instant.now())
   extends ModelWithIdParameter
   with FSM[StoreCreditAdjustment.Status, StoreCreditAdjustment] {
 
@@ -45,9 +46,10 @@ class StoreCreditAdjustments(tag: Tag)
   def orderPaymentId = column[Int]("order_payment_id")
   def debit = column[Int]("debit")
   def status = column[StoreCreditAdjustment.Status]("status")
+  def createdAt = column[Instant]("created_at")
 
   def * = (id, storeCreditId, orderPaymentId,
-    debit, status) <> ((StoreCreditAdjustment.apply _).tupled, StoreCreditAdjustment.unapply)
+    debit, status, createdAt) <> ((StoreCreditAdjustment.apply _).tupled, StoreCreditAdjustment.unapply)
 
   def payment = foreignKey(OrderPayments.tableName, orderPaymentId, OrderPayments)(_.id)
   def storeCredit = foreignKey(StoreCredits.tableName, storeCreditId, StoreCredits)(_.id)
@@ -61,6 +63,9 @@ object StoreCreditAdjustments
   import StoreCreditAdjustment._
 
   def filterByStoreCreditId(id: Int): QuerySeq = filter(_.storeCreditId === id)
+
+  def lastAuthByStoreCreditId(id: Int): QuerySeq =
+    filterByStoreCreditId(id).filter(_.status === (Auth: Status)).sortBy(_.createdAt).take(1)
 
   def cancel(id: Int): DBIO[Int] = filter(_.id === id).map(_.status).update(Canceled)
 }

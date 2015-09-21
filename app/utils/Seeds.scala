@@ -79,7 +79,8 @@ object Seeds {
       shippingAddress ← OrderShippingAddresses.save(Factories.shippingAddress.copy(orderId = order.id))
       shippingMethods ← ShippingMethods ++= s.shippingMethods
       creditCard ← CreditCards.save(s.cc.copy(customerId = customer.id))
-      orderPayments ← OrderPayments.save(Factories.orderPayment.copy(orderId = order.id,paymentMethodId = creditCard.id))
+      orderPayments ← OrderPayments.save(Factories.orderPayment.copy(orderId = order.id,
+        paymentMethodId = creditCard.id))
       shippingPriceRule ← ShippingPriceRules ++= s.shippingPriceRules
       shippingMethodRuleMappings ← ShippingMethodsPriceRules ++= s.shippingMethodRuleMappings
       orderCriterion ← OrderCriteria ++= s.orderCriteria
