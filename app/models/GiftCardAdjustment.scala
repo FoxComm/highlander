@@ -69,8 +69,8 @@ object GiftCardAdjustments extends TableQueryWithId[GiftCardAdjustment, GiftCard
 
   def filterByGiftCardId(id: Int): QuerySeq = filter(_.giftCardId === id)
 
-  def filterAuthByGiftCardId(id: Int): QuerySeq =
-    filterByGiftCardId(id).filter(_.status inSet authStatuses)
+  def filterAuthByGiftCardId(id: Int): DBIO[Option[GiftCardAdjustment]] =
+    filterByGiftCardId(id).filter(_.status inSet authStatuses).one
 
   def cancel(id: Int): DBIO[Int] = filter(_.id === id).map(_.status).update(Canceled)
 }

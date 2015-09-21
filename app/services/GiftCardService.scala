@@ -11,6 +11,7 @@ import models.GiftCard.{Canceled, Active, OnHold}
 import responses.{GiftCardResponse, CustomerResponse, StoreAdminResponse}
 import responses.GiftCardResponse.{Root, build}
 import slick.driver.PostgresDriver.api._
+import utils.Slick.DbResult
 import utils.Slick.implicits._
 
 object GiftCardService {
@@ -37,53 +38,51 @@ object GiftCardService {
     createGiftCardModel(admin, payload)
   }
 
-  private def isUpdateAllowed(gc: GiftCard, payload: payloads.GiftCardUpdateStatusByCsr, hasAuths: Boolean):
-  Xor[Failure, GiftCard] = {
-    gc.transitionTo(payload.status) match {
-      case Xor.Left(message)  ⇒ Xor.Left(GeneralFailure(message))
-      case Xor.Right(_)       ⇒ (payload.status, payload.reason) match {
-        case (Canceled, Some(reason)) if hasAuths ⇒
-          Xor.Left(GeneralFailure("Open transactions should be canceled/completed"))
-        case (Canceled, Some(reason)) if !hasAuths ⇒
-          Xor.Right(gc.copy(status = payload.status, canceledAmount = Some(gc.availableBalance),
-            canceledReason = payload.reason))
-        case (Canceled, None)                     ⇒
-          Xor.Left(GeneralFailure("Please provide cancellation reason"))
-        case (_, _)                               ⇒
-          Xor.Right(gc.copy(status = payload.status))
-      }
-    }
-  }
-
   def updateStatusByCsr(code: String, payload: payloads.GiftCardUpdateStatusByCsr)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
+
+    val genericFailure = GeneralFailure("Unable to update GiftCard")
 
     val actions = for {
       oldGiftCard ← GiftCards.findByCode(code).one
 
       rowsAffected ← oldGiftCard.map { gc ⇒
-        //val hasAuths = GiftCardAdjustments.filterAuthByGiftCardId(oldGiftCard.get.id).exists.result
-        val hasAuths = gc.availableBalance != gc.currentBalance
-
-        isUpdateAllowed(gc, payload, hasAuths) match {
-          case Xor.Right(updatedGc) ⇒
-            GiftCards.update(updatedGc).map(Xor.right)
-          case Xor.Left(failure) ⇒ DBIO.successful(Xor.left(failure))
+        isUpdateAllowed(gc, payload) match {
+          case Xor.Right(updatedGc) ⇒ GiftCards.update(updatedGc).map(Xor.right)
+          case Xor.Left(failure)    ⇒ DBIO.successful(Xor.left(failure))
         }
-      }.getOrElse(DBIO.successful(Xor.left(GeneralFailure("Unable to update GiftCard"))))
+      }.getOrElse(DBIO.successful(Xor.left(genericFailure)))
 
       newGiftCard ← GiftCards.findByCode(code).one
     } yield (rowsAffected, newGiftCard)
 
     db.run(actions.transactionally).flatMap {
-      case (_, None) ⇒
-        Result.failure(GiftCardNotFoundFailure(code))
-      case (Xor.Left(failure), _) ⇒
-        Result.failure(failure)
-      case (Xor.Right(1), Some(gc)) ⇒
-        Result.good(GiftCardResponse.build(gc))
-      case (_, _) ⇒
-        Result.failure(GeneralFailure("Unable to update GiftCard"))
+      case (_, None)                ⇒ Result.failure(GiftCardNotFoundFailure(code))
+      case (Xor.Left(failure), _)   ⇒ Result.failure(failure)
+      case (Xor.Right(1), Some(gc)) ⇒ Result.good(GiftCardResponse.build(gc))
+      case (_, _)                   ⇒ Result.failure(genericFailure)
+    }
+  }
+
+  private def isUpdateAllowed(gc: GiftCard, payload: payloads.GiftCardUpdateStatusByCsr): Xor[Failure, GiftCard] = {
+    //val hasAuths = GiftCardAdjustments.filterAuthByGiftCardId(gc.id).run()
+    val hasAuths = gc.availableBalance != gc.currentBalance
+
+    gc.transitionTo(payload.status) match {
+      case Xor.Left(message)  ⇒ Xor.Left(GeneralFailure(message))
+      case Xor.Right(_)       ⇒ (payload.status, payload.reason) match {
+        case (Canceled, Some(reason)) ⇒
+          if (hasAuths) {
+            Xor.Left(GeneralFailure("Open transactions should be canceled/completed"))
+          } else {
+            Xor.Right(gc.copy(status = payload.status, canceledAmount = Some(gc.availableBalance),
+              canceledReason = payload.reason))
+          }
+        case (Canceled, None)                     ⇒
+          Xor.Left(GeneralFailure("Please provide cancellation reason"))
+        case (_, _)                               ⇒
+          Xor.Right(gc.copy(status = payload.status))
+      }
     }
   }
 
