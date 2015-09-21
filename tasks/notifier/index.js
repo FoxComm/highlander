@@ -1,6 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
+const path = require('path');
 const argv = require('yargs').argv;
 const stripColors = require('strip-ansi');
 const notifier = require('node-notifier');
@@ -8,9 +9,9 @@ const notifier = require('node-notifier');
 function notify(opts, type) {
   if (process.platform === 'linux') {
     if (type == 'error') {
-      opts.icon = 'emblem-important';
+      opts.icon = path.join(__dirname, 'cancel-48.png');
     } else {
-      opts.icon = 'emblem-default';
+      opts.icon = path.join(__dirname, 'ok-48.png');
     }
     opts.time = opts.time || process.env.DEFAULT_NOTIFICATION_TIMEOUT || 2000;
   } else if (process.platform === 'darwin') {
