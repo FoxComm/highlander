@@ -4,6 +4,7 @@ import scala.concurrent.Await.result
 import scala.concurrent.{Future, ExecutionContext}
 import scala.concurrent.duration._
 import akka.actor.ActorSystem
+import akka.http.ConnectionPoolSettings
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpMethods, HttpRequest, HttpResponse, Uri}
@@ -14,7 +15,7 @@ import com.typesafe.config.ConfigFactory
 import org.json4s.{Formats, DefaultFormats}
 import org.json4s.jackson.Serialization.{write ⇒ writeJson}
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
-import org.scalatest.{Outcome, Suite, SuiteMixin}
+import org.scalatest.{Args, Status, Outcome, Suite, SuiteMixin}
 import server.Service
 import util.DbTestSupport
 import utils.JsonFormatters
@@ -33,31 +34,29 @@ trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with Patien
   import org.json4s.jackson.JsonMethods._
   import Extensions._
 
-  /* State shared that is set / reset in withFixture subtypes */
-  protected implicit var as: ActorSystem       = _
-  protected implicit var fm: ActorMaterializer = _
+  protected implicit var system:        ActorSystem       = _
+  protected implicit var materializer:  ActorMaterializer = _
+  protected          var service:       Service           = _
+  protected          var serverBinding: ServerBinding     = _
 
-  /** of the currenly running server */
-  protected var serverBinding: ServerBinding = _
+  override protected abstract def runTests(testName: Option[String], args: Args): Status = {
+    system       = ActorSystem("system", actorSystemConfig)
+    materializer = ActorMaterializer()
+    service      = makeService
 
-  override abstract protected def withFixture(test: NoArgTest): Outcome = {
-    as = ActorSystem(test.name.filter(ActorSystemNameChars.contains), actorSystemConfig)
-    fm = ActorMaterializer()
-    val service = makeService
+    serverBinding = service.bind(ConfigFactory.parseString(
+      s"""
+         |http.interface = 127.0.0.1
+         |http.port      = ${ getFreePort }
+      """.stripMargin)).futureValue
 
-    try {
-      serverBinding = service.bind(ConfigFactory.parseString(
-        s"""
-           |http.interface = 127.0.0.1
-           |http.port      = ${ getFreePort }
-        """.stripMargin)).futureValue
+    try super.runTests(testName, args)
 
-      super.withFixture(test)
-    } finally {
+    finally {
       (Http().shutdownAllConnectionPools() >> service.close()).futureValue
 
-      as.shutdown()
-      as.awaitTermination()
+      system.shutdown()
+      system.awaitTermination()
     }
   }
 
@@ -68,7 +67,7 @@ trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with Patien
       |}
     """.stripMargin).withFallback(ConfigFactory.load)
 
-  def makeService: Service = new Service(dbOverride = Some(db), systemOverride = Some(as))
+  def makeService: Service = new Service(dbOverride = Some(db), systemOverride = Some(system))
 
   def POST(path: String, rawBody: String): HttpResponse = {
     val request = HttpRequest(
@@ -79,7 +78,7 @@ trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with Patien
         ByteString(rawBody)
       ))
 
-    Http().singleRequest(request).futureValue
+    dispatchRequest(request)
   }
 
   def POST(path: String): HttpResponse = {
@@ -87,7 +86,7 @@ trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with Patien
       method = HttpMethods.POST,
       uri    = pathToAbsoluteUrl(path))
 
-    Http().singleRequest(request).futureValue
+    dispatchRequest(request)
   }
 
   def PATCH(path: String, rawBody: String): HttpResponse = {
@@ -99,15 +98,16 @@ trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with Patien
         ByteString(rawBody)
       ))
 
-    Http().singleRequest(request).futureValue
+    dispatchRequest(request)
   }
+
 
   def PATCH(path: String): HttpResponse = {
     val request = HttpRequest(
       method = HttpMethods.PATCH,
       uri    = pathToAbsoluteUrl(path))
 
-    Http().singleRequest(request).futureValue
+    dispatchRequest(request)
   }
 
   def GET(path: String): HttpResponse = {
@@ -115,7 +115,7 @@ trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with Patien
       method = HttpMethods.GET,
       uri    = pathToAbsoluteUrl(path))
 
-    Http().singleRequest(request).futureValue
+    dispatchRequest(request)
   }
 
   def POST[T <: AnyRef](path: String, payload: T): HttpResponse = POST(path, writeJson(payload))
@@ -127,7 +127,7 @@ trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with Patien
       method = HttpMethods.DELETE,
       uri    = pathToAbsoluteUrl(path))
 
-    Http().singleRequest(request).futureValue
+    dispatchRequest(request)
   }
 
   def pathToAbsoluteUrl(path: String) = {
@@ -157,6 +157,14 @@ trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with Patien
 
   def parseErrors(response: HttpResponse)(implicit ec: ExecutionContext): List[String] =
     response.errors
+
+  private def dispatchRequest(req: HttpRequest): HttpResponse =
+    Http().singleRequest(req, connectionPoolSettings).futureValue
+
+  lazy final val connectionPoolSettings = ConnectionPoolSettings.create(implicitly[ActorSystem]).copy(
+    maxConnections  = 32,
+    maxOpenRequests = 32,
+    maxRetries      = 0)
 }
 
 object Extensions {
