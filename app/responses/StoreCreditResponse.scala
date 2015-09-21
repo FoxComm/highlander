@@ -15,7 +15,7 @@ object StoreCreditResponse {
     currentBalance: Int,
     availableBalance: Int,
     canceledAmount: Option[Int],
-    canceledReason: Option[String],
+    canceledReason: Option[Int],
     status: models.StoreCredit.Status,
     createdAt: Instant)
 

@@ -25,7 +25,7 @@ object Seeds {
     shippingMethodRuleMappings: Seq[ShippingMethodPriceRule], orderCriteria: Seq[OrderCriterion],
     orderPriceCriteria: Seq[OrderPriceCriterion], priceRuleCriteriaMappings: Seq[ShippingPriceRuleOrderCriterion],
     skus: Seq[Sku], orderLineItems: Seq[OrderLineItem], orderPayments: Seq[OrderPayment], shipment: Shipment,
-    paymentMethods: AllPaymentMethods)
+    paymentMethods: AllPaymentMethods, reasons: Seq[Reason])
 
   final case class AllPaymentMethods(giftCard: GiftCard = Factories.giftCard, storeCredit: StoreCredit = Factories
     .storeCredit)
@@ -53,7 +53,8 @@ object Seeds {
       orderLineItems = Factories.orderLineItems,
       orderPayments = Seq(Factories.orderPayment),
       shipment = Factories.shipment,
-      paymentMethods = AllPaymentMethods(giftCard = Factories.giftCard, storeCredit = Factories.storeCredit)
+      paymentMethods = AllPaymentMethods(giftCard = Factories.giftCard, storeCredit = Factories.storeCredit),
+      reasons = Factories.reasons
     )
 
     s.address.validate.fold(err ⇒ throw new Exception(err.mkString("\n")), _ ⇒ {})
@@ -85,13 +86,12 @@ object Seeds {
       orderPriceCriterion ← OrderPriceCriteria ++= s.orderPriceCriteria
       priceRuleCriteriaMapping ← ShippingPriceRulesOrderCriteria ++= s.priceRuleCriteriaMappings
       shipments ← Shipments.save(s.shipment)
-      gcReason ← Reasons.save(Factories.reason.copy(storeAdminId = storeAdmin.id))
-      gcOrigin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = storeAdmin.id, reasonId = gcReason.id))
+      reasons ← Reasons ++= s.reasons.map(_.copy(storeAdminId = storeAdmin.id))
+      gcOrigin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = storeAdmin.id, reasonId = 1))
       giftCard ← GiftCards.save(s.paymentMethods.giftCard.copy(originId = gcOrigin.id))
       gcAdjustments ← GiftCardAdjustments.save(Factories.giftCardAdjustment.copy(giftCardId = giftCard.id, debit = 10,
         orderPaymentId = orderPayments.id, status = GiftCardAdjustment.Auth))
-      scReason ← Reasons.save(Factories.reason.copy(storeAdminId = storeAdmin.id))
-      scOrigin ← StoreCreditManuals.save(Factories.storeCreditManual.copy(adminId = storeAdmin.id, reasonId = scReason.id))
+      scOrigin ← StoreCreditManuals.save(Factories.storeCreditManual.copy(adminId = storeAdmin.id, reasonId = 1))
       storeCredit ← StoreCredits.save(s.paymentMethods.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))
       storeCreditAdjustments ← StoreCredits.auth(storeCredit, orderPayments.id, 10)
     } yield (customers, order, address, shippingAddress, creditCard, giftCard, storeCredit)
@@ -156,6 +156,11 @@ object Seeds {
     }
 
     def reason = Reason(id = 0, storeAdminId = 0, body = "I'm a reason", parentId = None)
+
+    def reasons: Seq[Reason] = Seq(
+      Reason(body = "Other", parentId = None, storeAdminId = 0),
+      Reason(body = "Cancelled by customer request", parentId = None, storeAdminId = 0),
+      Reason(body = "Cancelled because duplication", parentId = None, storeAdminId = 0))
 
     def storeCredit = StoreCredit(customerId = 0, originId = 0, originType = StoreCredit.CsrAppeasement, originalBalance = 50,
       currency = Currency.USD)

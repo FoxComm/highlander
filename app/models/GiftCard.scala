@@ -2,14 +2,14 @@ package models
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Validated._
 import cats.data.ValidatedNel
 import cats.implicits._
 import services.{GeneralFailure, Failure, Result}
 import utils.Litterbox._
-import utils.Validation
+import utils.{NewModel, Validation, ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 
 import com.pellucid.sealerate
@@ -20,11 +20,10 @@ import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.Money._
 import utils.Validation._
-import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
 
 final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = CustomerPurchase, code: String,
   currency: Currency = Currency.USD, status: Status = OnHold, originalBalance: Int, currentBalance: Int = 0,
-  availableBalance: Int = 0, canceledAmount: Option[Int] = None, canceledReason: Option[String] = None,
+  availableBalance: Int = 0, canceledAmount: Option[Int] = None, canceledReason: Option[Int] = None,
   reloadable: Boolean = false, createdAt: Instant = Instant.now())
   extends PaymentMethod
   with ModelWithIdParameter
@@ -118,7 +117,7 @@ class GiftCards(tag: Tag) extends GenericTable.TableWithId[GiftCard](tag, "gift_
   def currentBalance = column[Int]("current_balance")
   def availableBalance = column[Int]("available_balance")
   def canceledAmount = column[Option[Int]]("canceled_amount")
-  def canceledReason = column[Option[String]]("canceled_reason")
+  def canceledReason = column[Option[Int]]("canceled_reason")
   def reloadable = column[Boolean]("reloadable")
   def createdAt = column[Instant]("created_at")
 

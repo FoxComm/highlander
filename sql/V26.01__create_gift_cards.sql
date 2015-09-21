@@ -10,7 +10,7 @@ create table gift_cards (
     available_balance integer not null,
     reloadable boolean not null default false,
     canceled_amount integer null,
-    canceled_reason character varying(255) null,
+    canceled_reason integer null references reasons(id) on update restrict on delete restrict,
     created_at timestamp without time zone default (now() at time zone 'utc'),
     updated_at timestamp without time zone default (now() at time zone 'utc'),
     foreign key (id) references payment_methods(id) on update restrict on delete restrict,

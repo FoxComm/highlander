@@ -8,8 +8,7 @@ import cats.data.Xor
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import models._
 import payloads._
-import responses.{StoreCreditAdjustmentsResponse, AllOrders, AllOrdersWithFailures, AdminNotes, FullOrder,
-GiftCardAdjustmentsResponse, StoreCreditResponse}
+import responses.{AllOrders, AllOrdersWithFailures, AdminNotes, FullOrder, StoreCreditAdjustmentsResponse}
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.Apis
@@ -38,9 +37,14 @@ object Admin {
             GiftCardAdjustmentsService.forGiftCard(code).map(renderGoodOrFailures)
           }
         } ~
-        (post & entity(as[payloads.GiftCardCreateByCsr])) { payload ⇒
+        (post & entity(as[payloads.GiftCardCreateByCsr]) & pathEnd) { payload ⇒
           complete {
             GiftCardService.createByAdmin(admin, payload).map(renderGoodOrFailures)
+          }
+        } ~
+        (patch & path(Segment) & entity(as[payloads.GiftCardUpdateStatusByCsr]) & pathEnd) { (code, payload) ⇒
+          complete {
+            GiftCardService.updateStatusByCsr(code, payload).map(renderGoodOrFailures)
           }
         } ~
         path(Segment / "notes") { code ⇒
@@ -81,6 +85,13 @@ object Admin {
         (get & path("transactions") & pathEnd) {
           complete {
             StoreCreditAdjustmentsService.forStoreCredit(storeCreditId).map(renderGoodOrFailures)
+          }
+        }
+      } ~
+      pathPrefix("reasons") {
+        (get & pathEnd) {
+          complete {
+            ReasonService.listAll.map(render(_))
           }
         }
       } ~

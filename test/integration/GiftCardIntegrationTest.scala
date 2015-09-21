@@ -4,9 +4,11 @@ import akka.http.scaladsl.model.StatusCodes
 
 import models.{Customers, Reasons, GiftCard, GiftCardAdjustment, GiftCardAdjustments, GiftCardManuals, GiftCards,
 Orders, OrderPayments, Note, Notes, PaymentMethod, StoreAdmins}
+import models.GiftCard.{Active, OnHold, Canceled}
 import org.scalatest.BeforeAndAfterEach
 import responses.{AdminNotes, GiftCardResponse, GiftCardAdjustmentsResponse}
 import services.NoteManager
+import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.implicits._
@@ -68,6 +70,51 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     }
   }
 
+  "PATCH /v1/gift-cards/:code" - {
+    "successfully changes status from Active to OnHold and vice-versa" in new Fixture {
+      val response = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStatusByCsr(status = OnHold))
+      response.status must ===(StatusCodes.OK)
+
+      val responseBack = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStatusByCsr(status = Active))
+      responseBack.status must ===(StatusCodes.OK)
+    }
+
+    "returns error if no cancellation reason provided" in new Fixture {
+      val response = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStatusByCsr(status = Canceled))
+      response.status must ===(StatusCodes.BadRequest)
+      response.errors.head must ===("Please provide cancellation reason")
+    }
+
+    "returns error on cancellation if gift card has auths" in new Fixture {
+      val response = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStatusByCsr(status = Canceled,
+        reason = Some(1)))
+      response.status must ===(StatusCodes.BadRequest)
+      response.errors.head must ===("Open transactions should be canceled/completed")
+    }
+
+    "successfully cancels gift card with provided reason" in new Fixture {
+      // Cancel pending adjustment
+      GiftCardAdjustments.cancel(adjustment.id).run().futureValue
+
+      val response = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStatusByCsr(status = Canceled,
+        reason = Some(1)))
+      response.status must ===(StatusCodes.OK)
+
+      val root = response.as[GiftCardResponse.Root]
+      root.canceledAmount must ===(Some(giftCard.originalBalance))
+    }
+
+    "fails to cancel gift card if invalid reason provided" in new Fixture {
+      // Cancel pending adjustment
+      GiftCardAdjustments.cancel(adjustment.id).run().futureValue
+
+      val response = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStatusByCsr(status = Canceled,
+        reason = Some(999)))
+      response.status must ===(StatusCodes.BadRequest)
+      response.errors.head must ===("Cancellation reason doesn't exist")
+    }
+  }
+
   "GET /v1/gift-cards/:code/transactions" - {
     "returns the list of adjustments" in new Fixture {
       val response = GET(s"v1/gift-cards/${giftCard.code}/transactions")
@@ -77,8 +124,8 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       adjustments.size mustBe 1
 
       val firstAdjustment = adjustments.head
-      firstAdjustment.amount mustBe -10
-      firstAdjustment.availableBalance mustBe 40
+      firstAdjustment.amount must ===(-adjustment.debit)
+      firstAdjustment.availableBalance must ===(giftCard.originalBalance - adjustment.debit)
       firstAdjustment.orderRef mustBe order.referenceNumber
     }
   }
@@ -152,17 +199,18 @@ class GiftCardIntegrationTest extends IntegrationTestBase
   }
 
   trait Fixture {
-    val (admin, giftCard, order) = (for {
+    val (admin, giftCard, order, adjustment) = (for {
       customer ← Customers.save(Factories.customer)
       order ← Orders.save(Factories.order.copy(customerId = customer.id))
       admin ← StoreAdmins.save(authedStoreAdmin)
       reason ← Reasons.save(Factories.reason.copy(storeAdminId = admin.id))
       origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
-      giftCard ← GiftCards.save(Factories.giftCard.copy(originId = origin.id))
+      giftCard ← GiftCards.save(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active))
       payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = giftCard.id,
         paymentMethodType = PaymentMethod.GiftCard))
       adjustment ← GiftCardAdjustments.save(Factories.giftCardAdjustment.copy(giftCardId = giftCard.id, debit = 10,
         orderPaymentId = payment.id, status = GiftCardAdjustment.Auth))
-    } yield (admin, giftCard, order)).run().futureValue
+      giftCard ← GiftCards.findById(giftCard.id)
+    } yield (admin, giftCard.get, order, adjustment)).run().futureValue
   }
 }
