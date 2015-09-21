@@ -21,8 +21,12 @@ export default class GiftCards extends React.Component {
   componentDidMount() {
     listenTo(createEvent, this);
     Api.get('/gift-cards')
-       .then((cards) => { this.setState({cards: cards}); })
-       .catch((err) => { console.error(err); });
+      .then((cards) => {
+        this.setState({cards: cards});
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   }
 
   componentWillUnmount() {
@@ -72,12 +76,12 @@ export default class GiftCards extends React.Component {
           <div className="gutter">
             <h2>Gift Cards</h2>
             <button onClick={this.toggleNew.bind(this)}>+ New Gift Card</button>
+            <TableView
+              columns={this.props.tableColumns}
+              rows={this.state.cards}
+              model='giftcard'
+              />
           </div>
-          <TableView
-            columns={this.props.tableColumns}
-            rows={this.state.cards}
-            model='giftcard'
-          />
         </div>
       );
     }

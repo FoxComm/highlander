@@ -38,7 +38,7 @@ export default class OrderSummary extends React.Component {
             <dd>{formatCurrency(order.totals.taxes)}</dd>
           </dl>
         </article>
-        <div className="highlighted">
+        <div className="footer">
           <dl className="grand-total">
             <dt>Grand Total</dt>
             <dd>{formatCurrency(order.totals.total)}</dd>
