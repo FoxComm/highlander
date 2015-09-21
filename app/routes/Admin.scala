@@ -42,7 +42,7 @@ object Admin {
             GiftCardService.createByAdmin(admin, payload).map(renderGoodOrFailures)
           }
         } ~
-        (patch & path(Segment) & entity(as[payloads.GiftCardUpdateStatusByCsr]) & pathEnd) { (code, payload) =>
+        (patch & path(Segment) & entity(as[payloads.GiftCardUpdateStatusByCsr]) & pathEnd) { (code, payload) ⇒
           complete {
             GiftCardService.updateStatusByCsr(code, payload).map(renderGoodOrFailures)
           }
