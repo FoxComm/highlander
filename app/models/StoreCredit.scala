@@ -145,6 +145,12 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
     (implicit ec: ExecutionContext): DBIO[Adj] =
     debit(storeCredit = storeCredit, orderPaymentId = orderPaymentId, amount = amount, status = Adj.Capture)
 
+  def cancelByCsr(storeCredit: StoreCredit, storeAdmin: StoreAdmin)(implicit ec: ExecutionContext): DBIO[Adj] = {
+    val adjustment = Adj(storeCreditId = storeCredit.id, orderPaymentId = None, storeAdminId = Some(storeAdmin.id),
+      debit = storeCredit.availableBalance, status = Adj.Capture)
+    Adjs.save(adjustment)
+  }
+
   def findAllByCustomerId(customerId: Int)(implicit ec: ExecutionContext, db: Database): Future[Seq[StoreCredit]] =
     _findAllByCustomerId(customerId).run()
 

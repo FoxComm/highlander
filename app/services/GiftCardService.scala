@@ -40,7 +40,7 @@ object GiftCardService {
     createGiftCardModel(admin, payload)
   }
 
-  def updateStatusByCsr(code: String, payload: payloads.GiftCardUpdateStatusByCsr)
+  def updateStatusByCsr(code: String, payload: payloads.GiftCardUpdateStatusByCsr, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
 
     val finder = GiftCards.findByCode(code)
@@ -50,7 +50,7 @@ object GiftCardService {
         case Xor.Left(message) ⇒ DbResult.failure(GeneralFailure(message))
         case Xor.Right(_) ⇒ (payload.status, payload.reason) match {
           case (Canceled, Some(reason)) ⇒
-            cancelByCsr(finder, gc, payload)
+            cancelByCsr(finder, gc, payload, admin)
           case (Canceled, None) ⇒
             DbResult.failure(GeneralFailure("Please provide cancellation reason"))
           case (_, _) ⇒
@@ -61,8 +61,8 @@ object GiftCardService {
     }
   }
 
-  private def cancelByCsr(finder: QuerySeq, gc: GiftCard, payload: payloads.GiftCardUpdateStatusByCsr)
-    (implicit ec: ExecutionContext, db: Database) = {
+  private def cancelByCsr(finder: QuerySeq, gc: GiftCard, payload: payloads.GiftCardUpdateStatusByCsr,
+    admin: StoreAdmin)(implicit ec: ExecutionContext, db: Database) = {
 
     GiftCardAdjustments.lastAuthByGiftCardId(gc.id).one.flatMap {
       case Some(adjustment) ⇒
@@ -78,7 +78,11 @@ object GiftCardService {
               .updateReturning(GiftCards.map(identity), data)
               .head
 
-            DbResult.fromDbio(cancellation.flatMap { gc ⇒ DBIO.successful(GiftCardResponse.build(gc)) })
+            val cancelAdjustment = GiftCards.cancelByCsr(gc, admin)
+
+            DbResult.fromDbio(cancelAdjustment >> cancellation.flatMap {
+              gc ⇒ DBIO.successful(GiftCardResponse.build(gc))
+            })
         }
     }
   }

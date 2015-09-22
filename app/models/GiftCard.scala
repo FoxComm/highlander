@@ -141,6 +141,12 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
     (implicit ec: ExecutionContext): DBIO[Adj] =
     adjust(giftCard, orderPaymentId, debit = debit, credit = credit, status = Adj.Capture)
 
+  def cancelByCsr(giftCard: GiftCard, storeAdmin: StoreAdmin)(implicit ec: ExecutionContext): DBIO[Adj] = {
+    val adjustment = Adj(giftCardId = giftCard.id, orderPaymentId = None, storeAdminId = Some(storeAdmin.id),
+      debit = giftCard.availableBalance, credit = 0, status = Adj.Capture)
+    Adjs.save(adjustment)
+  }
+
   def findByCode(code: String): Query[GiftCards, GiftCard, Seq] =
     filter(_.code === code)
 
