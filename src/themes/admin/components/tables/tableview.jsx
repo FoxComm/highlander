@@ -10,7 +10,7 @@ export default class TableView extends React.Component {
     super(props);
     this.state = {
       start: this.props.start,
-      limit: this.props.limit
+      limit: this.props.paginator ? this.props.limit : Infinity
     };
   }
 
@@ -35,16 +35,22 @@ export default class TableView extends React.Component {
   }
 
   render() {
+    let showPaginator = this.props.paginator && this.props.rows.length > this.state.limit;
+    let paginator = showPaginator && (
+        <TablePaginator
+          start={this.state.start}
+          limit={this.state.limit}
+          total={this.props.rows.length}
+          setStart={this.setStart.bind(this)}
+          />
+      );
     return (
-      <div className="gutter">
-        <div className="fc-table-header">
-          <TablePaginator
-            start={this.state.start}
-            limit={this.state.limit}
-            total={this.props.rows.length}
-            setStart={this.setStart.bind(this)}
-            />
-        </div>
+      <div className="fc-tableview">
+        {showPaginator && (
+          <div className="fc-table-header">
+            {paginator}
+          </div>
+        )}
         <table className='fc-table'>
           <TableHead
             columns={this.props.columns}
@@ -54,23 +60,22 @@ export default class TableView extends React.Component {
             columns={this.props.columns}
             rows={this.props.rows.slice(this.state.start, this.state.start + this.state.limit)}
             model={this.props.model}
-            />
+            >
+            {this.props.children}
+          </TableBody>
         </table>
-        <div className="fc-table-footer">
-          <select onChange={this.onLimitChange.bind(this)}>
-            <option value="10">Show 10</option>
-            <option value="25">Show 25</option>
-            <option value="50">Show 50</option>
-            <option value="100">Show 100</option>
-            <option value="Infinity">Show all</option>
-          </select>
-          <TablePaginator
-            start={this.state.start}
-            limit={this.state.limit}
-            total={this.props.rows.length}
-            setStart={this.setStart.bind(this)}
-            />
-        </div>
+        {showPaginator && (
+          <div className="fc-table-footer">
+            <select onChange={this.onLimitChange.bind(this)}>
+              <option value="10">Show 10</option>
+              <option value="25">Show 25</option>
+              <option value="50">Show 50</option>
+              <option value="100">Show 100</option>
+              <option value="Infinity">Show all</option>
+            </select>
+            {paginator}
+          </div>
+        )}
       </div>
     );
   }
@@ -82,10 +87,13 @@ TableView.propTypes = {
   rows: React.PropTypes.array,
   start: React.PropTypes.number,
   limit: React.PropTypes.number,
-  sort: React.PropTypes.func
+  sort: React.PropTypes.func,
+  paginator: React.PropTypes.bool,
+  children: React.PropTypes.array
 };
 
 TableView.defaultProps = {
   start: 0,
-  limit: 10
+  limit: 25,
+  paginator: true
 };

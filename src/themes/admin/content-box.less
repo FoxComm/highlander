@@ -1,6 +1,6 @@
-
 .fc-content-box {
   .colors(@fg: @color-default-fg, @bg: @color-default-bg);
+  position: relative;
 
   border: 1px solid @color-decor9;
   border-radius: 3px; // border radius is independent from font size @bree
@@ -42,12 +42,21 @@
     .padding-bottom(30px);
   }
 
-  .highlighted {
-    background-color: @color-decor3;
+  > footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+    white-space: nowrap;
+    overflow: auto;
     color: @color-white;
     .font-spec(17px, 700, 50px);
     .padding(0, 20px);
     margin: 0 -1px -1px -1px;
     border-radius: 0 0 3px 3px;
+    .highlighted {
+      background-color: @color-decor3;
+    }
   }
 }

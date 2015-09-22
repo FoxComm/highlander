@@ -5,10 +5,10 @@ require('testdom')('<html><body></body></html>');
 const React = require('react/addons');
 const TestUtils = React.addons.TestUtils;
 const path = require('path');
-const order = require('./order-sample.json');
+const order = require('../orders/order-sample.json');
 
 describe('OrderLineItems', function() {
-  let OrderLineItems = require(path.resolve('src/themes/admin/components/orders/line-items.jsx'));
+  let LineItems = require(path.resolve('src/themes/admin/components/line-items/line-items.jsx'));
   let container = null;
 
   beforeEach(function() {
@@ -22,17 +22,17 @@ describe('OrderLineItems', function() {
 
   it('should render', function *() {
     let orderLineItems = React.render(
-      <OrderLineItems order={order}/>
+      <LineItems entity={order} model='order'/>
       , container);
-    let orderLineItemsNode = TestUtils.findRenderedDOMComponentWithClass(orderLineItems, 'order-line-items').getDOMNode();
+    let orderLineItemsNode = TestUtils.findRenderedDOMComponentWithClass(orderLineItems, 'line-items').getDOMNode();
 
     expect(orderLineItemsNode).to.be.instanceof(Object);
-    expect(orderLineItemsNode.className).to.contain('order-line-items');
+    expect(orderLineItemsNode.className).to.contain('line-items');
   });
 
   it('should switch to edit mode when click on Edit line items button', function *() {
     let orderLineItems = React.render(
-      <OrderLineItems order={order}/>
+      <LineItems entity={order} model='order'/>
       , container);
     let renderedDOM = () => React.findDOMNode(orderLineItems);
     let editButtons = renderedDOM().querySelectorAll('header .fc-btn');

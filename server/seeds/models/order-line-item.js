@@ -12,7 +12,7 @@ const seed = [
   {field: 'price', method: 'integer', opts: {min: 1000, max: 1000000}}
 ];
 
-class LineItem extends BaseModel {
+class OrderLineItem extends BaseModel {
   get name() { return this.model.name; }
   get orderId() { return this.model.orderId; }
   get sku() { return this.model.sku; }
@@ -25,7 +25,7 @@ class LineItem extends BaseModel {
   set quantity(val) { this.model.quantity = val; }
 }
 
-Object.defineProperty(LineItem, 'seed', {value: seed});
-Object.defineProperty(LineItem, 'relationships', {value: ['order']});
+Object.defineProperty(OrderLineItem, 'seed', {value: seed});
+Object.defineProperty(OrderLineItem, 'relationships', {value: ['order']});
 
-module.exports = LineItem;
+module.exports = OrderLineItem;

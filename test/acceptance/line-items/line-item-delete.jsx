@@ -5,10 +5,10 @@ require('testdom')('<html><body></body></html>');
 const React = require('react/addons');
 const TestUtils = React.addons.TestUtils;
 const path = require('path');
-const order = require('./order-sample.json');
+const order = require('../orders/order-sample.json');
 
 describe('LineItemDelete', function() {
-  let DeleteLineItem = require(path.resolve('src/themes/admin/components/orders/line-item-delete.jsx'));
+  let DeleteLineItem = require(path.resolve('src/themes/admin/components/line-items/line-item-delete.jsx'));
   let Modal = require(path.resolve('src/themes/admin/components/modal/modal.jsx'));
   let container = null;
   let modalContainer = null;

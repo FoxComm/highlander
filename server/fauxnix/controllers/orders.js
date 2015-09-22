@@ -13,7 +13,7 @@ module.exports = function(app, router) {
     Order = app.seeds.models.Order,
     Note  = app.seeds.models.Note,
     Notification = app.seeds.models.Notification,
-    LineItem = app.seeds.models.LineItem,
+    OrderLineItem = app.seeds.models.OrderLineItem,
     Activity = app.seeds.models.Activity;
 
   router
@@ -26,7 +26,7 @@ module.exports = function(app, router) {
       yield next;
     })
     .param('lineitem', function *(id, next) {
-      this.lineitem = LineItem.findOne(id);
+      this.lineitem = OrderLineItem.findOne(id);
       yield next;
     })
     .get('/orders', function *() {
@@ -94,11 +94,11 @@ module.exports = function(app, router) {
           if (item.quantity > 0) {
             lineItem.amend({quantity: item.quantity});
           } else {
-            LineItem.deleteOne(lineItem.id);
+            OrderLineItem.deleteOne(lineItem.id);
           }
         } else {
           let itemBody = _.assign({}, item, {'orderId': this.order.id});
-          lineItem = new LineItem(itemBody);
+          lineItem = new OrderLineItem(itemBody);
         }
       }
 
