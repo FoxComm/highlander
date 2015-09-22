@@ -21,11 +21,11 @@
     &.show {
       display: block;
     }
+    .font-spec(12px, 400, 60px);
 
     li {
-      .padding(10px);
+      .padding(12px);
       border-bottom: 1px solid @color-border;
-      display: flex;
 
       &:last-child {
         border-bottom: none;
@@ -34,6 +34,10 @@
       &:hover {
         background-color: @color-tr-even-bg;
         cursor: pointer;
+      }
+
+      .fc-grid {
+        line-height: pxtorem(20px);
       }
     }
   }
