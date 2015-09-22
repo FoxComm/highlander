@@ -1,11 +1,12 @@
 'use strict';
 
+import _ from 'lodash';
 import React from 'react';
 import classNames from 'classnames';
 import AddressStore from '../../stores/addresses';
 import { dispatch } from '../../lib/dispatcher';
 import AddressForm from './address-form.jsx';
-import _ from 'lodash';
+import AddressDetails from './address-details.jsx';
 
 class Address extends React.Component {
 
@@ -42,18 +43,9 @@ class Address extends React.Component {
         <div className="fc-address-controls">
           <button onClick={this.toggleEdit.bind(this)}><i className="fa fa-pencil"></i></button>
         </div>
-        <div >
-          <ul className="fc-address-details">
-            { address.isDefault ? isDefault : '' }
-            <li className="name"><strong>{address.name}</strong></li>
-            <li>{address.address1}</li>
-            { address.address2 ? <li>{address.address2}</li> : '' }
-            <li>
-              {address.city}, <span>{address.region.name}</span> <span>{address.zip}</span>
-            </li>
-            <li>{address.country}</li>
-            { address.phoneNumber ? <li>{address.phoneNumber}</li> : '' }
-          </ul>
+        <div>
+          { address.isDefault ? isDefault : '' }
+          <AddressDetails address={address} />
         </div>
         { choose }
       </li>

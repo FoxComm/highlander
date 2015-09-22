@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Addresses from '../addresses/addresses';
+import AddressDetails from '../addresses/address-details';
 import OrderStore from '../../stores/orders';
 
 export default class OrderShippingAddress extends React.Component {
@@ -38,13 +39,7 @@ export default class OrderShippingAddress extends React.Component {
       );
     } else {
       body = (
-        <div>
-          <div className="address-line">{address.name}</div>
-          <div className="address-line">{address.address1}</div>
-          <div className="address-line">{address.address2}</div>
-          <div className="address-line">{address.city}, {address.state} {address.zip}</div>
-          <div className="address-line">{address.country}</div>
-        </div>
+        <AddressDetails address={address} />
       );
       editButton = (
         <button className="fc-btn fc-btn-primary fc-edit-button" onClick={this.toggleEdit.bind(this)}>
