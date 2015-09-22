@@ -52,12 +52,14 @@ export default class Orders extends React.Component {
             <TabView>What</TabView>
           </TabListView>
         </div>
-        <TableView
-          columns={this.props.tableColumns}
-          rows={this.state.orders}
-          model='order'
-          sort={OrderStore.sort.bind(OrderStore)}
-        />
+        <div className="gutter">
+          <TableView
+            columns={this.props.tableColumns}
+            rows={this.state.orders}
+            model='order'
+            sort={OrderStore.sort.bind(OrderStore)}
+            />
+        </div>
       </div>
     );
   }

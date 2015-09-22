@@ -1,6 +1,7 @@
 'use strict';
 
 const BaseModel = require('../lib/base-model');
+const LineItem  = require('./return-line-item');
 const Order = require('./order');
 const Customer = require('./customer');
 const errors = require('../../errors');
@@ -10,8 +11,12 @@ const seed = [
   {field: 'email', method: 'pick', opts: ['bree@foxcommerce.com']},
   {field: 'orderNumber', method: 'pick', opts: [Order.data[0].referenceNumber]},
   {field: 'returnStatus', method: 'pick', opts: ['Pending', 'Processing', 'Complete']},
+  {field: 'returnType', method: 'pick', opts: ['Standard Return']},
   {field: 'assignee', method: 'pick', opts: ['Unassigned']},
-  {field: 'returnTotal', method: 'integer', opts: {min: 100, max: 10000}}
+  {field: 'customerMessage', method: 'paragraph'},
+  {field: 'shipping', method: 'integer', opts: {min: 20, max: 80}},
+  {field: 'taxes', method: 'integer', opts: {min: 5, max: 15}},
+  {field: 'subtotal', method: 'integer', opts: {min: 500, max: 10000}}
 ];
 
 class Return extends BaseModel {
@@ -29,10 +34,18 @@ class Return extends BaseModel {
   get email() { return this.model.email; }
   get orderNumber() { return this.model.orderNumber; }
   get returnStatus() { return this.model.returnStatus; }
+  get returnType() { return this.model.returnType; }
   get assignee() { return this.model.assignee; }
+  set customerId(id) { this.model.customerId = +id; }
+  get customer() { return Customer.findOne(this.model.customerId); }
+  get customerMessage() { return this.model.customerMessage; }
+  get lineItems() { return LineItem.generateList(~~((Math.random() * 5) + 1)); }
   get totals() {
     return {
-      total: this.model.returnTotal
+      shipping: this.model.shipping,
+      subtotal: this.model.subtotal,
+      taxes: this.model.taxes,
+      total: this.model.subtotal + this.model.shipping + this.model.taxes
     };
   }
 
@@ -46,6 +59,6 @@ class Return extends BaseModel {
 }
 
 Object.defineProperty(Return, 'seed', {value: seed});
-Object.defineProperty(Return, 'relationships', {value: ['order']});
+Object.defineProperty(Return, 'relationships', {value: ['order', 'customer']});
 
 module.exports = Return;

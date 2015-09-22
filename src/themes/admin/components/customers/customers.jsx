@@ -28,12 +28,14 @@ export default class Customers extends React.Component {
   render() {
     return (
       <div id="users">
-        <TableView
-          columns={this.props.tableColumns}
-          rows={this.state.customers}
-          model='customer'
-          sort={CustomerStore.sort.bind(CustomerStore)}
-          />
+        <div className="gutter">
+          <TableView
+            columns={this.props.tableColumns}
+            rows={this.state.customers}
+            model='customer'
+            sort={CustomerStore.sort.bind(CustomerStore)}
+            />
+        </div>
       </div>
     );
   }

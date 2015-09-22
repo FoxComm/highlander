@@ -8,6 +8,16 @@ const
 const
   chance = new Chance();
 
+chance.mixin({
+  'image': function(opts) {
+    let width = opts.width || 75;
+    let height = opts.height || 75;
+    let topic = opts.topic || '';
+    let random = ~~(Math.random() * 1e9);
+    return `//lorempixel.com/${width}/${height}/${topic}?${random}`;
+  }
+});
+
 class BaseModel {
 
   static nextId() {

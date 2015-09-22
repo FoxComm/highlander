@@ -4,17 +4,17 @@ const
   BaseModel = require('../lib/base-model'),
   Customer  = require('./customer'),
   Address   = require('./address'),
-  LineItem  = require('./line-item'),
+  OrderLineItem  = require('./order-line-item'),
   Note      = require('./note');
 
 const events = {
-  itemAdded: {name: 'Item Added', next: LineItem},
-  itemEdited: {name: 'Item Edited', prev: LineItem, next: LineItem},
+  itemAdded: {name: 'Item Added', next: OrderLineItem},
+  itemEdited: {name: 'Item Edited', prev: OrderLineItem, next: OrderLineItem},
   discountAdded: {name: 'Discount Added'},
   shippingEdited: {name: 'Shipping Address Edited', prev: Address, next: Address},
   remorseAdded: {name: '15 Min Added to Remorse Hold'},
   noteCreated: {name: 'Note Created', next: Note, field: 'body'},
-  statusChanged: {name: 'Order Status Changed', prev: LineItem, next: LineItem, field: 'status'},
+  statusChanged: {name: 'Order Status Changed', prev: OrderLineItem, next: OrderLineItem, field: 'status'},
   viewed: {name: 'Order Viewed'}
 };
 

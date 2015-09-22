@@ -3,29 +3,31 @@
 import React from 'react';
 import Immutable from 'immutable';
 import TableView from '../tables/tableview';
-import ReturnsStore from './store';
+import RmaStore from './store';
 
-export default class Returns extends React.Component {
+export default class Rmas extends React.Component {
   constructor(props) {
     super(props);
     let immutableSet = Immutable.Set;
     this.state = {
-      returns: ReturnsStore.getState(),
+      rmas: RmaStore.getState(),
       selected: immutableSet()
     };
   }
 
   componentDidMount() {
-    ReturnsStore.listenToEvent('change', this);
-    ReturnsStore.fetch();
+    RmaStore.listenToEvent('change', this);
+    RmaStore.fetch();
   }
 
   componentWillUnmount() {
-    ReturnsStore.stopListeningToEvent('change', this);
+    RmaStore.stopListeningToEvent('change', this);
   }
 
-  onChangeReturnsStore() {
-    this.setState({orders: ReturnsStore.getState()});
+  onChangeRmaStore() {
+    this.setState({
+      rmas: RmaStore.getState()
+    });
   }
 
   onSelectedChange(event) {
@@ -42,24 +44,26 @@ export default class Returns extends React.Component {
 
   render() {
     return (
-      <div id="returns">
-        <TableView
-          columns={this.props.tableColumns}
-          rows={this.state.returns}
-          model='return'
-          sort={ReturnsStore.sort.bind(ReturnsStore)}
-          />
+      <div id="rmas">
+        <div className="gutter">
+          <TableView
+            columns={this.props.tableColumns}
+            rows={this.state.rmas}
+            model='rma'
+            sort={RmaStore.sort.bind(RmaStore)}
+            />
+        </div>
       </div>
     );
   }
 }
 
-Returns.propTypes = {
+Rmas.propTypes = {
   tableColumns: React.PropTypes.array,
   model: React.PropTypes.object
 };
 
-Returns.defaultProps = {
+Rmas.defaultProps = {
   tableColumns: [
     {field: 'referenceNumber', text: 'Return', type: 'id'},
     {field: 'createdAt', text: 'Date', type: 'date'},
