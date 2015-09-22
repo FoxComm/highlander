@@ -2,7 +2,6 @@
 
 const _ = require('lodash');
 const path = require('path');
-const argv = require('yargs').argv;
 const stripColors = require('strip-ansi');
 const notifier = require('node-notifier');
 
@@ -38,9 +37,6 @@ var notifyAboutCompletedTasks = _.debounce(function() {
 
 
 module.exports = function(gulp, opts, $) {
-  if (argv.q || argv.notify === false) return false;
-
-
   gulp.task('notifier', function() {
     gulp.on('task_stop', function(e) {
       completedTasks.push(e.task);
@@ -49,15 +45,14 @@ module.exports = function(gulp, opts, $) {
     gulp.on('stop', function() {
       notifyAboutCompletedTasks();
     });
+
+    gulp.on('err', function(e) {
+      e = e.err || e;
+
+      notify({
+        title: 'Gulp emit error',
+        message: stripColors(e && e.toString() || '')
+      })
+    });
   });
-
-  gulp.on('err', function(e) {
-    e = e.err || e;
-
-    notify({
-      title: 'Gulp emit error',
-      message: stripColors(e && e.toString() || '')
-    })
-  });
-
 };

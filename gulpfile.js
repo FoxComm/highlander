@@ -27,7 +27,7 @@ gulp.task('dev', function(cb) {
     process.env.ASHES_NO_TEST_FOR_DEV ? null : 'test',
     'server',
     'watch',
-    'notifier'
+    process.env.ASHES_NOTIFY_ABOUT_TASKS ? 'notifier' : null
   ]);
 
   runSequence.apply(this, tasks.concat(cb));
