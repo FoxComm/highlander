@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Addresses from '../addresses/addresses';
+import OrderStore from '../../stores/orders';
 
 export default class OrderShippingAddress extends React.Component {
 
@@ -10,6 +11,10 @@ export default class OrderShippingAddress extends React.Component {
     this.state = {
       isEditing: false
     };
+  }
+
+  onSelectAddress(address) {
+    OrderStore.setShippingAddress(this.props.order.referenceNumber, address.id);
   }
 
   toggleEdit() {
@@ -25,7 +30,7 @@ export default class OrderShippingAddress extends React.Component {
     let editButton = null;
 
     if (this.state.isEditing) {
-      body = <Addresses order={this.props.order} />;
+      body = <Addresses order={this.props.order} onSelectAddress={this.onSelectAddress.bind(this)} />;
       actions = (
         <footer>
           <button className="fc-btn fc-btn-primary" onClick={this.toggleEdit.bind(this)}>Done</button>

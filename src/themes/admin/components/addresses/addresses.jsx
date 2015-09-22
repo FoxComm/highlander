@@ -60,6 +60,7 @@ export default class AddressBook extends React.Component {
               <Address key={`${idx}-${address.id}`}
                 address={address}
                 order={order}
+                onSelectAddress={this.props.onSelectAddress}
                 customerId={this.state.customerId}
               />
             );
@@ -75,5 +76,6 @@ AddressBook.contextTypes = {
 };
 
 AddressBook.propTypes = {
-  order: React.PropTypes.object
+  order: React.PropTypes.object,
+  onSelectAddress: React.PropTypes.func
 };

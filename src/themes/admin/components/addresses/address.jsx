@@ -3,16 +3,11 @@
 import React from 'react';
 import classNames from 'classnames';
 import AddressStore from '../../stores/addresses';
-import OrderStore from '../../stores/orders'
-import { listenTo, stopListeningTo, dispatch } from '../../lib/dispatcher';
+import { dispatch } from '../../lib/dispatcher';
 import AddressForm from './address-form.jsx';
 import _ from 'lodash';
 
 class Address extends React.Component {
-
-  setActiveAddress() {
-    OrderStore.setShippingAddress(this.props.order.referenceNumber, this.props.address.id);
-  }
 
   toggleEdit() {
     dispatch('toggleModal', <AddressForm address={this.props.address} customerId={this.props.customerId}/>);
@@ -24,12 +19,12 @@ class Address extends React.Component {
     let isDefault = (
         <label className="fc-address-default">
           <input type="checkbox" defaultChecked={address.isDefault} disabled />
-          <span>Default Address</span>
+          <span>Default shipping address</span>
         </label>
     );
     let choose = null;
     if (this.props.order) {
-      let onClick = this.setActiveAddress.bind(this);
+      let onClick = this.props.onSelectAddress && this.props.onSelectAddress.bind(this, this.props.address);
       choose = (
         <button className="fc-btn fc-address-choose" onClick={onClick} disabled={address.isActive}>
           Choose
@@ -69,7 +64,8 @@ class Address extends React.Component {
 Address.propTypes = {
   address: React.PropTypes.object,
   order: React.PropTypes.object,
-  customerId: React.PropTypes.number.isRequired
+  customerId: React.PropTypes.number.isRequired,
+  onSelectAddress: React.PropTypes.func
 };
 
 export default Address;
