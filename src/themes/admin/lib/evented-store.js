@@ -21,7 +21,7 @@ export default class EventedStore {
     return model;
   }
 
-  _sort(models, field, order) {
+  _sort(models, field, order=1) {
     return models.sort((a, b) => {
       return (1 - 2 * order) * (a[field] < b[field] ? 1 : a[field] > b[field] ? -1 : 0);
     });
