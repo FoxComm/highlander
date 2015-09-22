@@ -3,7 +3,7 @@ package responses
 import models.StoreCredit
 
 object StoreCreditBulkUpdateResponse {
-  final case class Root(responses: Seq[Response])
+  final case class Responses(responses: Seq[Response])
 
   final case class Response(
     id: Int,
@@ -19,6 +19,6 @@ object StoreCreditBulkUpdateResponse {
     }
   }
 
-  def build(responses: Seq[Response]): Root = Root(responses = responses)
+  def buildResponses(responses: Seq[Response]): Responses = Responses(responses = responses)
 }
 

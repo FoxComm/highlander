@@ -87,6 +87,11 @@ object Admin {
             StoreCreditService.updateStatusByCsr(storeCreditId, payload).map(renderGoodOrFailures)
           }
         } ~
+        (patch & entity(as[payloads.StoreCreditBulkUpdateStatusByCsr]) & pathEnd) { payload ⇒
+          complete {
+            StoreCreditService.bulkUpdateStatusByCsr(payload).map(renderGoodOrFailures)
+          }
+        } ~
         (get & path("transactions") & pathEnd) {
           complete {
             StoreCreditAdjustmentsService.forStoreCredit(storeCreditId).map(renderGoodOrFailures)

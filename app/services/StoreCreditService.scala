@@ -7,7 +7,8 @@ import models.StoreCredit.Canceled
 import models.{Reasons, Customer, Customers, StoreAdmin, StoreCredit, StoreCreditManual,
 StoreCreditManuals, StoreCredits, StoreCreditAdjustments}
 import responses.StoreCreditResponse
-import responses.StoreCreditResponse.{Root, build}
+import responses.StoreCreditResponse._
+import responses.StoreCreditBulkUpdateResponse._
 import slick.driver.PostgresDriver.api._
 import utils.Slick._
 import utils.Slick.UpdateReturning._
@@ -42,6 +43,13 @@ object StoreCreditService {
       case _ ⇒
         Result.failure(NotFoundFailure(StoreCredit, id))
     }
+  }
+
+  def bulkUpdateStatusByCsr(payload: payloads.StoreCreditBulkUpdateStatusByCsr)
+    (implicit ec: ExecutionContext, db: Database): Result[Responses] = {
+
+    // TODO
+    Result.failure(GeneralFailure("TBD"))
   }
 
   def updateStatusByCsr(id: Int, payload: payloads.StoreCreditUpdateStatusByCsr)
