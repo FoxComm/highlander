@@ -5,7 +5,8 @@ const
   Customer  = require('./customer');
 
 const seed = [
-  {field: 'code', method: 'integer', opts: {min: 1000000000000000, max: 9999999999999999}},
+  {field: 'code', method: 'cc'},
+  {field: 'type', method: 'pick', opts: ['Appeasement', 'Customer Purchase', 'Marketing']},
   {field: 'originType', method: 'pick', opts: ['Appeasement', 'Customer Purchase', 'Marketing']},
   {field: 'originalBalance', method: 'integer', opts: {min: 1000, max: 10000}},
   {field: 'availableBalance', method: 'integer', opts: {min: 1000, max: 10000}},
@@ -16,6 +17,14 @@ const seed = [
 ];
 
 class GiftCard extends BaseModel {
+  static findByIdOrCode(id) {
+    let results = this.data.filter(function(item) {
+      return item.id === +id || item.code === id;
+    });
+    if (!results.length) { throw new errors.NotFound(`Cannot find ${this.name}`); }
+    return new this(results[0]);
+  }
+
   get code() { return this.model.code; }
   get originType() { return this.model.originType; }
   get subType() { return this.model.subType; }

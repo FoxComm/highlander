@@ -23,6 +23,8 @@ export default class Notes extends React.Component {
     let model = this.props.modelName;
     if (model === 'order') {
       NoteStore.uriRoot = `${pluralize(model)}/${this.props[model].referenceNumber}`;
+    } else if (model === 'gift-card') {
+      NoteStore.uriRoot = `${pluralize(model)}/${this.props[model].code}`;
     } else {
       NoteStore.uriRoot = `${pluralize(model)}/${this.props[model].id}`;
     }
