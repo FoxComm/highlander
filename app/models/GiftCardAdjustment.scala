@@ -62,7 +62,7 @@ class GiftCardAdjustments(tag: Tag)
   def * = (id, giftCardId, orderPaymentId, storeAdminId,
     credit, debit, status, createdAt) <> ((GiftCardAdjustment.apply _).tupled, GiftCardAdjustment.unapply)
 
-  def payment = foreignKey(OrderPayments.tableName, orderPaymentId.getOrElse(0), OrderPayments)(_.id)
+  def payment = foreignKey(OrderPayments.tableName, orderPaymentId, OrderPayments)(_.id.?)
 }
 
 object GiftCardAdjustments extends TableQueryWithId[GiftCardAdjustment, GiftCardAdjustments](

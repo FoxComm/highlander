@@ -126,7 +126,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       val firstAdjustment = adjustments.head
       firstAdjustment.amount must ===(-adjustment.debit)
       firstAdjustment.availableBalance must ===(giftCard.originalBalance - adjustment.debit)
-      firstAdjustment.orderRef mustBe order.referenceNumber
+      firstAdjustment.orderRef.get mustBe order.referenceNumber
     }
   }
 
@@ -209,7 +209,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = giftCard.id,
         paymentMethodType = PaymentMethod.GiftCard))
       adjustment ← GiftCardAdjustments.save(Factories.giftCardAdjustment.copy(giftCardId = giftCard.id, debit = 10,
-        orderPaymentId = payment.id, status = GiftCardAdjustment.Auth))
+        orderPaymentId = Some(payment.id), status = GiftCardAdjustment.Auth))
       giftCard ← GiftCards.findById(giftCard.id)
     } yield (admin, giftCard.get, order, adjustment)).run().futureValue
   }

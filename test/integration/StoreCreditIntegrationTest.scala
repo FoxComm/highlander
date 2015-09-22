@@ -76,7 +76,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
         val firstAdjustment = adjustments.head
         firstAdjustment.debit mustBe 10
-        firstAdjustment.orderRef mustBe order.referenceNumber
+        firstAdjustment.orderRef.get mustBe order.referenceNumber
       }
     }
   }
@@ -92,7 +92,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       storeCredit ← StoreCredits.save(Factories.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))
       payment ← OrderPayments.save(Factories.storeCreditPayment.copy(orderId = order.id,
         paymentMethodId = storeCredit.id, paymentMethodType = PaymentMethod.StoreCredit))
-      storeCreditAdjustments ← StoreCredits.auth(storeCredit, payment.id, 10)
+      storeCreditAdjustments ← StoreCredits.auth(storeCredit, Some(payment.id), 10)
     } yield (admin, customer, scReason, storeCredit, order)).run().futureValue
   }
 }
