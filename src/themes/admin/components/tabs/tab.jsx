@@ -13,7 +13,7 @@ export default class TabView extends React.Component {
   render() {
     return (
       <li className="fc-tab">
-        <i className="fa fa-bars"></i>&nbsp;
+        <i className="icon-drag-drop"></i>&nbsp;
         {this.props.children}
       </li>
     );

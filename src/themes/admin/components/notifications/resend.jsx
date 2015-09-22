@@ -37,7 +37,7 @@ export default class ResendModal extends React.Component {
       <form method='POST' id='resend' onSubmit={this.resendNotification.bind(this)}>
         <div className='modal-header'>
           <div className='icon'>
-            <i className='fa fa-warning'></i>
+            <i className='icon-warning'></i>
           </div>
           <div className='title'>Resend Message?</div>
           <a className='close' aria-label='Close' onClick={dispatch.bind(null, 'toggleModal', null)}>
