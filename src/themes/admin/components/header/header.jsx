@@ -19,7 +19,7 @@ export default class Header extends React.Component {
         {breadcrumb}
         <div className="sub-nav">
           <div className="notifications">
-            <i className="fa fa-bell"></i>
+            <i className="icon-bell"></i>
           </div>
           <div className="sort">Name <i className="icon-chevron-down"></i></div>
         </div>

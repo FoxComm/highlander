@@ -251,7 +251,7 @@ export default class NewGiftCard extends React.Component {
           <fieldset>
             <label htmlFor="value">Value</label>
             <div className="fc-input-group">
-              <div className="fc-input-prepend"><i className="fa fa-usd"></i></div>
+              <div className="fc-input-prepend"><i className="icon-usd"></i></div>
               <input type="hidden" name="originalBalance" value={this.state.balance} />
               <input type="number" value={this.state.balanceText} step="0.01" min="1"
                      onChange={this.onChangeBalance.bind(this)}
