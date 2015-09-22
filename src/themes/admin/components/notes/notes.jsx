@@ -78,7 +78,7 @@ export default class Notes extends React.Component {
       <div id="notes">
         <h2>Notes</h2>
         <a onClick={this.toggleNote.bind(this)} className="add-note" disabled={this.state.open}>
-          <i className="fa fa-plus"></i>
+          <i className="icon-add"></i>
         </a>
         <form action={NoteStore.baseUri} method="post" onSubmit={this.handleSubmit.bind(this)}>
           <fieldset>

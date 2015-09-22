@@ -72,7 +72,7 @@ export default class Typeahead extends React.Component {
       <div className="typeahead">
         {labelContent}
         <div className="form-icon">
-          <i className="fa fa-search"></i>
+          <i className="icon-search"></i>
           <input type="text" name={this.props.name}
                  onChange={this.textChange.bind(this)} onKeyUp={this.inputKeyUp.bind(this)}
           />

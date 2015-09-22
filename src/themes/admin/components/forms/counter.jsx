@@ -30,7 +30,7 @@ export default class Counter extends React.Component {
     return (
       <div className="fc-input-group">
         <div className="fc-input-prepend">
-          <button onClick={this.decreaseTotal.bind(this)}><i className="fa fa-chevron-down"></i></button>
+          <button onClick={this.decreaseTotal.bind(this)}><i className="icon-chevron-down"></i></button>
         </div>
         <input
           type="number"
@@ -43,7 +43,7 @@ export default class Counter extends React.Component {
           onChange={this.onChange.bind(this)}
         />
         <div className="fc-input-append">
-          <button onClick={this.increaseTotal.bind(this)}><i className="fa fa-chevron-up"></i></button>
+          <button onClick={this.increaseTotal.bind(this)}><i className="icon-chevron-up"></i></button>
         </div>
       </div>
     );
