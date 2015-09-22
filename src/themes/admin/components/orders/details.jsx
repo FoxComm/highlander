@@ -3,7 +3,7 @@
 import React from 'react';
 import OrderSummary from './summary';
 import CustomerInfo from './customer-info';
-import OrderLineItems from './line-items';
+import LineItems from '../line-items/line-items';
 import OrderShippingAddress from './shipping-address';
 import OrderShippingMethod from './shipping-method';
 import OrderPayment from './payment';
@@ -26,10 +26,18 @@ export default class OrderDetails extends React.Component {
   }
 
   render() {
-    let
-      order     = this.props.order,
-      isEditing = this.state.isEditing,
-      actions   = null;
+    let order = this.props.order;
+    let isEditing = this.state.isEditing;
+    let actions = null;
+    let lineColumns = [
+      {field: 'imagePath', text: 'Image', type: 'image'},
+      {field: 'name', text: 'Name'},
+      {field: 'skuId', text: 'SKU'},
+      {field: 'price', text: 'Price', type: 'currency'},
+      {field: 'qty', text: 'Quantity'},
+      {field: 'total', text: 'Total', type: 'currency'},
+      {field: 'status', text: 'Shipping Status'}
+    ];
 
     if (isEditing) {
       actions = (
@@ -52,9 +60,14 @@ export default class OrderDetails extends React.Component {
 
         <div className="order-details-body">
           <div className="order-details-main">
-            <OrderLineItems order={order} isEditing={isEditing}/>
+            <LineItems
+              entity={order}
+              isEditing={isEditing}
+              tableColumns={lineColumns}
+              model={'order'}
+              />
             <OrderShippingAddress order={order} isEditing={isEditing}/>
-            <OrderShippingMethod order={order} isEditing={isEditing} />
+            <OrderShippingMethod order={order} isEditing={isEditing}/>
             <OrderPayment order={order} isEditing={isEditing}/>
           </div>
           <div className="order-details-aside">

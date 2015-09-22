@@ -128,7 +128,7 @@ export default class GiftCard extends React.Component {
             <div className="fc-col-1-5">
               <article className="panel featured">
                 <header>Gift Card Type</header>
-                <p>{ card.type }</p>
+                <p>{ card.originType }</p>
               </article>
             </div>
             <div className="fc-col-1-5">

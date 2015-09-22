@@ -7,6 +7,7 @@ const
 const seed = [
   {field: 'code', method: 'cc'},
   {field: 'type', method: 'pick', opts: ['Appeasement', 'Customer Purchase', 'Marketing']},
+  {field: 'originType', method: 'pick', opts: ['Appeasement', 'Customer Purchase', 'Marketing']},
   {field: 'originalBalance', method: 'integer', opts: {min: 1000, max: 10000}},
   {field: 'availableBalance', method: 'integer', opts: {min: 1000, max: 10000}},
   {field: 'currentBalance', method: 'integer', opts: {min: 1000, max: 10000}},
@@ -25,7 +26,7 @@ class GiftCard extends BaseModel {
   }
 
   get code() { return this.model.code; }
-  get type() { return this.model.type; }
+  get originType() { return this.model.originType; }
   get subType() { return this.model.subType; }
   get originalBalance() { return this.model.originalBalance; }
   get status() { return this.model.status; }
@@ -48,7 +49,7 @@ class GiftCard extends BaseModel {
   }
   get message() { return this.model.message; }
 
-  set type(val) { this.model.type = val; }
+  set originType(val) { this.model.originType = val; }
   set subType(val) { this.model.subType = val; }
   set originalBalance(val) { this.model.originalBalance = val; }
   set currentBalance(val) { this.model.currentBalance = val; }
