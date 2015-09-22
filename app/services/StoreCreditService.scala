@@ -15,6 +15,8 @@ import utils.Slick.UpdateReturning._
 import utils.Slick.implicits._
 
 object StoreCreditService {
+  val bulkUpdateLimit = 20
+
   type QuerySeq = Query[StoreCredits, StoreCredit, Seq]
 
   def createManual(admin: StoreAdmin, customerId: Int, payload: payloads.CreateManualStoreCredit)
@@ -48,10 +50,14 @@ object StoreCreditService {
   def bulkUpdateStatusByCsr(payload: payloads.StoreCreditBulkUpdateStatusByCsr)
     (implicit ec: ExecutionContext, db: Database): Result[Responses] = {
 
+    if (payload.ids.length > bulkUpdateLimit) {
+      Result.failure(GeneralFailure("Bulk update item length exceeded"))
+    }
+
     val responses = payload.ids.map { id ⇒
       val statusUpdate = updateStatusByCsr(id, payloads.StoreCreditUpdateStatusByCsr(payload.status, payload.reason))
       statusUpdate.flatMap {
-        case Xor.Left(errors) ⇒ Future.successful(buildResponse(id, None, Some(errors.map(_.toString))))
+        case Xor.Left(errors) ⇒ Future.successful(buildResponse(id, None, Some(errors.map(_.description.mkString))))
         case Xor.Right(sc)    ⇒ Future.successful(buildResponse(id, Some(sc)))
       }
     }
