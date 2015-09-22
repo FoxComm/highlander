@@ -137,11 +137,11 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
   import StoreCredit._
   import models.{StoreCreditAdjustment ⇒ Adj, StoreCreditAdjustments ⇒ Adjs}
 
-  def auth(storeCredit: StoreCredit, orderPaymentId: Int, amount: Int = 0)
+  def auth(storeCredit: StoreCredit, orderPaymentId: Option[Int], amount: Int = 0)
     (implicit ec: ExecutionContext): DBIO[Adj] =
     debit(storeCredit = storeCredit, orderPaymentId = orderPaymentId, amount = amount, status = Adj.Auth)
 
-  def capture(storeCredit: StoreCredit, orderPaymentId: Int, amount: Int = 0)
+  def capture(storeCredit: StoreCredit, orderPaymentId: Option[Int], amount: Int = 0)
     (implicit ec: ExecutionContext): DBIO[Adj] =
     debit(storeCredit = storeCredit, orderPaymentId = orderPaymentId, amount = amount, status = Adj.Capture)
 
@@ -161,7 +161,7 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
   def _findByIdAndCustomerId(id: Int, customerId: Int)(implicit ec: ExecutionContext): DBIO[Option[StoreCredit]] =
     filter(_.customerId === customerId).filter(_.id === id).one
 
-  private def debit(storeCredit: StoreCredit, orderPaymentId: Int, amount: Int = 0,
+  private def debit(storeCredit: StoreCredit, orderPaymentId: Option[Int], amount: Int = 0,
     status: Adj.Status = Adj.Auth)
     (implicit ec: ExecutionContext): DBIO[Adj] = {
     val adjustment = Adj(storeCreditId = storeCredit.id, orderPaymentId = orderPaymentId,

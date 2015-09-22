@@ -133,11 +133,11 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
   import GiftCard._
   import models.{GiftCardAdjustment ⇒ Adj, GiftCardAdjustments ⇒ Adjs}
 
-  def auth(giftCard: GiftCard, orderPaymentId: Int, debit: Int = 0, credit: Int = 0)
+  def auth(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int = 0, credit: Int = 0)
     (implicit ec: ExecutionContext): DBIO[Adj] =
     adjust(giftCard, orderPaymentId, debit = debit, credit = credit, status = Adj.Auth)
 
-  def capture(giftCard: GiftCard, orderPaymentId: Int, debit: Int = 0, credit: Int = 0)
+  def capture(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int = 0, credit: Int = 0)
     (implicit ec: ExecutionContext): DBIO[Adj] =
     adjust(giftCard, orderPaymentId, debit = debit, credit = credit, status = Adj.Capture)
 
@@ -151,7 +151,7 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
     (id, cb, ab) ← this.returning(map { gc ⇒ (gc.id, gc.currentBalance, gc.availableBalance) }) += giftCard
   } yield giftCard.copy(id = id, currentBalance = cb, availableBalance = ab)
 
-  private def adjust(giftCard: GiftCard, orderPaymentId: Int, debit: Int = 0, credit: Int = 0,
+  private def adjust(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int = 0, credit: Int = 0,
     status: Adj.Status = Adj.Auth)
     (implicit ec: ExecutionContext): DBIO[Adj] = {
     val adjustment = Adj(giftCardId = giftCard.id, orderPaymentId = orderPaymentId,

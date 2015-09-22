@@ -2,7 +2,7 @@
 create table gift_card_adjustments (
     id serial primary key,
     gift_card_id integer not null,
-    order_payment_id integer not null,
+    order_payment_id integer null,
     credit integer not null default 0,
     debit integer not null default 0,
     status character varying(255) not null,

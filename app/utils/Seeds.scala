@@ -90,10 +90,10 @@ object Seeds {
       gcOrigin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = storeAdmin.id, reasonId = 1))
       giftCard ← GiftCards.save(s.paymentMethods.giftCard.copy(originId = gcOrigin.id))
       gcAdjustments ← GiftCardAdjustments.save(Factories.giftCardAdjustment.copy(giftCardId = giftCard.id, debit = 10,
-        orderPaymentId = orderPayments.id, status = GiftCardAdjustment.Auth))
+        orderPaymentId = Some(orderPayments.id), status = GiftCardAdjustment.Auth))
       scOrigin ← StoreCreditManuals.save(Factories.storeCreditManual.copy(adminId = storeAdmin.id, reasonId = 1))
       storeCredit ← StoreCredits.save(s.paymentMethods.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))
-      storeCreditAdjustments ← StoreCredits.auth(storeCredit, orderPayments.id, 10)
+      storeCreditAdjustments ← StoreCredits.auth(storeCredit, Some(orderPayments.id), 10)
     } yield (customers, order, address, shippingAddress, creditCard, giftCard, storeCredit)
   }
 

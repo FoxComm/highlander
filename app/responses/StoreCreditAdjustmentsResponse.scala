@@ -12,9 +12,9 @@ object StoreCreditAdjustmentsResponse {
     id: Int,
     debit: Int,
     state: StoreCreditAdjustment.Status,
-    orderRef: String)
+    orderRef: Option[String])
 
-  def build(adjustment: StoreCreditAdjustment, orderRef: String): Root = {
+  def build(adjustment: StoreCreditAdjustment, orderRef: Option[String]): Root = {
     Root(id = adjustment.id, debit = adjustment.debit, state = adjustment.status, orderRef = orderRef)
   }
 
@@ -24,7 +24,7 @@ object StoreCreditAdjustmentsResponse {
       payments ← adjustments.payment
       orderRef ← payments.order.map(_.referenceNumber)
     } yield (adjustments, orderRef)).result.run().flatMap { results ⇒
-      Result.good(results.map { case (adjustment, orderRef) ⇒ build(adjustment, orderRef) })
+      Result.good(results.map { case (adjustment, orderRef) ⇒ build(adjustment, Some(orderRef)) })
     }
   }
 }
