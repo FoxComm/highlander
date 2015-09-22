@@ -1,6 +1,6 @@
 package services
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Xor
 import models.StoreCredit.Canceled
@@ -48,8 +48,19 @@ object StoreCreditService {
   def bulkUpdateStatusByCsr(payload: payloads.StoreCreditBulkUpdateStatusByCsr)
     (implicit ec: ExecutionContext, db: Database): Result[Responses] = {
 
-    // TODO
-    Result.failure(GeneralFailure("TBD"))
+    val responses = payload.ids.map { id ⇒
+      val statusUpdate = updateStatusByCsr(id, payloads.StoreCreditUpdateStatusByCsr(payload.status, payload.reason))
+      statusUpdate.flatMap {
+        case Xor.Left(errors) ⇒ Future.successful(buildResponse(id, None, Some(errors.map(_.toString))))
+        case Xor.Right(sc)    ⇒ Future.successful(buildResponse(id, Some(sc)))
+      }
+    }
+
+    val future = Future.sequence(responses).flatMap { seq ⇒
+      Future.successful(buildResponses(seq))
+    }
+
+    Result.fromFuture(future)
   }
 
   def updateStatusByCsr(id: Int, payload: payloads.StoreCreditUpdateStatusByCsr)
