@@ -6,9 +6,9 @@ import { dispatch, listenTo, stopListeningTo } from '../../lib/dispatcher';
 
 const confirmOptions = {
   header: 'Confirm',
-  body: 'Are you sure you want to delete the line item?',
-  cancel: 'No, Don\'t Delete',
-  proceed: 'Yes, Delete Line Item'
+  body: 'Are you sure you want to delete this item?',
+  cancel: 'Cancel',
+  proceed: 'Yes, Delete'
 };
 
 export default class DeleteLineItem extends React.Component {

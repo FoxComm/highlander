@@ -14,7 +14,7 @@ const orderDefaultColumns = [
   {field: 'name', text: 'Name'},
   {field: 'sku', text: 'SKU'},
   {field: 'price', text: 'Price', type: 'currency'},
-  {field: 'quantity', text: 'Quantity'},
+  {field: 'quantity', text: 'Qty'},
   {field: 'total', text: 'Total', type: 'currency'}
 ];
 
@@ -23,7 +23,7 @@ const orderEditColumns = [
   {field: 'name', text: 'Name'},
   {field: 'sku', text: 'SKU'},
   {field: 'price', text: 'Price', type: 'currency'},
-  {field: 'lineItem', text: 'Quantity', component: 'LineItemCounter'},
+  {field: 'lineItem', text: 'Qty', component: 'LineItemCounter'},
   {field: 'total', text: 'Total', type: 'currency'},
   {field: 'delete', text: 'Delete', component: 'DeleteLineItem'}
 ];
@@ -90,7 +90,7 @@ export default class LineItems extends React.Component {
           <header>
             <div className='fc-grid'>
               <div className="fc-col-2-3">Items</div>
-              <div className="fc-col-1-3">
+              <div className="fc-col-1-3 fc-align-right">
                 <button className="fc-btn" onClick={this.toggleEdit.bind(this)}>
                   <i className="fa fa-pencil"></i>
                 </button>

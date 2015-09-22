@@ -71,7 +71,7 @@ export default class Typeahead extends React.Component {
     }
 
     return (
-      <div className="typeahead">
+      <div className="fc-typeahead">
         {labelContent}
         <div className="fc-input-group">
           <div className="fc-input-prepend"><i className="fa fa-search"></i></div>

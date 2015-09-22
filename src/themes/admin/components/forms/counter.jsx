@@ -61,7 +61,7 @@ export default class Counter extends React.Component {
     }
 
     return (
-      <div className="fc-input-group">
+      <div className="fc-input-group fc-counter">
         <div className="fc-input-prepend">
           <button onClick={this.decreaseTotal.bind(this)}><i className="fa fa-chevron-down"></i></button>
         </div>

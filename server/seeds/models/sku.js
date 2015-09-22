@@ -13,7 +13,7 @@ class Sku extends BaseModel {
   get name() { return this.model.name; }
   get sku() { return this.model.sku; }
   get price() { return this.model.price; }
-  get image() { return 'http://lorempixel.com/75/75/fashion'; }
+  get imagePath() { return 'http://lorempixel.com/75/75/fashion'; }
 }
 
 Object.defineProperty(Sku, 'seed', {value: seed});
