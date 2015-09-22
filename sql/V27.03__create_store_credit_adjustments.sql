@@ -3,6 +3,7 @@ create table store_credit_adjustments (
     id serial primary key,
     store_credit_id integer not null,
     order_payment_id integer null,
+    store_admin_id integer null,
     debit integer not null,
     status character varying(255) not null,
     created_at timestamp without time zone default (now() at time zone 'utc'),

@@ -13,7 +13,7 @@ import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId}
 import utils.Slick.implicits._
 
 final case class GiftCardAdjustment(id: Int = 0, giftCardId: Int, orderPaymentId: Option[Int],
-  credit: Int, debit: Int, status: Status = Auth, createdAt: Instant = Instant.now())
+  storeAdminId: Option[Int] = None, credit: Int, debit: Int, status: Status = Auth, createdAt: Instant = Instant.now())
   extends ModelWithIdParameter
   with FSM[GiftCardAdjustment.Status, GiftCardAdjustment] {
 
@@ -53,12 +53,13 @@ class GiftCardAdjustments(tag: Tag)
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def giftCardId = column[Int]("gift_card_id")
   def orderPaymentId = column[Option[Int]]("order_payment_id")
+  def storeAdminId = column[Option[Int]]("store_admin_id")
   def credit = column[Int]("credit")
   def debit = column[Int]("debit")
   def status = column[GiftCardAdjustment.Status]("status")
   def createdAt = column[Instant]("created_at")
 
-  def * = (id, giftCardId, orderPaymentId,
+  def * = (id, giftCardId, orderPaymentId, storeAdminId,
     credit, debit, status, createdAt) <> ((GiftCardAdjustment.apply _).tupled, GiftCardAdjustment.unapply)
 
   def payment = foreignKey(OrderPayments.tableName, orderPaymentId.getOrElse(0), OrderPayments)(_.id)

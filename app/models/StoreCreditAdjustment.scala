@@ -10,7 +10,7 @@ import slick.jdbc.JdbcType
 import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 final case class StoreCreditAdjustment(id: Int = 0, storeCreditId: Int, orderPaymentId: Option[Int],
-  debit: Int, status: Status = Auth)
+  storeAdminId: Option[Int] = None, debit: Int, status: Status = Auth)
   extends ModelWithIdParameter
   with FSM[StoreCreditAdjustment.Status, StoreCreditAdjustment] {
 
@@ -42,11 +42,12 @@ class StoreCreditAdjustments(tag: Tag)
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def storeCreditId = column[Int]("store_credit_id")
+  def storeAdminId = column[Option[Int]]("store_admin_id")
   def orderPaymentId = column[Option[Int]]("order_payment_id")
   def debit = column[Int]("debit")
   def status = column[StoreCreditAdjustment.Status]("status")
 
-  def * = (id, storeCreditId, orderPaymentId,
+  def * = (id, storeCreditId, orderPaymentId, storeAdminId,
     debit, status) <> ((StoreCreditAdjustment.apply _).tupled, StoreCreditAdjustment.unapply)
 
   def payment = foreignKey(OrderPayments.tableName, orderPaymentId.getOrElse(0), OrderPayments)(_.id)
