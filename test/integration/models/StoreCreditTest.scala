@@ -15,18 +15,45 @@ class StoreCreditTest extends IntegrationTestBase {
       storeCredit.currentBalance must === (50)
       storeCredit.availableBalance must === (50)
     }
+
+    "updates availableBalance if auth adjustment is created + cancel handling" in new Fixture {
+      val adjustment = StoreCredits.auth(storeCredit, payment.id, 10).run().futureValue
+
+      val updatedStoreCredit = StoreCredits.findById(storeCredit.id).run().futureValue.get
+      updatedStoreCredit.availableBalance must === (storeCredit.availableBalance - 10)
+
+      StoreCreditAdjustments.cancel(adjustment.id).run().futureValue
+      val canceledStoreCredit = StoreCredits.findById(storeCredit.id).run().futureValue.get
+      canceledStoreCredit.availableBalance must === (storeCredit.availableBalance)
+    }
+
+    "updates availableBalance and currentBalance if capture adjustment is created + cancel handling" in new Fixture {
+      val adjustment = StoreCredits.capture(storeCredit, payment.id, 10).run().futureValue
+
+      val updatedStoreCredit = StoreCredits.findById(storeCredit.id).run().futureValue.get
+      updatedStoreCredit.availableBalance must === (storeCredit.availableBalance - 10)
+      updatedStoreCredit.currentBalance must === (storeCredit.currentBalance - 10)
+
+      StoreCreditAdjustments.cancel(adjustment.id).run().futureValue
+      val canceledStoreCredit = StoreCredits.findById(storeCredit.id).run().futureValue.get
+      canceledStoreCredit.availableBalance must === (storeCredit.availableBalance)
+      canceledStoreCredit.currentBalance must === (storeCredit.currentBalance)
+    }
   }
 
   trait Fixture {
     val adminFactory = Factories.storeAdmin
-    val (customer, origin, storeCredit) = (for {
+    val (customer, origin, storeCredit, payment) = (for {
       admin ← (StoreAdmins.returningId += adminFactory).map { id ⇒ adminFactory.copy(id = id) }
       customer ← Customers.save(Factories.customer)
+      order ← Orders.save(Factories.order.copy(customerId = customer.id))
       reason ← Reasons.save(Factories.reason.copy(storeAdminId = admin.id))
       origin ← StoreCreditManuals.save(Factories.storeCreditManual.copy(adminId = admin.id, reasonId = reason.id))
       sc ← StoreCredits.save(Factories.storeCredit.copy(customerId = customer.id, originId = origin.id))
       storeCredit ← StoreCredits.findById(sc.id)
-    } yield (customer, origin, storeCredit.get)).run().futureValue
+      payment ← OrderPayments.save(Factories.orderPayment.copy(orderId = order.id,
+        paymentMethodId = sc.id))
+    } yield (customer, origin, storeCredit.get, payment)).run().futureValue
   }
 }
 

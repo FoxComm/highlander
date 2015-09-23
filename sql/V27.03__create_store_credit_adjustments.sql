@@ -20,11 +20,16 @@ begin
 
     -- canceling an adjustment should remove its monetary change from the gc
     if new.status = 'canceled' and old.status != 'canceled' then
-        update store_credits
-            set current_balance = current_balance + adjustment,
-                available_balance = available_balance + adjustment
-                where id = new.store_credit_id;
-        return new;
+        if old.status = 'capture' then
+            update store_credits
+                set current_balance = current_balance + adjustment,
+                    available_balance = available_balance + adjustment
+                    where id = new.store_credit_id;
+            return new;
+        else
+            update store_credits set available_balance = available_balance + adjustment where id = new.store_credit_id;
+            return new;
+        end if;
     end if;
 
     -- handle credit or debit for auth or capture
