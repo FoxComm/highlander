@@ -77,7 +77,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
         val firstAdjustment = adjustments.head
         firstAdjustment.debit mustBe 10
-        //firstAdjustment.orderRef.get mustBe order.referenceNumber
+        firstAdjustment.orderRef.get mustBe order.referenceNumber
       }
     }
 

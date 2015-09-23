@@ -133,7 +133,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       val firstAdjustment = adjustments.head
       firstAdjustment.amount must ===(-adjustment.debit)
       firstAdjustment.availableBalance must ===(giftCard.originalBalance - adjustment.debit)
-      //firstAdjustment.orderRef.get mustBe order.referenceNumber
+      firstAdjustment.orderRef.get mustBe order.referenceNumber
     }
   }
 
