@@ -17,9 +17,11 @@ class AddressDetails extends React.Component {
   }
 
   updateCountryName() {
-    this.setState({
-      countryName: CountryStore.countryName(this.props.address.region.countryId)
-    });
+    if (this.props.address.region) {
+      this.setState({
+        countryName: CountryStore.countryName(this.props.address.region.countryId)
+      });
+    }
   }
 
   render() {
@@ -41,7 +43,7 @@ class AddressDetails extends React.Component {
 }
 
 AddressDetails.propTypes = {
-  address: React.PropTypes.object.isRequired,
+  address: React.PropTypes.object.isRequired
 };
 
 export default AddressDetails;

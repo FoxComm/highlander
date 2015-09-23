@@ -27,6 +27,11 @@ class CountryStore extends BaseStore {
   }
 
   regionName(countryCode) {
+    // Canada have Provinces
+    if (countryCode === 'CA') {
+      return 'Province';
+    }
+    // USA & India have states
     return _.contains(['US', 'IN'], countryCode) ? 'State' : 'Region';
   }
 
@@ -37,6 +42,21 @@ class CountryStore extends BaseStore {
 
   zipName(countryCode) {
     return countryCode === 'US' ? 'Zip Code' : 'Postal Code';
+  }
+
+  zipExample(countryCode) {
+    switch (countryCode) {
+      case 'US':
+        return '11111';
+      case 'CA':
+        return 'A1A 1A1';
+      case 'RU':
+        return '111111';
+    }
+  }
+
+  phoneExample(countryCode) {
+    return '(111) 111-1111';
   }
 }
 

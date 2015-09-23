@@ -202,11 +202,14 @@ export default class AddressForm extends React.Component {
                 <label htmlFor={nextId()}>
                   {CountryStore.zipName(countryCode)}
                 </label>
-                <input id={nextId()} type="text" name="zip" value={formData.zip} className='control' required/>
+                <input id={nextId()} type="text" name="zip"
+                       placeholder={CountryStore.zipExample(countryCode)}
+                       value={formData.zip} className='control' required />
               </li>
               <li>
                 <label htmlFor={nextId()}>Phone Number</label>
-                <input id={nextId()} type="tel" name="phoneNumber"/>
+                <input id={nextId()} type="tel" name="phoneNumber"
+                       placeholder={CountryStore.phoneExample(countryCode)} />
               </li>
               <li className="fc-address-form-controls">
                 <a onClick={this.close.bind(this)} className="fc-btn-link" href="javascript:void(0)">Cancel</a>
