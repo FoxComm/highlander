@@ -91,7 +91,7 @@ object Admin {
         } ~
         (patch & entity(as[payloads.StoreCreditUpdateStatusByCsr]) & pathEnd) { payload ⇒
           complete {
-            StoreCreditService.updateStatusByCsr(storeCreditId, payload).map(renderGoodOrFailures)
+            StoreCreditService.updateStatusByCsr(storeCreditId, payload, admin).map(renderGoodOrFailures)
           }
         } ~
         (get & path("transactions") & pathEnd) {

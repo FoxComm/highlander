@@ -69,7 +69,7 @@ object StoreCreditService {
     Result.fromFuture(future)
   }
 
-  def updateStatusByCsr(id: Int, payload: payloads.StoreCreditUpdateStatusByCsr)
+  def updateStatusByCsr(id: Int, payload: payloads.StoreCreditUpdateStatusByCsr, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
 
     val finder = StoreCredits.filter(_.id === id)
@@ -79,7 +79,7 @@ object StoreCreditService {
         case Xor.Left(message) ⇒ DbResult.failure(GeneralFailure(message))
         case Xor.Right(_) ⇒ (payload.status, payload.reason) match {
           case (Canceled, Some(reason)) ⇒
-            cancelByCsr(finder, sc, payload)
+            cancelByCsr(finder, sc, payload, admin)
           case (Canceled, None) ⇒
             DbResult.failure(EmptyCancellationReasonFailure)
           case (_, _) ⇒
@@ -90,8 +90,8 @@ object StoreCreditService {
     }
   }
 
-  private def cancelByCsr(finder: QuerySeq, sc: StoreCredit, payload: payloads.StoreCreditUpdateStatusByCsr)
-    (implicit ec: ExecutionContext, db: Database) = {
+  private def cancelByCsr(finder: QuerySeq, sc: StoreCredit, payload: payloads.StoreCreditUpdateStatusByCsr,
+    admin: StoreAdmin)(implicit ec: ExecutionContext, db: Database) = {
 
     StoreCreditAdjustments.lastAuthByStoreCreditId(sc.id).one.flatMap {
       case Some(adjustment) ⇒
@@ -107,7 +107,11 @@ object StoreCreditService {
               .updateReturning(StoreCredits.map(identity), data)
               .head
 
-            DbResult.fromDbio(cancellation.flatMap { sc ⇒ DBIO.successful(StoreCreditResponse.build(sc)) })
+            val cancelAdjustment = StoreCredits.cancelByCsr(sc, admin)
+
+            DbResult.fromDbio(cancelAdjustment >> cancellation.flatMap {
+              sc ⇒ DBIO.successful(StoreCreditResponse.build(sc))
+            })
         }
     }
   }
