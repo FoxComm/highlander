@@ -14,42 +14,71 @@ export default class Counter extends React.Component {
     }
 
     this.state = {
-      value: value
+      value: value,
+      previousValue: value
     };
   }
 
   triggerChange() {
     if (this.props.onChange) {
-      this.props.onChange(this.state.value);
+      this.props.onChange(this.state.previousValue, this.state.value);
+    }
+  }
+
+  setValues(oldValue, newValue) {
+    this.setState({
+      value: newValue,
+      previousValue: oldValue
+    }, () => {
+      this.triggerChange();
+    });
+  }
+
+  performStep(method, modifier) {
+    let input = document.getElementById(this.props.inputName);
+    input[method](this.props.stepAmount);
+    let newValue = this.state.value + (this.props.stepAmount * modifier);
+    let oldValue = this.state.value;
+    if (this.props.onBeforeChange) {
+      this.props.onBeforeChange(oldValue, newValue, (success) => {
+        if (success) {
+          this.setValues(oldValue, newValue);
+        }
+      });
+    } else {
+      this.setValues(oldValue, newValue);
     }
   }
 
   decreaseTotal(event) {
     event.preventDefault();
-    document.getElementById(this.props.inputName).stepDown(this.props.stepAmount);
-    this.setState({
-      value: this.state.value - 1
-    }, () => {
-      this.triggerChange();
-    });
+    this.performStep('stepDown', -1);
   }
 
   increaseTotal(event) {
     event.preventDefault();
-    document.getElementById(this.props.inputName).stepUp(this.props.stepAmount);
+    this.performStep('stepUp', 1);
+  }
+
+  onFocus(event) {
     this.setState({
-      value: this.state.value + 1
-    }, () => {
-      this.triggerChange();
+      previousValue: event.target.value
     });
   }
 
   onChange(event) {
-    this.setState({
-      value: event.target.value
-    }, () => {
-      this.triggerChange();
-    });
+    let target = event.target;
+    let oldValue = this.state.previousValue;
+    let newValue = target.value;
+    if (this.props.onBeforeChange) {
+      this.props.onBeforeChange(oldValue, newValue, (success) => {
+        if (success) {
+          this.setValues(oldValue, newValue);
+        } else {
+          target.value = oldValue;
+        }
+      });
+    }
   }
 
   render() {
@@ -73,7 +102,8 @@ export default class Counter extends React.Component {
           min={this.props.minValue}
           max={this.props.maxValue}
           step={this.props.stepAmount}
-          onChange={this.onChange.bind(this)} />
+          onChange={this.onChange.bind(this)}
+          onFocus={this.onFocus.bind(this)} />
         <div className="fc-input-append">
           <button onClick={this.increaseTotal.bind(this)}><i className="icon-chevron-up"></i></button>
         </div>
@@ -88,6 +118,7 @@ Counter.propTypes = {
   stepAmount: React.PropTypes.number,
   minValue: React.PropTypes.number,
   maxValue: React.PropTypes.number,
+  onBeforeChange: React.PropTypes.func,
   onChange: React.PropTypes.func,
   model: React.PropTypes.object
 };

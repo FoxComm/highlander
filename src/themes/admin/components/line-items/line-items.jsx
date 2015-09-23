@@ -65,7 +65,6 @@ export default class LineItems extends React.Component {
       </header>
     );
 
-    console.log(this.props.model);
     if (this.props.model === 'order') {
       if (this.state.isEditing) {
         columns = orderEditColumns;
@@ -92,7 +91,7 @@ export default class LineItems extends React.Component {
               <div className="fc-col-2-3">Items</div>
               <div className="fc-col-1-3 fc-align-right">
                 <button className="fc-btn" onClick={this.toggleEdit.bind(this)}>
-                  <i className="fa fa-pencil"></i>
+                  <i className="icon-edit"></i>
                 </button>
               </div>
             </div>
