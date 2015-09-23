@@ -18,7 +18,7 @@ module.exports = function(app, router) {
 
   router
     .param('giftcard', function *(id, next) {
-      this.card = GiftCard.findOne(id);
+      this.card = GiftCard.findByIdOrCode(id);
       yield next;
     })
     .get('/gift-cards', function *() {

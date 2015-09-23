@@ -49,7 +49,7 @@ GiftCardTransactions.contextTypes = {
 GiftCardTransactions.defaultProps = {
   tableColumns: [
     {field: 'createdAt', text: 'Date/Time', type: 'date'},
-    {field: 'orderRef', text: 'Transaction', type: 'link', model: 'order', id: 'orderId'},
+    {field: 'orderRef', text: 'Transaction', type: 'link', model: 'order', id: 'orderRef'},
     {field: 'amount', text: 'Amount', type: 'currency'},
     {field: 'state', text: 'Payment State'},
     {field: 'availableBalance', text: 'Available Balance', type: 'currency'}

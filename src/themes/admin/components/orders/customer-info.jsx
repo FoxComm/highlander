@@ -33,7 +33,7 @@ export default class CustomerInfo extends React.Component {
     if (customer.avatarUrl) {
       avatar = <img src={customer.avatarUrl} />
     } else {
-      avatar = <i className="fa fa-user"></i>
+      avatar = <i className="icon-customer"></i>
     }
 
     return (
@@ -56,25 +56,25 @@ export default class CustomerInfo extends React.Component {
 
         </div>
         <article>
-          <ul className="fc-customer-info-fields fa-ul">
+          <ul className="fc-customer-info-fields">
             <li>
-              <i className="fa fa-li fa-user"></i>
+              <i className="icon-customer"></i>
               <div>{ensureNotEmpty(customer.id)}</div>
             </li>
             <li>
-              <i className="fa fa-li fa-phone fa-flip-horizontal"></i>
+              <i className="icon-phone"></i>
               <div>{ensureNotEmpty(customer.phoneNumber)}</div>
             </li>
             <li>
-              <i className="fa fa-li fa-map-marker"></i>
+              <i className="icon-location"></i>
               <div>{ensureNotEmpty(customer.location)}</div>
             </li>
             <li>
-              <i className="fa fa-li fa-mobile"></i>
+              <i className="icon-tablet"></i>
               <div>{ensureNotEmpty(customer.modality)}</div>
             </li>
             <li className="fc-customer-info-groups">
-              <i className="fa fa-li fa-users"></i>
+              <i className="icon-customers"></i>
               {ensureNotEmpty(customerGroups)}
             </li>
           </ul>

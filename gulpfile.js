@@ -1,5 +1,6 @@
 'use strict';
 
+const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
 const gulp = require('gulp');
@@ -20,7 +21,16 @@ gulp.task('build', ['less', 'browserify', 'imagemin']);
 
 gulp.task('dev', function(cb) {
   opts.devMode = true;
-  runSequence('build', 'test', 'server', 'watch', cb);
+
+  let tasks = _.compact([
+    'build',
+    process.env.ASHES_NO_TEST_FOR_DEV ? null : 'test',
+    'server',
+    'watch',
+    process.env.ASHES_NOTIFY_ABOUT_TASKS ? 'notifier' : null
+  ]);
+
+  runSequence.apply(this, tasks.concat(cb));
 });
 
 gulp.task('default', ['build']);
