@@ -10,8 +10,14 @@ import AddressDetails from './address-details.jsx';
 
 class Address extends React.Component {
 
+  constructor(props) {
+    super(props);
+    this.onSelectAddress = props.onSelectAddress && props.onSelectAddress.bind(this, props.address);
+  }
+
   toggleEdit() {
-    dispatch('toggleModal', <AddressForm address={this.props.address} customerId={this.props.customerId}/>);
+    dispatch('toggleModal', <AddressForm address={this.props.address} customerId={this.props.customerId}
+                              onSaved={this.onSelectAddress} />);
   }
 
   render() {
@@ -25,9 +31,8 @@ class Address extends React.Component {
     );
     let choose = null;
     if (this.props.order) {
-      let onClick = this.props.onSelectAddress && this.props.onSelectAddress.bind(this, this.props.address);
       choose = (
-        <button className="fc-btn fc-address-choose" onClick={onClick} disabled={address.isActive}>
+        <button className="fc-btn fc-address-choose" onClick={this.onSelectAddress} disabled={address.isActive}>
           Choose
         </button>
       );

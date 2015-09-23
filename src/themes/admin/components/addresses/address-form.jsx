@@ -94,8 +94,8 @@ export default class AddressForm extends React.Component {
       .then((address) => {
         this.setState({errors: null});
 
-        if (this.props.order) {
-          return OrderStore.setShippingAddress(this.props.order.referenceNumber, address.id);
+        if (this.props.onSaved) {
+          this.props.onSaved(address.id);
         }
       })
       .then(() => {
@@ -223,8 +223,6 @@ export default class AddressForm extends React.Component {
 AddressForm.propTypes = {
   address: React.PropTypes.object,
   customerId: React.PropTypes.number,
-  order: React.PropTypes.shape({
-    referenceNumber: React.PropTypes.string
-  })
+  onSaved: React.PropTypes.func
 };
 
