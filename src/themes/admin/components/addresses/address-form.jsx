@@ -178,7 +178,9 @@ export default class AddressForm extends React.Component {
               </li>
               <li>
                 <label htmlFor={nextId()}>
-                  Street Address 2<span className="fc-address-form-comment">(optional)</span>
+                  Street Address 2
+                  &nbsp;
+                  <span className="fc-address-form-comment">(optional)</span>
                 </label>
                 <input id={nextId()} name="address2" type="text" value={formData.address2} />
               </li>

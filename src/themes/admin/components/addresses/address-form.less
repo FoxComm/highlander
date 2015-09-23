@@ -1,5 +1,12 @@
 
 .fc-address-form {
+  .min-width(400px);
+
+  input,
+  select {
+    width: 100%;
+  }
+
   &-header {
     flex: 1;
     .font-spec(18px, 24px);
@@ -13,6 +20,10 @@
     }
   }
 
+  > article {
+    .padding(20px);
+  }
+
   &-fields {
     .font-spec(15px, 20px);
     margin: 0;
@@ -21,12 +32,19 @@
 
     label {
       display: block;
+      font-weight: 700;
       .padding(5px 0);
     }
 
     > li {
       .margin-bottom(9px);
     }
+  }
+
+  &-comment {
+    color: @color-decor31;
+    .font-spec(13px, 20px);
+    vertical-align: top;
   }
 
   &-field-title {
