@@ -171,7 +171,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         .id))
       payment ← OrderPayments.save(Factories.storeCreditPayment.copy(orderId = order.id,
         paymentMethodId = storeCredit.id, paymentMethodType = PaymentMethod.StoreCredit))
-      adjustment ← StoreCredits.auth(storeCredit, payment.id, 10)
+      adjustment ← StoreCredits.auth(storeCredit, Some(payment.id), 10)
     } yield (admin, customer, scReason, storeCredit, order, adjustment, scSecond)).run().futureValue
   }
 }

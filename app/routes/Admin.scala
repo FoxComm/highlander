@@ -79,7 +79,7 @@ object Admin {
       pathPrefix("store-credits") {
         (patch & entity(as[payloads.StoreCreditBulkUpdateStatusByCsr]) & pathEnd) { payload ⇒
           complete {
-            StoreCreditService.bulkUpdateStatusByCsr(payload).map(renderGoodOrFailures)
+            StoreCreditService.bulkUpdateStatusByCsr(payload, admin).map(renderGoodOrFailures)
           }
         }
       } ~

@@ -47,7 +47,7 @@ object StoreCreditService {
     }
   }
 
-  def bulkUpdateStatusByCsr(payload: payloads.StoreCreditBulkUpdateStatusByCsr)
+  def bulkUpdateStatusByCsr(payload: payloads.StoreCreditBulkUpdateStatusByCsr, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database): Result[Responses] = {
 
     if (payload.ids.length > bulkUpdateLimit) {
@@ -55,7 +55,8 @@ object StoreCreditService {
     }
 
     val responses = payload.ids.map { id ⇒
-      val statusUpdate = updateStatusByCsr(id, payloads.StoreCreditUpdateStatusByCsr(payload.status, payload.reason))
+      val itemPayload = payloads.StoreCreditUpdateStatusByCsr(payload.status, payload.reason)
+      val statusUpdate = updateStatusByCsr(id, itemPayload, admin)
       statusUpdate.flatMap {
         case Xor.Left(errors) ⇒ Future.successful(buildResponse(id, None, Some(errors.map(_.description.mkString))))
         case Xor.Right(sc)    ⇒ Future.successful(buildResponse(id, Some(sc)))
