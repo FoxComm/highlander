@@ -14,17 +14,17 @@ object StoreCreditAdjustmentsResponse {
     state: StoreCreditAdjustment.Status,
     orderRef: Option[String])
 
-  def build(adjustment: StoreCreditAdjustment, orderRef: Option[String]): Root = {
+  def build(adjustment: StoreCreditAdjustment, orderRef: Option[String] = None): Root = {
     Root(id = adjustment.id, debit = adjustment.debit, state = adjustment.status, orderRef = orderRef)
   }
 
   def forStoreCredit(sc: StoreCredit)(implicit ec: ExecutionContext, db: Database): Result[Seq[Root]] = {
     (for {
       adjustments ← StoreCreditAdjustments.filterByStoreCreditId(sc.id)
-      payments ← adjustments.payment
-      orderRef ← payments.order.map(_.referenceNumber)
-    } yield (adjustments, orderRef)).result.run().flatMap { results ⇒
-      Result.good(results.map { case (adjustment, orderRef) ⇒ build(adjustment, Some(orderRef)) })
+      //payments ← adjustments.payment
+      //orderRef ← payments.order.map(_.referenceNumber)
+    } yield (adjustments/*, orderRef*/)).result.run().flatMap { results ⇒
+      Result.good(results.map { case (adjustment/*, orderRef*/) ⇒ build(adjustment, None) })
     }
   }
 }

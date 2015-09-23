@@ -78,6 +78,7 @@ object GiftCardService {
               .updateReturning(GiftCards.map(identity), data)
               .head
 
+            Console.println("Cancel adjustment generation...")
             val cancelAdjustment = GiftCards.cancelByCsr(gc, admin)
 
             DbResult.fromDbio(cancelAdjustment >> cancellation.flatMap {
