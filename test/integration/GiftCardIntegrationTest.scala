@@ -82,7 +82,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     "returns error if no cancellation reason provided" in new Fixture {
       val response = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStatusByCsr(status = Canceled))
       response.status must ===(StatusCodes.BadRequest)
-      response.errors.head must ===("Please provide cancellation reason")
+      response.errors.head must ===("Please provide valid cancellation reason")
     }
 
     "returns error on cancellation if gift card has auths" in new Fixture {
@@ -208,8 +208,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       giftCard ← GiftCards.save(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active))
       payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = giftCard.id,
         paymentMethodType = PaymentMethod.GiftCard))
-      adjustment ← GiftCardAdjustments.save(Factories.giftCardAdjustment.copy(giftCardId = giftCard.id, debit = 10,
-        orderPaymentId = Some(payment.id), status = GiftCardAdjustment.Auth))
+      adjustment ← GiftCards.auth(giftCard, payment.id, 10)
       giftCard ← GiftCards.findById(giftCard.id)
     } yield (admin, giftCard.get, order, adjustment)).run().futureValue
   }

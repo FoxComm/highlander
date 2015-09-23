@@ -9,12 +9,11 @@ create table store_credits (
     current_balance integer not null,
     available_balance integer not null,
     canceled_amount integer null,
-    canceled_reason integer null,
+    canceled_reason integer null references reasons(id) on update restrict on delete restrict,
     created_at timestamp without time zone default (now() at time zone 'utc'),
     updated_at timestamp without time zone default (now() at time zone 'utc'),
     foreign key (id) references payment_methods(id) on update restrict on delete restrict,
     foreign key (origin_id) references store_credit_origins(id) on update restrict on delete restrict,
-    foreign key (canceled_reason) references reasons(id) on update restrict on delete restrict,
     constraint valid_status check (status in ('onHold', 'active', 'canceled')),
     constraint positive_balance check (original_balance >= 0 and current_balance >= 0 and available_balance >= 0)
 );

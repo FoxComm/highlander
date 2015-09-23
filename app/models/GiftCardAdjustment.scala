@@ -38,8 +38,6 @@ object GiftCardAdjustment {
     def types = sealerate.values[Status]
   }
 
-  val authStatuses = Set[Status](Auth)
-
   implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
 
   def build(gc: GiftCard, orderPayment: OrderPayment): GiftCardAdjustment =
@@ -74,7 +72,7 @@ object GiftCardAdjustments extends TableQueryWithId[GiftCardAdjustment, GiftCard
   def filterByGiftCardId(id: Int): QuerySeq = filter(_.giftCardId === id)
 
   def lastAuthByGiftCardId(id: Int): QuerySeq =
-    filterByGiftCardId(id).filter(_.status.inSet(authStatuses)).sortBy(_.createdAt).take(1)
+    filterByGiftCardId(id).filter(_.status === (Auth: Status)).sortBy(_.createdAt).take(1)
 
   def cancel(id: Int): DBIO[Int] = filter(_.id === id).map(_.status).update(Canceled)
 }

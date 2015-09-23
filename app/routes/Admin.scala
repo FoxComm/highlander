@@ -76,10 +76,22 @@ object Admin {
           }
         }
       } ~
+      pathPrefix("store-credits") {
+        (patch & entity(as[payloads.StoreCreditBulkUpdateStatusByCsr]) & pathEnd) { payload ⇒
+          complete {
+            StoreCreditService.bulkUpdateStatusByCsr(payload).map(renderGoodOrFailures)
+          }
+        }
+      } ~
       pathPrefix("store-credits" / IntNumber) { storeCreditId ⇒
         (get & pathEnd) {
           complete {
             StoreCreditService.getById(storeCreditId).map(renderGoodOrFailures)
+          }
+        } ~
+        (patch & entity(as[payloads.StoreCreditUpdateStatusByCsr]) & pathEnd) { payload ⇒
+          complete {
+            StoreCreditService.updateStatusByCsr(storeCreditId, payload).map(renderGoodOrFailures)
           }
         } ~
         (get & path("transactions") & pathEnd) {

@@ -1,7 +1,8 @@
 package models
 
+import java.time.Instant
+
 import com.pellucid.sealerate
-import models.GiftCardAdjustments._
 import models.StoreCreditAdjustment.{Auth, Status}
 import monocle.macros.GenLens
 import slick.ast.BaseTypedType
@@ -46,6 +47,7 @@ class StoreCreditAdjustments(tag: Tag)
   def orderPaymentId = column[Option[Int]]("order_payment_id")
   def debit = column[Int]("debit")
   def status = column[StoreCreditAdjustment.Status]("status")
+  def createdAt = column[Instant]("created_at")
 
   def * = (id, storeCreditId, orderPaymentId, storeAdminId,
     debit, status) <> ((StoreCreditAdjustment.apply _).tupled, StoreCreditAdjustment.unapply)
@@ -62,6 +64,9 @@ object StoreCreditAdjustments
   import StoreCreditAdjustment._
 
   def filterByStoreCreditId(id: Int): QuerySeq = filter(_.storeCreditId === id)
+
+  def lastAuthByStoreCreditId(id: Int): QuerySeq =
+    filterByStoreCreditId(id).filter(_.status === (Auth: Status)).sortBy(_.createdAt).take(1)
 
   def cancel(id: Int): DBIO[Int] = filter(_.id === id).map(_.status).update(Canceled)
 }
