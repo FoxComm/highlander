@@ -10,10 +10,11 @@
 Newer version is incompatible with current version of project due to dependencies used.
 To install 2.x.x version you can use [nvm](https://github.com/creationix/nvm) or [n](https://github.com/tj/n) node version manager.
 
-If using nvm, run the following to install the version listed in `.nvmrc`:
+If using nvm, run the following to install the version listed in `.nvmrc`. For example, if using iojs `v2.5.0`, follow these commands:
 
 ```
-nvm install
+nvm install iojs-v2.5.0
+nvm use iojs-v2.5.0
 ```
 
 ### Install npm modules
@@ -30,6 +31,11 @@ If connecting to the real phoenix backend (instead of local Node.Js mock api), r
 ```
 npm run phoenix
 ```
+
+By default, gulp run tests before starting node-server, but you can define env variable ASHES_NO_TEST_FOR_DEV
+for disable this behaviour.
+
+Also gulp can notify you about tasks completion if env variable ASHES_NOTIFY_ABOUT_TASKS is defined.
 
 ### Git Hooks
 

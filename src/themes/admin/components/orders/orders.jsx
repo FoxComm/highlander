@@ -36,7 +36,7 @@ export default class Orders extends React.Component {
               <h1 className="fc-title">Orders <span className="fc-subtitle">{this.state.orders.length}</span></h1>
             </div>
             <div className="fc-col-2-6 fc-push-2-6 fc-actions">
-              <button className="fc-btn fc-btn-primary"><i className="fa fa-plus"></i> Order</button>
+              <button className="fc-btn fc-btn-primary"><i className="icon-add"></i> Order</button>
             </div>
           </div>
           <div className="fc-grid gutter">

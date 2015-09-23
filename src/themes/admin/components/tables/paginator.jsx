@@ -21,9 +21,9 @@ export default class TablePaginator extends React.Component {
           {start}&thinsp;-&thinsp;{end} of {total}
         </span>
         &nbsp;
-        <button onClick={this.onPrevPageClick.bind(this)}><i className="fa fa-arrow-left"/></button>
+        <button onClick={this.onPrevPageClick.bind(this)}><i className="icon-chevron-left"/></button>
         &nbsp;
-        <button onClick={this.onNextPageClick.bind(this)}><i className="fa fa-arrow-right"/></button>
+        <button onClick={this.onNextPageClick.bind(this)}><i className="icon-chevron-right"/></button>
       </div>
     );
   }

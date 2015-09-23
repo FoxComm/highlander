@@ -50,7 +50,7 @@ export default class Viewers extends React.Component {
     if (lockedViewers.length > 0) {
       lockedContent = (
         <ul>
-          <li className="lock"><i className='fa fa-lock'></i></li>
+          <li className="lock"><i className='icon-lock'></i></li>
           {lockedViewers.map(viewerItem)}
         </ul>
       );

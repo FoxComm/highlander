@@ -8,7 +8,7 @@ export default class Header extends React.Component {
     let { router }  = this.context;
     let pathname = router.getCurrentPathname().replace(/^\/|\/$/gm, '');
     let items = pathname.split('/').map((item, index) => {
-      let classname = index > 0 ? 'fa fa-chevron-right' : null;
+      let classname = index > 0 ? 'icon-chevron-right' : null;
       let itemName = inflect(item, 'capitalize');
       return <span className={classname}>{` ${itemName} `}</span>;
     });
@@ -19,9 +19,9 @@ export default class Header extends React.Component {
         {breadcrumb}
         <div className="sub-nav">
           <div className="notifications">
-            <i className="fa fa-bell"></i>
+            <i className="icon-bell"></i>
           </div>
-          <div className="sort">Name <i className="fa fa-chevron-down"></i></div>
+          <div className="sort">Name <i className="icon-chevron-down"></i></div>
         </div>
       </header>
     );
