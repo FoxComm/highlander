@@ -18,8 +18,8 @@ module.exports = function(gulp, opts, $) {
     let themes = opts.getThemes(opts.themeDir);
     let tasks = themes.map(function(theme) {
       let src = [
-        path.join(opts.themeDir, theme, 'components/**/*.less'),
-        path.join(opts.themeDir, theme, 'base.less')
+        path.join(opts.themeDir, theme, 'base.less'),
+        path.join(opts.themeDir, theme, 'components/**/*.less')
       ];
       return gulp.src(src)
         .pipe($.if(opts.devMode, $.plumber(function (err) {
