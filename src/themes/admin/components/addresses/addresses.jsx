@@ -2,18 +2,15 @@
 
 import React from 'react';
 import Address from './address';
-import NewAddress from './new_address';
-import AddressStore from './store';
-import { listenTo, stopListeningTo } from '../../lib/dispatcher';
-
-const cancelEvent = 'cancel-new-address';
+import AddressForm from './address-form.jsx';
+import AddressStore from '../../stores/addresses';
+import { dispatch } from '../../lib/dispatcher';
 
 export default class AddressBook extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       addresses: [],
-      new: false,
       customerId: null
     };
   }
@@ -21,7 +18,6 @@ export default class AddressBook extends React.Component {
   componentDidMount() {
     let customerId;
     AddressStore.listenToEvent('change', this);
-    listenTo(cancelEvent, this);
     if (this.props.order) {
       customerId = this.props.order.customer.id;
     } else {
@@ -29,36 +25,22 @@ export default class AddressBook extends React.Component {
       customerId = router.getCurrentParams().customer;
     }
 
-    this.setState({
-      customerId: customerId
-    });
-
-    AddressStore.uriRoot = `/customers/${customerId}`;
-    AddressStore.fetch();
+    this.setState({customerId});
+    AddressStore.fetch(customerId);
   }
 
   componentWillUnmount() {
     AddressStore.stopListeningToEvent('change', this);
-    stopListeningTo(cancelEvent, this);
   }
 
-  onChangeAddressStore() {
-    this.setState({
-      addresses: AddressStore.getState(),
-      new: false
-    });
-  }
-
-  onCancelNewAddress() {
-    this.setState({
-      new: false
-    });
+  onChangeAddressStore(customerId, addresses) {
+    if (customerId === this.state.customerId) {
+      this.setState({addresses});
+    }
   }
 
   addNew() {
-    this.setState({
-      new: true
-    });
+    dispatch('toggleModal', <AddressForm customerId={this.state.customerId} order={this.props.order}/>);
   }
 
   render() {
@@ -66,19 +48,26 @@ export default class AddressBook extends React.Component {
       addresses = this.state.addresses,
       order = this.props.order || null;
 
-    let innerContent = (
-      <div>
-        <a className='btn' onClick={this.addNew.bind(this)}>+</a>
-        <ul className='addresses'>
+    return (
+      <div className="fc-addresses">
+        <header>
+          <div className="fc-addresses-title">Address Book</div>
+          <button className="icon-add" onClick={this.addNew.bind(this)}></button>
+        </header>
+        <ul className="fc-addresses-list">
           {addresses.map((address, idx) => {
-            return <Address key={`${idx}-${address.id}`} address={address} order={order}/>;
+            return (
+              <Address key={`${idx}-${address.id}`}
+                address={address}
+                order={order}
+                onSelectAddress={this.props.onSelectAddress}
+                customerId={this.state.customerId}
+              />
+            );
           })}
         </ul>
       </div>
     );
-    if (this.state.new) innerContent = <NewAddress order={order} customerId={this.state.customerId} />;
-
-    return <div>{innerContent}</div>;
   }
 }
 
@@ -87,5 +76,6 @@ AddressBook.contextTypes = {
 };
 
 AddressBook.propTypes = {
-  order: React.PropTypes.object
+  order: React.PropTypes.object,
+  onSelectAddress: React.PropTypes.func
 };

@@ -28,8 +28,8 @@ export default class Notifications extends React.Component {
     NotificationStore.stopListeningToEvent('change', this);
   }
 
-  onChangeNotificationStore() {
-    this.setState({orders: NotificationStore.getState()});
+  onChangeNotificationStore(orders) {
+    this.setState({orders: orders});
   }
 
   render() {

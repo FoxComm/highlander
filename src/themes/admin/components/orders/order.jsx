@@ -4,7 +4,7 @@ import React from 'react';
 import { RouteHandler } from 'react-router';
 import { Link } from 'react-router';
 import { listenTo, stopListeningTo, dispatch } from '../../lib/dispatcher';
-import OrderStore from './store';
+import OrderStore from './../../stores/orders';
 import Viewers from '../viewers/viewers';
 import ConfirmModal from '../modal/confirm';
 import RemorseTimer from './remorseTimer';
@@ -34,21 +34,25 @@ export default class Order extends React.Component {
     };
   }
 
+  get orderRefNum() {
+    let { router } = this.context;
+    return router.getCurrentParams().order
+  }
+
   componentDidMount() {
-    let
-      { router }  = this.context,
-      orderId     = router.getCurrentParams().order;
-    OrderStore.listenToEvent('change', this);
+    OrderStore.listenToEvent('change-item', this);
     listenTo(confirmEvent, this);
-    OrderStore.fetch(orderId);
+    OrderStore.fetch(this.orderRefNum);
   }
 
   componentWillUnmount() {
-    OrderStore.stopListeningToEvent('change', this);
+    OrderStore.stopListeningToEvent('change-item', this);
     stopListeningTo(confirmEvent, this);
   }
 
-  onChangeOrderStore(order) {
+  onChangeItemOrderStore(order) {
+    if (this.orderRefNum !== order.referenceNumber) return;
+
     this.setState({
       order: order,
       customer: order.customer

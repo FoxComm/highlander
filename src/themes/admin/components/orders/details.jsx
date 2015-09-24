@@ -7,7 +7,7 @@ import LineItems from '../line-items/line-items';
 import OrderShippingAddress from './shipping-address';
 import OrderShippingMethod from './shipping-method';
 import OrderPayment from './payment';
-import OrderStore from './store';
+import OrderStore from './../../stores/orders';
 import { dispatch } from '../../lib/dispatcher';
 
 export default class OrderDetails extends React.Component {
@@ -66,7 +66,7 @@ export default class OrderDetails extends React.Component {
               tableColumns={lineColumns}
               model={'order'}
               />
-            <OrderShippingAddress order={order} isEditing={isEditing}/>
+            <OrderShippingAddress order={order}/>
             <OrderShippingMethod order={order} isEditing={isEditing}/>
             <OrderPayment order={order} isEditing={isEditing}/>
           </div>

@@ -1,31 +1,31 @@
 'use strict';
 
+import _ from 'lodash';
 import Api from './api';
-import { dispatch, listenTo, stopListeningTo } from './dispatcher';
-import { inflect } from 'fleck';
+import EventedStore from './evented-store';
 
-export default class BaseStore {
+export default class BaseStore extends EventedStore {
   constructor() {
+    super();
     this.models = [];
   }
-
-  get storeName() { return this.constructor.name; }
-  get eventSuffix() { return inflect(this.storeName, 'underscore', 'dasherize'); }
 
   uri(id) {
     return id ? `${this.baseUri}/${id}` : this.baseUri;
   }
 
+  notifyChanged() {
+    this.dispatch('change', this.models);
+  }
+
   reset() {
     this.models = [];
-    dispatch(`change${this.storeName}`, this.models);
+    this.notifyChanged();
   }
 
   sort(field, order) {
-    this.models = this.models.sort((a, b) => {
-      return (1 - 2 * order) * (a[field] < b[field] ? 1 : a[field] > b[field] ? -1 : 0);
-    });
-    dispatch(`change${this.storeName}`, this.models);
+    this.models = this._sort(this.models, field, order);
+    this.notifyChanged();
   }
 
   getState(id) {
@@ -34,71 +34,36 @@ export default class BaseStore {
   }
 
   findModel(id) {
-    return this.models.filter((item) => {
-      return item.id === id;
-    })[0];
+    return this._findModel(this.models, id);
   }
 
-  listenToEvent(event, ctx) {
-    listenTo(`${event}-${this.eventSuffix}`, ctx);
-  }
-
-  stopListeningToEvent(event, ctx) {
-    stopListeningTo(`${event}-${this.eventSuffix}`, ctx);
-  }
-
-  process(model) {
-    return model;
+  findWhere(...args) {
+    return this._findWhere(this.models, ...args);
   }
 
   upsert(model) {
-    let exists = this.findModel(model.id);
-    if (exists) {
-      let idx = this.models.indexOf(exists);
-      if (idx !== -1) {
-        this.models[idx] = this.process(model) || model;
-      }
-    } else {
-      this.models.push(this.process(model) || model);
-    }
+    this._upsert(this.models, model);
   }
 
   add(model) {
     this.models.push(model);
-    dispatch(`change${this.storeName}`, this.models);
+    this.notifyChanged();
   }
 
   update(model) {
-    if (Array.isArray(model)) {
-      model.forEach((item) => {
-        this.upsert(item);
-      });
-    } else {
-      this.upsert(model);
+    this._update(this.models, model);
+    this.notifyChanged();
+
+    if (!_.isArray(model)) {
+      this.dispatch('changeItem', model);
     }
-    dispatch(`change${this.storeName}`, model);
   }
 
-  // @todo Error handling - Tivs
-  fetchError(err) {
-    console.error(err);
-  }
-
-  fetch(id) {
-    Api.get(this.uri(id))
-      .then((res) => { this.update(res); })
-      .catch((err) => { this.fetchError(err); });
+  updateBehaviour(res) {
+    this.update(res);
   }
 
   patch(id, changes) {
-    Api.patch(this.uri(id), changes)
-      .then((res) => { this.update(res); })
-      .catch((err) => { this.fetchError(err); });
-  }
-
-  create(data) {
-    Api.post(this.uri(), data)
-      .then((res) => { this.update(res); })
-      .catch((err) => { this.fetchError(err); });
+    return super.patch(changes, id);
   }
 }

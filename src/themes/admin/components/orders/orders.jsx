@@ -2,7 +2,7 @@
 
 import React from 'react';
 import TableView from '../tables/tableview';
-import OrderStore from './store';
+import OrderStore from './../../stores/orders';
 import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
 
@@ -23,8 +23,8 @@ export default class Orders extends React.Component {
     OrderStore.stopListeningToEvent('change', this);
   }
 
-  onChangeOrderStore() {
-    this.setState({orders: OrderStore.getState()});
+  onChangeOrderStore(orders) {
+    this.setState({orders});
   }
 
   render() {
