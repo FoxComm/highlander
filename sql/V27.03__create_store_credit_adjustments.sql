@@ -60,4 +60,5 @@ create trigger update_store_credit_current_balance_trg
     execute procedure update_store_credit_current_balance();
 
 create index store_credit_adjustments_payment_status_idx on store_credit_adjustments (order_payment_id, status);
+create index store_credit_adjustments_store_credit_idx on store_credit_adjustments (store_credit_id);
 

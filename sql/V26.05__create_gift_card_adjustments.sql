@@ -67,4 +67,4 @@ create trigger update_gift_card_current_balance_trg
     execute procedure update_gift_card_current_balance();
 
 create index gift_card_adjustments_payment_status_idx on gift_card_adjustments (order_payment_id, status);
-
+create index gift_card_adjustments_gift_card_idx on gift_card_adjustments (gift_card_id);
