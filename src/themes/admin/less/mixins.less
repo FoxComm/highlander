@@ -84,21 +84,6 @@
 
 // ===== Size Values =====
 
-.size(@square) {
-  .width(@square);
-  .height(@square);
-}
-
-.size(@width, @height) {
-  .width(@width);
-  .height(@height);
-}
-
-.circle(@size) {
-  border-radius: 50%;
-  .size(@size);
-}
-
 .width(@value) {
   width: pxtorem(@value);
 }
@@ -126,6 +111,20 @@
   max-height: pxtorem(@value);
 }
 
+.size(@square) {
+  .width(@square);
+  .height(@square);
+}
+
+.size(@width, @height) {
+  .width(@width);
+  .height(@height);
+}
+
+.circle(@size) {
+  border-radius: 50%;
+  .size(@size);
+}
 
 // ===== Mixin Values =====
 
