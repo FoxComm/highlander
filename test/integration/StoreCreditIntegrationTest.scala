@@ -103,7 +103,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         response.errors.head must ===("Open transactions should be canceled/completed")
       }
 
-      "successfully cancels store credit with provided reason" in new Fixture {
+      "successfully cancels store credit with provided reason, cancel adjustment is created" in new Fixture {
         // Cancel pending adjustment
         StoreCreditAdjustments.cancel(adjustment.id).run().futureValue
 
@@ -117,9 +117,10 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         // Ensure that cancel adjustment is automatically created
         val transactionsRep = GET(s"v1/store-credits/${storeCredit.id}/transactions")
         val adjustments = transactionsRep.as[Seq[StoreCreditAdjustmentsResponse.Root]]
+
         response.status must ===(StatusCodes.OK)
         adjustments.size mustBe 2
-        adjustments(1).state must ===(StoreCreditAdjustment.Capture)
+        adjustments.head.state must ===(StoreCreditAdjustment.Capture)
       }
 
       "fails to cancel store credit if invalid reason provided" in new Fixture {
