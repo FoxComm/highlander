@@ -9,7 +9,8 @@ import models.{GiftCardAdjustment, GiftCardAdjustments, GiftCard, Customer, Cust
 StoreAdmins}
 import models.GiftCard.{Canceled, Active, OnHold}
 import responses.{GiftCardResponse, CustomerResponse, StoreAdminResponse}
-import responses.GiftCardResponse.{Root, build}
+import responses.GiftCardResponse._
+import responses.GiftCardBulkCreateResponse._
 import slick.driver.PostgresDriver.api._
 import utils.Slick._
 import utils.Slick.UpdateReturning._
@@ -17,6 +18,7 @@ import utils.Slick.implicits._
 
 object GiftCardService {
   val mockCustomerId = 1
+  val bulkCreateLimit = 20
 
   type Account = Customer :+: StoreAdmin :+: CNil
   type QuerySeq = Query[GiftCards, GiftCard, Seq]
@@ -31,6 +33,29 @@ object GiftCardService {
         Result.right(GiftCardResponse.build(giftCard, None, storeAdminResponse))
       case _ ⇒
         Result.failure(GiftCardNotFoundFailure(code))
+    }
+  }
+
+  def createBulkByAdmin(admin: StoreAdmin, payload: payloads.GiftCardBulkCreateByCsr)
+    (implicit ec: ExecutionContext, db: Database): Result[BulkResponses] = {
+
+    (payload.count > 0, payload.count <= bulkCreateLimit) match {
+      case (true, true) ⇒
+        val responses = (1 to payload.count).map { number ⇒
+          val payloadSingle = payloads.GiftCardCreateByCsr(balance = payload.balance, currency = payload.currency)
+          createGiftCardModel(admin, payloadSingle).flatMap {
+            case Xor.Left(errors) ⇒ Future.successful(buildBulkResponse(None, Some(errors.map(_.description.mkString))))
+            case Xor.Right(sc)    ⇒ Future.successful(buildBulkResponse(Some(sc)))
+          }
+        }
+
+        val future = Future.sequence(responses).flatMap { seq ⇒
+          Future.successful(buildBulkResponses(seq))
+        }
+
+        Result.fromFuture(future)
+      case (false, _)   ⇒ Result.failure(GeneralFailure("Count value must be greater than zero"))
+      case (_, false)   ⇒ Result.failure(GeneralFailure("Bulk create limit exceeded"))
     }
   }
 
@@ -93,9 +118,10 @@ object GiftCardService {
   }
 
   private def createGiftCard(gc: GiftCard)(implicit ec: ExecutionContext, db: Database): Result[GiftCard] = {
-    gc.validate match {
-      case Valid(_)             ⇒ Result.fromFuture(GiftCards.save(gc).run())
-      case Invalid(errors)      ⇒ Result.failures(errors.failure)
+    (gc.originalBalance, gc.validate) match {
+      case (0, _)               ⇒ Result.failure(GeneralFailure("Balance must be greater than zero"))
+      case (_, Valid(_))        ⇒ Result.fromFuture(GiftCards.save(gc).run())
+      case (_, Invalid(errors)) ⇒ Result.failures(errors.failure)
     }
   }
 
