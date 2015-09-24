@@ -7,7 +7,6 @@
   "scripts": {
     "test": "make test",
     "start": "iojs --harmony boot.js",
-    "phoenix": "NODE_ENV=phoenix npm run dev",
     "stop": "kill -USR2 $(ps aux | grep '[m]-ashes' | awk '{print $2}')",
     "build": "./node_modules/.bin/gulp",
     "dev": "./node_modules/.bin/gulp dev"
@@ -21,7 +20,7 @@
     "Ecommerce",
     "CMS"
   ],
-  "author": "Jonathan 'Tivs' Rainey",
+  "author": "FoxCommerce Engineering",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/FoxComm/Ashes/issues"
@@ -143,7 +142,6 @@
     "node-notifier": "^4.2.3",
     "rimraf": "^2.4.2",
     "run-sequence": "^1.1.2",
-    "sinon": "^1.16.1",
     "strip-ansi": "^3.0.0",
     "testdom": "^1.1.0",
     "through2": "^2.0.0",
