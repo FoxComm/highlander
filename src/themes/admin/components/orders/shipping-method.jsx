@@ -6,6 +6,7 @@ import Api from '../../lib/api';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
 import ShippingMethodItem from './shipping-method-item';
+import ShippingMethods from '../../stores/shipping-methods';
 
 export default class OrderShippingMethod extends React.Component {
   constructor(props) {
@@ -16,13 +17,16 @@ export default class OrderShippingMethod extends React.Component {
   }
 
   componentDidMount() {
-    Api.get('/shipping-methods')
-       .then((methods) => {
-         this.setState({
-           methods: methods
-         });
-       })
-       .catch((err) => { console.error(err); });
+    ShippingMethods.listenToEvent('change', this);
+    ShippingMethods.fetch(this.props.order.referenceNumber);
+  }
+
+  componentWillUnmount() {
+    ShippingMethods.stopListeningToEvent('change', this);
+  }
+
+  onChangeShippingMethods(methods) {
+    this.setState({methods});
   }
 
   render() {
@@ -51,6 +55,6 @@ OrderShippingMethod.propTypes = {
 OrderShippingMethod.defaultProps = {
   tableColumns: [
     {field: null, text: 'Method', component: 'ShippingMethodItem'},
-    {field: 'price', text: 'Price', type: 'currency'}
+    {field: 'defaultPrice', text: 'Price', type: 'currency'}
   ]
 };
