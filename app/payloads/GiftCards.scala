@@ -6,3 +6,5 @@ import utils.Money._
 final case class GiftCardCreateByCsr(balance: Int, currency: Currency = Currency.USD)
 
 final case class GiftCardUpdateStatusByCsr(status: GiftCard.Status, reason: Option[Int] = None)
+
+final case class GiftCardBulkUpdateStatusByCsr(codes: Seq[String], status: GiftCard.Status, reason: Option[Int] = None)

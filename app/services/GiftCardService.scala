@@ -1,6 +1,6 @@
 package services
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Xor
 import cats.data.Validated.{Valid, Invalid}
@@ -10,12 +10,14 @@ StoreAdmins}
 import models.GiftCard.Canceled
 import responses.{GiftCardResponse, CustomerResponse, StoreAdminResponse}
 import responses.GiftCardResponse.Root
+import responses.GiftCardBulkUpdateResponse._
 import slick.driver.PostgresDriver.api._
 import utils.Slick._
 import utils.Slick.UpdateReturning._
 import utils.Slick.implicits._
 
 object GiftCardService {
+  val bulkUpdateLimit = 20
   val mockCustomerId = 1
 
   type Account = Customer :+: StoreAdmin :+: CNil
@@ -38,6 +40,28 @@ object GiftCardService {
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
 
     createGiftCardModel(admin, payload)
+  }
+
+  def bulkUpdateStatusByCsr(payload: payloads.GiftCardBulkUpdateStatusByCsr)
+    (implicit ec: ExecutionContext, db: Database): Result[Responses] = {
+
+    if (payload.codes.length > bulkUpdateLimit) {
+      Result.failure(GeneralFailure("Bulk update item length exceeded"))
+    }
+
+    val responses = payload.codes.map { code ⇒
+      val statusUpdate = updateStatusByCsr(code, payloads.GiftCardUpdateStatusByCsr(payload.status, payload.reason))
+      statusUpdate.flatMap {
+        case Xor.Left(errors) ⇒ Future.successful(buildResponse(code, None, Some(errors.map(_.description.mkString))))
+        case Xor.Right(sc)    ⇒ Future.successful(buildResponse(code, Some(sc)))
+      }
+    }
+
+    val future = Future.sequence(responses).flatMap { seq ⇒
+      Future.successful(buildResponses(seq))
+    }
+
+    Result.fromFuture(future)
   }
 
   def updateStatusByCsr(code: String, payload: payloads.GiftCardUpdateStatusByCsr)

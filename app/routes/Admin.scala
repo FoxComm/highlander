@@ -27,6 +27,11 @@ object Admin {
             GiftCards.sortBy(_.id.desc).result.run().map(render(_))
           }
         } ~
+        (patch & entity(as[payloads.GiftCardBulkUpdateStatusByCsr]) & pathEnd) { payload ⇒
+          complete {
+            GiftCardService.bulkUpdateStatusByCsr(payload).map(renderGoodOrFailures)
+          }
+        } ~
         (get & path(Segment) & pathEnd) { code ⇒
           complete {
             GiftCardService.getByCode(code).map(renderGoodOrFailures)
