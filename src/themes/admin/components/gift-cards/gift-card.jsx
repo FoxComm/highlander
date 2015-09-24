@@ -89,8 +89,8 @@ export default class GiftCard extends React.Component {
                 <div className="fc-grid">
                   <div className="fc-col-1-2">
                     <p>
-                      <strong>Customer: </strong>
-                      {card.customer ? `${card.customer.firstName} ${card.customer.lastName}` : 'None'}
+                      <strong>Created By: </strong>
+                      {card.storeAdmin ? `${card.storeAdmin.firstName} ${card.storeAdmin.lastName}` : 'None'}
                     </p>
                     <p><strong>Recipient: </strong>None</p>
                     <p><strong>Recipient Email: </strong>None</p>
