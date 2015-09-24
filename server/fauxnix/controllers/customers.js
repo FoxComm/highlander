@@ -17,20 +17,6 @@ module.exports = function(app, router) {
       this.address = Address.findOne(id);
       yield next;
     })
-    .get('/customers/:customer', function *() {
-      this.body = this.customer;
-    })
-    .get('/customers', function *() {
-      let query = this.request.query;
-      this.body = Customer.paginate(query.limit, query.page);
-    })
-    .post('/customers', function *() {
-      let
-        body = yield parse.json(this),
-        customer = new Customer(body);
-      this.status = 201;
-      this.body = customer;
-    })
     .patch('/customers/:customer/addresses/:address', function *() {
       let body = yield parse.json(this);
       this.address.amend(body);
