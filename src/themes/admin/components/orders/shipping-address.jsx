@@ -42,8 +42,7 @@ export default class OrderShippingAddress extends React.Component {
         <AddressDetails address={address} />
       );
       editButton = (
-        <button className="fc-btn fc-btn-primary fc-edit-button" onClick={this.toggleEdit.bind(this)}>
-          <i className="fa fa-pencil"></i>
+        <button className="fc-btn fc-btn-primary fc-edit-button icon-edit" onClick={this.toggleEdit.bind(this)}>
         </button>
       );
     }
