@@ -11,11 +11,13 @@ object StoreCreditAdjustmentsResponse {
   final case class Root(
     id: Int,
     debit: Int,
+    availableBalance: Int,
     state: StoreCreditAdjustment.Status,
     orderRef: String)
 
-  def build(adjustment: StoreCreditAdjustment, orderRef: String): Root = {
-    Root(id = adjustment.id, debit = adjustment.debit, state = adjustment.status, orderRef = orderRef)
+  def build(adj: StoreCreditAdjustment, orderRef: String): Root = {
+    Root(id = adj.id, debit = adj.debit, availableBalance = adj.availableBalance, state = adj.status,
+      orderRef = orderRef)
   }
 
   def forStoreCredit(sc: StoreCredit)(implicit ec: ExecutionContext, db: Database): Result[Seq[Root]] = {

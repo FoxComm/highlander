@@ -15,10 +15,9 @@ object GiftCardAdjustmentsResponse {
     state: GiftCardAdjustment.Status,
     orderRef: String)
 
-  def build(adjustment: GiftCardAdjustment, gc: GiftCard, orderRef: String): Root = {
-    val amount = adjustment.getAmount
-    Root(id = adjustment.id, amount = amount, availableBalance = gc.currentBalance + amount,
-      state = adjustment.status, orderRef = orderRef)
+  def build(adj: GiftCardAdjustment, orderRef: String): Root = {
+    Root(id = adj.id, amount = adj.getAmount, availableBalance = adj.availableBalance, state = adj.status,
+      orderRef = orderRef)
   }
 
   def forGiftCard(gc: GiftCard)(implicit ec: ExecutionContext, db: Database): Result[Seq[Root]] = {
@@ -27,7 +26,7 @@ object GiftCardAdjustmentsResponse {
       payments ← adjustments.payment
       orderRef ← payments.order.map(_.referenceNumber)
     } yield (adjustments, orderRef)).result.run().flatMap { results ⇒
-      Result.good(results.map { case (adjustment, orderRef) ⇒ build(adjustment, gc, orderRef) })
+      Result.good(results.map { case (adjustment, orderRef) ⇒ build(adjustment, orderRef) })
     }
   }
 }

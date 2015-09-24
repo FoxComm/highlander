@@ -165,7 +165,7 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
     status: Adj.Status = Adj.Auth)
     (implicit ec: ExecutionContext): DBIO[Adj] = {
     val adjustment = Adj(storeCreditId = storeCredit.id, orderPaymentId = orderPaymentId,
-      debit = amount, status = status)
+      debit = amount, availableBalance = storeCredit.availableBalance, status = status)
     Adjs.save(adjustment)
   }
 }

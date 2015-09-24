@@ -13,7 +13,7 @@ import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId}
 import utils.Slick.implicits._
 
 final case class GiftCardAdjustment(id: Int = 0, giftCardId: Int, orderPaymentId: Int,
-  credit: Int, debit: Int, status: Status = Auth, createdAt: Instant = Instant.now())
+  credit: Int, debit: Int, availableBalance: Int, status: Status = Auth, createdAt: Instant = Instant.now())
   extends ModelWithIdParameter
   with FSM[GiftCardAdjustment.Status, GiftCardAdjustment] {
 
@@ -41,7 +41,8 @@ object GiftCardAdjustment {
   implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
 
   def build(gc: GiftCard, orderPayment: OrderPayment): GiftCardAdjustment =
-    GiftCardAdjustment(giftCardId = gc.id, orderPaymentId = orderPayment.id, credit = 0, debit = 0)
+    GiftCardAdjustment(giftCardId = gc.id, orderPaymentId = orderPayment.id, credit = 0, debit = 0,
+      availableBalance = gc.availableBalance)
 }
 
 class GiftCardAdjustments(tag: Tag)
@@ -53,11 +54,12 @@ class GiftCardAdjustments(tag: Tag)
   def orderPaymentId = column[Int]("order_payment_id")
   def credit = column[Int]("credit")
   def debit = column[Int]("debit")
+  def availableBalance = column[Int]("available_balance")
   def status = column[GiftCardAdjustment.Status]("status")
   def createdAt = column[Instant]("created_at")
 
-  def * = (id, giftCardId, orderPaymentId,
-    credit, debit, status, createdAt) <> ((GiftCardAdjustment.apply _).tupled, GiftCardAdjustment.unapply)
+  def * = (id, giftCardId, orderPaymentId, credit, debit, availableBalance,
+    status, createdAt) <> ((GiftCardAdjustment.apply _).tupled, GiftCardAdjustment.unapply)
 
   def payment = foreignKey(OrderPayments.tableName, orderPaymentId, OrderPayments)(_.id)
 }

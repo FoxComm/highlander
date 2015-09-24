@@ -154,8 +154,9 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
   private def adjust(giftCard: GiftCard, orderPaymentId: Int, debit: Int = 0, credit: Int = 0,
     status: Adj.Status = Adj.Auth)
     (implicit ec: ExecutionContext): DBIO[Adj] = {
+    val balance = giftCard.availableBalance - debit + credit
     val adjustment = Adj(giftCardId = giftCard.id, orderPaymentId = orderPaymentId,
-      debit = debit, credit = credit, status = status)
+      debit = debit, credit = credit, availableBalance = balance, status = status)
     Adjs.save(adjustment)
   }
 }
