@@ -34,3 +34,5 @@ public/themes
 .vagrant
 
 !.vagrant/machines/default/google
+
+.DS_Store
