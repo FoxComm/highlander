@@ -14,7 +14,6 @@ app.init = co.wrap(function *(env) {
   app.config = new Config(app.env);
   app.use(serve(app.config.server.publicDir));
   app.use(favicon(app.config.layout.favicon));
-  app.seeds = yield* require(`${__dirname}/seeds`)();
   if (app.env !== 'production') {
     app.use(require('koa-logger')());
   }
