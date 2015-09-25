@@ -82,6 +82,7 @@ export default class TableView extends React.Component {
 }
 
 TableView.propTypes = {
+  children: React.PropTypes.any,
   model: React.PropTypes.string,
   columns: React.PropTypes.array,
   rows: React.PropTypes.array,
