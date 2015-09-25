@@ -60,7 +60,9 @@ export default class TableView extends React.Component {
             columns={this.props.columns}
             rows={this.props.rows.slice(this.state.start, this.state.start + this.state.limit)}
             model={this.props.model}
-            />
+            >
+            {this.props.children}
+          </TableBody>
         </table>
         {showPaginator && (
           <div className="fc-table-footer">
@@ -80,6 +82,7 @@ export default class TableView extends React.Component {
 }
 
 TableView.propTypes = {
+  children: React.PropTypes.any,
   model: React.PropTypes.string,
   columns: React.PropTypes.array,
   rows: React.PropTypes.array,
