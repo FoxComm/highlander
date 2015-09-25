@@ -60,8 +60,9 @@ object NoteManager {
 
   def deleteNote(noteId: Int, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
-    Notes._findById(noteId).extract.findOneAndRun { note ⇒
-      Notes.filter(_.id === noteId).update(note.copy(
+    val finder = Notes._findById(noteId).extract
+    finder.findOneAndRun { note ⇒
+      finder.update(note.copy(
         deletedAt = Some(Instant.now),
         deletedBy = Some(admin.id))
       ) >> DbResult.unit
