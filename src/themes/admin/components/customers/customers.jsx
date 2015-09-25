@@ -21,8 +21,8 @@ export default class Customers extends React.Component {
     CustomerStore.stopListeningToEvent('change', this);
   }
 
-  onChangeCustomerStore() {
-    this.setState({customers: CustomerStore.getState()});
+  onChangeCustomerStore(customers) {
+    this.setState({customers});
   }
 
   render() {

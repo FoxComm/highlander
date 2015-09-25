@@ -4,7 +4,7 @@ import React from 'react';
 import Api from '../../lib/api';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
-import UserInitials from '../users/initials';
+import NotesItemControls from './notesItemControls';
 import NoteStore from './store';
 import { pluralize } from 'fleck';
 
@@ -56,7 +56,9 @@ export default class Notes extends React.Component {
         this.toggleNote();
         this.removeNew();
       })
-      .catch((err) => { console.error(err); });
+      .catch((err) => {
+        console.error(err);
+      });
   }
 
   removeNew() {
@@ -82,6 +84,7 @@ export default class Notes extends React.Component {
         <a onClick={this.toggleNote.bind(this)} className="add-note" disabled={this.state.open}>
           <i className="icon-add"></i>
         </a>
+
         <form action={NoteStore.baseUri} method="post" onSubmit={this.handleSubmit.bind(this)}>
           <fieldset>
             <legend>New Note</legend>
@@ -98,7 +101,7 @@ export default class Notes extends React.Component {
         <table className="fc-table fc-table-expanded">
           <TableHead columns={this.props.tableColumns}/>
           <TableBody columns={this.props.tableColumns} rows={this.state.notes} model={this.props.modelName}>
-            <UserInitials/>
+            <NotesItemControls/>
           </TableBody>
         </table>
         {empty}
@@ -117,7 +120,6 @@ Notes.defaultProps = {
   tableColumns: [
     {field: 'createdAt', text: 'Date/Time', type: 'date'},
     {field: 'body', text: 'Note'},
-    {field: 'author', text: 'Author', component: 'UserInitials'},
-    {field: 'isEditable', text: ''}
+    {field: 'author', text: 'Author', component: 'NotesItemControls'}
   ]
 };

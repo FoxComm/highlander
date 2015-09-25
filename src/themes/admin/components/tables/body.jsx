@@ -4,7 +4,7 @@ import React from 'react';
 import moment from 'moment';
 import { Link } from 'react-router';
 import { formatCurrency } from '../../lib/format';
-import OrderStore from '../orders/store';
+import OrderStore from '../../stores/orders';
 
 export default class TableBody extends React.Component {
   convert(field, column, row) {

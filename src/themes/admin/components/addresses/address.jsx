@@ -1,47 +1,56 @@
 'use strict';
 
+import _ from 'lodash';
 import React from 'react';
-import AddressStore from './store';
+import classNames from 'classnames';
+import AddressStore from '../../stores/addresses';
+import { dispatch } from '../../lib/dispatcher';
+import AddressForm from './address-form.jsx';
+import AddressDetails from './address-details.jsx';
 
 class Address extends React.Component {
-  setActiveAddress() {
-    AddressStore.patch(this.props.address.id, {isActive: true});
+
+  constructor(props) {
+    super(props);
+    this.onSelectAddress = props.onSelectAddress && props.onSelectAddress.bind(this, props.address);
+  }
+
+  toggleEdit() {
+    dispatch('toggleModal', <AddressForm address={this.props.address} customerId={this.props.customerId}
+                              onSaved={this.onSelectAddress} />);
   }
 
   render() {
     let address = this.props.address;
 
     let isDefault = (
-        <div><input type='checkbox' defaultChecked={address.isDefault} disabled='disabled' /> Default Address</div>
+        <label className="fc-address-default">
+          <input type="checkbox" defaultChecked={address.isDefault} disabled />
+          <span>Default shipping address</span>
+        </label>
     );
-    let street2 = (val) => {
-      return <span><span>{val}</span><br/></span>;
-    };
     let choose = null;
     if (this.props.order) {
       choose = (
-        <button className='btn choose' onClick={this.setActiveAddress.bind(this)} disabled={address.isActive}>
+        <button className="fc-btn fc-address-choose" onClick={this.onSelectAddress} disabled={address.isActive}>
           Choose
         </button>
       );
     }
 
-
-    let classes = ['address'];
-
-    if (address.isActive) classes.push('active');
+    let classes = classNames({
+      'fc-address': true,
+      'is-active': this.props.order ? address.id === this.props.order.shippingAddress.id : false
+    });
 
     return (
-      <li className={`${classes.join(' ')}`}>
-        <div className='details'>
+      <li className={classes}>
+        <div className="fc-address-controls">
+          <button className="icon-edit" onClick={this.toggleEdit.bind(this)}></button>
+        </div>
+        <div>
           { address.isDefault ? isDefault : '' }
-          <p><strong>{address.name}</strong></p>
-          <p>
-            <span>{address.street1}</span><br />
-            { address.street2 ? street2(address.street2) : '' }
-            <span>{address.city}</span>, <span>{address.state}</span> <span>{address.zip}</span><br />
-            <span>{address.country}</span>
-          </p>
+          <AddressDetails address={address} />
         </div>
         { choose }
       </li>
@@ -51,7 +60,9 @@ class Address extends React.Component {
 
 Address.propTypes = {
   address: React.PropTypes.object,
-  order: React.PropTypes.object
+  order: React.PropTypes.object,
+  customerId: React.PropTypes.number.isRequired,
+  onSelectAddress: React.PropTypes.func
 };
 
 export default Address;

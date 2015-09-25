@@ -21,19 +21,13 @@
     }
   }
 
-  > footer {
-    .padding(20px);
-    background-color: @color-decor12;
-    > div {
-      .padding(0 0 20px 0);
-    }
-  }
-
   > .fc-table {
     border: 0;
   }
 
-  thead tr:first-child th {
+  thead tr:first-child th,
+  // .messages for fc-error & fc-success & fc-warning blocks
+  .messages {
     box-shadow: inset 0 2px 3px 0 @color-white;
   }
 
@@ -51,6 +45,12 @@
     &.is-highlighted {
       color: @color-white;
       background-color: @color-decor3;
+    }
+    fc-controls {
+      text-align: right;
+    }
+    > .fc-grid {
+      flex: 1;
     }
   }
 }

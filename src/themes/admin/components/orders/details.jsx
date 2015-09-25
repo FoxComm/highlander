@@ -7,7 +7,7 @@ import LineItems from '../line-items/line-items';
 import OrderShippingAddress from './shipping-address';
 import OrderShippingMethod from './shipping-method';
 import OrderPayment from './payment';
-import OrderStore from './store';
+import OrderStore from './../../stores/orders';
 import { dispatch } from '../../lib/dispatcher';
 import Api from '../../lib/api';
 import LineItemStore from '../line-items/store';
