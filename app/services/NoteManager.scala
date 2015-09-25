@@ -2,6 +2,7 @@ package services
 
 import java.time.Instant
 
+import cats.data.Xor
 import cats.data.Validated.{Valid, Invalid}
 import cats.implicits._
 import models._
@@ -60,7 +61,7 @@ object NoteManager {
   def deleteNote(noteId: Int, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
     Notes._findById(noteId).extract.findOneAndRun { note ⇒
-      Notes.update(note.copy(
+      Notes.filter(_.id === noteId).update(note.copy(
         deletedAt = Some(Instant.now),
         deletedBy = Some(admin.id))
       ) >> DbResult.unit

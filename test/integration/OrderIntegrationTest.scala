@@ -362,6 +362,14 @@ class OrderIntegrationTest extends IntegrationTestBase
       val note = parse(response.bodyText).extract[AdminNotes.Root]
       note.body must === ("donkey")
     }
+
+    "can soft delete note" in new Fixture {
+      val rootNote = NoteManager.createOrderNote(order, storeAdmin,
+        payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue.get
+
+      val response = DELETE(s"v1/orders/${order.referenceNumber}/notes/${rootNote.id}")
+      response.status must === (StatusCodes.NoContent)
+    }
   }
 
   "shipping addresses" - {
