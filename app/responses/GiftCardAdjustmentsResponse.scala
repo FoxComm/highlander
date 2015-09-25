@@ -21,18 +21,5 @@ object GiftCardAdjustmentsResponse {
     Root(id = adjustment.id, amount = amount, availableBalance = gc.currentBalance + amount,
       state = adjustment.status, orderRef = orderRef)
   }
-
-  def forGiftCard(gc: GiftCard)(implicit ec: ExecutionContext, db: Database): Result[Seq[Root]] = {
-    val query = GiftCardAdjustments.filterByGiftCardId(gc.id)
-      .joinLeft(OrderPayments).on(_.orderPaymentId === _.id)
-      .joinLeft(Orders).on(_._2.map(_.orderId) === _.id)
-
-    db.run(query.result).map { results ⇒
-      results.map {
-        case ((adj, Some(payment)), Some(order)) ⇒ build(adj, gc, Some(order.referenceNumber))
-        case ((adj, _), _)                       ⇒ build(adj, gc)
-      }
-    }.flatMap(Result.good)
-  }
 }
 

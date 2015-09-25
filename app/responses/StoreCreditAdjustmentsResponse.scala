@@ -2,7 +2,7 @@ package responses
 
 import scala.concurrent.ExecutionContext
 
-import models.{StoreCredit, StoreCreditAdjustment, StoreCreditAdjustments, Orders, OrderPayments}
+import models.{GiftCards, StoreCredit, StoreCreditAdjustment, StoreCreditAdjustments, Orders, OrderPayments}
 import services.Result
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
