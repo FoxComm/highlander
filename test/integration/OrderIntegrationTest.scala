@@ -237,7 +237,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       val fullOrderWithWarnings = parse(response.bodyText).extract[FullOrderWithWarnings]
       fullOrderWithWarnings.order.assignees must not be empty
-      fullOrderWithWarnings.order.assignees mustBe Seq(StoreAdminResponse.build(storeAdmin))
+      fullOrderWithWarnings.order.assignees.map(_.assignee) mustBe Seq(StoreAdminResponse.build(storeAdmin))
       fullOrderWithWarnings.warnings mustBe empty
     }
 
@@ -261,7 +261,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       response.status mustBe StatusCodes.OK
 
       val fullOrderWithWarnings = parse(response.bodyText).extract[FullOrderWithWarnings]
-      fullOrderWithWarnings.order.assignees mustBe Seq(StoreAdminResponse.build(storeAdmin))
+      fullOrderWithWarnings.order.assignees.map(_.assignee) mustBe Seq(StoreAdminResponse.build(storeAdmin))
       fullOrderWithWarnings.warnings mustBe Seq(NotFoundFailure("storeAdmin with id=999 not found"))
     }
 
@@ -276,7 +276,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       response2.status mustBe StatusCodes.OK
       val responseOrder2 = parse(response2.bodyText).extract[FullOrder.Root]
       responseOrder2.assignees must not be empty
-      responseOrder2.assignees mustBe Seq(StoreAdminResponse.build(storeAdmin))
+      responseOrder2.assignees.map(_.assignee) mustBe Seq(StoreAdminResponse.build(storeAdmin))
     }
 
     "do not create duplicate records" in new Fixture {

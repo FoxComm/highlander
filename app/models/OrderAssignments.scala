@@ -1,5 +1,7 @@
 package models
 
+import java.time.Instant
+
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import slick.lifted.Tag
@@ -7,7 +9,8 @@ import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 import scala.concurrent.ExecutionContext
 
-final case class OrderAssignment(id: Int = 0, orderId: Int = 0, assigneeId: Int = 0) extends ModelWithIdParameter
+final case class OrderAssignment(id: Int = 0, orderId: Int = 0, assigneeId: Int = 0, assignedAt: Instant = Instant.now)
+  extends ModelWithIdParameter
 
 object OrderAssignment
 
@@ -15,7 +18,10 @@ class OrderAssignments(tag: Tag) extends GenericTable.TableWithId[OrderAssignmen
   def id = column[Int]("id", O.AutoInc)
   def orderId = column[Int]("order_id")
   def assigneeId = column[Int]("assignee_id")
-  def * = (id, orderId, assigneeId) <>((OrderAssignment.apply _).tupled, OrderAssignment.unapply)
+
+  def assignedAt = column[Instant]("assigned_at")
+
+  def * = (id, orderId, assigneeId, assignedAt) <>((OrderAssignment.apply _).tupled, OrderAssignment.unapply)
   def order = foreignKey("order_fk", orderId, Orders)(_.id)
   def assignee = foreignKey("assignee_fk", assigneeId, StoreAdmins)(_.id)
 }

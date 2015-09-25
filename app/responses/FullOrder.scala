@@ -27,7 +27,7 @@ object FullOrder {
     customer: Option[Customer],
     shippingMethod: Option[ShippingMethod],
     shippingAddress: Option[Address],
-    assignees: Seq[StoreAdminResponse.Root],
+    assignees: Seq[AssignmentResponse.Root],
     payment: Option[DisplayPayment] = None
     )
 
@@ -56,7 +56,7 @@ object FullOrder {
         lineItems = items,
         shippingAddress = shipment.map { case (address, _) ⇒ address },
         shippingMethod = shipment.map { case (_, method) ⇒ method },
-        assignees = assignees,
+        assignments = assignees,
         payment = payment
       )
     }
@@ -65,7 +65,7 @@ object FullOrder {
   def build(order: Order, lineItems: Seq[(Sku, OrderLineItem)] = Seq.empty, adjustments: Seq[Adjustment] = Seq.empty,
     shippingMethod: Option[ShippingMethod] = None, customer: Option[Customer] = None,
     shippingAddress: Option[Address] = None, payment: Option[(OrderPayment, CreditCard)] = None,
-    assignees: Seq[StoreAdmin] = Seq.empty): Root = {
+    assignments: Seq[(OrderAssignment, StoreAdmin)] = Seq.empty): Root = {
 
     val displayPayment = payment.map { case (op, cc) ⇒
       DisplayPayment(
@@ -90,7 +90,7 @@ object FullOrder {
       shippingAddress = shippingAddress,
       totals = Totals(subTotal = 333, taxes = 10, adjustments = 0, total = 510),
       shippingMethod = shippingMethod,
-      assignees = assignees.map(StoreAdminResponse.build),
+      assignees = assignments.map((AssignmentResponse.build _).tupled),
       payment = displayPayment
     )
   }
@@ -115,7 +115,8 @@ object FullOrder {
       } yield (sku, li)).result
       shipment ← shipmentQ.one
       payments ← paymentQ.one
-      assignees ← OrderAssignments.assigneesFor(order)
-    } yield (customer, lineItems, shipment, payments, assignees)
+      assignments ← OrderAssignments.filter(_.orderId === order.id).result
+      admins ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.assigneeId))).result
+    } yield (customer, lineItems, shipment, payments, assignments.zip(admins))
   }
 }

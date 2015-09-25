@@ -74,7 +74,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase with HttpSupport with
 
       val updOrderResponse1 = GET(s"v1/orders/$orderRef1")
       val updOrder1 = parse(updOrderResponse1.bodyText).extract[FullOrder.Root]
-      updOrder1.assignees mustBe Seq(StoreAdminResponse.build(admin))
+      updOrder1.assignees.map(_.assignee) mustBe Seq(StoreAdminResponse.build(admin))
 
       // Don't complain about duplicates
       val assignResponse2 = POST(s"v1/orders/assignees", BulkAssignment(Seq(orderRef1, orderRef2), adminId))
@@ -85,11 +85,11 @@ class AllOrdersIntegrationTest extends IntegrationTestBase with HttpSupport with
 
       val updOrderResponse2 = GET(s"v1/orders/$orderRef1")
       val updOrder2 = parse(updOrderResponse2.bodyText).extract[FullOrder.Root]
-      updOrder2.assignees mustBe Seq(StoreAdminResponse.build(admin))
+      updOrder2.assignees.map(_.assignee) mustBe Seq(StoreAdminResponse.build(admin))
 
       val updOrderResponse3 = GET(s"v1/orders/$orderRef2")
       val updOrder3 = parse(updOrderResponse3.bodyText).extract[FullOrder.Root]
-      updOrder3.assignees mustBe Seq(StoreAdminResponse.build(admin))
+      updOrder3.assignees.map(_.assignee) mustBe Seq(StoreAdminResponse.build(admin))
     }
 
     "warns when order to assign not found" in new BulkAssignmentFixture {
@@ -124,7 +124,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase with HttpSupport with
       updOrder1.assignees mustBe empty
 
       val updOrder2 = parse(GET(s"v1/orders/$orderRef2").bodyText).extract[FullOrder.Root]
-      updOrder2.assignees mustBe Seq(StoreAdminResponse.build(admin))
+      updOrder2.assignees.map(_.assignee) mustBe Seq(StoreAdminResponse.build(admin))
     }
 
     "warns when order to unassign not found" in new BulkAssignmentFixture {
