@@ -8,15 +8,14 @@ object GiftCardBulkUpdateResponse {
   final case class Response(
     code: String,
     success: Boolean,
-    `object`: Option[GiftCardResponse.Root] = None,
-    errors: Option[Seq[String]] = None
-    )
+    giftCard: Option[GiftCardResponse.Root] = None,
+    errors: Option[Seq[String]] = None)
 
   def buildResponse(code: String, giftCard: Option[GiftCardResponse.Root] = None,
     errors: Option[Seq[String]] = None): Response = {
 
     (giftCard, errors) match {
-      case (Some(gc), _) ⇒ Response(code = code, success = true, `object` = Some(gc))
+      case (Some(gc), _) ⇒ Response(code = code, success = true, giftCard = Some(gc))
       case _             ⇒ Response(code = code, success = false, errors = errors)
     }
   }

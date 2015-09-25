@@ -51,9 +51,9 @@ object GiftCardService {
 
     val responses = payload.codes.map { code ⇒
       val statusUpdate = updateStatusByCsr(code, payloads.GiftCardUpdateStatusByCsr(payload.status, payload.reason))
-      statusUpdate.flatMap {
-        case Xor.Left(errors) ⇒ Future.successful(buildResponse(code, None, Some(errors.map(_.description.mkString))))
-        case Xor.Right(sc)    ⇒ Future.successful(buildResponse(code, Some(sc)))
+      statusUpdate.map {
+        case Xor.Left(errors) ⇒ buildResponse(code, None, Some(errors.map(_.description.mkString)))
+        case Xor.Right(sc)    ⇒ buildResponse(code, Some(sc))
       }
     }
 
