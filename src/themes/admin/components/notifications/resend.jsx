@@ -35,24 +35,24 @@ export default class ResendModal extends React.Component {
 
     return (
       <form method='POST' id='resend' onSubmit={this.resendNotification.bind(this)}>
-        <div className='modal-header'>
+        <div className='fc-modal-header'>
           <div className='icon'>
             <i className='icon-warning'></i>
           </div>
           <div className='title'>Resend Message?</div>
-          <a className='close' aria-label='Close' onClick={dispatch.bind(null, 'toggleModal', null)}>
+          <a className='fc-modal-close' aria-label='Close' onClick={dispatch.bind(null, 'toggleModal', null)}>
             <span aria-hidden="true">&times;</span>
           </a>
         </div>
-        <div className='modal-body'>
+        <div className='fc-modal-body'>
           You will send another copy of this message to:
           <div className='contact'>
             {innerContent}
             <a onClick={this.toggleEdit.bind(this)}>{this.state.edit ? 'Undo' : 'Edit'}</a>
           </div>
         </div>
-        <div className='modal-footer'>
-          <a className='close' onClick={dispatch.bind(null, 'toggleModal', null)}>Cancel</a>
+        <div className='fc-modal-footer'>
+          <a className='fc-modal-close' onClick={dispatch.bind(null, 'toggleModal', null)}>Cancel</a>
           <input type='submit' value='Resend' className='btn' />
         </div>
       </form>

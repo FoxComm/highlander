@@ -15,20 +15,20 @@ export default class ConfirmModal extends React.Component {
 
     return (
       <div>
-        <div className='modal-header'>
+        <div className='fc-modal-header'>
           <div className='icon'>
             <i className='icon-warning'></i>
           </div>
           <div className='title'>{modalOptions.header}</div>
-          <a className='close' aria-label='close' onClick={dispatch.bind(null, 'toggleModal', null)}>
+          <a className='fc-modal-close' aria-label='close' onClick={dispatch.bind(null, 'toggleModal', null)}>
             <span aria-hidden='true'>&times;</span>
           </a>
         </div>
-        <div className='modal-body'>
+        <div className='fc-modal-body'>
           {modalOptions.body}
         </div>
-        <div className='modal-footer'>
-          <a className='close' onClick={dispatch.bind(null, 'toggleModal', null)}>{modalOptions.cancel}</a>
+        <div className='fc-modal-footer'>
+          <a className='fc-modal-close' onClick={dispatch.bind(null, 'toggleModal', null)}>{modalOptions.cancel}</a>
           <button className='submit btn' onClick={this.confirmModal.bind(this)}>{modalOptions.proceed}</button>
         </div>
       </div>

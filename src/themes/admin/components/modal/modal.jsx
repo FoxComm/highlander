@@ -36,9 +36,9 @@ export default class Modal extends React.Component {
   render() {
     return (
       <div>
-        <div role='dialog' id='modal-wrap' className={this.state.isModalOpen ? 'is-shown' : 'is-hidden'}>
-          <div className='modal-overlay'></div>
-          <div id='modal' className='modal'>
+        <div role='dialog' className={this.state.isModalOpen ? 'is-shown' : 'is-hidden'}>
+          <div className='fc-modal-overlay'></div>
+          <div className='fc-modal'>
             {this.state.component}
           </div>
         </div>
