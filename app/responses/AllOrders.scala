@@ -4,12 +4,14 @@ import java.time.Instant
 
 import scala.concurrent.{ExecutionContext, Future}
 
-import models.Order.RemorseHold
 import models._
-import services.OrderUpdateFailure
+import services.{NotFoundFailure, OrderUpdateFailure}
 import slick.driver.PostgresDriver.api._
 
-final case class AllOrdersWithFailures(orders: Seq[AllOrders.Root], failures: Seq[OrderUpdateFailure])
+final case class BulkOrderUpdateResponse(orders: Seq[AllOrders.Root], failures: Seq[OrderUpdateFailure])
+
+final case class BulkAssignmentResponse(orders: Seq[AllOrders.Root], adminNotFound: Option[NotFoundFailure],
+  ordersNotFound: Seq[NotFoundFailure])
 
 object AllOrders {
   type Response = Future[Seq[Root]]
@@ -24,8 +26,11 @@ object AllOrders {
     total: Int
     )
 
-  def findAll(implicit ec: ExecutionContext, db: Database): Response = {
+  def runFindAll(implicit ec: ExecutionContext, db: Database): Response = {
+    db.run(findAll)
+  }
 
+  def findAll(implicit ec: ExecutionContext, db: Database): DBIO[Seq[Root]] = {
     val ordersAndCustomers = for {
       (order, customer) ← Orders.join(Customers).on(_.customerId === _.id)
     } yield (order, customer)
@@ -36,11 +41,13 @@ object AllOrders {
 
     val query = ordersAndCustomers.joinLeft(creditCardPayments).on(_._1.id === _._1.orderId)
 
-    db.run(query.result).map {
-      _.map { case ((order, customer), payment) ⇒
-        build(order, customer, payment.map(_._1))
+    query.result.flatMap { results ⇒
+      DBIO.sequence {
+        results.map { case ((order, customer), payment) ⇒
+          DBIO.from(build(order, customer, payment.map(_._1)))
+        }
       }
-    }.flatMap(Future.sequence(_))
+    }
   }
 
   def build(order: Order, customer: Customer, payment: Option[OrderPayment])
