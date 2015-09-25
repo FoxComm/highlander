@@ -15,7 +15,8 @@ export default class Notes extends React.Component {
     this.state = {
       notes: [],
       creating: false,
-      editing: false
+      editing: false,
+      editingNote: null
     };
   }
 
@@ -42,13 +43,11 @@ export default class Notes extends React.Component {
   }
 
   handleEdit(item) {
-    NoteStore.update()
-      .then((res) => {
-        NoteStore.update(res);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+    this.setState({
+      creating: false,
+      editing: true,
+      editingNote: item
+    });
   }
 
   handleDelete(item) {
@@ -58,7 +57,8 @@ export default class Notes extends React.Component {
   handleResetForm() {
     this.setState({
       creating: false,
-      editing: false
+      editing: false,
+      editingNote: null
     });
   }
 
@@ -86,7 +86,10 @@ export default class Notes extends React.Component {
   }
 
   toggleCreating() {
-    this.setState({creating: !this.state.creating});
+    this.setState({
+      creating: !this.state.creating,
+      editing: this.state.editing && this.state.creating
+    });
   }
 
   render() {
@@ -94,8 +97,10 @@ export default class Notes extends React.Component {
       <div id="notes" className="fc-content-box">
         <header className="header">
           <h2>Notes</h2>
+
           <div className="fc-content-box-controls">
-            <button onClick={this.toggleCreating.bind(this)} className="fc-notes-create"
+            <button className="fc-notes-create"
+                    onClick={this.toggleCreating.bind(this)}
                     disabled={!!this.state.creating}>
               <i className="icon-add"></i>
             </button>
@@ -105,6 +110,15 @@ export default class Notes extends React.Component {
         {this.state.creating && (
           <Form
             uri={NoteStore.baseUri}
+            onReset={this.handleResetForm.bind(this)}
+            onSubmit={this.handleSubmit.bind(this)}
+            />
+        )}
+
+        {this.state.editing && (
+          <Form
+            uri={NoteStore.baseUri}
+            text={this.state.editingNote && this.state.editingNote.body}
             onReset={this.handleResetForm.bind(this)}
             onSubmit={this.handleSubmit.bind(this)}
             />

@@ -6,7 +6,7 @@ export default class NoteForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      value: ''
+      value: this.props.text || ''
     }
   }
 
@@ -19,14 +19,21 @@ export default class NoteForm extends React.Component {
   }
 
   render() {
+    let title = this.props.text ? 'Edit note' : 'New note';
     return (
       <div className="fc-notes-form">
         <form action={this.props.uri} method="post" onSubmit={this.props.onSubmit}>
           <fieldset>
-            <legend>New Note</legend>
+            <legend>{title}</legend>
             <div className="note-body">
               <div className="counter">{this.state.value.length}/1000</div>
-              <textarea ref="textarea" name="body" maxLength="1000" onChange={this.handleChange.bind(this)} required>
+              <textarea
+                name="body"
+                maxLength="1000"
+                ref="textarea"
+                value={this.state.value}
+                onChange={this.handleChange.bind(this)}
+                required>
               </textarea>
             </div>
             <div className="fc-notes-form-controls">
@@ -42,6 +49,7 @@ export default class NoteForm extends React.Component {
 
 NoteForm.propTypes = {
   uri: React.PropTypes.string,
+  text: React.PropTypes.string,
   onReset: React.PropTypes.func,
   onSubmit: React.PropTypes.func
 };
