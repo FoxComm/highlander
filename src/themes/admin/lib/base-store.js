@@ -101,4 +101,10 @@ export default class BaseStore {
       .then((res) => { this.update(res); })
       .catch((err) => { this.fetchError(err); });
   }
+
+  delete(id) {
+    Api.delete(this.uri(id))
+      .then((res) => { this.update(res); })
+      .catch((err) => { this.fetchError(err); });
+  }
 }
