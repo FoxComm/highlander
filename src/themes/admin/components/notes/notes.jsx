@@ -91,12 +91,16 @@ export default class Notes extends React.Component {
 
   render() {
     return (
-      <div id="notes">
-        <h2>Notes</h2>
-
-        <button onClick={this.toggleCreating.bind(this)} className="add-note" disabled={!!this.state.creating}>
-          <i className="icon-add"></i>
-        </button>
+      <div id="notes" className="fc-content-box">
+        <header className="header">
+          <h2>Notes</h2>
+          <div className="fc-content-box-controls">
+            <button onClick={this.toggleCreating.bind(this)} className="fc-notes-create"
+                    disabled={!!this.state.creating}>
+              <i className="icon-add"></i>
+            </button>
+          </div>
+        </header>
 
         {this.state.creating && (
           <Form

@@ -1,16 +1,11 @@
 #notes {
   position: relative;
 
-  h2 {
-    .margin-top(40px);
-    .margin-bottom(20px);
-    .padding-left(35px);
+  .header {
   }
 
-  .add-note {
-    position: absolute;
-    top: 0;
-    right: 0;
+  .fc-notes-create {
+    float: right;
   }
 
   .empty {
@@ -48,22 +43,18 @@
       }
 
       textarea {
-        border-radius: 5px;
-        border: 1px solid @color-border-td;
         .size(100%, 135px);
-        .padding(10px);
       }
     }
+  }
+}
 
-    input[type=reset] {
-      background: none;
-      border: none;
-      float: left;
-      .height(30px);
-      .margin-right(25px);
-      .font-spec(40px, 30px);
+.fc-notes-form {
+  .margin(10px 0);
+
+  &-controls {
+    > input:not(:first-child) {
+      .margin-left(5px);
     }
-
-    input[type=submit] { float: left; }
   }
 }
