@@ -1,11 +1,11 @@
 .fc-header {
   flex: none;
-  .colors(@color-decor1, @color-decor13);
+  .colors(@color-decor5, @color-decor13);
   .height(70px);
   .clearfix;
-  .padding-left(55px);
-  .padding-right(55px);
-  .font-spec(20px, 92px);
+  .padding-left(40px);
+  .padding-right(20px);
+  .font-spec(15px, 400, 65px);
   border-top: 1px solid @color-header-border;
   border-bottom: 1px solid @color-header-border;
   border-left: 1px solid @color-header-border;
@@ -15,13 +15,12 @@
   }
 
   .sub-nav {
-    color: #bbb;
     float: right;
 
     > * {
       display: inline-block;
       vertical-align: top;
-      .margin-right(32px);
+      .inline-block(middle);
       &:last-child { margin-right: 0; }
     }
   }
