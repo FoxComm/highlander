@@ -56,9 +56,9 @@ object StoreCreditService {
 
     val responses = payload.ids.map { id ⇒
       val statusUpdate = updateStatusByCsr(id, payloads.StoreCreditUpdateStatusByCsr(payload.status, payload.reason))
-      statusUpdate.flatMap {
-        case Xor.Left(errors) ⇒ Future.successful(buildResponse(id, None, Some(errors.map(_.description.mkString))))
-        case Xor.Right(sc)    ⇒ Future.successful(buildResponse(id, Some(sc)))
+      statusUpdate.map {
+        case Xor.Left(errors) ⇒ buildResponse(id, None, Some(errors.map(_.description.mkString)))
+        case Xor.Right(sc)    ⇒ buildResponse(id, Some(sc))
       }
     }
 
