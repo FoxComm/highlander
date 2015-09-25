@@ -55,6 +55,13 @@ export default class Notes extends React.Component {
     NoteStore.delete(item.id);
   }
 
+  handleResetForm() {
+    this.setState({
+      creating: false,
+      editing: false
+    });
+  }
+
   handleSubmit(event) {
     event.preventDefault();
     Api.submitForm(event.target)
@@ -63,7 +70,7 @@ export default class Notes extends React.Component {
         let notes = this.state.notes.slice(0);
         notes.unshift(note);
         this.setState({notes: notes});
-        this.toggleNewNote();
+        this.toggleCreating();
         this.removeNew();
       })
       .catch((err) => {
@@ -71,8 +78,14 @@ export default class Notes extends React.Component {
       });
   }
 
+  removeNew() {
+    setTimeout(() => {
+      let row = document.querySelector('tr.new');
+      row.classList.remove('new');
+    }, 5000);
+  }
 
-  toggleNewNote() {
+  toggleCreating() {
     this.setState({creating: !this.state.creating});
   }
 
@@ -81,13 +94,14 @@ export default class Notes extends React.Component {
       <div id="notes">
         <h2>Notes</h2>
 
-        <button onClick={this.toggleNewNote.bind(this)} className="add-note" disabled={!!this.state.creating}>
+        <button onClick={this.toggleCreating.bind(this)} className="add-note" disabled={!!this.state.creating}>
           <i className="icon-add"></i>
         </button>
 
         {this.state.creating && (
           <Form
             uri={NoteStore.baseUri}
+            onReset={this.handleResetForm.bind(this)}
             onSubmit={this.handleSubmit.bind(this)}
             />
         )}
