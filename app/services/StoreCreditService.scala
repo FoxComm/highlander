@@ -57,9 +57,9 @@ object StoreCreditService {
     val responses = payload.ids.map { id ⇒
       val itemPayload = payloads.StoreCreditUpdateStatusByCsr(payload.status, payload.reason)
       val statusUpdate = updateStatusByCsr(id, itemPayload, admin)
-      statusUpdate.flatMap {
-        case Xor.Left(errors) ⇒ Future.successful(buildResponse(id, None, Some(errors.map(_.description.mkString))))
-        case Xor.Right(sc)    ⇒ Future.successful(buildResponse(id, Some(sc)))
+      statusUpdate.map {
+        case Xor.Left(errors) ⇒ buildResponse(id, None, Some(errors.map(_.description.mkString)))
+        case Xor.Right(sc)    ⇒ buildResponse(id, Some(sc))
       }
     }
 
@@ -85,7 +85,7 @@ object StoreCreditService {
             DbResult.failure(EmptyCancellationReasonFailure)
           case (_, _) ⇒
             val update = finder.map(_.status).updateReturning(StoreCredits.map(identity), payload.status).head
-            DbResult.fromDbio(update.flatMap { sc ⇒ DBIO.successful(StoreCreditResponse.build(sc)) })
+            DbResult.fromDbio(update.flatMap { sc ⇒ lift(StoreCreditResponse.build(sc)) })
         }
       }
     }
@@ -111,7 +111,7 @@ object StoreCreditService {
             val cancelAdjustment = StoreCredits.cancelByCsr(sc, admin)
 
             DbResult.fromDbio(cancelAdjustment >> cancellation.flatMap {
-              sc ⇒ DBIO.successful(StoreCreditResponse.build(sc))
+              sc ⇒ lift(StoreCreditResponse.build(sc))
             })
         }
     }

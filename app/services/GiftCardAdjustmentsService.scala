@@ -10,6 +10,12 @@ import utils.Slick.implicits._
 
 object GiftCardAdjustmentsService {
   def forGiftCard(code: String)(implicit db: Database, ec: ExecutionContext): Result[Seq[Root]] = {
+    val finder = GiftCards.findByCode(code)
+
+    finder.findOneAndRun { gc ⇒
+
+    }
+
     GiftCards.findByCode(code).one.run().flatMap {
       case Some(giftCard) ⇒
         GiftCardAdjustmentsResponse.forGiftCard(giftCard)

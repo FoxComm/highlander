@@ -55,7 +55,7 @@ object GiftCardService {
             DbResult.failure(EmptyCancellationReasonFailure)
           case (_, _) ⇒
             val update = finder.map(_.status).updateReturning(GiftCards.map(identity), payload.status).head
-            DbResult.fromDbio(update.flatMap { gc ⇒ DBIO.successful(GiftCardResponse.build(gc)) })
+            DbResult.fromDbio(update.flatMap { gc ⇒ lift(GiftCardResponse.build(gc)) })
         }
       }
     }
@@ -81,7 +81,7 @@ object GiftCardService {
             val cancelAdjustment = GiftCards.cancelByCsr(gc, admin)
 
             DbResult.fromDbio(cancelAdjustment >> cancellation.flatMap {
-              gc ⇒ DBIO.successful(GiftCardResponse.build(gc))
+              gc ⇒ lift(GiftCardResponse.build(gc))
             })
         }
     }
@@ -116,7 +116,7 @@ object GiftCardService {
       case GiftCard.CsrAppeasement ⇒
         StoreAdmins._findById(gc.originId).extract.one.map(Xor.right)
       case _ ⇒
-        DBIO.successful(Xor.left(None))
+        lift(Xor.left(None))
     }
-  }.getOrElse(DBIO.successful(Xor.left(None)))
+  }.getOrElse(lift(Xor.left(None)))
 }
