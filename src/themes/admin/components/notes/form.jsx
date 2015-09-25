@@ -6,12 +6,12 @@ export default class NoteForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      count: 0
+      value: ''
     }
   }
 
   handleChange(event) {
-    this.setState({count: event.target.value.length});
+    this.setState({value: event.target.value});
   }
 
   render() {
@@ -20,7 +20,7 @@ export default class NoteForm extends React.Component {
         <fieldset>
           <legend>New Note</legend>
           <div className="note-body">
-            <div className="counter">{this.state.count}/1000</div>
+            <div className="counter">{this.state.value.length}/1000</div>
             <textarea name="body" maxLength="1000" onChange={this.handleChange.bind(this)} required></textarea>
           </div>
           <div>
