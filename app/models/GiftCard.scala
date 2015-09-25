@@ -51,7 +51,8 @@ final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = C
 
   val fsm: Map[Status, Set[Status]] = Map(
     OnHold → Set(Active, Canceled),
-    Active → Set(OnHold, Canceled)
+    Active → Set(OnHold, Canceled),
+    Cart   → Set(Canceled)
   )
 
   def authorize(amount: Int)(implicit ec: ExecutionContext): Result[String] =
@@ -67,6 +68,7 @@ object GiftCard {
   case object OnHold extends Status
   case object Active extends Status
   case object Canceled extends Status
+  case object Cart extends Status
 
   sealed trait OriginType
   case object CustomerPurchase extends OriginType
