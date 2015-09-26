@@ -1,5 +1,6 @@
 package models
 
+import models.rules.QueryStatement
 import org.json4s.JValue
 import utils.ExPostgresDriver.api._
 import monocle.macros.GenLens
@@ -7,7 +8,7 @@ import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 final case class ShippingMethod(id:Int = 0, adminDisplayName: String, storefrontDisplayName: String,
   shippingCarrierId: Option[Int] = None, defaultPrice: Int, isActive: Boolean = true,
-  conditions: Option[JValue] = None, restrictions: Option[JValue] = None)
+  conditions: Option[QueryStatement] = None, restrictions: Option[QueryStatement] = None)
   extends ModelWithIdParameter
 
 object ShippingMethod
@@ -19,8 +20,8 @@ class ShippingMethods(tag: Tag) extends GenericTable.TableWithId[ShippingMethod]
   def shippingCarrierId = column[Option[Int]]("shipping_carrier_id")
   def price = column[Int]("price")
   def isActive = column[Boolean]("is_active")
-  def conditions = column[Option[JValue]]("conditions")
-  def restrictions = column[Option[JValue]]("restrictions")
+  def conditions = column[Option[QueryStatement]]("conditions")
+  def restrictions = column[Option[QueryStatement]]("restrictions")
 
   def * = (id, adminDisplayName, storefrontDisplayName, shippingCarrierId, price,
     isActive, conditions, restrictions) <> ((ShippingMethod.apply _).tupled, ShippingMethod.unapply)

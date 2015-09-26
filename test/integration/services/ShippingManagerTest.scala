@@ -1,6 +1,7 @@
 package services
 
 import models._
+import models.rules.QueryStatement
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils._
@@ -8,6 +9,7 @@ import utils.ExPostgresDriver.jsonMethods._
 
 class ShippingManagerTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global
+  implicit val formats = JsonFormatters.phoenixFormats
 
   "ShippingManager" - {
 
@@ -132,7 +134,7 @@ class ShippingManagerTest extends IntegrationTestBase {
   }
 
   trait WestCoastConditionFixture extends Fixture {
-    val conditions =
+    val conditions = parse(
       s"""
         | {
         |   "comparison": "or",
@@ -155,9 +157,9 @@ class ShippingManagerTest extends IntegrationTestBase {
         |     }
         |   ]
         | }
-      """.stripMargin
+      """.stripMargin).extract[QueryStatement]
 
-    val action = ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(parse(conditions))))
+    val action = ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
     val shippingMethod = db.run(action).futureValue
   }
 
@@ -183,7 +185,7 @@ class ShippingManagerTest extends IntegrationTestBase {
   }
 
   trait POCondition extends Fixture {
-val conditions =
+val conditions = parse(
   """
     | {
     |   "comparison": "and",
@@ -199,14 +201,14 @@ val conditions =
     |     { "rootObject": "ShippingAddress", "field": "address2", "operator": "notContains", "valString": "po box" }
     |   ]
     | }
-  """.stripMargin
+  """.stripMargin).extract[QueryStatement]
 
-    val action = ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(parse(conditions))))
+    val action = ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
     val shippingMethod = db.run(action).futureValue
   }
 
   trait PriceConditionFixture extends Fixture {
-    val conditions =
+    val conditions = parse(
       """
         | {
         |   "comparison": "and",
@@ -214,10 +216,10 @@ val conditions =
         |     "rootObject": "Order", "field": "grandtotal", "operator": "greaterThan", "valInt": 25
         |   }]
         | }
-      """.stripMargin
+      """.stripMargin).extract[QueryStatement]
 
     val (shippingMethod, cheapOrder, expensiveOrder) = db.run(for {
-      shippingMethod ← ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(parse(conditions))))
+      shippingMethod ← ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
       cheapOrder ← Orders.save(Factories.order.copy(customerId = customer.id, referenceNumber = "CS1234-AA"))
       cheapSku ← Skus.save(Factories.skus.head.copy(name = Some("Cheap Donkey"), price = 10))
       cheapLineItem ← OrderLineItems.save(OrderLineItem(orderId = cheapOrder.id, skuId = cheapSku.id))
@@ -232,7 +234,7 @@ val conditions =
   }
 
   trait StateAndPriceCondition extends Fixture {
-    val conditions =
+    val conditions = parse(
       s"""
         | {
         |   "comparison": "and",
@@ -275,9 +277,9 @@ val conditions =
         |     }
         |   ]
         | }
-      """.stripMargin
+      """.stripMargin).extract[QueryStatement]
 
-    val action = ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(parse(conditions))))
+    val action = ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
     val shippingMethod = db.run(action).futureValue
   }
 }

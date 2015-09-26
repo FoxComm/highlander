@@ -28,18 +28,10 @@ object ShippingManager {
 
         val shippingData = ShippingData(order, grandTotal.getOrElse(0), subTotal.getOrElse(0), address, region)
 
-        val matchingMethods = shippingMethods.filter { shippingMethod ⇒
-          shippingMethod.conditions.fold(false) { condition ⇒
-            val statement = condition.extract[QueryStatement]
-            evaluateStatement(shippingData, statement)
-          }
-        }
+        val matchingMethods = shippingMethods.filter(_.conditions.fold(false)(evaluateStatement(shippingData, _)))
 
         val methodResponses = matchingMethods.map { method ⇒
-          val enabled = method.conditions.fold(true) { condition ⇒
-            val statement = condition.extract[QueryStatement]
-            evaluateStatement(shippingData, statement)
-          }
+          val enabled = method.conditions.fold(true)(evaluateStatement(shippingData, _))
           responses.ShippingMethods.build(method, enabled)
         }
 

@@ -7,6 +7,7 @@ import akka.testkit.TestActorRef
 import models._
 import payloads.{Assignment, UpdateOrderPayload}
 import responses.{StoreAdminResponse, FullOrderWithWarnings, AdminNotes, FullOrder}
+import models.rules.QueryStatement
 import services.LockAwareOrderUpdater.NewRemorsePeriodEnd
 import services.{NotFoundFailure, NoteManager}
 import util.IntegrationTestBase
@@ -594,7 +595,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     "Evaluates shipping rule: order total is greater than $25" - {
 
       "Shipping method is returned when actual order total is greater than $25" in new ShippingMethodsFixture {
-        val conditions =
+        val conditions = parse(
           """
             | {
             |   "comparison": "and",
@@ -602,10 +603,10 @@ class OrderIntegrationTest extends IntegrationTestBase
             |     "rootObject": "Order", "field": "grandtotal", "operator": "greaterThan", "valInt": 25
             |   }]
             | }
-          """.stripMargin
+          """.stripMargin).extract[QueryStatement]
 
         val action = models.ShippingMethods.save(Factories.shippingMethods.head.copy(
-          conditions = Some(parse(conditions))))
+          conditions = Some(conditions)))
         val shippingMethod = db.run(action).futureValue
 
         val response = GET(s"v1/orders/${order.referenceNumber}/shipping-methods")
@@ -622,7 +623,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     "Evaluates shipping rule: order total is greater than $100" - {
 
       "No shipping rules found when order total is less than $100" in new ShippingMethodsFixture {
-        val conditions =
+        val conditions = parse(
           """
             | {
             |   "comparison": "and",
@@ -630,9 +631,9 @@ class OrderIntegrationTest extends IntegrationTestBase
             |     "rootObject": "Order", "field": "grandtotal", "operator": "greaterThan", "valInt": 100
             |   }]
             | }
-          """.stripMargin
+          """.stripMargin).extract[QueryStatement]
 
-        val action = models.ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(parse(conditions))))
+        val action = models.ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
         val shippingMethod = db.run(action).futureValue
 
         val response = GET(s"v1/orders/${order.referenceNumber}/shipping-methods")
@@ -711,7 +712,7 @@ class OrderIntegrationTest extends IntegrationTestBase
   }
 
   trait WestCoastShippingMethodsFixture extends ShippingMethodsFixture {
-    val conditions =
+    val conditions = parse(
       s"""
         | {
         |   "comparison": "or",
@@ -734,59 +735,59 @@ class OrderIntegrationTest extends IntegrationTestBase
         |     }
         |   ]
         | }
-        """.stripMargin
+        """.stripMargin).extract[QueryStatement]
 
-    val action = models.ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(parse(conditions))))
+    val action = models.ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
     val shippingMethod = db.run(action).futureValue
   }
 
   trait ShippingMethodsStateAndPriceCondition extends ShippingMethodsFixture {
-    val conditions =
+    val conditions = parse(
       s"""
-         | {
-         |   "comparison": "and",
-         |   "statements": [
-         |     {
-         |       "comparison": "or",
-         |       "conditions": [
-         |         {
-         |           "rootObject": "ShippingAddress",
-         |           "field": "regionId",
-         |           "operator": "equals",
-         |           "valInt": ${californiaId}
-          |         }, {
-          |           "rootObject": "ShippingAddress",
-          |           "field": "regionId",
-          |           "operator": "equals",
-          |           "valInt": ${oregonId}
-          |         }, {
-          |           "rootObject": "ShippingAddress",
-          |           "field": "regionId",
-          |           "operator": "equals",
-          |           "valInt": ${washingtonId}
-          |         }
-          |       ]
-          |     }, {
-          |       "comparison": "and",
-          |       "conditions": [
-          |         {
-          |           "rootObject": "Order",
-          |           "field": "grandtotal",
-          |           "operator": "greaterThanOrEquals",
-          |           "valInt": 10
-          |         }, {
-          |           "rootObject": "Order",
-          |           "field": "grandtotal",
-          |           "operator": "lessThan",
-          |           "valInt": 100
-          |         }
-          |       ]
-          |     }
-          |   ]
-          | }
-      """.stripMargin
+        | {
+        |   "comparison": "and",
+        |   "statements": [
+        |     {
+        |       "comparison": "or",
+        |       "conditions": [
+        |         {
+        |           "rootObject": "ShippingAddress",
+        |           "field": "regionId",
+        |           "operator": "equals",
+        |           "valInt": ${californiaId}
+        |         }, {
+        |           "rootObject": "ShippingAddress",
+        |           "field": "regionId",
+        |           "operator": "equals",
+        |           "valInt": ${oregonId}
+        |         }, {
+        |           "rootObject": "ShippingAddress",
+        |           "field": "regionId",
+        |           "operator": "equals",
+        |           "valInt": ${washingtonId}
+        |         }
+        |       ]
+        |     }, {
+        |       "comparison": "and",
+        |       "conditions": [
+        |         {
+        |           "rootObject": "Order",
+        |           "field": "grandtotal",
+        |           "operator": "greaterThanOrEquals",
+        |           "valInt": 10
+        |         }, {
+        |           "rootObject": "Order",
+        |           "field": "grandtotal",
+        |           "operator": "lessThan",
+        |           "valInt": 100
+        |         }
+        |       ]
+        |     }
+        |   ]
+        | }
+      """.stripMargin).extract[QueryStatement]
 
-    val action = models.ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(parse(conditions))))
+    val action = models.ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
     val shippingMethod = db.run(action).futureValue
   }
 
