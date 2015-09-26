@@ -28,11 +28,10 @@ object ShippingManager {
 
         val shippingData = ShippingData(order, grandTotal.getOrElse(0), subTotal.getOrElse(0), address, region)
 
-        val matchingMethods = shippingMethods.filter(_.conditions.fold(false)(evaluateStatement(shippingData, _)))
-
-        val methodResponses = matchingMethods.map { method ⇒
-          val enabled = method.conditions.fold(true)(evaluateStatement(shippingData, _))
-          responses.ShippingMethods.build(method, enabled)
+        val methodResponses = shippingMethods.collect {
+          case sm if evaluateStatement(shippingData, sm.conditions) ⇒
+            val restricted = evaluateStatement(shippingData, sm.restrictions)
+            responses.ShippingMethods.build(sm, !restricted)
         }
 
         right(methodResponses)
@@ -42,26 +41,28 @@ object ShippingManager {
     }
   }
 
-  private def evaluateStatement(shippingData: ShippingData, statement: QueryStatement): Boolean = {
-    val initial = statement.comparison == QueryStatement.And
+  private def evaluateStatement(shippingData: ShippingData, statement: Option[QueryStatement]): Boolean = {
+    statement.fold(false) { statement ⇒
+      val initial = statement.comparison == QueryStatement.And
 
-    val conditionsResult = statement.conditions.foldLeft(initial) { (result, nextCond) ⇒
-      val res = nextCond.rootObject match {
-        case "Order" ⇒ evaluateOrderCondition(shippingData, nextCond)
-        case "ShippingAddress" ⇒ evaluateShippingAddressCondition(shippingData, nextCond)
-        case _ ⇒ false
+      val conditionsResult = statement.conditions.foldLeft(initial) { (result, nextCond) ⇒
+        val res = nextCond.rootObject match {
+          case "Order" ⇒ evaluateOrderCondition(shippingData, nextCond)
+          case "ShippingAddress" ⇒ evaluateShippingAddressCondition(shippingData, nextCond)
+          case _ ⇒ false
+        }
+
+        statement.comparison match {
+          case QueryStatement.And ⇒ result && res
+          case QueryStatement.Or ⇒ result || res
+        }
       }
 
-      statement.comparison match {
-        case QueryStatement.And ⇒ result && res
-        case QueryStatement.Or ⇒ result || res
-      }
-    }
-
-    statement.statements.foldLeft(conditionsResult) { (result, nextCond) ⇒
-      statement.comparison match {
-        case QueryStatement.And ⇒ evaluateStatement(shippingData, nextCond) && result
-        case QueryStatement.Or ⇒ evaluateStatement(shippingData, nextCond) || result
+      statement.statements.foldLeft(conditionsResult) { (result, nextCond) ⇒
+        statement.comparison match {
+          case QueryStatement.And ⇒ evaluateStatement(shippingData, Some(nextCond)) && result
+          case QueryStatement.Or ⇒ evaluateStatement(shippingData, Some(nextCond)) || result
+        }
       }
     }
   }
