@@ -35,7 +35,15 @@ object ShippingManager {
           }
         }
 
-        right(responses.ShippingMethods.build(matchingMethods))
+        val methodResponses = matchingMethods.map { method ⇒
+          val enabled = method.conditions.fold(true) { condition ⇒
+            val statement = condition.extract[QueryStatement]
+            evaluateStatement(shippingData, statement)
+          }
+          responses.ShippingMethods.build(method, enabled)
+        }
+
+        right(methodResponses)
 
       case (None, _, _, _) ⇒
         left(OrderShippingMethodsCannotBeProcessed(order.refNum).single)
