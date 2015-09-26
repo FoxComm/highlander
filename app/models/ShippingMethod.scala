@@ -7,7 +7,7 @@ import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 final case class ShippingMethod(id:Int = 0, adminDisplayName: String, storefrontDisplayName: String,
   shippingCarrierId: Option[Int] = None, defaultPrice: Int, isActive: Boolean = true,
-  conditions: Option[JValue] = None)
+  conditions: Option[JValue] = None, restrictions: Option[JValue] = None)
   extends ModelWithIdParameter
 
 object ShippingMethod
@@ -20,9 +20,10 @@ class ShippingMethods(tag: Tag) extends GenericTable.TableWithId[ShippingMethod]
   def price = column[Int]("price")
   def isActive = column[Boolean]("is_active")
   def conditions = column[Option[JValue]]("conditions")
+  def restrictions = column[Option[JValue]]("restrictions")
 
   def * = (id, adminDisplayName, storefrontDisplayName, shippingCarrierId, price,
-    isActive, conditions) <> ((ShippingMethod.apply _).tupled, ShippingMethod.unapply)
+    isActive, conditions, restrictions) <> ((ShippingMethod.apply _).tupled, ShippingMethod.unapply)
 }
 
 object ShippingMethods extends TableQueryWithId[ShippingMethod, ShippingMethods](
