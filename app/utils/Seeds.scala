@@ -90,8 +90,7 @@ object Seeds {
       reasons ← Reasons ++= s.reasons.map(_.copy(storeAdminId = storeAdmin.id))
       gcOrigin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = storeAdmin.id, reasonId = 1))
       giftCard ← GiftCards.save(s.paymentMethods.giftCard.copy(originId = gcOrigin.id))
-      gcAdjustments ← GiftCardAdjustments.save(Factories.giftCardAdjustment.copy(giftCardId = giftCard.id, debit = 10,
-        orderPaymentId = Some(orderPayments.id), status = GiftCardAdjustment.Auth))
+      gcAdjustments ← GiftCards.auth(giftCard, Some(orderPayments.id), 10)
       scOrigin ← StoreCreditManuals.save(Factories.storeCreditManual.copy(adminId = storeAdmin.id, reasonId = 1))
       storeCredit ← StoreCredits.save(s.paymentMethods.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))
       storeCreditAdjustments ← StoreCredits.auth(storeCredit, Some(orderPayments.id), 10)

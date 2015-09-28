@@ -1,6 +1,7 @@
 package routes
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.collection.immutable.Seq
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 
@@ -362,6 +363,22 @@ object Admin {
               whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
                 services.ShippingManager.getShippingMethodsForOrder(order)
               }
+            }
+          }
+        } ~
+        pathPrefix("notifications") {
+          (get & pathEnd) {
+            complete {
+              val notifications = Seq(
+                Notification("Delivered", "Shipment Confirmation", "2015-02-15T08:31:45", "jim@bob.com"),
+                Notification("Failed", "Order Confirmation", "2015-02-16T09:23:29", "+ (567) 203-8430")
+              )
+              render(notifications)
+            }
+          } ~
+          (get & path(IntNumber) & pathEnd) { notificationId ⇒
+            complete {
+              render(Notification("Failed", "Order Confirmation", "2015-02-16T09:23:29", "+ (567) 203-8430"))
             }
           }
         }

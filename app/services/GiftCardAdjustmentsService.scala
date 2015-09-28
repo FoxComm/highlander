@@ -20,8 +20,8 @@ object GiftCardAdjustmentsService {
 
       val adjustments = db.run(query.result).map { results ⇒
         results.map {
-          case ((adj, Some(payment)), Some(order)) ⇒ build(adj, gc, Some(order.referenceNumber))
-          case ((adj, _), _)                       ⇒ build(adj, gc)
+          case ((adj, Some(payment)), Some(order)) ⇒ build(adj, Some(order.referenceNumber))
+          case ((adj, _), _)                       ⇒ build(adj)
         }
       }
 

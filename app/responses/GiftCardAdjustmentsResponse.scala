@@ -1,12 +1,6 @@
 package responses
 
-import scala.concurrent.{Future, ExecutionContext}
-
-import cats.data.Xor
-import models.{Orders, GiftCard, GiftCardAdjustment, GiftCardAdjustments, Order, OrderPayments}
-import services.Result
-import slick.driver.PostgresDriver.api._
-import utils.Slick.implicits._
+import models.GiftCardAdjustment
 
 object GiftCardAdjustmentsResponse {
   final case class Root(
@@ -16,10 +10,7 @@ object GiftCardAdjustmentsResponse {
     state: GiftCardAdjustment.Status,
     orderRef: Option[String])
 
-  def build(adjustment: GiftCardAdjustment, gc: GiftCard, orderRef: Option[String] = None): Root = {
-    val amount = adjustment.getAmount
-    Root(id = adjustment.id, amount = amount, availableBalance = gc.currentBalance + amount,
-      state = adjustment.status, orderRef = orderRef)
+  def build(adj: GiftCardAdjustment, orderRef: Option[String] = None): Root = {
+    Root(id = adj.id, amount = adj.getAmount, availableBalance = adj.availableBalance, state = adj.status, orderRef = orderRef)
   }
 }
-

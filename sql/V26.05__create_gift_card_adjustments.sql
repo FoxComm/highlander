@@ -6,6 +6,7 @@ create table gift_card_adjustments (
     store_admin_id integer null,
     credit integer not null default 0,
     debit integer not null default 0,
+    available_balance integer not null default 0,
     status character varying(255) not null,
     created_at timestamp without time zone default (now() at time zone 'utc'),
     foreign key (gift_card_id) references gift_cards(id) on update restrict on delete restrict,
