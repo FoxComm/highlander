@@ -1,6 +1,6 @@
 package services
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Xor
 import cats.data.Validated.{Valid, Invalid}
@@ -9,7 +9,7 @@ import models.{GiftCardAdjustments, GiftCard, Customer, Customers, GiftCards, Re
 StoreAdmins}
 import models.GiftCard.Canceled
 import responses.{GiftCardResponse, CustomerResponse, StoreAdminResponse}
-import responses.GiftCardResponse.Root
+import responses.GiftCardResponse._
 import slick.driver.PostgresDriver.api._
 import utils.Slick._
 import utils.Slick.UpdateReturning._
@@ -34,10 +34,41 @@ object GiftCardService {
     }
   }
 
+  def createBulkByAdmin(admin: StoreAdmin, payload: payloads.GiftCardBulkCreateByCsr)
+    (implicit ec: ExecutionContext, db: Database): Result[Seq[Root]] = {
+
+    payload.validate match {
+      case Valid(_)        ⇒
+        val payloadSingle = payloads.GiftCardCreateByCsr(balance = payload.balance, currency = payload.currency)
+        val toInsert = (1 to payload.quantity).map { _ ⇒ GiftCard.buildAppeasement(admin, payloadSingle) }
+
+        // Validate only first, since all other are the same
+        toInsert.head.validate match {
+          case Valid(_) ⇒
+            // Insert multiple values in a single transaction
+            val query = (for {
+              giftCards ← (GiftCards ++= toInsert.toSeq) >> GiftCards.sortBy(_.id.desc).take(payload.quantity).result
+            } yield giftCards).flatMap { seq ⇒
+              val storeAdminResponse = Some(StoreAdminResponse.build(admin))
+              lift(seq.map(build(_, None, storeAdminResponse)).reverse)
+            }
+
+            Result.fromFuture(query.transactionally.run())
+          case Invalid(errors) ⇒
+            Result.failures(errors.failure)
+        }
+      case Invalid(errors) ⇒
+        Result.failures(errors.failure)
+    }
+  }
+
   def createByAdmin(admin: StoreAdmin, payload: payloads.GiftCardCreateByCsr)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
 
-    createGiftCardModel(admin, payload)
+    payload.validate match {
+      case Invalid(errors) ⇒ Result.failures(errors.failure)
+      case Valid(_)        ⇒ createGiftCardModel(admin, payload)
+    }
   }
 
   def updateStatusByCsr(code: String, payload: payloads.GiftCardUpdateStatusByCsr, admin: StoreAdmin)
@@ -98,8 +129,8 @@ object GiftCardService {
 
   private def createGiftCard(gc: GiftCard)(implicit ec: ExecutionContext, db: Database): Result[GiftCard] = {
     gc.validate match {
-      case Valid(_)             ⇒ Result.fromFuture(GiftCards.save(gc).run())
-      case Invalid(errors)      ⇒ Result.failures(errors.failure)
+      case Valid(_)        ⇒ Result.fromFuture(GiftCards.save(gc).run())
+      case Invalid(errors) ⇒ Result.failures(errors.failure)
     }
   }
 

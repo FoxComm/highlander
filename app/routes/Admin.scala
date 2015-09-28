@@ -38,6 +38,11 @@ object Admin {
             GiftCardAdjustmentsService.forGiftCard(code).map(renderGoodOrFailures)
           }
         } ~
+        (post & path("_bulk") & entity(as[payloads.GiftCardBulkCreateByCsr]) & pathEnd) { payload ⇒
+          complete {
+            GiftCardService.createBulkByAdmin(admin, payload).map(renderGoodOrFailures)
+          }
+        } ~
         (post & entity(as[payloads.GiftCardCreateByCsr]) & pathEnd) { payload ⇒
           complete {
             GiftCardService.createByAdmin(admin, payload).map(renderGoodOrFailures)
