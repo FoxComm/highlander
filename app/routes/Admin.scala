@@ -22,13 +22,6 @@ object Admin {
     import utils.Http._
 
     authenticateBasicAsync(realm = "admin", storeAdminAuth) { admin =>
-      pathPrefix("gift-cards" / "_bulk") {
-        (post & entity(as[payloads.GiftCardBulkCreateByCsr]) & pathEnd) { payload ⇒
-          complete {
-            GiftCardService.createBulkByAdmin(admin, payload).map(renderGoodOrFailures)
-          }
-        }
-      } ~
       pathPrefix("gift-cards") {
         (get & pathEnd) {
           complete {
@@ -43,6 +36,11 @@ object Admin {
         (get & path(Segment / "transactions") & pathEnd) { code ⇒
           complete {
             GiftCardAdjustmentsService.forGiftCard(code).map(renderGoodOrFailures)
+          }
+        } ~
+        (post & path("_bulk") & entity(as[payloads.GiftCardBulkCreateByCsr]) & pathEnd) { payload ⇒
+          complete {
+            GiftCardService.createBulkByAdmin(admin, payload).map(renderGoodOrFailures)
           }
         } ~
         (post & entity(as[payloads.GiftCardCreateByCsr]) & pathEnd) { payload ⇒

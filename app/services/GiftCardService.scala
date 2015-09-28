@@ -129,8 +129,8 @@ object GiftCardService {
 
   private def createGiftCard(gc: GiftCard)(implicit ec: ExecutionContext, db: Database): Result[GiftCard] = {
     gc.validate match {
-      case (Valid(_))        ⇒ Result.fromFuture(GiftCards.save(gc).run())
-      case (Invalid(errors)) ⇒ Result.failures(errors.failure)
+      case Valid(_)        ⇒ Result.fromFuture(GiftCards.save(gc).run())
+      case Invalid(errors) ⇒ Result.failures(errors.failure)
     }
   }
 
