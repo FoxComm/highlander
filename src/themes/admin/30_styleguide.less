@@ -207,6 +207,11 @@ input[type=reset] {
       .colors(@color-control-primary-disabled-fg, @color-control-primary-disabled-bg);
     }
   }
+  &.fc-btn-remove {
+    &:hover {
+      background-color: @color-decor23;
+    }
+  }
 }
 
 .fc-btn-link,
@@ -311,6 +316,18 @@ form.vertical {
 .fc-icon-lg {
   .font-spec(35px);
   .margin-right(15px);
+}
+
+.fc-align-right {
+  text-align: right;
+}
+
+.fc-align-left {
+  text-align: left;
+}
+
+.fc-align-center {
+  text-align: center;
 }
 
 .fc-error,

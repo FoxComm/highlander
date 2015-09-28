@@ -26,7 +26,7 @@ class OrderStore extends BaseStore {
 
   process(model) {
     _.each(model.lineItems, lineItem => {
-      lineItem.total = lineItem.qty * lineItem.price;
+      lineItem.total = lineItem.quantity * lineItem.price;
     });
   }
 

@@ -6,8 +6,13 @@ import { dispatch } from '../../lib/dispatcher';
 
 export default class ConfirmModal extends React.Component {
   confirmModal() {
-    let eventName = camelize(this.props.event);
-    dispatch(eventName);
+    if (this.props.closeOnSuccess) {
+      dispatch('toggleModal', null);
+    }
+
+    if (this.props.callback) {
+      this.props.callback(true);
+    }
   }
 
   render() {
@@ -37,8 +42,9 @@ export default class ConfirmModal extends React.Component {
 }
 
 ConfirmModal.propTypes = {
-  event: React.PropTypes.string,
-  details: React.PropTypes.object
+  details: React.PropTypes.object,
+  callback: React.PropTypes.func,
+  closeOnSuccess: React.PropTypes.bool
 };
 
 ConfirmModal.defaultProps = {
@@ -47,5 +53,6 @@ ConfirmModal.defaultProps = {
     body: 'Are you sure you wish to proceed?',
     cancel: 'No',
     proceed: 'Yes'
-  }
+  },
+  closeOnSuccess: true
 };

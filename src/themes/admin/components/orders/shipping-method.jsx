@@ -30,7 +30,7 @@ export default class OrderShippingMethod extends React.Component {
 
     return (
       <section className="fc-content-box" id="order-shipping-method">
-        <header className="header">Shipping Method</header>
+        <header>Shipping Method</header>
         <table className="fc-table">
           <TableHead columns={this.props.tableColumns} />
           <TableBody columns={this.props.tableColumns} rows={methods} model='shipping-method'>

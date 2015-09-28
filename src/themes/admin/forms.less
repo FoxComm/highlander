@@ -13,6 +13,7 @@
       height: 100%;
       .width(36px);
       border: none;
+      padding: 0;
     }
   }
   .fc-input-prepend {
@@ -24,6 +25,9 @@
     .border-radius(3px);
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
+  }
+  input {
+    .inline-block();
   }
   input:not(:first-child):not(:last-child) {
     .border-radius(0);

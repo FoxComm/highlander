@@ -51,7 +51,7 @@ export default class TypeaheadResults extends React.Component {
     }
 
     return (
-      <ul className={`typeahead-results ${this.props.showResults ? 'show' : ''}`}>
+      <ul className={`fc-typeahead-results ${this.props.showResults ? 'show' : ''}`}>
         {innerContent}
       </ul>
     );

@@ -9,25 +9,29 @@ import OrderShippingMethod from './shipping-method';
 import OrderPayment from './payment';
 import OrderStore from './../../stores/orders';
 import { dispatch } from '../../lib/dispatcher';
+import Api from '../../lib/api';
+import LineItemStore from '../line-items/store';
 
 export default class OrderDetails extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      isEditing: false
-    };
+  componentDidMount() {
+    LineItemStore.rootUri = `/orders/${this.props.order.referenceNumber}`;
+    LineItemStore.listenToEvent('change', this);
   }
 
-  toggleEdit() {
-    this.setState({
-      isEditing: !this.state.isEditing
-    });
-    dispatch('toggleOrderEdit');
+  componentWillUnmount() {
+    LineItemStore.stopListeningToEvent('change', this);
+  }
+
+  updateLineItems(data) {
+    LineItemStore.post(data);
+  }
+
+  onChangeLineItemStore(lineItem) {
+    OrderStore.fetch(this.props.order.referenceNumber);
   }
 
   render() {
     let order = this.props.order;
-    let isEditing = this.state.isEditing;
     let actions = null;
     let lineColumns = [
       {field: 'imagePath', text: 'Image', type: 'image'},
@@ -39,40 +43,22 @@ export default class OrderDetails extends React.Component {
       {field: 'status', text: 'Shipping Status'}
     ];
 
-    if (isEditing) {
-      actions = (
-        <span>
-          <button onClick={this.toggleEdit.bind(this)}>Cancel</button>
-          <button className='primary'>Save Edits</button>
-        </span>
-      );
-    } else if (OrderStore.holdStatusList.indexOf(order.orderStatus) !== -1 || 1) {
-      actions = (
-        <button className="order-details-edit-order" onClick={this.toggleEdit.bind(this)}>Edit Order Details</button>
-      );
-    }
-
     return (
       <div className="order-details">
-        <div className="order-details-controls">
-          {actions}
-        </div>
-
         <div className="order-details-body">
           <div className="order-details-main">
             <LineItems
               entity={order}
-              isEditing={isEditing}
               tableColumns={lineColumns}
               model={'order'}
-              />
-            <OrderShippingAddress order={order}/>
-            <OrderShippingMethod order={order} isEditing={isEditing}/>
-            <OrderPayment order={order} isEditing={isEditing}/>
+              onChange={this.updateLineItems.bind(this)} />
+            <OrderShippingAddress order={order} />
+            <OrderShippingMethod order={order} />
+            <OrderPayment order={order} />
           </div>
           <div className="order-details-aside">
-            <OrderSummary order={order} isEditing={isEditing}/>
-            <CustomerInfo order={order} isEditing={isEditing}/>
+            <OrderSummary order={order} />
+            <CustomerInfo order={order} />
           </div>
         </div>
       </div>

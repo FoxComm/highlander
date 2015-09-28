@@ -29,20 +29,4 @@ describe('OrderDetails', function() {
     expect(orderDetailsNode).to.be.instanceof(Object);
     expect(orderDetailsNode.className).to.contain('order-details');
   });
-
-  it('should switch to edit mode when click on Edit Order Details button', function *() {
-    let orderDetails = React.render(
-      <OrderDetails order={order}/>
-      , container);
-    let editDetailsButton = TestUtils.findRenderedDOMComponentWithClass(orderDetails, 'order-details-edit-order').getDOMNode();
-
-    TestUtils.Simulate.click(editDetailsButton);
-
-    let editButtons = TestUtils.scryRenderedDOMComponentsWithClass(orderDetails, 'order-details-edit-order');
-    expect(editButtons).to.have.length(0);
-
-    let controls = TestUtils.findRenderedDOMComponentWithClass(orderDetails, 'order-details-controls').getDOMNode();
-    expect(controls.innerHTML).to.contain('Save Edits');
-    expect(controls.innerHTML).to.contain('Cancel');
-  });
 });

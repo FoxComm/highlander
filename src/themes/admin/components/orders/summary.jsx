@@ -26,7 +26,7 @@ export default class OrderSummary extends React.Component {
 
     return (
       <div className="fc-order-summary fc-content-box">
-        <header className="header">Order Summary</header>
+        <header>Order Summary</header>
         <article>
           <dl className="order-totals">
             <dt>Subtotal</dt>
@@ -38,12 +38,12 @@ export default class OrderSummary extends React.Component {
             <dd>{formatCurrency(order.totals.taxes)}</dd>
           </dl>
         </article>
-        <div className="footer">
+        <footer className="is-highlighted">
           <dl className="grand-total">
             <dt>Grand Total</dt>
             <dd>{formatCurrency(order.totals.total)}</dd>
           </dl>
-        </div>
+        </footer>
       </div>
     );
   }
