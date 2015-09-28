@@ -98,7 +98,10 @@ class Orders(tag: Tag) extends GenericTable.TableWithLock[Order](tag, "orders") 
   def locked = column[Boolean]("locked")
   def placedAt = column[Option[Instant]]("placed_at")
   def remorsePeriodEnd = column[Option[Instant]]("remorse_period_end")
+
   def * = (id, referenceNumber, customerId, status, locked, placedAt, remorsePeriodEnd) <>((Order.apply _).tupled, Order.unapply)
+
+  def assignees = OrderAssignments.filter(_.orderId === id).flatMap(_.assignee)
 }
 
 object Orders extends TableQueryWithLock[Order, Orders](

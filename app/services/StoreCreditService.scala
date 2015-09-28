@@ -47,7 +47,7 @@ object StoreCreditService {
     }
   }
 
-  def bulkUpdateStatusByCsr(payload: payloads.StoreCreditBulkUpdateStatusByCsr)
+  def bulkUpdateStatusByCsr(payload: payloads.StoreCreditBulkUpdateStatusByCsr, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database): Result[Responses] = {
 
     if (payload.ids.length > bulkUpdateLimit) {
@@ -55,8 +55,9 @@ object StoreCreditService {
     }
 
     val responses = payload.ids.map { id ⇒
-      val statusUpdate = updateStatusByCsr(id, payloads.StoreCreditUpdateStatusByCsr(payload.status, payload.reason))
-      statusUpdate.map {
+      val itemPayload = payloads.StoreCreditUpdateStatusByCsr(payload.status, payload.reason)
+
+      updateStatusByCsr(id, itemPayload, admin).map {
         case Xor.Left(errors) ⇒ buildResponse(id, None, Some(errors.map(_.description.mkString)))
         case Xor.Right(sc)    ⇒ buildResponse(id, Some(sc))
       }
@@ -69,7 +70,7 @@ object StoreCreditService {
     Result.fromFuture(future)
   }
 
-  def updateStatusByCsr(id: Int, payload: payloads.StoreCreditUpdateStatusByCsr)
+  def updateStatusByCsr(id: Int, payload: payloads.StoreCreditUpdateStatusByCsr, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
 
     val finder = StoreCredits.filter(_.id === id)
@@ -79,19 +80,19 @@ object StoreCreditService {
         case Xor.Left(message) ⇒ DbResult.failure(GeneralFailure(message))
         case Xor.Right(_) ⇒ (payload.status, payload.reason) match {
           case (Canceled, Some(reason)) ⇒
-            cancelByCsr(finder, sc, payload)
+            cancelByCsr(finder, sc, payload, admin)
           case (Canceled, None) ⇒
             DbResult.failure(EmptyCancellationReasonFailure)
           case (_, _) ⇒
             val update = finder.map(_.status).updateReturning(StoreCredits.map(identity), payload.status).head
-            DbResult.fromDbio(update.flatMap { sc ⇒ DBIO.successful(StoreCreditResponse.build(sc)) })
+            DbResult.fromDbio(update.flatMap { sc ⇒ lift(StoreCreditResponse.build(sc)) })
         }
       }
     }
   }
 
-  private def cancelByCsr(finder: QuerySeq, sc: StoreCredit, payload: payloads.StoreCreditUpdateStatusByCsr)
-    (implicit ec: ExecutionContext, db: Database) = {
+  private def cancelByCsr(finder: QuerySeq, sc: StoreCredit, payload: payloads.StoreCreditUpdateStatusByCsr,
+    admin: StoreAdmin)(implicit ec: ExecutionContext, db: Database) = {
 
     StoreCreditAdjustments.lastAuthByStoreCreditId(sc.id).one.flatMap {
       case Some(adjustment) ⇒
@@ -107,7 +108,11 @@ object StoreCreditService {
               .updateReturning(StoreCredits.map(identity), data)
               .head
 
-            DbResult.fromDbio(cancellation.flatMap { sc ⇒ DBIO.successful(StoreCreditResponse.build(sc)) })
+            val cancelAdjustment = StoreCredits.cancelByCsr(sc, admin)
+
+            DbResult.fromDbio(cancelAdjustment >> cancellation.flatMap {
+              sc ⇒ lift(StoreCreditResponse.build(sc))
+            })
         }
     }
   }

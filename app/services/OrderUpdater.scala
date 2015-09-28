@@ -21,7 +21,9 @@ object OrderUpdater {
     (implicit db: Database, ec: ExecutionContext): Future[Failures Xor FullOrder.Root] = {
 
     updateStatuses(Seq(refNum), newStatus).flatMap {
-      case Seq() ⇒ Orders.findByRefNum(refNum).result.run().flatMap(o ⇒ FullOrder.fromOrder(o.head).map(Xor.right))
+      case Seq() ⇒ Orders.findByRefNum(refNum).result.run().flatMap { o ⇒
+        FullOrder.fromOrder(o.head).run().map(Xor.right)
+      }
       case failures: Failures ⇒ Result.failures(failures)
     }
   }

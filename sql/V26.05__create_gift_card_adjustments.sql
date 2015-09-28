@@ -2,9 +2,11 @@
 create table gift_card_adjustments (
     id serial primary key,
     gift_card_id integer not null,
-    order_payment_id integer not null,
+    order_payment_id integer null,
+    store_admin_id integer null,
     credit integer not null default 0,
     debit integer not null default 0,
+    available_balance integer not null default 0,
     status character varying(255) not null,
     created_at timestamp without time zone default (now() at time zone 'utc'),
     foreign key (gift_card_id) references gift_cards(id) on update restrict on delete restrict,
@@ -66,4 +68,4 @@ create trigger update_gift_card_current_balance_trg
     execute procedure update_gift_card_current_balance();
 
 create index gift_card_adjustments_payment_status_idx on gift_card_adjustments (order_payment_id, status);
-
+create index gift_card_adjustments_gift_card_idx on gift_card_adjustments (gift_card_id);
