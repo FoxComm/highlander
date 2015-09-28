@@ -27,7 +27,7 @@ export default class OrderDetails extends React.Component {
   }
 
   onChangeLineItemStore(lineItem) {
-    OrderStore.fetch(this.props.order.id);
+    OrderStore.fetch(this.props.order.referenceNumber);
   }
 
   render() {

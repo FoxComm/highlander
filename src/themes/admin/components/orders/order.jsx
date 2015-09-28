@@ -40,13 +40,11 @@ export default class Order extends React.Component {
 
   componentDidMount() {
     OrderStore.listenToEvent('change-item', this);
-    listenTo(confirmEvent, this);
     OrderStore.fetch(this.orderRefNum);
   }
 
   componentWillUnmount() {
     OrderStore.stopListeningToEvent('change-item', this);
-    stopListeningTo(confirmEvent, this);
   }
 
   onChangeItemOrderStore(order) {

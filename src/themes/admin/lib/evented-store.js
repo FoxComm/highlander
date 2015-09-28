@@ -87,7 +87,7 @@ export default class EventedStore {
       });
   }
 
-  create(data, ...fetchArgs) {
+  post(data, ...fetchArgs) {
     return Api.post(this.uri(...fetchArgs), data)
       .then((res) => {
         this.updateBehaviour(res, ...fetchArgs);
@@ -96,6 +96,10 @@ export default class EventedStore {
       .catch((err) => {
         throw this.apiError(err);
       });
+  }
+
+  create(data, ...fetchArgs) {
+    this.post(data, ...fetchArgs);
   }
 
   apiError(err) {
