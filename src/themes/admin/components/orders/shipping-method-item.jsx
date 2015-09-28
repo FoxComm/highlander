@@ -15,13 +15,13 @@ export default class ShippingMethodItem extends React.Component {
     let editInput = (
       <div className="fc-radio">
         <input id={id} type="radio" defaultChecked={model.isActive} name="shipping-method-active" />
-        <label htmlFor={id}>{model.name}</label>
+        <label className="fc-strong" htmlFor={id}>{model.storefrontDisplayName}</label>
       </div>
     );
 
     let readOnlyName = (
-      <div>
-        {model.name}
+      <div className="fc-strong">
+        {model.storefrontDisplayName}
       </div>
     );
 
