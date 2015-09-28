@@ -13,10 +13,17 @@ final case class QueryStatement(comparison: QueryStatement.Comparison,
   conditions: Seq[Condition] = Seq.empty, statements: Seq[QueryStatement] = Seq.empty)
 
 object QueryStatement {
-  sealed trait Comparison
+  sealed trait Comparison {
+    def apply(l: Boolean, r: Boolean): Boolean = false
+  }
 
-  case object And extends Comparison
-  case object Or extends Comparison
+  case object And extends Comparison {
+    override def apply(l: Boolean, r: Boolean): Boolean = l && r
+  }
+
+  case object Or extends Comparison {
+    override def apply(l: Boolean, r: Boolean): Boolean = l || r
+  }
 
   object Comparison extends ADT[Comparison] {
     def types = sealerate.values[Comparison]
@@ -35,17 +42,11 @@ object QueryStatement {
       val initial = statement.comparison == QueryStatement.And
 
       val conditionsResult = statement.conditions.foldLeft(initial) { (result, nextCond) ⇒
-        statement.comparison match {
-          case QueryStatement.And ⇒ result && f(nextCond, data)
-          case QueryStatement.Or ⇒ result || f(nextCond, data)
-        }
+        statement.comparison.apply(result, f(nextCond, data))
       }
 
       statement.statements.foldLeft(conditionsResult) { (result, nextStmt) ⇒
-        statement.comparison match {
-          case QueryStatement.And ⇒ evaluate(Some(nextStmt), data, f) && result
-          case QueryStatement.Or ⇒ evaluate(Some(nextStmt), data, f) || result
-        }
+        statement.comparison.apply(result, evaluate(Some(nextStmt), data, f))
       }
     }
   }
