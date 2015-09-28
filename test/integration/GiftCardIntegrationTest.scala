@@ -1,5 +1,6 @@
 import java.time.Instant
 
+import scala.concurrent.Await
 import akka.http.scaladsl.model.StatusCodes
 
 import models.{Customers, Reasons, GiftCard, GiftCardAdjustment, GiftCardAdjustments, GiftCardManuals, GiftCards,
@@ -225,11 +226,10 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     }
 
     "can soft delete note" in new Fixture {
-      val note = NoteManager.createGiftCardNote(giftCard, admin,
-        payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue.get
-      StoreAdmins.save(Factories.storeAdmin).run().futureValue
+      val createResp = POST(s"v1/gift-cards/${giftCard.code}/notes", payloads.CreateNote(body = "Hello, FoxCommerce!"))
+      val note = createResp.as[AdminNotes.Root]
 
-      val response = DELETE(s"v1/gift-cards/${giftCard.id}/notes/${note.id}")
+      val response = DELETE(s"v1/gift-cards/ABC-123/notes/${note.id}")
       response.status must ===(StatusCodes.NoContent)
       response.bodyText mustBe empty
 

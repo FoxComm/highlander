@@ -424,7 +424,6 @@ class OrderIntegrationTest extends IntegrationTestBase
     "can soft delete note" in new Fixture {
       val note = NoteManager.createOrderNote(order, storeAdmin,
         payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue.get
-      StoreAdmins.save(Factories.storeAdmin).run().futureValue
 
       val response = DELETE(s"v1/orders/${order.referenceNumber}/notes/${note.id}")
       response.status must ===(StatusCodes.NoContent)
