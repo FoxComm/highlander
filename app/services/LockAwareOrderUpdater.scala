@@ -25,7 +25,7 @@ object LockAwareOrderUpdater {
       val lock = finder.map(_.locked).updateReturning(updatedOrder, true).head
       val blame = OrderLockEvents += OrderLockEvent(orderId = order.id, lockedBy = admin.id)
 
-      DbResult.fromDbio(blame >> lock.flatMap(o ⇒ liftFuture(FullOrder.fromOrder(o))))
+      DbResult.fromDbio(blame >> lock.flatMap(o ⇒ liftFuture(FullOrder.fromOrder(o).run())))
     }
   }
 
@@ -53,7 +53,7 @@ object LockAwareOrderUpdater {
     Orders._findById(orderId).extract
       .map { o ⇒ (o.locked, o.remorsePeriodEnd) }
       .updateReturning(updatedOrder, (false, remorseEnd)).head
-      .flatMap { o ⇒ DbResult.fromFuture(FullOrder.fromOrder(o)) }
+      .flatMap { o ⇒ DbResult.fromFuture(FullOrder.fromOrder(o).run()) }
   }
 
   def unlock(refNum: String)(implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {

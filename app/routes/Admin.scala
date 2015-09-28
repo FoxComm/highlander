@@ -237,7 +237,7 @@ object Admin {
         (get & pathEnd) {
           complete {
             whenFound(Orders.findByRefNum(refNum).one.run()) { order ⇒
-              FullOrder.fromOrder(order).map(Xor.right)
+              FullOrder.fromOrder(order).run().map(Xor.right)
             }
           }
         } ~
