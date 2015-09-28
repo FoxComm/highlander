@@ -16,34 +16,36 @@ export default class GiftCard extends React.Component {
   }
 
   componentDidMount() {
-    let
-      { router } = this.context,
-      cardCode     = router.getCurrentParams().giftcard;
+    let { router } = this.context;
+    let cardCode = router.getCurrentParams().giftcard;
 
     Api.get(`/gift-cards/${cardCode}`)
-       .then((res) => {
-         this.setState({
-           card: res
-         });
-       })
-       .catch((err) => { console.error(err); });
+      .then((res) => {
+        this.setState({
+          card: res
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   }
 
   changeState(event) {
     Api.patch(`/gift-cards/${this.state.card.code}`, {state: event.target.value})
-       .then((res) => {
-         this.setState({
-           card: res
-         });
-       })
-       .catch((err) => { console.error(err); });
+      .then((res) => {
+        this.setState({
+          card: res
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   }
 
   render() {
-    let
-      subNav = null,
-      card   = this.state.card,
-      status  = null;
+    let subNav = null;
+    let card = this.state.card;
+    let status = null;
 
     if (card.code) {
       let params = {giftcard: card.code};
@@ -89,15 +91,19 @@ export default class GiftCard extends React.Component {
                 <div className="fc-grid">
                   <div className="fc-col-1-2">
                     <p>
-                      <strong>Customer: </strong>
-                      {card.customer ? `${card.customer.firstName} ${card.customer.lastName}` : 'None'}
+                      <strong>Created By: </strong>
+                      {card.storeAdmin ? `${card.storeAdmin.firstName} ${card.storeAdmin.lastName}` : 'None'}
                     </p>
+
                     <p><strong>Recipient: </strong>None</p>
+
                     <p><strong>Recipient Email: </strong>None</p>
+
                     <p><strong>Recipient Cell (Optional): </strong>None</p>
                   </div>
                   <div className="fc-col-1-2">
                     <p><strong>Message (optional):</strong></p>
+
                     <p>
                       {card.message}
                     </p>
