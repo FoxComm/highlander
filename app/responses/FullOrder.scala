@@ -44,9 +44,8 @@ object FullOrder {
 
   final case class DisplayPaymentMethod(cardType: String = "visa", cardExp: String, cardNumber: String)
 
-  def fromOrder(order: Order)(implicit ec: ExecutionContext, db: Database): Response = {
-
-    db.run(fetchOrderDetails(order)).map { case (customer, items, shipment, payment) ⇒
+  def fromOrder(order: Order)(implicit ec: ExecutionContext, db: Database): DBIO[Root] = {
+    fetchOrderDetails(order).map { case (customer, items, shipment, payment) ⇒
       build(
         order = order,
         customer = customer,
