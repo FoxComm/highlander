@@ -1,8 +1,9 @@
 package services
 
-import models.{ShippingMethods, ShippingMethod}
+import models.{Sku, OrderShippingAddresses, OrderLineItem, Skus, OrderLineItems, Order, OrderShippingAddress, Region,
+ShippingMethods}
 import models.rules.{Condition, QueryStatement}
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.ExecutionContext
 import slick.driver.PostgresDriver.api._
 import utils.JsonFormatters
 import Result._
@@ -10,8 +11,8 @@ import Result._
 object ShippingManager {
   implicit val formats = JsonFormatters.phoenixFormats
 
-  final case class ShippingData(order: models.Order, orderTotal: Int, orderSubTotal: Int,
-    shippingAddress: models.OrderShippingAddress, shippingRegion: models.Region)
+  final case class ShippingData(order: Order, orderTotal: Int, orderSubTotal: Int,
+    shippingAddress: OrderShippingAddress, shippingRegion: Region, skus: Seq[Sku])
 
   def getShippingMethodsForOrder(order: models.Order)(implicit db: Database, ec: ExecutionContext):
     Result[Seq[responses.ShippingMethods.Root]] = {
@@ -21,12 +22,16 @@ object ShippingManager {
       subTotal ← OrderTotaler._subTotalForOrder(order)
       grandTotal ← OrderTotaler._grandTotalForOrder(order)
       shippingMethods ← ShippingMethods.findActive.result
-    } yield (orderShippingAddresses, subTotal, grandTotal, shippingMethods)
+      skus ← (for {
+        lineItems ← OrderLineItems._findByOrder(order)
+        skus ← Skus if skus.id === lineItems.skuId
+      } yield skus).result
+    } yield (orderShippingAddresses, subTotal, grandTotal, shippingMethods, skus)
 
     db.run(queries).flatMap {
-      case (Some((address, region)), subTotal, grandTotal, shippingMethods) ⇒
+      case (Some((address, region)), subTotal, grandTotal, shippingMethods, skus) ⇒
 
-        val shippingData = ShippingData(order, grandTotal.getOrElse(0), subTotal.getOrElse(0), address, region)
+        val shippingData = ShippingData(order, grandTotal.getOrElse(0), subTotal.getOrElse(0), address, region, skus)
 
         val methodResponses = shippingMethods.collect {
           case sm if QueryStatement.evaluate(sm.conditions, shippingData, evaluateCondition) ⇒
@@ -36,7 +41,7 @@ object ShippingManager {
 
         right(methodResponses)
 
-      case (None, _, _, _) ⇒
+      case (None, _, _, _, _) ⇒
         left(OrderShippingMethodsCannotBeProcessed(order.refNum).single)
     }
   }
@@ -53,6 +58,10 @@ object ShippingManager {
     condition.field match {
       case "subtotal" ⇒ Condition.matches(shippingData.orderSubTotal, condition)
       case "grandtotal" ⇒ Condition.matches(shippingData.orderTotal, condition)
+      case "skus.isHazardous" ⇒
+        shippingData.skus.foldLeft(false) { (res, next) ⇒
+          res && Condition.matches(next.isHazardous, condition)
+        }
       case _ ⇒ false
     }
   }
@@ -77,5 +86,4 @@ object ShippingManager {
         false
     }
   }
-
 }

@@ -6,16 +6,18 @@ import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
-final case class Sku(id: Int = 0, sku: String, name: Option[String] = None, price: Int) extends ModelWithIdParameter
+final case class Sku(id: Int = 0, sku: String, name: Option[String] = None, isHazardous: Boolean = false, price: Int)
+  extends ModelWithIdParameter
 
 // This table mostly acts a placeholder in our system.  We may or may not import skus from 'origin' into this.
 class Skus(tag: Tag) extends GenericTable.TableWithId[Sku](tag, "skus")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def sku = column[String]("sku")
   def name = column[Option[String]]("name")
+  def isHazardous = column[Boolean]("is_hazardous")
   def price = column[Int]("price")
 
-  def * = (id, sku, name, price) <> ((Sku.apply _).tupled, Sku.unapply)
+  def * = (id, sku, name, isHazardous, price) <> ((Sku.apply _).tupled, Sku.unapply)
 }
 
 object Skus extends TableQueryWithId[Sku, Skus](

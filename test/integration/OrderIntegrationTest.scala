@@ -672,6 +672,31 @@ class OrderIntegrationTest extends IntegrationTestBase
 
     }
 
+    "Evaluates shipping rule: ships to CA but has a restriction for hazardous items" - {
+
+      "Shipping method is returned when the order has no hazardous SKUs" in new ShipToCaliforniaButNotHazardous {
+        val response = GET(s"v1/orders/${order.referenceNumber}/shipping-methods")
+        response.status must === (StatusCodes.OK)
+
+        val methodResponse = parse(response.bodyText).extract[Seq[responses.ShippingMethods.Root]].head
+        methodResponse.id must === (shippingMethod.id)
+        methodResponse.name must === (shippingMethod.adminDisplayName)
+        methodResponse.price must === (shippingMethod.defaultPrice)
+        methodResponse.isEnabled must === (true)
+      }
+
+      "Shipping method is returned, but disabled with a hazardous SKU" in new ShipToCaliforniaButNotHazardous {
+        val response = GET(s"v1/orders/${hazardousOrder.referenceNumber}/shipping-methods")
+        response.status must === (StatusCodes.OK)
+
+        val methodResponse = parse(response.bodyText).extract[Seq[responses.ShippingMethods.Root]].head
+        methodResponse.id must === (shippingMethod.id)
+        methodResponse.name must === (shippingMethod.adminDisplayName)
+        methodResponse.price must === (shippingMethod.defaultPrice)
+        methodResponse.isEnabled must === (false)
+      }
+
+    }
   }
 
   trait Fixture {
@@ -789,6 +814,47 @@ class OrderIntegrationTest extends IntegrationTestBase
 
     val action = models.ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
     val shippingMethod = db.run(action).futureValue
+  }
+
+  trait ShipToCaliforniaButNotHazardous extends ShippingMethodsFixture {
+    val conditions = parse(
+      s"""
+         |{
+         |  "comparison": "and",
+         |  "conditions": [
+         |    {
+         |      "rootObject": "ShippingAddress",
+         |      "field": "regionId",
+         |      "operator": "equals",
+         |      "valInt": ${californiaId}
+          |    }
+          |  ]
+          |}
+       """.stripMargin).extract[QueryStatement]
+
+    val restrictions = parse(
+      """
+        | {
+        |   "comparison": "and",
+        |   "conditions": [
+        |     {
+        |       "rootObject": "Order",
+        |       "field": "skus.isHazardous",
+        |       "operator": "equals",
+        |       "valBoolean": true
+        |     }
+        |   ]
+        | }
+      """.stripMargin).extract[QueryStatement]
+
+    val (hazardousOrder, shippingMethod) = (for {
+      hazardousOrder ← Orders.save(Factories.order.copy(customerId = customer.id))
+      orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = hazardousOrder.id)
+      sku ← Skus.save(Factories.skus.head.copy(name = Some("Donkey"), price = 27, isHazardous = true))
+      lineItems ← OrderLineItems.save(OrderLineItem(orderId = hazardousOrder.id, skuId = sku.id))
+      shippingMethod ← models.ShippingMethods.save(Factories.shippingMethods.head.copy(
+        conditions = Some(conditions), restrictions = Some(restrictions)))
+    } yield (hazardousOrder, shippingMethod)).run().futureValue
   }
 
   trait RemorseFixture {
