@@ -2,8 +2,10 @@
 create table store_credit_adjustments (
     id serial primary key,
     store_credit_id integer not null,
-    order_payment_id integer not null,
+    order_payment_id integer null,
+    store_admin_id integer null,
     debit integer not null,
+    available_balance integer not null default 0,
     status character varying(255) not null,
     created_at timestamp without time zone default (now() at time zone 'utc'),
     foreign key (store_credit_id) references store_credits(id) on update restrict on delete restrict,
@@ -59,4 +61,5 @@ create trigger update_store_credit_current_balance_trg
     execute procedure update_store_credit_current_balance();
 
 create index store_credit_adjustments_payment_status_idx on store_credit_adjustments (order_payment_id, status);
+create index store_credit_adjustments_store_credit_idx on store_credit_adjustments (store_credit_id);
 

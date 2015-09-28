@@ -38,6 +38,8 @@ class StoreAdmins(tag: Tag) extends GenericTable.TableWithId[StoreAdmin](tag, "s
   def department = column[Option[String]]("department")
 
   def * = (id, email, password, firstName, lastName, department) <> ((StoreAdmin.apply _).tupled, StoreAdmin.unapply)
+
+  def assignedOrders = OrderAssignments.filter(_.assigneeId === id).flatMap(_.order)
 }
 
 object StoreAdmins extends TableQueryWithId[StoreAdmin, StoreAdmins](
