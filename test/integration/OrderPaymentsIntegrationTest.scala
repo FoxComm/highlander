@@ -30,7 +30,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val payload = payloads.GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance)
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
 
-        response.status must ===(StatusCodes.NoContent)
+        response.status must ===(StatusCodes.OK)
         val (p :: Nil) = OrderPayments.findAllByOrderId(order.id).result.run().futureValue.toList
 
         val payments = giftCardPayments(order)
@@ -88,7 +88,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       "successfully deletes a giftCard" in new GiftCardFixture {
         val payload = payloads.GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance)
         val create = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
-        create.status must ===(StatusCodes.NoContent)
+        create.status must ===(StatusCodes.OK)
 
         val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards/${giftCard.code}")
         val payments = creditCardPayments(order)

@@ -310,7 +310,7 @@ object Admin {
         } ~
         pathPrefix("payment-methods" / "gift-cards") {
           (post & entity(as[payloads.GiftCardPayment]) & pathEnd) { payload ⇒
-            complete { OrderPaymentUpdater.addGiftCard(refNum, payload).map(renderNothingOrFailures) }
+            complete { OrderPaymentUpdater.addGiftCard(refNum, payload).map(renderGoodOrFailures) }
           } ~
           (delete & path(Segment) & pathEnd) { code ⇒
             complete { OrderPaymentUpdater.deleteGiftCard(refNum, code).map(renderGoodOrFailures) }

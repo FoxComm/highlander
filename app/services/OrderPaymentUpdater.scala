@@ -3,8 +3,8 @@ package services
 import scala.concurrent.ExecutionContext
 
 import cats.data.Xor
-import models.{PaymentMethod, CreditCard, Orders, Order, OrderPayment, OrderPayments, GiftCards, GiftCard,
-StoreCredits, StoreCredit, CreditCards}
+import models.{PaymentMethod, CreditCard, Orders, OrderPayment, OrderPayments, GiftCards, StoreCredits, StoreCredit,
+CreditCards}
 import models.OrderPayments.scope._
 import payloads.{GiftCardPayment, StoreCreditPayment}
 import responses.FullOrder
@@ -14,33 +14,26 @@ import utils.Slick.implicits._
 
 object OrderPaymentUpdater {
   def addGiftCard(refNum: String, payload: GiftCardPayment)
-    (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
+    (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
+    val finder = Orders.findCartByRefNum(refNum)
+    finder.findOneAndRun { order ⇒
+      GiftCards.findByCode(payload.code).one.flatMap {
 
-   val orderAndGiftCard = for {
-     order ← Orders.findCartByRefNum(refNum).one
-     giftCard ← GiftCards.findByCode(payload.code).one
-   } yield (order, giftCard)
+        case Some(gc) if gc.isActive ⇒
+          if (gc.hasAvailable(payload.amount)) {
+            val payment = OrderPayment.build(gc).copy(orderId = order.id, amount = Some(payload.amount))
+            DbResult.fromDbio(OrderPayments.save(payment) >> finder.result.head.flatMap(FullOrder.fromOrder))
+          } else {
+            DbResult.failure(GiftCardNotEnoughBalance(gc, payload.amount))
+          }
 
-   db.run(orderAndGiftCard.flatMap {
+        case Some(gc) if !gc.isActive ⇒
+          DbResult.failure(GiftCardIsInactive(gc))
 
-     case (Some(order), Some(gc)) if gc.isActive ⇒
-       if (gc.hasAvailable(payload.amount)) {
-         val payment = OrderPayment.build(gc).copy(orderId = order.id, amount = Some(payload.amount))
-         OrderPayments.save(payment).map(_ ⇒ Xor.right({}))
-       } else {
-         GiftCardNotEnoughBalance(gc, payload.amount).single.liftDBIOXor[Unit]
-       }
-
-     case (Some(_), Some(gc)) if !gc.isActive ⇒
-       GiftCardIsInactive(gc).single.liftDBIOXor[Unit]
-
-     case (None, _) ⇒
-       orderNotFound(refNum).liftDBIOXor[Unit]
-
-     case (_, None) ⇒
-       giftCardNotFound(payload.code).liftDBIOXor[Unit]
-
-   }.transactionally)
+        case None ⇒
+          DbResult.failure(GiftCardNotFoundFailure(payload.code))
+      }
+    }
   }
 
   def addStoreCredit(refNum: String, payload: StoreCreditPayment)
@@ -140,13 +133,4 @@ object OrderPaymentUpdater {
     else
       DbResult.fromDbio(finder.result.head.flatMap(FullOrder.fromOrder))
   }
-
-  private implicit class LiftDBIO[F](failures: Failures) {
-    def liftDBIOXor[A]: DBIO[Failures Xor A] = {
-      DBIO.successful(Xor.left(failures))
-    }
-  }
-
-  private def orderNotFound(refNum: String)   = OrderNotFoundFailure(refNum).single
-  private def giftCardNotFound(code: String)  = GiftCardNotFoundFailure(code).single
 }
