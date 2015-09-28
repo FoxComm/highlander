@@ -99,7 +99,7 @@ export default class Notes extends React.Component {
           <h2>Notes</h2>
 
           <div className="fc-content-box-controls">
-            <button className="fc-notes-create"
+            <button className="fc-right"
                     onClick={this.toggleCreating.bind(this)}
                     disabled={!!this.state.creating}>
               <i className="icon-add"></i>
