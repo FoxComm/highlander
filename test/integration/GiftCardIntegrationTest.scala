@@ -6,7 +6,7 @@ import models.{Customers, Reasons, GiftCard, GiftCardAdjustment, GiftCardAdjustm
 Orders, OrderPayments, Note, Notes, PaymentMethod, StoreAdmins}
 import models.GiftCard.{Active, OnHold, Canceled}
 import org.scalatest.BeforeAndAfterEach
-import responses.{AdminNotes, GiftCardResponse, GiftCardAdjustmentsResponse, GiftCardBulkCreateResponse}
+import responses.{AdminNotes, GiftCardResponse, GiftCardAdjustmentsResponse}
 import services.NoteManager
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
@@ -57,28 +57,24 @@ class GiftCardIntegrationTest extends IntegrationTestBase
   "POST /v1/gift-cards/_bulk" - {
     "successfully creates multiple gift cards from payload" in new Fixture {
       val response = POST(s"v1/gift-cards/_bulk", payloads.GiftCardBulkCreateByCsr(count = 5, balance = 256))
-      val root = response.as[GiftCardBulkCreateResponse.BulkResponses]
+      val root = response.as[Seq[GiftCardResponse.Root]]
 
       response.status must ===(StatusCodes.OK)
-      root.responses.length must ===(5)
+      root.length must ===(5)
     }
 
     "fails to create multiple gift cards with zero balance" in new Fixture {
       val response = POST(s"v1/gift-cards/_bulk", payloads.GiftCardBulkCreateByCsr(count = 5, balance = 0))
-      val root = response.as[GiftCardBulkCreateResponse.BulkResponses]
 
-      response.status must ===(StatusCodes.OK)
-      root.responses.length must ===(5)
-      root.responses.head.errors.get.head must ===("Balance must be greater than zero")
+      response.status must ===(StatusCodes.BadRequest)
+      response.errors.head must ===("Balance must be greater than zero")
     }
 
     "fails to create multiple gift cards with negative balance" in new Fixture {
       val response = POST(s"v1/gift-cards/_bulk", payloads.GiftCardBulkCreateByCsr(count = 5, balance = -555))
-      val root = response.as[GiftCardBulkCreateResponse.BulkResponses]
 
       response.status must ===(StatusCodes.OK)
-      root.responses.length must ===(5)
-      root.responses.head.errors.get.head must ===("originalBalance should be greater or equal than zero")
+      response.errors.head must ===("originalBalance should be greater or equal than zero")
     }
 
     "fails to create multiple gift cards with negative count" in new Fixture {
