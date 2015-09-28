@@ -229,7 +229,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       val createResp = POST(s"v1/gift-cards/${giftCard.code}/notes", payloads.CreateNote(body = "Hello, FoxCommerce!"))
       val note = createResp.as[AdminNotes.Root]
 
-      val response = DELETE(s"v1/gift-cards/ABC-123/notes/${note.id}")
+      val response = DELETE(s"v1/gift-cards/${giftCard.code}/notes/${note.id}")
       response.status must ===(StatusCodes.NoContent)
       response.bodyText mustBe empty
 
