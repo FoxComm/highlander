@@ -686,7 +686,12 @@ class OrderIntegrationTest extends IntegrationTestBase
       }
 
       "Shipping method is returned, but disabled with a hazardous SKU" in new ShipToCaliforniaButNotHazardous {
-        val response = GET(s"v1/orders/${hazardousOrder.referenceNumber}/shipping-methods")
+        (for {
+          hazSku ← Skus.save(Sku(sku = "HAZ-SKU", name = Some("fox"), price = 56, isHazardous = true))
+          lineItem ← OrderLineItems.save(OrderLineItem(orderId = order.id, skuId = hazSku.id))
+        } yield lineItem).run().futureValue
+
+        val response = GET(s"v1/orders/${order.referenceNumber}/shipping-methods")
         response.status must === (StatusCodes.OK)
 
         val methodResponse = parse(response.bodyText).extract[Seq[responses.ShippingMethods.Root]].head
@@ -847,14 +852,10 @@ class OrderIntegrationTest extends IntegrationTestBase
         | }
       """.stripMargin).extract[QueryStatement]
 
-    val (hazardousOrder, shippingMethod) = (for {
-      hazardousOrder ← Orders.save(Factories.order.copy(customerId = customer.id))
-      orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = hazardousOrder.id)
-      sku ← Skus.save(Factories.skus.head.copy(name = Some("Donkey"), price = 27, isHazardous = true))
-      lineItems ← OrderLineItems.save(OrderLineItem(orderId = hazardousOrder.id, skuId = sku.id))
+    val shippingMethod = (for {
       shippingMethod ← models.ShippingMethods.save(Factories.shippingMethods.head.copy(
         conditions = Some(conditions), restrictions = Some(restrictions)))
-    } yield (hazardousOrder, shippingMethod)).run().futureValue
+    } yield shippingMethod).run().futureValue
   }
 
   trait RemorseFixture {
