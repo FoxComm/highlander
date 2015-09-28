@@ -237,7 +237,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards", payload)
         val payments = creditCardPayments(order)
 
-        response.status must === (StatusCodes.NoContent)
+        response.status must ===(StatusCodes.OK)
         payments must have size(1)
         payments.head.amount must === (None)
       }
@@ -247,7 +247,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/orders/99/payment-methods/credit-cards", payload)
 
         response.status must === (StatusCodes.NotFound)
-        parseErrors(response) must === (OrderNotFoundFailure("99").description)
+        parseErrors(response).head must ===("Not found")
         creditCardPayments(order) must have size(0)
       }
 
@@ -284,12 +284,12 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       "successfully replaces an existing card" in new CreditCardFixture {
         val first = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards",
           payloads.CreditCardPayment(creditCard.id))
-        first.status must ===(StatusCodes.NoContent)
+        first.status must ===(StatusCodes.OK)
 
         val newCreditCard = CreditCards.save(creditCard.copy(id = 0, isDefault = false)).run().futureValue
         val second = PATCH(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards",
           payloads.CreditCardPayment(newCreditCard.id))
-        second.status must ===(StatusCodes.NoContent)
+        second.status must ===(StatusCodes.OK)
 
         val payments = creditCardPayments(order)
         payments must have size (1)
@@ -301,7 +301,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       "successfully deletes an existing card" in new CreditCardFixture {
         val create = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards",
           payloads.CreditCardPayment(creditCard.id))
-        create.status must ===(StatusCodes.NoContent)
+        create.status must ===(StatusCodes.OK)
 
         val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards")
         val payments = creditCardPayments(order)
@@ -315,7 +315,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/orders/99/payment-methods/credit-cards", payload)
 
         response.status must === (StatusCodes.NotFound)
-        parseErrors(response) must === (OrderNotFoundFailure("99").description)
+        parseErrors(response).head must ===("Not found")
         creditCardPayments(order) must have size(0)
       }
 

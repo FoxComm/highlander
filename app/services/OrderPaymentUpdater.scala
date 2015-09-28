@@ -7,7 +7,9 @@ import models.{PaymentMethod, CreditCard, Orders, Order, OrderPayment, OrderPaym
 StoreCredits, StoreCredit, CreditCards}
 import models.OrderPayments.scope._
 import payloads.{GiftCardPayment, StoreCreditPayment}
+import responses.FullOrder
 import slick.driver.PostgresDriver.api._
+import utils.Slick.DbResult
 import utils.Slick.implicits._
 
 object OrderPaymentUpdater {
@@ -73,31 +75,24 @@ object OrderPaymentUpdater {
   }
 
   def addCreditCard(refNum: String, id: Int)
-    (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
+    (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
+    val finder = Orders.findCartByRefNum(refNum)
+    finder.findOneAndRun { order ⇒
 
-    val orderAndCreditCard = for {
-      order ← Orders.findCartByRefNum(refNum).one
-      creditCard ← CreditCards._findById(id).extract.one
-    } yield (order, creditCard)
+      CreditCards._findById(id).extract.one.flatMap {
+        case Some(cc) if cc.inWallet ⇒
+          val payment = OrderPayment.build(cc).copy(orderId = order.id, amount = None)
+          val delete = OrderPayments.filter(_.orderId === order.id).creditCards.delete
 
-    db.run(orderAndCreditCard.flatMap {
+          DbResult.fromDbio(delete >> OrderPayments.save(payment) >> finder.result.head.flatMap(FullOrder.fromOrder))
 
-      case (Some(order), Some(cc)) if cc.inWallet ⇒
-        val payment = OrderPayment.build(cc).copy(orderId = order.id, amount = None)
-        val delete = OrderPayments.filter(_.orderId === order.id).creditCards.delete
+        case Some(cc) ⇒
+          DbResult.failure(CannotUseInactiveCreditCard(cc))
 
-        (delete >> OrderPayments.save(payment)).map(_ ⇒ Xor.right({}))
-
-      case (Some(_), Some(cc)) ⇒
-        CannotUseInactiveCreditCard(cc).single.liftDBIOXor[Unit]
-
-      case (None, _) ⇒
-        orderNotFound(refNum).liftDBIOXor[Unit]
-
-      case (_, None) ⇒
-        creditCardNotFound(id).liftDBIOXor[Unit]
-
-    }.transactionally)
+        case None ⇒
+          DbResult.failure(NotFoundFailure(CreditCard, id))
+      }
+    }
   }
 
   def deleteCreditCard(refNum: String)(implicit ec: ExecutionContext, db: Database): Result[Unit] =
@@ -161,5 +156,4 @@ object OrderPaymentUpdater {
 
   private def orderNotFound(refNum: String)   = OrderNotFoundFailure(refNum).single
   private def giftCardNotFound(code: String)  = GiftCardNotFoundFailure(code).single
-  private def creditCardNotFound(id: Int)     = NotFoundFailure(CreditCard, id).single
 }

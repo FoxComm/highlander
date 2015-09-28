@@ -299,10 +299,10 @@ object Admin {
         } ~
         pathPrefix("payment-methods" / "credit-cards") {
           (post & entity(as[payloads.CreditCardPayment]) & pathEnd) { payload ⇒
-            complete { OrderPaymentUpdater.addCreditCard(refNum, payload.creditCardId).map(renderNothingOrFailures) }
+            complete { OrderPaymentUpdater.addCreditCard(refNum, payload.creditCardId).map(renderGoodOrFailures) }
           } ~
           (patch & entity(as[payloads.CreditCardPayment]) & pathEnd) { payload ⇒
-            complete { OrderPaymentUpdater.addCreditCard(refNum, payload.creditCardId).map(renderNothingOrFailures) }
+            complete { OrderPaymentUpdater.addCreditCard(refNum, payload.creditCardId).map(renderGoodOrFailures) }
           } ~
           (delete & pathEnd) {
             complete { OrderPaymentUpdater.deleteCreditCard(refNum).map(renderNothingOrFailures) }
