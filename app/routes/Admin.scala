@@ -305,7 +305,7 @@ object Admin {
             complete { OrderPaymentUpdater.addCreditCard(refNum, payload.creditCardId).map(renderGoodOrFailures) }
           } ~
           (delete & pathEnd) {
-            complete { OrderPaymentUpdater.deleteCreditCard(refNum).map(renderNothingOrFailures) }
+            complete { OrderPaymentUpdater.deleteCreditCard(refNum).map(renderGoodOrFailures) }
           }
         } ~
         pathPrefix("payment-methods" / "gift-cards") {
@@ -313,7 +313,7 @@ object Admin {
             complete { OrderPaymentUpdater.addGiftCard(refNum, payload).map(renderNothingOrFailures) }
           } ~
           (delete & path(Segment) & pathEnd) { code ⇒
-            complete { OrderPaymentUpdater.deleteGiftCard(refNum, code).map(renderNothingOrFailures) }
+            complete { OrderPaymentUpdater.deleteGiftCard(refNum, code).map(renderGoodOrFailures) }
           }
         } ~
         pathPrefix("payment-methods" / "store-credit") {
@@ -324,7 +324,7 @@ object Admin {
             complete { OrderPaymentUpdater.addStoreCredit(refNum, payload).map(renderNothingOrFailures) }
           } ~
           (delete & pathEnd) {
-            complete { OrderPaymentUpdater.deleteStoreCredit(refNum).map(renderNothingOrFailures) }
+            complete { OrderPaymentUpdater.deleteStoreCredit(refNum).map(renderGoodOrFailures) }
           }
         } ~
         pathPrefix("notes") {

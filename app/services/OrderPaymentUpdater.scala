@@ -95,57 +95,50 @@ object OrderPaymentUpdater {
     }
   }
 
-  def deleteCreditCard(refNum: String)(implicit ec: ExecutionContext, db: Database): Result[Unit] =
+  def deleteCreditCard(refNum: String)(implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] =
     deleteCreditCardOrStoreCredit(refNum, PaymentMethod.CreditCard)
 
-  def deleteStoreCredit(refNum: String)(implicit ec: ExecutionContext, db: Database): Result[Unit] =
+  def deleteStoreCredit(refNum: String)(implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] =
     deleteCreditCardOrStoreCredit(refNum, PaymentMethod.StoreCredit)
 
   private def deleteCreditCardOrStoreCredit(refNum: String, pmt: PaymentMethod.Type)
-    (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
+    (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
 
-    val order = Orders.findCartByRefNum(refNum).one
-
-    db.run(order.flatMap {
-
-      case None ⇒
-        orderNotFound(refNum).liftDBIOXor[Unit]
-
-      case Some(order) ⇒
-        OrderPayments.filter(_.orderId === order.id).byType(pmt)
-          .delete.map(deletedOrFailure(_, pmt))
-
-    }.transactionally)
+    val finder = Orders.findCartByRefNum(refNum)
+    finder.findOneAndRun { order ⇒
+      OrderPayments
+        .filter(_.orderId === order.id)
+        .byType(pmt).delete
+        .flatMap(fullOrderOrFailure(_, pmt, finder))
+    }
   }
 
   def deleteGiftCard(refNum: String, code: String)
-    (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
+    (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
 
-    val orderAndGiftCard = for {
-      order ← Orders.findCartByRefNum(refNum).one
-      giftCard ← GiftCards.findByCode(code).one
-    } yield (order, giftCard)
+    val finder = Orders.findCartByRefNum(refNum)
+    finder.findOneAndRun { order ⇒
+      GiftCards.findByCode(code).one.flatMap {
 
-    db.run(orderAndGiftCard.flatMap {
+        case Some(giftCard) ⇒
+          OrderPayments
+            .filter(_.paymentMethodId === giftCard.id)
+            .filter(_.orderId === order.id)
+            .giftCards.delete
+            .flatMap(fullOrderOrFailure(_, PaymentMethod.GiftCard, finder))
 
-      case (Some(order), Some(giftCard)) ⇒
-        OrderPayments.filter(_.paymentMethodId === giftCard.id)
-          .filter(_.orderId === order.id).giftCards.delete.map(deletedOrFailure(_, PaymentMethod.GiftCard))
-
-      case (None, _) ⇒
-        orderNotFound(refNum).liftDBIOXor[Unit]
-
-      case (_, None) ⇒
-        giftCardNotFound(code).liftDBIOXor[Unit]
-
-    }.transactionally)
+        case None ⇒
+          DbResult.failure(GiftCardNotFoundFailure(code))
+      }
+    }
   }
 
-  private def deletedOrFailure(rowsDeleted: Int, pmt: PaymentMethod.Type): Failures Xor Unit = {
+  private def fullOrderOrFailure(rowsDeleted: Int, pmt: PaymentMethod.Type, finder: Orders.QuerySeq)
+    (implicit ec: ExecutionContext, db: Database): DbResult[FullOrder.Root] = {
     if (rowsDeleted == 0)
-      Xor.left(OrderPaymentNotFoundFailure(pmt).single)
+      DbResult.failure(OrderPaymentNotFoundFailure(pmt))
     else
-      Xor.right({})
+      DbResult.fromDbio(finder.result.head.flatMap(FullOrder.fromOrder))
   }
 
   private implicit class LiftDBIO[F](failures: Failures) {

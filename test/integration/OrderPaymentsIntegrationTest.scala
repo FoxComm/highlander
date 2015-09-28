@@ -93,7 +93,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards/${giftCard.code}")
         val payments = creditCardPayments(order)
 
-        response.status must ===(StatusCodes.NoContent)
+        response.status must ===(StatusCodes.OK)
         payments must have size (0)
       }
 
@@ -101,7 +101,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = DELETE(s"v1/orders/99/payment-methods/gift-cards/123")
 
         response.status must === (StatusCodes.NotFound)
-        parseErrors(response) must === (OrderNotFoundFailure("99").description)
+        parseErrors(response).head must ===("Not found")
         creditCardPayments(order) must have size(0)
       }
 
@@ -224,7 +224,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
         val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/store-credit")
 
-        response.status must ===(StatusCodes.NoContent)
+        response.status must ===(StatusCodes.OK)
         storeCreditPayments(order) must have size (0)
       }
     }
@@ -306,7 +306,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards")
         val payments = creditCardPayments(order)
 
-        response.status must ===(StatusCodes.NoContent)
+        response.status must ===(StatusCodes.OK)
         payments must have size (0)
       }
 
