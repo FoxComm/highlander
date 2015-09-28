@@ -10,7 +10,6 @@ StoreAdmins}
 import models.GiftCard.Canceled
 import responses.{GiftCardResponse, CustomerResponse, StoreAdminResponse}
 import responses.GiftCardResponse._
-import responses.GiftCardBulkCreateResponse._
 import slick.driver.PostgresDriver.api._
 import utils.Slick._
 import utils.Slick.UpdateReturning._
@@ -37,23 +36,28 @@ object GiftCardService {
   }
 
   def createBulkByAdmin(admin: StoreAdmin, payload: payloads.GiftCardBulkCreateByCsr)
-    (implicit ec: ExecutionContext, db: Database): Result[BulkResponses] = {
+    (implicit ec: ExecutionContext, db: Database): Result[Seq[Root]] = {
 
     (payload.count > 0, payload.count <= bulkCreateLimit) match {
       case (true, true) ⇒
-        val responses = (1 to payload.count).map { number ⇒
-          val payloadSingle = payloads.GiftCardCreateByCsr(balance = payload.balance, currency = payload.currency)
-          createGiftCardModel(admin, payloadSingle).flatMap {
-            case Xor.Left(errors) ⇒ Future.successful(buildBulkResponse(None, Some(errors.map(_.description.mkString))))
-            case Xor.Right(sc)    ⇒ Future.successful(buildBulkResponse(Some(sc)))
-          }
-        }
+        val payloadSingle = payloads.GiftCardCreateByCsr(balance = payload.balance, currency = payload.currency)
+        val toInsert = (1 to payload.count).map { _ ⇒ GiftCard.buildAppeasement(admin, payloadSingle) }
 
-        val future = Future.sequence(responses).flatMap { seq ⇒
-          Future.successful(buildBulkResponses(seq))
-        }
+        // Validate only first, since all other are the same
+        toInsert.head.validate match {
+          case Valid(_) ⇒
+            // Insert multiple values in a single transaction
+            val query = (for {
+              giftCards ← (GiftCards ++= toInsert.toSeq) >> GiftCards.sortBy(_.id.desc).take(payload.count).result
+            } yield giftCards).flatMap { seq ⇒
+              val storeAdminResponse = Some(StoreAdminResponse.build(admin))
+              lift(seq.map(build(_, None, storeAdminResponse)).reverse)
+            }
 
-        Result.fromFuture(future)
+            Result.fromFuture(query.transactionally.run())
+          case Invalid(errors) ⇒
+            Result.failures(errors.failure)
+        }
       case (false, _)   ⇒ Result.failure(GeneralFailure("Count value must be greater than zero"))
       case (_, false)   ⇒ Result.failure(GeneralFailure("Bulk create limit exceeded"))
     }
