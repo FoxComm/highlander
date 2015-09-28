@@ -29,8 +29,8 @@ object ShippingManager {
         val shippingData = ShippingData(order, grandTotal.getOrElse(0), subTotal.getOrElse(0), address, region)
 
         val methodResponses = shippingMethods.collect {
-          case sm if evaluateStatement(shippingData, sm.conditions) ⇒
-            val restricted = evaluateStatement(shippingData, sm.restrictions)
+          case sm if QueryStatement.evaluate(sm.conditions, shippingData, evaluateCondition) ⇒
+            val restricted = QueryStatement.evaluate(sm.restrictions, shippingData, evaluateCondition)
             responses.ShippingMethods.build(sm, !restricted)
         }
 
@@ -41,29 +41,11 @@ object ShippingManager {
     }
   }
 
-  private def evaluateStatement(shippingData: ShippingData, statement: Option[QueryStatement]): Boolean = {
-    statement.fold(false) { statement ⇒
-      val initial = statement.comparison == QueryStatement.And
-
-      val conditionsResult = statement.conditions.foldLeft(initial) { (result, nextCond) ⇒
-        val res = nextCond.rootObject match {
-          case "Order" ⇒ evaluateOrderCondition(shippingData, nextCond)
-          case "ShippingAddress" ⇒ evaluateShippingAddressCondition(shippingData, nextCond)
-          case _ ⇒ false
-        }
-
-        statement.comparison match {
-          case QueryStatement.And ⇒ result && res
-          case QueryStatement.Or ⇒ result || res
-        }
-      }
-
-      statement.statements.foldLeft(conditionsResult) { (result, nextCond) ⇒
-        statement.comparison match {
-          case QueryStatement.And ⇒ evaluateStatement(shippingData, Some(nextCond)) && result
-          case QueryStatement.Or ⇒ evaluateStatement(shippingData, Some(nextCond)) || result
-        }
-      }
+  private def evaluateCondition(cond: Condition, shippingData: ShippingData): Boolean = {
+    cond.rootObject match {
+      case "Order" ⇒ evaluateOrderCondition(shippingData, cond)
+      case "ShippingAddress" ⇒ evaluateShippingAddressCondition(shippingData, cond)
+      case _ ⇒ false
     }
   }
 

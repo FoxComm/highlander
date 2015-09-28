@@ -29,4 +29,24 @@ object QueryStatement {
       j ⇒ j.extract[QueryStatement]
     )
   }
+
+  def evaluate[A](stmt: Option[QueryStatement], data: A, f: (Condition, A) ⇒ Boolean): Boolean = {
+    stmt.fold(false) { statement ⇒
+      val initial = statement.comparison == QueryStatement.And
+
+      val conditionsResult = statement.conditions.foldLeft(initial) { (result, nextCond) ⇒
+        statement.comparison match {
+          case QueryStatement.And ⇒ result && f(nextCond, data)
+          case QueryStatement.Or ⇒ result || f(nextCond, data)
+        }
+      }
+
+      statement.statements.foldLeft(conditionsResult) { (result, nextStmt) ⇒
+        statement.comparison match {
+          case QueryStatement.And ⇒ evaluate(Some(nextStmt), data, f) && result
+          case QueryStatement.Or ⇒ evaluate(Some(nextStmt), data, f) || result
+        }
+      }
+    }
+  }
 }
