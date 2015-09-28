@@ -6,35 +6,44 @@ import { inflect } from 'fleck';
 
 export default class BaseStore {
   constructor() {
-    this.models = [];
+    this.items = [];
   }
 
-  get storeName() { return this.constructor.name; }
-  get eventSuffix() { return inflect(this.storeName, 'underscore', 'dasherize'); }
+  get storeName() {
+    return this.constructor.name;
+  }
+
+  get eventSuffix() {
+    return inflect(this.storeName, 'underscore', 'dasherize');
+  }
+
+  dispatchChange() {
+    dispatch(`change${this.storeName}`, this.items);
+  }
 
   uri(id) {
     return id ? `${this.baseUri}/${id}` : this.baseUri;
   }
 
   reset() {
-    this.models = [];
-    dispatch(`change${this.storeName}`, this.models);
+    this.items = [];
+    this.dispatchChange();
   }
 
   sort(field, order) {
-    this.models = this.models.sort((a, b) => {
+    this.items = this.items.sort((a, b) => {
       return (1 - 2 * order) * (a[field] < b[field] ? 1 : a[field] > b[field] ? -1 : 0);
     });
-    dispatch(`change${this.storeName}`, this.models);
+    this.dispatchChange();
   }
 
   getState(id) {
-    if (!id) return this.models;
-    return this.findModel(id);
+    if (!id) return this.items;
+    return this.getItem(id);
   }
 
-  findModel(id) {
-    return this.models.filter((item) => {
+  getItem(id) {
+    return this.items.filter((item) => {
       return item.id === id;
     })[0];
   }
@@ -47,36 +56,36 @@ export default class BaseStore {
     stopListeningTo(`${event}-${this.eventSuffix}`, ctx);
   }
 
-  process(model) {
-    return model;
+  process(item) {
+    return item;
   }
 
-  upsert(model) {
-    let exists = this.findModel(model.id);
+  upsert(item) {
+    let exists = this.getItem(item.id);
     if (exists) {
-      let idx = this.models.indexOf(exists);
+      let idx = this.items.indexOf(exists);
       if (idx !== -1) {
-        this.models[idx] = this.process(model) || model;
+        this.items[idx] = this.process(item) || item;
       }
     } else {
-      this.models.push(this.process(model) || model);
+      this.items.push(this.process(item) || item);
     }
   }
 
-  add(model) {
-    this.models.push(model);
-    dispatch(`change${this.storeName}`, this.models);
+  add(item) {
+    this.items.push(item);
+    dispatch(`change${this.storeName}`, this.items);
   }
 
-  update(model) {
-    if (Array.isArray(model)) {
-      model.forEach((item) => {
+  update(item) {
+    if (Array.isArray(item)) {
+      item.forEach((item) => {
         this.upsert(item);
       });
     } else {
-      this.upsert(model);
+      this.upsert(item);
     }
-    dispatch(`change${this.storeName}`, model);
+    dispatch(`change${this.storeName}`, item);
   }
 
   // @todo Error handling - Tivs
@@ -86,25 +95,41 @@ export default class BaseStore {
 
   fetch(id) {
     Api.get(this.uri(id))
-      .then((res) => { this.update(res); })
-      .catch((err) => { this.fetchError(err); });
+      .then((res) => {
+        this.update(res);
+      })
+      .catch((err) => {
+        this.fetchError(err);
+      });
   }
 
   patch(id, changes) {
     Api.patch(this.uri(id), changes)
-      .then((res) => { this.update(res); })
-      .catch((err) => { this.fetchError(err); });
+      .then((res) => {
+        this.update(res);
+      })
+      .catch((err) => {
+        this.fetchError(err);
+      });
   }
 
   create(data) {
     Api.post(this.uri(), data)
-      .then((res) => { this.update(res); })
-      .catch((err) => { this.fetchError(err); });
+      .then((res) => {
+        this.update(res);
+      })
+      .catch((err) => {
+        this.fetchError(err);
+      });
   }
 
   delete(id) {
     Api.delete(this.uri(id))
-      .then((res) => { this.update(res); })
-      .catch((err) => { this.fetchError(err); });
+      .then((res) => {
+        this.update(res);
+      })
+      .catch((err) => {
+        this.fetchError(err);
+      });
   }
 }

@@ -19,7 +19,9 @@ function eventBinding(event, method, ctx) {
 }
 
 export function dispatch(event, data) {
-  emitter.emit(event, data);
+  setTimeout(() => {
+    emitter.emit(event, data);
+  });
 }
 
 export function listenTo(event, ctx) {

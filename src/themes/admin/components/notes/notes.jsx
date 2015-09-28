@@ -2,10 +2,13 @@
 
 import React from 'react';
 import Api from '../../lib/api';
-import TableView from '../tables/tableview';
+import TableView from '../table/tableview';
+import TableRow from '../table/row';
+import TableCell from '../table/cell';
 import NotesItemControls from './controls';
 import Form from './form';
 import NoteStore from './store';
+import UserInitials from '../users/initials';
 import { pluralize } from 'fleck';
 
 export default class Notes extends React.Component {
@@ -93,6 +96,32 @@ export default class Notes extends React.Component {
   }
 
   render() {
+    let renderRow = (row) => {
+      return (
+        <TableRow>
+          <TableCell>Today</TableCell>
+          <TableCell>{row.body}</TableCell>
+          <TableCell>
+            <NotesItemControls
+              model={row}
+              onEditClick={this.handleEdit.bind(this)}
+              onDeleteClick={this.handleDelete.bind(this)}
+              />
+          </TableCell>
+
+          {this.state.editing && (this.state.editingNote.id === row.id) && (
+            <Form
+              uri={NoteStore.baseUri}
+              text={this.state.editingNote && this.state.editingNote.body}
+              onReset={this.handleResetForm.bind(this)}
+              onSubmit={this.handleSubmit.bind(this)}
+              />
+          )}
+
+        </TableRow>
+      );
+    };
+
     return (
       <div id="notes" className="fc-content-box">
         <header className="header">
@@ -115,27 +144,8 @@ export default class Notes extends React.Component {
             />
         )}
 
-        {this.state.editing && (
-          <Form
-            uri={NoteStore.baseUri}
-            text={this.state.editingNote && this.state.editingNote.body}
-            onReset={this.handleResetForm.bind(this)}
-            onSubmit={this.handleSubmit.bind(this)}
-            />
-        )}
-
         {this.state.notes.length && (
-          <TableView
-            columns={this.props.tableColumns}
-            rows={this.state.notes}
-            model={this.props.modelName}
-            sort={NoteStore.sort.bind(NoteStore)}
-            >
-            <NotesItemControls
-              onEditClick={this.handleEdit.bind(this)}
-              onDeleteClick={this.handleDelete.bind(this)}
-              />
-          </TableView>
+          <TableView store={NoteStore} renderRow={renderRow}/>
         )}
         {!this.state.notes.length && (
           <div className="empty">No notes yet.</div>
