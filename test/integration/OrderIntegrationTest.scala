@@ -8,7 +8,6 @@ import models._
 import payloads.{Assignment, UpdateOrderPayload}
 import responses.{StoreAdminResponse, FullOrderWithWarnings, AdminNotes, FullOrder}
 import models.rules.QueryStatement
-import services.LockAwareOrderUpdater.NewRemorsePeriodEnd
 import services.{NotFoundFailure, NoteManager}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
@@ -113,7 +112,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       val order = Orders.save(Factories.order.copy(status = Order.RemorseHold)).run().futureValue
       val response = POST(s"v1/orders/${order.referenceNumber}/increase-remorse-period")
 
-      val result = parse(response.bodyText).extract[NewRemorsePeriodEnd]
+      val result = parse(response.bodyText).extract[FullOrder.Root]
       result.remorsePeriodEnd must ===(order.remorsePeriodEnd.map(_.plusMinutes(15)))
     }
 

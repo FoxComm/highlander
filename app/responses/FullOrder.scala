@@ -1,5 +1,7 @@
 package responses
 
+import java.time.Instant
+
 import scala.concurrent.{ExecutionContext, Future}
 
 import models._
@@ -28,6 +30,7 @@ object FullOrder {
     shippingMethod: Option[ShippingMethod],
     shippingAddress: Option[Address],
     assignees: Seq[AssignmentResponse.Root],
+    remorsePeriodEnd: Option[Instant],
     payment: Option[DisplayPayment] = None
     )
 
@@ -91,6 +94,7 @@ object FullOrder {
       totals = Totals(subTotal = 333, taxes = 10, adjustments = 0, total = 510),
       shippingMethod = shippingMethod,
       assignees = assignments.map((AssignmentResponse.build _).tupled),
+      remorsePeriodEnd = order.getRemorsePeriodEnd,
       payment = displayPayment
     )
   }
