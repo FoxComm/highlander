@@ -10,8 +10,8 @@ import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId}
 
-final case class StoreCreditAdjustment(id: Int = 0, storeCreditId: Int, orderPaymentId: Int,
-  debit: Int, availableBalance: Int, status: Status = Auth, createdAt: Instant = Instant.now())
+final case class StoreCreditAdjustment(id: Int = 0, storeCreditId: Int, orderPaymentId: Option[Int],
+  storeAdminId: Option[Int] = None, debit: Int, availableBalance: Int, status: Status = Auth, createdAt: Instant = Instant.now())
   extends ModelWithIdParameter
   with FSM[StoreCreditAdjustment.Status, StoreCreditAdjustment] {
 
@@ -43,16 +43,17 @@ class StoreCreditAdjustments(tag: Tag)
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def storeCreditId = column[Int]("store_credit_id")
-  def orderPaymentId = column[Int]("order_payment_id")
+  def storeAdminId = column[Option[Int]]("store_admin_id")
+  def orderPaymentId = column[Option[Int]]("order_payment_id")
   def debit = column[Int]("debit")
   def availableBalance = column[Int]("available_balance")
   def status = column[StoreCreditAdjustment.Status]("status")
   def createdAt = column[Instant]("created_at")
 
-  def * = (id, storeCreditId, orderPaymentId, debit, availableBalance,
+  def * = (id, storeCreditId, orderPaymentId, storeAdminId, debit, availableBalance,
     status, createdAt) <> ((StoreCreditAdjustment.apply _).tupled, StoreCreditAdjustment.unapply)
 
-  def payment = foreignKey(OrderPayments.tableName, orderPaymentId, OrderPayments)(_.id)
+  def payment = foreignKey(OrderPayments.tableName, orderPaymentId, OrderPayments)(_.id.?)
   def storeCredit = foreignKey(StoreCredits.tableName, storeCreditId, StoreCredits)(_.id)
 }
 

@@ -45,7 +45,7 @@ object Admin {
         } ~
         (patch & path(Segment) & entity(as[payloads.GiftCardUpdateStatusByCsr]) & pathEnd) { (code, payload) ⇒
           complete {
-            GiftCardService.updateStatusByCsr(code, payload).map(renderGoodOrFailures)
+            GiftCardService.updateStatusByCsr(code, payload, admin).map(renderGoodOrFailures)
           }
         } ~
         path(Segment / "notes") { code ⇒
@@ -80,7 +80,7 @@ object Admin {
       pathPrefix("store-credits") {
         (patch & entity(as[payloads.StoreCreditBulkUpdateStatusByCsr]) & pathEnd) { payload ⇒
           complete {
-            StoreCreditService.bulkUpdateStatusByCsr(payload).map(renderGoodOrFailures)
+            StoreCreditService.bulkUpdateStatusByCsr(payload, admin).map(renderGoodOrFailures)
           }
         }
       } ~
@@ -92,7 +92,7 @@ object Admin {
         } ~
         (patch & entity(as[payloads.StoreCreditUpdateStatusByCsr]) & pathEnd) { payload ⇒
           complete {
-            StoreCreditService.updateStatusByCsr(storeCreditId, payload).map(renderGoodOrFailures)
+            StoreCreditService.updateStatusByCsr(storeCreditId, payload, admin).map(renderGoodOrFailures)
           }
         } ~
         (get & path("transactions") & pathEnd) {

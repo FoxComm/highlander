@@ -1,11 +1,6 @@
 package responses
 
-import scala.concurrent.ExecutionContext
-
-import models.{GiftCard, GiftCardAdjustment, GiftCardAdjustments, Order}
-import services.Result
-import slick.driver.PostgresDriver.api._
-import utils.Slick.implicits._
+import models.GiftCardAdjustment
 
 object GiftCardAdjustmentsResponse {
   final case class Root(
@@ -13,21 +8,9 @@ object GiftCardAdjustmentsResponse {
     amount: Int,
     availableBalance: Int,
     state: GiftCardAdjustment.Status,
-    orderRef: String)
+    orderRef: Option[String])
 
-  def build(adj: GiftCardAdjustment, orderRef: String): Root = {
-    Root(id = adj.id, amount = adj.getAmount, availableBalance = adj.availableBalance, state = adj.status,
-      orderRef = orderRef)
-  }
-
-  def forGiftCard(gc: GiftCard)(implicit ec: ExecutionContext, db: Database): Result[Seq[Root]] = {
-    (for {
-      adjustments ← GiftCardAdjustments.filterByGiftCardId(gc.id)
-      payments ← adjustments.payment
-      orderRef ← payments.order.map(_.referenceNumber)
-    } yield (adjustments, orderRef)).result.run().flatMap { results ⇒
-      Result.good(results.map { case (adjustment, orderRef) ⇒ build(adjustment, orderRef) })
-    }
+  def build(adj: GiftCardAdjustment, orderRef: Option[String] = None): Root = {
+    Root(id = adj.id, amount = adj.getAmount, availableBalance = adj.availableBalance, state = adj.status, orderRef = orderRef)
   }
 }
-

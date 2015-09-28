@@ -133,13 +133,19 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
   import GiftCard._
   import models.{GiftCardAdjustment ⇒ Adj, GiftCardAdjustments ⇒ Adjs}
 
-  def auth(giftCard: GiftCard, orderPaymentId: Int, debit: Int = 0, credit: Int = 0)
+  def auth(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int = 0, credit: Int = 0)
     (implicit ec: ExecutionContext): DBIO[Adj] =
     adjust(giftCard, orderPaymentId, debit = debit, credit = credit, status = Adj.Auth)
 
-  def capture(giftCard: GiftCard, orderPaymentId: Int, debit: Int = 0, credit: Int = 0)
+  def capture(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int = 0, credit: Int = 0)
     (implicit ec: ExecutionContext): DBIO[Adj] =
     adjust(giftCard, orderPaymentId, debit = debit, credit = credit, status = Adj.Capture)
+
+  def cancelByCsr(giftCard: GiftCard, storeAdmin: StoreAdmin)(implicit ec: ExecutionContext): DBIO[Adj] = {
+    val adjustment = Adj(giftCardId = giftCard.id, orderPaymentId = None, storeAdminId = Some(storeAdmin.id),
+      debit = giftCard.availableBalance, credit = 0, availableBalance = 0, status = Adj.Capture)
+    Adjs.save(adjustment)
+  }
 
   def findByCode(code: String): Query[GiftCards, GiftCard, Seq] =
     filter(_.code === code)
@@ -151,7 +157,7 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
     (id, cb, ab) ← this.returning(map { gc ⇒ (gc.id, gc.currentBalance, gc.availableBalance) }) += giftCard
   } yield giftCard.copy(id = id, currentBalance = cb, availableBalance = ab)
 
-  private def adjust(giftCard: GiftCard, orderPaymentId: Int, debit: Int = 0, credit: Int = 0,
+  private def adjust(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int = 0, credit: Int = 0,
     status: Adj.Status = Adj.Auth)
     (implicit ec: ExecutionContext): DBIO[Adj] = {
     val balance = giftCard.availableBalance - debit + credit

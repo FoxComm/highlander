@@ -40,7 +40,7 @@ object GiftCardService {
     createGiftCardModel(admin, payload)
   }
 
-  def updateStatusByCsr(code: String, payload: payloads.GiftCardUpdateStatusByCsr)
+  def updateStatusByCsr(code: String, payload: payloads.GiftCardUpdateStatusByCsr, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
 
     val finder = GiftCards.findByCode(code)
@@ -50,19 +50,19 @@ object GiftCardService {
         case Xor.Left(message) ⇒ DbResult.failure(GeneralFailure(message))
         case Xor.Right(_) ⇒ (payload.status, payload.reason) match {
           case (Canceled, Some(reason)) ⇒
-            cancelByCsr(finder, gc, payload)
+            cancelByCsr(finder, gc, payload, admin)
           case (Canceled, None) ⇒
             DbResult.failure(EmptyCancellationReasonFailure)
           case (_, _) ⇒
             val update = finder.map(_.status).updateReturning(GiftCards.map(identity), payload.status).head
-            DbResult.fromDbio(update.flatMap { gc ⇒ DBIO.successful(GiftCardResponse.build(gc)) })
+            DbResult.fromDbio(update.flatMap { gc ⇒ lift(GiftCardResponse.build(gc)) })
         }
       }
     }
   }
 
-  private def cancelByCsr(finder: QuerySeq, gc: GiftCard, payload: payloads.GiftCardUpdateStatusByCsr)
-    (implicit ec: ExecutionContext, db: Database) = {
+  private def cancelByCsr(finder: QuerySeq, gc: GiftCard, payload: payloads.GiftCardUpdateStatusByCsr,
+    admin: StoreAdmin)(implicit ec: ExecutionContext, db: Database) = {
 
     GiftCardAdjustments.lastAuthByGiftCardId(gc.id).one.flatMap {
       case Some(adjustment) ⇒
@@ -78,7 +78,11 @@ object GiftCardService {
               .updateReturning(GiftCards.map(identity), data)
               .head
 
-            DbResult.fromDbio(cancellation.flatMap { gc ⇒ DBIO.successful(GiftCardResponse.build(gc)) })
+            val cancelAdjustment = GiftCards.cancelByCsr(gc, admin)
+
+            DbResult.fromDbio(cancelAdjustment >> cancellation.flatMap {
+              gc ⇒ lift(GiftCardResponse.build(gc))
+            })
         }
     }
   }
@@ -112,7 +116,7 @@ object GiftCardService {
       case GiftCard.CsrAppeasement ⇒
         StoreAdmins._findById(gc.originId).extract.one.map(Xor.right)
       case _ ⇒
-        DBIO.successful(Xor.left(None))
+        lift(Xor.left(None))
     }
-  }.getOrElse(DBIO.successful(Xor.left(None)))
+  }.getOrElse(lift(Xor.left(None)))
 }
