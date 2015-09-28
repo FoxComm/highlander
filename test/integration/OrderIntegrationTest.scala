@@ -364,17 +364,6 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
 
     "can soft delete note" in new Fixture {
-      val rootNote = NoteManager.createOrderNote(order, storeAdmin,
-        payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue.get
-
-      val response = DELETE(s"v1/orders/${order.referenceNumber}/notes/${rootNote.id}")
-      response.status must === (StatusCodes.NoContent)
-    }
-  }
-
-  "shipping addresses" - {
-
-    "can soft delete note" in new Fixture {
       val note = NoteManager.createOrderNote(order, storeAdmin,
         payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue.get
       StoreAdmins.save(Factories.storeAdmin).run().futureValue
@@ -387,6 +376,9 @@ class OrderIntegrationTest extends IntegrationTestBase
       updatedNote.deletedBy.get mustBe 1
       updatedNote.deletedAt.get.isBeforeNow mustBe true
     }
+  }
+
+  "shipping addresses" - {
 
     "copying a shipping address from a customer's book" - {
 

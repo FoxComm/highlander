@@ -2,7 +2,6 @@ package services
 
 import java.time.Instant
 
-import cats.data.Xor
 import cats.data.Validated.{Valid, Invalid}
 import cats.implicits._
 import models._
