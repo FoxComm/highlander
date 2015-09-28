@@ -50,9 +50,46 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     "fails to create gift card with negative balance" in new Fixture {
       val response = POST(s"v1/gift-cards", payloads.GiftCardCreateByCsr(balance = -555))
       response.status must ===(StatusCodes.BadRequest)
-      response.errors.head must ===("originalBalance should be greater or equal than zero")
+      response.errors.head must ===("Balance must be greater than zero")
     }
   }
+
+  "POST /v1/gift-cards/_bulk" - {
+    "successfully creates multiple gift cards from payload" in new Fixture {
+      val response = POST(s"v1/gift-cards/_bulk", payloads.GiftCardBulkCreateByCsr(quantity = 5, balance = 256))
+      val root = response.as[Seq[GiftCardResponse.Root]]
+
+      response.status must ===(StatusCodes.OK)
+      root.length must ===(5)
+    }
+
+    "fails to create multiple gift cards with zero balance" in new Fixture {
+      val response = POST(s"v1/gift-cards/_bulk", payloads.GiftCardBulkCreateByCsr(quantity = 5, balance = 0))
+
+      response.status must ===(StatusCodes.BadRequest)
+      response.errors.head must ===("Balance must be greater than zero")
+    }
+
+    "fails to create multiple gift cards with negative balance" in new Fixture {
+      val response = POST(s"v1/gift-cards/_bulk", payloads.GiftCardBulkCreateByCsr(quantity = 5, balance = -555))
+
+      response.status must ===(StatusCodes.BadRequest)
+      response.errors.head must ===("Balance must be greater than zero")
+    }
+
+    "fails to create multiple gift cards with negative quantity" in new Fixture {
+      val response = POST(s"v1/gift-cards/_bulk", payloads.GiftCardBulkCreateByCsr(quantity = -5, balance = 256))
+      response.status must ===(StatusCodes.BadRequest)
+      response.errors.head must ===("Quantity must be greater than zero")
+    }
+
+    "fails to create multiple gift cards with count more than limit" in new Fixture {
+      val response = POST(s"v1/gift-cards/_bulk", payloads.GiftCardBulkCreateByCsr(quantity = 25, balance = 256))
+      response.status must ===(StatusCodes.BadRequest)
+      response.errors.head must ===("Bulk creation limit exceeded")
+    }
+  }
+
 
   "GET /v1/gift-cards/:code" - {
     "finds a gift card by code" in new Fixture {

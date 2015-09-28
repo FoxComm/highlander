@@ -12,6 +12,8 @@ import utils.Slick.implicits._
 object GiftCardResponse {
   final val mockMessage = "Not implemented yet"
 
+  final case class BulkCreateResponse(responses: Seq[Root])
+
   final case class Root(
     id: Int,
     createdAt: Instant,
