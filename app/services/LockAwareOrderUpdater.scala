@@ -3,11 +3,10 @@ package services
 import java.time.{Duration, Instant}
 import utils.time._
 import scala.concurrent.ExecutionContext
-
 import models.Order.RemorseHold
 import models.OrderLockEvents.scope._
 import models._
-import responses.FullOrder
+import responses.{StoreAdminResponse, FullOrder, FullOrderWithWarnings}
 import slick.driver.PostgresDriver.api._
 import utils.Slick.UpdateReturning._
 import utils.Slick._
@@ -25,7 +24,7 @@ object LockAwareOrderUpdater {
       val lock = finder.map(_.locked).updateReturning(updatedOrder, true).head
       val blame = OrderLockEvents += OrderLockEvent(orderId = order.id, lockedBy = admin.id)
 
-      DbResult.fromDbio(blame >> lock.flatMap(o ⇒ liftFuture(FullOrder.fromOrder(o).run())))
+      DbResult.fromDbio(blame >> lock.flatMap(FullOrder.fromOrder))
     }
   }
 
@@ -53,7 +52,7 @@ object LockAwareOrderUpdater {
     Orders._findById(orderId).extract
       .map { o ⇒ (o.locked, o.remorsePeriodEnd) }
       .updateReturning(updatedOrder, (false, remorseEnd)).head
-      .flatMap { o ⇒ DbResult.fromFuture(FullOrder.fromOrder(o).run()) }
+      .flatMap { o ⇒ DbResult.fromDbio(FullOrder.fromOrder(o)) }
   }
 
   def unlock(refNum: String)(implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
@@ -68,6 +67,29 @@ object LockAwareOrderUpdater {
             doUnlock(order.id, order.remorsePeriodEnd.map(_.plusMinutes(15)))
         }
       } else DbResult.failure(GeneralFailure("Order is not locked"))
+    }
+  }
+
+  def assign(refNum: String, requestedAssigneeIds: Seq[Int])
+    (implicit db: Database, ec: ExecutionContext): Result[FullOrderWithWarnings] = {
+    val finder = Orders.findByRefNum(refNum)
+
+    finder.findOneAndRunIgnoringLock { order ⇒
+      DbResult.fromDbio(for {
+        existingAdminIds ← StoreAdmins.filter(_.id.inSetBind(requestedAssigneeIds)).map(_.id).result
+
+        alreadyAssigned ← OrderAssignments.assigneesFor(order)
+        alreadyAssignedIds = alreadyAssigned.map(_.id)
+
+        newAssignments = existingAdminIds.diff(alreadyAssignedIds)
+          .map(adminId ⇒ OrderAssignment(orderId = order.id, assigneeId = adminId))
+
+        inserts = OrderAssignments ++= newAssignments
+        newOrder ← inserts >> finder.result.head
+
+        fullOrder ← FullOrder.fromOrder(newOrder)
+        warnings = requestedAssigneeIds.diff(existingAdminIds).map(NotFoundFailure(StoreAdmin, _))
+      } yield FullOrderWithWarnings(fullOrder, warnings))
     }
   }
 }

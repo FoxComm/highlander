@@ -9,7 +9,7 @@ import cats.data.Xor
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import models._
 import payloads._
-import responses.{AllOrders, AllOrdersWithFailures, AdminNotes, FullOrder, StoreCreditAdjustmentsResponse}
+import responses.{AllOrders, BulkOrderUpdateResponse, AdminNotes, FullOrder}
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.Apis
@@ -218,7 +218,7 @@ object Admin {
       pathPrefix("orders") {
         (get & pathEnd) {
           complete {
-            AllOrders.findAll
+            AllOrders.runFindAll
           }
         } ~
         (post & entity(as[CreateOrder]) & pathEnd) { payload ⇒
@@ -228,8 +228,20 @@ object Admin {
           complete {
             for {
               failures ← OrderUpdater.updateStatuses(payload.referenceNumbers, payload.status)
-              orders ← AllOrders.findAll
-            } yield AllOrdersWithFailures(orders, failures)
+              orders ← AllOrders.runFindAll
+            } yield BulkOrderUpdateResponse(orders, failures)
+          }
+        } ~
+        pathPrefix("assignees") {
+          (post & entity(as[BulkAssignment]) & pathEnd) { payload ⇒
+            complete {
+              BulkOrderUpdater.assign(payload).map(renderGoodOrFailures)
+            }
+          } ~
+          (post & path("delete") & entity(as[BulkAssignment]) & pathEnd) { payload ⇒
+            complete {
+              BulkOrderUpdater.unassign(payload).map(renderGoodOrFailures)
+            }
           }
         }
       } ~
@@ -328,6 +340,13 @@ object Admin {
           (delete & path(IntNumber)) { noteId ⇒
             complete {
               NoteManager.deleteNote(noteId, admin).map(renderNothingOrFailures)
+            }
+          }
+        } ~
+        pathPrefix("assignees") {
+          (post & entity(as[Assignment])) { payload ⇒
+            complete {
+              LockAwareOrderUpdater.assign(refNum, payload.assignees).map(renderGoodOrFailures)
             }
           }
         } ~
