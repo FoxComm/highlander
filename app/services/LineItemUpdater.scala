@@ -7,6 +7,7 @@ import payloads.UpdateLineItemsPayload
 import cats.implicits._
 import responses.FullOrder
 import slick.driver.PostgresDriver.api._
+import utils.Slick.implicits._
 
 object LineItemUpdater {
   val lineItems = TableQuery[OrderLineItems]
@@ -24,7 +25,7 @@ object LineItemUpdater {
 
     (for {
       _         ← ResultT(update(order, payload))
-      response  ← ResultT.right(FullOrder.fromOrder(order))
+      response ← ResultT.right(FullOrder.fromOrder(order).run())
     } yield response).value
   }
 

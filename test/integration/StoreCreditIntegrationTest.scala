@@ -1,7 +1,7 @@
 import akka.http.scaladsl.model.StatusCodes
 
 import models.StoreCredit.{Canceled, Active, OnHold}
-import models.{PaymentMethod, OrderPayments, Orders, StoreCreditManuals, Customer, Reasons,
+import models.{StoreCreditAdjustment, PaymentMethod, OrderPayments, Orders, StoreCreditManuals, Customer, Reasons,
 Customers, StoreCredit, StoreCredits, StoreAdmins, StoreCreditAdjustments}
 import responses.{StoreCreditResponse, StoreCreditAdjustmentsResponse}
 import org.scalatest.BeforeAndAfterEach
@@ -77,7 +77,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
         val firstAdjustment = adjustments.head
         firstAdjustment.debit mustBe 10
-        firstAdjustment.orderRef mustBe order.referenceNumber
+        firstAdjustment.orderRef.get mustBe order.referenceNumber
       }
     }
 
@@ -103,7 +103,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         response.errors.head must ===("Open transactions should be canceled/completed")
       }
 
-      "successfully cancels store credit with provided reason" in new Fixture {
+      "successfully cancels store credit with provided reason, cancel adjustment is created" in new Fixture {
         // Cancel pending adjustment
         StoreCreditAdjustments.cancel(adjustment.id).run().futureValue
 
@@ -113,6 +113,14 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
         val root = response.as[StoreCreditResponse.Root]
         root.canceledAmount must ===(Some(storeCredit.originalBalance))
+
+        // Ensure that cancel adjustment is automatically created
+        val transactionsRep = GET(s"v1/store-credits/${storeCredit.id}/transactions")
+        val adjustments = transactionsRep.as[Seq[StoreCreditAdjustmentsResponse.Root]]
+
+        response.status must ===(StatusCodes.OK)
+        adjustments.size mustBe 2
+        adjustments.head.state must ===(StoreCreditAdjustment.Capture)
       }
 
       "fails to cancel store credit if invalid reason provided" in new Fixture {
@@ -171,7 +179,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         .id))
       payment ← OrderPayments.save(Factories.storeCreditPayment.copy(orderId = order.id,
         paymentMethodId = storeCredit.id, paymentMethodType = PaymentMethod.StoreCredit))
-      adjustment ← StoreCredits.auth(storeCredit, payment.id, 10)
+      adjustment ← StoreCredits.auth(storeCredit, Some(payment.id), 10)
     } yield (admin, customer, scReason, storeCredit, order, adjustment, scSecond)).run().futureValue
   }
 }

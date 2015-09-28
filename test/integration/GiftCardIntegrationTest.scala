@@ -50,9 +50,46 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     "fails to create gift card with negative balance" in new Fixture {
       val response = POST(s"v1/gift-cards", payloads.GiftCardCreateByCsr(balance = -555))
       response.status must ===(StatusCodes.BadRequest)
-      response.errors.head must ===("originalBalance should be greater or equal than zero")
+      response.errors.head must ===("Balance must be greater than zero")
     }
   }
+
+  "POST /v1/gift-cards/_bulk" - {
+    "successfully creates multiple gift cards from payload" in new Fixture {
+      val response = POST(s"v1/gift-cards/_bulk", payloads.GiftCardBulkCreateByCsr(quantity = 5, balance = 256))
+      val root = response.as[Seq[GiftCardResponse.Root]]
+
+      response.status must ===(StatusCodes.OK)
+      root.length must ===(5)
+    }
+
+    "fails to create multiple gift cards with zero balance" in new Fixture {
+      val response = POST(s"v1/gift-cards/_bulk", payloads.GiftCardBulkCreateByCsr(quantity = 5, balance = 0))
+
+      response.status must ===(StatusCodes.BadRequest)
+      response.errors.head must ===("Balance must be greater than zero")
+    }
+
+    "fails to create multiple gift cards with negative balance" in new Fixture {
+      val response = POST(s"v1/gift-cards/_bulk", payloads.GiftCardBulkCreateByCsr(quantity = 5, balance = -555))
+
+      response.status must ===(StatusCodes.BadRequest)
+      response.errors.head must ===("Balance must be greater than zero")
+    }
+
+    "fails to create multiple gift cards with negative quantity" in new Fixture {
+      val response = POST(s"v1/gift-cards/_bulk", payloads.GiftCardBulkCreateByCsr(quantity = -5, balance = 256))
+      response.status must ===(StatusCodes.BadRequest)
+      response.errors.head must ===("Quantity must be greater than zero")
+    }
+
+    "fails to create multiple gift cards with count more than limit" in new Fixture {
+      val response = POST(s"v1/gift-cards/_bulk", payloads.GiftCardBulkCreateByCsr(quantity = 25, balance = 256))
+      response.status must ===(StatusCodes.BadRequest)
+      response.errors.head must ===("Bulk creation limit exceeded")
+    }
+  }
+
 
   "GET /v1/gift-cards/:code" - {
     "finds a gift card by code" in new Fixture {
@@ -92,7 +129,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       response.errors.head must ===("Open transactions should be canceled/completed")
     }
 
-    "successfully cancels gift card with provided reason" in new Fixture {
+    "successfully cancels gift card with provided reason, cancel adjustment is created" in new Fixture {
       // Cancel pending adjustment
       GiftCardAdjustments.cancel(adjustment.id).run().futureValue
 
@@ -102,6 +139,13 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
       val root = response.as[GiftCardResponse.Root]
       root.canceledAmount must ===(Some(giftCard.originalBalance))
+
+      // Ensure that cancel adjustment is automatically created
+      val transactionsRep = GET(s"v1/gift-cards/${giftCard.code}/transactions")
+      val adjustments = transactionsRep.as[Seq[GiftCardAdjustmentsResponse.Root]]
+      response.status must ===(StatusCodes.OK)
+      adjustments.size mustBe 2
+      adjustments.head.state must ===(GiftCardAdjustment.Capture)
     }
 
     "fails to cancel gift card if invalid reason provided" in new Fixture {
@@ -126,7 +170,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       val firstAdjustment = adjustments.head
       firstAdjustment.amount must ===(-adjustment.debit)
       firstAdjustment.availableBalance must ===(giftCard.originalBalance - adjustment.debit)
-      firstAdjustment.orderRef mustBe order.referenceNumber
+      firstAdjustment.orderRef.get mustBe order.referenceNumber
     }
   }
 
@@ -208,7 +252,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       giftCard ← GiftCards.save(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active))
       payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = giftCard.id,
         paymentMethodType = PaymentMethod.GiftCard))
-      adjustment ← GiftCards.auth(giftCard, payment.id, 10)
+      adjustment ← GiftCards.auth(giftCard, Some(payment.id), 10)
       giftCard ← GiftCards.findById(giftCard.id)
     } yield (admin, giftCard.get, order, adjustment)).run().futureValue
   }
