@@ -2,7 +2,6 @@ package services
 
 import scala.concurrent.ExecutionContext
 
-import cats.data.Xor
 import models.{PaymentMethod, CreditCard, Orders, OrderPayment, OrderPayments, GiftCards, StoreCredits, StoreCredit,
 CreditCards}
 import models.OrderPayments.scope._
@@ -37,33 +36,26 @@ object OrderPaymentUpdater {
   }
 
   def addStoreCredit(refNum: String, payload: StoreCreditPayment)
-    (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
+    (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
 
-    db.run(for {
-      order ← Orders.findCartByRefNum(refNum).one
-      storeCredits ← order.map { o ⇒
-        StoreCredits.findAllActiveByCustomerId(o.customerId).result
-      }.getOrElse(DBIO.successful(Seq.empty[StoreCredit]))
-    } yield (order, storeCredits)).flatMap {
+    val finder = Orders.findCartByRefNum(refNum)
+    finder.findOneAndRun { order ⇒
+      StoreCredits.findAllActiveByCustomerId(order.customerId).result.flatMap { storeCredits ⇒
+        val reqAmount = payload.amount
 
-      case (Some(order), storeCredits) ⇒
         val available = storeCredits.map(_.availableBalance).sum
 
-        if (available < payload.amount) {
-          val error = CustomerHasInsufficientStoreCredit(id = order.customerId, has = available, want = payload.amount)
-          Result.left(error.single)
+        if (available < reqAmount) {
+          DbResult.failure(CustomerHasInsufficientStoreCredit(id = order.customerId, has = available, want = reqAmount))
         } else {
           val delete = OrderPayments.filter(_.orderId === order.id).storeCredits.delete
-          val payments = StoreCredit.processFifo(storeCredits.toList, payload.amount).map { case (sc, amount) ⇒
+          val payments = StoreCredit.processFifo(storeCredits.toList, reqAmount).map { case (sc, amount) ⇒
             OrderPayment.build(sc).copy(orderId = order.id, amount = Some(amount))
           }
 
-          val queries = (delete >> (OrderPayments ++= payments)).transactionally
-          db.run(queries).map(_ ⇒ Xor.right(Unit))
+          DbResult.fromDbio(delete >> (OrderPayments ++= payments) >> finder.result.head.flatMap(FullOrder.fromOrder))
         }
-
-      case (None, _) ⇒
-        Result.left(OrderNotFoundFailure(refNum).single)
+      }
     }
   }
 

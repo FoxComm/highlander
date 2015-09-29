@@ -318,10 +318,10 @@ object Admin {
         } ~
         pathPrefix("payment-methods" / "store-credit") {
           (post & entity(as[payloads.StoreCreditPayment]) & pathEnd) { payload ⇒
-            complete { OrderPaymentUpdater.addStoreCredit(refNum, payload).map(renderNothingOrFailures) }
+            complete { OrderPaymentUpdater.addStoreCredit(refNum, payload).map(renderGoodOrFailures) }
           } ~
           (patch & entity(as[payloads.StoreCreditPayment]) & pathEnd) { payload ⇒
-            complete { OrderPaymentUpdater.addStoreCredit(refNum, payload).map(renderNothingOrFailures) }
+            complete { OrderPaymentUpdater.addStoreCredit(refNum, payload).map(renderGoodOrFailures) }
           } ~
           (delete & pathEnd) {
             complete { OrderPaymentUpdater.deleteStoreCredit(refNum).map(renderGoodOrFailures) }

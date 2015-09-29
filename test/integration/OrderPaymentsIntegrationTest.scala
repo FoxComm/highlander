@@ -135,7 +135,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
           val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
           val payments = storeCreditPayments(order)
 
-          response.status must ===(StatusCodes.NoContent)
+          response.status must ===(StatusCodes.OK)
           payments must have size (2)
 
           val expected = payments.sortBy(_.paymentMethodId).map(p ⇒ (p.paymentMethodId, p.amount)).toList
@@ -150,7 +150,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
           val payload = payloads.StoreCreditPayment(amount = 75)
           val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
 
-          response.status must ===(StatusCodes.NoContent)
+          response.status must ===(StatusCodes.OK)
           val payments = storeCreditPayments(order)
           payments.map(_.paymentMethodId) must contain noneOf(1, 2)
           payments must have size (2)
@@ -161,14 +161,14 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
           val createdResponse = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
           val createdPayments = storeCreditPayments(order)
 
-          createdResponse.status must ===(StatusCodes.NoContent)
+          createdResponse.status must ===(StatusCodes.OK)
           createdPayments must have size (2)
 
           val createdPaymentIds = createdPayments.map(_.id).toList
           val editedResponse = PATCH(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
           val editedPayments = storeCreditPayments(order)
 
-          editedResponse.status must ===(StatusCodes.NoContent)
+          editedResponse.status must ===(StatusCodes.OK)
           editedPayments must have size (2)
           editedPayments.map(_.id) mustNot contain theSameElementsAs(createdPaymentIds)
         }
@@ -180,7 +180,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/orders/${notFound.refNum}/payment-methods/store-credit", payload)
 
         response.status must ===(StatusCodes.NotFound)
-        parseErrors(response) must ===(OrderNotFoundFailure(notFound).description)
+        parseErrors(response).head must ===("Not found")
         storeCreditPayments(order) must have size (0)
       }
 
@@ -220,7 +220,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val payload = payloads.StoreCreditPayment(amount = 75)
         val create = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
 
-        create.status must ===(StatusCodes.NoContent)
+        create.status must ===(StatusCodes.OK)
 
         val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/store-credit")
 
