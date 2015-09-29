@@ -8,8 +8,8 @@ const path = require('path');
 const order = require('../orders/order-sample.json');
 
 describe('LineItemDelete', function() {
-  let DeleteLineItem = require(path.resolve('src/themes/admin/components/line-items/line-item-delete.jsx'));
-  let Modal = require(path.resolve('src/themes/admin/components/modal/modal.jsx'));
+  let DeleteLineItem = require(path.resolve('src/components/line-items/line-item-delete.jsx'));
+  let Modal = require(path.resolve('src/components/modal/modal.jsx'));
   let container = null;
   let modalContainer = null;
   let onDelete = () => {return;};

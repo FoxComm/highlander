@@ -5,7 +5,7 @@ const assert = require('assert');
 const sinon = require('sinon');
 
 describe('dispatcher', function() {
-  const dispatcher = require(path.resolve('src/themes/admin/lib/dispatcher'));
+  const dispatcher = require(path.resolve('src/lib/dispatcher'));
 
   it('should stop listening events', function() {
     let ctx = {

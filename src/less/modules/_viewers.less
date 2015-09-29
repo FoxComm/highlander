@@ -1,0 +1,32 @@
+.viewers {
+  ul {
+    background: #f1f1f2;
+    .padding-top(10px);
+    .padding-bottom(10px);
+    .padding-left(10px);
+
+    &:nth-child(2) {
+      .margin-top(2px);
+    }
+
+    li {
+      display: inline-block;
+      vertical-align: top;
+      .margin-right(5px);
+
+      &:nth-child(1) .initials { background-color: #db9a6e;}
+      &:nth-child(2) .initials { background-color: #d3fe64;}
+      &:nth-child(3) .initials { background-color: #5271b2;}
+      &:nth-child(4) .initials { background-color: #48c406;}
+      &:nth-child(5) .initials { background-color: #9f33a7;}
+      &:nth-child(6) .initials { background-color: #8ea973;}
+
+      &.lock {
+        .padding-top(5px);
+        .icon-lock {
+          .font-spec(30px);
+        }
+      }
+    }
+  }
+}
