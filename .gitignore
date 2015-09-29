@@ -30,8 +30,7 @@ node_modules
 
 # Ignore compiled js/css
 public/themes
-public/admin.css
-public/admin.js
+public/admin.*
 
 .vagrant
 
