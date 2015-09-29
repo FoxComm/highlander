@@ -3,6 +3,7 @@ package services
 import scala.concurrent.{Future, ExecutionContext}
 
 import cats.data.Validated.{Valid, Invalid}
+import cats.data.Xor
 import models._
 import payloads.{AddGiftCardLineItem, UpdateLineItemsPayload}
 import cats.implicits._
@@ -20,9 +21,7 @@ object LineItemUpdater {
 
     payload.validate match {
       case Valid(_) ⇒
-        val finder = Orders._findActiveOrderByCustomer(customer)
-
-        finder.findOneAndRun { order ⇒
+        Orders._findActiveOrderByCustomer(customer).findOneAndRun { order ⇒
           val queries = for {
             gc ← GiftCards.save(GiftCard.buildLineItem(customer, payload.balance, payload.currency))
             rel ← OrderGiftCards.save(OrderGiftCard.build(order, gc))
@@ -32,6 +31,41 @@ object LineItemUpdater {
         }
       case Invalid(errors) ⇒
         Result.failures(errors.failure)
+    }
+  }
+
+  def editGiftCard(customer: Customer, code: String, payload: AddGiftCardLineItem)
+    (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
+
+    payload.validate match {
+      case Valid(_) ⇒
+        GiftCards.findByCode(code).findOneAndRun { gc ⇒
+          val updatedGc = gc.copy(originalBalance = payload.balance,
+            availableBalance = payload.balance, currentBalance = payload.balance, currency = payload.currency)
+
+          val update = GiftCards.filter(_.id === gc.id).update(updatedGc)
+
+          Orders._findActiveOrderByCustomer(customer).one.flatMap {
+            case Some(o) ⇒ DbResult.fromDbio(update >> FullOrder.fromOrder(o))
+            case None    ⇒ DbResult.failure(NotFoundFailure("Order not found"))
+          }
+        }
+      case Invalid(errors) ⇒
+        Result.failures(errors.failure)
+    }
+  }
+
+  def deleteGiftCard(customer: Customer, code: String)
+    (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
+
+    GiftCards.findByCode(code).findOneAndRun { gc ⇒
+      val deleteRelation = OrderGiftCards.filter(_.giftCardId === gc.id).delete
+      val deleteGiftCard = GiftCards.filter(_.id === gc.id).delete
+
+      Orders._findActiveOrderByCustomer(customer).one.flatMap {
+        case Some(o) ⇒ DbResult.fromDbio(deleteRelation >> deleteGiftCard >> FullOrder.fromOrder(o))
+        case None    ⇒ DbResult.failure(NotFoundFailure("Order not found"))
+      }
     }
   }
 

@@ -78,6 +78,16 @@ object Customer {
               LineItemUpdater.addGiftCard(customer, payload).map(renderGoodOrFailures)
             }
           } ~
+          (patch & path("gift-cards" / Segment) & entity(as[AddGiftCardLineItem])) { (code, payload) =>
+            complete {
+              LineItemUpdater.editGiftCard(customer, code, payload).map(renderGoodOrFailures)
+            }
+          } ~
+          (delete & path("gift-cards" / Segment)) { code ⇒
+            complete {
+              LineItemUpdater.deleteGiftCard(customer, code).map(renderGoodOrFailures)
+            }
+          } ~
           (get & path(PathEnd)) {
             complete {
               whenFound(Orders._findActiveOrderByCustomer(customer).one.run()) { order ⇒
