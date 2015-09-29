@@ -612,7 +612,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         val response = GET(s"v1/orders/${order.referenceNumber}/shipping-methods")
         response.status must === (StatusCodes.OK)
 
-        val methodResponse = parse(response.bodyText).extract[Seq[responses.ShippingMethods.Root]].head
+        val methodResponse = response.as[Seq[responses.ShippingMethods.Root]].head
         methodResponse.id must === (shippingMethod.id)
         methodResponse.name must === (shippingMethod.adminDisplayName)
         methodResponse.price must === (shippingMethod.price)
@@ -639,7 +639,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         val response = GET(s"v1/orders/${order.referenceNumber}/shipping-methods")
         response.status must === (StatusCodes.OK)
 
-        val methodResponse = parse(response.bodyText).extract[Seq[responses.ShippingMethods.Root]]
+        val methodResponse = response.as[Seq[responses.ShippingMethods.Root]].head
         methodResponse mustBe 'empty
       }
 
@@ -651,7 +651,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         val response = GET(s"v1/orders/${order.referenceNumber}/shipping-methods")
         response.status must === (StatusCodes.OK)
 
-        val methodResponse = parse(response.bodyText).extract[Seq[responses.ShippingMethods.Root]].head
+        val methodResponse = response.as[Seq[responses.ShippingMethods.Root]].head
         methodResponse.id must === (shippingMethod.id)
         methodResponse.name must === (shippingMethod.adminDisplayName)
         methodResponse.price must === (shippingMethod.price)
@@ -664,7 +664,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         val response = GET(s"v1/orders/${order.referenceNumber}/shipping-methods")
         response.status must === (StatusCodes.OK)
 
-        val methodResponse = parse(response.bodyText).extract[Seq[responses.ShippingMethods.Root]].head
+        val methodResponse = response.as[Seq[responses.ShippingMethods.Root]].head
         methodResponse.id must === (shippingMethod.id)
         methodResponse.name must === (shippingMethod.adminDisplayName)
         methodResponse.price must === (shippingMethod.price)
@@ -678,7 +678,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         val response = GET(s"v1/orders/${order.referenceNumber}/shipping-methods")
         response.status must === (StatusCodes.OK)
 
-        val methodResponse = parse(response.bodyText).extract[Seq[responses.ShippingMethods.Root]].head
+        val methodResponse = response.as[Seq[responses.ShippingMethods.Root]].head
         methodResponse.id must === (shippingMethod.id)
         methodResponse.name must === (shippingMethod.adminDisplayName)
         methodResponse.price must === (shippingMethod.price)
@@ -694,7 +694,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         val response = GET(s"v1/orders/${order.referenceNumber}/shipping-methods")
         response.status must === (StatusCodes.OK)
 
-        val methodResponse = parse(response.bodyText).extract[Seq[responses.ShippingMethods.Root]].head
+        val methodResponse = response.as[Seq[responses.ShippingMethods.Root]].head
         methodResponse.id must === (shippingMethod.id)
         methodResponse.name must === (shippingMethod.adminDisplayName)
         methodResponse.price must === (shippingMethod.price)
