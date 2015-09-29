@@ -5,7 +5,6 @@ const
 
 module.exports = function() {
   return {
-    theme: 'fluid',
     favicon: path.resolve('public/favicon.ico'),
     publicDir: path.resolve('public'),
     pageConstants: {
