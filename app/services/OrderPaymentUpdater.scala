@@ -9,6 +9,7 @@ import payloads.{GiftCardPayment, StoreCreditPayment}
 import responses.FullOrder
 import slick.driver.PostgresDriver.api._
 import utils.Slick.DbResult
+import utils.Slick._
 import utils.Slick.implicits._
 
 object OrderPaymentUpdater {
@@ -21,7 +22,7 @@ object OrderPaymentUpdater {
         case Some(gc) if gc.isActive ⇒
           if (gc.hasAvailable(payload.amount)) {
             val payment = OrderPayment.build(gc).copy(orderId = order.id, amount = Some(payload.amount))
-            DbResult.fromDbio(OrderPayments.save(payment) >> finder.result.head.flatMap(FullOrder.fromOrder))
+            DbResult.fromDbio(OrderPayments.save(payment) >> fullOrder(finder))
           } else {
             DbResult.failure(GiftCardNotEnoughBalance(gc, payload.amount))
           }
@@ -53,7 +54,7 @@ object OrderPaymentUpdater {
             OrderPayment.build(sc).copy(orderId = order.id, amount = Some(amount))
           }
 
-          DbResult.fromDbio(delete >> (OrderPayments ++= payments) >> finder.result.head.flatMap(FullOrder.fromOrder))
+          DbResult.fromDbio(delete >> (OrderPayments ++= payments) >> fullOrder(finder))
         }
       }
     }
@@ -69,7 +70,7 @@ object OrderPaymentUpdater {
           val payment = OrderPayment.build(cc).copy(orderId = order.id, amount = None)
           val delete = OrderPayments.filter(_.orderId === order.id).creditCards.delete
 
-          DbResult.fromDbio(delete >> OrderPayments.save(payment) >> finder.result.head.flatMap(FullOrder.fromOrder))
+          DbResult.fromDbio(delete >> OrderPayments.save(payment) >> fullOrder(finder))
 
         case Some(cc) ⇒
           DbResult.failure(CannotUseInactiveCreditCard(cc))
@@ -123,6 +124,6 @@ object OrderPaymentUpdater {
     if (rowsDeleted == 0)
       DbResult.failure(OrderPaymentNotFoundFailure(pmt))
     else
-      DbResult.fromDbio(finder.result.head.flatMap(FullOrder.fromOrder))
+      DbResult.fromDbio(fullOrder(finder))
   }
 }
