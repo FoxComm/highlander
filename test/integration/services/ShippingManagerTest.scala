@@ -2,7 +2,7 @@ package services
 
 import models._
 import models.rules.QueryStatement
-import util.IntegrationTestBase
+import util.{IntegrationTestBase, CatsHelpers}
 import utils.Seeds.Factories
 import utils._
 import utils.ExPostgresDriver.jsonMethods._
@@ -17,14 +17,12 @@ class ShippingManagerTest extends IntegrationTestBase {
 
       "Is true when the order is shipped to WA" in new WashingtonOrderFixture {
         val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).futureValue
-        matchingMethods.isRight must === (true)
-        matchingMethods.get.head.name must === (shippingMethod.adminDisplayName)
+        rightValue(matchingMethods).head.name must === (shippingMethod.adminDisplayName)
       }
 
       "Is false when the order is shipped to MI" in new MichiganOrderFixture {
         val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).futureValue
-        matchingMethods.isRight must === (true)
-        matchingMethods.get mustBe 'empty
+        rightValue(matchingMethods) mustBe 'empty
       }
 
     }
@@ -33,14 +31,12 @@ class ShippingManagerTest extends IntegrationTestBase {
 
       "Is true when the order total is greater than $25" in new PriceConditionFixture {
         val matchingMethods = ShippingManager.getShippingMethodsForOrder(expensiveOrder).futureValue
-        matchingMethods.isRight must === (true)
-        matchingMethods.get.head.name must === (shippingMethod.adminDisplayName)
+        rightValue(matchingMethods).head.name must === (shippingMethod.adminDisplayName)
       }
 
       "Is false when the order total is less than $25" in new PriceConditionFixture {
         val matchingMethods = ShippingManager.getShippingMethodsForOrder(cheapOrder).futureValue
-        matchingMethods.isRight must === (true)
-        matchingMethods.get mustBe 'empty
+        rightValue(matchingMethods) mustBe 'empty
       }
 
     }
@@ -54,8 +50,7 @@ class ShippingManagerTest extends IntegrationTestBase {
         } yield (address, orderShippingAddress)).futureValue
 
         val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).futureValue
-        matchingMethods.isRight must === (true)
-        matchingMethods.get.head.name must === (shippingMethod.adminDisplayName)
+        rightValue(matchingMethods).head.name must === (shippingMethod.adminDisplayName)
       }
 
       "Is false when the order total is $27 and shipped to MI" in new StateAndPriceCondition {
@@ -65,8 +60,7 @@ class ShippingManagerTest extends IntegrationTestBase {
         } yield (address, orderShippingAddress)).futureValue
 
         val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).futureValue
-        matchingMethods.isRight must === (true)
-        matchingMethods.get mustBe 'empty
+        rightValue(matchingMethods) mustBe 'empty
       }
 
     }
@@ -80,8 +74,7 @@ class ShippingManagerTest extends IntegrationTestBase {
         } yield (address, orderShippingAddress)).futureValue
 
         val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).futureValue
-        matchingMethods.isRight must === (true)
-        matchingMethods.get.head.name must === (shippingMethod.adminDisplayName)
+        rightValue(matchingMethods).head.name must === (shippingMethod.adminDisplayName)
       }
 
       "Is false when the order total is greater than $10 and address1 contains a P.O. Box" in new POCondition {
@@ -92,8 +85,7 @@ class ShippingManagerTest extends IntegrationTestBase {
         } yield (address, orderShippingAddress)).futureValue
 
         val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).futureValue
-        matchingMethods.isRight must === (true)
-        matchingMethods.get mustBe 'empty
+        rightValue(matchingMethods) mustBe 'empty
       }
 
       "Is false when the order total is greater than $10 and address2 contains a P.O. Box" in new POCondition {
@@ -104,8 +96,7 @@ class ShippingManagerTest extends IntegrationTestBase {
         } yield (address, orderShippingAddress)).futureValue
 
         val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).futureValue
-        matchingMethods.isRight must === (true)
-        matchingMethods.get mustBe 'empty
+        rightValue(matchingMethods) mustBe 'empty
       }
 
     }
