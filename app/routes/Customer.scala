@@ -25,7 +25,7 @@ object Customer {
         (get & path("cart")) {
           complete {
             whenOrderFoundAndEditable(customer) { activeOrder ⇒
-              FullOrder.fromOrder(activeOrder).map(Xor.right)
+              FullOrder.fromOrder(activeOrder).run().map(Xor.right)
             }
           }
         } ~
@@ -67,27 +67,7 @@ object Customer {
             complete {
               whenOrderFoundAndEditable(customer) { order ⇒
                 LineItemUpdater.updateQuantities(order, reqItems).flatMap {
-                  case Xor.Right(_) ⇒ FullOrder.fromOrder(order).map(Xor.right)
-                  case Xor.Left(e)  ⇒ Future.successful(Xor.left(e))
-                }
-              }
-            }
-          } ~
-          (get & path("shipping-methods")) {
-            complete {
-              whenOrderFoundAndEditable(customer) { order ⇒
-                ShippingMethodsBuilder.fullShippingMethodsForOrder(order).map { x =>
-                  // we'll need to handle Bad
-                  Xor.right(x)
-                }
-              }
-            }
-          } ~
-          (post & path("shipping-methods" / IntNumber)) { shipMethodId =>
-            complete {
-              whenOrderFoundAndEditable(customer) { order ⇒
-                ShippingMethodsBuilder.addShippingMethodToOrder(shipMethodId, order).flatMap {
-                  case Xor.Right(_) ⇒ FullOrder.fromOrder(order).map(Xor.right)
+                  case Xor.Right(_) ⇒ FullOrder.fromOrder(order).run().map(Xor.right)
                   case Xor.Left(e)  ⇒ Future.successful(Xor.left(e))
                 }
               }
@@ -96,7 +76,7 @@ object Customer {
           (get & path(PathEnd)) {
             complete {
               whenFound(Orders._findActiveOrderByCustomer(customer).one.run()) { order ⇒
-                FullOrder.fromOrder(order).map(Xor.right)
+                FullOrder.fromOrder(order).run().map(Xor.right)
               }
             }
           }

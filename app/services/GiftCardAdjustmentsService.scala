@@ -3,18 +3,29 @@ package services
 import scala.concurrent.ExecutionContext
 
 import responses.GiftCardAdjustmentsResponse
-import models.GiftCards
-import responses.GiftCardAdjustmentsResponse.Root
+import models.{Orders, OrderPayments, GiftCardAdjustments, GiftCards}
+import responses.GiftCardAdjustmentsResponse._
 import slick.driver.PostgresDriver.api._
+import utils.Slick._
 import utils.Slick.implicits._
 
 object GiftCardAdjustmentsService {
   def forGiftCard(code: String)(implicit db: Database, ec: ExecutionContext): Result[Seq[Root]] = {
-    GiftCards.findByCode(code).one.run().flatMap {
-      case Some(giftCard) ⇒
-        GiftCardAdjustmentsResponse.forGiftCard(giftCard)
-      case _ ⇒
-        Result.failure(GiftCardNotFoundFailure(code))
+    val finder = GiftCards.findByCode(code)
+
+    finder.findOneAndRun { gc ⇒
+      val query = GiftCardAdjustments.filterByGiftCardId(gc.id)
+        .joinLeft(OrderPayments).on(_.orderPaymentId === _.id)
+        .joinLeft(Orders).on(_._2.map(_.orderId) === _.id)
+
+      val adjustments = db.run(query.result).map { results ⇒
+        results.map {
+          case ((adj, Some(payment)), Some(order)) ⇒ build(adj, Some(order.referenceNumber))
+          case ((adj, _), _)                       ⇒ build(adj)
+        }
+      }
+
+      DbResult.fromFuture(adjustments)
     }
   }
 }

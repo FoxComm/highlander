@@ -22,8 +22,8 @@ class StoreCreditAdjustmentTest extends IntegrationTestBase {
 
       val adjustments = Table(
         ("adjustments"),
-        (StoreCredits.auth(storeCredit = sc, orderPaymentId = payment.id, amount = -1)),
-        (StoreCredits.auth(storeCredit = sc, orderPaymentId = payment.id, amount = 0))
+        (StoreCredits.auth(storeCredit = sc, orderPaymentId = Some(payment.id), amount = -1)),
+        (StoreCredits.auth(storeCredit = sc, orderPaymentId = Some(payment.id), amount = 0))
       )
 
       forAll(adjustments) { adjustment ⇒
@@ -38,14 +38,14 @@ class StoreCreditAdjustmentTest extends IntegrationTestBase {
         sc ← StoreCredits.save(Factories.storeCredit.copy(originalBalance = 500, originId = origin.id))
         payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id,
           paymentMethodId = sc.id))
-        _ ← StoreCredits.capture(storeCredit = sc, orderPaymentId = payment.id, amount = 50)
-        _ ← StoreCredits.capture(storeCredit = sc, orderPaymentId = payment.id, amount = 25)
-        _ ← StoreCredits.capture(storeCredit = sc, orderPaymentId = payment.id, amount = 15)
-        _ ← StoreCredits.capture(storeCredit = sc, orderPaymentId = payment.id, amount = 10)
-        _ ← StoreCredits.auth(storeCredit = sc, orderPaymentId = payment.id, amount = 100)
-        _ ← StoreCredits.auth(storeCredit = sc, orderPaymentId = payment.id, amount = 50)
-        _ ← StoreCredits.auth(storeCredit = sc, orderPaymentId = payment.id, amount = 50)
-        _ ← StoreCredits.capture(storeCredit = sc, orderPaymentId = payment.id, amount = 200)
+        _ ← StoreCredits.capture(storeCredit = sc, orderPaymentId = Some(payment.id), amount = 50)
+        _ ← StoreCredits.capture(storeCredit = sc, orderPaymentId = Some(payment.id), amount = 25)
+        _ ← StoreCredits.capture(storeCredit = sc, orderPaymentId = Some(payment.id), amount = 15)
+        _ ← StoreCredits.capture(storeCredit = sc, orderPaymentId = Some(payment.id), amount = 10)
+        _ ← StoreCredits.auth(storeCredit = sc, orderPaymentId = Some(payment.id), amount = 100)
+        _ ← StoreCredits.auth(storeCredit = sc, orderPaymentId = Some(payment.id), amount = 50)
+        _ ← StoreCredits.auth(storeCredit = sc, orderPaymentId = Some(payment.id), amount = 50)
+        _ ← StoreCredits.capture(storeCredit = sc, orderPaymentId = Some(payment.id), amount = 200)
         sc ← StoreCredits.findById(sc.id)
       } yield sc.get).run().futureValue
 
@@ -62,7 +62,7 @@ class StoreCreditAdjustmentTest extends IntegrationTestBase {
 
       val debits = List(50, 25, 15, 10)
       val adjustments = db.run(DBIO.sequence(debits.map { amount ⇒
-        StoreCredits.capture(storeCredit = sc, orderPaymentId = payment.id, amount = amount)
+        StoreCredits.capture(storeCredit = sc, orderPaymentId = Some(payment.id), amount = amount)
       })).futureValue
 
       db.run(DBIO.sequence(adjustments.map { adj ⇒

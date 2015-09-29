@@ -1,6 +1,6 @@
 package services
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Xor
 import cats.data.Validated.{Valid, Invalid}
@@ -9,7 +9,7 @@ import models.{GiftCardAdjustments, GiftCard, Customer, Customers, GiftCards, Re
 StoreAdmins}
 import models.GiftCard.Canceled
 import responses.{GiftCardResponse, CustomerResponse, StoreAdminResponse}
-import responses.GiftCardResponse.Root
+import responses.GiftCardResponse._
 import slick.driver.PostgresDriver.api._
 import utils.Slick._
 import utils.Slick.UpdateReturning._
@@ -34,13 +34,44 @@ object GiftCardService {
     }
   }
 
+  def createBulkByAdmin(admin: StoreAdmin, payload: payloads.GiftCardBulkCreateByCsr)
+    (implicit ec: ExecutionContext, db: Database): Result[Seq[Root]] = {
+
+    payload.validate match {
+      case Valid(_)        ⇒
+        val payloadSingle = payloads.GiftCardCreateByCsr(balance = payload.balance, currency = payload.currency)
+        val toInsert = (1 to payload.quantity).map { _ ⇒ GiftCard.buildAppeasement(admin, payloadSingle) }
+
+        // Validate only first, since all other are the same
+        toInsert.head.validate match {
+          case Valid(_) ⇒
+            // Insert multiple values in a single transaction
+            val query = (for {
+              giftCards ← (GiftCards ++= toInsert.toSeq) >> GiftCards.sortBy(_.id.desc).take(payload.quantity).result
+            } yield giftCards).flatMap { seq ⇒
+              val storeAdminResponse = Some(StoreAdminResponse.build(admin))
+              lift(seq.map(build(_, None, storeAdminResponse)).reverse)
+            }
+
+            Result.fromFuture(query.transactionally.run())
+          case Invalid(errors) ⇒
+            Result.failures(errors.failure)
+        }
+      case Invalid(errors) ⇒
+        Result.failures(errors.failure)
+    }
+  }
+
   def createByAdmin(admin: StoreAdmin, payload: payloads.GiftCardCreateByCsr)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
 
-    createGiftCardModel(admin, payload)
+    payload.validate match {
+      case Invalid(errors) ⇒ Result.failures(errors.failure)
+      case Valid(_)        ⇒ createGiftCardModel(admin, payload)
+    }
   }
 
-  def updateStatusByCsr(code: String, payload: payloads.GiftCardUpdateStatusByCsr)
+  def updateStatusByCsr(code: String, payload: payloads.GiftCardUpdateStatusByCsr, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
 
     val finder = GiftCards.findByCode(code)
@@ -50,19 +81,19 @@ object GiftCardService {
         case Xor.Left(message) ⇒ DbResult.failure(GeneralFailure(message))
         case Xor.Right(_) ⇒ (payload.status, payload.reason) match {
           case (Canceled, Some(reason)) ⇒
-            cancelByCsr(finder, gc, payload)
+            cancelByCsr(finder, gc, payload, admin)
           case (Canceled, None) ⇒
             DbResult.failure(EmptyCancellationReasonFailure)
           case (_, _) ⇒
             val update = finder.map(_.status).updateReturning(GiftCards.map(identity), payload.status).head
-            DbResult.fromDbio(update.flatMap { gc ⇒ DBIO.successful(GiftCardResponse.build(gc)) })
+            DbResult.fromDbio(update.flatMap { gc ⇒ lift(GiftCardResponse.build(gc)) })
         }
       }
     }
   }
 
-  private def cancelByCsr(finder: QuerySeq, gc: GiftCard, payload: payloads.GiftCardUpdateStatusByCsr)
-    (implicit ec: ExecutionContext, db: Database) = {
+  private def cancelByCsr(finder: QuerySeq, gc: GiftCard, payload: payloads.GiftCardUpdateStatusByCsr,
+    admin: StoreAdmin)(implicit ec: ExecutionContext, db: Database) = {
 
     GiftCardAdjustments.lastAuthByGiftCardId(gc.id).one.flatMap {
       case Some(adjustment) ⇒
@@ -78,7 +109,11 @@ object GiftCardService {
               .updateReturning(GiftCards.map(identity), data)
               .head
 
-            DbResult.fromDbio(cancellation.flatMap { gc ⇒ DBIO.successful(GiftCardResponse.build(gc)) })
+            val cancelAdjustment = GiftCards.cancelByCsr(gc, admin)
+
+            DbResult.fromDbio(cancelAdjustment >> cancellation.flatMap {
+              gc ⇒ lift(GiftCardResponse.build(gc))
+            })
         }
     }
   }
@@ -94,8 +129,8 @@ object GiftCardService {
 
   private def createGiftCard(gc: GiftCard)(implicit ec: ExecutionContext, db: Database): Result[GiftCard] = {
     gc.validate match {
-      case Valid(_)             ⇒ Result.fromFuture(GiftCards.save(gc).run())
-      case Invalid(errors)      ⇒ Result.failures(errors.failure)
+      case Valid(_)        ⇒ Result.fromFuture(GiftCards.save(gc).run())
+      case Invalid(errors) ⇒ Result.failures(errors.failure)
     }
   }
 
@@ -112,7 +147,7 @@ object GiftCardService {
       case GiftCard.CsrAppeasement ⇒
         StoreAdmins._findById(gc.originId).extract.one.map(Xor.right)
       case _ ⇒
-        DBIO.successful(Xor.left(None))
+        lift(Xor.left(None))
     }
-  }.getOrElse(DBIO.successful(Xor.left(None)))
+  }.getOrElse(lift(Xor.left(None)))
 }

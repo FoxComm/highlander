@@ -22,10 +22,8 @@ object Seeds {
   final case class TheWorld(customers: Seq[Customer], order: Order, orderNotes: Seq[Note], address: Address,
     cc: CreditCard, storeAdmin: StoreAdmin, shippingAddresses: Seq[OrderShippingAddress],
     shippingMethods: Seq[ShippingMethod], shippingPriceRules: Seq[ShippingPriceRule],
-    shippingMethodRuleMappings: Seq[ShippingMethodPriceRule], orderCriteria: Seq[OrderCriterion],
-    orderPriceCriteria: Seq[OrderPriceCriterion], priceRuleCriteriaMappings: Seq[ShippingPriceRuleOrderCriterion],
-    skus: Seq[Sku], orderLineItems: Seq[OrderLineItem], orderPayments: Seq[OrderPayment], shipment: Shipment,
-    paymentMethods: AllPaymentMethods, reasons: Seq[Reason])
+    shippingMethodRuleMappings: Seq[ShippingMethodPriceRule], skus: Seq[Sku], orderLineItems: Seq[OrderLineItem],
+    orderPayments: Seq[OrderPayment], shipment: Shipment, paymentMethods: AllPaymentMethods, reasons: Seq[Reason])
 
   final case class AllPaymentMethods(giftCard: GiftCard = Factories.giftCard, storeCredit: StoreCredit = Factories
     .storeCredit)
@@ -47,9 +45,6 @@ object Seeds {
       cc = Factories.creditCard,
       shippingPriceRules = Factories.shippingPriceRules,
       shippingMethodRuleMappings = Factories.shippingMethodRuleMappings,
-      orderCriteria = Factories.orderCriteria,
-      orderPriceCriteria = Factories.orderPriceCriteria,
-      priceRuleCriteriaMappings = Factories.priceRuleCriteriaMappings,
       orderLineItems = Factories.orderLineItems,
       orderPayments = Seq(Factories.orderPayment),
       shipment = Factories.shipment,
@@ -83,18 +78,14 @@ object Seeds {
         paymentMethodId = creditCard.id))
       shippingPriceRule ← ShippingPriceRules ++= s.shippingPriceRules
       shippingMethodRuleMappings ← ShippingMethodsPriceRules ++= s.shippingMethodRuleMappings
-      orderCriterion ← OrderCriteria ++= s.orderCriteria
-      orderPriceCriterion ← OrderPriceCriteria ++= s.orderPriceCriteria
-      priceRuleCriteriaMapping ← ShippingPriceRulesOrderCriteria ++= s.priceRuleCriteriaMappings
       shipments ← Shipments.save(s.shipment)
       reasons ← Reasons ++= s.reasons.map(_.copy(storeAdminId = storeAdmin.id))
       gcOrigin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = storeAdmin.id, reasonId = 1))
       giftCard ← GiftCards.save(s.paymentMethods.giftCard.copy(originId = gcOrigin.id))
-      gcAdjustments ← GiftCardAdjustments.save(Factories.giftCardAdjustment.copy(giftCardId = giftCard.id, debit = 10,
-        orderPaymentId = orderPayments.id, status = GiftCardAdjustment.Auth))
+      gcAdjustments ← GiftCards.auth(giftCard, Some(orderPayments.id), 10)
       scOrigin ← StoreCreditManuals.save(Factories.storeCreditManual.copy(adminId = storeAdmin.id, reasonId = 1))
       storeCredit ← StoreCredits.save(s.paymentMethods.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))
-      storeCreditAdjustments ← StoreCredits.auth(storeCredit, orderPayments.id, 10)
+      storeCreditAdjustments ← StoreCredits.auth(storeCredit, Some(orderPayments.id), 10)
     } yield (customers, order, address, shippingAddress, creditCard, giftCard, storeCredit)
   }
 
@@ -200,24 +191,6 @@ object Seeds {
       ShippingMethodPriceRule(shippingMethodId = 2, shippingPriceRuleId = 3, ruleRank = 3),
 
       ShippingMethodPriceRule(shippingMethodId = 3, shippingPriceRuleId = 1, ruleRank = 1)
-    )
-
-    def orderCriteria: Seq[OrderCriterion] = Seq(
-      OrderCriterion(name = "doesn'tmater"),
-      OrderCriterion(name = "doesn'tmater"),
-      OrderCriterion(name = "doesn'tmater")
-    )
-
-    def orderPriceCriteria = Seq(
-      OrderPriceCriterion(id = 1, priceType = OrderPriceCriterion.SubTotal, greaterThan = Some(20), currency = Currency.USD, exclude = false),
-      OrderPriceCriterion(id = 2, priceType = OrderPriceCriterion.SubTotal, greaterThan = Some(50), currency = Currency.USD, exclude = false),
-      OrderPriceCriterion(id = 3, priceType = OrderPriceCriterion.SubTotal, greaterThan = Some(100), currency = Currency.USD, exclude = false)
-    )
-
-    def priceRuleCriteriaMappings = Seq(
-      ShippingPriceRuleOrderCriterion(orderCriterionId = 1, shippingPricingRuleId = 1),
-      ShippingPriceRuleOrderCriterion(orderCriterionId = 2, shippingPricingRuleId = 2),
-      ShippingPriceRuleOrderCriterion(orderCriterionId = 3, shippingPricingRuleId = 3)
     )
 
     def shipment = Shipment(1, 1, Some(1), Some(1))
