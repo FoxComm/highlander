@@ -8,7 +8,7 @@ const path = require('path');
 const moment = require('moment');
 
 describe('Countdown', function() {
-  let Countdown = require(path.resolve('src/themes/admin/components/countdown/countdown.jsx'));
+  let Countdown = require(path.resolve('src/components/countdown/countdown.jsx'));
   let container = null;
 
   beforeEach(function() {

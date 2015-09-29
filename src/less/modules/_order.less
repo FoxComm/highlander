@@ -1,0 +1,67 @@
+#order {
+  .title {
+    .clearfix();
+    .margin-top(40px);
+    .margin-bottom(25px);
+    vertical-align: middle;
+
+    h1, .countdown {
+      .inline-block(middle);
+    }
+    .cancel {
+      float: right;
+    }
+  }
+  h1 {
+    .margin-top(0);
+    .margin-bottom(0);
+    .margin-right(15px);
+
+    em {
+      color: #cdcdcd;
+      font-style: normal;
+      .font-spec(16px, 400);
+
+      a,
+      a:visited {
+        color: #cdcdcd;
+      }
+    }
+
+    + time {
+      display: block;
+      .margin-bottom(55px);
+    }
+  }
+
+  .statuses {
+    .clearfix;
+    .margin-bottom(55px);
+
+    dl {
+      margin: 0;
+      padding: 0;
+      display: inline-block;
+      vertical-align: top;
+      border-radius: 5px;
+      background: #f7f7f7;
+      .width(20%);
+      .padding-top(15px);
+      .padding-bottom(15px);
+      .margin-right(5%);
+      &:last-child { .margin-right(0); }
+
+      dt,
+      dd {
+        color: #adaaaa;
+        margin: 0;
+        padding: 0;
+        text-align: center;
+        .min-height(30px);
+        .line-height(30px);
+      }
+
+      dd { font-weight: 700; }
+    }
+  }
+}

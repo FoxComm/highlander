@@ -8,7 +8,7 @@ const path = require('path');
 const order = require('../orders/order-sample.json');
 
 describe('OrderLineItems', function() {
-  let LineItems = require(path.resolve('src/themes/admin/components/line-items/line-items.jsx'));
+  let LineItems = require(path.resolve('src/components/line-items/line-items.jsx'));
   let container = null;
 
   beforeEach(function() {

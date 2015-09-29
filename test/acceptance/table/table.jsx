@@ -7,7 +7,7 @@ const TestUtils = React.addons.TestUtils;
 const path = require('path');
 
 const TableStore = require(path.resolve('test/acceptance/table/store.js'));
-const TableView = require(path.resolve('src/themes/admin/components/tables/tableview.jsx'));
+const TableView = require(path.resolve('src/components/tables/tableview.jsx'));
 
 class TestTable extends React.Component {
   constructor(props) {

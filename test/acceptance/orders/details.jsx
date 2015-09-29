@@ -8,7 +8,7 @@ const path = require('path');
 const order = require('./order-sample.json');
 
 describe('OrderDetails', function() {
-  let OrderDetails = require(path.resolve('src/themes/admin/components/orders/details.jsx'));
+  let OrderDetails = require(path.resolve('src/components/orders/details.jsx'));
   let container = null;
 
   beforeEach(function() {
