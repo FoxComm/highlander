@@ -13,7 +13,6 @@ module.exports = function(app) {
 
   router
     .get('/:path*', function *(next) {
-      this.theme = 'admin';
       yield next;
     }, app.renderReact);
 
