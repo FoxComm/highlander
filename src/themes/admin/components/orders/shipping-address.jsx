@@ -2,32 +2,64 @@
 
 import React from 'react';
 import Addresses from '../addresses/addresses';
+import AddressDetails from '../addresses/address-details';
+import OrderStore from '../../stores/orders';
 
 export default class OrderShippingAddress extends React.Component {
-  render() {
-    let
-      address = this.props.order.shippingAddress,
-      innercontent = null;
 
-    if (this.props.isEditing) {
-      innercontent = <Addresses order={this.props.order} />;
+  constructor(props) {
+    super(props);
+    this.state = {
+      isEditing: false
+    };
+  }
+
+  onSelectAddress(address) {
+    OrderStore.setShippingAddress(this.props.order.referenceNumber, address.id);
+  }
+
+  toggleEdit() {
+    this.setState({
+      isEditing: !this.state.isEditing
+    });
+  }
+
+  render() {
+    let address = this.props.order.shippingAddress;
+    let body = null;
+    let actions = null;
+    let editButton = null;
+
+    if (this.state.isEditing) {
+      body = <Addresses order={this.props.order} onSelectAddress={this.onSelectAddress.bind(this)} />;
+      actions = (
+        <footer>
+          <button className="fc-btn fc-btn-primary" onClick={this.toggleEdit.bind(this)}>Done</button>
+        </footer>
+      );
     } else {
-      innercontent = (
-        <div>
-          <div className="address-line">{address.name}</div>
-          <div className="address-line">{address.street1}</div>
-          <div className="address-line">{address.street2}</div>
-          <div className="address-line">{address.city}, {address.state} {address.zip}</div>
-          <div className="address-line">{address.country}</div>
-        </div>
+      body = (
+        <AddressDetails address={address} />
+      );
+      editButton = (
+        <button className="fc-btn fc-btn-primary fc-edit-button icon-edit" onClick={this.toggleEdit.bind(this)}>
+        </button>
       );
     }
 
     return (
-      <section className="fc-content-box" id="order-shipping-address">
-        <header className="header">Shipping Address</header>
+      <section className="fc-content-box fc-order-shipping-address">
+        <header>
+          <div className='fc-grid'>
+            <div className="fc-col-2-3">Shipping Address</div>
+            <div className="fc-col-1-3 fc-controls">
+              {editButton}
+            </div>
+          </div>
+        </header>
         <article>
-          {innercontent}
+          {body}
+          {actions}
         </article>
       </section>
     );

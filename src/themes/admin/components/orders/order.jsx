@@ -4,12 +4,11 @@ import React from 'react';
 import { RouteHandler } from 'react-router';
 import { Link } from 'react-router';
 import { listenTo, stopListeningTo, dispatch } from '../../lib/dispatcher';
-import OrderStore from './store';
+import OrderStore from './../../stores/orders';
 import Viewers from '../viewers/viewers';
 import ConfirmModal from '../modal/confirm';
 import RemorseTimer from './remorseTimer';
 
-const confirmEvent = 'confirm-change';
 const changeOptions = {
   header: 'Confirm',
   body: 'Are you sure you want to change the order status?',
@@ -34,29 +33,32 @@ export default class Order extends React.Component {
     };
   }
 
+  get orderRefNum() {
+    let { router } = this.context;
+    return router.getCurrentParams().order
+  }
+
   componentDidMount() {
-    let
-      { router }  = this.context,
-      orderId     = router.getCurrentParams().order;
-    OrderStore.listenToEvent('change', this);
-    listenTo(confirmEvent, this);
-    OrderStore.fetch(orderId);
+    OrderStore.listenToEvent('change-item', this);
+    OrderStore.fetch(this.orderRefNum);
   }
 
   componentWillUnmount() {
-    OrderStore.stopListeningToEvent('change', this);
-    stopListeningTo(confirmEvent, this);
+    OrderStore.stopListeningToEvent('change-item', this);
   }
 
-  onChangeOrderStore(order) {
+  onChangeItemOrderStore(order) {
+    if (this.orderRefNum !== order.referenceNumber) return;
+
     this.setState({
       order: order,
       customer: order.customer
     });
   }
 
-  onConfirmChange() {
-    dispatch('toggleModal', null);
+  onConfirmChange(success) {
+    if (!success) return;
+
     this.patchOrder();
   }
 
@@ -75,7 +77,7 @@ export default class Order extends React.Component {
     });
     let options = status !== 'canceled' ? changeOptions : cancelOptions;
 
-    dispatch('toggleModal', <ConfirmModal event={confirmEvent} details={options} />);
+    dispatch('toggleModal', <ConfirmModal callback={this.onConfirmChange.bind(this)} details={options} />);
   }
 
   changeOrderStatus(event) {

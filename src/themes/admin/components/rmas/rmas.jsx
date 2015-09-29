@@ -24,10 +24,8 @@ export default class Rmas extends React.Component {
     RmaStore.stopListeningToEvent('change', this);
   }
 
-  onChangeRmaStore() {
-    this.setState({
-      rmas: RmaStore.getState()
-    });
+  onChangeRmaStore(rmas) {
+    this.setState({rmas});
   }
 
   onSelectedChange(event) {

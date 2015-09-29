@@ -6,15 +6,20 @@ import { dispatch } from '../../lib/dispatcher';
 
 export default class ConfirmModal extends React.Component {
   confirmModal() {
-    let eventName = camelize(this.props.event);
-    dispatch(eventName);
+    if (this.props.closeOnSuccess) {
+      dispatch('toggleModal', null);
+    }
+
+    if (this.props.callback) {
+      this.props.callback(true);
+    }
   }
 
   render() {
     let modalOptions = this.props.details;
 
     return (
-      <div>
+      <div className="fc-modal-confirm">
         <div className='fc-modal-header'>
           <div className='icon'>
             <i className='icon-warning'></i>
@@ -29,7 +34,7 @@ export default class ConfirmModal extends React.Component {
         </div>
         <div className='fc-modal-footer'>
           <a className='fc-modal-close' onClick={dispatch.bind(null, 'toggleModal', null)}>{modalOptions.cancel}</a>
-          <button className='submit btn' onClick={this.confirmModal.bind(this)}>{modalOptions.proceed}</button>
+          <button className='fc-btn' onClick={this.confirmModal.bind(this)}>{modalOptions.proceed}</button>
         </div>
       </div>
     );
@@ -37,8 +42,9 @@ export default class ConfirmModal extends React.Component {
 }
 
 ConfirmModal.propTypes = {
-  event: React.PropTypes.string,
-  details: React.PropTypes.object
+  details: React.PropTypes.object,
+  callback: React.PropTypes.func,
+  closeOnSuccess: React.PropTypes.bool
 };
 
 ConfirmModal.defaultProps = {
@@ -47,5 +53,6 @@ ConfirmModal.defaultProps = {
     body: 'Are you sure you wish to proceed?',
     cancel: 'No',
     proceed: 'Yes'
-  }
+  },
+  closeOnSuccess: true
 };

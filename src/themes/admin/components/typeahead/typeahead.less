@@ -1,17 +1,17 @@
-.typeahead {
+.fc-typeahead {
   position: relative;
 
 
   input[type=text] {
-    .width(500px);
+    .width(800px);
   }
 
-  .typeahead-results {
+  .fc-typeahead-results {
     display: none;
     position: absolute;
-    .top(30px);
-    .left(0px);
-    .width(500px);
+    .top(39px);
+    .left(37px);
+    .width(800px);
     z-index: 999;
     background-color: #fff;
     border: 1px solid @color-border;
@@ -21,10 +21,12 @@
     &.show {
       display: block;
     }
+    .font-spec(12px, 400, 60px);
 
     li {
-      .padding(10px);
+      .padding(12px);
       border-bottom: 1px solid @color-border;
+
       &:last-child {
         border-bottom: none;
       }
@@ -32,6 +34,10 @@
       &:hover {
         background-color: @color-tr-even-bg;
         cursor: pointer;
+      }
+
+      .fc-grid {
+        line-height: pxtorem(20px);
       }
     }
   }

@@ -13,6 +13,7 @@
       height: 100%;
       .width(36px);
       border: none;
+      padding: 0;
     }
   }
   .fc-input-prepend {
@@ -25,6 +26,9 @@
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
   }
+  input {
+    .inline-block();
+  }
   input:not(:first-child):not(:last-child) {
     .border-radius(0);
   }
@@ -34,7 +38,10 @@
   }
 }
 
-input[type=text], input[type=number], textarea {
+input[type=text],
+input[type=tel],
+input[type=number],
+textarea {
   background-color: @color-decor0;
   border: 1px solid @color-decor7;
   box-shadow: inset 1px 1px 1px 0px rgba(0,0,0,0.1);

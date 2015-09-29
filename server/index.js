@@ -14,14 +14,12 @@ app.init = co.wrap(function *(env) {
   app.config = new Config(app.env);
   app.use(serve(app.config.server.publicDir));
   app.use(favicon(app.config.layout.favicon));
-  app.seeds = yield* require(`${__dirname}/seeds`)();
   if (app.env !== 'production') {
     app.use(require('koa-logger')());
   }
   
   require(`${__dirname}/middleware`)(app);
   require(`${__dirname}/api`)(app);
-  require(`${__dirname}/fauxnix`)(app);
   require(`${__dirname}/cms`)(app);
   app.server = app.listen(app.config.server.port);
 });

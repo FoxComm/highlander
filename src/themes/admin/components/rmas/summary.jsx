@@ -9,7 +9,7 @@ export default class RmaSummary extends React.Component {
 
     return (
       <div className="fc-rma-summary fc-content-box">
-        <header className="header">Return Summary</header>
+        <header>Return Summary</header>
         <article>
           <dl className="rma-totals">
             <dt>Subtotal</dt>
@@ -20,12 +20,12 @@ export default class RmaSummary extends React.Component {
             <dd>{formatCurrency(rma.totals.taxes)}</dd>
           </dl>
         </article>
-        <div className="footer">
+        <footer className="is-highlighted">
           <dl className="grand-total">
             <dt>Refunds Total</dt>
             <dd>{formatCurrency(rma.totals.total)}</dd>
           </dl>
-        </div>
+        </footer>
       </div>
     );
   }
