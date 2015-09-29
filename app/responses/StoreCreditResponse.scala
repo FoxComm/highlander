@@ -8,7 +8,7 @@ object StoreCreditResponse {
   final case class Root(
     id: Int,
     originId: Int,
-    `type`: models.StoreCredit.OriginType,
+    originType: models.StoreCredit.OriginType,
     currency: Currency,
     customerId: Int,
     originalBalance: Int,
@@ -22,7 +22,7 @@ object StoreCreditResponse {
   def build(storeCredit: models.StoreCredit): Root = {
     Root(id = storeCredit.id,
       originId = storeCredit.originId,
-      `type` = storeCredit.originType,
+      originType = storeCredit.originType,
       currency = storeCredit.currency,
       customerId = storeCredit.customerId,
       originalBalance = storeCredit.originalBalance,
