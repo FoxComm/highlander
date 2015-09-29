@@ -364,14 +364,14 @@ object Admin {
           (post & entity(as[payloads.CreateShippingAddress]) & pathEnd) { payload ⇒
             complete {
               whenOrderFoundAndEditable(refNum) { order ⇒
-                services.OrderUpdater.createShippingAddress(order, payload)
+                OrderUpdater.createShippingAddress(order, payload)
               }
             }
           } ~
           (patch & entity(as[payloads.UpdateShippingAddress]) & pathEnd) { payload ⇒
             complete {
               whenFound(Orders.findByRefNum(refNum).one.run()) { order ⇒
-                services.OrderUpdater.updateShippingAddress(order, payload)
+                OrderUpdater.updateShippingAddress(order, payload)
               }
             }
           } ~
@@ -379,7 +379,7 @@ object Admin {
             complete {
               Orders.findByRefNum(refNum).one.run().flatMap {
                 case Some(order) ⇒
-                  services.OrderUpdater.removeShippingAddress(order.id).map { _ ⇒ noContentResponse }
+                  OrderUpdater.removeShippingAddress(order.id).map { _ ⇒ noContentResponse }
                 case None ⇒
                   Future.successful(notFoundResponse)
               }
@@ -390,7 +390,7 @@ object Admin {
           (get & pathEnd) {
             complete {
               whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
-                services.ShippingManager.getShippingMethodsForOrder(order)
+                ShippingManager.getShippingMethodsForOrder(order)
               }
             }
           }
