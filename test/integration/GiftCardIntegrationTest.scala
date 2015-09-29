@@ -42,7 +42,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       val root = response.as[GiftCardResponse.Root]
 
       response.status must ===(StatusCodes.OK)
-      root.`type` must ===(GiftCard.CsrAppeasement)
+      root.originType must ===(GiftCard.CsrAppeasement)
       root.currency must ===(Currency.USD)
       root.availableBalance must ===(555)
     }
