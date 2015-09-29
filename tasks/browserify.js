@@ -13,9 +13,13 @@ const affectsServer = require('./server').affectsServer;
 module.exports = function(gulp, opts, $) {
   let production = (process.env.NODE_ENV === 'production');
 
+  let bundler = null;
+
   function getBundler() {
+    if (bundler) return bundler;
+
     let entries = path.join(opts.srcDir, 'app.js');
-    let bundler = browserify({
+    bundler = browserify({
       entries: [entries],
       standalone: 'App',
       transform: ['babelify'],
@@ -29,39 +33,29 @@ module.exports = function(gulp, opts, $) {
       bundler = watchify(bundler);
     }
 
-    let bundle = function() {
-      let stream = bundler
-        .bundle()
-        .on('error', function(err) {
-          stream.emit('error', err);
-        })
-        .pipe(source(`admin.js`))
-        .pipe(buffer())
-        //.pipe($.sourcemaps.init())
-        .pipe($.if(production, $.uglify()))
-        //.pipe($.sourcemaps.write('./maps'))
-        .pipe(gulp.dest(opts.publicDir));
-
-      return stream;
-    };
-
-    return {
-      bundler: bundler,
-      bundle: bundle
-    }
+    return bundler;
   }
 
   gulp.task('browserify', function() {
-    let stream = getBundler().bundle()
+    let stream = getBundler()
+      .bundle()
       .on('error', function(err) {
         stream.emit('error', err);
-      });
+      })
+      .pipe(source(`admin.js`))
+      .pipe(buffer())
+      //.pipe($.sourcemaps.init())
+      .pipe($.if(production, $.uglify()))
+      //.pipe($.sourcemaps.write('./maps'))
+      .pipe(gulp.dest(opts.publicDir));
+
+    return stream;
     return stream;
   });
   affectsServer('browserify');
 
   gulp.task('browserify.watch', function() {
-    getBundler().bundler.on('update', function() {
+    getBundler().on('update', function() {
       runSequence('browserify');
     });
   })
