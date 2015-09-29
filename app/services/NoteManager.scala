@@ -2,19 +2,15 @@ package services
 
 import java.time.Instant
 
-import cats.data.Validated.{Valid, Invalid}
-import cats.implicits._
+import scala.concurrent.ExecutionContext
+
+import cats.data.Validated.{Invalid, Valid}
 import models._
 import responses.AdminNotes
 import responses.AdminNotes.Root
-import utils.ModelWithIdParameter
+import slick.driver.PostgresDriver.api._
 import utils.Slick.DbResult
 import utils.Slick.implicits._
-
-import scala.concurrent.ExecutionContext
-import slick.driver.PostgresDriver.api._
-
-import utils.time.JavaTimeSlickMapper.instantAndTimestampWithoutZone
 
 object NoteManager {
 
@@ -60,11 +56,9 @@ object NoteManager {
   def deleteNote(noteId: Int, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
     val finder = Notes._findById(noteId).extract
+
     finder.findOneAndRun { note ⇒
-      finder.update(note.copy(
-        deletedAt = Some(Instant.now),
-        deletedBy = Some(admin.id))
-      ) >> DbResult.unit
+      finder.map(n ⇒ (n.deletedAt, n.deletedBy)).update((Some(Instant.now), Some(admin.id))) >> DbResult.unit
     }
   }
 
