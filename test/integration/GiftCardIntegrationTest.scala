@@ -198,10 +198,8 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       )
 
       val response = PATCH(s"v1/gift-cards", payload)
-      response.status must ===(StatusCodes.OK)
-
-      val root = response.as[responses.GiftCardBulkUpdateResponse.Responses]
-      root.responses.map(_.errors.get.head).head must ===("Please provide valid cancellation reason")
+      response.status must ===(StatusCodes.BadRequest)
+      response.errors.head must ===("Please provide valid cancellation reason")
     }
   }
 

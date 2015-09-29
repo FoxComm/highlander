@@ -89,6 +89,17 @@ object StoreCredit {
 
   val activeStatuses = Set[Status](Active)
 
+  def validateStatusReason(status: StoreCredit.Status, reason: Option[Int]): ValidatedNel[Failure, Unit] = {
+    import Validation._
+
+    status match {
+      case (StoreCredit.Canceled) ⇒
+        validExpr(reason.isDefined, "Please provide valid cancellation reason")
+      case _ ⇒
+        valid({})
+    }
+  }
+
   implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
   implicit val originTypeColumnType: JdbcType[OriginType] with BaseTypedType[OriginType] = OriginType.slickColumn
 

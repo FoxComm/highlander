@@ -2,7 +2,7 @@ package models
 
 import java.time.Instant
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 import cats.data.Validated._
 import cats.data.ValidatedNel
@@ -100,6 +100,17 @@ object GiftCard {
       availableBalance = payload.balance,
       currentBalance = payload.balance
     )
+  }
+
+  def validateStatusReason(status: Status, reason: Option[Int]): ValidatedNel[Failure, Unit] = {
+    import Validation._
+
+    status match {
+      case (GiftCard.Canceled) ⇒
+        validExpr(reason.isDefined, "Please provide valid cancellation reason")
+      case _ ⇒
+        valid({})
+    }
   }
 
   implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
