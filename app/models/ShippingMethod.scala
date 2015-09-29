@@ -7,7 +7,7 @@ import monocle.macros.GenLens
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 final case class ShippingMethod(id:Int = 0, adminDisplayName: String, storefrontDisplayName: String,
-  shippingCarrierId: Option[Int] = None, defaultPrice: Int, isActive: Boolean = true,
+  shippingCarrierId: Option[Int] = None, price: Int, isActive: Boolean = true,
   conditions: Option[QueryStatement] = None, restrictions: Option[QueryStatement] = None)
   extends ModelWithIdParameter
 

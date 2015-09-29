@@ -615,7 +615,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         val methodResponse = parse(response.bodyText).extract[Seq[responses.ShippingMethods.Root]].head
         methodResponse.id must === (shippingMethod.id)
         methodResponse.name must === (shippingMethod.adminDisplayName)
-        methodResponse.price must === (shippingMethod.defaultPrice)
+        methodResponse.price must === (shippingMethod.price)
       }
 
     }
@@ -654,7 +654,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         val methodResponse = parse(response.bodyText).extract[Seq[responses.ShippingMethods.Root]].head
         methodResponse.id must === (shippingMethod.id)
         methodResponse.name must === (shippingMethod.adminDisplayName)
-        methodResponse.price must === (shippingMethod.defaultPrice)
+        methodResponse.price must === (shippingMethod.price)
       }
     }
 
@@ -667,7 +667,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         val methodResponse = parse(response.bodyText).extract[Seq[responses.ShippingMethods.Root]].head
         methodResponse.id must === (shippingMethod.id)
         methodResponse.name must === (shippingMethod.adminDisplayName)
-        methodResponse.price must === (shippingMethod.defaultPrice)
+        methodResponse.price must === (shippingMethod.price)
       }
 
     }
@@ -681,7 +681,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         val methodResponse = parse(response.bodyText).extract[Seq[responses.ShippingMethods.Root]].head
         methodResponse.id must === (shippingMethod.id)
         methodResponse.name must === (shippingMethod.adminDisplayName)
-        methodResponse.price must === (shippingMethod.defaultPrice)
+        methodResponse.price must === (shippingMethod.price)
         methodResponse.isEnabled must === (true)
       }
 
@@ -697,7 +697,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         val methodResponse = parse(response.bodyText).extract[Seq[responses.ShippingMethods.Root]].head
         methodResponse.id must === (shippingMethod.id)
         methodResponse.name must === (shippingMethod.adminDisplayName)
-        methodResponse.price must === (shippingMethod.defaultPrice)
+        methodResponse.price must === (shippingMethod.price)
         methodResponse.isEnabled must === (false)
       }
 
