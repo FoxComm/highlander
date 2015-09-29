@@ -2,16 +2,38 @@ package services
 
 import scala.concurrent.{Future, ExecutionContext}
 
+import cats.data.Validated.{Valid, Invalid}
 import models._
-import payloads.UpdateLineItemsPayload
+import payloads.{AddGiftCardLineItem, UpdateLineItemsPayload}
 import cats.implicits._
 import responses.FullOrder
 import slick.driver.PostgresDriver.api._
+import utils.Slick._
 import utils.Slick.implicits._
 
 object LineItemUpdater {
   val lineItems = TableQuery[OrderLineItems]
   val orders = TableQuery[Orders]
+
+  def addGiftCard(customer: Customer, payload: AddGiftCardLineItem)
+    (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
+
+    payload.validate match {
+      case Valid(_) ⇒
+        val finder = Orders._findActiveOrderByCustomer(customer)
+
+        finder.findOneAndRun { order ⇒
+          val queries = for {
+            gc ← GiftCards.save(GiftCard.buildLineItem(customer, payload.balance, payload.currency))
+            rel ← OrderGiftCards.save(OrderGiftCard.build(order, gc))
+          } yield (gc, rel)
+
+          DbResult.fromDbio(queries >> FullOrder.fromOrder(order))
+        }
+      case Invalid(errors) ⇒
+        Result.failures(errors.failure)
+    }
+  }
 
   @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.Any"))
   def updateQuantities(order: Order, payload: Seq[UpdateLineItemsPayload])

@@ -21,6 +21,7 @@ object FullOrder {
     shippingStatus: Order.Status,
     paymentStatus: Order.Status,
     lineItems: Seq[DisplayLineItem],
+    giftCards: Seq[GiftCardResponse.Root] = Seq.empty,
     adjustments: Seq[Adjustment],
     fraudScore: Int,
     totals: Totals,
@@ -49,11 +50,12 @@ object FullOrder {
   final case class DisplayPaymentMethod(cardType: String = "visa", cardExp: String, cardNumber: String)
 
   def fromOrder(order: Order)(implicit ec: ExecutionContext, db: Database): DBIO[Root] = {
-    fetchOrderDetails(order).map { case (customer, items, shipment, payment, assignees) ⇒
+    fetchOrderDetails(order).map { case (customer, items, shipment, payment, assignees, giftCards) ⇒
       build(
         order = order,
         customer = customer,
         lineItems = items,
+        giftCards = giftCards,
         shippingAddress = shipment.map { case (address, _) ⇒ address },
         shippingMethod = shipment.map { case (_, method) ⇒ method },
         assignments = assignees,
@@ -65,7 +67,8 @@ object FullOrder {
   def build(order: Order, lineItems: Seq[(Sku, OrderLineItem)] = Seq.empty, adjustments: Seq[Adjustment] = Seq.empty,
     shippingMethod: Option[ShippingMethod] = None, customer: Option[Customer] = None,
     shippingAddress: Option[Address] = None, payment: Option[(OrderPayment, CreditCard)] = None,
-    assignments: Seq[(OrderAssignment, StoreAdmin)] = Seq.empty): Root = {
+    assignments: Seq[(OrderAssignment, StoreAdmin)] = Seq.empty,
+    giftCards: Seq[(GiftCard, OrderGiftCard)] = Seq.empty): Root = {
 
     val displayPayment = payment.map { case (op, cc) ⇒
       DisplayPayment(
@@ -84,6 +87,7 @@ object FullOrder {
       shippingStatus = order.status,
       paymentStatus = order.status,
       lineItems = lineItems.map { case (sku, li) ⇒ DisplayLineItem(sku = sku.sku, status = li.status) },
+      giftCards = giftCards.map { case (gc, rel) ⇒ GiftCardResponse.build(gc) },
       adjustments = adjustments,
       fraudScore = scala.util.Random.nextInt(100),
       customer = customer,
@@ -113,10 +117,14 @@ object FullOrder {
         li  ← OrderLineItems._findByOrderId(order.id)
         sku ← Skus if sku.id === li.skuId
       } yield (sku, li)).result
+      giftCards ← (for {
+        relation ← OrderGiftCards.filter(_.orderId === order.id)
+        giftCard ← GiftCards if giftCard.id === relation.giftCardId
+      } yield (giftCard, relation)).result
       shipment ← shipmentQ.one
       payments ← paymentQ.one
       assignments ← OrderAssignments.filter(_.orderId === order.id).result
       admins ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.assigneeId))).result
-    } yield (customer, lineItems, shipment, payments, assignments.zip(admins))
+    } yield (customer, lineItems, shipment, payments, assignments.zip(admins), giftCards)
   }
 }

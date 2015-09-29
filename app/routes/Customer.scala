@@ -73,6 +73,11 @@ object Customer {
               }
             }
           } ~
+          (post & path("gift-cards") & entity(as[AddGiftCardLineItem])) { payload =>
+            complete {
+              LineItemUpdater.addGiftCard(customer, payload).map(renderGoodOrFailures)
+            }
+          } ~
           (get & path(PathEnd)) {
             complete {
               whenFound(Orders._findActiveOrderByCustomer(customer).one.run()) { order ⇒

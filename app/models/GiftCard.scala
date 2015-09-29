@@ -104,6 +104,19 @@ object GiftCard {
     )
   }
 
+  def buildLineItem(customer: Customer, balance: Int, currency: Currency): GiftCard = {
+    GiftCard(
+      code = generateCode(defaultCodeLength),
+      originId = customer.id,
+      originType = GiftCard.CustomerPurchase,
+      status = GiftCard.Cart,
+      currency = currency,
+      originalBalance = balance,
+      availableBalance = balance,
+      currentBalance = balance
+    )
+  }
+
   implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
   implicit val originTypeColumnType: JdbcType[OriginType] with BaseTypedType[OriginType] = OriginType.slickColumn
 }
