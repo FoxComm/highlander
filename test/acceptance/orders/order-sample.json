@@ -8,7 +8,7 @@
     {
       "imagePath": "http://lorempixel.com/75/75/fashion",
       "name": "donkey product",
-      "skuId": 1,
+      "sku": "ABC123",
       "price": 33,
       "qty": 1,
       "status": "cart"
@@ -16,7 +16,7 @@
     {
       "imagePath": "http://lorempixel.com/75/75/fashion",
       "name": "donkey product",
-      "skuId": 2,
+      "sku": "ABC124",
       "price": 33,
       "qty": 1,
       "status": "cart"
@@ -24,7 +24,7 @@
     {
       "imagePath": "http://lorempixel.com/75/75/fashion",
       "name": "donkey product",
-      "skuId": 3,
+      "sku": "ABD123",
       "price": 33,
       "qty": 1,
       "status": "cart"

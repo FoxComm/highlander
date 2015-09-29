@@ -1,0 +1,151 @@
+.fc-input-group {
+  .height(40px);
+
+  .fc-input-prepend, .fc-input-append {
+    .line-height(40px);
+    .width(36px);
+    height: 100%;
+    background: @color-decor7;
+    .inline-block();
+    text-align: center;
+    > button {
+      background: @color-decor7;
+      height: 100%;
+      .width(36px);
+      border: none;
+      padding: 0;
+    }
+  }
+  .fc-input-prepend {
+    .border-radius(3px);
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  .fc-input-append {
+    .border-radius(3px);
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+  input {
+    .inline-block();
+  }
+  input:not(:first-child):not(:last-child) {
+    .border-radius(0);
+  }
+  input:not(:first-child):last-child {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+}
+
+input[type=text],
+input[type=tel],
+input[type=number],
+textarea {
+  background-color: @color-decor0;
+  border: 1px solid @color-decor7;
+  box-shadow: inset 1px 1px 1px 0px rgba(0,0,0,0.1);
+  .border-radius(3px);
+  .padding(0 10px);
+  .height(40px);
+
+  &:hover {
+    border: 1px solid @color-decor3;
+  }
+
+  &:active, &:focus {
+    border: 1px solid @color-control-primary-bg;
+  }
+
+  &:invalid, &.error {
+    border: 1px solid @color-decor22;
+  }
+}
+
+textarea {
+  .padding(10px);
+}
+
+.fc-radio {
+  input[type=radio]:not(old) {
+    .width(24px);
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+
+    + label {
+      display: inline-block;
+      .margin-left(-24px);
+      .line-height(24px);
+      position: relative;
+
+      &:before {
+        content: "";
+        display: inline-block;
+        .size(24px);
+        margin: 0.25em 0.5em 0.25em 0.25em;
+        .border(2px, solid, @color-decor9);
+        .border-radius(13px);
+        background: @color-decor0;
+        vertical-align: middle;
+      }
+    }
+
+    // states
+
+    &:hover {
+      + label:before {
+        border-color: @color-decor3;
+      }
+    }
+
+    &:disabled {
+      + label:before {
+        border-color: @color-decor9;
+        background: @color-decor12;
+      }
+    }
+
+    &:checked {
+      + label {
+        &:before {
+          border-color: @color-decor3;
+        }
+
+        &:after {
+          content: "";
+          display: block;
+          position: absolute;
+          .size(16px);
+          margin: 0.25em;
+          .top(4px);
+          .left(4px);
+          .border-radius(9px);
+          background: @color-decor3;
+          z-index: 1;
+        }
+      }
+
+      &:hover + label {
+        &:before {
+          border-color: @color-decor4;
+        }
+
+        &:after {
+          background: @color-decor4;
+        }
+      }
+    }
+  }
+}
+
+.fc-form-vertical {
+  label {
+    display: block;
+    .margin-bottom(5px);
+    &.checkbox {
+      .margin-bottom(0);
+    }
+  }
+}
+

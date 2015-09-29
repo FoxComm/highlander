@@ -1,6 +1,6 @@
 'use strict';
 
-import BaseStore from '../../../src/themes/admin/lib/base-store';
+import BaseStore from '../../../src/lib/base-store';
 
 class TableStore extends BaseStore {
   fetch() {
