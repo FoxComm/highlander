@@ -639,7 +639,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         val response = GET(s"v1/orders/${order.referenceNumber}/shipping-methods")
         response.status must === (StatusCodes.OK)
 
-        val methodResponse = response.as[Seq[responses.ShippingMethods.Root]].head
+        val methodResponse = response.as[Seq[responses.ShippingMethods.Root]]
         methodResponse mustBe 'empty
       }
 
