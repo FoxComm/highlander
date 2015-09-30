@@ -69,7 +69,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase with HttpSupport with
       val assignResponse1 = POST(s"v1/orders/assignees", BulkAssignment(Seq(orderRef1), adminId))
       assignResponse1.status mustBe StatusCodes.OK
       val responseObj1 = parse(assignResponse1.bodyText).extract[BulkOrderUpdateResponse]
-      responseObj1.orders.map(_.referenceNumber) mustBe Seq("foo", "bar")
+      responseObj1.orders.map(_.referenceNumber) contains allOf ("foo", "bar")
       responseObj1.failures mustBe empty
 
       val updOrderResponse1 = GET(s"v1/orders/$orderRef1")
@@ -80,7 +80,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase with HttpSupport with
       val assignResponse2 = POST(s"v1/orders/assignees", BulkAssignment(Seq(orderRef1, orderRef2), adminId))
       assignResponse2.status mustBe StatusCodes.OK
       val responseObj2 = parse(assignResponse2.bodyText).extract[BulkOrderUpdateResponse]
-      responseObj2.orders.map(_.referenceNumber) mustBe Seq("foo", "bar")
+      responseObj2.orders.map(_.referenceNumber) contains allOf ("foo", "bar")
       responseObj2.failures mustBe empty
 
       val updOrderResponse2 = GET(s"v1/orders/$orderRef1")
