@@ -5,7 +5,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import cats.data.Validated.{Invalid, Valid}
 import cats.data.Xor
 import models._
-import payloads.{UpdateAddressPayload, CreateAddressPayload}
+import payloads.{UpdateShippingMethod, CreateAddressPayload, UpdateAddressPayload}
 import responses.FullOrder
 import slick.driver.PostgresDriver.api._
 import utils.Slick.{DbResult, _}
@@ -141,6 +141,11 @@ object OrderUpdater {
           DbResult.fromDbio(fullOrder(finder))
       }
     }
+  }
+
+  def updateShippingMethod(order: Order, payload: UpdateShippingMethod)
+    (implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
+    Result.failure(GeneralFailure("We should implement this method before we call it."))
   }
 
   def createShippingAddressFromAddressId(addressId: Int, refNum: String)
