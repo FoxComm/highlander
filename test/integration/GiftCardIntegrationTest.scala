@@ -28,11 +28,11 @@ class GiftCardIntegrationTest extends IntegrationTestBase
   "GET /v1/gift-cards" - {
     "returns list of gift cards" in new Fixture {
       val response = GET(s"v1/gift-cards")
-      val giftCards = Seq(giftCard)
+      val giftCards = Seq(giftCard, gcSecond)
 
       response.status must ===(StatusCodes.OK)
       val cards = response.as[Seq[GiftCard]]
-      cards.map(_.id) must ===(giftCards.map(_.id))
+      cards.map(_.id).sorted must ===(giftCards.map(_.id).sorted)
     }
   }
 
@@ -42,7 +42,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       val root = response.as[GiftCardResponse.Root]
 
       response.status must ===(StatusCodes.OK)
-      root.`type` must ===(GiftCard.CsrAppeasement)
+      root.originType must ===(GiftCard.CsrAppeasement)
       root.currency must ===(Currency.USD)
       root.availableBalance must ===(555)
     }
@@ -174,6 +174,35 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     }
   }
 
+  "PATCH /v1/gift-cards" - {
+    "successfully changes statuses of multiple gift cards" in new Fixture {
+      val payload = payloads.GiftCardBulkUpdateStatusByCsr(
+        codes = Seq(giftCard.code, gcSecond.code),
+        status = GiftCard.OnHold
+      )
+
+      val response = PATCH(s"v1/gift-cards", payload)
+      response.status must ===(StatusCodes.OK)
+
+      val firstUpdated = GiftCards.findById(giftCard.id).run().futureValue
+      firstUpdated.get.status must ===(GiftCard.OnHold)
+
+      val secondUpdated = GiftCards.findById(gcSecond.id).run().futureValue
+      secondUpdated.get.status must ===(GiftCard.OnHold)
+    }
+
+    "returns multiple errors if no cancellation reason provided" in new Fixture {
+      val payload = payloads.GiftCardBulkUpdateStatusByCsr(
+        codes = Seq(giftCard.code, gcSecond.code),
+        status = GiftCard.Canceled
+      )
+
+      val response = PATCH(s"v1/gift-cards", payload)
+      response.status must ===(StatusCodes.BadRequest)
+      response.errors.head must ===("Please provide valid cancellation reason")
+    }
+  }
+
   "gift card note" - {
     "can be created by an admin for a gift card" in new Fixture {
       val response = POST(s"v1/gift-cards/${giftCard.code}/notes",
@@ -243,17 +272,19 @@ class GiftCardIntegrationTest extends IntegrationTestBase
   }
 
   trait Fixture {
-    val (admin, giftCard, order, adjustment) = (for {
+    val (admin, giftCard, order, adjustment, gcSecond) = (for {
       customer ← Customers.save(Factories.customer)
       order ← Orders.save(Factories.order.copy(customerId = customer.id))
       admin ← StoreAdmins.save(authedStoreAdmin)
       reason ← Reasons.save(Factories.reason.copy(storeAdminId = admin.id))
       origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
       giftCard ← GiftCards.save(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active))
+      gcSecond ← GiftCards.save(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active,
+        code = "ABC-234"))
       payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = giftCard.id,
         paymentMethodType = PaymentMethod.GiftCard))
       adjustment ← GiftCards.auth(giftCard, Some(payment.id), 10)
       giftCard ← GiftCards.findById(giftCard.id)
-    } yield (admin, giftCard.get, order, adjustment)).run().futureValue
+    } yield (admin, giftCard.get, order, adjustment, gcSecond)).run().futureValue
   }
 }

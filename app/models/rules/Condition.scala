@@ -4,7 +4,7 @@ import com.pellucid.sealerate
 import utils.ADT
 
 final case class Condition(rootObject: String, field: String, operator: Condition.Operator,
-  valInt: Option[Int] = None, valString: Option[String] = None)
+  valInt: Option[Int] = None, valString: Option[String] = None, valBoolean: Option[Boolean] = None)
 
 object Condition {
   sealed trait Operator
@@ -58,6 +58,16 @@ object Condition {
           case StartsWith ⇒ comp.startsWith(v)
           case _ ⇒ false
         }
+      }
+    }
+  }
+
+  def matches(comp: Boolean, condition: Condition): Boolean = {
+    condition.valBoolean.fold(false) { (v: Boolean) ⇒
+      condition.operator match {
+        case Equals ⇒ comp == v
+        case NotEquals ⇒ comp != v
+        case _ ⇒ false
       }
     }
   }

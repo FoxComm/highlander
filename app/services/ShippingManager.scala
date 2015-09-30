@@ -1,8 +1,9 @@
 package services
 
-import models.{ShippingMethods, ShippingMethod}
+import models.{Sku, OrderShippingAddresses, OrderLineItem, Skus, OrderLineItems, Order, OrderShippingAddress, Region,
+ShippingMethods}
 import models.rules.{Condition, QueryStatement}
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.ExecutionContext
 import slick.driver.PostgresDriver.api._
 import utils.JsonFormatters
 import Result._
@@ -10,59 +11,46 @@ import Result._
 object ShippingManager {
   implicit val formats = JsonFormatters.phoenixFormats
 
-  final case class ShippingData(order: models.Order, orderTotal: Int, orderSubTotal: Int,
-    shippingAddress: models.OrderShippingAddress, shippingRegion: models.Region)
+  final case class ShippingData(order: Order, orderTotal: Int, orderSubTotal: Int,
+    shippingAddress: OrderShippingAddress, shippingRegion: Region, skus: Seq[Sku])
 
   def getShippingMethodsForOrder(order: models.Order)(implicit db: Database, ec: ExecutionContext):
-    Result[Seq[ShippingMethod]] = {
+    Result[Seq[responses.ShippingMethods.Root]] = {
 
     val queries = for {
       orderShippingAddresses ← models.OrderShippingAddresses.findByOrderIdWithRegions(order.id).result.headOption
       subTotal ← OrderTotaler._subTotalForOrder(order)
       grandTotal ← OrderTotaler._grandTotalForOrder(order)
       shippingMethods ← ShippingMethods.findActive.result
-    } yield (orderShippingAddresses, subTotal, grandTotal, shippingMethods)
+      skus ← (for {
+        lineItems ← OrderLineItems._findByOrder(order)
+        skus ← Skus if skus.id === lineItems.skuId
+      } yield skus).result
+    } yield (orderShippingAddresses, subTotal, grandTotal, shippingMethods, skus)
 
     db.run(queries).flatMap {
-      case (Some((address, region)), subTotal, grandTotal, shippingMethods) ⇒
+      case (Some((address, region)), subTotal, grandTotal, shippingMethods, skus) ⇒
 
-        val shippingData = ShippingData(order, grandTotal.getOrElse(0), subTotal.getOrElse(0), address, region)
+        val shippingData = ShippingData(order, grandTotal.getOrElse(0), subTotal.getOrElse(0), address, region, skus)
 
-        val matchingMethods = shippingMethods.filter { shippingMethod ⇒
-          shippingMethod.conditions.fold(false) { condition ⇒
-            val statement = condition.extract[QueryStatement]
-            evaluateStatement(shippingData, statement)
-          }
+        val methodResponses = shippingMethods.collect {
+          case sm if QueryStatement.evaluate(sm.conditions, shippingData, evaluateCondition) ⇒
+            val restricted = QueryStatement.evaluate(sm.restrictions, shippingData, evaluateCondition)
+            responses.ShippingMethods.build(sm, !restricted)
         }
 
-        right(matchingMethods)
+        right(methodResponses)
 
-      case (None, _, _, _) ⇒
+      case (None, _, _, _, _) ⇒
         left(OrderShippingMethodsCannotBeProcessed(order.refNum).single)
     }
   }
 
-  private def evaluateStatement(shippingData: ShippingData, statement: QueryStatement): Boolean = {
-    val initial = statement.comparison == QueryStatement.And
-
-    val conditionsResult = statement.conditions.foldLeft(initial) { (result, nextCond) ⇒
-      val res = nextCond.rootObject match {
-        case "Order" ⇒ evaluateOrderCondition(shippingData, nextCond)
-        case "ShippingAddress" ⇒ evaluateShippingAddressCondition(shippingData, nextCond)
-        case _ ⇒ false
-      }
-
-      statement.comparison match {
-        case QueryStatement.And ⇒ result && res
-        case QueryStatement.Or ⇒ result || res
-      }
-    }
-
-    statement.statements.foldLeft(conditionsResult) { (result, nextCond) ⇒
-      statement.comparison match {
-        case QueryStatement.And ⇒ evaluateStatement(shippingData, nextCond) && result
-        case QueryStatement.Or ⇒ evaluateStatement(shippingData, nextCond) || result
-      }
+  private def evaluateCondition(cond: Condition, shippingData: ShippingData): Boolean = {
+    cond.rootObject match {
+      case "Order" ⇒ evaluateOrderCondition(shippingData, cond)
+      case "ShippingAddress" ⇒ evaluateShippingAddressCondition(shippingData, cond)
+      case _ ⇒ false
     }
   }
 
@@ -70,6 +58,7 @@ object ShippingManager {
     condition.field match {
       case "subtotal" ⇒ Condition.matches(shippingData.orderSubTotal, condition)
       case "grandtotal" ⇒ Condition.matches(shippingData.orderTotal, condition)
+      case "skus.isHazardous" ⇒ shippingData.skus.exists(sku ⇒ Condition.matches(sku.isHazardous, condition))
       case _ ⇒ false
     }
   }
@@ -94,5 +83,4 @@ object ShippingManager {
         false
     }
   }
-
 }
