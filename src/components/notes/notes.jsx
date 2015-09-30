@@ -75,7 +75,7 @@ export default class Notes extends React.Component {
   render() {
     let empty = null;
     if (!this.state.notes.length) {
-      empty = <div className="empty">No notes yet.</div>;
+      empty = <div className="is-empty">No notes yet.</div>;
     }
 
     return (
