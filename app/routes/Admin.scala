@@ -203,6 +203,15 @@ object Admin {
             }
           }
         } ~
+        pathPrefix("payment-methods" / "gift-cards") {
+          (post & path(Segment / "convert")) { code ⇒
+            complete {
+              whenFoundDispatchToService(GiftCards.findByCode(code).one.run()) { gc ⇒
+                CustomerCreditConverter.toStoreCredit(gc, customerId)
+              }
+            }
+          }
+        } ~
         pathPrefix("payment-methods" / "store-credit") {
           (get & pathEnd) {
             complete {
