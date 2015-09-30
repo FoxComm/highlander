@@ -103,13 +103,10 @@ object GiftCard {
   }
 
   def validateStatusReason(status: Status, reason: Option[Int]): ValidatedNel[Failure, Unit] = {
-    import Validation._
-
-    status match {
-      case (GiftCard.Canceled) ⇒
-        validExpr(reason.isDefined, "Please provide valid cancellation reason")
-      case _ ⇒
-        valid({})
+    if (status == Canceled) {
+      validExpr(reason.isDefined, "Please provide valid cancellation reason")
+    } else {
+      valid({})
     }
   }
 

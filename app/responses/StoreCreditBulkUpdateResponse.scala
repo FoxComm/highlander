@@ -14,8 +14,8 @@ object StoreCreditBulkUpdateResponse {
 
   def buildResponse(id: Int, storeCredit: Option[StoreCreditResponse.Root] = None, errors: Option[Seq[String]] = None): Response = {
     (storeCredit, errors) match {
-      case (Some(sc), _) ⇒ Response(id = id, success = true, storeCredit = Some(sc))
-      case _             ⇒ Response(id = id, success = false, errors = errors)
+      case (Some(sc), None) ⇒ Response(id = id, success = true, storeCredit = Some(sc))
+      case _                ⇒ Response(id = id, success = false, errors = errors)
     }
   }
 

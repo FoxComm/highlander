@@ -15,8 +15,8 @@ object GiftCardBulkUpdateResponse {
     errors: Option[Seq[String]] = None): Response = {
 
     (giftCard, errors) match {
-      case (Some(gc), _) ⇒ Response(code = code, success = true, giftCard = Some(gc))
-      case _             ⇒ Response(code = code, success = false, errors = errors)
+      case (Some(gc), None) ⇒ Response(code = code, success = true, giftCard = Some(gc))
+      case _                ⇒ Response(code = code, success = false, errors = errors)
     }
   }
 

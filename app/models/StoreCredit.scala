@@ -19,6 +19,8 @@ import services.Result
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
+import utils.Validation._
+
 //import utils.Joda._
 import utils.Money._
 import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, NewModel, TableQueryWithId}
@@ -89,14 +91,11 @@ object StoreCredit {
 
   val activeStatuses = Set[Status](Active)
 
-  def validateStatusReason(status: StoreCredit.Status, reason: Option[Int]): ValidatedNel[Failure, Unit] = {
-    import Validation._
-
-    status match {
-      case (StoreCredit.Canceled) ⇒
-        validExpr(reason.isDefined, "Please provide valid cancellation reason")
-      case _ ⇒
-        valid({})
+  def validateStatusReason(status: Status, reason: Option[Int]): ValidatedNel[Failure, Unit] = {
+    if (status == Canceled) {
+      validExpr(reason.isDefined, "Please provide valid cancellation reason")
+    } else {
+      valid({})
     }
   }
 
