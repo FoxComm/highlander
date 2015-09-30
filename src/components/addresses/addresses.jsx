@@ -71,6 +71,7 @@ export default class AddressBook extends React.Component {
                 address={address}
                 order={order}
                 onSelectAddress={this.props.onSelectAddress}
+                onDeleteAddress={this.props.onDeleteAddress}
                 customerId={this.state.customerId}
               />
             );

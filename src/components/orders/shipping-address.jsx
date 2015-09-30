@@ -18,6 +18,12 @@ export default class OrderShippingAddress extends React.Component {
     OrderStore.setShippingAddress(this.props.order.referenceNumber, address.id);
   }
 
+  onDeleteAddress(address) {
+    if (address.id === this.props.order.shippingAddress.id) {
+      OrderStore.removeShippingAddress(this.props.order.referenceNumber);
+    }
+  }
+
   toggleEdit() {
     this.setState({
       isEditing: !this.state.isEditing
@@ -31,7 +37,7 @@ export default class OrderShippingAddress extends React.Component {
     let editButton = null;
 
     if (this.state.isEditing) {
-      body = <Addresses order={this.props.order} onSelectAddress={this.onSelectAddress.bind(this)} />;
+      body = <Addresses order={this.props.order} onSelectAddress={this.onSelectAddress.bind(this)} onDeleteAddress={this.onDeleteAddress.bind(this)} />;
       actions = (
         <footer>
           <button className="fc-btn fc-btn-primary" onClick={this.toggleEdit.bind(this)}>Done</button>

@@ -128,7 +128,7 @@ export default class EventedStore extends EventEmitter {
   }
 
   create(data, ...fetchArgs) {
-    this.post(data, ...fetchArgs);
+    return this.post(data, ...fetchArgs);
   }
 
   delete(...uriArgs) {

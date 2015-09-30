@@ -49,6 +49,23 @@ class OrderStore extends BaseStore {
       item => item.referenceNumber === order.referenceNumber
     ));
   }
+
+  _callShippingAddressMethod(method, refNum, body = void 0) {
+    let uri = `${this.uri(refNum)}/shipping-address`;
+    return Api[method](uri, body)
+      .then((res) => {
+        // update shipping address for order in store
+        this.fetch(refNum);
+      });
+  }
+
+  setShippingAddress(refNum, addressId) {
+    this._callShippingAddressMethod('patch', refNum, {addressId});
+  }
+
+  removeShippingAddress(refNum) {
+    this._callShippingAddressMethod('delete', refNum);
+  }
 }
 
 let orderStore = new OrderStore();
