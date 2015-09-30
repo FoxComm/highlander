@@ -167,11 +167,11 @@ object Seeds {
     def giftCardAdjustment = GiftCardAdjustment.build(giftCard, giftCardPayment)
 
     def shippingMethods = Seq(
-      ShippingMethod(adminDisplayName = "UPS Ground", storefrontDisplayName = "UPS Ground", defaultPrice = 10,
+      ShippingMethod(adminDisplayName = "UPS Ground", storefrontDisplayName = "UPS Ground", price = 10,
         isActive = true),
-      ShippingMethod(adminDisplayName = "UPS Next day", storefrontDisplayName = "UPS Next day", defaultPrice = 20,
+      ShippingMethod(adminDisplayName = "UPS Next day", storefrontDisplayName = "UPS Next day", price = 20,
         isActive = true),
-      ShippingMethod(adminDisplayName = "DHL Express", storefrontDisplayName = "DHL Express", defaultPrice = 25,
+      ShippingMethod(adminDisplayName = "DHL Express", storefrontDisplayName = "DHL Express", price = 25,
         isActive = true)
     )
 

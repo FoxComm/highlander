@@ -99,7 +99,7 @@ object FullOrder {
     val shipmentQ = for {
       shipment ← Shipments.filter(_.orderId === order.id)
       address ← models.Addresses.filter(_.id === shipment.shippingAddressId)
-      method ← ShippingMethods.filter(_.id === shipment.shippingMethodId)
+      method ← models.ShippingMethods.filter(_.id === shipment.shippingMethodId)
     } yield (address, method)
 
     val paymentQ = for {
