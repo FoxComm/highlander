@@ -4,6 +4,7 @@ import scala.collection.immutable.Seq
 import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Xor
+import models.Country._
 import models.{Countries, Country, Region, Regions}
 import responses.CountryWithRegions
 import slick.driver.PostgresDriver.api._
@@ -25,7 +26,11 @@ object Public {
   }
 
   def countries(implicit ec: ExecutionContext, db: Database): Future[Seq[Country]] =
-    db.run(queryCountries.result).map(_.to[Seq])
+    db.run(Countries.result).map { countries ⇒
+      val usa = countries.filter(_.id == unitedStatesId)
+      val othersSorted = countries.filterNot(_.id == unitedStatesId).sortBy(_.name)
+      (usa ++ othersSorted).to[Seq]
+    }
 
   private def queryCountries(implicit ec: ExecutionContext, db: Database): Query[Countries, Country, scala.Seq] =
     Countries.sortBy(_.id.asc)
