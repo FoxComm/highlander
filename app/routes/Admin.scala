@@ -13,6 +13,8 @@ import responses.{AllOrders, BulkOrderUpdateResponse, AdminNotes, FullOrder}
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.Apis
+import utils.Slick
+import utils.Slick.DbResult
 import utils.Slick.implicits._
 
 object Admin {
@@ -258,9 +260,10 @@ object Admin {
       pathPrefix("orders" / """([a-zA-Z0-9-_]*)""".r) { refNum ⇒
         (get & pathEnd) {
           complete {
-            whenFound(Orders.findByRefNum(refNum).one.run()) { order ⇒
-              FullOrder.fromOrder(order).run().map(Xor.right)
-            }
+            val finder = Orders.findByRefNum(refNum)
+            finder.findOneAndRunIgnoringLock { order ⇒
+              DbResult.fromDbio(Slick.fullOrder(finder))
+            }.map(renderGoodOrFailures)
           }
         } ~
         (patch & entity(as[UpdateOrderPayload])) { payload ⇒
