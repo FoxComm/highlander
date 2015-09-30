@@ -58,6 +58,13 @@ object Admin {
             GiftCardService.updateStatusByCsr(code, payload, admin).map(renderGoodOrFailures)
           }
         } ~
+        path(Segment / "convert" / IntNumber) { (code, customerId) ⇒
+          (post & pathEnd) {
+            complete {
+              CustomerCreditConverter.toStoreCredit(code, customerId, admin).map(renderGoodOrFailures)
+            }
+          }
+        } ~
         path(Segment / "notes") { code ⇒
           (get & pathEnd) {
             complete {
@@ -200,15 +207,6 @@ object Admin {
           (delete & path(IntNumber) & pathEnd) { cardId ⇒
             complete {
               CreditCardManager.deleteCreditCard(customerId = customerId, id = cardId).map(renderNothingOrFailures)
-            }
-          }
-        } ~
-        pathPrefix("payment-methods" / "gift-cards") {
-          (post & path(Segment / "convert")) { code ⇒
-            complete {
-              whenFoundDispatchToService(GiftCards.findByCode(code).one.run()) { gc ⇒
-                CustomerCreditConverter.toStoreCredit(gc, customerId)
-              }
             }
           }
         } ~
