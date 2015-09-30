@@ -59,11 +59,13 @@ object LineItemUpdater {
     (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
 
     GiftCards.findByCode(code).findOneAndRun { gc ⇒
-      val deleteRelation = OrderGiftCards.filter(_.giftCardId === gc.id).delete
-      val deleteGiftCard = GiftCards.filter(_.id === gc.id).delete
+      val queries = for {
+        deleteGc ← OrderGiftCards.filter(_.giftCardId === gc.id).delete
+        deleteRel ← GiftCards.filter(_.id === gc.id).delete
+      } yield ()
 
       Orders._findActiveOrderByCustomer(customer).one.flatMap {
-        case Some(o) ⇒ DbResult.fromDbio(deleteRelation >> deleteGiftCard >> FullOrder.fromOrder(o))
+        case Some(o) ⇒ DbResult.fromDbio(queries.transactionally >> FullOrder.fromOrder(o))
         case None    ⇒ DbResult.failure(NotFoundFailure("Order not found"))
       }
     }
