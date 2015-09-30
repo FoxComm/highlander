@@ -25,7 +25,7 @@ object CustomerCreditConverter {
             DbResult.failure(OpenTransactionsFailure)
           case _ ⇒
             val queries = (for {
-            // Update status and make adjustment
+              // Update status and make adjustment
               gcUpdated ← finder.map(_.status).update(GiftCard.FullyRedeemed)
               adjustment ← GiftCards.redeemToStoreCredit(gc, admin)
 
