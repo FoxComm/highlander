@@ -29,7 +29,10 @@ object OrderPaymentUpdater {
          GiftCardNotEnoughBalance(gc, payload.amount).single.liftDBIOXor[Unit]
        }
 
-     case (Some(_), Some(gc)) if !gc.isActive ⇒
+     case (Some(_), Some(gc)) if gc.isCart ⇒
+       GiftCardNotFoundFailure(gc).single.liftDBIOXor[Unit]
+
+     case (Some(_), Some(gc)) if !gc.isActive && !gc.isCart ⇒
        GiftCardIsInactive(gc).single.liftDBIOXor[Unit]
 
      case (None, _) ⇒

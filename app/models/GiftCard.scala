@@ -59,6 +59,7 @@ final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = C
     Result.good("authenticated")
 
   def isActive: Boolean = activeStatuses.contains(status)
+  def isCart: Boolean = (status == Cart)
 
   def hasAvailable(amount: Int): Boolean = availableBalance >= amount
 }
