@@ -4,7 +4,7 @@ import React from 'react';
 import { RouteHandler } from 'react-router';
 import { Link } from 'react-router';
 import { listenTo, stopListeningTo, dispatch } from '../../lib/dispatcher';
-import RmaStore from './store';
+import RmaStore from '../../stores/rmas';
 import Notes from '../notes/notes';
 import Viewers from '../viewers/viewers';
 

@@ -4,7 +4,7 @@ import React from 'react';
 import TableView from '../tables/tableview';
 import LineItemCounter from './line-item-counter';
 import DeleteLineItem from './line-item-delete';
-import SkuStore from '../orders/sku-store';
+import SkuStore from '../../stores/skus';
 import SkuResult from '../orders/sku-result';
 import Typeahead from '../typeahead/typeahead';
 

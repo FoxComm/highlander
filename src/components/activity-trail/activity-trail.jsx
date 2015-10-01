@@ -4,7 +4,7 @@ import React from 'react';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
 import UserInitials from '../users/initials';
-import ActivityTrailStore from './store';
+import ActivityTrailStore from '../../stores/activity-trail';
 import { pluralize } from 'fleck';
 
 export default class ActivityTrail extends React.Component {

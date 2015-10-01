@@ -3,7 +3,7 @@
 import React from 'react';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
-import NotificationStore from './store';
+import NotificationStore from '../../stores/notifications';
 import ResendButton from './button';
 
 export default class Notifications extends React.Component {

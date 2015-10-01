@@ -10,7 +10,7 @@ import OrderPayment from './payment';
 import OrderStore from './../../stores/orders';
 import { dispatch } from '../../lib/dispatcher';
 import Api from '../../lib/api';
-import LineItemStore from '../line-items/store';
+import LineItemStore from '../../stores/line-items';
 
 export default class OrderDetails extends React.Component {
   componentDidMount() {

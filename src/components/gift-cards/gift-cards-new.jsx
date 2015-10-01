@@ -4,7 +4,7 @@ import React from 'react';
 import Counter from '../forms/counter';
 import Typeahead from '../typeahead/typeahead';
 import CustomerResult from '../customers/result';
-import CustomerStore from '../customers/store';
+import CustomerStore from '../../stores/customers';
 import { dispatch, listenTo, stopListeningTo } from '../../lib/dispatcher';
 import Api from '../../lib/api';
 import _ from 'lodash';

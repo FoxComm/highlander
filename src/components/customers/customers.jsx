@@ -2,7 +2,7 @@
 
 import React from 'react';
 import TableView from '../tables/tableview';
-import CustomerStore from './store';
+import CustomerStore from '../../stores/customers';
 
 export default class Customers extends React.Component {
   constructor(props) {

@@ -3,7 +3,7 @@
 import React from 'react';
 import Immutable from 'immutable';
 import TableView from '../tables/tableview';
-import RmaStore from './store';
+import RmaStore from '../../stores/rmas';
 
 export default class Rmas extends React.Component {
   constructor(props) {
