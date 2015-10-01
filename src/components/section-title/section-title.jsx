@@ -13,6 +13,7 @@ export default class SectionTitle extends React.Component {
       titleMarkup = (
         <h1 className="fc-title">
           { this.props.title }
+          &nbsp;
           <span className="fc-subtitle">
             { this.props.count }
           </span>
