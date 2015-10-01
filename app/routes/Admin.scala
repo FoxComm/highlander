@@ -391,22 +391,6 @@ object Admin {
               }
             }
           }
-        } ~
-        pathPrefix("notifications") {
-          (get & pathEnd) {
-            complete {
-              val notifications = Seq(
-                Notification("Delivered", "Shipment Confirmation", "2015-02-15T08:31:45", "jim@bob.com"),
-                Notification("Failed", "Order Confirmation", "2015-02-16T09:23:29", "+ (567) 203-8430")
-              )
-              render(notifications)
-            }
-          } ~
-          (get & path(IntNumber) & pathEnd) { notificationId ⇒
-            complete {
-              render(Notification("Failed", "Order Confirmation", "2015-02-16T09:23:29", "+ (567) 203-8430"))
-            }
-          }
         }
       } ~
       pathPrefix("shipping-methods" / orderRefNum) { refNum ⇒
@@ -415,6 +399,22 @@ object Admin {
             Orders.findByRefNum(refNum).findOneAndRunIgnoringLock { order ⇒
               ShippingManager.getShippingMethodsForOrder(order)
             }.map(renderGoodOrFailures)
+          }
+        }
+      } ~
+      pathPrefix("notifications") {
+        (get & pathEnd) {
+          complete {
+            val notifications = Seq(
+              Notification("Delivered", "Shipment Confirmation", "2015-02-15T08:31:45", "jim@bob.com"),
+              Notification("Failed", "Order Confirmation", "2015-02-16T09:23:29", "+ (567) 203-8430")
+            )
+            render(notifications)
+          }
+        } ~
+        (get & path(IntNumber) & pathEnd) { notificationId ⇒
+          complete {
+            render(Notification("Failed", "Order Confirmation", "2015-02-16T09:23:29", "+ (567) 203-8430"))
           }
         }
       }
