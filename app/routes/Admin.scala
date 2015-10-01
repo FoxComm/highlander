@@ -412,9 +412,9 @@ object Admin {
       pathPrefix("shipping-methods" / orderRefNum) { refNum ⇒
         (get & pathEnd) {
           complete {
-            whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
+            Orders.findByRefNum(refNum).findOneAndRunIgnoringLock { order ⇒
               ShippingManager.getShippingMethodsForOrder(order)
-            }
+            }.map(renderGoodOrFailures)
           }
         }
       }
