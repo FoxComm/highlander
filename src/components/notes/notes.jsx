@@ -5,7 +5,7 @@ import Api from '../../lib/api';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
 import NotesItemControls from './notesItemControls';
-import NoteStore from './store';
+import NoteStore from '../../stores/notes';
 import { pluralize } from 'fleck';
 
 export default class Notes extends React.Component {
