@@ -131,7 +131,7 @@ export default class AddressForm extends React.Component {
 
     const countryCode = state.country && state.country.alpha2;
     const regions = state.country && state.country.regions || [];
-    const title = this.isAddingForm ? 'Add Address' : 'Edit Address';
+    const title = this.isAddingForm ? 'New Address' : 'Edit Address';
 
     let messages = null;
 
@@ -213,7 +213,7 @@ export default class AddressForm extends React.Component {
               </li>
               <li className="fc-address-form-controls">
                 <a onClick={this.close.bind(this)} className="fc-btn-link" href="javascript:void(0)">Cancel</a>
-                <button className="fc-btn-primary" type="submit">Save and choose</button>
+                <button className="fc-btn fc-btn-primary" type="submit">Save and choose</button>
               </li>
             </ul>
             </form>
