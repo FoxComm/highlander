@@ -13,17 +13,9 @@
     right: 0;
     border-radius: 5px;
     text-align: center;
-    border: 1px solid @color-bg-menu;
-    .size(45px);
-    .font-spec(24px, 45px);
 
-    &[disabled] {
-      color: #b9b9b9;
-      background: #f1f1f2;
-      border: 1px solid #b9b9b9;
-      pointer-events: none;
-
-      + form { .max-height(232px); }
+    &.is-hidden {
+      + form { .max-height(300px); }
     }
   }
 

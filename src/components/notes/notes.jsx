@@ -81,11 +81,11 @@ export default class Notes extends React.Component {
     return (
       <div className="fc-notes">
         <h2 className="fc-notes-header">Notes</h2>
-        <a onClick={this.toggleNote.bind(this)} className="fc-notes-add" disabled={this.state.open}>
+        <button onClick={this.toggleNote.bind(this)} className={`fc-notes-add fc-btn fc-btn-primary ${this.state.open ? 'is-hidden' : null }`}>
           <i className="icon-add"></i>
-        </a>
+        </button>
 
-        <form action={NoteStore.baseUri} method="post" onSubmit={this.handleSubmit.bind(this)} className="fc-notes-form">
+        <form action={NoteStore.baseUri} method="post" onSubmit={this.handleSubmit.bind(this)} className={`fc-notes-form ${this.state.open ? 'is-shown' : null}`}>
           <fieldset>
             <legend>New Note</legend>
             <div className="fc-notes-body">
