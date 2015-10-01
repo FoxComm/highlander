@@ -50,7 +50,7 @@ export default class Modal extends React.Component {
 
   render() {
     return (
-      <div role='dialog' className={`fc-modal ${this.state.isOpen ? 'show' : 'hide'}`}>
+      <div role='dialog' className={`fc-modal ${this.state.isOpen ? null : 'is-hidden'}`}>
         <div className="fc-modal-container">
           {this.state.component}
         </div>

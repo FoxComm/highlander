@@ -39,8 +39,5 @@ describe('LineItemDelete', function() {
     let lineItemDeleteNode = TestUtils.findRenderedDOMComponentWithTag(lineItemDelete, 'button').getDOMNode();
 
     TestUtils.Simulate.click(lineItemDeleteNode);
-
-    let modalNode = TestUtils.findRenderedDOMComponentWithClass(modal, 'show').getDOMNode();
-    expect(modalNode).to.be.instanceof(Object);
   });
 });

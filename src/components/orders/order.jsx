@@ -135,7 +135,7 @@ export default class Order extends React.Component {
     }
 
     return (
-      <div id="order">
+      <div className="fc-order">
         {viewers}
           <div className="gutter title">
           <div>

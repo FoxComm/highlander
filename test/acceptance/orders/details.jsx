@@ -24,9 +24,9 @@ describe('OrderDetails', function() {
     let orderDetails = React.render(
       <OrderDetails order={order}/>
       , container);
-    let orderDetailsNode = TestUtils.findRenderedDOMComponentWithClass(orderDetails, 'order-details').getDOMNode();
+    let orderDetailsNode = TestUtils.findRenderedDOMComponentWithClass(orderDetails, 'fc-order-details').getDOMNode();
 
     expect(orderDetailsNode).to.be.instanceof(Object);
-    expect(orderDetailsNode.className).to.contain('order-details');
+    expect(orderDetailsNode.className).to.contain('fc-order-details');
   });
 });

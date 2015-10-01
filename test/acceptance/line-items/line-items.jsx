@@ -24,10 +24,10 @@ describe('OrderLineItems', function() {
     let orderLineItems = React.render(
       <LineItems entity={order} model='order'/>
       , container);
-    let orderLineItemsNode = TestUtils.findRenderedDOMComponentWithClass(orderLineItems, 'line-items').getDOMNode();
+    let orderLineItemsNode = TestUtils.findRenderedDOMComponentWithClass(orderLineItems, 'fc-line-items').getDOMNode();
 
     expect(orderLineItemsNode).to.be.instanceof(Object);
-    expect(orderLineItemsNode.className).to.contain('line-items');
+    expect(orderLineItemsNode.className).to.contain('fc-line-items');
   });
 
   it('should switch to edit mode when click on Edit line items button', function *() {
