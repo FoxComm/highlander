@@ -18,6 +18,9 @@ import utils.Slick.DbResult
 import utils.Slick.implicits._
 
 object Admin {
+
+  val orderRefNum = """([a-zA-Z0-9-_]*)""".r
+
   def routes(implicit ec: ExecutionContext, db: Database,
     mat: Materializer, storeAdminAuth: AsyncAuthenticator[StoreAdmin], apis: Apis) = {
     import Json4sSupport._
@@ -257,7 +260,7 @@ object Admin {
           }
         }
       } ~
-      pathPrefix("orders" / """([a-zA-Z0-9-_]*)""".r) { refNum ⇒
+      pathPrefix("orders" / orderRefNum) { refNum ⇒
         (get & pathEnd) {
           complete {
             val finder = Orders.findByRefNum(refNum)
@@ -389,15 +392,6 @@ object Admin {
             }
           }
         } ~
-        pathPrefix("shipping-methods") {
-          (get & pathEnd) {
-            complete {
-              whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
-                ShippingManager.getShippingMethodsForOrder(order)
-              }
-            }
-          }
-        } ~
         pathPrefix("notifications") {
           (get & pathEnd) {
             complete {
@@ -411,6 +405,15 @@ object Admin {
           (get & path(IntNumber) & pathEnd) { notificationId ⇒
             complete {
               render(Notification("Failed", "Order Confirmation", "2015-02-16T09:23:29", "+ (567) 203-8430"))
+            }
+          }
+        }
+      } ~
+      pathPrefix("shipping-methods" / orderRefNum) { refNum ⇒
+        (get & pathEnd) {
+          complete {
+            whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
+              ShippingManager.getShippingMethodsForOrder(order)
             }
           }
         }
