@@ -1,5 +1,7 @@
 package models
 
+import java.time.Instant
+
 import cats.data.ValidatedNel
 import cats.implicits._
 import services.Failure
@@ -18,7 +20,7 @@ import utils.Slick.implicits._
 
 final case class Customer(id: Int = 0, disabled: Boolean = false, email: String, password: String, firstName: String,
   lastName: String, phoneNumber: Option[String] = None, location: Option[String] = None,
-  modality: Option[String] = None, isGuest: Boolean = false)
+  modality: Option[String] = None, isGuest: Boolean = false, createdAt: Instant = Instant.now())
   extends ModelWithIdParameter
   with Validation[Customer] {
 
@@ -53,9 +55,10 @@ class Customers(tag: Tag) extends TableWithId[Customer](tag, "customers")  {
   def location = column[Option[String]]("location")
   def modality = column[Option[String]]("modality")
   def isGuest = column[Boolean]("is_guest")
+  def createdAt = column[Instant]("created_at")
 
   def * = (id, disabled, email, password, firstName, lastName,
-    phoneNumber, location, modality, isGuest) <> ((Customer.apply _).tupled, Customer.unapply)
+    phoneNumber, location, modality, isGuest, createdAt) <> ((Customer.apply _).tupled, Customer.unapply)
 }
 
 object Customers extends TableQueryWithId[Customer, Customers](
