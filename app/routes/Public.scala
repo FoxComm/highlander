@@ -34,6 +34,11 @@ object Public {
         services.Public.countries.map(render(_))
       }
     } ~
+    (get & path("regions") & pathEnd) {
+      complete {
+        services.Public.regions.map(render(_))
+      }
+    } ~
     (get & path("countries" / IntNumber) & pathEnd) { countryId ⇒
       complete {
         services.Public.findCountry(countryId).map(renderGoodOrFailures(_))

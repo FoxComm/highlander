@@ -14,7 +14,6 @@ final case class Country(id: Int = 0, name: String, alpha2: String, alpha3: Stri
 
 object Country {
   val unitedStatesId: Int = 234
-  val usRegions: Range    = 4121 to 4180
 }
 
 class Countries(tag: Tag) extends TableWithId[Country](tag, "countries")  {
