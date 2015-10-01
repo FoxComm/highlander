@@ -53,11 +53,7 @@ object StoreCreditService {
       case Valid(_) ⇒
         val responses = payload.ids.map { id ⇒
           val itemPayload = payloads.StoreCreditUpdateStatusByCsr(payload.status, payload.reason)
-
-          updateStatusByCsr(id, itemPayload, admin).map {
-            case Xor.Left(errors) ⇒ buildResponse(id, None, Some(errors.map(_.description.mkString)))
-            case Xor.Right(sc)    ⇒ buildResponse(id, Some(sc))
-          }
+          updateStatusByCsr(id, itemPayload, admin).map(buildResponse(id, _))
         }
 
         val future = Future.sequence(responses).flatMap { seq ⇒

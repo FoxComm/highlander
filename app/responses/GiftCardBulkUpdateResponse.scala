@@ -1,22 +1,21 @@
 package responses
 
-import models.GiftCard
+import cats.data.Xor
+import services.Failures
 
 object GiftCardBulkUpdateResponse {
-  final case class Responses(responses: Seq[Response])
-
   final case class Response(
     code: String,
-    success: Boolean,
+    success: Boolean = false,
     giftCard: Option[GiftCardResponse.Root] = None,
     errors: Option[Seq[String]] = None)
 
-  def buildResponse(code: String, giftCard: Option[GiftCardResponse.Root] = None,
-    errors: Option[Seq[String]] = None): Response = {
+  final case class Responses(responses: Seq[Response])
 
-    (giftCard, errors) match {
-      case (Some(gc), None) ⇒ Response(code = code, success = true, giftCard = Some(gc))
-      case _                ⇒ Response(code = code, success = false, errors = errors)
+  def buildResponse(code: String, result: Failures Xor GiftCardResponse.Root): Response = {
+    result match {
+      case Xor.Left(errors)  ⇒ Response(code = code, errors = Some(errors.map(_.description.mkString)))
+      case Xor.Right(sc)     ⇒ Response(code = code, success = true, giftCard = Some(sc))
     }
   }
 

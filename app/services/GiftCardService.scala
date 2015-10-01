@@ -79,10 +79,7 @@ object GiftCardService {
       case Valid(_) ⇒
         val responses = payload.codes.map { code ⇒
           val itemPayload = payloads.GiftCardUpdateStatusByCsr(payload.status, payload.reason)
-          updateStatusByCsr(code, itemPayload, admin).map {
-            case Xor.Left(errors) ⇒ buildResponse(code, None, Some(errors.map(_.description.mkString)))
-            case Xor.Right(sc)    ⇒ buildResponse(code, Some(sc))
-          }
+          updateStatusByCsr(code, itemPayload, admin).map(buildResponse(code, _))
         }
 
         val future = Future.sequence(responses).flatMap { seq ⇒
@@ -103,8 +100,8 @@ object GiftCardService {
         val finder = GiftCards.findByCode(code)
         finder.findOneAndRun { gc ⇒
           gc.transitionTo(payload.status) match {
-            case Xor.Left(message) ⇒ DbResult.failure(GeneralFailure(message))
-            case Xor.Right(_) ⇒ (payload.status, payload.reason) match {
+            case Xor.Left(message)  ⇒ DbResult.failure(GeneralFailure(message))
+            case Xor.Right(_)       ⇒ (payload.status, payload.reason) match {
               case (Canceled, Some(reason)) ⇒
                 cancelByCsr(finder, gc, payload, admin)
               case (Canceled, None) ⇒

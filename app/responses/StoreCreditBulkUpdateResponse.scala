@@ -1,21 +1,21 @@
 package responses
 
-import models.StoreCredit
+import cats.data.Xor
+import services.Failures
 
 object StoreCreditBulkUpdateResponse {
-  final case class Responses(responses: Seq[Response])
-
   final case class Response(
     id: Int,
-    success: Boolean,
+    success: Boolean = false,
     storeCredit: Option[StoreCreditResponse.Root] = None,
-    errors: Option[Seq[String]] = None
-  )
+    errors: Option[Seq[String]] = None)
 
-  def buildResponse(id: Int, storeCredit: Option[StoreCreditResponse.Root] = None, errors: Option[Seq[String]] = None): Response = {
-    (storeCredit, errors) match {
-      case (Some(sc), None) ⇒ Response(id = id, success = true, storeCredit = Some(sc))
-      case _                ⇒ Response(id = id, success = false, errors = errors)
+  final case class Responses(responses: Seq[Response])
+
+  def buildResponse(id: Int, entity: Failures Xor StoreCreditResponse.Root): Response = {
+    entity match {
+      case Xor.Left(errors) ⇒ Response(id = id, errors = Some(errors.map(_.description.mkString)))
+      case Xor.Right(sc)    ⇒ Response(id = id, success = true, storeCredit = Some(sc))
     }
   }
 
