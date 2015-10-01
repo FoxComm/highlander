@@ -9,20 +9,31 @@ export default class SectionTitle extends React.Component {
 
   render() {
     var titleMarkup = '';
-    if (count != undefined) {
+    if (this.props.count != undefined) {
       titleMarkup = (
         <h1 className="fc-title">
-          {this.props.title}
+          { this.props.title }
           <span className="fc-subtitle">
-            {this.props.count}
+            { this.props.count }
           </span>
         </h1>
       );
     } else {
       titleMarkup = (
         <h1 className="fc-title">
-          {this.props.title}
+          { this.props.title }
         </h1>
+      );
+    }
+    var buttonMarkup = '';
+    if (this.props.buttonClickHandler != undefined) {
+      buttonMarkup = (
+        <div className="fc-col-2-6 fc-push-2-6 fc-actions">
+          <button className="fc-btn fc-btn-primary"
+                  onClick={ this.props.buttonClickHandler.bind(this) }>
+            <i className="icon-add"></i> { this.props.title }
+          </button>
+        </div>
       );
     }
     return (
@@ -31,12 +42,7 @@ export default class SectionTitle extends React.Component {
           <div className="fc-col-2-6">
             { titleMarkup }
           </div>
-          <div className="fc-col-2-6 fc-push-2-6 fc-actions">
-            <button className="fc-btn fc-btn-primary"
-                    onClick={this.props.buttonClickHandler.bind(this)}>
-              <i className="icon-add"></i> {this.props.title}
-            </button>
-          </div>
+          { buttonMarkup }
         </div>
       </div>
     );
