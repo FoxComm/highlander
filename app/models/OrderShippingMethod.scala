@@ -1,8 +1,9 @@
 package models
 
+import scala.concurrent.ExecutionContext
+
 import cats.data.ValidatedNel
 import cats.implicits._
-import com.wix.accord.dsl.{validator => createValidator, _}
 import monocle.macros.GenLens
 import services.Failure
 import slick.driver.PostgresDriver.api._
@@ -28,7 +29,11 @@ final case class OrderShippingMethod(id: Int = 0, orderId: Int = 0, adminDisplay
   }
 }
 
-object OrderShippingMethod
+object OrderShippingMethod {
+  def buildFromShippingMethod(sm: ShippingMethod): OrderShippingMethod =
+    OrderShippingMethod(adminDisplayName = sm.adminDisplayName, storefrontDisplayName = sm.storefrontDisplayName,
+      shippingCarrierId = sm.shippingCarrierId, price = sm.price)
+}
 
 class OrderShippingMethods(tag: Tag) extends TableWithId[OrderShippingMethod](tag, "order_shipping_methods")
    {
@@ -47,4 +52,8 @@ class OrderShippingMethods(tag: Tag) extends TableWithId[OrderShippingMethod](ta
 
 object OrderShippingMethods extends TableQueryWithId[OrderShippingMethod, OrderShippingMethods](
   idLens = GenLens[OrderShippingMethod](_.id)
-)(new OrderShippingMethods(_)) {}
+)(new OrderShippingMethods(_)) {
+  def copyFromShippingMethod(sm: ShippingMethod, order: Order)(implicit ec: ExecutionContext):
+  DBIO[OrderShippingMethod] =
+    save(OrderShippingMethod.buildFromShippingMethod(sm).copy(orderId = order.id))
+}

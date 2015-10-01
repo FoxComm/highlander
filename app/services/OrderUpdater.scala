@@ -145,7 +145,19 @@ object OrderUpdater {
 
   def updateShippingMethod(order: Order, payload: UpdateShippingMethod)
     (implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
-    Result.failure(GeneralFailure("We should implement this method before we call it."))
+
+    val queries = for {
+      shippingMethod ← ShippingMethods.findById(payload.shippingMethodId)
+      _ ← shippingMethod.map(OrderShippingMethods.copyFromShippingMethod(_, order)).getOrElse(DBIO.successful(None))
+      fullOrder ← FullOrder.fromOrder(order)
+    } yield (shippingMethod, fullOrder)
+
+    db.run(queries).flatMap {
+      case (Some(_), fullOrder) ⇒
+        Result.good(fullOrder)
+      case (None, _) ⇒
+        Result.failure(GeneralFailure(s"Could not find shipping method with ${payload.shippingMethodId}"))
+    }
   }
 
   def createShippingAddressFromAddressId(addressId: Int, refNum: String)
