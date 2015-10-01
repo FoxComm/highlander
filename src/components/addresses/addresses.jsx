@@ -11,6 +11,7 @@ export default class AddressBook extends React.Component {
   static propTypes = {
     order: PropTypes.object,
     onSelectAddress: PropTypes.func,
+    onDeleteAddress: PropTypes.func,
     params: PropTypes.shape({
       customer: PropTypes.string
     })

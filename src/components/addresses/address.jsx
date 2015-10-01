@@ -29,7 +29,8 @@ export default class Address extends React.Component {
   constructor(props, context) {
     super(props, context);
     this.onSelectAddress = props.onSelectAddress && props.onSelectAddress.bind(this, props.address);
-    this.onDeleteAddress = props.onDeleteAddress && props.onDeleteAddress.bind(this, props.address, this.isSelectedForOrder());
+    this.onDeleteAddress = props.onDeleteAddress &&
+      props.onDeleteAddress.bind(this, props.address, this.isSelectedForOrder());
   }
 
   toggleEdit() {
