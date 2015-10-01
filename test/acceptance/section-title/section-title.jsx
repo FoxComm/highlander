@@ -23,17 +23,18 @@ describe('SectionTitle', function() {
     let sectionTitle = React.render(
       <SectionTitle title='Orders'/>
       , container);
-    let sectionTitleNode = TestUtils.findRenderedDOMComponentWithClass(sectionTitle, 'fc-list-header').getDOMNode();
+    let sectionTitleNode = TestUtils.findRenderedDOMComponentWithClass(sectionTitle, 'fc-grid').getDOMNode();
 
     expect(sectionTitleNode).to.be.instanceof(Object);
-    expect(sectionTitleNode.className).to.contain('fc-list-header');
+    expect(sectionTitleNode.className).to.contain('fc-grid');
+    expect(sectionTitleNode.className).to.contain('gutter');
   });
 
   it('should not render counter if count is not set', function *() {
     let sectionTitle = React.render(
       <SectionTitle title='Orders'/>
       , container);
-    let sectionTitleNode = TestUtils.findRenderedDOMComponentWithClass(sectionTitle, 'fc-list-header').getDOMNode();
+    let sectionTitleNode = TestUtils.findRenderedDOMComponentWithClass(sectionTitle, 'fc-grid').getDOMNode();
 
     expect(sectionTitleNode.querySelector('.fc-subtitle')).to.be.equal(null);
   });
@@ -43,7 +44,7 @@ describe('SectionTitle', function() {
     let sectionTitle = React.render(
       <SectionTitle title='Orders' count={ count } />
       , container);
-    let sectionTitleNode = TestUtils.findRenderedDOMComponentWithClass(sectionTitle, 'fc-list-header').getDOMNode();
+    let sectionTitleNode = TestUtils.findRenderedDOMComponentWithClass(sectionTitle, 'fc-grid').getDOMNode();
 
     expect(sectionTitleNode.querySelector('.fc-subtitle').innerHTML).to.be.equal('' + count);
   });
@@ -52,7 +53,7 @@ describe('SectionTitle', function() {
     let sectionTitle = React.render(
       <SectionTitle title='Orders'/>
       , container);
-    let sectionTitleNode = TestUtils.findRenderedDOMComponentWithClass(sectionTitle, 'fc-list-header').getDOMNode();
+    let sectionTitleNode = TestUtils.findRenderedDOMComponentWithClass(sectionTitle, 'fc-grid').getDOMNode();
 
     expect(sectionTitleNode.querySelector('button.fc-btn.fc-btn-primary')).to.be.equal(null);
   });
@@ -63,7 +64,7 @@ describe('SectionTitle', function() {
     let sectionTitle = React.render(
       <SectionTitle title={ title } buttonClickHandler={ handler }/>
       , container);
-    let sectionTitleNode = TestUtils.findRenderedDOMComponentWithClass(sectionTitle, 'fc-list-header').getDOMNode();
+    let sectionTitleNode = TestUtils.findRenderedDOMComponentWithClass(sectionTitle, 'fc-grid').getDOMNode();
 
     expect(sectionTitleNode.querySelector('button.fc-btn.fc-btn-primary').innerHTML).to.contain(title);
   });

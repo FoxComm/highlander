@@ -37,13 +37,11 @@ export default class SectionTitle extends React.Component {
       );
     }
     return (
-      <div className="fc-list-header">
-        <div className="fc-grid gutter">
-          <div className="fc-col-2-6">
-            { titleMarkup }
-          </div>
-          { buttonMarkup }
+      <div className="fc-grid gutter">
+        <div className="fc-col-2-6">
+          { titleMarkup }
         </div>
+        { buttonMarkup }
       </div>
     );
   }
