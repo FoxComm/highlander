@@ -1,10 +1,10 @@
 package services
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.ExecutionContext
 
 import cats.data.Validated.{Valid, Invalid}
-import cats.data.Xor
 import models._
+import models.OrderLineItem.{OriginType, SkuItem, GiftCardItem}
 import payloads.{AddGiftCardLineItem, UpdateLineItemsPayload}
 import cats.implicits._
 import responses.FullOrder
@@ -24,7 +24,7 @@ object LineItemUpdater {
         Orders._findActiveOrderByCustomer(customer).findOneAndRun { order ⇒
           val queries = for {
             gc ← GiftCards.save(GiftCard.buildLineItem(customer, payload.balance, payload.currency))
-            rel ← OrderGiftCards.save(OrderGiftCard.build(order, gc))
+            rel ← OrderLineItems.save(OrderLineItem.buildGiftCard(order, gc))
           } yield (gc, rel)
 
           DbResult.fromDbio(queries >> FullOrder.fromOrder(order))
@@ -60,8 +60,11 @@ object LineItemUpdater {
 
     GiftCards.findByCode(code).findOneAndRun { gc ⇒
       val queries = for {
-        deleteGc ← OrderGiftCards.filter(_.giftCardId === gc.id).delete
-        deleteRel ← GiftCards.filter(_.id === gc.id).delete
+        deleteRel ← OrderLineItems
+          .filter(_.originId === gc.id)
+          .filter(_.originType === (GiftCardItem: OriginType))
+          .delete
+        deleteGc ← GiftCards.filter(_.id === gc.id).delete
       } yield ()
 
       Orders._findActiveOrderByCustomer(customer).one.flatMap {
@@ -108,7 +111,10 @@ object LineItemUpdater {
 
       // select sku_id, count(1) from line_items where order_id = $ group by sku_id
       val counts = for {
-        (skuId, q) <- lineItems.filter(_.orderId === order.id).groupBy(_.skuId)
+        (skuId, q) <- lineItems
+          .filter(_.orderId === order.id)
+          .filter(_.originType === (SkuItem: OriginType))
+          .groupBy(_.originId)
       } yield (skuId, q.length)
 
       val queries = counts.result.flatMap { (items: Seq[(Int, Int)]) =>
@@ -123,8 +129,9 @@ object LineItemUpdater {
             lineItems ++= (1 to delta).map { _ => OrderLineItem(0, order.id, sku.id) }.toSeq
           } else if (current - newQuantity > 0) {
             //otherwise delete N items
-            lineItems.filter(_.id in lineItems.filter(_.orderId === order.id).filter(_.skuId === sku.id).
-              sortBy(_.id.asc).take(current - newQuantity).map(_.id)).delete
+            lineItems.filter(_.id in lineItems.filter(_.orderId === order.id)
+              .filter(_.originType === (SkuItem: OriginType))
+              .filter(_.originId === sku.id).sortBy(_.id.asc).take(current - newQuantity).map(_.id)).delete
           } else {
             // do nothing
             DBIO.successful({})
