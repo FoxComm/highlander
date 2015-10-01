@@ -28,6 +28,16 @@ export default class Customers extends React.Component {
   render() {
     return (
       <div id="users">
+        <div className="fc-list-header">
+          <div className="fc-grid gutter">
+            <div className="fc-col-2-6">
+              <h1 className="fc-title">Cutomers <span className="fc-subtitle">{this.state.customers.length}</span></h1>
+            </div>
+            <div className="fc-col-2-6 fc-push-2-6 fc-actions">
+              <button className="fc-btn fc-btn-primary"><i className="icon-add"></i> Customer</button>
+            </div>
+          </div>
+        </div>
         <div className="gutter">
           <TableView
             columns={this.props.tableColumns}
