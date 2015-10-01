@@ -61,7 +61,7 @@ class LineItemUpdaterTest extends IntegrationTestBase {
       createInventory(2, 100)
       createInventory(3, 100)
       val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { skuId =>
-        OrderLineItem(id = 0, orderId = 1, skuId = skuId)
+        OrderLineItem(id = 0, orderId = 1, originId = skuId, originType = OrderLineItem.SkuItem)
       }
       createLineItems(seedItems)
 

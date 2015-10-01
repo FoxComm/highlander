@@ -16,8 +16,8 @@ class CheckoutTest extends IntegrationTestBase with Inside {
       "returns a new Order with the 'Cart' status" ignore { /** Needs Stripe mocks */
         val (order, _) = testData()
 
-        val lineItemStub1 = OrderLineItem(id = 0, orderId = 0, skuId = 1)
-        val lineItemStub2 = OrderLineItem(id = 0, orderId = 0, skuId = 2)
+        val lineItemStub1 = OrderLineItem(id = 0, orderId = 0, originId = 1, originType = OrderLineItem.SkuItem)
+        val lineItemStub2 = OrderLineItem(id = 0, orderId = 0, originId = 2, originType = OrderLineItem.SkuItem)
 
         val actions = for {
           _ ← OrderLineItems.returningId += lineItemStub1.copy(orderId = order.id)
@@ -54,8 +54,8 @@ class CheckoutTest extends IntegrationTestBase with Inside {
 
         val (order, _) = testData(gatewayCustomerId = "")
 
-        val lineItemStub1 = OrderLineItem(id = 0, orderId = 0, skuId = 1)
-        val lineItemStub2 = OrderLineItem(id = 0, orderId = 0, skuId = 2)
+        val lineItemStub1 = OrderLineItem(id = 0, orderId = 0, originId = 1, originType = OrderLineItem.SkuItem)
+        val lineItemStub2 = OrderLineItem(id = 0, orderId = 0, originId = 2, originType = OrderLineItem.SkuItem)
 
         val actions = for {
           _ ← OrderLineItems.returningId += lineItemStub1.copy(orderId = order.id)
