@@ -75,10 +75,13 @@ Customers.propTypes = {
 
 Customers.defaultProps = {
   tableColumns: [
-    {field: 'firstName', text: 'First Name'},
-    {field: 'lastName', text: 'Last Name'},
+    {field: 'name', text: 'Name'},
     {field: 'email', text: 'Email'},
+    {field: 'customerId', text: 'Customer ID'},
+    {field: 'shipToRegion', text: 'Ship To Region'},
+    {field: 'billToRegion', text: 'Bill To Region'},
+    {field: 'rank', text: 'Rank'},
     {field: 'disabled', text: 'Disabled', type: 'bool'},
-    {field: 'createdAt', text: 'Date Joined', type: 'date'}
+    {field: 'createdAt', text: 'Date/Time Joined', type: 'date'}
   ]
 };
