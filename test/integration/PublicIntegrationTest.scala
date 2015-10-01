@@ -1,7 +1,8 @@
 import akka.http.scaladsl.model.StatusCodes
 
-import models.Country
+import models.{Region, Country}
 import models.Country._
+import models.Region._
 import responses.CountryWithRegions
 import util.IntegrationTestBase
 
@@ -37,6 +38,28 @@ class PublicIntegrationTest extends IntegrationTestBase
 
       countries.head mustBe us
       countries.tail.map(_.name) mustBe sorted
+    }
+  }
+
+  "GET /regions" - {
+    "lists regions sorted" in {
+      val response = GET(s"v1/regions")
+      response.status mustBe StatusCodes.OK
+      val regions = response.as[Seq[Region]]
+
+      val us = regions.take(regularUsRegions.size)
+      us.map(_.countryId) mustBe List.fill(us.size)(unitedStatesId)
+      us.map(_.id).sorted mustBe regularUsRegions
+      us.map(_.name) mustBe sorted
+
+      val armed = regions.slice(regularUsRegions.size, usRegions.size)
+      armed.map(_.id).sorted mustBe armedRegions
+      armed.map(_.name) mustBe sorted
+
+      val other = regions.drop(usRegions.size)
+      other.map(_.name) mustBe sorted
+
+      regions mustBe us ++ armed ++ other
     }
   }
 }
