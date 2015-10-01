@@ -2,7 +2,11 @@
 
 import React from 'react';
 import TableView from '../tables/tableview';
+import TabListView from '../tabs/tabs';
+import TabView from '../tabs/tab';
+
 import CustomerStore from '../../stores/customers';
+
 
 export default class Customers extends React.Component {
   constructor(props, context) {
@@ -37,6 +41,20 @@ export default class Customers extends React.Component {
               <button className="fc-btn fc-btn-primary"><i className="icon-add"></i> Customer</button>
             </div>
           </div>
+          <div className="fc-grid gutter">
+            <div className="fc-col-1-1">
+              <ul className="fc-tabbed-nav">
+                <li><a href="">Lists</a></li>
+                <li><a href="">Customer Groups</a></li>
+                <li><a href="">Insights</a></li>
+                <li><a href="">Activity Trial</a></li>
+              </ul>
+            </div>
+          </div>
+          <TabListView>
+            <TabView>All</TabView>
+            <TabView>What</TabView>
+          </TabListView>
         </div>
         <div className="gutter">
           <TableView
