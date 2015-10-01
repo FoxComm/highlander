@@ -100,16 +100,18 @@ object GiftCardService {
         val finder = GiftCards.findByCode(code)
         finder.findOneAndRun { gc ⇒
           gc.transitionTo(payload.status) match {
-            case Xor.Left(message)  ⇒ DbResult.failure(GeneralFailure(message))
-            case Xor.Right(_)       ⇒ (payload.status, payload.reason) match {
-              case (Canceled, Some(reason)) ⇒
-                cancelByCsr(finder, gc, payload, admin)
-              case (Canceled, None) ⇒
-                DbResult.failure(EmptyCancellationReasonFailure)
-              case (_, _) ⇒
-                val update = finder.map(_.status).updateReturning(GiftCards.map(identity), payload.status).head
-                DbResult.fromDbio(update.flatMap { gc ⇒ lift(GiftCardResponse.build(gc)) })
-            }
+            case Xor.Left(message)  ⇒
+              DbResult.failure(GeneralFailure(message))
+            case Xor.Right(_)       ⇒
+              (payload.status, payload.reason) match {
+                case (Canceled, Some(reason)) ⇒
+                  cancelByCsr(finder, gc, payload, admin)
+                case (Canceled, None) ⇒
+                  DbResult.failure(EmptyCancellationReasonFailure)
+                case (_, _) ⇒
+                  val update = finder.map(_.status).updateReturning(GiftCards.map(identity), payload.status).head
+                  DbResult.fromDbio(update.flatMap { gc ⇒ lift(GiftCardResponse.build(gc)) })
+              }
           }
         }
       case Invalid(errors) ⇒

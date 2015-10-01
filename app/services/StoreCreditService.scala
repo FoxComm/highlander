@@ -75,16 +75,18 @@ object StoreCreditService {
 
         finder.findOneAndRun { sc ⇒
           sc.transitionTo(payload.status) match {
-            case Xor.Left(message) ⇒ DbResult.failure(GeneralFailure(message))
-            case Xor.Right(_) ⇒ (payload.status, payload.reason) match {
-              case (Canceled, Some(reason)) ⇒
-                cancelByCsr(finder, sc, payload, admin)
-              case (Canceled, None) ⇒
-                DbResult.failure(EmptyCancellationReasonFailure)
-              case (_, _) ⇒
-                val update = finder.map(_.status).updateReturning(StoreCredits.map(identity), payload.status).head
-                DbResult.fromDbio(update.flatMap { sc ⇒ lift(StoreCreditResponse.build(sc)) })
-            }
+            case Xor.Left(message)  ⇒
+              DbResult.failure(GeneralFailure(message))
+            case Xor.Right(_)       ⇒
+              (payload.status, payload.reason) match {
+                case (Canceled, Some(reason)) ⇒
+                  cancelByCsr(finder, sc, payload, admin)
+                case (Canceled, None) ⇒
+                  DbResult.failure(EmptyCancellationReasonFailure)
+                case (_, _) ⇒
+                  val update = finder.map(_.status).updateReturning(StoreCredits.map(identity), payload.status).head
+                  DbResult.fromDbio(update.flatMap { sc ⇒ lift(StoreCreditResponse.build(sc)) })
+              }
           }
         }
       case Invalid(errors) ⇒
