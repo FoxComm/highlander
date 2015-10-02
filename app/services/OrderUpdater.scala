@@ -5,11 +5,10 @@ import scala.concurrent.{ExecutionContext, Future}
 import cats.data.Validated.{Invalid, Valid}
 import cats.data.Xor
 import models._
-import payloads.{CreateShippingAddress, UpdateAddressPayload, UpdateShippingAddress}
-import responses.{Addresses ⇒ Response, FullOrder}
+import payloads.{UpdateAddressPayload, CreateAddressPayload}
+import responses.FullOrder
 import slick.driver.PostgresDriver.api._
-import utils.Slick.DbResult
-import utils.Slick._
+import utils.Slick.{DbResult, _}
 import utils.Slick.implicits._
 
 object OrderUpdater {
@@ -86,100 +85,85 @@ object OrderUpdater {
     }
   }
 
-  def createShippingAddress(order: Order, payload: CreateShippingAddress)
-    (implicit db: Database, ec: ExecutionContext): Future[Failures Xor responses.Addresses.Root] = {
+  def createShippingAddressFromPayload(payload: CreateAddressPayload, refNum: String)
+    (implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
+    val finder = Orders.findByRefNum(refNum)
+    finder.findOneAndRun { order ⇒
 
-    (payload.addressId, payload.address) match {
-      case (Some(addressId), _) ⇒
-        createShippingAddressFromAddressId(addressId, order.id)
-      case (None, Some(payloadAddress)) ⇒
-        createShippingAddressFromPayload(Address.fromPayload(payloadAddress), order)
-      case (None, None) ⇒
-        Result.failure(GeneralFailure("must supply either an addressId or an address"))
-    }
-  }
-
-  def updateShippingAddress(order: Order, payload: UpdateShippingAddress)
-    (implicit db: Database, ec: ExecutionContext): Result[responses.Addresses.Root] = {
-
-    (payload.addressId, payload.address) match {
-      case (Some(addressId), _) ⇒
-        createShippingAddressFromAddressId(addressId, order.id)
-      case (None, Some(address)) ⇒
-        updateShippingAddressFromPayload(address, order)
-      case (None, _) ⇒
-        Result.failure(GeneralFailure("must supply either an addressId or an address"))
-    }
-  }
-
-  private def createShippingAddressFromPayload(address: Address, order: Order)
-    (implicit db: Database, ec: ExecutionContext): Result[responses.Addresses.Root] = {
-
-    address.validate match {
-      case Valid(_) ⇒
-        db.run(for {
-          newAddress ← Addresses.save(address.copy(customerId = order.customerId))
-          region ← Regions.findById(newAddress.regionId)
-          _ ← OrderShippingAddresses.findByOrderId(order.id).delete
-          _ ← OrderShippingAddresses.copyFromAddress(newAddress, order.id)
-        } yield (newAddress, region)).flatMap {
-          case (address, Some(region))  ⇒ Result.good(Response.build(address, region))
-          case (_, None)                ⇒ Result.failure(NotFoundFailure(Region, address.regionId))
-        }
-      case Invalid(errors) ⇒ Result.failures(errors.failure)
-    }
-  }
-
-  private def updateShippingAddressFromPayload(payload: UpdateAddressPayload, order: Order)
-    (implicit db: Database, ec: ExecutionContext): Result[responses.Addresses.Root] = {
-
-    val actions = for {
-      oldAddress ← OrderShippingAddresses.findByOrderId(order.id).one
-
-      rowsAffected ← oldAddress.map { osa ⇒
-        OrderShippingAddresses.update(OrderShippingAddress.fromPatchPayload(a = osa, p = payload))
-      }.getOrElse(DBIO.successful(0))
-
-      newAddress ← OrderShippingAddresses.findByOrderId(order.id).one
-
-      region ← newAddress.map { address ⇒
-        Regions.findById(address.regionId)
-      }.getOrElse(DBIO.successful(None))
-    } yield (rowsAffected, newAddress, region)
-
-    db.run(actions.transactionally).flatMap {
-      case (_, None, _) ⇒
-        Result.failure(NotFoundFailure(OrderShippingAddress, order.id))
-      case (0, _, _) ⇒
-        Result.failure(GeneralFailure("Unable to update address"))
-      case (_, Some(address), None) ⇒
-        Result.failure(NotFoundFailure(Region, address.regionId))
-      case (_, Some(address), Some(region)) ⇒
-        Result.right(Response.build(Address.fromOrderShippingAddress(address), region))
-    }
-  }
-
-  private def createShippingAddressFromAddressId(addressId: Int, orderId: Int)
-    (implicit db: Database, ec: ExecutionContext): Result[responses.Addresses.Root] = {
-
-    db.run(for {
-      address ← Addresses.findById(addressId)
-      region ← address.map { a ⇒ Regions.findById(a.regionId) }.getOrElse(DBIO.successful(None))
-      _ ← address match {
-        case Some(a) ⇒
-          for {
-            _ ← OrderShippingAddresses.findByOrderId(orderId).delete
-            shipAddress ← OrderShippingAddresses.copyFromAddress(a, orderId)
-          } yield Some(shipAddress)
-
-        case None ⇒
-          DBIO.successful(None)
+      val address = Address.fromPayload(payload)
+      address.validate match {
+        case Valid(_) ⇒
+          (for {
+            newAddress ← Addresses.save(address.copy(customerId = order.customerId))
+            region ← Regions.findById(newAddress.regionId)
+            _ ← OrderShippingAddresses.findByOrderId(order.id).delete
+            _ ← OrderShippingAddresses.copyFromAddress(newAddress, order.id)
+          } yield region).flatMap {
+            case Some(region) ⇒ DbResult.fromDbio(fullOrder(finder))
+            case None ⇒ DbResult.failure(NotFoundFailure(Region, address.regionId))
+          }
+        case Invalid(errors) ⇒ DbResult.failures(errors.failure)
       }
-    } yield (address, region)).flatMap {
-      case (Some(address), Some(region)) ⇒
-        Result.good(Response.build(address, region))
-      case _ ⇒
-        Result.failure(NotFoundFailure(Address, addressId))
+    }
+  }
+
+  def updateShippingAddressFromPayload(payload: UpdateAddressPayload, refNum: String)
+    (implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
+    val finder = Orders.findByRefNum(refNum)
+    finder.findOneAndRun { order ⇒
+
+      val actions = for {
+        oldAddress ← OrderShippingAddresses.findByOrderId(order.id).one
+
+        rowsAffected ← oldAddress.map { osa ⇒
+          OrderShippingAddresses.update(OrderShippingAddress.fromPatchPayload(a = osa, p = payload))
+        }.getOrElse(lift(0))
+
+        newAddress ← OrderShippingAddresses.findByOrderId(order.id).one
+
+        region ← newAddress.map { address ⇒
+          Regions.findById(address.regionId)
+        }.getOrElse(lift(None))
+      } yield (rowsAffected, newAddress, region)
+
+      actions.flatMap {
+        case (_, None, _) ⇒
+          DbResult.failure(NotFoundFailure(OrderShippingAddress, order.id))
+        case (0, _, _) ⇒
+          DbResult.failure(GeneralFailure("Unable to update address"))
+        case (_, Some(address), None) ⇒
+          DbResult.failure(NotFoundFailure(Region, address.regionId))
+        case (_, Some(address), Some(region)) ⇒
+          DbResult.fromDbio(fullOrder(finder))
+      }
+    }
+  }
+
+  def createShippingAddressFromAddressId(addressId: Int, refNum: String)
+    (implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
+
+    val finder = Orders.findByRefNum(refNum)
+    finder.findOneAndRun { order ⇒
+
+      (for {
+        address ← Addresses.findById(addressId)
+        region ← address.map { a ⇒ Regions.findById(a.regionId) }.getOrElse(DBIO.successful(None))
+        _ ← address match {
+          case Some(a) ⇒
+            for {
+              _ ← OrderShippingAddresses.findByOrderId(order.id).delete
+              shipAddress ← OrderShippingAddresses.copyFromAddress(a, order.id)
+            } yield Some(shipAddress)
+
+          case None ⇒
+            DBIO.successful(None)
+        }
+      } yield (address, region)).flatMap {
+        case (Some(address), Some(region)) ⇒
+          DbResult.fromDbio(fullOrder(finder))
+        case _ ⇒
+          DbResult.failure(NotFoundFailure(Address, addressId))
+      }
     }
   }
 }

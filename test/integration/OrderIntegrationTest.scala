@@ -439,10 +439,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     "copying a shipping address from a customer's book" - {
 
       "succeeds if the address exists in their book" in new AddressFixture {
-        val response = POST(
-          s"v1/orders/${order.referenceNumber}/shipping-address",
-          payloads.CreateShippingAddress(addressId = Some(address.id)))
-
+        val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address/${address.id}")
         response.status must ===(StatusCodes.OK)
         val (shippingAddress :: Nil) = OrderShippingAddresses.findByOrderId(order.id).result.run().futureValue.toList
 
@@ -458,8 +455,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         val newAddress = Addresses.save(address.copy(name = "New", isDefaultShipping = false)).run().futureValue
 
         val fst :: snd :: Nil = List(address.id, newAddress.id).map { id ⇒
-          POST(s"v1/orders/${order.referenceNumber}/shipping-address",
-            payloads.CreateShippingAddress(addressId = Some(id)))
+          PATCH(s"v1/orders/${order.referenceNumber}/shipping-address/$id")
         }
 
         fst.status must === (StatusCodes.OK)
@@ -471,9 +467,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       }
 
       "errors if the address does not exist" in new AddressFixture {
-        val response = POST(
-          s"v1/orders/${order.referenceNumber}/shipping-address",
-          payloads.CreateShippingAddress(addressId = Some(99)))
+        val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address/99")
 
         response.status must === (StatusCodes.NotFound)
         parseErrors(response) must === (NotFoundFailure(Address, 99).description)
@@ -490,10 +484,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     "editing a shipping address by copying from a customer's address book" - {
 
       "succeeds when the address exists" in new ShippingAddressFixture {
-        val response = PATCH(
-          s"v1/orders/${order.referenceNumber}/shipping-address",
-          payloads.UpdateShippingAddress(addressId = Some(newAddress.id))
-        )
+        val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address/${newAddress.id}")
 
         response.status must === (StatusCodes.OK)
         val (shippingAddress :: Nil) = OrderShippingAddresses.findByOrderId(order.id).result.run().futureValue.toList
@@ -508,19 +499,14 @@ class OrderIntegrationTest extends IntegrationTestBase
       }
 
       "errors if the address does not exist" in new ShippingAddressFixture {
-        val response = PATCH(
-          s"v1/orders/${order.referenceNumber}/shipping-address",
-          payloads.UpdateShippingAddress(addressId = Some(99)))
+        val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address/99")
 
         response.status must === (StatusCodes.NotFound)
         parseErrors(response) must === (NotFoundFailure(Address, 99).description)
       }
 
       "does not change the current shipping address if the edit fails" in new ShippingAddressFixture {
-        val response = PATCH(
-          s"v1/orders/${order.referenceNumber}/shipping-address",
-          payloads.UpdateShippingAddress(addressId = Some(101))
-        )
+        val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address/101")
 
         response.status must === (StatusCodes.NotFound)
         val (shippingAddress :: Nil) = OrderShippingAddresses.findByOrderId(order.id).result.run().futureValue.toList
@@ -540,10 +526,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       "succeeds when a subset of the fields in the address change" in new ShippingAddressFixture {
         val updateAddressPayload = payloads.UpdateAddressPayload(name = Some("New name"), city = Some("Queen Anne"))
-        val response = PATCH(
-          s"v1/orders/${order.referenceNumber}/shipping-address",
-          payloads.UpdateShippingAddress(address = Some(updateAddressPayload))
-        )
+        val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address", updateAddressPayload)
 
         response.status must === (StatusCodes.OK)
 
@@ -559,10 +542,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       "does not update the address book" in new ShippingAddressFixture {
         val updateAddressPayload = payloads.UpdateAddressPayload(name = Some("Another name"), city = Some("Fremont"))
-        val response = PATCH(
-          s"v1/orders/${order.referenceNumber}/shipping-address",
-          payloads.UpdateShippingAddress(address = Some(updateAddressPayload))
-        )
+        val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address", updateAddressPayload)
 
         response.status must === (StatusCodes.OK)
 

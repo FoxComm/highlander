@@ -41,6 +41,8 @@ object Slick {
     def fromFuture[A](future: Future[A])(implicit ec: ExecutionContext): DbResult[A] = fromDbio(liftFuture(future))
 
     def failure[A](failure: Failure): DbResult[A] = liftFuture(Result.failures(failure))
+
+    def failures[A](failures: Failures): DbResult[A] = liftFuture(Result.failures(failures))
   }
 
   /*
