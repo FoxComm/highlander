@@ -1,6 +1,6 @@
 'use strict';
 
-import React from 'react/addons';
+import React from 'react';
 
 export default class TypeaheadResults extends React.Component {
   constructor(props, context) {

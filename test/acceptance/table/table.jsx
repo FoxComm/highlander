@@ -2,8 +2,9 @@
 
 require('testdom')('<html><body></body></html>');
 
-const React = require('react/addons');
-const TestUtils = React.addons.TestUtils;
+const React = require('react');
+const TestUtils = require('react-addons-test-utils');
+const ReactDOM = require('react-dom');
 const path = require('path');
 
 const TableStore = require(path.resolve('test/acceptance/table/store.js'));
@@ -48,12 +49,12 @@ describe('Table', function() {
 
   beforeEach(function() {
     container = document.createElement('div');
-    tableComponent = React.render(<TestTable />, container);
-    tableNode = TestUtils.findRenderedDOMComponentWithTag(tableComponent, 'table').getDOMNode();
+    tableComponent = ReactDOM.render(<TestTable />, container);
+    tableNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithTag(tableComponent, 'table'));
   });
 
   afterEach(function(done) {
-    React.unmountComponentAtNode(container);
+    ReactDOM.unmountComponentAtNode(container);
     setTimeout(done);
   });
 
@@ -82,24 +83,24 @@ describe('Table', function() {
     // order by id
     let idHeaderNode = tableNode.querySelector('th:nth-child(1)');
     // desc
-    React.addons.TestUtils.Simulate.click(idHeaderNode);
+    TestUtils.Simulate.click(idHeaderNode);
     expect(tableNode.querySelector('tr:nth-child(1) > td:nth-child(1) > div').innerHTML).to.be.equal('1');
     expect(tableNode.querySelector('tr:nth-child(2) > td:nth-child(1) > div').innerHTML).to.be.equal('2');
     expect(tableNode.querySelector('tr:nth-child(3) > td:nth-child(1) > div').innerHTML).to.be.equal('10');
     // asc
-    React.addons.TestUtils.Simulate.click(idHeaderNode);
+    TestUtils.Simulate.click(idHeaderNode);
     expect(tableNode.querySelector('tr:nth-child(1) > td:nth-child(1) > div').innerHTML).to.be.equal('10');
     expect(tableNode.querySelector('tr:nth-child(2) > td:nth-child(1) > div').innerHTML).to.be.equal('2');
     expect(tableNode.querySelector('tr:nth-child(3) > td:nth-child(1) > div').innerHTML).to.be.equal('1');
     // order by text
     let textHeaderNode = tableNode.querySelector('th:nth-child(2)');
     // desc
-    React.addons.TestUtils.Simulate.click(textHeaderNode);
+    TestUtils.Simulate.click(textHeaderNode);
     expect(tableNode.querySelector('tr:nth-child(1) > td:nth-child(2) > div').innerHTML).to.be.equal('bar');
     expect(tableNode.querySelector('tr:nth-child(2) > td:nth-child(2) > div').innerHTML).to.be.equal('buzz');
     expect(tableNode.querySelector('tr:nth-child(3) > td:nth-child(2) > div').innerHTML).to.be.equal('foo');
     // asc
-    React.addons.TestUtils.Simulate.click(textHeaderNode);
+    TestUtils.Simulate.click(textHeaderNode);
     expect(tableNode.querySelector('tr:nth-child(1) > td:nth-child(2) > div').innerHTML).to.be.equal('foo');
     expect(tableNode.querySelector('tr:nth-child(2) > td:nth-child(2) > div').innerHTML).to.be.equal('buzz');
     expect(tableNode.querySelector('tr:nth-child(3) > td:nth-child(2) > div').innerHTML).to.be.equal('bar');

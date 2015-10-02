@@ -2,10 +2,9 @@
 
 require('testdom')('<html><body></body></html>');
 
-const
-  React = require('react/addons'),
-  TestUtils = React.addons.TestUtils,
-  path = require('path');
+const TestUtils = require('react-addons-test-utils');
+const ReactDOM = require('react-dom');
+const path = require('path');
 
 describe('Orders List', function() {
   let
@@ -16,7 +15,7 @@ describe('Orders List', function() {
   });
 
   afterEach(function(done) {
-    React.unmountComponentAtNode(document.body);
+    ReactDOM.unmountComponentAtNode(document.body);
     setTimeout(done);
   });
 

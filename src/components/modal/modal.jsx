@@ -1,6 +1,7 @@
 'use strict';
 
-import React from 'react/addons';
+import React from 'react';
+import createFragment from 'react-addons-create-fragment';
 import { listenTo, stopListeningTo } from '../../lib/dispatcher';
 import _ from 'lodash';
 
@@ -23,7 +24,7 @@ export default class Modal extends React.Component {
     component = component || null;
     this.setState({
       isOpen: isOpen,
-      component: React.addons.createFragment({'component': component})
+      component: createFragment({'component': component})
     });
 
     document.body.classList[isOpen ? 'add' : 'remove']('fc-is-modal-opened');
