@@ -9,7 +9,7 @@ export default class SearchBar extends React.Component {
 
   render() {
     return (
-      <div className="fc-col-1-1 fc-search-bar">
+      <div className="fc-search-bar fc-col-1-1">
         <div className="search-input-container">
           <div className="search-input-wrapper">
             <input className="fc-input-search" type="text" placeholder="Add another filter or keyword search" />
