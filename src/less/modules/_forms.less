@@ -45,6 +45,7 @@ textarea {
   background-color: @color-white;
   border: 1px solid @color-decor7;
   box-shadow: inset 1px 1px 1px 0 rgba(0,0,0,0.1);
+  transition: border .20s ease-out;
   .border-radius(3px);
   .padding(0 10px);
   .height(40px);
@@ -57,7 +58,7 @@ textarea {
     border: 1px solid @color-control-primary-bg;
   }
 
-  &:invalid, &.error {
+  &:invalid:not(:required), &.error {
     border: 1px solid @color-decor22;
   }
 }
@@ -149,3 +150,14 @@ textarea {
   }
 }
 
+.fc-invalid-error {
+  color: @color-decor22;
+  .font-spec(13px);
+  .padding-top(8px);
+}
+
+.fc-form-filed-optional {
+  color: @color-decor31;
+  .font-spec(14px, 20px);
+  padding-left: 0.5em;
+}

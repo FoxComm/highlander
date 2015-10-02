@@ -2,11 +2,13 @@
 
 import _ from 'lodash';
 import React from 'react';
+import FormField from '../forms/formfield.jsx';
+import Form from '../forms/form.jsx';
 import { listenTo, stopListeningTo, dispatch } from '../../lib/dispatcher';
 import CountryStore from '../../stores/countries';
 import AddressStore from '../../stores/addresses';
 import OrderStore from '../../stores/orders';
-import {idGenerator} from '../../lib/forms';
+import * as validators from '../../lib/validators';
 
 const DEFAULT_COUNTRY = 'US';
 
@@ -122,12 +124,22 @@ export default class AddressForm extends React.Component {
     }
   }
 
+  validateZipCode() {
+    const state = this.state;
+    const countryCode = state.country && state.country.alpha2;
+    const formData = state.formData;
+
+    if (validators.zipCode(formData.zip, countryCode)) {
+      return null;
+    } else {
+      return `${CountryStore.zipName(countryCode)} is invalid for selected country.`;
+    }
+  }
+
   render() {
     const state = this.state;
     const formData = state.formData;
     const countries = state.countries || [];
-
-    const nextId = idGenerator('address-form-');
 
     const countryCode = state.country && state.country.alpha2;
     const regions = state.country && state.country.regions || [];
@@ -153,7 +165,7 @@ export default class AddressForm extends React.Component {
         </header>
         {messages}
         <article>
-          <form action={AddressStore.uri(this.props.customerId)}
+          <Form action={AddressStore.uri(this.props.customerId)}
                 onSubmit={this.onSubmitForm.bind(this)}
                 onChange={this.onChangeValue.bind(this)}>
             <ul className="fc-address-form-fields">
@@ -161,62 +173,62 @@ export default class AddressForm extends React.Component {
                 <div className="fc-address-form-field-title">{title}</div>
               </li>
               <li>
-                <label htmlFor={nextId()}>Name</label>
-                <input id={nextId()} name="name" type="text" value={formData.name} required />
+                <FormField label="Name">
+                  <input name="name" maxLength="255" type="text" value={formData.name} required />
+                </FormField>
               </li>
               <li>
-                <label htmlFor={nextId()}>Country</label>
-                <select name="country" id={nextId()} value={this.state.countryId}>
-                  {countries.map((country, index) => {
-                    return <option value={country.id} key={`${index}-${country.id}`}>{country.name}</option>;
-                  })}
-                </select>
+                <FormField label="Country">
+                  <select name="country" value={this.state.countryId}>
+                    {countries.map((country, index) => {
+                      return <option value={country.id} key={`${index}-${country.id}`}>{country.name}</option>;
+                      })}
+                  </select>
+                </FormField>
               </li>
               <li>
-                <label htmlFor={nextId()}>Street Address</label>
-                <input id={nextId()} name="address1" type="text" value={formData.address1} required />
+                <FormField label="Street Address">
+                  <input name="address1" maxLength="255" type="text" value={formData.address1} required />
+                </FormField>
               </li>
               <li>
-                <label htmlFor={nextId()}>
-                  Street Address 2
-                  &nbsp;
-                  <span className="fc-address-form-comment">(optional)</span>
-                </label>
-                <input id={nextId()} name="address2" type="text" value={formData.address2} />
+                <FormField label="Street Address 2" optional>
+                  <input name="address2" maxLength="255" type="text" value={formData.address2} />
+                </FormField>
               </li>
               <li>
-                <label htmlFor={nextId()}>City</label>
-                <input id={nextId()} name="city" type="text" value={formData.city} required />
+                <FormField label="City">
+                  <input name="city" maxLength="255" type="text" value={formData.city} required />
+                </FormField>
               </li>
               <li>
-                <label htmlFor={nextId()}>
-                  {CountryStore.regionName(countryCode)}
-                </label>
-                <select id={nextId()} name="regionId" value={formData.regionId} data-type="int" required>
-                  {regions.map((state, index) => {
-                    return <option value={state.id} key={`${index}-${state.id}`}>{state.name}</option>;
-                  })}
-                </select>
+                <FormField label={CountryStore.regionName(countryCode)}>
+                  <select name="regionId" value={formData.regionId} data-type="int" required>
+                    {regions.map((state, index) => {
+                      return <option value={state.id} key={`${index}-${state.id}`}>{state.name}</option>;
+                      })}
+                  </select>
+                </FormField>
               </li>
               <li>
-                <label htmlFor={nextId()}>
-                  {CountryStore.zipName(countryCode)}
-                </label>
-                <input id={nextId()} type="text" name="zip"
-                       placeholder={CountryStore.zipExample(countryCode)}
-                       value={formData.zip} className='control' required />
+                <FormField label={CountryStore.zipName(countryCode)} validator={this.validateZipCode.bind(this)}>
+                  <input type="text" name="zip"
+                         placeholder={CountryStore.zipExample(countryCode)}
+                         value={formData.zip} className='control' required />
+                </FormField>
               </li>
               <li>
-                <label htmlFor={nextId()}>Phone Number</label>
-                <input id={nextId()} type="tel" name="phoneNumber"
-                       placeholder={CountryStore.phoneExample(countryCode)} />
+                <FormField label="Phone Number">
+                  <input type="tel" name="phoneNumber"
+                         placeholder={CountryStore.phoneExample(countryCode)} />
+                </FormField>
               </li>
               <li className="fc-address-form-controls">
                 <a onClick={this.close.bind(this)} className="fc-btn-link" href="javascript:void(0)">Cancel</a>
                 <button className="fc-btn fc-btn-primary" type="submit">Save and choose</button>
               </li>
             </ul>
-            </form>
+            </Form>
         </article>
       </div>
     );
