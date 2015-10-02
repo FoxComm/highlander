@@ -13,12 +13,18 @@ export default class TableBody extends React.Component {
       case 'id': {
         let params = {};
         params[model] = field;
+        console.log("ID");
+        console.log(params);
         return <Link to={model} params={params}>{field}</Link>;
       }
       case 'link': {
         let params = {};
-        params[column.model] = row[column.id];
-        return <Link to={column.model} params={params}>{field}</Link>;
+        params[model] = row[column.id];
+        console.log("LINK");
+        console.log(params);
+        console.log(column);
+        console.log(row);
+        return <Link to={model} params={params}>{field}</Link>;
       }
       case 'image': return <img src={field}/>;
       case 'currency': return formatCurrency(field);

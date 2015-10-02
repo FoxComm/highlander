@@ -26,6 +26,7 @@ export default class Customers extends React.Component {
   }
 
   onChangeCustomerStore(customers) {
+    console.log(customers);
     this.setState({customers});
   }
 
@@ -75,8 +76,8 @@ Customers.propTypes = {
 
 Customers.defaultProps = {
   tableColumns: [
-    {field: 'name', text: 'Name'},
-    {field: 'email', text: 'Email', type: 'link'},
+    {field: 'name', text: 'Name', type: 'link', id: 'id'},
+    {field: 'email', text: 'Email', type: 'link', id: 'id'},
     {field: 'id', text: 'Customer ID', type: 'id'},
     {field: 'shipToRegion', text: 'Ship To Region'},
     {field: 'billToRegion', text: 'Bill To Region'},
