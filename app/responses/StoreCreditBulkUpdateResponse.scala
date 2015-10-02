@@ -9,13 +9,13 @@ object StoreCreditBulkUpdateResponse {
     id: Int,
     success: Boolean = false,
     storeCredit: Option[StoreCreditResponse.Root] = None,
-    errors: Option[Seq[String]] = None)
+    errors: Option[Failures] = None)
 
   final case class BulkResponse(itemResults: Seq[ItemResult])
 
   def buildItemResult(id: Int, entity: Failures Xor StoreCreditResponse.Root): ItemResult = {
     entity match {
-      case Xor.Left(errors) ⇒ ItemResult(id = id, errors = Some(errors.map(_.description.mkString)))
+      case Xor.Left(errors) ⇒ ItemResult(id = id, errors = Some(errors))
       case Xor.Right(sc)    ⇒ ItemResult(id = id, success = true, storeCredit = Some(sc))
     }
   }

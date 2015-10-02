@@ -9,13 +9,13 @@ object GiftCardBulkUpdateResponse {
     code: String,
     success: Boolean = false,
     giftCard: Option[GiftCardResponse.Root] = None,
-    errors: Option[Seq[String]] = None)
+    errors: Option[Failures] = None)
 
   final case class BulkResponse(itemResults: Seq[ItemResult])
 
   def buildItemResult(code: String, result: Failures Xor GiftCardResponse.Root): ItemResult = {
     result match {
-      case Xor.Left(errors)  ⇒ ItemResult(code = code, errors = Some(errors.map(_.description.mkString)))
+      case Xor.Left(errors)  ⇒ ItemResult(code = code, errors = Some(errors))
       case Xor.Right(sc)     ⇒ ItemResult(code = code, success = true, giftCard = Some(sc))
     }
   }
