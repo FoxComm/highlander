@@ -1,8 +1,13 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 
 export default class Customer extends React.Component {
+
+  static propTypes = {
+    children: PropTypes.array
+  };
+
   render() {
     return (
       <div id="user">

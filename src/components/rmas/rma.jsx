@@ -1,6 +1,6 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import { Link } from '../link';
 import { listenTo, stopListeningTo, dispatch } from '../../lib/dispatcher';
 import RmaStore from './store';
@@ -8,6 +8,13 @@ import Notes from '../notes/notes';
 import Viewers from '../viewers/viewers';
 
 export default class Rma extends React.Component {
+
+  static propTypes = {
+    params: PropTypes.shape({
+      rma: PropTypes.string.isRequired
+    }).isRequired,
+    children: PropTypes.array
+  };
 
   constructor(props, context) {
     super(props, context);
@@ -93,7 +100,3 @@ export default class Rma extends React.Component {
     );
   }
 }
-
-Rma.contextTypes = {
-  router: React.PropTypes.func
-};

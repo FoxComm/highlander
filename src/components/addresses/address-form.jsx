@@ -139,10 +139,10 @@ export default class AddressForm extends React.Component {
       messages = (
         <div className="messages" ref="errorMessages">
           {this.state.errors.map((error, index) => {
-            return <div className="fc-error"><i className="fa fa-times-circle-o"></i>{error}</div>
+            return <div className="fc-error"><i className="fa fa-times-circle-o"></i>{error}</div>;
           })}
         </div>
-      )
+      );
     }
 
     return (
@@ -219,7 +219,7 @@ export default class AddressForm extends React.Component {
             </form>
         </article>
       </div>
-    )
+    );
   }
 }
 

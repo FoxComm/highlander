@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import { Link as ReactRouterLink } from 'react-router';
 
 import {interpolateRoute} from '../../route-helpers';
@@ -10,8 +10,9 @@ export class Link extends React.Component {
   };
 
   static propTypes = {
-    to: React.PropTypes.string.isRequired,
-    params: React.PropTypes.object
+    to: PropTypes.string.isRequired,
+    params: PropTypes.object,
+    children: PropTypes.array
   };
 
   render() {

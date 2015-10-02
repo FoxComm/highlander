@@ -1,6 +1,6 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import { Link } from '../link';
 import { listenTo, stopListeningTo, dispatch } from '../../lib/dispatcher';
 import OrderStore from './../../stores/orders';
@@ -22,6 +22,13 @@ const cancelOptions = {
 };
 
 export default class Order extends React.Component {
+
+  static propTypes = {
+    params: PropTypes.shape({
+      order: PropTypes.string.isRequired
+    }).isRequired,
+    children: PropTypes.array
+  };
 
   constructor(props, context) {
     super(props, context);
@@ -166,7 +173,3 @@ export default class Order extends React.Component {
     );
   }
 }
-
-Order.contextTypes = {
-  router: React.PropTypes.func
-};

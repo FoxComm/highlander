@@ -3,7 +3,7 @@
 import React from 'react';
 import {render} from 'react-dom';
 import { renderToString } from 'react-dom/server';
-import Router,  { RoutingContext, match } from 'react-router';
+import Router, { RoutingContext, match } from 'react-router';
 import {createHistory, createMemoryHistory, createLocation } from 'history';
 import routes from './routes';
 

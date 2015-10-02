@@ -1,12 +1,30 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
 import NotificationStore from './store';
 import ResendButton from './button';
 
 export default class Notifications extends React.Component {
+  static propTypes = {
+    order: PropTypes.object,
+    tableColumns: PropTypes.array,
+    params: PropTypes.shape({
+      order: PropTypes.string.isRequired
+    }).isRequired
+  };
+
+  static defaultProps = {
+    tableColumns: [
+      {field: 'sendDate', text: 'Date', type: 'date'},
+      {field: 'subject', text: 'Subject'},
+      {field: 'contact', text: 'Contact Method'},
+      {field: 'notificationStatus', text: 'Status'},
+      {field: 'resendButton', text: 'Resend', component: 'ResendButton'}
+    ]
+  };
+
   constructor(props, context) {
     super(props, context);
     this.state = {
@@ -45,22 +63,3 @@ export default class Notifications extends React.Component {
     );
   }
 }
-
-Notifications.contextTypes = {
-  router: React.PropTypes.func
-};
-
-Notifications.propTypes = {
-  order: React.PropTypes.object,
-  tableColumns: React.PropTypes.array
-};
-
-Notifications.defaultProps = {
-  tableColumns: [
-    {field: 'sendDate', text: 'Date', type: 'date'},
-    {field: 'subject', text: 'Subject'},
-    {field: 'contact', text: 'Contact Method'},
-    {field: 'notificationStatus', text: 'Status'},
-    {field: 'resendButton', text: 'Resend', component: 'ResendButton'}
-  ]
-};

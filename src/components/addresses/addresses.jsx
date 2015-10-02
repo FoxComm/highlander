@@ -1,12 +1,21 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import Address from './address';
 import AddressForm from './address-form.jsx';
 import AddressStore from '../../stores/addresses';
 import { dispatch } from '../../lib/dispatcher';
 
 export default class AddressBook extends React.Component {
+
+  static propTypes = {
+    order: PropTypes.object,
+    onSelectAddress: PropTypes.func,
+    params: PropTypes.shape({
+      customer: PropTypes.string
+    })
+  };
+
   constructor(props, context) {
     super(props, context);
     this.state = {
@@ -71,12 +80,3 @@ export default class AddressBook extends React.Component {
     );
   }
 }
-
-AddressBook.contextTypes = {
-  router: React.PropTypes.func
-};
-
-AddressBook.propTypes = {
-  order: React.PropTypes.object,
-  onSelectAddress: React.PropTypes.func
-};

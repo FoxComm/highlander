@@ -1,12 +1,20 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import Api from '../../lib/api';
 import { Link } from '../link';
 import { formatCurrency } from '../../lib/format';
 import moment from 'moment';
 
 export default class GiftCard extends React.Component {
+
+  static propTypes = {
+    params: PropTypes.shape({
+      giftcard: PropTypes.string.isRequired
+    }).isRequired,
+    children: PropTypes.array
+  };
+
   constructor(props, context) {
     super(props, context);
     this.state = {
@@ -150,7 +158,3 @@ export default class GiftCard extends React.Component {
     );
   }
 }
-
-GiftCard.contextTypes = {
-  router: React.PropTypes.func
-};

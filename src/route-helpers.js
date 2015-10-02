@@ -19,7 +19,7 @@ export function interpolateRoute(history, name, params = {}) {
   }, path);
 }
 
-export function transitionTo(history, name, params = {}, query = '')  {
+export function transitionTo(history, name, params = {}, query = '') {
   let pathWithParams = interpolateRoute(history, name, params);
   history.pushState(null, pathWithParams, query);
 }

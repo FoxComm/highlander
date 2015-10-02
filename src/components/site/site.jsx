@@ -1,11 +1,16 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import Header from '../header/header';
 import Sidebar from '../sidebar/sidebar';
 import Modal from '../modal/modal';
 
 export default class Site extends React.Component {
+
+  static propTypes = {
+    children: PropTypes.array
+  };
+
   render() {
     return (
       <div className="fc-admin">
