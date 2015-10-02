@@ -19,23 +19,23 @@ class GiftCardIntegrationTest extends IntegrationTestBase {
     "updates availableBalance if auth adjustment is created + cancel handling" in new Fixture {
       val adjustment = GiftCards.capture(giftCard, Some(payment.id), 10).run().futureValue
 
-      val updatedGiftCard = GiftCards.findById(giftCard.id).run().futureValue.get
+      val updatedGiftCard = GiftCards.findById(giftCard.id).run().futureValue.value
       updatedGiftCard.availableBalance must === (giftCard.availableBalance - 10)
 
       GiftCardAdjustments.cancel(adjustment.id).run().futureValue
-      val canceledGiftCard = GiftCards.findById(giftCard.id).run().futureValue.get
+      val canceledGiftCard = GiftCards.findById(giftCard.id).run().futureValue.value
       canceledGiftCard.availableBalance must === (giftCard.availableBalance)
     }
 
     "updates availableBalance and currentBalance if capture adjustment is created + cancel handling" in new Fixture {
       val adjustment = GiftCards.capture(giftCard, Some(payment.id), 0, 10).run().futureValue
 
-      val updatedGiftCard = GiftCards.findById(giftCard.id).run().futureValue.get
+      val updatedGiftCard = GiftCards.findById(giftCard.id).run().futureValue.value
       updatedGiftCard.availableBalance must === (giftCard.availableBalance + 10)
       updatedGiftCard.currentBalance must === (giftCard.currentBalance + 10)
 
       GiftCardAdjustments.cancel(adjustment.id).run().futureValue
-      val canceledGiftCard = GiftCards.findById(giftCard.id).run().futureValue.get
+      val canceledGiftCard = GiftCards.findById(giftCard.id).run().futureValue.value
       canceledGiftCard.availableBalance must === (giftCard.availableBalance)
       canceledGiftCard.currentBalance must === (giftCard.currentBalance)
     }
@@ -53,7 +53,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase {
       giftCard ← GiftCards.findById(gc.id)
       payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = gc.id,
         paymentMethodType = PaymentMethod.GiftCard))
-    } yield (origin, giftCard.get, payment)).run().futureValue
+    } yield (origin, giftCard.value, payment)).run().futureValue
   }
 }
 

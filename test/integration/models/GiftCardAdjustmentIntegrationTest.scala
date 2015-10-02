@@ -59,7 +59,7 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
         _ ← GiftCards.auth(giftCard = gc, orderPaymentId = Some(payment.id), debit = 50, credit = 0)
         _ ← GiftCards.capture(giftCard = gc, orderPaymentId = Some(payment.id), debit = 200, credit = 0)
         gc ← GiftCards.findById(gc.id)
-      } yield gc.get).run().futureValue
+      } yield gc.value).run().futureValue
 
       gc.availableBalance must === (0)
       gc.currentBalance must === (200)
@@ -81,7 +81,7 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
         GiftCardAdjustments.cancel(adj.id)
       })).futureValue
 
-      val finalGc = GiftCards.findById(gc.id).run().futureValue.get
+      val finalGc = GiftCards.findById(gc.id).run().futureValue.value
       (finalGc.originalBalance, finalGc.availableBalance, finalGc.currentBalance) must === ((500, 500, 500))
     }
   }

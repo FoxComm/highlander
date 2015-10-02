@@ -19,23 +19,23 @@ class StoreCreditIntegrationTest extends IntegrationTestBase {
     "updates availableBalance if auth adjustment is created + cancel handling" in new Fixture {
       val adjustment = StoreCredits.auth(storeCredit, Some(payment.id), 10).run().futureValue
 
-      val updatedStoreCredit = StoreCredits.findById(storeCredit.id).run().futureValue.get
+      val updatedStoreCredit = StoreCredits.findById(storeCredit.id).run().futureValue.value
       updatedStoreCredit.availableBalance must === (storeCredit.availableBalance - 10)
 
       StoreCreditAdjustments.cancel(adjustment.id).run().futureValue
-      val canceledStoreCredit = StoreCredits.findById(storeCredit.id).run().futureValue.get
+      val canceledStoreCredit = StoreCredits.findById(storeCredit.id).run().futureValue.value
       canceledStoreCredit.availableBalance must === (storeCredit.availableBalance)
     }
 
     "updates availableBalance and currentBalance if capture adjustment is created + cancel handling" in new Fixture {
       val adjustment = StoreCredits.capture(storeCredit, Some(payment.id), 10).run().futureValue
 
-      val updatedStoreCredit = StoreCredits.findById(storeCredit.id).run().futureValue.get
+      val updatedStoreCredit = StoreCredits.findById(storeCredit.id).run().futureValue.value
       updatedStoreCredit.availableBalance must === (storeCredit.availableBalance - 10)
       updatedStoreCredit.currentBalance must === (storeCredit.currentBalance - 10)
 
       StoreCreditAdjustments.cancel(adjustment.id).run().futureValue
-      val canceledStoreCredit = StoreCredits.findById(storeCredit.id).run().futureValue.get
+      val canceledStoreCredit = StoreCredits.findById(storeCredit.id).run().futureValue.value
       canceledStoreCredit.availableBalance must === (storeCredit.availableBalance)
       canceledStoreCredit.currentBalance must === (storeCredit.currentBalance)
     }
@@ -53,7 +53,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase {
       storeCredit ← StoreCredits.findById(sc.id)
       payment ← OrderPayments.save(Factories.orderPayment.copy(orderId = order.id,
         paymentMethodId = sc.id))
-    } yield (customer, origin, storeCredit.get, payment)).run().futureValue
+    } yield (customer, origin, storeCredit.value, payment)).run().futureValue
   }
 }
 

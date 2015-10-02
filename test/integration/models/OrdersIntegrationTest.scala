@@ -39,7 +39,7 @@ class OrdersIntegrationTest extends IntegrationTestBase {
       db.run(Orders.update(order.copy(status = RemorseHold))).futureValue
 
       val updatedOrder = Orders.findByRefNum(order.referenceNumber).result.run().futureValue.head
-      updatedOrder.remorsePeriodEnd.get.minuteOfHour must === (Instant.now.plusMinutes(30).minuteOfHour)
+      updatedOrder.remorsePeriodEnd.value.minuteOfHour must === (Instant.now.plusMinutes(30).minuteOfHour)
     }
 
     "trigger resets remorse period after status changes from RemorseHold" in {
