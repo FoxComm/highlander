@@ -2,23 +2,24 @@ package responses
 
 import cats.data.Xor
 import services.Failures
+import scala.collection.immutable.Seq
 
 object StoreCreditBulkUpdateResponse {
-  final case class Response(
+  final case class ItemResult(
     id: Int,
     success: Boolean = false,
     storeCredit: Option[StoreCreditResponse.Root] = None,
     errors: Option[Seq[String]] = None)
 
-  final case class Responses(responses: Seq[Response])
+  final case class BulkResponse(itemResults: Seq[ItemResult])
 
-  def buildResponse(id: Int, entity: Failures Xor StoreCreditResponse.Root): Response = {
+  def buildItemResult(id: Int, entity: Failures Xor StoreCreditResponse.Root): ItemResult = {
     entity match {
-      case Xor.Left(errors) ⇒ Response(id = id, errors = Some(errors.map(_.description.mkString)))
-      case Xor.Right(sc)    ⇒ Response(id = id, success = true, storeCredit = Some(sc))
+      case Xor.Left(errors) ⇒ ItemResult(id = id, errors = Some(errors.map(_.description.mkString)))
+      case Xor.Right(sc)    ⇒ ItemResult(id = id, success = true, storeCredit = Some(sc))
     }
   }
 
-  def buildResponses(responses: Seq[Response]): Responses = Responses(responses = responses)
+  def buildBulkResponse(itemResults: Seq[ItemResult]): BulkResponse = BulkResponse(itemResults = itemResults)
 }
 

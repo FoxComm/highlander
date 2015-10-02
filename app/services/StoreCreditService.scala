@@ -47,17 +47,17 @@ object StoreCreditService {
   }
 
   def bulkUpdateStatusByCsr(payload: payloads.StoreCreditBulkUpdateStatusByCsr, admin: StoreAdmin)
-    (implicit ec: ExecutionContext, db: Database): Result[Responses] = {
+    (implicit ec: ExecutionContext, db: Database): Result[BulkResponse] = {
 
     payload.validate match {
       case Valid(_) ⇒
         val responses = payload.ids.map { id ⇒
           val itemPayload = payloads.StoreCreditUpdateStatusByCsr(payload.status, payload.reason)
-          updateStatusByCsr(id, itemPayload, admin).map(buildResponse(id, _))
+          updateStatusByCsr(id, itemPayload, admin).map(buildItemResult(id, _))
         }
 
         val future = Future.sequence(responses).flatMap { seq ⇒
-          Future.successful(buildResponses(seq))
+          Future.successful(buildBulkResponse(seq.to[collection.immutable.Seq]))
         }
 
         Result.fromFuture(future)
@@ -76,7 +76,7 @@ object StoreCreditService {
         DbResult.failure(EmptyCancellationReasonFailure)
       case (_, _) ⇒
         val update = finder.map(_.status).updateReturning(StoreCredits.map(identity), payload.status).head
-        DbResult.fromDbio(update.flatMap { sc ⇒ lift(StoreCreditResponse.build(sc)) })
+        DbResult.fromDbio(update.map(StoreCreditResponse.build(_)))
     }
 
     payload.validate match {

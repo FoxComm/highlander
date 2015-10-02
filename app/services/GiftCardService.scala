@@ -73,17 +73,17 @@ object GiftCardService {
   }
 
   def bulkUpdateStatusByCsr(payload: payloads.GiftCardBulkUpdateStatusByCsr, admin: StoreAdmin)
-    (implicit ec: ExecutionContext, db: Database): Result[Responses] = {
+    (implicit ec: ExecutionContext, db: Database): Result[BulkResponse] = {
 
     payload.validate match {
       case Valid(_) ⇒
         val responses = payload.codes.map { code ⇒
           val itemPayload = payloads.GiftCardUpdateStatusByCsr(payload.status, payload.reason)
-          updateStatusByCsr(code, itemPayload, admin).map(buildResponse(code, _))
+          updateStatusByCsr(code, itemPayload, admin).map(buildItemResult(code, _))
         }
 
         val future = Future.sequence(responses).flatMap { seq ⇒
-          Future.successful(buildResponses(seq))
+          Future.successful(buildBulkResponse(seq.to[collection.immutable.Seq]))
         }
 
         Result.fromFuture(future)
@@ -95,14 +95,14 @@ object GiftCardService {
   def updateStatusByCsr(code: String, payload: payloads.GiftCardUpdateStatusByCsr, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
 
-    def cancelOrUpdate(finder: QuerySeq, gc: GiftCard) = (payload.status, payload.reason) match {
+    def cancelOrUpdate(finder: QuerySeq, giftCard: GiftCard) = (payload.status, payload.reason) match {
       case (Canceled, Some(reason)) ⇒
-        cancelByCsr(finder, gc, payload, admin)
+        cancelByCsr(finder, giftCard, payload, admin)
       case (Canceled, None) ⇒
         DbResult.failure(EmptyCancellationReasonFailure)
       case (_, _) ⇒
         val update = finder.map(_.status).updateReturning(GiftCards.map(identity), payload.status).head
-        DbResult.fromDbio(update.flatMap { gc ⇒ lift(GiftCardResponse.build(gc)) })
+        DbResult.fromDbio(update.map(GiftCardResponse.build(_)))
     }
 
     payload.validate match {
