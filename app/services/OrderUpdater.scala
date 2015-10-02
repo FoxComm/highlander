@@ -1,18 +1,15 @@
 package services
 
-import java.time.Instant
-
 import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Validated.{Invalid, Valid}
 import cats.data.Xor
-import cats.implicits._
-import models.OrderLockEvents.scope._
 import models._
 import payloads.{CreateShippingAddress, UpdateAddressPayload, UpdateShippingAddress}
 import responses.{Addresses ⇒ Response, FullOrder}
 import slick.driver.PostgresDriver.api._
-import utils.Slick.UpdateReturning._
+import utils.Slick.DbResult
+import utils.Slick._
 import utils.Slick.implicits._
 
 object OrderUpdater {
@@ -82,9 +79,12 @@ object OrderUpdater {
     }
   }
 
-  def removeShippingAddress(orderId: Int)
-    (implicit db: Database, ec: ExecutionContext): Future[Int] =
-    db.run(OrderShippingAddresses.findByOrderId(orderId).delete)
+  def removeShippingAddress(refNum: String)(implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
+    val finder = Orders.findByRefNum(refNum)
+    finder.findOneAndRun { order ⇒
+      DbResult.fromDbio(OrderShippingAddresses.findByOrderId(order.id).delete >> fullOrder(finder))
+    }
+  }
 
   def createShippingAddress(order: Order, payload: CreateShippingAddress)
     (implicit db: Database, ec: ExecutionContext): Future[Failures Xor responses.Addresses.Root] = {

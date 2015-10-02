@@ -577,7 +577,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     "deleting the shipping address from an order" - {
       "succeeds if an address exists" in new AddressFixture {
         val response = DELETE(s"v1/orders/${order.referenceNumber}/shipping-address")
-        response.status must === (StatusCodes.NoContent)
+        response.status must ===(StatusCodes.OK)
       }
 
       "fails if the order is not found" in new AddressFixture {

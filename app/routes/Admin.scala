@@ -383,12 +383,7 @@ object Admin {
           } ~
           (delete & pathEnd) {
             complete {
-              Orders.findByRefNum(refNum).one.run().flatMap {
-                case Some(order) ⇒
-                  OrderUpdater.removeShippingAddress(order.id).map { _ ⇒ noContentResponse }
-                case None ⇒
-                  Future.successful(notFoundResponse)
-              }
+              OrderUpdater.removeShippingAddress(refNum).map(renderGoodOrFailures)
             }
           }
         }
