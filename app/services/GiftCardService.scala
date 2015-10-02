@@ -101,8 +101,11 @@ object GiftCardService {
       case (Canceled, None) ⇒
         DbResult.failure(EmptyCancellationReasonFailure)
       case (_, _) ⇒
-        val update = finder.map(_.status).updateReturning(GiftCards.map(identity), payload.status).head
-        DbResult.fromDbio(update.map(GiftCardResponse.build(_)))
+        val update = finder.map(_.status).updateReturning(GiftCards.map(identity), payload.status).headOption
+        update.flatMap {
+          case Some(gc) ⇒ DbResult.good(GiftCardResponse.build(gc))
+          case _        ⇒ DbResult.failure(GiftCardNotFoundFailure(giftCard.code))
+        }
     }
 
     payload.validate match {
@@ -138,9 +141,7 @@ object GiftCardService {
 
             val cancelAdjustment = GiftCards.cancelByCsr(gc, admin)
 
-            DbResult.fromDbio(cancelAdjustment >> cancellation.flatMap {
-              gc ⇒ lift(GiftCardResponse.build(gc))
-            })
+            DbResult.fromDbio(cancelAdjustment >> cancellation.map(GiftCardResponse.build(_)))
         }
     }
   }

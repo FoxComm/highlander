@@ -75,8 +75,11 @@ object StoreCreditService {
       case (Canceled, None) ⇒
         DbResult.failure(EmptyCancellationReasonFailure)
       case (_, _) ⇒
-        val update = finder.map(_.status).updateReturning(StoreCredits.map(identity), payload.status).head
-        DbResult.fromDbio(update.map(StoreCreditResponse.build(_)))
+        val update = finder.map(_.status).updateReturning(StoreCredits.map(identity), payload.status).headOption
+        update.flatMap {
+          case Some(gc) ⇒ DbResult.good(StoreCreditResponse.build(gc))
+          case _        ⇒ DbResult.failure(NotFoundFailure(StoreCredit, sc.id))
+        }
     }
 
     payload.validate match {
