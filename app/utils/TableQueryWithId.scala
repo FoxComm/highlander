@@ -14,7 +14,7 @@ import utils.Slick.implicits._
 import utils.Strings._
 
 trait Model {
-  lazy val modelName: String = getClass.getCanonicalName.lowerCaseFirstLetter
+  def modelName: String = getClass.getCanonicalName.lowerCaseFirstLetter
 }
 
 trait NewModel extends Model {
