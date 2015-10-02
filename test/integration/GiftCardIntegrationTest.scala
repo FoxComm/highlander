@@ -221,10 +221,16 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       redeemedGc.currentBalance   must ===(0)
     }
 
-    "fails to convert not found GC" in new Fixture {
+    "fails to convert when GC not found" in new Fixture {
       val response = POST(s"v1/gift-cards/ABC-666/convert/${customer.id}")
       response.status       must ===(StatusCodes.NotFound)
-      response.errors.head  must ===("Not found")
+      response.errors.head  must ===("giftCard with code=ABC-666 not found")
+    }
+
+    "fails to convert when customer not found" in new Fixture {
+      val response = POST(s"v1/gift-cards/${gcSecond.code}/convert/666")
+      response.status       must ===(StatusCodes.NotFound)
+      response.errors.head  must ===("customer with id=666 not found")
     }
 
     "fails to convert inactive GC to SC if open transactions are present" in new Fixture {

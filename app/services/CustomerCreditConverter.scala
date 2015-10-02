@@ -12,33 +12,38 @@ object CustomerCreditConverter {
   def toStoreCredit(code: String, customerId: Int, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database): Result[StoreCreditResponse.Root] = {
 
-    val finder = GiftCards.findByCode(code)
+    val details = for {
+      gc ← GiftCards.findByCode(code).one
+      customer ← Customers._findById(customerId).extract.one
+    } yield (gc, customer)
 
-    finder.findOneAndRun { gc ⇒
-      if (gc.isActive) {
-        val storeCredit = StoreCredit(customerId = customerId, originId = 0,
-          originType = StoreCredit.GiftCardTransfer, currency = gc.currency, originalBalance = gc.currentBalance,
-          currentBalance = gc.currentBalance)
+    db.run(details).flatMap {
+      case (Some(gc), Some(customer)) ⇒
+        if (gc.isActive) {
+          val adj = for { adj <- GiftCardAdjustments.lastAuthByGiftCardId(gc.id).one } yield adj
+          db.run(adj).flatMap {
+            case Some(_) ⇒
+              Result.failure(OpenTransactionsFailure)
+            case _ ⇒
+              val queries = (for {
+                // Update status and make adjustment
+                gcUpdated ← GiftCards.filter(_.id === gc.id).map(_.status).update(GiftCard.FullyRedeemed)
+                adjustment ← GiftCards.redeemToStoreCredit(gc, admin)
 
-        GiftCardAdjustments.lastAuthByGiftCardId(gc.id).one.flatMap {
-          case Some(adj) ⇒
-            DbResult.failure(OpenTransactionsFailure)
-          case _ ⇒
-            val queries = (for {
-              // Update status and make adjustment
-              gcUpdated ← finder.map(_.status).update(GiftCard.FullyRedeemed)
-              adjustment ← GiftCards.redeemToStoreCredit(gc, admin)
+                // Finally, convert to Store Credit
+                conversion ← StoreCreditFromGiftCards.save(StoreCreditFromGiftCard(giftCardId = gc.id))
+                sc ← StoreCredits.save(StoreCredit.buildFromGcTransfer(customerId, gc).copy(originId = conversion.id))
+              } yield sc).transactionally
 
-              // Finally, convert to Store Credit
-              conversion ← StoreCreditFromGiftCards.save(StoreCreditFromGiftCard(giftCardId = gc.id))
-              sc ← StoreCredits.save(storeCredit.copy(originId = conversion.id))
-            } yield sc).transactionally
-
-            DbResult.fromDbio(queries.map(StoreCreditResponse.build(_)))
+              Result.fromFuture(db.run(queries.map { sc ⇒ StoreCreditResponse.build(sc) }))
+          }
+        } else {
+          Result.failure(GiftCardConvertFailure(gc))
         }
-      } else {
-        DbResult.failure(GiftCardConvertFailure(gc))
-      }
+      case (None, _) ⇒
+        Result.failure(GiftCardNotFoundFailure(code))
+      case (_, None) ⇒
+        Result.failure(NotFoundFailure(Customer, customerId))
     }
   }
 
