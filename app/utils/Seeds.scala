@@ -132,7 +132,10 @@ object Seeds {
       Sku(sku = "SKU-ABC", name = Some("Shark"), price = 45),
       Sku(sku = "SKU-ZYA", name = Some("Dolphin"), price = 88))
 
-    def orderLineItems: Seq[OrderLineItem] = Seq(OrderLineItem(id = 0, orderId = 1, skuId = 1, status = OrderLineItem.Cart), OrderLineItem(id = 0, orderId = 1, skuId = 2, status = OrderLineItem.Cart), OrderLineItem(id = 0, orderId = 1, skuId = 3, status = OrderLineItem.Cart))
+    def orderLineItems: Seq[OrderLineItem] = Seq(
+      OrderLineItem(id = 0, orderId = 1, skuId = 1, status = OrderLineItem.Cart),
+      OrderLineItem(id = 0, orderId = 1, skuId = 2, status = OrderLineItem.Cart),
+      OrderLineItem(id = 0, orderId = 1, skuId = 3, status = OrderLineItem.Cart))
 
     def address = Address(customerId = 0, regionId = 4177, name = "Home", address1 = "555 E Lake Union St.",
         address2 = None, city = "Seattle", zip = "12345", isDefaultShipping = true, phoneNumber = None)
