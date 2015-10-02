@@ -240,9 +240,9 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     }
 
     "fails to convert inactive GC to SC" in new Fixture {
-      GiftCards.findByCode(giftCard.code).map(_.status).update(GiftCard.OnHold).run().futureValue
+      GiftCards.findByCode(gcSecond.code).map(_.status).update(GiftCard.OnHold).run().futureValue
 
-      val response = POST(s"v1/gift-cards/${giftCard.code}/convert/${customer.id}")
+      val response = POST(s"v1/gift-cards/${gcSecond.code}/convert/${customer.id}")
       response.status       must ===(StatusCodes.BadRequest)
       response.errors.head  must ===("cannot convert a gift card with status 'OnHold'")
     }
