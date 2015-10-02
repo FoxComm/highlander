@@ -1,37 +1,29 @@
 'use strict';
 
 import React from 'react';
-import Api from '../../lib/api';
 import TableView from '../tables/tableview';
 import NewGiftCard from './gift-cards-new';
-import { listenTo, stopListeningTo } from '../../lib/dispatcher';
-
-const
-  createEvent = 'cards-added';
+import GiftCardStore from '../stores/gift-cards';
 
 export default class GiftCards extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      cards: [],
-      isNew: false
-    };
+    this.state = _.assign({}, GiftCardStore.getState(), {isNew: false});
   }
 
   componentDidMount() {
-    listenTo(createEvent, this);
-    Api.get('/gift-cards')
-      .then((cards) => {
-        this.setState({cards: cards});
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+    GiftCardStore.listenTo(this.onChange);
+
+    GiftCardStore.fetchGiftCards();
   }
 
   componentWillUnmount() {
-    stopListeningTo(createEvent, this);
+    GiftCardStore.unlisten(this.onChange);
   }
+
+  onChange(state) {
+    this.setState(state);
+  };
 
   toggleNew() {
     this.setState({
