@@ -32,4 +32,6 @@ object ShippingMethods extends TableQueryWithId[ShippingMethod, ShippingMethods]
 )(new ShippingMethods(_)) {
 
   def findActive(implicit db: Database): Query[ShippingMethods, ShippingMethod, Seq] = filter(_.isActive === true)
+
+  def findActiveById(id: Int)(implicit db: Database): QuerySeq = findActive.filter(_.id === id)
 }

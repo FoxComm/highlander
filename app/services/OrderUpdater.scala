@@ -9,6 +9,7 @@ import payloads.{UpdateShippingMethod, CreateAddressPayload, UpdateAddressPayloa
 import responses.FullOrder
 import slick.driver.PostgresDriver.api._
 import utils.Slick.{DbResult, _}
+import utils.Slick.UpdateReturning._
 import utils.Slick.implicits._
 
 object OrderUpdater {
@@ -145,19 +146,18 @@ object OrderUpdater {
 
   def updateShippingMethod(payload: UpdateShippingMethod, refNum: String)
     (implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
+    val finder = ShippingMethods.findActiveById(payload.shippingMethodId)
 
-    val queries = for {
-      order ← Orders.findByRefNum(refNum).result.head
-      shippingMethod ← ShippingMethods.findById(payload.shippingMethodId)
-      _ ← shippingMethod.map(OrderShippingMethods.copyFromShippingMethod(_, order)).getOrElse(DBIO.successful(None))
-      fullOrder ← FullOrder.fromOrder(order)
-    } yield (shippingMethod, fullOrder)
+    finder.findOneAndRun { shippingMethod ⇒
+      val order = Orders.findByRefNum(refNum).one.run()
+      OrderShippingMethods.copyFromShippingMethod(shippingMethod, order).run()
 
-    db.run(queries).flatMap {
-      case (Some(_), fullOrder) ⇒
-        Result.good(fullOrder)
-      case (None, _) ⇒
-        Result.failure(GeneralFailure(s"Could not find shipping method with ${payload.shippingMethodId}"))
+      Orders.findById(order.id).flatMap {
+        case Some(o) ⇒
+          DbResult.fromDbio(FullOrder.fromOrder(o))
+        case _ ⇒
+          DbResult.failure(GeneralFailure("Some stupid failure"))
+      }
     }
   }
 
