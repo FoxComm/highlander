@@ -8,7 +8,7 @@ export default class SectionTitle extends React.Component {
   }
 
   render() {
-    var titleMarkup = '';
+    let titleMarkup = null;
     if (this.props.count != undefined) {
       titleMarkup = (
         <h1 className="fc-title">
@@ -26,7 +26,7 @@ export default class SectionTitle extends React.Component {
         </h1>
       );
     }
-    var buttonMarkup = '';
+    let buttonMarkup = null;
     if (this.props.buttonClickHandler != undefined) {
       buttonMarkup = (
         <div className="fc-col-2-6 fc-push-2-6 fc-actions">
