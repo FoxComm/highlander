@@ -76,7 +76,7 @@ Customers.propTypes = {
 Customers.defaultProps = {
   tableColumns: [
     {field: 'name', text: 'Name'},
-    {field: 'email', text: 'Email'},
+    {field: 'email', text: 'Email', type: 'link'},
     {field: 'id', text: 'Customer ID', type: 'id'},
     {field: 'shipToRegion', text: 'Ship To Region'},
     {field: 'billToRegion', text: 'Bill To Region'},
