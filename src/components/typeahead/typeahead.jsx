@@ -6,8 +6,8 @@ import TypeaheadResults from './results';
 import { dispatch } from '../../lib/dispatcher';
 
 export default class Typeahead extends React.Component {
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
     this.state = {
       showResults: false,
       updating: false

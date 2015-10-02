@@ -7,8 +7,8 @@ import NotificationStore from './store';
 import ResendButton from './button';
 
 export default class Notifications extends React.Component {
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
     this.state = {
       notifications: NotificationStore.getState()
     };

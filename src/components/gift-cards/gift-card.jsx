@@ -8,8 +8,8 @@ import { formatCurrency } from '../../lib/format';
 import moment from 'moment';
 
 export default class GiftCard extends React.Component {
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
     this.state = {
       card: {}
     };

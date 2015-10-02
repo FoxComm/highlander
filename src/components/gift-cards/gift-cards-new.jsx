@@ -18,8 +18,8 @@ const
   userSelectEvent = 'email-csv-user-selected';
 
 export default class NewGiftCard extends React.Component {
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
     this.state = {
       balance: 100,
       balanceText: '1.00',

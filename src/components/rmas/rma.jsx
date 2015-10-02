@@ -10,8 +10,8 @@ import Viewers from '../viewers/viewers';
 
 export default class Rma extends React.Component {
 
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
     this.state = {
       rma: {},
       pendingStatus: null

@@ -11,7 +11,7 @@ const TableView = require(path.resolve('src/components/tables/tableview.jsx'));
 
 class TestTable extends React.Component {
   constructor(props) {
-    super(props);
+    super(props, context);
     this.state = {
       rows: TableStore.getState()
     };

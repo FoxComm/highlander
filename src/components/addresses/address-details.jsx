@@ -5,8 +5,8 @@ import CountryStore from '../../stores/countries';
 
 class AddressDetails extends React.Component {
 
-  constructor(props) {
-    super(props);
+  constructor(...args) {
+    super(...args);
     this.state = {
       countryName: null
     }

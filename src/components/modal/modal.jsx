@@ -7,8 +7,8 @@ import _ from 'lodash';
 const toggleEvent = 'toggle-modal';
 
 export default class Modal extends React.Component {
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
     this.onToggleModal = this.onToggleModal.bind(this);
     this.state = {
       component: null,

@@ -6,8 +6,8 @@ import TableHead from '../tables/head';
 import TableBody from '../tables/body';
 
 export default class GiftCardTransactions extends React.Component {
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
     this.state = {
       transactions: []
     };
