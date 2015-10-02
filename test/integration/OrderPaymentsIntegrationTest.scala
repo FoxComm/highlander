@@ -30,7 +30,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val payload = payloads.GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance)
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
 
-        response.status must ===(StatusCodes.NoContent)
+        response.status must ===(StatusCodes.OK)
         val (p :: Nil) = OrderPayments.findAllByOrderId(order.id).result.run().futureValue.toList
 
         val payments = giftCardPayments(order)
@@ -88,12 +88,12 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       "successfully deletes a giftCard" in new GiftCardFixture {
         val payload = payloads.GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance)
         val create = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
-        create.status must ===(StatusCodes.NoContent)
+        create.status must ===(StatusCodes.OK)
 
         val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards/${giftCard.code}")
         val payments = creditCardPayments(order)
 
-        response.status must ===(StatusCodes.NoContent)
+        response.status must ===(StatusCodes.OK)
         payments must have size (0)
       }
 
@@ -101,7 +101,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = DELETE(s"v1/orders/99/payment-methods/gift-cards/123")
 
         response.status must === (StatusCodes.NotFound)
-        parseErrors(response) must === (OrderNotFoundFailure("99").description)
+        parseErrors(response).head must ===("Not found")
         creditCardPayments(order) must have size(0)
       }
 
@@ -135,7 +135,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
           val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
           val payments = storeCreditPayments(order)
 
-          response.status must ===(StatusCodes.NoContent)
+          response.status must ===(StatusCodes.OK)
           payments must have size (2)
 
           val expected = payments.sortBy(_.paymentMethodId).map(p ⇒ (p.paymentMethodId, p.amount)).toList
@@ -150,7 +150,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
           val payload = payloads.StoreCreditPayment(amount = 75)
           val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
 
-          response.status must ===(StatusCodes.NoContent)
+          response.status must ===(StatusCodes.OK)
           val payments = storeCreditPayments(order)
           payments.map(_.paymentMethodId) must contain noneOf(1, 2)
           payments must have size (2)
@@ -161,14 +161,14 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
           val createdResponse = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
           val createdPayments = storeCreditPayments(order)
 
-          createdResponse.status must ===(StatusCodes.NoContent)
+          createdResponse.status must ===(StatusCodes.OK)
           createdPayments must have size (2)
 
           val createdPaymentIds = createdPayments.map(_.id).toList
           val editedResponse = PATCH(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
           val editedPayments = storeCreditPayments(order)
 
-          editedResponse.status must ===(StatusCodes.NoContent)
+          editedResponse.status must ===(StatusCodes.OK)
           editedPayments must have size (2)
           editedPayments.map(_.id) mustNot contain theSameElementsAs(createdPaymentIds)
         }
@@ -180,7 +180,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/orders/${notFound.refNum}/payment-methods/store-credit", payload)
 
         response.status must ===(StatusCodes.NotFound)
-        parseErrors(response) must ===(OrderNotFoundFailure(notFound).description)
+        parseErrors(response).head must ===("Not found")
         storeCreditPayments(order) must have size (0)
       }
 
@@ -220,11 +220,11 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val payload = payloads.StoreCreditPayment(amount = 75)
         val create = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
 
-        create.status must ===(StatusCodes.NoContent)
+        create.status must ===(StatusCodes.OK)
 
         val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/store-credit")
 
-        response.status must ===(StatusCodes.NoContent)
+        response.status must ===(StatusCodes.OK)
         storeCreditPayments(order) must have size (0)
       }
     }
@@ -237,7 +237,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards", payload)
         val payments = creditCardPayments(order)
 
-        response.status must === (StatusCodes.NoContent)
+        response.status must ===(StatusCodes.OK)
         payments must have size(1)
         payments.head.amount must === (None)
       }
@@ -247,7 +247,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/orders/99/payment-methods/credit-cards", payload)
 
         response.status must === (StatusCodes.NotFound)
-        parseErrors(response) must === (OrderNotFoundFailure("99").description)
+        parseErrors(response).head must ===("Not found")
         creditCardPayments(order) must have size(0)
       }
 
@@ -284,12 +284,12 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       "successfully replaces an existing card" in new CreditCardFixture {
         val first = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards",
           payloads.CreditCardPayment(creditCard.id))
-        first.status must ===(StatusCodes.NoContent)
+        first.status must ===(StatusCodes.OK)
 
         val newCreditCard = CreditCards.save(creditCard.copy(id = 0, isDefault = false)).run().futureValue
         val second = PATCH(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards",
           payloads.CreditCardPayment(newCreditCard.id))
-        second.status must ===(StatusCodes.NoContent)
+        second.status must ===(StatusCodes.OK)
 
         val payments = creditCardPayments(order)
         payments must have size (1)
@@ -301,12 +301,12 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       "successfully deletes an existing card" in new CreditCardFixture {
         val create = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards",
           payloads.CreditCardPayment(creditCard.id))
-        create.status must ===(StatusCodes.NoContent)
+        create.status must ===(StatusCodes.OK)
 
         val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards")
         val payments = creditCardPayments(order)
 
-        response.status must ===(StatusCodes.NoContent)
+        response.status must ===(StatusCodes.OK)
         payments must have size (0)
       }
 
@@ -315,7 +315,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/orders/99/payment-methods/credit-cards", payload)
 
         response.status must === (StatusCodes.NotFound)
-        parseErrors(response) must === (OrderNotFoundFailure("99").description)
+        parseErrors(response).head must ===("Not found")
         creditCardPayments(order) must have size(0)
       }
 

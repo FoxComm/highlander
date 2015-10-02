@@ -7,8 +7,6 @@ import akka.testkit.TestActorRef
 import models._
 import payloads.{Assignment, UpdateOrderPayload}
 import responses.{StoreAdminResponse, FullOrderWithWarnings, AdminNotes, FullOrder}
-import models.rules.QueryStatement
-import services.LockAwareOrderUpdater.NewRemorsePeriodEnd
 import services.{NotFoundFailure, NoteManager}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
@@ -113,7 +111,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       val order = Orders.save(Factories.order.copy(status = Order.RemorseHold)).run().futureValue
       val response = POST(s"v1/orders/${order.referenceNumber}/increase-remorse-period")
 
-      val result = parse(response.bodyText).extract[NewRemorsePeriodEnd]
+      val result = parse(response.bodyText).extract[FullOrder.Root]
       result.remorsePeriodEnd must ===(order.remorsePeriodEnd.map(_.plusMinutes(15)))
     }
 
@@ -441,10 +439,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     "copying a shipping address from a customer's book" - {
 
       "succeeds if the address exists in their book" in new AddressFixture {
-        val response = POST(
-          s"v1/orders/${order.referenceNumber}/shipping-address",
-          payloads.CreateShippingAddress(addressId = Some(address.id)))
-
+        val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address/${address.id}")
         response.status must ===(StatusCodes.OK)
         val (shippingAddress :: Nil) = OrderShippingAddresses.findByOrderId(order.id).result.run().futureValue.toList
 
@@ -460,8 +455,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         val newAddress = Addresses.save(address.copy(name = "New", isDefaultShipping = false)).run().futureValue
 
         val fst :: snd :: Nil = List(address.id, newAddress.id).map { id ⇒
-          POST(s"v1/orders/${order.referenceNumber}/shipping-address",
-            payloads.CreateShippingAddress(addressId = Some(id)))
+          PATCH(s"v1/orders/${order.referenceNumber}/shipping-address/$id")
         }
 
         fst.status must === (StatusCodes.OK)
@@ -473,9 +467,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       }
 
       "errors if the address does not exist" in new AddressFixture {
-        val response = POST(
-          s"v1/orders/${order.referenceNumber}/shipping-address",
-          payloads.CreateShippingAddress(addressId = Some(99)))
+        val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address/99")
 
         response.status must === (StatusCodes.NotFound)
         parseErrors(response) must === (NotFoundFailure(Address, 99).description)
@@ -492,10 +484,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     "editing a shipping address by copying from a customer's address book" - {
 
       "succeeds when the address exists" in new ShippingAddressFixture {
-        val response = PATCH(
-          s"v1/orders/${order.referenceNumber}/shipping-address",
-          payloads.UpdateShippingAddress(addressId = Some(newAddress.id))
-        )
+        val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address/${newAddress.id}")
 
         response.status must === (StatusCodes.OK)
         val (shippingAddress :: Nil) = OrderShippingAddresses.findByOrderId(order.id).result.run().futureValue.toList
@@ -510,19 +499,14 @@ class OrderIntegrationTest extends IntegrationTestBase
       }
 
       "errors if the address does not exist" in new ShippingAddressFixture {
-        val response = PATCH(
-          s"v1/orders/${order.referenceNumber}/shipping-address",
-          payloads.UpdateShippingAddress(addressId = Some(99)))
+        val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address/99")
 
         response.status must === (StatusCodes.NotFound)
         parseErrors(response) must === (NotFoundFailure(Address, 99).description)
       }
 
       "does not change the current shipping address if the edit fails" in new ShippingAddressFixture {
-        val response = PATCH(
-          s"v1/orders/${order.referenceNumber}/shipping-address",
-          payloads.UpdateShippingAddress(addressId = Some(101))
-        )
+        val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address/101")
 
         response.status must === (StatusCodes.NotFound)
         val (shippingAddress :: Nil) = OrderShippingAddresses.findByOrderId(order.id).result.run().futureValue.toList
@@ -542,10 +526,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       "succeeds when a subset of the fields in the address change" in new ShippingAddressFixture {
         val updateAddressPayload = payloads.UpdateAddressPayload(name = Some("New name"), city = Some("Queen Anne"))
-        val response = PATCH(
-          s"v1/orders/${order.referenceNumber}/shipping-address",
-          payloads.UpdateShippingAddress(address = Some(updateAddressPayload))
-        )
+        val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address", updateAddressPayload)
 
         response.status must === (StatusCodes.OK)
 
@@ -561,10 +542,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       "does not update the address book" in new ShippingAddressFixture {
         val updateAddressPayload = payloads.UpdateAddressPayload(name = Some("Another name"), city = Some("Fremont"))
-        val response = PATCH(
-          s"v1/orders/${order.referenceNumber}/shipping-address",
-          payloads.UpdateShippingAddress(address = Some(updateAddressPayload))
-        )
+        val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address", updateAddressPayload)
 
         response.status must === (StatusCodes.OK)
 
@@ -579,127 +557,13 @@ class OrderIntegrationTest extends IntegrationTestBase
     "deleting the shipping address from an order" - {
       "succeeds if an address exists" in new AddressFixture {
         val response = DELETE(s"v1/orders/${order.referenceNumber}/shipping-address")
-        response.status must === (StatusCodes.NoContent)
+        response.status must ===(StatusCodes.OK)
       }
 
       "fails if the order is not found" in new AddressFixture {
         val response = DELETE(s"v1/orders/ABC-123/shipping-address")
         response.status must === (StatusCodes.NotFound)
       }
-    }
-  }
-
-  "shipping methods" - {
-
-    "Evaluates shipping rule: order total is greater than $25" - {
-
-      "Shipping method is returned when actual order total is greater than $25" in new ShippingMethodsFixture {
-        val conditions = parse(
-          """
-            | {
-            |   "comparison": "and",
-            |   "conditions": [{
-            |     "rootObject": "Order", "field": "grandtotal", "operator": "greaterThan", "valInt": 25
-            |   }]
-            | }
-          """.stripMargin).extract[QueryStatement]
-
-        val action = models.ShippingMethods.save(Factories.shippingMethods.head.copy(
-          conditions = Some(conditions)))
-        val shippingMethod = db.run(action).futureValue
-
-        val response = GET(s"v1/orders/${order.referenceNumber}/shipping-methods")
-        response.status must === (StatusCodes.OK)
-
-        val methodResponse = response.as[Seq[responses.ShippingMethods.Root]].head
-        methodResponse.id must === (shippingMethod.id)
-        methodResponse.name must === (shippingMethod.adminDisplayName)
-        methodResponse.price must === (shippingMethod.price)
-      }
-
-    }
-
-    "Evaluates shipping rule: order total is greater than $100" - {
-
-      "No shipping rules found when order total is less than $100" in new ShippingMethodsFixture {
-        val conditions = parse(
-          """
-            | {
-            |   "comparison": "and",
-            |   "conditions": [{
-            |     "rootObject": "Order", "field": "grandtotal", "operator": "greaterThan", "valInt": 100
-            |   }]
-            | }
-          """.stripMargin).extract[QueryStatement]
-
-        val action = models.ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
-        val shippingMethod = db.run(action).futureValue
-
-        val response = GET(s"v1/orders/${order.referenceNumber}/shipping-methods")
-        response.status must === (StatusCodes.OK)
-
-        val methodResponse = response.as[Seq[responses.ShippingMethods.Root]]
-        methodResponse mustBe 'empty
-      }
-
-    }
-
-    "Evaluates shipping rule: shipping to CA, OR, or WA" - {
-
-      "Shipping method is returned when the order is shipped to CA" in new WestCoastShippingMethodsFixture {
-        val response = GET(s"v1/orders/${order.referenceNumber}/shipping-methods")
-        response.status must === (StatusCodes.OK)
-
-        val methodResponse = response.as[Seq[responses.ShippingMethods.Root]].head
-        methodResponse.id must === (shippingMethod.id)
-        methodResponse.name must === (shippingMethod.adminDisplayName)
-        methodResponse.price must === (shippingMethod.price)
-      }
-    }
-
-    "Evaluates shipping rule: order total is between $10 and $100, and is shipped to CA, OR, or WA" - {
-
-      "Is true when the order total is $27 and shipped to CA" in new ShippingMethodsStateAndPriceCondition {
-        val response = GET(s"v1/orders/${order.referenceNumber}/shipping-methods")
-        response.status must === (StatusCodes.OK)
-
-        val methodResponse = response.as[Seq[responses.ShippingMethods.Root]].head
-        methodResponse.id must === (shippingMethod.id)
-        methodResponse.name must === (shippingMethod.adminDisplayName)
-        methodResponse.price must === (shippingMethod.price)
-      }
-
-    }
-
-    "Evaluates shipping rule: ships to CA but has a restriction for hazardous items" - {
-
-      "Shipping method is returned when the order has no hazardous SKUs" in new ShipToCaliforniaButNotHazardous {
-        val response = GET(s"v1/orders/${order.referenceNumber}/shipping-methods")
-        response.status must === (StatusCodes.OK)
-
-        val methodResponse = response.as[Seq[responses.ShippingMethods.Root]].head
-        methodResponse.id must === (shippingMethod.id)
-        methodResponse.name must === (shippingMethod.adminDisplayName)
-        methodResponse.price must === (shippingMethod.price)
-        methodResponse.isEnabled must === (true)
-      }
-
-      "Shipping method is returned, but disabled with a hazardous SKU" in new ShipToCaliforniaButNotHazardous {
-        (for {
-          hazSku ← Skus.save(Sku(sku = "HAZ-SKU", name = Some("fox"), price = 56, isHazardous = true))
-          lineItem ← OrderLineItems.save(OrderLineItem(orderId = order.id, skuId = hazSku.id))
-        } yield lineItem).run().futureValue
-
-        val response = GET(s"v1/orders/${order.referenceNumber}/shipping-methods")
-        response.status must === (StatusCodes.OK)
-
-        val methodResponse = response.as[Seq[responses.ShippingMethods.Root]].head
-        methodResponse.id must === (shippingMethod.id)
-        methodResponse.name must === (shippingMethod.adminDisplayName)
-        methodResponse.price must === (shippingMethod.price)
-        methodResponse.isEnabled must === (false)
-      }
-
     }
   }
 
@@ -724,137 +588,6 @@ class OrderIntegrationTest extends IntegrationTestBase
   }
 
   trait PaymentMethodsFixture extends AddressFixture {
-  }
-
-  trait ShippingMethodsFixture extends Fixture {
-    val californiaId = 4129
-    val michiganId = 4148
-    val oregonId = 4164
-    val washingtonId = 4177
-
-    val (address, orderShippingAddress) = (for {
-      address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = californiaId))
-      orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
-      sku ← Skus.save(Factories.skus.head.copy(name = Some("Donkey"), price = 27))
-      lineItems ← OrderLineItems.save(OrderLineItem(orderId = order.id, skuId = sku.id))
-    } yield (address, orderShippingAddress)).run().futureValue
-  }
-
-  trait WestCoastShippingMethodsFixture extends ShippingMethodsFixture {
-    val conditions = parse(
-      s"""
-        | {
-        |   "comparison": "or",
-        |   "conditions": [
-        |     {
-        |       "rootObject": "ShippingAddress",
-        |       "field": "regionId",
-        |       "operator": "equals",
-        |       "valInt": ${californiaId}
-        |     }, {
-        |       "rootObject": "ShippingAddress",
-        |       "field": "regionId",
-        |       "operator": "equals",
-        |       "valInt": ${oregonId}
-        |     }, {
-        |       "rootObject": "ShippingAddress",
-        |       "field": "regionId",
-        |       "operator": "equals",
-        |       "valInt": ${washingtonId}
-        |     }
-        |   ]
-        | }
-        """.stripMargin).extract[QueryStatement]
-
-    val action = models.ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
-    val shippingMethod = db.run(action).futureValue
-  }
-
-  trait ShippingMethodsStateAndPriceCondition extends ShippingMethodsFixture {
-    val conditions = parse(
-      s"""
-        | {
-        |   "comparison": "and",
-        |   "statements": [
-        |     {
-        |       "comparison": "or",
-        |       "conditions": [
-        |         {
-        |           "rootObject": "ShippingAddress",
-        |           "field": "regionId",
-        |           "operator": "equals",
-        |           "valInt": ${californiaId}
-        |         }, {
-        |           "rootObject": "ShippingAddress",
-        |           "field": "regionId",
-        |           "operator": "equals",
-        |           "valInt": ${oregonId}
-        |         }, {
-        |           "rootObject": "ShippingAddress",
-        |           "field": "regionId",
-        |           "operator": "equals",
-        |           "valInt": ${washingtonId}
-        |         }
-        |       ]
-        |     }, {
-        |       "comparison": "and",
-        |       "conditions": [
-        |         {
-        |           "rootObject": "Order",
-        |           "field": "grandtotal",
-        |           "operator": "greaterThanOrEquals",
-        |           "valInt": 10
-        |         }, {
-        |           "rootObject": "Order",
-        |           "field": "grandtotal",
-        |           "operator": "lessThan",
-        |           "valInt": 100
-        |         }
-        |       ]
-        |     }
-        |   ]
-        | }
-      """.stripMargin).extract[QueryStatement]
-
-    val action = models.ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
-    val shippingMethod = db.run(action).futureValue
-  }
-
-  trait ShipToCaliforniaButNotHazardous extends ShippingMethodsFixture {
-    val conditions = parse(
-      s"""
-         |{
-         |  "comparison": "and",
-         |  "conditions": [
-         |    {
-         |      "rootObject": "ShippingAddress",
-         |      "field": "regionId",
-         |      "operator": "equals",
-         |      "valInt": ${californiaId}
-          |    }
-          |  ]
-          |}
-       """.stripMargin).extract[QueryStatement]
-
-    val restrictions = parse(
-      """
-        | {
-        |   "comparison": "and",
-        |   "conditions": [
-        |     {
-        |       "rootObject": "Order",
-        |       "field": "skus.isHazardous",
-        |       "operator": "equals",
-        |       "valBoolean": true
-        |     }
-        |   ]
-        | }
-      """.stripMargin).extract[QueryStatement]
-
-    val shippingMethod = (for {
-      shippingMethod ← models.ShippingMethods.save(Factories.shippingMethods.head.copy(
-        conditions = Some(conditions), restrictions = Some(restrictions)))
-    } yield shippingMethod).run().futureValue
   }
 
   trait RemorseFixture {
