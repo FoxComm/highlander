@@ -28,11 +28,8 @@ object LockAwareOrderUpdater {
     }
   }
 
-  // Should never be None as this response is sent only when increasing remorse period
-  final class NewRemorsePeriodEnd(val remorsePeriodEnd: Option[Instant])
-
   def increaseRemorsePeriod(refNum: String)
-    (implicit db: Database, ec: ExecutionContext): Result[NewRemorsePeriodEnd] = {
+    (implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
     val finder = Orders.findByRefNum(refNum)
 
     finder.findOneAndRun { order ⇒
@@ -41,7 +38,7 @@ object LockAwareOrderUpdater {
           DbResult.fromDbio(finder
             .map(_.remorsePeriodEnd)
             .updateReturning(updatedOrder, order.remorsePeriodEnd.map(_.plusMinutes(15))).head
-            .map(order ⇒ new NewRemorsePeriodEnd(order.remorsePeriodEnd)))
+            .flatMap(FullOrder.fromOrder))
 
         case _ ⇒ DbResult.failure(GeneralFailure("Order is not in RemorseHold status"))
       }
