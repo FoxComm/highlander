@@ -1,25 +1,20 @@
 import akka.http.scaladsl.model.StatusCodes
 
-
-import models.{Regions, Region, Countries, Country}
-import org.joda.money.CurrencyUnit
-import org.json4s.JsonAST.{JField, JArray, JObject}
+import models.{Region, Country}
+import models.Country._
+import models.Region._
 import responses.CountryWithRegions
 import util.IntegrationTestBase
-import slick.driver.PostgresDriver.api._
-import utils._
 
 class PublicIntegrationTest extends IntegrationTestBase
   with HttpSupport
   with AutomaticAuth {
 
   import Extensions._
-  import org.json4s.jackson.JsonMethods._
-  import concurrent.ExecutionContext.Implicits.global
 
   "GET /countries/:id" - {
     "lists the country and its regions along with shippable and payable flags" in {
-      val response = GET(s"v1/countries/${Country.unitedStatesId}")
+      val response = GET(s"v1/countries/${unitedStatesId}")
 
       response.status must ===(StatusCodes.OK)
 
@@ -31,15 +26,40 @@ class PublicIntegrationTest extends IntegrationTestBase
   }
 
   "GET /countries" - {
-    "lists countries" in {
+    "lists countries sorted" in {
       val response = GET(s"v1/countries")
 
-      response.status must ===(StatusCodes.OK)
+      response.status mustBe StatusCodes.OK
 
       val countries = response.as[Seq[Country]]
-      val us = countries.find(_.id === Country.unitedStatesId)
+      val us = countries.find(_.id === unitedStatesId).get
 
-      us.get.name must === ("United States")
+      us.name mustBe "United States"
+
+      countries.head mustBe us
+      countries.tail.map(_.name) mustBe sorted
+    }
+  }
+
+  "GET /regions" - {
+    "lists regions sorted" in {
+      val response = GET(s"v1/regions")
+      response.status mustBe StatusCodes.OK
+      val regions = response.as[Seq[Region]]
+
+      val us = regions.take(regularUsRegions.size)
+      us.map(_.countryId) mustBe List.fill(us.size)(unitedStatesId)
+      us.map(_.id).sorted mustBe regularUsRegions
+      us.map(_.name) mustBe sorted
+
+      val armed = regions.slice(regularUsRegions.size, usRegions.size)
+      armed.map(_.id).sorted mustBe armedRegions
+      armed.map(_.name) mustBe sorted
+
+      val other = regions.drop(usRegions.size)
+      other.map(_.name) mustBe sorted
+
+      regions mustBe us ++ armed ++ other
     }
   }
 }
