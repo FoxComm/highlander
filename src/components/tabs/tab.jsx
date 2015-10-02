@@ -16,11 +16,30 @@ export default class TabView extends React.Component {
   }
 
   render() {
-    return (
-      <li className="fc-tab">
-        <i className="icon-drag-drop"></i>&nbsp;
-        {this.props.children}
-      </li>
-    );
+    let tab = null;
+    if (this.props.draggable) {
+      tab = (
+        <li className="fc-tab">
+          <i className="icon-drag-drop"></i>&nbsp;
+          {this.props.children}
+        </li>
+      );
+    } else {
+      tab = (
+        <li className="fc-tab">
+          {this.props.children}
+        </li>
+      );
+    }
+    return tab;
   }
 }
+
+TabView.propTypes = {
+  children: React.PropTypes.array,
+  draggable: React.PropTypes.bool,
+};
+
+TabView.defaultProps = {
+  draggable: true
+};

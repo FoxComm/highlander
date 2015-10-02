@@ -53,7 +53,7 @@ export default class Customers extends React.Component {
             </div>
           </div>
           <TabListView>
-            <TabView>All</TabView>
+            <TabView draggable={false}>All</TabView>
             <TabView>What</TabView>
           </TabListView>
         </div>
