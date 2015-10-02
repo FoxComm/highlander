@@ -37,7 +37,7 @@ object CustomerCreditConverter {
             DbResult.fromDbio(queries.map { sc ⇒ StoreCreditResponse.build(sc) } )
         }
       } else {
-        DbResult.failure(GeneralFailure(s"cannot convert a gift card with status '${gc.status}'"))
+        DbResult.failure(GiftCardConvertFailure(gc))
       }
     }
   }
@@ -54,7 +54,7 @@ object CustomerCreditConverter {
         gc ← GiftCards.save(giftCard.copy(originId = conversion.id))
       } yield gc))
     } else {
-      Result.failure(GeneralFailure(s"cannot convert a store credit with status '${sc.status}'"))
+      Result.failure(StoreCreditConvertFailure(sc))
     }
   }
 }
