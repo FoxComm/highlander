@@ -15,6 +15,7 @@ import models._
 import org.json4s.{Formats, jackson}
 import org.json4s.jackson.Serialization
 import org.json4s.jackson.Serialization.{write ⇒ json}
+import routes.admin.Admin
 import services._
 import slick.driver.PostgresDriver
 import slick.driver.PostgresDriver.api._
@@ -60,7 +61,10 @@ class Service(
 
   val allRoutes = {
     pathPrefix("v1") {
-      logRequestResult("admin-routes")(routes.Admin.routes) ~
+      logRequestResult("admin-routes")(routes.admin.Admin.routes) ~
+      logRequestResult("admin-order-routes")(routes.admin.OrderRoutes.routes) ~
+      logRequestResult("admin-customer-routes")(routes.admin.CustomerRoutes.routes) ~
+      logRequestResult("admin-giftcard-routes")(routes.admin.GiftCardRoutes.routes) ~
       logRequestResult("customer-routes")(routes.Customer.routes) ~
       logRequestResult("public-routes")(routes.Public.routes)
     }
