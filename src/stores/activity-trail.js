@@ -1,6 +1,6 @@
 'use strict';
 
-import BaseStore from '../../lib/base-store';
+import BaseStore from '../lib/base-store';
 
 class ActivityTrailStore extends BaseStore {
   get baseUri() { return `${this.rootUri}/activity-trail`; }

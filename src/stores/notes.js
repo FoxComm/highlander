@@ -1,6 +1,6 @@
 'use strict';
 
-import BaseStore from '../../lib/base-store';
+import BaseStore from '../lib/base-store';
 
 class NoteStore extends BaseStore {
   get baseUri() { return `${this.rootUri}/notes`; }
