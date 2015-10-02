@@ -27,7 +27,8 @@ object CustomerCreditConverter {
             case _ ⇒
               val queries = (for {
                 // Update status and make adjustment
-                gcUpdated ← GiftCards.filter(_.id === gc.id).map(_.status).update(GiftCard.FullyRedeemed)
+                gcUpdated ← GiftCards.filter(_.id === gc.id).filter(_.status === (GiftCard.Active: GiftCard.Status))
+                  .map(_.status).update(GiftCard.FullyRedeemed)
                 adjustment ← GiftCards.redeemToStoreCredit(gc, admin)
 
                 // Finally, convert to Store Credit
