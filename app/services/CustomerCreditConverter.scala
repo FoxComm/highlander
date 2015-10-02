@@ -34,7 +34,7 @@ object CustomerCreditConverter {
               sc ← StoreCredits.save(storeCredit.copy(originId = conversion.id))
             } yield sc).transactionally
 
-            DbResult.fromDbio(queries.map { sc ⇒ StoreCreditResponse.build(sc) } )
+            DbResult.fromDbio(queries.map(StoreCreditResponse.build(_)))
         }
       } else {
         DbResult.failure(GiftCardConvertFailure(gc))
