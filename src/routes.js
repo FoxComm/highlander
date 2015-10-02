@@ -21,17 +21,17 @@ import GiftCard from './components/gift-cards/gift-card';
 import GiftCardTransactions from './components/gift-cards/transactions';
 
 const routes = (
-  <Route component={Site}>
+  <Route path="/" component={Site}>
     <IndexRoute name="home" component={Home}/>
-    <Route name='orders' path="/orders" component={Orders}/>
+    <Route name='orders' path="orders" component={Orders}/>
     <Route name='rmas' path='returns' component={Rmas}/>
-    <Route name='rma' path='/returns/:rma' component={Rma}>
+    <Route name='rma' path='returns/:rma' component={Rma}>
       <IndexRoute name='rma-details' component={RmaDetails}/>
       <Route name='rma-notes' path='notes' component={Notes}/>
       <Route name='rma-notifications' path='notifications' component={Notifications}/>
       <Route name='rma-activity-trail' path='activity-trail' component={ActivityTrail}/>
     </Route>
-    <Route name='order' path='/orders/:order' component={Order}>
+    <Route name='order' path='orders/:order' component={Order}>
       <IndexRoute name='order-details' component={OrderDetails}/>
       <Route name='order-notes' path='notes' component={Notes}/>
       <Route name='order-returns' path='returns' component={Rmas}/>
@@ -39,11 +39,11 @@ const routes = (
       <Route name='order-activity-trail' path='activity-trail' component={ActivityTrail}/>
     </Route>
     <Route name='customers' component={Customers}/>
-    <Route name='customer' path='/customers/:customer' component={Customer}>
+    <Route name='customer' path='customers/:customer' component={Customer}>
       <Route name='customer-addresses' path='addresses' component={AddressBook} />
     </Route>
-    <Route name='gift-cards' path='/gift-cards' component={GiftCards} />
-    <Route name='giftcard' path='/gift-cards/:giftcard' component={GiftCard}>
+    <Route name='gift-cards' path='gift-cards' component={GiftCards} />
+    <Route name='giftcard' path='gift-cards/:giftcard' component={GiftCard}>
       <IndexRoute name='gift-card-transactions' component={GiftCardTransactions} />
       <Route name='gift-card-notes' path='notes' component={Notes} />
       <Route name='gift-card-activity-trail' path='activity-trail' component={ActivityTrail} />

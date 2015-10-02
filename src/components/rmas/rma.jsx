@@ -1,7 +1,7 @@
 'use strict';
 
 import React from 'react';
-import { Link } from 'react-router';
+import { Link } from '../link';
 import { listenTo, stopListeningTo, dispatch } from '../../lib/dispatcher';
 import RmaStore from './store';
 import Notes from '../notes/notes';

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Api from '../../lib/api';
-import { Link } from 'react-router';
+import { Link } from '../link';
 import { formatCurrency } from '../../lib/format';
 import moment from 'moment';
 

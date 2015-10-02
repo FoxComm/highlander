@@ -1,7 +1,7 @@
 'use strict';
 
 import React from 'react';
-import { Link } from 'react-router';
+import { Link } from '../link';
 
 export default class Sidebar extends React.Component {
   render() {
