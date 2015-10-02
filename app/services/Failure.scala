@@ -69,6 +69,14 @@ final case class OrderUpdateFailure(referenceNumber: String, reason: String) ext
   override def description = List(reason)
 }
 
+final case class GiftCardConvertFailure(gc: GiftCard) extends Failure {
+  override def description = List(s"cannot convert a gift card with status '${gc.status}'")
+}
+
+final case class StoreCreditConvertFailure(sc: StoreCredit) extends Failure {
+  override def description = List(s"cannot convert a store credit with status '${sc.status}'")
+}
+
 object OrderNotFoundFailure {
   def apply(order: Order): NotFoundFailure = apply(order.referenceNumber)
   def apply(refNum: String): NotFoundFailure = NotFoundFailure(s"order with referenceNumber=$refNum not found")

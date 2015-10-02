@@ -62,6 +62,13 @@ object GiftCardRoutes {
             GiftCardService.updateStatusByCsr(code, payload, admin).map(renderGoodOrFailures)
           }
         } ~
+        path(Segment / "convert" / IntNumber) { (code, customerId) ⇒
+          (post & pathEnd) {
+            complete {
+              CustomerCreditConverter.toStoreCredit(code, customerId, admin).map(renderGoodOrFailures)
+            }
+          }
+        } ~
         path(Segment / "notes") { code ⇒
           (get & pathEnd) {
             complete {

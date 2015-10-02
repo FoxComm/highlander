@@ -1,25 +1,50 @@
 package services
 
 import models._
+import responses.StoreCreditResponse
 
-
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.ExecutionContext
 import slick.driver.PostgresDriver.api._
+import utils.Slick._
+import utils.Slick.implicits._
 
 object CustomerCreditConverter {
-  def toStoreCredit(gc: GiftCard, customerId: Int)
-    (implicit ec: ExecutionContext, db: Database): Result[StoreCredit] = {
+  def toStoreCredit(code: String, customerId: Int, admin: StoreAdmin)
+    (implicit ec: ExecutionContext, db: Database): Result[StoreCreditResponse.Root] = {
 
-    if (gc.isActive) {
-      val storeCredit = StoreCredit(customerId = customerId, originId = 0, originType = StoreCredit.GiftCardTransfer,
-        currency = gc.currency, originalBalance = gc.currentBalance, currentBalance = gc.currentBalance)
+    val details = for {
+      gc ← GiftCards.findByCode(code).one
+      customer ← Customers._findById(customerId).extract.one
+      adj ← gc match {
+        case Some(giftCard) ⇒ GiftCardAdjustments.lastAuthByGiftCardId(giftCard.id).one
+        case _              ⇒ DBIO.successful(None)
+      }
+    } yield (gc, customer, adj)
 
-      Result.fromFuture(db.run(for {
-        conversion ← StoreCreditFromGiftCards.save(StoreCreditFromGiftCard(giftCardId = gc.id))
-        sc ← StoreCredits.save(storeCredit.copy(originId = conversion.id))
-      } yield sc))
-    } else {
-      Result.failure(GeneralFailure(s"cannot convert a gift card with status '${gc.status}'"))
+    db.run(details.transactionally).flatMap {
+      case (Some(gc), Some(customer), None) ⇒
+        if (gc.isActive) {
+            val queries = (for {
+              // Update status and make adjustment
+              gcUpdated ← GiftCards.filter(_.id === gc.id).filter(_.status === (GiftCard.Active: GiftCard.Status))
+                .map(_.status).update(GiftCard.FullyRedeemed)
+              adjustment ← GiftCards.redeemToStoreCredit(gc, admin)
+
+              // Finally, convert to Store Credit
+              conversion ← StoreCreditFromGiftCards.save(StoreCreditFromGiftCard(giftCardId = gc.id))
+              sc ← StoreCredits.save(StoreCredit.buildFromGcTransfer(customerId, gc).copy(originId = conversion.id))
+            } yield sc).transactionally
+
+            Result.fromFuture(db.run(queries.map { sc ⇒ StoreCreditResponse.build(sc) }))
+        } else {
+          Result.failure(GiftCardConvertFailure(gc))
+        }
+      case (_, _, Some(_)) ⇒
+        Result.failure(OpenTransactionsFailure)
+      case (None, _, _) ⇒
+        Result.failure(GiftCardNotFoundFailure(code))
+      case (_, None, _) ⇒
+        Result.failure(NotFoundFailure(Customer, customerId))
     }
   }
 
@@ -35,7 +60,7 @@ object CustomerCreditConverter {
         gc ← GiftCards.save(giftCard.copy(originId = conversion.id))
       } yield gc))
     } else {
-      Result.failure(GeneralFailure(s"cannot convert a store credit with status '${sc.status}'"))
+      Result.failure(StoreCreditConvertFailure(sc))
     }
   }
 }
