@@ -11,10 +11,15 @@ module.exports = function(app) {
   const template = path.join(__dirname, './views/layout.tmpl');
   const layout = _.template(fs.readFileSync(template, 'utf8'));
 
-  const appFile = path.join(config.layout.publicDir, 'admin.js');
-  const App = require(appFile);
+  // lets do renderReact propery is lazy
+  Object.defineProperty(app, 'renderReact', {
+    get: function() {
+      const appFile = path.join(config.layout.publicDir, 'admin.js');
+      const App = require(appFile);
 
-  app.renderReact = App.renderReact;
+      return App.renderReact;
+    }
+  });
 
   app.requireUser = function *(next) {
     if (!this.currentUser) {
