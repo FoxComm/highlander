@@ -16,16 +16,18 @@ import slick.driver.PostgresDriver
 import slick.driver.PostgresDriver.api._
 import utils.Money.Currency
 
-object Seeds extends App {
+object Seeds {
 
-  Console.err.println(s"Cleaning DB and running migrations")
+  def main(args: Array[String]): Unit = {
+    Console.err.println(s"Cleaning DB and running migrations")
+    val config: com.typesafe.config.Config = utils.Config.loadWithEnv()
+    flyWayMigrate(config)
+    Console.err.println(s"Inserting seeds")
+    implicit val db: PostgresDriver.backend.DatabaseDef = Database.forConfig("db", config)
+    Await.result(db.run(run()), 5.second)
+  }
+
   val today = Instant.now().atZone(ZoneId.of("UTC"))
-  val config: com.typesafe.config.Config = utils.Config.loadWithEnv()
-  flyWayMigrate(config)
-  Console.err.println(s"Inserting seeds")
-  implicit val db: PostgresDriver.backend.DatabaseDef = Database.forConfig("db", config)
-  Await.result(db.run(run()), 5.second)
-
 
   final case class TheWorld(customers: Seq[Customer], order: Order, orderNotes: Seq[Note], address: Address,
     cc: CreditCard, storeAdmin: StoreAdmin, shippingAddresses: Seq[OrderShippingAddress],
