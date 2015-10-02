@@ -9,7 +9,7 @@ import utils.Seeds.Factories
 import utils.Slick.implicits._
 import utils.time._
 
-class OrdersTest extends IntegrationTestBase {
+class OrdersIntegrationTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global
 
   "Orders" - {

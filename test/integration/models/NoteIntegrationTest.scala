@@ -8,7 +8,7 @@ import utils.Slick.implicits._
 import services._
 import util.CustomMatchers._
 
-class NoteTest extends IntegrationTestBase {
+class NoteIntegrationTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global
 
   "Note" - {

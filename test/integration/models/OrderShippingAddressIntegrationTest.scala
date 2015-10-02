@@ -7,7 +7,7 @@ import utils.Seeds.Factories
 import utils.jdbc.withUniqueConstraint
 import utils.Slick.implicits._
 
-class OrderShippingAddressTest extends IntegrationTestBase {
+class OrderShippingAddressIntegrationTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global
 
   "OrderShippingAddress" - {

@@ -5,7 +5,7 @@ import utils.Seeds.Factories
 import util.IntegrationTestBase
 import utils.Slick.implicits._
 
-class InventorySummaryTest extends IntegrationTestBase {
+class InventorySummaryIntegrationTest extends IntegrationTestBase {
   import api._
   import concurrent.ExecutionContext.Implicits.global
 
