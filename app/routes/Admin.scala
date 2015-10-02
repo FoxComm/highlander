@@ -367,18 +367,19 @@ object Admin {
           }
         } ~
         pathPrefix("shipping-address") {
-          (post & entity(as[payloads.CreateShippingAddress]) & pathEnd) { payload ⇒
+          (post & entity(as[payloads.CreateAddressPayload]) & pathEnd) { payload ⇒
             complete {
-              whenOrderFoundAndEditable(refNum) { order ⇒
-                OrderUpdater.createShippingAddress(order, payload)
-              }
+              OrderUpdater.createShippingAddressFromPayload(payload, refNum).map(renderGoodOrFailures)
             }
           } ~
-          (patch & entity(as[payloads.UpdateShippingAddress]) & pathEnd) { payload ⇒
+          (patch & entity(as[payloads.UpdateAddressPayload]) & pathEnd) { payload ⇒
             complete {
-              whenFound(Orders.findByRefNum(refNum).one.run()) { order ⇒
-                OrderUpdater.updateShippingAddress(order, payload)
-              }
+              OrderUpdater.updateShippingAddressFromPayload(payload, refNum).map(renderGoodOrFailures)
+            }
+          } ~
+          (patch & path(IntNumber) & pathEnd) { addressId ⇒
+            complete {
+              OrderUpdater.createShippingAddressFromAddressId(addressId, refNum).map(renderGoodOrFailures)
             }
           } ~
           (delete & pathEnd) {
