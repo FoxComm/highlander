@@ -143,10 +143,11 @@ object OrderUpdater {
     }
   }
 
-  def updateShippingMethod(order: Order, payload: UpdateShippingMethod)
+  def updateShippingMethod(payload: UpdateShippingMethod, refNum: String)
     (implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
 
     val queries = for {
+      order ← Orders.findByRefNum(refNum).result.head
       shippingMethod ← ShippingMethods.findById(payload.shippingMethodId)
       _ ← shippingMethod.map(OrderShippingMethods.copyFromShippingMethod(_, order)).getOrElse(DBIO.successful(None))
       fullOrder ← FullOrder.fromOrder(order)
