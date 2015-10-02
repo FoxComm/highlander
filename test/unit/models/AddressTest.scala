@@ -42,7 +42,7 @@ class AddressTest extends TestBase {
         )
 
         forAll(addresses) { (address, errors) =>
-          invalidValue(address.copy(regionId = Country.usRegions.head).validate) mustBe (errors)
+          invalidValue(address.copy(regionId = Region.usRegions.head).validate) mustBe (errors)
         }
       }
 
@@ -53,7 +53,7 @@ class AddressTest extends TestBase {
       }
 
       "returns errors if US address and Some(phoneNumber) < 10 digits" in {
-        val result = valid.copy(regionId = Country.usRegions.head, phoneNumber = Some("5551234")).validate
+        val result = valid.copy(regionId = Region.usRegions.head, phoneNumber = Some("5551234")).validate
         invalidValue(result) must includeFailure("phoneNumber must fully match regular expression '[0-9]{10}'")
       }
 

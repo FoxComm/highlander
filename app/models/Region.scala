@@ -11,6 +11,12 @@ final case class Region(id: Int = 0, countryId: Int, name: String, abbreviation:
   val abbrev = abbreviation
 }
 
+object Region {
+  val usRegions = 4121 to 4180
+  val armedRegions = Seq(4121, 4122, 4125)
+  val regularUsRegions = usRegions.toSeq.diff(armedRegions)
+}
+
 class Regions(tag: Tag) extends TableWithId[Region](tag, "regions")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def countryId = column[Int]("country_id")

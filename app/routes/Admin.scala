@@ -13,9 +13,14 @@ import responses.{AllOrders, BulkOrderUpdateResponse, AdminNotes, FullOrder}
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.Apis
+import utils.Slick
+import utils.Slick.DbResult
 import utils.Slick.implicits._
 
 object Admin {
+
+  val orderRefNum = """([a-zA-Z0-9-_]*)""".r
+
   def routes(implicit ec: ExecutionContext, db: Database,
     mat: Materializer, storeAdminAuth: AsyncAuthenticator[StoreAdmin], apis: Apis) = {
     import Json4sSupport._
@@ -255,12 +260,13 @@ object Admin {
           }
         }
       } ~
-      pathPrefix("orders" / """([a-zA-Z0-9-_]*)""".r) { refNum ⇒
+      pathPrefix("orders" / orderRefNum) { refNum ⇒
         (get & pathEnd) {
           complete {
-            whenFound(Orders.findByRefNum(refNum).one.run()) { order ⇒
-              FullOrder.fromOrder(order).run().map(Xor.right)
-            }
+            val finder = Orders.findByRefNum(refNum)
+            finder.findOneAndRunIgnoringLock { order ⇒
+              DbResult.fromDbio(Slick.fullOrder(finder))
+            }.map(renderGoodOrFailures)
           }
         } ~
         (patch & entity(as[UpdateOrderPayload])) { payload ⇒
@@ -299,32 +305,32 @@ object Admin {
         } ~
         pathPrefix("payment-methods" / "credit-cards") {
           (post & entity(as[payloads.CreditCardPayment]) & pathEnd) { payload ⇒
-            complete { OrderPaymentUpdater.addCreditCard(refNum, payload.creditCardId).map(renderNothingOrFailures) }
+            complete { OrderPaymentUpdater.addCreditCard(refNum, payload.creditCardId).map(renderGoodOrFailures) }
           } ~
           (patch & entity(as[payloads.CreditCardPayment]) & pathEnd) { payload ⇒
-            complete { OrderPaymentUpdater.addCreditCard(refNum, payload.creditCardId).map(renderNothingOrFailures) }
+            complete { OrderPaymentUpdater.addCreditCard(refNum, payload.creditCardId).map(renderGoodOrFailures) }
           } ~
           (delete & pathEnd) {
-            complete { OrderPaymentUpdater.deleteCreditCard(refNum).map(renderNothingOrFailures) }
+            complete { OrderPaymentUpdater.deleteCreditCard(refNum).map(renderGoodOrFailures) }
           }
         } ~
         pathPrefix("payment-methods" / "gift-cards") {
           (post & entity(as[payloads.GiftCardPayment]) & pathEnd) { payload ⇒
-            complete { OrderPaymentUpdater.addGiftCard(refNum, payload).map(renderNothingOrFailures) }
+            complete { OrderPaymentUpdater.addGiftCard(refNum, payload).map(renderGoodOrFailures) }
           } ~
           (delete & path(Segment) & pathEnd) { code ⇒
-            complete { OrderPaymentUpdater.deleteGiftCard(refNum, code).map(renderNothingOrFailures) }
+            complete { OrderPaymentUpdater.deleteGiftCard(refNum, code).map(renderGoodOrFailures) }
           }
         } ~
         pathPrefix("payment-methods" / "store-credit") {
           (post & entity(as[payloads.StoreCreditPayment]) & pathEnd) { payload ⇒
-            complete { OrderPaymentUpdater.addStoreCredit(refNum, payload).map(renderNothingOrFailures) }
+            complete { OrderPaymentUpdater.addStoreCredit(refNum, payload).map(renderGoodOrFailures) }
           } ~
           (patch & entity(as[payloads.StoreCreditPayment]) & pathEnd) { payload ⇒
-            complete { OrderPaymentUpdater.addStoreCredit(refNum, payload).map(renderNothingOrFailures) }
+            complete { OrderPaymentUpdater.addStoreCredit(refNum, payload).map(renderGoodOrFailures) }
           } ~
           (delete & pathEnd) {
-            complete { OrderPaymentUpdater.deleteStoreCredit(refNum).map(renderNothingOrFailures) }
+            complete { OrderPaymentUpdater.deleteStoreCredit(refNum).map(renderGoodOrFailures) }
           }
         } ~
         pathPrefix("notes") {
@@ -361,54 +367,50 @@ object Admin {
           }
         } ~
         pathPrefix("shipping-address") {
-          (post & entity(as[payloads.CreateShippingAddress]) & pathEnd) { payload ⇒
+          (post & entity(as[payloads.CreateAddressPayload]) & pathEnd) { payload ⇒
             complete {
-              whenOrderFoundAndEditable(refNum) { order ⇒
-                services.OrderUpdater.createShippingAddress(order, payload)
-              }
+              OrderUpdater.createShippingAddressFromPayload(payload, refNum).map(renderGoodOrFailures)
             }
           } ~
-          (patch & entity(as[payloads.UpdateShippingAddress]) & pathEnd) { payload ⇒
+          (patch & entity(as[payloads.UpdateAddressPayload]) & pathEnd) { payload ⇒
             complete {
-              whenFound(Orders.findByRefNum(refNum).one.run()) { order ⇒
-                services.OrderUpdater.updateShippingAddress(order, payload)
-              }
+              OrderUpdater.updateShippingAddressFromPayload(payload, refNum).map(renderGoodOrFailures)
+            }
+          } ~
+          (patch & path(IntNumber) & pathEnd) { addressId ⇒
+            complete {
+              OrderUpdater.createShippingAddressFromAddressId(addressId, refNum).map(renderGoodOrFailures)
             }
           } ~
           (delete & pathEnd) {
             complete {
-              Orders.findByRefNum(refNum).one.run().flatMap {
-                case Some(order) ⇒
-                  services.OrderUpdater.removeShippingAddress(order.id).map { _ ⇒ noContentResponse }
-                case None ⇒
-                  Future.successful(notFoundResponse)
-              }
+              OrderUpdater.removeShippingAddress(refNum).map(renderGoodOrFailures)
             }
           }
-        } ~
-        pathPrefix("shipping-methods") {
-          (get & pathEnd) {
-            complete {
-              whenFound(Orders.findByRefNum(refNum).result.headOption.run()) { order ⇒
-                services.ShippingManager.getShippingMethodsForOrder(order)
-              }
-            }
+        }
+      } ~
+      pathPrefix("shipping-methods" / orderRefNum) { refNum ⇒
+        (get & pathEnd) {
+          complete {
+            Orders.findByRefNum(refNum).findOneAndRunIgnoringLock { order ⇒
+              ShippingManager.getShippingMethodsForOrder(order)
+            }.map(renderGoodOrFailures)
+          }
+        }
+      } ~
+      pathPrefix("notifications") {
+        (get & pathEnd) {
+          complete {
+            val notifications = Seq(
+              Notification("Delivered", "Shipment Confirmation", "2015-02-15T08:31:45", "jim@bob.com"),
+              Notification("Failed", "Order Confirmation", "2015-02-16T09:23:29", "+ (567) 203-8430")
+            )
+            render(notifications)
           }
         } ~
-        pathPrefix("notifications") {
-          (get & pathEnd) {
-            complete {
-              val notifications = Seq(
-                Notification("Delivered", "Shipment Confirmation", "2015-02-15T08:31:45", "jim@bob.com"),
-                Notification("Failed", "Order Confirmation", "2015-02-16T09:23:29", "+ (567) 203-8430")
-              )
-              render(notifications)
-            }
-          } ~
-          (get & path(IntNumber) & pathEnd) { notificationId ⇒
-            complete {
-              render(Notification("Failed", "Order Confirmation", "2015-02-16T09:23:29", "+ (567) 203-8430"))
-            }
+        (get & path(IntNumber) & pathEnd) { notificationId ⇒
+          complete {
+            render(Notification("Failed", "Order Confirmation", "2015-02-16T09:23:29", "+ (567) 203-8430"))
           }
         }
       }

@@ -25,7 +25,7 @@ trait Addressable[M] {
   def zipLens: Lens[M, String]
 
   def sanitize(model: M): M = {
-    if (Country.usRegions.contains(regionId)) {
+    if (Region.usRegions.contains(regionId)) {
       zipLens.set(zip.replace("-", ""))(model)
     } else {
       zipLens.set(zip)(model)
@@ -33,7 +33,7 @@ trait Addressable[M] {
   }
 
   def validate: ValidatedNel[Failure, M] = {
-    val isUsAddress = Country.usRegions.contains(regionId)
+    val isUsAddress = Region.usRegions.contains(regionId)
 
     val phone: ValidatedNel[Failure, Unit] = (isUsAddress, phoneNumber) match {
       case (true, Some(number)) ⇒
