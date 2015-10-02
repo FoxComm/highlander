@@ -4,9 +4,9 @@ import React from 'react';
 import TableView from '../tables/tableview';
 import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
+import SearchBar from '../search-bar/search-bar';
 
 import CustomerStore from '../../stores/customers';
-
 
 export default class Customers extends React.Component {
   constructor(props, context) {
@@ -58,11 +58,13 @@ export default class Customers extends React.Component {
           </TabListView>
         </div>
         <div className="gutter">
+          <SearchBar />
           <TableView
             columns={this.props.tableColumns}
             rows={this.state.customers}
             model='customer'
             sort={CustomerStore.sort.bind(CustomerStore)}
+            limit={ 10 }
             />
         </div>
       </div>
