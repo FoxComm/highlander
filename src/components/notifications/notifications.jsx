@@ -17,8 +17,8 @@ export default class Notifications extends React.Component {
   componentDidMount() {
     NotificationStore.listenToEvent('change', this);
 
-    let { router } = this.context,
-      order = router.getCurrentParams().order;
+    // @TODO: this code was not prepared for rma
+    const { order } = this.props.params;
 
     NotificationStore.uriRoot = `/orders/${order}`;
     NotificationStore.fetch();

@@ -1,30 +1,33 @@
 'use strict';
 
 import React from 'react';
-import Router from 'react-router';
-import { canUseDOM } from 'react/lib/ExecutionEnvironment';
+import {render} from 'react-dom';
+import { renderToString } from 'react-dom/server';
+import Router,  { RoutingContext, match } from 'react-router';
+import createBrowserHistory from 'history/lib/createBrowserHistory';
+import createLocation from 'history/lib/createLocation';
 import routes from './routes';
 
-let app = {
-  start(bootstrap) {
-    return canUseDOM ? this.webStart() : this.serverStart(bootstrap);
+const app = {
+
+  start() {
+    let history = createBrowserHistory();
+    render(<Router history={history}>{routes}</Router>, document.getElementById('foxcom'));
   },
 
-  webStart() {
-    Router.run(routes, Router.HistoryLocation, (Handler) => {
-      React.render(<Handler/>, document.getElementById('foxcom'));
-    });
-  },
+  * renderReact(next) {
+    let location = createLocation(this.path);
 
-  serverStart(bootstrap) {
-    return (fn) => {
-      Router.run(routes, bootstrap.path, (Handler) => {
-        let
-          component = React.createFactory(Handler),
-          html      = React.renderToString(component(bootstrap));
-        fn(null, html);
-      });
-    };
+    let [redirectLocation, renderProps] = yield match.bind(null, {routes, location});
+
+    if (redirectLocation) {
+      this.redirect(redirectLocation.pathname + redirectLocation.search);
+    } else if (renderProps == null) {
+      this.status = 404;
+    } else {
+      this.state.html = renderToString(<RoutingContext {...renderProps}/>);
+      yield next;
+    }
   }
 };
 

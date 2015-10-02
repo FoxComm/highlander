@@ -72,7 +72,7 @@ export default class AddressForm extends React.Component {
 
   componentDidUpdate() {
     if (this.state.errors) {
-      React.findDOMNode(this.refs.errorMessages).scrollIntoView();
+      this.refs.errorMessages.scrollIntoView();
     }
   }
 

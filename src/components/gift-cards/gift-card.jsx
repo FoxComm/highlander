@@ -1,7 +1,6 @@
 'use strict';
 
 import React from 'react';
-import { RouteHandler } from 'react-router';
 import Api from '../../lib/api';
 import { Link } from 'react-router';
 import { formatCurrency } from '../../lib/format';
@@ -16,10 +15,9 @@ export default class GiftCard extends React.Component {
   }
 
   componentDidMount() {
-    let { router } = this.context;
-    let cardCode = router.getCurrentParams().giftcard;
+    let { giftcard } = this.props.params;
 
-    Api.get(`/gift-cards/${cardCode}`)
+    Api.get(`/gift-cards/${giftcard}`)
       .then((res) => {
         this.setState({
           card: res
@@ -47,6 +45,8 @@ export default class GiftCard extends React.Component {
     let card = this.state.card;
     let status = null;
 
+    const content = React.cloneElement(this.props.children, {'gift-card': card, modelName: 'gift-card' });
+
     if (card.code) {
       let params = {giftcard: card.code};
       subNav = (
@@ -56,7 +56,7 @@ export default class GiftCard extends React.Component {
             <li><Link to="gift-card-notes" params={params}>Notes</Link></li>
             <li><Link to="gift-card-activity-trail" params={params}>Activity Trail</Link></li>
           </ul>
-          <RouteHandler gift-card={card} modelName="gift-card"/>
+          {content}
         </div>
       );
     }

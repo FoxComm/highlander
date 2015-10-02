@@ -14,10 +14,9 @@ export default class GiftCardTransactions extends React.Component {
   }
 
   componentDidMount() {
-    let
-      { router } = this.context,
-      cardId     = router.getCurrentParams().giftcard;
-    Api.get(`/gift-cards/${cardId}/transactions`)
+    const { giftcard } = this.props.params;
+
+    Api.get(`/gift-cards/${giftcard}/transactions`)
        .then((res) => {
          this.setState({
            transactions: res

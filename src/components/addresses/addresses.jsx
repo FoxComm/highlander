@@ -20,9 +20,10 @@ export default class AddressBook extends React.Component {
     AddressStore.listenToEvent('change', this);
     if (this.props.order) {
       customerId = this.props.order.customer.id;
+    } else if (this.props.params && this.props.params.customer) {
+      customerId = this.props.params.customer;
     } else {
-      let { router } = this.context;
-      customerId = router.getCurrentParams().customer;
+      throw new Error('customer not provided to AddressBook');
     }
 
     this.setState({customerId});
