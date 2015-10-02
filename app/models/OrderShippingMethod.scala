@@ -53,6 +53,8 @@ class OrderShippingMethods(tag: Tag) extends TableWithId[OrderShippingMethod](ta
 object OrderShippingMethods extends TableQueryWithId[OrderShippingMethod, OrderShippingMethods](
   idLens = GenLens[OrderShippingMethod](_.id)
 )(new OrderShippingMethods(_)) {
+  def findByOrderId(orderId: Int)(implicit db: Database): QuerySeq = filter(_.orderId === orderId)
+
   def copyFromShippingMethod(sm: ShippingMethod, order: Order)(implicit ec: ExecutionContext):
   DBIO[OrderShippingMethod] =
     save(OrderShippingMethod.buildFromShippingMethod(sm).copy(orderId = order.id))
