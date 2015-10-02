@@ -1,6 +1,8 @@
 'use strict';
 
 import React from 'react';
+import FCTitle from './fc-title';
+import FCTitleWithSubtitle from './fc-title-with-subtitle';
 
 export default class SectionTitle extends React.Component {
   constructor(props) {
@@ -11,19 +13,11 @@ export default class SectionTitle extends React.Component {
     let titleMarkup = null;
     if (this.props.count !== undefined) {
       titleMarkup = (
-        <h1 className="fc-title">
-          { this.props.title }
-          &nbsp;
-          <span className="fc-subtitle">
-            { this.props.count }
-          </span>
-        </h1>
+        <FCTitleWithSubtitle title={ this.props.title } subtitle={ this.props.count } />
       );
     } else {
       titleMarkup = (
-        <h1 className="fc-title">
-          { this.props.title }
-        </h1>
+        <FCTitle title={ this.props.title } />
       );
     }
     let buttonMarkup = null;
