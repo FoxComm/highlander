@@ -8,6 +8,7 @@ import utils.Slick.implicits._
 import services._
 import util.CustomMatchers._
 
+@SuppressWarnings(Array("org.brianmckenna.wartremover.warts.AsInstanceOf"))
 class NoteIntegrationTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global
 
