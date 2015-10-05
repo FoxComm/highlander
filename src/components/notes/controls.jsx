@@ -8,10 +8,10 @@ export default class NotesItemControls extends React.Component {
     return (
       <div className="fc-notes-item-controls">
         <UserInitials model={this.props.model.author}/>
-        <button onClick={this.props.onEditClick}>
+        <button onClick={this.props.onEditClick.bind(this, this.props.model)}>
           <i className="icon-edit"/>
         </button>
-        <button onClick={this.props.onDeleteClick}>
+        <button onClick={this.props.onDeleteClick.bind(this, this.props.model)}>
           <i className="icon-trash"/>
         </button>
       </div>

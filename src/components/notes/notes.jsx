@@ -100,25 +100,31 @@ export default class Notes extends React.Component {
   render() {
     let renderRow = (row) => {
       return (
-        <TableRow>
-          <TableCell>Today</TableCell>
-          <TableCell>{row.body}</TableCell>
-          <TableCell>
-            <Controls
-              model={row}
-              onEditClick={this.handleEdit.bind(this)}
-              onDeleteClick={this.handleDelete.bind(this)}
-              />
-          </TableCell>
+        <Wrapper>
+          <TableRow>
+            <TableCell>Today</TableCell>
+            <TableCell>{row.body}</TableCell>
+            <TableCell>
+              <Controls
+                model={row}
+                onEditClick={this.handleEdit.bind(this)}
+                onDeleteClick={this.handleDelete.bind(this)}
+                />
+            </TableCell>
+          </TableRow>
           {this.state.editing && (this.state.editingNote.id === row.id) && (
-            <Form
-              uri={NoteStore.baseUri}
-              text={this.state.editingNote && this.state.editingNote.body}
-              onReset={this.handleResetForm.bind(this)}
-              onSubmit={this.handleSubmit.bind(this)}
-              />
+            <TableRow>
+              <TableCell colspan={3}>
+                <Form
+                  uri={NoteStore.baseUri}
+                  text={this.state.editingNote && this.state.editingNote.body}
+                  onReset={this.handleResetForm.bind(this)}
+                  onSubmit={this.handleSubmit.bind(this)}
+                  />
+              </TableCell>
+            </TableRow>
           )}
-        </TableRow>
+        </Wrapper>
       );
     };
 
@@ -140,7 +146,7 @@ export default class Notes extends React.Component {
             />
         )}
         {this.state.notes.length && (
-          <TableView store={NoteStore} renderRow={renderRow}/>
+          <TableView store={NoteStore} renderRow={renderRow.bind(this)}/>
         )}
         {!this.state.notes.length && (
           <div className="empty">No notes yet.</div>
