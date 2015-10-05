@@ -21,12 +21,10 @@ import slick.driver.PostgresDriver
 import slick.driver.PostgresDriver.api._
 import utils.{WiredStripeApi, Apis, RemorseTimer, RemorseTimerMate, Tick}
 
-object Main {
-  def main(args: Array[String]): Unit = {
-    val service = new Service()
-    service.bind()
-    service.setupRemorseTimers
-  }
+object Main extends App {
+  val service = new Service()
+  service.bind()
+  service.setupRemorseTimers
 }
 
 class Service(
