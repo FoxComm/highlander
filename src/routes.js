@@ -17,6 +17,7 @@ import Notifications from './components/notifications/notifications';
 import ActivityTrail from './components/activity-trail/activity-trail';
 import AddressBook from './components/addresses/addresses';
 import GiftCards from './components/gift-cards/gift-cards';
+import NewGiftCard from './components/gift-cards/gift-cards-new';
 import GiftCard from './components/gift-cards/gift-card';
 import GiftCardTransactions from './components/gift-cards/transactions';
 
@@ -26,7 +27,7 @@ const routes = (
     <Route name='orders' handler={Orders}/>
     <Route name='rmas' path='returns' handler={Rmas}/>
     <Route name='rma' path='/returns/:rma' handler={Rma}>
-      <DefaultRoute name='rma-details' path='/returns/:rma' handler={RmaDetails}/>
+      <DefaultRoute name='rma-details' handler={RmaDetails}/>
       <Route name='rma-notes' path='notes' handler={Notes}/>
       <Route name='rma-notifications' path='notifications' handler={Notifications}/>
       <Route name='rma-activity-trail' path='activity-trail' handler={ActivityTrail}/>
@@ -43,6 +44,7 @@ const routes = (
       <Route name='customer-addresses' path='addresses' handler={AddressBook} />
     </Route>
     <Route name='gift-cards' path='/gift-cards' handler={GiftCards} />
+    <Route name='gift-cards-new' path='/gift-cards/new' handler={NewGiftCard} />
     <Route name='giftcard' path='/gift-cards/:giftcard' handler={GiftCard}>
       <DefaultRoute name='gift-card-transactions' handler={GiftCardTransactions} />
       <Route name='gift-card-notes' path='notes' handler={Notes} />

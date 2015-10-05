@@ -3,7 +3,10 @@
 import React from 'react';
 import TableView from '../tables/tableview';
 import NewGiftCard from './gift-cards-new';
-import GiftCardStore from '../stores/gift-cards';
+import GiftCardStore from '../../stores/gift-cards';
+import GiftCardActions from '../../actions/gift-cards';
+import { Link } from 'react-router';
+import _ from 'lodash';
 
 export default class GiftCards extends React.Component {
   constructor(props) {
@@ -12,9 +15,9 @@ export default class GiftCards extends React.Component {
   }
 
   componentDidMount() {
-    GiftCardStore.listenTo(this.onChange);
+    GiftCardStore.listen(this.onChange.bind(this));
 
-    GiftCardStore.fetchGiftCards();
+    GiftCardActions.fetchGiftCards();
   }
 
   componentWillUnmount() {
@@ -67,10 +70,10 @@ export default class GiftCards extends React.Component {
         <div id="cards">
           <div className="gutter">
             <h2>Gift Cards</h2>
-            <button onClick={this.toggleNew.bind(this)}>+ New Gift Card</button>
+            <Link to='gift-cards-new'>+ New Gift Card</Link>
             <TableView
               columns={this.props.tableColumns}
-              rows={this.state.cards}
+              rows={this.state.giftCards}
               model='giftcard'
               />
           </div>

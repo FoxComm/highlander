@@ -1,6 +1,7 @@
 'use strict';
 
-import alt from '../alt.js';
+import alt from '../alt';
+import Api from '../lib/api';
 
 class GiftCardActions {
   updateGiftCards(cards) {
