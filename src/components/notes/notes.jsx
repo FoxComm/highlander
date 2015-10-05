@@ -71,23 +71,11 @@ export default class Notes extends React.Component {
     event.preventDefault();
     Api.submitForm(event.target)
       .then((note) => {
-        note.isNew = true;
-        let notes = this.state.notes.slice(0);
-        notes.unshift(note);
-        this.setState({notes: notes});
         this.toggleCreating();
-        this.removeNew();
       })
       .catch((err) => {
         console.error(err);
       });
-  }
-
-  removeNew() {
-    setTimeout(() => {
-      let row = document.querySelector('tr.new');
-      row.classList.remove('new');
-    }, 5000);
   }
 
   toggleCreating() {

@@ -5,14 +5,29 @@ import Table from './table';
 import TablePaginator from './paginator';
 
 export default class TableView extends React.Component {
+  constructor(...args) {
+    super(...args);
+    this.state = {
+      start: 0,
+      limit: 1
+    }
+  }
+
   onLimitChange(event) {
     event.preventDefault();
     this.store.setLimit(+event.target.value);
   }
 
   render() {
-    let showPaginator = true;
-    let paginator = null;
+    let showPaginator = this.props.paginator && this.props.store.rows.length > this.state.limit;
+    let paginator = showPaginator && (
+        <TablePaginator
+          start={this.state.start}
+          limit={this.state.limit}
+          total={100}
+          setStart={this.props.store.setStart.bind(this.props.store)}
+          />
+      );
 
     return (
       <div className="fc-tableview">
