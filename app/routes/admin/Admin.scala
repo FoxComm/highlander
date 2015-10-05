@@ -7,11 +7,14 @@ import akka.stream.Materializer
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models._
+import responses.AdminNotes
+import routes.admin.OrderRoutes.orderRefNum
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.Apis
 import utils.Http._
 import utils.SprayDirectives._
+import utils.Slick.implicits._
 
 object Admin {
 
@@ -55,6 +58,62 @@ object Admin {
           goodOrFailures {
             Orders.findByRefNum(refNum).findOneAndRunIgnoringLock { order ⇒
               ShippingManager.getShippingMethodsForOrder(order)
+            }
+          }
+        }
+      } ~
+      pathPrefix("notes") {
+        pathPrefix("order" / orderRefNum) { refNum ⇒
+          (get & pathEnd) {
+            complete {
+              whenOrderFoundAndEditable(refNum) { order ⇒ AdminNotes.forOrder(order) }
+            }
+          } ~
+          (post & entity(as[payloads.CreateNote])) { payload ⇒
+            complete {
+              whenOrderFoundAndEditable(refNum) { order ⇒
+                NoteManager.createOrderNote(order, admin, payload)
+              }
+            }
+          } ~
+          (patch & path(IntNumber) & entity(as[payloads.UpdateNote])) { (noteId, payload) ⇒
+            complete {
+              whenOrderFoundAndEditable(refNum) { order ⇒
+                NoteManager.updateNote(noteId, admin, payload)
+              }
+            }
+          } ~
+          (delete & path(IntNumber)) { noteId ⇒
+            complete {
+              NoteManager.deleteNote(noteId, admin).map(renderNothingOrFailures)
+            }
+          }
+        } ~
+        pathPrefix("gift-card" / Segment) { code ⇒
+          (get & pathEnd) {
+            complete {
+              whenFound(GiftCards.findByCode(code).one.run()) { giftCard ⇒ AdminNotes.forGiftCard(giftCard) }
+            }
+          } ~
+          (post & entity(as[payloads.CreateNote]) & pathEnd) { payload ⇒
+            complete {
+              whenFound(GiftCards.findByCode(code).one.run()) { giftCard ⇒
+                NoteManager.createGiftCardNote(giftCard, admin, payload)
+              }
+            }
+          } ~
+          path(IntNumber) { noteId ⇒
+            (patch & entity(as[payloads.UpdateNote]) & pathEnd) { payload ⇒
+              complete {
+                whenFound(GiftCards.findByCode(code).one.run()) { _ ⇒
+                  NoteManager.updateNote(noteId, admin, payload)
+                }
+              }
+            } ~
+            (delete & pathEnd) {
+              complete {
+                NoteManager.deleteNote(noteId, admin).map(renderNothingOrFailures)
+              }
             }
           }
         }

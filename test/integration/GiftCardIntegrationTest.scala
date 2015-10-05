@@ -252,7 +252,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
   "gift card note" - {
     "can be created by an admin for a gift card" in new Fixture {
-      val response = POST(s"v1/gift-cards/${giftCard.code}/notes",
+      val response = POST(s"v1/notes/gift-card/${giftCard.code}",
         payloads.CreateNote(body = "Hello, FoxCommerce!"))
 
       response.status must ===(StatusCodes.OK)
@@ -263,14 +263,14 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     }
 
     "returns a validation error if failed to create" in new Fixture {
-      val response = POST(s"v1/gift-cards/${giftCard.code}/notes", payloads.CreateNote(body = ""))
+      val response = POST(s"v1/notes/gift-card/${giftCard.code}", payloads.CreateNote(body = ""))
 
       response.status must ===(StatusCodes.BadRequest)
       response.bodyText must include("errors")
     }
 
     "returns a 404 if the gift card is not found" in new Fixture {
-      val response = POST(s"v1/gift-cards/999999/notes", payloads.CreateNote(body = ""))
+      val response = POST(s"v1/notes/gift-card/999999", payloads.CreateNote(body = ""))
 
       response.status must ===(StatusCodes.NotFound)
       response.bodyText mustBe 'empty
@@ -281,7 +281,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
         NoteManager.createGiftCardNote(giftCard, admin, payloads.CreateNote(body = body)).futureValue
       }
 
-      val response = GET(s"v1/gift-cards/${giftCard.code}/notes")
+      val response = GET(s"v1/notes/gift-card/${giftCard.code}")
       response.status must ===(StatusCodes.OK)
 
       val notes = response.as[Seq[AdminNotes.Root]]
@@ -293,7 +293,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       val rootNote = NoteManager.createGiftCardNote(giftCard, admin,
         payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue.get
 
-      val response = PATCH(s"v1/gift-cards/${giftCard.code}/notes/${rootNote.id}", payloads.UpdateNote(body = "donkey"))
+      val response = PATCH(s"v1/notes/gift-card/${giftCard.code}/${rootNote.id}", payloads.UpdateNote(body = "donkey"))
       response.status must ===(StatusCodes.OK)
 
       val note = response.as[AdminNotes.Root]
@@ -301,10 +301,10 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     }
 
     "can soft delete note" in new Fixture {
-      val createResp = POST(s"v1/gift-cards/${giftCard.code}/notes", payloads.CreateNote(body = "Hello, FoxCommerce!"))
+      val createResp = POST(s"v1/notes/gift-card/${giftCard.code}", payloads.CreateNote(body = "Hello, FoxCommerce!"))
       val note = createResp.as[AdminNotes.Root]
 
-      val response = DELETE(s"v1/gift-cards/${giftCard.code}/notes/${note.id}")
+      val response = DELETE(s"v1/notes/gift-card/${giftCard.code}/${note.id}")
       response.status must ===(StatusCodes.NoContent)
       response.bodyText mustBe empty
 
