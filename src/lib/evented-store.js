@@ -108,7 +108,7 @@ export default class EventedStore {
         this.update(res);
       })
       .catch((err) => {
-        this.fetchError(err);
+        this.apiError(err);
       });
   }
 

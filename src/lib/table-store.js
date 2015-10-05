@@ -15,17 +15,17 @@ export default class TableStore extends BaseStore {
   }
 
   get rows() {
-    return this.items.slice(this.start, this.start + this.limit);
+    return this.models.slice(this.start, this.start + this.limit);
   }
 
   setStart(value) {
-    this.start = Math.max(0, Math.min(this.rows.length - this.limit, value));
+    this.start = Math.max(0, Math.min(this.models.length - this.limit, value));
     this.notifyChanged();
   }
 
   setLimit(value) {
-    this.limit = Math.max(0, Math.min(this.rows.length, value));
-    this.start = Math.min(this.start, this.rows.length - limit);
+    this.limit = Math.max(0, Math.min(this.models.length, value));
+    this.start = Math.min(this.start, this.models.length - limit);
     this.notifyChanged();
   }
 

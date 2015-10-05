@@ -1,8 +1,7 @@
 'use strict';
 
 import React from 'react';
-import TableHead from './head';
-import TableBody from './body';
+import Table from './table';
 import TablePaginator from './paginator';
 
 export default class TableView extends React.Component {
@@ -12,15 +11,9 @@ export default class TableView extends React.Component {
   }
 
   render() {
-    let showPaginator = this.props.paginator && this.props.rows.length > this.state.limit;
-    let paginator = showPaginator && (
-        <TablePaginator
-          start={this.state.start}
-          limit={this.state.limit}
-          total={this.state.total}
-          setStart={this.props.store.setStart.bind(this.props.store)}
-          />
-      );
+    let showPaginator = true;
+    let paginator = null;
+
     return (
       <div className="fc-tableview">
         {showPaginator && (
@@ -28,10 +21,7 @@ export default class TableView extends React.Component {
             {paginator}
           </div>
         )}
-        <Table
-          store={this.props.store}
-          renderRow={this.props.renderRow}
-        />
+        <Table store={this.props.store} renderRow={this.props.renderRow}/>
         {showPaginator && (
           <div className="fc-table-footer">
             <select onChange={this.onLimitChange.bind(this)}>

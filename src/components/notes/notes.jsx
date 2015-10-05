@@ -102,7 +102,7 @@ export default class Notes extends React.Component {
           <TableCell>Today</TableCell>
           <TableCell>{row.body}</TableCell>
           <TableCell>
-            <NotesItemControls
+            <Controls
               model={row}
               onEditClick={this.handleEdit.bind(this)}
               onDeleteClick={this.handleDelete.bind(this)}
@@ -159,12 +159,4 @@ Notes.propTypes = {
   tableColumns: React.PropTypes.array,
   order: React.PropTypes.object,
   modelName: React.PropTypes.string
-};
-
-Notes.defaultProps = {
-  tableColumns: [
-    {field: 'createdAt', text: 'Date/Time', type: 'date'},
-    {field: 'body', text: 'Note'},
-    {field: '', text: 'Author', component: 'NotesItemControls'}
-  ]
 };

@@ -7,7 +7,7 @@ export default class NotesItemControls extends React.Component {
   render() {
     return (
       <div className="fc-notes-item-controls">
-        <UserInitials model={this.props.model}/>
+        <UserInitials model={this.props.model.author}/>
         <button onClick={this.props.onEditClick}>
           <i className="icon-edit"/>
         </button>
