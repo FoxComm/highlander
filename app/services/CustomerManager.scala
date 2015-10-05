@@ -2,7 +2,8 @@ package services
 
 import scala.concurrent.ExecutionContext
 
-import models.{Customer, Customers, StoreAdmin}
+import models.{CreditCards, Regions, Customer, Customers, StoreAdmin}
+import responses.AllCustomers._
 import slick.driver.PostgresDriver.api._
 import utils.Slick.UpdateReturning._
 
@@ -17,6 +18,25 @@ object CustomerManager {
       case Some(c) ⇒ Result.good(c)
       case None    ⇒ Result.failures(NotFoundFailure(Customer, customerId).single)
     }
+  }
+
+  def findAll(implicit db: Database, ec: ExecutionContext): Result[Seq[Root]] = {
+    val customersWithShipRegion = Customers.joinLeft(models.Addresses).on { case(a,b) => a.id === b.customerId  && b
+      .isDefaultShipping === true}.joinLeft(Regions).on(_._2.map(_.regionId) === _.id)
+
+
+    val creditCardsWithRegion = for {
+      (c, r) ← CreditCards.join(Regions).on(_.regionId === _.id)
+    } yield (c, r)
+
+    val query = customersWithShipRegion.joinLeft(creditCardsWithRegion).on(_._1._1.id === _._1.customerId)
+
+    Result.fromFuture(db.run(query.result).map { results ⇒
+      results.map {
+        case (((customer, _), shipRegion), billRegion) ⇒
+          build(customer, shipRegion, billRegion.map(_._2))
+      }
+    })
   }
 
 }

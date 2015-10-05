@@ -29,8 +29,7 @@ object CustomerRoutes {
       pathPrefix("customers") {
         (get & pathEnd) {
           complete {
-//            models.Customers.sortBy(_.firstName.desc).result.run().map(render(_))
-            AllCustomers.findAll.map(render(_))
+            CustomerManager.findAll.map(renderGoodOrFailures)
           }
         }
       } ~
