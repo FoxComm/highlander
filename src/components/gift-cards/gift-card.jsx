@@ -2,7 +2,7 @@
 
 import React, { PropTypes } from 'react';
 import Api from '../../lib/api';
-import { Link } from '../link';
+import { IndexLink, Link } from '../link';
 import { formatCurrency } from '../../lib/format';
 import moment from 'moment';
 
@@ -60,7 +60,7 @@ export default class GiftCard extends React.Component {
       subNav = (
         <div className="gutter">
           <ul className="fc-tabbed-nav">
-            <li><Link to="gift-card-transactions" params={params}>Transactions</Link></li>
+            <li><IndexLink to="gift-card-transactions" params={params}>Transactions</IndexLink></li>
             <li><Link to="gift-card-notes" params={params}>Notes</Link></li>
             <li><Link to="gift-card-activity-trail" params={params}>Activity Trail</Link></li>
           </ul>
