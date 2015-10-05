@@ -26,3 +26,9 @@ export class Link extends React.Component {
     );
   }
 }
+
+export class IndexLink extends React.Component {
+  render() {
+    return <Link {...this.props} onlyActiveOnIndex={true}>{this.props.children}</Link>;
+  }
+}

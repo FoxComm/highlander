@@ -1,7 +1,7 @@
 'use strict';
 
 import React, { PropTypes } from 'react';
-import { Link } from '../link';
+import { Link, IndexLink } from '../link';
 import { listenTo, stopListeningTo, dispatch } from '../../lib/dispatcher';
 import OrderStore from './../../stores/orders';
 import Viewers from '../viewers/viewers';
@@ -106,7 +106,7 @@ export default class Order extends React.Component {
       subNav = (
         <div className="gutter">
           <ul className="fc-tabbed-nav">
-            <li><Link to="order-details" params={params}>Details</Link></li>
+            <li><IndexLink to="order-details" params={params}>Details</IndexLink></li>
             <li><a href="">Shipments</a></li>
             <li><Link to="order-returns" params={params}>Returns</Link></li>
             <li><Link to="order-notifications" params={params}>Transaction Notifications</Link></li>

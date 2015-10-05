@@ -11,7 +11,7 @@ function createRouteLookupByName(route, prefix = route.props.path) {
   let lookup = {};
 
   React.Children.forEach(route.props.children, (child) => {
-    const path = child.type.displayName === 'IndexRoute' ? route.path || '/' : child.props.path;
+    const path = child.type.displayName === 'IndexRoute' ? '' : child.props.path;
 
     lookup = {...lookup, ...createRouteLookupByName(child, prefix + (prefix.slice(-1) === '/' ? '' : '/') + path)};
   });
