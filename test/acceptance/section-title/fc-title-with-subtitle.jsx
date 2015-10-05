@@ -7,7 +7,7 @@ const TestUtils = React.addons.TestUtils;
 const path = require('path');
 
 describe('FCTitleWithSubtitle', function() {
-  let FCTitleWithSubtitle = require(path.resolve('src/components/section-title/fc-title-with-subtitle.jsx'));
+  let TitleWithSubtitle = require(path.resolve('src/components/section-title/fc-title-with-subtitle.jsx'));
   let container = null;
 
   beforeEach(function() {
@@ -24,7 +24,7 @@ describe('FCTitleWithSubtitle', function() {
     let subtitleText = '40237';
 
     let title = React.render(
-      <FCTitleWithSubtitle title={ titleText } subtitle={ subtitleText }/>
+      <TitleWithSubtitle title={ titleText } subtitle={ subtitleText }/>
       , container);
     let titleNode = TestUtils.findRenderedDOMComponentWithClass(title, 'fc-title').getDOMNode();
 
@@ -36,10 +36,20 @@ describe('FCTitleWithSubtitle', function() {
     let subtitleText = '40256';
 
     let title = React.render(
-      <FCTitleWithSubtitle title={ titleText } subtitle={ subtitleText }/>
+      <TitleWithSubtitle title={ titleText } subtitle={ subtitleText }/>
       , container);
     let titleNode = TestUtils.findRenderedDOMComponentWithClass(title, 'fc-title').getDOMNode();
 
     expect(titleNode.querySelector('.fc-subtitle').innerHTML).to.contain(subtitleText);
+  });
+
+  it('should contain title text only', function *() {
+    let titleText = 'Orders';
+    let title = React.render(
+      <TitleWithSubtitle title={ titleText }/>
+      , container);
+    let titleNode = TestUtils.findRenderedDOMComponentWithClass(title, 'fc-title').getDOMNode();
+
+    expect(titleNode.innerHTML).to.be.equal(titleText);
   });
 });

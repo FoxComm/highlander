@@ -1,8 +1,7 @@
 'use strict';
 
 import React from 'react';
-import FCTitle from './fc-title';
-import FCTitleWithSubtitle from './fc-title-with-subtitle';
+import TitleWithSubtitle from './fc-title-with-subtitle';
 
 export default class SectionTitle extends React.Component {
   constructor(props) {
@@ -10,16 +9,6 @@ export default class SectionTitle extends React.Component {
   }
 
   render() {
-    let titleMarkup = null;
-    if (this.props.count !== undefined) {
-      titleMarkup = (
-        <FCTitleWithSubtitle title={ this.props.title } subtitle={ this.props.count } />
-      );
-    } else {
-      titleMarkup = (
-        <FCTitle title={ this.props.title } />
-      );
-    }
     let buttonMarkup = null;
     if (this.props.buttonClickHandler !== undefined) {
       buttonMarkup = (
@@ -34,7 +23,7 @@ export default class SectionTitle extends React.Component {
     return (
       <div className="fc-grid gutter">
         <div className="fc-col-2-6">
-          { titleMarkup }
+          <TitleWithSubtitle title={ this.props.title } subtitle={ this.props.count } />
         </div>
         { buttonMarkup }
       </div>
