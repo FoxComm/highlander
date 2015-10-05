@@ -8,8 +8,8 @@ export default class TableBody extends React.Component {
   render() {
     return (
       <tbody className="fc-table-tbody">
-        {this.props.store.rows.map((row) => {
-          return this.props.renderRow(row).props.children;
+        {this.props.store.rows.map((row, index) => {
+          return this.props.renderRow(row, index).props.children;
         })}
       </tbody>
     );

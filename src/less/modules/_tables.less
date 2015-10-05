@@ -25,11 +25,13 @@
     .border(1px, solid, @color-decor9);
     transition: background-color 500ms;
 
-    &:nth-child(odd) {
+    &:nth-child(odd),
+    &.odd {
       background-color: @color-tr-odd-bg;
     }
 
-    &:nth-child(even) {
+    &:nth-child(even),
+    &.even {
       background-color: @color-tr-even-bg;
     }
 

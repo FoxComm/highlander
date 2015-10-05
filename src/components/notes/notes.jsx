@@ -98,7 +98,7 @@ export default class Notes extends React.Component {
   }
 
   render() {
-    let renderRow = (row) => {
+    let renderRow = (row, index) => {
       return (
         <Wrapper>
           <TableRow>
