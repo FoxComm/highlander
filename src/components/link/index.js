@@ -20,7 +20,7 @@ export class Link extends React.Component {
     let path = interpolateRoute(this.context.history, to, params);
 
     return (
-      <ReactRouterLink activeClassName="active" {...otherProps} to={path} >
+      <ReactRouterLink activeClassName="is-active" {...otherProps} to={path} >
         {this.props.children}
       </ReactRouterLink>
     );
