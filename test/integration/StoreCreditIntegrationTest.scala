@@ -77,7 +77,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
         val firstAdjustment = adjustments.head
         firstAdjustment.debit mustBe 10
-        firstAdjustment.orderRef.get mustBe order.referenceNumber
+        firstAdjustment.orderRef.value mustBe order.referenceNumber
       }
     }
 
@@ -145,10 +145,10 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         response.status must ===(StatusCodes.OK)
 
         val firstUpdated = StoreCredits.findById(storeCredit.id).run().futureValue
-        firstUpdated.get.status must ===(StoreCredit.OnHold)
+        firstUpdated.value.status must ===(StoreCredit.OnHold)
 
         val secondUpdated = StoreCredits.findById(scSecond.id).run().futureValue
-        secondUpdated.get.status must ===(StoreCredit.OnHold)
+        secondUpdated.value.status must ===(StoreCredit.OnHold)
       }
 
       "returns multiple errors if no cancellation reason provided" in new Fixture {

@@ -16,7 +16,7 @@ class SlickTest extends IntegrationTestBase {
     val update = Customers.filter(_.id === 1).map(_.firstName).
       updateReturning(Customers.map(_.firstName), "Sally")
 
-    val firstName = update.one.futureValue.get
+    val firstName = update.one.futureValue.value
     firstName must === ("Sally")
   }
 
@@ -25,7 +25,7 @@ class SlickTest extends IntegrationTestBase {
     val update = Customers.filter(_.id === 1).map { c ⇒ (c.firstName, c.lastName) }.
       updateReturning(Customers.map { c ⇒ (c.firstName, c.lastName) }, ("Sally", "Doe"))
 
-    val names = update.one.futureValue.get
+    val names = update.one.futureValue.value
     names must === (("Sally", "Doe"))
   }
 
@@ -34,7 +34,7 @@ class SlickTest extends IntegrationTestBase {
       customer ← Customers.save(Factories.customer.copy(firstName = "Jane"))
       updatedCustomer ← Customers.filter(_.id === 1).map(_.firstName).
         updateReturning(Customers.map(identity), "Sally").headOption
-    } yield (customer, updatedCustomer.get)).futureValue
+    } yield (customer, updatedCustomer.value)).futureValue
 
     customer must !== (updatedCustomer)
     updatedCustomer.firstName must === ("Sally")
@@ -45,7 +45,7 @@ class SlickTest extends IntegrationTestBase {
       customer ← Customers.save(Factories.customer.copy(firstName = "Jane"))
       updatedCustomer ← Customers.filter(_.id === 1).map{c ⇒ (c.firstName, c.lastName) }.
         updateReturning(Customers.map(identity), ("Sally", "Doe")).headOption
-    } yield (customer, updatedCustomer.get)).futureValue
+    } yield (customer, updatedCustomer.value)).futureValue
 
     customer must !== (updatedCustomer)
     updatedCustomer.firstName must === ("Sally")

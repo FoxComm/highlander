@@ -32,7 +32,7 @@ lazy val phoenixScala = (project in file(".")).
   settings(
     wartremoverWarnings in(Test, compile) ++= testWartWarnings,
     wartremoverWarnings in(IT, compile) ++= testWartWarnings,
-    wartremoverWarnings in(Compile, compile) ++=
+    wartremoverWarnings in(Sources, compile) ++=
       Warts.allBut(
         /** Covered by the compiler */
         Wart.Any,

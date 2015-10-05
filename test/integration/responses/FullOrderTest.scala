@@ -16,7 +16,7 @@ class FullOrderTest extends IntegrationTestBase {
   "FullOrder" - {
     "fromOrder" in {
       db.run(Seeds.run()).futureValue
-      val order = Orders.findById(1).run().futureValue.get
+      val order = Orders.findById(1).run().futureValue.value
       val json = render(FullOrder.fromOrder(order).run().futureValue)
       val root = parse(json)
 
