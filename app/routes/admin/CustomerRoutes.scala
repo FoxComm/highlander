@@ -9,7 +9,7 @@ import cats.data.Xor
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import models._
 import payloads._
-import responses.{AllOrders, BulkOrderUpdateResponse, AdminNotes, FullOrder}
+import responses.{AllCustomers, BulkOrderUpdateResponse, AdminNotes, FullOrder}
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.Apis
@@ -29,7 +29,8 @@ object CustomerRoutes {
       pathPrefix("customers") {
         (get & pathEnd) {
           complete {
-            models.Customers.sortBy(_.firstName.desc).result.run().map(render(_))
+//            models.Customers.sortBy(_.firstName.desc).result.run().map(render(_))
+            AllCustomers.findAll.map(render(_))
           }
         }
       } ~
