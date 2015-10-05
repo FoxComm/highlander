@@ -7,7 +7,7 @@ const TestUtils = React.addons.TestUtils;
 const path = require('path');
 
 describe('FCTitleWithSubtitle', function() {
-  let TitleWithSubtitle = require(path.resolve('src/components/section-title/fc-title-with-subtitle.jsx'));
+  let TitleWithSubtitle = require(path.resolve('src/components/section-title/title-with-subtitle.jsx'));
   let container = null;
 
   beforeEach(function() {

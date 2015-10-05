@@ -1,7 +1,7 @@
 'use strict';
 
 import React from 'react';
-import TitleWithSubtitle from './fc-title-with-subtitle';
+import TitleWithSubtitle from './title-with-subtitle';
 
 export default class SectionTitle extends React.Component {
   constructor(props) {
