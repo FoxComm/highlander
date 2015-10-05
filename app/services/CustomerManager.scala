@@ -21,13 +21,11 @@ object CustomerManager {
   }
 
   def findAll(implicit db: Database, ec: ExecutionContext): Result[Seq[Root]] = {
-    val customersWithShipRegion = Customers.joinLeft(models.Addresses).on { case(a,b) => a.id === b.customerId  && b
-      .isDefaultShipping === true}.joinLeft(Regions).on(_._2.map(_.regionId) === _.id)
+    val customersWithShipRegion = Customers
+      .joinLeft(models.Addresses).on { case(a,b) => a.id === b.customerId  && b.isDefaultShipping === true}
+      .joinLeft(Regions).on(_._2.map(_.regionId) === _.id)
 
-
-    val creditCardsWithRegion = for {
-      (c, r) ← CreditCards.join(Regions).on(_.regionId === _.id)
-    } yield (c, r)
+    val creditCardsWithRegion = CreditCards.join(Regions).on(_.regionId === _.id)
 
     val query = customersWithShipRegion.joinLeft(creditCardsWithRegion).on(_._1._1.id === _._1.customerId)
 
