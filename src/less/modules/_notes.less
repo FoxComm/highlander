@@ -1,32 +1,6 @@
 #notes {
   position: relative;
 
-  h2 {
-    .margin-top(40px);
-    .margin-bottom(20px);
-    .padding-left(35px);
-  }
-
-  .add-note {
-    position: absolute;
-    top: 0;
-    right: 0;
-    border-radius: 5px;
-    text-align: center;
-    border: 1px solid @color-bg-menu;
-    .size(45px);
-    .font-spec(24px, 45px);
-
-    &[disabled] {
-      color: #b9b9b9;
-      background: #f1f1f2;
-      border: 1px solid #b9b9b9;
-      pointer-events: none;
-
-      + form { .max-height(232px); }
-    }
-  }
-
   .empty {
     color: #bfbfbf;
     background: #f1f1f2;
@@ -40,7 +14,7 @@
     .clearfix;
     .padding-left(35px);
     .margin-bottom(30px);
-    .max-height(0);
+    .max-height(250px);
 
     legend {
       display: block;
@@ -62,29 +36,18 @@
       }
 
       textarea {
-        border-radius: 5px;
-        border: 1px solid @color-border-td;
         .size(100%, 135px);
-        .padding(10px);
       }
     }
-
-    input[type=reset] {
-      background: none;
-      border: none;
-      float: left;
-      .height(30px);
-      .margin-right(25px);
-      .font-spec(40px, 30px);
-    }
-
-    input[type=submit] { float: left; }
   }
 }
 
-.fc-notes-item-controls {
-  button {
-    float: right;
-    margin-left: pxtorem(10px);
+.fc-notes-form {
+  .margin(10px 0);
+
+  &-controls {
+    > input:not(:first-child) {
+      .margin-left(5px);
+    }
   }
 }
