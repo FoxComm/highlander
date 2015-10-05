@@ -25,8 +25,8 @@ object CustomerRoutes {
 
       pathPrefix("customers") {
         (get & pathEnd) {
-          complete {
-            CustomerManager.findAll.map(renderGoodOrFailures)
+          goodOrFailures {
+            CustomerManager.findAll
           }
         }
       } ~
