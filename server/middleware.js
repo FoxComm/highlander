@@ -47,7 +47,7 @@ module.exports = function(app) {
   };
 
   app.renderReact = function *() {
-    const appFile = path.join(config.layout.publicDir, 'themes', this.theme, `${this.theme}.js`);
+    const appFile = path.join(config.layout.publicDir, 'admin.js');
     const App     = require(appFile);
 
     let bootstrap = {
@@ -55,8 +55,8 @@ module.exports = function(app) {
     };
 
     let layoutData = _.defaults({
-      stylesheet: `/themes/${this.theme}/${this.theme}.css`,
-      javascript: `/themes/${this.theme}/${this.theme}.js`,
+      stylesheet: '/admin.css',
+      javascript: '/admin.js',
       rootHTML: yield App.start(bootstrap),
       appStart: `App.start(${htmlescape(bootstrap)});`
     }, config.layout.pageConstants);

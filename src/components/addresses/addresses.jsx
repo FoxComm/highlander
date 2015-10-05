@@ -52,7 +52,7 @@ export default class AddressBook extends React.Component {
       <div className="fc-addresses">
         <header>
           <div className="fc-addresses-title">Address Book</div>
-          <button className="icon-add" onClick={this.addNew.bind(this)}></button>
+          <button className="fc-btn icon-add" onClick={this.addNew.bind(this)}></button>
         </header>
         <ul className="fc-addresses-list">
           {addresses.map((address, idx) => {
