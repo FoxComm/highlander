@@ -39,8 +39,6 @@ final case class Order(id: Int = 0, referenceNumber: String = "", customerId: In
   }
 
   def grandTotal: Future[Int] = {
-    // FIXME: 1) Please don't use magic numbers in the code (create a constant with descriptive name if needed)
-    // FIXME: 2) Lokks like a stub, then at least a TODO comment should be added
     Future.successful(27)
   }
 
