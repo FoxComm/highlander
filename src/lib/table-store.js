@@ -30,7 +30,7 @@ export default class TableStore extends BaseStore {
   }
 
   setSorting(field, order) {
-    this.items = this.items.sort((a, b) => {
+    this.models = this.models.sort((a, b) => {
       return (1 - 2 * order) * (a[field] < b[field] ? 1 : a[field] > b[field] ? -1 : 0);
     });
     this.notifyChanged();
