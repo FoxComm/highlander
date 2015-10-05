@@ -1,24 +1,22 @@
 package responses
 
-import models.GiftCard
+import cats.data.Xor
+import services.Failures
+import scala.collection.immutable.Seq
 
 object GiftCardBulkUpdateResponse {
-  final case class Responses(responses: Seq[Response])
-
-  final case class Response(
+  final case class ItemResult(
     code: String,
-    success: Boolean,
+    success: Boolean = false,
     giftCard: Option[GiftCardResponse.Root] = None,
-    errors: Option[Seq[String]] = None)
+    errors: Option[Failures] = None)
 
-  def buildResponse(code: String, giftCard: Option[GiftCardResponse.Root] = None,
-    errors: Option[Seq[String]] = None): Response = {
+  final case class BulkResponse(itemResults: Seq[ItemResult])
 
-    (giftCard, errors) match {
-      case (Some(gc), None) ⇒ Response(code = code, success = true, giftCard = Some(gc))
-      case _                ⇒ Response(code = code, success = false, errors = errors)
-    }
+  def buildItemResult(code: String, result: Failures Xor GiftCardResponse.Root): ItemResult = {
+    result.fold(errors ⇒ ItemResult(code = code, errors = Some(errors)),
+      gc ⇒ ItemResult(code = code, success = true, giftCard = Some(gc)))
   }
 
-  def buildResponses(responses: Seq[Response]): Responses = Responses(responses = responses)
+  def buildBulkResponse(itemResults: Seq[ItemResult]): BulkResponse = BulkResponse(itemResults = itemResults)
 }
