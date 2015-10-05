@@ -4,10 +4,6 @@ import React from 'react';
 import TitleWithSubtitle from './title-with-subtitle';
 
 export default class SectionTitle extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     let buttonMarkup = null;
     if (this.props.buttonClickHandler !== undefined) {
