@@ -99,10 +99,7 @@ object OrderRoutes {
           }
         } ~
         pathPrefix("payment-methods" / "credit-cards") {
-          (post & entity(as[payloads.CreditCardPayment]) & pathEnd) { payload ⇒
-            goodOrFailures { OrderPaymentUpdater.addCreditCard(refNum, payload.creditCardId) }
-          } ~
-          (patch & entity(as[payloads.CreditCardPayment]) & pathEnd) { payload ⇒
+          ((post | patch) & entity(as[payloads.CreditCardPayment]) & pathEnd) { payload ⇒
             goodOrFailures { OrderPaymentUpdater.addCreditCard(refNum, payload.creditCardId) }
           } ~
           (delete & pathEnd) {
