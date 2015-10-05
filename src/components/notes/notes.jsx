@@ -5,7 +5,7 @@ import Api from '../../lib/api';
 import TableView from '../table/tableview';
 import TableRow from '../table/row';
 import TableCell from '../table/cell';
-import NotesItemControls from './controls';
+import Controls from './controls';
 import Form from './form';
 import NoteStore from './store';
 import UserInitials from '../users/initials';

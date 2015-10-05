@@ -20,19 +20,19 @@ export default class TableStore extends BaseStore {
 
   setStart(value) {
     this.start = Math.max(0, Math.min(this.rows.length - this.limit, value));
-    this.dispatchChange();
+    this.notifyChanged();
   }
 
   setLimit(value) {
     this.limit = Math.max(0, Math.min(this.rows.length, value));
     this.start = Math.min(this.start, this.rows.length - limit);
-    this.dispatchChange();
+    this.notifyChanged();
   }
 
   setSorting(field, order) {
     this.items = this.items.sort((a, b) => {
       return (1 - 2 * order) * (a[field] < b[field] ? 1 : a[field] > b[field] ? -1 : 0);
     });
-    this.dispatchChange();
+    this.notifyChanged();
   }
 }
