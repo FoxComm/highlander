@@ -33,9 +33,9 @@ const app = {
   },
 
   * renderReact(next) {
-    const location = createLocation(this.path);
-
     const history = createMemoryHistory();
+
+    const location = history.createLocation(this.path);
     history.routeLookupByName = createRouteLookupByName(routes);
 
     let [redirectLocation, renderProps] = yield match.bind(null, {routes, location, history});
