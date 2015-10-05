@@ -12,7 +12,7 @@ export default class Panel extends React.Component {
             {this.props.controls && this.props.controls.props.children}
           </div>
           <div className='fc-panel-title'>
-            {this.props.title}
+            <span>{this.props.title}</span>
           </div>
         </div>
         <div className="fc-panel-content">

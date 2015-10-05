@@ -7,21 +7,27 @@
 
   &-controls {
     float: right;
-  }
-
-  &-title {
-    overflow: hidden;
+    .margin-left(20px);
   }
 
   &-header {
     .padding(10px 20px);
     background-color: @color-decor12;
     border-bottom: 1px solid @color-decor9;
-    .font-spec(18px, 600, 24px);
     .height(60px);
   }
 
-  &-content {
+  &-title {
+    .font-spec(24px, 600, 40px);
+    overflow: hidden;
+
+    span {
+      .inline-block(baseline);
+      width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
 
   > .fc-tableview {
