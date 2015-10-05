@@ -1,0 +1,30 @@
+.fc-panel {
+  position: relative;
+  .colors(@color-default-fg, @color-default-bg);
+  border: 1px solid @color-decor9;
+  border-radius: 3px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.30);
+
+  &-controls {
+    float: right;
+  }
+
+  &-title {
+    overflow: hidden;
+  }
+
+  &-header {
+    .padding(10px 20px);
+    background-color: @color-decor12;
+    border-bottom: 1px solid @color-decor9;
+    .font-spec(18px, 600, 24px);
+    .height(60px);
+  }
+
+  &-content {
+  }
+
+  > .fc-table {
+    border: 0;
+  }
+}

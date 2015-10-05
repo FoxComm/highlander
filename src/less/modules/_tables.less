@@ -1,8 +1,11 @@
 // Tables
-@color-thead-bg: @color-decor12;
 @color-tr-odd-bg: @color-decor0;
 @color-tr-even-bg: @color-decor12;
+
+@color-th-border: @color-decor9;
+@color-th-bg: @color-decor12;
 @color-th-bg-hover: @color-decor35;
+
 @color-border-td: @color-decor9;
 
 .fc-table {
@@ -18,7 +21,6 @@
   tr {
     display: table-row;
     width: 100%;
-    background-color: @color-thead-bg;
 
     .border(1px, solid, @color-decor9);
     transition: background-color 500ms;
@@ -41,12 +43,12 @@
     display: table-cell;
     vertical-align: middle;
     position: relative;
-    color: @color-decor1;
+    .colors(@color-decor1, @color-decor12);
     .padding(10px, 15px);
     .font-spec(13px, 700, 18px);
     .height(62px);
-    border-right: 1px solid @color-border-td;
-    border-bottom: 1px solid @color-border-td;
+    border: 1px solid @color-th-border;
+    user-select: none;
 
     &:last-child {
       border-right: none;

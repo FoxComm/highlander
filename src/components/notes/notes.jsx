@@ -2,6 +2,8 @@
 
 import React from 'react';
 import Api from '../../lib/api';
+import Wrapper from '../wrapper/wrapper';
+import Panel from '../panel/panel';
 import TableView from '../table/tableview';
 import TableRow from '../table/row';
 import TableCell from '../table/cell';
@@ -108,7 +110,6 @@ export default class Notes extends React.Component {
               onDeleteClick={this.handleDelete.bind(this)}
               />
           </TableCell>
-
           {this.state.editing && (this.state.editingNote.id === row.id) && (
             <Form
               uri={NoteStore.baseUri}
@@ -117,25 +118,20 @@ export default class Notes extends React.Component {
               onSubmit={this.handleSubmit.bind(this)}
               />
           )}
-
         </TableRow>
       );
     };
 
+    let controls = (
+      <Wrapper>
+        <button onClick={this.toggleCreating.bind(this)} disabled={!!this.state.creating}>
+          <i className="icon-add"></i>
+        </button>
+      </Wrapper>
+    );
+
     return (
-      <div id="notes" className="fc-content-box">
-        <header className="header">
-          <h2>Notes</h2>
-
-          <div className="fc-content-box-controls">
-            <button className="fc-right"
-                    onClick={this.toggleCreating.bind(this)}
-                    disabled={!!this.state.creating}>
-              <i className="icon-add"></i>
-            </button>
-          </div>
-        </header>
-
+      <Panel title={'Notes'} controls={controls}>
         {this.state.creating && (
           <Form
             uri={NoteStore.baseUri}
@@ -143,14 +139,13 @@ export default class Notes extends React.Component {
             onSubmit={this.handleSubmit.bind(this)}
             />
         )}
-
         {this.state.notes.length && (
           <TableView store={NoteStore} renderRow={renderRow}/>
         )}
         {!this.state.notes.length && (
           <div className="empty">No notes yet.</div>
         )}
-      </div>
+      </Panel>
     );
   }
 }
