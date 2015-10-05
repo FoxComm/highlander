@@ -26,7 +26,7 @@ const routes = (
     <Route name='orders' handler={Orders}/>
     <Route name='rmas' path='returns' handler={Rmas}/>
     <Route name='rma' path='/returns/:rma' handler={Rma}>
-      <DefaultRoute name='rma-details' path='/returns/:rma' handler={RmaDetails}/>
+      <DefaultRoute name='rma-details' handler={RmaDetails}/>
       <Route name='rma-notes' path='notes' handler={Notes}/>
       <Route name='rma-notifications' path='notifications' handler={Notifications}/>
       <Route name='rma-activity-trail' path='activity-trail' handler={ActivityTrail}/>
