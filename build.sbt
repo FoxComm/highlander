@@ -22,15 +22,17 @@ lazy val commonSettings = Seq(
 /** Work around slick-pg issue with json4s until fix gets merged. */
 lazy val jmatayaSlickPG = RootProject(uri("git://github.com/jmataya/slick-pg.git#temp/json4s-3.3.0"))
 
+lazy val testWartWarnings = Seq(Wart.OptionPartial)
+
 lazy val phoenixScala = (project in file(".")).
   settings(commonSettings).
   configs(IT).
   dependsOn(jmatayaSlickPG).
   settings(inConfig(IT)(Defaults.testSettings)).
   settings(
-    wartremoverExcluded ++= ((baseDirectory.value / "test/unit") ** "*.scala").get,
-    wartremoverExcluded ++= ((baseDirectory.value / "test/integration") ** "*.scala").get,
-    wartremoverWarnings ++=
+    wartremoverWarnings in(Test, compile) ++= testWartWarnings,
+    wartremoverWarnings in(IT, compile) ++= testWartWarnings,
+    wartremoverWarnings in(Compile, compile) ++=
       Warts.all.filter {
         case Wart.Any      ⇒ false /** Covered by the compiler */
         /** In the absence of type annotations, Good(v: A) is inferred as Or[A, Nothing] */
@@ -62,6 +64,11 @@ lazy val phoenixScala = (project in file(".")).
 
         /** While Applicatives might be simpler, there is no for comprehension sugar for them. **/
         case Wart.NoNeedForMonad ⇒ false
+
+        /** New warts from version 0.14 **/
+        case Wart.ToString ⇒ false
+        case Wart.ExplicitImplicitTypes ⇒ false
+
         case _ ⇒ true
       }
   ).
