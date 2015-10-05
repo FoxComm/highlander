@@ -92,7 +92,7 @@
     "co": "^4.5.4",
     "co-body": "^4.0.0",
     "fleck": "^0.5.1",
-    "history": "^1.11.1",
+    "history": "^1.12.0",
     "htmlescape": "^1.1.0",
     "imagemin-pngquant": "^4.2.0",
     "immutable": "^3.7.4",
