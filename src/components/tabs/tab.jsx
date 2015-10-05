@@ -1,8 +1,13 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 
 export default class TabView extends React.Component {
+
+  static propTypes = {
+    children: PropTypes.node
+  };
+
   constructor(props, context) {
     super(props, context);
     this.state = {
@@ -19,7 +24,3 @@ export default class TabView extends React.Component {
     );
   }
 }
-
-TabView.propTypes = {
-  children: React.PropTypes.array
-};
