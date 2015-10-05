@@ -1,9 +1,11 @@
 package services
 
+import cats.data.Xor
 import models.StockItems
+import org.scalatest.Inside
 import util.IntegrationTestBase
 
-class CreatesStockItemsTest extends IntegrationTestBase {
+class CreatesStockItemsTest extends IntegrationTestBase with Inside {
   import api._
   import concurrent.ExecutionContext.Implicits.global
 
@@ -15,9 +17,15 @@ class CreatesStockItemsTest extends IntegrationTestBase {
 
     "returns error messages on invalid input parameters" in withStockItemSchema {
       val result = CreatesStockItems(productId = 1, onHand = -1, onHold = 0).futureValue
-      val error  = result.swap.get
+      result mustBe 'left
 
-      error must === (List(GeneralFailure("On hand must be >= 0")))
+      inside(result) {
+        case Xor.Left(nel) ⇒
+          inside(nel.head) {
+            case GeneralFailure(message) =>
+              message must include ("On hand must be >= 0")
+          }
+      }
     }
   }
 
