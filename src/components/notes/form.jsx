@@ -11,7 +11,11 @@ export default class NoteForm extends React.Component {
   }
 
   componentDidMount() {
-    React.findDOMNode(this.refs.textarea).focus();
+    let node = React.findDOMNode(this.refs.textarea);
+    let value = node.value;
+    node.value = '';
+    node.value = value;
+    node.focus();
   }
 
   handleChange(event) {
