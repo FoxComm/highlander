@@ -5,7 +5,7 @@ import React, { PropTypes } from 'react';
 export default class TabListView extends React.Component {
 
   static propTypes = {
-    children: PropTypes.array
+    children: PropTypes.node
   };
 
   render() {

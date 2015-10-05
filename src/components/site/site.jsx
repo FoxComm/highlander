@@ -8,7 +8,7 @@ import Modal from '../modal/modal';
 export default class Site extends React.Component {
 
   static propTypes = {
-    children: PropTypes.array
+    children: PropTypes.node
   };
 
   render() {

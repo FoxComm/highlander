@@ -13,7 +13,7 @@ export default class Rma extends React.Component {
     params: PropTypes.shape({
       rma: PropTypes.string.isRequired
     }).isRequired,
-    children: PropTypes.array
+    children: PropTypes.node
   };
 
   constructor(props, context) {

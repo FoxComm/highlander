@@ -12,7 +12,7 @@ export class Link extends React.Component {
   static propTypes = {
     to: PropTypes.string.isRequired,
     params: PropTypes.object,
-    children: PropTypes.array
+    children: PropTypes.node
   };
 
   render() {

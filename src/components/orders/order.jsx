@@ -27,7 +27,7 @@ export default class Order extends React.Component {
     params: PropTypes.shape({
       order: PropTypes.string.isRequired
     }).isRequired,
-    children: PropTypes.array
+    children: PropTypes.node
   };
 
   constructor(props, context) {
