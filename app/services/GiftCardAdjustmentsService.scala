@@ -13,7 +13,7 @@ object GiftCardAdjustmentsService {
   def forGiftCard(code: String)(implicit db: Database, ec: ExecutionContext): Result[Seq[Root]] = {
     val finder = GiftCards.findByCode(code)
 
-    finder.findOneAndRun { gc ⇒
+    finder.selectOneForUpdate { gc ⇒
       val query = GiftCardAdjustments.filterByGiftCardId(gc.id)
         .joinLeft(OrderPayments).on(_.orderPaymentId === _.id)
         .joinLeft(Orders).on(_._2.map(_.orderId) === _.id)

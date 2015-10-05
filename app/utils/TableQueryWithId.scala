@@ -82,7 +82,7 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.Tab
 
   implicit class TableQuerySeqConversions(q: QuerySeq) {
 
-    protected def findOneAndRunInner[R](checks: Option[M] ⇒ Failures Xor M)(action: M ⇒ DbResult[R])
+    protected def selectOneForUpdateInner[R](checks: Option[M] ⇒ Failures Xor M)(action: M ⇒ DbResult[R])
       (implicit ec: ExecutionContext, db: Database): Result[R] = {
       selectForUpdate(q).map(checks).flatMap {
         case Xor.Right(value) ⇒ action(value)
@@ -90,9 +90,9 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.Tab
       }.transactionally.run()
     }
 
-    def findOneAndRun[R](action: M ⇒ DbResult[R])
+    def selectOneForUpdate[R](action: M ⇒ DbResult[R])
       (implicit ec: ExecutionContext, db: Database): Result[R] = {
-      findOneAndRunInner(runChecks)(action)
+      selectOneForUpdateInner(runChecks)(action)
     }
 
     protected def selectForUpdate(finder: QuerySeq)
@@ -114,9 +114,9 @@ abstract class TableQueryWithLock[M <: ModelWithLockParameter, T <: GenericTable
 
   implicit class TableWithLockQuerySeqConversions(q: QuerySeq) extends TableQuerySeqConversions(q) {
 
-    def findOneAndRunIgnoringLock[R](action: M ⇒ DbResult[R])
+    def selectOneForUpdateIgnoringLock[R](action: M ⇒ DbResult[R])
       (implicit ec: ExecutionContext, db: Database): Result[R] = {
-      findOneAndRunInner(super.runChecks)(action)
+      selectOneForUpdateInner(super.runChecks)(action)
     }
 
     override def runChecks(maybe: Option[M])

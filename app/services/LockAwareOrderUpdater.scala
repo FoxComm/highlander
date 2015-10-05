@@ -20,7 +20,7 @@ object LockAwareOrderUpdater {
     (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
     val finder = Orders.findByRefNum(refNum)
 
-    finder.findOneAndRun { order ⇒
+    finder.selectOneForUpdate { order ⇒
       val lock = finder.map(_.locked).updateReturning(updatedOrder, true).head
       val blame = OrderLockEvents += OrderLockEvent(orderId = order.id, lockedBy = admin.id)
 
@@ -32,7 +32,7 @@ object LockAwareOrderUpdater {
     (implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
     val finder = Orders.findByRefNum(refNum)
 
-    finder.findOneAndRun { order ⇒
+    finder.selectOneForUpdate { order ⇒
       order.status match {
         case RemorseHold ⇒
           DbResult.fromDbio(finder
@@ -53,7 +53,7 @@ object LockAwareOrderUpdater {
   }
 
   def unlock(refNum: String)(implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
-    Orders.findByRefNum(refNum).findOneAndRunIgnoringLock { order ⇒
+    Orders.findByRefNum(refNum).selectOneForUpdateIgnoringLock { order ⇒
       if (order.locked) {
         OrderLockEvents.findByOrder(order).mostRecentLock.one.flatMap {
           case Some(lockEvent) ⇒
@@ -71,7 +71,7 @@ object LockAwareOrderUpdater {
     (implicit db: Database, ec: ExecutionContext): Result[FullOrderWithWarnings] = {
     val finder = Orders.findByRefNum(refNum)
 
-    finder.findOneAndRunIgnoringLock { order ⇒
+    finder.selectOneForUpdateIgnoringLock { order ⇒
       DbResult.fromDbio(for {
         existingAdminIds ← StoreAdmins.filter(_.id.inSetBind(requestedAssigneeIds)).map(_.id).result
 
