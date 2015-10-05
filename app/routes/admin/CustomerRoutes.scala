@@ -1,23 +1,20 @@
 package routes.admin
 
-import scala.concurrent.{ExecutionContext, Future}
-import scala.collection.immutable.Seq
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
-
 import cats.data.Xor
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport
+import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models._
 import payloads._
-import responses.{AllCustomers, BulkOrderUpdateResponse, AdminNotes, FullOrder}
+import responses.AllCustomers
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.Apis
-import utils.Slick
-import utils.Slick.DbResult
-import utils.Slick.implicits._
-import Json4sSupport._
 import utils.Http._
+import utils.Slick.implicits._
+import utils.SprayDirectives._
+
+import scala.concurrent.{ExecutionContext, Future}
 
 object CustomerRoutes {
 
@@ -35,42 +32,42 @@ object CustomerRoutes {
       } ~
       pathPrefix("customers" / IntNumber) { customerId ⇒
         (get & pathEnd) {
-          complete {
-            renderOrNotFound(models.Customers.findById(customerId))
+          goodOrNotFound {
+            models.Customers.findById(customerId)
           }
         } ~
         (post & path("disable") & entity(as[payloads.ToggleCustomerDisabled])) { payload ⇒
-          complete {
-            CustomerManager.toggleDisabled(customerId, payload.disabled, admin).map(renderGoodOrFailures)
+          goodOrFailures {
+            CustomerManager.toggleDisabled(customerId, payload.disabled, admin)
           }
         } ~
         pathPrefix("addresses") {
           (get & pathEnd) {
-            complete {
+            good {
               Addresses._findAllByCustomerIdWithRegions(customerId).result.run().map { records ⇒
-                render(responses.Addresses.build(records))
+                responses.Addresses.build(records)
               }
             }
           } ~
           (post & entity(as[CreateAddressPayload]) & pathEnd) { payload ⇒
-            complete {
-              AddressManager.create(payload, customerId).map(renderGoodOrFailures)
+            goodOrFailures {
+              AddressManager.create(payload, customerId)
             }
           } ~
           (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultShippingAddress]) & pathEnd) {
             (id, payload) ⇒
-              complete {
-                AddressManager.setDefaultShippingAddress(customerId, id).map(renderNothingOrFailures)
+              nothingOrFailures {
+                AddressManager.setDefaultShippingAddress(customerId, id)
               }
           } ~
           (delete & path("default") & pathEnd) {
-            complete {
-              AddressManager.removeDefaultShippingAddress(customerId).map(renderNothingOrFailures)
+            nothingOrFailures {
+              AddressManager.removeDefaultShippingAddress(customerId)
             }
           } ~
           (patch & path(IntNumber) & entity(as[CreateAddressPayload]) & pathEnd) { (addressId, payload) ⇒
-            complete {
-              AddressManager.edit(addressId, customerId, payload).map(renderGoodOrFailures)
+            goodOrFailures {
+              AddressManager.edit(addressId, customerId, payload)
             }
           } ~
           (get & path("display") & pathEnd) {
@@ -84,13 +81,12 @@ object CustomerRoutes {
         } ~
         pathPrefix("payment-methods" / "credit-cards") {
           (get & pathEnd) {
-            complete { CreditCardManager.creditCardsInWalletFor(customerId).map(render(_)) }
+            good { CreditCardManager.creditCardsInWalletFor(customerId) }
           } ~
           (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultCreditCard]) & pathEnd) {
             (cardId, payload) ⇒
-              complete {
-                val result = CreditCardManager.toggleCreditCardDefault(customerId, cardId, payload.isDefault)
-                result.map(renderGoodOrFailures)
+              goodOrFailures {
+                CreditCardManager.toggleCreditCardDefault(customerId, cardId, payload.isDefault)
               }
           } ~
           (post & entity(as[payloads.CreateCreditCard]) & pathEnd) { payload ⇒
@@ -101,13 +97,13 @@ object CustomerRoutes {
             }
           } ~
           (patch & path(IntNumber) & entity(as[payloads.EditCreditCard]) & pathEnd) { (cardId, payload) ⇒
-            complete {
-              CreditCardManager.editCreditCard(customerId, cardId, payload).map(renderNothingOrFailures)
+            nothingOrFailures {
+              CreditCardManager.editCreditCard(customerId, cardId, payload)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { cardId ⇒
-            complete {
-              CreditCardManager.deleteCreditCard(customerId = customerId, id = cardId).map(renderNothingOrFailures)
+            nothingOrFailures {
+              CreditCardManager.deleteCreditCard(customerId = customerId, id = cardId)
             }
           }
         } ~
@@ -120,8 +116,8 @@ object CustomerRoutes {
             }
           } ~
           (post & entity(as[payloads.CreateManualStoreCredit])) { payload ⇒
-            complete {
-              StoreCreditService.createManual(admin, customerId, payload).map(renderGoodOrFailures)
+            goodOrFailures {
+              StoreCreditService.createManual(admin, customerId, payload)
             }
           } ~
           (post & path(IntNumber / "convert")) { storeCreditId ⇒

@@ -5,7 +5,7 @@ import models.{StoreCreditAdjustment, PaymentMethod, OrderPayments, Orders, Stor
 Customers, StoreCredit, StoreCredits, StoreAdmins, StoreCreditAdjustments}
 import responses.{StoreCreditResponse, StoreCreditAdjustmentsResponse}
 import org.scalatest.BeforeAndAfterEach
-import services.NotFoundFailure
+import services._
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.implicits._
@@ -63,7 +63,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       "returns not found when SC doesn't exist" in new Fixture {
         val notFoundResponse = GET(s"v1/store-credits/99")
         notFoundResponse.status must ===(StatusCodes.NotFound)
-        notFoundResponse.errors.head mustBe "storeCredit with id=99 not found"
+        notFoundResponse.errors mustBe NotFoundFailure(StoreCredit, 99).description
       }
     }
 
@@ -93,14 +93,14 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       "returns error if no cancellation reason provided" in new Fixture {
         val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStatusByCsr(status = Canceled))
         response.status must ===(StatusCodes.BadRequest)
-        response.errors.head must ===("Please provide valid cancellation reason")
+        response.errors must ===(EmptyCancellationReasonFailure.description)
       }
 
       "returns error on cancellation if store credit has auths" in new Fixture {
         val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStatusByCsr(status = Canceled,
           reason = Some(1)))
         response.status must ===(StatusCodes.BadRequest)
-        response.errors.head must ===("Open transactions should be canceled/completed")
+        response.errors must ===(OpenTransactionsFailure.description)
       }
 
       "successfully cancels store credit with provided reason, cancel adjustment is created" in new Fixture {
@@ -130,7 +130,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStatusByCsr(status = Canceled,
           reason = Some(999)))
         response.status must ===(StatusCodes.BadRequest)
-        response.errors.head must ===("Cancellation reason doesn't exist")
+        response.errors must ===(InvalidCancellationReasonFailure.description)
       }
     }
 
@@ -159,7 +159,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
         val response = PATCH(s"v1/store-credits", payload)
         response.status must ===(StatusCodes.BadRequest)
-        response.errors.head must ===("Please provide valid cancellation reason")
+        response.errors must ===(EmptyCancellationReasonFailure.description)
       }
     }
   }

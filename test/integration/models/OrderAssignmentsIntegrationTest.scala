@@ -4,7 +4,7 @@ import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.implicits._
 
-class OrderAssignmentsTest extends IntegrationTestBase {
+class OrderAssignmentsIntegrationTest extends IntegrationTestBase {
 
   import concurrent.ExecutionContext.Implicits.global
 

@@ -1,23 +1,20 @@
 package routes.admin
 
-import scala.concurrent.{ExecutionContext, Future}
-import scala.collection.immutable.Seq
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
-
-import cats.data.Xor
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport
+import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models._
 import payloads._
-import responses.{AllOrders, BulkOrderUpdateResponse, AdminNotes, FullOrder}
+import responses.{AdminNotes, AllOrders, BulkOrderUpdateResponse}
 import services._
 import slick.driver.PostgresDriver.api._
-import utils.Apis
-import utils.Slick
-import utils.Slick.DbResult
-import utils.Slick.implicits._
-import Json4sSupport._
 import utils.Http._
+import utils.Slick.DbResult
+import utils.SprayDirectives._
+import utils.{Apis, Slick}
+
+import scala.collection.immutable.Seq
+import scala.concurrent.ExecutionContext
 
 object OrderRoutes {
 
@@ -30,15 +27,15 @@ object OrderRoutes {
 
       pathPrefix("orders") {
         (get & pathEnd) {
-          complete {
+          good {
             AllOrders.runFindAll
           }
         } ~
         (post & entity(as[CreateOrder]) & pathEnd) { payload ⇒
-          complete { OrderCreator.createCart(payload).map(renderGoodOrFailures) }
+          goodOrFailures { OrderCreator.createCart(payload) }
         } ~
         (patch & entity(as[BulkUpdateOrdersPayload]) & pathEnd) { payload ⇒
-          complete {
+          good {
             for {
               failures ← OrderUpdater.updateStatuses(payload.referenceNumbers, payload.status)
               orders ← AllOrders.runFindAll
@@ -47,24 +44,24 @@ object OrderRoutes {
         } ~
         pathPrefix("assignees") {
           (post & entity(as[BulkAssignment]) & pathEnd) { payload ⇒
-            complete {
-              BulkOrderUpdater.assign(payload).map(renderGoodOrFailures)
+            goodOrFailures {
+              BulkOrderUpdater.assign(payload)
             }
           } ~
           (post & path("delete") & entity(as[BulkAssignment]) & pathEnd) { payload ⇒
-            complete {
-              BulkOrderUpdater.unassign(payload).map(renderGoodOrFailures)
+            goodOrFailures {
+              BulkOrderUpdater.unassign(payload)
             }
           }
         }
       } ~
       pathPrefix("orders" / orderRefNum) { refNum ⇒
         (get & pathEnd) {
-          complete {
+          goodOrFailures {
             val finder = Orders.findByRefNum(refNum)
             finder.findOneAndRunIgnoringLock { order ⇒
               DbResult.fromDbio(Slick.fullOrder(finder))
-            }.map(renderGoodOrFailures)
+            }
           }
         } ~
         (patch & entity(as[UpdateOrderPayload])) { payload ⇒
@@ -75,18 +72,18 @@ object OrderRoutes {
           }
         } ~
         (post & path("increase-remorse-period") & pathEnd) {
-          complete {
-            LockAwareOrderUpdater.increaseRemorsePeriod(refNum).map(renderGoodOrFailures)
+          goodOrFailures {
+            LockAwareOrderUpdater.increaseRemorsePeriod(refNum)
           }
         } ~
         (post & path("lock") & pathEnd) {
-          complete {
-            LockAwareOrderUpdater.lock(refNum, admin).map(renderGoodOrFailures)
+          goodOrFailures {
+            LockAwareOrderUpdater.lock(refNum, admin)
           }
         } ~
         (post & path("unlock") & pathEnd) {
-          complete {
-            LockAwareOrderUpdater.unlock(refNum).map(renderGoodOrFailures)
+          goodOrFailures {
+            LockAwareOrderUpdater.unlock(refNum)
           }
         } ~
         (post & path("checkout")) {
@@ -102,33 +99,30 @@ object OrderRoutes {
           }
         } ~
         pathPrefix("payment-methods" / "credit-cards") {
-          (post & entity(as[payloads.CreditCardPayment]) & pathEnd) { payload ⇒
-            complete { OrderPaymentUpdater.addCreditCard(refNum, payload.creditCardId).map(renderGoodOrFailures) }
-          } ~
-          (patch & entity(as[payloads.CreditCardPayment]) & pathEnd) { payload ⇒
-            complete { OrderPaymentUpdater.addCreditCard(refNum, payload.creditCardId).map(renderGoodOrFailures) }
+          ((post | patch) & entity(as[payloads.CreditCardPayment]) & pathEnd) { payload ⇒
+            goodOrFailures { OrderPaymentUpdater.addCreditCard(refNum, payload.creditCardId) }
           } ~
           (delete & pathEnd) {
-            complete { OrderPaymentUpdater.deleteCreditCard(refNum).map(renderGoodOrFailures) }
+            goodOrFailures { OrderPaymentUpdater.deleteCreditCard(refNum) }
           }
         } ~
         pathPrefix("payment-methods" / "gift-cards") {
           (post & entity(as[payloads.GiftCardPayment]) & pathEnd) { payload ⇒
-            complete { OrderPaymentUpdater.addGiftCard(refNum, payload).map(renderGoodOrFailures) }
+            goodOrFailures { OrderPaymentUpdater.addGiftCard(refNum, payload) }
           } ~
-            (delete & path(Segment) & pathEnd) { code ⇒
-              complete { OrderPaymentUpdater.deleteGiftCard(refNum, code).map(renderGoodOrFailures) }
-            }
+          (delete & path(Segment) & pathEnd) { code ⇒
+            goodOrFailures { OrderPaymentUpdater.deleteGiftCard(refNum, code) }
+          }
         } ~
         pathPrefix("payment-methods" / "store-credit") {
           (post & entity(as[payloads.StoreCreditPayment]) & pathEnd) { payload ⇒
-            complete { OrderPaymentUpdater.addStoreCredit(refNum, payload).map(renderGoodOrFailures) }
+            goodOrFailures { OrderPaymentUpdater.addStoreCredit(refNum, payload) }
           } ~
           (patch & entity(as[payloads.StoreCreditPayment]) & pathEnd) { payload ⇒
-            complete { OrderPaymentUpdater.addStoreCredit(refNum, payload).map(renderGoodOrFailures) }
+            goodOrFailures { OrderPaymentUpdater.addStoreCredit(refNum, payload) }
           } ~
           (delete & pathEnd) {
-            complete { OrderPaymentUpdater.deleteStoreCredit(refNum).map(renderGoodOrFailures) }
+            goodOrFailures { OrderPaymentUpdater.deleteStoreCredit(refNum) }
           }
         } ~
         pathPrefix("notes") {
@@ -152,37 +146,37 @@ object OrderRoutes {
             }
           } ~
           (delete & path(IntNumber)) { noteId ⇒
-            complete {
-              NoteManager.deleteNote(noteId, admin).map(renderNothingOrFailures)
+            nothingOrFailures {
+              NoteManager.deleteNote(noteId, admin)
             }
           }
         } ~
         pathPrefix("assignees") {
           (post & entity(as[Assignment])) { payload ⇒
-            complete {
-              LockAwareOrderUpdater.assign(refNum, payload.assignees).map(renderGoodOrFailures)
+            goodOrFailures {
+              LockAwareOrderUpdater.assign(refNum, payload.assignees)
             }
           }
         } ~
         pathPrefix("shipping-address") {
           (post & entity(as[payloads.CreateAddressPayload]) & pathEnd) { payload ⇒
-            complete {
-              OrderUpdater.createShippingAddressFromPayload(payload, refNum).map(renderGoodOrFailures)
+            goodOrFailures {
+              OrderUpdater.createShippingAddressFromPayload(payload, refNum)
             }
           } ~
           (patch & entity(as[payloads.UpdateAddressPayload]) & pathEnd) { payload ⇒
-            complete {
-              OrderUpdater.updateShippingAddressFromPayload(payload, refNum).map(renderGoodOrFailures)
+            goodOrFailures {
+              OrderUpdater.updateShippingAddressFromPayload(payload, refNum)
             }
           } ~
           (patch & path(IntNumber) & pathEnd) { addressId ⇒
-            complete {
-              OrderUpdater.createShippingAddressFromAddressId(addressId, refNum).map(renderGoodOrFailures)
+            goodOrFailures {
+              OrderUpdater.createShippingAddressFromAddressId(addressId, refNum)
             }
           } ~
           (delete & pathEnd) {
-            complete {
-              OrderUpdater.removeShippingAddress(refNum).map(renderGoodOrFailures)
+            goodOrFailures {
+              OrderUpdater.removeShippingAddress(refNum)
             }
           }
         }
