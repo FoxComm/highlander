@@ -30,7 +30,7 @@ trait ADT[F] extends Read[F] with Show[F] { self ⇒
    */
   @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.Any", "org.brianmckenna.wartremover.warts.IsInstanceOf"))
   def jsonFormat(implicit m: Manifest[F]): CustomSerializer[F] = new CustomSerializer[F](format => ({
-    case JString(str) ⇒ read(str).get // if we cannot deserialize then we throw. Yes, I know it's not *pure*.
+    case JString(str) ⇒ read(str).getOrError(s"No such element: $str") // if we cannot deserialize then we throw. Yes, I know it's not *pure*.
   }, {
     case f: F ⇒ JString(show(f))
   }))
@@ -38,7 +38,7 @@ trait ADT[F] extends Read[F] with Show[F] { self ⇒
   def slickColumn(implicit m: Manifest[F]): JdbcType[F] with BaseTypedType[F] = MappedColumnType.base[F, String]({
     case f ⇒ show(f)
   },{
-    case f ⇒ read(f).get
+    case f ⇒ read(f).getOrError(s"No such element: $f")
   })
 }
 
