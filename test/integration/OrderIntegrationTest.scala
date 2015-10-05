@@ -7,7 +7,7 @@ import akka.testkit.TestActorRef
 import models._
 import payloads.{Assignment, UpdateOrderPayload}
 import responses.{StoreAdminResponse, FullOrderWithWarnings, AdminNotes, FullOrder}
-import services.{NotFoundFailure, NoteManager}
+import services.{GeneralFailure, NotFoundFailure, NoteManager}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.implicits._
@@ -148,8 +148,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       val response = POST(s"v1/orders/${order.referenceNumber}/lock")
       response.status must === (StatusCodes.BadRequest)
-      val errors = parse(response.bodyText).extract[Errors]
-      errors.head must === ("errors" → Seq("Model is locked"))
+      response.errors must === (GeneralFailure("Model is locked").description)
     }
 
     "unlocks an order" in {
@@ -170,8 +169,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       val response = POST(s"v1/orders/${order.referenceNumber}/unlock")
 
       response.status must === (StatusCodes.BadRequest)
-      val errors = parse(response.bodyText).extract[Errors]
-      errors.head must === ("errors" → Seq("Order is not locked"))
+      response.errors must === (GeneralFailure("Order is not locked").description)
     }
 
     "avoids race condition" in {
