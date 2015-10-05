@@ -11,7 +11,7 @@ import _ from 'lodash';
 export default class GiftCards extends React.Component {
   constructor(props, context) {
     super(props, context);
-    this.state = _.assign({}, GiftCardStore.getState(), {isNew: false});
+    this.state = _.assign({}, GiftCardStore.getState());
   }
 
   componentDidMount() {
@@ -27,12 +27,6 @@ export default class GiftCards extends React.Component {
   onChange(state) {
     this.setState(state);
   };
-
-  toggleNew() {
-    this.setState({
-      isNew: !this.state.isNew
-    });
-  }
 
   onCardsAdded(cards) {
     let cardList = this.state.cards.slice(0, this.state.cards.length);
@@ -61,26 +55,19 @@ export default class GiftCards extends React.Component {
   }
 
   render() {
-    let content = null;
-
-    if (this.state.isNew) {
-      content = <NewGiftCard />;
-    } else {
-      content = (
-        <div id="cards">
-          <div className="gutter">
-            <h2>Gift Cards</h2>
-            <Link to='gift-cards-new'>+ New Gift Card</Link>
-            <TableView
+    return (
+      <div id="cards">
+        <div className="gutter">
+          <h2>Gift Cards</h2>
+          <Link to='gift-cards-new' className="fc-btn">+ New Gift Card</Link>
+          <TableView
               columns={this.props.tableColumns}
               rows={this.state.giftCards}
               model='giftcard'
-              />
-          </div>
+          />
         </div>
-      );
-    }
-    return content;
+      </div>
+    );
   }
 }
 
