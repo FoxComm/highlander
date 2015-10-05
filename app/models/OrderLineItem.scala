@@ -3,7 +3,7 @@ package models
 import scala.concurrent.{ExecutionContext, Future}
 
 import com.pellucid.sealerate
-import models.OrderLineItem.{Cart, Status, OriginType}
+import models.OrderLineItem.{Cart, Status, GiftCardItem, SkuItem, OriginType}
 import monocle.macros.GenLens
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
@@ -73,6 +73,7 @@ class OrderLineItems(tag: Tag) extends GenericTable.TableWithId[OrderLineItem](t
   def originType = column[OrderLineItem.OriginType]("origin_type")
   def status = column[OrderLineItem.Status]("status")
   def * = (id, orderId, originId, originType, status) <> ((OrderLineItem.apply _).tupled, OrderLineItem.unapply)
+
 }
 
 object OrderLineItems extends TableQueryWithId[OrderLineItem, OrderLineItems](
@@ -101,4 +102,13 @@ object OrderLineItems extends TableQueryWithId[OrderLineItem, OrderLineItems](
         .filter(_.originType === (OrderLineItem.SkuItem: OriginType))
         .groupBy(_.originId)
     } yield (skuId, group.length)).result
+
+  object scope {
+    implicit class OriginTypeQuerySeqConversions(q: QuerySeq) {
+      def giftCards: QuerySeq = q.byOriginType(GiftCardItem)
+      def skuItems: QuerySeq  = q.byOriginType(SkuItem)
+
+      def byOriginType(originType: OriginType): QuerySeq = filter(_.originType === (originType: OriginType))
+    }
+  }
 }

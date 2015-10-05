@@ -4,7 +4,7 @@ import scala.concurrent.ExecutionContext
 
 import cats.data.Validated.{Valid, Invalid}
 import models._
-import models.OrderLineItem.{OriginType, SkuItem, GiftCardItem}
+import models.OrderLineItems.scope._
 import payloads.{AddGiftCardLineItem, UpdateLineItemsPayload}
 import cats.implicits._
 import responses.FullOrder
@@ -60,10 +60,7 @@ object LineItemUpdater {
 
     GiftCards.findByCode(code).findOneAndRun { gc ⇒
       val queries = for {
-        deleteRel ← OrderLineItems
-          .filter(_.originId === gc.id)
-          .filter(_.originType === (GiftCardItem: OriginType))
-          .delete
+        deleteRel ← OrderLineItems.filter(_.originId === gc.id).giftCards.delete
         deleteGc ← GiftCards.filter(_.id === gc.id).delete
       } yield ()
 
@@ -111,10 +108,7 @@ object LineItemUpdater {
 
       // select sku_id, count(1) from line_items where order_id = $ group by sku_id
       val counts = for {
-        (skuId, q) <- lineItems
-          .filter(_.orderId === order.id)
-          .filter(_.originType === (SkuItem: OriginType))
-          .groupBy(_.originId)
+        (skuId, q) <- lineItems.filter(_.orderId === order.id).skuItems.groupBy(_.originId)
       } yield (skuId, q.length)
 
       val queries = counts.result.flatMap { (items: Seq[(Int, Int)]) =>
@@ -129,8 +123,7 @@ object LineItemUpdater {
             lineItems ++= (1 to delta).map { _ => OrderLineItem(0, order.id, sku.id) }.toSeq
           } else if (current - newQuantity > 0) {
             //otherwise delete N items
-            lineItems.filter(_.id in lineItems.filter(_.orderId === order.id)
-              .filter(_.originType === (SkuItem: OriginType))
+            lineItems.filter(_.id in lineItems.filter(_.orderId === order.id).skuItems
               .filter(_.originId === sku.id).sortBy(_.id.asc).take(current - newQuantity).map(_.id)).delete
           } else {
             // do nothing
