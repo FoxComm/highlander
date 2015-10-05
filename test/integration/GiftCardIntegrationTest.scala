@@ -204,6 +204,50 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     }
   }
 
+  "POST /v1/gift-cards/:code/convert/:customerId" - {
+    "successfully converts GC to SC" in new Fixture {
+      val response = POST(s"v1/gift-cards/${gcSecond.code}/convert/${customer.id}")
+      response.status must ===(StatusCodes.OK)
+
+      val root = response.as[models.StoreCredit]
+      root.customerId       must ===(customer.id)
+      root.originType       must ===(models.StoreCredit.GiftCardTransfer)
+      root.status           must ===(models.StoreCredit.Active)
+      root.originalBalance  must ===(gcSecond.originalBalance)
+
+      val redeemedGc = GiftCards.findByCode(gcSecond.code).one.run().futureValue.get
+      redeemedGc.status           must ===(GiftCard.FullyRedeemed)
+      redeemedGc.availableBalance must ===(0)
+      redeemedGc.currentBalance   must ===(0)
+    }
+
+    "fails to convert when GC not found" in new Fixture {
+      val response = POST(s"v1/gift-cards/ABC-666/convert/${customer.id}")
+      response.status       must ===(StatusCodes.NotFound)
+      response.errors.head  must ===("giftCard with code=ABC-666 not found")
+    }
+
+    "fails to convert when customer not found" in new Fixture {
+      val response = POST(s"v1/gift-cards/${gcSecond.code}/convert/666")
+      response.status       must ===(StatusCodes.NotFound)
+      response.errors.head  must ===("customer with id=666 not found")
+    }
+
+    "fails to convert inactive GC to SC if open transactions are present" in new Fixture {
+      val response = POST(s"v1/gift-cards/${giftCard.code}/convert/${customer.id}")
+      response.status       must ===(StatusCodes.BadRequest)
+      response.errors.head  must ===("Open transactions should be canceled/completed")
+    }
+
+    "fails to convert inactive GC to SC" in new Fixture {
+      GiftCards.findByCode(gcSecond.code).map(_.status).update(GiftCard.OnHold).run().futureValue
+
+      val response = POST(s"v1/gift-cards/${gcSecond.code}/convert/${customer.id}")
+      response.status       must ===(StatusCodes.BadRequest)
+      response.errors.head  must ===("cannot convert a gift card with status 'OnHold'")
+    }
+  }
+
   "gift card note" - {
     "can be created by an admin for a gift card" in new Fixture {
       val response = POST(s"v1/gift-cards/${giftCard.code}/notes",
@@ -272,7 +316,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
   }
 
   trait Fixture {
-    val (admin, giftCard, order, adjustment, gcSecond) = (for {
+    val (customer, admin, giftCard, order, adjustment, gcSecond) = (for {
       customer ← Customers.save(Factories.customer)
       order ← Orders.save(Factories.order.copy(customerId = customer.id))
       admin ← StoreAdmins.save(authedStoreAdmin)
@@ -285,6 +329,6 @@ class GiftCardIntegrationTest extends IntegrationTestBase
         paymentMethodType = PaymentMethod.GiftCard))
       adjustment ← GiftCards.auth(giftCard, Some(payment.id), 10)
       giftCard ← GiftCards.findById(giftCard.id)
-    } yield (admin, giftCard.get, order, adjustment, gcSecond)).run().futureValue
+    } yield (customer, admin, giftCard.get, order, adjustment, gcSecond)).run().futureValue
   }
 }
