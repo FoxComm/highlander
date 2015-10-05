@@ -38,7 +38,7 @@ const routes = (
       <Route name='order-notifications' path='notifications' component={Notifications}/>
       <Route name='order-activity-trail' path='activity-trail' component={ActivityTrail}/>
     </Route>
-    <Route name='customers' component={Customers}/>
+    <Route name='customers' path='customers' component={Customers}/>
     <Route name='customer' path='customers/:customer' component={Customer}>
       <Route name='customer-addresses' path='addresses' component={AddressBook} />
     </Route>
