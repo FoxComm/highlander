@@ -5,18 +5,14 @@ import Counter from '../forms/counter';
 import Typeahead from '../typeahead/typeahead';
 import CustomerResult from '../customers/result';
 import CustomerStore from '../../stores/customers';
-import { dispatch, listenTo, stopListeningTo } from '../../lib/dispatcher';
-import Api from '../../lib/api';
 import _ from 'lodash';
 import { Link } from 'react-router';
+import GiftCardActions from '../../actions/gift-cards';
 
-const
-  types = {
-    Appeasement: [],
-    Marketing: ['One', 'Two']
-  },
-  customerSelectEvent = 'gift-card-customer-selected',
-  userSelectEvent = 'email-csv-user-selected';
+const types = {
+  Appeasement: [],
+  Marketing: ['One', 'Two']
+};
 
 export default class NewGiftCard extends React.Component {
   constructor(props) {
@@ -33,16 +29,6 @@ export default class NewGiftCard extends React.Component {
       customerMessageCount: 0,
       csvMessageCount: 0
     };
-  }
-
-  componentDidMount() {
-    listenTo(customerSelectEvent, this);
-    listenTo(userSelectEvent, this);
-  }
-
-  componentWillUnMount() {
-    stopListeningTo(customerSelectEvent, this);
-    stopListeningTo(userSelectEvent, this);
   }
 
   onChangeBalance(event) {
@@ -115,16 +101,11 @@ export default class NewGiftCard extends React.Component {
   submitForm(event) {
     event.preventDefault();
 
-    Api.submitForm(event.target)
-       .then((res) => {
-         this.closeForm(res);
-       })
-       .catch((err) => { console.error(err); });
+    GiftCardActions.createGiftCard(event.target);
   }
 
   closeForm(cards) {
     cards = cards || [];
-    dispatch('cardsAdded', cards);
   }
 
   removeCustomer(idx) {
@@ -176,7 +157,7 @@ export default class NewGiftCard extends React.Component {
           <Typeahead
             store={CustomerStore}
             component={CustomerResult}
-            selectEvent="giftCardCustomerSelected"
+            callback={this.onGiftCardCustomerSelected.bind(this)}
             label="Choose customers:"
             name="customerQuery"
           />
@@ -212,7 +193,7 @@ export default class NewGiftCard extends React.Component {
           <Typeahead
             store={CustomerStore}
             component={CustomerResult}
-            selectEvent="emailCsvUserSelected"
+            callback={this.onEmailCsvUserSelected.bind(this)}
             label="Choose users:"
             name="csvQuery"
           />

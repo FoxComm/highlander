@@ -22,6 +22,16 @@ class GiftCardActions {
   giftCardsFailed(errorMessage) {
     this.dispatch(errorMessage);
   }
+
+  createGiftCard(form) {
+    Api.submitForm(form)
+      .then((cards) => {
+        this.actions.updateGiftCards(cards);
+      })
+      .catch((err) => {
+        this.actions.giftCardsFailed(err);
+      });
+  }
 }
 
 module.exports = alt.createActions(GiftCardActions);
