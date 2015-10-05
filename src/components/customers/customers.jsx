@@ -89,7 +89,6 @@ Customers.defaultProps = {
     {field: 'shipToRegion', text: 'Ship To Region'},
     {field: 'billToRegion', text: 'Bill To Region'},
     {field: 'rank', text: 'Rank'},
-    {field: 'disabled', text: 'Disabled', type: 'bool'},
     {field: 'createdAt', text: 'Date/Time Joined', type: 'date'}
   ]
 };
