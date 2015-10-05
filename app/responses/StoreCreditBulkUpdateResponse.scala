@@ -13,11 +13,9 @@ object StoreCreditBulkUpdateResponse {
 
   final case class BulkResponse(itemResults: Seq[ItemResult])
 
-  def buildItemResult(id: Int, entity: Failures Xor StoreCreditResponse.Root): ItemResult = {
-    entity match {
-      case Xor.Left(errors) ⇒ ItemResult(id = id, errors = Some(errors))
-      case Xor.Right(sc)    ⇒ ItemResult(id = id, success = true, storeCredit = Some(sc))
-    }
+  def buildItemResult(id: Int, result: Failures Xor StoreCreditResponse.Root): ItemResult = {
+    result.fold(errors ⇒ ItemResult(id = id, errors = Some(errors)),
+      sc ⇒ ItemResult(id = id, success = true, storeCredit = Some(sc)))
   }
 
   def buildBulkResponse(itemResults: Seq[ItemResult]): BulkResponse = BulkResponse(itemResults = itemResults)

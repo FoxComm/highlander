@@ -14,10 +14,8 @@ object GiftCardBulkUpdateResponse {
   final case class BulkResponse(itemResults: Seq[ItemResult])
 
   def buildItemResult(code: String, result: Failures Xor GiftCardResponse.Root): ItemResult = {
-    result match {
-      case Xor.Left(errors)  ⇒ ItemResult(code = code, errors = Some(errors))
-      case Xor.Right(sc)     ⇒ ItemResult(code = code, success = true, giftCard = Some(sc))
-    }
+    result.fold(errors ⇒ ItemResult(code = code, errors = Some(errors)),
+      gc ⇒ ItemResult(code = code, success = true, giftCard = Some(gc)))
   }
 
   def buildBulkResponse(itemResults: Seq[ItemResult]): BulkResponse = BulkResponse(itemResults = itemResults)
