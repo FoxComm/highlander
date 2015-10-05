@@ -2,7 +2,7 @@
 
 import React from 'react';
 import ClassNames from 'classnames';
-import TableStore from '../../lib/tableStore';
+import TableStore from '../../lib/table-store';
 import TableHead from './head';
 import TableBody from './body';
 

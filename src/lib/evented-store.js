@@ -102,6 +102,16 @@ export default class EventedStore {
     this.post(data, ...fetchArgs);
   }
 
+  delete(id) {
+    Api.delete(this.uri(id))
+      .then((res) => {
+        this.update(res);
+      })
+      .catch((err) => {
+        this.fetchError(err);
+      });
+  }
+
   apiError(err) {
     console.error(String(err));
     this.dispatch('error', err);

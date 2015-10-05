@@ -1,7 +1,7 @@
 'use strict';
 
 import React from 'react';
-import TableStore from '../../lib/tableStore';
+import TableStore from '../../lib/table-store';
 import TableRow from './row';
 
 export default class TableBody extends React.Component {

@@ -1,6 +1,6 @@
 'use strict';
 
-import TableStore from '../../lib/tableStore';
+import TableStore from '../../lib/table-store';
 
 class NoteStore extends TableStore {
   constructor(props) {

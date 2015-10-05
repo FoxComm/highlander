@@ -30,8 +30,6 @@ export default class TablePaginator extends React.Component {
 }
 
 TablePaginator.propTypes = {
-  columns: React.PropTypes.array,
-  rows: React.PropTypes.array,
   start: React.PropTypes.number,
   limit: React.PropTypes.number,
   total: React.PropTypes.number,
