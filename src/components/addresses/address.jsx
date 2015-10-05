@@ -46,7 +46,7 @@ class Address extends React.Component {
     return (
       <li className={classes}>
         <div className="fc-address-controls">
-          <button className="icon-edit" onClick={this.toggleEdit.bind(this)}></button>
+          <button className="fc-btn icon-edit" onClick={this.toggleEdit.bind(this)}></button>
         </div>
         <div>
           { address.isDefault ? isDefault : '' }
