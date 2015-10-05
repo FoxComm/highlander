@@ -30,20 +30,22 @@ export default class TableHead extends React.Component {
         'sorting-asc': (this.state.sortingField === column.field) && !this.state.sortingOrder
       });
       return (
-        <div
+        <th
           className={classnames}
           key={`${index}-${column.field}`}
           onClick={this.onHeaderItemClick.bind(this, column.field)}
           >
           {column.title}
-        </div>
+        </th>
       );
     };
 
     return (
-      <TableRow>
-        {this.props.store.columns.map(renderColumn)}
-      </TableRow>
+      <thead>
+        <TableRow>
+          {this.props.store.columns.map(renderColumn)}
+        </TableRow>
+      </thead>
     );
   }
 }

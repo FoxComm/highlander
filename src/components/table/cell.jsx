@@ -5,9 +5,9 @@ import React from 'react';
 export default class TableCell extends React.Component {
   render() {
     return (
-      <div className="fc-table-td">
+      <td className="fc-table-td">
         {this.props.children}
-      </div>
+      </td>
     )
   }
 }

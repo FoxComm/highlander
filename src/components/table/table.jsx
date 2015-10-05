@@ -9,12 +9,12 @@ import TableBody from './body';
 export default class Table extends React.Component {
   render() {
     return (
-      <div className='fc-table'>
+      <table className='fc-table'>
         <TableHead store={this.props.store}/>
         <TableBody store={this.props.store} renderRow={this.props.renderRow}>
           {this.props.children}
         </TableBody>
-      </div>
+      </table>
     );
   }
 }
