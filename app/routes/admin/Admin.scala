@@ -5,13 +5,13 @@ import scala.concurrent.ExecutionContext
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models._
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.Apis
 import utils.Http._
+import utils.SprayDirectives._
 
 object Admin {
 
@@ -21,57 +21,56 @@ object Admin {
     authenticateBasicAsync(realm = "admin", storeAdminAuth) { admin ⇒
       pathPrefix("store-credits") {
         (patch & entity(as[payloads.StoreCreditBulkUpdateStatusByCsr]) & pathEnd) { payload ⇒
-          complete {
-            StoreCreditService.bulkUpdateStatusByCsr(payload, admin).map(renderGoodOrFailures)
+          goodOrFailures {
+            StoreCreditService.bulkUpdateStatusByCsr(payload, admin)
           }
         }
       } ~
       pathPrefix("store-credits" / IntNumber) { storeCreditId ⇒
         (get & pathEnd) {
-          complete {
-            StoreCreditService.getById(storeCreditId).map(renderGoodOrFailures)
+          goodOrFailures {
+            StoreCreditService.getById(storeCreditId)
           }
         } ~
         (patch & entity(as[payloads.StoreCreditUpdateStatusByCsr]) & pathEnd) { payload ⇒
-          complete {
-            StoreCreditService.updateStatusByCsr(storeCreditId, payload, admin).map(renderGoodOrFailures)
+          goodOrFailures {
+            StoreCreditService.updateStatusByCsr(storeCreditId, payload, admin)
           }
         } ~
         (get & path("transactions") & pathEnd) {
-          complete {
-            StoreCreditAdjustmentsService.forStoreCredit(storeCreditId).map(renderGoodOrFailures)
+          goodOrFailures {
+            StoreCreditAdjustmentsService.forStoreCredit(storeCreditId)
           }
         }
       } ~
       pathPrefix("reasons") {
         (get & pathEnd) {
-          complete {
-            ReasonService.listAll.map(render(_))
+          good {
+            ReasonService.listAll
           }
         }
       } ~
       pathPrefix("shipping-methods" / OrderRoutes.orderRefNum) { refNum ⇒
         (get & pathEnd) {
-          complete {
+          goodOrFailures {
             Orders.findByRefNum(refNum).findOneAndRunIgnoringLock { order ⇒
               ShippingManager.getShippingMethodsForOrder(order)
-            }.map(renderGoodOrFailures)
+            }
           }
         }
       } ~
       pathPrefix("notifications") {
         (get & pathEnd) {
-          complete {
-            val notifications = Seq(
+          good {
+            Seq(
               Notification("Delivered", "Shipment Confirmation", "2015-02-15T08:31:45", "jim@bob.com"),
               Notification("Failed", "Order Confirmation", "2015-02-16T09:23:29", "+ (567) 203-8430")
             )
-            render(notifications)
           }
         } ~
         (get & path(IntNumber) & pathEnd) { notificationId ⇒
-          complete {
-            render(Notification("Failed", "Order Confirmation", "2015-02-16T09:23:29", "+ (567) 203-8430"))
+          good {
+            Notification("Failed", "Order Confirmation", "2015-02-16T09:23:29", "+ (567) 203-8430")
           }
         }
       }

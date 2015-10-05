@@ -1,23 +1,19 @@
 package routes.admin
 
-import scala.concurrent.{ExecutionContext, Future}
-import scala.collection.immutable.Seq
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
-
-import cats.data.Xor
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport
+import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models._
-import payloads._
-import responses.{AllOrders, BulkOrderUpdateResponse, AdminNotes, FullOrder}
+
+import responses.AdminNotes
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.Apis
-import utils.Slick
-import utils.Slick.DbResult
-import utils.Slick.implicits._
-import Json4sSupport._
 import utils.Http._
+import utils.Slick.implicits._
+import utils.SprayDirectives._
+
+import scala.concurrent.ExecutionContext
 
 object GiftCardRoutes {
 
@@ -28,44 +24,44 @@ object GiftCardRoutes {
 
       pathPrefix("gift-cards") {
         (get & pathEnd) {
-          complete {
-            GiftCards.sortBy(_.id.desc).result.run().map(render(_))
+          good {
+            GiftCards.sortBy(_.id.desc).result.run()
           }
         } ~
         (patch & entity(as[payloads.GiftCardBulkUpdateStatusByCsr]) & pathEnd) { payload ⇒
-          complete {
-            GiftCardService.bulkUpdateStatusByCsr(payload, admin).map(renderGoodOrFailures)
+          goodOrFailures {
+            GiftCardService.bulkUpdateStatusByCsr(payload, admin)
           }
         } ~
         (get & path(Segment) & pathEnd) { code ⇒
-          complete {
-            GiftCardService.getByCode(code).map(renderGoodOrFailures)
+          goodOrFailures {
+            GiftCardService.getByCode(code)
           }
         } ~
         (get & path(Segment / "transactions") & pathEnd) { code ⇒
-          complete {
-            GiftCardAdjustmentsService.forGiftCard(code).map(renderGoodOrFailures)
+          goodOrFailures {
+            GiftCardAdjustmentsService.forGiftCard(code)
           }
         } ~
         (post & path("_bulk") & entity(as[payloads.GiftCardBulkCreateByCsr]) & pathEnd) { payload ⇒
-          complete {
-            GiftCardService.createBulkByAdmin(admin, payload).map(renderGoodOrFailures)
+          goodOrFailures {
+            GiftCardService.createBulkByAdmin(admin, payload)
           }
         } ~
         (post & entity(as[payloads.GiftCardCreateByCsr]) & pathEnd) { payload ⇒
-          complete {
-            GiftCardService.createByAdmin(admin, payload).map(renderGoodOrFailures)
+          goodOrFailures {
+            GiftCardService.createByAdmin(admin, payload)
           }
         } ~
         (patch & path(Segment) & entity(as[payloads.GiftCardUpdateStatusByCsr]) & pathEnd) { (code, payload) ⇒
-          complete {
-            GiftCardService.updateStatusByCsr(code, payload, admin).map(renderGoodOrFailures)
+          goodOrFailures {
+            GiftCardService.updateStatusByCsr(code, payload, admin)
           }
         } ~
         path(Segment / "convert" / IntNumber) { (code, customerId) ⇒
           (post & pathEnd) {
-            complete {
-              CustomerCreditConverter.toStoreCredit(code, customerId, admin).map(renderGoodOrFailures)
+            goodOrFailures {
+              CustomerCreditConverter.toStoreCredit(code, customerId, admin)
             }
           }
         } ~
@@ -92,8 +88,8 @@ object GiftCardRoutes {
             }
           } ~
           (delete & pathEnd) {
-            complete {
-              NoteManager.deleteNote(noteId, admin).map(renderNothingOrFailures)
+            nothingOrFailures {
+              NoteManager.deleteNote(noteId, admin)
             }
           }
         }
