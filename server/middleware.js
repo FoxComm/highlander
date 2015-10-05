@@ -11,7 +11,7 @@ module.exports = function(app) {
   const template = path.join(__dirname, './views/layout.tmpl');
   const layout = _.template(fs.readFileSync(template, 'utf8'));
 
-  // lets do renderReact propery is lazy
+  // lets do renderReact property is lazy
   Object.defineProperty(app, 'renderReact', {
     get: function() {
       const appFile = path.join(config.layout.publicDir, 'admin.js');
