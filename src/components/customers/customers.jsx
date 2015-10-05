@@ -59,7 +59,7 @@ export default class Customers extends React.Component {
         </div>
         <div className="fc-grid gutter">
           <div className="fc-col-1-1 fc-action-bar clearfix">
-            <button className="fc-btn fc-float-right">
+            <button className="fc-btn fc-right">
               <i className="icon-external-link"></i>
             </button>
           </div>
