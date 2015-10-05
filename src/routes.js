@@ -17,6 +17,7 @@ import Notifications from './components/notifications/notifications';
 import ActivityTrail from './components/activity-trail/activity-trail';
 import AddressBook from './components/addresses/addresses';
 import GiftCards from './components/gift-cards/gift-cards';
+import NewGiftCard from './components/gift-cards/gift-cards-new';
 import GiftCard from './components/gift-cards/gift-card';
 import GiftCardTransactions from './components/gift-cards/transactions';
 
@@ -43,6 +44,7 @@ const routes = (
       <Route name='customer-addresses' path='addresses' component={AddressBook} />
     </Route>
     <Route name='gift-cards' path='gift-cards' component={GiftCards} />
+    <Route name='gift-cards-new' path='/gift-cards/new' component={NewGiftCard} />
     <Route name='giftcard' path='gift-cards/:giftcard' component={GiftCard}>
       <IndexRoute name='gift-card-transactions' component={GiftCardTransactions} />
       <Route name='gift-card-notes' path='notes' component={Notes} />

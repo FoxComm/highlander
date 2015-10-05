@@ -15,6 +15,7 @@ class GiftCardStore {
   }
 
   handleUpdateGiftCards(cards) {
+    // TODO: Get difference in cards and set 'new' property.
     this.giftCards = cards;
   }
 

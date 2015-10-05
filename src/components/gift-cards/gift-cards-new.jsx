@@ -8,6 +8,7 @@ import CustomerStore from '../../stores/customers';
 import { dispatch, listenTo, stopListeningTo } from '../../lib/dispatcher';
 import Api from '../../lib/api';
 import _ from 'lodash';
+import { Link } from 'react-router';
 
 const
   types = {
@@ -292,7 +293,7 @@ export default class NewGiftCard extends React.Component {
             </label>
             { emailCSV }
           </fieldset>
-          <a onClick={this.closeForm.bind(this)}>Cancel</a>
+          <Link to='gift-cards'>Cancel</Link>
           <input type="submit" value="Issue Gift Card" />
         </form>
       </div>
