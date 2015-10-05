@@ -33,17 +33,19 @@ lazy val phoenixScala = (project in file(".")).
     wartremoverWarnings in(Test, compile) ++= testWartWarnings,
     wartremoverWarnings in(IT, compile) ++= testWartWarnings,
     wartremoverWarnings in(Compile, compile) ++=
-      Warts.all.filter {
-        case Wart.Any      ⇒ false /** Covered by the compiler */
+      Warts.allBut(
+        /** Covered by the compiler */
+        Wart.Any,
+
         /** In the absence of type annotations, Good(v: A) is inferred as Or[A, Nothing] */
-        case Wart.Nothing  ⇒ false
+        Wart.Nothing,
 
         /** Many library methods can throw, for example Future.map, but not much
           * 3-rd party code uses @throws */
-        case Wart.Throw ⇒ false
+        Wart.Throw,
 
         /** Good is a case class and therefore has Product and Serializable */
-        case Wart.Product | Wart.Serializable ⇒ false
+        Wart.Product, Wart.Serializable,
 
         /**
          * Can’t figure out how to resolve this issue.
@@ -54,23 +56,21 @@ lazy val phoenixScala = (project in file(".")).
          *                                    ^
          * }}}
          */
-        case Wart.NonUnitStatements ⇒ false
+        Wart.NonUnitStatements,
 
         /** This goes overboard. Wart remover’s justification is that those are hard to be used as functions. */
-        case Wart.DefaultArguments ⇒ false
+        Wart.DefaultArguments,
 
         /** [[scala.collection.JavaConverters]] does not have methods for handling Maps */
-        case Wart.JavaConversions ⇒ false
+        Wart.JavaConversions,
 
         /** While Applicatives might be simpler, there is no for comprehension sugar for them. **/
-        case Wart.NoNeedForMonad ⇒ false
+        Wart.NoNeedForMonad,
 
         /** New warts from version 0.14 **/
-        case Wart.ToString ⇒ false
-        case Wart.ExplicitImplicitTypes ⇒ false
-
-        case _ ⇒ true
-      }
+        Wart.ToString,
+        Wart.ExplicitImplicitTypes
+      )
   ).
   settings(
     name      := "phoenix-scala",
