@@ -84,7 +84,7 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.Tab
 
     protected def selectOneForUpdateInner[R](checks: Option[M] ⇒ Failures Xor M)(action: M ⇒ DbResult[R])
       (implicit ec: ExecutionContext, db: Database): Result[R] = {
-      selectForUpdate(q).map(checks).flatMap {
+      appendForUpdate(q.result.headOption).map(checks).flatMap {
         case Xor.Right(value) ⇒ action(value)
         case failures @ Xor.Left(_) ⇒ lift(failures)
       }.transactionally.run()
@@ -95,9 +95,9 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.Tab
       selectOneForUpdateInner(runChecks)(action)
     }
 
-    protected def selectForUpdate(finder: QuerySeq)
-      (implicit ec: ExecutionContext, db: Database): DBIO[Option[M]] = {
-      Slick.appendForUpdate(finder.result.headOption)
+    def selectForUpdate[R](action: Seq[M] ⇒ DbResult[R])
+      (implicit ec: ExecutionContext, db: Database): Result[R] = {
+      appendForUpdate(q.result).flatMap(action).transactionally.run()
     }
 
     protected def runChecks(maybe: Option[M])
