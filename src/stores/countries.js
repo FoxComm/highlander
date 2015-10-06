@@ -21,7 +21,7 @@ class CountryStore extends BaseStore {
   // always sort countries after fetch
   _update(models, res) {
     if (_.isArray(res)) {
-      res = this._sort(res, 'name')
+      res = this._sort(res, 'name');
     }
     super._update(models, res);
   }

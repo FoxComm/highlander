@@ -7,8 +7,8 @@ import ViewerStore from './store';
 const updateTime  = 60000;
 
 export default class Viewers extends React.Component {
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
     ViewerStore.uriRoot = `${this.props.model}/${this.props.modelId}`;
     this.state = {
       viewers: [],

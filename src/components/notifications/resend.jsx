@@ -5,8 +5,8 @@ import { dispatch } from '../../lib/dispatcher';
 import NotificationStore from './store';
 
 export default class ResendModal extends React.Component {
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
     this.state = {
       edit: false
     };

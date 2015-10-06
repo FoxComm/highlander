@@ -12,9 +12,7 @@ module.exports = function(app) {
   // router.use(app.requireAdmin);
 
   router
-    .get('/:path*', function *(next) {
-      yield next;
-    }, app.renderReact);
+    .get('/:path*', app.renderReact, app.renderLayout);
 
   app
     .use(router.routes())

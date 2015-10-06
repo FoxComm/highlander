@@ -5,15 +5,15 @@ import React from 'react';
 import { listenTo, stopListeningTo, dispatch } from '../../lib/dispatcher';
 import CountryStore from '../../stores/countries';
 import AddressStore from '../../stores/addresses';
-import OrderStore from '../../stores/orders'
+import OrderStore from '../../stores/orders';
 import {idGenerator} from '../../lib/forms';
 
 const DEFAULT_COUNTRY = 'US';
 
 export default class AddressForm extends React.Component {
 
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
 
     let address = props.address;
     let formData = address ? _.omit(address, 'region') : {};
@@ -72,7 +72,7 @@ export default class AddressForm extends React.Component {
 
   componentDidUpdate() {
     if (this.state.errors) {
-      React.findDOMNode(this.refs.errorMessages).scrollIntoView();
+      this.refs.errorMessages.scrollIntoView();
     }
   }
 
@@ -139,10 +139,10 @@ export default class AddressForm extends React.Component {
       messages = (
         <div className="messages" ref="errorMessages">
           {this.state.errors.map((error, index) => {
-            return <div className="fc-error"><i className="fa fa-times-circle-o"></i>{error}</div>
+            return <div className="fc-error"><i className="fa fa-times-circle-o"></i>{error}</div>;
           })}
         </div>
-      )
+      );
     }
 
     return (
@@ -219,7 +219,7 @@ export default class AddressForm extends React.Component {
             </form>
         </article>
       </div>
-    )
+    );
   }
 }
 

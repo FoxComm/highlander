@@ -3,8 +3,8 @@
 import React from 'react';
 
 export default class Counter extends React.Component {
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
 
     let value = null;
     if (this.props.model) {

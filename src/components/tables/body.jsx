@@ -2,7 +2,7 @@
 
 import React from 'react';
 import moment from 'moment';
-import { Link } from 'react-router';
+import { Link } from '../link';
 import { formatCurrency } from '../../lib/format';
 import OrderStore from '../../stores/orders';
 
@@ -67,10 +67,6 @@ export default class TableBody extends React.Component {
     return <tbody>{this.props.rows.map(createRow)}</tbody>;
   }
 }
-
-TableBody.contextTypes = {
-  router: React.PropTypes.func
-};
 
 TableBody.propTypes = {
   columns: React.PropTypes.array,

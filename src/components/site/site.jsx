@@ -1,12 +1,16 @@
 'use strict';
 
-import React from 'react';
-import { RouteHandler } from 'react-router';
+import React, { PropTypes } from 'react';
 import Header from '../header/header';
 import Sidebar from '../sidebar/sidebar';
 import Modal from '../modal/modal';
 
 export default class Site extends React.Component {
+
+  static propTypes = {
+    children: PropTypes.node
+  };
+
   render() {
     return (
       <div className="fc-admin">
@@ -14,7 +18,7 @@ export default class Site extends React.Component {
         <div className="fc-container">
           <Header/>
           <main role='main' className="fc-main">
-            <RouteHandler/>
+            {this.props.children}
           </main>
         </div>
         <Modal />

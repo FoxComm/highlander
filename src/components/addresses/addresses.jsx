@@ -1,14 +1,23 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import Address from './address';
 import AddressForm from './address-form.jsx';
 import AddressStore from '../../stores/addresses';
 import { dispatch } from '../../lib/dispatcher';
 
 export default class AddressBook extends React.Component {
-  constructor(props) {
-    super(props);
+
+  static propTypes = {
+    order: PropTypes.object,
+    onSelectAddress: PropTypes.func,
+    params: PropTypes.shape({
+      customer: PropTypes.string
+    })
+  };
+
+  constructor(props, context) {
+    super(props, context);
     this.state = {
       addresses: [],
       customerId: null
@@ -20,9 +29,10 @@ export default class AddressBook extends React.Component {
     AddressStore.listenToEvent('change', this);
     if (this.props.order) {
       customerId = this.props.order.customer.id;
+    } else if (this.props.params && this.props.params.customer) {
+      customerId = this.props.params.customer;
     } else {
-      let { router } = this.context;
-      customerId = router.getCurrentParams().customer;
+      throw new Error('customer not provided to AddressBook');
     }
 
     this.setState({customerId});
@@ -70,12 +80,3 @@ export default class AddressBook extends React.Component {
     );
   }
 }
-
-AddressBook.contextTypes = {
-  router: React.PropTypes.func
-};
-
-AddressBook.propTypes = {
-  order: React.PropTypes.object,
-  onSelectAddress: React.PropTypes.func
-};
