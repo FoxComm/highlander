@@ -8,7 +8,7 @@ class NoteStore extends TableStore {
     this.columns = [
       {
         title: 'Date/Time',
-        field: 'createdAd'
+        field: 'createdAt'
       },
       {
         title: 'Text',
