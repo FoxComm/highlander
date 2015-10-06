@@ -37,5 +37,14 @@ object CustomerManager {
     })
   }
 
+  def getById(id: Int)(implicit db: Database, ec: ExecutionContext): Result[Root] = {
+    Customers.findById(id).flatMap {
+      case Some(customer) ⇒
+        Result.right(build(customer))
+      case _ ⇒
+        Result.failure(NotFoundFailure(Customer, id))
+    }
+  }
+
 }
 
