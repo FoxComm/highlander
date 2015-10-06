@@ -90,6 +90,7 @@ object GiftCard {
     r.alphanumeric.take(length).mkString.toUpperCase
   }
 
+  // TODO: Proper origin ID
   def buildAppeasement(admin: StoreAdmin, payload: payloads.GiftCardCreateByCsr): GiftCard = {
     GiftCard(
       code = generateCode(defaultCodeLength),

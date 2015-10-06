@@ -35,6 +35,7 @@ object GiftCardService {
     }
   }
 
+  // TODO: Also reate GiftCardManual
   def createBulkByAdmin(admin: StoreAdmin, payload: payloads.GiftCardBulkCreateByCsr)
     (implicit ec: ExecutionContext, db: Database): Result[Seq[Root]] = {
 
@@ -146,6 +147,7 @@ object GiftCardService {
     }
   }
 
+  // TODO: Also create GiftCardManual
   private def createGiftCardModel(admin: StoreAdmin, payload: payloads.GiftCardCreateByCsr)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
 
