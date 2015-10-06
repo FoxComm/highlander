@@ -1,23 +1,21 @@
-import collection.immutable
-import scala.concurrent.{ExecutionContext, Future}
-
 import cats.data.{XorT, Xor, NonEmptyList}, Xor.{ left, right }
-import models.Note
 import scala.concurrent.{Future, ExecutionContext}
-import org.scalactic.{Bad, Good, Or}
 import cats.implicits._
 
 package object services {
-  type Failures = immutable.Seq[Failure]
-  private [services] def Failures(failures: Failure*): Failures = immutable.Seq[Failure](failures: _*)
+  type Failures = NonEmptyList[Failure]
 
-  implicit class FailuresOps(val underlying: Failure) extends AnyVal {
+  def Failures(failures: Failure*): Failures = failures.toList match {
+    case Nil          => throw new Exception("Can't instantiate NonEmptyList from an empty collection")
+    case head :: tail => NonEmptyList(head, tail)
+  }
+
+  implicit class FailureOps(val underlying: Failure) extends AnyVal {
     def single: Failures = Failures(underlying)
   }
 
-  implicit class NonEmptyListFailuresOps(val underlying: NonEmptyList[Failure]) extends AnyVal {
-    import cats.implicits._
-    def failure: Failures = Failures(underlying.unwrap.toSeq: _*)
+  implicit class FailuresOps(val underlying: Failures) extends AnyVal {
+    def toList: List[Failure] = underlying.head :: underlying.tail
   }
 
   type Result[A] = Future[Failures Xor A]
@@ -29,14 +27,14 @@ package object services {
 
     def good[A](value: A):  Result[A] = Future.successful(Xor.right(value))
     def right[A](value: A): Result[A] = good(value)
-    def left[A](fs: Failures): Result[A] = failures(fs: _*)
-    def leftNel[A](fs: NonEmptyList[Failure]): Result[A] = Future.successful(Xor.left(fs.unwrap.toSeq))
-
-    def failures(failures: Failure*): Result[Nothing] =
-      Future.successful(Xor.left(Failures(failures: _*)))
+    def left[A](fs: Failures): Result[A] = failures(fs)
+    def leftNel[A](fs: NonEmptyList[Failure]): Result[A] = Future.successful(Xor.left(fs))
 
     def failures(fs: Failures): Result[Nothing] =
-      failures(fs: _*)
+      Future.successful(Xor.left(fs))
+
+    def failures(fs: Failure*): Result[Nothing] =
+      failures(Failures(fs: _*))
 
     def failure(failure: Failure): Result[Nothing] =
       failures(failure)

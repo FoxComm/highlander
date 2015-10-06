@@ -50,7 +50,7 @@ class LineItemUpdaterTest extends IntegrationTestBase {
           val allRecords = db.run(lineItems.result).futureValue
           root.lineItems.size must === (allRecords.size)
 
-        case Xor.Left(s) => fail(s.mkString(";"))
+        case Xor.Left(s) => fail(s.toList.mkString(";"))
       }
     }
 
@@ -81,7 +81,7 @@ class LineItemUpdaterTest extends IntegrationTestBase {
 
           root.lineItems.size must === (allRecords.size)
 
-        case Xor.Left(s) => fail(s.mkString(";"))
+        case Xor.Left(s) => fail(s.toList.mkString(";"))
       }
     }
 

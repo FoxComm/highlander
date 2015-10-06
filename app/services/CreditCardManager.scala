@@ -54,7 +54,7 @@ object CreditCardManager {
     }
 
     val transformer = for {
-      _       ← ResultT.fromXor(payload.validate.toXor.leftMap(_.failure))
+      _       ← ResultT.fromXor(payload.validate.toXor)
       res     ← getExistingStripeIdAndAddress
       res2    ← res match { case (sId, address) ⇒
         ResultT(gateway.createCard(customer.email, payload, sId, address))
@@ -153,7 +153,7 @@ object CreditCardManager {
     }
 
     val transformer: ResultT[DBIO[CreditCard]] = for {
-      _       ← ResultT.fromXor(payload.validate.toXor.leftMap(_.failure))
+      _       ← ResultT.fromXor(payload.validate.toXor)
       cc      ← getCardAndAddressChange
       updated ← update(cc)
       withAddress ← createNewAddressIfProvided(updated)
