@@ -33,9 +33,9 @@ export default class Orders extends React.Component {
         <div className="fc-list-header">
           <div className="fc-grid gutter">
             <div className="fc-col-2-6">
-              <h1 className="fc-title">Orders <span className="fc-subtitle">{this.state.orders.length}</span></h1>
+              <h1 className="fc-list-header-title">Orders <span className="fc-list-header-subtitle">{this.state.orders.length}</span></h1>
             </div>
-            <div className="fc-col-2-6 fc-push-2-6 fc-actions">
+            <div className="fc-col-2-6 fc-push-2-6 fc-list-header-actions">
               <button className="fc-btn fc-btn-primary"><i className="icon-add"></i> Order</button>
             </div>
           </div>

@@ -41,8 +41,5 @@ describe('LineItemDelete', function() {
     let lineItemDeleteNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithTag(lineItemDelete, 'button'));
 
     TestUtils.Simulate.click(lineItemDeleteNode);
-
-    let modalNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithClass(modal, 'show'));
-    expect(modalNode).to.be.instanceof(Object);
   });
 });

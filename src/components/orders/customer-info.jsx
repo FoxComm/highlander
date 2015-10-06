@@ -53,9 +53,8 @@ export default class CustomerInfo extends React.Component {
           <div className="fc-customer-info-email">
             {customer.email}
           </div>
-
         </div>
-        <article>
+        <article className="fc-customer-info-body">
           <ul className="fc-customer-info-fields">
             <li>
               <i className="icon-customer"></i>

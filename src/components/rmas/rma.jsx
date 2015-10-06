@@ -73,7 +73,7 @@ export default class Rma extends React.Component {
     }
 
     return (
-      <div id="rma">
+      <div className="fc-rma">
         {viewers}
         <div className="gutter title">
           <div>

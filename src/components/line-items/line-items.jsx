@@ -108,7 +108,7 @@ export default class LineItems extends React.Component {
     }
 
     return (
-      <section className="line-items fc-content-box">
+      <section className="fc-line-items fc-content-box">
         {header}
         {body}
         {actions}

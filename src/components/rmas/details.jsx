@@ -28,7 +28,7 @@ export default class RmaDetails extends React.Component {
     ];
 
     return (
-      <div className="rma-details fc-grid fc-grid-match">
+      <div className="fc-rma-details fc-grid fc-grid-match">
         <div className="fc-col-3-10">
           <RmaSummary rma={rma} isEditing={isEditing}/>
         </div>

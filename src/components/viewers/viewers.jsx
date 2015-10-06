@@ -57,7 +57,7 @@ export default class Viewers extends React.Component {
     }
 
     return (
-      <div className="viewers">
+      <div className="fc-viewers">
         <ul>
           {viewers.map(viewerItem)}
         </ul>

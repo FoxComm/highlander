@@ -46,7 +46,7 @@ export default class RemorseTimer extends React.Component {
     }
 
     return (
-      <div className="remorsetimer">
+      <div className="fc-remorse-timer">
         <Countdown endDate={this.state.endDate} frozen={this.state.frozen}/>
         <div className="remorsetimer__controls">{controls}</div>
       </div>
