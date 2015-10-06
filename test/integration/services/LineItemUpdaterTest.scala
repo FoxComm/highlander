@@ -13,10 +13,13 @@ class LineItemUpdaterTest extends IntegrationTestBase {
 
   val lineItems = TableQuery[OrderLineItems]
 
-  def createSkus(num: Int): Unit =
+  def createSkusAndLinks(num: Int): Unit = {
     (Skus.returningId ++= (1 to num).map { i ⇒
       Factories.skus.head.copy(sku = i.toString, price = 5)
     }).run().futureValue
+
+    (OrderLineItemSkus.returningId ++= (1 to num).map { i ⇒ OrderLineItemSku(skuId = i) }).run().futureValue
+  }
 
   def createLineItems(items: Seq[OrderLineItem]): Unit = {
     val insert = lineItems ++= items
@@ -32,7 +35,7 @@ class LineItemUpdaterTest extends IntegrationTestBase {
   "LineItemUpdater" - {
 
     "Adds line_items when the sku doesn't exist in order" in {
-      createSkus(2)
+      createSkusAndLinks(2)
       val order = Orders.save(Order(customerId = 1)).run().futureValue
       createInventory(1, 100)
       createInventory(2, 100)
@@ -55,13 +58,13 @@ class LineItemUpdaterTest extends IntegrationTestBase {
     }
 
     "Updates line_items when the Sku already is in order" in {
-      createSkus(3)
+      createSkusAndLinks(3)
       val order = Orders.save(Order(customerId = 1)).run().futureValue
       createInventory(1, 100)
       createInventory(2, 100)
       createInventory(3, 100)
-      val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { skuId =>
-        OrderLineItem(id = 0, orderId = 1, originId = skuId, originType = OrderLineItem.SkuItem)
+      val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { linkId =>
+        OrderLineItem(id = 0, orderId = 1, originId = linkId, originType = OrderLineItem.SkuItem)
       }
       createLineItems(seedItems)
 
