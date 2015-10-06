@@ -1,13 +1,17 @@
 'use strict';
 
-import React from 'react';
-import { RouteHandler } from 'react-router';
+import React, { PropTypes } from 'react';
 
 export default class Customer extends React.Component {
+
+  static propTypes = {
+    children: PropTypes.node
+  };
+
   render() {
     return (
       <div id="user">
-        <RouteHandler/>
+        {this.props.children}
       </div>
     );
   }

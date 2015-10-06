@@ -1,17 +1,25 @@
 'use strict';
 
-const
-  fs          = require('fs'),
-  path        = require('path'),
-  _           = require('lodash'),
-  htmlescape  = require('htmlescape'),
-  errors      = require('./errors');
+const fs = require('fs');
+const path = require('path');
+const _ = require('lodash');
+const htmlescape = require('htmlescape');
+const errors = require('./errors');
 
 module.exports = function(app) {
-  const
-    config    = app.config,
-    template  = path.join(__dirname, './views/layout.tmpl'),
-    layout    = _.template(fs.readFileSync(template, 'utf8'));
+  const config = app.config;
+  const template = path.join(__dirname, './views/layout.tmpl');
+  const layout = _.template(fs.readFileSync(template, 'utf8'));
+
+  // lets do renderReact property is lazy
+  Object.defineProperty(app, 'renderReact', {
+    get: function() {
+      const appFile = path.join(config.layout.publicDir, 'admin.js');
+      const App = require(appFile);
+
+      return App.renderReact;
+    }
+  });
 
   app.requireUser = function *(next) {
     if (!this.currentUser) {
@@ -46,10 +54,7 @@ module.exports = function(app) {
     }
   };
 
-  app.renderReact = function *() {
-    const appFile = path.join(config.layout.publicDir, 'admin.js');
-    const App     = require(appFile);
-
+  app.renderLayout = function *() {
     let bootstrap = {
       path: this.path
     };
@@ -57,7 +62,7 @@ module.exports = function(app) {
     let layoutData = _.defaults({
       stylesheet: '/admin.css',
       javascript: '/admin.js',
-      rootHTML: yield App.start(bootstrap),
+      rootHTML: this.state.html,
       appStart: `App.start(${htmlescape(bootstrap)});`
     }, config.layout.pageConstants);
 

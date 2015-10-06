@@ -5,11 +5,11 @@ import CountryStore from '../../stores/countries';
 
 class AddressDetails extends React.Component {
 
-  constructor(props) {
-    super(props);
+  constructor(...args) {
+    super(...args);
     this.state = {
       countryName: null
-    }
+    };
   }
 
   componentDidMount() {
@@ -38,7 +38,7 @@ class AddressDetails extends React.Component {
         <li>{this.state.countryName}</li>
         { address.phoneNumber ? <li>{address.phoneNumber}</li> : '' }
       </ul>
-    )
+    );
   }
 }
 

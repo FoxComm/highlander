@@ -7,8 +7,8 @@ import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
 
 export default class Orders extends React.Component {
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
     this.state = {
       orders: OrderStore.getState()
     };

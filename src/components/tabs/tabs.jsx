@@ -1,8 +1,13 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 
 export default class TabListView extends React.Component {
+
+  static propTypes = {
+    children: PropTypes.node
+  };
+
   render() {
     return (
       <ul className="fc-tab-list">
@@ -14,8 +19,4 @@ export default class TabListView extends React.Component {
       </ul>
     );
   }
-}
-
-TabListView.propTypes = {
-  children: React.PropTypes.array
 }

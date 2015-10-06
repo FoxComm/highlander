@@ -5,8 +5,8 @@ import TableView from '../tables/tableview';
 import CustomerStore from './store';
 
 export default class Customers extends React.Component {
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
     this.state = {
       customers: CustomerStore.getState()
     };

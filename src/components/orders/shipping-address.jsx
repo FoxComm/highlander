@@ -7,8 +7,8 @@ import OrderStore from '../../stores/orders';
 
 export default class OrderShippingAddress extends React.Component {
 
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
     this.state = {
       isEditing: false
     };
