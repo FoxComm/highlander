@@ -40,6 +40,7 @@ const routes = (
     </Route>
     <Route name='customers' path='customers' component={Customers}/>
     <Route name='customer' path='customers/:customer' component={Customer}>
+      <IndexRoute name='customer-details' component={Customer}/>
       <Route name='customer-addresses' path='addresses' component={AddressBook} />
     </Route>
     <Route name='gift-cards' path='gift-cards' component={GiftCards} />
