@@ -557,15 +557,13 @@ class OrderIntegrationTest extends IntegrationTestBase
         val updateAddressPayload = payloads.UpdateAddressPayload(name = Some(name), city = Some(city))
         val addressUpdateResponse = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address", updateAddressPayload)
 
-        addressUpdateResponse.status must === (StatusCodes.OK)
-
         //get full order 
         val fullOrderResponse = GET(s"v1/orders/${order.referenceNumber}")
-        fullOrderResponse.status must === (StatusCodes.OK)
 
-        //compare both responses
+        //test both responses
         val responses = Seq(addressUpdateResponse, fullOrderResponse)
         responses.map( r ⇒  {
+          r.status must === (StatusCodes.OK)
           val fullOrder = r.as[FullOrder.Root]
           fullOrder.shippingAddress match {
             case Some(addr) ⇒ {
