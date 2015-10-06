@@ -44,7 +44,7 @@ const routes = (
       <Route name='customer-addresses' path='addresses' component={AddressBook} />
     </Route>
     <Route name='gift-cards' path='gift-cards' component={GiftCards} />
-    <Route name='gift-cards-new' path='/gift-cards/new' component={NewGiftCard} />
+    <Route name='gift-cards-new' path='gift-cards/new' component={NewGiftCard} />
     <Route name='giftcard' path='gift-cards/:giftcard' component={GiftCard}>
       <IndexRoute name='gift-card-transactions' component={GiftCardTransactions} />
       <Route name='gift-card-notes' path='notes' component={Notes} />

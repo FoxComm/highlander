@@ -10,7 +10,7 @@ class GiftCardActions {
 
   fetchGiftCards() {
     this.dispatch();
-    Api.get('/gift-cards')
+    return Api.get('/gift-cards')
       .then((cards) => {
         this.actions.updateGiftCards(cards);
       })
@@ -24,7 +24,8 @@ class GiftCardActions {
   }
 
   createGiftCard(form) {
-    Api.submitForm(form)
+    this.dispatch();
+    return Api.submitForm(form)
       .then((cards) => {
         this.actions.updateGiftCards(cards);
       })
