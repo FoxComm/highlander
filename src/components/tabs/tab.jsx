@@ -5,7 +5,12 @@ import React, { PropTypes } from 'react';
 export default class TabView extends React.Component {
 
   static propTypes = {
-    children: PropTypes.node
+    children: PropTypes.node,
+    draggable: React.PropTypes.bool,
+  };
+
+  static defaultProps = {
+    draggable: true
   };
 
   constructor(props, context) {
@@ -34,12 +39,3 @@ export default class TabView extends React.Component {
     return tab;
   }
 }
-
-TabView.propTypes = {
-  children: React.PropTypes.array,
-  draggable: React.PropTypes.bool,
-};
-
-TabView.defaultProps = {
-  draggable: true
-};

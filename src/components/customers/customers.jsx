@@ -9,6 +9,22 @@ import SearchBar from '../search-bar/search-bar';
 import CustomerStore from '../../stores/customers';
 
 export default class Customers extends React.Component {
+  static propTypes = {
+    tableColumns: React.PropTypes.array
+  };
+
+  static defaultProps = {
+    tableColumns: [
+      {field: 'name', text: 'Name', type: 'link', id: 'id'},
+      {field: 'email', text: 'Email', type: 'link', id: 'id'},
+      {field: 'id', text: 'Customer ID', type: 'id'},
+      {field: 'shipToRegion', text: 'Ship To Region'},
+      {field: 'billToRegion', text: 'Bill To Region'},
+      {field: 'rank', text: 'Rank'},
+      {field: 'createdAt', text: 'Date/Time Joined', type: 'date'}
+    ]
+  };
+
   constructor(props, context) {
     super(props, context);
     this.state = {
@@ -76,19 +92,3 @@ export default class Customers extends React.Component {
     );
   }
 }
-
-Customers.propTypes = {
-  tableColumns: React.PropTypes.array
-};
-
-Customers.defaultProps = {
-  tableColumns: [
-    {field: 'name', text: 'Name', type: 'link', id: 'id'},
-    {field: 'email', text: 'Email', type: 'link', id: 'id'},
-    {field: 'id', text: 'Customer ID', type: 'id'},
-    {field: 'shipToRegion', text: 'Ship To Region'},
-    {field: 'billToRegion', text: 'Bill To Region'},
-    {field: 'rank', text: 'Rank'},
-    {field: 'createdAt', text: 'Date/Time Joined', type: 'date'}
-  ]
-};
