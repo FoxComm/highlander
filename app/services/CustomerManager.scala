@@ -47,11 +47,13 @@ object CustomerManager {
   protected def fetchRegions(query: QuerySeq) = {
     val customerWithShipRegion = for {
       ((c, a), r) ← query.joinLeft(models.Addresses).on {
-        case (a, b) => a.id === b.customerId && b.isDefaultShipping === true
+        case (a, b) ⇒ a.id === b.customerId && b.isDefaultShipping === true
       }.joinLeft(Regions).on(_._2.map(_.regionId) === _.id)
     } yield (c, r)
 
-    val CcWithRegions = CreditCards.join(Regions).on(_.regionId === _.id)
+    val CcWithRegions = CreditCards.join(Regions).on {
+      case (c, r) ⇒ c.regionId === r.id && c.isDefault === true
+    }
 
     for {
       ((c, shipRegion), billInfo) ←
