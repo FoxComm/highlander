@@ -550,6 +550,35 @@ class OrderIntegrationTest extends IntegrationTestBase
         addressBook.city must === (address.city)
       }
 
+      "full order returns updated shipping addresss" in new ShippingAddressFixture {
+        //update address
+        val name = "Even newer name"
+        val city = "Queen Max"
+        val updateAddressPayload = payloads.UpdateAddressPayload(name = Some(name), city = Some(city))
+        val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address", updateAddressPayload)
+
+        response.status must === (StatusCodes.OK)
+
+        //get full order and compare
+        val fullResponse = GET(s"v1/orders/${order.referenceNumber}")
+        fullResponse.status must === (StatusCodes.OK)
+
+        val fullOrder = parse(response.bodyText).extract[FullOrder.Root]
+        fullOrder.shippingAddress match {
+          case Some(addr) => {
+            addr.name must === (name)
+            addr.city must === (city)
+            addr.address1 must === (address.address1)
+            addr.address2 must === (address.address2)
+            addr.regionId must === (address.regionId)
+            addr.zip must === (address.zip)
+          }
+
+          case None => {
+            fail("FullOrder should have a shipping address")
+          }
+        }
+      }
     }
 
     "deleting the shipping address from an order" - {
