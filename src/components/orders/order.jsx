@@ -1,8 +1,7 @@
 'use strict';
 
-import React from 'react';
-import { RouteHandler } from 'react-router';
-import { Link } from 'react-router';
+import React, { PropTypes } from 'react';
+import { Link, IndexLink } from '../link';
 import { listenTo, stopListeningTo, dispatch } from '../../lib/dispatcher';
 import OrderStore from './../../stores/orders';
 import Viewers from '../viewers/viewers';
@@ -24,8 +23,15 @@ const cancelOptions = {
 
 export default class Order extends React.Component {
 
-  constructor(props) {
-    super(props);
+  static propTypes = {
+    params: PropTypes.shape({
+      order: PropTypes.string.isRequired
+    }).isRequired,
+    children: PropTypes.node
+  };
+
+  constructor(props, context) {
+    super(props, context);
     this.state = {
       order: {},
       customer: {},
@@ -34,8 +40,7 @@ export default class Order extends React.Component {
   }
 
   get orderRefNum() {
-    let { router } = this.context;
-    return router.getCurrentParams().order
+    return this.props.params.order;
   }
 
   componentDidMount() {
@@ -93,20 +98,22 @@ export default class Order extends React.Component {
       orderStatus   = null,
       remorseTimer  = null;
 
+    const content = React.cloneElement(this.props.children, {order, modelName: 'order' });
+
     if (order.id) {
       let params = {order: order.referenceNumber};
 
       subNav = (
         <div className="gutter">
           <ul className="fc-tabbed-nav">
-            <li><Link to="order-details" params={params}>Details</Link></li>
+            <li><IndexLink to="order-details" params={params}>Details</IndexLink></li>
             <li><a href="">Shipments</a></li>
             <li><Link to="order-returns" params={params}>Returns</Link></li>
             <li><Link to="order-notifications" params={params}>Transaction Notifications</Link></li>
             <li><Link to="order-notes" params={params}>Notes</Link></li>
             <li><Link to="order-activity-trail" params={params}>Activity Trail</Link></li>
           </ul>
-          <RouteHandler order={order} modelName="order"/>
+          {content}
         </div>
       );
 
@@ -166,7 +173,3 @@ export default class Order extends React.Component {
     );
   }
 }
-
-Order.contextTypes = {
-  router: React.PropTypes.func
-};

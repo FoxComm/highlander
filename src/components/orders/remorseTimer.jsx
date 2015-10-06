@@ -8,8 +8,8 @@ import { listenTo, stopListeningTo } from '../../lib/dispatcher';
 const editEvent = 'toggle-order-edit';
 
 export default class RemorseTimer extends React.Component {
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
     this.state = {
       endDate: props.endDate,
       frozen: false

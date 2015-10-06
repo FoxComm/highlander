@@ -9,8 +9,8 @@ import Payment from '../payment/payment';
 import RmaStore from './store';
 
 export default class RmaDetails extends React.Component {
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
     this.state = {};
   }
 

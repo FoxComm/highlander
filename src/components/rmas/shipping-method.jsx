@@ -8,8 +8,8 @@ import TableBody from '../tables/body';
 import ShippingMethodItem from './shipping-method-item';
 
 export default class ShippingMethod extends React.Component {
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
     this.state = {
       methods: []
     };

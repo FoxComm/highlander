@@ -1,7 +1,7 @@
 'use strict';
 
 import React from 'react';
-import { Route, DefaultRoute } from 'react-router';
+import { Route, IndexRoute } from 'react-router';
 import Site from './components/site/site';
 import Home from './components/home/home';
 import Rmas from './components/rmas/rmas';
@@ -21,32 +21,32 @@ import GiftCard from './components/gift-cards/gift-card';
 import GiftCardTransactions from './components/gift-cards/transactions';
 
 const routes = (
-  <Route handler={Site}>
-    <DefaultRoute name="home" handler={Home}/>
-    <Route name='orders' handler={Orders}/>
-    <Route name='rmas' path='returns' handler={Rmas}/>
-    <Route name='rma' path='/returns/:rma' handler={Rma}>
-      <DefaultRoute name='rma-details' path='/returns/:rma' handler={RmaDetails}/>
-      <Route name='rma-notes' path='notes' handler={Notes}/>
-      <Route name='rma-notifications' path='notifications' handler={Notifications}/>
-      <Route name='rma-activity-trail' path='activity-trail' handler={ActivityTrail}/>
+  <Route path="/" component={Site}>
+    <IndexRoute name="home" component={Home}/>
+    <Route name='orders' path="orders" component={Orders}/>
+    <Route name='rmas' path='returns' component={Rmas}/>
+    <Route name='rma' path='returns/:rma' component={Rma}>
+      <IndexRoute name='rma-details' component={RmaDetails}/>
+      <Route name='rma-notes' path='notes' component={Notes}/>
+      <Route name='rma-notifications' path='notifications' component={Notifications}/>
+      <Route name='rma-activity-trail' path='activity-trail' component={ActivityTrail}/>
     </Route>
-    <Route name='order' path='/orders/:order' handler={Order}>
-      <DefaultRoute name='order-details' handler={OrderDetails}/>
-      <Route name='order-notes' path='notes' handler={Notes}/>
-      <Route name='order-returns' path='returns' handler={Rmas}/>
-      <Route name='order-notifications' path='notifications' handler={Notifications}/>
-      <Route name='order-activity-trail' path='activity-trail' handler={ActivityTrail}/>
+    <Route name='order' path='orders/:order' component={Order}>
+      <IndexRoute name='order-details' component={OrderDetails}/>
+      <Route name='order-notes' path='notes' component={Notes}/>
+      <Route name='order-returns' path='returns' component={Rmas}/>
+      <Route name='order-notifications' path='notifications' component={Notifications}/>
+      <Route name='order-activity-trail' path='activity-trail' component={ActivityTrail}/>
     </Route>
-    <Route name='customers' handler={Customers}/>
-    <Route name='customer' path='/customers/:customer' handler={Customer}>
-      <Route name='customer-addresses' path='addresses' handler={AddressBook} />
+    <Route name='customers' path='customers' component={Customers}/>
+    <Route name='customer' path='customers/:customer' component={Customer}>
+      <Route name='customer-addresses' path='addresses' component={AddressBook} />
     </Route>
-    <Route name='gift-cards' path='/gift-cards' handler={GiftCards} />
-    <Route name='giftcard' path='/gift-cards/:giftcard' handler={GiftCard}>
-      <DefaultRoute name='gift-card-transactions' handler={GiftCardTransactions} />
-      <Route name='gift-card-notes' path='notes' handler={Notes} />
-      <Route name='gift-card-activity-trail' path='activity-trail' handler={ActivityTrail} />
+    <Route name='gift-cards' path='gift-cards' component={GiftCards} />
+    <Route name='giftcard' path='gift-cards/:giftcard' component={GiftCard}>
+      <IndexRoute name='gift-card-transactions' component={GiftCardTransactions} />
+      <Route name='gift-card-notes' path='notes' component={Notes} />
+      <Route name='gift-card-activity-trail' path='activity-trail' component={ActivityTrail} />
     </Route>
   </Route>
 );

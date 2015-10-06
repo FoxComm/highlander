@@ -5,8 +5,8 @@ import classNames from 'classnames';
 import moment from 'moment';
 
 export default class Countdown extends React.Component {
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
     this.state = {};
   }
 

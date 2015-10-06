@@ -29,8 +29,8 @@ const orderEditColumns = [
 ];
 
 export default class LineItems extends React.Component {
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
     this.state = {
       isEditing: false
     };

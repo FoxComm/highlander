@@ -10,8 +10,8 @@ import { pluralize } from 'fleck';
 
 export default class Notes extends React.Component {
 
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
     this.state = {
       notes: [],
       open: false,

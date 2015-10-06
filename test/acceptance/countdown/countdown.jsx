@@ -2,8 +2,11 @@
 
 require('testdom')('<html><body></body></html>');
 
-const React = require('react/addons');
-const TestUtils = React.addons.TestUtils;
+const React = require('react');
+
+const TestUtils = require('react-addons-test-utils');
+const ReactDOM = require('react-dom');
+
 const path = require('path');
 const moment = require('moment');
 
@@ -16,15 +19,15 @@ describe('Countdown', function() {
   });
 
   afterEach(function(done) {
-    React.unmountComponentAtNode(container);
+    ReactDOM.unmountComponentAtNode(container);
     setTimeout(done);
   });
 
   it('should render', function *() {
-    let countdown = React.render(
+    let countdown = ReactDOM.render(
       <Countdown endDate={moment().add(5, 'm').utc().format()}/>
       , container);
-    let countdownNode = TestUtils.findRenderedDOMComponentWithTag(countdown, 'div').getDOMNode();
+    let countdownNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithTag(countdown, 'div'));
 
     expect(countdownNode).to.be.instanceof(Object);
     expect(countdownNode.className).to.contain('fc-countdown');
@@ -32,10 +35,10 @@ describe('Countdown', function() {
   });
 
   it('should create ending mode', function *() {
-    let countdown = React.render(
+    let countdown = ReactDOM.render(
       <Countdown endDate={moment().add(1, 'm').utc().format()}/>
       , container);
-    let countdownNode = TestUtils.findRenderedDOMComponentWithTag(countdown, 'div').getDOMNode();
+    let countdownNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithTag(countdown, 'div'));
 
     expect(countdownNode).to.be.instanceof(Object);
     expect(countdownNode.className).to.contain('fc-countdown');
