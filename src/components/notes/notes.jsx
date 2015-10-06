@@ -49,10 +49,6 @@ export default class Notes extends React.Component {
     NoteStore.stopListeningToEvent('change', this);
   }
 
-  onChangeNoteStore(notes) {
-    this.setState({notes: notes});
-  }
-
   handleEdit(item) {
     this.setState({
       creatingNote: false,
