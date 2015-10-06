@@ -108,7 +108,8 @@ class ShippingManagerTest extends IntegrationTestBase {
       customer ← Customers.save(Factories.customer)
       order ← Orders.save(Factories.order.copy(customerId = customer.id))
       sku ← Skus.save(Factories.skus.head.copy(name = Some("Donkey"), price = 27))
-      lineItem ← OrderLineItems.save(OrderLineItem(orderId = order.id, originId = sku.id,
+      lineItemSku ← OrderLineItemSkus.save(OrderLineItemSku(skuId = sku.id))
+      lineItem ← OrderLineItems.save(OrderLineItem(orderId = order.id, originId = lineItemSku.id,
         originType = OrderLineItem.SkuItem))
     } yield (customer, order)).futureValue
 
@@ -214,14 +215,16 @@ val conditions = parse(
       shippingMethod ← ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
       cheapOrder ← Orders.save(Factories.order.copy(customerId = customer.id, referenceNumber = "CS1234-AA"))
       cheapSku ← Skus.save(Factories.skus.head.copy(name = Some("Cheap Donkey"), price = 10))
-      cheapLineItem ← OrderLineItems.save(OrderLineItem(orderId = cheapOrder.id, originId = cheapSku.id,
+      cheapLineItemSku ← OrderLineItemSkus.save(OrderLineItemSku(skuId = cheapSku.id))
+      cheapLineItem ← OrderLineItems.save(OrderLineItem(orderId = cheapOrder.id, originId = cheapLineItemSku.id,
         originType = OrderLineItem.SkuItem))
       cheapAddress ← Addresses.save(Factories.address.copy(customerId = customer.id, isDefaultShipping = false))
       _ ← OrderShippingAddresses.copyFromAddress(address = cheapAddress, orderId = cheapOrder.id)
       expensiveOrder ← Orders.save(Factories.order.copy(customerId = customer.id, referenceNumber = "CS1234-AA"))
       expensiveSku ← Skus.save(Factories.skus.head.copy(name = Some("Expensive Donkey"), price = 100))
-      expensiveLineItem ← OrderLineItems.save(OrderLineItem(orderId = expensiveOrder.id, originId = expensiveSku.id,
-        originType = OrderLineItem.SkuItem))
+      expensiveLineItemSku ← OrderLineItemSkus.save(OrderLineItemSku(skuId = expensiveSku.id))
+      expensiveLineItem ← OrderLineItems.save(OrderLineItem(orderId = expensiveOrder.id,
+        originId = expensiveLineItemSku.id, originType = OrderLineItem.SkuItem))
       expensiveAddress ← Addresses.save(Factories.address.copy(customerId = customer.id, isDefaultShipping = false))
       _ ← OrderShippingAddresses.copyFromAddress(address = expensiveAddress, orderId = expensiveOrder.id)
     } yield(shippingMethod, cheapOrder, expensiveOrder)).futureValue
