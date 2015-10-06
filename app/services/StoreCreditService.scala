@@ -62,7 +62,7 @@ object StoreCreditService {
 
         Result.fromFuture(future)
       case Invalid(errors) ⇒
-        Result.failures(errors.failure)
+        Result.failures(errors)
     }
   }
 
@@ -93,7 +93,7 @@ object StoreCreditService {
           }
         }
       case Invalid(errors) ⇒
-        Result.failures(errors.failure)
+        Result.failures(errors)
     }
   }
 

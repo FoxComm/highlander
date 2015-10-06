@@ -29,7 +29,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
   type Errors = Map[String, Seq[String]]
 
-  def getUpdated(refNum: String) = db.run(Orders.findByRefNum(refNum).result.headOption).futureValue.get
+  def getUpdated(refNum: String) = db.run(Orders.findByRefNum(refNum).result.headOption).futureValue.value
 
   "returns new items" in {
     pending
@@ -120,7 +120,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       val response = POST(s"v1/orders/${order.referenceNumber}/increase-remorse-period")
       response.status must ===(StatusCodes.BadRequest)
 
-      val newOrder = Orders._findById(order.id).extract.one.run().futureValue.get
+      val newOrder = Orders._findById(order.id).extract.one.run().futureValue.value
       newOrder.remorsePeriodEnd must ===(order.remorsePeriodEnd)
     }
   }
@@ -200,7 +200,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       (timer ? Tick).futureValue
 
       val order2 = getUpdated(refNum)
-      val newRemorseEnd = order2.remorsePeriodEnd.get
+      val newRemorseEnd = order2.remorsePeriodEnd.value
 
       originalRemorseEnd.durationUntil(newRemorseEnd).getSeconds mustBe >= (3L)
       order2.status must ===(Order.RemorseHold)
@@ -212,7 +212,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       POST(s"v1/orders/$refNum/lock")
       POST(s"v1/orders/$refNum/unlock")
 
-      val newRemorseEnd = getUpdated(order.referenceNumber).remorsePeriodEnd.get
+      val newRemorseEnd = getUpdated(order.referenceNumber).remorsePeriodEnd.value
       originalRemorseEnd.durationUntil(newRemorseEnd).getMinutes mustBe 0
     }
 
@@ -222,7 +222,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       // Sanity check
       OrderLockEvents.findByOrder(order).mostRecentLock.result.headOption.run().futureValue must ===(None)
       POST(s"v1/orders/$refNum/unlock")
-      getUpdated(refNum).remorsePeriodEnd.get must ===(originalRemorseEnd.plusMinutes(15))
+      getUpdated(refNum).remorsePeriodEnd.value must ===(originalRemorseEnd.plusMinutes(15))
     }
   }
 
@@ -368,7 +368,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
   "notes" - {
     "can be created by an admin for an order" in new Fixture {
-      val response = POST(s"v1/orders/${order.referenceNumber}/notes",
+      val response = POST(s"v1/notes/order/${order.referenceNumber}",
         payloads.CreateNote(body = "Hello, FoxCommerce!"))
 
       response.status must === (StatusCodes.OK)
@@ -380,14 +380,14 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
 
     "returns a validation error if failed to create" in new Fixture {
-      val response = POST(s"v1/orders/${order.referenceNumber}/notes", payloads.CreateNote(body = ""))
+      val response = POST(s"v1/notes/order/${order.referenceNumber}", payloads.CreateNote(body = ""))
 
       response.status must === (StatusCodes.BadRequest)
       response.bodyText must include ("errors")
     }
 
     "returns a 404 if the order is not found" in new Fixture {
-      val response = POST(s"v1/orders/ABACADSF113/notes", payloads.CreateNote(body = ""))
+      val response = POST(s"v1/notes/order/ABACADSF113", payloads.CreateNote(body = ""))
 
       response.status must === (StatusCodes.NotFound)
       response.bodyText must be ('empty)
@@ -398,7 +398,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         NoteManager.createOrderNote(order, storeAdmin, payloads.CreateNote(body = body)).futureValue
       }
 
-      val response = GET(s"v1/orders/${order.referenceNumber}/notes")
+      val response = GET(s"v1/notes/order/${order.referenceNumber}")
       response.status must === (StatusCodes.OK)
 
       val notes = parse(response.bodyText).extract[Seq[AdminNotes.Root]]
@@ -411,7 +411,8 @@ class OrderIntegrationTest extends IntegrationTestBase
       val rootNote = NoteManager.createOrderNote(order, storeAdmin,
         payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue.get
 
-      val response = PATCH(s"v1/orders/${order.referenceNumber}/notes/${rootNote.id}", payloads.UpdateNote(body = "donkey"))
+      val response = PATCH(s"v1/notes/order/${order.referenceNumber}/${rootNote.id}",
+        payloads.UpdateNote(body = "donkey"))
       response.status must === (StatusCodes.OK)
 
       val note = parse(response.bodyText).extract[AdminNotes.Root]
@@ -422,13 +423,13 @@ class OrderIntegrationTest extends IntegrationTestBase
       val note = NoteManager.createOrderNote(order, storeAdmin,
         payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue.get
 
-      val response = DELETE(s"v1/orders/${order.referenceNumber}/notes/${note.id}")
+      val response = DELETE(s"v1/notes/order/${order.referenceNumber}/${note.id}")
       response.status must ===(StatusCodes.NoContent)
       response.bodyText mustBe empty
 
-      val updatedNote = db.run(Notes.findById(note.id)).futureValue.get
-      updatedNote.deletedBy.get mustBe 1
-      updatedNote.deletedAt.get.isBeforeNow mustBe true
+      val updatedNote = db.run(Notes.findById(note.id)).futureValue.value
+      updatedNote.deletedBy.value mustBe 1
+      updatedNote.deletedAt.value.isBeforeNow mustBe true
     }
   }
 
@@ -544,7 +545,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
         response.status must === (StatusCodes.OK)
 
-        val addressBook = Addresses.findById(address.id).run().futureValue.get
+        val addressBook = Addresses.findById(address.id).run().futureValue.value
 
         addressBook.name must === (address.name)
         addressBook.city must === (address.city)
@@ -597,7 +598,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     } yield (admin, order)).run().futureValue
 
     val refNum = order.referenceNumber
-    val originalRemorseEnd = order.remorsePeriodEnd.get
+    val originalRemorseEnd = order.remorsePeriodEnd.value
   }
 }
 

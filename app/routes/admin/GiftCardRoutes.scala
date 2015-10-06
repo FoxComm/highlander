@@ -1,19 +1,19 @@
 package routes.admin
 
+
+import scala.concurrent.ExecutionContext
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
+
+import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models._
-
-import responses.AdminNotes
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.Apis
 import utils.Http._
 import utils.Slick.implicits._
 import utils.SprayDirectives._
-
-import scala.concurrent.ExecutionContext
 
 object GiftCardRoutes {
 
@@ -62,34 +62,6 @@ object GiftCardRoutes {
           (post & pathEnd) {
             goodOrFailures {
               CustomerCreditConverter.toStoreCredit(code, customerId, admin)
-            }
-          }
-        } ~
-        path(Segment / "notes") { code ⇒
-          (get & pathEnd) {
-            complete {
-              whenFound(GiftCards.findByCode(code).one.run()) { giftCard ⇒ AdminNotes.forGiftCard(giftCard) }
-            }
-          } ~
-          (post & entity(as[payloads.CreateNote]) & pathEnd) { payload ⇒
-            complete {
-              whenFound(GiftCards.findByCode(code).one.run()) { giftCard ⇒
-                NoteManager.createGiftCardNote(giftCard, admin, payload)
-              }
-            }
-          }
-        } ~
-        path(Segment / "notes" / IntNumber) { (code, noteId) ⇒
-          (patch & entity(as[payloads.UpdateNote]) & pathEnd) { payload ⇒
-            complete {
-              whenFound(GiftCards.findByCode(code).one.run()) { _ ⇒
-                NoteManager.updateNote(noteId, admin, payload)
-              }
-            }
-          } ~
-          (delete & pathEnd) {
-            nothingOrFailures {
-              NoteManager.deleteNote(noteId, admin)
             }
           }
         }

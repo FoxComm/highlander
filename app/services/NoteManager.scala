@@ -66,7 +66,7 @@ object NoteManager {
     (implicit ec: ExecutionContext, db: Database): Result[Note] = {
     note.validate match {
       case Valid(_)         ⇒ Result.fromFuture(Notes.save(note).run())
-      case Invalid(errors)  ⇒ Result.failures(errors.failure)
+      case Invalid(errors)  ⇒ Result.failures(errors)
     }
   }
 }

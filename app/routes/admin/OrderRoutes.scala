@@ -1,11 +1,15 @@
 package routes.admin
 
+import scala.collection.immutable.Seq
+import scala.concurrent.ExecutionContext
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
+
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
+import models.Order.orderRefNumRegex
 import models._
 import payloads._
-import responses.{AdminNotes, AllOrders, BulkOrderUpdateResponse}
+import responses.{AllOrders, BulkOrderUpdateResponse}
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.Http._
@@ -13,12 +17,7 @@ import utils.Slick.DbResult
 import utils.SprayDirectives._
 import utils.{Apis, Slick}
 
-import scala.collection.immutable.Seq
-import scala.concurrent.ExecutionContext
-
 object OrderRoutes {
-
-  val orderRefNum = """([a-zA-Z0-9-_]*)""".r
 
   def routes(implicit ec: ExecutionContext, db: Database,
     mat: Materializer, storeAdminAuth: AsyncAuthenticator[StoreAdmin], apis: Apis) = {
@@ -55,7 +54,7 @@ object OrderRoutes {
           }
         }
       } ~
-      pathPrefix("orders" / orderRefNum) { refNum ⇒
+      pathPrefix("orders" / orderRefNumRegex) { refNum ⇒
         (get & pathEnd) {
           goodOrFailures {
             val finder = Orders.findByRefNum(refNum)
@@ -123,32 +122,6 @@ object OrderRoutes {
           } ~
           (delete & pathEnd) {
             goodOrFailures { OrderPaymentUpdater.deleteStoreCredit(refNum) }
-          }
-        } ~
-        pathPrefix("notes") {
-          (get & pathEnd) {
-            complete {
-              whenOrderFoundAndEditable(refNum) { order ⇒ AdminNotes.forOrder(order) }
-            }
-          } ~
-          (post & entity(as[payloads.CreateNote])) { payload ⇒
-            complete {
-              whenOrderFoundAndEditable(refNum) { order ⇒
-                NoteManager.createOrderNote(order, admin, payload)
-              }
-            }
-          } ~
-          (patch & path(IntNumber) & entity(as[payloads.UpdateNote])) { (noteId, payload) ⇒
-            complete {
-              whenOrderFoundAndEditable(refNum) { order ⇒
-                NoteManager.updateNote(noteId, admin, payload)
-              }
-            }
-          } ~
-          (delete & path(IntNumber)) { noteId ⇒
-            nothingOrFailures {
-              NoteManager.deleteNote(noteId, admin)
-            }
           }
         } ~
         pathPrefix("assignees") {
