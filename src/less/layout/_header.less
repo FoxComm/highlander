@@ -1,25 +1,26 @@
 .fc-header {
   flex: none;
-  .height(92px);
+  .colors(@color-decor5, @color-decor13);
+  .height(70px);
   .clearfix;
-  .padding-left(55px);
-  .padding-right(55px);
-  .font-spec(20px, 92px);
-  border-top: 1px solid #bbbdbf;
-  border-bottom: 1px solid #bbbdbf;
+  .padding-left(40px);
+  .padding-right(20px);
+  .font-spec(15px, 400, 65px);
+  border-top: 1px solid @color-header-border;
+  border-bottom: 1px solid @color-header-border;
+  border-left: 1px solid @color-header-border;
 
   .breadcrumb {
     .inline-block(middle);
   }
 
   .sub-nav {
-    color: #bbb;
     float: right;
 
     > * {
       display: inline-block;
       vertical-align: top;
-      .margin-right(32px);
+      .inline-block(middle);
       &:last-child { margin-right: 0; }
     }
   }
