@@ -11,7 +11,6 @@ import Controls from './controls';
 import Form from './form';
 import NoteStore from './store';
 import UserInitials from '../users/initials';
-import { pluralize } from 'fleck';
 
 export default class Notes extends React.Component {
 
