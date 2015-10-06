@@ -26,9 +26,7 @@ export default class Notes extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      notes: [],
-      creating: false,
-      editing: false,
+      creatingNote: false,
       editingNote: null
     };
   }
@@ -57,8 +55,7 @@ export default class Notes extends React.Component {
 
   handleEdit(item) {
     this.setState({
-      creating: false,
-      editing: true,
+      creatingNote: false,
       editingNote: item
     });
   }
@@ -69,15 +66,13 @@ export default class Notes extends React.Component {
 
   handleResetForm() {
     this.setState({
-      creating: false,
-      editing: false,
+      creatingNote: false,
       editingNote: null
     });
   }
 
-  handleCreateForm(event) {
-    event.preventDefault();
-    Api.submitForm(event.target)
+  handleCreateForm(data) {
+    Api.post(`${NoteStore.baseUri}`, data)
       .then((note) => {
         this.toggleCreating();
       })
@@ -86,14 +81,10 @@ export default class Notes extends React.Component {
       });
   }
 
-  handleEditForm(event) {
-    event.preventDefault();
-    Api.patch(`${NoteStore.baseUri}/${this.state.editingNote.id}`, {
-      body: event.target.body.value
-    })
+  handleEditForm(data) {
+    Api.patch(`${NoteStore.baseUri}/${this.state.editingNote.id}`, data)
       .then((note) => {
         this.setState({
-          editing: false,
           editingNote: null
         })
       })
@@ -104,8 +95,8 @@ export default class Notes extends React.Component {
 
   toggleCreating() {
     this.setState({
-      creating: !this.state.creating,
-      editing: this.state.editing && this.state.creating
+      creatingNote: !this.state.creatingNote,
+      editingNote: this.state.creating && this.state.editingNote
     });
   }
 
@@ -145,7 +136,7 @@ export default class Notes extends React.Component {
                 />
             </TableCell>
           </TableRow>
-          {this.state.editing && (this.state.editingNote.id === row.id) && (
+          {this.state.editingNote && (this.state.editingNote.id === row.id) && (
             <TableRow>
               <TableCell colspan={3}>
                 <Form
@@ -163,7 +154,7 @@ export default class Notes extends React.Component {
 
     let controls = (
       <Wrapper>
-        <button onClick={this.toggleCreating.bind(this)} disabled={!!this.state.creating}>
+        <button onClick={this.toggleCreating.bind(this)} disabled={!!this.state.creatingNote}>
           <i className="icon-add"></i>
         </button>
       </Wrapper>
@@ -171,17 +162,17 @@ export default class Notes extends React.Component {
 
     return (
       <Panel title={'Notes'} controls={controls}>
-        {this.state.creating && (
+        {this.state.creatingNote && (
           <Form
             uri={NoteStore.baseUri}
             onReset={this.handleResetForm.bind(this)}
             onSubmit={this.handleCreateForm.bind(this)}
             />
         )}
-        {this.state.notes.length && (
+        {NoteStore.rows.length && (
           <TableView store={NoteStore} renderRow={renderRow.bind(this)}/>
         )}
-        {!this.state.notes.length && (
+        {!NoteStore.rows.length && (
           <div className="empty">No notes yet.</div>
         )}
       </Panel>

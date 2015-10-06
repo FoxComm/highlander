@@ -6,12 +6,12 @@ export default class NoteForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      value: this.props.text || ''
+      body: this.props.text || ''
     }
   }
 
   componentDidMount() {
-    let node = React.findDOMNode(this.refs.textarea);
+    let node = React.findDOMNode(this.refs.body);
     let value = node.value;
     node.value = '';
     node.value = value;
@@ -19,24 +19,32 @@ export default class NoteForm extends React.Component {
   }
 
   handleChange(event) {
-    this.setState({value: event.target.value});
+    this.setState({
+      body: React.findDOMNode(this.refs.body).value
+    });
+  }
+
+  handleSubmit(event) {
+    event.preventDefault();
+    this.props.onSubmit({
+      body: this.state.body
+    });
   }
 
   render() {
     let title = this.props.text ? 'Edit note' : 'New note';
     return (
       <div className="fc-notes-form">
-        <form action={this.props.uri} method="post" onSubmit={this.props.onSubmit}>
+        <form onChange={this.handleChange.bind(this)} onSubmit={this.handleSubmit.bind(this)}>
           <fieldset>
             <legend>{title}</legend>
             <div className="note-body">
-              <div className="counter">{this.state.value.length}/1000</div>
+              <div className="counter">{this.state.body.length}/1000</div>
               <textarea
+                ref="body"
                 name="body"
                 maxLength="1000"
-                ref="textarea"
-                value={this.state.value}
-                onChange={this.handleChange.bind(this)}
+                value={this.state.body}
                 required>
               </textarea>
             </div>
