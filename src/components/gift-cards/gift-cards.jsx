@@ -2,10 +2,9 @@
 
 import React from 'react';
 import TableView from '../tables/tableview';
-import NewGiftCard from './gift-cards-new';
 import GiftCardStore from '../../stores/gift-cards';
 import GiftCardActions from '../../actions/gift-cards';
-import { Link } from 'react-router';
+import { Link } from '../link';
 import _ from 'lodash';
 
 export default class GiftCards extends React.Component {

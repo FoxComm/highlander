@@ -1,4 +1,7 @@
 {
+  "plugins": [
+    "react"
+  ],
   "ecmaFeatures": {
     "defaultParams": true,
     "classes": true,
@@ -9,7 +12,8 @@
   },
   "rules": {
     "semi": 2,
-    "strict": 0
+    "strict": 0,
+    "react/no-did-mount-set-state": [1, "allow-in-func"]
   },
   "parser": "babel-eslint"
 }
