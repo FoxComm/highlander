@@ -3,6 +3,11 @@
 import React from 'react';
 
 export default class Title extends React.Component {
+  static propTypes = {
+    title: React.PropTypes.string,
+    subtitle: React.PropTypes.string
+  }
+
   render() {
     let titleMarkup = null;
     if (this.props.subtitle !== undefined) {
@@ -25,10 +30,3 @@ export default class Title extends React.Component {
     return titleMarkup;
   }
 }
-
-Title.propTypes = {
-  title: React.PropTypes.string,
-  subtitle: React.PropTypes.string
-};
-
-

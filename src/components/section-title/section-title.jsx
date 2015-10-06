@@ -4,6 +4,12 @@ import React from 'react';
 import Title from './title';
 
 export default class SectionTitle extends React.Component {
+  static propTypes = {
+    title: React.PropTypes.string,
+    count: React.PropTypes.number,
+    buttonClickHandler: React.PropTypes.func,
+  };
+
   render() {
     let buttonMarkup = null;
     if (this.props.buttonClickHandler !== undefined) {
@@ -26,9 +32,3 @@ export default class SectionTitle extends React.Component {
     );
   }
 }
-
-SectionTitle.propTypes = {
-  title: React.PropTypes.string,
-  count: React.PropTypes.number,
-  buttonClickHandler: React.PropTypes.func,
-};
