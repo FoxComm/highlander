@@ -1,7 +1,7 @@
 package services
 
 import cats.data.Xor
-import models.{Order, OrderLineItem, OrderLineItems, Orders, InventorySummaries, InventorySummary, Skus, Sku}
+import models._
 import utils.Seeds.Factories
 import payloads.{UpdateLineItemsPayload ⇒ Payload}
 import util.IntegrationTestBase

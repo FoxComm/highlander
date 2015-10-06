@@ -9,17 +9,19 @@ class InventoryAdjustmentTest extends IntegrationTestBase {
   import api._
   import concurrent.ExecutionContext.Implicits.global
 
-  def seed(): (Sku, Order) = {
+  def seed(): (Sku, OrderLineItemSku, Order) = {
     val sku = Skus.save(Factories.skus.head.copy(price = 5)).run().futureValue
+    val lineItemSku = OrderLineItemSkus.save(OrderLineItemSku(skuId = sku.id)).run().futureValue
     val order = Orders.save(Order(id = 0, customerId = 1)).run().futureValue
-    (sku, order)
+    (sku, lineItemSku, order)
   }
 
   "InventoryAdjustment" - {
     "createAdjustmentsForOrder creates an adjustment with the correct reservation based on line items" in {
-      val (sku, order) = seed()
+      val (sku, lineItemSku, order) = seed()
+
       (OrderLineItems.returningId ++= (1 to 5).map { _ ⇒
-        OrderLineItem(orderId = order.id, originId = sku.id, originType = OrderLineItem.SkuItem)
+        OrderLineItem(orderId = order.id, originId = lineItemSku.id, originType = OrderLineItem.SkuItem)
       }).run().futureValue
 
       InventoryAdjustments.createAdjustmentsForOrder(order).futureValue
