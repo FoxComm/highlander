@@ -565,7 +565,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
         val fullOrder = parse(fullOrderResponse.bodyText).extract[FullOrder.Root]
         fullOrder.shippingAddress match {
-          case Some(addr) => {
+          case Some(addr) ⇒ {
             addr.name must === (name)
             addr.city must === (city)
             addr.address1 must === (address.address1)
@@ -574,7 +574,7 @@ class OrderIntegrationTest extends IntegrationTestBase
             addr.zip must === (address.zip)
           }
 
-          case None => {
+          case None ⇒ {
             fail("FullOrder should have a shipping address")
           }
         }
