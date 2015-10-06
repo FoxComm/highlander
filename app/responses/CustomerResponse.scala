@@ -13,8 +13,8 @@ object CustomerResponse {
     phoneNumber: Option[String] = None,
     location: Option[String] = None,
     modality: Option[String] = None,
-    joinedAt: Instant,
-    blacklisted: Boolean,
+    createdAt: Instant,
+    isDisabled: Boolean,
     rank: String,
     billRegion: Option[String],
     shipRegion: Option[String])
@@ -22,8 +22,8 @@ object CustomerResponse {
   def build(customer: Customer, shipRegion: Option[Region] = None, billRegion: Option[Region] = None): Root =
     Root(id = customer.id, email = customer.email, firstName = customer.firstName, lastName = customer.lastName,
     phoneNumber = customer.phoneNumber, location = customer.location, modality = customer.modality,
-    joinedAt = customer.createdAt,
-    blacklisted = customer.disabled,
+    createdAt = customer.createdAt,
+    isDisabled = customer.disabled,
     rank = "top 10",
     billRegion = billRegion.map(_.name),
     shipRegion = shipRegion.map(_.name))

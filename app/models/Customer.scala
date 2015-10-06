@@ -20,7 +20,7 @@ import utils.Slick.implicits._
 
 final case class Customer(id: Int = 0, disabled: Boolean = false, email: String, password: String, firstName: String,
   lastName: String, phoneNumber: Option[String] = None, location: Option[String] = None,
-  modality: Option[String] = None, isGuest: Boolean = false, createdAt: Instant = Instant.now())
+  modality: Option[String] = None, isGuest: Boolean = false, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter
   with Validation[Customer] {
 

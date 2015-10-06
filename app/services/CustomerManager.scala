@@ -8,8 +8,7 @@ import slick.driver.PostgresDriver.api._
 import utils.Slick.UpdateReturning._
 
 object CustomerManager {
-
-  type QuerySeq = Query[Customers, Customer, Seq]
+  import models.Customers.QuerySeq
 
   def toggleDisabled(customerId: Int, disabled: Boolean, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database): Result[Customer] = {
@@ -44,6 +43,7 @@ object CustomerManager {
     }
   }
 
+  /* Returns Query with included shipRegion and billRegion for customer */
   protected def fetchRegions(query: QuerySeq) = {
     val customerWithShipRegion = for {
       ((c, a), r) ← query.joinLeft(models.Addresses).on {
