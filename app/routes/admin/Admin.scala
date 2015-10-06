@@ -6,9 +6,9 @@ import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
+import models.Order.orderRefNumRegex
 import models._
 import responses.AdminNotes
-import routes.admin.OrderRoutes.orderRefNum
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.Apis
@@ -53,7 +53,7 @@ object Admin {
           }
         }
       } ~
-      pathPrefix("shipping-methods" / OrderRoutes.orderRefNum) { refNum ⇒
+      pathPrefix("shipping-methods" / orderRefNumRegex) { refNum ⇒
         (get & pathEnd) {
           goodOrFailures {
             Orders.findByRefNum(refNum).findOneAndRunIgnoringLock { order ⇒
@@ -63,7 +63,7 @@ object Admin {
         }
       } ~
       pathPrefix("notes") {
-        pathPrefix("order" / orderRefNum) { refNum ⇒
+        pathPrefix("order" / orderRefNumRegex) { refNum ⇒
           (get & pathEnd) {
             complete {
               whenOrderFoundAndEditable(refNum) { order ⇒ AdminNotes.forOrder(order) }

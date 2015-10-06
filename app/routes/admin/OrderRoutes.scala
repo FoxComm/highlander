@@ -6,6 +6,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
+import models.Order.orderRefNumRegex
 import models._
 import payloads._
 import responses.{AllOrders, BulkOrderUpdateResponse}
@@ -17,8 +18,6 @@ import utils.SprayDirectives._
 import utils.{Apis, Slick}
 
 object OrderRoutes {
-
-  val orderRefNum = """([a-zA-Z0-9-_]*)""".r
 
   def routes(implicit ec: ExecutionContext, db: Database,
     mat: Materializer, storeAdminAuth: AsyncAuthenticator[StoreAdmin], apis: Apis) = {
@@ -55,7 +54,7 @@ object OrderRoutes {
           }
         }
       } ~
-      pathPrefix("orders" / orderRefNum) { refNum ⇒
+      pathPrefix("orders" / orderRefNumRegex) { refNum ⇒
         (get & pathEnd) {
           goodOrFailures {
             val finder = Orders.findByRefNum(refNum)
