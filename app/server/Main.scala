@@ -8,18 +8,16 @@ import akka.event.Logging
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.RejectionHandler
 import akka.stream.ActorMaterializer
 
 import com.typesafe.config.Config
 import models._
 import org.json4s.{Formats, jackson}
 import org.json4s.jackson.Serialization
-import org.json4s.jackson.Serialization.{write ⇒ json}
-import routes.admin.Admin
 import services._
-import slick.driver.PostgresDriver
 import slick.driver.PostgresDriver.api._
-import utils.{WiredStripeApi, Apis, RemorseTimer, RemorseTimerMate, Tick}
+import utils.{SprayHandlers, WiredStripeApi, Apis, RemorseTimer, RemorseTimerMate, Tick}
 
 object Main extends App {
   val service = new Service()
@@ -67,6 +65,8 @@ class Service(
       logRequestResult("public-routes")(routes.Public.routes)
     }
   }
+
+  implicit def rejectionHandler: RejectionHandler = SprayHandlers.jsonRejectionHandler
 
   private final val serverBinding = Agent[Option[ServerBinding]](None)
 
