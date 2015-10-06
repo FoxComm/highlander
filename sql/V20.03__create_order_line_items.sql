@@ -7,7 +7,7 @@ create table order_line_items (
     created_at timestamp without time zone default (now() at time zone 'utc'),
     foreign key (origin_id) references order_line_item_origins(id) on update restrict on delete restrict,
     constraint valid_origin_type check (origin_type in ('skuItem', 'giftCardItem')),
-    constraint valid_status check (status in ('cart','pending','preOrdered', 'backOrdered', 'canceled', 'shipped'))
+    constraint valid_status check (status in ('cart', 'pending', 'preOrdered', 'backOrdered', 'canceled', 'shipped'))
 );
 
 alter table only order_line_items

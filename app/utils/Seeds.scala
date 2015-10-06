@@ -23,7 +23,8 @@ object Seeds {
     cc: CreditCard, storeAdmin: StoreAdmin, shippingAddresses: Seq[OrderShippingAddress],
     shippingMethods: Seq[ShippingMethod], shippingPriceRules: Seq[ShippingPriceRule],
     shippingMethodRuleMappings: Seq[ShippingMethodPriceRule], skus: Seq[Sku], orderLineItems: Seq[OrderLineItem],
-    orderPayments: Seq[OrderPayment], shipment: Shipment, paymentMethods: AllPaymentMethods, reasons: Seq[Reason])
+    orderPayments: Seq[OrderPayment], shipment: Shipment, paymentMethods: AllPaymentMethods, reasons: Seq[Reason],
+    orderLineItemSkus: Seq[OrderLineItemSku])
 
   final case class AllPaymentMethods(giftCard: GiftCard = Factories.giftCard, storeCredit: StoreCredit = Factories
     .storeCredit)
@@ -49,7 +50,8 @@ object Seeds {
       orderPayments = Seq(Factories.orderPayment),
       shipment = Factories.shipment,
       paymentMethods = AllPaymentMethods(giftCard = Factories.giftCard, storeCredit = Factories.storeCredit),
-      reasons = Factories.reasons
+      reasons = Factories.reasons,
+      orderLineItemSkus = Factories.orderLineItemSkus
     )
 
     s.address.validate.fold(err ⇒ throw new Exception(err.mkString("\n")), _ ⇒ {})
@@ -69,6 +71,7 @@ object Seeds {
       skus ←  Skus ++= s.skus
       order ← Orders._create(s.order.copy(customerId = customer.id))
       orderNotes ← Notes ++= s.orderNotes
+      orderLineItemOrigins ← OrderLineItemSkus ++= s.orderLineItemSkus
       orderLineItem ← OrderLineItems ++= s.orderLineItems
       address ← Addresses.save(s.address.copy(customerId = customer.id))
       shippingAddress ← OrderShippingAddresses.save(Factories.shippingAddress.copy(orderId = order.id))
@@ -131,6 +134,11 @@ object Seeds {
       Sku(sku = "SKU-YAX", name = Some("Flonkey"), price = 33),
       Sku(sku = "SKU-ABC", name = Some("Shark"), price = 45),
       Sku(sku = "SKU-ZYA", name = Some("Dolphin"), price = 88))
+
+    def orderLineItemSkus: Seq[OrderLineItemSku] = Seq(
+      OrderLineItemSku(id = 0, skuId = 1),
+      OrderLineItemSku(id = 0, skuId = 2),
+      OrderLineItemSku(id = 0, skuId = 3))
 
     def orderLineItems: Seq[OrderLineItem] = Seq(
       OrderLineItem(id = 0, orderId = 1, originId = 1, originType = OrderLineItem.SkuItem, status = OrderLineItem.Cart),
