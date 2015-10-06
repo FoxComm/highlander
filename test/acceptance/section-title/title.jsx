@@ -2,8 +2,11 @@
 
 require('testdom')('<html><body></body></html>');
 
-const React = require('react/addons');
-const TestUtils = React.addons.TestUtils;
+const React = require('react');
+
+const TestUtils = require('react-addons-test-utils');
+const ReactDOM = require('react-dom');
+
 const path = require('path');
 
 describe('Title', function() {
@@ -15,7 +18,7 @@ describe('Title', function() {
   });
 
   afterEach(function(done) {
-    React.unmountComponentAtNode(container);
+    ReactDOM.unmountComponentAtNode(container);
     setTimeout(done);
   });
 
@@ -23,10 +26,10 @@ describe('Title', function() {
     let titleText = 'Orders';
     let subtitleText = '40237';
 
-    let title = React.render(
+    let title = ReactDOM.render(
       <Title title={ titleText } subtitle={ subtitleText }/>
       , container);
-    let titleNode = TestUtils.findRenderedDOMComponentWithClass(title, 'fc-title').getDOMNode();
+    let titleNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithClass(title, 'fc-title'));
 
     expect(titleNode.innerHTML).to.contain(titleText);
   });
@@ -35,20 +38,20 @@ describe('Title', function() {
     let titleText = 'Orders';
     let subtitleText = '40256';
 
-    let title = React.render(
+    let title = ReactDOM.render(
       <Title title={ titleText } subtitle={ subtitleText }/>
       , container);
-    let titleNode = TestUtils.findRenderedDOMComponentWithClass(title, 'fc-title').getDOMNode();
+    let titleNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithClass(title, 'fc-title'));
 
     expect(titleNode.querySelector('.fc-subtitle').innerHTML).to.contain(subtitleText);
   });
 
   it('should contain title text only', function *() {
     let titleText = 'Orders';
-    let title = React.render(
+    let title = ReactDOM.render(
       <Title title={ titleText }/>
       , container);
-    let titleNode = TestUtils.findRenderedDOMComponentWithClass(title, 'fc-title').getDOMNode();
+    let titleNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithClass(title, 'fc-title'));
 
     expect(titleNode.innerHTML).to.be.equal(titleText);
   });
