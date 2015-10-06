@@ -131,7 +131,7 @@ object CreditCardManager {
       val action = edits.flatMap { updated ⇒
         val paymentIds = for {
           orders ← Orders.findByCustomerId(customerId).cartOnly
-          pmts ← OrderPayments.filter(_.paymentMethodId === updated.parentId).giftCards if pmts.orderId == orders.id
+          pmts ← OrderPayments.filter(_.paymentMethodId === updated.parentId).creditCards if pmts.orderId === orders.id
         } yield pmts.id
 
         OrderPayments.filter(_.id in paymentIds).map(_.paymentMethodId).update(updated.id).map(_ ⇒ updated)
