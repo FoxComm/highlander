@@ -34,4 +34,4 @@ class GiftCardActions {
   }
 }
 
-module.exports = alt.createActions(GiftCardActions);
+export default alt.createActions(GiftCardActions);

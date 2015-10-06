@@ -9,7 +9,7 @@ import Immutable from 'immutable';
 class GiftCardStore {
   constructor() {
     this.state = {
-      giftCards: Immutable.List()
+      giftCards: Immutable.List([])
     };
 
     this.bindListeners({
@@ -35,4 +35,4 @@ class GiftCardStore {
   }
 }
 
-module.exports = alt.createStore(GiftCardStore, 'GiftCardStore');
+export default alt.createStore(GiftCardStore, 'GiftCardStore');

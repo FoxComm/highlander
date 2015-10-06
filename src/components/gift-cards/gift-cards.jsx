@@ -11,10 +11,11 @@ export default class GiftCards extends React.Component {
   constructor(props, context) {
     super(props, context);
     this.state = _.assign({}, GiftCardStore.getState());
+    this.onChange = this.onChange.bind(this);
   }
 
   componentDidMount() {
-    GiftCardStore.listen(this.onChange.bind(this));
+    GiftCardStore.listen(this.onChange);
 
     GiftCardActions.fetchGiftCards();
   }
@@ -61,7 +62,7 @@ export default class GiftCards extends React.Component {
           <Link to='gift-cards-new' className="fc-btn">+ New Gift Card</Link>
           <TableView
               columns={this.props.tableColumns}
-              rows={this.state.giftCards}
+              rows={this.state.giftCards.toArray()}
               model='giftcard'
           />
         </div>
