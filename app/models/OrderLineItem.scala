@@ -55,10 +55,10 @@ object OrderLineItem {
   implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
   implicit val originTypeColumnType: JdbcType[OriginType] with BaseTypedType[OriginType] = OriginType.slickColumn
 
-  def buildGiftCard(order: Order, gc: GiftCard): OrderLineItem = {
+  def buildGiftCard(order: Order, origin: OrderLineItemGiftCard): OrderLineItem = {
     OrderLineItem(
       orderId = order.id,
-      originId = gc.id,
+      originId = origin.id,
       originType = GiftCardItem,
       status = Cart
     )

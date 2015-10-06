@@ -68,7 +68,7 @@ object Seeds {
       customer ← (Customers.returningId += Factories.customer).map(id => Factories.customer.copy(id = id))
       customers ← Customers ++= s.customers
       storeAdmin ← (StoreAdmins.returningId += s.storeAdmin).map(id => s.storeAdmin.copy(id = id))
-      skus ←  Skus ++= s.skus
+      skus ← Skus ++= s.skus
       order ← Orders._create(s.order.copy(customerId = customer.id))
       orderNotes ← Notes ++= s.orderNotes
       orderLineItemOrigins ← OrderLineItemSkus ++= s.orderLineItemSkus

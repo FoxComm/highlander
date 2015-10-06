@@ -24,8 +24,9 @@ object LineItemUpdater {
         Orders._findActiveOrderByCustomer(customer).findOneAndRun { order ⇒
           val queries = for {
             gc ← GiftCards.save(GiftCard.buildLineItem(customer, payload.balance, payload.currency))
-            rel ← OrderLineItems.save(OrderLineItem.buildGiftCard(order, gc))
-          } yield (gc, rel)
+            origin ← OrderLineItemGiftCards.save(OrderLineItemGiftCard(giftCardId = gc.id))
+            rel ← OrderLineItems.save(OrderLineItem.buildGiftCard(order, origin))
+          } yield (gc, origin, rel)
 
           DbResult.fromDbio(queries >> FullOrder.fromOrder(order))
         }
@@ -59,14 +60,20 @@ object LineItemUpdater {
     (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
 
     GiftCards.findByCode(code).findOneAndRun { gc ⇒
-      val queries = for {
-        deleteRel ← OrderLineItems.filter(_.originId === gc.id).giftCards.delete
-        deleteGc ← GiftCards.filter(_.id === gc.id).delete
-      } yield ()
+      OrderLineItemGiftCards.filter(_.giftCardId == gc.id).one.flatMap {
+        case Some(origin) ⇒
+          val deleteAll = for {
+            lineItemGiftCard ← OrderLineItemGiftCards.filter(_.giftCardId == gc.id).delete
+            lineItem ← OrderLineItems.filter(_.originId === origin.id).giftCards.delete
+            giftCard ← GiftCards.filter(_.id === gc.id).delete
+          } yield ()
 
-      Orders._findActiveOrderByCustomer(customer).one.flatMap {
-        case Some(o) ⇒ DbResult.fromDbio(queries.transactionally >> FullOrder.fromOrder(o))
-        case None    ⇒ DbResult.failure(NotFoundFailure("Order not found"))
+          Orders._findActiveOrderByCustomer(customer).one.flatMap {
+            case Some(o) ⇒ DbResult.fromDbio(deleteAll.transactionally >> FullOrder.fromOrder(o))
+            case None    ⇒ DbResult.failure(NotFoundFailure("Order not found"))
+          }
+        case None ⇒
+          DbResult.failure(NotFoundFailure("Origin not found"))
       }
     }
   }
