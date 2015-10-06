@@ -1,7 +1,7 @@
 'use strict';
 
 import React from 'react';
-import TitleWithSubtitle from './title-with-subtitle';
+import Title from './title';
 
 export default class SectionTitle extends React.Component {
   render() {
@@ -19,7 +19,7 @@ export default class SectionTitle extends React.Component {
     return (
       <div className="fc-grid gutter">
         <div className="fc-col-2-6">
-          <TitleWithSubtitle title={ this.props.title } subtitle={ this.props.count } />
+          <Title title={ this.props.title } subtitle={ this.props.count } />
         </div>
         { buttonMarkup }
       </div>

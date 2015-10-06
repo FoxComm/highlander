@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-export default class TitleWithSubtitle extends React.Component {
+export default class Title extends React.Component {
   render() {
     let titleMarkup = null;
     if (this.props.subtitle !== undefined) {
@@ -26,7 +26,7 @@ export default class TitleWithSubtitle extends React.Component {
   }
 }
 
-TitleWithSubtitle.propTypes = {
+Title.propTypes = {
   title: React.PropTypes.string,
   subtitle: React.PropTypes.string
 };

@@ -6,8 +6,8 @@ const React = require('react/addons');
 const TestUtils = React.addons.TestUtils;
 const path = require('path');
 
-describe('FCTitleWithSubtitle', function() {
-  let TitleWithSubtitle = require(path.resolve('src/components/section-title/title-with-subtitle.jsx'));
+describe('Title', function() {
+  let Title = require(path.resolve('src/components/section-title/title.jsx'));
   let container = null;
 
   beforeEach(function() {
@@ -24,7 +24,7 @@ describe('FCTitleWithSubtitle', function() {
     let subtitleText = '40237';
 
     let title = React.render(
-      <TitleWithSubtitle title={ titleText } subtitle={ subtitleText }/>
+      <Title title={ titleText } subtitle={ subtitleText }/>
       , container);
     let titleNode = TestUtils.findRenderedDOMComponentWithClass(title, 'fc-title').getDOMNode();
 
@@ -36,7 +36,7 @@ describe('FCTitleWithSubtitle', function() {
     let subtitleText = '40256';
 
     let title = React.render(
-      <TitleWithSubtitle title={ titleText } subtitle={ subtitleText }/>
+      <Title title={ titleText } subtitle={ subtitleText }/>
       , container);
     let titleNode = TestUtils.findRenderedDOMComponentWithClass(title, 'fc-title').getDOMNode();
 
@@ -46,7 +46,7 @@ describe('FCTitleWithSubtitle', function() {
   it('should contain title text only', function *() {
     let titleText = 'Orders';
     let title = React.render(
-      <TitleWithSubtitle title={ titleText }/>
+      <Title title={ titleText }/>
       , container);
     let titleNode = TestUtils.findRenderedDOMComponentWithClass(title, 'fc-title').getDOMNode();
 
