@@ -11,6 +11,15 @@ import Controls from './controls';
 import Form from './form';
 import NoteStore from './store';
 import UserInitials from '../users/initials';
+import ConfirmModal from '../modal/confirm';
+import { dispatch } from '../../lib/dispatcher';
+
+const deleteOptions = {
+  header: 'Confirm',
+  body: 'Are you sure you want to delete this note?',
+  proceed: 'Yes',
+  cancel: 'No'
+};
 
 export default class Notes extends React.Component {
 
@@ -55,7 +64,7 @@ export default class Notes extends React.Component {
   }
 
   handleDelete(item) {
-    NoteStore.delete(item.id);
+    this.confirmDeleteNote(item);
   }
 
   handleResetForm() {
@@ -82,6 +91,27 @@ export default class Notes extends React.Component {
       creating: !this.state.creating,
       editing: this.state.editing && this.state.creating
     });
+  }
+
+  confirmDeleteNote(item) {
+    this.setState({
+      deletingNote: item
+    });
+    dispatch('toggleModal', <ConfirmModal callback={this.onConfirmDeleteNote.bind(this)} details={deleteOptions} />);
+  }
+
+  onConfirmDeleteNote(success) {
+    if (success) {
+      this.deleteNote();
+    } else {
+      this.setState({
+        deletingNote: null
+      });
+    }
+  }
+
+  deleteNote() {
+    NoteStore.delete(this.state.deletingNote.id);
   }
 
   render() {
