@@ -3,7 +3,7 @@ package services
 import scala.concurrent.ExecutionContext
 
 import models.{CreditCards, Regions, Customer, Customers, StoreAdmin}
-import responses.AllCustomers._
+import responses.CustomerResponse._
 import slick.driver.PostgresDriver.api._
 import utils.Slick.UpdateReturning._
 

@@ -1,6 +1,8 @@
 package responses
 
-import models.Customer
+import java.time.Instant
+
+import models.{Region, Customer}
 
 object CustomerResponse {
   final case class Root(
@@ -10,9 +12,19 @@ object CustomerResponse {
     lastName: String,
     phoneNumber: Option[String] = None,
     location: Option[String] = None,
-    modality: Option[String] = None)
+    modality: Option[String] = None,
+    joinedAt: Instant,
+    blacklisted: Boolean,
+    rank: String,
+    billRegion: Option[String],
+    shipRegion: Option[String])
 
-  def build(customer: Customer): Root =
+  def build(customer: Customer, shipRegion: Option[Region] = None, billRegion: Option[Region] = None): Root =
     Root(id = customer.id, email = customer.email, firstName = customer.firstName, lastName = customer.lastName,
-    phoneNumber = customer.phoneNumber, location = customer.location, modality = customer.modality)
+    phoneNumber = customer.phoneNumber, location = customer.location, modality = customer.modality,
+    joinedAt = customer.createdAt,
+    blacklisted = customer.disabled,
+    rank = "top 10",
+    billRegion = billRegion.map(_.name),
+    shipRegion = shipRegion.map(_.name))
 }

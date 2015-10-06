@@ -6,7 +6,6 @@ import cats.data.Xor
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models._
 import payloads._
-import responses.AllCustomers
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.Apis
