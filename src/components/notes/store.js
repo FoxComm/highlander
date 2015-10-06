@@ -3,8 +3,8 @@
 import TableStore from '../../lib/table-store';
 
 class NoteStore extends TableStore {
-  constructor(props) {
-    super(props);
+  constructor(...args) {
+    super(...args);
     this.columns = [
       {
         title: 'Date/Time',
@@ -19,10 +19,6 @@ class NoteStore extends TableStore {
         field: 'author'
       }
     ]
-  }
-
-  get baseUri() {
-    return `${this.rootUri}/notes`;
   }
 }
 

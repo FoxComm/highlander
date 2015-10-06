@@ -28,11 +28,11 @@ export default class Notes extends React.Component {
   componentDidMount() {
     let model = this.props.modelName;
     if (model === 'order') {
-      NoteStore.uriRoot = `${pluralize(model)}/${this.props[model].referenceNumber}`;
+      NoteStore.uriRoot = `/notes/${model}/${this.props[model].referenceNumber}`;
     } else if (model === 'gift-card') {
-      NoteStore.uriRoot = `${pluralize(model)}/${this.props[model].code}`;
+      NoteStore.uriRoot = `/notes/${model}/${this.props[model].code}`;
     } else {
-      NoteStore.uriRoot = `${pluralize(model)}/${this.props[model].id}`;
+      NoteStore.uriRoot = `/notes/${model}/${this.props[model].id}`;
     }
 
     NoteStore.listenToEvent('change', this);
@@ -134,7 +134,7 @@ export default class Notes extends React.Component {
             />
         )}
         {this.state.notes.length && (
-          <TableView store={NoteStore} renderRow={renderRow.bind(this)}/>
+          <TableView store={NoteStore} renderRow2={renderRow.bind(this)}/>
         )}
         {!this.state.notes.length && (
           <div className="empty">No notes yet.</div>
