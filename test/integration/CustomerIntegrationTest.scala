@@ -203,11 +203,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
             response.status must ===(StatusCodes.NoContent)
             pmt.amount mustBe 'empty
             pmt.isCreditCard mustBe true
-
-            // This seems to be unrelated to Stripe
-            pendingUntilFixed {
-              pmt.paymentMethodId must ===(newVersion.id)
-            }
+            pmt.paymentMethodId must ===(newVersion.id)
           }
 
           "copies an existing address book entry to the creditCard" in new CreditCardFixture {
