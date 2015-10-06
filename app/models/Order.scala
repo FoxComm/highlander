@@ -87,6 +87,8 @@ object Order {
   implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
 
   def buildCart(customerId: Int): Order = Order(customerId = customerId, status = Order.Cart)
+
+  val orderRefNumRegex = """([a-zA-Z0-9-_]*)""".r
 }
 
 class Orders(tag: Tag) extends GenericTable.TableWithLock[Order](tag, "orders")  {

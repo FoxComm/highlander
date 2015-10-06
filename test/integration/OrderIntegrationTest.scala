@@ -368,7 +368,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
   "notes" - {
     "can be created by an admin for an order" in new Fixture {
-      val response = POST(s"v1/orders/${order.referenceNumber}/notes",
+      val response = POST(s"v1/notes/order/${order.referenceNumber}",
         payloads.CreateNote(body = "Hello, FoxCommerce!"))
 
       response.status must === (StatusCodes.OK)
@@ -380,14 +380,14 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
 
     "returns a validation error if failed to create" in new Fixture {
-      val response = POST(s"v1/orders/${order.referenceNumber}/notes", payloads.CreateNote(body = ""))
+      val response = POST(s"v1/notes/order/${order.referenceNumber}", payloads.CreateNote(body = ""))
 
       response.status must === (StatusCodes.BadRequest)
       response.bodyText must include ("errors")
     }
 
     "returns a 404 if the order is not found" in new Fixture {
-      val response = POST(s"v1/orders/ABACADSF113/notes", payloads.CreateNote(body = ""))
+      val response = POST(s"v1/notes/order/ABACADSF113", payloads.CreateNote(body = ""))
 
       response.status must === (StatusCodes.NotFound)
       response.bodyText must be ('empty)
@@ -398,7 +398,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         NoteManager.createOrderNote(order, storeAdmin, payloads.CreateNote(body = body)).futureValue
       }
 
-      val response = GET(s"v1/orders/${order.referenceNumber}/notes")
+      val response = GET(s"v1/notes/order/${order.referenceNumber}")
       response.status must === (StatusCodes.OK)
 
       val notes = parse(response.bodyText).extract[Seq[AdminNotes.Root]]
@@ -411,7 +411,8 @@ class OrderIntegrationTest extends IntegrationTestBase
       val rootNote = NoteManager.createOrderNote(order, storeAdmin,
         payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue.get
 
-      val response = PATCH(s"v1/orders/${order.referenceNumber}/notes/${rootNote.id}", payloads.UpdateNote(body = "donkey"))
+      val response = PATCH(s"v1/notes/order/${order.referenceNumber}/${rootNote.id}",
+        payloads.UpdateNote(body = "donkey"))
       response.status must === (StatusCodes.OK)
 
       val note = parse(response.bodyText).extract[AdminNotes.Root]
@@ -422,7 +423,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       val note = NoteManager.createOrderNote(order, storeAdmin,
         payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue.get
 
-      val response = DELETE(s"v1/orders/${order.referenceNumber}/notes/${note.id}")
+      val response = DELETE(s"v1/notes/order/${order.referenceNumber}/${note.id}")
       response.status must ===(StatusCodes.NoContent)
       response.bodyText mustBe empty
 
