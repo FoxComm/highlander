@@ -2,10 +2,15 @@
 
 import alt from '../alt';
 import GiftCardActions from '../actions/gift-cards';
+import immutable from 'alt/utils/ImmutableUtil';
+import Immutable from 'immutable';
 
+@immutable
 class GiftCardStore {
   constructor() {
-    this.giftCards = [];
+    this.state = {
+      giftCards: Immutable.List()
+    };
 
     this.bindListeners({
       handleUpdateGiftCards: GiftCardActions.UPDATE_GIFT_CARDS,
@@ -16,7 +21,9 @@ class GiftCardStore {
 
   handleUpdateGiftCards(cards) {
     // TODO: Get difference in cards and set 'new' property.
-    this.giftCards = cards;
+    this.setState({
+      giftCards: Immutable.List(cards)
+    });
   }
 
   handleFetchGiftCards() {
