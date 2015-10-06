@@ -60,10 +60,10 @@ object LineItemUpdater {
     (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
 
     GiftCards.findByCode(code).findOneAndRun { gc ⇒
-      OrderLineItemGiftCards.filter(_.giftCardId == gc.id).one.flatMap {
+      OrderLineItemGiftCards.filter(_.giftCardId === gc.id).one.flatMap {
         case Some(origin) ⇒
           val deleteAll = for {
-            lineItemGiftCard ← OrderLineItemGiftCards.filter(_.giftCardId == gc.id).delete
+            lineItemGiftCard ← OrderLineItemGiftCards.filter(_.giftCardId === gc.id).delete
             lineItem ← OrderLineItems.filter(_.originId === origin.id).giftCards.delete
             giftCard ← GiftCards.filter(_.id === gc.id).delete
           } yield ()
