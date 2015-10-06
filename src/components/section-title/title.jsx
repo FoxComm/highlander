@@ -9,24 +9,19 @@ export default class Title extends React.Component {
   }
 
   render() {
-    let titleMarkup = null;
+    let subtitle = null;
     if (this.props.subtitle !== undefined) {
-      titleMarkup = (
-        <h1 className="fc-title">
-          { this.props.title }
+      subtitle = (
+        <span className="fc-subtitle">
           &nbsp;
-          <span className="fc-subtitle">
-            { this.props.subtitle }
-          </span>
-        </h1>
-      );
-    } else {
-      titleMarkup = (
-        <h1 className="fc-title">
-          { this.props.title }
-        </h1>
+          { this.props.subtitle }
+        </span>
       );
     }
-    return titleMarkup;
+    return (
+      <h1 className="fc-title">
+        { this.props.title }
+        { subtitle }
+      </h1>);
   }
 }

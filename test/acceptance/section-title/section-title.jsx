@@ -49,7 +49,7 @@ describe('SectionTitle', function() {
       , container);
     let sectionTitleNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithClass(sectionTitle, 'fc-grid'));
 
-    expect(sectionTitleNode.querySelector('.fc-subtitle').innerHTML).to.be.equal('' + count);
+    expect(sectionTitleNode.querySelector('.fc-subtitle').innerHTML).to.contain('' + count);
   });
 
   it('should not render button if handler is not set', function *() {

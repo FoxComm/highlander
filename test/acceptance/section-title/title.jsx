@@ -53,6 +53,8 @@ describe('Title', function() {
       , container);
     let titleNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithClass(title, 'fc-title'));
 
-    expect(titleNode.innerHTML).to.be.equal(titleText);
+    expect(titleNode.innerHTML).to.contain(titleText);
+    expect(titleNode.innerHTML).not.to.contain('fc-subtitle');
+    expect(titleNode.querySelector('.fc-subtitle')).to.be.equal(null);
   });
 });
