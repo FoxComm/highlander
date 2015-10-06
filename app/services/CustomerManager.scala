@@ -36,7 +36,7 @@ object CustomerManager {
   def getById(id: Int)(implicit db: Database, ec: ExecutionContext): Result[Root] = {
     val query = fetchRegions(Customers.filter(_.id === id))
     db.run(query.result.headOption).flatMap {
-      case Some((customer, shipRegion: Option[Region], billRegion: Option[Region])) ⇒
+      case Some((customer, shipRegion, billRegion)) ⇒
         Result.right(build(customer, shipRegion, billRegion))
       case _ ⇒
         Result.failure(NotFoundFailure(Customer, id))

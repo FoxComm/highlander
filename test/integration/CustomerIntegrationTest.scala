@@ -66,7 +66,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val customerRoot = CustomerResponse.build(customer, shipRegion = region)
 
       response.status must === (StatusCodes.OK)
-      parse(response.bodyText).extract[CustomerResponse.Root] must === (customerRoot)
+      response.as[CustomerResponse.Root] must === (customerRoot)
     }
 
     "shows a list of customers" in new Fixture {
@@ -74,7 +74,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val customers = Seq(CustomerResponse.build(customer, shipRegion = region))
 
       response.status must === (StatusCodes.OK)
-      parse(response.bodyText).extract[Seq[CustomerResponse.Root]] must === (customers)
+      response.as[Seq[CustomerResponse.Root]] must === (customers)
     }
 
     "toggles the disabled flag on a customer account" in new Fixture {
