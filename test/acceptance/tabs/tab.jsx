@@ -2,8 +2,11 @@
 
 require('testdom')('<html><body></body></html>');
 
-const React = require('react/addons');
-const TestUtils = React.addons.TestUtils;
+const React = require('react');
+
+const TestUtils = require('react-addons-test-utils');
+const ReactDOM = require('react-dom');
+
 const path = require('path');
 
 describe('TabView', function() {
@@ -15,7 +18,7 @@ describe('TabView', function() {
   });
 
   afterEach(function(done) {
-    React.unmountComponentAtNode(container);
+    ReactDOM.unmountComponentAtNode(container);
     setTimeout(done);
   });
 
@@ -25,7 +28,7 @@ describe('TabView', function() {
     let tab = React.render(
       <TabView>{ titleText }</TabView>
       , container);
-    let tabNode = TestUtils.findRenderedDOMComponentWithClass(tab, 'fc-tab').getDOMNode();
+    let tabNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithClass(tab, 'fc-tab'));
 
     expect(tabNode.innerHTML).to.contain(titleText);
   });
@@ -36,7 +39,7 @@ describe('TabView', function() {
     let tab = React.render(
       <TabView>{ titleText }</TabView>
       , container);
-    let tabNode = TestUtils.findRenderedDOMComponentWithClass(tab, 'fc-tab').getDOMNode();
+    let tabNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithClass(tab, 'fc-tab'));
 
     expect(tabNode.querySelector('.icon-drag-drop')).to.be.instanceOf(Object);
   });
@@ -47,7 +50,7 @@ describe('TabView', function() {
     let tab = React.render(
       <TabView draggable={ false }>{ titleText }</TabView>
       , container);
-    let tabNode = TestUtils.findRenderedDOMComponentWithClass(tab, 'fc-tab').getDOMNode();
+    let tabNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithClass(tab, 'fc-tab'));
 
     expect(tabNode.querySelector('.icon-drag-drop')).to.be.equal(null);
   });
