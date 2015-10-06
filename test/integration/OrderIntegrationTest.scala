@@ -29,7 +29,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
   type Errors = Map[String, Seq[String]]
 
-  def getUpdated(refNum: String) = db.run(Orders.findByRefNum(refNum).result.headOption).futureValue.get
+  def getUpdated(refNum: String) = db.run(Orders.findByRefNum(refNum).result.headOption).futureValue.value
 
   "returns new items" in {
     pending
@@ -120,7 +120,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       val response = POST(s"v1/orders/${order.referenceNumber}/increase-remorse-period")
       response.status must ===(StatusCodes.BadRequest)
 
-      val newOrder = Orders._findById(order.id).extract.one.run().futureValue.get
+      val newOrder = Orders._findById(order.id).extract.one.run().futureValue.value
       newOrder.remorsePeriodEnd must ===(order.remorsePeriodEnd)
     }
   }
@@ -200,7 +200,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       (timer ? Tick).futureValue
 
       val order2 = getUpdated(refNum)
-      val newRemorseEnd = order2.remorsePeriodEnd.get
+      val newRemorseEnd = order2.remorsePeriodEnd.value
 
       originalRemorseEnd.durationUntil(newRemorseEnd).getSeconds mustBe >= (3L)
       order2.status must ===(Order.RemorseHold)
@@ -212,7 +212,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       POST(s"v1/orders/$refNum/lock")
       POST(s"v1/orders/$refNum/unlock")
 
-      val newRemorseEnd = getUpdated(order.referenceNumber).remorsePeriodEnd.get
+      val newRemorseEnd = getUpdated(order.referenceNumber).remorsePeriodEnd.value
       originalRemorseEnd.durationUntil(newRemorseEnd).getMinutes mustBe 0
     }
 
@@ -222,7 +222,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       // Sanity check
       OrderLockEvents.findByOrder(order).mostRecentLock.result.headOption.run().futureValue must ===(None)
       POST(s"v1/orders/$refNum/unlock")
-      getUpdated(refNum).remorsePeriodEnd.get must ===(originalRemorseEnd.plusMinutes(15))
+      getUpdated(refNum).remorsePeriodEnd.value must ===(originalRemorseEnd.plusMinutes(15))
     }
   }
 
@@ -426,9 +426,9 @@ class OrderIntegrationTest extends IntegrationTestBase
       response.status must ===(StatusCodes.NoContent)
       response.bodyText mustBe empty
 
-      val updatedNote = db.run(Notes.findById(note.id)).futureValue.get
-      updatedNote.deletedBy.get mustBe 1
-      updatedNote.deletedAt.get.isBeforeNow mustBe true
+      val updatedNote = db.run(Notes.findById(note.id)).futureValue.value
+      updatedNote.deletedBy.value mustBe 1
+      updatedNote.deletedAt.value.isBeforeNow mustBe true
     }
   }
 
@@ -544,7 +544,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
         response.status must === (StatusCodes.OK)
 
-        val addressBook = Addresses.findById(address.id).run().futureValue.get
+        val addressBook = Addresses.findById(address.id).run().futureValue.value
 
         addressBook.name must === (address.name)
         addressBook.city must === (address.city)
@@ -597,7 +597,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     } yield (admin, order)).run().futureValue
 
     val refNum = order.referenceNumber
-    val originalRemorseEnd = order.remorsePeriodEnd.get
+    val originalRemorseEnd = order.remorsePeriodEnd.value
   }
 }
 

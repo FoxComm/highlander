@@ -20,7 +20,7 @@ object OrderUpdater {
       case Seq() ⇒ Orders.findByRefNum(refNum).result.run().flatMap { o ⇒
         FullOrder.fromOrder(o.head).run().map(Xor.right)
       }
-      case failures: Failures ⇒ Result.failures(failures)
+      case failures ⇒ Result.failures(failures: _*)
     }
   }
 
@@ -102,7 +102,7 @@ object OrderUpdater {
             case Some(region) ⇒ DbResult.fromDbio(fullOrder(finder))
             case None ⇒ DbResult.failure(NotFoundFailure(Region, address.regionId))
           }
-        case Invalid(errors) ⇒ DbResult.failures(errors.failure)
+        case Invalid(errors) ⇒ DbResult.failures(errors)
       }
     }
   }

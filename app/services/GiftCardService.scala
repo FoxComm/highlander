@@ -56,10 +56,10 @@ object GiftCardService {
 
             Result.fromFuture(query.transactionally.run())
           case Invalid(errors) ⇒
-            Result.failures(errors.failure)
+            Result.failures(errors)
         }
       case Invalid(errors) ⇒
-        Result.failures(errors.failure)
+        Result.failures(errors)
     }
   }
 
@@ -67,7 +67,7 @@ object GiftCardService {
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
 
     payload.validate match {
-      case Invalid(errors) ⇒ Result.failures(errors.failure)
+      case Invalid(errors) ⇒ Result.failures(errors)
       case Valid(_)        ⇒ createGiftCardModel(admin, payload)
     }
   }
@@ -88,7 +88,7 @@ object GiftCardService {
 
         Result.fromFuture(future)
       case Invalid(errors) ⇒
-        Result.failures(errors.failure)
+        Result.failures(errors)
     }
   }
 
@@ -118,7 +118,7 @@ object GiftCardService {
           }
         }
       case Invalid(errors) ⇒
-        Result.failures(errors.failure)
+        Result.failures(errors)
     }
   }
 
@@ -158,7 +158,7 @@ object GiftCardService {
   private def createGiftCard(gc: GiftCard)(implicit ec: ExecutionContext, db: Database): Result[GiftCard] = {
     gc.validate match {
       case Valid(_)        ⇒ Result.fromFuture(GiftCards.save(gc).run())
-      case Invalid(errors) ⇒ Result.failures(errors.failure)
+      case Invalid(errors) ⇒ Result.failures(errors)
     }
   }
 

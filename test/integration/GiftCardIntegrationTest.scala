@@ -172,7 +172,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       val firstAdjustment = adjustments.head
       firstAdjustment.amount must ===(-adjustment.debit)
       firstAdjustment.availableBalance must ===(giftCard.originalBalance - adjustment.debit)
-      firstAdjustment.orderRef.get mustBe order.referenceNumber
+      firstAdjustment.orderRef.value mustBe order.referenceNumber
     }
   }
 
@@ -187,10 +187,10 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       response.status must ===(StatusCodes.OK)
 
       val firstUpdated = GiftCards.findById(giftCard.id).run().futureValue
-      firstUpdated.get.status must ===(GiftCard.OnHold)
+      firstUpdated.value.status must ===(GiftCard.OnHold)
 
       val secondUpdated = GiftCards.findById(gcSecond.id).run().futureValue
-      secondUpdated.get.status must ===(GiftCard.OnHold)
+      secondUpdated.value.status must ===(GiftCard.OnHold)
     }
 
     "returns multiple errors if no cancellation reason provided" in new Fixture {
@@ -216,7 +216,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       root.status           must ===(models.StoreCredit.Active)
       root.originalBalance  must ===(gcSecond.originalBalance)
 
-      val redeemedGc = GiftCards.findByCode(gcSecond.code).one.run().futureValue.get
+      val redeemedGc = GiftCards.findByCode(gcSecond.code).one.run().futureValue.value
       redeemedGc.status           must ===(GiftCard.FullyRedeemed)
       redeemedGc.availableBalance must ===(0)
       redeemedGc.currentBalance   must ===(0)
@@ -246,7 +246,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
       val response = POST(s"v1/gift-cards/${gcSecond.code}/convert/${customer.id}")
       response.status  must ===(StatusCodes.BadRequest)
-      response.errors  must ===(GiftCardConvertFailure(updatedGc.get).description)
+      response.errors  must ===(GiftCardConvertFailure(updatedGc.value).description)
     }
   }
 
@@ -308,11 +308,11 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       response.status must ===(StatusCodes.NoContent)
       response.bodyText mustBe empty
 
-      val updatedNote = db.run(Notes.findById(note.id)).futureValue.get
-      updatedNote.deletedBy.get mustBe 1
+      val updatedNote = db.run(Notes.findById(note.id)).futureValue.value
+      updatedNote.deletedBy.value mustBe 1
 
-      withClue(updatedNote.deletedAt.get → Instant.now) {
-        updatedNote.deletedAt.get.isBeforeNow mustBe true
+      withClue(updatedNote.deletedAt.value → Instant.now) {
+        updatedNote.deletedAt.value.isBeforeNow mustBe true
       }
     }
   }
@@ -331,6 +331,6 @@ class GiftCardIntegrationTest extends IntegrationTestBase
         paymentMethodType = PaymentMethod.GiftCard))
       adjustment ← GiftCards.auth(giftCard, Some(payment.id), 10)
       giftCard ← GiftCards.findById(giftCard.id)
-    } yield (customer, admin, giftCard.get, order, adjustment, gcSecond)).run().futureValue
+    } yield (customer, admin, giftCard.value, order, adjustment, gcSecond)).run().futureValue
   }
 }

@@ -128,7 +128,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       "when deleting a credit card" - {
         "succeeds if the card exists" in new CreditCardFixture {
           val response = DELETE(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}")
-          val deleted = CreditCards.findById(creditCard.id).run().futureValue.get
+          val deleted = CreditCards.findById(creditCard.id).run().futureValue.value
 
           response.status must ===(StatusCodes.NoContent)
           deleted.inWallet must === (false)
@@ -153,7 +153,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
             val payload = payloads.EditCreditCard(holderName = Some("Bob"))
             val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
-            val inactive = CreditCards.findById(creditCard.id).run().futureValue.get
+            val inactive = CreditCards.findById(creditCard.id).run().futureValue.value
 
             response.status must ===(StatusCodes.NoContent)
 
