@@ -134,7 +134,7 @@ export default class Notes extends React.Component {
             />
         )}
         {this.state.notes.length && (
-          <TableView store={NoteStore} renderRow2={renderRow.bind(this)}/>
+          <TableView store={NoteStore} renderRow={renderRow.bind(this)}/>
         )}
         {!this.state.notes.length && (
           <div className="empty">No notes yet.</div>
