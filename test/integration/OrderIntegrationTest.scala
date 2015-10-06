@@ -563,7 +563,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         val fullResponse = GET(s"v1/orders/${order.referenceNumber}")
         fullResponse.status must === (StatusCodes.OK)
 
-        val fullOrder = parse(response.bodyText).extract[FullOrder.Root]
+        val fullOrder = parse(fullResponse.bodyText).extract[FullOrder.Root]
         fullOrder.shippingAddress match {
           case Some(addr) => {
             addr.name must === (name)
