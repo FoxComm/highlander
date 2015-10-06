@@ -22,13 +22,15 @@ object StripeSupport {
     "incorrect_cvc_code" → "4000000000000127"
   )
 
-  def successfulCard:       String = this.successfulCards.get("Visa").get
+  val dummyDefaultValue = "0" * 16
 
-  def declinedCard:         String = this.failureCards.get("card_declined").get
+  def successfulCard:       String = this.successfulCards.getOrElse("Visa", dummyDefaultValue)
+
+  def declinedCard:         String = this.failureCards.getOrElse("card_declined", dummyDefaultValue)
 
   def failureCard:          String = this.declinedCard
 
-  def incorrectNumberCard:  String = this.failureCards.get("incorrect_number").get
+  def incorrectNumberCard:  String = this.failureCards.getOrElse("incorrect_number", dummyDefaultValue)
 
-  def incorrectCVC:         String = this.failureCards.get("incorrect_cvc_code").get
+  def incorrectCVC:         String = this.failureCards.getOrElse("incorrect_cvc_code", dummyDefaultValue)
 }

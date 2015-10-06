@@ -32,7 +32,7 @@ class PublicIntegrationTest extends IntegrationTestBase
       response.status mustBe StatusCodes.OK
 
       val countries = response.as[Seq[Country]]
-      val us = countries.find(_.id === unitedStatesId).get
+      val us = countries.find(_.id === unitedStatesId).value
 
       us.name mustBe "United States"
 
