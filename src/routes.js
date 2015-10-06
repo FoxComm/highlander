@@ -12,6 +12,7 @@ import Order from './components/orders/order';
 import OrderDetails from './components/orders/details';
 import Customers from './components/customers/customers';
 import Customer from './components/customers/customer';
+import CustomerDetails from './components/customers/details';
 import Notes from './components/notes/notes';
 import Notifications from './components/notifications/notifications';
 import ActivityTrail from './components/activity-trail/activity-trail';
@@ -40,7 +41,7 @@ const routes = (
     </Route>
     <Route name='customers' path='customers' component={Customers}/>
     <Route name='customer' path='customers/:customer' component={Customer}>
-      <IndexRoute name='customer-details' component={Customer}/>
+      <IndexRoute name='customer-details' component={CustomerDetails}/>
       <Route name='customer-addresses' path='addresses' component={AddressBook} />
     </Route>
     <Route name='gift-cards' path='gift-cards' component={GiftCards} />
