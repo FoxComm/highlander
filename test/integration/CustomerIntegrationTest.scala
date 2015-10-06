@@ -5,8 +5,9 @@ import cats.data.Xor
 import com.stripe.exception.CardException
 import com.stripe.model
 import com.stripe.model.{Customer ⇒ StripeCustomer, Card, ExternalAccount}
-import models.{Orders, Customer, CreditCards, CreditCard, Customers, Addresses, StoreAdmins, OrderPayments}
+import models.{Orders, Customer, CreditCards, CreditCard, Customers, Addresses, StoreAdmins, OrderPayments, Regions}
 import models.OrderPayments.scope._
+import responses.CustomerResponse
 import org.mockito.Mockito
 import org.mockito.Mockito.RETURNS_DEFAULTS
 import org.mockito.invocation.InvocationOnMock
@@ -62,16 +63,18 @@ class CustomerIntegrationTest extends IntegrationTestBase
     "shows a customer" in new Fixture {
       val response = GET(s"v1/customers/${customer.id}")
 
+      val customerRoot = CustomerResponse.build(customer, shipRegion = region)
+
       response.status must === (StatusCodes.OK)
-      parse(response.bodyText).extract[Customer] must === (customer)
+      parse(response.bodyText).extract[CustomerResponse.Root] must === (customerRoot)
     }
 
     "shows a list of customers" in new Fixture {
       val response = GET(s"v1/customers")
-      val customers = Seq(customer)
+      val customers = Seq(CustomerResponse.build(customer, shipRegion = region))
 
       response.status must === (StatusCodes.OK)
-      parse(response.bodyText).extract[Seq[Customer]] must === (customers)
+      parse(response.bodyText).extract[Seq[CustomerResponse.Root]] must === (customers)
     }
 
     "toggles the disabled flag on a customer account" in new Fixture {
@@ -302,11 +305,12 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
 
   trait Fixture {
-    val (customer, address, admin) = (for {
+    val (customer, address, region, admin) = (for {
       customer ← Customers.save(Factories.customer)
-      address ← Addresses.save(Factories.address.copy(customerId = customer.id))
+      address ← Addresses.save(Factories.address.copy(customerId = customer.id, isDefaultShipping = true))
+      region ← Regions.findById(address.regionId)
       admin ← StoreAdmins.save(authedStoreAdmin)
-    } yield (customer, address, admin)).run().futureValue
+    } yield (customer, address, region, admin)).run().futureValue
   }
 
   trait CreditCardFixture extends Fixture {
