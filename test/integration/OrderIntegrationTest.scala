@@ -560,10 +560,10 @@ class OrderIntegrationTest extends IntegrationTestBase
         response.status must === (StatusCodes.OK)
 
         //get full order and compare
-        val fullResponse = GET(s"v1/orders/${order.referenceNumber}")
-        fullResponse.status must === (StatusCodes.OK)
+        val fullOrderResponse = GET(s"v1/orders/${order.referenceNumber}")
+        fullOrderResponse.status must === (StatusCodes.OK)
 
-        val fullOrder = parse(fullResponse.bodyText).extract[FullOrder.Root]
+        val fullOrder = parse(fullOrderResponse.bodyText).extract[FullOrder.Root]
         fullOrder.shippingAddress match {
           case Some(addr) => {
             addr.name must === (name)
