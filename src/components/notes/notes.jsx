@@ -75,11 +75,27 @@ export default class Notes extends React.Component {
     });
   }
 
-  handleSubmit(event) {
+  handleCreateForm(event) {
     event.preventDefault();
     Api.submitForm(event.target)
       .then((note) => {
         this.toggleCreating();
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }
+
+  handleEditForm(event) {
+    event.preventDefault();
+    Api.patch(`${NoteStore.baseUri}/${this.state.editingNote.id}`, {
+      body: event.target.body.value
+    })
+      .then((note) => {
+        this.setState({
+          editing: false,
+          editingNote: null
+        })
       })
       .catch((err) => {
         console.error(err);
@@ -97,7 +113,7 @@ export default class Notes extends React.Component {
     this.setState({
       deletingNote: item
     });
-    dispatch('toggleModal', <ConfirmModal callback={this.onConfirmDeleteNote.bind(this)} details={deleteOptions} />);
+    dispatch('toggleModal', <ConfirmModal callback={this.onConfirmDeleteNote.bind(this)} details={deleteOptions}/>);
   }
 
   onConfirmDeleteNote(success) {
@@ -136,7 +152,7 @@ export default class Notes extends React.Component {
                   uri={NoteStore.baseUri}
                   text={this.state.editingNote && this.state.editingNote.body}
                   onReset={this.handleResetForm.bind(this)}
-                  onSubmit={this.handleSubmit.bind(this)}
+                  onSubmit={this.handleEditForm.bind(this)}
                   />
               </TableCell>
             </TableRow>
@@ -159,7 +175,7 @@ export default class Notes extends React.Component {
           <Form
             uri={NoteStore.baseUri}
             onReset={this.handleResetForm.bind(this)}
-            onSubmit={this.handleSubmit.bind(this)}
+            onSubmit={this.handleCreateForm.bind(this)}
             />
         )}
         {this.state.notes.length && (
