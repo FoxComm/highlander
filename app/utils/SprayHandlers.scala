@@ -20,7 +20,6 @@ object SprayHandlers {
       mapResponseEntity { entity ⇒
         entity.withContentType(ContentTypes.`application/json`).transformDataBytes {
           Flow[ByteString].map { chunk =>
-            val str = chunk.utf8String
             ByteString(json("errors" → Seq(chunk.utf8String)))
           }
         }
