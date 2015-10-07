@@ -1,20 +1,15 @@
-#notes {
-  position: relative;
-
-  .empty {
-    color: #bfbfbf;
-    background: #f1f1f2;
-    .line-height(50px);
-    .padding-left(35px);
-  }
-}
-
 .fc-notes-form {
   overflow: hidden;
   transition: max-height 500ms;
   .clearfix;
   .margin(20px 35px);
   .max-height(250px);
+
+  .empty {
+    .colors(@color-decor8, @color-btn-bg);
+    .line-height(50px);
+    .padding-left(35px);
+  }
 
   legend {
     display: block;
