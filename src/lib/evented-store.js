@@ -61,6 +61,14 @@ export default class EventedStore extends EventEmitter {
     }
   }
 
+  _delete(id) {
+    let model = this._findWhere(this.models, {id: id});
+    if (model) {
+      this.models.splice(this.models.indexOf(model), 1);
+      this.notifyChanged();
+    }
+  }
+
   dispatch(event, ...args) {
     this.emit(event, ...args);
     dispatch(`${event}${this.storeName}`, ...args);
@@ -118,7 +126,7 @@ export default class EventedStore extends EventEmitter {
   delete(id) {
     return Api.delete(this.uri(id))
       .then((res) => {
-        this.update(res);
+        this._delete(id);
       })
       .catch((err) => {
         this.apiError(err);
