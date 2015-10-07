@@ -3,7 +3,13 @@
 import React from 'react';
 import UserInitials from '../users/initials';
 
-export default class NotesItemControls extends React.Component {
+export default class NoteControls extends React.Component {
+  static propTypes = {
+    model: React.PropTypes.object,
+    onEditClick: React.PropTypes.func,
+    onDeleteClick: React.PropTypes.func
+  };
+
   render() {
     return (
       <div className="fc-notes-item-controls">
@@ -18,9 +24,3 @@ export default class NotesItemControls extends React.Component {
     );
   }
 }
-
-NotesItemControls.propTypes = {
-  model: React.PropTypes.object,
-  onEditClick: React.PropTypes.func,
-  onDeleteClick: React.PropTypes.func
-};
