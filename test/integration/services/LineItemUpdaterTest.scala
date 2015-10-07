@@ -12,6 +12,7 @@ class LineItemUpdaterTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global
 
   val lineItems = TableQuery[OrderLineItems]
+  val lineItemSkus = TableQuery[OrderLineItemSkus]
 
   def createSkusAndLinks(num: Int): Unit = {
     (Skus.returningId ++= (1 to num).map { i ⇒
@@ -52,6 +53,9 @@ class LineItemUpdaterTest extends IntegrationTestBase {
 
           val allRecords = db.run(lineItems.result).futureValue
           root.lineItems.size must === (allRecords.size)
+
+          val allRelations = db.run(lineItemSkus.result).futureValue
+          allRelations.size must === (2)
 
         case Xor.Left(s) => fail(s.mkString(";"))
       }
