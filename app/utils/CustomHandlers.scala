@@ -12,7 +12,7 @@ import akka.util.ByteString
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import utils.Http._
 
-object SprayHandlers {
+object CustomHandlers {
 
   private val defaultRejectionHandler = RejectionHandler.default
 
@@ -42,7 +42,7 @@ object SprayHandlers {
 
   def jsonExceptionHandler: ExceptionHandler = ExceptionHandler {
     case IllegalRequestException(info, status) ⇒ ctx ⇒ {
-      ctx.log.warning("Illegal request {}\n\t{}\n\tCompleting with '{}' response",
+      ctx.log.warning(s"Illegal request {}\n\t{}\n\tCompleting with '{}' response",
         ctx.request, info.formatPretty, status)
       ctx.complete(HttpResponse(status, entity = errorsJsonEntity(info.format(isProduction))))
     }
@@ -50,7 +50,7 @@ object SprayHandlers {
       val errMsg = if(isProduction)
         "There was an internal server error."
       else
-        e.getMessage + EOL + e.getStackTrace.mkString("", EOL, EOL)
+        e.getMessage + e.getStackTrace.mkString(":" + EOL, EOL, EOL)
       ctx.log.error(e, "Error during processing of request {}", ctx.request)
       ctx.complete(HttpResponse(InternalServerError, entity = errorsJsonEntity(errMsg)))
     }

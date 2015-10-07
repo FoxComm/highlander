@@ -1,35 +1,42 @@
 import java.net.ServerSocket
 
+import scala.collection.immutable
 import scala.concurrent.Await.result
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 import akka.actor.ActorSystem
 import akka.http.ConnectionPoolSettings
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpMethods, HttpRequest, HttpResponse, Uri}
+import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Route
 import akka.stream.{ActorMaterializer, Materializer}
 import akka.util.ByteString
 
 import com.typesafe.config.ConfigFactory
-import org.json4s.{Formats, DefaultFormats}
+import models.{Customer, StoreAdmin}
+import org.json4s.Formats
 import org.json4s.jackson.Serialization.{write ⇒ writeJson}
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
-import org.scalatest.{Args, Status, Outcome, Suite, SuiteMixin}
+import org.scalatest.{MustMatchers, Args, Status, Suite, SuiteMixin}
 import server.Service
+import services.Authenticator
 import util.DbTestSupport
-import utils.JsonFormatters
+import utils.{Apis, JsonFormatters}
 import concurrent.ExecutionContext.Implicits.global
 
 import cats.std.future._
 import cats.syntax.flatMap._
 
 // TODO: Move away from root package when `Service' moverd
-trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with PatienceConfiguration with DbTestSupport ⇒
+trait HttpSupport extends SuiteMixin with ScalaFutures with MustMatchers { this: Suite with PatienceConfiguration with DbTestSupport ⇒
 
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 
   private val ActorSystemNameChars = ('a' to 'z').toSet | ('A' to 'Z').toSet | ('0' to '9').toSet | Set('-', '_')
+
+  private val ValidResponseContentTypes = immutable.Set(ContentTypes.`application/json`, ContentTypes.NoContentType)
 
   import org.json4s.jackson.JsonMethods._
   import Extensions._
@@ -38,6 +45,8 @@ trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with Patien
   protected implicit var materializer:  ActorMaterializer = _
   protected          var service:       Service           = _
   protected          var serverBinding: ServerBinding     = _
+
+  protected def additionalRoutes: immutable.Seq[Route] = immutable.Seq.empty
 
   override protected abstract def runTests(testName: Option[String], args: Args): Status = {
     system       = ActorSystem("system", actorSystemConfig)
@@ -67,7 +76,22 @@ trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with Patien
       |}
     """.stripMargin).withFallback(ConfigFactory.load)
 
-  def makeService: Service = new Service(dbOverride = Some(db), systemOverride = Some(system))
+  def makeApis: Option[Apis] = None
+
+  def overrideStoreAdminAuth: AsyncAuthenticator[StoreAdmin] = Authenticator.storeAdmin
+
+  def overrideCustomerAuth: AsyncAuthenticator[Customer] = Authenticator.customer
+
+  private def makeService: Service = new Service(
+    dbOverride = Some(db),
+    systemOverride = Some(system),
+    apisOverride = makeApis,
+    addRoutes = additionalRoutes) {
+    
+    override def storeAdminAuth: AsyncAuthenticator[StoreAdmin] = overrideStoreAdminAuth
+
+    override def customerAuth: AsyncAuthenticator[Customer] = overrideCustomerAuth
+  }
 
   def POST(path: String, rawBody: String): HttpResponse = {
     val request = HttpRequest(
@@ -158,8 +182,11 @@ trait HttpSupport extends SuiteMixin with ScalaFutures { this: Suite with Patien
   def parseErrors(response: HttpResponse)(implicit ec: ExecutionContext): List[String] =
     response.errors
 
-  private def dispatchRequest(req: HttpRequest): HttpResponse =
-    Http().singleRequest(req, connectionPoolSettings).futureValue
+  private def dispatchRequest(req: HttpRequest): HttpResponse = {
+    val response = Http().singleRequest(req, connectionPoolSettings).futureValue
+    ValidResponseContentTypes must contain(response.entity.contentType())
+    response
+  }
 
   lazy final val connectionPoolSettings = ConnectionPoolSettings.create(implicitly[ActorSystem]).copy(
     maxConnections  = 32,

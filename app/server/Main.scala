@@ -1,5 +1,6 @@
 package server
 
+import scala.collection.immutable
 import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.concurrent.duration._
 import akka.actor.{Cancellable, ActorSystem, Props}
@@ -8,7 +9,7 @@ import akka.event.Logging
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler}
+import akka.http.scaladsl.server.{Route, ExceptionHandler, RejectionHandler}
 import akka.stream.ActorMaterializer
 
 import com.typesafe.config.Config
@@ -17,7 +18,7 @@ import org.json4s.{Formats, jackson}
 import org.json4s.jackson.Serialization
 import services._
 import slick.driver.PostgresDriver.api._
-import utils.{SprayHandlers, WiredStripeApi, Apis, RemorseTimer, RemorseTimerMate, Tick}
+import utils.{CustomHandlers, WiredStripeApi, Apis, RemorseTimer, RemorseTimerMate, Tick}
 
 object Main extends App {
   val service = new Service()
@@ -26,9 +27,10 @@ object Main extends App {
 }
 
 class Service(
-  systemOverride: Option[ActorSystem] = None,
-  dbOverride:     Option[Database]    = None,
-  apisOverride:   Option[Apis]        = None
+  systemOverride: Option[ActorSystem]  = None,
+  dbOverride:     Option[Database]     = None,
+  apisOverride:   Option[Apis]         = None,
+  addRoutes:      immutable.Seq[Route] = immutable.Seq.empty
 ) {
 
   import utils.JsonFormatters._
@@ -55,7 +57,7 @@ class Service(
 
   implicit def customerAuth: AsyncAuthenticator[Customer] = Authenticator.customer
 
-  val allRoutes = {
+  val defaultRoutes = {
     pathPrefix("v1") {
       logRequestResult("admin-routes")(routes.admin.Admin.routes) ~
       logRequestResult("admin-order-routes")(routes.admin.OrderRoutes.routes) ~
@@ -66,9 +68,11 @@ class Service(
     }
   }
 
-  implicit def rejectionHandler: RejectionHandler = SprayHandlers.jsonRejectionHandler
+  val allRoutes = addRoutes.foldLeft(defaultRoutes)(_ ~ _)
 
-  implicit def exceptionHandler: ExceptionHandler = SprayHandlers.jsonExceptionHandler
+  implicit def rejectionHandler: RejectionHandler = CustomHandlers.jsonRejectionHandler
+
+  implicit def exceptionHandler: ExceptionHandler = CustomHandlers.jsonExceptionHandler
 
   private final val serverBinding = Agent[Option[ServerBinding]](None)
 

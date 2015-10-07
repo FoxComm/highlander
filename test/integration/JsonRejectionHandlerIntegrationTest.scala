@@ -8,7 +8,7 @@ class JsonRejectionHandlerIntegrationTest extends IntegrationTestBase with HttpS
 
   "JsonRejectionHandler should" - {
     "return a valid JSON rejection on 401 Unauthorized" in {
-      val response = GET(s"v1/sdklgsdkvbnlsdkgmn")
+      val response = GET("v1/sdklgsdkvbnlsdkgmn")
 
       response.status must ===(StatusCodes.Unauthorized)
       response.entity.contentType must ===(ContentTypes.`application/json`)
@@ -16,7 +16,7 @@ class JsonRejectionHandlerIntegrationTest extends IntegrationTestBase with HttpS
     }
 
     "return a valid JSON rejection on 404 NotFound" in {
-      val response = GET(s"sdklgsdkvbnlsdkgmn")
+      val response = GET("sdklgsdkvbnlsdkgmn")
 
       response.status must ===(StatusCodes.NotFound)
       response.entity.contentType must ===(ContentTypes.`application/json`)
