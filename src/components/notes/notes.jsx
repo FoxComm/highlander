@@ -72,25 +72,17 @@ export default class Notes extends React.Component {
   }
 
   handleCreateForm(data) {
-    Api.post(`${NotesStore.baseUri}`, data)
-      .then((note) => {
-        this.toggleCreating();
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+    this.setState({
+      creatingNote: false
+    });
+    NotesStore.create(data);
   }
 
   handleEditForm(data) {
-    Api.patch(`${NotesStore.baseUri}/${this.state.editingNote.id}`, data)
-      .then((note) => {
-        this.setState({
-          editingNote: null
-        });
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+    this.setState({
+      editingNote: false
+    });
+    NotesStore.patch(this.state.editingNote.id, data);
   }
 
   toggleCreating() {
