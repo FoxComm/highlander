@@ -3,6 +3,7 @@
 import _ from 'lodash';
 import React from 'react';
 import FormField from '../forms/formfield.jsx';
+import InputMask from 'react-input-mask';
 import Form from '../forms/form.jsx';
 import { listenTo, stopListeningTo, dispatch } from '../../lib/dispatcher';
 import CountryStore from '../../stores/countries';
@@ -145,6 +146,17 @@ export default class AddressForm extends React.Component {
     const regions = state.country && state.country.regions || [];
     const title = this.isAddingForm ? 'New Address' : 'Edit Address';
 
+    let phoneInput = null;
+
+    if (countryCode === 'US') {
+      phoneInput = <InputMask type="tel" mask="(999)999-9999" placeholder={CountryStore.phoneExample(countryCode)}/>;
+    } else {
+      phoneInput = (
+        <input type="tel" name="phoneNumber"
+                          maxLength="15" placeholder={CountryStore.phoneExample(countryCode)} />
+      );
+    }
+
     let messages = null;
 
     if (this.state.errors) {
@@ -219,8 +231,7 @@ export default class AddressForm extends React.Component {
               </li>
               <li>
                 <FormField label="Phone Number">
-                  <input type="tel" name="phoneNumber"
-                         placeholder={CountryStore.phoneExample(countryCode)} />
+                  {phoneInput}
                 </FormField>
               </li>
               <li className="fc-address-form-controls">

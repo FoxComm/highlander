@@ -101,8 +101,7 @@ export default class FormField extends React.Component {
   }
 
   onSubmit(reportValidity) {
-    this.validate();
-    reportValidity(this.state.errorMessage === null);
+    reportValidity(this.validate());
   }
 
   validate() {
@@ -115,6 +114,8 @@ export default class FormField extends React.Component {
     this.setState({
       errorMessage
     });
+
+    return errorMessage === null;
   }
 
   render() {
