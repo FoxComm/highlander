@@ -128,7 +128,9 @@ export default class FormField extends React.Component {
       }
 
       let value = this.getInputValue();
-      errorMessage = validator(value);
+      if (!_.isString(value) || value) {
+        errorMessage = validator(value);
+      }
 
       if (errorMessage) {
         errorMessage = errorMessage.replace('$label', this.props.label);
