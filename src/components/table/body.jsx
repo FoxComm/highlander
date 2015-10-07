@@ -30,11 +30,11 @@ TableBody.defaultProps = {
       <Wrapper>
         <TableRow>
           {this.props.store.columns.map((column) => {
-            return <TableCell>{row[column.field]}</TableCell>
+            return <TableCell>{row[column.field]}</TableCell>;
           })}
         </TableRow>
       </Wrapper>
-    )
+    );
   }
 };
 

@@ -8,7 +8,7 @@ export default class TableRow extends React.Component {
       <tr className="fc-table-tr">
         {this.props.children}
       </tr>
-    )
+    );
   }
 }
 

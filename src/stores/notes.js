@@ -1,6 +1,6 @@
 'use strict';
 
-import TableStore from '../../lib/table-store';
+import TableStore from '../lib/table-store';
 
 class NoteStore extends TableStore {
   constructor(...args) {
@@ -18,7 +18,11 @@ class NoteStore extends TableStore {
         title: 'Author',
         field: 'author'
       }
-    ]
+    ];
+  }
+
+  identity(item) {
+    return item.id;
   }
 }
 

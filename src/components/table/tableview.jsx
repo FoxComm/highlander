@@ -10,7 +10,7 @@ export default class TableView extends React.Component {
     this.state = {
       start: 0,
       limit: 1
-    }
+    };
   }
 
   componentDidMount() {

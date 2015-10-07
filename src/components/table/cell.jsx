@@ -8,7 +8,7 @@ export default class TableCell extends React.Component {
       <td className="fc-table-td" colSpan={this.props.colspan}>
         {this.props.children}
       </td>
-    )
+    );
   }
 }
 

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Api from '../../lib/api';
+import NotesStore from '../../stores/notes';
 import Wrapper from '../wrapper/wrapper';
 import Panel from '../panel/panel';
 import TableView from '../table/tableview';
@@ -9,7 +10,6 @@ import TableRow from '../table/row';
 import TableCell from '../table/cell';
 import Controls from './controls';
 import Form from './form';
-import NoteStore from './store';
 import UserInitials from '../users/initials';
 import ConfirmModal from '../modal/confirm';
 import { dispatch } from '../../lib/dispatcher';
@@ -34,15 +34,15 @@ export default class Notes extends React.Component {
   componentDidMount() {
     let model = this.props.modelName;
     if (model === 'order') {
-      NoteStore.uriRoot = `/notes/${model}/${this.props[model].referenceNumber}`;
+      NotesStore.uriRoot = `/notes/${model}/${this.props[model].referenceNumber}`;
     } else if (model === 'gift-card') {
-      NoteStore.uriRoot = `/notes/${model}/${this.props[model].code}`;
+      NotesStore.uriRoot = `/notes/${model}/${this.props[model].code}`;
     } else {
-      NoteStore.uriRoot = `/notes/${model}/${this.props[model].id}`;
+      NotesStore.uriRoot = `/notes/${model}/${this.props[model].id}`;
     }
 
-    NoteStore.listenToEvent('change', this);
-    NoteStore.fetch();
+    NotesStore.listenToEvent('change', this);
+    NotesStore.fetch();
   }
 
   onChangeNoteStore(notes) {
@@ -50,7 +50,7 @@ export default class Notes extends React.Component {
   }
 
   componentWillUnmount() {
-    NoteStore.stopListeningToEvent('change', this);
+    NotesStore.stopListeningToEvent('change', this);
   }
 
   handleEdit(item) {
@@ -72,7 +72,7 @@ export default class Notes extends React.Component {
   }
 
   handleCreateForm(data) {
-    Api.post(`${NoteStore.baseUri}`, data)
+    Api.post(`${NotesStore.baseUri}`, data)
       .then((note) => {
         this.toggleCreating();
       })
@@ -82,11 +82,11 @@ export default class Notes extends React.Component {
   }
 
   handleEditForm(data) {
-    Api.patch(`${NoteStore.baseUri}/${this.state.editingNote.id}`, data)
+    Api.patch(`${NotesStore.baseUri}/${this.state.editingNote.id}`, data)
       .then((note) => {
         this.setState({
           editingNote: null
-        })
+        });
       })
       .catch((err) => {
         console.error(err);
@@ -118,7 +118,7 @@ export default class Notes extends React.Component {
   }
 
   deleteNote() {
-    NoteStore.delete(this.state.deletingNote.id);
+    NotesStore.delete(this.state.deletingNote.id);
   }
 
   render() {
@@ -140,7 +140,7 @@ export default class Notes extends React.Component {
             <TableRow>
               <TableCell colspan={3}>
                 <Form
-                  uri={NoteStore.baseUri}
+                  uri={NotesStore.baseUri}
                   text={this.state.editingNote && this.state.editingNote.body}
                   onReset={this.handleResetForm.bind(this)}
                   onSubmit={this.handleEditForm.bind(this)}
@@ -164,15 +164,15 @@ export default class Notes extends React.Component {
       <Panel title={'Notes'} controls={controls}>
         {this.state.creatingNote && (
           <Form
-            uri={NoteStore.baseUri}
+            uri={NotesStore.baseUri}
             onReset={this.handleResetForm.bind(this)}
             onSubmit={this.handleCreateForm.bind(this)}
             />
         )}
-        {NoteStore.rows.length && (
-          <TableView store={NoteStore} renderRow={renderRow.bind(this)}/>
+        {NotesStore.rows.length && (
+          <TableView store={NotesStore} renderRow={renderRow.bind(this)}/>
         )}
-        {!NoteStore.rows.length && (
+        {!NotesStore.rows.length && (
           <div className="empty">No notes yet.</div>
         )}
       </Panel>

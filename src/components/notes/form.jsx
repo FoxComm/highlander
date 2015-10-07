@@ -7,7 +7,7 @@ export default class NoteForm extends React.Component {
     super(props);
     this.state = {
       body: this.props.text || ''
-    }
+    };
   }
 
   componentDidMount() {

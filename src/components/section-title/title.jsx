@@ -5,8 +5,11 @@ import React from 'react';
 export default class Title extends React.Component {
   static propTypes = {
     title: React.PropTypes.string,
-    subtitle: React.PropTypes.string
-  }
+    subtitle: React.PropTypes.oneOfType([
+      React.PropTypes.string,
+      React.PropTypes.number
+    ])
+  };
 
   render() {
     let subtitle = null;
