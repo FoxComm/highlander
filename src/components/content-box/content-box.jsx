@@ -7,6 +7,7 @@ export default class ContentBox extends React.Component {
   static propTypes = {
     title: PropTypes.string,
     className: PropTypes.string,
+    actionBlock: PropTypes.node,
     children: PropTypes.node
   }
 
@@ -14,7 +15,12 @@ export default class ContentBox extends React.Component {
     let rootClassName = `${this.props.className} fc-content-box`;
     return (
       <div className={ rootClassName }>
-        <header>{ this.props.title }</header>
+        <header>
+          <div className="fc-content-box-title">{ this.props.title }</div>
+          <div className="fc-content-box-actions">
+            { this.props.actionBlock }
+          </div>
+        </header>
         <article>
           { this.props.children }
         </article>

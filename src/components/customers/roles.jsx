@@ -6,9 +6,15 @@ import ContentBox from '../content-box/content-box';
 export default class CustomerRoles extends React.Component {
 
   render() {
-    // return (<div className="fc-customer-contacts">Customer roles</div>);
+    let actionBlock = (
+      <button className="fc-btn">
+        <i className="icon-edit"></i>
+      </button>
+    );
     return (
-      <ContentBox title="Roles" className="fc-customer-roles">
+      <ContentBox title="Roles"
+                  className="fc-customer-roles"
+                  actionBlock={ actionBlock }>
         Roles
       </ContentBox>
     );
