@@ -6,15 +6,22 @@ import utils.Seeds.Factories
 import utils.Slick.implicits._
 import services.{CustomerHasDefaultShippingAddress, Failure}
 import util.SlickSupport.implicits._
+import akka.http.scaladsl.model.HttpResponse
 
 class AddressesIntegrationTest extends IntegrationTestBase
   with HttpSupport
   with AutomaticAuth {
 
+
   import concurrent.ExecutionContext.Implicits.global
   import api._
   import Extensions._
   import org.json4s.jackson.JsonMethods._
+
+  def validateDeleteResponse(response: HttpResponse) { 
+      response.status must === (StatusCodes.NoContent)
+      response.bodyText mustBe 'empty
+  }
 
   "Addresses" - {
     "lists addresses" in new AddressFixture {
@@ -99,8 +106,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
 
       //now delete
       val deleteResponse = DELETE(s"v1/customers/${customer.id}/addresses/${newAddress.id}")
-      info(deleteReponse.bodyText)
-      deleteResponse.status must === (StatusCodes.OK)
+      validateDeleteResponse(deleteResponse)
 
       //now get
       val getResponse = GET(s"v1/customers/${customer.id}/addresses/${newAddress.id}")

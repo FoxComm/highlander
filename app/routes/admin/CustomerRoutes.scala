@@ -67,7 +67,7 @@ object CustomerRoutes {
           } ~
           (get & path(IntNumber) & pathEnd)  {
             (id) ⇒
-              nothingOrFailures {
+              goodOrFailures {
                 AddressManager.get(customerId, id)
               }
           } ~
