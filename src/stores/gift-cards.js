@@ -15,7 +15,10 @@ class GiftCardStore {
     this.bindListeners({
       handleUpdateGiftCards: GiftCardActions.UPDATE_GIFT_CARDS,
       handleFetchGiftCards: GiftCardActions.FETCH_GIFT_CARDS,
-      handleFailedGiftCards: GiftCardActions.GIFT_CARDS_FAILED
+      handleFailedGiftCards: GiftCardActions.GIFT_CARDS_FAILED,
+      handleFetchGiftCard: GiftCardActions.FETCH_GIFT_CARD,
+      handleEditGiftCard: GiftCardActions.EDIT_GIFT_CARD,
+      handleCreateGiftCard: GiftCardActions.CREATE_GIFT_CARD
     });
   }
 
@@ -32,6 +35,18 @@ class GiftCardStore {
 
   handleFailedGiftCards(err) {
     console.error(err);
+  }
+
+  handleFetchGiftCard() {
+    // Fetching gift card.
+  }
+
+  handleEditGiftCard() {
+    // Editing gift card.
+  }
+
+  handleCreateGiftCard() {
+    // Creating gift card.
   }
 }
 

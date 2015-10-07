@@ -40,7 +40,7 @@ export default class GiftCard extends React.Component {
   changeState(event) {
     let card = this.state.giftCards.first();
 
-    GiftCardActions.updateGiftCard(card.code, {status: event.target.value});
+    GiftCardActions.editGiftCard(card.code, {status: event.target.value});
   }
 
   render() {

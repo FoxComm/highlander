@@ -45,7 +45,7 @@ class GiftCardActions {
       });
   }
 
-  updateGiftCard(id, data) {
+  editGiftCard(id, data) {
     this.dispatch();
     return Api.patch(`/gift-cards/${id}`, data)
       .then((card) => {
