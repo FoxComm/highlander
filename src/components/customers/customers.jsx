@@ -18,8 +18,8 @@ export default class Customers extends React.Component {
       {field: 'name', text: 'Name', type: 'link', id: 'id'},
       {field: 'email', text: 'Email', type: 'link', id: 'id'},
       {field: 'id', text: 'Customer ID', type: 'id'},
-      {field: 'shipToRegion', text: 'Ship To Region'},
-      {field: 'billToRegion', text: 'Bill To Region'},
+      {field: 'shipRegion', text: 'Ship To Region'},
+      {field: 'billRegion', text: 'Bill To Region'},
       {field: 'rank', text: 'Rank'},
       {field: 'createdAt', text: 'Date/Time Joined', type: 'date'}
     ]
