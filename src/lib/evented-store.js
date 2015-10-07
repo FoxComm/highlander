@@ -116,7 +116,7 @@ export default class EventedStore extends EventEmitter {
   }
 
   delete(id) {
-    Api.delete(this.uri(id))
+    return Api.delete(this.uri(id))
       .then((res) => {
         this.update(res);
       })
