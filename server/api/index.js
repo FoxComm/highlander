@@ -26,6 +26,9 @@ module.exports = function(app) {
     function getData() {
       switch(method) {
         case 'get': return query;
+        case 'delete':
+        case 'head':
+        case 'connect': return undefined;
         default: return body.fields ? body.fields : body;
       }
     }
