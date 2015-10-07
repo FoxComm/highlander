@@ -14,9 +14,6 @@ export default class CustomerContacts extends React.Component {
   }
 
   render() {
-    console.log("CustomerContacts");
-    console.log(this.props);
-
     let actionBlock = (
       <button className="fc-btn">
         <i className="icon-edit"></i>
