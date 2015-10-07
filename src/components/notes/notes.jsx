@@ -132,7 +132,7 @@ export default class Notes extends React.Component {
               <TableCell colspan={3}>
                 <Form
                   uri={NotesStore.baseUri}
-                  text={this.state.editingNote && this.state.editingNote.body}
+                  body={this.state.editingNote && this.state.editingNote.body}
                   onReset={this.handleResetForm.bind(this)}
                   onSubmit={this.handleEditForm.bind(this)}
                   />

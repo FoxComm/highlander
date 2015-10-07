@@ -6,15 +6,20 @@ import ReactDOM from 'react-dom';
 export default class NoteForm extends React.Component {
   static propTypes = {
     uri: React.PropTypes.string,
-    text: React.PropTypes.string,
+    body: React.PropTypes.string,
+    maxBodyLength: React.PropTypes.number,
     onReset: React.PropTypes.func,
     onSubmit: React.PropTypes.func
+  };
+
+  static defaultProps = {
+    maxBodyLength: 1000
   };
 
   constructor(...args) {
     super(...args);
     this.state = {
-      body: this.props.text || ''
+      body: this.props.body || ''
     };
   }
 
@@ -40,7 +45,7 @@ export default class NoteForm extends React.Component {
   }
 
   render() {
-    let title = this.props.text ? 'Edit note' : 'New note';
+    let title = this.props.body ? 'Edit note' : 'New note';
     return (
       <div className="fc-notes-form">
         <form onChange={this.handleChange.bind(this)} onSubmit={this.handleSubmit.bind(this)}>
@@ -51,7 +56,7 @@ export default class NoteForm extends React.Component {
               <textarea
                 ref="body"
                 name="body"
-                maxLength="1000"
+                maxLength={this.props.maxBodyLength}
                 value={this.state.body}
                 required>
               </textarea>
