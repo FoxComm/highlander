@@ -9,7 +9,7 @@ import models._
 import models.GiftCard.Canceled
 import responses.{GiftCardResponse, CustomerResponse, StoreAdminResponse}
 import responses.GiftCardResponse._
-import responses.GiftCardBulkUpdateResponse._
+import responses.GiftCardBulkResponse._
 import slick.driver.PostgresDriver.api._
 import utils.Slick._
 import utils.Slick.UpdateReturning._
@@ -159,8 +159,8 @@ object GiftCardService {
   private def fetchDetails(code: String)(implicit db: Database, ec: ExecutionContext) = for {
     giftCard  ← GiftCards.findByCode(code).one
     gcOrigin  ← giftCard match {
-      case Some(gc) if gc.originType == GiftCard.CsrAppeasement ⇒ GiftCardManuals.filter(_.id === gc.id).one
-      case _ ⇒ DBIO.successful(None)
+      case Some(gc) if gc.originType == GiftCard.CsrAppeasement ⇒ GiftCardManuals.filter(_.id === gc.originId).one
+      case _                                                    ⇒ DBIO.successful(None)
     }
     account   ← getAccount(giftCard, gcOrigin)
   } yield (giftCard, account)
@@ -171,7 +171,7 @@ object GiftCardService {
       case (GiftCard.CustomerPurchase, _) ⇒
         Customers._findById(mockCustomerId).extract.one.map(Xor.left)
       case (GiftCard.CsrAppeasement, Some(o)) ⇒
-        StoreAdmins._findById(o.id).extract.one.map(Xor.right)
+        StoreAdmins._findById(o.adminId).extract.one.map(Xor.right)
       case _ ⇒
         lift(Xor.left(None))
     }

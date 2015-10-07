@@ -3,7 +3,7 @@ package responses
 import cats.data.Xor
 import services.Failures
 
-object GiftCardBulkUpdateResponse {
+object GiftCardBulkResponse {
   final case class ItemResult(
     code: Option[String] = None,
     success: Boolean = false,
