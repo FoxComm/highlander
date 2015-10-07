@@ -7,7 +7,7 @@ export default class TableStore extends BaseStore {
     super(props);
     this.columns = [];
     this.start = 0;
-    this.limit = 2;
+    this.limit = 25;
   }
 
   set uriRoot(uri) {
@@ -25,7 +25,7 @@ export default class TableStore extends BaseStore {
 
   setLimit(value) {
     this.limit = Math.max(0, Math.min(this.models.length, value));
-    this.start = Math.min(this.start, this.models.length - limit);
+    this.start = Math.min(this.start, this.models.length - this.limit);
     this.notifyChanged();
   }
 

@@ -1,16 +1,13 @@
 'use strict';
 
 import React from 'react';
+import TableStore from '../../lib/table-store';
 import Table from './table';
 import TablePaginator from './paginator';
 
 export default class TableView extends React.Component {
   constructor(...args) {
     super(...args);
-    this.state = {
-      start: 0,
-      limit: 1
-    };
   }
 
   componentDidMount() {
@@ -19,18 +16,13 @@ export default class TableView extends React.Component {
 
   onLimitChange(event) {
     event.preventDefault();
-    this.store.setLimit(+event.target.value);
+    this.props.store.setLimit(+event.target.value);
   }
 
   render() {
-    let showPaginator = this.props.paginator && this.props.store.rows.length > this.state.limit;
+    let showPaginator = this.props.paginator && this.props.store.models.length > this.props.store.limit;
     let paginator = showPaginator && (
-        <TablePaginator
-          start={this.state.start}
-          limit={this.state.limit}
-          total={100}
-          setStart={this.props.store.setStart.bind(this.props.store)}
-          />
+        <TablePaginator store={this.props.store}/>
       );
 
     return (
@@ -44,7 +36,6 @@ export default class TableView extends React.Component {
         {showPaginator && (
           <div className="fc-table-footer">
             <select onChange={this.onLimitChange.bind(this)}>
-              <option value="10">Show 10</option>
               <option value="25">Show 25</option>
               <option value="50">Show 50</option>
               <option value="100">Show 100</option>
@@ -60,10 +51,7 @@ export default class TableView extends React.Component {
 
 TableView.propTypes = {
   children: React.PropTypes.any,
-  start: React.PropTypes.number,
-  limit: React.PropTypes.number,
-  total: React.PropTypes.number,
-  store: React.PropTypes.object,
+  store: React.PropTypes.instanceOf(TableStore),
   renderRow: React.PropTypes.func,
   paginator: React.PropTypes.bool
 };

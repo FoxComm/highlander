@@ -1,20 +1,21 @@
 'use strict';
 
 import React from 'react';
+import TableStore from '../../lib/table-store';
 
 export default class TablePaginator extends React.Component {
   onPrevPageClick() {
-    this.props.setStart(Math.max(0, this.props.start - this.props.limit));
+    this.props.store.setStart(this.props.store.start - this.props.store.limit);
   }
 
   onNextPageClick() {
-    this.props.setStart(Math.min(this.props.total - this.props.limit, this.props.start + this.props.limit));
+    this.props.store.setStart(this.props.store.start + this.props.store.limit);
   }
 
   render() {
-    let total = this.props.total;
-    let start = this.props.start + 1;
-    let end = Math.min(total, this.props.start + this.props.limit);
+    let total = this.props.store.models.length;
+    let start = this.props.store.start + 1;
+    let end = Math.min(total, this.props.store.start + this.props.store.limit);
     return (
       <div className="fc-table-paginator">
         <span>
@@ -30,8 +31,5 @@ export default class TablePaginator extends React.Component {
 }
 
 TablePaginator.propTypes = {
-  start: React.PropTypes.number,
-  limit: React.PropTypes.number,
-  total: React.PropTypes.number,
-  setStart: React.PropTypes.func
+  store: React.PropTypes.instanceOf(TableStore)
 };
