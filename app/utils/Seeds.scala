@@ -136,9 +136,9 @@ object Seeds {
       Sku(sku = "SKU-ZYA", name = Some("Dolphin"), price = 88))
 
     def orderLineItemSkus: Seq[OrderLineItemSku] = Seq(
-      OrderLineItemSku(id = 0, skuId = 1),
-      OrderLineItemSku(id = 0, skuId = 2),
-      OrderLineItemSku(id = 0, skuId = 3))
+      OrderLineItemSku(id = 0, orderId = 1,skuId = 1),
+      OrderLineItemSku(id = 0, orderId = 1,skuId = 2),
+      OrderLineItemSku(id = 0, orderId = 1,skuId = 3))
 
     def orderLineItems: Seq[OrderLineItem] = Seq(
       OrderLineItem(id = 0, orderId = 1, originId = 1, originType = OrderLineItem.SkuItem, status = OrderLineItem.Cart),

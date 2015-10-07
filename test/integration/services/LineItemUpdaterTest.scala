@@ -14,12 +14,13 @@ class LineItemUpdaterTest extends IntegrationTestBase {
   val lineItems = TableQuery[OrderLineItems]
   val lineItemSkus = TableQuery[OrderLineItemSkus]
 
-  def createSkusAndLinks(num: Int): Unit = {
+  def createSkusAndLinks(num: Int, order: Order): Unit = {
     (Skus.returningId ++= (1 to num).map { i ⇒
       Factories.skus.head.copy(sku = i.toString, price = 5)
     }).run().futureValue
 
-    (OrderLineItemSkus.returningId ++= (1 to num).map { i ⇒ OrderLineItemSku(skuId = i) }).run().futureValue
+    (OrderLineItemSkus.returningId ++= (1 to num).map {
+      id ⇒ OrderLineItemSku(skuId = id, orderId = order.id) }).run().futureValue
   }
 
   def createLineItems(items: Seq[OrderLineItem]): Unit = {
@@ -36,8 +37,8 @@ class LineItemUpdaterTest extends IntegrationTestBase {
   "LineItemUpdater" - {
 
     "Adds line_items when the sku doesn't exist in order" in {
-      createSkusAndLinks(2)
       val order = Orders.save(Order(customerId = 1)).run().futureValue
+      createSkusAndLinks(2, order)
       createInventory(1, 100)
       createInventory(2, 100)
 
@@ -62,8 +63,8 @@ class LineItemUpdaterTest extends IntegrationTestBase {
     }
 
     "Updates line_items when the Sku already is in order" in {
-      createSkusAndLinks(3)
       val order = Orders.save(Order(customerId = 1)).run().futureValue
+      createSkusAndLinks(3, order)
       createInventory(1, 100)
       createInventory(2, 100)
       createInventory(3, 100)
@@ -85,8 +86,10 @@ class LineItemUpdaterTest extends IntegrationTestBase {
           root.lineItems.count(_.sku == "3") must be(1)
 
           val allRecords = db.run(lineItems.result).futureValue
-
           root.lineItems.size must === (allRecords.size)
+
+          val allRelations = db.run(lineItemSkus.result).futureValue
+          allRelations.size must === (2)
 
         case Xor.Left(s) => fail(s.mkString(";"))
       }

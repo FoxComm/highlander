@@ -25,7 +25,7 @@ object LineItemUpdater {
         Orders._findActiveOrderByCustomer(customer).findOneAndRun { order ⇒
           val queries = for {
             gc ← GiftCards.save(GiftCard.buildLineItem(customer, payload.balance, payload.currency))
-            origin ← OrderLineItemGiftCards.save(OrderLineItemGiftCard(giftCardId = gc.id))
+            origin ← OrderLineItemGiftCards.save(OrderLineItemGiftCard(giftCardId = gc.id, orderId = order.id))
             rel ← OrderLineItems.save(OrderLineItem.buildGiftCard(order, origin))
           } yield (gc, origin, rel)
 
@@ -136,7 +136,7 @@ object LineItemUpdater {
               relation <- OrderLineItemSkus.filter(_.skuId === sku.id).one
               origin ← relation match {
                 case Some(o)   ⇒ DBIO.successful(o)
-                case _         ⇒ OrderLineItemSkus.save(OrderLineItemSku(skuId = sku.id))
+                case _         ⇒ OrderLineItemSkus.save(OrderLineItemSku(skuId = sku.id, orderId = order.id))
               }
               bulkInsert ← lineItems ++= (1 to delta).map { _ => OrderLineItem(0, order.id, origin.id) }.toSeq
             } yield ()
@@ -144,11 +144,18 @@ object LineItemUpdater {
             DbResult.fromDbio(queries)
           } else if (current - newQuantity > 0) {
             // otherwise delete N items
-            val lineItemIds = lineItems.filter(_.orderId === order.id).skuItems
-              .join(OrderLineItemSkus).on(_.originId === _.id)
-              .filter(_._2.skuId === sku.id).sortBy(_._1.id.asc).take(current - newQuantity).map(_._1.id)
+            val queries = for {
+              deleteLi ← lineItems.filter(_.id in lineItems.filter(_.orderId === order.id).skuItems
+                .join(OrderLineItemSkus).on(_.originId === _.id).filter(_._2.skuId === sku.id).sortBy(_._1.id.asc)
+                .take(current - newQuantity).map(_._1.id)).delete
 
-            lineItems.filter(_.id in lineItemIds).delete
+              deleteRel ← newQuantity == 0 match {
+                case true   ⇒ OrderLineItemSkus.filter(_.skuId === sku.id).filter(_.orderId === order.id).delete
+                case false  ⇒ DBIO.successful({})
+              }
+            } yield ()
+
+            DbResult.fromDbio(queries)
           } else {
             // do nothing
             DBIO.successful({})

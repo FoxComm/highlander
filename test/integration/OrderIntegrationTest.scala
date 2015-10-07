@@ -687,7 +687,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       "Shipping method is returned, but disabled with a hazardous SKU" in new ShipToCaliforniaButNotHazardous {
         (for {
           hazSku ← Skus.save(Sku(sku = "HAZ-SKU", name = Some("fox"), price = 56, isHazardous = true))
-          lineItemSku ← OrderLineItemSkus.save(OrderLineItemSku(skuId = hazSku.id))
+          lineItemSku ← OrderLineItemSkus.save(OrderLineItemSku(skuId = hazSku.id, orderId = order.id))
           lineItem ← OrderLineItems.save(OrderLineItem(orderId = order.id, originId = lineItemSku.id,
             originType = OrderLineItem.SkuItem))
         } yield lineItem).run().futureValue
@@ -738,7 +738,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = californiaId))
       orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
       sku ← Skus.save(Factories.skus.head.copy(name = Some("Donkey"), price = 27))
-      lineItemSkus ← OrderLineItemSkus.save(OrderLineItemSku(skuId = sku.id))
+      lineItemSkus ← OrderLineItemSkus.save(OrderLineItemSku(skuId = sku.id, orderId = order.id))
       lineItems ← OrderLineItems.save(OrderLineItem(orderId = order.id, originId = lineItemSkus.id,
         originType = OrderLineItem.SkuItem))
     } yield (address, orderShippingAddress)).run().futureValue

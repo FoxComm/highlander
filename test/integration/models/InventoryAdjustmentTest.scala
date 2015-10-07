@@ -12,7 +12,7 @@ class InventoryAdjustmentTest extends IntegrationTestBase {
   def seed(): (Sku, OrderLineItemSku, Order) = {
     val sku = Skus.save(Factories.skus.head.copy(price = 5)).run().futureValue
     val order = Orders.save(Order(id = 0, customerId = 1)).run().futureValue
-    val lineItemSku = OrderLineItemSkus.save(OrderLineItemSku(skuId = sku.id)).run().futureValue
+    val lineItemSku = OrderLineItemSkus.save(OrderLineItemSku(skuId = sku.id, orderId = order.id)).run().futureValue
     (sku, lineItemSku, order)
   }
 
