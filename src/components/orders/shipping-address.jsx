@@ -1,11 +1,17 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import Addresses from '../addresses/addresses';
 import AddressDetails from '../addresses/address-details';
 import OrderStore from '../../stores/orders';
+import AddressStore from '../../stores/addresses';
 
 export default class OrderShippingAddress extends React.Component {
+
+  static propTypes = {
+    order: PropTypes.object.isRequired,
+    isEditing: PropTypes.bool
+  };
 
   constructor(props, context) {
     super(props, context);
@@ -19,9 +25,8 @@ export default class OrderShippingAddress extends React.Component {
   }
 
   onDeleteAddress(address) {
-    if (address.id === this.props.order.shippingAddress.id) {
-      OrderStore.removeShippingAddress(this.props.order.referenceNumber);
-    }
+    OrderStore.removeShippingAddress(this.props.order.referenceNumber);
+    AddressStore.delete(this.props.order.customer.id, address.id);
   }
 
   toggleEdit() {
@@ -75,8 +80,3 @@ export default class OrderShippingAddress extends React.Component {
     );
   }
 }
-
-OrderShippingAddress.propTypes = {
-  order: React.PropTypes.object,
-  isEditing: React.PropTypes.bool
-};

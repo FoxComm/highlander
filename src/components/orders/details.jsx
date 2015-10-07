@@ -17,7 +17,6 @@ export default class OrderDetails extends React.Component {
 
   render() {
     let order = this.props.order;
-    let actions = null;
     let lineColumns = [
       {field: 'imagePath', text: 'Image', type: 'image'},
       {field: 'name', text: 'Name'},
