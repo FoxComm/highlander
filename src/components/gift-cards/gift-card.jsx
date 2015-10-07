@@ -1,10 +1,11 @@
 'use strict';
 
 import React, { PropTypes } from 'react';
-import Api from '../../lib/api';
 import { IndexLink, Link } from '../link';
 import { formatCurrency } from '../../lib/format';
 import moment from 'moment';
+import GiftCardStore from '../../stores/gift-cards';
+import GiftCardActions from '../../actions/gift-cards';
 
 export default class GiftCard extends React.Component {
 
@@ -17,40 +18,39 @@ export default class GiftCard extends React.Component {
 
   constructor(props, context) {
     super(props, context);
-    this.state = {
-      card: {}
-    };
+    this.state = GiftCardStore.getState();
+    this.onChange = this.onChange.bind(this);
   }
 
   componentDidMount() {
     let { giftcard } = this.props.params;
+    GiftCardStore.listen(this.onChange);
 
-    Api.get(`/gift-cards/${giftcard}`)
-      .then((res) => {
-        this.setState({
-          card: res
-        });
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+    GiftCardActions.fetchGiftCard(giftcard);
+  }
+
+  componentWillUnmount() {
+    GiftCardStore.unlisten(this.onChange);
+  }
+
+  onChange(state) {
+    this.setState(state);
   }
 
   changeState(event) {
-    Api.patch(`/gift-cards/${this.state.card.code}`, {state: event.target.value})
-      .then((res) => {
-        this.setState({
-          card: res
-        });
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+    let card = this.state.giftCards.first();
+
+    GiftCardActions.updateGiftCard(card.code, {status: event.target.value});
   }
 
   render() {
     let subNav = null;
-    let card = this.state.card;
+    let card = this.state.giftCards.first();
+
+    if (!card) {
+      return <div id="gift-card"></div>;
+    }
+
     let status = null;
 
     const content = React.cloneElement(this.props.children, {'gift-card': card, modelName: 'gift-card' });
@@ -73,7 +73,7 @@ export default class GiftCard extends React.Component {
       status = <span>{card.status}</span>;
     } else {
       status = (
-        <select value={this.state.card.status} onChange={this.changeState.bind(this)}>
+        <select value={card.status} onChange={this.changeState.bind(this)}>
           <option value="active">Active</option>
           <option value="onHold">On Hold</option>
           <option value="canceled">Cancel Gift Card</option>

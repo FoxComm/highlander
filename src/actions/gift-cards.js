@@ -19,6 +19,17 @@ class GiftCardActions {
       });
   }
 
+  fetchGiftCard(id) {
+    this.dispatch();
+    Api.get(`/gift-cards/${id}`)
+      .then((card) => {
+        this.actions.updateGiftCards([card]);
+      })
+      .catch((err) => {
+        this.actions.giftCardsFailed(err);
+      });
+  }
+
   giftCardsFailed(errorMessage) {
     this.dispatch(errorMessage);
   }
@@ -28,6 +39,17 @@ class GiftCardActions {
     return Api.submitForm(form)
       .then((cards) => {
         this.actions.updateGiftCards(cards);
+      })
+      .catch((err) => {
+        this.actions.giftCardsFailed(err);
+      });
+  }
+
+  updateGiftCard(id, data) {
+    this.dispatch();
+    return Api.patch(`/gift-cards/${id}`, data)
+      .then((card) => {
+        this.actions.updateGiftCards([card]);
       })
       .catch((err) => {
         this.actions.giftCardsFailed(err);

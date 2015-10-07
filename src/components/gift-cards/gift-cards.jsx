@@ -10,7 +10,7 @@ import _ from 'lodash';
 export default class GiftCards extends React.Component {
   constructor(props, context) {
     super(props, context);
-    this.state = _.assign({}, GiftCardStore.getState());
+    this.state = GiftCardStore.getState();
     this.onChange = this.onChange.bind(this);
   }
 
