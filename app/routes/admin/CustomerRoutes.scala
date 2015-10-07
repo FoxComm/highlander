@@ -65,6 +65,12 @@ object CustomerRoutes {
                 AddressManager.setDefaultShippingAddress(customerId, id)
               }
           } ~
+          (get & path(IntNumber) & pathEnd)  {
+            (id) ⇒
+              nothingOrFailures {
+                AddressManager.get(customerId, id)
+              }
+          } ~
           (delete & path(IntNumber) & pathEnd)  {
             (id) ⇒
               nothingOrFailures {

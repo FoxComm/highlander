@@ -53,7 +53,22 @@ object AddressManager {
     }
   }
 
-  def remove(addressId: Int, customerId: Int)
+  def get(customerId: Int, addressId: Int)
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
+      val query = ( for { 
+        Some(address) ← Addresses.findById(customerId, addressId).one
+        region  ← Regions.findById(address.regionId)
+      } yield (address, region))
+
+      db.run(query).flatMap { 
+          case (address, Some(region)) ⇒ Result.good(Response.build(address, region))
+          case (address, None)         ⇒ Result.failure(NotFoundFailure(Region, address.regionId))
+          case (_, _)                  ⇒ Result.failure(NotFoundFailure(Address,addressId))
+      }
+  }
+  
+
+  def remove(customerId: Int, addressId: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Int] = {
     val query = Addresses.findById(customerId, addressId).map(_.deletedAt).update(Some(Instant.now()))
     db.run(query).flatMap(Result.good)

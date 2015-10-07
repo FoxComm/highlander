@@ -90,6 +90,30 @@ class AddressesIntegrationTest extends IntegrationTestBase
       (updated.name, updated.address1) must === ((payload.name, payload.address1))
     }
 
+    "can be deleted" in new AddressFixture { 
+      val payload = payloads.CreateAddressPayload(name = "Delete Me", regionId = 1, address1 = "5000 Delete Dr", city = "Deattle", zip = "666")
+
+      val response = POST(s"v1/customers/${customer.id}/addresses", payload)
+      response.status must === (StatusCodes.OK)
+      val newAddress = response.as[responses.Addresses.Root]
+
+      //now delete
+      val deleteResponse = DELETE(s"v1/customers/${customer.id}/addresses/${newAddress.id}")
+      info(deleteReponse.bodyText)
+      deleteResponse.status must === (StatusCodes.OK)
+
+      //now get
+      val getResponse = GET(s"v1/customers/${customer.id}/addresses/${newAddress.id}")
+      getResponse.status must === (StatusCodes.OK)
+      val gotAddress = response.as[responses.Addresses.Root]
+
+      gotAddress.deletedAt match { 
+        case None ⇒  fail("FullOrder should have a shipping address")
+        case _ ⇒  None
+      }
+
+    }
+
     "display address" - {
       "succeeds when there is a default shipping address" in new AddressFixture {
         val response = GET(s"v1/customers/${customer.id}/addresses/display")
