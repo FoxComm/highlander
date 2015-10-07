@@ -15,7 +15,6 @@ import utils.Slick.implicits._
 
 object LineItemUpdater {
   val lineItems = TableQuery[OrderLineItems]
-  val lineItemSkus = TableQuery[OrderLineItemSkus]
   val orders = TableQuery[Orders]
 
   def addGiftCard(customer: Customer, payload: AddGiftCardLineItem)
