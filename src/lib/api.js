@@ -41,7 +41,6 @@ export default class Api {
     return new Promise((resolve, reject) => {
       let req = new XMLHttpRequest();
       let token = localStorage.getItem('token');
-
       req.onload = function() {
         if (req.status >= 200 && req.status < 300) {
           resolve(JSON.parse(req.response));

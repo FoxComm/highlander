@@ -17,4 +17,10 @@ describe('GiftCard Store', function() {
 
     assert(giftCardStore.getState().giftCards.size === 1);
   });
+
+  it('updates giftCards on fetchGiftCards', function () {
+    alt.dispatcher.dispatch({
+      action: giftCardActions.FETCH_GIFT_CARDS
+    });
+  });
 });

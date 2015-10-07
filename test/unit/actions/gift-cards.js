@@ -17,28 +17,90 @@ describe('GiftCard Actions', function() {
     alt.dispatcher.dispatch.restore();
   });
 
-  it('should dispatch on updateGiftCards', function () {
-    giftCardActions.updateGiftCards([]);
+  context('updateGiftCards', function() {
+    it('should dispatch', function () {
+      giftCardActions.updateGiftCards([]);
 
-    assert(this.dispatchSpy.calledOnce);
+      assert(this.dispatchSpy.calledOnce);
+    });
   });
 
-  it('should dispatch on fetchGiftCards', function(){
-    sinon.stub(Api, 'get').returns(Promise.resolve([1]));
-    giftCardActions.fetchGiftCards();
-    assert(this.dispatchSpy.calledOnce);
+  context('fetchGiftCards', function() {
+    it('should dispatch and call updateGiftCards on success', function(done){
+      let response = [1];
+      let spy = sinon.spy(giftCardActions, 'updateGiftCards');
+      let stub = sinon.stub(Api, 'get').returns(Promise.resolve(response));
+
+      giftCardActions.fetchGiftCards().then(function(cards) {
+        assert(spy.calledWith(response));
+        spy.restore();
+        done();
+      }).catch(function(err) {
+        done(err);
+      });
+
+      assert(this.dispatchSpy.calledOnce);
+      stub.restore();
+    });
+
+    it('should dispatch and call giftCardsFailed on failure', function(done){
+      let spy = sinon.spy(giftCardActions, 'giftCardsFailed');
+      let stub = sinon.stub(Api, 'get').returns(Promise.reject("Error"));
+
+      giftCardActions.fetchGiftCards().then(function(err) {
+        assert(spy.calledOnce);
+        spy.restore();
+        done();
+      }).catch(function(err) {
+        done(err);
+      });
+
+      assert(this.dispatchSpy.calledOnce);
+      stub.restore();
+    });
   });
 
-  it('should dispatch on createGiftCard', function(){
-    sinon.stub(Api, 'submitForm').returns(Promise.resolve([1]));
-    giftCardActions.createGiftCard();
-    assert(this.dispatchSpy.calledOnce);
+  context('createGiftCard', function() {
+    it('should dispatch and call updateGiftCards on success', function(done){
+      let response = [1];
+      let spy = sinon.spy(giftCardActions, 'updateGiftCards');
+      let stub = sinon.stub(Api, 'submitForm').returns(Promise.resolve(response));
+
+      giftCardActions.createGiftCard().then(function(cards) {
+        assert(spy.calledWith(response));
+        spy.restore();
+        done();
+      }).catch(function(err) {
+        done(err);
+      });
+
+      assert(this.dispatchSpy.calledOnce);
+      stub.restore();
+    });
+
+    it('should dispatch and call giftCardsFailed on failure', function(done){
+      let spy = sinon.spy(giftCardActions, 'giftCardsFailed');
+      let stub = sinon.stub(Api, 'submitForm').returns(Promise.reject("Error"));
+
+      giftCardActions.createGiftCard().then(function(err) {
+        assert(spy.calledOnce);
+        spy.restore();
+        done();
+      }).catch(function(err) {
+        done(err);
+      });
+
+      assert(this.dispatchSpy.calledOnce);
+      stub.restore();
+    });
   });
 
-  it('should dispatch on giftCardsFailed', function(){
-    giftCardActions.giftCardsFailed("Error");
-    let args = this.dispatchSpy.args[0];
-    let firstArg = args[0];
-    assert(firstArg.data === "Error");
+  context('giftCardsFailed', function() {
+    it('should dispatch', function(){
+      giftCardActions.giftCardsFailed("Error");
+      let args = this.dispatchSpy.args[0];
+      let firstArg = args[0];
+      assert(firstArg.data === "Error");
+    });
   });
 });
