@@ -5,10 +5,7 @@ import Title from './title';
 
 export default class SectionTitle extends React.Component {
   static propTypes = {
-    title: React.PropTypes.oneOfType([
-      React.PropTypes.string,
-      React.PropTypes.number
-    ]),
+    title: React.PropTypes.node,
     count: React.PropTypes.number,
     buttonClickHandler: React.PropTypes.func
   };
