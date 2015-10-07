@@ -18,8 +18,9 @@ import utils.GenericTable.TableWithId
 import utils.{ModelWithIdParameter, TableQueryWithId, Validation}
 import utils.Slick.implicits._
 
-final case class Customer(id: Int = 0, disabled: Boolean = false, email: String, password: String, firstName: String,
-  lastName: String, phoneNumber: Option[String] = None, location: Option[String] = None,
+final case class Customer(id: Int = 0,  email: String, password: String, firstName: String, lastName: String,
+  disabled: Boolean = false, blacklisted: Boolean = false,
+  phoneNumber: Option[String] = None, location: Option[String] = None,
   modality: Option[String] = None, isGuest: Boolean = false, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter
   with Validation[Customer] {
@@ -47,6 +48,9 @@ class Customers(tag: Tag) extends TableWithId[Customer](tag, "customers")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def disabled = column[Boolean]("disabled")
   def disabledBy = column[Option[Int]]("disabled_by")
+  def blacklisted = column[Boolean]("blacklisted")
+  def blacklistedBy = column[Option[Int]]("blacklisted_by")
+  def blacklistedReason = column[Option[String]]("blacklisted_reason")
   def email = column[String]("email")
   def password = column[String]("hashed_password")
   def firstName = column[String]("first_name")
@@ -57,8 +61,9 @@ class Customers(tag: Tag) extends TableWithId[Customer](tag, "customers")  {
   def isGuest = column[Boolean]("is_guest")
   def createdAt = column[Instant]("created_at")
 
-  def * = (id, disabled, email, password, firstName, lastName,
-    phoneNumber, location, modality, isGuest, createdAt) <> ((Customer.apply _).tupled, Customer.unapply)
+  def * = (id, email, password, firstName, lastName,
+    disabled, blacklisted, phoneNumber,
+    location, modality, isGuest, createdAt) <> ((Customer.apply _).tupled, Customer.unapply)
 }
 
 object Customers extends TableQueryWithId[Customer, Customers](

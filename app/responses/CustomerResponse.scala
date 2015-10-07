@@ -15,7 +15,8 @@ object CustomerResponse {
     location: Option[String] = None,
     modality: Option[String] = None,
     createdAt: Instant,
-    isDisabled: Boolean,
+    disabled: Boolean,
+    blacklisted: Boolean,
     rank: String,
     billRegion: Option[String],
     shipRegion: Option[String])
@@ -25,7 +26,8 @@ object CustomerResponse {
     name = customer.firstName + " " + customer.lastName,
     phoneNumber = customer.phoneNumber, location = customer.location, modality = customer.modality,
     createdAt = customer.createdAt,
-    isDisabled = customer.disabled,
+    disabled = customer.disabled,
+    blacklisted = customer.blacklisted,
     rank = "top 10",
     billRegion = billRegion.map(_.name),
     shipRegion = shipRegion.map(_.name))
