@@ -1,7 +1,6 @@
 'use strict';
 
 import React from 'react';
-import ReactDOM from 'react-dom';
 
 export default class NoteForm extends React.Component {
   static propTypes = {
@@ -24,7 +23,7 @@ export default class NoteForm extends React.Component {
   }
 
   componentDidMount() {
-    let node = ReactDOM.findDOMNode(this.refs.body);
+    let node = this.refs.body;
     let value = node.value;
     node.value = '';
     node.value = value;
@@ -33,7 +32,7 @@ export default class NoteForm extends React.Component {
 
   handleChange(event) {
     this.setState({
-      body: ReactDOM.findDOMNode(this.refs.body).value
+      body: this.refs.body.value
     });
   }
 
