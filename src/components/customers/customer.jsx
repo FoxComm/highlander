@@ -47,6 +47,7 @@ export default class Customer extends React.Component {
   render() {
     console.log(this.props);
     console.log(this.state);
+
     return (
       <div className="fc-user">
         <div className="gutter">
@@ -61,10 +62,10 @@ export default class Customer extends React.Component {
                 <i className="icon-customer"></i>
               </div>
               <div className="fc-customer-info-name">
-                Customer Name
+                {this.state.customer.firstName} {this.state.customer.lastName}
               </div>
               <div className="fc-customer-info-email">
-                customer@email.com
+                {this.state.customer.email}
               </div>
             </div>
           </div>
