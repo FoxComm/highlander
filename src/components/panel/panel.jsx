@@ -27,6 +27,6 @@ export default class Panel extends React.Component {
 Panel.propTypes = {
   children: React.PropTypes.any,
   title: React.PropTypes.string,
-  controls: React.PropTypes.instanceOf(Wrapper),
-  content: React.PropTypes.instanceOf(Wrapper)
+  controls: React.PropTypes.any,
+  content: React.PropTypes.any
 };
