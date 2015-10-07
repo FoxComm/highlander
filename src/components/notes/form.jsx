@@ -1,6 +1,7 @@
 'use strict';
 
 import React from 'react';
+import ReactDOM from 'react-dom';
 
 export default class NoteForm extends React.Component {
   constructor(props) {
@@ -11,7 +12,7 @@ export default class NoteForm extends React.Component {
   }
 
   componentDidMount() {
-    let node = React.findDOMNode(this.refs.body);
+    let node = ReactDOM.findDOMNode(this.refs.body);
     let value = node.value;
     node.value = '';
     node.value = value;
@@ -20,7 +21,7 @@ export default class NoteForm extends React.Component {
 
   handleChange(event) {
     this.setState({
-      body: React.findDOMNode(this.refs.body).value
+      body: ReactDOM.findDOMNode(this.refs.body).value
     });
   }
 
