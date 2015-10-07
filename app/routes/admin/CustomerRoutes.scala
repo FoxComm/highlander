@@ -59,6 +59,18 @@ object CustomerRoutes {
                 AddressManager.setDefaultShippingAddress(customerId, id)
               }
           } ~
+          (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultShippingAddress]) & pathEnd) {
+            (id, payload) ⇒
+              nothingOrFailures {
+                AddressManager.setDefaultShippingAddress(customerId, id)
+              }
+          } ~
+          (delete & path(IntNumber) & pathEnd)  {
+            (id) ⇒
+              nothingOrFailures {
+                AddressManager.remove(customerId, id)
+              }
+          } ~
           (delete & path("default") & pathEnd) {
             nothingOrFailures {
               AddressManager.removeDefaultShippingAddress(customerId)

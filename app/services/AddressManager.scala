@@ -49,6 +49,13 @@ object AddressManager {
     }
   }
 
+  //TODO do we actually want to delete or just mark as delete? Any audit reasons? Support undelete? etc
+  //Waiting on response from Karin.
+  def remove(addressId: Int, customerId: Int)
+    (implicit ec: ExecutionContext, db: Database): Result[Int] = {
+    db.run(Addresses.findById(customerId, addressId).delete).flatMap(Result.good)
+  }
+
   def setDefaultShippingAddress(customerId: Int, addressId: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
     db.run((for {
