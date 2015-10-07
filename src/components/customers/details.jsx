@@ -11,7 +11,11 @@ import CustomerNotificationSettings from './notification-settings';
 import CustomerAccountStatus from './account-status';
 
 export default class CustomerDetails extends React.Component {
+
   render() {
+    console.log("CustomerDetails");
+    console.log(this.props);
+
     return (
       <div className="fc-customer-details">
         <div className="gutter">
@@ -19,7 +23,7 @@ export default class CustomerDetails extends React.Component {
         </div>
         <div className="fc-grid">
           <div className="fc-col-1-2">
-            <CustomerContacts />
+            <CustomerContacts customer={this.props.customer} />
           </div>
           <div className="fc-col-1-2">
             <CustomerAccountPassword />
