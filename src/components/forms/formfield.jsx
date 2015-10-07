@@ -153,7 +153,7 @@ export default class FormField extends React.Component {
 
     if (this.state.errorMessage) {
       errors = (
-        <div className="fc-invalid-error">
+        <div className="is-error">
           {this.state.errorMessage}
         </div>
       );
