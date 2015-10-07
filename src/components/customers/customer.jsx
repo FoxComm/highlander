@@ -50,7 +50,7 @@ export default class Customer extends React.Component {
     console.log(this.state);
 
     return (
-      <div className="fc-user">
+      <div className="fc-customer">
         <div className="gutter">
           <TitleBlock customer={this.state.customer} />
         </div>
