@@ -1,7 +1,6 @@
 'use strict';
 
 import React from 'react';
-import Wrapper from '../wrapper/wrapper';
 import TableStore from '../../lib/table-store';
 import TableRow from './row';
 import TableCell from './cell';
@@ -15,13 +14,13 @@ export default class TableBody extends React.Component {
   static defaultProps = {
     renderRow: function(row) {
       return (
-        <Wrapper>
+        <div>
           <TableRow>
             {this.props.store.columns.map((column) => {
               return <TableCell>{row[column.field]}</TableCell>;
             })}
           </TableRow>
-        </Wrapper>
+        </div>
       );
     }
   };

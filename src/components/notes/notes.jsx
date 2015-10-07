@@ -3,7 +3,6 @@
 import React from 'react';
 import Api from '../../lib/api';
 import NotesStore from '../../stores/notes';
-import Wrapper from '../wrapper/wrapper';
 import Panel from '../panel/panel';
 import TableView from '../table/tableview';
 import TableRow from '../table/row';
@@ -115,12 +114,12 @@ export default class Notes extends React.Component {
   render() {
     let renderRow = (row, index) => {
       return (
-        <Wrapper>
+        <div>
           <TableRow>
             <TableCell>Today</TableCell>
             <TableCell>{row.body}</TableCell>
             <TableCell>
-              <Controls
+              <NoteControls
                 model={row}
                 onEditClick={this.handleEdit.bind(this)}
                 onDeleteClick={this.handleDelete.bind(this)}
@@ -130,7 +129,7 @@ export default class Notes extends React.Component {
           {this.state.editingNote && (this.state.editingNote.id === row.id) && (
             <TableRow>
               <TableCell colspan={3}>
-                <Form
+                <NoteForm
                   uri={NotesStore.baseUri}
                   body={this.state.editingNote && this.state.editingNote.body}
                   onReset={this.handleResetForm.bind(this)}
@@ -139,22 +138,22 @@ export default class Notes extends React.Component {
               </TableCell>
             </TableRow>
           )}
-        </Wrapper>
+        </div>
       );
     };
 
     let controls = (
-      <Wrapper>
+      <div>
         <button onClick={this.toggleCreating.bind(this)} disabled={!!this.state.creatingNote}>
           <i className="icon-add"></i>
         </button>
-      </Wrapper>
+      </div>
     );
 
     return (
       <Panel title={'Notes'} controls={controls}>
         {this.state.creatingNote && (
-          <Form
+          <NoteForm
             uri={NotesStore.baseUri}
             onReset={this.handleResetForm.bind(this)}
             onSubmit={this.handleCreateForm.bind(this)}
