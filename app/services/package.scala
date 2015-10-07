@@ -6,7 +6,7 @@ package object services {
   type Failures = NonEmptyList[Failure]
 
   def Failures(failures: Failure*): Failures = failures.toList match {
-    case Nil          => throw new Exception("Can't instantiate NonEmptyList from an empty collection")
+    case Nil          => throw new IllegalArgumentException("Can't instantiate NonEmptyList from an empty collection")
     case head :: tail => NonEmptyList(head, tail)
   }
 

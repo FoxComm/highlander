@@ -2,7 +2,7 @@ package utils
 
 import scala.concurrent.{ExecutionContext, Future}
 import akka.http.scaladsl.model.StatusCodes._
-import akka.http.scaladsl.model.{HttpResponse, StatusCode}
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, ResponseEntity, HttpResponse, StatusCode}
 
 import cats.data.Xor
 import models.{Customer, Order, Orders}
@@ -88,17 +88,20 @@ object Http {
     resource.fold(notFoundResponse)(render(_))
 
   def renderNotFoundFailure(f: NotFoundFailure): HttpResponse =
-    notFoundResponse.copy(entity = json("errors" → Seq(f.message)))
+    notFoundResponse.copy(entity = jsonEntity("errors" → Seq(f.message)))
 
   def render[A <: AnyRef](resource: A, statusCode: StatusCode = OK) =
-    HttpResponse(statusCode, entity = json(resource))
+    HttpResponse(statusCode, entity = jsonEntity(resource))
 
   def renderFailure(failures: Failures, statusCode: ClientError = BadRequest): HttpResponse = {
     import services._
     val failuresList = failures.toList
     val notFound = failuresList.collectFirst { case f: NotFoundFailure ⇒ f }
-    notFound.fold(HttpResponse(statusCode, entity = json("errors" → failuresList.flatMap(_.description)))) { nf ⇒
+    notFound.fold(HttpResponse(statusCode, entity = jsonEntity("errors" → failuresList.flatMap(_.description)))) { nf ⇒
       renderNotFoundFailure(nf)
     }
   }
+
+  def jsonEntity[A <: AnyRef](resource: A): ResponseEntity = HttpEntity(ContentTypes.`application/json`,
+    json(resource))
 }

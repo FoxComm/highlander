@@ -13,7 +13,7 @@ import services._
 import slick.driver.PostgresDriver.api._
 import utils.Apis
 import utils.Http._
-import utils.SprayDirectives._
+import utils.CustomDirectives._
 import utils.Slick.implicits._
 
 object Admin {
