@@ -22,7 +22,10 @@ function overrideEventHandlers(child, newEventHandlers) {
 export default class FormField extends React.Component {
 
   static propTypes = {
-    validator: PropTypes.func,
+    validator: PropTypes.oneOf([
+      PropTypes.func,
+      PropTypes.string
+    ]),
     children: PropTypes.node.isRequired,
     label: PropTypes.node
   };
