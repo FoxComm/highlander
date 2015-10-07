@@ -4,6 +4,8 @@ import React, { PropTypes } from 'react';
 import Api from '../../lib/api';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
+import GiftCardTransactionsStore from '../../stores/gift-card-transactions';
+import GiftCardTransactionActions from '../../actions/gift-card-transactions';
 
 export default class GiftCardTransactions extends React.Component {
   static propTypes = {
@@ -27,20 +29,27 @@ export default class GiftCardTransactions extends React.Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      transactions: []
+      data: GiftCardTransactionsStore.getState()
     };
+    this.onChange = this.onChange.bind(this);
   }
 
   componentDidMount() {
     const { giftcard } = this.props.params;
 
-    Api.get(`/gift-cards/${giftcard}/transactions`)
-       .then((res) => {
-         this.setState({
-           transactions: res
-         });
-       })
-       .catch((err) => { console.error(err); });
+    GiftCardTransactionsStore.listen(this.onChange);
+
+    GiftCardTransactionActions.fetchTransactions(giftcard);
+  }
+
+  componentWillUnmount() {
+    GiftCardTransactionsStore.unlisten(this.onChange);
+  }
+
+  onChange() {
+    this.setState({
+      data: GiftCardTransactionsStore.getState()
+    });
   }
 
   render() {
@@ -48,7 +57,7 @@ export default class GiftCardTransactions extends React.Component {
       <div id="gift-card-transactions">
         <table className="fc-table">
           <TableHead columns={this.props.tableColumns} />
-          <TableBody columns={this.props.tableColumns} rows={this.state.transactions} model="gift-card-transaction" />
+          <TableBody columns={this.props.tableColumns} rows={this.state.data.get('transactions').toArray()} model="gift-card-transaction" />
         </table>
       </div>
     );

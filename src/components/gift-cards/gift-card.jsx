@@ -18,7 +18,9 @@ export default class GiftCard extends React.Component {
 
   constructor(props, context) {
     super(props, context);
-    this.state = GiftCardStore.getState();
+    this.state = {
+      data: GiftCardStore.getState()
+    };
     this.onChange = this.onChange.bind(this);
   }
 
@@ -33,19 +35,21 @@ export default class GiftCard extends React.Component {
     GiftCardStore.unlisten(this.onChange);
   }
 
-  onChange(state) {
-    this.setState(state);
+  onChange() {
+    this.setState({
+      data: GiftCardStore.getState()
+    });
   }
 
   changeState(event) {
-    let card = this.state.giftCards.first();
+    let card = this.state.data.get('giftCards').first();
 
     GiftCardActions.editGiftCard(card.code, {status: event.target.value});
   }
 
   render() {
     let subNav = null;
-    let card = this.state.giftCards.first();
+    let card = this.state.data.get('giftCards').first();
 
     if (!card) {
       return <div id="gift-card"></div>;

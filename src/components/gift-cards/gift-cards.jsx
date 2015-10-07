@@ -10,7 +10,9 @@ import _ from 'lodash';
 export default class GiftCards extends React.Component {
   constructor(props, context) {
     super(props, context);
-    this.state = GiftCardStore.getState();
+    this.state = {
+      data: GiftCardStore.getState()
+    };
     this.onChange = this.onChange.bind(this);
   }
 
@@ -24,8 +26,11 @@ export default class GiftCards extends React.Component {
     GiftCardStore.unlisten(this.onChange);
   }
 
-  onChange(state) {
-    this.setState(state);
+  onChange() {
+    let state = GiftCardStore.getState();
+    this.setState({
+      data: state
+    });
   };
 
   onCardsAdded(cards) {
@@ -62,7 +67,7 @@ export default class GiftCards extends React.Component {
           <Link to='gift-cards-new' className="fc-btn">+ New Gift Card</Link>
           <TableView
               columns={this.props.tableColumns}
-              rows={this.state.giftCards.toArray()}
+              rows={this.state.data.get('giftCards').toArray()}
               model='giftcard'
           />
         </div>

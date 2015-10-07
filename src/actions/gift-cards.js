@@ -1,60 +1,64 @@
 'use strict';
 
-import alt from '../alt';
 import Api from '../lib/api';
+import AshesDispatcher from '../lib/dispatcher';
+import GiftCardConstants from '../constants/gift-card';
+import { List } from 'immutable';
 
 class GiftCardActions {
-  updateGiftCards(cards) {
-    this.dispatch(cards);
+  updateGiftCards(giftCards) {
+    AshesDispatcher.handleViewAction({
+      actionType: GiftCardConstants.UPDATE_GIFT_CARDS,
+      giftCards: giftCards
+    });
   }
 
   fetchGiftCards() {
-    this.dispatch();
     return Api.get('/gift-cards')
       .then((cards) => {
-        this.actions.updateGiftCards(cards);
+        this.updateGiftCards(List(cards));
       })
       .catch((err) => {
-        this.actions.giftCardsFailed(err);
+        this.giftCardsFailed(err);
       });
   }
 
   fetchGiftCard(id) {
-    this.dispatch();
     Api.get(`/gift-cards/${id}`)
       .then((card) => {
-        this.actions.updateGiftCards([card]);
+        this.updateGiftCards(List([card]));
       })
       .catch((err) => {
-        this.actions.giftCardsFailed(err);
+        this.giftCardsFailed(err);
       });
   }
 
   giftCardsFailed(errorMessage) {
-    this.dispatch(errorMessage);
+    AshesDispatcher.handleViewAction({
+      actionType: GiftCardConstants.GIFT_CARDS_FAILED,
+      errorMessage: errorMessage
+    });
   }
 
   createGiftCard(form) {
-    this.dispatch();
     return Api.submitForm(form)
       .then((cards) => {
-        this.actions.updateGiftCards(cards);
+        this.updateGiftCards(List([cards]));
       })
       .catch((err) => {
-        this.actions.giftCardsFailed(err);
+        this.giftCardsFailed(err);
       });
   }
 
   editGiftCard(id, data) {
-    this.dispatch();
     return Api.patch(`/gift-cards/${id}`, data)
       .then((card) => {
-        this.actions.updateGiftCards([card]);
+        this.updateGiftCards(List([card]));
       })
       .catch((err) => {
-        this.actions.giftCardsFailed(err);
+        this.giftCardsFailed(err);
       });
   }
 }
 
-export default alt.createActions(GiftCardActions);
+export default new GiftCardActions();

@@ -1,53 +1,32 @@
 'use strict';
 
-import alt from '../alt';
-import GiftCardActions from '../actions/gift-cards';
-import immutable from 'alt/utils/ImmutableUtil';
-import Immutable from 'immutable';
+import { List, Map } from 'immutable';
+import BaseStore from './base-store';
+import GiftCardConstants from '../constants/gift-card';
 
-@immutable
-class GiftCardStore {
+class GiftCardStore extends BaseStore {
   constructor() {
-    this.state = {
-      giftCards: Immutable.List([])
-    };
-
-    this.bindListeners({
-      handleUpdateGiftCards: GiftCardActions.UPDATE_GIFT_CARDS,
-      handleFetchGiftCards: GiftCardActions.FETCH_GIFT_CARDS,
-      handleFailedGiftCards: GiftCardActions.GIFT_CARDS_FAILED,
-      handleFetchGiftCard: GiftCardActions.FETCH_GIFT_CARD,
-      handleEditGiftCard: GiftCardActions.EDIT_GIFT_CARD,
-      handleCreateGiftCard: GiftCardActions.CREATE_GIFT_CARD
+    super();
+    this.changeEvent = 'change-gift-card';
+    this.state = Map({
+      giftCards: List([])
     });
+
+    this.bindListener(GiftCardConstants.UPDATE_GIFT_CARDS, this.handleUpdateGiftCards);
+    this.bindListener(GiftCardConstants.GIFT_CARD_FAILED, this.handleFailedGiftCards);
   }
 
-  handleUpdateGiftCards(cards) {
+  handleUpdateGiftCards(action) {
     // TODO: Get difference in cards and set 'new' property.
-    this.setState({
-      giftCards: Immutable.List(cards)
-    });
+    let giftCards = action.giftCards;
+    this.setState(this.state.set('giftCards', giftCards));
   }
 
-  handleFetchGiftCards() {
-    // Fetching gift cards.
-  }
-
-  handleFailedGiftCards(err) {
-    console.error(err);
-  }
-
-  handleFetchGiftCard() {
-    // Fetching gift card.
-  }
-
-  handleEditGiftCard() {
-    // Editing gift card.
-  }
-
-  handleCreateGiftCard() {
-    // Creating gift card.
+  handleFailedGiftCards(action) {
+    let errorMessage = action.errorMessage.trim();
+    console.error(errorMessage);
   }
 }
 
-export default alt.createStore(GiftCardStore, 'GiftCardStore');
+let giftCardStore = new GiftCardStore();
+export default giftCardStore;

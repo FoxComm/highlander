@@ -36,7 +36,6 @@ export class Dispatcher {
     this.isDispatching = false;
     this.callbacks = List([]);
     this.promises = List([]);
-
     this.queue = List([]);
   }
 
@@ -64,8 +63,8 @@ export class Dispatcher {
     });
 
     this.callbacks.forEach((callback, i) => {
-      Promise.resolve(callback(currentPayload)).then(() => {
-        resolves.get(i)(currentPayload);
+      Promise.resolve(callback(payload)).then(() => {
+        resolves.get(i)(payload);
       }, () => {
         rejects.get(i)(new Error('Dispatcher callback unsuccessful.'));
       });
@@ -89,11 +88,14 @@ export class Dispatcher {
   }
 }
 
-export default class AshesDispatcher extends Dispatcher {
-  handleViewAction(source='VIEW_ACTION', action) {
+class AppDispatcher extends Dispatcher {
+  handleViewAction(action, source='VIEW_ACTION') {
     this.dispatch({
       source: source,
       action: action
     });
   }
 }
+
+let AshesDispatcher = new AppDispatcher();
+export default AshesDispatcher;
