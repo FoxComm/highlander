@@ -1,4 +1,4 @@
-@gutter: 2%;
+@gutter: 1.85%;
 @grid-columns: 12;
 
 .generate-grid(@columns) {
@@ -8,7 +8,7 @@
       // 1-1, 1-2, 2-2, 1-3, 2-3, 3-3 etc
       @size: (100% / @idx) * @fraction;
       .fc-col-@{fraction}-@{idx} {
-        width: @size;
+        flex: 0 0 @size;
       }
       .fc-pull-@{fraction}-@{idx} {
         left: -@size;
@@ -20,7 +20,7 @@
     }
     &.fc-grid-1-@{idx} {
       >* {
-        width: (100% / @idx);
+        flex: 0 0 (100% / @idx);
       }
     }
     .col-numerator(1);
@@ -30,7 +30,7 @@
 }
 
 .fc-grid {
-  .margin-left(-@gutter);
+  .margin-right(@gutter);
   display: flex;
   flex-wrap: wrap;
 
