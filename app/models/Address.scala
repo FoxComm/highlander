@@ -1,5 +1,7 @@
 package models
 
+import java.time.Instant
+
 import scala.concurrent.Future
 
 import monocle.macros.GenLens
@@ -11,7 +13,8 @@ import utils.{ModelWithIdParameter, NewModel, TableQueryWithId, Validation}
 
 final case class Address(id: Int = 0, customerId: Int, regionId: Int, name: String,
   address1: String, address2: Option[String], city: String, zip: String,
-  isDefaultShipping: Boolean = false, phoneNumber: Option[String] = None)
+  isDefaultShipping: Boolean = false, phoneNumber: Option[String] = None, 
+  deletedAt: Option[Instant] = None)
   extends ModelWithIdParameter
   with NewModel
   with Addressable[Address]
@@ -51,9 +54,10 @@ class Addresses(tag: Tag) extends TableWithId[Address](tag, "addresses")  {
   def zip = column[String]("zip")
   def isDefaultShipping = column[Boolean]("is_default_shipping")
   def phoneNumber = column[Option[String]]("phone_number")
+  def deletedAt = column[Option[Instant]]("deleted_at")
 
   def * = (id, customerId, regionId, name, address1, address2,
-    city, zip, isDefaultShipping, phoneNumber) <> ((Address.apply _).tupled, Address.unapply)
+    city, zip, isDefaultShipping, phoneNumber, deletedAt) <> ((Address.apply _).tupled, Address.unapply)
 
   def region = foreignKey(Regions.tableName, regionId, Regions)(_.id)
 }
@@ -82,7 +86,7 @@ object Addresses extends TableQueryWithId[Address, Addresses](
    filter(_.customerId === customerId).filter(_.isDefaultShipping === true)
 
   def findById(customerId: Int, addressId: Int): QuerySeq = 
-   filter(_.id === addressId).filter(_.customerId === customerId)
+   _findById(addressId).extract.filter(_.customerId === customerId)
 
   object scope {
     implicit class AddressesQuerySeqConversions(q: QuerySeq) {

@@ -1,5 +1,7 @@
 package services
 
+import java.time.Instant
+
 import scala.concurrent.{Future, ExecutionContext}
 
 import cats.data.Validated.{Invalid, Valid}
@@ -14,6 +16,8 @@ import slick.driver.PostgresDriver
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 import cats.implicits._
+
+import utils.time.JavaTimeSlickMapper.instantAndTimestampWithoutZone
 
 object AddressManager {
   def create(payload: CreateAddressPayload, customerId: Int)
@@ -49,11 +53,10 @@ object AddressManager {
     }
   }
 
-  //TODO do we actually want to delete or just mark as delete? Any audit reasons? Support undelete? etc
-  //Waiting on response from Karin.
   def remove(addressId: Int, customerId: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Int] = {
-    db.run(Addresses.findById(customerId, addressId).delete).flatMap(Result.good)
+    val query = Addresses.findById(customerId, addressId).map(_.deletedAt).update(Some(Instant.now()))
+    db.run(query).flatMap(Result.good)
   }
 
   def setDefaultShippingAddress(customerId: Int, addressId: Int)
