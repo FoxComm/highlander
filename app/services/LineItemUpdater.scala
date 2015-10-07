@@ -14,6 +14,7 @@ import utils.Slick.implicits._
 
 object LineItemUpdater {
   val lineItems = TableQuery[OrderLineItems]
+  val lineItemSkus = TableQuery[OrderLineItemSkus]
   val orders = TableQuery[Orders]
 
   def addGiftCard(customer: Customer, payload: AddGiftCardLineItem)
@@ -106,32 +107,39 @@ object LineItemUpdater {
     // TODO: AW: Add the maximum available to the order if there aren't as many as requested
     Skus.qtyAvailableForSkus(updateQuantities.keys.toSeq).flatMap { availableQuantities =>
       val enoughOnHand = availableQuantities.foldLeft(Map.empty[Sku, Int]) { case (acc, (sku, numAvailable)) =>
-        val numRequested = updateQuantities.get(sku.sku).getOrElse(0)
+        val numRequested = updateQuantities.getOrElse(sku.sku, 0)
         if (numAvailable >= numRequested && numRequested >= 0)
           acc.updated(sku, numRequested)
         else
           acc
       }
 
-      // select sku_id, count(1) from line_items where order_id = $ group by sku_id
+      // select origin_id, count(1) from order_line_items where order_id = $ and origin_type = 'skuItem'
+      // group by origin_id
       val counts = for {
-        (skuId, q) <- lineItems.filter(_.orderId === order.id).skuItems.groupBy(_.originId)
-      } yield (skuId, q.length)
+        (originId, q) <- lineItems.filter(_.orderId === order.id).skuItems.groupBy(_.originId)
+        sku ← lineItemSkus.filter(_.id === originId)
+      } yield (sku.id, (q.length, originId))
 
-      val queries = counts.result.flatMap { (items: Seq[(Int, Int)]) =>
+      val queries = counts.result.flatMap { (items: Seq[(Int, (Int, Int))]) =>
         val existingSkuCounts = items.toMap
 
         val changes = enoughOnHand.map { case (sku, newQuantity) =>
-          val current = existingSkuCounts.getOrElse(sku.id, 0)
-          // we're using absolute values from payload, so if newQuantity is greater then create N items
-          if (newQuantity > current) {
-            val delta = newQuantity - current
+          val current = existingSkuCounts.getOrElse(sku.id, (0, 0))
+          val currentQuantity = current._1
+          val currentOriginId = current._2
 
-            lineItems ++= (1 to delta).map { _ => OrderLineItem(0, order.id, sku.id) }.toSeq
-          } else if (current - newQuantity > 0) {
-            //otherwise delete N items
-            lineItems.filter(_.id in lineItems.filter(_.orderId === order.id).skuItems
-              .filter(_.originId === sku.id).sortBy(_.id.asc).take(current - newQuantity).map(_.id)).delete
+          // we're using absolute values from payload, so if newQuantity is greater then create N items
+          if (newQuantity > currentQuantity) {
+            val delta = newQuantity - currentQuantity
+
+            lineItems ++= (1 to delta).map { _ => OrderLineItem(0, order.id, currentOriginId) }.toSeq
+          } else if (currentQuantity - newQuantity > 0) {
+            // otherwise delete N items
+            val lineItemIds = lineItems.filter(_.orderId === order.id).skuItems
+              .filter(_.originId === currentOriginId).sortBy(_.id.asc).take(currentQuantity - newQuantity).map(_.id)
+
+            lineItems.filter(_.id in lineItemIds).delete
           } else {
             // do nothing
             DBIO.successful({})

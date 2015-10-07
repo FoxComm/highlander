@@ -80,6 +80,8 @@ object OrderLineItems extends TableQueryWithId[OrderLineItem, OrderLineItems](
   idLens = GenLens[OrderLineItem](_.id)
 )(new OrderLineItems(_)) {
 
+  import scope._
+
   def findByOrder(order: Order)(implicit db: Database) = db.run(_findByOrderId(order.id).result)
 
   def _findByOrder(order: Order): Query[OrderLineItems, OrderLineItem, Seq] =
@@ -98,9 +100,7 @@ object OrderLineItems extends TableQueryWithId[OrderLineItem, OrderLineItems](
 
   def _countBySkuIdForOrder(order: Order) =
     (for {
-      (skuId, group) <- _findByOrderId(order.id)
-        .filter(_.originType === (OrderLineItem.SkuItem: OriginType))
-        .groupBy(_.originId)
+      (skuId, group) <- _findByOrderId(order.id).skuItems.groupBy(_.originId)
     } yield (skuId, group.length)).result
 
   object scope {
