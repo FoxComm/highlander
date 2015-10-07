@@ -2,6 +2,7 @@ package services
 
 import scala.concurrent.ExecutionContext
 
+import cats.data.Xor
 import cats.data.Validated.{Valid, Invalid}
 import models._
 import models.OrderLineItems.scope._
@@ -114,30 +115,39 @@ object LineItemUpdater {
           acc
       }
 
-      // select origin_id, count(1) from order_line_items where order_id = $ and origin_type = 'skuItem'
-      // group by origin_id
+      // select oli_skus.sku_id as sku_id, count(1) from order_line_items
+      // left join order_line_item_skus as oli_skus on origin_id = oli_skus.id
+      // where order_id = $ and origin_type = 'skuItem' group by sku_id
       val counts = for {
-        (originId, q) <- lineItems.filter(_.orderId === order.id).skuItems.groupBy(_.originId)
-        sku ← lineItemSkus.filter(_.id === originId)
-      } yield (sku.id, (q.length, originId))
+        (skuId, q) <- lineItems.filter(_.orderId === order.id).skuItems
+          .join(OrderLineItemSkus).on(_.originId === _.id).groupBy(_._2.skuId)
+      } yield (skuId, q.length)
 
-      val queries = counts.result.flatMap { (items: Seq[(Int, (Int, Int))]) =>
+      val queries = counts.result.flatMap { (items: Seq[(Int, Int)]) =>
         val existingSkuCounts = items.toMap
 
         val changes = enoughOnHand.map { case (sku, newQuantity) =>
-          val current = existingSkuCounts.getOrElse(sku.id, (0, 0))
-          val currentQuantity = current._1
-          val currentOriginId = current._2
+          val current = existingSkuCounts.getOrElse(sku.id, 0)
 
           // we're using absolute values from payload, so if newQuantity is greater then create N items
-          if (newQuantity > currentQuantity) {
-            val delta = newQuantity - currentQuantity
+          if (newQuantity > current) {
+            val delta = newQuantity - current
 
-            lineItems ++= (1 to delta).map { _ => OrderLineItem(0, order.id, currentOriginId) }.toSeq
-          } else if (currentQuantity - newQuantity > 0) {
+            val queries = for {
+              relation <- OrderLineItemSkus.filter(_.skuId === sku.id).one
+              origin ← relation match {
+                case Some(o)   ⇒ DBIO.successful(o)
+                case _         ⇒ OrderLineItemSkus.save(OrderLineItemSku(skuId = sku.id))
+              }
+              bulkInsert ← lineItems ++= (1 to delta).map { _ => OrderLineItem(0, order.id, origin.id) }.toSeq
+            } yield ()
+
+            DbResult.fromDbio(queries)
+          } else if (current - newQuantity > 0) {
             // otherwise delete N items
             val lineItemIds = lineItems.filter(_.orderId === order.id).skuItems
-              .filter(_.originId === currentOriginId).sortBy(_.id.asc).take(currentQuantity - newQuantity).map(_.id)
+              .join(OrderLineItemSkus).on(_.originId === _.id)
+              .filter(_._2.skuId === sku.id).sortBy(_._1.id.asc).take(current - newQuantity).map(_._1.id)
 
             lineItems.filter(_.id in lineItemIds).delete
           } else {
