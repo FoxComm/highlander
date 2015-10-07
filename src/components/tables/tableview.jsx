@@ -1,16 +1,34 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import TableHead from './head';
 import TableBody from './body';
 import TablePaginator from './paginator';
 
 export default class TableView extends React.Component {
+
+  static propTypes = {
+    model: PropTypes.string,
+    columns: PropTypes.array,
+    rows: PropTypes.array,
+    start: PropTypes.number,
+    limit: PropTypes.number,
+    sort: PropTypes.func,
+    paginator: PropTypes.bool,
+    children: PropTypes.node
+  };
+
+  static defaultProps = {
+    start: 0,
+    limit: 25,
+    paginator: true
+  };
+
   constructor(props, context) {
     super(props, context);
     this.state = {
-      start: props.start,
-      limit: props.paginator ? props.limit : Infinity
+      start: this.props.start,
+      limit: this.props.paginator ? this.props.limit : Infinity
     };
   }
 
@@ -74,21 +92,3 @@ export default class TableView extends React.Component {
     );
   }
 }
-
-TableView.propTypes = {
-  children: React.PropTypes.any,
-  model: React.PropTypes.string,
-  columns: React.PropTypes.array,
-  rows: React.PropTypes.array,
-  start: React.PropTypes.number,
-  limit: React.PropTypes.number,
-  sort: React.PropTypes.func,
-  paginator: React.PropTypes.bool,
-  children: React.PropTypes.array
-};
-
-TableView.defaultProps = {
-  start: 0,
-  limit: 25,
-  paginator: true
-};
