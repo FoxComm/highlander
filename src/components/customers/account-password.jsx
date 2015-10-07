@@ -1,10 +1,15 @@
 'use strict';
 
 import React from 'react';
+import ContentBox from '../content-box/content-box';
 
 export default class CustomerAccountPassword extends React.Component {
 
   render() {
-    return (<div className="fc-customer-account-password">Customer account password</div>);
+    return (
+      <ContentBox title="Account Password" className="fc-customer-account-password">
+        Account Password
+      </ContentBox>
+    );
   }
 }

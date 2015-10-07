@@ -1,10 +1,15 @@
 'use strict';
 
 import React from 'react';
+import ContentBox from '../content-box/content-box';
 
 export default class CustomerAccountStatus extends React.Component {
 
   render() {
-    return (<div className="fc-customer-account-status">Customer account status</div>);
+    return (
+      <ContentBox title="Account Status" className="fc-customer-account-status">
+        Account Status
+      </ContentBox>
+    );
   }
 }
