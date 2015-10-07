@@ -4,8 +4,15 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 export default class NoteForm extends React.Component {
-  constructor(props) {
-    super(props);
+  static propTypes = {
+    uri: React.PropTypes.string,
+    text: React.PropTypes.string,
+    onReset: React.PropTypes.func,
+    onSubmit: React.PropTypes.func
+  };
+
+  constructor(...args) {
+    super(...args);
     this.state = {
       body: this.props.text || ''
     };
@@ -59,10 +66,3 @@ export default class NoteForm extends React.Component {
     );
   }
 }
-
-NoteForm.propTypes = {
-  uri: React.PropTypes.string,
-  text: React.PropTypes.string,
-  onReset: React.PropTypes.func,
-  onSubmit: React.PropTypes.func
-};

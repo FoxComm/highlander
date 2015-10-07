@@ -23,8 +23,8 @@ const deleteOptions = {
 
 export default class Notes extends React.Component {
 
-  constructor(props) {
-    super(props);
+  constructor(...args) {
+    super(...args);
     this.state = {
       creatingNote: false,
       editingNote: null

@@ -6,8 +6,8 @@ import TableStore from '../../lib/table-store';
 import TableRow from './row';
 
 export default class TableHead extends React.Component {
-  constructor(props) {
-    super(props);
+  constructor(...args) {
+    super(...args);
     this.state = {};
   }
 
