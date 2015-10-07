@@ -14,14 +14,13 @@ import UserInitials from '../users/initials';
 import ConfirmModal from '../modal/confirm';
 import { dispatch } from '../../lib/dispatcher';
 
-const deleteOptions = {
-  header: 'Confirm',
-  body: 'Are you sure you want to delete this note?',
-  proceed: 'Yes',
-  cancel: 'No'
-};
-
 export default class Notes extends React.Component {
+  static deleteOptions = {
+    header: 'Confirm',
+    body: 'Are you sure you want to delete this note?',
+    proceed: 'Yes',
+    cancel: 'No'
+  };
 
   constructor(...args) {
     super(...args);
@@ -96,7 +95,7 @@ export default class Notes extends React.Component {
     this.setState({
       deletingNote: item
     });
-    dispatch('toggleModal', <ConfirmModal callback={this.onConfirmDeleteNote.bind(this)} details={deleteOptions}/>);
+    dispatch('toggleModal', <ConfirmModal callback={this.onConfirmDeleteNote.bind(this)} details={this.deleteOptions}/>);
   }
 
   onConfirmDeleteNote(success) {
