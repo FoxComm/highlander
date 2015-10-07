@@ -1,7 +1,6 @@
 'use strict';
 
 import React from 'react';
-import Wrapper from '../wrapper/wrapper';
 
 export default class Panel extends React.Component {
   render() {
