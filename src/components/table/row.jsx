@@ -3,6 +3,10 @@
 import React from 'react';
 
 export default class TableRow extends React.Component {
+  static propTypes = {
+    children: React.PropTypes.any
+  };
+
   render() {
     return (
       <tr className="fc-table-tr">
@@ -11,7 +15,3 @@ export default class TableRow extends React.Component {
     );
   }
 }
-
-TableRow.propTypes = {
-  children: React.PropTypes.any
-};

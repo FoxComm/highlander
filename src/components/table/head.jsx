@@ -6,6 +6,10 @@ import TableStore from '../../lib/table-store';
 import TableRow from './row';
 
 export default class TableHead extends React.Component {
+  static propTypes = {
+    store: React.PropTypes.instanceOf(TableStore)
+  };
+
   constructor(...args) {
     super(...args);
     this.state = {};
@@ -49,7 +53,3 @@ export default class TableHead extends React.Component {
     );
   }
 }
-
-TableHead.propTypes = {
-  store: React.PropTypes.instanceOf(TableStore)
-};

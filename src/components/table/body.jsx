@@ -7,6 +7,25 @@ import TableRow from './row';
 import TableCell from './cell';
 
 export default class TableBody extends React.Component {
+  static propTypes = {
+    store: React.PropTypes.instanceOf(TableStore),
+    renderRow: React.PropTypes.func
+  };
+
+  static defaultProps = {
+    renderRow: function(row) {
+      return (
+        <Wrapper>
+          <TableRow>
+            {this.props.store.columns.map((column) => {
+              return <TableCell>{row[column.field]}</TableCell>;
+            })}
+          </TableRow>
+        </Wrapper>
+      );
+    }
+  };
+
   render() {
     let renderRow = this.props.renderRow.bind(this);
     return (
@@ -19,22 +38,4 @@ export default class TableBody extends React.Component {
   }
 }
 
-TableBody.propTypes = {
-  store: React.PropTypes.instanceOf(TableStore),
-  renderRow: React.PropTypes.func
-};
-
-TableBody.defaultProps = {
-  renderRow: function(row) {
-    return (
-      <Wrapper>
-        <TableRow>
-          {this.props.store.columns.map((column) => {
-            return <TableCell>{row[column.field]}</TableCell>;
-          })}
-        </TableRow>
-      </Wrapper>
-    );
-  }
-};
 

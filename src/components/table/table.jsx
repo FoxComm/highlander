@@ -7,6 +7,12 @@ import TableHead from './head';
 import TableBody from './body';
 
 export default class Table extends React.Component {
+  static propTypes = {
+    children: React.PropTypes.any,
+    store: React.PropTypes.instanceOf(TableStore),
+    renderRow: React.PropTypes.func
+  };
+
   render() {
     return (
       <table className='fc-table'>
@@ -18,9 +24,3 @@ export default class Table extends React.Component {
     );
   }
 }
-
-Table.propTypes = {
-  children: React.PropTypes.any,
-  store: React.PropTypes.instanceOf(TableStore),
-  renderRow: React.PropTypes.func
-};

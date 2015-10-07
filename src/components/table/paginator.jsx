@@ -4,6 +4,10 @@ import React from 'react';
 import TableStore from '../../lib/table-store';
 
 export default class TablePaginator extends React.Component {
+  static propTypes = {
+    store: React.PropTypes.instanceOf(TableStore)
+  };
+
   onPrevPageClick() {
     this.props.store.setStart(this.props.store.start - this.props.store.limit);
   }
@@ -29,7 +33,3 @@ export default class TablePaginator extends React.Component {
     );
   }
 }
-
-TablePaginator.propTypes = {
-  store: React.PropTypes.instanceOf(TableStore)
-};
