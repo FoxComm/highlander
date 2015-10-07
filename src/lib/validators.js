@@ -11,5 +11,5 @@ export function zipCode(value, country) {
 }
 
 export function ascii(value) {
-  return /^[0-9a-zA-Z_\-\s]+$/.test(value) ? null : '$label must contain only ASCII characters';
+  return /^[\x00-\x7F]+$/.test(value) ? null : '$label must contain only ASCII characters';
 }
