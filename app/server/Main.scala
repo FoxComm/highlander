@@ -8,7 +8,7 @@ import akka.event.Logging
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.RejectionHandler
+import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler}
 import akka.stream.ActorMaterializer
 
 import com.typesafe.config.Config
@@ -67,6 +67,8 @@ class Service(
   }
 
   implicit def rejectionHandler: RejectionHandler = SprayHandlers.jsonRejectionHandler
+
+  implicit def exceptionHandler: ExceptionHandler = SprayHandlers.jsonExceptionHandler
 
   private final val serverBinding = Agent[Option[ServerBinding]](None)
 
