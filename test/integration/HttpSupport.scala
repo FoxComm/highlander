@@ -36,7 +36,7 @@ trait HttpSupport extends SuiteMixin with ScalaFutures with MustMatchers { this:
 
   private val ActorSystemNameChars = ('a' to 'z').toSet | ('A' to 'Z').toSet | ('0' to '9').toSet | Set('-', '_')
 
-  private val ValidResponseContentTypes = immutable.Set(ContentTypes.`application/json`, ContentTypes.NoContentType)
+  private val ValidResponseContentTypes = Set(ContentTypes.`application/json`, ContentTypes.NoContentType)
 
   import org.json4s.jackson.JsonMethods._
   import Extensions._
