@@ -17,7 +17,7 @@ export default class NoteControls extends React.Component {
         <button className="fc-btn" onClick={this.props.onEditClick.bind(this, this.props.model)}>
           <i className="icon-edit"/>
         </button>
-        <button  className="fc-btn" onClick={this.props.onDeleteClick.bind(this, this.props.model)}>
+        <button className="fc-btn" onClick={this.props.onDeleteClick.bind(this, this.props.model)}>
           <i className="icon-trash"/>
         </button>
       </div>
