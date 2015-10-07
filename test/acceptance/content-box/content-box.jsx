@@ -28,7 +28,7 @@ describe('ContentBox', function() {
       <ContentBox title={ title } className="" />
       , container);
     let contentBoxTitleNode = ReactDOM.findDOMNode(
-      TestUtils.findRenderedDOMComponentWithClass(contentBox, 'fc-content-box-title'));
+      TestUtils.findRenderedDOMComponentWithClass(contentBox, 'fc-title'));
 
     expect(contentBoxTitleNode.innerHTML).to.be.equal(title);
   });
@@ -50,7 +50,7 @@ describe('ContentBox', function() {
       <ContentBox title="" className="" actionBlock={ actionBlock }/>
       , container);
     let contentBoxNode = ReactDOM.findDOMNode(
-      TestUtils.findRenderedDOMComponentWithClass(contentBox, 'fc-content-box-actions'));
+      TestUtils.findRenderedDOMComponentWithClass(contentBox, 'fc-controls'));
 
     expect(contentBoxNode.innerHTML).to.be.equal(actionBlock);
   });
@@ -60,7 +60,7 @@ describe('ContentBox', function() {
       <ContentBox title="" className="" />
       , container);
     let contentBoxNode = ReactDOM.findDOMNode(
-      TestUtils.findRenderedDOMComponentWithClass(contentBox, 'fc-content-box-actions'));
+      TestUtils.findRenderedDOMComponentWithClass(contentBox, 'fc-controls'));
 
     expect(contentBoxNode.innerHTML).to.be.equal('');
   });

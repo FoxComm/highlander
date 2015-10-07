@@ -16,9 +16,11 @@ export default class ContentBox extends React.Component {
     return (
       <div className={ rootClassName }>
         <header>
-          <div className="fc-content-box-title">{ this.props.title }</div>
-          <div className="fc-content-box-actions">
-            { this.props.actionBlock }
+          <div className="fc-grid">
+            <div className="fc-col-2-3 fc-title">{ this.props.title }</div>
+            <div className="fc-col-1-3 fc-controls">
+              { this.props.actionBlock }
+            </div>
           </div>
         </header>
         <article>
