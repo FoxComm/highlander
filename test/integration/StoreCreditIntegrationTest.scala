@@ -1,9 +1,8 @@
 import akka.http.scaladsl.model.StatusCodes
 
+import models._
 import models.StoreCredit.{Canceled, Active, OnHold}
-import models.{StoreCreditAdjustment, PaymentMethod, OrderPayments, Orders, StoreCreditManuals, Customer, Reasons,
-Customers, StoreCredit, StoreCredits, StoreAdmins, StoreCreditAdjustments}
-import responses.{StoreCreditResponse, StoreCreditAdjustmentsResponse}
+import responses._
 import org.scalatest.BeforeAndAfterEach
 import services._
 import util.IntegrationTestBase

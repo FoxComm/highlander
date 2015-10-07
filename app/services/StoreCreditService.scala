@@ -9,7 +9,7 @@ import models.{Reasons, Customer, Customers, StoreAdmin, StoreCredit, StoreCredi
 StoreCreditManuals, StoreCredits, StoreCreditAdjustments}
 import responses.StoreCreditResponse
 import responses.StoreCreditResponse._
-import responses.StoreCreditBulkUpdateResponse._
+import responses.StoreCreditBulkResponse._
 import slick.driver.PostgresDriver.api._
 import utils.Slick._
 import utils.Slick.UpdateReturning._
@@ -47,7 +47,7 @@ object StoreCreditService {
   }
 
   def bulkUpdateStatusByCsr(payload: payloads.StoreCreditBulkUpdateStatusByCsr, admin: StoreAdmin)
-    (implicit ec: ExecutionContext, db: Database): Result[BulkResponse] = {
+    (implicit ec: ExecutionContext, db: Database): Result[Seq[ItemResult]] = {
 
     payload.validate match {
       case Valid(_) ⇒
@@ -57,7 +57,7 @@ object StoreCreditService {
         }
 
         val future = Future.sequence(responses).flatMap { seq ⇒
-          Future.successful(buildBulkResponse(seq.to[collection.immutable.Seq]))
+          Future.successful(seq)
         }
 
         Result.fromFuture(future)
