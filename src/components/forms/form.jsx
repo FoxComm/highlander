@@ -8,7 +8,8 @@ import {EventEmitter} from 'events';
 export default class Form extends React.Component {
 
   static propTypes = {
-    onSubmit: PropTypes.func
+    onSubmit: PropTypes.func,
+    children: PropTypes.node
   };
 
   static childContextTypes = {

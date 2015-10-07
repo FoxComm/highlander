@@ -23,7 +23,8 @@ export default class FormField extends React.Component {
 
   static propTypes = {
     validator: PropTypes.func,
-    children: PropTypes.node.isRequired
+    children: PropTypes.node.isRequired,
+    label: PropTypes.node
   };
 
   static contextTypes = {
