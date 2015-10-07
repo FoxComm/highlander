@@ -45,6 +45,14 @@ export default class Customer extends React.Component {
     });
   }
 
+  renderChildren() {
+    return React.Children.map(this.props.children, function (child) {
+      return React.cloneElement(child, {
+        customer: this.state.customer
+      });
+    }.bind(this));
+  }
+
   render() {
     console.log(this.props);
     console.log(this.state);
@@ -67,7 +75,7 @@ export default class Customer extends React.Component {
             <li><a href="">Activity Trail</a></li>
           </ul>
           <div>
-            {this.props.children}
+            { this.renderChildren() }
           </div>
         </div>
       </div>
