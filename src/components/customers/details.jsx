@@ -17,27 +17,37 @@ export default class CustomerDetails extends React.Component {
         <div className="gutter">
           <h2>Details</h2>
         </div>
-        <div className="gutter">
-          <div>
+        <div className="fc-grid">
+          <div className="fc-col-1-2">
             <CustomerContacts />
           </div>
-          <div>
+          <div className="fc-col-1-2">
             <CustomerAccountPassword />
             <CustomerRoles />
           </div>
         </div>
-        <div className="gutter">
-          <CustomerAddressBook />
+        <div className="fc-grid">
+          <div className="fc-col-1-1">
+            <CustomerAddressBook />
+          </div>
         </div>
-        <div className="gutter">
-          <CustomerCreditCards />
+        <div className="fc-grid">
+          <div className="fc-col-1-1">
+            <CustomerCreditCards />
+          </div>
         </div>
-        <div className="gutter">
-          <CustomerGroups />
+        <div className="fc-grid">
+          <div className="fc-col-1-1">
+            <CustomerGroups />
+          </div>
         </div>
-        <div className="gutter">
-          <CustomerNotificationSettings />
-          <CustomerAccountStatus />
+        <div className="fc-grid">
+          <div className="fc-col-1-2">
+            <CustomerNotificationSettings />
+          </div>
+          <div className="fc-col-1-2">
+            <CustomerAccountStatus />
+          </div>
         </div>
       </div>
     );
