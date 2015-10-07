@@ -6,11 +6,11 @@ import TableBody from './body';
 import TablePaginator from './paginator';
 
 export default class TableView extends React.Component {
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
     this.state = {
-      start: this.props.start,
-      limit: this.props.paginator ? this.props.limit : Infinity
+      start: props.start,
+      limit: props.paginator ? props.limit : Infinity
     };
   }
 
