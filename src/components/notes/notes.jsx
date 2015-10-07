@@ -144,7 +144,7 @@ export default class Notes extends React.Component {
 
     let controls = (
       <div>
-        <button onClick={this.toggleCreating.bind(this)} disabled={!!this.state.creatingNote}>
+        <button className="fc-btn" onClick={this.toggleCreating.bind(this)} disabled={!!this.state.creatingNote}>
           <i className="icon-add"></i>
         </button>
       </div>
