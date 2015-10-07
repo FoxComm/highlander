@@ -2,6 +2,7 @@
 
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
+import * as validators from '../../lib/validators';
 
 function isInputElement(element) {
   return _.contains(['input', 'textarea', 'select'], element.type);
@@ -104,11 +105,33 @@ export default class FormField extends React.Component {
     reportValidity(this.validate());
   }
 
+  getInputValue() {
+    const node = this.getInputNode();
+
+    if (node.type == 'checkbox') {
+      return node.checked;
+    } else {
+      return node.value;
+    }
+  }
+
+
   validate() {
     let errorMessage = null;
 
-    if (this.props.validator) {
-      errorMessage = this.props.validator();
+    let validator = this.props.validator;
+
+    if (validator) {
+      if (_.isString(validator)) {
+        validator = validators[validator];
+      }
+
+      let value = this.getInputValue();
+      errorMessage = validator(value);
+
+      if (errorMessage) {
+        errorMessage = errorMessage.replace('$label', this.props.label);
+      }
     }
 
     this.setState({
