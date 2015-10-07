@@ -12,7 +12,13 @@ export default class CustomerAccountPassword extends React.Component {
   render() {
     return (
       <ContentBox title="Account Password" className="fc-customer-account-password">
-        <button className="fc-btn">Reset password</button>
+        <div className="fc-grid">
+          <div className="fc-col-1-2">
+          </div>
+          <div className="fc-col-1-2">
+            <button className="fc-btn fc-right">Reset password</button>  
+          </div>
+        </div>
       </ContentBox>
     );
   }
