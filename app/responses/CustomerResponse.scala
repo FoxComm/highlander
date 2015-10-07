@@ -8,6 +8,7 @@ object CustomerResponse {
   final case class Root(
     id: Int = 0,
     email: String,
+    name: String,
     firstName: String,
     lastName: String,
     phoneNumber: Option[String] = None,
@@ -21,6 +22,7 @@ object CustomerResponse {
 
   def build(customer: Customer, shipRegion: Option[Region] = None, billRegion: Option[Region] = None): Root =
     Root(id = customer.id, email = customer.email, firstName = customer.firstName, lastName = customer.lastName,
+    name = customer.firstName + " " + customer.lastName,
     phoneNumber = customer.phoneNumber, location = customer.location, modality = customer.modality,
     createdAt = customer.createdAt,
     isDisabled = customer.disabled,
