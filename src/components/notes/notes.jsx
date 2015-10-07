@@ -94,7 +94,8 @@ export default class Notes extends React.Component {
     this.setState({
       deletingNote: item
     });
-    dispatch('toggleModal', <ConfirmModal callback={this.onConfirmDeleteNote.bind(this)} details={this.deleteOptions}/>);
+    dispatch('toggleModal', <ConfirmModal callback={this.onConfirmDeleteNote.bind(this)}
+                                          details={this.deleteOptions}/>);
   }
 
   onConfirmDeleteNote(success) {
@@ -115,18 +116,7 @@ export default class Notes extends React.Component {
     let renderRow = (row, index) => {
       return (
         <div>
-          <TableRow>
-            <TableCell>Today</TableCell>
-            <TableCell>{row.body}</TableCell>
-            <TableCell>
-              <NoteControls
-                model={row}
-                onEditClick={this.handleEdit.bind(this)}
-                onDeleteClick={this.handleDelete.bind(this)}
-                />
-            </TableCell>
-          </TableRow>
-          {this.state.editingNote && (this.state.editingNote.id === row.id) && (
+          {(this.state.editingNote && (this.state.editingNote.id === row.id) && (
             <TableRow>
               <TableCell colspan={3}>
                 <NoteForm
@@ -134,6 +124,18 @@ export default class Notes extends React.Component {
                   body={this.state.editingNote && this.state.editingNote.body}
                   onReset={this.handleResetForm.bind(this)}
                   onSubmit={this.handleEditForm.bind(this)}
+                  />
+              </TableCell>
+            </TableRow>
+          )) || (
+            <TableRow>
+              <TableCell>Today</TableCell>
+              <TableCell>{row.body}</TableCell>
+              <TableCell>
+                <NoteControls
+                  model={row}
+                  onEditClick={this.handleEdit.bind(this)}
+                  onDeleteClick={this.handleDelete.bind(this)}
                   />
               </TableCell>
             </TableRow>
