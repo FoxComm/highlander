@@ -9,7 +9,7 @@ import utils.Money._
 import utils.Validation
 import Validation._
 
-final case class GiftCardCreateByCsr(balance: Int, currency: Currency = Currency.USD)
+final case class GiftCardCreateByCsr(balance: Int, reason: Int, currency: Currency = Currency.USD)
   extends Validation[GiftCardCreateByCsr] {
 
   def validate: ValidatedNel[Failure, GiftCardCreateByCsr] = {
@@ -17,7 +17,7 @@ final case class GiftCardCreateByCsr(balance: Int, currency: Currency = Currency
   }
 }
 
-final case class GiftCardBulkCreateByCsr(quantity: Int, balance: Int, currency: Currency = Currency.USD)
+final case class GiftCardBulkCreateByCsr(quantity: Int, balance: Int, reason: Int, currency: Currency = Currency.USD)
   extends Validation[GiftCardBulkCreateByCsr] {
 
   val bulkCreateLimit = 20

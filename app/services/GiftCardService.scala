@@ -5,8 +5,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import cats.data.Xor
 import cats.data.Validated.{Valid, Invalid}
 import shapeless._
-import models.{GiftCardAdjustments, GiftCard, Customer, Customers, GiftCards, Reasons, StoreAdmin,
-StoreAdmins}
+import models._
 import models.GiftCard.Canceled
 import responses.{GiftCardResponse, CustomerResponse, StoreAdminResponse}
 import responses.GiftCardResponse._
@@ -35,35 +34,6 @@ object GiftCardService {
     }
   }
 
-  // TODO: Also reate GiftCardManual
-  def createBulkByAdmin(admin: StoreAdmin, payload: payloads.GiftCardBulkCreateByCsr)
-    (implicit ec: ExecutionContext, db: Database): Result[Seq[Root]] = {
-
-    payload.validate match {
-      case Valid(_)        ⇒
-        val payloadSingle = payloads.GiftCardCreateByCsr(balance = payload.balance, currency = payload.currency)
-        val toInsert = (1 to payload.quantity).map { _ ⇒ GiftCard.buildAppeasement(admin, payloadSingle) }
-
-        // Validate only first, since all other are the same
-        toInsert.head.validate match {
-          case Valid(_) ⇒
-            // Insert multiple values in a single transaction
-            val query = (for {
-              giftCards ← (GiftCards ++= toInsert.toSeq) >> GiftCards.sortBy(_.id.desc).take(payload.quantity).result
-            } yield giftCards).flatMap { seq ⇒
-              val storeAdminResponse = Some(StoreAdminResponse.build(admin))
-              lift(seq.map(build(_, None, storeAdminResponse)).reverse)
-            }
-
-            Result.fromFuture(query.transactionally.run())
-          case Invalid(errors) ⇒
-            Result.failures(errors)
-        }
-      case Invalid(errors) ⇒
-        Result.failures(errors)
-    }
-  }
-
   def createByAdmin(admin: StoreAdmin, payload: payloads.GiftCardCreateByCsr)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
 
@@ -73,18 +43,40 @@ object GiftCardService {
     }
   }
 
+  def createBulkByAdmin(admin: StoreAdmin, payload: payloads.GiftCardBulkCreateByCsr)
+    (implicit ec: ExecutionContext, db: Database): Result[Seq[ItemResult]] = {
+
+    payload.validate match {
+      case Valid(_) ⇒
+        val responses = (1 to payload.quantity).map { num ⇒
+          val itemPayload = payloads.GiftCardCreateByCsr(balance = payload.balance, reason = payload.reason,
+            currency = payload.currency)
+
+          createByAdmin(admin, itemPayload).map(buildItemResult(_))
+        }
+
+        val future = Future.sequence(responses).flatMap { seq ⇒
+          Future.successful(seq)
+        }
+
+        Result.fromFuture(future)
+      case Invalid(errors) ⇒
+        Result.failures(errors)
+    }
+  }
+
   def bulkUpdateStatusByCsr(payload: payloads.GiftCardBulkUpdateStatusByCsr, admin: StoreAdmin)
-    (implicit ec: ExecutionContext, db: Database): Result[BulkResponse] = {
+    (implicit ec: ExecutionContext, db: Database): Result[Seq[ItemResult]] = {
 
     payload.validate match {
       case Valid(_) ⇒
         val responses = payload.codes.map { code ⇒
           val itemPayload = payloads.GiftCardUpdateStatusByCsr(payload.status, payload.reason)
-          updateStatusByCsr(code, itemPayload, admin).map(buildItemResult(code, _))
+          updateStatusByCsr(code, itemPayload, admin).map(buildItemResult(_, Some(code)))
         }
 
         val future = Future.sequence(responses).flatMap { seq ⇒
-          Future.successful(buildBulkResponse(seq.to[collection.immutable.Seq]))
+          Future.successful(seq)
         }
 
         Result.fromFuture(future)
@@ -147,35 +139,39 @@ object GiftCardService {
     }
   }
 
-  // TODO: Also create GiftCardManual
   private def createGiftCardModel(admin: StoreAdmin, payload: payloads.GiftCardCreateByCsr)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
 
-    val storeAdminResponse = Some(StoreAdminResponse.build(admin))
-    val giftCard = GiftCard.buildAppeasement(admin, payload)
+    val finder = Reasons.filter(_.id === payload.reason)
+    finder.findOneAndRun { reason ⇒
+        val queries = for {
+          origin  ← GiftCardManuals.save(GiftCardManual(adminId = admin.id, reasonId = payload.reason))
+          gc      ← GiftCards.save(GiftCard.buildAppeasement(payload, origin.id))
+        } yield gc
 
-    createGiftCard(giftCard).map(_.map(GiftCardResponse.build(_, None, storeAdminResponse)))
-  }
-
-  private def createGiftCard(gc: GiftCard)(implicit ec: ExecutionContext, db: Database): Result[GiftCard] = {
-    gc.validate match {
-      case Valid(_)        ⇒ Result.fromFuture(GiftCards.save(gc).run())
-      case Invalid(errors) ⇒ Result.failures(errors)
+        DbResult.fromDbio(queries.transactionally.flatMap { gc ⇒
+          val storeAdminResponse = Some(StoreAdminResponse.build(admin))
+          lift(GiftCardResponse.build(gc, None, storeAdminResponse))
+        })
     }
   }
 
   private def fetchDetails(code: String)(implicit db: Database, ec: ExecutionContext) = for {
     giftCard  ← GiftCards.findByCode(code).one
-    account   ← getAccount(giftCard)
+    gcOrigin  ← giftCard match {
+      case Some(gc) if gc.originType == GiftCard.CsrAppeasement ⇒ GiftCardManuals.filter(_.id === gc.id).one
+      case _ ⇒ DBIO.successful(None)
+    }
+    account   ← getAccount(giftCard, gcOrigin)
   } yield (giftCard, account)
 
-  private def getAccount(giftCard: Option[GiftCard])
+  private def getAccount(giftCard: Option[GiftCard], origin: Option[GiftCardManual])
     (implicit db: Database, ec: ExecutionContext): DBIO[Option[Customer] Xor Option[StoreAdmin]] = giftCard.map { gc ⇒
-    gc.originType match {
-      case GiftCard.CustomerPurchase ⇒
+    (gc.originType, origin) match {
+      case (GiftCard.CustomerPurchase, _) ⇒
         Customers._findById(mockCustomerId).extract.one.map(Xor.left)
-      case GiftCard.CsrAppeasement ⇒
-        StoreAdmins._findById(gc.originId).extract.one.map(Xor.right)
+      case (GiftCard.CsrAppeasement, Some(o)) ⇒
+        StoreAdmins._findById(o.id).extract.one.map(Xor.right)
       case _ ⇒
         lift(Xor.left(None))
     }
