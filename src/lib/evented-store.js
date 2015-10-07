@@ -61,12 +61,15 @@ export default class EventedStore extends EventEmitter {
     }
   }
 
-  _delete(id) {
-    let model = this._findWhere(this.models, {id: id});
+  _delete(models, identity) {
+    let model = this._findWhere(models, (model) => {
+      return this.identity(model) === identity;
+    });
     if (model) {
-      this.models.splice(this.models.indexOf(model), 1);
-      this.notifyChanged();
+      models.splice(models.indexOf(model), 1);
     }
+
+    return !!model;
   }
 
   dispatch(event, ...args) {
@@ -84,6 +87,10 @@ export default class EventedStore extends EventEmitter {
 
   updateBehaviour() {
     throw new Error('updateBehaviour not implemented');
+  }
+
+  deleteBehaviour() {
+    throw new Error('deleteBehaviour not implemented');
   }
 
   fetch(...fetchArgs) {
@@ -123,13 +130,13 @@ export default class EventedStore extends EventEmitter {
     this.post(data, ...fetchArgs);
   }
 
-  delete(id) {
-    return Api.delete(this.uri(id))
+  delete(...uriArgs) {
+    return Api.delete(this.uri(...uriArgs))
       .then((res) => {
-        this._delete(id);
+        this.deleteBehaviour(res, ...uriArgs);
       })
       .catch((err) => {
-        this.apiError(err);
+        throw this.apiError(err);
       });
   }
 

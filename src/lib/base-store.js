@@ -67,6 +67,12 @@ export default class BaseStore extends EventedStore {
     this.update(res);
   }
 
+  deleteBehaviour(res, id) {
+    if (this._delete(this.models, id)) {
+      this.notifyChanged();
+    }
+  }
+
   patch(id, changes) {
     return super.patch(changes, id);
   }

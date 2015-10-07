@@ -1,8 +1,8 @@
 'use strict';
 
-import ParameterizedStore from '../lib/parameterized-store';
+import HashStore from '../lib/hash-store';
 
-class AddressStore extends ParameterizedStore {
+class AddressStore extends HashStore {
   baseUri(customerId) {
     return `/customers/${customerId}/addresses`;
   }

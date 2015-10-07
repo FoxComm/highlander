@@ -4,7 +4,7 @@ import _ from 'lodash';
 import Api from './api';
 import EventedStore from './evented-store';
 
-export default class ParameterizedStore extends EventedStore {
+export default class HashStore extends EventedStore {
   constructor() {
     super();
     this.models = {};
@@ -42,6 +42,12 @@ export default class ParameterizedStore extends EventedStore {
 
   updateBehaviour(res, baseId) {
     this.update(baseId, res);
+  }
+
+  deleteBehaviour(res, baseId, id) {
+    if (this._delete(this.models[baseId], id)) {
+      this.notifyChanged(baseId);
+    }
   }
 
   patch(baseId, id, changes) {
