@@ -6,8 +6,15 @@ import ContentBox from '../content-box/content-box';
 export default class CustomerContacts extends React.Component {
 
   render() {
+    let actionBlock = (
+      <button className="fc-btn">
+        <i className="icon-edit"></i>
+      </button>
+    );
     return (
-      <ContentBox title="ContactInformation" className="fc-customer-contacts">
+      <ContentBox title="Contact Information"
+                  className="fc-customer-contacts"
+                  actionBlock={ actionBlock }>
         Customer contacts data
       </ContentBox>
     );
