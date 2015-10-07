@@ -2,10 +2,12 @@
 
 require('testdom')('<html><body></body></html>');
 
-const React = require('react/addons');
-const TestUtils = React.addons.TestUtils;
+const React = require('react');
 const path = require('path');
 const order = require('./order-sample.json');
+
+const TestUtils = require('react-addons-test-utils');
+const ReactDOM = require('react-dom');
 
 describe('OrderDetails', function() {
   let OrderDetails = require(path.resolve('src/components/orders/details.jsx'));
@@ -16,17 +18,17 @@ describe('OrderDetails', function() {
   });
 
   afterEach(function(done) {
-    React.unmountComponentAtNode(container);
+    ReactDOM.unmountComponentAtNode(container);
     setTimeout(done);
   });
 
   it('should render', function *() {
-    let orderDetails = React.render(
+    let orderDetails = ReactDOM.render(
       <OrderDetails order={order}/>
       , container);
-    let orderDetailsNode = TestUtils.findRenderedDOMComponentWithClass(orderDetails, 'order-details').getDOMNode();
+    let orderDetailsNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithClass(orderDetails, 'fc-order-details'));
 
     expect(orderDetailsNode).to.be.instanceof(Object);
-    expect(orderDetailsNode.className).to.contain('order-details');
+    expect(orderDetailsNode.className).to.contain('fc-order-details');
   });
 });

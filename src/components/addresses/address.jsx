@@ -10,8 +10,8 @@ import AddressDetails from './address-details.jsx';
 
 class Address extends React.Component {
 
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
     this.onSelectAddress = props.onSelectAddress && props.onSelectAddress.bind(this, props.address);
   }
 

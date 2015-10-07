@@ -18,7 +18,7 @@ export default class CustomerInfo extends React.Component {
       customerGroups = (
         <div>
           {customer.groups.map((customer) => {
-            return <div className="fc-customer-info-group">{customer}</div>
+            return <div className="fc-customer-info-group">{customer}</div>;
           })}
         </div>
       );
@@ -31,9 +31,9 @@ export default class CustomerInfo extends React.Component {
     let avatar = null;
 
     if (customer.avatarUrl) {
-      avatar = <img src={customer.avatarUrl} />
+      avatar = <img src={customer.avatarUrl} />;
     } else {
-      avatar = <i className="icon-customer"></i>
+      avatar = <i className="icon-customer"></i>;
     }
 
     return (
@@ -53,9 +53,8 @@ export default class CustomerInfo extends React.Component {
           <div className="fc-customer-info-email">
             {customer.email}
           </div>
-
         </div>
-        <article>
+        <article className="fc-customer-info-body">
           <ul className="fc-customer-info-fields">
             <li>
               <i className="icon-customer"></i>

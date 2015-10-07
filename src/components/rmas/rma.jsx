@@ -1,8 +1,7 @@
 'use strict';
 
-import React from 'react';
-import { RouteHandler } from 'react-router';
-import { Link } from 'react-router';
+import React, { PropTypes } from 'react';
+import { Link } from '../link';
 import { listenTo, stopListeningTo, dispatch } from '../../lib/dispatcher';
 import RmaStore from './store';
 import Notes from '../notes/notes';
@@ -10,8 +9,15 @@ import Viewers from '../viewers/viewers';
 
 export default class Rma extends React.Component {
 
-  constructor(props) {
-    super(props);
+  static propTypes = {
+    params: PropTypes.shape({
+      rma: PropTypes.string.isRequired
+    }).isRequired,
+    children: PropTypes.node
+  };
+
+  constructor(props, context) {
+    super(props, context);
     this.state = {
       rma: {},
       pendingStatus: null
@@ -19,9 +25,9 @@ export default class Rma extends React.Component {
   }
 
   componentDidMount() {
-    let { router }  = this.context;
+    let { rma }  = this.props.params;
     RmaStore.listenToEvent('change', this);
-    RmaStore.fetch(router.getCurrentParams().rma);
+    RmaStore.fetch(rma);
   }
 
   componentWillUnmount() {
@@ -42,6 +48,8 @@ export default class Rma extends React.Component {
     let subNav = null;
     let itemsCount = 0;
 
+    const content = React.cloneElement(this.props.children, {rma, modelName: 'rma'});
+
     if (rma.id) {
       viewers = (
         <Viewers model='returns' modelId={rma.id}/>
@@ -58,14 +66,14 @@ export default class Rma extends React.Component {
             <li><Link to="rma-notifications" params={params}>Transaction Notifications</Link></li>
             <li><Link to="rma-activity-trail" params={params}>Activity Trail</Link></li>
           </ul>
-          <RouteHandler rma={rma} modelName="rma"/>
+          {content}
         </div>
       );
       itemsCount = rma.lineItems.length;
     }
 
     return (
-      <div id="rma">
+      <div className="fc-rma">
         {viewers}
         <div className="gutter title">
           <div>
@@ -92,7 +100,3 @@ export default class Rma extends React.Component {
     );
   }
 }
-
-Rma.contextTypes = {
-  router: React.PropTypes.func
-};

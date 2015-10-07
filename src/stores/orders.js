@@ -24,6 +24,10 @@ class OrderStore extends BaseStore {
 
   get baseUri() { return '/orders'; }
 
+  identity(order) {
+    return order.referenceNumber;
+  }
+
   process(model) {
     _.each(model.lineItems, lineItem => {
       lineItem.total = lineItem.quantity * lineItem.price;

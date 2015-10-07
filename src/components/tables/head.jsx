@@ -4,8 +4,8 @@ import React from 'react';
 import ClassNames from 'classnames';
 
 export default class TableHead extends React.Component {
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
     this.state = {};
   }
 

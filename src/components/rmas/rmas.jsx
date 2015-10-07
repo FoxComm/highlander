@@ -6,8 +6,8 @@ import TableView from '../tables/tableview';
 import RmaStore from './store';
 
 export default class Rmas extends React.Component {
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
     let immutableSet = Immutable.Set;
     this.state = {
       rmas: RmaStore.getState(),

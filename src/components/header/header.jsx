@@ -1,16 +1,21 @@
 'use strict';
 
-import React from 'react';
+import React, {PropTypes} from 'react';
 import { inflect } from 'fleck';
 
 export default class Header extends React.Component {
+
+  static contextTypes = {
+    location: PropTypes.object
+  };
+
   render() {
-    let { router }  = this.context;
-    let pathname = router.getCurrentPathname().replace(/^\/|\/$/gm, '');
+    const { location }  = this.context;
+    let pathname = location.pathname.replace(/^\/|\/$/gm, '');
     let items = pathname.split('/').map((item, index) => {
       let classname = index > 0 ? 'icon-chevron-right' : null;
       let itemName = inflect(item, 'capitalize');
-      return <span className={classname}>{` ${itemName} `}</span>;
+      return <span className={classname} key={`header-item-${index}`}>{` ${itemName} `}</span>;
     });
     let breadcrumb = <div className="breadcrumb">{items}</div>;
 
@@ -27,7 +32,3 @@ export default class Header extends React.Component {
     );
   }
 }
-
-Header.contextTypes = {
-  router: React.PropTypes.func
-};

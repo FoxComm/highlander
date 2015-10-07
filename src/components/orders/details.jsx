@@ -44,9 +44,9 @@ export default class OrderDetails extends React.Component {
     ];
 
     return (
-      <div className="order-details">
-        <div className="order-details-body">
-          <div className="order-details-main">
+      <div className="fc-order-details">
+        <div className="fc-order-details-body">
+          <div className="fc-order-details-main">
             <LineItems
               entity={order}
               tableColumns={lineColumns}
@@ -56,7 +56,7 @@ export default class OrderDetails extends React.Component {
             <OrderShippingMethod order={order} />
             <OrderPayment order={order} />
           </div>
-          <div className="order-details-aside">
+          <div className="fc-order-details-aside">
             <OrderSummary order={order} />
             <CustomerInfo order={order} />
           </div>

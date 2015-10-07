@@ -10,8 +10,19 @@ export default class EventedStore extends EventEmitter {
   get storeName() { return this.constructor.name; }
   get eventSuffix() { return inflect(this.storeName, 'underscore', 'dasherize'); }
 
+  /**
+   * It should return a field in which an object can be compared
+   * @param model
+   * @returns {*}
+   */
+  identity(model) {
+    return model.id;
+  }
+
   _findModel(models, id) {
-    return _.find(models, 'id', id);
+    return _.find(models, (model) => {
+      return this.identity(model) === id;
+    });
   }
 
   _findWhere(models, ...args) {
@@ -29,7 +40,7 @@ export default class EventedStore extends EventEmitter {
   }
 
   _upsert(models, model) {
-    let exists = this._findModel(models, model.id);
+    let exists = this._findModel(models, this.identity(model));
     if (exists) {
       let idx = models.indexOf(exists);
       if (idx !== -1) {

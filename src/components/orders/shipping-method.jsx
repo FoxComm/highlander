@@ -9,8 +9,8 @@ import ShippingMethodItem from './shipping-method-item';
 import ShippingMethods from '../../stores/shipping-methods';
 
 export default class OrderShippingMethod extends React.Component {
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
     this.state = {
       methods: []
     };
