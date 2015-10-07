@@ -1,6 +1,7 @@
 'use strict';
 
 import React, { PropTypes } from 'react';
+import moment from 'moment';
 
 export default class Customer extends React.Component {
   static propTypes ={
@@ -12,6 +13,10 @@ export default class Customer extends React.Component {
   }
 
   render() {
+    let joinedAt = '';
+    if (this.customer.createdAt !== undefined) {
+      joinedAt = moment(this.customer.createdAt).format('MM/DD/YYYY HH:mm:ss');
+    }
     return (
       <div className="fc-content-box fc-customer-title-block">
         <div className="fc-customer-info-header">
@@ -51,8 +56,8 @@ export default class Customer extends React.Component {
                     </li>
                     <li>
                       <i className="icon-calendar"></i>
-                      <span>{ this.customer.createdAt }</span>
-                      <span className="fc-comment">Date joined</span>
+                      <span>{ joinedAt }</span>
+                      <span className="fc-comment">&nbsp;Date joined</span>
                     </li>
                   </ul>
                 </div>
@@ -64,13 +69,13 @@ export default class Customer extends React.Component {
                     <li>
                       <i className="icon-usd"></i>
                       <span>{ this.customer.totalSpent}</span>
-                      <span className="fc-comment">Total Sales</span>
+                      <span className="fc-comment">&nbsp;Total Sales</span>
                     </li>
                     <li>
-                      <i>{ this.customer.id}</i><span>Since last visit</span>
+                      <i>{ this.customer.id}</i><span>days since last visit</span>
                     </li>
                     <li>
-                      <i>{ this.customer.id}</i><span>Since last visit</span>
+                      <i>{ this.customer.id}</i><span>days since last order</span>
                     </li>
                   </ul>
                 </div>
