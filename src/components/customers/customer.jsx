@@ -3,14 +3,50 @@
 import React, { PropTypes } from 'react';
 import { Link, IndexLink } from '../link';
 
+import CustomerStore from '../../stores/customers';
+
 export default class Customer extends React.Component {
 
   static propTypes = {
+    params: PropTypes.shape({
+      customer: PropTypes.string.isRequired
+    }).isRequired,
     children: PropTypes.node
   };
 
+  constructor(props, context) {
+    super(props, context);
+    this.state = {
+      customer: {}
+    };
+  }
+
+  get customerId() {
+    return this.props.params.customer;
+  }
+
+  componentDidMount() {
+    CustomerStore.listenToEvent('change-item', this);
+    CustomerStore.fetch(this.customerId);
+  }
+
+  componentWillUnmount() {
+    CustomerStore.stopListeningToEvent('change-item', this);
+  }
+
+  onChangeItemCustomerStore(customer) {
+    if (parseInt(this.customerId) !== customer.id) {
+      return;
+    }
+
+    this.setState({
+      customer: customer
+    });
+  }
+
   render() {
     console.log(this.props);
+    console.log(this.state);
     return (
       <div className="fc-user">
         <div className="gutter">
