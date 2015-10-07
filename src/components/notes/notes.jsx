@@ -45,6 +45,10 @@ export default class Notes extends React.Component {
     NoteStore.fetch();
   }
 
+  onChangeNoteStore(notes) {
+    this.setState({notes: notes});
+  }
+
   componentWillUnmount() {
     NoteStore.stopListeningToEvent('change', this);
   }

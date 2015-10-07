@@ -2,10 +2,11 @@
 
 import _ from 'lodash';
 import Api from './api';
+import { EventEmitter } from 'events';
 import { dispatch, listenTo, stopListeningTo } from './dispatcher';
 import { inflect } from 'fleck';
 
-export default class EventedStore {
+export default class EventedStore extends EventEmitter {
   get storeName() { return this.constructor.name; }
   get eventSuffix() { return inflect(this.storeName, 'underscore', 'dasherize'); }
 
@@ -50,6 +51,7 @@ export default class EventedStore {
   }
 
   dispatch(event, ...args) {
+    this.emit(event, ...args);
     dispatch(`${event}${this.storeName}`, ...args);
   }
 

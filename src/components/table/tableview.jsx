@@ -13,6 +13,10 @@ export default class TableView extends React.Component {
     }
   }
 
+  componentDidMount() {
+    this.props.store.addListener('change', this.forceUpdate.bind(this, null));
+  }
+
   onLimitChange(event) {
     event.preventDefault();
     this.store.setLimit(+event.target.value);
