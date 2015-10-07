@@ -6,7 +6,7 @@ import ContentBox from '../content-box/content-box';
 export default class CustomerRoles extends React.Component {
 
   static propTypes = {
-    customer: PropTypes.object.isRequired
+    customer: PropTypes.object
   }
 
   get customer() {

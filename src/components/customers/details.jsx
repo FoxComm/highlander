@@ -13,7 +13,7 @@ import CustomerAccountStatus from './account-status';
 export default class CustomerDetails extends React.Component {
 
   static propTypes = {
-    customer: PropTypes.object.isRequired
+    customer: PropTypes.object
   }
 
   render() {
