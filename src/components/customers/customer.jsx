@@ -2,6 +2,7 @@
 
 import React, { PropTypes } from 'react';
 import { Link, IndexLink } from '../link';
+import TitleBlock from './title-block';
 
 import CustomerStore from '../../stores/customers';
 
@@ -51,24 +52,7 @@ export default class Customer extends React.Component {
     return (
       <div className="fc-user">
         <div className="gutter">
-          <div className="fc-content-box">
-            <div className="fc-customer-info-header">
-              <div className="fc-customer-info-head">
-                <div className="fc-customer-info-rank">
-                  Top 10%
-                </div>
-              </div>
-              <div className="fc-customer-info-avatar">
-                <i className="icon-customer"></i>
-              </div>
-              <div className="fc-customer-info-name">
-                {this.state.customer.firstName} {this.state.customer.lastName}
-              </div>
-              <div className="fc-customer-info-email">
-                {this.state.customer.email}
-              </div>
-            </div>
-          </div>
+          <TitleBlock customer={this.state.customer} />
         </div>
         <div className="gutter">
           <ul className="fc-tabbed-nav">
