@@ -1,6 +1,6 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import CustomerContacts from './contacts';
 import CustomerAccountPassword from './account-password';
 import CustomerRoles from './roles';
@@ -12,10 +12,11 @@ import CustomerAccountStatus from './account-status';
 
 export default class CustomerDetails extends React.Component {
 
-  render() {
-    console.log("CustomerDetails");
-    console.log(this.props);
+  static propTypes = {
+    customer: PropTypes.object.isRequired
+  }
 
+  render() {
     return (
       <div className="fc-customer-details">
         <div className="gutter">
