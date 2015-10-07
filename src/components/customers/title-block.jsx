@@ -7,7 +7,7 @@ export default class Customer extends React.Component {
     customer: PropTypes.object.isRequired
   }
 
-  get customer {
+  get customer() {
     return this.props.customer;
   }
 
