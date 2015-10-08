@@ -27,7 +27,10 @@ object OrderPaymentUpdater {
             DbResult.failure(GiftCardNotEnoughBalance(gc, payload.amount))
           }
 
-        case Some(gc) if !gc.isActive ⇒
+        case Some(gc) if gc.isCart ⇒
+          DbResult.failure(GiftCardNotFoundFailure(payload.code))
+
+        case Some(gc) if !gc.isActive && !gc.isCart ⇒
           DbResult.failure(GiftCardIsInactive(gc))
 
         case None ⇒
