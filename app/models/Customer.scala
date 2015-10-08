@@ -89,5 +89,30 @@ object Customers extends TableQueryWithId[Customer, Customers](
 
     save(newCustomer).run().flatMap(Result.right)
   }
+
+  object scope {
+    implicit class CustomersQuerySeqConversions(query: QuerySeq) {
+      /* Returns Query with included shippingRegion and billingRegion for customer.
+       * shippingRegion comes from default address of customer
+       * billingRegion comes from default creditCard of customer
+       */
+      def withDefaultRegions = {
+        val customerWithShipRegion = for {
+          ((c, a), r) ← query.joinLeft(Addresses).on {
+            case (a, b) ⇒ a.id === b.customerId && b.isDefaultShipping === true
+          }.joinLeft(Regions).on(_._2.map(_.regionId) === _.id)
+        } yield (c, r)
+
+        val CcWithRegions = CreditCards.join(Regions).on {
+          case (c, r) ⇒ c.regionId === r.id && c.isDefault === true
+        }
+
+        for {
+          ((c, shipRegion), billInfo) ←
+          customerWithShipRegion.joinLeft(CcWithRegions).on(_._1.id === _._1.customerId)
+        } yield (c, shipRegion, billInfo.map(_._2))
+      }
+    }
+  }
 }
 
