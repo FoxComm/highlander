@@ -45,6 +45,11 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       root.originType must ===(GiftCard.CsrAppeasement)
       root.currency must ===(Currency.USD)
       root.availableBalance must ===(555)
+
+      // Check that proper link is created
+      val manual = GiftCardManuals.findById(root.originId).run().futureValue.value
+      manual.reasonId must === (1)
+      manual.adminId must === (admin.id)
     }
 
     "fails to create gift card with negative balance" in new Fixture {
@@ -60,7 +65,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     }
   }
 
-  "POST /v1/gift-cards/ (bulk)" - {
+  "POST /v1/gift-cards (bulk)" - {
     "successfully creates multiple gift cards from payload" in new Fixture {
       val response = POST(s"v1/gift-cards", payloads.GiftCardBulkCreateByCsr(quantity = 5, balance = 256,
         reasonId = 1))
