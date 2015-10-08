@@ -3,11 +3,31 @@
 import BaseStore from './base-store.js';
 
 export default class TableStore extends BaseStore {
+  static SORTING_ORDER = {
+    ASC: true,
+    DESC: false
+  };
+
   constructor(props) {
     super(props);
     this.columns = [];
     this.start = 0;
     this.limit = 25;
+    this.sortingField = null;
+    this.sortingOrder = false;
+    this.addListener('change', this._onChange.bind(this));
+  }
+
+  _onChange() {
+    this._sort();
+  }
+
+  _sort() {
+    let field = this.sortingField;
+    let order = this.sortingOrder;
+    this.models = this.models.sort((a, b) => {
+      return (1 - 2 * order) * (a[field] < b[field] ? 1 : a[field] > b[field] ? -1 : 0);
+    });
   }
 
   set uriRoot(uri) {
@@ -30,9 +50,10 @@ export default class TableStore extends BaseStore {
   }
 
   setSorting(field, order) {
-    this.models = this.models.sort((a, b) => {
-      return (1 - 2 * order) * (a[field] < b[field] ? 1 : a[field] > b[field] ? -1 : 0);
-    });
-    this.notifyChanged();
+    if (this.sortingField !== field || this.sortingOrder !== order) {
+      this.sortingField = field;
+      this.sortingOrder = !!order;
+      this.notifyChanged();
+    }
   }
 }

@@ -40,6 +40,7 @@ export default class Notes extends React.Component {
     } else {
       NotesStore.uriRoot = `/notes/${model}/${this.props[model].id}`;
     }
+    NotesStore.setSorting('createdAt');
     NotesStore.fetch();
   }
 

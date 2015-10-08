@@ -10,9 +10,12 @@ export default class TableHead extends React.Component {
     store: React.PropTypes.instanceOf(TableStore)
   };
 
-  constructor(...args) {
-    super(...args);
-    this.state = {};
+  constructor(props, ...args) {
+    super(props, ...args);
+    this.state = {
+      sortingField: this.props.store.sortingField,
+      sortingOrder: this.props.store.sortingOrder
+    };
   }
 
   onHeaderItemClick(field, event) {
