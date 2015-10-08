@@ -24,7 +24,7 @@ class GiftCardActions {
   }
 
   fetchGiftCard(id) {
-    Api.get(`/gift-cards/${id}`)
+    return Api.get(`/gift-cards/${id}`)
       .then((card) => {
         this.updateGiftCards(List([card]));
       })
