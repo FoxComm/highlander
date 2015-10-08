@@ -125,9 +125,15 @@ export default class AddressForm extends React.Component {
     }
   }
 
+  get countryCode() {
+    const state = this.state;
+
+    return state.country && state.country.alpha2;
+  }
+
   validateZipCode() {
     const state = this.state;
-    const countryCode = state.country && state.country.alpha2;
+    const countryCode = this.countryCode;
     const formData = state.formData;
 
     if (validators.zipCode(formData.zip, countryCode)) {
@@ -137,37 +143,37 @@ export default class AddressForm extends React.Component {
     }
   }
 
+  get phoneInput() {
+    if (countryCode === 'US') {
+      return <InputMask type="tel" mask="(999)999-9999" placeholder={CountryStore.phoneExample(countryCode)}/>;
+    }
+    return (
+      <input type="tel" name="phoneNumber"
+             maxLength="15" placeholder={CountryStore.phoneExample(countryCode)} />
+    );
+  }
+
+  get errorMessages() {
+    if (this.state.errors) {
+      return (
+        <div className="messages" ref="errorMessages">
+          {this.state.errors.map((error, index) => {
+            return <div className="fc-alert is-error"><i className="fa fa-times-circle-o"></i>{error}</div>;
+            })}
+        </div>
+      );
+    }
+    return null;
+  }
+
   render() {
     const state = this.state;
     const formData = state.formData;
     const countries = state.countries || [];
 
-    const countryCode = state.country && state.country.alpha2;
+    const countryCode = this.countryCode;
     const regions = state.country && state.country.regions || [];
     const title = this.isAddingForm ? 'New Address' : 'Edit Address';
-
-    let phoneInput = null;
-
-    if (countryCode === 'US') {
-      phoneInput = <InputMask type="tel" mask="(999)999-9999" placeholder={CountryStore.phoneExample(countryCode)}/>;
-    } else {
-      phoneInput = (
-        <input type="tel" name="phoneNumber"
-                          maxLength="15" placeholder={CountryStore.phoneExample(countryCode)} />
-      );
-    }
-
-    let messages = null;
-
-    if (this.state.errors) {
-      messages = (
-        <div className="messages" ref="errorMessages">
-          {this.state.errors.map((error, index) => {
-            return <div className="fc-alert is-error"><i className="fa fa-times-circle-o"></i>{error}</div>;
-          })}
-        </div>
-      );
-    }
 
     return (
       <div className="fc-content-box fc-address-form">
@@ -175,7 +181,7 @@ export default class AddressForm extends React.Component {
           <div className="fc-address-form-header">Address Book</div>
           <i onClick={this.close.bind(this)} className="icon-close" title="Close"></i>
         </header>
-        {messages}
+        {this.errorMessages}
         <article>
           <Form action={AddressStore.uri(this.props.customerId)}
                 onSubmit={this.onSubmitForm.bind(this)}
@@ -231,7 +237,7 @@ export default class AddressForm extends React.Component {
               </li>
               <li>
                 <FormField label="Phone Number" validator="ascii">
-                  {phoneInput}
+                  {this.phoneInput}
                 </FormField>
               </li>
               <li className="fc-address-form-controls">

@@ -119,7 +119,6 @@ export default class FormField extends React.Component {
     }
   }
 
-
   validate() {
     let errorMessage = null;
 
