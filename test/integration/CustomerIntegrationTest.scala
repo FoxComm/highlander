@@ -61,7 +61,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
   "Customer" - {
     "accounts are unique based on email, non-guest, and active" in {
-      val stub = Factories.customer.copy(isGuest = false, disabled = false)
+      val stub = Factories.customer.copy(isGuest = false, isDisabled = false)
       Customers.save(stub).futureValue
       val failure = GeneralFailure("record was not unique")
       val xor = withUniqueConstraint(Customers.save(stub).run())(_ ⇒ failure).futureValue
@@ -93,13 +93,13 @@ class CustomerIntegrationTest extends IntegrationTestBase
     }
 
     "toggles the isDisabled flag on a customer account" in new Fixture {
-      customer.disabled must ===(false)
+      customer.isDisabled must ===(false)
 
       val response = POST(s"v1/customers/${customer.id}/disable", payloads.ToggleCustomerDisabled(true))
       response.status must === (StatusCodes.OK)
 
       val c = parse(response.bodyText).extract[Customer]
-      c.disabled must === (true)
+      c.isDisabled must === (true)
     }
 
     "credit cards" - {

@@ -19,7 +19,7 @@ import utils.{ModelWithIdParameter, TableQueryWithId, Validation}
 import utils.Slick.implicits._
 
 final case class Customer(id: Int = 0, email: String, password: String, firstName: String, lastName: String,
-  disabled: Boolean = false, blacklisted: Boolean = false,
+  isDisabled: Boolean = false, isBlacklisted: Boolean = false,
   phoneNumber: Option[String] = None, location: Option[String] = None,
   modality: Option[String] = None, isGuest: Boolean = false, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter
