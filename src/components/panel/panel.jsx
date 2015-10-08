@@ -3,6 +3,13 @@
 import React from 'react';
 
 export default class Panel extends React.Component {
+  static propTypes = {
+    children: React.PropTypes.any,
+    title: React.PropTypes.string,
+    controls: React.PropTypes.any,
+    content: React.PropTypes.any
+  };
+
   render() {
     return (
       <div className="fc-panel">
@@ -22,10 +29,3 @@ export default class Panel extends React.Component {
     );
   }
 }
-
-Panel.propTypes = {
-  children: React.PropTypes.any,
-  title: React.PropTypes.string,
-  controls: React.PropTypes.any,
-  content: React.PropTypes.any
-};
