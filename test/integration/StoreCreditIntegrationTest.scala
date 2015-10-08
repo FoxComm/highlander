@@ -1,9 +1,8 @@
 import akka.http.scaladsl.model.StatusCodes
 
+import models._
 import models.StoreCredit.{Canceled, Active, OnHold}
-import models.{StoreCreditAdjustment, PaymentMethod, OrderPayments, Orders, StoreCreditManuals, Customer, Reasons,
-Customers, StoreCredit, StoreCredits, StoreAdmins, StoreCreditAdjustments}
-import responses.{StoreCreditResponse, StoreCreditAdjustmentsResponse}
+import responses._
 import org.scalatest.BeforeAndAfterEach
 import services._
 import util.IntegrationTestBase
@@ -30,6 +29,11 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
           response.status must === (StatusCodes.OK)
           sc.status must === (StoreCredit.Active)
+
+          // Check that proper link is created
+          val manual = StoreCreditManuals.findById(sc.originId).run().futureValue.value
+          manual.reasonId must === (scReason.id)
+          manual.adminId must === (admin.id)
         }
       }
 
@@ -98,7 +102,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
       "returns error on cancellation if store credit has auths" in new Fixture {
         val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStatusByCsr(status = Canceled,
-          reason = Some(1)))
+          reasonId = Some(1)))
         response.status must ===(StatusCodes.BadRequest)
         response.errors must ===(OpenTransactionsFailure.description)
       }
@@ -108,7 +112,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         StoreCreditAdjustments.cancel(adjustment.id).run().futureValue
 
         val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStatusByCsr(status = Canceled,
-          reason = Some(1)))
+          reasonId = Some(1)))
         response.status must ===(StatusCodes.OK)
 
         val root = response.as[StoreCreditResponse.Root]
@@ -128,7 +132,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         StoreCreditAdjustments.cancel(adjustment.id).run().futureValue
 
         val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStatusByCsr(status = Canceled,
-          reason = Some(999)))
+          reasonId = Some(999)))
         response.status must ===(StatusCodes.BadRequest)
         response.errors must ===(InvalidCancellationReasonFailure.description)
       }
