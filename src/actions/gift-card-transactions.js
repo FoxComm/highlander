@@ -6,9 +6,10 @@ import GiftCardTransactionConstants from '../constants/gift-card-transactions';
 import { List } from 'immutable';
 
 class GiftCardTransactionActions {
-  updateTransactions(transactions) {
+  updateTransactions(id, transactions) {
     AshesDispatcher.handleViewAction({
       actionType: GiftCardTransactionConstants.UPDATE_TRANSACTIONS,
+      giftCard: id,
       transactions: transactions
     });
   }
@@ -23,7 +24,7 @@ class GiftCardTransactionActions {
   fetchTransactions(id) {
     return Api.get(`/gift-cards/${id}/transactions`)
       .then((transactions) => {
-        this.updateTransactions(List([transactions]));
+        this.updateTransactions(id, List([transactions]));
       })
       .catch((err) => {
         this.failedTransactions(err);

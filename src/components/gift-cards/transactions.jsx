@@ -6,6 +6,7 @@ import TableHead from '../tables/head';
 import TableBody from '../tables/body';
 import GiftCardTransactionsStore from '../../stores/gift-card-transactions';
 import GiftCardTransactionActions from '../../actions/gift-card-transactions';
+import { Map, List } from 'immutable';
 
 export default class GiftCardTransactions extends React.Component {
   static propTypes = {
@@ -24,7 +25,6 @@ export default class GiftCardTransactions extends React.Component {
       {field: 'availableBalance', text: 'Available Balance', type: 'currency'}
     ]
   };
-
 
   constructor(props, context) {
     super(props, context);
@@ -53,11 +53,18 @@ export default class GiftCardTransactions extends React.Component {
   }
 
   render() {
+    const { giftcard } = this.props.params;
+    const item = this.state.data.find(
+      next => next.get('giftCard') === giftcard,
+      this,
+      Map({})
+    );
+    const transactions = item.get('transactions', List([]));
     return (
       <div id="gift-card-transactions">
         <table className="fc-table">
           <TableHead columns={this.props.tableColumns} />
-          <TableBody columns={this.props.tableColumns} rows={this.state.data.get('transactions').toArray()} model="gift-card-transaction" />
+          <TableBody columns={this.props.tableColumns} rows={transactions.toArray()} model="gift-card-transaction" />
         </table>
       </div>
     );

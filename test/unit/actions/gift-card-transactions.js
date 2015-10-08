@@ -21,9 +21,10 @@ describe('GiftCardTransactions Actions', function() {
 
   context('updateTransactions', function() {
     it('should dispatch', function () {
-      giftCardTransactionActions.updateTransactions([]);
+      giftCardTransactionActions.updateTransactions(1, []);
       assert(this.dispatchSpy.calledWith({
         actionType: giftCardTransactionConstants.UPDATE_TRANSACTIONS,
+        giftCard: 1,
         transactions: []
       }));
     });
@@ -45,9 +46,10 @@ describe('GiftCardTransactions Actions', function() {
       let spy = this.dispatchSpy;
       let stub = sinon.stub(Api, 'get').returns(Promise.resolve(response));
 
-      giftCardTransactionActions.fetchTransactions().then(function(cards) {
+      giftCardTransactionActions.fetchTransactions(response).then(function(cards) {
         assert(spy.calledWith({
           actionType: giftCardTransactionConstants.UPDATE_TRANSACTIONS,
+          giftCard: response,
           transactions: Immutable.List([response])
         }));
         done();

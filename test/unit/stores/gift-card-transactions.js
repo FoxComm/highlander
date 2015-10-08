@@ -12,8 +12,10 @@ describe('GiftCardTransaction Store', function() {
   const giftCardTransactionConstants = require(path.resolve('src/constants/gift-card-transactions'));
 
   it('listens for UPDATE_TRANSACTIONS', function () {
-    giftCardTransactionActions.updateTransactions(Immutable.List([1]));
+    giftCardTransactionStore.setState(Immutable.List([]));
 
-    assert(giftCardTransactionStore.getState().get('transactions').size === 1);
+    giftCardTransactionActions.updateTransactions(1, Immutable.List([1]));
+
+    assert(giftCardTransactionStore.getState().size === 1);
   });
 });
