@@ -1,6 +1,7 @@
 'use strict';
 
 import React, { PropTypes } from 'react';
+import CreditCardDetails from './card-details';
 import ItemCardContainer from '../item-card-container/item-card-container';
 
 export default class CreditCardBox extends React.Component {
@@ -27,7 +28,6 @@ export default class CreditCardBox extends React.Component {
     let buttons = (
       <div>
         <button className="fc-btn icon-trash"></button>
-        <button className="fc-btn icon-edit"></button>
       </div>
     );
 
@@ -35,7 +35,7 @@ export default class CreditCardBox extends React.Component {
       <ItemCardContainer className="fc-credit-cards"
                          leftControls={ isDefault }
                          rightControls={ buttons }>
-        {card.id}
+        <CreditCardDetails customerId={ this.props.customerId} card={ this.props.card } />
       </ItemCardContainer>
     );
   }

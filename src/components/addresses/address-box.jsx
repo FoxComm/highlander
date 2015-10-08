@@ -33,20 +33,6 @@ export default class AddressBox extends React.Component {
     );
 
     return (
-      <li className="fc-customer-address">
-        <div className="fc-address-controls fc-grid">
-          <div className="fc-col-2-3">
-            { isDefault }
-          </div>
-          <div className="fc-col-1-3">
-            <button className="fc-btn icon-trash"></button>
-            <button className="fc-btn icon-edit"></button>
-          </div>
-        </div>
-        <div>
-            <AddressDetails address={address} />
-        </div>
-      </li>
       <ItemCardContainer className="fc-customer-address"
                          leftControls={ isDefault }
                          rightControls={ buttons }>
