@@ -49,11 +49,11 @@ class LineItemUpdaterTest extends IntegrationTestBase {
 
       LineItemUpdater.updateQuantities(order, payload).futureValue match {
         case Xor.Right(root) =>
-          root.lineItems.count(_.sku == "1") must be(3)
-          root.lineItems.count(_.sku == "2") must be(0)
+          root.lineItems.skus.count(_.sku == "1") must be(3)
+          root.lineItems.skus.count(_.sku == "2") must be(0)
 
           val allRecords = db.run(lineItems.result).futureValue
-          root.lineItems.size must === (allRecords.size)
+          root.lineItems.skus.size must === (allRecords.size)
 
           val allRelations = db.run(lineItemSkus.result).futureValue
           allRelations.size must === (2)
@@ -81,12 +81,12 @@ class LineItemUpdaterTest extends IntegrationTestBase {
 
       LineItemUpdater.updateQuantities(order, payload).futureValue match {
         case Xor.Right(root) =>
-          root.lineItems.count(_.sku == "1") must be(3)
-          root.lineItems.count(_.sku == "2") must be(0)
-          root.lineItems.count(_.sku == "3") must be(1)
+          root.lineItems.skus.count(_.sku == "1") must be(3)
+          root.lineItems.skus.count(_.sku == "2") must be(0)
+          root.lineItems.skus.count(_.sku == "3") must be(1)
 
           val allRecords = db.run(lineItems.result).futureValue
-          root.lineItems.size must === (allRecords.size)
+          root.lineItems.skus.size must === (allRecords.size)
 
           val allRelations = db.run(lineItemSkus.result).futureValue
           allRelations.size must === (2)
