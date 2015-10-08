@@ -58,9 +58,6 @@ export default class Customer extends React.Component {
   }
 
   render() {
-    console.log(this.props);
-    console.log(this.state);
-
     return (
       <div className="fc-customer">
         <div className="gutter">
