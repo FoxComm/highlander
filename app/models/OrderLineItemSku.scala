@@ -19,4 +19,6 @@ class OrderLineItemSkus(tag: Tag) extends GenericTable.TableWithId[OrderLineItem
 object OrderLineItemSkus extends TableQueryWithId[OrderLineItemSku, OrderLineItemSkus](
   idLens = GenLens[OrderLineItemSku](_.id)
 )(new OrderLineItemSkus(_)){
+
+  def _findByOrderId(orderId: Rep[Int]) = { filter(_.orderId === orderId) }
 }

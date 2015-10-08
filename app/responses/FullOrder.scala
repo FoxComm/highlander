@@ -5,6 +5,7 @@ import java.time.Instant
 import scala.concurrent.{ExecutionContext, Future}
 
 import models._
+import models.OrderLineItems.scope._
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
@@ -16,13 +17,18 @@ object FullOrder {
 
   final case class Totals(subTotal: Int, taxes: Int, adjustments: Int, total: Int)
 
+  final case class LineItems(
+    skus: Seq[DisplayLineItem] = Seq.empty,
+    giftCards: Seq[GiftCardResponse.Root] = Seq.empty
+    )
+
   final case class Root(
     id: Int,
     referenceNumber: String,
     orderStatus: Order.Status,
     shippingStatus: Order.Status,
     paymentStatus: Order.Status,
-    lineItems: Seq[DisplayLineItem],
+    lineItems: LineItems,
     adjustments: Seq[Adjustment],
     fraudScore: Int,
     totals: Totals,
@@ -31,8 +37,7 @@ object FullOrder {
     shippingAddress: Option[OrderShippingAddress],
     assignees: Seq[AssignmentResponse.Root],
     remorsePeriodEnd: Option[Instant],
-    payment: Option[DisplayPayment] = None
-    )
+    payment: Option[DisplayPayment] = None)
 
   final case class DisplayLineItem(
     imagePath: String = "http://lorempixel.com/75/75/fashion",
@@ -67,7 +72,8 @@ object FullOrder {
   def build(order: Order, lineItems: Seq[(Sku, OrderLineItem)] = Seq.empty, adjustments: Seq[Adjustment] = Seq.empty,
     shippingMethod: Option[ShippingMethod] = None, customer: Option[Customer] = None,
     shippingAddress: Option[OrderShippingAddress] = None, payment: Option[(OrderPayment, CreditCard)] = None,
-    assignments: Seq[(OrderAssignment, StoreAdmin)] = Seq.empty): Root = {
+    assignments: Seq[(OrderAssignment, StoreAdmin)] = Seq.empty,
+    giftCards: Seq[(GiftCard, OrderLineItem)] = Seq.empty): Root = {
 
     val displayPayment = payment.map { case (op, cc) ⇒
       DisplayPayment(
@@ -80,12 +86,15 @@ object FullOrder {
       )
     }
 
+    val skuList = lineItems.map { case (sku, li) ⇒ DisplayLineItem(sku = sku.sku, status = li.status) }
+    val gcList = giftCards.map { case (gc, li) ⇒ GiftCardResponse.build(gc) }
+
     Root(id = order.id,
       referenceNumber = order.referenceNumber,
       orderStatus = order.status,
       shippingStatus = order.status,
       paymentStatus = order.status,
-      lineItems = lineItems.map { case (sku, li) ⇒ DisplayLineItem(sku = sku.sku, status = li.status) },
+      lineItems = LineItems(skus = skuList, giftCards = gcList),
       adjustments = adjustments,
       fraudScore = scala.util.Random.nextInt(100),
       customer = customer,
@@ -112,9 +121,15 @@ object FullOrder {
     for {
       customer ← Customers._findById(order.customerId).extract.one
       lineItems ← (for {
-        li  ← OrderLineItems._findByOrderId(order.id)
-        sku ← Skus if sku.id === li.originId
+        li  ← OrderLineItems._findByOrderId(order.id).skuItems
+        liSku ← OrderLineItemSkus._findByOrderId(order.id)
+        sku ← Skus if sku.id === liSku.skuId
       } yield (sku, li)).result
+      giftCards ← (for {
+        li  ← OrderLineItems._findByOrderId(order.id).giftCards
+        liGc ← OrderLineItemGiftCards._findByOrderId(order.id)
+        gc ← GiftCards if gc.id === liGc.giftCardId
+      } yield (gc, li)).result
       shipMethod ← shippingMethodQ.one
       shipAddress ← OrderShippingAddresses.filter(_.orderId === order.id).one
       payments ← paymentQ.one

@@ -20,4 +20,6 @@ class OrderLineItemGiftCards(tag: Tag) extends
 object OrderLineItemGiftCards extends TableQueryWithId[OrderLineItemGiftCard, OrderLineItemGiftCards](
   idLens = GenLens[OrderLineItemGiftCard](_.id)
 )(new OrderLineItemGiftCards(_)){
+
+  def _findByOrderId(orderId: Rep[Int]) = { filter(_.orderId === orderId) }
 }
