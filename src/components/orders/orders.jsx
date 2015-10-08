@@ -38,7 +38,7 @@ export default class Orders extends React.Component {
         <div className="fc-list-header">
           <SectionTitle title="Orders" count={ this.state.orders.length } buttonClickHandler={ this.handleAddOrderClick } />
           <div className="fc-grid gutter">
-            <div className="fc-col-1-1">
+            <div className="fc-col-md-1-1">
               <ul className="fc-tabbed-nav">
                 <li><a href="">Lists</a></li>
                 <li><a href="">Returns</a></li>

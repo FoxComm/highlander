@@ -88,16 +88,16 @@ export default class GiftCard extends React.Component {
         </div>
         <div className="gutter">
           <div className="fc-grid fc-grid-match fc-grid-gutter">
-            <div className="fc-col-1-3">
+            <div className="fc-col-md-1-3">
               <article className="panel featured available-balance">
                 <header>Available Balance</header>
                 <p>{ formatCurrency(card.availableBalance) }</p>
               </article>
             </div>
-            <div className="fc-col-2-3">
+            <div className="fc-col-md-2-3">
               <article className="panel">
                 <div className="fc-grid">
-                  <div className="fc-col-1-2">
+                  <div className="fc-col-md-1-2">
                     <p>
                       <strong>Created By: </strong>
                       {card.storeAdmin ? `${card.storeAdmin.firstName} ${card.storeAdmin.lastName}` : 'None'}
@@ -109,7 +109,7 @@ export default class GiftCard extends React.Component {
 
                     <p><strong>Recipient Cell (Optional): </strong>None</p>
                   </div>
-                  <div className="fc-col-1-2">
+                  <div className="fc-col-md-1-2">
                     <p><strong>Message (optional):</strong></p>
 
                     <p>
@@ -121,31 +121,31 @@ export default class GiftCard extends React.Component {
             </div>
           </div>
           <div className="fc-grid fc-grid-match fc-grid-gutter">
-            <div className="fc-col-1-5">
+            <div className="fc-col-md-1-5">
               <article className="panel featured">
                 <header>Original Balance</header>
                 <p>{ formatCurrency(card.originalBalance) }</p>
               </article>
             </div>
-            <div className="fc-col-1-5">
+            <div className="fc-col-md-1-5">
               <article className="panel featured">
                 <header>Current Balance</header>
                 <p>{ formatCurrency(card.currentBalance) }</p>
               </article>
             </div>
-            <div className="fc-col-1-5">
+            <div className="fc-col-md-1-5">
               <article className="panel featured">
                 <header>Date/Time Issued</header>
                 <p>{ moment(card.date).format('L LTS') }</p>
               </article>
             </div>
-            <div className="fc-col-1-5">
+            <div className="fc-col-md-1-5">
               <article className="panel featured">
                 <header>Gift Card Type</header>
                 <p>{ card.originType }</p>
               </article>
             </div>
-            <div className="fc-col-1-5">
+            <div className="fc-col-md-1-5">
               <article className="panel featured">
                 <header>Current State</header>
                 <p>{ status }</p>

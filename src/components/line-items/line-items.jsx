@@ -88,8 +88,8 @@ export default class LineItems extends React.Component {
         header = (
           <header>
             <div className='fc-grid'>
-              <div className="fc-col-2-3">Items</div>
-              <div className="fc-col-1-3 fc-align-right">
+              <div className="fc-col-md-2-3">Items</div>
+              <div className="fc-col-md-1-3 fc-align-right">
                 <button className="fc-btn" onClick={this.toggleEdit.bind(this)}>
                   <i className="icon-edit"></i>
                 </button>
