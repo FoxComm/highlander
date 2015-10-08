@@ -144,12 +144,12 @@ export default class AddressForm extends React.Component {
   }
 
   get phoneInput() {
-    if (countryCode === 'US') {
-      return <InputMask type="tel" mask="(999)999-9999" placeholder={CountryStore.phoneExample(countryCode)}/>;
+    if (this.countryCode === 'US') {
+      return <InputMask type="tel" mask="(999)999-9999" placeholder={CountryStore.phoneExample(this.countryCode)}/>;
     }
     return (
       <input type="tel" name="phoneNumber"
-             maxLength="15" placeholder={CountryStore.phoneExample(countryCode)} />
+             maxLength="15" placeholder={CountryStore.phoneExample(this.countryCode)} />
     );
   }
 

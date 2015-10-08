@@ -95,10 +95,12 @@ export default class FormField extends React.Component {
 
   componentDidUpdate() {
     const inputNode = this.getInputNode();
+    const hasError = !!this.state.errorMessage;
 
     if (!inputNode) return;
 
     inputNode.setCustomValidity(this.state.errorMessage || '');
+    inputNode.classList[hasError ? 'add' : 'remove']('is-error');
   }
 
   componentWillUnmount() {
@@ -152,7 +154,7 @@ export default class FormField extends React.Component {
 
     if (this.state.errorMessage) {
       errors = (
-        <div className="is-error">
+        <div className="fc-form-field-error">
           {this.state.errorMessage}
         </div>
       );
