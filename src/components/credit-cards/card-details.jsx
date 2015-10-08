@@ -2,6 +2,7 @@
 
 import React, { PropTypes } from 'react';
 import AddressDetails from '../addresses/address-details';
+import PaymentMethod from '../payment/payment-method';
 
 export default class CreditCardDetails extends React.Component {
 
@@ -17,10 +18,16 @@ export default class CreditCardDetails extends React.Component {
   render() {
     let card = this.props.card;
 
+    let paymentMethod = {
+      cartType: 'visa',
+      cardExp: `${card.expMonth}/${card.expYear}`,
+      cardNumber: `xxxx-xxxx-xxxx-${card.lastFour}`
+    };
+
     return (
       <div>
         <div>
-        Card type
+          <PaymentMethod model={ paymentMethod } />
         </div>
         <dl>
           <dt>Name on Card</dt>
