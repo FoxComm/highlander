@@ -76,7 +76,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
     }
   }
 
-  "admin APIs" - {
+  "GET /v1/customers/:id?" - {
     "should with Fixture" in new Fixture {
       behave like customersApi(customer, region)
     }
