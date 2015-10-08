@@ -21,7 +21,7 @@ export default class CreditCardBox extends React.Component {
     let isDefault = (
       <label className="fc-address-default">
         <input type="checkbox" defaultChecked={card.isDefault} />
-        <span>Default shipping address</span>
+        <span>Default card</span>
       </label>
     );
 

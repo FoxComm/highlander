@@ -19,7 +19,7 @@ export default class CreditCardDetails extends React.Component {
     let card = this.props.card;
 
     let paymentMethod = {
-      cartType: 'visa',
+      cardType: 'visa',
       cardExp: `${card.expMonth}/${card.expYear}`,
       cardNumber: `xxxx-xxxx-xxxx-${card.lastFour}`
     };
