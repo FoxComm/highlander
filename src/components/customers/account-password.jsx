@@ -16,7 +16,7 @@ export default class CustomerAccountPassword extends React.Component {
           <div className="fc-col-1-2">
           </div>
           <div className="fc-col-1-2">
-            <button className="fc-btn fc-right">Reset password</button>
+            <button className="fc-btn fc-right">Reset Password</button>
           </div>
         </div>
       </ContentBox>
