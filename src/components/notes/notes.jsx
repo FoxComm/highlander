@@ -10,6 +10,7 @@ import TableCell from '../table/cell';
 import NoteControls from './controls';
 import NoteForm from './form';
 import UserInitials from '../users/initials';
+import DateTime from '../datetime/datetime';
 import ConfirmModal from '../modal/confirm';
 import { dispatch } from '../../lib/dispatcher';
 
@@ -94,8 +95,9 @@ export default class Notes extends React.Component {
     this.setState({
       deletingNote: item
     });
-    dispatch('toggleModal', <ConfirmModal callback={this.onConfirmDeleteNote.bind(this)}
-                                          details={this.deleteOptions}/>);
+    dispatch('toggleModal', (
+      <ConfirmModal callback={this.onConfirmDeleteNote.bind(this)} details={this.deleteOptions}/>
+    ));
   }
 
   onConfirmDeleteNote(success) {
@@ -129,8 +131,12 @@ export default class Notes extends React.Component {
             </TableRow>
           )) || (
             <TableRow>
-              <TableCell>Today</TableCell>
-              <TableCell>{row.body}</TableCell>
+              <TableCell>
+                <DateTime value={row.createdAt}/>
+              </TableCell>
+              <TableCell>
+                {row.body}
+              </TableCell>
               <TableCell>
                 <NoteControls
                   model={row}
