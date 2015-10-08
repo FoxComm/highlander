@@ -13,7 +13,7 @@ import slick.driver.PostgresDriver.api._
 import utils.Apis
 import utils.Http._
 import utils.Slick.implicits._
-import utils.SprayDirectives._
+import utils.CustomDirectives._
 
 object GiftCardRoutes {
 

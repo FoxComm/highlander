@@ -7,7 +7,7 @@ import utils.Http._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-object SprayDirectives {
+object CustomDirectives {
 
   def good[A <: AnyRef](a: Future[A])(implicit ec: ExecutionContext): StandardRoute =
     complete(a.map(render(_)))

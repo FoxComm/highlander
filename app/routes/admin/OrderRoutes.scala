@@ -14,7 +14,7 @@ import services._
 import slick.driver.PostgresDriver.api._
 import utils.Http._
 import utils.Slick.DbResult
-import utils.SprayDirectives._
+import utils.CustomDirectives._
 import utils.{Apis, Slick}
 
 object OrderRoutes {

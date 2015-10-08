@@ -6,15 +6,13 @@ import models.Region._
 import responses.CountryWithRegions
 import util.IntegrationTestBase
 
-class PublicIntegrationTest extends IntegrationTestBase
-  with HttpSupport
-  with AutomaticAuth {
+class PublicIntegrationTest extends IntegrationTestBase with HttpSupport {
 
   import Extensions._
 
   "GET /countries/:id" - {
     "lists the country and its regions along with shippable and payable flags" in {
-      val response = GET(s"v1/countries/${unitedStatesId}")
+      val response = GET(s"v1/countries/$unitedStatesId")
 
       response.status must ===(StatusCodes.OK)
 
