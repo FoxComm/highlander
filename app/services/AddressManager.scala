@@ -61,7 +61,7 @@ object AddressManager {
       } yield (address, region))
 
       db.run(query).flatMap { 
-          case (address, Some(region)) ⇒ Result.good(Response.build(address, region))
+          case (address, Some(region)) ⇒ Result.good(Response.build(address, region, Some(address.isDefaultShipping)))
           case (address, None)         ⇒ Result.failure(NotFoundFailure(Region, address.regionId))
           case (_, _)                  ⇒ Result.failure(NotFoundFailure(Address,addressId))
       }
@@ -70,7 +70,11 @@ object AddressManager {
 
   def remove(customerId: Int, addressId: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Int] = {
-    val query = Addresses.findById(customerId, addressId).map(_.deletedAt).update(Some(Instant.now()))
+    val query = 
+      Addresses.findById(customerId, addressId)
+      .map{ a ⇒ (a.deletedAt, a.isDefaultShipping)}
+      .update((Some(Instant.now()), false))  //set delete time and set default to false
+
     db.run(query).flatMap(Result.good)
   }
 

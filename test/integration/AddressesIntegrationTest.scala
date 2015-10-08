@@ -96,7 +96,9 @@ class AddressesIntegrationTest extends IntegrationTestBase
     }
 
     "can be deleted" in new AddressFixture { 
-      val payload = payloads.CreateAddressPayload(name = "Delete Me", regionId = 1, address1 = "5000 Delete Dr", city = "Deattle", zip = "666")
+
+      //notice the payload is a default shipping address. Delete should make it not default.
+      val payload = payloads.CreateAddressPayload(name = "Delete Me", regionId = 1, address1 = "5000 Delete Dr", city = "Deattle", zip = "666", isDefault = true)
 
       val response = POST(s"v1/customers/${customer.id}/addresses", payload)
       response.status must === (StatusCodes.OK)
@@ -111,11 +113,24 @@ class AddressesIntegrationTest extends IntegrationTestBase
       getResponse.status must === (StatusCodes.OK)
       val gotAddress = getResponse.as[responses.Addresses.Root]
 
+      //deleted address is not default anymore
+      gotAddress.isDefault match {
+        case None ⇒  info("Isn't strange that a boolean is optional")
+        case Some(isDefault) ⇒  isDefault must be (false)
+      }
+
+      //deleted address should have a deletedAt timestamp
       gotAddress.deletedAt match { 
         case None ⇒  fail("FullOrder should have a shipping address")
         case Some(time) ⇒  info(s"Deleted on ${time}")
       }
 
+      val addressesResponse = GET(s"v1/customers/${customer.id}/addresses")
+      addressesResponse.status must === (StatusCodes.OK)
+
+      //If you get all the addresses, our newly deleted one should not show up
+      val addresses = parse(addressesResponse.bodyText).extract[Seq[responses.Addresses.Root]]
+      addresses.filter(_.id == newAddress.id) must have length (0)
     }
 
     "display address" - {

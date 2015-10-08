@@ -78,8 +78,18 @@ object Addresses extends TableQueryWithId[Address, Addresses](
   def _findAllByCustomerId(customerId: Int): QuerySeq =
     filter(_.customerId === customerId)
 
+  /**
+   * Return all addresses except the deleted ones.
+   */
+  def _findAllVisibleByCustomerId(customerId: Int): QuerySeq =
+    _findAllByCustomerId(customerId).filter(_.deletedAt.isEmpty)
+
   def _findAllByCustomerIdWithRegions(customerId: Int): Query[(Addresses, Regions), (Address, Region), Seq] = for {
     (addresses, regions) ← _findAllByCustomerId(customerId).withRegions
+  } yield (addresses, regions)
+
+  def _findAllVisibleByCustomerIdWithRegions(customerId: Int): Query[(Addresses, Regions), (Address, Region), Seq] = for {
+    (addresses, regions) ← _findAllVisibleByCustomerId(customerId).withRegions
   } yield (addresses, regions)
 
   def findShippingDefaultByCustomerId(customerId: Int): QuerySeq =
