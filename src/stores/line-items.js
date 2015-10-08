@@ -1,7 +1,7 @@
 'use strict';
 
 import _ from 'lodash';
-import BaseStore from '../../lib/base-store';
+import BaseStore from '../lib/base-store';
 
 class LineItemStore extends BaseStore {
   get baseUri() { return `${this.rootUri}/line-items`; }

@@ -6,7 +6,7 @@ import CustomerInfo from './customer-info';
 import LineItems from '../line-items/line-items';
 import ShippingMethod from '../shipping/shipping-method';
 import Payment from '../payment/payment';
-import RmaStore from './store';
+import RmaStore from '../../stores/rmas';
 
 export default class RmaDetails extends React.Component {
   constructor(props, context) {

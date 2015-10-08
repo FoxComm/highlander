@@ -1,43 +1,37 @@
 'use strict';
 
 import React from 'react';
-import Api from '../../lib/api';
 import TableView from '../tables/tableview';
-import NewGiftCard from './gift-cards-new';
-import { listenTo, stopListeningTo } from '../../lib/dispatcher';
-
-const
-  createEvent = 'cards-added';
+import GiftCardStore from '../../stores/gift-cards';
+import GiftCardActions from '../../actions/gift-cards';
+import { Link } from '../link';
+import _ from 'lodash';
 
 export default class GiftCards extends React.Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      cards: [],
-      isNew: false
+      data: GiftCardStore.getState()
     };
+    this.onChange = this.onChange.bind(this);
   }
 
   componentDidMount() {
-    listenTo(createEvent, this);
-    Api.get('/gift-cards')
-      .then((cards) => {
-        this.setState({cards: cards});
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+    GiftCardStore.listen(this.onChange);
+
+    GiftCardActions.fetchGiftCards();
   }
 
   componentWillUnmount() {
-    stopListeningTo(createEvent, this);
+    GiftCardStore.unlisten(this.onChange);
   }
 
-  toggleNew() {
+  onChange() {
+    let state = GiftCardStore.getState();
     this.setState({
-      isNew: !this.state.isNew
+      data: state
     });
-  }
+  };
 
   onCardsAdded(cards) {
     let cardList = this.state.cards.slice(0, this.state.cards.length);
@@ -66,26 +60,19 @@ export default class GiftCards extends React.Component {
   }
 
   render() {
-    let content = null;
-
-    if (this.state.isNew) {
-      content = <NewGiftCard />;
-    } else {
-      content = (
-        <div id="cards">
-          <div className="gutter">
-            <h2>Gift Cards</h2>
-            <button onClick={this.toggleNew.bind(this)}>+ New Gift Card</button>
-            <TableView
+    return (
+      <div id="cards">
+        <div className="gutter">
+          <h2>Gift Cards</h2>
+          <Link to='gift-cards-new' className="fc-btn">+ New Gift Card</Link>
+          <TableView
               columns={this.props.tableColumns}
-              rows={this.state.cards}
+              rows={this.state.data.toArray()}
               model='giftcard'
-              />
-          </div>
+          />
         </div>
-      );
-    }
-    return content;
+      </div>
+    );
   }
 }
 

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import UserInitials from '../users/initials';
-import ViewerStore from './store';
+import ViewerStore from '../../stores/viewers';
 
 const updateTime  = 60000;
 

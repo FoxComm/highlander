@@ -1,7 +1,7 @@
 'use strict';
 
-import BaseStore from '../../lib/base-store';
-import Api from '../../lib/api';
+import BaseStore from '../lib/base-store';
+import Api from '../lib/api';
 
 class NotificationStore extends BaseStore {
   get baseUri() { return `${this.rootUri}/notifications`; }
