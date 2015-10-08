@@ -62,14 +62,14 @@ export default class EventedStore extends EventEmitter {
   }
 
   _delete(models, identity) {
-    let model = this._findWhere(models, (model) => {
+    let index = _.findIndex(models, (model) => {
       return this.identity(model) === identity;
     });
-    if (model) {
-      models.splice(models.indexOf(model), 1);
+    if (index !== -1) {
+      models.splice(index, 1);
     }
 
-    return !!model;
+    return !~index;
   }
 
   dispatch(event, ...args) {
