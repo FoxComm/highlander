@@ -87,7 +87,7 @@ export default class EventedStore extends EventEmitter {
   }
 
   updateBehaviour() {
-    throw new Error('updateBehaviour  implemented');
+    throw new Error('updateBehaviour not implemented');
   }
 
   deleteBehaviour() {
