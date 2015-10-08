@@ -12,22 +12,34 @@ import scala.concurrent.{ExecutionContext, Future}
 object CustomDirectives {
 
   case class Sort(sortField: String, asc: Boolean = true)
-  case class Page(startElement: Int)
+  case class Start(startElement: Int)
+  case class Page(pageNo: Int, pageSize: Int)
 
   def sort: Directive1[Option[Sort]] =
-    parameters('sortField.as[String].?).map { field: Option[String] ⇒
+    parameter('sortField.as[String].?).map { field: Option[String] ⇒
       field map { f ⇒
         if (f.startsWith("-")) Sort(f.drop(1), asc = false)
         else Sort(f)
       }
     }
 
-  def start: Directive1[Option[Page]] =
-    parameters('startElement.as[Int].?).map { startElement: Option[Int] ⇒
-      startElement.map(Page)
+  def start: Directive1[Option[Start]] =
+    parameter('startElement.as[Int].?).map { startElement: Option[Int] ⇒
+      startElement.map(Start)
     }
 
-  def sortAnsStart = sort & start
+  def page: Directive1[Option[Page]] =
+    parameters(('pageNo.as[Int].?, 'pageSize.as[Int].?)).tmap { case (pageNoOpt: Option[Int], pageSizeOpt:
+      Option[Int]) ⇒
+      for {
+        pageNo   ← pageNoOpt
+        pageSize ← pageSizeOpt
+      } yield Page(pageNo, pageSize)
+    }
+
+  def sortAndStart = sort & start
+
+  def sortAndPage = sort & page
 
   def good[A <: AnyRef](a: Future[A])(implicit ec: ExecutionContext): StandardRoute =
     complete(a.map(render(_)))
