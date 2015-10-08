@@ -44,14 +44,14 @@ class CustomerIntegrationTest extends IntegrationTestBase
   import util.SlickSupport.implicits._
 
   def customersApi(customer: Customer, shipRegion: Option[Region] = None, billRegion: Option[Region] = None) = {
-    info("show a customer")
+    info("GET /v1/customers/:id")
     val response = GET(s"v1/customers/${customer.id}")
     val customerRoot = CustomerResponse.build(customer, shippingRegion = shipRegion, billingRegion = billRegion)
 
     response.status must ===(StatusCodes.OK)
     response.as[CustomerResponse.Root] must === (customerRoot)
 
-    info("shows a list of customers")
+    info("GET /v1/customers")
     val responseList = GET(s"v1/customers")
     val customers = Seq(customerRoot)
 
@@ -76,18 +76,18 @@ class CustomerIntegrationTest extends IntegrationTestBase
     }
   }
 
-  "GET /v1/customers/:id?" - {
-    "should with Fixture" in new Fixture {
+  "admin API's" - {
+    "testing customers api over default fixtures" in new Fixture {
       behave like customersApi(customer, region)
     }
-    "should with no default address" in new FixtureWithoutDefaultAddress {
+    "testing customers api without default address" in new FixtureWithoutDefaultAddress {
       behave like customersApi(customer, region)
     }
-    "should with creditCard" in new CreditCardFixture {
+    "testing customers api with creditCard" in new CreditCardFixture {
       val billRegion = Regions.findById(creditCard.regionId).run().futureValue
       behave like customersApi(customer, region, billRegion)
     }
-    "should with no default creditCard" in new NoDefaultCreditCardFixture {
+    "testing customers api without default creditCard" in new NoDefaultCreditCardFixture {
       val billRegion = Regions.findById(creditCard.regionId).run().futureValue
       behave like customersApi(customer, region, billRegion)
     }
