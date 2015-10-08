@@ -16,6 +16,11 @@ export default class GiftCard extends React.Component {
     children: PropTypes.node
   };
 
+  get giftCard() {
+    let { giftcard } = this.props.params;
+    return this.state.data.find(item => item.code === giftcard);
+  }
+
   constructor(props, context) {
     super(props, context);
     this.state = {
@@ -42,14 +47,14 @@ export default class GiftCard extends React.Component {
   }
 
   changeState(event) {
-    let card = this.state.data.get('giftCards').first();
+    let card = this.giftCard;
 
     GiftCardActions.editGiftCard(card.code, {status: event.target.value});
   }
 
   render() {
     let subNav = null;
-    let card = this.state.data.get('giftCards').first();
+    let card = this.giftCard;
 
     if (!card) {
       return <div id="gift-card"></div>;

@@ -67,7 +67,7 @@ export default class GiftCards extends React.Component {
           <Link to='gift-cards-new' className="fc-btn">+ New Gift Card</Link>
           <TableView
               columns={this.props.tableColumns}
-              rows={this.state.data.get('giftCards').toArray()}
+              rows={this.state.data.toArray()}
               model='giftcard'
           />
         </div>

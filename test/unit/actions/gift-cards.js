@@ -52,8 +52,46 @@ describe('GiftCard Actions', function() {
       const response = 'Error';
       let spy = this.dispatchSpy;
       let stub = sinon.stub(Api, 'get').returns(Promise.reject(response));
-      
+
       giftCardActions.fetchGiftCards().then(function(err) {
+        assert(spy.calledWith({
+          actionType: giftCardConstants.GIFT_CARD_FAILED,
+          errorMessage: response
+        }));
+        done();
+      }).catch(function(err) {
+        done(err);
+      });
+
+      stub.restore();
+    });
+  });
+
+  context('fetchGiftCard', function() {
+    it('should dispatch and call insertGiftCard on success', function(done){
+      const response = 1;
+      let spy = this.dispatchSpy;
+      let stub = sinon.stub(Api, 'get').returns(Promise.resolve(response));
+
+      giftCardActions.fetchGiftCard(1).then(function(cards) {
+        assert(spy.calledWith({
+          actionType: giftCardConstants.INSERT_GIFT_CARD,
+          giftCard: 1
+        }));
+        done();
+      }).catch(function(err) {
+        done(err);
+      });
+
+      stub.restore();
+    });
+
+    it('should dispatch and call giftCardsFailed on failure', function(done){
+      const response = 'Error';
+      let spy = this.dispatchSpy;
+      let stub = sinon.stub(Api, 'get').returns(Promise.reject(response));
+
+      giftCardActions.fetchGiftCard(1).then(function(err) {
         assert(spy.calledWith({
           actionType: giftCardConstants.GIFT_CARD_FAILED,
           errorMessage: response

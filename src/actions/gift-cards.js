@@ -13,6 +13,13 @@ class GiftCardActions {
     });
   }
 
+  insertGiftCard(giftCard) {
+    AshesDispatcher.handleViewAction({
+      actionType: GiftCardConstants.INSERT_GIFT_CARD,
+      giftCard: giftCard
+    });
+  }
+
   fetchGiftCards() {
     return Api.get('/gift-cards')
       .then((cards) => {
@@ -26,7 +33,7 @@ class GiftCardActions {
   fetchGiftCard(id) {
     return Api.get(`/gift-cards/${id}`)
       .then((card) => {
-        this.updateGiftCards(List([card]));
+        this.insertGiftCard(card);
       })
       .catch((err) => {
         this.giftCardsFailed(err);
