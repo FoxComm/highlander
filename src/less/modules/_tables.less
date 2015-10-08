@@ -1,10 +1,11 @@
 // Tables
-@color-tr-odd-bg: @color-decor0;
+@color-tr-odd-bg: @color-white;
 @color-tr-even-bg: @color-decor12;
 
-@color-th-border: @color-decor9;
+@color-th-fg: @color-default-fg;
 @color-th-bg: @color-decor12;
 @color-th-bg-hover: @color-decor35;
+@color-th-border: @color-decor9;
 
 @color-border-td: @color-decor9;
 
@@ -14,82 +15,82 @@
   width: 100%;
   border: 1px solid @color-border-td;
 
+  thead {
+
+
+    th {
+      position: relative;
+      vertical-align: middle;
+      .colors(@color-th-fg, @color-th-bg);
+      .padding(10px, 15px);
+      .font-spec(13px, 700, 18px);
+      .height(62px);
+      .border(1px, solid, @color-th-border);
+      user-select: none;
+
+      &:last-child {
+        border-right: none;
+      }
+
+      &.sorting {
+        cursor: pointer;
+
+        &:hover {
+          background-color: @color-th-bg-hover;
+        }
+      }
+
+      &.sorting-asc:after,
+      &.sorting-desc:after {
+        position: absolute;
+        top: 0;
+        right: pxtorem(10px);
+        color: @color-decor1;
+        .font-spec(13px, 700, 62px);
+        transform: scale(1, .5);
+      }
+
+      &.sorting-asc:after {
+        content: '\25b2';
+      }
+
+      &.sorting-desc:after {
+        content: '\25bc';
+      }
+    }
+  }
+
   tbody {
-    display: table-row-group;
-  }
+    tr {
+      display: table-row;
+      width: 100%;
 
-  tr {
-    display: table-row;
-    width: 100%;
+      .border(1px, solid, @color-decor9);
+      transition: background-color 500ms;
 
-    .border(1px, solid, @color-decor9);
-    transition: background-color 500ms;
+      &:nth-child(odd),
+      &.odd {
+        background-color: @color-tr-odd-bg;
+      }
 
-    &:nth-child(odd),
-    &.odd {
-      background-color: @color-tr-odd-bg;
-    }
+      &:nth-child(even),
+      &.even {
+        background-color: @color-tr-even-bg;
+      }
 
-    &:nth-child(even),
-    &.even {
-      background-color: @color-tr-even-bg;
-    }
-
-    &.new {
-      background-color: #dfe3ed;
-    }
-
-  }
-
-  th {
-    display: table-cell;
-    vertical-align: middle;
-    position: relative;
-    .colors(@color-decor1, @color-decor12);
-    .padding(10px, 15px);
-    .font-spec(13px, 700, 18px);
-    .height(62px);
-    border: 1px solid @color-th-border;
-    user-select: none;
-
-    &:last-child {
-      border-right: none;
-    }
-
-    &.sorting {
-      cursor: pointer;
-
-      &:hover {
-        background-color: @color-th-bg-hover;
+      &.new {
+        background-color: #dfe3ed;
       }
     }
 
-    &.sorting-asc:after,
-    &.sorting-desc:after {
-      position: absolute;
-      top: 0;
-      right: pxtorem(10px);
+    td {
+      display: table-cell;
+      .height(55px);
+      .padding(10px, 15px);
+      .font-spec(13px, 18px);
       color: @color-decor1;
-      .font-spec(13px, 700, 62px);
-      transform:scale(1, .5);
+      vertical-align: middle;
     }
-
-    &.sorting-asc:after {
-      content: '\25b2';
-    }
-
-    &.sorting-desc:after {
-      content: '\25bc';
-    }
-  }
-
-  td {
-    display: table-cell;
-    .height(55px);
-    .padding(10px, 15px);
-    .font-spec(13px, 18px);
-    color: @color-decor1;
-    vertical-align: middle;
   }
 }
 
