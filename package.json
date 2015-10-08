@@ -112,7 +112,7 @@
     "react": "^0.14.0-rc1",
     "react-addons-create-fragment": "^0.14.0-rc1",
     "react-dom": "^0.14.0-rc1",
-    "react-router": "^1.0.0-rc1",
+    "react-router": "1.0.0-rc1",
     "request": "^2.58.0",
     "thunkify-wrap": "^1.0.4"
   },
@@ -141,6 +141,7 @@
     "jsdom": "^6.5.1",
     "koa-logger": "^1.2.2",
     "less-plugin-functions": "0.0.2",
+    "localStorage": "^1.0.3",
     "merge-stream": "^1.0.0",
     "mocha": "^2.3.0",
     "node-notifier": "^4.2.3",
@@ -153,6 +154,7 @@
     "through2": "^2.0.0",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
-    "watchify": "^3.3.1"
+    "watchify": "^3.3.1",
+    "xmlhttprequest": "^1.7.0"
   }
 }

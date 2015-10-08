@@ -5,9 +5,9 @@ import Title from './title';
 
 export default class SectionTitle extends React.Component {
   static propTypes = {
-    title: React.PropTypes.string,
+    title: React.PropTypes.node,
     count: React.PropTypes.number,
-    buttonClickHandler: React.PropTypes.func,
+    buttonClickHandler: React.PropTypes.func
   };
 
   render() {

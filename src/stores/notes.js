@@ -1,10 +1,29 @@
 'use strict';
 
-import BaseStore from '../lib/base-store';
+import TableStore from '../lib/table-store';
 
-class NoteStore extends BaseStore {
-  get baseUri() { return `${this.rootUri}/notes`; }
-  set uriRoot(uri) { this.rootUri = uri; }
+class NoteStore extends TableStore {
+  constructor(...args) {
+    super(...args);
+    this.columns = [
+      {
+        title: 'Date/Time',
+        field: 'createdAt'
+      },
+      {
+        title: 'Text',
+        field: 'body'
+      },
+      {
+        title: 'Author',
+        field: 'author'
+      }
+    ];
+  }
+
+  identity(item) {
+    return item.id;
+  }
 }
 
 export default new NoteStore();

@@ -2,10 +2,11 @@
 
 import _ from 'lodash';
 import Api from './api';
+import { EventEmitter } from 'events';
 import { dispatch, listenTo, stopListeningTo } from './dispatcher';
 import { inflect } from 'fleck';
 
-export default class EventedStore {
+export default class EventedStore extends EventEmitter {
   get storeName() { return this.constructor.name; }
   get eventSuffix() { return inflect(this.storeName, 'underscore', 'dasherize'); }
 
@@ -60,7 +61,20 @@ export default class EventedStore {
     }
   }
 
+  _delete(models, identity) {
+    let index = _.findIndex(models, (model) => {
+      return this.identity(model) === identity;
+    });
+    if (index !== -1) {
+      models.splice(index, 1);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   dispatch(event, ...args) {
+    this.emit(event, ...args);
     dispatch(`${event}${this.storeName}`, ...args);
   }
 
@@ -74,6 +88,10 @@ export default class EventedStore {
 
   updateBehaviour() {
     throw new Error('updateBehaviour not implemented');
+  }
+
+  deleteBehaviour() {
+    throw new Error('deleteBehaviour not implemented');
   }
 
   fetch(...fetchArgs) {
@@ -111,6 +129,16 @@ export default class EventedStore {
 
   create(data, ...fetchArgs) {
     this.post(data, ...fetchArgs);
+  }
+
+  delete(...uriArgs) {
+    return Api.delete(this.uri(...uriArgs))
+      .then((res) => {
+        this.deleteBehaviour(res, ...uriArgs);
+      })
+      .catch((err) => {
+        throw this.apiError(err);
+      });
   }
 
   apiError(err) {

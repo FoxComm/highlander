@@ -10,6 +10,10 @@ export default class BaseStore extends EventedStore {
     this.models = [];
   }
 
+  get baseUri() {
+    return this.rootUri;
+  }
+
   uri(id) {
     return id ? `${this.baseUri}/${id}` : this.baseUri;
   }
@@ -61,6 +65,12 @@ export default class BaseStore extends EventedStore {
 
   updateBehaviour(res) {
     this.update(res);
+  }
+
+  deleteBehaviour(res, id) {
+    if (this._delete(this.models, id)) {
+      this.notifyChanged();
+    }
   }
 
   patch(id, changes) {

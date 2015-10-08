@@ -1,68 +1,44 @@
-.fc-notes {
-  position: relative;
+.fc-notes-form {
+  overflow: hidden;
+  transition: max-height 500ms;
+  .clearfix;
+  .margin(20px 35px);
+  .max-height(250px);
+  .max-width(850px);
 
-  &-header {
-    .margin-top(40px);
+  .empty {
+    .colors(@color-decor8, @color-btn-bg);
+    .line-height(50px);
+    .padding-left(35px);
+  }
+
+  legend {
+    display: block;
     .margin-bottom(20px);
-    .padding-left(35px);
+    .font-spec(16px, 600);
   }
 
-  &-add {
-    position: absolute;
-    top: 0;
-    right: 0;
-    border-radius: 5px;
-    text-align: center;
-
-    &.is-hidden {
-      + form { .max-height(300px); }
-    }
-  }
-
-  &-form {
-    overflow: hidden;
-    transition: max-height 500ms;
-    .clearfix;
-    .padding-left(35px);
-    .margin-bottom(30px);
-    .max-height(0);
-
-    legend {
-      display: block;
-      .margin-bottom(20px);
-      .font-spec(16px, 600);
-    }
-
-    input[type=reset] {
-      background: none;
-      border: none;
-      float: left;
-      .height(30px);
-      .margin-right(25px);
-      .font-spec(40px, 30px);
-    }
-
-    input[type=submit] { float: left; }
-  }
-
-  &-body {
+  .note-body {
     position: relative;
     .width(100%);
-    .max-width(890px);
     .margin-bottom(25px);
 
     .counter {
       position: absolute;
       .top(-20px);
       .right(0);
-      font-weight: 400;
+      color: @color-decor6;
+      font-weight: 600;
     }
 
     textarea {
-      border-radius: 5px;
-      border: 1px solid @color-border-td;
       .size(100%, 135px);
-      .padding(10px);
+    }
+  }
+
+  &-controls {
+    > input:not(:first-child) {
+      .margin-left(5px);
     }
   }
 }
@@ -70,6 +46,6 @@
 .fc-notes-item-controls {
   button {
     float: right;
-    margin-left: pxtorem(10px);
+    margin-left: pxtorem(5px);
   }
 }

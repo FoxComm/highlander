@@ -18,7 +18,8 @@ export default class Viewers extends React.Component {
 
   componentDidMount() {
     ViewerStore.listenToEvent('change', this);
-    this.onTimeout();
+    // disabled until we have API for this
+    // this.onTimeout();
   }
 
   componentWillUnmount() {
@@ -69,5 +70,8 @@ export default class Viewers extends React.Component {
 
 Viewers.propTypes = {
   model: React.PropTypes.string,
-  modelId: React.PropTypes.string
+  modelId: React.PropTypes.oneOfType([
+    React.PropTypes.string,
+    React.PropTypes.number
+  ])
 };
