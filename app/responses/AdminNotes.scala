@@ -1,23 +1,24 @@
 package responses
 
+import java.time.Instant
 import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Xor
-import models.{GiftCard, Note, Notes, Order, StoreAdmin}
+import models.{GiftCard, Note, Order, StoreAdmin}
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 import utils.ModelWithIdParameter
 import models.Notes
 
 object AdminNotes {
-  final case class Root(id: Int, body: String, author: Author)
+  final case class Root(id: Int, body: String, author: Author, createdAt: Instant)
   final case class Author(firstName: String, lastName: String, email: String)
 
   def buildAuthor(author: StoreAdmin): Author =
     Author(firstName = author.firstName, lastName = author.lastName, email = author.email)
 
   def build(note: Note, author: StoreAdmin): Root =
-    Root(id = note.id, body = note.body, author = buildAuthor(author))
+    Root(id = note.id, body = note.body, author = buildAuthor(author), createdAt = note.createdAt)
 
   def forOrder(order: Order)(implicit ec: ExecutionContext, db: Database): Future[Nothing Xor Seq[Root]] =
     forModel(Notes.filterByOrderId(order.id))
