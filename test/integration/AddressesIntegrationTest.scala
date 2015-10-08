@@ -69,8 +69,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
     "removes an existing default from a shipping address" in new AddressFixture {
       val response = DELETE(s"v1/customers/${customer.id}/addresses/default")
 
-      response.status must === (StatusCodes.NoContent)
-      response.bodyText mustBe 'empty
+      validateDeleteResponse(response)
 
       Addresses.findById(address.id).futureValue.value.isDefaultShipping mustBe false
     }
@@ -78,8 +77,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
     "attempts to removes default shipping address when none is set" in new CustomerFixture {
       val response = DELETE(s"v1/customers/${customer.id}/addresses/default")
 
-      response.status must === (StatusCodes.NoContent)
-      response.bodyText mustBe 'empty
+      validateDeleteResponse(response)
 
       Addresses._findAllByCustomerId(customer.id).length.result.run().futureValue must === (0)
     }
