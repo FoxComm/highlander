@@ -38,33 +38,49 @@
   }
 }
 
-input[type=text],
-input[type=tel],
-input[type=number],
-textarea {
-  background-color: @color-white;
-  border: 1px solid @color-decor7;
-  box-shadow: inset 1px 1px 1px 0 rgba(0,0,0,0.1);
-  .border-radius(3px);
-  .padding(0 10px);
-  .height(40px);
-
-  &:hover {
-    border: 1px solid @color-decor3;
+#input-styles {
+  .base() {
+    background-color: @color-white;
+    border: 1px solid @color-decor7;
+    box-shadow: inset 1px 1px 1px 0 rgba(0,0,0,0.1);
+    transition: border .20s ease-out;
+    .border-radius(3px);
+    .padding(0 10px);
+    .height(40px);
   }
 
-  &:active, &:focus {
-    border: 1px solid @color-control-primary-bg;
-  }
-
-  &:invalid, &.error {
-    border: 1px solid @color-decor22;
+  .textarea() {
+    .padding(10px);
   }
 }
 
-textarea {
-  .padding(10px);
+.input-rules(@base-styles: {#input-styles.base}, @textarea-styles: {#input-styles.textarea}) {
+  input[type=text],
+  input[type=tel],
+  input[type=number],
+  textarea {
+    @base-styles();
+  }
+
+  textarea {
+    @textarea-styles();
+  }
 }
+
+.fc-form-field,
+.fc-input-group {
+  .input-rules();
+}
+
+.input-rules({
+  &.fc-input {
+    #input-styles.base();
+  }
+}, {
+  &.fc-input {
+    #input-styles.textarea();
+  }
+});
 
 .fc-radio {
   input[type=radio]:not(old) {
@@ -149,3 +165,8 @@ textarea {
   }
 }
 
+.fc-form-filed-optional {
+  color: @color-decor31;
+  .font-spec(14px, 20px);
+  padding-left: 0.5em;
+}

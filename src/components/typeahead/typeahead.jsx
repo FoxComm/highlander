@@ -75,7 +75,7 @@ export default class Typeahead extends React.Component {
         {labelContent}
         <div className="fc-input-group">
           <div className="fc-input-prepend"><i className="icon-search"></i></div>
-          <input type="text" name={this.props.name}
+          <input className="fc-input" type="text" name={this.props.name}
                  onChange={this.textChange.bind(this)} onKeyUp={this.inputKeyUp.bind(this)}
           />
         </div>
