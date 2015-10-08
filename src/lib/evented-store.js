@@ -67,9 +67,10 @@ export default class EventedStore extends EventEmitter {
     });
     if (index !== -1) {
       models.splice(index, 1);
+      return true;
+    } else {
+      return false;
     }
-
-    return !~index;
   }
 
   dispatch(event, ...args) {
@@ -86,7 +87,7 @@ export default class EventedStore extends EventEmitter {
   }
 
   updateBehaviour() {
-    throw new Error('updateBehaviour not implemented');
+    throw new Error('updateBehaviour  implemented');
   }
 
   deleteBehaviour() {
