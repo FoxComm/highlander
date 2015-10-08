@@ -39,7 +39,8 @@ object InventoryAdjustments extends TableQueryWithId[InventoryAdjustment, Invent
 
   def _createAdjustmentsForOrder(order: Order): DBIO[Int] = {
     sqlu"""insert into inventory_adjustments (inventory_event_id, sku_id, reserved_for_fulfillment)
-          select ${order.id} as order_id, sku_id, count(*) as n from order_line_items
-          where order_id = ${order.id} group by sku_id"""
+          select ${order.id} as order_id, oli_skus.sku_id as sku_id, count(*) as n from order_line_items as oli
+          left join order_line_item_skus as oli_skus on origin_id = oli_skus.id
+          where oli.order_id = ${order.id} and oli.origin_type = 'skuItem' group by sku_id"""
   }
 }
