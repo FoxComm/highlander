@@ -35,7 +35,7 @@ class GiftCardActions {
 
   giftCardsFailed(errorMessage) {
     AshesDispatcher.handleViewAction({
-      actionType: GiftCardConstants.GIFT_CARDS_FAILED,
+      actionType: GiftCardConstants.GIFT_CARD_FAILED,
       errorMessage: errorMessage
     });
   }

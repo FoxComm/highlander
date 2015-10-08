@@ -33,15 +33,20 @@ export function stopListeningTo(event, ctx) {
 
 export class Dispatcher {
   constructor() {
-    this.isDispatching = false;
     this.callbacks = List([]);
     this.promises = List([]);
-    this.queue = List([]);
+    this.resetQueue();
   }
 
   register(callback) {
     this.callbacks = this.callbacks.push(callback);
     return this.callbacks.size - 1;
+  }
+
+  resetQueue() {
+    this.isDispatching = false;
+    
+    this.queue = List([]);
   }
 
   dispatch(payload) {
