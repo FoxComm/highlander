@@ -8,6 +8,7 @@ import TablePaginator from './paginator';
 export default class TableView extends React.Component {
   static propTypes = {
     children: React.PropTypes.any,
+    empty: React.PropTypes.any,
     store: React.PropTypes.instanceOf(TableStore),
     renderRow: React.PropTypes.func,
     paginator: React.PropTypes.bool
@@ -22,12 +23,12 @@ export default class TableView extends React.Component {
   }
 
   componentDidMount() {
-    this.props.store.addListener('change', this.forceUpdate.bind(this, null));
+    this.props.store.addListener('change', this.forceUpdate.bind(this, false));
   }
 
   onLimitChange(event) {
     event.preventDefault();
-    this.store.setLimit(+event.target.value);
+    this.props.store.setLimit(+event.target.value);
   }
 
   render() {
@@ -43,7 +44,12 @@ export default class TableView extends React.Component {
             {paginator}
           </div>
         )}
-        <Table store={this.props.store} renderRow={this.props.renderRow}/>
+        {this.props.store.models.length && (
+          <Table store={this.props.store} renderRow={this.props.renderRow}/>
+        )}
+        {!this.props.store.models.length && (
+          <div>{this.props.empty}</div>
+        )}
         {showPaginator && (
           <div className="fc-table-footer">
             <select onChange={this.onLimitChange.bind(this)}>

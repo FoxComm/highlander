@@ -26,7 +26,8 @@ export default class Notes extends React.Component {
     super(...args);
     this.state = {
       creatingNote: false,
-      editingNote: null
+      editingNote: null,
+      deletingNote: null
     };
   }
 
@@ -39,17 +40,7 @@ export default class Notes extends React.Component {
     } else {
       NotesStore.uriRoot = `/notes/${model}/${this.props[model].id}`;
     }
-
-    NotesStore.listenToEvent('change', this);
     NotesStore.fetch();
-  }
-
-  onChangeNoteStore(notes) {
-    this.setState({notes: notes});
-  }
-
-  componentWillUnmount() {
-    NotesStore.stopListeningToEvent('change', this);
   }
 
   handleEdit(item) {
@@ -152,7 +143,11 @@ export default class Notes extends React.Component {
 
     let controls = (
       <div>
-        <button className="fc-btn fc-btn-primary" onClick={this.toggleCreating.bind(this)} disabled={!!this.state.creatingNote}>
+        <button
+          className="fc-btn fc-btn-primary"
+          onClick={this.toggleCreating.bind(this)}
+          disabled={!!this.state.creatingNote}
+          >
           <i className="icon-add"></i>
         </button>
       </div>
@@ -167,12 +162,7 @@ export default class Notes extends React.Component {
             onSubmit={this.handleCreateForm.bind(this)}
             />
         )}
-        {NotesStore.rows.length && (
-          <TableView store={NotesStore} renderRow={renderRow.bind(this)}/>
-        )}
-        {!NotesStore.rows.length && (
-          <div className="empty">No notes yet.</div>
-        )}
+        <TableView store={NotesStore} renderRow={renderRow.bind(this)} empty={'No notes yet.'}/>
       </Panel>
     );
   }
