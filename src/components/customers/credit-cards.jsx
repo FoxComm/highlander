@@ -36,7 +36,6 @@ export default class CustomerCreditCards extends React.Component {
   }
 
   render() {
-    console.log(this.state);
     let actionBlock = (
       <button className="fc-btn">
         <i className="icon-add"></i>
