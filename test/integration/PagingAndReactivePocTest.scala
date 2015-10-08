@@ -50,7 +50,7 @@ with MockitoSugar {
 
 
   trait Fixture {
-    val numberOfCustomers = 100
+    val numberOfCustomers = 50
 
     def generateCustomer(i: Int): Customer = {
       Customer(email = s"email$i@yax.com", password = "password",

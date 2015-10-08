@@ -69,8 +69,7 @@ object CustomerRoutes {
               case Some(s) ⇒
                 query.sortBy { table ⇒
                   // TODO: of course here should be a column name validation and a proper column type selection
-                  val a = if(s.asc) table.column[String](s.sortColumn).asc else table.column[String](s.sortColumn).desc
-                  a
+                  if(s.asc) table.column[String](s.sortColumn).asc else table.column[String](s.sortColumn).desc
                 }
               case None    ⇒ query
             }
