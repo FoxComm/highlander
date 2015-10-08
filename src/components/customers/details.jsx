@@ -11,7 +11,6 @@ import CustomerNotificationSettings from './notification-settings';
 import CustomerAccountStatus from './account-status';
 
 export default class CustomerDetails extends React.Component {
-
   static propTypes = {
     customer: PropTypes.object
   }
@@ -33,7 +32,7 @@ export default class CustomerDetails extends React.Component {
         </div>
         <div className="fc-grid">
           <div className="fc-col-1-1">
-            <CustomerAddressBook />
+            <CustomerAddressBook customerId={this.props.customer.id}/>
           </div>
         </div>
         <div className="fc-grid">
