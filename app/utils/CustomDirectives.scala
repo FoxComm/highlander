@@ -12,7 +12,7 @@ import scala.concurrent.{ExecutionContext, Future}
 object CustomDirectives {
 
   case class Sort(sortColumn: String, asc: Boolean = true)
-  case class Start(startElement: Int)
+  case class Start(startFrom: Int)
   case class Page(pageNo: Int, pageSize: Int)
 
   def sort: Directive1[Option[Sort]] =
@@ -24,8 +24,8 @@ object CustomDirectives {
     }
 
   def start: Directive1[Option[Start]] =
-    parameter('startElement.as[Int].?).map { startElement: Option[Int] ⇒
-      startElement.map(Start)
+    parameter('startFrom.as[Int].?).map { startFrom: Option[Int] ⇒
+      startFrom.map(Start)
     }
 
   def page: Directive1[Option[Page]] =

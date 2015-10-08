@@ -97,14 +97,13 @@ object CustomerRoutes {
           }
           val queryWithStartElement = start match {
             case Some(s) ⇒
-              sortedQuery.drop(s.startElement - 1)
+              sortedQuery.drop(s.startFrom - 1)
             case None    ⇒ sortedQuery
           }
           val stream = Source(implicitly[Database].stream(queryWithStartElement.result))
             .transform(() => new ToJsonArray)
           // TODO probably we will have a root JSON object with the paging metadata
-          complete(HttpEntity.Chunked.fromData(ContentTypes.`application/json`, stream))
-
+          complete(HttpResponse(entity = HttpEntity.Chunked.fromData(ContentTypes.`application/json`, stream)))
         }
       } ~
         // TODO *************************** end of the POC ***************************
