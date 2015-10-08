@@ -28,6 +28,21 @@
       .colors(@color-control-primary-disabled-fg, @color-control-primary-disabled-bg);
     }
   }
+
+  &.fc-btn-secondary {
+    .colors(@color-control-secondary-fg, @color-control-secondary-bg);
+    text-decoration: underline;
+    font-weight: normal;
+
+    &:hover {
+      .colors(@color-control-secondary-hover-fg, @color-control-secondary-hover-bg);
+    }
+
+    &:disabled, &:disabled:hover {
+      .colors(@color-control-secondary-disabled-fg, @color-control-secondary-disabled-bg);
+    }
+  }
+
   &.fc-btn-remove {
     &:hover {
       background-color: @color-decor23;
