@@ -133,6 +133,19 @@ class AddressesIntegrationTest extends IntegrationTestBase
       addresses.filter(_.id == newAddress.id) must have length (0)
     }
 
+    "fails deleting wrong id" in new AddressFixture { 
+      val wrongAddressId = 47423987
+
+      val response = DELETE(s"v1/customers/${customer.id}/addresses/${wrongAddressId}")
+      response.status must === (StatusCodes.NotFound)
+    }
+
+    "fails deleting address using wrong customer" in new AddressFixture { 
+      val wrongCustomerId = 44443
+      val response = DELETE(s"v1/customers/${wrongCustomerId}/addresses/${address.id}")
+      response.status must === (StatusCodes.NotFound)
+    }
+
     "display address" - {
       "succeeds when there is a default shipping address" in new AddressFixture {
         val response = GET(s"v1/customers/${customer.id}/addresses/display")

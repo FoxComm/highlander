@@ -69,13 +69,16 @@ object AddressManager {
   
 
   def remove(customerId: Int, addressId: Int)
-    (implicit ec: ExecutionContext, db: Database): Result[Int] = {
+    (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
     val query = 
       Addresses.findById(customerId, addressId)
       .map{ a ⇒ (a.deletedAt, a.isDefaultShipping)}
       .update((Some(Instant.now()), false))  //set delete time and set default to false
 
-    db.run(query).flatMap(Result.good)
+      db.run(query).flatMap{
+        case 1 ⇒ Result.unit
+        case _ ⇒ Result.failure(NotFoundFailure(Address, addressId))
+      }
   }
 
   def setDefaultShippingAddress(customerId: Int, addressId: Int)
