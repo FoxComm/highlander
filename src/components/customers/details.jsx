@@ -51,7 +51,7 @@ export default class CustomerDetails extends React.Component {
             <CustomerNotificationSettings />
           </div>
           <div className="fc-col-1-2">
-            <CustomerAccountStatus />
+            <CustomerAccountStatus customer={this.props.customer}/>
           </div>
         </div>
       </div>
