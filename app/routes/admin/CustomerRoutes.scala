@@ -24,15 +24,15 @@ object CustomerRoutes {
 
       pathPrefix("customers") {
         (get & pathEnd) {
-          good {
-            models.Customers.sortBy(_.firstName.desc).result.run()
+          goodOrFailures {
+            CustomerManager.findAll
           }
         }
       } ~
       pathPrefix("customers" / IntNumber) { customerId ⇒
         (get & pathEnd) {
-          goodOrNotFound {
-            models.Customers.findById(customerId)
+          goodOrFailures {
+            CustomerManager.getById(customerId)
           }
         } ~
         (post & path("disable") & entity(as[payloads.ToggleCustomerDisabled])) { payload ⇒
