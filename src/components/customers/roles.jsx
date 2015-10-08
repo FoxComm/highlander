@@ -9,10 +9,6 @@ export default class CustomerRoles extends React.Component {
     customer: PropTypes.object
   }
 
-  get customer() {
-    return this.props.customer;
-  }
-
   render() {
     let actionBlock = (
       <button className="fc-btn">

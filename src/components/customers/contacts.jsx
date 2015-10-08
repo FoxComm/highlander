@@ -9,11 +9,8 @@ export default class CustomerContacts extends React.Component {
     customer: PropTypes.object
   }
 
-  get customer() {
-    return this.props.customer;
-  }
-
   render() {
+    let customer = this.props.customer;
     let actionBlock = (
       <button className="fc-btn">
         <i className="icon-edit"></i>
@@ -25,19 +22,19 @@ export default class CustomerContacts extends React.Component {
                   actionBlock={ actionBlock }>
         <dl>
           <dt>First Name</dt>
-          <dd>{ this.customer.firstName }</dd>
+          <dd>{ customer.firstName }</dd>
         </dl>
         <dl>
           <dt>Last Name</dt>
-          <dd>{ this.customer.lastName }</dd>
+          <dd>{ customer.lastName }</dd>
         </dl>
         <dl>
           <dt>Email Address</dt>
-          <dd>{ this.customer.email }</dd>
+          <dd>{ customer.email }</dd>
         </dl>
         <dl>
           <dt>Phone Number</dt>
-          <dd>{ this.customer.phoneNumber }</dd>
+          <dd>{ customer.phoneNumber }</dd>
         </dl>
       </ContentBox>
     );

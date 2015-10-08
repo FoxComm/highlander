@@ -6,7 +6,6 @@ import ContentBox from '../content-box/content-box';
 export default class CustomerNotificationSettings extends React.Component {
 
   render() {
-    // return (<div className="fc-customer-notification-settings">Notification settings</div>);
     return (
       <ContentBox title="Email & Notification Preferences" className="fc-customer-notification-settings">
         Notification Settings
