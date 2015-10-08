@@ -9,6 +9,9 @@ const order = require('./order-sample.json');
 const TestUtils = require('react-addons-test-utils');
 const ReactDOM = require('react-dom');
 
+global.XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
+global.localStorage = require('localStorage');
+
 describe('OrderDetails', function() {
   let OrderDetails = require(path.resolve('src/components/orders/details.jsx'));
   let container = null;
@@ -22,7 +25,8 @@ describe('OrderDetails', function() {
     setTimeout(done);
   });
 
-  it('should render', function *() {
+
+  it('should render', function() {
     let orderDetails = ReactDOM.render(
       <OrderDetails order={order}/>
       , container);

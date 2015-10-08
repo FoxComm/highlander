@@ -29,14 +29,14 @@ export default class Orders extends React.Component {
   }
 
   handleAddOrderClick() {
-    console.log("Add order clicked");
+    console.log('Add order clicked');
   }
 
   render() {
     return (
       <div id="orders">
         <div className="fc-list-header">
-          <SectionTitle title="Orders" count={ this.state.orders.length } buttonClickHandler={ this.handleAddOrderClick } />
+          <SectionTitle title="Orders" count={this.state.orders.length} buttonClickHandler={this.handleAddOrderClick }/>
           <div className="fc-grid gutter">
             <div className="fc-col-1-1">
               <ul className="fc-tabbed-nav">
