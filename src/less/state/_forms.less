@@ -1,9 +1,7 @@
 
-input[type=text],
-input[type=tel],
-input[type=number],
-textarea {
+@import (reference) "../modules/_forms";
 
+.input-state-styles() {
   &:hover {
     border: 1px solid @color-decor3;
   }
@@ -17,9 +15,19 @@ textarea {
   &.is-error {
     border: 1px solid @color-decor22;
   }
-
 }
 
+.fc-form-field {
+  .input-rules({
+    .input-state-styles();
+  }, {});
+}
+
+.input-rules({
+  &.fc-input {
+    .input-state-styles();
+  }
+}, {});
 
 .fc-form-field {
   &-error {

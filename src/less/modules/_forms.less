@@ -38,22 +38,49 @@
   }
 }
 
-input[type=text],
-input[type=tel],
-input[type=number],
-textarea {
-  background-color: @color-white;
-  border: 1px solid @color-decor7;
-  box-shadow: inset 1px 1px 1px 0 rgba(0,0,0,0.1);
-  transition: border .20s ease-out;
-  .border-radius(3px);
-  .padding(0 10px);
-  .height(40px);
+#input-styles {
+  .base() {
+    background-color: @color-white;
+    border: 1px solid @color-decor7;
+    box-shadow: inset 1px 1px 1px 0 rgba(0,0,0,0.1);
+    transition: border .20s ease-out;
+    .border-radius(3px);
+    .padding(0 10px);
+    .height(40px);
+  }
+
+  .textarea() {
+    .padding(10px);
+  }
 }
 
-textarea {
-  .padding(10px);
+.input-rules(@base-styles: {#input-styles.base}, @textarea-styles: {#input-styles.textarea}) {
+  input[type=text],
+  input[type=tel],
+  input[type=number],
+  textarea {
+    @base-styles();
+  }
+
+  textarea {
+    @textarea-styles();
+  }
 }
+
+.fc-form-field,
+.fc-input-group {
+  .input-rules();
+}
+
+.input-rules({
+  &.fc-input {
+    #input-styles.base();
+  }
+}, {
+  &.fc-input {
+    #input-styles.textarea();
+  }
+});
 
 .fc-radio {
   input[type=radio]:not(old) {
