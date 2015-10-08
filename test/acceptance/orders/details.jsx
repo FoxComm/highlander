@@ -9,7 +9,7 @@ const order = require('./order-sample.json');
 const TestUtils = require('react-addons-test-utils');
 const ReactDOM = require('react-dom');
 
-global.XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
+global.XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 global.localStorage = require('localStorage');
 
 describe('OrderDetails', function() {
