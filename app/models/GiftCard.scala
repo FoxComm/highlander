@@ -106,10 +106,10 @@ object GiftCard {
     )
   }
 
-  def buildLineItem(customer: Customer, balance: Int, currency: Currency): GiftCard = {
+  def buildLineItem(balance: Int, originId: Int, currency: Currency): GiftCard = {
     GiftCard(
       code = generateCode(defaultCodeLength),
-      originId = customer.id,
+      originId = originId,
       originType = GiftCard.CustomerPurchase,
       status = GiftCard.Cart,
       currency = currency,

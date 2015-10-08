@@ -56,11 +56,12 @@ object FullOrder {
   final case class DisplayPaymentMethod(cardType: String = "visa", cardExp: String, cardNumber: String)
 
   def fromOrder(order: Order)(implicit ec: ExecutionContext, db: Database): DBIO[Root] = {
-    fetchOrderDetails(order).map { case (customer, items, shipMethod, shipAddress, payment, assignees) ⇒
+    fetchOrderDetails(order).map { case (customer, skus, shipMethod, shipAddress, payment, assignees, giftCards) ⇒
       build(
         order = order,
         customer = customer,
-        lineItems = items,
+        skus = skus,
+        giftCards = giftCards,
         shippingAddress = shipAddress,
         shippingMethod = shipMethod,
         assignments = assignees,
@@ -69,11 +70,11 @@ object FullOrder {
     }
   }
 
-  def build(order: Order, lineItems: Seq[(Sku, OrderLineItem)] = Seq.empty, adjustments: Seq[Adjustment] = Seq.empty,
+  def build(order: Order, skus: Seq[(Sku, OrderLineItem)] = Seq.empty, adjustments: Seq[Adjustment] = Seq.empty,
     shippingMethod: Option[ShippingMethod] = None, customer: Option[Customer] = None,
     shippingAddress: Option[OrderShippingAddress] = None, payment: Option[(OrderPayment, CreditCard)] = None,
     assignments: Seq[(OrderAssignment, StoreAdmin)] = Seq.empty,
-    giftCards: Seq[(GiftCard, OrderLineItem)] = Seq.empty): Root = {
+    giftCards: Seq[(GiftCard, OrderLineItemGiftCard)] = Seq.empty): Root = {
 
     val displayPayment = payment.map { case (op, cc) ⇒
       DisplayPayment(
@@ -86,7 +87,7 @@ object FullOrder {
       )
     }
 
-    val skuList = lineItems.map { case (sku, li) ⇒ DisplayLineItem(sku = sku.sku, status = li.status) }
+    val skuList = skus.map { case (sku, li) ⇒ DisplayLineItem(sku = sku.sku, status = li.status) }
     val gcList = giftCards.map { case (gc, li) ⇒ GiftCardResponse.build(gc) }
 
     Root(id = order.id,
@@ -121,20 +122,19 @@ object FullOrder {
     for {
       customer ← Customers._findById(order.customerId).extract.one
       lineItems ← (for {
-        li  ← OrderLineItems._findByOrderId(order.id).skuItems
         liSku ← OrderLineItemSkus._findByOrderId(order.id)
+        li ← OrderLineItems if li.originId === liSku.id
         sku ← Skus if sku.id === liSku.skuId
       } yield (sku, li)).result
       giftCards ← (for {
-        li  ← OrderLineItems._findByOrderId(order.id).giftCards
         liGc ← OrderLineItemGiftCards._findByOrderId(order.id)
         gc ← GiftCards if gc.id === liGc.giftCardId
-      } yield (gc, li)).result
+      } yield (gc, liGc)).result
       shipMethod ← shippingMethodQ.one
       shipAddress ← OrderShippingAddresses.filter(_.orderId === order.id).one
       payments ← paymentQ.one
       assignments ← OrderAssignments.filter(_.orderId === order.id).result
       admins ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.assigneeId))).result
-    } yield (customer, lineItems, shipMethod, shipAddress, payments, assignments.zip(admins))
+    } yield (customer, lineItems, shipMethod, shipAddress, payments, assignments.zip(admins), giftCards)
   }
 }

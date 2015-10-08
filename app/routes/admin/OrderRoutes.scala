@@ -97,6 +97,21 @@ object OrderRoutes {
             }
           }
         } ~
+        (post & path("gift-cards") & entity(as[AddGiftCardLineItem])) { payload =>
+          goodOrFailures {
+            LineItemUpdater.addGiftCard(refNum, payload)
+          }
+        } ~
+        (patch & path("gift-cards" / Segment) & entity(as[AddGiftCardLineItem])) { (code, payload) =>
+          goodOrFailures {
+            LineItemUpdater.editGiftCard(refNum, code, payload)
+          }
+        } ~
+        (delete & path("gift-cards" / Segment)) { code ⇒
+          goodOrFailures {
+            LineItemUpdater.deleteGiftCard(refNum, code)
+          }
+        } ~
         pathPrefix("payment-methods" / "credit-cards") {
           ((post | patch) & entity(as[payloads.CreditCardPayment]) & pathEnd) { payload ⇒
             goodOrFailures { OrderPaymentUpdater.addCreditCard(refNum, payload.creditCardId) }

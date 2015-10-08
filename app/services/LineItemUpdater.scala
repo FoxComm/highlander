@@ -17,17 +17,19 @@ object LineItemUpdater {
   val lineItems = TableQuery[OrderLineItems]
   val orders = TableQuery[Orders]
 
-  def addGiftCard(customer: Customer, payload: AddGiftCardLineItem)
+  def addGiftCard(refNum: String, payload: AddGiftCardLineItem)
     (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
 
     payload.validate match {
       case Valid(_) ⇒
-        Orders._findActiveOrderByCustomer(customer).findOneAndRun { order ⇒
+        Orders.findCartByRefNum(refNum).findOneAndRun { order ⇒
           val queries = for {
-            gc ← GiftCards.save(GiftCard.buildLineItem(customer, payload.balance, payload.currency))
-            origin ← OrderLineItemGiftCards.save(OrderLineItemGiftCard(giftCardId = gc.id, orderId = order.id))
-            rel ← OrderLineItems.save(OrderLineItem.buildGiftCard(order, origin))
-          } yield (gc, origin, rel)
+            gcOrigin ← GiftCardOrders.save(GiftCardOrder(orderId = order.id))
+            gc ← GiftCards.save(GiftCard.buildLineItem(balance = payload.balance, originId = gcOrigin.id,
+              currency = payload.currency))
+            lineItemGc ← OrderLineItemGiftCards.save(OrderLineItemGiftCard(giftCardId = gc.id, orderId = order.id))
+            lineItem ← OrderLineItems.save(OrderLineItem.buildGiftCard(order, lineItemGc))
+          } yield ()
 
           DbResult.fromDbio(queries >> FullOrder.fromOrder(order))
         }
@@ -36,7 +38,7 @@ object LineItemUpdater {
     }
   }
 
-  def editGiftCard(customer: Customer, code: String, payload: AddGiftCardLineItem)
+  def editGiftCard(refNum: String, code: String, payload: AddGiftCardLineItem)
     (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
 
     payload.validate match {
@@ -47,7 +49,7 @@ object LineItemUpdater {
 
           val update = GiftCards.filter(_.id === gc.id).update(updatedGc)
 
-          Orders._findActiveOrderByCustomer(customer).one.flatMap {
+          Orders.findCartByRefNum(refNum).one.flatMap {
             case Some(o) ⇒ DbResult.fromDbio(update >> FullOrder.fromOrder(o))
             case None    ⇒ DbResult.failure(NotFoundFailure("Order not found"))
           }
@@ -57,7 +59,7 @@ object LineItemUpdater {
     }
   }
 
-  def deleteGiftCard(customer: Customer, code: String)
+  def deleteGiftCard(refNum: String, code: String)
     (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
 
     GiftCards.findByCode(code).findOneAndRun { gc ⇒
@@ -67,9 +69,10 @@ object LineItemUpdater {
             lineItemGiftCard ← OrderLineItemGiftCards.filter(_.giftCardId === gc.id).delete
             lineItem ← OrderLineItems.filter(_.originId === origin.id).giftCards.delete
             giftCard ← GiftCards.filter(_.id === gc.id).delete
+            gcOrigin ← GiftCardOrders.filter(_.id === gc.originId).delete
           } yield ()
 
-          Orders._findActiveOrderByCustomer(customer).one.flatMap {
+          Orders.findCartByRefNum(refNum).one.flatMap {
             case Some(o) ⇒ DbResult.fromDbio(deleteAll.transactionally >> FullOrder.fromOrder(o))
             case None    ⇒ DbResult.failure(NotFoundFailure("Order not found"))
           }

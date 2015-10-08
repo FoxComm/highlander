@@ -74,21 +74,6 @@ object Customer {
               }
             }
           } ~
-          (post & path("gift-cards") & entity(as[AddGiftCardLineItem])) { payload =>
-            goodOrFailures {
-              LineItemUpdater.addGiftCard(customer, payload)
-            }
-          } ~
-          (patch & path("gift-cards" / Segment) & entity(as[AddGiftCardLineItem])) { (code, payload) =>
-            goodOrFailures {
-              LineItemUpdater.editGiftCard(customer, code, payload)
-            }
-          } ~
-          (delete & path("gift-cards" / Segment)) { code ⇒
-            goodOrFailures {
-              LineItemUpdater.deleteGiftCard(customer, code)
-            }
-          } ~
           (get & path(PathEnd)) {
             complete {
               whenFound(Orders._findActiveOrderByCustomer(customer).one.run()) { order ⇒
