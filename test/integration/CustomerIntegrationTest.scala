@@ -92,7 +92,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       behave like customersApi(customer, region, billRegion)
     }
 
-    "toggles the disabled flag on a customer account" in new Fixture {
+    "toggles the isDisabled flag on a customer account" in new Fixture {
       customer.disabled must ===(false)
 
       val response = POST(s"v1/customers/${customer.id}/disable", payloads.ToggleCustomerDisabled(true))

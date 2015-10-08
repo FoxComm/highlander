@@ -46,9 +46,9 @@ object Customer {
 
 class Customers(tag: Tag) extends TableWithId[Customer](tag, "customers") {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def disabled = column[Boolean]("disabled")
+  def isDisabled = column[Boolean]("is_disabled")
   def disabledBy = column[Option[Int]]("disabled_by")
-  def blacklisted = column[Boolean]("blacklisted")
+  def isBlacklisted = column[Boolean]("is_blacklisted")
   def blacklistedBy = column[Option[Int]]("blacklisted_by")
   def blacklistedReason = column[Option[String]]("blacklisted_reason")
   def email = column[String]("email")
@@ -62,7 +62,7 @@ class Customers(tag: Tag) extends TableWithId[Customer](tag, "customers") {
   def createdAt = column[Instant]("created_at")
 
   def * = (id, email, password, firstName, lastName,
-    disabled, blacklisted, phoneNumber,
+    isDisabled, isBlacklisted, phoneNumber,
     location, modality, isGuest, createdAt) <>((Customer.apply _).tupled, Customer.unapply)
 }
 

@@ -13,7 +13,7 @@ object CustomerManager {
   def toggleDisabled(customerId: Int, disabled: Boolean, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database): Result[Customer] = {
     db.run(for {
-      updated ← Customers.filter(_.id === customerId).map { t ⇒ (t.disabled, t.disabledBy) }.
+      updated ← Customers.filter(_.id === customerId).map { t ⇒ (t.isDisabled, t.disabledBy) }.
         updateReturning(Customers.map(identity), (disabled, Some(admin.id))).headOption
     } yield updated).flatMap {
       /** We’d need to flatMap now */
