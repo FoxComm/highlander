@@ -12,6 +12,7 @@ import payloads._
 import responses.FullOrder
 import services._
 import slick.driver.PostgresDriver.api._
+import utils.CustomDirectives._
 import utils.Slick.implicits._
 
 object Customer {
@@ -74,18 +75,18 @@ object Customer {
             }
           } ~
           (post & path("gift-cards") & entity(as[AddGiftCardLineItem])) { payload =>
-            complete {
-              LineItemUpdater.addGiftCard(customer, payload).map(renderGoodOrFailures)
+            goodOrFailures {
+              LineItemUpdater.addGiftCard(customer, payload)
             }
           } ~
           (patch & path("gift-cards" / Segment) & entity(as[AddGiftCardLineItem])) { (code, payload) =>
-            complete {
-              LineItemUpdater.editGiftCard(customer, code, payload).map(renderGoodOrFailures)
+            goodOrFailures {
+              LineItemUpdater.editGiftCard(customer, code, payload)
             }
           } ~
           (delete & path("gift-cards" / Segment)) { code ⇒
-            complete {
-              LineItemUpdater.deleteGiftCard(customer, code).map(renderGoodOrFailures)
+            goodOrFailures {
+              LineItemUpdater.deleteGiftCard(customer, code)
             }
           } ~
           (get & path(PathEnd)) {
