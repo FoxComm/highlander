@@ -2,7 +2,7 @@
 
 import React, { PropTypes } from 'react';
 import ContentBox from '../content-box/content-box';
-import Address from '../addresses/address';
+import AddressBox from '../addresses/address-box';
 import AddressStore from '../../stores/addresses';
 
 export default class CustomerAddressBook extends React.Component {
@@ -45,7 +45,9 @@ export default class CustomerAddressBook extends React.Component {
     let createAddressBox = (addr) => {
       let key = `cutomer-address-${ addr.id }`;
       return (
-        <Address key={ key } address={ addr } customerId={ this.props.customerId } />
+        <AddressBox key={ key }
+                    address={ addr }
+                    customerId={ this.props.customerId } />
       );
     };
     return (
