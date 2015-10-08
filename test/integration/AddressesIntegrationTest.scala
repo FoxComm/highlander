@@ -111,11 +111,11 @@ class AddressesIntegrationTest extends IntegrationTestBase
       //now get
       val getResponse = GET(s"v1/customers/${customer.id}/addresses/${newAddress.id}")
       getResponse.status must === (StatusCodes.OK)
-      val gotAddress = response.as[responses.Addresses.Root]
+      val gotAddress = getResponse.as[responses.Addresses.Root]
 
       gotAddress.deletedAt match { 
         case None ⇒  fail("FullOrder should have a shipping address")
-        case _ ⇒  None
+        case Some(time) ⇒  info(s"Deleted on ${time}")
       }
 
     }
