@@ -43,7 +43,7 @@ object CustomerManager {
     }
   }
 
-  /* Returns Query with included shipRegion and billRegion for customer */
+  /* Returns Query with included shippingRegion and billingRegion for customer */
   protected def fetchRegions(query: QuerySeq) = {
     val customerWithShipRegion = for {
       ((c, a), r) ← query.joinLeft(models.Addresses).on {

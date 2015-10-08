@@ -18,7 +18,7 @@ import utils.GenericTable.TableWithId
 import utils.{ModelWithIdParameter, TableQueryWithId, Validation}
 import utils.Slick.implicits._
 
-final case class Customer(id: Int = 0,  email: String, password: String, firstName: String, lastName: String,
+final case class Customer(id: Int = 0, email: String, password: String, firstName: String, lastName: String,
   disabled: Boolean = false, blacklisted: Boolean = false,
   phoneNumber: Option[String] = None, location: Option[String] = None,
   modality: Option[String] = None, isGuest: Boolean = false, createdAt: Instant = Instant.now)
@@ -31,10 +31,10 @@ final case class Customer(id: Int = 0,  email: String, password: String, firstNa
     if (isGuest) {
       notEmpty(email, "email").map { case _ ⇒ this }
     } else {
-      ( notEmpty(firstName, "firstName")
+      (notEmpty(firstName, "firstName")
         |@| notEmpty(lastName, "lastName")
         |@| notEmpty(email, "email")
-      ).map { case _ ⇒ this }
+        ).map { case _ ⇒ this }
     }
   }
 }
@@ -44,7 +44,7 @@ object Customer {
     Customer(isGuest = true, email = email, firstName = "guest", lastName = "guest", password = "guest")
 }
 
-class Customers(tag: Tag) extends TableWithId[Customer](tag, "customers")  {
+class Customers(tag: Tag) extends TableWithId[Customer](tag, "customers") {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def disabled = column[Boolean]("disabled")
   def disabledBy = column[Option[Int]]("disabled_by")
@@ -63,12 +63,12 @@ class Customers(tag: Tag) extends TableWithId[Customer](tag, "customers")  {
 
   def * = (id, email, password, firstName, lastName,
     disabled, blacklisted, phoneNumber,
-    location, modality, isGuest, createdAt) <> ((Customer.apply _).tupled, Customer.unapply)
+    location, modality, isGuest, createdAt) <>((Customer.apply _).tupled, Customer.unapply)
 }
 
 object Customers extends TableQueryWithId[Customer, Customers](
   idLens = GenLens[Customer](_.id)
-  )(new Customers(_)){
+)(new Customers(_)) {
 
   def findByEmail(email: String)(implicit ec: ExecutionContext, db: Database): Future[Option[Customer]] = {
     db.run(filter(_.email === email).one)
@@ -78,11 +78,13 @@ object Customers extends TableQueryWithId[Customer, Customers](
     db.run(_findById(id).extract.one)
   }
 
-  def _findById(id: Rep[Int]) = { filter(_.id === id) }
+  def _findById(id: Rep[Int]) = {
+    filter(_.id === id)
+  }
 
   def createFromPayload(payload: payloads.CreateCustomer)
-                       (implicit ec: ExecutionContext, db: Database): Result[Customer] = {
-    val newCustomer = Customer(id = 0, email = payload.email,password = payload.password,
+    (implicit ec: ExecutionContext, db: Database): Result[Customer] = {
+    val newCustomer = Customer(id = 0, email = payload.email, password = payload.password,
       firstName = payload.firstName, lastName = payload.firstName)
 
     save(newCustomer).run().flatMap(Result.right)

@@ -18,10 +18,10 @@ object CustomerResponse {
     disabled: Boolean,
     blacklisted: Boolean,
     rank: String,
-    billRegion: Option[String],
-    shipRegion: Option[String])
+    billingRegion: Option[String] = None,
+    shippingRegion: Option[String] = None)
 
-  def build(customer: Customer, shipRegion: Option[Region] = None, billRegion: Option[Region] = None): Root =
+  def build(customer: Customer, shippingRegion: Option[Region] = None, billingRegion: Option[Region] = None): Root =
     Root(id = customer.id, email = customer.email, firstName = customer.firstName, lastName = customer.lastName,
     name = customer.firstName + " " + customer.lastName,
     phoneNumber = customer.phoneNumber, location = customer.location, modality = customer.modality,
@@ -29,6 +29,6 @@ object CustomerResponse {
     disabled = customer.disabled,
     blacklisted = customer.blacklisted,
     rank = "top 10",
-    billRegion = billRegion.map(_.name),
-    shipRegion = shipRegion.map(_.name))
+    billingRegion = billingRegion.map(_.name),
+    shippingRegion = shippingRegion.map(_.name))
 }

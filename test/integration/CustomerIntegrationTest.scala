@@ -46,7 +46,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
   def customersApi(customer: Customer, shipRegion: Option[Region] = None, billRegion: Option[Region] = None) = {
     info("show a customer")
     val response = GET(s"v1/customers/${customer.id}")
-    val customerRoot = CustomerResponse.build(customer, shipRegion = shipRegion, billRegion = billRegion)
+    val customerRoot = CustomerResponse.build(customer, shippingRegion = shipRegion, billingRegion = billRegion)
 
     response.status must ===(StatusCodes.OK)
     response.as[CustomerResponse.Root] must === (customerRoot)
