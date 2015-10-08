@@ -61,8 +61,8 @@ export default class NoteForm extends React.Component {
               </textarea>
             </div>
             <div className="fc-notes-form-controls">
-              <input type="reset" onClick={this.props.onReset}/>
-              <input type="submit" value="Save"/>
+              <input className="fc-btn" type="reset" value="Cancel" onClick={this.props.onReset}/>
+              <input className="fc-btn fc-btn-primary" type="submit" value="Save"/>
             </div>
           </fieldset>
         </form>
