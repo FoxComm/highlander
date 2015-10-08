@@ -11,12 +11,12 @@ import scala.concurrent.{ExecutionContext, Future}
 
 object CustomDirectives {
 
-  case class Sort(sortField: String, asc: Boolean = true)
+  case class Sort(sortColumn: String, asc: Boolean = true)
   case class Start(startElement: Int)
   case class Page(pageNo: Int, pageSize: Int)
 
   def sort: Directive1[Option[Sort]] =
-    parameter('sortField.as[String].?).map { field: Option[String] ⇒
+    parameter('sortColumn.as[String].?).map { field: Option[String] ⇒
       field map { f ⇒
         if (f.startsWith("-")) Sort(f.drop(1), asc = false)
         else Sort(f)
