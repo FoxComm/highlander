@@ -60,9 +60,9 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     }
   }
 
-  "POST /v1/gift-cards/_bulk" - {
+  "POST /v1/gift-cards/ (bulk)" - {
     "successfully creates multiple gift cards from payload" in new Fixture {
-      val response = POST(s"v1/gift-cards/_bulk", payloads.GiftCardBulkCreateByCsr(quantity = 5, balance = 256,
+      val response = POST(s"v1/gift-cards", payloads.GiftCardBulkCreateByCsr(quantity = 5, balance = 256,
         reasonId = 1))
       val root = response.as[Seq[GiftCardBulkResponse.ItemResult]]
 
@@ -71,7 +71,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     }
 
     "fails to create multiple gift cards with zero balance" in new Fixture {
-      val response = POST(s"v1/gift-cards/_bulk", payloads.GiftCardBulkCreateByCsr(quantity = 5, balance = 0,
+      val response = POST(s"v1/gift-cards", payloads.GiftCardBulkCreateByCsr(quantity = 5, balance = 0,
         reasonId = 1))
 
       response.status must ===(StatusCodes.BadRequest)
@@ -79,7 +79,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     }
 
     "fails to create multiple gift cards with negative balance" in new Fixture {
-      val response = POST(s"v1/gift-cards/_bulk", payloads.GiftCardBulkCreateByCsr(quantity = 5, balance = -555,
+      val response = POST(s"v1/gift-cards", payloads.GiftCardBulkCreateByCsr(quantity = 5, balance = -555,
         reasonId = 1))
 
       response.status must ===(StatusCodes.BadRequest)
@@ -87,14 +87,14 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     }
 
     "fails to create multiple gift cards with negative quantity" in new Fixture {
-      val response = POST(s"v1/gift-cards/_bulk", payloads.GiftCardBulkCreateByCsr(quantity = -5, balance = 256,
+      val response = POST(s"v1/gift-cards", payloads.GiftCardBulkCreateByCsr(quantity = -5, balance = 256,
         reasonId = 1))
       response.status must ===(StatusCodes.BadRequest)
       response.errors must ===(GeneralFailure("Quantity must be greater than zero").description)
     }
 
     "fails to create multiple gift cards with count more than limit" in new Fixture {
-      val response = POST(s"v1/gift-cards/_bulk", payloads.GiftCardBulkCreateByCsr(quantity = 25, balance = 256,
+      val response = POST(s"v1/gift-cards", payloads.GiftCardBulkCreateByCsr(quantity = 25, balance = 256,
         reasonId = 1))
       response.status must ===(StatusCodes.BadRequest)
       response.errors must ===(GeneralFailure("Bulk creation limit exceeded").description)
