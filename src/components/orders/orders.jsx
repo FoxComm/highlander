@@ -5,6 +5,7 @@ import TableView from '../tables/tableview';
 import OrderStore from './../../stores/orders';
 import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
+import SectionTitle from '../section-title/section-title';
 
 export default class Orders extends React.Component {
   constructor(props, context) {
@@ -27,18 +28,15 @@ export default class Orders extends React.Component {
     this.setState({orders});
   }
 
+  handleAddOrderClick() {
+    console.log("Add order clicked");
+  }
+
   render() {
     return (
       <div id="orders">
         <div className="fc-list-header">
-          <div className="fc-grid gutter">
-            <div className="fc-col-2-6">
-              <h1 className="fc-list-header-title">Orders <span className="fc-list-header-subtitle">{this.state.orders.length}</span></h1>
-            </div>
-            <div className="fc-col-2-6 fc-push-2-6 fc-list-header-actions">
-              <button className="fc-btn fc-btn-primary"><i className="icon-add"></i> Order</button>
-            </div>
-          </div>
+          <SectionTitle title="Orders" count={ this.state.orders.length } buttonClickHandler={ this.handleAddOrderClick } />
           <div className="fc-grid gutter">
             <div className="fc-col-1-1">
               <ul className="fc-tabbed-nav">

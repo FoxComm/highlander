@@ -46,6 +46,10 @@ export default class Customer extends React.Component {
   }
 
   renderChildren() {
+    if (this.state.customer.id === undefined) {
+      return null;
+    }
+
     return React.Children.map(this.props.children, function (child) {
       return React.cloneElement(child, {
         customer: this.state.customer
