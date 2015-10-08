@@ -52,7 +52,7 @@ object StoreCreditService {
     payload.validate match {
       case Valid(_) ⇒
         val responses = payload.ids.map { id ⇒
-          val itemPayload = payloads.StoreCreditUpdateStatusByCsr(payload.status, payload.reason)
+          val itemPayload = payloads.StoreCreditUpdateStatusByCsr(payload.status, payload.reasonId)
           updateStatusByCsr(id, itemPayload, admin).map(buildItemResult(id, _))
         }
 
@@ -69,7 +69,7 @@ object StoreCreditService {
   def updateStatusByCsr(id: Int, payload: payloads.StoreCreditUpdateStatusByCsr, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
 
-    def cancelOrUpdate(finder: QuerySeq, sc: StoreCredit) = (payload.status, payload.reason) match {
+    def cancelOrUpdate(finder: QuerySeq, sc: StoreCredit) = (payload.status, payload.reasonId) match {
       case (Canceled, Some(reason)) ⇒
         cancelByCsr(finder, sc, payload, admin)
       case (Canceled, None) ⇒
@@ -104,11 +104,11 @@ object StoreCreditService {
       case Some(adjustment) ⇒
         DbResult.failure(OpenTransactionsFailure)
       case None ⇒
-        Reasons.findById(payload.reason.get).flatMap {
+        Reasons.findById(payload.reasonId.get).flatMap {
           case None ⇒
             DbResult.failure(InvalidCancellationReasonFailure)
           case _ ⇒
-            val data = (payload.status, Some(sc.availableBalance), payload.reason)
+            val data = (payload.status, Some(sc.availableBalance), payload.reasonId)
             val cancellation = finder
               .map { gc ⇒ (gc.status, gc.canceledAmount, gc.canceledReason) }
               .updateReturning(StoreCredits.map(identity), data)

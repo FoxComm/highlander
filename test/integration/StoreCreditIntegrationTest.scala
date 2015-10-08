@@ -97,7 +97,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
       "returns error on cancellation if store credit has auths" in new Fixture {
         val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStatusByCsr(status = Canceled,
-          reason = Some(1)))
+          reasonId = Some(1)))
         response.status must ===(StatusCodes.BadRequest)
         response.errors must ===(OpenTransactionsFailure.description)
       }
@@ -107,7 +107,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         StoreCreditAdjustments.cancel(adjustment.id).run().futureValue
 
         val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStatusByCsr(status = Canceled,
-          reason = Some(1)))
+          reasonId = Some(1)))
         response.status must ===(StatusCodes.OK)
 
         val root = response.as[StoreCreditResponse.Root]
@@ -127,7 +127,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         StoreCreditAdjustments.cancel(adjustment.id).run().futureValue
 
         val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStatusByCsr(status = Canceled,
-          reason = Some(999)))
+          reasonId = Some(999)))
         response.status must ===(StatusCodes.BadRequest)
         response.errors must ===(InvalidCancellationReasonFailure.description)
       }
