@@ -2,6 +2,7 @@
 
 import React, { PropTypes } from 'react';
 import ContentBox from '../content-box/content-box';
+import Address from '../addresses/address';
 import AddressStore from '../../stores/addresses';
 
 export default class CustomerAddressBook extends React.Component {
@@ -33,6 +34,8 @@ export default class CustomerAddressBook extends React.Component {
   }
 
   render() {
+    console.log(this.state.addresses);
+
     let actionBlock = (
       <button className="fc-btn">
         <i className="icon-add"></i>
@@ -40,16 +43,17 @@ export default class CustomerAddressBook extends React.Component {
     );
 
     let createAddressBox = (addr) => {
-        return (
-          <li key={addr.id}>{addr.name}</li>
-        );
+      let key = `cutomer-address-${ addr.id }`;
+      return (
+        <Address key={ key } address={ addr } customerId={ this.props.customerId } />
+      );
     };
     return (
       <ContentBox title="Address Book"
                   className="fc-customer-address-book"
                   actionBlock={ actionBlock }>
 
-        <ul className="fc-float-list">
+        <ul className="fc-float-list clearfix">
           {this.state.addresses.map(createAddressBox)}
         </ul>
       </ContentBox>

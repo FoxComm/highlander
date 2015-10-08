@@ -8,7 +8,14 @@ import { dispatch } from '../../lib/dispatcher';
 import AddressForm from './address-form.jsx';
 import AddressDetails from './address-details.jsx';
 
-class Address extends React.Component {
+export default class Address extends React.Component {
+
+  static propTypes = {
+    address: React.PropTypes.object,
+    order: React.PropTypes.object,
+    customerId: React.PropTypes.number.isRequired,
+    onSelectAddress: React.PropTypes.func
+  };
 
   constructor(props, context) {
     super(props, context);
@@ -57,12 +64,3 @@ class Address extends React.Component {
     );
   }
 }
-
-Address.propTypes = {
-  address: React.PropTypes.object,
-  order: React.PropTypes.object,
-  customerId: React.PropTypes.number.isRequired,
-  onSelectAddress: React.PropTypes.func
-};
-
-export default Address;
