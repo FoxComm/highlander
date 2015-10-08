@@ -101,6 +101,16 @@ class GiftCardAsLineItemIntegrationTest extends IntegrationTestBase
     }
   }
 
+  "POST /v1/orders/:refNum/payments-methods/gift-cards" - {
+    "fails to add GC with cart status as payment method" in new LineItemFixture {
+      val payload = payloads.GiftCardPayment(code = giftCard.code, amount = 15)
+      val response = POST(s"v1/orders/${order.refNum}/payment-methods/gift-cards", payload)
+
+      response.status must ===(StatusCodes.NotFound)
+      response.errors must ===(GiftCardNotFoundFailure(giftCard.code).description)
+    }
+  }
+
   trait LineItemFixture {
     val (customer, order, giftCard) = (for {
       customer ← Customers.save(Factories.customer)
