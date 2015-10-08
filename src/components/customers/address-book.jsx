@@ -34,8 +34,6 @@ export default class CustomerAddressBook extends React.Component {
   }
 
   render() {
-    console.log(this.state.addresses);
-
     let actionBlock = (
       <button className="fc-btn">
         <i className="icon-add"></i>
@@ -55,7 +53,7 @@ export default class CustomerAddressBook extends React.Component {
                   className="fc-customer-address-book"
                   actionBlock={ actionBlock }>
 
-        <ul className="fc-float-list clearfix">
+        <ul className="fc-float-list">
           {this.state.addresses.map(createAddressBox)}
         </ul>
       </ContentBox>

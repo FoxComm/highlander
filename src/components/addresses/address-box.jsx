@@ -2,6 +2,7 @@
 
 import React from 'react';
 import AddressDetails from './address-details.jsx';
+import ItemCardContainer from '../item-card-container/item-card-container';
 
 export default class AddressBox extends React.Component {
 
@@ -24,8 +25,15 @@ export default class AddressBox extends React.Component {
         </label>
     );
 
+    let buttons = (
+      <div>
+        <button className="fc-btn icon-trash"></button>
+        <button className="fc-btn icon-edit"></button>
+      </div>
+    );
+
     return (
-      <li className="fc-address">
+      <li className="fc-customer-address">
         <div className="fc-address-controls fc-grid">
           <div className="fc-col-2-3">
             { isDefault }
@@ -39,6 +47,11 @@ export default class AddressBox extends React.Component {
             <AddressDetails address={address} />
         </div>
       </li>
+      <ItemCardContainer className="fc-customer-address"
+                         leftControls={ isDefault }
+                         rightControls={ buttons }>
+        <AddressDetails address={address} />
+      </ItemCardContainer>
     );
   }
 }
