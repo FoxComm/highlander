@@ -1,13 +1,33 @@
 package utils
 
-import akka.http.scaladsl.server.StandardRoute
+import akka.http.scaladsl.server.{Directive1, StandardRoute}
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
+import akka.http.scaladsl.server.Directives._
+
 import services.Result
 import utils.Http._
 
 import scala.concurrent.{ExecutionContext, Future}
 
 object CustomDirectives {
+
+  case class Sort(sortField: String, asc: Boolean = true)
+  case class Page(startElement: Int)
+
+  def sort: Directive1[Option[Sort]] =
+    parameters('sortField.as[String].?).map { field: Option[String] ⇒
+      field map { f ⇒
+        if (f.startsWith("-")) Sort(f.drop(1), asc = false)
+        else Sort(f)
+      }
+    }
+
+  def start: Directive1[Option[Page]] =
+    parameters('startElement.as[Int].?).map { startElement: Option[Int] ⇒
+      startElement.map(Page)
+    }
+
+  def sortAnsStart = sort & start
 
   def good[A <: AnyRef](a: Future[A])(implicit ec: ExecutionContext): StandardRoute =
     complete(a.map(render(_)))
