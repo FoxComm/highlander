@@ -54,7 +54,7 @@ object CreditCardManager {
     }
 
     val transformer = for {
-      _       ← ResultT.fromXor(payload.validate.toXor.leftMap(_.failure))
+      _       ← ResultT.fromXor(payload.validate.toXor)
       res     ← getExistingStripeIdAndAddress
       res2    ← res match { case (sId, address) ⇒
         ResultT(gateway.createCard(customer.email, payload, sId, address))
@@ -131,7 +131,7 @@ object CreditCardManager {
       val action = edits.flatMap { updated ⇒
         val paymentIds = for {
           orders ← Orders.findByCustomerId(customerId).cartOnly
-          pmts ← OrderPayments.filter(_.paymentMethodId === updated.parentId).giftCards if pmts.orderId == orders.id
+          pmts ← OrderPayments.filter(_.paymentMethodId === updated.parentId).creditCards if pmts.orderId === orders.id
         } yield pmts.id
 
         OrderPayments.filter(_.id in paymentIds).map(_.paymentMethodId).update(updated.id).map(_ ⇒ updated)
@@ -153,7 +153,7 @@ object CreditCardManager {
     }
 
     val transformer: ResultT[DBIO[CreditCard]] = for {
-      _       ← ResultT.fromXor(payload.validate.toXor.leftMap(_.failure))
+      _       ← ResultT.fromXor(payload.validate.toXor)
       cc      ← getCardAndAddressChange
       updated ← update(cc)
       withAddress ← createNewAddressIfProvided(updated)

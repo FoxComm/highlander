@@ -22,26 +22,30 @@ lazy val commonSettings = Seq(
 /** Work around slick-pg issue with json4s until fix gets merged. */
 lazy val jmatayaSlickPG = RootProject(uri("git://github.com/jmataya/slick-pg.git#temp/json4s-3.3.0"))
 
+lazy val testWartWarnings = Seq(Wart.OptionPartial)
+
 lazy val phoenixScala = (project in file(".")).
   settings(commonSettings).
   configs(IT).
   dependsOn(jmatayaSlickPG).
   settings(inConfig(IT)(Defaults.testSettings)).
   settings(
-    wartremoverExcluded ++= ((baseDirectory.value / "test/unit") ** "*.scala").get,
-    wartremoverExcluded ++= ((baseDirectory.value / "test/integration") ** "*.scala").get,
-    wartremoverWarnings ++=
-      Warts.all.filter {
-        case Wart.Any      ⇒ false /** Covered by the compiler */
+    wartremoverWarnings in(Test, compile) ++= testWartWarnings,
+    wartremoverWarnings in(IT, compile) ++= testWartWarnings,
+    wartremoverWarnings in(Sources, compile) ++=
+      Warts.allBut(
+        /** Covered by the compiler */
+        Wart.Any,
+
         /** In the absence of type annotations, Good(v: A) is inferred as Or[A, Nothing] */
-        case Wart.Nothing  ⇒ false
+        Wart.Nothing,
 
         /** Many library methods can throw, for example Future.map, but not much
           * 3-rd party code uses @throws */
-        case Wart.Throw ⇒ false
+        Wart.Throw,
 
         /** Good is a case class and therefore has Product and Serializable */
-        case Wart.Product | Wart.Serializable ⇒ false
+        Wart.Product, Wart.Serializable,
 
         /**
          * Can’t figure out how to resolve this issue.
@@ -52,18 +56,21 @@ lazy val phoenixScala = (project in file(".")).
          *                                    ^
          * }}}
          */
-        case Wart.NonUnitStatements ⇒ false
+        Wart.NonUnitStatements,
 
         /** This goes overboard. Wart remover’s justification is that those are hard to be used as functions. */
-        case Wart.DefaultArguments ⇒ false
+        Wart.DefaultArguments,
 
         /** [[scala.collection.JavaConverters]] does not have methods for handling Maps */
-        case Wart.JavaConversions ⇒ false
+        Wart.JavaConversions,
 
         /** While Applicatives might be simpler, there is no for comprehension sugar for them. **/
-        case Wart.NoNeedForMonad ⇒ false
-        case _ ⇒ true
-      }
+        Wart.NoNeedForMonad,
+
+        /** New warts from version 0.14 **/
+        Wart.ToString,
+        Wart.ExplicitImplicitTypes
+      )
   ).
   settings(
     name      := "phoenix-scala",

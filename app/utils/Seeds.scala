@@ -17,6 +17,16 @@ import slick.driver.PostgresDriver.api._
 import utils.Money.Currency
 
 object Seeds {
+
+  def main(args: Array[String]): Unit = {
+    Console.err.println(s"Cleaning DB and running migrations")
+    val config: com.typesafe.config.Config = utils.Config.loadWithEnv()
+    flyWayMigrate(config)
+    Console.err.println(s"Inserting seeds")
+    implicit val db: PostgresDriver.backend.DatabaseDef = Database.forConfig("db", config)
+    Await.result(db.run(run()), 5.second)
+  }
+
   val today = Instant.now().atZone(ZoneId.of("UTC"))
 
   final case class TheWorld(customers: Seq[Customer], order: Order, orderNotes: Seq[Note], address: Address,
@@ -207,15 +217,6 @@ object Seeds {
     def shipment = Shipment(1, 1, Some(1), Some(1))
 
     def condition = Condition(rootObject = "Order", field = "subtotal", operator = Condition.Equals, valInt = Some(50))
-  }
-
-  def main(args: Array[String]): Unit = {
-    Console.err.println(s"Cleaning DB and running migrations")
-    val config: com.typesafe.config.Config = utils.Config.loadWithEnv()
-    flyWayMigrate(config)
-    Console.err.println(s"Inserting seeds")
-    implicit val db: PostgresDriver.backend.DatabaseDef = Database.forConfig("db", config)
-    Await.result(db.run(run()), 5.second)
   }
 
   private def flyWayMigrate(config: com.typesafe.config.Config): Unit = {

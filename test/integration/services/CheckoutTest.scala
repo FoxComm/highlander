@@ -42,8 +42,11 @@ class CheckoutTest extends IntegrationTestBase with Inside {
         result mustBe 'left
 
         inside(result) {
-          case Xor.Left(NotFoundFailure(message) :: Nil) ⇒
-            message must include ("No Line Items")
+          case Xor.Left(nel) ⇒
+            inside(nel.head) {
+              case NotFoundFailure(message) =>
+                message must include ("No Line Items")
+            }
         }
       }
 
@@ -67,8 +70,14 @@ class CheckoutTest extends IntegrationTestBase with Inside {
         val checkout = new Checkout(order)
         val result   = checkout.checkout.futureValue
 
-        val (StripeFailure(errorMessage) :: Nil) = result.swap.get
-        errorMessage.getMessage must include ("cannot set 'customer' to an empty string.")
+        inside(result) {
+          case Xor.Left(nel) ⇒
+            inside(nel.head) {
+              case StripeFailure(errorMessage) =>
+                errorMessage.getMessage must include ("cannot set 'customer' to an empty string.")
+            }
+        }
+
       }
     }
 

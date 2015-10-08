@@ -3,6 +3,8 @@ package utils
 import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Xor
+import models.Orders
+import responses.FullOrder
 import services.{Failure, Failures, Result}
 import slick.ast._
 import slick.driver.PostgresDriver._
@@ -24,6 +26,10 @@ object Slick {
 
   def liftFuture[A](future: Future[A]): DBIO[A] = DBIO.from(future)
 
+  def fullOrder(finder: Orders.QuerySeq)(implicit ec: ExecutionContext, db: Database): DBIO[FullOrder.Root] = {
+    finder.result.head.flatMap(FullOrder.fromOrder)
+  }
+
   object DbResult {
 
     val unit: DbResult[Unit] = DBIO.successful(Xor.right(Unit))
@@ -35,6 +41,8 @@ object Slick {
     def fromFuture[A](future: Future[A])(implicit ec: ExecutionContext): DbResult[A] = fromDbio(liftFuture(future))
 
     def failure[A](failure: Failure): DbResult[A] = liftFuture(Result.failures(failure))
+
+    def failures[A](failures: Failures): DbResult[A] = liftFuture(Result.failures(failures))
   }
 
   /*

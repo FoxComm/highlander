@@ -2,14 +2,14 @@ package utils
 
 import scala.concurrent.{ExecutionContext, Future}
 import akka.http.scaladsl.model.StatusCodes._
-import akka.http.scaladsl.model.{HttpResponse, StatusCode}
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, ResponseEntity, HttpResponse, StatusCode}
 
 import cats.data.Xor
 import models.{Customer, Order, Orders}
 import org.json4s.{Formats, jackson}
 import org.json4s.jackson.Serialization
 import org.json4s.jackson.Serialization.{write ⇒ json}
-import services.{Failure, Failures, NotFoundFailure, OrderLockedFailure}
+import services.{Failures, NotFoundFailure, OrderLockedFailure}
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 
@@ -22,23 +22,6 @@ object Http {
   val notFoundResponse:   HttpResponse  = HttpResponse(NotFound)
   val noContentResponse:  HttpResponse  = HttpResponse(NoContent)
 
-  @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.AsInstanceOf"))
-  private[Http] def renderGoodOrBad[G <: AnyRef, B <: AnyRef](goodOrBad: B Xor G)
-    (implicit ec: ExecutionContext): HttpResponse = {
-    goodOrBad match {
-      case Xor.Left(errors)    ⇒
-        errors match {
-          case _: Iterable[_] ⇒
-            renderFailure(errors.asInstanceOf[Iterable[Failure]])
-          case _: Failure ⇒
-            renderFailure(Seq(errors.asInstanceOf[Failure]))
-          case _ ⇒
-            render("errors" → errors, BadRequest)
-        }
-      case Xor.Right(resource) ⇒ render(resource)
-    }
-  }
-
   def renderGoodOrFailures[G <: AnyRef](or: Failures Xor G)
                                        (implicit ec: ExecutionContext): HttpResponse =
     or.fold(renderFailure(_), render(_))
@@ -46,11 +29,11 @@ object Http {
   def renderNothingOrFailures(or: Failures Xor _)(implicit ec: ExecutionContext): HttpResponse =
     or.fold(renderFailure(_), _ ⇒ noContentResponse)
 
-  def whenFound[A, G <: AnyRef, B <: AnyRef](finder: Future[Option[A]])
-    (handle: A ⇒ Future[B Xor G])
+  def whenFound[A, G <: AnyRef](finder: Future[Option[A]])
+    (handle: A ⇒ Future[Failures Xor G])
     (implicit ec: ExecutionContext, db: Database): Future[HttpResponse] =
     finder.flatMap { option ⇒
-      option.map(handle(_).map(renderGoodOrBad)).
+      option.map(handle(_).map(renderGoodOrFailures)).
         getOrElse(Future.successful(notFoundResponse))
     }
 
@@ -71,7 +54,7 @@ object Http {
       case Some(order) if !order.locked ⇒
         f(order).map(renderGoodOrFailures)
       case Some(order) if order.locked ⇒
-        Future.successful(renderFailure(Seq(OrderLockedFailure(order.referenceNumber))))
+        Future.successful(renderFailure(services.Failures(OrderLockedFailure(order.referenceNumber))))
       case None ⇒
         Future.successful(notFoundResponse)
     }
@@ -105,15 +88,20 @@ object Http {
     resource.fold(notFoundResponse)(render(_))
 
   def renderNotFoundFailure(f: NotFoundFailure): HttpResponse =
-    notFoundResponse.copy(entity = json("errors" → Seq(f.message)))
+    notFoundResponse.copy(entity = jsonEntity("errors" → Seq(f.message)))
 
   def render[A <: AnyRef](resource: A, statusCode: StatusCode = OK) =
-    HttpResponse(statusCode, entity = json(resource))
+    HttpResponse(statusCode, entity = jsonEntity(resource))
 
-  def renderFailure(failures: Traversable[Failure], statusCode: ClientError = BadRequest): HttpResponse = {
-    val notFound = failures.collectFirst { case f: NotFoundFailure ⇒ f }
-    notFound.fold(HttpResponse(statusCode, entity = json("errors" → failures.flatMap(_.description)))) { nf ⇒
+  def renderFailure(failures: Failures, statusCode: ClientError = BadRequest): HttpResponse = {
+    import services._
+    val failuresList = failures.toList
+    val notFound = failuresList.collectFirst { case f: NotFoundFailure ⇒ f }
+    notFound.fold(HttpResponse(statusCode, entity = jsonEntity("errors" → failuresList.flatMap(_.description)))) { nf ⇒
       renderNotFoundFailure(nf)
     }
   }
+
+  def jsonEntity[A <: AnyRef](resource: A): ResponseEntity = HttpEntity(ContentTypes.`application/json`,
+    json(resource))
 }

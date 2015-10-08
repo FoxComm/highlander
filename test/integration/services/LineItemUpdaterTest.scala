@@ -58,7 +58,7 @@ class LineItemUpdaterTest extends IntegrationTestBase {
           val allRelations = db.run(lineItemSkus.result).futureValue
           allRelations.size must === (2)
 
-        case Xor.Left(s) => fail(s.mkString(";"))
+        case Xor.Left(s) => fail(s.toList.mkString(";"))
       }
     }
 
@@ -91,7 +91,7 @@ class LineItemUpdaterTest extends IntegrationTestBase {
           val allRelations = db.run(lineItemSkus.result).futureValue
           allRelations.size must === (2)
 
-        case Xor.Left(s) => fail(s.mkString(";"))
+        case Xor.Left(s) => fail(s.toList.mkString(";"))
       }
     }
 

@@ -1,24 +1,23 @@
 package responses
 
-import models.StoreCredit
+import cats.data.Xor
+import services.Failures
+import scala.collection.immutable.Seq
 
 object StoreCreditBulkUpdateResponse {
-  final case class Responses(responses: Seq[Response])
-
-  final case class Response(
+  final case class ItemResult(
     id: Int,
-    success: Boolean,
+    success: Boolean = false,
     storeCredit: Option[StoreCreditResponse.Root] = None,
-    errors: Option[Seq[String]] = None
-  )
+    errors: Option[Failures] = None)
 
-  def buildResponse(id: Int, storeCredit: Option[StoreCreditResponse.Root] = None, errors: Option[Seq[String]] = None): Response = {
-    (storeCredit, errors) match {
-      case (Some(sc), None) ⇒ Response(id = id, success = true, storeCredit = Some(sc))
-      case _                ⇒ Response(id = id, success = false, errors = errors)
-    }
+  final case class BulkResponse(itemResults: Seq[ItemResult])
+
+  def buildItemResult(id: Int, result: Failures Xor StoreCreditResponse.Root): ItemResult = {
+    result.fold(errors ⇒ ItemResult(id = id, errors = Some(errors)),
+      sc ⇒ ItemResult(id = id, success = true, storeCredit = Some(sc)))
   }
 
-  def buildResponses(responses: Seq[Response]): Responses = Responses(responses = responses)
+  def buildBulkResponse(itemResults: Seq[ItemResult]): BulkResponse = BulkResponse(itemResults = itemResults)
 }
 

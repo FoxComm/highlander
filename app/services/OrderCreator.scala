@@ -43,7 +43,7 @@ object OrderCreator {
     }
 
     (for {
-      _     ← ResultT.fromXor(payload.validate.toXor.leftMap(_.failure))
+      _     ← ResultT.fromXor(payload.validate.toXor)
       root  ← ResultT(existingCustomerOrNewGuest)
     } yield root).value
   }

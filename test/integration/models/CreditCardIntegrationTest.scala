@@ -4,7 +4,7 @@ import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.implicits._
 
-class CreditCardTest extends IntegrationTestBase {
+class CreditCardIntegrationTest extends IntegrationTestBase {
   import api._
 
   import concurrent.ExecutionContext.Implicits.global

@@ -99,6 +99,11 @@ object StoreCredit {
     }
   }
 
+  def buildFromGcTransfer(customerId: Int, gc: GiftCard): StoreCredit = {
+    StoreCredit(customerId = customerId, originId = 0, originType = StoreCredit.GiftCardTransfer,
+      currency = gc.currency, originalBalance = gc.currentBalance, currentBalance = gc.currentBalance)
+  }
+
   implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
   implicit val originTypeColumnType: JdbcType[OriginType] with BaseTypedType[OriginType] = OriginType.slickColumn
 

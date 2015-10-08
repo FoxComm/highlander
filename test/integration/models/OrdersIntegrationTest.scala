@@ -9,7 +9,7 @@ import utils.Seeds.Factories
 import utils.Slick.implicits._
 import utils.time._
 
-class OrdersTest extends IntegrationTestBase {
+class OrdersIntegrationTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global
 
   "Orders" - {
@@ -39,7 +39,7 @@ class OrdersTest extends IntegrationTestBase {
       db.run(Orders.update(order.copy(status = RemorseHold))).futureValue
 
       val updatedOrder = Orders.findByRefNum(order.referenceNumber).result.run().futureValue.head
-      updatedOrder.remorsePeriodEnd.get.minuteOfHour must === (Instant.now.plusMinutes(30).minuteOfHour)
+      updatedOrder.remorsePeriodEnd.value.minuteOfHour must === (Instant.now.plusMinutes(30).minuteOfHour)
     }
 
     "trigger resets remorse period after status changes from RemorseHold" in {

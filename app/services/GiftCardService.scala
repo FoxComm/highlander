@@ -56,10 +56,10 @@ object GiftCardService {
 
             Result.fromFuture(query.transactionally.run())
           case Invalid(errors) ⇒
-            Result.failures(errors.failure)
+            Result.failures(errors)
         }
       case Invalid(errors) ⇒
-        Result.failures(errors.failure)
+        Result.failures(errors)
     }
   }
 
@@ -67,36 +67,46 @@ object GiftCardService {
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
 
     payload.validate match {
-      case Invalid(errors) ⇒ Result.failures(errors.failure)
+      case Invalid(errors) ⇒ Result.failures(errors)
       case Valid(_)        ⇒ createGiftCardModel(admin, payload)
     }
   }
 
   def bulkUpdateStatusByCsr(payload: payloads.GiftCardBulkUpdateStatusByCsr, admin: StoreAdmin)
-    (implicit ec: ExecutionContext, db: Database): Result[Responses] = {
+    (implicit ec: ExecutionContext, db: Database): Result[BulkResponse] = {
 
     payload.validate match {
       case Valid(_) ⇒
         val responses = payload.codes.map { code ⇒
           val itemPayload = payloads.GiftCardUpdateStatusByCsr(payload.status, payload.reason)
-          updateStatusByCsr(code, itemPayload, admin).map {
-            case Xor.Left(errors) ⇒ buildResponse(code, None, Some(errors.map(_.description.mkString)))
-            case Xor.Right(sc)    ⇒ buildResponse(code, Some(sc))
-          }
+          updateStatusByCsr(code, itemPayload, admin).map(buildItemResult(code, _))
         }
 
         val future = Future.sequence(responses).flatMap { seq ⇒
-          Future.successful(buildResponses(seq))
+          Future.successful(buildBulkResponse(seq.to[collection.immutable.Seq]))
         }
 
         Result.fromFuture(future)
       case Invalid(errors) ⇒
-        Result.failures(errors.failure)
+        Result.failures(errors)
     }
   }
 
   def updateStatusByCsr(code: String, payload: payloads.GiftCardUpdateStatusByCsr, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
+
+    def cancelOrUpdate(finder: QuerySeq, giftCard: GiftCard) = (payload.status, payload.reason) match {
+      case (Canceled, Some(reason)) ⇒
+        cancelByCsr(finder, giftCard, payload, admin)
+      case (Canceled, None) ⇒
+        DbResult.failure(EmptyCancellationReasonFailure)
+      case (_, _) ⇒
+        val update = finder.map(_.status).updateReturning(GiftCards.map(identity), payload.status).headOption
+        update.flatMap {
+          case Some(gc) ⇒ DbResult.good(GiftCardResponse.build(gc))
+          case _        ⇒ DbResult.failure(GiftCardNotFoundFailure(giftCard.code))
+        }
+    }
 
     payload.validate match {
       case Valid(_) ⇒
@@ -104,19 +114,11 @@ object GiftCardService {
         finder.findOneAndRun { gc ⇒
           gc.transitionTo(payload.status) match {
             case Xor.Left(message) ⇒ DbResult.failure(GeneralFailure(message))
-            case Xor.Right(_) ⇒ (payload.status, payload.reason) match {
-              case (Canceled, Some(reason)) ⇒
-                cancelByCsr(finder, gc, payload, admin)
-              case (Canceled, None) ⇒
-                DbResult.failure(EmptyCancellationReasonFailure)
-              case (_, _) ⇒
-                val update = finder.map(_.status).updateReturning(GiftCards.map(identity), payload.status).head
-                DbResult.fromDbio(update.flatMap { gc ⇒ lift(GiftCardResponse.build(gc)) })
-            }
+            case Xor.Right(_)      ⇒ cancelOrUpdate(finder, gc)
           }
         }
       case Invalid(errors) ⇒
-        Result.failures(errors.failure)
+        Result.failures(errors)
     }
   }
 
@@ -139,9 +141,7 @@ object GiftCardService {
 
             val cancelAdjustment = GiftCards.cancelByCsr(gc, admin)
 
-            DbResult.fromDbio(cancelAdjustment >> cancellation.flatMap {
-              gc ⇒ lift(GiftCardResponse.build(gc))
-            })
+            DbResult.fromDbio(cancelAdjustment >> cancellation.map(GiftCardResponse.build(_)))
         }
     }
   }
@@ -158,7 +158,7 @@ object GiftCardService {
   private def createGiftCard(gc: GiftCard)(implicit ec: ExecutionContext, db: Database): Result[GiftCard] = {
     gc.validate match {
       case Valid(_)        ⇒ Result.fromFuture(GiftCards.save(gc).run())
-      case Invalid(errors) ⇒ Result.failures(errors.failure)
+      case Invalid(errors) ⇒ Result.failures(errors)
     }
   }
 

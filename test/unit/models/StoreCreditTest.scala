@@ -35,7 +35,7 @@ class StoreCreditTest extends TestBase {
         val result = sc.validate
 
         result mustBe 'valid
-        result.toOption.get === sc
+        result.toOption.value === sc
       }
     }
   }

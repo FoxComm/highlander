@@ -5,7 +5,7 @@ import utils.Seeds.Factories
 import util.IntegrationTestBase
 import utils.Slick.implicits._
 
-class InventoryAdjustmentTest extends IntegrationTestBase {
+class InventoryAdjustmentIntegrationTest extends IntegrationTestBase {
   import api._
   import concurrent.ExecutionContext.Implicits.global
 
@@ -32,7 +32,7 @@ class InventoryAdjustmentTest extends IntegrationTestBase {
 
       InventoryAdjustments.createAdjustmentsForOrder(order).futureValue
       val numAdjustments = InventoryAdjustments.filter(_.inventoryEventId === order.id).length.result.run().futureValue
-      val summary = InventorySummaries.findBySkuId(sku.id).futureValue.get
+      val summary = InventorySummaries.findBySkuId(sku.id).futureValue.value
 
       numAdjustments mustBe 1
       summary.availableOnHand must === (-5)

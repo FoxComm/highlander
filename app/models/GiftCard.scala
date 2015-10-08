@@ -70,6 +70,7 @@ object GiftCard {
   case object Active extends Status
   case object Canceled extends Status
   case object Cart extends Status
+  case object FullyRedeemed extends Status
 
   sealed trait OriginType
   case object CustomerPurchase extends OriginType
@@ -166,7 +167,13 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
     adjust(giftCard, orderPaymentId, debit = debit, credit = credit, status = Adj.Capture)
 
   def cancelByCsr(giftCard: GiftCard, storeAdmin: StoreAdmin)(implicit ec: ExecutionContext): DBIO[Adj] = {
-    val adjustment = Adj(giftCardId = giftCard.id, orderPaymentId = None, storeAdminId = Some(storeAdmin.id),
+    val adjustment = Adj(giftCardId = giftCard.id, orderPaymentId = None, storeAdminId = storeAdmin.id.some,
+      debit = giftCard.availableBalance, credit = 0, availableBalance = 0, status = Adj.Capture)
+    Adjs.save(adjustment)
+  }
+
+  def redeemToStoreCredit(giftCard: GiftCard, storeAdmin: StoreAdmin)(implicit ec: ExecutionContext): DBIO[Adj] = {
+    val adjustment = Adj(giftCardId = giftCard.id, orderPaymentId = None, storeAdminId = storeAdmin.id.some,
       debit = giftCard.availableBalance, credit = 0, availableBalance = 0, status = Adj.Capture)
     Adjs.save(adjustment)
   }

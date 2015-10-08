@@ -29,7 +29,7 @@ class RemorseTimerTest(_system: ActorSystem) extends TestKit(_system) with Integ
 
   def byRefNum = Orders.findByRefNum("ABCD1234-11")
 
-  def updated = byRefNum.one.run().futureValue.get
+  def updated = byRefNum.one.run().futureValue.value
 
   "Remorse timer" - {
 

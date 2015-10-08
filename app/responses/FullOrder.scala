@@ -1,5 +1,7 @@
 package responses
 
+import java.time.Instant
+
 import scala.concurrent.{ExecutionContext, Future}
 
 import models._
@@ -21,15 +23,16 @@ object FullOrder {
     shippingStatus: Order.Status,
     paymentStatus: Order.Status,
     lineItems: Seq[DisplayLineItem],
-    giftCards: Seq[GiftCardResponse.Root] = Seq.empty,
     adjustments: Seq[Adjustment],
     fraudScore: Int,
     totals: Totals,
     customer: Option[Customer],
     shippingMethod: Option[ShippingMethod],
-    shippingAddress: Option[Address],
+    shippingAddress: Option[OrderShippingAddress],
     assignees: Seq[AssignmentResponse.Root],
-    payment: Option[DisplayPayment] = None)
+    remorsePeriodEnd: Option[Instant],
+    payment: Option[DisplayPayment] = None
+    )
 
   final case class DisplayLineItem(
     imagePath: String = "http://lorempixel.com/75/75/fashion",
@@ -48,13 +51,13 @@ object FullOrder {
   final case class DisplayPaymentMethod(cardType: String = "visa", cardExp: String, cardNumber: String)
 
   def fromOrder(order: Order)(implicit ec: ExecutionContext, db: Database): DBIO[Root] = {
-    fetchOrderDetails(order).map { case (customer, items, shipment, payment, assignees) ⇒
+    fetchOrderDetails(order).map { case (customer, items, shipMethod, shipAddress, payment, assignees) ⇒
       build(
         order = order,
         customer = customer,
         lineItems = items,
-        shippingAddress = shipment.map { case (address, _) ⇒ address },
-        shippingMethod = shipment.map { case (_, method) ⇒ method },
+        shippingAddress = shipAddress,
+        shippingMethod = shipMethod,
         assignments = assignees,
         payment = payment
       )
@@ -63,7 +66,7 @@ object FullOrder {
 
   def build(order: Order, lineItems: Seq[(Sku, OrderLineItem)] = Seq.empty, adjustments: Seq[Adjustment] = Seq.empty,
     shippingMethod: Option[ShippingMethod] = None, customer: Option[Customer] = None,
-    shippingAddress: Option[Address] = None, payment: Option[(OrderPayment, CreditCard)] = None,
+    shippingAddress: Option[OrderShippingAddress] = None, payment: Option[(OrderPayment, CreditCard)] = None,
     assignments: Seq[(OrderAssignment, StoreAdmin)] = Seq.empty): Root = {
 
     val displayPayment = payment.map { case (op, cc) ⇒
@@ -90,16 +93,16 @@ object FullOrder {
       totals = Totals(subTotal = 333, taxes = 10, adjustments = 0, total = 510),
       shippingMethod = shippingMethod,
       assignees = assignments.map((AssignmentResponse.build _).tupled),
+      remorsePeriodEnd = order.getRemorsePeriodEnd,
       payment = displayPayment
     )
   }
 
   private def fetchOrderDetails(order: Order)(implicit ec: ExecutionContext) = {
-    val shipmentQ = for {
+    val shippingMethodQ = for {
       shipment ← Shipments.filter(_.orderId === order.id)
-      address ← models.Addresses.filter(_.id === shipment.shippingAddressId)
-      method ← models.ShippingMethods.filter(_.id === shipment.shippingMethodId)
-    } yield (address, method)
+      shipMethod ← models.ShippingMethods.filter(_.id === shipment.shippingMethodId)
+    } yield shipMethod
 
     val paymentQ = for {
       payment ← OrderPayments.filter(_.orderId === order.id)
@@ -112,10 +115,11 @@ object FullOrder {
         li  ← OrderLineItems._findByOrderId(order.id)
         sku ← Skus if sku.id === li.originId
       } yield (sku, li)).result
-      shipment ← shipmentQ.one
+      shipMethod ← shippingMethodQ.one
+      shipAddress ← OrderShippingAddresses.filter(_.orderId === order.id).one
       payments ← paymentQ.one
       assignments ← OrderAssignments.filter(_.orderId === order.id).result
       admins ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.assigneeId))).result
-    } yield (customer, lineItems, shipment, payments, assignments.zip(admins))
+    } yield (customer, lineItems, shipMethod, shipAddress, payments, assignments.zip(admins))
   }
 }

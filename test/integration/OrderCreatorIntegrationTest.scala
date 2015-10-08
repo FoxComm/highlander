@@ -23,7 +23,7 @@ class OrderCreatorIntegrationTest extends IntegrationTestBase
 
         response.status must ===(StatusCodes.OK)
         val root = response.as[Root]
-        root.customer.get.id must ===(customer.id)
+        root.customer.value.id must ===(customer.id)
         root.orderStatus must ===(Order.Cart)
       }
 
@@ -50,7 +50,7 @@ class OrderCreatorIntegrationTest extends IntegrationTestBase
         val payload = CreateOrder(email = "yax@yax.com".some)
         val response = POST(s"v1/orders", payload)
         val root = response.as[Root]
-        val guest = root.customer.get
+        val guest = root.customer.value
 
         response.status must ===(StatusCodes.OK)
         guest.isGuest mustBe true

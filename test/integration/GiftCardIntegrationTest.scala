@@ -9,6 +9,7 @@ import models.GiftCard.{Active, OnHold, Canceled}
 import org.scalatest.BeforeAndAfterEach
 import responses.{AdminNotes, GiftCardResponse, GiftCardAdjustmentsResponse}
 import services.NoteManager
+import services._
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.Seeds.Factories
@@ -51,7 +52,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     "fails to create gift card with negative balance" in new Fixture {
       val response = POST(s"v1/gift-cards", payloads.GiftCardCreateByCsr(balance = -555))
       response.status must ===(StatusCodes.BadRequest)
-      response.errors.head must ===("Balance must be greater than zero")
+      response.errors must ===(GeneralFailure("Balance must be greater than zero").description)
     }
   }
 
@@ -68,26 +69,26 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       val response = POST(s"v1/gift-cards/_bulk", payloads.GiftCardBulkCreateByCsr(quantity = 5, balance = 0))
 
       response.status must ===(StatusCodes.BadRequest)
-      response.errors.head must ===("Balance must be greater than zero")
+      response.errors must ===(GeneralFailure("Balance must be greater than zero").description)
     }
 
     "fails to create multiple gift cards with negative balance" in new Fixture {
       val response = POST(s"v1/gift-cards/_bulk", payloads.GiftCardBulkCreateByCsr(quantity = 5, balance = -555))
 
       response.status must ===(StatusCodes.BadRequest)
-      response.errors.head must ===("Balance must be greater than zero")
+      response.errors must ===(GeneralFailure("Balance must be greater than zero").description)
     }
 
     "fails to create multiple gift cards with negative quantity" in new Fixture {
       val response = POST(s"v1/gift-cards/_bulk", payloads.GiftCardBulkCreateByCsr(quantity = -5, balance = 256))
       response.status must ===(StatusCodes.BadRequest)
-      response.errors.head must ===("Quantity must be greater than zero")
+      response.errors must ===(GeneralFailure("Quantity must be greater than zero").description)
     }
 
     "fails to create multiple gift cards with count more than limit" in new Fixture {
       val response = POST(s"v1/gift-cards/_bulk", payloads.GiftCardBulkCreateByCsr(quantity = 25, balance = 256))
       response.status must ===(StatusCodes.BadRequest)
-      response.errors.head must ===("Bulk creation limit exceeded")
+      response.errors must ===(GeneralFailure("Bulk creation limit exceeded").description)
     }
   }
 
@@ -102,9 +103,9 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     }
 
     "returns not found when GC doesn't exist" in new Fixture {
-      val notFoundResponse = GET(s"v1/gift-cards/99")
+      val notFoundResponse = GET(s"v1/gift-cards/ABC-666")
       notFoundResponse.status must ===(StatusCodes.NotFound)
-      notFoundResponse.errors.head must ===("giftCard with code=99 not found")
+      notFoundResponse.errors must ===(GiftCardNotFoundFailure("ABC-666").description)
     }
   }
 
@@ -120,14 +121,14 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     "returns error if no cancellation reason provided" in new Fixture {
       val response = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStatusByCsr(status = Canceled))
       response.status must ===(StatusCodes.BadRequest)
-      response.errors.head must ===("Please provide valid cancellation reason")
+      response.errors must ===(EmptyCancellationReasonFailure.description)
     }
 
     "returns error on cancellation if gift card has auths" in new Fixture {
       val response = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStatusByCsr(status = Canceled,
         reason = Some(1)))
       response.status must ===(StatusCodes.BadRequest)
-      response.errors.head must ===("Open transactions should be canceled/completed")
+      response.errors must ===(OpenTransactionsFailure.description)
     }
 
     "successfully cancels gift card with provided reason, cancel adjustment is created" in new Fixture {
@@ -156,7 +157,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       val response = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStatusByCsr(status = Canceled,
         reason = Some(999)))
       response.status must ===(StatusCodes.BadRequest)
-      response.errors.head must ===("Cancellation reason doesn't exist")
+      response.errors must ===(InvalidCancellationReasonFailure.description)
     }
   }
 
@@ -171,7 +172,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       val firstAdjustment = adjustments.head
       firstAdjustment.amount must ===(-adjustment.debit)
       firstAdjustment.availableBalance must ===(giftCard.originalBalance - adjustment.debit)
-      firstAdjustment.orderRef.get mustBe order.referenceNumber
+      firstAdjustment.orderRef.value mustBe order.referenceNumber
     }
   }
 
@@ -186,10 +187,10 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       response.status must ===(StatusCodes.OK)
 
       val firstUpdated = GiftCards.findById(giftCard.id).run().futureValue
-      firstUpdated.get.status must ===(GiftCard.OnHold)
+      firstUpdated.value.status must ===(GiftCard.OnHold)
 
       val secondUpdated = GiftCards.findById(gcSecond.id).run().futureValue
-      secondUpdated.get.status must ===(GiftCard.OnHold)
+      secondUpdated.value.status must ===(GiftCard.OnHold)
     }
 
     "returns multiple errors if no cancellation reason provided" in new Fixture {
@@ -200,13 +201,58 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
       val response = PATCH(s"v1/gift-cards", payload)
       response.status must ===(StatusCodes.BadRequest)
-      response.errors.head must ===("Please provide valid cancellation reason")
+      response.errors must ===(EmptyCancellationReasonFailure.description)
+    }
+  }
+
+  "POST /v1/gift-cards/:code/convert/:customerId" - {
+    "successfully converts GC to SC" in new Fixture {
+      val response = POST(s"v1/gift-cards/${gcSecond.code}/convert/${customer.id}")
+      response.status must ===(StatusCodes.OK)
+
+      val root = response.as[models.StoreCredit]
+      root.customerId       must ===(customer.id)
+      root.originType       must ===(models.StoreCredit.GiftCardTransfer)
+      root.status           must ===(models.StoreCredit.Active)
+      root.originalBalance  must ===(gcSecond.originalBalance)
+
+      val redeemedGc = GiftCards.findByCode(gcSecond.code).one.run().futureValue.value
+      redeemedGc.status           must ===(GiftCard.FullyRedeemed)
+      redeemedGc.availableBalance must ===(0)
+      redeemedGc.currentBalance   must ===(0)
+    }
+
+    "fails to convert when GC not found" in new Fixture {
+      val response = POST(s"v1/gift-cards/ABC-666/convert/${customer.id}")
+      response.status  must ===(StatusCodes.NotFound)
+      response.errors  must ===(GiftCardNotFoundFailure("ABC-666").description)
+    }
+
+    "fails to convert when customer not found" in new Fixture {
+      val response = POST(s"v1/gift-cards/${gcSecond.code}/convert/666")
+      response.status  must ===(StatusCodes.NotFound)
+      response.errors  must ===(NotFoundFailure(models.Customer, 666).description)
+    }
+
+    "fails to convert inactive GC to SC if open transactions are present" in new Fixture {
+      val response = POST(s"v1/gift-cards/${giftCard.code}/convert/${customer.id}")
+      response.status  must ===(StatusCodes.BadRequest)
+      response.errors  must ===(OpenTransactionsFailure.description)
+    }
+
+    "fails to convert inactive GC to SC" in new Fixture {
+      GiftCards.findByCode(gcSecond.code).map(_.status).update(GiftCard.OnHold).run().futureValue
+      val updatedGc = GiftCards.findByCode(gcSecond.code).one.run().futureValue
+
+      val response = POST(s"v1/gift-cards/${gcSecond.code}/convert/${customer.id}")
+      response.status  must ===(StatusCodes.BadRequest)
+      response.errors  must ===(GiftCardConvertFailure(updatedGc.value).description)
     }
   }
 
   "gift card note" - {
     "can be created by an admin for a gift card" in new Fixture {
-      val response = POST(s"v1/gift-cards/${giftCard.code}/notes",
+      val response = POST(s"v1/notes/gift-card/${giftCard.code}",
         payloads.CreateNote(body = "Hello, FoxCommerce!"))
 
       response.status must ===(StatusCodes.OK)
@@ -217,14 +263,14 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     }
 
     "returns a validation error if failed to create" in new Fixture {
-      val response = POST(s"v1/gift-cards/${giftCard.code}/notes", payloads.CreateNote(body = ""))
+      val response = POST(s"v1/notes/gift-card/${giftCard.code}", payloads.CreateNote(body = ""))
 
       response.status must ===(StatusCodes.BadRequest)
       response.bodyText must include("errors")
     }
 
     "returns a 404 if the gift card is not found" in new Fixture {
-      val response = POST(s"v1/gift-cards/999999/notes", payloads.CreateNote(body = ""))
+      val response = POST(s"v1/notes/gift-card/999999", payloads.CreateNote(body = ""))
 
       response.status must ===(StatusCodes.NotFound)
       response.bodyText mustBe 'empty
@@ -235,7 +281,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
         NoteManager.createGiftCardNote(giftCard, admin, payloads.CreateNote(body = body)).futureValue
       }
 
-      val response = GET(s"v1/gift-cards/${giftCard.code}/notes")
+      val response = GET(s"v1/notes/gift-card/${giftCard.code}")
       response.status must ===(StatusCodes.OK)
 
       val notes = response.as[Seq[AdminNotes.Root]]
@@ -247,7 +293,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       val rootNote = NoteManager.createGiftCardNote(giftCard, admin,
         payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue.get
 
-      val response = PATCH(s"v1/gift-cards/${giftCard.code}/notes/${rootNote.id}", payloads.UpdateNote(body = "donkey"))
+      val response = PATCH(s"v1/notes/gift-card/${giftCard.code}/${rootNote.id}", payloads.UpdateNote(body = "donkey"))
       response.status must ===(StatusCodes.OK)
 
       val note = response.as[AdminNotes.Root]
@@ -255,24 +301,24 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     }
 
     "can soft delete note" in new Fixture {
-      val createResp = POST(s"v1/gift-cards/${giftCard.code}/notes", payloads.CreateNote(body = "Hello, FoxCommerce!"))
+      val createResp = POST(s"v1/notes/gift-card/${giftCard.code}", payloads.CreateNote(body = "Hello, FoxCommerce!"))
       val note = createResp.as[AdminNotes.Root]
 
-      val response = DELETE(s"v1/gift-cards/${giftCard.code}/notes/${note.id}")
+      val response = DELETE(s"v1/notes/gift-card/${giftCard.code}/${note.id}")
       response.status must ===(StatusCodes.NoContent)
       response.bodyText mustBe empty
 
-      val updatedNote = db.run(Notes.findById(note.id)).futureValue.get
-      updatedNote.deletedBy.get mustBe 1
+      val updatedNote = db.run(Notes.findById(note.id)).futureValue.value
+      updatedNote.deletedBy.value mustBe 1
 
-      withClue(updatedNote.deletedAt.get → Instant.now) {
-        updatedNote.deletedAt.get.isBeforeNow mustBe true
+      withClue(updatedNote.deletedAt.value → Instant.now) {
+        updatedNote.deletedAt.value.isBeforeNow mustBe true
       }
     }
   }
 
   trait Fixture {
-    val (admin, giftCard, order, adjustment, gcSecond) = (for {
+    val (customer, admin, giftCard, order, adjustment, gcSecond) = (for {
       customer ← Customers.save(Factories.customer)
       order ← Orders.save(Factories.order.copy(customerId = customer.id))
       admin ← StoreAdmins.save(authedStoreAdmin)
@@ -285,6 +331,6 @@ class GiftCardIntegrationTest extends IntegrationTestBase
         paymentMethodType = PaymentMethod.GiftCard))
       adjustment ← GiftCards.auth(giftCard, Some(payment.id), 10)
       giftCard ← GiftCards.findById(giftCard.id)
-    } yield (admin, giftCard.get, order, adjustment, gcSecond)).run().futureValue
+    } yield (customer, admin, giftCard.value, order, adjustment, gcSecond)).run().futureValue
   }
 }

@@ -55,8 +55,8 @@ class AddressesIntegrationTest extends IntegrationTestBase
 
       response.status must === (StatusCodes.NoContent)
 
-      Addresses.findById(another.id).futureValue.get.isDefaultShipping mustBe true
-      Addresses.findById(address.id).futureValue.get.isDefaultShipping mustBe false
+      Addresses.findById(another.id).futureValue.value.isDefaultShipping mustBe true
+      Addresses.findById(address.id).futureValue.value.isDefaultShipping mustBe false
     }
 
     "removes an existing default from a shipping address" in new AddressFixture {
@@ -65,7 +65,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.NoContent)
       response.bodyText mustBe 'empty
 
-      Addresses.findById(address.id).futureValue.get.isDefaultShipping mustBe false
+      Addresses.findById(address.id).futureValue.value.isDefaultShipping mustBe false
     }
 
     "attempts to removes default shipping address when none is set" in new CustomerFixture {

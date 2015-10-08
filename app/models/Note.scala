@@ -15,7 +15,7 @@ import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId, Validat
 
 
 final case class Note(id: Int = 0, storeAdminId: Int, referenceId: Int, referenceType: Note.ReferenceType, body: String,
-  deletedAt: Option[Instant] = None, deletedBy: Option[Int] = None)
+  createdAt: Instant = Instant.now, deletedAt: Option[Instant] = None, deletedBy: Option[Int] = None)
   extends ModelWithIdParameter
   with Validation[Note] {
 
@@ -46,10 +46,12 @@ class Notes(tag: Tag) extends GenericTable.TableWithId[Note](tag, "notes")  {
   def referenceId = column[Int]("reference_id")
   def referenceType = column[Note.ReferenceType]("reference_type")
   def body = column[String]("body")
+  def createdAt = column[Instant]("created_at")
   def deletedAt = column[Option[Instant]]("deleted_at")
   def deletedBy = column[Option[Int]]("deleted_by")
 
-  def * = (id, storeAdminId, referenceId, referenceType, body, deletedAt, deletedBy) <> ((Note.apply _).tupled, Note.unapply)
+  def * = (id, storeAdminId, referenceId, referenceType, body, createdAt,
+    deletedAt, deletedBy) <> ((Note.apply _).tupled, Note.unapply)
 
   def author = foreignKey(StoreAdmins.tableName, storeAdminId, StoreAdmins)(_.id)
 }

@@ -2,13 +2,14 @@ package util
 
 import org.scalactic.TypeCheckedTripleEquals
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{FreeSpecLike, FreeSpec, MustMatchers}
+import org.scalatest.{OptionValues, FreeSpecLike, FreeSpec, MustMatchers}
 import utils.Config._
 import cats.data.Xor
 
 trait TestBase extends FreeSpecLike
   with MustMatchers
   with ScalaFutures
+  with OptionValues
   with TypeCheckedTripleEquals
   with CatsHelpers {
 

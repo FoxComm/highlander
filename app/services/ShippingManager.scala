@@ -7,6 +7,7 @@ import scala.concurrent.ExecutionContext
 import slick.driver.PostgresDriver.api._
 import utils.JsonFormatters
 import Result._
+import utils.Slick.DbResult
 
 object ShippingManager {
   implicit val formats = JsonFormatters.phoenixFormats
@@ -14,8 +15,8 @@ object ShippingManager {
   final case class ShippingData(order: Order, orderTotal: Int, orderSubTotal: Int,
     shippingAddress: OrderShippingAddress, shippingRegion: Region, skus: Seq[Sku])
 
-  def getShippingMethodsForOrder(order: models.Order)(implicit db: Database, ec: ExecutionContext):
-    Result[Seq[responses.ShippingMethods.Root]] = {
+  def getShippingMethodsForOrder(order: models.Order)
+    (implicit db: Database, ec: ExecutionContext): DbResult[Seq[responses.ShippingMethods.Root]] = {
 
     val queries = for {
       orderShippingAddresses ← models.OrderShippingAddresses.findByOrderIdWithRegions(order.id).result.headOption
@@ -28,7 +29,7 @@ object ShippingManager {
       } yield skus).result
     } yield (orderShippingAddresses, subTotal, grandTotal, shippingMethods, skus)
 
-    db.run(queries).flatMap {
+    queries.flatMap {
       case (Some((address, region)), subTotal, grandTotal, shippingMethods, skus) ⇒
 
         val shippingData = ShippingData(order, grandTotal.getOrElse(0), subTotal.getOrElse(0), address, region, skus)
@@ -39,10 +40,10 @@ object ShippingManager {
             responses.ShippingMethods.build(sm, !restricted)
         }
 
-        right(methodResponses)
+        DbResult.good(methodResponses)
 
       case (None, _, _, _, _) ⇒
-        left(OrderShippingMethodsCannotBeProcessed(order.refNum).single)
+        DbResult.failure(OrderShippingMethodsCannotBeProcessed(order.refNum))
     }
   }
 

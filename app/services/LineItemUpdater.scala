@@ -32,7 +32,7 @@ object LineItemUpdater {
           DbResult.fromDbio(queries >> FullOrder.fromOrder(order))
         }
       case Invalid(errors) ⇒
-        Result.failures(errors.failure)
+        Result.failures(errors)
     }
   }
 
@@ -53,7 +53,7 @@ object LineItemUpdater {
           }
         }
       case Invalid(errors) ⇒
-        Result.failures(errors.failure)
+        Result.failures(errors)
     }
   }
 

@@ -32,7 +32,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
 //            completeOrderAndCreateNew(order).map(Good(_))
             Result.good(order)
           } else {
-            Result.failures(errors.toList)
+            Result.failures(errors: _*)
           }
         }
       } else {
@@ -41,8 +41,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
     }
   }
 
-  // TODO: This needs to return a `List[Failure]` instead of NEL, can we make this cleaner?
-  def authorizePayments: Future[Map[OrderPayment, immutable.Seq[Failure]]] = {
+  def authorizePayments: Future[Map[OrderPayment, List[Failure]]] = {
     for {
       payments ← OrderPayments.findAllPaymentsFor(order)
       authorized ← Future.sequence(authorizePayments(payments))
@@ -72,19 +71,19 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
   }
 
   private def updatePaymentsWithAuthorizationErrors(payments: Seq[(OrderPayment, Xor[Failures, String])]) = {
-    payments.foldLeft(Map.empty[OrderPayment, Failures]) {
-      case (payments, (payment, result)) =>
-        updatePaymentWithAuthorizationErrors(payments, payment, result)
+    payments.foldLeft(Map.empty[OrderPayment, List[Failure]]) {
+      case (pmts, (payment, result)) =>
+        updatePaymentWithAuthorizationErrors(pmts, payment, result)
     }
   }
 
   private def updatePaymentWithAuthorizationErrors(
-    payments: Map[OrderPayment, Failures],
+    payments: Map[OrderPayment, List[Failure]],
     payment:  OrderPayment,
     result:  Failures Xor String) =
       payments.updated(
         payment,
-        result.fold(bad ⇒ bad, good ⇒ Nil))
+        result.fold(bad ⇒ bad.toList, good ⇒ Nil))
 
   // sets incoming order.status == Order.ordered and creates a new order
   private def completeOrderAndCreateNew(order: Order): Future[Order] = {

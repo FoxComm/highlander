@@ -10,7 +10,7 @@ class HttpTest extends TestBase {
 
   "renderFailure" - {
     "returns a notFoundResponse if any failure is a NotFoundFailure" in {
-      val failures = List(GeneralFailure("general"), CustomerHasDefaultCreditCard, OrderNotFoundFailure("ABC-123"))
+      val failures = services.Failures(GeneralFailure("general"), CustomerHasDefaultCreditCard, OrderNotFoundFailure("ABC-123"))
       renderFailure(failures).status must === (StatusCodes.NotFound)
     }
   }
