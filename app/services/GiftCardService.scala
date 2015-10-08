@@ -18,6 +18,8 @@ import utils.Slick.implicits._
 object GiftCardService {
   val mockCustomerId = 1
 
+  val gcManuals = TableQuery[GiftCardManuals]
+
   type Account = Customer :+: StoreAdmin :+: CNil
   type QuerySeq = Query[GiftCards, GiftCard, Seq]
 
@@ -159,7 +161,7 @@ object GiftCardService {
   private def fetchDetails(code: String)(implicit db: Database, ec: ExecutionContext) = for {
     giftCard  ← GiftCards.findByCode(code).one
     gcOrigin  ← giftCard match {
-      case Some(gc) if gc.originType == GiftCard.CsrAppeasement ⇒ GiftCardManuals.filter(_.id === gc.originId).one
+      case Some(gc) if gc.originType == GiftCard.CsrAppeasement ⇒ gcManuals.filter(_.id === gc.originId).one
       case _                                                    ⇒ DBIO.successful(None)
     }
     account   ← getAccount(giftCard, gcOrigin)
