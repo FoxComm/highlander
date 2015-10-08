@@ -29,6 +29,11 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
           response.status must === (StatusCodes.OK)
           sc.status must === (StoreCredit.Active)
+
+          // Check that link is created
+          val manual = StoreCreditManuals.findById(sc.originId).run().futureValue.head
+          manual.reasonId must === (scReason.id)
+          manual.adminId must === (admin.id)
         }
       }
 
