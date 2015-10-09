@@ -26,8 +26,8 @@ object CustomerResponse {
     name = customer.firstName + " " + customer.lastName,
     phoneNumber = customer.phoneNumber, location = customer.location, modality = customer.modality,
     createdAt = customer.createdAt,
-    disabled = customer.disabled,
-    blacklisted = customer.blacklisted,
+    disabled = customer.isDisabled,
+    blacklisted = customer.isBlacklisted,
     rank = "top 10",
     billingRegion = billingRegion.map(_.name),
     shippingRegion = shippingRegion.map(_.name))

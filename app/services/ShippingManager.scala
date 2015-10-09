@@ -1,7 +1,7 @@
 package services
 
-import models.{Sku, OrderShippingAddresses, OrderLineItem, Skus, OrderLineItems, Order, OrderShippingAddress, Region,
-ShippingMethods}
+import models.{OrderLineItemSkus, Sku, Skus, OrderLineItems, Order, OrderShippingAddress, Region, ShippingMethods}
+import models.OrderLineItems.scope._
 import models.rules.{Condition, QueryStatement}
 import scala.concurrent.ExecutionContext
 import slick.driver.PostgresDriver.api._
@@ -24,9 +24,9 @@ object ShippingManager {
       grandTotal ← OrderTotaler._grandTotalForOrder(order)
       shippingMethods ← ShippingMethods.findActive.result
       skus ← (for {
-        lineItems ← OrderLineItems._findByOrder(order)
-        skus ← Skus if skus.id === lineItems.skuId
-      } yield skus).result
+        liSku ← OrderLineItemSkus.findByOrderId(order.id)
+        sku ← Skus if sku.id === liSku.skuId
+      } yield sku).result
     } yield (orderShippingAddresses, subTotal, grandTotal, shippingMethods, skus)
 
     queries.flatMap {

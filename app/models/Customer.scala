@@ -19,7 +19,7 @@ import utils.{ModelWithIdParameter, TableQueryWithId, Validation}
 import utils.Slick.implicits._
 
 final case class Customer(id: Int = 0, email: String, password: String, firstName: String, lastName: String,
-  disabled: Boolean = false, blacklisted: Boolean = false,
+  isDisabled: Boolean = false, isBlacklisted: Boolean = false,
   phoneNumber: Option[String] = None, location: Option[String] = None,
   modality: Option[String] = None, isGuest: Boolean = false, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter
@@ -46,9 +46,9 @@ object Customer {
 
 class Customers(tag: Tag) extends TableWithId[Customer](tag, "customers") {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def disabled = column[Boolean]("disabled")
+  def isDisabled = column[Boolean]("is_disabled")
   def disabledBy = column[Option[Int]]("disabled_by")
-  def blacklisted = column[Boolean]("blacklisted")
+  def isBlacklisted = column[Boolean]("is_blacklisted")
   def blacklistedBy = column[Option[Int]]("blacklisted_by")
   def blacklistedReason = column[Option[String]]("blacklisted_reason")
   def email = column[String]("email")
@@ -62,7 +62,7 @@ class Customers(tag: Tag) extends TableWithId[Customer](tag, "customers") {
   def createdAt = column[Instant]("created_at")
 
   def * = (id, email, password, firstName, lastName,
-    disabled, blacklisted, phoneNumber,
+    isDisabled, isBlacklisted, phoneNumber,
     location, modality, isGuest, createdAt) <>((Customer.apply _).tupled, Customer.unapply)
 }
 
@@ -99,6 +99,31 @@ object Customers extends TableQueryWithId[Customer, Customers](
       firstName = payload.firstName, lastName = payload.firstName)
 
     save(newCustomer).run().flatMap(Result.right)
+  }
+
+  object scope {
+    implicit class CustomersQuerySeqConversions(query: QuerySeq) {
+      /* Returns Query with included shippingRegion and billingRegion for customer.
+       * shippingRegion comes from default address of customer
+       * billingRegion comes from default creditCard of customer
+       */
+      def withDefaultRegions = {
+        val customerWithShipRegion = for {
+          ((c, a), r) ← query.joinLeft(Addresses).on {
+            case (a, b) ⇒ a.id === b.customerId && b.isDefaultShipping === true
+          }.joinLeft(Regions).on(_._2.map(_.regionId) === _.id)
+        } yield (c, r)
+
+        val CcWithRegions = CreditCards.join(Regions).on {
+          case (c, r) ⇒ c.regionId === r.id && c.isDefault === true
+        }
+
+        for {
+          ((c, shipRegion), billInfo) ←
+          customerWithShipRegion.joinLeft(CcWithRegions).on(_._1.id === _._1.customerId)
+        } yield (c, shipRegion, billInfo.map(_._2))
+      }
+    }
   }
 }
 

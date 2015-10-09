@@ -80,7 +80,7 @@ object OrderUpdater {
 
   def removeShippingAddress(refNum: String)(implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
     val finder = Orders.findByRefNum(refNum)
-    finder.findOneAndRun { order ⇒
+    finder.selectOneForUpdate { order ⇒
       DbResult.fromDbio(OrderShippingAddresses.findByOrderId(order.id).delete >> fullOrder(finder))
     }
   }
@@ -88,7 +88,7 @@ object OrderUpdater {
   def createShippingAddressFromPayload(payload: CreateAddressPayload, refNum: String)
     (implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
     val finder = Orders.findByRefNum(refNum)
-    finder.findOneAndRun { order ⇒
+    finder.selectOneForUpdate { order ⇒
 
       val address = Address.fromPayload(payload)
       address.validate match {
@@ -110,7 +110,7 @@ object OrderUpdater {
   def updateShippingAddressFromPayload(payload: UpdateAddressPayload, refNum: String)
     (implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
     val finder = Orders.findByRefNum(refNum)
-    finder.findOneAndRun { order ⇒
+    finder.selectOneForUpdate { order ⇒
 
       val actions = for {
         oldAddress ← OrderShippingAddresses.findByOrderId(order.id).one
@@ -143,7 +143,7 @@ object OrderUpdater {
     (implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
 
     val finder = Orders.findByRefNum(refNum)
-    finder.findOneAndRun { order ⇒
+    finder.selectOneForUpdate { order ⇒
 
       (for {
         address ← Addresses.findById(addressId)
