@@ -5,6 +5,7 @@ import TableView from '../tables/tableview';
 import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
 import SearchBar from '../search-bar/search-bar';
+import SectionTitle from '../section-title/section-title';
 
 import CustomerStore from '../../stores/customers';
 
@@ -46,18 +47,15 @@ export default class Customers extends React.Component {
     this.setState({customers});
   }
 
+  handleAddCustomerClick() {
+    console.log("Add customer");
+  }
+
   render() {
     return (
       <div id="users">
         <div className="fc-list-header">
-          <div className="fc-grid gutter">
-            <div className="fc-col-2-6">
-              <h1 className="fc-title">Cutomers <span className="fc-subtitle">{this.state.customers.length}</span></h1>
-            </div>
-            <div className="fc-col-2-6 fc-push-2-6 fc-actions">
-              <button className="fc-btn fc-btn-primary"><i className="icon-add"></i> Customer</button>
-            </div>
-          </div>
+          <SectionTitle title="Cutomers" count={this.state.customers.length} buttonClickHandler={ this.handleAddCustomerClick }/>
           <div className="fc-grid gutter">
             <div className="fc-col-1-1">
               <ul className="fc-tabbed-nav">
