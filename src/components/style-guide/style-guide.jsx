@@ -2,8 +2,47 @@
 
 import React from 'react';
 import { Link } from '../link';
+import DescriptiveGridColumn from './descriptive-grid-column';
 
 export default class StyleGuide extends React.Component {
+  getGrid(size) {
+    let rows = [];
+    for (var i = 0; i < 12; i++) {
+      rows.push(<DescriptiveGridColumn size={ size } numerator="1" denominator="12" />);
+    }
+
+    return (
+      <div>
+        <div className='fc-grid'>
+          {rows}
+        </div>
+        <div className='fc-grid'>
+          <DescriptiveGridColumn size={ size } numerator="1" denominator="6" />
+          <DescriptiveGridColumn size={ size } numerator="5" denominator="6" />
+        </div>
+        <div className='fc-grid'>
+          <DescriptiveGridColumn size={ size } numerator="1" denominator="4" />
+          <DescriptiveGridColumn size={ size } numerator="3" denominator="4" />
+        </div>
+        <div className='fc-grid'>
+          <DescriptiveGridColumn size={ size } numerator="1" denominator="3" />
+          <DescriptiveGridColumn size={ size } numerator="2" denominator="3" />
+        </div>
+        <div className='fc-grid'>
+          <DescriptiveGridColumn size={ size } numerator="5" denominator="12" />
+          <DescriptiveGridColumn size={ size } numerator="7" denominator="12" />
+        </div>
+        <div className='fc-grid'>
+          <DescriptiveGridColumn size={ size } numerator="1" denominator="2" />
+          <DescriptiveGridColumn size={ size } numerator="1" denominator="2" />
+        </div>
+        <div className='fc-grid'>
+          <DescriptiveGridColumn size={ size } numerator="1" denominator="1" />
+        </div>
+      </div>
+      );
+  }
+
   render() {
     return (
       <div className='fc-style-guide'>
@@ -17,135 +56,7 @@ export default class StyleGuide extends React.Component {
             </p>
           </div>
         </div>
-        <div className='fc-grid'>
-          <div className='fc-col-sm-1-12'>
-            <div className='content-box'>
-              fc-col-sm-1-12
-            </div>
-          </div>
-          <div className='fc-col-sm-1-12'>
-            <div className='content-box'>
-              fc-col-sm-1-12
-            </div>
-          </div>
-          <div className='fc-col-sm-1-12'>
-            <div className='content-box'>
-              fc-col-sm-1-12
-            </div>
-          </div>
-          <div className='fc-col-sm-1-12'>
-            <div className='content-box'>
-              fc-col-sm-1-12
-            </div>
-          </div>
-          <div className='fc-col-sm-1-12'>
-            <div className='content-box'>
-              fc-col-sm-1-12
-            </div>
-          </div>
-          <div className='fc-col-sm-1-12'>
-            <div className='content-box'>
-              fc-col-sm-1-12
-            </div>
-          </div>
-          <div className='fc-col-sm-1-12'>
-            <div className='content-box'>
-              fc-col-sm-1-12
-            </div>
-          </div>
-          <div className='fc-col-sm-1-12'>
-            <div className='content-box'>
-              fc-col-sm-1-12
-            </div>
-          </div>
-          <div className='fc-col-sm-1-12'>
-            <div className='content-box'>
-              fc-col-sm-1-12
-            </div>
-          </div>
-          <div className='fc-col-sm-1-12'>
-            <div className='content-box'>
-              fc-col-sm-1-12
-            </div>
-          </div>
-          <div className='fc-col-sm-1-12'>
-            <div className='content-box'>
-              fc-col-sm-1-12
-            </div>
-          </div>
-          <div className='fc-col-sm-1-12'>
-            <div className='content-box'>
-              fc-col-sm-1-12
-            </div>
-          </div>
-        </div>
-        <div className='fc-grid'>
-          <div className='fc-col-sm-1-6'>
-            <div className='content-box'>
-              fc-col-sm-1-6
-            </div>
-          </div>
-          <div className='fc-col-sm-5-6'>
-            <div className='content-box'>
-              fc-col-sm-5-6
-            </div>
-          </div>
-        </div>
-        <div className='fc-grid'>
-          <div className='fc-col-sm-1-4'>
-            <div className='content-box'>
-              fc-col-sm-1-4
-            </div>
-          </div>
-          <div className='fc-col-sm-3-4'>
-            <div className='content-box'>
-              fc-col-sm-3-4
-            </div>
-          </div>
-        </div>
-        <div className='fc-grid'>
-          <div className='fc-col-sm-1-3'>
-            <div className='content-box'>
-              fc-col-sm-1-3
-            </div>
-          </div>
-          <div className='fc-col-sm-2-3'>
-            <div className='content-box'>
-              fc-col-sm-2-3
-            </div>
-          </div>
-        </div>
-        <div className='fc-grid'>
-          <div className='fc-col-sm-5-12'>
-            <div className='content-box'>
-              fc-col-sm-5-12
-            </div>
-          </div>
-          <div className='fc-col-sm-7-12'>
-            <div className='content-box'>
-              fc-col-sm-7-12
-            </div>
-          </div>
-        </div>
-        <div className='fc-grid'>
-          <div className='fc-col-sm-1-2'>
-            <div className='content-box'>
-              fc-col-sm-1-2
-            </div>
-          </div>
-          <div className='fc-col-sm-1-2'>
-            <div className='content-box'>
-              fc-col-sm-1-2
-            </div>
-          </div>
-        </div>
-        <div className='fc-grid'>
-          <div className='fc-col-sm-1-1'>
-            <div className='content-box'>
-              fc-col-sm-1-1
-            </div>
-          </div>
-        </div>
+        { this.getGrid('sm') }
         <div className='fc-grid'>
           <div className='fc-col-sm-1-1'>
             <h2>Medium Grid</h2>
@@ -155,135 +66,7 @@ export default class StyleGuide extends React.Component {
             </p>
           </div>
         </div>
-        <div className='fc-grid'>
-          <div className='fc-col-md-1-12'>
-            <div className='content-box'>
-              fc-col-md-1-12
-            </div>
-          </div>
-          <div className='fc-col-md-1-12'>
-            <div className='content-box'>
-              fc-col-md-1-12
-            </div>
-          </div>
-          <div className='fc-col-md-1-12'>
-            <div className='content-box'>
-              fc-col-md-1-12
-            </div>
-          </div>
-          <div className='fc-col-md-1-12'>
-            <div className='content-box'>
-              fc-col-md-1-12
-            </div>
-          </div>
-          <div className='fc-col-md-1-12'>
-            <div className='content-box'>
-              fc-col-md-1-12
-            </div>
-          </div>
-          <div className='fc-col-md-1-12'>
-            <div className='content-box'>
-              fc-col-md-1-12
-            </div>
-          </div>
-          <div className='fc-col-md-1-12'>
-            <div className='content-box'>
-              fc-col-md-1-12
-            </div>
-          </div>
-          <div className='fc-col-md-1-12'>
-            <div className='content-box'>
-              fc-col-md-1-12
-            </div>
-          </div>
-          <div className='fc-col-md-1-12'>
-            <div className='content-box'>
-              fc-col-md-1-12
-            </div>
-          </div>
-          <div className='fc-col-md-1-12'>
-            <div className='content-box'>
-              fc-col-md-1-12
-            </div>
-          </div>
-          <div className='fc-col-md-1-12'>
-            <div className='content-box'>
-              fc-col-md-1-12
-            </div>
-          </div>
-          <div className='fc-col-md-1-12'>
-            <div className='content-box'>
-              fc-col-md-1-12
-            </div>
-          </div>
-        </div>
-        <div className='fc-grid'>
-          <div className='fc-col-md-1-6'>
-            <div className='content-box'>
-              fc-col-md-1-6
-            </div>
-          </div>
-          <div className='fc-col-md-5-6'>
-            <div className='content-box'>
-              fc-col-md-5-6
-            </div>
-          </div>
-        </div>
-        <div className='fc-grid'>
-          <div className='fc-col-md-1-4'>
-            <div className='content-box'>
-              fc-col-md-1-4
-            </div>
-          </div>
-          <div className='fc-col-md-3-4'>
-            <div className='content-box'>
-              fc-col-md-3-4
-            </div>
-          </div>
-        </div>
-        <div className='fc-grid'>
-          <div className='fc-col-md-1-3'>
-            <div className='content-box'>
-              fc-col-md-1-3
-            </div>
-          </div>
-          <div className='fc-col-md-2-3'>
-            <div className='content-box'>
-              fc-col-md-2-3
-            </div>
-          </div>
-        </div>
-        <div className='fc-grid'>
-          <div className='fc-col-md-5-12'>
-            <div className='content-box'>
-              fc-col-md-5-12
-            </div>
-          </div>
-          <div className='fc-col-md-7-12'>
-            <div className='content-box'>
-              fc-col-md-7-12
-            </div>
-          </div>
-        </div>
-        <div className='fc-grid'>
-          <div className='fc-col-md-1-2'>
-            <div className='content-box'>
-              fc-col-md-1-2
-            </div>
-          </div>
-          <div className='fc-col-md-1-2'>
-            <div className='content-box'>
-              fc-col-md-1-2
-            </div>
-          </div>
-        </div>
-        <div className='fc-grid'>
-          <div className='fc-col-md-1-1'>
-            <div className='content-box'>
-              fc-col-md-1-1
-            </div>
-          </div>
-        </div>
+        { this.getGrid('md') }
         <div className='fc-grid'>
           <div className='fc-col-md-1-1'>
             <h2>Large Grid</h2>
@@ -293,135 +76,7 @@ export default class StyleGuide extends React.Component {
             </p>
           </div>
         </div>
-        <div className='fc-grid'>
-          <div className='fc-col-lg-1-12'>
-            <div className='content-box'>
-              fc-col-lg-1-12
-            </div>
-          </div>
-          <div className='fc-col-lg-1-12'>
-            <div className='content-box'>
-              fc-col-lg-1-12
-            </div>
-          </div>
-          <div className='fc-col-lg-1-12'>
-            <div className='content-box'>
-              fc-col-lg-1-12
-            </div>
-          </div>
-          <div className='fc-col-lg-1-12'>
-            <div className='content-box'>
-              fc-col-lg-1-12
-            </div>
-          </div>
-          <div className='fc-col-lg-1-12'>
-            <div className='content-box'>
-              fc-col-lg-1-12
-            </div>
-          </div>
-          <div className='fc-col-lg-1-12'>
-            <div className='content-box'>
-              fc-col-lg-1-12
-            </div>
-          </div>
-          <div className='fc-col-lg-1-12'>
-            <div className='content-box'>
-              fc-col-lg-1-12
-            </div>
-          </div>
-          <div className='fc-col-lg-1-12'>
-            <div className='content-box'>
-              fc-col-lg-1-12
-            </div>
-          </div>
-          <div className='fc-col-lg-1-12'>
-            <div className='content-box'>
-              fc-col-lg-1-12
-            </div>
-          </div>
-          <div className='fc-col-lg-1-12'>
-            <div className='content-box'>
-              fc-col-lg-1-12
-            </div>
-          </div>
-          <div className='fc-col-lg-1-12'>
-            <div className='content-box'>
-              fc-col-lg-1-12
-            </div>
-          </div>
-          <div className='fc-col-lg-1-12'>
-            <div className='content-box'>
-              fc-col-lg-1-12
-            </div>
-          </div>
-        </div>
-        <div className='fc-grid'>
-          <div className='fc-col-lg-1-6'>
-            <div className='content-box'>
-              fc-col-lg-1-6
-            </div>
-          </div>
-          <div className='fc-col-lg-5-6'>
-            <div className='content-box'>
-              fc-col-lg-5-6
-            </div>
-          </div>
-        </div>
-        <div className='fc-grid'>
-          <div className='fc-col-lg-1-4'>
-            <div className='content-box'>
-              fc-col-lg-1-4
-            </div>
-          </div>
-          <div className='fc-col-lg-3-4'>
-            <div className='content-box'>
-              fc-col-lg-3-4
-            </div>
-          </div>
-        </div>
-        <div className='fc-grid'>
-          <div className='fc-col-lg-1-3'>
-            <div className='content-box'>
-              fc-col-lg-1-3
-            </div>
-          </div>
-          <div className='fc-col-lg-2-3'>
-            <div className='content-box'>
-              fc-col-lg-2-3
-            </div>
-          </div>
-        </div>
-        <div className='fc-grid'>
-          <div className='fc-col-lg-5-12'>
-            <div className='content-box'>
-              fc-col-lg-5-12
-            </div>
-          </div>
-          <div className='fc-col-lg-7-12'>
-            <div className='content-box'>
-              fc-col-lg-7-12
-            </div>
-          </div>
-        </div>
-        <div className='fc-grid'>
-          <div className='fc-col-lg-1-2'>
-            <div className='content-box'>
-              fc-col-lg-1-2
-            </div>
-          </div>
-          <div className='fc-col-lg-1-2'>
-            <div className='content-box'>
-              fc-col-lg-1-2
-            </div>
-          </div>
-        </div>
-        <div className='fc-grid'>
-          <div className='fc-col-lg-1-1'>
-            <div className='content-box'>
-              fc-col-lg-1-1
-            </div>
-          </div>
-        </div>
+        { this.getGrid('lg') }
         <div className='fc-grid'>
           <div className='fc-col-md-1-1'>
             <h2>Extra Large Grid</h2>
@@ -431,135 +86,7 @@ export default class StyleGuide extends React.Component {
             </p>
           </div>
         </div>
-        <div className='fc-grid'>
-          <div className='fc-col-xl-1-12'>
-            <div className='content-box'>
-              fc-col-xl-1-12
-            </div>
-          </div>
-          <div className='fc-col-xl-1-12'>
-            <div className='content-box'>
-              fc-col-xl-1-12
-            </div>
-          </div>
-          <div className='fc-col-xl-1-12'>
-            <div className='content-box'>
-              fc-col-xl-1-12
-            </div>
-          </div>
-          <div className='fc-col-xl-1-12'>
-            <div className='content-box'>
-              fc-col-xl-1-12
-            </div>
-          </div>
-          <div className='fc-col-xl-1-12'>
-            <div className='content-box'>
-              fc-col-xl-1-12
-            </div>
-          </div>
-          <div className='fc-col-xl-1-12'>
-            <div className='content-box'>
-              fc-col-xl-1-12
-            </div>
-          </div>
-          <div className='fc-col-xl-1-12'>
-            <div className='content-box'>
-              fc-col-xl-1-12
-            </div>
-          </div>
-          <div className='fc-col-xl-1-12'>
-            <div className='content-box'>
-              fc-col-xl-1-12
-            </div>
-          </div>
-          <div className='fc-col-xl-1-12'>
-            <div className='content-box'>
-              fc-col-xl-1-12
-            </div>
-          </div>
-          <div className='fc-col-xl-1-12'>
-            <div className='content-box'>
-              fc-col-xl-1-12
-            </div>
-          </div>
-          <div className='fc-col-xl-1-12'>
-            <div className='content-box'>
-              fc-col-xl-1-12
-            </div>
-          </div>
-          <div className='fc-col-xl-1-12'>
-            <div className='content-box'>
-              fc-col-xl-1-12
-            </div>
-          </div>
-        </div>
-        <div className='fc-grid'>
-          <div className='fc-col-xl-1-6'>
-            <div className='content-box'>
-              fc-col-xl-1-6
-            </div>
-          </div>
-          <div className='fc-col-xl-5-6'>
-            <div className='content-box'>
-              fc-col-xl-5-6
-            </div>
-          </div>
-        </div>
-        <div className='fc-grid'>
-          <div className='fc-col-xl-1-4'>
-            <div className='content-box'>
-              fc-col-xl-1-4
-            </div>
-          </div>
-          <div className='fc-col-xl-3-4'>
-            <div className='content-box'>
-              fc-col-xl-3-4
-            </div>
-          </div>
-        </div>
-        <div className='fc-grid'>
-          <div className='fc-col-xl-1-3'>
-            <div className='content-box'>
-              fc-col-xl-1-3
-            </div>
-          </div>
-          <div className='fc-col-xl-2-3'>
-            <div className='content-box'>
-              fc-col-xl-2-3
-            </div>
-          </div>
-        </div>
-        <div className='fc-grid'>
-          <div className='fc-col-xl-5-12'>
-            <div className='content-box'>
-              fc-col-xl-5-12
-            </div>
-          </div>
-          <div className='fc-col-xl-7-12'>
-            <div className='content-box'>
-              fc-col-xl-7-12
-            </div>
-          </div>
-        </div>
-        <div className='fc-grid'>
-          <div className='fc-col-xl-1-2'>
-            <div className='content-box'>
-              fc-col-xl-1-2
-            </div>
-          </div>
-          <div className='fc-col-xl-1-2'>
-            <div className='content-box'>
-              fc-col-xl-1-2
-            </div>
-          </div>
-        </div>
-        <div className='fc-grid'>
-          <div className='fc-col-xl-1-1'>
-            <div className='content-box'>
-              fc-col-xl-1-1
-            </div>
-          </div>
-        </div>
+        { this.getGrid('xl') }
         <div className='fc-grid'>
           <div className='fc-col-sm-1-1'>
             <h2>Variable Grid</h2>
