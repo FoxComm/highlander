@@ -45,7 +45,7 @@ export class Dispatcher {
 
   resetQueue() {
     this.isDispatching = false;
-    
+
     this.queue = List([]);
   }
 
@@ -94,7 +94,7 @@ export class Dispatcher {
 }
 
 class AppDispatcher extends Dispatcher {
-  handleViewAction(action, source='VIEW_ACTION') {
+  handleAction(action, source='VIEW_ACTION') {
     this.dispatch({
       source: source,
       action: action
