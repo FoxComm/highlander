@@ -33,7 +33,6 @@ export default class Customers extends React.Component {
   }
 
   onChangeCustomerStore(customers) {
-    console.log(customers);
     this.setState({customers});
   }
 
