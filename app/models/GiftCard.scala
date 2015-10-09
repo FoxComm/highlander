@@ -58,8 +58,8 @@ final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = C
   def authorize(amount: Int)(implicit ec: ExecutionContext): Result[String] =
     Result.good("authenticated")
 
-  def isActive: Boolean = activeStatuses.contains(status)
-  def isCart: Boolean = status == Cart
+  def isActive: Boolean = status == Active
+  def isCart: Boolean   = status == Cart
 
   def hasAvailable(amount: Int): Boolean = availableBalance >= amount
 }
@@ -85,7 +85,7 @@ object GiftCard {
     def types = sealerate.values[OriginType]
   }
 
-  val activeStatuses = Set[Status](Active)
+  val giftCardCodeRegex = """([a-zA-Z0-9-_]*)""".r
   val defaultCodeLength = 16
 
   def generateCode(length: Int): String = {
@@ -182,7 +182,10 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
     filter(_.code === code)
 
   def findActiveByCode(code: String): Query[GiftCards, GiftCard, Seq] =
-    findByCode(code).filter(_.status inSet activeStatuses)
+    findByCode(code).filter(_.status === (GiftCard.Active: GiftCard.Status))
+
+  def findCartByCode(code: String) : Query[GiftCards, GiftCard, Seq] =
+    findByCode(code).filter(_.status === (GiftCard.Cart: GiftCard.Status))
 
   override def save(giftCard: GiftCard)(implicit ec: ExecutionContext): DBIO[GiftCard] = for {
     (id, cb, ab) ← this.returning(map { gc ⇒ (gc.id, gc.currentBalance, gc.availableBalance) }) += giftCard

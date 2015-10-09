@@ -20,5 +20,6 @@ object OrderLineItemSkus extends TableQueryWithId[OrderLineItemSku, OrderLineIte
   idLens = GenLens[OrderLineItemSku](_.id)
 )(new OrderLineItemSkus(_)){
 
-  def _findByOrderId(orderId: Rep[Int]) = { filter(_.orderId === orderId) }
+  def findByOrderId(orderId: Rep[Int]): Query[OrderLineItemSkus, OrderLineItemSku, Seq] =
+    filter(_.orderId === orderId)
 }

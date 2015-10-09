@@ -46,7 +46,7 @@ class GiftCardAsLineItemIntegrationTest extends IntegrationTestBase
       val response = POST(s"v1/orders/${order.refNum}/gift-cards", payloads.AddGiftCardLineItem(balance = -100))
 
       response.status must ===(StatusCodes.BadRequest)
-      response.errors must ===(GeneralFailure("Balance must be greater than zero").description)
+      response.errors must ===(GeneralFailure("Balance got -100, expected more than 0").description)
     }
   }
 
@@ -70,14 +70,14 @@ class GiftCardAsLineItemIntegrationTest extends IntegrationTestBase
       val response = PATCH(s"v1/orders/${order.refNum}/gift-cards/${giftCard.code}", payloads.AddGiftCardLineItem(balance = 100))
 
       response.status must ===(StatusCodes.NotFound)
-      response.errors must ===(GeneralFailure("Order not found").description)
+      response.errors must ===(OrderNotFoundFailure(order.refNum).description)
     }
 
     "fails to update GC setting invalid balance" in new LineItemFixture {
       val response = PATCH(s"v1/orders/${order.refNum}/gift-cards/${giftCard.code}", payloads.AddGiftCardLineItem(balance = -100))
 
       response.status must ===(StatusCodes.BadRequest)
-      response.errors must ===(GeneralFailure("Balance must be greater than zero").description)
+      response.errors must ===(GeneralFailure("Balance got -100, expected more than 0").description)
     }
   }
 
@@ -97,17 +97,7 @@ class GiftCardAsLineItemIntegrationTest extends IntegrationTestBase
       val response = DELETE(s"v1/orders/${order.refNum}/gift-cards/${giftCard.code}")
 
       response.status must ===(StatusCodes.NotFound)
-      response.errors must ===(GeneralFailure("Order not found").description)
-    }
-  }
-
-  "POST /v1/orders/:refNum/payments-methods/gift-cards" - {
-    "fails to add GC with cart status as payment method" in new LineItemFixture {
-      val payload = payloads.GiftCardPayment(code = giftCard.code, amount = 15)
-      val response = POST(s"v1/orders/${order.refNum}/payment-methods/gift-cards", payload)
-
-      response.status must ===(StatusCodes.NotFound)
-      response.errors must ===(GiftCardNotFoundFailure(giftCard.code).description)
+      response.errors must ===(OrderNotFoundFailure(order.refNum).description)
     }
   }
 

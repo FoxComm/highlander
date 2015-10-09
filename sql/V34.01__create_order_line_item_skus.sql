@@ -1,11 +1,9 @@
 create table order_line_item_skus (
     id integer primary key,
-    order_id integer not null,
-    sku_id integer not null,
+    order_id integer not null references orders(id) on update restrict on delete restrict,
+    sku_id integer not null references skus(id) on update restrict on delete restrict,
     created_at timestamp without time zone default (now() at time zone 'utc'),
-    foreign key (id) references order_line_item_origins(id) on update restrict on delete restrict,
-    foreign key (order_id) references orders(id)  on update restrict on delete restrict,
-    foreign key (sku_id) references skus(id) on update restrict on delete restrict
+    foreign key (id) references order_line_item_origins(id) on update restrict on delete restrict
 );
 
 create index order_line_item_skus_sku_idx on order_line_item_skus (sku_id);

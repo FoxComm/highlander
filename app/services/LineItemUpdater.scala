@@ -43,7 +43,7 @@ object LineItemUpdater {
 
     payload.validate match {
       case Valid(_) ⇒
-        GiftCards.findByCode(code).findOneAndRun { gc ⇒
+        GiftCards.findCartByCode(code).findOneAndRun { gc ⇒
           val updatedGc = gc.copy(originalBalance = payload.balance,
             availableBalance = payload.balance, currentBalance = payload.balance, currency = payload.currency)
 
@@ -51,7 +51,7 @@ object LineItemUpdater {
 
           Orders.findCartByRefNum(refNum).one.flatMap {
             case Some(o) ⇒ DbResult.fromDbio(update >> FullOrder.fromOrder(o))
-            case None    ⇒ DbResult.failure(NotFoundFailure("Order not found"))
+            case None    ⇒ DbResult.failure(OrderNotFoundFailure(refNum))
           }
         }
       case Invalid(errors) ⇒
@@ -62,7 +62,7 @@ object LineItemUpdater {
   def deleteGiftCard(refNum: String, code: String)
     (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
 
-    GiftCards.findByCode(code).findOneAndRun { gc ⇒
+    GiftCards.findCartByCode(code).findOneAndRun { gc ⇒
       OrderLineItemGiftCards.filter(_.giftCardId === gc.id).one.flatMap {
         case Some(origin) ⇒
           val deleteAll = for {
@@ -73,11 +73,11 @@ object LineItemUpdater {
           } yield ()
 
           Orders.findCartByRefNum(refNum).one.flatMap {
-            case Some(o) ⇒ DbResult.fromDbio(deleteAll.transactionally >> FullOrder.fromOrder(o))
-            case None    ⇒ DbResult.failure(NotFoundFailure("Order not found"))
+            case Some(o) ⇒ DbResult.fromDbio(deleteAll >> FullOrder.fromOrder(o))
+            case None    ⇒ DbResult.failure(OrderNotFoundFailure(refNum))
           }
         case None ⇒
-          DbResult.failure(NotFoundFailure("Origin not found"))
+          DbResult.failure(NotFoundFailure(OrderLineItemGiftCard, gc.id))
       }
     }
   }

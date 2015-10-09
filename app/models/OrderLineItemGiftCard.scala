@@ -21,5 +21,6 @@ object OrderLineItemGiftCards extends TableQueryWithId[OrderLineItemGiftCard, Or
   idLens = GenLens[OrderLineItemGiftCard](_.id)
 )(new OrderLineItemGiftCards(_)){
 
-  def _findByOrderId(orderId: Rep[Int]) = { filter(_.orderId === orderId) }
+  def findByOrderId(orderId: Rep[Int]): Query[OrderLineItemGiftCards, OrderLineItemGiftCard, Seq] =
+    filter(_.orderId === orderId)
 }

@@ -122,12 +122,12 @@ object FullOrder {
     for {
       customer ← Customers._findById(order.customerId).extract.one
       lineItems ← (for {
-        liSku ← OrderLineItemSkus._findByOrderId(order.id)
+        liSku ← OrderLineItemSkus.findByOrderId(order.id)
         li ← OrderLineItems if li.originId === liSku.id
         sku ← Skus if sku.id === liSku.skuId
       } yield (sku, li)).result
       giftCards ← (for {
-        liGc ← OrderLineItemGiftCards._findByOrderId(order.id)
+        liGc ← OrderLineItemGiftCards.findByOrderId(order.id)
         gc ← GiftCards if gc.id === liGc.giftCardId
       } yield (gc, liGc)).result
       shipMethod ← shippingMethodQ.one

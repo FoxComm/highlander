@@ -14,6 +14,6 @@ final case class AddGiftCardLineItem(balance: Int, currency: Currency = Currency
   extends Validation[AddGiftCardLineItem] {
 
   def validate: ValidatedNel[Failure, AddGiftCardLineItem] = {
-    validExpr(balance > 0, "Balance must be greater than zero").map { case _ ⇒ this }
+    greaterThan(balance, 0, "Balance").map { case _ ⇒ this }
   }
 }
