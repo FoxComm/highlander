@@ -62,7 +62,7 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.Tab
 
   def tableName: String = baseTableRow.tableName
 
-  def sort(implicit sortAndPage: SortAndPage) = {
+  def sort(implicit sortAndPage: SortAndPage): QuerySeq = {
     sortAndPage.sort match {
       case Some(s) ⇒ withSort(s.sortColumn, s.asc)
       case None    ⇒ this

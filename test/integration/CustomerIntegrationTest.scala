@@ -1,3 +1,4 @@
+import scala.util.Random
 import akka.http.scaladsl.model.StatusCodes
 
 import algebra.Monoid
@@ -312,6 +313,88 @@ class CustomerIntegrationTest extends IntegrationTestBase
         }
       }
     }
+
+    "supports sorting and paging" - {
+      "sort by id with paging" in new SortingAndPagingFixture {
+        val responseList = GET(s"v1/customers?pageSize=5&pageNo=3&sortBy=id")
+
+        responseList.status must === (StatusCodes.OK)
+        responseList.as[Seq[CustomerResponse.Root]] must === (customers.drop(10).take(5))
+      }
+
+      "sort by lastName without paging" in new SortingAndPagingFixture {
+        val responseList = GET(s"v1/customers?sortBy=lastName")
+
+        responseList.status must === (StatusCodes.OK)
+        responseList.as[Seq[CustomerResponse.Root]] must === (customers.sortBy(_.lastName))
+      }
+
+      "sort by lastName with paging #1" in new SortingAndPagingFixture {
+        val responseList = GET(s"v1/customers?sortBy=lastName&pageNo=3&pageSize=6")
+
+        responseList.status must === (StatusCodes.OK)
+        responseList.as[Seq[CustomerResponse.Root]] must === (customers.sortBy(_.lastName).drop(12).take(6))
+      }
+
+      "sort by lastName with paging #2" in new SortingAndPagingFixture {
+        val responseList = GET(s"v1/customers?sortBy=lastName&pageNo=3&pageSize=999")
+
+        responseList.status must === (StatusCodes.OK)
+        responseList.as[Seq[CustomerResponse.Root]] must === (Seq.empty)
+      }
+
+      "sort by lastName with paging #3" in new SortingAndPagingFixture {
+        val responseList = GET(s"v1/customers?sortBy=lastName&pageNo=1&pageSize=999")
+
+        responseList.status must === (StatusCodes.OK)
+        responseList.as[Seq[CustomerResponse.Root]] must === (customers.sortBy(_.lastName))
+      }
+
+      "error on invalid pageNo param #1" in new SortingAndPagingFixture {
+        val responseList = GET(s"v1/customers?sortBy=lastName&pageNo=sdfgdsg&pageSize=10")
+
+        responseList.status must === (StatusCodes.BadRequest)
+      }
+
+      "error on invalid pageNo param #2" in new SortingAndPagingFixture {
+        val responseList = GET(s"v1/customers?sortBy=lastName&pageNo=-10&pageSize=10")
+
+        responseList.status must === (StatusCodes.InternalServerError)
+      }
+
+      "error on invalid pageNo param #3" in new SortingAndPagingFixture {
+        val responseList = GET(s"v1/customers?sortBy=lastName&pageNo=0&pageSize=10")
+
+        responseList.status must === (StatusCodes.InternalServerError)
+      }
+
+      "error on invalid pageSize param #1" in new SortingAndPagingFixture {
+        val responseList = GET(s"v1/customers?sortBy=lastName&pageNo=10&pageSize=sdfgdsg")
+
+        responseList.status must === (StatusCodes.BadRequest)
+      }
+
+      "error on invalid pageSize param #2" in new SortingAndPagingFixture {
+        val responseList = GET(s"v1/customers?sortBy=lastName&pageNo=1&pageSize=-10")
+
+        responseList.status must === (StatusCodes.InternalServerError)
+      }
+
+      "error on invalid pageSize param #3" in new SortingAndPagingFixture {
+        val responseList = GET(s"v1/customers?sortBy=lastName&pageNo=1&pageSize=0")
+
+        responseList.status must === (StatusCodes.OK)
+        responseList.as[Seq[CustomerResponse.Root]] must === (Seq.empty)
+      }
+
+      "ignore invalid sortBy param" in new SortingAndPagingFixture {
+        val responseList = GET(s"v1/customers?sortBy=3242&pageNo=3&pageSize=10")
+
+        responseList.status must === (StatusCodes.OK)
+        responseList.as[Seq[CustomerResponse.Root]] must === (customers.drop(20).take(10))
+      }
+    }
+
   }
 
 
@@ -338,6 +421,19 @@ class CustomerIntegrationTest extends IntegrationTestBase
     override val creditCard = CreditCards.save(Factories.creditCard.copy(
       isDefault = false,
       customerId = customer.id)).run().futureValue
+  }
+
+  trait SortingAndPagingFixture {
+    val numberOfCustomers = 30
+
+    def generateCustomer(i: Int): Customer = {
+      Customer(email = s"email$i@yax.com", password = "password",
+        firstName = s"firstName$i", lastName = Random.nextString(10))
+    }
+
+    val customers = (1 to numberOfCustomers).map { i ⇒
+      CustomerResponse.build(Customers.save(generateCustomer(i)).run().futureValue)
+    }
   }
 }
 

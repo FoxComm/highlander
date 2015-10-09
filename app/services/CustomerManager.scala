@@ -25,9 +25,23 @@ object CustomerManager {
 
   def findAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage):
   Result[Seq[Root]] = {
-    val query = fetchRegions(Customers.sort).paged
+    val query = fetchRegions(Customers)
 
-    Result.fromFuture(db.run(query.result).map { results ⇒
+    val sortedQuery = sortAndPage.sort match {
+      case Some(s) ⇒ query.sortBy { case (t, _, _) ⇒
+        s.sortColumn match {
+          case "id"        => if(s.asc) t.id.asc        else t.id.desc
+          case "email"     => if(s.asc) t.email.asc     else t.email.desc
+          case "firstName" => if(s.asc) t.firstName.asc else t.firstName.desc
+          case "lastName"  => if(s.asc) t.lastName.asc  else t.lastName.desc
+          case "location"  => if(s.asc) t.location.asc  else t.location.desc
+          case _           => t.id.asc
+        }
+      }
+      case None    ⇒ query
+    }
+
+    Result.fromFuture(db.run(sortedQuery.paged.result).map { results ⇒
       results.map {
         case (customer, shipRegion, billRegion) ⇒
           build(customer, shipRegion, billRegion)

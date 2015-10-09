@@ -61,7 +61,7 @@ package object services {
     def leftAsync[A](f: Failures)(implicit ec: ExecutionContext):     ResultT[A] = XorT.left(Future.successful(f))
   }
 
-  implicit class QueryOps[M,U,C[_]](query: Query[M,U,C]) {
+  implicit class QueryOps[M,U,C[_]](val query: Query[M,U,C]) extends AnyVal {
     def paged(implicit sortAndPage: SortAndPage): Query[M,U,C] = {
 
       val pagedQueryOpt = for {
@@ -72,4 +72,6 @@ package object services {
       pagedQueryOpt.getOrElse(query)
     }
   }
+
+
 }

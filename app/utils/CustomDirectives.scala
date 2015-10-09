@@ -18,7 +18,7 @@ object CustomDirectives {
     sort: Option[Sort])
 
   def sortAndPage: Directive1[SortAndPage] =
-    parameters(('pageNo.as[Int].?, 'pageSize.as[Int].?, 'sortColumn.as[String].?)).tmap {
+    parameters(('pageNo.as[Int].?, 'pageSize.as[Int].?, 'sortBy.as[String].?)).tmap {
       case (pageNoOpt: Option[Int], pageSizeOpt: Option[Int], sortColumnOpt: Option[String]) ⇒
         val sort = sortColumnOpt.map { f ⇒
           if (f.startsWith("-")) Sort(f.drop(1), asc = false)
