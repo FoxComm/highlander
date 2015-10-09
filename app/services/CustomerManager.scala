@@ -5,6 +5,7 @@ import scala.concurrent.ExecutionContext
 import models.{CreditCards, Regions, Region, Customer, Customers, StoreAdmin}
 import responses.CustomerResponse._
 import slick.driver.PostgresDriver.api._
+import utils.CustomDirectives.SortAndPage
 import utils.Slick.UpdateReturning._
 
 object CustomerManager {
@@ -22,8 +23,9 @@ object CustomerManager {
     }
   }
 
-  def findAll(implicit db: Database, ec: ExecutionContext): Result[Seq[Root]] = {
-    val query = fetchRegions(Customers)
+  def findAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage):
+  Result[Seq[Root]] = {
+    val query = fetchRegions(Customers.sort).paged
 
     Result.fromFuture(db.run(query.result).map { results ⇒
       results.map {

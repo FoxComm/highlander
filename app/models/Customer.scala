@@ -70,6 +70,17 @@ object Customers extends TableQueryWithId[Customer, Customers](
   idLens = GenLens[Customer](_.id)
 )(new Customers(_)) {
 
+  override def withSort(column: String, asc: Boolean) = sortBy {
+    column match {
+      case "id"        => if(asc) _.id.asc        else _.id.desc
+      case "email"     => if(asc) _.email.asc     else _.email.desc
+      case "firstName" => if(asc) _.firstName.asc else _.firstName.desc
+      case "lastName"  => if(asc) _.lastName.asc  else _.lastName.desc
+      case "location"  => if(asc) _.location.asc  else _.location.desc
+      case _           => _.id.asc
+    }
+  }
+
   def findByEmail(email: String)(implicit ec: ExecutionContext, db: Database): Future[Option[Customer]] = {
     db.run(filter(_.email === email).one)
   }

@@ -24,88 +24,18 @@ import scala.concurrent.{ExecutionContext, Future}
 
 object CustomerRoutes {
 
-  import utils.JsonFormatters._
-
-  implicit lazy val serialization: Serialization.type = jackson.Serialization
-  implicit lazy val formats:       Formats = phoenixFormats
-
-  class ToJsonArray[T <: AnyRef]
-    extends PushPullStage[T, ByteString] {
-    private var first = true
-
-    override def onPush(elem: T, ctx: Context[ByteString]) = {
-      val leading = if (first) { first = false; "[" } else ","
-      ctx.push(ByteString(leading + json(elem) + "\n"))
-    }
-
-    override def onPull(ctx: Context[ByteString]) =
-      if (ctx.isFinishing) {
-        if (first) ctx.pushAndFinish(ByteString("[]"))
-        else ctx.pushAndFinish(ByteString("]"))
-      } else ctx.pull()
-
-    override def onUpstreamFinish(ctx: Context[ByteString]) =
-      ctx.absorbTermination()
-  }
-
   def routes(implicit ec: ExecutionContext, db: Database,
     mat: Materializer, storeAdminAuth: AsyncAuthenticator[StoreAdmin], apis: Apis) = {
 
     authenticateBasicAsync(realm = "admin", storeAdminAuth) { admin ⇒
 
       pathPrefix("customers") {
-        (get & pathEnd) {
+        (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
           goodOrFailures {
             CustomerManager.findAll
           }
         }
       } ~
-      // TODO ************* the following is just a POC and introduction to a discussion *************
-      pathPrefix("customersPaged") {
-        (get & pathEnd & sortAndPage) { (sort, page) ⇒
-          good {
-            val query = models.Customers
-            val sortedQuery = sort match {
-              case Some(s) ⇒
-                query.sortBy { table ⇒
-                  // TODO: of course here should be a column name validation and a proper column type selection
-                  if(s.asc) table.column[String](s.sortColumn).asc else table.column[String](s.sortColumn).desc
-                }
-              case None    ⇒ query
-            }
-            val pagedQuery = page match {
-              case Some(p) ⇒
-                sortedQuery.drop(p.pageSize * (p.pageNo - 1)).take(p.pageSize)
-              case None    ⇒ sortedQuery
-            }
-            pagedQuery.result.run() // TODO probably we will have a root JSON object with the paging metadata
-          }
-        }
-      } ~
-      pathPrefix("customersReactive") {
-        (get & pathEnd & sortAndStart) { (sort, start) ⇒
-
-          val query = models.Customers
-          val sortedQuery = sort match {
-            case Some(s) ⇒
-              query.sortBy { table ⇒
-                // TODO: of course here should be a column name validation and a proper column type selection
-                if(s.asc) table.column[String](s.sortColumn).asc else table.column[String](s.sortColumn).desc
-              }
-            case None    ⇒ query
-          }
-          val queryWithStartElement = start match {
-            case Some(s) ⇒
-              sortedQuery.drop(s.startFrom - 1)
-            case None    ⇒ sortedQuery
-          }
-          val stream = Source(implicitly[Database].stream(queryWithStartElement.result))
-            .transform(() => new ToJsonArray)
-          // TODO probably we will have a root JSON object with the paging metadata
-          complete(HttpResponse(entity = HttpEntity.Chunked.fromData(ContentTypes.`application/json`, stream)))
-        }
-      } ~
-        // TODO *************************** end of the POC ***************************
       pathPrefix("customers" / IntNumber) { customerId ⇒
         (get & pathEnd) {
           goodOrFailures {

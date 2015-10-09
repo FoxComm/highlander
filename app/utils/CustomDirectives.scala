@@ -11,35 +11,21 @@ import scala.concurrent.{ExecutionContext, Future}
 
 object CustomDirectives {
 
-  case class Sort(sortColumn: String, asc: Boolean = true)
-  case class Start(startFrom: Int)
-  case class Page(pageNo: Int, pageSize: Int)
+  final case class Sort(sortColumn: String, asc: Boolean = true)
+  final case class SortAndPage(
+    pageNo: Option[Int],
+    pageSize: Option[Int],
+    sort: Option[Sort])
 
-  def sort: Directive1[Option[Sort]] =
-    parameter('sortColumn.as[String].?).map { field: Option[String] ⇒
-      field map { f ⇒
-        if (f.startsWith("-")) Sort(f.drop(1), asc = false)
-        else Sort(f)
-      }
+  def sortAndPage: Directive1[SortAndPage] =
+    parameters(('pageNo.as[Int].?, 'pageSize.as[Int].?, 'sortColumn.as[String].?)).tmap {
+      case (pageNoOpt: Option[Int], pageSizeOpt: Option[Int], sortColumnOpt: Option[String]) ⇒
+        val sort = sortColumnOpt.map { f ⇒
+          if (f.startsWith("-")) Sort(f.drop(1), asc = false)
+          else Sort(f)
+        }
+        SortAndPage(pageNoOpt, pageSizeOpt, sort)
     }
-
-  def start: Directive1[Option[Start]] =
-    parameter('startFrom.as[Int].?).map { startFrom: Option[Int] ⇒
-      startFrom.map(Start)
-    }
-
-  def page: Directive1[Option[Page]] =
-    parameters(('pageNo.as[Int].?, 'pageSize.as[Int].?)).tmap { case (pageNoOpt: Option[Int], pageSizeOpt:
-      Option[Int]) ⇒
-      for {
-        pageNo   ← pageNoOpt
-        pageSize ← pageSizeOpt
-      } yield Page(pageNo, pageSize)
-    }
-
-  def sortAndStart = sort & start
-
-  def sortAndPage = sort & page
 
   def good[A <: AnyRef](a: Future[A])(implicit ec: ExecutionContext): StandardRoute =
     complete(a.map(render(_)))

@@ -7,6 +7,7 @@ import monocle.Lens
 import services._
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
+import utils.CustomDirectives.SortAndPage
 import utils.Slick.DbResult
 import utils.Slick._
 import utils.Slick.DbResult._
@@ -60,6 +61,15 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.Tab
   (implicit ev: BaseTypedType[M#Id]) extends TableQuery[T](construct) {
 
   def tableName: String = baseTableRow.tableName
+
+  def sort(implicit sortAndPage: SortAndPage) = {
+    sortAndPage.sort match {
+      case Some(s) ⇒ withSort(s.sortColumn, s.asc)
+      case None    ⇒ this
+    }
+  }
+
+  def withSort(column: String, asc: Boolean): QuerySeq = this
 
   val returningId =
     this.returning(map(_.id))
