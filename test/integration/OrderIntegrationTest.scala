@@ -562,8 +562,8 @@ class OrderIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.OK)
 
       val orderShippingMethod = OrderShippingMethods.findByOrderId(order.id).result.run().futureValue.head
-      orderShippingMethod.adminDisplayName === shippingMethod.adminDisplayName
-      orderShippingMethod.price === shippingMethod.price
+      orderShippingMethod.orderId must === (order.id)
+      orderShippingMethod.shippingMethodId must === (shippingMethod.id)
     }
   }
 
