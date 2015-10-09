@@ -5,8 +5,10 @@ import cats.data.Xor
 import com.stripe.exception.CardException
 import com.stripe.model
 import com.stripe.model.{Customer ⇒ StripeCustomer, Card, ExternalAccount}
-import models.{Orders, Customer, CreditCards, CreditCard, Customers, Addresses, StoreAdmins, OrderPayments}
+import models.{Orders, Customer, CreditCards, CreditCard, Customers, Addresses, StoreAdmins, OrderPayments,
+Region, Regions}
 import models.OrderPayments.scope._
+import responses.CustomerResponse
 import org.mockito.Mockito
 import org.mockito.Mockito.RETURNS_DEFAULTS
 import org.mockito.invocation.InvocationOnMock
@@ -41,6 +43,22 @@ class CustomerIntegrationTest extends IntegrationTestBase
   import slick.driver.PostgresDriver.api._
   import util.SlickSupport.implicits._
 
+  def customersApi(customer: Customer, shipRegion: Option[Region] = None, billRegion: Option[Region] = None) = {
+    info("show a customer")
+    val response = GET(s"v1/customers/${customer.id}")
+    val customerRoot = CustomerResponse.build(customer, shippingRegion = shipRegion, billingRegion = billRegion)
+
+    response.status must ===(StatusCodes.OK)
+    response.as[CustomerResponse.Root] must === (customerRoot)
+
+    info("shows a list of customers")
+    val responseList = GET(s"v1/customers")
+    val customers = Seq(customerRoot)
+
+    responseList.status must === (StatusCodes.OK)
+    responseList.as[Seq[CustomerResponse.Root]] must === (customers)
+  }
+
   "Customer" - {
     "accounts are unique based on email, non-guest, and active" in {
       val stub = Factories.customer.copy(isGuest = false, disabled = false)
@@ -58,20 +76,20 @@ class CustomerIntegrationTest extends IntegrationTestBase
     }
   }
 
-  "admin APIs" - {
-    "shows a customer" in new Fixture {
-      val response = GET(s"v1/customers/${customer.id}")
-
-      response.status must === (StatusCodes.OK)
-      parse(response.bodyText).extract[Customer] must === (customer)
+  "GET /v1/customers/:id?" - {
+    "should with Fixture" in new Fixture {
+      behave like customersApi(customer, region)
     }
-
-    "shows a list of customers" in new Fixture {
-      val response = GET(s"v1/customers")
-      val customers = Seq(customer)
-
-      response.status must === (StatusCodes.OK)
-      parse(response.bodyText).extract[Seq[Customer]] must === (customers)
+    "should with no default address" in new FixtureWithoutDefaultAddress {
+      behave like customersApi(customer, region)
+    }
+    "should with creditCard" in new CreditCardFixture {
+      val billRegion = Regions.findById(creditCard.regionId).run().futureValue
+      behave like customersApi(customer, region, billRegion)
+    }
+    "should with no default creditCard" in new NoDefaultCreditCardFixture {
+      val billRegion = Regions.findById(creditCard.regionId).run().futureValue
+      behave like customersApi(customer, region, billRegion)
     }
 
     "toggles the disabled flag on a customer account" in new Fixture {
@@ -298,15 +316,28 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
 
   trait Fixture {
-    val (customer, address, admin) = (for {
+    val (customer, address, region, admin) = (for {
       customer ← Customers.save(Factories.customer)
       address ← Addresses.save(Factories.address.copy(customerId = customer.id))
+      region ← Regions.findById(address.regionId)
       admin ← StoreAdmins.save(authedStoreAdmin)
-    } yield (customer, address, admin)).run().futureValue
+    } yield (customer, address, region, admin)).run().futureValue
+  }
+
+  trait FixtureWithoutDefaultAddress extends Fixture {
+    override val address = Addresses.save(Factories.address.copy(customerId = customer.id, isDefaultShipping = false))
+      .run()
+      .futureValue
   }
 
   trait CreditCardFixture extends Fixture {
     val creditCard = CreditCards.save(Factories.creditCard.copy(customerId = customer.id)).run().futureValue
+  }
+
+  trait NoDefaultCreditCardFixture extends CreditCardFixture {
+    override val creditCard = CreditCards.save(Factories.creditCard.copy(
+      isDefault = false,
+      customerId = customer.id)).run().futureValue
   }
 }
 

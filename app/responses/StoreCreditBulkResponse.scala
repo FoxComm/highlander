@@ -4,20 +4,16 @@ import cats.data.Xor
 import services.Failures
 import scala.collection.immutable.Seq
 
-object StoreCreditBulkUpdateResponse {
+object StoreCreditBulkResponse {
   final case class ItemResult(
     id: Int,
     success: Boolean = false,
     storeCredit: Option[StoreCreditResponse.Root] = None,
     errors: Option[Failures] = None)
 
-  final case class BulkResponse(itemResults: Seq[ItemResult])
-
   def buildItemResult(id: Int, result: Failures Xor StoreCreditResponse.Root): ItemResult = {
     result.fold(errors ⇒ ItemResult(id = id, errors = Some(errors)),
       sc ⇒ ItemResult(id = id, success = true, storeCredit = Some(sc)))
   }
-
-  def buildBulkResponse(itemResults: Seq[ItemResult]): BulkResponse = BulkResponse(itemResults = itemResults)
 }
 

@@ -43,7 +43,7 @@ object GiftCardRoutes {
             GiftCardAdjustmentsService.forGiftCard(code)
           }
         } ~
-        (post & path("_bulk") & entity(as[payloads.GiftCardBulkCreateByCsr]) & pathEnd) { payload ⇒
+        (post & entity(as[payloads.GiftCardBulkCreateByCsr]) & pathEnd) { payload ⇒
           goodOrFailures {
             GiftCardService.createBulkByAdmin(admin, payload)
           }

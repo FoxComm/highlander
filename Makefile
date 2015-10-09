@@ -7,8 +7,8 @@ clean:
 
 deploy-staging:
 	sbt assembly
-	rsync -avz ./target/scala-2.11/phoenix-scala-assembly-1.0.jar deploy@104.197.51.67:~/phoenix.jar
-	rsync -avz ./resources/run_phoenix.sh ./sql deploy@104.197.51.67:~/
+	rsync -avz --delete ./target/scala-2.11/phoenix-scala-assembly-1.0.jar deploy@104.197.51.67:~/phoenix.jar
+	rsync -avz --delete ./resources/run_phoenix.sh ./sql deploy@104.197.51.67:~/
 	ssh deploy@104.197.51.67 "export PHOENIX_ENV=staging; \
 		/usr/local/share/flyway/flyway -configFile=sql/flyway.conf -locations=filesystem:sql clean"
 	ssh deploy@104.197.51.67 "export PHOENIX_ENV=staging; \
