@@ -1,7 +1,6 @@
 'use strict';
 
 import React from 'react';
-import Panel from '../panel/panel';
 import TableView from '../table/tableview';
 import TableRow from '../table/row';
 import TableCell from '../table/cell';
@@ -61,7 +60,9 @@ export default class Customers extends React.Component {
     return (
       <div id="users">
         <div className="fc-list-header">
-          <SectionTitle title="Cutomers" count={this.state.customers.length} buttonClickHandler={ this.handleAddCustomerClick }/>
+          <SectionTitle title="Cutomers"
+                        count={this.state.customers.length}
+                        buttonClickHandler={ this.handleAddCustomerClick }/>
           <div className="fc-grid gutter">
             <div className="fc-col-1-1">
               <ul className="fc-tabbed-nav">

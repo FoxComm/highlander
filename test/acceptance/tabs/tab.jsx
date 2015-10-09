@@ -25,7 +25,7 @@ describe('TabView', function() {
   it('should contain title text', function *() {
     let titleText = 'All';
 
-    let tab = React.render(
+    let tab = ReactDOM.render(
       <TabView>{ titleText }</TabView>
       , container);
     let tabNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithClass(tab, 'fc-tab'));
@@ -36,7 +36,7 @@ describe('TabView', function() {
   it('should be draggable by default', function *() {
     let titleText = 'All';
 
-    let tab = React.render(
+    let tab = ReactDOM.render(
       <TabView>{ titleText }</TabView>
       , container);
     let tabNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithClass(tab, 'fc-tab'));
@@ -47,7 +47,7 @@ describe('TabView', function() {
   it('should be draggable when property is false', function *() {
     let titleText = 'All';
 
-    let tab = React.render(
+    let tab = ReactDOM.render(
       <TabView draggable={ false }>{ titleText }</TabView>
       , container);
     let tabNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithClass(tab, 'fc-tab'));
