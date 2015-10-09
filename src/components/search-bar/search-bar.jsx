@@ -6,7 +6,7 @@ export default class SearchBar extends React.Component {
 
   render() {
     return (
-      <div className="fc-search-bar fc-col-1-1">
+      <div className="fc-col-md-1-1 fc-search-bar">
         <form>
           <div className="fc-search-input-container">
             <div className="fc-search-input-wrapper fc-form-field">

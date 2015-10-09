@@ -58,13 +58,13 @@ export default class Customers extends React.Component {
     };
 
     return (
-      <div id="users">
+      <div id="customers">
         <div className="fc-list-header">
           <SectionTitle title="Cutomers"
                         count={this.state.customers.length}
                         buttonClickHandler={ this.handleAddCustomerClick }/>
           <div className="fc-grid gutter">
-            <div className="fc-col-1-1">
+            <div className="fc-col-md-1-1">
               <ul className="fc-tabbed-nav">
                 <li><Link to="customers">Lists</Link></li>
                 <li><a href="">Customer Groups</a></li>
@@ -79,7 +79,7 @@ export default class Customers extends React.Component {
           </TabListView>
         </div>
         <div className="fc-grid gutter">
-          <div className="fc-col-1-1 fc-action-bar clearfix">
+          <div className="fc-col-md-1-1 fc-action-bar clearfix">
             <button className="fc-btn fc-right">
               <i className="icon-external-link"></i>
             </button>

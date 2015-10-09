@@ -1,26 +1,26 @@
-@gutter: 2%;
+@gutter: 1.85%;
 @grid-columns: 12;
 
-.generate-grid(@columns) {
+.generate-grid(@pageSize, @columns) {
   .col-denomenator(@idx) when (@idx <= @columns) {
     // 1, 2, 3, 4, 5, 6, 7, 8 etc
     .col-numerator(@fraction) when (@fraction <= @idx) {
       // 1-1, 1-2, 2-2, 1-3, 2-3, 3-3 etc
       @size: (100% / @idx) * @fraction;
-      .fc-col-@{fraction}-@{idx} {
-        width: @size;
+      .fc-col-@{pageSize}-@{fraction}-@{idx} {
+        flex: 0 0 @size;
       }
-      .fc-pull-@{fraction}-@{idx} {
+      .fc-pull-@{pageSize}-@{fraction}-@{idx} {
         left: -@size;
       }
-      .fc-push-@{fraction}-@{idx} {
+      .fc-push-@{pageSize}-@{fraction}-@{idx} {
         left: @size;
       }
       .col-numerator(@fraction + 1);
     }
-    &.fc-grid-1-@{idx} {
+    &.fc-grid-@{pageSize}-1-@{idx} {
       >* {
-        width: (100% / @idx);
+        flex: 0 0 (100% / @idx);
       }
     }
     .col-numerator(1);
@@ -30,7 +30,7 @@
 }
 
 .fc-grid {
-  .margin-left(-@gutter);
+  .margin-right(@gutter);
   display: flex;
   flex-wrap: wrap;
 
@@ -40,9 +40,16 @@
     clear: both;
   }
 
-  [class*='fc-col-'] {
-    flex: none;
-    float: left;
+  [class*='fc-col-sm-'] {
+    flex: 1;
+    .padding-left(@gutter);
+    .module {
+      .padding(@gutter);
+    }
+  }
+
+  [class*='fc-col-md-'], [class*='fc-col-lg-'], [class*='fc-col-xl-'] {
+    flex: 0 0 100%;
     .padding-left(@gutter);
     .module {
       .padding(@gutter);
@@ -64,5 +71,17 @@
     .margin-bottom(@gutter);
   }
 
-  .generate-grid(@grid-columns);
+  .generate-grid(sm, @grid-columns);
+
+  @media(min-width: 768px) {
+    .generate-grid(md, @grid-columns);
+  }
+
+  @media(min-width: 1280px) {
+    .generate-grid(lg, @grid-columns);
+  }
+
+  @media(min-width: 1441px) {
+    .generate-grid(xl, @grid-columns);
+  }
 }

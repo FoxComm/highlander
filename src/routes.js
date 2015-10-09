@@ -12,6 +12,7 @@ import Order from './components/orders/order';
 import OrderDetails from './components/orders/details';
 import Customers from './components/customers/customers';
 import Customer from './components/customers/customer';
+import CustomerDetails from './components/customers/details';
 import Notes from './components/notes/notes';
 import Notifications from './components/notifications/notifications';
 import ActivityTrail from './components/activity-trail/activity-trail';
@@ -20,6 +21,7 @@ import GiftCards from './components/gift-cards/gift-cards';
 import NewGiftCard from './components/gift-cards/gift-cards-new';
 import GiftCard from './components/gift-cards/gift-card';
 import GiftCardTransactions from './components/gift-cards/transactions';
+import StyleGuide from './components/style-guide/style-guide';
 
 const routes = (
   <Route path="/" component={Site}>
@@ -41,6 +43,7 @@ const routes = (
     </Route>
     <Route name='customers' path='customers' component={Customers}/>
     <Route name='customer' path='customers/:customer' component={Customer}>
+      <IndexRoute name='customer-details' component={CustomerDetails}/>
       <Route name='customer-addresses' path='addresses' component={AddressBook} />
     </Route>
     <Route name='gift-cards' path='gift-cards' component={GiftCards} />
@@ -50,6 +53,7 @@ const routes = (
       <Route name='gift-card-notes' path='notes' component={Notes} />
       <Route name='gift-card-activity-trail' path='activity-trail' component={ActivityTrail} />
     </Route>
+    <Route name='style-guide' path='style-guide' component={StyleGuide} />
   </Route>
 );
 
