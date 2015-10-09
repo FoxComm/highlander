@@ -26,9 +26,7 @@ class GiftCardStore extends BaseStore {
 
   handleInsertGiftCard(action) {
     const giftCard = action.giftCard;
-    let existingIndex = this.state.findIndex(item => item.code === giftCard.code);
-    if (existingIndex === -1) existingIndex = this.state.size;
-    this.setState(this.state.set(existingIndex, giftCard));
+    this.setState(this.insertIntoList(this.state, giftCard, 'code'));
   }
 }
 

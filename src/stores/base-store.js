@@ -54,4 +54,10 @@ export default class BaseStore extends EventEmitter {
       this.listeners.get(actionType)(action);
     }
   }
+
+  insertIntoList(list, newItem, field='id') {
+    let existingIndex = list.findIndex(item => item[field] === newItem[field]);
+    if (existingIndex === -1) existingIndex = this.state.size;
+    return list.set(existingIndex, newItem);
+  }
 }

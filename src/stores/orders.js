@@ -12,6 +12,7 @@ class OrderStore extends BaseStore {
 
     this.bindListener(OrderConstants.UPDATE_ORDERS, this.handleUpdateOrders);
     this.bindListener(OrderConstants.FAILED_ORDERS, this.handleFailedOrders);
+    this.bindListener(OrderConstants.INSERT_ORDER, this.handleInsertOrder);
   }
 
   get statuses() {
@@ -45,6 +46,11 @@ class OrderStore extends BaseStore {
 
   handleFailedOrders(action) {
     console.error(action.errorMessage.trim());
+  }
+
+  handleInsertOrder(action) {
+    const order = action.order;
+    this.setState(this.insertIntoList(this.state, order, 'referenceNumber'));
   }
 }
 

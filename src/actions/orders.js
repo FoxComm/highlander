@@ -27,6 +27,16 @@ class OrderActions {
     });
   }
 
+  updateOrderStatus(refNum, status) {
+    return Api.patch(`/orders/${refNum}`)
+      .then((order) => {
+        this.insertOrder(order);
+      })
+      .catch((err) => {
+        this.failedOrders(err);
+      });
+  }
+
   fetchOrders() {
     return Api.get('/orders')
       .then((orders) => {
