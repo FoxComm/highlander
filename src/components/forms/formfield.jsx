@@ -43,13 +43,18 @@ export default class FormField extends React.Component {
     this.autoValidate = _.debounce(_.bind(this.autoValidate, this), 200);
   }
 
-  updateChildren(children=this.props.children) {
-    this.inputId = null;
+  cloneChildren(children, level=0) {
+    return React.Children.map(children, (child, idx) => {
+      if (!React.isValidElement(child)) return child;
 
-    const clonedChildren = React.Children.map(children, (child, idx) => {
       let newProps = {
-        key: `form-field-${idx}`
+        key: `form-field-${level}-${idx}`
       };
+      let newChildren = null;
+
+      if (child.props.children) {
+        newChildren = this.cloneChildren(child.props.children, level + 1);
+      }
 
       if (isInputElement(child)) {
         if (!child.props.id) {
@@ -66,13 +71,20 @@ export default class FormField extends React.Component {
         })};
       }
 
-      return React.cloneElement(child, newProps);
+      return React.cloneElement(child, newProps, newChildren);
     }, this);
+  }
+
+
+  updateChildren(children=this.props.children) {
+    this.inputId = null;
+
+    const clonedChildren = this.cloneChildren(children);
 
     if (!this.inputId) {
       console.error(
-        `Warning: Couldn't find input element for ${this.props.label || '<unnamed>'} form field
-         Hint: check isInputElement function`
+        `Warning: Couldn't find input element for ${this.props.label || '<unnamed>'} form field.
+        Hint: check isInputElement function.`
       );
     }
 
