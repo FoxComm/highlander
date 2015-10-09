@@ -556,7 +556,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
   "adding a shipping method method to an order" - {
     "succeeds if the order meets the shipping restrictions" in new ShippingMethodFixture {
-      val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-methods",
+      val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-method",
         payloads.UpdateShippingMethod(shippingMethodId = shippingMethod.id))
 
       response.status must === (StatusCodes.OK)
