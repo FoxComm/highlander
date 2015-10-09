@@ -26,13 +26,12 @@ create table credit_cards (
     address1 generic_string not null,
     address2 generic_string null,
     city generic_string not null,
-    zip character varying(12) not null,
+    zip zip_code not null,
     foreign key (id) references payment_methods(id) on update restrict on delete restrict,
     foreign key (customer_id) references customers(id) on update restrict on delete restrict,
     constraint valid_last_four check (last_four ~ '[0-9]{4}'),
     constraint valid_exp_year check (exp_year between 2015 and 3000),
-    constraint valid_exp_month check (exp_month between 1 and 12),
-    constraint valid_zip check (zip ~ '(?i)^[a-z0-9][a-z0-9\- ]{0,10}[a-z0-9]$')
+    constraint valid_exp_month check (exp_month between 1 and 12)
 );
 
 create index credit_cards_customer_id_idx on credit_cards (customer_id);

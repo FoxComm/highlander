@@ -16,12 +16,12 @@ class NoteIntegrationTest extends IntegrationTestBase {
     "Postgres constraints" - {
       "body is limited to 1000 characters" in new Fixture {
         val failure = Notes.save(note.copy(body = "z" * 1001)).run().failed.futureValue
-        failure.getMessage must include("value too long")
+        failure.getMessage must include("domain note_body violates check constraint")
       }
 
       "must have a body" in new Fixture {
         val failure = Notes.save(note.copy(body = "")).run().failed.futureValue
-        failure.getMessage must include( """violates check constraint "valid_body"""")
+        failure.getMessage must include("domain note_body violates check constraint")
       }
     }
 

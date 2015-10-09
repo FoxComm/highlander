@@ -6,7 +6,7 @@ create table customers (
     hashed_password generic_string not null,
     first_name generic_string not null,
     last_name generic_string not null,
-    phone_number character varying(12),
+    phone_number phone_number,
     location generic_string,
     modality generic_string,
     is_guest boolean default false not null,

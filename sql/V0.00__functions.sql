@@ -39,10 +39,11 @@ create domain email text check (length(value) <= 254);
 
 -- Using text instead of character varying is more efficient
 create domain generic_string text check (length(value) <= 255);
-create domain order_refnum text check (length(value) <= 20);
-create domain note_body text check (length(value) <= 1000);
-create domain region_abbr text check (length(value) <= 10);
+
+create domain adjustment_status text check (value in ('auth', 'canceled', 'capture'));
+create domain note_body text check (length(value) > 0 and length(value) <= 1000);
 create domain phone_number text check (length(value) <= 15);
+create domain region_abbr text check (length(value) <= 10);
 
 -- Zip code domain
 create domain zip_code text check (
