@@ -29,14 +29,14 @@ object CustomerManager {
     val query = Customers.withDefaultRegions
 
     val sortedQuery = sortAndPage.sort match {
-      case Some(s) ⇒ query.sortBy { case (t, _, _) ⇒
+      case Some(s) ⇒ query.sortBy { case (customer, _, _) ⇒
         s.sortColumn match {
-          case "id"        => if(s.asc) t.id.asc        else t.id.desc
-          case "email"     => if(s.asc) t.email.asc     else t.email.desc
-          case "firstName" => if(s.asc) t.firstName.asc else t.firstName.desc
-          case "lastName"  => if(s.asc) t.lastName.asc  else t.lastName.desc
-          case "location"  => if(s.asc) t.location.asc  else t.location.desc
-          case _           => t.id.asc
+          case "id"        => if(s.asc) customer.id.asc        else customer.id.desc
+          case "email"     => if(s.asc) customer.email.asc     else customer.email.desc
+          case "firstName" => if(s.asc) customer.firstName.asc else customer.firstName.desc
+          case "lastName"  => if(s.asc) customer.lastName.asc  else customer.lastName.desc
+          case "location"  => if(s.asc) customer.location.asc  else customer.location.desc
+          case _           => customer.id.asc
         }
       }
       case None    ⇒ query
