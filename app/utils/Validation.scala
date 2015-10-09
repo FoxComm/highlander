@@ -72,7 +72,7 @@ object Validation {
     val expDate = new DateTime(year, today.getMonthOfYear, 1, 0, 0).plusMonths(1).minusSeconds(1)
     val msg = message ++ s" year should be between ${today.getYear} and ${expDate.getYear}"
 
-    withinNumberOfYears(year, today.getMonthOfYear, 20, message)
+    withinNumberOfYears(year, today.getMonthOfYear, 20, msg)
   }
 
   def matches(value: String, regex: String, constraint: String): ValidatedNel[Failure, Unit] =

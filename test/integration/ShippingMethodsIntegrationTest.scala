@@ -110,7 +110,8 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
       "Shipping method is returned, but disabled with a hazardous SKU" in new ShipToCaliforniaButNotHazardous {
         (for {
           hazSku ← Skus.save(Sku(sku = "HAZ-SKU", name = Some("fox"), price = 56, isHazardous = true))
-          lineItem ← OrderLineItems.save(OrderLineItem(orderId = order.id, skuId = hazSku.id))
+          lineItemSku ← OrderLineItemSkus.save(OrderLineItemSku(orderId = order.id, skuId = hazSku.id))
+          lineItem ← OrderLineItems.save(OrderLineItem(orderId = order.id, originId = lineItemSku.id))
         } yield lineItem).run().futureValue
 
         val response = GET(s"v1/shipping-methods/${order.referenceNumber}")
@@ -144,7 +145,8 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
       address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = californiaId))
       orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
       sku ← Skus.save(Factories.skus.head.copy(name = Some("Donkey"), price = 27))
-      lineItems ← OrderLineItems.save(OrderLineItem(orderId = order.id, skuId = sku.id))
+      lineItemSku ← OrderLineItemSkus.save(OrderLineItemSku(orderId = order.id, skuId = sku.id))
+      lineItems ← OrderLineItems.save(OrderLineItem(orderId = order.id, originId = lineItemSku.id))
     } yield (address, orderShippingAddress)).run().futureValue
   }
 

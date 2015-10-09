@@ -1,7 +1,7 @@
 package services
 
 import cats.data.Xor
-import models.{Order, OrderLineItem, OrderLineItems, Orders, InventorySummaries, InventorySummary, Skus, Sku}
+import models._
 import utils.Seeds.Factories
 import payloads.{UpdateLineItemsPayload ⇒ Payload}
 import util.IntegrationTestBase
@@ -12,11 +12,16 @@ class LineItemUpdaterTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global
 
   val lineItems = TableQuery[OrderLineItems]
+  val lineItemSkus = TableQuery[OrderLineItemSkus]
 
-  def createSkus(num: Int): Unit =
+  def createSkusAndLinks(num: Int, order: Order): Unit = {
     (Skus.returningId ++= (1 to num).map { i ⇒
       Factories.skus.head.copy(sku = i.toString, price = 5)
     }).run().futureValue
+
+    (OrderLineItemSkus.returningId ++= (1 to num).map {
+      id ⇒ OrderLineItemSku(skuId = id, orderId = order.id) }).run().futureValue
+  }
 
   def createLineItems(items: Seq[OrderLineItem]): Unit = {
     val insert = lineItems ++= items
@@ -32,8 +37,8 @@ class LineItemUpdaterTest extends IntegrationTestBase {
   "LineItemUpdater" - {
 
     "Adds line_items when the sku doesn't exist in order" in {
-      createSkus(2)
       val order = Orders.save(Order(customerId = 1)).run().futureValue
+      createSkusAndLinks(2, order)
       createInventory(1, 100)
       createInventory(2, 100)
 
@@ -44,24 +49,27 @@ class LineItemUpdaterTest extends IntegrationTestBase {
 
       LineItemUpdater.updateQuantities(order, payload).futureValue match {
         case Xor.Right(root) =>
-          root.lineItems.count(_.sku == "1") must be(3)
-          root.lineItems.count(_.sku == "2") must be(0)
+          root.lineItems.skus.count(_.sku == "1") must be(3)
+          root.lineItems.skus.count(_.sku == "2") must be(0)
 
           val allRecords = db.run(lineItems.result).futureValue
-          root.lineItems.size must === (allRecords.size)
+          root.lineItems.skus.size must === (allRecords.size)
+
+          val allRelations = db.run(lineItemSkus.result).futureValue
+          allRelations.size must === (2)
 
         case Xor.Left(s) => fail(s.toList.mkString(";"))
       }
     }
 
     "Updates line_items when the Sku already is in order" in {
-      createSkus(3)
       val order = Orders.save(Order(customerId = 1)).run().futureValue
+      createSkusAndLinks(3, order)
       createInventory(1, 100)
       createInventory(2, 100)
       createInventory(3, 100)
-      val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { skuId =>
-        OrderLineItem(id = 0, orderId = 1, skuId = skuId)
+      val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { linkId =>
+        OrderLineItem(id = 0, orderId = 1, originId = linkId, originType = OrderLineItem.SkuItem)
       }
       createLineItems(seedItems)
 
@@ -73,13 +81,15 @@ class LineItemUpdaterTest extends IntegrationTestBase {
 
       LineItemUpdater.updateQuantities(order, payload).futureValue match {
         case Xor.Right(root) =>
-          root.lineItems.count(_.sku == "1") must be(3)
-          root.lineItems.count(_.sku == "2") must be(0)
-          root.lineItems.count(_.sku == "3") must be(1)
+          root.lineItems.skus.count(_.sku == "1") must be(3)
+          root.lineItems.skus.count(_.sku == "2") must be(0)
+          root.lineItems.skus.count(_.sku == "3") must be(1)
 
           val allRecords = db.run(lineItems.result).futureValue
+          root.lineItems.skus.size must === (allRecords.size)
 
-          root.lineItems.size must === (allRecords.size)
+          val allRelations = db.run(lineItemSkus.result).futureValue
+          allRelations.size must === (2)
 
         case Xor.Left(s) => fail(s.toList.mkString(";"))
       }

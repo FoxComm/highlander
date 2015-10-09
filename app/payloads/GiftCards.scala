@@ -13,7 +13,7 @@ final case class GiftCardCreateByCsr(balance: Int, reasonId: Int, currency: Curr
   extends Validation[GiftCardCreateByCsr] {
 
   def validate: ValidatedNel[Failure, GiftCardCreateByCsr] = {
-    validExpr(balance > 0, "Balance must be greater than zero").map { case _ ⇒ this }
+    greaterThan(balance, 0, "Balance").map { case _ ⇒ this }
   }
 }
 
@@ -23,9 +23,9 @@ final case class GiftCardBulkCreateByCsr(quantity: Int, balance: Int, reasonId: 
   val bulkCreateLimit = 20
 
   def validate: ValidatedNel[Failure, GiftCardBulkCreateByCsr] = {
-    (validExpr(balance > 0, "Balance must be greater than zero")
-      |@| validExpr(quantity > 0, "Quantity must be greater than zero")
-      |@| validExpr(quantity <= bulkCreateLimit, "Bulk creation limit exceeded")
+    (greaterThan(balance , 0, "Balance")
+      |@| greaterThan(quantity, 0, "Quantity")
+      |@| lesserThanOrEqual(quantity, bulkCreateLimit, "Quantity")
       ).map { case _ ⇒ this }
   }
 }
@@ -47,7 +47,7 @@ final case class GiftCardBulkUpdateStatusByCsr(codes: Seq[String], status: GiftC
   def validate: ValidatedNel[Failure, GiftCardBulkUpdateStatusByCsr] = {
     (GiftCard.validateStatusReason(status, reasonId)
       |@| validExpr(codes.nonEmpty, "Please provide at least one code to update")
-      |@| validExpr(codes.length <= bulkUpdateLimit, "Bulk update limit exceeded")
+      |@| lesserThanOrEqual(codes.length, bulkUpdateLimit, "Quantity")
       ).map { case _ ⇒ this }
   }
 }

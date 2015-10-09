@@ -26,7 +26,7 @@ final case class StoreCreditBulkUpdateStatusByCsr(ids: Seq[Int], status: StoreCr
   def validate: ValidatedNel[Failure, StoreCreditBulkUpdateStatusByCsr] = {
     (StoreCredit.validateStatusReason(status, reasonId)
       |@| validExpr(ids.nonEmpty, "Please provide at least one code to update")
-      |@| validExpr(ids.length <= bulkUpdateLimit, "Bulk update limit exceeded")
+      |@| lesserThanOrEqual(ids.length, bulkUpdateLimit, "Quantity")
       ).map { case _ ⇒ this }
   }
 }

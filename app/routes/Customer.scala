@@ -12,6 +12,7 @@ import payloads._
 import responses.FullOrder
 import services._
 import slick.driver.PostgresDriver.api._
+import utils.CustomDirectives._
 import utils.Slick.implicits._
 
 object Customer {

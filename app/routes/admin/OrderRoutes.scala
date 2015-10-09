@@ -7,6 +7,7 @@ import akka.stream.Materializer
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.Order.orderRefNumRegex
+import models.GiftCard.giftCardCodeRegex
 import models._
 import payloads._
 import responses.{AllOrders, BulkOrderUpdateResponse}
@@ -95,6 +96,21 @@ object OrderRoutes {
             whenOrderFoundAndEditable(refNum) { order ⇒
               LineItemUpdater.updateQuantities(order, reqItems)
             }
+          }
+        } ~
+        (post & path("gift-cards") & entity(as[AddGiftCardLineItem]) & pathEnd) { payload =>
+          goodOrFailures {
+            LineItemUpdater.addGiftCard(refNum, payload)
+          }
+        } ~
+        (patch & path("gift-cards" / giftCardCodeRegex) & entity(as[AddGiftCardLineItem]) & pathEnd) { (code, payload) =>
+          goodOrFailures {
+            LineItemUpdater.editGiftCard(refNum, code, payload)
+          }
+        } ~
+        (delete & path("gift-cards" / giftCardCodeRegex) & pathEnd) { code ⇒
+          goodOrFailures {
+            LineItemUpdater.deleteGiftCard(refNum, code)
           }
         } ~
         pathPrefix("payment-methods" / "credit-cards") {
