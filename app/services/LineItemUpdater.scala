@@ -21,20 +21,26 @@ object LineItemUpdater {
     (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
 
     payload.validate match {
-      case Valid(_) ⇒
-        Orders.findCartByRefNum(refNum).findOneAndRun { order ⇒
-          val queries = for {
-            gcOrigin ← GiftCardOrders.save(GiftCardOrder(orderId = order.id))
-            gc ← GiftCards.save(GiftCard.buildLineItem(balance = payload.balance, originId = gcOrigin.id,
-              currency = payload.currency))
-            lineItemGc ← OrderLineItemGiftCards.save(OrderLineItemGiftCard(giftCardId = gc.id, orderId = order.id))
-            lineItem ← OrderLineItems.save(OrderLineItem.buildGiftCard(order, lineItemGc))
-          } yield ()
+      case Valid(_)        ⇒ addGiftCardToOrder(refNum, payload).run()
+      case Invalid(errors) ⇒ Result.failures(errors)
+    }
+  }
 
-          DbResult.fromDbio(queries >> FullOrder.fromOrder(order))
-        }
-      case Invalid(errors) ⇒
-        Result.failures(errors)
+  private def addGiftCardToOrder(refNum: String, payload: AddGiftCardLineItem)
+  (implicit ec: ExecutionContext, db: Database) = {
+    Orders.findCartByRefNum(refNum).one.flatMap {
+      case Some(order) ⇒
+        val queries = for {
+          gcOrigin ← GiftCardOrders.save(GiftCardOrder(orderId = order.id))
+          gc ← GiftCards.save(GiftCard.buildLineItem(balance = payload.balance, originId = gcOrigin.id,
+            currency = payload.currency))
+          lineItemGc ← OrderLineItemGiftCards.save(OrderLineItemGiftCard(giftCardId = gc.id, orderId = order.id))
+          lineItem ← OrderLineItems.save(OrderLineItem.buildGiftCard(order, lineItemGc))
+        } yield ()
+
+        DbResult.fromDbio(queries.transactionally >> FullOrder.fromOrder(order))
+      case None ⇒
+        DbResult.failure(OrderNotFoundFailure(refNum))
     }
   }
 
@@ -63,21 +69,22 @@ object LineItemUpdater {
     (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
 
     GiftCards.findCartByCode(code).findOneAndRun { gc ⇒
-      OrderLineItemGiftCards.filter(_.giftCardId === gc.id).one.flatMap {
-        case Some(origin) ⇒
+      val origin = OrderLineItemGiftCards.filter(_.giftCardId === gc.id)
+      origin.one.flatMap {
+        case Some(o) ⇒
           val deleteAll = for {
-            lineItemGiftCard ← OrderLineItemGiftCards.filter(_.giftCardId === gc.id).delete
-            lineItem ← OrderLineItems.filter(_.originId === origin.id).giftCards.delete
+            lineItemGiftCard ← origin.delete
+            lineItem ← OrderLineItems.filter(_.originId === o.id).giftCards.delete
             giftCard ← GiftCards.filter(_.id === gc.id).delete
             gcOrigin ← GiftCardOrders.filter(_.id === gc.originId).delete
           } yield ()
 
           Orders.findCartByRefNum(refNum).one.flatMap {
-            case Some(o) ⇒ DbResult.fromDbio(deleteAll >> FullOrder.fromOrder(o))
-            case None    ⇒ DbResult.failure(OrderNotFoundFailure(refNum))
+            case Some(order)  ⇒ DbResult.fromDbio(deleteAll >> FullOrder.fromOrder(order))
+            case None         ⇒ DbResult.failure(OrderNotFoundFailure(refNum))
           }
         case None ⇒
-          DbResult.failure(NotFoundFailure(OrderLineItemGiftCard, gc.id))
+          DbResult.failure(GiftCardNotFoundFailure(code))
       }
     }
   }
