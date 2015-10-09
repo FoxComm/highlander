@@ -15,21 +15,6 @@ import { Link } from '../link';
 import CustomerStore from '../../stores/customers';
 
 export default class Customers extends React.Component {
-  static propTypes = {
-    tableColumns: React.PropTypes.array
-  };
-
-  static defaultProps = {
-    tableColumns: [
-      {field: 'name', text: 'Name', type: 'link', id: 'id'},
-      {field: 'email', text: 'Email', type: 'link', id: 'id'},
-      {field: 'id', text: 'Customer ID', type: 'id'},
-      {field: 'shipRegion', text: 'Ship To Region'},
-      {field: 'billRegion', text: 'Bill To Region'},
-      {field: 'rank', text: 'Rank'},
-      {field: 'createdAt', text: 'Date/Time Joined', type: 'date'}
-    ]
-  };
 
   constructor(props, context) {
     super(props, context);
@@ -58,7 +43,7 @@ export default class Customers extends React.Component {
 
   render() {
     let renderRow = (row, index) => {
-      let params = {customer: row};
+      let params = {customer: row.id};
       return (
         <div>
           <TableRow>
