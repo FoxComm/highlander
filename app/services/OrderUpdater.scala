@@ -161,6 +161,15 @@ object OrderUpdater {
     }
   }
 
+  def deleteShippingMethod(refNum: String)
+    (implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
+    val finder = Orders.findByRefNum(refNum)
+
+    finder.findOneAndRun { order ⇒
+      DbResult.fromDbio(OrderShippingMethods.findByOrderId(order.id).delete >> fullOrder(finder))
+    }
+  }
+
   def createShippingAddressFromAddressId(addressId: Int, refNum: String)
     (implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
 

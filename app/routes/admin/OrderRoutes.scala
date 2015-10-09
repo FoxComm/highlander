@@ -174,6 +174,11 @@ object OrderRoutes {
             goodOrFailures {
               OrderUpdater.updateShippingMethod(payload, refNum)
             }
+          } ~
+          (delete & pathEnd) {
+            goodOrFailures {
+              OrderUpdater.deleteShippingMethod(refNum)
+            }
           }
         }
       }
