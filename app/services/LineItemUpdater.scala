@@ -49,7 +49,7 @@ object LineItemUpdater {
 
     payload.validate match {
       case Valid(_) ⇒
-        GiftCards.findCartByCode(code).findOneAndRun { gc ⇒
+        GiftCards.findCartByCode(code).selectOneForUpdate { gc ⇒
           val updatedGc = gc.copy(originalBalance = payload.balance,
             availableBalance = payload.balance, currentBalance = payload.balance, currency = payload.currency)
 
@@ -68,7 +68,7 @@ object LineItemUpdater {
   def deleteGiftCard(refNum: String, code: String)
     (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
 
-    GiftCards.findCartByCode(code).findOneAndRun { gc ⇒
+    GiftCards.findCartByCode(code).selectOneForUpdate { gc ⇒
       val origin = OrderLineItemGiftCards.filter(_.giftCardId === gc.id)
       origin.one.flatMap {
         case Some(o) ⇒
