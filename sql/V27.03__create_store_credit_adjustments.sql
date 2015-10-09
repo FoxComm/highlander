@@ -6,11 +6,12 @@ create table store_credit_adjustments (
     store_admin_id integer null,
     debit integer not null,
     available_balance integer not null default 0,
-    status adjustment_status not null,
+    status character varying(255) not null,
     created_at timestamp without time zone default (now() at time zone 'utc'),
     foreign key (store_credit_id) references store_credits(id) on update restrict on delete restrict,
     foreign key (order_payment_id) references order_payments(id) on update restrict on delete restrict,
-    constraint valid_debit check (debit > 0)
+    constraint valid_debit check (debit > 0),
+    constraint valid_status check (status in ('auth','canceled','capture'))
 );
 
 create function update_store_credit_current_balance() returns trigger as $$
