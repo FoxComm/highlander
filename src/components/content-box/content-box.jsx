@@ -11,10 +11,13 @@ export default class ContentBox extends React.Component {
     children: PropTypes.node
   }
 
+  get rootClassName() {
+    return `${this.props.className} fc-content-box`;
+  }
+
   render() {
-    let rootClassName = `${this.props.className} fc-content-box`;
     return (
-      <div className={ rootClassName }>
+      <div className={ this.rootClassName }>
         <header>
           <div className="fc-grid">
             <div className="fc-col-2-3 fc-title">{ this.props.title }</div>

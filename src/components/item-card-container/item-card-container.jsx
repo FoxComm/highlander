@@ -11,10 +11,13 @@ export default class CreditCardBox extends React.Component {
     children: PropTypes.node
   }
 
+  get cartClassName() {
+    return `fc-card-container ${this.props.className}`;
+  }
+
   render() {
-    let cartClassName = `fc-card-container ${this.props.className}`;
     return (
-      <li className="fc-card-container">
+      <li className={ this.cartClassName }>
         <div className="fc-card-container-controls fc-grid">
           <div className="fc-col-2-3">
             { this.props.leftControls }
