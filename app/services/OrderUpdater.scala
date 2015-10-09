@@ -151,11 +151,10 @@ object OrderUpdater {
     finder.findOneAndRun { order ⇒
       ShippingMethods.findActiveById(payload.shippingMethodId).one.flatMap {
         case Some(shippingMethod) ⇒
-          DbResult.fromDbio(for {
-            _ ← OrderShippingMethods.findByOrderId(order.id).delete
-            newOrder ← OrderShippingMethods.copyFromShippingMethod(shippingMethod, order) >> finder.result.head
-            fullOrder ← FullOrder.fromOrder(newOrder)
-          } yield fullOrder)
+          val orderShipping = OrderShippingMethod(orderId = order.id, shippingMethodId = shippingMethod.id)
+          val delete = OrderShippingMethods.findByOrderId(order.id).delete
+
+          DbResult.fromDbio(delete >> OrderShippingMethods.save(orderShipping) >> fullOrder(finder))
         case None ⇒
           DbResult.failure(NotFoundFailure(ShippingMethod, payload.shippingMethodId))
       }

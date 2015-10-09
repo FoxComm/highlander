@@ -29,8 +29,4 @@ object OrderShippingMethods extends TableQueryWithId[OrderShippingMethod, OrderS
   idLens = GenLens[OrderShippingMethod](_.id)
 )(new OrderShippingMethods(_)) {
   def findByOrderId(orderId: Int)(implicit db: Database): QuerySeq = filter(_.orderId === orderId)
-
-  def copyFromShippingMethod(sm: ShippingMethod, order: Order)(implicit ec: ExecutionContext):
-  DBIO[OrderShippingMethod] =
-    save(OrderShippingMethod(shippingMethodId = sm.id, orderId = order.id))
 }
