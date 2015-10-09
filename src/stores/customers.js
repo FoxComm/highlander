@@ -1,9 +1,47 @@
 'use strict';
 
-import BaseStore from '../lib/base-store';
+import TableStore from '../lib/table-store';
 
-class CustomerStore extends BaseStore {
+class CustomerStore extends TableStore {
   get baseUri() { return '/customers'; }
+
+  constructor(...args) {
+    super(...args);
+    this.columns = [
+      {
+        field: 'name',
+        title: 'Name'
+      },
+      {
+        field: 'email',
+        title: 'Email'
+      },
+      {
+        field: 'id',
+        title: 'Customer ID'
+      },
+      {
+        field: 'shipRegion',
+        title: 'Ship To Region'
+      },
+      {
+        field: 'billRegion',
+        title: 'Bill To Region'
+      },
+      {
+        field: 'rank',
+        title: 'Rank'
+      },
+      {
+        field: 'createdAt',
+        title: 'Date/Time Joined'
+      }
+    ];
+  }
+
+  identity(item) {
+    return item.id;
+  }
 }
 
 export default new CustomerStore();

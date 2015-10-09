@@ -1,11 +1,16 @@
 'use strict';
 
 import React from 'react';
-import TableView from '../tables/tableview';
+import Panel from '../panel/panel';
+import TableView from '../table/tableview';
+import TableRow from '../table/row';
+import TableCell from '../table/cell';
 import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
+import DateTime from '../datetime/datetime';
 import SearchBar from '../search-bar/search-bar';
 import SectionTitle from '../section-title/section-title';
+import { Link } from '../link';
 
 import CustomerStore from '../../stores/customers';
 
@@ -52,6 +57,23 @@ export default class Customers extends React.Component {
   }
 
   render() {
+    let renderRow = (row, index) => {
+      let params = {customer: row};
+      return (
+        <div>
+          <TableRow>
+            <TableCell><Link to='customer' params={params}>{ row.name }</Link></TableCell>
+            <TableCell>{ row.email }</TableCell>
+            <TableCell>{ row.id }</TableCell>
+            <TableCell>{ row.shipRegion }</TableCell>
+            <TableCell>{ row.billRegion }</TableCell>
+            <TableCell>{ row.rank }</TableCell>
+            <TableCell><DateTime value={ row.createdAt }/></TableCell>
+          </TableRow>
+        </div>
+      );
+    }
+
     return (
       <div id="users">
         <div className="fc-list-header">
@@ -78,13 +100,7 @@ export default class Customers extends React.Component {
             </button>
           </div>
           <SearchBar />
-          <TableView
-            columns={this.props.tableColumns}
-            rows={this.state.customers}
-            model='customer'
-            sort={CustomerStore.sort.bind(CustomerStore)}
-            limit={ 10 }
-            />
+          <TableView store={CustomerStore} renderRow={renderRow.bind(this)} empty={'No customers yet.'}/>
         </div>
       </div>
     );
