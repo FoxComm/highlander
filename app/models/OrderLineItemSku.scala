@@ -1,5 +1,7 @@
 package models
 
+import scala.concurrent.ExecutionContext
+
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
@@ -22,4 +24,13 @@ object OrderLineItemSkus extends TableQueryWithId[OrderLineItemSku, OrderLineIte
 
   def findByOrderId(orderId: Rep[Int]): Query[OrderLineItemSkus, OrderLineItemSku, Seq] =
     filter(_.orderId === orderId)
+
+  def findLineItemsByOrder(order: Order) = {
+    for {
+      liSku ← findByOrderId(order.id)
+      li ← OrderLineItems if li.originId === liSku.id
+      sku ← Skus if sku.id === liSku.skuId
+    } yield (sku, li)
+  }
+
 }
