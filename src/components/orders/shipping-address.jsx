@@ -25,7 +25,9 @@ export default class OrderShippingAddress extends React.Component {
   }
 
   onDeleteAddress(address) {
-    OrderStore.removeShippingAddress(this.props.order.referenceNumber);
+    if (address.id === this.props.order.shippingAddress.id) {
+      OrderStore.removeShippingAddress(this.props.order.referenceNumber);
+    }
     AddressStore.delete(this.props.order.customer.id, address.id);
   }
 
