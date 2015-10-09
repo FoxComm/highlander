@@ -60,7 +60,7 @@ export default class Customers extends React.Component {
     return (
       <div id="customers">
         <div className="fc-list-header">
-          <SectionTitle title="Cutomers"
+          <SectionTitle title="Customers"
                         count={this.state.customers.length}
                         buttonClickHandler={ this.handleAddCustomerClick }/>
           <div className="fc-grid gutter">
