@@ -14,18 +14,18 @@ export default class CustomerAccountStatus extends React.Component {
     return (
       <ContentBox title="Account Status" className="fc-customer-account-status">
         <div className="fc-grid fc-customer-status-row">
-            <div className="fc-col-2-3">
+            <div className="fc-col-md-2-3">
               <strong>Active Account</strong>
             </div>
-            <div className="fc-col-1-3">
+            <div className="fc-col-md-1-3">
               <input type="checkbox" defaultChecked={ !customer.disabled } className="fc-right"/>
             </div>
         </div>
         <div className="fc-grid fc-customer-status-row">
-            <div className="fc-col-2-3">
+            <div className="fc-col-md-2-3">
               <strong>Blacklist Customer</strong>
             </div>
-            <div className="fc-col-1-3">
+            <div className="fc-col-md-1-3">
               <input type="checkbox" defaultChecked={ customer.blacklisted } className="fc-right"/>
             </div>
         </div>
