@@ -171,7 +171,7 @@ export default class FormField extends React.Component {
     }
 
     if (this.props.label) {
-      const optionalMark = 'optional' in this.props ? <span className="fc-form-filed-optional">(optional)</span> : null;
+      const optionalMark = 'optional' in this.props ? <span className="fc-form-field-optional">(optional)</span> : null;
       label = (
         <label htmlFor={this.inputId}>
           {this.props.label}
