@@ -16,7 +16,7 @@ object OrderPaymentUpdater {
   def addGiftCard(refNum: String, payload: GiftCardPayment)
     (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
     val finder = Orders.findCartByRefNum(refNum)
-    finder.findOneAndRun { order ⇒
+    finder.selectOneForUpdate { order ⇒
       GiftCards.findByCode(payload.code).one.flatMap {
 
         case Some(gc) if gc.isActive ⇒
@@ -40,7 +40,7 @@ object OrderPaymentUpdater {
     (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
 
     val finder = Orders.findCartByRefNum(refNum)
-    finder.findOneAndRun { order ⇒
+    finder.selectOneForUpdate { order ⇒
       StoreCredits.findAllActiveByCustomerId(order.customerId).result.flatMap { storeCredits ⇒
         val reqAmount = payload.amount
 
@@ -63,7 +63,7 @@ object OrderPaymentUpdater {
   def addCreditCard(refNum: String, id: Int)
     (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
     val finder = Orders.findCartByRefNum(refNum)
-    finder.findOneAndRun { order ⇒
+    finder.selectOneForUpdate { order ⇒
 
       CreditCards._findById(id).extract.one.flatMap {
         case Some(cc) if cc.inWallet ⇒
@@ -91,7 +91,7 @@ object OrderPaymentUpdater {
     (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
 
     val finder = Orders.findCartByRefNum(refNum)
-    finder.findOneAndRun { order ⇒
+    finder.selectOneForUpdate { order ⇒
       OrderPayments
         .filter(_.orderId === order.id)
         .byType(pmt).delete
@@ -103,7 +103,7 @@ object OrderPaymentUpdater {
     (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
 
     val finder = Orders.findCartByRefNum(refNum)
-    finder.findOneAndRun { order ⇒
+    finder.selectOneForUpdate { order ⇒
       GiftCards.findByCode(code).one.flatMap {
 
         case Some(giftCard) ⇒

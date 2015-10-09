@@ -86,7 +86,7 @@ object StoreCreditService {
       case Valid(_) ⇒
         val finder = StoreCredits.filter(_.id === id)
 
-        finder.findOneAndRun { sc ⇒
+        finder.selectOneForUpdate { sc ⇒
           sc.transitionTo(payload.status) match {
             case Xor.Left(message) ⇒ DbResult.failure(GeneralFailure(message))
             case Xor.Right(_)      ⇒ cancelOrUpdate(finder, sc)
