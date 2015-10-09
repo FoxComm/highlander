@@ -171,7 +171,9 @@ export default class AddressForm extends React.Component {
     const formData = this.state.formData;
 
     if (this.countryCode === 'US') {
-      return <InputMask type="tel" onChange={this.onChangeValue.bind(this)} name="phoneNumber" mask="(999)999-9999" value={formData.phoneNumber} placeholder={CountryStore.phoneExample(this.countryCode)}/>;
+      return <InputMask type="tel" name="phoneNumber" mask="(999)999-9999"
+                        onChange={this.onChangeValue.bind(this)}
+                        value={formData.phoneNumber} placeholder={CountryStore.phoneExample(this.countryCode)}/>;
     }
     return (
       <input type="tel" name="phoneNumber" value={formData.phoneNumber}
@@ -262,7 +264,7 @@ export default class AddressForm extends React.Component {
                 </FormField>
               </li>
               <li>
-                <FormField label="Phone Number" validator="ascii">
+                <FormField label="Phone Number" validator="phoneNumber">
                   {this.phoneInput}
                 </FormField>
               </li>

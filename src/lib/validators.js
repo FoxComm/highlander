@@ -13,3 +13,7 @@ export function zipCode(value, country) {
 export function ascii(value) {
   return /^[\x00-\x7F]+$/.test(value) ? null : '$label must contain only ASCII characters';
 }
+
+export function phoneNumber(value) {
+  return /^[\d#\-\(\)\+\*) ]+$/.test(value) ? null : '$label must not contain letters or other non-valid characters';
+}
