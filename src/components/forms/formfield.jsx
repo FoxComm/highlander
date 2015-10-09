@@ -5,7 +5,8 @@ import React, { PropTypes } from 'react';
 import * as validators from '../../lib/validators';
 
 function isInputElement(element) {
-  return _.contains(['input', 'textarea', 'select'], element.type);
+  const isInputNode = _.contains(['input', 'textarea', 'select'], element.type);
+  return isInputNode || element.type && _.contains(['InputElement'], element.type.displayName);
 }
 
 function overrideEventHandlers(child, newEventHandlers) {
@@ -22,7 +23,7 @@ function overrideEventHandlers(child, newEventHandlers) {
 export default class FormField extends React.Component {
 
   static propTypes = {
-    validator: PropTypes.oneOf([
+    validator: PropTypes.oneOfType([
       PropTypes.func,
       PropTypes.string
     ]),
@@ -42,6 +43,8 @@ export default class FormField extends React.Component {
   }
 
   updateChildren(children=this.props.children) {
+    this.inputId = null;
+
     const clonedChildren = React.Children.map(children, (child, idx) => {
       let newProps = {
         key: `form-field-${idx}`
@@ -63,6 +66,13 @@ export default class FormField extends React.Component {
 
       return React.cloneElement(child, newProps);
     }, this);
+
+    if (!this.inputId) {
+      console.error(
+        `Warning: Couldn't find input element for ${this.props.label || '<unnamed>'} form field
+         Hint: check isInputElement function`
+      );
+    }
 
     this.setState({
       children: clonedChildren

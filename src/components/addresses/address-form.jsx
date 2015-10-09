@@ -73,9 +73,31 @@ export default class AddressForm extends React.Component {
     dispatch('toggleModal', null);
   }
 
+  componentWillUpdate(nextProps, nextState) {
+    if (!this.state.errors && nextState.errors) {
+      this.shouldScrollToErrors = true;
+    }
+  }
+
   componentDidUpdate() {
-    if (this.state.errors) {
+    if (this.shouldScrollToErrors && this.state.errors) {
       this.refs.errorMessages.scrollIntoView();
+      this.shouldScrollToErrors = false;
+    }
+  }
+
+  /**
+   * Prepare value before submitting to server
+   * @param name
+   * @param value
+   */
+  prepareValue(name, value) {
+    switch (name) {
+      case 'phoneNumber':
+        return value.replace(/[^\d]/g, '');
+        break;
+      default:
+        return value;
     }
   }
 
@@ -83,7 +105,9 @@ export default class AddressForm extends React.Component {
     event.preventDefault();
 
     const customerId = this.props.customerId;
-    const formData = this.state.formData;
+    const formData = _.transform(this.state.formData, (result, value, name) => {
+      result[name] = this.prepareValue(name, value);
+    });
 
     let willSaved;
 
@@ -144,11 +168,13 @@ export default class AddressForm extends React.Component {
   }
 
   get phoneInput() {
+    const formData = this.state.formData;
+
     if (this.countryCode === 'US') {
-      return <InputMask type="tel" mask="(999)999-9999" placeholder={CountryStore.phoneExample(this.countryCode)}/>;
+      return <InputMask type="tel" onChange={this.onChangeValue.bind(this)} name="phoneNumber" mask="(999)999-9999" value={formData.phoneNumber} placeholder={CountryStore.phoneExample(this.countryCode)}/>;
     }
     return (
-      <input type="tel" name="phoneNumber"
+      <input type="tel" name="phoneNumber" value={formData.phoneNumber}
              maxLength="15" placeholder={CountryStore.phoneExample(this.countryCode)} />
     );
   }
@@ -158,7 +184,7 @@ export default class AddressForm extends React.Component {
       return (
         <div className="messages" ref="errorMessages">
           {this.state.errors.map((error, index) => {
-            return <div className="fc-alert is-error"><i className="fa fa-times-circle-o"></i>{error}</div>;
+            return <div className="fc-alert is-error"><i className="icon-error"></i>{error}</div>;
             })}
         </div>
       );
