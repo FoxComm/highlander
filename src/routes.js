@@ -20,6 +20,7 @@ import GiftCards from './components/gift-cards/gift-cards';
 import NewGiftCard from './components/gift-cards/gift-cards-new';
 import GiftCard from './components/gift-cards/gift-card';
 import GiftCardTransactions from './components/gift-cards/transactions';
+import StyleGuide from './components/style-guide/style-guide';
 
 const routes = (
   <Route path="/" component={Site}>
@@ -50,6 +51,7 @@ const routes = (
       <Route name='gift-card-notes' path='notes' component={Notes} />
       <Route name='gift-card-activity-trail' path='activity-trail' component={ActivityTrail} />
     </Route>
+    <Route name='style-guide' path='style-guide' component={StyleGuide} />
   </Route>
 );
 

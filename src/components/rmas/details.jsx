@@ -29,13 +29,13 @@ export default class RmaDetails extends React.Component {
 
     return (
       <div className="fc-rma-details fc-grid fc-grid-match">
-        <div className="fc-col-3-10">
+        <div className="fc-col-md-3-10">
           <RmaSummary rma={rma} isEditing={isEditing}/>
         </div>
-        <div className="fc-col-7-10">
+        <div className="fc-col-md-7-10">
           <CustomerInfo rma={rma} isEditing={isEditing}/>
         </div>
-        <div className="fc-col-1-1">
+        <div className="fc-col-md-1-1">
           <LineItems
             entity={rma}
             isEditing={isEditing}
@@ -43,10 +43,10 @@ export default class RmaDetails extends React.Component {
             model={'rma'}
             />
         </div>
-        <div className="fc-col-1-1">
+        <div className="fc-col-md-1-1">
           <ShippingMethod rma={rma} isEditing={isEditing}/>
         </div>
-        <div className="fc-col-1-1">
+        <div className="fc-col-md-1-1">
           <Payment rma={rma} isEditing={isEditing}/>
         </div>
       </div>
