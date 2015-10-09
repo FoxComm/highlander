@@ -1,5 +1,7 @@
 package services
 
+import java.time.Instant
+
 import scala.concurrent.{Future, ExecutionContext}
 
 import cats.data.Validated.{Invalid, Valid}
@@ -14,6 +16,8 @@ import slick.driver.PostgresDriver
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 import cats.implicits._
+
+import utils.time.JavaTimeSlickMapper.instantAndTimestampWithoutZone
 
 object AddressManager {
   def create(payload: CreateAddressPayload, customerId: Int)
@@ -47,6 +51,34 @@ object AddressManager {
         }
       case Invalid(errors) ⇒ Result.failures(errors)
     }
+  }
+
+  def get(customerId: Int, addressId: Int)
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
+      val query = ( for {
+        Some(address) ← Addresses.findById(customerId, addressId).one
+        region  ← Regions.findById(address.regionId)
+      } yield (address, region))
+
+      db.run(query).flatMap {
+          case (address, Some(region)) ⇒ Result.good(Response.build(address, region, Some(address.isDefaultShipping)))
+          case (address, None)         ⇒ Result.failure(NotFoundFailure(Region, address.regionId))
+          case (_, _)                  ⇒ Result.failure(NotFoundFailure(Address,addressId))
+      }
+  }
+
+
+  def remove(customerId: Int, addressId: Int)
+    (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
+    val query =
+      Addresses.findById(customerId, addressId)
+      .map{ a ⇒ (a.deletedAt, a.isDefaultShipping)}
+      .update((Some(Instant.now()), false))  //set delete time and set default to false
+
+      db.run(query).flatMap{
+        case 1 ⇒ Result.unit
+        case _ ⇒ Result.failure(NotFoundFailure(Address, addressId))
+      }
   }
 
   def setDefaultShippingAddress(customerId: Int, addressId: Int)
