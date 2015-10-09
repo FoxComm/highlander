@@ -28,6 +28,7 @@ export default class FormField extends React.Component {
       PropTypes.string
     ]),
     children: PropTypes.node.isRequired,
+    required: PropTypes.any,
     label: PropTypes.node
   };
 
@@ -55,6 +56,7 @@ export default class FormField extends React.Component {
           newProps.id = _.uniqueId('form-field-');
         }
         this.inputId = child.props.id || newProps.id;
+        this.inputUnbound = true;
 
         newProps = {...newProps, ...overrideEventHandlers(child, {
           onBlur: (event) => {
@@ -95,26 +97,53 @@ export default class FormField extends React.Component {
     this.context.formDispatcher.on('submit', this.onSubmit);
 
     this.updateChildren();
+    this.updateInputBind();
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.children) {
+    if (nextProps.children && this.props.children !== nextProps.children) {
       this.updateChildren(nextProps.children);
     }
   }
 
   componentDidUpdate() {
     const inputNode = this.getInputNode();
-    const hasError = !!this.state.errorMessage;
 
     if (!inputNode) return;
 
     inputNode.setCustomValidity(this.state.errorMessage || '');
-    inputNode.classList[hasError ? 'add' : 'remove']('is-error');
+    this.updateInputState(false);
+    this.updateInputBind();
+  }
+
+  updateInputState(checkNativeValidity) {
+    const inputNode = this.getInputNode();
+
+    let isError = !!this.state.errorMessage;
+
+    if (checkNativeValidity && !isError) {
+      isError = !inputNode.validity.valid;
+    }
+
+    inputNode.classList[isError ? 'add' : 'remove']('is-error');
+  };
+
+  updateInputBind() {
+    const inputNode = this.getInputNode();
+
+    if (inputNode) {
+      inputNode.removeEventListener('invalid', this.updateInputState.bind(this, true));
+
+      if (this.inputUnbound) {
+        inputNode.addEventListener('invalid', this.updateInputState.bind(this, true));
+        this.inputUnbound = false;
+      }
+    }
   }
 
   componentWillUnmount() {
     this.context.formDispatcher.removeListener('submit', this.onSubmit);
+    this.updateInputBind();
   }
 
   onSubmit(reportValidity) {
@@ -144,6 +173,8 @@ export default class FormField extends React.Component {
       let value = this.getInputValue();
       if (!_.isString(value) || value) {
         errorMessage = validator(value);
+      } else if ('required' in this.props) {
+        errorMessage = '$label is required field';
       }
 
       if (errorMessage) {
