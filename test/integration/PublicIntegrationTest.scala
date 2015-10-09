@@ -1,10 +1,11 @@
 import akka.http.scaladsl.model.StatusCodes
 
-import models.{Region, Country}
+import models.{Countries, Region, Country}
 import models.Country._
 import models.Region._
 import responses.CountryWithRegions
 import util.IntegrationTestBase
+import utils.Slick.implicits._
 
 class PublicIntegrationTest extends IntegrationTestBase with HttpSupport {
 
@@ -20,6 +21,14 @@ class PublicIntegrationTest extends IntegrationTestBase with HttpSupport {
       usWithRegions.regions.size must === (60)
       val us = usWithRegions.country
       (us.isBillable, us.isShippable) must === ((false, false))
+    }
+
+    "successfully returns response if there are no regions" in {
+      val response = GET(s"v1/countries/27")
+      response.status must === (StatusCodes.OK)
+      val countryWithRegions = response.as[CountryWithRegions]
+      countryWithRegions.regions must === (Seq.empty[Region])
+      countryWithRegions.country must === (Countries.findById(27).run().futureValue.value)
     }
   }
 
