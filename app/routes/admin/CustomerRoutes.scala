@@ -66,13 +66,13 @@ object CustomerRoutes {
               }
           } ~
           (get & path(IntNumber) & pathEnd)  {
-            (id) ⇒
+            id ⇒
               goodOrFailures {
                 AddressManager.get(customerId, id)
               }
           } ~
           (delete & path(IntNumber) & pathEnd)  {
-            (id) ⇒
+            id ⇒
               nothingOrFailures {
                 AddressManager.remove(customerId, id)
               }

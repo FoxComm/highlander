@@ -55,22 +55,22 @@ object AddressManager {
 
   def get(customerId: Int, addressId: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
-      val query = ( for { 
+      val query = ( for {
         Some(address) ← Addresses.findById(customerId, addressId).one
         region  ← Regions.findById(address.regionId)
       } yield (address, region))
 
-      db.run(query).flatMap { 
+      db.run(query).flatMap {
           case (address, Some(region)) ⇒ Result.good(Response.build(address, region, Some(address.isDefaultShipping)))
           case (address, None)         ⇒ Result.failure(NotFoundFailure(Region, address.regionId))
           case (_, _)                  ⇒ Result.failure(NotFoundFailure(Address,addressId))
       }
   }
-  
+
 
   def remove(customerId: Int, addressId: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
-    val query = 
+    val query =
       Addresses.findById(customerId, addressId)
       .map{ a ⇒ (a.deletedAt, a.isDefaultShipping)}
       .update((Some(Instant.now()), false))  //set delete time and set default to false

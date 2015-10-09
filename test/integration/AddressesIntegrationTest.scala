@@ -18,7 +18,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
   import Extensions._
   import org.json4s.jackson.JsonMethods._
 
-  def validateDeleteResponse(response: HttpResponse) { 
+  def validateDeleteResponse(response: HttpResponse) {
       response.status must === (StatusCodes.NoContent)
       response.bodyText mustBe 'empty
   }
@@ -95,10 +95,12 @@ class AddressesIntegrationTest extends IntegrationTestBase
       (updated.name, updated.address1) must === ((payload.name, payload.address1))
     }
 
-    "can be deleted" in new AddressFixture { 
+    "can be deleted" in new AddressFixture {
 
       //notice the payload is a default shipping address. Delete should make it not default.
-      val payload = payloads.CreateAddressPayload(name = "Delete Me", regionId = 1, address1 = "5000 Delete Dr", city = "Deattle", zip = "666", isDefault = true)
+      val payload = payloads.CreateAddressPayload(
+        name = "Delete Me", regionId = 1, address1 = "5000 Delete Dr",
+        city = "Deattle", zip = "666", isDefault = true)
 
       val response = POST(s"v1/customers/${customer.id}/addresses", payload)
       response.status must === (StatusCodes.OK)
@@ -114,33 +116,27 @@ class AddressesIntegrationTest extends IntegrationTestBase
       val gotAddress = getResponse.as[responses.Addresses.Root]
 
       //deleted address is not default anymore
-      gotAddress.isDefault match {
-        case None ⇒  info("Isn't strange that a boolean is optional")
-        case Some(isDefault) ⇒  isDefault must be (false)
-      }
+      gotAddress.isDefault.value mustBe (false)
 
       //deleted address should have a deletedAt timestamp
-      gotAddress.deletedAt match { 
-        case None ⇒  fail("FullOrder should have a shipping address")
-        case Some(time) ⇒  info(s"Deleted on ${time}")
-      }
+      gotAddress.deletedAt mustBe defined
 
       val addressesResponse = GET(s"v1/customers/${customer.id}/addresses")
       addressesResponse.status must === (StatusCodes.OK)
 
       //If you get all the addresses, our newly deleted one should not show up
-      val addresses = parse(addressesResponse.bodyText).extract[Seq[responses.Addresses.Root]]
+      val addresses = addressesResponse.as[Seq[responses.Addresses.Root]]
       addresses.filter(_.id == newAddress.id) must have length (0)
     }
 
-    "fails deleting wrong id" in new AddressFixture { 
+    "fails deleting using wrong address id" in new AddressFixture {
       val wrongAddressId = 47423987
 
       val response = DELETE(s"v1/customers/${customer.id}/addresses/${wrongAddressId}")
       response.status must === (StatusCodes.NotFound)
     }
 
-    "fails deleting address using wrong customer" in new AddressFixture { 
+    "fails deleting using wrong customer id" in new AddressFixture {
       val wrongCustomerId = 44443
       val response = DELETE(s"v1/customers/${wrongCustomerId}/addresses/${address.id}")
       response.status must === (StatusCodes.NotFound)
