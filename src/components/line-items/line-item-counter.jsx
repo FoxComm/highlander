@@ -5,6 +5,7 @@ import Counter from '../forms/counter';
 import Api from '../../lib/api';
 import { dispatch } from '../../lib/dispatcher';
 import ConfirmModal from '../modal/confirm';
+import LineItemActions from '../../actions/line-items';
 
 const confirmOptions = {
   header: 'Confirm',
@@ -20,7 +21,11 @@ export default class LineItemCounter extends React.Component {
   }
 
   onChange(oldValue, newValue) {
-    this.props.onChange([{'sku': this.props.model.sku, 'quantity': +newValue}]);
+    LineItemActions.editLineItems(
+      this.props.entityName,
+      this.props.entity.referenceNumber,
+      [{'sku': this.props.model.sku, 'quantity': +newValue}]
+    );
   }
 
   onBeforeChange(oldValue, newValue, callback) {
@@ -49,5 +54,6 @@ export default class LineItemCounter extends React.Component {
 
 LineItemCounter.propTypes = {
   model: React.PropTypes.object,
-  onChange: React.PropTypes.func
+  entityName: React.PropTypes.string,
+  entity: React.PropTypes.object
 };

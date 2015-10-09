@@ -3,30 +3,11 @@
 import React from 'react';
 import TableView from '../tables/tableview';
 import LineItemCounter from './line-item-counter';
+import LineItemActions from '../../actions/line-items';
 import DeleteLineItem from './line-item-delete';
 import SkuStore from '../../stores/skus';
 import SkuResult from '../orders/sku-result';
 import Typeahead from '../typeahead/typeahead';
-
-
-const orderDefaultColumns = [
-  {field: 'imagePath', text: 'Image', type: 'image'},
-  {field: 'name', text: 'Name'},
-  {field: 'sku', text: 'SKU'},
-  {field: 'price', text: 'Price', type: 'currency'},
-  {field: 'quantity', text: 'Qty'},
-  {field: 'total', text: 'Total', type: 'currency'}
-];
-
-const orderEditColumns = [
-  {field: 'imagePath', text: 'Image', type: 'image'},
-  {field: 'name', text: 'Name'},
-  {field: 'sku', text: 'SKU'},
-  {field: 'price', text: 'Price', type: 'currency'},
-  {field: 'lineItem', text: 'Qty', component: 'LineItemCounter'},
-  {field: 'total', text: 'Total', type: 'currency'},
-  {field: 'delete', text: 'Delete', component: 'DeleteLineItem'}
-];
 
 export default class LineItems extends React.Component {
   constructor(props, context) {
@@ -36,6 +17,29 @@ export default class LineItems extends React.Component {
     };
   }
 
+  get orderDefaultColumns () {
+    return [
+      {field: 'imagePath', text: 'Image', type: 'image'},
+      {field: 'name', text: 'Name'},
+      {field: 'sku', text: 'SKU'},
+      {field: 'price', text: 'Price', type: 'currency'},
+      {field: 'quantity', text: 'Qty'},
+      {field: 'total', text: 'Total', type: 'currency'}
+    ];
+  }
+
+  get orderEditColumns () {
+    return [
+      {field: 'imagePath', text: 'Image', type: 'image'},
+      {field: 'name', text: 'Name'},
+      {field: 'sku', text: 'SKU'},
+      {field: 'price', text: 'Price', type: 'currency'},
+      {field: 'lineItem', text: 'Qty', component: 'LineItemCounter'},
+      {field: 'total', text: 'Total', type: 'currency'},
+      {field: 'delete', text: 'Delete', component: 'DeleteLineItem'}
+    ];
+  }
+
   toggleEdit() {
     this.setState({
       isEditing: !this.state.isEditing
@@ -43,15 +47,17 @@ export default class LineItems extends React.Component {
   }
 
   itemSelected(sku) {
-    if (this.props.onChange) {
-      this.props.onChange([{'sku': sku.sku, 'quantity': 1}]);
-    }
+    LineItemActions.editLineItems(
+      this.props.model,
+      this.props.entity.referenceNumber,
+      [{'sku': sku.sku, 'quantity': 1}]
+    );
   }
 
   render() {
     let actions = null;
     let columns = this.props.tableColumns;
-    let rows = this.props.entity.lineItems;
+    let rows = this.props.entity.lineItems.skus;
     let body = (
       <TableView
         columns={columns}
@@ -67,11 +73,11 @@ export default class LineItems extends React.Component {
 
     if (this.props.model === 'order') {
       if (this.state.isEditing) {
-        columns = orderEditColumns;
+        columns = this.orderEditColumns;
         body = (
           <TableView columns={columns} rows={rows} model="lineItem">
-            <LineItemCounter onChange={this.props.onChange} />
-            <DeleteLineItem onDelete={this.props.onChange} />
+            <LineItemCounter entityName={this.props.model} entity={this.props.entity} />
+            <DeleteLineItem entityName={this.props.model} entity={this.props.entity} />
           </TableView>
         );
         actions = (
@@ -84,7 +90,7 @@ export default class LineItems extends React.Component {
           </footer>
         );
       } else {
-        columns = orderDefaultColumns;
+        columns = this.orderDefaultColumns;
         header = (
           <header>
             <div className='fc-grid'>
@@ -120,6 +126,5 @@ export default class LineItems extends React.Component {
 LineItems.propTypes = {
   entity: React.PropTypes.object,
   tableColumns: React.PropTypes.array,
-  model: React.PropTypes.string,
-  onChange: React.PropTypes.func
+  model: React.PropTypes.string
 };
