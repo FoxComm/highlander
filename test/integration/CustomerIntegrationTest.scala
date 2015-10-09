@@ -462,7 +462,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
     def generateCustomer(i: Int): Customer = {
       Customer(email = s"email$i@yax.com", password = "password",
-        firstName = s"firstName$i", lastName = Random.alphanumeric.take(30).mkString)
+        firstName = s"firstName$i", lastName = Random.alphanumeric.take(30).mkString.toLowerCase)
     }
 
     val customers = (1 to numberOfCustomers).map { i ⇒
