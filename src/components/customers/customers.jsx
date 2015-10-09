@@ -53,7 +53,7 @@ export default class Customers extends React.Component {
   }
 
   handleAddCustomerClick() {
-    console.log("Add customer");
+    console.log('Add customer');
   }
 
   render() {
@@ -72,7 +72,7 @@ export default class Customers extends React.Component {
           </TableRow>
         </div>
       );
-    }
+    };
 
     return (
       <div id="users">
@@ -81,7 +81,7 @@ export default class Customers extends React.Component {
           <div className="fc-grid gutter">
             <div className="fc-col-1-1">
               <ul className="fc-tabbed-nav">
-                <li><a href="">Lists</a></li>
+                <li><Link to="customers">Lists</Link></li>
                 <li><a href="">Customer Groups</a></li>
                 <li><a href="">Insights</a></li>
                 <li><a href="">Activity Trial</a></li>
