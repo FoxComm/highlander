@@ -9,7 +9,6 @@ create table credit_cards (
     gateway_card_id character varying(255) not null,
     holder_name character varying(255) not null,
     last_four character(4) not null,
-    brand character varying(30) null,
     exp_month integer not null,
     exp_year integer not null,
     is_default boolean default false not null,

@@ -17,10 +17,10 @@ import slick.driver.PostgresDriver.api._
 import utils._
 
 final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerId: Int, gatewayCustomerId: String,
-  gatewayCardId: String, holderName: String, lastFour: String, brand: Option[String] = None,
-  expMonth: Int, expYear: Int, isDefault: Boolean = false, address1Check: Option[String] = None,
-  zipCheck: Option[String] = None, inWallet: Boolean = true, deletedAt: Option[Instant] = None,
-  regionId: Int, addressName: String, address1: String, address2: Option[String] = None, city: String, zip: String)
+  gatewayCardId: String, holderName: String, lastFour: String, expMonth: Int, expYear: Int,
+  isDefault: Boolean = false, address1Check: Option[String] = None, zipCheck: Option[String] = None,
+  inWallet: Boolean = true, deletedAt: Option[Instant] = None, regionId: Int, addressName: String,
+  address1: String, address2: Option[String] = None, city: String, zip: String)
   extends PaymentMethod
   with ModelWithIdParameter
   with Addressable[CreditCard]
@@ -57,7 +57,7 @@ object CreditCard {
       p.holderName, lastFour = p.lastFour, expMonth = p.expMonth, expYear = p.expYear, isDefault = p.isDefault,
       address1Check = card.getAddressLine1Check.some, zipCheck = card.getAddressZipCheck.some,
       regionId = a.regionId, addressName = a.name, address1 = a.address1, address2 = a.address2,
-      city = a.city, zip = a.zip, brand = Some(card.getBrand))
+      city = a.city, zip = a.zip)
   }
 }
 
@@ -71,7 +71,6 @@ class CreditCards(tag: Tag)
   def gatewayCardId = column[String]("gateway_card_id")
   def holderName = column[String]("holder_name")
   def lastFour = column[String]("last_four")
-  def brand = column[Option[String]]("brand")
   def expMonth = column[Int]("exp_month")
   def expYear = column[Int]("exp_year")
   def isDefault = column[Boolean]("is_default")
@@ -88,7 +87,7 @@ class CreditCards(tag: Tag)
   def zip = column[String]("zip")
 
   def * = (id, parentId, customerId, gatewayCustomerId, gatewayCardId, holderName,
-    lastFour, brand, expMonth, expYear, isDefault, address1Check, zipCheck, inWallet, deletedAt,
+    lastFour, expMonth, expYear, isDefault, address1Check, zipCheck, inWallet, deletedAt,
     regionId, addressName, address1, address2, city, zip) <> ((CreditCard.apply _).tupled, CreditCard.unapply)
 
   def customer        = foreignKey(Customers.tableName, customerId, Customers)(_.id)
