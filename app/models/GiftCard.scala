@@ -21,10 +21,10 @@ import slick.jdbc.JdbcType
 import utils.Money._
 import utils.Validation._
 
-final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = CustomerPurchase, code: String,
-  currency: Currency = Currency.USD, status: Status = OnHold, originalBalance: Int, currentBalance: Int = 0,
-  availableBalance: Int = 0, canceledAmount: Option[Int] = None, canceledReason: Option[Int] = None,
-  reloadable: Boolean = false, createdAt: Instant = Instant.now())
+final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = CustomerPurchase,
+  subTypeId: Option[Int] = None, code: String, currency: Currency = Currency.USD, status: Status = OnHold,
+  originalBalance: Int, currentBalance: Int = 0, availableBalance: Int = 0, canceledAmount: Option[Int] = None,
+  canceledReason: Option[Int] = None, reloadable: Boolean = false, createdAt: Instant = Instant.now())
   extends PaymentMethod
   with ModelWithIdParameter
   with FSM[GiftCard.Status, GiftCard]
@@ -95,6 +95,7 @@ object GiftCard {
       code = generateCode(defaultCodeLength),
       originId = originId,
       originType = GiftCard.CsrAppeasement,
+      subTypeId = payload.subTypeId,
       status = GiftCard.Active,
       currency = payload.currency,
       originalBalance = payload.balance,
@@ -119,6 +120,7 @@ class GiftCards(tag: Tag) extends GenericTable.TableWithId[GiftCard](tag, "gift_
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def originId = column[Int]("origin_id")
   def originType = column[GiftCard.OriginType]("origin_type")
+  def subTypeId = column[Option[Int]]("subtype_id")
   def code = column[String]("code")
   def status = column[GiftCard.Status]("status")
   def currency = column[Currency]("currency")
@@ -130,7 +132,7 @@ class GiftCards(tag: Tag) extends GenericTable.TableWithId[GiftCard](tag, "gift_
   def reloadable = column[Boolean]("reloadable")
   def createdAt = column[Instant]("created_at")
 
-  def * = (id, originId, originType, code, currency, status, originalBalance, currentBalance,
+  def * = (id, originId, originType, subTypeId, code, currency, status, originalBalance, currentBalance,
     availableBalance, canceledAmount, canceledReason, reloadable, createdAt) <> ((GiftCard.apply _).tupled, GiftCard
     .unapply)
 }

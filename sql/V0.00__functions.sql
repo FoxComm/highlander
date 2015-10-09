@@ -36,3 +36,12 @@ create domain currency character(3) not null;
 
 -- RFC2821 + Errata 1690 limits max email size to 254 chars
 create domain email character varying(254);
+
+-- subtypes
+create domain gc_origin_type text not null check (
+    value in ('customerPurchase', 'csrAppeasement', 'fromStoreCredit')
+);
+
+create domain sc_origin_type text not null check (
+    value in ('giftCardTransfer', 'csrAppeasement', 'returnProcess')
+);

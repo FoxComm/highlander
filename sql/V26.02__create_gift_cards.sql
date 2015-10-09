@@ -1,7 +1,8 @@
 create table gift_cards (
     id integer primary key,
     origin_id integer not null,
-    origin_type character varying(255) not null,
+    origin_type gc_origin_type,
+    subtype_id integer null references gift_card_subtypes(id) on update restrict on delete restrict,
     code character varying(255) not null,
     status character varying(255) not null,
     currency currency,

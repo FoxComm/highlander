@@ -24,10 +24,10 @@ object StoreCreditService {
     Customers.findById(customerId).flatMap {
       case Some(customer) ⇒
         val actions = for {
-          origin  ← StoreCreditManuals.save(StoreCreditManual(adminId = admin.id, reasonId = payload.reasonId,
+          origin ← StoreCreditManuals.save(StoreCreditManual(adminId = admin.id, reasonId = payload.reasonId,
             subReasonId = payload.subReasonId))
-          sc      ← StoreCredits.save(StoreCredit(customerId = customerId, originId = origin.id, originType =
-            StoreCredit.CsrAppeasement, currency = payload.currency, originalBalance = payload.amount))
+          sc ← StoreCredits.save(StoreCredit.buildAppeasement(customerId = customerId, originId = origin.id,
+            payload = payload))
         } yield sc
 
         actions.run().flatMap(sc ⇒ Result.right(build(sc)))
