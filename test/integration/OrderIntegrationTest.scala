@@ -5,6 +5,7 @@ import akka.pattern.ask
 import akka.testkit.TestActorRef
 
 import models._
+import models.rules.QueryStatement
 import payloads.{Assignment, UpdateOrderPayload}
 import responses.{StoreAdminResponse, FullOrderWithWarnings, FullOrder}
 import services.{GeneralFailure, NotFoundFailure}
@@ -15,6 +16,7 @@ import slick.driver.PostgresDriver.api._
 import Order._
 import utils.{RemorseTimer, Tick}
 import models.OrderLockEvents.scope._
+import org.json4s.jackson.JsonMethods._
 
 import utils.time._
 
@@ -25,7 +27,6 @@ class OrderIntegrationTest extends IntegrationTestBase
   import concurrent.ExecutionContext.Implicits.global
 
   import Extensions._
-  import org.json4s.jackson.JsonMethods._
 
   type Errors = Map[String, Seq[String]]
 
@@ -553,6 +554,19 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
   }
 
+  "adding a shipping method method to an order" - {
+    "succeeds if the order meets the shipping restrictions" in new ShippingMethodFixture {
+      val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-methods",
+        payloads.UpdateShippingMethod(shippingMethodId = shippingMethod.id))
+
+      response.status must === (StatusCodes.OK)
+
+      val orderShippingMethod = OrderShippingMethods.findByOrderId(order.id).result.run().futureValue.head
+      orderShippingMethod.adminDisplayName === shippingMethod.adminDisplayName
+      orderShippingMethod.price === shippingMethod.price
+    }
+  }
+
   trait Fixture {
     val (order, storeAdmin, customer) = (for {
       customer ← Customers.save(Factories.customer)
@@ -584,6 +598,21 @@ class OrderIntegrationTest extends IntegrationTestBase
   }
 
   trait PaymentMethodsFixture extends AddressFixture {
+  }
+
+  trait ShippingMethodFixture extends AddressFixture {
+    val conditions = parse(
+      """
+        | {
+        |   "comparison": "and",
+        |   "conditions": [{
+        |     "rootObject": "Order", "field": "grandtotal", "operator": "greaterThan", "valInt": 25
+        |   }]
+        | }
+      """.stripMargin).extract[QueryStatement]
+
+    val shippingMethod = models.ShippingMethods.save(Factories.shippingMethods.head.copy(
+      conditions = Some(conditions))).run().futureValue
   }
 
   trait RemorseFixture {

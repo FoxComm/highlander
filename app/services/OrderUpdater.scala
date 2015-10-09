@@ -146,16 +146,18 @@ object OrderUpdater {
 
   def updateShippingMethod(payload: UpdateShippingMethod, refNum: String)
     (implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
-    val finder = ShippingMethods.findActiveById(payload.shippingMethodId)
+    val finder = Orders.findByRefNum(refNum)
 
-    finder.findOneAndRun { shippingMethod ⇒
-      OrderShippingMethods.findByOrderId(order.id).delete
-      OrderShippingMethods.copyFromShippingMethod(shippingMethod, order)
-      Orders.findById(order.id).flatMap {
-        case Some(o) ⇒
-          DbResult.fromDbio(FullOrder.fromOrder(o))
-        case _ ⇒
-          DbResult.failure(GeneralFailure("Some stupid failure"))
+    finder.findOneAndRun { order ⇒
+      ShippingMethods.findActiveById(payload.shippingMethodId).one.flatMap {
+        case Some(shippingMethod) ⇒
+          DbResult.fromDbio(for {
+            _ ← OrderShippingMethods.findByOrderId(order.id).delete
+            newOrder ← OrderShippingMethods.copyFromShippingMethod(shippingMethod, order) >> finder.result.head
+            fullOrder ← FullOrder.fromOrder(newOrder)
+          } yield fullOrder)
+        case None ⇒
+          DbResult.failure(NotFoundFailure(ShippingMethod, payload.shippingMethodId))
       }
     }
   }
