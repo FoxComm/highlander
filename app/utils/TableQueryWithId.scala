@@ -82,17 +82,27 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.Tab
 
   implicit class TableQuerySeqConversions(q: QuerySeq) {
 
-    protected def selectOneForUpdateInner[R](checks: Option[M] ⇒ Failures Xor M)(action: M ⇒ DbResult[R])
+    protected def selectInner[R](dbio: DBIO[Option[M]])(checks: Option[M] ⇒ Failures Xor M)(action: M ⇒ DbResult[R])
       (implicit ec: ExecutionContext, db: Database): Result[R] = {
-      appendForUpdate(q.result.headOption).map(checks).flatMap {
+      dbio.map(checks).flatMap {
         case Xor.Right(value) ⇒ action(value)
         case failures @ Xor.Left(_) ⇒ lift(failures)
       }.transactionally.run()
     }
 
+    def selectOne[R](action: M ⇒ DbResult[R])
+      (implicit ec: ExecutionContext, db: Database): Result[R] = {
+      selectInner(q.result.headOption)(selectOneResultChecks)(action)
+    }
+
     def selectOneForUpdate[R](action: M ⇒ DbResult[R])
       (implicit ec: ExecutionContext, db: Database): Result[R] = {
-      selectOneForUpdateInner(runChecks)(action)
+      selectInner(appendForUpdate(q.result.headOption))(selectOneResultChecks)(action)
+    }
+
+    def select[R](action: Seq[M] ⇒ DbResult[R])
+      (implicit ec: ExecutionContext, db: Database): Result[R] = {
+      q.result.flatMap(action).transactionally.run()
     }
 
     def selectForUpdate[R](action: Seq[M] ⇒ DbResult[R])
@@ -100,7 +110,7 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.Tab
       appendForUpdate(q.result).flatMap(action).transactionally.run()
     }
 
-    protected def runChecks(maybe: Option[M])
+    protected def selectOneResultChecks(maybe: Option[M])
       (implicit ec: ExecutionContext, db: Database): Xor[Failures, M] = {
       Xor.fromOption(maybe, NotFoundFailure("Not found").single)
     }
@@ -116,10 +126,10 @@ abstract class TableQueryWithLock[M <: ModelWithLockParameter, T <: GenericTable
 
     def selectOneForUpdateIgnoringLock[R](action: M ⇒ DbResult[R])
       (implicit ec: ExecutionContext, db: Database): Result[R] = {
-      selectOneForUpdateInner(super.runChecks)(action)
+      selectInner(appendForUpdate(q.result.headOption))(super.selectOneResultChecks)(action)
     }
 
-    override def runChecks(maybe: Option[M])
+    override def selectOneResultChecks(maybe: Option[M])
       (implicit ec: ExecutionContext, db: Database): Xor[Failures, M] = {
       maybe match {
         case Some(lockable) if lockable.locked ⇒
