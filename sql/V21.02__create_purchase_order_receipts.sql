@@ -2,7 +2,7 @@
 create table purchase_order_receipts (
     id bigint primary key,
     purchase_order_id integer not null,
-    receiver_name character varying(255), -- just for fun
+    receiver_name generic_string, -- just for fun
     inventory_location_id int, -- just for fun
     created_at timestamp without time zone default (now() at time zone 'utc'),
     updated_at timestamp without time zone default (now() at time zone 'utc'),

@@ -35,4 +35,18 @@ $$ language plpgsql;
 create domain currency character(3) not null;
 
 -- RFC2821 + Errata 1690 limits max email size to 254 chars
-create domain email character varying(254);
+create domain email text check (length(value) <= 254);
+
+-- Using text instead of character varying is more efficient
+create domain generic_string text check (length(value) <= 255);
+create domain order_refnum text check (length(value) <= 20);
+create domain note_body text check (length(value) <= 1000);
+create domain region_abbr text check (length(value) <= 10);
+create domain phone_number text check (length(value) <= 15);
+
+-- Zip code domain
+create domain zip_code text check (
+    length(value) > 0 and
+    length(value) <= 12 and
+    value ~ '(?i)^[a-z0-9][a-z0-9\- ]{0,10}[a-z0-9]$'
+);

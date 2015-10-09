@@ -2,7 +2,7 @@ create table order_line_items (
     id serial primary key,
     order_id integer not null,
     sku_id integer not null,
-    status character varying(255) not null,
+    status generic_string not null,
     created_at timestamp without time zone default (now() at time zone 'utc'),
     constraint valid_status check (status in ('cart','pending','preOrdered', 'backOrdered', 'canceled', 'shipped'))
 );

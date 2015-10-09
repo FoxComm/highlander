@@ -3,7 +3,7 @@ create table shipments (
     order_id bigint not null,
     shipping_method_id integer,
     shipping_address_id integer,
-    status character varying(255) not null,
+    status generic_string not null,
     shipping_price integer,
     created_at timestamp without time zone default (now() at time zone 'utc'),
     updated_at timestamp without time zone default (now() at time zone 'utc'),
