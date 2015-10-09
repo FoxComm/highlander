@@ -8,21 +8,21 @@ import { pluralize } from 'fleck';
 
 class LineItemActions {
   orderLineItemSuccess(order) {
-    AshesDispatcher.handleView({
+    AshesDispatcher.handleAction({
       actionType: LineItemConstants.ORDER_LINE_ITEM_SUCCESS,
       order: order
     });
   }
 
   rmaLineItemSuccess(rma) {
-    AshesDispatcher.handleView({
+    AshesDispatcher.handleAction({
       actionType: LineItemConstants.RETURN_LINE_ITEM_SUCCESS,
       rma: rma
     });
   }
 
   failedLineItems(errorMessage) {
-    AshesDispatcher.handleView({
+    AshesDispatcher.handleAction({
       actionType: LineItemConstants.FAILED_LINE_ITEMS,
       errorMessage: errorMessage
     });

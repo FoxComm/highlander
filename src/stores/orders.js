@@ -14,7 +14,7 @@ class OrderStore extends BaseStore {
     this.bindListener(OrderConstants.UPDATE_ORDERS, this.handleUpdateOrders);
     this.bindListener(OrderConstants.FAILED_ORDERS, this.handleFailedOrders);
     this.bindListener(OrderConstants.INSERT_ORDER, this.handleInsertOrder);
-    this.bindListener(LineItemConstants.LINE_ITEM_SUCCESS, this.handleInsertOrder);
+    this.bindListener(LineItemConstants.ORDER_LINE_ITEM_SUCCESS, this.handleInsertOrder);
   }
 
   get statuses() {
