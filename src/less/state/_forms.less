@@ -1,0 +1,38 @@
+
+@import (reference) "../modules/_forms";
+
+.input-state-styles() {
+  &:hover {
+    border: 1px solid @color-decor3;
+  }
+
+  &:active,
+  &:focus {
+    border: 1px solid @color-control-primary-bg;
+  }
+
+  &:invalid:not(:required),
+  &.is-error {
+    border: 1px solid @color-decor22;
+  }
+}
+
+.fc-form-field {
+  .input-rules({
+    .input-state-styles();
+  }, {});
+}
+
+.input-rules({
+  &.fc-input {
+    .input-state-styles();
+  }
+}, {});
+
+.fc-form-field {
+  &-error {
+    color: @color-decor22;
+    .font-spec(13px);
+    .padding-top(8px);
+  }
+}

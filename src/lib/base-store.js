@@ -10,6 +10,10 @@ export default class BaseStore extends EventedStore {
     this.models = [];
   }
 
+  get baseUri() {
+    return this.rootUri;
+  }
+
   uri(id) {
     return id ? `${this.baseUri}/${id}` : this.baseUri;
   }

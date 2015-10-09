@@ -2,10 +2,11 @@
 
 import _ from 'lodash';
 import Api from './api';
+import { EventEmitter } from 'events';
 import { dispatch, listenTo, stopListeningTo } from './dispatcher';
 import { inflect } from 'fleck';
 
-export default class EventedStore {
+export default class EventedStore extends EventEmitter {
   get storeName() { return this.constructor.name; }
   get eventSuffix() { return inflect(this.storeName, 'underscore', 'dasherize'); }
 
@@ -61,17 +62,19 @@ export default class EventedStore {
   }
 
   _delete(models, identity) {
-    let model = this._findWhere(models, (model) => {
+    let index = _.findIndex(models, (model) => {
       return this.identity(model) === identity;
     });
-    if (model) {
-      models.splice(models.indexOf(model), 1);
+    if (index !== -1) {
+      models.splice(index, 1);
+      return true;
+    } else {
+      return false;
     }
-
-    return !!model;
   }
 
   dispatch(event, ...args) {
+    this.emit(event, ...args);
     dispatch(`${event}${this.storeName}`, ...args);
   }
 

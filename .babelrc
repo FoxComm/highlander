@@ -1,5 +1,4 @@
 {
   "stage": 1,
-  "optional": ["es7.classProperties"],
-  "blacklist": ["regenerator"]
+  "optional": ["es7.classProperties", "runtime"]
 }

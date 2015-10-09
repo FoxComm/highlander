@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { dispatch } from '../../lib/dispatcher';
-import NotificationStore from './store';
+import NotificationStore from '../../stores/notifications';
 
 export default class ResendModal extends React.Component {
   constructor(props, context) {

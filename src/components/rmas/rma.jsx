@@ -3,7 +3,7 @@
 import React, { PropTypes } from 'react';
 import { Link } from '../link';
 import { listenTo, stopListeningTo, dispatch } from '../../lib/dispatcher';
-import RmaStore from './store';
+import RmaStore from '../../stores/rmas';
 import Notes from '../notes/notes';
 import Viewers from '../viewers/viewers';
 

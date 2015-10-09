@@ -55,6 +55,6 @@ export default class HashStore extends EventedStore {
   }
 
   create(baseId, data) {
-    return super.create(data, baseId);
+    return super.post(data, baseId);
   }
 }

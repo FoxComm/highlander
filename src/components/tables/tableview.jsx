@@ -53,15 +53,9 @@ export default class TableView extends React.Component {
   }
 
   render() {
-    let showPaginator = this.props.paginator && this.props.rows.length > this.state.limit;
-    let paginator = showPaginator && (
-        <TablePaginator
-          start={this.state.start}
-          limit={this.state.limit}
-          total={this.props.rows.length}
-          setStart={this.setStart.bind(this)}
-          />
-      );
+    let showPaginator = false;
+    let paginator = null;
+
     return (
       <div className="fc-tableview">
         {showPaginator && (
