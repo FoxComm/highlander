@@ -2,7 +2,7 @@
 
 import React from 'react';
 import AddressDetails from './address-details.jsx';
-import ItemCardContainer from '../item-card-container/item-card-container';
+import EditableItemCardContainer from '../item-card-container/editable-item-card-container';
 
 export default class AddressBox extends React.Component {
 
@@ -15,29 +15,30 @@ export default class AddressBox extends React.Component {
     super(props, context);
   }
 
+  handleIsDefaultChange() {
+    console.log('Is default state changed');
+  }
+
+  handleEditClick() {
+    console.log('Edit button action triggered');
+  }
+
+  handleDeleteClick() {
+    console.log('Delete button action triggered');
+  }
+
   render() {
     let address = this.props.address;
 
-    let isDefault = (
-        <label className="fc-address-default">
-          <input type="checkbox" defaultChecked={address.isDefault} />
-          <span>Default shipping address</span>
-        </label>
-    );
-
-    let buttons = (
-      <div>
-        <button className="fc-btn icon-trash"></button>
-        <button className="fc-btn icon-edit"></button>
-      </div>
-    );
-
     return (
-      <ItemCardContainer className="fc-customer-address"
-                         leftControls={ isDefault }
-                         rightControls={ buttons }>
+      <EditableItemCardContainer className="fc-customer-address"
+                                 checkboxLabel="Default shipping address"
+                                 initiallyIsDefault={ address.isDefault }
+                                 checkboxClickHandler={ this.handleIsDefaultChange }
+                                 editHandler={ this.handleEditClick }
+                                 deleteHandler={ this.handleDeleteClick }>
         <AddressDetails address={address} />
-      </ItemCardContainer>
+      </EditableItemCardContainer>
     );
   }
 }
