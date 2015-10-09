@@ -15,7 +15,7 @@ object Public {
   def findCountry(countryId: Int)(implicit ec: ExecutionContext, db: Database): Result[CountryWithRegions] = {
     Countries._findById(countryId).extract.selectOne { country ⇒
       DbResult.fromDbio(Regions.filter(_.countryId === countryId).result.map { rs ⇒
-        CountryWithRegions(country, rs.to[Seq])
+        CountryWithRegions(country, sortRegions(rs.to[Seq]))
       })
     }
   }
@@ -28,9 +28,11 @@ object Public {
     }
 
   def regions(implicit ec: ExecutionContext, db: Database): Future[Seq[Region]] =
-    db.run(Regions.result).map { regions ⇒
-      (regions.filter(r ⇒ regularUsRegions.contains(r.id)).sortBy(_.name)
-        ++ regions.filter(r ⇒ armedRegions.contains(r.id)).sortBy(_.name)
-        ++ regions.filterNot(r ⇒ usRegions.contains(r.id)).sortBy(_.name)).to[Seq]
-    }
+    db.run(Regions.result.map(rs ⇒ sortRegions(rs.to[Seq])))
+
+  private def sortRegions(regions: Seq[Region]): Seq[Region] = {
+    regions.filter(r ⇒ regularUsRegions.contains(r.id)).sortBy(_.name) ++
+    regions.filter(r ⇒ armedRegions.contains(r.id)).sortBy(_.name) ++
+    regions.filterNot(r ⇒ usRegions.contains(r.id)).sortBy(_.name)
+  }
 }

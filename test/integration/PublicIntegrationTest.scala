@@ -12,13 +12,19 @@ class PublicIntegrationTest extends IntegrationTestBase with HttpSupport {
   import Extensions._
 
   "GET /countries/:id" - {
-    "lists the country and its regions along with shippable and payable flags" in {
+    "lists the country and its regions sorted along with shippable and payable flags" in {
       val response = GET(s"v1/countries/$unitedStatesId")
-
       response.status must ===(StatusCodes.OK)
-
       val usWithRegions = response.as[CountryWithRegions]
-      usWithRegions.regions.size must === (60)
+
+      val regions = usWithRegions.regions
+      regions.size must === (60)
+      regions.take(regularUsRegions.size).map(_.name) mustBe sorted
+
+      val armed = regions.takeRight(armedRegions.size)
+      armed.map(_.id) must === (armedRegions)
+      armed.map(_.name) mustBe sorted
+
       val us = usWithRegions.country
       (us.isBillable, us.isShippable) must === ((false, false))
     }
