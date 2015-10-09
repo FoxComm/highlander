@@ -5,8 +5,7 @@ import cats.data.Xor
 import com.stripe.exception.CardException
 import com.stripe.model
 import com.stripe.model.{Customer ⇒ StripeCustomer, Card, ExternalAccount}
-import models.{Orders, Customer, CreditCards, CreditCard, Customers, Addresses, StoreAdmins, OrderPayments,
-Region, Regions}
+import models.{Orders, Customer, CreditCards, CreditCard, Customers, Addresses, StoreAdmins, OrderPayments, Regions}
 import models.OrderPayments.scope._
 import responses.CustomerResponse
 import org.mockito.Mockito
@@ -36,28 +35,13 @@ class CustomerIntegrationTest extends IntegrationTestBase
   import concurrent.ExecutionContext.Implicits.global
 
   override def makeApis: Option[Apis] = Some(Apis(stripeApi))
-  private  var stripeApi: StripeApi   = mock[StripeApi]
+
+  private var stripeApi: StripeApi = mock[StripeApi]
 
   import Extensions._
   import org.json4s.jackson.JsonMethods._
   import slick.driver.PostgresDriver.api._
   import util.SlickSupport.implicits._
-
-  def customersApi(customer: Customer, shipRegion: Option[Region] = None, billRegion: Option[Region] = None) = {
-    info("GET /v1/customers/:id")
-    val response = GET(s"v1/customers/${customer.id}")
-    val customerRoot = CustomerResponse.build(customer, shippingRegion = shipRegion, billingRegion = billRegion)
-
-    response.status must ===(StatusCodes.OK)
-    response.as[CustomerResponse.Root] must === (customerRoot)
-
-    info("GET /v1/customers")
-    val responseList = GET(s"v1/customers")
-    val customers = Seq(customerRoot)
-
-    responseList.status must === (StatusCodes.OK)
-    responseList.as[Seq[CustomerResponse.Root]] must === (customers)
-  }
 
   "Customer" - {
     "accounts are unique based on email, non-guest, and active" in {
@@ -72,34 +56,53 @@ class CustomerIntegrationTest extends IntegrationTestBase
     "accounts are NOT unique for guest account and email" in {
       val stub = Factories.customer.copy(isGuest = true)
       val customers = (1 to 3).map(_ ⇒ Customers.save(stub).futureValue)
-      customers.map(_.id) must contain allOf(1,2,3)
+      customers.map(_.id) must contain allOf(1, 2, 3)
     }
   }
 
   "admin API's" - {
-    "testing customers api over default fixtures" in new Fixture {
-      behave like customersApi(customer, region)
+    "GET /v1/customers/:id" in new Fixture {
+      val response = GET(s"v1/customers/${customer.id}")
+      val customerRoot = CustomerResponse.build(customer, shippingRegion = region)
+
+      response.status must ===(StatusCodes.OK)
+      response.as[CustomerResponse.Root] must ===(customerRoot)
     }
-    "testing customers api without default address" in new FixtureWithoutDefaultAddress {
-      behave like customersApi(customer, region)
+
+    "GET /v1/customers/:id without default address" in new Fixture {
+      Addresses.filter(_.id === address.id).map(_.isDefaultShipping).update(false).run().futureValue
+      val response = GET(s"v1/customers/${customer.id}")
+      val customerRoot = CustomerResponse.build(customer)
+
+      response.status must ===(StatusCodes.OK)
+      response.as[CustomerResponse.Root] must ===(customerRoot)
     }
-    "testing customers api with creditCard" in new CreditCardFixture {
-      val billRegion = Regions.findById(creditCard.regionId).run().futureValue
-      behave like customersApi(customer, region, billRegion)
+
+    "GET /v1/customers" in new Fixture {
+      val response = GET(s"v1/customers")
+      val customerRoot = CustomerResponse.build(customer, shippingRegion = region)
+
+      response.status must ===(StatusCodes.OK)
+      response.as[Seq[CustomerResponse.Root]] must ===(Seq(customerRoot))
     }
-    "testing customers api without default creditCard" in new NoDefaultCreditCardFixture {
-      val billRegion = Regions.findById(creditCard.regionId).run().futureValue
-      behave like customersApi(customer, region, billRegion)
+
+    "GET /v1/customers without default address" in new Fixture {
+      Addresses.filter(_.id === address.id).map(_.isDefaultShipping).update(false).run().futureValue
+      val response = GET(s"v1/customers")
+      val customerRoot = CustomerResponse.build(customer)
+
+      response.status must ===(StatusCodes.OK)
+      response.as[Seq[CustomerResponse.Root]] must ===(Seq(customerRoot))
     }
 
     "toggles the isDisabled flag on a customer account" in new Fixture {
       customer.isDisabled must ===(false)
 
       val response = POST(s"v1/customers/${customer.id}/disable", payloads.ToggleCustomerDisabled(true))
-      response.status must === (StatusCodes.OK)
+      response.status must ===(StatusCodes.OK)
 
       val c = parse(response.bodyText).extract[Customer]
-      c.isDisabled must === (true)
+      c.isDisabled must ===(true)
     }
 
     "credit cards" - {
@@ -110,9 +113,47 @@ class CustomerIntegrationTest extends IntegrationTestBase
         val cc = response.as[Seq[CreditCard]]
 
         response.status must ===(StatusCodes.OK)
-        cc must have size(1)
+        cc must have size (1)
         cc.head must ===(creditCard)
-        cc.head.id must !== (deleted.id)
+        cc.head.id must !==(deleted.id)
+      }
+
+      "GET /v1/customers shows valid billingRegion" in new CreditCardFixture {
+        val billRegion = Regions.findById(creditCard.regionId).run().futureValue
+
+        val response = GET(s"v1/customers")
+        val customerRoot = CustomerResponse.build(customer, shippingRegion = region, billingRegion = billRegion)
+
+        response.status must ===(StatusCodes.OK)
+        response.as[Seq[CustomerResponse.Root]] must ===(Seq(customerRoot))
+      }
+
+      "GET /v1/customers shows valid billingRegion without default CreditCard" in new CreditCardFixture {
+        CreditCards.filter(_.id === creditCard.id).map(_.isDefault).update(false).run().futureValue
+        val response = GET(s"v1/customers")
+        val customerRoot = CustomerResponse.build(customer, shippingRegion = region)
+
+        response.status must ===(StatusCodes.OK)
+        response.as[Seq[CustomerResponse.Root]] must ===(Seq(customerRoot))
+      }
+
+      "GET /v1/customer/:id shows valid billingRegion" in new CreditCardFixture {
+        val billRegion = Regions.findById(creditCard.regionId).run().futureValue
+
+        val response = GET(s"v1/customers/${customer.id}")
+        val customerRoot = CustomerResponse.build(customer, shippingRegion = region, billingRegion = billRegion)
+
+        response.status must ===(StatusCodes.OK)
+        response.as[CustomerResponse.Root] must ===(customerRoot)
+      }
+
+      "GET /v1/customer/:id shows valid billingRegion without default CreditCard" in new CreditCardFixture {
+        CreditCards.filter(_.id === creditCard.id).map(_.isDefault).update(false).run().futureValue
+        val response = GET(s"v1/customers/${customer.id}")
+        val customerRoot = CustomerResponse.build(customer, shippingRegion = region)
+
+        response.status must ===(StatusCodes.OK)
+        response.as[CustomerResponse.Root] must ===(customerRoot)
       }
 
       "sets the isDefault flag on a credit card" in new CreditCardFixture {
@@ -149,7 +190,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
           val deleted = CreditCards.findById(creditCard.id).run().futureValue.value
 
           response.status must ===(StatusCodes.NoContent)
-          deleted.inWallet must === (false)
+          deleted.inWallet must ===(false)
           deleted.deletedAt mustBe 'defined
         }
 
@@ -189,7 +230,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
             when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any())).
               thenReturn(Result.good(new Card))
 
-            val payload  = payloads.EditCreditCard(holderName = Some("Bob"))
+            val payload = payloads.EditCreditCard(holderName = Some("Bob"))
             val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
             val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).result.run().futureValue.toList
 
@@ -231,7 +272,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
             val numAddresses = Addresses.length.result.futureValue
 
             response.status must ===(StatusCodes.NoContent)
-            numAddresses must === (1)
+            numAddresses must ===(1)
             (newVersion.zip, newVersion.regionId) must ===((address.zip, address.regionId))
           }
 
@@ -256,7 +297,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
             val newAddress = addresses.last
 
             response.status must ===(StatusCodes.NoContent)
-            addresses must have size(2)
+            addresses must have size (2)
             (newVersion.zip, newVersion.regionId) must ===(("54321", address.regionId + 1))
             (newVersion.zip, newVersion.regionId) must ===((newAddress.zip, newAddress.regionId))
           }
@@ -307,13 +348,12 @@ class CustomerIntegrationTest extends IntegrationTestBase
           val payload = payloads.EditCreditCard(expYear = Some(2000))
           val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
 
-          response.status must === (StatusCodes.BadRequest)
-          response.errors must === (List("Your card's expiration year is invalid"))
+          response.status must ===(StatusCodes.BadRequest)
+          response.errors must ===(List("Your card's expiration year is invalid"))
         }
       }
     }
   }
-
 
   trait Fixture {
     val (customer, address, region, admin) = (for {
@@ -324,20 +364,9 @@ class CustomerIntegrationTest extends IntegrationTestBase
     } yield (customer, address, region, admin)).run().futureValue
   }
 
-  trait FixtureWithoutDefaultAddress extends Fixture {
-    override val address = Addresses.save(Factories.address.copy(customerId = customer.id, isDefaultShipping = false))
-      .run()
-      .futureValue
-  }
-
   trait CreditCardFixture extends Fixture {
     val creditCard = CreditCards.save(Factories.creditCard.copy(customerId = customer.id)).run().futureValue
   }
 
-  trait NoDefaultCreditCardFixture extends CreditCardFixture {
-    override val creditCard = CreditCards.save(Factories.creditCard.copy(
-      isDefault = false,
-      customerId = customer.id)).run().futureValue
-  }
 }
 
