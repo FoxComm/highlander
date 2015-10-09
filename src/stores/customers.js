@@ -1,9 +1,27 @@
 'use strict';
 
-import BaseStore from '../lib/base-store';
+import { List } from 'immutable';
+import BaseStore from './base-store';
+import CustomerConstants from '../constants/customers';
 
 class CustomerStore extends BaseStore {
-  get baseUri() { return '/customers'; }
+  constructor() {
+    super();
+    this.changeEvent = 'change-customers';
+    this.state = List([]);
+
+    this.bindListener(CustomerConstants.UPDATE_CUSTOMERS, this.handleUpdateCustomers);
+    this.bindListener(CustomerConstants.FAILED_CUSTOMERS, this.handleFailedCustomers);
+  }
+
+  handleUpdateCustomers(action) {
+    this.setState(List(action.customers));
+  }
+
+  handleFailedCustomers(action) {
+    console.error(action.errorMessage.trim());
+  }
 }
 
-export default new CustomerStore();
+let customerStore = new CustomerStore();
+export default customerStore;

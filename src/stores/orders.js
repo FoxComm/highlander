@@ -32,14 +32,6 @@ class OrderStore extends BaseStore {
   get editableStatusList() { return ['remorseHold', 'manualHold', 'fraudHold', 'fulfillmentStarted']; }
   get holdStatusList() { return ['remorseHold', 'manualHold', 'fraudHold']; }
 
-  sort(field, order=1) {
-    this.setState(
-      this.state.sort((a, b) => {
-        return (1 - 2 * order) * (a[field] < b[field] ? 1 : a[field] > b[field] ? -1 : 0);
-      })
-    );
-  }
-
   handleUpdateOrders(action) {
     this.setState(List(action.orders));
   }

@@ -55,6 +55,12 @@ export default class BaseStore extends EventEmitter {
     }
   }
 
+  sort(list, field, order=1) {
+    return list.sort((a, b) => {
+      return (1 - 2 * order) * (a[field] < b[field] ? 1 : a[field] > b[field] ? -1 : 0);
+    });
+  }
+
   insertIntoList(list, newItem, field='id') {
     let existingIndex = list.findIndex(item => item[field] === newItem[field]);
     if (existingIndex === -1) existingIndex = this.state.size;

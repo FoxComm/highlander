@@ -3,26 +3,31 @@
 import React from 'react';
 import TableView from '../tables/tableview';
 import CustomerStore from '../../stores/customers';
+import CustomerActions from '../../actions/customers';
 
 export default class Customers extends React.Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      customers: CustomerStore.getState()
+      data: CustomerStore.getState()
     };
+    this.onChange = this.onChange.bind(this);
   }
 
   componentDidMount() {
-    CustomerStore.listenToEvent('change', this);
-    CustomerStore.fetch();
+    CustomerStore.listen(this.onChange);
+
+    CustomerActions.fetchCustomers();
   }
 
   componentWillUnmount() {
-    CustomerStore.stopListeningToEvent('change', this);
+    CustomerStore.unlisten(this.onChange);
   }
 
-  onChangeCustomerStore(customers) {
-    this.setState({customers});
+  onChange() {
+    this.setState({
+      data: CustomerStore.getState()
+    });
   }
 
   render() {
@@ -31,7 +36,7 @@ export default class Customers extends React.Component {
         <div className="gutter">
           <TableView
             columns={this.props.tableColumns}
-            rows={this.state.customers}
+            rows={this.state.data.toArray()}
             model='customer'
             sort={CustomerStore.sort.bind(CustomerStore)}
             />
