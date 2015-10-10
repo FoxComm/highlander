@@ -151,10 +151,19 @@ object OrderUpdater {
     finder.findOneAndRun { order ⇒
       ShippingMethods.findActiveById(payload.shippingMethodId).one.flatMap {
         case Some(shippingMethod) ⇒
-          val orderShipping = OrderShippingMethod(orderId = order.id, shippingMethodId = shippingMethod.id)
-          val delete = OrderShippingMethods.findByOrderId(order.id).delete
+          ShippingManager.evaluateShippingMethodForOrder(shippingMethod, order).flatMap {
+            case Xor.Right(res) ⇒
+              if (res) {
+                val orderShipping = OrderShippingMethod(orderId = order.id, shippingMethodId = shippingMethod.id)
+                val delete = OrderShippingMethods.findByOrderId(order.id).delete
 
-          DbResult.fromDbio(delete >> OrderShippingMethods.save(orderShipping) >> fullOrder(finder))
+                DbResult.fromDbio(delete >> OrderShippingMethods.save(orderShipping) >> fullOrder(finder))
+              } else {
+                DbResult.failure(GeneralFailure("Shipping method not applicable"))
+              }
+            case Xor.Left(f) ⇒
+              DbResult.failures(f)
+          }
         case None ⇒
           DbResult.failure(NotFoundFailure(ShippingMethod, payload.shippingMethodId))
       }

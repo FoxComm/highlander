@@ -32,7 +32,7 @@ object FullOrder {
     fraudScore: Int,
     totals: Totals,
     customer: Option[Customer],
-    shippingMethod: Option[ShippingMethod],
+    shippingMethod: Option[ShippingMethods.Root],
     shippingAddress: Option[Addresses.Root],
     assignees: Seq[AssignmentResponse.Root],
     remorsePeriodEnd: Option[Instant],
@@ -107,7 +107,7 @@ object FullOrder {
       customer = customer,
       shippingAddress = shippingAddress,
       totals = Totals(subTotal = 333, taxes = 10, adjustments = 0, total = 510),
-      shippingMethod = shippingMethod,
+      shippingMethod = shippingMethod.map(ShippingMethods.build(_)),
       assignees = assignments.map((AssignmentResponse.build _).tupled),
       remorsePeriodEnd = order.getRemorsePeriodEnd,
       payment = displayPayment

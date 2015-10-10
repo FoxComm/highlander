@@ -565,6 +565,31 @@ class OrderIntegrationTest extends IntegrationTestBase
       orderShippingMethod.orderId must === (order.id)
       orderShippingMethod.shippingMethodId must === (shippingMethod.id)
     }
+
+    "fails if the order does not meet the shipping restrictions" in new ShippingMethodFixture {
+      val response = PATCH(s"v1/orders/${emptyOrder.referenceNumber}/shipping-method",
+        payloads.UpdateShippingMethod(shippingMethodId = shippingMethod.id))
+
+      response.status must === (StatusCodes.OK)
+
+      val orderShippingMethod = OrderShippingMethods.findByOrderId(order.id).result.run().futureValue.head
+      orderShippingMethod.orderId must === (order.id)
+      orderShippingMethod.shippingMethodId must === (shippingMethod.id)
+    }
+
+    "fails if the shipping method isn't found" in new ShippingMethodFixture {
+      val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-method",
+        payloads.UpdateShippingMethod(shippingMethodId = 999))
+
+      response.status must === (StatusCodes.BadRequest)
+    }
+
+    "fails if the shipping method isn't active" in new ShippingMethodFixture {
+      val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-method",
+        payloads.UpdateShippingMethod(shippingMethodId = inactiveShippingMethod.id))
+
+      response.status must === (StatusCodes.BadRequest)
+    }
   }
 
   trait Fixture {
@@ -611,8 +636,16 @@ class OrderIntegrationTest extends IntegrationTestBase
         | }
       """.stripMargin).extract[QueryStatement]
 
-    val shippingMethod = models.ShippingMethods.save(Factories.shippingMethods.head.copy(
-      conditions = Some(conditions))).run().futureValue
+    val (emptyOrder, shippingMethod, inactiveShippingMethod) = (for {
+      sku ← Skus.save(Factories.skus.head.copy(price = 100))
+      lineItem ← OrderLineItems.save(OrderLineItem(orderId = order.id, skuId = sku.id))
+
+      newCustomer ← Customers.save(Factories.customer.copy(email = "foxy@donkey.com"))
+      emptyOrder ← Orders.save(Factories.order.copy(customerId = newCustomer.id))
+
+      shippingMethod ← ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
+      inactiveShippingMethod ← ShippingMethods.save(shippingMethod.copy(isActive = false))
+    } yield (emptyOrder, shippingMethod, inactiveShippingMethod)).run().futureValue
   }
 
   trait RemorseFixture {
