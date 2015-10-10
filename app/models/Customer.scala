@@ -10,7 +10,6 @@ import utils.Validation
 
 import scala.concurrent.{ExecutionContext, Future}
 
-import com.lambdaworks.crypto.SCryptUtil
 import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import monocle.macros.GenLens
 import services.Result
@@ -18,6 +17,7 @@ import slick.driver.PostgresDriver.api._
 import utils.GenericTable.TableWithId
 import utils.{ModelWithIdParameter, TableQueryWithId, Validation}
 import utils.Slick.implicits._
+import utils.Passwords._
 
 final case class Customer(id: Int = 0, email: String, password: Option[String] = None,
   firstName: Option[String] = None, lastName: Option[String] = None,
@@ -96,7 +96,7 @@ object Customers extends TableQueryWithId[Customer, Customers](
       case _ ⇒ (None, None)
     }
 
-    val hash = payload.password.map(SCryptUtil.scrypt(_, 65536, 8, 1))
+    val hash = payload.password.map(hashPassword(_))
     val newCustomer = Customer(id = 0, email = payload.email, password = hash,
       firstName = firstName, lastName = lastName)
 
