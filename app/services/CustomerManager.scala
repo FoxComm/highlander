@@ -42,9 +42,10 @@ object CustomerManager {
     }
   }
 
-  def create(customer: CreateCustomer)
+  def create(payload: CreateCustomer)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
-      getById(1)
+    val customer = Customers.createFromPayload(payload)
+    customer.map(_.map(build(_)))
   }
 
 }
