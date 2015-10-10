@@ -85,7 +85,7 @@ export default class Order extends React.Component {
     this.setState({
       pendingStatus: status
     });
-    let options = status !== 'canceled' ? changeOptions : cancelOptions;
+    let options = status !== 'canceled' ? this.changeOptions : this.cancelOptions;
 
     dispatch('toggleModal', <ConfirmModal callback={this.onConfirmChange.bind(this)} details={options} />);
   }
