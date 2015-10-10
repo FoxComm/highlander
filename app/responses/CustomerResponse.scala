@@ -8,9 +8,9 @@ object CustomerResponse {
   final case class Root(
     id: Int = 0,
     email: String,
-    name: String,
-    firstName: String,
-    lastName: String,
+    name: Option[String],
+    firstName: Option[String],
+    lastName: Option[String],
     phoneNumber: Option[String] = None,
     location: Option[String] = None,
     modality: Option[String] = None,
@@ -23,7 +23,7 @@ object CustomerResponse {
 
   def build(customer: Customer, shippingRegion: Option[Region] = None, billingRegion: Option[Region] = None): Root =
     Root(id = customer.id, email = customer.email, firstName = customer.firstName, lastName = customer.lastName,
-    name = customer.firstName + " " + customer.lastName,
+    name = (customer.firstName ++ customer.lastName).reduceLeftOption(_ + " " + _),
     phoneNumber = customer.phoneNumber, location = customer.location, modality = customer.modality,
     createdAt = customer.createdAt,
     disabled = customer.isDisabled,

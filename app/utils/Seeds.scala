@@ -103,21 +103,21 @@ object Seeds {
   }
 
   object Factories {
-    def customer = Customer(email = "yax@yax.com", password = "password",
-      firstName = "Yax", lastName = "Fuentes", phoneNumber = Some("123-444-4388"),
+    def customer = Customer(email = "yax@yax.com", password = Some("password"),
+      firstName = Some("Yax"), lastName = Some("Fuentes"), phoneNumber = Some("123-444-4388"),
       location = Some("DonkeyVille, TN"), modality = Some("Desktop[PC]"))
 
     def customers: Seq[Customer] = Seq(
-      Customer(email = "adil@adil.com", password = "password",
-        firstName = "Adil", lastName = "Wali", phoneNumber = Some("123-444-0909"),
+      Customer(email = "adil@adil.com", password = Some("password"),
+        firstName = Some("Adil"), lastName = Some("Wali"), phoneNumber = Some("123-444-0909"),
         location = Some("DonkeyHill, WA"), modality = Some("Desktop[PC]")),
 
-      Customer(email = "tivs@tivs.com", password = "password",
-        firstName = "Jonathan", lastName = "Rainey", phoneNumber = Some("858-867-5309"),
+      Customer(email = "tivs@tivs.com", password = Some("password"),
+        firstName = Some("Jonathan"), lastName = Some("Rainey"), phoneNumber = Some("858-867-5309"),
         location = Some("DonkeyTown, NY"), modality = Some("Desktop[PC]")),
 
-      Customer(email = "cam@cam.com", password = "password",
-        firstName = "Cameron", lastName = "Stitt", phoneNumber = Some("883-444-4321"),
+      Customer(email = "cam@cam.com", password = Some("password"),
+        firstName = Some("Cameron"), lastName = Some("Stitt"), phoneNumber = Some("883-444-4321"),
         location = Some("Donkeysburg, AU"), modality = Some("Desktop[PC]"))
     )
 

@@ -29,6 +29,11 @@ object CustomerRoutes {
           }
         }
       } ~
+      (post & entity(as[payloads.CreateCustomer]) & pathEnd) { payload ⇒
+        goodOrFailures {
+          CustomerManager.create(payload)
+        }
+      } ~
       pathPrefix("customers" / IntNumber) { customerId ⇒
         (get & pathEnd) {
           goodOrFailures {

@@ -7,9 +7,9 @@ import models.Customers.scope._
 import responses.CustomerResponse._
 import slick.driver.PostgresDriver.api._
 import utils.Slick.UpdateReturning._
+import payloads.CreateCustomer
 
 object CustomerManager {
-  import models.Customers.QuerySeq
 
   def toggleDisabled(customerId: Int, disabled: Boolean, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database): Result[Customer] = {
@@ -40,6 +40,11 @@ object CustomerManager {
       case _ ⇒
         Result.failure(NotFoundFailure(Customer, id))
     }
+  }
+
+  def create(customer: CreateCustomer)
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
+      getById(1)
   }
 
 }

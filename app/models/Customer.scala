@@ -10,6 +10,7 @@ import utils.Validation
 
 import scala.concurrent.{ExecutionContext, Future}
 
+import com.lambdaworks.crypto.SCryptUtil
 import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import monocle.macros.GenLens
 import services.Result
@@ -18,7 +19,8 @@ import utils.GenericTable.TableWithId
 import utils.{ModelWithIdParameter, TableQueryWithId, Validation}
 import utils.Slick.implicits._
 
-final case class Customer(id: Int = 0, email: String, password: String, firstName: String, lastName: String,
+final case class Customer(id: Int = 0, email: String, password: Option[String] = None,
+  firstName: Option[String] = None, lastName: Option[String] = None,
   isDisabled: Boolean = false, isBlacklisted: Boolean = false,
   phoneNumber: Option[String] = None, location: Option[String] = None,
   modality: Option[String] = None, isGuest: Boolean = false, createdAt: Instant = Instant.now)
@@ -41,7 +43,7 @@ final case class Customer(id: Int = 0, email: String, password: String, firstNam
 
 object Customer {
   def buildGuest(email: String): Customer =
-    Customer(isGuest = true, email = email, firstName = "guest", lastName = "guest", password = "guest")
+    Customer(isGuest = true, email = email, firstName = Some("guest"))
 }
 
 class Customers(tag: Tag) extends TableWithId[Customer](tag, "customers") {
@@ -52,9 +54,9 @@ class Customers(tag: Tag) extends TableWithId[Customer](tag, "customers") {
   def blacklistedBy = column[Option[Int]]("blacklisted_by")
   def blacklistedReason = column[Option[String]]("blacklisted_reason")
   def email = column[String]("email")
-  def password = column[String]("hashed_password")
-  def firstName = column[String]("first_name")
-  def lastName = column[String]("last_name")
+  def password = column[Option[String]]("hashed_password")
+  def firstName = column[Option[String]]("first_name")
+  def lastName = column[Option[String]]("last_name")
   def phoneNumber = column[Option[String]]("phone_number")
   def location = column[Option[String]]("location")
   def modality = column[Option[String]]("modality")
@@ -84,8 +86,19 @@ object Customers extends TableQueryWithId[Customer, Customers](
 
   def createFromPayload(payload: payloads.CreateCustomer)
     (implicit ec: ExecutionContext, db: Database): Result[Customer] = {
-    val newCustomer = Customer(id = 0, email = payload.email, password = payload.password,
-      firstName = payload.firstName, lastName = payload.firstName)
+    val (firstName, lastName) = payload.name match {
+      case Some(name) ⇒
+        name.split(" ") match {
+          case Array(firstName: String, lastName: String) ⇒
+            (Some(firstName), Some(lastName))
+          case _ ⇒ (Some(name), None)
+        }
+      case _ ⇒ (None, None)
+    }
+
+    val hash = payload.password.map(SCryptUtil.scrypt(_, 65536, 8, 1))
+    val newCustomer = Customer(id = 0, email = payload.email, password = hash,
+      firstName = firstName, lastName = lastName)
 
     save(newCustomer).run().flatMap(Result.right)
   }
