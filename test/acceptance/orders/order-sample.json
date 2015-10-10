@@ -4,32 +4,34 @@
   "orderStatus": "manualHold",
   "shippingStatus": "manualHold",
   "paymentStatus": "manualHold",
-  "lineItems": [
-    {
-      "imagePath": "http://lorempixel.com/75/75/fashion",
-      "name": "donkey product",
-      "sku": "ABC123",
-      "price": 33,
-      "qty": 1,
-      "status": "cart"
-    },
-    {
-      "imagePath": "http://lorempixel.com/75/75/fashion",
-      "name": "donkey product",
-      "sku": "ABC124",
-      "price": 33,
-      "qty": 1,
-      "status": "cart"
-    },
-    {
-      "imagePath": "http://lorempixel.com/75/75/fashion",
-      "name": "donkey product",
-      "sku": "ABD123",
-      "price": 33,
-      "qty": 1,
-      "status": "cart"
-    }
-  ],
+  "lineItems": {
+    "skus": [
+      {
+        "imagePath": "http://lorempixel.com/75/75/fashion",
+        "name": "donkey product",
+        "sku": "ABC123",
+        "price": 33,
+        "qty": 1,
+        "status": "cart"
+      },
+      {
+        "imagePath": "http://lorempixel.com/75/75/fashion",
+        "name": "donkey product",
+        "sku": "ABC124",
+        "price": 33,
+        "qty": 1,
+        "status": "cart"
+      },
+      {
+        "imagePath": "http://lorempixel.com/75/75/fashion",
+        "name": "donkey product",
+        "sku": "ABD123",
+        "price": 33,
+        "qty": 1,
+        "status": "cart"
+      }
+    ]
+  },
   "adjustments": [],
   "fraudScore": 77,
   "totals": {

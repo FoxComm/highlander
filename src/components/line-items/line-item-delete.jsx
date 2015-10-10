@@ -1,6 +1,6 @@
 'use strict';
 
-import lineItemActions from '../../actions/line-items'
+import lineItemActions from '../../actions/line-items';
 import React from 'react';
 import ConfirmModal from '../modal/confirm';
 import { dispatch, listenTo, stopListeningTo } from '../../lib/dispatcher';
