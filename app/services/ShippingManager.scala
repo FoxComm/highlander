@@ -49,8 +49,8 @@ object ShippingManager {
       subTotal ← OrderTotaler._subTotalForOrder(order)
       grandTotal ← OrderTotaler._grandTotalForOrder(order)
       skus ← (for {
-        lineItems ← OrderLineItems._findByOrder(order).skuItems
-        skus ← Skus if skus.id === lineItems.originId
+        liSku ← OrderLineItemSkus.findByOrderId(order.id)
+        skus ← Skus if skus.id === liSku.skuId
       } yield skus).result
     } yield ShippingData(
       order = order,
