@@ -644,7 +644,9 @@ class OrderIntegrationTest extends IntegrationTestBase
 
     val (lowShippingMethod, inactiveShippingMethod, highShippingMethod) = (for {
       sku ← Skus.save(Factories.skus.head.copy(price = 100))
-      lineItem ← OrderLineItems.save(OrderLineItem(orderId = order.id, skuId = sku.id))
+      lineItemSku ← OrderLineItemSkus.save(OrderLineItemSku(skuId = sku.id, orderId = order.id))
+      lineItem ← OrderLineItems.save(OrderLineItem(orderId = order.id, originId = lineItemSku.id,
+        originType = OrderLineItem.SkuItem))
 
       lowShippingMethod ← ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(lowConditions)))
       inactiveShippingMethod ← ShippingMethods.save(lowShippingMethod.copy(isActive = false))
