@@ -160,13 +160,13 @@ object OrderUpdater {
 
                 DbResult.fromDbio(delete >> OrderShippingMethods.save(orderShipping) >> fullOrder(finder))
               } else {
-                DbResult.failure(GeneralFailure("Shipping method not applicable"))
+                DbResult.failure(ShippingMethodNotApplicableToOrder(payload.shippingMethodId, order.refNum))
               }
             case Left(f) ⇒
               DbResult.failures(f)
           }
         case None ⇒
-          DbResult.failure(NotFoundFailure(ShippingMethod, payload.shippingMethodId))
+          DbResult.failure(ShippingMethodDoesNotExist(payload.shippingMethodId))
       }
     }
   }
