@@ -4,6 +4,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Validated.{Invalid, Valid}
 import cats.data.Xor
+import cats.data.Xor.{Left, Right}
 import models._
 import payloads.{UpdateShippingMethod, CreateAddressPayload, UpdateAddressPayload}
 import responses.FullOrder
@@ -152,7 +153,7 @@ object OrderUpdater {
       ShippingMethods.findActiveById(payload.shippingMethodId).one.flatMap {
         case Some(shippingMethod) ⇒
           ShippingManager.evaluateShippingMethodForOrder(shippingMethod, order).flatMap {
-            case Xor.Right(res) ⇒
+            case Right(res) ⇒
               if (res) {
                 val orderShipping = OrderShippingMethod(orderId = order.id, shippingMethodId = shippingMethod.id)
                 val delete = OrderShippingMethods.findByOrderId(order.id).delete
@@ -161,7 +162,7 @@ object OrderUpdater {
               } else {
                 DbResult.failure(GeneralFailure("Shipping method not applicable"))
               }
-            case Xor.Left(f) ⇒
+            case Left(f) ⇒
               DbResult.failures(f)
           }
         case None ⇒

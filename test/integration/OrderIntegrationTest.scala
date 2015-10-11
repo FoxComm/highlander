@@ -581,14 +581,14 @@ class OrderIntegrationTest extends IntegrationTestBase
       val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-method",
         payloads.UpdateShippingMethod(shippingMethodId = 999))
 
-      response.status must === (StatusCodes.BadRequest)
+      response.status must === (StatusCodes.NotFound)
     }
 
     "fails if the shipping method isn't active" in new ShippingMethodFixture {
       val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-method",
         payloads.UpdateShippingMethod(shippingMethodId = inactiveShippingMethod.id))
 
-      response.status must === (StatusCodes.BadRequest)
+      response.status must === (StatusCodes.NotFound)
     }
   }
 

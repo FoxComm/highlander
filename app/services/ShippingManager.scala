@@ -34,7 +34,8 @@ object ShippingManager {
     (implicit db: Database, ec: ExecutionContext): DbResult[Boolean] = {
     getShippingData(order).flatMap {
       case shippingData if QueryStatement.evaluate(shippingMethod.conditions, shippingData, evaluateCondition) ⇒
-        DbResult.good(QueryStatement.evaluate(shippingMethod.restrictions, shippingData, evaluateCondition))
+        val hasRestrictions = QueryStatement.evaluate(shippingMethod.restrictions, shippingData, evaluateCondition)
+        DbResult.good(!hasRestrictions)
       case _ ⇒
         DbResult.failure(GeneralFailure("Unable to retrieve shipping data"))
     }
