@@ -31,12 +31,21 @@ object CustomerManager {
     val sortedQuery = sortAndPage.sort match {
       case Some(s) ⇒ query.sortBy { case (customer, _, _) ⇒
         s.sortColumn match {
-          case "id"        => if(s.asc) customer.id.asc        else customer.id.desc
-          case "email"     => if(s.asc) customer.email.asc     else customer.email.desc
-          case "firstName" => if(s.asc) customer.firstName.asc else customer.firstName.desc
-          case "lastName"  => if(s.asc) customer.lastName.asc  else customer.lastName.desc
-          case "location"  => if(s.asc) customer.location.asc  else customer.location.desc
-          case _           => customer.id.asc
+          case "id"                => if(s.asc) customer.id.asc                 else customer.id.desc
+          case "isDisabled"        => if(s.asc) customer.isDisabled.asc         else customer.isDisabled.desc
+          case "disabledBy"        => if(s.asc) customer.disabledBy.asc         else customer.disabledBy.desc
+          case "isBlacklisted"     => if(s.asc) customer.isBlacklisted.asc      else customer.isBlacklisted.desc
+          case "blacklistedBy"     => if(s.asc) customer.blacklistedBy.asc      else customer.blacklistedBy.desc
+          case "blacklistedReason" => if(s.asc) customer.blacklistedReason.asc  else customer.blacklistedReason.desc
+          case "email"             => if(s.asc) customer.email.asc              else customer.email.desc
+          case "firstName"         => if(s.asc) customer.firstName.asc          else customer.firstName.desc
+          case "lastName"          => if(s.asc) customer.lastName.asc           else customer.lastName.desc
+          case "phoneNumber"       => if(s.asc) customer.phoneNumber.asc        else customer.phoneNumber.desc
+          case "location"          => if(s.asc) customer.location.asc           else customer.location.desc
+          case "modality"          => if(s.asc) customer.modality.asc           else customer.modality.desc
+          case "isGuest"           => if(s.asc) customer.isGuest.asc            else customer.isGuest.desc
+          case "createdAt"         => if(s.asc) customer.createdAt.asc          else customer.createdAt.desc
+          case _                   => customer.id.asc
         }
       }
       case None    ⇒ query
