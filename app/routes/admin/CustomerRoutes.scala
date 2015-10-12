@@ -43,7 +43,7 @@ object CustomerRoutes {
         pathPrefix("addresses") {
           (get & pathEnd) {
             good {
-              Addresses._findAllByCustomerIdWithRegions(customerId).result.run().map { records ⇒
+              Addresses._findAllVisibleByCustomerIdWithRegions(customerId).result.run().map { records ⇒
                 responses.Addresses.build(records)
               }
             }
@@ -57,6 +57,24 @@ object CustomerRoutes {
             (id, payload) ⇒
               nothingOrFailures {
                 AddressManager.setDefaultShippingAddress(customerId, id)
+              }
+          } ~
+          (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultShippingAddress]) & pathEnd) {
+            (id, payload) ⇒
+              nothingOrFailures {
+                AddressManager.setDefaultShippingAddress(customerId, id)
+              }
+          } ~
+          (get & path(IntNumber) & pathEnd)  {
+            id ⇒
+              goodOrFailures {
+                AddressManager.get(customerId, id)
+              }
+          } ~
+          (delete & path(IntNumber) & pathEnd)  {
+            id ⇒
+              nothingOrFailures {
+                AddressManager.remove(customerId, id)
               }
           } ~
           (delete & path("default") & pathEnd) {

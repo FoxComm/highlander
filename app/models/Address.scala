@@ -1,5 +1,7 @@
 package models
 
+import java.time.Instant
+
 import scala.concurrent.Future
 
 import monocle.macros.GenLens
@@ -11,7 +13,8 @@ import utils.{ModelWithIdParameter, NewModel, TableQueryWithId, Validation}
 
 final case class Address(id: Int = 0, customerId: Int, regionId: Int, name: String,
   address1: String, address2: Option[String], city: String, zip: String,
-  isDefaultShipping: Boolean = false, phoneNumber: Option[String] = None)
+  isDefaultShipping: Boolean = false, phoneNumber: Option[String] = None, 
+  deletedAt: Option[Instant] = None)
   extends ModelWithIdParameter
   with NewModel
   with Addressable[Address]
@@ -51,9 +54,10 @@ class Addresses(tag: Tag) extends TableWithId[Address](tag, "addresses")  {
   def zip = column[String]("zip")
   def isDefaultShipping = column[Boolean]("is_default_shipping")
   def phoneNumber = column[Option[String]]("phone_number")
+  def deletedAt = column[Option[Instant]]("deleted_at")
 
   def * = (id, customerId, regionId, name, address1, address2,
-    city, zip, isDefaultShipping, phoneNumber) <> ((Address.apply _).tupled, Address.unapply)
+    city, zip, isDefaultShipping, phoneNumber, deletedAt) <> ((Address.apply _).tupled, Address.unapply)
 
   def region = foreignKey(Regions.tableName, regionId, Regions)(_.id)
 }
@@ -74,12 +78,25 @@ object Addresses extends TableQueryWithId[Address, Addresses](
   def _findAllByCustomerId(customerId: Int): QuerySeq =
     filter(_.customerId === customerId)
 
+  /**
+   * Return all addresses except the deleted ones.
+   */
+  def _findAllVisibleByCustomerId(customerId: Int): QuerySeq =
+    _findAllByCustomerId(customerId).filter(_.deletedAt.isEmpty)
+
   def _findAllByCustomerIdWithRegions(customerId: Int): Query[(Addresses, Regions), (Address, Region), Seq] = for {
     (addresses, regions) ← _findAllByCustomerId(customerId).withRegions
   } yield (addresses, regions)
 
+  def _findAllVisibleByCustomerIdWithRegions(customerId: Int): Query[(Addresses, Regions), (Address, Region), Seq] = for {
+    (addresses, regions) ← _findAllVisibleByCustomerId(customerId).withRegions
+  } yield (addresses, regions)
+
   def findShippingDefaultByCustomerId(customerId: Int): QuerySeq =
    filter(_.customerId === customerId).filter(_.isDefaultShipping === true)
+
+  def findById(customerId: Int, addressId: Int): QuerySeq = 
+   _findById(addressId).extract.filter(_.customerId === customerId)
 
   object scope {
     implicit class AddressesQuerySeqConversions(q: QuerySeq) {

@@ -43,7 +43,7 @@ class OrderIntegrationTest extends IntegrationTestBase
        """.stripMargin)
 
     val order = parse(response.bodyText).extract[FullOrder.Root]
-    order.lineItems.map(_.sku).sortBy(identity) must === (List("1", "5", "5"))
+    order.lineItems.skus.map(_.sku).sortBy(identity) must === (List("1", "5", "5"))
   }
 
   "updates status" - {
