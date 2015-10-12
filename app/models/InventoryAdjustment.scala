@@ -1,7 +1,5 @@
 package models
 
-import scala.concurrent.Future
-
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import utils.{TableQueryWithId, GenericTable, ModelWithIdParameter}
@@ -34,10 +32,7 @@ object InventoryAdjustments extends TableQueryWithId[InventoryAdjustment, Invent
   idLens = GenLens[InventoryAdjustment](_.id)
 )(new InventoryAdjustments(_)) {
 
-  def createAdjustmentsForOrder(order: Order)(implicit db: Database): Future[Int] =
-    _createAdjustmentsForOrder(order).run()
-
-  def _createAdjustmentsForOrder(order: Order): DBIO[Int] = {
+  def createAdjustmentsForOrder(order: Order): DBIO[Int] = {
     sqlu"""insert into inventory_adjustments (inventory_event_id, sku_id, reserved_for_fulfillment)
           select ${order.id} as order_id, oli_skus.sku_id as sku_id, count(*) as n from order_line_items as oli
           left join order_line_item_skus as oli_skus on origin_id = oli_skus.id

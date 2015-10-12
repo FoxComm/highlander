@@ -9,7 +9,7 @@ import models._
 import collection.immutable
 
 import slick.driver.PostgresDriver.api._
-
+import utils.Slick.implicits._
 
 
 class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
@@ -49,7 +49,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
   }
 
   def decrementInventory(order: Order): Future[Int] =
-    InventoryAdjustments.createAdjustmentsForOrder(order)
+    InventoryAdjustments.createAdjustmentsForOrder(order).run()
 
   def validateAddresses: Failures = {
     Failures()

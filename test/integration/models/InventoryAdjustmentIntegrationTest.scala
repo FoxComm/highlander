@@ -29,7 +29,7 @@ class InventoryAdjustmentIntegrationTest extends IntegrationTestBase {
         OrderLineItem(orderId = order.id, originId = lineItemSku.id, originType = OrderLineItem.SkuItem)
       }).run().futureValue
 
-      InventoryAdjustments.createAdjustmentsForOrder(order).futureValue
+      InventoryAdjustments.createAdjustmentsForOrder(order).run().futureValue
       val numAdjustments = InventoryAdjustments.filter(_.inventoryEventId === order.id).length.result.run().futureValue
       val summary = InventorySummaries.findBySkuId(sku.id).one.run().futureValue.value
 
