@@ -16,9 +16,8 @@ export default class NewCustomer extends React.Component {
 
     this.state = {
       email: null,
-      firstName: null,
-      lastName: null,
-      phoneNumber: null
+      name: null,
+      password: null
     };
   }
 
@@ -39,37 +38,50 @@ export default class NewCustomer extends React.Component {
             </h1>
           </header>
           <article>
-            <Form className="fc-form-vertical"
-                  action="/customers"
-                  method="POST"
-                  onSubmit={this.submitForm.bind(this)}>
-              <ul className="fc-customer-form-fields">
-                <li>
-                  <FormField label="Email Address" validator="ascii">
-                    <input id="emailCustomerFormField" name="email" maxLength="255" type="text" value={this.state.email} required />
-                  </FormField>
-                </li>
-                <li>
-                  <FormField label="First Name" validator="ascii" optional>
-                    <input id="firstNameCustomerFormField" name="firstName" maxLength="255" type="text" value={this.state.firstName} />
-                  </FormField>
-                </li>
-                <li>
-                  <FormField label="Last Name" validator="ascii" optional>
-                    <input id="lastNameCustomerFormField" name="lastName" maxLength="255" type="text" value={this.state.lastName} />
-                  </FormField>
-                </li>
-                <li>
-                  <FormField label="Phone Number" validator="ascii" optional>
-                    <input id="phoneNumberCustomerFormField" name="phoneNumber" maxLength="255" type="text" value={this.state.phoneNumber} />
-                  </FormField>
-                </li>
-                <li className="fc-customer-form-controls">
-                  <Link to='customers'><i className="icon-close"></i></Link>
-                  <input type="submit" value="Save Customer" className="fc-btn" />
-                </li>
-              </ul>
-            </Form>
+            <div className="fc-grid">
+              <Form className="fc-customer-form fc-form-vertical fc-col-md-2-5"
+                    action="/customers"
+                    method="POST"
+                    onSubmit={this.submitForm.bind(this)}>
+                <ul className="fc-customer-form-fields">
+                  <li>
+                    <FormField label="Name" validator="ascii" optional>
+                      <input id="nameCustomerFormField"
+                             className="fc-customer-form-input"
+                             name="name"
+                             maxLength="255"
+                             type="text"
+                             value={this.state.name} />
+                    </FormField>
+                  </li>
+                  <li>
+                    <FormField label="Email Address" validator="ascii">
+                      <input id="emailCustomerFormField"
+                             className="fc-customer-form-input"
+                             name="email"
+                             maxLength="255"
+                             type="text"
+                             value={this.state.email}
+                             required />
+                    </FormField>
+                  </li>
+                  <li>
+                    <FormField label="Create Password" validator="ascii" optional>
+                      <input id="passwordCustomerFormField"
+                             className="fc-customer-form-input"
+                             name="password"
+                             maxLength="255"
+                             type="password"
+                             value={this.state.password} />
+                    </FormField>
+                  </li>
+                  <li className="fc-customer-form-controls">
+                    <Link to='customers' className="fc-btn-link">Cancel</Link>
+                    <input type="submit" value="Save Customer" className="fc-btn fc-btn-primary" />
+                  </li>
+                </ul>
+              </Form>
+            </div>
           </article>
         </div>
       </div>

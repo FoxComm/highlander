@@ -19,7 +19,7 @@ class CustomerStore extends BaseStore {
   }
 
   handleFailedCustomers(action) {
-    console.error(action.errorMessage.trim());
+    console.log(action.errorMessage.data.errors);
   }
 }
 
