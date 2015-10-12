@@ -111,7 +111,7 @@ export default class Notes extends React.Component {
       let renderedRow = null;
       if (this.state.editingNote && (this.state.editingNote.id === row.id)) {
         renderedRow = (
-          <TableRow>
+          <TableRow key={`edit-notes-${row.id}`}>
             <TableCell colspan={3}>
               <NoteForm
                 uri={NotesStore.baseUri}
@@ -124,7 +124,7 @@ export default class Notes extends React.Component {
         );
       } else {
         renderedRow = (
-          <TableRow>
+          <TableRow key={`notes-${row.id}`}>
             <TableCell>
               <DateTime value={row.createdAt}/>
             </TableCell>
