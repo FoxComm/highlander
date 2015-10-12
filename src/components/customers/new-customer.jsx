@@ -28,9 +28,11 @@ export default class NewCustomer extends React.Component {
     return (
       <div className="customer-create">
         <div className="gutter">
-          <h1 className="fc-title">
-            New Customer
-          </h1>
+          <header className="fc-customer-form-header">
+            <h1 className="fc-title">
+              New Customer
+            </h1>
+          </header>
           <article>
             <Form className="fc-form-vertical"
                   onSubmit={this.onSubmitForm.bind(this)}>
@@ -55,8 +57,8 @@ export default class NewCustomer extends React.Component {
                     <input name="phone_number" maxLength="255" type="text" value={formData.phoneNumber} />
                   </FormField>
                 </li>
-                <li>
-                  <Link to='customers'>< i className="icon-close"></i></Link>
+                <li className="fc-customer-form-controls">
+                  <Link to='customers'><i className="icon-close"></i></Link>
                   <input type="submit" value="Save Customer" className="fc-btn" />
                 </li>
               </ul>
