@@ -8,7 +8,7 @@ import services.Failure
 import utils.Litterbox._
 import utils.Validation
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import monocle.macros.GenLens
@@ -70,16 +70,8 @@ object Customers extends TableQueryWithId[Customer, Customers](
   idLens = GenLens[Customer](_.id)
 )(new Customers(_)) {
 
-  def findByEmail(email: String)(implicit ec: ExecutionContext, db: Database): DBIO[Option[Customer]] = {
+  def findByEmail(email: String): DBIO[Option[Customer]] = {
     filter(_.email === email).one
-  }
-
-  def findById(id: Int)(implicit db: Database): Future[Option[Customer]] = {
-    db.run(_findById(id).extract.one)
-  }
-
-  def _findById(id: Rep[Int]) = {
-    filter(_.id === id)
   }
 
   def createFromPayload(payload: payloads.CreateCustomer)

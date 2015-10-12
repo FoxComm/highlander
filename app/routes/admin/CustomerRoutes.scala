@@ -108,7 +108,7 @@ object CustomerRoutes {
           } ~
           (post & entity(as[payloads.CreateCreditCard]) & pathEnd) { payload ⇒
             complete {
-              whenFound(Customers.findById(customerId)) { customer ⇒
+              whenFound(Customers.findById(customerId).run()) { customer ⇒
                 CreditCardManager.createCardThroughGateway(customer, payload)
               }
             }
@@ -127,7 +127,7 @@ object CustomerRoutes {
         pathPrefix("payment-methods" / "store-credit") {
           (get & pathEnd) {
             complete {
-              whenFound(Customers.findById(customerId)) { customer ⇒
+              whenFound(Customers.findById(customerId).run()) { customer ⇒
                 StoreCredits.findAllByCustomerId(customer.id).map(Xor.right)
               }
             }
