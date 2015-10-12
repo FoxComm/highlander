@@ -1,6 +1,6 @@
 package models
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 import cats.data.ValidatedNel
 import cats.implicits._
