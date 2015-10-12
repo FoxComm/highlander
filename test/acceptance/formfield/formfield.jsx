@@ -32,7 +32,7 @@ describe('FormField', function() {
         formfield.validate();
         expect(formfield.state.errors).to.deep.equal(
           [
-            "Lorem Ipsum can not be more than 255 characters",
+            "Lorem Ipsum can not be more than 5 characters",
             "Lorem Ipsum must contain only ASCII characters"
           ]
         );

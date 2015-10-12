@@ -194,7 +194,7 @@ export default class FormField extends React.Component {
       let value = this.getInputValue();
       if (!_.isString(value) || value) {
         if (this.props.maxLength && _.isString(value) && value.length > this.props.maxLength) {
-          errors = [...errors, `${label} can not be more than 255 characters`];
+          errors = [...errors, `${label} can not be more than ${this.props.maxLength} characters`];
         }
 
         const validatorError = validator(value, label);
