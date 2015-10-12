@@ -2,7 +2,8 @@
 
 import React from 'react';
 import TableView from '../tables/tableview';
-import OrderStore from './../../stores/orders';
+import OrderStore from '../../stores/orders';
+import OrderActions from '../../actions/orders';
 import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
 import SectionTitle from '../section-title/section-title';
@@ -11,21 +12,41 @@ export default class Orders extends React.Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      orders: OrderStore.getState()
+      data: OrderStore.getState()
     };
+    this.onChange = this.onChange.bind(this);
+  }
+
+  static propTypes = {
+    tableColumns: React.PropTypes.array,
+    subNav: React.PropTypes.array
+  }
+
+  static defaultProps = {
+    tableColumns: [
+      {field: 'referenceNumber', text: 'Order', type: 'id'},
+      {field: 'createdAt', text: 'Date', type: 'date'},
+      {field: 'email', text: 'Email'},
+      {field: 'orderStatus', text: 'Order Status', type: 'orderStatus'},
+      {field: 'paymentStatus', text: 'Payment Status'},
+      {field: 'total', text: 'Total', type: 'currency'}
+    ]
   }
 
   componentDidMount() {
-    OrderStore.listenToEvent('change', this);
-    OrderStore.fetch();
+    OrderStore.listen(this.onChange);
+
+    OrderActions.fetchOrders();
   }
 
   componentWillUnmount() {
-    OrderStore.stopListeningToEvent('change', this);
+    OrderStore.unlisten(this.onChange);
   }
 
-  onChangeOrderStore(orders) {
-    this.setState({orders});
+  onChange() {
+    this.setState({
+      data: OrderStore.getState()
+    });
   }
 
   handleAddOrderClick() {
@@ -33,10 +54,11 @@ export default class Orders extends React.Component {
   }
 
   render() {
+    const orders = this.state.data;
     return (
       <div id="orders">
         <div className="fc-list-header">
-          <SectionTitle title="Orders" count={this.state.orders.length} buttonClickHandler={this.handleAddOrderClick }/>
+          <SectionTitle title="Orders" count={orders.size} buttonClickHandler={this.handleAddOrderClick }/>
           <div className="fc-grid gutter">
             <div className="fc-col-md-1-1">
               <ul className="fc-tabbed-nav">
@@ -53,7 +75,7 @@ export default class Orders extends React.Component {
         <div className="gutter">
           <TableView
             columns={this.props.tableColumns}
-            rows={this.state.orders}
+            rows={orders.toArray()}
             model='order'
             sort={OrderStore.sort.bind(OrderStore)}
             />
@@ -62,19 +84,3 @@ export default class Orders extends React.Component {
     );
   }
 }
-
-Orders.propTypes = {
-  tableColumns: React.PropTypes.array,
-  subNav: React.PropTypes.array
-};
-
-Orders.defaultProps = {
-  tableColumns: [
-    {field: 'referenceNumber', text: 'Order', type: 'id'},
-    {field: 'createdAt', text: 'Date', type: 'date'},
-    {field: 'email', text: 'Email'},
-    {field: 'orderStatus', text: 'Order Status', type: 'orderStatus'},
-    {field: 'paymentStatus', text: 'Payment Status'},
-    {field: 'total', text: 'Total', type: 'currency'}
-  ]
-};

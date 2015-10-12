@@ -10,24 +10,9 @@ import OrderPayment from './payment';
 import OrderStore from './../../stores/orders';
 import { dispatch } from '../../lib/dispatcher';
 import Api from '../../lib/api';
-import LineItemStore from '../../stores/line-items';
 
 export default class OrderDetails extends React.Component {
-  componentDidMount() {
-    LineItemStore.rootUri = `/orders/${this.props.order.referenceNumber}`;
-    LineItemStore.listenToEvent('change', this);
-  }
-
-  componentWillUnmount() {
-    LineItemStore.stopListeningToEvent('change', this);
-  }
-
   updateLineItems(data) {
-    LineItemStore.post(data);
-  }
-
-  onChangeLineItemStore(lineItem) {
-    OrderStore.fetch(this.props.order.referenceNumber);
   }
 
   render() {

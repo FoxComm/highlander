@@ -1,10 +1,22 @@
 'use strict';
 
-import _ from 'lodash';
-import Api from '../lib/api';
-import BaseStore from '../lib/base-store';
+import { List } from 'immutable';
+import BaseStore from './base-store';
+import OrderConstants from '../constants/orders';
+import LineItemConstants from '../constants/line-items';
 
 class OrderStore extends BaseStore {
+  constructor() {
+    super();
+    this.changeEvent = 'change-orders';
+    this.state = List([]);
+
+    this.bindListener(OrderConstants.UPDATE_ORDERS, this.handleUpdateOrders);
+    this.bindListener(OrderConstants.FAILED_ORDERS, this.handleFailedOrders);
+    this.bindListener(OrderConstants.INSERT_ORDER, this.handleInsertOrder);
+    this.bindListener(LineItemConstants.ORDER_LINE_ITEM_SUCCESS, this.handleInsertOrder);
+  }
+
   get statuses() {
     return {
       cart: 'Cart',
@@ -22,26 +34,19 @@ class OrderStore extends BaseStore {
   get editableStatusList() { return ['remorseHold', 'manualHold', 'fraudHold', 'fulfillmentStarted']; }
   get holdStatusList() { return ['remorseHold', 'manualHold', 'fraudHold']; }
 
-  get baseUri() { return '/orders'; }
-
-  identity(order) {
-    return order.referenceNumber;
+  handleUpdateOrders(action) {
+    this.setState(List(action.orders));
   }
 
-  process(model) {
-    _.each(model.lineItems, lineItem => {
-      lineItem.total = lineItem.quantity * lineItem.price;
-    });
+  handleFailedOrders(action) {
+    console.error(action.errorMessage.trim());
   }
 
-  setShippingAddress(refNum, addressId) {
-    let uri = `${this.uri(refNum)}/shipping-address`;
-    return Api.patch(uri, {addressId})
-      .then((res) => {
-        // update shipping addres for order in store
-        this.fetch(refNum);
-      });
+  handleInsertOrder(action) {
+    const order = action.order;
+    this.setState(this.insertIntoList(this.state, order, 'referenceNumber'));
   }
 }
 
-export default new OrderStore();
+let orderStore = new OrderStore();
+export default orderStore;

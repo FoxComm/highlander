@@ -10,7 +10,7 @@ class ShippingMethods extends BaseStore {
   }
 
   fetch(refNum) {
-    let willAvialableMethods = super.fetch(refNum);
+    /*    let willAvialableMethods = super.fetch(refNum);
     let willOrderInfo = OrderStore.fetch(refNum);
 
     return Promise.all([willAvialableMethods, willOrderInfo])
@@ -19,7 +19,7 @@ class ShippingMethods extends BaseStore {
         this.update(allShippingMethods);
 
         return allShippingMethods;
-      });
+      });*/
   }
 }
 

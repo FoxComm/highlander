@@ -12,7 +12,7 @@ describe('GiftCard Actions', function() {
   const giftCardConstants = require(path.resolve('src/constants/gift-card'));
 
   beforeEach(function() {
-    this.dispatchSpy = sinon.spy(AshesDispatcher, 'handleViewAction');
+    this.dispatchSpy = sinon.spy(AshesDispatcher, 'handleAction');
   });
 
   afterEach(function() {
