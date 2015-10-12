@@ -25,7 +25,7 @@ object Skus extends TableQueryWithId[Sku, Skus](
 )(new Skus(_)) {
 
   def isAvailableOnHand(id: Int)(implicit ec: ExecutionContext, db: Database): Rep[Boolean] =
-    InventorySummaries._findBySkuId(id).filter(_.availableOnHand > 0).exists
+    InventorySummaries.findBySkuId(id).filter(_.availableOnHand > 0).exists
 
   def qtyAvailableForSkus(skus: Seq[String])(implicit ec: ExecutionContext, db: Database): DBIO[Map[Sku, Int]] = {
     (for {
