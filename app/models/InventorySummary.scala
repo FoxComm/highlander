@@ -37,7 +37,6 @@ object InventorySummary {
       outstandingPreOrders = 0)
 }
 
-
 object InventorySummaries extends TableQueryWithId[InventorySummary, InventorySummaries](
   idLens = GenLens[InventorySummary](_.id)
 )(new InventorySummaries(_)) {
