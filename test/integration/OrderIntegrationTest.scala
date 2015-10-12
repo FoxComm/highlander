@@ -584,12 +584,27 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
 
     "deleting the shipping address from an order" - {
-      "succeeds if an address exists" in new AddressFixture {
-        val response = DELETE(s"v1/orders/${order.referenceNumber}/shipping-address")
-        response.status must ===(StatusCodes.OK)
+      "succeeds if an address exists" in new ShippingAddressFixture {
+
+        //get order and make sure it has a shipping address
+        val fullOrderResponse = GET(s"v1/orders/${order.referenceNumber}")
+        val fullOrder = fullOrderResponse.as[FullOrder.Root]
+        fullOrder.shippingAddress mustBe defined
+
+        //delete the shipping address
+        val deleteResponse = DELETE(s"v1/orders/${order.referenceNumber}/shipping-address")
+        deleteResponse.status must ===(StatusCodes.OK)
+
+        //shipping address must not be defined
+        val lessThanfullOrder = deleteResponse.as[FullOrder.Root]
+        lessThanfullOrder.shippingAddress mustBe None
+
+        //fails with not found if the order does not have shipping address
+        val deleteFailedResponse = DELETE(s"v1/orders/${order.referenceNumber}/shipping-address")
+        deleteFailedResponse.status must === (StatusCodes.NotFound)
       }
 
-      "fails if the order is not found" in new AddressFixture {
+      "fails if the order is not found" in new ShippingAddressFixture {
         val response = DELETE(s"v1/orders/ABC-123/shipping-address")
         response.status must === (StatusCodes.NotFound)
       }
