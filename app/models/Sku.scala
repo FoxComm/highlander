@@ -24,7 +24,7 @@ object Skus extends TableQueryWithId[Sku, Skus](
   idLens = GenLens[Sku](_.id)
 )(new Skus(_)) {
 
-  def _isAvailableOnHand(id: Int)(implicit ec: ExecutionContext, db: Database): Rep[Boolean] =
+  def isAvailableOnHand(id: Int)(implicit ec: ExecutionContext, db: Database): Rep[Boolean] =
     InventorySummaries._findBySkuId(id).filter(_.availableOnHand > 0).exists
 
   def qtyAvailableForSkus(skus: Seq[String])(implicit ec: ExecutionContext, db: Database): Future[Map[Sku, Int]] = {

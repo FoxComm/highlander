@@ -20,7 +20,7 @@ object PublicSku {
 
     val queries = for {
       sku <- Skus._findById(id).extract
-      availableForSale = Skus._isAvailableOnHand(id)
+      availableForSale = Skus.isAvailableOnHand(id)
     } yield (sku, availableForSale)
 
     db.run(queries.one).map { result =>
