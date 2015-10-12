@@ -1,6 +1,6 @@
 package models
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
@@ -27,10 +27,10 @@ object Skus extends TableQueryWithId[Sku, Skus](
   def isAvailableOnHand(id: Int)(implicit ec: ExecutionContext, db: Database): Rep[Boolean] =
     InventorySummaries._findBySkuId(id).filter(_.availableOnHand > 0).exists
 
-  def qtyAvailableForSkus(skus: Seq[String])(implicit ec: ExecutionContext, db: Database): Future[Map[Sku, Int]] = {
-    db.run((for {
+  def qtyAvailableForSkus(skus: Seq[String])(implicit ec: ExecutionContext, db: Database): DBIO[Map[Sku, Int]] = {
+    (for {
       sku  ← Skus.filter(_.sku inSet skus)
       summ ← InventorySummaries if summ.skuId === sku.id
-    } yield (sku, summ.availableOnHand)).result).map(_.toMap)
+    } yield (sku, summ.availableOnHand)).result.map(_.toMap)
   }
 }

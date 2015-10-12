@@ -115,7 +115,7 @@ object LineItemUpdater {
 
     // TODO: AW: We should insert some errors/messages into an array for each item that is unavailable.
     // TODO: AW: Add the maximum available to the order if there aren't as many as requested
-    Skus.qtyAvailableForSkus(updateQuantities.keys.toSeq).flatMap { availableQuantities =>
+    val queries = Skus.qtyAvailableForSkus(updateQuantities.keys.toSeq).flatMap { availableQuantities =>
       val enoughOnHand = availableQuantities.foldLeft(Map.empty[Sku, Int]) { case (acc, (sku, numAvailable)) =>
         val numRequested = updateQuantities.getOrElse(sku.sku, 0)
         if (numAvailable >= numRequested && numRequested >= 0)
@@ -132,7 +132,7 @@ object LineItemUpdater {
           .join(OrderLineItemSkus).on(_.originId === _.id).groupBy(_._2.skuId)
       } yield (skuId, q.length)
 
-      val queries = counts.result.flatMap { (items: Seq[(Int, Int)]) =>
+      counts.result.flatMap { (items: Seq[(Int, Int)]) =>
         val existingSkuCounts = items.toMap
 
         val changes = enoughOnHand.map { case (sku, newQuantity) =>
@@ -176,8 +176,8 @@ object LineItemUpdater {
       }.flatMap { _ ⇒
         lineItems.filter(_.orderId === order.id).result
       }
-
-      Result.fromFuture(db.run(queries.transactionally))
     }
+
+    Result.fromFuture(db.run(queries.transactionally))
   }
 }
