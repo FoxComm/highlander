@@ -29,6 +29,16 @@ class CustomerActions {
         this.failedCustomers(err);
       });
   }
+
+  createCustomer(form) {
+    return Api.submitForm(form)
+      .then((customers) => {
+        this.updateCustomers(List([customers]));
+      })
+      .catch((err) => {
+        this.failedCustomers(err);
+      });
+  }
 }
 
 export default new CustomerActions();

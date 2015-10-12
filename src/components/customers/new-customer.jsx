@@ -19,8 +19,10 @@ export default class NewCustomer extends React.Component {
     };
   }
 
-  onSubmitForm() {
-    console.log(this.state);
+  submitForm(event) {
+    event.preventDefault();
+
+    CustomerActions.createCustomer(event.target);
   }
 
   render () {
@@ -35,7 +37,9 @@ export default class NewCustomer extends React.Component {
           </header>
           <article>
             <Form className="fc-form-vertical"
-                  onSubmit={this.onSubmitForm.bind(this)}>
+                  action="/customers"
+                  method="POST"
+                  onSubmit={this.submitForm.bind(this)}>
               <ul className="fc-customer-form-fields">
                 <li>
                   <FormField label="Email Address" validator="ascii">
