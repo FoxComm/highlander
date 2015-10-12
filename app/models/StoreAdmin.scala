@@ -46,7 +46,7 @@ object StoreAdmins extends TableQueryWithId[StoreAdmin, StoreAdmins](
   idLens = GenLens[StoreAdmin](_.id)
 )(new StoreAdmins(_)){
 
-  def findByEmail(email: String)(implicit ec: ExecutionContext, db: Database): Future[Option[StoreAdmin]] = {
-    db.run(filter(_.email === email).one)
+  def findByEmail(email: String)(implicit ec: ExecutionContext, db: Database): DBIO[Option[StoreAdmin]] = {
+    filter(_.email === email).one
   }
 }

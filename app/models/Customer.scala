@@ -70,8 +70,8 @@ object Customers extends TableQueryWithId[Customer, Customers](
   idLens = GenLens[Customer](_.id)
 )(new Customers(_)) {
 
-  def findByEmail(email: String)(implicit ec: ExecutionContext, db: Database): Future[Option[Customer]] = {
-    db.run(filter(_.email === email).one)
+  def findByEmail(email: String)(implicit ec: ExecutionContext, db: Database): DBIO[Option[Customer]] = {
+    filter(_.email === email).one
   }
 
   def findById(id: Int)(implicit db: Database): Future[Option[Customer]] = {
