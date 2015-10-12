@@ -37,6 +37,10 @@ export default class OrderShippingAddress extends React.Component {
     });
   }
 
+  isAddressSelected(address) {
+    return this.props.order ? address.id === this.props.order.shippingAddress.id : false;
+  }
+
   render() {
     let address = this.props.order.shippingAddress;
     let body = null;
@@ -46,8 +50,9 @@ export default class OrderShippingAddress extends React.Component {
     if (this.state.isEditing) {
       body = (
         <Addresses order={this.props.order}
-                        onSelectAddress={this.onSelectAddress.bind(this)}
-                        onDeleteAddress={this.onDeleteAddress.bind(this)} />
+                   isAddressSelected={this.isAddressSelected.bind(this)}
+                   onSelectAddress={this.onSelectAddress.bind(this)}
+                   onDeleteAddress={this.onDeleteAddress.bind(this)} />
       );
       actions = (
         <footer>

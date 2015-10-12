@@ -23,23 +23,20 @@ export default class Address extends React.Component {
     order: PropTypes.object,
     customerId: PropTypes.number.isRequired,
     onSelectAddress: PropTypes.func,
-    onDeleteAddress: PropTypes.func
+    onDeleteAddress: PropTypes.func,
+    isSelected: PropTypes.bool
   };
 
   constructor(props, context) {
     super(props, context);
     this.onSelectAddress = props.onSelectAddress && props.onSelectAddress.bind(this, props.address);
     this.onDeleteAddress = props.onDeleteAddress &&
-      props.onDeleteAddress.bind(this, props.address, this.isSelectedForOrder());
+      props.onDeleteAddress.bind(this, props.address);
   }
 
   toggleEdit() {
     dispatch('toggleModal', <AddressForm address={this.props.address} customerId={this.props.customerId}
                               onSaved={this.onSelectAddress} />);
-  }
-
-  isSelectedForOrder() {
-    return this.props.order ? this.props.address.id === this.props.order.shippingAddress.id : false;
   }
 
   deleteAddress() {
@@ -66,7 +63,7 @@ export default class Address extends React.Component {
 
     let classes = classNames({
       'fc-address': true,
-      'is-active': this.isSelectedForOrder()
+      'is-active': this.props.isSelected
     });
 
     return (

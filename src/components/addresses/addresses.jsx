@@ -12,6 +12,7 @@ export default class AddressBook extends React.Component {
     order: PropTypes.object,
     onSelectAddress: PropTypes.func,
     onDeleteAddress: PropTypes.func,
+    isAddressSelected: PropTypes.func,
     params: PropTypes.shape({
       customer: PropTypes.string
     })
@@ -55,9 +56,8 @@ export default class AddressBook extends React.Component {
   }
 
   render() {
-    let
-      addresses = this.state.addresses,
-      order = this.props.order || null;
+    const addresses = this.state.addresses;
+    const order = this.props.order || null;
 
     return (
       <div className="fc-addresses">
@@ -71,6 +71,7 @@ export default class AddressBook extends React.Component {
               <Address key={`${idx}-${address.id}`}
                 address={address}
                 order={order}
+                isSelected={this.props.isAddressSelected ? this.props.isAddressSelected(address) : false}
                 onSelectAddress={this.props.onSelectAddress}
                 onDeleteAddress={this.props.onDeleteAddress}
                 customerId={this.state.customerId}
