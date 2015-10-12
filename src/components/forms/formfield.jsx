@@ -4,11 +4,6 @@ import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import * as validators from '../../lib/validators';
 
-function isInputElement(element) {
-  const isInputNode = _.contains(['input', 'textarea', 'select'], element.type);
-  return isInputNode || element.type && _.contains(['InputElement'], element.type.displayName);
-}
-
 function overrideEventHandlers(child, newEventHandlers) {
   return _.transform(newEventHandlers, (result, handler, type) => {
     result[type] = (event) => {
@@ -43,6 +38,11 @@ export default class FormField extends React.Component {
     this.autoValidate = _.debounce(_.bind(this.autoValidate, this), 200);
   }
 
+  isInputElement(element) {
+    const isInputNode = _.contains(['input', 'textarea', 'select'], element.type);
+    return 'formFieldTarget' in element.props || isInputNode;
+  }
+
   cloneChildren(children, level=0) {
     return React.Children.map(children, (child, idx) => {
       if (!React.isValidElement(child)) return child;
@@ -56,7 +56,7 @@ export default class FormField extends React.Component {
         newChildren = this.cloneChildren(child.props.children, level + 1);
       }
 
-      if (isInputElement(child)) {
+      if (this.isInputElement(child)) {
         if (!child.props.id) {
           newProps.id = _.uniqueId('form-field-');
         }
@@ -84,7 +84,7 @@ export default class FormField extends React.Component {
     if (!this.inputId) {
       console.error(
         `Warning: Couldn't find input element for ${this.props.label || '<unnamed>'} form field.
-        Hint: check isInputElement function.`
+        Hint: if you using custom input element add 'formFieldTarget' attribute for it.`
       );
     }
 
