@@ -145,27 +145,8 @@ object Orders extends TableQueryWithLock[Order, Orders](
   def findCartByRefNum(refNum: String): QuerySeq =
     findByRefNum(refNum).cartOnly
 
-  def findActiveOrderByCustomer(cust: Customer)(implicit ec: ExecutionContext, db: Database): Future[Option[Order]] =
-    db.run(_findActiveOrderByCustomer(cust).one)
-
   def _findActiveOrderByCustomer(cust: Customer) =
     filter(_.customerId === cust.id).filter(_.status === (Order.Cart: Order.Status))
-
-  // If the user doesn't have an order yet, let's create one.
-  def findOrCreateActiveOrderByCustomer(customer: Customer)
-                            (implicit ec: ExecutionContext, db: Database): Future[Option[Order]] = {
-    val actions = for {
-      numOrders <- _findActiveOrderByCustomer(customer).length.result
-      order <- if (numOrders < 1) {
-        val freshOrder = Order(customerId = customer.id, status = Order.Cart)
-        (returningId += freshOrder).map { id => freshOrder.copy(id = id) }.map(Some(_))
-      } else {
-        _findActiveOrderByCustomer(customer).one
-      }
-    } yield order
-
-    db.run(actions.transactionally)
-  }
 
   object scope {
     implicit class OrdersQuerySeqConversions(q: QuerySeq) {

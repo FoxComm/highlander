@@ -2,7 +2,6 @@ package models
 
 import utils.{ GenericTable, TableQueryWithId, ModelWithIdParameter }
 import monocle.macros.GenLens
-import scala.concurrent.{ExecutionContext, Future}
 import slick.driver.PostgresDriver.api._
 
 final case class InventoryClassification(id: Int, skuId: Int, canSell: Boolean,
