@@ -167,10 +167,10 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
   }
 
   def findAllByCustomerId(customerId: Int)(implicit ec: ExecutionContext, db: Database): Future[Seq[StoreCredit]] =
-    _findAllByCustomerId(customerId).run()
+    _findAllByCustomerId(customerId).result.run()
 
-  def _findAllByCustomerId(customerId: Int)(implicit ec: ExecutionContext): DBIO[Seq[StoreCredit]] =
-    filter(_.customerId === customerId).result
+  def _findAllByCustomerId(customerId: Int)(implicit ec: ExecutionContext): Query[StoreCredits, StoreCredit, Seq] =
+    filter(_.customerId === customerId)
 
   def findAllActiveByCustomerId(customerId: Int): Query[StoreCredits, StoreCredit, Seq] =
     filter(_.customerId === customerId).filter(_.status === (Active: Status)).filter(_.availableBalance > 0)

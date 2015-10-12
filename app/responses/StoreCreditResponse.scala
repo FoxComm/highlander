@@ -19,6 +19,8 @@ object StoreCreditResponse {
     status: models.StoreCredit.Status,
     createdAt: Instant)
 
+  def build(records: Seq[models.StoreCredit]): Seq[Root] = records.map(build)
+
   def build(storeCredit: models.StoreCredit): Root = {
     Root(id = storeCredit.id,
       originId = storeCredit.originId,

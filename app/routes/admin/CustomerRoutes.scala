@@ -104,7 +104,7 @@ object CustomerRoutes {
           }
         } ~
         pathPrefix("payment-methods" / "credit-cards") {
-          (get & pathEnd) {
+          (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
             good { CreditCardManager.creditCardsInWalletFor(customerId) }
           } ~
           (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultCreditCard]) & pathEnd) {
@@ -132,10 +132,10 @@ object CustomerRoutes {
           }
         } ~
         pathPrefix("payment-methods" / "store-credit") {
-          (get & pathEnd) {
+          (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
             complete {
               whenFound(Customers.findById(customerId)) { customer ⇒
-                StoreCredits.findAllByCustomerId(customer.id).map(Xor.right)
+                StoreCreditService.findAllByCustomer(customer.id)
               }
             }
           } ~
