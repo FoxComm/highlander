@@ -1,7 +1,7 @@
 'use strict';
 
 import _ from 'lodash';
-import React from 'react';
+import React, { PropTypes } from 'react';
 import FormField from '../forms/formfield.jsx';
 import InputMask from 'react-input-mask';
 import Form from '../forms/form.jsx';
@@ -10,10 +10,17 @@ import CountryStore from '../../stores/countries';
 import AddressStore from '../../stores/addresses';
 import OrderStore from '../../stores/orders';
 import * as validators from '../../lib/validators';
+import ErrorAlerts from '../alerts/error-alerts.jsx';
 
 const DEFAULT_COUNTRY = 'US';
 
 export default class AddressForm extends React.Component {
+
+  static propTypes = {
+    address: PropTypes.object,
+    customerId: PropTypes.number,
+    onSaved: PropTypes.func
+  };
 
   constructor(props, context) {
     super(props, context);
@@ -184,16 +191,7 @@ export default class AddressForm extends React.Component {
   }
 
   get errorMessages() {
-    if (this.state.errors) {
-      return (
-        <div className="messages" ref="errorMessages">
-          {this.state.errors.map((error, index) => {
-            return <div className="fc-alert is-error"><i className="icon-error"></i>{error}</div>;
-            })}
-        </div>
-      );
-    }
-    return null;
+    return <ErrorAlerts errors={this.state.errors} ref="errorMessages"/>;
   }
 
   render() {
@@ -282,8 +280,3 @@ export default class AddressForm extends React.Component {
   }
 }
 
-AddressForm.propTypes = {
-  address: React.PropTypes.object,
-  customerId: React.PropTypes.number,
-  onSaved: React.PropTypes.func
-};
