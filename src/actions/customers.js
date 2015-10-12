@@ -31,6 +31,7 @@ class CustomerActions {
   }
 
   createCustomer(form) {
+    console.log(form);
     return Api.submitForm(form)
       .then((customers) => {
         this.updateCustomers(List([customers]));

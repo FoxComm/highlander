@@ -15,7 +15,10 @@ export default class NewCustomer extends React.Component {
     super(props, context);
 
     this.state = {
-      formData: {}
+      email: null,
+      firstName: null,
+      lastName: null,
+      phoneNumber: null
     };
   }
 
@@ -43,22 +46,22 @@ export default class NewCustomer extends React.Component {
               <ul className="fc-customer-form-fields">
                 <li>
                   <FormField label="Email Address" validator="ascii">
-                    <input name="email" maxLength="255" type="text" value={formData.email} required />
+                    <input id="emailCustomerFormField" name="email" maxLength="255" type="text" value={this.state.email} required />
                   </FormField>
                 </li>
                 <li>
                   <FormField label="First Name" validator="ascii" optional>
-                    <input name="first_name" maxLength="255" type="text" value={formData.firstName} />
+                    <input id="firstNameCustomerFormField" name="firstName" maxLength="255" type="text" value={this.state.firstName} />
                   </FormField>
                 </li>
                 <li>
                   <FormField label="Last Name" validator="ascii" optional>
-                    <input name="last_name" maxLength="255" type="text" value={formData.lastName} />
+                    <input id="lastNameCustomerFormField" name="lastName" maxLength="255" type="text" value={this.state.lastName} />
                   </FormField>
                 </li>
                 <li>
                   <FormField label="Phone Number" validator="ascii" optional>
-                    <input name="phone_number" maxLength="255" type="text" value={formData.phoneNumber} />
+                    <input id="phoneNumberCustomerFormField" name="phoneNumber" maxLength="255" type="text" value={this.state.phoneNumber} />
                   </FormField>
                 </li>
                 <li className="fc-customer-form-controls">
