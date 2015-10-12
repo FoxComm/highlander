@@ -169,7 +169,11 @@ object CreditCardManager {
     val query = CreditCards.findInWalletByCustomerId(customerId)
 
     val sortedQuery = sortAndPage.sort match {
-      case Some(s) ⇒ query.sortBy { creditCard ⇒
+      case Some(s) if s.sortColumn == "expDate" ⇒ query.sortBy { creditCard ⇒
+        if (s.asc) (creditCard.expYear.asc, creditCard.expMonth.asc)
+        else (creditCard.expYear.desc, creditCard.expMonth.desc)
+      }
+      case Some(s)                              ⇒ query.sortBy { creditCard ⇒
         s.sortColumn match {
           case "id"                  => if(s.asc) creditCard.id.asc                else creditCard.id.desc
           case "parentId"            => if(s.asc) creditCard.parentId.asc          else creditCard.parentId.desc
@@ -177,13 +181,11 @@ object CreditCardManager {
           case "gatewayCardId"       => if(s.asc) creditCard.gatewayCardId.asc     else creditCard.gatewayCardId.desc
           case "holderName"          => if(s.asc) creditCard.holderName.asc        else creditCard.holderName.desc
           case "lastFour"            => if(s.asc) creditCard.lastFour.asc          else creditCard.lastFour.desc
-          case "expDate"             => if(s.asc) (creditCard.expYear.asc, creditCard.expMonth.asc)
-                                        else (creditCard.expYear.desc, creditCard.expMonth.desc)
           case "isDefault"           => if(s.asc) creditCard.isDefault.asc         else creditCard.isDefault.desc
           case "address1Check"       => if(s.asc) creditCard.address1Check.asc     else creditCard.address1Check.desc
           case "zipCheck"            => if(s.asc) creditCard.zipCheck.asc          else creditCard.zipCheck.desc
           case "inWallet"            => if(s.asc) creditCard.inWallet.asc          else creditCard.inWallet.desc
-          case "deletedAt"           => if(s.asc) creditCard.deletedAt.asc         else creditCard.deletedAt.desc
+          //case "deletedAt"           => if(s.asc) creditCard.deletedAt.asc         else creditCard.deletedAt.desc
           case "regionId"            => if(s.asc) creditCard.regionId.asc          else creditCard.regionId.desc
           case "addressName"         => if(s.asc) creditCard.addressName.asc       else creditCard.addressName.desc
           case "address1"            => if(s.asc) creditCard.address1.asc          else creditCard.address1.desc
@@ -196,7 +198,7 @@ object CreditCardManager {
       case None    ⇒ query
     }
 
-    query.paged.result.run()
+    sortedQuery.paged.result.run()
   }
 
   def getCard(customerId: Int, id: Int)
