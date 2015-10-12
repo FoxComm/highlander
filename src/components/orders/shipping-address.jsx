@@ -3,7 +3,7 @@
 import React, { PropTypes } from 'react';
 import Addresses from '../addresses/addresses';
 import AddressDetails from '../addresses/address-details';
-import OrderStore from '../../stores/orders';
+import OrdersActions from '../../actions/orders';
 import AddressStore from '../../stores/addresses';
 
 export default class OrderShippingAddress extends React.Component {
@@ -21,12 +21,12 @@ export default class OrderShippingAddress extends React.Component {
   }
 
   onSelectAddress(address) {
-    OrderStore.setShippingAddress(this.props.order.referenceNumber, address.id);
+    OrdersActions.setShippingAddress(this.props.order.referenceNumber, address.id);
   }
 
   onDeleteAddress(address) {
     if (address.id === this.props.order.shippingAddress.id) {
-      OrderStore.removeShippingAddress(this.props.order.referenceNumber);
+      OrdersActions.removeShippingAddress(this.props.order.referenceNumber);
     }
     AddressStore.delete(this.props.order.customer.id, address.id);
   }
