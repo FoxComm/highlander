@@ -33,7 +33,7 @@ object Customer {
         pathPrefix("addresses") {
           get {
             complete {
-              Addresses.findAllByCustomer(customer).map(render(_))
+              Addresses.findAllByCustomerId(customer.id).result.run().map(render(_))
             }
           } ~
           (post & entity(as[CreateAddressPayload])) { payload =>

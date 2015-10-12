@@ -79,7 +79,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
 
       validateDeleteResponse(response)
 
-      Addresses._findAllByCustomerId(customer.id).length.result.run().futureValue must === (0)
+      Addresses.findAllByCustomerId(customer.id).length.result.run().futureValue must === (0)
     }
 
     "can be edited" in new AddressFixture {
