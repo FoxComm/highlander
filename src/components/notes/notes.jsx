@@ -108,38 +108,40 @@ export default class Notes extends React.Component {
 
   render() {
     let renderRow = (row, index) => {
-      return (
-        <div>
-          {(this.state.editingNote && (this.state.editingNote.id === row.id) && (
-            <TableRow>
-              <TableCell colspan={3}>
-                <NoteForm
-                  uri={NotesStore.baseUri}
-                  body={this.state.editingNote && this.state.editingNote.body}
-                  onReset={this.handleResetForm.bind(this)}
-                  onSubmit={this.handleEditForm.bind(this)}
-                  />
-              </TableCell>
-            </TableRow>
-          )) || (
-            <TableRow>
-              <TableCell>
-                <DateTime value={row.createdAt}/>
-              </TableCell>
-              <TableCell>
-                {row.body}
-              </TableCell>
-              <TableCell>
-                <NoteControls
-                  model={row}
-                  onEditClick={this.handleEdit.bind(this)}
-                  onDeleteClick={this.handleDelete.bind(this)}
-                  />
-              </TableCell>
-            </TableRow>
-          )}
-        </div>
-      );
+      let renderedRow = null;
+      if (this.state.editingNote && (this.state.editingNote.id === row.id)) {
+        renderedRow = (
+          <TableRow>
+            <TableCell colspan={3}>
+              <NoteForm
+                uri={NotesStore.baseUri}
+                body={this.state.editingNote && this.state.editingNote.body}
+                onReset={this.handleResetForm.bind(this)}
+                onSubmit={this.handleEditForm.bind(this)}
+                />
+            </TableCell>
+          </TableRow>
+        );
+      } else {
+        renderedRow = (
+          <TableRow>
+            <TableCell>
+              <DateTime value={row.createdAt}/>
+            </TableCell>
+            <TableCell>
+              {row.body}
+            </TableCell>
+            <TableCell>
+              <NoteControls
+                model={row}
+                onEditClick={this.handleEdit.bind(this)}
+                onDeleteClick={this.handleDelete.bind(this)}
+                />
+            </TableCell>
+          </TableRow>
+        );
+      }
+      return renderedRow;
     };
 
     let controls = (

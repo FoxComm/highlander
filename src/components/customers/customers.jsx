@@ -43,17 +43,15 @@ export default class Customers extends React.Component {
     let renderRow = (row, index) => {
       let params = {customer: row.id};
       return (
-        <div>
-          <TableRow>
-            <TableCell><Link to='customer' params={params}>{ row.name }</Link></TableCell>
-            <TableCell>{ row.email }</TableCell>
-            <TableCell>{ row.id }</TableCell>
-            <TableCell>{ row.shipRegion }</TableCell>
-            <TableCell>{ row.billRegion }</TableCell>
-            <TableCell>{ row.rank }</TableCell>
-            <TableCell><DateTime value={ row.createdAt }/></TableCell>
-          </TableRow>
-        </div>
+        <TableRow key={`customer-row-${row.id}`}>
+          <TableCell><Link to='customer' params={params}>{ row.name }</Link></TableCell>
+          <TableCell>{ row.email }</TableCell>
+          <TableCell>{ row.id }</TableCell>
+          <TableCell>{ row.shipRegion }</TableCell>
+          <TableCell>{ row.billRegion }</TableCell>
+          <TableCell>{ row.rank }</TableCell>
+          <TableCell><DateTime value={ row.createdAt }/></TableCell>
+        </TableRow>
       );
     };
 

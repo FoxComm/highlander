@@ -14,13 +14,11 @@ export default class TableBody extends React.Component {
   static defaultProps = {
     renderRow: function(row) {
       return (
-        <div>
-          <TableRow>
-            {this.props.store.columns.map((column) => {
-              return <TableCell>{row[column.field]}</TableCell>;
-            })}
-          </TableRow>
-        </div>
+        <TableRow>
+          {this.props.store.columns.map((column) => {
+            return <TableCell>{row[column.field]}</TableCell>;
+          })}
+        </TableRow>
       );
     }
   };
@@ -29,9 +27,7 @@ export default class TableBody extends React.Component {
     let renderRow = this.props.renderRow.bind(this);
     return (
       <tbody className="fc-table-tbody">
-      {this.props.store.rows.map((row, index) => {
-        return renderRow(row, index).props.children;
-      })}
+        {this.props.store.rows.map(renderRow)}
       </tbody>
     );
   }
