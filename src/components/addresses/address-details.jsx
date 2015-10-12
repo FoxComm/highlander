@@ -2,6 +2,7 @@
 
 import React from 'react';
 import CountryStore from '../../stores/countries';
+import PhoneNumber from '../phone-number/phone-number.jsx';
 
 class AddressDetails extends React.Component {
 
@@ -32,20 +33,11 @@ class AddressDetails extends React.Component {
     }
   }
 
-  formatNumber(value) {
-    const numbers = value.replace(/[^\d]/g, '');
-
-    if (numbers.length === 10) {
-      return `(${numbers.slice(0, 3)})${numbers.slice(3, 6)}-${numbers.slice(6, 10)}`;
-    }
-    return value;
-  }
-
   get phoneNumber() {
     const { address } = this.props;
 
     if (address.phoneNumber) {
-      return <li>{this.formatNumber(address.phoneNumber)}</li>;
+      return <li><PhoneNumber>{address.phoneNumber}</PhoneNumber></li>;
     }
   }
 
