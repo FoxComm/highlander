@@ -10,7 +10,7 @@ export default class SearchBar extends React.Component {
         <form>
           <div className="fc-search-input-container">
             <div className="fc-search-input-wrapper fc-form-field">
-              <input className="fc-input-search" type="text" placeholder="Add another filter or keyword search" />
+              <input className="fc-search-input-field" type="text" placeholder="Add another filter or keyword search" />
             </div>
             <div className="fc-search-icon-wrapper">
               <i className="icon-search"></i>
