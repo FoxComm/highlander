@@ -29,7 +29,7 @@ export default class FormField extends React.Component {
   };
 
   static contextTypes = {
-    formDispatcher: PropTypes.object.isRequired
+    formDispatcher: PropTypes.object
   };
 
   constructor(props, context) {
@@ -107,7 +107,10 @@ export default class FormField extends React.Component {
   }
 
   componentWillMount() {
-    this.context.formDispatcher.on('submit', this.onSubmit);
+    if (this.context.formDispatcher) {
+      this.context.formDispatcher.on('submit', this.onSubmit);
+    }
+
 
     this.updateChildren();
     this.updateInputBind();
@@ -124,7 +127,9 @@ export default class FormField extends React.Component {
 
     if (!inputNode) return;
 
-    inputNode.setCustomValidity(this.state.errorMessage || '');
+    if (inputNode.setCustomValidity) {
+      inputNode.setCustomValidity(this.state.errorMessage || '');
+    }
     this.updateInputState(false);
     this.updateInputBind();
   }
@@ -155,7 +160,9 @@ export default class FormField extends React.Component {
   }
 
   componentWillUnmount() {
-    this.context.formDispatcher.removeListener('submit', this.onSubmit);
+    if (this.context.formDispatcher) {
+      this.context.formDispatcher.removeListener('submit', this.onSubmit);
+    }
     this.updateInputBind();
   }
 
