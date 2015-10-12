@@ -220,8 +220,8 @@ export default class AddressForm extends React.Component {
                 <div className="fc-address-form-field-title">{title}</div>
               </li>
               <li>
-                <FormField label="Name" validator="ascii">
-                  <input name="name" maxLength="255" type="text" value={formData.name} required />
+                <FormField label="Name" validator="ascii" maxLength={255}>
+                  <input name="name" type="text" value={formData.name} required />
                 </FormField>
               </li>
               <li>
@@ -234,18 +234,18 @@ export default class AddressForm extends React.Component {
                 </FormField>
               </li>
               <li>
-                <FormField label="Street Address" validator="ascii">
-                  <input name="address1" maxLength="255" type="text" value={formData.address1} required />
+                <FormField label="Street Address" validator="ascii" maxLength={255}>
+                  <input name="address1" type="text" value={formData.address1} required />
                 </FormField>
               </li>
               <li>
-                <FormField label="Street Address 2" validator="ascii" optional>
-                  <input name="address2" maxLength="255" type="text" value={formData.address2} />
+                <FormField label="Street Address 2" validator="ascii" maxLength={255} optional>
+                  <input name="address2" type="text" value={formData.address2} />
                 </FormField>
               </li>
               <li>
-                <FormField label="City" validator="ascii">
-                  <input name="city" maxLength="255" type="text" value={formData.city} required />
+                <FormField label="City" validator="ascii" maxLength={255}>
+                  <input name="city" type="text" value={formData.city} required />
                 </FormField>
               </li>
               <li>

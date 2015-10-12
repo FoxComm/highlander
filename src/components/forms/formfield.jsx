@@ -24,6 +24,7 @@ export default class FormField extends React.Component {
     ]),
     children: PropTypes.node.isRequired,
     required: PropTypes.any,
+    maxLength: PropTypes.number,
     label: PropTypes.node
   };
 
@@ -173,7 +174,7 @@ export default class FormField extends React.Component {
   }
 
   validate() {
-    let errorMessage = null;
+    let errors = [];
 
     let validator = this.props.validator;
     const label = this.props.label;
@@ -185,46 +186,60 @@ export default class FormField extends React.Component {
 
       let value = this.getInputValue();
       if (!_.isString(value) || value) {
-        errorMessage = validator(value, label);
+        if (this.props.maxLength && _.isString(value) && value.length > this.props.maxLength) {
+          errors = [...errors, `${label} can not be more than 255 characters`];
+        }
+
+        const validatorError = validator(value, label);
+        if (validatorError) {
+          errors = [...errors, validatorError];
+        }
       } else if ('required' in this.props) {
-        errorMessage = `${label} is required field`;
+        errors = [...errors, `${label} is required field`];
       }
     }
 
     this.setState({
-      errorMessage
+      errors
     });
 
-    return errorMessage === null;
+    return errors.length === 0;
   }
 
-  render() {
-    let label = null;
-    let errors = null;
-
-    if (this.state.errorMessage) {
-      errors = (
-        <div className="fc-form-field-error">
-          {this.state.errorMessage}
+  get errorMessages() {
+    if (this.state.errors) {
+      return (
+        <div>
+          {this.state.errors.map((error, index) => {
+            return (
+              <div key={`error-${index}`} className="fc-form-field-error">
+                {error}
+              </div>
+            );
+          })}
         </div>
       );
     }
+  }
 
+  get label() {
     if (this.props.label) {
       const optionalMark = 'optional' in this.props ? <span className="fc-form-field-optional">(optional)</span> : null;
-      label = (
+      return (
         <label htmlFor={this.inputId}>
           {this.props.label}
           {optionalMark}
         </label>
       );
     }
+  }
 
+  render() {
     return (
       <div className="fc-form-field">
-        {label}
+        {this.label}
         {this.state.children}
-        {errors}
+        {this.errorMessages}
       </div>
     );
   }
