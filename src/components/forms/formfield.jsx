@@ -176,6 +176,7 @@ export default class FormField extends React.Component {
     let errorMessage = null;
 
     let validator = this.props.validator;
+    const label = this.props.label;
 
     if (validator) {
       if (_.isString(validator)) {
@@ -184,13 +185,9 @@ export default class FormField extends React.Component {
 
       let value = this.getInputValue();
       if (!_.isString(value) || value) {
-        errorMessage = validator(value);
+        errorMessage = validator(value, label);
       } else if ('required' in this.props) {
-        errorMessage = '$label is required field';
-      }
-
-      if (errorMessage) {
-        errorMessage = errorMessage.replace('$label', this.props.label);
+        errorMessage = `${label} is required field`;
       }
     }
 

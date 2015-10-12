@@ -5,7 +5,8 @@ export default class Alert extends React.Component {
   static propTypes = {
     type: PropTypes.oneOf([
       'error', 'success', 'warning'
-    ]).isRequired
+    ]).isRequired,
+    children: PropTypes.node
   };
 
 
