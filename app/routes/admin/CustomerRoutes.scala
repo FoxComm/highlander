@@ -29,7 +29,7 @@ object CustomerRoutes {
           }
         }
       } ~
-      (post & entity(as[payloads.CreateCustomer]) & pathEnd) { payload ⇒
+      (post & entity(as[payloads.CreateCustomer])) { payload ⇒
         goodOrFailures {
           CustomerManager.create(payload)
         }
