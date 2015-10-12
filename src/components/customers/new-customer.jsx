@@ -4,6 +4,7 @@ import React from 'react';
 import SectionTitle from '../section-title/section-title';
 import FormField from '../forms/formfield.jsx';
 import Form from '../forms/form.jsx';
+import { Link } from '../link';
 
 import CustomerStore from '../../stores/customers';
 import CustomerActions from '../../actions/customers';
@@ -18,37 +19,50 @@ export default class NewCustomer extends React.Component {
     };
   }
 
+  onSubmitForm() {
+    console.log(this.state);
+  }
+
   render () {
     let formData = this.state.formData;
     return (
       <div className="customer-create">
-        <SectionTitle title="New Customer" />
-        <article>
-          <Form>
-            <ul className="fc-customer-form-fields">
-              <li>
-                <FormField label="Email Address" validator="ascii">
-                  <input name="name" maxLength="255" type="text" value={formData.email} required />
-                </FormField>
-              </li>
-              <li>
-                <FormField label="First Name" validator="ascii" optional>
-                  <input name="name" maxLength="255" type="text" value={formData.firstName} />
-                </FormField>
-              </li>
-              <li>
-                <FormField label="Last Name" validator="ascii" optional>
-                  <input name="name" maxLength="255" type="text" value={formData.lastName} />
-                </FormField>
-              </li>
-              <li>
-                <FormField label="Phone Number" validator="ascii" optional>
-                  <input name="name" maxLength="255" type="text" value={formData.phoneNumber} />
-                </FormField>
-              </li>
-            </ul>
-          </Form>
-        </article>
+        <div className="gutter">
+          <h1 className="fc-title">
+            New Customer
+          </h1>
+          <article>
+            <Form className="fc-form-vertical"
+                  onSubmit={this.onSubmitForm.bind(this)}>
+              <ul className="fc-customer-form-fields">
+                <li>
+                  <FormField label="Email Address" validator="ascii">
+                    <input name="email" maxLength="255" type="text" value={formData.email} required />
+                  </FormField>
+                </li>
+                <li>
+                  <FormField label="First Name" validator="ascii" optional>
+                    <input name="first_name" maxLength="255" type="text" value={formData.firstName} />
+                  </FormField>
+                </li>
+                <li>
+                  <FormField label="Last Name" validator="ascii" optional>
+                    <input name="last_name" maxLength="255" type="text" value={formData.lastName} />
+                  </FormField>
+                </li>
+                <li>
+                  <FormField label="Phone Number" validator="ascii" optional>
+                    <input name="phone_number" maxLength="255" type="text" value={formData.phoneNumber} />
+                  </FormField>
+                </li>
+                <li>
+                  <Link to='customers'>< i className="icon-close"></i></Link>
+                  <input type="submit" value="Save Customer" className="fc-btn" />
+                </li>
+              </ul>
+            </Form>
+          </article>
+        </div>
       </div>
     );
   }
