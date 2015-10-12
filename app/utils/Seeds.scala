@@ -104,20 +104,20 @@ object Seeds {
 
   object Factories {
     def customer = Customer(email = "yax@yax.com", password = Some("password"),
-      firstName = Some("Yax"), lastName = Some("Fuentes"), phoneNumber = Some("123-444-4388"),
+      name = Some("Yax Fuentes"), phoneNumber = Some("123-444-4388"),
       location = Some("DonkeyVille, TN"), modality = Some("Desktop[PC]"))
 
     def customers: Seq[Customer] = Seq(
       Customer(email = "adil@adil.com", password = Some("password"),
-        firstName = Some("Adil"), lastName = Some("Wali"), phoneNumber = Some("123-444-0909"),
+        name = Some("Adil Wali"), phoneNumber = Some("123-444-0909"),
         location = Some("DonkeyHill, WA"), modality = Some("Desktop[PC]")),
 
       Customer(email = "tivs@tivs.com", password = Some("password"),
-        firstName = Some("Jonathan"), lastName = Some("Rainey"), phoneNumber = Some("858-867-5309"),
+        name = Some("Jonathan Rainey"), phoneNumber = Some("858-867-5309"),
         location = Some("DonkeyTown, NY"), modality = Some("Desktop[PC]")),
 
       Customer(email = "cam@cam.com", password = Some("password"),
-        firstName = Some("Cameron"), lastName = Some("Stitt"), phoneNumber = Some("883-444-4321"),
+        name = Some("Cameron Stitt"), phoneNumber = Some("883-444-4321"),
         location = Some("Donkeysburg, AU"), modality = Some("Desktop[PC]"))
     )
 

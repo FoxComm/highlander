@@ -6,6 +6,7 @@ import models.{Customer, Customers, StoreAdmin}
 import models.Customers.scope._
 import responses.CustomerResponse._
 import slick.driver.PostgresDriver.api._
+import utils.Slick._
 import utils.Slick.UpdateReturning._
 import payloads.CreateCustomer
 
@@ -42,10 +43,10 @@ object CustomerManager {
     }
   }
 
-  def create(payload: CreateCustomer)
-    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
-    val customer = Customers.createFromPayload(payload)
-    customer.map(_.map(build(_)))
+  def create(payload: CreateCustomer)(implicit ec: ExecutionContext, db: Database): Result[Root] = {
+    val customer = Customers.buildFromPayload(payload)
+    val qq = db.run(Customers.save(customer))
+    qq.flatMap { case(a) ⇒ Result.right(build(a)) }
   }
 
 }

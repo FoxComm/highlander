@@ -20,8 +20,7 @@ import utils.Slick.implicits._
 import utils.Passwords._
 
 final case class Customer(id: Int = 0, email: String, password: Option[String] = None,
-  firstName: Option[String] = None, lastName: Option[String] = None,
-  isDisabled: Boolean = false, isBlacklisted: Boolean = false,
+  name: Option[String] = None, isDisabled: Boolean = false, isBlacklisted: Boolean = false,
   phoneNumber: Option[String] = None, location: Option[String] = None,
   modality: Option[String] = None, isGuest: Boolean = false, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter
@@ -33,8 +32,8 @@ final case class Customer(id: Int = 0, email: String, password: Option[String] =
     if (isGuest) {
       notEmpty(email, "email").map { case _ ⇒ this }
     } else {
-      (notEmpty(firstName, "firstName")
-        |@| notEmpty(lastName, "lastName")
+      (notEmpty(name, "name")
+        |@| greaterThanOrEqual(name.getOrElse("").length, 1, "nameSize")
         |@| notEmpty(email, "email")
         ).map { case _ ⇒ this }
     }
@@ -43,7 +42,7 @@ final case class Customer(id: Int = 0, email: String, password: Option[String] =
 
 object Customer {
   def buildGuest(email: String): Customer =
-    Customer(isGuest = true, email = email, firstName = Some("guest"))
+    Customer(isGuest = true, email = email)
 }
 
 class Customers(tag: Tag) extends TableWithId[Customer](tag, "customers") {
@@ -55,15 +54,14 @@ class Customers(tag: Tag) extends TableWithId[Customer](tag, "customers") {
   def blacklistedReason = column[Option[String]]("blacklisted_reason")
   def email = column[String]("email")
   def password = column[Option[String]]("hashed_password")
-  def firstName = column[Option[String]]("first_name")
-  def lastName = column[Option[String]]("last_name")
+  def name = column[Option[String]]("name")
   def phoneNumber = column[Option[String]]("phone_number")
   def location = column[Option[String]]("location")
   def modality = column[Option[String]]("modality")
   def isGuest = column[Boolean]("is_guest")
   def createdAt = column[Instant]("created_at")
 
-  def * = (id, email, password, firstName, lastName,
+  def * = (id, email, password, name,
     isDisabled, isBlacklisted, phoneNumber,
     location, modality, isGuest, createdAt) <>((Customer.apply _).tupled, Customer.unapply)
 }
@@ -84,23 +82,9 @@ object Customers extends TableQueryWithId[Customer, Customers](
     filter(_.id === id)
   }
 
-  def createFromPayload(payload: payloads.CreateCustomer)
-    (implicit ec: ExecutionContext, db: Database): Result[Customer] = {
-    val (firstName, lastName) = payload.name match {
-      case Some(name) ⇒
-        name.split(" ") match {
-          case Array(firstName: String, lastName: String) ⇒
-            (Some(firstName), Some(lastName))
-          case _ ⇒ (Some(name), None)
-        }
-      case _ ⇒ (None, None)
-    }
-
+  def buildFromPayload(payload: payloads.CreateCustomer): Customer = {
     val hash = payload.password.map(hashPassword(_))
-    val newCustomer = Customer(id = 0, email = payload.email, password = hash,
-      firstName = firstName, lastName = lastName)
-
-    save(newCustomer).run().flatMap(Result.right)
+    Customer(id = 0, email = payload.email, password = hash, name = payload.name)
   }
 
   object scope {

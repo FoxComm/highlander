@@ -13,8 +13,8 @@ trait AutomaticAuth extends SuiteMixin
   val authedStoreAdmin = StoreAdmin(id = 1, email = "donkey@donkey.com", password = "donkeyPass",
           firstName = "Mister", lastName = "Donkey")
 
-  val authedCustomer = Customer(id = 1, email = "donkey@donkey.com", password = "donkeyPass",
-          firstName = "Mister", lastName = "Donkey")
+  val authedCustomer = Customer(id = 1, email = "donkey@donkey.com", password = Some("donkeyPass"),
+          name = Some("Mister Donkey"))
 
 
   override def overrideStoreAdminAuth: AsyncAuthenticator[StoreAdmin] = (UserCredentials) => {

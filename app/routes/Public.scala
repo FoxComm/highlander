@@ -9,6 +9,8 @@ import models._
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import responses.PublicSku
 import slick.driver.PostgresDriver.api._
+import services.CustomerManager
+import utils.CustomDirectives._
 
 object Public {
   def routes(implicit ec: ExecutionContext, db: Database, mat: Materializer) = {
@@ -17,8 +19,8 @@ object Public {
 
     pathPrefix("registrations") {
       (post & path("new") & entity(as[payloads.CreateCustomer])) { regRequest =>
-        complete {
-          Customers.createFromPayload(regRequest).map(renderGoodOrFailures)
+         goodOrFailures {
+          CustomerManager.create(regRequest)
         }
       }
     } ~
