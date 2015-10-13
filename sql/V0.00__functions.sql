@@ -40,9 +40,8 @@ create domain email text check (length(value) <= 254);
 -- Using text instead of character varying is more efficient
 create domain generic_string text check (length(value) <= 255);
 
-create domain note_body text check (length(value) > 0 and length(value) <= 1000);
+-- Generic phone number
 create domain phone_number text check (length(value) <= 15);
-create domain region_abbr text check (length(value) <= 10);
 
 -- Zip code domain
 create domain zip_code text check (

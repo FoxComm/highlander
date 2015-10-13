@@ -1,3 +1,5 @@
+create domain region_abbr text check (length(value) <= 10);
+
 create table regions (
     id serial primary key,
     country_id integer not null references countries(id) on update restrict on delete restrict,
