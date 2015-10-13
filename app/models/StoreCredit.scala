@@ -169,7 +169,7 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
   def findAllByCustomerId(customerId: Int)(implicit ec: ExecutionContext, db: Database): Future[Seq[StoreCredit]] =
     _findAllByCustomerId(customerId).result.run()
 
-  def _findAllByCustomerId(customerId: Int)(implicit ec: ExecutionContext): Query[StoreCredits, StoreCredit, Seq] =
+  def _findAllByCustomerId(customerId: Int)(implicit ec: ExecutionContext): QuerySeq =
     filter(_.customerId === customerId)
 
   def findAllActiveByCustomerId(customerId: Int): Query[StoreCredits, StoreCredit, Seq] =
