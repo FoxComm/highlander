@@ -23,7 +23,7 @@ import utils.jdbc._
 import utils.Seeds.Factories
 import utils.Slick.implicits._
 import cats.implicits._
-import utils.{Apis, StripeApi}
+import utils.{Seeds, Apis, StripeApi}
 import org.mockito.Mockito.{ when }
 import org.mockito.{ Matchers ⇒ m }
 import org.mockito.Mockito.reset
@@ -40,18 +40,15 @@ class CustomerIntegrationTest extends IntegrationTestBase
   import util.SlickSupport.implicits._
   import concurrent.ExecutionContext.Implicits.global
 
-  private def generateCustomer(i: Int): Customer = {
-    Customer(email = s"email$i@yax.com", password = "password",
-      firstName = s"firstName$i", lastName = Random.alphanumeric.take(30).mkString.toLowerCase)
-  }
-
+  // paging and sorting API
   val uriPrefix = "v1/customers"
   val sortColumnName = "lastName"
   def responseItems = (1 to 30).map { i ⇒
-    CustomerResponse.build(Customers.save(generateCustomer(i)).run().futureValue)
+    CustomerResponse.build(Customers.save(Seeds.Factories.generateCustomer).run().futureValue)
   }
   def responseItemsSort(items: IndexedSeq[CustomerResponse.Root]) = items.sortBy(_.lastName)
   def mf = implicitly[scala.reflect.Manifest[CustomerResponse.Root]]
+  // paging and sorting API end
 
   override def makeApis: Option[Apis] = Some(Apis(stripeApi))
 

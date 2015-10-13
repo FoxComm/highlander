@@ -5,6 +5,7 @@ import java.time.temporal.ChronoField
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
+import scala.util.Random
 
 import models._
 import models.rules._
@@ -103,6 +104,8 @@ object Seeds {
   }
 
   object Factories {
+    private def randomString(len: Int) = Random.alphanumeric.take(len).mkString.toLowerCase
+
     def customer = Customer(email = "yax@yax.com", password = "password",
       firstName = "Yax", lastName = "Fuentes", phoneNumber = Some("123-444-4388"),
       location = Some("DonkeyVille, TN"), modality = Some("Desktop[PC]"))
@@ -120,6 +123,9 @@ object Seeds {
         firstName = "Cameron", lastName = "Stitt", phoneNumber = Some("883-444-4321"),
         location = Some("Donkeysburg, AU"), modality = Some("Desktop[PC]"))
     )
+
+    def generateCustomer: Customer = Customer(email = s"${randomString(10)}@email.com", password = randomString(10),
+        firstName = randomString(10), lastName = randomString(30))
 
     def storeAdmin = StoreAdmin(email = "admin@admin.com", password = "password", firstName = "Frankly", lastName = "Admin")
 
@@ -157,6 +163,10 @@ object Seeds {
 
     def address = Address(customerId = 0, regionId = 4177, name = "Home", address1 = "555 E Lake Union St.",
         address2 = None, city = "Seattle", zip = "12345", isDefaultShipping = true, phoneNumber = None)
+
+    def generateAddress: Address = Address(customerId = 0, regionId = 4177, name = randomString(10),
+      address1 = randomString(30), address2 = None, city = "Seattle", zip = "12345", isDefaultShipping = false,
+      phoneNumber = None)
 
     def shippingAddress = OrderShippingAddress(regionId = 4174, name = "Old Yax", address1 = "9313 Olde Mill Pond Dr",
       address2 = None, city = "Glen Allen", zip = "23060", phoneNumber = None)
