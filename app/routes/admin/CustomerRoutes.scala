@@ -128,7 +128,7 @@ object CustomerRoutes {
           (get & pathEnd) {
             complete {
               whenFound(Customers.findById(customerId).run()) { customer ⇒
-                StoreCredits.findAllByCustomerId(customer.id).map(Xor.right)
+                StoreCredits.findAllByCustomerId(customer.id).run().map(Xor.right)
               }
             }
           } ~
