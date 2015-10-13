@@ -25,6 +25,18 @@ class InventorySummaries(tag: Tag)
     outstandingPreOrders, outstandingBackOrders) <> (( InventorySummary.apply _).tupled, InventorySummary.unapply)
 }
 
+object InventorySummary {
+  def buildNew(skuId: Int, availableOnHand: Int): InventorySummary =
+    InventorySummary(
+      id = 0,
+      skuId = skuId,
+      availableOnHand = availableOnHand,
+      availablePreOrder = 0,
+      availableBackOrder = 0,
+      outstandingBackOrders = 0,
+      outstandingPreOrders = 0)
+}
+
 object InventorySummaries extends TableQueryWithId[InventorySummary, InventorySummaries](
   idLens = GenLens[InventorySummary](_.id)
 )(new InventorySummaries(_)) {
