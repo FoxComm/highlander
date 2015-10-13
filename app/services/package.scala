@@ -65,8 +65,8 @@ package object services {
     def paged(implicit sortAndPage: SortAndPage): Query[M,U,C] = {
 
       val pagedQueryOpt = for {
-        pageNo <- sortAndPage.pageNo
-        pageSize <- sortAndPage.pageSize
+        pageNo ← sortAndPage.pageNo
+        pageSize ← sortAndPage.pageSize
       } yield query.drop(pageSize * (pageNo - 1)).take(pageSize)
 
       pagedQueryOpt.getOrElse(query)
