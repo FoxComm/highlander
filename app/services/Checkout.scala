@@ -91,7 +91,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
         .map { o => (o.status, o.placedAt) }
         .update((Order.Ordered, Some(Instant.now)))
 
-        newOrder <- Orders._create(Order.buildCart(order.customerId))
+        newOrder <- Orders.create(Order.buildCart(order.customerId))
     } yield newOrder)
   }
 
