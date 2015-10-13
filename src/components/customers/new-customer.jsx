@@ -1,11 +1,12 @@
 'use strict';
 
-import React from 'react';
-import { Navigation } from 'react-router';
+import React, { PropTypes } from 'react';
 import SectionTitle from '../section-title/section-title';
 import FormField from '../forms/formfield.jsx';
 import Form from '../forms/form.jsx';
 import { Link } from '../link';
+
+import { transitionTo } from '../../route-helpers';
 
 import { Map } from 'immutable';
 
@@ -14,7 +15,9 @@ import CustomerActions from '../../actions/customers';
 
 export default class NewCustomer extends React.Component {
 
-  static mixins = [ Navigation ];
+  static contextTypes = {
+    history: PropTypes.object.isRequired
+  };
 
   constructor(props, context) {
     super(props, context);
@@ -37,8 +40,10 @@ export default class NewCustomer extends React.Component {
   }
 
   onChange() {
-    console.log('onChange');
-    console.log(this);
+    console.log(transitionTo);
+    console.log(this.context);
+    console.log(this.context.history);
+    transitionTo(this.context.history, 'customers')
   }
 
   submitForm(event) {
