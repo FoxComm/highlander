@@ -62,8 +62,8 @@ class AddressesIntegrationTest extends IntegrationTestBase
 
       response.status must === (StatusCodes.NoContent)
 
-      Addresses.findById(another.id).futureValue.value.isDefaultShipping mustBe true
-      Addresses.findById(address.id).futureValue.value.isDefaultShipping mustBe false
+      Addresses.findOneById(another.id).futureValue.value.isDefaultShipping mustBe true
+      Addresses.findOneById(address.id).futureValue.value.isDefaultShipping mustBe false
     }
 
     "removes an existing default from a shipping address" in new AddressFixture {
@@ -71,7 +71,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
 
       validateDeleteResponse(response)
 
-      Addresses.findById(address.id).futureValue.value.isDefaultShipping mustBe false
+      Addresses.findOneById(address.id).futureValue.value.isDefaultShipping mustBe false
     }
 
     "attempts to removes default shipping address when none is set" in new CustomerFixture {
@@ -79,7 +79,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
 
       validateDeleteResponse(response)
 
-      Addresses._findAllByCustomerId(customer.id).length.result.run().futureValue must === (0)
+      Addresses.findAllByCustomerId(customer.id).length.result.run().futureValue must === (0)
     }
 
     "can be edited" in new AddressFixture {

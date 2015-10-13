@@ -9,7 +9,7 @@ create table inventory_adjustments (
     available_back_order integer not null default 0,
     outstanding_pre_orders integer not null default 0,
     outstanding_back_orders integer not null default 0,
-    description character varying(255),
+    description generic_string,
     source_notes text,
     foreign key (sku_id) references skus(id) on update restrict on delete restrict,
     foreign key (inventory_event_id) references inventory_events(id) on update restrict on delete restrict

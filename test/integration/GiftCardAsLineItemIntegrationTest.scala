@@ -41,7 +41,7 @@ class GiftCardAsLineItemIntegrationTest extends IntegrationTestBase
     }
 
     "fails to create new GC as line item if no cart order is present" in new LineItemFixture {
-      Orders._findActiveOrderByCustomer(customer).map(_.status).update(Order.ManualHold).run().futureValue
+      Orders.findActiveOrderByCustomer(customer).map(_.status).update(Order.ManualHold).run().futureValue
       val response = POST(s"v1/orders/${order.refNum}/gift-cards", payloads.AddGiftCardLineItem(balance = 100))
 
       response.status must ===(StatusCodes.NotFound)
@@ -49,7 +49,7 @@ class GiftCardAsLineItemIntegrationTest extends IntegrationTestBase
     }
 
     "fails to create new GC with invalid balance" in new LineItemFixture {
-      Orders._findActiveOrderByCustomer(customer).map(_.status).update(Order.ManualHold).run().futureValue
+      Orders.findActiveOrderByCustomer(customer).map(_.status).update(Order.ManualHold).run().futureValue
       val response = POST(s"v1/orders/${order.refNum}/gift-cards", payloads.AddGiftCardLineItem(balance = -100))
 
       response.status must ===(StatusCodes.BadRequest)
@@ -80,7 +80,7 @@ class GiftCardAsLineItemIntegrationTest extends IntegrationTestBase
     }
 
     "fails to update GC as line item for order not in Cart state" in new LineItemFixture {
-      Orders._findActiveOrderByCustomer(customer).map(_.status).update(Order.ManualHold).run().futureValue
+      Orders.findActiveOrderByCustomer(customer).map(_.status).update(Order.ManualHold).run().futureValue
       val response = PATCH(s"v1/orders/${order.refNum}/gift-cards/${giftCard.code}", payloads.AddGiftCardLineItem(balance = 100))
 
       response.status must ===(StatusCodes.NotFound)
@@ -131,7 +131,7 @@ class GiftCardAsLineItemIntegrationTest extends IntegrationTestBase
     }
 
     "fails to delete GC as line item for order not in Cart state" in new LineItemFixture {
-      Orders._findActiveOrderByCustomer(customer).map(_.status).update(Order.ManualHold).run().futureValue
+      Orders.findActiveOrderByCustomer(customer).map(_.status).update(Order.ManualHold).run().futureValue
       val response = DELETE(s"v1/orders/${order.refNum}/gift-cards/${giftCard.code}")
 
       response.status must ===(StatusCodes.NotFound)

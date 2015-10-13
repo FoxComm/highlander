@@ -3,7 +3,7 @@ package services
 import scala.concurrent.{ExecutionContext, Future}
 import akka.http.scaladsl.server.directives._
 import slick.driver.PostgresDriver.api._
-
+import utils.Slick.implicits._
 import models._
 
 // TODO: Implement real session-based authentication with JWT
@@ -11,7 +11,7 @@ import models._
 // TODO: Add Roles and Permissions.  Check those before taking on an action
 // TODO: Investigate 2-factor Authentication
 object Authenticator {
-  type EmailFinder[M] = String => Future[Option[M]]
+  type EmailFinder[M] = String => DBIO[Option[M]]
 
   def customer(credentials: UserCredentials)
               (implicit ec: ExecutionContext, db: Database): Future[Option[Customer]] = {
@@ -30,7 +30,7 @@ object Authenticator {
    (implicit ec: ExecutionContext, db: Database): Future[Option[M]] = credentials match {
 
     case p: UserCredentials.Provided =>
-      finder(p.username).map { optModel =>
+      finder(p.username).run().map { optModel =>
         optModel.filter { m => p.verifySecret(getPassword(m)) }
       }
 

@@ -1,6 +1,5 @@
 package models
 
-import slick.driver.PostgresDriver
 import utils.Seeds.Factories
 import util.IntegrationTestBase
 import utils.Slick.implicits._
@@ -30,9 +29,9 @@ class InventoryAdjustmentIntegrationTest extends IntegrationTestBase {
         OrderLineItem(orderId = order.id, originId = lineItemSku.id, originType = OrderLineItem.SkuItem)
       }).run().futureValue
 
-      InventoryAdjustments.createAdjustmentsForOrder(order).futureValue
+      InventoryAdjustments.createAdjustmentsForOrder(order).run().futureValue
       val numAdjustments = InventoryAdjustments.filter(_.inventoryEventId === order.id).length.result.run().futureValue
-      val summary = InventorySummaries.findBySkuId(sku.id).futureValue.value
+      val summary = InventorySummaries.findBySkuId(sku.id).one.run().futureValue.value
 
       numAdjustments mustBe 1
       summary.availableOnHand must === (-5)

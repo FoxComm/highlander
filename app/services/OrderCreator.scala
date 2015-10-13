@@ -22,7 +22,7 @@ object OrderCreator {
     }
 
     def createCartForCustomer(customerId: Int): Result[Root] = (for {
-      customer  ← Customers._findById(customerId).extract.one
+      customer  ← Customers.findById(customerId).extract.one
       hasCart   ← Orders.findByCustomerId(customerId).cartOnly.exists.result
     } yield (customer, hasCart)).run().flatMap {
       case (Some(customer), false) ⇒

@@ -1,11 +1,8 @@
 package models
 
-import scala.concurrent.Future
-
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
-import utils.Slick.implicits._
 
 final case class InventorySummary(id: Int, skuId: Int, availableOnHand: Int, availablePreOrder: Int, availableBackOrder: Int,
                             outstandingPreOrders: Int, outstandingBackOrders: Int) extends ModelWithIdParameter
@@ -25,13 +22,22 @@ class InventorySummaries(tag: Tag)
     outstandingPreOrders, outstandingBackOrders) <> (( InventorySummary.apply _).tupled, InventorySummary.unapply)
 }
 
+object InventorySummary {
+  def buildNew(skuId: Int, availableOnHand: Int): InventorySummary =
+    InventorySummary(
+      id = 0,
+      skuId = skuId,
+      availableOnHand = availableOnHand,
+      availablePreOrder = 0,
+      availableBackOrder = 0,
+      outstandingBackOrders = 0,
+      outstandingPreOrders = 0)
+}
+
 object InventorySummaries extends TableQueryWithId[InventorySummary, InventorySummaries](
   idLens = GenLens[InventorySummary](_.id)
 )(new InventorySummaries(_)) {
 
-  def findBySkuId(id: Int)(implicit db: Database): Future[Option[InventorySummary]] =
-    db.run(_findBySkuId(id).one)
-
-  def _findBySkuId(id: Int): Query[InventorySummaries, InventorySummary, Seq] =
+  def findBySkuId(id: Int): Query[InventorySummaries, InventorySummary, Seq] =
     filter(_.skuId === id)
 }

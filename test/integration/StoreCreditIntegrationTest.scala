@@ -31,7 +31,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
           sc.status must === (StoreCredit.Active)
 
           // Check that proper link is created
-          val manual = StoreCreditManuals.findById(sc.originId).run().futureValue.value
+          val manual = StoreCreditManuals.findOneById(sc.originId).run().futureValue.value
           manual.reasonId must === (scReason.id)
           manual.adminId must === (admin.id)
         }
@@ -148,10 +148,10 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         val response = PATCH(s"v1/store-credits", payload)
         response.status must ===(StatusCodes.OK)
 
-        val firstUpdated = StoreCredits.findById(storeCredit.id).run().futureValue
+        val firstUpdated = StoreCredits.findOneById(storeCredit.id).run().futureValue
         firstUpdated.value.status must ===(StoreCredit.OnHold)
 
-        val secondUpdated = StoreCredits.findById(scSecond.id).run().futureValue
+        val secondUpdated = StoreCredits.findOneById(scSecond.id).run().futureValue
         secondUpdated.value.status must ===(StoreCredit.OnHold)
       }
 

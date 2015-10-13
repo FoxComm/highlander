@@ -70,4 +70,11 @@ object Notes extends TableQueryWithId[Note, Notes](
     filter(_.id === id).filter(_.storeAdminId === adminId)
 
   private [this] def filterByType(referenceType: Note.ReferenceType) = filter(_.referenceType === referenceType)
+
+  object scope {
+    implicit class NotesQuerySeqConversions(q: QuerySeq) {
+      def notDeleted: QuerySeq =
+        q.filterNot(note ⇒ note.deletedAt.isDefined || note.deletedBy.isDefined)
+    }
+  }
 }
