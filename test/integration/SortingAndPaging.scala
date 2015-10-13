@@ -4,11 +4,12 @@ import org.scalatest.mock.MockitoSugar
 import responses.ResponseItem
 import util.IntegrationTestBase
 
-trait SortingAndPaging[T <: ResponseItem] { this: IntegrationTestBase with HttpSupport with MockitoSugar ⇒
+trait SortingAndPaging[T <: ResponseItem] extends MockitoSugar { this: IntegrationTestBase with HttpSupport ⇒
 
   // the API
   def uriPrefix: String
   def sortColumnName: String
+  def beforeSortingAndPaging(): Unit = {}
   def responseItems: IndexedSeq[T]
   def responseItemsSort(items: IndexedSeq[T]): IndexedSeq[T]
   def mf: scala.reflect.Manifest[T]
@@ -19,6 +20,7 @@ trait SortingAndPaging[T <: ResponseItem] { this: IntegrationTestBase with HttpS
   import Extensions._
 
   trait SortingAndPagingFixture {
+    beforeSortingAndPaging()
     val items: IndexedSeq[T] = responseItems
     val itemsSorted: IndexedSeq[T] = responseItemsSort(items)
   }
@@ -58,6 +60,13 @@ trait SortingAndPaging[T <: ResponseItem] { this: IntegrationTestBase with HttpS
 
       responseList.status must === (StatusCodes.OK)
       responseList.as[Seq[T]] must === (itemsSorted)
+    }
+
+    "sort by a column in a reverse order with paging" in new SortingAndPagingFixture {
+      val responseList = GET(s"$uriPrefix?sortBy=-$sortColumnName&pageNo=3&pageSize=6")
+
+      responseList.status must === (StatusCodes.OK)
+      responseList.as[Seq[T]] must === (itemsSorted.reverse.drop(12).take(6))
     }
 
     "error on invalid pageNo param #1" in new SortingAndPagingFixture {
