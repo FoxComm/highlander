@@ -6,7 +6,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Xor
 import models._
-import collection.immutable
 
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
@@ -24,7 +23,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
     // 5) Final Auth on the payment
     // 6) Check & Reserve inventory
 
-    hasLineItems.flatMap { has =>
+    hasLineItems.run().flatMap { has =>
       if (has) {
         authorizePayments.flatMap { payments =>
           val errors = payments.values.toList.flatten
