@@ -19,7 +19,7 @@ object CustomerResponse {
     blacklisted: Boolean,
     rank: String,
     billingRegion: Option[String] = None,
-    shippingRegion: Option[String] = None)
+    shippingRegion: Option[String] = None) extends ResponseItem
 
   def build(customer: Customer, shippingRegion: Option[Region] = None, billingRegion: Option[Region] = None): Root =
     Root(id = customer.id, email = customer.email, firstName = customer.firstName, lastName = customer.lastName,

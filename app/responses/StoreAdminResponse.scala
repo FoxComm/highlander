@@ -8,7 +8,7 @@ object StoreAdminResponse {
     email: String,
     firstName: String,
     lastName: String,
-    department: Option[String])
+    department: Option[String]) extends ResponseItem
 
   def build(admin: StoreAdmin): Root =
     Root(

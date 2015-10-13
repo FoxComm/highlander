@@ -15,12 +15,12 @@ final case class FullOrderWithWarnings(order: FullOrder.Root, warnings: Seq[NotF
 object FullOrder {
   type Response = Future[Root]
 
-  final case class Totals(subTotal: Int, taxes: Int, adjustments: Int, total: Int)
+  final case class Totals(subTotal: Int, taxes: Int, adjustments: Int, total: Int) extends ResponseItem
 
   final case class LineItems(
     skus: Seq[DisplayLineItem] = Seq.empty,
     giftCards: Seq[GiftCardResponse.Root] = Seq.empty
-    )
+    ) extends ResponseItem
 
   final case class Root(
     id: Int,
@@ -37,7 +37,7 @@ object FullOrder {
     shippingAddress: Option[OrderShippingAddress],
     assignees: Seq[AssignmentResponse.Root],
     remorsePeriodEnd: Option[Instant],
-    payment: Option[DisplayPayment] = None)
+    payment: Option[DisplayPayment] = None) extends ResponseItem
 
   final case class DisplayLineItem(
     imagePath: String = "http://lorempixel.com/75/75/fashion",
@@ -46,14 +46,21 @@ object FullOrder {
     price: Int = 33,
     quantity: Int = 1,
     totalPrice: Int = 33,
-    status: OrderLineItem.Status)
+    status: OrderLineItem.Status) extends ResponseItem
 
-  final case class DisplayPayment(amount: Int, status: String, referenceNumber: String = "ABC123", paymentMethod: DisplayPaymentMethod)
+  final case class DisplayPayment(
+    amount: Int,
+    status: String,
+    referenceNumber: String = "ABC123",
+    paymentMethod: DisplayPaymentMethod) extends ResponseItem
    //
   // TODO:
   // Capture reference number
 
-  final case class DisplayPaymentMethod(cardType: String = "visa", cardExp: String, cardNumber: String)
+  final case class DisplayPaymentMethod(
+    cardType: String = "visa",
+    cardExp: String,
+    cardNumber: String) extends ResponseItem
 
   def fromOrder(order: Order)(implicit ec: ExecutionContext, db: Database): DBIO[Root] = {
     fetchOrderDetails(order).map { case (customer, skus, shipMethod, shipAddress, payment, assignees, giftCards) ⇒

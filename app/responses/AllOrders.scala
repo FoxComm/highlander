@@ -24,7 +24,7 @@ object AllOrders {
     placedAt: Option[Instant],
     remorsePeriodEnd: Option[Instant],
     total: Int
-    )
+    ) extends ResponseItem
 
   def runFindAll(implicit ec: ExecutionContext, db: Database): Response = {
     db.run(findAll)
