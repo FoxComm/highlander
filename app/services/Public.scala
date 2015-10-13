@@ -13,7 +13,7 @@ import utils.Slick.DbResult
 object Public {
 
   def findCountry(countryId: Int)(implicit ec: ExecutionContext, db: Database): Result[CountryWithRegions] = {
-    Countries._findById(countryId).extract.selectOne { country ⇒
+    Countries.findById(countryId).extract.selectOne { country ⇒
       DbResult.fromDbio(Regions.filter(_.countryId === countryId).result.map { rs ⇒
         CountryWithRegions(country, sortRegions(rs.to[Seq]))
       })

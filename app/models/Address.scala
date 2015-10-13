@@ -87,7 +87,7 @@ object Addresses extends TableQueryWithId[Address, Addresses](
    filter(_.customerId === customerId).filter(_.isDefaultShipping === true)
 
   def findById(customerId: Int, addressId: Int): QuerySeq = 
-   _findById(addressId).extract.filter(_.customerId === customerId)
+   findById(addressId).extract.filter(_.customerId === customerId)
 
   object scope {
     implicit class AddressesQuerySeqConversions(q: QuerySeq) {

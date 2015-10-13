@@ -133,7 +133,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       val response = POST(s"v1/orders/${order.referenceNumber}/increase-remorse-period")
       response.status must ===(StatusCodes.BadRequest)
 
-      val newOrder = Orders._findById(order.id).extract.one.run().futureValue.value
+      val newOrder = Orders.findById(order.id).extract.one.run().futureValue.value
       newOrder.remorsePeriodEnd must ===(order.remorsePeriodEnd)
     }
   }
@@ -440,7 +440,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       response.status must ===(StatusCodes.NoContent)
       response.bodyText mustBe empty
 
-      val updatedNote = db.run(Notes.findById(note.id)).futureValue.value
+      val updatedNote = db.run(Notes.findOneById(note.id)).futureValue.value
       updatedNote.deletedBy.value mustBe 1
       updatedNote.deletedAt.value.isBeforeNow mustBe true
 
@@ -567,7 +567,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
         response.status must === (StatusCodes.OK)
 
-        val addressBook = Addresses.findById(address.id).run().futureValue.value
+        val addressBook = Addresses.findOneById(address.id).run().futureValue.value
 
         addressBook.name must === (address.name)
         addressBook.city must === (address.city)
