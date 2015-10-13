@@ -62,7 +62,7 @@ class OrderIntegrationTest extends IntegrationTestBase
   "updates status" - {
 
     "successfully" in {
-      val order = Orders.save(Factories.order.copy(status = Order.Cart)).run().futureValue
+      val order = Orders.save(Factories.order).run().futureValue
 
       val response = PATCH(
         s"v1/orders/${order.referenceNumber}",
@@ -75,7 +75,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
 
     "fails if transition to destination status is not allowed" in {
-      val order = Orders.save(Factories.order.copy(status = Order.Cart)).run().futureValue
+      val order = Orders.save(Factories.order).run().futureValue
 
       val response = PATCH(
         s"v1/orders/${order.referenceNumber}",
