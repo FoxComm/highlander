@@ -170,7 +170,7 @@ export default class AddressForm extends React.Component {
     if (validators.zipCode(formData.zip, countryCode)) {
       return null;
     } else {
-      return `${CountryStore.zipName(countryCode)} is invalid for selected country.`;
+      return `${CountryStore.zipName(countryCode)} is invalid for selected country`;
     }
   }
 

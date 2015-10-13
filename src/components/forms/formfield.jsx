@@ -186,24 +186,25 @@ export default class FormField extends React.Component {
     let validator = this.props.validator;
     const label = this.props.label;
 
-    if (validator) {
-      if (_.isString(validator)) {
-        validator = validators[validator];
+    if (_.isString(validator)) {
+      validator = validators[validator];
+    }
+
+    let value = this.getInputValue();
+
+    if (!_.isString(value) || value) {
+      if (this.props.maxLength && _.isString(value) && value.length > this.props.maxLength) {
+        errors = [...errors, `${label} can not be more than ${this.props.maxLength} characters`];
       }
 
-      let value = this.getInputValue();
-      if (!_.isString(value) || value) {
-        if (this.props.maxLength && _.isString(value) && value.length > this.props.maxLength) {
-          errors = [...errors, `${label} can not be more than ${this.props.maxLength} characters`];
-        }
-
+      if (validator) {
         const validatorError = validator(value, label);
         if (validatorError) {
           errors = [...errors, validatorError];
         }
-      } else if ('required' in this.props) {
-        errors = [...errors, `${label} is required field`];
       }
+    } else if ('required' in this.props) {
+      errors = [...errors, `${label} is required field`];
     }
 
     this.setState({
