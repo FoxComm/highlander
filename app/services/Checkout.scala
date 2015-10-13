@@ -42,7 +42,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
 
   def authorizePayments: Future[Map[OrderPayment, List[Failure]]] = {
     for {
-      payments ← OrderPayments.findAllPaymentsFor(order)
+      payments ← OrderPayments.findAllPaymentsFor(order.id).result.run()
       authorized ← Future.sequence(authorizePayments(payments))
     } yield updatePaymentsWithAuthorizationErrors(authorized)
   }
@@ -96,7 +96,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
   }
 
   private def updateOrderPaymentWithCharge(payment : OrderPayment, chargeId : String, or: Failures Xor String) = {
-    OrderPayments.update(payment).map { _ ⇒ (payment, or) }
+    OrderPayments.update(payment).run().map { _ ⇒ (payment, or) }
   }
 
   private def hasLineItems = {

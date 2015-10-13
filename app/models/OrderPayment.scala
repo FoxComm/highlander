@@ -1,7 +1,5 @@
 package models
 
-import scala.concurrent.{ExecutionContext, Future}
-
 import com.stripe.model.{Customer ⇒ StripeCustomer}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
@@ -56,21 +54,16 @@ object OrderPayments extends TableQueryWithId[OrderPayment, OrderPayments](
 
   import models.{PaymentMethod ⇒ Pay}
 
-  def update(payment: OrderPayment)(implicit db: Database): Future[Int] =
-    this._findById(payment.id).update(payment).run()
+  def update(payment: OrderPayment)(implicit db: Database): DBIO[Int] =
+    this._findById(payment.id).update(payment)
 
   def findAllByOrderId(id: Int): QuerySeq =
     filter(_.orderId === id)
 
-  def findAllPaymentsFor(order: Order)
-                        (implicit ec: ExecutionContext, db: Database): Future[Seq[(OrderPayment, CreditCard)]] = {
-    db.run(this._findAllPaymentsFor(order.id).result)
-  }
-
   def findAllStoreCredit: QuerySeq =
     filter(_.paymentMethodType === (Pay.StoreCredit: Pay.Type))
 
-  def _findAllPaymentsFor(orderId: Int): Query[(OrderPayments, CreditCards), (OrderPayment, CreditCard), Seq] = {
+  def findAllPaymentsFor(orderId: Int): Query[(OrderPayments, CreditCards), (OrderPayment, CreditCard), Seq] = {
     for {
       payments ← this.filter(_.orderId === orderId)
       cards    ← CreditCards if cards.id === payments.id
