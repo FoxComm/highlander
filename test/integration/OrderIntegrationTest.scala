@@ -430,6 +430,15 @@ class OrderIntegrationTest extends IntegrationTestBase
       val updatedNote = db.run(Notes.findById(note.id)).futureValue.value
       updatedNote.deletedBy.value mustBe 1
       updatedNote.deletedAt.value.isBeforeNow mustBe true
+
+      // Deleted note should not be returned
+      val allNotesResponse = GET(s"v1/notes/order/${order.referenceNumber}")
+      allNotesResponse.status must === (StatusCodes.OK)
+      val allNotes = allNotesResponse.as[Seq[AdminNotes.Root]]
+      allNotes.map(_.id) must not contain note.id
+
+      val getDeletedNoteResponse = GET(s"v1/notes/order/${order.referenceNumber}/${note.id}")
+      getDeletedNoteResponse.status must === (StatusCodes.NotFound)
     }
   }
 
