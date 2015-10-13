@@ -44,7 +44,10 @@ class OrderStore extends BaseStore {
 
   handleInsertOrder(action) {
     const order = action.order;
-    this.setState(this.insertIntoList(this.state, order, 'referenceNumber'));
+    this.setState(this.insertIntoList(
+      this.state, order, null,
+      item => item.referenceNumber === order.referenceNumber
+    ));
   }
 }
 

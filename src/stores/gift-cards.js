@@ -26,7 +26,7 @@ class GiftCardStore extends BaseStore {
 
   handleInsertGiftCard(action) {
     const giftCard = action.giftCard;
-    this.setState(this.insertIntoList(this.state, giftCard, 'code'));
+    this.setState(this.upsert(this.state, giftCard, null, item => item.code === giftCard.code));
   }
 }
 
