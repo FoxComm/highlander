@@ -75,8 +75,11 @@ object Customers extends TableQueryWithId[Customer, Customers](
 
   def buildFromPayload(payload: payloads.CreateCustomer): Customer = {
     val hash = payload.password.map(hashPassword(_))
-    Customer(id = 0, email = payload.email, password = hash, name = payload.name,
-      isGuest = payload.isGuest)
+    val isGuest = payload.name match {
+      case Some(_) ⇒ false
+      case _ ⇒ true
+    }
+    Customer(id = 0, email = payload.email, password = hash, name = payload.name, isGuest = isGuest)
   }
 
   object scope {
