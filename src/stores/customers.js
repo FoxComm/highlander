@@ -24,7 +24,6 @@ class CustomerStore extends BaseStore {
   }
 
   handleInsertCustomers(action) {
-    console.log("Inserted");
     const customer = action.customer;
     this.setState(this.insertIntoList(this.state, customer, 'id'));
   }
