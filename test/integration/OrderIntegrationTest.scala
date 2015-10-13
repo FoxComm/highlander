@@ -41,10 +41,11 @@ class OrderIntegrationTest extends IntegrationTestBase
         """.stripMargin)
 
       val root = parse(response.bodyText).extract[FullOrder.Root]
-      root.lineItems.skus.map(_.sku).sortBy(identity) must === (List("SKU-ABC", "SKU-ABC", "SKU-YAX"))
+      root.lineItems.skus.map(_.sku).sortBy(identity) must ===(List("SKU-ABC", "SKU-ABC", "SKU-YAX"))
     }
 
     "should return error if order is not in Cart state" in new OrderFixture {
+      pending
       Orders.findByRefNum(order.refNum).map(_.status).update(Order.ManualHold).run().futureValue
 
       val response = POST(
@@ -54,7 +55,7 @@ class OrderIntegrationTest extends IntegrationTestBase
           |   { "sku": "SKU-ABC", "quantity": 2 } ]
         """.stripMargin)
 
-      response.status must === (StatusCodes.NotFound)
+      response.status must ===(StatusCodes.NotFound)
     }
   }
 
@@ -74,7 +75,6 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
 
     "fails if transition to destination status is not allowed" in {
-      pending
       val order = Orders.save(Factories.order.copy(status = Order.Cart)).run().futureValue
 
       val response = PATCH(
@@ -86,7 +86,6 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
 
     "fails if transition from current status is not allowed" in {
-      pending
       val order = Orders.save(Factories.order.copy(status = Canceled)).run().futureValue
 
       val response = PATCH(
