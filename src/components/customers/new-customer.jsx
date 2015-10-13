@@ -1,24 +1,44 @@
 'use strict';
 
 import React from 'react';
+import { Navigation } from 'react-router';
 import SectionTitle from '../section-title/section-title';
 import FormField from '../forms/formfield.jsx';
 import Form from '../forms/form.jsx';
 import { Link } from '../link';
+
+import { Map } from 'immutable';
 
 import CustomerStore from '../../stores/customers';
 import CustomerActions from '../../actions/customers';
 
 export default class NewCustomer extends React.Component {
 
+  static mixins = [ Navigation ];
+
   constructor(props, context) {
     super(props, context);
 
-    this.state = {
+    this.state = Map({
       email: null,
       name: null,
-      password: null
-    };
+      password: null,
+      isGuest: false
+    });
+    this.onChange = this.onChange.bind(this);
+  }
+
+  componentDidMount() {
+    CustomerStore.listen(this.onChange);
+  }
+
+  componentWillUnmount() {
+    CustomerStore.unlisten(this.onChange);
+  }
+
+  onChange() {
+    console.log('onChange');
+    console.log(this);
   }
 
   submitForm(event) {
@@ -73,6 +93,15 @@ export default class NewCustomer extends React.Component {
                              maxLength="255"
                              type="password"
                              value={this.state.password} />
+                    </FormField>
+                  </li>
+                  <li>
+                    <FormField label="Guest Account">
+                      <input id="isGuestCustomerFormField"
+                             className="fc-customer-form-checkbox"
+                             name="isGuest"
+                             type="checkbox"
+                             value={this.state.isGuest} />
                     </FormField>
                   </li>
                   <li className="fc-customer-form-controls">

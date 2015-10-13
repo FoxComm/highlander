@@ -6,6 +6,13 @@ import CustomerConstants from '../constants/customers';
 import { List } from 'immutable';
 
 class CustomerActions {
+  insertCustomer(customer) {
+    AshesDispatcher.handleAction({
+      actionType: CustomerConstants.INSERT_CUSTOMERS,
+      customer: customer
+    });
+  }
+
   updateCustomers(customers) {
     AshesDispatcher.handleAction({
       actionType: CustomerConstants.UPDATE_CUSTOMERS,
@@ -31,10 +38,9 @@ class CustomerActions {
   }
 
   createCustomer(form) {
-    console.log(form);
     return Api.submitForm(form)
       .then((customers) => {
-        this.updateCustomers(List([customers]));
+        this.insertCustomer(List([customers]));
       })
       .catch((err) => {
         this.failedCustomers(err);
