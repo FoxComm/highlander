@@ -119,7 +119,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       }
 
       "GET /v1/customers shows valid billingRegion" in new CreditCardFixture {
-        val billRegion = Regions.findById(creditCard.regionId).run().futureValue
+        val billRegion = Regions.findOneById(creditCard.regionId).run().futureValue
 
         val response = GET(s"v1/customers")
         val customerRoot = CustomerResponse.build(customer, shippingRegion = region, billingRegion = billRegion)
@@ -138,7 +138,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       }
 
       "GET /v1/customer/:id shows valid billingRegion" in new CreditCardFixture {
-        val billRegion = Regions.findById(creditCard.regionId).run().futureValue
+        val billRegion = Regions.findOneById(creditCard.regionId).run().futureValue
 
         val response = GET(s"v1/customers/${customer.id}")
         val customerRoot = CustomerResponse.build(customer, shippingRegion = region, billingRegion = billRegion)
@@ -187,7 +187,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       "when deleting a credit card" - {
         "succeeds if the card exists" in new CreditCardFixture {
           val response = DELETE(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}")
-          val deleted = CreditCards.findById(creditCard.id).run().futureValue.value
+          val deleted = CreditCards.findOneById(creditCard.id).run().futureValue.value
 
           response.status must ===(StatusCodes.NoContent)
           deleted.inWallet must ===(false)
@@ -212,7 +212,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
             val payload = payloads.EditCreditCard(holderName = Some("Bob"))
             val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
-            val inactive = CreditCards.findById(creditCard.id).run().futureValue.value
+            val inactive = CreditCards.findOneById(creditCard.id).run().futureValue.value
 
             response.status must ===(StatusCodes.NoContent)
 
@@ -359,7 +359,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
     val (customer, address, region, admin) = (for {
       customer ← Customers.save(Factories.customer)
       address ← Addresses.save(Factories.address.copy(customerId = customer.id))
-      region ← Regions.findById(address.regionId)
+      region ← Regions.findOneById(address.regionId)
       admin ← StoreAdmins.save(authedStoreAdmin)
     } yield (customer, address, region, admin)).run().futureValue
   }

@@ -55,7 +55,7 @@ object OrderPayments extends TableQueryWithId[OrderPayment, OrderPayments](
   import models.{PaymentMethod ⇒ Pay}
 
   def update(payment: OrderPayment)(implicit db: Database): DBIO[Int] =
-    this._findById(payment.id).update(payment)
+    this.findById(payment.id).update(payment)
 
   def findAllByOrderId(id: Int): QuerySeq =
     filter(_.orderId === id)

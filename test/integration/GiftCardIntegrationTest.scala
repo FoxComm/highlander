@@ -47,7 +47,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       root.availableBalance must ===(555)
 
       // Check that proper link is created
-      val manual = GiftCardManuals.findById(root.originId).run().futureValue.value
+      val manual = GiftCardManuals.findOneById(root.originId).run().futureValue.value
       manual.reasonId must === (1)
       manual.adminId must === (admin.id)
     }
@@ -200,10 +200,10 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       val response = PATCH(s"v1/gift-cards", payload)
       response.status must ===(StatusCodes.OK)
 
-      val firstUpdated = GiftCards.findById(giftCard.id).run().futureValue
+      val firstUpdated = GiftCards.findOneById(giftCard.id).run().futureValue
       firstUpdated.value.status must ===(GiftCard.OnHold)
 
-      val secondUpdated = GiftCards.findById(gcSecond.id).run().futureValue
+      val secondUpdated = GiftCards.findOneById(gcSecond.id).run().futureValue
       secondUpdated.value.status must ===(GiftCard.OnHold)
     }
 
@@ -322,7 +322,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       response.status must ===(StatusCodes.NoContent)
       response.bodyText mustBe empty
 
-      val updatedNote = db.run(Notes.findById(note.id)).futureValue.value
+      val updatedNote = db.run(Notes.findOneById(note.id)).futureValue.value
       updatedNote.deletedBy.value mustBe 1
 
       withClue(updatedNote.deletedAt.value → Instant.now) {
@@ -353,7 +353,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = giftCard.id,
         paymentMethodType = PaymentMethod.GiftCard))
       adjustment ← GiftCards.auth(giftCard, Some(payment.id), 10)
-      giftCard ← GiftCards.findById(giftCard.id)
+      giftCard ← GiftCards.findOneById(giftCard.id)
     } yield (customer, admin, giftCard.value, order, adjustment, gcSecond)).run().futureValue
   }
 }

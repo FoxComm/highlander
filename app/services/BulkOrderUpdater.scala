@@ -14,7 +14,7 @@ object BulkOrderUpdater {
 
     val query = for {
       orders ← Orders.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result
-      admin ← StoreAdmins._findById(payload.assigneeId).result
+      admin ← StoreAdmins.findById(payload.assigneeId).result
       newAssignments = for (o ← orders; a ← admin) yield OrderAssignment(orderId = o.id, assigneeId = a.id)
       allOrders ← (OrderAssignments ++= newAssignments) >> AllOrders.findAll
       adminNotFound = adminNotFoundFailure(admin.headOption, payload.assigneeId)
@@ -29,7 +29,7 @@ object BulkOrderUpdater {
 
     val query = for {
       orders ← Orders.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result
-      adminId ← StoreAdmins._findById(payload.assigneeId).extract.map(_.id).result
+      adminId ← StoreAdmins.findById(payload.assigneeId).extract.map(_.id).result
       delete = OrderAssignments
         .filter(_.assigneeId === payload.assigneeId)
         .filter(_.orderId.inSetBind(orders.map(_.id)))

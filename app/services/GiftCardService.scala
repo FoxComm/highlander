@@ -124,7 +124,7 @@ object GiftCardService {
       case Some(adjustment) ⇒
         DbResult.failure(OpenTransactionsFailure)
       case None ⇒
-        Reasons.findById(payload.reasonId.get).flatMap {
+        Reasons.findOneById(payload.reasonId.get).flatMap {
           case None ⇒
             DbResult.failure(InvalidCancellationReasonFailure)
           case _ ⇒
@@ -171,9 +171,9 @@ object GiftCardService {
     (implicit db: Database, ec: ExecutionContext): DBIO[Option[Customer] Xor Option[StoreAdmin]] = giftCard.map { gc ⇒
     (gc.originType, origin) match {
       case (GiftCard.CustomerPurchase, _) ⇒
-        Customers._findById(mockCustomerId).extract.one.map(Xor.left)
+        Customers.findById(mockCustomerId).extract.one.map(Xor.left)
       case (GiftCard.CsrAppeasement, Some(o)) ⇒
-        StoreAdmins._findById(o.adminId).extract.one.map(Xor.right)
+        StoreAdmins.findById(o.adminId).extract.one.map(Xor.right)
       case _ ⇒
         lift(Xor.left(None))
     }

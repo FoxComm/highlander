@@ -70,7 +70,7 @@ object CreditCardManager {
   def toggleCreditCardDefault(customerId: Int, cardId: Int, isDefault: Boolean)
     (implicit ec: ExecutionContext, db: Database): Result[CreditCard] = {
     val result = withUniqueConstraint {
-      CreditCards._findById(cardId).extract.filter(_.customerId === customerId).map(_.isDefault).
+      CreditCards.findById(cardId).extract.filter(_.customerId === customerId).map(_.isDefault).
         updateReturning(CreditCards.map(identity), isDefault).headOption.run()
     } { notUnique ⇒ CustomerHasDefaultCreditCard }
 
@@ -84,7 +84,7 @@ object CreditCardManager {
   def deleteCreditCard(customerId: Int, id: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
 
-    val updateCc = CreditCards._findById(id).extract
+    val updateCc = CreditCards.findById(id).extract
       .filter(_.customerId === customerId)
       .map { cc ⇒ (cc.inWallet, cc.deletedAt) }
       .update((false, Some(Instant.now())))
@@ -109,7 +109,7 @@ object CreditCardManager {
         )
 
         val newVersion = CreditCards.save(updated)
-        val deactivate = CreditCards._findById(cc.id).extract.map(_.inWallet).update(false)
+        val deactivate = CreditCards.findById(cc.id).extract.map(_.inWallet).update(false)
 
         ResultT(new StripeGateway().editCard(updated).map {
           case Xor.Left(f)  ⇒ Xor.left(f)
@@ -169,12 +169,12 @@ object CreditCardManager {
 
   def getCard(customerId: Int, id: Int)
     (implicit ec: ExecutionContext, db: Database): DBIO[Option[CreditCard]] =
-    CreditCards._findById(id).extract.filter(_.customerId === customerId).one
+    CreditCards.findById(id).extract.filter(_.customerId === customerId).one
 
   private def getAddressFromPayload(id: Option[Int], payload: Option[CreateAddressPayload]): DBIO[Option[Address]] = {
     (id, payload) match {
       case (Some(addressId), _) ⇒
-        Addresses._findById(addressId).extract.one
+        Addresses.findById(addressId).extract.one
 
       case (_, Some(createAddress)) ⇒
         DBIO.successful(Address.fromPayload(createAddress).some)
