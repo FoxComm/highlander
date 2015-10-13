@@ -48,11 +48,9 @@ object CustomerRoutes {
           }
         } ~
         pathPrefix("addresses") {
-          (get & pathEnd) {
-            good {
-              Addresses._findAllVisibleByCustomerIdWithRegions(customerId).result.run().map { records ⇒
-                responses.Addresses.build(records)
-              }
+          (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+            goodOrFailures {
+              AddressManager.findAllByCustomer(customerId)
             }
           } ~
           (post & entity(as[CreateAddressPayload]) & pathEnd) { payload ⇒
