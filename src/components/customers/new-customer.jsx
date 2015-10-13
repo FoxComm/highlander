@@ -40,7 +40,9 @@ export default class NewCustomer extends React.Component {
   }
 
   onChange() {
-    transitionTo(this.context.history, 'customers');
+    let state = CustomerStore.getState();
+    let customer = state.first();
+    transitionTo(this.context.history, 'customer', {customer: customer.id});
   }
 
   submitForm(event) {

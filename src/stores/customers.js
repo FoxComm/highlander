@@ -20,7 +20,7 @@ class CustomerStore extends BaseStore {
   }
 
   handleFailedCustomers(action) {
-    console.log(action.errorMessage.data.errors);
+    console.log(action.errorMessage);
   }
 
   handleInsertCustomers(action) {

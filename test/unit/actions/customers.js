@@ -82,14 +82,14 @@ describe('Customers Actions', function() {
       customerActions.insertCustomer({});
       assert(this.dispatchSpy.calledWith({
         actionType: customerConstants.INSERT_CUSTOMERS,
-        customers: {}
+        customer: {}
       }));
     });
   });
 
   context('createCustomer', function () {
     it('should dispatch and call insertCustomer on success', function(done){
-      const response = [1];
+      const response = 1;
       let spy = this.dispatchSpy;
       let stub = sinon.stub(Api, 'submitForm').returns(Promise.resolve(response));
       let form = document.createElement('form');
@@ -99,7 +99,7 @@ describe('Customers Actions', function() {
       customerActions.createCustomer(form).then(function(customers) {
         assert(spy.calledWith({
           actionType: customerConstants.INSERT_CUSTOMERS,
-          customers: Immutable.List(response)
+          customer: response
         }));
         done();
       }).catch(function(err) {
