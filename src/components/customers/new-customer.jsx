@@ -40,10 +40,7 @@ export default class NewCustomer extends React.Component {
   }
 
   onChange() {
-    console.log(transitionTo);
-    console.log(this.context);
-    console.log(this.context.history);
-    transitionTo(this.context.history, 'customers')
+    transitionTo(this.context.history, 'customers');
   }
 
   submitForm(event) {
