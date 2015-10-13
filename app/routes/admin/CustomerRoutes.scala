@@ -43,7 +43,7 @@ object CustomerRoutes {
         pathPrefix("addresses") {
           (get & pathEnd) {
             good {
-              Addresses._findAllVisibleByCustomerIdWithRegions(customerId).result.run().map { records ⇒
+              Addresses.findAllVisibleByCustomerIdWithRegions(customerId).result.run().map { records ⇒
                 responses.Addresses.build(records)
               }
             }
