@@ -69,13 +69,14 @@ export default class NewCustomer extends React.Component {
                     onSubmit={this.submitForm.bind(this)}>
                 <ul className="fc-customer-form-fields">
                   <li>
-                    <FormField label="Name" validator="ascii" optional>
+                    <FormField label="Name" validator="ascii">
                       <input id="nameCustomerFormField"
                              className="fc-customer-form-input"
                              name="name"
                              maxLength="255"
                              type="text"
-                             value={this.state.name} />
+                             value={this.state.name}
+                             required />
                     </FormField>
                   </li>
                   <li>
@@ -87,25 +88,6 @@ export default class NewCustomer extends React.Component {
                              type="text"
                              value={this.state.email}
                              required />
-                    </FormField>
-                  </li>
-                  <li>
-                    <FormField label="Create Password" validator="ascii" optional>
-                      <input id="passwordCustomerFormField"
-                             className="fc-customer-form-input"
-                             name="password"
-                             maxLength="255"
-                             type="password"
-                             value={this.state.password} />
-                    </FormField>
-                  </li>
-                  <li>
-                    <FormField label="Guest Account">
-                      <input id="isGuestCustomerFormField"
-                             className="fc-customer-form-checkbox"
-                             name="isGuest"
-                             type="checkbox"
-                             value={this.state.isGuest} />
                     </FormField>
                   </li>
                   <li className="fc-customer-form-controls">
