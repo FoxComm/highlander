@@ -2,7 +2,7 @@ create table order_payments (
     id serial primary key,
     order_id integer not null,
     payment_method_id integer not null,
-    payment_method_type character varying(255) not null,
+    payment_method_type generic_string not null,
     amount integer null,
     currency currency,
     created_at timestamp without time zone default (now() at time zone 'utc'),

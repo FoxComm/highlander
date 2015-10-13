@@ -1,9 +1,9 @@
 create table gift_cards (
     id integer primary key,
     origin_id integer not null,
-    origin_type character varying(255) not null,
-    code character varying(255) not null,
-    status character varying(255) not null,
+    origin_type generic_string not null,
+    code generic_string not null,
+    status generic_string not null,
     currency currency,
     original_balance integer not null,
     current_balance integer not null,
