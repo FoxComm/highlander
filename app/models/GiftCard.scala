@@ -21,10 +21,10 @@ import slick.jdbc.JdbcType
 import utils.Money._
 import utils.Validation._
 
-final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = CustomerPurchase, code: String,
-  currency: Currency = Currency.USD, status: Status = OnHold, originalBalance: Int, currentBalance: Int = 0,
-  availableBalance: Int = 0, canceledAmount: Option[Int] = None, canceledReason: Option[Int] = None,
-  reloadable: Boolean = false, createdAt: Instant = Instant.now())
+final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = CustomerPurchase,
+  code: Option[String] = None, currency: Currency = Currency.USD, status: Status = OnHold, originalBalance: Int,
+  currentBalance: Int = 0, availableBalance: Int = 0, canceledAmount: Option[Int] = None,
+  canceledReason: Option[Int] = None, reloadable: Boolean = false, createdAt: Instant = Instant.now())
   extends PaymentMethod
   with ModelWithIdParameter
   with FSM[GiftCard.Status, GiftCard]
@@ -95,7 +95,6 @@ object GiftCard {
 
   def buildAppeasement(payload: payloads.GiftCardCreateByCsr, originId: Int): GiftCard = {
     GiftCard(
-      code = generateCode(defaultCodeLength),
       originId = originId,
       originType = GiftCard.CsrAppeasement,
       status = GiftCard.Active,
@@ -108,7 +107,6 @@ object GiftCard {
 
   def buildLineItem(balance: Int, originId: Int, currency: Currency): GiftCard = {
     GiftCard(
-      code = generateCode(defaultCodeLength),
       originId = originId,
       originType = GiftCard.CustomerPurchase,
       status = GiftCard.Cart,
@@ -135,7 +133,7 @@ class GiftCards(tag: Tag) extends GenericTable.TableWithId[GiftCard](tag, "gift_
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def originId = column[Int]("origin_id")
   def originType = column[GiftCard.OriginType]("origin_type")
-  def code = column[String]("code")
+  def code = column[Option[String]]("code")
   def status = column[GiftCard.Status]("status")
   def currency = column[Currency]("currency")
   def originalBalance = column[Int]("original_balance")

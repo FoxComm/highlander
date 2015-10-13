@@ -2,7 +2,7 @@ create table gift_cards (
     id integer primary key,
     origin_id integer not null,
     origin_type generic_string not null,
-    code generic_string not null,
+    code generic_string null default generate_code(16) unique,
     status generic_string not null,
     currency currency,
     original_balance integer not null,

@@ -84,7 +84,11 @@ object OrderNotFoundFailure {
 
 object GiftCardNotFoundFailure {
   def apply(giftCard: GiftCard): NotFoundFailure = apply(giftCard.code)
-  def apply(code: String): NotFoundFailure = NotFoundFailure(s"giftCard with code=$code not found")
+  def apply(code: String): NotFoundFailure = apply(Some(code))
+  def apply(code: Option[String]): NotFoundFailure = code match {
+    case Some(c)  ⇒ NotFoundFailure(s"giftCard with code=$c not found")
+    case _        ⇒ NotFoundFailure(s"giftCard not found")
+  }
 }
 
 object OrderPaymentNotFoundFailure {
