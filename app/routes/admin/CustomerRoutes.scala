@@ -43,7 +43,7 @@ object CustomerRoutes {
         pathPrefix("addresses") {
           (get & pathEnd) {
             good {
-              Addresses._findAllVisibleByCustomerIdWithRegions(customerId).result.run().map { records ⇒
+              Addresses.findAllVisibleByCustomerIdWithRegions(customerId).result.run().map { records ⇒
                 responses.Addresses.build(records)
               }
             }
@@ -108,7 +108,7 @@ object CustomerRoutes {
           } ~
           (post & entity(as[payloads.CreateCreditCard]) & pathEnd) { payload ⇒
             complete {
-              whenFound(Customers.findById(customerId)) { customer ⇒
+              whenFound(Customers.findById(customerId).run()) { customer ⇒
                 CreditCardManager.createCardThroughGateway(customer, payload)
               }
             }
@@ -127,8 +127,8 @@ object CustomerRoutes {
         pathPrefix("payment-methods" / "store-credit") {
           (get & pathEnd) {
             complete {
-              whenFound(Customers.findById(customerId)) { customer ⇒
-                StoreCredits.findAllByCustomerId(customer.id).map(Xor.right)
+              whenFound(Customers.findById(customerId).run()) { customer ⇒
+                StoreCredits.findAllByCustomerId(customer.id).run().map(Xor.right)
               }
             }
           } ~

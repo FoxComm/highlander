@@ -9,7 +9,6 @@ import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import utils.Slick.DbResult
 import utils.Slick._
-import utils.Slick.DbResult._
 import utils.Slick.implicits._
 import utils.Strings._
 

@@ -1,7 +1,5 @@
 package models
 
-import scala.concurrent.Future
-
 import com.pellucid.sealerate
 import models.Shipment.Cart
 import monocle.macros.GenLens
@@ -46,13 +44,5 @@ class Shipments(tag: Tag) extends GenericTable.TableWithId[Shipment](tag, "shipm
 object Shipments extends TableQueryWithId[Shipment, Shipments](
   idLens = GenLens[Shipment](_.id)
 )(new Shipments(_)) {
-
-  def findByOrderId(id: Int)(implicit db: Database): Future[Option[Shipment]] = {
-    _findByOrderId(id).run()
-  }
-
-  def _findByOrderId(id: Int) = {
-    filter(_.orderId === id).one
-  }
 
 }

@@ -21,7 +21,7 @@ object StoreCreditService {
   def createManual(admin: StoreAdmin, customerId: Int, payload: payloads.CreateManualStoreCredit)
     (implicit db: Database, ec: ExecutionContext): Result[Root] = {
 
-    Customers.findById(customerId).flatMap {
+    Customers.findById(customerId).run().flatMap {
       case Some(customer) ⇒
         val actions = for {
           origin  ← StoreCreditManuals.save(StoreCreditManual(adminId = admin.id, reasonId = payload.reasonId,

@@ -33,7 +33,7 @@ object Customer {
         pathPrefix("addresses") {
           get {
             complete {
-              Addresses.findAllByCustomer(customer).map(render(_))
+              Addresses.findAllByCustomerId(customer.id).result.run().map(render(_))
             }
           } ~
           (post & entity(as[CreateAddressPayload])) { payload =>
@@ -46,12 +46,12 @@ object Customer {
           pathPrefix("store-credits") {
             (get & pathEnd) {
               complete {
-                renderOrNotFound(StoreCredits.findAllByCustomerId(customer.id).map(Some(_)))
+                renderOrNotFound(StoreCredits.findAllByCustomerId(customer.id).run().map(Some(_)))
               }
             } ~
             (get & path(IntNumber)) { storeCreditId ⇒
               complete {
-                renderOrNotFound(StoreCredits.findByIdAndCustomerId(storeCreditId, customer.id))
+                renderOrNotFound(StoreCredits.findByIdAndCustomerId(storeCreditId, customer.id).run())
               }
             }
           }
@@ -76,7 +76,7 @@ object Customer {
           } ~
           (get & path(PathEnd)) {
             complete {
-              whenFound(Orders._findActiveOrderByCustomer(customer).one.run()) { order ⇒
+              whenFound(Orders.findActiveOrderByCustomer(customer).one.run()) { order ⇒
                 FullOrder.fromOrder(order).run().map(Xor.right)
               }
             }

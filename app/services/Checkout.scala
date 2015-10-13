@@ -6,10 +6,9 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Xor
 import models._
-import collection.immutable
 
 import slick.driver.PostgresDriver.api._
-
+import utils.Slick.implicits._
 
 
 class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
@@ -24,7 +23,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
     // 5) Final Auth on the payment
     // 6) Check & Reserve inventory
 
-    hasLineItems.flatMap { has =>
+    hasLineItems.run().flatMap { has =>
       if (has) {
         authorizePayments.flatMap { payments =>
           val errors = payments.values.toList.flatten
@@ -43,13 +42,13 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
 
   def authorizePayments: Future[Map[OrderPayment, List[Failure]]] = {
     for {
-      payments ← OrderPayments.findAllPaymentsFor(order)
+      payments ← OrderPayments.findAllPaymentsFor(order.id).result.run()
       authorized ← Future.sequence(authorizePayments(payments))
     } yield updatePaymentsWithAuthorizationErrors(authorized)
   }
 
   def decrementInventory(order: Order): Future[Int] =
-    InventoryAdjustments.createAdjustmentsForOrder(order)
+    InventoryAdjustments.createAdjustmentsForOrder(order).run()
 
   def validateAddresses: Failures = {
     Failures()
@@ -92,12 +91,12 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
         .map { o => (o.status, o.placedAt) }
         .update((Order.Ordered, Some(Instant.now)))
 
-        newOrder <- Orders._create(Order.buildCart(order.customerId))
+        newOrder <- Orders.create(Order.buildCart(order.customerId))
     } yield newOrder)
   }
 
   private def updateOrderPaymentWithCharge(payment : OrderPayment, chargeId : String, or: Failures Xor String) = {
-    OrderPayments.update(payment).map { _ ⇒ (payment, or) }
+    OrderPayments.update(payment).run().map { _ ⇒ (payment, or) }
   }
 
   private def hasLineItems = {
