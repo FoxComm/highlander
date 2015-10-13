@@ -1,7 +1,5 @@
 package models
 
-import scala.concurrent.{ExecutionContext, Future}
-
 import com.pellucid.sealerate
 import models.OrderLineItem.{Cart, Status, GiftCardItem, SkuItem, OriginType}
 import monocle.macros.GenLens
@@ -81,11 +79,6 @@ object OrderLineItems extends TableQueryWithId[OrderLineItem, OrderLineItems](
 )(new OrderLineItems(_)) {
 
   import scope._
-
-  def findByOrder(order: Order)(implicit db: Database): Future[Seq[OrderLineItem]] =
-    db.run(findByOrderId(order.id).result)
-
-  def _findByOrder(order: Order): Query[OrderLineItems, OrderLineItem, Seq] = findByOrderId(order.id)
 
   def findByOrderId(orderId: Rep[Int]): Query[OrderLineItems, OrderLineItem, Seq] =
     filter(_.orderId === orderId)
