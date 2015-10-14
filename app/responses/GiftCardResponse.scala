@@ -17,7 +17,7 @@ object GiftCardResponse {
   final case class Root(
     id: Int,
     createdAt: Instant,
-    code: Option[String],
+    code: String,
     originId: Int,
     originType: GiftCard.OriginType,
     status: GiftCard.Status,

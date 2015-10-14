@@ -28,7 +28,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
   "gift cards" - {
     "POST /v1/orders/:ref/payment-methods/gift-cards" - {
       "succeeds" in new GiftCardFixture {
-        val payload = payloads.GiftCardPayment(code = giftCard.code.head, amount = giftCard.availableBalance)
+        val payload = payloads.GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance)
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
 
         response.status must ===(StatusCodes.OK)
@@ -40,7 +40,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       }
 
       "fails if the order is not found" in new GiftCardFixture {
-        val payload = payloads.GiftCardPayment(code = giftCard.code.head, amount = giftCard.availableBalance)
+        val payload = payloads.GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance)
         val response = POST(s"v1/orders/ABC123/payment-methods/gift-cards", payload)
 
         response.status must === (StatusCodes.NotFound)
@@ -48,7 +48,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       }
 
       "fails if the giftCard is not found" in new GiftCardFixture {
-        val payload = payloads.GiftCardPayment(code = giftCard.code.head ++ "xyz", amount = giftCard.availableBalance)
+        val payload = payloads.GiftCardPayment(code = giftCard.code ++ "xyz", amount = giftCard.availableBalance)
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
 
         response.status must === (StatusCodes.NotFound)
@@ -57,7 +57,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       }
 
       "fails if the giftCard does not have sufficient available balance" in new GiftCardFixture {
-        val payload = payloads.GiftCardPayment(code = giftCard.code.head, amount = giftCard.availableBalance + 1)
+        val payload = payloads.GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance + 1)
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
 
         response.status must === (StatusCodes.BadRequest)
@@ -67,7 +67,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
       "fails if the order is not in cart status" in new GiftCardFixture {
         Orders.findCartByRefNum(order.referenceNumber).map(_.status).update(Order.RemorseHold).run().futureValue
-        val payload = payloads.GiftCardPayment(code = giftCard.code.head, amount = giftCard.availableBalance)
+        val payload = payloads.GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance)
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
 
         response.status must === (StatusCodes.NotFound)
@@ -75,8 +75,8 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       }
 
       "fails if the giftCard is inactive" in new GiftCardFixture {
-        GiftCards.findByCode(giftCard.code.head).map(_.status).update(GiftCard.Canceled).run().futureValue
-        val payload = payloads.GiftCardPayment(code = giftCard.code.head, amount = giftCard.availableBalance + 1)
+        GiftCards.findByCode(giftCard.code).map(_.status).update(GiftCard.Canceled).run().futureValue
+        val payload = payloads.GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance + 1)
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
 
         response.status must === (StatusCodes.BadRequest)
@@ -85,22 +85,22 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       }
 
       "fails to add GC with cart status as payment method" in new GiftCardFixture {
-        GiftCards.findByCode(giftCard.code.head).map(_.status).update(GiftCard.Cart).run().futureValue
-        val payload = payloads.GiftCardPayment(code = giftCard.code.head, amount = 15)
+        GiftCards.findByCode(giftCard.code).map(_.status).update(GiftCard.Cart).run().futureValue
+        val payload = payloads.GiftCardPayment(code = giftCard.code, amount = 15)
         val response = POST(s"v1/orders/${order.refNum}/payment-methods/gift-cards", payload)
 
         response.status must ===(StatusCodes.NotFound)
-        response.errors must ===(GiftCardNotFoundFailure(giftCard.code.head).description)
+        response.errors must ===(GiftCardNotFoundFailure(giftCard.code).description)
       }
     }
 
     "DELETE /v1/orders/:ref/payment-methods/gift-cards/:code" - {
       "successfully deletes a giftCard" in new GiftCardFixture {
-        val payload = payloads.GiftCardPayment(code = giftCard.code.head, amount = giftCard.availableBalance)
+        val payload = payloads.GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance)
         val create = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
         create.status must ===(StatusCodes.OK)
 
-        val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards/${giftCard.code.head}")
+        val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards/${giftCard.code}")
         val payments = creditCardPayments(order)
 
         response.status must ===(StatusCodes.OK)
@@ -124,7 +124,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       }
 
       "fails if the giftCard orderPayment is not found" in new GiftCardFixture {
-        val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards/${giftCard.code.head}")
+        val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards/${giftCard.code}")
 
         response.status must === (StatusCodes.NotFound)
         parseErrors(response) must === (OrderPaymentNotFoundFailure(GiftCard).description)

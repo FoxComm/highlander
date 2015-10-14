@@ -31,13 +31,6 @@ begin
 end;
 $$ language plpgsql;
 
--- unique code generation prototype
-create function generate_code(len integer) returns text AS $$
-begin
-    return upper(substr(md5(random()::text), 0, len));
-end;
-$$ language plpgsql;
-
 -- ISO4217 declares currency as alphanumeric-3
 create domain currency character(3) not null;
 

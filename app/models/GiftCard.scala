@@ -22,7 +22,7 @@ import utils.Money._
 import utils.Validation._
 
 final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = CustomerPurchase,
-  code: Option[String] = None, currency: Currency = Currency.USD, status: Status = OnHold, originalBalance: Int,
+  code: String = "", currency: Currency = Currency.USD, status: Status = OnHold, originalBalance: Int,
   currentBalance: Int = 0, availableBalance: Int = 0, canceledAmount: Option[Int] = None,
   canceledReason: Option[Int] = None, reloadable: Boolean = false, createdAt: Instant = Instant.now())
   extends PaymentMethod
@@ -32,6 +32,8 @@ final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = C
 
   import GiftCard._
   import Validation._
+
+  def isNew: Boolean = id == 0
 
   def validate: ValidatedNel[Failure, GiftCard] = {
     val canceledWithReason: ValidatedNel[Failure, Unit] = (status, canceledAmount, canceledReason) match {
@@ -133,7 +135,7 @@ class GiftCards(tag: Tag) extends GenericTable.TableWithId[GiftCard](tag, "gift_
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def originId = column[Int]("origin_id")
   def originType = column[GiftCard.OriginType]("origin_type")
-  def code = column[Option[String]]("code")
+  def code = column[String]("code")
   def status = column[GiftCard.Status]("status")
   def currency = column[Currency]("currency")
   def originalBalance = column[Int]("original_balance")
@@ -185,9 +187,19 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
   def findCartByCode(code: String) : Query[GiftCards, GiftCard, Seq] =
     findByCode(code).filter(_.status === (GiftCard.Cart: GiftCard.Status))
 
-  override def save(giftCard: GiftCard)(implicit ec: ExecutionContext): DBIO[GiftCard] = for {
-    (id, cb, ab) ← this.returning(map { gc ⇒ (gc.id, gc.currentBalance, gc.availableBalance) }) += giftCard
-  } yield giftCard.copy(id = id, currentBalance = cb, availableBalance = ab)
+  val returningIdCodeAndBalance = this.returning(map { gc ⇒ (gc.id, gc.code, gc.currentBalance, gc.availableBalance) })
+
+  def create(gc: GiftCard)(implicit ec: ExecutionContext): DBIO[models.GiftCard] = for {
+    (newId, code, currentBalance, availableBalance) <- returningIdCodeAndBalance += gc
+  } yield gc.copy(id = newId, code = code, currentBalance = currentBalance, availableBalance = availableBalance)
+
+  override def save(gc: GiftCard)(implicit ec: ExecutionContext) = {
+    if (gc.isNew) {
+      create(gc)
+    } else {
+      super.save(gc)
+    }
+  }
 
   private def adjust(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int = 0, credit: Int = 0,
     status: Adj.Status = Adj.Auth)
