@@ -17,11 +17,11 @@ trait AutomaticAuth extends SuiteMixin
           firstName = "Mister", lastName = "Donkey")
 
 
-  override def overrideStoreAdminAuth: AsyncAuthenticator[StoreAdmin] = (UserCredentials) => {
+  override def overrideStoreAdminAuth: AsyncAuthenticator[StoreAdmin] = (UserCredentials) ⇒ {
     Future.successful(Some(authedStoreAdmin))
   }
 
-  override def overrideCustomerAuth: AsyncAuthenticator[Customer] = (UserCredentials) => {
+  override def overrideCustomerAuth: AsyncAuthenticator[Customer] = (UserCredentials) ⇒ {
     Future.successful(Some(authedCustomer))
   }
 

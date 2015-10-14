@@ -52,7 +52,7 @@ object CustomerCreditConverter {
     (implicit ec: ExecutionContext, db: Database): Result[GiftCard] = {
 
     if (sc.isActive) {
-      val giftCard = GiftCard(code = "x", originId = 0, originType = GiftCard.FromStoreCredit, currency = sc.currency,
+      val giftCard = GiftCard(originId = 0, originType = GiftCard.FromStoreCredit, currency = sc.currency,
         originalBalance = sc.currentBalance, currentBalance = sc.currentBalance)
 
       Result.fromFuture(db.run(for {

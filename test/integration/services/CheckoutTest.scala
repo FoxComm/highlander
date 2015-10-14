@@ -44,7 +44,7 @@ class CheckoutTest extends IntegrationTestBase with Inside {
         inside(result) {
           case Xor.Left(nel) ⇒
             inside(nel.head) {
-              case NotFoundFailure(message) =>
+              case NotFoundFailure(message) ⇒
                 message must include ("No Line Items")
             }
         }
@@ -73,7 +73,7 @@ class CheckoutTest extends IntegrationTestBase with Inside {
         inside(result) {
           case Xor.Left(nel) ⇒
             inside(nel.head) {
-              case StripeFailure(errorMessage) =>
+              case StripeFailure(errorMessage) ⇒
                 errorMessage.getMessage must include ("cannot set 'customer' to an empty string.")
             }
         }

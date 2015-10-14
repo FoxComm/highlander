@@ -57,7 +57,7 @@ class PaymentPayloadsTest extends TestBase {
           (expired.copy(expYear = 2000.some), NonEmptyList(GeneralFailure("credit card is expired")))
         )
 
-        forAll(cards) { (card, errors) =>
+        forAll(cards) { (card, errors) ⇒
           invalidValue(card.validate) mustBe errors
         }
       }

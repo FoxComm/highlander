@@ -19,12 +19,12 @@ object PublicSku {
               (implicit ec: ExecutionContext, db: Database): Response = {
 
     val queries = for {
-      sku <- Skus.findById(id).extract
+      sku ← Skus.findById(id).extract
       availableForSale = Skus.isAvailableOnHand(id)
     } yield (sku, availableForSale)
 
-    db.run(queries.one).map { result =>
-      result.map { case (sku, available) => build(sku, available) }
+    db.run(queries.one).map { result ⇒
+      result.map { case (sku, available) ⇒ build(sku, available) }
     }
   }
 

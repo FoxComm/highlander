@@ -87,7 +87,7 @@ object OrderLineItems extends TableQueryWithId[OrderLineItem, OrderLineItems](
 
   def countBySkuIdForOrder(order: Order): DBIO[Seq[(Int, Int)]] =
     (for {
-      (skuId, group) <- findByOrderId(order.id).skuItems.groupBy(_.originId)
+      (skuId, group) ← findByOrderId(order.id).skuItems.groupBy(_.originId)
     } yield (skuId, group.length)).result
 
   object scope {

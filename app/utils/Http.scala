@@ -77,10 +77,10 @@ object Http {
   }
 
   def renderOrNotFound[A <: AnyRef](resource: Future[Option[A]],
-    onFound: (A ⇒ HttpResponse) = (r: A) => render(r))(implicit ec: ExecutionContext) = {
+    onFound: (A ⇒ HttpResponse) = (r: A) ⇒ render(r))(implicit ec: ExecutionContext) = {
     resource.map {
-      case Some(r) => onFound(r)
-      case None => notFoundResponse
+      case Some(r) ⇒ onFound(r)
+      case None ⇒ notFoundResponse
     }
   }
 
