@@ -148,7 +148,7 @@ class GiftCards(tag: Tag) extends GenericTable.TableWithId[GiftCard](tag, "gift_
   def reloadable = column[Boolean]("reloadable")
   def createdAt = column[Instant]("created_at")
 
-  def * = (id, originId, originType, subTypeId, code, currency, status, originalBalance, currentBalance,
+  def * = (id, originId, originType, code, subTypeId, currency, status, originalBalance, currentBalance,
     availableBalance, canceledAmount, canceledReason, reloadable, createdAt) <> ((GiftCard.apply _).tupled, GiftCard
     .unapply)
 }
