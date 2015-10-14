@@ -7,27 +7,39 @@ export default class SectionTitle extends React.Component {
   static propTypes = {
     title: React.PropTypes.node,
     count: React.PropTypes.number,
-    buttonClickHandler: React.PropTypes.func
+    buttonClickHandler: React.PropTypes.func,
+    children: React.PropTypes.array
   };
 
-  render() {
-    let buttonMarkup = null;
-    if (this.props.buttonClickHandler !== undefined) {
-      buttonMarkup = (
-        <div className="fc-col-md-2-6 fc-push-md-2-6 fc-actions">
-          <button className="fc-btn fc-btn-primary"
-                  onClick={ this.props.buttonClickHandler.bind(this) }>
-            <i className="icon-add"></i> { this.props.title }
-          </button>
-        </div>
+  get buttonMarkup() {
+    let button;
+
+    if (this.props.children) {
+      button = this.props.children;
+    }
+    if (this.props.buttonClickHandler) {
+      button = (
+        <button className="fc-btn fc-btn-primary"
+                onClick={ this.props.buttonClickHandler.bind(this) }>
+          <i className="icon-add"></i> { this.props.title }
+        </button>
       );
     }
+
     return (
-      <div className="fc-grid gutter">
+      <div className="fc-col-md-2-6 fc-push-md-2-6 fc-section-title-actions">
+        {button}
+      </div>
+    );
+  }
+
+  render() {
+    return (
+      <div className="fc-grid fc-section-title">
         <div className="fc-col-md-2-6">
           <Title title={ this.props.title } subtitle={ this.props.count } />
         </div>
-        { buttonMarkup }
+        { this.buttonMarkup }
       </div>
     );
   }

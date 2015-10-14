@@ -57,9 +57,9 @@ export default class Orders extends React.Component {
     const orders = this.state.data;
     return (
       <div id="orders">
-        <div className="fc-list-header">
+        <div>
           <SectionTitle title="Orders" count={orders.size} buttonClickHandler={this.handleAddOrderClick }/>
-          <div className="fc-grid gutter">
+          <div className="fc-grid">
             <div className="fc-col-md-1-1">
               <ul className="fc-tabbed-nav">
                 <li><a href="">Lists</a></li>
