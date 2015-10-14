@@ -110,7 +110,7 @@
     "lodash": "^3.10.1",
     "moment": "^2.10.3",
     "normalize.css": "^3.0.3",
-    "react": "^0.14.0-rc1",
+    "react": "^0.14.0",
     "react-addons-create-fragment": "^0.14.0-rc1",
     "react-dom": "^0.14.0-rc1",
     "react-input-mask": "^0.3.0",

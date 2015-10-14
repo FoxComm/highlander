@@ -32,7 +32,7 @@ export function fetchOrders() {
     return Api.get('/orders')
       .then(json => dispatch(receiveOrders(json)))
       .catch(err => dispatch(failOrders(err)));
-  }
+  };
 }
 
 function shouldFetchOrders(state) {
@@ -50,5 +50,5 @@ export function fetchOrdersIfNeeded() {
     if (shouldFetchOrders(getState())) {
       return dispatch(fetchOrders());
     }
-  }
+  };
 }

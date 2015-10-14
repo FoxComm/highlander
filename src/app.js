@@ -9,9 +9,6 @@ import routes from './routes';
 import { Provider } from 'react-redux';
 import configureStore from './store';
 
-const initialState = {};
-const store = configureStore(initialState);
-
 function createRouteLookupByName(route, prefix = route.props.path) {
   let lookup = {};
 
@@ -34,6 +31,9 @@ const app = {
     let history = createHistory();
     history.routeLookupByName = createRouteLookupByName(routes);
 
+    const initialState = {};
+    const store = configureStore(initialState);
+
     render(
       <Provider store={store}>
         <Router history={history}>
@@ -46,6 +46,8 @@ const app = {
 
   * renderReact(next) {
     const history = createMemoryHistory();
+    const initialState = {};
+    const store = configureStore(initialState);
 
     const location = history.createLocation(this.path);
     history.routeLookupByName = createRouteLookupByName(routes);

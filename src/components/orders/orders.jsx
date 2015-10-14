@@ -3,7 +3,7 @@
 import React from 'react';
 import TableView from '../tables/tableview';
 import OrderStore from '../../stores/orders';
-import OrderActions from '../../actions/orders';
+import * as OrderActions from '../../actions/orders';
 import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
 import SectionTitle from '../section-title/section-title';
@@ -30,7 +30,7 @@ export default class Orders extends React.Component {
   static propTypes = {
     tableColumns: React.PropTypes.array,
     subNav: React.PropTypes.array
-  }
+  };
 
   static defaultProps = {
     tableColumns: [
@@ -41,7 +41,7 @@ export default class Orders extends React.Component {
       {field: 'paymentStatus', text: 'Payment Status'},
       {field: 'total', text: 'Total', type: 'currency'}
     ]
-  }
+  };
 
   componentDidMount() {
     this.props.actions.fetchOrdersIfNeeded();
