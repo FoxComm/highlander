@@ -1,12 +1,18 @@
 'use strict';
 
-import { createStore, applyMiddleware } from 'redux';
+import { createStore, applyMiddleware, compose } from 'redux';
 import thunk from 'redux-thunk';
 import createLogger from 'redux-logger';
 import rootReducer from './reducers';
 
-const createStoreWithMiddleware = applyMiddleware(thunk, createLogger())(createStore);
+export default function configureStore(reduxReactRouter, routes, createHistory, initialState) {
+  let finalCreateStore = compose(
+    applyMiddleware(thunk),
+    reduxReactRouter({ routes, createHistory }),
+    applyMiddleware(createLogger({
+      logger: console
+    })) // logger should be latest always, except devTools()
+  )(createStore);
 
-export default function configureStore(initialState) {
-  return createStoreWithMiddleware(rootReducer, initialState);
+  return finalCreateStore(rootReducer, initialState);
 }

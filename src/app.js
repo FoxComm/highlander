@@ -1,69 +1,54 @@
 'use strict';
 
 import React from 'react';
-import {render} from 'react-dom';
+import { render } from 'react-dom';
 import { renderToString } from 'react-dom/server';
-import Router, { RoutingContext, match } from 'react-router';
-import {createHistory, createMemoryHistory } from 'history';
+import { reduxReactRouter, ReduxRouter } from 'redux-router';
+import {reduxReactRouter as serverReduxReactRouter, match as _match} from 'redux-router/server';
+import { createHistory as _createHistory, createMemoryHistory as _createMemoryHistory } from 'history';
 import routes from './routes';
 import { Provider } from 'react-redux';
 import configureStore from './store';
+import { addRouteLookupForHistory } from './route-helpers';
 
-function createRouteLookupByName(route, prefix = route.props.path) {
-  let lookup = {};
+const createHistory = addRouteLookupForHistory(_createHistory, routes);
+const createMemoryHistory = addRouteLookupForHistory(_createMemoryHistory, routes);
 
-  React.Children.forEach(route.props.children, (child) => {
-    const path = child.type.displayName === 'IndexRoute' ? '' : child.props.path;
-
-    lookup = {...lookup, ...createRouteLookupByName(child, prefix + (prefix.slice(-1) === '/' ? '' : '/') + path)};
-  });
-
-  if ((route.type.displayName === 'Route' || route.type.displayName === 'IndexRoute') && route.props.name) {
-    lookup[route.props.name] = prefix;
-  }
-
-  return lookup;
+function match(store, url, callback) {
+  store.dispatch(_match(url, callback));
 }
 
 const app = {
 
   start() {
-    let history = createHistory();
-    history.routeLookupByName = createRouteLookupByName(routes);
-
     const initialState = {};
-    const store = configureStore(initialState);
+    const store = configureStore(reduxReactRouter, routes, createHistory, initialState);
 
     render(
-      <Provider store={store}>
-        <Router history={history}>
-          {routes}
-        </Router>
+      <Provider store={store} key="provider">
+        <ReduxRouter routes={routes} />
       </Provider>,
       document.getElementById('foxcom')
     );
   },
 
   * renderReact(next) {
-    const history = createMemoryHistory();
     const initialState = {};
-    const store = configureStore(initialState);
+    const store = configureStore(serverReduxReactRouter, routes, createMemoryHistory, initialState);
 
-    const location = history.createLocation(this.path);
-    history.routeLookupByName = createRouteLookupByName(routes);
-
-    let [redirectLocation, renderProps] = yield match.bind(null, {routes, location, history});
+    let [redirectLocation, routerState] = yield match.bind(null, store, this.path);
 
     if (redirectLocation) {
       this.redirect(redirectLocation.pathname + redirectLocation.search);
-    } else if (renderProps == null) {
+    } else if (!routerState) {
       this.status = 404;
     } else {
       this.state.html = renderToString(
-        <Provider store={store}>
-          <RoutingContext history={history} {...renderProps}/>
+        <Provider store={store} key="provider">
+          <ReduxRouter/>
         </Provider>
       );
+
       yield next;
     }
   }
