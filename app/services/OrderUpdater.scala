@@ -79,14 +79,13 @@ object OrderUpdater {
   }
 
   def removeShippingAddress(refNum: String)(implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
-   val find = Orders.findByRefNum(refNum).one
-   db.run(find).flatMap {
-       case Some(order) ⇒  {
-         db.run(OrderShippingAddresses.findByOrderId(order.id).delete).flatMap {
-           case 1 ⇒  FullOrder.fromOrder(order).run().map(Xor.right)
-           case 0 ⇒  Result.failure(NotFoundFailure(s"Shipping Address for order with reference number ${refNum} not found"))
-         }}
-       case None  ⇒  Result.failure(NotFoundFailure(s"Order with reference number ${refNum} not found"))
+   val finder = Orders.findByRefNum(refNum)
+   finder.selectOne {
+       order ⇒  
+         OrderShippingAddresses.findByOrderId(order.id).delete.flatMap {
+           case 1 ⇒  DbResult.fromDbio(fullOrder(finder))
+           case 0 ⇒  DbResult.failure(NotFoundFailure(s"Shipping Address for order with reference number ${refNum} not found"))
+         }
      }
   }
 
