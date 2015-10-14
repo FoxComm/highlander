@@ -114,7 +114,11 @@
     "react-addons-create-fragment": "^0.14.0-rc1",
     "react-dom": "^0.14.0-rc1",
     "react-input-mask": "^0.3.0",
+    "react-redux": "^3.1.0",
     "react-router": "1.0.0-rc1",
+    "redux": "^3.0.2",
+    "redux-logger": "^2.0.3",
+    "redux-thunk": "^1.0.0",
     "request": "^2.58.0",
     "thunkify-wrap": "^1.0.4",
     "zipcodes-regex": "^1.0.0"
