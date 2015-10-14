@@ -513,7 +513,8 @@ class OrderIntegrationTest extends IntegrationTestBase
             addr.city must === (city)
             addr.address1 must === (address.address1)
             addr.address2 must === (address.address2)
-            addr.regionId must === (address.regionId)
+            val region = Regions.findOneById(address.regionId).run().futureValue.value
+            addr.region must === (region)
             addr.zip must === (address.zip)
 
           case None ⇒
