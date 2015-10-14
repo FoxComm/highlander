@@ -1,5 +1,4 @@
 .fc-tab-list {
-  .margin-top(40px);
   border-bottom: pxtorem(1px) solid @color-decor9;
 
   .fc-tab {
@@ -10,9 +9,17 @@
     .line-height(58px);
     border-radius: pxtorem(6px) pxtorem(6px) 0 0;
     border-bottom-width: 0;
+    position: relative;
+    .font-spec(14px);
 
-    .fa {
+    .icon-drag-drop {
+      .font-spec(16px);
+      position: absolute;
+      .left(2px);
       color: @color-decor8;
+      &:hover {
+        cursor: grab;
+      }
     }
 
     &.is-active {

@@ -4,9 +4,9 @@ import React from 'react';
 import TableView from '../tables/tableview';
 import OrderStore from '../../stores/orders';
 import OrderActions from '../../actions/orders';
-import TabListView from '../tabs/tabs';
-import TabView from '../tabs/tab';
+import { TabListView, TabView } from '../tabs';
 import SectionTitle from '../section-title/section-title';
+import LocalNav from '../local-nav/local-nav';
 
 export default class Orders extends React.Component {
   constructor(props, context) {
@@ -59,20 +59,16 @@ export default class Orders extends React.Component {
       <div id="orders">
         <div>
           <SectionTitle title="Orders" count={orders.size} buttonClickHandler={this.handleAddOrderClick }/>
-          <div className="fc-grid">
-            <div className="fc-col-md-1-1">
-              <ul className="fc-tabbed-nav">
-                <li><a href="">Lists</a></li>
-                <li><a href="">Returns</a></li>
-              </ul>
-            </div>
-          </div>
+          <LocalNav>
+            <a href="">Lists</a>
+            <a href="">Returns</a>
+          </LocalNav>
           <TabListView>
-            <TabView>What</TabView>
-            <TabView>What</TabView>
+            <TabView identifier="what1">What</TabView>
+            <TabView identifier="what2">What</TabView>
           </TabListView>
         </div>
-        <div className="gutter">
+        <div id="what1">
           <TableView
             columns={this.props.tableColumns}
             rows={orders.toArray()}
