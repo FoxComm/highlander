@@ -25,4 +25,14 @@ class StoreCreditSubtypes(tag: Tag) extends GenericTable.TableWithId[StoreCredit
 object StoreCreditSubtypes extends TableQueryWithId[StoreCreditSubtype, StoreCreditSubtypes](
   idLens = GenLens[StoreCreditSubtype](_.id)
 )(new StoreCreditSubtypes(_)){
+
+  object scope {
+    implicit class OriginTypeQuerySeqConversions(q: QuerySeq) {
+      def giftCardTransfers: QuerySeq = q.byOriginType(StoreCredit.GiftCardTransfer)
+      def csrAppeasements: QuerySeq  = q.byOriginType(StoreCredit.CsrAppeasement)
+      def returnProcesses: QuerySeq  = q.byOriginType(StoreCredit.ReturnProcess)
+
+      def byOriginType(originType: OriginType): QuerySeq = filter(_.originType === (originType: OriginType))
+    }
+  }
 }
