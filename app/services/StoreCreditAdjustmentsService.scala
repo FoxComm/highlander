@@ -13,7 +13,7 @@ object StoreCreditAdjustmentsService {
   def forStoreCredit(id: Int)(implicit db: Database, ec: ExecutionContext): Result[Seq[Root]] = {
     val finder = StoreCredits.filter(_.id === id)
 
-    finder.findOneAndRun { sc ⇒
+    finder.selectOneForUpdate { sc ⇒
       val query = StoreCreditAdjustments.filterByStoreCreditId(sc.id)
         .joinLeft(OrderPayments).on(_.orderPaymentId === _.id)
         .joinLeft(Orders).on(_._2.map(_.orderId) === _.id)

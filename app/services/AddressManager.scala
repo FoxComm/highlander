@@ -1,5 +1,7 @@
 package services
 
+import java.time.Instant
+
 import scala.concurrent.{Future, ExecutionContext}
 
 import cats.data.Validated.{Invalid, Valid}
@@ -15,6 +17,8 @@ import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 import cats.implicits._
 
+import utils.time.JavaTimeSlickMapper.instantAndTimestampWithoutZone
+
 object AddressManager {
   def create(payload: CreateAddressPayload, customerId: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
@@ -23,7 +27,7 @@ object AddressManager {
       case Valid(_) ⇒
         db.run(for {
           newAddress ← Addresses.save(address)
-          region     ← Regions.findById(newAddress.regionId)
+          region     ← Regions.findOneById(newAddress.regionId)
         } yield (newAddress, region)).flatMap {
           case (address, Some(region))  ⇒ Result.good(Response.build(address, region))
           case (_, None)                ⇒ Result.failure(NotFoundFailure(Region, address.regionId))
@@ -39,7 +43,7 @@ object AddressManager {
       case Valid(_) ⇒
         db.run((for {
           rowsAffected ← Addresses.insertOrUpdate(address)
-          region       ← Regions.findById(address.regionId)
+          region       ← Regions.findOneById(address.regionId)
         } yield (rowsAffected, address, region)).transactionally).flatMap {
           case (1, address, Some(region)) ⇒ Result.good(Response.build(address, region))
           case (_, address, Some(region)) ⇒ Result.failure(NotFoundFailure(address))
@@ -49,11 +53,39 @@ object AddressManager {
     }
   }
 
+  def get(customerId: Int, addressId: Int)
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
+      val query = ( for {
+        Some(address) ← Addresses.findById(customerId, addressId).one
+        region  ← Regions.findOneById(address.regionId)
+      } yield (address, region))
+
+      db.run(query).flatMap {
+          case (address, Some(region)) ⇒ Result.good(Response.build(address, region, Some(address.isDefaultShipping)))
+          case (address, None)         ⇒ Result.failure(NotFoundFailure(Region, address.regionId))
+          case (_, _)                  ⇒ Result.failure(NotFoundFailure(Address,addressId))
+      }
+  }
+
+
+  def remove(customerId: Int, addressId: Int)
+    (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
+    val query =
+      Addresses.findById(customerId, addressId)
+      .map{ a ⇒ (a.deletedAt, a.isDefaultShipping)}
+      .update((Some(Instant.now()), false))  //set delete time and set default to false
+
+      db.run(query).flatMap{
+        case 1 ⇒ Result.unit
+        case _ ⇒ Result.failure(NotFoundFailure(Address, addressId))
+      }
+  }
+
   def setDefaultShippingAddress(customerId: Int, addressId: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
     db.run((for {
       _ ← Addresses.findShippingDefaultByCustomerId(customerId).map(_.isDefaultShipping).update(false)
-      newDefault ← Addresses._findById(addressId).extract.map(_.isDefaultShipping).update(true)
+      newDefault ← Addresses.findById(addressId).extract.map(_.isDefaultShipping).update(true)
     } yield newDefault).transactionally).flatMap {
       case rowsAffected if rowsAffected == 1 ⇒ Result.unit
       case _                                 ⇒ Result.failure(NotFoundFailure(Address, addressId))

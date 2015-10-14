@@ -106,7 +106,7 @@ object GiftCardService {
     payload.validate match {
       case Valid(_) ⇒
         val finder = GiftCards.findByCode(code)
-        finder.findOneAndRun { gc ⇒
+        finder.selectOneForUpdate { gc ⇒
           gc.transitionTo(payload.status) match {
             case Xor.Left(message) ⇒ DbResult.failure(GeneralFailure(message))
             case Xor.Right(_)      ⇒ cancelOrUpdate(finder, gc)
@@ -124,7 +124,7 @@ object GiftCardService {
       case Some(adjustment) ⇒
         DbResult.failure(OpenTransactionsFailure)
       case None ⇒
-        Reasons.findById(payload.reasonId.get).flatMap {
+        Reasons.findOneById(payload.reasonId.get).flatMap {
           case None ⇒
             DbResult.failure(InvalidCancellationReasonFailure)
           case _ ⇒
@@ -145,7 +145,7 @@ object GiftCardService {
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
 
     val finder = Reasons.filter(_.id === payload.reasonId)
-    finder.findOneAndRun { reason ⇒
+    finder.selectOneForUpdate { reason ⇒
       val queries = for {
         origin  ← GiftCardManuals.save(GiftCardManual(adminId = admin.id, reasonId = payload.reasonId))
         gc      ← GiftCards.save(GiftCard.buildAppeasement(payload, origin.id))
@@ -171,9 +171,9 @@ object GiftCardService {
     (implicit db: Database, ec: ExecutionContext): DBIO[Option[Customer] Xor Option[StoreAdmin]] = giftCard.map { gc ⇒
     (gc.originType, origin) match {
       case (GiftCard.CustomerPurchase, _) ⇒
-        Customers._findById(mockCustomerId).extract.one.map(Xor.left)
+        Customers.findById(mockCustomerId).extract.one.map(Xor.left)
       case (GiftCard.CsrAppeasement, Some(o)) ⇒
-        StoreAdmins._findById(o.adminId).extract.one.map(Xor.right)
+        StoreAdmins.findById(o.adminId).extract.one.map(Xor.right)
       case _ ⇒
         lift(Xor.left(None))
     }

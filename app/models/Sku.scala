@@ -1,6 +1,6 @@
 package models
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
@@ -24,22 +24,13 @@ object Skus extends TableQueryWithId[Sku, Skus](
   idLens = GenLens[Sku](_.id)
 )(new Skus(_)) {
 
-  def isAvailableOnHand(id: Int)(implicit ec: ExecutionContext, db: Database): Future[Boolean] =
-    db.run(this._isAvailableOnHand(id).result)
+  def isAvailableOnHand(id: Int)(implicit ec: ExecutionContext, db: Database): Rep[Boolean] =
+    InventorySummaries.findBySkuId(id).filter(_.availableOnHand > 0).exists
 
-  def _isAvailableOnHand(id: Int)(implicit ec: ExecutionContext, db: Database): Rep[Boolean] =
-    InventorySummaries._findBySkuId(id).filter(_.availableOnHand > 0).exists
-
-  def qtyAvailableOnHand(id: Int)(implicit ec: ExecutionContext, db: Database): Future[Int] =
-    db.run(_qtyAvailableOnHand(id).result.head)
-
-  def _qtyAvailableOnHand(id: Int): Query[Rep[Int], Int, Seq] =
-    InventorySummaries._findById(id).extract.map(_.availableOnHand)
-
-  def qtyAvailableForSkus(skus: Seq[String])(implicit ec: ExecutionContext, db: Database): Future[Map[Sku, Int]] = {
-    db.run((for {
+  def qtyAvailableForSkus(skus: Seq[String])(implicit ec: ExecutionContext, db: Database): DBIO[Map[Sku, Int]] = {
+    (for {
       sku  ← Skus.filter(_.sku inSet skus)
       summ ← InventorySummaries if summ.skuId === sku.id
-    } yield (sku, summ.availableOnHand)).result).map(_.toMap)
+    } yield (sku, summ.availableOnHand)).result.map(_.toMap)
   }
 }

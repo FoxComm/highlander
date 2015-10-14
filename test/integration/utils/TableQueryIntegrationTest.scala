@@ -16,13 +16,13 @@ class TableQueryIntegrationTest extends IntegrationTestBase with CatsHelpers {
     "should return model if present" in {
       val order = db.run(Orders.save(Factories.order)).futureValue
 
-      val result = Orders.findByRefNum(order.referenceNumber).findOneAndRun(DbResult.good).futureValue
+      val result = Orders.findByRefNum(order.referenceNumber).selectOneForUpdate(DbResult.good).futureValue
       result.isRight mustBe true
       rightValue(result) must === (order)
     }
 
     "should return failure if absent" in {
-      val result = Orders.findByRefNum("foobar").findOneAndRun(DbResult.good).futureValue
+      val result = Orders.findByRefNum("foobar").selectOneForUpdate(DbResult.good).futureValue
 
       result.isLeft mustBe true
       leftValue(result).head must === (NotFoundFailure("Not found"))
@@ -31,7 +31,7 @@ class TableQueryIntegrationTest extends IntegrationTestBase with CatsHelpers {
 
   "for models with lock" - {
     "should return locked error" in new Fixture {
-      val result = finder.findOneAndRun { _ ⇒
+      val result = finder.selectOneForUpdate { _ ⇒
         DbResult.fromDbio(finder.map(_.status).updateReturning(Orders.map(identity), Order.FraudHold).head)
       }.futureValue
 
@@ -39,7 +39,7 @@ class TableQueryIntegrationTest extends IntegrationTestBase with CatsHelpers {
     }
 
     "should bypass lock" in new Fixture {
-      val result = finder.findOneAndRunIgnoringLock { _ ⇒
+      val result = finder.selectOneForUpdateIgnoringLock { _ ⇒
         DbResult.fromDbio(finder.map(_.status).updateReturning(Orders.map(identity), Order.FraudHold).head)
       }.futureValue
 

@@ -9,6 +9,7 @@ import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 import utils.ModelWithIdParameter
 import models.Notes
+import models.Notes.scope._
 
 object AdminNotes {
   final case class Root(id: Int, body: String, author: Author, createdAt: Instant)
@@ -21,10 +22,10 @@ object AdminNotes {
     Root(id = note.id, body = note.body, author = buildAuthor(author), createdAt = note.createdAt)
 
   def forOrder(order: Order)(implicit ec: ExecutionContext, db: Database): Future[Nothing Xor Seq[Root]] =
-    forModel(Notes.filterByOrderId(order.id))
+    forModel(Notes.filterByOrderId(order.id).notDeleted)
 
   def forGiftCard(giftCard: GiftCard)(implicit ec: ExecutionContext, db: Database): Future[Nothing Xor Seq[Root]] =
-    forModel(Notes.filterByGiftCardId(giftCard.id))
+    forModel(Notes.filterByGiftCardId(giftCard.id).notDeleted)
 
   private def forModel[M <: ModelWithIdParameter](finder: Query[Notes, Note, Seq])
     (implicit ec: ExecutionContext, db: Database): Future[Nothing Xor Seq[Root]] = {

@@ -46,7 +46,7 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
         _ ← StoreCredits.auth(storeCredit = sc, orderPaymentId = Some(payment.id), amount = 50)
         _ ← StoreCredits.auth(storeCredit = sc, orderPaymentId = Some(payment.id), amount = 50)
         _ ← StoreCredits.capture(storeCredit = sc, orderPaymentId = Some(payment.id), amount = 200)
-        sc ← StoreCredits.findById(sc.id)
+        sc ← StoreCredits.findOneById(sc.id)
       } yield sc.value).run().futureValue
 
       sc.availableBalance must === (0)
@@ -69,7 +69,7 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
         StoreCreditAdjustments.cancel(adj.id)
       })).futureValue
 
-      val finalSc = StoreCredits.findById(sc.id).run().futureValue.value
+      val finalSc = StoreCredits.findOneById(sc.id).run().futureValue.value
       (finalSc.originalBalance, finalSc.availableBalance, finalSc.currentBalance) must === ((500, 500, 500))
     }
   }

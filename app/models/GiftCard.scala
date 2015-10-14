@@ -51,13 +51,15 @@ final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = C
 
   val fsm: Map[Status, Set[Status]] = Map(
     OnHold → Set(Active, Canceled),
-    Active → Set(OnHold, Canceled)
+    Active → Set(OnHold, Canceled),
+    Cart   → Set(Canceled)
   )
 
   def authorize(amount: Int)(implicit ec: ExecutionContext): Result[String] =
     Result.good("authenticated")
 
-  def isActive: Boolean = activeStatuses.contains(status)
+  def isActive: Boolean = status == Active
+  def isCart: Boolean   = status == Cart
 
   def hasAvailable(amount: Int): Boolean = availableBalance >= amount
 }
@@ -67,6 +69,7 @@ object GiftCard {
   case object OnHold extends Status
   case object Active extends Status
   case object Canceled extends Status
+  case object Cart extends Status
   case object FullyRedeemed extends Status
 
   sealed trait OriginType
@@ -82,7 +85,7 @@ object GiftCard {
     def types = sealerate.values[OriginType]
   }
 
-  val activeStatuses = Set[Status](Active)
+  val giftCardCodeRegex = """([a-zA-Z0-9-_]*)""".r
   val defaultCodeLength = 16
 
   def generateCode(length: Int): String = {
@@ -104,13 +107,26 @@ object GiftCard {
     )
   }
 
+  def buildLineItem(balance: Int, originId: Int, currency: Currency): GiftCard = {
+    GiftCard(
+      code = generateCode(defaultCodeLength),
+      originId = originId,
+      originType = GiftCard.CustomerPurchase,
+      status = GiftCard.Cart,
+      currency = currency,
+      originalBalance = balance,
+      availableBalance = balance,
+      currentBalance = balance
+    )
+  }
+
   def validateStatusReason(status: Status, reason: Option[Int]): ValidatedNel[Failure, Unit] = {
     if (status == Canceled) {
       validExpr(reason.isDefined, "Please provide valid cancellation reason")
     } else {
       valid({})
     }
-  }
+  }   
 
   implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
   implicit val originTypeColumnType: JdbcType[OriginType] with BaseTypedType[OriginType] = OriginType.slickColumn
@@ -168,7 +184,10 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
     filter(_.code === code)
 
   def findActiveByCode(code: String): Query[GiftCards, GiftCard, Seq] =
-    findByCode(code).filter(_.status inSet activeStatuses)
+    findByCode(code).filter(_.status === (GiftCard.Active: GiftCard.Status))
+
+  def findCartByCode(code: String) : Query[GiftCards, GiftCard, Seq] =
+    findByCode(code).filter(_.status === (GiftCard.Cart: GiftCard.Status))
 
   override def save(giftCard: GiftCard)(implicit ec: ExecutionContext): DBIO[GiftCard] = for {
     (id, cb, ab) ← this.returning(map { gc ⇒ (gc.id, gc.currentBalance, gc.availableBalance) }) += giftCard

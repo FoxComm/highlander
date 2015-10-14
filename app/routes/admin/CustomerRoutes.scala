@@ -43,7 +43,7 @@ object CustomerRoutes {
         pathPrefix("addresses") {
           (get & pathEnd) {
             good {
-              Addresses._findAllByCustomerIdWithRegions(customerId).result.run().map { records ⇒
+              Addresses.findAllVisibleByCustomerIdWithRegions(customerId).result.run().map { records ⇒
                 responses.Addresses.build(records)
               }
             }
@@ -59,6 +59,24 @@ object CustomerRoutes {
                 AddressManager.setDefaultShippingAddress(customerId, id)
               }
           } ~
+          (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultShippingAddress]) & pathEnd) {
+            (id, payload) ⇒
+              nothingOrFailures {
+                AddressManager.setDefaultShippingAddress(customerId, id)
+              }
+          } ~
+          (get & path(IntNumber) & pathEnd)  {
+            id ⇒
+              goodOrFailures {
+                AddressManager.get(customerId, id)
+              }
+          } ~
+          (delete & path(IntNumber) & pathEnd)  {
+            id ⇒
+              nothingOrFailures {
+                AddressManager.remove(customerId, id)
+              }
+          } ~
           (delete & path("default") & pathEnd) {
             nothingOrFailures {
               AddressManager.removeDefaultShippingAddress(customerId)
@@ -71,7 +89,7 @@ object CustomerRoutes {
           } ~
           (get & path("display") & pathEnd) {
             complete {
-              Customers._findById(customerId).result.headOption.run().flatMap {
+              Customers.findById(customerId).result.headOption.run().flatMap {
                 case None           ⇒ Future.successful(notFoundResponse)
                 case Some(customer) ⇒ AddressManager.getDisplayAddress(customer).map(renderOrNotFound(_))
               }
@@ -90,7 +108,7 @@ object CustomerRoutes {
           } ~
           (post & entity(as[payloads.CreateCreditCard]) & pathEnd) { payload ⇒
             complete {
-              whenFound(Customers.findById(customerId)) { customer ⇒
+              whenFound(Customers.findOneById(customerId).run()) { customer ⇒
                 CreditCardManager.createCardThroughGateway(customer, payload)
               }
             }
@@ -109,8 +127,8 @@ object CustomerRoutes {
         pathPrefix("payment-methods" / "store-credit") {
           (get & pathEnd) {
             complete {
-              whenFound(Customers.findById(customerId)) { customer ⇒
-                StoreCredits.findAllByCustomerId(customer.id).map(Xor.right)
+              whenFound(Customers.findOneById(customerId).run()) { customer ⇒
+                StoreCredits.findAllByCustomerId(customer.id).run().map(Xor.right)
               }
             }
           } ~
@@ -121,7 +139,7 @@ object CustomerRoutes {
           } ~
           (post & path(IntNumber / "convert")) { storeCreditId ⇒
             complete {
-              whenFoundDispatchToService(StoreCredits.findById(storeCreditId).run()) { sc ⇒
+              whenFoundDispatchToService(StoreCredits.findOneById(storeCreditId).run()) { sc ⇒
                 CustomerCreditConverter.toGiftCard(sc, customerId)
               }
             }

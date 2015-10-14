@@ -8,8 +8,8 @@ import models.{CreditCards, CreditCard, Addresses, Order, Orders, StoreCredits, 
 OrderPayments, OrderPayment, Customers, GiftCards, GiftCard, GiftCardManuals, StoreAdmins, Reasons,
 PaymentMethod}
 import models.OrderPayments.scope._
-import services.{OrderPaymentNotFoundFailure, CannotUseInactiveCreditCard, CustomerHasInsufficientStoreCredit,
-CreditCardManager, GiftCardIsInactive, GiftCardNotEnoughBalance, GiftCardNotFoundFailure, NotFoundFailure,
+import services.{GiftCardNotFoundFailure, OrderPaymentNotFoundFailure, CannotUseInactiveCreditCard,
+CustomerHasInsufficientStoreCredit, CreditCardManager, GiftCardIsInactive, GiftCardNotEnoughBalance, NotFoundFailure,
 OrderNotFoundFailure}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
@@ -23,6 +23,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
   with AutomaticAuth {
 
   import concurrent.ExecutionContext.Implicits.global
+  import Extensions._
 
   "gift cards" - {
     "POST /v1/orders/:ref/payment-methods/gift-cards" - {
@@ -81,6 +82,15 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         response.status must === (StatusCodes.BadRequest)
         parseErrors(response) must === (GiftCardIsInactive(giftCard).description)
         giftCardPayments(order) must have size(0)
+      }
+
+      "fails to add GC with cart status as payment method" in new GiftCardFixture {
+        GiftCards.findByCode(giftCard.code).map(_.status).update(GiftCard.Cart).run().futureValue
+        val payload = payloads.GiftCardPayment(code = giftCard.code, amount = 15)
+        val response = POST(s"v1/orders/${order.refNum}/payment-methods/gift-cards", payload)
+
+        response.status must ===(StatusCodes.NotFound)
+        response.errors must ===(GiftCardNotFoundFailure(giftCard.code).description)
       }
     }
 
@@ -367,7 +377,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       _ ← StoreCredits ++= (1 to 5).map { i ⇒
         Factories.storeCredit.copy(status = StoreCredit.Active, customerId = customer.id, originId = i)
       }
-      storeCredits ← StoreCredits._findAllByCustomerId(customer.id)
+      storeCredits ← StoreCredits.findAllByCustomerId(customer.id)
     } yield storeCredits).run().futureValue
   }
 

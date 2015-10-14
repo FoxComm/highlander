@@ -21,7 +21,7 @@ object StoreCreditService {
   def createManual(admin: StoreAdmin, customerId: Int, payload: payloads.CreateManualStoreCredit)
     (implicit db: Database, ec: ExecutionContext): Result[Root] = {
 
-    Customers.findById(customerId).flatMap {
+    Customers.findOneById(customerId).run().flatMap {
       case Some(customer) ⇒
         val actions = for {
           origin ← StoreCreditManuals.save(StoreCreditManual(adminId = admin.id, reasonId = payload.reasonId,
@@ -86,7 +86,7 @@ object StoreCreditService {
       case Valid(_) ⇒
         val finder = StoreCredits.filter(_.id === id)
 
-        finder.findOneAndRun { sc ⇒
+        finder.selectOneForUpdate { sc ⇒
           sc.transitionTo(payload.status) match {
             case Xor.Left(message) ⇒ DbResult.failure(GeneralFailure(message))
             case Xor.Right(_)      ⇒ cancelOrUpdate(finder, sc)
@@ -104,7 +104,7 @@ object StoreCreditService {
       case Some(adjustment) ⇒
         DbResult.failure(OpenTransactionsFailure)
       case None ⇒
-        Reasons.findById(payload.reasonId.get).flatMap {
+        Reasons.findOneById(payload.reasonId.get).flatMap {
           case None ⇒
             DbResult.failure(InvalidCancellationReasonFailure)
           case _ ⇒
@@ -124,7 +124,7 @@ object StoreCreditService {
   }
 
   private def fetchDetails(id: Int)(implicit db: Database, ec: ExecutionContext) = for {
-    storeCredit ← StoreCredits.findById(id)
+    storeCredit ← StoreCredits.findOneById(id)
   } yield storeCredit
 }
 

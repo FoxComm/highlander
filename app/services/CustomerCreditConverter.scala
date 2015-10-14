@@ -14,7 +14,7 @@ object CustomerCreditConverter {
 
     val details = for {
       gc ← GiftCards.findByCode(code).one
-      customer ← Customers._findById(customerId).extract.one
+      customer ← Customers.findById(customerId).extract.one
       adj ← gc match {
         case Some(giftCard) ⇒ GiftCardAdjustments.lastAuthByGiftCardId(giftCard.id).one
         case _              ⇒ DBIO.successful(None)

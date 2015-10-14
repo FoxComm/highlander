@@ -7,7 +7,7 @@ import akka.testkit.TestActorRef
 import models._
 import payloads.{Assignment, UpdateOrderPayload}
 import responses.{StoreAdminResponse, FullOrderWithWarnings, AdminNotes, FullOrder}
-import services.{GeneralFailure, NotFoundFailure, NoteManager}
+import services.{GeneralFailure, NotFoundFailure, NoteManager, OrderNotFoundFailure}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.implicits._
@@ -31,19 +31,32 @@ class OrderIntegrationTest extends IntegrationTestBase
 
   def getUpdated(refNum: String) = db.run(Orders.findByRefNum(refNum).result.headOption).futureValue.value
 
-  "returns new items" in {
-    pending
-    val orderId = db.run(Orders.returningId += Order(id = 0, customerId = 1)).futureValue
+  "POST /v1/orders/:refNum/line-items" - {
+    "should successfully update line items" in new OrderFixture {
+      val response = POST(
+        s"v1/orders/${order.refNum}/line-items",
+        """
+          | [ { "sku": "SKU-YAX", "quantity": 1 },
+          |   { "sku": "SKU-ABC", "quantity": 2 } ]
+        """.stripMargin)
 
-    val response = POST(
-      s"v1/orders/$orderId/line-items",
-       """
-         | [ { "sku": 1, "quantity": 1 },
-         |   { "sku": 5, "quantity": 2 } ]
-       """.stripMargin)
+      val root = parse(response.bodyText).extract[FullOrder.Root]
+      root.lineItems.skus.map(_.sku).sortBy(identity) must ===(List("SKU-ABC", "SKU-ABC", "SKU-YAX"))
+    }
 
-    val order = parse(response.bodyText).extract[FullOrder.Root]
-    order.lineItems.map(_.sku).sortBy(identity) must === (List("1", "5", "5"))
+    "should return error if order is not in Cart state" in new OrderFixture {
+      pending
+      Orders.findByRefNum(order.refNum).map(_.status).update(Order.ManualHold).run().futureValue
+
+      val response = POST(
+        s"v1/orders/${order.refNum}/line-items",
+        """
+          | [ { "sku": "SKU-YAX", "quantity": 1 },
+          |   { "sku": "SKU-ABC", "quantity": 2 } ]
+        """.stripMargin)
+
+      response.status must ===(StatusCodes.NotFound)
+    }
   }
 
   "updates status" - {
@@ -120,7 +133,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       val response = POST(s"v1/orders/${order.referenceNumber}/increase-remorse-period")
       response.status must ===(StatusCodes.BadRequest)
 
-      val newOrder = Orders._findById(order.id).extract.one.run().futureValue.value
+      val newOrder = Orders.findById(order.id).extract.one.run().futureValue.value
       newOrder.remorsePeriodEnd must ===(order.remorsePeriodEnd)
     }
   }
@@ -427,9 +440,18 @@ class OrderIntegrationTest extends IntegrationTestBase
       response.status must ===(StatusCodes.NoContent)
       response.bodyText mustBe empty
 
-      val updatedNote = db.run(Notes.findById(note.id)).futureValue.value
+      val updatedNote = db.run(Notes.findOneById(note.id)).futureValue.value
       updatedNote.deletedBy.value mustBe 1
       updatedNote.deletedAt.value.isBeforeNow mustBe true
+
+      // Deleted note should not be returned
+      val allNotesResponse = GET(s"v1/notes/order/${order.referenceNumber}")
+      allNotesResponse.status must === (StatusCodes.OK)
+      val allNotes = allNotesResponse.as[Seq[AdminNotes.Root]]
+      allNotes.map(_.id) must not contain note.id
+
+      val getDeletedNoteResponse = GET(s"v1/notes/order/${order.referenceNumber}/${note.id}")
+      getDeletedNoteResponse.status must === (StatusCodes.NotFound)
     }
   }
 
@@ -545,7 +567,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
         response.status must === (StatusCodes.OK)
 
-        val addressBook = Addresses.findById(address.id).run().futureValue.value
+        val addressBook = Addresses.findOneById(address.id).run().futureValue.value
 
         addressBook.name must === (address.name)
         addressBook.city must === (address.city)
@@ -599,8 +621,18 @@ class OrderIntegrationTest extends IntegrationTestBase
   trait Fixture {
     val (order, storeAdmin, customer) = (for {
       customer ← Customers.save(Factories.customer)
-      order ← Orders.save(Factories.order.copy(customerId = customer.id))
+      order ← Orders.save(Factories.order.copy(customerId = customer.id, status = Order.Cart))
       storeAdmin ← StoreAdmins.save(authedStoreAdmin)
+    } yield (order, storeAdmin, customer)).run().futureValue
+  }
+
+  trait OrderFixture {
+    val (order, storeAdmin, customer) = (for {
+      customer ← Customers.save(Factories.customer)
+      order ← Orders.save(Factories.order.copy(customerId = customer.id, status = Order.Cart))
+      storeAdmin ← StoreAdmins.save(authedStoreAdmin)
+      skus ← Skus ++= Factories.skus
+      summaries ← InventorySummaries ++= Factories.inventorySummaries
     } yield (order, storeAdmin, customer)).run().futureValue
   }
 

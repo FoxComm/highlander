@@ -1,10 +1,10 @@
 create table gift_cards (
     id integer primary key,
     origin_id integer not null,
-    origin_type gc_origin_type,
+    origin_type generic_string not null,
     subtype_id integer null references gift_card_subtypes(id) on update restrict on delete restrict,
-    code character varying(255) not null,
-    status character varying(255) not null,
+    code generic_string not null,
+    status generic_string not null,
     currency currency,
     original_balance integer not null,
     current_balance integer not null,
@@ -16,7 +16,7 @@ create table gift_cards (
     updated_at timestamp without time zone default (now() at time zone 'utc'),
     foreign key (id) references payment_methods(id) on update restrict on delete restrict,
     foreign key (origin_id) references gift_card_origins(id) on update restrict on delete restrict,
-    constraint valid_status check (status in ('onHold', 'active', 'canceled', 'fullyRedeemed')),
+    constraint valid_status check (status in ('onHold', 'active', 'canceled', 'cart', 'fullyRedeemed')),
     constraint positive_balance check (original_balance >= 0 and current_balance >= 0 and available_balance >= 0)
 );
 

@@ -6,15 +6,22 @@ import utils.Seeds.Factories
 import utils.Slick.implicits._
 import services.{CustomerHasDefaultShippingAddress, Failure}
 import util.SlickSupport.implicits._
+import akka.http.scaladsl.model.HttpResponse
 
 class AddressesIntegrationTest extends IntegrationTestBase
   with HttpSupport
   with AutomaticAuth {
 
+
   import concurrent.ExecutionContext.Implicits.global
   import api._
   import Extensions._
   import org.json4s.jackson.JsonMethods._
+
+  def validateDeleteResponse(response: HttpResponse) {
+      response.status must === (StatusCodes.NoContent)
+      response.bodyText mustBe 'empty
+  }
 
   "Addresses" - {
     "lists addresses" in new AddressFixture {
@@ -55,26 +62,24 @@ class AddressesIntegrationTest extends IntegrationTestBase
 
       response.status must === (StatusCodes.NoContent)
 
-      Addresses.findById(another.id).futureValue.value.isDefaultShipping mustBe true
-      Addresses.findById(address.id).futureValue.value.isDefaultShipping mustBe false
+      Addresses.findOneById(another.id).futureValue.value.isDefaultShipping mustBe true
+      Addresses.findOneById(address.id).futureValue.value.isDefaultShipping mustBe false
     }
 
     "removes an existing default from a shipping address" in new AddressFixture {
       val response = DELETE(s"v1/customers/${customer.id}/addresses/default")
 
-      response.status must === (StatusCodes.NoContent)
-      response.bodyText mustBe 'empty
+      validateDeleteResponse(response)
 
-      Addresses.findById(address.id).futureValue.value.isDefaultShipping mustBe false
+      Addresses.findOneById(address.id).futureValue.value.isDefaultShipping mustBe false
     }
 
     "attempts to removes default shipping address when none is set" in new CustomerFixture {
       val response = DELETE(s"v1/customers/${customer.id}/addresses/default")
 
-      response.status must === (StatusCodes.NoContent)
-      response.bodyText mustBe 'empty
+      validateDeleteResponse(response)
 
-      Addresses._findAllByCustomerId(customer.id).length.result.run().futureValue must === (0)
+      Addresses.findAllByCustomerId(customer.id).length.result.run().futureValue must === (0)
     }
 
     "can be edited" in new AddressFixture {
@@ -88,6 +93,53 @@ class AddressesIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.OK)
 
       (updated.name, updated.address1) must === ((payload.name, payload.address1))
+    }
+
+    "can be deleted" in new AddressFixture {
+
+      //notice the payload is a default shipping address. Delete should make it not default.
+      val payload = payloads.CreateAddressPayload(
+        name = "Delete Me", regionId = 1, address1 = "5000 Delete Dr",
+        city = "Deattle", zip = "666", isDefault = true)
+
+      val response = POST(s"v1/customers/${customer.id}/addresses", payload)
+      response.status must === (StatusCodes.OK)
+      val newAddress = response.as[responses.Addresses.Root]
+
+      //now delete
+      val deleteResponse = DELETE(s"v1/customers/${customer.id}/addresses/${newAddress.id}")
+      validateDeleteResponse(deleteResponse)
+
+      //now get
+      val getResponse = GET(s"v1/customers/${customer.id}/addresses/${newAddress.id}")
+      getResponse.status must === (StatusCodes.OK)
+      val gotAddress = getResponse.as[responses.Addresses.Root]
+
+      //deleted address is not default anymore
+      gotAddress.isDefault.value mustBe (false)
+
+      //deleted address should have a deletedAt timestamp
+      gotAddress.deletedAt mustBe defined
+
+      val addressesResponse = GET(s"v1/customers/${customer.id}/addresses")
+      addressesResponse.status must === (StatusCodes.OK)
+
+      //If you get all the addresses, our newly deleted one should not show up
+      val addresses = addressesResponse.as[Seq[responses.Addresses.Root]]
+      addresses.filter(_.id == newAddress.id) must have length (0)
+    }
+
+    "fails deleting using wrong address id" in new AddressFixture {
+      val wrongAddressId = 47423987
+
+      val response = DELETE(s"v1/customers/${customer.id}/addresses/${wrongAddressId}")
+      response.status must === (StatusCodes.NotFound)
+    }
+
+    "fails deleting using wrong customer id" in new AddressFixture {
+      val wrongCustomerId = 44443
+      val response = DELETE(s"v1/customers/${wrongCustomerId}/addresses/${address.id}")
+      response.status must === (StatusCodes.NotFound)
     }
 
     "display address" - {

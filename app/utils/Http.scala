@@ -64,7 +64,7 @@ object Http {
                                             (f: Order ⇒ Future[Failures Xor G])
                                             (implicit ec: ExecutionContext, db: Database): Future[HttpResponse] = {
 
-    val finder = Orders._findActiveOrderByCustomer(customer).one.run()
+    val finder = Orders.findActiveOrderByCustomer(customer).one.run()
     whenOrderFoundAndEditable(finder)(f)
   }
 
