@@ -187,7 +187,7 @@ object Seeds {
 
     def storeCreditManual = StoreCreditManual(adminId = 0, reasonId = 0)
 
-    def giftCard = GiftCard(currency = Currency.USD, originId = 0, originType = GiftCard.CsrAppeasement, code = "ABC-123",
+    def giftCard = GiftCard(currency = Currency.USD, originId = 0, originType = GiftCard.CsrAppeasement,
       originalBalance = 50)
 
     def giftCardManual = GiftCardManual(adminId = 0, reasonId = 0)

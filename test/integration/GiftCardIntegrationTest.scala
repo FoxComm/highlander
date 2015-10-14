@@ -37,6 +37,20 @@ class GiftCardIntegrationTest extends IntegrationTestBase
   }
 
   "POST /v1/gift-cards" - {
+    "create two gift cards with unique codes" in new Fixture {
+      val payload = payloads.GiftCardCreateByCsr(balance = 555, reasonId = 1)
+
+      val responseFirst = POST(s"v1/gift-cards", payload)
+      responseFirst.status must ===(StatusCodes.OK)
+
+      val responseSecond = POST(s"v1/gift-cards", payload)
+      responseSecond.status must ===(StatusCodes.OK)
+
+      val rootFirst = responseFirst.as[GiftCardResponse.Root]
+      val rootSecond = responseSecond.as[GiftCardResponse.Root]
+      rootFirst.code must !== (rootSecond.code)
+    }
+
     "successfully creates gift card from payload" in new Fixture {
       val response = POST(s"v1/gift-cards", payloads.GiftCardCreateByCsr(balance = 555, reasonId = 1))
       val root = response.as[GiftCardResponse.Root]
