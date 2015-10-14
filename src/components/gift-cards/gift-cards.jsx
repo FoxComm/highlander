@@ -2,36 +2,17 @@
 
 import React from 'react';
 import TableView from '../tables/tableview';
-import GiftCardStore from '../../stores/gift-cards';
-import GiftCardActions from '../../actions/gift-cards';
 import { Link } from '../link';
+import { connect } from 'react-redux';
+import * as giftCardActions from '../../modules/gift-cards';
 import _ from 'lodash';
 
+@connect(state => _.pick(state, 'giftCards'), giftCardActions)
 export default class GiftCards extends React.Component {
-  constructor(props, context) {
-    super(props, context);
-    this.state = {
-      data: GiftCardStore.getState()
-    };
-    this.onChange = this.onChange.bind(this);
-  }
 
   componentDidMount() {
-    GiftCardStore.listen(this.onChange);
-
-    GiftCardActions.fetchGiftCards();
+    this.props.fetchGiftCardsIfNeeded();
   }
-
-  componentWillUnmount() {
-    GiftCardStore.unlisten(this.onChange);
-  }
-
-  onChange() {
-    let state = GiftCardStore.getState();
-    this.setState({
-      data: state
-    });
-  };
 
   onCardsAdded(cards) {
     let cardList = this.state.cards.slice(0, this.state.cards.length);
@@ -60,6 +41,8 @@ export default class GiftCards extends React.Component {
   }
 
   render() {
+    const items = this.props.giftCards.items || [];
+
     return (
       <div id="cards">
         <div className="gutter">
@@ -67,7 +50,7 @@ export default class GiftCards extends React.Component {
           <Link to='gift-cards-new' className="fc-btn">+ New Gift Card</Link>
           <TableView
               columns={this.props.tableColumns}
-              rows={this.state.data.toArray()}
+              rows={items}
               model='giftcard'
           />
         </div>
