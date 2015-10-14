@@ -39,7 +39,7 @@ const app = {
         <Router history={history}>
           {routes}
         </Router>
-      </Provider>, 
+      </Provider>,
       document.getElementById('foxcom')
     );
   },
@@ -57,7 +57,11 @@ const app = {
     } else if (renderProps == null) {
       this.status = 404;
     } else {
-      this.state.html = renderToString(<RoutingContext history={history} {...renderProps}/>);
+      this.state.html = renderToString(
+        <Provider store={store}>
+          <RoutingContext history={history} {...renderProps}/>
+        </Provider>
+      );
       yield next;
     }
   }

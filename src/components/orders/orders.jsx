@@ -53,6 +53,8 @@ export default class Orders extends React.Component {
 
   render() {
     let orders = this.props.orders || [];
+
+    return <div>{JSON.stringify(orders)}</div>;
     
     return (
       <div id="orders">
@@ -74,7 +76,7 @@ export default class Orders extends React.Component {
         <div className="gutter">
           <TableView
             columns={this.props.tableColumns}
-            rows={orders.toArray()}
+            rows={orders}
             model='order'
             sort={OrderStore.sort.bind(OrderStore)}
             />
