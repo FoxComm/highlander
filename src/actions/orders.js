@@ -1,61 +1,54 @@
 'use strict';
 
 import Api from '../lib/api';
-import AshesDispatcher from '../lib/dispatcher';
-import OrderConstants from '../constants/orders';
-import { List } from 'immutable';
 
-class OrderActions {
-  updateOrders(orders) {
-    AshesDispatcher.handleAction({
-      actionType: OrderConstants.UPDATE_ORDERS,
-      orders: orders
-    });
-  }
+export const ORDERS_REQUEST = 'ORDERS_REQUEST';
+export const ORDERS_SUCCESS = 'ORDERS_SUCCESS';
+export const ORDERS_FAILED = 'ORDERS_FAILED';
 
-  failedOrders(errorMessage) {
-    AshesDispatcher.handleAction({
-      actionType: OrderConstants.FAILED_ORDERS,
-      errorMessage: errorMessage
-    });
-  }
+export function requestOrders() {
+  return {
+    type: ORDERS_REQUEST
+  };
+}
 
-  insertOrder(order) {
-    AshesDispatcher.handleAction({
-      actionType: OrderConstants.INSERT_ORDER,
-      order: order
-    });
-  }
+export function receiveOrders(json) {
+  return {
+    type: ORDERS_SUCCESS,
+    items: json
+  };
+}
 
-  updateOrderStatus(refNum, status) {
-    return Api.patch(`/orders/${refNum}`)
-      .then((order) => {
-        this.insertOrder(order);
-      })
-      .catch((err) => {
-        this.failedOrders(err);
-      });
-  }
+export function failOrders(err) {
+  return {
+    type: ORDERS_FAILED,
+    err
+  };
+}
 
-  fetchOrders() {
+export function fetchOrders() {
+  return dispatch => {
+    dispatch(requestOrders());
     return Api.get('/orders')
-      .then((orders) => {
-        this.updateOrders(List(orders));
-      })
-      .catch((err) => {
-        this.failedOrders(err);
-      });
-  }
-
-  fetchOrder(refNum) {
-    return Api.get(`/orders/${refNum}`)
-      .then((order) => {
-        this.insertOrder(order);
-      })
-      .catch((err) => {
-        this.failedOrders(err);
-      });
+      .then(json => dispatch(receiveOrders(json)))
+      .catch(err => dispatch(failOrders(err)));
   }
 }
 
-export default new OrderActions();
+function shouldFetchOrders(state) {
+  const orders = state.orders;
+  if (!orders) {
+    return true;
+  } else if (orders.isFetching) {
+    return false;
+  }
+  return orders.didInvalidate;
+}
+
+export function fetchOrdersIfNeeded() {
+  return (dispatch, getState) => {
+    if (shouldFetchOrders(getState())) {
+      return dispatch(fetchOrders());
+    }
+  }
+}

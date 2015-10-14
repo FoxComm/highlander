@@ -6,6 +6,11 @@ import { renderToString } from 'react-dom/server';
 import Router, { RoutingContext, match } from 'react-router';
 import {createHistory, createMemoryHistory } from 'history';
 import routes from './routes';
+import { Provider } from 'react-redux';
+import configureStore from './store';
+
+const initialState = {};
+const store = configureStore(initialState);
 
 function createRouteLookupByName(route, prefix = route.props.path) {
   let lookup = {};
@@ -29,7 +34,14 @@ const app = {
     let history = createHistory();
     history.routeLookupByName = createRouteLookupByName(routes);
 
-    render(<Router history={history}>{routes}</Router>, document.getElementById('foxcom'));
+    render(
+      <Provider store={store}>
+        <Router history={history}>
+          {routes}
+        </Router>
+      </Provider>, 
+      document.getElementById('foxcom')
+    );
   },
 
   * renderReact(next) {

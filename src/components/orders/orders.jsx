@@ -7,14 +7,24 @@ import OrderActions from '../../actions/orders';
 import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
 import SectionTitle from '../section-title/section-title';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import * as actionCreators from '../../actions/orders';
 
+function mapStateToProps(state) {
+  return {
+    orders: state.orders || {}
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return { actions: bindActionCreators(actionCreators, dispatch) };
+}
+
+@connect(mapStateToProps, mapDispatchToProps)
 export default class Orders extends React.Component {
   constructor(props, context) {
     super(props, context);
-    this.state = {
-      data: OrderStore.getState()
-    };
-    this.onChange = this.onChange.bind(this);
   }
 
   static propTypes = {
@@ -34,19 +44,7 @@ export default class Orders extends React.Component {
   }
 
   componentDidMount() {
-    OrderStore.listen(this.onChange);
-
-    OrderActions.fetchOrders();
-  }
-
-  componentWillUnmount() {
-    OrderStore.unlisten(this.onChange);
-  }
-
-  onChange() {
-    this.setState({
-      data: OrderStore.getState()
-    });
+    this.props.actions.fetchOrdersIfNeeded();
   }
 
   handleAddOrderClick() {
@@ -54,7 +52,8 @@ export default class Orders extends React.Component {
   }
 
   render() {
-    const orders = this.state.data;
+    let orders = this.props.orders || [];
+    
     return (
       <div id="orders">
         <div className="fc-list-header">
