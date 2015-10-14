@@ -176,6 +176,10 @@ export default class Order extends React.Component {
             <dt>Fraud Score</dt>
             <dd>{order.fraudScore}</dd>
           </dl>
+          <dl>
+            <dt>Date/Time Placed</dt>
+            <dd>12/04/2015 16:00</dd>
+          </dl>
         </div>
         {subNav}
       </div>
