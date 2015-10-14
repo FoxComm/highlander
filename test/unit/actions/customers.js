@@ -92,11 +92,8 @@ describe('Customers Actions', function() {
       const response = 1;
       let spy = this.dispatchSpy;
       let stub = sinon.stub(Api, 'submitForm').returns(Promise.resolve(response));
-      let form = document.createElement('form');
-      form.setAttribute('method','post');
-      form.setAttribute('action','customers');
 
-      customerActions.createCustomer(form).then(function(customers) {
+      customerActions.createCustomer({}).then(function(customers) {
         assert(spy.calledWith({
           actionType: customerConstants.INSERT_CUSTOMERS,
           customer: response
