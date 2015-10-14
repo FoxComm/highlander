@@ -58,8 +58,9 @@ object StoreCreditService {
 
     val transformer = for {
       prepare ← prepareForCreate(customerId, payload)
-      sc ← prepare match {
-        case (customer, reason, subtype) ⇒ saveStoreCredit(admin, customer, payload.copy(subTypeId = subtype.map(_.id)))
+      sc ← prepare match { case (customer, reason, subtype) ⇒
+        val newPayload = payload.copy(subTypeId = None).copy(subTypeId = subtype.map(_.id))
+        saveStoreCredit(admin, customer, newPayload)
       }
     } yield sc
 
