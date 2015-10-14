@@ -54,8 +54,6 @@ export default class Orders extends React.Component {
   render() {
     let orders = this.props.orders || [];
 
-    return <div>{JSON.stringify(orders)}</div>;
-    
     return (
       <div id="orders">
         <div className="fc-list-header">
