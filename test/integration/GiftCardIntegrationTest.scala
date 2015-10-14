@@ -37,6 +37,20 @@ class GiftCardIntegrationTest extends IntegrationTestBase
   }
 
   "POST /v1/gift-cards" - {
+    "create two gift cards with unique codes" in new Fixture {
+      val payload = payloads.GiftCardCreateByCsr(balance = 555, reasonId = 1)
+
+      val responseFirst = POST(s"v1/gift-cards", payload)
+      responseFirst.status must ===(StatusCodes.OK)
+
+      val responseSecond = POST(s"v1/gift-cards", payload)
+      responseSecond.status must ===(StatusCodes.OK)
+
+      val rootFirst = responseFirst.as[GiftCardResponse.Root]
+      val rootSecond = responseSecond.as[GiftCardResponse.Root]
+      rootFirst.code must !== (rootSecond.code)
+    }
+
     "successfully creates gift card from payload" in new Fixture {
       val response = POST(s"v1/gift-cards", payloads.GiftCardCreateByCsr(balance = 555, reasonId = 1))
       val root = response.as[GiftCardResponse.Root]
@@ -47,7 +61,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       root.availableBalance must ===(555)
 
       // Check that proper link is created
-      val manual = GiftCardManuals.findById(root.originId).run().futureValue.value
+      val manual = GiftCardManuals.findOneById(root.originId).run().futureValue.value
       manual.reasonId must === (1)
       manual.adminId must === (admin.id)
     }
@@ -200,10 +214,10 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       val response = PATCH(s"v1/gift-cards", payload)
       response.status must ===(StatusCodes.OK)
 
-      val firstUpdated = GiftCards.findById(giftCard.id).run().futureValue
+      val firstUpdated = GiftCards.findOneById(giftCard.id).run().futureValue
       firstUpdated.value.status must ===(GiftCard.OnHold)
 
-      val secondUpdated = GiftCards.findById(gcSecond.id).run().futureValue
+      val secondUpdated = GiftCards.findOneById(gcSecond.id).run().futureValue
       secondUpdated.value.status must ===(GiftCard.OnHold)
     }
 
@@ -322,12 +336,21 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       response.status must ===(StatusCodes.NoContent)
       response.bodyText mustBe empty
 
-      val updatedNote = db.run(Notes.findById(note.id)).futureValue.value
+      val updatedNote = db.run(Notes.findOneById(note.id)).futureValue.value
       updatedNote.deletedBy.value mustBe 1
 
       withClue(updatedNote.deletedAt.value → Instant.now) {
         updatedNote.deletedAt.value.isBeforeNow mustBe true
       }
+
+      // Deleted note should not be returned
+      val allNotesResponse = GET(s"v1/notes/order/${order.referenceNumber}")
+      allNotesResponse.status must === (StatusCodes.OK)
+      val allNotes = allNotesResponse.as[Seq[AdminNotes.Root]]
+      allNotes.map(_.id) must not contain note.id
+
+      val getDeletedNoteResponse = GET(s"v1/notes/order/${order.referenceNumber}/${note.id}")
+      getDeletedNoteResponse.status must === (StatusCodes.NotFound)
     }
   }
 
@@ -344,7 +367,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = giftCard.id,
         paymentMethodType = PaymentMethod.GiftCard))
       adjustment ← GiftCards.auth(giftCard, Some(payment.id), 10)
-      giftCard ← GiftCards.findById(giftCard.id)
+      giftCard ← GiftCards.findOneById(giftCard.id)
     } yield (customer, admin, giftCard.value, order, adjustment, gcSecond)).run().futureValue
   }
 }

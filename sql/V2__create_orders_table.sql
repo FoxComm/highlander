@@ -2,7 +2,7 @@ create table orders (
     id bigint primary key,
     reference_number character varying(20) not null,
     customer_id integer,
-    status character varying(255) not null,
+    status generic_string not null,
     locked boolean default false,
     created_at timestamp without time zone default (now() at time zone 'utc'),
     updated_at timestamp without time zone default (now() at time zone 'utc'),
@@ -23,7 +23,7 @@ create unique index orders_has_only_one_cart on orders (customer_id, status)
 
 create function set_order_reference_number() returns trigger as $$
 declare
-    reference_number character varying(255) default 0;
+    reference_number generic_string default 0;
     prefix character(2) default 'BR';
     start_number integer default 10000;
 begin

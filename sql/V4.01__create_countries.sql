@@ -1,10 +1,10 @@
 create table countries (
     id serial primary key,
-    name character varying(255) not null,
+    name generic_string not null,
     alpha2 character(2) not null,
     alpha3 character(3) not null,
     code character(3) null,
-    continent character varying(255) not null,
+    continent generic_string not null,
     currency currency not null,
     languages character(2)[],
     uses_postal_code boolean default false not null,

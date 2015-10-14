@@ -21,10 +21,10 @@ import slick.jdbc.JdbcType
 import utils.Money._
 import utils.Validation._
 
-final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = CustomerPurchase, code: String,
-  currency: Currency = Currency.USD, status: Status = OnHold, originalBalance: Int, currentBalance: Int = 0,
-  availableBalance: Int = 0, canceledAmount: Option[Int] = None, canceledReason: Option[Int] = None,
-  reloadable: Boolean = false, createdAt: Instant = Instant.now())
+final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = CustomerPurchase,
+  code: String = "", currency: Currency = Currency.USD, status: Status = OnHold, originalBalance: Int,
+  currentBalance: Int = 0, availableBalance: Int = 0, canceledAmount: Option[Int] = None,
+  canceledReason: Option[Int] = None, reloadable: Boolean = false, createdAt: Instant = Instant.now())
   extends PaymentMethod
   with ModelWithIdParameter
   with FSM[GiftCard.Status, GiftCard]
@@ -32,6 +32,8 @@ final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = C
 
   import GiftCard._
   import Validation._
+
+  def isNew: Boolean = id == 0
 
   def validate: ValidatedNel[Failure, GiftCard] = {
     val canceledWithReason: ValidatedNel[Failure, Unit] = (status, canceledAmount, canceledReason) match {
@@ -95,7 +97,6 @@ object GiftCard {
 
   def buildAppeasement(payload: payloads.GiftCardCreateByCsr, originId: Int): GiftCard = {
     GiftCard(
-      code = generateCode(defaultCodeLength),
       originId = originId,
       originType = GiftCard.CsrAppeasement,
       status = GiftCard.Active,
@@ -108,7 +109,6 @@ object GiftCard {
 
   def buildLineItem(balance: Int, originId: Int, currency: Currency): GiftCard = {
     GiftCard(
-      code = generateCode(defaultCodeLength),
       originId = originId,
       originType = GiftCard.CustomerPurchase,
       status = GiftCard.Cart,
@@ -187,9 +187,19 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
   def findCartByCode(code: String) : Query[GiftCards, GiftCard, Seq] =
     findByCode(code).filter(_.status === (GiftCard.Cart: GiftCard.Status))
 
-  override def save(giftCard: GiftCard)(implicit ec: ExecutionContext): DBIO[GiftCard] = for {
-    (id, cb, ab) ← this.returning(map { gc ⇒ (gc.id, gc.currentBalance, gc.availableBalance) }) += giftCard
-  } yield giftCard.copy(id = id, currentBalance = cb, availableBalance = ab)
+  val returningIdCodeAndBalance = this.returning(map { gc ⇒ (gc.id, gc.code, gc.currentBalance, gc.availableBalance) })
+
+  def create(gc: GiftCard)(implicit ec: ExecutionContext): DBIO[models.GiftCard] = for {
+    (newId, code, currentBalance, availableBalance) <- returningIdCodeAndBalance += gc
+  } yield gc.copy(id = newId, code = code, currentBalance = currentBalance, availableBalance = availableBalance)
+
+  override def save(gc: GiftCard)(implicit ec: ExecutionContext) = {
+    if (gc.isNew) {
+      create(gc)
+    } else {
+      super.save(gc)
+    }
+  }
 
   private def adjust(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int = 0, credit: Int = 0,
     status: Adj.Status = Adj.Auth)

@@ -95,7 +95,7 @@ object OrderUpdater {
         case Valid(_) ⇒
           (for {
             newAddress ← Addresses.save(address.copy(customerId = order.customerId))
-            region ← Regions.findById(newAddress.regionId)
+            region ← Regions.findOneById(newAddress.regionId)
             _ ← OrderShippingAddresses.findByOrderId(order.id).delete
             _ ← OrderShippingAddresses.copyFromAddress(newAddress, order.id)
           } yield region).flatMap {
@@ -122,7 +122,7 @@ object OrderUpdater {
         newAddress ← OrderShippingAddresses.findByOrderId(order.id).one
 
         region ← newAddress.map { address ⇒
-          Regions.findById(address.regionId)
+          Regions.findOneById(address.regionId)
         }.getOrElse(lift(None))
       } yield (rowsAffected, newAddress, region)
 
@@ -146,8 +146,8 @@ object OrderUpdater {
     finder.selectOneForUpdate { order ⇒
 
       (for {
-        address ← Addresses.findById(addressId)
-        region ← address.map { a ⇒ Regions.findById(a.regionId) }.getOrElse(DBIO.successful(None))
+        address ← Addresses.findOneById(addressId)
+        region ← address.map { a ⇒ Regions.findOneById(a.regionId) }.getOrElse(DBIO.successful(None))
         _ ← address match {
           case Some(a) ⇒
             for {

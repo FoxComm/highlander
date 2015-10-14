@@ -1,7 +1,5 @@
 package models
 
-import scala.concurrent.{ExecutionContext, Future}
-
 import com.pellucid.sealerate
 import models.OrderLineItem.{Cart, Status, GiftCardItem, SkuItem, OriginType}
 import monocle.macros.GenLens
@@ -82,25 +80,14 @@ object OrderLineItems extends TableQueryWithId[OrderLineItem, OrderLineItems](
 
   import scope._
 
-  def findByOrder(order: Order)(implicit db: Database): Future[Seq[OrderLineItem]] =
-    db.run(findByOrderId(order.id).result)
-
-  def _findByOrder(order: Order): Query[OrderLineItems, OrderLineItem, Seq] = findByOrderId(order.id)
-
   def findByOrderId(orderId: Rep[Int]): Query[OrderLineItems, OrderLineItem, Seq] =
     filter(_.orderId === orderId)
 
-  def countByOrder(order: Order)(implicit ec: ExecutionContext, db: Database): Future[Int] =
-    db.run(this._countByOrder(order))
+  def countByOrder(order: Order): DBIO[Int] = findByOrderId(order.id).length.result
 
-  def _countByOrder(order: Order): DBIO[Int] = findByOrderId(order.id).length.result
-
-  def countBySkuIdForOrder(order: Order)(implicit ec: ExecutionContext, db: Database): Future[Seq[(Int, Int)]] =
-    db.run(_countBySkuIdForOrder(order))
-
-  def _countBySkuIdForOrder(order: Order): DBIO[Seq[(Int, Int)]] =
+  def countBySkuIdForOrder(order: Order): DBIO[Seq[(Int, Int)]] =
     (for {
-      (skuId, group) <- findByOrderId(order.id).skuItems.groupBy(_.originId)
+      (skuId, group) ← findByOrderId(order.id).skuItems.groupBy(_.originId)
     } yield (skuId, group.length)).result
 
   object scope {

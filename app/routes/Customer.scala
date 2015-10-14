@@ -21,7 +21,7 @@ object Customer {
     import Json4sSupport._
     import utils.Http._
 
-    authenticateBasicAsync(realm = "private customer routes", customerAuth) { customer =>
+    authenticateBasicAsync(realm = "private customer routes", customerAuth) { customer ⇒
       pathPrefix("my") {
         (get & path("cart")) {
           complete {
@@ -33,10 +33,10 @@ object Customer {
         pathPrefix("addresses") {
           get {
             complete {
-              Addresses.findAllByCustomer(customer).map(render(_))
+              Addresses.findAllByCustomerId(customer.id).result.run().map(render(_))
             }
           } ~
-          (post & entity(as[CreateAddressPayload])) { payload =>
+          (post & entity(as[CreateAddressPayload])) { payload ⇒
             complete {
               AddressManager.create(payload, customer.id).map(renderGoodOrFailures)
             }
@@ -46,12 +46,12 @@ object Customer {
           pathPrefix("store-credits") {
             (get & pathEnd) {
               complete {
-                renderOrNotFound(StoreCredits.findAllByCustomerId(customer.id).map(Some(_)))
+                renderOrNotFound(StoreCredits.findAllByCustomerId(customer.id).result.run().map(Some(_)))
               }
             } ~
             (get & path(IntNumber)) { storeCreditId ⇒
               complete {
-                renderOrNotFound(StoreCredits.findByIdAndCustomerId(storeCreditId, customer.id))
+                renderOrNotFound(StoreCredits.findByIdAndCustomerId(storeCreditId, customer.id).run())
               }
             }
           }
@@ -64,7 +64,7 @@ object Customer {
               }
             }
           } ~
-          (post & path("line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems =>
+          (post & path("line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems ⇒
             complete {
               whenOrderFoundAndEditable(customer) { order ⇒
                 LineItemUpdater.updateQuantities(order, reqItems).flatMap {
@@ -76,7 +76,7 @@ object Customer {
           } ~
           (get & path(PathEnd)) {
             complete {
-              whenFound(Orders._findActiveOrderByCustomer(customer).one.run()) { order ⇒
+              whenFound(Orders.findActiveOrderByCustomer(customer).one.run()) { order ⇒
                 FullOrder.fromOrder(order).run().map(Xor.right)
               }
             }

@@ -44,14 +44,14 @@ object AllOrders {
     query.result.flatMap { results ⇒
       DBIO.sequence {
         results.map { case ((order, customer), payment) ⇒
-          DBIO.from(build(order, customer, payment.map(_._1)))
+          build(order, customer, payment.map(_._1))
         }
       }
     }
   }
 
   def build(order: Order, customer: Customer, payment: Option[OrderPayment])
-    (implicit ec: ExecutionContext): Future[Root] = {
+    (implicit ec: ExecutionContext): DBIO[Root] = {
     order.grandTotal.map { grandTotal ⇒
       Root(
         referenceNumber = order.referenceNumber,

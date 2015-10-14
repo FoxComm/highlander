@@ -9,6 +9,7 @@ import models._
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import responses.PublicSku
 import slick.driver.PostgresDriver.api._
+import utils.CustomDirectives._
 
 object Public {
   def routes(implicit ec: ExecutionContext, db: Database, mat: Materializer) = {
@@ -16,14 +17,14 @@ object Public {
     import utils.Http._
 
     pathPrefix("registrations") {
-      (post & path("new") & entity(as[payloads.CreateCustomer])) { regRequest =>
-        complete {
-          Customers.createFromPayload(regRequest).map(renderGoodOrFailures)
+      (post & path("new") & entity(as[payloads.CreateCustomer])) { regRequest ⇒
+        good {
+          Customers.createFromPayload(regRequest)
         }
       }
     } ~
     pathPrefix("skus") {
-      (get & path(IntNumber)) { skuId =>
+      (get & path(IntNumber)) { skuId ⇒
         complete {
           renderOrNotFound(PublicSku.findById(skuId))
         }

@@ -64,7 +64,7 @@ object Http {
                                             (f: Order ⇒ Future[Failures Xor G])
                                             (implicit ec: ExecutionContext, db: Database): Future[HttpResponse] = {
 
-    val finder = Orders._findActiveOrderByCustomer(customer).one.run()
+    val finder = Orders.findActiveOrderByCustomer(customer).one.run()
     whenOrderFoundAndEditable(finder)(f)
   }
 
@@ -77,10 +77,10 @@ object Http {
   }
 
   def renderOrNotFound[A <: AnyRef](resource: Future[Option[A]],
-    onFound: (A ⇒ HttpResponse) = (r: A) => render(r))(implicit ec: ExecutionContext) = {
+    onFound: (A ⇒ HttpResponse) = (r: A) ⇒ render(r))(implicit ec: ExecutionContext) = {
     resource.map {
-      case Some(r) => onFound(r)
-      case None => notFoundResponse
+      case Some(r) ⇒ onFound(r)
+      case None ⇒ notFoundResponse
     }
   }
 

@@ -7,7 +7,7 @@ import services._
 import utils.Litterbox._
 import utils.Validation
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 import cats.data.Validated.{invalidNel, valid}
 import cats.data.ValidatedNel
@@ -166,20 +166,13 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
     Adjs.save(adjustment)
   }
 
-  def findAllByCustomerId(customerId: Int)(implicit ec: ExecutionContext, db: Database): Future[Seq[StoreCredit]] =
-    _findAllByCustomerId(customerId).result.run()
-
-  def _findAllByCustomerId(customerId: Int)(implicit ec: ExecutionContext): QuerySeq =
+  def findAllByCustomerId(customerId: Int)(implicit ec: ExecutionContext): QuerySeq =
     filter(_.customerId === customerId)
 
-  def findAllActiveByCustomerId(customerId: Int): Query[StoreCredits, StoreCredit, Seq] =
+  def findAllActiveByCustomerId(customerId: Int): QuerySeq =
     filter(_.customerId === customerId).filter(_.status === (Active: Status)).filter(_.availableBalance > 0)
 
-  def findByIdAndCustomerId(id: Int, customerId: Int)
-    (implicit ec: ExecutionContext, db: Database): Future[Option[StoreCredit]] =
-    _findByIdAndCustomerId(id, customerId).run()
-
-  def _findByIdAndCustomerId(id: Int, customerId: Int)(implicit ec: ExecutionContext): DBIO[Option[StoreCredit]] =
+  def findByIdAndCustomerId(id: Int, customerId: Int)(implicit ec: ExecutionContext): DBIO[Option[StoreCredit]] =
     filter(_.customerId === customerId).filter(_.id === id).one
 
   private def debit(storeCredit: StoreCredit, orderPaymentId: Option[Int], amount: Int = 0,

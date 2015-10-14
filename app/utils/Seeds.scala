@@ -35,7 +35,7 @@ object Seeds {
     shippingMethods: Seq[ShippingMethod], shippingPriceRules: Seq[ShippingPriceRule],
     shippingMethodRuleMappings: Seq[ShippingMethodPriceRule], skus: Seq[Sku], orderLineItems: Seq[OrderLineItem],
     orderPayments: Seq[OrderPayment], shipment: Shipment, paymentMethods: AllPaymentMethods, reasons: Seq[Reason],
-    orderLineItemSkus: Seq[OrderLineItemSku])
+    orderLineItemSkus: Seq[OrderLineItemSku], inventorySummaries: Seq[InventorySummary])
 
   final case class AllPaymentMethods(giftCard: GiftCard = Factories.giftCard, storeCredit: StoreCredit = Factories
     .storeCredit)
@@ -62,7 +62,8 @@ object Seeds {
       shipment = Factories.shipment,
       paymentMethods = AllPaymentMethods(giftCard = Factories.giftCard, storeCredit = Factories.storeCredit),
       reasons = Factories.reasons,
-      orderLineItemSkus = Factories.orderLineItemSkus
+      orderLineItemSkus = Factories.orderLineItemSkus,
+      inventorySummaries = Factories.inventorySummaries
     )
 
     s.address.validate.fold(err ⇒ throw new Exception(err.mkString("\n")), _ ⇒ {})
@@ -76,11 +77,12 @@ object Seeds {
       throw new Exception(failures.map(_.mkString("\n")).mkString("\n"))
 
     for {
-      customer ← (Customers.returningId += Factories.customer).map(id => Factories.customer.copy(id = id))
+      customer ← (Customers.returningId += Factories.customer).map(id ⇒ Factories.customer.copy(id = id))
       customers ← Customers ++= s.customers
-      storeAdmin ← (StoreAdmins.returningId += s.storeAdmin).map(id => s.storeAdmin.copy(id = id))
+      storeAdmin ← (StoreAdmins.returningId += s.storeAdmin).map(id ⇒ s.storeAdmin.copy(id = id))
       skus ← Skus ++= s.skus
-      order ← Orders._create(s.order.copy(customerId = customer.id))
+      summaries ← InventorySummaries ++= s.inventorySummaries
+      order ← Orders.create(s.order.copy(customerId = customer.id))
       orderNotes ← Notes ++= s.orderNotes
       orderLineItemOrigins ← OrderLineItemSkus ++= s.orderLineItemSkus
       orderLineItem ← OrderLineItems ++= s.orderLineItems
@@ -151,6 +153,11 @@ object Seeds {
       Sku(sku = "SKU-ABC", name = Some("Shark"), price = 45),
       Sku(sku = "SKU-ZYA", name = Some("Dolphin"), price = 88))
 
+    def inventorySummaries: Seq[InventorySummary] = Seq(
+      InventorySummary.buildNew(skuId = 1, availableOnHand = 100),
+      InventorySummary.buildNew(skuId = 2, availableOnHand = 100),
+      InventorySummary.buildNew(skuId = 3, availableOnHand = 100))
+
     def orderLineItemSkus: Seq[OrderLineItemSku] = Seq(
       OrderLineItemSku(id = 0, orderId = 1, skuId = 1),
       OrderLineItemSku(id = 0, orderId = 1, skuId = 2),
@@ -190,7 +197,7 @@ object Seeds {
 
     def storeCreditManual = StoreCreditManual(adminId = 0, reasonId = 0)
 
-    def giftCard = GiftCard(currency = Currency.USD, originId = 0, originType = GiftCard.CsrAppeasement, code = "ABC-123",
+    def giftCard = GiftCard(currency = Currency.USD, originId = 0, originType = GiftCard.CsrAppeasement,
       originalBalance = 50)
 
     def giftCardManual = GiftCardManual(adminId = 0, reasonId = 0)

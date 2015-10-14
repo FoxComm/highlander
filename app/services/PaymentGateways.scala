@@ -72,8 +72,8 @@ final case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVL
   def authorizeAmount(customerId: String, amount: Int)
                      (implicit ec: ExecutionContext): Result[String] = tryFutureWrap {
     val capture: java.lang.Boolean = false
-    val chargeMap: Map[String, Object] = Map("amount" -> "100", "currency" -> "usd",
-      "customer" -> customerId, "capture" -> capture)
+    val chargeMap: Map[String, Object] = Map("amount" → "100", "currency" → "usd",
+      "customer" → customerId, "capture" → capture)
 
     val charge = StripeCharge.create(mapAsJavaMap(chargeMap), options)
     /*

@@ -20,8 +20,8 @@ object ShippingManager {
 
     val queries = for {
       orderShippingAddresses ← models.OrderShippingAddresses.findByOrderIdWithRegions(order.id).result.headOption
-      subTotal ← OrderTotaler._subTotalForOrder(order)
-      grandTotal ← OrderTotaler._grandTotalForOrder(order)
+      subTotal ← OrderTotaler.subTotalForOrder(order)
+      grandTotal ← OrderTotaler.grandTotalForOrder(order)
       shippingMethods ← ShippingMethods.findActive.result
       skus ← (for {
         liSku ← OrderLineItemSkus.findByOrderId(order.id)

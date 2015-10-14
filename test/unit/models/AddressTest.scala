@@ -26,7 +26,7 @@ class AddressTest extends TestBase {
           (wrongLengthZip, zipFailure(Address.zipPattern))
         )
 
-        forAll(addresses) { (address, errors) =>
+        forAll(addresses) { (address, errors) ⇒
           invalidValue(address.validate) mustBe (errors)
         }
       }
@@ -41,7 +41,7 @@ class AddressTest extends TestBase {
           (wrongLengthZip, zipFailure(Address.zipPatternUs))
         )
 
-        forAll(addresses) { (address, errors) =>
+        forAll(addresses) { (address, errors) ⇒
           invalidValue(address.copy(regionId = Region.usRegions.head).validate) mustBe (errors)
         }
       }

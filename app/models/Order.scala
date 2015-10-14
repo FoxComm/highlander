@@ -6,8 +6,7 @@ import cats.data.Validated.valid
 import cats.data.ValidatedNel
 import services.Failure
 
-import scala.concurrent.{ExecutionContext, Future}
-
+import scala.concurrent.ExecutionContext
 
 import com.pellucid.sealerate
 import models.Order.{Cart, Status}
@@ -34,12 +33,12 @@ final case class Order(id: Int = 0, referenceNumber: String = "", customerId: In
   }
 
   // TODO: Add a real collector/builder here that assembles the subTotal
-  def subTotal(implicit ec: ExecutionContext, db: Database): Future[Int] = {
-    OrderTotaler.subTotalForOrder(this)
+  def subTotal(implicit ec: ExecutionContext, db: Database): DBIO[Int] = {
+    OrderTotaler.subTotalForOrder(this).map(_.getOrElse(0))
   }
 
-  def grandTotal: Future[Int] = {
-    Future.successful(27)
+  def grandTotal: DBIO[Int] = {
+    DBIO.successful(27)
   }
 
   def isNew: Boolean = id == 0
@@ -116,24 +115,17 @@ object Orders extends TableQueryWithLock[Order, Orders](
 
   override def save(order: Order)(implicit ec: ExecutionContext) = {
     if (order.isNew) {
-      _create(order)
+      create(order)
     } else {
       super.save(order)
     }
   }
 
-  def create(order: Order)(implicit ec: ExecutionContext, db: Database): Future[models.Order] =
-    _create(order).run()
-
-  def _create(order: Order)(implicit ec: ExecutionContext): DBIO[models.Order] = for {
-     (newId, refNum) <- returningIdAndReferenceNumber += order
+  def create(order: Order)(implicit ec: ExecutionContext): DBIO[models.Order] = for {
+     (newId, refNum) ← returningIdAndReferenceNumber += order
   } yield order.copy(id = newId, referenceNumber = refNum)
 
-  def findByCustomer(customer: Customer)(implicit ec: ExecutionContext, db: Database): Future[Seq[Order]] = {
-    db.run(_findByCustomer(customer).result)
-  }
-
-  def _findByCustomer(cust: Customer): QuerySeq =
+  def findByCustomer(cust: Customer): QuerySeq =
     findByCustomerId(cust.id)
 
   def findByCustomerId(customerId: Int): QuerySeq =
@@ -145,27 +137,8 @@ object Orders extends TableQueryWithLock[Order, Orders](
   def findCartByRefNum(refNum: String): QuerySeq =
     findByRefNum(refNum).cartOnly
 
-  def findActiveOrderByCustomer(cust: Customer)(implicit ec: ExecutionContext, db: Database): Future[Option[Order]] =
-    db.run(_findActiveOrderByCustomer(cust).one)
-
-  def _findActiveOrderByCustomer(cust: Customer) =
+  def findActiveOrderByCustomer(cust: Customer) =
     filter(_.customerId === cust.id).filter(_.status === (Order.Cart: Order.Status))
-
-  // If the user doesn't have an order yet, let's create one.
-  def findOrCreateActiveOrderByCustomer(customer: Customer)
-                            (implicit ec: ExecutionContext, db: Database): Future[Option[Order]] = {
-    val actions = for {
-      numOrders <- _findActiveOrderByCustomer(customer).length.result
-      order <- if (numOrders < 1) {
-        val freshOrder = Order(customerId = customer.id, status = Order.Cart)
-        (returningId += freshOrder).map { id => freshOrder.copy(id = id) }.map(Some(_))
-      } else {
-        _findActiveOrderByCustomer(customer).one
-      }
-    } yield order
-
-    db.run(actions.transactionally)
-  }
 
   object scope {
     implicit class OrdersQuerySeqConversions(q: QuerySeq) {

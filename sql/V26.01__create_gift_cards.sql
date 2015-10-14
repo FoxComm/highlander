@@ -1,9 +1,9 @@
 create table gift_cards (
     id integer primary key,
     origin_id integer not null,
-    origin_type character varying(255) not null,
-    code character varying(255) not null,
-    status character varying(255) not null,
+    origin_type generic_string not null,
+    code generic_string not null unique,
+    status generic_string not null,
     currency currency,
     original_balance integer not null,
     current_balance integer not null,
@@ -20,6 +20,34 @@ create table gift_cards (
 );
 
 create index gift_cards_idx on gift_cards (code, status);
+
+-- unique code generation prototype
+create function generate_gift_card_code(len integer) returns text AS $$
+declare
+    new_code text;
+    done bool;
+begin
+    done := false;
+    while not done loop
+        new_code := upper(substr(md5(random()::text), 0, len));
+        done := not exists(select 1 from gift_cards WHERE code = new_code);
+    end loop;
+    return new_code;
+end;
+$$ language plpgsql;
+
+create function set_gift_cards_codes() returns trigger as $$
+begin
+    new.code = generate_gift_card_code(16);
+    return new;
+end;
+$$ language plpgsql;
+
+create trigger set_gift_card_code_trg
+    before insert
+    on gift_cards
+    for each row
+    execute procedure set_gift_cards_codes();
 
 -- available_balance and current_balance should always be == original_balance upon insertion
 create function set_gift_cards_balances() returns trigger as $$
