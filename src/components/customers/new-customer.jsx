@@ -5,11 +5,8 @@ import SectionTitle from '../section-title/section-title';
 import FormField from '../forms/formfield.jsx';
 import Form from '../forms/form.jsx';
 import { Link } from '../link';
-
 import { transitionTo } from '../../route-helpers';
-
 import { Map } from 'immutable';
-
 import CustomerStore from '../../stores/customers';
 import CustomerActions from '../../actions/customers';
 
