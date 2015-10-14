@@ -320,7 +320,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       val errors = parse(response.bodyText).extract[Errors]
 
-      errors must === (Map("errors" -> Seq("holderName must not be empty", "cvv must match regular expression " +
+      errors must === (Map("errors" → Seq("holderName must not be empty", "cvv must match regular expression " +
         "'[0-9]{3,4}'")))
       response.status must === (StatusCodes.BadRequest)
     }
@@ -335,7 +335,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       val body = response.bodyText
       val errors = parse(body).extract[Errors]
 
-      errors must === (Map("errors" -> Seq("Your card was declined.")))
+      errors must === (Map("errors" → Seq("Your card was declined.")))
       response.status must === (StatusCodes.BadRequest)
     }
 

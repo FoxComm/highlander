@@ -18,7 +18,7 @@ class ReasonTest extends TestBase {
           (emptyBodyReason, NonEmptyList(GeneralFailure("body must not be empty")))
         )
 
-        forAll(reasons) { (reason: Reason, errors: NonEmptyList[GeneralFailure]) =>
+        forAll(reasons) { (reason: Reason, errors: NonEmptyList[GeneralFailure]) ⇒
           invalidValue(reason.validate) mustBe (errors)
         }
       }

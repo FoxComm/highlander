@@ -21,7 +21,7 @@ object Customer {
     import Json4sSupport._
     import utils.Http._
 
-    authenticateBasicAsync(realm = "private customer routes", customerAuth) { customer =>
+    authenticateBasicAsync(realm = "private customer routes", customerAuth) { customer ⇒
       pathPrefix("my") {
         (get & path("cart")) {
           complete {
@@ -36,7 +36,7 @@ object Customer {
               Addresses.findAllByCustomerId(customer.id).result.run().map(render(_))
             }
           } ~
-          (post & entity(as[CreateAddressPayload])) { payload =>
+          (post & entity(as[CreateAddressPayload])) { payload ⇒
             complete {
               AddressManager.create(payload, customer.id).map(renderGoodOrFailures)
             }
@@ -64,7 +64,7 @@ object Customer {
               }
             }
           } ~
-          (post & path("line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems =>
+          (post & path("line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems ⇒
             complete {
               whenOrderFoundAndEditable(customer) { order ⇒
                 LineItemUpdater.updateQuantities(order, reqItems).flatMap {
