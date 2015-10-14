@@ -76,9 +76,9 @@ object Seeds {
       throw new Exception(failures.map(_.mkString("\n")).mkString("\n"))
 
     for {
-      customer ← (Customers.returningId += Factories.customer).map(id => Factories.customer.copy(id = id))
+      customer ← (Customers.returningId += Factories.customer).map(id ⇒ Factories.customer.copy(id = id))
       customers ← Customers ++= s.customers
-      storeAdmin ← (StoreAdmins.returningId += s.storeAdmin).map(id => s.storeAdmin.copy(id = id))
+      storeAdmin ← (StoreAdmins.returningId += s.storeAdmin).map(id ⇒ s.storeAdmin.copy(id = id))
       skus ← Skus ++= s.skus
       summaries ← InventorySummaries ++= s.inventorySummaries
       order ← Orders.create(s.order.copy(customerId = customer.id))

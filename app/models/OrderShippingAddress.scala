@@ -2,7 +2,7 @@ package models
 
 import scala.concurrent.ExecutionContext
 
-import com.wix.accord.dsl.{validator => createValidator, _}
+import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import monocle.macros.GenLens
 import payloads.UpdateAddressPayload
 import slick.driver.PostgresDriver.api._

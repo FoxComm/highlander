@@ -95,7 +95,7 @@ object LineItemUpdater {
 
     // TODO:
     //  validate sku in PIM
-    //  execute the fulfillment runner -> creates fulfillments
+    //  execute the fulfillment runner → creates fulfillments
     //  validate inventory (might be in PIM maybe not)
     //  run hooks to manage promotions
 
@@ -108,15 +108,15 @@ object LineItemUpdater {
   private def update(order: Order, payload: Seq[UpdateLineItemsPayload])
     (implicit ec: ExecutionContext, db: Database): Result[Seq[OrderLineItem]] = {
 
-    val updateQuantities = payload.foldLeft(Map[String, Int]()) { (acc, item) =>
+    val updateQuantities = payload.foldLeft(Map[String, Int]()) { (acc, item) ⇒
       val quantity = acc.getOrElse(item.sku, 0)
       acc.updated(item.sku, quantity + item.quantity)
     }
 
     // TODO: AW: We should insert some errors/messages into an array for each item that is unavailable.
     // TODO: AW: Add the maximum available to the order if there aren't as many as requested
-    val queries = Skus.qtyAvailableForSkus(updateQuantities.keys.toSeq).flatMap { availableQuantities =>
-      val enoughOnHand = availableQuantities.foldLeft(Map.empty[Sku, Int]) { case (acc, (sku, numAvailable)) =>
+    val queries = Skus.qtyAvailableForSkus(updateQuantities.keys.toSeq).flatMap { availableQuantities ⇒
+      val enoughOnHand = availableQuantities.foldLeft(Map.empty[Sku, Int]) { case (acc, (sku, numAvailable)) ⇒
         val numRequested = updateQuantities.getOrElse(sku.sku, 0)
         if (numAvailable >= numRequested && numRequested >= 0)
           acc.updated(sku, numRequested)
@@ -128,14 +128,14 @@ object LineItemUpdater {
       // left join order_line_item_skus as oli_skus on origin_id = oli_skus.id
       // where order_id = $ and origin_type = 'skuItem' group by sku_id
       val counts = for {
-        (skuId, q) <- lineItems.filter(_.orderId === order.id).skuItems
+        (skuId, q) ← lineItems.filter(_.orderId === order.id).skuItems
           .join(OrderLineItemSkus).on(_.originId === _.id).groupBy(_._2.skuId)
       } yield (skuId, q.length)
 
-      counts.result.flatMap { (items: Seq[(Int, Int)]) =>
+      counts.result.flatMap { (items: Seq[(Int, Int)]) ⇒
         val existingSkuCounts = items.toMap
 
-        val changes = enoughOnHand.map { case (sku, newQuantity) =>
+        val changes = enoughOnHand.map { case (sku, newQuantity) ⇒
           val current = existingSkuCounts.getOrElse(sku.id, 0)
 
           // we're using absolute values from payload, so if newQuantity is greater then create N items
@@ -143,12 +143,12 @@ object LineItemUpdater {
             val delta = newQuantity - current
 
             val queries = for {
-              relation <- OrderLineItemSkus.filter(_.skuId === sku.id).one
+              relation ← OrderLineItemSkus.filter(_.skuId === sku.id).one
               origin ← relation match {
                 case Some(o)   ⇒ DBIO.successful(o)
                 case _         ⇒ OrderLineItemSkus.save(OrderLineItemSku(skuId = sku.id, orderId = order.id))
               }
-              bulkInsert ← lineItems ++= (1 to delta).map { _ => OrderLineItem(0, order.id, origin.id) }.toSeq
+              bulkInsert ← lineItems ++= (1 to delta).map { _ ⇒ OrderLineItem(0, order.id, origin.id) }.toSeq
             } yield ()
 
             DbResult.fromDbio(queries)

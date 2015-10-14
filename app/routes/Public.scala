@@ -17,14 +17,14 @@ object Public {
     import utils.Http._
 
     pathPrefix("registrations") {
-      (post & path("new") & entity(as[payloads.CreateCustomer])) { regRequest =>
+      (post & path("new") & entity(as[payloads.CreateCustomer])) { regRequest ⇒
         good {
           Customers.createFromPayload(regRequest)
         }
       }
     } ~
     pathPrefix("skus") {
-      (get & path(IntNumber)) { skuId =>
+      (get & path(IntNumber)) { skuId ⇒
         complete {
           renderOrNotFound(PublicSku.findById(skuId))
         }

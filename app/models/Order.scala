@@ -122,7 +122,7 @@ object Orders extends TableQueryWithLock[Order, Orders](
   }
 
   def create(order: Order)(implicit ec: ExecutionContext): DBIO[models.Order] = for {
-     (newId, refNum) <- returningIdAndReferenceNumber += order
+     (newId, refNum) ← returningIdAndReferenceNumber += order
   } yield order.copy(id = newId, referenceNumber = refNum)
 
   def findByCustomer(cust: Customer): QuerySeq =

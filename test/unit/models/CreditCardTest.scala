@@ -24,7 +24,7 @@ class CreditCardTest extends TestBase {
           (card.copy(expYear = 2000), NonEmptyList(GeneralFailure("credit card is expired")))
         )
 
-        forAll(cards) { (card, errors) =>
+        forAll(cards) { (card, errors) ⇒
           invalidValue(card.validate) mustBe errors
         }
       }
@@ -52,7 +52,7 @@ class CreditCardTest extends TestBase {
           (wrongLengthZip, zipFailure)
         )
 
-        forAll(cards) { (cc, errors) =>
+        forAll(cards) { (cc, errors) ⇒
           invalidValue(cc.validate) mustBe errors
         }
       }

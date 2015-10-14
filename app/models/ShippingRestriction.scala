@@ -14,12 +14,12 @@ object ShippingRestriction{
   case object ItemAttribute extends RestrictionType //Use SkuCriterion
 
   implicit val DestinationColumnType: JdbcType[RestrictionType] with BaseTypedType[RestrictionType] = MappedColumnType.base[RestrictionType, String]({
-    case t=> t.toString.toLowerCase
+    case t ⇒ t.toString.toLowerCase
   },
   {
-    case "shipto" => ShipTo
-    case "itemattribute" => ItemAttribute
-    case unknown => throw new IllegalArgumentException(s"cannot map destination_type column to type $unknown")
+    case "shipto" ⇒ ShipTo
+    case "itemattribute" ⇒ ItemAttribute
+    case unknown ⇒ throw new IllegalArgumentException(s"cannot map destination_type column to type $unknown")
   })
 }
 

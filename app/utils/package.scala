@@ -10,7 +10,7 @@ package object utils {
 
   implicit def caseClassToMap(cc: Product): Map[String, Any] = {
     val values = cc.productIterator
-    cc.getClass.getDeclaredFields.map( _.getName -> values.next ).toMap
+    cc.getClass.getDeclaredFields.map( _.getName → values.next ).toMap
   }
 
   implicit class OptionError[A](val o: Option[A]) extends AnyVal {

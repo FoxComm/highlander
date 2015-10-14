@@ -98,12 +98,12 @@ object OrderRoutes {
             }
           }
         } ~
-        (post & path("gift-cards") & entity(as[AddGiftCardLineItem]) & pathEnd) { payload =>
+        (post & path("gift-cards") & entity(as[AddGiftCardLineItem]) & pathEnd) { payload ⇒
           goodOrFailures {
             LineItemUpdater.addGiftCard(refNum, payload)
           }
         } ~
-        (patch & path("gift-cards" / giftCardCodeRegex) & entity(as[AddGiftCardLineItem]) & pathEnd) { (code, payload) =>
+        (patch & path("gift-cards" / giftCardCodeRegex) & entity(as[AddGiftCardLineItem]) & pathEnd) { (code, payload) ⇒
           goodOrFailures {
             LineItemUpdater.editGiftCard(refNum, code, payload)
           }
