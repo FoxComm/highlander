@@ -8,11 +8,10 @@ import services.Failure
 import utils.Litterbox._
 import utils.Validation
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import monocle.macros.GenLens
-import services.Result
 import slick.driver.PostgresDriver.api._
 import utils.GenericTable.TableWithId
 import utils.{ModelWithIdParameter, TableQueryWithId, Validation}
@@ -70,24 +69,16 @@ object Customers extends TableQueryWithId[Customer, Customers](
   idLens = GenLens[Customer](_.id)
 )(new Customers(_)) {
 
-  def findByEmail(email: String)(implicit ec: ExecutionContext, db: Database): Future[Option[Customer]] = {
-    db.run(filter(_.email === email).one)
-  }
-
-  def findById(id: Int)(implicit db: Database): Future[Option[Customer]] = {
-    db.run(_findById(id).extract.one)
-  }
-
-  def _findById(id: Rep[Int]) = {
-    filter(_.id === id)
+  def findByEmail(email: String): DBIO[Option[Customer]] = {
+    filter(_.email === email).one
   }
 
   def createFromPayload(payload: payloads.CreateCustomer)
-    (implicit ec: ExecutionContext, db: Database): Result[Customer] = {
+    (implicit ec: ExecutionContext, db: Database): DBIO[Customer] = {
     val newCustomer = Customer(id = 0, email = payload.email, password = payload.password,
       firstName = payload.firstName, lastName = payload.firstName)
 
-    save(newCustomer).run().flatMap(Result.right)
+    save(newCustomer)
   }
 
   object scope {

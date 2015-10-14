@@ -68,7 +68,7 @@ object OrderPaymentUpdater {
     val finder = Orders.findCartByRefNum(refNum)
     finder.selectOneForUpdate { order ⇒
 
-      CreditCards._findById(id).extract.one.flatMap {
+      CreditCards.findById(id).extract.one.flatMap {
         case Some(cc) if cc.inWallet ⇒
           val payment = OrderPayment.build(cc).copy(orderId = order.id, amount = None)
           val delete = OrderPayments.filter(_.orderId === order.id).creditCards.delete

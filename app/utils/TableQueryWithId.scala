@@ -9,7 +9,6 @@ import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import utils.Slick.DbResult
 import utils.Slick._
-import utils.Slick.DbResult._
 import utils.Slick.implicits._
 import utils.Strings._
 
@@ -66,17 +65,17 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.Tab
 
   private val compiledById = this.findBy(_.id)
 
-  def _findById(i: M#Id) = compiledById(i)
+  def findById(i: M#Id) = compiledById(i)
 
-  def findById(i: M#Id): DBIO[Option[M]] =
-    _findById(i).result.headOption
+  def findOneById(i: M#Id): DBIO[Option[M]] =
+    findById(i).result.headOption
 
   def save(model: M)(implicit ec: ExecutionContext): DBIO[M] = for {
     id ← returningId += model
   } yield idLens.set(id)(model)
 
   def deleteById(i: M#Id): DBIO[Int] =
-    _findById(i).delete
+    findById(i).delete
 
   type QuerySeq = Query[T, M, Seq]
 

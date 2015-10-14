@@ -2,8 +2,6 @@ package models
 
 import java.time.Instant
 
-import scala.concurrent.Future
-
 import monocle.macros.GenLens
 import payloads.CreateAddressPayload
 import slick.driver.PostgresDriver.api._
@@ -68,35 +66,28 @@ object Addresses extends TableQueryWithId[Address, Addresses](
 
   import scope._
 
-  def findAllByCustomer(customer: Customer)(implicit db: Database): Future[Seq[Address]] = {
-    findAllByCustomerId(customer.id)
-  }
-
-  def findAllByCustomerId(customerId: Int)(implicit db: Database): Future[Seq[Address]] =
-    _findAllByCustomerId(customerId).result.run()
-
-  def _findAllByCustomerId(customerId: Int): QuerySeq =
+  def findAllByCustomerId(customerId: Int): QuerySeq =
     filter(_.customerId === customerId)
 
   /**
    * Return all addresses except the deleted ones.
    */
-  def _findAllVisibleByCustomerId(customerId: Int): QuerySeq =
-    _findAllByCustomerId(customerId).filter(_.deletedAt.isEmpty)
+  def findAllVisibleByCustomerId(customerId: Int): QuerySeq =
+    findAllByCustomerId(customerId).filter(_.deletedAt.isEmpty)
 
-  def _findAllByCustomerIdWithRegions(customerId: Int): Query[(Addresses, Regions), (Address, Region), Seq] = for {
-    (addresses, regions) ← _findAllByCustomerId(customerId).withRegions
+  def findAllByCustomerIdWithRegions(customerId: Int): Query[(Addresses, Regions), (Address, Region), Seq] = for {
+    (addresses, regions) ← findAllByCustomerId(customerId).withRegions
   } yield (addresses, regions)
 
-  def _findAllVisibleByCustomerIdWithRegions(customerId: Int): Query[(Addresses, Regions), (Address, Region), Seq] = for {
-    (addresses, regions) ← _findAllVisibleByCustomerId(customerId).withRegions
+  def findAllVisibleByCustomerIdWithRegions(customerId: Int): Query[(Addresses, Regions), (Address, Region), Seq] = for {
+    (addresses, regions) ← findAllVisibleByCustomerId(customerId).withRegions
   } yield (addresses, regions)
 
   def findShippingDefaultByCustomerId(customerId: Int): QuerySeq =
    filter(_.customerId === customerId).filter(_.isDefaultShipping === true)
 
   def findById(customerId: Int, addressId: Int): QuerySeq = 
-   _findById(addressId).extract.filter(_.customerId === customerId)
+   findById(addressId).extract.filter(_.customerId === customerId)
 
   object scope {
     implicit class AddressesQuerySeqConversions(q: QuerySeq) {

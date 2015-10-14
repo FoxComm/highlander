@@ -1,7 +1,5 @@
 package models
 
-import scala.concurrent.{ExecutionContext, Future}
-
 import monocle.macros.GenLens
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
@@ -43,13 +41,4 @@ object ShippingPriceRules extends TableQueryWithId[ShippingPriceRule, ShippingPr
 )(new ShippingPriceRules(_)){
   val methodPriceRuleMapping = ShippingMethodsPriceRules
 
-  def shippingPriceRulesForShippingMethod(id: Int)
-                                        (implicit ec: ExecutionContext, db: Database): Future[Seq[ShippingPriceRule]] = {
-    db.run(
-      ( for {
-      shippingMethods ← methodPriceRuleMapping.filter(_.shippingMethodId === id)
-      shippingPriceRule ← this.filter(_.id === shippingMethods.shippingPriceRuleId)
-    } yield (shippingPriceRule) ).result
-    )
-  }
 }

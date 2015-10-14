@@ -34,7 +34,7 @@ class PublicIntegrationTest extends IntegrationTestBase with HttpSupport {
       response.status must === (StatusCodes.OK)
       val countryWithRegions = response.as[CountryWithRegions]
       countryWithRegions.regions must === (Seq.empty[Region])
-      countryWithRegions.country must === (Countries.findById(27).run().futureValue.value)
+      countryWithRegions.country must === (Countries.findOneById(27).run().futureValue.value)
     }
   }
 

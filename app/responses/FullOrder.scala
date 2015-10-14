@@ -120,7 +120,7 @@ object FullOrder {
     } yield (payment, creditCard)
 
     for {
-      customer ← Customers._findById(order.customerId).extract.one
+      customer ← Customers.findById(order.customerId).extract.one
       lineItems ← OrderLineItemSkus.findLineItemsByOrder(order).result
       giftCards ← OrderLineItemGiftCards.findLineItemsByOrder(order).result
       shipMethod ← shippingMethodQ.one

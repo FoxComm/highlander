@@ -46,7 +46,7 @@ object LockAwareOrderUpdater {
   }
 
   private def doUnlock(orderId: Int, remorseEnd: Option[Instant])(implicit ec: ExecutionContext, db: Database) = {
-    Orders._findById(orderId).extract
+    Orders.findById(orderId).extract
       .map { o ⇒ (o.locked, o.remorsePeriodEnd) }
       .updateReturning(updatedOrder, (false, remorseEnd)).head
       .flatMap { o ⇒ DbResult.fromDbio(FullOrder.fromOrder(o)) }

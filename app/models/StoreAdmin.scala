@@ -1,6 +1,6 @@
 package models
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 import cats.data.ValidatedNel
 import cats.implicits._
@@ -46,13 +46,7 @@ object StoreAdmins extends TableQueryWithId[StoreAdmin, StoreAdmins](
   idLens = GenLens[StoreAdmin](_.id)
 )(new StoreAdmins(_)){
 
-  def findByEmail(email: String)(implicit ec: ExecutionContext, db: Database): Future[Option[StoreAdmin]] = {
-    db.run(filter(_.email === email).one)
+  def findByEmail(email: String)(implicit ec: ExecutionContext, db: Database): DBIO[Option[StoreAdmin]] = {
+    filter(_.email === email).one
   }
-
-  def findById(id: Int)(implicit db: Database): Future[Option[StoreAdmin]] = {
-    db.run(_findById(id).extract.one)
-  }
-
-  def _findById(id: Rep[Int]) = { filter(_.id === id) }
 }
