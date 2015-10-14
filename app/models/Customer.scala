@@ -75,10 +75,7 @@ object Customers extends TableQueryWithId[Customer, Customers](
 
   def buildFromPayload(payload: payloads.CreateCustomer): Customer = {
     val hash = payload.password.map(hashPassword(_))
-    val isGuest = payload.name match {
-      case Some(_) ⇒ false
-      case _ ⇒ true
-    }
+    val isGuest = payload.name.isEmpty
     Customer(id = 0, email = payload.email, password = hash, name = payload.name, isGuest = isGuest)
   }
 

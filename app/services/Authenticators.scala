@@ -15,10 +15,7 @@ object Authenticator {
 
   def customer(credentials: UserCredentials)
               (implicit ec: ExecutionContext, db: Database): Future[Option[Customer]] = {
-    auth[Customer, EmailFinder[Customer]](credentials, Customers.findByEmail, (m) ⇒ m.password match {
-      case Some(password) ⇒ password
-      case _ ⇒ ""
-    })
+    auth[Customer, EmailFinder[Customer]](credentials, Customers.findByEmail, (m) ⇒ m.password.getOrElse(""))
   }
 
   def storeAdmin(credentials: UserCredentials)
