@@ -1,6 +1,6 @@
 
 import React, { PropTypes } from 'react';
-import Alert from './alert.jsx';
+import Alert from './alert';
 
 export default class ErrorAlerts extends React.Component {
   static propTypes = {

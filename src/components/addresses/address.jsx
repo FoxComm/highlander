@@ -5,8 +5,8 @@ import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 import AddressStore from '../../stores/addresses';
 import { dispatch } from '../../lib/dispatcher';
-import AddressForm from './address-form.jsx';
-import AddressDetails from './address-details.jsx';
+import AddressForm from './address-form';
+import AddressDetails from './address-details';
 import ConfirmModal from '../modal/confirm';
 
 const confirmDeleteOptions = {

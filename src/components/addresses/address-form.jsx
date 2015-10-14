@@ -2,15 +2,15 @@
 
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
-import FormField from '../forms/formfield.jsx';
+import FormField from '../forms/formfield';
 import InputMask from 'react-input-mask';
-import Form from '../forms/form.jsx';
+import Form from '../forms/form';
 import { listenTo, stopListeningTo, dispatch } from '../../lib/dispatcher';
 import CountryStore from '../../stores/countries';
 import AddressStore from '../../stores/addresses';
 import OrderStore from '../../stores/orders';
 import * as validators from '../../lib/validators';
-import ErrorAlerts from '../alerts/error-alerts.jsx';
+import ErrorAlerts from '../alerts/error-alerts';
 
 const DEFAULT_COUNTRY = 'US';
 

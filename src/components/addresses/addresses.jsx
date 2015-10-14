@@ -2,7 +2,7 @@
 
 import React, { PropTypes } from 'react';
 import Address from './address';
-import AddressForm from './address-form.jsx';
+import AddressForm from './address-form';
 import AddressStore from '../../stores/addresses';
 import { dispatch } from '../../lib/dispatcher';
 

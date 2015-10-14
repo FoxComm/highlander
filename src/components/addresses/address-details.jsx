@@ -2,7 +2,7 @@
 
 import React from 'react';
 import CountryStore from '../../stores/countries';
-import PhoneNumber from '../phone-number/phone-number.jsx';
+import PhoneNumber from '../phone-number/phone-number';
 
 class AddressDetails extends React.Component {
 
