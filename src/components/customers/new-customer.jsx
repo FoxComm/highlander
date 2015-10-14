@@ -51,7 +51,7 @@ export default class NewCustomer extends React.Component {
   render () {
     let formData = this.state.formData;
     return (
-      <div className="customer-create">
+      <div className="fc-customer-create">
         <div className="gutter">
           <header className="fc-customer-form-header">
             <h1 className="fc-title">
