@@ -1,3 +1,4 @@
+import scala.util.Random
 import akka.http.scaladsl.model.StatusCodes
 
 import models._
@@ -11,6 +12,7 @@ import utils.Slick.implicits._
 
 class StoreCreditIntegrationTest extends IntegrationTestBase
   with HttpSupport
+  with SortingAndPaging[responses.StoreCreditResponse.Root]
   with AutomaticAuth
   with BeforeAndAfterEach {
 
@@ -18,6 +20,37 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
   import Extensions._
   import org.json4s.jackson.JsonMethods._
+
+  // paging and sorting API
+  private var currentCustomer: Customer = _
+  private var currentOrigin: StoreCreditManual = _
+  override def beforeSortingAndPaging() = {
+    (for {
+      admin    ← StoreAdmins.save(authedStoreAdmin)
+      customer ← Customers.save(Factories.customer)
+      scReason ← Reasons.save(Factories.reason.copy(storeAdminId = admin.id))
+      scOrigin ← StoreCreditManuals.save(Factories.storeCreditManual.copy(adminId = admin.id, reasonId = scReason.id))
+    } yield (customer, scOrigin)).run().futureValue match {
+      case (cc, co) ⇒
+        currentCustomer = cc
+        currentOrigin = co
+    }
+  }
+  def uriPrefix = s"v1/customers/${currentCustomer.id}/payment-methods/store-credit"
+  def responseItems = (1 to 30).map { i ⇒
+    val balance = Random.nextInt(9999999)
+    val sc = StoreCredits.save(Factories.storeCredit.copy(
+      originId = currentOrigin.id,
+      customerId = currentCustomer.id,
+      originalBalance = balance,
+      currentBalance = balance,
+      availableBalance = balance)).run().futureValue
+    responses.StoreCreditResponse.build(sc)
+  }
+  val sortColumnName = "currentBalance"
+  def responseItemsSort(items: IndexedSeq[responses.StoreCreditResponse.Root]) = items.sortBy(_.currentBalance)
+  def mf = implicitly[scala.reflect.Manifest[responses.StoreCreditResponse.Root]]
+  // paging and sorting API end
 
   "StoreCredits" - {
     "POST /v1/customers/:id/payment-methods/store-credit" - {
