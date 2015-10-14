@@ -1,14 +1,25 @@
 'use strict';
 
 import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import * as actionCreators from '../../actions/orders';
 import { Link, IndexLink } from '../link';
-import { listenTo, stopListeningTo, dispatch } from '../../lib/dispatcher';
-import OrderStore from '../../stores/orders';
-import OrderActions from '../../actions/orders';
 import Viewers from '../viewers/viewers';
 import ConfirmModal from '../modal/confirm';
 import RemorseTimer from './remorseTimer';
 
+function mapStateToProps(state) {
+  return {
+    order: state.order || {}
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return { actions: bindActionCreators(actionCreators, dispatch) };
+}
+
+@connect(mapStateToProps, mapDispatchToProps)
 export default class Order extends React.Component {
   static propTypes = {
     params: PropTypes.shape({
@@ -19,11 +30,6 @@ export default class Order extends React.Component {
 
   constructor(props, context) {
     super(props, context);
-    this.state = {
-      data: OrderStore.getState(),
-      pendingStatus: null
-    };
-    this.onChange = this.onChange.bind(this);
   }
 
   get changeOptions() {
@@ -49,51 +55,39 @@ export default class Order extends React.Component {
   }
 
   get order() {
-    return this.state.data.find(item => item.referenceNumber === this.orderRefNum);
+    return this.props.order.item;
   }
 
   componentDidMount() {
-    OrderStore.listen(this.onChange);
-
-    OrderActions.fetchOrder(this.orderRefNum);
+    this.props.actions.fetchOrderIfNeeded(this.orderRefNum);
   }
 
-  componentWillUnmount() {
-    OrderStore.unlisten(this.onChange);
-  }
+  // onConfirmChange(success) {
+  //   if (!success) return;
 
-  onChange() {
-    this.setState({
-      data: OrderStore.getState()
-    });
-  }
+  //   this.patchOrder();
+  // }
 
-  onConfirmChange(success) {
-    if (!success) return;
+  // patchOrder() {
+  //   OrderActions.updateOrderStatus(this.orderRefNum, this.state.pendingStatus);
+  //   this.setState({
+  //     pendingStatus: null
+  //   });
+  // }
 
-    this.patchOrder();
-  }
+  // prepareStatusChange(status) {
+  //   this.setState({
+  //     pendingStatus: status
+  //   });
+  //   let options = status !== 'canceled' ? this.changeOptions : this.cancelOptions;
 
-  patchOrder() {
-    OrderActions.updateOrderStatus(this.orderRefNum, this.state.pendingStatus);
-    this.setState({
-      pendingStatus: null
-    });
-  }
+  //   dispatch('toggleModal', <ConfirmModal callback={this.onConfirmChange.bind(this)} details={options} />);
+  // }
 
-  prepareStatusChange(status) {
-    this.setState({
-      pendingStatus: status
-    });
-    let options = status !== 'canceled' ? this.changeOptions : this.cancelOptions;
-
-    dispatch('toggleModal', <ConfirmModal callback={this.onConfirmChange.bind(this)} details={options} />);
-  }
-
-  changeOrderStatus(event) {
-    let status = event.target.value;
-    this.prepareStatusChange(status);
-  }
+  // changeOrderStatus(event) {
+  //   let status = event.target.value;
+  //   this.prepareStatusChange(status);
+  // }
 
   render() {
     let
@@ -131,24 +125,25 @@ export default class Order extends React.Component {
       if (order.orderStatus === 'remorseHold') remorseTimer = <RemorseTimer endDate={order.remorseEnd} />;
     }
 
-    if (OrderStore.editableStatusList.indexOf(order.orderStatus) !== -1) {
-      orderStatus = (
-        <select name="orderStatus" value={order.orderStatus} onChange={this.changeOrderStatus.bind(this)}>
-          {OrderStore.selectableStatusList.map((status, idx) => {
-            if (
-              (order.orderStatus === 'fulfillmentStarted') &&
-              (['fulfillmentStarted', 'canceled'].indexOf(status) === -1)
-            ) {
-              return '';
-            } else {
-              return <option key={`${idx}-${status}`} value={status}>{OrderStore.statuses[status]}</option>;
-            }
-          })}
-        </select>
-      );
-    } else {
-      orderStatus = OrderStore.statuses[order.orderStatus];
-    }
+    // TODO: Re-enable
+    // if (OrderStore.editableStatusList.indexOf(order.orderStatus) !== -1) {
+    //   orderStatus = (
+    //     <select name="orderStatus" value={order.orderStatus} onChange={this.changeOrderStatus.bind(this)}>
+    //       {OrderStore.selectableStatusList.map((status, idx) => {
+    //         if (
+    //           (order.orderStatus === 'fulfillmentStarted') &&
+    //           (['fulfillmentStarted', 'canceled'].indexOf(status) === -1)
+    //         ) {
+    //           return '';
+    //         } else {
+    //           return <option key={`${idx}-${status}`} value={status}>{OrderStore.statuses[status]}</option>;
+    //         }
+    //       })}
+    //     </select>
+    //   );
+    // } else {
+    //   orderStatus = OrderStore.statuses[order.orderStatus];
+    // }
 
     return (
       <div className="fc-order">

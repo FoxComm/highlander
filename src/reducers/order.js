@@ -5,25 +5,25 @@ import * as actionTypes from '../actions/orders';
 const initialState = {
   isFetching: false,
   didInvalidate: true,
-  items: []
+  item: {}
 };
 
-export function orders(state = initialState, action) {
+export function order(state = initialState, action) {
   switch (action.type) {
-    case actionTypes.ORDERS_REQUEST:
+    case actionTypes.ORDER_REQUEST:
       return {
         ...state,
         isFetching: true,
         didInvalidate: false
       };
-    case actionTypes.ORDERS_SUCCESS:
+    case actionTypes.ORDER_SUCCESS:
       return {
         ...state,
         isFetching: false,
         didInvalidate: false,
-        items: action.items
+        item: action.item
       };
-    case actionTypes.ORDERS_FAILED:
+    case actionTypes.ORDER_FAILED:
       return {
         ...state,
         isFetching: false,

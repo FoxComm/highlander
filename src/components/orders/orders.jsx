@@ -52,7 +52,7 @@ export default class Orders extends React.Component {
   }
 
   render() {
-    let orders = this.props.orders || [];
+    let orders = this.props.orders.items || [];
 
     return (
       <div id="orders">
