@@ -1,0 +1,3 @@
+package responses
+
+trait ResponseItem

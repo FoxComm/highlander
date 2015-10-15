@@ -1,3 +1,4 @@
+import scala.util.Random
 import akka.http.scaladsl.model.StatusCodes
 
 import algebra.Monoid
@@ -22,7 +23,7 @@ import utils.jdbc._
 import utils.Seeds.Factories
 import utils.Slick.implicits._
 import cats.implicits._
-import utils.{Apis, StripeApi}
+import utils.{Seeds, Apis, StripeApi}
 import org.mockito.Mockito.{ when }
 import org.mockito.{ Matchers ⇒ m }
 import org.mockito.Mockito.reset
@@ -30,18 +31,28 @@ import org.mockito.Mockito.reset
 class CustomerIntegrationTest extends IntegrationTestBase
   with HttpSupport
   with AutomaticAuth
+  with SortingAndPaging[CustomerResponse.Root]
   with MockitoSugar {
-
-  import concurrent.ExecutionContext.Implicits.global
-
-  override def makeApis: Option[Apis] = Some(Apis(stripeApi))
-
-  private var stripeApi: StripeApi = mock[StripeApi]
 
   import Extensions._
   import org.json4s.jackson.JsonMethods._
   import slick.driver.PostgresDriver.api._
   import util.SlickSupport.implicits._
+  import concurrent.ExecutionContext.Implicits.global
+
+  // paging and sorting API
+  val uriPrefix = "v1/customers"
+  val sortColumnName = "lastName"
+  def responseItems = (1 to 30).map { i ⇒
+    CustomerResponse.build(Customers.save(Seeds.Factories.generateCustomer).run().futureValue)
+  }
+  def responseItemsSort(items: IndexedSeq[CustomerResponse.Root]) = items.sortBy(_.lastName)
+  def mf = implicitly[scala.reflect.Manifest[CustomerResponse.Root]]
+  // paging and sorting API end
+
+  override def makeApis: Option[Apis] = Some(Apis(stripeApi))
+
+  private var stripeApi: StripeApi = mock[StripeApi]
 
   "Customer" - {
     "accounts are unique based on email, non-guest, and active" in {
@@ -62,7 +73,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
   "admin API's" - {
     "GET /v1/customers/:id" in new Fixture {
-      val response = GET(s"v1/customers/${customer.id}")
+      val response = GET(s"$uriPrefix/${customer.id}")
       val customerRoot = CustomerResponse.build(customer, shippingRegion = region)
 
       response.status must ===(StatusCodes.OK)
@@ -71,7 +82,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
     "GET /v1/customers/:id without default address" in new Fixture {
       Addresses.filter(_.id === address.id).map(_.isDefaultShipping).update(false).run().futureValue
-      val response = GET(s"v1/customers/${customer.id}")
+      val response = GET(s"$uriPrefix/${customer.id}")
       val customerRoot = CustomerResponse.build(customer)
 
       response.status must ===(StatusCodes.OK)
@@ -79,7 +90,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
     }
 
     "GET /v1/customers" in new Fixture {
-      val response = GET(s"v1/customers")
+      val response = GET(s"$uriPrefix")
       val customerRoot = CustomerResponse.build(customer, shippingRegion = region)
 
       response.status must ===(StatusCodes.OK)
@@ -88,7 +99,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
     "GET /v1/customers without default address" in new Fixture {
       Addresses.filter(_.id === address.id).map(_.isDefaultShipping).update(false).run().futureValue
-      val response = GET(s"v1/customers")
+      val response = GET(s"$uriPrefix")
       val customerRoot = CustomerResponse.build(customer)
 
       response.status must ===(StatusCodes.OK)
@@ -98,7 +109,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
     "toggles the isDisabled flag on a customer account" in new Fixture {
       customer.isDisabled must ===(false)
 
-      val response = POST(s"v1/customers/${customer.id}/disable", payloads.ToggleCustomerDisabled(true))
+      val response = POST(s"$uriPrefix/${customer.id}/disable", payloads.ToggleCustomerDisabled(true))
       response.status must ===(StatusCodes.OK)
 
       val c = parse(response.bodyText).extract[Customer]
@@ -109,7 +120,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       "shows customer's credit cards only in their wallet" in new CreditCardFixture {
         val deleted = CreditCards.save(creditCard.copy(id = 0, inWallet = false)).run().futureValue
 
-        val response = GET(s"v1/customers/${customer.id}/payment-methods/credit-cards")
+        val response = GET(s"$uriPrefix/${customer.id}/payment-methods/credit-cards")
         val cc = response.as[Seq[CreditCard]]
 
         response.status must ===(StatusCodes.OK)
@@ -121,7 +132,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       "GET /v1/customers shows valid billingRegion" in new CreditCardFixture {
         val billRegion = Regions.findOneById(creditCard.regionId).run().futureValue
 
-        val response = GET(s"v1/customers")
+        val response = GET(s"$uriPrefix")
         val customerRoot = CustomerResponse.build(customer, shippingRegion = region, billingRegion = billRegion)
 
         response.status must ===(StatusCodes.OK)
@@ -130,7 +141,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
       "GET /v1/customers shows valid billingRegion without default CreditCard" in new CreditCardFixture {
         CreditCards.filter(_.id === creditCard.id).map(_.isDefault).update(false).run().futureValue
-        val response = GET(s"v1/customers")
+        val response = GET(s"$uriPrefix")
         val customerRoot = CustomerResponse.build(customer, shippingRegion = region)
 
         response.status must ===(StatusCodes.OK)
@@ -140,7 +151,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       "GET /v1/customer/:id shows valid billingRegion" in new CreditCardFixture {
         val billRegion = Regions.findOneById(creditCard.regionId).run().futureValue
 
-        val response = GET(s"v1/customers/${customer.id}")
+        val response = GET(s"$uriPrefix/${customer.id}")
         val customerRoot = CustomerResponse.build(customer, shippingRegion = region, billingRegion = billRegion)
 
         response.status must ===(StatusCodes.OK)
@@ -149,7 +160,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
       "GET /v1/customer/:id shows valid billingRegion without default CreditCard" in new CreditCardFixture {
         CreditCards.filter(_.id === creditCard.id).map(_.isDefault).update(false).run().futureValue
-        val response = GET(s"v1/customers/${customer.id}")
+        val response = GET(s"$uriPrefix/${customer.id}")
         val customerRoot = CustomerResponse.build(customer, shippingRegion = region)
 
         response.status must ===(StatusCodes.OK)
@@ -161,7 +172,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
         val payload = payloads.ToggleDefaultCreditCard(isDefault = true)
         val response = POST(
-          s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}/default",
+          s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}/default",
           payload)
         response.status must ===(StatusCodes.OK)
 
@@ -177,7 +188,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
         val payload = payloads.ToggleDefaultCreditCard(isDefault = true)
         val response = POST(
-          s"v1/customers/${customer.id}/payment-methods/credit-cards/${nonDefault.id}/default",
+          s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${nonDefault.id}/default",
           payload)
 
         response.status must ===(StatusCodes.BadRequest)
@@ -186,7 +197,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
       "when deleting a credit card" - {
         "succeeds if the card exists" in new CreditCardFixture {
-          val response = DELETE(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}")
+          val response = DELETE(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}")
           val deleted = CreditCards.findOneById(creditCard.id).run().futureValue.value
 
           response.status must ===(StatusCodes.NoContent)
@@ -211,7 +222,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
               thenReturn(Result.good(new Card))
 
             val payload = payloads.EditCreditCard(holderName = Some("Bob"))
-            val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
+            val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
             val inactive = CreditCards.findOneById(creditCard.id).run().futureValue.value
 
             response.status must ===(StatusCodes.NoContent)
@@ -231,7 +242,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
               thenReturn(Result.good(new Card))
 
             val payload = payloads.EditCreditCard(holderName = Some("Bob"))
-            val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
+            val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
             val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).result.run().futureValue.toList
 
             response.status must ===(StatusCodes.NoContent)
@@ -255,7 +266,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
             services.OrderPaymentUpdater.addCreditCard(order.refNum, creditCard.id).futureValue
 
             val payload = payloads.EditCreditCard(holderName = Some("Bob"))
-            val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
+            val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
             val (pmt :: Nil) = OrderPayments.filter(_.orderId === order.id).creditCards.result.run().futureValue.toList
             val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).result.run().futureValue.toList
 
@@ -267,7 +278,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
           "copies an existing address book entry to the creditCard" in new CreditCardFixture {
             val payload = payloads.EditCreditCard(holderName = Some("Bob"), addressId = address.id.some)
-            val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
+            val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
             val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).result.futureValue.toList
             val numAddresses = Addresses.length.result.futureValue
 
@@ -291,7 +302,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
             val payload = payloads.EditCreditCard(holderName = Some("Bob"),
               address = CreateAddressPayload(name = "Home Office", regionId = address.regionId + 1,
                 address1 = "3000 Coolio Dr", city = "Seattle", zip = "54321").some)
-            val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
+            val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
             val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).result.futureValue.toList
             val addresses = Addresses.futureValue
             val newAddress = addresses.last
@@ -305,7 +316,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
         "fails if the card cannot be found" in new CreditCardFixture {
           val payload = payloads.EditCreditCard
-          val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/99", payload)
+          val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/99", payload)
 
           response.status must ===(StatusCodes.NotFound)
           response.errors must ===(NotFoundFailure(CreditCard, 99).description)
@@ -314,7 +325,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
         "fails if the card is not inWallet" in new CreditCardFixture {
           CreditCardManager.deleteCreditCard(customer.id, creditCard.id).futureValue
           val payload = payloads.EditCreditCard
-          val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
+          val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
 
           response.status must ===(StatusCodes.BadRequest)
           response.errors must ===(CannotUseInactiveCreditCard(creditCard).description)
@@ -322,7 +333,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
         "fails if the payload is invalid" in new CreditCardFixture {
           val payload = payloads.EditCreditCard(holderName = "".some)
-          val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
+          val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
 
           response.status must ===(StatusCodes.BadRequest)
           response.errors must contain("holderName must not be empty")
@@ -346,7 +357,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
                   "exp_year", null, null, null))))
 
           val payload = payloads.EditCreditCard(expYear = Some(2000))
-          val response = PATCH(s"v1/customers/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
+          val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
 
           response.status must ===(StatusCodes.BadRequest)
           response.errors must ===(List("Your card's expiration year is invalid"))

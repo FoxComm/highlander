@@ -14,12 +14,44 @@ import responses.Addresses.Root
 import responses.{Addresses ⇒ Response}
 import slick.driver.PostgresDriver
 import slick.driver.PostgresDriver.api._
+import utils.CustomDirectives.SortAndPage
 import utils.Slick.implicits._
 import cats.implicits._
 
 import utils.time.JavaTimeSlickMapper.instantAndTimestampWithoutZone
 
 object AddressManager {
+
+  def findAllVisibleByCustomer(customerId: Int)
+    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[Seq[Root]] = {
+    val query = Addresses.findAllVisibleByCustomerIdWithRegions(customerId)
+
+    val sortedQuery = sortAndPage.sort match {
+      case Some(s) ⇒ query.sortBy { case (address, region) ⇒
+        s.sortColumn match {
+          case "id"                  => if(s.asc) address.id.asc                 else address.id.desc
+          case "regionId"            => if(s.asc) address.regionId.asc           else address.regionId.desc
+          case "name"                => if(s.asc) address.name.asc               else address.name.desc
+          case "address1"            => if(s.asc) address.address1.asc           else address.address1.desc
+          case "address2"            => if(s.asc) address.address2.asc           else address.address2.desc
+          case "city"                => if(s.asc) address.city.asc               else address.city.desc
+          case "zip"                 => if(s.asc) address.zip.asc                else address.zip.desc
+          case "isDefaultShipping"   => if(s.asc) address.isDefaultShipping.asc  else address.isDefaultShipping.desc
+          case "phoneNumber"         => if(s.asc) address.phoneNumber.asc        else address.phoneNumber.desc
+          case "deletedAt"           => if(s.asc) address.deletedAt.asc          else address.deletedAt.desc
+          case "regionRegionId"      => if(s.asc) region.id.asc                  else region.id.desc
+          case "regionCountryId"     => if(s.asc) region.countryId.asc           else region.countryId.desc
+          case "regionName"          => if(s.asc) region.name.asc                else region.name.desc
+          case "regionAbbreviation"  => if(s.asc) region.abbreviation.asc        else region.abbreviation.desc
+          case _                     => address.id.asc
+        }
+      }
+      case None    ⇒ query
+    }
+
+    Result.fromFuture(sortedQuery.paged.result.run().map(Response.build))
+  }
+
   def create(payload: CreateAddressPayload, customerId: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
     val address = Address.fromPayload(payload).copy(customerId = customerId)

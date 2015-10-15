@@ -21,7 +21,7 @@ object Money {
     def unapply(c: Currency): Option[String] = Some(c.getCode)
   }
 
-  implicit val currencyColumnType: JdbcType[Currency] with BaseTypedType[Currency] = MappedColumnType.base[Currency, String](
+  val currencyColumnType: JdbcType[Currency] with BaseTypedType[Currency] = MappedColumnType.base[Currency, String](
     { c ⇒ c.getCode },
     { s ⇒ Currency(s) })
 
