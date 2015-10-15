@@ -23,8 +23,9 @@ object StoreCreditService {
   def createManual(admin: StoreAdmin, customerId: Int, payload: payloads.CreateManualStoreCredit)
     (implicit db: Database, ec: ExecutionContext): Result[Root] = {
 
-    def prepareForCreate(customerId: Int, payload: payloads.CreateManualStoreCredit)
-      (implicit db: Database, ec: ExecutionContext): ResultT[(Customer, Reason, Option[StoreCreditSubtype])] = {
+    def prepareForCreate(customerId: Int, payload: payloads.CreateManualStoreCredit):
+      ResultT[(Customer, Reason, Option[StoreCreditSubtype])] = {
+      
       val queries = for {
         customer ← Customers.findOneById(customerId)
         reason   ← Reasons.findOneById(payload.reasonId)
@@ -41,8 +42,8 @@ object StoreCreditService {
       })
     }
 
-    def saveStoreCredit(admin: StoreAdmin, customer: Customer, payload: payloads.CreateManualStoreCredit)
-      (implicit db: Database, ec: ExecutionContext): ResultT[DBIO[Root]] = {
+    def saveStoreCredit(admin: StoreAdmin, customer: Customer, payload: payloads.CreateManualStoreCredit):
+      ResultT[DBIO[Root]] = {
 
       val actions = for {
         origin ← StoreCreditManuals.save(StoreCreditManual(adminId = admin.id, reasonId = payload.reasonId,

@@ -147,9 +147,7 @@ object GiftCardService {
   private def createGiftCardModel(admin: StoreAdmin, payload: payloads.GiftCardCreateByCsr)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
 
-    def prepareForCreate(payload: payloads.GiftCardCreateByCsr)(implicit db: Database, ec: ExecutionContext):
-      ResultT[(Reason, Option[GiftCardSubtype])] = {
-
+    def prepareForCreate(payload: payloads.GiftCardCreateByCsr): ResultT[(Reason, Option[GiftCardSubtype])] = {
       val queries = for {
         reason   ← Reasons.findOneById(payload.reasonId)
         subtype  ← payload.subTypeId match {
@@ -164,9 +162,7 @@ object GiftCardService {
       })
     }
 
-    def saveGiftCard(admin: StoreAdmin, payload: payloads.GiftCardCreateByCsr)
-      (implicit ec: ExecutionContext, db: Database): ResultT[DBIO[Root]] = {
-
+    def saveGiftCard(admin: StoreAdmin, payload: payloads.GiftCardCreateByCsr): ResultT[DBIO[Root]] = {
       val actions = for {
         origin  ← GiftCardManuals.save(GiftCardManual(adminId = admin.id, reasonId = payload.reasonId))
         gc      ← GiftCards.save(GiftCard.buildAppeasement(payload, origin.id))
