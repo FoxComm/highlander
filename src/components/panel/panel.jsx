@@ -8,11 +8,20 @@ export default class Panel extends React.Component {
     title: PropTypes.string,
     className: PropTypes.string,
     controls: PropTypes.any,
-    content: PropTypes.any
+    content: PropTypes.any,
+    enablePaddings: PropTypes.bool
   };
 
   get rootClassName() {
     return `${this.props.className} fc-panel`;
+  }
+
+  get contentClassName() {
+    let klass = 'fc-panel-content';
+    if (this.props.enablePaddings) {
+      klass = 'fc-panel-content-list'
+    }
+    return klass;
   }
 
   render() {
@@ -26,7 +35,7 @@ export default class Panel extends React.Component {
             <span>{this.props.title}</span>
           </div>
         </div>
-        <div className="fc-panel-content">
+        <div className={ this.contentClassName }>
           {this.props.content && this.props.content.props.children}
           {this.props.children}
         </div>
