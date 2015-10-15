@@ -7,7 +7,7 @@ import {interpolateRoute} from '../../route-helpers';
 
 export default class Link extends React.Component {
   static contextTypes = {
-    history: React.PropTypes.object.isRequired
+    history: PropTypes.object.isRequired
   };
 
   static propTypes = {

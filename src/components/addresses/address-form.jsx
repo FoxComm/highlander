@@ -1,19 +1,26 @@
 'use strict';
 
 import _ from 'lodash';
-import React from 'react';
-import FormField from '../forms/formfield.jsx';
+import React, { PropTypes } from 'react';
+import FormField from '../forms/formfield';
 import InputMask from 'react-input-mask';
-import Form from '../forms/form.jsx';
+import Form from '../forms/form';
 import { listenTo, stopListeningTo, dispatch } from '../../lib/dispatcher';
 import CountryStore from '../../stores/countries';
 import AddressStore from '../../stores/addresses';
 import OrderStore from '../../stores/orders';
 import * as validators from '../../lib/validators';
+import ErrorAlerts from '../alerts/error-alerts';
 
 const DEFAULT_COUNTRY = 'US';
 
 export default class AddressForm extends React.Component {
+
+  static propTypes = {
+    address: PropTypes.object,
+    customerId: PropTypes.number,
+    onSaved: PropTypes.func
+  };
 
   constructor(props, context) {
     super(props, context);
@@ -73,9 +80,31 @@ export default class AddressForm extends React.Component {
     dispatch('toggleModal', null);
   }
 
+  componentWillUpdate(nextProps, nextState) {
+    if (!this.state.errors && nextState.errors) {
+      this.shouldScrollToErrors = true;
+    }
+  }
+
   componentDidUpdate() {
-    if (this.state.errors) {
+    if (this.shouldScrollToErrors && this.state.errors) {
       this.refs.errorMessages.scrollIntoView();
+      this.shouldScrollToErrors = false;
+    }
+  }
+
+  /**
+   * Prepare value before submitting to server
+   * @param name
+   * @param value
+   */
+  prepareValue(name, value) {
+    switch (name) {
+      case 'phoneNumber':
+        return value.replace(/[^\d]/g, '');
+        break;
+      default:
+        return value;
     }
   }
 
@@ -83,7 +112,9 @@ export default class AddressForm extends React.Component {
     event.preventDefault();
 
     const customerId = this.props.customerId;
-    const formData = this.state.formData;
+    const formData = _.transform(this.state.formData, (result, value, name) => {
+      result[name] = this.prepareValue(name, value);
+    });
 
     let willSaved;
 
@@ -139,31 +170,29 @@ export default class AddressForm extends React.Component {
     if (validators.zipCode(formData.zip, countryCode)) {
       return null;
     } else {
-      return `${CountryStore.zipName(countryCode)} is invalid for selected country.`;
+      return `${CountryStore.zipName(countryCode)} is invalid for selected country`;
     }
   }
 
   get phoneInput() {
+    const formData = this.state.formData;
+
     if (this.countryCode === 'US') {
-      return <InputMask type="tel" mask="(999)999-9999" placeholder={CountryStore.phoneExample(this.countryCode)}/>;
+      return (
+        <InputMask type="tel" name="phoneNumber" mask={CountryStore.phoneMask(this.countryCode)}
+                        onChange={this.onChangeValue.bind(this)}
+                        formFieldTarget
+                        value={formData.phoneNumber} placeholder={CountryStore.phoneExample(this.countryCode)}/>
+      );
     }
     return (
-      <input type="tel" name="phoneNumber"
+      <input type="tel" name="phoneNumber" value={formData.phoneNumber}
              maxLength="15" placeholder={CountryStore.phoneExample(this.countryCode)} />
     );
   }
 
   get errorMessages() {
-    if (this.state.errors) {
-      return (
-        <div className="messages" ref="errorMessages">
-          {this.state.errors.map((error, index) => {
-            return <div className="fc-alert is-error"><i className="fa fa-times-circle-o"></i>{error}</div>;
-            })}
-        </div>
-      );
-    }
-    return null;
+    return <ErrorAlerts errors={this.state.errors} ref="errorMessages"/>;
   }
 
   render() {
@@ -191,8 +220,8 @@ export default class AddressForm extends React.Component {
                 <div className="fc-address-form-field-title">{title}</div>
               </li>
               <li>
-                <FormField label="Name" validator="ascii">
-                  <input name="name" maxLength="255" type="text" value={formData.name} required />
+                <FormField label="Name" validator="ascii" maxLength={255}>
+                  <input name="name" type="text" value={formData.name} required />
                 </FormField>
               </li>
               <li>
@@ -205,18 +234,18 @@ export default class AddressForm extends React.Component {
                 </FormField>
               </li>
               <li>
-                <FormField label="Street Address" validator="ascii">
-                  <input name="address1" maxLength="255" type="text" value={formData.address1} required />
+                <FormField label="Street Address" validator="ascii" maxLength={255}>
+                  <input name="address1" type="text" value={formData.address1} required />
                 </FormField>
               </li>
               <li>
-                <FormField label="Street Address 2" validator="ascii" optional>
-                  <input name="address2" maxLength="255" type="text" value={formData.address2} />
+                <FormField label="Street Address 2" validator="ascii" maxLength={255} optional>
+                  <input name="address2" type="text" value={formData.address2} />
                 </FormField>
               </li>
               <li>
-                <FormField label="City" validator="ascii">
-                  <input name="city" maxLength="255" type="text" value={formData.city} required />
+                <FormField label="City" validator="ascii" maxLength={255}>
+                  <input name="city" type="text" value={formData.city} required />
                 </FormField>
               </li>
               <li>
@@ -236,7 +265,7 @@ export default class AddressForm extends React.Component {
                 </FormField>
               </li>
               <li>
-                <FormField label="Phone Number" validator="ascii">
+                <FormField label="Phone Number" validator="phoneNumber">
                   {this.phoneInput}
                 </FormField>
               </li>
@@ -252,8 +281,3 @@ export default class AddressForm extends React.Component {
   }
 }
 
-AddressForm.propTypes = {
-  address: React.PropTypes.object,
-  customerId: React.PropTypes.number,
-  onSaved: React.PropTypes.func
-};
