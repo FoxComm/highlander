@@ -74,7 +74,7 @@ object Customers extends TableQueryWithId[Customer, Customers](
     filter(_.email === email).one
   }
 
-  def buildFromPayload(payload: payloads.CreateCustomerPayload): Customer = {
+  def buildFromPayload(payload: CreateCustomerPayload): Customer = {
     val hash = payload.password.map(hashPassword(_))
     Customer(id = 0, email = payload.email, password = hash, name = payload.name,
       isGuest = payload.isGuest.getOrElse(false))
