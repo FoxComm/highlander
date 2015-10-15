@@ -131,8 +131,8 @@ object Seeds {
         location = Some("Donkeysburg, AU"), modality = Some("Desktop[PC]"))
     )
 
-    def generateCustomer: Customer = Customer(email = s"${randomString(10)}@email.com", password = randomString(10),
-        firstName = randomString(10), lastName = randomString(30))
+    def generateCustomer: Customer = Customer(email = s"${randomString(10)}@email.com",
+      password = Some(randomString(10)), name = Some(randomString(10)))
 
     def storeAdmin = StoreAdmin(email = "admin@admin.com", password = "password", firstName = "Frankly", lastName = "Admin")
 

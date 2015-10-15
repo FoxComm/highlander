@@ -42,11 +42,11 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
   // paging and sorting API
   val uriPrefix = "v1/customers"
-  val sortColumnName = "lastName"
+  val sortColumnName = "name"
   def responseItems = (1 to 30).map { i ⇒
     CustomerResponse.build(Customers.save(Seeds.Factories.generateCustomer).run().futureValue)
   }
-  def responseItemsSort(items: IndexedSeq[CustomerResponse.Root]) = items.sortBy(_.lastName)
+  def responseItemsSort(items: IndexedSeq[CustomerResponse.Root]) = items.sortBy(_.name)
   def mf = implicitly[scala.reflect.Manifest[CustomerResponse.Root]]
   // paging and sorting API end
 
