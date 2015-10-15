@@ -8,20 +8,9 @@ import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
 import SectionTitle from '../section-title/section-title';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import * as actionCreators from '../../actions/orders';
+import * as orderActions from '../../modules/orders';
 
-function mapStateToProps(state) {
-  return {
-    orders: state.orders || {}
-  };
-}
-
-function mapDispatchToProps(dispatch) {
-  return { actions: bindActionCreators(actionCreators, dispatch) };
-}
-
-@connect(mapStateToProps, mapDispatchToProps)
+@connect(state => ({orders: state.orders}), orderActions)
 export default class Orders extends React.Component {
   constructor(props, context) {
     super(props, context);
@@ -44,7 +33,7 @@ export default class Orders extends React.Component {
   };
 
   componentDidMount() {
-    this.props.actions.fetchOrdersIfNeeded();
+    this.props.fetchOrdersIfNeeded();
   }
 
   handleAddOrderClick() {

@@ -5,7 +5,7 @@ import { combineReducers } from 'redux';
 import giftCards from '../modules/gift-cards';
 import giftCardsNew from '../modules/gift-cards-new';
 import customers from '../modules/customers';
-import { orders } from './orders';
+import orders from '../modules/orders';
 import { order } from './order'; 
 import { orderLineItems } from './order-line-items';
 
