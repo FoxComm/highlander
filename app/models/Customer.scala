@@ -33,7 +33,7 @@ final case class Customer(id: Int = 0, email: String, password: Option[String] =
       notEmpty(email, "email").map { case _ ⇒ this }
     } else {
       (notEmpty(name, "name")
-        |@| greaterThanOrEqual(name.getOrElse("").length, 1, "nameSize")
+        |@| notEmpty(name.getOrElse(""), "name")
         |@| notEmpty(email, "email")
         ).map { case _ ⇒ this }
     }
