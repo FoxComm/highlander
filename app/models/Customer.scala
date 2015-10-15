@@ -16,9 +16,11 @@ import slick.driver.PostgresDriver.api._
 import utils.GenericTable.TableWithId
 import utils.{ModelWithIdParameter, TableQueryWithId, Validation}
 import utils.Slick.implicits._
+import payloads.CreateCustomerPayload
+import utils.Passwords._
 
-final case class Customer(id: Int = 0, email: String, password: String, firstName: String, lastName: String,
-  isDisabled: Boolean = false, isBlacklisted: Boolean = false,
+final case class Customer(id: Int = 0, email: String, password: Option[String] = None,
+  name: Option[String] = None, isDisabled: Boolean = false, isBlacklisted: Boolean = false,
   phoneNumber: Option[String] = None, location: Option[String] = None,
   modality: Option[String] = None, isGuest: Boolean = false, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter
@@ -30,8 +32,8 @@ final case class Customer(id: Int = 0, email: String, password: String, firstNam
     if (isGuest) {
       notEmpty(email, "email").map { case _ ⇒ this }
     } else {
-      (notEmpty(firstName, "firstName")
-        |@| notEmpty(lastName, "lastName")
+      (notEmpty(name, "name")
+        |@| notEmpty(name.getOrElse(""), "name")
         |@| notEmpty(email, "email")
         ).map { case _ ⇒ this }
     }
@@ -40,7 +42,13 @@ final case class Customer(id: Int = 0, email: String, password: String, firstNam
 
 object Customer {
   def buildGuest(email: String): Customer =
-    Customer(isGuest = true, email = email, firstName = "guest", lastName = "guest", password = "guest")
+    Customer(isGuest = true, email = email)
+
+  def buildFromPayload(payload: CreateCustomerPayload): Customer = {
+    val hash = payload.password.map(hashPassword(_))
+    Customer(id = 0, email = payload.email, password = hash, name = payload.name,
+      isGuest = payload.isGuest.getOrElse(false))
+  }
 }
 
 class Customers(tag: Tag) extends TableWithId[Customer](tag, "customers") {
@@ -51,16 +59,15 @@ class Customers(tag: Tag) extends TableWithId[Customer](tag, "customers") {
   def blacklistedBy = column[Option[Int]]("blacklisted_by")
   def blacklistedReason = column[Option[String]]("blacklisted_reason")
   def email = column[String]("email")
-  def password = column[String]("hashed_password")
-  def firstName = column[String]("first_name")
-  def lastName = column[String]("last_name")
+  def password = column[Option[String]]("hashed_password")
+  def name = column[Option[String]]("name")
   def phoneNumber = column[Option[String]]("phone_number")
   def location = column[Option[String]]("location")
   def modality = column[Option[String]]("modality")
   def isGuest = column[Boolean]("is_guest")
   def createdAt = column[Instant]("created_at")
 
-  def * = (id, email, password, firstName, lastName,
+  def * = (id, email, password, name,
     isDisabled, isBlacklisted, phoneNumber,
     location, modality, isGuest, createdAt) <>((Customer.apply _).tupled, Customer.unapply)
 }
@@ -71,14 +78,6 @@ object Customers extends TableQueryWithId[Customer, Customers](
 
   def findByEmail(email: String): DBIO[Option[Customer]] = {
     filter(_.email === email).one
-  }
-
-  def createFromPayload(payload: payloads.CreateCustomer)
-    (implicit ec: ExecutionContext, db: Database): DBIO[Customer] = {
-    val newCustomer = Customer(id = 0, email = payload.email, password = payload.password,
-      firstName = payload.firstName, lastName = payload.firstName)
-
-    save(newCustomer)
   }
 
   object scope {

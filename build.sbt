@@ -118,6 +118,7 @@ lazy val phoenixScala = (project in file(".")).
         "org.slf4j"            %  "slf4j-api"                 % "1.7.12",
         "org.joda"             %  "joda-money"                % "0.10.0",
         "com.pellucid"         %% "sealerate"                 % "0.0.3",
+        "com.lambdaworks"          % "scrypt"                % "1.4.0",
         "com.github.julien-truffaut" %% "monocle-core"        % monocleV,
         "com.github.julien-truffaut" %% "monocle-generic"     % monocleV,
         "com.github.julien-truffaut" %% "monocle-macro"       % monocleV,

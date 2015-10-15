@@ -9,6 +9,7 @@ import models._
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import responses.PublicSku
 import slick.driver.PostgresDriver.api._
+import services.CustomerManager
 import utils.CustomDirectives._
 
 object Public {
@@ -17,9 +18,9 @@ object Public {
     import utils.Http._
 
     pathPrefix("registrations") {
-      (post & path("new") & entity(as[payloads.CreateCustomer])) { regRequest ⇒
-        good {
-          Customers.createFromPayload(regRequest)
+      (post & path("new") & entity(as[payloads.CreateCustomerPayload])) { regRequest ⇒
+         goodOrFailures {
+          CustomerManager.create(regRequest)
         }
       }
     } ~

@@ -8,6 +8,7 @@ import responses.CustomerResponse._
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.Slick.UpdateReturning._
+import payloads.CreateCustomerPayload
 
 object CustomerManager {
 
@@ -37,8 +38,7 @@ object CustomerManager {
           case "blacklistedBy"     => if(s.asc) customer.blacklistedBy.asc      else customer.blacklistedBy.desc
           case "blacklistedReason" => if(s.asc) customer.blacklistedReason.asc  else customer.blacklistedReason.desc
           case "email"             => if(s.asc) customer.email.asc              else customer.email.desc
-          case "firstName"         => if(s.asc) customer.firstName.asc          else customer.firstName.desc
-          case "lastName"          => if(s.asc) customer.lastName.asc           else customer.lastName.desc
+          case "name"              => if(s.asc) customer.name.asc               else customer.name.desc
           case "phoneNumber"       => if(s.asc) customer.phoneNumber.asc        else customer.phoneNumber.desc
           case "location"          => if(s.asc) customer.location.asc           else customer.location.desc
           case "modality"          => if(s.asc) customer.modality.asc           else customer.modality.desc
@@ -66,6 +66,12 @@ object CustomerManager {
       case _ ⇒
         Result.failure(NotFoundFailure(Customer, id))
     }
+  }
+
+  def create(payload: CreateCustomerPayload)(implicit ec: ExecutionContext, db: Database): Result[Root] = {
+    val customer = Customer.buildFromPayload(payload)
+    val qq = db.run(Customers.save(customer))
+    qq.flatMap { case(a) ⇒ Result.right(build(a)) }
   }
 
 }
