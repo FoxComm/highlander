@@ -30,7 +30,6 @@ describe('SectionTitle', function() {
 
     expect(sectionTitleNode).to.be.instanceof(Object);
     expect(sectionTitleNode.className).to.contain('fc-grid');
-    expect(sectionTitleNode.className).to.contain('gutter');
   });
 
   it('should not render counter if count is not set', function *() {
@@ -39,7 +38,7 @@ describe('SectionTitle', function() {
       , container);
     let sectionTitleNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithClass(sectionTitle, 'fc-grid'));
 
-    expect(sectionTitleNode.querySelector('.fc-subtitle')).to.be.equal(null);
+    expect(sectionTitleNode.querySelector('.fc-section-title-subtitle')).to.be.equal(null);
   });
 
   it('should render counter if count is set', function *() {
@@ -49,7 +48,7 @@ describe('SectionTitle', function() {
       , container);
     let sectionTitleNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithClass(sectionTitle, 'fc-grid'));
 
-    expect(sectionTitleNode.querySelector('.fc-subtitle').innerHTML).to.contain('' + count);
+    expect(sectionTitleNode.querySelector('.fc-section-title-subtitle').innerHTML).to.contain('' + count);
   });
 
   it('should not render button if handler is not set', function *() {
