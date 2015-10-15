@@ -7,12 +7,14 @@ import TableHead from '../tables/head';
 import TableBody from '../tables/body';
 import ShippingMethodItem from './shipping-method-item';
 import ShippingMethods from '../../stores/shipping-methods';
+import Panel from '../panel/panel';
 
 export default class OrderShippingMethod extends React.Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      methods: []
+      methods: [],
+      isEditing: false
     };
   }
 
@@ -29,19 +31,38 @@ export default class OrderShippingMethod extends React.Component {
     this.setState({methods});
   }
 
+  toggleEdit() {
+    this.setState({
+      isEditing: !this.state.isEditing
+    });
+  }
+
   render() {
     let methods = this.props.isEditing ? this.state.methods : _.filter(this.state.methods, {isActive: true});
+    let actions = null;
+
+    if (this.state.isEditing) {
+      actions = (
+        <button className="fc-btn fc-btn-plain icon-chevron-up" onClick={this.toggleEdit.bind(this)}></button>
+      );
+    } else {
+      actions = (
+        <button className="fc-btn fc-btn-plain icon-chevron-down" onClick={this.toggleEdit.bind(this)}>
+        </button>
+      );
+    }
 
     return (
-      <section className="fc-content-box" id="order-shipping-method">
-        <header>Shipping Method</header>
+      <Panel className="fc-order-shipping-method"
+             title="Shipping Method"
+             actions={ actions }>
         <table className="fc-table">
           <TableHead columns={this.props.tableColumns} />
           <TableBody columns={this.props.tableColumns} rows={methods} model='shipping-method'>
             <ShippingMethodItem isEditing={this.props.isEditing} />
           </TableBody>
         </table>
-      </section>
+      </Panel>
     );
   }
 }
