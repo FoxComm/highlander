@@ -3,7 +3,7 @@ create table store_credits (
     customer_id integer not null,
     origin_id integer not null,
     origin_type sc_origin_type,
-    subtype_id integer null references gift_card_subtypes(id) on update restrict on delete restrict,
+    subtype_id integer null references store_credit_subtypes(id) on update restrict on delete restrict,
     status generic_string not null,
     currency currency,
     original_balance integer not null,

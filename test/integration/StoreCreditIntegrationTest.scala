@@ -37,12 +37,38 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         }
       }
 
+      "succeeds with valid subTypeId" in new Fixture {
+        val payload = payloads.CreateManualStoreCredit(amount = 25, reasonId = scReason.id, subTypeId = Some(1))
+        val response = POST(s"v1/customers/${customer.id}/payment-methods/store-credit", payload)
+        val sc = response.as[responses.StoreCreditResponse.Root]
+
+        response.status must === (StatusCodes.OK)
+        sc.subTypeId must === (Some(1))
+      }
+
+      "succeeds even if subtypeId is not found" in new Fixture {
+        val payload = payloads.CreateManualStoreCredit(amount = 25, reasonId = scReason.id, subTypeId = Some(255))
+        val response = POST(s"v1/customers/${customer.id}/payment-methods/store-credit", payload)
+        val sc = response.as[responses.StoreCreditResponse.Root]
+
+        response.status must === (StatusCodes.OK)
+        sc.subTypeId must === (None)
+      }
+
       "fails if the customer is not found" in {
         val payload = payloads.CreateManualStoreCredit(amount = 25, reasonId = 1)
         val response = POST(s"v1/customers/99/payment-methods/store-credit", payload)
 
         response.status must === (StatusCodes.NotFound)
         response.errors must === (NotFoundFailure(Customer, 99).description)
+      }
+
+      "fails if the reason is not found" in new Fixture {
+        val payload = payloads.CreateManualStoreCredit(amount = 25, reasonId = 255)
+        val response = POST(s"v1/customers/${customer.id}/payment-methods/store-credit", payload)
+
+        response.status must === (StatusCodes.NotFound)
+        response.errors must === (NotFoundFailure(Reason, 255).description)
       }
     }
 
@@ -174,6 +200,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       customer    ← Customers.save(Factories.customer)
       order       ← Orders.save(Factories.order.copy(customerId = customer.id))
       scReason    ← Reasons.save(Factories.reason.copy(storeAdminId = admin.id))
+      scSubType   ← StoreCreditSubtypes.save(Factories.storeCreditSubTypes.head)
       scOrigin    ← StoreCreditManuals.save(Factories.storeCreditManual.copy(adminId = admin.id,
         reasonId = scReason.id))
       storeCredit ← StoreCredits.save(Factories.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))

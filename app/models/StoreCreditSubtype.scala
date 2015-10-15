@@ -14,7 +14,9 @@ object StoreCreditSubtype {
   implicit val originTypeColumnType: JdbcType[OriginType] with BaseTypedType[OriginType] = OriginType.slickColumn
 }
 
-class StoreCreditSubtypes(tag: Tag) extends GenericTable.TableWithId[StoreCreditSubtype](tag, "gift_card_subtypes")  {
+class StoreCreditSubtypes(tag: Tag)
+  extends GenericTable.TableWithId[StoreCreditSubtype](tag, "store_credit_subtypes")  {
+
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def title = column[String]("title")
   def originType = column[OriginType]("origin_type")
