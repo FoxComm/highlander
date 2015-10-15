@@ -5,6 +5,7 @@ import React, { PropTypes } from 'react';
 import PaymentMethod from './payment-method';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
+import Panel from '../panel/panel';
 
 export default class OrderPayment extends React.Component {
   static propTypes = {
@@ -25,15 +26,15 @@ export default class OrderPayment extends React.Component {
     let order = this.props.order;
 
     return (
-      <section className="fc-content-box" id="order-payment">
-        <header>Payment</header>
+      <Panel className="fc-order-payment"
+             title="Payment">
         <table className="fc-table">
           <TableHead columns={this.props.tableColumns}/>
           <TableBody columns={this.props.tableColumns} rows={_.compact([order.payment])} model='payment-method'>
             <PaymentMethod/>
           </TableBody>
         </table>
-      </section>
+      </Panel>
     );
   }
 }
