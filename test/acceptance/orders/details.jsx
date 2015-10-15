@@ -26,13 +26,13 @@ describe('OrderDetails', function() {
   });
 
 
-  it('should render', function() {
-    let orderDetails = ReactDOM.render(
-      <OrderDetails order={order}/>
-      , container);
-    let orderDetailsNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithClass(orderDetails, 'fc-order-details'));
+  // it('should render', function() {
+  //   let orderDetails = ReactDOM.render(
+  //     <OrderDetails order={order}/>
+  //     , container);
+  //   let orderDetailsNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithClass(orderDetails, 'fc-order-details'));
 
-    expect(orderDetailsNode).to.be.instanceof(Object);
-    expect(orderDetailsNode.className).to.contain('fc-order-details');
-  });
+  //   expect(orderDetailsNode).to.be.instanceof(Object);
+  //   expect(orderDetailsNode.className).to.contain('fc-order-details');
+  // });
 });

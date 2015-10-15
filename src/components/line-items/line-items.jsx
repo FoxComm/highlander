@@ -10,11 +10,14 @@ import SkuResult from '../orders/sku-result';
 import Typeahead from '../typeahead/typeahead';
 
 export default class LineItems extends React.Component {
+  static propTypes = {
+    entity: React.PropTypes.object,
+    tableColumns: React.PropTypes.array,
+    model: React.PropTypes.string
+  }
+
   constructor(props, context) {
     super(props, context);
-    this.state = {
-      isEditing: false
-    };
   }
 
   get orderDefaultColumns () {
@@ -123,8 +126,3 @@ export default class LineItems extends React.Component {
   }
 }
 
-LineItems.propTypes = {
-  entity: React.PropTypes.object,
-  tableColumns: React.PropTypes.array,
-  model: React.PropTypes.string
-};
