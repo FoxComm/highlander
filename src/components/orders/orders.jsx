@@ -3,7 +3,6 @@
 import React from 'react';
 import TableView from '../tables/tableview';
 import OrderStore from '../../stores/orders';
-import * as OrderActions from '../../actions/orders';
 import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
 import SectionTitle from '../section-title/section-title';

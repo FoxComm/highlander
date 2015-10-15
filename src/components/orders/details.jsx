@@ -9,29 +9,25 @@ import OrderShippingMethod from '../shipping/shipping-method';
 import OrderPayment from './payment';
 import OrderStore from './../../stores/orders';
 
-export default class OrderDetails extends React.Component {
-  static propTypes = {
-    order: React.PropTypes.object
-  };
-
-  render() {
-    return (
-      <div className="fc-order-details">
-        <div className="fc-order-details-body">
-          <div className="fc-order-details-main">
-            <LineItems
-              entity={this.props.order}
-              model={'order'} />
-            <OrderShippingAddress order={this.props.order} />
-            <OrderShippingMethod order={this.props.order} />
-            <OrderPayment order={this.props.order} />
-          </div>
-          <div className="fc-order-details-aside">
-            <OrderSummary order={this.props.order} />
-            <CustomerInfo order={this.props.order} />
-          </div>
+let OrderDetails = (props) => {
+  return (
+    <div className="fc-order-details">
+      <div className="fc-order-details-body">
+        <div className="fc-order-details-main">
+          <LineItems
+            entity={props.order}
+            model={'order'} />
+          <OrderShippingAddress order={props.order} />
+          <OrderShippingMethod order={props.order} />
+          <OrderPayment order={props.order} />
+        </div>
+        <div className="fc-order-details-aside">
+          <OrderSummary order={props.order} />
+          <CustomerInfo order={props.order} />
         </div>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
+
+export default OrderDetails;

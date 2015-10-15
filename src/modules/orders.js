@@ -4,7 +4,7 @@ import Api from '../lib/api';
 import { createAction, createReducer } from 'redux-act';
 
 export const ordersRequest = createAction('ORDERS_REQUEST');
-export const ordersSuccess = createAction('ORDER_SUCCESS');
+export const ordersSuccess = createAction('ORDERS_SUCCESS');
 export const ordersFailed = createAction('ORDERS_FAILED', (err, source) => {err, source});
 
 export function fetchOrders() {

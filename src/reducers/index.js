@@ -6,7 +6,7 @@ import giftCards from '../modules/gift-cards';
 import giftCardsNew from '../modules/gift-cards-new';
 import customers from '../modules/customers';
 import orders from '../modules/orders';
-import { order } from './order'; 
+import order from '../modules/order'; 
 import { orderLineItems } from './order-line-items';
 
 const rootReducer = combineReducers({

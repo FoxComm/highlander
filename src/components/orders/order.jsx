@@ -1,25 +1,14 @@
 'use strict';
 
 import React, { PropTypes } from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import * as actionCreators from '../../actions/orders';
 import { Link, IndexLink } from '../link';
 import Viewers from '../viewers/viewers';
 import ConfirmModal from '../modal/confirm';
 import RemorseTimer from './remorseTimer';
+import { connect } from 'react-redux';
+import * as orderActions from '../../modules/order';
 
-function mapStateToProps(state) {
-  return {
-    order: state.order || {}
-  };
-}
-
-function mapDispatchToProps(dispatch) {
-  return { actions: bindActionCreators(actionCreators, dispatch) };
-}
-
-@connect(mapStateToProps, mapDispatchToProps)
+@connect(state => ({order: state.order}), orderActions)
 export default class Order extends React.Component {
   static propTypes = {
     params: PropTypes.shape({
@@ -59,7 +48,7 @@ export default class Order extends React.Component {
   }
 
   componentDidMount() {
-    this.props.actions.fetchOrderIfNeeded(this.orderRefNum);
+    this.props.fetchOrderIfNeeded(this.orderRefNum);
   }
 
   // onConfirmChange(success) {
