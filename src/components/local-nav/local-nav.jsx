@@ -2,26 +2,18 @@
 
 import React from 'react';
 
-export default class LocalNav extends React.Component {
-  static propTypes = {
-    children: React.PropTypes.array
-  }
+const renderItem = child => <li>{child}</li>;
 
-  renderItem(child) {
-    return (
-      <li>{child}</li>
-    );
-  }
-
-  render() {
-    return (
-      <div className="fc-grid">
-        <div className="fc-col-md-1-1">
-          <ul className="fc-tabbed-nav">
-            {React.Children.map(this.props.children, this.renderItem)}
-          </ul>
-        </div>
+const LocalNav = props => {
+  return (
+    <div className="fc-grid">
+      <div className="fc-col-md-1-1">
+        <ul className="fc-tabbed-nav">
+          {React.Children.map(props.children, renderItem)}
+        </ul>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
+
+export default LocalNav;
