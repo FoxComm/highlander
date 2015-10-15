@@ -1,10 +1,17 @@
 package routes.admin
 
+import akka.http.scaladsl.model.{HttpResponse, ContentTypes, HttpEntity}
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
+import akka.stream.scaladsl.Source
+import akka.stream.stage.{Context, PushPullStage}
+import akka.util.ByteString
 import cats.data.Xor
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models._
+import org.json4s.{Formats, jackson}
+import org.json4s.jackson.Serialization
+import org.json4s.jackson.Serialization.{write ⇒ json}
 import payloads._
 import services._
 import slick.driver.PostgresDriver.api._
@@ -23,7 +30,7 @@ object CustomerRoutes {
     authenticateBasicAsync(realm = "admin", storeAdminAuth) { admin ⇒
 
       pathPrefix("customers") {
-        (get & pathEnd) {
+        (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
           goodOrFailures {
             CustomerManager.findAll
           }
@@ -41,11 +48,9 @@ object CustomerRoutes {
           }
         } ~
         pathPrefix("addresses") {
-          (get & pathEnd) {
-            good {
-              Addresses.findAllVisibleByCustomerIdWithRegions(customerId).result.run().map { records ⇒
-                responses.Addresses.build(records)
-              }
+          (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+            goodOrFailures {
+              AddressManager.findAllVisibleByCustomer(customerId)
             }
           } ~
           (post & entity(as[CreateAddressPayload]) & pathEnd) { payload ⇒
@@ -97,7 +102,7 @@ object CustomerRoutes {
           }
         } ~
         pathPrefix("payment-methods" / "credit-cards") {
-          (get & pathEnd) {
+          (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
             good { CreditCardManager.creditCardsInWalletFor(customerId) }
           } ~
           (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultCreditCard]) & pathEnd) {
@@ -125,11 +130,9 @@ object CustomerRoutes {
           }
         } ~
         pathPrefix("payment-methods" / "store-credit") {
-          (get & pathEnd) {
-            complete {
-              whenFound(Customers.findOneById(customerId).run()) { customer ⇒
-                StoreCredits.findAllByCustomerId(customer.id).run().map(Xor.right)
-              }
+          (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+            goodOrFailures {
+              StoreCreditService.findAllByCustomer(customerId)
             }
           } ~
           (post & entity(as[payloads.CreateManualStoreCredit])) { payload ⇒

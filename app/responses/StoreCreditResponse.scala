@@ -17,7 +17,9 @@ object StoreCreditResponse {
     canceledAmount: Option[Int],
     canceledReason: Option[Int],
     status: models.StoreCredit.Status,
-    createdAt: Instant)
+    createdAt: Instant) extends ResponseItem
+
+  def build(records: Seq[models.StoreCredit]): Seq[Root] = records.map(build)
 
   def build(storeCredit: models.StoreCredit): Root = {
     Root(id = storeCredit.id,

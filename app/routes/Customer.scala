@@ -46,7 +46,7 @@ object Customer {
           pathPrefix("store-credits") {
             (get & pathEnd) {
               complete {
-                renderOrNotFound(StoreCredits.findAllByCustomerId(customer.id).run().map(Some(_)))
+                renderOrNotFound(StoreCredits.findAllByCustomerId(customer.id).result.run().map(Some(_)))
               }
             } ~
             (get & path(IntNumber)) { storeCreditId ⇒

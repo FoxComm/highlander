@@ -9,7 +9,7 @@ import utils.Slick.implicits._
 object PublicSku {
   type Response = Future[Option[Root]]
 
-  final case class Root(id: Int, name: String, availableForSale: Boolean)
+  final case class Root(id: Int, name: String, availableForSale: Boolean) extends ResponseItem
 
   def build(sku: Sku, availableForSale: Boolean): Root = {
     Root(id = sku.id, name = sku.name.getOrElse(""), availableForSale = availableForSale)

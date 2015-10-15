@@ -12,8 +12,8 @@ import models.Notes
 import models.Notes.scope._
 
 object AdminNotes {
-  final case class Root(id: Int, body: String, author: Author, createdAt: Instant)
-  final case class Author(firstName: String, lastName: String, email: String)
+  final case class Root(id: Int, body: String, author: Author, createdAt: Instant) extends ResponseItem
+  final case class Author(firstName: String, lastName: String, email: String) extends ResponseItem
 
   def buildAuthor(author: StoreAdmin): Author =
     Author(firstName = author.firstName, lastName = author.lastName, email = author.email)

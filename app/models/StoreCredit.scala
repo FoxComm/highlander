@@ -166,10 +166,10 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
     Adjs.save(adjustment)
   }
 
-  def findAllByCustomerId(customerId: Int)(implicit ec: ExecutionContext): DBIO[Seq[StoreCredit]] =
-    filter(_.customerId === customerId).result
+  def findAllByCustomerId(customerId: Int)(implicit ec: ExecutionContext): QuerySeq =
+    filter(_.customerId === customerId)
 
-  def findAllActiveByCustomerId(customerId: Int): Query[StoreCredits, StoreCredit, Seq] =
+  def findAllActiveByCustomerId(customerId: Int): QuerySeq =
     filter(_.customerId === customerId).filter(_.status === (Active: Status)).filter(_.availableBalance > 0)
 
   def findByIdAndCustomerId(id: Int, customerId: Int)(implicit ec: ExecutionContext): DBIO[Option[StoreCredit]] =
