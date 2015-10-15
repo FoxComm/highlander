@@ -3,6 +3,7 @@
 import React from 'react';
 import Addresses from '../addresses/addresses';
 import AddressDetails from '../addresses/address-details';
+import ContentBox from '../content-box/content-box';
 import OrderStore from '../../stores/orders';
 
 export default class OrderShippingAddress extends React.Component {
@@ -32,36 +33,25 @@ export default class OrderShippingAddress extends React.Component {
 
     if (this.state.isEditing) {
       body = <Addresses order={this.props.order} onSelectAddress={this.onSelectAddress.bind(this)} />;
-      actions = (
-        <footer>
-          <button className="fc-btn fc-btn-primary" onClick={this.toggleEdit.bind(this)}>Done</button>
-        </footer>
+      editButton = (
+        <button className="fc-btn fc-btn-plain icon-chevron-up" onClick={this.toggleEdit.bind(this)}></button>
       );
     } else {
       body = (
         <AddressDetails address={address} />
       );
       editButton = (
-        <button className="fc-btn fc-edit-button icon-edit" onClick={this.toggleEdit.bind(this)}>
+        <button className="fc-btn fc-btn-plain icon-chevron-down" onClick={this.toggleEdit.bind(this)}>
         </button>
       );
     }
 
     return (
-      <section className="fc-content-box fc-order-shipping-address">
-        <header>
-          <div className='fc-grid'>
-            <div className="fc-col-md-2-3">Shipping Address</div>
-            <div className="fc-col-md-1-3 fc-controls">
-              {editButton}
-            </div>
-          </div>
-        </header>
-        <article>
-          {body}
-          {actions}
-        </article>
-      </section>
+      <ContentBox className="fc-order-shipping-address"
+                  title="Shipping Address"
+                  actionBlock={editButton}>
+        {body}
+      </ContentBox>
     );
   }
 }
