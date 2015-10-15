@@ -2,10 +2,13 @@ package services
 
 import scala.concurrent.{ExecutionContext, Future}
 
-import cats.data.Xor
 import cats.data.Validated.{Valid, Invalid}
-import models._
+import cats.data.Xor
+import cats.implicits._
+
 import models.StoreCredit.Canceled
+import models._
+import models.StoreCreditSubtypes.scope._
 import responses.StoreCreditResponse
 import responses.StoreCreditResponse._
 import responses.StoreCreditBulkResponse._
@@ -49,20 +52,52 @@ object StoreCreditService {
   def createManual(admin: StoreAdmin, customerId: Int, payload: payloads.CreateManualStoreCredit)
     (implicit db: Database, ec: ExecutionContext): Result[Root] = {
 
-    Customers.findOneById(customerId).run().flatMap {
-      case Some(customer) ⇒
-        val actions = for {
-          origin  ← StoreCreditManuals.save(StoreCreditManual(adminId = admin.id, reasonId = payload.reasonId,
-            subReasonId = payload.subReasonId))
-          sc      ← StoreCredits.save(StoreCredit(customerId = customerId, originId = origin.id, originType =
-            StoreCredit.CsrAppeasement, currency = payload.currency, originalBalance = payload.amount))
-        } yield sc
+    def prepareForCreate(customerId: Int, payload: payloads.CreateManualStoreCredit):
+      ResultT[(Customer, Reason, Option[StoreCreditSubtype])] = {
 
-        actions.run().flatMap(sc ⇒ Result.right(build(sc)))
+      val queries = for {
+        customer ← Customers.findOneById(customerId)
+        reason   ← Reasons.findOneById(payload.reasonId)
+        subtype  ← payload.subTypeId match {
+          case Some(id) ⇒ StoreCreditSubtypes.csrAppeasements.filter(_.id === id).one
+          case None     ⇒ lift(None)
+        }
+      } yield (customer, reason, subtype)
 
-      case None ⇒
-        Result.left(NotFoundFailure(Customer, customerId).single)
+      ResultT(queries.run().map {
+        case (None, _, _) ⇒
+          Xor.left(NotFoundFailure(Customer, customerId).single)
+        case (_, None, _) ⇒
+          Xor.left(NotFoundFailure(Reason, payload.reasonId).single)
+        case (_, _, None) if payload.subTypeId.isDefined ⇒
+          Xor.left(NotFoundFailure(StoreCreditSubtype, payload.subTypeId.head).single)
+        case (Some(c), Some(r), s) ⇒
+          Xor.right((c, r, s))
+      })
     }
+
+    def saveStoreCredit(admin: StoreAdmin, customer: Customer, payload: payloads.CreateManualStoreCredit):
+      ResultT[DBIO[Root]] = {
+
+      val actions = for {
+        origin ← StoreCreditManuals.save(StoreCreditManual(adminId = admin.id, reasonId = payload.reasonId,
+          subReasonId = payload.subReasonId))
+        sc ← StoreCredits.save(StoreCredit.buildAppeasement(customerId = customer.id, originId = origin.id,
+          payload = payload))
+      } yield sc
+
+      ResultT.rightAsync(actions.flatMap(sc ⇒ lift(build(sc))))
+    }
+
+    val transformer = for {
+      prepare ← prepareForCreate(customerId, payload)
+      sc ← prepare match { case (customer, reason, subtype) ⇒
+        val newPayload = payload.copy(subTypeId = subtype.map(_.id))
+        saveStoreCredit(admin, customer, newPayload)
+      }
+    } yield sc
+
+    transformer.value.flatMap(_.fold(Result.left, dbio ⇒ Result.fromFuture(dbio.transactionally.run())))
   }
 
   def getById(id: Int)(implicit db: Database, ec: ExecutionContext): Result[Root] = {

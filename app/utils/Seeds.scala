@@ -35,7 +35,8 @@ object Seeds {
     shippingMethods: Seq[ShippingMethod], shippingPriceRules: Seq[ShippingPriceRule],
     shippingMethodRuleMappings: Seq[ShippingMethodPriceRule], skus: Seq[Sku], orderLineItems: Seq[OrderLineItem],
     orderPayments: Seq[OrderPayment], shipment: Shipment, paymentMethods: AllPaymentMethods, reasons: Seq[Reason],
-    orderLineItemSkus: Seq[OrderLineItemSku], inventorySummaries: Seq[InventorySummary])
+    orderLineItemSkus: Seq[OrderLineItemSku], inventorySummaries: Seq[InventorySummary],
+    gcSubTypes: Seq[GiftCardSubtype], scSubTypes: Seq[StoreCreditSubtype])
 
   final case class AllPaymentMethods(giftCard: GiftCard = Factories.giftCard, storeCredit: StoreCredit = Factories
     .storeCredit)
@@ -63,7 +64,9 @@ object Seeds {
       paymentMethods = AllPaymentMethods(giftCard = Factories.giftCard, storeCredit = Factories.storeCredit),
       reasons = Factories.reasons,
       orderLineItemSkus = Factories.orderLineItemSkus,
-      inventorySummaries = Factories.inventorySummaries
+      inventorySummaries = Factories.inventorySummaries,
+      gcSubTypes = Factories.giftCardSubTypes,
+      scSubTypes = Factories.storeCreditSubTypes
     )
 
     s.address.validate.fold(err ⇒ throw new Exception(err.mkString("\n")), _ ⇒ {})
@@ -96,6 +99,8 @@ object Seeds {
       shippingMethodRuleMappings ← ShippingMethodsPriceRules ++= s.shippingMethodRuleMappings
       shipments ← Shipments.save(s.shipment)
       reasons ← Reasons ++= s.reasons.map(_.copy(storeAdminId = storeAdmin.id))
+      gcSubTypes ← GiftCardSubtypes ++= s.gcSubTypes
+      scSubTypes ← StoreCreditSubtypes ++= s.scSubTypes
       gcOrigin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = storeAdmin.id, reasonId = 1))
       giftCard ← GiftCards.save(s.paymentMethods.giftCard.copy(originId = gcOrigin.id))
       gcAdjustments ← GiftCards.auth(giftCard, Some(orderPayments.id), 10)
@@ -192,10 +197,22 @@ object Seeds {
       Reason(body = "Cancelled by customer request", parentId = None, storeAdminId = 0),
       Reason(body = "Cancelled because duplication", parentId = None, storeAdminId = 0))
 
+    def storeCreditSubTypes: Seq[StoreCreditSubtype] = Seq(
+      StoreCreditSubtype(title = "Appeasement Subtype A", originType = StoreCredit.CsrAppeasement),
+      StoreCreditSubtype(title = "Appeasement Subtype B", originType = StoreCredit.CsrAppeasement),
+      StoreCreditSubtype(title = "Appeasement Subtype C", originType = StoreCredit.CsrAppeasement)
+    )
+
     def storeCredit = StoreCredit(customerId = 0, originId = 0, originType = StoreCredit.CsrAppeasement, originalBalance = 50,
       currency = Currency.USD)
 
     def storeCreditManual = StoreCreditManual(adminId = 0, reasonId = 0)
+
+    def giftCardSubTypes: Seq[GiftCardSubtype] = Seq(
+      GiftCardSubtype(title = "Appeasement Subtype A", originType = GiftCard.CsrAppeasement),
+      GiftCardSubtype(title = "Appeasement Subtype B", originType = GiftCard.CsrAppeasement),
+      GiftCardSubtype(title = "Appeasement Subtype C", originType = GiftCard.CsrAppeasement)
+    )
 
     def giftCard = GiftCard(currency = Currency.USD, originId = 0, originType = GiftCard.CsrAppeasement,
       originalBalance = 50)

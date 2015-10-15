@@ -4,9 +4,12 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Xor
 import cats.data.Validated.{Valid, Invalid}
+import cats.implicits._
+
 import shapeless._
 import models._
 import models.GiftCard.Canceled
+import models.GiftCardSubtypes.scope._
 import responses.{GiftCardResponse, CustomerResponse, StoreAdminResponse}
 import responses.GiftCardResponse._
 import responses.GiftCardBulkResponse._
@@ -144,18 +147,44 @@ object GiftCardService {
   private def createGiftCardModel(admin: StoreAdmin, payload: payloads.GiftCardCreateByCsr)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
 
-    val finder = Reasons.filter(_.id === payload.reasonId)
-    finder.selectOneForUpdate { reason ⇒
+    def prepareForCreate(payload: payloads.GiftCardCreateByCsr): ResultT[(Reason, Option[GiftCardSubtype])] = {
       val queries = for {
+        reason   ← Reasons.findOneById(payload.reasonId)
+        subtype  ← payload.subTypeId match {
+          case Some(id) ⇒ GiftCardSubtypes.csrAppeasements.filter(_.id === id).one
+          case None     ⇒ lift(None)
+        }
+      } yield (reason, subtype)
+
+      ResultT(queries.run().map {
+        case (None, _) ⇒
+          Xor.left(NotFoundFailure(Reason, payload.reasonId).single)
+        case (_, None) if payload.subTypeId.isDefined ⇒
+          Xor.left(NotFoundFailure(GiftCardSubtype, payload.subTypeId.head).single)
+        case (Some(r), s) ⇒
+          Xor.right((r, s))
+      })
+    }
+
+    def saveGiftCard(admin: StoreAdmin, payload: payloads.GiftCardCreateByCsr): ResultT[DBIO[Root]] = {
+      val actions = for {
         origin  ← GiftCardManuals.save(GiftCardManual(adminId = admin.id, reasonId = payload.reasonId))
         gc      ← GiftCards.save(GiftCard.buildAppeasement(payload, origin.id))
       } yield gc
 
-      DbResult.fromDbio(queries.transactionally.flatMap { gc ⇒
-        val storeAdminResponse = Some(StoreAdminResponse.build(admin))
-        lift(GiftCardResponse.build(gc, None, storeAdminResponse))
-      })
+      val storeAdminResponse = Some(StoreAdminResponse.build(admin))
+      ResultT.rightAsync(actions.flatMap(gc ⇒ lift(build(gc, None, storeAdminResponse))))
     }
+
+    val transformer = for {
+      prepare ← prepareForCreate(payload)
+      gc ← prepare match { case (reason, subtype) ⇒
+        val newPayload = payload.copy(subTypeId = subtype.map(_.id))
+        saveGiftCard(admin, newPayload)
+      }
+    } yield gc
+
+    transformer.value.flatMap(_.fold(Result.left, dbio ⇒ Result.fromFuture(dbio.transactionally.run())))
   }
 
   private def fetchDetails(code: String)(implicit db: Database, ec: ExecutionContext) = for {
