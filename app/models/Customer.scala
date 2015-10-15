@@ -16,6 +16,7 @@ import slick.driver.PostgresDriver.api._
 import utils.GenericTable.TableWithId
 import utils.{ModelWithIdParameter, TableQueryWithId, Validation}
 import utils.Slick.implicits._
+import payloads.CreateCustomerPayload
 import utils.Passwords._
 
 final case class Customer(id: Int = 0, email: String, password: Option[String] = None,
@@ -73,10 +74,10 @@ object Customers extends TableQueryWithId[Customer, Customers](
     filter(_.email === email).one
   }
 
-  def buildFromPayload(payload: payloads.CreateCustomer): Customer = {
+  def buildFromPayload(payload: payloads.CreateCustomerPayload): Customer = {
     val hash = payload.password.map(hashPassword(_))
-    val isGuest = payload.name.isEmpty
-    Customer(id = 0, email = payload.email, password = hash, name = payload.name, isGuest = isGuest)
+    Customer(id = 0, email = payload.email, password = hash, name = payload.name,
+      isGuest = payload.isGuest.getOrElse(false))
   }
 
   object scope {
