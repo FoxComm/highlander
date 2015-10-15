@@ -4,6 +4,7 @@ import * as actionTypes from '../actions/order-line-items';
 
 const initialState = {
   isEditing: false,
+  sortBy: 'sku',
   items: []
 };
 
