@@ -6,6 +6,7 @@ import { bindActionCreators } from 'redux';
 import * as actionCreators from '../../actions/order-line-items';
 
 import { formatCurrency } from '../../lib/format';
+import DeleteButton from '../common/delete-button';
 
 function mapStateToProps(state) {
   return {
@@ -59,9 +60,7 @@ export default class OrderLineItem extends React.Component {
         </td>
         <td>{formatCurrency(this.props.item.totalPrice)}</td>
         <td>
-          <button className='fc-btn' onClick={() => this.props.actions.orderLineItemAskDelete(item.sku)}>
-            <i className='icon-trash' />
-          </button>
+          <DeleteButton onClick={() => this.props.actions.orderLineItemAskDelete(item.sku)} />
         </td>
       </tr>
     );
