@@ -26,8 +26,6 @@ object GiftCardService {
   type Account = Customer :+: StoreAdmin :+: CNil
   type QuerySeq = Query[GiftCards, GiftCard, Seq]
 
-  type GiftCardDependencies = ResultT[(Reason, Option[GiftCardSubtype])]
-
   def getByCode(code: String)(implicit db: Database, ec: ExecutionContext): Result[Root] = {
     fetchDetails(code).run().flatMap {
       case (Some(giftCard), Xor.Left(Some(customer))) ⇒
@@ -150,7 +148,7 @@ object GiftCardService {
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
 
     def prepareForCreate(payload: payloads.GiftCardCreateByCsr)(implicit db: Database, ec: ExecutionContext):
-      GiftCardDependencies = {
+      ResultT[(Reason, Option[GiftCardSubtype])] = {
 
       val queries = for {
         reason   ← Reasons.findOneById(payload.reasonId)

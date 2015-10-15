@@ -20,13 +20,11 @@ import utils.Slick.implicits._
 object StoreCreditService {
   type QuerySeq = Query[StoreCredits, StoreCredit, Seq]
 
-  type StoreCreditDependencies = ResultT[(Customer, Reason, Option[StoreCreditSubtype])]
-
   def createManual(admin: StoreAdmin, customerId: Int, payload: payloads.CreateManualStoreCredit)
     (implicit db: Database, ec: ExecutionContext): Result[Root] = {
 
     def prepareForCreate(customerId: Int, payload: payloads.CreateManualStoreCredit)
-      (implicit db: Database, ec: ExecutionContext): StoreCreditDependencies = {
+      (implicit db: Database, ec: ExecutionContext): ResultT[(Customer, Reason, Option[StoreCreditSubtype])] = {
       val queries = for {
         customer ← Customers.findOneById(customerId)
         reason   ← Reasons.findOneById(payload.reasonId)
