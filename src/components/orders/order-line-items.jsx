@@ -6,8 +6,8 @@ import { bindActionCreators } from 'redux';
 import * as actionCreators from '../../actions/order-line-items';
 
 import TableView from '../tables/tableview';
-import LineItemCounter from '../line-items/line-item-counter';
-import DeleteLineItem from '../line-items/line-item-delete';
+import TableHead from '../tables/head';
+import OrderLineItem from './order-line-item';
 import SkuStore from '../../stores/skus';
 import SkuResult from './sku-result';
 import Typeahead from '../typeahead/typeahead';
@@ -35,7 +35,7 @@ export default class OrderLineItems extends React.Component {
       {field: 'sku', text: 'SKU'},
       {field: 'price', text: 'Price', type: 'currency'},
       {field: 'quantity', text: 'Qty'},
-      {field: 'total', text: 'Total', type: 'currency'}
+      {field: 'totalPrice', text: 'Total', type: 'currency'}
     ],
     editColumns: [
       {field: 'imagePath', text: 'Image', type: 'image'},
@@ -43,7 +43,7 @@ export default class OrderLineItems extends React.Component {
       {field: 'sku', text: 'SKU'},
       {field: 'price', text: 'Price', type: 'currency'},
       {field: 'lineItem', text: 'Qty', component: 'LineItemCounter'},
-      {field: 'total', text: 'Total', type: 'currency'},
+      {field: 'totalPrice', text: 'Total', type: 'currency'},
       {field: 'delete', text: 'Delete', component: 'DeleteLineItem'}
     ]
   }
@@ -61,13 +61,19 @@ export default class OrderLineItems extends React.Component {
   }
 
   render() {
+    let orderLineItems = this.props.entity.lineItems.skus.map((lineItem, idx) => {
+      return (<OrderLineItem item={lineItem} />);
+    });
+
     if (this.props.lineItems.isEditing) {
       return (
         <section className='fc-line-items fc-content-box'>
-          <TableView columns={this.props.editColumns} rows={this.props.entity.lineItems.skus} model="lineItem">
-            <LineItemCounter entityName={this.props.model} entity={this.props.entity} />
-            <DeleteLineItem entityName={this.props.model} entity={this.props.entity} />
-          </TableView>
+          <table className='fc-table'>
+            <TableHead columns={this.props.editColumns} />
+            <tbody>
+              {orderLineItems}
+            </tbody>
+          </table>
           <footer>
             <div>
               <strong>Add Item</strong>
