@@ -29,7 +29,7 @@ import cats.syntax.apply._
 
 final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: OriginType = CsrAppeasement,
   subTypeId: Option[Int] = None, currency: Currency = Currency.USD, originalBalance: Int, currentBalance: Int = 0,
-  availableBalance:Int = 0, status: Status = Active, canceledAmount: Option[Int] = None,
+  availableBalance: Int = 0, status: Status = Active, canceledAmount: Option[Int] = None,
   canceledReason: Option[Int] = None, createdAt: Instant = Instant.now())
   extends PaymentMethod
   with ModelWithIdParameter
