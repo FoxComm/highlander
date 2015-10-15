@@ -2,13 +2,17 @@
 import React, { PropTypes } from 'react';
 
 export default class Alert extends React.Component {
+
+  static ERROR = 'error';
+  static WARNING = 'warning';
+  static SUCCESS = 'success';
+
   static propTypes = {
     type: PropTypes.oneOf([
-      'error', 'success', 'warning'
+      Alert.ERROR, Alert.WARNING, Alert.SUCCESS
     ]).isRequired,
     children: PropTypes.node
   };
-
 
   render() {
     return (

@@ -12,7 +12,7 @@ export default class ErrorAlerts extends React.Component {
       return (
         <div className="fc-errors">
           {this.props.errors.map((error, index) => {
-            return <Alert key={`error-${index}`} type="error">{error}</Alert>;
+            return <Alert key={`error-${index}`} type={Alert.ERROR}>{error}</Alert>;
             })}
         </div>
       );
