@@ -36,16 +36,14 @@ describe('OrderLineItems', function() {
       <LineItems entity={order} model='order'/>
       , container);
     let renderedDOM = () => ReactDOM.findDOMNode(orderLineItems);
-    let editButtons = renderedDOM().querySelectorAll('header .fc-btn');
-    let doneButtons = renderedDOM().querySelectorAll('footer .fc-btn');
+    let editButtons = renderedDOM().querySelectorAll('header button');
 
     expect(editButtons).to.have.length(1);
-    expect(doneButtons).to.have.length(0);
+    expect(editButtons[0].className).to.contain('icon-chevron-down');
     TestUtils.Simulate.click(editButtons[0]);
 
-    let editButtons2 = renderedDOM().querySelectorAll('header .fc-btn');
-    let doneButtons2 = renderedDOM().querySelectorAll('footer .fc-btn');
-    expect(editButtons2).to.have.length(0);
-    expect(doneButtons2).to.have.length(1);
+    let editButtons2 = renderedDOM().querySelectorAll('header button');
+    expect(editButtons2).to.have.length(1);
+    expect(editButtons2[0].className).to.contain('icon-chevron-up');
   });
 });

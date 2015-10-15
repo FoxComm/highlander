@@ -74,6 +74,20 @@ export default class LineItems extends React.Component {
     if (this.props.model === 'order') {
       if (this.state.isEditing) {
         columns = this.orderEditColumns;
+        header = (
+          <header>
+            <div className='fc-grid'>
+              <div className="fc-col-md-2-3">Items</div>
+              <div className="fc-col-md-1-3 fc-align-right">
+                <button className="fc-right fc-btn fc-btn-plain icon-chevron-up" onClick={this.toggleEdit.bind(this)}>
+                </button>
+                <div className="fc-line-items-count fc-right">
+                  5 items
+                </div>
+              </div>
+            </div>
+          </header>
+        );
         body = (
           <TableView columns={columns} rows={rows} model="lineItem">
             <LineItemCounter entityName={this.props.model} entity={this.props.entity} />
@@ -96,9 +110,11 @@ export default class LineItems extends React.Component {
             <div className='fc-grid'>
               <div className="fc-col-md-2-3">Items</div>
               <div className="fc-col-md-1-3 fc-align-right">
-                <button className="fc-btn" onClick={this.toggleEdit.bind(this)}>
-                  <i className="icon-edit"></i>
+                <button className="fc-btn fc-btn-plain fc-right icon-chevron-down" onClick={this.toggleEdit.bind(this)}>
                 </button>
+                <div className="fc-line-items-count fc-right">
+                  5 items
+                </div>
               </div>
             </div>
           </header>
