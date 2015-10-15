@@ -30,7 +30,7 @@ class CustomerTest extends TestBase {
             ("customer", "errors"),
             (c.copy(email = ""), "email must not be empty"),
             (c.copy(name = None), "name must not be empty"),
-            (c.copy(name = Some("")), "nameSize got 0, expected 1 or more")
+            (c.copy(name = Some("")), "name must not be empty")
           )
 
           forAll(customers) { case (customer, errors) ⇒
