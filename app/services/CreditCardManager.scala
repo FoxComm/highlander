@@ -185,7 +185,7 @@ object CreditCardManager {
           case "address1Check"       => if(s.asc) creditCard.address1Check.asc     else creditCard.address1Check.desc
           case "zipCheck"            => if(s.asc) creditCard.zipCheck.asc          else creditCard.zipCheck.desc
           case "inWallet"            => if(s.asc) creditCard.inWallet.asc          else creditCard.inWallet.desc
-          //case "deletedAt"           => if(s.asc) creditCard.deletedAt.asc         else creditCard.deletedAt.desc
+          case "deletedAt"           => if(s.asc) creditCard.deletedAt.asc         else creditCard.deletedAt.desc
           case "regionId"            => if(s.asc) creditCard.regionId.asc          else creditCard.regionId.desc
           case "addressName"         => if(s.asc) creditCard.addressName.asc       else creditCard.addressName.desc
           case "address1"            => if(s.asc) creditCard.address1.asc          else creditCard.address1.desc

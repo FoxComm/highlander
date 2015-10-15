@@ -1,12 +1,15 @@
 import scala.util.Random
+import scala.collection.JavaConverters._
 import akka.http.scaladsl.model.StatusCodes
 
 import models._
 import models.StoreCredit.{Canceled, Active, OnHold}
+import org.joda.money.CurrencyUnit
 import responses._
 import org.scalatest.BeforeAndAfterEach
 import services._
 import util.IntegrationTestBase
+import utils.Money.Currency
 import utils.Seeds.Factories
 import utils.Slick.implicits._
 
@@ -37,9 +40,11 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
     }
   }
   def uriPrefix = s"v1/customers/${currentCustomer.id}/payment-methods/store-credit"
-  def responseItems = (1 to 30).map { i ⇒
+  val regCurrencies = CurrencyUnit.registeredCurrencies.asScala.toIndexedSeq
+  def responseItems = regCurrencies.map { currency ⇒
     val balance = Random.nextInt(9999999)
     val sc = StoreCredits.save(Factories.storeCredit.copy(
+      currency = currency,
       originId = currentOrigin.id,
       customerId = currentCustomer.id,
       originalBalance = balance,
@@ -47,8 +52,8 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       availableBalance = balance)).run().futureValue
     responses.StoreCreditResponse.build(sc)
   }
-  val sortColumnName = "currentBalance"
-  def responseItemsSort(items: IndexedSeq[responses.StoreCreditResponse.Root]) = items.sortBy(_.currentBalance)
+  val sortColumnName = "currency"
+  def responseItemsSort(items: IndexedSeq[responses.StoreCreditResponse.Root]) = items.sortBy(_.currency)
   def mf = implicitly[scala.reflect.Manifest[responses.StoreCreditResponse.Root]]
   // paging and sorting API end
 

@@ -106,7 +106,7 @@ object Seeds {
   }
 
   object Factories {
-    private def randomString(len: Int) = Random.alphanumeric.take(len).mkString.toLowerCase
+    def randomString(len: Int) = Random.alphanumeric.take(len).mkString.toLowerCase
 
     def customer = Customer(email = "yax@yax.com", password = "password",
       firstName = "Yax", lastName = "Fuentes", phoneNumber = Some("123-444-4388"),

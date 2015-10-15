@@ -19,6 +19,8 @@ import utils.Slick.implicits._
 object StoreCreditService {
   type QuerySeq = Query[StoreCredits, StoreCredit, Seq]
 
+  import models._
+
   def findAllByCustomer(customerId: Int)
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[Seq[Root]] = {
 
@@ -31,13 +33,13 @@ object StoreCreditService {
           case "originId"         => if(s.asc) storeCredit.originId.asc         else storeCredit.originId.desc
           case "originType"       => if(s.asc) storeCredit.originType.asc       else storeCredit.originType.desc
           case "customerId"       => if(s.asc) storeCredit.customerId.asc       else storeCredit.customerId.desc
-          //case "currency"         => if(s.asc) storeCredit.currency.asc       else storeCredit.currency.desc
+          case "currency"         => if(s.asc) storeCredit.currency.asc         else storeCredit.currency.desc
           case "originalBalance"  => if(s.asc) storeCredit.originalBalance.asc  else storeCredit.originalBalance.desc
           case "currentBalance"   => if(s.asc) storeCredit.currentBalance.asc   else storeCredit.currentBalance.desc
           case "availableBalance" => if(s.asc) storeCredit.availableBalance.asc else storeCredit.availableBalance.desc
           case "canceledAmount"   => if(s.asc) storeCredit.canceledAmount.asc   else storeCredit.canceledAmount.desc
           case "canceledReason"   => if(s.asc) storeCredit.canceledReason.asc   else storeCredit.canceledReason.desc
-          //case "createdAt"        => if(s.asc) storeCredit.createdAt.asc      else storeCredit.createdAt.desc
+          case "createdAt"        => if(s.asc) storeCredit.createdAt.asc      else storeCredit.createdAt.desc
           case _                  => storeCredit.id.asc
         }
       }

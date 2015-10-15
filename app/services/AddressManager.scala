@@ -38,7 +38,7 @@ object AddressManager {
           case "zip"                 => if(s.asc) address.zip.asc                else address.zip.desc
           case "isDefaultShipping"   => if(s.asc) address.isDefaultShipping.asc  else address.isDefaultShipping.desc
           case "phoneNumber"         => if(s.asc) address.phoneNumber.asc        else address.phoneNumber.desc
-          //case "deletedAt"           => if(s.asc) address.deletedAt.asc          else address.deletedAt.desc
+          case "deletedAt"           => if(s.asc) address.deletedAt.asc          else address.deletedAt.desc
           case "regionRegionId"      => if(s.asc) region.id.asc                  else region.id.desc
           case "regionCountryId"     => if(s.asc) region.countryId.asc           else region.countryId.desc
           case "regionName"          => if(s.asc) region.name.asc                else region.name.desc

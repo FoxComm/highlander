@@ -10,7 +10,7 @@ import utils.CustomDirectives.SortAndPage
 import utils.Slick.UpdateReturning._
 
 object CustomerManager {
-  import models.Customers.QuerySeq
+  import models._
 
   def toggleDisabled(customerId: Int, disabled: Boolean, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database): Result[Customer] = {
@@ -44,7 +44,7 @@ object CustomerManager {
           case "location"          => if(s.asc) customer.location.asc           else customer.location.desc
           case "modality"          => if(s.asc) customer.modality.asc           else customer.modality.desc
           case "isGuest"           => if(s.asc) customer.isGuest.asc            else customer.isGuest.desc
-          //case "createdAt"         => if(s.asc) customer.createdAt.asc          else customer.createdAt.desc
+          case "createdAt"         => if(s.asc) customer.createdAt.asc          else customer.createdAt.desc
           case _                   => customer.id.asc
         }
       }
