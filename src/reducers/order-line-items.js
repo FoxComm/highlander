@@ -4,6 +4,8 @@ import * as actionTypes from '../actions/order-line-items';
 
 const initialState = {
   isEditing: false,
+  isDeleting: false,
+  skuToDelete: '',
   sortBy: 'sku',
   items: []
 };
@@ -32,21 +34,34 @@ export function orderLineItems(state = initialState, action) {
 
       return {
         ...state,
-        isEditing: true,
         items: incrementItems
       };
     case actionTypes.ORDER_LINE_ITEM_DECREMENT:
+      let isDeleting = false;
+      let skuToDelete = '';
       let decrementItems = state.items.map((item, idx) => {
         if (item.sku === action.sku) {
-          item.quantity -= 1;
+          if (item.quantity > 1) {
+            item.quantity -= 1;
+          } else {
+            isDeleting = true;
+            skuToDelete = action.sku;
+          }
         }
         return item;
       });
 
       return {
         ...state,
-        isEditing: true,
+        isDeleting: isDeleting,
+        skuToDelete: skuToDelete,
         items: decrementItems
+      };
+    case actionTypes.ORDER_LINE_ITEM_DELETE:
+      return {
+        ...state,
+        isDeleting: true,
+        skuToDelete: action.sku
       };
     default:
       return state;

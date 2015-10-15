@@ -48,6 +48,14 @@ export default class OrderLineItems extends React.Component {
     ]
   }
 
+  get confirmModal() {
+    if (this.props.lineItems.isDeleting) {
+      return <h2>PLACEHOLDER FOR SHOWING DELETE MODAL</h2>;
+    } else {
+      return <div></div>;
+    }
+  }
+
   itemSelected(sku) {
     console.log('Item selected');
   }
@@ -81,6 +89,7 @@ export default class OrderLineItems extends React.Component {
             </div>
             <button className='fc-btn fc-btn-primary' onClick={this.cancelEditLineItems.bind(this)}>Done</button>
           </footer>
+          {this.confirmModal}
         </section>
       );
     } else {
