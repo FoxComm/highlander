@@ -2,8 +2,9 @@
 
 import _ from 'lodash';
 
-class ErrorResponse {
+class ErrorResponse extends Error {
   constructor(responseOrError) {
+    super();
     this.data = responseOrError;
     this.isNativeError = responseOrError instanceof Error;
 

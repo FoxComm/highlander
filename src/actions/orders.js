@@ -52,3 +52,21 @@ export function fetchOrdersIfNeeded() {
     }
   };
 }
+
+// TODO: implement it in actions
+//_callShippingAddressMethod(method, refNum, body = void 0) {
+//  let uri = `/orders/${refNum}/shipping-address`;
+//  return Api[method](uri, body)
+//    .then((res) => {
+//      // update shipping address for order in store
+//      this.fetchOrder(refNum);
+//    });
+//}
+//
+//setShippingAddress(refNum, addressId) {
+//  this._callShippingAddressMethod('patch', refNum, {addressId});
+//}
+//
+//removeShippingAddress(refNum) {
+//  this._callShippingAddressMethod('delete', refNum);
+//}
