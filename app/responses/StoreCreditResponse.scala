@@ -9,6 +9,7 @@ object StoreCreditResponse {
     id: Int,
     originId: Int,
     originType: models.StoreCredit.OriginType,
+    subTypeId: Option[Int],
     currency: Currency,
     customerId: Int,
     originalBalance: Int,
@@ -17,12 +18,15 @@ object StoreCreditResponse {
     canceledAmount: Option[Int],
     canceledReason: Option[Int],
     status: models.StoreCredit.Status,
-    createdAt: Instant)
+    createdAt: Instant) extends ResponseItem
+
+  def build(records: Seq[models.StoreCredit]): Seq[Root] = records.map(build)
 
   def build(storeCredit: models.StoreCredit): Root = {
     Root(id = storeCredit.id,
       originId = storeCredit.originId,
       originType = storeCredit.originType,
+      subTypeId = storeCredit.subTypeId,
       currency = storeCredit.currency,
       customerId = storeCredit.customerId,
       originalBalance = storeCredit.originalBalance,

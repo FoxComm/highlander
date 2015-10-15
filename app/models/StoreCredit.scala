@@ -28,9 +28,9 @@ import utils.Slick.implicits._
 import cats.syntax.apply._
 
 final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: OriginType = CsrAppeasement,
-  currency: Currency = Currency.USD, originalBalance: Int, currentBalance: Int = 0, availableBalance:Int = 0,
-  status: Status = Active, canceledAmount: Option[Int] = None, canceledReason: Option[Int] = None,
-  createdAt: Instant = Instant.now())
+  subTypeId: Option[Int] = None, currency: Currency = Currency.USD, originalBalance: Int, currentBalance: Int = 0,
+  availableBalance: Int = 0, status: Status = Active, canceledAmount: Option[Int] = None,
+  canceledReason: Option[Int] = None, createdAt: Instant = Instant.now())
   extends PaymentMethod
   with ModelWithIdParameter
   with FSM[StoreCredit.Status, StoreCredit]
@@ -104,6 +104,11 @@ object StoreCredit {
       currency = gc.currency, originalBalance = gc.currentBalance, currentBalance = gc.currentBalance)
   }
 
+  def buildAppeasement(customerId: Int, originId: Int, payload: payloads.CreateManualStoreCredit): StoreCredit = {
+    StoreCredit(customerId = customerId, originId = originId, originType = StoreCredit.CsrAppeasement,
+      subTypeId = payload.subTypeId, currency = payload.currency, originalBalance = payload.amount)
+  }
+
   implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
   implicit val originTypeColumnType: JdbcType[OriginType] with BaseTypedType[OriginType] = OriginType.slickColumn
 
@@ -130,6 +135,7 @@ class StoreCredits(tag: Tag) extends GenericTable.TableWithId[StoreCredit](tag, 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def originId = column[Int]("origin_id")
   def originType = column[StoreCredit.OriginType]("origin_type")
+  def subTypeId = column[Option[Int]]("subtype_id")
   def customerId = column[Int]("customer_id")
   def currency = column[Currency]("currency")
   def originalBalance = column[Int]("original_balance")
@@ -140,7 +146,7 @@ class StoreCredits(tag: Tag) extends GenericTable.TableWithId[StoreCredit](tag, 
   def canceledReason = column[Option[Int]]("canceled_reason")
   def createdAt = column[Instant]("created_at")
 
-  def * = (id, customerId, originId, originType, currency, originalBalance, currentBalance,
+  def * = (id, customerId, originId, originType, subTypeId, currency, originalBalance, currentBalance,
     availableBalance, status, canceledAmount, canceledReason, createdAt) <> ((StoreCredit.apply _).tupled, StoreCredit
     .unapply)
 }
@@ -166,10 +172,10 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
     Adjs.save(adjustment)
   }
 
-  def findAllByCustomerId(customerId: Int)(implicit ec: ExecutionContext): DBIO[Seq[StoreCredit]] =
-    filter(_.customerId === customerId).result
+  def findAllByCustomerId(customerId: Int)(implicit ec: ExecutionContext): QuerySeq =
+    filter(_.customerId === customerId)
 
-  def findAllActiveByCustomerId(customerId: Int): Query[StoreCredits, StoreCredit, Seq] =
+  def findAllActiveByCustomerId(customerId: Int): QuerySeq =
     filter(_.customerId === customerId).filter(_.status === (Active: Status)).filter(_.availableBalance > 0)
 
   def findByIdAndCustomerId(id: Int, customerId: Int)(implicit ec: ExecutionContext): DBIO[Option[StoreCredit]] =

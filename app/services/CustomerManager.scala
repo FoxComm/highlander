@@ -2,11 +2,11 @@ package services
 
 import scala.concurrent.ExecutionContext
 
-import models.{Customer, Customers, StoreAdmin}
+import models._
 import models.Customers.scope._
 import responses.CustomerResponse._
 import slick.driver.PostgresDriver.api._
-import utils.Slick._
+import utils.CustomDirectives.SortAndPage
 import utils.Slick.UpdateReturning._
 import payloads.CreateCustomerPayload
 
@@ -24,8 +24,33 @@ object CustomerManager {
     }
   }
 
-  def findAll(implicit db: Database, ec: ExecutionContext): Result[Seq[Root]] = {
-    Result.fromFuture(db.run(Customers.withDefaultRegions.result).map { results ⇒
+  def findAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage):
+  Result[Seq[Root]] = {
+    val query = Customers.withDefaultRegions
+
+    val sortedQuery = sortAndPage.sort match {
+      case Some(s) ⇒ query.sortBy { case (customer, _, _) ⇒
+        s.sortColumn match {
+          case "id"                => if(s.asc) customer.id.asc                 else customer.id.desc
+          case "isDisabled"        => if(s.asc) customer.isDisabled.asc         else customer.isDisabled.desc
+          case "disabledBy"        => if(s.asc) customer.disabledBy.asc         else customer.disabledBy.desc
+          case "isBlacklisted"     => if(s.asc) customer.isBlacklisted.asc      else customer.isBlacklisted.desc
+          case "blacklistedBy"     => if(s.asc) customer.blacklistedBy.asc      else customer.blacklistedBy.desc
+          case "blacklistedReason" => if(s.asc) customer.blacklistedReason.asc  else customer.blacklistedReason.desc
+          case "email"             => if(s.asc) customer.email.asc              else customer.email.desc
+          case "name"              => if(s.asc) customer.name.asc               else customer.name.desc
+          case "phoneNumber"       => if(s.asc) customer.phoneNumber.asc        else customer.phoneNumber.desc
+          case "location"          => if(s.asc) customer.location.asc           else customer.location.desc
+          case "modality"          => if(s.asc) customer.modality.asc           else customer.modality.desc
+          case "isGuest"           => if(s.asc) customer.isGuest.asc            else customer.isGuest.desc
+          case "createdAt"         => if(s.asc) customer.createdAt.asc          else customer.createdAt.desc
+          case _                   => customer.id.asc
+        }
+      }
+      case None    ⇒ query
+    }
+
+    Result.fromFuture(db.run(sortedQuery.paged.result).map { results ⇒
       results.map {
         case (customer, shipRegion, billRegion) ⇒
           build(customer, shipRegion, billRegion)

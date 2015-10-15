@@ -1,22 +1,36 @@
-import akka.http.scaladsl.model.StatusCodes
+import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 
-import models.{Orders, OrderShippingAddresses, Addresses, Customers}
+import models.{Addresses, Customer, Customers, OrderShippingAddresses, Orders, Regions}
 import util.IntegrationTestBase
+import util.SlickSupport.implicits._
 import utils.Seeds.Factories
 import utils.Slick.implicits._
-import services.{CustomerHasDefaultShippingAddress, Failure}
-import util.SlickSupport.implicits._
-import akka.http.scaladsl.model.HttpResponse
 
 class AddressesIntegrationTest extends IntegrationTestBase
   with HttpSupport
+  with SortingAndPaging[responses.Addresses.Root]
   with AutomaticAuth {
 
-
   import concurrent.ExecutionContext.Implicits.global
-  import api._
+
   import Extensions._
+  import api._
   import org.json4s.jackson.JsonMethods._
+
+  // paging and sorting API
+  private var currentCustomer: Customer = _
+  override def beforeSortingAndPaging() = {
+    currentCustomer = Customers.save(Factories.customer).futureValue
+  }
+  def uriPrefix = s"v1/customers/${currentCustomer.id}/addresses"
+  val sortColumnName = "name"
+  def responseItems = (1 to 30).map { i ⇒
+    val address = Addresses.save(Factories.generateAddress.copy(customerId = currentCustomer.id)).futureValue
+    responses.Addresses.build(address, Regions.findById(address.regionId).result.headOption.futureValue.value)
+  }
+  def responseItemsSort(items: IndexedSeq[responses.Addresses.Root]) = items.sortBy(_.name)
+  def mf = implicitly[scala.reflect.Manifest[responses.Addresses.Root]]
+  // paging and sorting API end
 
   def validateDeleteResponse(response: HttpResponse) {
       response.status must === (StatusCodes.NoContent)
@@ -184,4 +198,3 @@ class AddressesIntegrationTest extends IntegrationTestBase
     } yield (address, order, shippingAddress)).run().futureValue
   }
 }
-

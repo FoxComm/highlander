@@ -5,6 +5,7 @@ import java.time.temporal.ChronoField
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
+import scala.util.Random
 
 import models._
 import models.rules._
@@ -34,7 +35,8 @@ object Seeds {
     shippingMethods: Seq[ShippingMethod], shippingPriceRules: Seq[ShippingPriceRule],
     shippingMethodRuleMappings: Seq[ShippingMethodPriceRule], skus: Seq[Sku], orderLineItems: Seq[OrderLineItem],
     orderPayments: Seq[OrderPayment], shipment: Shipment, paymentMethods: AllPaymentMethods, reasons: Seq[Reason],
-    orderLineItemSkus: Seq[OrderLineItemSku], inventorySummaries: Seq[InventorySummary])
+    orderLineItemSkus: Seq[OrderLineItemSku], inventorySummaries: Seq[InventorySummary],
+    gcSubTypes: Seq[GiftCardSubtype], scSubTypes: Seq[StoreCreditSubtype])
 
   final case class AllPaymentMethods(giftCard: GiftCard = Factories.giftCard, storeCredit: StoreCredit = Factories
     .storeCredit)
@@ -62,7 +64,9 @@ object Seeds {
       paymentMethods = AllPaymentMethods(giftCard = Factories.giftCard, storeCredit = Factories.storeCredit),
       reasons = Factories.reasons,
       orderLineItemSkus = Factories.orderLineItemSkus,
-      inventorySummaries = Factories.inventorySummaries
+      inventorySummaries = Factories.inventorySummaries,
+      gcSubTypes = Factories.giftCardSubTypes,
+      scSubTypes = Factories.storeCreditSubTypes
     )
 
     s.address.validate.fold(err ⇒ throw new Exception(err.mkString("\n")), _ ⇒ {})
@@ -95,6 +99,8 @@ object Seeds {
       shippingMethodRuleMappings ← ShippingMethodsPriceRules ++= s.shippingMethodRuleMappings
       shipments ← Shipments.save(s.shipment)
       reasons ← Reasons ++= s.reasons.map(_.copy(storeAdminId = storeAdmin.id))
+      gcSubTypes ← GiftCardSubtypes ++= s.gcSubTypes
+      scSubTypes ← StoreCreditSubtypes ++= s.scSubTypes
       gcOrigin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = storeAdmin.id, reasonId = 1))
       giftCard ← GiftCards.save(s.paymentMethods.giftCard.copy(originId = gcOrigin.id))
       gcAdjustments ← GiftCards.auth(giftCard, Some(orderPayments.id), 10)
@@ -105,6 +111,8 @@ object Seeds {
   }
 
   object Factories {
+    def randomString(len: Int) = Random.alphanumeric.take(len).mkString.toLowerCase
+
     def customer = Customer(email = "yax@yax.com", password = Some("password"),
       name = Some("Yax Fuentes"), phoneNumber = Some("123-444-4388"),
       location = Some("DonkeyVille, TN"), modality = Some("Desktop[PC]"))
@@ -122,6 +130,9 @@ object Seeds {
         name = Some("Cameron Stitt"), phoneNumber = Some("883-444-4321"),
         location = Some("Donkeysburg, AU"), modality = Some("Desktop[PC]"))
     )
+
+    def generateCustomer: Customer = Customer(email = s"${randomString(10)}@email.com", password = randomString(10),
+        firstName = randomString(10), lastName = randomString(30))
 
     def storeAdmin = StoreAdmin(email = "admin@admin.com", password = "password", firstName = "Frankly", lastName = "Admin")
 
@@ -165,6 +176,10 @@ object Seeds {
     def address = Address(customerId = 0, regionId = 4177, name = "Home", address1 = "555 E Lake Union St.",
         address2 = None, city = "Seattle", zip = "12345", isDefaultShipping = true, phoneNumber = None)
 
+    def generateAddress: Address = Address(customerId = 0, regionId = 4177, name = randomString(10),
+      address1 = randomString(30), address2 = None, city = "Seattle", zip = "12345", isDefaultShipping = false,
+      phoneNumber = None)
+
     def shippingAddress = OrderShippingAddress(regionId = 4174, name = "Old Yax", address1 = "9313 Olde Mill Pond Dr",
       address2 = None, city = "Glen Allen", zip = "23060", phoneNumber = None)
 
@@ -182,10 +197,22 @@ object Seeds {
       Reason(body = "Cancelled by customer request", parentId = None, storeAdminId = 0),
       Reason(body = "Cancelled because duplication", parentId = None, storeAdminId = 0))
 
+    def storeCreditSubTypes: Seq[StoreCreditSubtype] = Seq(
+      StoreCreditSubtype(title = "Appeasement Subtype A", originType = StoreCredit.CsrAppeasement),
+      StoreCreditSubtype(title = "Appeasement Subtype B", originType = StoreCredit.CsrAppeasement),
+      StoreCreditSubtype(title = "Appeasement Subtype C", originType = StoreCredit.CsrAppeasement)
+    )
+
     def storeCredit = StoreCredit(customerId = 0, originId = 0, originType = StoreCredit.CsrAppeasement, originalBalance = 50,
       currency = Currency.USD)
 
     def storeCreditManual = StoreCreditManual(adminId = 0, reasonId = 0)
+
+    def giftCardSubTypes: Seq[GiftCardSubtype] = Seq(
+      GiftCardSubtype(title = "Appeasement Subtype A", originType = GiftCard.CsrAppeasement),
+      GiftCardSubtype(title = "Appeasement Subtype B", originType = GiftCard.CsrAppeasement),
+      GiftCardSubtype(title = "Appeasement Subtype C", originType = GiftCard.CsrAppeasement)
+    )
 
     def giftCard = GiftCard(currency = Currency.USD, originId = 0, originType = GiftCard.CsrAppeasement,
       originalBalance = 50)

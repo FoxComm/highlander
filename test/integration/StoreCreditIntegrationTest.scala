@@ -1,16 +1,21 @@
+import scala.util.Random
+import scala.collection.JavaConverters._
 import akka.http.scaladsl.model.StatusCodes
 
 import models._
 import models.StoreCredit.{Canceled, Active, OnHold}
+import org.joda.money.CurrencyUnit
 import responses._
 import org.scalatest.BeforeAndAfterEach
 import services._
 import util.IntegrationTestBase
+import utils.Money.Currency
 import utils.Seeds.Factories
 import utils.Slick.implicits._
 
 class StoreCreditIntegrationTest extends IntegrationTestBase
   with HttpSupport
+  with SortingAndPaging[responses.StoreCreditResponse.Root]
   with AutomaticAuth
   with BeforeAndAfterEach {
 
@@ -18,6 +23,39 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
   import Extensions._
   import org.json4s.jackson.JsonMethods._
+
+  // paging and sorting API
+  private var currentCustomer: Customer = _
+  private var currentOrigin: StoreCreditManual = _
+  override def beforeSortingAndPaging() = {
+    (for {
+      admin    ← StoreAdmins.save(authedStoreAdmin)
+      customer ← Customers.save(Factories.customer)
+      scReason ← Reasons.save(Factories.reason.copy(storeAdminId = admin.id))
+      scOrigin ← StoreCreditManuals.save(Factories.storeCreditManual.copy(adminId = admin.id, reasonId = scReason.id))
+    } yield (customer, scOrigin)).run().futureValue match {
+      case (cc, co) ⇒
+        currentCustomer = cc
+        currentOrigin = co
+    }
+  }
+  def uriPrefix = s"v1/customers/${currentCustomer.id}/payment-methods/store-credit"
+  val regCurrencies = CurrencyUnit.registeredCurrencies.asScala.toIndexedSeq
+  def responseItems = regCurrencies.map { currency ⇒
+    val balance = Random.nextInt(9999999)
+    val sc = StoreCredits.save(Factories.storeCredit.copy(
+      currency = currency,
+      originId = currentOrigin.id,
+      customerId = currentCustomer.id,
+      originalBalance = balance,
+      currentBalance = balance,
+      availableBalance = balance)).run().futureValue
+    responses.StoreCreditResponse.build(sc)
+  }
+  val sortColumnName = "currency"
+  def responseItemsSort(items: IndexedSeq[responses.StoreCreditResponse.Root]) = items.sortBy(_.currency)
+  def mf = implicitly[scala.reflect.Manifest[responses.StoreCreditResponse.Root]]
+  // paging and sorting API end
 
   "StoreCredits" - {
     "POST /v1/customers/:id/payment-methods/store-credit" - {
@@ -37,12 +75,37 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         }
       }
 
+      "succeeds with valid subTypeId" in new Fixture {
+        val payload = payloads.CreateManualStoreCredit(amount = 25, reasonId = scReason.id, subTypeId = Some(1))
+        val response = POST(s"v1/customers/${customer.id}/payment-methods/store-credit", payload)
+        val sc = response.as[responses.StoreCreditResponse.Root]
+
+        response.status must === (StatusCodes.OK)
+        sc.subTypeId must === (Some(1))
+      }
+
+      "fails if subtypeId is not found" in new Fixture {
+        val payload = payloads.CreateManualStoreCredit(amount = 25, reasonId = scReason.id, subTypeId = Some(255))
+        val response = POST(s"v1/customers/${customer.id}/payment-methods/store-credit", payload)
+
+        response.status must === (StatusCodes.NotFound)
+        response.errors must === (NotFoundFailure(StoreCreditSubtype, 255).description)
+      }
+
       "fails if the customer is not found" in {
         val payload = payloads.CreateManualStoreCredit(amount = 25, reasonId = 1)
         val response = POST(s"v1/customers/99/payment-methods/store-credit", payload)
 
         response.status must === (StatusCodes.NotFound)
         response.errors must === (NotFoundFailure(Customer, 99).description)
+      }
+
+      "fails if the reason is not found" in new Fixture {
+        val payload = payloads.CreateManualStoreCredit(amount = 25, reasonId = 255)
+        val response = POST(s"v1/customers/${customer.id}/payment-methods/store-credit", payload)
+
+        response.status must === (StatusCodes.NotFound)
+        response.errors must === (NotFoundFailure(Reason, 255).description)
       }
     }
 
@@ -174,6 +237,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       customer    ← Customers.save(Factories.customer)
       order       ← Orders.save(Factories.order.copy(customerId = customer.id))
       scReason    ← Reasons.save(Factories.reason.copy(storeAdminId = admin.id))
+      scSubType   ← StoreCreditSubtypes.save(Factories.storeCreditSubTypes.head)
       scOrigin    ← StoreCreditManuals.save(Factories.storeCreditManual.copy(adminId = admin.id,
         reasonId = scReason.id))
       storeCredit ← StoreCredits.save(Factories.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))

@@ -377,7 +377,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       _ ← StoreCredits ++= (1 to 5).map { i ⇒
         Factories.storeCredit.copy(status = StoreCredit.Active, customerId = customer.id, originId = i)
       }
-      storeCredits ← StoreCredits.findAllByCustomerId(customer.id)
+      storeCredits ← StoreCredits.findAllByCustomerId(customer.id).result
     } yield storeCredits).run().futureValue
   }
 

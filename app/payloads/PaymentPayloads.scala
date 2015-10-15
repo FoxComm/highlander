@@ -59,4 +59,4 @@ final case class StoreCreditPayment(amount: Int)
 final case class CreditCardPayment(creditCardId: Int)
 
 final case class CreateManualStoreCredit(amount: Int, currency: Currency = Currency.USD,
-  reasonId: Int, subReasonId: Option[Int] = None)
+  reasonId: Int, subReasonId: Option[Int] = None, subTypeId: Option[Int] = None)

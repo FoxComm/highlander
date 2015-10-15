@@ -9,7 +9,7 @@ object StoreCreditBulkResponse {
     id: Int,
     success: Boolean = false,
     storeCredit: Option[StoreCreditResponse.Root] = None,
-    errors: Option[Failures] = None)
+    errors: Option[Failures] = None) extends ResponseItem
 
   def buildItemResult(id: Int, result: Failures Xor StoreCreditResponse.Root): ItemResult = {
     result.fold(errors ⇒ ItemResult(id = id, errors = Some(errors)),

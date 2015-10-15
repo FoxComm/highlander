@@ -37,20 +37,6 @@ class GiftCardIntegrationTest extends IntegrationTestBase
   }
 
   "POST /v1/gift-cards" - {
-    "create two gift cards with unique codes" in new Fixture {
-      val payload = payloads.GiftCardCreateByCsr(balance = 555, reasonId = 1)
-
-      val responseFirst = POST(s"v1/gift-cards", payload)
-      responseFirst.status must ===(StatusCodes.OK)
-
-      val responseSecond = POST(s"v1/gift-cards", payload)
-      responseSecond.status must ===(StatusCodes.OK)
-
-      val rootFirst = responseFirst.as[GiftCardResponse.Root]
-      val rootSecond = responseSecond.as[GiftCardResponse.Root]
-      rootFirst.code must !== (rootSecond.code)
-    }
-
     "successfully creates gift card from payload" in new Fixture {
       val response = POST(s"v1/gift-cards", payloads.GiftCardCreateByCsr(balance = 555, reasonId = 1))
       val root = response.as[GiftCardResponse.Root]
@@ -66,6 +52,37 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       manual.adminId must === (admin.id)
     }
 
+    "create two gift cards with unique codes" in new Fixture {
+      val payload = payloads.GiftCardCreateByCsr(balance = 555, reasonId = 1)
+
+      val responseFirst = POST(s"v1/gift-cards", payload)
+      responseFirst.status must ===(StatusCodes.OK)
+
+      val responseSecond = POST(s"v1/gift-cards", payload)
+      responseSecond.status must ===(StatusCodes.OK)
+
+      val rootFirst = responseFirst.as[GiftCardResponse.Root]
+      val rootSecond = responseSecond.as[GiftCardResponse.Root]
+      rootFirst.code must !== (rootSecond.code)
+    }
+
+    "succeeds with valid subTypeId" in new Fixture {
+      val payload = payloads.GiftCardCreateByCsr(balance = 25, reasonId = 1, subTypeId = Some(1))
+      val response = POST(s"v1/gift-cards", payload)
+      val sc = response.as[responses.GiftCardResponse.Root]
+
+      response.status must === (StatusCodes.OK)
+      sc.subTypeId must === (Some(1))
+    }
+
+    "fails if subtypeId is not found" in new Fixture {
+      val payload = payloads.GiftCardCreateByCsr(balance = 25, reasonId = 1, subTypeId = Some(255))
+      val response = POST(s"v1/gift-cards", payload)
+
+      response.status must === (StatusCodes.NotFound)
+      response.errors must === (NotFoundFailure(GiftCardSubtype, 255).description)
+    }
+
     "fails to create gift card with negative balance" in new Fixture {
       val response = POST(s"v1/gift-cards", payloads.GiftCardCreateByCsr(balance = -555, reasonId = 1))
       response.status must ===(StatusCodes.BadRequest)
@@ -75,7 +92,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     "fails to create gift card with invalid reason" in new Fixture {
       val response = POST(s"v1/gift-cards", payloads.GiftCardCreateByCsr(balance = 555, reasonId = 999))
       response.status must ===(StatusCodes.NotFound)
-      response.errors must ===(GeneralFailure("Not found").description)
+      response.errors must ===(NotFoundFailure(Reason, 999).description)
     }
   }
 
@@ -284,6 +301,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       order ← Orders.save(Factories.order.copy(customerId = customer.id))
       admin ← StoreAdmins.save(authedStoreAdmin)
       reason ← Reasons.save(Factories.reason.copy(storeAdminId = admin.id))
+      gcSubType ← GiftCardSubtypes.save(Factories.giftCardSubTypes.head)
       origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
       giftCard ← GiftCards.save(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active))
       gcSecond ← GiftCards.save(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active,

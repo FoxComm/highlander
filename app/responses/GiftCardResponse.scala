@@ -12,7 +12,7 @@ import utils.Slick.implicits._
 object GiftCardResponse {
   final val mockMessage = "Not implemented yet"
 
-  final case class BulkCreateResponse(responses: Seq[Root])
+  final case class BulkCreateResponse(responses: Seq[Root]) extends ResponseItem
 
   final case class Root(
     id: Int,
@@ -20,6 +20,7 @@ object GiftCardResponse {
     code: String,
     originId: Int,
     originType: GiftCard.OriginType,
+    subTypeId: Option[Int],
     status: GiftCard.Status,
     currency: Currency,
     originalBalance: Int,
@@ -29,7 +30,7 @@ object GiftCardResponse {
     canceledReason: Option[Int],
     customer: Option[CustomerResponse.Root],
     storeAdmin: Option[StoreAdminResponse.Root],
-    message: String)
+    message: String) extends ResponseItem
 
   def build(gc: GiftCard, customer: Option[CustomerResponse.Root] = None, admin: Option[StoreAdminResponse.Root] = None):
   Root =
@@ -39,6 +40,7 @@ object GiftCardResponse {
       code = gc.code,
       originId = gc.originId,
       originType = gc.originType,
+      subTypeId = gc.subTypeId,
       status = gc.status,
       currency = gc.currency,
       originalBalance = gc.originalBalance,
