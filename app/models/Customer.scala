@@ -43,6 +43,12 @@ final case class Customer(id: Int = 0, email: String, password: Option[String] =
 object Customer {
   def buildGuest(email: String): Customer =
     Customer(isGuest = true, email = email)
+
+  def buildFromPayload(payload: CreateCustomerPayload): Customer = {
+    val hash = payload.password.map(hashPassword(_))
+    Customer(id = 0, email = payload.email, password = hash, name = payload.name,
+      isGuest = payload.isGuest.getOrElse(false))
+  }
 }
 
 class Customers(tag: Tag) extends TableWithId[Customer](tag, "customers") {
@@ -72,12 +78,6 @@ object Customers extends TableQueryWithId[Customer, Customers](
 
   def findByEmail(email: String): DBIO[Option[Customer]] = {
     filter(_.email === email).one
-  }
-
-  def buildFromPayload(payload: CreateCustomerPayload): Customer = {
-    val hash = payload.password.map(hashPassword(_))
-    Customer(id = 0, email = payload.email, password = hash, name = payload.name,
-      isGuest = payload.isGuest.getOrElse(false))
   }
 
   object scope {

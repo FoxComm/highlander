@@ -44,7 +44,7 @@ object CustomerManager {
   }
 
   def create(payload: CreateCustomerPayload)(implicit ec: ExecutionContext, db: Database): Result[Root] = {
-    val customer = Customers.buildFromPayload(payload)
+    val customer = Customer.buildFromPayload(payload)
     val qq = db.run(Customers.save(customer))
     qq.flatMap { case(a) ⇒ Result.right(build(a)) }
   }
