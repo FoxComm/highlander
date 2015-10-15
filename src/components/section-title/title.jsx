@@ -10,7 +10,7 @@ export default class Title extends React.Component {
 
   render() {
     let subtitle = null;
-    if (this.props.subtitle !== undefined) {
+    if (this.props.subtitle) {
       subtitle = (
         <span className="fc-section-title-subtitle fc-light">
           &nbsp;

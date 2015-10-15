@@ -18,8 +18,8 @@ export default class TabView extends React.Component {
 
   render() {
     return (
-      <li className="fc-tab" data-selector={this.props.selector}>
-        <i className="icon-drag-drop"></i>&nbsp;
+      <li className="fc-tab">
+        <i className="fc-tab-icon icon-drag-drop"></i>&nbsp;
         {this.props.children}
       </li>
     );

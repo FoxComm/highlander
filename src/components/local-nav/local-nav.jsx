@@ -9,7 +9,7 @@ export default class LocalNav extends React.Component {
 
   renderItem(child) {
     return (
-      <li>{React.cloneElement(child)}</li>
+      <li>{child}</li>
     );
   }
 

@@ -64,8 +64,8 @@ export default class Orders extends React.Component {
             <a href="">Returns</a>
           </LocalNav>
           <TabListView>
-            <TabView identifier="what1">What</TabView>
-            <TabView identifier="what2">What</TabView>
+            <TabView>What</TabView>
+            <TabView>What</TabView>
           </TabListView>
         </div>
         <div id="what1">

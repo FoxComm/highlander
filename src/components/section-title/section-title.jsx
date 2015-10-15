@@ -12,23 +12,14 @@ export default class SectionTitle extends React.Component {
   };
 
   get buttonMarkup() {
-    let button;
-
-    if (this.props.children) {
-      button = this.props.children;
-    }
-    if (this.props.buttonClickHandler) {
-      button = (
-        <button className="fc-btn fc-btn-primary"
-                onClick={ this.props.buttonClickHandler.bind(this) }>
-          <i className="icon-add"></i> { this.props.title }
-        </button>
-      );
-    }
-
     return (
       <div className="fc-col-md-2-6 fc-push-md-2-6 fc-section-title-actions">
-        {button}
+        {this.props.buttonClickHandler && (
+          <button className="fc-btn fc-btn-primary" onClick={this.props.buttonClickHandler.bind(this)}>
+          <i className="icon-add"></i> {this.props.title}
+          </button>
+         )}
+          {this.props.children}
       </div>
     );
   }

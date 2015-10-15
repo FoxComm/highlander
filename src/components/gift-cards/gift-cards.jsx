@@ -64,7 +64,7 @@ export default class GiftCards extends React.Component {
 
   render() {
     return (
-      <div id="cards" className="fc-list-page">
+      <div className="fc-list-page">
         <div className="fc-list-page-header">
           <SectionTitle title="Gift Cards" count={this.state.data.size}>
             <Link to='gift-cards-new' className="fc-btn fc-btn-primary"><i className="icon-add"></i> New Gift Card</Link>
@@ -74,8 +74,8 @@ export default class GiftCards extends React.Component {
             <a href="">Returns</a>
           </LocalNav>
           <TabListView>
-            <TabView selector="#all">All</TabView>
-            <TabView selector="#active">Active</TabView>
+            <TabView>All</TabView>
+            <TabView>Active</TabView>
           </TabListView>
         </div>
         <div className="fc-grid fc-list-page-content">
