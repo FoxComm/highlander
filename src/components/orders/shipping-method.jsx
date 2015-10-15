@@ -1,7 +1,7 @@
 'use strict';
 
 import _ from 'lodash';
-import React from 'react';
+import React, { PropTypes } from 'react';
 import Api from '../../lib/api';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
@@ -10,6 +10,20 @@ import ShippingMethods from '../../stores/shipping-methods';
 import Panel from '../panel/panel';
 
 export default class OrderShippingMethod extends React.Component {
+
+  static defaultProps = {
+    tableColumns: [
+      {field: null, text: 'Method', component: 'ShippingMethodItem'},
+      {field: 'defaultPrice', text: 'Price', type: 'currency'}
+    ]
+  }
+
+  static propTypes = {
+    order: PropTypes.object,
+    isEditing: PropTypes.bool,
+    tableColumns: PropTypes.array
+  }
+
   constructor(props, context) {
     super(props, context);
     this.state = {
@@ -66,16 +80,3 @@ export default class OrderShippingMethod extends React.Component {
     );
   }
 }
-
-OrderShippingMethod.propTypes = {
-  order: React.PropTypes.object,
-  isEditing: React.PropTypes.bool,
-  tableColumns: React.PropTypes.array
-};
-
-OrderShippingMethod.defaultProps = {
-  tableColumns: [
-    {field: null, text: 'Method', component: 'ShippingMethodItem'},
-    {field: 'defaultPrice', text: 'Price', type: 'currency'}
-  ]
-};
