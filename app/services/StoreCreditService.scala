@@ -36,9 +36,14 @@ object StoreCreditService {
       } yield (customer, reason, subtype)
 
       ResultT(queries.run().map {
-        case (Some(c), Some(r), s) ⇒ Xor.right((c, r, s))
-        case (None, _, _)          ⇒ Xor.left(NotFoundFailure(Customer, customerId).single)
-        case (_, None, _)          ⇒ Xor.left(NotFoundFailure(Reason, payload.reasonId).single)
+        case (None, _, _) ⇒
+          Xor.left(NotFoundFailure(Customer, customerId).single)
+        case (_, None, _) ⇒
+          Xor.left(NotFoundFailure(Reason, payload.reasonId).single)
+        case (_, _, None) if payload.subTypeId.isDefined ⇒
+          Xor.left(NotFoundFailure(StoreCreditSubtype, payload.subTypeId.head).single)
+        case (Some(c), Some(r), s) ⇒
+          Xor.right((c, r, s))
       })
     }
 
@@ -58,7 +63,7 @@ object StoreCreditService {
     val transformer = for {
       prepare ← prepareForCreate(customerId, payload)
       sc ← prepare match { case (customer, reason, subtype) ⇒
-        val newPayload = payload.copy(subTypeId = None).copy(subTypeId = subtype.map(_.id))
+        val newPayload = payload.copy(subTypeId = subtype.map(_.id))
         saveStoreCredit(admin, customer, newPayload)
       }
     } yield sc

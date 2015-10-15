@@ -157,8 +157,12 @@ object GiftCardService {
       } yield (reason, subtype)
 
       ResultT(queries.run().map {
-        case (Some(r), s) ⇒ Xor.right((r, s))
-        case _            ⇒ Xor.left(NotFoundFailure(Reason, payload.reasonId).single)
+        case (None, _) ⇒
+          Xor.left(NotFoundFailure(Reason, payload.reasonId).single)
+        case (_, None) if payload.subTypeId.isDefined ⇒
+          Xor.left(NotFoundFailure(GiftCardSubtype, payload.subTypeId.head).single)
+        case (Some(r), s) ⇒
+          Xor.right((r, s))
       })
     }
 
@@ -175,7 +179,7 @@ object GiftCardService {
     val transformer = for {
       prepare ← prepareForCreate(payload)
       gc ← prepare match { case (reason, subtype) ⇒
-        val newPayload = payload.copy(subTypeId = None).copy(subTypeId = subtype.map(_.id))
+        val newPayload = payload.copy(subTypeId = subtype.map(_.id))
         saveGiftCard(admin, newPayload)
       }
     } yield gc

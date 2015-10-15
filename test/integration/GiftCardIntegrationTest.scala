@@ -75,13 +75,12 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       sc.subTypeId must === (Some(1))
     }
 
-    "succeeds even if subtypeId is not found" in new Fixture {
+    "fails if subtypeId is not found" in new Fixture {
       val payload = payloads.GiftCardCreateByCsr(balance = 25, reasonId = 1, subTypeId = Some(255))
       val response = POST(s"v1/gift-cards", payload)
-      val sc = response.as[responses.GiftCardResponse.Root]
 
-      response.status must === (StatusCodes.OK)
-      sc.subTypeId must === (None)
+      response.status must === (StatusCodes.NotFound)
+      response.errors must === (NotFoundFailure(GiftCardSubtype, 255).description)
     }
 
     "fails to create gift card with negative balance" in new Fixture {

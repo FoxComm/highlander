@@ -46,13 +46,12 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         sc.subTypeId must === (Some(1))
       }
 
-      "succeeds even if subtypeId is not found" in new Fixture {
+      "fails if subtypeId is not found" in new Fixture {
         val payload = payloads.CreateManualStoreCredit(amount = 25, reasonId = scReason.id, subTypeId = Some(255))
         val response = POST(s"v1/customers/${customer.id}/payment-methods/store-credit", payload)
-        val sc = response.as[responses.StoreCreditResponse.Root]
 
-        response.status must === (StatusCodes.OK)
-        sc.subTypeId must === (None)
+        response.status must === (StatusCodes.NotFound)
+        response.errors must === (NotFoundFailure(StoreCreditSubtype, 255).description)
       }
 
       "fails if the customer is not found" in {
