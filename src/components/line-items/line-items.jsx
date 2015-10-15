@@ -81,12 +81,12 @@ export default class LineItems extends React.Component {
           </TableView>
         );
         actions = (
-          <footer>
+          <footer className="fc-order-line-items-footer">
             <div>
               <strong>Add Item</strong>
               <Typeahead callback={this.itemSelected.bind(this)} component={SkuResult} store={SkuStore} />
             </div>
-            <button className="fc-btn fc-btn-primary" onClick={this.toggleEdit.bind(this)}>Done</button>
+            {/*<button className="fc-btn fc-btn-primary" onClick={this.toggleEdit.bind(this)}>Done</button>*/}
           </footer>
         );
       } else {

@@ -63,15 +63,25 @@
       dd { font-weight: 700; }
     }
 
-    @radius = 5px;
     dl:first-child {
-      border-top-left-radius: @radius;
-      border-bottom-left-radius: @radius;
+      border-top-left-radius: 5px;
+      border-bottom-left-radius: 5px;
     }
 
     dl:last-child {
-      border-top-right-radius: @radius;
-      border-bottom-right-radius: @radius;
+      border-top-right-radius: 5px;
+      border-bottom-right-radius: 5px;
+    }
+  }
+
+  .fc-order-line-items-footer {
+    padding-bottom: pxtorem(30px);
+    padding-top: pxtorem(13px);
+
+    strong {
+      font-weight: 600;
+      font-size: pxtorem(15px);
+      line-height: pxtorem(20px);
     }
   }
 }
