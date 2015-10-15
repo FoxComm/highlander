@@ -2,7 +2,7 @@ package services
 
 import scala.concurrent.ExecutionContext
 
-import models.{Customer, Customers, StoreAdmin}
+import models._
 import models.Customers.scope._
 import responses.CustomerResponse._
 import slick.driver.PostgresDriver.api._
@@ -10,7 +10,6 @@ import utils.CustomDirectives.SortAndPage
 import utils.Slick.UpdateReturning._
 
 object CustomerManager {
-  import models._
 
   def toggleDisabled(customerId: Int, disabled: Boolean, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database): Result[Customer] = {

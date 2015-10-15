@@ -4,9 +4,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Xor
 import cats.data.Validated.{Valid, Invalid}
+import models._
 import models.StoreCredit.Canceled
-import models.{Reasons, Customer, Customers, StoreAdmin, StoreCredit, StoreCreditManual,
-StoreCreditManuals, StoreCredits, StoreCreditAdjustments}
 import responses.StoreCreditResponse
 import responses.StoreCreditResponse._
 import responses.StoreCreditBulkResponse._
@@ -18,8 +17,6 @@ import utils.Slick.implicits._
 
 object StoreCreditService {
   type QuerySeq = Query[StoreCredits, StoreCredit, Seq]
-
-  import models._
 
   def findAllByCustomer(customerId: Int)
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[Seq[Root]] = {
