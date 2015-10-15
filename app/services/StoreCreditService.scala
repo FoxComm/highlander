@@ -25,7 +25,7 @@ object StoreCreditService {
 
     def prepareForCreate(customerId: Int, payload: payloads.CreateManualStoreCredit):
       ResultT[(Customer, Reason, Option[StoreCreditSubtype])] = {
-      
+
       val queries = for {
         customer ← Customers.findOneById(customerId)
         reason   ← Reasons.findOneById(payload.reasonId)

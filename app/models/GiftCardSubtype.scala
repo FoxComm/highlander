@@ -10,9 +10,7 @@ import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 final case class GiftCardSubtype(id: Int = 0, title: String, originType: OriginType)
   extends ModelWithIdParameter
 
-object GiftCardSubtype {
-  implicit val originTypeColumnType: JdbcType[OriginType] with BaseTypedType[OriginType] = OriginType.slickColumn
-}
+object GiftCardSubtype {}
 
 class GiftCardSubtypes(tag: Tag) extends GenericTable.TableWithId[GiftCardSubtype](tag, "gift_card_subtypes")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)

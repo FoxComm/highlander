@@ -10,9 +10,7 @@ import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 final case class StoreCreditSubtype(id: Int = 0, title: String, originType: OriginType)
   extends ModelWithIdParameter
 
-object StoreCreditSubtype {
-  implicit val originTypeColumnType: JdbcType[OriginType] with BaseTypedType[OriginType] = OriginType.slickColumn
-}
+object StoreCreditSubtype {}
 
 class StoreCreditSubtypes(tag: Tag)
   extends GenericTable.TableWithId[StoreCreditSubtype](tag, "store_credit_subtypes")  {
