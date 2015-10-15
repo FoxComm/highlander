@@ -1,7 +1,5 @@
 'use strict';
 
-'use strict';
-
 import _ from 'lodash';
 import Api from '../lib/api';
 import { createAction, createReducer } from 'redux-act';
@@ -63,11 +61,9 @@ const initialState = {
 };
 
 function updateItems(items, newItems) {
-  const indexed = _.indexBy(items, 'id');
-  const indexedNewItems = _.indexBy(newItems, 'id');
   return _.values({
-    ...indexed,
-    ...indexedNewItems
+    ..._.indexBy(items, 'id'),
+    ..._.indexBy(newItems, 'id')
   });
 }
 

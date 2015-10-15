@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import * as giftCardActions from '../../modules/gift-cards';
 import _ from 'lodash';
 
-@connect(state => _.pick(state, 'giftCards'), giftCardActions)
+@connect(state => ({items: state.giftCards.items}), giftCardActions)
 export default class GiftCards extends React.Component {
 
   componentDidMount() {
@@ -41,8 +41,6 @@ export default class GiftCards extends React.Component {
   }
 
   render() {
-    const items = this.props.giftCards.items || [];
-
     return (
       <div id="cards">
         <div className="gutter">
@@ -50,7 +48,7 @@ export default class GiftCards extends React.Component {
           <Link to='gift-cards-new' className="fc-btn">+ New Gift Card</Link>
           <TableView
               columns={this.props.tableColumns}
-              rows={items}
+              rows={this.props.items}
               model='giftcard'
           />
         </div>
