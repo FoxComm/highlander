@@ -1,12 +1,26 @@
 'use strict';
 
 import _ from 'lodash';
-import React from 'react';
+import React, { PropTypes } from 'react';
 import PaymentMethod from './payment-method';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
 
 export default class OrderPayment extends React.Component {
+  static propTypes = {
+    order: PropTypes.object,
+    tableColumns: PropTypes.array
+  }
+
+  static defaultProps = {
+    tableColumns: [
+      {field: 'paymentMethod', text: 'Method', component: 'PaymentMethod'},
+      {field: 'amount', text: 'Amount', type: 'currency'},
+      {field: 'status', text: 'Status'},
+      {field: 'createdAt', text: 'Date/Time', type: 'date'}
+    ]
+  }
+
   render() {
     let order = this.props.order;
 
@@ -23,17 +37,3 @@ export default class OrderPayment extends React.Component {
     );
   }
 }
-
-OrderPayment.propTypes = {
-  order: React.PropTypes.object,
-  tableColumns: React.PropTypes.array
-};
-
-OrderPayment.defaultProps = {
-  tableColumns: [
-    {field: 'paymentMethod', text: 'Method', component: 'PaymentMethod'},
-    {field: 'amount', text: 'Amount', type: 'currency'},
-    {field: 'status', text: 'Status'},
-    {field: 'createdAt', text: 'Date/Time', type: 'date'}
-  ]
-};
