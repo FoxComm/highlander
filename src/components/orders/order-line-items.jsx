@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actionCreators from '../../actions/order-line-items';
 
+import EditButton from '../common/edit-button';
 import TableView from '../tables/tableview';
 import TableHead from '../tables/head';
 import OrderLineItem from './order-line-item';
@@ -100,9 +101,7 @@ export default class OrderLineItems extends React.Component {
             <div className='fc-grid'>
               <div className='fc-col-md-2-3'>Items</div>
               <div className='fc-col-md-1-3 fc-align-right'>
-                <button className='fc-btn' onClick={this.editLineItems.bind(this)}>
-                  <i className='icon-edit'></i>
-                </button>
+                <EditButton onClick={this.editLineItems.bind(this)} />
               </div>
             </div>
           </header>
