@@ -59,7 +59,7 @@ export default class OrderLineItem extends React.Component {
         </td>
         <td>{formatCurrency(this.props.item.totalPrice)}</td>
         <td>
-          <button className='fc-btn' onClick={() => this.props.actions.orderLineItemDelete(item.sku)}>
+          <button className='fc-btn' onClick={() => this.props.actions.orderLineItemAskDelete(item.sku)}>
             <i className='icon-trash' />
           </button>
         </td>

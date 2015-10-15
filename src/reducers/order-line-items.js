@@ -57,11 +57,24 @@ export function orderLineItems(state = initialState, action) {
         skuToDelete: skuToDelete,
         items: decrementItems
       };
-    case actionTypes.ORDER_LINE_ITEM_DELETE:
+    case actionTypes.ORDER_LINE_ITEM_ASK_DELETE:
       return {
         ...state,
         isDeleting: true,
         skuToDelete: action.sku
+      };
+    case actionTypes.ORDER_LINE_ITEM_CANCEL_DELETE:
+      return {
+        ...state,
+        isDeleting: false,
+        skuToDelete: ''
+      };
+    case actionTypes.ORDER_LINE_ITEM_CONFIRM_DELETE:
+      return {
+        ...state,
+        items: state.items.filter(item => item.sku !== state.skuToDelete),
+        isDeleting: false,
+        skuToDelete: ''
       };
     default:
       return state;

@@ -11,6 +11,7 @@ import OrderLineItem from './order-line-item';
 import SkuStore from '../../stores/skus';
 import SkuResult from './sku-result';
 import Typeahead from '../typeahead/typeahead';
+import ConfirmationDialog from '../modal/confirmation-dialog';
 
 function mapStateToProps(state) {
   return {
@@ -48,14 +49,6 @@ export default class OrderLineItems extends React.Component {
     ]
   }
 
-  get confirmModal() {
-    if (this.props.lineItems.isDeleting) {
-      return <h2>PLACEHOLDER FOR SHOWING DELETE MODAL</h2>;
-    } else {
-      return <div></div>;
-    }
-  }
-
   itemSelected(sku) {
     console.log('Item selected');
   }
@@ -69,28 +62,36 @@ export default class OrderLineItems extends React.Component {
   }
 
   render() {
-    let orderLineItems = this.props.entity.lineItems.skus.map((lineItem, idx) => {
-      return (<OrderLineItem item={lineItem} />);
-    });
-
     if (this.props.lineItems.isEditing) {
+      let orderLineItems = this.props.lineItems.items.map((lineItem, idx) => {
+        return (<OrderLineItem item={lineItem} />);
+      });
       return (
-        <section className='fc-line-items fc-content-box'>
-          <table className='fc-table'>
-            <TableHead columns={this.props.editColumns} />
-            <tbody>
-              {orderLineItems}
-            </tbody>
-          </table>
-          <footer>
-            <div>
-              <strong>Add Item</strong>
-              <Typeahead callback={this.itemSelected.bind(this)} component={SkuResult} store={SkuStore} />
-            </div>
-            <button className='fc-btn fc-btn-primary' onClick={this.cancelEditLineItems.bind(this)}>Done</button>
-          </footer>
-          {this.confirmModal}
-        </section>
+        <div>
+          <section className='fc-line-items fc-content-box'>
+            <table className='fc-table'>
+              <TableHead columns={this.props.editColumns} />
+              <tbody>
+                {orderLineItems}
+              </tbody>
+            </table>
+            <footer>
+              <div>
+                <strong>Add Item</strong>
+                <Typeahead callback={this.itemSelected.bind(this)} component={SkuResult} store={SkuStore} />
+              </div>
+              <button className='fc-btn fc-btn-primary' onClick={this.cancelEditLineItems.bind(this)}>Done</button>
+            </footer>
+          </section>
+          <ConfirmationDialog
+            isVisible={this.props.lineItems.isDeleting}
+            header='Confirm'
+            body='Are you sure you want to delete this item?'
+            cancel='Cancel'
+            confirm='Yes, Delete'
+            cancelAction={() => this.props.actions.orderLineItemCancelDelete()}
+            confirmAction={() => this.props.actions.orderLineItemConfirmDelete()} />
+        </div>
       );
     } else {
       return (
