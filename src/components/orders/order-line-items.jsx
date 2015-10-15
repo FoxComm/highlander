@@ -9,6 +9,7 @@ import TableView from '../tables/tableview';
 import LineItemCounter from '../line-items/line-item-counter';
 import DeleteLineItem from '../line-items/line-item-delete';
 import SkuStore from '../../stores/skus';
+import SkuResult from './sku-result';
 import Typeahead from '../typeahead/typeahead';
 
 function mapStateToProps(state) {
@@ -51,15 +52,19 @@ export default class OrderLineItems extends React.Component {
     console.log('Item selected');
   }
 
-  toggleEdit() {
-    console.log('Toggling the edit');
+  editLineItems() {
+    this.props.actions.orderLineItemsEdit(this.props.entity);
+  }
+
+  cancelEditLineItems() {
+    this.props.actions.orderLineItemsCancelEdit();
   }
 
   render() {
     if (this.props.lineItems.isEditing) {
       return (
         <section className='fc-line-items fc-content-box'>
-          <TableView columns={this.props.viewColumns} rows={this.props.entity.lineItems.skus} model="lineItem">
+          <TableView columns={this.props.editColumns} rows={this.props.entity.lineItems.skus} model="lineItem">
             <LineItemCounter entityName={this.props.model} entity={this.props.entity} />
             <DeleteLineItem entityName={this.props.model} entity={this.props.entity} />
           </TableView>
@@ -68,7 +73,7 @@ export default class OrderLineItems extends React.Component {
               <strong>Add Item</strong>
               <Typeahead callback={this.itemSelected.bind(this)} component={SkuResult} store={SkuStore} />
             </div>
-            <button className='fc-btn fc-btn-primary' onClick={this.toggleEdit.bind(this)}>Done</button>
+            <button className='fc-btn fc-btn-primary' onClick={this.cancelEditLineItems.bind(this)}>Done</button>
           </footer>
         </section>
       );
@@ -79,7 +84,7 @@ export default class OrderLineItems extends React.Component {
             <div className='fc-grid'>
               <div className='fc-col-md-2-3'>Items</div>
               <div className='fc-col-md-1-3 fc-align-right'>
-                <button className='fc-btn' onClick={this.toggleEdit.bind(this)}>
+                <button className='fc-btn' onClick={this.editLineItems.bind(this)}>
                   <i className='icon-edit'></i>
                 </button>
               </div>
@@ -88,8 +93,7 @@ export default class OrderLineItems extends React.Component {
           <TableView 
             columns={this.props.viewColumns} 
             rows={this.props.entity.lineItems.skus}
-            sortBy="sku"
-            model="lineItem" />
+            model='lineItem' />
         </section>
       );
     }
