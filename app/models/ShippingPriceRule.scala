@@ -15,12 +15,12 @@ object ShippingPriceRule{
   case object FromCarrier extends RuleType
 
   implicit val RuleTypeColumn: JdbcType[RuleType] with BaseTypedType[RuleType] = MappedColumnType.base[RuleType, String]({
-    case t => t.toString.toLowerCase
+    case t ⇒ t.toString.toLowerCase
   },
   {
-    case "flat" => Flat
-    case "fromcarrier" => FromCarrier
-    case unknown => throw new IllegalArgumentException(s"cannot map price_type column to type $unknown")
+    case "flat" ⇒ Flat
+    case "fromcarrier" ⇒ FromCarrier
+    case unknown ⇒ throw new IllegalArgumentException(s"cannot map price_type column to type $unknown")
 
   })
 }

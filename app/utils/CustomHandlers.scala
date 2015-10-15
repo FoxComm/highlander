@@ -25,10 +25,10 @@ object CustomHandlers {
 
   def jsonRejectionHandler: RejectionHandler = RejectionHandler.newBuilder()
     .handle {
-    case rejection if defaultRejectionHandler(immutable.Seq(rejection)).isDefined =>
+    case rejection if defaultRejectionHandler(immutable.Seq(rejection)).isDefined ⇒
       mapResponseEntity { entity ⇒
         entity.withContentType(ContentTypes.`application/json`).transformDataBytes {
-          Flow[ByteString].map { chunk =>
+          Flow[ByteString].map { chunk ⇒
             ByteString(errorsJson(chunk.utf8String))
           }
         }

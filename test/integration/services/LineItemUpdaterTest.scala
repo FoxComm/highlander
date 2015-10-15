@@ -48,7 +48,7 @@ class LineItemUpdaterTest extends IntegrationTestBase {
       )
 
       LineItemUpdater.updateQuantities(order, payload).futureValue match {
-        case Xor.Right(root) =>
+        case Xor.Right(root) ⇒
           root.lineItems.skus.count(_.sku == "1") must be(3)
           root.lineItems.skus.count(_.sku == "2") must be(0)
 
@@ -58,7 +58,7 @@ class LineItemUpdaterTest extends IntegrationTestBase {
           val allRelations = db.run(lineItemSkus.result).futureValue
           allRelations.size must === (2)
 
-        case Xor.Left(s) => fail(s.toList.mkString(";"))
+        case Xor.Left(s) ⇒ fail(s.toList.mkString(";"))
       }
     }
 
@@ -68,7 +68,7 @@ class LineItemUpdaterTest extends IntegrationTestBase {
       createInventory(1, 100)
       createInventory(2, 100)
       createInventory(3, 100)
-      val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { linkId =>
+      val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { linkId ⇒
         OrderLineItem(id = 0, orderId = 1, originId = linkId, originType = OrderLineItem.SkuItem)
       }
       createLineItems(seedItems)
@@ -80,7 +80,7 @@ class LineItemUpdaterTest extends IntegrationTestBase {
       )
 
       LineItemUpdater.updateQuantities(order, payload).futureValue match {
-        case Xor.Right(root) =>
+        case Xor.Right(root) ⇒
           root.lineItems.skus.count(_.sku == "1") must be(3)
           root.lineItems.skus.count(_.sku == "2") must be(0)
           root.lineItems.skus.count(_.sku == "3") must be(1)
@@ -91,7 +91,7 @@ class LineItemUpdaterTest extends IntegrationTestBase {
           val allRelations = db.run(lineItemSkus.result).futureValue
           allRelations.size must === (2)
 
-        case Xor.Left(s) => fail(s.toList.mkString(";"))
+        case Xor.Left(s) ⇒ fail(s.toList.mkString(";"))
       }
     }
 

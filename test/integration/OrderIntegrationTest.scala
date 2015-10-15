@@ -6,8 +6,8 @@ import akka.testkit.TestActorRef
 
 import models._
 import payloads.{Assignment, UpdateOrderPayload}
-import responses.{StoreAdminResponse, FullOrderWithWarnings, AdminNotes, FullOrder}
-import services.{GeneralFailure, NotFoundFailure, NoteManager, OrderNotFoundFailure}
+import responses.{StoreAdminResponse, FullOrderWithWarnings, FullOrder}
+import services.{GeneralFailure, NotFoundFailure}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.implicits._
@@ -59,7 +59,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
   }
 
-  "updates status" - {
+  "PATCH /v1/orders/:refNum" - {
 
     "successfully" in {
       val order = Orders.save(Factories.order).run().futureValue
@@ -118,7 +118,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     */
   }
 
-  "increases remorse period" - {
+  "POST /v1/orders/:refNum/increase-remorse-period" - {
 
     "successfully" in {
       val order = Orders.save(Factories.order.copy(status = Order.RemorseHold)).run().futureValue
@@ -138,8 +138,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
   }
 
-  "locking" - {
-
+  "POST /v1/orders/:refNum/lock" - {
     "successfully locks an order" in {
       val order = Orders.save(Factories.order).run().futureValue
       StoreAdmins.save(Factories.storeAdmin).run().futureValue
@@ -164,6 +163,19 @@ class OrderIntegrationTest extends IntegrationTestBase
       response.errors must === (GeneralFailure("Model is locked").description)
     }
 
+    "avoids race condition" in {
+      StoreAdmins.save(Factories.storeAdmin).run().futureValue
+      val order = Orders.save(Factories.order).run().futureValue
+
+      def request = POST(s"v1/orders/${order.referenceNumber}/lock")
+
+      val responses = Seq(0, 1).par.map(_ ⇒ request)
+      responses.map(_.status) must contain allOf(StatusCodes.OK, StatusCodes.BadRequest)
+      OrderLockEvents.result.run().futureValue.length mustBe 1
+    }
+  }
+
+  "POST /v1/orders/:refNum/unlock" - {
     "unlocks an order" in {
       StoreAdmins.save(Factories.storeAdmin).run().futureValue
       val order = Orders.save(Factories.order).run().futureValue
@@ -183,17 +195,6 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       response.status must === (StatusCodes.BadRequest)
       response.errors must === (GeneralFailure("Order is not locked").description)
-    }
-
-    "avoids race condition" in {
-      StoreAdmins.save(Factories.storeAdmin).run().futureValue
-      val order = Orders.save(Factories.order).run().futureValue
-
-      def request = POST(s"v1/orders/${order.referenceNumber}/lock")
-
-      val responses = Seq(0, 1).par.map(_ ⇒ request)
-      responses.map(_.status) must contain allOf(StatusCodes.OK, StatusCodes.BadRequest)
-      OrderLockEvents.result.run().futureValue.length mustBe 1
     }
 
     "adjusts remorse period when order is unlocked" in new RemorseFixture {
@@ -239,7 +240,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
   }
 
-  "assignees" - {
+  "POST /v1/orders/:refNum/assignees" - {
 
     "can be assigned to order" in new Fixture {
       val response = POST(s"v1/orders/${order.referenceNumber}/assignees", Assignment(Seq(storeAdmin.id)))
@@ -320,7 +321,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       val errors = parse(response.bodyText).extract[Errors]
 
-      errors must === (Map("errors" -> Seq("holderName must not be empty", "cvv must match regular expression " +
+      errors must === (Map("errors" → Seq("holderName must not be empty", "cvv must match regular expression " +
         "'[0-9]{3,4}'")))
       response.status must === (StatusCodes.BadRequest)
     }
@@ -335,7 +336,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       val body = response.bodyText
       val errors = parse(body).extract[Errors]
 
-      errors must === (Map("errors" -> Seq("Your card was declined.")))
+      errors must === (Map("errors" → Seq("Your card was declined.")))
       response.status must === (StatusCodes.BadRequest)
     }
 
@@ -379,83 +380,7 @@ class OrderIntegrationTest extends IntegrationTestBase
   }
   */
 
-  "notes" - {
-    "can be created by an admin for an order" in new Fixture {
-      val response = POST(s"v1/notes/order/${order.referenceNumber}",
-        payloads.CreateNote(body = "Hello, FoxCommerce!"))
-
-      response.status must === (StatusCodes.OK)
-
-      val note = parse(response.bodyText).extract[AdminNotes.Root]
-
-      note.body must === ("Hello, FoxCommerce!")
-      note.author must === (AdminNotes.buildAuthor(storeAdmin))
-    }
-
-    "returns a validation error if failed to create" in new Fixture {
-      val response = POST(s"v1/notes/order/${order.referenceNumber}", payloads.CreateNote(body = ""))
-
-      response.status must === (StatusCodes.BadRequest)
-      response.bodyText must include ("errors")
-    }
-
-    "returns a 404 if the order is not found" in new Fixture {
-      val response = POST(s"v1/notes/order/ABACADSF113", payloads.CreateNote(body = ""))
-
-      response.status must === (StatusCodes.NotFound)
-      response.bodyText must be ('empty)
-    }
-
-    "can be listed" in new Fixture {
-      List("abc", "123", "xyz").map { body ⇒
-        NoteManager.createOrderNote(order, storeAdmin, payloads.CreateNote(body = body)).futureValue
-      }
-
-      val response = GET(s"v1/notes/order/${order.referenceNumber}")
-      response.status must === (StatusCodes.OK)
-
-      val notes = parse(response.bodyText).extract[Seq[AdminNotes.Root]]
-
-      notes must have size 3
-      notes.map(_.body).toSet must === (Set("abc", "123", "xyz"))
-    }
-
-    "can update the body text" in new Fixture {
-      val rootNote = NoteManager.createOrderNote(order, storeAdmin,
-        payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue.get
-
-      val response = PATCH(s"v1/notes/order/${order.referenceNumber}/${rootNote.id}",
-        payloads.UpdateNote(body = "donkey"))
-      response.status must === (StatusCodes.OK)
-
-      val note = parse(response.bodyText).extract[AdminNotes.Root]
-      note.body must === ("donkey")
-    }
-
-    "can soft delete note" in new Fixture {
-      val note = NoteManager.createOrderNote(order, storeAdmin,
-        payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue.get
-
-      val response = DELETE(s"v1/notes/order/${order.referenceNumber}/${note.id}")
-      response.status must ===(StatusCodes.NoContent)
-      response.bodyText mustBe empty
-
-      val updatedNote = db.run(Notes.findOneById(note.id)).futureValue.value
-      updatedNote.deletedBy.value mustBe 1
-      updatedNote.deletedAt.value.isBeforeNow mustBe true
-
-      // Deleted note should not be returned
-      val allNotesResponse = GET(s"v1/notes/order/${order.referenceNumber}")
-      allNotesResponse.status must === (StatusCodes.OK)
-      val allNotes = allNotesResponse.as[Seq[AdminNotes.Root]]
-      allNotes.map(_.id) must not contain note.id
-
-      val getDeletedNoteResponse = GET(s"v1/notes/order/${order.referenceNumber}/${note.id}")
-      getDeletedNoteResponse.status must === (StatusCodes.NotFound)
-    }
-  }
-
-  "shipping addresses" - {
+  "PATCH /v1/orders/:refNum/shipping-address/:id" - {
 
     "copying a shipping address from a customer's book" - {
 
@@ -492,13 +417,6 @@ class OrderIntegrationTest extends IntegrationTestBase
 
         response.status must === (StatusCodes.NotFound)
         parseErrors(response) must === (NotFoundFailure(Address, 99).description)
-      }
-
-      "fails if the order is not found" in new AddressFixture {
-        val response = DELETE(s"v1/orders/ABC-123/shipping-address")
-        response.status must === (StatusCodes.NotFound)
-
-        db.run(OrderShippingAddresses.length.result).futureValue must === (0)
       }
     }
 
@@ -542,79 +460,95 @@ class OrderIntegrationTest extends IntegrationTestBase
       }
 
     }
+  }
 
-    "editing a shipping address by sending updated field information" - {
+  "PATCH /v1/orders/:refNum/shipping-address" - {
 
-      "succeeds when a subset of the fields in the address change" in new ShippingAddressFixture {
-        val updateAddressPayload = payloads.UpdateAddressPayload(name = Some("New name"), city = Some("Queen Anne"))
-        val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address", updateAddressPayload)
+    "succeeds when a subset of the fields in the address change" in new ShippingAddressFixture {
+      val updateAddressPayload = payloads.UpdateAddressPayload(name = Some("New name"), city = Some("Queen Anne"))
+      val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address", updateAddressPayload)
 
-        response.status must === (StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
 
-        val (shippingAddress :: Nil) = OrderShippingAddresses.findByOrderId(order.id).result.run().futureValue.toList
+      val (shippingAddress :: Nil) = OrderShippingAddresses.findByOrderId(order.id).result.run().futureValue.toList
 
-        shippingAddress.name must === ("New name")
-        shippingAddress.city must === ("Queen Anne")
-        shippingAddress.address1 must === (address.address1)
-        shippingAddress.address2 must === (address.address2)
-        shippingAddress.regionId must === (address.regionId)
-        shippingAddress.zip must === (address.zip)
-      }
-
-      "does not update the address book" in new ShippingAddressFixture {
-        val updateAddressPayload = payloads.UpdateAddressPayload(name = Some("Another name"), city = Some("Fremont"))
-        val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address", updateAddressPayload)
-
-        response.status must === (StatusCodes.OK)
-
-        val addressBook = Addresses.findOneById(address.id).run().futureValue.value
-
-        addressBook.name must === (address.name)
-        addressBook.city must === (address.city)
-      }
-
-      "full order returns updated shipping addresss" in new ShippingAddressFixture {
-        //update address
-        val name = "Even newer name"
-        val city = "Queen Max"
-        val updateAddressPayload = payloads.UpdateAddressPayload(name = Some(name), city = Some(city))
-        val addressUpdateResponse = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address", updateAddressPayload)
-
-        //get full order 
-        val fullOrderResponse = GET(s"v1/orders/${order.referenceNumber}")
-
-        //test both responses
-        val responses = Seq(addressUpdateResponse, fullOrderResponse)
-        responses.map( r ⇒  {
-          r.status must === (StatusCodes.OK)
-          val fullOrder = r.as[FullOrder.Root]
-          fullOrder.shippingAddress match {
-            case Some(addr) ⇒ {
-              addr.name must === (name)
-              addr.city must === (city)
-              addr.address1 must === (address.address1)
-              addr.address2 must === (address.address2)
-              addr.regionId must === (address.regionId)
-              addr.zip must === (address.zip)
-            }
-
-            case None ⇒ {
-              fail("FullOrder should have a shipping address")
-            }
-        }})
-      }
+      shippingAddress.name must === ("New name")
+      shippingAddress.city must === ("Queen Anne")
+      shippingAddress.address1 must === (address.address1)
+      shippingAddress.address2 must === (address.address2)
+      shippingAddress.regionId must === (address.regionId)
+      shippingAddress.zip must === (address.zip)
     }
 
-    "deleting the shipping address from an order" - {
-      "succeeds if an address exists" in new AddressFixture {
-        val response = DELETE(s"v1/orders/${order.referenceNumber}/shipping-address")
-        response.status must ===(StatusCodes.OK)
-      }
+    "does not update the address book" in new ShippingAddressFixture {
+      val updateAddressPayload = payloads.UpdateAddressPayload(name = Some("Another name"), city = Some("Fremont"))
+      val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address", updateAddressPayload)
 
-      "fails if the order is not found" in new AddressFixture {
-        val response = DELETE(s"v1/orders/ABC-123/shipping-address")
-        response.status must === (StatusCodes.NotFound)
-      }
+      response.status must === (StatusCodes.OK)
+
+      val addressBook = Addresses.findOneById(address.id).run().futureValue.value
+
+      addressBook.name must === (address.name)
+      addressBook.city must === (address.city)
+    }
+
+    "full order returns updated shipping addresss" in new ShippingAddressFixture {
+      //update address
+      val name = "Even newer name"
+      val city = "Queen Max"
+      val updateAddressPayload = payloads.UpdateAddressPayload(name = Some(name), city = Some(city))
+      val addressUpdateResponse = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address", updateAddressPayload)
+
+      //get full order
+      val fullOrderResponse = GET(s"v1/orders/${order.referenceNumber}")
+
+      //test both responses
+      val responses = Seq(addressUpdateResponse, fullOrderResponse)
+      responses.foreach(r ⇒ {
+        r.status must === (StatusCodes.OK)
+        val fullOrder = r.as[FullOrder.Root]
+        fullOrder.shippingAddress match {
+          case Some(addr) ⇒
+            addr.name must === (name)
+            addr.city must === (city)
+            addr.address1 must === (address.address1)
+            addr.address2 must === (address.address2)
+            addr.regionId must === (address.regionId)
+            addr.zip must === (address.zip)
+
+          case None ⇒
+            fail("FullOrder should have a shipping address")
+        }
+      })
+    }
+  }
+
+  "DELETE /v1/orders/:refNum/shipping-address" - {
+    "succeeds if an address exists" in new ShippingAddressFixture {
+
+      //get order and make sure it has a shipping address
+      val fullOrderResponse = GET(s"v1/orders/${order.referenceNumber}")
+      val fullOrder = fullOrderResponse.as[FullOrder.Root]
+      fullOrder.shippingAddress mustBe defined
+
+      //delete the shipping address
+      val deleteResponse = DELETE(s"v1/orders/${order.referenceNumber}/shipping-address")
+      deleteResponse.status must === (StatusCodes.OK)
+
+      //shipping address must not be defined
+      val lessThanFullOrder = deleteResponse.as[FullOrder.Root]
+      lessThanFullOrder.shippingAddress mustBe None
+
+      //fails with not found if the order does not have shipping address
+      val deleteFailedResponse = DELETE(s"v1/orders/${order.referenceNumber}/shipping-address")
+      deleteFailedResponse.status must === (StatusCodes.NotFound)
+    }
+
+    "fails if the order is not found" in new AddressFixture {
+      val response = DELETE(s"v1/orders/ABC-123/shipping-address")
+      response.status must === (StatusCodes.NotFound)
+
+      db.run(OrderShippingAddresses.length.result).futureValue must === (0)
     }
   }
 

@@ -64,18 +64,18 @@ object Slick {
 
         val returningNode = returningQuery.toNode
         val fieldNames = returningNode match {
-          case Bind(_, _, Pure(Select(_, col), _)) =>
+          case Bind(_, _, Pure(Select(_, col), _)) ⇒
             List(col.name)
-          case Bind(_, _, Pure(ProductNode(children), _)) =>
-            children.map { case Select(_, col) => col.name }.toList
-          case Bind(_, TableExpansion(_, _, TypeMapping(ProductNode(children), _, _)), Pure(Ref(_), _)) =>
-            children.map { case Select(_, col) => col.name }.toList
+          case Bind(_, _, Pure(ProductNode(children), _)) ⇒
+            children.map { case Select(_, col) ⇒ col.name }.toList
+          case Bind(_, TableExpansion(_, _, TypeMapping(ProductNode(children), _, _)), Pure(Ref(_), _)) ⇒
+            children.map { case Select(_, col) ⇒ col.name }.toList
         }
 
         implicit val pconv: SetParameter[U] = {
           val ResultSetMapping(_, compiled, CompiledMapping(_converter, _)) = updateCompiler.run(updateQuery.toNode).tree
           val converter = _converter.asInstanceOf[ResultConverter[JdbcResultConverterDomain, U]]
-          SetParameter[U] { (value, params) =>
+          SetParameter[U] { (value, params) ⇒
             converter.set(value, params.ps)
           }
         }
@@ -83,7 +83,7 @@ object Slick {
         implicit val rconv: GetResult[F] = {
           val ResultSetMapping(_, compiled, CompiledMapping(_converter, _)) = queryCompiler.run(returningNode).tree
           val converter = _converter.asInstanceOf[ResultConverter[JdbcResultConverterDomain, F]]
-          GetResult[F] { p => converter.read(p.rs) }
+          GetResult[F] { p ⇒ converter.read(p.rs) }
         }
 
         val fieldsExp = fieldNames.map(quoteIdentifier).mkString(", ")

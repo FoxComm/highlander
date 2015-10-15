@@ -22,7 +22,7 @@ class CreatesStockItemsTest extends IntegrationTestBase with Inside {
       inside(result) {
         case Xor.Left(nel) ⇒
           inside(nel.head) {
-            case GeneralFailure(message) =>
+            case GeneralFailure(message) ⇒
               message must include ("On hand must be >= 0")
           }
       }

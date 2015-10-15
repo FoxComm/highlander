@@ -23,9 +23,9 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
     // 5) Final Auth on the payment
     // 6) Check & Reserve inventory
 
-    hasLineItems.run().flatMap { has =>
+    hasLineItems.run().flatMap { has ⇒
       if (has) {
-        authorizePayments.flatMap { payments =>
+        authorizePayments.flatMap { payments ⇒
           val errors = payments.values.toList.flatten
           if (errors.isEmpty) {
 //            completeOrderAndCreateNew(order).map(Good(_))
@@ -56,7 +56,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
 
   private def authorizePayments(payments: Seq[(OrderPayment, CreditCard)]) = {
     for {
-      (payment, creditCard) <- payments
+      (payment, creditCard) ← payments
     } yield authorizePayment(payment, creditCard)
   }
 
@@ -71,7 +71,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
 
   private def updatePaymentsWithAuthorizationErrors(payments: Seq[(OrderPayment, Xor[Failures, String])]) = {
     payments.foldLeft(Map.empty[OrderPayment, List[Failure]]) {
-      case (pmts, (payment, result)) =>
+      case (pmts, (payment, result)) ⇒
         updatePaymentWithAuthorizationErrors(pmts, payment, result)
     }
   }
@@ -88,10 +88,10 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
   private def completeOrderAndCreateNew(order: Order): Future[Order] = {
     db.run(for {
       _ ← Orders.findById(order.id).extract
-        .map { o => (o.status, o.placedAt) }
+        .map { o ⇒ (o.status, o.placedAt) }
         .update((Order.Ordered, Some(Instant.now)))
 
-        newOrder <- Orders.create(Order.buildCart(order.customerId))
+        newOrder ← Orders.create(Order.buildCart(order.customerId))
     } yield newOrder)
   }
 
@@ -100,7 +100,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
   }
 
   private def hasLineItems = {
-    for { count <- OrderLineItems.countByOrder(order) } yield (count > 0)
+    for { count ← OrderLineItems.countByOrder(order) } yield (count > 0)
   }
 
 

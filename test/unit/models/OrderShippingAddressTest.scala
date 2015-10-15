@@ -23,7 +23,7 @@ class OrderShippingAddressTest extends TestBase {
           (wrongLengthZip, zipFailure(Address.zipPattern))
         )
 
-        forAll(addresses) { (address, errors) =>
+        forAll(addresses) { (address, errors) ⇒
           invalidValue(address.validate) mustBe (errors)
         }
       }

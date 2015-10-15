@@ -76,9 +76,9 @@ object Seeds {
       throw new Exception(failures.map(_.mkString("\n")).mkString("\n"))
 
     for {
-      customer ← (Customers.returningId += Factories.customer).map(id => Factories.customer.copy(id = id))
+      customer ← (Customers.returningId += Factories.customer).map(id ⇒ Factories.customer.copy(id = id))
       customers ← Customers ++= s.customers
-      storeAdmin ← (StoreAdmins.returningId += s.storeAdmin).map(id => s.storeAdmin.copy(id = id))
+      storeAdmin ← (StoreAdmins.returningId += s.storeAdmin).map(id ⇒ s.storeAdmin.copy(id = id))
       skus ← Skus ++= s.skus
       summaries ← InventorySummaries ++= s.inventorySummaries
       order ← Orders.create(s.order.copy(customerId = customer.id))
@@ -187,7 +187,7 @@ object Seeds {
 
     def storeCreditManual = StoreCreditManual(adminId = 0, reasonId = 0)
 
-    def giftCard = GiftCard(currency = Currency.USD, originId = 0, originType = GiftCard.CsrAppeasement, code = "ABC-123",
+    def giftCard = GiftCard(currency = Currency.USD, originId = 0, originType = GiftCard.CsrAppeasement,
       originalBalance = 50)
 
     def giftCardManual = GiftCardManual(adminId = 0, reasonId = 0)
