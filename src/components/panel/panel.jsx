@@ -1,18 +1,23 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 
 export default class Panel extends React.Component {
   static propTypes = {
-    children: React.PropTypes.any,
-    title: React.PropTypes.string,
-    controls: React.PropTypes.any,
-    content: React.PropTypes.any
+    children: PropTypes.any,
+    title: PropTypes.string,
+    className: PropTypes.string,
+    controls: PropTypes.any,
+    content: PropTypes.any
   };
+
+  get rootClassName() {
+    return `${this.props.className} fc-panel`;
+  }
 
   render() {
     return (
-      <div className="fc-panel">
+      <div className={ this.rootClassName }>
         <div className="fc-panel-header">
           <div className="fc-panel-controls">
             {this.props.controls && this.props.controls.props.children}
