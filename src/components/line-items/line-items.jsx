@@ -48,7 +48,7 @@ export default class LineItems extends React.Component {
       {field: 'price', text: 'Price', type: 'currency'},
       {field: 'lineItem', text: 'Qty', component: 'LineItemCounter'},
       {field: 'total', text: 'Total', type: 'currency'},
-      {field: 'delete', text: 'Delete', component: 'DeleteLineItem'}
+      {field: 'delete', text: '', component: 'DeleteLineItem'}
     ];
   }
 
