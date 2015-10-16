@@ -28,11 +28,12 @@ export default class Panel extends React.Component {
     return (
       <div className={ this.rootClassName }>
         <div className="fc-panel-header">
-          <div className="fc-panel-controls">
-            {this.props.controls && this.props.controls.props.children}
-          </div>
+
           <div className='fc-panel-title'>
             <span>{this.props.title}</span>
+          </div>
+          <div className="fc-panel-controls">
+            {this.props.controls && this.props.controls.props.children}
           </div>
         </div>
         <div className={ this.contentClassName }>

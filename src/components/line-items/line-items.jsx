@@ -8,6 +8,7 @@ import DeleteLineItem from './line-item-delete';
 import SkuStore from '../../stores/skus';
 import SkuResult from '../orders/sku-result';
 import Typeahead from '../typeahead/typeahead';
+import Panel from '../panel/panel';
 
 export default class LineItems extends React.Component {
   constructor(props, context) {
@@ -56,6 +57,7 @@ export default class LineItems extends React.Component {
 
   render() {
     let actions = null;
+    let controls = null;
     let columns = this.props.tableColumns;
     let rows = this.props.entity.lineItems.skus;
     let body = (
@@ -65,28 +67,18 @@ export default class LineItems extends React.Component {
         model={this.props.model}
         />
     );
-    let header = (
-      <header>
-        <span>Items</span>
-      </header>
-    );
 
     if (this.props.model === 'order') {
       if (this.state.isEditing) {
         columns = this.orderEditColumns;
-        header = (
-          <header>
-            <div className='fc-grid'>
-              <div className="fc-col-md-2-3">Items</div>
-              <div className="fc-col-md-1-3 fc-align-right">
-                <button className="fc-right fc-btn fc-btn-plain icon-chevron-up" onClick={this.toggleEdit.bind(this)}>
-                </button>
-                <div className="fc-line-items-count fc-right">
-                  5 items
-                </div>
-              </div>
+        controls = (
+          <div>
+            <div className="fc-panel-comment fc-right">
+              5 items
             </div>
-          </header>
+            <button className="fc-right fc-btn fc-btn-plain icon-chevron-up" onClick={this.toggleEdit.bind(this)}>
+            </button>
+          </div>
         );
         body = (
           <TableView columns={columns} rows={rows} model="lineItem">
@@ -100,24 +92,18 @@ export default class LineItems extends React.Component {
               <strong>Add Item</strong>
               <Typeahead callback={this.itemSelected.bind(this)} component={SkuResult} store={SkuStore} />
             </div>
-            {/*<button className="fc-btn fc-btn-primary" onClick={this.toggleEdit.bind(this)}>Done</button>*/}
           </footer>
         );
       } else {
         columns = this.orderDefaultColumns;
-        header = (
-          <header>
-            <div className='fc-grid'>
-              <div className="fc-col-md-2-3">Items</div>
-              <div className="fc-col-md-1-3 fc-align-right">
-                <button className="fc-btn fc-btn-plain fc-right icon-chevron-down" onClick={this.toggleEdit.bind(this)}>
-                </button>
-                <div className="fc-line-items-count fc-right">
-                  5 items
-                </div>
-              </div>
+        controls = (
+          <div>
+            <div className="fc-panel-comment fc-right">
+              5 items
             </div>
-          </header>
+            <button className="fc-btn fc-btn-plain fc-right icon-chevron-down" onClick={this.toggleEdit.bind(this)}>
+            </button>
+          </div>
         );
         body = (
           <TableView
@@ -130,11 +116,12 @@ export default class LineItems extends React.Component {
     }
 
     return (
-      <section className="fc-line-items fc-content-box">
-        {header}
+      <Panel className="fc-line-items"
+             title="Items"
+             controls={ controls } >
         {body}
         {actions}
-      </section>
+      </Panel>
     );
   }
 }

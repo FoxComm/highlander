@@ -3,7 +3,7 @@
 import React from 'react';
 import Addresses from '../addresses/addresses';
 import AddressDetails from '../addresses/address-details';
-import ContentBox from '../panel/panel';
+import Panel from '../panel/panel';
 import OrderStore from '../../stores/orders';
 
 export default class OrderShippingAddress extends React.Component {
@@ -34,25 +34,29 @@ export default class OrderShippingAddress extends React.Component {
     if (this.state.isEditing) {
       body = <Addresses order={this.props.order} onSelectAddress={this.onSelectAddress.bind(this)} />;
       editButton = (
-        <button className="fc-btn fc-btn-plain icon-chevron-up" onClick={this.toggleEdit.bind(this)}></button>
+        <div>
+          <button className="fc-btn fc-btn-plain icon-chevron-up" onClick={this.toggleEdit.bind(this)}></button>
+        </div>
       );
     } else {
       body = (
         <AddressDetails address={address} />
       );
       editButton = (
-        <button className="fc-btn fc-btn-plain icon-chevron-down" onClick={this.toggleEdit.bind(this)}>
-        </button>
+        <div>
+          <button className="fc-btn fc-btn-plain icon-chevron-down" onClick={this.toggleEdit.bind(this)}>
+          </button>
+        </div>
       );
     }
 
     return (
-      <ContentBox className="fc-order-shipping-address"
-                  title="Shipping Address"
-                  actionBlock={ editButton }
-                  enablePaddings={ true }>
+      <Panel className="fc-order-shipping-address"
+             title="Shipping Address"
+             controls={ editButton }
+             enablePaddings={ true }>
         {body}
-      </ContentBox>
+      </Panel>
     );
   }
 }

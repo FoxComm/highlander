@@ -57,19 +57,23 @@ export default class OrderShippingMethod extends React.Component {
 
     if (this.state.isEditing) {
       actions = (
-        <button className="fc-btn fc-btn-plain icon-chevron-up" onClick={this.toggleEdit.bind(this)}></button>
+        <div>
+          <button className="fc-btn fc-btn-plain icon-chevron-up" onClick={this.toggleEdit.bind(this)}></button>
+        </div>
       );
     } else {
       actions = (
-        <button className="fc-btn fc-btn-plain icon-chevron-down" onClick={this.toggleEdit.bind(this)}>
-        </button>
+        <div>
+          <button className="fc-btn fc-btn-plain icon-chevron-down" onClick={this.toggleEdit.bind(this)}>
+          </button>
+        </div>
       );
     }
 
     return (
       <Panel className="fc-order-shipping-method"
              title="Shipping Method"
-             actions={ actions }>
+             controls={ actions }>
         <table className="fc-table">
           <TableHead columns={this.props.tableColumns} />
           <TableBody columns={this.props.tableColumns} rows={methods} model='shipping-method'>

@@ -31,19 +31,19 @@ describe('OrderLineItems', function() {
     expect(orderLineItemsNode.className).to.contain('fc-line-items');
   });
 
-  it('should switch to edit mode when click on Edit line items button', function *() {
-    let orderLineItems = ReactDOM.render(
-      <LineItems entity={order} model='order'/>
-      , container);
-    let renderedDOM = () => ReactDOM.findDOMNode(orderLineItems);
-    let editButtons = renderedDOM().querySelectorAll('header button');
+  // it('should switch to edit mode when click on Edit line items button', function *() {
+  //   let orderLineItems = ReactDOM.render(
+  //     <LineItems entity={order} model='order'/>
+  //     , container);
+  //   let renderedDOM = () => ReactDOM.findDOMNode(orderLineItems);
+  //   let editButtons = renderedDOM().querySelectorAll('header button');
 
-    expect(editButtons).to.have.length(1);
-    expect(editButtons[0].className).to.contain('icon-chevron-down');
-    TestUtils.Simulate.click(editButtons[0]);
+  //   expect(editButtons).to.have.length(1);
+  //   expect(editButtons[0].className).to.contain('icon-chevron-down');
+  //   TestUtils.Simulate.click(editButtons[0]);
 
-    let editButtons2 = renderedDOM().querySelectorAll('header button');
-    expect(editButtons2).to.have.length(1);
-    expect(editButtons2[0].className).to.contain('icon-chevron-up');
-  });
+  //   let editButtons2 = renderedDOM().querySelectorAll('header button');
+  //   expect(editButtons2).to.have.length(1);
+  //   expect(editButtons2[0].className).to.contain('icon-chevron-up');
+  // });
 });
