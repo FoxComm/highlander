@@ -7,6 +7,7 @@ import TableHead from '../tables/head';
 import TableBody from '../tables/body';
 import ShippingMethodItem from './shipping-method-item';
 import ShippingMethods from '../../stores/shipping-methods';
+import ContentBox from '../content-box/content-box';
 
 export default class OrderShippingMethod extends React.Component {
   constructor(props, context) {
@@ -33,15 +34,14 @@ export default class OrderShippingMethod extends React.Component {
     let methods = this.props.isEditing ? this.state.methods : _.filter(this.state.methods, {isActive: true});
 
     return (
-      <section className="fc-content-box" id="order-shipping-method">
-        <header>Shipping Method</header>
+      <ContentBox title="Shipping Method">
         <table className="fc-table">
           <TableHead columns={this.props.tableColumns} />
           <TableBody columns={this.props.tableColumns} rows={methods} model='shipping-method'>
             <ShippingMethodItem isEditing={this.props.isEditing} />
           </TableBody>
         </table>
-      </section>
+      </ContentBox>
     );
   }
 }

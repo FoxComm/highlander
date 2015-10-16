@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { formatCurrency } from '../../lib/format';
+import ContentBox from '../content-box/content-box';
 
 export default class OrderSummary extends React.Component {
   render() {
@@ -25,8 +26,7 @@ export default class OrderSummary extends React.Component {
     }
 
     return (
-      <div className="fc-order-summary fc-content-box">
-        <header>Order Summary</header>
+      <ContentBox title="Order Summary" className="fc-order-summary">
         <article>
           <dl className="order-totals">
             <dt>Subtotal</dt>
@@ -44,7 +44,7 @@ export default class OrderSummary extends React.Component {
             <dd>{formatCurrency(order.totals.total)}</dd>
           </dl>
         </footer>
-      </div>
+      </ContentBox>
     );
   }
 }

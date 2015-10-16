@@ -5,6 +5,7 @@ import Addresses from '../addresses/addresses';
 import AddressDetails from '../addresses/address-details';
 import OrdersActions from '../../actions/orders';
 import AddressStore from '../../stores/addresses';
+import ContentBox from '../content-box/content-box';
 
 export default class OrderShippingAddress extends React.Component {
 
@@ -70,20 +71,13 @@ export default class OrderShippingAddress extends React.Component {
     }
 
     return (
-      <section className="fc-content-box fc-order-shipping-address">
-        <header>
-          <div className='fc-grid'>
-            <div className="fc-col-md-2-3">Shipping Address</div>
-            <div className="fc-col-md-1-3 fc-controls">
-              {editButton}
-            </div>
-          </div>
-        </header>
-        <article>
-          {body}
-          {actions}
-        </article>
-      </section>
+      <ContentBox
+        title="Shipping Address"
+        actionBlock={editButton}
+        className="fc-order-shipping-address">
+        {body}
+        {actions}
+      </ContentBox>
     );
   }
 }
