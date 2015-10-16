@@ -6,7 +6,6 @@ import _ from 'lodash';
 import Api from '../lib/api';
 import { createAction, createReducer } from 'redux-act';
 
-
 export const changeFormData = createAction('GIFT_CARDS_NEW_CHANGE_FORM', (name, value) => ({name, value}));
 export const suggestCustomers = createAction('GIFT_CARDS_NEW_SUGGEST_CUSTOMERS');
 export const suggestUsers = createAction('GIFT_CARDS_NEW_SUGGEST_USERS');

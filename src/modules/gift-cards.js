@@ -42,10 +42,16 @@ export function fetchGiftCard(id) {
     .catch(err => failGiftCards(err, fetchGiftCard));
 }
 
-export function createGiftCard(form) {
-  return Api.submitForm(form)
-    .then(card => updateGiftCards([card]))
-    .catch(err => failGiftCards(err));
+export function createGiftCard() {
+  return (dispatch, getState) => {
+    const { giftCardsNew } = getState();
+
+    // @TODO: select correct data from state for gift card creation
+    // please don't ask me for get rid of this todo now, this task is not part of reduxing story.
+    Api.post('/gift-cards', giftCardsNew)
+      .then(json => dispatch(updateGiftCards([json])))
+      .catch(err => dispatch(failGiftCards(err)));
+  };
 }
 
 export function editGiftCard(id, data) {

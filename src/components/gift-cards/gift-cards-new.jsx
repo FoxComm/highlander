@@ -12,6 +12,7 @@ import { connect } from 'react-redux';
 import { Form, FormField } from '../forms';
 import * as GiftCardNewActions from '../../modules/gift-cards-new';
 import * as CustomersActions from '../../modules/customers';
+import { createGiftCard } from '../../modules/gift-cards';
 
 const filterCustomers = createSelector(
   state => state.customers.items,
@@ -40,7 +41,8 @@ const customerItem = props => <div>{props.item.name}</div>;
   subTypes: subTypes(state)
 }), {
   ...GiftCardNewActions,
-  ...CustomersActions
+  ...CustomersActions,
+  createGiftCard
 })
 export default class NewGiftCard extends React.Component {
 
@@ -52,7 +54,7 @@ export default class NewGiftCard extends React.Component {
     super(props, context);
     this.state = {
       customerMessageCount: 0,
-      csvMessageCount: 0,
+      csvMessageCount: 0
     };
   }
 
@@ -63,8 +65,7 @@ export default class NewGiftCard extends React.Component {
   @autobind
   submitForm(event) {
     event.preventDefault();
-
-    GiftCardActions.createGiftCard(event.target);
+    this.props.createGiftCard();
   }
 
   @autobind
