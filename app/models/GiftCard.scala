@@ -7,10 +7,8 @@ import scala.concurrent.ExecutionContext
 import cats.data.Validated._
 import cats.data.ValidatedNel
 import cats.implicits._
-import services.{GeneralFailure, Failure, Result}
+import services._
 import utils.Litterbox._
-import utils.{NewModel, Validation, ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId}
-
 
 import com.pellucid.sealerate
 import models.GiftCard.{CustomerPurchase, OnHold, OriginType, Status}
@@ -18,6 +16,8 @@ import monocle.macros.GenLens
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
+
+import utils._
 import utils.Money._
 import utils.Validation._
 
@@ -88,12 +88,6 @@ object GiftCard {
   }
 
   val giftCardCodeRegex = """([a-zA-Z0-9-_]*)""".r
-  val defaultCodeLength = 16
-
-  def generateCode(length: Int): String = {
-    val r = scala.util.Random
-    r.alphanumeric.take(length).mkString.toUpperCase
-  }
 
   def buildAppeasement(payload: payloads.GiftCardCreateByCsr, originId: Int): GiftCard = {
     GiftCard(

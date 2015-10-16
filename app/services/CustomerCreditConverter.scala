@@ -1,7 +1,7 @@
 package services
 
 import models._
-import responses.StoreCreditResponse
+import responses._
 
 import scala.concurrent.ExecutionContext
 import slick.driver.PostgresDriver.api._
@@ -26,8 +26,7 @@ object CustomerCreditConverter {
         if (gc.isActive) {
             val queries = (for {
               // Update status and make adjustment
-              gcUpdated ← GiftCards.filter(_.id === gc.id).filter(_.status === (GiftCard.Active: GiftCard.Status))
-                .map(_.status).update(GiftCard.FullyRedeemed)
+              gcUpdated ← GiftCards.findActiveByCode(gc.code).map(_.status).update(GiftCard.FullyRedeemed)
               adjustment ← GiftCards.redeemToStoreCredit(gc, admin)
 
               // Finally, convert to Store Credit
@@ -48,17 +47,25 @@ object CustomerCreditConverter {
     }
   }
 
-  def toGiftCard(sc: StoreCredit, customerId: Int)
-    (implicit ec: ExecutionContext, db: Database): Result[GiftCard] = {
+  def toGiftCard(sc: StoreCredit, customerId: Int, admin: StoreAdmin)
+    (implicit ec: ExecutionContext, db: Database): Result[GiftCardResponse.Root] = {
 
     if (sc.isActive) {
       val giftCard = GiftCard(originId = 0, originType = GiftCard.FromStoreCredit, currency = sc.currency,
         originalBalance = sc.currentBalance, currentBalance = sc.currentBalance)
 
-      Result.fromFuture(db.run(for {
+      val queries = (for {
+        // Update status and make adjustment
+        scUpdated ← StoreCredits.findActiveById(sc.id).map(_.status).update(StoreCredit.FullyRedeemed)
+        adjustment ← StoreCredits.redeemToGiftCard(sc, admin)
+
+        // Convert to Gift Card
         conversion ← GiftCardFromStoreCredits.save(GiftCardFromStoreCredit(storeCreditId = sc.id))
         gc ← GiftCards.save(giftCard.copy(originId = conversion.id))
-      } yield gc))
+      } yield gc).transactionally
+
+      val adminResponse = StoreAdminResponse.build(admin)
+      Result.fromFuture(db.run(queries.map { gc ⇒ GiftCardResponse.build(gc, None, Some(adminResponse)) }))
     } else {
       Result.failure(StoreCreditConvertFailure(sc))
     }
