@@ -8,6 +8,7 @@ import org.joda.money.CurrencyUnit
 import responses._
 import org.scalatest.BeforeAndAfterEach
 import services._
+import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.Money.Currency
 import utils.Seeds.Factories
@@ -250,17 +251,16 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       "fails to convert when SC not found" in new Fixture {
         val response = POST(s"v1/customers/${customer.id}/payment-methods/store-credit/555/convert")
         response.status must ===(StatusCodes.NotFound)
-        response.errors must ===(GiftCardNotFoundFailure("ABC-666").description)
+        response.errors must ===(NotFoundFailure(StoreCredit, 555).description)
       }
 
       "fails to convert when customer not found" in new Fixture {
         val response = POST(s"v1/customers/666/payment-methods/store-credit/${scSecond.id}/convert")
         response.status must ===(StatusCodes.NotFound)
-        response.errors must ===(NotFoundFailure(models.Customer, 666).description)
+        response.errors must ===(NotFoundFailure(Customer, 666).description)
       }
 
       "fails to convert SC to GC if open transactions are present" in new Fixture {
-        pending
         val response = POST(s"v1/customers/${customer.id}/payment-methods/store-credit/${storeCredit.id}/convert")
         response.status must ===(StatusCodes.BadRequest)
         response.errors must ===(OpenTransactionsFailure.description)

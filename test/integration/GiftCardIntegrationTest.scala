@@ -6,7 +6,6 @@ import models._
 import models.GiftCard.{Active, OnHold, Canceled}
 import org.scalatest.BeforeAndAfterEach
 import responses._
-import services.NoteManager
 import services._
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
