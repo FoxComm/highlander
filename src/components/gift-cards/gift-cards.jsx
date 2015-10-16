@@ -1,14 +1,31 @@
 'use strict';
 
-import React from 'react';
+import _ from 'lodash';
+import React, { PropTypes } from 'react';
 import TableView from '../tables/tableview';
 import { Link } from '../link';
 import { connect } from 'react-redux';
 import * as giftCardActions from '../../modules/gift-cards';
-import _ from 'lodash';
 
 @connect(state => ({items: state.giftCards.items}), giftCardActions)
 export default class GiftCards extends React.Component {
+
+  static propTypes = {
+    tableColumns: PropTypes.array,
+    items: PropTypes.array
+  };
+
+  static defaultProps = {
+    tableColumns: [
+      {field: 'code', text: 'Gift Card Number', type: 'link', model: 'giftcard', id: 'code'},
+      {field: 'originType', text: 'Type'},
+      {field: 'originalBalance', text: 'Original Balance', type: 'currency'},
+      {field: 'currentBalance', text: 'Current Balance', type: 'currency'},
+      {field: 'availableBalance', text: 'Available Balance', type: 'currency'},
+      {field: 'status', text: 'Status'},
+      {field: 'date', text: 'Date Issued', type: 'date'}
+    ]
+  };
 
   componentDidMount() {
     this.props.fetchGiftCardsIfNeeded();
@@ -56,19 +73,3 @@ export default class GiftCards extends React.Component {
     );
   }
 }
-
-GiftCards.propTypes = {
-  tableColumns: React.PropTypes.array
-};
-
-GiftCards.defaultProps = {
-  tableColumns: [
-    {field: 'code', text: 'Gift Card Number', type: 'link', model: 'giftcard', id: 'code'},
-    {field: 'originType', text: 'Type'},
-    {field: 'originalBalance', text: 'Original Balance', type: 'currency'},
-    {field: 'currentBalance', text: 'Current Balance', type: 'currency'},
-    {field: 'availableBalance', text: 'Available Balance', type: 'currency'},
-    {field: 'status', text: 'Status'},
-    {field: 'date', text: 'Date Issued', type: 'date'}
-  ]
-};

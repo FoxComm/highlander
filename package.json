@@ -92,6 +92,7 @@
     "cli-color": "^1.0.0",
     "co": "^4.5.4",
     "co-body": "^4.0.0",
+    "core-decorators": "^0.8.0",
     "fleck": "^0.5.1",
     "history": "^1.12.0",
     "htmlescape": "^1.1.0",
@@ -122,6 +123,7 @@
     "redux-router": "^1.0.0-beta3",
     "redux-thunk": "^1.0.0",
     "request": "^2.58.0",
+    "reselect": "^2.0.0",
     "thunkify-wrap": "^1.0.4",
     "zipcodes-regex": "^1.0.0"
   },

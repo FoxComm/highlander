@@ -1,105 +1,98 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import Api from '../../lib/api';
-import TypeaheadResults from './results';
-import { dispatch } from '../../lib/dispatcher';
+import TypeaheadItems from './items';
+import { FormField } from '../forms';
+import { debounce, autobind } from 'core-decorators';
 
 export default class Typeahead extends React.Component {
+
+  static propTypes = {
+    onItemSelected: PropTypes.func,
+    fetchItems: PropTypes.func,
+    component: PropTypes.func,
+    items: PropTypes.array.isRequired,
+    label: PropTypes.string,
+    name: PropTypes.string
+  };
+
+  static defaultProps = {
+    name: 'typeahead'
+  };
+
   constructor(props, context) {
     super(props, context);
     this.state = {
-      showResults: false,
+      showItems: false,
       updating: false
     };
   }
 
+  @autobind
   onItemSelected(item) {
     this.setState({
-      showResults: false
+      showItems: false
     });
-    if (this.props.callback) {
-      this.props.callback(item);
+    if (this.props.onItemSelected) {
+      this.props.onItemSelected(item);
     }
   }
 
-  inputKeyUp(event) {
-    if (event.keyCode === 27) {
+  @autobind
+  inputKeyUp({keyCode}) {
+    if (keyCode === 27) {
       // They hit escape
       this.setState({
-        showResults: false
+        showItems: false
       });
     }
   }
 
-  textChange(event) {
-    let
-      target = event.target,
-      value = target.value,
-      store = this.props.store;
+  @debounce(500)
+  fetchItems(value) {
+    if (this.props.fetchItems) {
+      this.props.fetchItems(value);
+    }
+  }
 
-    store.reset();
+  @autobind
+  textChange({target}) {
+    let value = target.value;
+
     this.setState({
-      showResults: !(value === ''),
+      showItems: !(value === ''),
       updating: true
     });
 
-    clearTimeout(this.timeout);
-    this.timeout = setTimeout(() => {
-      Api.get(store.uri())
-         .then((res) => {
-           if (value !== target.value) {
-             return;
-           }
-           this.setState({
-             updating: false
-           });
-           store.update(res);
-         })
-         .catch((err) => { store.fetchError(err); });
-      this.props.store.fetch();
-      clearTimeout(this.timeout);
-      this.timeout = null;
-    }, 500);
+    this.fetchItems(value);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.items && nextProps.items != this.props.items) {
+      this.setState({
+        updating: false
+      });
+    }
   }
 
   render() {
-    let labelContent = null;
-
-    if (this.props.label) {
-      labelContent = <label htmlFor={this.props.name}>{this.props.label}</label>;
-    }
-
     return (
       <div className="fc-typeahead">
-        {labelContent}
-        <div className="fc-input-group">
+        <FormField className="fc-input-group" label={this.props.label}>
           <div className="fc-input-prepend"><i className="icon-search"></i></div>
           <input className="fc-input" type="text" name={this.props.name}
-                 onChange={this.textChange.bind(this)} onKeyUp={this.inputKeyUp.bind(this)}
+                 onChange={this.textChange} onKeyUp={this.inputKeyUp}
           />
-        </div>
-        <TypeaheadResults
-          onItemSelected={this.onItemSelected.bind(this)}
-          callback={this.props.callback}
+        </FormField>
+        <TypeaheadItems
+          onItemSelected={this.onItemSelected}
           component={this.props.component}
-          store={this.props.store}
-          showResults={this.state.showResults}
+          showItems={this.state.showItems}
           updating={this.state.updating}
+          items={this.props.items}
         />
       </div>
     );
   }
 }
-
-Typeahead.propTypes = {
-  callback: React.PropTypes.func,
-  component: React.PropTypes.func,
-  store: React.PropTypes.object,
-  label: React.PropTypes.string,
-  name: React.PropTypes.string
-};
-
-Typeahead.defaultProps = {
-  name: 'typeahead'
-};
