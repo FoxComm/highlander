@@ -10,32 +10,32 @@ import CustomerStore from '../../stores/customers';
 import { Link } from '../link';
 import { connect } from 'react-redux';
 import { Form, FormField } from '../forms';
-import * as GiftCardNewActions from '../../modules/gift-cards-new';
+import * as GiftCardNewActions from '../../modules/gift-cards/new';
 import * as CustomersActions from '../../modules/customers';
-import { createGiftCard } from '../../modules/gift-cards';
+import { createGiftCard } from '../../modules/gift-cards/cards';
 
 const filterCustomers = createSelector(
   state => state.customers.items,
-  state => state.giftCardsNew.customersQuery,
+  ({giftCards: {adding}}) => adding.customersQuery,
   (customers, customersQuery) => _.filter(customers, customer => _.contains(customer.name, customersQuery))
 );
 
 const filterUsers = createSelector(
   state => state.customers.items,
-  state => state.giftCardsNew.usersQuery,
+  ({giftCards: {adding}}) => adding.usersQuery,
   (customers, usersQuery) => _.filter(customers, customer => _.contains(customer.name, usersQuery))
 );
 
 const subTypes = createSelector(
-  state => state.giftCardsNew.originType,
-  state => state.giftCardsNew.types,
+  ({giftCards: {adding}}) => adding.originType,
+  ({giftCards: {adding}}) => adding.types,
   (originType, types) => types[originType]
 );
 
 const customerItem = props => <div>{props.item.name}</div>;
 
 @connect(state => ({
-  ...state.giftCardsNew,
+  ...state.giftCards.adding,
   suggestedCustomers: filterCustomers(state),
   suggestedUsers: filterUsers(state),
   subTypes: subTypes(state)

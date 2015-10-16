@@ -5,9 +5,9 @@ import React, { PropTypes } from 'react';
 import TableView from '../tables/tableview';
 import { Link } from '../link';
 import { connect } from 'react-redux';
-import * as giftCardActions from '../../modules/gift-cards';
+import * as giftCardActions from '../../modules/gift-cards/cards';
 
-@connect(state => ({items: state.giftCards.items}), giftCardActions)
+@connect(({giftCards}) => ({items: giftCards.cards.items}), giftCardActions)
 export default class GiftCards extends React.Component {
 
   static propTypes = {

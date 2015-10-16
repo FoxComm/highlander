@@ -3,7 +3,7 @@
 // state for gift card adding form
 
 import _ from 'lodash';
-import Api from '../lib/api';
+import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 
 export const changeFormData = createAction('GIFT_CARDS_NEW_CHANGE_FORM', (name, value) => ({name, value}));

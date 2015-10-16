@@ -1,7 +1,7 @@
 'use strict';
 
 import _ from 'lodash';
-import Api from '../lib/api';
+import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 
 export const receiveGiftCards = createAction('GIFT_CARDS_RECEIVE');
@@ -19,7 +19,7 @@ export function fetchGiftCards() {
 }
 
 function shouldFetchGiftCards(state) {
-  const giftCards = state.giftCards;
+  const giftCards = state.giftCards.cards;
   if (!giftCards) {
     return true;
   } else if (giftCards.isFetching) {
