@@ -112,7 +112,10 @@ export default class LineItems extends React.Component {
                 <div className="fc-line-items-add-label">
                   <strong>Add Item</strong>
                 </div>
-                <Typeahead callback={this.itemSelected.bind(this)} component={SkuResult} store={SkuStore} />
+                <Typeahead callback={this.itemSelected.bind(this)}
+                           component={SkuResult}
+                           store={SkuStore}
+                           placeholder="Product name or SKU..." />
               </div>
             </footer>
           );
