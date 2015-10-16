@@ -107,9 +107,11 @@ export default class LineItems extends React.Component {
             </TableView>
           );
           actions = (
-            <footer className="fc-order-line-items-footer">
+            <footer className="fc-line-items-footer">
               <div>
-                <strong>Add Item</strong>
+                <div className="fc-line-items-add-label">
+                  <strong>Add Item</strong>
+                </div>
                 <Typeahead callback={this.itemSelected.bind(this)} component={SkuResult} store={SkuStore} />
               </div>
             </footer>
