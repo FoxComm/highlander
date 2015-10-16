@@ -6,6 +6,7 @@ import { formatCurrency } from '../../lib/format';
 import moment from 'moment';
 import GiftCardStore from '../../stores/gift-cards';
 import GiftCardActions from '../../actions/gift-cards';
+import Panel from '../panel/panel';
 
 export default class GiftCard extends React.Component {
 
@@ -98,10 +99,9 @@ export default class GiftCard extends React.Component {
         <div className="gutter">
           <div className="fc-grid fc-grid-match fc-grid-gutter">
             <div className="fc-col-md-1-3">
-              <article className="panel featured available-balance">
-                <header>Available Balance</header>
+              <Panel title="Available Balance" featured={true}>
                 <p>{ formatCurrency(card.availableBalance) }</p>
-              </article>
+              </Panel>
             </div>
             <div className="fc-col-md-2-3">
               <article className="panel">

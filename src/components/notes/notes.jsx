@@ -3,7 +3,7 @@
 import React from 'react';
 import Api from '../../lib/api';
 import NotesStore from '../../stores/notes';
-import Panel from '../panel/panel';
+import ContentBox from '../content-box/content-box';
 import TableView from '../table/tableview';
 import TableRow from '../table/row';
 import TableCell from '../table/cell';
@@ -143,19 +143,17 @@ export default class Notes extends React.Component {
     };
 
     let controls = (
-      <div>
-        <button
-          className="fc-btn fc-btn-primary"
-          onClick={this.toggleCreating.bind(this)}
-          disabled={!!this.state.creatingNote}
-          >
-          <i className="icon-add"></i>
-        </button>
-      </div>
+      <button
+        className="fc-btn fc-btn-primary"
+        onClick={this.toggleCreating.bind(this)}
+        disabled={!!this.state.creatingNote}
+        >
+        <i className="icon-add"></i>
+      </button>
     );
 
     return (
-      <Panel title={'Notes'} controls={controls}>
+      <ContentBox title={'Notes'} actionBlock={controls}>
         {this.state.creatingNote && (
           <NoteForm
             uri={NotesStore.baseUri}
@@ -164,7 +162,7 @@ export default class Notes extends React.Component {
             />
         )}
         <TableView store={NotesStore} renderRow={renderRow.bind(this)} empty={'No notes yet.'}/>
-      </Panel>
+      </ContentBox>
     );
   }
 }

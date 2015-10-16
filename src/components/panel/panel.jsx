@@ -6,22 +6,25 @@ export default class Panel extends React.Component {
   static propTypes = {
     children: React.PropTypes.any,
     title: React.PropTypes.string,
-    controls: React.PropTypes.any,
-    content: React.PropTypes.any
+    content: React.PropTypes.any,
+    featured: React.PropTypes.bool
   };
+
+  static defaultProps = {
+    featured: false
+  };
+
+  get contentClasses() {
+    return `fc-panel-content ${this.props.featured ? 'fc-panel-content-featured' : null}`;
+  }
 
   render() {
     return (
       <div className="fc-panel">
         <div className="fc-panel-header">
-          <div className="fc-panel-controls">
-            {this.props.controls && this.props.controls.props.children}
-          </div>
-          <div className='fc-panel-title'>
-            <span>{this.props.title}</span>
-          </div>
+          {this.props.title}
         </div>
-        <div className="fc-panel-content">
+        <div className={this.contentClasses}>
           {this.props.content && this.props.content.props.children}
           {this.props.children}
         </div>
