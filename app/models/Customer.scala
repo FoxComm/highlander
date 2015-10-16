@@ -18,6 +18,7 @@ import utils.{ModelWithIdParameter, TableQueryWithId, Validation}
 import utils.Slick.implicits._
 import payloads.CreateCustomerPayload
 import utils.Passwords._
+import payloads.UpdateCustomerPayload
 
 final case class Customer(id: Int = 0, email: String, password: Option[String] = None,
   name: Option[String] = None, isDisabled: Boolean = false, isBlacklisted: Boolean = false,
@@ -48,6 +49,12 @@ object Customer {
     val hash = payload.password.map(hashPassword(_))
     Customer(id = 0, email = payload.email, password = hash, name = payload.name,
       isGuest = payload.isGuest.getOrElse(false))
+
+  def fromPathPayload(c: Customer, p: UpdateCustomerPayload): Customer = {
+    c.copy(email = p.email.getOrElse(c.email),
+      name = p.name.fold(c.name)(Some(_)),
+      phoneNumber = p.phoneNumber.fold(c.phoneNumber)(Some(_))
+    )
   }
 }
 

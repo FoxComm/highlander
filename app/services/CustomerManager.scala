@@ -8,7 +8,8 @@ import responses.CustomerResponse._
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.Slick.UpdateReturning._
-import payloads.CreateCustomerPayload
+import utils._
+import payloads.{CreateCustomerPayload, UpdateCustomerPayload}
 
 object CustomerManager {
 
@@ -72,6 +73,17 @@ object CustomerManager {
     val customer = Customer.buildFromPayload(payload)
     val qq = db.run(Customers.save(customer))
     qq.flatMap { case(a) ⇒ Result.right(build(a)) }
+  }
+
+  def updateFromPayload(customerId: Int, payload: UpdateCustomerPayload)
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
+    val finder = Customers.filter(_.id === customerId)
+    val params = caseClassToMap(payload).filter { case (_, v) ⇒ v != None }
+    finder.selectOneForUpdate { customer ⇒
+      Customers.filter(._id === customer.id).map(Customers.map { c ⇒
+      (c.name, c.email, c.phoneNumber)}).updateReturning(Customer.map(identity),
+      (payload.))
+    }
   }
 
 }
