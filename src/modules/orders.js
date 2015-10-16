@@ -12,7 +12,7 @@ export function fetchOrders() {
     dispatch(ordersRequest());
     return Api.get('/orders')
       .then(orders => dispatch(ordersSuccess(orders)))
-      .catch(err => dispatch(ordersFailed(err)));
+      .catch(err => dispatch(ordersFailed(err, fetchOrders)));
   };
 }
 

@@ -11,7 +11,7 @@ export const orderLineItemsCancelEdit = createAction('ORDER_LINE_ITEMS_CANCEL_ED
 export const orderLineItemsRequest = createAction('ORDER_LINE_ITEMS_REQUEST');
 export const orderLineItemsRequestSuccess = createAction('ORDER_LINE_ITEMS_REQUEST_SUCCESS');
 export const orderLineItemsRequestFailed = 
-  createAction('ORDER_LINE_ITEMS_REQUEST_FAILED', (err, source) => {err, source});
+  createAction('ORDER_LINE_ITEMS_REQUEST_FAILED', (err, source) => ({err, source}));
 export const orderLineItemsStartDelete = createAction('ORDER_LINE_ITEMS_START_DELETE');
 export const orderLineItemsCancelDelete = createAction('ORDER_LINE_ITEMS_CANCEL_DELETE');
 
@@ -20,7 +20,7 @@ export function fetchOrder(refNum) {
     dispatch(orderRequest(refNum));
     return Api.get(`/orders/${refNum}`)
       .then(order => dispatch(orderSuccess(order)))
-      .catch(err => dispatch(orderFailed(err)));
+      .catch(err => dispatch(orderFailed(err, fetchOrder)));
   };
 }
 
@@ -55,7 +55,7 @@ export function updateLineItemCount(order, sku, quantity, confirmDelete = true) 
           dispatch(orderLineItemsRequestSuccess(sku));
           dispatch(orderSuccess(order));
         })
-        .catch(err => dispatch(orderLineItemsRequestFailed(err)));
+        .catch(err => dispatch(orderLineItemsRequestFailed(err, updateLineItemCount)));
     }
   };
 }
