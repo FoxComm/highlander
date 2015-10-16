@@ -18,6 +18,6 @@ let EditableTableView = (props) => {
       <TableView columns={props.columns} rows={props.rows} />
     </section>
   );
-}
+};
 
 export default EditableTableView;

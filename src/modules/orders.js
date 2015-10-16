@@ -5,7 +5,7 @@ import { createAction, createReducer } from 'redux-act';
 
 export const ordersRequest = createAction('ORDERS_REQUEST');
 export const ordersSuccess = createAction('ORDERS_SUCCESS');
-export const ordersFailed = createAction('ORDERS_FAILED', (err, source) => {err, source});
+export const ordersFailed = createAction('ORDERS_FAILED', (err, source) => ({err, source}));
 
 export function fetchOrders() {
   return dispatch => {

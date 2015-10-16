@@ -43,7 +43,6 @@ let OrderLineItems = (props) => {
   }
 };
 
-
 let renderEditMode = (state) => {
   let order = state.order.currentOrder;
   let lineItemsStatus = state.order.lineItems;
@@ -77,6 +76,6 @@ let renderEditMode = (state) => {
         confirmAction={() => state.deleteLineItem(order, lineItemsStatus.skuToDelete)} />
     </div>
   );
-}
+};
 
 export default OrderLineItems;

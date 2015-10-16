@@ -1,6 +1,6 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import TableView from '../tables/tableview';
 import OrderStore from '../../stores/orders';
 import TabListView from '../tabs/tabs';
@@ -16,8 +16,10 @@ export default class Orders extends React.Component {
   }
 
   static propTypes = {
-    tableColumns: React.PropTypes.array,
-    subNav: React.PropTypes.array
+    tableColumns: PropTypes.array,
+    subNav: PropTypes.array,
+    orders: PropTypes.shape({ items: PropTypes.array }),
+    fetchOrdersIfNeeded: PropTypes.func,
   };
 
   static defaultProps = {
