@@ -1,6 +1,6 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import TableView from '../tables/tableview';
 import LineItemCounter from './line-item-counter';
 import LineItemActions from '../../actions/line-items';
@@ -11,6 +11,17 @@ import Typeahead from '../typeahead/typeahead';
 import Panel from '../panel/panel';
 
 export default class LineItems extends React.Component {
+  static propTypes = {
+    entity: PropTypes.object,
+    tableColumns: PropTypes.array,
+    model: PropTypes.string,
+    editMode: PropTypes.bool
+  };
+
+  static defaultProps = {
+    editMode: false
+  }
+
   constructor(props, context) {
     super(props, context);
     this.state = {
@@ -69,49 +80,51 @@ export default class LineItems extends React.Component {
     );
 
     if (this.props.model === 'order') {
-      if (this.state.isEditing) {
-        columns = this.orderEditColumns;
-        controls = (
-          <div>
-            <button className="fc-right fc-btn fc-btn-plain icon-chevron-up" onClick={this.toggleEdit.bind(this)}>
-            </button>
-            <div className="fc-panel-comment fc-right">
-              5 items
-            </div>
-          </div>
-        );
-        body = (
-          <TableView columns={columns} rows={rows} model="lineItem">
-            <LineItemCounter entityName={this.props.model} entity={this.props.entity} />
-            <DeleteLineItem entityName={this.props.model} entity={this.props.entity} />
-          </TableView>
-        );
-        actions = (
-          <footer className="fc-order-line-items-footer">
-            <div>
-              <strong>Add Item</strong>
-              <Typeahead callback={this.itemSelected.bind(this)} component={SkuResult} store={SkuStore} />
-            </div>
-          </footer>
-        );
-      } else {
-        columns = this.orderDefaultColumns;
-        controls = (
-          <div>
-            <button className="fc-btn fc-btn-plain fc-right icon-chevron-down" onClick={this.toggleEdit.bind(this)}>
-            </button>
-            <div className="fc-panel-comment fc-right">
-              5 items
-            </div>
-          </div>
-        );
-        body = (
+      columns = this.orderDefaultColumns;
+      body = (
           <TableView
             columns={columns}
             rows={rows}
             model={this.props.model}
             />
-        );
+      );
+      if (this.props.editMode) {
+        if (this.state.isEditing) {
+          columns = this.orderEditColumns;
+          controls = (
+            <div>
+              <button className="fc-right fc-btn fc-btn-plain icon-chevron-up" onClick={this.toggleEdit.bind(this)}>
+              </button>
+              <div className="fc-panel-comment fc-right">
+                5 items
+              </div>
+            </div>
+          );
+          body = (
+            <TableView columns={columns} rows={rows} model="lineItem">
+              <LineItemCounter entityName={this.props.model} entity={this.props.entity} />
+              <DeleteLineItem entityName={this.props.model} entity={this.props.entity} />
+            </TableView>
+          );
+          actions = (
+            <footer className="fc-order-line-items-footer">
+              <div>
+                <strong>Add Item</strong>
+                <Typeahead callback={this.itemSelected.bind(this)} component={SkuResult} store={SkuStore} />
+              </div>
+            </footer>
+          );
+        } else {
+          controls = (
+            <div>
+              <button className="fc-btn fc-btn-plain fc-right icon-chevron-down" onClick={this.toggleEdit.bind(this)}>
+              </button>
+              <div className="fc-panel-comment fc-right">
+                5 items
+              </div>
+            </div>
+          );
+        }
       }
     }
 
@@ -125,9 +138,3 @@ export default class LineItems extends React.Component {
     );
   }
 }
-
-LineItems.propTypes = {
-  entity: React.PropTypes.object,
-  tableColumns: React.PropTypes.array,
-  model: React.PropTypes.string
-};

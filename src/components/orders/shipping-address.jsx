@@ -1,12 +1,20 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import Addresses from '../addresses/addresses';
 import AddressDetails from '../addresses/address-details';
 import Panel from '../panel/panel';
 import OrderStore from '../../stores/orders';
 
 export default class OrderShippingAddress extends React.Component {
+
+  static defaultProps = {
+    editMode: false
+  }
+
+  static propTypes = {
+    editMode: PropTypes.bool
+  }
 
   constructor(props, context) {
     super(props, context);
@@ -27,29 +35,28 @@ export default class OrderShippingAddress extends React.Component {
 
   render() {
     let address = this.props.order.shippingAddress;
-    let body = null;
+    let body = <AddressDetails address={address} />;
     let actions = null;
     let editButton = null;
 
-    if (this.state.isEditing) {
-      body = <Addresses order={this.props.order} onSelectAddress={this.onSelectAddress.bind(this)} />;
-      editButton = (
-        <div>
-          <button className="fc-btn fc-btn-plain icon-chevron-up fc-right" onClick={this.toggleEdit.bind(this)}></button>
-          <div className="fc-panel-comment fc-right">Patty’s Pub</div>
-        </div>
-      );
-    } else {
-      body = (
-        <AddressDetails address={address} />
-      );
-      editButton = (
-        <div>
-          <button className="fc-btn fc-btn-plain icon-chevron-down fc-right" onClick={this.toggleEdit.bind(this)}>
-          </button>
-          <div className="fc-panel-comment fc-right">Patty’s Pub</div>
-        </div>
-      );
+    if (this.props.editMode) {
+      if (this.state.isEditing) {
+        body = <Addresses order={this.props.order} onSelectAddress={this.onSelectAddress.bind(this)} />;
+        editButton = (
+          <div>
+            <button className="fc-btn fc-btn-plain icon-chevron-up fc-right" onClick={this.toggleEdit.bind(this)}></button>
+            <div className="fc-panel-comment fc-right">Patty’s Pub</div>
+          </div>
+        );
+      } else {
+        editButton = (
+          <div>
+            <button className="fc-btn fc-btn-plain icon-chevron-down fc-right" onClick={this.toggleEdit.bind(this)}>
+            </button>
+            <div className="fc-panel-comment fc-right">Patty’s Pub</div>
+          </div>
+        );
+      }
     }
 
     return (
@@ -62,8 +69,3 @@ export default class OrderShippingAddress extends React.Component {
     );
   }
 }
-
-OrderShippingAddress.propTypes = {
-  order: React.PropTypes.object,
-  isEditing: React.PropTypes.bool
-};

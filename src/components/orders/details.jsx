@@ -1,6 +1,6 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import OrderSummary from './summary';
 import CustomerInfo from './customer-info';
 import LineItems from '../line-items/line-items';
@@ -11,6 +11,10 @@ import { Map } from 'immutable';
 
 
 export default class OrderDetails extends React.Component {
+  static propTypes = {
+    order: PropTypes.object
+  };
+
   constructor(props, context) {
     super(props, context);
     this.state = {
@@ -85,7 +89,3 @@ export default class OrderDetails extends React.Component {
     );
   }
 }
-
-OrderDetails.propTypes = {
-  order: React.PropTypes.object
-};

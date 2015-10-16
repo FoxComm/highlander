@@ -15,12 +15,13 @@ export default class OrderShippingMethod extends React.Component {
     tableColumns: [
       {field: null, text: 'Method', component: 'ShippingMethodItem'},
       {field: 'defaultPrice', text: 'Price', type: 'currency'}
-    ]
+    ],
+    editMode: false
   }
 
   static propTypes = {
     order: PropTypes.object,
-    isEditing: PropTypes.bool,
+    editMode: PropTypes.bool,
     tableColumns: PropTypes.array
   }
 
@@ -55,21 +56,23 @@ export default class OrderShippingMethod extends React.Component {
     let methods = this.props.isEditing ? this.state.methods : _.filter(this.state.methods, {isActive: true});
     let actions = null;
 
-    if (this.state.isEditing) {
-      actions = (
-        <div>
-          <button className="fc-btn fc-btn-plain icon-chevron-up fc-right" onClick={this.toggleEdit.bind(this)}></button>
-          <div className="fc-panel-coment fc-right">Standard 5-7 Day Ground</div>
-        </div>
-      );
-    } else {
-      actions = (
-        <div>
-          <button className="fc-btn fc-btn-plain icon-chevron-down fc-right" onClick={this.toggleEdit.bind(this)}>
-          </button>
-          <div className="fc-panel-comment fc-right">Standard 5-7 Day Ground</div>
-        </div>
-      );
+    if (this.props.editMode) {
+      if (this.state.isEditing) {
+        actions = (
+          <div>
+            <button className="fc-btn fc-btn-plain icon-chevron-up fc-right" onClick={this.toggleEdit.bind(this)}></button>
+            <div className="fc-panel-comment fc-right">Standard 5-7 Day Ground</div>
+          </div>
+        );
+      } else {
+        actions = (
+          <div>
+            <button className="fc-btn fc-btn-plain icon-chevron-down fc-right" onClick={this.toggleEdit.bind(this)}>
+            </button>
+            <div className="fc-panel-comment fc-right">Standard 5-7 Day Ground</div>
+          </div>
+        );
+      }
     }
 
     return (
