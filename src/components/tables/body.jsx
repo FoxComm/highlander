@@ -1,12 +1,29 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import moment from 'moment';
 import { Link } from '../link';
 import { formatCurrency } from '../../lib/format';
 import OrderStore from '../../stores/orders';
 
 export default class TableBody extends React.Component {
+
+  static propTypes = {
+    columns: PropTypes.array,
+    rows: PropTypes.array.isRequired,
+    model: PropTypes.string,
+    predicate: PropTypes.func,
+    children: PropTypes.node
+  };
+
+  constructor(props, context) {
+    super(props, context);
+    this.state = {
+      newRows: {}
+    };
+  }
+
+
   convert(field, column, row) {
     let model = column.model || row.model || this.props.model;
     switch(column.type) {
@@ -47,11 +64,27 @@ export default class TableBody extends React.Component {
     return divs;
   }
 
+  componentWillReceiveProps(nextProps) {
+    const newRows = {};
+    if (this.props.predicate && nextProps.rows && nextProps.rows !== this.props.rows && this.props.rows.length) {
+
+      nextProps.rows.map((row, idx) => {
+        if (idx >= this.props.rows.length ||
+          this.props.predicate(row) !== this.props.predicate(this.props.rows[idx])) {
+
+          newRows[idx] = true;
+        }
+      });
+    }
+    this.setState({ newRows });
+  }
+
   render() {
     let columns = this.props.columns;
     let createRow = (row, idx) => {
+      const isNew = idx in this.state.newRows;
       return (
-        <tr key={idx} className={row.isNew ? 'new' : ''}>
+        <tr key={idx} className={isNew ? 'is-new' : null}>
           {columns.map((column) => {
             let data = (
               column.component
@@ -67,10 +100,3 @@ export default class TableBody extends React.Component {
     return <tbody>{this.props.rows.map(createRow)}</tbody>;
   }
 }
-
-TableBody.propTypes = {
-  columns: React.PropTypes.array,
-  rows: React.PropTypes.array.isRequired,
-  model: React.PropTypes.string,
-  children: React.PropTypes.node
-};

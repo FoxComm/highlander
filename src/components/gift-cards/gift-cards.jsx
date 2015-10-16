@@ -31,32 +31,6 @@ export default class GiftCards extends React.Component {
     this.props.fetchGiftCardsIfNeeded();
   }
 
-  onCardsAdded(cards) {
-    let cardList = this.state.cards.slice(0, this.state.cards.length);
-
-    this.toggleNew();
-
-    for (let card of cards) {
-      card.isNew = true;
-    }
-
-    Array.prototype.unshift.apply(cardList, cards);
-    this.setState({
-      cards: cardList
-    });
-
-    this.removeNew();
-  }
-
-  removeNew() {
-    setTimeout(() => {
-      let rows = [].slice.call(document.querySelectorAll('tr.new'));
-      for (let row of rows) {
-        row.classList.remove('new');
-      }
-    }, 5000);
-  }
-
   render() {
     return (
       <div id="cards">

@@ -15,13 +15,15 @@ export default class TableView extends React.Component {
     limit: PropTypes.number,
     sort: PropTypes.func,
     paginator: PropTypes.bool,
+    predicate: PropTypes.func,
     children: PropTypes.node
   };
 
   static defaultProps = {
     start: 0,
     limit: 25,
-    paginator: true
+    paginator: true,
+    predicate: item => item.id
   };
 
   constructor(props, context) {
@@ -83,7 +85,8 @@ export default class TableView extends React.Component {
           <TableBody
             columns={this.props.columns}
             rows={this.props.rows}
-            model={this.props.model}>
+            model={this.props.model}
+            predicate={this.props.predicate}>
             {this.props.children}
           </TableBody>
         </table>
