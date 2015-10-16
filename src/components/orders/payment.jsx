@@ -5,21 +5,21 @@ import React from 'react';
 import PaymentMethod from './payment-method';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
+import ContentBox from '../content-box/content-box';
 
 export default class OrderPayment extends React.Component {
   render() {
     let order = this.props.order;
 
     return (
-      <section className="fc-content-box" id="order-payment">
-        <header>Payment</header>
+      <ContentBox title="Payment" id="order-payment">
         <table className="fc-table">
           <TableHead columns={this.props.tableColumns}/>
           <TableBody columns={this.props.tableColumns} rows={_.compact([order.payment])} model='payment-method'>
             <PaymentMethod/>
           </TableBody>
         </table>
-      </section>
+      </ContentBox>
     );
   }
 }
