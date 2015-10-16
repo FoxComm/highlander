@@ -1,35 +1,25 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import TableView from '../tables/tableview';
 import OrderStore from '../../stores/orders';
-import * as OrderActions from '../../actions/orders';
 import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
 import SectionTitle from '../section-title/section-title';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import * as actionCreators from '../../actions/orders';
+import * as orderActions from '../../modules/orders';
 
-function mapStateToProps(state) {
-  return {
-    orders: state.orders || {}
-  };
-}
-
-function mapDispatchToProps(dispatch) {
-  return { actions: bindActionCreators(actionCreators, dispatch) };
-}
-
-@connect(mapStateToProps, mapDispatchToProps)
+@connect(state => ({orders: state.orders}), orderActions)
 export default class Orders extends React.Component {
   constructor(props, context) {
     super(props, context);
   }
 
   static propTypes = {
-    tableColumns: React.PropTypes.array,
-    subNav: React.PropTypes.array
+    tableColumns: PropTypes.array,
+    subNav: PropTypes.array,
+    orders: PropTypes.shape({ items: PropTypes.array }),
+    fetchOrdersIfNeeded: PropTypes.func,
   };
 
   static defaultProps = {
@@ -44,7 +34,7 @@ export default class Orders extends React.Component {
   };
 
   componentDidMount() {
-    this.props.actions.fetchOrdersIfNeeded();
+    this.props.fetchOrdersIfNeeded();
   }
 
   handleAddOrderClick() {
@@ -52,10 +42,8 @@ export default class Orders extends React.Component {
   }
 
   render() {
-    let orders = this.props.orders || [];
+    let orders = this.props.orders.items || [];
 
-    return <div>{JSON.stringify(orders)}</div>;
-    
     return (
       <div id="orders">
         <div className="fc-list-header">
