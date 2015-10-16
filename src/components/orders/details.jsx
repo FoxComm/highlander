@@ -7,9 +7,8 @@ import OrderLineItems from './order-line-items';
 import OrderShippingAddress from './shipping-address';
 import OrderShippingMethod from '../shipping/shipping-method';
 import OrderPayment from './payment';
-import OrderStore from './../../stores/orders';
 
-let OrderDetails = (props) => {
+const OrderDetails = (props) => {
   return (
     <div className="fc-order-details">
       <div className="fc-order-details-body">
