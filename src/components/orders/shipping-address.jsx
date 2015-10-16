@@ -3,7 +3,7 @@
 import React from 'react';
 import Addresses from '../addresses/addresses';
 import AddressDetails from '../addresses/address-details';
-import ContentBox from '../content-box/content-box';
+import ContentBox from '../panel/panel';
 import OrderStore from '../../stores/orders';
 
 export default class OrderShippingAddress extends React.Component {
@@ -49,7 +49,8 @@ export default class OrderShippingAddress extends React.Component {
     return (
       <ContentBox className="fc-order-shipping-address"
                   title="Shipping Address"
-                  actionBlock={editButton}>
+                  actionBlock={ editButton }
+                  enablePaddings={ true }>
         {body}
       </ContentBox>
     );
