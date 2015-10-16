@@ -47,7 +47,9 @@ let renderEditMode = (state) => {
   let order = state.order.currentOrder;
   let lineItemsStatus = state.order.lineItems;
 
-  let orderLineItems = lineItemsStatus.items.map((lineItem, idx) => <OrderLineItem item={lineItem} {...state} />);
+  let orderLineItems = lineItemsStatus.items.map((lineItem, idx) => {
+    return <OrderLineItem key={`lineItem-${idx}`} item={lineItem} {...state} />;
+  });
 
   // TODO: Re-add the Typeahead after Andrey's refactor is complete.
   return (
