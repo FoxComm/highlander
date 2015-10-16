@@ -1,116 +1,82 @@
 'use strict';
 
 import React from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import * as actionCreators from '../../actions/order-line-items';
 
-import EditButton from '../common/edit-button';
-import TableView from '../tables/tableview';
-import TableHead from '../tables/head';
-import OrderLineItem from './order-line-item';
-import SkuStore from '../../stores/skus';
-import SkuResult from './sku-result';
-import Typeahead from '../typeahead/typeahead';
 import ConfirmationDialog from '../modal/confirmation-dialog';
+import EditableTableView from '../tables/editable-table-view';
+import OrderLineItem from './order-line-item';
+import TableHead from '../tables/head';
 
-function mapStateToProps(state) {
-  return {
-    lineItems: state.orderLineItems || {}
-  };
+const viewModeColumns = [
+  {field: 'imagePath', text: 'Image', type: 'image'},
+  {field: 'name', text: 'Name'},
+  {field: 'sku', text: 'SKU'},
+  {field: 'price', text: 'Price', type: 'currency'},
+  {field: 'quantity', text: 'Qty'},
+  {field: 'totalPrice', text: 'Total', type: 'currency'}
+];
+
+const editModeColumns = [
+  {field: 'imagePath', text: 'Image', type: 'image'},
+  {field: 'name', text: 'Name'},
+  {field: 'sku', text: 'SKU'},
+  {field: 'price', text: 'Price', type: 'currency'},
+  {field: 'lineItem', text: 'Qty', component: 'LineItemCounter'},
+  {field: 'totalPrice', text: 'Total', type: 'currency'},
+  {field: 'delete', text: 'Delete', component: 'DeleteLineItem'}
+];
+
+let OrderLineItems = (props) => {
+  let order = props.order.currentOrder;
+  let lineItemsStatus = props.order.lineItems;
+
+  if (lineItemsStatus.isEditing) {
+    return renderEditMode(props);
+  } else {
+    return (
+      <EditableTableView
+        title='Items'
+        editAction={() => props.orderLineItemsStartEdit()}
+        columns={viewModeColumns}
+        rows={lineItemsStatus.items} />
+    );
+  }
+};
+
+
+let renderEditMode = (state) => {
+  let order = state.order.currentOrder;
+  let lineItemsStatus = state.order.lineItems;
+
+  let orderLineItems = lineItemsStatus.items.map((lineItem, idx) => <OrderLineItem item={lineItem} {...state} />);
+
+  // TODO: Re-add the Typeahead after Andrey's refactor is complete.
+  return (
+    <div>
+      <section className='fc-line-items fc-content-box'>
+        <table className='fc-table'>
+          <TableHead columns={editModeColumns} />
+          <tbody>
+            {orderLineItems}
+          </tbody>
+        </table>
+        <footer>
+          <div>
+            <strong>Add Item</strong>
+          </div>
+          <button className='fc-btn fc-btn-primary' onClick={() => state.orderLineItemsCancelEdit()}>Done</button>
+        </footer>
+      </section>
+      <ConfirmationDialog
+        isVisible={lineItemsStatus.isDeleting}
+        header='Confirm'
+        body='Are you sure you want to delete this item?'
+        cancel='Cancel'
+        confirm='Yes, Delete'
+        cancelAction={() => state.orderLineItemsCancelDelete(lineItemsStatus.skuToDelete)}
+        confirmAction={() => state.deleteLineItem(order, lineItemsStatus.skuToDelete)} />
+    </div>
+  );
 }
 
-function mapDispatchToProps(dispatch) {
-  return { actions: bindActionCreators(actionCreators, dispatch) };
-}
-
-@connect(mapStateToProps, mapDispatchToProps)
-export default class OrderLineItems extends React.Component {
-  constructor(props, context) {
-    super(props, context);
-  }
-
-  static defaultProps = {
-    viewColumns: [
-      {field: 'imagePath', text: 'Image', type: 'image'},
-      {field: 'name', text: 'Name'},
-      {field: 'sku', text: 'SKU'},
-      {field: 'price', text: 'Price', type: 'currency'},
-      {field: 'quantity', text: 'Qty'},
-      {field: 'totalPrice', text: 'Total', type: 'currency'}
-    ],
-    editColumns: [
-      {field: 'imagePath', text: 'Image', type: 'image'},
-      {field: 'name', text: 'Name'},
-      {field: 'sku', text: 'SKU'},
-      {field: 'price', text: 'Price', type: 'currency'},
-      {field: 'lineItem', text: 'Qty', component: 'LineItemCounter'},
-      {field: 'totalPrice', text: 'Total', type: 'currency'},
-      {field: 'delete', text: 'Delete', component: 'DeleteLineItem'}
-    ]
-  }
-
-  itemSelected(sku) {
-    console.log('Item selected');
-  }
-
-  editLineItems() {
-    this.props.actions.orderLineItemsEdit(this.props.entity);
-  }
-
-  cancelEditLineItems() {
-    this.props.actions.orderLineItemsCancelEdit();
-  }
-
-  render() {
-    if (this.props.lineItems.isEditing) {
-      let orderLineItems = this.props.lineItems.items.map((lineItem, idx) => {
-        return (<OrderLineItem item={lineItem} />);
-      });
-      return (
-        <div>
-          <section className='fc-line-items fc-content-box'>
-            <table className='fc-table'>
-              <TableHead columns={this.props.editColumns} />
-              <tbody>
-                {orderLineItems}
-              </tbody>
-            </table>
-            <footer>
-              <div>
-                <strong>Add Item</strong>
-                <Typeahead callback={this.itemSelected.bind(this)} component={SkuResult} store={SkuStore} />
-              </div>
-              <button className='fc-btn fc-btn-primary' onClick={this.cancelEditLineItems.bind(this)}>Done</button>
-            </footer>
-          </section>
-          <ConfirmationDialog
-            isVisible={this.props.lineItems.isDeleting}
-            header='Confirm'
-            body='Are you sure you want to delete this item?'
-            cancel='Cancel'
-            confirm='Yes, Delete'
-            cancelAction={() => this.props.actions.orderLineItemCancelDelete()}
-            confirmAction={() => this.props.actions.orderLineItemConfirmDelete()} />
-        </div>
-      );
-    } else {
-      return (
-        <section className='fc-line-items fc-content-box'>
-          <header>
-            <div className='fc-grid'>
-              <div className='fc-col-md-2-3'>Items</div>
-              <div className='fc-col-md-1-3 fc-align-right'>
-                <EditButton onClick={this.editLineItems.bind(this)} />
-              </div>
-            </div>
-          </header>
-          <TableView 
-            columns={this.props.viewColumns} 
-            rows={this.props.entity.lineItems.skus}
-            model='lineItem' />
-        </section>
-      );
-    }
-  }
-}
+export default OrderLineItems;

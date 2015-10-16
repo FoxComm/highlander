@@ -1,68 +1,51 @@
 'use strict';
 
-import React from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import * as actionCreators from '../../actions/order-line-items';
-
+import React, { PropTypes} from 'react';
 import { formatCurrency } from '../../lib/format';
 import DeleteButton from '../common/delete-button';
 
-function mapStateToProps(state) {
-  return {
-    lineItems: state.orderLineItems || {}
-  };
-}
+let OrderLineItem = (props) => {
+  let item = props.item;
+  let order = props.order.currentOrder;
 
-function mapDispatchToProps(dispatch) {
-  return { actions: bindActionCreators(actionCreators, dispatch) };
-}
-
-@connect(mapStateToProps, mapDispatchToProps)
-export default class OrderLineItem extends React.Component {
-  static propTypes = {
-    item: React.PropTypes.object
+  let handleChange = (event) => {
+    props.updateLineItemCount(order, item.sku, event.target.value);
   };
 
-  constructor(props, context) {
-    super(props, context);
-  }
-
-  render() {
-    let item = this.props.item;
-
-    return (
-      <tr>
-        <td><img src={item.imagePath} /></td>
-        <td>{item.name}</td>
-        <td>{item.sku}</td>
-        <td>{formatCurrency(item.price)}</td>
-        <td>
-          <div className="fc-input-group fc-counter">
-            <div className="fc-input-prepend">
-              <button onClick={() => this.props.actions.orderLineItemDecrement(item.sku)}>
-                <i className="icon-chevron-down"></i>
-              </button>
-            </div>
-            <input
-              type='number'
-              name={`line-item-quantity-${this.props.item.sku}`}
-              value={this.props.item.quantity}
-              min={0}
-              max={10000000}
-              step={1} />
-            <div className="fc-input-append">
-              <button onClick={() => this.props.actions.orderLineItemIncrement(item.sku)}>
-                <i className="icon-chevron-up"></i>
-              </button>
-            </div>
+  return (
+    <tr>
+      <td><img src={item.imagePath} /></td>
+      <td>{item.name}</td>
+      <td>{item.sku}</td>
+      <td>{formatCurrency(item.price)}</td>
+      <td>
+        <div className="fc-input-group fc-counter">
+          <div className="fc-input-prepend">
+            <button onClick={() => props.updateLineItemCount(order, item.sku, item.quantity - 1)}>
+              <i className="icon-chevron-down"></i>
+            </button>
           </div>
-        </td>
-        <td>{formatCurrency(this.props.item.totalPrice)}</td>
-        <td>
-          <DeleteButton onClick={() => this.props.actions.orderLineItemAskDelete(item.sku)} />
-        </td>
-      </tr>
-    );
-  }
-}
+          <input
+            type='number'
+            name={`line-item-quantity-${item.sku}`}
+            value={item.quantity}
+            min={0}
+            max={10000000}
+            step={1}
+            onChange={handleChange} />
+          <div className="fc-input-append">
+            <button onClick={() => props.updateLineItemCount(order, item.sku, item.quantity + 1)}>
+              <i className="icon-chevron-up"></i>
+            </button>
+          </div>
+        </div>
+      </td>
+      <td>{formatCurrency(item.totalPrice)}</td>
+      <td>
+        <DeleteButton onClick={() => props.orderLineItemsStartDelete(item.sku)} />
+      </td>
+    </tr>
+  );
+};
+
+export default OrderLineItem;

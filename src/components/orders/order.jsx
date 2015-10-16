@@ -44,39 +44,12 @@ export default class Order extends React.Component {
   }
 
   get order() {
-    return this.props.order.item;
+    return this.props.order.currentOrder;
   }
 
   componentDidMount() {
     this.props.fetchOrderIfNeeded(this.orderRefNum);
   }
-
-  // onConfirmChange(success) {
-  //   if (!success) return;
-
-  //   this.patchOrder();
-  // }
-
-  // patchOrder() {
-  //   OrderActions.updateOrderStatus(this.orderRefNum, this.state.pendingStatus);
-  //   this.setState({
-  //     pendingStatus: null
-  //   });
-  // }
-
-  // prepareStatusChange(status) {
-  //   this.setState({
-  //     pendingStatus: status
-  //   });
-  //   let options = status !== 'canceled' ? this.changeOptions : this.cancelOptions;
-
-  //   dispatch('toggleModal', <ConfirmModal callback={this.onConfirmChange.bind(this)} details={options} />);
-  // }
-
-  // changeOrderStatus(event) {
-  //   let status = event.target.value;
-  //   this.prepareStatusChange(status);
-  // }
 
   render() {
     let
@@ -90,7 +63,7 @@ export default class Order extends React.Component {
       return <div className="fc-order"></div>;
     }
 
-    const content = React.cloneElement(this.props.children, {order, modelName: 'order' });
+    const content = React.cloneElement(this.props.children, {order, modelName: 'order', ...this.props});
 
     if (order.id) {
       let params = {order: order.referenceNumber};

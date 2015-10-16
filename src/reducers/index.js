@@ -7,7 +7,6 @@ import giftCardsNew from '../modules/gift-cards-new';
 import customers from '../modules/customers';
 import orders from '../modules/orders';
 import order from '../modules/order'; 
-import { orderLineItems } from './order-line-items';
 
 const rootReducer = combineReducers({
   router: routerStateReducer,
@@ -15,8 +14,7 @@ const rootReducer = combineReducers({
   giftCardsNew,
   customers,
   orders,
-  order,
-  orderLineItems
+  order
 });
 
 export default rootReducer;

@@ -3,7 +3,7 @@
 import React from 'react';
 import OrderSummary from './summary';
 import CustomerInfo from './customer-info';
-import LineItems from './order-line-items';
+import OrderLineItems from './order-line-items';
 import OrderShippingAddress from './shipping-address';
 import OrderShippingMethod from '../shipping/shipping-method';
 import OrderPayment from './payment';
@@ -14,16 +14,14 @@ let OrderDetails = (props) => {
     <div className="fc-order-details">
       <div className="fc-order-details-body">
         <div className="fc-order-details-main">
-          <LineItems
-            entity={props.order}
-            model={'order'} />
-          <OrderShippingAddress order={props.order} />
-          <OrderShippingMethod order={props.order} />
-          <OrderPayment order={props.order} />
+          <OrderLineItems {...props} />
+          <OrderShippingAddress order={props.order.currentOrder} />
+          <OrderShippingMethod order={props.order.currentOrder} />
+          <OrderPayment order={props.order.currentOrder} />
         </div>
         <div className="fc-order-details-aside">
-          <OrderSummary order={props.order} />
-          <CustomerInfo order={props.order} />
+          <OrderSummary order={props.order.currentOrder} />
+          <CustomerInfo order={props.order.currentOrder} />
         </div>
       </div>
     </div>
