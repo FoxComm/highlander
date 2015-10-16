@@ -177,7 +177,7 @@ export default class AddressForm extends React.Component {
 
     return (
       <div className="fc-content-box fc-address-form">
-        <header className="header">
+        <header className="fc-content-box-header">
           <div className="fc-address-form-header">Address Book</div>
           <i onClick={this.close.bind(this)} className="icon-close" title="Close"></i>
         </header>

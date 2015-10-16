@@ -9,7 +9,7 @@ export default class RmaSummary extends React.Component {
 
     return (
       <div className="fc-rma-summary fc-content-box">
-        <header>Return Summary</header>
+        <header className="fc-content-box-header">Return Summary</header>
         <article>
           <dl className="rma-totals">
             <dt>Subtotal</dt>

@@ -10,7 +10,7 @@ export default class RmaPayment extends React.Component {
   render() {
     return (
       <section className="fc-content-box" id="rma-payment">
-        <header>Payment</header>
+        <header className="fc-content-box-header">Payment</header>
         <table className="fc-table">
           <TableHead columns={this.props.tableColumns}/>
           <TableBody columns={this.props.tableColumns} rows={_.compact([this.props.rma.payment])} model='rma'>

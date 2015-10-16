@@ -6,6 +6,7 @@ import { formatCurrency } from '../../lib/format';
 import moment from 'moment';
 import GiftCardStore from '../../stores/gift-cards';
 import GiftCardActions from '../../actions/gift-cards';
+import SectionTitle from '../section-title/section-title';
 
 export default class GiftCard extends React.Component {
 
@@ -52,36 +53,34 @@ export default class GiftCard extends React.Component {
     GiftCardActions.editGiftCard(card.code, {status: event.target.value});
   }
 
-  render() {
-    let subNav = null;
-    let card = this.giftCard;
+  get subNav() {
+    const params = {giftcard: this.giftCard.code};
 
-    if (!card) {
-      return <div id="gift-card"></div>;
+    if (!this.giftCard.code) {
+      return null;
     }
 
-    let status = null;
+    const content = React.cloneElement(this.props.children, {'gift-card': this.giftCard, modelName: 'gift-card' });
 
-    const content = React.cloneElement(this.props.children, {'gift-card': card, modelName: 'gift-card' });
+    return (
+      <div className="gutter">
+        <ul className="fc-tabbed-nav">
+          <li><IndexLink to="gift-card-transactions" params={params}>Transactions</IndexLink></li>
+          <li><Link to="gift-card-notes" params={params}>Notes</Link></li>
+          <li><Link to="gift-card-activity-trail" params={params}>Activity Trail</Link></li>
+        </ul>
+        {content}
+      </div>
+    );
+  }
 
-    if (card.code) {
-      let params = {giftcard: card.code};
-      subNav = (
-        <div className="gutter">
-          <ul className="fc-tabbed-nav">
-            <li><IndexLink to="gift-card-transactions" params={params}>Transactions</IndexLink></li>
-            <li><Link to="gift-card-notes" params={params}>Notes</Link></li>
-            <li><Link to="gift-card-activity-trail" params={params}>Activity Trail</Link></li>
-          </ul>
-          {content}
-        </div>
-      );
-    }
+  get status() {
+    const card = this.giftCard;
 
     if (card.status === 'Canceled') {
-      status = <span>{card.status}</span>;
+      return <span>{card.status}</span>;
     } else {
-      status = (
+      return (
         <select value={card.status} onChange={this.changeState.bind(this)}>
           <option value="active">Active</option>
           <option value="onHold">On Hold</option>
@@ -89,45 +88,57 @@ export default class GiftCard extends React.Component {
         </select>
       );
     }
+  }
+
+  resendGiftCard() {
+    console.log('Resend');
+  }
+
+  render() {
+    let card = this.giftCard;
+
+    if (!card) {
+      return <div id="gift-card"></div>;
+    }
 
     return (
-      <div id="gift-card">
-        <div className="gutter title">
-          <h1>Gift Card { card.code }</h1>
+      <div>
+        <SectionTitle title="Gift Card" subtitle={this.giftCard.code}>
+          <button onClick={this.resendGiftCard.bind(this)} className="fc-btn fc-btn-primary">Resend Gift Card</button>
+        </SectionTitle>
+        <div className="fc-grid">
+          <div className="fc-col-md-1-3">
+            <article className="fc-panel">
+              <header className="fc-panel-header">Available Balance</header>
+              <p>{ formatCurrency(card.availableBalance) }</p>
+            </article>
+          </div>
         </div>
-        <div className="gutter">
-          <div className="fc-grid fc-grid-match fc-grid-gutter">
-            <div className="fc-col-md-1-3">
-              <article className="panel featured available-balance">
-                <header>Available Balance</header>
-                <p>{ formatCurrency(card.availableBalance) }</p>
-              </article>
-            </div>
-            <div className="fc-col-md-2-3">
-              <article className="panel">
-                <div className="fc-grid">
-                  <div className="fc-col-md-1-2">
-                    <p>
-                      <strong>Created By: </strong>
-                      {card.storeAdmin ? `${card.storeAdmin.firstName} ${card.storeAdmin.lastName}` : 'None'}
-                    </p>
+        <div className="fc-grid">
+          <div className="fc-col-md-2-3">
+            <article className="panel">
+              <div className="fc-grid">
+                <div className="fc-col-md-1-2">
+                  <p>
+                    <strong>Created By: </strong>
+                    {card.storeAdmin ? `${card.storeAdmin.firstName} ${card.storeAdmin.lastName}` : 'None'}
+                  </p>
 
-                    <p><strong>Recipient: </strong>None</p>
+                  <p><strong>Recipient: </strong>None</p>
 
-                    <p><strong>Recipient Email: </strong>None</p>
+                  <p><strong>Recipient Email: </strong>None</p>
 
-                    <p><strong>Recipient Cell (Optional): </strong>None</p>
-                  </div>
-                  <div className="fc-col-md-1-2">
-                    <p><strong>Message (optional):</strong></p>
-
-                    <p>
-                      {card.message}
-                    </p>
-                  </div>
+                  <p><strong>Recipient Cell (Optional): </strong>None</p>
                 </div>
-              </article>
-            </div>
+                <div className="fc-col-md-1-2">
+                  <p><strong>Message (optional):</strong></p>
+
+                  <p>
+                    {card.message}
+                  </p>
+                </div>
+              </div>
+            </article>
           </div>
           <div className="fc-grid fc-grid-match fc-grid-gutter">
             <div className="fc-col-md-1-5">
@@ -157,12 +168,12 @@ export default class GiftCard extends React.Component {
             <div className="fc-col-md-1-5">
               <article className="panel featured">
                 <header>Current State</header>
-                <p>{ status }</p>
+                <p>{ this.status }</p>
               </article>
             </div>
           </div>
         </div>
-        {subNav}
+        {this.subNav}
       </div>
     );
   }

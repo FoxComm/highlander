@@ -66,7 +66,7 @@ export default class LineItems extends React.Component {
         />
     );
     let header = (
-      <header>
+      <header className="fc-content-box-header">
         <span>Items</span>
       </header>
     );
@@ -92,7 +92,7 @@ export default class LineItems extends React.Component {
       } else {
         columns = this.orderDefaultColumns;
         header = (
-          <header>
+          <header className="fc-conent-box-header">
             <div className='fc-grid'>
               <div className="fc-col-md-2-3">Items</div>
               <div className="fc-col-md-1-3 fc-align-right">

@@ -49,7 +49,7 @@ export default class OrderShippingAddress extends React.Component {
 
     return (
       <section className="fc-content-box fc-order-shipping-address">
-        <header>
+        <header className="fc-content-box-header">
           <div className='fc-grid'>
             <div className="fc-col-md-2-3">Shipping Address</div>
             <div className="fc-col-md-1-3 fc-controls">

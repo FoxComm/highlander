@@ -6,9 +6,9 @@ import Title from './title';
 export default class SectionTitle extends React.Component {
   static propTypes = {
     title: React.PropTypes.node,
-    count: React.PropTypes.number,
+    subtitle: React.PropTypes.node,
     buttonClickHandler: React.PropTypes.func,
-    children: React.PropTypes.array
+    children: React.PropTypes.node
   };
 
   get buttonMarkup() {
@@ -28,7 +28,7 @@ export default class SectionTitle extends React.Component {
     return (
       <div className="fc-grid fc-section-title">
         <div className="fc-col-md-2-6">
-          <Title title={ this.props.title } subtitle={ this.props.count } />
+          <Title title={ this.props.title } subtitle={ this.props.subtitle } />
         </div>
         { this.buttonMarkup }
       </div>

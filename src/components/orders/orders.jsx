@@ -58,7 +58,7 @@ export default class Orders extends React.Component {
     return (
       <div id="orders">
         <div>
-          <SectionTitle title="Orders" count={orders.size} buttonClickHandler={this.handleAddOrderClick }/>
+          <SectionTitle title="Orders" subtitle={orders.size} buttonClickHandler={this.handleAddOrderClick }/>
           <LocalNav>
             <a href="">Lists</a>
             <a href="">Returns</a>
