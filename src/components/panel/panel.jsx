@@ -1,6 +1,7 @@
 'use strict';
 
 import React, { PropTypes } from 'react';
+import _ from 'lodash';
 
 export default class Panel extends React.Component {
   static propTypes = {

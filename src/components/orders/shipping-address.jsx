@@ -35,7 +35,8 @@ export default class OrderShippingAddress extends React.Component {
       body = <Addresses order={this.props.order} onSelectAddress={this.onSelectAddress.bind(this)} />;
       editButton = (
         <div>
-          <button className="fc-btn fc-btn-plain icon-chevron-up" onClick={this.toggleEdit.bind(this)}></button>
+          <button className="fc-btn fc-btn-plain icon-chevron-up fc-right" onClick={this.toggleEdit.bind(this)}></button>
+          <div className="fc-panel-comment fc-right">Patty’s Pub</div>
         </div>
       );
     } else {
@@ -44,8 +45,9 @@ export default class OrderShippingAddress extends React.Component {
       );
       editButton = (
         <div>
-          <button className="fc-btn fc-btn-plain icon-chevron-down" onClick={this.toggleEdit.bind(this)}>
+          <button className="fc-btn fc-btn-plain icon-chevron-down fc-right" onClick={this.toggleEdit.bind(this)}>
           </button>
+          <div className="fc-panel-comment fc-right">Patty’s Pub</div>
         </div>
       );
     }

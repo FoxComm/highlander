@@ -73,11 +73,11 @@ export default class LineItems extends React.Component {
         columns = this.orderEditColumns;
         controls = (
           <div>
+            <button className="fc-right fc-btn fc-btn-plain icon-chevron-up" onClick={this.toggleEdit.bind(this)}>
+            </button>
             <div className="fc-panel-comment fc-right">
               5 items
             </div>
-            <button className="fc-right fc-btn fc-btn-plain icon-chevron-up" onClick={this.toggleEdit.bind(this)}>
-            </button>
           </div>
         );
         body = (
@@ -98,11 +98,11 @@ export default class LineItems extends React.Component {
         columns = this.orderDefaultColumns;
         controls = (
           <div>
+            <button className="fc-btn fc-btn-plain fc-right icon-chevron-down" onClick={this.toggleEdit.bind(this)}>
+            </button>
             <div className="fc-panel-comment fc-right">
               5 items
             </div>
-            <button className="fc-btn fc-btn-plain fc-right icon-chevron-down" onClick={this.toggleEdit.bind(this)}>
-            </button>
           </div>
         );
         body = (

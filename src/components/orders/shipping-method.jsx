@@ -58,14 +58,16 @@ export default class OrderShippingMethod extends React.Component {
     if (this.state.isEditing) {
       actions = (
         <div>
-          <button className="fc-btn fc-btn-plain icon-chevron-up" onClick={this.toggleEdit.bind(this)}></button>
+          <button className="fc-btn fc-btn-plain icon-chevron-up fc-right" onClick={this.toggleEdit.bind(this)}></button>
+          <div className="fc-panel-coment fc-right">Standard 5-7 Day Ground</div>
         </div>
       );
     } else {
       actions = (
         <div>
-          <button className="fc-btn fc-btn-plain icon-chevron-down" onClick={this.toggleEdit.bind(this)}>
+          <button className="fc-btn fc-btn-plain icon-chevron-down fc-right" onClick={this.toggleEdit.bind(this)}>
           </button>
+          <div className="fc-panel-comment fc-right">Standard 5-7 Day Ground</div>
         </div>
       );
     }
