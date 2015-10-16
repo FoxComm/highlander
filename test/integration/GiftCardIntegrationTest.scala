@@ -1,22 +1,22 @@
-import java.time.Instant
-
+import scala.collection.JavaConverters._
+import scala.util.Random
 import akka.http.scaladsl.model.StatusCodes
 
 import models._
 import models.GiftCard.{Active, OnHold, Canceled}
+import org.joda.money.CurrencyUnit
 import org.scalatest.BeforeAndAfterEach
 import responses._
-import services.NoteManager
 import services._
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.implicits._
-import utils.time.RichInstant
 import utils.Money._
 
 class GiftCardIntegrationTest extends IntegrationTestBase
   with HttpSupport
+  with SortingAndPaging[GiftCardResponse.Root]
   with AutomaticAuth
   with BeforeAndAfterEach {
 
@@ -24,6 +24,32 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
   import Extensions._
   import org.json4s.jackson.JsonMethods._
+
+  // paging and sorting API
+  private var currentOrigin: GiftCardManual = _
+  override def beforeSortingAndPaging(): Unit = {
+    currentOrigin = (for {
+      admin ← StoreAdmins.save(authedStoreAdmin)
+      reason ← Reasons.save(Factories.reason.copy(storeAdminId = admin.id))
+      origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
+    } yield origin).run().futureValue
+  }
+  def uriPrefix = "v1/gift-cards"
+  val regCurrencies = CurrencyUnit.registeredCurrencies.asScala.toIndexedSeq
+  def responseItems = regCurrencies.map { currency ⇒
+    val balance = Random.nextInt(9999999)
+    val gc = GiftCards.save(Factories.giftCard.copy(
+      currency = currency,
+      originId = currentOrigin.id,
+      originalBalance = balance,
+      currentBalance = balance,
+      availableBalance = balance)).run().futureValue
+    responses.GiftCardResponse.build(gc)
+  }
+  val sortColumnName = "availableBalance"
+  def responseItemsSort(items: IndexedSeq[GiftCardResponse.Root]) = items.sortBy(_.availableBalance)
+  def mf = implicitly[scala.reflect.Manifest[GiftCardResponse.Root]]
+  // paging and sorting API end
 
   "GET /v1/gift-cards" - {
     "returns list of gift cards" in new Fixture {
@@ -178,7 +204,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
     "successfully cancels gift card with provided reason, cancel adjustment is created" in new Fixture {
       // Cancel pending adjustment
-      GiftCardAdjustments.cancel(adjustment.id).run().futureValue
+      GiftCardAdjustments.cancel(adjustment1.id).run().futureValue
 
       val response = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStatusByCsr(status = Canceled,
         reasonId = Some(1)))
@@ -197,7 +223,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
     "fails to cancel gift card if invalid reason provided" in new Fixture {
       // Cancel pending adjustment
-      GiftCardAdjustments.cancel(adjustment.id).run().futureValue
+      GiftCardAdjustments.cancel(adjustment1.id).run().futureValue
 
       val response = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStatusByCsr(status = Canceled,
         reasonId = Some(999)))
@@ -215,8 +241,25 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       adjustments.size mustBe 1
 
       val firstAdjustment = adjustments.head
-      firstAdjustment.amount must ===(-adjustment.debit)
-      firstAdjustment.availableBalance must ===(giftCard.originalBalance - adjustment.debit)
+      firstAdjustment.amount must ===(-adjustment1.debit)
+      firstAdjustment.availableBalance must ===(giftCard.originalBalance - adjustment1.debit)
+      firstAdjustment.orderRef.value mustBe order.referenceNumber
+    }
+
+    "returns the list of adjustments with sorting and paging" in new Fixture {
+
+      val adjustment2 = GiftCards.auth(giftCard, Some(payment.id), 1).run().futureValue
+      val adjustment3 = GiftCards.auth(giftCard, Some(payment.id), 2).run().futureValue
+
+      val response = GET(s"v1/gift-cards/${giftCard.code}/transactions?sortBy=-id&pageNo=2&pageSize=2")
+      val adjustments = response.as[Seq[GiftCardAdjustmentsResponse.Root]]
+
+      response.status must ===(StatusCodes.OK)
+      adjustments.size mustBe 1
+
+      val firstAdjustment = adjustments.head
+      firstAdjustment.amount must ===(-adjustment1.debit)
+      firstAdjustment.availableBalance must ===(giftCard.originalBalance - adjustment1.debit)
       firstAdjustment.orderRef.value mustBe order.referenceNumber
     }
   }
@@ -296,7 +339,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
   }
 
   trait Fixture {
-    val (customer, admin, giftCard, order, adjustment, gcSecond) = (for {
+    val (customer, admin, giftCard, order, payment, adjustment1, gcSecond) = (for {
       customer ← Customers.save(Factories.customer)
       order ← Orders.save(Factories.order.copy(customerId = customer.id))
       admin ← StoreAdmins.save(authedStoreAdmin)
@@ -308,8 +351,9 @@ class GiftCardIntegrationTest extends IntegrationTestBase
         code = "ABC-234"))
       payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = giftCard.id,
         paymentMethodType = PaymentMethod.GiftCard))
-      adjustment ← GiftCards.auth(giftCard, Some(payment.id), 10)
+      adjustment1 ← GiftCards.auth(giftCard, Some(payment.id), 10)
       giftCard ← GiftCards.findOneById(giftCard.id)
-    } yield (customer, admin, giftCard.value, order, adjustment, gcSecond)).run().futureValue
+    } yield (customer, admin, giftCard.value, order, payment, adjustment1, gcSecond)).run()
+      .futureValue
   }
 }
