@@ -19,7 +19,7 @@ export default class Panel extends React.Component {
   get contentClassName() {
     let klass = 'fc-panel-content';
     if (this.props.enablePaddings) {
-      klass = 'fc-panel-content-list'
+      klass = 'fc-panel-content-list';
     }
     return klass;
   }
