@@ -5,7 +5,7 @@ import OrderSummary from './summary';
 import CustomerInfo from './customer-info';
 import OrderLineItems from './order-line-items';
 import OrderShippingAddress from './shipping-address';
-import OrderShippingMethod from '../shipping/shipping-method';
+import OrderShippingMethod from './order-shipping-method';
 import OrderPayment from './payment';
 
 const OrderDetails = (props) => {
