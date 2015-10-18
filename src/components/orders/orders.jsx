@@ -2,7 +2,6 @@
 
 import React, { PropTypes } from 'react';
 import TableView from '../tables/tableview';
-import OrderStore from '../../stores/orders';
 import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
 import SectionTitle from '../section-title/section-title';
@@ -66,7 +65,7 @@ export default class Orders extends React.Component {
             columns={this.props.tableColumns}
             rows={orders}
             model='order'
-            sort={OrderStore.sort.bind(OrderStore)}
+            sort={this.props.orders.sortColumn}
             />
         </div>
       </div>

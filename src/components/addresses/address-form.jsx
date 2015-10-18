@@ -8,7 +8,6 @@ import Form from '../forms/form';
 import { listenTo, stopListeningTo, dispatch } from '../../lib/dispatcher';
 import CountryStore from '../../stores/countries';
 import AddressStore from '../../stores/addresses';
-import OrderStore from '../../stores/orders';
 import * as validators from '../../lib/validators';
 import ErrorAlerts from '../alerts/error-alerts';
 

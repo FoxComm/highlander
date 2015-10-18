@@ -37,7 +37,8 @@ export function fetchOrdersIfNeeded() {
 const initialState = {
   itFetching: false,
   didInvalidate: true,
-  items: []
+  items: [],
+  sortColumn: ''
 };
 
 const reducer = createReducer({

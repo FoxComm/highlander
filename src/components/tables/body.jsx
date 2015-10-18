@@ -4,7 +4,19 @@ import React, { PropTypes } from 'react';
 import moment from 'moment';
 import { Link } from '../link';
 import { formatCurrency } from '../../lib/format';
-import OrderStore from '../../stores/orders';
+
+// TODO: We should find a better place for these statuses, but for now just
+// getting rid of reference to OrderStore.
+const orderStatuses = {
+  cart: 'Cart',
+  remorseHold: 'Remorse Hold',
+  manualHold: 'Manual Hold',
+  fraudHold: 'Fraud Hold',
+  fulfillmentStarted: 'Fulfillment Started',
+  canceled: 'Canceled',
+  partiallyShipped: 'Partially Shipped',
+  shipped: 'Shipped'
+};
 
 export default class TableBody extends React.Component {
 
@@ -40,7 +52,7 @@ export default class TableBody extends React.Component {
       case 'image': return <img src={field}/>;
       case 'currency': return formatCurrency(field);
       case 'date': return <time dateTime={field}>{moment(field).format('MM/DD/YYYY HH:mm:ss')}</time>;
-      case 'orderStatus': return OrderStore.statuses[field];
+      case 'orderStatus': return orderStatuses[field];
       default: return typeof field === 'object' ? this.displayObject(field) : field;
     }
   }

@@ -4,9 +4,11 @@ import React from 'react';
 import ShippingMethod from '../shipping/shipping-method';
 
 const OrderShippingMethod = (props) => {
+  const shippingMethod = props.order.currentOrder.shippingMethod;
+  
   return (
     <ShippingMethod
-      shippingMethods={[props.order.shippingMethod]}
+      shippingMethods={[shippingMethod]}
       isEditing={false}
       editAction={() => console.log('Not implemented')}
       doneAction={() => console.log('Not implemented')} />
