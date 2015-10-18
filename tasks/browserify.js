@@ -1,6 +1,6 @@
 'use strict';
 
-
+const fs = require('fs');
 const path = require('path');
 const merge = require('merge-stream');
 const browserify = require('browserify');
@@ -30,7 +30,14 @@ module.exports = function(gulp, opts, $) {
     });
 
     if (opts.devMode) {
-      bundler = watchify(bundler);
+      let watchifyOpts = {
+        poll: parseInt(process.env.WATHIFY_POLL_INTERVAL || 250)
+      };
+
+      if (fs.existsSync('.watchifyrc')) {
+        watchifyOpts = JSON.parse(fs.readFileSync('.watchifyrc'));
+      }
+      bundler = watchify(bundler, watchifyOpts);
     }
 
     return bundler;

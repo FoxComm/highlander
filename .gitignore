@@ -33,8 +33,10 @@ public/themes
 public/admin.*
 
 .vagrant
-
 !.vagrant/machines/default/google
+
+# Ignore developer-specific settings
+/.watchifyrc
 
 .DS_Store
 .#*
