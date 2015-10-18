@@ -2,24 +2,31 @@
 
 import _ from 'lodash';
 import React from 'react';
+import EditableContentBox from '../content-box/editable-content-box';
 import PaymentMethod from './payment-method';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
 
 export default class OrderPayment extends React.Component {
   render() {
-    let order = this.props.order;
+    const order = this.props.order.currentOrder;
+
+    const viewContent = (
+      <table className="fc-table">
+        <TableHead columns={this.props.tableColumns}/>
+        <TableBody columns={this.props.tableColumns} rows={_.compact([order.payment])} model='payment-method'>
+          <PaymentMethod/>
+        </TableBody>
+      </table>
+    );
 
     return (
-      <section className="fc-content-box" id="order-payment">
-        <header>Payment</header>
-        <table className="fc-table">
-          <TableHead columns={this.props.tableColumns}/>
-          <TableBody columns={this.props.tableColumns} rows={_.compact([order.payment])} model='payment-method'>
-            <PaymentMethod/>
-          </TableBody>
-        </table>
-      </section>
+      <EditableContentBox
+        className='fc-order-payment'
+        title='Payment'
+        isEditing={false}
+        editAction={() => console.log('Not implemented')}
+        viewContent={viewContent} />
     );
   }
 }

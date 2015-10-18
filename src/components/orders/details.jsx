@@ -16,7 +16,7 @@ const OrderDetails = (props) => {
           <OrderLineItems {...props} />
           <OrderShippingAddress order={props.order.currentOrder} />
           <OrderShippingMethod {...props} />
-          <OrderPayment order={props.order.currentOrder} />
+          <OrderPayment {...props} />
         </div>
         <div className="fc-order-details-aside">
           <OrderSummary order={props.order.currentOrder} />
