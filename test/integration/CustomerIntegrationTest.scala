@@ -106,7 +106,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       response.as[Seq[CustomerResponse.Root]] must ===(Seq(customerRoot))
     }
 
-    "PATCH" in new Fixture {
+    "PATCH /v1/customers/:id" in new Fixture {
       val payload = payloads.UpdateCustomerPayload(name = "John Doe".some, email = "newemail@example.org".some,
         phoneNumber = "555 555 55".some)
       val newEmail = payload.email.getOrElse("")
