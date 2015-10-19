@@ -30,7 +30,7 @@ export default class DeleteLineItem extends React.Component {
       <button
         onClick={this.onClick.bind(this)}
         className="fc-btn fc-btn-remove">
-        <i className="fa fa-trash-o"></i>
+        <i className="icon-trash"></i>
       </button>
     );
   }

@@ -3,18 +3,29 @@
 
 
   input[type=text] {
-    .width(800px);
+    .width(700px);
+  }
+
+  &-input-group > i {
+    position: absolute;
+    top: 13px;
+    left: 13px;
+    color: @color-decor8;
+  }
+
+  input[type=text] {
+    padding-left: pxtorem(40px);
   }
 
   .fc-typeahead-results {
     display: none;
     position: absolute;
     .top(39px);
-    .left(37px);
-    .width(800px);
+    .width(700px);
     z-index: 999;
-    background-color: #fff;
+    background-color: @color-white;
     border: 1px solid @color-border;
+    .border-radius(3px);
     .max-height(200px);
     overflow-y: scroll;
     overflow-x: hidden;
@@ -24,7 +35,7 @@
     .font-spec(12px, 400, 60px);
 
     li {
-      .padding(12px);
+      .padding(15px);
       border-bottom: 1px solid @color-border;
 
       &:last-child {

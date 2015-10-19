@@ -1,18 +1,37 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
+import _ from 'lodash';
 
 export default class Panel extends React.Component {
   static propTypes = {
-    children: React.PropTypes.any,
-    title: React.PropTypes.string,
-    controls: React.PropTypes.any,
-    content: React.PropTypes.any
+    children: PropTypes.any,
+    title: PropTypes.string,
+    className: PropTypes.string,
+    controls: PropTypes.any,
+    content: PropTypes.any,
+    enablePaddings: PropTypes.bool
   };
+
+  get rootClassName() {
+    let result = 'fc-panel';
+    if (this.props.className) {
+      result = `${this.props.className} fc-panel`;
+    }
+    return result;
+  }
+
+  get contentClassName() {
+    let klass = 'fc-panel-content';
+    if (this.props.enablePaddings) {
+      klass = 'fc-panel-content-list';
+    }
+    return klass;
+  }
 
   render() {
     return (
-      <div className="fc-panel">
+      <div className={ this.rootClassName }>
         <div className="fc-panel-header">
           <div className="fc-panel-controls">
             {this.props.controls && this.props.controls.props.children}
@@ -21,7 +40,7 @@ export default class Panel extends React.Component {
             <span>{this.props.title}</span>
           </div>
         </div>
-        <div className="fc-panel-content">
+        <div className={ this.contentClassName }>
           {this.props.content && this.props.content.props.children}
           {this.props.children}
         </div>

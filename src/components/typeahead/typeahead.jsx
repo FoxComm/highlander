@@ -1,17 +1,39 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import Api from '../../lib/api';
 import TypeaheadResults from './results';
 import { dispatch } from '../../lib/dispatcher';
 
 export default class Typeahead extends React.Component {
+
+  static propTypes = {
+    callback: PropTypes.func,
+    component: PropTypes.func,
+    store: PropTypes.object,
+    label: PropTypes.string,
+    name: PropTypes.string,
+    placeholder: PropTypes.string
+  }
+
+  static defaultProps = {
+    name: 'typeahead'
+  }
+
   constructor(props, context) {
     super(props, context);
     this.state = {
       showResults: false,
       updating: false
     };
+  }
+
+  get placeholder() {
+    let placeholder = 'Search';
+    if (this.props.placeholder) {
+      placeholder = this.props.placeholder;
+    }
+    return placeholder;
   }
 
   onItemSelected(item) {
@@ -73,10 +95,14 @@ export default class Typeahead extends React.Component {
     return (
       <div className="fc-typeahead">
         {labelContent}
-        <div className="fc-input-group">
-          <div className="fc-input-prepend"><i className="icon-search"></i></div>
-          <input className="fc-input" type="text" name={this.props.name}
-                 onChange={this.textChange.bind(this)} onKeyUp={this.inputKeyUp.bind(this)}
+        <div className="fc-typeahead-input-group">
+          <i className="icon-search"></i>
+          <input className="fc-input fc-typeahead-input"
+                 type="text"
+                 name={this.props.name}
+                 placeholder={ this.placeholder }
+                 onChange={this.textChange.bind(this)}
+                 onKeyUp={this.inputKeyUp.bind(this)}
           />
         </div>
         <TypeaheadResults
@@ -91,15 +117,3 @@ export default class Typeahead extends React.Component {
     );
   }
 }
-
-Typeahead.propTypes = {
-  callback: React.PropTypes.func,
-  component: React.PropTypes.func,
-  store: React.PropTypes.object,
-  label: React.PropTypes.string,
-  name: React.PropTypes.string
-};
-
-Typeahead.defaultProps = {
-  name: 'typeahead'
-};
