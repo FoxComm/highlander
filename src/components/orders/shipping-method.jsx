@@ -15,20 +15,22 @@ export default class OrderShippingMethod extends React.Component {
     tableColumns: [
       {field: null, text: 'Method', component: 'ShippingMethodItem'},
       {field: 'defaultPrice', text: 'Price', type: 'currency'}
-    ],
-    editMode: false
+    ]
   }
 
   static propTypes = {
     order: PropTypes.object,
-    editMode: PropTypes.bool,
     tableColumns: PropTypes.array
   }
 
   constructor(props, context) {
     super(props, context);
     this.state = {
-      methods: [],
+      methods: [
+        {isActive: true, id: 1, storefrontDisplayName: 'By pigeons', defaultPrice: 2},
+        {isActive: false, id: 2, storefrontDisplayName: 'By mail', defaultPrice: 5},
+        {isActive: false, id: 3, storefrontDisplayName: 'By air mail', defaultPrice: 15}
+      ],
       isEditing: false
     };
   }
@@ -53,26 +55,26 @@ export default class OrderShippingMethod extends React.Component {
   }
 
   render() {
-    let methods = this.props.isEditing ? this.state.methods : _.filter(this.state.methods, {isActive: true});
+    let methods = this.state.isEditing ? this.state.methods : _.filter(this.state.methods, {isActive: true});
     let actions = null;
+    let footer = null;
 
-    if (this.props.editMode) {
-      if (this.state.isEditing) {
-        actions = (
+    if (this.state.isEditing) {
+      footer = (
+        <footer className="fc-line-items-footer">
           <div>
-            <button className="fc-btn fc-btn-plain icon-chevron-up fc-right" onClick={this.toggleEdit.bind(this)}></button>
-            <div className="fc-panel-comment fc-right">Standard 5-7 Day Ground</div>
+            <button className="fc-btn fc-btn-primary"
+                    onClick={ this.toggleEdit.bind(this) } >Done</button>
           </div>
-        );
-      } else {
-        actions = (
-          <div>
-            <button className="fc-btn fc-btn-plain icon-chevron-down fc-right" onClick={this.toggleEdit.bind(this)}>
-            </button>
-            <div className="fc-panel-comment fc-right">Standard 5-7 Day Ground</div>
-          </div>
-        );
-      }
+        </footer>
+      );
+    } else {
+      actions = (
+        <div>
+          <button className="fc-btn icon-edit fc-right" onClick={this.toggleEdit.bind(this)}>
+          </button>
+        </div>
+      );
     }
 
     return (
@@ -82,9 +84,10 @@ export default class OrderShippingMethod extends React.Component {
         <table className="fc-table">
           <TableHead columns={this.props.tableColumns} />
           <TableBody columns={this.props.tableColumns} rows={methods} model='shipping-method'>
-            <ShippingMethodItem isEditing={this.props.isEditing} />
+            <ShippingMethodItem isEditing={this.state.isEditing} />
           </TableBody>
         </table>
+        { footer }
       </Panel>
     );
   }
