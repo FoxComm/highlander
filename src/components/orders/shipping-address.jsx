@@ -8,14 +8,6 @@ import OrderStore from '../../stores/orders';
 
 export default class OrderShippingAddress extends React.Component {
 
-  static defaultProps = {
-    editMode: false
-  }
-
-  static propTypes = {
-    editMode: PropTypes.bool
-  }
-
   constructor(props, context) {
     super(props, context);
     this.state = {
@@ -35,28 +27,28 @@ export default class OrderShippingAddress extends React.Component {
 
   render() {
     let address = this.props.order.shippingAddress;
-    let body = <AddressDetails address={address} />;
-    let actions = null;
+    let body = null;
     let editButton = null;
+    let footer = null;
 
-    if (this.props.editMode) {
-      if (this.state.isEditing) {
-        body = <Addresses order={this.props.order} onSelectAddress={this.onSelectAddress.bind(this)} />;
-        editButton = (
+    if (this.state.isEditing) {
+      body = <Addresses order={this.props.order} onSelectAddress={this.onSelectAddress.bind(this)} />;
+      footer = (
+        <footer className="fc-line-items-footer">
           <div>
-            <button className="fc-btn fc-btn-plain icon-chevron-up fc-right" onClick={this.toggleEdit.bind(this)}></button>
-            <div className="fc-panel-comment fc-right">Patty’s Pub</div>
+            <button className="fc-btn fc-btn-primary"
+                    onClick={ this.toggleEdit.bind(this) } >Done</button>
           </div>
-        );
-      } else {
-        editButton = (
-          <div>
-            <button className="fc-btn fc-btn-plain icon-chevron-down fc-right" onClick={this.toggleEdit.bind(this)}>
-            </button>
-            <div className="fc-panel-comment fc-right">Patty’s Pub</div>
-          </div>
-        );
-      }
+        </footer>
+      );
+    } else {
+      body = <AddressDetails address={address} />
+      editButton = (
+        <div>
+          <button className="fc-btn icon-edit fc-right" onClick={this.toggleEdit.bind(this)}>
+          </button>
+        </div>
+      );
     }
 
     return (
@@ -64,7 +56,8 @@ export default class OrderShippingAddress extends React.Component {
              title="Shipping Address"
              controls={ editButton }
              enablePaddings={ true }>
-        {body}
+        { body }
+        { footer }
       </Panel>
     );
   }
