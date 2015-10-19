@@ -5,18 +5,19 @@ import scala.concurrent.ExecutionContext
 import models.{OrderAssignment, OrderAssignments, Orders, StoreAdmin, StoreAdmins}
 import responses.{AllOrders, BulkAssignmentResponse}
 import slick.driver.PostgresDriver.api._
+import utils.CustomDirectives.SortAndPage
 import utils.Slick.implicits._
 
 object BulkOrderUpdater {
 
   def assign(payload: payloads.BulkAssignment)
-    (implicit ec: ExecutionContext, db: Database): Result[BulkAssignmentResponse] = {
+    (implicit ec: ExecutionContext, db: Database, sortAndPage: SortAndPage): Result[BulkAssignmentResponse] = {
 
     val query = for {
       orders ← Orders.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result
       admin ← StoreAdmins.findById(payload.assigneeId).result
       newAssignments = for (o ← orders; a ← admin) yield OrderAssignment(orderId = o.id, assigneeId = a.id)
-      allOrders ← (OrderAssignments ++= newAssignments) >> AllOrders.findAll
+      allOrders ← (OrderAssignments ++= newAssignments) >> OrderQueries.findAll
       adminNotFound = adminNotFoundFailure(admin.headOption, payload.assigneeId)
       ordersNotFound = ordersNotFoundFailures(payload.referenceNumbers, orders.map(_.referenceNumber))
     } yield BulkAssignmentResponse(allOrders, adminNotFound, ordersNotFound)
@@ -25,7 +26,7 @@ object BulkOrderUpdater {
   }
 
   def unassign(payload: payloads.BulkAssignment)
-    (implicit ec: ExecutionContext, db: Database): Result[BulkAssignmentResponse] = {
+    (implicit ec: ExecutionContext, db: Database, sortAndPage: SortAndPage): Result[BulkAssignmentResponse] = {
 
     val query = for {
       orders ← Orders.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result
@@ -34,7 +35,7 @@ object BulkOrderUpdater {
         .filter(_.assigneeId === payload.assigneeId)
         .filter(_.orderId.inSetBind(orders.map(_.id)))
         .delete
-      allOrders ← delete >> AllOrders.findAll
+      allOrders ← delete >> OrderQueries.findAll
       adminNotFound = adminNotFoundFailure(adminId.headOption, payload.assigneeId)
       ordersNotFound = ordersNotFoundFailures(payload.referenceNumbers, orders.map(_.referenceNumber))
     } yield BulkAssignmentResponse(allOrders, adminNotFound, ordersNotFound)

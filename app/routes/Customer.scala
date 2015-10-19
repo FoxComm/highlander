@@ -31,9 +31,9 @@ object Customer {
           }
         } ~
         pathPrefix("addresses") {
-          get {
-            complete {
-              Addresses.findAllByCustomerId(customer.id).result.run().map(render(_))
+          (get & sortAndPage) { implicit sortAndPage ⇒
+            goodOrFailures {
+              AddressManager.findAllVisibleByCustomer(customer.id)
             }
           } ~
           (post & entity(as[CreateAddressPayload])) { payload ⇒
@@ -44,9 +44,9 @@ object Customer {
         } ~
         pathPrefix("payment-methods") {
           pathPrefix("store-credits") {
-            (get & pathEnd) {
-              complete {
-                renderOrNotFound(StoreCredits.findAllByCustomerId(customer.id).result.run().map(Some(_)))
+            (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+              goodOrFailures {
+                StoreCreditService.findAllByCustomer(customer.id)
               }
             } ~
             (get & path(IntNumber)) { storeCreditId ⇒

@@ -19,16 +19,22 @@ class AddressesIntegrationTest extends IntegrationTestBase
 
   // paging and sorting API
   private var currentCustomer: Customer = _
+
   override def beforeSortingAndPaging() = {
     currentCustomer = Customers.save(Factories.customer).futureValue
   }
+
   def uriPrefix = s"v1/customers/${currentCustomer.id}/addresses"
-  val sortColumnName = "name"
+
   def responseItems = (1 to 30).map { i ⇒
     val address = Addresses.save(Factories.generateAddress.copy(customerId = currentCustomer.id)).futureValue
     responses.Addresses.build(address, Regions.findById(address.regionId).result.headOption.futureValue.value)
   }
+
+  val sortColumnName = "name"
+
   def responseItemsSort(items: IndexedSeq[responses.Addresses.Root]) = items.sortBy(_.name)
+
   def mf = implicitly[scala.reflect.Manifest[responses.Addresses.Root]]
   // paging and sorting API end
 

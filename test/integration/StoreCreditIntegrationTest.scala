@@ -26,7 +26,9 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
   // paging and sorting API
   private var currentCustomer: Customer = _
+
   private var currentOrigin: StoreCreditManual = _
+
   override def beforeSortingAndPaging() = {
     (for {
       admin    ← StoreAdmins.save(authedStoreAdmin)
@@ -39,8 +41,11 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         currentOrigin = co
     }
   }
+
   def uriPrefix = s"v1/customers/${currentCustomer.id}/payment-methods/store-credit"
+
   val regCurrencies = CurrencyUnit.registeredCurrencies.asScala.toIndexedSeq
+
   def responseItems = regCurrencies.map { currency ⇒
     val balance = Random.nextInt(9999999)
     val sc = StoreCredits.save(Factories.storeCredit.copy(
@@ -52,8 +57,11 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       availableBalance = balance)).run().futureValue
     responses.StoreCreditResponse.build(sc)
   }
+
   val sortColumnName = "currency"
+
   def responseItemsSort(items: IndexedSeq[responses.StoreCreditResponse.Root]) = items.sortBy(_.currency)
+  
   def mf = implicitly[scala.reflect.Manifest[responses.StoreCreditResponse.Root]]
   // paging and sorting API end
 
@@ -124,13 +132,13 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         val storeCreditResponse = response.as[StoreCreditResponse.Root]
 
         response.status must ===(StatusCodes.OK)
-        storeCreditResponse.availableBalance mustBe 40
+        storeCreditResponse.availableBalance must === (40)
       }
 
       "returns not found when SC doesn't exist" in new Fixture {
         val notFoundResponse = GET(s"v1/store-credits/99")
         notFoundResponse.status must ===(StatusCodes.NotFound)
-        notFoundResponse.errors mustBe NotFoundFailure(StoreCredit, 99).description
+        notFoundResponse.errors must === (NotFoundFailure(StoreCredit, 99).description)
       }
     }
 
@@ -140,11 +148,27 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         val adjustments = response.as[Seq[StoreCreditAdjustmentsResponse.Root]]
 
         response.status must ===(StatusCodes.OK)
-        adjustments.size mustBe 1
+        adjustments.size must === (1)
 
         val firstAdjustment = adjustments.head
-        firstAdjustment.debit mustBe 10
-        firstAdjustment.orderRef.value mustBe order.referenceNumber
+        firstAdjustment.debit must === (10)
+        firstAdjustment.orderRef.value must === (order.referenceNumber)
+      }
+
+      "returns the list of adjustments with sorting and paging" in new Fixture {
+
+        val adjustment2 = StoreCredits.auth(storeCredit, Some(payment.id), 1).run().futureValue
+        val adjustment3 = StoreCredits.auth(storeCredit, Some(payment.id), 2).run().futureValue
+
+        val response = GET(s"v1/store-credits/${storeCredit.id}/transactions?sortBy=-id&pageNo=2&pageSize=2")
+        val adjustments = response.as[Seq[StoreCreditAdjustmentsResponse.Root]]
+
+        response.status must ===(StatusCodes.OK)
+        adjustments.size must === (1)
+
+        val firstAdjustment = adjustments.head
+        firstAdjustment.debit must === (10)
+        firstAdjustment.orderRef.value must === (order.referenceNumber)
       }
     }
 
@@ -186,7 +210,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         val adjustments = transactionsRep.as[Seq[StoreCreditAdjustmentsResponse.Root]]
 
         response.status must ===(StatusCodes.OK)
-        adjustments.size mustBe 2
+        adjustments.size must === (2)
         adjustments.head.state must ===(StoreCreditAdjustment.Capture)
       }
 
@@ -232,7 +256,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
   }
 
   trait Fixture {
-    val (admin, customer, scReason, storeCredit, order, adjustment, scSecond) = (for {
+    val (admin, customer, scReason, storeCredit, order, adjustment, scSecond, payment) = (for {
       admin       ← StoreAdmins.save(authedStoreAdmin)
       customer    ← Customers.save(Factories.customer)
       order       ← Orders.save(Factories.order.copy(customerId = customer.id))
@@ -246,7 +270,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       payment ← OrderPayments.save(Factories.storeCreditPayment.copy(orderId = order.id,
         paymentMethodId = storeCredit.id, paymentMethodType = PaymentMethod.StoreCredit))
       adjustment ← StoreCredits.auth(storeCredit, Some(payment.id), 10)
-    } yield (admin, customer, scReason, storeCredit, order, adjustment, scSecond)).run().futureValue
+    } yield (admin, customer, scReason, storeCredit, order, adjustment, scSecond, payment)).run().futureValue
   }
 }
 

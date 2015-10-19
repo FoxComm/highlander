@@ -40,15 +40,15 @@ object Admin {
             StoreCreditService.updateStatusByCsr(storeCreditId, payload, admin)
           }
         } ~
-        (get & path("transactions") & pathEnd) {
+        (get & path("transactions") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
           goodOrFailures {
             StoreCreditAdjustmentsService.forStoreCredit(storeCreditId)
           }
         }
       } ~
       pathPrefix("reasons") {
-        (get & pathEnd) {
-          good {
+        (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+          goodOrFailures {
             ReasonService.listAll
           }
         }

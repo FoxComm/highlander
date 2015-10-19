@@ -78,13 +78,13 @@ trait SortingAndPaging[T <: ResponseItem] extends MockitoSugar { this: Integrati
     "error on invalid pageNo param #2" in new SortingAndPagingFixture {
       val responseList = GET(s"$uriPrefix?sortBy=$sortColumnName&pageNo=-10&pageSize=10")
 
-      responseList.status must === (StatusCodes.InternalServerError)
+      responseList.status must === (StatusCodes.BadRequest)
     }
 
     "error on invalid pageNo param #3" in new SortingAndPagingFixture {
       val responseList = GET(s"$uriPrefix?sortBy=$sortColumnName&pageNo=0&pageSize=10")
 
-      responseList.status must === (StatusCodes.InternalServerError)
+      responseList.status must === (StatusCodes.BadRequest)
     }
 
     "error on invalid pageSize param #1" in new SortingAndPagingFixture {
@@ -96,14 +96,13 @@ trait SortingAndPaging[T <: ResponseItem] extends MockitoSugar { this: Integrati
     "error on invalid pageSize param #2" in new SortingAndPagingFixture {
       val responseList = GET(s"$uriPrefix?sortBy=$sortColumnName&pageNo=1&pageSize=-10")
 
-      responseList.status must === (StatusCodes.InternalServerError)
+      responseList.status must === (StatusCodes.BadRequest)
     }
 
     "error on invalid pageSize param #3" in new SortingAndPagingFixture {
       val responseList = GET(s"$uriPrefix?sortBy=$sortColumnName&pageNo=1&pageSize=0")
 
-      responseList.status must === (StatusCodes.OK)
-      responseList.as[Seq[T]] must === (Seq.empty)
+      responseList.status must === (StatusCodes.BadRequest)
     }
 
     "ignore invalid sortBy param" in new SortingAndPagingFixture {
