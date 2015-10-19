@@ -12,7 +12,7 @@ import Extensions._
 
 class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 
-  "shipping methods" - {
+  "GET /v1/shipping-methods/:refNum" - {
 
     "Evaluates shipping rule: order total is greater than $25" - {
 

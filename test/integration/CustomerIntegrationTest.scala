@@ -1,32 +1,21 @@
-import scala.util.Random
 import akka.http.scaladsl.model.StatusCodes
 
-import algebra.Monoid
-import cats.data.Xor
+import cats.implicits._
 import com.stripe.exception.CardException
-import com.stripe.model
-import com.stripe.model.{Customer ⇒ StripeCustomer, Card, ExternalAccount}
-import models.{Orders, Customer, CreditCards, CreditCard, Customers, Addresses, StoreAdmins, OrderPayments, Regions}
+import com.stripe.model.{Card, Customer ⇒ StripeCustomer}
 import models.OrderPayments.scope._
-import responses.CustomerResponse
-import org.mockito.Mockito
-import org.mockito.Mockito.RETURNS_DEFAULTS
-import org.mockito.invocation.InvocationOnMock
-import org.mockito.stubbing.Answer
+import models.{Addresses, CreditCard, CreditCards, Customer, Customers, OrderPayments, Orders, Regions, StoreAdmins}
+import org.mockito.Mockito.{reset, when}
+import org.mockito.{Matchers ⇒ m}
 import org.scalatest.mock.MockitoSugar
 import payloads.CreateAddressPayload
-import services.{GeneralFailure, CannotUseInactiveCreditCard, CreditCardManager, NotFoundFailure}
-import services.{StripeRuntimeException, GeneralFailure, Result, CannotUseInactiveCreditCard, CreditCardManager,
-NotFoundFailure}
+import responses.CustomerResponse
+import services.{CannotUseInactiveCreditCard, CreditCardManager, GeneralFailure, NotFoundFailure, Result, StripeRuntimeException}
 import util.IntegrationTestBase
-import utils.jdbc._
 import utils.Seeds.Factories
 import utils.Slick.implicits._
-import cats.implicits._
-import utils.{Seeds, Apis, StripeApi}
-import org.mockito.Mockito.{ when }
-import org.mockito.{ Matchers ⇒ m }
-import org.mockito.Mockito.reset
+import utils.jdbc._
+import utils.{Apis, Seeds, StripeApi}
 
 class CustomerIntegrationTest extends IntegrationTestBase
   with HttpSupport
@@ -34,11 +23,11 @@ class CustomerIntegrationTest extends IntegrationTestBase
   with SortingAndPaging[CustomerResponse.Root]
   with MockitoSugar {
 
+  import concurrent.ExecutionContext.Implicits.global
+
   import Extensions._
-  import org.json4s.jackson.JsonMethods._
   import slick.driver.PostgresDriver.api._
   import util.SlickSupport.implicits._
-  import concurrent.ExecutionContext.Implicits.global
 
   // paging and sorting API
   val uriPrefix = "v1/customers"
@@ -52,7 +41,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
   override def makeApis: Option[Apis] = Some(Apis(stripeApi))
 
-  private var stripeApi: StripeApi = mock[StripeApi]
+  private val stripeApi: StripeApi = mock[StripeApi]
 
   "Customer" - {
     "accounts are unique based on email, non-guest, and active" in {
@@ -61,7 +50,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val failure = GeneralFailure("record was not unique")
       val xor = withUniqueConstraint(Customers.save(stub).run())(_ ⇒ failure).futureValue
 
-      leftValue(xor) must ===(failure)
+      leftValue(xor) must === (failure)
     }
 
     "accounts are NOT unique for guest account and email" in {
@@ -71,314 +60,313 @@ class CustomerIntegrationTest extends IntegrationTestBase
     }
   }
 
-  "admin API's" - {
-    "GET /v1/customers/:id" in new Fixture {
-      val response = GET(s"$uriPrefix/${customer.id}")
-      val customerRoot = CustomerResponse.build(customer, shippingRegion = region)
-
-      response.status must ===(StatusCodes.OK)
-      response.as[CustomerResponse.Root] must ===(customerRoot)
-    }
-
-    "GET /v1/customers/:id without default address" in new Fixture {
-      Addresses.filter(_.id === address.id).map(_.isDefaultShipping).update(false).run().futureValue
-      val response = GET(s"$uriPrefix/${customer.id}")
-      val customerRoot = CustomerResponse.build(customer)
-
-      response.status must ===(StatusCodes.OK)
-      response.as[CustomerResponse.Root] must ===(customerRoot)
-    }
-
-    "GET /v1/customers" in new Fixture {
+  "GET /v1/customers" - {
+    "lists customers" in new Fixture {
       val response = GET(s"$uriPrefix")
       val customerRoot = CustomerResponse.build(customer, shippingRegion = region)
 
-      response.status must ===(StatusCodes.OK)
-      response.as[Seq[CustomerResponse.Root]] must ===(Seq(customerRoot))
-    }
-
-    "GET /v1/customers without default address" in new Fixture {
-      Addresses.filter(_.id === address.id).map(_.isDefaultShipping).update(false).run().futureValue
-      val response = GET(s"$uriPrefix")
-      val customerRoot = CustomerResponse.build(customer)
-
-      response.status must ===(StatusCodes.OK)
-      response.as[Seq[CustomerResponse.Root]] must ===(Seq(customerRoot))
-    }
-
-    "PATCH /v1/customers/:id" in new Fixture {
-      val payload = payloads.UpdateCustomerPayload(name = "John Doe".some, email = "newemail@example.org".some,
-        phoneNumber = "555 555 55".some)
-      val newEmail = payload.email.getOrElse("")
-      (payload.name, newEmail, payload.phoneNumber) must !== ((customer.name, customer.email, customer
-        .phoneNumber))
-
-      val response = PATCH(s"v1/customers/${customer.id}", payload)
-
-      val updated = parse(response.bodyText).extract[responses.CustomerResponse.Root]
       response.status must === (StatusCodes.OK)
-
-      (updated.name, updated.email, updated.phoneNumber) must === ((payload.name, newEmail, payload
-        .phoneNumber))
+      response.as[Seq[CustomerResponse.Root]] must === (Seq(customerRoot))
     }
 
+    "lists customers without default address" in new Fixture {
+      Addresses.filter(_.id === address.id).map(_.isDefaultShipping).update(false).run().futureValue
+      val response = GET(s"$uriPrefix")
+      val customerRoot = CustomerResponse.build(customer)
+
+      response.status must === (StatusCodes.OK)
+      response.as[Seq[CustomerResponse.Root]] must === (Seq(customerRoot))
+    }
+
+    "customer listing shows valid billingRegion" in new CreditCardFixture {
+      val billRegion = Regions.findOneById(creditCard.regionId).run().futureValue
+
+      val response = GET(s"$uriPrefix")
+      val customerRoot = CustomerResponse.build(customer, shippingRegion = region, billingRegion = billRegion)
+
+      response.status must === (StatusCodes.OK)
+      response.as[Seq[CustomerResponse.Root]] must === (Seq(customerRoot))
+    }
+
+    "customer listing shows valid billingRegion without default CreditCard" in new CreditCardFixture {
+      CreditCards.filter(_.id === creditCard.id).map(_.isDefault).update(false).run().futureValue
+      val response = GET(s"$uriPrefix")
+      val customerRoot = CustomerResponse.build(customer, shippingRegion = region)
+
+      response.status must === (StatusCodes.OK)
+      response.as[Seq[CustomerResponse.Root]] must === (Seq(customerRoot))
+    }
+  }
+
+  "GET /v1/customers/:customerId" - {
+    "fetches customer info" in new Fixture {
+      val response = GET(s"$uriPrefix/${customer.id}")
+      val customerRoot = CustomerResponse.build(customer, shippingRegion = region)
+
+      response.status must === (StatusCodes.OK)
+      response.as[CustomerResponse.Root] must === (customerRoot)
+    }
+
+    "fetches customer info without default address" in new Fixture {
+      Addresses.filter(_.id === address.id).map(_.isDefaultShipping).update(false).run().futureValue
+      val response = GET(s"$uriPrefix/${customer.id}")
+      val customerRoot = CustomerResponse.build(customer)
+
+      response.status must === (StatusCodes.OK)
+      response.as[CustomerResponse.Root] must === (customerRoot)
+    }
+
+    "customer info shows valid billingRegion" in new CreditCardFixture {
+      val billRegion = Regions.findOneById(creditCard.regionId).run().futureValue
+
+      val response = GET(s"$uriPrefix/${customer.id}")
+      val customerRoot = CustomerResponse.build(customer, shippingRegion = region, billingRegion = billRegion)
+
+      response.status must === (StatusCodes.OK)
+      response.as[CustomerResponse.Root] must === (customerRoot)
+    }
+
+    "customer info shows valid billingRegion without default CreditCard" in new CreditCardFixture {
+      CreditCards.filter(_.id === creditCard.id).map(_.isDefault).update(false).run().futureValue
+      val response = GET(s"$uriPrefix/${customer.id}")
+      val customerRoot = CustomerResponse.build(customer, shippingRegion = region)
+
+      response.status must === (StatusCodes.OK)
+      response.as[CustomerResponse.Root] must === (customerRoot)
+    }
+  }
+
+  "PATCH /v1/customers/:customerId" in new Fixture {
+    val payload = payloads.UpdateCustomerPayload(name = "John Doe".some, email = "newemail@example.org".some,
+      phoneNumber = "555 555 55".some)
+    val newEmail = payload.email.getOrElse("")
+    (payload.name, newEmail, payload.phoneNumber) must !== ((customer.name, customer.email, customer
+      .phoneNumber))
+
+    val response = PATCH(s"v1/customers/${customer.id}", payload)
+
+    val updated = parse(response.bodyText).extract[responses.CustomerResponse.Root]
+    response.status must === (StatusCodes.OK)
+
+    (updated.name, updated.email, updated.phoneNumber) must === ((payload.name, newEmail, payload
+      .phoneNumber))
+  }
+
+  "POST /v1/customers/:customerId/disable" - {
     "toggles the isDisabled flag on a customer account" in new Fixture {
-      customer.isDisabled must ===(false)
+      customer.isDisabled must === (false)
 
       val response = POST(s"$uriPrefix/${customer.id}/disable", payloads.ToggleCustomerDisabled(true))
-      response.status must ===(StatusCodes.OK)
+      response.status must === (StatusCodes.OK)
 
-      val c = parse(response.bodyText).extract[Customer]
-      c.isDisabled must ===(true)
+      response.as[Customer].isDisabled must === (true)
+    }
+  }
+
+  "GET /v1/customers/:customerId/payment-methods/credit-cards" - {
+    "shows customer's credit cards only in their wallet" in new CreditCardFixture {
+      val deleted = CreditCards.save(creditCard.copy(id = 0, inWallet = false)).run().futureValue
+
+      val response = GET(s"$uriPrefix/${customer.id}/payment-methods/credit-cards")
+      val cc = response.as[Seq[CreditCard]]
+
+      response.status must === (StatusCodes.OK)
+      cc must have size 1
+      cc.head must === (creditCard)
+      cc.head.id must !== (deleted.id)
+    }
+  }
+
+  "POST /v1/customers/:customerId/payment-methods/credit-cards/:creditCardId/default" - {
+    "sets the isDefault flag on a credit card" in new CreditCardFixture {
+      CreditCards.filter(_.id === creditCard.id).map(_.isDefault).update(false).run().futureValue
+
+      val payload = payloads.ToggleDefaultCreditCard(isDefault = true)
+      val response = POST(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}/default", payload)
+      response.status must === (StatusCodes.OK)
+
+      response.as[CreditCard].isDefault must === (true)
     }
 
-    "credit cards" - {
-      "shows customer's credit cards only in their wallet" in new CreditCardFixture {
-        val deleted = CreditCards.save(creditCard.copy(id = 0, inWallet = false)).run().futureValue
+    "fails to set the credit card as default if a default currently exists" in new Fixture {
+      val default = CreditCards.save(Factories.creditCard.copy(isDefault = true, customerId = customer.id))
+        .run().futureValue
+      val nonDefault = CreditCards.save(Factories.creditCard.copy(isDefault = false, customerId = customer.id))
+        .run().futureValue
 
-        val response = GET(s"$uriPrefix/${customer.id}/payment-methods/credit-cards")
-        val cc = response.as[Seq[CreditCard]]
+      val payload = payloads.ToggleDefaultCreditCard(isDefault = true)
+      val response = POST(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${nonDefault.id}/default", payload)
 
-        response.status must ===(StatusCodes.OK)
-        cc must have size (1)
-        cc.head must ===(creditCard)
-        cc.head.id must !==(deleted.id)
-      }
+      response.status must === (StatusCodes.BadRequest)
+      response.bodyText must include("customer already has default credit card")
+    }
+  }
 
-      "GET /v1/customers shows valid billingRegion" in new CreditCardFixture {
-        val billRegion = Regions.findOneById(creditCard.regionId).run().futureValue
+  "DELETE /v1/customers/:customerId/payment-methods/credit-cards/:creditCardId" - {
+    "deletes successfully if the card exists" in new CreditCardFixture {
+      val response = DELETE(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}")
+      val deleted = CreditCards.findOneById(creditCard.id).run().futureValue.value
 
-        val response = GET(s"$uriPrefix")
-        val customerRoot = CustomerResponse.build(customer, shippingRegion = region, billingRegion = billRegion)
+      response.status must === (StatusCodes.NoContent)
+      deleted.inWallet must === (false)
+      deleted.deletedAt mustBe 'defined
+    }
+  }
 
-        response.status must ===(StatusCodes.OK)
-        response.as[Seq[CustomerResponse.Root]] must ===(Seq(customerRoot))
-      }
+  "PATCH /v1/customers/:customerId/payment-methods/credit-cards/:creditCardId" - {
+    "when successful" - {
+      "removes the original card from wallet" in new CreditCardFixture {
+        reset(stripeApi)
 
-      "GET /v1/customers shows valid billingRegion without default CreditCard" in new CreditCardFixture {
-        CreditCards.filter(_.id === creditCard.id).map(_.isDefault).update(false).run().futureValue
-        val response = GET(s"$uriPrefix")
-        val customerRoot = CustomerResponse.build(customer, shippingRegion = region)
+        when(stripeApi.findCustomer(m.any(), m.any())).
+          thenReturn(Result.good(new StripeCustomer))
 
-        response.status must ===(StatusCodes.OK)
-        response.as[Seq[CustomerResponse.Root]] must ===(Seq(customerRoot))
-      }
+        when(stripeApi.findDefaultCard(m.any(), m.any())).
+          thenReturn(Result.good(new Card))
 
-      "GET /v1/customer/:id shows valid billingRegion" in new CreditCardFixture {
-        val billRegion = Regions.findOneById(creditCard.regionId).run().futureValue
+        when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any())).
+          thenReturn(Result.good(new Card))
 
-        val response = GET(s"$uriPrefix/${customer.id}")
-        val customerRoot = CustomerResponse.build(customer, shippingRegion = region, billingRegion = billRegion)
+        val payload = payloads.EditCreditCard(holderName = Some("Bob"))
+        val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
+        val inactive = CreditCards.findOneById(creditCard.id).run().futureValue.value
 
-        response.status must ===(StatusCodes.OK)
-        response.as[CustomerResponse.Root] must ===(customerRoot)
-      }
-
-      "GET /v1/customer/:id shows valid billingRegion without default CreditCard" in new CreditCardFixture {
-        CreditCards.filter(_.id === creditCard.id).map(_.isDefault).update(false).run().futureValue
-        val response = GET(s"$uriPrefix/${customer.id}")
-        val customerRoot = CustomerResponse.build(customer, shippingRegion = region)
-
-        response.status must ===(StatusCodes.OK)
-        response.as[CustomerResponse.Root] must ===(customerRoot)
-      }
-
-      "sets the isDefault flag on a credit card" in new CreditCardFixture {
-        CreditCards.filter(_.id === creditCard.id).map(_.isDefault).update(false).run().futureValue
-
-        val payload = payloads.ToggleDefaultCreditCard(isDefault = true)
-        val response = POST(
-          s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}/default",
-          payload)
-        response.status must ===(StatusCodes.OK)
-
-        val cc = parse(response.bodyText).extract[CreditCard]
-        cc.isDefault must ===(true)
-      }
-
-      "fails to set the credit card as default if a default currently exists" in new Fixture {
-        val default = CreditCards.save(Factories.creditCard.copy(isDefault = true, customerId = customer.id))
-          .run().futureValue
-        val nonDefault = CreditCards.save(Factories.creditCard.copy(isDefault = false, customerId = customer.id))
-          .run().futureValue
-
-        val payload = payloads.ToggleDefaultCreditCard(isDefault = true)
-        val response = POST(
-          s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${nonDefault.id}/default",
-          payload)
-
-        response.status must ===(StatusCodes.BadRequest)
-        response.bodyText must include("customer already has default credit card")
-      }
-
-      "when deleting a credit card" - {
-        "succeeds if the card exists" in new CreditCardFixture {
-          val response = DELETE(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}")
-          val deleted = CreditCards.findOneById(creditCard.id).run().futureValue.value
-
-          response.status must ===(StatusCodes.NoContent)
-          deleted.inWallet must ===(false)
-          deleted.deletedAt mustBe 'defined
-        }
+        response.status must === (StatusCodes.NoContent)
 
       }
 
-      "when editing a credit card" - {
-        "when successful" - {
-          "removes the original card from wallet" in new CreditCardFixture {
-            reset(stripeApi)
+      "creates a new version of the edited card in the wallet" in new CreditCardFixture {
+        reset(stripeApi)
 
-            when(stripeApi.findCustomer(m.any(), m.any())).
-              thenReturn(Result.good(new StripeCustomer))
+        when(stripeApi.findCustomer(m.any(), m.any())).
+          thenReturn(Result.good(new StripeCustomer))
 
-            when(stripeApi.findDefaultCard(m.any(), m.any())).
-              thenReturn(Result.good(new Card))
+        when(stripeApi.findDefaultCard(m.any(), m.any())).
+          thenReturn(Result.good(new Card))
 
-            when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any())).
-              thenReturn(Result.good(new Card))
+        when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any())).
+          thenReturn(Result.good(new Card))
 
-            val payload = payloads.EditCreditCard(holderName = Some("Bob"))
-            val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
-            val inactive = CreditCards.findOneById(creditCard.id).run().futureValue.value
+        val payload = payloads.EditCreditCard(holderName = Some("Bob"))
+        val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
+        val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).result.run().futureValue.toList
 
-            response.status must ===(StatusCodes.NoContent)
-
-          }
-
-          "creates a new version of the edited card in the wallet" in new CreditCardFixture {
-            reset(stripeApi)
-
-            when(stripeApi.findCustomer(m.any(), m.any())).
-              thenReturn(Result.good(new StripeCustomer))
-
-            when(stripeApi.findDefaultCard(m.any(), m.any())).
-              thenReturn(Result.good(new Card))
-
-            when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any())).
-              thenReturn(Result.good(new Card))
-
-            val payload = payloads.EditCreditCard(holderName = Some("Bob"))
-            val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
-            val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).result.run().futureValue.toList
-
-            response.status must ===(StatusCodes.NoContent)
-            newVersion.inWallet mustBe true
-            newVersion.isDefault must ===(creditCard.isDefault)
-          }
-
-          "updates the customer's cart to use the new version" in new CreditCardFixture {
-            reset(stripeApi)
-
-            when(stripeApi.findCustomer(m.any(), m.any())).
-              thenReturn(Result.good(new StripeCustomer))
-
-            when(stripeApi.findDefaultCard(m.any(), m.any())).
-              thenReturn(Result.good(new Card))
-
-            when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any())).
-              thenReturn(Result.good(mock[Card]))
-
-            val order = Orders.save(Factories.cart.copy(customerId = customer.id)).run().futureValue
-            services.OrderPaymentUpdater.addCreditCard(order.refNum, creditCard.id).futureValue
-
-            val payload = payloads.EditCreditCard(holderName = Some("Bob"))
-            val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
-            val (pmt :: Nil) = OrderPayments.filter(_.orderId === order.id).creditCards.result.run().futureValue.toList
-            val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).result.run().futureValue.toList
-
-            response.status must ===(StatusCodes.NoContent)
-            pmt.amount mustBe 'empty
-            pmt.isCreditCard mustBe true
-            pmt.paymentMethodId must ===(newVersion.id)
-          }
-
-          "copies an existing address book entry to the creditCard" in new CreditCardFixture {
-            val payload = payloads.EditCreditCard(holderName = Some("Bob"), addressId = address.id.some)
-            val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
-            val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).result.futureValue.toList
-            val numAddresses = Addresses.length.result.futureValue
-
-            response.status must ===(StatusCodes.NoContent)
-            numAddresses must ===(1)
-            (newVersion.zip, newVersion.regionId) must ===((address.zip, address.regionId))
-          }
-
-          "creates a new address book entry if a full address was given" in new CreditCardFixture {
-            reset(stripeApi)
-
-            when(stripeApi.findCustomer(m.any(), m.any())).
-              thenReturn(Result.good(new StripeCustomer))
-
-            when(stripeApi.findDefaultCard(m.any(), m.any())).
-              thenReturn(Result.good(new Card))
-
-            when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any())).
-              thenReturn(Result.good(mock[Card]))
-
-            val payload = payloads.EditCreditCard(holderName = Some("Bob"),
-              address = CreateAddressPayload(name = "Home Office", regionId = address.regionId + 1,
-                address1 = "3000 Coolio Dr", city = "Seattle", zip = "54321").some)
-            val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
-            val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).result.futureValue.toList
-            val addresses = Addresses.futureValue
-            val newAddress = addresses.last
-
-            response.status must ===(StatusCodes.NoContent)
-            addresses must have size (2)
-            (newVersion.zip, newVersion.regionId) must ===(("54321", address.regionId + 1))
-            (newVersion.zip, newVersion.regionId) must ===((newAddress.zip, newAddress.regionId))
-          }
-        }
-
-        "fails if the card cannot be found" in new CreditCardFixture {
-          val payload = payloads.EditCreditCard
-          val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/99", payload)
-
-          response.status must ===(StatusCodes.NotFound)
-          response.errors must ===(NotFoundFailure(CreditCard, 99).description)
-        }
-
-        "fails if the card is not inWallet" in new CreditCardFixture {
-          CreditCardManager.deleteCreditCard(customer.id, creditCard.id).futureValue
-          val payload = payloads.EditCreditCard
-          val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
-
-          response.status must ===(StatusCodes.BadRequest)
-          response.errors must ===(CannotUseInactiveCreditCard(creditCard).description)
-        }
-
-        "fails if the payload is invalid" in new CreditCardFixture {
-          val payload = payloads.EditCreditCard(holderName = "".some)
-          val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
-
-          response.status must ===(StatusCodes.BadRequest)
-          response.errors must contain("holderName must not be empty")
-        }
-
-        "fails if stripe returns an error" in new CreditCardFixture {
-          reset(stripeApi)
-
-          when(stripeApi.findCustomer(m.any(), m.any())).
-            thenReturn(Result.good(new StripeCustomer))
-
-          when(stripeApi.findDefaultCard(m.any(), m.any())).
-            thenReturn(Result.good(new Card))
-
-          when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any())).
-            thenReturn(Result.failure(
-              StripeRuntimeException(
-                new CardException(
-                  "Your card's expiration year is invalid",
-                  "invalid_expiry_year",
-                  "exp_year", null, null, null))))
-
-          val payload = payloads.EditCreditCard(expYear = Some(2000))
-          val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
-
-          response.status must ===(StatusCodes.BadRequest)
-          response.errors must ===(List("Your card's expiration year is invalid"))
-        }
+        response.status must === (StatusCodes.NoContent)
+        newVersion.inWallet mustBe true
+        newVersion.isDefault must === (creditCard.isDefault)
       }
+
+      "updates the customer's cart to use the new version" in new CreditCardFixture {
+        reset(stripeApi)
+
+        when(stripeApi.findCustomer(m.any(), m.any())).
+          thenReturn(Result.good(new StripeCustomer))
+
+        when(stripeApi.findDefaultCard(m.any(), m.any())).
+          thenReturn(Result.good(new Card))
+
+        when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any())).
+          thenReturn(Result.good(mock[Card]))
+
+        val order = Orders.save(Factories.cart.copy(customerId = customer.id)).run().futureValue
+        services.OrderPaymentUpdater.addCreditCard(order.refNum, creditCard.id).futureValue
+
+        val payload = payloads.EditCreditCard(holderName = Some("Bob"))
+        val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
+        val (pmt :: Nil) = OrderPayments.filter(_.orderId === order.id).creditCards.result.run().futureValue.toList
+        val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).result.run().futureValue.toList
+
+        response.status must === (StatusCodes.NoContent)
+        pmt.amount mustBe 'empty
+        pmt.isCreditCard mustBe true
+        pmt.paymentMethodId must === (newVersion.id)
+      }
+
+      "copies an existing address book entry to the creditCard" in new CreditCardFixture {
+        val payload = payloads.EditCreditCard(holderName = Some("Bob"), addressId = address.id.some)
+        val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
+        val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).result.futureValue.toList
+        val numAddresses = Addresses.length.result.futureValue
+
+        response.status must === (StatusCodes.NoContent)
+        numAddresses must === (1)
+        (newVersion.zip, newVersion.regionId) must === ((address.zip, address.regionId))
+      }
+
+      "creates a new address book entry if a full address was given" in new CreditCardFixture {
+        reset(stripeApi)
+
+        when(stripeApi.findCustomer(m.any(), m.any())).
+          thenReturn(Result.good(new StripeCustomer))
+
+        when(stripeApi.findDefaultCard(m.any(), m.any())).
+          thenReturn(Result.good(new Card))
+
+        when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any())).
+          thenReturn(Result.good(mock[Card]))
+
+        val payload = payloads.EditCreditCard(holderName = Some("Bob"),
+          address = CreateAddressPayload(name = "Home Office", regionId = address.regionId + 1,
+            address1 = "3000 Coolio Dr", city = "Seattle", zip = "54321").some)
+        val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
+        val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).result.futureValue.toList
+        val addresses = Addresses.futureValue
+        val newAddress = addresses.last
+
+        response.status must === (StatusCodes.NoContent)
+        addresses must have size 2
+        (newVersion.zip, newVersion.regionId) must === (("54321", address.regionId + 1))
+        (newVersion.zip, newVersion.regionId) must === ((newAddress.zip, newAddress.regionId))
+      }
+    }
+
+    "fails if the card cannot be found" in new CreditCardFixture {
+      val payload = payloads.EditCreditCard
+      val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/99", payload)
+
+      response.status must === (StatusCodes.NotFound)
+      response.errors must === (NotFoundFailure(CreditCard, 99).description)
+    }
+
+    "fails if the card is not inWallet" in new CreditCardFixture {
+      CreditCardManager.deleteCreditCard(customer.id, creditCard.id).futureValue
+      val payload = payloads.EditCreditCard
+      val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
+
+      response.status must === (StatusCodes.BadRequest)
+      response.errors must === (CannotUseInactiveCreditCard(creditCard).description)
+    }
+
+    "fails if the payload is invalid" in new CreditCardFixture {
+      val payload = payloads.EditCreditCard(holderName = "".some)
+      val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
+
+      response.status must === (StatusCodes.BadRequest)
+      response.errors must contain("holderName must not be empty")
+    }
+
+    "fails if stripe returns an error" in new CreditCardFixture {
+      reset(stripeApi)
+
+      when(stripeApi.findCustomer(m.any(), m.any())).
+        thenReturn(Result.good(new StripeCustomer))
+
+      when(stripeApi.findDefaultCard(m.any(), m.any())).
+        thenReturn(Result.good(new Card))
+
+      when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any())).
+        thenReturn(Result.failure(
+          StripeRuntimeException(
+            new CardException(
+              "Your card's expiration year is invalid",
+              "invalid_expiry_year",
+              "exp_year", null, null, null))))
+
+      val payload = payloads.EditCreditCard(expYear = Some(2000))
+      val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
+
+      response.status must === (StatusCodes.BadRequest)
+      response.errors must === (List("Your card's expiration year is invalid"))
     }
   }
 
@@ -394,6 +382,4 @@ class CustomerIntegrationTest extends IntegrationTestBase
   trait CreditCardFixture extends Fixture {
     val creditCard = CreditCards.save(Factories.creditCard.copy(customerId = customer.id)).run().futureValue
   }
-
 }
-

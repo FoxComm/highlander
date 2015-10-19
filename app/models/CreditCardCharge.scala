@@ -8,7 +8,7 @@ import slick.jdbc.JdbcType
 import utils._
 
 final case class CreditCardCharge(id: Int = 0, creditCardId: Int, orderPaymentId: Int,
-  chargeId: String, status: CreditCardCharge.Status = CreditCardCharge.Auth)
+  chargeId: String, status: CreditCardCharge.Status = CreditCardCharge.Cart)
   extends ModelWithIdParameter
   with FSM[CreditCardCharge.Status, CreditCardCharge] {
 
@@ -17,6 +17,8 @@ final case class CreditCardCharge(id: Int = 0, creditCardId: Int, orderPaymentId
   def stateLens = GenLens[CreditCardCharge](_.status)
 
   val fsm: Map[Status, Set[Status]] = Map(
+    Cart →
+      Set(Auth),
     Auth →
       Set(FullCapture, FailedCapture, CanceledAuth, ExpiredAuth),
     ExpiredAuth →
@@ -26,6 +28,7 @@ final case class CreditCardCharge(id: Int = 0, creditCardId: Int, orderPaymentId
 
 object CreditCardCharge {
   sealed trait Status
+  case object Cart extends Status
   case object Auth extends Status
   case object ExpiredAuth extends Status
   case object CanceledAuth extends Status

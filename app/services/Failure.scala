@@ -116,6 +116,14 @@ final case class OrderShippingMethodsCannotBeProcessed(referenceNumber: String) 
   override def description = List(s"Shipping methods for order ${referenceNumber} cannot be processed")
 }
 
+final case class ShippingMethodDoesNotExist(shippingMethodId: Int) extends Failure {
+  override def description = List(s"Shipping method ${shippingMethodId} can't be added because it doesn't exist")
+}
+
+final case class ShippingMethodNotApplicableToOrder(shippingMethodId: Int, referenceNumber: String) extends Failure {
+  override def description = List(s"Shipping method ${shippingMethodId} is not applicable to order ${referenceNumber}")
+}
+
 case object CreditCardMustHaveAddress extends Failure {
   override def description = List("cannot create creditCard without an address")
 }

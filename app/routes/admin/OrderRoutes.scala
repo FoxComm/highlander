@@ -168,6 +168,18 @@ object OrderRoutes {
               OrderUpdater.removeShippingAddress(refNum)
             }
           }
+        } ~
+        pathPrefix("shipping-method") {
+          (patch & entity(as[payloads.UpdateShippingMethod]) & pathEnd) { payload ⇒
+            goodOrFailures {
+              OrderUpdater.updateShippingMethod(payload, refNum)
+            }
+          } ~
+          (delete & pathEnd) {
+            goodOrFailures {
+              OrderUpdater.deleteShippingMethod(refNum)
+            }
+          }
         }
       }
     }
