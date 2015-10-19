@@ -42,7 +42,7 @@ export default class OrderShippingAddress extends React.Component {
         </footer>
       );
     } else {
-      body = <AddressDetails address={address} />
+      body = <AddressDetails address={address} />;
       editButton = (
         <div>
           <button className="fc-btn icon-edit fc-right" onClick={this.toggleEdit.bind(this)}>

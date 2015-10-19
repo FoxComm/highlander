@@ -46,9 +46,9 @@
       border: 1px solid @color-text-gray;
       background: @color-white;
       .width(20%);
-      .padding-top(15px);
-      .padding-bottom(15px);
+      .padding(15px 0 30px);
       .margin(0);
+      box-shadow: 1px 3px 6px @color-text-gray;
 
       dt,
       dd {
@@ -60,12 +60,17 @@
         .line-height(30px);
       }
 
-      dd { font-weight: 700; }
+      dt { font-weight: 600; }
+      dd {
+        font-weight: 700;
+        font-size: 18px;
+      }
     }
 
     dl:first-child {
       border-top-left-radius: 5px;
       border-bottom-left-radius: 5px;
+      box-shadow: -1px 3px 6px @color-text-gray;
     }
 
     dl:last-child {
