@@ -49,6 +49,7 @@ object Customer {
     val hash = payload.password.map(hashPassword(_))
     Customer(id = 0, email = payload.email, password = hash, name = payload.name,
       isGuest = payload.isGuest.getOrElse(false))
+  }
 
   def fromPathPayload(c: Customer, p: UpdateCustomerPayload): Customer = {
     c.copy(email = p.email.getOrElse(c.email),
