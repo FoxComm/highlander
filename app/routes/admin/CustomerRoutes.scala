@@ -47,11 +47,11 @@ object CustomerRoutes {
             CustomerManager.getById(customerId)
           }
         } ~
-//        (patch & entity(as[UpdateCustomerPayload]) & pathEnd) { payload ⇒
-//          goodOrFailures {
-//            CustomerManager.editFromPayload(customerId, payload)
-//          }
-//        } ~
+        (patch & entity(as[UpdateCustomerPayload]) & pathEnd) { payload ⇒
+          goodOrFailures {
+            CustomerManager.updateFromPayload(customerId, payload)
+          }
+        } ~
         (post & path("disable") & entity(as[payloads.ToggleCustomerDisabled])) { payload ⇒
           goodOrFailures {
             CustomerManager.toggleDisabled(customerId, payload.disabled, admin)
