@@ -283,7 +283,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
     "can be assigned to order" in new Fixture {
       val response = POST(s"v1/orders/${order.referenceNumber}/assignees", Assignment(Seq(storeAdmin.id)))
-      response.status mustBe StatusCodes.OK
+      response.status must === (StatusCodes.OK)
 
       val fullOrderWithWarnings = parse(response.bodyText).extract[FullOrderWithWarnings]
       fullOrderWithWarnings.order.assignees must not be empty
@@ -298,17 +298,17 @@ class OrderIntegrationTest extends IntegrationTestBase
         storeAdmin ← StoreAdmins.save(authedStoreAdmin)
       } yield (order, storeAdmin)).run().futureValue
       val response = POST(s"v1/orders/${order.referenceNumber}/assignees", Assignment(Seq(storeAdmin.id)))
-      response.status mustBe StatusCodes.OK
+      response.status must === (StatusCodes.OK)
     }
 
     "404 if order is not found" in new Fixture {
       val response = POST(s"v1/orders/NOPE/assignees", Assignment(Seq(storeAdmin.id)))
-      response.status mustBe StatusCodes.NotFound
+      response.status must === (StatusCodes.NotFound)
     }
 
     "warning if assignee is not found" in new Fixture {
       val response = POST(s"v1/orders/${order.referenceNumber}/assignees", Assignment(Seq(1, 999)))
-      response.status mustBe StatusCodes.OK
+      response.status must === (StatusCodes.OK)
 
       val fullOrderWithWarnings = parse(response.bodyText).extract[FullOrderWithWarnings]
       fullOrderWithWarnings.order.assignees.map(_.assignee) mustBe Seq(StoreAdminResponse.build(storeAdmin))
@@ -317,13 +317,13 @@ class OrderIntegrationTest extends IntegrationTestBase
 
     "can be viewed with order" in new Fixture {
       val response1 = GET(s"v1/orders/${order.referenceNumber}")
-      response1.status mustBe StatusCodes.OK
+      response1.status must === (StatusCodes.OK)
       val responseOrder1 = parse(response1.bodyText).extract[FullOrder.Root]
       responseOrder1.assignees mustBe empty
 
       POST(s"v1/orders/${order.referenceNumber}/assignees", Assignment(Seq(storeAdmin.id)))
       val response2 = GET(s"v1/orders/${order.referenceNumber}")
-      response2.status mustBe StatusCodes.OK
+      response2.status must === (StatusCodes.OK)
       val responseOrder2 = parse(response2.bodyText).extract[FullOrder.Root]
       responseOrder2.assignees must not be empty
       responseOrder2.assignees.map(_.assignee) mustBe Seq(StoreAdminResponse.build(storeAdmin))

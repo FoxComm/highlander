@@ -12,7 +12,7 @@ import utils.Slick.implicits._
 
 object GiftCardAdjustmentsService {
 
-  type QuerySeq = Query[GiftCardAdjustments, GiftCardAdjustment, Seq]
+  type QuerySeq = GiftCardAdjustments.QuerySeq
 
   def sortedAndPaged(query: QuerySeq)
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeq = {
@@ -45,7 +45,7 @@ object GiftCardAdjustmentsService {
         .joinLeft(OrderPayments).on(_.orderPaymentId === _.id)
         .joinLeft(Orders).on(_._2.map(_.orderId) === _.id)
 
-      val adjustments = db.run(query.result).map { results ⇒
+      val adjustments = query.result.run().map { results ⇒
         results.map {
           case ((adj, Some(payment)), Some(order)) ⇒ build(adj, Some(order.referenceNumber))
           case ((adj, _), _)                       ⇒ build(adj)

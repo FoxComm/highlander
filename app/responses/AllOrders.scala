@@ -26,30 +26,6 @@ object AllOrders {
     total: Int
     ) extends ResponseItem
 
-  def runFindAll(implicit ec: ExecutionContext, db: Database): Response = {
-    db.run(findAll)
-  }
-
-  def findAll(implicit ec: ExecutionContext, db: Database): DBIO[Seq[Root]] = {
-    val ordersAndCustomers = for {
-      (order, customer) ← Orders.join(Customers).on(_.customerId === _.id)
-    } yield (order, customer)
-
-    val creditCardPayments = for {
-      (orderPayment, creditCard) ← OrderPayments.join(CreditCards).on(_.id === _.id)
-    } yield (orderPayment, creditCard)
-
-    val query = ordersAndCustomers.joinLeft(creditCardPayments).on(_._1.id === _._1.orderId)
-
-    query.result.flatMap { results ⇒
-      DBIO.sequence {
-        results.map { case ((order, customer), payment) ⇒
-          build(order, customer, payment.map(_._1))
-        }
-      }
-    }
-  }
-
   def build(order: Order, customer: Customer, payment: Option[OrderPayment])
     (implicit ec: ExecutionContext): DBIO[Root] = {
     order.grandTotal.map { grandTotal ⇒

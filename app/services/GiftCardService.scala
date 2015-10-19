@@ -25,7 +25,7 @@ object GiftCardService {
   val gcManuals = TableQuery[GiftCardManuals]
 
   type Account = Customer :+: StoreAdmin :+: CNil
-  type QuerySeq = Query[GiftCards, GiftCard, Seq]
+  type QuerySeq = GiftCards.QuerySeq
 
   def sortedAndPaged(query: QuerySeq)
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeq = {
@@ -58,7 +58,7 @@ object GiftCardService {
     sortedAndPaged(GiftCards)
 
   def findAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[Seq[Root]] = {
-    Result.fromFuture(db.run(queryAll.result).map(_.map(GiftCardResponse.build(_))))
+    Result.fromFuture(queryAll.result.run().map(_.map(GiftCardResponse.build(_))))
   }
 
   def queryByCode(code: String)
@@ -68,7 +68,7 @@ object GiftCardService {
   def findByCode(code: String)
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[Seq[Root]] = {
     val query = queryByCode(code)
-    Result.fromFuture(db.run(query.result).map(_.map(GiftCardResponse.build(_))))
+    Result.fromFuture(query.result.run().map(_.map(GiftCardResponse.build(_))))
   }
 
   def getByCode(code: String)(implicit db: Database, ec: ExecutionContext): Result[Root] = {

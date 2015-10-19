@@ -1,18 +1,44 @@
+import java.time.Instant
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
 import models.Order._
 import models._
-import org.json4s.jackson.JsonMethods._
 import payloads.{BulkAssignment, BulkUpdateOrdersPayload}
 import responses.{BulkAssignmentResponse, StoreAdminResponse, FullOrder, BulkOrderUpdateResponse, AllOrders}
-import services.{NotFoundFailure, OrderNotFoundFailure, OrderUpdateFailure}
+import services.{OrderQueries, NotFoundFailure, OrderNotFoundFailure, OrderUpdateFailure}
 import util.IntegrationTestBase
+import util.SlickSupport.implicits._
+import utils.Seeds
 import utils.Seeds.Factories
 import utils.Slick.implicits._
+import utils.time._
 
-class AllOrdersIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
+class AllOrdersIntegrationTest extends IntegrationTestBase
+  with HttpSupport
+  with SortingAndPaging[responses.AllOrders.Root]
+  with AutomaticAuth {
+
+  // paging and sorting API
+  def uriPrefix = "v1/orders"
+
+  def responseItems = (1 to 30).map { i ⇒
+    val customer = Customers.save(Seeds.Factories.generateCustomer).futureValue
+    val order = Orders.save(Factories.order.copy(
+      customerId = customer.id,
+      referenceNumber = Seeds.Factories.randomString(10),
+      status = Order.RemorseHold,
+      remorsePeriodEnd = Some(Instant.now.plusMinutes(30)))).futureValue
+    responses.AllOrders.build(order, customer, None).futureValue
+  }
+  val sortColumnName = "referenceNumber"
+
+  def responseItemsSort(items: IndexedSeq[responses.AllOrders.Root]) = items.sortBy(_.referenceNumber)
+
+  def mf = implicitly[scala.reflect.Manifest[responses.AllOrders.Root]]
+  // paging and sorting API end
 
   "GET /v1/orders" - {
     "find all" in {
@@ -61,6 +87,25 @@ class AllOrdersIntegrationTest extends IntegrationTestBase with HttpSupport with
         OrderUpdateFailure("bar", "Order is locked"),
         OrderUpdateFailure("nonExistent", "Not found"))
     }
+
+    "bulk update statuses with paging and sorting" in new StatusUpdateFixture {
+      val responseJson = PATCH(
+        "v1/orders?pageSize=2&pageNo=2&sortBy=referenceNumber",
+        BulkUpdateOrdersPayload(Seq("foo", "bar", "qux", "nonExistent"), FulfillmentStarted)
+      )
+
+      responseJson.status must === (StatusCodes.OK)
+
+      val all = responseJson.as[BulkOrderUpdateResponse]
+      val allOrders = all.orders.map(o ⇒ (o.referenceNumber, o.orderStatus))
+
+      allOrders must contain theSameElementsInOrderAs Seq(
+        ("foo", FulfillmentStarted))
+
+      all.failures must contain allOf(
+        OrderUpdateFailure("bar", "Order is locked"),
+        OrderUpdateFailure("nonExistent", "Not found"))
+    }
   }
 
   "POST /v1/orders/assignees" - {
@@ -91,11 +136,20 @@ class AllOrdersIntegrationTest extends IntegrationTestBase with HttpSupport with
       updOrder3.assignees.map(_.assignee) must === (Seq(StoreAdminResponse.build(admin)))
     }
 
+    "happens successfully ignoring duplicates with sorting and paging" in new BulkAssignmentFixture {
+      val assignResponse1 = POST(s"v1/orders/assignees?pageSize=1&pageNo=2&sortBy=referenceNumber",
+        BulkAssignment(Seq(orderRef1), adminId))
+      assignResponse1.status must === (StatusCodes.OK)
+      val responseObj1 = assignResponse1.as[BulkOrderUpdateResponse]
+      responseObj1.orders.map(_.referenceNumber) must contain theSameElementsInOrderAs Seq("foo")
+      responseObj1.failures mustBe empty
+    }
+
     "warns when order to assign not found" in new BulkAssignmentFixture {
       val response = POST(s"v1/orders/assignees", BulkAssignment(Seq(orderRef1, "NOPE"), adminId))
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkAssignmentResponse]
-      responseObj.orders must === (AllOrders.runFindAll.futureValue)
+      responseObj.orders must === (OrderQueries.findAll.run().futureValue)
       responseObj.ordersNotFound must === (Seq(OrderNotFoundFailure("NOPE")))
       responseObj.adminNotFound must not be defined
     }
@@ -104,7 +158,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase with HttpSupport with
       val response = POST(s"v1/orders/assignees", BulkAssignment(Seq(orderRef1), 777))
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkAssignmentResponse]
-      responseObj.orders must === (AllOrders.runFindAll.futureValue)
+      responseObj.orders must === (OrderQueries.findAll.run().futureValue)
       responseObj.ordersNotFound mustBe empty
       responseObj.adminNotFound.value must === (NotFoundFailure(StoreAdmin, 777))
     }
@@ -128,11 +182,23 @@ class AllOrdersIntegrationTest extends IntegrationTestBase with HttpSupport with
       updOrder2.assignees.map(_.assignee) must === (Seq(StoreAdminResponse.build(admin)))
     }
 
+    "unassigns successfully ignoring wrong attempts with sorting and paging" in new BulkAssignmentFixture {
+      POST(s"v1/orders/assignees", BulkAssignment(Seq(orderRef1, orderRef2), adminId))
+
+      val unassign = POST(s"v1/orders/assignees/delete?pageSize=1&pageNo=2&sortBy=referenceNumber",
+        BulkAssignment(Seq(orderRef1), adminId))
+      unassign.status must === (StatusCodes.OK)
+
+      val responseObj = unassign.as[BulkOrderUpdateResponse]
+      responseObj.orders.map(_.referenceNumber) must contain theSameElementsInOrderAs Seq("foo")
+      responseObj.failures mustBe empty
+    }
+
     "warns when order to unassign not found" in new BulkAssignmentFixture {
       val response = POST(s"v1/orders/assignees/delete", BulkAssignment(Seq(orderRef1, "NOPE"), adminId))
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkAssignmentResponse]
-      responseObj.orders must === (AllOrders.runFindAll.futureValue)
+      responseObj.orders must === (OrderQueries.findAll.run().futureValue)
       responseObj.ordersNotFound must === (Seq(OrderNotFoundFailure("NOPE")))
       responseObj.adminNotFound must not be defined
     }
@@ -141,7 +207,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase with HttpSupport with
       val response = POST(s"v1/orders/assignees/delete", BulkAssignment(Seq(orderRef1), 777))
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkAssignmentResponse]
-      responseObj.orders must === (AllOrders.runFindAll.futureValue)
+      responseObj.orders must === (OrderQueries.findAll.run().futureValue)
       responseObj.ordersNotFound mustBe empty
       responseObj.adminNotFound.value must === (NotFoundFailure(StoreAdmin, 777))
     }
