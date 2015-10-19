@@ -1,6 +1,6 @@
 create table orders (
     id bigint primary key,
-    reference_number character varying(20) not null,
+    reference_number reference_number not null,
     customer_id integer,
     status generic_string not null,
     locked boolean default false,
@@ -10,7 +10,6 @@ create table orders (
     placed_at timestamp without time zone null,
     remorse_period_end timestamp without time zone null,
     foreign key (id) references inventory_events(id) on update restrict on delete restrict,
-    constraint valid_reference_number check (length(reference_number) > 0),
     constraint valid_status check (status in ('cart','ordered','fraudHold','remorseHold','manualHold','canceled',
                                               'fulfillmentStarted','shipped'))
 );
@@ -23,7 +22,7 @@ create unique index orders_has_only_one_cart on orders (customer_id, status)
 
 create function set_order_reference_number() returns trigger as $$
 declare
-    reference_number generic_string default 0;
+    reference_number reference_number default 0;
     prefix character(2) default 'BR';
     start_number integer default 10000;
 begin
