@@ -68,7 +68,7 @@ export default class Orders extends React.Component {
             <TabView>What</TabView>
           </TabListView>
         </div>
-        <div id="what1">
+        <div>
           <TableView
             columns={this.props.tableColumns}
             rows={orders.toArray()}

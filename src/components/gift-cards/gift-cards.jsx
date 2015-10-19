@@ -79,7 +79,7 @@ export default class GiftCards extends React.Component {
           </TabListView>
         </div>
         <div className="fc-grid fc-list-page-content">
-          <div id="all" className="fc-col-md-1-1">
+          <div className="fc-col-md-1-1">
             <TableView
                 columns={this.props.tableColumns}
                 rows={this.state.data.toArray()}

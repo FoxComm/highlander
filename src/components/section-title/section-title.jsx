@@ -16,7 +16,7 @@ export default class SectionTitle extends React.Component {
       <div className="fc-col-md-2-6 fc-push-md-2-6 fc-section-title-actions">
         {this.props.buttonClickHandler && (
           <button className="fc-btn fc-btn-primary" onClick={this.props.buttonClickHandler.bind(this)}>
-          <i className="icon-add"></i> {this.props.title}
+            <i className="icon-add"></i> {this.props.title}
           </button>
          )}
           {this.props.children}
