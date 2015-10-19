@@ -3,7 +3,7 @@
 import { createStore, applyMiddleware, compose } from 'redux';
 import thunk from 'redux-thunk';
 import createLogger from 'redux-logger';
-import rootReducer from './reducers';
+import rootReducer from './modules';
 
 export default function configureStore(reduxReactRouter, routes, createHistory, initialState) {
   let finalCreateStore = compose(
