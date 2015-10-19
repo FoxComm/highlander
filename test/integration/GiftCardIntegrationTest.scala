@@ -191,7 +191,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       val adjustments = transactionsRep.as[Seq[GiftCardAdjustmentsResponse.Root]]
       response.status must ===(StatusCodes.OK)
       adjustments.size mustBe 2
-      adjustments.head.state must ===(GiftCardAdjustment.Capture)
+      adjustments.head.state must ===(GiftCardAdjustment.CancellationCapture)
     }
 
     "fails to cancel gift card if invalid reason provided" in new Fixture {

@@ -165,7 +165,7 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
 
   def cancelByCsr(storeCredit: StoreCredit, storeAdmin: StoreAdmin)(implicit ec: ExecutionContext): DBIO[Adj] = {
     val adjustment = Adj(storeCreditId = storeCredit.id, orderPaymentId = None, storeAdminId = storeAdmin.id.some,
-      debit = storeCredit.availableBalance, availableBalance = 0, status = Adj.Capture)
+      debit = storeCredit.availableBalance, availableBalance = 0, status = Adj.CancellationCapture)
     Adjs.save(adjustment)
   }
 

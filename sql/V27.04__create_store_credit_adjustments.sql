@@ -11,7 +11,7 @@ create table store_credit_adjustments (
     foreign key (store_credit_id) references store_credits(id) on update restrict on delete restrict,
     foreign key (order_payment_id) references order_payments(id) on update restrict on delete restrict,
     constraint valid_debit check (debit > 0),
-    constraint valid_status check (status in ('auth','canceled','capture'))
+    constraint valid_status check (status in ('auth','canceled','capture','cancellationCapture'))
 );
 
 create function update_store_credit_current_balance() returns trigger as $$
@@ -22,7 +22,7 @@ begin
 
     -- canceling an adjustment should remove its monetary change from the gc
     if new.status = 'canceled' and old.status != 'canceled' then
-        if old.status = 'capture' then
+        if old.status = 'capture' or old.status = 'cancellationCapture' then
             update store_credits
                 set current_balance = current_balance + adjustment,
                     available_balance = available_balance + adjustment

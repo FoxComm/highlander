@@ -164,7 +164,7 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
 
   def cancelByCsr(giftCard: GiftCard, storeAdmin: StoreAdmin)(implicit ec: ExecutionContext): DBIO[Adj] = {
     val adjustment = Adj(giftCardId = giftCard.id, orderPaymentId = None, storeAdminId = storeAdmin.id.some,
-      debit = giftCard.availableBalance, credit = 0, availableBalance = 0, status = Adj.Capture)
+      debit = giftCard.availableBalance, credit = 0, availableBalance = 0, status = Adj.CancellationCapture)
     Adjs.save(adjustment)
   }
 
