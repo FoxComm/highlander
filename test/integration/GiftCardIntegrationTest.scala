@@ -27,6 +27,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
   // paging and sorting API
   private var currentOrigin: GiftCardManual = _
+
   override def beforeSortingAndPaging(): Unit = {
     currentOrigin = (for {
       admin ← StoreAdmins.save(authedStoreAdmin)
@@ -34,8 +35,11 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
     } yield origin).run().futureValue
   }
+
   def uriPrefix = "v1/gift-cards"
+
   val regCurrencies = CurrencyUnit.registeredCurrencies.asScala.toIndexedSeq
+
   def responseItems = regCurrencies.map { currency ⇒
     val balance = Random.nextInt(9999999)
     val gc = GiftCards.save(Factories.giftCard.copy(
@@ -46,8 +50,11 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       availableBalance = balance)).run().futureValue
     responses.GiftCardResponse.build(gc)
   }
+
   val sortColumnName = "availableBalance"
+
   def responseItemsSort(items: IndexedSeq[GiftCardResponse.Root]) = items.sortBy(_.availableBalance)
+
   def mf = implicitly[scala.reflect.Manifest[GiftCardResponse.Root]]
   // paging and sorting API end
 
