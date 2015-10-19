@@ -14,8 +14,7 @@ export default class LineItems extends React.Component {
   static propTypes = {
     entity: PropTypes.object,
     tableColumns: PropTypes.array,
-    model: PropTypes.string,
-    editMode: PropTypes.bool
+    model: PropTypes.string
   };
 
   static defaultProps = {
@@ -80,56 +79,46 @@ export default class LineItems extends React.Component {
     );
 
     if (this.props.model === 'order') {
-      columns = this.orderDefaultColumns;
-      body = (
-          <TableView
-            columns={columns}
-            rows={rows}
-            model={this.props.model}
-            />
-      );
-      if (this.props.editMode) {
-        if (this.state.isEditing) {
-          columns = this.orderEditColumns;
-          controls = (
+      if (this.state.isEditing) {
+        columns = this.orderEditColumns;
+        body = (
+          <TableView columns={columns} rows={rows} model="lineItem">
+            <LineItemCounter entityName={this.props.model} entity={this.props.entity} />
+            <DeleteLineItem entityName={this.props.model} entity={this.props.entity} />
+          </TableView>
+        );
+        actions = (
+          <footer className="fc-line-items-footer">
             <div>
-              <button className="fc-right fc-btn fc-btn-plain icon-chevron-up" onClick={this.toggleEdit.bind(this)}>
-              </button>
-              <div className="fc-panel-comment fc-right">
-                5 items
+              <div className="fc-line-items-add-label">
+                <strong>Add Item</strong>
               </div>
+              <Typeahead callback={this.itemSelected.bind(this)}
+                         component={SkuResult}
+                         store={SkuStore}
+                         placeholder="Product name or SKU..." />
             </div>
-          );
-          body = (
-            <TableView columns={columns} rows={rows} model="lineItem">
-              <LineItemCounter entityName={this.props.model} entity={this.props.entity} />
-              <DeleteLineItem entityName={this.props.model} entity={this.props.entity} />
-            </TableView>
-          );
-          actions = (
-            <footer className="fc-line-items-footer">
-              <div>
-                <div className="fc-line-items-add-label">
-                  <strong>Add Item</strong>
-                </div>
-                <Typeahead callback={this.itemSelected.bind(this)}
-                           component={SkuResult}
-                           store={SkuStore}
-                           placeholder="Product name or SKU..." />
-              </div>
-            </footer>
-          );
-        } else {
-          controls = (
-            <div>
-              <button className="fc-btn fc-btn-plain fc-right icon-chevron-down" onClick={this.toggleEdit.bind(this)}>
-              </button>
-              <div className="fc-panel-comment fc-right">
-                5 items
-              </div>
+            <div className="fc-line-items-footer-editing-done">
+              <button className="fc-btn fc-btn-primary"
+                      onClick={ this.toggleEdit.bind(this) } >Done</button>
             </div>
-          );
-        }
+          </footer>
+        );
+      } else {
+        columns = this.orderDefaultColumns;
+        body = (
+            <TableView
+              columns={columns}
+              rows={rows}
+              model={this.props.model}
+              />
+        );
+        controls = (
+          <div>
+            <button className="fc-right fc-btn icon-edit" onClick={this.toggleEdit.bind(this)}>
+            </button>
+          </div>
+        );
       }
     }
 

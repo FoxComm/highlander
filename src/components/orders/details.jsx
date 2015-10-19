@@ -15,23 +15,7 @@ export default class OrderDetails extends React.Component {
     order: PropTypes.object
   };
 
-  constructor(props, context) {
-    super(props, context);
-    this.state = {
-      isInEditMode: false
-    };
-  }
-
   updateLineItems(data) {
-  }
-
-  get isInEditMode() {
-    return this.state.isInEditMode;
-  }
-
-  toggleEdit() {
-    const currentState = this.isInEditMode;
-    this.setState({isInEditMode: !currentState});
   }
 
   render() {
@@ -47,27 +31,8 @@ export default class OrderDetails extends React.Component {
       {field: 'status', text: 'Shipping Status'}
     ];
 
-    if (this.isInEditMode) {
-      actions = (
-        <button className="fc-btn"
-                onClick={this.toggleEdit.bind(this)}>
-          Cancel Edits
-        </button>
-      );
-    } else {
-      actions = (
-        <button className="fc-btn fc-btn-primary"
-                onClick={this.toggleEdit.bind(this)}>
-          Edit Order Details
-        </button>
-      );
-    }
-
     return (
       <div className="fc-order-details">
-        <div className="fc-order-details-controls">
-          { actions }
-        </div>
         <div className="fc-order-details-body">
           <div className="fc-order-details-main">
             <LineItems
@@ -75,10 +40,10 @@ export default class OrderDetails extends React.Component {
               tableColumns={lineColumns}
               model={'order'}
               onChange={this.updateLineItems.bind(this)}
-              editMode={ this.isInEditMode }/>
-            <OrderShippingAddress order={order} editMode={ this.isInEditMode }/>
-            <OrderShippingMethod order={order} editMode={ this.isInEditMode }/>
-            <OrderPayment order={order} editMode={ this.isInEditMode }/>
+              editMode={ this.isInEditMode } />
+            <OrderShippingAddress order={order} />
+            <OrderShippingMethod order={order} />
+            <OrderPayment order={order} />
           </div>
           <div className="fc-order-details-aside">
             <OrderSummary order={order} />

@@ -10,8 +10,7 @@ import Panel from '../panel/panel';
 export default class OrderPayment extends React.Component {
   static propTypes = {
     order: PropTypes.object,
-    tableColumns: PropTypes.array,
-    editMode: PropTypes.bool
+    tableColumns: PropTypes.array
   }
 
   static defaultProps = {
@@ -20,8 +19,7 @@ export default class OrderPayment extends React.Component {
       {field: 'amount', text: 'Amount', type: 'currency'},
       {field: 'status', text: 'Status'},
       {field: 'createdAt', text: 'Date/Time', type: 'date'}
-    ],
-    editMode: false
+    ]
   }
 
   constructor(props, context) {
@@ -43,24 +41,14 @@ export default class OrderPayment extends React.Component {
 
     let editButton = null;
 
-    if (this.props.editMode) {
-      if (this.state.isEditing) {
-        editButton = (
-          <div>
-            <button className="fc-btn fc-btn-plain icon-chevron-up fc-right" onClick={this.toggleEdit.bind(this)}></button>
-            <div className="fc-panel-comment fc-right">1 Payment Method</div>
-          </div>
-        );
-      } else {
-        editButton = (
-          <div>
-            <button className="fc-btn fc-btn-plain icon-chevron-down fc-right" onClick={this.toggleEdit.bind(this)}>
-            </button>
-            <div className="fc-panel-comment fc-right">1 Payment Method</div>
-          </div>
-        );
-      }
+    if (!this.state.isEditing) {
+      editButton = (
+        <div>
+          <button className="fc-btn icon-edit fc-right" onClick={this.toggleEdit.bind(this)}></button>
+        </div>
+      );
     }
+
     return (
       <Panel className="fc-order-payment"
              title="Payment"
