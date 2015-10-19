@@ -91,26 +91,6 @@ export default class Order extends React.Component {
       if (order.orderStatus === 'remorseHold') remorseTimer = <RemorseTimer endDate={order.remorseEnd} />;
     }
 
-    // TODO: Re-enable
-    // if (OrderStore.editableStatusList.indexOf(order.orderStatus) !== -1) {
-    //   orderStatus = (
-    //     <select name="orderStatus" value={order.orderStatus} onChange={this.changeOrderStatus.bind(this)}>
-    //       {OrderStore.selectableStatusList.map((status, idx) => {
-    //         if (
-    //           (order.orderStatus === 'fulfillmentStarted') &&
-    //           (['fulfillmentStarted', 'canceled'].indexOf(status) === -1)
-    //         ) {
-    //           return '';
-    //         } else {
-    //           return <option key={`${idx}-${status}`} value={status}>{OrderStore.statuses[status]}</option>;
-    //         }
-    //       })}
-    //     </select>
-    //   );
-    // } else {
-    //   orderStatus = OrderStore.statuses[order.orderStatus];
-    // }
-
     return (
       <div className="fc-order">
         {viewers}

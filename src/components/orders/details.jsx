@@ -5,19 +5,18 @@ import OrderSummary from './summary';
 import CustomerInfo from './customer-info';
 import OrderLineItems from './order-line-items';
 import OrderShippingAddress from './shipping-address';
-import OrderShippingMethod from '../shipping/shipping-method';
+import OrderShippingMethod from './order-shipping-method';
 import OrderPayment from './payment';
-import OrderStore from './../../stores/orders';
 
-let OrderDetails = (props) => {
+const OrderDetails = (props) => {
   return (
     <div className="fc-order-details">
       <div className="fc-order-details-body">
         <div className="fc-order-details-main">
           <OrderLineItems {...props} />
           <OrderShippingAddress order={props.order.currentOrder} />
-          <OrderShippingMethod order={props.order.currentOrder} />
-          <OrderPayment order={props.order.currentOrder} />
+          <OrderShippingMethod {...props} />
+          <OrderPayment {...props} />
         </div>
         <div className="fc-order-details-aside">
           <OrderSummary order={props.order.currentOrder} />

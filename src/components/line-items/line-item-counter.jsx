@@ -12,7 +12,7 @@ const confirmOptions = {
   proceed: 'Yes, Delete'
 };
 
-let LineItemCounter = (props) => {
+const LineItemCounter = (props) => {
   return (
     <Counter
       defaultValue='quantity'

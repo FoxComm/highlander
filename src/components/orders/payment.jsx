@@ -2,27 +2,32 @@
 
 import _ from 'lodash';
 import React from 'react';
+import EditableContentBox from '../content-box/editable-content-box';
 import PaymentMethod from './payment-method';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
 
-export default class OrderPayment extends React.Component {
-  render() {
-    let order = this.props.order;
+const OrderPayment = (props) => {
+  const order = props.order.currentOrder;
 
-    return (
-      <section className="fc-content-box" id="order-payment">
-        <header>Payment</header>
-        <table className="fc-table">
-          <TableHead columns={this.props.tableColumns}/>
-          <TableBody columns={this.props.tableColumns} rows={_.compact([order.payment])} model='payment-method'>
-            <PaymentMethod/>
-          </TableBody>
-        </table>
-      </section>
-    );
-  }
-}
+  const viewContent = (
+    <table className="fc-table">
+      <TableHead columns={props.tableColumns}/>
+      <TableBody columns={props.tableColumns} rows={_.compact([order.payment])} model='payment-method'>
+        <PaymentMethod/>
+      </TableBody>
+    </table>
+  );
+
+  return (
+    <EditableContentBox
+      className='fc-order-payment'
+      title='Payment'
+      isEditing={false}
+      editAction={() => console.log('Not implemented')}
+      viewContent={viewContent} />
+  );
+};
 
 OrderPayment.propTypes = {
   order: React.PropTypes.object,
@@ -37,3 +42,5 @@ OrderPayment.defaultProps = {
     {field: 'createdAt', text: 'Date/Time', type: 'date'}
   ]
 };
+
+export default OrderPayment;

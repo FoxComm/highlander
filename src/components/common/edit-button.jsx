@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-let EditButton = (props) => {
+const EditButton = (props) => {
   return (
     <button className='fc-btn' onClick={props.onClick}>
       <i className='icon-edit'></i>

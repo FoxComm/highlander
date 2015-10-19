@@ -1,24 +1,25 @@
 'use strict';
 
 import React from 'react';
-import TableHead from '../tables/head';
-import TableBody from '../tables/body';
+import EditableContentBox from '../content-box/editable-content-box';
+import TableView from '../tables/tableview';
 
 const columns = [
   {field: 'name', text: 'Method'},
   {field: 'price', text: 'Price', type: 'currency'}
 ];
 
-let OrderShippingMethod = (props) => {
+const ShippingMethod = (props) => {
   return (
-    <section className="fc-content-box" id="order-shipping-method">
-      <header>Shipping Method</header>
-      <table className="fc-table">
-        <TableHead columns={columns} />
-        <TableBody columns={columns} rows={[props.order.shippingMethod]} model='shipping-method' />
-      </table>
-    </section>
+    <EditableContentBox
+      className='fc-shipping-method'
+      title='Shipping Method'
+      isEditing={props.isEditing}
+      editAction={props.editAction}
+      doneAction={props.doneAction}
+      viewContent={<TableView columns={columns} rows={props.shippingMethods} />}
+      />
   );
 };
 
-export default OrderShippingMethod;
+export default ShippingMethod;

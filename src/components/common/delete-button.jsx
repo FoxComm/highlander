@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-let DeleteButton = (props) => {
+const DeleteButton = (props) => {
   return (
     <button className='fc-btn' onClick={props.onClick}>
       <i className='icon-trash'></i>
