@@ -2,11 +2,15 @@
 
 import React, { PropTypes } from 'react';
 import { IndexLink, Link } from '../link';
+import { autobind } from 'core-decorators';
 import { formatCurrency } from '../../lib/format';
+import { connect } from 'react-redux';
+import * as GiftCardActions from '../../modules/gift-cards/details';
 import moment from 'moment';
-import GiftCardStore from '../../stores/gift-cards';
-import GiftCardActions from '../../actions/gift-cards';
 
+@connect((state, props) => ({
+  ...state.giftCards.details[props.params.giftcard]
+}), GiftCardActions)
 export default class GiftCard extends React.Component {
 
   static propTypes = {
@@ -16,45 +20,19 @@ export default class GiftCard extends React.Component {
     children: PropTypes.node
   };
 
-  get giftCard() {
-    let { giftcard } = this.props.params;
-    return this.state.data.find(item => item.code === giftcard);
-  }
-
-  constructor(props, context) {
-    super(props, context);
-    this.state = {
-      data: GiftCardStore.getState()
-    };
-    this.onChange = this.onChange.bind(this);
-  }
-
   componentDidMount() {
     let { giftcard } = this.props.params;
-    GiftCardStore.listen(this.onChange);
 
-    GiftCardActions.fetchGiftCard(giftcard);
+    this.props.fetchGiftCardIfNeeded(giftcard);
   }
 
-  componentWillUnmount() {
-    GiftCardStore.unlisten(this.onChange);
-  }
-
-  onChange() {
-    this.setState({
-      data: GiftCardStore.getState()
-    });
-  }
-
-  changeState(event) {
-    let card = this.giftCard;
-
-    GiftCardActions.editGiftCard(card.code, {status: event.target.value});
+  changeState({target}) {
+    this.props.editGiftCard(this.props.card.code, {status: target.value});
   }
 
   render() {
     let subNav = null;
-    let card = this.giftCard;
+    let card = this.props.card;
 
     if (!card) {
       return <div id="gift-card"></div>;
