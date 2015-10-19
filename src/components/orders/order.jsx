@@ -8,6 +8,7 @@ import OrderActions from '../../actions/orders';
 import Viewers from '../viewers/viewers';
 import ConfirmModal from '../modal/confirm';
 import RemorseTimer from './remorseTimer';
+import DateTime from '../datetime/datetime';
 
 export default class Order extends React.Component {
   static propTypes = {
@@ -178,7 +179,7 @@ export default class Order extends React.Component {
           </dl>
           <dl>
             <dt>Date/Time Placed</dt>
-            <dd>12/04/2015 16:00</dd>
+            <dd><DateTime value={order.createdAt} /></dd>
           </dl>
         </div>
         {subNav}

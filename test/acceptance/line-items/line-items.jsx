@@ -31,4 +31,22 @@ describe('OrderLineItems', function() {
     expect(orderLineItemsNode.className).to.contain('fc-line-items');
   });
 
+  it('should switch to edit mode when click on Edit line items button', function *() {
+    let orderLineItems = ReactDOM.render(
+      <LineItems entity={order} model='order'/>
+      , container);
+    let renderedDOM = () => ReactDOM.findDOMNode(orderLineItems);
+    let editButtons = renderedDOM().querySelectorAll('header .fc-btn');
+    let doneButtons = renderedDOM().querySelectorAll('footer .fc-btn');
+
+    expect(editButtons).to.have.length(1);
+    expect(doneButtons).to.have.length(0);
+    TestUtils.Simulate.click(editButtons[0]);
+
+    let editButtons2 = renderedDOM().querySelectorAll('header .fc-btn');
+    let doneButtons2 = renderedDOM().querySelectorAll('footer .fc-btn');
+    expect(editButtons2).to.have.length(0);
+    expect(doneButtons2).to.have.length(1);
+  });
+
 });

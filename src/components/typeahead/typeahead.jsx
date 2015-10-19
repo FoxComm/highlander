@@ -8,11 +8,11 @@ import { dispatch } from '../../lib/dispatcher';
 export default class Typeahead extends React.Component {
 
   static propTypes = {
-    callback: React.PropTypes.func,
-    component: React.PropTypes.func,
-    store: React.PropTypes.object,
-    label: React.PropTypes.string,
-    name: React.PropTypes.string,
+    callback: PropTypes.func,
+    component: PropTypes.func,
+    store: PropTypes.object,
+    label: PropTypes.string,
+    name: PropTypes.string,
     placeholder: PropTypes.string
   }
 
@@ -26,6 +26,14 @@ export default class Typeahead extends React.Component {
       showResults: false,
       updating: false
     };
+  }
+
+  get placeholder() {
+    let placeholder = 'Search';
+    if (this.props.placeholder) {
+      placeholder = this.props.placeholder;
+    }
+    return placeholder;
   }
 
   onItemSelected(item) {
@@ -79,14 +87,9 @@ export default class Typeahead extends React.Component {
 
   render() {
     let labelContent = null;
-    let placeholder = 'Search';
 
     if (this.props.label) {
       labelContent = <label htmlFor={this.props.name}>{this.props.label}</label>;
-    }
-
-    if (this.props.placeholder) {
-      placeholder = this.props.placeholder;
     }
 
     return (
@@ -97,7 +100,7 @@ export default class Typeahead extends React.Component {
           <input className="fc-input fc-typeahead-input"
                  type="text"
                  name={this.props.name}
-                 placeholder={ placeholder }
+                 placeholder={ this.placeholder }
                  onChange={this.textChange.bind(this)}
                  onKeyUp={this.inputKeyUp.bind(this)}
           />

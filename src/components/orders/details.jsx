@@ -7,8 +7,6 @@ import LineItems from '../line-items/line-items';
 import OrderShippingAddress from './shipping-address';
 import OrderShippingMethod from './shipping-method';
 import OrderPayment from './payment';
-import { Map } from 'immutable';
-
 
 export default class OrderDetails extends React.Component {
   static propTypes = {
