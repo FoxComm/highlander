@@ -36,12 +36,31 @@ export default class OrderPayment extends React.Component {
     });
   }
 
+  addPaymentMethod() {
+    console.log('Add method clicked');
+  }
+
   render() {
     let order = this.props.order;
 
     let editButton = null;
+    let footer = null;
 
-    if (!this.state.isEditing) {
+    if (this.state.isEditing) {
+      editButton = (
+        <div>
+          <button className="fc-btn icon-add fc-right" onClick={this.addPaymentMethod.bind(this)}></button>
+        </div>
+      );
+      footer = (
+        <footer className="fc-line-items-footer">
+          <div>
+            <button className="fc-btn fc-btn-primary"
+                    onClick={ this.toggleEdit.bind(this) } >Done</button>
+          </div>
+        </footer>
+      );
+    } else {
       editButton = (
         <div>
           <button className="fc-btn icon-edit fc-right" onClick={this.toggleEdit.bind(this)}></button>
@@ -59,6 +78,7 @@ export default class OrderPayment extends React.Component {
             <PaymentMethod/>
           </TableBody>
         </table>
+        { footer }
       </Panel>
     );
   }
