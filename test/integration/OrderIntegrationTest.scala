@@ -32,6 +32,44 @@ class OrderIntegrationTest extends IntegrationTestBase
 
   def getUpdated(refNum: String) = db.run(Orders.findByRefNum(refNum).result.headOption).futureValue.value
 
+  "GET /v1/orders/:refNum" - {
+    "payment status" - {
+      "does not display payment status if no cc" in new Fixture {
+        Orders.findByRefNum(order.refNum).map(_.status).update(Order.ManualHold).run.futureValue
+
+        val response = GET(s"v1/orders/${order.refNum}")
+        response.status must === (StatusCodes.OK)
+        val fullOrder = response.as[FullOrder.Root]
+        fullOrder.paymentStatus must not be defined
+        fullOrder.payment must not be defined
+      }
+
+      "displays payment status if cc present" in new PaymentStatusFixture {
+        Orders.findByRefNum(order.refNum).map(_.status).update(Order.ManualHold).run.futureValue
+        CreditCardCharges.findById(ccc.id).extract.map(_.status).update(CreditCardCharge.Auth).run.futureValue
+
+        val response = GET(s"v1/orders/${order.refNum}")
+        response.status must === (StatusCodes.OK)
+        val fullOrder = response.as[FullOrder.Root]
+
+        fullOrder.paymentStatus.value must === (CreditCardCharge.Auth)
+        fullOrder.payment.value.status must === (CreditCardCharge.Auth)
+      }
+
+      "displays 'cart' payment status if order is cart and cc present" in new PaymentStatusFixture {
+        Orders.findByRefNum(order.refNum).map(_.status).update(Order.Cart).run.futureValue
+        CreditCardCharges.findById(ccc.id).extract.map(_.status).update(CreditCardCharge.Auth).run.futureValue
+
+        val response = GET(s"v1/orders/${order.refNum}")
+        response.status must === (StatusCodes.OK)
+        val fullOrder = response.as[FullOrder.Root]
+
+        fullOrder.paymentStatus.value must === (CreditCardCharge.Cart)
+        fullOrder.payment.value.status must === (CreditCardCharge.Auth)
+      }
+    }
+  }
+
   "POST /v1/orders/:refNum/line-items" - {
     "should successfully update line items" in new OrderFixture {
       val response = POST(
@@ -664,6 +702,14 @@ class OrderIntegrationTest extends IntegrationTestBase
 
     val refNum = order.referenceNumber
     val originalRemorseEnd = order.remorsePeriodEnd.value
+  }
+
+  trait PaymentStatusFixture extends Fixture {
+    val (cc, op, ccc) = (for {
+      cc ← CreditCards.save(Factories.creditCard.copy(customerId = customer.id))
+      op ← OrderPayments.save(Factories.orderPayment.copy(orderId = order.id, paymentMethodId = cc.id))
+      ccc ← CreditCardCharges.save(Factories.creditCardCharge.copy(creditCardId = cc.id, orderPaymentId = op.id))
+    } yield (cc, op, ccc)).run().futureValue
   }
 }
 

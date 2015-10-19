@@ -13,6 +13,7 @@ final case class FullOrderWithWarnings(order: FullOrder.Root, warnings: Seq[NotF
 
 object FullOrder {
   type Response = Future[Root]
+  type Payment = (OrderPayment, CreditCard, CreditCardCharge)
 
   final case class Totals(subTotal: Int, taxes: Int, adjustments: Int, total: Int) extends ResponseItem
 
@@ -26,7 +27,7 @@ object FullOrder {
     referenceNumber: String,
     orderStatus: Order.Status,
     shippingStatus: Order.Status,
-    paymentStatus: Order.Status,
+    paymentStatus: Option[CreditCardCharge.Status],
     lineItems: LineItems,
     adjustments: Seq[Adjustment],
     fraudScore: Int,
@@ -49,7 +50,7 @@ object FullOrder {
 
   final case class DisplayPayment(
     amount: Int,
-    status: String,
+    status: CreditCardCharge.Status,
     referenceNumber: String = "ABC123",
     paymentMethod: DisplayPaymentMethod) extends ResponseItem
    //
@@ -71,21 +72,21 @@ object FullOrder {
         shippingAddress = shipAddress.toOption,
         shippingMethod = shipMethod,
         assignments = assignees,
-        payment = payment
+        maybePayment = payment
       )
     }
   }
 
   def build(order: Order, skus: Seq[(Sku, OrderLineItem)] = Seq.empty, adjustments: Seq[Adjustment] = Seq.empty,
     shippingMethod: Option[ShippingMethod] = None, customer: Option[Customer] = None,
-    shippingAddress: Option[Addresses.Root] = None, payment: Option[(OrderPayment, CreditCard)] = None,
+    shippingAddress: Option[Addresses.Root] = None, maybePayment: Option[Payment] = None,
     assignments: Seq[(OrderAssignment, StoreAdmin)] = Seq.empty,
     giftCards: Seq[(GiftCard, OrderLineItemGiftCard)] = Seq.empty): Root = {
 
-    val displayPayment = payment.map { case (op, cc) ⇒
+    val displayPayment = maybePayment.map { case (op, cc, ccc) ⇒
       DisplayPayment(
         amount = op.amount.getOrElse(0),
-        status = "fixme",
+        status = ccc.status,
         paymentMethod = DisplayPaymentMethod(
           cardExp = s"${cc.expMonth}/${cc.expYear}",
           cardNumber = s"xxx-xxxx-xxxx-${cc.lastFour}"
@@ -100,7 +101,7 @@ object FullOrder {
       referenceNumber = order.referenceNumber,
       orderStatus = order.status,
       shippingStatus = order.status,
-      paymentStatus = order.status,
+      paymentStatus = maybePayment.map(p ⇒ getPaymentStatus(order.status, p)),
       lineItems = LineItems(skus = skuList, giftCards = gcList),
       adjustments = adjustments,
       fraudScore = scala.util.Random.nextInt(100),
@@ -114,6 +115,13 @@ object FullOrder {
     )
   }
 
+  private def getPaymentStatus(orderStatus: Order.Status, payment: Payment): CreditCardCharge.Status = {
+    (orderStatus, payment) match {
+      case (Order.Cart, _) ⇒ CreditCardCharge.Cart
+      case (_, (_, _, creditCardCharge)) ⇒ creditCardCharge.status
+    }
+  }
+
   private def fetchOrderDetails(order: Order)(implicit ec: ExecutionContext) = {
     val shippingMethodQ = for {
       shipment ← Shipments.filter(_.orderId === order.id)
@@ -123,7 +131,8 @@ object FullOrder {
     val paymentQ = for {
       payment ← OrderPayments.filter(_.orderId === order.id)
       creditCard ← CreditCards.filter(_.id === payment.paymentMethodId)
-    } yield (payment, creditCard)
+      creditCardCharge ← CreditCardCharges.filter(_.orderPaymentId === payment.id)
+    } yield (payment, creditCard, creditCardCharge)
 
     for {
       customer ← Customers.findById(order.customerId).extract.one
