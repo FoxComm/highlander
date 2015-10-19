@@ -17,10 +17,6 @@ export default class LineItems extends React.Component {
     model: PropTypes.string
   };
 
-  static defaultProps = {
-    editMode: false
-  }
-
   constructor(props, context) {
     super(props, context);
     this.state = {
