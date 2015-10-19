@@ -8,6 +8,7 @@ import GiftCardStore from '../../stores/gift-cards';
 import GiftCardActions from '../../actions/gift-cards';
 import SectionTitle from '../section-title/section-title';
 import Panel from '../panel/panel';
+import {PanelList, PanelListItem} from '../panel/panel-list';
 import LocalNav from '../local-nav/local-nav';
 
 export default class GiftCard extends React.Component {
@@ -119,28 +120,23 @@ export default class GiftCard extends React.Component {
             </Panel>
           </div>
         </div>
-        <div className="fc-grid fc-grid-md-1-5 fc-grid-collapse fc-panel-list">
-          <div className="fc-panel-list-panel">
-            <header className="fc-panel-list-header">Original Balance</header>
-            <p className="fc-panel-list-content">{ formatCurrency(card.originalBalance) }</p>
-          </div>
-          <div className="fc-panel-list-panel">
-            <header className="fc-panel-list-header">Current Balance</header>
-            <p className="fc-panel-list-content">{ formatCurrency(card.currentBalance) }</p>
-          </div>
-          <div className="fc-panel-list-panel">
-            <header className="fc-panel-list-header">Date/Time Issued</header>
-            <p className="fc-panel-list-content">{ moment(card.date).format('L LTS') }</p>
-          </div>
-          <div className="fc-panel-list-panel">
-            <header className="fc-panel-list-header">Gift Card Type</header>
-            <p className="fc-panel-list-content">{ card.originType }</p>
-          </div>
-          <div className="fc-panel-list-panel">
-            <header className="fc-panel-list-header">Current State</header>
-            <p className="fc-panel-list-content">{ this.status }</p>
-          </div>
-        </div>
+        <PanelList className="fc-grid-md-1-5">
+          <PanelListItem title="Original Balance">
+            { formatCurrency(card.originalBalance) }
+          </PanelListItem>
+          <PanelListItem title="Current Balance">
+            { formatCurrency(card.currentBalance) }
+          </PanelListItem>
+          <PanelListItem title="Date/Time Issued">
+            { moment(card.date).format('L LTS') }
+          </PanelListItem>
+          <PanelListItem title="Gift Card Type">
+            { card.originType }
+          </PanelListItem>
+          <PanelListItem title="Current State">
+            { this.status }
+          </PanelListItem>
+        </PanelList>
         <div className="fc-grid fc-grid-md-1-1 fc-grid-collapse fc-panel fc-gift-card-detail-message">
           <div>
             <div className="fc-grid">
