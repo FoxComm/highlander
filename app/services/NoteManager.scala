@@ -11,17 +11,15 @@ import responses.AdminNotes.Root
 import slick.driver.PostgresDriver.api._
 import utils.Slick.DbResult
 import utils.Slick.implicits._
+import utils.ModelWithIdParameter
 
 object NoteManager {
 
-  def createOrderNote(order: Order, author: StoreAdmin, payload: payloads.CreateNote)
-    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
-    createModelNote(order.id, Note.Order, author, payload)
-  }
-
-  def createGiftCardNote(giftCard: GiftCard, author: StoreAdmin, payload: payloads.CreateNote)
-    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
-    createModelNote(giftCard.id, Note.GiftCard, author, payload)
+  def createNote[M <: ModelWithIdParameter](m: M, author: StoreAdmin, payload: payloads.CreateNote)
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = m match {
+      case _: Customer ⇒ createModelNote(m.id, Note.Customer, author, payload)
+      case _: GiftCard ⇒ createModelNote(m.id, Note.GiftCard, author, payload)
+      case _: Order ⇒ createModelNote(m.id, Note.Order, author, payload)
   }
 
   private def createModelNote(refId: Int, refType: Note.ReferenceType, author: StoreAdmin,

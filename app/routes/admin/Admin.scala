@@ -72,7 +72,7 @@ object Admin {
           (post & entity(as[payloads.CreateNote])) { payload ⇒
             complete {
               whenOrderFoundAndEditable(refNum) { order ⇒
-                NoteManager.createOrderNote(order, admin, payload)
+                NoteManager.createNote(order, admin, payload)
               }
             }
           } ~
@@ -98,7 +98,7 @@ object Admin {
           (post & entity(as[payloads.CreateNote]) & pathEnd) { payload ⇒
             complete {
               whenFound(GiftCards.findByCode(code).one.run()) { giftCard ⇒
-                NoteManager.createGiftCardNote(giftCard, admin, payload)
+                NoteManager.createNote(giftCard, admin, payload)
               }
             }
           } ~

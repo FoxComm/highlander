@@ -4,7 +4,7 @@ import java.time.Instant
 import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Xor
-import models.{GiftCard, Note, Order, StoreAdmin}
+import models.{GiftCard, Note, Order, StoreAdmin, Customer}
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 import utils.ModelWithIdParameter
@@ -26,6 +26,9 @@ object AdminNotes {
 
   def forGiftCard(giftCard: GiftCard)(implicit ec: ExecutionContext, db: Database): Future[Nothing Xor Seq[Root]] =
     forModel(Notes.filterByGiftCardId(giftCard.id).notDeleted)
+
+  def forCustomer(customer: Customer)(implicit ec: ExecutionContext, db: Database): Future[Nothing Xor Seq[Root]] =
+    forModel(Notes.filterByCustomerId(customer.id).notDeleted)
 
   private def forModel[M <: ModelWithIdParameter](finder: Query[Notes, Note, Seq])
     (implicit ec: ExecutionContext, db: Database): Future[Nothing Xor Seq[Root]] = {
