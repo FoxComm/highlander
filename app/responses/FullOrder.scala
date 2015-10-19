@@ -5,7 +5,6 @@ import java.time.Instant
 import scala.concurrent.{ExecutionContext, Future}
 
 import models._
-import models.OrderLineItems.scope._
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
@@ -34,7 +33,7 @@ object FullOrder {
     totals: Totals,
     customer: Option[Customer],
     shippingMethod: Option[ShippingMethod],
-    shippingAddress: Option[OrderShippingAddress],
+    shippingAddress: Option[Addresses.Root],
     assignees: Seq[AssignmentResponse.Root],
     remorsePeriodEnd: Option[Instant],
     payment: Option[DisplayPayment] = None) extends ResponseItem
@@ -69,7 +68,7 @@ object FullOrder {
         customer = customer,
         skus = skus,
         giftCards = giftCards,
-        shippingAddress = shipAddress,
+        shippingAddress = shipAddress.toOption,
         shippingMethod = shipMethod,
         assignments = assignees,
         payment = payment
@@ -79,7 +78,7 @@ object FullOrder {
 
   def build(order: Order, skus: Seq[(Sku, OrderLineItem)] = Seq.empty, adjustments: Seq[Adjustment] = Seq.empty,
     shippingMethod: Option[ShippingMethod] = None, customer: Option[Customer] = None,
-    shippingAddress: Option[OrderShippingAddress] = None, payment: Option[(OrderPayment, CreditCard)] = None,
+    shippingAddress: Option[Addresses.Root] = None, payment: Option[(OrderPayment, CreditCard)] = None,
     assignments: Seq[(OrderAssignment, StoreAdmin)] = Seq.empty,
     giftCards: Seq[(GiftCard, OrderLineItemGiftCard)] = Seq.empty): Root = {
 
@@ -131,7 +130,7 @@ object FullOrder {
       lineItems ← OrderLineItemSkus.findLineItemsByOrder(order).result
       giftCards ← OrderLineItemGiftCards.findLineItemsByOrder(order).result
       shipMethod ← shippingMethodQ.one
-      shipAddress ← OrderShippingAddresses.filter(_.orderId === order.id).one
+      shipAddress ← Addresses.forOrderId(order.id)
       payments ← paymentQ.one
       assignments ← OrderAssignments.filter(_.orderId === order.id).result
       admins ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.assigneeId))).result
