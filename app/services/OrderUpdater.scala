@@ -4,11 +4,13 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Validated.{Invalid, Valid}
 import cats.data.Xor
+import cats.data.Xor.{Left, Right}
 import models._
-import payloads.{UpdateAddressPayload, CreateAddressPayload}
+import payloads.{UpdateShippingMethod, CreateAddressPayload, UpdateAddressPayload}
 import responses.FullOrder
 import slick.driver.PostgresDriver.api._
 import utils.Slick.{DbResult, _}
+import utils.Slick.UpdateReturning._
 import utils.Slick.implicits._
 
 object OrderUpdater {
@@ -140,6 +142,41 @@ object OrderUpdater {
         case (_, Some(address), Some(region)) ⇒
           DbResult.fromDbio(fullOrder(finder))
       }
+    }
+  }
+
+  def updateShippingMethod(payload: UpdateShippingMethod, refNum: String)
+    (implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
+    val finder = Orders.findByRefNum(refNum)
+
+    finder.selectOneForUpdate { order ⇒
+      ShippingMethods.findActiveById(payload.shippingMethodId).one.flatMap {
+        case Some(shippingMethod) ⇒
+          ShippingManager.evaluateShippingMethodForOrder(shippingMethod, order).flatMap {
+            case Right(res) ⇒
+              if (res) {
+                val orderShipping = OrderShippingMethod(orderId = order.id, shippingMethodId = shippingMethod.id)
+                val delete = OrderShippingMethods.findByOrderId(order.id).delete
+
+                DbResult.fromDbio(delete >> OrderShippingMethods.save(orderShipping) >> fullOrder(finder))
+              } else {
+                DbResult.failure(ShippingMethodNotApplicableToOrder(payload.shippingMethodId, order.refNum))
+              }
+            case Left(f) ⇒
+              DbResult.failures(f)
+          }
+        case None ⇒
+          DbResult.failure(ShippingMethodDoesNotExist(payload.shippingMethodId))
+      }
+    }
+  }
+
+  def deleteShippingMethod(refNum: String)
+    (implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
+    val finder = Orders.findByRefNum(refNum)
+
+    finder.selectOneForUpdate { order ⇒
+      DbResult.fromDbio(OrderShippingMethods.findByOrderId(order.id).delete >> fullOrder(finder))
     }
   }
 

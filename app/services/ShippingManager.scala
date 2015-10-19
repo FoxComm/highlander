@@ -13,27 +13,12 @@ object ShippingManager {
   implicit val formats = JsonFormatters.phoenixFormats
 
   final case class ShippingData(order: Order, orderTotal: Int, orderSubTotal: Int,
-    shippingAddress: OrderShippingAddress, shippingRegion: Region, skus: Seq[Sku])
+    shippingAddress: Option[OrderShippingAddress] = None, shippingRegion: Option[Region] = None, skus: Seq[Sku])
 
   def getShippingMethodsForOrder(order: models.Order)
     (implicit db: Database, ec: ExecutionContext): DbResult[Seq[responses.ShippingMethods.Root]] = {
-
-    val queries = for {
-      orderShippingAddresses ← models.OrderShippingAddresses.findByOrderIdWithRegions(order.id).result.headOption
-      subTotal ← OrderTotaler.subTotalForOrder(order)
-      grandTotal ← OrderTotaler.grandTotalForOrder(order)
-      shippingMethods ← ShippingMethods.findActive.result
-      skus ← (for {
-        liSku ← OrderLineItemSkus.findByOrderId(order.id)
-        sku ← Skus if sku.id === liSku.skuId
-      } yield sku).result
-    } yield (orderShippingAddresses, subTotal, grandTotal, shippingMethods, skus)
-
-    queries.flatMap {
-      case (Some((address, region)), subTotal, grandTotal, shippingMethods, skus) ⇒
-
-        val shippingData = ShippingData(order, grandTotal.getOrElse(0), subTotal.getOrElse(0), address, region, skus)
-
+    ShippingMethods.findActive.result.flatMap { shippingMethods ⇒
+      getShippingData(order).flatMap { shippingData ⇒
         val methodResponses = shippingMethods.collect {
           case sm if QueryStatement.evaluate(sm.conditions, shippingData, evaluateCondition) ⇒
             val restricted = QueryStatement.evaluate(sm.restrictions, shippingData, evaluateCondition)
@@ -41,10 +26,39 @@ object ShippingManager {
         }
 
         DbResult.good(methodResponses)
-
-      case (None, _, _, _, _) ⇒
-        DbResult.failure(OrderShippingMethodsCannotBeProcessed(order.refNum))
+      }
     }
+  }
+
+  def evaluateShippingMethodForOrder(shippingMethod: models.ShippingMethod, order: Order)
+    (implicit db: Database, ec: ExecutionContext): DbResult[Boolean] = {
+    getShippingData(order).flatMap { shippingData ⇒
+      if (QueryStatement.evaluate(shippingMethod.conditions, shippingData, evaluateCondition)) {
+        val hasRestrictions = QueryStatement.evaluate(shippingMethod.restrictions, shippingData, evaluateCondition)
+        DbResult.good(!hasRestrictions)
+      }
+      else {
+        DbResult.good(false)
+      }
+    }
+  }
+
+  private def getShippingData(order: Order)(implicit db: Database, ec: ExecutionContext): DBIO[ShippingData] = {
+    for {
+      orderShippingAddress ← models.OrderShippingAddresses.findByOrderIdWithRegions(order.id).result.headOption
+      subTotal ← OrderTotaler.subTotalForOrder(order)
+      grandTotal ← OrderTotaler.grandTotalForOrder(order)
+      skus ← (for {
+        liSku ← OrderLineItemSkus.findByOrderId(order.id)
+        skus ← Skus if skus.id === liSku.skuId
+      } yield skus).result
+    } yield ShippingData(
+      order = order,
+      orderTotal = grandTotal.getOrElse(0),
+      orderSubTotal = subTotal.getOrElse(0),
+      shippingAddress = orderShippingAddress.map(_._1),
+      shippingRegion = orderShippingAddress.map(_._2),
+      skus = skus)
   }
 
   private def evaluateCondition(cond: Condition, shippingData: ShippingData): Boolean = {
@@ -65,23 +79,25 @@ object ShippingManager {
   }
 
   private def evaluateShippingAddressCondition(shippingData: ShippingData, condition: Condition): Boolean = {
-    condition.field match {
-      case "address1" ⇒
-        Condition.matches(shippingData.shippingAddress.address1, condition)
-      case "address2" ⇒
-        Condition.matches(shippingData.shippingAddress.address2, condition)
-      case "city" ⇒
-        Condition.matches(shippingData.shippingAddress.city, condition)
-      case "regionId" ⇒
-        Condition.matches(shippingData.shippingAddress.regionId, condition)
-      case "regionName" ⇒
-        Condition.matches(shippingData.shippingRegion.name, condition)
-      case "regionAbbrev" ⇒
-        Condition.matches(shippingData.shippingRegion.abbreviation, condition)
-      case "zip" ⇒
-        Condition.matches(shippingData.shippingAddress.zip, condition)
-      case _ ⇒
-        false
+    shippingData.shippingAddress.fold(false) { shippingAddress ⇒
+      condition.field match {
+        case "address1" ⇒
+          Condition.matches(shippingAddress.address1, condition)
+        case "address2" ⇒
+          Condition.matches(shippingAddress.address2, condition)
+        case "city" ⇒
+          Condition.matches(shippingAddress.city, condition)
+        case "regionId" ⇒
+          Condition.matches(shippingAddress.regionId, condition)
+        case "regionName" ⇒
+          shippingData.shippingRegion.fold(false)(sr ⇒ Condition.matches(sr.name, condition))
+        case "regionAbbrev" ⇒
+          shippingData.shippingRegion.fold(false)(sr ⇒ Condition.matches(sr.abbreviation, condition))
+        case "zip" ⇒
+          Condition.matches(shippingAddress.zip, condition)
+        case _ ⇒
+          false
+      }
     }
   }
 }
