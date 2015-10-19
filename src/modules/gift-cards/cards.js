@@ -36,12 +36,6 @@ export function fetchGiftCardsIfNeeded() {
   };
 }
 
-export function fetchGiftCard(id) {
-  return Api.get(`/gift-cards/${id}`)
-    .then(card => updateGiftCards([card]))
-    .catch(err => failGiftCards(err, fetchGiftCard));
-}
-
 export function createGiftCard() {
   return (dispatch, getState) => {
     const { giftCardsNew } = getState();
@@ -52,12 +46,6 @@ export function createGiftCard() {
       .then(json => dispatch(updateGiftCards([json])))
       .catch(err => dispatch(failGiftCards(err)));
   };
-}
-
-export function editGiftCard(id, data) {
-  return Api.patch(`/gift-cards/${id}`, data)
-    .then(card => updateGiftCards([card]))
-    .catch(err => failGiftCards(err));
 }
 
 const initialState = {
