@@ -5,13 +5,13 @@ import java.time.Instant
 import scala.concurrent.{ExecutionContext, Future}
 
 import models._
-import services.{NotFoundFailure, OrderUpdateFailure}
+import services.{NotFoundFailure404, OrderUpdateFailure}
 import slick.driver.PostgresDriver.api._
 
 final case class BulkOrderUpdateResponse(orders: Seq[AllOrders.Root], failures: Seq[OrderUpdateFailure])
 
-final case class BulkAssignmentResponse(orders: Seq[AllOrders.Root], adminNotFound: Option[NotFoundFailure],
-  ordersNotFound: Seq[NotFoundFailure])
+final case class BulkAssignmentResponse(orders: Seq[AllOrders.Root], adminNotFound: Option[NotFoundFailure404],
+  ordersNotFound: Seq[NotFoundFailure404])
 
 object AllOrders {
   type Response = Future[Seq[Root]]

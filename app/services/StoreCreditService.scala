@@ -72,11 +72,11 @@ object StoreCreditService {
 
       ResultT(queries.run().map {
         case (None, _, _) ⇒
-          Xor.left(NotFoundFailure(Customer, customerId).single)
+          Xor.left(NotFoundFailure404(Customer, customerId).single)
         case (_, None, _) ⇒
-          Xor.left(NotFoundFailure(Reason, payload.reasonId).single)
+          Xor.left(NotFoundFailure400(Reason, payload.reasonId).single)
         case (_, _, None) if payload.subTypeId.isDefined ⇒
-          Xor.left(NotFoundFailure(StoreCreditSubtype, payload.subTypeId.head).single)
+          Xor.left(NotFoundFailure400(StoreCreditSubtype, payload.subTypeId.head).single)
         case (Some(c), Some(r), s) ⇒
           Xor.right((c, r, s))
       })
@@ -111,7 +111,7 @@ object StoreCreditService {
       case Some(storeCredit) ⇒
         Result.right(responses.StoreCreditResponse.build(storeCredit))
       case _ ⇒
-        Result.failure(NotFoundFailure(StoreCredit, id))
+        Result.failure(NotFoundFailure404(StoreCredit, id))
     }
   }
 
@@ -147,7 +147,7 @@ object StoreCreditService {
         val update = finder.map(_.status).updateReturning(StoreCredits.map(identity), payload.status).headOption
         update.flatMap {
           case Some(gc) ⇒ DbResult.good(StoreCreditResponse.build(gc))
-          case _        ⇒ DbResult.failure(NotFoundFailure(StoreCredit, sc.id))
+          case _        ⇒ DbResult.failure(NotFoundFailure404(StoreCredit, sc.id))
         }
     }
 

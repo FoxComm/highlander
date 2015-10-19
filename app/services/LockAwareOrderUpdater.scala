@@ -85,7 +85,7 @@ object LockAwareOrderUpdater {
         newOrder ← inserts >> finder.result.head
 
         fullOrder ← FullOrder.fromOrder(newOrder)
-        warnings = requestedAssigneeIds.diff(existingAdminIds).map(NotFoundFailure(StoreAdmin, _))
+        warnings = requestedAssigneeIds.diff(existingAdminIds).map(NotFoundFailure404(StoreAdmin, _))
       } yield FullOrderWithWarnings(fullOrder, warnings))
     }
   }

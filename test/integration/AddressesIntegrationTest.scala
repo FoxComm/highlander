@@ -189,7 +189,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
 
       "fails when there are no orders or default shipping addresses" in new CustomerFixture {
         val response = GET(s"v1/customers/${customer.id}/addresses/display")
-        response.status must === (StatusCodes.NotFound)
+        response.status must === (StatusCodes.BadRequest)
       }
     }
   }

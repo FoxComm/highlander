@@ -69,7 +69,7 @@ object AddressManager {
           region     ← Regions.findOneById(newAddress.regionId)
         } yield (newAddress, region)).run().flatMap {
           case (address, Some(region))  ⇒ Result.good(Response.build(address, region))
-          case (_, None)                ⇒ Result.failure(NotFoundFailure(Region, address.regionId))
+          case (_, None)                ⇒ Result.failure(NotFoundFailure404(Region, address.regionId))
         }
       case Invalid(errors) ⇒ Result.failures(errors)
     }
@@ -85,8 +85,8 @@ object AddressManager {
           region       ← Regions.findOneById(address.regionId)
         } yield (rowsAffected, address, region)).transactionally).run().flatMap {
           case (1, address, Some(region)) ⇒ Result.good(Response.build(address, region))
-          case (_, address, Some(region)) ⇒ Result.failure(NotFoundFailure(address))
-          case (_, _, None)               ⇒ Result.failure(NotFoundFailure(Region, address.regionId))
+          case (_, address, Some(region)) ⇒ Result.failure(NotFoundFailure404(Address, address))
+          case (_, _, None)               ⇒ Result.failure(NotFoundFailure404(Region, address.regionId))
         }
       case Invalid(errors) ⇒ Result.failures(errors)
     }
@@ -101,8 +101,8 @@ object AddressManager {
 
       query.run().flatMap {
           case (address, Some(region)) ⇒ Result.good(Response.build(address, region, Some(address.isDefaultShipping)))
-          case (address, None)         ⇒ Result.failure(NotFoundFailure(Region, address.regionId))
-          case (_, _)                  ⇒ Result.failure(NotFoundFailure(Address,addressId))
+          case (address, None)         ⇒ Result.failure(NotFoundFailure404(Region, address.regionId))
+          case (_, _)                  ⇒ Result.failure(NotFoundFailure404(Address,addressId))
       }
   }
 
@@ -116,7 +116,7 @@ object AddressManager {
 
       query.run().flatMap{
         case 1 ⇒ Result.unit
-        case _ ⇒ Result.failure(NotFoundFailure(Address, addressId))
+        case _ ⇒ Result.failure(NotFoundFailure404(Address, addressId))
       }
   }
 
@@ -127,7 +127,7 @@ object AddressManager {
       newDefault ← Addresses.findById(addressId).extract.map(_.isDefaultShipping).update(true)
     } yield newDefault).transactionally).run().flatMap {
       case rowsAffected if rowsAffected == 1 ⇒ Result.unit
-      case _                                 ⇒ Result.failure(NotFoundFailure(Address, addressId))
+      case _                                 ⇒ Result.failure(NotFoundFailure404(Address, addressId))
     }
   }
 

@@ -90,7 +90,7 @@ object NoteManager {
     }
   }
 
-  private def notFound(noteId: Int): NotFoundFailure = NotFoundFailure(Note, noteId)
+  private def notFound(noteId: Int): NotFoundFailure404 = NotFoundFailure404(Note, noteId)
 
   def deleteNote(noteId: Int, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database): Result[Unit] = {

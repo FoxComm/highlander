@@ -2,8 +2,8 @@ package services
 
 import scala.concurrent.ExecutionContext
 
-import models.{PaymentMethod, CreditCard, Orders, OrderPayment, OrderPayments, GiftCards, StoreCredits, StoreCredit,
-CreditCards}
+import models.{GiftCard, PaymentMethod, CreditCard, Orders, OrderPayment, OrderPayments, GiftCards, StoreCredits,
+StoreCredit, CreditCards}
 import models.OrderPayments.scope._
 import payloads.{GiftCardPayment, StoreCreditPayment}
 import responses.FullOrder
@@ -28,13 +28,13 @@ object OrderPaymentUpdater {
           }
 
         case Some(gc) if gc.isCart ⇒
-          DbResult.failure(GiftCardNotFoundFailure(payload.code))
+          DbResult.failure(NotFoundFailure400(GiftCard, payload.code))
 
         case Some(gc) if !gc.isActive && !gc.isCart ⇒
           DbResult.failure(GiftCardIsInactive(gc))
 
         case None ⇒
-          DbResult.failure(GiftCardNotFoundFailure(payload.code))
+          DbResult.failure(NotFoundFailure400(GiftCard, payload.code))
       }
     }
   }
@@ -79,7 +79,7 @@ object OrderPaymentUpdater {
           DbResult.failure(CannotUseInactiveCreditCard(cc))
 
         case None ⇒
-          DbResult.failure(NotFoundFailure(CreditCard, id))
+          DbResult.failure(NotFoundFailure400(CreditCard, id))
       }
     }
   }
@@ -117,7 +117,7 @@ object OrderPaymentUpdater {
             .flatMap(fullOrderOrFailure(_, PaymentMethod.GiftCard, finder))
 
         case None ⇒
-          DbResult.failure(GiftCardNotFoundFailure(code))
+          DbResult.failure(NotFoundFailure404(GiftCard, code))
       }
     }
   }

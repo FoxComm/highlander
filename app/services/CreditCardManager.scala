@@ -115,7 +115,7 @@ object CreditCardManager {
 
     result.flatMap {
       case Xor.Right(Some(cc)) ⇒ Result.good(cc)
-      case Xor.Right(None)     ⇒ Result.failure(NotFoundFailure(CreditCard, cardId))
+      case Xor.Right(None)     ⇒ Result.failure(NotFoundFailure404(CreditCard, cardId))
       case Xor.Left(f)         ⇒ Result.failure(f)
     }
   }
@@ -226,7 +226,7 @@ object CreditCardManager {
     }
   }
 
-  private def creditCardNotFound(id: Int) = NotFoundFailure(CreditCard, id).single
+  private def creditCardNotFound(id: Int) = NotFoundFailure404(CreditCard, id).single
 }
 
 

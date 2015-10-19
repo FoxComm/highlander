@@ -33,9 +33,9 @@ object CustomerCreditConverter {
         case (_, _, Some(_)) ⇒
           Xor.left(OpenTransactionsFailure.single)
         case (None, _, _) ⇒
-          Xor.left(GiftCardNotFoundFailure(code).single)
+          Xor.left(NotFoundFailure404(GiftCard, code).single)
         case (_, None, _) ⇒
-          Xor.left(NotFoundFailure(Customer, customerId).single)
+          Xor.left(NotFoundFailure404(Customer, customerId).single)
       })
     }
 
@@ -84,9 +84,9 @@ object CustomerCreditConverter {
         case (_, _, Some(_)) ⇒
           Xor.left(OpenTransactionsFailure.single)
         case (None, _, _) ⇒
-          Xor.left(NotFoundFailure(StoreCredit, id).single)
+          Xor.left(NotFoundFailure404(StoreCredit, id).single)
         case (_, None, _) ⇒
-          Xor.left(NotFoundFailure(Customer, customerId).single)
+          Xor.left(NotFoundFailure404(Customer, customerId).single)
       })
     }
 

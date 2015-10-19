@@ -2,7 +2,7 @@ package services
 
 import scala.concurrent.ExecutionContext
 
-import models.{OrderAssignment, OrderAssignments, Orders, StoreAdmin, StoreAdmins}
+import models.{Order, OrderAssignment, OrderAssignments, Orders, StoreAdmin, StoreAdmins}
 import responses.{AllOrders, BulkAssignmentResponse}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
@@ -45,9 +45,9 @@ object BulkOrderUpdater {
 
   private def adminNotFoundFailure(a: Option[_], id: Int) = a match {
     case Some(_) ⇒ None
-    case None ⇒ Some(NotFoundFailure(StoreAdmin, id))
+    case None ⇒ Some(NotFoundFailure404(StoreAdmin, id))
   }
 
   private def ordersNotFoundFailures(requestedRefs: Seq[String], availableRefs: Seq[String]) =
-    requestedRefs.diff(availableRefs).map(OrderNotFoundFailure(_))
+    requestedRefs.diff(availableRefs).map(NotFoundFailure404(Order, _))
 }

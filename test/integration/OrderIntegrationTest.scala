@@ -8,7 +8,7 @@ import models._
 import models.rules.QueryStatement
 import payloads.{Assignment, UpdateOrderPayload}
 import responses.{StoreAdminResponse, FullOrderWithWarnings, FullOrder}
-import services.{GeneralFailure, NotFoundFailure}
+import services.{GeneralFailure, NotFoundFailure404}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.implicits._
@@ -312,7 +312,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       val fullOrderWithWarnings = parse(response.bodyText).extract[FullOrderWithWarnings]
       fullOrderWithWarnings.order.assignees.map(_.assignee) mustBe Seq(StoreAdminResponse.build(storeAdmin))
-      fullOrderWithWarnings.warnings mustBe Seq(NotFoundFailure("storeAdmin with id=999 not found"))
+      fullOrderWithWarnings.warnings mustBe Seq(NotFoundFailure404("storeAdmin with id=999 not found"))
     }
 
     "can be viewed with order" in new Fixture {
@@ -455,7 +455,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address/99")
 
         response.status must === (StatusCodes.NotFound)
-        parseErrors(response) must === (NotFoundFailure(Address, 99).description)
+        parseErrors(response) must === (NotFoundFailure404(Address, 99).description)
       }
     }
 
@@ -480,7 +480,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address/99")
 
         response.status must === (StatusCodes.NotFound)
-        parseErrors(response) must === (NotFoundFailure(Address, 99).description)
+        parseErrors(response) must === (NotFoundFailure404(Address, 99).description)
       }
 
       "does not change the current shipping address if the edit fails" in new ShippingAddressFixture {
@@ -579,9 +579,9 @@ class OrderIntegrationTest extends IntegrationTestBase
       val lessThanFullOrder = deleteResponse.as[FullOrder.Root]
       lessThanFullOrder.shippingAddress mustBe None
 
-      //fails with not found if the order does not have shipping address
+      //fails if the order does not have shipping address
       val deleteFailedResponse = DELETE(s"v1/orders/${order.referenceNumber}/shipping-address")
-      deleteFailedResponse.status must === (StatusCodes.NotFound)
+      deleteFailedResponse.status must === (StatusCodes.BadRequest)
     }
 
     "fails if the order is not found" in new AddressFixture {

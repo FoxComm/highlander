@@ -4,7 +4,7 @@ import akka.http.scaladsl.model.StatusCodes
 
 import models.{Address, Customer, CreditCards, CreditCard, Customers, Addresses}
 import payloads.CreateAddressPayload
-import services.{CVCFailure, NotFoundFailure}
+import services.{CVCFailure, NotFoundFailure404}
 import util.{StripeSupport, IntegrationTestBase}
 import utils.Seeds.Factories
 import utils.Slick.implicits._
@@ -112,7 +112,7 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
           val cards     = CreditCards.futureValue
 
           response.status must ===(StatusCodes.BadRequest)
-          response.errors must contain (NotFoundFailure(Address, 1).description)
+          response.errors must contain (NotFoundFailure404(Address, 1).description)
           cards mustBe 'empty
         }
 
@@ -143,7 +143,7 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
           val cards     = CreditCards.futureValue
 
           response.status must ===(StatusCodes.NotFound)
-          response.errors must ===(NotFoundFailure(Customer, 99).description)
+          response.errors must ===(NotFoundFailure404(Customer, 99).description)
           cards mustBe 'empty
         }
       }
