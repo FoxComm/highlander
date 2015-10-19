@@ -10,16 +10,16 @@ export default class Title extends React.Component {
 
   render() {
     let subtitle = null;
-    if (this.props.subtitle !== undefined) {
+    if (this.props.subtitle) {
       subtitle = (
-        <span className="fc-subtitle">
+        <span className="fc-section-title-subtitle fc-light">
           &nbsp;
           { this.props.subtitle }
         </span>
       );
     }
     return (
-      <h1 className="fc-title">
+      <h1 className="fc-section-title-title">
         { this.props.title }
         { subtitle }
       </h1>);

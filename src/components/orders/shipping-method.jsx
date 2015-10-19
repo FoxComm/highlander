@@ -81,12 +81,14 @@ export default class OrderShippingMethod extends React.Component {
       <Panel className="fc-order-shipping-method"
              title="Shipping Method"
              controls={ actions }>
-        <table className="fc-table">
-          <TableHead columns={this.props.tableColumns} />
-          <TableBody columns={this.props.tableColumns} rows={methods} model='shipping-method'>
-            <ShippingMethodItem isEditing={this.state.isEditing} />
-          </TableBody>
-        </table>
+        <div className="fc-tableview">
+          <table className="fc-table">
+            <TableHead columns={this.props.tableColumns} />
+            <TableBody columns={this.props.tableColumns} rows={methods} model='shipping-method'>
+              <ShippingMethodItem isEditing={this.state.isEditing} />
+            </TableBody>
+          </table>
+        </div>
         { footer }
       </Panel>
     );

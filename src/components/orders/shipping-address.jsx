@@ -5,8 +5,16 @@ import Addresses from '../addresses/addresses';
 import AddressDetails from '../addresses/address-details';
 import Panel from '../panel/panel';
 import OrderStore from '../../stores/orders';
+import OrdersActions from '../../actions/orders';
+import AddressStore from '../../stores/addresses';
+
 
 export default class OrderShippingAddress extends React.Component {
+
+  static propTypes = {
+    order: PropTypes.object.isRequired,
+    isEditing: PropTypes.bool
+  };
 
   constructor(props, context) {
     super(props, context);
@@ -16,13 +24,24 @@ export default class OrderShippingAddress extends React.Component {
   }
 
   onSelectAddress(address) {
-    OrderStore.setShippingAddress(this.props.order.referenceNumber, address.id);
+    OrdersActions.setShippingAddress(this.props.order.referenceNumber, address.id);
+  }
+
+  onDeleteAddress(address) {
+    if (address.id === this.props.order.shippingAddress.id) {
+      OrdersActions.removeShippingAddress(this.props.order.referenceNumber);
+    }
+    AddressStore.delete(this.props.order.customer.id, address.id);
   }
 
   toggleEdit() {
     this.setState({
       isEditing: !this.state.isEditing
     });
+  }
+
+  isAddressSelected(address) {
+    return this.props.order ? address.id === this.props.order.shippingAddress.id : false;
   }
 
   render() {
@@ -32,7 +51,11 @@ export default class OrderShippingAddress extends React.Component {
     let footer = null;
 
     if (this.state.isEditing) {
-      body = <Addresses order={this.props.order} onSelectAddress={this.onSelectAddress.bind(this)} />;
+      body = (
+        <div className="fc-tableview">
+          <Addresses order={this.props.order} onSelectAddress={this.onSelectAddress.bind(this)} />
+        </div>
+      );
       footer = (
         <footer className="fc-line-items-footer">
           <div>
@@ -42,7 +65,9 @@ export default class OrderShippingAddress extends React.Component {
         </footer>
       );
     } else {
-      body = <AddressDetails address={address} />;
+      body = (
+        <AddressDetails address={address} />
+      );
       editButton = (
         <div>
           <button className="fc-btn icon-edit fc-right" onClick={this.toggleEdit.bind(this)}>

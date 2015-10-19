@@ -72,12 +72,14 @@ export default class OrderPayment extends React.Component {
       <Panel className="fc-order-payment"
              title="Payment"
              controls={ editButton }>
-        <table className="fc-table">
-          <TableHead columns={this.props.tableColumns}/>
-          <TableBody columns={this.props.tableColumns} rows={_.compact([order.payment])} model='payment-method'>
-            <PaymentMethod/>
-          </TableBody>
-        </table>
+        <div className="fc-tableview">
+          <table className="fc-table">
+            <TableHead columns={this.props.tableColumns}/>
+            <TableBody columns={this.props.tableColumns} rows={_.compact([order.payment])} model='payment-method'>
+              <PaymentMethod/>
+            </TableBody>
+          </table>
+        </div>
         { footer }
       </Panel>
     );

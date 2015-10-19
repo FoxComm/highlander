@@ -1,7 +1,7 @@
 'use strict';
 
 import React from 'react';
-import AddressDetails from './address-details.jsx';
+import AddressDetails from './address-details';
 import EditableItemCardContainer from '../item-card-container/editable-item-card-container';
 
 export default class AddressBox extends React.Component {
