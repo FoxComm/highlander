@@ -8,6 +8,7 @@ import GiftCardStore from '../../stores/gift-cards';
 import GiftCardActions from '../../actions/gift-cards';
 import SectionTitle from '../section-title/section-title';
 import Panel from '../panel/panel';
+import LocalNav from '../local-nav/local-nav';
 
 export default class GiftCard extends React.Component {
 
@@ -64,13 +65,17 @@ export default class GiftCard extends React.Component {
     const content = React.cloneElement(this.props.children, {'gift-card': this.giftCard, modelName: 'gift-card' });
 
     return (
-      <div className="gutter">
-        <ul className="fc-tabbed-nav">
-          <li><IndexLink to="gift-card-transactions" params={params}>Transactions</IndexLink></li>
-          <li><Link to="gift-card-notes" params={params}>Notes</Link></li>
-          <li><Link to="gift-card-activity-trail" params={params}>Activity Trail</Link></li>
-        </ul>
-        {content}
+      <div>
+        <LocalNav>
+          <IndexLink to="gift-card-transactions" params={params}>Transactions</IndexLink>
+          <Link to="gift-card-notes" params={params}>Notes</Link>
+          <Link to="gift-card-activity-trail" params={params}>Activity Trail</Link>
+        </LocalNav>
+        <div className="fc-grid">
+          <div className="fc-col-md-1-1">
+            {content}
+          </div>
+        </div>
       </div>
     );
   }
@@ -99,7 +104,7 @@ export default class GiftCard extends React.Component {
     let card = this.giftCard;
 
     if (!card) {
-      return <div id="gift-card"></div>;
+      return <div className="fc-gift-card-detail"></div>;
     }
 
     return (
@@ -110,66 +115,54 @@ export default class GiftCard extends React.Component {
         <div className="fc-grid">
           <div className="fc-col-md-1-3">
             <Panel title="Available Balance" featured={true}>
-              <p>{ formatCurrency(card.availableBalance) }</p>
+              { formatCurrency(card.availableBalance) }
             </Panel>
           </div>
         </div>
-        <div className="fc-grid">
-          <div className="fc-col-md-2-3">
-            <article className="panel">
-              <div className="fc-grid">
-                <div className="fc-col-md-1-2">
-                  <p>
-                    <strong>Created By: </strong>
-                    {card.storeAdmin ? `${card.storeAdmin.firstName} ${card.storeAdmin.lastName}` : 'None'}
-                  </p>
-
-                  <p><strong>Recipient: </strong>None</p>
-
-                  <p><strong>Recipient Email: </strong>None</p>
-
-                  <p><strong>Recipient Cell (Optional): </strong>None</p>
-                </div>
-                <div className="fc-col-md-1-2">
-                  <p><strong>Message (optional):</strong></p>
-
-                  <p>
-                    {card.message}
-                  </p>
-                </div>
-              </div>
-            </article>
+        <div className="fc-grid fc-grid-md-1-5 fc-grid-collapse fc-panel-list">
+          <div className="fc-panel-list-panel">
+            <header className="fc-panel-list-header">Original Balance</header>
+            <p className="fc-panel-list-content">{ formatCurrency(card.originalBalance) }</p>
           </div>
-          <div className="fc-grid fc-grid-match fc-grid-gutter">
-            <div className="fc-col-md-1-5">
-              <article className="panel featured">
-                <header>Original Balance</header>
-                <p>{ formatCurrency(card.originalBalance) }</p>
-              </article>
-            </div>
-            <div className="fc-col-md-1-5">
-              <article className="panel featured">
-                <header>Current Balance</header>
-                <p>{ formatCurrency(card.currentBalance) }</p>
-              </article>
-            </div>
-            <div className="fc-col-md-1-5">
-              <article className="panel featured">
-                <header>Date/Time Issued</header>
-                <p>{ moment(card.date).format('L LTS') }</p>
-              </article>
-            </div>
-            <div className="fc-col-md-1-5">
-              <article className="panel featured">
-                <header>Gift Card Type</header>
-                <p>{ card.originType }</p>
-              </article>
-            </div>
-            <div className="fc-col-md-1-5">
-              <article className="panel featured">
-                <header>Current State</header>
-                <p>{ this.status }</p>
-              </article>
+          <div className="fc-panel-list-panel">
+            <header className="fc-panel-list-header">Current Balance</header>
+            <p className="fc-panel-list-content">{ formatCurrency(card.currentBalance) }</p>
+          </div>
+          <div className="fc-panel-list-panel">
+            <header className="fc-panel-list-header">Date/Time Issued</header>
+            <p className="fc-panel-list-content">{ moment(card.date).format('L LTS') }</p>
+          </div>
+          <div className="fc-panel-list-panel">
+            <header className="fc-panel-list-header">Gift Card Type</header>
+            <p className="fc-panel-list-content">{ card.originType }</p>
+          </div>
+          <div className="fc-panel-list-panel">
+            <header className="fc-panel-list-header">Current State</header>
+            <p className="fc-panel-list-content">{ this.status }</p>
+          </div>
+        </div>
+        <div className="fc-grid fc-grid-md-1-1 fc-grid-collapse fc-panel fc-gift-card-detail-message">
+          <div>
+            <div className="fc-grid">
+              <div className="fc-col-md-1-3">
+                <p>
+                  <strong>Created By</strong><br />
+                  {card.storeAdmin ? `${card.storeAdmin.firstName} ${card.storeAdmin.lastName}` : 'None'}
+                </p>
+
+                <p><strong>Recipient</strong><br />None</p>
+
+                <p><strong>Recipient Email</strong><br />None</p>
+
+                <p><strong>Recipient Cell (Optional)</strong><br />None</p>
+              </div>
+              <div className="fc-col-md-2-3">
+                <p><strong>Message (optional)</strong></p>
+
+                <p>
+                  {card.message}
+                </p>
+              </div>
             </div>
           </div>
         </div>
