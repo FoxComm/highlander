@@ -36,14 +36,14 @@ describe('OrderLineItems', function() {
       <LineItems entity={order} model='order'/>
       , container);
     let renderedDOM = () => ReactDOM.findDOMNode(orderLineItems);
-    let editButtons = renderedDOM().querySelectorAll('header .fc-btn');
+    let editButtons = renderedDOM().querySelectorAll('.fc-panel-header .fc-btn');
     let doneButtons = renderedDOM().querySelectorAll('footer .fc-btn');
 
     expect(editButtons).to.have.length(1);
     expect(doneButtons).to.have.length(0);
     TestUtils.Simulate.click(editButtons[0]);
 
-    let editButtons2 = renderedDOM().querySelectorAll('header .fc-btn');
+    let editButtons2 = renderedDOM().querySelectorAll('.fc-panel-header .fc-btn');
     let doneButtons2 = renderedDOM().querySelectorAll('footer .fc-btn');
     expect(editButtons2).to.have.length(0);
     expect(doneButtons2).to.have.length(1);
