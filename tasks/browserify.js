@@ -31,7 +31,7 @@ module.exports = function(gulp, opts, $) {
 
     if (opts.devMode) {
       let watchifyOpts = {
-        poll: parseInt(process.env.WATHIFY_POLL_INTERVAL || 250)
+        poll: parseInt(process.env.WATCHIFY_POLL_INTERVAL || 250)
       };
 
       if (fs.existsSync('.watchifyrc')) {

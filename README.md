@@ -33,7 +33,7 @@ for disable this behaviour.
 
 Also gulp can notify you about tasks completion if env variable ASHES_NOTIFY_ABOUT_TASKS is defined.
 
-The default mode for watchify is polling. You can override polling interval via WATHIFY_POLL_INTERVAL env variable
+The default mode for watchify is polling. You can override polling interval via WATCHIFY_POLL_INTERVAL env variable
 or completely override watchify options via `.watchifyrc` file in project root.
 
 ### Git Hooks
