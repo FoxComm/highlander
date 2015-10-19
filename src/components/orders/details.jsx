@@ -39,8 +39,7 @@ export default class OrderDetails extends React.Component {
               entity={order}
               tableColumns={lineColumns}
               model={'order'}
-              onChange={this.updateLineItems.bind(this)}
-              editMode={ this.isInEditMode } />
+              onChange={this.updateLineItems.bind(this)} />
             <OrderShippingAddress order={order} />
             <OrderShippingMethod order={order} />
             <OrderPayment order={order} />
