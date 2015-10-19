@@ -1,7 +1,13 @@
 package responses
 
 import java.time.Instant
-import models.{Address, Customer, OrderShippingAddress, Region}
+import scala.concurrent.ExecutionContext
+
+import models.{OrderShippingAddresses, Address, Customer, OrderShippingAddress, Region}
+import services.NotFoundFailure
+import utils.Slick.DbResult
+import slick.driver.PostgresDriver.api._
+import utils.Slick.implicits._
 
 object Addresses {
   final case class Root(id: Int, customer: Option[Customer] = None, region: Region, name: String, address1: String,
@@ -24,6 +30,21 @@ object Addresses {
   def buildOneShipping(address: OrderShippingAddress, region: Region, isDefault: Boolean = false): Root = {
     Root(id = address.id, region = region, name = address.name, address1 = address.address1, address2 = address.address2,
       city = address.city, zip = address.zip, isDefault = Some(isDefault), phoneNumber = address.phoneNumber, deletedAt = None)
+  }
+
+  def forOrderId(orderId: Int)(implicit ec: ExecutionContext): DbResult[Root] = {
+    val fullAddressDetails = for {
+      shipAddress ← OrderShippingAddresses.findByOrderId(orderId)
+      region ← shipAddress.region
+    } yield (shipAddress, region)
+
+    fullAddressDetails.result.flatMap { res ⇒ val (addresses, regions) = res.unzip
+      (addresses.headOption, regions.headOption) match {
+        case (Some(address), Some(region)) ⇒ DbResult.good(buildOneShipping(address, region))
+        case (None, _) ⇒ DbResult.failure(NotFoundFailure(s"No addresses found for order with id=$orderId"))
+        case (Some(address), None) ⇒ DbResult.failure(NotFoundFailure(Region, address.regionId))
+      }
+    }
   }
 }
 
