@@ -50,13 +50,6 @@ object Customer {
     Customer(id = 0, email = payload.email, password = hash, name = payload.name,
       isGuest = payload.isGuest.getOrElse(false))
   }
-
-  def fromPathPayload(c: Customer, p: UpdateCustomerPayload): Customer = {
-    c.copy(email = p.email.getOrElse(c.email),
-      name = p.name.fold(c.name)(Some(_)),
-      phoneNumber = p.phoneNumber.fold(c.phoneNumber)(Some(_))
-    )
-  }
 }
 
 class Customers(tag: Tag) extends TableWithId[Customer](tag, "customers") {
