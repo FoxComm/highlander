@@ -46,7 +46,7 @@ class AddressDetails extends React.Component {
 
     return (
       <ul className="fc-address-details">
-        <li className="name"><strong>{address.name}</strong></li>
+        <li className="name">{address.name}</li>
         <li>{address.address1}</li>
         {this.address2}
         <li>

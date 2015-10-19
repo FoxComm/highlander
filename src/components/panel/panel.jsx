@@ -1,6 +1,7 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
+import _ from 'lodash';
 
 export default class Panel extends React.Component {
   static propTypes = {
@@ -20,7 +21,7 @@ export default class Panel extends React.Component {
 
   render() {
     return (
-      <div className="fc-panel">
+      <div className={ this.rootClassName }>
         <div className="fc-panel-header">
           {this.props.title}
         </div>

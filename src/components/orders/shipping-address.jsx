@@ -3,9 +3,11 @@
 import React, { PropTypes } from 'react';
 import Addresses from '../addresses/addresses';
 import AddressDetails from '../addresses/address-details';
+import OrderStore from '../../stores/orders';
 import OrdersActions from '../../actions/orders';
 import AddressStore from '../../stores/addresses';
 import ContentBox from '../content-box/content-box';
+
 
 export default class OrderShippingAddress extends React.Component {
 
@@ -45,19 +47,21 @@ export default class OrderShippingAddress extends React.Component {
   render() {
     let address = this.props.order.shippingAddress;
     let body = null;
-    let actions = null;
     let editButton = null;
+    let footer = null;
 
     if (this.state.isEditing) {
       body = (
-        <Addresses order={this.props.order}
-                   isAddressSelected={this.isAddressSelected.bind(this)}
-                   onSelectAddress={this.onSelectAddress.bind(this)}
-                   onDeleteAddress={this.onDeleteAddress.bind(this)} />
+        <div className="fc-tableview">
+          <Addresses order={this.props.order} onSelectAddress={this.onSelectAddress.bind(this)} />
+        </div>
       );
-      actions = (
-        <footer>
-          <button className="fc-btn fc-btn-primary" onClick={this.toggleEdit.bind(this)}>Done</button>
+      footer = (
+        <footer className="fc-line-items-footer">
+          <div>
+            <button className="fc-btn fc-btn-primary"
+                    onClick={ this.toggleEdit.bind(this) } >Done</button>
+          </div>
         </footer>
       );
     } else {
@@ -65,8 +69,10 @@ export default class OrderShippingAddress extends React.Component {
         <AddressDetails address={address} />
       );
       editButton = (
-        <button className="fc-btn fc-edit-button icon-edit" onClick={this.toggleEdit.bind(this)}>
-        </button>
+        <div>
+          <button className="fc-btn icon-edit fc-right" onClick={this.toggleEdit.bind(this)}>
+          </button>
+        </div>
       );
     }
 
@@ -76,7 +82,7 @@ export default class OrderShippingAddress extends React.Component {
         actionBlock={editButton}
         className="fc-order-shipping-address">
         {body}
-        {actions}
+        {footer}
       </ContentBox>
     );
   }

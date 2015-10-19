@@ -8,7 +8,9 @@ export default class ContentBox extends React.Component {
     title: PropTypes.string,
     className: PropTypes.string,
     actionBlock: PropTypes.node,
-    children: PropTypes.node
+    children: PropTypes.node,
+    isTable: PropTypes.bool,
+    footer: PropTypes.node
   }
 
   get rootClassName() {
@@ -26,9 +28,10 @@ export default class ContentBox extends React.Component {
             </div>
           </div>
         </header>
-        <article className="fc-content-box-content">
+        <article className={this.props.isTable ? null : "fc-content-box-content"}>
           { this.props.children }
         </article>
+        {this.props.footer}
       </div>
     );
   }

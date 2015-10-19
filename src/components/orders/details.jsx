@@ -1,17 +1,18 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import OrderSummary from './summary';
 import CustomerInfo from './customer-info';
 import LineItems from '../line-items/line-items';
 import OrderShippingAddress from './shipping-address';
 import OrderShippingMethod from './shipping-method';
 import OrderPayment from './payment';
-import OrderStore from './../../stores/orders';
-import { dispatch } from '../../lib/dispatcher';
-import Api from '../../lib/api';
 
 export default class OrderDetails extends React.Component {
+  static propTypes = {
+    order: PropTypes.object
+  };
+
   updateLineItems(data) {
   }
 
@@ -49,7 +50,3 @@ export default class OrderDetails extends React.Component {
     );
   }
 }
-
-OrderDetails.propTypes = {
-  order: React.PropTypes.object
-};

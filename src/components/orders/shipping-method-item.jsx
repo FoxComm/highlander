@@ -1,12 +1,16 @@
 'use strict';
 
 import _ from 'lodash';
-import React from 'react';
+import React, { PropTypes } from 'react';
 import { listenTo, stopListeningTo, dispatch } from '../../lib/dispatcher';
 
 const changeMethodEvent = 'shippingMethodChange';
 
 export default class ShippingMethodItem extends React.Component {
+
+  static propTypes = {
+    model: PropTypes.object
+  }
 
   render() {
     let model = this.props.model;
@@ -28,7 +32,3 @@ export default class ShippingMethodItem extends React.Component {
     return this.props.isEditing ? editInput : readOnlyName;
   }
 }
-
-ShippingMethodItem.propTypes = {
-  model: React.PropTypes.object
-};
