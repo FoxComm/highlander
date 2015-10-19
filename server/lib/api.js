@@ -29,7 +29,7 @@ class Api {
         }
       };
 
-      if (data) {
+      if (!_.isEmpty(data)) {
         opts[(method === 'GET' ? 'qs' : 'json')] = data;
       }
       _this.baseRequest(opts, function(err, r, body) {

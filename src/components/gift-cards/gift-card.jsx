@@ -7,6 +7,7 @@ import moment from 'moment';
 import GiftCardStore from '../../stores/gift-cards';
 import GiftCardActions from '../../actions/gift-cards';
 import SectionTitle from '../section-title/section-title';
+import Panel from '../panel/panel';
 
 export default class GiftCard extends React.Component {
 
@@ -108,10 +109,9 @@ export default class GiftCard extends React.Component {
         </SectionTitle>
         <div className="fc-grid">
           <div className="fc-col-md-1-3">
-            <article className="fc-panel">
-              <header className="fc-panel-header">Available Balance</header>
+            <Panel title="Available Balance" featured={true}>
               <p>{ formatCurrency(card.availableBalance) }</p>
-            </article>
+            </Panel>
           </div>
         </div>
         <div className="fc-grid">

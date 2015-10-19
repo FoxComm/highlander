@@ -58,6 +58,10 @@ class CountryStore extends BaseStore {
   phoneExample(countryCode) {
     return '(111) 111-1111';
   }
+
+  phoneMask(countryCode) {
+    return '(999) 999-9999';
+  }
 }
 
 export default new CountryStore();

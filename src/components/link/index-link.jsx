@@ -1,7 +1,7 @@
 'use strict';
 
 import React, { PropTypes } from 'react';
-import Link from './link.jsx';
+import Link from './link';
 
 export default class IndexLink extends React.Component {
 

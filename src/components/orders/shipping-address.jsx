@@ -1,11 +1,18 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import Addresses from '../addresses/addresses';
 import AddressDetails from '../addresses/address-details';
-import OrderStore from '../../stores/orders';
+import OrdersActions from '../../actions/orders';
+import AddressStore from '../../stores/addresses';
+import ContentBox from '../content-box/content-box';
 
 export default class OrderShippingAddress extends React.Component {
+
+  static propTypes = {
+    order: PropTypes.object.isRequired,
+    isEditing: PropTypes.bool
+  };
 
   constructor(props, context) {
     super(props, context);
@@ -15,13 +22,24 @@ export default class OrderShippingAddress extends React.Component {
   }
 
   onSelectAddress(address) {
-    OrderStore.setShippingAddress(this.props.order.referenceNumber, address.id);
+    OrdersActions.setShippingAddress(this.props.order.referenceNumber, address.id);
+  }
+
+  onDeleteAddress(address) {
+    if (address.id === this.props.order.shippingAddress.id) {
+      OrdersActions.removeShippingAddress(this.props.order.referenceNumber);
+    }
+    AddressStore.delete(this.props.order.customer.id, address.id);
   }
 
   toggleEdit() {
     this.setState({
       isEditing: !this.state.isEditing
     });
+  }
+
+  isAddressSelected(address) {
+    return this.props.order ? address.id === this.props.order.shippingAddress.id : false;
   }
 
   render() {
@@ -31,7 +49,12 @@ export default class OrderShippingAddress extends React.Component {
     let editButton = null;
 
     if (this.state.isEditing) {
-      body = <Addresses order={this.props.order} onSelectAddress={this.onSelectAddress.bind(this)} />;
+      body = (
+        <Addresses order={this.props.order}
+                   isAddressSelected={this.isAddressSelected.bind(this)}
+                   onSelectAddress={this.onSelectAddress.bind(this)}
+                   onDeleteAddress={this.onDeleteAddress.bind(this)} />
+      );
       actions = (
         <footer>
           <button className="fc-btn fc-btn-primary" onClick={this.toggleEdit.bind(this)}>Done</button>
@@ -48,25 +71,13 @@ export default class OrderShippingAddress extends React.Component {
     }
 
     return (
-      <section className="fc-content-box fc-order-shipping-address">
-        <header className="fc-content-box-header">
-          <div className='fc-grid'>
-            <div className="fc-col-md-2-3">Shipping Address</div>
-            <div className="fc-col-md-1-3 fc-controls">
-              {editButton}
-            </div>
-          </div>
-        </header>
-        <article>
-          {body}
-          {actions}
-        </article>
-      </section>
+      <ContentBox
+        title="Shipping Address"
+        actionBlock={editButton}
+        className="fc-order-shipping-address">
+        {body}
+        {actions}
+      </ContentBox>
     );
   }
 }
-
-OrderShippingAddress.propTypes = {
-  order: React.PropTypes.object,
-  isEditing: React.PropTypes.bool
-};
