@@ -7,8 +7,6 @@ import Form from '../forms/form.jsx';
 import { Link } from '../link';
 import { transitionTo } from '../../route-helpers';
 import { Map } from 'immutable';
-import CustomerStore from '../../stores/customers';
-import CustomerActions from '../../actions/customers';
 
 export default class NewCustomer extends React.Component {
 
@@ -19,33 +17,16 @@ export default class NewCustomer extends React.Component {
   constructor(props, context) {
     super(props, context);
 
-    this.state = Map({
+    this.state = {
       email: null,
       name: null,
       password: null,
       isGuest: false
-    });
-    this.onChange = this.onChange.bind(this);
+    };
   }
 
-  componentDidMount() {
-    CustomerStore.listen(this.onChange);
-  }
-
-  componentWillUnmount() {
-    CustomerStore.unlisten(this.onChange);
-  }
-
-  onChange() {
-    let state = CustomerStore.getState();
-    let customer = state.first();
-    transitionTo(this.context.history, 'customer', {customer: customer.id});
-  }
-
-  submitForm(event) {
-    event.preventDefault();
-
-    CustomerActions.createCustomer(event.target);
+  submitForm() {
+    console.log("submit");
   }
 
   render () {

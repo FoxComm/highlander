@@ -1,7 +1,7 @@
 'use strict';
 
 import _ from 'lodash';
-import Api from '../lib/api';
+import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 
 export const requestCustomers = createAction('CUSTOMERS_REQUEST');
