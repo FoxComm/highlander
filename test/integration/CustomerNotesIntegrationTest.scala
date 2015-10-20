@@ -37,7 +37,7 @@ class CustomerNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
       val response = POST(s"v1/notes/customer/999999", payloads.CreateNote(body = ""))
 
       response.status must === (StatusCodes.NotFound)
-      response.bodyText mustBe 'empty
+      parseErrors(response) must === (Seq("Not found"))
     }
   }
 
