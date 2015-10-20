@@ -53,19 +53,23 @@ const StyleGuideGrid = props => {
     <div>
       <StyleGuideGridGenerator
         name="Small Grid"
-        description="The column spacing in the small grid will stay static for any browser size. It will not stack even on the phone."
+        description="The column spacing in the small grid will stay static for
+                     any browser size. It will not stack even on the phone."
         size="sm" />
       <StyleGuideGridGenerator
         name="Medium Grid"
-        description="The column spacing in the medium grid will stay static for any browser greater than or equal to 768px. Below that, it will stack."
+        description="The column spacing in the medium grid will stay static for
+                     any browser greater than or equal to 768px. Below that, it will stack."
         size="md" />
       <StyleGuideGridGenerator
         name="Large Grid"
-        description="The column spacing in the large grid will stay static for any browser 1280px and larger. Below that, it will stack."
+        description="The column spacing in the large grid will stay static for
+                     any browser 1280px and larger. Below that, it will stack."
         size="lg" />
       <StyleGuideGridGenerator
         name="Extra Large Grid"
-        description="The column spacing in the extra large grid will stay static for any browser greater than or equal to 1441px. Below that, it will stack."
+        description="The column spacing in the extra large grid will stay static
+                     for any browser greater than or equal to 1441px. Below that, it will stack."
         size="xl" />
       <div className='fc-grid'>
         <div className='fc-col-sm-1-1'>

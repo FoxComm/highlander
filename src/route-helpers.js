@@ -1,6 +1,7 @@
 'use strict';
 
 import _ from 'lodash';
+import React from 'react';
 
 export function interpolateRoute(history, name, params = {}) {
   let path = history.routeLookupByName[name];
@@ -22,4 +23,29 @@ export function interpolateRoute(history, name, params = {}) {
 export function transitionTo(history, name, params = {}, query = '') {
   let pathWithParams = interpolateRoute(history, name, params);
   history.pushState(null, pathWithParams, query);
+}
+
+
+export function createRouteLookupByName(route, prefix = route.props.path) {
+  let lookup = {};
+
+  React.Children.forEach(route.props.children, (child) => {
+    const path = child.type.displayName === 'IndexRoute' ? '' : child.props.path;
+
+    lookup = {...lookup, ...createRouteLookupByName(child, prefix + (prefix.slice(-1) === '/' ? '' : '/') + path)};
+  });
+
+  if ((route.type.displayName === 'Route' || route.type.displayName === 'IndexRoute') && route.props.name) {
+    lookup[route.props.name] = prefix;
+  }
+
+  return lookup;
+}
+
+export function addRouteLookupForHistory(createHistory, routes) {
+  return function(...args) {
+    const history = createHistory(...args);
+    history.routeLookupByName = createRouteLookupByName(routes);
+    return history;
+  };
 }

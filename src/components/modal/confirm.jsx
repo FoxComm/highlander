@@ -4,6 +4,8 @@ import React from 'react';
 import { camelize } from 'fleck';
 import { dispatch } from '../../lib/dispatcher';
 
+// THIS COMPONENT IS DEPRECATED.
+// When doing new development, please use ConfirmationDialog instead.
 export default class ConfirmModal extends React.Component {
   confirmModal() {
     if (this.props.closeOnSuccess) {

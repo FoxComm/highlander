@@ -2,81 +2,46 @@
 
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
+import EditableContentBox from '../content-box/editable-content-box';
 import PaymentMethod from './payment-method';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
 import ContentBox from '../content-box/content-box';
 
-export default class OrderPayment extends React.Component {
-  static propTypes = {
-    order: PropTypes.object,
-    tableColumns: PropTypes.array
-  }
+const OrderPayment = (props) => {
+  const order = props.order.currentOrder;
 
-  static defaultProps = {
-    tableColumns: [
-      {field: 'paymentMethod', text: 'Method', component: 'PaymentMethod'},
-      {field: 'amount', text: 'Amount', type: 'currency'},
-      {field: 'status', text: 'Status'},
-      {field: 'createdAt', text: 'Date/Time', type: 'date'}
-    ]
-  }
+  const viewContent = (
+    <table className="fc-table">
+      <TableHead columns={props.tableColumns}/>
+      <TableBody columns={props.tableColumns} rows={_.compact([order.payment])} model='payment-method'>
+        <PaymentMethod/>
+      </TableBody>
+    </table>
+  );
 
-  constructor(props, context) {
-    super(props, context);
-    this.state = {
-      methods: [],
-      isEditing: false
-    };
-  }
+  return (
+    <EditableContentBox
+      className='fc-order-payment'
+      title='Payment'
+      isEditing={false}
+      editAction={() => console.log('Not implemented')}
+      viewContent={viewContent} />
+  );
+};
 
-  toggleEdit() {
-    this.setState({
-      isEditing: !this.state.isEditing
-    });
-  }
+OrderPayment.propTypes = {
+  order: React.PropTypes.object,
+  tableColumns: React.PropTypes.array
+};
 
-  addPaymentMethod() {
-    console.log('Add method clicked');
-  }
+OrderPayment.defaultProps = {
+  tableColumns: [
+    {field: 'paymentMethod', text: 'Method', component: 'PaymentMethod'},
+    {field: 'amount', text: 'Amount', type: 'currency'},
+    {field: 'status', text: 'Status'},
+    {field: 'createdAt', text: 'Date/Time', type: 'date'}
+  ]
+};
 
-  render() {
-    let order = this.props.order;
-
-    let editButton = null;
-    let footer = null;
-
-    if (this.state.isEditing) {
-      editButton = (
-        <div>
-          <button className="fc-btn icon-add fc-right" onClick={this.addPaymentMethod.bind(this)}></button>
-        </div>
-      );
-      footer = (
-        <footer className="fc-line-items-footer">
-          <div>
-            <button className="fc-btn fc-btn-primary"
-                    onClick={ this.toggleEdit.bind(this) } >Done</button>
-          </div>
-        </footer>
-      );
-    } else {
-      editButton = (
-        <div>
-          <button className="fc-btn icon-edit fc-right" onClick={this.toggleEdit.bind(this)}></button>
-        </div>
-      );
-    }
-
-    return (
-      <ContentBox title="Payment" id="order-payment" isTable={true}>
-        <table className="fc-table">
-          <TableHead columns={this.props.tableColumns}/>
-          <TableBody columns={this.props.tableColumns} rows={_.compact([order.payment])} model='payment-method'>
-            <PaymentMethod/>
-          </TableBody>
-        </table>
-      </ContentBox>
-    );
-  }
-}
+export default OrderPayment;
