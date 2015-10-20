@@ -151,10 +151,8 @@ object CustomerRoutes {
             }
           } ~
           (post & path(IntNumber / "convert")) { storeCreditId ⇒
-            complete {
-              whenFoundDispatchToService(StoreCredits.findOneById(storeCreditId).run()) { sc ⇒
-                CustomerCreditConverter.toGiftCard(sc, customerId)
-              }
+            goodOrFailures {
+              CustomerCreditConverter.toGiftCard(storeCreditId, customerId)
             }
           }
         }
