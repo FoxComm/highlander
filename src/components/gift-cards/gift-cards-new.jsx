@@ -274,7 +274,7 @@ export default class NewGiftCard extends React.Component {
             </label>
             { emailCSV }
           </fieldset>
-          <Link to='gift-cards'>Cancel</Link>
+          <Link to='gift-cards' className="fc-btn-link">Cancel</Link>
           <input type="submit" value="Issue Gift Card" />
         </form>
       </div>
