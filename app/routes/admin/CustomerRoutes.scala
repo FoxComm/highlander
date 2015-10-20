@@ -152,7 +152,7 @@ object CustomerRoutes {
           } ~
           (post & path(IntNumber / "convert")) { storeCreditId ⇒
             goodOrFailures {
-              CustomerCreditConverter.toGiftCard(storeCreditId, customerId)
+              CustomerCreditConverter.toGiftCard(storeCreditId, customerId, admin)
             }
           }
         }

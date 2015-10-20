@@ -8,6 +8,7 @@ import org.joda.money.CurrencyUnit
 import responses._
 import org.scalatest.BeforeAndAfterEach
 import services._
+import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.Money.Currency
 import utils.Seeds.Factories
@@ -210,8 +211,8 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         val adjustments = transactionsRep.as[Seq[StoreCreditAdjustmentsResponse.Root]]
 
         response.status must ===(StatusCodes.OK)
-        adjustments.size must === (2)
-        adjustments.head.state must ===(StoreCreditAdjustment.Capture)
+        adjustments.size mustBe 2
+        adjustments.head.state must ===(StoreCreditAdjustment.CancellationCapture)
       }
 
       "fails to cancel store credit if invalid reason provided" in new Fixture {
@@ -253,6 +254,51 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         response.errors must ===(EmptyCancellationReasonFailure.description)
       }
     }
+
+
+    "POST /v1/customers/:customerId/payment-methods/store-credit/:id/convert" - {
+      "successfully converts SC to GC" in new Fixture {
+        val response = POST(s"v1/customers/${customer.id}/payment-methods/store-credit/${scSecond.id}/convert")
+        response.status must ===(StatusCodes.OK)
+
+        val root = response.as[GiftCardResponse.Root]
+        root.originType       must ===(models.GiftCard.FromStoreCredit)
+        root.status           must ===(models.GiftCard.Active)
+        root.originalBalance  must ===(scSecond.originalBalance)
+
+        val redeemedSc = StoreCredits.filter(_.id === scSecond.id).one.run().futureValue.value
+        redeemedSc.status           must ===(StoreCredit.FullyRedeemed)
+        redeemedSc.availableBalance must ===(0)
+        redeemedSc.currentBalance   must ===(0)
+      }
+
+      "fails to convert when SC not found" in new Fixture {
+        val response = POST(s"v1/customers/${customer.id}/payment-methods/store-credit/555/convert")
+        response.status must ===(StatusCodes.NotFound)
+        response.errors must ===(NotFoundFailure(StoreCredit, 555).description)
+      }
+
+      "fails to convert when customer not found" in new Fixture {
+        val response = POST(s"v1/customers/666/payment-methods/store-credit/${scSecond.id}/convert")
+        response.status must ===(StatusCodes.NotFound)
+        response.errors must ===(NotFoundFailure(Customer, 666).description)
+      }
+
+      "fails to convert SC to GC if open transactions are present" in new Fixture {
+        val response = POST(s"v1/customers/${customer.id}/payment-methods/store-credit/${storeCredit.id}/convert")
+        response.status must ===(StatusCodes.BadRequest)
+        response.errors must ===(OpenTransactionsFailure.description)
+      }
+
+      "fails to convert inactive SC to GC" in new Fixture {
+        StoreCredits.findActiveById(scSecond.id).map(_.status).update(StoreCredit.OnHold).run().futureValue
+        val updatedSc = StoreCredits.findActiveById(scSecond.id).one.run().futureValue.value
+
+        val response = POST(s"v1/customers/${customer.id}/payment-methods/store-credit/${scSecond.id}/convert")
+        response.status must ===(StatusCodes.BadRequest)
+        response.errors must ===(StoreCreditConvertFailure(updatedSc).description)
+      }
+    }
   }
 
   trait Fixture {
@@ -265,8 +311,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       scOrigin    ← StoreCreditManuals.save(Factories.storeCreditManual.copy(adminId = admin.id,
         reasonId = scReason.id))
       storeCredit ← StoreCredits.save(Factories.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))
-      scSecond ← StoreCredits.save(Factories.storeCredit.copy(originId = scOrigin.id, customerId = customer
-        .id))
+      scSecond ← StoreCredits.save(Factories.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))
       payment ← OrderPayments.save(Factories.storeCreditPayment.copy(orderId = order.id,
         paymentMethodId = storeCredit.id, paymentMethodType = PaymentMethod.StoreCredit))
       adjustment ← StoreCredits.auth(storeCredit, Some(payment.id), 10)

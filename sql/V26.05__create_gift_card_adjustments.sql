@@ -14,7 +14,7 @@ create table gift_card_adjustments (
     -- both credit/debit are unsigned (never negative) and only one can be > 0
     constraint valid_entry check ((credit >= 0 and debit >= 0) and (credit > 0 or debit > 0) and
         not (credit > 0 and debit > 0)),
-    constraint valid_status check (status in ('auth','canceled','capture'))
+    constraint valid_status check (status in ('auth','canceled','capture','cancellationCapture'))
 );
 
 create function update_gift_card_current_balance() returns trigger as $$
@@ -29,7 +29,7 @@ begin
 
     -- canceling an adjustment should remove its monetary change from the gc
     if new.status = 'canceled' and old.status != 'canceled' then
-        if old.status = 'capture' then
+        if old.status = 'capture' or old.status = 'cancellationCapture' then
             update gift_cards
                 set current_balance = current_balance - adjustment,
                     available_balance = available_balance - adjustment
