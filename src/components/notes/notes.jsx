@@ -1,8 +1,8 @@
 'use strict';
 
+import _ from 'lodash';
 import React from 'react';
-import Api from '../../lib/api';
-import NotesStore from '../../stores/notes';
+import { autobind } from 'core-decorators';
 import ContentBox from '../content-box/content-box';
 import TableView from '../table/tableview';
 import TableRow from '../table/row';
@@ -12,8 +12,19 @@ import NoteForm from './form';
 import UserInitials from '../users/initials';
 import DateTime from '../datetime/datetime';
 import ConfirmModal from '../modal/confirm';
-import { dispatch } from '../../lib/dispatcher';
+import * as NotesActinos from '../../modules/notes';
+import { modelIdentity } from '../../modules/state-helpers';
 
+function mapStateToProps(state, props) {
+  const model = props[props.modelName];
+  const identity = modelIdentity(props.modelName, model);
+
+  return {
+    notes: _.get(state.notes, [props.modelName, identity, 'notes'], [])
+  };
+}
+
+@connect(mapStateToProps, NotesActinos)
 export default class Notes extends React.Component {
   static deleteOptions = {
     header: 'Confirm',
@@ -32,50 +43,49 @@ export default class Notes extends React.Component {
   }
 
   componentDidMount() {
-    let model = this.props.modelName;
-    if (model === 'order') {
-      NotesStore.uriRoot = `/notes/${model}/${this.props[model].referenceNumber}`;
-    } else if (model === 'gift-card') {
-      NotesStore.uriRoot = `/notes/${model}/${this.props[model].code}`;
-    } else {
-      NotesStore.uriRoot = `/notes/${model}/${this.props[model].id}`;
-    }
-    NotesStore.setSorting('createdAt');
-    NotesStore.fetch();
+    const type = this.props.modelName;
+    const model = this.props[type];
+
+    this.props.fetchNotesIfNeeded(type, model);
   }
 
-  handleEdit(item) {
+  @autobind
+  onEditNote(item) {
     this.setState({
       creatingNote: false,
       editingNote: item
     });
   }
 
-  handleDelete(item) {
+  @autobind
+  onDeleteNote(item) {
     this.confirmDeleteNote(item);
   }
 
-  handleResetForm() {
+  @autobind
+  onResetForm() {
     this.setState({
       creatingNote: false,
       editingNote: null
     });
   }
 
-  handleCreateForm(data) {
+  @autobind
+  onCreateFormSubmit(data) {
     this.setState({
       creatingNote: false
     });
-    NotesStore.create(data);
+    // NotesStore.create(data);
   }
 
-  handleEditForm(data) {
+  onEditFormSubmit(data) {
     this.setState({
       editingNote: false
     });
-    NotesStore.patch(this.state.editingNote.id, data);
+    // NotesStore.patch(this.state.editingNote.id, data);
   }
 
+  @autobind
   toggleCreating() {
     this.setState({
       creatingNote: !this.state.creatingNote,
@@ -103,65 +113,68 @@ export default class Notes extends React.Component {
   }
 
   deleteNote() {
-    NotesStore.delete(this.state.deletingNote.id);
+    // NotesStore.delete(this.state.deletingNote.id);
   }
 
-  render() {
-    let renderRow = (row, index) => {
-      return (
-        <div>
-          {(this.state.editingNote && (this.state.editingNote.id === row.id) && (
-            <TableRow>
-              <TableCell colspan={3}>
-                <NoteForm
-                  uri={NotesStore.baseUri}
-                  body={this.state.editingNote && this.state.editingNote.body}
-                  onReset={this.handleResetForm.bind(this)}
-                  onSubmit={this.handleEditForm.bind(this)}
-                  />
-              </TableCell>
-            </TableRow>
+  @autobind
+  renderNoteRow(row, index) {
+    return (
+      <div>
+        {(this.state.editingNote && (this.state.editingNote.id === row.id) && (
+        <TableRow>
+          <TableCell colspan={3}>
+            <NoteForm
+              body={this.state.editingNote && this.state.editingNote.body}
+              onReset={this.onResetForm}
+              onSubmit={this.onEditFormSubmit}
+            />
+          </TableCell>
+        </TableRow>
           )) || (
-            <TableRow>
-              <TableCell>
-                <DateTime value={row.createdAt}/>
-              </TableCell>
-              <TableCell>
-                {row.body}
-              </TableCell>
-              <TableCell>
-                <NoteControls
-                  model={row}
-                  onEditClick={this.handleEdit.bind(this)}
-                  onDeleteClick={this.handleDelete.bind(this)}
-                  />
-              </TableCell>
-            </TableRow>
+        <TableRow>
+          <TableCell>
+            <DateTime value={row.createdAt}/>
+          </TableCell>
+          <TableCell>
+            {row.body}
+          </TableCell>
+          <TableCell>
+            <NoteControls
+              model={row}
+              onEditClick={this.onEditNote}
+              onDeleteClick={this.onDeleteNote}
+            />
+          </TableCell>
+        </TableRow>
           )}
-        </div>
-      );
-    };
+      </div>
+    );
+  }
 
-    let controls = (
+  get controls() {
+    return (
       <button
         className="fc-btn fc-btn-primary"
-        onClick={this.toggleCreating.bind(this)}
+        onClick={this.toggleCreating}
         disabled={!!this.state.creatingNote}
-        >
+      >
         <i className="icon-add"></i>
       </button>
     );
+  }
 
+  render() {
     return (
-      <ContentBox title={'Notes'} actionBlock={controls}>
+      <ContentBox title={'Notes'} actionBlock={this.controls}>
         {this.state.creatingNote && (
           <NoteForm
-            uri={NotesStore.baseUri}
-            onReset={this.handleResetForm.bind(this)}
-            onSubmit={this.handleCreateForm.bind(this)}
+            onReset={this.onResetForm}
+            onSubmit={this.onCreateFormSubmit}
             />
         )}
-        <TableView store={NotesStore} renderRow={renderRow.bind(this)} empty={'No notes yet.'}/>
+        /* @TODO: re-enable this after Denys finished with table refactoring for redux
+        <TableView renderRow={this.renderNoteRow} empty={'No notes yet.'}/>
+        */
       </ContentBox>
     );
   }
