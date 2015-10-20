@@ -81,14 +81,14 @@ export default class GiftCard extends React.Component {
     );
   }
 
-  get status() {
-    const card = this.giftCard;
+  get cardStatus() {
+    const {status} = this.giftCard;
 
-    if (card.status === 'Canceled') {
-      return <span>{card.status}</span>;
+    if (status === 'Canceled') {
+      return <span>{status}</span>;
     } else {
       return (
-        <select value={card.status} onChange={this.changeState.bind(this)}>
+        <select value={status} onChange={this.changeState.bind(this)}>
           <option value="active">Active</option>
           <option value="onHold">On Hold</option>
           <option value="canceled">Cancel Gift Card</option>
@@ -134,7 +134,7 @@ export default class GiftCard extends React.Component {
             { card.originType }
           </PanelListItem>
           <PanelListItem title="Current State">
-            { this.status }
+            { this.cardStatus }
           </PanelListItem>
         </PanelList>
         <div className="fc-grid fc-grid-md-1-1 fc-grid-collapse fc-panel fc-gift-card-detail-message">
