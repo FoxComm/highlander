@@ -82,7 +82,7 @@ object NoteManager {
       if (rowsAffected == 1) {
         finder.one.flatMap {
           case Some(note) ⇒ DbResult.good(AdminNotes.build(note, author))
-          case None ⇒ DbResult.failure(notFound(noteId))
+          case None       ⇒ DbResult.failure(notFound(noteId))
         }
       } else {
         DbResult.failure(notFound(noteId))
@@ -104,8 +104,8 @@ object NoteManager {
   private def createNote(note: Note)
     (implicit ec: ExecutionContext, db: Database): DbResult[Note] = {
     note.validate match {
-      case Valid(_) ⇒ DbResult.fromDbio(Notes.save(note))
-      case Invalid(errors) ⇒ DbResult.failures(errors)
+      case Valid(_)         ⇒ DbResult.fromDbio(Notes.save(note))
+      case Invalid(errors)  ⇒ DbResult.failures(errors)
     }
   }
 
