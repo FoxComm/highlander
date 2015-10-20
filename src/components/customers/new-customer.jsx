@@ -6,31 +6,28 @@ import FormField from '../forms/formfield.jsx';
 import Form from '../forms/form.jsx';
 import { Link } from '../link';
 import { transitionTo } from '../../route-helpers';
-import { Map } from 'immutable';
+import { connect } from 'react-redux';
+import { autobind } from 'core-decorators';
+import * as CustomersActions from '../../modules/customers/new';
 
+@connect(state => ({
+  ...state.customers.adding
+}), {
+
+})
 export default class NewCustomer extends React.Component {
 
   static contextTypes = {
     history: PropTypes.object.isRequired
   };
 
-  constructor(props, context) {
-    super(props, context);
-
-    this.state = {
-      email: null,
-      name: null,
-      password: null,
-      isGuest: false
-    };
-  }
-
-  submitForm() {
+  @autobind
+  submitForm(event) {
+    event.preventDefault();
     console.log("submit");
   }
 
   render () {
-    let formData = this.state.formData;
     return (
       <div className="fc-customer-create">
         <div className="gutter">
@@ -53,7 +50,7 @@ export default class NewCustomer extends React.Component {
                              name="name"
                              maxLength="255"
                              type="text"
-                             value={this.state.name}
+
                              required />
                     </FormField>
                   </li>
@@ -64,7 +61,7 @@ export default class NewCustomer extends React.Component {
                              name="email"
                              maxLength="255"
                              type="text"
-                             value={this.state.email}
+
                              required />
                     </FormField>
                   </li>
