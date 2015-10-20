@@ -93,10 +93,8 @@ object OrderRoutes {
           }
         } ~
         (post & path("line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems ⇒
-          complete {
-            whenOrderFoundAndEditable(refNum) { order ⇒
-              LineItemUpdater.updateQuantities(order, reqItems)
-            }
+          goodOrFailures {
+            LineItemUpdater.updateQuantitiesOnOrder(refNum, reqItems)
           }
         } ~
         (post & path("gift-cards") & entity(as[AddGiftCardLineItem]) & pathEnd) { payload ⇒

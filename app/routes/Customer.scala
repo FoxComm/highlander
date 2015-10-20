@@ -67,13 +67,8 @@ object Customer {
             }
           } ~
           (post & path("line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems ⇒
-            complete {
-              whenOrderFoundAndEditable(customer) { order ⇒
-                LineItemUpdater.updateQuantities(order, reqItems).flatMap {
-                  case Xor.Right(_) ⇒ FullOrder.fromOrder(order).run().map(Xor.right)
-                  case Xor.Left(e)  ⇒ Future.successful(Xor.left(e))
-                }
-              }
+            goodOrFailures {
+              LineItemUpdater.updateQuantitiesOnCustomersOrder(customer, reqItems)
             }
           } ~
           (get & path(PathEnd)) {

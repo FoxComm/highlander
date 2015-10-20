@@ -47,7 +47,7 @@ class LineItemUpdaterTest extends IntegrationTestBase {
         Payload(sku = "2", quantity = 0)
       )
 
-      LineItemUpdater.updateQuantities(order, payload).futureValue match {
+      LineItemUpdater.updateQuantitiesOnOrder(order.refNum, payload).futureValue match {
         case Xor.Right(root) ⇒
           root.lineItems.skus.count(_.sku == "1") must be(3)
           root.lineItems.skus.count(_.sku == "2") must be(0)
@@ -79,7 +79,7 @@ class LineItemUpdaterTest extends IntegrationTestBase {
         Payload(sku = "3", quantity = 1)
       )
 
-      LineItemUpdater.updateQuantities(order, payload).futureValue match {
+      LineItemUpdater.updateQuantitiesOnOrder(order.refNum, payload).futureValue match {
         case Xor.Right(root) ⇒
           root.lineItems.skus.count(_.sku == "1") must be(3)
           root.lineItems.skus.count(_.sku == "2") must be(0)
