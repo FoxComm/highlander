@@ -11,6 +11,7 @@ import utils.Seeds.Factories
 import utils.Slick.implicits._
 import utils.time.RichInstant
 import scala.concurrent.ExecutionContext.Implicits.global
+import services.NotFoundFailure
 
 class CustomerNotesIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 
@@ -37,7 +38,8 @@ class CustomerNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
       val response = POST(s"v1/notes/customer/999999", payloads.CreateNote(body = ""))
 
       response.status must === (StatusCodes.NotFound)
-      parseErrors(response) must === (Seq("Not found"))
+      // TODO: Compare with proper error after selectOne refactoring
+      parseErrors(response) must === (NotFoundFailure("Not found").description)
     }
   }
 
@@ -81,7 +83,7 @@ class CustomerNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
       response.status must === (StatusCodes.NoContent)
       response.bodyText mustBe empty
 
-      val updatedNote = db.run(Notes.findOneById(note.id)).futureValue.value
+      val updatedNote = Notes.findOneById(note.id).run().futureValue.value
       updatedNote.deletedBy.value === (1)
 
       withClue(updatedNote.deletedAt.value → Instant.now) {

@@ -5,7 +5,7 @@ import akka.http.scaladsl.model.StatusCodes
 import Extensions._
 import models.{Notes, _}
 import responses.AdminNotes
-import services.NoteManager
+import services.{NotFoundFailure, NoteManager}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.implicits._
@@ -37,7 +37,8 @@ class GiftCardNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
       val response = POST(s"v1/notes/gift-card/999999", payloads.CreateNote(body = ""))
 
       response.status must === (StatusCodes.NotFound)
-      parseErrors(response) must === (Seq("Not found"))
+      // TODO: Compare with proper error after selectOne refactoring
+      parseErrors(response) must === (NotFoundFailure("Not found").description)
     }
   }
 
@@ -81,11 +82,11 @@ class GiftCardNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
       response.status must === (StatusCodes.NoContent)
       response.bodyText mustBe empty
 
-      val updatedNote = db.run(Notes.findOneById(note.id)).futureValue.value
-      updatedNote.deletedBy.value mustBe 1
+      val updatedNote = Notes.findOneById(note.id).run().futureValue.value
+      updatedNote.deletedBy.value === (1)
 
       withClue(updatedNote.deletedAt.value → Instant.now) {
-        updatedNote.deletedAt.value.isBeforeNow mustBe true
+        updatedNote.deletedAt.value.isBeforeNow === (true)
       }
 
       // Deleted note should not be returned
