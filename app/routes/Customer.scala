@@ -13,6 +13,8 @@ import responses.FullOrder
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives._
+import utils.Slick.DbResult
+import utils.Slick._
 import utils.Slick.implicits._
 
 object Customer {
@@ -75,10 +77,9 @@ object Customer {
             }
           } ~
           (get & path(PathEnd)) {
-            complete {
-              whenFound(Orders.findActiveOrderByCustomer(customer).one.run()) { order ⇒
-                FullOrder.fromOrder(order).run().map(Xor.right)
-              }
+            goodOrFailures {
+              val finder = Orders.findActiveOrderByCustomer(customer)
+              finder.selectOne { order ⇒ DbResult.fromDbio(fullOrder(finder)) }
             }
           }
         }
