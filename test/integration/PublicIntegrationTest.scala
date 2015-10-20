@@ -42,7 +42,7 @@ class PublicIntegrationTest extends IntegrationTestBase with HttpSupport {
     "lists countries sorted" in {
       val response = GET(s"v1/countries")
 
-      response.status mustBe StatusCodes.OK
+      response.status must === (StatusCodes.OK)
 
       val countries = response.as[Seq[Country]]
       val us = countries.find(_.id === unitedStatesId).value
@@ -57,7 +57,7 @@ class PublicIntegrationTest extends IntegrationTestBase with HttpSupport {
   "GET /regions" - {
     "lists regions sorted" in {
       val response = GET(s"v1/regions")
-      response.status mustBe StatusCodes.OK
+      response.status must === (StatusCodes.OK)
       val regions = response.as[Seq[Region]]
 
       val us = regions.take(regularUsRegions.size)

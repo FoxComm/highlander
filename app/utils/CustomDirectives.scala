@@ -1,13 +1,12 @@
 package utils
 
-import akka.http.scaladsl.server.{Directive1, StandardRoute}
-import akka.http.scaladsl.server.directives.RouteDirectives.complete
+import scala.concurrent.{ExecutionContext, Future}
 import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.directives.RouteDirectives.complete
+import akka.http.scaladsl.server.{Directive1, StandardRoute}
 
 import services.Result
 import utils.Http._
-
-import scala.concurrent.{ExecutionContext, Future}
 
 object CustomDirectives {
 
@@ -15,17 +14,21 @@ object CustomDirectives {
   final case class SortAndPage(
     pageNo: Option[Int],
     pageSize: Option[Int],
-    sort: Option[Sort])
+    sortBy: Option[String]) {
+
+    require(pageNo.getOrElse(1) > 0,   "pageNo parameter must be greater than zero")
+    require(pageSize.getOrElse(1) > 0, "pageSize parameter must be greater than zero")
+
+    def sort: Option[Sort] = sortBy.map { f ⇒
+      if (f.startsWith("-")) Sort(f.drop(1), asc = false)
+      else Sort(f)
+    }
+  }
+
+  val EmptySortAndPage: SortAndPage = SortAndPage(None, None, None)
 
   def sortAndPage: Directive1[SortAndPage] =
-    parameters(('pageNo.as[Int].?, 'pageSize.as[Int].?, 'sortBy.as[String].?)).tmap {
-      case (pageNoOpt: Option[Int], pageSizeOpt: Option[Int], sortColumnOpt: Option[String]) ⇒
-        val sort = sortColumnOpt.map { f ⇒
-          if (f.startsWith("-")) Sort(f.drop(1), asc = false)
-          else Sort(f)
-        }
-        SortAndPage(pageNoOpt, pageSizeOpt, sort)
-    }
+    parameters(('pageNo.as[Int].?, 'pageSize.as[Int].?, 'sortBy.as[String].?)).as(SortAndPage)
 
   def good[A <: AnyRef](a: Future[A])(implicit ec: ExecutionContext): StandardRoute =
     complete(a.map(render(_)))

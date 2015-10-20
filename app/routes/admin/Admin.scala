@@ -40,15 +40,15 @@ object Admin {
             StoreCreditService.updateStatusByCsr(storeCreditId, payload, admin)
           }
         } ~
-        (get & path("transactions") & pathEnd) {
+        (get & path("transactions") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
           goodOrFailures {
             StoreCreditAdjustmentsService.forStoreCredit(storeCreditId)
           }
         }
       } ~
       pathPrefix("reasons") {
-        (get & pathEnd) {
-          good {
+        (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+          goodOrFailures {
             ReasonService.listAll
           }
         }
@@ -70,17 +70,13 @@ object Admin {
             }
           } ~
           (post & entity(as[payloads.CreateNote])) { payload ⇒
-            complete {
-              whenOrderFoundAndEditable(refNum) { order ⇒
-                NoteManager.createOrderNote(order, admin, payload)
-              }
+            goodOrFailures {
+              NoteManager.createOrderNote(refNum, admin, payload)
             }
           } ~
           (patch & path(IntNumber) & entity(as[payloads.UpdateNote])) { (noteId, payload) ⇒
-            complete {
-              whenOrderFoundAndEditable(refNum) { order ⇒
-                NoteManager.updateNote(noteId, admin, payload)
-              }
+            goodOrFailures {
+              NoteManager.updateOrderNote(refNum, noteId, admin, payload)
             }
           } ~
           (delete & path(IntNumber)) { noteId ⇒
@@ -96,18 +92,14 @@ object Admin {
             }
           } ~
           (post & entity(as[payloads.CreateNote]) & pathEnd) { payload ⇒
-            complete {
-              whenFound(GiftCards.findByCode(code).one.run()) { giftCard ⇒
-                NoteManager.createGiftCardNote(giftCard, admin, payload)
-              }
+            goodOrFailures {
+              NoteManager.createGiftCardNote(code, admin, payload)
             }
           } ~
           path(IntNumber) { noteId ⇒
             (patch & entity(as[payloads.UpdateNote]) & pathEnd) { payload ⇒
-              complete {
-                whenFound(GiftCards.findByCode(code).one.run()) { _ ⇒
-                  NoteManager.updateNote(noteId, admin, payload)
-                }
+              goodOrFailures {
+                NoteManager.updateGiftCardNote(code, noteId, admin, payload)
               }
             } ~
             (delete & pathEnd) {

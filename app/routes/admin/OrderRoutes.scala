@@ -15,6 +15,7 @@ import services._
 import slick.driver.PostgresDriver.api._
 import utils.Http._
 import utils.Slick.DbResult
+import utils.Slick.implicits._
 import utils.CustomDirectives._
 import utils.{Apis, Slick}
 
@@ -26,31 +27,37 @@ object OrderRoutes {
     authenticateBasicAsync(realm = "admin", storeAdminAuth) { admin ⇒
 
       pathPrefix("orders") {
-        (get & pathEnd) {
+        (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
           good {
-            AllOrders.runFindAll
+            OrderQueries.findAll.run()
           }
         } ~
         (post & entity(as[CreateOrder]) & pathEnd) { payload ⇒
           goodOrFailures { OrderCreator.createCart(payload) }
         } ~
-        (patch & entity(as[BulkUpdateOrdersPayload]) & pathEnd) { payload ⇒
-          good {
-            for {
-              failures ← OrderUpdater.updateStatuses(payload.referenceNumbers, payload.status)
-              orders ← AllOrders.runFindAll
-            } yield BulkOrderUpdateResponse(orders, failures)
+        (patch & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+          entity(as[BulkUpdateOrdersPayload]) { payload ⇒
+            good {
+              for {
+                failures ← OrderUpdater.updateStatuses(payload.referenceNumbers, payload.status)
+                orders   ← OrderQueries.findAll.run()
+              } yield BulkOrderUpdateResponse(orders, failures)
+            }
           }
         } ~
         pathPrefix("assignees") {
-          (post & entity(as[BulkAssignment]) & pathEnd) { payload ⇒
-            goodOrFailures {
-              BulkOrderUpdater.assign(payload)
+          (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+            entity(as[BulkAssignment]) { payload ⇒
+              goodOrFailures {
+                BulkOrderUpdater.assign(payload)
+              }
             }
           } ~
-          (post & path("delete") & entity(as[BulkAssignment]) & pathEnd) { payload ⇒
-            goodOrFailures {
-              BulkOrderUpdater.unassign(payload)
+          (post & path("delete") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+            entity(as[BulkAssignment]) { payload ⇒
+              goodOrFailures {
+                BulkOrderUpdater.unassign(payload)
+              }
             }
           }
         }
@@ -166,6 +173,18 @@ object OrderRoutes {
           (delete & pathEnd) {
             goodOrFailures {
               OrderUpdater.removeShippingAddress(refNum)
+            }
+          }
+        } ~
+        pathPrefix("shipping-method") {
+          (patch & entity(as[payloads.UpdateShippingMethod]) & pathEnd) { payload ⇒
+            goodOrFailures {
+              OrderUpdater.updateShippingMethod(payload, refNum)
+            }
+          } ~
+          (delete & pathEnd) {
+            goodOrFailures {
+              OrderUpdater.deleteShippingMethod(refNum)
             }
           }
         }

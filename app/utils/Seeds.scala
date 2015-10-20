@@ -190,6 +190,8 @@ object Seeds {
         city = "San Mateo", zip = "94402")
     }
 
+    def creditCardCharge = CreditCardCharge(creditCardId = creditCard.id, orderPaymentId = orderPayment.id, chargeId = "foo")
+
     def reason = Reason(id = 0, storeAdminId = 0, body = "I'm a reason", parentId = None)
 
     def reasons: Seq[Reason] = Seq(

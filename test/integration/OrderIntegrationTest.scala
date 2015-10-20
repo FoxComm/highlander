@@ -5,6 +5,7 @@ import akka.pattern.ask
 import akka.testkit.TestActorRef
 
 import models._
+import models.rules.QueryStatement
 import payloads.{Assignment, UpdateOrderPayload}
 import responses.{StoreAdminResponse, FullOrderWithWarnings, FullOrder}
 import services.{GeneralFailure, NotFoundFailure}
@@ -15,6 +16,7 @@ import slick.driver.PostgresDriver.api._
 import Order._
 import utils.{RemorseTimer, Tick}
 import models.OrderLockEvents.scope._
+import org.json4s.jackson.JsonMethods._
 
 import utils.time._
 
@@ -25,11 +27,48 @@ class OrderIntegrationTest extends IntegrationTestBase
   import concurrent.ExecutionContext.Implicits.global
 
   import Extensions._
-  import org.json4s.jackson.JsonMethods._
 
   type Errors = Map[String, Seq[String]]
 
   def getUpdated(refNum: String) = db.run(Orders.findByRefNum(refNum).result.headOption).futureValue.value
+
+  "GET /v1/orders/:refNum" - {
+    "payment status" - {
+      "does not display payment status if no cc" in new Fixture {
+        Orders.findByRefNum(order.refNum).map(_.status).update(Order.ManualHold).run.futureValue
+
+        val response = GET(s"v1/orders/${order.refNum}")
+        response.status must === (StatusCodes.OK)
+        val fullOrder = response.as[FullOrder.Root]
+        fullOrder.paymentStatus must not be defined
+        fullOrder.payment must not be defined
+      }
+
+      "displays payment status if cc present" in new PaymentStatusFixture {
+        Orders.findByRefNum(order.refNum).map(_.status).update(Order.ManualHold).run.futureValue
+        CreditCardCharges.findById(ccc.id).extract.map(_.status).update(CreditCardCharge.Auth).run.futureValue
+
+        val response = GET(s"v1/orders/${order.refNum}")
+        response.status must === (StatusCodes.OK)
+        val fullOrder = response.as[FullOrder.Root]
+
+        fullOrder.paymentStatus.value must === (CreditCardCharge.Auth)
+        fullOrder.payment.value.status must === (CreditCardCharge.Auth)
+      }
+
+      "displays 'cart' payment status if order is cart and cc present" in new PaymentStatusFixture {
+        Orders.findByRefNum(order.refNum).map(_.status).update(Order.Cart).run.futureValue
+        CreditCardCharges.findById(ccc.id).extract.map(_.status).update(CreditCardCharge.Auth).run.futureValue
+
+        val response = GET(s"v1/orders/${order.refNum}")
+        response.status must === (StatusCodes.OK)
+        val fullOrder = response.as[FullOrder.Root]
+
+        fullOrder.paymentStatus.value must === (CreditCardCharge.Cart)
+        fullOrder.payment.value.status must === (CreditCardCharge.Auth)
+      }
+    }
+  }
 
   "POST /v1/orders/:refNum/line-items" - {
     "should successfully update line items" in new OrderFixture {
@@ -244,7 +283,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
     "can be assigned to order" in new Fixture {
       val response = POST(s"v1/orders/${order.referenceNumber}/assignees", Assignment(Seq(storeAdmin.id)))
-      response.status mustBe StatusCodes.OK
+      response.status must === (StatusCodes.OK)
 
       val fullOrderWithWarnings = parse(response.bodyText).extract[FullOrderWithWarnings]
       fullOrderWithWarnings.order.assignees must not be empty
@@ -259,17 +298,17 @@ class OrderIntegrationTest extends IntegrationTestBase
         storeAdmin ← StoreAdmins.save(authedStoreAdmin)
       } yield (order, storeAdmin)).run().futureValue
       val response = POST(s"v1/orders/${order.referenceNumber}/assignees", Assignment(Seq(storeAdmin.id)))
-      response.status mustBe StatusCodes.OK
+      response.status must === (StatusCodes.OK)
     }
 
     "404 if order is not found" in new Fixture {
       val response = POST(s"v1/orders/NOPE/assignees", Assignment(Seq(storeAdmin.id)))
-      response.status mustBe StatusCodes.NotFound
+      response.status must === (StatusCodes.NotFound)
     }
 
     "warning if assignee is not found" in new Fixture {
       val response = POST(s"v1/orders/${order.referenceNumber}/assignees", Assignment(Seq(1, 999)))
-      response.status mustBe StatusCodes.OK
+      response.status must === (StatusCodes.OK)
 
       val fullOrderWithWarnings = parse(response.bodyText).extract[FullOrderWithWarnings]
       fullOrderWithWarnings.order.assignees.map(_.assignee) mustBe Seq(StoreAdminResponse.build(storeAdmin))
@@ -278,13 +317,13 @@ class OrderIntegrationTest extends IntegrationTestBase
 
     "can be viewed with order" in new Fixture {
       val response1 = GET(s"v1/orders/${order.referenceNumber}")
-      response1.status mustBe StatusCodes.OK
+      response1.status must === (StatusCodes.OK)
       val responseOrder1 = parse(response1.bodyText).extract[FullOrder.Root]
       responseOrder1.assignees mustBe empty
 
       POST(s"v1/orders/${order.referenceNumber}/assignees", Assignment(Seq(storeAdmin.id)))
       val response2 = GET(s"v1/orders/${order.referenceNumber}")
-      response2.status mustBe StatusCodes.OK
+      response2.status must === (StatusCodes.OK)
       val responseOrder2 = parse(response2.bodyText).extract[FullOrder.Root]
       responseOrder2.assignees must not be empty
       responseOrder2.assignees.map(_.assignee) mustBe Seq(StoreAdminResponse.build(storeAdmin))
@@ -513,7 +552,8 @@ class OrderIntegrationTest extends IntegrationTestBase
             addr.city must === (city)
             addr.address1 must === (address.address1)
             addr.address2 must === (address.address2)
-            addr.regionId must === (address.regionId)
+            val region = Regions.findOneById(address.regionId).run().futureValue.value
+            addr.region must === (region)
             addr.zip must === (address.zip)
 
           case None ⇒
@@ -552,6 +592,40 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
   }
 
+  "adding a shipping method method to an order" - {
+    "succeeds if the order meets the shipping restrictions" in new ShippingMethodFixture {
+      val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-method",
+        payloads.UpdateShippingMethod(shippingMethodId = lowShippingMethod.id))
+
+      response.status must === (StatusCodes.OK)
+
+      val orderShippingMethod = OrderShippingMethods.findByOrderId(order.id).result.run().futureValue.head
+      orderShippingMethod.orderId must === (order.id)
+      orderShippingMethod.shippingMethodId must === (lowShippingMethod.id)
+    }
+
+    "fails if the order does not meet the shipping restrictions" in new ShippingMethodFixture {
+      val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-method",
+        payloads.UpdateShippingMethod(shippingMethodId = highShippingMethod.id))
+
+      response.status must === (StatusCodes.BadRequest)
+    }
+
+    "fails if the shipping method isn't found" in new ShippingMethodFixture {
+      val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-method",
+        payloads.UpdateShippingMethod(shippingMethodId = 999))
+
+      response.status must === (StatusCodes.BadRequest)
+    }
+
+    "fails if the shipping method isn't active" in new ShippingMethodFixture {
+      val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-method",
+        payloads.UpdateShippingMethod(shippingMethodId = inactiveShippingMethod.id))
+
+      response.status must === (StatusCodes.BadRequest)
+    }
+  }
+
   trait Fixture {
     val (order, storeAdmin, customer) = (for {
       customer ← Customers.save(Factories.customer)
@@ -585,6 +659,39 @@ class OrderIntegrationTest extends IntegrationTestBase
   trait PaymentMethodsFixture extends AddressFixture {
   }
 
+  trait ShippingMethodFixture extends AddressFixture {
+    val lowConditions = parse(
+      """
+        | {
+        |   "comparison": "and",
+        |   "conditions": [{
+        |     "rootObject": "Order", "field": "grandtotal", "operator": "greaterThan", "valInt": 25
+        |   }]
+        | }
+      """.stripMargin).extract[QueryStatement]
+
+    val highConditions = parse(
+      """
+        | {
+        |   "comparison": "and",
+        |   "conditions": [{
+        |     "rootObject": "Order", "field": "grandtotal", "operator": "greaterThan", "valInt": 250
+        |   }]
+        | }
+      """.stripMargin).extract[QueryStatement]
+
+    val (lowShippingMethod, inactiveShippingMethod, highShippingMethod) = (for {
+      sku ← Skus.save(Factories.skus.head.copy(price = 100))
+      lineItemSku ← OrderLineItemSkus.save(OrderLineItemSku(skuId = sku.id, orderId = order.id))
+      lineItem ← OrderLineItems.save(OrderLineItem(orderId = order.id, originId = lineItemSku.id,
+        originType = OrderLineItem.SkuItem))
+
+      lowShippingMethod ← ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(lowConditions)))
+      inactiveShippingMethod ← ShippingMethods.save(lowShippingMethod.copy(isActive = false))
+      highShippingMethod ← ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(highConditions)))
+    } yield (lowShippingMethod, inactiveShippingMethod, highShippingMethod)).run().futureValue
+  }
+
   trait RemorseFixture {
     val (admin, order) = (for {
       admin ← StoreAdmins.save(Factories.storeAdmin)
@@ -595,6 +702,14 @@ class OrderIntegrationTest extends IntegrationTestBase
 
     val refNum = order.referenceNumber
     val originalRemorseEnd = order.remorsePeriodEnd.value
+  }
+
+  trait PaymentStatusFixture extends Fixture {
+    val (cc, op, ccc) = (for {
+      cc ← CreditCards.save(Factories.creditCard.copy(customerId = customer.id))
+      op ← OrderPayments.save(Factories.orderPayment.copy(orderId = order.id, paymentMethodId = cc.id))
+      ccc ← CreditCardCharges.save(Factories.creditCardCharge.copy(creditCardId = cc.id, orderPaymentId = op.id))
+    } yield (cc, op, ccc)).run().futureValue
   }
 }
 

@@ -23,9 +23,9 @@ object GiftCardRoutes {
     authenticateBasicAsync(realm = "admin", storeAdminAuth) { admin ⇒
 
       pathPrefix("gift-cards") {
-        (get & pathEnd) {
-          good {
-            GiftCards.sortBy(_.id.desc).result.run()
+        (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+          goodOrFailures {
+            GiftCardService.findAll
           }
         } ~
         (patch & entity(as[payloads.GiftCardBulkUpdateStatusByCsr]) & pathEnd) { payload ⇒
@@ -38,9 +38,11 @@ object GiftCardRoutes {
             GiftCardService.getByCode(code)
           }
         } ~
-        (get & path(Segment / "transactions") & pathEnd) { code ⇒
-          goodOrFailures {
-            GiftCardAdjustmentsService.forGiftCard(code)
+        (get & path(Segment / "transactions")) { code ⇒
+          (pathEnd & sortAndPage) { implicit sortAndPage ⇒
+            goodOrFailures {
+              GiftCardAdjustmentsService.forGiftCard(code)
+            }
           }
         } ~
         (post & entity(as[payloads.GiftCardBulkCreateByCsr]) & pathEnd) { payload ⇒

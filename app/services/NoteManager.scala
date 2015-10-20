@@ -14,18 +14,22 @@ import utils.Slick.implicits._
 
 object NoteManager {
 
-  def createOrderNote(order: Order, author: StoreAdmin, payload: payloads.CreateNote)
+  def createOrderNote(refNum: String, author: StoreAdmin, payload: payloads.CreateNote)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
-    createModelNote(order.id, Note.Order, author, payload)
+    Orders.findByRefNum(refNum).selectOne { order ⇒
+      createModelNote(order.id, Note.Order, author, payload)
+    }
   }
 
-  def createGiftCardNote(giftCard: GiftCard, author: StoreAdmin, payload: payloads.CreateNote)
+  def createGiftCardNote(code: String, author: StoreAdmin, payload: payloads.CreateNote)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
-    createModelNote(giftCard.id, Note.GiftCard, author, payload)
+    GiftCards.findByCode(code).selectOne { giftCard ⇒
+      createModelNote(giftCard.id, Note.GiftCard, author, payload)
+    }
   }
 
   private def createModelNote(refId: Int, refType: Note.ReferenceType, author: StoreAdmin,
-    payload: payloads.CreateNote)(implicit ec: ExecutionContext, db: Database): Result[Root] = {
+    payload: payloads.CreateNote)(implicit ec: ExecutionContext, db: Database): DbResult[Root] = {
     createNote(Note(
       storeAdminId = author.id,
       referenceId = refId,
@@ -34,19 +38,30 @@ object NoteManager {
     ).map(_.map(AdminNotes.build(_, author)))
   }
 
-  def updateNote(noteId: Int, author: StoreAdmin, payload: payloads.UpdateNote)
+  def updateOrderNote(refNum: String, noteId: Int, author: StoreAdmin, payload: payloads.UpdateNote)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
-    val query = Notes.filterByIdAndAdminId(noteId, author.id)
-    val update = query.map(_.body).update(payload.body)
+    Orders.findByRefNum(refNum).selectOne { _ ⇒ updateNote(noteId, author, payload) }
+  }
 
-    db.run(update).flatMap { rowsAffected ⇒
+  def updateGiftCardNote(code: String, noteId: Int, author: StoreAdmin, payload: payloads.UpdateNote)
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
+    GiftCards.findByCode(code).selectOne { _ ⇒ updateNote(noteId, author, payload) }
+  }
+
+  private def updateNote(noteId: Int, author: StoreAdmin, payload: payloads.UpdateNote)
+    (implicit ec: ExecutionContext, db: Database): DbResult[Root] = {
+
+    val finder = Notes.filterByIdAndAdminId(noteId, author.id)
+    val update = finder.map(_.body).update(payload.body)
+
+    update.flatMap { rowsAffected ⇒
       if (rowsAffected == 1) {
-        db.run(query.one).flatMap {
-          case Some(note) ⇒ Result.right(AdminNotes.build(note, author))
-          case None       ⇒ Result.failure(notFound(noteId))
+        finder.one.flatMap {
+          case Some(note) ⇒ DbResult.good(AdminNotes.build(note, author))
+          case None       ⇒ DbResult.failure(notFound(noteId))
         }
       } else {
-        Result.failure(notFound(noteId))
+        DbResult.failure(notFound(noteId))
       }
     }
   }
@@ -63,10 +78,10 @@ object NoteManager {
   }
 
   private def createNote(note: Note)
-    (implicit ec: ExecutionContext, db: Database): Result[Note] = {
+    (implicit ec: ExecutionContext, db: Database): DbResult[Note] = {
     note.validate match {
-      case Valid(_)         ⇒ Result.fromFuture(Notes.save(note).run())
-      case Invalid(errors)  ⇒ Result.failures(errors)
+      case Valid(_)         ⇒ DbResult.fromDbio(Notes.save(note))
+      case Invalid(errors)  ⇒ DbResult.failures(errors)
     }
   }
 }
