@@ -116,6 +116,34 @@ object Admin {
               }
             }
           }
+        } ~
+        pathPrefix("customer" / IntNumber) { id ⇒
+          (get & pathEnd) {
+            complete {
+              whenFound(Customers.findById(id).result.headOption.run()) { AdminNotes.forCustomer(_) }
+            }
+          } ~
+          (post & entity(as[payloads.CreateNote]) & pathEnd) { payload ⇒
+            complete {
+              whenFound(Customers.findById(id).result.headOption.run()) { customer ⇒
+                NoteManager.createNote(customer, admin, payload)
+              }
+            }
+          } ~
+          path(IntNumber) { noteId ⇒
+            (patch & entity(as[payloads.UpdateNote]) & pathEnd) { payload ⇒
+              complete {
+                whenFound(Customers.findById(id).result.headOption.run()) { _ ⇒
+                  NoteManager.updateNote(noteId, admin, payload)
+                }
+              }
+            } ~
+            (delete & pathEnd) {
+              complete {
+                NoteManager.deleteNote(noteId, admin).map(renderNothingOrFailures)
+              }
+            }
+          }
         }
       } ~
       pathPrefix("notifications") {
