@@ -139,6 +139,23 @@ class CustomerIntegrationTest extends IntegrationTestBase
     }
   }
 
+  "PATCH /v1/customers/:customerId" - {
+    "update customer attributes" in new Fixture {
+      val payload = payloads.UpdateCustomerPayload(name = "John Doe".some, email = "newemail@example.org".some,
+        phoneNumber = "555 555 55".some)
+      val newEmail = payload.email.getOrElse("")
+      (payload.name, newEmail, payload.phoneNumber) must !== ((customer.name, customer.email, customer
+        .phoneNumber))
+
+      val response = PATCH(s"v1/customers/${customer.id}", payload)
+      response.status must === (StatusCodes.OK)
+
+      val updated = response.as[responses.CustomerResponse.Root]
+      (updated.name, updated.email, updated.phoneNumber) must === ((payload.name, newEmail, payload
+        .phoneNumber))
+    }
+  }
+
   "POST /v1/customers/:customerId/disable" - {
     "toggles the isDisabled flag on a customer account" in new Fixture {
       customer.isDisabled must === (false)

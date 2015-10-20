@@ -3,13 +3,16 @@ package services
 import scala.concurrent.ExecutionContext
 
 import models._
+import models.{Customers, StoreAdmin, Customer}
 import models.Customers.scope._
 import responses.CustomerResponse._
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
+import utils.Slick.DbResult
 import utils.Slick.implicits._
 import utils.Slick.UpdateReturning._
-import payloads.CreateCustomerPayload
+import utils._
+import payloads.{CreateCustomerPayload, UpdateCustomerPayload}
 
 object CustomerManager {
 
@@ -75,5 +78,21 @@ object CustomerManager {
     qq.flatMap { case(a) ⇒ Result.right(build(a)) }
   }
 
+  def updateFromPayload(customerId: Int, payload: UpdateCustomerPayload)
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
+    val finder = Customers.filter(_.id === customerId)
+    finder.selectOneForUpdate { customer ⇒
+      val updated = finder.map { c ⇒ (c.name, c.email, c.phoneNumber) }
+        .updateReturning(Customers.map(identity),
+            (payload.name.fold(customer.name)(Some(_)),
+              payload.email.getOrElse(customer.email),
+              payload.phoneNumber.fold(customer.phoneNumber)(Some(_)))).headOption
+
+      updated.flatMap {
+        case Some(customer) ⇒ DbResult.good(build(customer))
+        case _ ⇒ DbResult.failure(NotFoundFailure(customer))
+      }
+    }
+  }
 }
 
