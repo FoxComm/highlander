@@ -28,7 +28,7 @@ export default class ContentBox extends React.Component {
             </div>
           </div>
         </header>
-        <article className={this.props.isTable ? null : "fc-content-box-content"}>
+        <article className={this.props.isTable ? null : 'fc-content-box-content'}>
           { this.props.children }
         </article>
         {this.props.footer}

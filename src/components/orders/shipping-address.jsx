@@ -3,8 +3,7 @@
 import React, { PropTypes } from 'react';
 import Addresses from '../addresses/addresses';
 import AddressDetails from '../addresses/address-details';
-import OrderStore from '../../stores/orders';
-import OrdersActions from '../../actions/orders';
+import * as OrdersActions from '../../modules/orders';
 import AddressStore from '../../stores/addresses';
 import ContentBox from '../content-box/content-box';
 

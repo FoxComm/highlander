@@ -2,29 +2,28 @@
 
 import React, { PropTypes } from 'react';
 import { Link, IndexLink } from '../link';
-import { listenTo, stopListeningTo, dispatch } from '../../lib/dispatcher';
-import OrderStore from '../../stores/orders';
-import OrderActions from '../../actions/orders';
 import Viewers from '../viewers/viewers';
 import ConfirmModal from '../modal/confirm';
 import RemorseTimer from './remorseTimer';
+import { connect } from 'react-redux';
+import * as orderActions from '../../modules/order';
 import DateTime from '../datetime/datetime';
 
+@connect(state => ({order: state.order}), orderActions)
 export default class Order extends React.Component {
   static propTypes = {
     params: PropTypes.shape({
       order: PropTypes.string.isRequired
     }).isRequired,
+    order: PropTypes.shape({
+      currentOrder: PropTypes.object
+    }),
+    fetchOrderIfNeeded: PropTypes.func,
     children: PropTypes.node
   };
 
   constructor(props, context) {
     super(props, context);
-    this.state = {
-      data: OrderStore.getState(),
-      pendingStatus: null
-    };
-    this.onChange = this.onChange.bind(this);
   }
 
   get changeOptions() {
@@ -50,50 +49,11 @@ export default class Order extends React.Component {
   }
 
   get order() {
-    return this.state.data.find(item => item.referenceNumber === this.orderRefNum);
+    return this.props.order.currentOrder;
   }
 
   componentDidMount() {
-    OrderStore.listen(this.onChange);
-
-    OrderActions.fetchOrder(this.orderRefNum);
-  }
-
-  componentWillUnmount() {
-    OrderStore.unlisten(this.onChange);
-  }
-
-  onChange() {
-    this.setState({
-      data: OrderStore.getState()
-    });
-  }
-
-  onConfirmChange(success) {
-    if (!success) return;
-
-    this.patchOrder();
-  }
-
-  patchOrder() {
-    OrderActions.updateOrderStatus(this.orderRefNum, this.state.pendingStatus);
-    this.setState({
-      pendingStatus: null
-    });
-  }
-
-  prepareStatusChange(status) {
-    this.setState({
-      pendingStatus: status
-    });
-    let options = status !== 'canceled' ? this.changeOptions : this.cancelOptions;
-
-    dispatch('toggleModal', <ConfirmModal callback={this.onConfirmChange.bind(this)} details={options} />);
-  }
-
-  changeOrderStatus(event) {
-    let status = event.target.value;
-    this.prepareStatusChange(status);
+    this.props.fetchOrderIfNeeded(this.orderRefNum);
   }
 
   render() {
@@ -108,7 +68,7 @@ export default class Order extends React.Component {
       return <div className="fc-order"></div>;
     }
 
-    const content = React.cloneElement(this.props.children, {order, modelName: 'order' });
+    const content = React.cloneElement(this.props.children, {order, modelName: 'order', ...this.props});
 
     if (order.id) {
       let params = {order: order.referenceNumber};
@@ -130,25 +90,6 @@ export default class Order extends React.Component {
       viewers = <Viewers model='orders' modelId={order.id}/>;
 
       if (order.orderStatus === 'remorseHold') remorseTimer = <RemorseTimer endDate={order.remorseEnd} />;
-    }
-
-    if (OrderStore.editableStatusList.indexOf(order.orderStatus) !== -1) {
-      orderStatus = (
-        <select name="orderStatus" value={order.orderStatus} onChange={this.changeOrderStatus.bind(this)}>
-          {OrderStore.selectableStatusList.map((status, idx) => {
-            if (
-              (order.orderStatus === 'fulfillmentStarted') &&
-              (['fulfillmentStarted', 'canceled'].indexOf(status) === -1)
-            ) {
-              return '';
-            } else {
-              return <option key={`${idx}-${status}`} value={status}>{OrderStore.statuses[status]}</option>;
-            }
-          })}
-        </select>
-      );
-    } else {
-      orderStatus = OrderStore.statuses[order.orderStatus];
     }
 
     return (

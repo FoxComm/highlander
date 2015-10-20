@@ -9,6 +9,15 @@
 
 @color-border-td: @color-decor9;
 
+@keyframes fc-new-row {
+  from {
+    background-color: @color-decor44;
+  }
+
+  to {
+  }
+}
+
 .fc-table {
   display: table;
   table-layout: fixed;
@@ -78,8 +87,8 @@
         background-color: @color-tr-even-bg;
       }
 
-      &.new {
-        background-color: #dfe3ed;
+      &.is-new {
+        animation: fc-new-row 1.6s ease-out;
       }
     }
 
