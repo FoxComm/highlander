@@ -77,10 +77,8 @@ object Admin {
             }
           } ~
           (patch & path(IntNumber) & entity(as[payloads.UpdateNote])) { (noteId, payload) ⇒
-            complete {
-              whenOrderFoundAndEditable(refNum) { order ⇒
-                NoteManager.updateNote(noteId, admin, payload)
-              }
+            goodOrFailures {
+              NoteManager.updateOrderNote(refNum, noteId, admin, payload)
             }
           } ~
           (delete & path(IntNumber)) { noteId ⇒
@@ -104,10 +102,8 @@ object Admin {
           } ~
           path(IntNumber) { noteId ⇒
             (patch & entity(as[payloads.UpdateNote]) & pathEnd) { payload ⇒
-              complete {
-                whenFound(GiftCards.findByCode(code).one.run()) { _ ⇒
-                  NoteManager.updateNote(noteId, admin, payload)
-                }
+              goodOrFailures {
+                NoteManager.updateGiftCardNote(code, noteId, admin, payload)
               }
             } ~
             (delete & pathEnd) {

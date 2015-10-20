@@ -34,19 +34,30 @@ object NoteManager {
     ).map(_.map(AdminNotes.build(_, author)))
   }
 
-  def updateNote(noteId: Int, author: StoreAdmin, payload: payloads.UpdateNote)
+  def updateOrderNote(refNum: String, noteId: Int, author: StoreAdmin, payload: payloads.UpdateNote)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
-    val query = Notes.filterByIdAndAdminId(noteId, author.id)
-    val update = query.map(_.body).update(payload.body)
+    Orders.findByRefNum(refNum).selectOne { _ ⇒ updateNote(noteId, author, payload) }
+  }
 
-    db.run(update).flatMap { rowsAffected ⇒
+  def updateGiftCardNote(code: String, noteId: Int, author: StoreAdmin, payload: payloads.UpdateNote)
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
+    GiftCards.findByCode(code).selectOne { _ ⇒ updateNote(noteId, author, payload) }
+  }
+
+  private def updateNote(noteId: Int, author: StoreAdmin, payload: payloads.UpdateNote)
+    (implicit ec: ExecutionContext, db: Database): DbResult[Root] = {
+
+    val finder = Notes.filterByIdAndAdminId(noteId, author.id)
+    val update = finder.map(_.body).update(payload.body)
+
+    update.flatMap { rowsAffected ⇒
       if (rowsAffected == 1) {
-        db.run(query.one).flatMap {
-          case Some(note) ⇒ Result.right(AdminNotes.build(note, author))
-          case None       ⇒ Result.failure(notFound(noteId))
+        finder.one.flatMap {
+          case Some(note) ⇒ DbResult.good(AdminNotes.build(note, author))
+          case None       ⇒ DbResult.failure(notFound(noteId))
         }
       } else {
-        Result.failure(notFound(noteId))
+        DbResult.failure(notFound(noteId))
       }
     }
   }
