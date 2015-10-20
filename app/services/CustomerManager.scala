@@ -11,7 +11,6 @@ import utils.CustomDirectives.SortAndPage
 import utils.Slick.DbResult
 import utils.Slick.implicits._
 import utils.Slick.UpdateReturning._
-import utils._
 import payloads.{CreateCustomerPayload, UpdateCustomerPayload}
 
 object CustomerManager {
@@ -86,12 +85,9 @@ object CustomerManager {
         .updateReturning(Customers.map(identity),
             (payload.name.fold(customer.name)(Some(_)),
               payload.email.getOrElse(customer.email),
-              payload.phoneNumber.fold(customer.phoneNumber)(Some(_)))).headOption
+              payload.phoneNumber.fold(customer.phoneNumber)(Some(_)))).head
 
-      updated.flatMap {
-        case Some(customer) ⇒ DbResult.good(build(customer))
-        case _ ⇒ DbResult.failure(NotFoundFailure(customer))
-      }
+      updated.flatMap(updCustomer ⇒ DbResult.good(build(updCustomer)))
     }
   }
 }
