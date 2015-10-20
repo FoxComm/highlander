@@ -19,7 +19,7 @@ const EditableContentBox = (props) => {
 const renderTitle = (props) => {
   let editButton = null;
   if (!props.isEditing) {
-    editButton = <EditButton onClick={props.editAction} />
+    editButton = <EditButton onClick={props.editAction} />;
   }
 
   return (
@@ -29,8 +29,8 @@ const renderTitle = (props) => {
         <div className='fc-col-md-1-3 fc-controls'>{editButton}</div>
       </div>
     </header>
-  ); 
-}
+  );
+};
 
 const renderFooter = (props) => {
   if (props.isEditing) {

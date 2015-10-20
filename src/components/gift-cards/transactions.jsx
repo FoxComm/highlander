@@ -20,10 +20,12 @@ const mapStateToProps = createSelector(
 @connect(mapStateToProps, GiftCardsTransactionActions)
 export default class GiftCardTransactions extends React.Component {
   static propTypes = {
+    fetchTransactionsIfNeeded: PropTypes.func,
     tableColumns: PropTypes.array,
     params: PropTypes.shape({
       giftcard: PropTypes.string.isRequired
-    }).isRequired
+    }).isRequired,
+    transactions: PropTypes.object
   };
 
   static defaultProps = {

@@ -38,7 +38,7 @@ const OrderLineItems = (props) => {
       editContent={renderEditContent(props)}
       viewContent={renderViewContent(props)} />
   );
-}
+};
 
 const renderViewContent = (props) => {
   return <TableView columns={viewModeColumns} rows={props.order.lineItems.items} />;

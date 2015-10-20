@@ -18,10 +18,15 @@ import LocalNav from '../local-nav/local-nav';
 export default class GiftCard extends React.Component {
 
   static propTypes = {
+    card: PropTypes.shape({
+      code: PropTypes.string
+    }),
+    children: PropTypes.node,
+    editGiftCard: PropTypes.func,
+    fetchGiftCardIfNeeded: PropTypes.func.isRequired,
     params: PropTypes.shape({
       giftcard: PropTypes.string.isRequired
-    }).isRequired,
-    children: PropTypes.node
+    }).isRequired
   };
 
   componentDidMount() {

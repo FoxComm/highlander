@@ -17,7 +17,8 @@ export default class GiftCards extends React.Component {
 
   static propTypes = {
     tableColumns: PropTypes.array,
-    items: PropTypes.array
+    items: PropTypes.array,
+    fetchGiftCardsIfNeeded: PropTypes.func
   };
 
   static defaultProps = {
@@ -41,7 +42,9 @@ export default class GiftCards extends React.Component {
       <div className="fc-list-page">
         <div className="fc-list-page-header">
           <SectionTitle title="Gift Cards" subtitle={this.props.items.size}>
-            <Link to='gift-cards-new' className="fc-btn fc-btn-primary"><i className="icon-add"></i> New Gift Card</Link>
+            <Link to='gift-cards-new' className="fc-btn fc-btn-primary">
+              <i className="icon-add"></i> New Gift Card
+            </Link>
           </SectionTitle>
           <LocalNav>
             <a href="">Lists</a>

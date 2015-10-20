@@ -47,7 +47,25 @@ const customerItem = props => <div>{props.item.name}</div>;
 export default class NewGiftCard extends React.Component {
 
   static propTypes = {
-    fetchCustomersIfNeeded: PropTypes.func.isRequired
+    addCustomer: PropTypes.func,
+    addUser: PropTypes.func,
+    balance: PropTypes.number,
+    balanceText: PropTypes.string,
+    changeFormData: PropTypes.func.isRequired,
+    createGiftCard: PropTypes.func.isRequired,
+    customers: PropTypes.map,
+    emailCSV: PropTypes.bool,
+    fetchCustomersIfNeeded: PropTypes.func.isRequired,
+    removeCustomer: PropTypes.func,
+    removeUser: PropTypes.func,
+    sendToCustomer: PropTypes.bool,
+    subTypes: PropTypes.map,
+    suggestCustomers: PropTypes.func,
+    suggestedCustomers: PropTypes.array,
+    suggestUsers: PropTypes.func,
+    suggestedUsers: PropTypes.array,
+    types: PropTypes.object,
+    users: PropTypes.map
   };
 
   constructor(props, context) {
@@ -172,7 +190,11 @@ export default class NewGiftCard extends React.Component {
     return (
       <div id="new-gift-card" className="gutter">
         <h2>Issue New Gift Cards</h2>
-        <form action="/gift-cards" method="POST" className="vertical" onSubmit={this.submitForm} onChange={this.onChangeValue}>
+        <form action="/gift-cards"
+              method="POST"
+              className="vertical"
+              onSubmit={this.submitForm}
+              onChange={this.onChangeValue}>
           <fieldset>
             <div id="cardTypes">
               <label htmlFor="originType">Gift Card Type</label>

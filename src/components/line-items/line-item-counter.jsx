@@ -23,6 +23,6 @@ const LineItemCounter = (props) => {
       stepUp={props.stepUp}
       stepDown={props.stepDown} />
   );
-}
+};
 
 export default LineItemCounter;

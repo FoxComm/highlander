@@ -14,7 +14,8 @@ export default class Typeahead extends React.Component {
     component: PropTypes.func,
     items: PropTypes.array.isRequired,
     label: PropTypes.string,
-    name: PropTypes.string
+    name: PropTypes.string,
+    placeholder: PropTypes.string
   };
 
   static defaultProps = {

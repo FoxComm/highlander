@@ -5,13 +5,13 @@ import { createAction, createReducer } from 'redux-act';
 
 export const orderRequest = createAction('ORDER_REQUEST');
 export const orderSuccess = createAction('ORDER_SUCCESS');
-export const orderFailed = createAction('ORDER_FAILED', (err, source) => {err, source});
+export const orderFailed = createAction('ORDER_FAILED', (err, source) => [err, source]);
 export const orderLineItemsStartEdit = createAction('ORDER_LINE_ITEMS_START_EDIT');
 export const orderLineItemsCancelEdit = createAction('ORDER_LINE_ITEMS_CANCEL_EDIT');
 export const orderLineItemsRequest = createAction('ORDER_LINE_ITEMS_REQUEST');
 export const orderLineItemsRequestSuccess = createAction('ORDER_LINE_ITEMS_REQUEST_SUCCESS');
-export const orderLineItemsRequestFailed = 
-  createAction('ORDER_LINE_ITEMS_REQUEST_FAILED', (err, source) => ({err, source}));
+export const orderLineItemsRequestFailed =
+  createAction('ORDER_LINE_ITEMS_REQUEST_FAILED', (err, source) => [err, source]);
 export const orderLineItemsStartDelete = createAction('ORDER_LINE_ITEMS_START_DELETE');
 export const orderLineItemsCancelDelete = createAction('ORDER_LINE_ITEMS_CANCEL_DELETE');
 
@@ -98,7 +98,7 @@ const reducer = createReducer({
       }
     };
   },
-  [orderFailed]: (state, {err, source}) => {
+  [orderFailed]: (state, [err, source]) => {
     console.error(err);
 
     if (source === fetchOrder) {
@@ -156,7 +156,7 @@ const reducer = createReducer({
 
     return state;
   },
-  [orderLineItemsRequestFailed]: (state, {err, source}) => {
+  [orderLineItemsRequestFailed]: (state, [err, source]) => {
     console.log(err);
 
     if (source === updateLineItemCount) {
