@@ -197,7 +197,7 @@ export default class AddressForm extends React.Component {
   }
 
   get actions() {
-    return <i onClick={this.close.bind(this)} className="icon-close" title="Close"></i>;
+    return <i onClick={this.close.bind(this)} className="fc-icon-close-btn icon-close" title="Close"></i>;
   }
 
   render() {
