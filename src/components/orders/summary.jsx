@@ -2,8 +2,20 @@
 
 import React from 'react';
 import { formatCurrency } from '../../lib/format';
+import ContentBox from '../content-box/content-box';
 
 export default class OrderSummary extends React.Component {
+  get footer() {
+    let order = this.props.order;
+    return (
+      <footer className="fc-content-box-footer is-highlighted">
+        <dl className="fc-grand-total">
+          <dt>Grand Total</dt>
+          <dd>{formatCurrency(order.totals.total)}</dd>
+        </dl>
+      </footer>
+    );
+  }
   render() {
     let order = this.props.order;
     let discounts = null;
@@ -25,8 +37,7 @@ export default class OrderSummary extends React.Component {
     }
 
     return (
-      <div className="fc-order-summary fc-content-box">
-        <header>Order Summary</header>
+      <ContentBox title="Order Summary" className="fc-order-summary" footer={this.footer}>
         <article>
           <dl className="order-totals">
             <dt>Subtotal</dt>
@@ -38,13 +49,7 @@ export default class OrderSummary extends React.Component {
             <dd>{formatCurrency(order.totals.taxes)}</dd>
           </dl>
         </article>
-        <footer className="is-highlighted">
-          <dl className="fc-grand-total">
-            <dt>Grand Total</dt>
-            <dd>{formatCurrency(order.totals.total)}</dd>
-          </dl>
-        </footer>
-      </div>
+      </ContentBox>
     );
   }
 }

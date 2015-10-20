@@ -11,6 +11,7 @@ import AddressStore from '../../stores/addresses';
 import OrderStore from '../../stores/orders';
 import * as validators from '../../lib/validators';
 import ErrorAlerts from '../alerts/error-alerts';
+import ContentBox from '../content-box/content-box';
 
 const DEFAULT_COUNTRY = 'US';
 
@@ -195,6 +196,10 @@ export default class AddressForm extends React.Component {
     return <ErrorAlerts errors={this.state.errors} ref="errorMessages"/>;
   }
 
+  get actions() {
+    return <i onClick={this.close.bind(this)} className="icon-close" title="Close"></i>;
+  }
+
   render() {
     const state = this.state;
     const formData = state.formData;
@@ -205,11 +210,7 @@ export default class AddressForm extends React.Component {
     const title = this.isAddingForm ? 'New Address' : 'Edit Address';
 
     return (
-      <div className="fc-content-box fc-address-form">
-        <header className="header">
-          <div className="fc-address-form-header">Address Book</div>
-          <i onClick={this.close.bind(this)} className="icon-close" title="Close"></i>
-        </header>
+      <ContentBox title="Address Book" className="fc-address-form" actionBlock={this.actions}>
         {this.errorMessages}
         <article>
           <Form action={AddressStore.uri(this.props.customerId)}
@@ -276,7 +277,7 @@ export default class AddressForm extends React.Component {
             </ul>
             </Form>
         </article>
-      </div>
+      </ContentBox>
     );
   }
 }

@@ -3,10 +3,10 @@
 import React, { PropTypes } from 'react';
 import Addresses from '../addresses/addresses';
 import AddressDetails from '../addresses/address-details';
-import Panel from '../panel/panel';
 import OrderStore from '../../stores/orders';
 import OrdersActions from '../../actions/orders';
 import AddressStore from '../../stores/addresses';
+import ContentBox from '../content-box/content-box';
 
 
 export default class OrderShippingAddress extends React.Component {
@@ -77,13 +77,13 @@ export default class OrderShippingAddress extends React.Component {
     }
 
     return (
-      <Panel className="fc-order-shipping-address"
-             title="Shipping Address"
-             controls={ editButton }
-             enablePaddings={ true }>
-        { body }
-        { footer }
-      </Panel>
+      <ContentBox
+        title="Shipping Address"
+        actionBlock={editButton}
+        className="fc-order-shipping-address">
+        {body}
+        {footer}
+      </ContentBox>
     );
   }
 }

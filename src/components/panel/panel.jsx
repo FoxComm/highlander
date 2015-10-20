@@ -5,42 +5,27 @@ import _ from 'lodash';
 
 export default class Panel extends React.Component {
   static propTypes = {
-    children: PropTypes.any,
-    title: PropTypes.string,
-    className: PropTypes.string,
-    controls: PropTypes.any,
-    content: PropTypes.any,
-    enablePaddings: PropTypes.bool
+    children: React.PropTypes.any,
+    title: React.PropTypes.string,
+    content: React.PropTypes.any,
+    featured: React.PropTypes.bool
   };
 
-  get rootClassName() {
-    let result = 'fc-panel';
-    if (this.props.className) {
-      result = `${this.props.className} fc-panel`;
-    }
-    return result;
-  }
+  static defaultProps = {
+    featured: false
+  };
 
-  get contentClassName() {
-    let klass = 'fc-panel-content';
-    if (this.props.enablePaddings) {
-      klass = 'fc-panel-content-list';
-    }
-    return klass;
+  get contentClasses() {
+    return `fc-panel-content ${this.props.featured ? 'fc-panel-content-featured' : null}`;
   }
 
   render() {
     return (
       <div className={ this.rootClassName }>
         <div className="fc-panel-header">
-          <div className="fc-panel-controls">
-            {this.props.controls && this.props.controls.props.children}
-          </div>
-          <div className='fc-panel-title'>
-            <span>{this.props.title}</span>
-          </div>
+          {this.props.title}
         </div>
-        <div className={ this.contentClassName }>
+        <div className={this.contentClasses}>
           {this.props.content && this.props.content.props.children}
           {this.props.children}
         </div>

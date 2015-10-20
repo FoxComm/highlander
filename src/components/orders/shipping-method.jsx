@@ -7,7 +7,7 @@ import TableHead from '../tables/head';
 import TableBody from '../tables/body';
 import ShippingMethodItem from './shipping-method-item';
 import ShippingMethods from '../../stores/shipping-methods';
-import Panel from '../panel/panel';
+import ContentBox from '../content-box/content-box';
 
 export default class OrderShippingMethod extends React.Component {
 
@@ -78,19 +78,14 @@ export default class OrderShippingMethod extends React.Component {
     }
 
     return (
-      <Panel className="fc-order-shipping-method"
-             title="Shipping Method"
-             controls={ actions }>
-        <div className="fc-tableview">
-          <table className="fc-table">
-            <TableHead columns={this.props.tableColumns} />
-            <TableBody columns={this.props.tableColumns} rows={methods} model='shipping-method'>
-              <ShippingMethodItem isEditing={this.state.isEditing} />
-            </TableBody>
-          </table>
-        </div>
-        { footer }
-      </Panel>
+      <ContentBox title="Shipping Method" isTable={true}>
+        <table className="fc-table">
+          <TableHead columns={this.props.tableColumns} />
+          <TableBody columns={this.props.tableColumns} rows={methods} model='shipping-method'>
+            <ShippingMethodItem isEditing={this.props.isEditing} />
+          </TableBody>
+        </table>
+      </ContentBox>
     );
   }
 }

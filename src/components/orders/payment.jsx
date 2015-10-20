@@ -5,7 +5,7 @@ import React, { PropTypes } from 'react';
 import PaymentMethod from './payment-method';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
-import Panel from '../panel/panel';
+import ContentBox from '../content-box/content-box';
 
 export default class OrderPayment extends React.Component {
   static propTypes = {
@@ -69,19 +69,14 @@ export default class OrderPayment extends React.Component {
     }
 
     return (
-      <Panel className="fc-order-payment"
-             title="Payment"
-             controls={ editButton }>
-        <div className="fc-tableview">
-          <table className="fc-table">
-            <TableHead columns={this.props.tableColumns}/>
-            <TableBody columns={this.props.tableColumns} rows={_.compact([order.payment])} model='payment-method'>
-              <PaymentMethod/>
-            </TableBody>
-          </table>
-        </div>
-        { footer }
-      </Panel>
+      <ContentBox title="Payment" id="order-payment" isTable={true}>
+        <table className="fc-table">
+          <TableHead columns={this.props.tableColumns}/>
+          <TableBody columns={this.props.tableColumns} rows={_.compact([order.payment])} model='payment-method'>
+            <PaymentMethod/>
+          </TableBody>
+        </table>
+      </ContentBox>
     );
   }
 }

@@ -32,7 +32,7 @@ describe('SectionTitle', function() {
     expect(sectionTitleNode.className).to.contain('fc-grid');
   });
 
-  it('should not render counter if count is not set', function *() {
+  it('should not render subtitle if subtitle is not set', function *() {
     let sectionTitle = ReactDOM.render(
       <SectionTitle title='Orders'/>
       , container);
@@ -41,10 +41,10 @@ describe('SectionTitle', function() {
     expect(sectionTitleNode.querySelector('.fc-section-title-subtitle')).to.be.equal(null);
   });
 
-  it('should render counter if count is set', function *() {
+  it('should render subtitle if subtitle is set', function *() {
     let count = 100;
     let sectionTitle = ReactDOM.render(
-      <SectionTitle title='Orders' count={ count } />
+      <SectionTitle title='Orders' subtitle={ count } />
       , container);
     let sectionTitleNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithClass(sectionTitle, 'fc-grid'));
 

@@ -24,6 +24,7 @@ export default class TableHead extends React.Component {
   render() {
     let createColumn = (column, idx) => {
       let classnames = ClassNames({
+        'fc-table-th': true,
         'sorting': this.props.setSorting,
         'sorting-desc': this.props.setSorting && (this.state.sortingField === column.field) && this.state.sortingOrder,
         'sorting-asc': this.props.setSorting && (this.state.sortingField === column.field) && !this.state.sortingOrder

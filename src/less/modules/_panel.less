@@ -4,63 +4,72 @@
 @color-content-fg: @color-default-fg;
 @color-content-bg: @color-white;
 
+.common-panel() {
+  .colors(@color-subtitle, @color-white);
+  text-align: center;
+}
+
+.common-panel-header() {
+  .padding(25px 0 0 0);
+  .font-spec(14px, 600);
+}
+
+.common-panel-content() {
+  .font-spec(22px, 600);
+  .margin(22px 0);
+  &-featured {
+    color: @color-decor15;
+    .font-spec(40px, 600);
+    .margin(40px 0);
+  }
+}
+
 .fc-panel {
-  position: relative;
-  .colors(@color-content-fg, @color-content-bg);
-  border: 1px solid @color-decor9;
-  border-radius: 3px;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.30);
-
-  &-controls {
-    float: right;
-    .margin(-5px 0);
-  }
-
-  &-comment {
-    text-align: right;
-    .font-spec(15px, 600, 20px);
-    margin-top: pxtorem(10px);
-    color: @color-decor42;
-  }
+  border: pxtorem(1px) solid @color-decor9;
+  border-radius: pxtorem(3px);
+  box-shadow: 0 pxtorem(1px) pxtorem(2px) 0 rgba(0, 0, 0, 0.30);
+  width: 100%;
+  .common-panel();
 
   &-header {
-    .padding(15px 10px 15px 20px);
-    align-items: center;
-    .colors(@color-header-fg, @color-header-bg);
-    border-bottom: 1px solid @color-decor9;
-    .height(60px);
-  }
-
-  &-title {
-    .font-spec(18px, 600, 24px);
-    overflow: hidden;
-
-    span {
-      .inline-block(baseline);
-      width: 100%;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
+    .common-panel-header();
   }
 
   &-content {
-    > .fc-tableview {
-      .margin(-1px);
+    .common-panel-content();
+  }
+}
+
+.fc-panel-list {
+  .margin-top(20px);
+  display: flex;
+  flex-direction: row;
+  border-radius: pxtorem(3px);
+  box-shadow: 0 pxtorem(1px) pxtorem(2px) 0 rgba(0, 0, 0, 0.30);
+  border: pxtorem(1px) solid @color-decor9;
+
+  &-panel {
+    flex: 1;
+    border-right: pxtorem(1px) solid @color-decor9;
+    .common-panel();
+
+    &:first-child {
+      border-top-left-radius: pxtorem(3px);
+      border-bottom-left-radius: pxtorem(3px);
+    }
+
+    &:last-child {
+      border-right: 0;
+      border-top-right-radius: pxtorem(3px);
+      border-bottom-right-radius: pxtorem(3px);
     }
   }
 
-  footer {
-    .padding(20px, 20px, 30px);
-    background-color: @color-decor12;
+  &-header {
+    .common-panel-header();
   }
 
-  &-content-list {
-    .padding(20px, 20px, 30px);
-
-    footer {
-      .margin(0 -20px -30px);
-      background-color: @color-white;
-    }
+  &-content {
+    .common-panel-content();
   }
 }

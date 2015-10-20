@@ -21,7 +21,11 @@ import GiftCards from './components/gift-cards/gift-cards';
 import NewGiftCard from './components/gift-cards/gift-cards-new';
 import GiftCard from './components/gift-cards/gift-card';
 import GiftCardTransactions from './components/gift-cards/transactions';
+
 import StyleGuide from './components/style-guide/style-guide';
+import StyleGuideGrid from './components/style-guide/style-guide-grid';
+import StyleGuideButtons from './components/style-guide/style-guide-buttons';
+import StyleGuideContainers from './components/style-guide/style-guide-containers';
 
 const routes = (
   <Route path="/" component={Site}>
@@ -53,7 +57,11 @@ const routes = (
       <Route name='gift-card-notes' path='notes' component={Notes} />
       <Route name='gift-card-activity-trail' path='activity-trail' component={ActivityTrail} />
     </Route>
-    <Route name='style-guide' path='style-guide' component={StyleGuide} />
+    <Route name='style-guide' path='style-guide' component={StyleGuide}>
+      <IndexRoute name='style-guide-grid' component={StyleGuideGrid} />
+      <Route name='style-guide-buttons' path='buttons' component={StyleGuideButtons} />
+      <Route name='style-guide-containers' path='containers' component={StyleGuideContainers} />
+    </Route>
   </Route>
 );
 

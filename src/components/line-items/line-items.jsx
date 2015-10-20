@@ -8,7 +8,7 @@ import DeleteLineItem from './line-item-delete';
 import SkuStore from '../../stores/skus';
 import SkuResult from '../orders/sku-result';
 import Typeahead from '../typeahead/typeahead';
-import Panel from '../panel/panel';
+import ContentBox from '../content-box/content-box';
 
 export default class LineItems extends React.Component {
   static propTypes = {
@@ -66,6 +66,7 @@ export default class LineItems extends React.Component {
     let controls = null;
     let columns = this.props.tableColumns;
     let rows = this.props.entity.lineItems.skus;
+    let headerActions = null;
     let body = (
       <TableView
         columns={columns}
@@ -102,6 +103,11 @@ export default class LineItems extends React.Component {
         );
       } else {
         columns = this.orderDefaultColumns;
+        headerActions = (
+          <button className="fc-btn" onClick={this.toggleEdit.bind(this)}>
+            <i className="icon-edit"></i>
+          </button>
+        );
         body = (
             <TableView
               columns={columns}
@@ -119,12 +125,14 @@ export default class LineItems extends React.Component {
     }
 
     return (
-      <Panel className="fc-line-items"
-             title="Items"
-             controls={ controls } >
+      <ContentBox
+        title="Items"
+        className="fc-line-items"
+        actionBlock={headerActions}
+        isTable={true}>
         {body}
         {actions}
-      </Panel>
+      </ContentBox>
     );
   }
 }

@@ -6,6 +6,10 @@ import { formatCurrency } from '../../lib/format';
 import moment from 'moment';
 import GiftCardStore from '../../stores/gift-cards';
 import GiftCardActions from '../../actions/gift-cards';
+import SectionTitle from '../section-title/section-title';
+import Panel from '../panel/panel';
+import {PanelList, PanelListItem} from '../panel/panel-list';
+import LocalNav from '../local-nav/local-nav';
 
 export default class GiftCard extends React.Component {
 
@@ -52,36 +56,38 @@ export default class GiftCard extends React.Component {
     GiftCardActions.editGiftCard(card.code, {status: event.target.value});
   }
 
-  render() {
-    let subNav = null;
-    let card = this.giftCard;
+  get subNav() {
+    const params = {giftcard: this.giftCard.code};
 
-    if (!card) {
-      return <div id="gift-card"></div>;
+    if (!this.giftCard.code) {
+      return null;
     }
 
-    let status = null;
+    const content = React.cloneElement(this.props.children, {'gift-card': this.giftCard, modelName: 'gift-card' });
 
-    const content = React.cloneElement(this.props.children, {'gift-card': card, modelName: 'gift-card' });
-
-    if (card.code) {
-      let params = {giftcard: card.code};
-      subNav = (
-        <div className="gutter">
-          <ul className="fc-tabbed-nav">
-            <li><IndexLink to="gift-card-transactions" params={params}>Transactions</IndexLink></li>
-            <li><Link to="gift-card-notes" params={params}>Notes</Link></li>
-            <li><Link to="gift-card-activity-trail" params={params}>Activity Trail</Link></li>
-          </ul>
-          {content}
+    return (
+      <div>
+        <LocalNav>
+          <IndexLink to="gift-card-transactions" params={params}>Transactions</IndexLink>
+          <Link to="gift-card-notes" params={params}>Notes</Link>
+          <Link to="gift-card-activity-trail" params={params}>Activity Trail</Link>
+        </LocalNav>
+        <div className="fc-grid">
+          <div className="fc-col-md-1-1">
+            {content}
+          </div>
         </div>
-      );
-    }
+      </div>
+    );
+  }
+
+  get status() {
+    const card = this.giftCard;
 
     if (card.status === 'Canceled') {
-      status = <span>{card.status}</span>;
+      return <span>{card.status}</span>;
     } else {
-      status = (
+      return (
         <select value={card.status} onChange={this.changeState.bind(this)}>
           <option value="active">Active</option>
           <option value="onHold">On Hold</option>
@@ -89,80 +95,74 @@ export default class GiftCard extends React.Component {
         </select>
       );
     }
+  }
+
+  resendGiftCard() {
+    console.log('Resend');
+  }
+
+  render() {
+    let card = this.giftCard;
+
+    if (!card) {
+      return <div className="fc-gift-card-detail"></div>;
+    }
 
     return (
-      <div id="gift-card">
-        <div className="gutter title">
-          <h1>Gift Card { card.code }</h1>
-        </div>
-        <div className="gutter">
-          <div className="fc-grid fc-grid-match fc-grid-gutter">
-            <div className="fc-col-md-1-3">
-              <article className="panel featured available-balance">
-                <header>Available Balance</header>
-                <p>{ formatCurrency(card.availableBalance) }</p>
-              </article>
-            </div>
-            <div className="fc-col-md-2-3">
-              <article className="panel">
-                <div className="fc-grid">
-                  <div className="fc-col-md-1-2">
-                    <p>
-                      <strong>Created By: </strong>
-                      {card.storeAdmin ? `${card.storeAdmin.firstName} ${card.storeAdmin.lastName}` : 'None'}
-                    </p>
-
-                    <p><strong>Recipient: </strong>None</p>
-
-                    <p><strong>Recipient Email: </strong>None</p>
-
-                    <p><strong>Recipient Cell (Optional): </strong>None</p>
-                  </div>
-                  <div className="fc-col-md-1-2">
-                    <p><strong>Message (optional):</strong></p>
-
-                    <p>
-                      {card.message}
-                    </p>
-                  </div>
-                </div>
-              </article>
-            </div>
+      <div>
+        <SectionTitle title="Gift Card" subtitle={this.giftCard.code}>
+          <button onClick={this.resendGiftCard.bind(this)} className="fc-btn fc-btn-primary">Resend Gift Card</button>
+        </SectionTitle>
+        <div className="fc-grid">
+          <div className="fc-col-md-1-3">
+            <Panel title="Available Balance" featured={true}>
+              { formatCurrency(card.availableBalance) }
+            </Panel>
           </div>
-          <div className="fc-grid fc-grid-match fc-grid-gutter">
-            <div className="fc-col-md-1-5">
-              <article className="panel featured">
-                <header>Original Balance</header>
-                <p>{ formatCurrency(card.originalBalance) }</p>
-              </article>
-            </div>
-            <div className="fc-col-md-1-5">
-              <article className="panel featured">
-                <header>Current Balance</header>
-                <p>{ formatCurrency(card.currentBalance) }</p>
-              </article>
-            </div>
-            <div className="fc-col-md-1-5">
-              <article className="panel featured">
-                <header>Date/Time Issued</header>
-                <p>{ moment(card.date).format('L LTS') }</p>
-              </article>
-            </div>
-            <div className="fc-col-md-1-5">
-              <article className="panel featured">
-                <header>Gift Card Type</header>
-                <p>{ card.originType }</p>
-              </article>
-            </div>
-            <div className="fc-col-md-1-5">
-              <article className="panel featured">
-                <header>Current State</header>
-                <p>{ status }</p>
-              </article>
+        </div>
+        <PanelList className="fc-grid-md-1-5">
+          <PanelListItem title="Original Balance">
+            { formatCurrency(card.originalBalance) }
+          </PanelListItem>
+          <PanelListItem title="Current Balance">
+            { formatCurrency(card.currentBalance) }
+          </PanelListItem>
+          <PanelListItem title="Date/Time Issued">
+            { moment(card.date).format('L LTS') }
+          </PanelListItem>
+          <PanelListItem title="Gift Card Type">
+            { card.originType }
+          </PanelListItem>
+          <PanelListItem title="Current State">
+            { this.status }
+          </PanelListItem>
+        </PanelList>
+        <div className="fc-grid fc-grid-md-1-1 fc-grid-collapse fc-panel fc-gift-card-detail-message">
+          <div>
+            <div className="fc-grid">
+              <div className="fc-col-md-1-3">
+                <p>
+                  <strong>Created By</strong><br />
+                  {card.storeAdmin ? `${card.storeAdmin.firstName} ${card.storeAdmin.lastName}` : 'None'}
+                </p>
+
+                <p><strong>Recipient</strong><br />None</p>
+
+                <p><strong>Recipient Email</strong><br />None</p>
+
+                <p><strong>Recipient Cell (Optional)</strong><br />None</p>
+              </div>
+              <div className="fc-col-md-2-3">
+                <p><strong>Message (optional)</strong></p>
+
+                <p>
+                  {card.message}
+                </p>
+              </div>
             </div>
           </div>
         </div>
-        {subNav}
+        {this.subNav}
       </div>
     );
   }
