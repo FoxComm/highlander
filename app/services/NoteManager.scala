@@ -2,9 +2,10 @@ package services
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{Future, ExecutionContext}
 
 import cats.data.Validated.{Invalid, Valid}
+import cats.data.Xor
 import models._
 import responses.AdminNotes
 import responses.AdminNotes.Root
@@ -12,6 +13,7 @@ import slick.driver.PostgresDriver.api._
 import utils.Slick.DbResult
 import utils.Slick.implicits._
 import utils.ModelWithIdParameter
+import models.Notes.scope._
 
 object NoteManager {
 
@@ -81,7 +83,7 @@ object NoteManager {
       if (rowsAffected == 1) {
         finder.one.flatMap {
           case Some(note) ⇒ DbResult.good(AdminNotes.build(note, author))
-          case None       ⇒ DbResult.failure(notFound(noteId))
+          case None ⇒ DbResult.failure(notFound(noteId))
         }
       } else {
         DbResult.failure(notFound(noteId))
@@ -103,8 +105,41 @@ object NoteManager {
   private def createNote(note: Note)
     (implicit ec: ExecutionContext, db: Database): DbResult[Note] = {
     note.validate match {
-      case Valid(_)         ⇒ DbResult.fromDbio(Notes.save(note))
-      case Invalid(errors)  ⇒ DbResult.failures(errors)
+      case Valid(_) ⇒ DbResult.fromDbio(Notes.save(note))
+      case Invalid(errors) ⇒ DbResult.failures(errors)
     }
+  }
+
+  def forOrder(refNum: String)(implicit ec: ExecutionContext, db: Database): Result[Seq[Root]] = {
+    Orders.findByRefNum(refNum).selectOne { order ⇒
+      forModel(Notes.filterByOrderId(order.id).notDeleted)
+    }
+  }
+
+  def forGiftCard(code: String)(implicit ec: ExecutionContext, db: Database): Result[Seq[Root]] = {
+    GiftCards.findByCode(code).selectOne { giftCard ⇒
+      forModel(Notes.filterByGiftCardId(giftCard.id).notDeleted)
+    }
+  }
+
+  def forCustomer(customerId: Int)(implicit ec: ExecutionContext, db: Database): Result[Seq[Root]] = {
+    Customers.findById(customerId).extract.selectOne { customer ⇒
+      forModel(Notes.filterByCustomerId(customer.id).notDeleted)
+    }
+  }
+
+  private def forModel[M <: ModelWithIdParameter](finder: Notes.QuerySeq)
+    (implicit ec: ExecutionContext, db: Database): DbResult[Seq[Root]] = {
+    val q = for {
+      notes ← finder
+      authors ← notes.author
+    } yield (notes, authors)
+
+    val notes = q.result.map { _.map {
+        case (note, author) ⇒ AdminNotes.build(note, author)
+      }
+    }
+
+    DbResult.fromDbio(notes)
   }
 }

@@ -15,6 +15,7 @@ import utils.Apis
 import utils.Http._
 import utils.CustomDirectives._
 import utils.Slick.implicits._
+import utils.Slick.DbResult
 
 object Admin {
 
@@ -65,8 +66,8 @@ object Admin {
       pathPrefix("notes") {
         pathPrefix("order" / orderRefNumRegex) { refNum ⇒
           (get & pathEnd) {
-            complete {
-              whenOrderFoundAndEditable(refNum) { order ⇒ AdminNotes.forOrder(order) }
+            goodOrFailures {
+              NoteManager.forOrder(refNum)
             }
           } ~
           (post & entity(as[payloads.CreateNote])) { payload ⇒
@@ -87,8 +88,8 @@ object Admin {
         } ~
         pathPrefix("gift-card" / Segment) { code ⇒
           (get & pathEnd) {
-            complete {
-              whenFound(GiftCards.findByCode(code).one.run()) { giftCard ⇒ AdminNotes.forGiftCard(giftCard) }
+            goodOrFailures {
+              NoteManager.forGiftCard(code)
             }
           } ~
           (post & entity(as[payloads.CreateNote]) & pathEnd) { payload ⇒
@@ -111,8 +112,8 @@ object Admin {
         } ~
         pathPrefix("customer" / IntNumber) { id ⇒
           (get & pathEnd) {
-            complete {
-              whenFound(Customers.findById(id).result.headOption.run()) { AdminNotes.forCustomer(_) }
+            goodOrFailures {
+              NoteManager.forCustomer(id)
             }
           } ~
           (post & entity(as[payloads.CreateNote]) & pathEnd) { payload ⇒
