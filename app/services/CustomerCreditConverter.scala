@@ -48,19 +48,21 @@ object CustomerCreditConverter {
     }
   }
 
-  def toGiftCard(sc: StoreCredit, customerId: Int)
+  def toGiftCard(storeCreditId: Int, customerId: Int)
     (implicit ec: ExecutionContext, db: Database): Result[GiftCard] = {
+    StoreCredits.findById(storeCreditId).extract.selectOneForUpdate { sc ⇒
 
-    if (sc.isActive) {
-      val giftCard = GiftCard(originId = 0, originType = GiftCard.FromStoreCredit, currency = sc.currency,
-        originalBalance = sc.currentBalance, currentBalance = sc.currentBalance)
+      if (sc.isActive) {
+        val giftCard = GiftCard(originId = 0, originType = GiftCard.FromStoreCredit, currency = sc.currency,
+          originalBalance = sc.currentBalance, currentBalance = sc.currentBalance)
 
-      Result.fromFuture(db.run(for {
-        conversion ← GiftCardFromStoreCredits.save(GiftCardFromStoreCredit(storeCreditId = sc.id))
-        gc ← GiftCards.save(giftCard.copy(originId = conversion.id))
-      } yield gc))
-    } else {
-      Result.failure(StoreCreditConvertFailure(sc))
+        DbResult.fromDbio(for {
+          conversion ← GiftCardFromStoreCredits.save(GiftCardFromStoreCredit(storeCreditId = sc.id))
+          gc ← GiftCards.save(giftCard.copy(originId = conversion.id))
+        } yield gc)
+      } else {
+        DbResult.failure(StoreCreditConvertFailure(sc))
+      }
     }
   }
 }

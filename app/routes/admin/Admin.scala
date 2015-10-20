@@ -66,21 +66,17 @@ object Admin {
         pathPrefix("order" / orderRefNumRegex) { refNum ⇒
           (get & pathEnd) {
             complete {
-              whenOrderFoundAndEditable(refNum) { order ⇒ AdminNotes.forOrder(order) }
+              whenOrderFoundAndEditable(refNum) { AdminNotes.forOrder(_) }
             }
           } ~
           (post & entity(as[payloads.CreateNote])) { payload ⇒
-            complete {
-              whenOrderFoundAndEditable(refNum) { order ⇒
-                NoteManager.createNote(order, admin, payload)
-              }
+            goodOrFailures {
+              NoteManager.createOrderNote(refNum, admin, payload)
             }
           } ~
           (patch & path(IntNumber) & entity(as[payloads.UpdateNote])) { (noteId, payload) ⇒
-            complete {
-              whenOrderFoundAndEditable(refNum) { order ⇒
-                NoteManager.updateNote(noteId, admin, payload)
-              }
+            goodOrFailures {
+              NoteManager.updateOrderNote(refNum, noteId, admin, payload)
             }
           } ~
           (delete & path(IntNumber)) { noteId ⇒
@@ -92,22 +88,18 @@ object Admin {
         pathPrefix("gift-card" / Segment) { code ⇒
           (get & pathEnd) {
             complete {
-              whenFound(GiftCards.findByCode(code).one.run()) { giftCard ⇒ AdminNotes.forGiftCard(giftCard) }
+              whenFound(GiftCards.findByCode(code).one.run()) { AdminNotes.forGiftCard(_) }
             }
           } ~
           (post & entity(as[payloads.CreateNote]) & pathEnd) { payload ⇒
-            complete {
-              whenFound(GiftCards.findByCode(code).one.run()) { giftCard ⇒
-                NoteManager.createNote(giftCard, admin, payload)
-              }
+            goodOrFailures {
+              NoteManager.createGiftCardNote(code, admin, payload)
             }
           } ~
           path(IntNumber) { noteId ⇒
             (patch & entity(as[payloads.UpdateNote]) & pathEnd) { payload ⇒
-              complete {
-                whenFound(GiftCards.findByCode(code).one.run()) { _ ⇒
-                  NoteManager.updateNote(noteId, admin, payload)
-                }
+              goodOrFailures {
+                NoteManager.updateGiftCardNote(code, noteId, admin, payload)
               }
             } ~
             (delete & pathEnd) {
@@ -124,18 +116,14 @@ object Admin {
             }
           } ~
           (post & entity(as[payloads.CreateNote]) & pathEnd) { payload ⇒
-            complete {
-              whenFound(Customers.findById(id).result.headOption.run()) { customer ⇒
-                NoteManager.createNote(customer, admin, payload)
-              }
+            goodOrFailures {
+              NoteManager.createCustomerNote(id, admin, payload)
             }
           } ~
           path(IntNumber) { noteId ⇒
             (patch & entity(as[payloads.UpdateNote]) & pathEnd) { payload ⇒
-              complete {
-                whenFound(Customers.findById(id).result.headOption.run()) { _ ⇒
-                  NoteManager.updateNote(noteId, admin, payload)
-                }
+              goodOrFailures {
+                NoteManager.updateCustomerNote(id, noteId, admin, payload)
               }
             } ~
             (delete & pathEnd) {

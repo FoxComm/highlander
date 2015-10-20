@@ -37,15 +37,6 @@ object Http {
         getOrElse(Future.successful(notFoundResponse))
     }
 
-  def whenFoundDispatchToService[A, G <: AnyRef](finder: ⇒ Future[Option[A]])
-                                                (bind:   A ⇒ Future[Failures Xor G])
-                                                (implicit ec: ExecutionContext): Future[HttpResponse] = {
-    finder.flatMap {
-      case None    ⇒ Future.successful(notFoundResponse)
-      case Some(v) ⇒ bind(v).map(renderGoodOrFailures)
-    }
-  }
-
   def whenOrderFoundAndEditable[G <: AnyRef](finder: Future[Option[Order]])
                                             (f: Order ⇒ Future[Failures Xor G])
                                             (implicit ec: ExecutionContext, db: Database): Future[HttpResponse] = {
