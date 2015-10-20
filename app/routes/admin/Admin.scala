@@ -8,14 +8,11 @@ import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.Order.orderRefNumRegex
 import models._
-import responses.AdminNotes
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.Apis
 import utils.Http._
 import utils.CustomDirectives._
-import utils.Slick.implicits._
-import utils.Slick.DbResult
 
 object Admin {
 

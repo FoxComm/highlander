@@ -2,10 +2,9 @@ package services
 
 import java.time.Instant
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ExecutionContext}
 
 import cats.data.Validated.{Invalid, Valid}
-import cats.data.Xor
 import models._
 import responses.AdminNotes
 import responses.AdminNotes.Root

@@ -14,7 +14,5 @@ object AdminNotes {
 
   def build(note: Note, author: StoreAdmin): Root =
     Root(id = note.id, body = note.body, author = buildAuthor(author), createdAt = note.createdAt)
-
-
 }
 
