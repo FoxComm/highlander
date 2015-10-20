@@ -5,10 +5,9 @@
   border: 1px solid @color-decor9;
   background: @color-decor12;
   .padding(20px 10px);
-  .margin-bottom(15px);
-  .margin-left(15px);
+  .margin(10px 10px 10px 15px);
   .font-spec(12px);
-  width: 278px;
+  width: 406px;
   .min-height(278px);
   position: relative;
 
@@ -41,19 +40,20 @@
   }
 
   &-details {
+    height: pxtorem(210px);
     .margin-bottom(40px);
     list-style-type: none;
     .font-spec(14px, 19px);
 
     .name {
-      .font-spec(17px, 23px);
+      .font-spec(17px, 600, 23px);
     }
   }
 
   &-choose {
     .font-spec(14px, 19px);
     position: absolute;
-    .bottom(10px);
+    .bottom(20px);
     .width(140px);
     .left(50%);
     .margin-left(-70px);

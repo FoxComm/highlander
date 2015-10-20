@@ -73,7 +73,7 @@ export default class Address extends React.Component {
           <button className="fc-btn icon-edit" onClick={this.toggleEdit.bind(this)}></button>
         </div>
         <div>
-          { address.isDefault ? isDefault : '' }
+          { isDefault }
           <AddressDetails address={address} />
         </div>
         { choose }

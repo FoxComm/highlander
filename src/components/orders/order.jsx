@@ -7,6 +7,7 @@ import ConfirmModal from '../modal/confirm';
 import RemorseTimer from './remorseTimer';
 import { connect } from 'react-redux';
 import * as orderActions from '../../modules/order';
+import DateTime from '../datetime/datetime';
 
 @connect(state => ({order: state.order}), orderActions)
 export default class Order extends React.Component {
@@ -116,6 +117,10 @@ export default class Order extends React.Component {
           <dl>
             <dt>Fraud Score</dt>
             <dd>{order.fraudScore}</dd>
+          </dl>
+          <dl>
+            <dt>Date/Time Placed</dt>
+            <dd><DateTime value={order.createdAt} /></dd>
           </dl>
         </div>
         {subNav}

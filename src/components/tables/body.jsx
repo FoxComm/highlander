@@ -96,19 +96,19 @@ export default class TableBody extends React.Component {
     let createRow = (row, idx) => {
       const isNew = idx in this.state.newRows;
       return (
-        <tr key={idx} className={isNew ? 'is-new' : null}>
+        <tr key={idx} className={`${row.isNew ? 'new' : ''} fc-table-tr`}>
           {columns.map((column) => {
             let data = (
               column.component
                 ? this.findComponent(column.component, row, column.field)
                 : this.convert(row[column.field], column, row)
             );
-            return <td key={`${idx}-${column.field}`} className={column.field}><div>{data}</div></td>;
+            return <td key={`${idx}-${column.field}`} className={`${column.field} fc-table-td`}><div>{data}</div></td>;
           })}
         </tr>
       );
     };
 
-    return <tbody>{this.props.rows.map(createRow)}</tbody>;
+    return <tbody className="fc-table-tbody">{this.props.rows.map(createRow)}</tbody>;
   }
 }

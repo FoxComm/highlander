@@ -2,14 +2,14 @@
 
 import React from 'react';
 import { formatCurrency } from '../../lib/format';
+import ContentBox from '../content-box/content-box';
 
 export default class RmaSummary extends React.Component {
   render() {
     let rma = this.props.rma;
 
     return (
-      <div className="fc-rma-summary fc-content-box">
-        <header>Return Summary</header>
+      <ContentBox title="Return Summary" className="fc-rma-summary">
         <article>
           <dl className="rma-totals">
             <dt>Subtotal</dt>
@@ -26,7 +26,7 @@ export default class RmaSummary extends React.Component {
             <dd>{formatCurrency(rma.totals.total)}</dd>
           </dl>
         </footer>
-      </div>
+      </ContentBox>
     );
   }
 }

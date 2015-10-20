@@ -1,6 +1,6 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import OrderSummary from './summary';
 import CustomerInfo from './customer-info';
 import OrderLineItems from './order-line-items';

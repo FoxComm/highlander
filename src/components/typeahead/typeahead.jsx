@@ -29,6 +29,14 @@ export default class Typeahead extends React.Component {
     };
   }
 
+  get placeholder() {
+    let placeholder = 'Search';
+    if (this.props.placeholder) {
+      placeholder = this.props.placeholder;
+    }
+    return placeholder;
+  }
+
   @autobind
   onItemSelected(item) {
     this.setState({
@@ -79,10 +87,14 @@ export default class Typeahead extends React.Component {
   render() {
     return (
       <div className="fc-typeahead">
-        <FormField className="fc-input-group" label={this.props.label}>
+        <FormField className="fc-typeahead-input-group" label={this.props.label}>
           <div className="fc-input-prepend"><i className="icon-search"></i></div>
-          <input className="fc-input" type="text" name={this.props.name}
-                 onChange={this.textChange} onKeyUp={this.inputKeyUp}
+          <input className="fc-input fc-typeahead-input"
+                 type="text"
+                 name={this.props.name}
+                 placeholder={this.placeholder}
+                 onChange={this.textChange}
+                 onKeyUp={this.inputKeyUp}
           />
         </FormField>
         <TypeaheadItems

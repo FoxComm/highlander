@@ -7,6 +7,7 @@ import TabView from '../tabs/tab';
 import SectionTitle from '../section-title/section-title';
 import { connect } from 'react-redux';
 import * as orderActions from '../../modules/orders';
+import LocalNav from '../local-nav/local-nav';
 
 @connect(state => ({orders: state.orders}), orderActions)
 export default class Orders extends React.Component {
@@ -45,27 +46,22 @@ export default class Orders extends React.Component {
 
     return (
       <div id="orders">
-        <div className="fc-list-header">
-          <SectionTitle title="Orders" count={orders.size} buttonClickHandler={this.handleAddOrderClick }/>
-          <div className="fc-grid gutter">
-            <div className="fc-col-md-1-1">
-              <ul className="fc-tabbed-nav">
-                <li><a href="">Lists</a></li>
-                <li><a href="">Returns</a></li>
-              </ul>
-            </div>
-          </div>
+        <div>
+          <SectionTitle title="Orders" subtitle={orders.size} buttonClickHandler={this.handleAddOrderClick }/>
+          <LocalNav>
+            <a href="">Lists</a>
+            <a href="">Returns</a>
+          </LocalNav>
           <TabListView>
             <TabView>What</TabView>
             <TabView>What</TabView>
           </TabListView>
         </div>
-        <div className="gutter">
+        <div>
           <TableView
             columns={this.props.tableColumns}
             rows={orders}
             model='order'
-            sort={this.props.orders.sortColumn}
             />
         </div>
       </div>

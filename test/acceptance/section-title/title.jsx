@@ -29,7 +29,7 @@ describe('Title', function() {
     let title = ReactDOM.render(
       <Title title={ titleText } subtitle={ subtitleText }/>
       , container);
-    let titleNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithClass(title, 'fc-title'));
+    let titleNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithClass(title, 'fc-section-title-title'));
 
     expect(titleNode.innerHTML).to.contain(titleText);
   });
@@ -41,9 +41,9 @@ describe('Title', function() {
     let title = ReactDOM.render(
       <Title title={ titleText } subtitle={ subtitleText }/>
       , container);
-    let titleNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithClass(title, 'fc-title'));
+    let titleNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithClass(title, 'fc-section-title-title'));
 
-    expect(titleNode.querySelector('.fc-subtitle').innerHTML).to.contain(subtitleText);
+    expect(titleNode.querySelector('.fc-section-title-subtitle').innerHTML).to.contain(subtitleText);
   });
 
   it('should contain title text only', function *() {
@@ -51,10 +51,10 @@ describe('Title', function() {
     let title = ReactDOM.render(
       <Title title={ titleText }/>
       , container);
-    let titleNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithClass(title, 'fc-title'));
+    let titleNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithClass(title, 'fc-section-title-title'));
 
     expect(titleNode.innerHTML).to.contain(titleText);
-    expect(titleNode.innerHTML).not.to.contain('fc-subtitle');
-    expect(titleNode.querySelector('.fc-subtitle')).to.be.equal(null);
+    expect(titleNode.innerHTML).not.to.contain('fc-section-title-subtitle');
+    expect(titleNode.querySelector('.fc-section-title-subtitle')).to.be.equal(null);
   });
 });

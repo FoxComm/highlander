@@ -1,11 +1,12 @@
 'use strict';
 
 import _ from 'lodash';
-import React from 'react';
+import React, { PropTypes } from 'react';
 import EditableContentBox from '../content-box/editable-content-box';
 import PaymentMethod from './payment-method';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
+import ContentBox from '../content-box/content-box';
 
 const OrderPayment = (props) => {
   const order = props.order.currentOrder;
