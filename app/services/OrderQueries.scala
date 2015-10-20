@@ -8,6 +8,7 @@ import responses.AllOrders.Response
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives
 import utils.CustomDirectives.SortAndPage
+import utils.Slick.implicits._
 
 object OrderQueries {
 
