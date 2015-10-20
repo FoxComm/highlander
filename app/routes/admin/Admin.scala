@@ -70,10 +70,8 @@ object Admin {
             }
           } ~
           (post & entity(as[payloads.CreateNote])) { payload ⇒
-            complete {
-              whenOrderFoundAndEditable(refNum) { order ⇒
-                NoteManager.createOrderNote(order, admin, payload)
-              }
+            goodOrFailures {
+              NoteManager.createOrderNote(refNum, admin, payload)
             }
           } ~
           (patch & path(IntNumber) & entity(as[payloads.UpdateNote])) { (noteId, payload) ⇒
@@ -94,10 +92,8 @@ object Admin {
             }
           } ~
           (post & entity(as[payloads.CreateNote]) & pathEnd) { payload ⇒
-            complete {
-              whenFound(GiftCards.findByCode(code).one.run()) { giftCard ⇒
-                NoteManager.createGiftCardNote(giftCard, admin, payload)
-              }
+            goodOrFailures {
+              NoteManager.createGiftCardNote(code, admin, payload)
             }
           } ~
           path(IntNumber) { noteId ⇒

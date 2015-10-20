@@ -14,18 +14,22 @@ import utils.Slick.implicits._
 
 object NoteManager {
 
-  def createOrderNote(order: Order, author: StoreAdmin, payload: payloads.CreateNote)
+  def createOrderNote(refNum: String, author: StoreAdmin, payload: payloads.CreateNote)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
-    createModelNote(order.id, Note.Order, author, payload)
+    Orders.findByRefNum(refNum).selectOne { order ⇒
+      createModelNote(order.id, Note.Order, author, payload)
+    }
   }
 
-  def createGiftCardNote(giftCard: GiftCard, author: StoreAdmin, payload: payloads.CreateNote)
+  def createGiftCardNote(code: String, author: StoreAdmin, payload: payloads.CreateNote)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
-    createModelNote(giftCard.id, Note.GiftCard, author, payload)
+    GiftCards.findByCode(code).selectOne { giftCard ⇒
+      createModelNote(giftCard.id, Note.GiftCard, author, payload)
+    }
   }
 
   private def createModelNote(refId: Int, refType: Note.ReferenceType, author: StoreAdmin,
-    payload: payloads.CreateNote)(implicit ec: ExecutionContext, db: Database): Result[Root] = {
+    payload: payloads.CreateNote)(implicit ec: ExecutionContext, db: Database): DbResult[Root] = {
     createNote(Note(
       storeAdminId = author.id,
       referenceId = refId,
@@ -74,10 +78,10 @@ object NoteManager {
   }
 
   private def createNote(note: Note)
-    (implicit ec: ExecutionContext, db: Database): Result[Note] = {
+    (implicit ec: ExecutionContext, db: Database): DbResult[Note] = {
     note.validate match {
-      case Valid(_)         ⇒ Result.fromFuture(Notes.save(note).run())
-      case Invalid(errors)  ⇒ Result.failures(errors)
+      case Valid(_)         ⇒ DbResult.fromDbio(Notes.save(note))
+      case Invalid(errors)  ⇒ DbResult.failures(errors)
     }
   }
 }
