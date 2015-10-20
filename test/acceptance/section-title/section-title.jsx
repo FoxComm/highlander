@@ -30,26 +30,25 @@ describe('SectionTitle', function() {
 
     expect(sectionTitleNode).to.be.instanceof(Object);
     expect(sectionTitleNode.className).to.contain('fc-grid');
-    expect(sectionTitleNode.className).to.contain('gutter');
   });
 
-  it('should not render counter if count is not set', function *() {
+  it('should not render subtitle if subtitle is not set', function *() {
     let sectionTitle = ReactDOM.render(
       <SectionTitle title='Orders'/>
       , container);
     let sectionTitleNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithClass(sectionTitle, 'fc-grid'));
 
-    expect(sectionTitleNode.querySelector('.fc-subtitle')).to.be.equal(null);
+    expect(sectionTitleNode.querySelector('.fc-section-title-subtitle')).to.be.equal(null);
   });
 
-  it('should render counter if count is set', function *() {
+  it('should render subtitle if subtitle is set', function *() {
     let count = 100;
     let sectionTitle = ReactDOM.render(
-      <SectionTitle title='Orders' count={ count } />
+      <SectionTitle title='Orders' subtitle={ count } />
       , container);
     let sectionTitleNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithClass(sectionTitle, 'fc-grid'));
 
-    expect(sectionTitleNode.querySelector('.fc-subtitle').innerHTML).to.contain('' + count);
+    expect(sectionTitleNode.querySelector('.fc-section-title-subtitle').innerHTML).to.contain('' + count);
   });
 
   it('should not render button if handler is not set', function *() {

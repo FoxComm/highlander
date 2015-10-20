@@ -1,125 +1,94 @@
 'use strict';
 
-import React from 'react';
+import _ from 'lodash';
+import { createSelector } from 'reselect';
+import { autobind } from 'core-decorators';
+import React, { PropTypes } from 'react';
 import Counter from '../forms/counter';
 import Typeahead from '../typeahead/typeahead';
-import CustomerResult from '../customers/result';
 import CustomerStore from '../../stores/customers';
-import _ from 'lodash';
-import { Link } from 'react-router';
-import GiftCardActions from '../../actions/gift-cards';
+import { Link } from '../link';
+import { connect } from 'react-redux';
+import { Form, FormField } from '../forms';
+import * as GiftCardNewActions from '../../modules/gift-cards/new';
+import * as CustomersActions from '../../modules/customers';
+import { createGiftCard } from '../../modules/gift-cards/cards';
 
-const types = {
-  Appeasement: [],
-  Marketing: ['One', 'Two']
-};
+const filterCustomers = createSelector(
+  state => state.customers.items,
+  ({giftCards: {adding}}) => adding.customersQuery,
+  (customers, customersQuery) => _.filter(customers, customer => _.contains(customer.name, customersQuery))
+);
 
+const filterUsers = createSelector(
+  state => state.customers.items,
+  ({giftCards: {adding}}) => adding.usersQuery,
+  (customers, usersQuery) => _.filter(customers, customer => _.contains(customer.name, usersQuery))
+);
+
+const subTypes = createSelector(
+  ({giftCards: {adding}}) => adding.originType,
+  ({giftCards: {adding}}) => adding.types,
+  (originType, types) => types[originType]
+);
+
+const customerItem = props => <div>{props.item.name}</div>;
+
+@connect(state => ({
+  ...state.giftCards.adding,
+  suggestedCustomers: filterCustomers(state),
+  suggestedUsers: filterUsers(state),
+  subTypes: subTypes(state)
+}), {
+  ...GiftCardNewActions,
+  ...CustomersActions,
+  createGiftCard
+})
 export default class NewGiftCard extends React.Component {
+
+  static propTypes = {
+    addCustomer: PropTypes.func,
+    addUser: PropTypes.func,
+    balance: PropTypes.number,
+    balanceText: PropTypes.string,
+    changeFormData: PropTypes.func.isRequired,
+    createGiftCard: PropTypes.func.isRequired,
+    customers: PropTypes.map,
+    emailCSV: PropTypes.bool,
+    fetchCustomersIfNeeded: PropTypes.func.isRequired,
+    removeCustomer: PropTypes.func,
+    removeUser: PropTypes.func,
+    sendToCustomer: PropTypes.bool,
+    subTypes: PropTypes.map,
+    suggestCustomers: PropTypes.func,
+    suggestedCustomers: PropTypes.array,
+    suggestUsers: PropTypes.func,
+    suggestedUsers: PropTypes.array,
+    types: PropTypes.object,
+    users: PropTypes.map
+  };
+
   constructor(props, context) {
     super(props, context);
     this.state = {
-      balance: 100,
-      balanceText: '1.00',
-      originType: 'Appeasement',
-      subTypes: types.Appeasement,
-      sendToCustomer: false,
-      customers: [],
-      users: [],
-      emailCSV: false,
       customerMessageCount: 0,
       csvMessageCount: 0
     };
   }
 
-  onChangeBalance(event) {
-    this.setState({
-      balance: (event.target.value * 100) | 0,
-      balanceText: event.target.value
-    });
+  componentDidMount() {
+    this.props.fetchCustomersIfNeeded();
   }
 
-  setValue(value) {
-    this.setState({
-      balance: value,
-      balanceText: (value / 100).toFixed(2)
-    });
-  }
-
-  setType(event) {
-    this.setState({
-      originType: event.target.value,
-      subTypes: types[event.target.value]
-    });
-  }
-
-  toggleSendToCustomer() {
-    let customerList = this.state.sendToCustomer ? [] : this.state.customers;
-    this.setState({
-      sendToCustomer: !this.state.sendToCustomer,
-      customers: customerList
-    });
-  }
-
-  toggleEmailCSV() {
-    let userList = this.state.emailCSV ? [] : this.state.users;
-    this.setState({
-      emailCSV: !this.state.emailCSV,
-      users: userList
-    });
-  }
-
-  onGiftCardCustomerSelected(customer) {
-    let
-      customerList = this.state.customers.slice(0, this.state.customers.length),
-      existing = _(customerList).find(function (item) {
-        return item.id === customer.id;
-      });
-
-    if (existing) return;
-
-    customerList.push(customer);
-    this.setState({
-      customers: customerList
-    });
-  }
-
-  onEmailCsvUserSelected(user) {
-    let
-      userList = this.state.users.slice(0, this.state.users.length),
-      existing = _(userList).find(function (item) {
-        return item.id === user.id;
-      });
-
-    if (existing) return;
-
-    userList.push(user);
-    this.setState({
-      users: userList
-    });
-  }
-
+  @autobind
   submitForm(event) {
     event.preventDefault();
-
-    GiftCardActions.createGiftCard(event.target);
+    this.props.createGiftCard();
   }
 
-  closeForm(cards) {
-    cards = cards || [];
-  }
-
-  removeCustomer(idx) {
-    let customerList = this.state.customers.slice(0, this.state.users.length);
-
-    customerList.splice(idx, 1);
-    this.setState({customers: customerList});
-  }
-
-  removeUser(idx) {
-    let userList = this.state.users.slice(0, this.state.users.length);
-
-    userList.splice(idx, 1);
-    this.setState({users: userList});
+  @autobind
+  onChangeValue({target}) {
+    this.props.changeFormData(target.name, target.value || target.checked);
   }
 
   changeCustomerMessage(event) {
@@ -132,18 +101,19 @@ export default class NewGiftCard extends React.Component {
 
   render() {
     let
-      typeList       = Object.keys(types),
       subTypeContent = null,
       customerSearch = null,
       quantity       = null,
       emailCSV       = null;
 
-    if (this.state.subTypes.length > 0) {
+    const typeList = Object.keys(this.props.types);
+
+    if (this.props.subTypes.length > 0) {
       subTypeContent = (
         <div id="subTypes">
           <label htmlFor="cardSubType">Subtype</label>
           <select name="cardSubType">
-            {this.state.subTypes.map((subType, idx) => {
+            {this.props.subTypes.map((subType, idx) => {
               return <option key={`subType-${idx}`} val={subType}>{subType}</option>;
              })};
           </select>
@@ -151,23 +121,24 @@ export default class NewGiftCard extends React.Component {
       );
     }
 
-    if (this.state.sendToCustomer) {
+    if (this.props.sendToCustomer) {
       customerSearch = (
         <div id="customerSearch">
           <Typeahead
-            store={CustomerStore}
-            component={CustomerResult}
-            callback={this.onGiftCardCustomerSelected.bind(this)}
+            items={this.props.suggestedCustomers}
+            fetchItems={this.props.suggestCustomers}
+            component={customerItem}
+            onItemSelected={this.props.addCustomer}
             label="Choose customers:"
             name="customerQuery"
           />
           <ul id="customerList">
-            {this.state.customers.map((customer, idx) => {
+            {this.props.customers.map((customer, idx) => {
               return (
-                <li key={`customer-${customer.id}`}>
-                  {customer.firstName} {customer.lastName}
+                <li key={`customer-${idx}`}>
+                  {customer.name}
                   <input type="hidden" name="customers[]" id={`customer_${idx}`} value={customer.id} />
-                  <a onClick={this.removeCustomer.bind(this, idx)}>&times;</a>
+                  <a onClick={() => this.props.removeCustomer(customer.id)}>&times;</a>
                 </li>
               );
              })}
@@ -180,30 +151,31 @@ export default class NewGiftCard extends React.Component {
 
       quantity = (
         <span>
-          {this.state.customers.length} <input type="hidden" name="quantity" value={this.state.customers.length} />
+          {this.props.customers.length} <input type="hidden" name="quantity" value={this.props.customers.length} />
         </span>
       );
     } else {
       quantity = <Counter inputName="quantity" />;
     }
 
-    if (this.state.emailCSV) {
+    if (this.props.emailCSV) {
       emailCSV = (
         <div id="userSearch">
           <Typeahead
-            store={CustomerStore}
-            component={CustomerResult}
-            callback={this.onEmailCsvUserSelected.bind(this)}
+            items={this.props.suggestedUsers}
+            fetchItems={this.props.suggestUsers}
+            component={customerItem}
+            onItemSelected={this.props.addUser}
             label="Choose users:"
             name="csvQuery"
           />
           <ul id="internalUserList">
-            {this.state.users.map((user, idx) => {
+            {this.props.users.map((user, idx) => {
               return (
-                <li key={`user-${user.id}`}>
-                  {user.firstName} {user.lastName}
+                <li key={`user-${idx}`}>
+                  {user.name}
                   <input type="hidden" name="users[]" id={`user_${idx}`} value={user.id} />
-                  <a onClick={this.removeUser.bind(this, idx)}>&times;</a>
+                  <a onClick={() => this.props.removeUser(user.id)}>&times;</a>
                 </li>
               );
              })}
@@ -218,13 +190,17 @@ export default class NewGiftCard extends React.Component {
     return (
       <div id="new-gift-card" className="gutter">
         <h2>Issue New Gift Cards</h2>
-        <form action="/gift-cards" method="POST" className="vertical" onSubmit={this.submitForm.bind(this)}>
+        <form action="/gift-cards"
+              method="POST"
+              className="vertical"
+              onSubmit={this.submitForm}
+              onChange={this.onChangeValue}>
           <fieldset>
             <div id="cardTypes">
               <label htmlFor="originType">Gift Card Type</label>
-              <select name="originType" onChange={this.setType.bind(this)}>
+              <select name="originType">
                 {typeList.map((type, idx) => {
-                  return <option val={type} key={`${idx}-${type}`}>{type}</option>;
+                  return <option value={type} key={`${idx}-${type}`}>{type}</option>;
                  })}
               </select>
             </div>
@@ -234,24 +210,26 @@ export default class NewGiftCard extends React.Component {
             <label htmlFor="value">Value</label>
             <div className="fc-input-group">
               <div className="fc-input-prepend"><i className="icon-usd"></i></div>
-              <input type="hidden" name="originalBalance" value={this.state.balance} />
-              <input type="number" value={this.state.balanceText} step="0.01" min="1"
-                     onChange={this.onChangeBalance.bind(this)}
-              />
+              <input type="hidden" name="balance" value={this.props.balance} />
+              <input type="number" name="balanceText" value={this.props.balanceText} step="0.01" min="1"/>
             </div>
             <div id="balances">
-              <a className="btn" onClick={this.setValue.bind(this, '1000')}>$10</a>
-              <a className="btn" onClick={this.setValue.bind(this, '2500')}>$25</a>
-              <a className="btn" onClick={this.setValue.bind(this, '5000')}>$50</a>
-              <a className="btn" onClick={this.setValue.bind(this, '10000')}>$100</a>
-              <a className="btn" onClick={this.setValue.bind(this, '20000')}>$200</a>
+              {
+                [1000, 2500, 5000, 10000, 20000].map((balance, idx) => {
+                  return (
+                    <a key={`balance-${idx}`}
+                       className="fc-btn-link btn" onClick={() => this.props.changeFormData('balance', balance)}>
+
+                      ${balance/100}
+                    </a>
+                  );
+                })
+              }
             </div>
           </fieldset>
           <fieldset>
             <label htmlFor="sendToCustomer" className="checkbox">
-              <input type="checkbox" name="sendToCustomer" value={this.state.sendToCustomer}
-                     onChange={this.toggleSendToCustomer.bind(this)}
-              />
+              <input type="checkbox" name="sendToCustomer" value={this.props.sendToCustomer}/>
               Send gift cards to customers?
             </label>
             { customerSearch }
@@ -267,15 +245,13 @@ export default class NewGiftCard extends React.Component {
               Download CSV file immediately after it is created.
             </label>
             <label htmlFor="email_csv">
-              <input type="checkbox" name="email_csv" value={this.state.emailCSV}
-                     onChange={this.toggleEmailCSV.bind(this)}
-              />
+              <input type="checkbox" name="emailCSV" value={this.props.emailCSV}/>
               Email the CSV file.
             </label>
             { emailCSV }
           </fieldset>
           <Link to='gift-cards'>Cancel</Link>
-          <input type="submit" value="Issue Gift Card" />
+          <button className="fc-btn fc-btn-primary" type="submit">Issue Gift Card</button>
         </form>
       </div>
     );

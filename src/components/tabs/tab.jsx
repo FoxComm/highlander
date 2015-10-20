@@ -5,6 +5,7 @@ import React, { PropTypes } from 'react';
 export default class TabView extends React.Component {
 
   static propTypes = {
+    selector: PropTypes.string,
     children: PropTypes.node
   };
 
@@ -18,7 +19,7 @@ export default class TabView extends React.Component {
   render() {
     return (
       <li className="fc-tab">
-        <i className="icon-drag-drop"></i>&nbsp;
+        <i className="fc-tab-icon icon-drag-drop"></i>&nbsp;
         {this.props.children}
       </li>
     );
