@@ -82,10 +82,10 @@ class CustomerNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
       response.bodyText mustBe empty
 
       val updatedNote = db.run(Notes.findOneById(note.id)).futureValue.value
-      updatedNote.deletedBy.value mustBe 1
+      updatedNote.deletedBy.value === (1)
 
       withClue(updatedNote.deletedAt.value → Instant.now) {
-        updatedNote.deletedAt.value.isBeforeNow mustBe true
+        updatedNote.deletedAt.value.isBeforeNow === (true)
       }
 
       // Deleted note should not be returned
