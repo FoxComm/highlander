@@ -2,7 +2,7 @@ package services
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext}
 
 import cats.data.Validated.{Invalid, Valid}
 import models._
@@ -11,8 +11,20 @@ import responses.AdminNotes.Root
 import slick.driver.PostgresDriver.api._
 import utils.Slick.DbResult
 import utils.Slick.implicits._
+import utils.ModelWithIdParameter
+import models.Notes.scope._
 
 object NoteManager {
+
+  def createNote[M <: ModelWithIdParameter](m: M, author: StoreAdmin, payload: payloads.CreateNote)
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
+    val noteType = m match {
+      case _: Customer ⇒ Note.Customer
+      case _: GiftCard ⇒ Note.GiftCard
+      case _: Order ⇒ Note.Order
+    }
+    createModelNote(m.id, noteType, author, payload).run()
+  }
 
   def createOrderNote(refNum: String, author: StoreAdmin, payload: payloads.CreateNote)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
@@ -25,6 +37,13 @@ object NoteManager {
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
     GiftCards.findByCode(code).selectOne { giftCard ⇒
       createModelNote(giftCard.id, Note.GiftCard, author, payload)
+    }
+  }
+
+  def createCustomerNote(customerId: Int, author: StoreAdmin, payload: payloads.CreateNote)
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
+    Customers.findById(customerId).extract.selectOne { customer ⇒
+      createModelNote(customer.id, Note.Customer, author, payload)
     }
   }
 
@@ -46,6 +65,11 @@ object NoteManager {
   def updateGiftCardNote(code: String, noteId: Int, author: StoreAdmin, payload: payloads.UpdateNote)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
     GiftCards.findByCode(code).selectOne { _ ⇒ updateNote(noteId, author, payload) }
+  }
+
+  def updateCustomerNote(customerId: Int, noteId: Int, author: StoreAdmin, payload: payloads.UpdateNote)
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
+    Customers.findById(customerId).extract.selectOne { _ ⇒ updateNote(noteId, author, payload) }
   }
 
   private def updateNote(noteId: Int, author: StoreAdmin, payload: payloads.UpdateNote)
@@ -83,5 +107,38 @@ object NoteManager {
       case Valid(_)         ⇒ DbResult.fromDbio(Notes.save(note))
       case Invalid(errors)  ⇒ DbResult.failures(errors)
     }
+  }
+
+  def forOrder(refNum: String)(implicit ec: ExecutionContext, db: Database): Result[Seq[Root]] = {
+    Orders.findByRefNum(refNum).selectOne { order ⇒
+      forModel(Notes.filterByOrderId(order.id).notDeleted)
+    }
+  }
+
+  def forGiftCard(code: String)(implicit ec: ExecutionContext, db: Database): Result[Seq[Root]] = {
+    GiftCards.findByCode(code).selectOne { giftCard ⇒
+      forModel(Notes.filterByGiftCardId(giftCard.id).notDeleted)
+    }
+  }
+
+  def forCustomer(customerId: Int)(implicit ec: ExecutionContext, db: Database): Result[Seq[Root]] = {
+    Customers.findById(customerId).extract.selectOne { customer ⇒
+      forModel(Notes.filterByCustomerId(customer.id).notDeleted)
+    }
+  }
+
+  private def forModel[M <: ModelWithIdParameter](finder: Notes.QuerySeq)
+    (implicit ec: ExecutionContext, db: Database): DbResult[Seq[Root]] = {
+    val q = for {
+      notes ← finder
+      authors ← notes.author
+    } yield (notes, authors)
+
+    val notes = q.result.map { _.map {
+        case (note, author) ⇒ AdminNotes.build(note, author)
+      }
+    }
+
+    DbResult.fromDbio(notes)
   }
 }
