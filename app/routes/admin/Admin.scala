@@ -66,7 +66,7 @@ object Admin {
         pathPrefix("order" / orderRefNumRegex) { refNum ⇒
           (get & pathEnd) {
             complete {
-              whenOrderFoundAndEditable(refNum) { AdminNotes.forOrder(_) }
+              whenOrderFoundAndEditable(refNum) { order ⇒ AdminNotes.forOrder(order) }
             }
           } ~
           (post & entity(as[payloads.CreateNote])) { payload ⇒
@@ -88,7 +88,7 @@ object Admin {
         pathPrefix("gift-card" / Segment) { code ⇒
           (get & pathEnd) {
             complete {
-              whenFound(GiftCards.findByCode(code).one.run()) { AdminNotes.forGiftCard(_) }
+              whenFound(GiftCards.findByCode(code).one.run()) { giftCard ⇒ AdminNotes.forGiftCard(giftCard) }
             }
           } ~
           (post & entity(as[payloads.CreateNote]) & pathEnd) { payload ⇒
@@ -127,8 +127,8 @@ object Admin {
               }
             } ~
             (delete & pathEnd) {
-              complete {
-                NoteManager.deleteNote(noteId, admin).map(renderNothingOrFailures)
+              nothingOrFailures {
+                NoteManager.deleteNote(noteId, admin)
               }
             }
           }
