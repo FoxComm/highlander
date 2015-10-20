@@ -88,8 +88,8 @@ object OrderRoutes {
           }
         } ~
         (post & path("checkout")) {
-          complete {
-            whenOrderFoundAndEditable(refNum) { order ⇒ new Checkout(order).checkout }
+          nothingOrFailures {
+            Result.unit // FIXME Stubbed until checkout is updated
           }
         } ~
         (post & path("line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems ⇒
