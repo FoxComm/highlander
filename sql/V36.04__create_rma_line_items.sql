@@ -8,7 +8,7 @@ create table rma_line_items (
     inventory_disposition rma_inventory_disposition not null,
     status rma_status not null,
     created_at timestamp without time zone default (now() at time zone 'utc'),
-    constraint valid_origin_type check (origin_type in ('skuItem', 'shipment'))
+    constraint valid_origin_type check (origin_type in ('skuItem', 'giftCard', 'shipment'))
 );
 
 create index rma_line_items_rma_id_and_origin_idx on rma_line_items (rma_id, origin_id)
