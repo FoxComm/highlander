@@ -1,9 +1,9 @@
 package services
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{Future, ExecutionContext}
 
 import cats.data.Validated.{Valid, Invalid}
-import cats.data.Xor
+import cats.data.{XorT, Xor}
 import models._
 import models.{Customers, StoreAdmin, Customer}
 import models.Customers.scope._
@@ -88,22 +88,26 @@ object CustomerManager {
 
     result.flatMap {
       case Xor.Right(c) ⇒ Result.good(build(c))
-      case Xor.Left(e) ⇒ Result.failure(e)
+      case Xor.Left(e)  ⇒ Result.failure(e)
     }
   }
 
   def updateFromPayload(customerId: Int, payload: UpdateCustomerPayload)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
     val finder = Customers.filter(_.id === customerId)
-    finder.selectOneForUpdate { customer ⇒
-      val updated = finder.map { c ⇒ (c.name, c.email, c.phoneNumber) }
-        .updateReturning(Customers.map(identity),
+    val result = withUniqueConstraint {
+       finder.selectOneForUpdate { customer ⇒
+         val updated = finder.map { c ⇒ (c.name, c.email, c.phoneNumber) }
+          .updateReturning(Customers.map(identity),
             (payload.name.fold(customer.name)(Some(_)),
               payload.email.getOrElse(customer.email),
               payload.phoneNumber.fold(customer.phoneNumber)(Some(_)))).head
 
-      updated.flatMap(updCustomer ⇒ DbResult.good(build(updCustomer)))
-    }
+        updated.flatMap(updCustomer ⇒ DbResult.good(build(updCustomer)))
+      }
+    } { notUnique ⇒ CustomerEmailNotUnique }
+
+    result.flatMap(_.fold(Result.failure(_), Future.successful(_)))
   }
 }
 
