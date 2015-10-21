@@ -1,18 +1,18 @@
 'use strict';
 
 import React from 'react';
+import ClassNames from 'classNames';
 import UserInitials from '../users/initials';
 import ViewerStore from '../../stores/viewers';
 
-const updateTime  = 60000;
+const updateTime = 60000;
 
 export default class Viewers extends React.Component {
   constructor(props, context) {
     super(props, context);
     ViewerStore.uriRoot = `${this.props.model}/${this.props.modelId}`;
     this.state = {
-      viewers: [],
-      lockedViewers: []
+      viewers: []
     };
   }
 
@@ -20,6 +20,24 @@ export default class Viewers extends React.Component {
     ViewerStore.listenToEvent('change', this);
     // disabled until we have API for this
     // this.onTimeout();
+    // mock data
+    this.setState({
+      viewers: [
+        {
+          firstName: 'Cameron',
+          lastName: 'Sitt'
+        },
+        {
+          firstName: 'Jeff',
+          lastName: 'Mattaya',
+          isLocker: true
+        },
+        {
+          firstName: 'Denys',
+          lastName: 'Mikhalenko'
+        }
+      ]
+    });
   }
 
   componentWillUnmount() {
@@ -28,41 +46,38 @@ export default class Viewers extends React.Component {
 
   onTimeout() {
     ViewerStore.fetch();
-    setTimeout(() => { this.onTimeout(); }, updateTime);
+    setTimeout(() => {
+      this.onTimeout();
+    }, updateTime);
   }
 
   onChangeViewerStore(viewers) {
     this.setState({
-      viewers: viewers.filter((viewer) => { return !viewer.isLocker; }),
-      lockedViewers: viewers.filter((viewer) => { return viewer.isLocker; })
+      viewers: viewers
     });
   }
 
   render() {
-    let
-      viewers = this.state.viewers,
-      lockedViewers = this.state.lockedViewers,
-      lockedContent = null;
+    const viewers = this.state.viewers;
 
-    let viewerItem = (viewer) => {
-      return <li key={viewer.id}><UserInitials model={viewer}/></li>;
+    const viewerItem = (viewer) => {
+      const classnames = ClassNames({
+        'fc-viewers-item': true,
+        'is-locker': viewer.isLocker
+      });
+      return <li className={classnames} key={viewer.id}><UserInitials model={viewer}/></li>;
     };
 
-    if (lockedViewers.length > 0) {
-      lockedContent = (
-        <ul>
-          <li className="lock"><i className='icon-lock'></i></li>
-          {lockedViewers.map(viewerItem)}
-        </ul>
+    const locked = viewers.some(viewer => viewer.isLocker) && (
+        <li className="fc-viewers-lock"><i className='icon-lock'></i></li>
       );
-    }
 
     return (
       <div className="fc-viewers">
         <ul>
+          {locked}
           {viewers.map(viewerItem)}
         </ul>
-        {lockedContent}
       </div>
     );
   }
