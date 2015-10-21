@@ -1,11 +1,12 @@
 package utils
 
+import java.time.{LocalDateTime, Instant, ZonedDateTime}
+
 import cats.data.Validated.{Valid, Invalid, valid, invalidNel}
 import cats.data.{NonEmptyList, Validated, ValidatedNel}
 import com.wix.accord
 import com.wix.accord.combinators._
 import com.wix.accord.RuleViolation
-import org.joda.time.{IllegalFieldValueException, DateTime}
 import services._
 
 trait Validation[M] {
@@ -38,10 +39,10 @@ object Validation {
   }
 
   def notExpired(expYear: Int, expMonth: Int, message: String): ValidatedNel[Failure, Unit] = {
-    val today = DateTime.now()
+    val today = LocalDateTime.now()
 
-    val validDate = Validated.fromTryCatch[org.joda.time.IllegalFieldValueException] {
-      new DateTime(expYear, expMonth, 1, 0, 0).plusMonths(1).minusSeconds(1)
+    val validDate = Validated.fromTryCatch[java.time.DateTimeException] {
+      LocalDateTime.of(expYear, expMonth, 1, 0, 0).plusMonths(1).minusSeconds(1)
     }
 
     validDate match {
@@ -57,22 +58,34 @@ object Validation {
   }
 
   def withinNumberOfYears(expYear: Int, expMonth: Int, numYears: Int, message: String): ValidatedNel[Failure, Unit] = {
-    val today = DateTime.now()
-    val expDate = new DateTime(expYear, expMonth, 1, 0, 0).plusMonths(1).minusSeconds(1)
+    val today = LocalDateTime.now()
 
-    expDate.isBefore(today.plusYears(numYears)) match {
-      case false ⇒ invalidNel(GeneralFailure(message))
-      case _     ⇒ valid({})
+    val validDate = Validated.fromTryCatch[java.time.DateTimeException] {
+      LocalDateTime.of(expYear, expMonth, 1, 0, 0).plusMonths(1).minusSeconds(1)
+    }
+
+    validDate match {
+      case Valid(expDate) ⇒
+        if (expDate.isBefore(today.plusYears(numYears.toLong)))
+          valid(Unit)
+        else
+          invalidNel(GeneralFailure(message))
+
+      case Invalid(e) ⇒
+        invalidNel(GeneralFailure(e.getMessage))
+
+      case _ ⇒
+        invalidNel(GeneralFailure(message))
     }
   }
 
   // valid credit cards for us cannot have more than 20 years expiration from this year
   def withinTwentyYears(year: Int, message: String): ValidatedNel[Failure, Unit] = {
-    val today = DateTime.now()
-    val expDate = new DateTime(year, today.getMonthOfYear, 1, 0, 0).plusMonths(1).minusSeconds(1)
+    val today = LocalDateTime.now()
+    val expDate = LocalDateTime.of(year, today.getMonthValue, 1, 0, 0).plusMonths(1).minusSeconds(1)
     val msg = message ++ s" year should be between ${today.getYear} and ${expDate.getYear}"
 
-    withinNumberOfYears(year, today.getMonthOfYear, 20, msg)
+    withinNumberOfYears(year, today.getMonthValue, 20, msg)
   }
 
   def matches(value: String, regex: String, constraint: String): ValidatedNel[Failure, Unit] =
