@@ -57,28 +57,4 @@
       background-color: @color-decor11;
     }
   }
-
-  &.is_open .fc-dropdown-items {
-    display: inline-block;
-  }
-
-  &.is_primary {
-    .fc-dropdown-button,
-    .fc-dropdown-value {
-      .colors(@color-control-primary-fg, @color-control-primary-bg);
-    }
-  }
-
-  &.is_editable {
-    .fc-dropdown-value {
-      padding: 0;
-
-      input {
-        .size(100%);
-        .padding(0, 10px);
-        .colors(@color-control-standard-fg, @color-white);
-        border: none;
-      }
-    }
-  }
 }
