@@ -9,7 +9,7 @@ import models.{Customer, Order, Orders}
 import org.json4s.{Formats, jackson}
 import org.json4s.jackson.Serialization
 import org.json4s.jackson.Serialization.{write ⇒ json}
-import services.{Failures, NotFoundFailure404, OrderLockedFailure}
+import services.{Failures, NotFoundFailure404, LockedFailure}
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 
@@ -46,7 +46,7 @@ object Http {
       case Some(order) if !order.locked ⇒
         f(order).map(renderGoodOrFailures)
       case Some(order) if order.locked ⇒
-        Future.successful(renderFailure(services.Failures(OrderLockedFailure(order.referenceNumber))))
+        Future.successful(renderFailure(services.Failures(LockedFailure(order.referenceNumber))))
       case None ⇒
         Future.successful(notFoundResponse)
     }

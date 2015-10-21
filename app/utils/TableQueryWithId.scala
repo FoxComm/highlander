@@ -109,11 +109,16 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.Tab
       appendForUpdate(q.result).flatMap(action).transactionally.run()
     }
 
+    def queryErrorInfo = QueryErrorInfo.forQuery(q)
+    def queryError = s"${queryErrorInfo.modelType} with ${queryErrorInfo.searchTerm}=${queryErrorInfo.searchKey}"
+
+    protected def notFoundFailure = {
+      NotFoundFailure404(s"$queryError not found")
+    }
+
     protected def selectOneResultChecks(maybe: Option[M])
       (implicit ec: ExecutionContext, db: Database): Xor[Failures, M] = {
-      def info = QueryErrorInfo.forQuery(q)
-      def failure = NotFoundFailure404(s"${info.modelType} with ${info.searchTerm}=${info.searchKey} not found")
-      Xor.fromOption(maybe, failure.single)
+      Xor.fromOption(maybe, notFoundFailure.single)
     }
   }
 }
@@ -134,11 +139,11 @@ abstract class TableQueryWithLock[M <: ModelWithLockParameter, T <: GenericTable
       (implicit ec: ExecutionContext, db: Database): Xor[Failures, M] = {
       maybe match {
         case Some(lockable) if lockable.locked ⇒
-          Xor.left(GeneralFailure(s"Model is locked").single)
+          Xor.left(LockedFailure(s"$queryError is locked").single)
         case Some(lockable) if !lockable.locked ⇒
           Xor.right(lockable)
         case None ⇒
-          Xor.left(NotFoundFailure404("Not found").single)
+          Xor.left(notFoundFailure.single)
       }
     }
   }
