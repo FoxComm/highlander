@@ -22,9 +22,29 @@ object Http {
   val notFoundResponse:   HttpResponse  = HttpResponse(NotFound)
   val noContentResponse:  HttpResponse  = HttpResponse(NoContent)
 
+  final case class GoodWithMetadata[A](
+    result    : A,
+    pageNo    : Option[Int] = None,
+    pageSize  : Option[Int] = None,
+    totalPages: Option[Int] = None)
+  
+  object GoodWithMetadata {
+    def apply[A](result : A, metadata: ResponseMetadata): GoodWithMetadata[A] = {
+      GoodWithMetadata(
+        result = result,
+        pageNo = metadata.pageNo,
+        pageSize = metadata.pageSize,
+        totalPages = metadata.totalPages)
+    }
+  }  
+  
   def renderGoodOrFailures[G <: AnyRef](or: Failures Xor G)
                                        (implicit ec: ExecutionContext): HttpResponse =
     or.fold(renderFailure(_), render(_))
+
+  def renderGoodOrFailuresWithMetadata[G <: AnyRef](rwm: ResponseWithMetadata[G])
+                                       (implicit ec: ExecutionContext): HttpResponse =
+    rwm.result.fold(renderFailure(_), renderWithMetadata(_, rwm.metadata))
 
   def renderNothingOrFailures(or: Failures Xor _)(implicit ec: ExecutionContext): HttpResponse =
     or.fold(renderFailure(_), _ ⇒ noContentResponse)
@@ -83,6 +103,9 @@ object Http {
 
   def render[A <: AnyRef](resource: A, statusCode: StatusCode = OK) =
     HttpResponse(statusCode, entity = jsonEntity(resource))
+
+  def renderWithMetadata[A <: AnyRef](resource: A, metadata: ResponseMetadata, statusCode: StatusCode = OK) =
+    HttpResponse(statusCode, entity = jsonEntity(GoodWithMetadata(resource, metadata)))
 
   def renderFailure(failures: Failures, statusCode: ClientError = BadRequest): HttpResponse = {
     import services._

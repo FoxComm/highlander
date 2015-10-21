@@ -114,11 +114,42 @@ object Slick {
       def empty = QueryMetadata()
     }
 
-    final case class ResultWithMetadata[A](result: Future[A], metadata: QueryMetadata) {
-      def run() = this
+    final case class ResponseMetadata(
+      pageNo    : Option[Int] = None,
+      pageSize  : Option[Int] = None,
+      totalPages: Option[Int] = None)
+
+
+    final case class ResponseWithMetadata[A](result: Failures Xor A, metadata: ResponseMetadata)
+
+    final case class ResultWithMetadata[A](result: Result[A], metadata: QueryMetadata) {
 
       def map[S](f: A => S)(implicit ec: ExecutionContext): ResultWithMetadata[S] =
-        this.copy(result = result.map(f))
+        this.copy(result = result.map(_.map(f)))
+
+      def asResponseFuture(implicit ec: ExecutionContext): Future[ResponseWithMetadata[A]] = {
+        metadata.totalPages match {
+          case None                   ⇒
+            for (res ← result)
+              yield ResponseWithMetadata(
+                res,
+                ResponseMetadata(
+                  pageNo = metadata.pageNo,
+                  pageSize = metadata.pageSize,
+                  totalPages = None))
+          case Some(totalPagesFuture) ⇒
+            for {
+              res        ← result
+              totalPages ← totalPagesFuture
+            } yield ResponseWithMetadata(
+              res,
+              ResponseMetadata(
+                pageNo = metadata.pageNo,
+                pageSize = metadata.pageSize,
+                totalPages = Some(totalPages)))
+        }
+
+      }
     }
 
     final case class QueryWithMetadata[E, U, C[_]](query: Query[E, U, C], metadata: QueryMetadata) {
@@ -145,8 +176,8 @@ object Slick {
         this.copy(query = pagedQueryOpt.getOrElse(query))
       }
 
-      def result(implicit db: Database): ResultWithMetadata[C[U]] =
-        ResultWithMetadata(result = query.result.run(), metadata)
+      def result(implicit db: Database, ec: ExecutionContext): ResultWithMetadata[C[U]] =
+        ResultWithMetadata(result = Result.fromFuture(query.result.run()), metadata)
     }
 
     implicit class EnrichedQuery[E, U, C[_]](val query: Query[E, U, C]) extends AnyVal {

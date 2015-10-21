@@ -54,8 +54,8 @@ object GiftCardService {
   def queryAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata =
     sortedAndPaged(GiftCards)
 
-  def findAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[Seq[Root]] = {
-    Result.fromFuture(queryAll.result.run().map(_.map(GiftCardResponse.build(_))).result) // TODO: ***************
+  def findAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
+    queryAll.result.map(_.map(GiftCardResponse.build(_)))
   }
 
   def queryByCode(code: String)
@@ -63,9 +63,9 @@ object GiftCardService {
     sortedAndPaged(GiftCards.findByCode(code))
 
   def findByCode(code: String)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[Seq[Root]] = {
+    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
     val query = queryByCode(code)
-    Result.fromFuture(query.result.run().map(_.map(GiftCardResponse.build(_))).result) // TODO: ***************
+    query.result.map(_.map(GiftCardResponse.build(_)))
   }
 
   def getByCode(code: String)(implicit db: Database, ec: ExecutionContext): Result[Root] = {
