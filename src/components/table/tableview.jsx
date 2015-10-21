@@ -1,7 +1,6 @@
 'use strict';
 
 import React from 'react';
-import TableStore from '../../lib/table-store';
 import Table from './table';
 import TablePaginator from './paginator';
 
@@ -9,7 +8,6 @@ export default class TableView extends React.Component {
   static propTypes = {
     children: React.PropTypes.any,
     empty: React.PropTypes.any,
-    store: React.PropTypes.instanceOf(TableStore),
     renderRow: React.PropTypes.func,
     paginator: React.PropTypes.bool
   };
@@ -18,17 +16,9 @@ export default class TableView extends React.Component {
     paginator: true
   };
 
-  constructor(...args) {
-    super(...args);
-  }
-
-  componentDidMount() {
-    this.props.store.addListener('change', this.forceUpdate.bind(this, false));
-  }
-
   onLimitChange(event) {
     event.preventDefault();
-    this.props.store.setLimit(+event.target.value);
+    //this.props.store.setLimit(+event.target.value);
   }
 
   render() {
