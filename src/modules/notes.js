@@ -2,27 +2,29 @@
 
 import Api from '../lib/api';
 import { createAction, createReducer } from 'redux-act';
-import { modelIdentity } from './state-helpers';
+import { makeEntityId, updateItems } from './state-helpers';
 
-const requestNotes = createAction('NOTES_REQUEST', (type, identity) => [type, identity]);
-const receiveNotes = createAction('NOTES_RECEIVE', (type, identity, notes) => [type, identity, notes]);
-const notesFailed = createAction('NOTES_FAILED', (type, identity, err) => [type, identity, err]);
+const requestNotes = createAction('NOTES_REQUEST');
+const receiveNotes = createAction('NOTES_RECEIVE', (entity, notes) => [entity, notes]);
+const receiveNotesFailed = createAction('NOTES_RECEIVE_FAILED', (entity, err) => [entity, err]);
+const updateNotes = createAction('NOTES_UPDATE', (entity, notes) => [entity, notes]);
+const notesFailed = createAction('NOTES_FAILED', (entity, err) => [entity, err]);
 
-export function fetchNotes(type, model) {
+const notesUri = entity => `/notes/${entity.entityType}/${entity.entityId}`;
+
+export function fetchNotes(entity) {
   return dispatch => {
-    const identity = modelIdentity(type, model);
-    dispatch(requestNotes(type, identity));
-    return Api.get(`/notes/${type}/${identity}`)
-      .then(json => dispatch(receiveNotes(type, identity, json)))
-      .catch(err => dispatch(notesFailed(type, identity, err)));
+    dispatch(requestNotes(entity));
+    return Api.get(notesUri(entity))
+      .then(json => dispatch(receiveNotes(entity, json)))
+      .catch(err => dispatch(receiveNotesFailed(entity, err)));
   };
 }
 
-function shouldFetchNotes(state, type, model) {
-  if (!state.notes[type]) return true;
-  const identity = modelIdentity(type, model);
+function shouldFetchNotes(state, entity) {
+  if (!state.notes[entity.entityType]) return true;
 
-  const notes = state.notes[type][identity];
+  const notes = state.notes[entity.entityType][entity.entityId];
   if (!notes) {
     return true;
   } else if (notes.isFetching) {
@@ -31,39 +33,43 @@ function shouldFetchNotes(state, type, model) {
   return notes.didInvalidate;
 }
 
-export function fetchNotesIfNeeded(type, model) {
+export function fetchNotesIfNeeded(entity) {
   return (dispatch, getState) => {
-    if (shouldFetchNotes(getState(), type, model)) {
-      return dispatch(fetchNotes(type, model));
+    if (shouldFetchNotes(getState(),entity)) {
+      return dispatch(fetchNotes(entity));
     }
   };
 }
 
-export function createNote(data) {
-
+export function createNote(entity, data) {
+  return dispatch => {
+    Api.post(notesUri(entity), data)
+      .then(json => dispatch(updateNotes(entity, [json])))
+      .catch(err => dispatch(notesFailed(entity, err)));
+  };
 }
 
 const initialState = {};
 
 const reducer = createReducer({
-  [requestNotes]: (state, [type, identity]) => {
+  [requestNotes]: (state, {entityId, entityType}) => {
     return {
       ...state,
-      [type]: {
-        ...state[type],
-        [identity]: {
+      [entityType]: {
+        ...state[entityType],
+        [entityId]: {
           isFetching: true,
           didInvalidate: false
         }
       }
     };
   },
-  [receiveNotes]: (state, [type, identity, notes]) => {
+  [receiveNotes]: (state, [{entityId, entityType}, notes]) => {
     return {
       ...state,
-      [type]: {
-        ...state[type],
-        [identity]: {
+      [entityType]: {
+        ...state[entityType],
+        [entityId]: {
           notes,
           isFetching: false,
           didInvalidate: false
@@ -71,20 +77,32 @@ const reducer = createReducer({
       }
     };
   },
-  [notesFailed]: (state, [type, identity, err]) => {
+  [updateNotes]: (state, [{entityId, entityType}, notes]) => {
+    return {
+      ...state,
+      [entityType]: {
+        ...state[entityType],
+        notes: updateItems(state[entityType][entityId].notes, notes, makeEntityId(entityType))
+      }
+    };
+  },
+  [receiveNotesFailed]: (state, [{entityId, entityType}, err]) => {
     console.error(err);
 
     return {
       ...state,
-      [type]: {
-        ...state[type],
-        [identity]: {
+      [entityType]: {
+        ...state[entityType],
+        [entityId]: {
           err,
           isFetching: false,
           didInvalidate: false
         }
       }
     };
+  },
+  [notesFailed]: (state, [entity, err]) => {
+    console.error(err);
   }
 }, initialState);
 

@@ -1,7 +1,7 @@
 'use strict';
 
 import _ from 'lodash';
-import React from 'react';
+import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import ContentBox from '../content-box/content-box';
 import TableView from '../table/tableview';
@@ -12,15 +12,13 @@ import NoteForm from './form';
 import UserInitials from '../users/initials';
 import DateTime from '../datetime/datetime';
 import ConfirmModal from '../modal/confirm';
+import { connect } from 'react-redux';
 import * as NotesActinos from '../../modules/notes';
-import { modelIdentity } from '../../modules/state-helpers';
+import { entityId } from '../../modules/state-helpers';
 
-function mapStateToProps(state, props) {
-  const model = props[props.modelName];
-  const identity = modelIdentity(props.modelName, model);
-
+function mapStateToProps(state, {entity}) {
   return {
-    notes: _.get(state.notes, [props.modelName, identity, 'notes'], [])
+    notes: _.get(state.notes, [entity.entityType, entity.entityId, 'notes'], [])
   };
 }
 
@@ -33,6 +31,14 @@ export default class Notes extends React.Component {
     cancel: 'No'
   };
 
+  static propTypes = {
+    tableColumns: PropTypes.array,
+    entity: PropTypes.shape({
+      entityId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+      entityType: PropTypes.string.isRequired
+    })
+  };
+
   constructor(...args) {
     super(...args);
     this.state = {
@@ -43,10 +49,7 @@ export default class Notes extends React.Component {
   }
 
   componentDidMount() {
-    const type = this.props.modelName;
-    const model = this.props[type];
-
-    this.props.fetchNotesIfNeeded(type, model);
+    this.props.fetchNotesIfNeeded(this.props.entity);
   }
 
   @autobind
@@ -75,7 +78,8 @@ export default class Notes extends React.Component {
     this.setState({
       creatingNote: false
     });
-    // NotesStore.create(data);
+
+    this.props.createNote(this.props.entity, data);
   }
 
   onEditFormSubmit(data) {
@@ -164,6 +168,9 @@ export default class Notes extends React.Component {
   }
 
   render() {
+    // @TODO: re-enable this after Denys finished with table refactoring for redux
+    // <TableView renderRow={this.renderNoteRow} empty={'No notes yet.'}/>
+
     return (
       <ContentBox title={'Notes'} actionBlock={this.controls}>
         {this.state.creatingNote && (
@@ -172,16 +179,10 @@ export default class Notes extends React.Component {
             onSubmit={this.onCreateFormSubmit}
             />
         )}
-        /* @TODO: re-enable this after Denys finished with table refactoring for redux
-        <TableView renderRow={this.renderNoteRow} empty={'No notes yet.'}/>
-        */
+        <table>
+          {_.map(this.props.notes, this.renderNoteRow)}
+        </table>
       </ContentBox>
     );
   }
 }
-
-Notes.propTypes = {
-  tableColumns: React.PropTypes.array,
-  order: React.PropTypes.object,
-  modelName: React.PropTypes.string
-};

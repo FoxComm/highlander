@@ -3,6 +3,7 @@
 import _ from 'lodash';
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
+import { updateItems } from '../state-helpers';
 
 export const receiveGiftCards = createAction('GIFT_CARDS_RECEIVE');
 export const updateGiftCards = createAction('GIFT_CARDS_UPDATE');
@@ -53,13 +54,6 @@ const initialState = {
   didInvalidate: true,
   items: []
 };
-
-function updateItems(items, newItems) {
-  return _.values({
-    ..._.indexBy(items, 'id'),
-    ..._.indexBy(newItems, 'id')
-  });
-}
 
 const reducer = createReducer({
   [requestGiftCards]: (state) => {
