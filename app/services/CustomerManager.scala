@@ -13,7 +13,7 @@ import utils.CustomDirectives.SortAndPage
 import utils.Slick.DbResult
 import utils.Slick.implicits._
 import utils.Slick.UpdateReturning._
-import payloads.{CreateCustomerPayload, UpdateCustomerPayload}
+import payloads.{CreateCustomerPayload, UpdateCustomerPayload, ActivateCustomerPayload}
 import utils.jdbc._
 
 object CustomerManager {
@@ -110,6 +110,30 @@ object CustomerManager {
             (payload.name.fold(customer.name)(Some(_)),
               payload.email.getOrElse(customer.email),
               payload.phoneNumber.fold(customer.phoneNumber)(Some(_)))).head
+
+        updated.flatMap(updCustomer ⇒ DbResult.good(build(updCustomer)))
+      }
+    } { notUnique ⇒ CustomerEmailNotUnique }
+
+    result.flatMap(_.fold(Result.failure(_), Future.successful(_)))
+  }
+
+  def activate(customerId: Int, payload: ActivateCustomerPayload)
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
+    payload.validate match {
+      case Invalid(errors) ⇒ Result.failures(errors)
+      case Valid(_) ⇒ activateFromValidatedPayload(customerId, payload)
+    }
+  }
+
+  private def activateFromValidatedPayload(customerId: Int, payload: ActivateCustomerPayload)
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
+    val finder = Customers.filter(_.id === customerId)
+    val result = withUniqueConstraint {
+      finder.selectOneForUpdate { customer ⇒
+        val updated = finder.map { c ⇒ (c.name, c.isGuest) }
+          .updateReturning(Customers.map(identity),
+            (payload.name.fold(customer.name)(Some(_)), false)).head
 
         updated.flatMap(updCustomer ⇒ DbResult.good(build(updCustomer)))
       }

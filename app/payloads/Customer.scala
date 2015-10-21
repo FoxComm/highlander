@@ -28,5 +28,15 @@ final case class UpdateCustomerPayload(
   }
 }
 
+final case class ActivateCustomerPayload(
+  name: Option[String] = None)
+  extends Validation[ActivateCustomerPayload] {
+
+  def validate: ValidatedNel[Failure, ActivateCustomerPayload] = {
+    (notEmpty(name.getOrElse(""), "name")
+      ).map { case _ ⇒ this }
+  }
+}
+
 final case class ToggleCustomerDisabled(disabled: Boolean)
 

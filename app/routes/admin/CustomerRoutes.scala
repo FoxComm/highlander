@@ -52,6 +52,11 @@ object CustomerRoutes {
             CustomerManager.updateFromPayload(customerId, payload)
           }
         } ~
+        (post & path("activate") & entity(as[ActivateCustomerPayload])) { payload ⇒
+          goodOrFailures {
+            CustomerManager.activate(customerId, payload)
+          }
+        } ~
         (post & path("disable") & entity(as[payloads.ToggleCustomerDisabled])) { payload ⇒
           goodOrFailures {
             CustomerManager.toggleDisabled(customerId, payload.disabled, admin)
