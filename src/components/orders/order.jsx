@@ -6,13 +6,13 @@ import Viewers from '../viewers/viewers';
 import ConfirmModal from '../modal/confirm';
 import RemorseTimer from './remorseTimer';
 import { connect } from 'react-redux';
-import * as orderActions from '../../modules/order';
 import { DateTime } from '../common/datetime';
 import LocalNav from '../local-nav/local-nav';
 import { PanelList, PanelListItem } from '../panel/panel-list';
 import SectionTitle from '../section-title/section-title';
+import * as orderActions from '../../modules/orders/order';
 
-@connect(state => ({order: state.order}), orderActions)
+@connect(state => ({order: state.orders.order}), orderActions)
 export default class Order extends React.Component {
   static propTypes = {
     params: PropTypes.shape({
@@ -57,7 +57,7 @@ export default class Order extends React.Component {
 
   get remorseTimer() {
     if (this.order.id && this.order.orderStatus === 'remorseHold') {
-      return remorseTimer = <RemorseTimer endDate={this.order.remorseEnd} />;
+      return <RemorseTimer endDate={this.order.remorseEnd} />;
     }
   }
 

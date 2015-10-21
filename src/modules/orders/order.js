@@ -1,4 +1,5 @@
-import Api from '../lib/api';
+
+import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 import { haveType } from './state-helpers';
 
@@ -24,7 +25,7 @@ export function fetchOrder(refNum) {
 }
 
 function shouldFetchOrder(refNum, state) {
-  const order = state.order;
+  const order = state.orders.order;
   if (!order) {
     return true;
   } else if (order.isFetching) {
