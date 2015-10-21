@@ -6,10 +6,10 @@ import Viewers from '../viewers/viewers';
 import ConfirmModal from '../modal/confirm';
 import RemorseTimer from './remorseTimer';
 import { connect } from 'react-redux';
-import * as orderActions from '../../modules/orders/order';
+import * as orderActions from '../../modules/orders/details';
 import DateTime from '../datetime/datetime';
 
-@connect(state => ({order: state.orders.order}), orderActions)
+@connect(state => ({order: state.orders.details}), orderActions)
 export default class Order extends React.Component {
   static propTypes = {
     params: PropTypes.shape({
