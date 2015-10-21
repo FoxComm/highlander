@@ -9,7 +9,7 @@ import models.{Customer, Order, Orders}
 import org.json4s.{Formats, jackson}
 import org.json4s.jackson.Serialization
 import org.json4s.jackson.Serialization.{write ⇒ json}
-import services.{Failures, NotFoundFailure, OrderLockedFailure}
+import services.{Failures, NotFoundFailure404, OrderLockedFailure}
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 
@@ -21,6 +21,7 @@ object Http {
 
   val notFoundResponse:   HttpResponse  = HttpResponse(NotFound)
   val noContentResponse:  HttpResponse  = HttpResponse(NoContent)
+  val badRequestResponse: HttpResponse  = HttpResponse(BadRequest)
 
   def renderGoodOrFailures[G <: AnyRef](or: Failures Xor G)
                                        (implicit ec: ExecutionContext): HttpResponse =
@@ -78,7 +79,10 @@ object Http {
   def renderOrNotFound[A <: AnyRef](resource: Option[A])(implicit ec: ExecutionContext): HttpResponse =
     resource.fold(notFoundResponse)(render(_))
 
-  def renderNotFoundFailure(f: NotFoundFailure): HttpResponse =
+  def renderOrBadRequest[A <: AnyRef](resource: Option[A])(implicit ec: ExecutionContext): HttpResponse =
+    resource.fold(badRequestResponse)(render(_))
+
+  def renderNotFoundFailure(f: NotFoundFailure404): HttpResponse =
     notFoundResponse.copy(entity = jsonEntity("errors" → Seq(f.message)))
 
   def render[A <: AnyRef](resource: A, statusCode: StatusCode = OK) =
@@ -87,7 +91,7 @@ object Http {
   def renderFailure(failures: Failures, statusCode: ClientError = BadRequest): HttpResponse = {
     import services._
     val failuresList = failures.toList
-    val notFound = failuresList.collectFirst { case f: NotFoundFailure ⇒ f }
+    val notFound = failuresList.collectFirst { case f: NotFoundFailure404 ⇒ f }
     notFound.fold(HttpResponse(statusCode, entity = jsonEntity("errors" → failuresList.flatMap(_.description)))) { nf ⇒
       renderNotFoundFailure(nf)
     }

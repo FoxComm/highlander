@@ -2,7 +2,7 @@ import akka.http.scaladsl.model.StatusCodes
 import models.{Order, Customer, Customers}
 import payloads.CreateOrder
 import responses.FullOrder.Root
-import services.{CustomerHasCart, OrderCreator, NotFoundFailure}
+import services.{CustomerHasCart, OrderCreator, NotFoundFailure404}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import util.SlickSupport.implicits._
@@ -31,8 +31,8 @@ class OrderCreatorIntegrationTest extends IntegrationTestBase
         val payload = CreateOrder(customerId = 99.some)
         val response = POST(s"v1/orders", payload)
 
-        response.status must ===(StatusCodes.NotFound)
-        response.errors must ===(NotFoundFailure(Customer, 99).description)
+        response.status must ===(StatusCodes.BadRequest)
+        response.errors must ===(NotFoundFailure404(Customer, 99).description)
       }
 
       "fails when the customer already has a cart" in new Fixture {

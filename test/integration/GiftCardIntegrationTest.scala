@@ -112,8 +112,8 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       val payload = payloads.GiftCardCreateByCsr(balance = 25, reasonId = 1, subTypeId = Some(255))
       val response = POST(s"v1/gift-cards", payload)
 
-      response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure(GiftCardSubtype, 255).description)
+      response.status must === (StatusCodes.BadRequest)
+      response.errors must === (NotFoundFailure404(GiftCardSubtype, 255).description)
     }
 
     "fails to create gift card with negative balance" in new Fixture {
@@ -124,8 +124,8 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
     "fails to create gift card with invalid reason" in new Fixture {
       val response = POST(s"v1/gift-cards", payloads.GiftCardCreateByCsr(balance = 555, reasonId = 999))
-      response.status must ===(StatusCodes.NotFound)
-      response.errors must ===(NotFoundFailure(Reason, 999).description)
+      response.status must ===(StatusCodes.BadRequest)
+      response.errors must ===(NotFoundFailure404(Reason, 999).description)
     }
   }
 
@@ -183,7 +183,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     "returns not found when GC doesn't exist" in new Fixture {
       val notFoundResponse = GET(s"v1/gift-cards/ABC-666")
       notFoundResponse.status must ===(StatusCodes.NotFound)
-      notFoundResponse.errors must ===(GiftCardNotFoundFailure("ABC-666").description)
+      notFoundResponse.errors must ===(NotFoundFailure404(GiftCard, "ABC-666").description)
     }
   }
 
@@ -320,13 +320,13 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     "fails to convert when GC not found" in new Fixture {
       val response = POST(s"v1/gift-cards/ABC-666/convert/${customer.id}")
       response.status must ===(StatusCodes.NotFound)
-      response.errors must ===(GiftCardNotFoundFailure("ABC-666").description)
+      response.errors must ===(NotFoundFailure404(GiftCard, "ABC-666").description)
     }
 
     "fails to convert when customer not found" in new Fixture {
       val response = POST(s"v1/gift-cards/${gcSecond.code}/convert/666")
       response.status must ===(StatusCodes.NotFound)
-      response.errors must ===(NotFoundFailure(models.Customer, 666).description)
+      response.errors must ===(NotFoundFailure404(models.Customer, 666).description)
     }
 
     "fails to convert GC to SC if open transactions are present" in new Fixture {

@@ -5,13 +5,12 @@ import akka.http.scaladsl.model.StatusCodes
 import Extensions._
 import models.{Notes, _}
 import responses.AdminNotes
-import services.NoteManager
+import services.{NotFoundFailure404, NoteManager}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.implicits._
 import utils.time.RichInstant
 import scala.concurrent.ExecutionContext.Implicits.global
-import services.NotFoundFailure
 
 class CustomerNotesIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 
@@ -39,7 +38,7 @@ class CustomerNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
 
       response.status must === (StatusCodes.NotFound)
       // TODO: Compare with proper error after selectOne refactoring
-      parseErrors(response) must === (NotFoundFailure("Not found").description)
+      parseErrors(response) must === (NotFoundFailure404("Not found").description)
     }
   }
 

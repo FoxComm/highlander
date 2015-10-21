@@ -8,7 +8,7 @@ import models.Order._
 import models._
 import payloads.{BulkAssignment, BulkUpdateOrdersPayload}
 import responses.{BulkAssignmentResponse, StoreAdminResponse, FullOrder, BulkOrderUpdateResponse, AllOrders}
-import services.{OrderQueries, NotFoundFailure, OrderNotFoundFailure, OrderUpdateFailure}
+import services.{OrderQueries, NotFoundFailure404, OrderUpdateFailure}
 import util.IntegrationTestBase
 import util.SlickSupport.implicits._
 import utils.Seeds
@@ -150,7 +150,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkAssignmentResponse]
       responseObj.orders must === (OrderQueries.findAll.run().futureValue)
-      responseObj.ordersNotFound must === (Seq(OrderNotFoundFailure("NOPE")))
+      responseObj.ordersNotFound must === (Seq(NotFoundFailure404(Order, "NOPE")))
       responseObj.adminNotFound must not be defined
     }
 
@@ -160,7 +160,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       val responseObj = response.as[BulkAssignmentResponse]
       responseObj.orders must === (OrderQueries.findAll.run().futureValue)
       responseObj.ordersNotFound mustBe empty
-      responseObj.adminNotFound.value must === (NotFoundFailure(StoreAdmin, 777))
+      responseObj.adminNotFound.value must === (NotFoundFailure404(StoreAdmin, 777))
     }
   }
 
@@ -199,7 +199,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkAssignmentResponse]
       responseObj.orders must === (OrderQueries.findAll.run().futureValue)
-      responseObj.ordersNotFound must === (Seq(OrderNotFoundFailure("NOPE")))
+      responseObj.ordersNotFound must === (Seq(NotFoundFailure404(Order, "NOPE")))
       responseObj.adminNotFound must not be defined
     }
 
@@ -209,7 +209,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       val responseObj = response.as[BulkAssignmentResponse]
       responseObj.orders must === (OrderQueries.findAll.run().futureValue)
       responseObj.ordersNotFound mustBe empty
-      responseObj.adminNotFound.value must === (NotFoundFailure(StoreAdmin, 777))
+      responseObj.adminNotFound.value must === (NotFoundFailure404(StoreAdmin, 777))
     }
   }
 

@@ -106,7 +106,7 @@ object CustomerRoutes {
             complete {
               Customers.findById(customerId).result.headOption.run().flatMap {
                 case None           ⇒ Future.successful(notFoundResponse)
-                case Some(customer) ⇒ AddressManager.getDisplayAddress(customer).map(renderOrNotFound(_))
+                case Some(customer) ⇒ AddressManager.getDisplayAddress(customer).map(renderOrBadRequest(_))
               }
             }
           }

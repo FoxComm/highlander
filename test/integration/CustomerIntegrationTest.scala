@@ -10,7 +10,7 @@ import org.mockito.{Matchers ⇒ m}
 import org.scalatest.mock.MockitoSugar
 import payloads.CreateAddressPayload
 import responses.CustomerResponse
-import services.{CannotUseInactiveCreditCard, CreditCardManager, GeneralFailure, NotFoundFailure, Result, StripeRuntimeException}
+import services.{CannotUseInactiveCreditCard, CreditCardManager, GeneralFailure, NotFoundFailure404, Result, StripeRuntimeException}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.implicits._
@@ -329,7 +329,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/99", payload)
 
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure(CreditCard, 99).description)
+      response.errors must === (NotFoundFailure404(CreditCard, 99).description)
     }
 
     "fails if the card is not inWallet" in new CreditCardFixture {

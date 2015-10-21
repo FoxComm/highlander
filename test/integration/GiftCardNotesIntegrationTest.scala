@@ -5,7 +5,7 @@ import akka.http.scaladsl.model.StatusCodes
 import Extensions._
 import models.{Notes, _}
 import responses.AdminNotes
-import services.{NotFoundFailure, NoteManager}
+import services.{NotFoundFailure404, NoteManager}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.implicits._
@@ -38,7 +38,7 @@ class GiftCardNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
 
       response.status must === (StatusCodes.NotFound)
       // TODO: Compare with proper error after selectOne refactoring
-      parseErrors(response) must === (NotFoundFailure("Not found").description)
+      parseErrors(response) must === (NotFoundFailure404("Not found").description)
     }
   }
 

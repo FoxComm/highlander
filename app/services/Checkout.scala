@@ -35,7 +35,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
           }
         }
       } else {
-        Result.failure(NotFoundFailure("No Line Items in Order!"))
+        Result.failure(NotFoundFailure404("No Line Items in Order!"))
       }
     }
   }

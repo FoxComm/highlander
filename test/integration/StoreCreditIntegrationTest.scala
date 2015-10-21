@@ -27,9 +27,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
   // paging and sorting API
   private var currentCustomer: Customer = _
-
   private var currentOrigin: StoreCreditManual = _
-
   override def beforeSortingAndPaging() = {
     (for {
       admin    ← StoreAdmins.save(authedStoreAdmin)
@@ -42,11 +40,8 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         currentOrigin = co
     }
   }
-
   def uriPrefix = s"v1/customers/${currentCustomer.id}/payment-methods/store-credit"
-
   val regCurrencies = CurrencyUnit.registeredCurrencies.asScala.toIndexedSeq
-
   def responseItems = regCurrencies.map { currency ⇒
     val balance = Random.nextInt(9999999)
     val sc = StoreCredits.save(Factories.storeCredit.copy(
@@ -58,11 +53,8 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       availableBalance = balance)).run().futureValue
     responses.StoreCreditResponse.build(sc)
   }
-
   val sortColumnName = "currency"
-
   def responseItemsSort(items: IndexedSeq[responses.StoreCreditResponse.Root]) = items.sortBy(_.currency)
-  
   def mf = implicitly[scala.reflect.Manifest[responses.StoreCreditResponse.Root]]
   // paging and sorting API end
 
@@ -97,8 +89,8 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         val payload = payloads.CreateManualStoreCredit(amount = 25, reasonId = scReason.id, subTypeId = Some(255))
         val response = POST(s"v1/customers/${customer.id}/payment-methods/store-credit", payload)
 
-        response.status must === (StatusCodes.NotFound)
-        response.errors must === (NotFoundFailure(StoreCreditSubtype, 255).description)
+        response.status must === (StatusCodes.BadRequest)
+        response.errors must === (NotFoundFailure404(StoreCreditSubtype, 255).description)
       }
 
       "fails if the customer is not found" in {
@@ -106,15 +98,15 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/customers/99/payment-methods/store-credit", payload)
 
         response.status must === (StatusCodes.NotFound)
-        response.errors must === (NotFoundFailure(Customer, 99).description)
+        response.errors must === (NotFoundFailure404(Customer, 99).description)
       }
 
       "fails if the reason is not found" in new Fixture {
         val payload = payloads.CreateManualStoreCredit(amount = 25, reasonId = 255)
         val response = POST(s"v1/customers/${customer.id}/payment-methods/store-credit", payload)
 
-        response.status must === (StatusCodes.NotFound)
-        response.errors must === (NotFoundFailure(Reason, 255).description)
+        response.status must === (StatusCodes.BadRequest)
+        response.errors must === (NotFoundFailure404(Reason, 255).description)
       }
     }
 
@@ -139,7 +131,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       "returns not found when SC doesn't exist" in new Fixture {
         val notFoundResponse = GET(s"v1/store-credits/99")
         notFoundResponse.status must ===(StatusCodes.NotFound)
-        notFoundResponse.errors must === (NotFoundFailure(StoreCredit, 99).description)
+        notFoundResponse.errors must === (NotFoundFailure404(StoreCredit, 99).description)
       }
     }
 
@@ -275,13 +267,13 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       "fails to convert when SC not found" in new Fixture {
         val response = POST(s"v1/customers/${customer.id}/payment-methods/store-credit/555/convert")
         response.status must ===(StatusCodes.NotFound)
-        response.errors must ===(NotFoundFailure(StoreCredit, 555).description)
+        response.errors must ===(NotFoundFailure404(StoreCredit, 555).description)
       }
 
       "fails to convert when customer not found" in new Fixture {
         val response = POST(s"v1/customers/666/payment-methods/store-credit/${scSecond.id}/convert")
         response.status must ===(StatusCodes.NotFound)
-        response.errors must ===(NotFoundFailure(Customer, 666).description)
+        response.errors must ===(NotFoundFailure404(Customer, 666).description)
       }
 
       "fails to convert SC to GC if open transactions are present" in new Fixture {
