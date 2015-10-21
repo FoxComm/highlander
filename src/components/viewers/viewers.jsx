@@ -25,11 +25,13 @@ export default class Viewers extends React.Component {
       viewers: [
         {
           firstName: 'Cameron',
-          lastName: 'Sitt'
+          lastName: 'Sitt',
+          email: 'cam@foxcommerce.com'
         },
         {
           firstName: 'Jeff',
           lastName: 'Mattaya',
+          email: 'jeff@foxcommerce.com',
           isLocker: true
         },
         {
