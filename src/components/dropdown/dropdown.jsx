@@ -1,7 +1,9 @@
 'use strict';
 
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import ClassNames from 'classnames';
+import DropdownItem from './dropdownItem';
 
 export default class Dropdown extends React.Component {
   static propTypes = {
@@ -18,12 +20,8 @@ export default class Dropdown extends React.Component {
     super(...args);
     this.state = {
       open: !!this.props.open,
-      selectedItem: {
-        props: {
-          value: this.props.value,
-          children: ''
-        }
-      }
+      selectedValue: '',
+      selectedTitle: ''
     };
   }
 
@@ -38,14 +36,15 @@ export default class Dropdown extends React.Component {
     });
   }
 
-  handleItemClick(item, event) {
+  handleItemClick(value, title, event) {
     event.preventDefault();
     this.setState({
       open: false,
-      selectedItem: item
+      selectedValue: value,
+      selectedTitle: title
     }, () => {
       if (this.props.onChange) {
-        this.props.onChange(item.key);
+        this.props.onChange(value, title);
       }
     });
   }
@@ -57,13 +56,11 @@ export default class Dropdown extends React.Component {
       'is_editable': this.props.editable,
       'is_open': this.state.open
     });
-    const selectedItem = this.state.selectedItem;
-    const key = selectedItem && selectedItem.props.value;
-
-    let value = selectedItem && selectedItem.props.children;
-    if (!value) {
+    let value = this.state.selectedValue;
+    let title = this.state.selectedTitle;
+    if (!title) {
       let itemByValue = this.props.value && this.findItemByValue(this.props.value);
-      value = itemByValue && itemByValue.props.children;
+      title = itemByValue && itemByValue.props.children;
     }
 
     const button = (
@@ -78,23 +75,28 @@ export default class Dropdown extends React.Component {
           <div className="fc-dropdown-controls">
             {button}
             <div className="fc-dropdown-value">
-              <input placeholder={this.props.placeholder} defaultValue={value} key={key}/>
+              <input placeholder={this.props.placeholder} defaultValue={title} key={value}/>
             </div>
           </div>
         ) || (
           <div className="fc-dropdown-controls" onClick={this.handleToggleClick.bind(this)}>
             {button}
             <div className="fc-dropdown-value">
-              {value || this.props.placeholder}
+              {title || this.props.placeholder}
             </div>
           </div>
         )}
         <div className="fc-dropdown-items">
-          {React.Children.map(this.props.children, (item, index) => {
-            return React.cloneElement(item, {
-              onClick: this.handleItemClick.bind(this, item)
-            });
-          })}
+          {this.props.items && _.map(this.props.items, (title, value) => (
+            <DropdownItem value={value} key={value} onClick={this.handleItemClick.bind(this, value, title)}>
+              {title}
+            </DropdownItem>
+          )) || React.Children.map(this.props.children, item => (
+              React.cloneElement(item, {
+                onClick: this.handleItemClick.bind(this, item.props.value, item.props.children)
+              })
+            )
+          )}
         </div>
       </div>
     );
