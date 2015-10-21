@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import Addresses from '../addresses/addresses';
 import AddressDetails from '../addresses/address-details';
-import * as OrdersActions from '../../modules/orders/orders';
+import * as OrdersActions from '../../modules/orders/list';
 import AddressStore from '../../stores/addresses';
 import ContentBox from '../content-box/content-box';
 

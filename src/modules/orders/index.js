@@ -1,12 +1,12 @@
 'use strict';
 
 import { combineReducers } from 'redux';
-import order from './order';
-import orders from './orders';
+import details from './details';
+import list from './list';
 
 const orderReducer = combineReducers({
-  order,
-  orders
+  details,
+  list
 });
 
 export default orderReducer;

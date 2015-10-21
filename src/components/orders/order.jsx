@@ -10,9 +10,9 @@ import { DateTime } from '../common/datetime';
 import LocalNav from '../local-nav/local-nav';
 import { PanelList, PanelListItem } from '../panel/panel-list';
 import SectionTitle from '../section-title/section-title';
-import * as orderActions from '../../modules/orders/order';
+import * as orderActions from '../../modules/orders/details';
 
-@connect(state => ({order: state.orders.order}), orderActions)
+@connect(state => ({order: state.orders.details}), orderActions)
 export default class Order extends React.Component {
   static propTypes = {
     params: PropTypes.shape({
