@@ -61,8 +61,8 @@ class CustomerNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
   "PATCH /v1/notes/customer/:customerId/:noteId" - {
 
     "can update the body text" in new Fixture {
-      val rootNote = NoteManager.createCustomerNote(customer.id, admin,
-        payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue.get
+      val rootNote = rightValue(NoteManager.createCustomerNote(customer.id, admin,
+        payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue)
 
       val response = PATCH(s"v1/notes/customer/${customer.id}/${rootNote.id}", payloads.UpdateNote(body = "donkey"))
       response.status must === (StatusCodes.OK)

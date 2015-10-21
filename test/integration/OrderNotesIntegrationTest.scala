@@ -59,8 +59,8 @@ class OrderNotesIntegrationTest extends IntegrationTestBase with HttpSupport wit
 
   "PATCH /v1/notes/order/:refNum/:noteId" - {
     "can update the body text" in new Fixture {
-      val rootNote = NoteManager.createOrderNote(order.refNum, storeAdmin,
-        payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue.get
+      val rootNote = rightValue(NoteManager.createOrderNote(order.refNum, storeAdmin,
+        payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue)
 
       val response = PATCH(s"v1/notes/order/${order.referenceNumber}/${rootNote.id}",
         payloads.UpdateNote(body = "donkey"))
@@ -73,8 +73,8 @@ class OrderNotesIntegrationTest extends IntegrationTestBase with HttpSupport wit
 
   "DELETE /v1/notes/order/:refNum/:noteId" - {
     "can soft delete note" in new Fixture {
-      val note = NoteManager.createOrderNote(order.refNum, storeAdmin,
-        payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue.get
+      val note = rightValue(NoteManager.createOrderNote(order.refNum, storeAdmin,
+        payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue)
 
       val response = DELETE(s"v1/notes/order/${order.referenceNumber}/${note.id}")
       response.status must === (StatusCodes.NoContent)

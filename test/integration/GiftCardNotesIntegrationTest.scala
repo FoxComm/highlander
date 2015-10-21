@@ -61,8 +61,8 @@ class GiftCardNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
   "PATCH /v1/notes/gift-card/:code/:noteId" - {
 
     "can update the body text" in new Fixture {
-      val rootNote = NoteManager.createGiftCardNote(giftCard.code, admin,
-        payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue.get
+      val rootNote = rightValue(NoteManager.createGiftCardNote(giftCard.code, admin,
+        payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue)
 
       val response = PATCH(s"v1/notes/gift-card/${giftCard.code}/${rootNote.id}", payloads.UpdateNote(body = "donkey"))
       response.status must === (StatusCodes.OK)
