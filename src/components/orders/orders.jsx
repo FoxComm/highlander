@@ -6,10 +6,10 @@ import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
 import SectionTitle from '../section-title/section-title';
 import { connect } from 'react-redux';
-import * as orderActions from '../../modules/orders';
+import * as orderActions from '../../modules/orders/orders';
 import LocalNav from '../local-nav/local-nav';
 
-@connect(state => ({orders: state.orders}), orderActions)
+@connect(state => ({orders: state.orders.orders}), orderActions)
 export default class Orders extends React.Component {
   constructor(props, context) {
     super(props, context);

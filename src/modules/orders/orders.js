@@ -1,6 +1,6 @@
 'use strict';
 
-import Api from '../lib/api';
+import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 
 export const ordersRequest = createAction('ORDERS_REQUEST');
@@ -17,7 +17,7 @@ export function fetchOrders() {
 }
 
 function shouldFetchOrders(state) {
-  const orders = state.orders;
+  const orders = state.orders.orders;
   if (!orders) {
     return true;
   } else if (orders.isFetching) {
@@ -35,7 +35,7 @@ export function fetchOrdersIfNeeded() {
 }
 
 const initialState = {
-  itFetching: false,
+  isFetching: false,
   didInvalidate: true,
   items: [],
   sortColumn: ''
