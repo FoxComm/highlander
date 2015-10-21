@@ -43,7 +43,7 @@ export default class RemorseTimer extends React.Component {
       controls = 'Frozen while editing.';
     } else {
       controls = (
-        <button className="fc-btn" onClick={this.addTime.bind(this, 15, 'm')}>
+        <button className="fc-btn fc-remorse-timer-extend" onClick={this.addTime.bind(this, 15, 'm')}>
           <i className="icon-add"></i> 15 min
         </button>
       );
