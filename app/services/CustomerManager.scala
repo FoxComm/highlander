@@ -94,6 +94,14 @@ object CustomerManager {
 
   def updateFromPayload(customerId: Int, payload: UpdateCustomerPayload)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
+    payload.validate match {
+      case Invalid(errors) ⇒ Result.failures(errors)
+      case Valid(_) ⇒ updateFromValidatedPayload(customerId, payload)
+    }
+  }
+
+  private def updateFromValidatedPayload(customerId: Int, payload: UpdateCustomerPayload)
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
     val finder = Customers.filter(_.id === customerId)
     val result = withUniqueConstraint {
        finder.selectOneForUpdate { customer ⇒
