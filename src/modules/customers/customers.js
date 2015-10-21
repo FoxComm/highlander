@@ -39,7 +39,7 @@ export function fetchCustomersIfNeeded() {
 export function createCustomer() {
   return (dispatch, getState) => {
     console.log(getState());
-    const { customerNew } = getState();
+    const customerNew = getState().customers.adding;
     console.log(customerNew);
 
     Api.post('/customers', customerNew)
