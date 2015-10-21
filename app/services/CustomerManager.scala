@@ -74,7 +74,7 @@ object CustomerManager {
     val customer = Customer.buildFromPayload(payload)
     val result = withUniqueConstraint {
       Customers.save(customer).run()
-    } { c ⇒ CustomerEmailAlreadyTaken }
+    } { c ⇒ CustomerEmailNotUnique }
 
     result.flatMap {
       case Xor.Right(c) ⇒ Result.good(build(c))
