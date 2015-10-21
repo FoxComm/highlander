@@ -81,16 +81,19 @@ object OrderUpdater {
   }
 
   def removeShippingAddress(refNum: String)(implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
-   val finder = Orders.findByRefNum(refNum)
-   finder.selectOne {
-       order ⇒  
-         OrderShippingAddresses.findByOrderId(order.id).delete.flatMap {
-           case 1 ⇒
-             DbResult.fromDbio(fullOrder(finder))
-           case 0 ⇒
-             DbResult.failure(NotFoundFailure400(s"Shipping Address for order with reference number $refNum not found"))
-         }
-     }
+    val finder = Orders.findByRefNum(refNum)
+    finder.selectOne { order ⇒
+      if (order.isCart) {
+        OrderShippingAddresses.findByOrderId(order.id).delete.flatMap {
+          case 1 ⇒
+            DbResult.fromDbio(fullOrder(finder))
+          case 0 ⇒
+            DbResult.failure(NotFoundFailure400(s"Shipping Address for order with reference number $refNum not found"))
+        }
+      } else {
+        DbResult.failure(OrderMustBeCart(refNum))
+      }
+    }
   }
 
   def createShippingAddressFromPayload(payload: CreateAddressPayload, refNum: String)

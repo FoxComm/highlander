@@ -43,6 +43,8 @@ final case class Order(id: Int = 0, referenceNumber: String = "", customerId: In
 
   def isNew: Boolean = id == 0
 
+  def isCart: Boolean = status == Cart
+
   def refNum: String = referenceNumber
 
   def stateLens = GenLens[Order](_.status)
