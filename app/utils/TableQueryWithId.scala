@@ -111,7 +111,9 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.Tab
 
     protected def selectOneResultChecks(maybe: Option[M])
       (implicit ec: ExecutionContext, db: Database): Xor[Failures, M] = {
-      Xor.fromOption(maybe, NotFoundFailure404("Not found").single)
+      val info = QueryErrorInfo.forQuery(q)
+      val failure = NotFoundFailure404(s"${info.modelType} with ${info.searchTerm}=${info.searchKey} not found")
+      Xor.fromOption(maybe, failure.single)
     }
   }
 }
