@@ -77,7 +77,7 @@ export default class NewCustomer extends React.Component {
                   </li>
                   <li className="fc-customer-form-controls">
                     <Link to='customers' className="fc-btn-link">Cancel</Link>
-                    <input type="submit" value="Save Customer" className="fc-btn fc-btn-primary" />
+                    <button type="submit" className="fc-btn fc-btn-primary">Save Customer</button>
                   </li>
                 </ul>
               </Form>
