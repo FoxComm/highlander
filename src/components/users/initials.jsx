@@ -15,7 +15,7 @@ export default class UserInitials extends React.Component {
         <div className="fc-strong">{`${user.firstName} ${user.lastName}`}</div>
         {user.email && (<div>{`${user.email}`}</div>)}
       </div>
-    )
+    );
   }
 
   render() {
