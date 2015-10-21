@@ -24,12 +24,33 @@
       content: '';
     }
 
-    &:nth-child(1) .initials { background-color: #d3fe64;}
-    &:nth-child(2) .initials { background-color: #9f33a7;}
-    &:nth-child(3) .initials { background-color: #8ea973;}
-    &:nth-child(4) .initials { background-color: #db9a6e;}
-    &:nth-child(5) .initials { background-color: #5271b2;}
-    &:nth-child(6) .initials { background-color: #48c406;}
+    &:nth-child(1n) .initials {
+      .colors(@color-white, @color-decor26);
+    }
+
+    &:nth-child(2n) .initials {
+      .colors(@color-white, @color-decor18);
+    }
+
+    &:nth-child(3n) .initials {
+      .colors(@color-white, @color-decor15);
+    }
+
+    &:nth-child(4n) .initials {
+      .colors(@color-white, @color-decor27);
+    }
+
+    &:nth-child(5n) .initials {
+      .colors(@color-white, @color-decor28);
+    }
+
+    &:nth-child(6n) .initials {
+      .colors(@color-white, @color-decor22);
+    }
+
+    &:nth-child(7n) .initials {
+      .colors(@color-white, @color-decor24);
+    }
   }
 
   &-item + &-item {
