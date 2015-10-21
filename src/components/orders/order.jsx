@@ -97,13 +97,13 @@ export default class Order extends React.Component {
         {viewers}
           <div className="gutter title">
           <div>
-            <h1>Order {order.referenceNumber}</h1>
             {remorseTimer}
+            <h1>Order {order.referenceNumber}</h1>
           </div>
         </div>
         <div className="gutter statuses">
           <dl>
-            <dt>Order Status</dt>
+            <dt>Order Status1</dt>
             <dd>{orderStatus}</dd>
           </dl>
           <dl>
