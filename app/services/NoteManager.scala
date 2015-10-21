@@ -2,7 +2,7 @@ package services
 
 import java.time.Instant
 
-import scala.concurrent.{ExecutionContext}
+import scala.concurrent.ExecutionContext
 
 import cats.data.Validated.{Invalid, Valid}
 import models._
@@ -15,16 +15,6 @@ import utils.ModelWithIdParameter
 import models.Notes.scope._
 
 object NoteManager {
-
-  def createNote[M <: ModelWithIdParameter](m: M, author: StoreAdmin, payload: payloads.CreateNote)
-    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
-    val noteType = m match {
-      case _: Customer ⇒ Note.Customer
-      case _: GiftCard ⇒ Note.GiftCard
-      case _: Order ⇒ Note.Order
-    }
-    createModelNote(m.id, noteType, author, payload).run()
-  }
 
   def createOrderNote(refNum: String, author: StoreAdmin, payload: payloads.CreateNote)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {

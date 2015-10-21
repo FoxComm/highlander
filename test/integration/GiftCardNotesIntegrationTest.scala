@@ -46,7 +46,7 @@ class GiftCardNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
 
     "can be listed" in new Fixture {
       List("abc", "123", "xyz").map { body ⇒
-        NoteManager.createNote(giftCard, admin, payloads.CreateNote(body = body)).futureValue
+        NoteManager.createGiftCardNote(giftCard.code, admin, payloads.CreateNote(body = body)).futureValue
       }
 
       val response = GET(s"v1/notes/gift-card/${giftCard.code}")
@@ -61,7 +61,7 @@ class GiftCardNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
   "PATCH /v1/notes/gift-card/:code/:noteId" - {
 
     "can update the body text" in new Fixture {
-      val rootNote = NoteManager.createNote(giftCard, admin,
+      val rootNote = NoteManager.createGiftCardNote(giftCard.code, admin,
         payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue.get
 
       val response = PATCH(s"v1/notes/gift-card/${giftCard.code}/${rootNote.id}", payloads.UpdateNote(body = "donkey"))
