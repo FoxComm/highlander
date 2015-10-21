@@ -38,7 +38,6 @@ export function fetchCustomersIfNeeded() {
 
 export function createCustomer() {
   return (dispatch, getState) => {
-    console.log(getState());
     const customerNew = getState().customers.adding;
     console.log(customerNew);
 
@@ -46,6 +45,13 @@ export function createCustomer() {
       .then(json => dispatch(updateCustomers([json])))
       .catch(err => dispatch(failCustomers(err)));
   };
+}
+
+function updateItems(items, newItems) {
+  return _.values({
+    ..._.indexBy(items, 'id'),
+    ..._.indexBy(newItems, 'id')
+  });
 }
 
 const initialState = {

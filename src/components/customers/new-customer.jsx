@@ -31,6 +31,11 @@ export default class NewCustomer extends React.Component {
     this.props.createCustomer();
   }
 
+  @autobind
+  onChangeValue({target}) {
+    this.props.changeFormData(target.name, target.value || target.checked);
+  }
+
   render () {
     return (
       <div className="fc-customer-create">
@@ -45,7 +50,8 @@ export default class NewCustomer extends React.Component {
               <Form className="fc-customer-form fc-form-vertical fc-col-md-2-5"
                     action="/customers"
                     method="POST"
-                    onSubmit={this.submitForm}>
+                    onSubmit={this.submitForm}
+                    onChange={this.onChangeValue}>
                 <ul className="fc-customer-form-fields">
                   <li>
                     <FormField label="Name" validator="ascii">

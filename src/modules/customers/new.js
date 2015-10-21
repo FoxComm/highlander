@@ -20,6 +20,7 @@ const reducer = createReducer({
       [name]: value
     };
 
+    console.log(newState);
     return newState;
   }
 }, initialState);
