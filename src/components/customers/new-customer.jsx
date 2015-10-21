@@ -13,7 +13,7 @@ import * as CustomersActions from '../../modules/customers/new';
 @connect(state => ({
   ...state.customers.adding
 }), {
-
+  ...CustomersActions
 })
 export default class NewCustomer extends React.Component {
 
@@ -50,7 +50,7 @@ export default class NewCustomer extends React.Component {
                              name="name"
                              maxLength="255"
                              type="text"
-                             value=""
+                             value={this.props.name}
                              required />
                     </FormField>
                   </li>
@@ -61,7 +61,7 @@ export default class NewCustomer extends React.Component {
                              name="email"
                              maxLength="255"
                              type="text"
-                             value=""
+                             value={this.props.email}
                              required />
                     </FormField>
                   </li>
