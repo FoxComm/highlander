@@ -2,7 +2,7 @@
 
 import Api from '../lib/api';
 import { createAction, createReducer } from 'redux-act';
-import { makeEntityId, updateItems } from './state-helpers';
+import { updateItems } from './state-helpers';
 
 const requestNotes = createAction('NOTES_REQUEST');
 const receiveNotes = createAction('NOTES_RECEIVE', (entity, notes) => [entity, notes]);
@@ -82,7 +82,9 @@ const reducer = createReducer({
       ...state,
       [entityType]: {
         ...state[entityType],
-        notes: updateItems(state[entityType][entityId].notes, notes, makeEntityId(entityType))
+        [entityId]: {
+          notes: updateItems(state[entityType][entityId].notes, notes)
+        }
       }
     };
   },
@@ -103,6 +105,8 @@ const reducer = createReducer({
   },
   [notesFailed]: (state, [entity, err]) => {
     console.error(err);
+
+    return state;
   }
 }, initialState);
 

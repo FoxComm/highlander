@@ -122,10 +122,9 @@ export default class Notes extends React.Component {
 
   @autobind
   renderNoteRow(row, index) {
-    return (
-      <div>
-        {(this.state.editingNote && (this.state.editingNote.id === row.id) && (
-        <TableRow>
+    if (this.state.editingNote && (this.state.editingNote.id === row.id)) {
+      return (
+        <TableRow key={`row-${index}`}>
           <TableCell colspan={3}>
             <NoteForm
               body={this.state.editingNote && this.state.editingNote.body}
@@ -134,8 +133,10 @@ export default class Notes extends React.Component {
             />
           </TableCell>
         </TableRow>
-          )) || (
-        <TableRow>
+      );
+    } else {
+      return (
+        <TableRow key={`row-${index}`}>
           <TableCell>
             <DateTime value={row.createdAt}/>
           </TableCell>
@@ -150,9 +151,8 @@ export default class Notes extends React.Component {
             />
           </TableCell>
         </TableRow>
-          )}
-      </div>
-    );
+      );
+    }
   }
 
   get controls() {
@@ -180,7 +180,9 @@ export default class Notes extends React.Component {
             />
         )}
         <table>
-          {_.map(this.props.notes, this.renderNoteRow)}
+          <tbody>
+            {_.map(this.props.notes, this.renderNoteRow)}
+          </tbody>
         </table>
       </ContentBox>
     );
