@@ -111,8 +111,10 @@ export default class FormField extends React.Component {
       this.context.formDispatcher.on('submit', this.onSubmit);
     }
 
-
     this.updateChildren();
+  }
+
+  componentDidMount() {
     this.updateInputBind();
   }
 

@@ -50,7 +50,7 @@ export default class NewCustomer extends React.Component {
                              name="name"
                              maxLength="255"
                              type="text"
-
+                             value=""
                              required />
                     </FormField>
                   </li>
@@ -61,7 +61,7 @@ export default class NewCustomer extends React.Component {
                              name="email"
                              maxLength="255"
                              type="text"
-
+                             value=""
                              required />
                     </FormField>
                   </li>
