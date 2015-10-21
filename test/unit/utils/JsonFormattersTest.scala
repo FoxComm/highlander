@@ -5,7 +5,6 @@ import java.time.{Instant, ZonedDateTime}
 import scalaz.Show
 
 import com.pellucid.sealerate
-import org.joda.time.{DateTimeZone, DateTime}
 import org.json4s.Formats
 import org.json4s.JsonAST.JObject
 import util.TestBase
