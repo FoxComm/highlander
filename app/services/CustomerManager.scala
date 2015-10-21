@@ -2,6 +2,7 @@ package services
 
 import scala.concurrent.ExecutionContext
 
+import cats.data.Xor
 import models._
 import models.{Customers, StoreAdmin, Customer}
 import models.Customers.scope._
@@ -12,6 +13,7 @@ import utils.Slick.DbResult
 import utils.Slick.implicits._
 import utils.Slick.UpdateReturning._
 import payloads.{CreateCustomerPayload, UpdateCustomerPayload}
+import utils.jdbc._
 
 object CustomerManager {
 
@@ -70,8 +72,14 @@ object CustomerManager {
 
   def create(payload: CreateCustomerPayload)(implicit ec: ExecutionContext, db: Database): Result[Root] = {
     val customer = Customer.buildFromPayload(payload)
-    val qq = Customers.save(customer).run()
-    qq.flatMap { case(a) ⇒ Result.right(build(a)) }
+    val result = withUniqueConstraint {
+      Customers.save(customer).run()
+    } { c ⇒ CustomerEmailAlreadyTaken }
+
+    result.flatMap {
+      case Xor.Right(c) ⇒ Result.good(build(c))
+      case Xor.Left(e) ⇒ Result.failure(e)
+    }
   }
 
   def updateFromPayload(customerId: Int, payload: UpdateCustomerPayload)
