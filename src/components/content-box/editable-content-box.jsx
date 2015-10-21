@@ -24,7 +24,7 @@ const renderTitle = (props) => {
 
   return (
     <header>
-      <div className='fc-grid'>
+      <div className='fc-grid fc-content-box-header'>
         <div className='fc-col-md-2-3 fc-title'>{props.title}</div>
         <div className='fc-col-md-1-3 fc-controls'>{editButton}</div>
       </div>
