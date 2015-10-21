@@ -1,7 +1,7 @@
 'use strict';
 
 import React from 'react';
-import ClassNames from 'classNames';
+import classNames from 'classNames';
 import UserInitials from '../users/initials';
 import ViewerStore from '../../stores/viewers';
 
@@ -59,17 +59,16 @@ export default class Viewers extends React.Component {
     });
   }
 
+  viewerItem(viewer) {
+    const classnames = classNames({
+      'fc-viewers-item': true,
+      'is-locker': viewer.isLocker
+    });
+    return <li className={classnames} key={viewer.id}><UserInitials model={viewer}/></li>;
+  }
+
   render() {
     const viewers = this.state.viewers;
-
-    const viewerItem = (viewer) => {
-      const classnames = ClassNames({
-        'fc-viewers-item': true,
-        'is-locker': viewer.isLocker
-      });
-      return <li className={classnames} key={viewer.id}><UserInitials model={viewer}/></li>;
-    };
-
     const locked = viewers.some(viewer => viewer.isLocker) && (
         <li className="fc-viewers-lock"><i className='icon-lock'></i></li>
       );
@@ -78,7 +77,7 @@ export default class Viewers extends React.Component {
       <div className="fc-viewers">
         <ul>
           {locked}
-          {viewers.map(viewerItem)}
+          {viewers.map(this.viewerItem)}
         </ul>
       </div>
     );
