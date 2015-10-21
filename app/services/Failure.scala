@@ -67,12 +67,8 @@ final case class CustomerHasCart(id: Int) extends Failure {
   override def description = List(s"customer with id=$id already has an active cart")
 }
 
-final case class TransitionNotAllowed(from: String, to: String) extends Failure {
-  override def description = List(s"Transition from $from to $to is not allowed")
-}
-
-final case class OrderUpdateFailure(referenceNumber: String, reason: String) extends Failure {
-  override def description = List(reason)
+final case class OrderStatusTransitionNotAllowed(from: Order.Status, to: Order.Status, refNum: String) extends Failure {
+  override def description = List(s"Transition from $from to $to is not allowed for order with refNum=$refNum")
 }
 
 final case class OrderMustBeCart(referenceNumber: String) extends Failure {

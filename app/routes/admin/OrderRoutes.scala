@@ -10,7 +10,6 @@ import models.Order.orderRefNumRegex
 import models.GiftCard.giftCardCodeRegex
 import models._
 import payloads._
-import responses.{AllOrders, BulkOrderUpdateResponse}
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.Http._
@@ -37,11 +36,8 @@ object OrderRoutes {
         } ~
         (patch & pathEnd & sortAndPage) { implicit sortAndPage ⇒
           entity(as[BulkUpdateOrdersPayload]) { payload ⇒
-            good {
-              for {
-                failures ← OrderUpdater.updateStatuses(payload.referenceNumbers, payload.status)
-                orders   ← OrderQueries.findAll.run()
-              } yield BulkOrderUpdateResponse(orders, failures)
+            goodOrFailures {
+              OrderUpdater.updateStatuses(payload.referenceNumbers, payload.status)
             }
           }
         } ~
@@ -72,10 +68,8 @@ object OrderRoutes {
           }
         } ~
         (patch & entity(as[UpdateOrderPayload])) { payload ⇒
-          complete {
-            whenOrderFoundAndEditable(refNum) { _ ⇒
-              OrderUpdater.updateStatus(refNum, payload.status)
-            }
+          goodOrFailures {
+            OrderUpdater.updateStatus(refNum, payload.status)
           }
         } ~
         (post & path("increase-remorse-period") & pathEnd) {

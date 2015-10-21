@@ -1,6 +1,8 @@
 package services
 
 import java.time.{Duration, Instant}
+import utils.CustomDirectives
+import utils.CustomDirectives.SortAndPage
 import utils.time._
 import scala.concurrent.ExecutionContext
 import models.Order.RemorseHold
@@ -67,8 +69,8 @@ object LockAwareOrderUpdater {
     }
   }
 
-  def assign(refNum: String, requestedAssigneeIds: Seq[Int])
-    (implicit db: Database, ec: ExecutionContext): Result[FullOrderWithWarnings] = {
+  def assign(refNum: String, requestedAssigneeIds: Seq[Int])(implicit db: Database, ec: ExecutionContext,
+    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): Result[FullOrderWithWarnings] = {
     val finder = Orders.findByRefNum(refNum)
 
     finder.selectOneForUpdateIgnoringLock { order ⇒
