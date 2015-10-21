@@ -29,7 +29,7 @@ class OrderNotesIntegrationTest extends IntegrationTestBase with HttpSupport wit
       val response = POST(s"v1/notes/order/${order.referenceNumber}", payloads.CreateNote(body = ""))
 
       response.status must === (StatusCodes.BadRequest)
-      response.bodyText must include("errors")
+      response.errors must === (List("body must not be empty"))
     }
 
     "returns a 404 if the order is not found" in new Fixture {
@@ -37,14 +37,14 @@ class OrderNotesIntegrationTest extends IntegrationTestBase with HttpSupport wit
 
       response.status must === (StatusCodes.NotFound)
       // TODO: Compare with proper error after selectOne refactoring
-      parseErrors(response) must === (NotFoundFailure404("Not found").description)
+      response.errors must === (NotFoundFailure404("Not found").description)
     }
   }
 
   "GET /v1/notes/order/:refNum" - {
     "can be listed" in new Fixture {
       List("abc", "123", "xyz").map { body ⇒
-        NoteManager.createNote(order, storeAdmin, payloads.CreateNote(body = body)).futureValue
+        NoteManager.createOrderNote(order.refNum, storeAdmin, payloads.CreateNote(body = body)).futureValue
       }
 
       val response = GET(s"v1/notes/order/${order.referenceNumber}")
@@ -59,8 +59,8 @@ class OrderNotesIntegrationTest extends IntegrationTestBase with HttpSupport wit
 
   "PATCH /v1/notes/order/:refNum/:noteId" - {
     "can update the body text" in new Fixture {
-      val rootNote = NoteManager.createNote(order, storeAdmin,
-        payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue.get
+      val rootNote = rightValue(NoteManager.createOrderNote(order.refNum, storeAdmin,
+        payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue)
 
       val response = PATCH(s"v1/notes/order/${order.referenceNumber}/${rootNote.id}",
         payloads.UpdateNote(body = "donkey"))
@@ -73,8 +73,8 @@ class OrderNotesIntegrationTest extends IntegrationTestBase with HttpSupport wit
 
   "DELETE /v1/notes/order/:refNum/:noteId" - {
     "can soft delete note" in new Fixture {
-      val note = NoteManager.createNote(order, storeAdmin,
-        payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue.get
+      val note = rightValue(NoteManager.createOrderNote(order.refNum, storeAdmin,
+        payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue)
 
       val response = DELETE(s"v1/notes/order/${order.referenceNumber}/${note.id}")
       response.status must === (StatusCodes.NoContent)
