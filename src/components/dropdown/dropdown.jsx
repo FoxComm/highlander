@@ -1,17 +1,17 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import ClassNames from 'classnames';
 
 export default class Dropdown extends React.Component {
   static propTypes = {
-    value: React.PropTypes.string,
-    editable: React.PropTypes.bool,
-    primary: React.PropTypes.bool,
-    open: React.PropTypes.bool,
-    placeholder: React.PropTypes.string,
-    children: React.PropTypes.any,
-    onChange: React.PropTypes.func
+    value: PropTypes.string,
+    editable: PropTypes.bool,
+    primary: PropTypes.bool,
+    open: PropTypes.bool,
+    placeholder: PropTypes.string,
+    onChange: PropTypes.func,
+    children: PropTypes.node
   };
 
   constructor(...args) {

@@ -1,6 +1,6 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 
 const DropdownItem = (props) => {
   return (
@@ -11,9 +11,9 @@ const DropdownItem = (props) => {
 };
 
 DropdownItem.propTypes = {
-  onClick: React.PropTypes.func,
-  value: React.PropTypes.string,
-  children: React.PropTypes.any
+  onClick: PropTypes.func,
+  value: PropTypes.string,
+  children: PropTypes.node
 };
 
 export default DropdownItem;
