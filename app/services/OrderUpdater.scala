@@ -85,8 +85,10 @@ object OrderUpdater {
    finder.selectOne {
        order ⇒  
          OrderShippingAddresses.findByOrderId(order.id).delete.flatMap {
-           case 1 ⇒  DbResult.fromDbio(fullOrder(finder))
-           case 0 ⇒  DbResult.failure(NotFoundFailure(s"Shipping Address for order with reference number ${refNum} not found"))
+           case 1 ⇒
+             DbResult.fromDbio(fullOrder(finder))
+           case 0 ⇒
+             DbResult.failure(NotFoundFailure400(s"Shipping Address for order with reference number $refNum not found"))
          }
      }
   }
@@ -106,7 +108,7 @@ object OrderUpdater {
             _ ← OrderShippingAddresses.copyFromAddress(newAddress, order.id)
           } yield region).flatMap {
             case Some(region) ⇒ DbResult.fromDbio(fullOrder(finder))
-            case None ⇒ DbResult.failure(NotFoundFailure(Region, address.regionId))
+            case None ⇒ DbResult.failure(NotFoundFailure404(Region, address.regionId))
           }
         case Invalid(errors) ⇒ DbResult.failures(errors)
       }
@@ -134,11 +136,11 @@ object OrderUpdater {
 
       actions.flatMap {
         case (_, None, _) ⇒
-          DbResult.failure(NotFoundFailure(OrderShippingAddress, order.id))
+          DbResult.failure(NotFoundFailure404(OrderShippingAddress, order.id))
         case (0, _, _) ⇒
           DbResult.failure(GeneralFailure("Unable to update address"))
         case (_, Some(address), None) ⇒
-          DbResult.failure(NotFoundFailure(Region, address.regionId))
+          DbResult.failure(NotFoundFailure404(Region, address.regionId))
         case (_, Some(address), Some(region)) ⇒
           DbResult.fromDbio(fullOrder(finder))
       }
@@ -203,7 +205,7 @@ object OrderUpdater {
         case (Some(address), Some(region)) ⇒
           DbResult.fromDbio(fullOrder(finder))
         case _ ⇒
-          DbResult.failure(NotFoundFailure(Address, addressId))
+          DbResult.failure(NotFoundFailure404(Address, addressId))
       }
     }
   }

@@ -9,7 +9,7 @@ import services._
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 
-final case class FullOrderWithWarnings(order: FullOrder.Root, warnings: Seq[NotFoundFailure])
+final case class FullOrderWithWarnings(order: FullOrder.Root, warnings: Seq[NotFoundFailure404])
 
 object FullOrder {
   type Response = Future[Root]

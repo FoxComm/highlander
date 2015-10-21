@@ -112,7 +112,7 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.Tab
 
     protected def selectOneResultChecks(maybe: Option[M])
       (implicit ec: ExecutionContext, db: Database): Xor[Failures, M] = {
-      Xor.fromOption(maybe, NotFoundFailure("Not found").single)
+      Xor.fromOption(maybe, NotFoundFailure404("Not found").single)
     }
   }
 }
@@ -137,7 +137,7 @@ abstract class TableQueryWithLock[M <: ModelWithLockParameter, T <: GenericTable
         case Some(lockable) if !lockable.locked ⇒
           Xor.right(lockable)
         case None ⇒
-          Xor.left(NotFoundFailure("Not found").single)
+          Xor.left(NotFoundFailure404("Not found").single)
       }
     }
   }

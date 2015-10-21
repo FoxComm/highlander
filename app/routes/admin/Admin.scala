@@ -8,13 +8,11 @@ import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.Order.orderRefNumRegex
 import models._
-import responses.AdminNotes
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.Apis
 import utils.Http._
 import utils.CustomDirectives._
-import utils.Slick.implicits._
 
 object Admin {
 
@@ -65,8 +63,8 @@ object Admin {
       pathPrefix("notes") {
         pathPrefix("order" / orderRefNumRegex) { refNum ⇒
           (get & pathEnd) {
-            complete {
-              whenOrderFoundAndEditable(refNum) { order ⇒ AdminNotes.forOrder(order) }
+            goodOrFailures {
+              NoteManager.forOrder(refNum)
             }
           } ~
           (post & entity(as[payloads.CreateNote])) { payload ⇒
@@ -87,8 +85,8 @@ object Admin {
         } ~
         pathPrefix("gift-card" / Segment) { code ⇒
           (get & pathEnd) {
-            complete {
-              whenFound(GiftCards.findByCode(code).one.run()) { giftCard ⇒ AdminNotes.forGiftCard(giftCard) }
+            goodOrFailures {
+              NoteManager.forGiftCard(code)
             }
           } ~
           (post & entity(as[payloads.CreateNote]) & pathEnd) { payload ⇒
@@ -105,6 +103,30 @@ object Admin {
             (delete & pathEnd) {
               complete {
                 NoteManager.deleteNote(noteId, admin).map(renderNothingOrFailures)
+              }
+            }
+          }
+        } ~
+        pathPrefix("customer" / IntNumber) { id ⇒
+          (get & pathEnd) {
+            goodOrFailures {
+              NoteManager.forCustomer(id)
+            }
+          } ~
+          (post & entity(as[payloads.CreateNote]) & pathEnd) { payload ⇒
+            goodOrFailures {
+              NoteManager.createCustomerNote(id, admin, payload)
+            }
+          } ~
+          path(IntNumber) { noteId ⇒
+            (patch & entity(as[payloads.UpdateNote]) & pathEnd) { payload ⇒
+              goodOrFailures {
+                NoteManager.updateCustomerNote(id, noteId, admin, payload)
+              }
+            } ~
+            (delete & pathEnd) {
+              nothingOrFailures {
+                NoteManager.deleteNote(noteId, admin)
               }
             }
           }

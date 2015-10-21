@@ -4,7 +4,7 @@ import java.time.Instant
 import scala.concurrent.ExecutionContext
 
 import models.{OrderShippingAddresses, Address, Customer, OrderShippingAddress, Region}
-import services.NotFoundFailure
+import services.NotFoundFailure404
 import utils.Slick.DbResult
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
@@ -41,8 +41,8 @@ object Addresses {
     fullAddressDetails.result.flatMap { res ⇒ val (addresses, regions) = res.unzip
       (addresses.headOption, regions.headOption) match {
         case (Some(address), Some(region)) ⇒ DbResult.good(buildOneShipping(address, region))
-        case (None, _) ⇒ DbResult.failure(NotFoundFailure(s"No addresses found for order with id=$orderId"))
-        case (Some(address), None) ⇒ DbResult.failure(NotFoundFailure(Region, address.regionId))
+        case (None, _) ⇒ DbResult.failure(NotFoundFailure404(s"No addresses found for order with id=$orderId"))
+        case (Some(address), None) ⇒ DbResult.failure(NotFoundFailure404(Region, address.regionId))
       }
     }
   }

@@ -15,7 +15,7 @@ create table store_credits (
     updated_at timestamp without time zone default (now() at time zone 'utc'),
     foreign key (id) references payment_methods(id) on update restrict on delete restrict,
     foreign key (origin_id) references store_credit_origins(id) on update restrict on delete restrict,
-    constraint valid_status check (status in ('onHold', 'active', 'canceled')),
+    constraint valid_status check (status in ('onHold', 'active', 'canceled', 'fullyRedeemed')),
     constraint positive_balance check (original_balance >= 0 and current_balance >= 0 and available_balance >= 0)
 );
 

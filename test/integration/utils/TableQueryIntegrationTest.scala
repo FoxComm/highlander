@@ -4,7 +4,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import cats.data.Xor
 import models.{Order, Orders}
-import services.{Failures, NotFoundFailure, GeneralFailure}
+import services.{Failures, NotFoundFailure404, GeneralFailure}
 import util.{CatsHelpers, IntegrationTestBase}
 import utils.Seeds.Factories
 import utils.Slick.DbResult
@@ -25,7 +25,7 @@ class TableQueryIntegrationTest extends IntegrationTestBase with CatsHelpers {
       val result = Orders.findByRefNum("foobar").selectOneForUpdate(DbResult.good).futureValue
 
       result.isLeft mustBe true
-      leftValue(result).head must === (NotFoundFailure("Not found"))
+      leftValue(result).head must === (NotFoundFailure404("Not found"))
     }
   }
 

@@ -2,30 +2,26 @@ package models
 
 import java.time.Instant
 
+import scala.concurrent.ExecutionContext
+
+import cats.data.Validated._
 import cats.data.ValidatedNel
+import cats.implicits._
 import services._
 import utils.Litterbox._
 import utils.Validation
 
-import scala.concurrent.ExecutionContext
-
-import cats.data.Validated.{invalidNel, valid}
-import cats.data.ValidatedNel
-
 import com.pellucid.sealerate
 import models.StoreCredit.{CsrAppeasement, Active, Status, OriginType}
 import monocle.macros.GenLens
-import services.Result
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
-import utils.Validation._
 
-//import utils.Joda._
+import utils._
 import utils.Money._
-import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, NewModel, TableQueryWithId}
 import utils.Slick.implicits._
-import cats.syntax.apply._
+import utils.Validation._
 
 final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: OriginType = CsrAppeasement,
   subTypeId: Option[Int] = None, currency: Currency = Currency.USD, originalBalance: Int, currentBalance: Int = 0,
@@ -75,6 +71,7 @@ object StoreCredit {
   case object OnHold extends Status
   case object Active extends Status
   case object Canceled extends Status
+  case object FullyRedeemed extends Status
 
   sealed trait OriginType
   case object GiftCardTransfer extends OriginType
@@ -167,10 +164,18 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
     debit(storeCredit = storeCredit, orderPaymentId = orderPaymentId, amount = amount, status = Adj.Capture)
 
   def cancelByCsr(storeCredit: StoreCredit, storeAdmin: StoreAdmin)(implicit ec: ExecutionContext): DBIO[Adj] = {
-    val adjustment = Adj(storeCreditId = storeCredit.id, orderPaymentId = None, storeAdminId = Some(storeAdmin.id),
+    val adjustment = Adj(storeCreditId = storeCredit.id, orderPaymentId = None, storeAdminId = storeAdmin.id.some,
+      debit = storeCredit.availableBalance, availableBalance = 0, status = Adj.CancellationCapture)
+    Adjs.save(adjustment)
+  }
+
+  def redeemToGiftCard(storeCredit: StoreCredit, storeAdmin: StoreAdmin)(implicit ec: ExecutionContext): DBIO[Adj] = {
+    val adjustment = Adj(storeCreditId = storeCredit.id, orderPaymentId = None, storeAdminId = storeAdmin.id.some,
       debit = storeCredit.availableBalance, availableBalance = 0, status = Adj.Capture)
     Adjs.save(adjustment)
   }
+
+  def findActiveById(id: Int)(implicit ec: ExecutionContext): QuerySeq = filter(_.id === id)
 
   def findAllByCustomerId(customerId: Int)(implicit ec: ExecutionContext): QuerySeq =
     filter(_.customerId === customerId)

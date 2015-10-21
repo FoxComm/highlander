@@ -1,28 +1,34 @@
 package services
 
 import scala.collection.immutable
-import cats.data.NonEmptyList
-import cats.data.Validated.Invalid
-import cats.implicits._
+
 import com.stripe.exception.StripeException
 import models.{CreditCard, GiftCard, Order, StoreCredit}
-import utils.{ModelWithIdParameter, Validation}
+import services.Util.searchTerm
 import utils.friendlyClassName
 
 sealed trait Failure {
   def description: immutable.Traversable[String]
 }
 
-final case class NotFoundFailure(message: String) extends Failure {
+final case class NotFoundFailure404(message: String) extends Failure {
   override def description = List(message)
 }
 
-object NotFoundFailure {
-  def apply[M <: ModelWithIdParameter](m: M): NotFoundFailure =
-    NotFoundFailure(s"${m.modelName} with id=${m.id} not found")
+object NotFoundFailure404 {
+  def apply[A](a: A, searchKey: Any): NotFoundFailure404 = {
+    NotFoundFailure404(s"${friendlyClassName(a)} with ${searchTerm(a)}=$searchKey not found")
+  }
+}
 
-  def apply[A](a: A, id: Int): NotFoundFailure =
-    NotFoundFailure(s"${friendlyClassName(a)} with id=$id not found")
+final case class NotFoundFailure400(message: String) extends Failure {
+  override def description = List(message)
+}
+
+object NotFoundFailure400 {
+  def apply[A](a: A, searchKey: Any): NotFoundFailure400 = {
+    NotFoundFailure400(s"${friendlyClassName(a)} with ${searchTerm(a)}=$searchKey not found")
+  }
 }
 
 final case class StripeFailure(exception: StripeException) extends Failure {
@@ -77,18 +83,8 @@ final case class StoreCreditConvertFailure(sc: StoreCredit) extends Failure {
   override def description = List(s"cannot convert a store credit with status '${sc.status}'")
 }
 
-object OrderNotFoundFailure {
-  def apply(order: Order): NotFoundFailure = apply(order.referenceNumber)
-  def apply(refNum: String): NotFoundFailure = NotFoundFailure(s"order with referenceNumber=$refNum not found")
-}
-
-object GiftCardNotFoundFailure {
-  def apply(giftCard: GiftCard): NotFoundFailure = apply(giftCard.code)
-  def apply(code: String): NotFoundFailure = NotFoundFailure(s"giftCard with code=$code not found")
-}
-
 object OrderPaymentNotFoundFailure {
-  def apply[M](m: M): NotFoundFailure = NotFoundFailure(s"${friendlyClassName(m)} payment not found")
+  def apply[M](m: M): NotFoundFailure400 = NotFoundFailure400(s"${friendlyClassName(m)} payment not found")
 }
 
 final case class GiftCardNotEnoughBalance(gc: GiftCard, requestedAmount: Int) extends Failure {
@@ -130,4 +126,12 @@ case object CreditCardMustHaveAddress extends Failure {
 
 final case class StripeRuntimeException[E <: StripeException](exception: E) extends Failure {
   val description = List(exception.getMessage)
+}
+
+object Util {
+  def searchTerm[A](a: A): String = a match {
+    case Order ⇒ "refNum"
+    case GiftCard ⇒ "code"
+    case _ ⇒ "id"
+  }
 }

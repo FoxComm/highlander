@@ -77,7 +77,7 @@ object GiftCardService {
         val storeAdminResponse = Some(StoreAdminResponse.build(storeAdmin))
         Result.right(GiftCardResponse.build(giftCard, None, storeAdminResponse))
       case _ ⇒
-        Result.failure(GiftCardNotFoundFailure(code))
+        Result.failure(NotFoundFailure404(GiftCard, code))
     }
   }
 
@@ -144,7 +144,7 @@ object GiftCardService {
         val update = finder.map(_.status).updateReturning(GiftCards.map(identity), payload.status).headOption
         update.flatMap {
           case Some(gc) ⇒ DbResult.good(GiftCardResponse.build(gc))
-          case _        ⇒ DbResult.failure(GiftCardNotFoundFailure(giftCard.code))
+          case _        ⇒ DbResult.failure(NotFoundFailure404(GiftCard, giftCard.code))
         }
     }
 
@@ -200,9 +200,9 @@ object GiftCardService {
 
       ResultT(queries.run().map {
         case (None, _) ⇒
-          Xor.left(NotFoundFailure(Reason, payload.reasonId).single)
+          Xor.left(NotFoundFailure400(Reason, payload.reasonId).single)
         case (_, None) if payload.subTypeId.isDefined ⇒
-          Xor.left(NotFoundFailure(GiftCardSubtype, payload.subTypeId.head).single)
+          Xor.left(NotFoundFailure400(GiftCardSubtype, payload.subTypeId.head).single)
         case (Some(r), s) ⇒
           Xor.right((r, s))
       })

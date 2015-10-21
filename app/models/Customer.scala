@@ -18,7 +18,6 @@ import utils.{ModelWithIdParameter, TableQueryWithId, Validation}
 import utils.Slick.implicits._
 import payloads.CreateCustomerPayload
 import utils.Passwords._
-import payloads.UpdateCustomerPayload
 
 final case class Customer(id: Int = 0, email: String, password: Option[String] = None,
   name: Option[String] = None, isDisabled: Boolean = false, isBlacklisted: Boolean = false,

@@ -45,14 +45,13 @@ object GiftCardAdjustmentsService {
         .joinLeft(OrderPayments).on(_.orderPaymentId === _.id)
         .joinLeft(Orders).on(_._2.map(_.orderId) === _.id)
 
-      val adjustments = query.result.run().map { results ⇒
-        results.map {
+      val adjustments = query.result.map { _.map {
           case ((adj, Some(payment)), Some(order)) ⇒ build(adj, Some(order.referenceNumber))
           case ((adj, _), _)                       ⇒ build(adj)
         }
       }
 
-      DbResult.fromFuture(adjustments)
+      DbResult.fromDbio(adjustments)
     }
   }
 }

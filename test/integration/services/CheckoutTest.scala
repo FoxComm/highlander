@@ -44,7 +44,7 @@ class CheckoutTest extends IntegrationTestBase with Inside {
         inside(result) {
           case Xor.Left(nel) ⇒
             inside(nel.head) {
-              case NotFoundFailure(message) ⇒
+              case NotFoundFailure404(message) ⇒
                 message must include ("No Line Items")
             }
         }

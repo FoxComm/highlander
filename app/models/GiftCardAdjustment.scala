@@ -33,6 +33,7 @@ object GiftCardAdjustment {
   case object Auth extends Status
   case object Canceled extends Status
   case object Capture extends Status
+  case object CancellationCapture extends Status
 
   object Status extends ADT[Status] {
     def types = sealerate.values[Status]

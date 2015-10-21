@@ -23,7 +23,7 @@ object CustomerManager {
     } yield updated).run().flatMap {
       /** We’d need to flatMap now */
       case Some(c) ⇒ Result.good(c)
-      case None    ⇒ Result.failures(NotFoundFailure(Customer, customerId).single)
+      case None    ⇒ Result.failures(NotFoundFailure404(Customer, customerId).single)
     }
   }
 
@@ -67,7 +67,7 @@ object CustomerManager {
       case Some((customer, shipRegion, billRegion)) ⇒
         Result.right(build(customer, shipRegion, billRegion))
       case _ ⇒
-        Result.failure(NotFoundFailure(Customer, id))
+        Result.failure(NotFoundFailure404(Customer, id))
     }
   }
 

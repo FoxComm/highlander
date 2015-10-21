@@ -8,9 +8,8 @@ import models.{CreditCards, CreditCard, Addresses, Order, Orders, StoreCredits, 
 OrderPayments, OrderPayment, Customers, GiftCards, GiftCard, GiftCardManuals, StoreAdmins, Reasons,
 PaymentMethod}
 import models.OrderPayments.scope._
-import services.{GiftCardNotFoundFailure, OrderPaymentNotFoundFailure, CannotUseInactiveCreditCard,
-CustomerHasInsufficientStoreCredit, CreditCardManager, GiftCardIsInactive, GiftCardNotEnoughBalance, NotFoundFailure,
-OrderNotFoundFailure}
+import services.{OrderPaymentNotFoundFailure, CannotUseInactiveCreditCard,
+CustomerHasInsufficientStoreCredit, CreditCardManager, GiftCardIsInactive, GiftCardNotEnoughBalance, NotFoundFailure404}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.Seeds.Factories
@@ -51,8 +50,8 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val payload = payloads.GiftCardPayment(code = giftCard.code ++ "xyz", amount = giftCard.availableBalance)
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
 
-        response.status must === (StatusCodes.NotFound)
-        parseErrors(response) must === (GiftCardNotFoundFailure(payload.code).description)
+        response.status must === (StatusCodes.BadRequest)
+        parseErrors(response) must === (NotFoundFailure404(GiftCard, payload.code).description)
         giftCardPayments(order) must have size(0)
       }
 
@@ -70,7 +69,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val payload = payloads.GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance)
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
 
-        response.status must === (StatusCodes.NotFound)
+        response.status must === (StatusCodes.NotFound) // FIXME: should be BadRequest
         giftCardPayments(order) must have size(0)
       }
 
@@ -89,8 +88,8 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val payload = payloads.GiftCardPayment(code = giftCard.code, amount = 15)
         val response = POST(s"v1/orders/${order.refNum}/payment-methods/gift-cards", payload)
 
-        response.status must ===(StatusCodes.NotFound)
-        response.errors must ===(GiftCardNotFoundFailure(giftCard.code).description)
+        response.status must ===(StatusCodes.BadRequest)
+        response.errors must ===(NotFoundFailure404(GiftCard, giftCard.code).description)
       }
     }
 
@@ -119,14 +118,14 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards/abc-123")
 
         response.status must === (StatusCodes.NotFound)
-        parseErrors(response) must === (GiftCardNotFoundFailure("abc-123").description)
+        parseErrors(response) must === (NotFoundFailure404(GiftCard, "abc-123").description)
         creditCardPayments(order) must have size(0)
       }
 
       "fails if the giftCard orderPayment is not found" in new GiftCardFixture {
         val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards/${giftCard.code}")
 
-        response.status must === (StatusCodes.NotFound)
+        response.status must === (StatusCodes.BadRequest)
         parseErrors(response) must === (OrderPaymentNotFoundFailure(GiftCard).description)
         creditCardPayments(order) must have size(0)
       }
@@ -220,7 +219,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val payload = payloads.StoreCreditPayment(amount = 50)
         val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
 
-        response.status must ===(StatusCodes.NotFound)
+        response.status must ===(StatusCodes.NotFound) // FIXME: should be BadRequest
         storeCreditPayments(order) must have size (0)
       }
     }
@@ -265,8 +264,8 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val payload = payloads.CreditCardPayment(99)
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards", payload)
 
-        response.status must === (StatusCodes.NotFound)
-        parseErrors(response) must === (NotFoundFailure(CreditCard, 99).description)
+        response.status must === (StatusCodes.BadRequest)
+        parseErrors(response) must === (NotFoundFailure404(CreditCard, 99).description)
         creditCardPayments(order) must have size(0)
       }
 
@@ -285,7 +284,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val payload = payloads.CreditCardPayment(creditCard.id)
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards", payload)
 
-        response.status must === (StatusCodes.NotFound)
+        response.status must === (StatusCodes.NotFound) // FIXME: should be BadRequest
         creditCardPayments(order) must have size(0)
       }
     }
@@ -333,7 +332,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards")
         val payments = creditCardPayments(order)
 
-        response.status must ===(StatusCodes.NotFound)
+        response.status must ===(StatusCodes.BadRequest)
         payments must have size (0)
       }
     }

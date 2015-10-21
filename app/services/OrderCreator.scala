@@ -32,7 +32,7 @@ object OrderCreator {
         Result.failure(CustomerHasCart(customerId))
 
       case _ ⇒
-        Result.failure(NotFoundFailure(Customer, customerId))
+        Result.failure(NotFoundFailure400(Customer, customerId))
     }
 
     def createCartAndGuest(email: String): Result[Root] = (for {

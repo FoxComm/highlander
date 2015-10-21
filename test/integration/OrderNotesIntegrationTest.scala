@@ -4,7 +4,7 @@ import akka.http.scaladsl.model.StatusCodes
 import Extensions._
 import models.{Notes, _}
 import responses.AdminNotes
-import services.NoteManager
+import services.{NotFoundFailure404, NoteManager}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.implicits._
@@ -36,14 +36,15 @@ class OrderNotesIntegrationTest extends IntegrationTestBase with HttpSupport wit
       val response = POST(s"v1/notes/order/ABACADSF113", payloads.CreateNote(body = ""))
 
       response.status must === (StatusCodes.NotFound)
-      parseErrors(response) must === (Seq("Not found"))
+      // TODO: Compare with proper error after selectOne refactoring
+      parseErrors(response) must === (NotFoundFailure404("Not found").description)
     }
   }
 
   "GET /v1/notes/order/:refNum" - {
     "can be listed" in new Fixture {
       List("abc", "123", "xyz").map { body ⇒
-        NoteManager.createOrderNote(order.refNum, storeAdmin, payloads.CreateNote(body = body)).futureValue
+        NoteManager.createNote(order, storeAdmin, payloads.CreateNote(body = body)).futureValue
       }
 
       val response = GET(s"v1/notes/order/${order.referenceNumber}")
@@ -58,7 +59,7 @@ class OrderNotesIntegrationTest extends IntegrationTestBase with HttpSupport wit
 
   "PATCH /v1/notes/order/:refNum/:noteId" - {
     "can update the body text" in new Fixture {
-      val rootNote = NoteManager.createOrderNote(order.refNum, storeAdmin,
+      val rootNote = NoteManager.createNote(order, storeAdmin,
         payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue.get
 
       val response = PATCH(s"v1/notes/order/${order.referenceNumber}/${rootNote.id}",
@@ -72,16 +73,16 @@ class OrderNotesIntegrationTest extends IntegrationTestBase with HttpSupport wit
 
   "DELETE /v1/notes/order/:refNum/:noteId" - {
     "can soft delete note" in new Fixture {
-      val note = NoteManager.createOrderNote(order.refNum, storeAdmin,
+      val note = NoteManager.createNote(order, storeAdmin,
         payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue.get
 
       val response = DELETE(s"v1/notes/order/${order.referenceNumber}/${note.id}")
       response.status must === (StatusCodes.NoContent)
       response.bodyText mustBe empty
 
-      val updatedNote = db.run(Notes.findOneById(note.id)).futureValue.value
-      updatedNote.deletedBy.value mustBe 1
-      updatedNote.deletedAt.value.isBeforeNow mustBe true
+      val updatedNote = Notes.findOneById(note.id).run().futureValue.value
+      updatedNote.deletedBy.value === (1)
+      updatedNote.deletedAt.value.isBeforeNow === (true)
 
       // Deleted note should not be returned
       val allNotesResponse = GET(s"v1/notes/order/${order.referenceNumber}")

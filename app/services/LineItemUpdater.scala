@@ -40,7 +40,7 @@ object LineItemUpdater {
 
         DbResult.fromDbio(queries.transactionally >> FullOrder.fromOrder(order))
       case None ⇒
-        DbResult.failure(OrderNotFoundFailure(refNum))
+        DbResult.failure(NotFoundFailure404(Order, refNum))
     }
   }
 
@@ -57,7 +57,7 @@ object LineItemUpdater {
 
           Orders.findCartByRefNum(refNum).one.flatMap {
             case Some(o) ⇒ DbResult.fromDbio(update >> FullOrder.fromOrder(o))
-            case None    ⇒ DbResult.failure(OrderNotFoundFailure(refNum))
+            case None    ⇒ DbResult.failure(NotFoundFailure404(Order, refNum))
           }
         }
       case Invalid(errors) ⇒
@@ -81,10 +81,10 @@ object LineItemUpdater {
 
           Orders.findCartByRefNum(refNum).one.flatMap {
             case Some(order)  ⇒ DbResult.fromDbio(deleteAll >> FullOrder.fromOrder(order))
-            case None         ⇒ DbResult.failure(OrderNotFoundFailure(refNum))
+            case None         ⇒ DbResult.failure(NotFoundFailure404(Order, refNum))
           }
         case None ⇒
-          DbResult.failure(GiftCardNotFoundFailure(code))
+          DbResult.failure(NotFoundFailure404(GiftCard, code))
       }
     }
   }
