@@ -8,12 +8,16 @@ import { Link } from '../link';
 import { transitionTo } from '../../route-helpers';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
+import * as CustomersNewActions from '../../modules/customers/new';
 import * as CustomersActions from '../../modules/customers/new';
+import { createCustomer } from '../../modules/customers/customers';
 
 @connect(state => ({
   ...state.customers.adding
 }), {
-  ...CustomersActions
+  ...CustomersNewActions,
+  ...CustomersActions,
+  createCustomer
 })
 export default class NewCustomer extends React.Component {
 
@@ -24,7 +28,7 @@ export default class NewCustomer extends React.Component {
   @autobind
   submitForm(event) {
     event.preventDefault();
-    console.log("submit");
+    this.props.createCustomer();
   }
 
   render () {
@@ -41,7 +45,7 @@ export default class NewCustomer extends React.Component {
               <Form className="fc-customer-form fc-form-vertical fc-col-md-2-5"
                     action="/customers"
                     method="POST"
-                    onSubmit={this.submitForm.bind(this)}>
+                    onSubmit={this.submitForm}>
                 <ul className="fc-customer-form-fields">
                   <li>
                     <FormField label="Name" validator="ascii">

@@ -6,6 +6,7 @@ import { createAction, createReducer } from 'redux-act';
 
 export const requestCustomers = createAction('CUSTOMERS_REQUEST');
 export const receiveCustomers = createAction('CUSTOMERS_RECEIVE');
+export const updateCustomers = createAction('CUSTOMERS_UPDATE');
 export const failCustomers = createAction('CUSTOMERS_FAIL', (err, source) => ({err, source}));
 
 export function fetchCustomers() {
@@ -35,6 +36,18 @@ export function fetchCustomersIfNeeded() {
   };
 }
 
+export function createCustomer() {
+  return (dispatch, getState) => {
+    console.log(getState());
+    const { customerNew } = getState();
+    console.log(customerNew);
+
+    Api.post('/customers', customerNew)
+      .then(json => dispatch(updateCustomers([json])))
+      .catch(err => dispatch(failCustomers(err)));
+  };
+}
+
 const initialState = {
   isFetching: false,
   didInvalidate: true,
@@ -55,6 +68,12 @@ const reducer = createReducer({
       isFetching: false,
       didInvalidate: false,
       items: payload
+    };
+  },
+  [updateCustomers]: (state, payload) => {
+    return {
+      ...state,
+      items: updateItems(state.items, payload)
     };
   },
   [failCustomers]: (state, {err, source}) => {
