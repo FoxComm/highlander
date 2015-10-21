@@ -52,9 +52,9 @@ export default class Dropdown extends React.Component {
   render() {
     const classnames = ClassNames({
       'fc-dropdown': true,
-      'is_primary': this.props.primary,
-      'is_editable': this.props.editable,
-      'is_open': this.state.open
+      'is_dropdown_primary': this.props.primary,
+      'is_dropdown_editable': this.props.editable,
+      'is_dropdown_open': this.state.open
     });
     let value = this.state.selectedValue;
     let title = this.state.selectedTitle;
