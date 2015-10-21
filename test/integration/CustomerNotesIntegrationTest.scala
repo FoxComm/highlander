@@ -30,7 +30,7 @@ class CustomerNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
       val response = POST(s"v1/notes/customer/${customer.id}", payloads.CreateNote(body = ""))
 
       response.status must === (StatusCodes.BadRequest)
-      response.bodyText must include("errors")
+      response.errors must === (List("body must not be empty"))
     }
 
     "returns a 404 if the customer is not found" in new Fixture {

@@ -30,7 +30,7 @@ class GiftCardNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
       val response = POST(s"v1/notes/gift-card/${giftCard.code}", payloads.CreateNote(body = ""))
 
       response.status must === (StatusCodes.BadRequest)
-      response.bodyText must include("errors")
+      response.errors must === (List("body must not be empty"))
     }
 
     "returns a 404 if the gift card is not found" in new Fixture {
@@ -38,7 +38,7 @@ class GiftCardNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
 
       response.status must === (StatusCodes.NotFound)
       // TODO: Compare with proper error after selectOne refactoring
-      parseErrors(response) must === (NotFoundFailure404("Not found").description)
+      response.errors must === (NotFoundFailure404("Not found").description)
     }
   }
 

@@ -29,7 +29,7 @@ class OrderNotesIntegrationTest extends IntegrationTestBase with HttpSupport wit
       val response = POST(s"v1/notes/order/${order.referenceNumber}", payloads.CreateNote(body = ""))
 
       response.status must === (StatusCodes.BadRequest)
-      response.bodyText must include("errors")
+      response.errors must === (List("body must not be empty"))
     }
 
     "returns a 404 if the order is not found" in new Fixture {
@@ -37,7 +37,7 @@ class OrderNotesIntegrationTest extends IntegrationTestBase with HttpSupport wit
 
       response.status must === (StatusCodes.NotFound)
       // TODO: Compare with proper error after selectOne refactoring
-      parseErrors(response) must === (NotFoundFailure404("Not found").description)
+      response.errors must === (NotFoundFailure404("Not found").description)
     }
   }
 
