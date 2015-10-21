@@ -2,6 +2,7 @@ package services
 
 import scala.concurrent.ExecutionContext
 
+import cats.data.Validated.{Valid, Invalid}
 import cats.data.Xor
 import models._
 import models.{Customers, StoreAdmin, Customer}
@@ -72,6 +73,15 @@ object CustomerManager {
 
   def create(payload: CreateCustomerPayload)(implicit ec: ExecutionContext, db: Database): Result[Root] = {
     val customer = Customer.buildFromPayload(payload)
+    customer.validate match {
+      case Invalid(errors) ⇒ Result.failures(errors)
+      case Valid(_) ⇒ createValidatedCustomer(customer, payload)
+    }
+  }
+
+  private def createValidatedCustomer(customer: Customer, payload: CreateCustomerPayload)
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
+
     val result = withUniqueConstraint {
       Customers.save(customer).run()
     } { c ⇒ CustomerEmailNotUnique }
