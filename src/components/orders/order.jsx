@@ -7,9 +7,19 @@ import ConfirmModal from '../modal/confirm';
 import RemorseTimer from './remorseTimer';
 import { connect } from 'react-redux';
 import * as orderActions from '../../modules/orders/details';
+import * as shippingMethodActions from '../../modules/orders/shipping-methods';
 import DateTime from '../datetime/datetime';
 
-@connect(state => ({order: state.orders.details}), orderActions)
+const mapStateToProps = (state) => {
+  return {
+    order: state.orders.details,
+    shippingMethods: state.orders.shippingMethods
+  };
+};
+
+const mapDispatchToProps = Object.assign({}, orderActions, shippingMethodActions);
+
+@connect(mapStateToProps, mapDispatchToProps)
 export default class Order extends React.Component {
   static propTypes = {
     params: PropTypes.shape({

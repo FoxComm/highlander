@@ -17,7 +17,7 @@ export function fetchOrders() {
 }
 
 function shouldFetchOrders(state) {
-  const orders = state.orders.orders;
+  const orders = state.orders.list;
   if (!orders) {
     return true;
   } else if (orders.isFetching) {

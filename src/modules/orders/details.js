@@ -25,7 +25,7 @@ export function fetchOrder(refNum) {
 }
 
 function shouldFetchOrder(refNum, state) {
-  const order = state.orders.order;
+  const order = state.orders.details;
   if (!order) {
     return true;
   } else if (order.isFetching) {

@@ -18,6 +18,7 @@ const ShippingMethod = (props) => {
       editAction={props.editAction}
       doneAction={props.doneAction}
       viewContent={<TableView columns={columns} rows={props.shippingMethods} />}
+      editContent={<TableView columns={columns} rows={props.availableShippingMethods} />}
       />
   );
 };
