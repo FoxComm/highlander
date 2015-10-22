@@ -11,8 +11,18 @@ import LocalNav from '../local-nav/local-nav';
 import { PanelList, PanelListItem } from '../panel/panel-list';
 import SectionTitle from '../section-title/section-title';
 import * as orderActions from '../../modules/orders/details';
+import * as shippingMethodActions from '../../modules/orders/shipping-methods';
 
-@connect(state => ({order: state.orders.details}), orderActions)
+const mapStateToProps = (state) => {
+  return {
+    order: state.orders.details,
+    shippingMethods: state.orders.shippingMethods
+  };
+};
+
+const mapDispatchToProps = Object.assign({}, orderActions, shippingMethodActions);
+
+@connect(mapStateToProps, mapDispatchToProps)
 export default class Order extends React.Component {
   static propTypes = {
     params: PropTypes.shape({

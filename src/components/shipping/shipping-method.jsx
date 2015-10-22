@@ -1,3 +1,4 @@
+
 import React, { PropTypes } from 'react';
 import EditableContentBox from '../content-box/editable-content-box';
 import TableView from '../table/tableview';
@@ -16,6 +17,7 @@ const ShippingMethod = props => {
       editAction={props.editAction}
       doneAction={props.doneAction}
       viewContent={<TableView columns={columns} data={{rows: props.shippingMethods}} />}
+      editContent={<TableView columns={columns} data={{rows: props.availableShippingMethods}} />}
       />
   );
 };
