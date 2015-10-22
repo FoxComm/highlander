@@ -71,7 +71,20 @@ object CustomerManager {
     }
   }
 
-  def create(payload: CreateCustomerPayload)(implicit ec: ExecutionContext, db: Database): Result[Root] = {
+  def create(payload: CreateCustomerPayload)
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
+
+    def createValidatedCustomer(customer: Customer, payload: CreateCustomerPayload): Result[Root] = {
+      val result = withUniqueConstraint {
+        Customers.save(customer).run()
+      } { c ⇒ CustomerEmailNotUnique }
+
+      result.flatMap {
+        case Xor.Right(c) ⇒ Result.good(build(c))
+        case Xor.Left(e)  ⇒ Result.failure(e)
+      }
+    }
+
     val customer = Customer.buildFromPayload(payload)
     customer.validate match {
       case Invalid(errors) ⇒ Result.failures(errors)
@@ -79,67 +92,55 @@ object CustomerManager {
     }
   }
 
-  private def createValidatedCustomer(customer: Customer, payload: CreateCustomerPayload)
-    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
-
-    val result = withUniqueConstraint {
-      Customers.save(customer).run()
-    } { c ⇒ CustomerEmailNotUnique }
-
-    result.flatMap {
-      case Xor.Right(c) ⇒ Result.good(build(c))
-      case Xor.Left(e)  ⇒ Result.failure(e)
-    }
-  }
-
   def updateFromPayload(customerId: Int, payload: UpdateCustomerPayload)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
+
+    def updateFromValidatedPayload(customerId: Int, payload: UpdateCustomerPayload): Result[Root] = {
+      val finder = Customers.filter(_.id === customerId)
+      val result = withUniqueConstraint {
+        finder.selectOneForUpdate { customer ⇒
+          val updated = finder.map { c ⇒ (c.name, c.email, c.phoneNumber) }
+            .updateReturning(Customers.map(identity),
+              (payload.name.fold(customer.name)(Some(_)),
+                payload.email.getOrElse(customer.email),
+                payload.phoneNumber.fold(customer.phoneNumber)(Some(_)))).head
+
+          updated.flatMap(updCustomer ⇒ DbResult.good(build(updCustomer)))
+        }
+      } { notUnique ⇒ CustomerEmailNotUnique }
+
+      result.flatMap(_.fold(Result.failure(_), Future.successful(_)))
+    }
+
     payload.validate match {
       case Invalid(errors) ⇒ Result.failures(errors)
       case Valid(_) ⇒ updateFromValidatedPayload(customerId, payload)
     }
   }
 
-  private def updateFromValidatedPayload(customerId: Int, payload: UpdateCustomerPayload)
-    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
-    val finder = Customers.filter(_.id === customerId)
-    val result = withUniqueConstraint {
-       finder.selectOneForUpdate { customer ⇒
-         val updated = finder.map { c ⇒ (c.name, c.email, c.phoneNumber) }
-          .updateReturning(Customers.map(identity),
-            (payload.name.fold(customer.name)(Some(_)),
-              payload.email.getOrElse(customer.email),
-              payload.phoneNumber.fold(customer.phoneNumber)(Some(_)))).head
-
-        updated.flatMap(updCustomer ⇒ DbResult.good(build(updCustomer)))
-      }
-    } { notUnique ⇒ CustomerEmailNotUnique }
-
-    result.flatMap(_.fold(Result.failure(_), Future.successful(_)))
-  }
 
   def activate(customerId: Int, payload: ActivateCustomerPayload)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
+
+    def activateFromValidatedPayload(customerId: Int, payload: ActivateCustomerPayload): Result[Root] = {
+      val finder = Customers.filter(_.id === customerId)
+      val result = withUniqueConstraint {
+        finder.selectOneForUpdate { customer ⇒
+          val updated = finder.map { c ⇒ (c.name, c.isGuest) }
+            .updateReturning(Customers.map(identity),
+              (Some(payload.name), false)).head
+
+          updated.flatMap(updCustomer ⇒ DbResult.good(build(updCustomer)))
+        }
+      } { notUnique ⇒ CustomerEmailNotUnique }
+
+      result.flatMap(_.fold(Result.failure(_), Future.successful(_)))
+    }
+
     payload.validate match {
       case Invalid(errors) ⇒ Result.failures(errors)
       case Valid(_) ⇒ activateFromValidatedPayload(customerId, payload)
     }
-  }
-
-  private def activateFromValidatedPayload(customerId: Int, payload: ActivateCustomerPayload)
-    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
-    val finder = Customers.filter(_.id === customerId)
-    val result = withUniqueConstraint {
-      finder.selectOneForUpdate { customer ⇒
-        val updated = finder.map { c ⇒ (c.name, c.isGuest) }
-          .updateReturning(Customers.map(identity),
-            (Some(payload.name), false)).head
-
-        updated.flatMap(updCustomer ⇒ DbResult.good(build(updCustomer)))
-      }
-    } { notUnique ⇒ CustomerEmailNotUnique }
-
-    result.flatMap(_.fold(Result.failure(_), Future.successful(_)))
   }
 }
 
