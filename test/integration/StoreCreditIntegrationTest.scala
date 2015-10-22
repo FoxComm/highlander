@@ -1,3 +1,4 @@
+import scala.concurrent.Future
 import scala.util.Random
 import scala.collection.JavaConverters._
 import akka.http.scaladsl.model.StatusCodes
@@ -28,6 +29,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
   // paging and sorting API
   private var currentCustomer: Customer = _
   private var currentOrigin: StoreCreditManual = _
+
   override def beforeSortingAndPaging() = {
     (for {
       admin    ← StoreAdmins.save(authedStoreAdmin)
@@ -40,21 +42,32 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         currentOrigin = co
     }
   }
+
   def uriPrefix = s"v1/customers/${currentCustomer.id}/payment-methods/store-credit"
+
   val regCurrencies = CurrencyUnit.registeredCurrencies.asScala.toIndexedSeq
-  def responseItems = regCurrencies.map { currency ⇒
-    val balance = Random.nextInt(9999999)
-    val sc = StoreCredits.save(Factories.storeCredit.copy(
-      currency = currency,
-      originId = currentOrigin.id,
-      customerId = currentCustomer.id,
-      originalBalance = balance,
-      currentBalance = balance,
-      availableBalance = balance)).run().futureValue
-    responses.StoreCreditResponse.build(sc)
+
+  def responseItems = {
+    val items = regCurrencies.take(30).map { currency ⇒
+      val balance = Random.nextInt(9999999)
+      val future = StoreCredits.save(Factories.storeCredit.copy(
+        currency = currency,
+        originId = currentOrigin.id,
+        customerId = currentCustomer.id,
+        originalBalance = balance,
+        currentBalance = balance,
+        availableBalance = balance)).run()
+
+      future map { responses.StoreCreditResponse.build }
+    }
+
+    Future.sequence(items).futureValue
   }
+
   val sortColumnName = "currency"
+
   def responseItemsSort(items: IndexedSeq[responses.StoreCreditResponse.Root]) = items.sortBy(_.currency)
+
   def mf = implicitly[scala.reflect.Manifest[responses.StoreCreditResponse.Root]]
   // paging and sorting API end
 

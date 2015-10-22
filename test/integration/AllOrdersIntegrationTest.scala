@@ -1,6 +1,7 @@
 import java.time.Instant
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
@@ -24,14 +25,23 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
   // paging and sorting API
   def uriPrefix = "v1/orders"
 
-  def responseItems = (1 to 30).map { i ⇒
-    val customer = Customers.save(Seeds.Factories.generateCustomer).futureValue
-    val order = Orders.save(Factories.order.copy(
-      customerId = customer.id,
-      referenceNumber = Seeds.Factories.randomString(10),
-      status = Order.RemorseHold,
-      remorsePeriodEnd = Some(Instant.now.plusMinutes(30)))).futureValue
-    responses.AllOrders.build(order, customer, None).futureValue
+  def responseItems = {
+    val items = (1 to 30).map { i ⇒
+      val future = (for {
+        customer ← Customers.save(Seeds.Factories.generateCustomer)
+        order    ← Orders.save(Factories.order.copy(
+          customerId = customer.id,
+          referenceNumber = Seeds.Factories.randomString(10),
+          status = Order.RemorseHold,
+          remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
+      } yield (customer, order)).run()
+
+      future flatMap { case (customer, order) ⇒
+        responses.AllOrders.build(order, customer, None).run()
+      }
+    }
+
+    Future.sequence(items).futureValue
   }
   val sortColumnName = "referenceNumber"
 
