@@ -110,10 +110,10 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.Tab
       appendForUpdate(q.result).flatMap(action).transactionally.run()
     }
 
-    def querySearchKey = QueryErrorInfo.searchKeyForQuery(q, primarySearchTerm)
+    protected def querySearchKey: Option[Any] = QueryErrorInfo.searchKeyForQuery(q, primarySearchTerm)
 
-    def queryError = querySearchKey.map(key ⇒ s"${tableName.underscoreToCamel.dropRight(1)} with $primarySearchTerm=$key")
-      .getOrElse(s"${tableName.underscoreToCamel.dropRight(1)}")
+    def queryError: String = querySearchKey.map(key ⇒ s"${tableName.tableNameToCamel} with $primarySearchTerm=$key")
+      .getOrElse(s"${tableName.tableNameToCamel}")
 
     protected def notFoundFailure = NotFoundFailure404(s"$queryError not found")
 

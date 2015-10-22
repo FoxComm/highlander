@@ -8,12 +8,6 @@ case class QueryErrorInfo(modelType: String, searchKey: Any, searchTerm: String)
 
 object QueryErrorInfo {
 
-  def build(tableName: String, searchKey: Any, searchTerm: String): QueryErrorInfo =
-    QueryErrorInfo(
-      modelType = tableName.underscoreToCamel.dropRight(1),
-      searchKey = searchKey,
-      searchTerm = searchTerm)
-
   def searchKeyForQuery[M, U, C[_]](query: Query[M, U, C], primarySearchTerm: String): Option[Any] = {
     findSearchKey(query.toNode, primarySearchTerm)
   }
