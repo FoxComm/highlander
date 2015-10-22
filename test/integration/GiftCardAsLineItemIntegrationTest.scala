@@ -3,6 +3,7 @@ import models._
 import responses._
 import org.scalatest.BeforeAndAfterEach
 import services._
+import services.CartFailures.OrderMustBeCart
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.Money._

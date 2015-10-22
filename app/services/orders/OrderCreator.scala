@@ -2,6 +2,7 @@ package services.orders
 
 import scala.concurrent.ExecutionContext
 
+import services.CartFailures._
 import cats.implicits._
 import models.Orders.scope._
 import models.{Customer, Customers, Order, Orders}

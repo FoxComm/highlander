@@ -8,8 +8,9 @@ import models.{CreditCards, CreditCard, Addresses, Order, Orders, StoreCredits, 
 OrderPayments, OrderPayment, Customers, GiftCards, GiftCard, GiftCardManuals, StoreAdmins, Reasons,
 PaymentMethod}
 import models.OrderPayments.scope._
-import services.{OrderMustBeCart, OrderPaymentNotFoundFailure, CannotUseInactiveCreditCard,
+import services.{OrderPaymentNotFoundFailure, CannotUseInactiveCreditCard,
 CustomerHasInsufficientStoreCredit, CreditCardManager, GiftCardIsInactive, GiftCardNotEnoughBalance, NotFoundFailure404}
+import services.CartFailures.OrderMustBeCart
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.Seeds.Factories

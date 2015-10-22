@@ -8,7 +8,8 @@ import models._
 import models.rules.QueryStatement
 import payloads.{Assignment, UpdateOrderPayload}
 import responses.{StoreAdminResponse, FullOrderWithWarnings, FullOrder}
-import services.{OrderStatusTransitionNotAllowed, OrderMustBeCart, LockedFailure, GeneralFailure, NotFoundFailure404}
+import services.CartFailures.OrderMustBeCart
+import services.{OrderStatusTransitionNotAllowed, LockedFailure, GeneralFailure, NotFoundFailure404}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.implicits._
@@ -608,7 +609,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       val response = DELETE(s"v1/orders/${order.referenceNumber}/shipping-address")
       response.status must === (StatusCodes.BadRequest)
-      response.errors must === (OrderMustBeCart(order.referenceNumber).description)
+      response.errors must === (OrderMustBeCart(order.refNum).description)
 
       db.run(OrderShippingAddresses.length.result).futureValue must === (1)
     }

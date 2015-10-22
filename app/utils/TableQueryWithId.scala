@@ -68,6 +68,9 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.
   def findOneById(i: M#Id): DBIO[Option[M]] =
     findById(i).result.headOption
 
+  def findAllByIds(ids: Set[M#Id]): QuerySeq =
+    filter(_.id.inSet(ids))
+
   // TODO: if isNew create else update
   def save(model: M)(implicit ec: ExecutionContext): DBIO[M] = for {
     id ← returningId += model
