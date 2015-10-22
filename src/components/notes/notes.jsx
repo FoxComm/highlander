@@ -4,6 +4,7 @@ import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import ConfirmationDialog from '../modal/confirmation-dialog';
+import PrimaryButton from '../../components/common/primary-button';
 import ContentBox from '../content-box/content-box';
 import TableView from '../table/tableview';
 import TableRow from '../table/row';
@@ -16,12 +17,33 @@ import ConfirmModal from '../modal/confirm';
 import { connect } from 'react-redux';
 import * as NotesActinos from '../../modules/notes';
 import { entityId } from '../../modules/state-helpers';
+import { createSelector } from 'reselect';
+import { assoc } from 'sprout-data';
+
+const editingNote = createSelector(
+  (state, entity) => _.get(state.notes, [entity.entityType, entity.entityId, 'notes'], []),
+  (state, entity) => _.get(state.notes, [entity.entityType, entity.entityId, 'editingNoteId']),
+  (notes, editingNoteId) => {
+    return _.findWhere(notes, {id: editingNoteId});
+  }
+);
 
 function mapStateToProps(state, {entity}) {
-  return _.get(state.notes, [entity.entityType, entity.entityId], {notes: []});
+  return assoc(
+    _.get(state.notes, [entity.entityType, entity.entityId], {notes: []}),
+    'editingNote', editingNote(state, entity)
+  );
 }
 
-@connect(mapStateToProps, NotesActinos)
+function mapDispatchToProps(dispatch, props) {
+  return _.transform(NotesActinos, (result, action, key) => {
+    result[key] = (...args) => {
+      return dispatch(action(props.entity, ...args));
+    };
+  });
+}
+
+@connect(mapStateToProps, mapDispatchToProps)
 export default class Notes extends React.Component {
   static deleteOptions = {
     header: 'Confirm',
@@ -38,69 +60,20 @@ export default class Notes extends React.Component {
     })
   };
 
-  constructor(...args) {
-    super(...args);
-    this.state = {
-      creatingNote: false,
-      editingNote: null,
-      deletingNote: null
-    };
-  }
-
   componentDidMount() {
-    this.props.fetchNotesIfNeeded(this.props.entity);
-  }
-
-  @autobind
-  onEditNote(item) {
-    this.setState({
-      creatingNote: false,
-      editingNote: item
-    });
-  }
-
-  @autobind
-  onResetForm() {
-    this.setState({
-      creatingNote: false,
-      editingNote: null
-    });
-  }
-
-  @autobind
-  onCreateFormSubmit(data) {
-    this.setState({
-      creatingNote: false
-    });
-
-    this.props.createNote(this.props.entity, data);
-  }
-
-  onEditFormSubmit(data) {
-    this.setState({
-      editingNote: false
-    });
-    this.props.editNote(this.props.entity, this.state.editingNote.id, data);
-  }
-
-  @autobind
-  toggleCreating() {
-    this.setState({
-      creatingNote: !this.state.creatingNote,
-      editingNote: this.state.creating && this.state.editingNote
-    });
+    this.props.fetchNotesIfNeeded();
   }
 
   @autobind
   renderNoteRow(row, index) {
-    if (this.state.editingNote && (this.state.editingNote.id === row.id)) {
+    if (this.props.editingNoteId === row.id) {
       return (
         <TableRow key={`row-${index}`}>
           <TableCell colspan={3}>
             <NoteForm
-              body={this.state.editingNote && this.state.editingNote.body}
-              onReset={this.onResetForm}
-              onSubmit={this.onEditFormSubmit}
+              body={this.props.editingNote && this.props.editingNote.body}
+              onReset={this.props.stopAddingOrEditingNote}
+              onSubmit={data => this.props.editNote(this.props.editingNoteId, data)}
             />
           </TableCell>
         </TableRow>
@@ -117,8 +90,8 @@ export default class Notes extends React.Component {
           <TableCell>
             <NoteControls
               model={row}
-              onEditClick={this.onEditNote}
-              onDeleteClick={(item) => this.props.startDeletingNote(this.props.entity, item.id)}
+              onEditClick={(item) => this.props.startEditingNote(item.id)}
+              onDeleteClick={(item) => this.props.startDeletingNote(item.id)}
             />
           </TableCell>
         </TableRow>
@@ -128,13 +101,9 @@ export default class Notes extends React.Component {
 
   get controls() {
     return (
-      <button
-        className="fc-btn fc-btn-primary"
-        onClick={this.toggleCreating}
-        disabled={!!this.state.creatingNote}
-      >
+      <PrimaryButton onClick={this.props.startAddingNote} disabled={!!this.props.isAddingNote}>
         <i className="icon-add"></i>
-      </button>
+      </PrimaryButton>
     );
   }
 
@@ -145,10 +114,10 @@ export default class Notes extends React.Component {
     return (
       <div>
         <ContentBox title={'Notes'} actionBlock={this.controls}>
-          {this.state.creatingNote && (
+          {this.props.editingNoteId === true && (
           <NoteForm
-            onReset={this.onResetForm}
-            onSubmit={this.onCreateFormSubmit}
+            onReset={this.props.stopAddingOrEditingNote}
+            onSubmit={this.props.createNote}
           />
             )}
           <table>
@@ -160,8 +129,8 @@ export default class Notes extends React.Component {
         <ConfirmationDialog
           {...Notes.deleteOptions}
           isVisible={this.props.noteIdToDelete != null}
-          confirmAction={() => this.props.deleteNote(this.props.entity, this.props.noteIdToDelete)}
-          cancelAction={() => this.props.stopDeletingNote(this.props.entity, this.props.noteIdToDelete)}
+          confirmAction={() => this.props.deleteNote(this.props.noteIdToDelete)}
+          cancelAction={() => this.props.stopDeletingNote(this.props.noteIdToDelete)}
         />
       </div>
     );
