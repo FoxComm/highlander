@@ -18,8 +18,7 @@ final case class UpdateCustomerPayload(
     phoneNumber: Option[String] = None)
   extends Validation[UpdateCustomerPayload] {
 
-  /* Fields can be None but provided value can't be empty
-   */
+  // Fields can be None but provided value can't be empty
   def validate: ValidatedNel[Failure, UpdateCustomerPayload] = {
     (notEmpty(name.getOrElse("1"), "name")
       |@| notEmpty(email.getOrElse("1"), "email")
@@ -31,10 +30,9 @@ final case class UpdateCustomerPayload(
 final case class ActivateCustomerPayload(name: String)
   extends Validation[ActivateCustomerPayload] {
 
-  def validate: ValidatedNel[Failure, ActivateCustomerPayload] = {
-    (notEmpty(name, "name")
-      ).map { case _ ⇒ this }
-  }
+  def validate: ValidatedNel[Failure, ActivateCustomerPayload] =
+    notEmpty(name, "name").map { case _ ⇒ this }
+
 }
 
 final case class ToggleCustomerDisabled(disabled: Boolean)
