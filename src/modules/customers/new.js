@@ -17,7 +17,6 @@ export function createCustomer() {
     dispatch(submitCustomer());
 
     Api.post('/customers', customerNew)
-      // .then(json => dispatch(updateCustomers([json])))
       .then(data => dispatch(openCustomerDetails(data)))
       .catch(err => dispatch(failNewCustomer(err)));
   };
@@ -40,16 +39,12 @@ const reducer = createReducer({
     return newState;
   },
   [submitCustomer]: (state) => {
-    console.log("submitCustomers");
     return {
       ...state,
       isFetching: true
     };
   },
   [openCustomerDetails]: (state, payload) => {
-    console.log("openCustomerDetails");
-    console.log(state);
-    console.log(payload);
     return {
       ...state,
       id: payload.id,
@@ -58,9 +53,11 @@ const reducer = createReducer({
   },
   [failNewCustomer]: (state, {err, source}) => {
     console.error(err);
-    // ToDo: something useful
 
-    return state;
+    return {
+      ...state,
+      isFetching: false
+    };
   }
 }, initialState);
 
