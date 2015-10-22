@@ -6,7 +6,7 @@ import _ from 'lodash';
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 
-export const changeFormData = createAction('CUSTOMER_NEW_CHANGE_FORM', (name, value) => ({name, value}));
+export const changeFormData = createAction('CUSTOMER_NEW_CHANGE_FORM', (name, value) => [name, value]);
 export const submitCustomer = createAction('CUSTOMER_SUMBIT');
 export const openCustomerDetails = createAction('CUSTOMER_OPEN_DETAILS');
 export const failNewCustomer = createAction('CUSTOMER_NEW_FAIL', (err, source) => [err, source]);
@@ -14,6 +14,7 @@ export const failNewCustomer = createAction('CUSTOMER_NEW_FAIL', (err, source) =
 export function createCustomer() {
   return (dispatch, getState) => {
     const customerNew = getState().customers.adding;
+    console.log(customerNew);
     dispatch(submitCustomer());
 
     Api.post('/customers', customerNew)
@@ -30,7 +31,7 @@ const initialState = {
 };
 
 const reducer = createReducer({
-  [changeFormData]: (state, {name, value}) => {
+  [changeFormData]: (state, [name, value]) => {
     const newState = {
       ...state,
       [name]: value
@@ -51,7 +52,7 @@ const reducer = createReducer({
       isFetching: false
     };
   },
-  [failNewCustomer]: (state, {err, source}) => {
+  [failNewCustomer]: (state, [err, source]) => {
     console.error(err);
 
     return {
