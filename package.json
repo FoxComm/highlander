@@ -124,6 +124,7 @@
     "redux-thunk": "^1.0.0",
     "request": "^2.58.0",
     "reselect": "^2.0.0",
+    "sprout-data": "^0.2.3",
     "thunkify-wrap": "^1.0.4",
     "zipcodes-regex": "^1.0.0"
   },

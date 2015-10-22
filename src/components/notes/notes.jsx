@@ -3,6 +3,7 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
+import ConfirmationDialog from '../modal/confirmation-dialog';
 import ContentBox from '../content-box/content-box';
 import TableView from '../table/tableview';
 import TableRow from '../table/row';
@@ -17,9 +18,7 @@ import * as NotesActinos from '../../modules/notes';
 import { entityId } from '../../modules/state-helpers';
 
 function mapStateToProps(state, {entity}) {
-  return {
-    notes: _.get(state.notes, [entity.entityType, entity.entityId, 'notes'], [])
-  };
+  return _.get(state.notes, [entity.entityType, entity.entityId], {notes: []});
 }
 
 @connect(mapStateToProps, NotesActinos)
@@ -27,7 +26,7 @@ export default class Notes extends React.Component {
   static deleteOptions = {
     header: 'Confirm',
     body: 'Are you sure you want to delete this note?',
-    proceed: 'Yes',
+    confirm: 'Yes',
     cancel: 'No'
   };
 
@@ -61,11 +60,6 @@ export default class Notes extends React.Component {
   }
 
   @autobind
-  onDeleteNote(item) {
-    this.confirmDeleteNote(item);
-  }
-
-  @autobind
   onResetForm() {
     this.setState({
       creatingNote: false,
@@ -86,7 +80,7 @@ export default class Notes extends React.Component {
     this.setState({
       editingNote: false
     });
-    // NotesStore.patch(this.state.editingNote.id, data);
+    this.props.editNote(this.props.entity, this.state.editingNote.id, data);
   }
 
   @autobind
@@ -95,29 +89,6 @@ export default class Notes extends React.Component {
       creatingNote: !this.state.creatingNote,
       editingNote: this.state.creating && this.state.editingNote
     });
-  }
-
-  confirmDeleteNote(item) {
-    this.setState({
-      deletingNote: item
-    });
-    dispatch('toggleModal', (
-      <ConfirmModal callback={this.onConfirmDeleteNote.bind(this)} details={this.deleteOptions}/>
-    ));
-  }
-
-  onConfirmDeleteNote(success) {
-    if (success) {
-      this.deleteNote();
-    } else {
-      this.setState({
-        deletingNote: null
-      });
-    }
-  }
-
-  deleteNote() {
-    // NotesStore.delete(this.state.deletingNote.id);
   }
 
   @autobind
@@ -147,7 +118,7 @@ export default class Notes extends React.Component {
             <NoteControls
               model={row}
               onEditClick={this.onEditNote}
-              onDeleteClick={this.onDeleteNote}
+              onDeleteClick={(item) => this.props.startDeletingNote(this.props.entity, item.id)}
             />
           </TableCell>
         </TableRow>
@@ -172,19 +143,27 @@ export default class Notes extends React.Component {
     // <TableView renderRow={this.renderNoteRow} empty={'No notes yet.'}/>
 
     return (
-      <ContentBox title={'Notes'} actionBlock={this.controls}>
-        {this.state.creatingNote && (
+      <div>
+        <ContentBox title={'Notes'} actionBlock={this.controls}>
+          {this.state.creatingNote && (
           <NoteForm
             onReset={this.onResetForm}
             onSubmit={this.onCreateFormSubmit}
-            />
-        )}
-        <table>
-          <tbody>
+          />
+            )}
+          <table>
+            <tbody>
             {_.map(this.props.notes, this.renderNoteRow)}
-          </tbody>
-        </table>
-      </ContentBox>
+            </tbody>
+          </table>
+        </ContentBox>
+        <ConfirmationDialog
+          {...Notes.deleteOptions}
+          isVisible={this.props.noteIdToDelete != null}
+          confirmAction={() => this.props.deleteNote(this.props.entity, this.props.noteIdToDelete)}
+          cancelAction={() => this.props.stopDeletingNote(this.props.entity, this.props.noteIdToDelete)}
+        />
+      </div>
     );
   }
 }
