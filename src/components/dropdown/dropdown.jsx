@@ -56,7 +56,7 @@ export default class Dropdown extends React.Component {
     });
   }
 
-  dropdownButton() {
+  get dropdownButton() {
     return (
       <div className="fc-dropdown-button" onClick={this.handleToggleClick.bind(this)}>
         <i className="icon-chevron-down"></i>
@@ -78,14 +78,14 @@ export default class Dropdown extends React.Component {
       <div className={classnames}>
         {this.props.editable && (
           <div className="fc-dropdown-controls">
-            {this.dropdownButton()}
+            {this.dropdownButton}
             <div className="fc-dropdown-value">
               <input placeholder={this.props.placeholder} defaultValue={title} key={value}/>
             </div>
           </div>
         ) || (
           <div className="fc-dropdown-controls" onClick={this.handleToggleClick.bind(this)}>
-            {this.dropdownButton()}
+            {this.dropdownButton}
             <div className="fc-dropdown-value">
               {title || this.props.placeholder}
               <input name={this.props.name} type="hidden" value={value}/>
