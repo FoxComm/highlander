@@ -3,33 +3,46 @@
 import React, { PropTypes } from 'react';
 import { Link, IndexLink } from '../link';
 import TitleBlock from './title-block';
+import { connect } from 'react-redux';
+import { autobind } from 'core-decorators';
+import * as CustomersActions from '../../modules/customers/details';
 
+@connect((state, props) => ({
+  ...state.customers.details[props.params.customer]
+}), CustomersActions)
 export default class Customer extends React.Component {
 
   static propTypes = {
     params: PropTypes.shape({
       customer: PropTypes.string.isRequired
     }).isRequired,
-    customerDetails: PropTypes.object,
+    details: PropTypes.object,
     children: PropTypes.node
   };
+
+  componentDidMount() {
+    const { customer } = this.props.params;
+
+    this.props.fetchCustomerIfNeeded(customer);
+  }
 
 
   renderChildren() {
     return React.Children.map(this.props.children, function (child) {
       return React.cloneElement(child, {
-        customer: this.props.customerDetails
+        customer: this.props.details
       });
     }.bind(this));
   }
 
   render() {
+    console.log(this.props);
     let page = null;
-    if (this.props.customerDetails) {
+    if (this.props.details) {
       page = (
         <div className="fc-customer">
           <div className="gutter">
-            <TitleBlock customer={this.props.customerDetails} />
+            <TitleBlock customer={this.props.details} />
           </div>
           <div className="gutter">
             <ul className="fc-tabbed-nav">

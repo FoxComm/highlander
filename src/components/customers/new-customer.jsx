@@ -8,11 +8,9 @@ import { Link } from '../link';
 import { transitionTo } from '../../route-helpers';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
-import * as CustomersNewActions from '../../modules/customers/new';
 import * as CustomersActions from '../../modules/customers/new';
 
 @connect(state => state.customers.adding, {
-  ...CustomersNewActions,
   ...CustomersActions
 })
 export default class NewCustomer extends React.Component {
