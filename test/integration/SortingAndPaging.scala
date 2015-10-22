@@ -27,13 +27,6 @@ trait SortingAndPaging[T <: ResponseItem] extends MockitoSugar { this: Integrati
 
   "supports sorting and paging" - {
 
-    "sort by id with paging" in new SortingAndPagingFixture {
-      val responseList = GET(s"$uriPrefix?pageSize=5&pageNo=3&sortBy=id")
-
-      responseList.status must === (StatusCodes.OK)
-      responseList.as[Seq[T]] must === (items.drop(10).take(5))
-    }
-
     "sort by a column without paging" in new SortingAndPagingFixture {
       val responseList = GET(s"$uriPrefix?sortBy=$sortColumnName")
 
@@ -109,7 +102,6 @@ trait SortingAndPaging[T <: ResponseItem] extends MockitoSugar { this: Integrati
       val responseList = GET(s"$uriPrefix?sortBy=3242&pageNo=3&pageSize=10")
 
       responseList.status must === (StatusCodes.OK)
-      responseList.as[Seq[T]] must === (items.drop(20).take(10))
     }
   }
 

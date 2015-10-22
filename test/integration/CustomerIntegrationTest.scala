@@ -1,10 +1,14 @@
+import java.time.Instant
+
+import scala.concurrent.Future
 import akka.http.scaladsl.model.StatusCodes
 
 import cats.implicits._
 import com.stripe.exception.CardException
 import com.stripe.model.{Card, Customer ⇒ StripeCustomer}
 import models.OrderPayments.scope._
-import models.{Addresses, CreditCard, CreditCards, Customer, Customers, OrderPayments, Orders, Regions, StoreAdmins}
+import models.{Order, Addresses, CreditCard, CreditCards, Customer, Customers, OrderPayments, Orders, Regions,
+StoreAdmins}
 import org.mockito.Mockito.{reset, when}
 import org.mockito.{Matchers ⇒ m}
 import org.scalatest.mock.MockitoSugar
@@ -32,8 +36,14 @@ class CustomerIntegrationTest extends IntegrationTestBase
   // paging and sorting API
   val uriPrefix = "v1/customers"
 
-  def responseItems = (1 to 30).map { i ⇒
-    CustomerResponse.build(Customers.save(Seeds.Factories.generateCustomer).run().futureValue)
+  def responseItems = {
+    val items = (1 to 30).map { i ⇒
+      val future = Customers.save(Seeds.Factories.generateCustomer).run()
+
+      future map { CustomerResponse.build(_) }
+    }
+
+    Future.sequence(items).futureValue
   }
   val sortColumnName = "name"
 

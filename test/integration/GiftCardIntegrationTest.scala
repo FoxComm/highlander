@@ -1,4 +1,5 @@
 import scala.collection.JavaConverters._
+import scala.concurrent.Future
 import scala.util.Random
 import akka.http.scaladsl.model.StatusCodes
 
@@ -40,15 +41,20 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
   val regCurrencies = CurrencyUnit.registeredCurrencies.asScala.toIndexedSeq
 
-  def responseItems = regCurrencies.map { currency ⇒
-    val balance = Random.nextInt(9999999)
-    val gc = GiftCards.save(Factories.giftCard.copy(
-      currency = currency,
-      originId = currentOrigin.id,
-      originalBalance = balance,
-      currentBalance = balance,
-      availableBalance = balance)).run().futureValue
-    responses.GiftCardResponse.build(gc)
+  def responseItems = {
+    val items = regCurrencies.take(30).map { currency ⇒
+      val balance = Random.nextInt(9999999)
+      val future = GiftCards.save(Factories.giftCard.copy(
+        currency = currency,
+        originId = currentOrigin.id,
+        originalBalance = balance,
+        currentBalance = balance,
+        availableBalance = balance)).run()
+
+      future map { responses.GiftCardResponse.build(_) }
+    }
+
+    Future.sequence(items).futureValue
   }
 
   val sortColumnName = "availableBalance"
