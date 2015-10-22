@@ -10,6 +10,7 @@ import scala.util.Random
 import models._
 import models.rules._
 import org.flywaydb.core.Flyway
+import org.json4s.jackson.JsonMethods._
 import org.postgresql.ds.PGSimpleDataSource
 import slick.dbio
 import slick.dbio.Effect.{All, Write}
@@ -111,6 +112,8 @@ object Seeds {
   }
 
   object Factories {
+    implicit val formats = JsonFormatters.phoenixFormats
+
     def randomString(len: Int) = Random.alphanumeric.take(len).mkString.toLowerCase
 
     def customer = Customer(email = "yax@yax.com", password = Some("password"),
@@ -223,13 +226,23 @@ object Seeds {
 
     def giftCardAdjustment = GiftCardAdjustment.build(giftCard, giftCardPayment)
 
+    def shippingMethodCondition = parse(
+      """
+        | {
+        |   "comparison": "and",
+        |   "conditions": [{
+        |     "rootObject": "Order", "field": "grandtotal", "operator": "greaterThanOrEquals", "valInt": 0
+        |   }]
+        | }
+      """.stripMargin).extract[QueryStatement]
+
     def shippingMethods = Seq(
       ShippingMethod(adminDisplayName = "UPS Ground", storefrontDisplayName = "UPS Ground", price = 10,
-        isActive = true),
+        isActive = true, conditions = Some(shippingMethodCondition)),
       ShippingMethod(adminDisplayName = "UPS Next day", storefrontDisplayName = "UPS Next day", price = 20,
-        isActive = true),
+        isActive = true, conditions = Some(shippingMethodCondition)),
       ShippingMethod(adminDisplayName = "DHL Express", storefrontDisplayName = "DHL Express", price = 25,
-        isActive = true)
+        isActive = true, conditions = Some(shippingMethodCondition))
     )
 
     def shippingPriceRules = Seq(
