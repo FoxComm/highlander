@@ -11,9 +11,7 @@ import { autobind } from 'core-decorators';
 import * as CustomersNewActions from '../../modules/customers/new';
 import * as CustomersActions from '../../modules/customers/new';
 
-@connect(state => ({
-  ...state.customers.adding
-}), {
+@connect(state => state.customers.adding, {
   ...CustomersNewActions,
   ...CustomersActions
 })
