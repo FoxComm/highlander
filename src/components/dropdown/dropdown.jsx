@@ -13,6 +13,7 @@ export default class Dropdown extends React.Component {
     open: PropTypes.bool,
     placeholder: PropTypes.string,
     onChange: PropTypes.func,
+    items: PropTypes.node,
     children: PropTypes.node
   };
 
