@@ -28,12 +28,11 @@ final case class UpdateCustomerPayload(
   }
 }
 
-final case class ActivateCustomerPayload(
-  name: Option[String] = None)
+final case class ActivateCustomerPayload(name: String)
   extends Validation[ActivateCustomerPayload] {
 
   def validate: ValidatedNel[Failure, ActivateCustomerPayload] = {
-    (notEmpty(name.getOrElse(""), "name")
+    (notEmpty(name, "name")
       ).map { case _ ⇒ this }
   }
 }

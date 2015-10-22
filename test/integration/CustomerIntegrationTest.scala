@@ -211,7 +211,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       newUserResponse.status must ===(StatusCodes.OK)
       val root = newUserResponse.as[CustomerResponse.Root]
 
-      val payload = payloads.ActivateCustomerPayload(name = Some("test"))
+      val payload = payloads.ActivateCustomerPayload(name = "test")
       val response = POST(s"v1/customers/${root.id}/activate", payload)
 
       response.status must ===(StatusCodes.BadRequest)
@@ -225,7 +225,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       newUserResponse.status must ===(StatusCodes.OK)
       val root = newUserResponse.as[CustomerResponse.Root]
 
-      val payload = payloads.ActivateCustomerPayload(name = Some("test"))
+      val payload = payloads.ActivateCustomerPayload(name = "test")
       val response = POST(s"v1/customers/${root.id}/activate", payload)
       response.status must === (StatusCodes.OK)
 

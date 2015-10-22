@@ -133,7 +133,7 @@ object CustomerManager {
       finder.selectOneForUpdate { customer ⇒
         val updated = finder.map { c ⇒ (c.name, c.isGuest) }
           .updateReturning(Customers.map(identity),
-            (payload.name.fold(customer.name)(Some(_)), false)).head
+            (Some(payload.name), false)).head
 
         updated.flatMap(updCustomer ⇒ DbResult.good(build(updCustomer)))
       }
