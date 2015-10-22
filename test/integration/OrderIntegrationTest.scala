@@ -8,7 +8,7 @@ import models._
 import models.rules.QueryStatement
 import payloads.{Assignment, UpdateOrderPayload}
 import responses.{StoreAdminResponse, FullOrderWithWarnings, FullOrder}
-import services.{OrderMustBeCart, GeneralFailure, NotFoundFailure404}
+import services.{OrderMustBeCart, LockedFailure, GeneralFailure, NotFoundFailure404}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.implicits._
@@ -199,7 +199,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       val response = POST(s"v1/orders/${order.referenceNumber}/lock")
       response.status must === (StatusCodes.BadRequest)
-      response.errors must === (GeneralFailure("Model is locked").description)
+      response.errors must === (LockedFailure(Order, order.referenceNumber).description)
     }
 
     "avoids race condition" in {

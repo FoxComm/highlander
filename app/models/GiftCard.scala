@@ -154,6 +154,8 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
   import GiftCard._
   import models.{GiftCardAdjustment ⇒ Adj, GiftCardAdjustments ⇒ Adjs}
 
+  override def primarySearchTerm: String = "code"
+
   def auth(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int = 0, credit: Int = 0)
     (implicit ec: ExecutionContext): DBIO[Adj] =
     adjust(giftCard, orderPaymentId, debit = debit, credit = credit, status = Adj.Auth)

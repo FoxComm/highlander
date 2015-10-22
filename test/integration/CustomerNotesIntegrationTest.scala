@@ -37,8 +37,7 @@ class CustomerNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
       val response = POST(s"v1/notes/customer/999999", payloads.CreateNote(body = ""))
 
       response.status must === (StatusCodes.NotFound)
-      // TODO: Compare with proper error after selectOne refactoring
-      parseErrors(response) must === (NotFoundFailure404("Not found").description)
+      parseErrors(response) must === (NotFoundFailure404(Customer, 999999).description)
     }
   }
 
