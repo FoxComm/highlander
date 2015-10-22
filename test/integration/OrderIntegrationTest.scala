@@ -8,7 +8,7 @@ import models._
 import models.rules.QueryStatement
 import payloads.{Assignment, UpdateOrderPayload}
 import responses.{StoreAdminResponse, FullOrderWithWarnings, FullOrder}
-import services.{GeneralFailure, NotFoundFailure404}
+import services.{OrderMustBeCart, GeneralFailure, NotFoundFailure404}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.implicits._
@@ -565,6 +565,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
   "DELETE /v1/orders/:refNum/shipping-address" - {
     "succeeds if an address exists" in new ShippingAddressFixture {
+      Orders.update(order.copy(status = Order.Cart)).run().futureValue
 
       //get order and make sure it has a shipping address
       val fullOrderResponse = GET(s"v1/orders/${order.referenceNumber}")
@@ -584,11 +585,23 @@ class OrderIntegrationTest extends IntegrationTestBase
       deleteFailedResponse.status must === (StatusCodes.BadRequest)
     }
 
-    "fails if the order is not found" in new AddressFixture {
+    "fails if the order is not found" in new ShippingAddressFixture {
+      Orders.update(order.copy(status = Order.Cart)).run().futureValue
+
       val response = DELETE(s"v1/orders/ABC-123/shipping-address")
       response.status must === (StatusCodes.NotFound)
 
-      db.run(OrderShippingAddresses.length.result).futureValue must === (0)
+      db.run(OrderShippingAddresses.length.result).futureValue must === (1)
+    }
+
+    "fails if the order is not in cart status" in new ShippingAddressFixture {
+      Orders.update(order.copy(status = Order.FulfillmentStarted)).run().futureValue
+
+      val response = DELETE(s"v1/orders/${order.referenceNumber}/shipping-address")
+      response.status must === (StatusCodes.BadRequest)
+      response.errors must === (OrderMustBeCart(order.referenceNumber).description)
+
+      db.run(OrderShippingAddresses.length.result).futureValue must === (1)
     }
   }
 

@@ -30,7 +30,7 @@ class CustomerNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
       val response = POST(s"v1/notes/customer/${customer.id}", payloads.CreateNote(body = ""))
 
       response.status must === (StatusCodes.BadRequest)
-      response.bodyText must include("errors")
+      response.errors must === (List("body must not be empty"))
     }
 
     "returns a 404 if the customer is not found" in new Fixture {
@@ -46,7 +46,7 @@ class CustomerNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
 
     "can be listed" in new Fixture {
       List("abc", "123", "xyz").map { body ⇒
-        NoteManager.createNote(customer, admin, payloads.CreateNote(body = body)).futureValue
+        NoteManager.createCustomerNote(customer.id, admin, payloads.CreateNote(body = body)).futureValue
       }
 
       val response = GET(s"v1/notes/customer/${customer.id}")
@@ -61,8 +61,8 @@ class CustomerNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
   "PATCH /v1/notes/customer/:customerId/:noteId" - {
 
     "can update the body text" in new Fixture {
-      val rootNote = NoteManager.createNote(customer, admin,
-        payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue.get
+      val rootNote = rightValue(NoteManager.createCustomerNote(customer.id, admin,
+        payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue)
 
       val response = PATCH(s"v1/notes/customer/${customer.id}/${rootNote.id}", payloads.UpdateNote(body = "donkey"))
       response.status must === (StatusCodes.OK)
