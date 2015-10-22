@@ -4,6 +4,7 @@ import scala.concurrent.{Future, ExecutionContext}
 
 import cats.data.Validated.{Valid, Invalid}
 import cats.data.{XorT, Xor}
+import cats.implicits._
 import models._
 import models.{Customers, StoreAdmin, Customer}
 import models.Customers.scope._
@@ -73,29 +74,27 @@ object CustomerManager {
 
   def create(payload: CreateCustomerPayload)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
+    val customer = Customer.buildFromPayload(payload)
 
-    def createValidatedCustomer(customer: Customer, payload: CreateCustomerPayload): Result[Root] = {
-      val result = withUniqueConstraint {
+    def saveWithConstraintCheck(customer: Customer): Result[Root] = {
+      withUniqueConstraint {
         Customers.save(customer).run()
-      } { c ⇒ CustomerEmailNotUnique }
-
-      result.flatMap {
+      } { e ⇒ CustomerEmailNotUnique }.flatMap {
         case Xor.Right(c) ⇒ Result.good(build(c))
-        case Xor.Left(e)  ⇒ Result.failure(e)
+        case Xor.Left(e) ⇒ Result.failure(e)
       }
     }
 
-    val customer = Customer.buildFromPayload(payload)
-    customer.validate match {
-      case Invalid(errors) ⇒ Result.failures(errors)
-      case Valid(_) ⇒ createValidatedCustomer(customer, payload)
-    }
+    (for {
+      _    ← ResultT.fromXor(customer.validate.toXor)
+      root ← ResultT(saveWithConstraintCheck(customer))
+    } yield root).value
   }
 
   def updateFromPayload(customerId: Int, payload: UpdateCustomerPayload)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
 
-    def updateFromValidatedPayload(customerId: Int, payload: UpdateCustomerPayload): Result[Root] = {
+    def updateWithConstraintCheck(customerId: Int, payload: UpdateCustomerPayload) = {
       val finder = Customers.filter(_.id === customerId)
       val result = withUniqueConstraint {
         finder.selectOneForUpdate { customer ⇒
@@ -112,17 +111,17 @@ object CustomerManager {
       result.flatMap(_.fold(Result.failure(_), Future.successful(_)))
     }
 
-    payload.validate match {
-      case Invalid(errors) ⇒ Result.failures(errors)
-      case Valid(_) ⇒ updateFromValidatedPayload(customerId, payload)
-    }
+    (for {
+      _ ← ResultT.fromXor(payload.validate.toXor)
+      root ← ResultT(updateWithConstraintCheck(customerId, payload))
+    } yield root).value
   }
 
 
   def activate(customerId: Int, payload: ActivateCustomerPayload)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
 
-    def activateFromValidatedPayload(customerId: Int, payload: ActivateCustomerPayload): Result[Root] = {
+    def activateWithConstraintCheck(customerId: Int, payload: ActivateCustomerPayload): Result[Root] = {
       val finder = Customers.filter(_.id === customerId)
       val result = withUniqueConstraint {
         finder.selectOneForUpdate { customer ⇒
@@ -136,11 +135,10 @@ object CustomerManager {
 
       result.flatMap(_.fold(Result.failure(_), Future.successful(_)))
     }
-
-    payload.validate match {
-      case Invalid(errors) ⇒ Result.failures(errors)
-      case Valid(_) ⇒ activateFromValidatedPayload(customerId, payload)
-    }
+    (for {
+      _    ← ResultT.fromXor(payload.validate.toXor)
+      root ← ResultT(activateWithConstraintCheck(customerId, payload))
+    } yield root).value
   }
 }
 
