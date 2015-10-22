@@ -29,7 +29,7 @@ export default class Dropdown extends React.Component {
 
   findTitleByValue(value) {
     if (this.props.items) {
-      return this.props.items[value]
+      return this.props.items[value];
     } else {
       const item = _.findWhere(React.Children.toArray(this.props.children), {props: {value: value}});
       return item && item.props.children;
