@@ -62,4 +62,7 @@ class Rmas(tag: Tag) extends GenericTable.TableWithLock[Rma](tag, "rmas")  {
 object Rmas extends TableQueryWithLock[Rma, Rmas](
   idLens = GenLens[Rma](_.id)
 )(new Rmas(_)) {
+
+  def findByRefNum(refNum: String): QuerySeq =
+    filter(_.referenceNumber === refNum)
 }
