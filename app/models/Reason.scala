@@ -6,7 +6,6 @@ import services.Failure
 import utils.Litterbox._
 import utils.Validation
 
-import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
