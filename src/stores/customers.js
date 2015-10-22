@@ -10,6 +10,7 @@ class CustomerStore extends BaseStore {
     this.changeEvent = 'change-customers';
     this.state = List([]);
 
+    this.bindListener(CustomerConstants.INSERT_CUSTOMERS, this.handleInsertCustomers);
     this.bindListener(CustomerConstants.UPDATE_CUSTOMERS, this.handleUpdateCustomers);
     this.bindListener(CustomerConstants.FAILED_CUSTOMERS, this.handleFailedCustomers);
   }
@@ -19,7 +20,12 @@ class CustomerStore extends BaseStore {
   }
 
   handleFailedCustomers(action) {
-    console.error(action.errorMessage.trim());
+    console.log(action.errorMessage);
+  }
+
+  handleInsertCustomers(action) {
+    const customer = action.customer;
+    this.setState(this.insertIntoList(this.state, customer, 'id'));
   }
 }
 

@@ -36,19 +36,27 @@ export default class RemorseTimer extends React.Component {
     });
   }
 
-  render() {
-    let controls;
+  extendButton() {
+    return (
+      <button className="fc-btn fc-remorse-timer-extend" onClick={this.addTime.bind(this, 15, 'm')}>
+        <i className="icon-add"></i> 15 min
+      </button>
+    );
+  }
 
+  controls() {
     if (this.state.frozen) {
-      controls = 'Frozen while editing.';
+      return 'Frozen while editing.';
     } else {
-      controls = <button onClick={this.addTime.bind(this, 15, 'm')}>+15</button>;
+      return this.extendButton();
     }
+  }
 
+  render() {
     return (
       <div className="fc-remorse-timer">
         <Countdown endDate={this.state.endDate} frozen={this.state.frozen}/>
-        <div className="remorsetimer__controls">{controls}</div>
+        <div className="fc-remorse-timer-controls">{this.controls()}</div>
       </div>
     );
   }
