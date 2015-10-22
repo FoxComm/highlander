@@ -136,7 +136,10 @@ object Slick {
                 ResponseMetadata(
                   pageNo = metadata.pageNo,
                   pageSize = metadata.pageSize,
-                  totalPages = None))
+                  totalPages = None
+                )
+              )
+
           case Some(totalPagesFuture) ⇒
             for {
               res        ← result
@@ -146,9 +149,10 @@ object Slick {
               ResponseMetadata(
                 pageNo = metadata.pageNo,
                 pageSize = metadata.pageSize,
-                totalPages = Some(totalPages)))
+                totalPages = Some(totalPages)
+              )
+            )
         }
-
       }
     }
 
