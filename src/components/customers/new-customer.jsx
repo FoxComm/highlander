@@ -10,14 +10,12 @@ import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import * as CustomersNewActions from '../../modules/customers/new';
 import * as CustomersActions from '../../modules/customers/new';
-import { createCustomer } from '../../modules/customers/customers';
 
 @connect(state => ({
   ...state.customers.adding
 }), {
   ...CustomersNewActions,
-  ...CustomersActions,
-  createCustomer
+  ...CustomersActions
 })
 export default class NewCustomer extends React.Component {
 
@@ -28,12 +26,21 @@ export default class NewCustomer extends React.Component {
   @autobind
   submitForm(event) {
     event.preventDefault();
-    this.props.createCustomer();
+    const result = this.props.createCustomer();
+    console.log(result);
   }
 
   @autobind
   onChangeValue({target}) {
     this.props.changeFormData(target.name, target.value || target.checked);
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    if (nextProps.id !== undefined && nextProps.id !== null) {
+      transitionTo(this.context.history, 'customer', {customer: nextProps.id});
+      return false;
+    }
+    return true;
   }
 
   render () {

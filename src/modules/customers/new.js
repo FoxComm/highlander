@@ -7,10 +7,27 @@ import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 
 export const changeFormData = createAction('CUSTOMER_NEW_CHANGE_FORM', (name, value) => ({name, value}));
+export const submitCustomer = createAction('CUSTOMER_SUMBIT');
+export const openCustomerDetails = createAction('CUSTOMER_OPEN_DETAILS');
+export const failNewCustomer = createAction('CUSTOMER_NEW_FAIL', (err, source) => ({err, source}));
+
+export function createCustomer() {
+  return (dispatch, getState) => {
+    const customerNew = getState().customers.adding;
+    dispatch(submitCustomer());
+
+    Api.post('/customers', customerNew)
+      // .then(json => dispatch(updateCustomers([json])))
+      .then(data => dispatch(openCustomerDetails(data)))
+      .catch(err => dispatch(failNewCustomer(err)));
+  };
+}
 
 const initialState = {
+  id: null,
   email: null,
-  name: null
+  name: null,
+  isFetching: false
 };
 
 const reducer = createReducer({
@@ -20,8 +37,30 @@ const reducer = createReducer({
       [name]: value
     };
 
-    console.log(newState);
     return newState;
+  },
+  [submitCustomer]: (state) => {
+    console.log("submitCustomers");
+    return {
+      ...state,
+      isFetching: true
+    };
+  },
+  [openCustomerDetails]: (state, payload) => {
+    console.log("openCustomerDetails");
+    console.log(state);
+    console.log(payload);
+    return {
+      ...state,
+      id: payload.id,
+      isFetching: false
+    };
+  },
+  [failNewCustomer]: (state, {err, source}) => {
+    console.error(err);
+    // ToDo: something useful
+
+    return state;
   }
 }, initialState);
 

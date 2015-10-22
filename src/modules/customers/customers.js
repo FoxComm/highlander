@@ -36,17 +36,6 @@ export function fetchCustomersIfNeeded() {
   };
 }
 
-export function createCustomer() {
-  return (dispatch, getState) => {
-    const customerNew = getState().customers.adding;
-    console.log(customerNew);
-
-    Api.post('/customers', customerNew)
-      .then(json => dispatch(updateCustomers([json])))
-      .catch(err => dispatch(failCustomers(err)));
-  };
-}
-
 function updateItems(items, newItems) {
   return _.values({
     ..._.indexBy(items, 'id'),
