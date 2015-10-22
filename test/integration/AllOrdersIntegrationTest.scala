@@ -90,7 +90,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
 
     "bulk update statuses with paging and sorting" in new StatusUpdateFixture {
       val responseJson = PATCH(
-        "v1/orders?pageSize=2&pageNo=2&sortBy=referenceNumber",
+        "v1/orders?size=2&from=2&sortBy=referenceNumber",
         BulkUpdateOrdersPayload(Seq("foo", "bar", "qux", "nonExistent"), FulfillmentStarted)
       )
 
@@ -137,7 +137,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
     }
 
     "happens successfully ignoring duplicates with sorting and paging" in new BulkAssignmentFixture {
-      val assignResponse1 = POST(s"v1/orders/assignees?pageSize=1&pageNo=2&sortBy=referenceNumber",
+      val assignResponse1 = POST(s"v1/orders/assignees?size=1&from=1&sortBy=referenceNumber",
         BulkAssignment(Seq(orderRef1), adminId))
       assignResponse1.status must === (StatusCodes.OK)
       val responseObj1 = assignResponse1.as[BulkOrderUpdateResponse]
@@ -185,7 +185,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
     "unassigns successfully ignoring wrong attempts with sorting and paging" in new BulkAssignmentFixture {
       POST(s"v1/orders/assignees", BulkAssignment(Seq(orderRef1, orderRef2), adminId))
 
-      val unassign = POST(s"v1/orders/assignees/delete?pageSize=1&pageNo=2&sortBy=referenceNumber",
+      val unassign = POST(s"v1/orders/assignees/delete?size=1&from=1&sortBy=referenceNumber",
         BulkAssignment(Seq(orderRef1), adminId))
       unassign.status must === (StatusCodes.OK)
 

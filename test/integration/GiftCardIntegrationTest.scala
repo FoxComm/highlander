@@ -258,7 +258,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       val adjustment2 = GiftCards.auth(giftCard, Some(payment.id), 1).run().futureValue
       val adjustment3 = GiftCards.auth(giftCard, Some(payment.id), 2).run().futureValue
 
-      val response = GET(s"v1/gift-cards/${giftCard.code}/transactions?sortBy=-id&pageNo=2&pageSize=2")
+      val response = GET(s"v1/gift-cards/${giftCard.code}/transactions?sortBy=-id&from=2&size=2")
       val adjustments = response.as[Seq[GiftCardAdjustmentsResponse.Root]]
 
       response.status must ===(StatusCodes.OK)

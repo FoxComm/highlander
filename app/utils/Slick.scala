@@ -106,8 +106,9 @@ object Slick {
 
   object implicits {
     final case class QueryMetadata(
+      from      : Option[Int]         = None,
+      size      : Option[Int]         = None,
       pageNo    : Option[Int]         = None,
-      pageSize  : Option[Int]         = None,
       totalPages: Option[Future[Int]] = None)
 
     object QueryMetadata {
@@ -115,8 +116,9 @@ object Slick {
     }
 
     final case class ResponseMetadata(
+      from      : Option[Int] = None,
+      size      : Option[Int] = None,
       pageNo    : Option[Int] = None,
-      pageSize  : Option[Int] = None,
       totalPages: Option[Int] = None)
 
 
@@ -134,8 +136,9 @@ object Slick {
               yield ResponseWithMetadata(
                 res,
                 ResponseMetadata(
+                  from = metadata.from,
+                  size = metadata.size,
                   pageNo = metadata.pageNo,
-                  pageSize = metadata.pageSize,
                   totalPages = None
                 )
               )
@@ -147,14 +150,25 @@ object Slick {
             } yield ResponseWithMetadata(
               res,
               ResponseMetadata(
+                from = metadata.from,
+                size = metadata.size,
                 pageNo = metadata.pageNo,
-                pageSize = metadata.pageSize,
                 totalPages = Some(totalPages)
               )
             )
         }
       }
     }
+
+    private def _paged[E, U, C[_]](query: Query[E, U, C])(implicit sortAndPage: SortAndPage) = {
+      val pagedQueryOpt = for {
+        from ← sortAndPage.from
+        size ← sortAndPage.size
+      } yield query.drop(from).take(size)
+
+      pagedQueryOpt.getOrElse(query)
+    }
+
 
     final case class QueryWithMetadata[E, U, C[_]](query: Query[E, U, C], metadata: QueryMetadata) {
 
@@ -170,15 +184,8 @@ object Slick {
       def sortAndPageIfNeeded(f: (Sort, E) => Ordered)
         (implicit sortAndPage: SortAndPage): QueryWithMetadata[E, U, C] = sortIfNeeded(f).paged
 
-      def paged(implicit sortAndPage: SortAndPage): QueryWithMetadata[E, U, C] = {
-
-        val pagedQueryOpt = for {
-          pageNo   ← sortAndPage.pageNo
-          pageSize ← sortAndPage.pageSize
-        } yield query.drop(pageSize * (pageNo - 1)).take(pageSize)
-
-        this.copy(query = pagedQueryOpt.getOrElse(query))
-      }
+      def paged(implicit sortAndPage: SortAndPage): QueryWithMetadata[E, U, C] =
+        this.copy(query = _paged(query))
 
       def result(implicit db: Database, ec: ExecutionContext): ResultWithMetadata[C[U]] =
         ResultWithMetadata(result = Result.fromFuture(query.result.run()), metadata)
@@ -187,15 +194,7 @@ object Slick {
     implicit class EnrichedQuery[E, U, C[_]](val query: Query[E, U, C]) extends AnyVal {
       def one: DBIO[Option[U]] = query.result.headOption
 
-      def paged(implicit sortAndPage: SortAndPage): Query[E, U, C] = {
-
-        val pagedQueryOpt = for {
-          pageNo   ← sortAndPage.pageNo
-          pageSize ← sortAndPage.pageSize
-        } yield query.drop(pageSize * (pageNo - 1)).take(pageSize)
-
-        pagedQueryOpt.getOrElse(query)
-      }
+      def paged(implicit sortAndPage: SortAndPage): Query[E, U, C] = _paged(query)
 
       def withEmptyMetadata: QueryWithMetadata[E, U, C] = QueryWithMetadata(query, QueryMetadata.empty)
 
@@ -205,12 +204,17 @@ object Slick {
         ec: ExecutionContext,
         sortAndPage: SortAndPage): QueryWithMetadata[E, U, C] = {
 
-        // pageSize > 0 costraint is defined in SortAndPage
-        val totalPages = sortAndPage.pageSize map { pageSize ⇒ query.length.result.run() map (_ / pageSize) }
+        // size > 0 costraint is defined in SortAndPage
+        val totalPages = sortAndPage.size map { pageSize ⇒ query.length.result.run() map (_ / pageSize) }
+        val pageNo = for {
+          from ← sortAndPage.from
+          size ← sortAndPage.size
+        } yield (from / size) + 1
 
         val metadata = QueryMetadata(
-          pageNo = sortAndPage.pageNo,
-          pageSize = sortAndPage.pageSize,
+          from = sortAndPage.from,
+          size = sortAndPage.size,
+          pageNo = pageNo,
           totalPages = totalPages)
 
         withMetadata(metadata)

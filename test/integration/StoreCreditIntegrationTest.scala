@@ -153,7 +153,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         val adjustment2 = StoreCredits.auth(storeCredit, Some(payment.id), 1).run().futureValue
         val adjustment3 = StoreCredits.auth(storeCredit, Some(payment.id), 2).run().futureValue
 
-        val response = GET(s"v1/store-credits/${storeCredit.id}/transactions?sortBy=-id&pageNo=2&pageSize=2")
+        val response = GET(s"v1/store-credits/${storeCredit.id}/transactions?sortBy=-id&from=2&size=2")
         val adjustments = response.as[Seq[StoreCreditAdjustmentsResponse.Root]]
 
         response.status must ===(StatusCodes.OK)

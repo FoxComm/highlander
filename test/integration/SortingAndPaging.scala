@@ -27,13 +27,6 @@ trait SortingAndPaging[T <: ResponseItem] extends MockitoSugar { this: Integrati
 
   "supports sorting and paging" - {
 
-    "sort by id with paging" in new SortingAndPagingFixture {
-      val responseList = GET(s"$uriPrefix?pageSize=5&pageNo=3&sortBy=id")
-
-      responseList.status must === (StatusCodes.OK)
-      responseList.as[Seq[T]] must === (items.drop(10).take(5))
-    }
-
     "sort by a column without paging" in new SortingAndPagingFixture {
       val responseList = GET(s"$uriPrefix?sortBy=$sortColumnName")
 
@@ -42,74 +35,67 @@ trait SortingAndPaging[T <: ResponseItem] extends MockitoSugar { this: Integrati
     }
 
     "sort by a column with paging #1" in new SortingAndPagingFixture {
-      val responseList = GET(s"$uriPrefix?sortBy=$sortColumnName&pageNo=3&pageSize=6")
+      val responseList = GET(s"$uriPrefix?sortBy=$sortColumnName&from=12&size=6")
 
       responseList.status must === (StatusCodes.OK)
       responseList.as[Seq[T]] must === (itemsSorted.drop(12).take(6))
     }
 
     "sort by a column with paging #2" in new SortingAndPagingFixture {
-      val responseList = GET(s"$uriPrefix?sortBy=$sortColumnName&pageNo=3&pageSize=999")
+      val responseList = GET(s"$uriPrefix?sortBy=$sortColumnName&from=999&size=3")
 
       responseList.status must === (StatusCodes.OK)
       responseList.as[Seq[T]] must === (Seq.empty)
     }
 
     "sort by a column with paging #3" in new SortingAndPagingFixture {
-      val responseList = GET(s"$uriPrefix?sortBy=$sortColumnName&pageNo=1&pageSize=999")
+      val responseList = GET(s"$uriPrefix?sortBy=$sortColumnName&from=0&size=999")
 
       responseList.status must === (StatusCodes.OK)
       responseList.as[Seq[T]] must === (itemsSorted)
     }
 
     "sort by a column in a reverse order with paging" in new SortingAndPagingFixture {
-      val responseList = GET(s"$uriPrefix?sortBy=-$sortColumnName&pageNo=3&pageSize=6")
+      val responseList = GET(s"$uriPrefix?sortBy=-$sortColumnName&from=12&size=6")
 
       responseList.status must === (StatusCodes.OK)
       responseList.as[Seq[T]] must === (itemsSorted.reverse.drop(12).take(6))
     }
 
-    "error on invalid pageNo param #1" in new SortingAndPagingFixture {
-      val responseList = GET(s"$uriPrefix?sortBy=$sortColumnName&pageNo=sdfgdsg&pageSize=10")
+    "error on invalid from param #1" in new SortingAndPagingFixture {
+      val responseList = GET(s"$uriPrefix?sortBy=$sortColumnName&from=sdfgdsg&size=10")
 
       responseList.status must === (StatusCodes.BadRequest)
     }
 
-    "error on invalid pageNo param #2" in new SortingAndPagingFixture {
-      val responseList = GET(s"$uriPrefix?sortBy=$sortColumnName&pageNo=-10&pageSize=10")
+    "error on invalid from param #2" in new SortingAndPagingFixture {
+      val responseList = GET(s"$uriPrefix?sortBy=$sortColumnName&from=-10&size=10")
 
       responseList.status must === (StatusCodes.BadRequest)
     }
 
-    "error on invalid pageNo param #3" in new SortingAndPagingFixture {
-      val responseList = GET(s"$uriPrefix?sortBy=$sortColumnName&pageNo=0&pageSize=10")
+    "error on invalid size param #1" in new SortingAndPagingFixture {
+      val responseList = GET(s"$uriPrefix?sortBy=$sortColumnName&from=10&size=sdfgdsg")
 
       responseList.status must === (StatusCodes.BadRequest)
     }
 
-    "error on invalid pageSize param #1" in new SortingAndPagingFixture {
-      val responseList = GET(s"$uriPrefix?sortBy=$sortColumnName&pageNo=10&pageSize=sdfgdsg")
+    "error on invalid size param #2" in new SortingAndPagingFixture {
+      val responseList = GET(s"$uriPrefix?sortBy=$sortColumnName&from=1&size=-10")
 
       responseList.status must === (StatusCodes.BadRequest)
     }
 
-    "error on invalid pageSize param #2" in new SortingAndPagingFixture {
-      val responseList = GET(s"$uriPrefix?sortBy=$sortColumnName&pageNo=1&pageSize=-10")
-
-      responseList.status must === (StatusCodes.BadRequest)
-    }
-
-    "error on invalid pageSize param #3" in new SortingAndPagingFixture {
-      val responseList = GET(s"$uriPrefix?sortBy=$sortColumnName&pageNo=1&pageSize=0")
+    "error on invalid size param #3" in new SortingAndPagingFixture {
+      val responseList = GET(s"$uriPrefix?sortBy=$sortColumnName&from=1&size=0")
 
       responseList.status must === (StatusCodes.BadRequest)
     }
 
     "ignore invalid sortBy param" in new SortingAndPagingFixture {
-      val responseList = GET(s"$uriPrefix?sortBy=3242&pageNo=3&pageSize=10")
+      val responseList = GET(s"$uriPrefix?sortBy=3242&from=3&size=10")
 
       responseList.status must === (StatusCodes.OK)
-      responseList.as[Seq[T]] must === (items.drop(20).take(10))
     }
   }
 

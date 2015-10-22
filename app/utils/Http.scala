@@ -25,16 +25,18 @@ object Http {
 
   final case class GoodWithMetadata[A](
     result    : A,
+    from      : Option[Int] = None,
+    size      : Option[Int] = None,
     pageNo    : Option[Int] = None,
-    pageSize  : Option[Int] = None,
     totalPages: Option[Int] = None)
   
   object GoodWithMetadata {
     def apply[A](result : A, metadata: ResponseMetadata): GoodWithMetadata[A] = {
       GoodWithMetadata(
         result = result,
+        from = metadata.from,
+        size = metadata.size,
         pageNo = metadata.pageNo,
-        pageSize = metadata.pageSize,
         totalPages = metadata.totalPages)
     }
   }  
