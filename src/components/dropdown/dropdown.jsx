@@ -64,10 +64,7 @@ export default class Dropdown extends React.Component {
       'is_dropdown_open': this.state.open
     });
     let value = this.state.selectedValue || this.props.value;
-    let title = this.state.selectedTitle;
-    if (!title && value) {
-      title = this.findTitleByValue(value);
-    }
+    let title = this.state.selectedTitle || this.findTitleByValue(value);
 
     const button = (
       <div className="fc-dropdown-button" onClick={this.handleToggleClick.bind(this)}>
