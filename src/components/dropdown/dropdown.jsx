@@ -27,8 +27,13 @@ export default class Dropdown extends React.Component {
     };
   }
 
-  findItemByValue(value) {
-    return React.Children.toArray(this.props.children).filter(item => item.props.value === value)[0];
+  findTitleByValue(value) {
+    if (this.props.items) {
+      return this.props.items[value]
+    } else {
+      const item = _.findWhere(React.Children.toArray(this.props.children), {props: {value: value}});
+      return item && item.props.children;
+    }
   }
 
   handleToggleClick(event) {
@@ -58,11 +63,10 @@ export default class Dropdown extends React.Component {
       'is_dropdown_editable': this.props.editable,
       'is_dropdown_open': this.state.open
     });
-    let value = this.state.selectedValue;
+    let value = this.state.selectedValue || this.props.value;
     let title = this.state.selectedTitle;
-    if (!title) {
-      let itemByValue = this.props.value && this.findItemByValue(this.props.value);
-      title = itemByValue && itemByValue.props.children;
+    if (!title && value) {
+      title = this.findTitleByValue(value);
     }
 
     const button = (
