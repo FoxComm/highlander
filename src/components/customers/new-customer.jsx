@@ -26,8 +26,7 @@ export default class NewCustomer extends React.Component {
   @autobind
   submitForm(event) {
     event.preventDefault();
-    const result = this.props.createCustomer();
-    console.log(result);
+    this.props.createCustomer();
   }
 
   @autobind
