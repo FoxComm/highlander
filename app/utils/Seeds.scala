@@ -37,7 +37,8 @@ object Seeds {
     shippingMethodRuleMappings: Seq[ShippingMethodPriceRule], skus: Seq[Sku], orderLineItems: Seq[OrderLineItem],
     orderPayments: Seq[OrderPayment], shipment: Shipment, paymentMethods: AllPaymentMethods, reasons: Seq[Reason],
     orderLineItemSkus: Seq[OrderLineItemSku], inventorySummaries: Seq[InventorySummary],
-    gcSubTypes: Seq[GiftCardSubtype], scSubTypes: Seq[StoreCreditSubtype])
+    gcSubTypes: Seq[GiftCardSubtype], scSubTypes: Seq[StoreCreditSubtype], rmaReasons: Seq[RmaReason], rma: Rma,
+    rmaLineItems: Seq[RmaLineItem], rmaLineItemSkus: Seq[RmaLineItemSku])
 
   final case class AllPaymentMethods(giftCard: GiftCard = Factories.giftCard, storeCredit: StoreCredit = Factories
     .storeCredit)
@@ -67,7 +68,11 @@ object Seeds {
       orderLineItemSkus = Factories.orderLineItemSkus,
       inventorySummaries = Factories.inventorySummaries,
       gcSubTypes = Factories.giftCardSubTypes,
-      scSubTypes = Factories.storeCreditSubTypes
+      scSubTypes = Factories.storeCreditSubTypes,
+      rmaReasons = Factories.rmaReasons,
+      rma = Factories.rma,
+      rmaLineItemSkus = Factories.rmaLineItemSkus,
+      rmaLineItems = Factories.rmaLineItems
     )
 
     s.address.validate.fold(err ⇒ throw new Exception(err.mkString("\n")), _ ⇒ {})
@@ -108,6 +113,10 @@ object Seeds {
       scOrigin ← StoreCreditManuals.save(Factories.storeCreditManual.copy(adminId = storeAdmin.id, reasonId = 1))
       storeCredit ← StoreCredits.save(s.paymentMethods.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))
       storeCreditAdjustments ← StoreCredits.auth(storeCredit, Some(orderPayments.id), 10)
+      rmaReasons ← RmaReasons ++= s.rmaReasons
+      rma ← Rmas.create(s.rma.copy(customerId = Some(customer.id)))
+      rmaLineItemSkus ← RmaLineItemSkus ++= s.rmaLineItemSkus
+      rmaLineItems ← RmaLineItems ++= s.rmaLineItems
     } yield (customers, order, address, shippingAddress, creditCard, giftCard, storeCredit)
   }
 
@@ -266,6 +275,41 @@ object Seeds {
     def shipment = Shipment(1, 1, Some(1), Some(1))
 
     def condition = Condition(rootObject = "Order", field = "subtotal", operator = Condition.Equals, valInt = Some(50))
+
+    def rmaReasons = Seq(
+      // Return reasons
+      RmaReason(name = "Product Return", reasonType = RmaReason.BaseReason, rmaType = Rma.Standard),
+      RmaReason(name = "Damaged Product", reasonType = RmaReason.BaseReason, rmaType = Rma.Standard),
+      RmaReason(name = "Return to Sender", reasonType = RmaReason.BaseReason, rmaType = Rma.Standard),
+      RmaReason(name = "Not Delivered", reasonType = RmaReason.BaseReason, rmaType = Rma.CreditOnly),
+      RmaReason(name = "Foreign Freight Error", reasonType = RmaReason.BaseReason, rmaType = Rma.CreditOnly),
+      RmaReason(name = "Late Delivery", reasonType = RmaReason.BaseReason, rmaType = Rma.CreditOnly),
+      RmaReason(name = "Sales Tax Error", reasonType = RmaReason.BaseReason, rmaType = Rma.CreditOnly),
+      RmaReason(name = "Shipping Charges Error", reasonType = RmaReason.BaseReason, rmaType = Rma.CreditOnly),
+      RmaReason(name = "Wrong Product", reasonType = RmaReason.BaseReason, rmaType = Rma.CreditOnly),
+      RmaReason(name = "Mis-shipment", reasonType = RmaReason.BaseReason, rmaType = Rma.CreditOnly),
+      RmaReason(name = "Failed Capture", reasonType = RmaReason.BaseReason, rmaType = Rma.RestockOnly),
+      // Product return codes
+      RmaReason(name = "Doesn't fit", reasonType = RmaReason.ProductReturnCode, rmaType = Rma.Standard),
+      RmaReason(name = "Don't like", reasonType = RmaReason.ProductReturnCode, rmaType = Rma.Standard),
+      RmaReason(name = "Doesn't look like picture", reasonType = RmaReason.ProductReturnCode, rmaType = Rma.Standard),
+      RmaReason(name = "Wrong color", reasonType = RmaReason.ProductReturnCode, rmaType = Rma.Standard),
+      RmaReason(name = "Not specified", reasonType = RmaReason.ProductReturnCode, rmaType = Rma.Standard)
+    )
+
+    def rma = Rma(id = 0, referenceNumber = "ABC-123", orderId = 1, rmaType = Rma.Standard, status = Rma.Pending)
+
+    def rmaLineItemSkus = Seq(
+      RmaLineItemSku(id = 0, rmaId = 1, orderLineItemSkuId = 1),
+      RmaLineItemSku(id = 0, rmaId = 1, orderLineItemSkuId = 2)
+    )
+
+    def rmaLineItems = Seq(
+      RmaLineItem(id = 0, rmaId = 1, reasonId = 12, originId = 1, originType = RmaLineItem.SkuItem,
+        rmaType = Rma.Standard, status = Rma.Pending, inventoryDisposition = RmaLineItem.Putaway),
+      RmaLineItem(id = 0, rmaId = 1, reasonId = 12, originId = 2, originType = RmaLineItem.SkuItem,
+        rmaType = Rma.Standard, status = Rma.Pending, inventoryDisposition = RmaLineItem.Putaway)
+    )
   }
 
   private def flyWayMigrate(config: com.typesafe.config.Config): Unit = {

@@ -1,5 +1,7 @@
 package models
 
+import scala.concurrent.ExecutionContext
+
 import com.pellucid.sealerate
 import models.Rma.{RmaType, Standard, Status, Pending}
 import monocle.macros.GenLens
@@ -62,6 +64,21 @@ class Rmas(tag: Tag) extends GenericTable.TableWithLock[Rma](tag, "rmas")  {
 object Rmas extends TableQueryWithLock[Rma, Rmas](
   idLens = GenLens[Rma](_.id)
 )(new Rmas(_)) {
+
+  val returningIdAndReferenceNumber = this.returning(map { rma ⇒ (rma.id, rma.referenceNumber) })
+
+  override def save(rma: Rma)(implicit ec: ExecutionContext) = {
+    if (rma.isNew) {
+      create(rma)
+    } else {
+      super.save(rma)
+    }
+  }
+
+  def create(rma: Rma)(implicit ec: ExecutionContext): DBIO[models.Rma] = for {
+    (newId, refNum) ← returningIdAndReferenceNumber += rma
+  } yield rma.copy(id = newId, referenceNumber = refNum)
+
 
   def findByRefNum(refNum: String): QuerySeq =
     filter(_.referenceNumber === refNum)
