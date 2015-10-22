@@ -11,7 +11,7 @@ object RmaLineItemGiftCard {}
 class RmaLineItemGiftCards(tag: Tag) extends
 GenericTable.TableWithId[RmaLineItemGiftCard](tag, "rma_line_item_gift_cards")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def rmaId = column[Int]("rmaId")
+  def rmaId = column[Int]("rma_id")
   def orderLineItemGiftCardId = column[Int]("order_line_item_gift_card_id")
 
   def * = (id, rmaId, orderLineItemGiftCardId) <> ((RmaLineItemGiftCard.apply _).tupled, RmaLineItemGiftCard.unapply)

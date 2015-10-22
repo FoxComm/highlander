@@ -11,7 +11,7 @@ object RmaLineItemShippingCost {}
 class RmaLineItemShippingCosts(tag: Tag) extends
 GenericTable.TableWithId[RmaLineItemShippingCost](tag, "rma_line_item_shipments")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def rmaId = column[Int]("rmaId")
+  def rmaId = column[Int]("rma_id")
   def shipmentId = column[Int]("shipment_id")
 
   def * = (id, rmaId, shipmentId) <> ((RmaLineItemShippingCost.apply _).tupled, RmaLineItemShippingCost.unapply)

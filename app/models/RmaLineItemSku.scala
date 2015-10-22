@@ -9,9 +9,9 @@ final case class RmaLineItemSku(id: Int = 0, rmaId: Int, orderLineItemSkuId: Int
 object RmaLineItemSku {}
 
 class RmaLineItemSkus(tag: Tag) extends
-GenericTable.TableWithId[RmaLineItemSku](tag, "rma_line_item_gift_skus")  {
+GenericTable.TableWithId[RmaLineItemSku](tag, "rma_line_item_skus")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def rmaId = column[Int]("rmaId")
+  def rmaId = column[Int]("rma_id")
   def orderLineItemSkuId = column[Int]("order_line_item_sku_id")
 
   def * = (id, rmaId, orderLineItemSkuId) <> ((RmaLineItemSku.apply _).tupled, RmaLineItemSku.unapply)
