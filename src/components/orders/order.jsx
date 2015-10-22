@@ -80,8 +80,9 @@ export default class Order extends React.Component {
       partiallyShipped: 'Partially Shipped',
       shipped: 'Shipped'
     };
+
     const orderStatus = (
-      <Dropdown items={orderStatuses} placeholder={'Order status'} value={order.orderStatus}/>
+      <Dropdown name="orderStatus" items={orderStatuses} placeholder={'Order status'} value={order.orderStatus}/>
     );
 
     const content = React.cloneElement(this.props.children, {order, modelName: 'order', ...this.props});

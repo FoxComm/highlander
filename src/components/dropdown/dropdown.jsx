@@ -7,6 +7,7 @@ import DropdownItem from './dropdownItem';
 
 export default class Dropdown extends React.Component {
   static propTypes = {
+    name: PropTypes.string,
     value: PropTypes.string,
     editable: PropTypes.bool,
     primary: PropTypes.bool,
@@ -84,6 +85,7 @@ export default class Dropdown extends React.Component {
             {button}
             <div className="fc-dropdown-value">
               {title || this.props.placeholder}
+              <input name={this.props.name} type="hidden" value={value}/>
             </div>
           </div>
         )}
