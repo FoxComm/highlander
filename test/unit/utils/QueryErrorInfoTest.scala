@@ -12,37 +12,37 @@ class QueryErrorInfoTest extends TestBase {
     "is generated correctly for level 1 query (order)" in {
       val q = Orders.findByRefNum("foobar")
 
-      val result = QueryErrorInfo.forQuery(q)
-      result.modelType must === ("order")
-      result.searchKey must === ("foobar")
-      result.searchTerm must === ("referenceNumber")
+      QueryErrorInfo.searchKeyForQuery(q, Orders.primarySearchTerm).value must === ("foobar")
     }
 
     "is generated correctly for level 1 query (gc)" in {
       val q = GiftCards.findByCode("foobar")
 
-      val result = QueryErrorInfo.forQuery(q)
-      result.modelType must === ("giftCard")
-      result.searchKey must === ("foobar")
-      result.searchTerm must === ("code")
+      QueryErrorInfo.searchKeyForQuery(q, GiftCards.primarySearchTerm).value must === ("foobar")
     }
 
     "is generated correctly for level 2 query" in {
       val q = GiftCards.findByCode("foobar").filter(_.status === (Active: Status))
 
-      val result = QueryErrorInfo.forQuery(q)
-      result.modelType must === ("giftCard")
-      result.searchKey must === ("foobar")
-      result.searchTerm must === ("code")
+      QueryErrorInfo.searchKeyForQuery(q, GiftCards.primarySearchTerm).value must === ("foobar")
+    }
+
+    "is generated correctly for level 2 query with swapped terms" in {
+      val q = GiftCards.filter(_.status === (Active: Status)).filter(_.code === "foobar")
+
+      QueryErrorInfo.searchKeyForQuery(q, GiftCards.primarySearchTerm).value must === ("foobar")
     }
 
     "is generated correctly for level 3 query" in {
       val q = GiftCards.findByCode("foobar").filter(_.status === (Active: Status)).filter(_.originalBalance === 100)
 
-      val result = QueryErrorInfo.forQuery(q)
-      result.modelType must === ("giftCard")
-      result.searchKey must === ("foobar")
-      result.searchTerm must === ("code")
+      QueryErrorInfo.searchKeyForQuery(q, GiftCards.primarySearchTerm).value must === ("foobar")
+    }
+
+    "is generated correctly for level 3 query with swapped terms" in {
+      val q = GiftCards.filter(_.status === (Active: Status)).filter(_.originalBalance === 100).filter(_.code === "foobar")
+
+      QueryErrorInfo.searchKeyForQuery(q, GiftCards.primarySearchTerm).value must === ("foobar")
     }
   }
 }

@@ -1,6 +1,6 @@
 package utils
 
-import slick.ast.{TableExpansion, Filter, TableNode, Path, LiteralNode, Node}
+import slick.ast.{Apply, Filter, LiteralNode, Node, Path}
 import slick.lifted.Query
 import utils.Strings._
 
@@ -12,27 +12,19 @@ object QueryErrorInfo {
     QueryErrorInfo(
       modelType = tableName.underscoreToCamel.dropRight(1),
       searchKey = searchKey,
-      searchTerm = searchTerm.underscoreToCamel)
-
-  def forQuery[M, U, C[_]](query: Query[M, U, C]): QueryErrorInfo = {
-    val node = query.toNode
-
-    val firstFilterChildren = findFirstFilter(node).nodeChildren
-    val applyNode = firstFilterChildren.tail.head.nodeChildren
-    val searchKey = applyNode.collect { case ln @ LiteralNode(_) ⇒ ln.value }.head
-    val searchTerm = applyNode.collect { case Path(term :: _) ⇒ term.name }.head
-
-    val tableExpansion = firstFilterChildren.head.nodeChildren
-    val tableName = tableExpansion.collect { case TableNode(_, name, _, _, _) ⇒ name }.head
-
-    QueryErrorInfo.build(
-      tableName = tableName,
-      searchKey = searchKey,
       searchTerm = searchTerm)
+
+  def searchKeyForQuery[M, U, C[_]](query: Query[M, U, C], primarySearchTerm: String): Option[Any] = {
+    findSearchKey(query.toNode, primarySearchTerm)
   }
 
-  private def findFirstFilter(node: Node): Node = node.nodeChildren.head match {
-    case filter @ Filter(_, _, _) ⇒ findFirstFilter(filter)
-    case TableExpansion(_, _, _)  ⇒ node
+  private def findSearchKey(node: Node, searchTerm: String): Option[Any] = node match {
+    case Filter(_, from, where) ⇒
+      val key = findSearchKey(where, searchTerm)
+      if (key.isDefined) key else findSearchKey(from, searchTerm)
+    case a @ Apply(_, children) ⇒ children.toList match {
+      case (Path(term :: _)) :: (l: LiteralNode) :: Nil if term.name.underscoreToCamel == searchTerm ⇒ Some(l.value)
+      case _ ⇒ None
+    }
   }
 }

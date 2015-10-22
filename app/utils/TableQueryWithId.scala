@@ -78,6 +78,7 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.Tab
     findById(i).delete
 
   type QuerySeq = Query[T, M, Seq]
+  def primarySearchTerm: String = "id"
 
   implicit class TableQuerySeqConversions(q: QuerySeq) {
 
@@ -109,12 +110,12 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.Tab
       appendForUpdate(q.result).flatMap(action).transactionally.run()
     }
 
-    def queryErrorInfo = QueryErrorInfo.forQuery(q)
-    def queryError = s"${queryErrorInfo.modelType} with ${queryErrorInfo.searchTerm}=${queryErrorInfo.searchKey}"
+    def querySearchKey = QueryErrorInfo.searchKeyForQuery(q, primarySearchTerm)
 
-    protected def notFoundFailure = {
-      NotFoundFailure404(s"$queryError not found")
-    }
+    def queryError = querySearchKey.map(key ⇒ s"${tableName.underscoreToCamel.dropRight(1)} with $primarySearchTerm=$key")
+      .getOrElse(s"${tableName.underscoreToCamel.dropRight(1)}")
+
+    protected def notFoundFailure = NotFoundFailure404(s"$queryError not found")
 
     protected def selectOneResultChecks(maybe: Option[M])
       (implicit ec: ExecutionContext, db: Database): Xor[Failures, M] = {
