@@ -76,4 +76,35 @@ describe('Customers Actions', function() {
       }));
     });
   });
+
+  context('insertCustomer', function() {
+    it('should dispatch', function () {
+      customerActions.insertCustomer({});
+      assert(this.dispatchSpy.calledWith({
+        actionType: customerConstants.INSERT_CUSTOMERS,
+        customer: {}
+      }));
+    });
+  });
+
+  context('createCustomer', function () {
+    it('should dispatch and call insertCustomer on success', function(done){
+      const response = 1;
+      let spy = this.dispatchSpy;
+      let stub = sinon.stub(Api, 'submitForm').returns(Promise.resolve(response));
+
+      customerActions.createCustomer({}).then(function(customers) {
+        assert(spy.calledWith({
+          actionType: customerConstants.INSERT_CUSTOMERS,
+          customer: response
+        }));
+        done();
+      }).catch(function(err) {
+        done(err);
+      });
+
+      stub.restore();
+    });
+
+  });
 });

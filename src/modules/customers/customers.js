@@ -1,11 +1,12 @@
 'use strict';
 
 import _ from 'lodash';
-import Api from '../lib/api';
+import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 
 export const requestCustomers = createAction('CUSTOMERS_REQUEST');
 export const receiveCustomers = createAction('CUSTOMERS_RECEIVE');
+export const updateCustomers = createAction('CUSTOMERS_UPDATE');
 export const failCustomers = createAction('CUSTOMERS_FAIL', (err, source) => ({err, source}));
 
 export function fetchCustomers() {
@@ -35,6 +36,13 @@ export function fetchCustomersIfNeeded() {
   };
 }
 
+function updateItems(items, newItems) {
+  return _.values({
+    ..._.indexBy(items, 'id'),
+    ..._.indexBy(newItems, 'id')
+  });
+}
+
 const initialState = {
   isFetching: false,
   didInvalidate: true,
@@ -55,6 +63,12 @@ const reducer = createReducer({
       isFetching: false,
       didInvalidate: false,
       items: payload
+    };
+  },
+  [updateCustomers]: (state, payload) => {
+    return {
+      ...state,
+      items: updateItems(state.items, payload)
     };
   },
   [failCustomers]: (state, {err, source}) => {
