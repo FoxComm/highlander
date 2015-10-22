@@ -122,7 +122,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
       val root = response.as[CustomerResponse.Root]
       val created = Customers.findOneById(root.id).run().futureValue.value
-      CustomerResponse.build(created) must === (root)
+      created.id must === (root.id)
     }
 
     "fails if email is already in use" in new Fixture {
