@@ -39,6 +39,7 @@ create domain email text check (length(value) <= 254);
 
 -- Using text instead of character varying is more efficient
 create domain generic_string text check (length(value) <= 255);
+create domain reference_number text check (length(value) <= 20);
 
 -- Generic phone number
 create domain phone_number text check (length(value) <= 15);
@@ -49,3 +50,9 @@ create domain zip_code text check (
     length(value) <= 12 and
     value ~ '(?i)^[a-z0-9][a-z0-9\- ]{0,10}[a-z0-9]$'
 );
+
+-- RMA-specific domains used in multiple tables
+create domain rma_reason_type text check (value in ('reason', 'productReturnCode'));
+create domain rma_type text check (value in ('standard', 'creditOnly', 'restockOnly'));
+create domain rma_status text check (value in ('pending', 'processing', 'review', 'complete', 'canceled'));
+create domain rma_inventory_disposition text check (value in ('putaway', 'damage', 'recovery', 'discontinued'))
