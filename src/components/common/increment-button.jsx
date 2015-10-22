@@ -4,7 +4,7 @@ import React from 'react';
 
 const IncrementButton = (props) => {
   return (
-    <button onClick={props.onClick}>
+    <button {...props}>
       <i className='icon-chevron-up'></i>
     </button>
   );
