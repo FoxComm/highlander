@@ -2,18 +2,30 @@
 
 import React, { PropTypes } from 'react';
 import Api from '../../lib/api';
+import { createSelector } from 'reselect';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
-import GiftCardTransactionsStore from '../../stores/gift-card-transactions';
-import GiftCardTransactionActions from '../../actions/gift-card-transactions';
-import { Map, List } from 'immutable';
+import * as GiftCardsTransactionActions from '../../modules/gift-cards/transactions';
 
+import { connect } from 'react-redux';
+
+const mapStateToProps = createSelector(
+  state => state.router.params.giftcard,
+  state => state.giftCards.transactions,
+  (identity, transactions) => ({
+    transactions: transactions[identity] && transactions[identity].items || []
+  })
+);
+
+@connect(mapStateToProps, GiftCardsTransactionActions)
 export default class GiftCardTransactions extends React.Component {
   static propTypes = {
+    fetchTransactionsIfNeeded: PropTypes.func,
     tableColumns: PropTypes.array,
     params: PropTypes.shape({
       giftcard: PropTypes.string.isRequired
-    }).isRequired
+    }).isRequired,
+    transactions: PropTypes.object
   };
 
   static defaultProps = {
@@ -26,45 +38,18 @@ export default class GiftCardTransactions extends React.Component {
     ]
   };
 
-  constructor(props, context) {
-    super(props, context);
-    this.state = {
-      data: GiftCardTransactionsStore.getState()
-    };
-    this.onChange = this.onChange.bind(this);
-  }
-
   componentDidMount() {
     const { giftcard } = this.props.params;
 
-    GiftCardTransactionsStore.listen(this.onChange);
-
-    GiftCardTransactionActions.fetchTransactions(giftcard);
-  }
-
-  componentWillUnmount() {
-    GiftCardTransactionsStore.unlisten(this.onChange);
-  }
-
-  onChange() {
-    this.setState({
-      data: GiftCardTransactionsStore.getState()
-    });
+    this.props.fetchTransactionsIfNeeded(this.props.params.giftcard);
   }
 
   render() {
-    const { giftcard } = this.props.params;
-    const item = this.state.data.find(
-      next => next.get('giftCard') === giftcard,
-      this,
-      Map({})
-    );
-    const transactions = item.get('transactions', List([]));
     return (
       <div id="gift-card-transactions">
         <table className="fc-table">
           <TableHead columns={this.props.tableColumns} />
-          <TableBody columns={this.props.tableColumns} rows={transactions.toArray()} model="gift-card-transaction" />
+          <TableBody columns={this.props.tableColumns} rows={this.props.transactions} model="gift-card-transaction" />
         </table>
       </div>
     );

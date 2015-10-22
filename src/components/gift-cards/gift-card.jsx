@@ -2,68 +2,51 @@
 
 import React, { PropTypes } from 'react';
 import { IndexLink, Link } from '../link';
+import { autobind } from 'core-decorators';
 import { formatCurrency } from '../../lib/format';
+import { connect } from 'react-redux';
+import * as GiftCardActions from '../../modules/gift-cards/details';
 import moment from 'moment';
-import GiftCardStore from '../../stores/gift-cards';
-import GiftCardActions from '../../actions/gift-cards';
 import SectionTitle from '../section-title/section-title';
 import Panel from '../panel/panel';
 import {PanelList, PanelListItem} from '../panel/panel-list';
 import LocalNav from '../local-nav/local-nav';
 
+@connect((state, props) => ({
+  ...state.giftCards.details[props.params.giftcard]
+}), GiftCardActions)
 export default class GiftCard extends React.Component {
 
   static propTypes = {
+    card: PropTypes.shape({
+      code: PropTypes.string
+    }),
+    children: PropTypes.node,
+    editGiftCard: PropTypes.func,
+    fetchGiftCardIfNeeded: PropTypes.func.isRequired,
     params: PropTypes.shape({
       giftcard: PropTypes.string.isRequired
-    }).isRequired,
-    children: PropTypes.node
+    }).isRequired
   };
-
-  get giftCard() {
-    let { giftcard } = this.props.params;
-    return this.state.data.find(item => item.code === giftcard);
-  }
-
-  constructor(props, context) {
-    super(props, context);
-    this.state = {
-      data: GiftCardStore.getState()
-    };
-    this.onChange = this.onChange.bind(this);
-  }
 
   componentDidMount() {
     let { giftcard } = this.props.params;
-    GiftCardStore.listen(this.onChange);
 
-    GiftCardActions.fetchGiftCard(giftcard);
+    this.props.fetchGiftCardIfNeeded(giftcard);
   }
 
-  componentWillUnmount() {
-    GiftCardStore.unlisten(this.onChange);
-  }
-
-  onChange() {
-    this.setState({
-      data: GiftCardStore.getState()
-    });
-  }
-
-  changeState(event) {
-    let card = this.giftCard;
-
-    GiftCardActions.editGiftCard(card.code, {status: event.target.value});
+  changeState({target}) {
+    this.props.editGiftCard(this.props.card.code, {status: target.value});
   }
 
   get subNav() {
-    const params = {giftcard: this.giftCard.code};
+    const params = {giftcard: this.props.card.code};
 
-    if (!this.giftCard.code) {
+    if (!this.props.card.code) {
       return null;
     }
 
-    const content = React.cloneElement(this.props.children, {'gift-card': this.giftCard, modelName: 'gift-card' });
+    const content = React.cloneElement(this.props.children, {'gift-card': this.props.card, modelName: 'gift-card' });
 
     return (
       <div>
@@ -102,7 +85,7 @@ export default class GiftCard extends React.Component {
   }
 
   render() {
-    let card = this.giftCard;
+    let card = this.props.card;
 
     if (!card) {
       return <div className="fc-gift-card-detail"></div>;
@@ -110,7 +93,7 @@ export default class GiftCard extends React.Component {
 
     return (
       <div>
-        <SectionTitle title="Gift Card" subtitle={this.giftCard.code}>
+        <SectionTitle title="Gift Card" subtitle={card.code}>
           <button onClick={this.resendGiftCard.bind(this)} className="fc-btn fc-btn-primary">Resend Gift Card</button>
         </SectionTitle>
         <div className="fc-grid">
