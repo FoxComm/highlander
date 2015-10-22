@@ -4,82 +4,52 @@ import React, { PropTypes } from 'react';
 import { Link, IndexLink } from '../link';
 import TitleBlock from './title-block';
 
-import CustomerStore from '../../stores/customers';
-
 export default class Customer extends React.Component {
 
   static propTypes = {
     params: PropTypes.shape({
       customer: PropTypes.string.isRequired
     }).isRequired,
+    customerDetails: PropTypes.object,
     children: PropTypes.node
   };
 
-  constructor(props, context) {
-    super(props, context);
-    this.state = {
-      customer: {}
-    };
-  }
-
-  get customerId() {
-    return this.props.params.customer;
-  }
-
-  componentDidMount() {
-    CustomerStore.listenToEvent('change-item', this);
-    CustomerStore.fetch(this.customerId);
-  }
-
-  componentWillUnmount() {
-    CustomerStore.stopListeningToEvent('change-item', this);
-  }
-
-  onChangeItemCustomerStore(customer) {
-    if (parseInt(this.customerId) !== customer.id) {
-      return;
-    }
-
-    this.setState({
-      customer: customer
-    });
-  }
 
   renderChildren() {
-    if (this.state.customer.id === undefined) {
-      return null;
-    }
-
     return React.Children.map(this.props.children, function (child) {
       return React.cloneElement(child, {
-        customer: this.state.customer
+        customer: this.props.customerDetails
       });
     }.bind(this));
   }
 
   render() {
-    return (
-      <div className="fc-customer">
-        <div className="gutter">
-          <TitleBlock customer={this.state.customer} />
-        </div>
-        <div className="gutter">
-          <ul className="fc-tabbed-nav">
-            <li><a href="">Insights</a></li>
-            <li><IndexLink to="customer-details" params={this.props.params}>Details</IndexLink></li>
-            <li><a href="">Transaction</a></li>
-            <li><a href="">Items</a></li>
-            <li><a href="">Store Credit</a></li>
-            <li><a href="">Notifications</a></li>
-            <li><a href="">Reviews</a></li>
-            <li><a href="">Notes</a></li>
-            <li><a href="">Activity Trail</a></li>
-          </ul>
-          <div>
-            { this.renderChildren() }
+    let page = null;
+    if (this.props.customerDetails) {
+      page = (
+        <div className="fc-customer">
+          <div className="gutter">
+            <TitleBlock customer={this.props.customerDetails} />
+          </div>
+          <div className="gutter">
+            <ul className="fc-tabbed-nav">
+              <li><a href="">Insights</a></li>
+              <li><IndexLink to="customer-details" params={this.props.params}>Details</IndexLink></li>
+              <li><a href="">Transaction</a></li>
+              <li><a href="">Items</a></li>
+              <li><a href="">Store Credit</a></li>
+              <li><a href="">Notifications</a></li>
+              <li><a href="">Reviews</a></li>
+              <li><a href="">Notes</a></li>
+              <li><a href="">Activity Trail</a></li>
+            </ul>
+            <div>
+              { this.renderChildren() }
+            </div>
           </div>
         </div>
-      </div>
-    );
+      );
+    }
+    return page;
   }
 }
