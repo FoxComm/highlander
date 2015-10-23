@@ -7,6 +7,8 @@ export const receiveCustomer = createAction('CUSTOMER_RECEIVE', (id, customer) =
 export const failCustomer = createAction('CUSTOMER_FAIL', (id, err, source) => [id, err, source]);
 export const requestCustomer = createAction('CUSTOMER_REQUEST');
 export const updateCustomer = createAction('CUSTOMER_UPDATED', (id, customer) => [id, customer]);
+export const receiveCustomerAdresses = createAction('CUSTOMER_ADDRESSES_RECEIVE', (id, addresses) => [id, addresses]);
+export const receiveCustomerCreditCards = createAction('CUSTOMER_CREDIT_CARDS_RECEIVE', (id, cards) => [id, cards]);
 
 function shouldFetchCustomer(id, state) {
   const entry = state.customers.details[id];
@@ -40,6 +42,26 @@ export function editCustomer(id, data) {
     Api.patch(`/customers/${id}`, data)
       .then(customer => dispatch(updateCustomer(id, customer)))
       .catch(err => dispatch(failCustomer(id, err, editCustomer)));
+  };
+}
+
+export function fetchAdresses(id) {
+  return dispatch => {
+    // ToDo: dispatch customer addresses fetch
+    // dispatch(requestCustomer(id));
+    Api.get(`/customers/${id}/addresses`)
+      .then(addresses => dispatch(receiveCustomerAdresses(id, addresses)))
+      .catch(err => dispatch(failCustomer(id, err, fetchCustomer)));
+  };
+}
+
+export function fetchCreditCards(id) {
+  return dispatch => {
+    // ToDo: dispatch customer cards fetch
+    // dispatch(requestCustomer(id));
+    Api.get(`/customers/${id}/credit-cards`)
+      .then(cards => dispatch(receiveCustomerCreditCards(id, cards)))
+      .catch(err => dispatch(failCustomer(id, err, fetchCustomer)));
   };
 }
 
@@ -93,6 +115,26 @@ const reducer = createReducer({
         details
       }
     };
+  },
+  [receiveCustomerAdresses]: (state, [id, addresses]) => {
+    console.log("receiveCustomerAdresses");
+    return {
+      ...state,
+      [id]: {
+        ...state[id],
+        addresses
+      }
+    }
+  },
+  [receiveCustomerCreditCards]: (state, [id, cards]) => {
+    console.log("receiveCustomerCreditCards");
+    return {
+      ...state,
+      [id]: {
+        ...state[id],
+        cards
+      }
+    }
   }
 }, initialState);
 

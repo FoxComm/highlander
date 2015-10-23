@@ -3,37 +3,28 @@
 import React, { PropTypes } from 'react';
 import ContentBox from '../content-box/content-box';
 import AddressBox from '../addresses/address-box';
-import AddressStore from '../../stores/addresses';
+import { connect } from 'react-redux';
+import { autobind } from 'core-decorators';
+import * as CustomersActions from '../../modules/customers/details';
 
+@connect((state, props) => ({
+  ...state.customers.details[props.customerId]
+}), CustomersActions)
 export default class CustomerAddressBook extends React.Component {
+
   static propTypes = {
     customerId: PropTypes.number.isRequired
   }
 
-  constructor(props, context) {
-    super(props, context);
-    this.state = {
-      addresses: []
-    };
-  }
-
   componentDidMount() {
-    AddressStore.listenToEvent('change', this);
-    AddressStore.fetch(this.props.customerId);
-  }
+    const customer = this.props.customerId;
 
-  componentWillUnmount() {
-    AddressStore.stopListeningToEvent('change', this);
-  }
-
-  onChangeAddressStore(customerId, addresses) {
-    if (customerId != this.props.customerId) return;
-    this.setState({
-      addresses: addresses
-    });
+    this.props.fetchAdresses(customer);
   }
 
   render() {
+    console.log("Address Book");
+    console.log(this.props);
     let actionBlock = (
       <button className="fc-btn">
         <i className="icon-add"></i>
@@ -54,7 +45,7 @@ export default class CustomerAddressBook extends React.Component {
                   actionBlock={ actionBlock }>
 
         <ul className="fc-float-list">
-          {this.state.addresses.map(createAddressBox)}
+          {(this.props.addresses && this.props.addresses.map(createAddressBox))}
         </ul>
       </ContentBox>
     );
