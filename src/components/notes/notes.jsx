@@ -43,6 +43,8 @@ function mapDispatchToProps(dispatch, props) {
   });
 }
 
+/*eslint "react/prop-types": 0*/
+
 @connect(mapStateToProps, mapDispatchToProps)
 export default class Notes extends React.Component {
   static deleteOptions = {
