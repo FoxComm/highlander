@@ -1,7 +1,7 @@
 'use strict';
 
 import React from 'react';
-import classNames from 'classNames';
+import classNames from 'classnames';
 import UserInitials from '../users/initials';
 import ViewerStore from '../../stores/viewers';
 
