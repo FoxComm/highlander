@@ -63,7 +63,7 @@ export default class Notes extends React.Component {
   };
 
   componentDidMount() {
-    this.props.fetchNotesIfNeeded();
+    this.props.fetchNotes();
   }
 
   @autobind
