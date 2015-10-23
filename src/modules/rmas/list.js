@@ -6,7 +6,7 @@ import { createAction, createReducer } from 'redux-act';
 export const requestRmas = createAction('RMAS_REQUEST');
 export const receiveRmas = createAction('RMAS_RECEIVE');
 export const updateRmas = createAction('RMAS_UPDATE');
-export const failRmas = createAction('RMAS_FAIL', (err, source) => ({err, source}));
+export const failRmas = createAction('RMAS_FAIL', (err, source) => [err, source]);
 
 export function fetchRmas() {
   return dispatch => {
@@ -62,7 +62,7 @@ const reducer = createReducer({
       items: updateItems(state.items, payload)
     };
   },
-  [failRmas]: (state, {err, source}) => {
+  [failRmas]: (state, [err, source]) => {
     console.error(err);
 
     if (source === fetchRmas) {
