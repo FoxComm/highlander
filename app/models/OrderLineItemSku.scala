@@ -16,16 +16,17 @@ class OrderLineItemSkus(tag: Tag) extends GenericTable.TableWithId[OrderLineItem
   def skuId = column[Int]("sku_id")
 
   def * = (id, orderId, skuId) <> ((OrderLineItemSku.apply _).tupled, OrderLineItemSku.unapply)
+  def sku = foreignKey(Skus.tableName, skuId, Skus)(_.id)
 }
 
 object OrderLineItemSkus extends TableQueryWithId[OrderLineItemSku, OrderLineItemSkus](
   idLens = GenLens[OrderLineItemSku](_.id)
 )(new OrderLineItemSkus(_)){
 
-  def findByOrderId(orderId: Rep[Int]): Query[OrderLineItemSkus, OrderLineItemSku, Seq] =
+  def findByOrderId(orderId: Rep[Int]): QuerySeq =
     filter(_.orderId === orderId)
 
-  def findLineItemsByOrder(order: Order) = {
+  def findLineItemsByOrder(order: Order): Query[(Skus, OrderLineItems), (Sku, OrderLineItem), Seq] = {
     for {
       liSku ← findByOrderId(order.id)
       li ← OrderLineItems if li.originId === liSku.id
@@ -33,4 +34,12 @@ object OrderLineItemSkus extends TableQueryWithId[OrderLineItemSku, OrderLineIte
     } yield (sku, li)
   }
 
+  object scope {
+    implicit class OrderLineItemSkusQuerySeqConversions(q: QuerySeq) {
+      def withSkus: Query[(OrderLineItemSkus, Skus), (OrderLineItemSku, Sku), Seq] = for {
+        items ← q
+        skus  ← items.sku
+      } yield (items, skus)
+    }
+  }
 }

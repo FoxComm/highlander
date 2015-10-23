@@ -17,6 +17,7 @@ import utils.Seeds
 import utils.Seeds.Factories
 import utils.Slick.implicits._
 import utils.time._
+import cats.implicits._
 
 class AllOrdersIntegrationTest extends IntegrationTestBase
   with HttpSupport
@@ -70,7 +71,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
         email = "yax@yax.com",
         orderStatus = Order.ManualHold,
         placedAt = None,
-        total = 27,
+        total = None,
         paymentStatus = None,
         remorsePeriodEnd = None)
 

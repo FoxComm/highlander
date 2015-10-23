@@ -61,6 +61,15 @@ object OrderLineItem {
       status = Cart
     )
   }
+
+  def buildSku(order: Order, sku: Sku): OrderLineItem = {
+    OrderLineItem(
+      orderId = order.id,
+      originId = sku.id,
+      originType = SkuItem,
+      status = Cart
+    )
+  }
 }
 
 

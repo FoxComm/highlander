@@ -1,20 +1,27 @@
 package services.orders
 
-import models._
+import models.{OrderLineItems, Skus, Orders, Order, OrderLineItemSkus, OrderLineItemGiftCards, OrderLineItem}
 import slick.driver.PostgresDriver.api._
+import scala.concurrent.{ExecutionContext, Future}
+import cats.implicits._
+import utils.Slick.implicits._
+import slick.jdbc.GetResult
 
 object OrderTotaler {
-  def subTotalForOrder(order: Order): DBIO[Option[Int]] = {
-    (for {
-      liSku ← OrderLineItemSkus.findByOrderId(order.id)
-      sku ← Skus if sku.id === liSku.skuId
-    } yield sku).map(_.price).sum.result
-  }
+  def subTotal(order: Order)(implicit ec: ExecutionContext): DBIO[Option[Int]] =
+    sql"""select count(*), sum(coalesce(gc.original_balance, 0)) + sum(coalesce(skus.price, 0)) as sum
+         |	from order_line_items oli
+         |	left outer join order_line_item_skus sli on (sli.id = oli.id)
+         |	left outer join skus on (skus.id = sli.sku_id)
+         |
+         |	left outer join order_line_item_gift_cards gcli on (gcli.id = oli.id)
+         |	left outer join gift_cards gc on (gc.id = gcli.gift_card_id)
+         |	where oli.order_id = ${order.id}
+         | """.stripMargin.as[(Int, Int)].headOption.map {
+      case Some((count, total)) if count > 0 ⇒ total.some
+      case _ ⇒ None
+    }
 
-  def grandTotalForOrder(order: Order): DBIO[Option[Int]] = {
-    (for {
-      liSku ← OrderLineItemSkus.findByOrderId(order.id)
-      sku ← Skus if sku.id === liSku.skuId
-    } yield sku).map(_.price).sum.result
-  }
+  def grandTotal(order: Order)(implicit ec: ExecutionContext): DBIO[Option[Int]] =
+    subTotal(order)
 }
