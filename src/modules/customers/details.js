@@ -3,14 +3,14 @@
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 
-export const receiveCustomer = createAction('CUSTOMER_RECEIVE', (id, customer) => [id, customer]);
-export const failCustomer = createAction('CUSTOMER_FAIL', (id, err, source) => [id, err, source]);
-export const requestCustomer = createAction('CUSTOMER_REQUEST');
-export const updateCustomer = createAction('CUSTOMER_UPDATED', (id, customer) => [id, customer]);
-export const receiveCustomerAdresses = createAction('CUSTOMER_ADDRESSES_RECEIVE', (id, addresses) => [id, addresses]);
-export const receiveCustomerCreditCards = createAction('CUSTOMER_CREDIT_CARDS_RECEIVE', (id, cards) => [id, cards]);
-export const requestCustomerAdresses = createAction('CUSTOMER_ADDRESSES_REQUEST');
-export const requestCustomerCreditCards = createAction('CUSTOMER_CREDIT_CARDS_REQUEST');
+const receiveCustomer = createAction('CUSTOMER_RECEIVE', (id, customer) => [id, customer]);
+const failCustomer = createAction('CUSTOMER_FAIL', (id, err, source) => [id, err, source]);
+const requestCustomer = createAction('CUSTOMER_REQUEST');
+const updateCustomer = createAction('CUSTOMER_UPDATED', (id, customer) => [id, customer]);
+const receiveCustomerAdresses = createAction('CUSTOMER_ADDRESSES_RECEIVE', (id, addresses) => [id, addresses]);
+const receiveCustomerCreditCards = createAction('CUSTOMER_CREDIT_CARDS_RECEIVE', (id, cards) => [id, cards]);
+const requestCustomerAdresses = createAction('CUSTOMER_ADDRESSES_REQUEST');
+const requestCustomerCreditCards = createAction('CUSTOMER_CREDIT_CARDS_REQUEST');
 
 export function fetchCustomer(id) {
   return dispatch => {
