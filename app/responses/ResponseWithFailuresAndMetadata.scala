@@ -23,7 +23,7 @@ final case class ResponseSortingMetadata(sortBy: Option[String] = None) extends 
 
 final case class ResponseWithFailuresAndMetadata[A <: AnyRef](
   result    : A, 
-  errors    : Option[Seq[String]]                 = None,
+  errors    : Option[Seq[String]]             = None,
   pagination: Option[ResponsePagingMetadata]  = None,
   sorting   : Option[ResponseSortingMetadata] = None)
 
