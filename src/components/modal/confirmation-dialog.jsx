@@ -42,8 +42,8 @@ ConfirmationDialog.propTypes = {
   body: PropTypes.node.isRequired,
   cancel: PropTypes.string.isRequired,
   confirm: PropTypes.string.isRequired,
-  cancelAction: PropTypes.function.isRequired,
-  confirmAction: PropTypes.function.isRequired
+  cancelAction: PropTypes.func.isRequired,
+  confirmAction: PropTypes.func.isRequired
 };
 
 export default ConfirmationDialog;
