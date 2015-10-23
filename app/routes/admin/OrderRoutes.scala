@@ -62,7 +62,7 @@ object OrderRoutes {
         (get & pathEnd) {
           goodOrFailures {
             val finder = Orders.findByRefNum(refNum)
-            finder.selectOneForUpdateIgnoringLock { order ⇒
+            finder.selectOne { order ⇒
               DbResult.fromDbio(Slick.fullOrder(finder))
             }
           }

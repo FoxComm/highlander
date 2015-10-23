@@ -21,27 +21,26 @@ object LineItemUpdater {
     (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
 
     payload.validate match {
-      case Valid(_)        ⇒ addGiftCardToOrder(refNum, payload).run()
+      case Valid(_)        ⇒ addGiftCardToOrder(refNum, payload)
       case Invalid(errors) ⇒ Result.failures(errors)
     }
   }
 
   private def addGiftCardToOrder(refNum: String, payload: AddGiftCardLineItem)
-  (implicit ec: ExecutionContext, db: Database) = {
-    Orders.findCartByRefNum(refNum).one.flatMap {
-      case Some(order) ⇒
-        val queries = for {
-          gcOrigin ← GiftCardOrders.save(GiftCardOrder(orderId = order.id))
-          gc ← GiftCards.save(GiftCard.buildLineItem(balance = payload.balance, originId = gcOrigin.id,
-            currency = payload.currency))
-          lineItemGc ← OrderLineItemGiftCards.save(OrderLineItemGiftCard(giftCardId = gc.id, orderId = order.id))
-          lineItem ← OrderLineItems.save(OrderLineItem.buildGiftCard(order, lineItemGc))
-        } yield ()
+    (implicit ec: ExecutionContext, db: Database) = {
+    val finder = Orders.findByRefNum(refNum)
 
-        DbResult.fromDbio(queries.transactionally >> FullOrder.fromOrder(order))
-      case None ⇒
-        DbResult.failure(NotFoundFailure404(Order, refNum))
-    }
+    finder.selectOne ({ order ⇒
+      val queries = for {
+        gcOrigin ← GiftCardOrders.save(GiftCardOrder(orderId = order.id))
+        gc ← GiftCards.save(GiftCard.buildLineItem(balance = payload.balance, originId = gcOrigin.id,
+          currency = payload.currency))
+        lineItemGc ← OrderLineItemGiftCards.save(OrderLineItemGiftCard(giftCardId = gc.id, orderId = order.id))
+        lineItem ← OrderLineItems.save(OrderLineItem.buildGiftCard(order, lineItemGc))
+      } yield ()
+
+      DbResult.fromDbio(queries >> fullOrder(finder))
+    }, checks = finder.checks + finder.mustBeCart)
   }
 
   def editGiftCard(refNum: String, code: String, payload: AddGiftCardLineItem)
@@ -49,17 +48,19 @@ object LineItemUpdater {
 
     payload.validate match {
       case Valid(_) ⇒
-        GiftCards.findCartByCode(code).selectOneForUpdate { gc ⇒
+        val finder = GiftCards.findByCode(code)
+        finder.selectOneForUpdate ({ gc ⇒
           val updatedGc = gc.copy(originalBalance = payload.balance,
             availableBalance = payload.balance, currentBalance = payload.balance, currency = payload.currency)
 
           val update = GiftCards.filter(_.id === gc.id).update(updatedGc)
 
-          Orders.findCartByRefNum(refNum).one.flatMap {
-            case Some(o) ⇒ DbResult.fromDbio(update >> FullOrder.fromOrder(o))
-            case None    ⇒ DbResult.failure(NotFoundFailure404(Order, refNum))
+          Orders.findByRefNum(refNum).one.flatMap {
+            case Some(order) if order.isCart ⇒ DbResult.fromDbio(update >> FullOrder.fromOrder(order))
+            case Some(order)                 ⇒ DbResult.failure(OrderMustBeCart(refNum))
+            case None                        ⇒ DbResult.failure(NotFoundFailure404(Order, refNum))
           }
-        }
+        }, checks = finder.checks + finder.mustBeCart)
       case Invalid(errors) ⇒
         Result.failures(errors)
     }
@@ -68,7 +69,8 @@ object LineItemUpdater {
   def deleteGiftCard(refNum: String, code: String)
     (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
 
-    GiftCards.findCartByCode(code).selectOneForUpdate { gc ⇒
+    val finder = GiftCards.findByCode(code)
+    finder.selectOneForUpdate ({ gc ⇒
       val origin = OrderLineItemGiftCards.filter(_.giftCardId === gc.id)
       origin.one.flatMap {
         case Some(o) ⇒
@@ -79,14 +81,15 @@ object LineItemUpdater {
             gcOrigin ← GiftCardOrders.filter(_.id === gc.originId).delete
           } yield ()
 
-          Orders.findCartByRefNum(refNum).one.flatMap {
-            case Some(order)  ⇒ DbResult.fromDbio(deleteAll >> FullOrder.fromOrder(order))
-            case None         ⇒ DbResult.failure(NotFoundFailure404(Order, refNum))
+          Orders.findByRefNum(refNum).one.flatMap {
+            case Some(order) if order.isCart ⇒ DbResult.fromDbio(deleteAll >> FullOrder.fromOrder(order))
+            case Some(order)                 ⇒ DbResult.failure(OrderMustBeCart(refNum))
+            case None                        ⇒ DbResult.failure(NotFoundFailure404(Order, refNum))
           }
         case None ⇒
           DbResult.failure(NotFoundFailure404(GiftCard, code))
       }
-    }
+    }, checks = finder.checks + finder.mustBeCart)
   }
 
   def updateQuantitiesOnOrder(refNum: String, payload: Seq[UpdateLineItemsPayload])
