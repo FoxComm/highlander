@@ -25,6 +25,23 @@ trait SortingAndPaging[T <: ResponseItem] extends MockitoSugar { this: Integrati
     val itemsSorted: IndexedSeq[T] = responseItemsSort(items)
   }
 
+  implicit class ResponseWithFailuresAndMetadataChecks[A <: AnyRef](resp: ResponseWithFailuresAndMetadata[A]) {
+    def checkSortingAndPagingMetadata(sortBy: String, from: Int, size: Int, totalPages: Option[Int] = None) = {
+      resp.sorting must be ('defined)
+      resp.sorting.value.sortBy must be ('defined)
+      resp.sorting.value.sortBy.value must === (sortBy)
+      resp.pagination must be ('defined)
+      resp.pagination.value.from must be ('defined)
+      resp.pagination.value.from.value must === (from)
+      resp.pagination.value.size must be ('defined)
+      resp.pagination.value.size.value must === (size)
+      resp.pagination.value.pageNo must be ('defined)
+      resp.pagination.value.pageNo.value must === ((from / size) + 1)
+      resp.pagination.value.totalPages must be ('defined)
+      totalPages.foreach(resp.pagination.value.totalPages.value must === (_))
+    }
+  }
+
   "supports sorting and paging" - {
 
     "sort by a column without paging" in new SortingAndPagingFixture {
@@ -46,18 +63,7 @@ trait SortingAndPaging[T <: ResponseItem] extends MockitoSugar { this: Integrati
       val respWithMetadata = response.as[ResponseWithFailuresAndMetadata[Seq[T]]]
       respWithMetadata.result must === (itemsSorted.drop(12).take(6))
 
-      respWithMetadata.sorting must be ('defined)
-      respWithMetadata.sorting.value.sortBy must be ('defined)
-      respWithMetadata.sorting.value.sortBy.value must === (sortColumnName)
-      respWithMetadata.pagination must be ('defined)
-      respWithMetadata.pagination.value.from must be ('defined)
-      respWithMetadata.pagination.value.from.value must === (12)
-      respWithMetadata.pagination.value.size must be ('defined)
-      respWithMetadata.pagination.value.size.value must === (6)
-      respWithMetadata.pagination.value.pageNo must be ('defined)
-      respWithMetadata.pagination.value.pageNo.value must === (3)
-      respWithMetadata.pagination.value.totalPages must be ('defined)
-      respWithMetadata.pagination.value.totalPages.value must === (5)
+      respWithMetadata.checkSortingAndPagingMetadata(sortColumnName, 12, 6, Some(5))
     }
 
     "sort by a column with paging #2" in new SortingAndPagingFixture {

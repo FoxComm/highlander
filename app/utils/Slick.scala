@@ -164,6 +164,11 @@ object Slick {
       }
     }
 
+    object ResultWithMetadata {
+      def fromResultOnly[A](result: Result[A]): ResultWithMetadata[A] =
+        ResultWithMetadata(result = result, metadata = QueryMetadata.empty)
+    }
+
     private def _paged[E, U, C[_]](query: Query[E, U, C])(implicit sortAndPage: SortAndPage) = {
       val pagedQueryOpt = for {
         from ← sortAndPage.from

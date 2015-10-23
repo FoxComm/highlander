@@ -26,7 +26,6 @@ object GiftCardService {
 
   type Account = Customer :+: StoreAdmin :+: CNil
   type QuerySeq = GiftCards.QuerySeq
-  type QuerySeqWithMetadata = GiftCards.QuerySeqWithMetadata
 
   def findAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
     GiftCards.queryAll.result.map(_.map(GiftCardResponse.build(_)))
