@@ -115,6 +115,8 @@ object Orders extends TableQueryWithLock[Order, Orders](
 
   val returningIdAndReferenceNumber = this.returning(map { o ⇒ (o.id, o.referenceNumber) })
 
+  override def primarySearchTerm: String = "referenceNumber"
+
   override def save(order: Order)(implicit ec: ExecutionContext) = {
     if (order.isNew) {
       create(order)

@@ -8,7 +8,7 @@ import models._
 import models.rules.QueryStatement
 import payloads.{Assignment, UpdateOrderPayload}
 import responses.{StoreAdminResponse, FullOrderWithWarnings, FullOrder}
-import services.{OrderMustBeCart, GeneralFailure, NotFoundFailure404}
+import services.{OrderStatusTransitionNotAllowed, OrderMustBeCart, LockedFailure, GeneralFailure, NotFoundFailure404}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.implicits._
@@ -121,7 +121,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         UpdateOrderPayload(Cart))
 
       response.status must === (StatusCodes.BadRequest)
-      response.bodyText must include("errors")
+      response.errors must === (OrderStatusTransitionNotAllowed(order.status, Cart, order.refNum).description)
     }
 
     "fails if transition from current status is not allowed" in {
@@ -132,7 +132,16 @@ class OrderIntegrationTest extends IntegrationTestBase
         UpdateOrderPayload(ManualHold))
 
       response.status must === (StatusCodes.BadRequest)
-      response.bodyText must include("errors")
+      response.errors must === (OrderStatusTransitionNotAllowed(order.status, ManualHold, order.refNum).description)
+    }
+
+    "fails if the order is not found" in {
+      Orders.save(Factories.order).run().futureValue
+
+      val response = PATCH(s"v1/orders/NOPE", UpdateOrderPayload(ManualHold))
+
+      response.status must === (StatusCodes.NotFound)
+      response.errors must === (NotFoundFailure404(Order, "NOPE").description)
     }
 
     /* This test should really test against an order and not a *cart*. Karin has filed a story to come back to this
@@ -199,7 +208,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       val response = POST(s"v1/orders/${order.referenceNumber}/lock")
       response.status must === (StatusCodes.BadRequest)
-      response.errors must === (GeneralFailure("Model is locked").description)
+      response.errors must === (LockedFailure(Order, order.referenceNumber).description)
     }
 
     "avoids race condition" in {

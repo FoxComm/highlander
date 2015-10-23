@@ -37,8 +37,7 @@ class GiftCardNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
       val response = POST(s"v1/notes/gift-card/999999", payloads.CreateNote(body = ""))
 
       response.status must === (StatusCodes.NotFound)
-      // TODO: Compare with proper error after selectOne refactoring
-      response.errors must === (NotFoundFailure404("Not found").description)
+      parseErrors(response) must === (NotFoundFailure404(GiftCard, 999999).description)
     }
   }
 

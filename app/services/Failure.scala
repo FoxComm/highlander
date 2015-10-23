@@ -67,12 +67,8 @@ final case class CustomerHasCart(id: Int) extends Failure {
   override def description = List(s"customer with id=$id already has an active cart")
 }
 
-final case class TransitionNotAllowed(from: String, to: String) extends Failure {
-  override def description = List(s"Transition from $from to $to is not allowed")
-}
-
-final case class OrderUpdateFailure(referenceNumber: String, reason: String) extends Failure {
-  override def description = List(reason)
+final case class OrderStatusTransitionNotAllowed(from: Order.Status, to: Order.Status, refNum: String) extends Failure {
+  override def description = List(s"Transition from $from to $to is not allowed for order with refNum=$refNum")
 }
 
 final case class OrderMustBeCart(referenceNumber: String) extends Failure {
@@ -104,8 +100,14 @@ final case class CannotUseInactiveCreditCard(cc: CreditCard) extends Failure {
   override def description = List(s"creditCard with id=${cc.id} is inactive")
 }
 
-final case class OrderLockedFailure(referenceNumber: String) extends Failure {
-  override def description = List("Order is locked")
+final case class LockedFailure(message: String) extends Failure {
+  override def description = List(message)
+}
+
+object LockedFailure {
+  def apply[A](a: A, searchKey: Any): LockedFailure = {
+    LockedFailure(s"${friendlyClassName(a)} with ${searchTerm(a)}=$searchKey is locked")
+  }
 }
 
 final case class CustomerHasInsufficientStoreCredit(id: Int, has: Int, want: Int) extends Failure {
@@ -134,7 +136,7 @@ final case class StripeRuntimeException[E <: StripeException](exception: E) exte
 
 object Util {
   def searchTerm[A](a: A): String = a match {
-    case Order ⇒ "refNum"
+    case Order ⇒ "referenceNumber"
     case GiftCard ⇒ "code"
     case _ ⇒ "id"
   }
