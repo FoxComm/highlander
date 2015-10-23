@@ -33,7 +33,7 @@ export function fetchRmasIfNeeded() {
     if (shouldFetchRmas(getState())) {
       return dispatch(fetchRmas());
     }
-  }
+  };
 }
 
 function updateItems(items, newItems) {
