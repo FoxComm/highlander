@@ -36,7 +36,8 @@ export default class ActivityTrail extends React.Component {
         <h2>Activity Trail</h2>
         <table className="fc-table">
           <TableHead columns={this.props.tableColumns}/>
-          <TableBody columns={this.props.tableColumns} rows={this.state.activities} model={this.props.entity.entityType}>
+          <TableBody columns={this.props.tableColumns} rows={this.state.activities}
+                     model={this.props.entity.entityType}>
             <UserInitials/>
           </TableBody>
         </table>
