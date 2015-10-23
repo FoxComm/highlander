@@ -6,13 +6,15 @@ import giftCards from './gift-cards';
 import customers from './customers';
 import orders from './orders';
 import order from './order';
+import rmas from './rmas';
 
 const rootReducer = combineReducers({
   router: routerStateReducer,
   giftCards,
   customers,
   orders,
-  order
+  order,
+  rmas
 });
 
 export default rootReducer;

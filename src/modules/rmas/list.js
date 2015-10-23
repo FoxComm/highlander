@@ -1,5 +1,6 @@
 'use strict';
 
+import _ from 'lodash';
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 
@@ -18,13 +19,21 @@ export function fetchRmas() {
 }
 
 function shouldFetchRmas(state) {
-  const rmas = state.rmas;
+  const rmas = state.rmas.list;
   if (!rmas) {
     return true;
   } else if (rmas.isFetching) {
     return false;
   }
   return rmas.didInvalidate;
+}
+
+export function fetchRmasIfNeeded() {
+  return (dispatch, getState) => {
+    if (shouldFetchRmas(getState())) {
+      return dispatch(fetchRmas());
+    }
+  }
 }
 
 function updateItems(items, newItems) {
