@@ -4,7 +4,6 @@ import React, { PropTypes } from 'react';
 import { Link, IndexLink } from '../link';
 import TitleBlock from './title-block';
 import { connect } from 'react-redux';
-import { autobind } from 'core-decorators';
 import * as CustomersActions from '../../modules/customers/details';
 
 @connect((state, props) => ({
@@ -35,34 +34,33 @@ export default class Customer extends React.Component {
     }.bind(this));
   }
 
-  render() {
-    console.log(this.props);
-    let page = null;
-    if (this.props.details) {
-      page = (
-        <div className="fc-customer">
-          <div className="gutter">
-            <TitleBlock customer={this.props.details} />
-          </div>
-          <div className="gutter">
-            <ul className="fc-tabbed-nav">
-              <li><a href="">Insights</a></li>
-              <li><IndexLink to="customer-details" params={this.props.params}>Details</IndexLink></li>
-              <li><a href="">Transaction</a></li>
-              <li><a href="">Items</a></li>
-              <li><a href="">Store Credit</a></li>
-              <li><a href="">Notifications</a></li>
-              <li><a href="">Reviews</a></li>
-              <li><a href="">Notes</a></li>
-              <li><a href="">Activity Trail</a></li>
-            </ul>
-            <div>
-              { this.renderChildren() }
-            </div>
+  get page() {
+    return (
+      <div className="fc-customer">
+        <div className="gutter">
+          <TitleBlock customer={this.props.details} />
+        </div>
+        <div className="gutter">
+          <ul className="fc-tabbed-nav">
+            <li><a href="">Insights</a></li>
+            <li><IndexLink to="customer-details" params={this.props.params}>Details</IndexLink></li>
+            <li><a href="">Transaction</a></li>
+            <li><a href="">Items</a></li>
+            <li><a href="">Store Credit</a></li>
+            <li><a href="">Notifications</a></li>
+            <li><a href="">Reviews</a></li>
+            <li><a href="">Notes</a></li>
+            <li><a href="">Activity Trail</a></li>
+          </ul>
+          <div>
+            { this.renderChildren() }
           </div>
         </div>
-      );
-    }
-    return page;
+      </div>
+    );
+  }
+
+  render() {
+    return (this.props.details ? this.page : null);
   }
 }
