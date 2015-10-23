@@ -22,15 +22,15 @@ export default class CustomerAddressBook extends React.Component {
     this.props.fetchAdresses(customer);
   }
 
-  render() {
-    console.log("Address Book");
-    console.log(this.props);
-    let actionBlock = (
+  get actionBlock() {
+    return (
       <button className="fc-btn">
-        <i className="icon-add"></i>
+          <i className="icon-add"></i>
       </button>
     );
+  }
 
+  render() {
     let createAddressBox = (addr) => {
       let key = `cutomer-address-${ addr.id }`;
       return (
@@ -42,7 +42,7 @@ export default class CustomerAddressBook extends React.Component {
     return (
       <ContentBox title="Address Book"
                   className="fc-customer-address-book"
-                  actionBlock={ actionBlock }>
+                  actionBlock={ this.actionBlock }>
 
         <ul className="fc-float-list">
           {(this.props.addresses && this.props.addresses.map(createAddressBox))}
