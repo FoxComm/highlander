@@ -7,7 +7,7 @@ import { createAction, createReducer } from 'redux-act';
 export const requestCustomers = createAction('CUSTOMERS_REQUEST');
 export const receiveCustomers = createAction('CUSTOMERS_RECEIVE');
 export const updateCustomers = createAction('CUSTOMERS_UPDATE');
-export const failCustomers = createAction('CUSTOMERS_FAIL', (err, source) => ({err, source}));
+export const failCustomers = createAction('CUSTOMERS_FAIL', (err, source) => [err, source]);
 
 export function fetchCustomers() {
   return dispatch => {
@@ -71,7 +71,7 @@ const reducer = createReducer({
       items: updateItems(state.items, payload)
     };
   },
-  [failCustomers]: (state, {err, source}) => {
+  [failCustomers]: (state, [err, source]) => {
     console.error(err);
 
     if (source === fetchCustomers) {
