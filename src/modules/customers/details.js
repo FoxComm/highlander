@@ -9,6 +9,8 @@ export const requestCustomer = createAction('CUSTOMER_REQUEST');
 export const updateCustomer = createAction('CUSTOMER_UPDATED', (id, customer) => [id, customer]);
 export const receiveCustomerAdresses = createAction('CUSTOMER_ADDRESSES_RECEIVE', (id, addresses) => [id, addresses]);
 export const receiveCustomerCreditCards = createAction('CUSTOMER_CREDIT_CARDS_RECEIVE', (id, cards) => [id, cards]);
+export const requestCustomerAdresses = createAction('CUSTOMER_ADDRESSES_REQUEST');
+export const requestCustomerCreditCards = createAction('CUSTOMER_CREDIT_CARDS_REQUEST');
 
 export function fetchCustomer(id) {
   return dispatch => {
@@ -29,8 +31,8 @@ export function editCustomer(id, data) {
 
 export function fetchAdresses(id) {
   return dispatch => {
-    // ToDo: dispatch customer addresses fetch
-    // dispatch(requestCustomer(id));
+    dispatch(requestCustomerAdresses(id));
+
     Api.get(`/customers/${id}/addresses`)
       .then(addresses => dispatch(receiveCustomerAdresses(id, addresses)))
       .catch(err => dispatch(failCustomer(id, err, fetchCustomer)));
@@ -39,8 +41,8 @@ export function fetchAdresses(id) {
 
 export function fetchCreditCards(id) {
   return dispatch => {
-    // ToDo: dispatch customer cards fetch
-    // dispatch(requestCustomer(id));
+    dispatch(requestCustomerCreditCards(id));
+
     Api.get(`/customers/${id}/payment-methods/credit-cards`)
       .then(cards => dispatch(receiveCustomerCreditCards(id, cards)))
       .catch(err => dispatch(failCustomer(id, err, fetchCustomer)));
@@ -56,7 +58,6 @@ const reducer = createReducer({
       [id]: {
         ...entries[id],
         isFetching: true,
-        didInvalidate: false,
         err: null
       }
     };
@@ -67,7 +68,6 @@ const reducer = createReducer({
       [id]: {
         err: null,
         isFetching: false,
-        didInvalidate: false,
         details
       }
     };
@@ -81,9 +81,7 @@ const reducer = createReducer({
         ...state[id],
         err,
         ...(
-          source === fetchCustomer ? {
-            isFetching: false,
-            didInvalidate: false} : {}
+          source === fetchCustomer ? {isFetching: false} : {}
         )
       }
     };
@@ -98,25 +96,43 @@ const reducer = createReducer({
       }
     };
   },
-  [receiveCustomerAdresses]: (state, [id, addresses]) => {
-    console.log("receiveCustomerAdresses");
+  [requestCustomerAdresses]: (state, id) => {
     return {
       ...state,
       [id]: {
         ...state[id],
+        isFetchingAddresses: true
+      }
+    };
+  },
+  [requestCustomerCreditCards]: (state, id) => {
+    return {
+      ...state,
+      [id]: {
+        ...state[id],
+        isFetchingCards: true
+      }
+    };
+  },
+  [receiveCustomerAdresses]: (state, [id, addresses]) => {
+    return {
+      ...state,
+      [id]: {
+        ...state[id],
+        isFetchingAddresses: false,
         addresses
       }
-    }
+    };
   },
   [receiveCustomerCreditCards]: (state, [id, cards]) => {
-    console.log("receiveCustomerCreditCards");
     return {
       ...state,
       [id]: {
         ...state[id],
+        isFetchingCards: false,
         cards
       }
-    }
+    };
   }
 }, initialState);
 

@@ -19,6 +19,14 @@ export default class NewCustomer extends React.Component {
     history: PropTypes.object.isRequired
   };
 
+  static propTypes = {
+    createCustomer: PropTypes.func,
+    changeFormData: PropTypes.func,
+    name: PropTypes.string,
+    email: PropTypes.string,
+    id: PropTypes.number
+  }
+
   @autobind
   submitForm(event) {
     event.preventDefault();

@@ -13,7 +13,9 @@ import * as CustomersActions from '../../modules/customers/details';
 export default class CustomerCreditCards extends React.Component {
 
   static propTypes = {
-    customerId: PropTypes.number.isRequired
+    customerId: PropTypes.number.isRequired,
+    fetchCreditCards: PropTypes.func,
+    cards: PropTypes.array
   }
 
   componentDidMount() {

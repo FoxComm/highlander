@@ -13,7 +13,9 @@ import * as CustomersActions from '../../modules/customers/details';
 export default class CustomerAddressBook extends React.Component {
 
   static propTypes = {
-    customerId: PropTypes.number.isRequired
+    customerId: PropTypes.number.isRequired,
+    fetchAdresses: PropTypes.func,
+    addresses: PropTypes.array
   }
 
   componentDidMount() {
