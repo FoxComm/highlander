@@ -1,6 +1,6 @@
 package routes
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 
@@ -26,10 +26,9 @@ object Customer {
     authenticateBasicAsync(realm = "private customer routes", customerAuth) { customer ⇒
       pathPrefix("my") {
         (get & path("cart")) {
-          complete {
-            whenOrderFoundAndEditable(customer) { activeOrder ⇒
-              FullOrder.fromOrder(activeOrder).run().map(Xor.right)
-            }
+          goodOrFailures {
+            val finder = Orders.findActiveOrderByCustomer(customer)
+            finder.selectOne { _ ⇒ DbResult.fromDbio(fullOrder(finder)) }
           }
         } ~
         pathPrefix("addresses") {
@@ -60,20 +59,13 @@ object Customer {
         } ~
         pathPrefix("order") {
           (post & path("checkout")) {
-            complete {
-              whenOrderFoundAndEditable(customer) {
-                order ⇒ new Checkout(order).checkout
-              }
+            nothingOrFailures {
+              Result.unit // FIXME Stubbed until checkout is updated
             }
           } ~
           (post & path("line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems ⇒
-            complete {
-              whenOrderFoundAndEditable(customer) { order ⇒
-                LineItemUpdater.updateQuantities(order, reqItems).flatMap {
-                  case Xor.Right(_) ⇒ FullOrder.fromOrder(order).run().map(Xor.right)
-                  case Xor.Left(e)  ⇒ Future.successful(Xor.left(e))
-                }
-              }
+            goodOrFailures {
+              LineItemUpdater.updateQuantitiesOnCustomersOrder(customer, reqItems)
             }
           } ~
           (get & path(PathEnd)) {

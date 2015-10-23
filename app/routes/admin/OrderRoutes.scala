@@ -88,15 +88,13 @@ object OrderRoutes {
           }
         } ~
         (post & path("checkout")) {
-          complete {
-            whenOrderFoundAndEditable(refNum) { order ⇒ new Checkout(order).checkout }
+          nothingOrFailures {
+            Result.unit // FIXME Stubbed until checkout is updated
           }
         } ~
         (post & path("line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems ⇒
-          complete {
-            whenOrderFoundAndEditable(refNum) { order ⇒
-              LineItemUpdater.updateQuantities(order, reqItems)
-            }
+          goodOrFailures {
+            LineItemUpdater.updateQuantitiesOnOrder(refNum, reqItems)
           }
         } ~
         (post & path("gift-cards") & entity(as[AddGiftCardLineItem]) & pathEnd) { payload ⇒

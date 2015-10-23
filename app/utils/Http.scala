@@ -38,36 +38,6 @@ object Http {
         getOrElse(Future.successful(notFoundResponse))
     }
 
-  def whenOrderFoundAndEditable[G <: AnyRef](finder: Future[Option[Order]])
-                                            (f: Order ⇒ Future[Failures Xor G])
-                                            (implicit ec: ExecutionContext, db: Database): Future[HttpResponse] = {
-
-    finder.flatMap {
-      case Some(order) if !order.locked ⇒
-        f(order).map(renderGoodOrFailures)
-      case Some(order) if order.locked ⇒
-        Future.successful(renderFailure(services.Failures(LockedFailure(order.referenceNumber))))
-      case None ⇒
-        Future.successful(notFoundResponse)
-    }
-  }
-
-  def whenOrderFoundAndEditable[G <: AnyRef](customer: Customer)
-                                            (f: Order ⇒ Future[Failures Xor G])
-                                            (implicit ec: ExecutionContext, db: Database): Future[HttpResponse] = {
-
-    val finder = Orders.findActiveOrderByCustomer(customer).one.run()
-    whenOrderFoundAndEditable(finder)(f)
-  }
-
-  def whenOrderFoundAndEditable[G <: AnyRef](refNumber: String)
-                                            (f: Order ⇒ Future[Failures Xor G])
-                                            (implicit ec: ExecutionContext, db: Database): Future[HttpResponse] = {
-
-    val finder = Orders.findByRefNum(refNumber).one.run()
-    whenOrderFoundAndEditable(finder)(f)
-  }
-
   def renderOrNotFound[A <: AnyRef](resource: Future[Option[A]],
     onFound: (A ⇒ HttpResponse) = (r: A) ⇒ render(r))(implicit ec: ExecutionContext) = {
     resource.map {
