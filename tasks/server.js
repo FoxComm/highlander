@@ -1,7 +1,7 @@
 'use strict';
 
 
-const spawn = require('child_process').spawn;
+const child_process = require('child_process');
 const runSequence = require('run-sequence');
 
 let affectsServerTasks = {};
@@ -51,7 +51,7 @@ module.exports = function(gulp, opts, $) {
     if (node) {
       console.warn('Server already started');
     } else {
-      node = spawn('iojs', ['--harmony', 'boot.js'], {stdio: 'inherit'});
+      node = child_process.fork('boot.js');
     }
   });
 
