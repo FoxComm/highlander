@@ -8,7 +8,7 @@ import Extensions._
 import models.Order._
 import models._
 import payloads.{BulkAssignment, BulkUpdateOrdersPayload}
-import responses.ResponseWithFailures.BulkOrderUpdateResponse
+import responses.ResponseWithFailuresAndMetadata.BulkOrderUpdateResponse
 import responses.{StoreAdminResponse, FullOrder, AllOrders}
 import services.{OrderStatusTransitionNotAllowed, LockedFailure, OrderQueries, NotFoundFailure404}
 import util.IntegrationTestBase

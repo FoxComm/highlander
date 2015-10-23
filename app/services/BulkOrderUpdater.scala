@@ -3,8 +3,8 @@ package services
 import scala.concurrent.ExecutionContext
 
 import models.{Order, OrderAssignment, OrderAssignments, Orders, StoreAdmin, StoreAdmins}
-import responses.ResponseWithFailures
-import responses.ResponseWithFailures.BulkOrderUpdateResponse
+import responses.ResponseWithFailuresAndMetadata
+import responses.ResponseWithFailuresAndMetadata.BulkOrderUpdateResponse
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.Slick.implicits._
@@ -21,7 +21,7 @@ object BulkOrderUpdater {
       allOrders ← (OrderAssignments ++= newAssignments) >> OrderQueries.findAll
       adminNotFound = adminNotFoundFailure(admin.headOption, payload.assigneeId)
       ordersNotFound = ordersNotFoundFailures(payload.referenceNumbers, orders.map(_.referenceNumber))
-    } yield ResponseWithFailures.fromFailureList(allOrders, adminNotFound ++ ordersNotFound)
+    } yield ResponseWithFailuresAndMetadata.fromFailureList(allOrders, adminNotFound ++ ordersNotFound)
 
     Result.fromFuture(query.transactionally.run())
   }
@@ -39,7 +39,7 @@ object BulkOrderUpdater {
       allOrders ← delete >> OrderQueries.findAll
       adminNotFound = adminNotFoundFailure(adminId.headOption, payload.assigneeId)
       ordersNotFound = ordersNotFoundFailures(payload.referenceNumbers, orders.map(_.referenceNumber))
-    } yield ResponseWithFailures.fromFailureList(allOrders, adminNotFound ++ ordersNotFound)
+    } yield ResponseWithFailuresAndMetadata.fromFailureList(allOrders, adminNotFound ++ ordersNotFound)
 
     Result.fromFuture(query.transactionally.run())
   }
