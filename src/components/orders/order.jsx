@@ -1,6 +1,8 @@
 'use strict';
 
 import React, { PropTypes } from 'react';
+import Dropdown from '../dropdown/dropdown';
+import DropdownItem from '../dropdown/dropdownItem';
 import { Link, IndexLink } from '../link';
 import Viewers from '../viewers/viewers';
 import ConfirmModal from '../modal/confirm';
@@ -61,12 +63,27 @@ export default class Order extends React.Component {
       order         = this.order,
       subNav        = null,
       viewers       = null,
-      orderStatus   = null,
       remorseTimer  = null;
 
     if (!order) {
       return <div className="fc-order"></div>;
     }
+
+    // order status render
+    const orderStatuses = {
+      cart: 'Cart',
+      remorseHold: 'Remorse Hold',
+      manualHold: 'Manual Hold',
+      fraudHold: 'Fraud Hold',
+      fulfillmentStarted: 'Fulfillment Started',
+      canceled: 'Canceled',
+      partiallyShipped: 'Partially Shipped',
+      shipped: 'Shipped'
+    };
+
+    const orderStatus = (
+      <Dropdown name="orderStatus" items={orderStatuses} placeholder={'Order status'} value={order.orderStatus}/>
+    );
 
     const content = React.cloneElement(this.props.children, {order, modelName: 'order', ...this.props});
 
