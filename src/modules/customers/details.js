@@ -59,7 +59,7 @@ export function fetchCreditCards(id) {
   return dispatch => {
     // ToDo: dispatch customer cards fetch
     // dispatch(requestCustomer(id));
-    Api.get(`/customers/${id}/credit-cards`)
+    Api.get(`/customers/${id}/payment-methods/credit-cards`)
       .then(cards => dispatch(receiveCustomerCreditCards(id, cards)))
       .catch(err => dispatch(failCustomer(id, err, fetchCustomer)));
   };
