@@ -10,30 +10,12 @@ export const updateCustomer = createAction('CUSTOMER_UPDATED', (id, customer) =>
 export const receiveCustomerAdresses = createAction('CUSTOMER_ADDRESSES_RECEIVE', (id, addresses) => [id, addresses]);
 export const receiveCustomerCreditCards = createAction('CUSTOMER_CREDIT_CARDS_RECEIVE', (id, cards) => [id, cards]);
 
-function shouldFetchCustomer(id, state) {
-  const entry = state.customers.details[id];
-  if (!entry) {
-    return true;
-  } else if (entry.isFetching) {
-    return false;
-  }
-  return entry.didInvalidate;
-}
-
 export function fetchCustomer(id) {
   return dispatch => {
     dispatch(requestCustomer(id));
     Api.get(`/customers/${id}`)
       .then(customer => dispatch(receiveCustomer(id, customer)))
       .catch(err => dispatch(failCustomer(id, err, fetchCustomer)));
-  };
-}
-
-export function fetchCustomerIfNeeded(id) {
-  return (dispatch, getState) => {
-    if (shouldFetchCustomer(id, getState())) {
-      dispatch(fetchCustomer(id));
-    }
   };
 }
 

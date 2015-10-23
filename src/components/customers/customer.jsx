@@ -23,7 +23,7 @@ export default class Customer extends React.Component {
   componentDidMount() {
     const { customer } = this.props.params;
 
-    this.props.fetchCustomerIfNeeded(customer);
+    this.props.fetchCustomer(customer);
   }
 
 
