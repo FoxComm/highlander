@@ -2,13 +2,15 @@
 
 import React, { PropTypes } from 'react';
 import { Link } from '../link';
-import { listenTo, stopListeningTo, dispatch } from '../../lib/dispatcher';
-import RmaStore from '../../stores/rmas';
 import Notes from '../notes/notes';
 import Viewers from '../viewers/viewers';
+import { connect } from 'react-redux';
+import * as rmaActions from '../../modules/rmas/details';
 
+@connect((state, props) => ({
+  ...state.rmas.details[props.params.rma]
+}), rmaActions)
 export default class Rma extends React.Component {
-
   static propTypes = {
     params: PropTypes.shape({
       rma: PropTypes.string.isRequired
@@ -16,65 +18,61 @@ export default class Rma extends React.Component {
     children: PropTypes.node
   };
 
-  constructor(props, context) {
-    super(props, context);
+  constructor(...args) {
+    super(...args);
     this.state = {
-      rma: {},
       pendingStatus: null
     };
   }
 
   componentDidMount() {
     let { rma }  = this.props.params;
-    RmaStore.listenToEvent('change', this);
-    RmaStore.fetch(rma);
+
+    this.props.fetchRmaIfNeeded(rma);
   }
 
-  componentWillUnmount() {
-    RmaStore.stopListeningToEvent('change', this);
+  get viewers() {
+    return <Viewers model='returns' modelId={this.props.rma.id} />;
   }
 
-  onChangeRmaStore(rma) {
-    this.setState({
-      rma: rma
-    });
+  get notes() {
+    return (
+      <div className="fc-grid">
+        <div className="fc-col-md-1-1">
+          <Notes return={this.props.rma} modelName={'return'} />
+        </div>
+      </div>
+    );
+  }
+
+  get subNav() {
+    const rma = this.props.rma;
+    const params = {rma: rma && rma.referenceNumber || ''};
+    const content = React.cloneElement(this.props.children, {rma, modelName: 'rma'});
+
+    return (
+      <div className="gutter">
+        <ul className="fc-tabbed-nav">
+          <li><Link to="rma-details" params={params}>Details</Link></li>
+          <li><Link to="rma-notifications" params={params}>Transaction Notifications</Link></li>
+          <li><Link to="rma-activity-trail" params={params}>Activity Trail</Link></li>
+        </ul>
+        {content}
+      </div>
+    );
+  }
+
+  get itemsCount() {
+    return this.props.rma.lineItems.length;
   }
 
   render() {
-    let rma = this.state.rma;
-    let params = {rma: rma && rma.referenceNumber || ''};
-    let viewers = null;
-    let notes = null;
-    let subNav = null;
-    let itemsCount = 0;
-
-    const content = React.cloneElement(this.props.children, {rma, modelName: 'rma'});
-
-    if (rma.id) {
-      viewers = (
-        <Viewers model='returns' modelId={rma.id}/>
-      );
-      notes = (
-        <div className="gutter">
-          <Notes return={rma} modelName={'return'}/>
-        </div>
-      );
-      subNav = (
-        <div className="gutter">
-          <ul className="fc-tabbed-nav">
-            <li><Link to="rma-details" params={params}>Details</Link></li>
-            <li><Link to="rma-notifications" params={params}>Transaction Notifications</Link></li>
-            <li><Link to="rma-activity-trail" params={params}>Activity Trail</Link></li>
-          </ul>
-          {content}
-        </div>
-      );
-      itemsCount = rma.lineItems.length;
-    }
+    const rma = this.props.rma;
+    const params = {rma: rma && rma.referenceNumber || ''};
 
     return (
       <div className="fc-rma">
-        {viewers}
+        {this.viewers}
         <div className="gutter title">
           <div>
             <h1>Return {rma.referenceNumber}</h1>
@@ -91,11 +89,11 @@ export default class Rma extends React.Component {
           </dl>
           <dl>
             <dt>Items</dt>
-            <dd>{itemsCount}</dd>
+            <dd>{this.itemsCount}</dd>
           </dl>
         </div>
-        {notes}
-        {subNav}
+        {this.notes}
+        {this.subNav}
       </div>
     );
   }
