@@ -23,21 +23,40 @@ object Http {
   val noContentResponse:  HttpResponse  = HttpResponse(NoContent)
   val badRequestResponse: HttpResponse  = HttpResponse(BadRequest)
 
-  final case class GoodWithMetadata[A](
-    result    : A,
+  sealed trait CheckDefined { self: Product ⇒
+
+    def isDefined: Boolean = this.productIterator.exists {
+      case None ⇒ false      
+      case _    ⇒ true
+    }
+    
+    def ifDefined: Option[this.type] = if(isDefined) Some(this) else None
+  }
+
+  final case class HttpResponsePagingMetadata(
     from      : Option[Int] = None,
     size      : Option[Int] = None,
     pageNo    : Option[Int] = None,
-    totalPages: Option[Int] = None)
+    totalPages: Option[Int] = None) extends CheckDefined
+
+  final case class HttpResponseSortingMetadata(sortBy: Option[String] = None) extends CheckDefined
+
+  final case class HttpResponseWithMetadata[A](
+    result    : A,
+    pagination: Option[HttpResponsePagingMetadata]  = None,
+    sorting   : Option[HttpResponseSortingMetadata] = None)
   
-  object GoodWithMetadata {
-    def apply[A](result : A, metadata: ResponseMetadata): GoodWithMetadata[A] = {
-      GoodWithMetadata(
+  object HttpResponseWithMetadata {
+    def apply[A](result : A, metadata: ResponseMetadata): HttpResponseWithMetadata[A] = {
+      HttpResponseWithMetadata(
         result = result,
-        from = metadata.from,
-        size = metadata.size,
-        pageNo = metadata.pageNo,
-        totalPages = metadata.totalPages)
+        sorting = HttpResponseSortingMetadata(sortBy = metadata.sortBy).ifDefined,
+        pagination = HttpResponsePagingMetadata(
+          from = metadata.from,
+          size = metadata.size,
+          pageNo = metadata.pageNo,
+          totalPages = metadata.totalPages).ifDefined
+      )
     }
   }  
   
@@ -111,7 +130,7 @@ object Http {
     HttpResponse(statusCode, entity = jsonEntity(resource))
 
   def renderWithMetadata[A <: AnyRef](resource: A, metadata: ResponseMetadata, statusCode: StatusCode = OK) =
-    HttpResponse(statusCode, entity = jsonEntity(GoodWithMetadata(resource, metadata)))
+    HttpResponse(statusCode, entity = jsonEntity(HttpResponseWithMetadata(resource, metadata)))
 
   def renderFailure(failures: Failures, statusCode: ClientError = BadRequest): HttpResponse = {
     import services._

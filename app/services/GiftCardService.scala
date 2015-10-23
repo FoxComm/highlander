@@ -28,43 +28,13 @@ object GiftCardService {
   type QuerySeq = GiftCards.QuerySeq
   type QuerySeqWithMetadata = GiftCards.QuerySeqWithMetadata
 
-  def sortedAndPaged(query: QuerySeq)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata = {
-    query.withMetadata.sortAndPageIfNeeded { (s, giftCard) ⇒
-      s.sortColumn match {
-        case "id"               ⇒ if(s.asc) giftCard.id.asc               else giftCard.id.desc
-        case "originId"         ⇒ if(s.asc) giftCard.originId.asc         else giftCard.originId.desc
-        case "originType"       ⇒ if(s.asc) giftCard.originType.asc       else giftCard.originType.desc
-        case "subTypeId"        ⇒ if(s.asc) giftCard.subTypeId.asc        else giftCard.subTypeId.desc
-        case "code"             ⇒ if(s.asc) giftCard.code.asc             else giftCard.code.desc
-        case "status"           ⇒ if(s.asc) giftCard.status.asc           else giftCard.status.desc
-        case "currency"         ⇒ if(s.asc) giftCard.currency.asc         else giftCard.currency.desc
-        case "originalBalance"  ⇒ if(s.asc) giftCard.originalBalance.asc  else giftCard.originalBalance.desc
-        case "currentBalance"   ⇒ if(s.asc) giftCard.currentBalance.asc   else giftCard.currentBalance.desc
-        case "availableBalance" ⇒ if(s.asc) giftCard.availableBalance.asc else giftCard.availableBalance.desc
-        case "canceledAmount"   ⇒ if(s.asc) giftCard.canceledAmount.asc   else giftCard.canceledAmount.desc
-        case "canceledReason"   ⇒ if(s.asc) giftCard.canceledReason.asc   else giftCard.canceledReason.desc
-        case "reloadable"       ⇒ if(s.asc) giftCard.reloadable.asc       else giftCard.reloadable.desc
-        case "createdAt"        ⇒ if(s.asc) giftCard.createdAt.asc        else giftCard.createdAt.desc
-        case _                  ⇒ giftCard.id.asc
-      }
-    }
-  }
-
-  def queryAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata =
-    sortedAndPaged(GiftCards)
-
   def findAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
-    queryAll.result.map(_.map(GiftCardResponse.build(_)))
+    GiftCards.queryAll.result.map(_.map(GiftCardResponse.build(_)))
   }
-
-  def queryByCode(code: String)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata =
-    sortedAndPaged(GiftCards.findByCode(code))
 
   def findByCode(code: String)
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
-    val query = queryByCode(code)
+    val query = GiftCards.queryByCode(code)
     query.result.map(_.map(GiftCardResponse.build(_)))
   }
 

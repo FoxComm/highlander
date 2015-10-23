@@ -106,6 +106,7 @@ object Slick {
 
   object implicits {
     final case class QueryMetadata(
+      sortBy    : Option[String]      = None,
       from      : Option[Int]         = None,
       size      : Option[Int]         = None,
       pageNo    : Option[Int]         = None,
@@ -116,10 +117,11 @@ object Slick {
     }
 
     final case class ResponseMetadata(
-      from      : Option[Int] = None,
-      size      : Option[Int] = None,
-      pageNo    : Option[Int] = None,
-      totalPages: Option[Int] = None)
+      sortBy    : Option[String] = None,
+      from      : Option[Int]    = None,
+      size      : Option[Int]    = None,
+      pageNo    : Option[Int]    = None,
+      totalPages: Option[Int]    = None)
 
 
     final case class ResponseWithMetadata[A](result: Failures Xor A, metadata: ResponseMetadata)
@@ -136,6 +138,7 @@ object Slick {
               yield ResponseWithMetadata(
                 res,
                 ResponseMetadata(
+                  sortBy = metadata.sortBy,
                   from = metadata.from,
                   size = metadata.size,
                   pageNo = metadata.pageNo,
@@ -150,6 +153,7 @@ object Slick {
             } yield ResponseWithMetadata(
               res,
               ResponseMetadata(
+                sortBy = metadata.sortBy,
                 from = metadata.from,
                 size = metadata.size,
                 pageNo = metadata.pageNo,
@@ -212,6 +216,7 @@ object Slick {
         } yield (from / size) + 1
 
         val metadata = QueryMetadata(
+          sortBy = sortAndPage.sortBy,
           from = sortAndPage.from,
           size = sortAndPage.size,
           pageNo = pageNo,

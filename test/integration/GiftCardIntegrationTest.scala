@@ -11,6 +11,7 @@ import responses._
 import services._
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
+import utils.Http.HttpResponseWithMetadata
 import utils.Seeds.Factories
 import utils.Slick.implicits._
 import utils.Money._
@@ -70,8 +71,8 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       val giftCards = Seq(giftCard, gcSecond)
 
       response.status must ===(StatusCodes.OK)
-      val cards = response.as[Seq[GiftCard]]
-      cards.map(_.id).sorted must ===(giftCards.map(_.id).sorted)
+      val resp = response.as[HttpResponseWithMetadata[Seq[GiftCard]]]
+      resp.result.map(_.id).sorted must ===(giftCards.map(_.id).sorted)
     }
   }
 
