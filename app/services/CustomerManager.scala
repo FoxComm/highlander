@@ -76,7 +76,7 @@ object CustomerManager {
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
     val customer = Customer.buildFromPayload(payload)
 
-    def saveWithConstraintCheck(customer: Customer): Result[Root] = {
+    def result = {
       withUniqueConstraint {
         Customers.save(customer).run()
       } { e ⇒ CustomerEmailNotUnique }.flatMap {
@@ -87,14 +87,14 @@ object CustomerManager {
 
     (for {
       _    ← ResultT.fromXor(customer.validate.toXor)
-      root ← ResultT(saveWithConstraintCheck(customer))
+      root ← ResultT(result)
     } yield root).value
   }
 
   def update(customerId: Int, payload: UpdateCustomerPayload)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
 
-    def updateWithConstraintCheck(customerId: Int, payload: UpdateCustomerPayload) = {
+    def result = {
       val finder = Customers.filter(_.id === customerId)
       val result = withUniqueConstraint {
         finder.selectOneForUpdate { customer ⇒
@@ -113,7 +113,7 @@ object CustomerManager {
 
     (for {
       _ ← ResultT.fromXor(payload.validate.toXor)
-      root ← ResultT(updateWithConstraintCheck(customerId, payload))
+      root ← ResultT(result)
     } yield root).value
   }
 
@@ -121,7 +121,7 @@ object CustomerManager {
   def activate(customerId: Int, payload: ActivateCustomerPayload)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
 
-    def activateWithConstraintCheck(customerId: Int, payload: ActivateCustomerPayload): Result[Root] = {
+    def result = {
       val finder = Customers.filter(_.id === customerId)
       val result = withUniqueConstraint {
         finder.selectOneForUpdate { customer ⇒
@@ -135,9 +135,10 @@ object CustomerManager {
 
       result.flatMap(_.fold(Result.failure(_), Future.successful(_)))
     }
+
     (for {
       _    ← ResultT.fromXor(payload.validate.toXor)
-      root ← ResultT(activateWithConstraintCheck(customerId, payload))
+      root ← ResultT(result)
     } yield root).value
   }
 }
