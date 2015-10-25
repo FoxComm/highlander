@@ -91,7 +91,7 @@ object CustomerManager {
     } yield root).value
   }
 
-  def updateFromPayload(customerId: Int, payload: UpdateCustomerPayload)
+  def update(customerId: Int, payload: UpdateCustomerPayload)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
 
     def updateWithConstraintCheck(customerId: Int, payload: UpdateCustomerPayload) = {

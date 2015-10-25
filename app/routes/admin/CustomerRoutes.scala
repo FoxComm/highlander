@@ -49,7 +49,7 @@ object CustomerRoutes {
         } ~
         (patch & entity(as[UpdateCustomerPayload]) & pathEnd) { payload ⇒
           goodOrFailures {
-            CustomerManager.updateFromPayload(customerId, payload)
+            CustomerManager.update(customerId, payload)
           }
         } ~
         (post & path("activate") & entity(as[ActivateCustomerPayload])) { payload ⇒
