@@ -131,9 +131,6 @@ object Slick {
       def map[S](f: A => S)(implicit ec: ExecutionContext): ResultWithMetadata[S] =
         this.copy(result = result.map(_.map(f)))
 
-      def flatMap[S](f: Failures Xor A => DBIO[S])(implicit ec: ExecutionContext): ResultWithMetadata[S] =
-        this.copy(result = DbResult.fromDbio(result.flatMap(f)))
-
       def asResponseFuture(implicit db: Database, ec: ExecutionContext): Future[ResponseWithMetadata[A]] = {
         metadata.total match {
           case None                   ⇒
