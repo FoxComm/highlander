@@ -54,7 +54,7 @@ object Admin {
       pathPrefix("shipping-methods" / orderRefNumRegex) { refNum ⇒
         (get & pathEnd) {
           goodOrFailures {
-            Orders.findByRefNum(refNum).selectOneForUpdateIgnoringLock { order ⇒
+            Orders.findByRefNum(refNum).selectOne { order ⇒
               ShippingManager.getShippingMethodsForOrder(order)
             }
           }

@@ -79,6 +79,10 @@ final case class OrderMustBeCart(referenceNumber: String) extends Failure {
   override def description = List(s"order with referenceNumber=$referenceNumber is not in cart status")
 }
 
+final case class GiftCardMustBeCart(code: String) extends Failure {
+  override def description = List(s"giftCart with code=$code is not in cart status")
+}
+
 final case class GiftCardConvertFailure(gc: GiftCard) extends Failure {
   override def description = List(s"cannot convert a gift card with status '${gc.status}'")
 }
