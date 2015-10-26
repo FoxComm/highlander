@@ -2,6 +2,7 @@
 
 const path = require('path');
 const runSequence = require('run-sequence');
+require('babel/register');
 
 const mochaOpts = {
   reporter: 'dot',
@@ -14,16 +15,15 @@ const mochaOpts = {
 };
 
 module.exports = function(gulp, opts, $) {
-  let specs = path.join(opts.testDir, '/specs/**/*.js');
-  let acceptance = path.join(opts.testDir, '/acceptance/**/*.jsx');
+  const specs = path.join(opts.testDir, '/specs/**/*.js');
+  const acceptance = path.join(opts.testDir, '/acceptance/**/*.jsx');
+
 
   gulp.task('mocha.main', function() {
+    const setup = path.join(opts.testDir, '/acceptance/_setup/index.js');
 
-    const acceptanceOpts = Object.assign({}, mochaOpts);
-    acceptanceOpts.require = mochaOpts.require.concat(['./test/acceptance/setup']);
-
-    return gulp.src([specs, acceptance], {read: false})
-      .pipe($.mocha(acceptanceOpts));
+    return gulp.src([setup, specs, acceptance], {read: false})
+      .pipe($.mocha(mochaOpts));
   });
 
   gulp.task('mocha.unit', function() {

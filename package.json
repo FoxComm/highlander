@@ -7,7 +7,9 @@
   "engines": {
     "node": ">=4.2.0"
   },
-  "os" : [ "!win32" ],
+  "os": [
+    "!win32"
+  ],
   "scripts": {
     "test": "make test",
     "start": "node --harmony boot.js",
@@ -161,13 +163,15 @@
     "merge-stream": "^1.0.0",
     "mocha": "^2.3.0",
     "node-notifier": "^4.2.3",
-    "react-addons-test-utils": "^0.14.0-rc1",
+    "react-addons-test-utils": "^0.14.0",
     "rimraf": "^2.4.2",
     "run-sequence": "^1.1.2",
     "sinon": "^1.16.1",
     "strip-ansi": "^3.0.0",
     "testdom": "git+https://github.com/FoxComm/testdom.git",
     "through2": "^2.0.0",
+    "unexpected": "^10.0.2",
+    "unexpected-react-shallow": "^0.7.0",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^3.3.1",
