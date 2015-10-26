@@ -191,6 +191,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       val response = GET(s"v1/gift-cards/subtypes/csrAppeasement")
       val root = response.as[Seq[GiftCardSubtype]]
 
+      Console.println(root)
       response.status must ===(StatusCodes.OK)
       root.size mustBe 3
     }
@@ -199,7 +200,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       val response = GET(s"v1/gift-cards/subtypes/donkeyAppeasement")
 
       response.status must ===(StatusCodes.BadRequest)
-      response.errors must ===(InvalidOriginTypeFailure.single)
+      response.errors must ===(InvalidOriginTypeFailure.description)
     }
   }
 
