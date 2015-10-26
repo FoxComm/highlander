@@ -39,9 +39,9 @@ class TableQueryIntegrationTest extends IntegrationTestBase with CatsHelpers {
     }
 
     "should bypass lock" in new Fixture {
-      val result = finder.selectOneForUpdateIgnoringLock { _ ⇒
+      val result = finder.selectOne ({ _ ⇒
         DbResult.fromDbio(finder.map(_.status).updateReturning(Orders.map(identity), Order.FraudHold).head)
-      }.futureValue
+      }, checks = Set.empty).futureValue
 
       rightValue(result).status mustBe Order.FraudHold
     }
