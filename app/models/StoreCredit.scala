@@ -74,8 +74,8 @@ object StoreCredit {
   case object FullyRedeemed extends Status
 
   sealed trait OriginType
-  case object GiftCardTransfer extends OriginType
   case object CsrAppeasement extends OriginType
+  case object GiftCardTransfer extends OriginType
   case object ReturnProcess extends OriginType
 
   object Status extends ADT[Status] {
@@ -86,6 +86,7 @@ object StoreCredit {
     def types = sealerate.values[OriginType]
   }
 
+  val originTypeRegex = """([a-zA-Z]*)""".r
   val activeStatuses = Set[Status](Active)
 
   def validateStatusReason(status: Status, reason: Option[Int]): ValidatedNel[Failure, Unit] = {

@@ -7,6 +7,7 @@ import cats.data.Xor
 import cats.implicits._
 
 import models.StoreCredit.Canceled
+import models.StoreCredit.{CsrAppeasement, GiftCardTransfer, ReturnProcess}
 import models._
 import models.StoreCreditSubtypes.scope._
 import responses.StoreCreditResponse
@@ -20,6 +21,17 @@ import utils.Slick.implicits._
 
 object StoreCreditService {
   type QuerySeq = StoreCredits.QuerySeq
+
+  def getOriginTypes: Seq[StoreCredit.OriginType] = StoreCredit.OriginType.types.toSeq
+
+  def getSubTypes(originType: String)(implicit db: Database, ec: ExecutionContext): Result[Seq[StoreCreditSubtype]] = {
+    StoreCredit.OriginType.read(originType) match {
+      case Some(CsrAppeasement)   ⇒ StoreCreditSubtypes.csrAppeasements.select(DbResult.good)
+      case Some(GiftCardTransfer) ⇒ StoreCreditSubtypes.giftCardTransfers.select(DbResult.good)
+      case Some(ReturnProcess)    ⇒ StoreCreditSubtypes.returnProcesses.select(DbResult.good)
+      case _                      ⇒ Result.failure(InvalidOriginTypeFailure)
+    }
+  }
 
   def sortedAndPaged(query: QuerySeq)
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeq = {

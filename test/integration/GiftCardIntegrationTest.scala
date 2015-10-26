@@ -187,12 +187,12 @@ class GiftCardIntegrationTest extends IntegrationTestBase
   }
 
   "GET /v1/gift-cards/subtypes/:type" - {
-    "should return all GC subtypes for provided origin type" in new Fixture {
+    "should return all GC subtypes for csrAppeasement" in new Fixture {
       val response = GET(s"v1/gift-cards/subtypes/csrAppeasement")
       val root = response.as[Seq[GiftCardSubtype]]
 
       response.status must ===(StatusCodes.OK)
-      root.size mustBe 3
+      root.head must ===(gcSubType)
     }
 
     "should return error on invalid subtype" in new Fixture {
@@ -378,7 +378,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
   }
 
   trait Fixture {
-    val (customer, admin, giftCard, order, payment, adjustment1, gcSecond) = (for {
+    val (customer, admin, giftCard, order, payment, adjustment1, gcSecond, gcSubType) = (for {
       customer ← Customers.save(Factories.customer)
       order ← Orders.save(Factories.order.copy(customerId = customer.id))
       admin ← StoreAdmins.save(authedStoreAdmin)
@@ -392,7 +392,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
         paymentMethodType = PaymentMethod.GiftCard))
       adjustment1 ← GiftCards.auth(giftCard, Some(payment.id), 10)
       giftCard ← GiftCards.findOneById(giftCard.id)
-    } yield (customer, admin, giftCard.value, order, payment, adjustment1, gcSecond)).run()
+    } yield (customer, admin, giftCard.value, order, payment, adjustment1, gcSecond, gcSubType)).run()
       .futureValue
   }
 }

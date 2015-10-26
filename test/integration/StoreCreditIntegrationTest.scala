@@ -3,6 +3,7 @@ import scala.util.Random
 import scala.collection.JavaConverters._
 import akka.http.scaladsl.model.StatusCodes
 
+import models.StoreCredit.{ReturnProcess, GiftCardTransfer, CsrAppeasement}
 import models._
 import models.StoreCredit.{Canceled, Active, OnHold}
 import org.joda.money.CurrencyUnit
@@ -72,6 +73,33 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
   // paging and sorting API end
 
   "StoreCredits" - {
+    "GET /v1/gift-cards/types" - {
+      "should return all GC types" in new Fixture {
+        val response = GET(s"v1/store-credits/types")
+        val root = response.as[Seq[StoreCredit.OriginType]]
+
+        response.status must ===(StatusCodes.OK)
+        root must ===(Seq(CsrAppeasement, GiftCardTransfer, ReturnProcess))
+      }
+    }
+
+    "GET /v1/gift-cards/subtypes/:type" - {
+      "should return all GC subtypes for csrAppeasement" in new Fixture {
+        val response = GET(s"v1/store-credits/subtypes/csrAppeasement")
+        val root = response.as[Seq[StoreCreditSubtype]]
+
+        response.status must ===(StatusCodes.OK)
+        root.head must ===(scSubType)
+      }
+
+      "should return error on invalid subtype" in new Fixture {
+        val response = GET(s"v1/gift-cards/subtypes/donkeyAppeasement")
+
+        response.status must ===(StatusCodes.BadRequest)
+        response.errors must ===(InvalidOriginTypeFailure.description)
+      }
+    }
+
     "POST /v1/customers/:id/payment-methods/store-credit" - {
       "when successful" - {
         "responds with the new storeCredit" in new Fixture {
@@ -307,7 +335,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
   }
 
   trait Fixture {
-    val (admin, customer, scReason, storeCredit, order, adjustment, scSecond, payment) = (for {
+    val (admin, customer, scReason, storeCredit, order, adjustment, scSecond, payment, scSubType) = (for {
       admin       ← StoreAdmins.save(authedStoreAdmin)
       customer    ← Customers.save(Factories.customer)
       order       ← Orders.save(Factories.order.copy(customerId = customer.id))
@@ -320,7 +348,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       payment ← OrderPayments.save(Factories.storeCreditPayment.copy(orderId = order.id,
         paymentMethodId = storeCredit.id, paymentMethodType = PaymentMethod.StoreCredit))
       adjustment ← StoreCredits.auth(storeCredit, Some(payment.id), 10)
-    } yield (admin, customer, scReason, storeCredit, order, adjustment, scSecond, payment)).run().futureValue
+    } yield (admin, customer, scReason, storeCredit, order, adjustment, scSecond, payment, scSubType)).run().futureValue
   }
 }
 
