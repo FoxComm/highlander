@@ -2,6 +2,10 @@
 
 import React, { PropTypes } from 'react';
 import TableView from '../table/tableview';
+import TableRow from '../table/row';
+import TableCell from '../table/cell';
+import Link from '../link/link';
+import DateTime from '../datetime/datetime';
 import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
 import SectionTitle from '../section-title/section-title';
@@ -10,8 +14,7 @@ import * as orderActions from '../../modules/orders';
 import LocalNav from '../local-nav/local-nav';
 
 @connect(state => ({orders: state.orders}), orderActions)
-export default
-class Orders extends React.Component {
+export default class Orders extends React.Component {
 
   static propTypes = {
     tableColumns: PropTypes.array,
@@ -40,12 +43,27 @@ class Orders extends React.Component {
   }
 
   render() {
-    let orders = this.props.orders.items || [];
+    const renderRow = (row) => (
+      <TableRow>
+        <TableCell>
+          <Link to={'order'} params={{order: row.referenceNumber}}>
+            {row.referenceNumber}
+          </Link>
+        </TableCell>
+        <TableCell>
+          <DateTime>{this.createdAt}</DateTime>
+        </TableCell>
+        <TableCell>{row.email}</TableCell>
+        <TableCell>{row.orderStatus}</TableCell>
+        <TableCell>{row.paymentStatus}</TableCell>
+        <TableCell>{row.total}</TableCell>
+      </TableRow>
+    );
 
     return (
       <div id="orders">
         <div>
-          <SectionTitle title="Orders" subtitle={orders.size} buttonClickHandler={this.handleAddOrderClick }/>
+          <SectionTitle title="Orders" subtitle={this.props.orders.total} buttonClickHandler={this.handleAddOrderClick }/>
           <LocalNav>
             <a href="">Lists</a>
             <a href="">Returns</a>
@@ -56,7 +74,7 @@ class Orders extends React.Component {
           </TabListView>
         </div>
         <div>
-          <TableView data={{
+          <TableView renderRow={renderRow} data={{
             columns: this.props.tableColumns,
             rows: this.props.orders.items || [],
             ...this.props.orders
