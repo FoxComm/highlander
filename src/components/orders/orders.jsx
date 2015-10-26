@@ -1,7 +1,7 @@
 'use strict';
 
 import React, { PropTypes } from 'react';
-import TableView from '../tables/tableview';
+import TableView from '../table/tableview';
 import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
 import SectionTitle from '../section-title/section-title';
@@ -10,16 +10,14 @@ import * as orderActions from '../../modules/orders';
 import LocalNav from '../local-nav/local-nav';
 
 @connect(state => ({orders: state.orders}), orderActions)
-export default class Orders extends React.Component {
-  constructor(props, context) {
-    super(props, context);
-  }
+export default
+class Orders extends React.Component {
 
   static propTypes = {
     tableColumns: PropTypes.array,
     subNav: PropTypes.array,
-    orders: PropTypes.shape({ items: PropTypes.array }),
-    fetchOrdersIfNeeded: PropTypes.func,
+    orders: PropTypes.shape({items: PropTypes.array}),
+    fetchOrdersIfNeeded: PropTypes.func
   };
 
   static defaultProps = {
@@ -58,11 +56,11 @@ export default class Orders extends React.Component {
           </TabListView>
         </div>
         <div>
-          <TableView
-            columns={this.props.tableColumns}
-            rows={orders}
-            model='order'
-            />
+          <TableView data={{
+            columns: this.props.tableColumns,
+            rows: this.props.orders.items || [],
+            ...this.props.orders
+          }}/>
         </div>
       </div>
     );

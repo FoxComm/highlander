@@ -5,15 +5,12 @@ import classNames from 'classnames';
 import TableRow from './row';
 
 export default class TableHead extends React.Component {
-  static propTypes = {
-    store: React.PropTypes.instanceOf(TableStore)
-  };
 
   constructor(props, ...args) {
     super(props, ...args);
     this.state = {
-      sortingField: this.props.store.sortingField,
-      sortingOrder: this.props.store.sortingOrder
+      sortingField: this.props.data.sortingField,
+      sortingOrder: this.props.data.sortingOrder
     };
   }
 
@@ -23,7 +20,7 @@ export default class TableHead extends React.Component {
       sortingField: field,
       sortingOrder: (field === this.state.sortingField) ? !this.state.sortingOrder : true
     }, () => {
-      this.props.store.setSorting(this.state.sortingField, this.state.sortingOrder);
+      this.props.data.setSorting(this.state.sortingField, this.state.sortingOrder);
     });
   }
 
@@ -49,7 +46,7 @@ export default class TableHead extends React.Component {
     return (
       <thead>
         <TableRow>
-          {this.props.store.columns.map(renderColumn)}
+          {this.props.data.columns.map(renderColumn)}
         </TableRow>
       </thead>
     );

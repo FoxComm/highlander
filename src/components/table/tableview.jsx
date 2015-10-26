@@ -6,9 +6,7 @@ import Table from './table';
 const TableView = (props) => {
   return (
     <div className="fc-tableview">
-      {props.data.items.length && (
-        <Table data={props.data} renderRow={props.renderRow}/>
-      )}
+      <Table data={props.data} renderRow={props.renderRow}/>
     </div>
   );
 };
