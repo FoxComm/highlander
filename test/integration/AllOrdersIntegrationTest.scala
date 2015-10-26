@@ -26,7 +26,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
   def uriPrefix = "v1/orders"
 
   def responseItems = {
-    val items = (1 to 30).map { i ⇒
+    val items = (1 to numOfResults).map { i ⇒
       val future = (for {
         customer ← Customers.save(Seeds.Factories.generateCustomer)
         order    ← Orders.save(Factories.order.copy(

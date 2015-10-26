@@ -2,6 +2,7 @@ import scala.concurrent.Future
 import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 
 import models.{Addresses, Customer, Customers, OrderShippingAddresses, Orders, Regions}
+import responses.ResponseWithFailuresAndMetadata
 import util.IntegrationTestBase
 import util.SlickSupport.implicits._
 import utils.Seeds.Factories
@@ -28,7 +29,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
   def uriPrefix = s"v1/customers/${currentCustomer.id}/addresses"
 
   def responseItems = {
-    val items = (1 to 30).map { i ⇒
+    val items = (1 to numOfResults).map { i ⇒
       val future = (for {
         address ← Addresses.save(Factories.generateAddress.copy(customerId = currentCustomer.id))
         region  ← Regions.findById(address.regionId).result.head
@@ -60,7 +61,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
 
       response.status must === (StatusCodes.OK)
 
-      val addresses = response.as[Seq[responses.Addresses.Root]]
+      val addresses = response.as[ResponseWithFailuresAndMetadata[Seq[responses.Addresses.Root]]].result
 
       addresses must have size 1
       addresses.head.name must === (address.name)
@@ -168,7 +169,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
       addressesResponse.status must === (StatusCodes.OK)
 
       //If you get all the addresses, our newly deleted one should not show up
-      val addresses = addressesResponse.as[Seq[responses.Addresses.Root]]
+      val addresses = addressesResponse.as[ResponseWithFailuresAndMetadata[Seq[responses.Addresses.Root]]].result
       addresses.filter(_.id == newAddress.id) must have length 0
     }
 

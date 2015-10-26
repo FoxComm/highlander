@@ -7,6 +7,7 @@ import util.IntegrationTestBase
 trait SortingAndPaging[T <: ResponseItem] extends MockitoSugar { this: IntegrationTestBase with HttpSupport ⇒
 
   // the API
+  def numOfResults = 30
   def uriPrefix: String
   def sortColumnName: String
   def beforeSortingAndPaging(): Unit = {}

@@ -42,7 +42,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
   val regCurrencies = CurrencyUnit.registeredCurrencies.asScala.toIndexedSeq
 
   def responseItems = {
-    val items = regCurrencies.take(30).map { currency ⇒
+    val items = regCurrencies.take(numOfResults).map { currency ⇒
       val balance = Random.nextInt(9999999)
       val future = GiftCards.save(Factories.giftCard.copy(
         currency = currency,
