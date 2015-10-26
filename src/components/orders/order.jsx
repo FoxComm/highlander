@@ -85,7 +85,7 @@ export default class Order extends React.Component {
       <Dropdown name="orderStatus" items={orderStatuses} placeholder={'Order status'} value={order.orderStatus}/>
     );
 
-    const content = React.cloneElement(this.props.children, {order, modelName: 'order', ...this.props});
+    const content = React.cloneElement(this.props.children, {...this.props, entity: order});
 
     if (order.id) {
       let params = {order: order.referenceNumber};

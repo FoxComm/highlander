@@ -7,6 +7,8 @@ import RmaStore from '../../stores/rmas';
 import Notes from '../notes/notes';
 import Viewers from '../viewers/viewers';
 
+import { haveType } from '../../modules/state-helpers';
+
 export default class Rma extends React.Component {
 
   static propTypes = {
@@ -48,7 +50,10 @@ export default class Rma extends React.Component {
     let subNav = null;
     let itemsCount = 0;
 
-    const content = React.cloneElement(this.props.children, {rma, modelName: 'rma'});
+    // @TODO: in task for implementing redux for rmas
+    // move haveType call to module if you can (as it is done in order and gift-card details)
+    const entity = haveType(rma, 'rma');
+    const content = React.cloneElement(this.props.children, {entity});
 
     if (rma.id) {
       viewers = (
@@ -56,7 +61,7 @@ export default class Rma extends React.Component {
       );
       notes = (
         <div className="gutter">
-          <Notes return={rma} modelName={'return'}/>
+          <Notes entity={entity}/>
         </div>
       );
       subNav = (

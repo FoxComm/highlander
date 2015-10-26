@@ -1,8 +1,8 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 
-let ConfirmationDialog = (props) => {
+const ConfirmationDialog = (props) => {
   if (props.isVisible) {
     return (
       <div className='fc-modal'>
@@ -35,6 +35,15 @@ let ConfirmationDialog = (props) => {
   } else {
     return <div></div>;
   }
+};
+
+ConfirmationDialog.propTypes = {
+  isVisible: PropTypes.bool.isRequired,
+  body: PropTypes.node.isRequired,
+  cancel: PropTypes.string.isRequired,
+  confirm: PropTypes.string.isRequired,
+  cancelAction: PropTypes.func.isRequired,
+  confirmAction: PropTypes.func.isRequired
 };
 
 export default ConfirmationDialog;
