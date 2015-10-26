@@ -1,7 +1,5 @@
 'use strict';
 
-require('testdom')('<html><body></body></html>');
-
 const TestUtils = require('react-addons-test-utils');
 const ReactDOM = require('react-dom');
 const path = require('path');
