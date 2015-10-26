@@ -38,13 +38,28 @@ global.container = null;
 
 // install global hooks
 
-beforeEach(function() {
-  global.container = document.createElement('div');
-  document.body.appendChild(global.container);
-});
+global.createContainer = function(tagName = 'div', attachToDom = false) {
+  const container = document.createElement(tagName);
+  if (attachToDom) {
+    document.body.appendChild(container);
+  }
 
-afterEach(function(done) {
-  document.body.removeChild(global.container);
-  ReactDOM.unmountComponentAtNode(global.container);
-  setTimeout(done);
-});
+  container.unmount = function() {
+    if (attachToDom) {
+      document.body.removeChild(container);
+    }
+    ReactDOM.unmountComponentAtNode(container);
+  };
+
+  return container;
+};
+
+global.renderIntoDocument = function(element, attachToDom = false) {
+  return new Promise((resolve, reject) => {
+    const container = global.createContainer(void 0, attachToDom);
+    const instance = ReactDOM.render(element, container, later(function() {
+      instance.unmount = container.unmount;
+      resolve(instance);
+    }));
+  });
+};
