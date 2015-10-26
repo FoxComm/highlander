@@ -1,34 +1,38 @@
-'use strict';
 
-const React = require('react');
-const TestUtils = require('react-addons-test-utils');
-const ReactDOM = require('react-dom');
-const moment = require('moment');
+import React from 'react';
+import TestUtils from 'react-addons-test-utils';
+import ShallowTestUtils from 'react-shallow-testutils';
+import moment from 'moment';
+import ReactDOM from 'react-dom';
 
 describe('Countdown', function() {
-  let Countdown = requireComponent('countdown/countdown.jsx');
+  const Countdown = requireComponent('countdown/countdown.jsx');
 
-  it('should render', function *() {
-    let countdown = ReactDOM.render(
-      <Countdown endDate={moment().add(5, 'm').utc().format()}/>
-      , container);
+  let countdown;
 
-    let countdownNode = TestUtils.findRenderedDOMComponentWithTag(countdown, 'div');
-
-    expect(countdownNode).to.be.instanceof(Object);
-    expect(countdownNode.className).to.contain('fc-countdown');
-    expect(countdownNode.innerHTML).to.match(/\d{2}:\d{2}:\d{2}/);
+  afterEach(function() {
+    if (countdown) {
+      countdown.unmount();
+      countdown = null;
+    }
   });
 
-  it('should create ending mode', function *() {
-    let countdown = ReactDOM.render(
-      <Countdown endDate={moment().add(1, 'm').utc().format()}/>
-      , container);
-    let countdownNode = TestUtils.findRenderedDOMComponentWithTag(countdown, 'div');
+  it('should render', function () {
+    countdown = shallowRender(
+      <Countdown endDate={moment().add(5, 'm').utc().format()}/>
+    );
+    countdown.instance.tick();
+    expect(countdown.props.children).to.match(/\d{2}:\d{2}:\d{2}/);
+  });
 
-    expect(countdownNode).to.be.instanceof(Object);
-    expect(countdownNode.className).to.contain('fc-countdown');
-    expect(countdownNode.className).to.contain('fc-countdown_ending');
-    expect(countdownNode.innerHTML).to.match(/\d{2}:\d{2}:\d{2}/);
+  it('should create ending mode', function () {
+    countdown = shallowRender(
+      <Countdown endDate={moment().add(1, 'm').utc().format()}/>
+    );
+    countdown.instance.tick();
+
+    expect(countdown.props.className).to.contain('fc-countdown');
+    expect(countdown.props.className).to.contain('fc-countdown_ending');
+    expect(countdown.props.children).to.match(/\d{2}:\d{2}:\d{2}/);
   });
 });

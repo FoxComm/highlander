@@ -5,6 +5,7 @@ require('testdom')('<html><body></body></html>');
 const path = require('path');
 const ReactDOM = require('react-dom');
 const TestUtils = require('react-addons-test-utils');
+const ShallowTestUtils = require('react-shallow-testutils');
 require('./expect-jsx');
 
 global.requireComponent = function(componentPath) {
@@ -14,8 +15,20 @@ global.requireComponent = function(componentPath) {
 global.shallowRender = function(element) {
   const renderer = TestUtils.createRenderer();
   renderer.render(element);
-  const result = renderer.getRenderOutput();
-  Object.assign(renderer, result);
+
+  Object.defineProperty(renderer, 'instance', {
+    get: function() {
+      return ShallowTestUtils.getMountedInstance(this);
+    }
+  });
+
+  ['type', 'props'].map(property => {
+    Object.defineProperty(renderer, property, {
+      get: function() {
+        return this.getRenderOutput()[property];
+      }
+    });
+  });
 
   return renderer;
 };

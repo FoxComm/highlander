@@ -4,8 +4,8 @@ import React from 'react';
 import TestUtils from 'react-addons-test-utils';
 import ReactDOM from 'react-dom';
 
-describe.only('ContentBox', function() {
-  let ContentBox = requireComponent('content-box/content-box.jsx');
+describe('ContentBox', function() {
+  const ContentBox = requireComponent('content-box/content-box.jsx');
 
   let contentBox;
 
