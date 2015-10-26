@@ -27,7 +27,7 @@ export default class CustomerAddressBook extends React.Component {
   get actionBlock() {
     return (
       <button className="fc-btn">
-          <i className="icon-add"></i>
+        <i className="icon-add"></i>
       </button>
     );
   }
