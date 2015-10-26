@@ -2,9 +2,12 @@ package models
 
 import java.time.Instant
 
+import scala.concurrent.ExecutionContext
+
 import monocle.macros.GenLens
 import payloads.CreateAddressPayload
 import slick.driver.PostgresDriver.api._
+import utils.CustomDirectives.SortAndPage
 import utils.GenericTable.TableWithId
 import utils.Slick.implicits._
 import utils.{ModelWithIdParameter, NewModel, TableQueryWithId, Validation}
@@ -65,6 +68,30 @@ object Addresses extends TableQueryWithId[Address, Addresses](
   )(new Addresses(_)) {
 
   import scope._
+
+  def sortedAndPagedWithRegions(query: Query[(Addresses, Regions), (Address, Region), Seq])
+    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage):
+  QueryWithMetadata[(Addresses, Regions), (Address, Region), Seq] =
+    query.withMetadata.sortAndPageIfNeeded { case (s, (address, region)) ⇒
+      s.sortColumn match {
+        case "id"                  ⇒ if(s.asc) address.id.asc                 else address.id.desc
+        case "regionId"            ⇒ if(s.asc) address.regionId.asc           else address.regionId.desc
+        case "name"                ⇒ if(s.asc) address.name.asc               else address.name.desc
+        case "address1"            ⇒ if(s.asc) address.address1.asc           else address.address1.desc
+        case "address2"            ⇒ if(s.asc) address.address2.asc           else address.address2.desc
+        case "city"                ⇒ if(s.asc) address.city.asc               else address.city.desc
+        case "zip"                 ⇒ if(s.asc) address.zip.asc                else address.zip.desc
+        case "isDefaultShipping"   ⇒ if(s.asc) address.isDefaultShipping.asc  else address.isDefaultShipping.desc
+        case "phoneNumber"         ⇒ if(s.asc) address.phoneNumber.asc        else address.phoneNumber.desc
+        case "deletedAt"           ⇒ if(s.asc) address.deletedAt.asc          else address.deletedAt.desc
+        case "region_id"           ⇒ if(s.asc) region.id.asc                  else region.id.desc
+        case "region_countryId"    ⇒ if(s.asc) region.countryId.asc           else region.countryId.desc
+        case "region_name"         ⇒ if(s.asc) region.name.asc                else region.name.desc
+        case "region_abbreviation" ⇒ if(s.asc) region.abbreviation.asc        else region.abbreviation.desc
+        case _                     ⇒ address.id.asc
+      }
+    }
+
 
   def findAllByCustomerId(customerId: Int): QuerySeq =
     filter(_.customerId === customerId)

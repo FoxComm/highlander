@@ -13,7 +13,7 @@ import org.mockito.Mockito.{reset, when}
 import org.mockito.{Matchers ⇒ m}
 import org.scalatest.mock.MockitoSugar
 import payloads.CreateAddressPayload
-import responses.CustomerResponse
+import responses.{ResponseWithFailuresAndMetadata, CustomerResponse}
 import services.{CannotUseInactiveCreditCard, CreditCardManager, GeneralFailure, NotFoundFailure404, Result, StripeRuntimeException}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
@@ -37,7 +37,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
   val uriPrefix = "v1/customers"
 
   def responseItems = {
-    val items = (1 to 30).map { i ⇒
+    val items = (1 to numOfResults).map { i ⇒
       val future = Customers.save(Seeds.Factories.generateCustomer).run()
 
       future map { CustomerResponse.build(_) }
@@ -79,7 +79,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val customerRoot = CustomerResponse.build(customer, shippingRegion = region)
 
       response.status must === (StatusCodes.OK)
-      response.as[Seq[CustomerResponse.Root]] must === (Seq(customerRoot))
+      response.as[ResponseWithFailuresAndMetadata[Seq[CustomerResponse.Root]]].result must === (Seq(customerRoot))
     }
 
     "lists customers without default address" in new Fixture {
@@ -88,7 +88,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val customerRoot = CustomerResponse.build(customer)
 
       response.status must === (StatusCodes.OK)
-      response.as[Seq[CustomerResponse.Root]] must === (Seq(customerRoot))
+      response.as[ResponseWithFailuresAndMetadata[Seq[CustomerResponse.Root]]].result must === (Seq(customerRoot))
     }
 
     "customer listing shows valid billingRegion" in new CreditCardFixture {
@@ -98,7 +98,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val customerRoot = CustomerResponse.build(customer, shippingRegion = region, billingRegion = billRegion)
 
       response.status must === (StatusCodes.OK)
-      response.as[Seq[CustomerResponse.Root]] must === (Seq(customerRoot))
+      response.as[ResponseWithFailuresAndMetadata[Seq[CustomerResponse.Root]]].result must === (Seq(customerRoot))
     }
 
     "customer listing shows valid billingRegion without default CreditCard" in new CreditCardFixture {
@@ -107,7 +107,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val customerRoot = CustomerResponse.build(customer, shippingRegion = region)
 
       response.status must === (StatusCodes.OK)
-      response.as[Seq[CustomerResponse.Root]] must === (Seq(customerRoot))
+      response.as[ResponseWithFailuresAndMetadata[Seq[CustomerResponse.Root]]].result must === (Seq(customerRoot))
     }
   }
 
@@ -182,7 +182,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val deleted = CreditCards.save(creditCard.copy(id = 0, inWallet = false)).run().futureValue
 
       val response = GET(s"$uriPrefix/${customer.id}/payment-methods/credit-cards")
-      val cc = response.as[Seq[CreditCard]]
+      val cc = response.as[ResponseWithFailuresAndMetadata[Seq[CreditCard]]].result
 
       response.status must === (StatusCodes.OK)
       cc must have size 1

@@ -78,6 +78,8 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.Tab
     findById(i).delete
 
   type QuerySeq = Query[T, M, Seq]
+  type QuerySeqWithMetadata = QueryWithMetadata[T, M, Seq]
+
   def primarySearchTerm: String = "id"
 
   implicit class TableQueryWrappers(q: QuerySeq) {
