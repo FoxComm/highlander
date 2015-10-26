@@ -6,6 +6,9 @@ import scala.concurrent.ExecutionContext
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 
+import de.heikoseeberger.akkahttpjson4s.Json4sSupport
+import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
+
 import models._
 import payloads._
 import responses.FullOrder.DisplayLineItem
@@ -14,6 +17,7 @@ import responses.StoreAdminResponse
 import responses.RmaResponse._
 
 import slick.driver.PostgresDriver.api._
+
 import utils.Apis
 import utils.Http._
 import utils.CustomDirectives._
@@ -24,10 +28,13 @@ object RmaRoutes {
     mat: Materializer, storeAdminAuth: AsyncAuthenticator[StoreAdmin], apis: Apis) = {
 
     authenticateBasicAsync(realm = "admin", storeAdminAuth) { admin ⇒
+      val adminResponse = Some(StoreAdminResponse.build(admin))
+      val genericRmaMock = buildMockRma(id = 1, refNum = "ABC-123", orderId = 1, admin = adminResponse)
+
       pathPrefix("rmas") {
         (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
           good {
-            buildMockSequence(Some(StoreAdminResponse.build(admin)))
+            buildMockSequence(adminResponse)
           }
         } ~
         (get & path("customer" / IntNumber)) { customerId ⇒
@@ -48,15 +55,40 @@ object RmaRoutes {
         (get & path("order" / Order.orderRefNumRegex)) { refNum ⇒
           (pathEnd & sortAndPage) { implicit sortAndPage ⇒
             good {
-              buildMockSequence(Some(StoreAdminResponse.build(admin)))
+              buildMockSequence(adminResponse)
             }
+          }
+        } ~
+        (post & entity(as[RmaCreatePayload]) & pathEnd) { payload ⇒
+          good {
+            genericRmaMock.copy(orderId = payload.orderId)
           }
         }
       } ~
       pathPrefix("rmas" / """([a-zA-Z0-9-_]*)""".r) { refNum ⇒
         (get & pathEnd) {
           good {
-            buildMockRma(id = 1, refNum = "ABC-123", orderId = 1, admin = Some(StoreAdminResponse.build(admin)))
+            genericRmaMock
+          }
+        } ~
+        (patch & entity(as[RmaUpdatePayload]) & pathEnd) { payload ⇒
+          good {
+            genericRmaMock.copy(orderId = payload.orderId)
+          }
+        } ~
+        (patch & path("status") & entity(as[RmaUpdateStatusPayload]) & pathEnd) { payload ⇒
+          good {
+            genericRmaMock
+          }
+        } ~
+        (post & path("lock") & pathEnd) {
+          good {
+            genericRmaMock
+          }
+        } ~
+        (post & path("unlock") & pathEnd) {
+          good {
+            genericRmaMock
           }
         }
       }
