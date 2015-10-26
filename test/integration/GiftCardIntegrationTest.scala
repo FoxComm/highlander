@@ -4,7 +4,7 @@ import scala.util.Random
 import akka.http.scaladsl.model.StatusCodes
 
 import models._
-import models.GiftCard.{Active, OnHold, Canceled}
+import models.GiftCard.{Active, OnHold, Canceled, FromStoreCredit, CustomerPurchase, CsrAppeasement}
 import org.joda.money.CurrencyUnit
 import org.scalatest.BeforeAndAfterEach
 import responses._
@@ -176,6 +176,32 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     }
   }
 
+  "GET /v1/gift-cards/types" - {
+    "should return all GC types" in new Fixture {
+      val response = GET(s"v1/gift-cards/types")
+      val root = response.as[Seq[GiftCard.OriginType]]
+
+      response.status must ===(StatusCodes.OK)
+      root must ===(Seq(CsrAppeasement, CustomerPurchase, FromStoreCredit))
+    }
+  }
+
+  "GET /v1/gift-cards/subtypes/:type" - {
+    "should return all GC subtypes for provided origin type" in new Fixture {
+      val response = GET(s"v1/gift-cards/subtypes/csrAppeasement")
+      val root = response.as[Seq[GiftCardSubtype]]
+
+      response.status must ===(StatusCodes.OK)
+      root.size mustBe 3
+    }
+
+    "should return error on invalid subtype" in new Fixture {
+      val response = GET(s"v1/gift-cards/subtypes/donkeyAppeasement")
+
+      response.status must ===(StatusCodes.BadRequest)
+      response.errors must ===(InvalidOriginTypeFailure.single)
+    }
+  }
 
   "GET /v1/gift-cards/:code" - {
     "finds a gift card by code" in new Fixture {

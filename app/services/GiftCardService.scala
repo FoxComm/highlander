@@ -32,8 +32,8 @@ object GiftCardService {
 
   def getSubTypes(originType: String)(implicit db: Database, ec: ExecutionContext): Result[Seq[GiftCardSubtype]] = {
     GiftCard.OriginType.read(originType) match {
-      case Some(CsrAppeasement)   ⇒ GiftCardSubtypes.customerPurchases.select(DbResult.good(_))
-      case Some(CustomerPurchase) ⇒ GiftCardSubtypes.csrAppeasements.select(DbResult.good(_))
+      case Some(CsrAppeasement)   ⇒ GiftCardSubtypes.csrAppeasements.select(DbResult.good(_))
+      case Some(CustomerPurchase) ⇒ GiftCardSubtypes.customerPurchases.select(DbResult.good(_))
       case Some(FromStoreCredit)  ⇒ GiftCardSubtypes.fromStoreCredits.select(DbResult.good(_))
       case _                      ⇒ Result.failure(InvalidOriginTypeFailure)
     }
