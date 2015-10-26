@@ -1,17 +1,17 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 
-export default class TableRow extends React.Component {
-  static propTypes = {
-    children: React.PropTypes.any
-  };
+const TableRow = (props) => {
+  return (
+    <tr className="fc-table-tr">
+      {props.children}
+    </tr>
+  );
+};
 
-  render() {
-    return (
-      <tr className="fc-table-tr">
-        {this.props.children}
-      </tr>
-    );
-  }
-}
+TableRow.propTypes = {
+  children: PropTypes.node
+};
+
+export default TableRow;
