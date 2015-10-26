@@ -1,8 +1,7 @@
 'use strict';
 
-import React from 'react';
-import ClassNames from 'classnames';
-import TableStore from '../../lib/table-store';
+import React, { PropTypes } from 'react';
+import classNames from 'classnames';
 import TableRow from './row';
 
 export default class TableHead extends React.Component {
@@ -30,7 +29,7 @@ export default class TableHead extends React.Component {
 
   render() {
     let renderColumn = (column, index) => {
-      let classnames = ClassNames({
+      let classnames = classNames({
         'fc-table-th': true,
         'sorting': true,
         'sorting-desc': (this.state.sortingField === column.field) && this.state.sortingOrder,

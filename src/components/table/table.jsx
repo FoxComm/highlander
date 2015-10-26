@@ -1,26 +1,21 @@
 'use strict';
 
-import React from 'react';
-import ClassNames from 'classnames';
-import TableStore from '../../lib/table-store';
+import React, { PropTypes } from 'react';
 import TableHead from './head';
 import TableBody from './body';
 
-export default class Table extends React.Component {
-  static propTypes = {
-    children: React.PropTypes.any,
-    store: React.PropTypes.instanceOf(TableStore),
-    renderRow: React.PropTypes.func
-  };
+const Table = (props) => {
+  return (
+    <table className='fc-table'>
+      <TableHead data={props.data}/>
+      <TableBody data={props.data} renderRow={props.renderRow}/>
+    </table>
+  );
+};
 
-  render() {
-    return (
-      <table className='fc-table'>
-        <TableHead store={this.props.store}/>
-        <TableBody store={this.props.store} renderRow={this.props.renderRow}>
-          {this.props.children}
-        </TableBody>
-      </table>
-    );
-  }
-}
+Table.propTypes = {
+  data: PropTypes.object,
+  renderRow: PropTypes.func
+};
+
+export default Table;
