@@ -27,38 +27,35 @@ object CustomerManager {
     }
   }
 
-  def findAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage):
-  Result[Seq[Root]] = {
+  def findAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
     val query = Customers.withDefaultRegions
 
-    val sortedQuery = sortAndPage.sort match {
-      case Some(s) ⇒ query.sortBy { case (customer, _, _) ⇒
-        s.sortColumn match {
-          case "id"                ⇒ if(s.asc) customer.id.asc                 else customer.id.desc
-          case "isDisabled"        ⇒ if(s.asc) customer.isDisabled.asc         else customer.isDisabled.desc
-          case "disabledBy"        ⇒ if(s.asc) customer.disabledBy.asc         else customer.disabledBy.desc
-          case "isBlacklisted"     ⇒ if(s.asc) customer.isBlacklisted.asc      else customer.isBlacklisted.desc
-          case "blacklistedBy"     ⇒ if(s.asc) customer.blacklistedBy.asc      else customer.blacklistedBy.desc
-          case "blacklistedReason" ⇒ if(s.asc) customer.blacklistedReason.asc  else customer.blacklistedReason.desc
-          case "email"             ⇒ if(s.asc) customer.email.asc              else customer.email.desc
-          case "name"              ⇒ if(s.asc) customer.name.asc               else customer.name.desc
-          case "phoneNumber"       ⇒ if(s.asc) customer.phoneNumber.asc        else customer.phoneNumber.desc
-          case "location"          ⇒ if(s.asc) customer.location.asc           else customer.location.desc
-          case "modality"          ⇒ if(s.asc) customer.modality.asc           else customer.modality.desc
-          case "isGuest"           ⇒ if(s.asc) customer.isGuest.asc            else customer.isGuest.desc
-          case "createdAt"         ⇒ if(s.asc) customer.createdAt.asc          else customer.createdAt.desc
-          case _                   ⇒ customer.id.asc
-        }
+    val queryWithMetadata = query.withMetadata.sortAndPageIfNeeded { case (s, (customer, _, _)) ⇒
+      s.sortColumn match {
+        case "id"                ⇒ if(s.asc) customer.id.asc                 else customer.id.desc
+        case "isDisabled"        ⇒ if(s.asc) customer.isDisabled.asc         else customer.isDisabled.desc
+        case "disabledBy"        ⇒ if(s.asc) customer.disabledBy.asc         else customer.disabledBy.desc
+        case "isBlacklisted"     ⇒ if(s.asc) customer.isBlacklisted.asc      else customer.isBlacklisted.desc
+        case "blacklistedBy"     ⇒ if(s.asc) customer.blacklistedBy.asc      else customer.blacklistedBy.desc
+        case "blacklistedReason" ⇒ if(s.asc) customer.blacklistedReason.asc  else customer.blacklistedReason.desc
+        case "email"             ⇒ if(s.asc) customer.email.asc              else customer.email.desc
+        case "name"              ⇒ if(s.asc) customer.name.asc               else customer.name.desc
+        case "phoneNumber"       ⇒ if(s.asc) customer.phoneNumber.asc        else customer.phoneNumber.desc
+        case "location"          ⇒ if(s.asc) customer.location.asc           else customer.location.desc
+        case "modality"          ⇒ if(s.asc) customer.modality.asc           else customer.modality.desc
+        case "isGuest"           ⇒ if(s.asc) customer.isGuest.asc            else customer.isGuest.desc
+        case "createdAt"         ⇒ if(s.asc) customer.createdAt.asc          else customer.createdAt.desc
+        case _                   ⇒ customer.id.asc
       }
-      case None    ⇒ query
     }
 
-    Result.fromFuture(sortedQuery.paged.result.run().map { results ⇒
-      results.map {
+
+    queryWithMetadata.result.map {
+      _.map {
         case (customer, shipRegion, billRegion) ⇒
           build(customer, shipRegion, billRegion)
       }
-    })
+    }
   }
 
   def getById(id: Int)(implicit db: Database, ec: ExecutionContext): Result[Root] = {

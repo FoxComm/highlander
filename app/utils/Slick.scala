@@ -10,9 +10,12 @@ import slick.ast._
 import slick.driver.PostgresDriver._
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.{GetResult, JdbcResultConverterDomain, SetParameter, StaticQuery ⇒ Q, StaticQueryInvoker, StreamingInvokerAction}
+
+import slick.lifted.{Ordered, Query}
 import slick.profile.{SqlAction, SqlStreamingAction}
 import slick.relational.{CompiledMapping, ResultConverter}
 import slick.util.SQLBuilder
+import utils.CustomDirectives.{Sort, SortAndPage}
 
 object Slick {
 
@@ -110,8 +113,130 @@ object Slick {
   }
 
   object implicits {
+    final case class QueryMetadata(
+      sortBy    : Option[String]      = None,
+      from      : Option[Int]         = None,
+      size      : Option[Int]         = None,
+      pageNo    : Option[Int]         = None,
+      total     : Option[Future[Int]] = None)
+
+    object QueryMetadata {
+      def empty = QueryMetadata()
+    }
+
+    final case class ResponseMetadata(
+      sortBy    : Option[String] = None,
+      from      : Option[Int]    = None,
+      size      : Option[Int]    = None,
+      pageNo    : Option[Int]    = None,
+      total     : Option[Int]    = None)
+
+
+    final case class ResponseWithMetadata[A](result: Failures Xor A, metadata: ResponseMetadata)
+
+    final case class ResultWithMetadata[A](result: DbResult[A], metadata: QueryMetadata) {
+
+      def map[S](f: A => S)(implicit ec: ExecutionContext): ResultWithMetadata[S] =
+        this.copy(result = result.map(_.map(f)))
+
+      def asResponseFuture(implicit db: Database, ec: ExecutionContext): Future[ResponseWithMetadata[A]] = {
+        metadata.total match {
+          case None                   ⇒
+            for (res ← result.run())
+              yield ResponseWithMetadata(
+                res,
+                ResponseMetadata(
+                  sortBy = metadata.sortBy,
+                  from = metadata.from,
+                  size = metadata.size,
+                  pageNo = metadata.pageNo,
+                  total = None
+                )
+              )
+
+          case Some(totalFuture) ⇒
+            for {
+              res        ← result.run()
+              total ← totalFuture
+            } yield ResponseWithMetadata(
+              res,
+              ResponseMetadata(
+                sortBy = metadata.sortBy,
+                from = metadata.from,
+                size = metadata.size,
+                pageNo = metadata.pageNo,
+                total = Some(total)
+              )
+            )
+        }
+      }
+    }
+
+    object ResultWithMetadata {
+      def fromResultOnly[A](result: DbResult[A]): ResultWithMetadata[A] =
+        ResultWithMetadata(result = result, metadata = QueryMetadata.empty)
+    }
+
+    private def _paged[E, U, C[_]](query: Query[E, U, C])(implicit sortAndPage: SortAndPage) = {
+      val pagedQueryOpt = for {
+        from ← sortAndPage.from
+        size ← sortAndPage.size
+      } yield query.drop(from).take(size)
+
+      pagedQueryOpt.getOrElse(query)
+    }
+
+
+    final case class QueryWithMetadata[E, U, C[_]](query: Query[E, U, C], metadata: QueryMetadata) {
+
+      def sortBy(f: E => Ordered): QueryWithMetadata[E, U, C] =
+        this.copy(query = query.sortBy(f))
+
+      def sortIfNeeded(f: (Sort, E) => Ordered)(implicit sortAndPage: SortAndPage): QueryWithMetadata[E, U, C] =
+        sortAndPage.sort match {
+          case Some(s) ⇒ this.copy(query = query.sortBy(f.curried(s)))
+          case None    ⇒ this
+        }
+
+      def sortAndPageIfNeeded(f: (Sort, E) => Ordered)
+        (implicit sortAndPage: SortAndPage): QueryWithMetadata[E, U, C] = sortIfNeeded(f).paged
+
+      def paged(implicit sortAndPage: SortAndPage): QueryWithMetadata[E, U, C] =
+        this.copy(query = _paged(query))
+
+      def result(implicit db: Database, ec: ExecutionContext): ResultWithMetadata[C[U]] =
+        ResultWithMetadata(result = DbResult.fromDbio(query.result), metadata)
+    }
+
     implicit class EnrichedQuery[E, U, C[_]](val query: Query[E, U, C]) extends AnyVal {
       def one: DBIO[Option[U]] = query.result.headOption
+
+      def paged(implicit sortAndPage: SortAndPage): Query[E, U, C] = _paged(query)
+
+      def withEmptyMetadata: QueryWithMetadata[E, U, C] = QueryWithMetadata(query, QueryMetadata.empty)
+
+      def withMetadata(metadata: QueryMetadata): QueryWithMetadata[E, U, C] = QueryWithMetadata(query, metadata)
+
+      def withMetadata(implicit db: Database,
+        ec: ExecutionContext,
+        sortAndPage: SortAndPage): QueryWithMetadata[E, U, C] = {
+
+        // size > 0 costraint is defined in SortAndPage
+        val total = sortAndPage.size map { _ ⇒ query.length.result.run() }
+        val pageNo = for {
+          from ← sortAndPage.from
+          size ← sortAndPage.size
+        } yield (from / size) + 1
+
+        val metadata = QueryMetadata(
+          sortBy = sortAndPage.sortBy,
+          from = sortAndPage.from,
+          size = sortAndPage.size,
+          pageNo = pageNo,
+          total = total)
+
+        withMetadata(metadata)
+      }
     }
 
     implicit class EnrichedSqlStreamingAction[R, T, E <: Effect](val action: SqlStreamingAction[R, T, E])

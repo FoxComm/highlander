@@ -113,7 +113,9 @@ object CustomerRoutes {
         } ~
         pathPrefix("payment-methods" / "credit-cards") {
           (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            good { CreditCardManager.creditCardsInWalletFor(customerId) }
+            goodOrFailures {
+              CreditCardManager.creditCardsInWalletFor(customerId)
+            }
           } ~
           (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultCreditCard]) & pathEnd) {
             (cardId, payload) ⇒

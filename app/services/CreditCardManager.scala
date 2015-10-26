@@ -4,7 +4,6 @@ import java.time.Instant
 
 import scala.concurrent.{ExecutionContext, Future}
 
-import cats.data.Validated.{Invalid, Valid}
 import cats.data.Xor
 import cats.implicits._
 
@@ -13,9 +12,7 @@ import models.OrderPayments.scope._
 import models.Orders.scope._
 import models.{Address, Addresses, CreditCard, CreditCards, Customer, OrderPayments, Orders}
 import payloads.{CreateAddressPayload, CreateCreditCard, EditCreditCard}
-import slick.dbio
-import slick.dbio.Effect.{All, Read}
-import slick.driver.PostgresDriver
+
 import slick.driver.PostgresDriver.api._
 import utils.Apis
 import utils.CustomDirectives.SortAndPage
@@ -29,42 +26,6 @@ object CreditCardManager {
   val gateway = StripeGateway()
 
   type QuerySeq = models.CreditCards.QuerySeq
-
-  def sortedAndPaged(query: QuerySeq)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeq = {
-
-    val sortedQuery = sortAndPage.sort match {
-      case Some(s) if s.sortColumn == "expDate" ⇒ query.sortBy { creditCard ⇒
-        if (s.asc) (creditCard.expYear.asc, creditCard.expMonth.asc)
-        else (creditCard.expYear.desc, creditCard.expMonth.desc)
-      }
-      case Some(s) ⇒ query.sortBy { creditCard ⇒
-        s.sortColumn match {
-          case "id"                  ⇒ if(s.asc) creditCard.id.asc                else creditCard.id.desc
-          case "parentId"            ⇒ if(s.asc) creditCard.parentId.asc          else creditCard.parentId.desc
-          case "gatewayCustomerId"   ⇒ if(s.asc) creditCard.gatewayCustomerId.asc else creditCard.gatewayCustomerId.desc
-          case "gatewayCardId"       ⇒ if(s.asc) creditCard.gatewayCardId.asc     else creditCard.gatewayCardId.desc
-          case "holderName"          ⇒ if(s.asc) creditCard.holderName.asc        else creditCard.holderName.desc
-          case "lastFour"            ⇒ if(s.asc) creditCard.lastFour.asc          else creditCard.lastFour.desc
-          case "isDefault"           ⇒ if(s.asc) creditCard.isDefault.asc         else creditCard.isDefault.desc
-          case "address1Check"       ⇒ if(s.asc) creditCard.address1Check.asc     else creditCard.address1Check.desc
-          case "zipCheck"            ⇒ if(s.asc) creditCard.zipCheck.asc          else creditCard.zipCheck.desc
-          case "inWallet"            ⇒ if(s.asc) creditCard.inWallet.asc          else creditCard.inWallet.desc
-          case "deletedAt"           ⇒ if(s.asc) creditCard.deletedAt.asc         else creditCard.deletedAt.desc
-          case "regionId"            ⇒ if(s.asc) creditCard.regionId.asc          else creditCard.regionId.desc
-          case "addressName"         ⇒ if(s.asc) creditCard.addressName.asc       else creditCard.addressName.desc
-          case "address1"            ⇒ if(s.asc) creditCard.address1.asc          else creditCard.address1.desc
-          case "address2"            ⇒ if(s.asc) creditCard.address2.asc          else creditCard.address2.desc
-          case "city"                ⇒ if(s.asc) creditCard.city.asc              else creditCard.city.desc
-          case "zip"                 ⇒ if(s.asc) creditCard.zip.asc               else creditCard.zip.desc
-          case _                     ⇒ creditCard.id.asc
-        }
-      }
-      case None    ⇒ query
-    }
-
-    sortedQuery.paged
-  }
 
   def createCardThroughGateway(customer: Customer, payload: CreateCreditCard)
     (implicit ec: ExecutionContext, db: Database, apis: Apis): Result[CreditCard] = {
@@ -203,10 +164,10 @@ object CreditCardManager {
   }
 
   def creditCardsInWalletFor(customerId: Int)
-    (implicit ec: ExecutionContext, db: Database, sortAndPage: SortAndPage): Future[Seq[CreditCard]] = {
+    (implicit ec: ExecutionContext, db: Database, sortAndPage: SortAndPage): ResultWithMetadata[Seq[CreditCard]] = {
     val query = CreditCards.findInWalletByCustomerId(customerId)
 
-    sortedAndPaged(query).result.run()
+    CreditCards.sortedAndPaged(query).result
   }
 
   def getCard(customerId: Int, id: Int)

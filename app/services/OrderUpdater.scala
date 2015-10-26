@@ -7,8 +7,8 @@ import cats.data.Xor
 import cats.data.Xor.{Left, Right}
 import models._
 import payloads.{UpdateShippingMethod, CreateAddressPayload, UpdateAddressPayload}
-import responses.ResponseWithFailures.BulkOrderUpdateResponse
-import responses.{ResponseWithFailures, FullOrder}
+import responses.ResponseWithFailuresAndMetadata.BulkOrderUpdateResponse
+import responses.{ResponseWithFailuresAndMetadata, FullOrder}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives
 import utils.CustomDirectives.SortAndPage
@@ -36,8 +36,9 @@ object OrderUpdater {
 
   def updateStatuses(refNumbers: Seq[String], newStatus: Order.Status)
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[BulkOrderUpdateResponse] = {
-    updateStatusesDbio(refNumbers, newStatus).zip(OrderQueries.findAll).map { case (failures, orders) ⇒
-      ResponseWithFailures.fromOption(orders, failures.swap.toOption)
+    updateStatusesDbio(refNumbers, newStatus).zip(OrderQueries.findAll).map { case (failures,
+    orders) ⇒
+      ResponseWithFailuresAndMetadata.fromOption(orders, failures.swap.toOption)
     }.transactionally.run().flatMap(Result.good)
   }
 
