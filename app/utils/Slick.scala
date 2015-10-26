@@ -110,7 +110,7 @@ object Slick {
       from      : Option[Int]         = None,
       size      : Option[Int]         = None,
       pageNo    : Option[Int]         = None,
-      totalPages: Option[Future[Int]] = None)
+      total     : Option[Future[Int]] = None)
 
     object QueryMetadata {
       def empty = QueryMetadata()
@@ -121,7 +121,7 @@ object Slick {
       from      : Option[Int]    = None,
       size      : Option[Int]    = None,
       pageNo    : Option[Int]    = None,
-      totalPages: Option[Int]    = None)
+      total     : Option[Int]    = None)
 
 
     final case class ResponseWithMetadata[A](result: Failures Xor A, metadata: ResponseMetadata)
@@ -135,7 +135,7 @@ object Slick {
         this.copy(result = DbResult.fromDbio(result.flatMap(f)))
 
       def asResponseFuture(implicit db: Database, ec: ExecutionContext): Future[ResponseWithMetadata[A]] = {
-        metadata.totalPages match {
+        metadata.total match {
           case None                   ⇒
             for (res ← result.run())
               yield ResponseWithMetadata(
@@ -145,14 +145,14 @@ object Slick {
                   from = metadata.from,
                   size = metadata.size,
                   pageNo = metadata.pageNo,
-                  totalPages = None
+                  total = None
                 )
               )
 
-          case Some(totalPagesFuture) ⇒
+          case Some(totalFuture) ⇒
             for {
               res        ← result.run()
-              totalPages ← totalPagesFuture
+              total ← totalFuture
             } yield ResponseWithMetadata(
               res,
               ResponseMetadata(
@@ -160,7 +160,7 @@ object Slick {
                 from = metadata.from,
                 size = metadata.size,
                 pageNo = metadata.pageNo,
-                totalPages = Some(totalPages)
+                total = Some(total)
               )
             )
         }
@@ -217,7 +217,7 @@ object Slick {
         sortAndPage: SortAndPage): QueryWithMetadata[E, U, C] = {
 
         // size > 0 costraint is defined in SortAndPage
-        val totalPages = sortAndPage.size map { pageSize ⇒ query.length.result.run() map (_ / pageSize) }
+        val total = query.length.result.run()
         val pageNo = for {
           from ← sortAndPage.from
           size ← sortAndPage.size
@@ -228,7 +228,7 @@ object Slick {
           from = sortAndPage.from,
           size = sortAndPage.size,
           pageNo = pageNo,
-          totalPages = totalPages)
+          total = Some(total))
 
         withMetadata(metadata)
       }

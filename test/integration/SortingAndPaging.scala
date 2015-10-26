@@ -27,7 +27,7 @@ trait SortingAndPaging[T <: ResponseItem] extends MockitoSugar { this: Integrati
   }
 
   implicit class ResponseWithFailuresAndMetadataChecks[A <: AnyRef](resp: ResponseWithFailuresAndMetadata[A]) {
-    def checkSortingAndPagingMetadata(sortBy: String, from: Int, size: Int, totalPages: Option[Int] = None) = {
+    def checkSortingAndPagingMetadata(sortBy: String, from: Int, size: Int, total: Option[Int] = None) = {
       resp.sorting must be ('defined)
       resp.sorting.value.sortBy must be ('defined)
       resp.sorting.value.sortBy.value must === (sortBy)
@@ -38,8 +38,8 @@ trait SortingAndPaging[T <: ResponseItem] extends MockitoSugar { this: Integrati
       resp.pagination.value.size.value must === (size)
       resp.pagination.value.pageNo must be ('defined)
       resp.pagination.value.pageNo.value must === ((from / size) + 1)
-      resp.pagination.value.totalPages must be ('defined)
-      totalPages.foreach(resp.pagination.value.totalPages.value must === (_))
+      resp.pagination.value.total must be ('defined)
+      total.foreach(resp.pagination.value.total.value must === (_))
     }
   }
 
@@ -64,7 +64,7 @@ trait SortingAndPaging[T <: ResponseItem] extends MockitoSugar { this: Integrati
       val respWithMetadata = response.as[ResponseWithFailuresAndMetadata[Seq[T]]]
       respWithMetadata.result must === (itemsSorted.drop(12).take(6))
 
-      respWithMetadata.checkSortingAndPagingMetadata(sortColumnName, 12, 6, Some(5))
+      respWithMetadata.checkSortingAndPagingMetadata(sortColumnName, 12, 6, Some(30))
     }
 
     "sort by a column with paging #2" in new SortingAndPagingFixture {

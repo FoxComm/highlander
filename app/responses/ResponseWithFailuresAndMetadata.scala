@@ -17,7 +17,7 @@ final case class ResponsePagingMetadata(
   from      : Option[Int] = None,
   size      : Option[Int] = None,
   pageNo    : Option[Int] = None,
-  totalPages: Option[Int] = None) extends CheckDefined
+  total     : Option[Int] = None) extends CheckDefined
 
 final case class ResponseSortingMetadata(sortBy: Option[String] = None) extends CheckDefined
 
@@ -53,7 +53,7 @@ object ResponseWithFailuresAndMetadata {
         from = metadata.from,
         size = metadata.size,
         pageNo = metadata.pageNo,
-        totalPages = metadata.totalPages).ifDefined
+        total = metadata.total).ifDefined
     )
   }
 
