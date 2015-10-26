@@ -191,7 +191,6 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       val response = GET(s"v1/gift-cards/subtypes/csrAppeasement")
       val root = response.as[Seq[GiftCardSubtype]]
 
-      Console.println(root)
       response.status must ===(StatusCodes.OK)
       root.size mustBe 3
     }
