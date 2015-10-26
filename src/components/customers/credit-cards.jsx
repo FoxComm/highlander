@@ -3,36 +3,25 @@
 import React, { PropTypes } from 'react';
 import ContentBox from '../content-box/content-box';
 import CreditCardBox from '../credit-cards/card-box';
+import { connect } from 'react-redux';
+import { autobind } from 'core-decorators';
+import * as CustomersActions from '../../modules/customers/details';
 
-import CreditCardsStore from '../../stores/credit-cards';
-
+@connect((state, props) => ({
+  ...state.customers.details[props.customerId]
+}), CustomersActions)
 export default class CustomerCreditCards extends React.Component {
 
   static propTypes = {
-    customerId: PropTypes.number.isRequired
-  }
-
-  constructor(props, context) {
-    super(props, context);
-    this.state = {
-      cards: []
-    };
+    customerId: PropTypes.number.isRequired,
+    fetchCreditCards: PropTypes.func,
+    cards: PropTypes.array
   }
 
   componentDidMount() {
-    CreditCardsStore.listenToEvent('change', this);
-    CreditCardsStore.fetch(this.props.customerId);
-  }
+    const customer = this.props.customerId;
 
-  componentWillUnmount() {
-    CreditCardsStore.stopListeningToEvent('change', this);
-  }
-
-  onChangeCreditCardsStore(customerId, cards) {
-    if (customerId != this.props.customerId) return;
-    this.setState({
-      cards: cards
-    });
+    this.props.fetchCreditCards(customer);
   }
 
   render() {
@@ -56,7 +45,7 @@ export default class CustomerCreditCards extends React.Component {
                   className="fc-customer-credit-cards"
                   actionBlock={ actionBlock }>
         <ul className="fc-float-list">
-          {this.state.cards.map(createCardBox)}
+          {(this.props.cards && this.props.cards.map(createCardBox))}
         </ul>
       </ContentBox>
     );

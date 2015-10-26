@@ -4,7 +4,6 @@ import React from 'react';
 
 export default class NoteForm extends React.Component {
   static propTypes = {
-    uri: React.PropTypes.string,
     body: React.PropTypes.string,
     maxBodyLength: React.PropTypes.number,
     onReset: React.PropTypes.func,
