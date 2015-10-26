@@ -9,7 +9,7 @@ import { createAction, createReducer } from 'redux-act';
 export const changeFormData = createAction('CUSTOMER_NEW_CHANGE_FORM', (name, value) => [name, value]);
 export const submitCustomer = createAction('CUSTOMER_SUMBIT');
 export const openCustomerDetails = createAction('CUSTOMER_OPEN_DETAILS');
-export const failNewCustomer = createAction('CUSTOMER_NEW_FAIL', (err, source) => [err, source]);
+const failNewCustomer = createAction('CUSTOMER_NEW_FAIL', (err, source) => [err, source]);
 
 export function createCustomer() {
   return (dispatch, getState) => {

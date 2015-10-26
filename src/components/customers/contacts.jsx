@@ -21,12 +21,8 @@ export default class CustomerContacts extends React.Component {
                   className="fc-customer-contacts"
                   actionBlock={ actionBlock }>
         <dl>
-          <dt>First Name</dt>
-          <dd>{ customer.firstName }</dd>
-        </dl>
-        <dl>
-          <dt>Last Name</dt>
-          <dd>{ customer.lastName }</dd>
+          <dt>Name</dt>
+          <dd>{ customer.name }</dd>
         </dl>
         <dl>
           <dt>Email Address</dt>
