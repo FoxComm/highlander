@@ -21,6 +21,14 @@ object Slick {
 
   type DbResult[T] = DBIO[Failures Xor T]
 
+  def xorMapDbio[LeftX, RightX, RightY](xor: Xor[LeftX, RightX])(f: RightX ⇒ DBIO[RightY])
+    (implicit ec: ExecutionContext): DBIO[Xor[LeftX, RightY]] = {
+    xor match {
+      case Xor.Right(v) ⇒ f(v).map(Xor.right)
+      case Xor.Left(fs) ⇒ lift(Xor.left(fs))
+    }
+  }
+
   def appendForUpdate[A, B <: slick.dbio.NoStream](sql: SqlAction[A, B, Effect.Read]): DBIO[A] = {
     sql.overrideStatements(sql.statements.map(_ + " for update"))
   }
