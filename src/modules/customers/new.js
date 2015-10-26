@@ -14,7 +14,6 @@ export const failNewCustomer = createAction('CUSTOMER_NEW_FAIL', (err, source) =
 export function createCustomer() {
   return (dispatch, getState) => {
     const customerNew = getState().customers.adding;
-    console.log(customerNew);
     dispatch(submitCustomer());
 
     Api.post('/customers', customerNew)
