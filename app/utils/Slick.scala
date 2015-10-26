@@ -126,15 +126,15 @@ object Slick {
 
     final case class ResponseWithMetadata[A](result: Failures Xor A, metadata: ResponseMetadata)
 
-    final case class ResultWithMetadata[A](result: Result[A], metadata: QueryMetadata) {
+    final case class ResultWithMetadata[A](result: DbResult[A], metadata: QueryMetadata) {
 
       def map[S](f: A => S)(implicit ec: ExecutionContext): ResultWithMetadata[S] =
         this.copy(result = result.map(_.map(f)))
 
-      def asResponseFuture(implicit ec: ExecutionContext): Future[ResponseWithMetadata[A]] = {
+      def asResponseFuture(implicit db: Database, ec: ExecutionContext): Future[ResponseWithMetadata[A]] = {
         metadata.totalPages match {
           case None                   ⇒
-            for (res ← result)
+            for (res ← result.run())
               yield ResponseWithMetadata(
                 res,
                 ResponseMetadata(
@@ -148,7 +148,7 @@ object Slick {
 
           case Some(totalPagesFuture) ⇒
             for {
-              res        ← result
+              res        ← result.run()
               totalPages ← totalPagesFuture
             } yield ResponseWithMetadata(
               res,
@@ -165,7 +165,7 @@ object Slick {
     }
 
     object ResultWithMetadata {
-      def fromResultOnly[A](result: Result[A]): ResultWithMetadata[A] =
+      def fromResultOnly[A](result: DbResult[A]): ResultWithMetadata[A] =
         ResultWithMetadata(result = result, metadata = QueryMetadata.empty)
     }
 
@@ -197,7 +197,7 @@ object Slick {
         this.copy(query = _paged(query))
 
       def result(implicit db: Database, ec: ExecutionContext): ResultWithMetadata[C[U]] =
-        ResultWithMetadata(result = Result.fromFuture(query.result.run()), metadata)
+        ResultWithMetadata(result = DbResult.fromDbio(query.result), metadata)
     }
 
     implicit class EnrichedQuery[E, U, C[_]](val query: Query[E, U, C]) extends AnyVal {

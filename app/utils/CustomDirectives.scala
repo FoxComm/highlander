@@ -6,6 +6,7 @@ import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import akka.http.scaladsl.server.{Directive1, StandardRoute}
 
 import services.Result
+import slick.driver.PostgresDriver.api._
 import utils.Http._
 import utils.Slick.implicits.ResultWithMetadata
 
@@ -43,7 +44,8 @@ object CustomDirectives {
   def goodOrFailures[A <: AnyRef](a: Result[A])(implicit ec: ExecutionContext): StandardRoute =
     complete(a.map(renderGoodOrFailures))
 
-  def goodOrFailures[A <: AnyRef](a: ResultWithMetadata[A])(implicit ec: ExecutionContext): StandardRoute =
+  def goodOrFailures[A <: AnyRef](a: ResultWithMetadata[A])
+    (implicit db: Database, ec: ExecutionContext): StandardRoute =
     complete(a.asResponseFuture.map(renderGoodOrFailuresWithMetadata))
 
   def nothingOrFailures(a: Result[_])(implicit ec: ExecutionContext): StandardRoute =
