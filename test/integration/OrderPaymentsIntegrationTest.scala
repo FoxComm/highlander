@@ -8,7 +8,7 @@ import models.{CreditCards, CreditCard, Addresses, Order, Orders, StoreCredits, 
 OrderPayments, OrderPayment, Customers, GiftCards, GiftCard, GiftCardManuals, StoreAdmins, Reasons,
 PaymentMethod}
 import models.OrderPayments.scope._
-import services.{OrderPaymentNotFoundFailure, CannotUseInactiveCreditCard,
+import services.{OrderMustBeCart, OrderPaymentNotFoundFailure, CannotUseInactiveCreditCard,
 CustomerHasInsufficientStoreCredit, CreditCardManager, GiftCardIsInactive, GiftCardNotEnoughBalance, NotFoundFailure404}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
@@ -69,8 +69,9 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val payload = payloads.GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance)
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
 
-        response.status must === (StatusCodes.NotFound) // FIXME: should be BadRequest
-        giftCardPayments(order) must have size(0)
+        response.status must === (StatusCodes.BadRequest)
+        response.errors must === (OrderMustBeCart(order.refNum).description)
+        giftCardPayments(order) must have size 0
       }
 
       "fails if the giftCard is inactive" in new GiftCardFixture {
@@ -219,8 +220,8 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val payload = payloads.StoreCreditPayment(amount = 50)
         val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
 
-        response.status must ===(StatusCodes.NotFound) // FIXME: should be BadRequest
-        storeCreditPayments(order) must have size (0)
+        response.status must === (StatusCodes.BadRequest)
+        response.errors must === (OrderMustBeCart(order.refNum).description)
       }
     }
 
@@ -284,8 +285,9 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val payload = payloads.CreditCardPayment(creditCard.id)
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards", payload)
 
-        response.status must === (StatusCodes.NotFound) // FIXME: should be BadRequest
-        creditCardPayments(order) must have size(0)
+        response.status must === (StatusCodes.BadRequest)
+        response.errors must === (OrderMustBeCart(order.refNum).description)
+        creditCardPayments(order) must have size 0
       }
     }
 

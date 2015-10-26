@@ -3,15 +3,14 @@ package models
 import java.time.Instant
 
 import cats.data.Validated.valid
-import cats.data.ValidatedNel
-import services.Failure
+import cats.data.{Xor, ValidatedNel}
+import services._
 
 import scala.concurrent.ExecutionContext
 
 import com.pellucid.sealerate
 import models.Order.{Cart, Status}
 import monocle.macros.GenLens
-import services.OrderTotaler
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
@@ -67,6 +66,8 @@ final case class Order(id: Int = 0, referenceNumber: String = "", customerId: In
     case RemorseHold if !locked ⇒ remorsePeriodEnd
     case _ ⇒ None
   }
+
+  def mustBeCart: Failures Xor Order = if (isCart) Xor.Right(this) else Xor.Left(OrderMustBeCart(refNum).single)
 }
 
 object Order {
@@ -149,5 +150,9 @@ object Orders extends TableQueryWithLock[Order, Orders](
       def cartOnly: QuerySeq =
         q.filter(_.status === (Order.Cart: Order.Status))
     }
+  }
+
+  implicit class OrderQueryWrappers(q: QuerySeq) extends LockableQueryWrappers(q) {
+    def mustBeCart(order: Order): Failures Xor Order = order.mustBeCart
   }
 }

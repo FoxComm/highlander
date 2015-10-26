@@ -55,7 +55,7 @@ object LockAwareOrderUpdater {
   }
 
   def unlock(refNum: String)(implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
-    Orders.findByRefNum(refNum).selectOneForUpdateIgnoringLock { order ⇒
+    Orders.findByRefNum(refNum).selectOneForUpdate ({ order ⇒
       if (order.locked) {
         OrderLockEvents.findByOrder(order).mostRecentLock.one.flatMap {
           case Some(lockEvent) ⇒
@@ -66,14 +66,14 @@ object LockAwareOrderUpdater {
             doUnlock(order.id, order.remorsePeriodEnd.map(_.plusMinutes(15)))
         }
       } else DbResult.failure(GeneralFailure("Order is not locked"))
-    }
+    }, checks = Set.empty)
   }
 
   def assign(refNum: String, requestedAssigneeIds: Seq[Int])(implicit db: Database, ec: ExecutionContext,
     sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): Result[FullOrderWithWarnings] = {
     val finder = Orders.findByRefNum(refNum)
 
-    finder.selectOneForUpdateIgnoringLock { order ⇒
+    finder.selectOne ({ order ⇒
       DbResult.fromDbio(for {
         existingAdminIds ← StoreAdmins.filter(_.id.inSetBind(requestedAssigneeIds)).map(_.id).result
 
@@ -89,6 +89,6 @@ object LockAwareOrderUpdater {
         fullOrder ← FullOrder.fromOrder(newOrder)
         warnings = requestedAssigneeIds.diff(existingAdminIds).map(NotFoundFailure404(StoreAdmin, _))
       } yield FullOrderWithWarnings(fullOrder, warnings))
-    }
+    }, checks = Set.empty)
   }
 }

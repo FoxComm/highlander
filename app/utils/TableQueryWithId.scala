@@ -82,24 +82,35 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.Tab
 
   def primarySearchTerm: String = "id"
 
-  implicit class TableQuerySeqConversions(q: QuerySeq) {
+  implicit class TableQueryWrappers(q: QuerySeq) {
 
-    protected def selectInner[R](dbio: DBIO[Option[M]])(checks: Option[M] ⇒ Failures Xor M)(action: M ⇒ DbResult[R])
-      (implicit ec: ExecutionContext, db: Database): Result[R] = {
-      dbio.map(checks).flatMap {
+    type Checks = Set[M ⇒ Failures Xor M]
+
+    def checks: Checks = Set()
+
+    private def applyAllChecks(checks: Checks, maybe: Option[M], notFoundFailure: Failure): Failures Xor M = {
+      mustExist(maybe, notFoundFailure).flatMap { model ⇒
+        checks.view.map(check ⇒ check(model)).find(_.isLeft)
+          .getOrElse(Xor.right[Failures, M](model))
+      }
+    }
+
+    protected def selectInner[R](dbio: DBIO[Option[M]])(action: M ⇒ DbResult[R], checks: Checks = checks,
+      notFoundFailure: Failure = notFound404)(implicit ec: ExecutionContext, db: Database): Result[R] = {
+      dbio.map(maybe ⇒ applyAllChecks(checks, maybe, notFoundFailure)).flatMap {
         case Xor.Right(value) ⇒ action(value)
         case failures @ Xor.Left(_) ⇒ lift(failures)
       }.transactionally.run()
     }
 
-    def selectOne[R](action: M ⇒ DbResult[R])
+    def selectOne[R](action: M ⇒ DbResult[R], checks: Checks = checks, notFoundFailure: Failure = notFound404)
       (implicit ec: ExecutionContext, db: Database): Result[R] = {
-      selectInner(q.result.headOption)(selectOneResultChecks)(action)
+      selectInner(q.result.headOption)(action, checks)
     }
 
-    def selectOneForUpdate[R](action: M ⇒ DbResult[R])
+    def selectOneForUpdate[R](action: M ⇒ DbResult[R], checks: Checks = checks, notFoundFailure: Failure = notFound404)
       (implicit ec: ExecutionContext, db: Database): Result[R] = {
-      selectInner(appendForUpdate(q.result.headOption))(selectOneResultChecks)(action)
+      selectInner(appendForUpdate(q.result.headOption))(action, checks)
     }
 
     def select[R](action: Seq[M] ⇒ DbResult[R])
@@ -117,12 +128,11 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.Tab
     def queryError: String = querySearchKey.map(key ⇒ s"${tableName.tableNameToCamel} with $primarySearchTerm=$key")
       .getOrElse(s"${tableName.tableNameToCamel}")
 
-    protected def notFoundFailure = NotFoundFailure404(s"$queryError not found")
+    def notFound404 = NotFoundFailure404(s"$queryError not found")
+    def notFound400 = NotFoundFailure400(s"$queryError not found")
 
-    protected def selectOneResultChecks(maybe: Option[M])
-      (implicit ec: ExecutionContext, db: Database): Xor[Failures, M] = {
+    protected def mustExist(maybe: Option[M], notFoundFailure: Failure): Failures Xor M =
       Xor.fromOption(maybe, notFoundFailure.single)
-    }
   }
 }
 
@@ -131,24 +141,12 @@ abstract class TableQueryWithLock[M <: ModelWithLockParameter, T <: GenericTable
   (construct: Tag ⇒ T)
   (implicit ev: BaseTypedType[M#Id]) extends TableQueryWithId[M, T](idLens)(construct) {
 
-  implicit class TableWithLockQuerySeqConversions(q: QuerySeq) extends TableQuerySeqConversions(q) {
+  implicit class LockableQueryWrappers(q: QuerySeq) extends TableQueryWrappers(q) {
 
-    def selectOneForUpdateIgnoringLock[R](action: M ⇒ DbResult[R])
-      (implicit ec: ExecutionContext, db: Database): Result[R] = {
-      selectInner(appendForUpdate(q.result.headOption))(super.selectOneResultChecks)(action)
-    }
+    override def checks: Checks = super.checks + mustNotBeLocked
 
-    override def selectOneResultChecks(maybe: Option[M])
-      (implicit ec: ExecutionContext, db: Database): Xor[Failures, M] = {
-      maybe match {
-        case Some(lockable) if lockable.locked ⇒
-          Xor.left(LockedFailure(s"$queryError is locked").single)
-        case Some(lockable) if !lockable.locked ⇒
-          Xor.right(lockable)
-        case None ⇒
-          Xor.left(notFoundFailure.single)
-      }
-    }
+    def mustNotBeLocked(model: M): Failures Xor M =
+      if (model.locked) Xor.left(LockedFailure(s"$queryError is locked").single) else Xor.Right(model)
   }
 
 }
