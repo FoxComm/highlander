@@ -8,6 +8,7 @@ import cats.implicits._
 
 import shapeless._
 import models._
+import models.GiftCard.{FromStoreCredit, CsrAppeasement, CustomerPurchase}
 import models.GiftCard.Canceled
 import models.GiftCardSubtypes.scope._
 import responses.{GiftCardResponse, CustomerResponse, StoreAdminResponse}
@@ -26,6 +27,17 @@ object GiftCardService {
 
   type Account = Customer :+: StoreAdmin :+: CNil
   type QuerySeq = GiftCards.QuerySeq
+
+  def getOriginTypes: Seq[GiftCard.OriginType] = GiftCard.OriginType.types.toSeq
+
+  def getSubTypes(originType: String)(implicit db: Database, ec: ExecutionContext): Result[Seq[GiftCardSubtype]] = {
+    GiftCard.OriginType.read(originType) match {
+      case Some(CsrAppeasement)   ⇒ GiftCardSubtypes.customerPurchases.select(DbResult.good(_))
+      case Some(CustomerPurchase) ⇒ GiftCardSubtypes.csrAppeasements.select(DbResult.good(_))
+      case Some(FromStoreCredit)  ⇒ GiftCardSubtypes.fromStoreCredits.select(DbResult.good(_))
+      case _                      ⇒ Result.failure(InvalidOriginTypeFailure)
+    }
+  }
 
   def sortedAndPaged(query: QuerySeq)
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeq = {

@@ -27,6 +27,16 @@ object GiftCardRoutes {
             GiftCardService.findAll
           }
         } ~
+        (get & path("types") & pathEnd) {
+          good {
+            GiftCardService.getOriginTypes
+          }
+        } ~
+        (get & path("subtypes" / GiftCard.originTypeRegex) & pathEnd) { originType ⇒
+          goodOrFailures {
+            GiftCardService.getSubTypes(originType)
+          }
+        } ~
         (patch & entity(as[payloads.GiftCardBulkUpdateStatusByCsr]) & pathEnd) { payload ⇒
           goodOrFailures {
             GiftCardService.bulkUpdateStatusByCsr(payload, admin)

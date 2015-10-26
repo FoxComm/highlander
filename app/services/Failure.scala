@@ -35,6 +35,10 @@ final case class StripeFailure(exception: StripeException) extends Failure {
   override def description = List(exception.getMessage)
 }
 
+case object InvalidOriginTypeFailure extends Failure {
+  override def description = List("Invalid origin type provided")
+}
+
 case object CVCFailure extends Failure {
   override def description = List("failed CVC check")
 }
