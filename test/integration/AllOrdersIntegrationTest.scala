@@ -19,11 +19,12 @@ import utils.time._
 
 class AllOrdersIntegrationTest extends IntegrationTestBase
   with HttpSupport
-  with SortingAndPaging[responses.AllOrders.Root]
+  with SortingAndPagingOld[responses.AllOrders.Root]
   with AutomaticAuth {
 
   // paging and sorting API
   def uriPrefix = "v1/orders"
+  val numOfResults = 30
 
   def responseItems = {
     val items = (1 to numOfResults).map { i ⇒
