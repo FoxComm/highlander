@@ -6,7 +6,7 @@ import _ from 'lodash';
 const DefaultButton = (props) => {
   const buttonProps = _.omit(props, 'icon', 'children', 'className');
   return (
-    <button className={`fc-btn ${props.className}`} {...buttonProps}>
+    <button className={`fc-btn ${props.className ? props.className : null}`} {...buttonProps}>
       {props.icon &&
         <i className={`icon-${props.icon}`}></i>
       }
@@ -28,7 +28,7 @@ const EditButton = (props) => {
 };
 
 const IncrementButton = (props) => {
-  return <DefaultButton icon='chevron-up' {...props} />
+  return <DefaultButton icon='chevron-up' {...props} />;
 };
 
 const PrimaryButton = (props) => {
