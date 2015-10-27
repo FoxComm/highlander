@@ -6,18 +6,20 @@ import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import akka.http.scaladsl.server.{Directive1, StandardRoute}
 
 import services.Result
+import slick.driver.PostgresDriver.api._
 import utils.Http._
+import utils.Slick.implicits.ResultWithMetadata
 
 object CustomDirectives {
 
   final case class Sort(sortColumn: String, asc: Boolean = true)
   final case class SortAndPage(
-    pageNo: Option[Int],
-    pageSize: Option[Int],
+    from: Option[Int],
+    size: Option[Int],
     sortBy: Option[String]) {
 
-    require(pageNo.getOrElse(1) > 0,   "pageNo parameter must be greater than zero")
-    require(pageSize.getOrElse(1) > 0, "pageSize parameter must be greater than zero")
+    require(from.getOrElse(1) >= 0, "from parameter must be non-negative")
+    require(size.getOrElse(1) >  0, "size parameter must be positive")
 
     def sort: Option[Sort] = sortBy.map { f ⇒
       if (f.startsWith("-")) Sort(f.drop(1), asc = false)
@@ -28,7 +30,7 @@ object CustomDirectives {
   val EmptySortAndPage: SortAndPage = SortAndPage(None, None, None)
 
   def sortAndPage: Directive1[SortAndPage] =
-    parameters(('pageNo.as[Int].?, 'pageSize.as[Int].?, 'sortBy.as[String].?)).as(SortAndPage)
+    parameters(('from.as[Int].?, 'size.as[Int].?, 'sortBy.as[String].?)).as(SortAndPage)
 
   def good[A <: AnyRef](a: Future[A])(implicit ec: ExecutionContext): StandardRoute =
     complete(a.map(render(_)))
@@ -41,6 +43,10 @@ object CustomDirectives {
 
   def goodOrFailures[A <: AnyRef](a: Result[A])(implicit ec: ExecutionContext): StandardRoute =
     complete(a.map(renderGoodOrFailures))
+
+  def goodOrFailures[A <: AnyRef](a: ResultWithMetadata[A])
+    (implicit db: Database, ec: ExecutionContext): StandardRoute =
+    complete(a.asResponseFuture.map(renderGoodOrFailuresWithMetadata))
 
   def nothingOrFailures(a: Result[_])(implicit ec: ExecutionContext): StandardRoute =
     complete(a.map(renderNothingOrFailures))

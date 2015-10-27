@@ -5,9 +5,10 @@ import java.time.Instant
 import scala.concurrent.ExecutionContext
 
 import cats.data.Validated._
-import cats.data.ValidatedNel
+import cats.data.{Xor, ValidatedNel}
 import cats.implicits._
 import services._
+import utils.CustomDirectives.SortAndPage
 import utils.Litterbox._
 
 import com.pellucid.sealerate
@@ -19,6 +20,7 @@ import slick.jdbc.JdbcType
 
 import utils._
 import utils.Money._
+import utils.Slick.implicits._
 import utils.Validation._
 
 final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = CustomerPurchase,
@@ -64,6 +66,8 @@ final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = C
   def isCart: Boolean   = status == Cart
 
   def hasAvailable(amount: Int): Boolean = availableBalance >= amount
+
+  def mustBeCart: Failures Xor GiftCard = if (isCart) Xor.Right(this) else Xor.Left(GiftCardMustBeCart(code).single)
 }
 
 object GiftCard {
@@ -154,6 +158,38 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
   import GiftCard._
   import models.{GiftCardAdjustment ⇒ Adj, GiftCardAdjustments ⇒ Adjs}
 
+  override def primarySearchTerm: String = "code"
+
+  def sortedAndPaged(query: QuerySeq)
+    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata = {
+    query.withMetadata.sortAndPageIfNeeded { (s, giftCard) ⇒
+      s.sortColumn match {
+        case "id"               ⇒ if(s.asc) giftCard.id.asc               else giftCard.id.desc
+        case "originId"         ⇒ if(s.asc) giftCard.originId.asc         else giftCard.originId.desc
+        case "originType"       ⇒ if(s.asc) giftCard.originType.asc       else giftCard.originType.desc
+        case "subTypeId"        ⇒ if(s.asc) giftCard.subTypeId.asc        else giftCard.subTypeId.desc
+        case "code"             ⇒ if(s.asc) giftCard.code.asc             else giftCard.code.desc
+        case "status"           ⇒ if(s.asc) giftCard.status.asc           else giftCard.status.desc
+        case "currency"         ⇒ if(s.asc) giftCard.currency.asc         else giftCard.currency.desc
+        case "originalBalance"  ⇒ if(s.asc) giftCard.originalBalance.asc  else giftCard.originalBalance.desc
+        case "currentBalance"   ⇒ if(s.asc) giftCard.currentBalance.asc   else giftCard.currentBalance.desc
+        case "availableBalance" ⇒ if(s.asc) giftCard.availableBalance.asc else giftCard.availableBalance.desc
+        case "canceledAmount"   ⇒ if(s.asc) giftCard.canceledAmount.asc   else giftCard.canceledAmount.desc
+        case "canceledReason"   ⇒ if(s.asc) giftCard.canceledReason.asc   else giftCard.canceledReason.desc
+        case "reloadable"       ⇒ if(s.asc) giftCard.reloadable.asc       else giftCard.reloadable.desc
+        case "createdAt"        ⇒ if(s.asc) giftCard.createdAt.asc        else giftCard.createdAt.desc
+        case _                  ⇒ giftCard.id.asc
+      }
+    }
+  }
+
+  def queryAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata =
+    sortedAndPaged(this)
+
+  def queryByCode(code: String)
+    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata =
+    sortedAndPaged(findByCode(code))
+
   def auth(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int = 0, credit: Int = 0)
     (implicit ec: ExecutionContext): DBIO[Adj] =
     adjust(giftCard, orderPaymentId, debit = debit, credit = credit, status = Adj.Auth)
@@ -174,14 +210,11 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
     Adjs.save(adjustment)
   }
 
-  def findByCode(code: String): Query[GiftCards, GiftCard, Seq] =
+  def findByCode(code: String): QuerySeq =
     filter(_.code === code)
 
-  def findActiveByCode(code: String): Query[GiftCards, GiftCard, Seq] =
+  def findActiveByCode(code: String): QuerySeq =
     findByCode(code).filter(_.status === (GiftCard.Active: GiftCard.Status))
-
-  def findCartByCode(code: String) : Query[GiftCards, GiftCard, Seq] =
-    findByCode(code).filter(_.status === (GiftCard.Cart: GiftCard.Status))
 
   val returningIdCodeAndBalance = this.returning(map { gc ⇒ (gc.id, gc.code, gc.currentBalance, gc.availableBalance) })
 
@@ -204,5 +237,9 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
     val adjustment = Adj(giftCardId = giftCard.id, orderPaymentId = orderPaymentId,
       debit = debit, credit = credit, availableBalance = balance, status = status)
     Adjs.save(adjustment)
+  }
+
+  implicit class GiftCardQueryWrappers(q: QuerySeq) extends TableQueryWrappers(q) {
+    def mustBeCart(giftCard: GiftCard): Failures Xor GiftCard = giftCard.mustBeCart
   }
 }

@@ -34,11 +34,11 @@ object CustomerRoutes {
           goodOrFailures {
             CustomerManager.findAll
           }
-        }
-      } ~
-      (post & entity(as[payloads.CreateCustomerPayload])) { payload ⇒
-        goodOrFailures {
-          CustomerManager.create(payload)
+        } ~
+        (post & entity(as[payloads.CreateCustomerPayload]) & pathEnd) { payload ⇒
+          goodOrFailures {
+            CustomerManager.create(payload)
+          }
         }
       } ~
       pathPrefix("customers" / IntNumber) { customerId ⇒
@@ -49,7 +49,12 @@ object CustomerRoutes {
         } ~
         (patch & entity(as[UpdateCustomerPayload]) & pathEnd) { payload ⇒
           goodOrFailures {
-            CustomerManager.updateFromPayload(customerId, payload)
+            CustomerManager.update(customerId, payload)
+          }
+        } ~
+        (post & path("activate") & entity(as[ActivateCustomerPayload])) { payload ⇒
+          goodOrFailures {
+            CustomerManager.activate(customerId, payload)
           }
         } ~
         (post & path("disable") & entity(as[payloads.ToggleCustomerDisabled])) { payload ⇒
@@ -113,7 +118,9 @@ object CustomerRoutes {
         } ~
         pathPrefix("payment-methods" / "credit-cards") {
           (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            good { CreditCardManager.creditCardsInWalletFor(customerId) }
+            goodOrFailures {
+              CreditCardManager.creditCardsInWalletFor(customerId)
+            }
           } ~
           (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultCreditCard]) & pathEnd) {
             (cardId, payload) ⇒

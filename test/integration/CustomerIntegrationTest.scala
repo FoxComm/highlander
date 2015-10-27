@@ -1,16 +1,22 @@
+import java.time.Instant
+
+import scala.concurrent.Future
 import akka.http.scaladsl.model.StatusCodes
 
 import cats.implicits._
 import com.stripe.exception.CardException
 import com.stripe.model.{Card, Customer ⇒ StripeCustomer}
 import models.OrderPayments.scope._
-import models.{Addresses, CreditCard, CreditCards, Customer, Customers, OrderPayments, Orders, Regions, StoreAdmins}
+import models.{Order, Addresses, CreditCard, CreditCards, Customer, Customers, OrderPayments, Orders, Regions,
+StoreAdmins}
 import org.mockito.Mockito.{reset, when}
 import org.mockito.{Matchers ⇒ m}
 import org.scalatest.mock.MockitoSugar
 import payloads.CreateAddressPayload
-import responses.CustomerResponse
-import services.{CannotUseInactiveCreditCard, CreditCardManager, GeneralFailure, NotFoundFailure404, Result, StripeRuntimeException}
+
+import responses.{ResponseWithFailuresAndMetadata, CustomerResponse}
+import services.{CannotUseInactiveCreditCard, CreditCardManager, GeneralFailure, NotFoundFailure404,
+Result, StripeRuntimeException, CustomerEmailNotUnique}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.implicits._
@@ -32,8 +38,14 @@ class CustomerIntegrationTest extends IntegrationTestBase
   // paging and sorting API
   val uriPrefix = "v1/customers"
 
-  def responseItems = (1 to 30).map { i ⇒
-    CustomerResponse.build(Customers.save(Seeds.Factories.generateCustomer).run().futureValue)
+  def responseItems = {
+    val items = (1 to numOfResults).map { i ⇒
+      val future = Customers.save(Seeds.Factories.generateCustomer).run()
+
+      future map { CustomerResponse.build(_) }
+    }
+
+    Future.sequence(items).futureValue
   }
   val sortColumnName = "name"
 
@@ -69,7 +81,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val customerRoot = CustomerResponse.build(customer, shippingRegion = region)
 
       response.status must === (StatusCodes.OK)
-      response.as[Seq[CustomerResponse.Root]] must === (Seq(customerRoot))
+      response.as[ResponseWithFailuresAndMetadata[Seq[CustomerResponse.Root]]].result must === (Seq(customerRoot))
     }
 
     "lists customers without default address" in new Fixture {
@@ -78,7 +90,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val customerRoot = CustomerResponse.build(customer)
 
       response.status must === (StatusCodes.OK)
-      response.as[Seq[CustomerResponse.Root]] must === (Seq(customerRoot))
+      response.as[ResponseWithFailuresAndMetadata[Seq[CustomerResponse.Root]]].result must === (Seq(customerRoot))
     }
 
     "customer listing shows valid billingRegion" in new CreditCardFixture {
@@ -88,7 +100,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val customerRoot = CustomerResponse.build(customer, shippingRegion = region, billingRegion = billRegion)
 
       response.status must === (StatusCodes.OK)
-      response.as[Seq[CustomerResponse.Root]] must === (Seq(customerRoot))
+      response.as[ResponseWithFailuresAndMetadata[Seq[CustomerResponse.Root]]].result must === (Seq(customerRoot))
     }
 
     "customer listing shows valid billingRegion without default CreditCard" in new CreditCardFixture {
@@ -97,7 +109,28 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val customerRoot = CustomerResponse.build(customer, shippingRegion = region)
 
       response.status must === (StatusCodes.OK)
-      response.as[Seq[CustomerResponse.Root]] must === (Seq(customerRoot))
+      response.as[ResponseWithFailuresAndMetadata[Seq[CustomerResponse.Root]]].result must === (Seq(customerRoot))
+    }
+  }
+
+  "POST /v1/customers" - {
+    "successfully creates customer from payload" in new Fixture {
+      val response = POST(s"v1/customers", payloads.CreateCustomerPayload(email = "test@example.com",
+        name = Some("test")))
+
+      response.status must ===(StatusCodes.OK)
+
+      val root = response.as[CustomerResponse.Root]
+      val created = Customers.findOneById(root.id).run().futureValue.value
+      created.id must === (root.id)
+    }
+
+    "fails if email is already in use" in new Fixture {
+      val response = POST(s"v1/customers", payloads.CreateCustomerPayload(email = customer.email,
+        name = Some("test")))
+
+      response.status must ===(StatusCodes.BadRequest)
+      response.errors must ===(CustomerEmailNotUnique.description)
     }
   }
 
@@ -140,7 +173,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
   }
 
   "PATCH /v1/customers/:customerId" - {
-    "update customer attributes" in new Fixture {
+    "successfully updates customer attributes" in new Fixture {
       val payload = payloads.UpdateCustomerPayload(name = "John Doe".some, email = "newemail@example.org".some,
         phoneNumber = "555 555 55".some)
       val newEmail = payload.email.getOrElse("")
@@ -153,6 +186,52 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val updated = response.as[responses.CustomerResponse.Root]
       (updated.name, updated.email, updated.phoneNumber) must === ((payload.name, newEmail, payload
         .phoneNumber))
+    }
+
+    "fails if email is already in use" in new Fixture {
+      val newUserResponse = POST(s"v1/customers", payloads.CreateCustomerPayload(email = "test@example.com",
+        name = Some("test")))
+
+      newUserResponse.status must ===(StatusCodes.OK)
+      val root = newUserResponse.as[CustomerResponse.Root]
+
+      val payload = payloads.UpdateCustomerPayload(email = customer.email.some)
+      val response = PATCH(s"v1/customers/${root.id}", payload)
+
+      response.status must ===(StatusCodes.BadRequest)
+      response.errors must ===(CustomerEmailNotUnique.description)
+    }
+  }
+
+  "POST /v1/customers/:customerId/activate" - {
+    "fails if email is already in use by non-guest user" in new Fixture {
+      val newUserResponse = POST(s"v1/customers", payloads.CreateCustomerPayload(email = customer.email,
+        isGuest = Some(true)))
+
+      newUserResponse.status must ===(StatusCodes.OK)
+      val root = newUserResponse.as[CustomerResponse.Root]
+
+      val payload = payloads.ActivateCustomerPayload(name = "test")
+      val response = POST(s"v1/customers/${root.id}/activate", payload)
+
+      response.status must ===(StatusCodes.BadRequest)
+      response.errors must ===(CustomerEmailNotUnique.description)
+    }
+
+    "sucessfully activate non-guest user" in new Fixture {
+      val newUserResponse = POST(s"v1/customers", payloads.CreateCustomerPayload(email = "guest@example.com",
+        isGuest = Some(true)))
+
+      newUserResponse.status must ===(StatusCodes.OK)
+      val root = newUserResponse.as[CustomerResponse.Root]
+
+      val payload = payloads.ActivateCustomerPayload(name = "test")
+      val response = POST(s"v1/customers/${root.id}/activate", payload)
+      response.status must === (StatusCodes.OK)
+
+      val created = Customers.findOneById(root.id).run().futureValue.value
+      CustomerResponse.build(created) must === (root.copy(name = Some("test")))
+      created.isGuest must === (false)
     }
   }
 
@@ -172,7 +251,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val deleted = CreditCards.save(creditCard.copy(id = 0, inWallet = false)).run().futureValue
 
       val response = GET(s"$uriPrefix/${customer.id}/payment-methods/credit-cards")
-      val cc = response.as[Seq[CreditCard]]
+      val cc = response.as[ResponseWithFailuresAndMetadata[Seq[CreditCard]]].result
 
       response.status must === (StatusCodes.OK)
       cc must have size 1

@@ -10,7 +10,6 @@ import models.Order.orderRefNumRegex
 import models.GiftCard.giftCardCodeRegex
 import models._
 import payloads._
-import responses.{AllOrders, BulkOrderUpdateResponse}
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.Http._
@@ -37,11 +36,8 @@ object OrderRoutes {
         } ~
         (patch & pathEnd & sortAndPage) { implicit sortAndPage ⇒
           entity(as[BulkUpdateOrdersPayload]) { payload ⇒
-            good {
-              for {
-                failures ← OrderUpdater.updateStatuses(payload.referenceNumbers, payload.status)
-                orders   ← OrderQueries.findAll.run()
-              } yield BulkOrderUpdateResponse(orders, failures)
+            goodOrFailures {
+              OrderUpdater.updateStatuses(payload.referenceNumbers, payload.status)
             }
           }
         } ~
@@ -66,16 +62,14 @@ object OrderRoutes {
         (get & pathEnd) {
           goodOrFailures {
             val finder = Orders.findByRefNum(refNum)
-            finder.selectOneForUpdateIgnoringLock { order ⇒
+            finder.selectOne { order ⇒
               DbResult.fromDbio(Slick.fullOrder(finder))
             }
           }
         } ~
         (patch & entity(as[UpdateOrderPayload])) { payload ⇒
-          complete {
-            whenOrderFoundAndEditable(refNum) { _ ⇒
-              OrderUpdater.updateStatus(refNum, payload.status)
-            }
+          goodOrFailures {
+            OrderUpdater.updateStatus(refNum, payload.status)
           }
         } ~
         (post & path("increase-remorse-period") & pathEnd) {
@@ -94,15 +88,13 @@ object OrderRoutes {
           }
         } ~
         (post & path("checkout")) {
-          complete {
-            whenOrderFoundAndEditable(refNum) { order ⇒ new Checkout(order).checkout }
+          nothingOrFailures {
+            Result.unit // FIXME Stubbed until checkout is updated
           }
         } ~
         (post & path("line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems ⇒
-          complete {
-            whenOrderFoundAndEditable(refNum) { order ⇒
-              LineItemUpdater.updateQuantities(order, reqItems)
-            }
+          goodOrFailures {
+            LineItemUpdater.updateQuantitiesOnOrder(refNum, reqItems)
           }
         } ~
         (post & path("gift-cards") & entity(as[AddGiftCardLineItem]) & pathEnd) { payload ⇒

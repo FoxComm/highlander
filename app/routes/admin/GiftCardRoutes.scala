@@ -1,6 +1,5 @@
 package routes.admin
 
-
 import scala.concurrent.ExecutionContext
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer

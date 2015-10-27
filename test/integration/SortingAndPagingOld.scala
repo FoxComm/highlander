@@ -1,13 +1,12 @@
 import akka.http.scaladsl.model.StatusCodes
 
 import org.scalatest.mock.MockitoSugar
-import responses.{ResponseWithFailuresAndMetadata, ResponseItem}
+import responses.ResponseItem
 import util.IntegrationTestBase
 
-trait SortingAndPaging[T <: ResponseItem] extends MockitoSugar { this: IntegrationTestBase with HttpSupport ⇒
+trait SortingAndPagingOld[T <: ResponseItem] extends MockitoSugar { this: IntegrationTestBase with HttpSupport ⇒
 
   // the API
-  def numOfResults = 30
   def uriPrefix: String
   def sortColumnName: String
   def beforeSortingAndPaging(): Unit = {}
@@ -26,66 +25,41 @@ trait SortingAndPaging[T <: ResponseItem] extends MockitoSugar { this: Integrati
     val itemsSorted: IndexedSeq[T] = responseItemsSort(items)
   }
 
-  implicit class ResponseWithFailuresAndMetadataChecks[A <: AnyRef](resp: ResponseWithFailuresAndMetadata[A]) {
-    def checkSortingAndPagingMetadata(sortBy: String, from: Int, size: Int, total: Option[Int] = None) = {
-      resp.sorting must be ('defined)
-      resp.sorting.value.sortBy must be ('defined)
-      resp.sorting.value.sortBy.value must === (sortBy)
-      resp.pagination must be ('defined)
-      resp.pagination.value.from must be ('defined)
-      resp.pagination.value.from.value must === (from)
-      resp.pagination.value.size must be ('defined)
-      resp.pagination.value.size.value must === (size)
-      resp.pagination.value.pageNo must be ('defined)
-      resp.pagination.value.pageNo.value must === ((from / size) + 1)
-      resp.pagination.value.total must be ('defined)
-      total.foreach(resp.pagination.value.total.value must === (_))
-    }
-  }
-
   "supports sorting and paging" - {
 
     "sort by a column without paging" in new SortingAndPagingFixture {
-      val response = GET(s"$uriPrefix?sortBy=$sortColumnName")
-      response.status must === (StatusCodes.OK)
-      val respWithMetadata = response.as[ResponseWithFailuresAndMetadata[Seq[T]]]
-      respWithMetadata.result must === (itemsSorted)
+      val responseList = GET(s"$uriPrefix?sortBy=$sortColumnName")
 
-      respWithMetadata.sorting must be ('defined)
-      respWithMetadata.sorting.value.sortBy must be ('defined)
-      respWithMetadata.sorting.value.sortBy.value must === (sortColumnName)
-      respWithMetadata.pagination must === (None)
+      responseList.status must === (StatusCodes.OK)
+      responseList.as[Seq[T]] must === (itemsSorted)
     }
 
     "sort by a column with paging #1" in new SortingAndPagingFixture {
-      val response = GET(s"$uriPrefix?sortBy=$sortColumnName&from=12&size=6")
+      val responseList = GET(s"$uriPrefix?sortBy=$sortColumnName&from=12&size=6")
 
-      response.status must === (StatusCodes.OK)
-      val respWithMetadata = response.as[ResponseWithFailuresAndMetadata[Seq[T]]]
-      respWithMetadata.result must === (itemsSorted.drop(12).take(6))
-
-      respWithMetadata.checkSortingAndPagingMetadata(sortColumnName, 12, 6, Some(30))
+      responseList.status must === (StatusCodes.OK)
+      responseList.as[Seq[T]] must === (itemsSorted.drop(12).take(6))
     }
 
     "sort by a column with paging #2" in new SortingAndPagingFixture {
       val responseList = GET(s"$uriPrefix?sortBy=$sortColumnName&from=999&size=3")
 
       responseList.status must === (StatusCodes.OK)
-      responseList.as[ResponseWithFailuresAndMetadata[Seq[T]]].result must === (Seq.empty)
+      responseList.as[Seq[T]] must === (Seq.empty)
     }
 
     "sort by a column with paging #3" in new SortingAndPagingFixture {
       val responseList = GET(s"$uriPrefix?sortBy=$sortColumnName&from=0&size=999")
 
       responseList.status must === (StatusCodes.OK)
-      responseList.as[ResponseWithFailuresAndMetadata[Seq[T]]].result must === (itemsSorted)
+      responseList.as[Seq[T]] must === (itemsSorted)
     }
 
     "sort by a column in a reverse order with paging" in new SortingAndPagingFixture {
       val responseList = GET(s"$uriPrefix?sortBy=-$sortColumnName&from=12&size=6")
 
       responseList.status must === (StatusCodes.OK)
-      responseList.as[ResponseWithFailuresAndMetadata[Seq[T]]].result must === (itemsSorted.reverse.drop(12).take(6))
+      responseList.as[Seq[T]] must === (itemsSorted.reverse.drop(12).take(6))
     }
 
     "error on invalid from param #1" in new SortingAndPagingFixture {

@@ -12,7 +12,7 @@ object RmaService {
   def getByRefNum(refNum: String)(implicit db: Database, ec: ExecutionContext): Result[Root] = {
     val finder = Rmas.findByRefNum(refNum)
 
-    finder.selectOneForUpdateIgnoringLock { rma ⇒
+    finder.selectOneForUpdate { rma ⇒
       DbResult.fromDbio(lift(build(rma)))
     }
   }

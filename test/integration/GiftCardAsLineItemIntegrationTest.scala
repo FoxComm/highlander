@@ -44,8 +44,8 @@ class GiftCardAsLineItemIntegrationTest extends IntegrationTestBase
       Orders.findActiveOrderByCustomer(customer).map(_.status).update(Order.ManualHold).run().futureValue
       val response = POST(s"v1/orders/${order.refNum}/gift-cards", payloads.AddGiftCardLineItem(balance = 100))
 
-      response.status must ===(StatusCodes.NotFound)
-      response.errors must ===(NotFoundFailure404(Order, order.refNum).description)
+      response.status must === (StatusCodes.BadRequest)
+      response.errors must === (OrderMustBeCart(order.refNum).description)
     }
 
     "fails to create new GC with invalid balance" in new LineItemFixture {
@@ -83,25 +83,23 @@ class GiftCardAsLineItemIntegrationTest extends IntegrationTestBase
       Orders.findActiveOrderByCustomer(customer).map(_.status).update(Order.ManualHold).run().futureValue
       val response = PATCH(s"v1/orders/${order.refNum}/gift-cards/${giftCard.code}", payloads.AddGiftCardLineItem(balance = 100))
 
-      response.status must ===(StatusCodes.NotFound)
-      response.errors must ===(NotFoundFailure404(Order, order.refNum).description)
+      response.status must ===(StatusCodes.BadRequest)
+      response.errors must ===(OrderMustBeCart(order.refNum).description)
     }
 
     "fails to update GC as line item for GC not in Cart state" in new LineItemFixture {
       GiftCards.findByCode(giftCard.code).map(_.status).update(GiftCard.Canceled).run().futureValue
       val response = PATCH(s"v1/orders/${order.refNum}/gift-cards/${giftCard.code}", payloads.AddGiftCardLineItem(balance = 100))
 
-      response.status must ===(StatusCodes.NotFound)
-      // TODO: proper error message
-      response.errors must ===(GeneralFailure("Not found").description)
+      response.status must ===(StatusCodes.BadRequest)
+      response.errors must ===(GiftCardMustBeCart(giftCard.code).description)
     }
 
     "fails to update GC as line item for invalid GC" in new LineItemFixture {
       val response = PATCH(s"v1/orders/${order.refNum}/gift-cards/ABC-666", payloads.AddGiftCardLineItem(balance = 100))
 
       response.status must ===(StatusCodes.NotFound)
-      // TODO: proper error message
-      response.errors must ===(GeneralFailure("Not found").description)
+      response.errors must ===(NotFoundFailure404(GiftCard, "ABC-666").description)
     }
 
     "fails to update GC setting invalid balance" in new LineItemFixture {
@@ -134,25 +132,23 @@ class GiftCardAsLineItemIntegrationTest extends IntegrationTestBase
       Orders.findActiveOrderByCustomer(customer).map(_.status).update(Order.ManualHold).run().futureValue
       val response = DELETE(s"v1/orders/${order.refNum}/gift-cards/${giftCard.code}")
 
-      response.status must ===(StatusCodes.NotFound)
-      response.errors must ===(NotFoundFailure404(Order, order.refNum).description)
+      response.status must ===(StatusCodes.BadRequest)
+      response.errors must ===(OrderMustBeCart(order.refNum).description)
     }
 
     "fails to delete GC as line item for GC not in Cart state" in new LineItemFixture {
       GiftCards.findByCode(giftCard.code).map(_.status).update(GiftCard.Canceled).run().futureValue
       val response = DELETE(s"v1/orders/${order.refNum}/gift-cards/${giftCard.code}")
 
-      response.status must ===(StatusCodes.NotFound)
-      // TODO: proper error message
-      response.errors must ===(GeneralFailure("Not found").description)
+      response.status must ===(StatusCodes.BadRequest)
+      response.errors must ===(GiftCardMustBeCart(giftCard.code).description)
     }
 
     "fails to delete GC as line item for invalid GC" in new LineItemFixture {
       val response = DELETE(s"v1/orders/${order.refNum}/gift-cards/ABC-666")
 
       response.status must ===(StatusCodes.NotFound)
-      // TODO: proper error message
-      response.errors must ===(GeneralFailure("Not found").description)
+      response.errors must ===(NotFoundFailure404(GiftCard, "ABC-666").description)
     }
   }
 

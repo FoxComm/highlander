@@ -1,4 +1,5 @@
 import scala.collection.JavaConverters._
+import scala.concurrent.Future
 import scala.util.Random
 import akka.http.scaladsl.model.StatusCodes
 
@@ -40,15 +41,20 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
   val regCurrencies = CurrencyUnit.registeredCurrencies.asScala.toIndexedSeq
 
-  def responseItems = regCurrencies.map { currency ⇒
-    val balance = Random.nextInt(9999999)
-    val gc = GiftCards.save(Factories.giftCard.copy(
-      currency = currency,
-      originId = currentOrigin.id,
-      originalBalance = balance,
-      currentBalance = balance,
-      availableBalance = balance)).run().futureValue
-    responses.GiftCardResponse.build(gc)
+  def responseItems = {
+    val items = regCurrencies.take(numOfResults).map { currency ⇒
+      val balance = Random.nextInt(9999999)
+      val future = GiftCards.save(Factories.giftCard.copy(
+        currency = currency,
+        originId = currentOrigin.id,
+        originalBalance = balance,
+        currentBalance = balance,
+        availableBalance = balance)).run()
+
+      future map { responses.GiftCardResponse.build(_) }
+    }
+
+    Future.sequence(items).futureValue
   }
 
   val sortColumnName = "availableBalance"
@@ -64,8 +70,8 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       val giftCards = Seq(giftCard, gcSecond)
 
       response.status must ===(StatusCodes.OK)
-      val cards = response.as[Seq[GiftCard]]
-      cards.map(_.id).sorted must ===(giftCards.map(_.id).sorted)
+      val resp = response.as[ResponseWithFailuresAndMetadata[Seq[GiftCard]]]
+      resp.result.map(_.id).sorted must ===(giftCards.map(_.id).sorted)
     }
   }
 
@@ -258,7 +264,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       val adjustment2 = GiftCards.auth(giftCard, Some(payment.id), 1).run().futureValue
       val adjustment3 = GiftCards.auth(giftCard, Some(payment.id), 2).run().futureValue
 
-      val response = GET(s"v1/gift-cards/${giftCard.code}/transactions?sortBy=-id&pageNo=2&pageSize=2")
+      val response = GET(s"v1/gift-cards/${giftCard.code}/transactions?sortBy=-id&from=2&size=2")
       val adjustments = response.as[Seq[GiftCardAdjustmentsResponse.Root]]
 
       response.status must ===(StatusCodes.OK)

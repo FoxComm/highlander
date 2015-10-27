@@ -1,33 +1,49 @@
 package services
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 import cats.data.Validated.{Invalid, Valid}
 import cats.data.Xor
 import cats.data.Xor.{Left, Right}
 import models._
 import payloads.{UpdateShippingMethod, CreateAddressPayload, UpdateAddressPayload}
-import responses.FullOrder
+import responses.ResponseWithFailuresAndMetadata.BulkOrderUpdateResponse
+import responses.{ResponseWithFailuresAndMetadata, FullOrder}
 import slick.driver.PostgresDriver.api._
+import utils.CustomDirectives
+import utils.CustomDirectives.SortAndPage
 import utils.Slick.{DbResult, _}
-import utils.Slick.UpdateReturning._
 import utils.Slick.implicits._
 
 object OrderUpdater {
 
   def updateStatus(refNum: String, newStatus: Order.Status)
-    (implicit db: Database, ec: ExecutionContext): Future[Failures Xor FullOrder.Root] = {
-
-    updateStatuses(Seq(refNum), newStatus).flatMap {
-      case Seq() ⇒ Orders.findByRefNum(refNum).result.run().flatMap { o ⇒
-        FullOrder.fromOrder(o.head).run().map(Xor.right)
+    (implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
+    val finder = Orders.findByRefNum(refNum)
+    finder.selectOneForUpdate { order ⇒
+      updateStatusesDbio(Seq(refNum), newStatus).flatMap {
+        case Xor.Right(_) ⇒
+          DbResult.fromDbio(fullOrder(finder))
+        case Xor.Left(failures) ⇒
+          val fs = failures.toList.map {
+            case NotFoundFailure400(msg) ⇒ NotFoundFailure404(msg)
+            case anyOtherFailure         ⇒ anyOtherFailure
+          }
+          DbResult.failures(Failures(fs: _*))
       }
-      case failures ⇒ Result.failures(failures: _*)
     }
   }
 
   def updateStatuses(refNumbers: Seq[String], newStatus: Order.Status)
-    (implicit db: Database, ec: ExecutionContext): Future[Seq[OrderUpdateFailure]] = {
+    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[BulkOrderUpdateResponse] = {
+    updateStatusesDbio(refNumbers, newStatus).zip(OrderQueries.findAll).map { case (failures,
+    orders) ⇒
+      ResponseWithFailuresAndMetadata.fromOption(orders, failures.swap.toOption)
+    }.transactionally.run().flatMap(Result.good)
+  }
+
+  private def updateStatusesDbio(refNumbers: Seq[String], newStatus: Order.Status)(implicit db: Database,
+    ec: ExecutionContext, sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): DbResult[Unit] = {
 
     import Order._
 
@@ -54,7 +70,8 @@ object OrderUpdater {
       case _ ⇒ Orders.filter(_.id.inSet(orderIds)).map(_.status).update(newStatus)
     }
 
-    db.run(Orders.filter(_.referenceNumber.inSet(refNumbers)).result).flatMap { orders ⇒
+    val query = Orders.filter(_.referenceNumber.inSet(refNumbers)).result
+    appendForUpdate(query).flatMap { orders ⇒
 
       val (validTransitions, invalidTransitions) = orders
         .filterNot(_.status == newStatus)
@@ -62,38 +79,33 @@ object OrderUpdater {
 
       val (lockedOrders, absolutelyPossibleUpdates) = validTransitions.partition(_.locked)
 
-      db.run(updateQueries(absolutelyPossibleUpdates.map(_.id))).map { _ ⇒
+      updateQueries(absolutelyPossibleUpdates.map(_.id)).flatMap { _ ⇒
         // Failure handling
         val invalid = invalidTransitions.map { order ⇒
-          OrderUpdateFailure(order.referenceNumber,
-            s"Transition from ${order.status} to $newStatus is not allowed")
+          OrderStatusTransitionNotAllowed(order.status, newStatus, order.refNum)
         }
         val notFound = refNumbers
           .filterNot(refNum ⇒ orders.map(_.referenceNumber).contains(refNum))
-          .map(refNum ⇒ OrderUpdateFailure(refNum, "Not found"))
-        val locked = lockedOrders.map { order ⇒
-          OrderUpdateFailure(order.referenceNumber, "Order is locked")
-        }
+          .map(refNum ⇒ NotFoundFailure400(Order, refNum))
+        val locked = lockedOrders.map { order ⇒ LockedFailure(Order, order.refNum) }
 
-        invalid ++ notFound ++ locked
+        val failures = invalid ++ notFound ++ locked
+        if (failures.isEmpty) DbResult.unit else DbResult.failures(Failures(failures: _*))
       }
     }
   }
 
   def removeShippingAddress(refNum: String)(implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
     val finder = Orders.findByRefNum(refNum)
-    finder.selectOne { order ⇒
-      if (order.isCart) {
-        OrderShippingAddresses.findByOrderId(order.id).delete.flatMap {
-          case 1 ⇒
-            DbResult.fromDbio(fullOrder(finder))
-          case 0 ⇒
-            DbResult.failure(NotFoundFailure400(s"Shipping Address for order with reference number $refNum not found"))
-        }
-      } else {
-        DbResult.failure(OrderMustBeCart(refNum))
+
+    finder.selectOne ({ order ⇒
+      OrderShippingAddresses.findByOrderId(order.id).delete.flatMap {
+        case 1 ⇒
+          DbResult.fromDbio(fullOrder(finder))
+        case 0 ⇒
+          DbResult.failure(NotFoundFailure400(s"Shipping Address for order with reference number $refNum not found"))
       }
-    }
+    }, checks = finder.checks + finder.mustBeCart)
   }
 
   def createShippingAddressFromPayload(payload: CreateAddressPayload, refNum: String)

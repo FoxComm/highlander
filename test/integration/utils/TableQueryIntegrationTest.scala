@@ -4,7 +4,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import cats.data.Xor
 import models.{Order, Orders}
-import services.{Failures, NotFoundFailure404, GeneralFailure}
+import services.{LockedFailure, Failures, NotFoundFailure404, GeneralFailure}
 import util.{CatsHelpers, IntegrationTestBase}
 import utils.Seeds.Factories
 import utils.Slick.DbResult
@@ -25,7 +25,7 @@ class TableQueryIntegrationTest extends IntegrationTestBase with CatsHelpers {
       val result = Orders.findByRefNum("foobar").selectOneForUpdate(DbResult.good).futureValue
 
       result.isLeft mustBe true
-      leftValue(result).head must === (NotFoundFailure404("Not found"))
+      leftValue(result).head must === (NotFoundFailure404(Order, "foobar"))
     }
   }
 
@@ -35,13 +35,13 @@ class TableQueryIntegrationTest extends IntegrationTestBase with CatsHelpers {
         DbResult.fromDbio(finder.map(_.status).updateReturning(Orders.map(identity), Order.FraudHold).head)
       }.futureValue
 
-      leftValue(result).head mustBe GeneralFailure("Model is locked")
+      leftValue(result).head mustBe LockedFailure(Order, order.referenceNumber)
     }
 
     "should bypass lock" in new Fixture {
-      val result = finder.selectOneForUpdateIgnoringLock { _ ⇒
+      val result = finder.selectOne ({ _ ⇒
         DbResult.fromDbio(finder.map(_.status).updateReturning(Orders.map(identity), Order.FraudHold).head)
-      }.futureValue
+      }, checks = Set.empty).futureValue
 
       rightValue(result).status mustBe Order.FraudHold
     }

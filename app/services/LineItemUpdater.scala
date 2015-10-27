@@ -21,27 +21,26 @@ object LineItemUpdater {
     (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
 
     payload.validate match {
-      case Valid(_)        ⇒ addGiftCardToOrder(refNum, payload).run()
+      case Valid(_)        ⇒ addGiftCardToOrder(refNum, payload)
       case Invalid(errors) ⇒ Result.failures(errors)
     }
   }
 
   private def addGiftCardToOrder(refNum: String, payload: AddGiftCardLineItem)
-  (implicit ec: ExecutionContext, db: Database) = {
-    Orders.findCartByRefNum(refNum).one.flatMap {
-      case Some(order) ⇒
-        val queries = for {
-          gcOrigin ← GiftCardOrders.save(GiftCardOrder(orderId = order.id))
-          gc ← GiftCards.save(GiftCard.buildLineItem(balance = payload.balance, originId = gcOrigin.id,
-            currency = payload.currency))
-          lineItemGc ← OrderLineItemGiftCards.save(OrderLineItemGiftCard(giftCardId = gc.id, orderId = order.id))
-          lineItem ← OrderLineItems.save(OrderLineItem.buildGiftCard(order, lineItemGc))
-        } yield ()
+    (implicit ec: ExecutionContext, db: Database) = {
+    val finder = Orders.findByRefNum(refNum)
 
-        DbResult.fromDbio(queries.transactionally >> FullOrder.fromOrder(order))
-      case None ⇒
-        DbResult.failure(NotFoundFailure404(Order, refNum))
-    }
+    finder.selectOne ({ order ⇒
+      val queries = for {
+        gcOrigin ← GiftCardOrders.save(GiftCardOrder(orderId = order.id))
+        gc ← GiftCards.save(GiftCard.buildLineItem(balance = payload.balance, originId = gcOrigin.id,
+          currency = payload.currency))
+        lineItemGc ← OrderLineItemGiftCards.save(OrderLineItemGiftCard(giftCardId = gc.id, orderId = order.id))
+        lineItem ← OrderLineItems.save(OrderLineItem.buildGiftCard(order, lineItemGc))
+      } yield ()
+
+      DbResult.fromDbio(queries >> fullOrder(finder))
+    }, checks = finder.checks + finder.mustBeCart)
   }
 
   def editGiftCard(refNum: String, code: String, payload: AddGiftCardLineItem)
@@ -49,17 +48,19 @@ object LineItemUpdater {
 
     payload.validate match {
       case Valid(_) ⇒
-        GiftCards.findCartByCode(code).selectOneForUpdate { gc ⇒
+        val finder = GiftCards.findByCode(code)
+        finder.selectOneForUpdate ({ gc ⇒
           val updatedGc = gc.copy(originalBalance = payload.balance,
             availableBalance = payload.balance, currentBalance = payload.balance, currency = payload.currency)
 
           val update = GiftCards.filter(_.id === gc.id).update(updatedGc)
 
-          Orders.findCartByRefNum(refNum).one.flatMap {
-            case Some(o) ⇒ DbResult.fromDbio(update >> FullOrder.fromOrder(o))
-            case None    ⇒ DbResult.failure(NotFoundFailure404(Order, refNum))
+          Orders.findByRefNum(refNum).one.flatMap {
+            case Some(order) if order.isCart ⇒ DbResult.fromDbio(update >> FullOrder.fromOrder(order))
+            case Some(order)                 ⇒ DbResult.failure(OrderMustBeCart(refNum))
+            case None                        ⇒ DbResult.failure(NotFoundFailure404(Order, refNum))
           }
-        }
+        }, checks = finder.checks + finder.mustBeCart)
       case Invalid(errors) ⇒
         Result.failures(errors)
     }
@@ -68,7 +69,8 @@ object LineItemUpdater {
   def deleteGiftCard(refNum: String, code: String)
     (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
 
-    GiftCards.findCartByCode(code).selectOneForUpdate { gc ⇒
+    val finder = GiftCards.findByCode(code)
+    finder.selectOneForUpdate ({ gc ⇒
       val origin = OrderLineItemGiftCards.filter(_.giftCardId === gc.id)
       origin.one.flatMap {
         case Some(o) ⇒
@@ -79,34 +81,42 @@ object LineItemUpdater {
             gcOrigin ← GiftCardOrders.filter(_.id === gc.originId).delete
           } yield ()
 
-          Orders.findCartByRefNum(refNum).one.flatMap {
-            case Some(order)  ⇒ DbResult.fromDbio(deleteAll >> FullOrder.fromOrder(order))
-            case None         ⇒ DbResult.failure(NotFoundFailure404(Order, refNum))
+          Orders.findByRefNum(refNum).one.flatMap {
+            case Some(order) if order.isCart ⇒ DbResult.fromDbio(deleteAll >> FullOrder.fromOrder(order))
+            case Some(order)                 ⇒ DbResult.failure(OrderMustBeCart(refNum))
+            case None                        ⇒ DbResult.failure(NotFoundFailure404(Order, refNum))
           }
         case None ⇒
           DbResult.failure(NotFoundFailure404(GiftCard, code))
       }
+    }, checks = finder.checks + finder.mustBeCart)
+  }
+
+  def updateQuantitiesOnOrder(refNum: String, payload: Seq[UpdateLineItemsPayload])
+    (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
+    val finder = Orders.findByRefNum(refNum)
+
+    finder.selectOneForUpdate { order ⇒
+      DbResult.fromDbio(updateQuantities(order, payload) >> fullOrder(finder))
     }
   }
 
-  @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.Any"))
-  def updateQuantities(order: Order, payload: Seq[UpdateLineItemsPayload])
-                      (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
+  def updateQuantitiesOnCustomersOrder(customer: Customer, payload: Seq[UpdateLineItemsPayload])
+    (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
+    val finder = Orders.findActiveOrderByCustomer(customer)
 
-    // TODO:
-    //  validate sku in PIM
-    //  execute the fulfillment runner → creates fulfillments
-    //  validate inventory (might be in PIM maybe not)
-    //  run hooks to manage promotions
-
-    (for {
-      _         ← ResultT(update(order, payload))
-      response ← ResultT.right(FullOrder.fromOrder(order).run())
-    } yield response).value
+    finder.selectOneForUpdate { order ⇒
+      DbResult.fromDbio(updateQuantities(order, payload) >> fullOrder(finder))
+    }
   }
 
-  private def update(order: Order, payload: Seq[UpdateLineItemsPayload])
-    (implicit ec: ExecutionContext, db: Database): Result[Seq[OrderLineItem]] = {
+  // TODO:
+  //  validate sku in PIM
+  //  execute the fulfillment runner → creates fulfillments
+  //  validate inventory (might be in PIM maybe not)
+  //  run hooks to manage promotions
+  private def updateQuantities(order: Order, payload: Seq[UpdateLineItemsPayload])
+    (implicit ec: ExecutionContext, db: Database): DbResult[Seq[OrderLineItem]] = {
 
     val updateQuantities = payload.foldLeft(Map[String, Int]()) { (acc, item) ⇒
       val quantity = acc.getOrElse(item.sku, 0)
@@ -115,7 +125,7 @@ object LineItemUpdater {
 
     // TODO: AW: We should insert some errors/messages into an array for each item that is unavailable.
     // TODO: AW: Add the maximum available to the order if there aren't as many as requested
-    val queries = Skus.qtyAvailableForSkus(updateQuantities.keys.toSeq).flatMap { availableQuantities ⇒
+    Skus.qtyAvailableForSkus(updateQuantities.keys.toSeq).flatMap { availableQuantities ⇒
       val enoughOnHand = availableQuantities.foldLeft(Map.empty[Sku, Int]) { case (acc, (sku, numAvailable)) ⇒
         val numRequested = updateQuantities.getOrElse(sku.sku, 0)
         if (numAvailable >= numRequested && numRequested >= 0)
@@ -167,17 +177,14 @@ object LineItemUpdater {
 
             DbResult.fromDbio(queries)
           } else {
-            // do nothing
-            DBIO.successful({})
+            DbResult.unit
           }
         }.to[Seq]
 
         DBIO.seq(changes: _*)
       }.flatMap { _ ⇒
-        lineItems.filter(_.orderId === order.id).result
+        DbResult.fromDbio(lineItems.filter(_.orderId === order.id).result)
       }
     }
-
-    Result.fromFuture(db.run(queries.transactionally))
   }
 }

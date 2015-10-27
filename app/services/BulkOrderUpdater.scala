@@ -3,7 +3,8 @@ package services
 import scala.concurrent.ExecutionContext
 
 import models.{Order, OrderAssignment, OrderAssignments, Orders, StoreAdmin, StoreAdmins}
-import responses.{AllOrders, BulkAssignmentResponse}
+import responses.ResponseWithFailuresAndMetadata
+import responses.ResponseWithFailuresAndMetadata.BulkOrderUpdateResponse
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.Slick.implicits._
@@ -11,7 +12,7 @@ import utils.Slick.implicits._
 object BulkOrderUpdater {
 
   def assign(payload: payloads.BulkAssignment)
-    (implicit ec: ExecutionContext, db: Database, sortAndPage: SortAndPage): Result[BulkAssignmentResponse] = {
+    (implicit ec: ExecutionContext, db: Database, sortAndPage: SortAndPage): Result[BulkOrderUpdateResponse] = {
 
     val query = for {
       orders ← Orders.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result
@@ -20,13 +21,13 @@ object BulkOrderUpdater {
       allOrders ← (OrderAssignments ++= newAssignments) >> OrderQueries.findAll
       adminNotFound = adminNotFoundFailure(admin.headOption, payload.assigneeId)
       ordersNotFound = ordersNotFoundFailures(payload.referenceNumbers, orders.map(_.referenceNumber))
-    } yield BulkAssignmentResponse(allOrders, adminNotFound, ordersNotFound)
+    } yield ResponseWithFailuresAndMetadata.fromFailureList(allOrders, adminNotFound ++ ordersNotFound)
 
     Result.fromFuture(query.transactionally.run())
   }
 
   def unassign(payload: payloads.BulkAssignment)
-    (implicit ec: ExecutionContext, db: Database, sortAndPage: SortAndPage): Result[BulkAssignmentResponse] = {
+    (implicit ec: ExecutionContext, db: Database, sortAndPage: SortAndPage): Result[BulkOrderUpdateResponse] = {
 
     val query = for {
       orders ← Orders.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result
@@ -38,14 +39,14 @@ object BulkOrderUpdater {
       allOrders ← delete >> OrderQueries.findAll
       adminNotFound = adminNotFoundFailure(adminId.headOption, payload.assigneeId)
       ordersNotFound = ordersNotFoundFailures(payload.referenceNumbers, orders.map(_.referenceNumber))
-    } yield BulkAssignmentResponse(allOrders, adminNotFound, ordersNotFound)
+    } yield ResponseWithFailuresAndMetadata.fromFailureList(allOrders, adminNotFound ++ ordersNotFound)
 
     Result.fromFuture(query.transactionally.run())
   }
 
   private def adminNotFoundFailure(a: Option[_], id: Int) = a match {
-    case Some(_) ⇒ None
-    case None ⇒ Some(NotFoundFailure404(StoreAdmin, id))
+    case Some(_) ⇒ Seq.empty[Failure]
+    case None    ⇒ Seq(NotFoundFailure404(StoreAdmin, id))
   }
 
   private def ordersNotFoundFailures(requestedRefs: Seq[String], availableRefs: Seq[String]) =

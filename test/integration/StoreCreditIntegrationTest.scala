@@ -1,3 +1,4 @@
+import scala.concurrent.Future
 import scala.util.Random
 import scala.collection.JavaConverters._
 import akka.http.scaladsl.model.StatusCodes
@@ -28,6 +29,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
   // paging and sorting API
   private var currentCustomer: Customer = _
   private var currentOrigin: StoreCreditManual = _
+
   override def beforeSortingAndPaging() = {
     (for {
       admin    ← StoreAdmins.save(authedStoreAdmin)
@@ -40,21 +42,32 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         currentOrigin = co
     }
   }
+
   def uriPrefix = s"v1/customers/${currentCustomer.id}/payment-methods/store-credit"
+
   val regCurrencies = CurrencyUnit.registeredCurrencies.asScala.toIndexedSeq
-  def responseItems = regCurrencies.map { currency ⇒
-    val balance = Random.nextInt(9999999)
-    val sc = StoreCredits.save(Factories.storeCredit.copy(
-      currency = currency,
-      originId = currentOrigin.id,
-      customerId = currentCustomer.id,
-      originalBalance = balance,
-      currentBalance = balance,
-      availableBalance = balance)).run().futureValue
-    responses.StoreCreditResponse.build(sc)
+
+  def responseItems = {
+    val items = regCurrencies.take(numOfResults).map { currency ⇒
+      val balance = Random.nextInt(9999999)
+      val future = StoreCredits.save(Factories.storeCredit.copy(
+        currency = currency,
+        originId = currentOrigin.id,
+        customerId = currentCustomer.id,
+        originalBalance = balance,
+        currentBalance = balance,
+        availableBalance = balance)).run()
+
+      future map { responses.StoreCreditResponse.build }
+    }
+
+    Future.sequence(items).futureValue
   }
+
   val sortColumnName = "currency"
+
   def responseItemsSort(items: IndexedSeq[responses.StoreCreditResponse.Root]) = items.sortBy(_.currency)
+
   def mf = implicitly[scala.reflect.Manifest[responses.StoreCreditResponse.Root]]
   // paging and sorting API end
 
@@ -116,8 +129,8 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         val storeCredits = Seq(storeCredit, scSecond)
 
         response.status must ===(StatusCodes.OK)
-        val credits = response.as[Seq[StoreCredit]]
-        credits.map(_.id).sorted must ===(storeCredits.map(_.id).sorted)
+        val credits = response.as[ResponseWithFailuresAndMetadata[Seq[StoreCredit]]]
+        credits.result.map(_.id).sorted must ===(storeCredits.map(_.id).sorted)
       }
 
       "returns store credit by ID" in new Fixture {
@@ -138,7 +151,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
     "GET /v1/store-credits/:id/transactions" - {
       "returns the list of adjustments" in new Fixture {
         val response = GET(s"v1/store-credits/${storeCredit.id}/transactions")
-        val adjustments = response.as[Seq[StoreCreditAdjustmentsResponse.Root]]
+        val adjustments = response.as[ResponseWithFailuresAndMetadata[Seq[StoreCreditAdjustmentsResponse.Root]]].result
 
         response.status must ===(StatusCodes.OK)
         adjustments.size must === (1)
@@ -153,13 +166,15 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         val adjustment2 = StoreCredits.auth(storeCredit, Some(payment.id), 1).run().futureValue
         val adjustment3 = StoreCredits.auth(storeCredit, Some(payment.id), 2).run().futureValue
 
-        val response = GET(s"v1/store-credits/${storeCredit.id}/transactions?sortBy=-id&pageNo=2&pageSize=2")
-        val adjustments = response.as[Seq[StoreCreditAdjustmentsResponse.Root]]
+        val response = GET(s"v1/store-credits/${storeCredit.id}/transactions?sortBy=-id&from=2&size=2")
+        val adjustments = response.as[ResponseWithFailuresAndMetadata[Seq[StoreCreditAdjustmentsResponse.Root]]]
 
         response.status must ===(StatusCodes.OK)
-        adjustments.size must === (1)
+        adjustments.result.size must === (1)
 
-        val firstAdjustment = adjustments.head
+        adjustments.checkSortingAndPagingMetadata("-id", 2, 2)
+
+        val firstAdjustment = adjustments.result.head
         firstAdjustment.debit must === (10)
         firstAdjustment.orderRef.value must === (order.referenceNumber)
       }
@@ -200,7 +215,8 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
         // Ensure that cancel adjustment is automatically created
         val transactionsRep = GET(s"v1/store-credits/${storeCredit.id}/transactions")
-        val adjustments = transactionsRep.as[Seq[StoreCreditAdjustmentsResponse.Root]]
+        val adjustments = transactionsRep.as[ResponseWithFailuresAndMetadata[Seq[StoreCreditAdjustmentsResponse.Root]]]
+          .result
 
         response.status must ===(StatusCodes.OK)
         adjustments.size mustBe 2

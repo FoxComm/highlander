@@ -15,8 +15,8 @@ import utils.Slick.implicits._
 object OrderPaymentUpdater {
   def addGiftCard(refNum: String, payload: GiftCardPayment)
     (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
-    val finder = Orders.findCartByRefNum(refNum)
-    finder.selectOneForUpdate { order ⇒
+    val finder = Orders.findByRefNum(refNum)
+    finder.selectOneForUpdate ({ order ⇒
       GiftCards.findByCode(payload.code).one.flatMap {
 
         case Some(gc) if gc.isActive ⇒
@@ -36,14 +36,13 @@ object OrderPaymentUpdater {
         case None ⇒
           DbResult.failure(NotFoundFailure400(GiftCard, payload.code))
       }
-    }
+    }, checks = finder.checks + finder.mustBeCart)
   }
 
   def addStoreCredit(refNum: String, payload: StoreCreditPayment)
     (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
-
-    val finder = Orders.findCartByRefNum(refNum)
-    finder.selectOneForUpdate { order ⇒
+    val finder = Orders.findByRefNum(refNum)
+    finder.selectOneForUpdate ({ order ⇒
       StoreCredits.findAllActiveByCustomerId(order.customerId).result.flatMap { storeCredits ⇒
         val reqAmount = payload.amount
 
@@ -60,13 +59,13 @@ object OrderPaymentUpdater {
           DbResult.fromDbio(delete >> (OrderPayments ++= payments) >> fullOrder(finder))
         }
       }
-    }
+    }, checks = finder.checks + finder.mustBeCart)
   }
 
   def addCreditCard(refNum: String, id: Int)
     (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
-    val finder = Orders.findCartByRefNum(refNum)
-    finder.selectOneForUpdate { order ⇒
+    val finder = Orders.findByRefNum(refNum)
+    finder.selectOneForUpdate ({ order ⇒
 
       CreditCards.findById(id).extract.one.flatMap {
         case Some(cc) if cc.inWallet ⇒
@@ -81,7 +80,7 @@ object OrderPaymentUpdater {
         case None ⇒
           DbResult.failure(NotFoundFailure400(CreditCard, id))
       }
-    }
+    }, checks = finder.checks + finder.mustBeCart)
   }
 
   def deleteCreditCard(refNum: String)(implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] =
@@ -94,19 +93,19 @@ object OrderPaymentUpdater {
     (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
 
     val finder = Orders.findCartByRefNum(refNum)
-    finder.selectOneForUpdate { order ⇒
+    finder.selectOneForUpdate ({ order ⇒
       OrderPayments
         .filter(_.orderId === order.id)
         .byType(pmt).delete
         .flatMap(fullOrderOrFailure(_, pmt, finder))
-    }
+    }, checks = finder.checks + finder.mustBeCart)
   }
 
   def deleteGiftCard(refNum: String, code: String)
     (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
 
-    val finder = Orders.findCartByRefNum(refNum)
-    finder.selectOneForUpdate { order ⇒
+    val finder = Orders.findByRefNum(refNum)
+    finder.selectOneForUpdate ({ order ⇒
       GiftCards.findByCode(code).one.flatMap {
 
         case Some(giftCard) ⇒
@@ -119,7 +118,7 @@ object OrderPaymentUpdater {
         case None ⇒
           DbResult.failure(NotFoundFailure404(GiftCard, code))
       }
-    }
+    }, checks = finder.checks + finder.mustBeCart)
   }
 
   private def fullOrderOrFailure(rowsDeleted: Int, pmt: PaymentMethod.Type, finder: Orders.QuerySeq)

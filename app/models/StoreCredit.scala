@@ -8,6 +8,7 @@ import cats.data.Validated._
 import cats.data.ValidatedNel
 import cats.implicits._
 import services._
+import utils.CustomDirectives.SortAndPage
 import utils.Litterbox._
 import utils.Validation
 
@@ -154,6 +155,29 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
 
   import StoreCredit._
   import models.{StoreCreditAdjustment ⇒ Adj, StoreCreditAdjustments ⇒ Adjs}
+
+  def sortedAndPaged(query: QuerySeq)
+    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata =
+    query.withMetadata.sortAndPageIfNeeded { case (s, storeCredit) ⇒
+      s.sortColumn match {
+        case "id"               ⇒ if(s.asc) storeCredit.id.asc               else storeCredit.id.desc
+        case "originId"         ⇒ if(s.asc) storeCredit.originId.asc         else storeCredit.originId.desc
+        case "originType"       ⇒ if(s.asc) storeCredit.originType.asc       else storeCredit.originType.desc
+        case "customerId"       ⇒ if(s.asc) storeCredit.customerId.asc       else storeCredit.customerId.desc
+        case "currency"         ⇒ if(s.asc) storeCredit.currency.asc         else storeCredit.currency.desc
+        case "originalBalance"  ⇒ if(s.asc) storeCredit.originalBalance.asc  else storeCredit.originalBalance.desc
+        case "currentBalance"   ⇒ if(s.asc) storeCredit.currentBalance.asc   else storeCredit.currentBalance.desc
+        case "availableBalance" ⇒ if(s.asc) storeCredit.availableBalance.asc else storeCredit.availableBalance.desc
+        case "canceledAmount"   ⇒ if(s.asc) storeCredit.canceledAmount.asc   else storeCredit.canceledAmount.desc
+        case "canceledReason"   ⇒ if(s.asc) storeCredit.canceledReason.asc   else storeCredit.canceledReason.desc
+        case "createdAt"        ⇒ if(s.asc) storeCredit.createdAt.asc      else storeCredit.createdAt.desc
+        case _                  ⇒ storeCredit.id.asc
+      }
+    }
+
+  def queryByCustomer(customerId: Int)
+    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata =
+    sortedAndPaged(findAllByCustomerId(customerId))
 
   def auth(storeCredit: StoreCredit, orderPaymentId: Option[Int], amount: Int = 0)
     (implicit ec: ExecutionContext): DBIO[Adj] =

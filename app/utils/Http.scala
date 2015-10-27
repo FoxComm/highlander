@@ -9,7 +9,8 @@ import models.{Customer, Order, Orders}
 import org.json4s.{Formats, jackson}
 import org.json4s.jackson.Serialization
 import org.json4s.jackson.Serialization.{write ⇒ json}
-import services.{Failures, NotFoundFailure404, OrderLockedFailure}
+import responses.ResponseWithFailuresAndMetadata
+import services.{Failures, NotFoundFailure404, LockedFailure}
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 
@@ -23,9 +24,15 @@ object Http {
   val noContentResponse:  HttpResponse  = HttpResponse(NoContent)
   val badRequestResponse: HttpResponse  = HttpResponse(BadRequest)
 
+
+  
   def renderGoodOrFailures[G <: AnyRef](or: Failures Xor G)
                                        (implicit ec: ExecutionContext): HttpResponse =
     or.fold(renderFailure(_), render(_))
+
+  def renderGoodOrFailuresWithMetadata[G <: AnyRef](rwm: ResponseWithMetadata[G])
+                                       (implicit ec: ExecutionContext): HttpResponse =
+    rwm.result.fold(renderFailure(_), renderWithMetadata(_, rwm.metadata))
 
   def renderNothingOrFailures(or: Failures Xor _)(implicit ec: ExecutionContext): HttpResponse =
     or.fold(renderFailure(_), _ ⇒ noContentResponse)
@@ -37,36 +44,6 @@ object Http {
       option.map(handle(_).map(renderGoodOrFailures)).
         getOrElse(Future.successful(notFoundResponse))
     }
-
-  def whenOrderFoundAndEditable[G <: AnyRef](finder: Future[Option[Order]])
-                                            (f: Order ⇒ Future[Failures Xor G])
-                                            (implicit ec: ExecutionContext, db: Database): Future[HttpResponse] = {
-
-    finder.flatMap {
-      case Some(order) if !order.locked ⇒
-        f(order).map(renderGoodOrFailures)
-      case Some(order) if order.locked ⇒
-        Future.successful(renderFailure(services.Failures(OrderLockedFailure(order.referenceNumber))))
-      case None ⇒
-        Future.successful(notFoundResponse)
-    }
-  }
-
-  def whenOrderFoundAndEditable[G <: AnyRef](customer: Customer)
-                                            (f: Order ⇒ Future[Failures Xor G])
-                                            (implicit ec: ExecutionContext, db: Database): Future[HttpResponse] = {
-
-    val finder = Orders.findActiveOrderByCustomer(customer).one.run()
-    whenOrderFoundAndEditable(finder)(f)
-  }
-
-  def whenOrderFoundAndEditable[G <: AnyRef](refNumber: String)
-                                            (f: Order ⇒ Future[Failures Xor G])
-                                            (implicit ec: ExecutionContext, db: Database): Future[HttpResponse] = {
-
-    val finder = Orders.findByRefNum(refNumber).one.run()
-    whenOrderFoundAndEditable(finder)(f)
-  }
 
   def renderOrNotFound[A <: AnyRef](resource: Future[Option[A]],
     onFound: (A ⇒ HttpResponse) = (r: A) ⇒ render(r))(implicit ec: ExecutionContext) = {
@@ -87,6 +64,9 @@ object Http {
 
   def render[A <: AnyRef](resource: A, statusCode: StatusCode = OK) =
     HttpResponse(statusCode, entity = jsonEntity(resource))
+
+  def renderWithMetadata[A <: AnyRef](resource: A, metadata: ResponseMetadata, statusCode: StatusCode = OK) =
+    HttpResponse(statusCode, entity = jsonEntity(ResponseWithFailuresAndMetadata.withMetadata(resource, metadata)))
 
   def renderFailure(failures: Failures, statusCode: ClientError = BadRequest): HttpResponse = {
     import services._

@@ -59,19 +59,4 @@ package object services {
 
     def left[A](f: Future[Failures])(implicit ec: ExecutionContext):  ResultT[A] = XorT.left(f)
     def leftAsync[A](f: Failures)(implicit ec: ExecutionContext):     ResultT[A] = XorT.left(Future.successful(f))
-  }
-
-  implicit class QueryOps[M,U,C[_]](val query: Query[M,U,C]) extends AnyVal {
-    def paged(implicit sortAndPage: SortAndPage): Query[M,U,C] = {
-
-      val pagedQueryOpt = for {
-        pageNo ← sortAndPage.pageNo
-        pageSize ← sortAndPage.pageSize
-      } yield query.drop(pageSize * (pageNo - 1)).take(pageSize)
-
-      pagedQueryOpt.getOrElse(query)
-    }
-  }
-
-
-}
+  }}
