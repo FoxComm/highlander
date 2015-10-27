@@ -30,17 +30,17 @@ class AddressesIntegrationTest extends IntegrationTestBase
 
   def responseItems = {
     val items = (1 to numOfResults).map { i ⇒
-      val future = (for {
+      val dbio = for {
         address ← Addresses.save(Factories.generateAddress.copy(customerId = currentCustomer.id))
         region  ← Regions.findById(address.regionId).result.head
-      } yield (address, region)).run()
+      } yield (address, region)
 
-      future map { case (address, region) ⇒
+      dbio map { case (address, region) ⇒
         responses.Addresses.build(address, region)
       }
     }
 
-    Future.sequence(items).futureValue
+    DBIO.sequence(items).run().futureValue
   }
 
   val sortColumnName = "name"

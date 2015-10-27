@@ -50,18 +50,18 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
   def responseItems = {
     val items = regCurrencies.take(numOfResults).map { currency ⇒
       val balance = Random.nextInt(9999999)
-      val future = StoreCredits.save(Factories.storeCredit.copy(
+      val dbio = StoreCredits.save(Factories.storeCredit.copy(
         currency = currency,
         originId = currentOrigin.id,
         customerId = currentCustomer.id,
         originalBalance = balance,
         currentBalance = balance,
-        availableBalance = balance)).run()
+        availableBalance = balance))
 
-      future map { responses.StoreCreditResponse.build }
+      dbio map { responses.StoreCreditResponse.build }
     }
 
-    Future.sequence(items).futureValue
+    DBIO.sequence(items).run().futureValue
   }
 
   val sortColumnName = "currency"

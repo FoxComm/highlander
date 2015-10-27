@@ -40,12 +40,12 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
   def responseItems = {
     val items = (1 to numOfResults).map { i ⇒
-      val future = Customers.save(Seeds.Factories.generateCustomer).run()
+      val dbio = Customers.save(Seeds.Factories.generateCustomer)
 
-      future map { CustomerResponse.build(_) }
+      dbio map { CustomerResponse.build(_) }
     }
 
-    Future.sequence(items).futureValue
+    DBIO.sequence(items).run().futureValue
   }
   val sortColumnName = "name"
 

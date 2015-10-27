@@ -11,6 +11,7 @@ import payloads.{BulkAssignment, BulkUpdateOrdersPayload}
 import responses.ResponseWithFailuresAndMetadata.BulkOrderUpdateResponse
 import responses.{ResponseWithFailuresAndMetadata, StoreAdminResponse, FullOrder, AllOrders}
 import services.{OrderStatusTransitionNotAllowed, LockedFailure, OrderQueries, NotFoundFailure404}
+import slick.dbio.DBIO
 import util.IntegrationTestBase
 import utils.Seeds
 import utils.Seeds.Factories
@@ -27,21 +28,21 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
 
   def responseItems = {
     val items = (1 to numOfResults).map { i ⇒
-      val future = (for {
+      val dbio = for {
         customer ← Customers.save(Seeds.Factories.generateCustomer)
         order    ← Orders.save(Factories.order.copy(
           customerId = customer.id,
           referenceNumber = Seeds.Factories.randomString(10),
           status = Order.RemorseHold,
           remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
-      } yield (customer, order)).run()
+      } yield (customer, order)
 
-      future flatMap { case (customer, order) ⇒
-        responses.AllOrders.build(order, customer, None).run()
+      dbio flatMap { case (customer, order) ⇒
+        responses.AllOrders.build(order, customer, None)
       }
     }
 
-    Future.sequence(items).futureValue
+    DBIO.sequence(items).run().futureValue
   }
   val sortColumnName = "referenceNumber"
 

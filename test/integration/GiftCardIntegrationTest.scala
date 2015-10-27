@@ -44,17 +44,17 @@ class GiftCardIntegrationTest extends IntegrationTestBase
   def responseItems = {
     val items = regCurrencies.take(numOfResults).map { currency ⇒
       val balance = Random.nextInt(9999999)
-      val future = GiftCards.save(Factories.giftCard.copy(
+      val dbio = GiftCards.save(Factories.giftCard.copy(
         currency = currency,
         originId = currentOrigin.id,
         originalBalance = balance,
         currentBalance = balance,
-        availableBalance = balance)).run()
+        availableBalance = balance))
 
-      future map { responses.GiftCardResponse.build(_) }
+      dbio map { responses.GiftCardResponse.build(_) }
     }
 
-    Future.sequence(items).futureValue
+    DBIO.sequence(items).run().futureValue
   }
 
   val sortColumnName = "availableBalance"
