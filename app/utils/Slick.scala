@@ -23,10 +23,10 @@ object Slick {
 
   def xorMapDbio[LeftX, RightX, RightY](xor: Xor[LeftX, RightX])(f: RightX ⇒ DBIO[RightY])
     (implicit ec: ExecutionContext): DBIO[Xor[LeftX, RightY]] = {
-    xor match {
-      case Xor.Right(v) ⇒ f(v).map(Xor.right)
-      case Xor.Left(fs) ⇒ lift(Xor.left(fs))
-    }
+    xor.fold(
+      fs ⇒ lift(Xor.left(fs)),
+      v  ⇒ f(v).map(Xor.right)
+    )
   }
 
   def appendForUpdate[A, B <: slick.dbio.NoStream](sql: SqlAction[A, B, Effect.Read]): DBIO[A] = {
