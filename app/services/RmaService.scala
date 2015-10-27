@@ -10,10 +10,10 @@ import utils.Slick.DbResult
 
 object RmaService {
   def getByRefNum(refNum: String)(implicit db: Database, ec: ExecutionContext): Result[Root] = {
-    val finder = Rmas.findByRefNum(refNum)
+    val finder = Rmas.filter(_.referenceNumber === refNum)
 
     finder.selectOne({
       rma ⇒ DbResult.fromDbio(fromRma(rma))
-    }, checks = finder.checks, notFoundFailure = NotFoundFailure404(Rma, refNum))
+    }, checks = finder.checks)
   }
 }

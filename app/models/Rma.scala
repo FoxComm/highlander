@@ -13,7 +13,7 @@ import slick.jdbc.JdbcType
 import utils.{ModelWithLockParameter, TableQueryWithLock, ADT, GenericTable}
 import utils.Slick.implicits._
 
-final case class Rma(id: Int = 0, referenceNumber: String, orderId: Int, orderRefNum: String,
+final case class Rma(id: Int = 0, referenceNumber: String = "", orderId: Int, orderRefNum: String,
   rmaType: RmaType = Standard, status: Status = Pending, locked: Boolean = false,
   customerId: Option[Int] = None, storeAdminId: Option[Int] = None)
   extends ModelWithLockParameter {
@@ -67,6 +67,8 @@ class Rmas(tag: Tag) extends GenericTable.TableWithLock[Rma](tag, "rmas")  {
 object Rmas extends TableQueryWithLock[Rma, Rmas](
   idLens = GenLens[Rma](_.id)
 )(new Rmas(_)) {
+
+  override def primarySearchTerm: String = "referenceNumber"
 
   val returningIdAndReferenceNumber = this.returning(map { rma ⇒ (rma.id, rma.referenceNumber) })
 

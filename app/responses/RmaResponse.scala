@@ -103,7 +103,6 @@ object RmaResponse {
         case Some(id) ⇒ StoreAdmins.findById(id).extract.one
         case None     ⇒ lift(None)
       }
-
     } yield (customer, storeAdmin)
   }
 }
