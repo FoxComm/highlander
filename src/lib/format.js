@@ -1,6 +1,6 @@
 'use strict';
 
-export function formatCurrency(num) {
+function formatCurrency(num) {
   if (num === null || num === void 0) return null;
   num = num.toString();
   let
@@ -9,3 +9,24 @@ export function formatCurrency(num) {
   dollars = dollars.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   return `$${dollars}.${cents}`;
 }
+
+const orderStatuses = {
+  cart: 'Cart',
+  remorseHold: 'Remorse Hold',
+  manualHold: 'Manual Hold',
+  fraudHold: 'Fraud Hold',
+  fulfillmentStarted: 'Fulfillment Started',
+  canceled: 'Canceled',
+  partiallyShipped: 'Partially Shipped',
+  shipped: 'Shipped'
+};
+
+const rmaStatuses = {
+  pending: 'Pending'
+};
+
+export {
+  formatCurrency,
+  orderStatuses,
+  rmaStatuses
+};

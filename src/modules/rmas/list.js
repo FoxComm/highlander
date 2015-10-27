@@ -1,5 +1,6 @@
 'use strict';
 
+import _ from 'lodash';
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 
@@ -11,20 +12,10 @@ export const failRmas = createAction('RMAS_FAIL', (err, source) => [err, source]
 export function fetchRmas() {
   return dispatch => {
     dispatch(requestRmas());
-    return Api.get('/returns')
+    return Api.get('/rmas')
       .then(rmas => dispatch(receiveRmas(rmas)))
       .catch(err => dispatch(failRmas(err, fetchRmas)));
   };
-}
-
-function shouldFetchRmas(state) {
-  const rmas = state.rmas;
-  if (!rmas) {
-    return true;
-  } else if (rmas.isFetching) {
-    return false;
-  }
-  return rmas.didInvalidate;
 }
 
 function updateItems(items, newItems) {
@@ -36,7 +27,6 @@ function updateItems(items, newItems) {
 
 const initialState = {
   isFetching: false,
-  didInvalidate: true,
   items: []
 };
 
@@ -44,15 +34,13 @@ const reducer = createReducer({
   [requestRmas]: (state) => {
     return {
       ...state,
-      isFetching: true,
-      didInvalidate: false
+      isFetching: true
     };
   },
   [receiveRmas]: (state, payload) => {
     return {
       ...state,
       isFetching: false,
-      didInvalidate: false,
       items: payload
     };
   },
@@ -68,8 +56,7 @@ const reducer = createReducer({
     if (source === fetchRmas) {
       return {
         ...state,
-        isFetching: false,
-        didInvalidate: false
+        isFetching: false
       };
     }
 

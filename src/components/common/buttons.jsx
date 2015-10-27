@@ -34,8 +34,13 @@ const IncrementButton = (props) => {
 };
 
 const PrimaryButton = (props) => {
+  const buttonProps = {
+    ...props,
+    className: `fc-btn-primary ${props.className || ''}`
+  };
+
   return (
-    <DefaultButton {...props} className={ `fc-btn-primary ${props.className || ''}`.trim() }>
+    <DefaultButton {...buttonProps}>
       {props.children}
     </DefaultButton>
   );
