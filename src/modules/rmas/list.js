@@ -12,7 +12,7 @@ export const failRmas = createAction('RMAS_FAIL', (err, source) => [err, source]
 export function fetchRmas() {
   return dispatch => {
     dispatch(requestRmas());
-    return Api.get('/returns')
+    return Api.get('/rmas')
       .then(rmas => dispatch(receiveRmas(rmas)))
       .catch(err => dispatch(failRmas(err, fetchRmas)));
   };

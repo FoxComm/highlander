@@ -4,7 +4,7 @@ import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import ConfirmationDialog from '../modal/confirmation-dialog';
-import PrimaryButton from '../../components/common/primary-button';
+import {PrimaryButton} from '../../components/common/buttons';
 import ContentBox from '../content-box/content-box';
 import TableView from '../table/tableview';
 import TableRow from '../table/row';

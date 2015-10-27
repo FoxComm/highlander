@@ -61,6 +61,6 @@ describe('Buttons', function() {
     const button = Buttons.PrimaryButton({});
 
     expect(button).to.be.instanceof(Object);
-    expect(button.props.className).to.equal('fc-btn-primary');
+    expect(button.props.className).to.contain('fc-btn-primary');
   });
 });

@@ -2,7 +2,7 @@
 
 import _ from 'lodash';
 import React from 'react';
-import PaymentMethod from './payment-method';
+import {PaymentMethod} from './helpers';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
 import ContentBox from '../content-box/content-box';
