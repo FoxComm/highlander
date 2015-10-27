@@ -32,7 +32,7 @@ const PaymentMethod = (props) => {
       </div>
     </div>
   );
-}
+};
 
 const RmaTotal = (props) => {
   return (
