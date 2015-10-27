@@ -10,6 +10,7 @@ object RmaResponse {
     id: Int,
     referenceNumber: String,
     orderId: Int,
+    orderRefNum: String,
     rmaType: Rma.RmaType,
     status: Rma.Status,
     lineItems: LineItems,
@@ -28,6 +29,7 @@ object RmaResponse {
       id = id,
       referenceNumber = refNum,
       orderId = orderId,
+      orderRefNum = "ABC-123",
       rmaType = Rma.Standard,
       status = Rma.Pending,
       lineItems = LineItems(
@@ -51,6 +53,7 @@ object RmaResponse {
     Root(id = rma.id,
       referenceNumber = rma.refNum,
       orderId = rma.orderId,
+      orderRefNum = rma.orderRefNum,
       rmaType = rma.rmaType,
       status = rma.status,
       lineItems = LineItems(),

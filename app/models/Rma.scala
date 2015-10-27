@@ -11,9 +11,9 @@ import slick.jdbc.JdbcType
 import utils.{ModelWithLockParameter, TableQueryWithLock, ADT, GenericTable}
 import utils.Slick.implicits._
 
-final case class Rma(id: Int = 0, referenceNumber: String, orderId: Int, rmaType: RmaType = Standard,
-  status: Status = Pending, locked: Boolean = false, customerId: Option[Int] = None,
-  storeAdminId: Option[Int] = None)
+final case class Rma(id: Int = 0, referenceNumber: String, orderId: Int, orderRefNum: String,
+  rmaType: RmaType = Standard, status: Status = Pending, locked: Boolean = false,
+  customerId: Option[Int] = None, storeAdminId: Option[Int] = None)
   extends ModelWithLockParameter {
 
   def isNew: Boolean = id == 0
@@ -51,13 +51,14 @@ class Rmas(tag: Tag) extends GenericTable.TableWithLock[Rma](tag, "rmas")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def referenceNumber = column[String]("reference_number")
   def orderId = column[Int]("order_id")
+  def orderRefNum = column[String]("order_refnum")
   def rmaType = column[RmaType]("rma_type")
   def status = column[Status]("status")
   def locked = column[Boolean]("locked")
   def customerId = column[Option[Int]]("customer_id")
   def storeAdminId = column[Option[Int]]("store_admin_id")
 
-  def * = (id, referenceNumber, orderId, rmaType, status, locked, customerId,
+  def * = (id, referenceNumber, orderId, orderRefNum, rmaType, status, locked, customerId,
     storeAdminId) <> ((Rma.apply _).tupled, Rma.unapply)
 }
 

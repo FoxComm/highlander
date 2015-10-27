@@ -297,7 +297,8 @@ object Seeds {
       RmaReason(name = "Not specified", reasonType = RmaReason.ProductReturnCode, rmaType = Rma.Standard)
     )
 
-    def rma = Rma(id = 0, referenceNumber = "ABC-123", orderId = 1, rmaType = Rma.Standard, status = Rma.Pending)
+    def rma = Rma(id = 0, referenceNumber = "RMA-123", orderId = 1, orderRefNum = "ABC-123", rmaType = Rma.Standard,
+      status = Rma.Pending)
 
     def rmaLineItemSkus = Seq(
       RmaLineItemSku(id = 0, rmaId = 1, orderLineItemSkuId = 1),

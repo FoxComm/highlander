@@ -2,6 +2,7 @@ create table rmas (
     id serial primary key,
     reference_number reference_number not null,
     order_id integer not null references orders(id) on update restrict on delete restrict,
+    order_refnum reference_number not null,
     rma_type rma_type not null,
     status rma_status not null,
     locked boolean default false,
