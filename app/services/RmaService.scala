@@ -12,8 +12,8 @@ object RmaService {
   def getByRefNum(refNum: String)(implicit db: Database, ec: ExecutionContext): Result[Root] = {
     val finder = Rmas.findByRefNum(refNum)
 
-    finder.selectOneForUpdate { rma ⇒
-      DbResult.fromDbio(lift(build(rma)))
-    }
+    finder.selectOne({
+      rma ⇒ DbResult.fromDbio(fromRma(rma))
+    }, checks = finder.checks, notFoundFailure = NotFoundFailure404(Rma, refNum))
   }
 }

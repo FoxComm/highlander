@@ -20,12 +20,16 @@ object CustomerResponse {
     shippingRegion: Option[String] = None) extends ResponseItem
 
   def build(customer: Customer, shippingRegion: Option[Region] = None, billingRegion: Option[Region] = None): Root =
-    Root(id = customer.id, email = customer.email, name = customer.name,
-    phoneNumber = customer.phoneNumber, location = customer.location, modality = customer.modality,
-    createdAt = customer.createdAt,
-    disabled = customer.isDisabled,
-    blacklisted = customer.isBlacklisted,
-    rank = "top 10",
-    billingRegion = billingRegion.map(_.name),
-    shippingRegion = shippingRegion.map(_.name))
+    Root(id = customer.id,
+      email = customer.email,
+      name = customer.name,
+      phoneNumber = customer.phoneNumber,
+      location = customer.location,
+      modality = customer.modality,
+      createdAt = customer.createdAt,
+      disabled = customer.isDisabled,
+      blacklisted = customer.isBlacklisted,
+      rank = "top 10",
+      billingRegion = billingRegion.map(_.name),
+      shippingRegion = shippingRegion.map(_.name))
 }

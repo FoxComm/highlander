@@ -1,9 +1,15 @@
 package responses
 
+import scala.concurrent.ExecutionContext
+
 import models._
 import responses.FullOrder.DisplayLineItem
 import responses.CustomerResponse.{Root ⇒ Customer}
 import responses.StoreAdminResponse.{Root ⇒ StoreAdmin}
+
+import slick.driver.PostgresDriver.api._
+import utils.Slick._
+import utils.Slick.implicits._
 
 object RmaResponse {
   final case class Root(
@@ -22,6 +28,16 @@ object RmaResponse {
     skus: Seq[FullOrder.DisplayLineItem] = Seq.empty,
     giftCards: Seq[GiftCardResponse.Root] = Seq.empty,
     shippingCosts: Seq[ShipmentResponse.Root] = Seq.empty) extends ResponseItem
+
+  def fromRma(rma: Rma)(implicit ec: ExecutionContext, db: Database): DBIO[Root] = {
+    fetchRmaDetails(rma).map { case (customer, storeAdmin) ⇒
+      build(
+        rma = rma,
+        customer = customer.map(CustomerResponse.build(_)),
+        storeAdmin = storeAdmin.map(StoreAdminResponse.build)
+      )
+    }
+  }
 
   def buildMockRma(id: Int, refNum: String, orderId: Int, admin: Option[StoreAdmin] = None,
     customer: Option[Customer] = None): Root =
@@ -59,5 +75,20 @@ object RmaResponse {
       lineItems = LineItems(),
       customer = customer,
       storeAdmin = storeAdmin)
+  }
+
+  private def fetchRmaDetails(rma: Rma)(implicit ec: ExecutionContext) = {
+    for {
+      customer ← rma.customerId match {
+        case Some(id) ⇒ Customers.findById(id).extract.one
+        case None     ⇒ lift(None)
+      }
+
+      storeAdmin ← rma.storeAdminId match {
+        case Some(id) ⇒ StoreAdmins.findById(id).extract.one
+        case None     ⇒ lift(None)
+      }
+
+    } yield (customer, storeAdmin)
   }
 }

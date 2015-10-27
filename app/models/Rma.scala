@@ -80,7 +80,6 @@ object Rmas extends TableQueryWithLock[Rma, Rmas](
     (newId, refNum) ← returningIdAndReferenceNumber += rma
   } yield rma.copy(id = newId, referenceNumber = refNum)
 
-
   def findByRefNum(refNum: String): QuerySeq =
     filter(_.referenceNumber === refNum)
 }
