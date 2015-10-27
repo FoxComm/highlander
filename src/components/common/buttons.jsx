@@ -4,13 +4,15 @@ import React from 'react';
 import _ from 'lodash';
 
 const DefaultButton = (props) => {
-  const buttonProps = _.omit(props, 'icon', 'children', 'className');
+  const {icon, children, ...restProps} = props;
+  const buttonProps = {
+    ...restProps,
+    className: `fc-btn ${props.className || ''}`
+  };
   return (
-    <button className={`fc-btn ${props.className ? props.className : null}`} {...buttonProps}>
-      {props.icon &&
-        <i className={`icon-${props.icon}`}></i>
-      }
-      {props.children}
+    <button {...buttonProps}>
+      {icon && <i className={`icon-${icon}`}></i>}
+      {children}
     </button>
   );
 };
