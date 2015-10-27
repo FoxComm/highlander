@@ -1,58 +1,30 @@
-'use strict';
 
-const React = require('react');
-
-const TestUtils = require('react-addons-test-utils');
-const ReactDOM = require('react-dom');
-
-const path = require('path');
+import React from 'react';
+import TestUtils from 'react-addons-test-utils';
+import ShallowTestUtils from 'react-shallow-testutils';
 
 describe('Title', function() {
-  let Title = require(path.resolve('src/components/section-title/title.jsx'));
-  let container = null;
-
-  beforeEach(function() {
-    container = document.createElement('div');
-  });
-
-  afterEach(function(done) {
-    ReactDOM.unmountComponentAtNode(container);
-    setTimeout(done);
-  });
+  const Title = requireComponent('section-title/title.jsx');
+  const title = 'Orders';
+  const subtitle = '40237';
 
   it('should contain title text', function *() {
-    let titleText = 'Orders';
-    let subtitleText = '40237';
-
-    let title = ReactDOM.render(
-      <Title title={ titleText } subtitle={ subtitleText }/>
-      , container);
-    let titleNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithClass(title, 'fc-section-title-title'));
-
-    expect(titleNode.innerHTML).to.contain(titleText);
+    expect(Title({title, subtitle}), 'to contain', title);
   });
 
-  it('should contain subtitle text in span', function *() {
-    let titleText = 'Orders';
-    let subtitleText = '40256';
+  it('should not render subtitle if subtitle is not set', function *() {
+    const titleElement = Title({title});
 
-    let title = ReactDOM.render(
-      <Title title={ titleText } subtitle={ subtitleText }/>
-      , container);
-    let titleNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithClass(title, 'fc-section-title-title'));
-
-    expect(titleNode.querySelector('.fc-section-title-subtitle').innerHTML).to.contain(subtitleText);
+    const subtitleElements = ShallowTestUtils.findAllWithClass(titleElement, 'fc-section-title-subtitle');
+    expect(subtitleElements).to.be.empty;
+    expect(titleElement.props.children).to.contain(title);
   });
 
-  it('should contain title text only', function *() {
-    let titleText = 'Orders';
-    let title = ReactDOM.render(
-      <Title title={ titleText }/>
-      , container);
-    let titleNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithClass(title, 'fc-section-title-title'));
+  it('should render subtitle if subtitle is set', function *() {
+    const titleElement = Title({title, subtitle});
+    const subtitleElements = ShallowTestUtils.findWithClass(titleElement, 'fc-section-title-subtitle');
 
-    expect(titleNode.innerHTML).to.contain(titleText);
-    expect(titleNode.innerHTML).not.to.contain('fc-section-title-subtitle');
-    expect(titleNode.querySelector('.fc-section-title-subtitle')).to.be.equal(null);
+    expect(subtitleElements.props.children).to.contain(subtitle);
   });
+
 });

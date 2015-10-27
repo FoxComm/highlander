@@ -1,21 +1,8 @@
-'use strict';
 
-const TestUtils = require('react-addons-test-utils');
-const ReactDOM = require('react-dom');
-const path = require('path');
+import React from 'react';
+import TestUtils from 'react-addons-test-utils';
 
 describe('Orders List', function() {
-  let
-    Orders = null,
-    orders = null;
-
-  before(function() {
-  });
-
-  afterEach(function(done) {
-    ReactDOM.unmountComponentAtNode(document.body);
-    setTimeout(done);
-  });
 
   it('should have a list of orders', function *() {
   });
