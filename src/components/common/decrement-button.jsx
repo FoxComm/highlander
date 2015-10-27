@@ -4,7 +4,7 @@ import React from 'react';
 
 const DecrementButton = (props) => {
   return (
-    <button onClick={props.onClick}>
+    <button {...props}>
       <i className='icon-chevron-down'></i>
     </button>
   );

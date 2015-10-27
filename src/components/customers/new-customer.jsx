@@ -8,11 +8,9 @@ import { Link } from '../link';
 import { transitionTo } from '../../route-helpers';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
-import * as CustomersNewActions from '../../modules/customers/new';
 import * as CustomersActions from '../../modules/customers/new';
 
 @connect(state => state.customers.adding, {
-  ...CustomersNewActions,
   ...CustomersActions
 })
 export default class NewCustomer extends React.Component {
@@ -20,6 +18,14 @@ export default class NewCustomer extends React.Component {
   static contextTypes = {
     history: PropTypes.object.isRequired
   };
+
+  static propTypes = {
+    createCustomer: PropTypes.func,
+    changeFormData: PropTypes.func,
+    name: PropTypes.string,
+    email: PropTypes.string,
+    id: PropTypes.number
+  }
 
   @autobind
   submitForm(event) {

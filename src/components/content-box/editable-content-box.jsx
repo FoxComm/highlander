@@ -1,8 +1,7 @@
 'use strict';
 
 import React from 'react';
-import EditButton from '../common/edit-button';
-import PrimaryButton from '../common/primary-button';
+import {EditButton, PrimaryButton} from '../common/buttons';
 
 const EditableContentBox = (props) => {
   const compositeClassName = `fc-content-box ${props.className}`;

@@ -3,10 +3,11 @@
 import _ from 'lodash';
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
+import { updateItems } from '../state-helpers';
 
 export const receiveGiftCards = createAction('GIFT_CARDS_RECEIVE');
 export const updateGiftCards = createAction('GIFT_CARDS_UPDATE');
-export const failGiftCards = createAction('GIFT_CARDS_FAIL', (err, source) => ({err, source}));
+export const failGiftCards = createAction('GIFT_CARDS_FAIL', (err, source) => [err, source]);
 export const requestGiftCards = createAction('GIFT_CARDS_REQUEST');
 
 export function fetchGiftCards() {
@@ -54,13 +55,6 @@ const initialState = {
   items: []
 };
 
-function updateItems(items, newItems) {
-  return _.values({
-    ..._.indexBy(items, 'id'),
-    ..._.indexBy(newItems, 'id')
-  });
-}
-
 const reducer = createReducer({
   [requestGiftCards]: (state) => {
     return {
@@ -83,7 +77,7 @@ const reducer = createReducer({
       items: updateItems(state.items, payload)
     };
   },
-  [failGiftCards]: (state, {err, source}) => {
+  [failGiftCards]: (state, [err, source]) => {
     console.error(err);
 
     if (source === fetchGiftCards) {

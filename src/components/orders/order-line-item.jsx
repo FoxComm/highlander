@@ -3,7 +3,7 @@
 import React, { PropTypes} from 'react';
 import { formatCurrency } from '../../lib/format';
 import Counter from '../forms/counter';
-import DeleteButton from '../common/delete-button';
+import {DeleteButton} from '../common/buttons';
 
 const OrderLineItem = (props) => {
   let item = props.item;
