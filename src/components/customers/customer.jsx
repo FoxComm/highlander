@@ -28,7 +28,8 @@ export default class Customer extends React.Component {
   renderChildren() {
     return React.Children.map(this.props.children, function (child) {
       return React.cloneElement(child, {
-        customer: this.props.details
+        customer: this.props.details,
+        entity: this.props.details
       });
     }.bind(this));
   }
