@@ -1,39 +1,38 @@
 .fc-slide-checkbox {
   width: 80px;
-  height: 26px;
-  background: #333;
+  height: 30px;
+  background: @color-decor3;
   margin: 20px auto;
-
   border-radius: 50px;
   position: relative;
-
-  box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,0.2);
 
 
   &:after {
     content: 'NO';
-    background: rgb(78, 203, 192);
-    color: @white;
+    background: @color-decor3;
+    color: rgb(243, 87, 87);
     position: absolute;
     right: 10px;
     z-index: 0;
     font-weight: bold;
+    line-height: 30px;
   }
 
   &:before {
     content: 'YES';
-    background: rgb(243, 87, 87);
-    color: @white;
+    background: @color-decor3;
+    color: rgb(78, 203, 192);
     position: absolute;
     left: 10px;
     z-index: 0;
     font-weight: bold;
+    line-height: 30px;
   }
 
   & > label {
     display: block;
     width: 34px;
-    height: 20px;
+    height: 24px;
 
     -webkit-border-radius: 50px;
     -moz-border-radius: 50px;
