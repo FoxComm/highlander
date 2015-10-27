@@ -18,7 +18,10 @@ export default class CustomerAccountStatus extends React.Component {
               <strong>Active Account</strong>
             </div>
             <div className="fc-col-md-1-3">
-              <input type="checkbox" defaultChecked={ !customer.disabled } className="fc-right"/>
+              <div className="fc-right fc-slide-checkbox">
+                <input type="checkbox" defaultChecked={ !customer.disabled } id="customerDisabled"/>
+                <label htmlFor="customerDisabled"></label>
+              </div>
             </div>
         </div>
         <div className="fc-grid fc-customer-status-row">
@@ -26,7 +29,10 @@ export default class CustomerAccountStatus extends React.Component {
               <strong>Blacklist Customer</strong>
             </div>
             <div className="fc-col-md-1-3">
-              <input type="checkbox" defaultChecked={ customer.blacklisted } className="fc-right"/>
+              <div className="fc-right fc-slide-checkbox">
+                <input type="checkbox" defaultChecked={ customer.blacklisted } id="customerBlacklisted" />
+                <label htmlFor="customerBlacklisted"></label>
+              </div>
             </div>
         </div>
       </ContentBox>
