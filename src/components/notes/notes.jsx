@@ -12,7 +12,7 @@ import TableCell from '../table/cell';
 import NoteControls from './controls';
 import NoteForm from './form';
 import UserInitials from '../users/initials';
-import DateTime from '../datetime/datetime';
+import { DateTime } from '../common/datetime';
 import ConfirmModal from '../modal/confirm';
 import { connect } from 'react-redux';
 import * as NotesActinos from '../../modules/notes';
