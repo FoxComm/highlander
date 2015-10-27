@@ -8,6 +8,7 @@ import { TabListView, TabView } from '../tabs';
 import { Link } from '../link';
 import { connect } from 'react-redux';
 import * as rmaActions from '../../modules/rmas/list';
+import {StoreAdminEmail, RmaTotal} from './helpers';
 
 @connect(({rmas}) => ({items: rmas.list.items}), rmaActions)
 export default class Rmas extends React.Component {
@@ -20,10 +21,10 @@ export default class Rmas extends React.Component {
     tableColumns: [
       {field: 'referenceNumber', text: 'Return', type: 'id'},
       {field: 'createdAt', text: 'Date', type: 'date'},
-      {field: 'orderNumber', text: 'Order', model: 'order', type: 'id'},
-      {field: 'email', text: 'Email'},
-      {field: 'returnStatus', text: 'Return Status', type: 'returnStatus'},
-      {field: 'returnTotal', text: 'Total', type: 'currency'}
+      {field: 'orderId', text: 'Order', model: 'order', type: 'id'},
+      {field: 'email', text: 'Email', component: 'StoreAdminEmail'},
+      {field: 'status', text: 'Return Status', type: 'rmaStatus'},
+      {field: 'returnTotal', text: 'Total', component: 'RmaTotal'}
     ]
   };
 
@@ -50,8 +51,10 @@ export default class Rmas extends React.Component {
             <TableView
               columns={this.props.tableColumns}
               rows={this.props.items}
-              model='rma'
-            />
+              model='rma'>
+              <StoreAdminEmail />
+              <RmaTotal />
+            </TableView>
           </div>
         </div>
       </div>

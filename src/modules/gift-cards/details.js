@@ -3,6 +3,7 @@
 import _ from 'lodash';
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
+import { haveType } from '../state-helpers';
 
 export const receiveGiftCard = createAction('GIFT_CARD_RECEIVE', (id, card) => [id, card]);
 export const failGiftCard = createAction('GIFT_CARD_FAIL', (id, err, source) => [id, err, source]);
@@ -65,7 +66,7 @@ const reducer = createReducer({
         err: null,
         isFetching: false,
         didInvalidate: false,
-        card
+        card: haveType(card, 'gift-card')
       }
     };
   },

@@ -17,8 +17,7 @@ export default class ActivityTrail extends React.Component {
   }
 
   componentDidMount() {
-    let model = this.props.modelName;
-    ActivityTrailStore.uriRoot = `${pluralize(model)}/${this.props[model].id}`;
+    ActivityTrailStore.uriRoot = `${pluralize(this.props.entity.entityType)}/${this.props.entity.entityId}`;
     ActivityTrailStore.listenToEvent('change', this);
     ActivityTrailStore.fetch();
   }
@@ -37,7 +36,8 @@ export default class ActivityTrail extends React.Component {
         <h2>Activity Trail</h2>
         <table className="fc-table">
           <TableHead columns={this.props.tableColumns}/>
-          <TableBody columns={this.props.tableColumns} rows={this.state.activities} model={this.props.modelName}>
+          <TableBody columns={this.props.tableColumns} rows={this.state.activities}
+                     model={this.props.entity.entityType}>
             <UserInitials/>
           </TableBody>
         </table>
@@ -48,8 +48,7 @@ export default class ActivityTrail extends React.Component {
 
 ActivityTrail.propTypes = {
   tableColumns: React.PropTypes.array,
-  order: React.PropTypes.object,
-  modelName: React.PropTypes.string
+  entity: React.PropTypes.object
 };
 
 ActivityTrail.defaultProps = {

@@ -9,6 +9,7 @@ import SkuStore from '../../stores/skus';
 import SkuResult from '../orders/sku-result';
 import Typeahead from '../typeahead/typeahead';
 import ContentBox from '../content-box/content-box';
+import {EditButton} from '../common/buttons';
 
 export default class LineItems extends React.Component {
   static propTypes = {
@@ -104,9 +105,7 @@ export default class LineItems extends React.Component {
       } else {
         columns = this.orderDefaultColumns;
         headerActions = (
-          <button className="fc-btn" onClick={this.toggleEdit.bind(this)}>
-            <i className="icon-edit"></i>
-          </button>
+          <EditButton onClick={this.toggleEdit.bind(this)} />
         );
         body = (
             <TableView

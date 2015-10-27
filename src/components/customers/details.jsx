@@ -23,34 +23,34 @@ export default class CustomerDetails extends React.Component {
           <h2>Details</h2>
         </div>
         <div className="fc-grid">
-          <div className="fc-col-1-2">
+          <div className="fc-col-md-1-2">
             <CustomerContacts customer={this.props.customer} />
           </div>
-          <div className="fc-col-1-2">
+          <div className="fc-col-md-1-2">
             <CustomerAccountPassword />
             <CustomerRoles />
           </div>
         </div>
         <div className="fc-grid">
-          <div className="fc-col-1-1">
+          <div className="fc-col-md-1-1">
             <CustomerAddressBook customerId={this.props.customer.id} />
           </div>
         </div>
         <div className="fc-grid">
-          <div className="fc-col-1-1">
+          <div className="fc-col-md-1-1">
             <CustomerCreditCards customerId={this.props.customer.id} />
           </div>
         </div>
         <div className="fc-grid">
-          <div className="fc-col-1-1">
+          <div className="fc-col-md-1-1">
             <CustomerGroups />
           </div>
         </div>
         <div className="fc-grid">
-          <div className="fc-col-1-2">
+          <div className="fc-col-md-1-2">
             <CustomerNotificationSettings />
           </div>
-          <div className="fc-col-1-2">
+          <div className="fc-col-md-1-2">
             <CustomerAccountStatus customer={this.props.customer}/>
           </div>
         </div>

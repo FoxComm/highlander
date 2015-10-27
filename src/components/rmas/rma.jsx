@@ -6,6 +6,7 @@ import Notes from '../notes/notes';
 import Viewers from '../viewers/viewers';
 import { connect } from 'react-redux';
 import * as rmaActions from '../../modules/rmas/details';
+import { haveType } from '../../modules/state-helpers';
 
 @connect((state, props) => ({
   ...state.rmas.details[props.params.rma]
@@ -36,10 +37,11 @@ export default class Rma extends React.Component {
   }
 
   get notes() {
+    const entity = haveType(rma, 'rma');
     return (
       <div className="fc-grid">
         <div className="fc-col-md-1-1">
-          <Notes return={this.props.rma} modelName={'return'} />
+          <Notes entity={entity} />
         </div>
       </div>
     );
