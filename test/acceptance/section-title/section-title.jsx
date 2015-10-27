@@ -12,7 +12,6 @@ describe('SectionTitle', function() {
     expect(sectionTitle.props.className).to.contain('fc-grid');
   });
 
-
   it('should not render button if handler is not set', function *() {
     const sectionTitle = SectionTitle({title: 'Orders'});
 

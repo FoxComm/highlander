@@ -1,8 +1,6 @@
-'use strict';
 
 import React from 'react';
 import TestUtils from 'react-addons-test-utils';
-import ReactDOM from 'react-dom';
 
 describe('ContentBox', function() {
   const ContentBox = requireComponent('content-box/content-box.jsx');
