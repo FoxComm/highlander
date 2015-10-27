@@ -59,6 +59,7 @@ global.renderIntoDocument = function(element, attachToDom = false) {
     const container = global.createContainer(void 0, attachToDom);
     const instance = ReactDOM.render(element, container, later(function() {
       instance.unmount = container.unmount;
+      instance.container = container;
       resolve(instance);
     }));
   });
