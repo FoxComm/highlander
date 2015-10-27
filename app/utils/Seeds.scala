@@ -3,6 +3,7 @@ package utils
 import java.time.{ZoneId, Instant}
 import java.time.temporal.ChronoField
 
+import scala.collection.immutable
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.Random
@@ -28,9 +29,22 @@ object Seeds {
     Console.err.println(s"Inserting seeds")
     implicit val db: PostgresDriver.backend.DatabaseDef = Database.forConfig("db", config)
     Await.result(db.run(run()), 5.second)
+
+    args.headOption.map {
+      case "ranking" ⇒
+        Console.err.println(s"Inserting ranking seeds")
+        Await.result(db.run(insertRankingSeeds().transactionally), 5.minutes)
+      case _ ⇒ None
+    }
   }
 
   val today = Instant.now().atZone(ZoneId.of("UTC"))
+
+  def randomOrderStatus: Order.Status = {
+    val types = Order.Status.types.filterNot(_ == Order.Cart)
+    val index = Random.nextInt(types.size)
+    types.drop(index).head
+  }
 
   final case class TheWorld(customers: Seq[Customer], order: Order, orderNotes: Seq[Note], address: Address,
     cc: CreditCard, storeAdmin: StoreAdmin, shippingAddresses: Seq[OrderShippingAddress],
@@ -43,6 +57,38 @@ object Seeds {
 
   final case class AllPaymentMethods(giftCard: GiftCard = Factories.giftCard, storeCredit: StoreCredit = Factories
     .storeCredit)
+
+  def insertRankingSeeds()(implicit db: Database): dbio.DBIOAction[(immutable.IndexedSeq[Customer], immutable
+  .IndexedSeq[(CreditCard, immutable.IndexedSeq[Order])], immutable.IndexedSeq[OrderPayment]), NoStream, All with All
+    with All with All] = {
+    import scala.concurrent.ExecutionContext.Implicits.global
+
+    import Factories.{generateCustomer, generateOrder, generateOrderPayment}
+
+    def makeCustomers = (1 to 1700).map { i ⇒ generateCustomer }.map(Customers.save)
+
+    def makeOrders(c: Customer) = {
+      (1 to Random.nextInt(20)).map { i ⇒ generateOrder(Order.Shipped, c.id) }.map(Orders.save)
+    }
+
+    def makePayments(o: Order, pm: CreditCard) = {
+      Seq(generateOrderPayment(o.id, pm, Random.nextInt(20000) + 100)).map(OrderPayments.save)
+    }
+
+    for {
+      customers ← DBIO.sequence(makeCustomers)
+      ccAndOrders ← DBIO.sequence(customers.map {
+        case c ⇒
+          for {
+            cc ← CreditCards.save(Factories.creditCard.copy(customerId = c.id))
+            orders ← DBIO.sequence(makeOrders(c))
+          } yield (cc, orders)
+      })
+      payments ← DBIO.sequence(ccAndOrders.flatMap { case (cc, orders) ⇒
+          orders.flatMap(makePayments(_, cc))
+      })
+    } yield (customers, ccAndOrders, payments)
+  }
 
   def run()(implicit db: Database): dbio.DBIOAction[(Option[Int], Order, Address, OrderShippingAddress, CreditCard,
     GiftCard, StoreCredit), NoStream, All] = {
@@ -100,8 +146,8 @@ object Seeds {
       shippingAddress ← OrderShippingAddresses.save(Factories.shippingAddress.copy(orderId = order.id))
       shippingMethods ← ShippingMethods ++= s.shippingMethods
       creditCard ← CreditCards.save(s.cc.copy(customerId = customer.id))
-      orderPayments ← OrderPayments.save(Factories.orderPayment.copy(orderId = order.id,
-        paymentMethodId = creditCard.id))
+      orderPayment ← OrderPayments.save(Factories.orderPayment.copy(orderId = order.id,
+        paymentMethodId = creditCard.id, amount = Some(100)))
       shippingPriceRule ← ShippingPriceRules ++= s.shippingPriceRules
       shippingMethodRuleMappings ← ShippingMethodsPriceRules ++= s.shippingMethodRuleMappings
       shipments ← Shipments.save(s.shipment)
@@ -110,10 +156,10 @@ object Seeds {
       scSubTypes ← StoreCreditSubtypes ++= s.scSubTypes
       gcOrigin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = storeAdmin.id, reasonId = 1))
       giftCard ← GiftCards.save(s.paymentMethods.giftCard.copy(originId = gcOrigin.id))
-      gcAdjustments ← GiftCards.auth(giftCard, Some(orderPayments.id), 10)
+      gcAdjustments ← GiftCards.auth(giftCard, Some(orderPayment.id), 10)
       scOrigin ← StoreCreditManuals.save(Factories.storeCreditManual.copy(adminId = storeAdmin.id, reasonId = 1))
       storeCredit ← StoreCredits.save(s.paymentMethods.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))
-      storeCreditAdjustments ← StoreCredits.auth(storeCredit, Some(orderPayments.id), 10)
+      storeCreditAdjustments ← StoreCredits.auth(storeCredit, Some(orderPayment.id), 10)
       rmaReasons ← RmaReasons ++= s.rmaReasons
       rma ← Rmas.create(s.rma.copy(customerId = Some(customer.id)))
       rmaLineItemSkus ← RmaLineItemSkus ++= s.rmaLineItemSkus
@@ -146,6 +192,16 @@ object Seeds {
 
     def generateCustomer: Customer = Customer(email = s"${randomString(10)}@email.com",
       password = Some(randomString(10)), name = Some(randomString(10)))
+
+    def generateOrder(status: Order.Status, customerId: Int): Order = {
+      Order(customerId = customerId, referenceNumber = randomString(8) + "-17", status = status)
+    }
+
+    def generateOrderPayment[A <: PaymentMethod with ModelWithIdParameter](orderId: Int,
+      paymentMethod: A, amount: Int = 100): OrderPayment = {
+      orderPayment.copy(orderId = orderId, amount = Some(amount),
+        paymentMethodId = paymentMethod.id)
+    }
 
     def storeAdmin = StoreAdmin(email = "admin@admin.com", password = "password", firstName = "Frankly", lastName = "Admin")
 
