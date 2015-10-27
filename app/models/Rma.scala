@@ -5,9 +5,11 @@ import scala.concurrent.ExecutionContext
 import com.pellucid.sealerate
 import models.Rma.{RmaType, Standard, Status, Pending}
 import monocle.macros.GenLens
+
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
+
 import utils.{ModelWithLockParameter, TableQueryWithLock, ADT, GenericTable}
 import utils.Slick.implicits._
 

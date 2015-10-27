@@ -3,7 +3,7 @@ package responses
 import scala.concurrent.ExecutionContext
 
 import models._
-import responses.FullOrder.DisplayLineItem
+import responses.FullOrder.{DisplayLineItem, DisplayPayment, DisplayPaymentMethod}
 import responses.CustomerResponse.{Root ⇒ Customer}
 import responses.StoreAdminResponse.{Root ⇒ StoreAdmin}
 
@@ -12,6 +12,25 @@ import utils.Slick._
 import utils.Slick.implicits._
 
 object RmaResponse {
+  val mockLineItems = LineItems(
+    skus = Seq(
+      DisplayLineItem(sku = "SKU-YAX", status = OrderLineItem.Shipped),
+      DisplayLineItem(sku = "SKU-ABC", status = OrderLineItem.Shipped),
+      DisplayLineItem(sku = "SKU-ZYA", status = OrderLineItem.Shipped)
+    )
+  )
+
+  val mockPayment = DisplayPayment(
+    amount = 256,
+    status = CreditCardCharge.Auth,
+    referenceNumber = "ABC-123",
+    paymentMethod = DisplayPaymentMethod(
+      cardType = "visa",
+      cardNumber = "5555-5555-5555-555",
+      cardExp = "05/15"
+    )
+  )
+
   final case class Root(
     id: Int,
     referenceNumber: String,
@@ -22,7 +41,7 @@ object RmaResponse {
     lineItems: LineItems,
     customer: Option[Customer] = None,
     storeAdmin: Option[StoreAdmin] = None,
-    payment: Option[FullOrder.DisplayPayment] = None) extends ResponseItem
+    payment: Option[DisplayPayment] = None) extends ResponseItem
 
   final case class LineItems(
     skus: Seq[FullOrder.DisplayLineItem] = Seq.empty,
@@ -48,15 +67,10 @@ object RmaResponse {
       orderRefNum = "ABC-123",
       rmaType = Rma.Standard,
       status = Rma.Pending,
-      lineItems = LineItems(
-        skus = Seq(
-          DisplayLineItem(sku = "SKU-YAX", status = OrderLineItem.Shipped),
-          DisplayLineItem(sku = "SKU-ABC", status = OrderLineItem.Shipped),
-          DisplayLineItem(sku = "SKU-ZYA", status = OrderLineItem.Shipped)
-        )
-      ),
       customer = customer,
-      storeAdmin = admin)
+      storeAdmin = admin,
+      lineItems = mockLineItems,
+      payment = Some(mockPayment))
 
   def buildMockSequence(admin: Option[StoreAdmin] = None, customer: Option[Customer] = None): Seq[Root] =
     Seq(
@@ -72,9 +86,10 @@ object RmaResponse {
       orderRefNum = rma.orderRefNum,
       rmaType = rma.rmaType,
       status = rma.status,
-      lineItems = LineItems(),
       customer = customer,
-      storeAdmin = storeAdmin)
+      storeAdmin = storeAdmin,
+      lineItems = mockLineItems,
+      payment = Some(mockPayment))
   }
 
   private def fetchRmaDetails(rma: Rma)(implicit ec: ExecutionContext) = {
