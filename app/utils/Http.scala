@@ -66,7 +66,8 @@ object Http {
     HttpResponse(statusCode, entity = jsonEntity(resource))
 
   def renderWithMetadata[A <: AnyRef](resource: A, metadata: ResponseMetadata, statusCode: StatusCode = OK) =
-    HttpResponse(statusCode, entity = jsonEntity(ResponseWithFailuresAndMetadata.withMetadata(resource, metadata)))
+    HttpResponse(statusCode,
+      entity = jsonEntity(ResponseWithFailuresAndMetadata.withMetadata(resource, Some(metadata))))
 
   def renderFailure(failures: Failures, statusCode: ClientError = BadRequest): HttpResponse = {
     import services._

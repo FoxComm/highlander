@@ -34,11 +34,12 @@ object OrderUpdater {
     }
   }
 
+  // TODO: transfer sorting-paging metadata
   def updateStatuses(refNumbers: Seq[String], newStatus: Order.Status)
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[BulkOrderUpdateResponse] = {
-    updateStatusesDbio(refNumbers, newStatus).zip(OrderQueries.findAll).map { case (failures, orders) ⇒
-      ResponseWithFailuresAndMetadata.fromOption(orders, failures.swap.toOption)
-    }.transactionally.run().flatMap(Result.good)
+    updateStatusesDbio(refNumbers, newStatus).zip(OrderQueries.findAll.result).map { case (failures, orders) ⇒
+      ResponseWithFailuresAndMetadata.xorFromXor(orders, failures.swap.toOption.map(_.toList).getOrElse(Seq.empty))
+    }.transactionally.run()
   }
 
   private def updateStatusesDbio(refNumbers: Seq[String], newStatus: Order.Status)(implicit db: Database,

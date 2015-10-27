@@ -9,7 +9,7 @@ import models.Order._
 import models._
 import payloads.{BulkAssignment, BulkUpdateOrdersPayload}
 import responses.ResponseWithFailuresAndMetadata.BulkOrderUpdateResponse
-import responses.{StoreAdminResponse, FullOrder, AllOrders}
+import responses.{ResponseWithFailuresAndMetadata, StoreAdminResponse, FullOrder, AllOrders}
 import services.{OrderStatusTransitionNotAllowed, LockedFailure, OrderQueries, NotFoundFailure404}
 import util.IntegrationTestBase
 import utils.Seeds
@@ -58,7 +58,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       val responseJson = GET(s"v1/orders")
       responseJson.status must === (StatusCodes.OK)
 
-      val allOrders = responseJson.as[Seq[AllOrders.Root]]
+      val allOrders = responseJson.as[ResponseWithFailuresAndMetadata[Seq[responses.AllOrders.Root]]].result
       allOrders.size must === (1)
 
       val actual = allOrders.head
@@ -170,7 +170,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       val response = POST(s"v1/orders/assignees", BulkAssignment(Seq(orderRef1, "NOPE"), adminId))
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkOrderUpdateResponse]
-      responseObj.result must === (OrderQueries.findAll.run().futureValue)
+      responseObj.result must === (OrderQueries.findAll.result.run().futureValue.get)
       responseObj.errors.value must === (NotFoundFailure404(Order, "NOPE").description)
     }
 
@@ -178,7 +178,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       val response = POST(s"v1/orders/assignees", BulkAssignment(Seq(orderRef1), 777))
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkOrderUpdateResponse]
-      responseObj.result must === (OrderQueries.findAll.run().futureValue)
+      responseObj.result must === (OrderQueries.findAll.result.run().futureValue.get)
       responseObj.errors.value must === (NotFoundFailure404(StoreAdmin, 777).description)
     }
   }
@@ -217,7 +217,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       val response = POST(s"v1/orders/assignees/delete", BulkAssignment(Seq(orderRef1, "NOPE"), adminId))
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkOrderUpdateResponse]
-      responseObj.result must === (OrderQueries.findAll.run().futureValue)
+      responseObj.result must === (OrderQueries.findAll.result.run().futureValue.get)
       responseObj.errors.value must === (NotFoundFailure404(Order, "NOPE").description)
     }
 
@@ -225,7 +225,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       val response = POST(s"v1/orders/assignees/delete", BulkAssignment(Seq(orderRef1), 777))
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkOrderUpdateResponse]
-      responseObj.result must === (OrderQueries.findAll.run().futureValue)
+      responseObj.result must === (OrderQueries.findAll.result.run().futureValue.get)
       responseObj.errors.value must === (NotFoundFailure404(StoreAdmin, 777).description)
     }
   }
