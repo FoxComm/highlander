@@ -31,7 +31,7 @@ export default class Customer extends React.Component {
               </div>
             </div>
             <div className="fc-col-md-11-12">
-              <div className="fc-col-md-1-1">
+              <div className="fc-col-md-1-1 fc-customer-name-block">
                 <div className="fc-customer-info-name">
                   {customer.name}
                 </div>
@@ -39,7 +39,7 @@ export default class Customer extends React.Component {
                   {customer.email}
                 </div>
               </div>
-              <div className="fc-col-md-1-1">
+              <div className="fc-col-md-1-1 fc-customer-details-block">
                   <ul className="fc-customer-info-fields">
                     <li>
                       <i className="icon-customer"></i><span>{ customer.id }</span>
