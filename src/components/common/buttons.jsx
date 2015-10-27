@@ -7,7 +7,7 @@ const DefaultButton = (props) => {
   const {icon, children, ...restProps} = props;
   const buttonProps = {
     ...restProps,
-    className: `fc-btn ${props.className || ''}`
+    className: `fc-btn ${props.className || ''}`.trim()
   };
   return (
     <button {...buttonProps}>
