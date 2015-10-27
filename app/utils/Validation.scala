@@ -38,6 +38,10 @@ object Validation {
     }
   }
 
+  def nullOrNotEmpty[A <: AnyRef <% HasEmpty](a: Option[A], constraint: String): ValidatedNel[Failure, Unit] = {
+    a.fold(ok) { s ⇒ notEmpty(s, constraint) }
+  }
+
   def notExpired(expYear: Int, expMonth: Int, message: String): ValidatedNel[Failure, Unit] = {
     val today = LocalDateTime.now()
 

@@ -71,6 +71,10 @@ final case class OrderStatusTransitionNotAllowed(from: Order.Status, to: Order.S
   override def description = List(s"Transition from $from to $to is not allowed for order with refNum=$refNum")
 }
 
+case object CustomerEmailNotUnique extends Failure {
+  override def description = List("The email address you entered is already in use")
+}
+
 final case class OrderMustBeCart(referenceNumber: String) extends Failure {
   override def description = List(s"order with referenceNumber=$referenceNumber is not in cart status")
 }
