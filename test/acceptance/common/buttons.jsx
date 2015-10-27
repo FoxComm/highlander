@@ -58,9 +58,11 @@ describe('Buttons', function() {
   });
 
   it('should render className in PrimaryButton', function() {
-    const button = Buttons.PrimaryButton({});
+    const props = {className: 'super-button', onClick: () => {}};
+    const button = Buttons.PrimaryButton(props);
 
     expect(button).to.be.instanceof(Object);
-    expect(button.props.className).to.equal('fc-btn-primary');
+    expect(button.props.className).to.equal('fc-btn-primary super-button');
+    expect(button.props.onClick).to.equal(props.onClick);
   });
 });
