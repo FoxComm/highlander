@@ -1,7 +1,6 @@
 
 import React from 'react';
 import TestUtils from 'react-addons-test-utils';
-import ReactDOM from 'react-dom';
 
 describe('FormField', function() {
   const FormField = requireComponent('forms/formfield.jsx');
