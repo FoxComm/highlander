@@ -2,17 +2,38 @@
 
 import React from 'react';
 
-const SliderCheckbox = (props) => {
+function composeClassName(props, defaultPart) {
   let additionalClass = props.className ? props.className : '';
-  let containerClassName = `fc-slide-checkbox ${additionalClass}`.trim();
+  return `${defaultPart} ${additionalClass}`.trim();
+}
+
+const GenericCheckbox = (props) => {
   return (
-    <div className={containerClassName}>
-      <input type="checkbox" defaultChecked={ props.defaultChecked } id={props.id} />
+    <div className={ props.className }>
+      <input type="checkbox"
+             defaultChecked={ props.defaultChecked }
+             id={ props.id }
+             name={ props.name } />
       <label htmlFor={props.id}></label>
     </div>
   );
+}
+
+const SliderCheckbox = (props) => {
+  let composedClassName = composeClassName(props, 'fc-slide-checkbox');
+  return (
+    <GenericCheckbox {...props} className={ composedClassName } />
+  );
 };
 
+const Checkbox = (props) => {
+  let composedClassName = composeClassName(props, 'fc-checkbox');
+  return (
+    <GenericCheckbox {...props} className={ composedClassName } />
+  );
+}
+
 export {
-  SliderCheckbox
+  SliderCheckbox,
+  Checkbox
 };
