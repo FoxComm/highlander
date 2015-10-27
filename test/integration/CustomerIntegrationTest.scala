@@ -13,8 +13,10 @@ import org.mockito.Mockito.{reset, when}
 import org.mockito.{Matchers ⇒ m}
 import org.scalatest.mock.MockitoSugar
 import payloads.CreateAddressPayload
+
 import responses.{ResponseWithFailuresAndMetadata, CustomerResponse}
-import services.{CannotUseInactiveCreditCard, CreditCardManager, GeneralFailure, NotFoundFailure404, Result, StripeRuntimeException}
+import services.{CannotUseInactiveCreditCard, CreditCardManager, GeneralFailure, NotFoundFailure404,
+Result, StripeRuntimeException, CustomerEmailNotUnique}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.implicits._
@@ -111,6 +113,27 @@ class CustomerIntegrationTest extends IntegrationTestBase
     }
   }
 
+  "POST /v1/customers" - {
+    "successfully creates customer from payload" in new Fixture {
+      val response = POST(s"v1/customers", payloads.CreateCustomerPayload(email = "test@example.com",
+        name = Some("test")))
+
+      response.status must ===(StatusCodes.OK)
+
+      val root = response.as[CustomerResponse.Root]
+      val created = Customers.findOneById(root.id).run().futureValue.value
+      created.id must === (root.id)
+    }
+
+    "fails if email is already in use" in new Fixture {
+      val response = POST(s"v1/customers", payloads.CreateCustomerPayload(email = customer.email,
+        name = Some("test")))
+
+      response.status must ===(StatusCodes.BadRequest)
+      response.errors must ===(CustomerEmailNotUnique.description)
+    }
+  }
+
   "GET /v1/customers/:customerId" - {
     "fetches customer info" in new Fixture {
       val response = GET(s"$uriPrefix/${customer.id}")
@@ -150,7 +173,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
   }
 
   "PATCH /v1/customers/:customerId" - {
-    "update customer attributes" in new Fixture {
+    "successfully updates customer attributes" in new Fixture {
       val payload = payloads.UpdateCustomerPayload(name = "John Doe".some, email = "newemail@example.org".some,
         phoneNumber = "555 555 55".some)
       val newEmail = payload.email.getOrElse("")
@@ -163,6 +186,52 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val updated = response.as[responses.CustomerResponse.Root]
       (updated.name, updated.email, updated.phoneNumber) must === ((payload.name, newEmail, payload
         .phoneNumber))
+    }
+
+    "fails if email is already in use" in new Fixture {
+      val newUserResponse = POST(s"v1/customers", payloads.CreateCustomerPayload(email = "test@example.com",
+        name = Some("test")))
+
+      newUserResponse.status must ===(StatusCodes.OK)
+      val root = newUserResponse.as[CustomerResponse.Root]
+
+      val payload = payloads.UpdateCustomerPayload(email = customer.email.some)
+      val response = PATCH(s"v1/customers/${root.id}", payload)
+
+      response.status must ===(StatusCodes.BadRequest)
+      response.errors must ===(CustomerEmailNotUnique.description)
+    }
+  }
+
+  "POST /v1/customers/:customerId/activate" - {
+    "fails if email is already in use by non-guest user" in new Fixture {
+      val newUserResponse = POST(s"v1/customers", payloads.CreateCustomerPayload(email = customer.email,
+        isGuest = Some(true)))
+
+      newUserResponse.status must ===(StatusCodes.OK)
+      val root = newUserResponse.as[CustomerResponse.Root]
+
+      val payload = payloads.ActivateCustomerPayload(name = "test")
+      val response = POST(s"v1/customers/${root.id}/activate", payload)
+
+      response.status must ===(StatusCodes.BadRequest)
+      response.errors must ===(CustomerEmailNotUnique.description)
+    }
+
+    "sucessfully activate non-guest user" in new Fixture {
+      val newUserResponse = POST(s"v1/customers", payloads.CreateCustomerPayload(email = "guest@example.com",
+        isGuest = Some(true)))
+
+      newUserResponse.status must ===(StatusCodes.OK)
+      val root = newUserResponse.as[CustomerResponse.Root]
+
+      val payload = payloads.ActivateCustomerPayload(name = "test")
+      val response = POST(s"v1/customers/${root.id}/activate", payload)
+      response.status must === (StatusCodes.OK)
+
+      val created = Customers.findOneById(root.id).run().futureValue.value
+      CustomerResponse.build(created) must === (root.copy(name = Some("test")))
+      created.isGuest must === (false)
     }
   }
 
