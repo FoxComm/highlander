@@ -1,8 +1,8 @@
 .fc-slide-checkbox {
-  width: 80px;
-  height: 30px;
+  width: pxtorem(80px);
+  height: pxtorem(30px);
   background: @color-decor3;
-  margin: 20px auto;
+  .margin(20px auto);
   border-radius: 50px;
   position: relative;
 
@@ -10,56 +10,40 @@
   &:after {
     content: 'NO';
     background: @color-decor3;
-    color: rgb(243, 87, 87);
+    color: @color-decor47;
     position: absolute;
-    right: 10px;
+    right: pxtorem(10px);
     z-index: 0;
     font-weight: bold;
-    line-height: 30px;
+    line-height: pxtorem(30px);
   }
 
   &:before {
     content: 'YES';
     background: @color-decor3;
-    color: rgb(78, 203, 192);
+    color: @color-decor46;
     position: absolute;
-    left: 10px;
+    left: pxtorem(10px);
     z-index: 0;
     font-weight: bold;
-    line-height: 30px;
+    line-height: pxtorem(30px);
   }
 
   & > label {
     display: block;
-    width: 34px;
-    height: 24px;
+    width: pxtorem(34px);
+    height: pxtorem(24px);
 
-    -webkit-border-radius: 50px;
-    -moz-border-radius: 50px;
-    border-radius: 50px;
+    border-radius: pxtorem(50px);
 
-    -webkit-transition: all .4s ease;
-    -moz-transition: all .4s ease;
-    -o-transition: all .4s ease;
-    -ms-transition: all .4s ease;
     transition: all .4s ease;
     cursor: pointer;
     position: absolute;
-    top: 3px;
-    left: 3px;
+    top: pxtorem(3px);
+    left: pxtorem(3px);
     z-index: 1;
 
-    -webkit-box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.3);
-    -moz-box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.3);
-    box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.3);
-    background: #fcfff4;
-
-    background: -webkit-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
-    background: -moz-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
-    background: -o-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
-    background: -ms-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
-    background: linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfff4', endColorstr='#b3bead',GradientType=0 );
+    background: @color-white;
   }
 
   & > input[type=checkbox] {
@@ -67,7 +51,7 @@
   }
 
   & > input[type=checkbox]:checked + label {
-    left: 43px;
+    left: pxtorem(43px);
   }
 
 }
