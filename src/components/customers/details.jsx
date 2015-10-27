@@ -13,7 +13,11 @@ import CustomerAccountStatus from './account-status';
 export default class CustomerDetails extends React.Component {
 
   static propTypes = {
-    customer: PropTypes.object
+    entity: PropTypes.object
+  }
+
+  get customer() {
+    return this.props.entity;
   }
 
   render() {
@@ -24,7 +28,7 @@ export default class CustomerDetails extends React.Component {
         </div>
         <div className="fc-grid">
           <div className="fc-col-md-1-2">
-            <CustomerContacts customer={this.props.customer} />
+            <CustomerContacts customer={this.customer} />
           </div>
           <div className="fc-col-md-1-2">
             <CustomerAccountPassword />
@@ -33,12 +37,12 @@ export default class CustomerDetails extends React.Component {
         </div>
         <div className="fc-grid">
           <div className="fc-col-md-1-1">
-            <CustomerAddressBook customerId={this.props.customer.id} />
+            <CustomerAddressBook customerId={this.customer.id} />
           </div>
         </div>
         <div className="fc-grid">
           <div className="fc-col-md-1-1">
-            <CustomerCreditCards customerId={this.props.customer.id} />
+            <CustomerCreditCards customerId={this.customer.id} />
           </div>
         </div>
         <div className="fc-grid">
@@ -51,7 +55,7 @@ export default class CustomerDetails extends React.Component {
             <CustomerNotificationSettings />
           </div>
           <div className="fc-col-md-1-2">
-            <CustomerAccountStatus customer={this.props.customer}/>
+            <CustomerAccountStatus customer={this.customer}/>
           </div>
         </div>
       </div>
