@@ -48,6 +48,10 @@ object CustomDirectives {
     (implicit db: Database, ec: ExecutionContext): StandardRoute =
     complete(a.asResponseFuture.map(renderGoodOrFailuresWithMetadata))
 
+  def goodOrFailures[A <: AnyRef](a: Future[ResultWithMetadata[A]])
+    (implicit db: Database, ec: ExecutionContext): StandardRoute =
+    complete(a.flatMap(_.asResponseFuture.map(renderGoodOrFailuresWithMetadata)))
+
   def nothingOrFailures(a: Result[_])(implicit ec: ExecutionContext): StandardRoute =
     complete(a.map(renderNothingOrFailures))
 }

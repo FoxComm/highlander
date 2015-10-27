@@ -1,6 +1,6 @@
 package services
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{Future, ExecutionContext}
 
 import models._
 import models.{GiftCardAdjustment, Orders, OrderPayments, GiftCardAdjustments, GiftCards}
@@ -14,10 +14,16 @@ object GiftCardAdjustmentsService {
 
   type QuerySeq = GiftCardAdjustments.QuerySeq
 
-  def sortedAndPaged(query: QuerySeq)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeq = {
-    val sortedQuery = sortAndPage.sort match {
-      case Some(s) ⇒ query.sortBy { giftCardAdj ⇒
+  def forGiftCard(code: String)
+    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Future[ResultWithMetadata[Seq[Root]]] = {
+    val finder = GiftCards.findByCode(code)
+
+    finder.selectOneWithMetadata { gc ⇒
+      val query = GiftCardAdjustments.filterByGiftCardId(gc.id)
+        .joinLeft(OrderPayments).on(_.orderPaymentId === _.id)
+        .joinLeft(Orders).on(_._2.map(_.orderId) === _.id)
+
+      val queryWithMetadata = query.withMetadata.sortAndPageIfNeeded { case (s, ((giftCardAdj, _), _)) ⇒
         s.sortColumn match {
           case "id"               ⇒ if(s.asc) giftCardAdj.id.asc               else giftCardAdj.id.desc
           case "giftCardId"       ⇒ if(s.asc) giftCardAdj.giftCardId.asc       else giftCardAdj.giftCardId.desc
@@ -31,27 +37,12 @@ object GiftCardAdjustmentsService {
           case _                  ⇒ giftCardAdj.id.asc
         }
       }
-      case None    ⇒ query
-    }
-    sortedQuery.paged
-  }
 
-  def forGiftCard(code: String)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[Seq[Root]] = {
-    val finder = GiftCards.findByCode(code)
-
-    finder.selectOneForUpdate { gc ⇒
-      val query = sortedAndPaged(GiftCardAdjustments.filterByGiftCardId(gc.id))
-        .joinLeft(OrderPayments).on(_.orderPaymentId === _.id)
-        .joinLeft(Orders).on(_._2.map(_.orderId) === _.id)
-
-      val adjustments = query.result.map { _.map {
+      queryWithMetadata.result.map { _.map {
           case ((adj, Some(payment)), Some(order)) ⇒ build(adj, Some(order.referenceNumber))
           case ((adj, _), _)                       ⇒ build(adj)
         }
       }
-
-      DbResult.fromDbio(adjustments)
     }
   }
 }

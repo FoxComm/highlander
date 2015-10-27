@@ -178,6 +178,9 @@ object Slick {
     object ResultWithMetadata {
       def fromResultOnly[A](result: DbResult[A]): ResultWithMetadata[A] =
         ResultWithMetadata(result = result, metadata = QueryMetadata.empty)
+
+      def fromFailures[A](failures: Failures): ResultWithMetadata[A] =
+        ResultWithMetadata(result = DbResult.failures(failures), metadata = QueryMetadata.empty)
     }
 
     private def _paged[E, U, C[_]](query: Query[E, U, C])(implicit sortAndPage: SortAndPage) = {

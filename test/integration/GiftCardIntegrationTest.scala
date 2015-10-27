@@ -228,7 +228,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
       // Ensure that cancel adjustment is automatically created
       val transactionsRep = GET(s"v1/gift-cards/${giftCard.code}/transactions")
-      val adjustments = transactionsRep.as[Seq[GiftCardAdjustmentsResponse.Root]]
+      val adjustments = transactionsRep.as[ResponseWithFailuresAndMetadata[Seq[GiftCardAdjustmentsResponse.Root]]].result
       response.status must ===(StatusCodes.OK)
       adjustments.size mustBe 2
       adjustments.head.state must ===(GiftCardAdjustment.CancellationCapture)
@@ -248,7 +248,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
   "GET /v1/gift-cards/:code/transactions" - {
     "returns the list of adjustments" in new Fixture {
       val response = GET(s"v1/gift-cards/${giftCard.code}/transactions")
-      val adjustments = response.as[Seq[GiftCardAdjustmentsResponse.Root]]
+      val adjustments = response.as[ResponseWithFailuresAndMetadata[Seq[GiftCardAdjustmentsResponse.Root]]].result
 
       response.status must ===(StatusCodes.OK)
       adjustments.size mustBe 1
@@ -265,7 +265,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       val adjustment3 = GiftCards.auth(giftCard, Some(payment.id), 2).run().futureValue
 
       val response = GET(s"v1/gift-cards/${giftCard.code}/transactions?sortBy=-id&from=2&size=2")
-      val adjustments = response.as[Seq[GiftCardAdjustmentsResponse.Root]]
+      val adjustments = response.as[ResponseWithFailuresAndMetadata[Seq[GiftCardAdjustmentsResponse.Root]]].result
 
       response.status must ===(StatusCodes.OK)
       adjustments.size mustBe 1
