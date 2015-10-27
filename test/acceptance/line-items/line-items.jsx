@@ -1,7 +1,7 @@
 
 import React from 'react';
 import TestUtils from 'react-addons-test-utils';
-const ReactDOM = require('react-dom');
+import ReactDOM from 'react-dom';
 const order = require('../orders/order-sample.json');
 
  describe('OrderLineItems', function() {
