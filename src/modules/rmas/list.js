@@ -18,24 +18,6 @@ export function fetchRmas() {
   };
 }
 
-function shouldFetchRmas(state) {
-  const rmas = state.rmas.list;
-  if (!rmas) {
-    return true;
-  } else if (rmas.isFetching) {
-    return false;
-  }
-  return rmas.didInvalidate;
-}
-
-export function fetchRmasIfNeeded() {
-  return (dispatch, getState) => {
-    if (shouldFetchRmas(getState())) {
-      return dispatch(fetchRmas());
-    }
-  };
-}
-
 function updateItems(items, newItems) {
   return _.values({
     ..._.indexBy(items, 'id'),
@@ -45,7 +27,6 @@ function updateItems(items, newItems) {
 
 const initialState = {
   isFetching: false,
-  didInvalidate: true,
   items: []
 };
 
@@ -53,15 +34,13 @@ const reducer = createReducer({
   [requestRmas]: (state) => {
     return {
       ...state,
-      isFetching: true,
-      didInvalidate: false
+      isFetching: true
     };
   },
   [receiveRmas]: (state, payload) => {
     return {
       ...state,
       isFetching: false,
-      didInvalidate: false,
       items: payload
     };
   },
@@ -77,8 +56,7 @@ const reducer = createReducer({
     if (source === fetchRmas) {
       return {
         ...state,
-        isFetching: false,
-        didInvalidate: false
+        isFetching: false
       };
     }
 
