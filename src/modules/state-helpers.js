@@ -4,6 +4,7 @@ import _ from 'lodash';
 
 export function entityId(entity, type=entity.entityType) {
   switch (type) {
+    case 'rma':
     case 'order':
       return entity.referenceNumber;
     case 'gift-card':

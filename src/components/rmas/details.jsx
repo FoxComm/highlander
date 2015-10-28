@@ -25,7 +25,7 @@ export default class RmaDetails extends React.Component {
       {field: 'reason', text: 'Reason'}
     ];
 
-    return (
+    /*return (
       <div className="fc-rma-details fc-grid fc-grid-match">
         <div className="fc-col-md-3-10">
           <RmaSummary rma={rma} isEditing={isEditing}/>
@@ -47,7 +47,8 @@ export default class RmaDetails extends React.Component {
           <Payment rma={rma} isEditing={isEditing}/>
         </div>
       </div>
-    );
+    );*/
+    return null;
   }
 }
 

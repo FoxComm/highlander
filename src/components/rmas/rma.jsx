@@ -6,17 +6,25 @@ import Notes from '../notes/notes';
 import Viewers from '../viewers/viewers';
 import { connect } from 'react-redux';
 import * as rmaActions from '../../modules/rmas/details';
-import { haveType } from '../../modules/state-helpers';
+import SectionTitle from '../section-title/section-title';
+import { PrimaryButton } from '../common/buttons';
+import LocalNav from '../local-nav/local-nav';
+import { PanelList, PanelListItem } from '../panel/panel-list';
+import { rmaStatuses } from '../../lib/format';
 
 @connect((state, props) => ({
-  ...state.rmas.details[props.params.rma]
+  rma: state.rmas.details
 }), rmaActions)
 export default class Rma extends React.Component {
   static propTypes = {
     params: PropTypes.shape({
       rma: PropTypes.string.isRequired
     }).isRequired,
-    children: PropTypes.node
+    rma: PropTypes.shape({
+      currentRma: PropTypes.object
+    }),
+    children: PropTypes.node,
+    fetchRma: PropTypes.func.isRequired
   };
 
   constructor(...args) {
@@ -26,74 +34,85 @@ export default class Rma extends React.Component {
     };
   }
 
+  get rma() {
+    return this.props.rma.currentRma;
+  }
+
   componentDidMount() {
     let { rma }  = this.props.params;
 
-    this.props.fetchRmaIfNeeded(rma);
+    this.props.fetchRma(rma);
   }
 
   get viewers() {
-    return <Viewers model='returns' modelId={this.props.rma.id} />;
+    return <Viewers model='returns' modelId={this.rma.id} />;
   }
 
   get notes() {
-    const entity = haveType(rma, 'rma');
+    if (!this.rma.entityId) return null;
+
     return (
       <div className="fc-grid">
         <div className="fc-col-md-1-1">
-          <Notes entity={entity} />
+          <Notes entity={this.rma} />
         </div>
       </div>
     );
   }
 
   get subNav() {
-    const rma = this.props.rma;
+    const rma = this.rma;
     const params = {rma: rma && rma.referenceNumber || ''};
     const content = React.cloneElement(this.props.children, {rma, modelName: 'rma'});
 
     return (
-      <div className="gutter">
-        <ul className="fc-tabbed-nav">
-          <li><Link to="rma-details" params={params}>Details</Link></li>
-          <li><Link to="rma-notifications" params={params}>Transaction Notifications</Link></li>
-          <li><Link to="rma-activity-trail" params={params}>Activity Trail</Link></li>
-        </ul>
-        {content}
+      <div className="fc-grid-md-1-1">
+        <div>
+          <LocalNav>
+            <Link to="rma-details" params={params}>Details</Link>
+            <Link to="rma-notifications" params={params}>Transaction Notifications</Link>
+            <Link to="rma-activity-trail" params={params}>Activity Trail</Link>
+          </LocalNav>
+          {content}
+        </div>
       </div>
     );
   }
 
   get itemsCount() {
-    return this.props.rma.lineItems.length;
+    return 0;
+    //return this.rma.lineItems.length;
+  }
+
+  get orderSubtitle() {
+    return `for order ${this.rma.orderId}`;
+  }
+
+  get returnState() {
+    return rmaStatuses[this.rma.status];
   }
 
   render() {
-    const rma = this.props.rma;
+    const rma = this.rma;
     const params = {rma: rma && rma.referenceNumber || ''};
 
     return (
-      <div className="fc-rma">
+      <div>
         {this.viewers}
-        <div className="gutter title">
-          <div>
-            <h1>Return {rma.referenceNumber}</h1>
-          </div>
-        </div>
-        <div className="gutter statuses">
-          <dl>
-            <dt>Return State</dt>
-            <dd>{rma.returnStatus}</dd>
-          </dl>
-          <dl>
-            <dt>Return Type</dt>
-            <dd>{rma.returnType}</dd>
-          </dl>
-          <dl>
-            <dt>Items</dt>
-            <dd>{this.itemsCount}</dd>
-          </dl>
-        </div>
+        <SectionTitle title={`Return ${rma.referenceNumber}`} subtitle={this.orderSubtitle}>
+          <PrimaryButton onClick={this.cancelReturn}>Cancel Return</PrimaryButton>
+        </SectionTitle>
+        <PanelList>
+          <PanelListItem title="Return State">
+            {this.returnState}
+          </PanelListItem>
+          <PanelListItem title="Return Type">
+            {rma.rmaType}
+          </PanelListItem>
+          <PanelListItem title="Items">
+            0
+          </PanelListItem>
+        </PanelList>
         {this.notes}
         {this.subNav}
       </div>

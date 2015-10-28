@@ -3,61 +3,38 @@
 import _ from 'lodash';
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
+import { haveType } from '../state-helpers';
 
-export const receiveRma = createAction('RMA_RECEIVE', (id, rma) => [id, rma]);
+export const rmaSuccess = createAction('RMA_SUCCESS');
 export const failRma = createAction('RMA_FAIL', (id, err, source) => [id, err, source]);
 export const requestRma = createAction('RMA_REQUEST');
-
-function shouldFetchRma(id, state) {
-  const entry = state.rmas.details[id];
-  if (!entry) {
-    return true;
-  } else if (entry.isFetching) {
-    return false;
-  }
-  return entry.didInvalidate;
-}
 
 export function fetchRma(id) {
   return dispatch => {
     dispatch(requestRma(id));
-    Api.get(`/returns/${id}`)
-      .then(rma => dispatch(receiveRma(id, rma)))
+    Api.get(`/rmas/${id}`)
+      .then(rma => dispatch(rmaSuccess(rma)))
       .catch(err => dispatch(failRma(id, err, fetchRma)));
   };
 }
 
-export function fetchRmaIfNeeded(id) {
-  return (dispatch, getState) => {
-    if (shouldFetchRma(id, getState())) {
-      dispatch(fetchRma(id));
-    }
-  };
-}
-
-const initialState = {};
+const initialState = {
+  isFetching: false,
+  currentRma: {}
+};
 
 const reducer = createReducer({
-  [requestRma]: (entries, id) => {
-    return {
-      ...entries,
-      [id]: {
-        ...entries[id],
-        isFetching: true,
-        didInvalidate: false,
-        err: null
-      }
-    };
-  },
-  [receiveRma]: (state, [id, rma]) => {
+  [requestRma]: (state, id) => {
     return {
       ...state,
-      [id]: {
-        err: null,
-        isFetching: false,
-        didInvalidate: false,
-        rma
-      }
+      isFetching: true
+    };
+  },
+  [rmaSuccess]: (state, payload) => {
+    return {
+      ...state,
+      isFetching: false,
+      currentRma: haveType(payload, 'rma')
     };
   },
   [failRma]: (state, [id, err, source]) => {
@@ -65,16 +42,7 @@ const reducer = createReducer({
 
     return {
       ...state,
-      [id]: {
-        ...state[id],
-        err,
-        ...(
-          source === fetchRma ? {
-            isFetching: false,
-            didInvalidate: false
-          } : {}
-        )
-      }
+      isFetching: false
     };
   }
 }, initialState);

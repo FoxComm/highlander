@@ -14,8 +14,8 @@ import {StoreAdminEmail, RmaTotal} from './helpers';
 export default class Rmas extends React.Component {
   static propTypes = {
     tableColumns: PropTypes.array,
-    fetchRmas: PropTypes.func.required,
-    items: PropTypes.array.required
+    fetchRmas: PropTypes.func.isRequired,
+    items: PropTypes.array.isRequired
   };
 
   static defaultProps = {
