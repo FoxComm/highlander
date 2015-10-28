@@ -1,7 +1,7 @@
 'use strict';
 
 import React, { PropTypes } from 'react';
-import { Link } from '../link';
+import { IndexLink, Link } from '../link';
 import Notes from '../notes/notes';
 import Viewers from '../viewers/viewers';
 import { connect } from 'react-redux';
@@ -52,7 +52,7 @@ export default class Rma extends React.Component {
     if (!this.rma.entityId) return null;
 
     return (
-      <div className="fc-grid">
+      <div className="fc-grid fc-grid-gutter">
         <div className="fc-col-md-1-1">
           <Notes entity={this.rma} />
         </div>
@@ -62,21 +62,21 @@ export default class Rma extends React.Component {
 
   get subNav() {
     const rma = this.rma;
-    const params = {rma: rma && rma.referenceNumber || ''};
-    const content = React.cloneElement(this.props.children, {rma, modelName: 'rma'});
+    if (rma.id) {
+      const params = {rma: rma && rma.referenceNumber || ''};
+      const content = React.cloneElement(this.props.children, {...this.props, entity: rma});
 
-    return (
-      <div className="fc-grid-md-1-1">
+      return (
         <div>
-          <LocalNav>
-            <Link to="rma-details" params={params}>Details</Link>
+          <LocalNav gutter={true}>
+            <IndexLink to="rma-details" params={params}>Details</IndexLink>
             <Link to="rma-notifications" params={params}>Transaction Notifications</Link>
             <Link to="rma-activity-trail" params={params}>Activity Trail</Link>
           </LocalNav>
           {content}
         </div>
-      </div>
-    );
+      );
+    }
   }
 
   get itemsCount() {
