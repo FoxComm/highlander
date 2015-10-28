@@ -170,6 +170,23 @@ object Admin {
             Notification("Failed", "Order Confirmation", "2015-02-16T09:23:29", "+ (567) 203-8430")
           }
         }
+      } ~
+      pathPrefix("save-for-later") {
+        (get & path(IntNumber) & pathEnd) { customerId ⇒
+          goodOrFailures {
+            SaveForLaterManager.findAll(customerId)
+          }
+        } ~
+        (post & path(IntNumber / IntNumber) & pathEnd) { (customerId, skuId) ⇒
+          goodOrFailures {
+            SaveForLaterManager.saveForLater(customerId, skuId)
+          }
+        } ~
+        (delete & path(IntNumber) & pathEnd) { id ⇒
+          nothingOrFailures {
+            SaveForLaterManager.deleteSaveForLater(id)
+          }
+        }
       }
     }
   }
