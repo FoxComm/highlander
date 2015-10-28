@@ -22,11 +22,21 @@ object RmaService {
 
   def findByOrderRef(refNum: String)
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
+
+    //val finder = Orders.findByRefNum(refNum)
+    //finder.selectOneWithMetaData(_ ⇒ DbResult.good(Rmas.queryByOrderRefNum(refNum).result.map(_.map(build(_)))))
+
+    // TODO: Replace with upper when `selectOneWithMetaData` will be merged
     Rmas.queryByOrderRefNum(refNum).result.map(_.map(build(_)))
   }
 
   def findByCustomerId(customerId: Int)
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
+
+    //val finder = Customers.filter(_.id === customerId)
+    //finder.selectOneWithMetaData(_ ⇒ DbResult.good(Rmas.queryByCustomerId(customerId).result.map(_.map(build(_)))))
+
+    // TODO: Replace with upper when `selectOneWithMetaData` will be merged
     Rmas.queryByCustomerId(customerId).result.map(_.map(build(_)))
   }
 }
