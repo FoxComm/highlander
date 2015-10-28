@@ -20,7 +20,7 @@ class RmaIntegrationTest extends IntegrationTestBase with HttpSupport with Autom
       response.status must === (StatusCodes.OK)
 
       val root = response.as[RmaResponse.Root]
-      root.referenceNumber mustBe rma.refNum
+      root.referenceNumber must === (rma.refNum)
     }
 
     "should return 404 if invalid rma is returned" in new Fixture {
