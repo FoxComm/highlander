@@ -37,6 +37,13 @@ object NoteManager {
     }
   }
 
+  def createRmaNote(refNum: String, author: StoreAdmin, payload: payloads.CreateNote)
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
+    Rmas.findByRefNum(refNum).selectOne { rma ⇒
+      createModelNote(rma.id, Note.Rma, author, payload)
+    }
+  }
+
   private def createModelNote(refId: Int, refType: Note.ReferenceType, author: StoreAdmin,
     payload: payloads.CreateNote)(implicit ec: ExecutionContext, db: Database): DbResult[Root] = {
     createNote(Note(
@@ -60,6 +67,11 @@ object NoteManager {
   def updateCustomerNote(customerId: Int, noteId: Int, author: StoreAdmin, payload: payloads.UpdateNote)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
     Customers.findById(customerId).extract.selectOne { _ ⇒ updateNote(noteId, author, payload) }
+  }
+
+  def updateRmaNote(refNum: String, noteId: Int, author: StoreAdmin, payload: payloads.UpdateNote)
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
+    Rmas.findByRefNum(refNum).selectOne { _ ⇒ updateNote(noteId, author, payload) }
   }
 
   private def updateNote(noteId: Int, author: StoreAdmin, payload: payloads.UpdateNote)
@@ -114,6 +126,12 @@ object NoteManager {
   def forCustomer(customerId: Int)(implicit ec: ExecutionContext, db: Database): Result[Seq[Root]] = {
     Customers.findById(customerId).extract.selectOne { customer ⇒
       forModel(Notes.filterByCustomerId(customer.id).notDeleted)
+    }
+  }
+
+  def forRma(refNum: String)(implicit ec: ExecutionContext, db: Database): Result[Seq[Root]] = {
+    Rmas.findByRefNum(refNum).selectOne { rma ⇒
+      forModel(Notes.filterByRmaId(rma.id).notDeleted)
     }
   }
 
