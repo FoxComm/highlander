@@ -5,6 +5,8 @@ import java.time.Instant
 import models.{Region, Customer}
 
 object CustomerResponse {
+  val mockCustomerRank = "top 10"
+
   final case class Root(
     id: Int = 0,
     email: String,
@@ -29,7 +31,7 @@ object CustomerResponse {
       createdAt = customer.createdAt,
       disabled = customer.isDisabled,
       blacklisted = customer.isBlacklisted,
-      rank = "top 10",
+      rank = mockCustomerRank,
       billingRegion = billingRegion.map(_.name),
       shippingRegion = shippingRegion.map(_.name))
 }
