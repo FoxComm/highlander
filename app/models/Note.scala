@@ -33,6 +33,7 @@ object Note {
   case object Order extends ReferenceType
   case object GiftCard extends ReferenceType
   case object Customer extends ReferenceType
+  case object Rma extends ReferenceType
 
   object ReferenceType extends ADT[ReferenceType] {
     def types = sealerate.values[ReferenceType]
@@ -69,6 +70,9 @@ object Notes extends TableQueryWithId[Note, Notes](
 
   def filterByCustomerId(id: Int): QuerySeq =
     filterByType(Note.Customer).filter(_.referenceId === id)
+
+  def filterByRmaId(id: Int): QuerySeq =
+    filterByType(Note.Rma).filter(_.referenceId === id)
 
   def filterByIdAndAdminId(id: Int, adminId: Int): QuerySeq =
     filter(_.id === id).filter(_.storeAdminId === adminId)
