@@ -10,7 +10,7 @@ const mochaOpts = {
   timeout: 30000,
   require: [
     'co-mocha',
-    './test/spec-helper'
+    './test/_setup'
   ]
 };
 
@@ -20,14 +20,16 @@ module.exports = function(gulp, opts, $) {
 
 
   gulp.task('mocha.main', function() {
-    const setup = path.join(opts.testDir, '/acceptance/_setup/index.js');
+    const setup = path.join(opts.testDir, '/acceptance/_setup.js');
 
     return gulp.src([setup, specs, acceptance], {read: false})
       .pipe($.mocha(mochaOpts));
   });
 
   gulp.task('mocha.unit', function() {
-    return gulp.src(path.join(opts.testDir, '/unit/**/*.js'), {read: false})
+    const unitTests = path.join(opts.testDir, '/unit/**/*.js');
+
+    return gulp.src([unitTests], {read: false})
       .pipe($.mocha(mochaOpts));
   });
 

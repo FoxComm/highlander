@@ -7,6 +7,12 @@ const ReactDOM = require('react-dom');
 const TestUtils = require('react-addons-test-utils');
 const ShallowTestUtils = require('react-shallow-testutils');
 
+const unexpectedReactShallow = require('unexpected-react-shallow');
+
+global.unexpected = global.unexpected.clone()
+  .installPlugin(unexpectedReactShallow);
+
+
 global.requireComponent = function(componentPath) {
   return require(path.resolve('src/components/' + componentPath));
 };
@@ -31,11 +37,6 @@ global.shallowRender = function(element) {
 
   return renderer;
 };
-
-// container for acceptance tests
-global.container = null;
-
-// install global hooks
 
 global.createContainer = function(tagName = 'div', attachToDom = false) {
   const container = document.createElement(tagName);

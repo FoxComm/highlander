@@ -1,15 +1,12 @@
 'use strict';
 
 const unexpected = require('unexpected');
-const unexpectedReactShallow = require('unexpected-react-shallow');
-
-const unexpectedExpect = unexpected.clone()
-  .installPlugin(unexpectedReactShallow);
+global.unexpected = unexpected;
 
 global.expect = (function(expect) {
   return function(target) {
     if (arguments.length > 1) {
-      return unexpectedExpect.apply(this, arguments);
+      return global.unexpected.apply(this, arguments);
     } else {
       return expect(target);
     }
