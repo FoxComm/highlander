@@ -35,12 +35,12 @@ class AddressesIntegrationTest extends IntegrationTestBase
         region  ← Regions.findById(address.regionId).result.head
       } yield (address, region)
 
-      dbio map { case (address, region) ⇒
+      dbio.map { case (address, region) ⇒
         responses.Addresses.build(address, region)
       }
     }
 
-    DBIO.sequence(items).run().futureValue
+    DBIO.sequence(items).transactionally.run().futureValue
   }
 
   val sortColumnName = "name"
@@ -61,7 +61,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
 
       response.status must === (StatusCodes.OK)
 
-      val addresses = response.as[ResponseWithFailuresAndMetadata[Seq[responses.Addresses.Root]]].result
+      val addresses = response.as[responses.Addresses.Root#ResponseSeq].result
 
       addresses must have size 1
       addresses.head.name must === (address.name)
@@ -169,7 +169,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
       addressesResponse.status must === (StatusCodes.OK)
 
       //If you get all the addresses, our newly deleted one should not show up
-      val addresses = addressesResponse.as[ResponseWithFailuresAndMetadata[Seq[responses.Addresses.Root]]].result
+      val addresses = addressesResponse.as[responses.Addresses.Root#ResponseSeq].result
       addresses.filter(_.id == newAddress.id) must have length 0
     }
 

@@ -75,7 +75,7 @@ object ResponseWithFailuresAndMetadata {
     )
   }
 
-  def xorFromXor[A <: AnyRef](result: Failures Xor A, addFailures: Seq[Failure] = Seq.empty,
+  def fromXor[A <: AnyRef](result: Failures Xor A, addFailures: Seq[Failure] = Seq.empty,
     metadata: Option[ResponseMetadata] = None): Failures Xor ResponseWithFailuresAndMetadata[A] = result.bimap (
     errors ⇒ if (addFailures.isEmpty) errors else Failures(errors.toList ++ addFailures: _*),
     res    ⇒ ResponseWithFailuresAndMetadata.withMetadata(res, metadata).addFailures(addFailures)

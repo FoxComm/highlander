@@ -58,10 +58,10 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         currentBalance = balance,
         availableBalance = balance))
 
-      dbio map { responses.StoreCreditResponse.build }
+      dbio.map { responses.StoreCreditResponse.build }
     }
 
-    DBIO.sequence(items).run().futureValue
+    DBIO.sequence(items).transactionally.run().futureValue
   }
 
   val sortColumnName = "currency"
@@ -151,7 +151,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
     "GET /v1/store-credits/:id/transactions" - {
       "returns the list of adjustments" in new Fixture {
         val response = GET(s"v1/store-credits/${storeCredit.id}/transactions")
-        val adjustments = response.as[ResponseWithFailuresAndMetadata[Seq[StoreCreditAdjustmentsResponse.Root]]].result
+        val adjustments = response.as[StoreCreditAdjustmentsResponse.Root#ResponseSeq].result
 
         response.status must ===(StatusCodes.OK)
         adjustments.size must === (1)
@@ -167,7 +167,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         val adjustment3 = StoreCredits.auth(storeCredit, Some(payment.id), 2).run().futureValue
 
         val response = GET(s"v1/store-credits/${storeCredit.id}/transactions?sortBy=-id&from=2&size=2")
-        val adjustments = response.as[ResponseWithFailuresAndMetadata[Seq[StoreCreditAdjustmentsResponse.Root]]]
+        val adjustments = response.as[StoreCreditAdjustmentsResponse.Root#ResponseSeq]
 
         response.status must ===(StatusCodes.OK)
         adjustments.result.size must === (1)
@@ -215,7 +215,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
         // Ensure that cancel adjustment is automatically created
         val transactionsRep = GET(s"v1/store-credits/${storeCredit.id}/transactions")
-        val adjustments = transactionsRep.as[ResponseWithFailuresAndMetadata[Seq[StoreCreditAdjustmentsResponse.Root]]]
+        val adjustments = transactionsRep.as[StoreCreditAdjustmentsResponse.Root#ResponseSeq]
           .result
 
         response.status must ===(StatusCodes.OK)

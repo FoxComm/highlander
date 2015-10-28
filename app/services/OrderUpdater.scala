@@ -38,7 +38,7 @@ object OrderUpdater {
   def updateStatuses(refNumbers: Seq[String], newStatus: Order.Status)
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[BulkOrderUpdateResponse] = {
     updateStatusesDbio(refNumbers, newStatus).zip(OrderQueries.findAll.result).map { case (failures, orders) ⇒
-      ResponseWithFailuresAndMetadata.xorFromXor(orders, failures.swap.toOption.map(_.toList).getOrElse(Seq.empty))
+      ResponseWithFailuresAndMetadata.fromXor(orders, failures.swap.toOption.map(_.toList).getOrElse(Seq.empty))
     }.transactionally.run()
   }
 

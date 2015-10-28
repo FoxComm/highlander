@@ -24,7 +24,7 @@ object BulkOrderUpdater {
       allOrders ← (OrderAssignments ++= newAssignments) >> OrderQueries.findAll.result
       adminNotFound = adminNotFoundFailure(admin.headOption, payload.assigneeId)
       ordersNotFound = ordersNotFoundFailures(payload.referenceNumbers, orders.map(_.referenceNumber))
-    } yield ResponseWithFailuresAndMetadata.xorFromXor(
+    } yield ResponseWithFailuresAndMetadata.fromXor(
         result = allOrders,
         addFailures = adminNotFound ++ ordersNotFound)
 
@@ -45,7 +45,7 @@ object BulkOrderUpdater {
       allOrders ← delete >> OrderQueries.findAll.result
       adminNotFound = adminNotFoundFailure(adminId.headOption, payload.assigneeId)
       ordersNotFound = ordersNotFoundFailures(payload.referenceNumbers, orders.map(_.referenceNumber))
-    } yield ResponseWithFailuresAndMetadata.xorFromXor(
+    } yield ResponseWithFailuresAndMetadata.fromXor(
         result = allOrders,
         addFailures = adminNotFound ++ ordersNotFound)
 

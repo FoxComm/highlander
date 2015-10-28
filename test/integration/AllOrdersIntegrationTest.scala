@@ -1,19 +1,13 @@
 import java.time.Instant
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 import akka.http.scaladsl.model.StatusCodes
 
-import Extensions._
 import models.Order._
 import models._
 import payloads.{BulkAssignment, BulkUpdateOrdersPayload}
 import responses.ResponseWithFailuresAndMetadata.BulkOrderUpdateResponse
 import responses.{ResponseWithFailuresAndMetadata, StoreAdminResponse, FullOrder, AllOrders}
 import services.{OrderStatusTransitionNotAllowed, LockedFailure, OrderQueries, NotFoundFailure404}
-import slick.dbio.DBIO
 import util.IntegrationTestBase
-import utils.Seeds
 import utils.Seeds.Factories
 import utils.Slick.implicits._
 import utils.time._
@@ -23,16 +17,21 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
   with SortingAndPaging[responses.AllOrders.Root]
   with AutomaticAuth {
 
+  import concurrent.ExecutionContext.Implicits.global
+
+  import Extensions._
+  import api._
+
   // paging and sorting API
   def uriPrefix = "v1/orders"
 
   def responseItems = {
     val items = (1 to numOfResults).map { i ⇒
       val dbio = for {
-        customer ← Customers.save(Seeds.Factories.generateCustomer)
+        customer ← Customers.save(Factories.generateCustomer)
         order    ← Orders.save(Factories.order.copy(
           customerId = customer.id,
-          referenceNumber = Seeds.Factories.randomString(10),
+          referenceNumber = Factories.randomString(10),
           status = Order.RemorseHold,
           remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
       } yield (customer, order)
@@ -42,7 +41,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       }
     }
 
-    DBIO.sequence(items).run().futureValue
+    DBIO.sequence(items).transactionally.run().futureValue
   }
   val sortColumnName = "referenceNumber"
 
@@ -59,7 +58,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       val responseJson = GET(s"v1/orders")
       responseJson.status must === (StatusCodes.OK)
 
-      val allOrders = responseJson.as[ResponseWithFailuresAndMetadata[Seq[responses.AllOrders.Root]]].result
+      val allOrders = responseJson.as[responses.AllOrders.Root#ResponseSeq].result
       allOrders.size must === (1)
 
       val actual = allOrders.head

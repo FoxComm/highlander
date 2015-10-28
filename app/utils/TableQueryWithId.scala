@@ -111,7 +111,7 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.Tab
       dbio.map(maybe ⇒ applyAllChecks(checks, maybe, notFoundFailure)).flatMap {
         case Xor.Right(value)   ⇒ lift(action(value))
         case Xor.Left(failures) ⇒ lift(ResultWithMetadata.fromFailures[R](failures))
-      }.run()
+      }.transactionally.run()
     }
 
     def selectOne[R](action: M ⇒ DbResult[R], checks: Checks = checks, notFoundFailure: Failure = notFound404)

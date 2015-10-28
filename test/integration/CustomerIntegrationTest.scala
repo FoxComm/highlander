@@ -42,10 +42,10 @@ class CustomerIntegrationTest extends IntegrationTestBase
     val items = (1 to numOfResults).map { i ⇒
       val dbio = Customers.save(Seeds.Factories.generateCustomer)
 
-      dbio map { CustomerResponse.build(_) }
+      dbio.map { CustomerResponse.build(_) }
     }
 
-    DBIO.sequence(items).run().futureValue
+    DBIO.sequence(items).transactionally.run().futureValue
   }
   val sortColumnName = "name"
 
@@ -81,7 +81,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val customerRoot = CustomerResponse.build(customer, shippingRegion = region)
 
       response.status must === (StatusCodes.OK)
-      response.as[ResponseWithFailuresAndMetadata[Seq[CustomerResponse.Root]]].result must === (Seq(customerRoot))
+      response.as[CustomerResponse.Root#ResponseSeq].result must === (Seq(customerRoot))
     }
 
     "lists customers without default address" in new Fixture {
@@ -90,7 +90,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val customerRoot = CustomerResponse.build(customer)
 
       response.status must === (StatusCodes.OK)
-      response.as[ResponseWithFailuresAndMetadata[Seq[CustomerResponse.Root]]].result must === (Seq(customerRoot))
+      response.as[CustomerResponse.Root#ResponseSeq].result must === (Seq(customerRoot))
     }
 
     "customer listing shows valid billingRegion" in new CreditCardFixture {
@@ -100,7 +100,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val customerRoot = CustomerResponse.build(customer, shippingRegion = region, billingRegion = billRegion)
 
       response.status must === (StatusCodes.OK)
-      response.as[ResponseWithFailuresAndMetadata[Seq[CustomerResponse.Root]]].result must === (Seq(customerRoot))
+      response.as[CustomerResponse.Root#ResponseSeq].result must === (Seq(customerRoot))
     }
 
     "customer listing shows valid billingRegion without default CreditCard" in new CreditCardFixture {
@@ -109,7 +109,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val customerRoot = CustomerResponse.build(customer, shippingRegion = region)
 
       response.status must === (StatusCodes.OK)
-      response.as[ResponseWithFailuresAndMetadata[Seq[CustomerResponse.Root]]].result must === (Seq(customerRoot))
+      response.as[CustomerResponse.Root#ResponseSeq].result must === (Seq(customerRoot))
     }
   }
 

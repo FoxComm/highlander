@@ -145,7 +145,7 @@ object Slick {
       def asResponseFuture(implicit db: Database, ec: ExecutionContext): Future[ResponseWithMetadata[A]] = {
         metadata.total match {
           case None              ⇒
-            for (res ← result.run())
+            for (res ← result.transactionally.run())
               yield ResponseWithMetadata(
                 res,
                 ResponseMetadata(
@@ -159,7 +159,7 @@ object Slick {
 
           case Some(totalFuture) ⇒
             for {
-              res   ← result.run()
+              res   ← result.transactionally.run()
               total ← totalFuture
             } yield ResponseWithMetadata(
               res,
