@@ -13,11 +13,13 @@ import utils.Slick.implicits._
 
 object RmaResponse {
   val mockLineItems = LineItems(
+    /*
     skus = Seq(
       DisplayLineItem(sku = "SKU-YAX", status = OrderLineItem.Shipped),
       DisplayLineItem(sku = "SKU-ABC", status = OrderLineItem.Shipped),
       DisplayLineItem(sku = "SKU-ZYA", status = OrderLineItem.Shipped)
     )
+    */
   )
 
   val mockPayment = DisplayPayment(
@@ -89,7 +91,7 @@ object RmaResponse {
       customer = customer,
       storeAdmin = storeAdmin,
       lineItems = mockLineItems,
-      payment = Some(mockPayment))
+      payment = None)
   }
 
   private def fetchRmaDetails(rma: Rma)(implicit ec: ExecutionContext) = {

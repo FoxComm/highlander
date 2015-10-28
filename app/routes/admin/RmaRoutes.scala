@@ -35,29 +35,21 @@ object RmaRoutes {
 
       pathPrefix("rmas") {
         (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-          good {
-            buildMockSequence(adminResponse)
+          goodOrFailures {
+            RmaService.findAll
           }
         } ~
         (get & path("customer" / IntNumber)) { customerId ⇒
           (pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            good {
-              val customer = Customer(
-                id = customerId,
-                email = "donkey@donkeyville.com",
-                disabled = false,
-                blacklisted = false,
-                rank = "Donkey",
-                createdAt = Instant.now())
-
-              buildMockSequence(admin = None, customer = Some(customer))
+            goodOrFailures {
+              RmaService.findByCustomerId(customerId)
             }
           }
         } ~
         (get & path("order" / Order.orderRefNumRegex)) { refNum ⇒
           (pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            good {
-              buildMockSequence(adminResponse)
+            goodOrFailures {
+              RmaService.findByOrderRef(refNum)
             }
           }
         } ~
