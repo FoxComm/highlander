@@ -1,40 +1,17 @@
 'use strict';
 
-import _ from 'lodash';
+import fetch from 'isomorphic-fetch';
 
-class ErrorResponse extends Error {
-  constructor(responseOrError) {
-    super();
-    this.data = responseOrError;
-    this.isNativeError = responseOrError instanceof Error;
-
-    if (!this.isNativeError) {
-      // just plain object about error from server
-      _.extend(this, _.omit(responseOrError, 'errors'));
-    }
-  }
-
-  get errors() {
-    if (this.isNativeError) {
-      return [this.data];
-    } else {
-      return this.data.errors || [this.data.error];
-    }
-  }
-
-  toString() {
-    return this.errors.join('\n');
-  }
-
-  get message() {
-    return this.toString();
-  }
-}
+const isServer = typeof self === 'undefined';
 
 export default class Api {
   static apiURI(uri) {
     uri = uri.replace(/^\/api\/v\d\/|^\//, '');
-    return `/api/v1/${uri}`;
+    uri = `/api/v1/${uri}`;
+    if (isServer) {
+      uri = `//api.foxcommerce${uri}`;
+    }
+    return uri;
   }
 
   static serialize = function(data) {
@@ -52,64 +29,59 @@ export default class Api {
 
   static request(method, uri, data) {
     uri = this.apiURI(uri);
-    return new Promise((resolve, reject) => {
-      let req = new XMLHttpRequest();
-      let token = localStorage.getItem('token');
-      req.onload = function() {
-        if (req.status >= 200 && req.status < 300) {
-          resolve(JSON.parse(req.response || '{}'));
-        } else {
-          try {
-            reject(new ErrorResponse(JSON.parse(req.response)));
-          } catch (err) {
-            reject(new ErrorResponse(err));
-          }
-        }
-      };
 
-      if (method === 'GET' && data) {
-        uri += '?' + this.serialize(data);
-      }
-      req.open(method, uri);
-      if (token) req.setRequestHeader('Authorization', `Bearer ${token}`);
-      if (method !== 'GET' && data && !(data instanceof FormData)) {
-        req.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-        data = JSON.stringify(data);
-      }
-      req.send(data);
-    });
+    const isFormData = !isServer && data instanceof FormData;
+    const token = localStorage.getItem('token');
+    const headers = {};
+
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    if (!isFormData) {
+      headers['Content-Type'] = 'application/json;charset=UTF-8';
+    }
+
+    return fetch(uri, {
+      method,
+      headers,
+      body: isFormData ? data : JSON.stringify(data)
+    })
+      .then(response => {
+        if (response.status >= 200 && response.status < 300) {
+          return response;
+        } else {
+          const error = new Error(response.statusText);
+          error.response = response;
+          throw error;
+        }
+      })
+      .then(response => response.json());
   }
 
   static submitForm(form) {
-    let
-      method = form.getAttribute('method').toLowerCase(),
-      uri = form.getAttribute('action'),
-      formData = new FormData(form);
-    return this[method](uri, formData);
+    const method = form.getAttribute('method');
+    const uri = form.getAttribute('action');
+
+    return this.request(method, uri, new FormData(form));
   }
 
-  static get() {
-    let args = [].slice.call(arguments);
-    return this.request.apply(this, ['GET'].concat(args));
+  static get(...args) {
+    return this.request('GET', ...args);
   }
 
-  static post() {
-    let args = [].slice.call(arguments);
-    return this.request.apply(this, ['POST'].concat(args));
+  static post(...args) {
+    return this.request('POST', ...args);
   }
 
-  static delete() {
-    let args = [].slice.call(arguments);
-    return this.request.apply(this, ['DELETE'].concat(args));
+  static delete(...args) {
+    return this.request('DELETE', ...args);
   }
 
-  static put() {
-    let args = [].slice.call(arguments);
-    return this.request.apply(this, ['PUT'].concat(args));
+  static put(...args) {
+    return this.request('PUT', ...args);
   }
 
-  static patch() {
-    let args = [].slice.call(arguments);
-    return this.request.apply(this, ['PATCH'].concat(args));
+  static patch(...args) {
+    return this.request('PATCH', ...args);
   }
 }

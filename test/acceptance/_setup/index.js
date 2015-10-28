@@ -6,7 +6,6 @@ const path = require('path');
 const ReactDOM = require('react-dom');
 const TestUtils = require('react-addons-test-utils');
 const ShallowTestUtils = require('react-shallow-testutils');
-require('./expect-jsx');
 
 global.requireComponent = function(componentPath) {
   return require(path.resolve('src/components/' + componentPath));
