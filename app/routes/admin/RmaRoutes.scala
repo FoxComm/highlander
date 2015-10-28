@@ -83,11 +83,6 @@ object RmaRoutes {
             genericRmaMock
           }
         } ~
-        (post & path("complete") & pathEnd) {
-          good {
-            genericRmaMock
-          }
-        } ~
         (post & path("lock") & pathEnd) {
           good {
             genericRmaMock
