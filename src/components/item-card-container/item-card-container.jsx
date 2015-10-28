@@ -19,10 +19,10 @@ export default class CreditCardBox extends React.Component {
     return (
       <li className={ this.cartClassName }>
         <div className="fc-card-container-controls fc-grid">
-          <div className="fc-col-2-3">
+          <div className="fc-col-md-2-3">
             { this.props.leftControls }
           </div>
-          <div className="fc-col-1-3">
+          <div className="fc-col-md-1-3">
             { this.props.rightControls }
           </div>
         </div>
