@@ -1,6 +1,6 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import TableView from '../tables/tableview';
 import SectionTitle from '../section-title/section-title';
 import LocalNav from '../local-nav/local-nav';
@@ -13,8 +13,9 @@ import {StoreAdminEmail, RmaTotal} from './helpers';
 @connect(({rmas}) => ({items: rmas.list.items}), rmaActions)
 export default class Rmas extends React.Component {
   static propTypes = {
-    tableColumns: React.PropTypes.array,
-    model: React.PropTypes.object
+    tableColumns: PropTypes.array,
+    fetchRmas: PropTypes.func.required,
+    items: PropTypes.array.required
   };
 
   static defaultProps = {
@@ -29,7 +30,7 @@ export default class Rmas extends React.Component {
   };
 
   componentDidMount() {
-    this.props.fetchRmasIfNeeded();
+    this.props.fetchRmas();
   }
 
   render() {

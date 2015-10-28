@@ -9,7 +9,7 @@ import ConfirmModal from '../modal/confirm';
 import RemorseTimer from './remorseTimer';
 import { connect } from 'react-redux';
 import * as orderActions from '../../modules/order';
-import DateTime from '../datetime/datetime';
+import { DateTime } from '../common/datetime';
 
 @connect(state => ({order: state.order}), orderActions)
 export default class Order extends React.Component {
