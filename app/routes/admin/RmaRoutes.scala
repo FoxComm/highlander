@@ -42,16 +42,14 @@ object RmaRoutes {
         (get & path("customer" / IntNumber)) { customerId ⇒
           (pathEnd & sortAndPage) { implicit sortAndPage ⇒
             goodOrFailures {
-              // TODO - filter by customers
-              RmaService.findAll
+              RmaService.findByCustomerId(customerId)
             }
           }
         } ~
         (get & path("order" / Order.orderRefNumRegex)) { refNum ⇒
           (pathEnd & sortAndPage) { implicit sortAndPage ⇒
             goodOrFailures {
-              // TODO - filter by customers
-              RmaService.findAll
+              RmaService.findByOrderRef(refNum)
             }
           }
         } ~

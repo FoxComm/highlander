@@ -19,4 +19,14 @@ object RmaService {
   def findAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
     Rmas.queryAll.result.map(_.map(build(_)))
   }
+
+  def findByOrderRef(refNum: String)
+    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
+    Rmas.queryByOrderRefNum(refNum).result.map(_.map(build(_)))
+  }
+
+  def findByCustomerId(customerId: Int)
+    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
+    Rmas.queryByCustomerId(customerId).result.map(_.map(build(_)))
+  }
 }

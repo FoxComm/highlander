@@ -94,6 +94,14 @@ object Rmas extends TableQueryWithLock[Rma, Rmas](
   def queryAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata =
     sortedAndPaged(this)
 
+  def queryByOrderRefNum(refNum: String)
+    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata =
+    sortedAndPaged(findByOrderRefNum(refNum))
+
+  def queryByCustomerId(customerId: Int)
+    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata =
+    sortedAndPaged(findByCustomerId(customerId))
+
   override def save(rma: Rma)(implicit ec: ExecutionContext) = {
     if (rma.isNew) {
       create(rma)
@@ -106,6 +114,9 @@ object Rmas extends TableQueryWithLock[Rma, Rmas](
     (newId, refNum) ← returningIdAndReferenceNumber += rma
   } yield rma.copy(id = newId, referenceNumber = refNum)
 
-  def findByRefNum(refNum: String): QuerySeq =
-    filter(_.referenceNumber === refNum)
+  def findByRefNum(refNum: String): QuerySeq = filter(_.referenceNumber === refNum)
+
+  def findByCustomerId(customerId: Int): QuerySeq = filter(_.customerId === customerId)
+
+  def findByOrderRefNum(refNum: String): QuerySeq = filter(_.orderRefNum === refNum)
 }
