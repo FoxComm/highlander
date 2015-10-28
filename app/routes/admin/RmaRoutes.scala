@@ -11,6 +11,8 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 
 import models._
 import payloads._
+import services.RmaService
+
 import responses.FullOrder.DisplayLineItem
 import responses.CustomerResponse.{Root ⇒ Customer}
 import responses.StoreAdminResponse
@@ -67,8 +69,8 @@ object RmaRoutes {
       } ~
       pathPrefix("rmas" / """([a-zA-Z0-9-_]*)""".r) { refNum ⇒
         (get & pathEnd) {
-          good {
-            genericRmaMock
+          goodOrFailures {
+            RmaService.getByRefNum(refNum)
           }
         } ~
         (patch & entity(as[RmaUpdatePayload]) & pathEnd) { payload ⇒
@@ -77,11 +79,6 @@ object RmaRoutes {
           }
         } ~
         (patch & path("status") & entity(as[RmaUpdateStatusPayload]) & pathEnd) { payload ⇒
-          good {
-            genericRmaMock
-          }
-        } ~
-        (post & path("complete") & pathEnd) {
           good {
             genericRmaMock
           }

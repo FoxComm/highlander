@@ -3,7 +3,7 @@ package services
 import scala.collection.immutable
 
 import com.stripe.exception.StripeException
-import models.{CreditCard, GiftCard, Order, StoreCredit}
+import models.{CreditCard, GiftCard, Order, Rma, StoreCredit}
 import services.Util.searchTerm
 import utils.friendlyClassName
 
@@ -145,6 +145,7 @@ final case class StripeRuntimeException[E <: StripeException](exception: E) exte
 object Util {
   def searchTerm[A](a: A): String = a match {
     case Order ⇒ "referenceNumber"
+    case Rma ⇒ "referenceNumber"
     case GiftCard ⇒ "code"
     case _ ⇒ "id"
   }
