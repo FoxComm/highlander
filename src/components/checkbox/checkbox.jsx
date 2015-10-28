@@ -17,7 +17,7 @@ const GenericCheckbox = (props) => {
       <label htmlFor={props.id}></label>
     </div>
   );
-}
+};
 
 const SliderCheckbox = (props) => {
   let composedClassName = composeClassName(props, 'fc-slide-checkbox');
@@ -31,7 +31,7 @@ const Checkbox = (props) => {
   return (
     <GenericCheckbox {...props} className={ composedClassName } />
   );
-}
+};
 
 export {
   SliderCheckbox,
