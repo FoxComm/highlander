@@ -6,17 +6,17 @@ import { createAction, createReducer } from 'redux-act';
 import { assoc, dissoc, update } from 'sprout-data';
 import { updateItems } from './state-helpers';
 
-const receiveNotes = createAction('NOTES_RECEIVE', (entity, notes) => [entity, notes]);
+export const receiveNotes = createAction('NOTES_RECEIVE', (entity, notes) => [entity, notes]);
 export const updateNotes = createAction('NOTES_UPDATE', (entity, notes) => [entity, notes]);
 export const noteRemoved = createAction('NOTES_REMOVED', (entity, id) => [entity, id]);
-const notesFailed = createAction('NOTES_FAILED', (entity, err) => [entity, err]);
+export const notesFailed = createAction('NOTES_FAILED', (entity, err) => [entity, err]);
 export const startDeletingNote = createAction('NOTES_START_DELETING', (entity, id) => [entity, id]);
 export const stopDeletingNote = createAction('NOTES_STOP_DELETING', (entity, id) => [entity, id]);
 export const startAddingNote = createAction('NOTES_START_ADDING');
 export const startEditingNote = createAction('NOTES_START_EDITING', (entity, id) => [entity, id]);
 export const stopAddingOrEditingNote = createAction('NOTES_STOP_EDITING_OR_ADDING');
 
-const notesUri = (entity, noteId) => {
+export const notesUri = (entity, noteId) => {
   const uri = `/notes/${entity.entityType}/${entity.entityId}`;
   if (noteId != null) {
     return `${uri}/${noteId}`;

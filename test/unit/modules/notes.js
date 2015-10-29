@@ -21,8 +21,12 @@ describe('Notes module', function() {
 
   context('async actions', function() {
 
+    function notesUri(entity, id = void 0) {
+      return `/api/v1${actions.notesUri(entity, id)}`;
+    }
+
     before(function() {
-      const uri = `/api/v1/notes/${entity.entityType}/${entity.entityId}`;
+      const uri = notesUri(entity);
 
       nock(phoenixUrl)
         .get(uri)
@@ -31,21 +35,44 @@ describe('Notes module', function() {
         .reply(201, notePayload);
     });
 
-    it('fetchNotes', function() {
+    after(function() {
+      nock.cleanAll();
+    });
+
+    it('fetchNotes', function *() {
       const expectedActions = [
         { type: 'NOTES_RECEIVE', payload: [entity, notesPayload]}
       ];
 
-      return expect(actions.fetchNotes(entity), 'to dispatch actions', expectedActions);
+      yield expect(actions.fetchNotes(entity), 'to dispatch actions', expectedActions);
     });
 
-    it('createNote', function() {
+    it('createNote, editNote', function *() {
       const expectedActions = [
         actions.stopAddingOrEditingNote,
         { type: 'NOTES_UPDATE', payload: [entity, [notePayload]]}
       ];
 
-      return expect(actions.createNote(entity, notePayload), 'to dispatch actions', expectedActions);
+      yield expect(actions.createNote(entity, notePayload), 'to dispatch actions', expectedActions);
+
+      nock(phoenixUrl)
+        .patch(notesUri(entity, 1))
+        .reply(200, notePayload);
+
+      yield expect(actions.editNote(entity, 1, notePayload), 'to dispatch actions', expectedActions);
+    });
+
+    it('deleteNote', function *() {
+      const expectedActions = [
+        { type: actions.stopDeletingNote, payload: [entity, 1]},
+        { type: actions.noteRemoved, payload: [entity, 1]}
+      ];
+
+      nock(phoenixUrl)
+        .delete(notesUri(entity, 1))
+        .reply(204, {});
+
+      yield expect(actions.deleteNote(entity, 1), 'to dispatch actions', expectedActions);
     });
   });
 
