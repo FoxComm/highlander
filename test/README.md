@@ -28,7 +28,7 @@ Shallow renders markup to tree structure. Rendered component must be statefull.
 * *result.instance*: `<React.Component>` instance of rendered component
 * *result.unmount*: `<function>` method for unmount rendered markup
 * *result.type*: `<string>` type of rendered component
-* *result.props*: <object>` props of rendered component
+* *result.props*: `<object>` props of rendered component
 
 ### requireComponent(path)
 
