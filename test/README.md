@@ -7,7 +7,7 @@ We have two types of the tests, for now.
 
 ## Global API for tests
 
-### yield renderIntoDocument(markup, appendToDocument = false)
+#### yield renderIntoDocument(markup, appendToDocument = false)
 
 Renders markup to DOM.
 
@@ -20,7 +20,7 @@ Defaults to `false`.
 * *result.container.unmount*: `<function>` same as `result.unmont`
 * *result.instance*: `<Rect.Component>` instance of rendered component
 
-### shallowRender(markup)
+#### shallowRender(markup)
 
 Shallow renders markup to tree structure. Rendered component must be statefull.
 (Stateless components you can render just calling them.)
@@ -30,11 +30,11 @@ Shallow renders markup to tree structure. Rendered component must be statefull.
 * *result.type*: `<string>` type of rendered component
 * *result.props*: `<object>` props of rendered component
 
-### requireComponent(path)
+#### requireComponent(path)
 
 Support function for require files under `src/components/` path.
 
-### createContainer(tagName = 'div', attachToDom = false)
+#### createContainer(tagName = 'div', attachToDom = false)
 
 Creates the container for rendering some markup in DOM.
 Usually you don't need this method.
@@ -238,8 +238,9 @@ const newState = reducer(state, actions.updateNotes(entity, [notePayload]));
 
 Perhaps [`to satisfy`](http://unexpected.js.org/assertions/any/to-satisfy/) and
 [`to have properties`](http://unexpected.js.org/assertions/object/to-have-properties/) methods may be helpful for asserting state structure.
+```
 
-### Test coverage for reducers
+#### Test coverage for reducers
 
 I think only complex logic in reducers should be tested in common cases.
 For example if we have reducer like that:
