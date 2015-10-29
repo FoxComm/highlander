@@ -5,7 +5,7 @@ import TableView from '../table/tableview';
 import TableRow from '../table/row';
 import TableCell from '../table/cell';
 import Link from '../link/link';
-import DateTime from '../datetime/datetime';
+import Date from '../common/datetime';
 import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
 import SectionTitle from '../section-title/section-title';
@@ -14,7 +14,8 @@ import * as orderActions from '../../modules/orders';
 import LocalNav from '../local-nav/local-nav';
 
 @connect(state => ({orders: state.orders}), orderActions)
-export default class Orders extends React.Component {
+export default
+class Orders extends React.Component {
 
   static propTypes = {
     tableColumns: PropTypes.array,
@@ -35,7 +36,7 @@ export default class Orders extends React.Component {
   };
 
   componentDidMount() {
-    this.props.fetchOrdersIfNeeded();
+    this.props.fetchOrders();
   }
 
   handleAddOrderClick() {
@@ -43,16 +44,14 @@ export default class Orders extends React.Component {
   }
 
   render() {
-    const renderRow = (row) => (
-      <TableRow>
+    const renderRow = (row, index) => (
+      <TableRow key={`${index}`}>
         <TableCell>
           <Link to={'order'} params={{order: row.referenceNumber}}>
             {row.referenceNumber}
           </Link>
         </TableCell>
-        <TableCell>
-          <DateTime>{this.createdAt}</DateTime>
-        </TableCell>
+        <TableCell><Date value={row.createdAt}/></TableCell>
         <TableCell>{row.email}</TableCell>
         <TableCell>{row.orderStatus}</TableCell>
         <TableCell>{row.paymentStatus}</TableCell>
@@ -63,7 +62,8 @@ export default class Orders extends React.Component {
     return (
       <div id="orders">
         <div>
-          <SectionTitle title="Orders" subtitle={this.props.orders.total} buttonClickHandler={this.handleAddOrderClick }/>
+          <SectionTitle title="Orders" subtitle={this.props.orders.total}
+                        buttonClickHandler={this.handleAddOrderClick }/>
           <LocalNav>
             <a href="">Lists</a>
             <a href="">Returns</a>

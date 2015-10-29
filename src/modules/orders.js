@@ -16,27 +16,8 @@ export function fetchOrders() {
   };
 }
 
-function shouldFetchOrders(state) {
-  const orders = state.orders;
-  if (!orders) {
-    return true;
-  } else if (orders.isFetching) {
-    return false;
-  }
-  return orders.didInvalidate;
-}
-
-export function fetchOrdersIfNeeded() {
-  return (dispatch, getState) => {
-    if (shouldFetchOrders(getState())) {
-      return dispatch(fetchOrders());
-    }
-  };
-}
-
 const initialState = {
   itFetching: false,
-  didInvalidate: true,
   items: [],
   sortColumn: ''
 };
@@ -45,15 +26,13 @@ const reducer = createReducer({
   [ordersRequest]: (state) => {
     return {
       ...state,
-      isFetching: true,
-      didInvalidate: false
+      isFetching: true
     };
   },
   [ordersSuccess]: (state, payload) => {
     return {
       ...state,
       isFetching: false,
-      didInvalidate: false,
       items: payload
     };
   },
@@ -63,8 +42,7 @@ const reducer = createReducer({
     if (source === fetchOrders) {
       return {
         ...state,
-        isFetching: false,
-        didInvalidate: false
+        isFetching: false
       };
     }
 
