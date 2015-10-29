@@ -79,8 +79,8 @@ object GiftCard {
   case object FullyRedeemed extends Status
 
   sealed trait OriginType
-  case object CustomerPurchase extends OriginType
   case object CsrAppeasement extends OriginType
+  case object CustomerPurchase extends OriginType
   case object FromStoreCredit extends OriginType
 
   object Status extends ADT[Status] {

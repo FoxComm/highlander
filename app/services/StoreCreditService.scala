@@ -7,9 +7,10 @@ import cats.data.Xor
 import cats.implicits._
 
 import models.StoreCredit.Canceled
+import models.StoreCredit.{CsrAppeasement, GiftCardTransfer, ReturnProcess}
 import models._
 import models.StoreCreditSubtypes.scope._
-import responses.StoreCreditResponse
+import responses.{StoreCreditSubTypesResponse, StoreCreditResponse}
 import responses.StoreCreditResponse._
 import responses.StoreCreditBulkResponse._
 import slick.driver.PostgresDriver.api._
@@ -20,6 +21,12 @@ import utils.Slick.implicits._
 
 object StoreCreditService {
   type QuerySeq = StoreCredits.QuerySeq
+
+  def getOriginTypes(implicit db: Database, ec: ExecutionContext): Result[Seq[StoreCreditSubTypesResponse.Root]] = {
+    StoreCreditSubtypes.select { subTypes ⇒
+      DbResult.good(StoreCreditSubTypesResponse.build(StoreCredit.OriginType.types.toSeq, subTypes))
+    }
+  }
 
   def findAllByCustomer(customerId: Int)
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
