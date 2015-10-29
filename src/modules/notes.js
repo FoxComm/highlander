@@ -7,7 +7,7 @@ import { assoc, dissoc } from 'sprout-data';
 import { updateItems } from './state-helpers';
 
 const receiveNotes = createAction('NOTES_RECEIVE', (entity, notes) => [entity, notes]);
-const updateNotes = createAction('NOTES_UPDATE', (entity, notes) => [entity, notes]);
+export const updateNotes = createAction('NOTES_UPDATE', (entity, notes) => [entity, notes]);
 const noteRemoved = createAction('NOTES_REMOVED', (entity, id) => [entity, id]);
 const notesFailed = createAction('NOTES_FAILED', (entity, err) => [entity, err]);
 export const startDeletingNote = createAction('NOTES_START_DELETING', (entity, id) => [entity, id]);
