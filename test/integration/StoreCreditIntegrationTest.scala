@@ -151,7 +151,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
     "GET /v1/store-credits/:id/transactions" - {
       "returns the list of adjustments" in new Fixture {
         val response = GET(s"v1/store-credits/${storeCredit.id}/transactions")
-        val adjustments = response.as[StoreCreditAdjustmentsResponse.Root#ResponseSeq].result
+        val adjustments = response.as[StoreCreditAdjustmentsResponse.Root#ResponseMetadataSeq].result
 
         response.status must ===(StatusCodes.OK)
         adjustments.size must === (1)
@@ -167,7 +167,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         val adjustment3 = StoreCredits.auth(storeCredit, Some(payment.id), 2).run().futureValue
 
         val response = GET(s"v1/store-credits/${storeCredit.id}/transactions?sortBy=-id&from=2&size=2")
-        val adjustments = response.as[StoreCreditAdjustmentsResponse.Root#ResponseSeq]
+        val adjustments = response.as[StoreCreditAdjustmentsResponse.Root#ResponseMetadataSeq]
 
         response.status must ===(StatusCodes.OK)
         adjustments.result.size must === (1)
@@ -215,7 +215,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
         // Ensure that cancel adjustment is automatically created
         val transactionsRep = GET(s"v1/store-credits/${storeCredit.id}/transactions")
-        val adjustments = transactionsRep.as[StoreCreditAdjustmentsResponse.Root#ResponseSeq]
+        val adjustments = transactionsRep.as[StoreCreditAdjustmentsResponse.Root#ResponseMetadataSeq]
           .result
 
         response.status must ===(StatusCodes.OK)

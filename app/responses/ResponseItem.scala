@@ -1,5 +1,5 @@
 package responses
 
 trait ResponseItem {
-  type ResponseSeq = ResponseWithFailuresAndMetadata[Seq[this.type]]
+  type ResponseMetadataSeq = ResponseWithFailuresAndMetadata[Seq[this.type]]
 }

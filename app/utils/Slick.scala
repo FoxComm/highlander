@@ -145,7 +145,7 @@ object Slick {
       def asResponseFuture(implicit db: Database, ec: ExecutionContext): Future[ResponseWithMetadata[A]] = {
         metadata.total match {
           case None              ⇒
-            for (res ← result.transactionally.run())
+            for (res ← result.run())
               yield ResponseWithMetadata(
                 res,
                 ResponseMetadata(
@@ -159,7 +159,7 @@ object Slick {
 
           case Some(totalFuture) ⇒
             for {
-              res   ← result.transactionally.run()
+              res   ← result.run()
               total ← totalFuture
             } yield ResponseWithMetadata(
               res,
@@ -194,7 +194,6 @@ object Slick {
 
     def invalidSortColumn(name: String): ColumnOrdered[AnyRef] = {
       throw new IllegalArgumentException(s"Invalid sort column: $name")
-      null // just to make it compilable
     }
 
     final case class QueryWithMetadata[E, U, C[_]](query: Query[E, U, C], metadata: QueryMetadata) {

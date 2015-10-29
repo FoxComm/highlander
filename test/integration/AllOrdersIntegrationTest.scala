@@ -67,7 +67,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       val responseJson = GET(s"v1/orders")
       responseJson.status must === (StatusCodes.OK)
 
-      val allOrders = responseJson.as[AllOrders.Root#ResponseSeq].result
+      val allOrders = responseJson.as[AllOrders.Root#ResponseMetadataSeq].result
       allOrders.size must === (1)
 
       val actual = allOrders.head
