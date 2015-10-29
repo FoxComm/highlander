@@ -142,6 +142,10 @@ final case class StripeRuntimeException[E <: StripeException](exception: E) exte
   val description = List(exception.getMessage)
 }
 
+final case class AlreadySavedForLater(customerId: Int, skuId: Int) extends Failure {
+  override def description = List(s"Customer with id=$customerId already has SKU with id=$skuId saved for later")
+}
+
 object Util {
   def searchTerm[A](a: A): String = a match {
     case Order ⇒ "referenceNumber"

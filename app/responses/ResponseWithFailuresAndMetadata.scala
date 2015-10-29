@@ -58,5 +58,6 @@ object ResponseWithFailuresAndMetadata {
   }
 
   type BulkOrderUpdateResponse = ResponseWithFailuresAndMetadata[Seq[AllOrders.Root]]
+  type SavedForLater = ResponseWithFailuresAndMetadata[Seq[SaveForLaterResponse.Root]]
 }
 
