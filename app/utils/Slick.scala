@@ -11,7 +11,7 @@ import slick.driver.PostgresDriver._
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.{GetResult, JdbcResultConverterDomain, SetParameter, StaticQuery ⇒ Q, StaticQueryInvoker, StreamingInvokerAction}
 
-import slick.lifted.{Ordered, Query}
+import slick.lifted.{ColumnOrdered, Ordered, Query}
 import slick.profile.{SqlAction, SqlStreamingAction}
 import slick.relational.{CompiledMapping, ResultConverter}
 import slick.util.SQLBuilder
@@ -192,6 +192,10 @@ object Slick {
       pagedQueryOpt.getOrElse(query)
     }
 
+    def invalidSortColumn(name: String): ColumnOrdered[AnyRef] = {
+      throw new IllegalArgumentException(s"Invalid sort column: $name")
+      null // just to make it compilable
+    }
 
     final case class QueryWithMetadata[E, U, C[_]](query: Query[E, U, C], metadata: QueryMetadata) {
 
@@ -228,7 +232,7 @@ object Slick {
         sortAndPage: SortAndPage): QueryWithMetadata[E, U, C] = {
 
         // size > 0 costraint is defined in SortAndPage
-        val total = sortAndPage.size map { _ ⇒ query.length.result.run() }
+        val total = sortAndPage.size.map { _ ⇒ query.length.result.run() }
         val pageNo = for {
           from ← sortAndPage.from
           size ← sortAndPage.size

@@ -46,7 +46,7 @@ object OrderQueries {
         case "customer_modality"          ⇒ if(s.asc) customer.modality.asc          else customer.modality.desc
         case "customer_isGuest"           ⇒ if(s.asc) customer.isGuest.asc           else customer.isGuest.desc
         case "customer_createdAt"         ⇒ if(s.asc) customer.createdAt.asc         else customer.createdAt.desc
-        case _                           ⇒ order.id.asc
+        case other                        ⇒ invalidSortColumn(other)
       }
     }
 

@@ -30,7 +30,7 @@ object StoreCreditAdjustmentsService {
           case "availableBalance" ⇒ if(s.asc) storeCreditAdj.availableBalance.asc else storeCreditAdj.availableBalance.desc
           case "status"           ⇒ if(s.asc) storeCreditAdj.status.asc           else storeCreditAdj.status.desc
           case "createdAt"        ⇒ if(s.asc) storeCreditAdj.createdAt.asc        else storeCreditAdj.createdAt.desc
-          case _                  ⇒ storeCreditAdj.id.asc
+          case other              ⇒ invalidSortColumn(other)
         }
       }
       queryWithMetadata.result.map {

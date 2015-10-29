@@ -88,7 +88,7 @@ object GiftCardAdjustments extends TableQueryWithId[GiftCardAdjustment, GiftCard
         case "availableBalance" ⇒ if(s.asc) giftCardAdj.availableBalance.asc else giftCardAdj.availableBalance.desc
         case "status"           ⇒ if(s.asc) giftCardAdj.status.asc           else giftCardAdj.status.desc
         case "createdAt"        ⇒ if(s.asc) giftCardAdj.createdAt.asc        else giftCardAdj.createdAt.desc
-        case _                  ⇒ giftCardAdj.id.asc
+        case other              ⇒ invalidSortColumn(other)
       }
     }
 

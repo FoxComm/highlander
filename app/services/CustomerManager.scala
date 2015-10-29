@@ -49,7 +49,7 @@ object CustomerManager {
         case "modality"          ⇒ if(s.asc) customer.modality.asc           else customer.modality.desc
         case "isGuest"           ⇒ if(s.asc) customer.isGuest.asc            else customer.isGuest.desc
         case "createdAt"         ⇒ if(s.asc) customer.createdAt.asc          else customer.createdAt.desc
-        case _                   ⇒ customer.id.asc
+        case other               ⇒ invalidSortColumn(other)
       }
     }
 

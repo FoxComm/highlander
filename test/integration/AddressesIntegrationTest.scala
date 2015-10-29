@@ -2,7 +2,6 @@ import scala.concurrent.Future
 import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 
 import models.{Addresses, Customer, Customers, OrderShippingAddresses, Orders, Regions}
-import responses.ResponseWithFailuresAndMetadata
 import util.IntegrationTestBase
 import util.SlickSupport.implicits._
 import utils.Seeds.Factories

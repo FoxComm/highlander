@@ -118,10 +118,10 @@ trait SortingAndPaging[T <: ResponseItem] extends MockitoSugar { this: Integrati
       responseList.status must === (StatusCodes.BadRequest)
     }
 
-    "ignore invalid sortBy param" in new SortingAndPagingFixture {
+    "error on invalid sortBy param" in new SortingAndPagingFixture {
       val responseList = GET(s"$uriPrefix?sortBy=3242&from=3&size=10")
 
-      responseList.status must === (StatusCodes.OK)
+      responseList.status must === (StatusCodes.BadRequest)
     }
   }
 
