@@ -235,10 +235,11 @@ Tests for reducers are very simple.
 const newState = reducer(state, actions.updateNotes(entity, [notePayload]));
 
 // do any assertions on newState
+```
 
 Perhaps [`to satisfy`](http://unexpected.js.org/assertions/any/to-satisfy/) and
 [`to have properties`](http://unexpected.js.org/assertions/object/to-have-properties/) methods may be helpful for asserting state structure.
-```
+
 
 #### Test coverage for reducers
 
