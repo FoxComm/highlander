@@ -1,11 +1,6 @@
-'use strict';
-
-require('testdom')('<html><body></body></html>');
-
-const path = require('path');
 
 describe('Buttons', function() {
-  let Buttons = require(path.resolve('src/components/common/buttons.jsx'));
+  const Buttons = requireComponent('common/buttons.jsx');
 
   it('should render DefaultButton', function() {
     const props = {

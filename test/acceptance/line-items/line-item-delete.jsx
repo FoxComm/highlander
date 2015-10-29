@@ -1,6 +1,5 @@
 
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
 const order = require('../orders/order-sample.json');
 
 describe('LineItemDelete', function() {

@@ -1,6 +1,5 @@
 
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
 
 describe('ContentBox', function() {
   const ContentBox = requireComponent('content-box/content-box.jsx');

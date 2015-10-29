@@ -1,9 +1,6 @@
 
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
-import ShallowTestUtils from 'react-shallow-testutils';
 import moment from 'moment';
-import ReactDOM from 'react-dom';
 
 describe('Countdown', function() {
   const Countdown = requireComponent('countdown/countdown.jsx');

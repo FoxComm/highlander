@@ -1,6 +1,5 @@
 
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
 
 describe('OrderDetails', function() {
   const OrderDetails = requireComponent('orders/details.jsx');
