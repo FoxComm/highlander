@@ -3,8 +3,6 @@ import java.time.Instant
 import akka.http.scaladsl.model.StatusCodes
 import scala.concurrent.Future
 
-import akka.testkit.TestActorRef
-
 import Extensions._
 import models._
 import responses.{ResponseWithFailuresAndMetadata, RmaResponse}
