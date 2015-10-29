@@ -109,4 +109,18 @@
     text-align: center;
     font-weight: 700;
   }
+
+  & input[type=checkbox][disabled] + label > span {
+    border-color: @color-decor9;
+    background: @color-decor12;
+  }
+
+  & input[type=checkbox][disabled]:checked + label > span:before {
+    color: @color-decor9;
+  }
+
+  & input[type=checkbox][disabled]:checked:hover + label > span {
+    border-color: @color-decor9;
+    background: @color-decor12;
+  }
 }
