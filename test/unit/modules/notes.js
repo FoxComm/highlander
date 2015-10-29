@@ -18,7 +18,6 @@ describe('Notes module', function() {
     id: 2, body: 'updated'
   };
 
-
   context('async actions', function() {
 
     function notesUri(entity, id = void 0) {
