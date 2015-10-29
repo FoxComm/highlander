@@ -50,18 +50,25 @@ describe('Notes module', function() {
   });
 
   context('reducer', function() {
-    it('should update exists notes', function() {
-      const state = {
-        [entity.entityType]: {
-          [entity.entityId]: {
-            notes: notesPayload
-          }
+    const state = {
+      [entity.entityType]: {
+        [entity.entityId]: {
+          notes: notesPayload
         }
-      };
+      }
+    };
 
+    it('should update exists notes', function() {
       const newState = reducer(state, actions.updateNotes(entity, [notePayload]));
 
       expect(_.get(newState, [entity.entityType, entity.entityId, 'notes', 1]), 'to satisfy', notePayload);
+    });
+
+    it('should remove notes', function() {
+      const newState = reducer(state, actions.noteRemoved(entity, 1));
+
+      expect(_.get(newState, [entity.entityType, entity.entityId, 'notes']), 'to have length', 1);
+      expect(_.get(newState, [entity.entityType, entity.entityId, 'notes']), 'to equal', [notesPayload[1]]);
     });
   });
 });

@@ -3,12 +3,12 @@
 import _ from 'lodash';
 import Api from '../lib/api';
 import { createAction, createReducer } from 'redux-act';
-import { assoc, dissoc } from 'sprout-data';
+import { assoc, dissoc, update } from 'sprout-data';
 import { updateItems } from './state-helpers';
 
 const receiveNotes = createAction('NOTES_RECEIVE', (entity, notes) => [entity, notes]);
 export const updateNotes = createAction('NOTES_UPDATE', (entity, notes) => [entity, notes]);
-const noteRemoved = createAction('NOTES_REMOVED', (entity, id) => [entity, id]);
+export const noteRemoved = createAction('NOTES_REMOVED', (entity, id) => [entity, id]);
 const notesFailed = createAction('NOTES_FAILED', (entity, err) => [entity, err]);
 export const startDeletingNote = createAction('NOTES_START_DELETING', (entity, id) => [entity, id]);
 export const stopDeletingNote = createAction('NOTES_STOP_DELETING', (entity, id) => [entity, id]);
@@ -82,9 +82,7 @@ const reducer = createReducer({
     });
   },
   [noteRemoved]: (state, [{entityType, entityId}, id]) => {
-    const restNotes = _.reject(state[entityType][entityId].notes, {id});
-
-    return assoc(state, [entityType, entityId, 'notes'], restNotes);
+    return update(state, [entityType, entityId, 'notes'], _.reject, {id});
   },
   [startDeletingNote]: (state, [{entityType, entityId}, id]) => {
     return assoc(state, [entityType, entityId, 'noteIdToDelete'], id);
