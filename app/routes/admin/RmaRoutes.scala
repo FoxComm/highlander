@@ -11,7 +11,7 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 
 import models._
 import payloads._
-import services.RmaService
+import services.{LockAwareRmaUpdater, RmaService}
 
 import responses.FullOrder.DisplayLineItem
 import responses.CustomerResponse.{Root ⇒ Customer}
@@ -76,13 +76,13 @@ object RmaRoutes {
           }
         } ~
         (post & path("lock") & pathEnd) {
-          good {
-            genericRmaMock
+          goodOrFailures {
+            LockAwareRmaUpdater.lock(refNum, admin)
           }
         } ~
         (post & path("unlock") & pathEnd) {
-          good {
-            genericRmaMock
+          goodOrFailures {
+            LockAwareRmaUpdater.unlock(refNum)
           }
         }
       }
