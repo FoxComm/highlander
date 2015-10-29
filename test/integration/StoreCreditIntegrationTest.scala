@@ -73,30 +73,15 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
   // paging and sorting API end
 
   "StoreCredits" - {
-    "GET /v1/gift-cards/types" - {
-      "should return all GC types" in {
+    "GET /v1/store-credits/types" - {
+      "should return all SC types and related subtypes" in new Fixture {
         val response = GET(s"v1/store-credits/types")
-        val root = response.as[Seq[StoreCredit.OriginType]]
-
         response.status must ===(StatusCodes.OK)
-        root must ===(Seq(CsrAppeasement, GiftCardTransfer, ReturnProcess))
-      }
-    }
 
-    "GET /v1/gift-cards/subtypes/:type" - {
-      "should return all GC subtypes for csrAppeasement" in new Fixture {
-        val response = GET(s"v1/store-credits/subtypes/csrAppeasement")
-        val root = response.as[Seq[StoreCreditSubtype]]
-
-        response.status must ===(StatusCodes.OK)
-        root.head must ===(scSubType)
-      }
-
-      "should return error on invalid subtype" in {
-        val response = GET(s"v1/gift-cards/subtypes/donkeyAppeasement")
-
-        response.status must ===(StatusCodes.BadRequest)
-        response.errors must ===(InvalidFieldFailure("originType").description)
+        val root = response.as[Seq[StoreCreditSubTypesResponse.Root]]
+        root.size must === (StoreCredit.OriginType.types.size)
+        root.head.originType must === (StoreCredit.CsrAppeasement)
+        root.head.subTypes.head must === (scSubType)
       }
     }
 

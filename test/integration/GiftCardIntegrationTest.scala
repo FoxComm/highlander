@@ -66,24 +66,14 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
   "GiftCards" - {
     "GET /v1/gift-cards/types" - {
-      "should return all GC types" in {
+      "should return all GC types and related sub-types" in new Fixture {
         val response = GET(s"v1/gift-cards/types")
         response.status must ===(StatusCodes.OK)
-        response.as[Seq[GiftCard.OriginType]] must ===(Seq(CsrAppeasement, CustomerPurchase, FromStoreCredit))
-      }
-    }
 
-    "GET /v1/gift-cards/subtypes/:type" - {
-      "should return all GC subtypes for csrAppeasement" in new Fixture {
-        val response = GET(s"v1/gift-cards/subtypes/csrAppeasement")
-        response.status must ===(StatusCodes.OK)
-        response.as[Seq[GiftCardSubtype]].head must ===(gcSubType)
-      }
-
-      "should return error on invalid subtype" in {
-        val response = GET(s"v1/gift-cards/subtypes/donkeyAppeasement")
-        response.status must ===(StatusCodes.BadRequest)
-        response.errors must ===(InvalidFieldFailure("originType").description)
+        val root = response.as[Seq[GiftCardSubTypesResponse.Root]]
+        root.size must === (GiftCard.OriginType.types.size)
+        root.head.originType must === (GiftCard.CsrAppeasement)
+        root.head.subTypes.head must === (gcSubType)
       }
     }
 
@@ -198,7 +188,6 @@ class GiftCardIntegrationTest extends IntegrationTestBase
         response.errors must ===(GeneralFailure("Quantity got 25, expected 20 or less").description)
       }
     }
-
 
     "GET /v1/gift-cards/:code" - {
       "finds a gift card by code" in new Fixture {

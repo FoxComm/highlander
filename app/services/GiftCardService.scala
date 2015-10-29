@@ -11,7 +11,7 @@ import models._
 import models.GiftCard.{FromStoreCredit, CsrAppeasement, CustomerPurchase}
 import models.GiftCard.Canceled
 import models.GiftCardSubtypes.scope._
-import responses.{GiftCardResponse, CustomerResponse, StoreAdminResponse}
+import responses.{GiftCardSubTypesResponse, GiftCardResponse, CustomerResponse, StoreAdminResponse}
 import responses.GiftCardResponse._
 import responses.GiftCardBulkResponse._
 import slick.driver.PostgresDriver.api._
@@ -28,15 +28,10 @@ object GiftCardService {
   type Account = Customer :+: StoreAdmin :+: CNil
   type QuerySeq = GiftCards.QuerySeq
 
-  def getOriginTypes: Seq[GiftCard.OriginType] = GiftCard.OriginType.types.toSeq
-
-  def getSubTypes(originType: String)(implicit db: Database, ec: ExecutionContext): Result[Seq[GiftCardSubtype]] = {
-    GiftCard.OriginType.read(originType) match {
-      case Some(CsrAppeasement)   ⇒ GiftCardSubtypes.csrAppeasements.select(DbResult.good)
-      case Some(CustomerPurchase) ⇒ GiftCardSubtypes.customerPurchases.select(DbResult.good)
-      case Some(FromStoreCredit)  ⇒ GiftCardSubtypes.fromStoreCredits.select(DbResult.good)
-      case _                      ⇒ Result.failure(InvalidFieldFailure("originType"))
-    }
+  def getOriginTypes(implicit db: Database, ec: ExecutionContext): Result[Seq[GiftCardSubTypesResponse.Root]] = {
+    GiftCardSubtypes.select({ subTypes ⇒
+      DbResult.good(GiftCardSubTypesResponse.build(GiftCard.OriginType.types.toSeq, subTypes))
+    })
   }
 
   def findAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {

@@ -10,7 +10,7 @@ import models.StoreCredit.Canceled
 import models.StoreCredit.{CsrAppeasement, GiftCardTransfer, ReturnProcess}
 import models._
 import models.StoreCreditSubtypes.scope._
-import responses.StoreCreditResponse
+import responses.{StoreCreditSubTypesResponse, StoreCreditResponse}
 import responses.StoreCreditResponse._
 import responses.StoreCreditBulkResponse._
 import slick.driver.PostgresDriver.api._
@@ -22,14 +22,9 @@ import utils.Slick.implicits._
 object StoreCreditService {
   type QuerySeq = StoreCredits.QuerySeq
 
-  def getOriginTypes: Seq[StoreCredit.OriginType] = StoreCredit.OriginType.types.toSeq
-
-  def getSubTypes(originType: String)(implicit db: Database, ec: ExecutionContext): Result[Seq[StoreCreditSubtype]] = {
-    StoreCredit.OriginType.read(originType) match {
-      case Some(CsrAppeasement)   ⇒ StoreCreditSubtypes.csrAppeasements.select(DbResult.good)
-      case Some(GiftCardTransfer) ⇒ StoreCreditSubtypes.giftCardTransfers.select(DbResult.good)
-      case Some(ReturnProcess)    ⇒ StoreCreditSubtypes.returnProcesses.select(DbResult.good)
-      case _                      ⇒ Result.failure(InvalidFieldFailure("originType"))
+  def getOriginTypes(implicit db: Database, ec: ExecutionContext): Result[Seq[StoreCreditSubTypesResponse.Root]] = {
+    StoreCreditSubtypes.select { subTypes ⇒
+      DbResult.good(StoreCreditSubTypesResponse.build(StoreCredit.OriginType.types.toSeq, subTypes))
     }
   }
 
