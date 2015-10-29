@@ -1,4 +1,4 @@
-package services
+package services.orders
 
 import scala.concurrent.ExecutionContext
 
@@ -6,6 +6,7 @@ import cats.data.Xor
 import models.{Order, OrderAssignment, OrderAssignments, Orders, StoreAdmin, StoreAdmins}
 import responses.ResponseWithFailuresAndMetadata
 import responses.ResponseWithFailuresAndMetadata.BulkOrderUpdateResponse
+import services._
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.Slick._

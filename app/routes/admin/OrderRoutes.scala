@@ -11,6 +11,7 @@ import models.GiftCard.giftCardCodeRegex
 import models._
 import payloads._
 import services._
+import services.orders._
 import slick.driver.PostgresDriver.api._
 import utils.Http._
 import utils.Slick.DbResult

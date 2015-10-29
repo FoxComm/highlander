@@ -15,6 +15,7 @@ import org.scalatest.mock.MockitoSugar
 import payloads.CreateAddressPayload
 
 import responses.{ResponseWithFailuresAndMetadata, CustomerResponse}
+import services.orders.OrderPaymentUpdater
 import services.{CannotUseInactiveCreditCard, CreditCardManager, GeneralFailure, NotFoundFailure404,
 Result, StripeRuntimeException, CustomerEmailNotUnique}
 import util.IntegrationTestBase
@@ -352,7 +353,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
           thenReturn(Result.good(mock[Card]))
 
         val order = Orders.save(Factories.cart.copy(customerId = customer.id)).run().futureValue
-        services.OrderPaymentUpdater.addCreditCard(order.refNum, creditCard.id).futureValue
+        OrderPaymentUpdater.addCreditCard(order.refNum, creditCard.id).futureValue
 
         val payload = payloads.EditCreditCard(holderName = Some("Bob"))
         val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
