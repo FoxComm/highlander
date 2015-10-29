@@ -59,7 +59,7 @@ object RmaRoutes {
           }
         }
       } ~
-      pathPrefix("rmas" / """([a-zA-Z0-9-_]*)""".r) { refNum ⇒
+      pathPrefix("rmas" / Rma.rmaRefNumRegex) { refNum ⇒
         (get & pathEnd) {
           goodOrFailures {
             RmaService.getByRefNum(refNum)

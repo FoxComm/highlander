@@ -17,12 +17,11 @@ create index rmas_order_id_and_status on rmas (order_id, status);
 
 create function set_rmas_reference_number() returns trigger as $$
 declare
-    reference_number reference_number default 0;
-    prefix character(2) default 'BR';
-    start_number integer default 10000;
+    order_rma_count integer default 0;
 begin
     if length(new.reference_number) = 0 then
-        new.reference_number = concat(prefix, start_number + new.id);
+        select count(*) into order_rma_count from rmas where order_refnum = new.order_refnum;
+        new.reference_number = concat(new.order_refnum, '.', order_rma_count + 1);
     end if;
     return new;
 end;

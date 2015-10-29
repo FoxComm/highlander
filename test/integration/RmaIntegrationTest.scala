@@ -128,8 +128,8 @@ class RmaIntegrationTest extends IntegrationTestBase
 
     "POST /v1/rmas/:refNum/lock" - {
       "successfully locks an RMA" in {
-        Orders.save(Factories.order).run().futureValue
-        val rma = Rmas.save(Factories.rma).run().futureValue
+        Orders.save(Factories.order.copy(referenceNumber = "ABC-123")).run().futureValue
+        val rma = Rmas.save(Factories.rma.copy(referenceNumber = "ABC-123.1")).run().futureValue
         StoreAdmins.save(Factories.storeAdmin).run().futureValue
 
         val response = POST(s"v1/rmas/${rma.referenceNumber}/lock")
@@ -145,8 +145,8 @@ class RmaIntegrationTest extends IntegrationTestBase
       }
 
       "refuses to lock an already locked RMA" in {
-        Orders.save(Factories.order).run().futureValue
-        val rma = Rmas.save(Factories.rma.copy(locked = true)).run().futureValue
+        Orders.save(Factories.order.copy(referenceNumber = "ABC-123")).run().futureValue
+        val rma = Rmas.save(Factories.rma.copy(referenceNumber = "ABC-123.1", locked = true)).run().futureValue
 
         val response = POST(s"v1/rmas/${rma.referenceNumber}/lock")
         response.status must === (StatusCodes.BadRequest)
@@ -155,8 +155,8 @@ class RmaIntegrationTest extends IntegrationTestBase
 
       "avoids race condition" in {
         StoreAdmins.save(Factories.storeAdmin).run().futureValue
-        Orders.save(Factories.order).run().futureValue
-        val rma = Rmas.save(Factories.rma).run().futureValue
+        Orders.save(Factories.order.copy(referenceNumber = "ABC-123")).run().futureValue
+        val rma = Rmas.save(Factories.rma.copy(referenceNumber = "ABC-123.1")).run().futureValue
 
         def request = POST(s"v1/rmas/${rma.referenceNumber}/lock")
 
@@ -169,8 +169,8 @@ class RmaIntegrationTest extends IntegrationTestBase
     "POST /v1/rmas/:refNum/unlock" - {
       "unlocks an RMA" in {
         StoreAdmins.save(Factories.storeAdmin).run().futureValue
-        Orders.save(Factories.order).run().futureValue
-        val rma = Rmas.save(Factories.rma).run().futureValue
+        Orders.save(Factories.order.copy(referenceNumber = "ABC-123")).run().futureValue
+        val rma = Rmas.save(Factories.rma.copy(referenceNumber = "ABC-123.1")).run().futureValue
 
         POST(s"v1/rmas/${rma.referenceNumber}/lock")
 
@@ -182,8 +182,8 @@ class RmaIntegrationTest extends IntegrationTestBase
       }
 
       "refuses to unlock an already unlocked RMA" in {
-        Orders.save(Factories.order).run().futureValue
-        val rma = Rmas.save(Factories.rma).run().futureValue
+        Orders.save(Factories.order.copy(referenceNumber = "ABC-123")).run().futureValue
+        val rma = Rmas.save(Factories.rma.copy(referenceNumber = "ABC-123.1")).run().futureValue
         val response = POST(s"v1/rmas/${rma.referenceNumber}/unlock")
 
         response.status must === (StatusCodes.BadRequest)
@@ -196,9 +196,11 @@ class RmaIntegrationTest extends IntegrationTestBase
     val (customer, order, rma) = (for {
       customer ← Customers.save(Factories.customer)
       order ← Orders.save(Factories.order.copy(
+        referenceNumber = "ABC-123",
         status = Order.RemorseHold,
         remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
       rma ← Rmas.save(Factories.rma.copy(
+        referenceNumber = "ABC-123.1",
         orderId = order.id,
         orderRefNum = order.referenceNumber,
         customerId = Some(customer.id)))
