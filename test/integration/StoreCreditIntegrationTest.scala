@@ -81,7 +81,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         val root = response.as[Seq[StoreCreditSubTypesResponse.Root]]
         root.size must === (StoreCredit.OriginType.types.size)
         root.map(_.originType) must === (StoreCredit.OriginType.types.toSeq)
-        root.head.subTypes.head must === (scSubType)
+        root.filter(_.originType == scSubType.originType).head.subTypes must === (Seq(scSubType))
       }
     }
 

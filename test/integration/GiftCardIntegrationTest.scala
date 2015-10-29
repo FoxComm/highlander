@@ -73,7 +73,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
         val root = response.as[Seq[GiftCardSubTypesResponse.Root]]
         root.size must === (GiftCard.OriginType.types.size)
         root.map(_.originType) must === (GiftCard.OriginType.types.toSeq)
-        root.head.subTypes.head must === (gcSubType)
+        root.filter(_.originType == gcSubType.originType).head.subTypes must === (Seq(gcSubType))
       }
     }
 
