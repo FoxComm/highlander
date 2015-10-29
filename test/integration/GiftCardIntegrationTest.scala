@@ -162,9 +162,9 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       "successfully creates multiple gift cards from payload" in new Fixture {
         val response = POST(s"v1/gift-cards", payloads.GiftCardBulkCreateByCsr(quantity = 5, balance = 256,
           reasonId = 1))
-        val root = response.as[Seq[GiftCardBulkResponse.ItemResult]]
-
         response.status must ===(StatusCodes.OK)
+
+        val root = response.as[Seq[GiftCardBulkResponse.ItemResult]]
         root.length must ===(5)
       }
 

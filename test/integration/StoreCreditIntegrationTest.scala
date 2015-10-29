@@ -105,9 +105,9 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         "responds with the new storeCredit" in new Fixture {
           val payload = payloads.CreateManualStoreCredit(amount = 25, reasonId = scReason.id)
           val response = POST(s"v1/customers/${customer.id}/payment-methods/store-credit", payload)
-          val sc = response.as[responses.StoreCreditResponse.Root]
-
           response.status must === (StatusCodes.OK)
+
+          val sc = response.as[responses.StoreCreditResponse.Root]
           sc.status must === (StoreCredit.Active)
 
           // Check that proper link is created
@@ -120,9 +120,9 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       "succeeds with valid subTypeId" in new Fixture {
         val payload = payloads.CreateManualStoreCredit(amount = 25, reasonId = scReason.id, subTypeId = Some(1))
         val response = POST(s"v1/customers/${customer.id}/payment-methods/store-credit", payload)
-        val sc = response.as[responses.StoreCreditResponse.Root]
-
         response.status must === (StatusCodes.OK)
+
+        val sc = response.as[responses.StoreCreditResponse.Root]
         sc.subTypeId must === (Some(1))
       }
 
@@ -155,8 +155,8 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       "returns list of store credits" in new Fixture {
         val response = GET(s"v1/customers/${customer.id}/payment-methods/store-credit")
         val storeCredits = Seq(storeCredit, scSecond)
-
         response.status must ===(StatusCodes.OK)
+
         val credits = response.as[ResponseWithFailuresAndMetadata[Seq[StoreCredit]]]
         credits.result.map(_.id).sorted must ===(storeCredits.map(_.id).sorted)
       }
@@ -179,9 +179,9 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
     "GET /v1/store-credits/:id/transactions" - {
       "returns the list of adjustments" in new Fixture {
         val response = GET(s"v1/store-credits/${storeCredit.id}/transactions")
-        val adjustments = response.as[ResponseWithFailuresAndMetadata[Seq[StoreCreditAdjustmentsResponse.Root]]].result
-
         response.status must ===(StatusCodes.OK)
+
+        val adjustments = response.as[ResponseWithFailuresAndMetadata[Seq[StoreCreditAdjustmentsResponse.Root]]].result
         adjustments.size must === (1)
 
         val firstAdjustment = adjustments.head
@@ -195,11 +195,10 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         val adjustment3 = StoreCredits.auth(storeCredit, Some(payment.id), 2).run().futureValue
 
         val response = GET(s"v1/store-credits/${storeCredit.id}/transactions?sortBy=-id&from=2&size=2")
-        val adjustments = response.as[ResponseWithFailuresAndMetadata[Seq[StoreCreditAdjustmentsResponse.Root]]]
-
         response.status must ===(StatusCodes.OK)
-        adjustments.result.size must === (1)
 
+        val adjustments = response.as[ResponseWithFailuresAndMetadata[Seq[StoreCreditAdjustmentsResponse.Root]]]
+        adjustments.result.size must === (1)
         adjustments.checkSortingAndPagingMetadata("-id", 2, 2)
 
         val firstAdjustment = adjustments.result.head
