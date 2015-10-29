@@ -87,7 +87,6 @@ object StoreCredit {
     def types = sealerate.values[OriginType]
   }
 
-  val originTypeRegex = """([a-zA-Z]*)""".r
   val activeStatuses = Set[Status](Active)
 
   def validateStatusReason(status: Status, reason: Option[Int]): ValidatedNel[Failure, Unit] = {

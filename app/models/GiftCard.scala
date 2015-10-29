@@ -92,7 +92,6 @@ object GiftCard {
   }
 
   val giftCardCodeRegex = """([a-zA-Z0-9-_]*)""".r
-  val originTypeRegex = """([a-zA-Z]*)""".r
 
   def buildAppeasement(payload: payloads.GiftCardCreateByCsr, originId: Int): GiftCard = {
     GiftCard(
