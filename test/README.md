@@ -15,20 +15,20 @@ If second parameter is `true` rendered markup will be appended to document,
 so you can get some elements via calling `document.getElementById(...)` for example.
 Defaults to `false`.
 
-* `result.container` `<DOM Node>` container where was rendered document
-* `result.unmount` `<function>` method for unmount rendered markup from DOM
-* `result.container.unmount` `<function>` same as `result.unmont`
-* `result.instance` `<Rect.Component>` instance of rendered component
+* *result.container*: `<DOM Node>` container where was rendered document
+* *result.unmount*: `<function>` method for unmount rendered markup from DOM
+* *result.container.unmount*: `<function>` same as `result.unmont`
+* *result.instance*: `<Rect.Component>` instance of rendered component
 
 ### shallowRender(markup)
 
 Shallow renders markup to tree structure. Rendered component must be statefull.
 (Stateless components you can render just calling them.)
 
-* `result.instance` `<React.Component>` instance of rendered component
-* `result.unmount` `<function>` method for unmount rendered markup
-* `result.type` `<string>` type of rendered component
-* `result.props` <object>` props of rendered component
+* *result.instance*: `<React.Component>` instance of rendered component
+* *result.unmount*: `<function>` method for unmount rendered markup
+* *result.type*: `<string>` type of rendered component
+* *result.props*: <object>` props of rendered component
 
 ### requireComponent(path)
 
@@ -39,7 +39,7 @@ Support function for require files under `src/components/` path.
 Creates the container for rendering some markup in DOM.
 Usually you don't need this method.
 
-* `result.unmount` `<function>` method for unmount rendered markup from DOM
+* *result.unmount*: `<function>` method for unmount rendered markup from DOM
 
 ## Components
 
