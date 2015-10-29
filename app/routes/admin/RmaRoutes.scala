@@ -30,8 +30,6 @@ object RmaRoutes {
     mat: Materializer, storeAdminAuth: AsyncAuthenticator[StoreAdmin], apis: Apis) = {
 
     authenticateBasicAsync(realm = "admin", storeAdminAuth) { admin ⇒
-      val adminResponse = Some(StoreAdminResponse.build(admin))
-      val genericRmaMock = buildMockRma(id = 1, refNum = "ABC-123", orderId = 1, admin = adminResponse)
 
       pathPrefix("rmas") {
         (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
@@ -55,7 +53,8 @@ object RmaRoutes {
         } ~
         (post & entity(as[RmaCreatePayload]) & pathEnd) { payload ⇒
           good {
-            genericRmaMock.copy(orderId = payload.orderId)
+            buildMockRma(id = 1, refNum = "ABC-123", orderId = payload.orderId,
+              admin = Some(StoreAdminResponse.build(admin)))
           }
         }
       } ~
@@ -67,7 +66,7 @@ object RmaRoutes {
         } ~
         (patch & path("status") & entity(as[RmaUpdateStatusPayload]) & pathEnd) { payload ⇒
           good {
-            genericRmaMock
+            buildMockRma(id = 1, refNum = "ABC-123", orderId = 1, admin = Some(StoreAdminResponse.build(admin)))
           }
         } ~
         (post & path("lock") & pathEnd) {
