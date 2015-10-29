@@ -11,7 +11,7 @@ import models.Order.FulfillmentStarted
 import models.{OrderLockEvents, StoreAdmins, Order, Orders}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.ScalaFutures
-import services.OrderUpdater
+import services.orders.OrderUpdater
 import slick.driver.PostgresDriver.api._
 import util.{DbTestSupport, IntegrationTestBase}
 import utils.Seeds.Factories

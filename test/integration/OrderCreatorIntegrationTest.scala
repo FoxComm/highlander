@@ -2,7 +2,8 @@ import akka.http.scaladsl.model.StatusCodes
 import models.{Order, Customer, Customers}
 import payloads.CreateOrder
 import responses.FullOrder.Root
-import services.{CustomerHasCart, OrderCreator, NotFoundFailure404}
+import services.orders.OrderCreator
+import services.{CustomerHasCart, NotFoundFailure404}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import util.SlickSupport.implicits._
