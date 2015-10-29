@@ -2,6 +2,7 @@
 
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
+import { haveType } from '../state-helpers';
 
 const receiveCustomer = createAction('CUSTOMER_RECEIVE', (id, customer) => [id, customer]);
 const failCustomer = createAction('CUSTOMER_FAIL', (id, err, source) => [id, err, source]);
@@ -68,7 +69,7 @@ const reducer = createReducer({
       [id]: {
         err: null,
         isFetching: false,
-        details
+        details: haveType(details, 'customer')
       }
     };
   },

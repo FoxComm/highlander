@@ -25,11 +25,10 @@ export default class Customer extends React.Component {
     this.props.fetchCustomer(customer);
   }
 
-
   renderChildren() {
     return React.Children.map(this.props.children, function (child) {
       return React.cloneElement(child, {
-        customer: this.props.details
+        entity: this.props.details
       });
     }.bind(this));
   }
@@ -49,7 +48,7 @@ export default class Customer extends React.Component {
             <li><a href="">Store Credit</a></li>
             <li><a href="">Notifications</a></li>
             <li><a href="">Reviews</a></li>
-            <li><a href="">Notes</a></li>
+            <li><Link to="customer-notes" params={this.props.params}>Notes</Link></li>
             <li><a href="">Activity Trail</a></li>
           </ul>
           <div>
