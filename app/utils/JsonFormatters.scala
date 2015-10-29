@@ -1,7 +1,6 @@
 package utils
 
-import models.{CreditCardCharge, GiftCard, GiftCardAdjustment, Order, OrderLineItem,
-Shipment, StoreCredit, StoreCreditAdjustment}
+import models._
 import models.rules.{Condition, QueryStatement}
 import org.json4s.ext.DateTimeSerializer
 import org.json4s.jackson
@@ -22,6 +21,10 @@ object JsonFormatters {
     StoreCredit.Status.jsonFormat +
     StoreCredit.OriginType.jsonFormat +
     StoreCreditAdjustment.Status.jsonFormat +
+    Rma.Status.jsonFormat +
+    Rma.RmaType.jsonFormat +
+    RmaLineItem.InventoryDisposition.jsonFormat +
+    RmaReason.ReasonType.jsonFormat +
     CreditCardCharge.Status.jsonFormat +
     CountryWithRegions.jsonFormat +
     QueryStatement.Comparison.jsonFormat +

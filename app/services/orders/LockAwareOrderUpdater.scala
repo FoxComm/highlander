@@ -1,18 +1,21 @@
-package services
+package services.orders
 
 import java.time.{Duration, Instant}
-import utils.CustomDirectives
-import utils.CustomDirectives.SortAndPage
-import utils.time._
+
 import scala.concurrent.ExecutionContext
+
 import models.Order.RemorseHold
 import models.OrderLockEvents.scope._
 import models._
-import responses.{StoreAdminResponse, FullOrder, FullOrderWithWarnings}
+import responses.{FullOrder, FullOrderWithWarnings}
+import services._
 import slick.driver.PostgresDriver.api._
+import utils.CustomDirectives
+import utils.CustomDirectives.SortAndPage
 import utils.Slick.UpdateReturning._
 import utils.Slick._
 import utils.Slick.implicits._
+import utils.time._
 
 object LockAwareOrderUpdater {
 

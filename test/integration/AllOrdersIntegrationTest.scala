@@ -10,7 +10,8 @@ import models._
 import payloads.{BulkAssignment, BulkUpdateOrdersPayload}
 import responses.ResponseWithFailuresAndMetadata.BulkOrderUpdateResponse
 import responses.{StoreAdminResponse, FullOrder, AllOrders}
-import services.{OrderStatusTransitionNotAllowed, LockedFailure, OrderQueries, NotFoundFailure404}
+import services.orders.OrderQueries
+import services.{OrderStatusTransitionNotAllowed, LockedFailure, NotFoundFailure404}
 import util.IntegrationTestBase
 import utils.Seeds
 import utils.Seeds.Factories

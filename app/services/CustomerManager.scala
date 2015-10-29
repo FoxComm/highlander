@@ -1,7 +1,10 @@
 package services
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{Future, ExecutionContext}
 
+import cats.data.Validated.{Valid, Invalid}
+import cats.data.{XorT, Xor}
+import cats.implicits._
 import models._
 import models.{Customers, StoreAdmin, Customer}
 import models.Customers.scope._
@@ -11,7 +14,8 @@ import utils.CustomDirectives.SortAndPage
 import utils.Slick.DbResult
 import utils.Slick.implicits._
 import utils.Slick.UpdateReturning._
-import payloads.{CreateCustomerPayload, UpdateCustomerPayload}
+import payloads.{CreateCustomerPayload, UpdateCustomerPayload, ActivateCustomerPayload}
+import utils.jdbc._
 
 object CustomerManager {
 
@@ -68,24 +72,74 @@ object CustomerManager {
     }
   }
 
-  def create(payload: CreateCustomerPayload)(implicit ec: ExecutionContext, db: Database): Result[Root] = {
+  def create(payload: CreateCustomerPayload)
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
     val customer = Customer.buildFromPayload(payload)
-    val qq = Customers.save(customer).run()
-    qq.flatMap { case(a) ⇒ Result.right(build(a)) }
+
+    def result = {
+      withUniqueConstraint {
+        Customers.save(customer).run()
+      } { e ⇒ CustomerEmailNotUnique }.flatMap {
+        case Xor.Right(c) ⇒ Result.good(build(c))
+        case Xor.Left(e) ⇒ Result.failure(e)
+      }
+    }
+
+    (for {
+      _    ← ResultT.fromXor(customer.validate.toXor)
+      root ← ResultT(result)
+    } yield root).value
   }
 
-  def updateFromPayload(customerId: Int, payload: UpdateCustomerPayload)
+  def update(customerId: Int, payload: UpdateCustomerPayload)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
-    val finder = Customers.filter(_.id === customerId)
-    finder.selectOneForUpdate { customer ⇒
-      val updated = finder.map { c ⇒ (c.name, c.email, c.phoneNumber) }
-        .updateReturning(Customers.map(identity),
-            (payload.name.fold(customer.name)(Some(_)),
-              payload.email.getOrElse(customer.email),
-              payload.phoneNumber.fold(customer.phoneNumber)(Some(_)))).head
 
-      updated.flatMap(updCustomer ⇒ DbResult.good(build(updCustomer)))
+    def result = {
+      val finder = Customers.filter(_.id === customerId)
+      val result = withUniqueConstraint {
+        finder.selectOneForUpdate { customer ⇒
+          val updated = finder.map { c ⇒ (c.name, c.email, c.phoneNumber) }
+            .updateReturning(Customers.map(identity),
+              (payload.name.fold(customer.name)(Some(_)),
+                payload.email.getOrElse(customer.email),
+                payload.phoneNumber.fold(customer.phoneNumber)(Some(_)))).head
+
+          updated.flatMap(updCustomer ⇒ DbResult.good(build(updCustomer)))
+        }
+      } { notUnique ⇒ CustomerEmailNotUnique }
+
+      result.flatMap(_.fold(Result.failure(_), Future.successful(_)))
     }
+
+    (for {
+      _ ← ResultT.fromXor(payload.validate.toXor)
+      root ← ResultT(result)
+    } yield root).value
+  }
+
+
+  def activate(customerId: Int, payload: ActivateCustomerPayload)
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
+
+    def result = {
+      val finder = Customers.filter(_.id === customerId)
+      val result = withUniqueConstraint {
+        finder.selectOneForUpdate { customer ⇒
+          val updated = finder.map { c ⇒ (c.name, c.isGuest) }
+            .updateReturning(Customers.map(identity),
+              (Some(payload.name), false)).head
+
+          updated.flatMap(updCustomer ⇒ DbResult.good(build(updCustomer)))
+        }
+      } { notUnique ⇒ CustomerEmailNotUnique }
+
+      result.flatMap(_.fold(Result.failure(_), Future.successful(_)))
+    }
+
+    (for {
+      _    ← ResultT.fromXor(payload.validate.toXor)
+      root ← ResultT(result)
+    } yield root).value
   }
 }
 

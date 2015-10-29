@@ -1,6 +1,7 @@
 package services
 
 import models._
+import services.orders.OrderUpdater
 
 import util.IntegrationTestBase
 import utils.Seeds.Factories

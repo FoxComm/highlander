@@ -3,7 +3,7 @@ package services
 import scala.collection.immutable
 
 import com.stripe.exception.StripeException
-import models.{CreditCard, GiftCard, Order, StoreCredit}
+import models.{CreditCard, GiftCard, Order, Rma, StoreCredit}
 import services.Util.searchTerm
 import utils.friendlyClassName
 
@@ -35,8 +35,8 @@ final case class StripeFailure(exception: StripeException) extends Failure {
   override def description = List(exception.getMessage)
 }
 
-case object InvalidOriginTypeFailure extends Failure {
-  override def description = List("Invalid origin type provided")
+final case class InvalidFieldFailure(name: String) extends Failure {
+  override def description = List(s"Invalid value for field '${name}' provided")
 }
 
 case object CVCFailure extends Failure {
@@ -73,6 +73,10 @@ final case class CustomerHasCart(id: Int) extends Failure {
 
 final case class OrderStatusTransitionNotAllowed(from: Order.Status, to: Order.Status, refNum: String) extends Failure {
   override def description = List(s"Transition from $from to $to is not allowed for order with refNum=$refNum")
+}
+
+case object CustomerEmailNotUnique extends Failure {
+  override def description = List("The email address you entered is already in use")
 }
 
 final case class OrderMustBeCart(referenceNumber: String) extends Failure {
@@ -145,6 +149,7 @@ final case class StripeRuntimeException[E <: StripeException](exception: E) exte
 object Util {
   def searchTerm[A](a: A): String = a match {
     case Order ⇒ "referenceNumber"
+    case Rma ⇒ "referenceNumber"
     case GiftCard ⇒ "code"
     case _ ⇒ "id"
   }

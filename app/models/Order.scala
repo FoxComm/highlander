@@ -11,6 +11,7 @@ import scala.concurrent.ExecutionContext
 import com.pellucid.sealerate
 import models.Order.{Cart, Status}
 import monocle.macros.GenLens
+import services.orders.OrderTotaler
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType

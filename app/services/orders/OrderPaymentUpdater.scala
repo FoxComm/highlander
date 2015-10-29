@@ -1,15 +1,14 @@
-package services
+package services.orders
 
 import scala.concurrent.ExecutionContext
 
-import models.{GiftCard, PaymentMethod, CreditCard, Orders, OrderPayment, OrderPayments, GiftCards, StoreCredits,
-StoreCredit, CreditCards}
 import models.OrderPayments.scope._
+import models.{CreditCard, CreditCards, GiftCard, GiftCards, OrderPayment, OrderPayments, Orders, PaymentMethod, StoreCredit, StoreCredits}
 import payloads.{GiftCardPayment, StoreCreditPayment}
 import responses.FullOrder
+import services._
 import slick.driver.PostgresDriver.api._
-import utils.Slick.DbResult
-import utils.Slick._
+import utils.Slick.{DbResult, _}
 import utils.Slick.implicits._
 
 object OrderPaymentUpdater {

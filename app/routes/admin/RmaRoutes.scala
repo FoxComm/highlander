@@ -11,6 +11,8 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 
 import models._
 import payloads._
+import services.RmaService
+
 import responses.FullOrder.DisplayLineItem
 import responses.CustomerResponse.{Root ⇒ Customer}
 import responses.StoreAdminResponse
@@ -33,29 +35,21 @@ object RmaRoutes {
 
       pathPrefix("rmas") {
         (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-          good {
-            buildMockSequence(adminResponse)
+          goodOrFailures {
+            RmaService.findAll
           }
         } ~
         (get & path("customer" / IntNumber)) { customerId ⇒
           (pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            good {
-              val customer = Customer(
-                id = customerId,
-                email = "donkey@donkeyville.com",
-                disabled = false,
-                blacklisted = false,
-                rank = "Donkey",
-                createdAt = Instant.now())
-
-              buildMockSequence(admin = None, customer = Some(customer))
+            goodOrFailures {
+              RmaService.findByCustomerId(customerId)
             }
           }
         } ~
         (get & path("order" / Order.orderRefNumRegex)) { refNum ⇒
           (pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            good {
-              buildMockSequence(adminResponse)
+            goodOrFailures {
+              RmaService.findByOrderRef(refNum)
             }
           }
         } ~
@@ -67,8 +61,8 @@ object RmaRoutes {
       } ~
       pathPrefix("rmas" / """([a-zA-Z0-9-_]*)""".r) { refNum ⇒
         (get & pathEnd) {
-          good {
-            genericRmaMock
+          goodOrFailures {
+            RmaService.getByRefNum(refNum)
           }
         } ~
         (patch & entity(as[RmaUpdatePayload]) & pathEnd) { payload ⇒
@@ -77,11 +71,6 @@ object RmaRoutes {
           }
         } ~
         (patch & path("status") & entity(as[RmaUpdateStatusPayload]) & pathEnd) { payload ⇒
-          good {
-            genericRmaMock
-          }
-        } ~
-        (post & path("complete") & pathEnd) {
           good {
             genericRmaMock
           }

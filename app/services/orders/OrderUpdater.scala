@@ -1,4 +1,4 @@
-package services
+package services.orders
 
 import scala.concurrent.ExecutionContext
 
@@ -6,14 +6,15 @@ import cats.data.Validated.{Invalid, Valid}
 import cats.data.Xor
 import cats.data.Xor.{Left, Right}
 import models._
-import payloads.{UpdateShippingMethod, CreateAddressPayload, UpdateAddressPayload}
+import payloads.{CreateAddressPayload, UpdateAddressPayload, UpdateShippingMethod}
 import responses.ResponseWithFailuresAndMetadata.BulkOrderUpdateResponse
-import responses.{ResponseWithFailuresAndMetadata, FullOrder}
+import responses.{FullOrder, ResponseWithFailuresAndMetadata}
+import services._
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives
 import utils.CustomDirectives.SortAndPage
-import utils.Slick.{DbResult, _}
 import utils.Slick.implicits._
+import utils.Slick.{DbResult, _}
 
 object OrderUpdater {
 

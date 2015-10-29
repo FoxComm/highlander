@@ -74,7 +74,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
   "StoreCredits" - {
     "GET /v1/gift-cards/types" - {
-      "should return all GC types" in new Fixture {
+      "should return all GC types" in {
         val response = GET(s"v1/store-credits/types")
         val root = response.as[Seq[StoreCredit.OriginType]]
 
@@ -92,11 +92,11 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         root.head must ===(scSubType)
       }
 
-      "should return error on invalid subtype" in new Fixture {
+      "should return error on invalid subtype" in {
         val response = GET(s"v1/gift-cards/subtypes/donkeyAppeasement")
 
         response.status must ===(StatusCodes.BadRequest)
-        response.errors must ===(InvalidOriginTypeFailure.description)
+        response.errors must ===(InvalidFieldFailure("originType").description)
       }
     }
 

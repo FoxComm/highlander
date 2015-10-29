@@ -35,7 +35,7 @@ object GiftCardService {
       case Some(CsrAppeasement)   ⇒ GiftCardSubtypes.csrAppeasements.select(DbResult.good)
       case Some(CustomerPurchase) ⇒ GiftCardSubtypes.customerPurchases.select(DbResult.good)
       case Some(FromStoreCredit)  ⇒ GiftCardSubtypes.fromStoreCredits.select(DbResult.good)
-      case _                      ⇒ Result.failure(InvalidOriginTypeFailure)
+      case _                      ⇒ Result.failure(InvalidFieldFailure("originType"))
     }
   }
 

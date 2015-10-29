@@ -1,4 +1,4 @@
-package services
+package services.orders
 
 import scala.concurrent.ExecutionContext
 

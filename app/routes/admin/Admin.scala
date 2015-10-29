@@ -93,7 +93,7 @@ object Admin {
             }
           }
         } ~
-        pathPrefix("gift-card" / Segment) { code ⇒
+        pathPrefix("gift-card" / GiftCard.giftCardCodeRegex) { code ⇒
           (get & pathEnd) {
             goodOrFailures {
               NoteManager.forGiftCard(code)
@@ -132,6 +132,30 @@ object Admin {
             (patch & entity(as[payloads.UpdateNote]) & pathEnd) { payload ⇒
               goodOrFailures {
                 NoteManager.updateCustomerNote(id, noteId, admin, payload)
+              }
+            } ~
+            (delete & pathEnd) {
+              nothingOrFailures {
+                NoteManager.deleteNote(noteId, admin)
+              }
+            }
+          }
+        } ~
+        pathPrefix("rma" / Rma.rmaRefNumRegex) { refNum ⇒
+          (get & pathEnd) {
+            goodOrFailures {
+              NoteManager.forRma(refNum)
+            }
+          } ~
+          (post & entity(as[payloads.CreateNote]) & pathEnd) { payload ⇒
+            goodOrFailures {
+              NoteManager.createRmaNote(refNum, admin, payload)
+            }
+          } ~
+          path(IntNumber) { noteId ⇒
+            (patch & entity(as[payloads.UpdateNote]) & pathEnd) { payload ⇒
+              goodOrFailures {
+                NoteManager.updateRmaNote(refNum, noteId, admin, payload)
               }
             } ~
             (delete & pathEnd) {

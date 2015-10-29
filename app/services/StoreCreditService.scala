@@ -29,7 +29,7 @@ object StoreCreditService {
       case Some(CsrAppeasement)   ⇒ StoreCreditSubtypes.csrAppeasements.select(DbResult.good)
       case Some(GiftCardTransfer) ⇒ StoreCreditSubtypes.giftCardTransfers.select(DbResult.good)
       case Some(ReturnProcess)    ⇒ StoreCreditSubtypes.returnProcesses.select(DbResult.good)
-      case _                      ⇒ Result.failure(InvalidOriginTypeFailure)
+      case _                      ⇒ Result.failure(InvalidFieldFailure("originType"))
     }
   }
 
