@@ -47,7 +47,7 @@ object Rma {
   implicit val RmaTypeColumnType: JdbcType[RmaType] with BaseTypedType[RmaType] = RmaType.slickColumn
   implicit val StatusTypeColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
 
-  val rmaRefNumRegex = """([a-zA-Z0-9-_]*)""".r
+  val rmaRefNumRegex = """([a-zA-Z0-9-_.]*)""".r
 }
 
 class Rmas(tag: Tag) extends GenericTable.TableWithLock[Rma](tag, "rmas")  {

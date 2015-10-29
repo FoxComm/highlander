@@ -13,13 +13,11 @@ import utils.Slick.implicits._
 
 object RmaResponse {
   val mockLineItems = LineItems(
-    /*
     skus = Seq(
       DisplayLineItem(sku = "SKU-YAX", status = OrderLineItem.Shipped),
       DisplayLineItem(sku = "SKU-ABC", status = OrderLineItem.Shipped),
       DisplayLineItem(sku = "SKU-ZYA", status = OrderLineItem.Shipped)
     )
-    */
   )
 
   val mockPayment = DisplayPayment(
@@ -45,6 +43,17 @@ object RmaResponse {
     storeAdmin: Option[StoreAdmin] = None,
     payment: Option[DisplayPayment] = None) extends ResponseItem
 
+  final case class RootExpanded(
+    id: Int,
+    referenceNumber: String,
+    order: Option[FullOrder.Root],
+    rmaType: Rma.RmaType,
+    status: Rma.Status,
+    lineItems: LineItems,
+    customer: Option[Customer] = None,
+    storeAdmin: Option[StoreAdmin] = None,
+    payment: Option[DisplayPayment] = None) extends ResponseItem
+
   final case class LineItems(
     skus: Seq[FullOrder.DisplayLineItem] = Seq.empty,
     giftCards: Seq[GiftCardResponse.Root] = Seq.empty,
@@ -54,6 +63,17 @@ object RmaResponse {
     fetchRmaDetails(rma).map { case (customer, storeAdmin) ⇒
       build(
         rma = rma,
+        customer = customer.map(CustomerResponse.build(_)),
+        storeAdmin = storeAdmin.map(StoreAdminResponse.build)
+      )
+    }
+  }
+
+  def fromRmaExpanded(rma: Rma)(implicit ec: ExecutionContext, db: Database): DBIO[RootExpanded] = {
+    fetchRmaDetailsExpanded(rma).map { case (customer, storeAdmin, fullOrder) ⇒
+      buildExpanded(
+        rma = rma,
+        order = fullOrder,
         customer = customer.map(CustomerResponse.build(_)),
         storeAdmin = storeAdmin.map(StoreAdminResponse.build)
       )
@@ -74,13 +94,6 @@ object RmaResponse {
       lineItems = mockLineItems,
       payment = Some(mockPayment))
 
-  def buildMockSequence(admin: Option[StoreAdmin] = None, customer: Option[Customer] = None): Seq[Root] =
-    Seq(
-      buildMockRma(id = 1, refNum = "ABC-123", orderId = 1, admin = admin, customer = customer),
-      buildMockRma(id = 2, refNum = "ABC-456", orderId = 1, admin = admin, customer = customer),
-      buildMockRma(id = 3, refNum = "ABC-789", orderId = 1, admin = admin, customer = customer)
-    )
-
   def build(rma: Rma, customer: Option[Customer] = None, storeAdmin: Option[StoreAdmin] = None): Root = {
     Root(id = rma.id,
       referenceNumber = rma.refNum,
@@ -94,17 +107,51 @@ object RmaResponse {
       payment = None)
   }
 
-  private def fetchRmaDetails(rma: Rma)(implicit ec: ExecutionContext) = {
+  def buildExpanded(rma: Rma, order: Option[FullOrder.Root] = None,
+    customer: Option[Customer] = None, storeAdmin: Option[StoreAdmin] = None): RootExpanded = {
+    RootExpanded(id = rma.id,
+      referenceNumber = rma.refNum,
+      order = order,
+      rmaType = rma.rmaType,
+      status = rma.status,
+      customer = customer,
+      storeAdmin = storeAdmin,
+      lineItems = mockLineItems,
+      payment = None)
+  }
+
+  private def fetchRmaDetails(rma: Rma)(implicit ec: ExecutionContext, db: Database) = {
     for {
       customer ← rma.customerId match {
         case Some(id) ⇒ Customers.findById(id).extract.one
-        case None     ⇒ lift(None)
+        case _        ⇒ lift(None)
       }
 
       storeAdmin ← rma.storeAdminId match {
         case Some(id) ⇒ StoreAdmins.findById(id).extract.one
-        case None     ⇒ lift(None)
+        case _        ⇒ lift(None)
       }
     } yield (customer, storeAdmin)
+  }
+
+  private def fetchRmaDetailsExpanded(rma: Rma)(implicit ec: ExecutionContext, db: Database) = {
+    for {
+      order ← Orders.findById(rma.orderId).extract.one
+
+      fullOrder ← order match {
+        case Some(o) ⇒ FullOrder.fromOrder(o).map(Some(_))
+        case _       ⇒ lift(None)
+      }
+
+      customer ← rma.customerId match {
+        case Some(id) ⇒ Customers.findById(id).extract.one
+        case _        ⇒ lift(None)
+      }
+
+      storeAdmin ← rma.storeAdminId match {
+        case Some(id) ⇒ StoreAdmins.findById(id).extract.one
+        case _        ⇒ lift(None)
+      }
+    } yield (customer, storeAdmin, fullOrder)
   }
 }
