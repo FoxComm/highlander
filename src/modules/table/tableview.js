@@ -11,7 +11,7 @@ const initialState = {
 };
 
 const reducer = createReducer({
-  [setStart]: (value) => {
+  [setStart]: (state, value) => {
     return {
       ...state,
       start: value
