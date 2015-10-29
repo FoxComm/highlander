@@ -65,11 +65,6 @@ object RmaRoutes {
             RmaService.getByRefNum(refNum)
           }
         } ~
-        (patch & entity(as[RmaUpdatePayload]) & pathEnd) { payload ⇒
-          good {
-            genericRmaMock.copy(orderId = payload.orderId)
-          }
-        } ~
         (patch & path("status") & entity(as[RmaUpdateStatusPayload]) & pathEnd) { payload ⇒
           good {
             genericRmaMock
