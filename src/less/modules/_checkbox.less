@@ -59,8 +59,8 @@
   display: inline-block;
 
   & input[type=checkbox] {
-    width: 2rem;
-    height: 2rem;
+    width: pxtorem(24px);
+    height: pxtorem(24px);
     margin: 0;
     padding: 0;
     font-size: 1rem;
@@ -69,26 +69,41 @@
 
   & input[type=checkbox] + label {
     display: inline-block;
-    margin-left: -2rem;
-    line-height: 2rem;
+    margin-left: pxtorem(-24px);
+    line-height: pxtorem(24px);
   }
 
   & input[type=checkbox] + label > span {
     display: inline-block;
-    width: 2rem;
-    height: 2rem;
+    width: pxtorem(24px);
+    height: pxtorem(24px);
     margin: 0.25rem 0.5rem 0.25rem 0.25rem;
-    border: 1px solid @color-decor3;
     border-radius: pxtorem(3px);
-    background: @color-decor3;
     vertical-align: bottom;
+    border: 2px solid @color-decor9;
+    background: @color-white;
+  }
+
+  & input[type=checkbox]:hover + label > span {
+    border-color: @color-decor3;
+    background: @color-white;
+  }
+
+  & input[type=checkbox]:checked + label > span {
+    border-color: @color-decor3;
+    background: @color-decor3;
+  }
+
+  & input[type=checkbox]:checked:hover + label > span {
+    border-color: @color-decor4;
+    background: @color-decor4;
   }
 
   & input[type=checkbox]:checked + label > span:before {
     content: '✓';
     display: block;
     width: 1.8rem;
-    color: #fff;
+    color: @color-white;
     font-size: 1.8rem;
     line-height: 2rem;
     text-align: center;
