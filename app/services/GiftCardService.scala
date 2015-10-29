@@ -8,9 +8,10 @@ import cats.implicits._
 
 import shapeless._
 import models._
+import models.GiftCard.{FromStoreCredit, CsrAppeasement, CustomerPurchase}
 import models.GiftCard.Canceled
 import models.GiftCardSubtypes.scope._
-import responses.{GiftCardResponse, CustomerResponse, StoreAdminResponse}
+import responses.{GiftCardSubTypesResponse, GiftCardResponse, CustomerResponse, StoreAdminResponse}
 import responses.GiftCardResponse._
 import responses.GiftCardBulkResponse._
 import slick.driver.PostgresDriver.api._
@@ -26,6 +27,12 @@ object GiftCardService {
 
   type Account = Customer :+: StoreAdmin :+: CNil
   type QuerySeq = GiftCards.QuerySeq
+
+  def getOriginTypes(implicit db: Database, ec: ExecutionContext): Result[Seq[GiftCardSubTypesResponse.Root]] = {
+    GiftCardSubtypes.select({ subTypes ⇒
+      DbResult.good(GiftCardSubTypesResponse.build(GiftCard.OriginType.types.toSeq, subTypes))
+    })
+  }
 
   def findAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
     GiftCards.queryAll.result.map(_.map(GiftCardResponse.build(_)))

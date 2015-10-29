@@ -4,7 +4,7 @@ import scala.util.Random
 import akka.http.scaladsl.model.StatusCodes
 
 import models._
-import models.GiftCard.{Active, OnHold, Canceled}
+import models.GiftCard.{Active, OnHold, Canceled, FromStoreCredit, CustomerPurchase, CsrAppeasement}
 import org.joda.money.CurrencyUnit
 import org.scalatest.BeforeAndAfterEach
 import responses._
@@ -65,6 +65,18 @@ class GiftCardIntegrationTest extends IntegrationTestBase
   // paging and sorting API end
 
   "GiftCards" - {
+    "GET /v1/gift-cards/types" - {
+      "should return all GC types and related sub-types" in new Fixture {
+        val response = GET(s"v1/gift-cards/types")
+        response.status must ===(StatusCodes.OK)
+
+        val root = response.as[Seq[GiftCardSubTypesResponse.Root]]
+        root.size must === (GiftCard.OriginType.types.size)
+        root.map(_.originType) must === (GiftCard.OriginType.types.toSeq)
+        root.filter(_.originType == gcSubType.originType).head.subTypes must === (Seq(gcSubType))
+      }
+    }
+
     "GET /v1/gift-cards" - {
       "returns list of gift cards" in new Fixture {
         val response = GET(s"v1/gift-cards")
@@ -79,9 +91,9 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     "POST /v1/gift-cards" - {
       "successfully creates gift card from payload" in new Fixture {
         val response = POST(s"v1/gift-cards", payloads.GiftCardCreateByCsr(balance = 555, reasonId = 1))
-        val root = response.as[GiftCardResponse.Root]
-
         response.status must ===(StatusCodes.OK)
+
+        val root = response.as[GiftCardResponse.Root]
         root.originType must ===(GiftCard.CsrAppeasement)
         root.currency must ===(Currency.USD)
         root.availableBalance must ===(555)
@@ -140,9 +152,9 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       "successfully creates multiple gift cards from payload" in new Fixture {
         val response = POST(s"v1/gift-cards", payloads.GiftCardBulkCreateByCsr(quantity = 5, balance = 256,
           reasonId = 1))
-        val root = response.as[Seq[GiftCardBulkResponse.ItemResult]]
-
         response.status must ===(StatusCodes.OK)
+
+        val root = response.as[Seq[GiftCardBulkResponse.ItemResult]]
         root.length must ===(5)
       }
 
@@ -176,7 +188,6 @@ class GiftCardIntegrationTest extends IntegrationTestBase
         response.errors must ===(GeneralFailure("Quantity got 25, expected 20 or less").description)
       }
     }
-
 
     "GET /v1/gift-cards/:code" - {
       "finds a gift card by code" in new Fixture {
@@ -355,7 +366,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
   }
 
   trait Fixture {
-    val (customer, admin, giftCard, order, payment, adjustment1, gcSecond) = (for {
+    val (customer, admin, giftCard, order, payment, adjustment1, gcSecond, gcSubType) = (for {
       customer ← Customers.save(Factories.customer)
       order ← Orders.save(Factories.order.copy(customerId = customer.id))
       admin ← StoreAdmins.save(authedStoreAdmin)
@@ -369,7 +380,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
         paymentMethodType = PaymentMethod.GiftCard))
       adjustment1 ← GiftCards.auth(giftCard, Some(payment.id), 10)
       giftCard ← GiftCards.findOneById(giftCard.id)
-    } yield (customer, admin, giftCard.value, order, payment, adjustment1, gcSecond)).run()
+    } yield (customer, admin, giftCard.value, order, payment, adjustment1, gcSecond, gcSubType)).run()
       .futureValue
   }
 }

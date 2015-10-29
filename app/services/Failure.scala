@@ -35,6 +35,10 @@ final case class StripeFailure(exception: StripeException) extends Failure {
   override def description = List(exception.getMessage)
 }
 
+final case class InvalidFieldFailure(name: String) extends Failure {
+  override def description = List(s"Invalid value for field '${name}' provided")
+}
+
 case object CVCFailure extends Failure {
   override def description = List("failed CVC check")
 }
