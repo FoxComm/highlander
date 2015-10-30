@@ -4,6 +4,7 @@ import scala.concurrent.ExecutionContext
 import models.RmaLockEvents.scope._
 import models._
 import responses.RmaResponse
+import responses.RmaLockResponse
 import responses.RmaResponse.Root
 import slick.driver.PostgresDriver.api._
 import utils.Slick.UpdateReturning._
@@ -13,6 +14,21 @@ import utils.Slick.implicits._
 object LockAwareRmaUpdater {
 
   private val updatedRma = Rmas.map(identity)
+
+  def getLockStatus(refNum: String)(implicit db: Database, ec: ExecutionContext): Result[RmaLockResponse.Root] = {
+    val finder = Rmas.findByRefNum(refNum)
+
+    finder.selectOneForUpdate({ rma ⇒
+      val queries = for {
+        event ← RmaLockEvents.findByRma(rma).mostRecentLock.one
+        admin ← event.map(e ⇒ StoreAdmins.findById(e.lockedBy).extract.one).getOrElse(lift(None))
+      } yield (event, admin)
+
+      DbResult.fromDbio(queries.map { case (event, admin) ⇒
+        RmaLockResponse.build(rma, event, admin)
+      })
+    }, checks = Set.empty)
+  }
 
   def lock(refNum: String, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {

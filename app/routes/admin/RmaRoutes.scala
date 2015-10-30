@@ -67,6 +67,11 @@ object RmaRoutes {
             genericRmaMock.copy(status = payload.status)
           }
         } ~
+        (get & path("lock") & pathEnd) {
+          goodOrFailures {
+            LockAwareRmaUpdater.getLockStatus(refNum)
+          }
+        } ~
         (post & path("lock") & pathEnd) {
           goodOrFailures {
             LockAwareRmaUpdater.lock(refNum, admin)

@@ -5,8 +5,8 @@ import scala.concurrent.Future
 
 import Extensions._
 import models._
-import responses.{ResponseWithFailuresAndMetadata, RmaResponse}
-import services.{GeneralFailure, LockedFailure, NotFoundFailure404}
+import responses.{ResponseWithFailuresAndMetadata, RmaResponse, RmaLockResponse}
+import services.{GeneralFailure, LockedFailure, NotFoundFailure404, LockAwareRmaUpdater}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.Seeds.Factories
@@ -123,6 +123,35 @@ class RmaIntegrationTest extends IntegrationTestBase
         val response = GET(s"v1/rmas/ABC-666")
         response.status must ===(StatusCodes.NotFound)
         response.errors must ===(NotFoundFailure404(Rma, "ABC-666").description)
+      }
+    }
+
+    "GET /v1/rmas/:refNum/lock" - {
+      "returns lock info on locked RMA" in {
+        Orders.save(Factories.order.copy(referenceNumber = "ABC-123")).run().futureValue
+        val rma = Rmas.save(Factories.rma.copy(referenceNumber = "ABC-123.1")).run().futureValue
+        val admin = StoreAdmins.save(Factories.storeAdmin).run().futureValue
+
+        LockAwareRmaUpdater.lock("ABC-123.1", admin).futureValue
+
+        val response = GET(s"v1/rmas/${rma.referenceNumber}/lock")
+        response.status must === (StatusCodes.OK)
+
+        val root = response.as[RmaLockResponse.Root]
+        root.isLocked must === (true)
+        root.lock.head.lockedBy.id must === (admin.id)
+      }
+
+      "returns negative lock status on unlocked RMA" in {
+        Orders.save(Factories.order.copy(referenceNumber = "ABC-123")).run().futureValue
+        val rma = Rmas.save(Factories.rma.copy(referenceNumber = "ABC-123.1")).run().futureValue
+
+        val response = GET(s"v1/rmas/${rma.referenceNumber}/lock")
+        response.status must === (StatusCodes.OK)
+
+        val root = response.as[RmaLockResponse.Root]
+        root.isLocked must === (false)
+        root.lock.isEmpty must === (true)
       }
     }
 
