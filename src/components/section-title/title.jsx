@@ -2,22 +2,22 @@
 
 import React, { PropTypes } from 'react';
 
-const Title = (props) => {
-  let subtitle = null;
-
+const subtitle = (props) => {
   if (props.subtitle) {
-    subtitle = (
+    return (
       <span className="fc-section-title-subtitle fc-light">
         &nbsp;
         { props.subtitle }
       </span>
     );
   }
+};
 
+const Title = (props) => {
   return (
     <h1 className="fc-section-title-title">
       { props.title }
-      { subtitle }
+      { subtitle(props) }
     </h1>
   );
 };
