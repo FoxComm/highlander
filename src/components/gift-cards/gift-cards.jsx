@@ -3,8 +3,6 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import TableView from '../tables/tableview';
-import GiftCardStore from '../../stores/gift-cards';
-import GiftCardActions from '../../actions/gift-cards';
 import SectionTitle from '../section-title/section-title';
 import LocalNav from '../local-nav/local-nav';
 import { TabListView, TabView } from '../tabs';

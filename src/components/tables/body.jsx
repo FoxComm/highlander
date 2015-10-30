@@ -1,22 +1,9 @@
 'use strict';
 
 import React, { PropTypes } from 'react';
-import moment from 'moment';
+import { Date } from '../common/datetime';
 import { Link } from '../link';
-import { formatCurrency } from '../../lib/format';
-
-// TODO: We should find a better place for these statuses, but for now just
-// getting rid of reference to OrderStore.
-const orderStatuses = {
-  cart: 'Cart',
-  remorseHold: 'Remorse Hold',
-  manualHold: 'Manual Hold',
-  fraudHold: 'Fraud Hold',
-  fulfillmentStarted: 'Fulfillment Started',
-  canceled: 'Canceled',
-  partiallyShipped: 'Partially Shipped',
-  shipped: 'Shipped'
-};
+import { formatCurrency, orderStatuses, rmaStatuses } from '../../lib/format';
 
 export default class TableBody extends React.Component {
 
@@ -35,7 +22,6 @@ export default class TableBody extends React.Component {
     };
   }
 
-
   convert(field, column, row) {
     let model = column.model || row.model || this.props.model;
     switch(column.type) {
@@ -51,8 +37,9 @@ export default class TableBody extends React.Component {
       }
       case 'image': return <img src={field}/>;
       case 'currency': return formatCurrency(field);
-      case 'date': return <time dateTime={field}>{moment(field).format('MM/DD/YYYY HH:mm:ss')}</time>;
+      case 'date': return <Date value={field}/>;
       case 'orderStatus': return orderStatuses[field];
+      case 'rmaStatus': return rmaStatuses[field];
       default: return typeof field === 'object' ? this.displayObject(field) : field;
     }
   }

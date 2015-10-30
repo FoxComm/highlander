@@ -7,7 +7,7 @@ const DefaultButton = (props) => {
   const {icon, children, ...restProps} = props;
   const buttonProps = {
     ...restProps,
-    className: `fc-btn ${props.className || ''}`
+    className: `fc-btn ${props.className || ''}`.trim()
   };
   return (
     <button {...buttonProps}>
@@ -34,8 +34,13 @@ const IncrementButton = (props) => {
 };
 
 const PrimaryButton = (props) => {
+  const buttonProps = {
+    ...props,
+    className: `fc-btn-primary ${props.className || ''}`
+  };
+
   return (
-    <DefaultButton className='fc-btn-primary'>
+    <DefaultButton {...buttonProps}>
       {props.children}
     </DefaultButton>
   );
