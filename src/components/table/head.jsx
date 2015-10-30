@@ -1,33 +1,47 @@
 'use strict';
 
 import React, { PropTypes } from 'react';
+import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 import TableRow from './row';
 
-const TableHead = (props) => {
-  const renderColumn = (column, index) => {
+class TableHead extends React.Component {
+  static propTypes = {
+    setState: PropTypes.func.isRequired,
+    columns: PropTypes.array.isRequired
+  };
+
+  onHeaderClick(field, event) {
+    event.preventDefault();
+    this.props.setState({
+      sortBy: this.props.sortBy === field ? `-${field}` : `${field}`
+    });
+  }
+
+  @autobind
+  renderColumn(column, index) {
     const classnames = classNames({
       'fc-table-th': true,
-      'sorting': true
+      'sorting': true,
+      'sorting-desc': `${column.field}` === this.props.sortBy,
+      'sorting-asc': `-${column.field}` === this.props.sortBy
     });
     return (
-      <th className={classnames} key={`${column.field}`}>
+      <th className={classnames} key={`${column.field}`} onClick={this.onHeaderClick.bind(this, column.field)}>
         {column.text}
       </th>
     );
-  };
+  }
 
-  return (
-    <thead>
-    <TableRow>
-      {props.columns.map(renderColumn)}
-    </TableRow>
-    </thead>
-  );
-};
-
-TableHead.propTypes = {
-  columns: PropTypes.array.isRequired
-};
+  render() {
+    return (
+      <thead>
+      <TableRow>
+        {this.props.columns.map(this.renderColumn)}
+      </TableRow>
+      </thead>
+    );
+  }
+}
 
 export default TableHead;

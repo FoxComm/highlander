@@ -19,7 +19,7 @@ export default (url, customReducers, customInitialState) => {
 
   const fetch = state => dispatch => {
     dispatch(actionRequest());
-    return Api.get(url, {from: state.from, size: state.size})
+    return Api.get(url, {from: state.from, size: state.size, sortBy: state.sortBy})
       .then(orders => dispatch(actionSuccess(orders)))
       .catch(err => dispatch(actionFail(err, fetch)));
   };
