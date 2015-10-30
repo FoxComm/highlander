@@ -11,11 +11,25 @@ export const actionTypes = {
   SET_FETCH_DATA: 'SET_FETCH_DATA'
 };
 
+/**
+ *  @example for custom action in finite module:
+ *
+ *  import {fetchMeta, actionTypes} from './pagination';
+ *  const fetchSmthSuccessThatRequiresCustomLogic = createAction('DESCRIPTION', null, fetchMeta(actionTypes.FETCH));
+ *
+ *  createReducer({
+ *    [fetchSmthSuccessThatRequiresCustomLogic]: (state, ...) => {
+ *    }
+ *  });
+ */
+export function fetchMeta(paginationType) {
+  return () => ({paginationType});
+}
+
 export function createActions(url, type) {
   const createFetchAction = actionType => {
     return createAction(`${type}_${actionType}`, null, () => ({
-      paginationFor: type,
-      actionType
+      paginationType: actionType
     }));
   };
 
@@ -62,10 +76,10 @@ export function reducer(reducer = state => state) {
       );
     }
 
-    if (action && action.meta && action.meta.paginationFor) {
+    if (action && action.meta && action.meta.paginationType) {
       const payload = action.payload;
 
-      switch (action.meta.actionType) {
+      switch (action.meta.paginationType) {
         case actionTypes.FETCH:
           return {
             ...state,
