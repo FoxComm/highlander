@@ -10,14 +10,12 @@ import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
 import SectionTitle from '../section-title/section-title';
 import { connect } from 'react-redux';
-import { fetch, setState } from '../../modules/orders';
+import * as ordersActions from '../../modules/orders';
 import LocalNav from '../local-nav/local-nav';
 
-@connect(state => ({orders: state.orders}), {fetch, setState})
+@connect(state => ({orders: state.orders}), ordersActions)
 export default class Orders extends React.Component {
   static propTypes = {
-    fetch: PropTypes.func.isRequired,
-    setState: PropTypes.func.isRequired,
     tableColumns: PropTypes.array,
     subNav: PropTypes.array,
     orders: PropTypes.shape({

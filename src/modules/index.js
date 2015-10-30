@@ -13,7 +13,7 @@ const rootReducer = combineReducers({
   router: routerStateReducer,
   giftCards,
   customers,
-  orders: orders.reducer,
+  orders,
   order,
   rmas,
   notes

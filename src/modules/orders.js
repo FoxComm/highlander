@@ -2,4 +2,7 @@
 
 import paginate from '../modules/pagination';
 
-export default paginate('/orders');
+const {reducer, fetch, setState} = paginate('/orders');
+
+export {fetch, setState};
+export default reducer;
