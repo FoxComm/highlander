@@ -6,7 +6,7 @@ import { createAction, createReducer } from 'redux-act';
 export default (url, customReducers, customInitialState) => {
   const actionRequest = createAction(`REQUEST ${url}`);
   const actionSuccess = createAction(`SUCCESS ${url}`);
-  const actionFail = createAction(`FAILED ${url}`, (err, source) => ({err, source}));
+  const actionFail = createAction(`FAILED ${url}`, (err, source) => [err, source]);
   const actionSetState = createAction(`SET_STATE ${url}`);
 
   const setState = (state, newState) => dispatch => {
