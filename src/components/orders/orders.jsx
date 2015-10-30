@@ -10,10 +10,10 @@ import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
 import SectionTitle from '../section-title/section-title';
 import { connect } from 'react-redux';
-import { fetch, setFrom, setSize } from '../../modules/orders';
+import { fetch, setState } from '../../modules/orders';
 import LocalNav from '../local-nav/local-nav';
 
-@connect(state => ({orders: state.orders}), {fetch, setFrom, setSize})
+@connect(state => ({orders: state.orders}), {fetch, setState})
 export default class Orders extends React.Component {
 
   static propTypes = {
@@ -76,8 +76,7 @@ export default class Orders extends React.Component {
             columns={this.props.tableColumns}
             data={this.props.orders}
             renderRow={renderRow}
-            setFrom={this.props.setFrom}
-            setSize={this.props.setSize}
+            setState={this.props.setState}
             />
         </div>
       </div>

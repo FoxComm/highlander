@@ -4,22 +4,26 @@ import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import { LeftButton, RightButton } from '../common/buttons'
 
-export default class TablePaginator extends React.Component {
+class TablePaginator extends React.Component {
   static propTypes = {
     total: PropTypes.number.isRequired,
     from: PropTypes.number.isRequired,
     size: PropTypes.number.isRequired,
-    setFrom: PropTypes.func.isRequired
+    setState: PropTypes.func.isRequired
   };
 
   @autobind
   onPrevPageClick() {
-    this.props.setFrom(this.props.from - this.props.size);
+    this.props.setState({
+      from: this.props.from - this.props.size
+    });
   }
 
   @autobind
   onNextPageClick() {
-    this.props.setFrom(this.props.from + this.props.size);
+    this.props.setState({
+      from: this.props.from + this.props.size
+    });
   }
 
   render() {
@@ -39,3 +43,5 @@ export default class TablePaginator extends React.Component {
     );
   }
 }
+
+export default TablePaginator;

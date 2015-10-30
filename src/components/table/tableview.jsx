@@ -12,11 +12,11 @@ const TableView = (props) => {
         total={props.data.total}
         from={props.data.from}
         size={props.data.size}
-        setFrom={props.setFrom}
+        setState={props.setState}
         />
     );
   const tablePageSize = tableNeedsPagination && (
-      <TablePageSize setSize={props.setSize}/>
+      <TablePageSize setState={props.setState}/>
     );
   return (
     <div className="fc-tableview">
@@ -39,8 +39,9 @@ const TableView = (props) => {
 TableView.propTypes = {
   columns: PropTypes.array.isRequired,
   data: PropTypes.object.isRequired,
-  renderRow: React.PropTypes.func,
-  paginator: React.PropTypes.bool
+  setState: PropTypes.func.isRequired,
+  renderRow: PropTypes.func,
+  paginator: PropTypes.bool
 };
 
 TableView.defaultProps = {

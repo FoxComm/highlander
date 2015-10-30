@@ -4,14 +4,12 @@ import Api from '../lib/api';
 import { createAction, createReducer } from 'redux-act';
 
 export default (url, customReducers, customInitialState) => {
-  const actionRequest = createAction(`request ${url}`);
-  const actionSuccess = createAction(`success ${url}`);
-  const actionFail = createAction(`failed ${url}`, (err, source) => ({err, source}));
-  const actionSetFrom = createAction(`set from ${url}`);
-  const actionSetSize = createAction(`set size ${url}`);
+  const actionRequest = createAction(`REQUEST ${url}`);
+  const actionSuccess = createAction(`SUCCESS ${url}`);
+  const actionFail = createAction(`FAILED ${url}`, (err, source) => ({err, source}));
+  const actionSetState = createAction(`SET_STATE ${url}`);
 
-  const setFrom = from => dispatch => dispatch(actionSetFrom(from));
-  const setSize = size => dispatch => dispatch(actionSetSize(size));
+  const setState = newState => dispatch => dispatch(actionSetState(newState));
 
   const fetch = state => dispatch => {
     dispatch(actionRequest());
@@ -46,16 +44,10 @@ export default (url, customReducers, customInitialState) => {
       }
       return state;
     },
-    [actionSetFrom]: (state, from) => {
+    [actionSetState]: (state, newState) => {
       return {
         ...state,
-        from: Math.max(0, Math.min(state.total - 1, from))
-      };
-    },
-    [actionSetSize]: (state, size) => {
-      return {
-        ...state,
-        size
+        ...newState
       };
     }
   }, {
@@ -69,8 +61,7 @@ export default (url, customReducers, customInitialState) => {
 
   return {
     fetch,
-    setFrom,
-    setSize,
+    setState,
     reducer
   };
 };

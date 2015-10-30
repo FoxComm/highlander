@@ -4,14 +4,16 @@ import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import Dropdown from '../dropdown/dropdown';
 
-export default class TablePaginator extends React.Component {
+class TablePaginator extends React.Component {
   static propTypes = {
-    setSize: PropTypes.func.isRequired
+    setState: PropTypes.func.isRequired
   };
 
   @autobind
   onPageSizeChange(value) {
-    this.props.setSize(+value);
+    this.props.setState({
+      size: +value
+    });
   }
 
   render() {
@@ -29,3 +31,5 @@ export default class TablePaginator extends React.Component {
     );
   }
 }
+
+export default TablePaginator;
