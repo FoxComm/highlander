@@ -122,36 +122,18 @@ object RmaResponse {
 
   private def fetchRmaDetails(rma: Rma)(implicit ec: ExecutionContext, db: Database) = {
     for {
-      customer ← rma.customerId match {
-        case Some(id) ⇒ Customers.findById(id).extract.one
-        case _        ⇒ lift(None)
-      }
-
-      storeAdmin ← rma.storeAdminId match {
-        case Some(id) ⇒ StoreAdmins.findById(id).extract.one
-        case _        ⇒ lift(None)
-      }
+      customer ← rma.customerId.map(id ⇒ Customers.findById(id).extract.one).getOrElse(lift(None))
+      storeAdmin ← rma.customerId.map(id ⇒ StoreAdmins.findById(id).extract.one).getOrElse(lift(None))
     } yield (customer, storeAdmin)
   }
 
   private def fetchRmaDetailsExpanded(rma: Rma)(implicit ec: ExecutionContext, db: Database) = {
     for {
       order ← Orders.findById(rma.orderId).extract.one
+      fullOrder ← order.map(o ⇒ FullOrder.fromOrder(o).map(Some(_))).getOrElse(lift(None))
 
-      fullOrder ← order match {
-        case Some(o) ⇒ FullOrder.fromOrder(o).map(Some(_))
-        case _       ⇒ lift(None)
-      }
-
-      customer ← rma.customerId match {
-        case Some(id) ⇒ Customers.findById(id).extract.one
-        case _        ⇒ lift(None)
-      }
-
-      storeAdmin ← rma.storeAdminId match {
-        case Some(id) ⇒ StoreAdmins.findById(id).extract.one
-        case _        ⇒ lift(None)
-      }
+      customer ← rma.customerId.map(id ⇒ Customers.findById(id).extract.one).getOrElse(lift(None))
+      storeAdmin ← rma.customerId.map(id ⇒ StoreAdmins.findById(id).extract.one).getOrElse(lift(None))
     } yield (customer, storeAdmin, fullOrder)
   }
 }
