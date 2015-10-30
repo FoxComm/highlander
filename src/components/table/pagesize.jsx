@@ -12,7 +12,7 @@ class TablePaginator extends React.Component {
 
   static defaultProps = {
     value: 25
-  }
+  };
 
   @autobind
   onPageSizeChange(value) {
