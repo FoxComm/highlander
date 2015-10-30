@@ -14,7 +14,7 @@ const CustomerDetails = (props) => {
   const customer = props.entity;
   return (
     <div className="fc-customer-details">
-      <div className="gutter">
+      <div>
         <h2>Details</h2>
       </div>
       <div className="fc-grid">
