@@ -1,7 +1,13 @@
 
 import _ from 'lodash';
-import reducer, * as actions from '../../../src/modules/notes';
 import nock from 'nock';
+
+const {reducer, ...actions} = importModule('notes.js', [
+  'receiveNotes',
+  'updateNotes',
+  'noteRemoved',
+  'notesFailed'
+]);
 
 describe('Notes module', function() {
 
@@ -40,7 +46,7 @@ describe('Notes module', function() {
 
     it('fetchNotes', function *() {
       const expectedActions = [
-        { type: 'NOTES_RECEIVE', payload: [entity, notesPayload]}
+        { type: actions.receiveNotes, payload: [entity, notesPayload]}
       ];
 
       yield expect(actions.fetchNotes(entity), 'to dispatch actions', expectedActions);
@@ -49,7 +55,7 @@ describe('Notes module', function() {
     it('createNote, editNote', function *() {
       const expectedActions = [
         actions.stopAddingOrEditingNote,
-        { type: 'NOTES_UPDATE', payload: [entity, [notePayload]]}
+        { type: actions.updateNotes, payload: [entity, [notePayload]]}
       ];
 
       yield expect(actions.createNote(entity, notePayload), 'to dispatch actions', expectedActions);

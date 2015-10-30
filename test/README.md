@@ -41,6 +41,10 @@ Usually you don't need this method.
 
 * *result.unmount*: `<function>` method for unmount rendered markup from DOM
 
+#### importModule(path, variablesToExport = [])
+
+Imports redux module under `src/modules/` path and exports private variables that you have defined.
+
 ## Components
 
 There are several approaches for testing React components,
@@ -172,6 +176,20 @@ expect(container.querySelector('.fc-modal')).to.not.equal(null);
 ## Redux modules
 
 There are two things for testing in redux modules - async actions and reducer.
+
+Use `importModule` global function to get redux module if you needed private actions for testing purposes.
+For example.
+
+```es6
+const {reducer, ...actions} = importModule('notes.js', [
+  'receiveNotes',
+  'updateNotes',
+  'noteRemoved',
+  'notesFailed'
+]);
+```
+
+In this example `notes` module has couple of private actions, but second argument allows expose them.
 
 ### Redux async actions
 

@@ -6,10 +6,10 @@ import { createAction, createReducer } from 'redux-act';
 import { assoc, dissoc, update } from 'sprout-data';
 import { updateItems } from './state-helpers';
 
-export const receiveNotes = createAction('NOTES_RECEIVE', (entity, notes) => [entity, notes]);
-export const updateNotes = createAction('NOTES_UPDATE', (entity, notes) => [entity, notes]);
-export const noteRemoved = createAction('NOTES_REMOVED', (entity, id) => [entity, id]);
-export const notesFailed = createAction('NOTES_FAILED', (entity, err) => [entity, err]);
+const receiveNotes = createAction('NOTES_RECEIVE', (entity, notes) => [entity, notes]);
+const updateNotes = createAction('NOTES_UPDATE', (entity, notes) => [entity, notes]);
+const noteRemoved = createAction('NOTES_REMOVED', (entity, id) => [entity, id]);
+const notesFailed = createAction('NOTES_FAILED', (entity, err) => [entity, err]);
 export const startDeletingNote = createAction('NOTES_START_DELETING', (entity, id) => [entity, id]);
 export const stopDeletingNote = createAction('NOTES_STOP_DELETING', (entity, id) => [entity, id]);
 export const startAddingNote = createAction('NOTES_START_ADDING');
