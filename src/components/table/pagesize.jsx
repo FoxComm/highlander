@@ -6,8 +6,13 @@ import Dropdown from '../dropdown/dropdown';
 
 class TablePaginator extends React.Component {
   static propTypes = {
+    value: PropTypes.string,
     setState: PropTypes.func.isRequired
   };
+
+  static defaultProps = {
+    value: 25
+  }
 
   @autobind
   onPageSizeChange(value) {
@@ -26,7 +31,7 @@ class TablePaginator extends React.Component {
           '100': 'Show 100',
           'Infinity': 'Show all'
           }}
-        value={'25'}
+        value={this.props.value}
         />
     );
   }
