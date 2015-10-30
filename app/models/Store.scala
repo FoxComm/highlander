@@ -1,6 +1,6 @@
 package models
 
-import utils.Model
+import utils.ModelWithIdParameter
 
-final case class Store(id: Int, name: String, Configuration: StoreConfiguration) extends Model
+final case class Store(id: Int, name: String, Configuration: StoreConfiguration) extends ModelWithIdParameter
 
