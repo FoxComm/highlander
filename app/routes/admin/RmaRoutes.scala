@@ -2,6 +2,7 @@ package routes.admin
 
 import java.time.Instant
 
+import scala.collection.immutable.Seq
 import scala.concurrent.ExecutionContext
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
@@ -11,16 +12,10 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 
 import models._
 import payloads._
-import services.RmaService
-
-import responses.FullOrder.DisplayLineItem
-import responses.CustomerResponse.{Root ⇒ Customer}
+import services.{LineItemUpdater, RmaService}
 import responses.StoreAdminResponse
 import responses.RmaResponse._
-import services.orders.OrderPaymentUpdater
-
 import slick.driver.PostgresDriver.api._
-
 import utils.Apis
 import utils.Http._
 import utils.CustomDirectives._
@@ -77,6 +72,21 @@ object RmaRoutes {
           }
         } ~
         (post & path("unlock") & pathEnd) {
+          good {
+            genericRmaMock
+          }
+        } ~
+        (post & path("line-items") & entity(as[Seq[RmaUpdateSkuLineItemsPayload]])) { reqItems ⇒
+          good {
+            genericRmaMock
+          }
+        } ~
+        (post & path("gift-cards") & entity(as[Seq[RmaUpdateGiftCardLineItemsPayload]])) { reqItems ⇒
+          good {
+            genericRmaMock
+          }
+        } ~
+        (post & path("shipping-costs") & entity(as[Seq[RmaUpdateShippingCostLineItemsPayload]])) { reqItems ⇒
           good {
             genericRmaMock
           }
