@@ -2,6 +2,7 @@
 
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
+import { LeftButton, RightButton } from '../common/buttons'
 
 export default class TablePaginator extends React.Component {
   static propTypes = {
@@ -31,9 +32,9 @@ export default class TablePaginator extends React.Component {
           {from}&thinsp;-&thinsp;{end} of {total}
         </span>
         &nbsp;
-        <button className="fc-btn" onClick={this.onPrevPageClick}><i className="icon-chevron-left"/></button>
+        <LeftButton onClick={this.onPrevPageClick}/>
         &nbsp;
-        <button className="fc-btn" onClick={this.onNextPageClick}><i className="icon-chevron-right"/></button>
+        <RightButton onClick={this.onNextPageClick}/>
       </div>
     );
   }
