@@ -73,7 +73,7 @@ object RmaRoutes {
           }
         } ~
         (post & path("unlock") & pathEnd) {
-          good {
+          goodOrFailures {
             LockAwareRmaUpdater.unlock(refNum)
           }
         } ~

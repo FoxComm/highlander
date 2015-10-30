@@ -34,10 +34,10 @@ object LockAwareRmaUpdater {
     }, checks = Set.empty)
   }
 
-  private def doUnlock(rmaId: Int)(implicit ec: ExecutionContext, db: Database): DbResult[Root] = {
+  private def doUnlock(rmaId: Int)(implicit ec: ExecutionContext, db: Database) = {
     Rmas.findById(rmaId).extract
       .map(_.locked)
       .updateReturning(updatedRma, false).head
-      .flatMap(rma ⇒ DbResult.fromDbio(RmaResponse.fromRma(rma)))
+      .flatMap { rma ⇒ DbResult.fromDbio(RmaResponse.fromRma(rma)) }
   }
 }
