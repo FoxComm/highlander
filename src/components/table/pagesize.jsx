@@ -11,7 +11,7 @@ class TablePaginator extends React.Component {
   };
 
   static defaultProps = {
-    value: '25'
+    value: '50'
   };
 
   @autobind
