@@ -22,9 +22,9 @@ export default class TablePaginator extends React.Component {
   }
 
   render() {
-    let total = this.props.total;
-    let from = this.props.from + 1;
-    let end = Math.min(total, this.props.from + this.props.size);
+    const total = this.props.total;
+    const from = this.props.from + 1;
+    const end = Math.min(total, this.props.from + this.props.size);
     return (
       <div className="fc-table-paginator">
         <span>
