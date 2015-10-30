@@ -12,11 +12,11 @@ const TableView = (props) => {
         total={props.data.total}
         from={props.data.from}
         size={props.data.size}
-        setState={props.setState}
+        setState={props.setState.bind(this, props.data)}
         />
     );
   const tablePageSize = tableNeedsPagination && (
-      <TablePageSize setState={props.setState}/>
+      <TablePageSize setState={props.setState.bind(this, props.data)}/>
     );
   return (
     <div className="fc-tableview">

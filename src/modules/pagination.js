@@ -9,7 +9,10 @@ export default (url, customReducers, customInitialState) => {
   const actionFail = createAction(`FAILED ${url}`, (err, source) => ({err, source}));
   const actionSetState = createAction(`SET_STATE ${url}`);
 
-  const setState = newState => dispatch => dispatch(actionSetState(newState));
+  const setState = (state, newState) => dispatch => {
+    dispatch(actionSetState(newState));
+    dispatch(fetch(state));
+  };
 
   const fetch = state => dispatch => {
     dispatch(actionRequest());
