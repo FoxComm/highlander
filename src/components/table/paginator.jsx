@@ -2,7 +2,7 @@
 
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
-import { LeftButton, RightButton } from '../common/buttons'
+import { LeftButton, RightButton } from '../common/buttons';
 
 class TablePaginator extends React.Component {
   static propTypes = {
