@@ -1,10 +1,7 @@
 import java.time.Instant
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 import akka.http.scaladsl.model.StatusCodes
 
-import Extensions._
+import cats.data.Xor
 import models.Order._
 import models._
 import payloads.{BulkAssignment, BulkUpdateOrdersPayload}
@@ -13,45 +10,55 @@ import responses.{StoreAdminResponse, FullOrder, AllOrders}
 import services.orders.OrderQueries
 import services.{OrderStatusTransitionNotAllowed, LockedFailure, NotFoundFailure404}
 import util.IntegrationTestBase
-import utils.Seeds
 import utils.Seeds.Factories
 import utils.Slick.implicits._
 import utils.time._
 
 class AllOrdersIntegrationTest extends IntegrationTestBase
   with HttpSupport
-  with SortingAndPagingOld[responses.AllOrders.Root]
+  with SortingAndPaging[AllOrders.Root]
   with AutomaticAuth {
+
+  import concurrent.ExecutionContext.Implicits.global
+
+  import Extensions._
+  import api._
 
   // paging and sorting API
   def uriPrefix = "v1/orders"
-  val numOfResults = 30
 
   def responseItems = {
     val items = (1 to numOfResults).map { i ⇒
-      val future = (for {
-        customer ← Customers.save(Seeds.Factories.generateCustomer)
+      val dbio = for {
+        customer ← Customers.save(Factories.generateCustomer)
         order    ← Orders.save(Factories.order.copy(
           customerId = customer.id,
-          referenceNumber = Seeds.Factories.randomString(10),
+          referenceNumber = Factories.randomString(10),
           status = Order.RemorseHold,
           remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
-      } yield (customer, order)).run()
+      } yield (customer, order)
 
-      future flatMap { case (customer, order) ⇒
-        responses.AllOrders.build(order, customer, None).run()
+      dbio.flatMap { case (customer, order) ⇒
+        AllOrders.build(order, customer, None)
       }
     }
 
-    Future.sequence(items).futureValue
+    DBIO.sequence(items).transactionally.run().futureValue
   }
   val sortColumnName = "referenceNumber"
 
-  def responseItemsSort(items: IndexedSeq[responses.AllOrders.Root]) = items.sortBy(_.referenceNumber)
+  def responseItemsSort(items: IndexedSeq[AllOrders.Root]) = items.sortBy(_.referenceNumber)
 
-  def mf = implicitly[scala.reflect.Manifest[responses.AllOrders.Root]]
+  def mf = implicitly[scala.reflect.Manifest[AllOrders.Root]]
   // paging and sorting API end
 
+  def getAllOrders: Seq[AllOrders.Root] = {
+    OrderQueries.findAll.result.run().futureValue match {
+      case Xor.Left(s)    ⇒ fail(s.toList.mkString(";"))
+      case Xor.Right(seq) ⇒ seq
+    }
+  }
+  
   "GET /v1/orders" - {
     "find all" in {
       val cId = Customers.save(Factories.customer).run().futureValue.id
@@ -60,12 +67,12 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       val responseJson = GET(s"v1/orders")
       responseJson.status must === (StatusCodes.OK)
 
-      val allOrders = responseJson.as[Seq[AllOrders.Root]]
+      val allOrders = responseJson.as[AllOrders.Root#ResponseMetadataSeq].result
       allOrders.size must === (1)
 
       val actual = allOrders.head
 
-      val expected = responses.AllOrders.Root(
+      val expected = AllOrders.Root(
         referenceNumber = "ABCD1234-11",
         email = "yax@yax.com",
         orderStatus = Order.ManualHold,
@@ -172,7 +179,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       val response = POST(s"v1/orders/assignees", BulkAssignment(Seq(orderRef1, "NOPE"), adminId))
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkOrderUpdateResponse]
-      responseObj.result must === (OrderQueries.findAll.run().futureValue)
+      responseObj.result must === (getAllOrders)
       responseObj.errors.value must === (NotFoundFailure404(Order, "NOPE").description)
     }
 
@@ -180,7 +187,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       val response = POST(s"v1/orders/assignees", BulkAssignment(Seq(orderRef1), 777))
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkOrderUpdateResponse]
-      responseObj.result must === (OrderQueries.findAll.run().futureValue)
+      responseObj.result must === (getAllOrders)
       responseObj.errors.value must === (NotFoundFailure404(StoreAdmin, 777).description)
     }
   }
@@ -219,7 +226,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       val response = POST(s"v1/orders/assignees/delete", BulkAssignment(Seq(orderRef1, "NOPE"), adminId))
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkOrderUpdateResponse]
-      responseObj.result must === (OrderQueries.findAll.run().futureValue)
+      responseObj.result must === (getAllOrders)
       responseObj.errors.value must === (NotFoundFailure404(Order, "NOPE").description)
     }
 
@@ -227,7 +234,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       val response = POST(s"v1/orders/assignees/delete", BulkAssignment(Seq(orderRef1), 777))
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkOrderUpdateResponse]
-      responseObj.result must === (OrderQueries.findAll.run().futureValue)
+      responseObj.result must === (getAllOrders)
       responseObj.errors.value must === (NotFoundFailure404(StoreAdmin, 777).description)
     }
   }

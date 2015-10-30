@@ -11,7 +11,7 @@ import slick.driver.PostgresDriver._
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.{GetResult, JdbcResultConverterDomain, SetParameter, StaticQuery ⇒ Q, StaticQueryInvoker, StreamingInvokerAction}
 
-import slick.lifted.{Ordered, Query}
+import slick.lifted.{ColumnOrdered, Ordered, Query}
 import slick.profile.{SqlAction, SqlStreamingAction}
 import slick.relational.{CompiledMapping, ResultConverter}
 import slick.util.SQLBuilder
@@ -23,10 +23,10 @@ object Slick {
 
   def xorMapDbio[LeftX, RightX, RightY](xor: Xor[LeftX, RightX])(f: RightX ⇒ DBIO[RightY])
     (implicit ec: ExecutionContext): DBIO[Xor[LeftX, RightY]] = {
-    xor match {
-      case Xor.Right(v) ⇒ f(v).map(Xor.right)
-      case Xor.Left(fs) ⇒ lift(Xor.left(fs))
-    }
+    xor.fold(
+      fs ⇒ lift(Xor.left(fs)),
+      v  ⇒ f(v).map(Xor.right)
+    )
   }
 
   def appendForUpdate[A, B <: slick.dbio.NoStream](sql: SqlAction[A, B, Effect.Read]): DBIO[A] = {
@@ -139,9 +139,12 @@ object Slick {
       def map[S](f: A => S)(implicit ec: ExecutionContext): ResultWithMetadata[S] =
         this.copy(result = result.map(_.map(f)))
 
+      def flatMap[S](f: Failures Xor A => DbResult[S])(implicit ec: ExecutionContext): ResultWithMetadata[S] =
+        this.copy(result = result.flatMap(f))
+
       def asResponseFuture(implicit db: Database, ec: ExecutionContext): Future[ResponseWithMetadata[A]] = {
         metadata.total match {
-          case None                   ⇒
+          case None              ⇒
             for (res ← result.run())
               yield ResponseWithMetadata(
                 res,
@@ -156,7 +159,7 @@ object Slick {
 
           case Some(totalFuture) ⇒
             for {
-              res        ← result.run()
+              res   ← result.run()
               total ← totalFuture
             } yield ResponseWithMetadata(
               res,
@@ -175,6 +178,9 @@ object Slick {
     object ResultWithMetadata {
       def fromResultOnly[A](result: DbResult[A]): ResultWithMetadata[A] =
         ResultWithMetadata(result = result, metadata = QueryMetadata.empty)
+
+      def fromFailures[A](failures: Failures): ResultWithMetadata[A] =
+        ResultWithMetadata(result = DbResult.failures(failures), metadata = QueryMetadata.empty)
     }
 
     private def _paged[E, U, C[_]](query: Query[E, U, C])(implicit sortAndPage: SortAndPage) = {
@@ -186,6 +192,9 @@ object Slick {
       pagedQueryOpt.getOrElse(query)
     }
 
+    def invalidSortColumn(name: String): ColumnOrdered[AnyRef] = {
+      throw new IllegalArgumentException(s"Invalid sort column: $name")
+    }
 
     final case class QueryWithMetadata[E, U, C[_]](query: Query[E, U, C], metadata: QueryMetadata) {
 
@@ -221,19 +230,20 @@ object Slick {
         ec: ExecutionContext,
         sortAndPage: SortAndPage): QueryWithMetadata[E, U, C] = {
 
+        val from = sortAndPage.from.getOrElse(0)
+        val size = sortAndPage.size.getOrElse(CustomDirectives.DefaultPageSize)
+
         // size > 0 costraint is defined in SortAndPage
-        val total = sortAndPage.size map { _ ⇒ query.length.result.run() }
-        val pageNo = for {
-          from ← sortAndPage.from
-          size ← sortAndPage.size
-        } yield (from / size) + 1
+        val pageNo = (from / size) + 1
+        // TODO: left as DBIO and compose
+        val total  = query.length.result.run()
 
         val metadata = QueryMetadata(
           sortBy = sortAndPage.sortBy,
-          from = sortAndPage.from,
-          size = sortAndPage.size,
-          pageNo = pageNo,
-          total = total)
+          from   = Some(from),
+          size   = Some(size),
+          pageNo = Some(pageNo),
+          total  = Some(total))
 
         withMetadata(metadata)
       }

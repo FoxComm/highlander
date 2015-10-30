@@ -21,6 +21,11 @@ object Admin {
 
     authenticateBasicAsync(realm = "admin", storeAdminAuth) { admin ⇒
       pathPrefix("store-credits") {
+        (get & path("types") & pathEnd) {
+          goodOrFailures {
+            StoreCreditService.getOriginTypes
+          }
+        } ~
         (patch & entity(as[payloads.StoreCreditBulkUpdateStatusByCsr]) & pathEnd) { payload ⇒
           goodOrFailures {
             StoreCreditService.bulkUpdateStatusByCsr(payload, admin)

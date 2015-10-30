@@ -19,7 +19,6 @@ final case class Rma(id: Int = 0, referenceNumber: String = "", orderId: Int, or
   customerId: Option[Int] = None, storeAdminId: Option[Int] = None)
   extends ModelWithLockParameter {
 
-  def isNew: Boolean = id == 0
   def refNum: String = referenceNumber
 }
 
@@ -86,7 +85,7 @@ object Rmas extends TableQueryWithLock[Rma, Rmas](
         case "locked"           ⇒ if (s.asc) rma.locked.asc           else rma.locked.desc
         case "customerId"       ⇒ if (s.asc) rma.customerId.asc       else rma.customerId.desc
         case "storeAdminId"     ⇒ if (s.asc) rma.storeAdminId.asc     else rma.storeAdminId.desc
-        case _                  ⇒ rma.id.asc
+        case other              ⇒ invalidSortColumn(other)
       }
     }
   }

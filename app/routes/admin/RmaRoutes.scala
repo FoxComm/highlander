@@ -2,6 +2,7 @@ package routes.admin
 
 import java.time.Instant
 
+import scala.collection.immutable.Seq
 import scala.concurrent.ExecutionContext
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
@@ -11,15 +12,10 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 
 import models._
 import payloads._
-import services.RmaService
-
-import responses.FullOrder.DisplayLineItem
-import responses.CustomerResponse.{Root ⇒ Customer}
+import services.{LineItemUpdater, RmaService}
 import responses.StoreAdminResponse
 import responses.RmaResponse._
-
 import slick.driver.PostgresDriver.api._
-
 import utils.Apis
 import utils.Http._
 import utils.CustomDirectives._
@@ -55,7 +51,7 @@ object RmaRoutes {
         } ~
         (post & entity(as[RmaCreatePayload]) & pathEnd) { payload ⇒
           good {
-            genericRmaMock.copy(orderId = payload.orderId)
+            genericRmaMock.copy(orderId = payload.orderId, orderRefNum = payload.orderRefNum)
           }
         }
       } ~
@@ -70,14 +66,9 @@ object RmaRoutes {
             RmaService.getExpandedByRefNum(refNum)
           }
         } ~
-        (patch & entity(as[RmaUpdatePayload]) & pathEnd) { payload ⇒
+        (patch & entity(as[RmaUpdateStatusPayload]) & pathEnd) { payload ⇒
           good {
-            genericRmaMock.copy(orderId = payload.orderId)
-          }
-        } ~
-        (patch & path("status") & entity(as[RmaUpdateStatusPayload]) & pathEnd) { payload ⇒
-          good {
-            genericRmaMock
+            genericRmaMock.copy(status = payload.status)
           }
         } ~
         (post & path("lock") & pathEnd) {
@@ -88,6 +79,57 @@ object RmaRoutes {
         (post & path("unlock") & pathEnd) {
           good {
             genericRmaMock
+          }
+        } ~
+        (post & path("line-items") & entity(as[Seq[RmaSkuLineItemsPayload]])) { reqItems ⇒
+          good {
+            genericRmaMock
+          }
+        } ~
+        (post & path("gift-cards") & entity(as[Seq[RmaGiftCardLineItemsPayload]])) { reqItems ⇒
+          good {
+            genericRmaMock
+          }
+        } ~
+        (post & path("shipping-costs") & entity(as[Seq[RmaShippingCostLineItemsPayload]])) { reqItems ⇒
+          good {
+            genericRmaMock
+          }
+        } ~
+        pathPrefix("payment-methods" / "credit-cards") {
+          ((post | patch) & entity(as[payloads.RmaCreditCardPayment]) & pathEnd) { payload ⇒
+            good {
+              genericRmaMock
+            }
+          } ~
+          (delete & pathEnd) {
+            good {
+              genericRmaMock
+            }
+          }
+        } ~
+        pathPrefix("payment-methods" / "gift-cards") {
+          (post & entity(as[payloads.RmaGiftCardPayment]) & pathEnd) { payload ⇒
+            good {
+              genericRmaMock
+            }
+          } ~
+          (delete & path(GiftCard.giftCardCodeRegex) & pathEnd) { code ⇒
+            good {
+              genericRmaMock
+            }
+          }
+        } ~
+        pathPrefix("payment-methods" / "store-credit") {
+          ((post | patch) & entity(as[payloads.RmaStoreCreditPayment]) & pathEnd) { payload ⇒
+            good {
+              genericRmaMock
+            }
+          } ~
+          (delete & pathEnd) {
+            good {
+              genericRmaMock
+            }
           }
         }
       }

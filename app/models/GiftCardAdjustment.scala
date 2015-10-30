@@ -2,6 +2,8 @@ package models
 
 import java.time.Instant
 
+import scala.concurrent.ExecutionContext
+
 import com.pellucid.sealerate
 import models.GiftCardAdjustment.{Auth, Status}
 import models.Notes._
@@ -9,6 +11,7 @@ import monocle.macros.GenLens
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
+import utils.CustomDirectives.SortAndPage
 import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId}
 import utils.Slick.implicits._
 
@@ -71,6 +74,23 @@ object GiftCardAdjustments extends TableQueryWithId[GiftCardAdjustment, GiftCard
   )(new GiftCardAdjustments(_)){
 
   import GiftCardAdjustment._
+
+  def sortedAndPaged(query: QuerySeq)
+    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata =
+    query.withMetadata.sortAndPageIfNeeded { (s, giftCardAdj) ⇒
+      s.sortColumn match {
+        case "id"               ⇒ if(s.asc) giftCardAdj.id.asc               else giftCardAdj.id.desc
+        case "giftCardId"       ⇒ if(s.asc) giftCardAdj.giftCardId.asc       else giftCardAdj.giftCardId.desc
+        case "orderPaymentId"   ⇒ if(s.asc) giftCardAdj.orderPaymentId.asc   else giftCardAdj.orderPaymentId.desc
+        case "storeAdminId"     ⇒ if(s.asc) giftCardAdj.storeAdminId.asc     else giftCardAdj.storeAdminId.desc
+        case "credit"           ⇒ if(s.asc) giftCardAdj.credit.asc           else giftCardAdj.credit.desc
+        case "debit"            ⇒ if(s.asc) giftCardAdj.debit.asc            else giftCardAdj.debit.desc
+        case "availableBalance" ⇒ if(s.asc) giftCardAdj.availableBalance.asc else giftCardAdj.availableBalance.desc
+        case "status"           ⇒ if(s.asc) giftCardAdj.status.asc           else giftCardAdj.status.desc
+        case "createdAt"        ⇒ if(s.asc) giftCardAdj.createdAt.asc        else giftCardAdj.createdAt.desc
+        case other              ⇒ invalidSortColumn(other)
+      }
+    }
 
   def filterByGiftCardId(id: Int): QuerySeq = filter(_.giftCardId === id)
 

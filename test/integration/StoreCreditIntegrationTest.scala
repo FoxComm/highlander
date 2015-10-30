@@ -3,6 +3,7 @@ import scala.util.Random
 import scala.collection.JavaConverters._
 import akka.http.scaladsl.model.StatusCodes
 
+import models.StoreCredit.{ReturnProcess, GiftCardTransfer, CsrAppeasement}
 import models._
 import models.StoreCredit.{Canceled, Active, OnHold}
 import org.joda.money.CurrencyUnit
@@ -50,18 +51,18 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
   def responseItems = {
     val items = regCurrencies.take(numOfResults).map { currency ⇒
       val balance = Random.nextInt(9999999)
-      val future = StoreCredits.save(Factories.storeCredit.copy(
+      val dbio = StoreCredits.save(Factories.storeCredit.copy(
         currency = currency,
         originId = currentOrigin.id,
         customerId = currentCustomer.id,
         originalBalance = balance,
         currentBalance = balance,
-        availableBalance = balance)).run()
+        availableBalance = balance))
 
-      future map { responses.StoreCreditResponse.build }
+      dbio.map { responses.StoreCreditResponse.build }
     }
 
-    Future.sequence(items).futureValue
+    DBIO.sequence(items).transactionally.run().futureValue
   }
 
   val sortColumnName = "currency"
@@ -72,14 +73,26 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
   // paging and sorting API end
 
   "StoreCredits" - {
+    "GET /v1/store-credits/types" - {
+      "should return all SC types and related subtypes" in new Fixture {
+        val response = GET(s"v1/store-credits/types")
+        response.status must ===(StatusCodes.OK)
+
+        val root = response.as[Seq[StoreCreditSubTypesResponse.Root]]
+        root.size must === (StoreCredit.OriginType.types.size)
+        root.map(_.originType) must === (StoreCredit.OriginType.types.toSeq)
+        root.filter(_.originType == scSubType.originType).head.subTypes must === (Seq(scSubType))
+      }
+    }
+
     "POST /v1/customers/:id/payment-methods/store-credit" - {
       "when successful" - {
         "responds with the new storeCredit" in new Fixture {
           val payload = payloads.CreateManualStoreCredit(amount = 25, reasonId = scReason.id)
           val response = POST(s"v1/customers/${customer.id}/payment-methods/store-credit", payload)
-          val sc = response.as[responses.StoreCreditResponse.Root]
-
           response.status must === (StatusCodes.OK)
+
+          val sc = response.as[responses.StoreCreditResponse.Root]
           sc.status must === (StoreCredit.Active)
 
           // Check that proper link is created
@@ -92,9 +105,9 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       "succeeds with valid subTypeId" in new Fixture {
         val payload = payloads.CreateManualStoreCredit(amount = 25, reasonId = scReason.id, subTypeId = Some(1))
         val response = POST(s"v1/customers/${customer.id}/payment-methods/store-credit", payload)
-        val sc = response.as[responses.StoreCreditResponse.Root]
-
         response.status must === (StatusCodes.OK)
+
+        val sc = response.as[responses.StoreCreditResponse.Root]
         sc.subTypeId must === (Some(1))
       }
 
@@ -127,8 +140,8 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       "returns list of store credits" in new Fixture {
         val response = GET(s"v1/customers/${customer.id}/payment-methods/store-credit")
         val storeCredits = Seq(storeCredit, scSecond)
-
         response.status must ===(StatusCodes.OK)
+
         val credits = response.as[ResponseWithFailuresAndMetadata[Seq[StoreCredit]]]
         credits.result.map(_.id).sorted must ===(storeCredits.map(_.id).sorted)
       }
@@ -151,7 +164,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
     "GET /v1/store-credits/:id/transactions" - {
       "returns the list of adjustments" in new Fixture {
         val response = GET(s"v1/store-credits/${storeCredit.id}/transactions")
-        val adjustments = response.as[ResponseWithFailuresAndMetadata[Seq[StoreCreditAdjustmentsResponse.Root]]].result
+        val adjustments = response.as[StoreCreditAdjustmentsResponse.Root#ResponseMetadataSeq].result
 
         response.status must ===(StatusCodes.OK)
         adjustments.size must === (1)
@@ -167,11 +180,10 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         val adjustment3 = StoreCredits.auth(storeCredit, Some(payment.id), 2).run().futureValue
 
         val response = GET(s"v1/store-credits/${storeCredit.id}/transactions?sortBy=-id&from=2&size=2")
-        val adjustments = response.as[ResponseWithFailuresAndMetadata[Seq[StoreCreditAdjustmentsResponse.Root]]]
+        val adjustments = response.as[StoreCreditAdjustmentsResponse.Root#ResponseMetadataSeq]
 
         response.status must ===(StatusCodes.OK)
         adjustments.result.size must === (1)
-
         adjustments.checkSortingAndPagingMetadata("-id", 2, 2)
 
         val firstAdjustment = adjustments.result.head
@@ -215,7 +227,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
         // Ensure that cancel adjustment is automatically created
         val transactionsRep = GET(s"v1/store-credits/${storeCredit.id}/transactions")
-        val adjustments = transactionsRep.as[ResponseWithFailuresAndMetadata[Seq[StoreCreditAdjustmentsResponse.Root]]]
+        val adjustments = transactionsRep.as[StoreCreditAdjustmentsResponse.Root#ResponseMetadataSeq]
           .result
 
         response.status must ===(StatusCodes.OK)
@@ -310,7 +322,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
   }
 
   trait Fixture {
-    val (admin, customer, scReason, storeCredit, order, adjustment, scSecond, payment) = (for {
+    val (admin, customer, scReason, storeCredit, order, adjustment, scSecond, payment, scSubType) = (for {
       admin       ← StoreAdmins.save(authedStoreAdmin)
       customer    ← Customers.save(Factories.customer)
       order       ← Orders.save(Factories.order.copy(customerId = customer.id))
@@ -323,7 +335,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       payment ← OrderPayments.save(Factories.storeCreditPayment.copy(orderId = order.id,
         paymentMethodId = storeCredit.id, paymentMethodType = PaymentMethod.StoreCredit))
       adjustment ← StoreCredits.auth(storeCredit, Some(payment.id), 10)
-    } yield (admin, customer, scReason, storeCredit, order, adjustment, scSecond, payment)).run().futureValue
+    } yield (admin, customer, scReason, storeCredit, order, adjustment, scSecond, payment, scSubType)).run().futureValue
   }
 }
 

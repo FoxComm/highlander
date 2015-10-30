@@ -28,8 +28,8 @@ object OrderRoutes {
 
       pathPrefix("orders") {
         (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-          good {
-            OrderQueries.findAll.run()
+          goodOrFailures {
+            OrderQueries.findAll
           }
         } ~
         (post & entity(as[CreateOrder]) & pathEnd) { payload ⇒
@@ -125,7 +125,7 @@ object OrderRoutes {
           (post & entity(as[payloads.GiftCardPayment]) & pathEnd) { payload ⇒
             goodOrFailures { OrderPaymentUpdater.addGiftCard(refNum, payload) }
           } ~
-          (delete & path(Segment) & pathEnd) { code ⇒
+          (delete & path(GiftCard.giftCardCodeRegex) & pathEnd) { code ⇒
             goodOrFailures { OrderPaymentUpdater.deleteGiftCard(refNum, code) }
           }
         } ~

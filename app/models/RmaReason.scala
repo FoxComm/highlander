@@ -12,7 +12,6 @@ import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId}
 final case class RmaReason(id: Int = 0, name: String, reasonType: ReasonType = BaseReason, rmaType: RmaType = Standard)
   extends ModelWithIdParameter {
 
-  def isNew: Boolean = id == 0
 }
 
 object RmaReason {

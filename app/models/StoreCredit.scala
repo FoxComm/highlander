@@ -37,8 +37,6 @@ final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, origin
   import StoreCredit._
   import Validation._
 
-  def isNew: Boolean = id == 0
-
   def validate: ValidatedNel[Failure, StoreCredit] = {
     val canceledWithReason: ValidatedNel[Failure, Unit] = (status, canceledAmount, canceledReason) match {
       case (Canceled, None, _) ⇒ invalidNel(GeneralFailure("canceledAmount must be present when canceled"))
@@ -75,8 +73,8 @@ object StoreCredit {
   case object FullyRedeemed extends Status
 
   sealed trait OriginType
-  case object GiftCardTransfer extends OriginType
   case object CsrAppeasement extends OriginType
+  case object GiftCardTransfer extends OriginType
   case object ReturnProcess extends OriginType
 
   object Status extends ADT[Status] {
@@ -171,7 +169,7 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
         case "canceledAmount"   ⇒ if(s.asc) storeCredit.canceledAmount.asc   else storeCredit.canceledAmount.desc
         case "canceledReason"   ⇒ if(s.asc) storeCredit.canceledReason.asc   else storeCredit.canceledReason.desc
         case "createdAt"        ⇒ if(s.asc) storeCredit.createdAt.asc      else storeCredit.createdAt.desc
-        case _                  ⇒ storeCredit.id.asc
+        case other              ⇒ invalidSortColumn(other)
       }
     }
 

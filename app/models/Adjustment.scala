@@ -1,6 +1,7 @@
 package models
 
-import utils.Model
+import utils.ModelWithIdParameter
 
-final case class Adjustment(id: Int, amount: Int, sourceId: Int, sourceType: String, reason: String) extends Model
+final case class Adjustment(id: Int, amount: Int, sourceId: Int, sourceType: String, reason: String)
+  extends ModelWithIdParameter
 

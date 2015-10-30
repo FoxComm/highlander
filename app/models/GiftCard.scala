@@ -35,8 +35,6 @@ final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = C
   import GiftCard._
   import Validation._
 
-  def isNew: Boolean = id == 0
-
   def validate: ValidatedNel[Failure, GiftCard] = {
     val canceledWithReason: ValidatedNel[Failure, Unit] = (status, canceledAmount, canceledReason) match {
       case (Canceled, None, _) ⇒ invalidNel(GeneralFailure("canceledAmount must be present when canceled"))
@@ -79,8 +77,8 @@ object GiftCard {
   case object FullyRedeemed extends Status
 
   sealed trait OriginType
-  case object CustomerPurchase extends OriginType
   case object CsrAppeasement extends OriginType
+  case object CustomerPurchase extends OriginType
   case object FromStoreCredit extends OriginType
 
   object Status extends ADT[Status] {
@@ -178,7 +176,7 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
         case "canceledReason"   ⇒ if(s.asc) giftCard.canceledReason.asc   else giftCard.canceledReason.desc
         case "reloadable"       ⇒ if(s.asc) giftCard.reloadable.asc       else giftCard.reloadable.desc
         case "createdAt"        ⇒ if(s.asc) giftCard.createdAt.asc        else giftCard.createdAt.desc
-        case _                  ⇒ giftCard.id.asc
+        case other              ⇒ invalidSortColumn(other)
       }
     }
   }
