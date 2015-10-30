@@ -13,13 +13,12 @@ import utils.Slick.implicits._
 import utils.Strings._
 
 trait Model {
+  def isNew: Boolean
+
   def modelName: String = getClass.getCanonicalName.lowerCaseFirstLetter
 }
 
 trait NewModel extends Model {
-  // override me in ModelWithIdParameter with isNew = id == 0
-  def isNew: Boolean
-
   def validate: ValidatedNel[Failure, Model]
 }
 
@@ -27,6 +26,8 @@ trait ModelWithIdParameter extends Model {
   type Id = Int
 
   def id: Id
+
+  def isNew: Boolean = id == 0
 }
 
 trait ModelWithLockParameter extends ModelWithIdParameter {

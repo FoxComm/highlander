@@ -19,7 +19,6 @@ final case class Rma(id: Int = 0, referenceNumber: String = "", orderId: Int, or
   customerId: Option[Int] = None, storeAdminId: Option[Int] = None)
   extends ModelWithLockParameter {
 
-  def isNew: Boolean = id == 0
   def refNum: String = referenceNumber
 }
 
