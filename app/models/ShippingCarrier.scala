@@ -8,7 +8,7 @@ import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 final case class ShippingCarrier(id:Int = 0,
                            name:String,
                            accountNumber:Option[String],
-                           regionsServed:String = "US") extends ModelWithIdParameter
+                           regionsServed:String = "US") extends ModelWithIdParameter[ShippingCarrier]
 object ShippingCarrier
 
 class ShippingCarriers(tag: Tag) extends GenericTable.TableWithId[ShippingCarrier](tag, "shipping_methods")  {

@@ -29,15 +29,14 @@ final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, origin
   availableBalance: Int = 0, status: Status = Active, canceledAmount: Option[Int] = None,
   canceledReason: Option[Int] = None, createdAt: Instant = Instant.now())
   extends PaymentMethod
-  with ModelWithIdParameter
+  with ModelWithIdParameter[StoreCredit]
   with FSM[StoreCredit.Status, StoreCredit]
-  with NewModel
   with Validation[StoreCredit] {
 
   import StoreCredit._
   import Validation._
 
-  def validate: ValidatedNel[Failure, StoreCredit] = {
+  override def validate: ValidatedNel[Failure, StoreCredit] = {
     val canceledWithReason: ValidatedNel[Failure, Unit] = (status, canceledAmount, canceledReason) match {
       case (Canceled, None, _) ⇒ invalidNel(GeneralFailure("canceledAmount must be present when canceled"))
       case (Canceled, _, None) ⇒ invalidNel(GeneralFailure("canceledReason must be present when canceled"))

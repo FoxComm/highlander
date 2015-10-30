@@ -24,7 +24,7 @@ final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerI
   inWallet: Boolean = true, deletedAt: Option[Instant] = None, regionId: Int, addressName: String,
   address1: String, address2: Option[String] = None, city: String, zip: String)
   extends PaymentMethod
-  with ModelWithIdParameter
+  with ModelWithIdParameter[CreditCard]
   with Addressable[CreditCard]
   with Validation[CreditCard] {
 

@@ -16,12 +16,12 @@ import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId, Validat
 
 final case class Note(id: Int = 0, storeAdminId: Int, referenceId: Int, referenceType: Note.ReferenceType, body: String,
   createdAt: Instant = Instant.now, deletedAt: Option[Instant] = None, deletedBy: Option[Int] = None)
-  extends ModelWithIdParameter
+  extends ModelWithIdParameter[Note]
   with Validation[Note] {
 
   import Validation._
 
-  def validate: ValidatedNel[Failure, Note] = {
+  override def validate: ValidatedNel[Failure, Note] = {
     ( notEmpty(body, "body")
       |@| lesserThanOrEqual(body.length, 1000, "bodySize")
       ).map { case _ ⇒ this }

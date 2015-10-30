@@ -5,7 +5,8 @@ import slick.driver.PostgresDriver.api._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 final case class InventorySummary(id: Int, skuId: Int, availableOnHand: Int, availablePreOrder: Int, availableBackOrder: Int,
-                            outstandingPreOrders: Int, outstandingBackOrders: Int) extends ModelWithIdParameter
+                            outstandingPreOrders: Int, outstandingBackOrders: Int)
+  extends ModelWithIdParameter[InventorySummary]
 
 class InventorySummaries(tag: Tag)
   extends GenericTable.TableWithId[InventorySummary](tag, "inventory_summaries")  {

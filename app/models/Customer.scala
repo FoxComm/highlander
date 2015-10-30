@@ -23,12 +23,12 @@ final case class Customer(id: Int = 0, email: String, password: Option[String] =
   name: Option[String] = None, isDisabled: Boolean = false, isBlacklisted: Boolean = false,
   phoneNumber: Option[String] = None, location: Option[String] = None,
   modality: Option[String] = None, isGuest: Boolean = false, createdAt: Instant = Instant.now)
-  extends ModelWithIdParameter
+  extends ModelWithIdParameter[Customer]
   with Validation[Customer] {
 
   import Validation._
 
-  def validate: ValidatedNel[Failure, Customer] = {
+  override def validate: ValidatedNel[Failure, Customer] = {
     if (isGuest) {
       notEmpty(email, "email").map { case _ ⇒ this }
     } else {

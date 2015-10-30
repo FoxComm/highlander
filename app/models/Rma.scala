@@ -17,7 +17,7 @@ import utils.Slick.implicits._
 final case class Rma(id: Int = 0, referenceNumber: String = "", orderId: Int, orderRefNum: String,
   rmaType: RmaType = Standard, status: Status = Pending, locked: Boolean = false,
   customerId: Option[Int] = None, storeAdminId: Option[Int] = None)
-  extends ModelWithLockParameter {
+  extends ModelWithLockParameter[Rma] {
 
   def refNum: String = referenceNumber
 }
@@ -101,15 +101,7 @@ object Rmas extends TableQueryWithLock[Rma, Rmas](
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata =
     sortedAndPaged(findByCustomerId(customerId))
 
-  override def save(rma: Rma)(implicit ec: ExecutionContext) = {
-    if (rma.isNew) {
-      create(rma)
-    } else {
-      super.save(rma)
-    }
-  }
-
-  def create(rma: Rma)(implicit ec: ExecutionContext): DBIO[models.Rma] = for {
+  override def save(rma: Rma)(implicit ec: ExecutionContext): DBIO[Rma] = for {
     (newId, refNum) ← returningIdAndReferenceNumber += rma
   } yield rma.copy(id = newId, referenceNumber = refNum)
 

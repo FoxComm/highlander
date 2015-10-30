@@ -11,7 +11,7 @@ import utils.{ADT, TableQueryWithId, GenericTable, ModelWithIdParameter}
 
 final case class RmaLineItem(id: Int = 0, rmaId: Int, reasonId: Int, originId: Int, originType: OriginType,
   rmaType: RmaType = Standard, status: Status = Pending, inventoryDisposition: InventoryDisposition = Putaway)
-  extends ModelWithIdParameter {
+  extends ModelWithIdParameter[RmaLineItem] {
 
 }
 

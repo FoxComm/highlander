@@ -4,7 +4,7 @@ import slick.driver.PostgresDriver.api._
 import utils.ModelWithIdParameter
 
 final case class StockItem(id: Int, productId: Int, stockLocationId: Int, onHold: Int, onHand: Int,
-  allocatedToSales: Int) extends ModelWithIdParameter {
+  allocatedToSales: Int) extends ModelWithIdParameter[StockItem] {
 
   def available: Int = {
     this.onHand - this.onHold - this.allocatedToSales

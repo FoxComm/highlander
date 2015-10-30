@@ -10,7 +10,7 @@ import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 import scala.concurrent.ExecutionContext
 
 final case class OrderAssignment(id: Int = 0, orderId: Int = 0, assigneeId: Int = 0, assignedAt: Instant = Instant.now)
-  extends ModelWithIdParameter
+  extends ModelWithIdParameter[OrderAssignment]
 
 object OrderAssignment
 

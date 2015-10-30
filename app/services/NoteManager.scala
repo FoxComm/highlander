@@ -135,7 +135,7 @@ object NoteManager {
     }
   }
 
-  private def forModel[M <: ModelWithIdParameter](finder: Notes.QuerySeq)
+  private def forModel[M <: ModelWithIdParameter[M]](finder: Notes.QuerySeq)
     (implicit ec: ExecutionContext, db: Database): DbResult[Seq[Root]] = {
     val q = for {
       notes ← finder

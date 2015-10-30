@@ -10,7 +10,7 @@ import utils._
 
 final case class OrderLineItem(id: Int = 0, orderId: Int, originId: Int,
   originType: OriginType = OrderLineItem.SkuItem, status: Status = Cart)
-  extends ModelWithIdParameter
+  extends ModelWithIdParameter[OrderLineItem]
   with FSM[OrderLineItem.Status, OrderLineItem] {
 
   import OrderLineItem._
