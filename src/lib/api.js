@@ -43,11 +43,11 @@ export default class Api {
       if (data.hasOwnProperty(param)) {
         const value = data[param];
         if (value) {
-          params.push(encodeURIComponent(param) + "=" + encodeURIComponent(value));
+          params.push(encodeURIComponent(param) + '=' + encodeURIComponent(value));
         }
       }
     }
-    return params.join("&");
+    return params.join('&');
   };
 
   static request(method, uri, data) {

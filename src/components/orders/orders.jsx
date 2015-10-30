@@ -15,11 +15,15 @@ import LocalNav from '../local-nav/local-nav';
 
 @connect(state => ({orders: state.orders}), {fetch, setState})
 export default class Orders extends React.Component {
-
   static propTypes = {
+    fetch: PropTypes.func.isRequired,
+    setState: PropTypes.func.isRequired,
     tableColumns: PropTypes.array,
     subNav: PropTypes.array,
-    orders: PropTypes.shape({items: PropTypes.array})
+    orders: PropTypes.shape({
+      rows: PropTypes.array.isRequired,
+      total: PropTypes.number
+    })
   };
 
   static defaultProps = {

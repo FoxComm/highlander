@@ -8,7 +8,8 @@ import TableRow from './row';
 class TableHead extends React.Component {
   static propTypes = {
     setState: PropTypes.func.isRequired,
-    columns: PropTypes.array.isRequired
+    columns: PropTypes.array.isRequired,
+    sortBy: PropTypes.string
   };
 
   onHeaderClick(field, event) {
