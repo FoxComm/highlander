@@ -14,7 +14,7 @@ const GenericCheckbox = (props) => {
              defaultChecked={ props.defaultChecked }
              id={ props.id }
              name={ props.name } />
-      <label htmlFor={props.id}><span><span></span></span></label>
+      <label htmlFor={props.id}><span></span></label>
     </div>
   );
 };
