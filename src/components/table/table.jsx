@@ -7,14 +7,14 @@ import TableBody from './body';
 const Table = (props) => {
   return (
     <table className='fc-table'>
-      <TableHead data={props.data}/>
-      <TableBody data={props.data} renderRow={props.renderRow}/>
+      <TableHead columns={props.columns}/>
+      <TableBody columns={props.columns} rows={props.data.rows} renderRow={props.renderRow}/>
     </table>
   );
 };
 
 Table.propTypes = {
-  data: PropTypes.object,
+  data: PropTypes.object.isRequired,
   renderRow: PropTypes.func
 };
 

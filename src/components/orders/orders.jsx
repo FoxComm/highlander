@@ -10,23 +10,21 @@ import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
 import SectionTitle from '../section-title/section-title';
 import { connect } from 'react-redux';
-import * as orderActions from '../../modules/orders';
+import { fetch, setFrom, setSize } from '../../modules/orders';
 import LocalNav from '../local-nav/local-nav';
 
-@connect(state => ({orders: state.orders}), orderActions)
-export default
-class Orders extends React.Component {
+@connect(state => ({orders: state.orders}), {fetch, setFrom, setSize})
+export default class Orders extends React.Component {
 
   static propTypes = {
     tableColumns: PropTypes.array,
     subNav: PropTypes.array,
-    orders: PropTypes.shape({items: PropTypes.array}),
-    fetchOrdersIfNeeded: PropTypes.func
+    orders: PropTypes.shape({items: PropTypes.array})
   };
 
   static defaultProps = {
     tableColumns: [
-      {field: 'referenceNumber', text: 'Order', type: 'id'},
+      {field: 'referenceNumber', text: 'Order', type: 'id', model: 'order'},
       {field: 'createdAt', text: 'Date', type: 'date'},
       {field: 'email', text: 'Email'},
       {field: 'orderStatus', text: 'Order Status', type: 'orderStatus'},
@@ -36,7 +34,7 @@ class Orders extends React.Component {
   };
 
   componentDidMount() {
-    this.props.fetchOrders();
+    this.props.fetch(this.props.orders);
   }
 
   handleAddOrderClick() {
@@ -51,7 +49,7 @@ class Orders extends React.Component {
             {row.referenceNumber}
           </Link>
         </TableCell>
-        <TableCell><Date value={row.createdAt}/></TableCell>
+        <TableCell>{row.createdAt}</TableCell>
         <TableCell>{row.email}</TableCell>
         <TableCell>{row.orderStatus}</TableCell>
         <TableCell>{row.paymentStatus}</TableCell>
@@ -74,11 +72,12 @@ class Orders extends React.Component {
           </TabListView>
         </div>
         <div>
-          <TableView renderRow={renderRow} data={{
-            columns: this.props.tableColumns,
-            rows: this.props.orders.items || [],
-            ...this.props.orders
-          }}/>
+          <TableView
+            columns={this.props.tableColumns}
+            data={this.props.orders}
+            renderRow={renderRow}
+            setFrom={this.props.setFrom}
+            />
         </div>
       </div>
     );

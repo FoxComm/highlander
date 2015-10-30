@@ -7,17 +7,19 @@ import TableCell from './cell';
 const TableBody = (props) => {
   const renderRow = props.renderRow || ((row) => (
     <TableRow>
-      {props.data.columns.map((column) => <TableCell>{row[column.field]}</TableCell>)}
+      {props.columns.map((column) => <TableCell>{row[column.field]}</TableCell>)}
     </TableRow>
   ));
   return (
     <tbody className="fc-table-tbody">
-      {props.data.rows.map(props.renderRow)}
+      {props.rows.map(props.renderRow)}
     </tbody>
   );
 };
 
 TableBody.propTypes = {
+  columns: PropTypes.array.isRequired,
+  rows: PropTypes.array.isRequired,
   renderRow: PropTypes.func
 };
 

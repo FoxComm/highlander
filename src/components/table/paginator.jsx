@@ -1,32 +1,39 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
+import { autobind } from 'core-decorators';
 
 export default class TablePaginator extends React.Component {
   static propTypes = {
+    total: PropTypes.number.isRequired,
+    from: PropTypes.number.isRequired,
+    size: PropTypes.number.isRequired,
+    setFrom: PropTypes.func.isRequired
   };
 
+  @autobind
   onPrevPageClick() {
-    this.props.data.setStart(this.props.data.start - this.props.data.limit);
+    this.props.setFrom(this.props.from - this.props.size);
   }
 
+  @autobind
   onNextPageClick() {
-    this.props.data.setStart(this.props.data.start + this.props.data.limit);
+    this.props.setFrom(this.props.from + this.props.size);
   }
 
   render() {
-    let total = this.props.data.models.length;
-    let start = this.props.data.start + 1;
-    let end = Math.min(total, this.props.data.start + this.props.data.limit);
+    let total = this.props.total;
+    let from = this.props.from + 1;
+    let end = Math.min(total, this.props.from + this.props.size);
     return (
       <div className="fc-table-paginator">
         <span>
-          {start}&thinsp;-&thinsp;{end} of {total}
+          {from}&thinsp;-&thinsp;{end} of {total}
         </span>
         &nbsp;
-        <button onClick={this.onPrevPageClick.bind(this)}><i className="icon-chevron-left"/></button>
+        <button className="fc-btn" onClick={this.onPrevPageClick}><i className="icon-chevron-left"/></button>
         &nbsp;
-        <button onClick={this.onNextPageClick.bind(this)}><i className="icon-chevron-right"/></button>
+        <button className="fc-btn" onClick={this.onNextPageClick}><i className="icon-chevron-right"/></button>
       </div>
     );
   }
