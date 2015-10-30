@@ -15,14 +15,14 @@ class TablePaginator extends React.Component {
   @autobind
   onPrevPageClick() {
     this.props.setState({
-      from: this.props.from - this.props.size
+      from: Math.max(0, Math.min(this.props.total - 1, this.props.from - this.props.size))
     });
   }
 
   @autobind
   onNextPageClick() {
     this.props.setState({
-      from: this.props.from + this.props.size
+      from: Math.max(0, Math.min(this.props.total - 1, this.props.from + this.props.size))
     });
   }
 
