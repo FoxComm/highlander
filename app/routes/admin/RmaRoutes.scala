@@ -94,7 +94,7 @@ object RmaRoutes {
           }
         } ~
         pathPrefix("payment-methods" / "gift-cards") {
-          (post & entity(as[payloads.GiftCardPayment]) & pathEnd) { payload ⇒
+          (post & entity(as[payloads.NewGiftCardPayment]) & pathEnd) { payload ⇒
             good {
               genericRmaMock
             }
