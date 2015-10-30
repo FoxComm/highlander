@@ -11,6 +11,7 @@ import scala.concurrent.ExecutionContext
 import com.pellucid.sealerate
 import models.Order.{Cart, Status}
 import monocle.macros.GenLens
+import services.orders.OrderTotaler
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
@@ -39,8 +40,6 @@ final case class Order(id: Int = 0, referenceNumber: String = "", customerId: In
   def grandTotal: DBIO[Int] = {
     DBIO.successful(27)
   }
-
-  def isNew: Boolean = id == 0
 
   def isCart: Boolean = status == Cart
 

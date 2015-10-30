@@ -1,15 +1,16 @@
-package services
+package services.orders
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
-import cats.data.Xor
 import cats.implicits._
-import models.{Orders, Order, Customers, Customer}
+import models.Orders.scope._
+import models.{Customer, Customers, Order, Orders}
 import payloads.CreateOrder
-import responses.FullOrder, FullOrder.Root
+import responses.FullOrder
+import responses.FullOrder.Root
+import services._
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
-import Orders.scope._
 
 object OrderCreator {
   def createCart(payload: CreateOrder)

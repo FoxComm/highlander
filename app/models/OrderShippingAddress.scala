@@ -15,8 +15,6 @@ final case class OrderShippingAddress(id: Int = 0, orderId: Int = 0, regionId: I
   with NewModel
   with Addressable[OrderShippingAddress] {
 
-  def isNew: Boolean = id == 0
-
   def instance: OrderShippingAddress = { this }
   def zipLens = GenLens[OrderShippingAddress](_.zip)
 }

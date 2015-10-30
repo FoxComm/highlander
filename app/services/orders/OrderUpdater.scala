@@ -1,4 +1,4 @@
-package services
+package services.orders
 
 import scala.concurrent.ExecutionContext
 
@@ -6,14 +6,15 @@ import cats.data.Validated.{Invalid, Valid}
 import cats.data.Xor
 import cats.data.Xor.{Left, Right}
 import models._
-import payloads.{UpdateShippingMethod, CreateAddressPayload, UpdateAddressPayload}
+import payloads.{CreateAddressPayload, UpdateAddressPayload, UpdateShippingMethod}
 import responses.ResponseWithFailuresAndMetadata.BulkOrderUpdateResponse
-import responses.{ResponseWithFailuresAndMetadata, FullOrder}
+import responses.{FullOrder, ResponseWithFailuresAndMetadata}
+import services._
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives
 import utils.CustomDirectives.SortAndPage
-import utils.Slick.{DbResult, _}
 import utils.Slick.implicits._
+import utils.Slick.{DbResult, _}
 
 object OrderUpdater {
 
@@ -34,12 +35,12 @@ object OrderUpdater {
     }
   }
 
+  // TODO: transfer sorting-paging metadata
   def updateStatuses(refNumbers: Seq[String], newStatus: Order.Status)
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[BulkOrderUpdateResponse] = {
-    updateStatusesDbio(refNumbers, newStatus).zip(OrderQueries.findAll).map { case (failures,
-    orders) ⇒
-      ResponseWithFailuresAndMetadata.fromOption(orders, failures.swap.toOption)
-    }.transactionally.run().flatMap(Result.good)
+    updateStatusesDbio(refNumbers, newStatus).zip(OrderQueries.findAll.result).map { case (failures, orders) ⇒
+      ResponseWithFailuresAndMetadata.fromXor(orders, failures.swap.toOption.map(_.toList).getOrElse(Seq.empty))
+    }.transactionally.run()
   }
 
   private def updateStatusesDbio(refNumbers: Seq[String], newStatus: Order.Status)(implicit db: Database,

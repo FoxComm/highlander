@@ -21,6 +21,11 @@ object Admin {
 
     authenticateBasicAsync(realm = "admin", storeAdminAuth) { admin ⇒
       pathPrefix("store-credits") {
+        (get & path("types") & pathEnd) {
+          goodOrFailures {
+            StoreCreditService.getOriginTypes
+          }
+        } ~
         (patch & entity(as[payloads.StoreCreditBulkUpdateStatusByCsr]) & pathEnd) { payload ⇒
           goodOrFailures {
             StoreCreditService.bulkUpdateStatusByCsr(payload, admin)
@@ -168,6 +173,23 @@ object Admin {
         (get & path(IntNumber) & pathEnd) { notificationId ⇒
           good {
             Notification("Failed", "Order Confirmation", "2015-02-16T09:23:29", "+ (567) 203-8430")
+          }
+        }
+      } ~
+      pathPrefix("save-for-later") {
+        (get & path(IntNumber) & pathEnd) { customerId ⇒
+          goodOrFailures {
+            SaveForLaterManager.findAll(customerId)
+          }
+        } ~
+        (post & path(IntNumber / IntNumber) & pathEnd) { (customerId, skuId) ⇒
+          goodOrFailures {
+            SaveForLaterManager.saveForLater(customerId, skuId)
+          }
+        } ~
+        (delete & path(IntNumber) & pathEnd) { id ⇒
+          nothingOrFailures {
+            SaveForLaterManager.deleteSaveForLater(id)
           }
         }
       }

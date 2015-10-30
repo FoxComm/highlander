@@ -21,8 +21,6 @@ final case class Address(id: Int = 0, customerId: Int, regionId: Int, name: Stri
   with Addressable[Address]
   with Validation[Address] {
 
-  def isNew: Boolean = id == 0
-
   def instance: Address = { this }
   def zipLens = GenLens[Address](_.zip)
 }
@@ -88,7 +86,7 @@ object Addresses extends TableQueryWithId[Address, Addresses](
         case "region_countryId"    ⇒ if(s.asc) region.countryId.asc           else region.countryId.desc
         case "region_name"         ⇒ if(s.asc) region.name.asc                else region.name.desc
         case "region_abbreviation" ⇒ if(s.asc) region.abbreviation.asc        else region.abbreviation.desc
-        case _                     ⇒ address.id.asc
+        case other                 ⇒ invalidSortColumn(other)
       }
     }
 

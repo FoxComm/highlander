@@ -13,7 +13,6 @@ final case class RmaLineItem(id: Int = 0, rmaId: Int, reasonId: Int, originId: I
   rmaType: RmaType = Standard, status: Status = Pending, inventoryDisposition: InventoryDisposition = Putaway)
   extends ModelWithIdParameter {
 
-  def isNew: Boolean = id == 0
 }
 
 object RmaLineItem {

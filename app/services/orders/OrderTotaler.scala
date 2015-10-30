@@ -1,8 +1,7 @@
-package services
+package services.orders
 
 import models._
 import slick.driver.PostgresDriver.api._
-import scala.concurrent.{ExecutionContext, Future}
 
 object OrderTotaler {
   def subTotalForOrder(order: Order): DBIO[Option[Int]] = {

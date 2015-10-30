@@ -55,7 +55,7 @@ object Reasons extends TableQueryWithId[Reason, Reasons](
         case "storeAdminId" ⇒ if(s.asc) reason.storeAdminId.asc else reason.storeAdminId.desc
         case "parentId"     ⇒ if(s.asc) reason.parentId.asc     else reason.parentId.desc
         case "body"         ⇒ if(s.asc) reason.body.asc         else reason.body.desc
-        case _                  ⇒ reason.id.asc
+        case other          ⇒ invalidSortColumn(other)
       }
     }
 

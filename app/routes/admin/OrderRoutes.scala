@@ -11,6 +11,7 @@ import models.GiftCard.giftCardCodeRegex
 import models._
 import payloads._
 import services._
+import services.orders._
 import slick.driver.PostgresDriver.api._
 import utils.Http._
 import utils.Slick.DbResult
@@ -27,8 +28,8 @@ object OrderRoutes {
 
       pathPrefix("orders") {
         (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-          good {
-            OrderQueries.findAll.run()
+          goodOrFailures {
+            OrderQueries.findAll
           }
         } ~
         (post & entity(as[CreateOrder]) & pathEnd) { payload ⇒
@@ -124,7 +125,7 @@ object OrderRoutes {
           (post & entity(as[payloads.GiftCardPayment]) & pathEnd) { payload ⇒
             goodOrFailures { OrderPaymentUpdater.addGiftCard(refNum, payload) }
           } ~
-          (delete & path(Segment) & pathEnd) { code ⇒
+          (delete & path(GiftCard.giftCardCodeRegex) & pathEnd) { code ⇒
             goodOrFailures { OrderPaymentUpdater.deleteGiftCard(refNum, code) }
           }
         } ~

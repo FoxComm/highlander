@@ -22,7 +22,6 @@ final case class Rma(id: Int = 0, referenceNumber: String = "", orderId: Int, or
   extends ModelWithLockParameter
   with FSM[Rma.Status, Rma] {
 
-  def isNew: Boolean = id == 0
   def refNum: String = referenceNumber
 
   def stateLens = GenLens[Rma](_.status)
@@ -100,7 +99,7 @@ object Rmas extends TableQueryWithLock[Rma, Rmas](
         case "locked"           ⇒ if (s.asc) rma.locked.asc           else rma.locked.desc
         case "customerId"       ⇒ if (s.asc) rma.customerId.asc       else rma.customerId.desc
         case "storeAdminId"     ⇒ if (s.asc) rma.storeAdminId.asc     else rma.storeAdminId.desc
-        case _                  ⇒ rma.id.asc
+        case other              ⇒ invalidSortColumn(other)
       }
     }
   }

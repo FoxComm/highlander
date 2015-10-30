@@ -1,6 +1,7 @@
 package responses
 
-import services.{Failure, Failures}
+import cats.data.Xor
+import services.{Result, Failure, Failures}
 import utils.Slick.implicits.ResponseMetadata
 
 sealed trait CheckDefined { self: Product ⇒
@@ -25,15 +26,29 @@ final case class ResponseWithFailuresAndMetadata[A <: AnyRef](
   result    : A, 
   errors    : Option[Seq[String]]             = None,
   pagination: Option[ResponsePagingMetadata]  = None,
-  sorting   : Option[ResponseSortingMetadata] = None)
+  sorting   : Option[ResponseSortingMetadata] = None) {
+
+  import ResponseWithFailuresAndMetadata._
+
+  def withFailures(failures: Option[Failures]): ResponseWithFailuresAndMetadata[A] =
+    this.copy(errors = failures.map(failuresToSeqStrings))
+
+  def addFailures(failures: Option[Failures]): ResponseWithFailuresAndMetadata[A] =
+    this.copy(errors = failures.map(f ⇒ errors.getOrElse(Seq.empty) ++ failuresToSeqStrings(f)).orElse(errors))
+
+  def addFailures(failures: Seq[Failure]): ResponseWithFailuresAndMetadata[A] =
+    if (failures.isEmpty) this else this.addFailures(Some(Failures(failures: _*)))
+}
 
 object ResponseWithFailuresAndMetadata {
 
+  private def failuresToSeqStrings(failures: Failures): Seq[String] = failures.toList.flatMap(_.description)
+
   def fromOption[A <: AnyRef](result: A, failures: Option[Failures]): ResponseWithFailuresAndMetadata[A] = {
-    val list = failures.map(_.toList.flatMap(_.description))
+    val errors = failures.map(failuresToSeqStrings)
     ResponseWithFailuresAndMetadata(
       result = result,
-      errors = list)
+      errors = errors)
   }
 
   def fromFailures[A <: AnyRef](result: A, failures: Failures): ResponseWithFailuresAndMetadata[A] =
@@ -45,18 +60,28 @@ object ResponseWithFailuresAndMetadata {
   def noFailures[A <: AnyRef](result: A): ResponseWithFailuresAndMetadata[A] =
     ResponseWithFailuresAndMetadata.fromOption(result, None)
 
-  def withMetadata[A <: AnyRef](result : A, metadata: ResponseMetadata): ResponseWithFailuresAndMetadata[A] = {
+  def withMetadata[A <: AnyRef](result : A,
+    metadata: Option[ResponseMetadata] = None): ResponseWithFailuresAndMetadata[A] = {
     ResponseWithFailuresAndMetadata(
-      result = result,
-      sorting = ResponseSortingMetadata(sortBy = metadata.sortBy).ifDefined,
-      pagination = ResponsePagingMetadata(
-        from = metadata.from,
-        size = metadata.size,
-        pageNo = metadata.pageNo,
-        total = metadata.total).ifDefined
+      result     = result,
+      sorting    = metadata.flatMap ( m ⇒ ResponseSortingMetadata(sortBy = m.sortBy).ifDefined ),
+      pagination = metadata.flatMap { m ⇒
+        ResponsePagingMetadata(
+          from = m.from,
+          size = m.size,
+          pageNo = m.pageNo,
+          total = m.total).ifDefined
+      }
     )
   }
 
+  def fromXor[A <: AnyRef](result: Failures Xor A, addFailures: Seq[Failure] = Seq.empty,
+    metadata: Option[ResponseMetadata] = None): Failures Xor ResponseWithFailuresAndMetadata[A] = result.bimap (
+    errors ⇒ if (addFailures.isEmpty) errors else Failures(errors.toList ++ addFailures: _*),
+    res    ⇒ ResponseWithFailuresAndMetadata.withMetadata(res, metadata).addFailures(addFailures)
+  )
+
   type BulkOrderUpdateResponse = ResponseWithFailuresAndMetadata[Seq[AllOrders.Root]]
+  type SavedForLater = ResponseWithFailuresAndMetadata[Seq[SaveForLaterResponse.Root]]
 }
 

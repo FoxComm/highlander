@@ -2,6 +2,7 @@ package routes.admin
 
 import java.time.Instant
 
+import scala.collection.immutable.Seq
 import scala.concurrent.ExecutionContext
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
@@ -13,13 +14,9 @@ import models._
 import payloads._
 import services.{LockAwareRmaUpdater, RmaService}
 
-import responses.FullOrder.DisplayLineItem
-import responses.CustomerResponse.{Root ⇒ Customer}
 import responses.StoreAdminResponse
 import responses.RmaResponse._
-
 import slick.driver.PostgresDriver.api._
-
 import utils.Apis
 import utils.Http._
 import utils.CustomDirectives._
@@ -30,6 +27,8 @@ object RmaRoutes {
     mat: Materializer, storeAdminAuth: AsyncAuthenticator[StoreAdmin], apis: Apis) = {
 
     authenticateBasicAsync(realm = "admin", storeAdminAuth) { admin ⇒
+      val adminResponse = Some(StoreAdminResponse.build(admin))
+      val genericRmaMock = buildMockRma(id = 1, refNum = "ABC-123", orderId = 1, admin = adminResponse)
 
       pathPrefix("rmas") {
         (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
@@ -53,8 +52,7 @@ object RmaRoutes {
         } ~
         (post & entity(as[RmaCreatePayload]) & pathEnd) { payload ⇒
           good {
-            buildMockRma(id = 1, refNum = "ABC-123", orderId = payload.orderId,
-              admin = Some(StoreAdminResponse.build(admin)))
+            genericRmaMock.copy(orderId = payload.orderId, orderRefNum = payload.orderRefNum)
           }
         }
       } ~
@@ -66,7 +64,7 @@ object RmaRoutes {
         } ~
         (patch & path("status") & entity(as[RmaUpdateStatusPayload]) & pathEnd) { payload ⇒
           good {
-            buildMockRma(id = 1, refNum = "ABC-123", orderId = 1, admin = Some(StoreAdminResponse.build(admin)))
+            genericRmaMock.copy(status = payload.status)
           }
         } ~
         (post & path("lock") & pathEnd) {
@@ -75,8 +73,59 @@ object RmaRoutes {
           }
         } ~
         (post & path("unlock") & pathEnd) {
-          goodOrFailures {
+          good {
             LockAwareRmaUpdater.unlock(refNum)
+          }
+        } ~
+        (post & path("line-items") & entity(as[Seq[RmaSkuLineItemsPayload]])) { reqItems ⇒
+          good {
+            genericRmaMock
+          }
+        } ~
+        (post & path("gift-cards") & entity(as[Seq[RmaGiftCardLineItemsPayload]])) { reqItems ⇒
+          good {
+            genericRmaMock
+          }
+        } ~
+        (post & path("shipping-costs") & entity(as[Seq[RmaShippingCostLineItemsPayload]])) { reqItems ⇒
+          good {
+            genericRmaMock
+          }
+        } ~
+        pathPrefix("payment-methods" / "credit-cards") {
+          ((post | patch) & entity(as[payloads.RmaCreditCardPayment]) & pathEnd) { payload ⇒
+            good {
+              genericRmaMock
+            }
+          } ~
+          (delete & pathEnd) {
+            good {
+              genericRmaMock
+            }
+          }
+        } ~
+        pathPrefix("payment-methods" / "gift-cards") {
+          (post & entity(as[payloads.RmaGiftCardPayment]) & pathEnd) { payload ⇒
+            good {
+              genericRmaMock
+            }
+          } ~
+          (delete & path(GiftCard.giftCardCodeRegex) & pathEnd) { code ⇒
+            good {
+              genericRmaMock
+            }
+          }
+        } ~
+        pathPrefix("payment-methods" / "store-credit") {
+          ((post | patch) & entity(as[payloads.RmaStoreCreditPayment]) & pathEnd) { payload ⇒
+            good {
+              genericRmaMock
+            }
+          } ~
+          (delete & pathEnd) {
+            good {
+              genericRmaMock
+            }
           }
         }
       }
