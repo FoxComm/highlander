@@ -1,8 +1,8 @@
 package models
 
-import utils.Model
+import utils.ModelWithIdParameter
 
-final case class AdminRole (id: Int, name: String, description: String) extends Model
+final case class AdminRole (id: Int, name: String, description: String) extends ModelWithIdParameter
 
 class AdminRoles
 

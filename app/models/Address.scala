@@ -21,8 +21,6 @@ final case class Address(id: Int = 0, customerId: Int, regionId: Int, name: Stri
   with Addressable[Address]
   with Validation[Address] {
 
-  def isNew: Boolean = id == 0
-
   def instance: Address = { this }
   def zipLens = GenLens[Address](_.zip)
 }

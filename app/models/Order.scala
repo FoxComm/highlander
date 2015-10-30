@@ -41,8 +41,6 @@ final case class Order(id: Int = 0, referenceNumber: String = "", customerId: In
     DBIO.successful(27)
   }
 
-  def isNew: Boolean = id == 0
-
   def isCart: Boolean = status == Cart
 
   def refNum: String = referenceNumber

@@ -35,8 +35,6 @@ final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = C
   import GiftCard._
   import Validation._
 
-  def isNew: Boolean = id == 0
-
   def validate: ValidatedNel[Failure, GiftCard] = {
     val canceledWithReason: ValidatedNel[Failure, Unit] = (status, canceledAmount, canceledReason) match {
       case (Canceled, None, _) ⇒ invalidNel(GeneralFailure("canceledAmount must be present when canceled"))
