@@ -1,47 +1,56 @@
 .fc-slide-checkbox {
   width: pxtorem(80px);
-  height: pxtorem(30px);
-  background: @color-decor3;
-  border-radius: 50px;
+  height: pxtorem(34px);
   position: relative;
 
 
-  &:after {
+  & input[type=checkbox]:after {
     content: 'NO';
-    background: @color-decor3;
+    background: @color-decor47;
     color: @color-white;
     position: absolute;
-    right: pxtorem(10px);
+    right: 0;
+    top: 0;
+    width: pxtorem(80px);
+    height: pxtorem(34px);
     z-index: 0;
     font-weight: bold;
     line-height: pxtorem(30px);
+    border-radius: pxtorem(50px);
+    text-align: right;
+    top: -2px;
+    .padding(6px 10px);
+    .font-spec(16px, 500, 22px);
   }
 
-  &:before {
+  & input[type=checkbox]:before {
     content: 'YES';
-    background: @color-decor3;
+    background: @color-decor46;
     color: @color-white;
     position: absolute;
-    left: pxtorem(10px);
+    left: 0;
+    top: 0;
+    width: pxtorem(80px);
+    height: pxtorem(34px);
     z-index: 0;
     font-weight: bold;
-    line-height: pxtorem(30px);
+    border-radius: pxtorem(50px);
+    top: -2px;
+    .padding(2px 10px);
+    .font-spec(16px, 500, 22px);
   }
 
   & > label {
     display: block;
-    width: pxtorem(34px);
+    width: pxtorem(24px);
     height: pxtorem(24px);
-
     border-radius: pxtorem(50px);
-
     transition: all .4s ease;
     cursor: pointer;
     position: absolute;
     top: pxtorem(3px);
     left: pxtorem(3px);
     z-index: 1;
-
     background: @color-white;
   }
 
@@ -49,8 +58,29 @@
     visibility: hidden;
   }
 
+  & > input[type=checkbox] + label {
+    box-shadow: 2px 3px 4px 0px rgba(0,0,0,0.30);
+  }
+
   & > input[type=checkbox]:checked + label {
-    left: pxtorem(43px);
+    left: pxtorem(52px);
+    box-shadow: -2px 3px 4px 0px rgba(0,0,0,0.30);
+  }
+
+  & > input[type=checkbox]:before {
+    visibility: hidden;
+  }
+
+  & > input[type=checkbox]:after {
+    visibility: visible;
+  }
+
+  & > input[type=checkbox]:checked:before {
+    visibility: visible;
+  }
+
+  & > input[type=checkbox]:checked:after {
+    visibility: hidden;
   }
 
 }
