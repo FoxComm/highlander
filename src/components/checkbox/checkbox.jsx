@@ -1,11 +1,7 @@
 'use strict';
 
 import React from 'react';
-
-function composeClassName(props, defaultPart) {
-  const additionalClass = props.className ? props.className : '';
-  return `${defaultPart} ${additionalClass}`.trim();
-}
+import classNames from 'classnames';
 
 const GenericCheckbox = (props) => {
   return (
@@ -20,16 +16,16 @@ const GenericCheckbox = (props) => {
 };
 
 const SliderCheckbox = (props) => {
-  const composedClassName = composeClassName(props, 'fc-slide-checkbox');
   return (
-    <GenericCheckbox {...props} className={ composedClassName } />
+    <GenericCheckbox {...props}
+                     className={ classNames('fc-slide-checkbox', props.className) } />
   );
 };
 
 const Checkbox = (props) => {
-  const composedClassName = composeClassName(props, 'fc-checkbox');
   return (
-    <GenericCheckbox {...props} className={ composedClassName } />
+    <GenericCheckbox {...props}
+                     className={ classNames('fc-checkbox', props.className) } />
   );
 };
 
