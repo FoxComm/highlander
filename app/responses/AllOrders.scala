@@ -5,6 +5,7 @@ import java.time.Instant
 import scala.concurrent.{ExecutionContext, Future}
 
 import models._
+import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
 
 object AllOrders {
@@ -17,12 +18,12 @@ object AllOrders {
     paymentStatus: Option[String],
     placedAt: Option[Instant],
     remorsePeriodEnd: Option[Instant],
-    total: Int
+    total: Option[Int]
     ) extends ResponseItem
 
   def build(order: Order, customer: Customer, payment: Option[OrderPayment])
     (implicit ec: ExecutionContext): DBIO[Root] = {
-    order.grandTotal.map { grandTotal ⇒
+    OrderTotaler.grandTotal(order).map { grandTotal ⇒
       Root(
         referenceNumber = order.referenceNumber,
         email = customer.email,

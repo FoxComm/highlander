@@ -15,6 +15,7 @@ class OrderLineItemGiftCards(tag: Tag) extends
   def giftCardId = column[Int]("gift_card_id")
 
   def * = (id, orderId, giftCardId) <> ((OrderLineItemGiftCard.apply _).tupled, OrderLineItemGiftCard.unapply)
+  def giftCard = foreignKey(GiftCards.tableName, giftCardId, GiftCards)(_.id)
 }
 
 object OrderLineItemGiftCards extends TableQueryWithId[OrderLineItemGiftCard, OrderLineItemGiftCards](
@@ -29,5 +30,14 @@ object OrderLineItemGiftCards extends TableQueryWithId[OrderLineItemGiftCard, Or
       liGc ← findByOrderId(order.id)
       gc ← GiftCards if gc.id === liGc.giftCardId
     } yield (gc, liGc)
+  }
+
+  object scope {
+    implicit class OrderLineItemGiftCardsQuerySeqConversions(q: QuerySeq) {
+      def withGiftCards: Query[(OrderLineItemGiftCards, GiftCards), (OrderLineItemGiftCard, GiftCard), Seq] = for {
+        items     ← q
+        giftCards ← items.giftCard
+      } yield (items, giftCards)
+    }
   }
 }
