@@ -1,5 +1,7 @@
 package models
 
+import scala.concurrent.Future
+
 import monocle.macros.GenLens
 import utils.{ModelWithIdParameter, TableQueryWithId}
 import utils.GenericTable.TableWithId
@@ -22,4 +24,7 @@ object CustomersRanks extends TableQueryWithId[CustomerRank, CustomersRanks](
   idLens = GenLens[CustomerRank](_.id)
 )(new CustomersRanks(_)) {
 
+  def refresh(implicit db: Database): Future[Int] = {
+    db.run(sqlu"REFRESH MATERIALIZED VIEW CONCURRENTLY customers_ranking")
+  }
 }
