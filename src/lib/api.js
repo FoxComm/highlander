@@ -38,10 +38,13 @@ export default class Api {
   }
 
   static serialize = function(data) {
-    let params = [];
+    const params = [];
     for (let param in data) {
       if (data.hasOwnProperty(param)) {
-        params.push(encodeURIComponent(param) + "=" + encodeURIComponent(data[param]));
+        const value = data[param];
+        if (value) {
+          params.push(encodeURIComponent(param) + "=" + encodeURIComponent(value));
+        }
       }
     }
     return params.join("&");
