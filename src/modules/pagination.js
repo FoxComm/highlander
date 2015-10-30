@@ -28,9 +28,7 @@ export function fetchMeta(paginationType) {
 
 export function createActions(url, type) {
   const createFetchAction = actionType => {
-    return createAction(`${type}_${actionType}`, null, () => ({
-      paginationType: actionType
-    }));
+    return createAction(`${type}_${actionType}`, null, fetchMeta(actionType));
   };
 
   const actionRequest = createFetchAction(actionTypes.FETCH);
