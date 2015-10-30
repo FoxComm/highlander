@@ -76,23 +76,23 @@ object RmaRoutes {
             genericRmaMock
           }
         } ~
-        (post & path("line-items") & entity(as[Seq[RmaUpdateSkuLineItemsPayload]])) { reqItems ⇒
+        (post & path("line-items") & entity(as[Seq[RmaSkuLineItemsPayload]])) { reqItems ⇒
           good {
             genericRmaMock
           }
         } ~
-        (post & path("gift-cards") & entity(as[Seq[RmaUpdateGiftCardLineItemsPayload]])) { reqItems ⇒
+        (post & path("gift-cards") & entity(as[Seq[RmaGiftCardLineItemsPayload]])) { reqItems ⇒
           good {
             genericRmaMock
           }
         } ~
-        (post & path("shipping-costs") & entity(as[Seq[RmaUpdateShippingCostLineItemsPayload]])) { reqItems ⇒
+        (post & path("shipping-costs") & entity(as[Seq[RmaShippingCostLineItemsPayload]])) { reqItems ⇒
           good {
             genericRmaMock
           }
         } ~
         pathPrefix("payment-methods" / "credit-cards") {
-          ((post | patch) & entity(as[payloads.CreditCardPayment]) & pathEnd) { payload ⇒
+          ((post | patch) & entity(as[payloads.RmaCreditCardPayment]) & pathEnd) { payload ⇒
             good {
               genericRmaMock
             }
@@ -104,7 +104,7 @@ object RmaRoutes {
           }
         } ~
         pathPrefix("payment-methods" / "gift-cards") {
-          (post & entity(as[payloads.NewGiftCardPayment]) & pathEnd) { payload ⇒
+          (post & entity(as[payloads.RmaGiftCardPayment]) & pathEnd) { payload ⇒
             good {
               genericRmaMock
             }
@@ -116,7 +116,7 @@ object RmaRoutes {
           }
         } ~
         pathPrefix("payment-methods" / "store-credit") {
-          ((post | patch) & entity(as[payloads.StoreCreditPayment]) & pathEnd) { payload ⇒
+          ((post | patch) & entity(as[payloads.RmaStoreCreditPayment]) & pathEnd) { payload ⇒
             good {
               genericRmaMock
             }

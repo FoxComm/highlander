@@ -3,7 +3,8 @@ package responses
 import scala.concurrent.ExecutionContext
 
 import models._
-import responses.FullOrder.{DisplayLineItem, DisplayPayment, DisplayPaymentMethod}
+import payloads.{RmaCreditCardPayment, RmaGiftCardPayment, RmaStoreCreditPayment}
+import responses.FullOrder.DisplayLineItem
 import responses.CustomerResponse.{Root ⇒ Customer}
 import responses.StoreAdminResponse.{Root ⇒ StoreAdmin}
 
@@ -13,24 +14,17 @@ import utils.Slick.implicits._
 
 object RmaResponse {
   val mockLineItems = LineItems(
-    /*
     skus = Seq(
       DisplayLineItem(sku = "SKU-YAX", status = OrderLineItem.Shipped),
       DisplayLineItem(sku = "SKU-ABC", status = OrderLineItem.Shipped),
       DisplayLineItem(sku = "SKU-ZYA", status = OrderLineItem.Shipped)
     )
-    */
   )
 
-  val mockPayment = DisplayPayment(
-    amount = 256,
-    status = CreditCardCharge.Auth,
-    referenceNumber = "ABC-123",
-    paymentMethod = DisplayPaymentMethod(
-      cardType = "visa",
-      cardNumber = "5555-5555-5555-555",
-      cardExp = "05/15"
-    )
+  val mockPayments = Payments(
+    creditCard = Some(RmaCreditCardPayment(id = 1, amount = 10)),
+    giftCard = Some(RmaGiftCardPayment(amount = 10)),
+    storeCredit = Some(RmaStoreCreditPayment(amount = 10))
   )
 
   final case class Root(
@@ -40,15 +34,20 @@ object RmaResponse {
     orderRefNum: String,
     rmaType: Rma.RmaType,
     status: Rma.Status,
-    lineItems: LineItems,
+    lineItems: LineItems = LineItems(),
+    payments: Payments = Payments(),
     customer: Option[Customer] = None,
-    storeAdmin: Option[StoreAdmin] = None,
-    payment: Option[DisplayPayment] = None) extends ResponseItem
+    storeAdmin: Option[StoreAdmin] = None) extends ResponseItem
 
   final case class LineItems(
     skus: Seq[FullOrder.DisplayLineItem] = Seq.empty,
     giftCards: Seq[GiftCardResponse.Root] = Seq.empty,
     shippingCosts: Seq[ShipmentResponse.Root] = Seq.empty) extends ResponseItem
+
+  final case class Payments(
+    creditCard: Option[RmaCreditCardPayment] = None,
+    giftCard: Option[RmaGiftCardPayment] = None,
+    storeCredit: Option[RmaStoreCreditPayment] = None) extends ResponseItem
 
   def fromRma(rma: Rma)(implicit ec: ExecutionContext, db: Database): DBIO[Root] = {
     fetchRmaDetails(rma).map { case (customer, storeAdmin) ⇒
@@ -72,14 +71,7 @@ object RmaResponse {
       customer = customer,
       storeAdmin = admin,
       lineItems = mockLineItems,
-      payment = Some(mockPayment))
-
-  def buildMockSequence(admin: Option[StoreAdmin] = None, customer: Option[Customer] = None): Seq[Root] =
-    Seq(
-      buildMockRma(id = 1, refNum = "ABC-123", orderId = 1, admin = admin, customer = customer),
-      buildMockRma(id = 2, refNum = "ABC-456", orderId = 1, admin = admin, customer = customer),
-      buildMockRma(id = 3, refNum = "ABC-789", orderId = 1, admin = admin, customer = customer)
-    )
+      payments = mockPayments)
 
   def build(rma: Rma, customer: Option[Customer] = None, storeAdmin: Option[StoreAdmin] = None): Root = {
     Root(id = rma.id,
@@ -89,9 +81,7 @@ object RmaResponse {
       rmaType = rma.rmaType,
       status = rma.status,
       customer = customer,
-      storeAdmin = storeAdmin,
-      lineItems = mockLineItems,
-      payment = None)
+      storeAdmin = storeAdmin)
   }
 
   private def fetchRmaDetails(rma: Rma)(implicit ec: ExecutionContext) = {

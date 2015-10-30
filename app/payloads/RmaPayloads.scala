@@ -6,8 +6,18 @@ final case class RmaCreatePayload(orderId: Int, orderRefNum: String, rmaType: Rm
 
 final case class RmaUpdateStatusPayload(status: Rma.Status)
 
-final case class RmaUpdateSkuLineItemsPayload(sku: String, quantity: Int, reasonId: Int)
+/* Line item updater payloads */
 
-final case class RmaUpdateGiftCardLineItemsPayload(code: String, reasonId: Int)
+final case class RmaSkuLineItemsPayload(sku: String, quantity: Int, reasonId: Int)
 
-final case class RmaUpdateShippingCostLineItemsPayload(id: Int, reasonId: Int)
+final case class RmaGiftCardLineItemsPayload(code: String, reasonId: Int)
+
+final case class RmaShippingCostLineItemsPayload(id: Int, reasonId: Int)
+
+/* Payment payloads */
+
+final case class RmaCreditCardPayment(id: Int, amount: Int)
+
+final case class RmaGiftCardPayment(amount: Int)
+
+final case class RmaStoreCreditPayment(amount: Int)
