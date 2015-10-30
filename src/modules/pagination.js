@@ -11,7 +11,10 @@ export default (url, customReducers, customInitialState) => {
 
   const setState = (state, newState) => dispatch => {
     dispatch(actionSetState(newState));
-    dispatch(fetch(state));
+    dispatch(fetch({
+      ...state,
+      ...newState
+    }));
   };
 
   const fetch = state => dispatch => {
