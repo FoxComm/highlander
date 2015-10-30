@@ -41,7 +41,7 @@ const reducer = createReducer({
     return {
       ...state,
       isFetching: false,
-      items: payload
+      items: payload.result
     };
   },
   [updateRmas]: (state, payload) => {
