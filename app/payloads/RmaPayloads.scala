@@ -1,7 +1,7 @@
 package payloads
 
-final case class RmaCreatePayload(orderId: Int, rmaType: String)
+import models.Rma
 
-final case class RmaUpdatePayload(orderId: Int, rmaType: String)
+final case class RmaCreatePayload(orderId: Int, orderRefNum: String, rmaType: Rma.RmaType)
 
-final case class RmaUpdateStatusPayload(status: String, reasonId: Int)
+final case class RmaUpdateStatusPayload(status: Rma.Status)

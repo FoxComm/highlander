@@ -17,6 +17,7 @@ import responses.FullOrder.DisplayLineItem
 import responses.CustomerResponse.{Root ⇒ Customer}
 import responses.StoreAdminResponse
 import responses.RmaResponse._
+import services.orders.OrderPaymentUpdater
 
 import slick.driver.PostgresDriver.api._
 
@@ -55,24 +56,19 @@ object RmaRoutes {
         } ~
         (post & entity(as[RmaCreatePayload]) & pathEnd) { payload ⇒
           good {
-            genericRmaMock.copy(orderId = payload.orderId)
+            genericRmaMock.copy(orderId = payload.orderId, orderRefNum = payload.orderRefNum)
           }
         }
       } ~
-      pathPrefix("rmas" / """([a-zA-Z0-9-_]*)""".r) { refNum ⇒
+      pathPrefix("rmas" / Rma.rmaRefNumRegex) { refNum ⇒
         (get & pathEnd) {
           goodOrFailures {
             RmaService.getByRefNum(refNum)
           }
         } ~
-        (patch & entity(as[RmaUpdatePayload]) & pathEnd) { payload ⇒
-          good {
-            genericRmaMock.copy(orderId = payload.orderId)
-          }
-        } ~
         (patch & path("status") & entity(as[RmaUpdateStatusPayload]) & pathEnd) { payload ⇒
           good {
-            genericRmaMock
+            genericRmaMock.copy(status = payload.status)
           }
         } ~
         (post & path("lock") & pathEnd) {
@@ -83,6 +79,42 @@ object RmaRoutes {
         (post & path("unlock") & pathEnd) {
           good {
             genericRmaMock
+          }
+        } ~
+        pathPrefix("payment-methods" / "credit-cards") {
+          ((post | patch) & entity(as[payloads.CreditCardPayment]) & pathEnd) { payload ⇒
+            good {
+              genericRmaMock
+            }
+          } ~
+          (delete & pathEnd) {
+            good {
+              genericRmaMock
+            }
+          }
+        } ~
+        pathPrefix("payment-methods" / "gift-cards") {
+          (post & entity(as[payloads.GiftCardPayment]) & pathEnd) { payload ⇒
+            good {
+              genericRmaMock
+            }
+          } ~
+          (delete & path(GiftCard.giftCardCodeRegex) & pathEnd) { code ⇒
+            good {
+              genericRmaMock
+            }
+          }
+        } ~
+        pathPrefix("payment-methods" / "store-credit") {
+          ((post | patch) & entity(as[payloads.StoreCreditPayment]) & pathEnd) { payload ⇒
+            good {
+              genericRmaMock
+            }
+          } ~
+          (delete & pathEnd) {
+            good {
+              genericRmaMock
+            }
           }
         }
       }
