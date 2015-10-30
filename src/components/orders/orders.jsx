@@ -77,6 +77,7 @@ export default class Orders extends React.Component {
             data={this.props.orders}
             renderRow={renderRow}
             setFrom={this.props.setFrom}
+            setSize={this.props.setSize}
             />
         </div>
       </div>
