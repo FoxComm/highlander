@@ -1,6 +1,7 @@
 'use strict';
 
 import fetch from 'isomorphic-fetch';
+import buildQueryString from 'querystring/encode';
 
 const isServer = typeof self === 'undefined';
 
@@ -41,11 +42,20 @@ export default class Api {
       headers['Content-Type'] = 'application/json;charset=UTF-8';
     }
 
-    return fetch(uri, {
+    const options = {
       method,
-      headers,
-      body: isFormData ? data : JSON.stringify(data)
-    })
+      headers
+    };
+
+    if (data) {
+      if (method.toUpperCase() === 'GET') {
+        uri = `${uri}?${buildQueryString(data)}`;
+      } else {
+        options.body = isFormData ? data : JSON.stringify(data);
+      }
+    }
+
+    return fetch(uri, options)
       .then(response => {
         if (response.status >= 200 && response.status < 300) {
           return response;
