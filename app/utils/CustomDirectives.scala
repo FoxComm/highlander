@@ -12,10 +12,12 @@ import utils.Slick.implicits.ResultWithMetadata
 
 object CustomDirectives {
 
+  val DefaultPageSize = 50
+
   final case class Sort(sortColumn: String, asc: Boolean = true)
   final case class SortAndPage(
-    from: Option[Int],
-    size: Option[Int],
+    from: Option[Int] = Some(0),
+    size: Option[Int] = Some(DefaultPageSize),
     sortBy: Option[String]) {
 
     require(from.getOrElse(1) >= 0, "from parameter must be non-negative")

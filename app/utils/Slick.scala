@@ -230,19 +230,20 @@ object Slick {
         ec: ExecutionContext,
         sortAndPage: SortAndPage): QueryWithMetadata[E, U, C] = {
 
+        val from = sortAndPage.from.getOrElse(0)
+        val size = sortAndPage.size.getOrElse(CustomDirectives.DefaultPageSize)
+
         // size > 0 costraint is defined in SortAndPage
-        val total = sortAndPage.size.map { _ ⇒ query.length.result.run() }
-        val pageNo = for {
-          from ← sortAndPage.from
-          size ← sortAndPage.size
-        } yield (from / size) + 1
+        val pageNo = (from / size) + 1
+        // TODO: left as DBIO and compose
+        val total  = query.length.result.run()
 
         val metadata = QueryMetadata(
           sortBy = sortAndPage.sortBy,
-          from = sortAndPage.from,
-          size = sortAndPage.size,
-          pageNo = pageNo,
-          total = total)
+          from   = Some(from),
+          size   = Some(size),
+          pageNo = Some(pageNo),
+          total  = Some(total))
 
         withMetadata(metadata)
       }
