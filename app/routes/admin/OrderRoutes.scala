@@ -125,7 +125,7 @@ object OrderRoutes {
           (post & entity(as[payloads.GiftCardPayment]) & pathEnd) { payload ⇒
             goodOrFailures { OrderPaymentUpdater.addGiftCard(refNum, payload) }
           } ~
-          (delete & path(Segment) & pathEnd) { code ⇒
+          (delete & path(GiftCard.giftCardCodeRegex) & pathEnd) { code ⇒
             goodOrFailures { OrderPaymentUpdater.deleteGiftCard(refNum, code) }
           }
         } ~
