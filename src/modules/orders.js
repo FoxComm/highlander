@@ -1,8 +1,12 @@
 'use strict';
 
-import paginate from '../modules/pagination';
+import makePagination from '../modules/pagination';
 
-const {reducer, fetch, setState} = paginate('/orders');
+const {reducer, actions: {fetch, setFetchData}} = makePagination('/orders', 'ORDERS');
 
-export {fetch, setState};
 export default reducer;
+
+export {
+  fetch,
+  setFetchData
+};
