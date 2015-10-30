@@ -33,7 +33,7 @@ object Seeds {
     args.headOption.map {
       case "ranking" ⇒
         Console.err.println(s"Inserting ranking seeds")
-        Await.result(db.run(insertRankingSeeds().transactionally), 5.minutes)
+        Await.result(db.run(insertRankingSeeds().transactionally), 7.second)
       case _ ⇒ None
     }
   }
@@ -58,36 +58,46 @@ object Seeds {
   final case class AllPaymentMethods(giftCard: GiftCard = Factories.giftCard, storeCredit: StoreCredit = Factories
     .storeCredit)
 
-  def insertRankingSeeds()(implicit db: Database): dbio.DBIOAction[(immutable.IndexedSeq[Customer], immutable
-  .IndexedSeq[(CreditCard, immutable.IndexedSeq[Order])], immutable.IndexedSeq[OrderPayment]), NoStream, All with All
-    with All with All] = {
+  def insertRankingSeeds()(implicit db: Database) = {
     import scala.concurrent.ExecutionContext.Implicits.global
 
     import Factories.{generateCustomer, generateOrder, generateOrderPayment}
 
-    def makeCustomers = (1 to 1700).map { i ⇒ generateCustomer }.map(Customers.save)
+    val location = "Arkham"
 
     def makeOrders(c: Customer) = {
-      (1 to Random.nextInt(20)).map { i ⇒ generateOrder(Order.Shipped, c.id) }.map(Orders.save)
+      (1 to Random.nextInt(20)).map { i ⇒ generateOrder(Order.Shipped, c.id) }
     }
 
-    def makePayments(o: Order, pm: CreditCard) = {
-      Seq(generateOrderPayment(o.id, pm, Random.nextInt(20000) + 100)).map(OrderPayments.save)
+    def makePayment(o: Order, pm: CreditCard) = {
+      generateOrderPayment(o.id, pm, Random.nextInt(20000) + 100)
     }
 
-    for {
-      customers ← DBIO.sequence(makeCustomers)
-      ccAndOrders ← DBIO.sequence(customers.map {
-        case c ⇒
-          for {
-            cc ← CreditCards.save(Factories.creditCard.copy(customerId = c.id))
-            orders ← DBIO.sequence(makeOrders(c))
-          } yield (cc, orders)
-      })
-      payments ← DBIO.sequence(ccAndOrders.flatMap { case (cc, orders) ⇒
-          orders.flatMap(makePayments(_, cc))
-      })
-    } yield (customers, ccAndOrders, payments)
+    val insertCustomers = Customers ++=  (1 to 1700).map { i ⇒
+      val s = Factories.randomString(15)
+      Customer(name = Some(s), email = s"${s}-${i}@email.com", password = Some(s), location = Some(location))
+    }
+
+    val insertOrders = Customers.filter(_.location === location).result.flatMap {
+      case customers ⇒
+        DBIO.sequence(Seq(
+          CreditCards ++= customers.map { case c ⇒ Factories.creditCard.copy(customerId = c.id,
+            holderName = c.name.getOrElse(""))
+          },
+          Orders ++= customers.flatMap(makeOrders)))
+    }
+
+    val insertPayments = {
+      val action = (for {
+        (o, cc) ← Orders.join(CreditCards).on(_.customerId === _.customerId)
+      } yield (o, cc)).result
+
+      action.flatMap { case ordersWithCc ⇒
+          OrderPayments ++= ordersWithCc.map { case c ⇒ makePayment(c._1, c._2) }
+      }
+    }
+
+    DBIO.sequence(Seq(insertCustomers, insertOrders, insertPayments))
   }
 
   def run()(implicit db: Database): dbio.DBIOAction[(Option[Int], Order, Address, OrderShippingAddress, CreditCard,
