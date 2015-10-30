@@ -126,7 +126,7 @@ object CreditCards extends TableQueryWithId[CreditCard, CreditCards](
           case "address2"            ⇒ if(s.asc) creditCard.address2.asc          else creditCard.address2.desc
           case "city"                ⇒ if(s.asc) creditCard.city.asc              else creditCard.city.desc
           case "zip"                 ⇒ if(s.asc) creditCard.zip.asc               else creditCard.zip.desc
-          case _                     ⇒ creditCard.id.asc
+          case other                 ⇒ invalidSortColumn(other)
         }
       }
       case None    ⇒ query.withMetadata

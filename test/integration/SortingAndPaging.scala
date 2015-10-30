@@ -1,8 +1,9 @@
 import akka.http.scaladsl.model.StatusCodes
 
 import org.scalatest.mock.MockitoSugar
-import responses.{ResponseWithFailuresAndMetadata, ResponseItem}
+import responses.{ResponsePagingMetadata, ResponseWithFailuresAndMetadata, ResponseItem}
 import util.IntegrationTestBase
+import utils.CustomDirectives
 
 trait SortingAndPaging[T <: ResponseItem] extends MockitoSugar { this: IntegrationTestBase with HttpSupport ⇒
 
@@ -54,7 +55,8 @@ trait SortingAndPaging[T <: ResponseItem] extends MockitoSugar { this: Integrati
       respWithMetadata.sorting must be ('defined)
       respWithMetadata.sorting.value.sortBy must be ('defined)
       respWithMetadata.sorting.value.sortBy.value must === (sortColumnName)
-      respWithMetadata.pagination must === (None)
+      respWithMetadata.pagination must === (Some(ResponsePagingMetadata(Some(0),Some(CustomDirectives.DefaultPageSize),
+        Some(1),Some(30))))
     }
 
     "sort by a column with paging #1" in new SortingAndPagingFixture {
@@ -118,10 +120,10 @@ trait SortingAndPaging[T <: ResponseItem] extends MockitoSugar { this: Integrati
       responseList.status must === (StatusCodes.BadRequest)
     }
 
-    "ignore invalid sortBy param" in new SortingAndPagingFixture {
+    "error on invalid sortBy param" in new SortingAndPagingFixture {
       val responseList = GET(s"$uriPrefix?sortBy=3242&from=3&size=10")
 
-      responseList.status must === (StatusCodes.OK)
+      responseList.status must === (StatusCodes.BadRequest)
     }
   }
 

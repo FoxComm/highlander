@@ -2,7 +2,6 @@ import scala.concurrent.Future
 import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 
 import models.{Addresses, Customer, Customers, OrderShippingAddresses, Orders, Regions}
-import responses.ResponseWithFailuresAndMetadata
 import util.IntegrationTestBase
 import util.SlickSupport.implicits._
 import utils.Seeds.Factories
@@ -30,17 +29,17 @@ class AddressesIntegrationTest extends IntegrationTestBase
 
   def responseItems = {
     val items = (1 to numOfResults).map { i ⇒
-      val future = (for {
+      val dbio = for {
         address ← Addresses.save(Factories.generateAddress.copy(customerId = currentCustomer.id))
         region  ← Regions.findById(address.regionId).result.head
-      } yield (address, region)).run()
+      } yield (address, region)
 
-      future map { case (address, region) ⇒
+      dbio.map { case (address, region) ⇒
         responses.Addresses.build(address, region)
       }
     }
 
-    Future.sequence(items).futureValue
+    DBIO.sequence(items).transactionally.run().futureValue
   }
 
   val sortColumnName = "name"
@@ -61,7 +60,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
 
       response.status must === (StatusCodes.OK)
 
-      val addresses = response.as[ResponseWithFailuresAndMetadata[Seq[responses.Addresses.Root]]].result
+      val addresses = response.as[responses.Addresses.Root#ResponseMetadataSeq].result
 
       addresses must have size 1
       addresses.head.name must === (address.name)
@@ -169,7 +168,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
       addressesResponse.status must === (StatusCodes.OK)
 
       //If you get all the addresses, our newly deleted one should not show up
-      val addresses = addressesResponse.as[ResponseWithFailuresAndMetadata[Seq[responses.Addresses.Root]]].result
+      val addresses = addressesResponse.as[responses.Addresses.Root#ResponseMetadataSeq].result
       addresses.filter(_.id == newAddress.id) must have length 0
     }
 

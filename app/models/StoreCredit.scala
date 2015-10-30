@@ -169,7 +169,7 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
         case "canceledAmount"   ⇒ if(s.asc) storeCredit.canceledAmount.asc   else storeCredit.canceledAmount.desc
         case "canceledReason"   ⇒ if(s.asc) storeCredit.canceledReason.asc   else storeCredit.canceledReason.desc
         case "createdAt"        ⇒ if(s.asc) storeCredit.createdAt.asc      else storeCredit.createdAt.desc
-        case _                  ⇒ storeCredit.id.asc
+        case other              ⇒ invalidSortColumn(other)
       }
     }
 

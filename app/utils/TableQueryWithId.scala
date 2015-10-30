@@ -1,6 +1,6 @@
 package utils
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{Future, ExecutionContext}
 
 import cats.data.{Xor, ValidatedNel}
 import monocle.Lens
@@ -104,9 +104,26 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.Tab
       }.transactionally.run()
     }
 
+    // TODO: try to run ResultWithMetadata.result in the same transaction
+    // TODO: until than do not use this for transactional updates
+    protected def selectInnerWithMetadata[R](dbio: DBIO[Option[M]])(action: M ⇒ ResultWithMetadata[R],
+      checks: Checks = checks,  notFoundFailure: Failure = notFound404)
+      (implicit ec: ExecutionContext, db: Database): Future[ResultWithMetadata[R]] = {
+      dbio.map(maybe ⇒ applyAllChecks(checks, maybe, notFoundFailure)).flatMap {
+        case Xor.Right(value)   ⇒ lift(action(value))
+        case Xor.Left(failures) ⇒ lift(ResultWithMetadata.fromFailures[R](failures))
+      }.run()
+    }
+
     def selectOne[R](action: M ⇒ DbResult[R], checks: Checks = checks, notFoundFailure: Failure = notFound404)
       (implicit ec: ExecutionContext, db: Database): Result[R] = {
       selectInner(q.result.headOption)(action, checks)
+    }
+
+    def selectOneWithMetadata[R](action: M ⇒ ResultWithMetadata[R], checks: Checks = checks,
+      notFoundFailure: Failure = notFound404)
+      (implicit ec: ExecutionContext, db: Database): Future[ResultWithMetadata[R]] = {
+      selectInnerWithMetadata(q.result.headOption)(action, checks)
     }
 
     def selectOneForUpdate[R](action: M ⇒ DbResult[R], checks: Checks = checks, notFoundFailure: Failure = notFound404)

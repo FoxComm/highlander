@@ -51,18 +51,18 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
   def responseItems = {
     val items = regCurrencies.take(numOfResults).map { currency ⇒
       val balance = Random.nextInt(9999999)
-      val future = StoreCredits.save(Factories.storeCredit.copy(
+      val dbio = StoreCredits.save(Factories.storeCredit.copy(
         currency = currency,
         originId = currentOrigin.id,
         customerId = currentCustomer.id,
         originalBalance = balance,
         currentBalance = balance,
-        availableBalance = balance)).run()
+        availableBalance = balance))
 
-      future map { responses.StoreCreditResponse.build }
+      dbio.map { responses.StoreCreditResponse.build }
     }
 
-    Future.sequence(items).futureValue
+    DBIO.sequence(items).transactionally.run().futureValue
   }
 
   val sortColumnName = "currency"
@@ -164,9 +164,9 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
     "GET /v1/store-credits/:id/transactions" - {
       "returns the list of adjustments" in new Fixture {
         val response = GET(s"v1/store-credits/${storeCredit.id}/transactions")
-        response.status must ===(StatusCodes.OK)
+        val adjustments = response.as[StoreCreditAdjustmentsResponse.Root#ResponseMetadataSeq].result
 
-        val adjustments = response.as[ResponseWithFailuresAndMetadata[Seq[StoreCreditAdjustmentsResponse.Root]]].result
+        response.status must ===(StatusCodes.OK)
         adjustments.size must === (1)
 
         val firstAdjustment = adjustments.head
@@ -180,9 +180,9 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         val adjustment3 = StoreCredits.auth(storeCredit, Some(payment.id), 2).run().futureValue
 
         val response = GET(s"v1/store-credits/${storeCredit.id}/transactions?sortBy=-id&from=2&size=2")
-        response.status must ===(StatusCodes.OK)
+        val adjustments = response.as[StoreCreditAdjustmentsResponse.Root#ResponseMetadataSeq]
 
-        val adjustments = response.as[ResponseWithFailuresAndMetadata[Seq[StoreCreditAdjustmentsResponse.Root]]]
+        response.status must ===(StatusCodes.OK)
         adjustments.result.size must === (1)
         adjustments.checkSortingAndPagingMetadata("-id", 2, 2)
 
@@ -227,7 +227,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
         // Ensure that cancel adjustment is automatically created
         val transactionsRep = GET(s"v1/store-credits/${storeCredit.id}/transactions")
-        val adjustments = transactionsRep.as[ResponseWithFailuresAndMetadata[Seq[StoreCreditAdjustmentsResponse.Root]]]
+        val adjustments = transactionsRep.as[StoreCreditAdjustmentsResponse.Root#ResponseMetadataSeq]
           .result
 
         response.status must ===(StatusCodes.OK)

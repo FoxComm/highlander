@@ -176,7 +176,7 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
         case "canceledReason"   ⇒ if(s.asc) giftCard.canceledReason.asc   else giftCard.canceledReason.desc
         case "reloadable"       ⇒ if(s.asc) giftCard.reloadable.asc       else giftCard.reloadable.desc
         case "createdAt"        ⇒ if(s.asc) giftCard.createdAt.asc        else giftCard.createdAt.desc
-        case _                  ⇒ giftCard.id.asc
+        case other              ⇒ invalidSortColumn(other)
       }
     }
   }

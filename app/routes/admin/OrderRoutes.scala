@@ -28,8 +28,8 @@ object OrderRoutes {
 
       pathPrefix("orders") {
         (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-          good {
-            OrderQueries.findAll.run()
+          goodOrFailures {
+            OrderQueries.findAll
           }
         } ~
         (post & entity(as[CreateOrder]) & pathEnd) { payload ⇒
