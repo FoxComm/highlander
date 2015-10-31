@@ -62,6 +62,24 @@ object CustomerManager {
     }
   }
 
+  def searchForNewOrder(nameOrEmail: String)
+    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
+    val likeQuery = s"%${nameOrEmail}%"
+    val query = Customers.filter { customer ⇒
+      (customer.email like likeQuery) || (customer.name like likeQuery)
+    }
+
+    val customersAndOrderTotal = Orders.groupBy(_.customerId).map {
+      case (id, q) ⇒ (id, q.length)
+    }.join(query).on(_._1 === _.id).map {
+      case ((_, count), c) ⇒ (c, count)
+    }
+
+    customersAndOrderTotal.withMetadata.result.map(_.map { case (customer, ordersTotal) ⇒
+      build(customer, ordersTotal = Some(ordersTotal))
+    })
+  }
+
   def getById(id: Int)(implicit db: Database, ec: ExecutionContext): Result[Root] = {
     val query = Customers.filter(_.id === id).withDefaultRegions
     query.result.headOption.run().flatMap {

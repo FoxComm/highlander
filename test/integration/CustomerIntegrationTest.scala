@@ -231,7 +231,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.OK)
 
       val created = Customers.findOneById(root.id).run().futureValue.value
-      CustomerResponse.build(created) must === (root.copy(name = Some("test")))
+      CustomerResponse.build(created) must === (root.copy(name = Some("test"), isGuest = false))
       created.isGuest must === (false)
     }
   }

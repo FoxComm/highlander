@@ -35,6 +35,13 @@ object CustomerRoutes {
             CustomerManager.findAll
           }
         } ~
+        (get & pathPrefix("searchForNewOrder" / Segment ) & pathEnd) { nameOrEmail ⇒
+          (sortAndPage) { implicit sortAndPage ⇒
+            goodOrFailures {
+              CustomerManager.searchForNewOrder(nameOrEmail)
+            }
+           }
+        } ~
         (post & entity(as[payloads.CreateCustomerPayload]) & pathEnd) { payload ⇒
           goodOrFailures {
             CustomerManager.create(payload)
