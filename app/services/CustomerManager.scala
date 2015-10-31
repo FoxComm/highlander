@@ -65,15 +65,19 @@ object CustomerManager {
   def searchForNewOrder(nameOrEmail: String)
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
     val likeQuery = s"%${nameOrEmail}%"
+
     val query = Customers.filter { customer ⇒
       (customer.email like likeQuery) || (customer.name like likeQuery)
     }
 
-    val customersAndOrderTotal = Orders.groupBy(_.customerId).map {
+    val withOrdersTotal = query.joinLeft(Orders).on(_.id === _.customerId).groupBy(_._1.id).map {
       case (id, q) ⇒ (id, q.length)
-    }.join(query).on(_._1 === _.id).map {
-      case ((_, count), c) ⇒ (c, count)
     }
+
+    val customersAndOrderTotal = for {
+      c ← query
+      (id, count) ← withOrdersTotal if id === c.id
+    } yield (c, count)
 
     customersAndOrderTotal.withMetadata.result.map(_.map { case (customer, ordersTotal) ⇒
       build(customer, ordersTotal = Some(ordersTotal))

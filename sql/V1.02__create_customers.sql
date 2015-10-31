@@ -23,3 +23,4 @@ create index customers_email_idx on customers (email);
 create unique index customers_active_non_guest_email on customers (email, is_disabled, is_guest) where
     is_disabled = false and is_guest = false;
 
+create index customers_email_name_trgm_gin on customers using gin(email gin_trgm_ops, name gin_trgm_ops);

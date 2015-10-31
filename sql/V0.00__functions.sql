@@ -1,3 +1,6 @@
+-- extensions
+create extension pg_trgm;
+
 -- creates an inventory_event so we have an ID for the child table in our concrete table pattern
 create function make_inventory_event_id() returns bigint as $$
 declare
