@@ -14,7 +14,7 @@ import utils.CustomDirectives.SortAndPage
 import utils.Slick.DbResult
 import utils.Slick.implicits._
 import utils.Slick.UpdateReturning._
-import payloads.{CreateCustomerPayload, UpdateCustomerPayload, ActivateCustomerPayload}
+import payloads.{CreateCustomerPayload, UpdateCustomerPayload, ActivateCustomerPayload, CustomerSearchForNewOrder}
 import utils.jdbc._
 
 object CustomerManager {
@@ -62,26 +62,33 @@ object CustomerManager {
     }
   }
 
-  def searchForNewOrder(nameOrEmail: String)
+  def searchForNewOrder(payload: CustomerSearchForNewOrder)
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
-    val likeQuery = s"%${nameOrEmail}%"
 
-    val query = Customers.filter { customer ⇒
-      (customer.email like likeQuery) || (customer.name like likeQuery)
+    def customersAndOrderTotal = {
+      val likeQuery = s"%${payload.term}%"
+
+      val query = Customers.filter { customer ⇒
+        (customer.email like likeQuery) || (customer.name like likeQuery)
+      }
+
+      val withOrdersTotal = query.joinLeft(Orders).on(_.id === _.customerId).groupBy(_._1.id).map {
+        case (id, q) ⇒ (id, q.length)
+      }
+
+      for {
+        c ← query
+        (id, count) ← withOrdersTotal if id === c.id
+      } yield (c, count)
     }
 
-    val withOrdersTotal = query.joinLeft(Orders).on(_.id === _.customerId).groupBy(_._1.id).map {
-      case (id, q) ⇒ (id, q.length)
+    payload.validate match {
+      case Valid(_) ⇒
+        customersAndOrderTotal.withMetadata.result.map(_.map { case (customer, ordersTotal) ⇒
+          build(customer, ordersTotal = Some(ordersTotal))
+        })
+      case Invalid(errors) ⇒ ResultWithMetadata.fromFailures(errors)
     }
-
-    val customersAndOrderTotal = for {
-      c ← query
-      (id, count) ← withOrdersTotal if id === c.id
-    } yield (c, count)
-
-    customersAndOrderTotal.withMetadata.result.map(_.map { case (customer, ordersTotal) ⇒
-      build(customer, ordersTotal = Some(ordersTotal))
-    })
   }
 
   def getById(id: Int)(implicit db: Database, ec: ExecutionContext): Result[Root] = {
