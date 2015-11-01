@@ -454,6 +454,15 @@ class CustomerIntegrationTest extends IntegrationTestBase
     }
   }
 
+  "GET /v1/customers/searchForNewOrder?term=:term" - {
+    "successfully search by term" in new Fixture {
+      val response = GET(s"${uriPrefix}/searchForNewOrder?term=${customer.email.drop(2)}")
+      response.status must === (StatusCodes.OK)
+
+      response.as[CustomerResponse.Root#ResponseMetadataSeq].result.size must === (1)
+    }
+  }
+
   trait Fixture {
     val (customer, address, region, admin) = (for {
       customer ← Customers.save(Factories.customer)
