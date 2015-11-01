@@ -67,9 +67,9 @@ object CustomerManager {
 
     def customersAndOrderTotal = {
       val likeQuery = s"%${payload.term}%"
-
-      val query = Customers.filter { customer ⇒
-        (customer.email like likeQuery) || (customer.name like likeQuery)
+      val query = payload.term.contains("@") match {
+        case true ⇒ Customers.filter(_.email like likeQuery)
+        case _ ⇒ Customers.filter { case c ⇒ c.email.like(likeQuery) || c.name.like(likeQuery) }
       }
 
       val withOrdersTotal = query.joinLeft(Orders).on(_.id === _.customerId).groupBy(_._1.id).map {
