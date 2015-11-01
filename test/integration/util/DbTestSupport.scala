@@ -5,6 +5,7 @@ import javax.sql.DataSource
 import scala.annotation.tailrec
 
 import org.flywaydb.core.Flyway
+import utils.flyway.newFlyway
 import org.scalatest.{BeforeAndAfterAll, Outcome, Suite, SuiteMixin}
 import slick.jdbc.HikariCPJdbcDataSource
 import java.sql.Connection
@@ -20,9 +21,7 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
 
   override protected def beforeAll(): Unit = {
     if (!migrated) {
-      val flyway = new Flyway
-      flyway.setDataSource(jdbcDataSourceFromSlickDB(db))
-      flyway.setLocations("filesystem:./sql")
+      val flyway = newFlyway(jdbcDataSourceFromSlickDB(db))
 
       flyway.clean()
       flyway.migrate()
