@@ -128,7 +128,6 @@ class RmaIntegrationTest extends IntegrationTestBase
       }
     }
 
-<<<<<<< HEAD
     "GET /v1/rmas/:refNum/lock" - {
       "returns lock info on locked RMA" in {
         Orders.save(Factories.order.copy(referenceNumber = "ABC-123")).run().futureValue
@@ -207,10 +206,10 @@ class RmaIntegrationTest extends IntegrationTestBase
         POST(s"v1/rmas/${rma.referenceNumber}/lock")
 
         val response = POST(s"v1/rmas/${rma.referenceNumber}/unlock")
-        response.status must === (StatusCodes.OK)
+        response.status must ===(StatusCodes.OK)
 
         val unlockedRma = Rmas.findByRefNum(rma.referenceNumber).result.run().futureValue.head
-        unlockedRma.locked must === (false)
+        unlockedRma.locked must ===(false)
       }
 
       "refuses to unlock an already unlocked RMA" in {
@@ -218,9 +217,11 @@ class RmaIntegrationTest extends IntegrationTestBase
         val rma = Rmas.save(Factories.rma.copy(referenceNumber = "ABC-123.1")).run().futureValue
         val response = POST(s"v1/rmas/${rma.referenceNumber}/unlock")
 
-        response.status must === (StatusCodes.BadRequest)
-        response.errors must === (GeneralFailure("Return is not locked").description)
-=======
+        response.status must ===(StatusCodes.BadRequest)
+        response.errors must ===(GeneralFailure("Return is not locked").description)
+      }
+    }
+
     "GET /v1/rmas/:refNum/expanded" - {
       "should return expanded RMA by referenceNumber" in new Fixture {
         val response = GET(s"v1/rmas/${rma.refNum}/expanded")
@@ -235,7 +236,7 @@ class RmaIntegrationTest extends IntegrationTestBase
         val response = GET(s"v1/rmas/ABC-666/expanded")
         response.status must ===(StatusCodes.NotFound)
         response.errors must ===(NotFoundFailure404(Rma, "ABC-666").description)
->>>>>>> master
+
       }
     }
   }
