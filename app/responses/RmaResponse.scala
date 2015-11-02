@@ -14,6 +14,8 @@ import utils.Slick._
 import utils.Slick.implicits._
 
 object RmaResponse {
+  val mockTotal = 10
+
   val mockLineItems = LineItems(
     skus = Seq(
       DisplayLineItem(sku = "SKU-YAX", status = OrderLineItem.Shipped),
@@ -40,7 +42,8 @@ object RmaResponse {
     lineItems: LineItems = LineItems(),
     payments: Payments = Payments(),
     customer: Option[Customer] = None,
-    storeAdmin: Option[StoreAdmin] = None) extends ResponseItem
+    storeAdmin: Option[StoreAdmin] = None,
+    total: Int) extends ResponseItem
 
   final case class RootExpanded(
     id: Int,
@@ -51,7 +54,8 @@ object RmaResponse {
     lineItems: LineItems = LineItems(),
     payment: Payments = Payments(),
     customer: Option[Customer] = None,
-    storeAdmin: Option[StoreAdmin] = None) extends ResponseItem
+    storeAdmin: Option[StoreAdmin] = None,
+    total: Int) extends ResponseItem
 
   final case class LineItems(
     skus: Seq[FullOrder.DisplayLineItem] = Seq.empty,
@@ -96,7 +100,8 @@ object RmaResponse {
       customer = customer,
       storeAdmin = admin,
       lineItems = mockLineItems,
-      payments = mockPayments)
+      payments = mockPayments,
+      total = mockTotal)
 
   def build(rma: Rma, customer: Option[Customer] = None, storeAdmin: Option[StoreAdmin] = None): Root = {
     Root(id = rma.id,
@@ -106,7 +111,8 @@ object RmaResponse {
       rmaType = rma.rmaType,
       status = rma.status,
       customer = customer,
-      storeAdmin = storeAdmin)
+      storeAdmin = storeAdmin,
+      total = mockTotal)
   }
 
   def buildExpanded(rma: Rma, order: Option[FullOrder.Root] = None,
@@ -117,7 +123,8 @@ object RmaResponse {
       rmaType = rma.rmaType,
       status = rma.status,
       customer = customer,
-      storeAdmin = storeAdmin)
+      storeAdmin = storeAdmin,
+      total = mockTotal)
   }
 
   private def fetchRmaDetails(rma: Rma)(implicit ec: ExecutionContext, db: Database) = {
