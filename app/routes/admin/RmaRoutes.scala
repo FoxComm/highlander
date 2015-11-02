@@ -61,7 +61,12 @@ object RmaRoutes {
             RmaService.getByRefNum(refNum)
           }
         } ~
-        (patch & path("status") & entity(as[RmaUpdateStatusPayload]) & pathEnd) { payload ⇒
+        (get & path("expanded") & pathEnd) {
+          goodOrFailures {
+            RmaService.getExpandedByRefNum(refNum)
+          }
+        } ~
+        (patch & entity(as[RmaUpdateStatusPayload]) & pathEnd) { payload ⇒
           good {
             genericRmaMock.copy(status = payload.status)
           }

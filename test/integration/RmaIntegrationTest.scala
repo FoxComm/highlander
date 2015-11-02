@@ -110,8 +110,8 @@ class RmaIntegrationTest extends IntegrationTestBase
       }
     }
 
-    "GET /v1/rmas/:code" - {
-      "should return valid RMA by code" in new Fixture {
+    "GET /v1/rmas/:refNum" - {
+      "should return valid RMA by referenceNumber" in new Fixture {
         val response = GET(s"v1/rmas/${rma.refNum}")
         response.status must ===(StatusCodes.OK)
 
@@ -121,6 +121,23 @@ class RmaIntegrationTest extends IntegrationTestBase
 
       "should return 404 if invalid rma is returned" in new Fixture {
         val response = GET(s"v1/rmas/ABC-666")
+        response.status must ===(StatusCodes.NotFound)
+        response.errors must ===(NotFoundFailure404(Rma, "ABC-666").description)
+      }
+    }
+
+    "GET /v1/rmas/:refNum/expanded" - {
+      "should return expanded RMA by referenceNumber" in new Fixture {
+        val response = GET(s"v1/rmas/${rma.refNum}/expanded")
+        response.status must ===(StatusCodes.OK)
+
+        val root = response.as[RmaResponse.RootExpanded]
+        root.referenceNumber must ===(rma.refNum)
+        root.order.head.referenceNumber must ===(order.refNum)
+      }
+
+      "should return 404 if invalid rma is returned" in new Fixture {
+        val response = GET(s"v1/rmas/ABC-666/expanded")
         response.status must ===(StatusCodes.NotFound)
         response.errors must ===(NotFoundFailure404(Rma, "ABC-666").description)
       }

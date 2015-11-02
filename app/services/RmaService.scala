@@ -16,6 +16,11 @@ object RmaService {
     finder.selectOne(rma ⇒ DbResult.fromDbio(fromRma(rma)))
   }
 
+  def getExpandedByRefNum(refNum: String)(implicit db: Database, ec: ExecutionContext): Result[RootExpanded] = {
+    val finder = Rmas.findByRefNum(refNum)
+    finder.selectOne(rma ⇒ DbResult.fromDbio(fromRmaExpanded(rma)))
+  }
+
   def findAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
     Rmas.queryAll.result.map(_.map(build(_)))
   }
