@@ -14,7 +14,7 @@ class OrdersIntegrationTest extends IntegrationTestBase {
 
   "Orders" - {
     "generates a referenceNumber in Postgres after insert when blank" in new Fixture {
-      val order = Orders.saveNew(Factories.cart.copy(customerId = customer.id, referenceNumber = "")).run().futureValue
+      val order = Orders.create(Factories.cart.copy(customerId = customer.id, referenceNumber = "")).run().futureValue.rightVal
 
       order.referenceNumber must === ("BR10001")
     }
@@ -44,9 +44,9 @@ class OrdersIntegrationTest extends IntegrationTestBase {
 
       order.remorsePeriodEnd must ===(None)
 
-      db.run(Orders.update(order.copy(status = RemorseHold))).futureValue
+      db.run(Orders.update(order, order.copy(status = RemorseHold))).futureValue mustBe 'right
 
-      val updatedOrder = Orders.findByRefNum(order.referenceNumber).result.run().futureValue.head
+      val updatedOrder = Orders.findByRefNum(order.referenceNumber).result.run().futureValue.headOption.value
       updatedOrder.remorsePeriodEnd.value.minuteOfHour must === (Instant.now.plusMinutes(30).minuteOfHour)
     }
 

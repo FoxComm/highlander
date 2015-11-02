@@ -21,6 +21,7 @@ import slick.jdbc.JdbcType
 
 import utils._
 import utils.Money._
+import utils.Slick.DbResult
 import utils.Slick.implicits._
 import utils.Validation._
 
@@ -44,7 +45,7 @@ final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = C
     }
 
     ( canceledWithReason
-      |@| notEmpty(code, "code")
+      // |@| notEmpty(code, "code") // FIXME: this check does not allow to create models
       |@| validExpr(originalBalance >= 0, "originalBalance should be greater or equal than zero")
       |@| validExpr(currentBalance >= 0, "currentBalance should be greater or equal than zero")
       ).map { case _ ⇒ this }
@@ -218,11 +219,18 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
   def findActiveByCode(code: String): QuerySeq =
     findByCode(code).filter(_.status === (GiftCard.Active: GiftCard.Status))
 
-  val returningIdCodeAndBalance = this.returning(map { gc ⇒ (gc.id, gc.code, gc.currentBalance, gc.availableBalance) })
+  type ReturningIdCodeBalances = (Int, String, Int, Int)
 
-  override def saveNew(gc: GiftCard)(implicit ec: ExecutionContext): DBIO[GiftCard] = for {
-    (newId, code, currentBalance, availableBalance) ← returningIdCodeAndBalance += gc
-  } yield gc.copy(id = newId, code = code, currentBalance = currentBalance, availableBalance = availableBalance)
+  val returningIdCodeAndBalance: Returning[ReturningIdCodeBalances] =
+    this.returning(map { gc ⇒ (gc.id, gc.code, gc.currentBalance, gc.availableBalance) })
+
+  def returningAction(ret: ReturningIdCodeBalances)(gc: GiftCard): GiftCard = ret match {
+    case (id, code, currentBalance, availableBalance) ⇒
+      gc.copy(id = id, code = code, currentBalance = currentBalance, availableBalance = availableBalance)
+  }
+
+  override def create[R](gc: GiftCard, returning: Returning[R], action: R ⇒ GiftCard ⇒ GiftCard)
+    (implicit ec: ExecutionContext): DbResult[GiftCard] = super.create(gc, returningIdCodeAndBalance, returningAction)
 
   private def adjust(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int = 0, credit: Int = 0,
     status: Adj.Status = Adj.Auth)

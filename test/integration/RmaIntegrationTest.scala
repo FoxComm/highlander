@@ -105,10 +105,10 @@ class RmaIntegrationTest extends IntegrationTestBase
 
     "GET /v1/rmas/:refNum/lock" - {
       "returns lock info on locked RMA" in {
-        Customers.saveNew(Factories.customer).run().futureValue
-        Orders.saveNew(Factories.order.copy(referenceNumber = "ABC-123")).run().futureValue
-        val rma = Rmas.saveNew(Factories.rma.copy(referenceNumber = "ABC-123.1")).run().futureValue
-        val admin = StoreAdmins.saveNew(Factories.storeAdmin).run().futureValue
+        Customers.create(Factories.customer).run().futureValue.rightVal
+        Orders.create(Factories.order.copy(referenceNumber = "ABC-123")).run().futureValue.rightVal
+        val rma = Rmas.create(Factories.rma.copy(referenceNumber = "ABC-123.1")).run().futureValue.rightVal
+        val admin = StoreAdmins.create(Factories.storeAdmin).run().futureValue.rightVal
 
         RmaLockUpdater.lock("ABC-123.1", admin).futureValue
 
@@ -121,9 +121,9 @@ class RmaIntegrationTest extends IntegrationTestBase
       }
 
       "returns negative lock status on unlocked RMA" in {
-        Customers.saveNew(Factories.customer).run().futureValue
-        Orders.saveNew(Factories.order.copy(referenceNumber = "ABC-123")).run().futureValue
-        val rma = Rmas.saveNew(Factories.rma.copy(referenceNumber = "ABC-123.1")).run().futureValue
+        Customers.create(Factories.customer).run().futureValue.rightVal
+        Orders.create(Factories.order.copy(referenceNumber = "ABC-123")).run().futureValue.rightVal
+        val rma = Rmas.create(Factories.rma.copy(referenceNumber = "ABC-123.1")).run().futureValue.rightVal
 
         val response = GET(s"v1/rmas/${rma.referenceNumber}/lock")
         response.status must === (StatusCodes.OK)
@@ -149,9 +149,9 @@ class RmaIntegrationTest extends IntegrationTestBase
       }
 
       "refuses to lock an already locked RMA" in {
-        Customers.saveNew(Factories.customer).run().futureValue
-        Orders.saveNew(Factories.order.copy(referenceNumber = "ABC-123")).run().futureValue
-        val rma = Rmas.saveNew(Factories.rma.copy(referenceNumber = "ABC-123.1", locked = true)).run().futureValue
+        Customers.create(Factories.customer).run().futureValue.rightVal
+        Orders.create(Factories.order.copy(referenceNumber = "ABC-123")).run().futureValue.rightVal
+        val rma = Rmas.create(Factories.rma.copy(referenceNumber = "ABC-123.1", locked = true)).run().futureValue.rightVal
 
         val response = POST(s"v1/rmas/${rma.referenceNumber}/lock")
         response.status must === (StatusCodes.BadRequest)
@@ -261,16 +261,16 @@ class RmaIntegrationTest extends IntegrationTestBase
 
   trait Fixture {
     val (storeAdmin, customer, order, rma) = (for {
-      storeAdmin ← StoreAdmins.saveNew(Factories.storeAdmin)
-      customer ← Customers.saveNew(Factories.customer)
-      order ← Orders.saveNew(Factories.order.copy(
+      storeAdmin ← StoreAdmins.create(Factories.storeAdmin).map(rightValue)
+      customer ← Customers.create(Factories.customer).map(rightValue)
+      order ← Orders.create(Factories.order.copy(
         status = Order.RemorseHold,
         customerId = customer.id,
-        remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
-      rma ← Rmas.saveNew(Factories.rma.copy(
+        remorsePeriodEnd = Some(Instant.now.plusMinutes(30)))).map(rightValue)
+      rma ← Rmas.create(Factories.rma.copy(
         orderId = order.id,
         orderRefNum = order.referenceNumber,
-        customerId = customer.id))
+        customerId = customer.id)).map(rightValue)
     } yield (storeAdmin, customer, order, rma)).run().futureValue
   }
 }

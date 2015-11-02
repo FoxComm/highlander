@@ -31,9 +31,9 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
   override def beforeSortingAndPaging(): Unit = {
     currentOrigin = (for {
-      admin ← StoreAdmins.saveNew(authedStoreAdmin)
-      reason ← Reasons.saveNew(Factories.reason.copy(storeAdminId = admin.id))
-      origin ← GiftCardManuals.saveNew(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
+      admin ← StoreAdmins.create(authedStoreAdmin).map(rightValue)
+      reason ← Reasons.create(Factories.reason.copy(storeAdminId = admin.id)).map(rightValue)
+      origin ← GiftCardManuals.create(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id)).map(rightValue)
     } yield origin).run().futureValue
   }
 
@@ -44,12 +44,12 @@ class GiftCardIntegrationTest extends IntegrationTestBase
   def responseItems = {
     val items = regCurrencies.take(numOfResults).map { currency ⇒
       val balance = Random.nextInt(9999999)
-      val dbio = GiftCards.saveNew(Factories.giftCard.copy(
+      val dbio = GiftCards.create(Factories.giftCard.copy(
         currency = currency,
         originId = currentOrigin.id,
         originalBalance = balance,
         currentBalance = balance,
-        availableBalance = balance))
+        availableBalance = balance)).map(rightValue)
 
       dbio.map { responses.GiftCardResponse.build(_) }
     }
@@ -367,17 +367,17 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
   trait Fixture {
     val (customer, admin, giftCard, order, payment, adjustment1, gcSecond, gcSubType) = (for {
-      customer ← Customers.saveNew(Factories.customer)
-      order ← Orders.saveNew(Factories.order.copy(customerId = customer.id))
-      admin ← StoreAdmins.saveNew(authedStoreAdmin)
-      reason ← Reasons.saveNew(Factories.reason.copy(storeAdminId = admin.id))
-      gcSubType ← GiftCardSubtypes.saveNew(Factories.giftCardSubTypes.head)
-      origin ← GiftCardManuals.saveNew(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
-      giftCard ← GiftCards.saveNew(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active))
-      gcSecond ← GiftCards.saveNew(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active,
-        code = "ABC-234"))
-      payment ← OrderPayments.saveNew(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = giftCard.id,
-        paymentMethodType = PaymentMethod.GiftCard))
+      customer ← Customers.create(Factories.customer).map(rightValue)
+      order ← Orders.create(Factories.order.copy(customerId = customer.id)).map(rightValue)
+      admin ← StoreAdmins.create(authedStoreAdmin).map(rightValue)
+      reason ← Reasons.create(Factories.reason.copy(storeAdminId = admin.id)).map(rightValue)
+      gcSubType ← GiftCardSubtypes.create(Factories.giftCardSubTypes.head).map(rightValue)
+      origin ← GiftCardManuals.create(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id)).map(rightValue)
+      giftCard ← GiftCards.create(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active)).map(rightValue)
+      gcSecond ← GiftCards.create(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active,
+        code = "ABC-234")).map(rightValue)
+      payment ← OrderPayments.create(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = giftCard.id,
+        paymentMethodType = PaymentMethod.GiftCard)).map(rightValue)
       adjustment1 ← GiftCards.auth(giftCard, Some(payment.id), 10)
       giftCard ← GiftCards.findOneById(giftCard.id)
     } yield (customer, admin, giftCard.value, order, payment, adjustment1, gcSecond, gcSubType)).run()

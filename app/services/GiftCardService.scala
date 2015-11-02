@@ -183,14 +183,14 @@ object GiftCardService {
       })
     }
 
-    def saveGiftCard(admin: StoreAdmin, payload: payloads.GiftCardCreateByCsr): ResultT[DBIO[Root]] = {
+    def saveGiftCard(admin: StoreAdmin, payload: payloads.GiftCardCreateByCsr): ResultT[DbResult[Root]] = {
       val actions = for {
         origin  ← GiftCardManuals.saveNew(GiftCardManual(adminId = admin.id, reasonId = payload.reasonId))
-        gc      ← GiftCards.saveNew(GiftCard.buildAppeasement(payload, origin.id))
+        gc      ← GiftCards.create(GiftCard.buildAppeasement(payload, origin.id))
       } yield gc
 
       val storeAdminResponse = Some(StoreAdminResponse.build(admin))
-      ResultT.rightAsync(actions.flatMap(gc ⇒ lift(build(gc, None, storeAdminResponse))))
+      ResultT.rightAsync(actions.map(_.map(gc ⇒ build(gc, None, storeAdminResponse))))
     }
 
     val transformer = for {
@@ -201,7 +201,7 @@ object GiftCardService {
       }
     } yield gc
 
-    transformer.value.flatMap(_.fold(Result.left, dbio ⇒ Result.fromFuture(dbio.transactionally.run())))
+    transformer.value.flatMap(_.fold(Result.left, dbio ⇒ dbio.transactionally.run()))
   }
 
   private def fetchDetails(code: String)(implicit db: Database, ec: ExecutionContext) = for {

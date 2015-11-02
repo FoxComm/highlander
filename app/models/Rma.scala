@@ -16,6 +16,7 @@ import utils.CustomDirectives.SortAndPage
 
 import utils.{FSM, ModelWithLockParameter, TableQueryWithLock, ADT, GenericTable}
 import utils.Slick.implicits._
+import utils.Slick.DbResult
 
 final case class Rma(id: Int = 0, referenceNumber: String = "", orderId: Int, orderRefNum: String,
   rmaType: RmaType = Standard, status: Status = Pending, locked: Boolean = false,
@@ -102,9 +103,12 @@ object Rmas extends TableQueryWithLock[Rma, Rmas](
 
   val returningIdAndReferenceNumber = this.returning(map { rma ⇒ (rma.id, rma.referenceNumber) })
 
-  override def saveNew(rma: Rma)(implicit ec: ExecutionContext): DBIO[Rma] = for {
-    (newId, refNum) ← returningIdAndReferenceNumber += rma
-  } yield rma.copy(id = newId, referenceNumber = refNum)
+  def returningAction(ret: (Int, String))(rma: Rma): Rma = ret match {
+    case (id, referenceNumber) ⇒ rma.copy(id = id, referenceNumber = referenceNumber)
+  }
+
+  override def create[R](rma: Rma, returning: Returning[R], action: R ⇒ Rma ⇒ Rma)
+    (implicit ec: ExecutionContext): DbResult[Rma] = super.create(rma, returningIdAndReferenceNumber, returningAction)
 
   def findByRefNum(refNum: String): QuerySeq = filter(_.referenceNumber === refNum)
 

@@ -61,9 +61,9 @@ class GiftCardAsLineItemIntegrationTest extends IntegrationTestBase
   "PATCH /v1/orders/:refNum/gift-cards/:code" - {
     "successuflly updates GC as line item" in new LineItemFixture {
       val response = PATCH(s"v1/orders/${order.refNum}/gift-cards/${giftCard.code}", payloads.AddGiftCardLineItem(balance = 555))
-      val root = response.as[FullOrder.Root]
 
       response.status must ===(StatusCodes.OK)
+      val root = response.as[FullOrder.Root]
       root.lineItems.giftCards.size must === (1)
 
       val newGiftCard = root.lineItems.giftCards.head
@@ -114,9 +114,9 @@ class GiftCardAsLineItemIntegrationTest extends IntegrationTestBase
   "DELETE /v1/orders/:refNum/gift-cards/:code" - {
     "successuflly deletes GC as line item" in new LineItemFixture {
       val response = DELETE(s"v1/orders/${order.refNum}/gift-cards/${giftCard.code}")
-      val root = response.as[FullOrder.Root]
 
       response.status must ===(StatusCodes.OK)
+      val root = response.as[FullOrder.Root]
       root.lineItems.giftCards.size must === (0)
 
       GiftCards.findByCode(giftCard.code).one.run().futureValue.isEmpty mustBe true
@@ -155,13 +155,12 @@ class GiftCardAsLineItemIntegrationTest extends IntegrationTestBase
 
   trait LineItemFixture {
     val (customer, order, giftCard) = (for {
-      customer ← Customers.saveNew(Factories.customer)
-      order ← Orders.saveNew(Factories.order.copy(customerId = customer.id, status = Order.Cart))
-
-      gcOrigin ← GiftCardOrders.saveNew(GiftCardOrder(orderId = order.id))
-      giftCard ← GiftCards.saveNew(GiftCard.buildLineItem(balance = 150, originId = gcOrigin.id, currency = Currency.USD))
-      lineItemGc ← OrderLineItemGiftCards.saveNew(OrderLineItemGiftCard(giftCardId = giftCard.id, orderId = order.id))
-      lineItem ← OrderLineItems.saveNew(OrderLineItem.buildGiftCard(order, lineItemGc))
+      customer ← Customers.create(Factories.customer).map(rightValue)
+      order ← Orders.create(Factories.order.copy(customerId = customer.id, status = Order.Cart)).map(rightValue)
+      gcOrigin ← GiftCardOrders.create(GiftCardOrder(orderId = order.id)).map(rightValue)
+      giftCard ← GiftCards.create(GiftCard.buildLineItem(balance = 150, originId = gcOrigin.id, currency = Currency.USD)).map(rightValue)
+      lineItemGc ← OrderLineItemGiftCards.create(OrderLineItemGiftCard(giftCardId = giftCard.id, orderId = order.id)).map(rightValue)
+      lineItem ← OrderLineItems.create(OrderLineItem.buildGiftCard(order, lineItemGc)).map(rightValue)
     } yield (customer, order, giftCard)).run().futureValue
   }
 }

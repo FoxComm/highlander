@@ -65,9 +65,6 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.
 
   def tableName: String = baseTableRow.tableName
 
-  val returningId =
-    this.returning(map(_.id))
-
   private val compiledById = this.findBy(_.id)
 
   def findById(i: M#Id) = compiledById(i)
@@ -78,30 +75,46 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.
   def findAllByIds(ids: Set[M#Id]): QuerySeq =
     filter(_.id.inSet(ids))
 
-  // TODO: if isNew create else update
-  def saveNew(model: M)(implicit ec: ExecutionContext): DBIO[M] = for {
-    id ← returningId += model
-  } yield idLens.set(id)(model)
+  type Returning[R] = slick.driver.JdbcActionComponent#ReturningInsertActionComposer[M, R]
+  val returningId: Returning[M#Id] = this.returning(map(_.id))
+  def returningIdAction(id: M#Id)(model: M): M = idLens.set(id)(model)
 
-  def create(model: M)(implicit ec: ExecutionContext): DbResult[M] = {
-    import scala.util.{Failure, Success}
+  /** DEPRECATION WARNING **
+  * This method will soon be deprecated in favor of `create` which provides model sanitization,
+  * validation and exception handling.
+  */
+  def saveNew[R](model: M, returning: Returning[R] = returningId, action: R ⇒ M ⇒ M = returningIdAction _)
+  (implicit ec: ExecutionContext): DBIO[M] =
+    (returning += model).map(ret ⇒ action(ret)(model))
 
-    model
-      .sanitize
-      .validate.fold(DbResult.failures, valid ⇒ {
-      saveNew(valid).asTry.flatMap {
-        case Success(newModel) ⇒ DbResult.good(newModel)
-        case Failure(e) ⇒ DbResult.failure(GeneralFailure(e.getMessage))
-      }
+  def create[R](model: M, returning: Returning[R] = returningId, action: R ⇒ M ⇒ M = returningIdAction _)
+  (implicit ec: ExecutionContext): DbResult[M] =
+    beforeSave(model).fold(DbResult.failures, { good ⇒
+      wrapDbio((returning += good).map(ret ⇒ action(ret)(good)))
     })
+
+  def update(oldModel: M, newModel: M)(implicit ec: ExecutionContext, db: Database): DbResult[M] = {
+    val mightUpdate = for {
+      checked ← beforeSave(newModel)
+      updateable ← oldModel.updateTo(checked)
+    } yield this.findById(updateable.id).update(updateable)
+    mightUpdate.fold(DbResult.failures, good ⇒ wrapDbio(good >> lift(newModel)))
   }
 
+  private def beforeSave(model: M): Failures Xor M =
+    model
+      .sanitize
+      .validate
+      .toXor
+
   def deleteById[A](id: M#Id, onSuccess: ⇒ DbResult[A], onFailure: ⇒ DbResult[A])
-    (implicit ec: ExecutionContext): DbResult[A] =
-    findById(id).delete.flatMap {
+    (implicit ec: ExecutionContext): DbResult[A] = {
+    val deleteResult = findById(id).delete.flatMap {
       case 0 ⇒ onFailure
       case _ ⇒ onSuccess
     }
+    wrapDbResult(deleteResult)
+  }
 
   type QuerySeq = Query[T, M, Seq]
   type QuerySeqWithMetadata = QueryWithMetadata[T, M, Seq]
@@ -124,7 +137,7 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.
     protected def selectInner[R](dbio: DBIO[Option[M]])(action: M ⇒ DbResult[R], checks: Checks = checks,
       notFoundFailure: Failure = notFound404)(implicit ec: ExecutionContext, db: Database): Result[R] = {
       dbio.map(maybe ⇒ applyAllChecks(checks, maybe, notFoundFailure)).flatMap {
-        case Xor.Right(value) ⇒ action(value)
+        case Xor.Right(value) ⇒ wrapDbResult(action(value))
         case failures @ Xor.Left(_) ⇒ lift(failures)
       }.transactionally.run()
     }
@@ -134,10 +147,10 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.
     protected def selectInnerWithMetadata[R](dbio: DBIO[Option[M]])(action: M ⇒ ResultWithMetadata[R],
       checks: Checks = checks,  notFoundFailure: Failure = notFound404)
       (implicit ec: ExecutionContext, db: Database): Future[ResultWithMetadata[R]] = {
-      dbio.map(maybe ⇒ applyAllChecks(checks, maybe, notFoundFailure)).flatMap {
-        case Xor.Right(value)   ⇒ lift(action(value))
-        case Xor.Left(failures) ⇒ lift(ResultWithMetadata.fromFailures[R](failures))
-      }.run()
+      dbio.map(maybe ⇒ applyAllChecks(checks, maybe, notFoundFailure) match {
+        case Xor.Right(value)   ⇒ action(value).wrapExceptions
+        case Xor.Left(failures) ⇒ ResultWithMetadata.fromFailures[R](failures)
+      }).run()
     }
 
     def selectOne[R](action: M ⇒ DbResult[R], checks: Checks = checks, notFoundFailure: Failure = notFound404)

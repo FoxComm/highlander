@@ -103,7 +103,7 @@ object CustomerManager {
 
     def result = {
       swapDatabaseFailure {
-        Customers.saveNew(customer).map(Xor.right).run() // FIXME after #522
+        Customers.create(customer).run()
       } { (NotUnique, CustomerEmailNotUnique) }.flatMap {
         case Xor.Right(c) ⇒ Result.good(build(c))
         case Xor.Left(eh) ⇒ Result.failures(eh)

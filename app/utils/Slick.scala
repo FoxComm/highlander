@@ -148,6 +148,9 @@ object Slick {
 
     final case class ResultWithMetadata[A](result: DbResult[A], metadata: QueryMetadata) {
 
+      def wrapExceptions(implicit ec: ExecutionContext): ResultWithMetadata[A] =
+        this.copy(result = wrapDbResult(result))
+
       def map[S](f: A => S)(implicit ec: ExecutionContext): ResultWithMetadata[S] =
         this.copy(result = result.map(_.map(f)))
 
