@@ -5,7 +5,7 @@ import scala.concurrent.Future
 
 import Extensions._
 import models._
-import responses.{CustomerResponse, ResponseWithFailuresAndMetadata, RmaResponse}
+import responses.{StoreAdminResponse, ResponseWithFailuresAndMetadata, RmaResponse}
 import services.NotFoundFailure404
 import util.IntegrationTestBase
 import utils.Seeds
@@ -27,6 +27,7 @@ class RmaIntegrationTest extends IntegrationTestBase
 
   override def beforeSortingAndPaging() = {
     (for {
+      storeAdmin ← StoreAdmins.save(Factories.storeAdmin)
       customer ← Customers.save(Factories.customer)
       order ← Orders.save(Factories.order.copy(
         status = Order.RemorseHold,
@@ -47,7 +48,8 @@ class RmaIntegrationTest extends IntegrationTestBase
         customerId = Some(currentCustomer.id))
       ).run()
 
-      future.map(RmaResponse.build(_))
+      val mockAdmin = Some(StoreAdminResponse.build(authedStoreAdmin))
+      future.map(RmaResponse.build(_, None, mockAdmin))
     }
 
     Future.sequence(items).futureValue
