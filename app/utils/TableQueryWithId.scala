@@ -86,8 +86,12 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.
     })
   }
 
-  def deleteById(i: M#Id): DBIO[Int] =
-    findById(i).delete
+  def deleteById[A](id: M#Id, onSuccess: ⇒ DbResult[A], onFailure: ⇒ DbResult[A])
+    (implicit ec: ExecutionContext): DbResult[A] =
+    findById(id).delete.flatMap {
+      case 0 ⇒ onFailure
+      case _ ⇒ onSuccess
+    }
 
   type QuerySeq = Query[T, M, Seq]
   type QuerySeqWithMetadata = QueryWithMetadata[T, M, Seq]
@@ -150,6 +154,13 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.
     def selectForUpdate[R](action: Seq[M] ⇒ DbResult[R])
       (implicit ec: ExecutionContext, db: Database): Result[R] = {
       appendForUpdate(q.result).flatMap(action).transactionally.run()
+    }
+
+    def deleteAll[A](onSuccess: ⇒ DbResult[A], onFailure: ⇒ DbResult[A])(implicit ec: ExecutionContext): DbResult[A] = {
+      q.delete.flatMap {
+        case 0 ⇒ onFailure
+        case _ ⇒ onSuccess
+      }
     }
 
     protected def querySearchKey: Option[Any] = QueryErrorInfo.searchKeyForQuery(q, primarySearchTerm)

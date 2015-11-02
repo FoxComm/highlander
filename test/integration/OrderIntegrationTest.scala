@@ -280,7 +280,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
     "adds 15 minutes to remorse if order lock event is absent" in new RemorseFixture {
       POST(s"v1/orders/$refNum/lock")
-      db.run(OrderLockEvents.deleteById(1)).futureValue
+      db.run(OrderLockEvents.findById(1).delete).futureValue
       // Sanity check
       OrderLockEvents.findByOrder(order.id).mostRecentLock.result.headOption.run().futureValue must ===(None)
       POST(s"v1/orders/$refNum/unlock")
