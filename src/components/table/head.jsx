@@ -1,58 +1,48 @@
 'use strict';
 
-import React from 'react';
-import ClassNames from 'classnames';
-import TableStore from '../../lib/table-store';
+import React, { PropTypes } from 'react';
+import { autobind } from 'core-decorators';
+import classNames from 'classnames';
 import TableRow from './row';
 
-export default class TableHead extends React.Component {
+class TableHead extends React.Component {
   static propTypes = {
-    store: React.PropTypes.instanceOf(TableStore)
+    setState: PropTypes.func.isRequired,
+    columns: PropTypes.array.isRequired,
+    sortBy: PropTypes.string
   };
 
-  constructor(props, ...args) {
-    super(props, ...args);
-    this.state = {
-      sortingField: this.props.store.sortingField,
-      sortingOrder: this.props.store.sortingOrder
-    };
-  }
-
-  onHeaderItemClick(field, event) {
+  onHeaderClick(field, event) {
     event.preventDefault();
-    this.setState({
-      sortingField: field,
-      sortingOrder: (field === this.state.sortingField) ? !this.state.sortingOrder : true
-    }, () => {
-      this.props.store.setSorting(this.state.sortingField, this.state.sortingOrder);
+    this.props.setState({
+      sortBy: this.props.sortBy === field ? `-${field}` : `${field}`
     });
   }
 
-  render() {
-    let renderColumn = (column, index) => {
-      let classnames = ClassNames({
-        'fc-table-th': true,
-        'sorting': true,
-        'sorting-desc': (this.state.sortingField === column.field) && this.state.sortingOrder,
-        'sorting-asc': (this.state.sortingField === column.field) && !this.state.sortingOrder
-      });
-      return (
-        <th
-          className={classnames}
-          key={`${index}-${column.field}`}
-          onClick={this.onHeaderItemClick.bind(this, column.field)}
-          >
-          {column.title}
-        </th>
-      );
-    };
+  @autobind
+  renderColumn(column, index) {
+    const classnames = classNames({
+      'fc-table-th': true,
+      'sorting': true,
+      'sorting-desc': `${column.field}` === this.props.sortBy,
+      'sorting-asc': `-${column.field}` === this.props.sortBy
+    });
+    return (
+      <th className={classnames} key={`${column.field}`} onClick={this.onHeaderClick.bind(this, column.field)}>
+        {column.text}
+      </th>
+    );
+  }
 
+  render() {
     return (
       <thead>
-        <TableRow>
-          {this.props.store.columns.map(renderColumn)}
-        </TableRow>
+      <TableRow>
+        {this.props.columns.map(this.renderColumn)}
+      </TableRow>
       </thead>
     );
   }
 }
+
+export default TableHead;
