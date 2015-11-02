@@ -26,8 +26,7 @@ object CustomerResponse {
   def build(customer: Customer,
     shippingRegion: Option[Region] = None,
     billingRegion: Option[Region] = None,
-    ordersTotal: Option[Int] = None
-    ): Root =
+    ordersTotal: Option[Int] = None): Root =
     Root(id = customer.id,
       email = customer.email,
       name = customer.name,

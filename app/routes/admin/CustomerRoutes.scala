@@ -27,8 +27,6 @@ object CustomerRoutes {
   def routes(implicit ec: ExecutionContext, db: Database,
     mat: Materializer, storeAdminAuth: AsyncAuthenticator[StoreAdmin], apis: Apis) = {
 
-    def searchForNewOrder = parameters('term).as(payloads.CustomerSearchForNewOrder)
-
     authenticateBasicAsync(realm = "admin", storeAdminAuth) { admin ⇒
 
       pathPrefix("customers") {
@@ -37,7 +35,8 @@ object CustomerRoutes {
             CustomerManager.findAll
           }
         } ~
-        (get & pathPrefix("searchForNewOrder") & pathEnd & searchForNewOrder) { p ⇒
+        (get & pathPrefix("searchForNewOrder") & pathEnd &
+          parameters('term).as(payloads.CustomerSearchForNewOrder)) { p ⇒
           (sortAndPage) { implicit sortAndPage ⇒
             goodOrFailures {
               CustomerManager.searchForNewOrder(p)
