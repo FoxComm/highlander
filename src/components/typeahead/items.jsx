@@ -6,7 +6,7 @@ export default class TypeaheadItems extends React.Component {
 
   static propTypes = {
     store: PropTypes.object,
-    component: PropTypes.node.isRequired,
+    component: PropTypes.func.isRequired,
     showItems: PropTypes.bool,
     updating: PropTypes.bool,
     onItemSelected: PropTypes.func,

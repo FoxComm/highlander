@@ -2,21 +2,39 @@
 import React, { PropTypes } from 'react';
 import Alert from './alert';
 
-export default class ErrorAlerts extends React.Component {
-  static propTypes = {
-    errors: PropTypes.array
-  };
+function parseError(err) {
+  if (!err) return null;
 
-  render() {
-    if (this.props.errors) {
-      return (
-        <div className="fc-errors">
-          {this.props.errors.map((error, index) => {
-            return <Alert key={`error-${index}`} type={Alert.ERROR}>{error}</Alert>;
-            })}
-        </div>
-      );
+  let errors = [err.toString()];
+
+  if (err.response) {
+    if (err.response.json) {
+      errors = [...errors, ...err.response.json().errors];
     }
-    return null;
   }
+
+  return errors;
 }
+
+const ErrorAlerts = (props) => {
+  const errors = props.errors || parseError(props.error);
+
+  if (errors && errors.length) {
+    return (
+      <div className="fc-errors">
+        {errors.map((error, index) => {
+          return <Alert key={`error-${index}`} type={Alert.ERROR}>{error}</Alert>;
+        })}
+      </div>
+    );
+  }
+
+  return <div></div>;
+};
+
+ErrorAlerts.propTypes = {
+  errors: PropTypes.array,
+  error: PropTypes.object
+};
+
+export default ErrorAlerts;

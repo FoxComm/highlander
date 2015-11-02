@@ -3,7 +3,7 @@
 import _ from 'lodash';
 import Api from '../lib/api';
 import { createAction, createReducer } from 'redux-act';
-import { assoc, dissoc } from 'sprout-data';
+import { assoc, dissoc, update } from 'sprout-data';
 import { updateItems } from './state-helpers';
 
 const receiveNotes = createAction('NOTES_RECEIVE', (entity, notes) => [entity, notes]);
@@ -16,7 +16,7 @@ export const startAddingNote = createAction('NOTES_START_ADDING');
 export const startEditingNote = createAction('NOTES_START_EDITING', (entity, id) => [entity, id]);
 export const stopAddingOrEditingNote = createAction('NOTES_STOP_EDITING_OR_ADDING');
 
-const notesUri = (entity, noteId) => {
+export const notesUri = (entity, noteId) => {
   const uri = `/notes/${entity.entityType}/${entity.entityId}`;
   if (noteId != null) {
     return `${uri}/${noteId}`;
@@ -82,9 +82,7 @@ const reducer = createReducer({
     });
   },
   [noteRemoved]: (state, [{entityType, entityId}, id]) => {
-    const restNotes = _.reject(state[entityType][entityId].notes, {id});
-
-    return assoc(state, [entityType, entityId, 'notes'], restNotes);
+    return update(state, [entityType, entityId, 'notes'], _.reject, {id});
   },
   [startDeletingNote]: (state, [{entityType, entityId}, id]) => {
     return assoc(state, [entityType, entityId, 'noteIdToDelete'], id);
