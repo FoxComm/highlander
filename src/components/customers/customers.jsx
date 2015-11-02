@@ -63,7 +63,6 @@ export default class Customers extends React.Component {
 
   @autobind
   onAddCustomerClick() {
-    console.log(this.context);
     transitionTo(this.context.history, 'customers-new');
   }
 
