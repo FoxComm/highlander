@@ -11,6 +11,7 @@ import { PrimaryButton } from '../common/buttons';
 import LocalNav from '../local-nav/local-nav';
 import { PanelList, PanelListItem } from '../panel/panel-list';
 import { rmaStatuses } from '../../lib/format';
+import ContentBox from '../content-box/content-box';
 
 @connect((state, props) => ({
   rma: state.rmas.details
@@ -102,17 +103,26 @@ export default class Rma extends React.Component {
         <SectionTitle title={`Return ${rma.referenceNumber}`} subtitle={this.orderSubtitle}>
           <PrimaryButton onClick={this.cancelReturn}>Cancel Return</PrimaryButton>
         </SectionTitle>
-        <PanelList>
-          <PanelListItem title="Return State">
-            {this.returnState}
-          </PanelListItem>
-          <PanelListItem title="Return Type">
-            {rma.rmaType}
-          </PanelListItem>
-          <PanelListItem title="Items">
-            0
-          </PanelListItem>
-        </PanelList>
+        <div className="fc-grid fc-grid-match">
+          <div className="fc-col-md-3-4">
+            <PanelList>
+              <PanelListItem title="Return State">
+                {this.returnState}
+              </PanelListItem>
+              <PanelListItem title="Return Type">
+                {rma.rmaType}
+              </PanelListItem>
+              <PanelListItem title="Items">
+                0
+              </PanelListItem>
+            </PanelList>
+          </div>
+          <div className="fc-col-md-1-4">
+            <ContentBox title="Assignees">
+              <div>1</div>
+            </ContentBox>
+          </div>
+        </div>
         {this.notes}
         {this.subNav}
       </div>
