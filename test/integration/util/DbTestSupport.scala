@@ -7,6 +7,7 @@ import scala.annotation.tailrec
 import org.flywaydb.core.Flyway
 import org.scalatest.{BeforeAndAfterAll, Outcome, Suite, SuiteMixin}
 import slick.jdbc.HikariCPJdbcDataSource
+import java.sql.Connection
 
 trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
   import DbTestSupport._
@@ -15,7 +16,7 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
   implicit lazy val db = database
 
   /* tables which should *not* be truncated b/c they're static and seeded by migration */
-  val doNotTruncate = Set("states", "countries", "regions")
+  val doNotTruncate = Set("states", "countries", "regions", "schema_version")
 
   override protected def beforeAll(): Unit = {
     if (!migrated) {
@@ -30,12 +31,15 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
     }
   }
 
-  override abstract protected def withFixture(test: NoArgTest): Outcome = {
-    val flyway = new Flyway
-    flyway.setDataSource(jdbcDataSourceFromSlickDB(db))
-    flyway.setLocations("filesystem:./sql")
+  def isTableEmpty(table: String)(implicit conn: Connection): Boolean = {
+    val stmt = conn.createStatement()
+    val rs = stmt.executeQuery(s"select true from ${table} limit 1")
+    !rs.isBeforeFirst
+  }
 
-    val conn      = flyway.getDataSource.getConnection
+  override abstract protected def withFixture(test: NoArgTest): Outcome = {
+    implicit val conn      = jdbcDataSourceFromSlickDB(db).getConnection
+
     val config    = conn.getMetaData
     val allTables = conn.getMetaData.getTables(conn.getCatalog, "public", "%", Array("TABLE"))
 
@@ -48,9 +52,13 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
       }
     }
 
-    val tables = iterate(Seq()).filterNot { t ⇒ t.startsWith("pg_") || doNotTruncate.contains(t) }
+    val tables = iterate(Seq()).filterNot {
+      t ⇒ t.startsWith("pg_") || doNotTruncate.contains(t) || isTableEmpty(t)
+    }
 
-    conn.createStatement().execute(s"truncate ${tables.mkString(", ")} restart identity cascade;")
+    if (tables.nonEmpty) {
+      conn.createStatement().execute(s"truncate ${tables.mkString(", ")} restart identity cascade;")
+    }
     conn.close()
 
     super.withFixture(test)
