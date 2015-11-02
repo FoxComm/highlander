@@ -1,6 +1,6 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import TableView from '../table/tableview';
 import TableRow from '../table/row';
 import TableCell from '../table/cell';
@@ -11,6 +11,7 @@ import SearchBar from '../search-bar/search-bar';
 import SectionTitle from '../section-title/section-title';
 import LocalNav from '../local-nav/local-nav';
 import { Link } from '../link';
+import { transitionTo } from '../../route-helpers';
 import { connect } from 'react-redux';
 import * as customersActions from '../../modules/customers/customers';
 
@@ -51,12 +52,17 @@ export default class Customers extends React.Component {
     ]
   }
 
+  static contextTypes = {
+    history: PropTypes.object.isRequired
+  };
+
   componentDidMount() {
     this.props.fetch(this.props.customers);
   }
 
-  handleAddCustomerClick() {
-    console.log('Add customer');
+  onAddCustomerClick() {
+    console.log(this.context);
+    transitionTo(this.context.history, 'customers-new');
   }
 
   render() {
@@ -80,7 +86,7 @@ export default class Customers extends React.Component {
         <div className="fc-list-header">
           <SectionTitle title="Customers"
                         count={this.props.customers.length}
-                        buttonClickHandler={ this.handleAddCustomerClick }/>
+                        buttonClickHandler={ this.onAddCustomerClick }/>
           <LocalNav>
             <Link to="customers">Lists</Link>
             <a href="">Customer Groups</a>
