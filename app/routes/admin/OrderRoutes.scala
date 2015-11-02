@@ -38,7 +38,7 @@ object OrderRoutes {
         (patch & pathEnd & sortAndPage) { implicit sortAndPage ⇒
           entity(as[BulkUpdateOrdersPayload]) { payload ⇒
             goodOrFailures {
-              OrderUpdater.updateStatuses(payload.referenceNumbers, payload.status)
+              OrderStatusUpdater.updateStatuses(payload.referenceNumbers, payload.status)
             }
           }
         } ~
@@ -46,14 +46,14 @@ object OrderRoutes {
           (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
             entity(as[BulkAssignment]) { payload ⇒
               goodOrFailures {
-                BulkOrderUpdater.assign(payload)
+                OrderAssignmentUpdater.assign(payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
             entity(as[BulkAssignment]) { payload ⇒
               goodOrFailures {
-                BulkOrderUpdater.unassign(payload)
+                OrderAssignmentUpdater.unassign(payload)
               }
             }
           }
@@ -70,22 +70,22 @@ object OrderRoutes {
         } ~
         (patch & entity(as[UpdateOrderPayload])) { payload ⇒
           goodOrFailures {
-            OrderUpdater.updateStatus(refNum, payload.status)
+            OrderStatusUpdater.updateStatus(refNum, payload.status)
           }
         } ~
         (post & path("increase-remorse-period") & pathEnd) {
           goodOrFailures {
-            LockAwareOrderUpdater.increaseRemorsePeriod(refNum)
+            OrderUpdater.increaseRemorsePeriod(refNum)
           }
         } ~
         (post & path("lock") & pathEnd) {
           goodOrFailures {
-            LockAwareOrderUpdater.lock(refNum, admin)
+            OrderLockUpdater.lock(refNum, admin)
           }
         } ~
         (post & path("unlock") & pathEnd) {
           goodOrFailures {
-            LockAwareOrderUpdater.unlock(refNum)
+            OrderLockUpdater.unlock(refNum)
           }
         } ~
         (post & path("checkout")) {
@@ -143,41 +143,41 @@ object OrderRoutes {
         pathPrefix("assignees") {
           (post & entity(as[Assignment])) { payload ⇒
             goodOrFailures {
-              LockAwareOrderUpdater.assign(refNum, payload.assignees)
+              OrderAssignmentUpdater.assign(refNum, payload.assignees)
             }
           }
         } ~
         pathPrefix("shipping-address") {
           (post & entity(as[payloads.CreateAddressPayload]) & pathEnd) { payload ⇒
             goodOrFailures {
-              OrderUpdater.createShippingAddressFromPayload(payload, refNum)
+              OrderShippingAddressUpdater.createShippingAddressFromPayload(payload, refNum)
             }
           } ~
           (patch & entity(as[payloads.UpdateAddressPayload]) & pathEnd) { payload ⇒
             goodOrFailures {
-              OrderUpdater.updateShippingAddressFromPayload(payload, refNum)
+              OrderShippingAddressUpdater.updateShippingAddressFromPayload(payload, refNum)
             }
           } ~
           (patch & path(IntNumber) & pathEnd) { addressId ⇒
             goodOrFailures {
-              OrderUpdater.createShippingAddressFromAddressId(addressId, refNum)
+              OrderShippingAddressUpdater.createShippingAddressFromAddressId(addressId, refNum)
             }
           } ~
           (delete & pathEnd) {
             goodOrFailures {
-              OrderUpdater.removeShippingAddress(refNum)
+              OrderShippingAddressUpdater.removeShippingAddress(refNum)
             }
           }
         } ~
         pathPrefix("shipping-method") {
           (patch & entity(as[payloads.UpdateShippingMethod]) & pathEnd) { payload ⇒
             goodOrFailures {
-              OrderUpdater.updateShippingMethod(payload, refNum)
+              OrderShippingMethodUpdater.updateShippingMethod(payload, refNum)
             }
           } ~
           (delete & pathEnd) {
             goodOrFailures {
-              OrderUpdater.deleteShippingMethod(refNum)
+              OrderShippingMethodUpdater.deleteShippingMethod(refNum)
             }
           }
         }

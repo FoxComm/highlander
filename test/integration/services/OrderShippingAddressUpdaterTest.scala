@@ -1,19 +1,18 @@
 package services
 
 import models._
-import services.orders.OrderUpdater
-
+import services.orders.OrderShippingAddressUpdater._
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.implicits._
 
-class OrderUpdaterTest extends IntegrationTestBase {
+class OrderShippingAddressUpdaterTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global
 
   "OrderUpdater" - {
 
     "Adds a shipping address by referencing an order that already exists" in new Fixture {
-      val fullOrder = OrderUpdater.createShippingAddressFromAddressId(address.id, order.refNum).futureValue.get
+      val fullOrder = createShippingAddressFromAddressId(address.id, order.refNum).futureValue.get
       fullOrder.shippingAddress must not be 'empty
       val orderAddress = fullOrder.shippingAddress.value
 
@@ -28,7 +27,7 @@ class OrderUpdaterTest extends IntegrationTestBase {
       val newAddress = payloads.CreateAddressPayload(name = "Home Office", regionId = 1, address1 = "3000 Coolio Dr",
         city = "Seattle", zip = "55555")
 
-      val fullOrder = OrderUpdater.createShippingAddressFromPayload(newAddress, order.refNum).futureValue.get
+      val fullOrder = createShippingAddressFromPayload(newAddress, order.refNum).futureValue.get
       fullOrder.shippingAddress must not be 'empty
       val orderAddress = fullOrder.shippingAddress.value
 
@@ -40,7 +39,7 @@ class OrderUpdaterTest extends IntegrationTestBase {
     }
 
     "Updates a shipping address by referencing an order that already exists" in new UpdateAddressFixture {
-      val fullOrder = OrderUpdater.createShippingAddressFromAddressId(newAddress.id, order.refNum).futureValue.get
+      val fullOrder = createShippingAddressFromAddressId(newAddress.id, order.refNum).futureValue.get
       fullOrder.shippingAddress must not be 'empty
       val orderAddress = fullOrder.shippingAddress.value
 
@@ -53,7 +52,7 @@ class OrderUpdaterTest extends IntegrationTestBase {
 
     "Updates a shipping address by sending fields in the payload" in new UpdateAddressFixture {
       val payload = payloads.UpdateAddressPayload(name = Some("Don Keyhote"))
-      val fullOrder = OrderUpdater.updateShippingAddressFromPayload(payload, order.refNum).futureValue.get
+      val fullOrder = updateShippingAddressFromPayload(payload, order.refNum).futureValue.get
       fullOrder.shippingAddress must not be 'empty
       val orderAddress = fullOrder.shippingAddress.value
 
