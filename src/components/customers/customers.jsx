@@ -13,6 +13,7 @@ import LocalNav from '../local-nav/local-nav';
 import { Link } from '../link';
 import { transitionTo } from '../../route-helpers';
 import { connect } from 'react-redux';
+import { autobind } from 'core-decorators';
 import * as customersActions from '../../modules/customers/customers';
 
 @connect(state => ({customers: state.customers.customers}), customersActions)
@@ -60,6 +61,7 @@ export default class Customers extends React.Component {
     this.props.fetch(this.props.customers);
   }
 
+  @autobind
   onAddCustomerClick() {
     console.log(this.context);
     transitionTo(this.context.history, 'customers-new');
