@@ -92,7 +92,7 @@ export default class Customers extends React.Component {
             <TabView>What</TabView>
           </TabListView>
         </div>
-        <div className="fc-grid">
+        <div className="fc-grid fc-tab-view-content">
           <div className="fc-col-md-1-1 fc-action-bar clearfix">
             <button className="fc-btn fc-right">
               <i className="icon-external-link"></i>
