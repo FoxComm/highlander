@@ -7,14 +7,14 @@ import { List } from 'immutable';
 
 class GiftCardActions {
   updateGiftCards(giftCards) {
-    AshesDispatcher.handleViewAction({
+    AshesDispatcher.handleAction({
       actionType: GiftCardConstants.UPDATE_GIFT_CARDS,
       giftCards: giftCards
     });
   }
 
   insertGiftCard(giftCard) {
-    AshesDispatcher.handleViewAction({
+    AshesDispatcher.handleAction({
       actionType: GiftCardConstants.INSERT_GIFT_CARD,
       giftCard: giftCard
     });
@@ -41,7 +41,7 @@ class GiftCardActions {
   }
 
   giftCardsFailed(errorMessage) {
-    AshesDispatcher.handleViewAction({
+    AshesDispatcher.handleAction({
       actionType: GiftCardConstants.GIFT_CARD_FAILED,
       errorMessage: errorMessage
     });

@@ -5,8 +5,9 @@ import React, { PropTypes } from 'react';
 export default class TabView extends React.Component {
 
   static propTypes = {
+    selector: PropTypes.string,
     children: PropTypes.node,
-    draggable: React.PropTypes.bool,
+    draggable: PropTypes.bool
   };
 
   static defaultProps = {

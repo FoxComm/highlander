@@ -12,6 +12,10 @@
     background-color: @color-decor12;
   }
 
+  &-add-label {
+    .margin-bottom(15px);
+  }
+
   .typeahead {
     .typeahead-results {
       li {
@@ -27,13 +31,31 @@
     }
   }
 
-  tbody tr td {
-    vertical-align: top;
+  &-footer-editing-done {
+    .margin-top(20px);
+  }
 
+  tbody tr td {
+    .padding(15px);
+    vertical-align: top;
     .font-spec(13px, 18px);
 
     &.name {
       .font-spec(13px, 700, 18px);
     }
+  }
+
+  td img {
+    height: pxtorem(60px);
+  }
+
+  &-count {
+    color: #B1B1B1;
+    .font-spec(15px, 600, 20px);
+    .margin(10px 20px 0 0);
+  }
+
+  .fc-line-item-sale {
+    color: #F7423B;
   }
 }

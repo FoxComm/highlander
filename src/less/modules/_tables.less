@@ -9,6 +9,15 @@
 
 @color-border-td: @color-decor9;
 
+@keyframes fc-new-row {
+  from {
+    background-color: @color-decor44;
+  }
+
+  to {
+  }
+}
+
 .fc-table {
   display: table;
   table-layout: fixed;
@@ -23,7 +32,7 @@
       vertical-align: middle;
       .colors(@color-th-fg, @color-th-bg);
       .padding(10px, 15px);
-      .font-spec(13px, 700, 18px);
+      .font-spec(13px, 600, 18px);
       .height(62px);
       .border(1px, solid, @color-th-border);
       user-select: none;
@@ -78,8 +87,8 @@
         background-color: @color-tr-even-bg;
       }
 
-      &.new {
-        background-color: #dfe3ed;
+      &.is-new {
+        animation: fc-new-row 1.6s ease-out;
       }
     }
 
@@ -98,10 +107,10 @@
 .fc-table-footer {
   .margin(20px, 0);
   .padding(0, 20px);
-  overflow: hidden;
 }
 
 .fc-table-paginator {
   .inline-block;
   float: right;
+  line-height: pxtorem(45px);
 }

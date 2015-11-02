@@ -7,7 +7,7 @@ import { List } from 'immutable';
 
 class GiftCardTransactionActions {
   updateTransactions(id, transactions) {
-    AshesDispatcher.handleViewAction({
+    AshesDispatcher.handleAction({
       actionType: GiftCardTransactionConstants.UPDATE_TRANSACTIONS,
       giftCard: id,
       transactions: transactions
@@ -15,7 +15,7 @@ class GiftCardTransactionActions {
   }
 
   failedTransactions(errorMessage) {
-    AshesDispatcher.handleViewAction({
+    AshesDispatcher.handleAction({
       actionType: GiftCardTransactionConstants.FAILED_TRANSACTIONS,
       errorMessage: errorMessage
     });

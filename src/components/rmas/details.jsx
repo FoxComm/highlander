@@ -1,10 +1,8 @@
 'use strict';
 
 import React from 'react';
-import RmaSummary from './summary';
-import CustomerInfo from './customer-info';
+import { CustomerInfo, RmaSummary } from './helpers';
 import LineItems from '../line-items/line-items';
-import ShippingMethod from '../shipping/shipping-method';
 import Payment from '../payment/payment';
 import RmaStore from '../../stores/rmas';
 
@@ -44,7 +42,6 @@ export default class RmaDetails extends React.Component {
             />
         </div>
         <div className="fc-col-md-1-1">
-          <ShippingMethod rma={rma} isEditing={isEditing}/>
         </div>
         <div className="fc-col-md-1-1">
           <Payment rma={rma} isEditing={isEditing}/>

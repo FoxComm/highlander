@@ -3,65 +3,41 @@
 import React, { PropTypes } from 'react';
 import { Link, IndexLink } from '../link';
 import TitleBlock from './title-block';
+import { connect } from 'react-redux';
+import * as CustomersActions from '../../modules/customers/details';
 
-import CustomerStore from '../../stores/customers';
-
+@connect((state, props) => ({
+  ...state.customers.details[props.params.customer]
+}), CustomersActions)
 export default class Customer extends React.Component {
 
   static propTypes = {
     params: PropTypes.shape({
       customer: PropTypes.string.isRequired
     }).isRequired,
+    details: PropTypes.object,
     children: PropTypes.node
   };
 
-  constructor(props, context) {
-    super(props, context);
-    this.state = {
-      customer: {}
-    };
-  }
-
-  get customerId() {
-    return this.props.params.customer;
-  }
-
   componentDidMount() {
-    CustomerStore.listenToEvent('change-item', this);
-    CustomerStore.fetch(this.customerId);
-  }
+    const { customer } = this.props.params;
 
-  componentWillUnmount() {
-    CustomerStore.stopListeningToEvent('change-item', this);
-  }
-
-  onChangeItemCustomerStore(customer) {
-    if (parseInt(this.customerId) !== customer.id) {
-      return;
-    }
-
-    this.setState({
-      customer: customer
-    });
+    this.props.fetchCustomer(customer);
   }
 
   renderChildren() {
-    if (this.state.customer.id === undefined) {
-      return null;
-    }
-
     return React.Children.map(this.props.children, function (child) {
       return React.cloneElement(child, {
-        customer: this.state.customer
+        entity: this.props.details
       });
     }.bind(this));
   }
 
-  render() {
+  get page() {
     return (
       <div className="fc-customer">
         <div className="gutter">
-          <TitleBlock customer={this.state.customer} />
+          <TitleBlock customer={this.props.details} />
         </div>
         <div className="gutter">
           <ul className="fc-tabbed-nav">
@@ -72,7 +48,7 @@ export default class Customer extends React.Component {
             <li><a href="">Store Credit</a></li>
             <li><a href="">Notifications</a></li>
             <li><a href="">Reviews</a></li>
-            <li><a href="">Notes</a></li>
+            <li><Link to="customer-notes" params={this.props.params}>Notes</Link></li>
             <li><a href="">Activity Trail</a></li>
           </ul>
           <div>
@@ -81,5 +57,9 @@ export default class Customer extends React.Component {
         </div>
       </div>
     );
+  }
+
+  render() {
+    return (this.props.details ? this.page : null);
   }
 }

@@ -1,31 +1,44 @@
 'use strict';
 
-import React from 'react';
-import TableView from '../tables/tableview';
-import OrderStore from './../../stores/orders';
+import React, { PropTypes } from 'react';
+import TableView from '../table/tableview';
+import TableRow from '../table/row';
+import TableCell from '../table/cell';
+import Link from '../link/link';
+import { Date } from '../common/datetime';
 import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
 import SectionTitle from '../section-title/section-title';
+import { connect } from 'react-redux';
+import * as ordersActions from '../../modules/orders';
+import LocalNav from '../local-nav/local-nav';
 
+@connect(state => ({orders: state.orders}), ordersActions)
 export default class Orders extends React.Component {
-  constructor(props, context) {
-    super(props, context);
-    this.state = {
-      orders: OrderStore.getState()
-    };
-  }
+  static propTypes = {
+    fetch: PropTypes.func.isRequired,
+    setState: PropTypes.func.isRequired,
+    tableColumns: PropTypes.array,
+    subNav: PropTypes.array,
+    orders: PropTypes.shape({
+      rows: PropTypes.array.isRequired,
+      total: PropTypes.number
+    })
+  };
+
+  static defaultProps = {
+    tableColumns: [
+      {field: 'referenceNumber', text: 'Order', type: 'id', model: 'order'},
+      {field: 'createdAt', text: 'Date', type: 'date'},
+      {field: 'email', text: 'Email'},
+      {field: 'orderStatus', text: 'Order Status', type: 'orderStatus'},
+      {field: 'paymentStatus', text: 'Payment Status'},
+      {field: 'total', text: 'Total', type: 'currency'}
+    ]
+  };
 
   componentDidMount() {
-    OrderStore.listenToEvent('change', this);
-    OrderStore.fetch();
-  }
-
-  componentWillUnmount() {
-    OrderStore.stopListeningToEvent('change', this);
-  }
-
-  onChangeOrderStore(orders) {
-    this.setState({orders});
+    this.props.fetch(this.props.orders);
   }
 
   handleAddOrderClick() {
@@ -33,48 +46,44 @@ export default class Orders extends React.Component {
   }
 
   render() {
+    const renderRow = (row, index) => (
+      <TableRow key={`${index}`}>
+        <TableCell>
+          <Link to={'order'} params={{order: row.referenceNumber}}>
+            {row.referenceNumber}
+          </Link>
+        </TableCell>
+        <TableCell>{row.createdAt}</TableCell>
+        <TableCell>{row.email}</TableCell>
+        <TableCell>{row.orderStatus}</TableCell>
+        <TableCell>{row.paymentStatus}</TableCell>
+        <TableCell>{row.total}</TableCell>
+      </TableRow>
+    );
+
     return (
       <div id="orders">
-        <div className="fc-list-header">
-          <SectionTitle title="Orders" count={this.state.orders.length} buttonClickHandler={this.handleAddOrderClick }/>
-          <div className="fc-grid gutter">
-            <div className="fc-col-md-1-1">
-              <ul className="fc-tabbed-nav">
-                <li><a href="">Lists</a></li>
-                <li><a href="">Returns</a></li>
-              </ul>
-            </div>
-          </div>
+        <div>
+          <SectionTitle title="Orders" subtitle={this.props.orders.total}
+                        buttonClickHandler={this.handleAddOrderClick }/>
+          <LocalNav>
+            <a href="">Lists</a>
+            <a href="">Returns</a>
+          </LocalNav>
           <TabListView>
             <TabView>What</TabView>
             <TabView>What</TabView>
           </TabListView>
         </div>
-        <div className="gutter">
+        <div>
           <TableView
             columns={this.props.tableColumns}
-            rows={this.state.orders}
-            model='order'
-            sort={OrderStore.sort.bind(OrderStore)}
+            data={this.props.orders}
+            renderRow={renderRow}
+            setState={this.props.setFetchData}
             />
         </div>
       </div>
     );
   }
 }
-
-Orders.propTypes = {
-  tableColumns: React.PropTypes.array,
-  subNav: React.PropTypes.array
-};
-
-Orders.defaultProps = {
-  tableColumns: [
-    {field: 'referenceNumber', text: 'Order', type: 'id'},
-    {field: 'createdAt', text: 'Date', type: 'date'},
-    {field: 'email', text: 'Email'},
-    {field: 'orderStatus', text: 'Order Status', type: 'orderStatus'},
-    {field: 'paymentStatus', text: 'Payment Status'},
-    {field: 'total', text: 'Total', type: 'currency'}
-  ]
-};

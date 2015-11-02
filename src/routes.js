@@ -11,6 +11,7 @@ import Orders from './components/orders/orders';
 import Order from './components/orders/order';
 import OrderDetails from './components/orders/details';
 import Customers from './components/customers/customers';
+import NewCustomer from './components/customers/new-customer';
 import Customer from './components/customers/customer';
 import CustomerDetails from './components/customers/details';
 import Notes from './components/notes/notes';
@@ -21,7 +22,11 @@ import GiftCards from './components/gift-cards/gift-cards';
 import NewGiftCard from './components/gift-cards/gift-cards-new';
 import GiftCard from './components/gift-cards/gift-card';
 import GiftCardTransactions from './components/gift-cards/transactions';
+
 import StyleGuide from './components/style-guide/style-guide';
+import StyleGuideGrid from './components/style-guide/style-guide-grid';
+import StyleGuideButtons from './components/style-guide/style-guide-buttons';
+import StyleGuideContainers from './components/style-guide/style-guide-containers';
 
 const routes = (
   <Route path="/" component={Site}>
@@ -42,9 +47,11 @@ const routes = (
       <Route name='order-activity-trail' path='activity-trail' component={ActivityTrail}/>
     </Route>
     <Route name='customers' path='customers' component={Customers}/>
+    <Route name='customers-new' path='customers/new' component={NewCustomer} />
     <Route name='customer' path='customers/:customer' component={Customer}>
       <IndexRoute name='customer-details' component={CustomerDetails}/>
       <Route name='customer-addresses' path='addresses' component={AddressBook} />
+      <Route name='customer-notes' path='notes' component={Notes} />
     </Route>
     <Route name='gift-cards' path='gift-cards' component={GiftCards} />
     <Route name='gift-cards-new' path='gift-cards/new' component={NewGiftCard} />
@@ -53,7 +60,11 @@ const routes = (
       <Route name='gift-card-notes' path='notes' component={Notes} />
       <Route name='gift-card-activity-trail' path='activity-trail' component={ActivityTrail} />
     </Route>
-    <Route name='style-guide' path='style-guide' component={StyleGuide} />
+    <Route name='style-guide' path='style-guide' component={StyleGuide}>
+      <IndexRoute name='style-guide-grid' component={StyleGuideGrid} />
+      <Route name='style-guide-buttons' path='buttons' component={StyleGuideButtons} />
+      <Route name='style-guide-containers' path='containers' component={StyleGuideContainers} />
+    </Route>
   </Route>
 );
 

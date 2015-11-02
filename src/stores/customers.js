@@ -44,4 +44,5 @@ class CustomerStore extends TableStore {
   }
 }
 
-export default new CustomerStore();
+let customerStore = new CustomerStore();
+export default customerStore;

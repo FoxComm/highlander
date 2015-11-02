@@ -1,7 +1,7 @@
 .fc-alert {
-  .is-error,
-  .is-warning,
-  .is-success {
+  &.is-alert-error,
+  &.is-alert-warning,
+  &.is-alert-success {
     .font-spec(13px, 18px);
     color: @color-decor1;
     .padding(6px);
@@ -13,15 +13,15 @@
     }
   }
 
-  .is-error {
+  &.is-alert-error {
     background: @color-decor23;
   }
 
-  .is-warning {
+  &.is-alert-warning {
     background: @color-decor25;
   }
 
-  .is-success {
+  &.is-alert-success {
     background: @color-decor23;
   }
 }

@@ -1,5 +1,6 @@
 'use strict';
 
+import lineItemActions from '../../actions/line-items';
 import React from 'react';
 import ConfirmModal from '../modal/confirm';
 import { dispatch, listenTo, stopListeningTo } from '../../lib/dispatcher';
@@ -13,7 +14,11 @@ const confirmOptions = {
 
 export default class DeleteLineItem extends React.Component {
   onConfirmDelete() {
-    this.props.onDelete([{'sku': this.props.model.sku, 'quantity': 0}]);
+    lineItemActions.editLineItems(
+      this.props.entityName,
+      this.props.entity.referenceNumber,
+      [{'sku': this.props.model.sku, 'quantity': 0 }]
+    );
   }
 
   onClick() {
@@ -25,7 +30,7 @@ export default class DeleteLineItem extends React.Component {
       <button
         onClick={this.onClick.bind(this)}
         className="fc-btn fc-btn-remove">
-        <i className="fa fa-trash-o"></i>
+        <i className="icon-trash"></i>
       </button>
     );
   }
@@ -33,5 +38,6 @@ export default class DeleteLineItem extends React.Component {
 
 DeleteLineItem.propTypes = {
   model: React.PropTypes.object,
-  onDelete: React.PropTypes.func
+  entityName: React.PropTypes.string,
+  entity: React.PropTypes.object
 };

@@ -4,10 +4,6 @@ import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import * as validators from '../../lib/validators';
 
-function isInputElement(element) {
-  return _.contains(['input', 'textarea', 'select'], element.type);
-}
-
 function overrideEventHandlers(child, newEventHandlers) {
   return _.transform(newEventHandlers, (result, handler, type) => {
     result[type] = (event) => {
@@ -22,16 +18,18 @@ function overrideEventHandlers(child, newEventHandlers) {
 export default class FormField extends React.Component {
 
   static propTypes = {
-    validator: PropTypes.oneOf([
+    validator: PropTypes.oneOfType([
       PropTypes.func,
       PropTypes.string
     ]),
     children: PropTypes.node.isRequired,
+    required: PropTypes.any,
+    maxLength: PropTypes.number,
     label: PropTypes.node
   };
 
   static contextTypes = {
-    formDispatcher: PropTypes.object.isRequired
+    formDispatcher: PropTypes.object
   };
 
   constructor(props, context) {
@@ -41,17 +39,30 @@ export default class FormField extends React.Component {
     this.autoValidate = _.debounce(_.bind(this.autoValidate, this), 200);
   }
 
-  updateChildren(children=this.props.children) {
-    const clonedChildren = React.Children.map(children, (child, idx) => {
-      let newProps = {
-        key: `form-field-${idx}`
-      };
+  isInputElement(element) {
+    const isInputNode = _.contains(['input', 'textarea', 'select'], element.type);
+    return 'formFieldTarget' in element.props || isInputNode;
+  }
 
-      if (isInputElement(child)) {
+  cloneChildren(children, level=0) {
+    return React.Children.map(children, (child, idx) => {
+      if (!React.isValidElement(child)) return child;
+
+      let newProps = {
+        key: `form-field-${level}-${idx}`
+      };
+      let newChildren = null;
+
+      if (child.props.children) {
+        newChildren = this.cloneChildren(child.props.children, level + 1);
+      }
+
+      if (this.isInputElement(child)) {
         if (!child.props.id) {
           newProps.id = _.uniqueId('form-field-');
         }
         this.inputId = child.props.id || newProps.id;
+        this.inputUnbound = true;
 
         newProps = {...newProps, ...overrideEventHandlers(child, {
           onBlur: (event) => {
@@ -61,8 +72,22 @@ export default class FormField extends React.Component {
         })};
       }
 
-      return React.cloneElement(child, newProps);
+      return React.cloneElement(child, newProps, newChildren);
     }, this);
+  }
+
+
+  updateChildren(children=this.props.children) {
+    this.inputId = null;
+
+    const clonedChildren = this.cloneChildren(children);
+
+    if (!this.inputId) {
+      console.error(
+        `Warning: Couldn't find input element for ${this.props.label || '<unnamed>'} form field.
+        Hint: if you using custom input element add 'formFieldTarget' attribute for it.`
+      );
+    }
 
     this.setState({
       children: clonedChildren
@@ -82,29 +107,65 @@ export default class FormField extends React.Component {
   }
 
   componentWillMount() {
-    this.context.formDispatcher.on('submit', this.onSubmit);
+    if (this.context.formDispatcher) {
+      this.context.formDispatcher.on('submit', this.onSubmit);
+    }
 
     this.updateChildren();
   }
 
+  componentDidMount() {
+    this.updateInputBind();
+  }
+
   componentWillReceiveProps(nextProps) {
-    if (nextProps.children) {
+    if (nextProps.children && this.props.children !== nextProps.children) {
       this.updateChildren(nextProps.children);
     }
   }
 
   componentDidUpdate() {
     const inputNode = this.getInputNode();
-    const hasError = !!this.state.errorMessage;
 
     if (!inputNode) return;
 
-    inputNode.setCustomValidity(this.state.errorMessage || '');
-    inputNode.classList[hasError ? 'add' : 'remove']('is-error');
+    if (inputNode.setCustomValidity) {
+      inputNode.setCustomValidity(this.state.errorMessage || '');
+    }
+    this.updateInputState(false);
+    this.updateInputBind();
+  }
+
+  updateInputState(checkNativeValidity) {
+    const inputNode = this.getInputNode();
+
+    let isError = !!this.state.errorMessage;
+
+    if (checkNativeValidity && !isError) {
+      isError = !inputNode.validity.valid;
+    }
+
+    inputNode.classList[isError ? 'add' : 'remove']('is-error');
+  };
+
+  updateInputBind() {
+    const inputNode = this.getInputNode();
+
+    if (inputNode) {
+      inputNode.removeEventListener('invalid', this.updateInputState.bind(this, true));
+
+      if (this.inputUnbound) {
+        inputNode.addEventListener('invalid', this.updateInputState.bind(this, true));
+        this.inputUnbound = false;
+      }
+    }
   }
 
   componentWillUnmount() {
-    this.context.formDispatcher.removeListener('submit', this.onSubmit);
+    if (this.context.formDispatcher) {
+      this.context.formDispatcher.removeListener('submit', this.onSubmit);
+    }
+    this.updateInputBind();
   }
 
   onSubmit(reportValidity) {
@@ -122,59 +183,73 @@ export default class FormField extends React.Component {
   }
 
   validate() {
-    let errorMessage = null;
+    let errors = [];
 
     let validator = this.props.validator;
+    const label = this.props.label;
 
-    if (validator) {
-      if (_.isString(validator)) {
-        validator = validators[validator];
+    if (_.isString(validator)) {
+      validator = validators[validator];
+    }
+
+    let value = this.getInputValue();
+
+    if (!_.isString(value) || value) {
+      if (this.props.maxLength && _.isString(value) && value.length > this.props.maxLength) {
+        errors = [...errors, `${label} can not be more than ${this.props.maxLength} characters`];
       }
 
-      let value = this.getInputValue();
-      if (!_.isString(value) || value) {
-        errorMessage = validator(value);
+      if (validator) {
+        const validatorError = validator(value, label);
+        if (validatorError) {
+          errors = [...errors, validatorError];
+        }
       }
-
-      if (errorMessage) {
-        errorMessage = errorMessage.replace('$label', this.props.label);
-      }
+    } else if ('required' in this.props) {
+      errors = [...errors, `${label} is required field`];
     }
 
     this.setState({
-      errorMessage
+      errors
     });
 
-    return errorMessage === null;
+    return errors.length === 0;
   }
 
-  render() {
-    let label = null;
-    let errors = null;
-
-    if (this.state.errorMessage) {
-      errors = (
-        <div className="fc-form-field-error">
-          {this.state.errorMessage}
+  get errorMessages() {
+    if (this.state.errors) {
+      return (
+        <div>
+          {this.state.errors.map((error, index) => {
+            return (
+              <div key={`error-${index}`} className="fc-form-field-error">
+                {error}
+              </div>
+            );
+          })}
         </div>
       );
     }
+  }
 
+  get label() {
     if (this.props.label) {
-      const optionalMark = 'optional' in this.props ? <span className="fc-form-filed-optional">(optional)</span> : null;
-      label = (
-        <label htmlFor={this.inputId}>
+      const optionalMark = 'optional' in this.props ? <span className="fc-form-field-optional">(optional)</span> : null;
+      return (
+        <label className="fc-form-field-label" htmlFor={this.inputId}>
           {this.props.label}
           {optionalMark}
         </label>
       );
     }
+  }
 
+  render() {
     return (
       <div className="fc-form-field">
-        {label}
+        {this.label}
         {this.state.children}
-        {errors}
+        {this.errorMessages}
       </div>
     );
   }

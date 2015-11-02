@@ -2,11 +2,12 @@
   .colors(@color-control-standard-fg, @color-control-standard-bg);
   .padding(0 20px);
   .height(40px);
-  .font-spec(14px, 700, 40px);
+  .font-spec(14px, 600, 40px);
   border: none;
   border-radius: pxtorem(3px);
   user-select: none;
   cursor: pointer;
+  .inline-block();
 
   &:hover {
     .colors(@color-control-standard-hover-fg, @color-control-standard-hover-bg);
@@ -47,6 +48,11 @@
     &:hover {
       background-color: @color-decor23;
     }
+  }
+
+  &.fc-btn-plain {
+    background-color: transparent;
+    border: none;
   }
 
   &[class*=" icon-"] {

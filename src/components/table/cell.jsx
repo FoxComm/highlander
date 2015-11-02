@@ -1,18 +1,18 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 
-export default class TableCell extends React.Component {
-  static propTypes = {
-    children: React.PropTypes.any,
-    colspan: React.PropTypes.number
-  };
+const TableCell = (props) => {
+  return (
+    <td className="fc-table-td" colSpan={props.colspan}>
+      {props.children}
+    </td>
+  );
+};
 
-  render() {
-    return (
-      <td className="fc-table-td" colSpan={this.props.colspan}>
-        {this.props.children}
-      </td>
-    );
-  }
-}
+TableCell.propTypes = {
+  children: PropTypes.node,
+  colspan: PropTypes.number
+};
+
+export default TableCell;

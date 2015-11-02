@@ -12,27 +12,32 @@ import SectionTitle from '../section-title/section-title';
 import { Link } from '../link';
 
 import CustomerStore from '../../stores/customers';
+import CustomerActions from '../../actions/customers';
 
 export default class Customers extends React.Component {
 
   constructor(props, context) {
     super(props, context);
     this.state = {
-      customers: CustomerStore.getState()
+      data: CustomerStore.getState()
     };
+    this.onChange = this.onChange.bind(this);
   }
 
   componentDidMount() {
-    CustomerStore.listenToEvent('change', this);
-    CustomerStore.fetch();
+    CustomerStore.listen(this.onChange);
+
+    CustomerActions.fetchCustomers();
   }
 
   componentWillUnmount() {
-    CustomerStore.stopListeningToEvent('change', this);
+    CustomerStore.unlisten(this.onChange);
   }
 
-  onChangeCustomerStore(customers) {
-    this.setState({customers});
+  onChange() {
+    this.setState({
+      data: CustomerStore.getState()
+    });
   }
 
   handleAddCustomerClick() {
@@ -83,7 +88,11 @@ export default class Customers extends React.Component {
             </button>
           </div>
           <SearchBar />
-          <TableView store={CustomerStore} renderRow={renderRow.bind(this)} empty={'No customers yet.'}/>
+          <TableView
+            columns={this.props.tableColumns}
+            rows={this.state.data.toArray()}
+            model='customer'
+            sort={CustomerStore.sort.bind(CustomerStore)} />
         </div>
       </div>
     );

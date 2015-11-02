@@ -1,6 +1,6 @@
 'use strict';
 
-import { List, Map } from 'immutable';
+import { List } from 'immutable';
 import BaseStore from './base-store';
 import GiftCardConstants from '../constants/gift-card';
 
@@ -17,20 +17,16 @@ class GiftCardStore extends BaseStore {
 
   handleUpdateGiftCards(action) {
     // TODO: Get difference in cards and set 'new' property.
-    const giftCards = action.giftCards;
-    this.setState(this.state.merge(giftCards));
+    this.setState(List(action.giftCards));
   }
 
   handleFailedGiftCards(action) {
-    let errorMessage = action.errorMessage.trim();
-    console.error(errorMessage);
+    console.error(action.errorMessage.trim());
   }
 
   handleInsertGiftCard(action) {
     const giftCard = action.giftCard;
-    let existingIndex = this.state.findIndex(item => item.code === giftCard.code);
-    if (existingIndex === -1) existingIndex = this.state.size;
-    this.setState(this.state.set(existingIndex, giftCard));
+    this.setState(this.upsert(this.state, giftCard, null, item => item.code === giftCard.code));
   }
 }
 

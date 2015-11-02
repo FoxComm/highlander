@@ -5,9 +5,10 @@
     .line-height(40px);
     .width(36px);
     height: 100%;
-    background: @color-decor7;
     .inline-block();
     text-align: center;
+    background: @color-decor7;
+
     > button {
       background: @color-decor7;
       height: 100%;
@@ -16,12 +17,12 @@
       padding: 0;
     }
   }
-  .fc-input-prepend {
+  .fc-input-prepend, .fc-input-prepend > button {
     .border-radius(3px);
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
   }
-  .fc-input-append {
+  .fc-input-append, .fc-input-append > button {
     .border-radius(3px);
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
@@ -58,6 +59,7 @@
   input[type=text],
   input[type=tel],
   input[type=number],
+  input[type=password],
   textarea {
     @base-styles();
   }
@@ -165,8 +167,8 @@
   }
 }
 
-.fc-form-filed-optional {
-  color: @color-decor31;
+.fc-form-field-optional {
+  color: @color-decor6;
   .font-spec(14px, 20px);
   padding-left: 0.5em;
 }

@@ -2,8 +2,9 @@
 
 import _ from 'lodash';
 
-class ErrorResponse {
+class ErrorResponse extends Error {
   constructor(responseOrError) {
+    super();
     this.data = responseOrError;
     this.isNativeError = responseOrError instanceof Error;
 
@@ -36,6 +37,19 @@ export default class Api {
     return `/api/v1/${uri}`;
   }
 
+  static serialize = function(data) {
+    const params = [];
+    for (let param in data) {
+      if (data.hasOwnProperty(param)) {
+        const value = data[param];
+        if (value) {
+          params.push(encodeURIComponent(param) + '=' + encodeURIComponent(value));
+        }
+      }
+    }
+    return params.join('&');
+  };
+
   static request(method, uri, data) {
     uri = this.apiURI(uri);
     return new Promise((resolve, reject) => {
@@ -47,15 +61,18 @@ export default class Api {
         } else {
           try {
             reject(new ErrorResponse(JSON.parse(req.response)));
-          } catch(err) {
+          } catch (err) {
             reject(new ErrorResponse(err));
           }
         }
       };
 
+      if (method === 'GET' && data) {
+        uri += '?' + this.serialize(data);
+      }
       req.open(method, uri);
       if (token) req.setRequestHeader('Authorization', `Bearer ${token}`);
-      if (data && !(data instanceof FormData)) {
+      if (method !== 'GET' && data && !(data instanceof FormData)) {
         req.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
         data = JSON.stringify(data);
       }
@@ -65,9 +82,9 @@ export default class Api {
 
   static submitForm(form) {
     let
-      method    = form.getAttribute('method').toLowerCase(),
-      uri       = form.getAttribute('action'),
-      formData  = new FormData(form);
+      method = form.getAttribute('method').toLowerCase(),
+      uri = form.getAttribute('action'),
+      formData = new FormData(form);
     return this[method](uri, formData);
   }
 
