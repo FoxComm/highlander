@@ -197,7 +197,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       val lockedOrder = Orders.findByRefNum(order.referenceNumber).result.run().futureValue.head
       lockedOrder.locked must === (true)
 
-      val locks = OrderLockEvents.findByOrder(order).result.run().futureValue
+      val locks = OrderLockEvents.findByOrder(order.id).result.run().futureValue
       locks.length must === (1)
       val lock = locks.head
       lock.lockedBy must === (1)
@@ -282,7 +282,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       POST(s"v1/orders/$refNum/lock")
       db.run(OrderLockEvents.deleteById(1)).futureValue
       // Sanity check
-      OrderLockEvents.findByOrder(order).mostRecentLock.result.headOption.run().futureValue must ===(None)
+      OrderLockEvents.findByOrder(order.id).mostRecentLock.result.headOption.run().futureValue must ===(None)
       POST(s"v1/orders/$refNum/unlock")
       getUpdated(refNum).remorsePeriodEnd.value must ===(originalRemorseEnd.plusMinutes(15))
     }
