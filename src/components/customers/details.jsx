@@ -9,14 +9,13 @@ import CustomerCreditCards from './credit-cards';
 import CustomerGroups from './groups';
 import CustomerNotificationSettings from './notification-settings';
 import CustomerAccountStatus from './account-status';
+import SectionSubtitle from '../section-title/section-subtitle';
 
 const CustomerDetails = (props) => {
   const customer = props.entity;
   return (
     <div className="fc-customer-details">
-      <div>
-        <h2>Details</h2>
-      </div>
+      <SectionSubtitle title="Details" />
       <div className="fc-grid">
         <div className="fc-col-md-1-2">
           <CustomerContacts customer={ customer } />
