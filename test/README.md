@@ -2,8 +2,8 @@
 
 We have two types of the tests, for now.
 
-* Acceptance tests, for testing components
-* Unit tests, for testing redux modules and other stuff
+* Acceptance tests, for testing components.
+* Unit tests, for testing redux modules and other stuff.
 
 ## Global API for tests
 
@@ -17,7 +17,7 @@ Defaults to `false`.
 
 * *result.container*: `<DOM Node>` container where was rendered document
 * *result.unmount*: `<function>` method for unmount rendered markup from DOM
-* *result.container.unmount*: `<function>` same as `result.unmont`
+* *result.container.unmount*: `<function>` same as `result.unmount`
 * *result.instance*: `<Rect.Component>` instance of rendered component
 
 #### shallowRender(markup)
