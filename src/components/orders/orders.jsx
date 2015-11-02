@@ -65,7 +65,9 @@ export default class Orders extends React.Component {
       <div id="orders">
         <div>
           <SectionTitle title="Orders" subtitle={this.props.orders.total}
-                        buttonClickHandler={this.handleAddOrderClick }/>
+                        onAddClick={this.handleAddOrderClick }
+                        addTitle="Order"
+          />
           <LocalNav>
             <a href="">Lists</a>
             <a href="">Returns</a>

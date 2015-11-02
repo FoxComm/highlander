@@ -20,7 +20,7 @@ describe('SectionTitle', function() {
   });
 
   it('should render button if handler is set', function *() {
-    const sectionTitle = SectionTitle({title: 'Orders', buttonClickHandler: () => {}});
+    const sectionTitle = SectionTitle({title: 'Orders', onAddClick: () => {}});
 
     expect(sectionTitle, 'to contain',
       <PrimaryButton></PrimaryButton>
