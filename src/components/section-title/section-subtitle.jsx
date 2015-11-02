@@ -8,10 +8,10 @@ const SectionSubtitle = (props) => {
       <h2>{ props.title }</h2>
     </div>
   );
-}
+};
 
 SectionSubtitle.propTypes = {
   title: PropTypes.string
-}
+};
 
 export default SectionSubtitle;
