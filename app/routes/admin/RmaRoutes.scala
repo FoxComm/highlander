@@ -33,20 +33,20 @@ object RmaRoutes {
       pathPrefix("rmas") {
         (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
           goodOrFailures {
-            RmaService.findAll
+            RmaService.findAll(admin)
           }
         } ~
         (get & path("customer" / IntNumber)) { customerId ⇒
           (pathEnd & sortAndPage) { implicit sortAndPage ⇒
             goodOrFailures {
-              RmaService.findByCustomerId(customerId)
+              RmaService.findByCustomerId(admin, customerId)
             }
           }
         } ~
         (get & path("order" / Order.orderRefNumRegex)) { refNum ⇒
           (pathEnd & sortAndPage) { implicit sortAndPage ⇒
             goodOrFailures {
-              RmaService.findByOrderRef(refNum)
+              RmaService.findByOrderRef(admin, refNum)
             }
           }
         } ~
@@ -62,7 +62,12 @@ object RmaRoutes {
             RmaService.getByRefNum(refNum)
           }
         } ~
-        (patch & path("status") & entity(as[RmaUpdateStatusPayload]) & pathEnd) { payload ⇒
+        (get & path("expanded") & pathEnd) {
+          goodOrFailures {
+            RmaService.getExpandedByRefNum(refNum)
+          }
+        } ~
+        (patch & entity(as[RmaUpdateStatusPayload]) & pathEnd) { payload ⇒
           good {
             genericRmaMock.copy(status = payload.status)
           }

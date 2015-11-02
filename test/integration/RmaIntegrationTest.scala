@@ -5,7 +5,7 @@ import scala.concurrent.Future
 
 import Extensions._
 import models._
-import responses.{ResponseWithFailuresAndMetadata, RmaResponse, RmaLockResponse}
+import responses.{StoreAdminResponse, ResponseWithFailuresAndMetadata, RmaResponse, RmaLockResponse}
 import services.{GeneralFailure, LockedFailure, NotFoundFailure404, LockAwareRmaUpdater}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
@@ -27,6 +27,7 @@ class RmaIntegrationTest extends IntegrationTestBase
 
   override def beforeSortingAndPaging() = {
     (for {
+      storeAdmin ← StoreAdmins.save(Factories.storeAdmin)
       customer ← Customers.save(Factories.customer)
       order ← Orders.save(Factories.order.copy(
         status = Order.RemorseHold,
@@ -47,7 +48,8 @@ class RmaIntegrationTest extends IntegrationTestBase
         customerId = Some(currentCustomer.id))
       ).run()
 
-      future.map(RmaResponse.build(_))
+      val mockAdmin = Some(StoreAdminResponse.build(authedStoreAdmin))
+      future.map(RmaResponse.build(_, None, mockAdmin))
     }
 
     Future.sequence(items).futureValue
@@ -110,8 +112,8 @@ class RmaIntegrationTest extends IntegrationTestBase
       }
     }
 
-    "GET /v1/rmas/:code" - {
-      "should return valid RMA by code" in new Fixture {
+    "GET /v1/rmas/:refNum" - {
+      "should return valid RMA by referenceNumber" in new Fixture {
         val response = GET(s"v1/rmas/${rma.refNum}")
         response.status must ===(StatusCodes.OK)
 
@@ -126,6 +128,7 @@ class RmaIntegrationTest extends IntegrationTestBase
       }
     }
 
+<<<<<<< HEAD
     "GET /v1/rmas/:refNum/lock" - {
       "returns lock info on locked RMA" in {
         Orders.save(Factories.order.copy(referenceNumber = "ABC-123")).run().futureValue
@@ -217,6 +220,22 @@ class RmaIntegrationTest extends IntegrationTestBase
 
         response.status must === (StatusCodes.BadRequest)
         response.errors must === (GeneralFailure("Return is not locked").description)
+=======
+    "GET /v1/rmas/:refNum/expanded" - {
+      "should return expanded RMA by referenceNumber" in new Fixture {
+        val response = GET(s"v1/rmas/${rma.refNum}/expanded")
+        response.status must ===(StatusCodes.OK)
+
+        val root = response.as[RmaResponse.RootExpanded]
+        root.referenceNumber must ===(rma.refNum)
+        root.order.head.referenceNumber must ===(order.refNum)
+      }
+
+      "should return 404 if invalid rma is returned" in new Fixture {
+        val response = GET(s"v1/rmas/ABC-666/expanded")
+        response.status must ===(StatusCodes.NotFound)
+        response.errors must ===(NotFoundFailure404(Rma, "ABC-666").description)
+>>>>>>> master
       }
     }
   }

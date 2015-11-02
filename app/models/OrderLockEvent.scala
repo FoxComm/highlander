@@ -21,8 +21,13 @@ object OrderLockEvents extends TableQueryWithId[OrderLockEvent, OrderLockEvents]
   idLens = GenLens[OrderLockEvent](_.id)
 )(new OrderLockEvents(_)) {
 
-  def findByOrder(order: Order): Query[OrderLockEvents, OrderLockEvent, Seq] =
-    filter(_.orderId === order.id)
+  import scope._
+
+  def findByOrder(orderId: Int): QuerySeq =
+    filter(_.orderId === orderId)
+
+  def latestLockByOrder(orderId: Int): QuerySeq =
+    findByOrder(orderId).mostRecentLock
 
   object scope {
     implicit class OrderLockEventsQuerySeqConversions(q: QuerySeq) {

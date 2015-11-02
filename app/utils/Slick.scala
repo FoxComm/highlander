@@ -9,7 +9,8 @@ import services.{Failure, Failures, Result}
 import slick.ast._
 import slick.driver.PostgresDriver._
 import slick.driver.PostgresDriver.api._
-import slick.jdbc.{GetResult, JdbcResultConverterDomain, SetParameter, StaticQuery ⇒ Q, StaticQueryInvoker, StreamingInvokerAction}
+import slick.jdbc.{StaticQuery ⇒ Q, SQLActionBuilder, GetResult, JdbcResultConverterDomain, SetParameter,
+StaticQueryInvoker, StreamingInvokerAction}
 
 import slick.lifted.{ColumnOrdered, Ordered, Query}
 import slick.profile.{SqlAction, SqlStreamingAction}
@@ -113,6 +114,11 @@ object Slick {
   }
 
   object implicits {
+    implicit class EnrichedSQLActionBuilder(val action: SQLActionBuilder) extends AnyVal {
+      def stripMargin: SQLActionBuilder =
+        action.copy(action.queryParts.map(_.asInstanceOf[String].stripMargin))
+    }
+
     final case class QueryMetadata(
       sortBy    : Option[String]      = None,
       from      : Option[Int]         = None,

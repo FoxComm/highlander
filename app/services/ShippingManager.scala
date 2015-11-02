@@ -47,8 +47,8 @@ object ShippingManager {
   private def getShippingData(order: Order)(implicit db: Database, ec: ExecutionContext): DBIO[ShippingData] = {
     for {
       orderShippingAddress ← models.OrderShippingAddresses.findByOrderIdWithRegions(order.id).result.headOption
-      subTotal ← OrderTotaler.subTotalForOrder(order)
-      grandTotal ← OrderTotaler.grandTotalForOrder(order)
+      subTotal ← OrderTotaler.subTotal(order)
+      grandTotal ← OrderTotaler.grandTotal(order)
       skus ← (for {
         liSku ← OrderLineItemSkus.findByOrderId(order.id)
         skus ← Skus if skus.id === liSku.skuId

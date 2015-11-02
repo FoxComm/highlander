@@ -32,15 +32,6 @@ final case class Order(id: Int = 0, referenceNumber: String = "", customerId: In
     valid(this)
   }
 
-  // TODO: Add a real collector/builder here that assembles the subTotal
-  def subTotal(implicit ec: ExecutionContext, db: Database): DBIO[Int] = {
-    OrderTotaler.subTotalForOrder(this).map(_.getOrElse(0))
-  }
-
-  def grandTotal: DBIO[Int] = {
-    DBIO.successful(27)
-  }
-
   def isCart: Boolean = status == Cart
 
   def refNum: String = referenceNumber

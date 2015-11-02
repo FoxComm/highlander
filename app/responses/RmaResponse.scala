@@ -7,12 +7,15 @@ import payloads.{RmaCreditCardPayment, RmaGiftCardPayment, RmaStoreCreditPayment
 import responses.FullOrder.DisplayLineItem
 import responses.CustomerResponse.{Root ⇒ Customer}
 import responses.StoreAdminResponse.{Root ⇒ StoreAdmin}
+import services.NotFoundFailure404
 
 import slick.driver.PostgresDriver.api._
 import utils.Slick._
 import utils.Slick.implicits._
 
 object RmaResponse {
+  val mockTotal = 10
+
   val mockLineItems = LineItems(
     skus = Seq(
       DisplayLineItem(sku = "SKU-YAX", status = OrderLineItem.Shipped),
@@ -27,6 +30,8 @@ object RmaResponse {
     storeCredit = Some(RmaStoreCreditPayment(amount = 10))
   )
 
+  final case class FullRmaWithWarnings(rma: RootExpanded, warnings: Seq[NotFoundFailure404])
+
   final case class Root(
     id: Int,
     referenceNumber: String,
@@ -37,7 +42,20 @@ object RmaResponse {
     lineItems: LineItems = LineItems(),
     payments: Payments = Payments(),
     customer: Option[Customer] = None,
-    storeAdmin: Option[StoreAdmin] = None) extends ResponseItem
+    storeAdmin: Option[StoreAdmin] = None,
+    total: Int) extends ResponseItem
+
+  final case class RootExpanded(
+    id: Int,
+    referenceNumber: String,
+    order: Option[FullOrder.Root],
+    rmaType: Rma.RmaType,
+    status: Rma.Status,
+    lineItems: LineItems = LineItems(),
+    payment: Payments = Payments(),
+    customer: Option[Customer] = None,
+    storeAdmin: Option[StoreAdmin] = None,
+    total: Int) extends ResponseItem
 
   final case class LineItems(
     skus: Seq[FullOrder.DisplayLineItem] = Seq.empty,
@@ -59,6 +77,17 @@ object RmaResponse {
     }
   }
 
+  def fromRmaExpanded(rma: Rma)(implicit ec: ExecutionContext, db: Database): DBIO[RootExpanded] = {
+    fetchRmaDetailsExpanded(rma).map { case (customer, storeAdmin, fullOrder) ⇒
+      buildExpanded(
+        rma = rma,
+        order = fullOrder,
+        customer = customer.map(CustomerResponse.build(_)),
+        storeAdmin = storeAdmin.map(StoreAdminResponse.build)
+      )
+    }
+  }
+
   def buildMockRma(id: Int, refNum: String, orderId: Int, admin: Option[StoreAdmin] = None,
     customer: Option[Customer] = None): Root =
     Root(
@@ -71,7 +100,8 @@ object RmaResponse {
       customer = customer,
       storeAdmin = admin,
       lineItems = mockLineItems,
-      payments = mockPayments)
+      payments = mockPayments,
+      total = mockTotal)
 
   def build(rma: Rma, customer: Option[Customer] = None, storeAdmin: Option[StoreAdmin] = None): Root = {
     Root(id = rma.id,
@@ -81,20 +111,36 @@ object RmaResponse {
       rmaType = rma.rmaType,
       status = rma.status,
       customer = customer,
-      storeAdmin = storeAdmin)
+      storeAdmin = storeAdmin,
+      total = mockTotal)
   }
 
-  private def fetchRmaDetails(rma: Rma)(implicit ec: ExecutionContext) = {
-    for {
-      customer ← rma.customerId match {
-        case Some(id) ⇒ Customers.findById(id).extract.one
-        case None     ⇒ lift(None)
-      }
+  def buildExpanded(rma: Rma, order: Option[FullOrder.Root] = None,
+    customer: Option[Customer] = None, storeAdmin: Option[StoreAdmin] = None): RootExpanded = {
+    RootExpanded(id = rma.id,
+      referenceNumber = rma.refNum,
+      order = order,
+      rmaType = rma.rmaType,
+      status = rma.status,
+      customer = customer,
+      storeAdmin = storeAdmin,
+      total = mockTotal)
+  }
 
-      storeAdmin ← rma.storeAdminId match {
-        case Some(id) ⇒ StoreAdmins.findById(id).extract.one
-        case None     ⇒ lift(None)
-      }
+  private def fetchRmaDetails(rma: Rma)(implicit ec: ExecutionContext, db: Database) = {
+    for {
+      customer ← rma.customerId.map(id ⇒ Customers.findById(id).extract.one).getOrElse(lift(None))
+      storeAdmin ← rma.customerId.map(id ⇒ StoreAdmins.findById(id).extract.one).getOrElse(lift(None))
     } yield (customer, storeAdmin)
+  }
+
+  private def fetchRmaDetailsExpanded(rma: Rma)(implicit ec: ExecutionContext, db: Database) = {
+    for {
+      order ← Orders.findById(rma.orderId).extract.one
+      fullOrder ← order.map(o ⇒ FullOrder.fromOrder(o).map(Some(_))).getOrElse(lift(None))
+
+      customer ← rma.customerId.map(id ⇒ Customers.findById(id).extract.one).getOrElse(lift(None))
+      storeAdmin ← rma.customerId.map(id ⇒ StoreAdmins.findById(id).extract.one).getOrElse(lift(None))
+    } yield (customer, storeAdmin, fullOrder)
   }
 }
