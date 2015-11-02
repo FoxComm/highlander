@@ -3,13 +3,11 @@
 import React from 'react';
 import classNames from 'classnames';
 
-const GenericCheckbox = (props) => {
+const DefaultCheckbox = (props) => {
+  const {className, ...rest} = props;
   return (
-    <div className={ props.className }>
-      <input type="checkbox"
-             defaultChecked={ props.defaultChecked }
-             id={ props.id }
-             name={ props.name } />
+    <div className={ className }>
+      <input type="checkbox" {...rest} />
       <label htmlFor={props.id}><span></span></label>
     </div>
   );
@@ -17,14 +15,14 @@ const GenericCheckbox = (props) => {
 
 const SliderCheckbox = (props) => {
   return (
-    <GenericCheckbox {...props}
+    <DefaultCheckbox {...props}
                      className={ classNames('fc-slide-checkbox', props.className) } />
   );
 };
 
 const Checkbox = (props) => {
   return (
-    <GenericCheckbox {...props}
+    <DefaultCheckbox {...props}
                      className={ classNames('fc-checkbox', props.className) } />
   );
 };
