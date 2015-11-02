@@ -4,6 +4,7 @@ import React from 'react';
 import _ from 'lodash';
 import { formatCurrency } from '../../lib/format';
 import ContentBox from '../content-box/content-box';
+import TableView from '../tables/tableview';
 
 const StoreAdminEmail = (props) => {
   return <span>{props.model.storeAdmin.email}</span>;
@@ -65,10 +66,23 @@ const RmaSummary = (props) => {
   );
 };
 
+const RmaList = (props) => {
+  return (
+    <TableView
+      columns={props.tableColumns}
+      rows={props.items}
+      model='rma'>
+      <StoreAdminEmail />
+      <RmaTotal />
+    </TableView>
+  );
+};
+
 export {
   StoreAdminEmail,
   CustomerInfo,
   PaymentMethod,
   RmaTotal,
-  RmaSummary
+  RmaSummary,
+  RmaList
 };

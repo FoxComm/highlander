@@ -1,14 +1,13 @@
 'use strict';
 
 import React, { PropTypes } from 'react';
-import TableView from '../tables/tableview';
 import SectionTitle from '../section-title/section-title';
 import LocalNav from '../local-nav/local-nav';
 import { TabListView, TabView } from '../tabs';
 import { Link } from '../link';
 import { connect } from 'react-redux';
 import * as rmaActions from '../../modules/rmas/list';
-import {StoreAdminEmail, RmaTotal} from './helpers';
+import {RmaList} from './helpers';
 
 @connect(({rmas}) => ({items: rmas.list.items}), rmaActions)
 export default class Rmas extends React.Component {
@@ -49,13 +48,7 @@ export default class Rmas extends React.Component {
         </div>
         <div className="fc-grid fc-list-page-content">
           <div className="fc-col-md-1-1">
-            <TableView
-              columns={this.props.tableColumns}
-              rows={this.props.items}
-              model='rma'>
-              <StoreAdminEmail />
-              <RmaTotal />
-            </TableView>
+            <RmaList {...this.props} />
           </div>
         </div>
       </div>
