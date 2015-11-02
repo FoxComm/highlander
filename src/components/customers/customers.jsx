@@ -9,6 +9,7 @@ import TabView from '../tabs/tab';
 import { DateTime } from '../common/datetime';
 import SearchBar from '../search-bar/search-bar';
 import SectionTitle from '../section-title/section-title';
+import LocalNav from '../local-nav/local-nav';
 import { Link } from '../link';
 import { connect } from 'react-redux';
 import * as customersActions from '../../modules/customers/customers';
@@ -59,9 +60,10 @@ export default class Customers extends React.Component {
   }
 
   render() {
-    console.log(this.props);
     let renderRow = (row, index) => {
       let params = {customer: row.id};
+
+      console.log(row);
       return (
         <TableRow key={`customer-row-${row.id}`}>
           <TableCell><Link to='customer' params={params}>{ row.name }</Link></TableCell>
@@ -81,22 +83,18 @@ export default class Customers extends React.Component {
           <SectionTitle title="Customers"
                         count={this.props.customers.length}
                         buttonClickHandler={ this.handleAddCustomerClick }/>
-          <div className="fc-grid gutter">
-            <div className="fc-col-md-1-1">
-              <ul className="fc-tabbed-nav">
-                <li><Link to="customers">Lists</Link></li>
-                <li><a href="">Customer Groups</a></li>
-                <li><a href="">Insights</a></li>
-                <li><a href="">Activity Trial</a></li>
-              </ul>
-            </div>
-          </div>
+          <LocalNav>
+            <Link to="customers">Lists</Link>
+            <a href="">Customer Groups</a>
+            <a href="">Insights</a>
+            <a href="">Activity Trial</a>
+          </LocalNav>
           <TabListView>
             <TabView draggable={false}>All</TabView>
             <TabView>What</TabView>
           </TabListView>
         </div>
-        <div className="fc-grid gutter">
+        <div className="fc-grid">
           <div className="fc-col-md-1-1 fc-action-bar clearfix">
             <button className="fc-btn fc-right">
               <i className="icon-external-link"></i>
