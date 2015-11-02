@@ -2,7 +2,7 @@
 
 import Api from '../lib/api';
 import { createAction, createReducer } from 'redux-act';
-import { merge } from 'sprout-data';
+import { merge, get } from 'sprout-data';
 
 export const actionTypes = {
   FETCH: 'FETCH',
@@ -74,10 +74,12 @@ export function reducer(reducer = state => state) {
       );
     }
 
-    if (action && action.meta && action.meta.paginationType) {
+    const paginationType = get(action, ['meta', 'paginationType']);
+
+    if (paginationType) {
       const payload = action.payload;
 
-      switch (action.meta.paginationType) {
+      switch (paginationType) {
         case actionTypes.FETCH:
           return {
             ...state,
