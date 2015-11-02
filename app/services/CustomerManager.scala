@@ -66,10 +66,12 @@ object CustomerManager {
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
 
     def customersAndOrderTotal = {
-      val likeQuery = s"%${payload.term}%"
+      val likeQuery = s"%${payload.term}%".toLowerCase
       val query = payload.term.contains("@") match {
-        case true ⇒ Customers.filter(_.email like likeQuery)
-        case _ ⇒ Customers.filter { case c ⇒ c.email.like(likeQuery) || c.name.like(likeQuery) }
+        case true ⇒ Customers.filter(_.email.toLowerCase like likeQuery)
+        case _ ⇒ Customers.filter {
+          case c ⇒ c.email.toLowerCase.like(likeQuery) || c.name.toLowerCase.like(likeQuery)
+        }
       }
 
       val withOrdersTotal = query.joinLeft(Orders).on(_.id === _.customerId).groupBy(_._1.id).map {
