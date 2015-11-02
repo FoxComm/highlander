@@ -34,6 +34,7 @@ final case class Customer(id: Int = 0, email: String, password: Option[String] =
     } else {
       (notEmpty(name, "name")
         |@| notEmpty(name.getOrElse(""), "name")
+        |@| invalidExpr(name.getOrElse("").contains("@"), "name should not include '@' character")
         |@| notEmpty(email, "email")
         ).map { case _ ⇒ this }
     }
