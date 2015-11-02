@@ -5,7 +5,7 @@ import TableView from '../table/tableview';
 import TableRow from '../table/row';
 import TableCell from '../table/cell';
 import Link from '../link/link';
-import Date from '../common/datetime';
+import { Date } from '../common/datetime';
 import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
 import SectionTitle from '../section-title/section-title';
@@ -80,7 +80,7 @@ export default class Orders extends React.Component {
             columns={this.props.tableColumns}
             data={this.props.orders}
             renderRow={renderRow}
-            setState={this.props.setState}
+            setState={this.props.setFetchData}
             />
         </div>
       </div>
