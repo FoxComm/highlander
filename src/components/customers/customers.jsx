@@ -99,12 +99,14 @@ export default class Customers extends React.Component {
             </button>
           </div>
           <SearchBar />
-          <TableView
-            columns={this.props.tableColumns}
-            data={this.props.customers}
-            renderRow={renderRow}
-            setState={this.props.setFetchData}
-            />
+          <div className="fc-col-md-1-1">
+            <TableView
+              columns={this.props.tableColumns}
+              data={this.props.customers}
+              renderRow={renderRow}
+              setState={this.props.setFetchData}
+              />
+          </div>
         </div>
       </div>
     );

@@ -79,7 +79,7 @@ export function reducer(reducer = state => state) {
 
     if (paginationType) {
       const payload = action.payload;
-      let data = _.get(payload, 'result', payload);
+      const data = _.get(payload, 'result', payload);
 
       switch (paginationType) {
         case actionTypes.FETCH:
