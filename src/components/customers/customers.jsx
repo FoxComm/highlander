@@ -55,7 +55,16 @@ export default class Customers extends React.Component {
 
   static contextTypes = {
     history: PropTypes.object.isRequired
-  };
+  }
+
+  static propTypes = {
+    fetch: PropTypes.func,
+    setFetchData: PropTypes.func,
+    customers: PropTypes.shape({
+      length: PropTypes.number.isRequired
+    }).isRequired,
+    tableColumns: PropTypes.array
+  }
 
   componentDidMount() {
     this.props.fetch(this.props.customers);
