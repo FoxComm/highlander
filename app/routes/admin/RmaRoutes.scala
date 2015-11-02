@@ -32,20 +32,20 @@ object RmaRoutes {
       pathPrefix("rmas") {
         (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
           goodOrFailures {
-            RmaService.findAll
+            RmaService.findAll(admin)
           }
         } ~
         (get & path("customer" / IntNumber)) { customerId ⇒
           (pathEnd & sortAndPage) { implicit sortAndPage ⇒
             goodOrFailures {
-              RmaService.findByCustomerId(customerId)
+              RmaService.findByCustomerId(admin, customerId)
             }
           }
         } ~
         (get & path("order" / Order.orderRefNumRegex)) { refNum ⇒
           (pathEnd & sortAndPage) { implicit sortAndPage ⇒
             goodOrFailures {
-              RmaService.findByOrderRef(refNum)
+              RmaService.findByOrderRef(admin, refNum)
             }
           }
         } ~
