@@ -7,6 +7,7 @@ import payloads.{RmaCreditCardPayment, RmaGiftCardPayment, RmaStoreCreditPayment
 import responses.FullOrder.DisplayLineItem
 import responses.CustomerResponse.{Root ⇒ Customer}
 import responses.StoreAdminResponse.{Root ⇒ StoreAdmin}
+import services.NotFoundFailure404
 
 import slick.driver.PostgresDriver.api._
 import utils.Slick._
@@ -26,6 +27,8 @@ object RmaResponse {
     giftCard = Some(RmaGiftCardPayment(amount = 10)),
     storeCredit = Some(RmaStoreCreditPayment(amount = 10))
   )
+
+  final case class FullRmaWithWarnings(rma: RootExpanded, warnings: Seq[NotFoundFailure404])
 
   final case class Root(
     id: Int,
