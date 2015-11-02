@@ -3,8 +3,11 @@
 import _ from 'lodash';
 import Api from '../lib/api';
 import { createAction, createReducer } from 'redux-act';
-import { assoc, dissoc, update } from 'sprout-data';
+import { assoc, dissoc, update, get } from 'sprout-data';
 import { updateItems } from './state-helpers';
+import { paginateReducer, actionTypes, paginate, pickFetchParams } from './pagination';
+
+const NOTES = 'NOTES';
 
 const receiveNotes = createAction('NOTES_RECEIVE', (entity, notes) => [entity, notes]);
 const updateNotes = createAction('NOTES_UPDATE', (entity, notes) => [entity, notes]);
@@ -25,8 +28,12 @@ export const notesUri = (entity, noteId) => {
 };
 
 export function fetchNotes(entity) {
-  return dispatch => {
-    return Api.get(notesUri(entity))
+  const {entityType, entityId} = entity;
+
+  return (dispatch, getState) => {
+    const state = get(getState(), ['notes', entityType, entityId]);
+
+    return Api.get(notesUri(entity), pickFetchParams(state))
       .then(json => dispatch(receiveNotes(entity, json)))
       .catch(err => dispatch(notesFailed(entity, err)));
   };
@@ -59,30 +66,31 @@ export function deleteNote(entity, id) {
   };
 }
 
+
 const initialState = {};
 
 const reducer = createReducer({
-  [receiveNotes]: (state, [{entityType, entityId}, notes]) => {
-    return assoc(state, [entityType, entityId], {
-      notes
+  [receiveNotes]: (state, [{entityType, entityId}, payload]) => {
+    return update(state, [entityType, entityId], paginate, {
+      type: actionTypes.FETCH,
+      payload
     });
   },
-  [updateNotes]: (state, [{entityType, entityId}, notes]) => {
-    return assoc(
-      state,
-      [entityType, entityId, 'notes'],
-      updateItems(state[entityType][entityId].notes, notes)
-    );
+  [updateNotes]: (state, [{entityType, entityId}, payload]) => {
+    state = update(state, [entityType, entityId, 'rows'], updateItems, notes);
+    return update(state, [entityType, entityId], paginate, {
+      type: actionTypes.UPDATE_TOTAL,
+      payload
+    })
   },
-  [notesFailed]: (state, [{entityType, entityId}, err]) => {
-    console.error(err);
-
-    return assoc(state, [entityType, entityId], {
-      err
+  [notesFailed]: (state, [{entityType, entityId}, payload]) => {
+    return update(state, [entityType, entityId], paginate, {
+      type: actionTypes.FETCH_FAILED,
+      payload
     });
   },
   [noteRemoved]: (state, [{entityType, entityId}, id]) => {
-    return update(state, [entityType, entityId, 'notes'], _.reject, {id});
+    return update(state, [entityType, entityId, 'rows'], _.reject, {id});
   },
   [startDeletingNote]: (state, [{entityType, entityId}, id]) => {
     return assoc(state, [entityType, entityId, 'noteIdToDelete'], id);
@@ -102,4 +110,14 @@ const reducer = createReducer({
   }
 }, initialState);
 
-export default reducer;
+function paginateBehaviour(state, action, actionType) {
+  const [{entityType, entityId}, payload] = action.payload;
+
+  return update(state, [entityType, entityId], paginate, {
+    ...action,
+    payload,
+    type: actionType
+  });
+}
+
+export default paginateReducer(NOTES, reducer, paginateBehaviour);

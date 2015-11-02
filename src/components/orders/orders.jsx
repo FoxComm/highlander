@@ -82,7 +82,7 @@ export default class Orders extends React.Component {
             columns={this.props.tableColumns}
             data={this.props.orders}
             renderRow={renderRow}
-            setState={this.props.setFetchData}
+            setState={this.props.setFetchParams}
             />
         </div>
       </div>

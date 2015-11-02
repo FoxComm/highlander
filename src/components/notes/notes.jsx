@@ -5,6 +5,7 @@ import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import ConfirmationDialog from '../modal/confirmation-dialog';
 import { PrimaryButton } from '../../components/common/buttons';
+import SectionTitle from '../section-title/section-title';
 import ContentBox from '../content-box/content-box';
 import TableView from '../table/tableview';
 import TableRow from '../table/row';
@@ -30,7 +31,7 @@ const editingNote = createSelector(
 
 function mapStateToProps(state, {entity}) {
   return assoc(
-    _.get(state.notes, [entity.entityType, entity.entityId], {notes: []}),
+    _.get(state.notes, [entity.entityType, entity.entityId], {data: {}}),
     'editingNote', editingNote(state, entity)
   );
 }
@@ -103,9 +104,7 @@ export default class Notes extends React.Component {
 
   get controls() {
     return (
-      <PrimaryButton onClick={this.props.startAddingNote} disabled={!!this.props.isAddingNote}>
-        <i className="icon-add"></i>
-      </PrimaryButton>
+      <PrimaryButton icon="add" onClick={this.props.startAddingNote} disabled={!!this.props.isAddingNote } />
     );
   }
 
@@ -115,13 +114,18 @@ export default class Notes extends React.Component {
 
     return (
       <div>
-        <ContentBox title={'Notes'} actionBlock={this.controls}>
+        <SectionTitle title="Notes">{this.controls}</SectionTitle>
+        <ContentBox title={'Notes'}>
           {this.props.editingNoteId === true && (
           <NoteForm
             onReset={this.props.stopAddingOrEditingNote}
             onSubmit={this.props.createNote}
           />
             )}
+          <TableView
+            renderRow={this.renderNoteRow}
+
+          />
           <table>
             <tbody>
             {_.map(this.props.notes, this.renderNoteRow)}
