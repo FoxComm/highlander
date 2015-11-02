@@ -3,6 +3,7 @@
 import Api from '../lib/api';
 import { createAction, createReducer } from 'redux-act';
 import { merge, get } from 'sprout-data';
+import _ from 'lodash';
 
 export const actionTypes = {
   FETCH: 'FETCH',
@@ -78,15 +79,7 @@ export function reducer(reducer = state => state) {
 
     if (paginationType) {
       const payload = action.payload;
-      let data = [];
-
-      if (payload !== undefined) {
-        if (typeof payload === 'array') {
-          data = payload;
-        } else {
-          data = payload.result;
-        }
-      }
+      let data = _.get(payload, 'result', payload);
 
       switch (paginationType) {
         case actionTypes.FETCH:
@@ -99,7 +92,7 @@ export function reducer(reducer = state => state) {
             ...state,
             isFetching: false,
             rows: data,
-            total: payload.length
+            total: data.length
           };
         case actionTypes.FETCH_FAILED:
           console.error(payload);

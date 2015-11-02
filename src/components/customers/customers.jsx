@@ -62,8 +62,6 @@ export default class Customers extends React.Component {
   render() {
     let renderRow = (row, index) => {
       let params = {customer: row.id};
-
-      console.log(row);
       return (
         <TableRow key={`customer-row-${row.id}`}>
           <TableCell><Link to='customer' params={params}>{ row.name }</Link></TableCell>
