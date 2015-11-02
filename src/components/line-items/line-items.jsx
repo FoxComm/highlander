@@ -3,6 +3,7 @@
 import React, { PropTypes } from 'react';
 import TableView from '../tables/tableview';
 import LineItemCounter from './line-item-counter';
+import { autobind } from 'core-decorators';
 import LineItemActions from '../../actions/line-items';
 import DeleteLineItem from './line-item-delete';
 import SkuStore from '../../stores/skus';
@@ -16,6 +17,10 @@ export default class LineItems extends React.Component {
     entity: PropTypes.object,
     tableColumns: PropTypes.array,
     model: PropTypes.string
+  };
+
+  static defaultProps = {
+    suggestedSkus: []
   };
 
   constructor(props, context) {
@@ -54,6 +59,7 @@ export default class LineItems extends React.Component {
     });
   }
 
+  @autobind
   itemSelected(sku) {
     LineItemActions.editLineItems(
       this.props.model,
@@ -91,9 +97,9 @@ export default class LineItems extends React.Component {
               <div className="fc-line-items-add-label">
                 <strong>Add Item</strong>
               </div>
-              <Typeahead callback={this.itemSelected.bind(this)}
+              <Typeahead onItemSelected={this.itemSelected}
                          component={SkuResult}
-                         store={SkuStore}
+                         items={this.props.suggestedSkus}
                          placeholder="Product name or SKU..." />
             </div>
             <div className="fc-line-items-footer-editing-done">

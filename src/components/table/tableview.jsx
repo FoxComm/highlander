@@ -1,68 +1,52 @@
 'use strict';
 
-import React from 'react';
-import TableStore from '../../lib/table-store';
+import React, { PropTypes } from 'react';
 import Table from './table';
 import TablePaginator from './paginator';
+import TablePageSize from './pagesize';
 
-export default class TableView extends React.Component {
-  static propTypes = {
-    children: React.PropTypes.any,
-    empty: React.PropTypes.any,
-    store: React.PropTypes.instanceOf(TableStore),
-    renderRow: React.PropTypes.func,
-    paginator: React.PropTypes.bool
-  };
-
-  static defaultProps = {
-    paginator: true
-  };
-
-  constructor(...args) {
-    super(...args);
-  }
-
-  componentDidMount() {
-    this.props.store.addListener('change', this.forceUpdate.bind(this, false));
-  }
-
-  onLimitChange(event) {
-    event.preventDefault();
-    this.props.store.setLimit(+event.target.value);
-  }
-
-  render() {
-    let showPaginator = this.props.paginator && this.props.store.models.length > this.props.store.limit;
-    let paginator = showPaginator && (
-        <TablePaginator store={this.props.store}/>
-      );
-
-    return (
-      <div className="fc-tableview">
-        {showPaginator && (
-          <div className="fc-table-header">
-            {paginator}
-          </div>
-        )}
-        {this.props.store.models.length && (
-          <Table store={this.props.store} renderRow={this.props.renderRow}/>
-        )}
-        {!this.props.store.models.length && (
-          <div>{this.props.empty}</div>
-        )}
-        {showPaginator && (
-          <div className="fc-table-footer">
-            <select onChange={this.onLimitChange.bind(this)}>
-              <option value="10">Show 10</option>
-              <option value="25">Show 25</option>
-              <option value="50">Show 50</option>
-              <option value="100">Show 100</option>
-              <option value="Infinity">Show all</option>
-            </select>
-            {paginator}
-          </div>
-        )}
-      </div>
+const TableView = (props) => {
+  const setState = props.setState.bind(this, props.data);
+  const tableNeedsPagination = props.paginator && props.data.total > 0;
+  const tablePaginator = tableNeedsPagination && (
+      <TablePaginator
+        total={props.data.total}
+        from={props.data.from}
+        size={props.data.size}
+        setState={setState}
+        />
     );
-  }
-}
+  const tablePageSize = tableNeedsPagination && (
+      <TablePageSize setState={setState}/>
+    );
+  return (
+    <div className="fc-tableview">
+      {tableNeedsPagination && (
+        <div className="fc-table-header">
+          {tablePaginator}
+        </div>
+      )}
+      <Table columns={props.columns} data={props.data} renderRow={props.renderRow} setState={setState}/>
+      {tableNeedsPagination && (
+        <div className="fc-table-footer">
+          {tablePageSize}
+          {tablePaginator}
+        </div>
+      )}
+    </div>
+  );
+};
+
+TableView.propTypes = {
+  columns: PropTypes.array.isRequired,
+  data: PropTypes.object.isRequired,
+  setState: PropTypes.func.isRequired,
+  renderRow: PropTypes.func,
+  paginator: PropTypes.bool
+};
+
+TableView.defaultProps = {
+  paginator: true
+};
+
+export default TableView;

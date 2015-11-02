@@ -1,29 +1,39 @@
 'use strict';
 
-require('babel/register');
 const path = require('path');
+const runSequence = require('run-sequence');
+require('babel/register');
 
 const mochaOpts = {
   reporter: 'dot',
   ui: 'bdd',
   timeout: 30000,
-  require: ['co-mocha']
+  require: [
+    'co-mocha',
+    './test/_setup'
+  ]
 };
 
 module.exports = function(gulp, opts, $) {
-  let helper = path.join(opts.testDir, '/spec-helper.js');
-  let specs = path.join(opts.testDir, '/specs/**/*.js');
-  let acceptance = path.join(opts.testDir, '/acceptance/**/*.jsx');
+  const specs = path.join(opts.testDir, '/specs/**/*.js');
+  const acceptance = path.join(opts.testDir, '/acceptance/**/*.jsx');
+
 
   gulp.task('mocha.main', function() {
-    return gulp.src([helper, specs, acceptance], {read: false})
+    const setup = path.join(opts.testDir, '/acceptance/_setup.js');
+
+    return gulp.src([setup, specs, acceptance], {read: false})
       .pipe($.mocha(mochaOpts));
   });
 
   gulp.task('mocha.unit', function() {
-    return gulp.src(path.join(opts.testDir, '/unit/**/*.js'), {read: false})
+    const unitTests = path.join(opts.testDir, '/unit/**/*.js');
+
+    return gulp.src([unitTests], {read: false})
       .pipe($.mocha(mochaOpts));
   });
 
-  gulp.task('mocha', ['mocha.unit', 'mocha.main']);
+  gulp.task('mocha', function(cb) {
+    runSequence('mocha.unit', 'mocha.main', cb);
+  });
 };

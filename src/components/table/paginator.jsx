@@ -1,35 +1,47 @@
 'use strict';
 
-import React from 'react';
-import TableStore from '../../lib/table-store';
+import React, { PropTypes } from 'react';
+import { autobind } from 'core-decorators';
+import { LeftButton, RightButton } from '../common/buttons';
 
-export default class TablePaginator extends React.Component {
+class TablePaginator extends React.Component {
   static propTypes = {
-    store: React.PropTypes.instanceOf(TableStore)
+    total: PropTypes.number.isRequired,
+    from: PropTypes.number.isRequired,
+    size: PropTypes.number.isRequired,
+    setState: PropTypes.func.isRequired
   };
 
+  @autobind
   onPrevPageClick() {
-    this.props.store.setStart(this.props.store.start - this.props.store.limit);
+    this.props.setState({
+      from: Math.max(0, Math.min(this.props.total - 1, this.props.from - this.props.size))
+    });
   }
 
+  @autobind
   onNextPageClick() {
-    this.props.store.setStart(this.props.store.start + this.props.store.limit);
+    this.props.setState({
+      from: Math.max(0, Math.min(this.props.total - 1, this.props.from + this.props.size))
+    });
   }
 
   render() {
-    let total = this.props.store.models.length;
-    let start = this.props.store.start + 1;
-    let end = Math.min(total, this.props.store.start + this.props.store.limit);
+    const total = this.props.total;
+    const from = this.props.from + 1;
+    const end = Math.min(total, this.props.from + this.props.size);
     return (
       <div className="fc-table-paginator">
         <span>
-          {start}&thinsp;-&thinsp;{end} of {total}
+          {from}&thinsp;-&thinsp;{end} of {total}
         </span>
         &nbsp;
-        <button onClick={this.onPrevPageClick.bind(this)}><i className="icon-chevron-left"/></button>
+        <LeftButton onClick={this.onPrevPageClick}/>
         &nbsp;
-        <button onClick={this.onNextPageClick.bind(this)}><i className="icon-chevron-right"/></button>
+        <RightButton onClick={this.onNextPageClick}/>
       </div>
     );
   }
 }
+
+export default TablePaginator;

@@ -4,17 +4,17 @@
 
 ### Prerequisites
 
-* iojs
+* node
 
-2.x.x is required version for Ashes.
+>=4.2.0 is required version for Ashes.
 Newer version is incompatible with current version of project due to dependencies used.
-To install 2.x.x version you can use [nvm](https://github.com/creationix/nvm) or [n](https://github.com/tj/n) node version manager.
+To install 4.2.x or later version you can use [nvm](https://github.com/creationix/nvm) or [n](https://github.com/tj/n) node version manager.
 
-If using nvm, run the following to install the version listed in `.nvmrc`. For example, if using iojs `v2.5.0`, follow these commands:
+If using nvm, run the following to install the version listed in `.nvmrc`. For example, if using node `v4.2.1`, follow these commands:
 
 ```
-nvm install iojs-v2.5.0
-nvm use iojs-v2.5.0
+nvm install 4.2.1
+nvm use 4.2.1
 ```
 
 ### Install npm modules

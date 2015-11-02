@@ -1,69 +1,58 @@
-'use strict';
 
-require('testdom')('<html><body></body></html>');
-
-const React = require('react');
-
-const TestUtils = require('react-addons-test-utils');
-const ReactDOM = require('react-dom');
-
-const path = require('path');
+import React from 'react';
 
 describe('ContentBox', function() {
-  let ContentBox = require(path.resolve('src/components/content-box/content-box.jsx'));
-  let container = null;
+  const ContentBox = requireComponent('content-box/content-box.jsx');
 
-  beforeEach(function() {
-    container = document.createElement('div');
-  });
+  let contentBox;
 
-  afterEach(function(done) {
-    ReactDOM.unmountComponentAtNode(container);
-    setTimeout(done);
+  afterEach(function() {
+    if (contentBox) {
+      contentBox.unmount();
+      contentBox = null;
+    }
   });
 
   it('should render container with correct title', function *() {
-    let title = 'Customer Info';
-    let contentBox = ReactDOM.render(
+    const title = 'Customer Info';
+    contentBox = shallowRender(
       <ContentBox title={ title } className="" />
-      , container);
-    let contentBoxTitleNode = ReactDOM.findDOMNode(
-      TestUtils.findRenderedDOMComponentWithClass(contentBox, 'fc-title'));
+    );
 
-    expect(contentBoxTitleNode.innerHTML).to.be.equal(title);
+    expect(contentBox, 'to contain',
+      <div className="fc-col-md-2-3 fc-title">{title}</div>
+    );
   });
 
   it('should render container with correct class', function *() {
-    let className = 'test-class';
-    let contentBox = ReactDOM.render(
+    const className = 'test-class';
+    contentBox = shallowRender(
       <ContentBox title="" className={ className } />
-      , container);
-    let contentBoxNode = ReactDOM.findDOMNode(
-      TestUtils.findRenderedDOMComponentWithClass(contentBox, 'fc-content-box'));
+    );
 
-    expect(contentBoxNode.className).to.be.equal(`${className} fc-content-box`);
+    expect(contentBox.props.className).to.be.equal(`${className} fc-content-box`);
   });
 
   it('should render container with action block when provided', function *() {
-    let actionBlock = 'Actions!';
-    let contentBox = ReactDOM.render(
+    const actionBlock = 'Actions!';
+    contentBox = shallowRender(
       <ContentBox title="" className="" actionBlock={ actionBlock }/>
-      , container);
-    let contentBoxNode = ReactDOM.findDOMNode(
-      TestUtils.findRenderedDOMComponentWithClass(contentBox, 'fc-controls'));
+    );
 
-    expect(contentBoxNode.innerHTML).to.be.equal(actionBlock);
+    expect(contentBox, 'to contain',
+      <div className="fc-col-md-1-3 fc-controls">
+        {actionBlock}
+      </div>
+    );
   });
 
   it('should not render action block by default', function *() {
-    let contentBox = ReactDOM.render(
+    contentBox = shallowRender(
       <ContentBox title="" className="" />
-      , container);
-    let contentBoxNode = ReactDOM.findDOMNode(
-      TestUtils.findRenderedDOMComponentWithClass(contentBox, 'fc-controls'));
+    );
 
-    expect(contentBoxNode.innerHTML).to.be.equal('');
+    expect(contentBox, 'to contain exactly',
+      <div className="fc-col-md-1-3 fc-controls"></div>
+    );
   });
-
-
-})
+});

@@ -17,6 +17,14 @@ const DefaultButton = (props) => {
   );
 };
 
+const LeftButton = (props) => {
+  return <DefaultButton icon='chevron-left' {...props} />;
+};
+
+const RightButton = (props) => {
+  return <DefaultButton icon='chevron-right' {...props} />;
+};
+
 const DecrementButton = (props) => {
   return <DefaultButton icon='chevron-down' {...props} />;
 };
@@ -48,6 +56,8 @@ const PrimaryButton = (props) => {
 
 export {
   DefaultButton,
+  LeftButton,
+  RightButton,
   DecrementButton,
   DeleteButton,
   EditButton,

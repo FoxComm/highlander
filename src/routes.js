@@ -52,6 +52,7 @@ const routes = (
     <Route name='customer' path='customers/:customer' component={Customer}>
       <IndexRoute name='customer-details' component={CustomerDetails}/>
       <Route name='customer-addresses' path='addresses' component={AddressBook} />
+      <Route name='customer-notes' path='notes' component={Notes} />
     </Route>
     <Route name='gift-cards' path='gift-cards' component={GiftCards} />
     <Route name='gift-cards-new' path='gift-cards/new' component={NewGiftCard} />
