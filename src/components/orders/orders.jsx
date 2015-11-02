@@ -61,8 +61,6 @@ export default class Orders extends React.Component {
       </TableRow>
     );
 
-    console.log(props);
-
     return (
       <div id="orders">
         <div>
