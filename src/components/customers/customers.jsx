@@ -6,38 +6,52 @@ import TableRow from '../table/row';
 import TableCell from '../table/cell';
 import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
-import DateTime from '../datetime/datetime';
+import { DateTime } from '../common/datetime';
 import SearchBar from '../search-bar/search-bar';
 import SectionTitle from '../section-title/section-title';
 import { Link } from '../link';
+import { connect } from 'react-redux';
+import * as customersActions from '../../modules/customers/customers';
 
-import CustomerStore from '../../stores/customers';
-import CustomerActions from '../../actions/customers';
-
+@connect(state => ({customers: state.customers.customers}), customersActions)
 export default class Customers extends React.Component {
 
-  constructor(props, context) {
-    super(props, context);
-    this.state = {
-      data: CustomerStore.getState()
-    };
-    this.onChange = this.onChange.bind(this);
+  static defaultProps = {
+    tableColumns: [
+      {
+        field: 'name',
+        text: 'Name'
+      },
+      {
+        field: 'email',
+        text: 'Email'
+      },
+      {
+        field: 'id',
+        text: 'Customer ID'
+      },
+      {
+        field: 'shipRegion',
+        text: 'Ship To Region'
+      },
+      {
+        field: 'billRegion',
+        text: 'Bill To Region'
+      },
+      {
+        field: 'rank',
+        text: 'Rank'
+      },
+      {
+        field: 'createdAt',
+        text: 'Date/Time Joined',
+        type: 'date'
+      }
+    ]
   }
 
   componentDidMount() {
-    CustomerStore.listen(this.onChange);
-
-    CustomerActions.fetchCustomers();
-  }
-
-  componentWillUnmount() {
-    CustomerStore.unlisten(this.onChange);
-  }
-
-  onChange() {
-    this.setState({
-      data: CustomerStore.getState()
-    });
+    this.props.fetch(this.props.customers);
   }
 
   handleAddCustomerClick() {
@@ -45,6 +59,7 @@ export default class Customers extends React.Component {
   }
 
   render() {
+    console.log(this.props);
     let renderRow = (row, index) => {
       let params = {customer: row.id};
       return (
@@ -64,7 +79,7 @@ export default class Customers extends React.Component {
       <div id="customers">
         <div className="fc-list-header">
           <SectionTitle title="Customers"
-                        count={this.state.customers.length}
+                        count={this.props.customers.length}
                         buttonClickHandler={ this.handleAddCustomerClick }/>
           <div className="fc-grid gutter">
             <div className="fc-col-md-1-1">
@@ -90,9 +105,10 @@ export default class Customers extends React.Component {
           <SearchBar />
           <TableView
             columns={this.props.tableColumns}
-            rows={this.state.data.toArray()}
-            model='customer'
-            sort={CustomerStore.sort.bind(CustomerStore)} />
+            data={this.props.customers}
+            renderRow={renderRow}
+            setState={this.props.setFetchData}
+            />
         </div>
       </div>
     );

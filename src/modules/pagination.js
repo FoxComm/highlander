@@ -78,6 +78,15 @@ export function reducer(reducer = state => state) {
 
     if (paginationType) {
       const payload = action.payload;
+      let data = [];
+
+      if (payload !== undefined) {
+        if (typeof payload === 'array') {
+          data = payload;
+        } else {
+          data = payload.result;
+        }
+      }
 
       switch (paginationType) {
         case actionTypes.FETCH:
@@ -89,7 +98,7 @@ export function reducer(reducer = state => state) {
           return {
             ...state,
             isFetching: false,
-            rows: payload,
+            rows: data,
             total: payload.length
           };
         case actionTypes.FETCH_FAILED:
