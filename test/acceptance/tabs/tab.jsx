@@ -1,57 +1,38 @@
-'use strict';
-
-require('testdom')('<html><body></body></html>');
-
-const React = require('react');
-
-const TestUtils = require('react-addons-test-utils');
-const ReactDOM = require('react-dom');
-
-const path = require('path');
+import React from 'react';
+import TestUtils from 'react-addons-test-utils';
+import ShallowTestUtils from 'react-shallow-testutils';
 
 describe('TabView', function() {
-  let TabView = require(path.resolve('src/components/tabs/tab.jsx'));
-  let container = null;
+  const TabView = requireComponent('tabs/tab.jsx');
+  const titleText = 'All';
 
-  beforeEach(function() {
-    container = document.createElement('div');
-  });
+  let tab;
 
-  afterEach(function(done) {
-    ReactDOM.unmountComponentAtNode(container);
-    setTimeout(done);
+  afterEach(function() {
+    if (tab) {
+      tab.unmount();
+      tab = null;
+    }
   });
 
   it('should contain title text', function *() {
-    let titleText = 'All';
-
-    let tab = ReactDOM.render(
+    tab = shallowRender(
       <TabView>{ titleText }</TabView>
-      , container);
-    let tabNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithClass(tab, 'fc-tab'));
-
-    expect(tabNode.innerHTML).to.contain(titleText);
+    );
+    expect(tab.props.children, 'to contain', titleText);
   });
 
   it('should be draggable by default', function *() {
-    let titleText = 'All';
-
-    let tab = ReactDOM.render(
+    tab = shallowRender(
       <TabView>{ titleText }</TabView>
-      , container);
-    let tabNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithClass(tab, 'fc-tab'));
-
-    expect(tabNode.querySelector('.icon-drag-drop')).to.be.instanceOf(Object);
+    );
+    expect(tab, 'to contain', <i className="icon-drag-drop" />);
   });
 
   it('should be draggable when property is false', function *() {
-    let titleText = 'All';
-
-    let tab = ReactDOM.render(
+    tab = shallowRender(
       <TabView draggable={ false }>{ titleText }</TabView>
-      , container);
-    let tabNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithClass(tab, 'fc-tab'));
-
-    expect(tabNode.querySelector('.icon-drag-drop')).to.be.equal(null);
+    );
+    expect(tab).not.to.contain(<i className="icon-drag-drop" />);
   });
 });
