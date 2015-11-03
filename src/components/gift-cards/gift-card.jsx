@@ -103,7 +103,7 @@ export default class GiftCard extends React.Component {
             </Panel>
           </div>
         </div>
-        <PanelList className="fc-grid-md-1-5">
+        <PanelList className="fc-grid fc-grid-collapse fc-grid-md-1-5">
           <PanelListItem title="Original Balance">
             { formatCurrency(card.originalBalance) }
           </PanelListItem>

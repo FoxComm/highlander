@@ -1,29 +1,28 @@
 'use strict';
 
 import React, { PropTypes } from 'react';
-import TableView from '../tables/tableview';
 import SectionTitle from '../section-title/section-title';
 import LocalNav from '../local-nav/local-nav';
 import { TabListView, TabView } from '../tabs';
 import { Link } from '../link';
 import { connect } from 'react-redux';
 import * as rmaActions from '../../modules/rmas/list';
-import {StoreAdminEmail, RmaTotal} from './helpers';
+import {RmaList} from './helpers';
 
 @connect(({rmas}) => ({items: rmas.list.items}), rmaActions)
 export default class Rmas extends React.Component {
   static propTypes = {
     tableColumns: PropTypes.array,
-    fetchRmas: PropTypes.func.required,
-    items: PropTypes.array.required
+    fetchRmas: PropTypes.func.isRequired,
+    items: PropTypes.array.isRequired
   };
 
   static defaultProps = {
     tableColumns: [
       {field: 'referenceNumber', text: 'Return', type: 'id'},
       {field: 'createdAt', text: 'Date', type: 'date'},
-      {field: 'orderId', text: 'Order', model: 'order', type: 'id'},
-      {field: 'email', text: 'Email', component: 'StoreAdminEmail'},
+      {field: 'orderRefNum', text: 'Order', model: 'order', type: 'id'},
+      {field: 'email', text: 'Email', component: 'RmaEmail'},
       {field: 'status', text: 'Return Status', type: 'rmaStatus'},
       {field: 'returnTotal', text: 'Total', component: 'RmaTotal'}
     ]
@@ -49,13 +48,7 @@ export default class Rmas extends React.Component {
         </div>
         <div className="fc-grid fc-list-page-content">
           <div className="fc-col-md-1-1">
-            <TableView
-              columns={this.props.tableColumns}
-              rows={this.props.items}
-              model='rma'>
-              <StoreAdminEmail />
-              <RmaTotal />
-            </TableView>
+            <RmaList {...this.props} />
           </div>
         </div>
       </div>

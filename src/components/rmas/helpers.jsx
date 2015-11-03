@@ -4,9 +4,16 @@ import React from 'react';
 import _ from 'lodash';
 import { formatCurrency } from '../../lib/format';
 import ContentBox from '../content-box/content-box';
+import TableView from '../tables/tableview';
 
-const StoreAdminEmail = (props) => {
-  return <span>{props.model.storeAdmin.email}</span>;
+const RmaEmail = (props) => {
+  if (props.model.storeAdmin) {
+    return <span>{props.model.storeAdmin.email}</span>;
+  } else if (props.model.customer) {
+    return <span>{props.model.customer.email}</span>;
+  }
+
+  return null;
 };
 
 const CustomerInfo = (props) => {
@@ -65,10 +72,23 @@ const RmaSummary = (props) => {
   );
 };
 
+const RmaList = (props) => {
+  return (
+    <TableView
+      columns={props.tableColumns}
+      rows={props.items}
+      model='rma'>
+      <RmaEmail />
+      <RmaTotal />
+    </TableView>
+  );
+};
+
 export {
-  StoreAdminEmail,
+  RmaEmail,
   CustomerInfo,
   PaymentMethod,
   RmaTotal,
-  RmaSummary
+  RmaSummary,
+  RmaList
 };
