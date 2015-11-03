@@ -15,12 +15,12 @@ import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 import utils.Slick.implicits._
 
 final case class Reason(id: Int = 0, storeAdminId: Int, body: String, parentId: Option[Int] = None)
-  extends ModelWithIdParameter
+  extends ModelWithIdParameter[Reason]
   with Validation[Reason] {
 
   import Validation._
 
-  def validate: ValidatedNel[Failure, Reason] = {
+  override def validate: ValidatedNel[Failure, Reason] = {
     ( notEmpty(body, "body")
       |@| lesserThanOrEqual(body.length, 255, "bodySize")
       ).map { case _ ⇒ this }

@@ -6,7 +6,8 @@ import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
-final case class ShippingRestriction(id:Int = 0, restrictionType: ShippingRestriction.RestrictionType, name: String, displayAnyway: Boolean) extends ModelWithIdParameter
+final case class ShippingRestriction(id:Int = 0, restrictionType: ShippingRestriction.RestrictionType, name: String, displayAnyway: Boolean)
+  extends ModelWithIdParameter[ShippingRestriction]
 
 object ShippingRestriction{
   sealed trait RestrictionType

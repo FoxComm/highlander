@@ -91,7 +91,7 @@ object Seeds {
       storeAdmin ← (StoreAdmins.returningId += s.storeAdmin).map(id ⇒ s.storeAdmin.copy(id = id))
       skus ← Skus ++= s.skus
       summaries ← InventorySummaries ++= s.inventorySummaries
-      order ← Orders.create(s.order.copy(customerId = customer.id))
+      order ← Orders.save(s.order.copy(customerId = customer.id))
       orderNotes ← Notes ++= s.orderNotes
       orderLineItemOrigins ← OrderLineItemSkus ++= s.orderLineItemSkus
       orderLineItem ← OrderLineItems ++= s.orderLineItems

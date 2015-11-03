@@ -5,7 +5,8 @@ import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 
 final case class InventoryClassification(id: Int, skuId: Int, canSell: Boolean,
-                                   canPreOrder: Boolean, canBackOrder: Boolean) extends ModelWithIdParameter
+                                   canPreOrder: Boolean, canBackOrder: Boolean)
+  extends ModelWithIdParameter[InventoryClassification]
 
 class InventoryClassifications(tag: Tag)
   extends GenericTable.TableWithId[InventoryClassification](tag, "inventory_classifications")  {

@@ -21,14 +21,14 @@ import utils.Slick.implicits._
 final case class Order(id: Int = 0, referenceNumber: String = "", customerId: Int,
   status: Status = Cart, locked: Boolean = false, placedAt: Option[Instant] = None,
   remorsePeriodEnd: Option[Instant] = None)
-  extends ModelWithLockParameter
+  extends ModelWithLockParameter[Order]
   with FSM[Order.Status, Order]
   with Validation[Order] {
 
   import Order._
 
   // TODO: Add order validations
-  def validate: ValidatedNel[Failure, Order] = {
+  override def validate: ValidatedNel[Failure, Order] = {
     valid(this)
   }
 
@@ -108,15 +108,7 @@ object Orders extends TableQueryWithLock[Order, Orders](
 
   override def primarySearchTerm: String = "referenceNumber"
 
-  override def save(order: Order)(implicit ec: ExecutionContext) = {
-    if (order.isNew) {
-      create(order)
-    } else {
-      super.save(order)
-    }
-  }
-
-  def create(order: Order)(implicit ec: ExecutionContext): DBIO[models.Order] = for {
+  override def save(order: Order)(implicit ec: ExecutionContext): DBIO[Order] = for {
      (newId, refNum) ← returningIdAndReferenceNumber += order
   } yield order.copy(id = newId, referenceNumber = refNum)
 

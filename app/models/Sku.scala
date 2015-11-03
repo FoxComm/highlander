@@ -7,7 +7,7 @@ import slick.driver.PostgresDriver.api._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 final case class Sku(id: Int = 0, sku: String, name: Option[String] = None, isHazardous: Boolean = false, price: Int)
-  extends ModelWithIdParameter
+  extends ModelWithIdParameter[Sku]
 
 // This table mostly acts a placeholder in our system.  We may or may not import skus from 'origin' into this.
 class Skus(tag: Tag) extends GenericTable.TableWithId[Sku](tag, "skus")  {

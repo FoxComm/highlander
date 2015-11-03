@@ -17,7 +17,7 @@ import utils.Slick.implicits._
 
 final case class GiftCardAdjustment(id: Int = 0, giftCardId: Int, orderPaymentId: Option[Int],
   storeAdminId: Option[Int] = None, credit: Int, debit: Int, availableBalance: Int, status: Status = Auth, createdAt: Instant = Instant.now())
-  extends ModelWithIdParameter
+  extends ModelWithIdParameter[GiftCardAdjustment]
   with FSM[GiftCardAdjustment.Status, GiftCardAdjustment] {
 
   import GiftCardAdjustment._

@@ -7,7 +7,7 @@ import slick.driver.PostgresDriver.api._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 final case class SaveForLater(id: Int = 0, customerId: Int = 0, skuId: Int = 0, createdAt: Instant = Instant.now)
-  extends ModelWithIdParameter {
+  extends ModelWithIdParameter[SaveForLater] {
 
 }
 

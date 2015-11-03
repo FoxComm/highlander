@@ -10,19 +10,20 @@ import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.GenericTable.TableWithId
 import utils.Slick.implicits._
-import utils.{ModelWithIdParameter, NewModel, TableQueryWithId, Validation}
+import utils.{ModelWithIdParameter, TableQueryWithId, Validation}
 
 final case class Address(id: Int = 0, customerId: Int, regionId: Int, name: String,
   address1: String, address2: Option[String], city: String, zip: String,
   isDefaultShipping: Boolean = false, phoneNumber: Option[String] = None, 
   deletedAt: Option[Instant] = None)
-  extends ModelWithIdParameter
-  with NewModel
+  extends ModelWithIdParameter[Address]
   with Addressable[Address]
   with Validation[Address] {
 
   def instance: Address = { this }
   def zipLens = GenLens[Address](_.zip)
+  override def sanitize = super.sanitize(this)
+  override def validate = super.validate
 }
 
 object Address {

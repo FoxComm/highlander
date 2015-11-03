@@ -16,12 +16,12 @@ import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 final case class StoreAdmin(id: Int = 0, email: String, password: String,
                       firstName: String, lastName: String,
                       department: Option[String] = None)
-  extends ModelWithIdParameter
+  extends ModelWithIdParameter[StoreAdmin]
   with Validation[StoreAdmin] {
 
   import Validation._
 
-  def validate: ValidatedNel[Failure, StoreAdmin] = {
+  override def validate: ValidatedNel[Failure, StoreAdmin] = {
     ( notEmpty(firstName, "firstName")
       |@| notEmpty(lastName, "lastName")
       |@| notEmpty(email, "email")

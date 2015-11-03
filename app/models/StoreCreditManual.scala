@@ -6,7 +6,7 @@ import slick.driver.PostgresDriver.api._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 final case class StoreCreditManual(id: Int = 0, adminId: Int, reasonId: Int, subReasonId: Option[Int] = None) extends
-  ModelWithIdParameter
+  ModelWithIdParameter[StoreCreditManual]
 
 object StoreCreditManual {}
 

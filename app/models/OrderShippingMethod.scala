@@ -1,18 +1,12 @@
 package models
 
-import scala.concurrent.ExecutionContext
-
-import cats.data.ValidatedNel
-import cats.implicits._
 import monocle.macros.GenLens
-import services.Failure
 import slick.driver.PostgresDriver.api._
 import utils.GenericTable.TableWithId
-import utils.{Validation, NewModel, ModelWithIdParameter, TableQueryWithId}
-import utils.Litterbox._
+import utils.{ModelWithIdParameter, TableQueryWithId}
 
 final case class OrderShippingMethod(id: Int = 0, orderId: Int, shippingMethodId: Int)
-  extends ModelWithIdParameter
+  extends ModelWithIdParameter[OrderShippingMethod]
 
 class OrderShippingMethods(tag: Tag) extends TableWithId[OrderShippingMethod](tag, "order_shipping_methods") {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)

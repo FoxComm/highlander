@@ -28,14 +28,14 @@ final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = C
   originalBalance: Int, currentBalance: Int = 0, availableBalance: Int = 0, canceledAmount: Option[Int] = None,
   canceledReason: Option[Int] = None, reloadable: Boolean = false, createdAt: Instant = Instant.now())
   extends PaymentMethod
-  with ModelWithIdParameter
+  with ModelWithIdParameter[GiftCard]
   with FSM[GiftCard.Status, GiftCard]
   with Validation[GiftCard] {
 
   import GiftCard._
   import Validation._
 
-  def validate: ValidatedNel[Failure, GiftCard] = {
+  override def validate: ValidatedNel[Failure, GiftCard] = {
     val canceledWithReason: ValidatedNel[Failure, Unit] = (status, canceledAmount, canceledReason) match {
       case (Canceled, None, _) ⇒ invalidNel(GeneralFailure("canceledAmount must be present when canceled"))
       case (Canceled, _, None) ⇒ invalidNel(GeneralFailure("canceledReason must be present when canceled"))
@@ -216,17 +216,9 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
 
   val returningIdCodeAndBalance = this.returning(map { gc ⇒ (gc.id, gc.code, gc.currentBalance, gc.availableBalance) })
 
-  def create(gc: GiftCard)(implicit ec: ExecutionContext): DBIO[models.GiftCard] = for {
-    (newId, code, currentBalance, availableBalance) <- returningIdCodeAndBalance += gc
+  override def save(gc: GiftCard)(implicit ec: ExecutionContext): DBIO[GiftCard] = for {
+    (newId, code, currentBalance, availableBalance) ← returningIdCodeAndBalance += gc
   } yield gc.copy(id = newId, code = code, currentBalance = currentBalance, availableBalance = availableBalance)
-
-  override def save(gc: GiftCard)(implicit ec: ExecutionContext) = {
-    if (gc.isNew) {
-      create(gc)
-    } else {
-      super.save(gc)
-    }
-  }
 
   private def adjust(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int = 0, credit: Int = 0,
     status: Adj.Status = Adj.Auth)
