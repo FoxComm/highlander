@@ -39,7 +39,12 @@ const TableView = (props) => {
 
 TableView.propTypes = {
   columns: PropTypes.array.isRequired,
-  data: PropTypes.object.isRequired,
+  data: PropTypes.shape({
+    rows: PropTypes.array,
+    total: PropTypes.number,
+    from: PropTypes.number,
+    size: PropTypes.number
+  }).isRequired,
   setState: PropTypes.func.isRequired,
   renderRow: PropTypes.func,
   paginator: PropTypes.bool

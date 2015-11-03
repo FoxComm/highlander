@@ -120,7 +120,7 @@ export default class Customers extends React.Component {
               columns={this.props.tableColumns}
               data={this.props.customers}
               renderRow={renderRow}
-              setState={this.props.setFetchData}
+              setState={this.props.setFetchParams}
               />
           </div>
         </div>

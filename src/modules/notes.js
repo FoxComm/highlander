@@ -3,12 +3,22 @@
 import _ from 'lodash';
 import Api from '../lib/api';
 import { createAction, createReducer } from 'redux-act';
-import { assoc, dissoc, update } from 'sprout-data';
+import { assoc, dissoc, update, get } from 'sprout-data';
 import { updateItems } from './state-helpers';
+import { paginateReducer, actionTypes, paginate, pickFetchParams, createFetchActions } from './pagination';
 
-const receiveNotes = createAction('NOTES_RECEIVE', (entity, notes) => [entity, notes]);
+const NOTES = 'NOTES';
+
+const {
+  actionFetch,
+  actionReceived,
+  actionFetchFailed,
+  actionSetFetchParams,
+  actionAddEntity,
+  actionRemoveEntity
+  } = createFetchActions(NOTES, (entity, payload) => [entity, payload]);
+
 const updateNotes = createAction('NOTES_UPDATE', (entity, notes) => [entity, notes]);
-const noteRemoved = createAction('NOTES_REMOVED', (entity, id) => [entity, id]);
 const notesFailed = createAction('NOTES_FAILED', (entity, err) => [entity, err]);
 export const startDeletingNote = createAction('NOTES_START_DELETING', (entity, id) => [entity, id]);
 export const stopDeletingNote = createAction('NOTES_STOP_DELETING', (entity, id) => [entity, id]);
@@ -24,11 +34,18 @@ export const notesUri = (entity, noteId) => {
   return uri;
 };
 
-export function fetchNotes(entity) {
-  return dispatch => {
-    return Api.get(notesUri(entity))
-      .then(json => dispatch(receiveNotes(entity, json)))
-      .catch(err => dispatch(notesFailed(entity, err)));
+export function fetchNotes(entity, extraFetchParams) {
+  const {entityType, entityId} = entity;
+
+  return (dispatch, getState) => {
+    const state = get(getState(), ['notes', entityType, entityId]);
+    const fetchParams = pickFetchParams(state, extraFetchParams);
+
+    dispatch(actionSetFetchParams(entity, fetchParams));
+    dispatch(actionFetch(entity));
+    Api.get(notesUri(entity), fetchParams)
+      .then(json => dispatch(actionReceived(entity, json)))
+      .catch(err => dispatch(actionFetchFailed(entity, err)));
   };
 }
 
@@ -36,7 +53,7 @@ export function createNote(entity, data) {
   return dispatch => {
     dispatch(stopAddingOrEditingNote(entity));
     Api.post(notesUri(entity), data)
-      .then(json => dispatch(updateNotes(entity, [json])))
+      .then(json => dispatch(actionAddEntity(entity, json)))
       .catch(err => dispatch(notesFailed(entity, err)));
   };
 }
@@ -54,35 +71,24 @@ export function deleteNote(entity, id) {
   return dispatch => {
     dispatch(stopDeletingNote(entity, id));
     Api.delete(notesUri(entity, id))
-      .then(json => dispatch(noteRemoved(entity, id)))
+      .then(json => dispatch(actionRemoveEntity(entity, {id})))
       .catch(err => dispatch(notesFailed(entity, err)));
   };
 }
 
+
 const initialState = {};
 
 const reducer = createReducer({
-  [receiveNotes]: (state, [{entityType, entityId}, notes]) => {
-    return assoc(state, [entityType, entityId], {
-      notes
-    });
-  },
   [updateNotes]: (state, [{entityType, entityId}, notes]) => {
-    return assoc(
-      state,
-      [entityType, entityId, 'notes'],
-      updateItems(state[entityType][entityId].notes, notes)
-    );
+    return update(state, [entityType, entityId, 'rows'], updateItems, notes);
   },
-  [notesFailed]: (state, [{entityType, entityId}, err]) => {
-    console.error(err);
+  [notesFailed]: (state, [{entityType, entityId}, error]) => {
+    console.error(error);
 
     return assoc(state, [entityType, entityId], {
-      err
+      error
     });
-  },
-  [noteRemoved]: (state, [{entityType, entityId}, id]) => {
-    return update(state, [entityType, entityId, 'notes'], _.reject, {id});
   },
   [startDeletingNote]: (state, [{entityType, entityId}, id]) => {
     return assoc(state, [entityType, entityId, 'noteIdToDelete'], id);
@@ -102,4 +108,17 @@ const reducer = createReducer({
   }
 }, initialState);
 
-export default reducer;
+function paginateBehaviour(state, action, actionType) {
+  // behaviour for initial state
+  if (actionType === void 0) return state;
+
+  const [{entityType, entityId}, payload] = action.payload;
+
+  return update(state, [entityType, entityId], paginate, {
+    ...action,
+    payload,
+    type: actionType
+  });
+}
+
+export default paginateReducer(NOTES, reducer, paginateBehaviour);

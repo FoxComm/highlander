@@ -1,5 +1,6 @@
 'use strict';
 
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import TableRow from './row';
 import TableCell from './cell';
@@ -10,9 +11,10 @@ const TableBody = (props) => {
       {props.columns.map((column) => <TableCell>{row[column.field]}</TableCell>)}
     </TableRow>
   ));
+
   return (
     <tbody className="fc-table-tbody">
-      {props.rows.map(props.renderRow)}
+      {_.flatten(props.rows.map(renderRow))}
     </tbody>
   );
 };

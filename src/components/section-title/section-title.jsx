@@ -10,9 +10,9 @@ const SectionTitle = (props) => {
         <Title title={ props.title } subtitle={ props.subtitle } />
       </div>
       <div className="fc-col-md-2-6 fc-push-md-2-6 fc-section-title-actions">
-        {props.buttonClickHandler && (
-          <PrimaryButton icon="add" onClick={props.buttonClickHandler}>
-            {props.title}
+        {props.onAddClick && (
+          <PrimaryButton icon="add" onClick={props.onAddClick}>
+            {props.addTitle}
           </PrimaryButton>
         )}
         {props.children}
@@ -24,7 +24,7 @@ const SectionTitle = (props) => {
 SectionTitle.propTypes = {
   title: PropTypes.node,
   subtitle: PropTypes.node,
-  buttonClickHandler: PropTypes.func,
+  onAddClick: PropTypes.func,
   children: PropTypes.node
 };
 

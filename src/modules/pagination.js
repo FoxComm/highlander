@@ -1,60 +1,84 @@
 'use strict';
 
+import _ from 'lodash';
 import Api from '../lib/api';
 import { createAction, createReducer } from 'redux-act';
-import { merge, get } from 'sprout-data';
-import _ from 'lodash';
+import { merge, get, update } from 'sprout-data';
+
+export const DEFAULT_PAGE_SIZE = 50;
 
 export const actionTypes = {
   FETCH: 'FETCH',
-  FETCHED: 'FETCHED',
+  RECEIVED: 'RECEIVED',
   FETCH_FAILED: 'FETCH_FAILED',
-  SET_FETCH_DATA: 'SET_FETCH_DATA'
+  SET_FETCH_PARAMS: 'SET_FETCH_PARAMS',
+  ADD_ENTITY: 'ADD_ENTITY',
+  REMOVE_ENTITY: 'REMOVE_ENTITY'
 };
 
-/**
- *  @example for custom action in finite module:
- *
- *  import {fetchMeta, actionTypes} from './pagination';
- *  const fetchSmthSuccessThatRequiresCustomLogic = createAction('DESCRIPTION', null, fetchMeta(actionTypes.FETCH));
- *
- *  createReducer({
- *    [fetchSmthSuccessThatRequiresCustomLogic]: (state, ...) => {
- *    }
- *  });
- */
-export function fetchMeta(paginationType) {
-  return () => ({paginationType});
+export function fetchMeta(namespace, actionType) {
+  return (meta = {}) => ({
+    ...meta,
+    fetch: {
+      actionType,
+      namespace
+    }
+  });
 }
 
-export function createActions(url, type) {
-  const createFetchAction = actionType => {
-    return createAction(`${type}_${actionType}`, null, fetchMeta(actionType));
+export function pickFetchParams(state, extraState = {}) {
+  return {
+    from: get(extraState, 'from', state && state.from) || null, // we don't want pass 0 to phoenix
+    size: get(extraState, 'size', state && state.size),
+    sortBy: get(extraState, 'sortBy', state && state.sortBy)
   };
+}
 
-  const actionRequest = createFetchAction(actionTypes.FETCH);
-  const actionSuccess = createFetchAction(actionTypes.FETCHED);
-  const actionFail = createFetchAction(actionTypes.FETCH_FAILED);
-  const actionSetFetchData = createFetchAction(actionTypes.SET_FETCH_DATA);
+export function makeCreateFetchAction(namespace, payloadReducer = null, metaReducer = _.noop) {
+  return actionType => {
+    return createAction(
+      `${namespace}_${actionType}`,
+      payloadReducer,
+      _.flow(metaReducer, fetchMeta(namespace, actionType))
+    );
+  };
+}
+
+export function createFetchActions(namespace, payloadReducer, metaReducer) {
+  const createFetchAction = makeCreateFetchAction(namespace, payloadReducer, metaReducer);
+
+  return _.transform(actionTypes, (result, type) => {
+    const name = _.camelCase(`action_${type}`);
+    result[name] =createFetchAction(type);
+  });
+}
+
+export function createActions(url, namespace) {
+  const {
+    actionFetch,
+    actionReceived,
+    actionFetchFailed,
+    actionSetFetchParams
+  } = createFetchActions(namespace);
 
   const fetch = fetchData => dispatch => {
-    dispatch(actionRequest());
-    return Api.get(url, {from: fetchData.from, size: fetchData.size, sortBy: fetchData.sortBy})
-      .then(orders => dispatch(actionSuccess(orders)))
-      .catch(err => dispatch(actionFail(err, fetch)));
+    dispatch(actionFetch());
+    return Api.get(url, pickFetchParams(fetchData))
+      .then(orders => dispatch(actionReceived(orders)))
+      .catch(err => dispatch(actionFetchFailed(err, fetch)));
   };
 
-  const setFetchData = (state, fetchData) => dispatch => {
-    dispatch(actionSetFetchData(fetchData));
+  const setFetchParams = (state, fetchParams) => dispatch => {
+    dispatch(actionSetFetchParams(fetchParams));
     dispatch(fetch({
       ...state,
-      ...fetchData
+      ...fetchParams
     }));
   };
 
   return {
     fetch,
-    setFetchData
+    setFetchParams
   };
 }
 
@@ -63,59 +87,85 @@ const initialState = {
   rows: [],
   total: 0,
   from: 0,
-  size: 25
+  size: DEFAULT_PAGE_SIZE
 };
 
-export function reducer(reducer = state => state) {
+export function paginate(state = initialState, action) {
+  const payload = action.payload;
+
+  switch (action.type) {
+    case actionTypes.FETCH:
+      return {
+        ...state,
+        isFetching: true
+      };
+    case actionTypes.RECEIVED:
+      return {
+        ...state,
+        isFetching: false,
+        rows: get(payload, 'result', payload),
+        total: get(payload, ['pagination', 'total'], payload.length)
+      };
+    case actionTypes.ADD_ENTITY:
+      return {
+        ...state,
+        rows: [payload, ...state.rows],
+        total: state.total + 1
+      };
+    case actionTypes.REMOVE_ENTITY:
+      return {
+        ...state,
+        rows: _.reject(state.rows, payload),
+        total: state.total - 1
+      };
+    case actionTypes.FETCH_FAILED:
+      console.error(payload);
+
+      return {
+        ...state,
+        isFetching: false
+      };
+    case actionTypes.SET_FETCH_PARAMS:
+      return {
+        ...state,
+        ...payload
+      };
+  }
+
+  return state;
+}
+
+function defaultPaginateBehaviour(state, action, fetchActionType) {
+  return paginate(state, {
+    ...action,
+    type: fetchActionType
+  });
+}
+
+export function paginateReducer(namespace, reducer = state => state, updateBehaviour = defaultPaginateBehaviour) {
   return (state, action) => {
     if (state === void 0) {
       state = merge(
         reducer(state, action) || {},
-        initialState
+        updateBehaviour(state, action)
       );
     }
 
-    const paginationType = get(action, ['meta', 'paginationType']);
+    const actionType = get(action, ['meta', 'fetch', 'actionType']);
+    const metaNamespace = get(action, ['meta', 'fetch', 'namespace']);
 
-    if (paginationType) {
-      const payload = action.payload;
-
-      switch (paginationType) {
-        case actionTypes.FETCH:
-          return {
-            ...state,
-            isFetching: true
-          };
-        case actionTypes.FETCHED:
-          return {
-            ...state,
-            isFetching: false,
-            rows: _.get(payload, 'result', payload),
-            total: _.get(payload, 'pagination.total', 0)
-          };
-        case actionTypes.FETCH_FAILED:
-          console.error(payload);
-
-          return {
-            ...state,
-            isFetching: false
-          };
-        case actionTypes.SET_FETCH_DATA:
-          return {
-            ...state,
-            ...payload
-          };
-      }
+    if (actionType && metaNamespace === namespace) {
+      state = updateBehaviour(state, action, actionType);
     }
 
-    return state;
+    return reducer(state, action);
   };
 }
 
 // default behaviour for simple cases
-export default function(url, type, moduleReducer) {
+export default function(url, namespace, moduleReducer) {
   return {
-    reducer: reducer(moduleReducer),
-    actions: createActions(url, type)
+    reducer: paginateReducer(namespace, moduleReducer),
+    actions: createActions(url, namespace)
   };
 }

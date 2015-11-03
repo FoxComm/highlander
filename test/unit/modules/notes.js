@@ -3,10 +3,12 @@ import _ from 'lodash';
 import nock from 'nock';
 
 const {reducer, ...actions} = importModule('notes.js', [
-  'receiveNotes',
+  'actionFetch',
+  'actionReceived',
+  'actionSetFetchParams',
   'updateNotes',
-  'noteRemoved',
-  'notesFailed'
+  'actionAddEntity',
+  'actionRemoveEntity'
 ]);
 
 describe('Notes module', function() {
@@ -46,19 +48,28 @@ describe('Notes module', function() {
 
     it('fetchNotes', function *() {
       const expectedActions = [
-        { type: actions.receiveNotes, payload: [entity, notesPayload]}
+        actions.actionSetFetchParams,
+        actions.actionFetch,
+        { type: actions.actionReceived, payload: [entity, notesPayload]}
       ];
 
       yield expect(actions.fetchNotes(entity), 'to dispatch actions', expectedActions);
     });
 
-    it('createNote, editNote', function *() {
+    it('createNote', function *() {
       const expectedActions = [
         actions.stopAddingOrEditingNote,
-        { type: actions.updateNotes, payload: [entity, [notePayload]]}
+        {type: actions.actionAddEntity, payload: [entity, notePayload]}
       ];
 
       yield expect(actions.createNote(entity, notePayload), 'to dispatch actions', expectedActions);
+    });
+
+    it('editNote', function *() {
+      const expectedActions = [
+        actions.stopAddingOrEditingNote,
+        {type: actions.updateNotes, payload: [entity, [notePayload]]}
+      ];
 
       nock(phoenixUrl)
         .patch(notesUri(entity, 1))
@@ -70,7 +81,7 @@ describe('Notes module', function() {
     it('deleteNote', function *() {
       const expectedActions = [
         { type: actions.stopDeletingNote, payload: [entity, 1]},
-        { type: actions.noteRemoved, payload: [entity, 1]}
+        { type: actions.actionRemoveEntity, payload: [entity, {id: 1}]}
       ];
 
       nock(phoenixUrl)
@@ -85,7 +96,7 @@ describe('Notes module', function() {
     const state = {
       [entity.entityType]: {
         [entity.entityId]: {
-          notes: notesPayload
+          rows: notesPayload
         }
       }
     };
@@ -93,14 +104,14 @@ describe('Notes module', function() {
     it('should update exists notes', function() {
       const newState = reducer(state, actions.updateNotes(entity, [notePayload]));
 
-      expect(_.get(newState, [entity.entityType, entity.entityId, 'notes', 1]), 'to satisfy', notePayload);
+      expect(_.get(newState, [entity.entityType, entity.entityId, 'rows', 1]), 'to satisfy', notePayload);
     });
 
     it('should remove notes', function() {
-      const newState = reducer(state, actions.noteRemoved(entity, 1));
+      const newState = reducer(state, actions.actionRemoveEntity(entity, {id: 1}));
 
-      expect(_.get(newState, [entity.entityType, entity.entityId, 'notes']), 'to have length', 1);
-      expect(_.get(newState, [entity.entityType, entity.entityId, 'notes']), 'to equal', [notesPayload[1]]);
+      expect(_.get(newState, [entity.entityType, entity.entityId, 'rows']), 'to have length', 1);
+      expect(_.get(newState, [entity.entityType, entity.entityId, 'rows']), 'to equal', [notesPayload[1]]);
     });
   });
 });

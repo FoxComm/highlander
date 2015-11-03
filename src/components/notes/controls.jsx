@@ -1,26 +1,25 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import UserInitials from '../users/initials';
+import { EditButton, DeleteButton } from '../common/buttons';
 
-export default class NoteControls extends React.Component {
-  static propTypes = {
-    model: React.PropTypes.object,
-    onEditClick: React.PropTypes.func,
-    onDeleteClick: React.PropTypes.func
-  };
+const NoteControls = (props) => {
+  return (
+    <div className="fc-notes-item-controls">
+      <UserInitials model={props.model.author}/>
+      <DeleteButton onClick={() => props.onDeleteClick(props.model)} />
+      <EditButton onClick={() => props.onEditClick(props.model)} />
+    </div>
+  );
+};
 
-  render() {
-    return (
-      <div className="fc-notes-item-controls">
-        <UserInitials model={this.props.model.author}/>
-        <button className="fc-btn" onClick={this.props.onDeleteClick.bind(this, this.props.model)}>
-          <i className="icon-trash"/>
-        </button>
-        <button className="fc-btn" onClick={this.props.onEditClick.bind(this, this.props.model)}>
-          <i className="icon-edit"/>
-        </button>
-      </div>
-    );
-  }
-}
+NoteControls.propTypes = {
+  model: PropTypes.shape({
+    author: PropTypes.string
+  }).isRequired,
+  onEditClick: PropTypes.func.isRequired,
+  onDeleteClick: PropTypes.func.isRequired
+};
+
+export default NoteControls;

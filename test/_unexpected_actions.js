@@ -95,11 +95,7 @@ export function installInto(expect) {
           ...middlewares
         )(mockStoreWithoutMiddleware)();
 
-        if (_.isFunction(subject)) {
-          subject(store.dispatch);
-        } else {
-          store.dispatch(subject);
-        }
+        store.dispatch(subject);
       });
     });
 }

@@ -17,7 +17,7 @@ import LocalNav from '../local-nav/local-nav';
 export default class Orders extends React.Component {
   static propTypes = {
     fetch: PropTypes.func.isRequired,
-    setFetchData: PropTypes.func.isRequired,
+    setFetchParams: PropTypes.func.isRequired,
     tableColumns: PropTypes.array,
     subNav: PropTypes.array,
     orders: PropTypes.shape({
@@ -65,7 +65,9 @@ export default class Orders extends React.Component {
       <div id="orders">
         <div>
           <SectionTitle title="Orders" subtitle={this.props.orders.total}
-                        buttonClickHandler={this.handleAddOrderClick }/>
+                        onAddClick={this.handleAddOrderClick }
+                        addTitle="Order"
+          />
           <LocalNav>
             <a href="">Lists</a>
             <a href="">Returns</a>
@@ -80,7 +82,7 @@ export default class Orders extends React.Component {
             columns={this.props.tableColumns}
             data={this.props.orders}
             renderRow={renderRow}
-            setState={this.props.setFetchData}
+            setState={this.props.setFetchParams}
             />
         </div>
       </div>

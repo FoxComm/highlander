@@ -5,6 +5,7 @@ import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import ConfirmationDialog from '../modal/confirmation-dialog';
 import { PrimaryButton } from '../../components/common/buttons';
+import SectionTitle from '../section-title/section-title';
 import ContentBox from '../content-box/content-box';
 import TableView from '../table/tableview';
 import TableRow from '../table/row';
@@ -21,7 +22,7 @@ import { createSelector } from 'reselect';
 import { assoc } from 'sprout-data';
 
 const editingNote = createSelector(
-  (state, entity) => _.get(state.notes, [entity.entityType, entity.entityId, 'notes'], []),
+  (state, entity) => _.get(state.notes, [entity.entityType, entity.entityId, 'rows'], []),
   (state, entity) => _.get(state.notes, [entity.entityType, entity.entityId, 'editingNoteId']),
   (notes, editingNoteId) => {
     return _.findWhere(notes, {id: editingNoteId});
@@ -29,9 +30,12 @@ const editingNote = createSelector(
 );
 
 function mapStateToProps(state, {entity}) {
+  const notesData = _.get(state.notes, [entity.entityType, entity.entityId], {rows: []});
+
   return assoc(
-    _.get(state.notes, [entity.entityType, entity.entityId], {notes: []}),
-    'editingNote', editingNote(state, entity)
+    notesData,
+    'editingNote', editingNote(state, entity),
+    'data', notesData
   );
 }
 
@@ -60,6 +64,14 @@ export default class Notes extends React.Component {
       entityId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
       entityType: PropTypes.string.isRequired
     })
+  };
+
+  static defaultProps = {
+    tableColumns: [
+      {field: 'createdAt', text: 'Date/Type'},
+      {field: 'body', text: 'Body'},
+      {field: 'author', text: 'Author'}
+    ]
   };
 
   componentDidMount() {
@@ -101,33 +113,43 @@ export default class Notes extends React.Component {
     }
   }
 
+  @autobind
+  renderRow(row, index) {
+    const noteRow = this.renderNoteRow(row, index);
+
+    if (index === 0 && this.props.editingNoteId === true) {
+      return [
+        <TableRow key="row-add">
+          <TableCell colspan={this.props.tableColumns.length}>
+            <NoteForm
+              onReset={this.props.stopAddingOrEditingNote}
+              onSubmit={this.props.createNote}
+            />
+          </TableCell>
+        </TableRow>,
+        noteRow
+      ];
+    }
+
+    return noteRow;
+  }
+
   get controls() {
     return (
-      <PrimaryButton onClick={this.props.startAddingNote} disabled={!!this.props.isAddingNote}>
-        <i className="icon-add"></i>
-      </PrimaryButton>
+      <PrimaryButton icon="add" onClick={this.props.startAddingNote} disabled={!!this.props.isAddingNote } />
     );
   }
 
   render() {
-    // @TODO: re-enable this after Denys finished with table refactoring for redux
-    // <TableView renderRow={this.renderNoteRow} empty={'No notes yet.'}/>
-
     return (
       <div>
-        <ContentBox title={'Notes'} actionBlock={this.controls}>
-          {this.props.editingNoteId === true && (
-          <NoteForm
-            onReset={this.props.stopAddingOrEditingNote}
-            onSubmit={this.props.createNote}
-          />
-            )}
-          <table>
-            <tbody>
-            {_.map(this.props.notes, this.renderNoteRow)}
-            </tbody>
-          </table>
-        </ContentBox>
+        <SectionTitle title="Notes">{this.controls}</SectionTitle>
+        <TableView
+          renderRow={this.renderRow}
+          columns={this.props.tableColumns}
+          data={this.props.data}
+          setState={(data, params) => this.props.fetchNotes(params)}
+        />
         <ConfirmationDialog
           {...Notes.deleteOptions}
           isVisible={this.props.noteIdToDelete != null}
