@@ -20,9 +20,9 @@ Moment.defaultProps = {
   format: 'MM/DD/YYYY HH:mm:ss'
 };
 
-const DateTime = (props) => <Moment value={props.value} format={'MM/DD/YYYY HH:mm'}/>;
-const Date = (props) => <Moment value={props.value} format={'MM/DD/YYYY'}/>;
-const Time = (props) => <Moment value={props.value} format={'HH:mm'}/>;
+const DateTime = (props) => <Moment value={props.value} format={'L LT'}/>;
+const Date = (props) => <Moment value={props.value} format={'L'}/>;
+const Time = (props) => <Moment value={props.value} format={'LT'}/>;
 
 export {
   Moment,
