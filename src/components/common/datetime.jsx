@@ -17,7 +17,7 @@ Moment.propTypes = {
 };
 
 Moment.defaultProps = {
-  format: 'MM/DD/YYYY HH:mm:ss'
+  format: 'L LTS'
 };
 
 const DateTime = (props) => <Moment value={props.value} format={'L LT'}/>;

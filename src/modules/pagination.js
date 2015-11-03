@@ -28,9 +28,9 @@ export function fetchMeta(namespace, actionType) {
 
 export function pickFetchParams(state, extraState = {}) {
   return {
-    from: _.get(extraState, 'from', state && state.from) || null, // we don't want pass 0 to phoenix
-    size: _.get(extraState, 'size', state && state.size),
-    sortBy: _.get(extraState, 'sortBy', state && state.sortBy)
+    from: get(extraState, 'from', state && state.from) || null, // we don't want pass 0 to phoenix
+    size: get(extraState, 'size', state && state.size),
+    sortBy: get(extraState, 'sortBy', state && state.sortBy)
   };
 }
 
@@ -103,8 +103,8 @@ export function paginate(state = initialState, action) {
       return {
         ...state,
         isFetching: false,
-        rows: _.get(payload, 'result', payload),
-        total: _.get(payload, 'pagination.total', payload.length)
+        rows: get(payload, 'result', payload),
+        total: get(payload, ['pagination', 'total'], payload.length)
       };
     case actionTypes.ADD_ENTITY:
       return {
