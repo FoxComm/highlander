@@ -32,6 +32,6 @@ describe('TabView', function() {
     tab = shallowRender(
       <TabView draggable={ false }>{ titleText }</TabView>
     );
-    expect(tab).not.to.contain(<i className="icon-drag-drop" />);
+    expect(ShallowTestUtils.findAllWithClass(tab, 'icon-drag-drop')).to.be.empty;
   });
 });
