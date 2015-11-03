@@ -7,8 +7,7 @@ import cats.implicits._
 import com.stripe.exception.CardException
 import com.stripe.model.{Card, Customer ⇒ StripeCustomer}
 import models.OrderPayments.scope._
-import models.{Order, Addresses, CreditCard, CreditCards, Customer, Customers, OrderPayments, Orders, Regions,
-StoreAdmins}
+import models._
 import org.mockito.Mockito.{reset, when}
 import org.mockito.{Matchers ⇒ m}
 import org.scalatest.mock.MockitoSugar
@@ -19,6 +18,7 @@ import services.orders.OrderPaymentUpdater
 import services.{CannotUseInactiveCreditCard, CreditCardManager, GeneralFailure, NotFoundFailure404,
 Result, StripeRuntimeException, CustomerEmailNotUnique}
 import util.IntegrationTestBase
+import utils.Money.Currency
 import utils.Seeds.Factories
 import utils.Slick.implicits._
 import utils.jdbc._
@@ -170,6 +170,25 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
       response.status must === (StatusCodes.OK)
       response.as[CustomerResponse.Root] must === (customerRoot)
+    }
+
+    "ranking" - {
+      "customer must be with rank" in new FixtureForRanking {
+        CustomersRanks.refresh.futureValue
+
+        // check that statuses used in sql still actual
+        sqlu"UPDATE orders SET status = 'shipped' WHERE id = ${order.id}".run().futureValue
+        sqlu"UPDATE rmas SET status = 'complete' WHERE id = ${orderPayment.id}".run().futureValue
+
+        val response = GET(s"$uriPrefix/${customer.id}")
+        response.status must ===(StatusCodes.OK)
+        response.as[CustomerResponse.Root].rank must ===(Some(2))
+        val rank = CustomersRanks.findById(customer.id).extract.result.head.run().futureValue
+        val rank2 = CustomersRanks.findById(customer2.id).extract.result.head.run().futureValue
+        rank.revenue must ===(63)
+        rank2.revenue must ===(100)
+        rank2.rank must ===(1)
+      }
     }
   }
 
@@ -474,5 +493,33 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
   trait CreditCardFixture extends Fixture {
     val creditCard = CreditCards.save(Factories.creditCard.copy(customerId = customer.id)).run().futureValue
+  }
+
+  trait FixtureForRanking extends CreditCardFixture {
+    val (order, orderPayment, customer2) = (for {
+      customer2 ← Customers.save(Factories.customer.copy(email = "second@example.org", name = Some("second")))
+      order ← Orders.save(Factories.order.copy(customerId = customer.id,
+        status = Order.Shipped,
+        referenceNumber = "ABC-123"))
+      order2 ← Orders.save(Factories.order.copy(customerId = customer2.id,
+        status = Order.Shipped,
+        referenceNumber = "ABC-456"))
+      orderPayment ← OrderPayments.save(Factories.orderPayment.copy(orderId = order.id,
+        paymentMethodId = creditCard.id,
+        amount = Some(100)))
+      orderPayment2 ← OrderPayments.save(Factories.orderPayment.copy(orderId = order2.id,
+        paymentMethodId = creditCard.id,
+        amount = Some(100)))
+      rma ← Rmas.save(Factories.rma.copy(
+        referenceNumber = "ABC-123.1",
+        orderId = order.id,
+        status = Rma.Complete,
+        orderRefNum = order.referenceNumber,
+        customerId = Some(customer.id)))
+      rmaPayment ← sqlu"""insert into rma_payments(rma_id, payment_method_id, payment_method_type, amount, currency)
+              values(${rma.id}, ${creditCard.id}, ${PaymentMethod.Type.show(PaymentMethod.CreditCard)}, 37,
+               ${Currency.USD.toString})
+            """
+    } yield (order, orderPayment, customer2)).transactionally.run().futureValue
   }
 }

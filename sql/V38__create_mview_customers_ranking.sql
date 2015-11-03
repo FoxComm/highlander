@@ -11,7 +11,7 @@ inner join order_payments as p on(p.order_id = orders.id and p.amount is not nul
 left join rmas on(rmas.order_id = orders.id and rmas.status = 'complete')
 left join rma_payments as rp on (rp.rma_id = rmas.id and rp.amount is not null)
 group by (c.id)
-window w as (order by sum(p.amount) desc)
+window w as (order by sum(p.amount) - coalesce(sum(rp.amount),0) desc)
 order by revenue desc;
 
 create unique index customers_ranking__id_idx on customers_ranking (id);

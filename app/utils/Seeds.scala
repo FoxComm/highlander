@@ -32,7 +32,7 @@ object Seeds {
     args.headOption.map {
       case "ranking" ⇒
         Console.err.println(s"Inserting ranking seeds")
-        Await.result(db.run(insertRankingSeeds().transactionally), 7.second)
+        Await.result(db.run(insertRankingSeeds(1700).transactionally), 7.second)
       case _ ⇒ None
     }
   }
@@ -57,7 +57,7 @@ object Seeds {
   final case class AllPaymentMethods(giftCard: GiftCard = Factories.giftCard, storeCredit: StoreCredit = Factories
     .storeCredit)
 
-  def insertRankingSeeds()(implicit db: Database) = {
+  def insertRankingSeeds(customersCount: Int)(implicit db: Database) = {
     import scala.concurrent.ExecutionContext.Implicits.global
 
     import Factories.{generateCustomer, generateOrder, generateOrderPayment}
@@ -72,7 +72,7 @@ object Seeds {
       generateOrderPayment(o.id, pm, Random.nextInt(20000) + 100)
     }
 
-    val insertCustomers = Customers ++=  (1 to 1700).map { i ⇒
+    val insertCustomers = Customers ++=  (1 to customersCount).map { i ⇒
       val s = Factories.randomString(15)
       Customer(name = Some(s), email = s"${s}-${i}@email.com", password = Some(s), location = Some(location))
     }

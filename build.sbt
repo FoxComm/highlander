@@ -142,6 +142,7 @@ lazy val phoenixScala = (project in file(".")).
         |import models._
         |val config: com.typesafe.config.Config = utils.Config.loadWithEnv()
         |implicit val db = Database.forConfig("db", config)
+        |import utils.Slick.implicits._
         """.stripMargin,
     initialCommands in (Compile, consoleQuick) := "",
     // add ms report for every test
