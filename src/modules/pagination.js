@@ -147,7 +147,7 @@ export function paginateReducer(namespace, reducer = state => state, updateBehav
     if (state === void 0) {
       state = merge(
         reducer(state, action) || {},
-        paginate(state, action)
+        updateBehaviour(state, action)
       );
     }
 

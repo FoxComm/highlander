@@ -109,6 +109,9 @@ const reducer = createReducer({
 }, initialState);
 
 function paginateBehaviour(state, action, actionType) {
+  // behaviour for initial state
+  if (actionType === void 0) return state;
+
   const [{entityType, entityId}, payload] = action.payload;
 
   return update(state, [entityType, entityId], paginate, {
