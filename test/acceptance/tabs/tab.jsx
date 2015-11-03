@@ -1,5 +1,4 @@
 import React from 'react';
-import TestUtils from 'react-addons-test-utils';
 import ShallowTestUtils from 'react-shallow-testutils';
 
 describe('TabView', function() {
