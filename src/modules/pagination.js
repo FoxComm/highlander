@@ -7,10 +7,11 @@ import { merge, get, update } from 'sprout-data';
 
 export const actionTypes = {
   FETCH: 'FETCH',
-  FETCHED: 'FETCHED',
+  RECEIVED: 'RECEIVED',
   FETCH_FAILED: 'FETCH_FAILED',
   SET_FETCH_PARAMS: 'SET_FETCH_PARAMS',
-  ADD_ENTITY: 'ADD_ENTITY'
+  ADD_ENTITY: 'ADD_ENTITY',
+  REMOVE_ENTITY: 'REMOVE_ENTITY'
 };
 
 export function fetchMeta(namespace, actionType) {
@@ -23,11 +24,24 @@ export function fetchMeta(namespace, actionType) {
   });
 }
 
-export function pickFetchParams(state) {
-  return {from: state.from, size: state.size, sortBy: state.sortBy};
+export function pickFetchParams(state, extraState = {}) {
+  const mergedState = {...state, ...extraState};
+
+  const params = {};
+  if (mergedState.from != null) {
+    params.form = mergedState.from;
+  }
+  if (mergedState.size != null) {
+    params.size = mergedState.size;
+  }
+  if (mergedState.sortBy != null) {
+    params.sortBy = mergedState.sortBy;
+  }
+
+  return params;
 }
 
-export function makeCreateFetchAction(namespace, payloadReducer = null, metaReducer = _.identity) {
+export function makeCreateFetchAction(namespace, payloadReducer = null, metaReducer = _.noop) {
   return actionType => {
     return createAction(
       `${namespace}_${actionType}`,
@@ -37,20 +51,28 @@ export function makeCreateFetchAction(namespace, payloadReducer = null, metaRedu
   };
 }
 
+export function createFetchActions(namespace, payloadReducer, metaReducer) {
+  const createFetchAction = makeCreateFetchAction(namespace, payloadReducer, metaReducer);
+
+  return _.transform(actionTypes, (result, type) => {
+    const name = _.camelCase(`action_${type}`);
+    result[name] =createFetchAction(type);
+  });
+}
 
 export function createActions(url, namespace) {
-  const createFetchAction = makeCreateFetchAction(namespace);
-
-  const actionRequest = createFetchAction(actionTypes.FETCH);
-  const actionSuccess = createFetchAction(actionTypes.FETCHED);
-  const actionFail = createFetchAction(actionTypes.FETCH_FAILED);
-  const actionSetFetchParams = createFetchAction(actionTypes.SET_FETCH_PARAMS);
+  const {
+    actionFetch,
+    actionReceived,
+    actionFetchFailed,
+    actionSetFetchParams
+  } = createFetchActions(namespace);
 
   const fetch = fetchData => dispatch => {
-    dispatch(actionRequest());
+    dispatch(actionFetch());
     return Api.get(url, pickFetchParams(fetchData))
-      .then(orders => dispatch(actionSuccess(orders)))
-      .catch(err => dispatch(actionFail(err, fetch)));
+      .then(orders => dispatch(actionReceived(orders)))
+      .catch(err => dispatch(actionFetchFailed(err, fetch)));
   };
 
   const setFetchParams = (state, fetchParams) => dispatch => {
@@ -84,7 +106,7 @@ export function paginate(state = initialState, action) {
         ...state,
         isFetching: true
       };
-    case actionTypes.FETCHED:
+    case actionTypes.RECEIVED:
       return {
         ...state,
         isFetching: false,
@@ -94,7 +116,14 @@ export function paginate(state = initialState, action) {
     case actionTypes.ADD_ENTITY:
       return {
         ...state,
+        rows: [payload, ...state.rows],
         total: state.total + 1
+      };
+    case actionTypes.REMOVE_ENTITY:
+      return {
+        ...state,
+        rows: _.reject(state.rows, payload),
+        total: state.total - 1
       };
     case actionTypes.FETCH_FAILED:
       console.error(payload);

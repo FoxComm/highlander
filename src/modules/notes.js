@@ -5,13 +5,20 @@ import Api from '../lib/api';
 import { createAction, createReducer } from 'redux-act';
 import { assoc, dissoc, update, get } from 'sprout-data';
 import { updateItems } from './state-helpers';
-import { paginateReducer, actionTypes, paginate, pickFetchParams } from './pagination';
+import { paginateReducer, actionTypes, paginate, pickFetchParams, createFetchActions } from './pagination';
 
 const NOTES = 'NOTES';
 
-const receiveNotes = createAction('NOTES_RECEIVE', (entity, notes) => [entity, notes]);
+const {
+  actionFetch,
+  actionReceived,
+  actionFetchFailed,
+  actionSetFetchParams,
+  actionAddEntity,
+  actionRemoveEntity
+  } = createFetchActions(NOTES, (entity, payload) => [entity, payload]);
+
 const updateNotes = createAction('NOTES_UPDATE', (entity, notes) => [entity, notes]);
-const noteRemoved = createAction('NOTES_REMOVED', (entity, id) => [entity, id]);
 const notesFailed = createAction('NOTES_FAILED', (entity, err) => [entity, err]);
 export const startDeletingNote = createAction('NOTES_START_DELETING', (entity, id) => [entity, id]);
 export const stopDeletingNote = createAction('NOTES_STOP_DELETING', (entity, id) => [entity, id]);
@@ -27,15 +34,18 @@ export const notesUri = (entity, noteId) => {
   return uri;
 };
 
-export function fetchNotes(entity) {
+export function fetchNotes(entity, extraFetchParams) {
   const {entityType, entityId} = entity;
 
   return (dispatch, getState) => {
     const state = get(getState(), ['notes', entityType, entityId]);
+    const fetchParams = pickFetchParams(state, extraFetchParams);
 
-    return Api.get(notesUri(entity), pickFetchParams(state))
-      .then(json => dispatch(receiveNotes(entity, json)))
-      .catch(err => dispatch(notesFailed(entity, err)));
+    dispatch(actionSetFetchParams(entity, fetchParams));
+    dispatch(actionFetch(entity));
+    Api.get(notesUri(entity), fetchParams)
+      .then(json => dispatch(actionReceived(entity, json)))
+      .catch(err => dispatch(actionFetchFailed(entity, err)));
   };
 }
 
@@ -43,7 +53,7 @@ export function createNote(entity, data) {
   return dispatch => {
     dispatch(stopAddingOrEditingNote(entity));
     Api.post(notesUri(entity), data)
-      .then(json => dispatch(updateNotes(entity, [json])))
+      .then(json => dispatch(actionAddEntity(json)))
       .catch(err => dispatch(notesFailed(entity, err)));
   };
 }
@@ -61,7 +71,7 @@ export function deleteNote(entity, id) {
   return dispatch => {
     dispatch(stopDeletingNote(entity, id));
     Api.delete(notesUri(entity, id))
-      .then(json => dispatch(noteRemoved(entity, id)))
+      .then(json => dispatch(actionRemoveEntity(entity, {id})))
       .catch(err => dispatch(notesFailed(entity, err)));
   };
 }
@@ -70,27 +80,15 @@ export function deleteNote(entity, id) {
 const initialState = {};
 
 const reducer = createReducer({
-  [receiveNotes]: (state, [{entityType, entityId}, payload]) => {
-    return update(state, [entityType, entityId], paginate, {
-      type: actionTypes.FETCH,
-      payload
+  [updateNotes]: (state, [{entityType, entityId}, notes]) => {
+    return update(state, [entityType, entityId, 'rows'], updateItems, notes);
+  },
+  [notesFailed]: (state, [{entityType, entityId}, error]) => {
+    console.error(error);
+
+    return assoc(state, [entityType, entityId], {
+      error
     });
-  },
-  [updateNotes]: (state, [{entityType, entityId}, payload]) => {
-    state = update(state, [entityType, entityId, 'rows'], updateItems, notes);
-    return update(state, [entityType, entityId], paginate, {
-      type: actionTypes.UPDATE_TOTAL,
-      payload
-    })
-  },
-  [notesFailed]: (state, [{entityType, entityId}, payload]) => {
-    return update(state, [entityType, entityId], paginate, {
-      type: actionTypes.FETCH_FAILED,
-      payload
-    });
-  },
-  [noteRemoved]: (state, [{entityType, entityId}, id]) => {
-    return update(state, [entityType, entityId, 'rows'], _.reject, {id});
   },
   [startDeletingNote]: (state, [{entityType, entityId}, id]) => {
     return assoc(state, [entityType, entityId, 'noteIdToDelete'], id);

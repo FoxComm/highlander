@@ -30,9 +30,12 @@ const editingNote = createSelector(
 );
 
 function mapStateToProps(state, {entity}) {
+  const notesData = _.get(state.notes, [entity.entityType, entity.entityId], {rows: []});
+
   return assoc(
-    _.get(state.notes, [entity.entityType, entity.entityId], {data: {}}),
-    'editingNote', editingNote(state, entity)
+    notesData,
+    'editingNote', editingNote(state, entity),
+    'data', notesData
   );
 }
 
@@ -61,6 +64,14 @@ export default class Notes extends React.Component {
       entityId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
       entityType: PropTypes.string.isRequired
     })
+  };
+
+  static defaultProps = {
+    tableColumns: [
+      {field: 'createdAt', text: 'Date/Type'},
+      {field: 'body', text: 'Body'},
+      {field: 'author', text: 'Author'}
+    ]
   };
 
   componentDidMount() {
@@ -109,9 +120,6 @@ export default class Notes extends React.Component {
   }
 
   render() {
-    // @TODO: re-enable this after Denys finished with table refactoring for redux
-    // <TableView renderRow={this.renderNoteRow} empty={'No notes yet.'}/>
-
     return (
       <div>
         <SectionTitle title="Notes">{this.controls}</SectionTitle>
@@ -124,13 +132,10 @@ export default class Notes extends React.Component {
             )}
           <TableView
             renderRow={this.renderNoteRow}
-
+            columns={this.props.tableColumns}
+            data={this.props.data}
+            setState={(data, params) => this.props.fetchNotes(params)}
           />
-          <table>
-            <tbody>
-            {_.map(this.props.notes, this.renderNoteRow)}
-            </tbody>
-          </table>
         </ContentBox>
         <ConfirmationDialog
           {...Notes.deleteOptions}
