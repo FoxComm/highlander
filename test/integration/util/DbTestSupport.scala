@@ -30,12 +30,6 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
     }
   }
 
-  override protected def afterAll(): Unit = {
-    val conn = jdbcDataSourceFromSlickDB(db).getConnection
-    conn.createStatement().execute("drop extension if exists pg_trgm cascade")
-    conn.close
-  }
-
   def isTableEmpty(table: String)(implicit conn: Connection): Boolean = {
     val stmt = conn.createStatement()
     val rs = stmt.executeQuery(s"select true from ${table} limit 1")
