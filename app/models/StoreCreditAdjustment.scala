@@ -12,7 +12,7 @@ import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 final case class StoreCreditAdjustment(id: Int = 0, storeCreditId: Int, orderPaymentId: Option[Int],
   storeAdminId: Option[Int] = None, debit: Int, availableBalance: Int, status: Status = Auth, createdAt: Instant = Instant.now())
-  extends ModelWithIdParameter
+  extends ModelWithIdParameter[StoreCreditAdjustment]
   with FSM[StoreCreditAdjustment.Status, StoreCreditAdjustment] {
 
   import StoreCreditAdjustment._

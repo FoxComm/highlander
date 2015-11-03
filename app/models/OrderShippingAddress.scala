@@ -2,21 +2,21 @@ package models
 
 import scala.concurrent.ExecutionContext
 
-import com.wix.accord.dsl.{validator ⇒ createValidator, _}
 import monocle.macros.GenLens
 import payloads.UpdateAddressPayload
 import slick.driver.PostgresDriver.api._
 import utils.GenericTable.TableWithId
-import utils.{NewModel, ModelWithIdParameter, TableQueryWithId}
+import utils.{ModelWithIdParameter, TableQueryWithId}
 
 final case class OrderShippingAddress(id: Int = 0, orderId: Int = 0, regionId: Int, name: String,
   address1: String, address2: Option[String], city: String, zip: String, phoneNumber: Option[String])
-  extends ModelWithIdParameter
-  with NewModel
+  extends ModelWithIdParameter[OrderShippingAddress]
   with Addressable[OrderShippingAddress] {
 
   def instance: OrderShippingAddress = { this }
   def zipLens = GenLens[OrderShippingAddress](_.zip)
+  override def sanitize = super.sanitize(this)
+  override def validate = super.validate
 }
 
 object OrderShippingAddress {

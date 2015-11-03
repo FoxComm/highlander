@@ -9,7 +9,7 @@ import utils.{ModelWithIdParameter, TableQueryWithId}
 final case class Country(id: Int = 0, name: String, alpha2: String, alpha3: String, code: Option[String],
   continent: String, currency: Currency, languages: List[String],
   usesPostalCode: Boolean = false, isShippable: Boolean = false, isBillable: Boolean = false)
-  extends ModelWithIdParameter {
+  extends ModelWithIdParameter[Country] {
 }
 
 object Country {

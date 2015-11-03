@@ -10,7 +10,7 @@ import slick.jdbc.JdbcType
 import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 final case class RmaReason(id: Int = 0, name: String, reasonType: ReasonType = BaseReason, rmaType: RmaType = Standard)
-  extends ModelWithIdParameter {
+  extends ModelWithIdParameter[RmaReason] {
 
 }
 

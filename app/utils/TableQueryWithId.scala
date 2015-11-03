@@ -2,6 +2,7 @@ package utils
 
 import scala.concurrent.{Future, ExecutionContext}
 
+import cats.data.Validated.Valid
 import cats.data.{Xor, ValidatedNel}
 import monocle.Lens
 import services._
@@ -12,25 +13,21 @@ import utils.Slick._
 import utils.Slick.implicits._
 import utils.Strings._
 
-trait Model {
-  def isNew: Boolean
-
-  def modelName: String = getClass.getCanonicalName.lowerCaseFirstLetter
-}
-
-trait NewModel extends Model {
-  def validate: ValidatedNel[Failure, Model]
-}
-
-trait ModelWithIdParameter extends Model {
+trait ModelWithIdParameter[T <: ModelWithIdParameter[T]] extends Validation[T] { self: T ⇒
   type Id = Int
 
   def id: Id
 
   def isNew: Boolean = id == 0
+
+  def modelName: String = getClass.getCanonicalName.lowerCaseFirstLetter
+
+  def validate: ValidatedNel[Failure, T] = Valid(this)
+
+  def sanitize: T = this
 }
 
-trait ModelWithLockParameter extends ModelWithIdParameter {
+trait ModelWithLockParameter[T <: ModelWithLockParameter[T]] extends ModelWithIdParameter[T] { self: T ⇒
   def locked: Boolean
 }
 
@@ -42,19 +39,19 @@ trait TableWithLockColumn[I] extends TableWithIdColumn[I] {
   def locked: Rep[Boolean]
 }
 
-private[utils] abstract class TableWithIdInternal[M <: ModelWithIdParameter, I](tag: Tag, name: String)
+private[utils] abstract class TableWithIdInternal[M <: ModelWithIdParameter[M], I](tag: Tag, name: String)
   extends Table[M](tag, name) with TableWithIdColumn[I]
 
-private[utils] abstract class TableWithLockInternal[M <: ModelWithLockParameter, I](tag: Tag, name: String)
+private[utils] abstract class TableWithLockInternal[M <: ModelWithLockParameter[M], I](tag: Tag, name: String)
   extends TableWithIdInternal[M, I](tag, name) with TableWithLockColumn[I]
 
 object GenericTable {
   /** This allows us to enforce that tables have the same ID column as their case class. */
-  type TableWithId[MODEL <: ModelWithIdParameter] = TableWithIdInternal[MODEL, MODEL#Id]
-  type TableWithLock[MODEL <: ModelWithLockParameter] = TableWithLockInternal[MODEL, MODEL#Id]
+  type TableWithId[MODEL <: ModelWithIdParameter[MODEL]] = TableWithIdInternal[MODEL, MODEL#Id]
+  type TableWithLock[MODEL <: ModelWithLockParameter[MODEL]] = TableWithLockInternal[MODEL, MODEL#Id]
 }
 
-abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.TableWithId[M]]
+abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.TableWithId[M]]
   (idLens: Lens[M, M#Id])
   (construct: Tag ⇒ T)
   (implicit ev: BaseTypedType[M#Id]) extends TableQuery[T](construct) {
@@ -71,9 +68,23 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.Tab
   def findOneById(i: M#Id): DBIO[Option[M]] =
     findById(i).result.headOption
 
+  // TODO: if isNew create else update
   def save(model: M)(implicit ec: ExecutionContext): DBIO[M] = for {
     id ← returningId += model
   } yield idLens.set(id)(model)
+
+  def create(model: M)(implicit ec: ExecutionContext): DbResult[M] = {
+    import scala.util.{Failure, Success}
+
+    model
+      .sanitize
+      .validate.fold(DbResult.failures, valid ⇒ {
+      save(valid).asTry.flatMap {
+        case Success(newModel) ⇒ DbResult.good(newModel)
+        case Failure(e) ⇒ DbResult.failure(GeneralFailure(e.getMessage))
+      }
+    })
+  }
 
   def deleteById(i: M#Id): DBIO[Int] =
     findById(i).delete
@@ -154,7 +165,7 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter, T <: GenericTable.Tab
   }
 }
 
-abstract class TableQueryWithLock[M <: ModelWithLockParameter, T <: GenericTable.TableWithLock[M]]
+abstract class TableQueryWithLock[M <: ModelWithLockParameter[M], T <: GenericTable.TableWithLock[M]]
   (idLens: Lens[M, M#Id])
   (construct: Tag ⇒ T)
   (implicit ev: BaseTypedType[M#Id]) extends TableQueryWithId[M, T](idLens)(construct) {

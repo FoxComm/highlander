@@ -8,7 +8,7 @@ import slick.jdbc.JdbcType
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 final case class StoreCreditSubtype(id: Int = 0, title: String, originType: OriginType)
-  extends ModelWithIdParameter
+  extends ModelWithIdParameter[StoreCreditSubtype]
 
 object StoreCreditSubtype {}
 

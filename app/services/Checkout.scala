@@ -85,6 +85,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
         result.fold(bad ⇒ bad.toList, good ⇒ Nil))
 
   // sets incoming order.status == Order.ordered and creates a new order
+  /*
   private def completeOrderAndCreateNew(order: Order): Future[Order] = {
     db.run(for {
       _ ← Orders.findById(order.id).extract
@@ -94,6 +95,7 @@ class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
         newOrder ← Orders.create(Order.buildCart(order.customerId))
     } yield newOrder)
   }
+  */
 
   private def updateOrderPaymentWithCharge(payment : OrderPayment, chargeId : String, or: Failures Xor String) = {
     OrderPayments.update(payment).run().map { _ ⇒ (payment, or) }

@@ -9,7 +9,7 @@ import utils._
 
 final case class CreditCardCharge(id: Int = 0, creditCardId: Int, orderPaymentId: Int,
   chargeId: String, status: CreditCardCharge.Status = CreditCardCharge.Cart)
-  extends ModelWithIdParameter
+  extends ModelWithIdParameter[CreditCardCharge]
   with FSM[CreditCardCharge.Status, CreditCardCharge] {
 
   import CreditCardCharge._

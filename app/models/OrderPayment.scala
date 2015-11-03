@@ -9,7 +9,7 @@ import utils.Slick.implicits._
 
 final case class OrderPayment(id: Int = 0, orderId: Int = 0, amount: Option[Int] = None,
   currency: Currency = Currency.USD, paymentMethodId: Int, paymentMethodType: PaymentMethod.Type)
-  extends ModelWithIdParameter {
+  extends ModelWithIdParameter[OrderPayment] {
 
   def isCreditCard:   Boolean = paymentMethodType == PaymentMethod.CreditCard
   def isGiftCard:     Boolean = paymentMethodType == PaymentMethod.GiftCard
