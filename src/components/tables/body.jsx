@@ -32,8 +32,8 @@ export default class TableBody extends React.Component {
       }
       case 'link': {
         let params = {};
-        params[column.model] = row[column.id];
-        return <Link to={column.model} params={params}>{field}</Link>;
+        params[model] = row[column.id];
+        return <Link to={model} params={params}>{field}</Link>;
       }
       case 'image': return <img src={field}/>;
       case 'currency': return formatCurrency(field);

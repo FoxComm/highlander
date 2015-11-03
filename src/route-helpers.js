@@ -21,7 +21,7 @@ export function interpolateRoute(history, name, params = {}) {
 }
 
 export function transitionTo(history, name, params = {}, query = '') {
-  let pathWithParams = interpolateRoute(history, name, params);
+  const pathWithParams = interpolateRoute(history, name, params);
   history.pushState(null, pathWithParams, query);
 }
 
