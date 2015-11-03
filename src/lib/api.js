@@ -19,7 +19,7 @@ export default class Api {
     for (let param in data) {
       if (data.hasOwnProperty(param)) {
         const value = data[param];
-        if (value) {
+        if (value != null) {
           params.push(encodeURIComponent(param) + '=' + encodeURIComponent(value));
         }
       }
@@ -48,7 +48,10 @@ export default class Api {
 
     if (data) {
       if (method.toUpperCase() === 'GET') {
-        uri = `${uri}?${this.serialize(data)}`;
+        const queryString = this.serialize(data);
+        if (queryString) {
+          uri += `?${queryString}`;
+        }
       } else {
         options.body = isFormData ? data : JSON.stringify(data);
       }

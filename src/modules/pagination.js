@@ -25,20 +25,11 @@ export function fetchMeta(namespace, actionType) {
 }
 
 export function pickFetchParams(state, extraState = {}) {
-  const mergedState = {...state, ...extraState};
-
-  const params = {};
-  if (mergedState.from != null) {
-    params.form = mergedState.from;
-  }
-  if (mergedState.size != null) {
-    params.size = mergedState.size;
-  }
-  if (mergedState.sortBy != null) {
-    params.sortBy = mergedState.sortBy;
-  }
-
-  return params;
+  return {
+    from: _.get(extraState, 'from', state && state.from) || null, // we don't want pass 0 to phoenix
+    size: _.get(extraState, 'size', state && state.size),
+    sortBy: _.get(extraState, 'sortBy', state && state.sortBy)
+  };
 }
 
 export function makeCreateFetchAction(namespace, payloadReducer = null, metaReducer = _.noop) {
@@ -110,8 +101,8 @@ export function paginate(state = initialState, action) {
       return {
         ...state,
         isFetching: false,
-        rows: payload,
-        total: payload.length
+        rows: _.get(payload, 'result', payload),
+        total: _.get(payload, 'pagination.total', payload.length)
       };
     case actionTypes.ADD_ENTITY:
       return {
