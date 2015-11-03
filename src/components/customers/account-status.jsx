@@ -2,6 +2,7 @@
 
 import React, { PropTypes } from 'react';
 import ContentBox from '../content-box/content-box';
+import { SliderCheckbox } from '../checkbox/checkbox';
 
 export default class CustomerAccountStatus extends React.Component {
 
@@ -18,7 +19,7 @@ export default class CustomerAccountStatus extends React.Component {
               <strong>Active Account</strong>
             </div>
             <div className="fc-col-md-1-3">
-              <input type="checkbox" defaultChecked={ !customer.disabled } className="fc-right"/>
+              <SliderCheckbox className="fc-right" id="customerDisabled" defaultChecked={ !customer.disabled } />
             </div>
         </div>
         <div className="fc-grid fc-customer-status-row">
@@ -26,7 +27,7 @@ export default class CustomerAccountStatus extends React.Component {
               <strong>Blacklist Customer</strong>
             </div>
             <div className="fc-col-md-1-3">
-              <input type="checkbox" defaultChecked={ customer.blacklisted } className="fc-right"/>
+              <SliderCheckbox className="fc-right" id="customerBlacklisted" defaultChecked={ customer.blacklisted } />
             </div>
         </div>
       </ContentBox>

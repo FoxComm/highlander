@@ -1,61 +1,130 @@
 'use strict';
 
-import React from 'react';
-import TableView from '../tables/tableview';
-import CustomerStore from '../../stores/customers';
-import CustomerActions from '../../actions/customers';
+import React, { PropTypes } from 'react';
+import TableView from '../table/tableview';
+import TableRow from '../table/row';
+import TableCell from '../table/cell';
+import TabListView from '../tabs/tabs';
+import TabView from '../tabs/tab';
+import { DateTime } from '../common/datetime';
+import SearchBar from '../search-bar/search-bar';
+import SectionTitle from '../section-title/section-title';
+import LocalNav from '../local-nav/local-nav';
+import { Link } from '../link';
+import { transitionTo } from '../../route-helpers';
+import { connect } from 'react-redux';
+import { autobind } from 'core-decorators';
+import * as customersActions from '../../modules/customers/customers';
 
+@connect(state => ({customers: state.customers.customers}), customersActions)
 export default class Customers extends React.Component {
-  constructor(props, context) {
-    super(props, context);
-    this.state = {
-      data: CustomerStore.getState()
-    };
-    this.onChange = this.onChange.bind(this);
+
+  static defaultProps = {
+    tableColumns: [
+      {
+        field: 'name',
+        text: 'Name'
+      },
+      {
+        field: 'email',
+        text: 'Email'
+      },
+      {
+        field: 'id',
+        text: 'Customer ID'
+      },
+      {
+        field: 'shipRegion',
+        text: 'Ship To Region'
+      },
+      {
+        field: 'billRegion',
+        text: 'Bill To Region'
+      },
+      {
+        field: 'rank',
+        text: 'Rank'
+      },
+      {
+        field: 'createdAt',
+        text: 'Date/Time Joined',
+        type: 'date'
+      }
+    ]
+  }
+
+  static contextTypes = {
+    history: PropTypes.object.isRequired
+  }
+
+  static propTypes = {
+    fetch: PropTypes.func,
+    setFetchData: PropTypes.func,
+    customers: PropTypes.shape({
+      length: PropTypes.number.isRequired
+    }).isRequired,
+    tableColumns: PropTypes.array
   }
 
   componentDidMount() {
-    CustomerStore.listen(this.onChange);
-
-    CustomerActions.fetchCustomers();
+    this.props.fetch(this.props.customers);
   }
 
-  componentWillUnmount() {
-    CustomerStore.unlisten(this.onChange);
-  }
-
-  onChange() {
-    this.setState({
-      data: CustomerStore.getState()
-    });
+  @autobind
+  onAddCustomerClick() {
+    transitionTo(this.context.history, 'customers-new');
   }
 
   render() {
+    let renderRow = (row, index) => {
+      let params = {customer: row.id};
+      return (
+        <TableRow key={`customer-row-${row.id}`}>
+          <TableCell><Link to='customer' params={params}>{ row.name }</Link></TableCell>
+          <TableCell>{ row.email }</TableCell>
+          <TableCell>{ row.id }</TableCell>
+          <TableCell>{ row.shipRegion }</TableCell>
+          <TableCell>{ row.billRegion }</TableCell>
+          <TableCell>{ row.rank }</TableCell>
+          <TableCell><DateTime value={ row.createdAt }/></TableCell>
+        </TableRow>
+      );
+    };
+
     return (
-      <div id="users">
-        <div className="gutter">
-          <TableView
-            columns={this.props.tableColumns}
-            rows={this.state.data.toArray()}
-            model='customer'
-            sort={CustomerStore.sort.bind(CustomerStore)}
-            />
+      <div id="customers">
+        <div className="fc-list-header">
+          <SectionTitle title="Customers"
+                        count={this.props.customers.length}
+                        buttonClickHandler={ this.onAddCustomerClick }/>
+          <LocalNav>
+            <Link to="customers">Lists</Link>
+            <a href="">Customer Groups</a>
+            <a href="">Insights</a>
+            <a href="">Activity Trial</a>
+          </LocalNav>
+          <TabListView>
+            <TabView draggable={false}>All</TabView>
+            <TabView>What</TabView>
+          </TabListView>
+        </div>
+        <div className="fc-grid fc-tab-view-content">
+          <div className="fc-col-md-1-1 fc-action-bar clearfix">
+            <button className="fc-btn fc-right">
+              <i className="icon-external-link"></i>
+            </button>
+          </div>
+          <SearchBar />
+          <div className="fc-col-md-1-1">
+            <TableView
+              columns={this.props.tableColumns}
+              data={this.props.customers}
+              renderRow={renderRow}
+              setState={this.props.setFetchData}
+              />
+          </div>
         </div>
       </div>
     );
   }
 }
-
-Customers.propTypes = {
-  tableColumns: React.PropTypes.array
-};
-
-Customers.defaultProps = {
-  tableColumns: [
-    {field: 'firstName', text: 'First Name'},
-    {field: 'lastName', text: 'Last Name'},
-    {field: 'email', text: 'Email'},
-    {field: 'disabled', text: 'Disabled', type: 'bool'},
-    {field: 'createdAt', text: 'Date Joined', type: 'date'}
-  ]
-};

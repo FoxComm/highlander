@@ -17,7 +17,7 @@ import LocalNav from '../local-nav/local-nav';
 export default class Orders extends React.Component {
   static propTypes = {
     fetch: PropTypes.func.isRequired,
-    setState: PropTypes.func.isRequired,
+    setFetchData: PropTypes.func.isRequired,
     tableColumns: PropTypes.array,
     subNav: PropTypes.array,
     orders: PropTypes.shape({

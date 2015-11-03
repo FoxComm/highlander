@@ -1,0 +1,156 @@
+.fc-slide-checkbox {
+  width: pxtorem(80px);
+  height: pxtorem(34px);
+  position: relative;
+
+
+  & input[type=checkbox]:after {
+    content: 'NO';
+    background: @color-decor47;
+    color: @color-white;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: pxtorem(80px);
+    height: pxtorem(34px);
+    z-index: 0;
+    font-weight: bold;
+    line-height: pxtorem(30px);
+    border-radius: pxtorem(50px);
+    text-align: right;
+    top: -2px;
+    .padding(6px 10px);
+    .font-spec(16px, 500, 22px);
+  }
+
+  & input[type=checkbox]:before {
+    content: 'YES';
+    background: @color-decor46;
+    color: @color-white;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: pxtorem(80px);
+    height: pxtorem(34px);
+    z-index: 0;
+    font-weight: bold;
+    border-radius: pxtorem(50px);
+    top: -2px;
+    .padding(6px 10px);
+    .font-spec(16px, 500, 22px);
+  }
+
+  & > label {
+    display: block;
+    width: pxtorem(24px);
+    height: pxtorem(24px);
+    border-radius: pxtorem(50px);
+    transition: all .4s ease;
+    cursor: pointer;
+    position: absolute;
+    top: pxtorem(3px);
+    left: pxtorem(3px);
+    z-index: 1;
+    background: @color-white;
+  }
+
+  & > input[type=checkbox] {
+    visibility: hidden;
+  }
+
+  & > input[type=checkbox] + label {
+    box-shadow: 2px 3px 4px 0px rgba(0,0,0,0.30);
+  }
+
+  & > input[type=checkbox]:checked + label {
+    left: pxtorem(52px);
+    box-shadow: -2px 3px 4px 0px rgba(0,0,0,0.30);
+  }
+
+  & > input[type=checkbox]:before {
+    visibility: hidden;
+  }
+
+  & > input[type=checkbox]:after {
+    visibility: visible;
+  }
+
+  & > input[type=checkbox]:checked:before {
+    visibility: visible;
+  }
+
+  & > input[type=checkbox]:checked:after {
+    visibility: hidden;
+  }
+
+}
+
+.fc-checkbox {
+  display: inline-block;
+
+  & input[type=checkbox] {
+    width: pxtorem(24px);
+    height: pxtorem(24px);
+    margin: 0;
+    padding: 0;
+    font-size: 1rem;
+    opacity: 0;
+  }
+
+  & input[type=checkbox] + label {
+    display: inline-block;
+    margin-left: pxtorem(-24px);
+    line-height: pxtorem(24px);
+  }
+
+  & input[type=checkbox] + label > span {
+    display: inline-block;
+    width: pxtorem(24px);
+    height: pxtorem(24px);
+    margin: 0.25rem 0.5rem 0.25rem 0.25rem;
+    border-radius: pxtorem(3px);
+    vertical-align: bottom;
+    border: 2px solid @color-decor9;
+    background: @color-white;
+  }
+
+  & input[type=checkbox]:hover + label > span {
+    border-color: @color-decor3;
+    background: @color-white;
+  }
+
+  & input[type=checkbox]:checked + label > span {
+    border-color: @color-decor3;
+    background: @color-decor3;
+  }
+
+  & input[type=checkbox]:checked:hover + label > span {
+    border-color: @color-decor4;
+    background: @color-decor4;
+  }
+
+  & input[type=checkbox]:checked + label > span:before {
+    content: '✓';
+    display: block;
+    width: 1.8rem;
+    color: @color-white;
+    font-size: 1.8rem;
+    line-height: 2rem;
+    text-align: center;
+    font-weight: 700;
+  }
+
+  & input[type=checkbox][disabled] + label > span {
+    border-color: @color-decor9;
+    background: @color-decor12;
+  }
+
+  & input[type=checkbox][disabled]:checked + label > span:before {
+    color: @color-decor9;
+  }
+
+  & input[type=checkbox][disabled]:checked:hover + label > span {
+    border-color: @color-decor9;
+    background: @color-decor12;
+  }
+}

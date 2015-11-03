@@ -1,8 +1,10 @@
 'use strict';
 
+import _ from 'lodash';
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 import { haveType } from '../state-helpers';
+
 
 const receiveCustomer = createAction('CUSTOMER_RECEIVE', (id, customer) => [id, customer]);
 const failCustomer = createAction('CUSTOMER_FAIL', (id, err, source) => [id, err, source]);
@@ -115,7 +117,8 @@ const reducer = createReducer({
       }
     };
   },
-  [receiveCustomerAdresses]: (state, [id, addresses]) => {
+  [receiveCustomerAdresses]: (state, [id, payload]) => {
+    const addresses = _.get(payload, 'result', []);
     return {
       ...state,
       [id]: {
@@ -125,7 +128,8 @@ const reducer = createReducer({
       }
     };
   },
-  [receiveCustomerCreditCards]: (state, [id, cards]) => {
+  [receiveCustomerCreditCards]: (state, [id, payload]) => {
+    const cards = _.get(payload, 'result', []);
     return {
       ...state,
       [id]: {
