@@ -22,7 +22,7 @@ import { createSelector } from 'reselect';
 import { assoc } from 'sprout-data';
 
 const editingNote = createSelector(
-  (state, entity) => _.get(state.notes, [entity.entityType, entity.entityId, 'notes'], []),
+  (state, entity) => _.get(state.notes, [entity.entityType, entity.entityId, 'rows'], []),
   (state, entity) => _.get(state.notes, [entity.entityType, entity.entityId, 'editingNoteId']),
   (notes, editingNoteId) => {
     return _.findWhere(notes, {id: editingNoteId});
@@ -113,6 +113,27 @@ export default class Notes extends React.Component {
     }
   }
 
+  @autobind
+  renderRow(row, index) {
+    const noteRow = this.renderNoteRow(row, index);
+
+    if (index === 0 && this.props.editingNoteId === true) {
+      return [
+        <TableRow key="row-add">
+          <TableCell colspan={this.props.tableColumns.length}>
+            <NoteForm
+              onReset={this.props.stopAddingOrEditingNote}
+              onSubmit={this.props.createNote}
+            />
+          </TableCell>
+        </TableRow>,
+        noteRow
+      ];
+    }
+
+    return noteRow;
+  }
+
   get controls() {
     return (
       <PrimaryButton icon="add" onClick={this.props.startAddingNote} disabled={!!this.props.isAddingNote } />
@@ -123,20 +144,12 @@ export default class Notes extends React.Component {
     return (
       <div>
         <SectionTitle title="Notes">{this.controls}</SectionTitle>
-        <ContentBox title={'Notes'}>
-          {this.props.editingNoteId === true && (
-          <NoteForm
-            onReset={this.props.stopAddingOrEditingNote}
-            onSubmit={this.props.createNote}
-          />
-            )}
-          <TableView
-            renderRow={this.renderNoteRow}
-            columns={this.props.tableColumns}
-            data={this.props.data}
-            setState={(data, params) => this.props.fetchNotes(params)}
-          />
-        </ContentBox>
+        <TableView
+          renderRow={this.renderRow}
+          columns={this.props.tableColumns}
+          data={this.props.data}
+          setState={(data, params) => this.props.fetchNotes(params)}
+        />
         <ConfirmationDialog
           {...Notes.deleteOptions}
           isVisible={this.props.noteIdToDelete != null}

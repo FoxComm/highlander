@@ -53,7 +53,7 @@ export function createNote(entity, data) {
   return dispatch => {
     dispatch(stopAddingOrEditingNote(entity));
     Api.post(notesUri(entity), data)
-      .then(json => dispatch(actionAddEntity(json)))
+      .then(json => dispatch(actionAddEntity(entity, json)))
       .catch(err => dispatch(notesFailed(entity, err)));
   };
 }
