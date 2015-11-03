@@ -79,7 +79,6 @@ export function reducer(reducer = state => state) {
 
     if (paginationType) {
       const payload = action.payload;
-      const data = _.get(payload, 'result', payload);
 
       switch (paginationType) {
         case actionTypes.FETCH:
@@ -91,8 +90,8 @@ export function reducer(reducer = state => state) {
           return {
             ...state,
             isFetching: false,
-            rows: data,
-            total: data.length
+            rows: _.get(payload, 'result', payload),
+            total: _.get(payload, 'pagination.total', 0)
           };
         case actionTypes.FETCH_FAILED:
           console.error(payload);
