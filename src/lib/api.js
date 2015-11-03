@@ -1,7 +1,6 @@
 'use strict';
 
 import fetch from 'isomorphic-fetch';
-import buildQueryString from 'querystring/encode';
 
 const isServer = typeof self === 'undefined';
 
@@ -49,7 +48,7 @@ export default class Api {
 
     if (data) {
       if (method.toUpperCase() === 'GET') {
-        uri = `${uri}?${buildQueryString(data)}`;
+        uri = `${uri}?${this.serialize(data)}`;
       } else {
         options.body = isFormData ? data : JSON.stringify(data);
       }
