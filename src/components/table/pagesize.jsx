@@ -3,6 +3,7 @@
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import Dropdown from '../dropdown/dropdown';
+import { DEFAULT_PAGE_SIZE } from '../../modules/pagination';
 
 class TablePaginator extends React.Component {
   static propTypes = {
@@ -11,7 +12,7 @@ class TablePaginator extends React.Component {
   };
 
   static defaultProps = {
-    value: '50'
+    value: DEFAULT_PAGE_SIZE.toString()
   };
 
   @autobind

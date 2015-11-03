@@ -5,6 +5,8 @@ import Api from '../lib/api';
 import { createAction, createReducer } from 'redux-act';
 import { merge, get, update } from 'sprout-data';
 
+export const DEFAULT_PAGE_SIZE = 50;
+
 export const actionTypes = {
   FETCH: 'FETCH',
   RECEIVED: 'RECEIVED',
@@ -85,7 +87,7 @@ const initialState = {
   rows: [],
   total: 0,
   from: 0,
-  size: 25
+  size: DEFAULT_PAGE_SIZE
 };
 
 export function paginate(state = initialState, action) {
