@@ -65,27 +65,27 @@ object CustomerManager {
   def searchForNewOrder(payload: CustomerSearchForNewOrder)
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
 
-    def customersAndOrderTotal = {
+    def customersAndNumOrders = {
       val likeQuery = s"%${payload.term}%".toLowerCase
       val query = if (payload.term.contains("@"))
           Customers.filter(_.email.toLowerCase like likeQuery)
         else
           Customers.filter { case c ⇒ c.email.toLowerCase.like(likeQuery) || c.name.toLowerCase.like(likeQuery) }
 
-      val withOrdersTotal = query.joinLeft(Orders).on(_.id === _.customerId).groupBy(_._1.id).map {
+      val withNumOrders = query.joinLeft(Orders).on(_.id === _.customerId).groupBy(_._1.id).map {
         case (id, q) ⇒ (id, q.length)
       }
 
       for {
         c ← query
-        (id, count) ← withOrdersTotal if id === c.id
+        (id, count) ← withNumOrders if id === c.id
       } yield (c, count)
     }
 
     payload.validate match {
       case Valid(_) ⇒
-        customersAndOrderTotal.withMetadata.result.map(_.map { case (customer, ordersTotal) ⇒
-          build(customer, ordersTotal = Some(ordersTotal))
+        customersAndNumOrders.withMetadata.result.map(_.map { case (customer, numOrders) ⇒
+          build(customer, numOrders = Some(numOrders))
         })
       case Invalid(errors) ⇒ ResultWithMetadata.fromFailures(errors)
     }

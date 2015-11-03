@@ -19,14 +19,14 @@ object CustomerResponse {
     isGuest: Boolean,
     blacklisted: Boolean,
     rank: String,
-    ordersTotal: Option[Int] = None,
+    numOrders: Option[Int] = None,
     billingRegion: Option[String] = None,
     shippingRegion: Option[String] = None) extends ResponseItem
 
   def build(customer: Customer,
     shippingRegion: Option[Region] = None,
     billingRegion: Option[Region] = None,
-    ordersTotal: Option[Int] = None): Root =
+    numOrders: Option[Int] = None): Root =
     Root(id = customer.id,
       email = customer.email,
       name = customer.name,
@@ -38,7 +38,7 @@ object CustomerResponse {
       disabled = customer.isDisabled,
       blacklisted = customer.isBlacklisted,
       rank = mockCustomerRank,
-      ordersTotal = ordersTotal,
+      numOrders = numOrders,
       billingRegion = billingRegion.map(_.name),
       shippingRegion = shippingRegion.map(_.name))
 }
