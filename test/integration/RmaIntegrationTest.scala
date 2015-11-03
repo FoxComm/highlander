@@ -5,10 +5,10 @@ import scala.concurrent.Future
 
 import Extensions._
 import models._
-import responses.{StoreAdminResponse, ResponseWithFailuresAndMetadata, RmaResponse}
-import services.NotFoundFailure404
+import responses.{StoreAdminResponse, ResponseWithFailuresAndMetadata, RmaResponse, RmaLockResponse}
+import services.{GeneralFailure, LockedFailure, NotFoundFailure404, LockAwareRmaUpdater}
+import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
-import utils.Seeds
 import utils.Seeds.Factories
 import utils.time._
 import utils.Slick.implicits._
@@ -128,6 +128,100 @@ class RmaIntegrationTest extends IntegrationTestBase
       }
     }
 
+    "GET /v1/rmas/:refNum/lock" - {
+      "returns lock info on locked RMA" in {
+        Orders.save(Factories.order.copy(referenceNumber = "ABC-123")).run().futureValue
+        val rma = Rmas.save(Factories.rma.copy(referenceNumber = "ABC-123.1")).run().futureValue
+        val admin = StoreAdmins.save(Factories.storeAdmin).run().futureValue
+
+        LockAwareRmaUpdater.lock("ABC-123.1", admin).futureValue
+
+        val response = GET(s"v1/rmas/${rma.referenceNumber}/lock")
+        response.status must === (StatusCodes.OK)
+
+        val root = response.as[RmaLockResponse.Root]
+        root.isLocked must === (true)
+        root.lock.head.lockedBy.id must === (admin.id)
+      }
+
+      "returns negative lock status on unlocked RMA" in {
+        Orders.save(Factories.order.copy(referenceNumber = "ABC-123")).run().futureValue
+        val rma = Rmas.save(Factories.rma.copy(referenceNumber = "ABC-123.1")).run().futureValue
+
+        val response = GET(s"v1/rmas/${rma.referenceNumber}/lock")
+        response.status must === (StatusCodes.OK)
+
+        val root = response.as[RmaLockResponse.Root]
+        root.isLocked must === (false)
+        root.lock.isEmpty must === (true)
+      }
+    }
+
+    "POST /v1/rmas/:refNum/lock" - {
+      "successfully locks an RMA" in {
+        Orders.save(Factories.order.copy(referenceNumber = "ABC-123")).run().futureValue
+        val rma = Rmas.save(Factories.rma.copy(referenceNumber = "ABC-123.1")).run().futureValue
+        StoreAdmins.save(Factories.storeAdmin).run().futureValue
+
+        val response = POST(s"v1/rmas/${rma.referenceNumber}/lock")
+        response.status must === (StatusCodes.OK)
+
+        val lockedRma = Rmas.findByRefNum(rma.referenceNumber).result.run().futureValue.head
+        lockedRma.locked must === (true)
+
+        val locks = RmaLockEvents.findByRma(rma).result.run().futureValue
+        locks.length must === (1)
+        val lock = locks.head
+        lock.lockedBy must === (1)
+      }
+
+      "refuses to lock an already locked RMA" in {
+        Orders.save(Factories.order.copy(referenceNumber = "ABC-123")).run().futureValue
+        val rma = Rmas.save(Factories.rma.copy(referenceNumber = "ABC-123.1", locked = true)).run().futureValue
+
+        val response = POST(s"v1/rmas/${rma.referenceNumber}/lock")
+        response.status must === (StatusCodes.BadRequest)
+        response.errors must === (LockedFailure(Rma, rma.referenceNumber).description)
+      }
+
+      "avoids race condition" in {
+        StoreAdmins.save(Factories.storeAdmin).run().futureValue
+        Orders.save(Factories.order.copy(referenceNumber = "ABC-123")).run().futureValue
+        val rma = Rmas.save(Factories.rma.copy(referenceNumber = "ABC-123.1")).run().futureValue
+
+        def request = POST(s"v1/rmas/${rma.referenceNumber}/lock")
+
+        val responses = Seq(0, 1).par.map(_ ⇒ request)
+        responses.map(_.status) must contain allOf(StatusCodes.OK, StatusCodes.BadRequest)
+        RmaLockEvents.result.run().futureValue.length mustBe 1
+      }
+    }
+
+    "POST /v1/rmas/:refNum/unlock" - {
+      "unlocks an RMA" in {
+        StoreAdmins.save(Factories.storeAdmin).run().futureValue
+        Orders.save(Factories.order.copy(referenceNumber = "ABC-123")).run().futureValue
+        val rma = Rmas.save(Factories.rma.copy(referenceNumber = "ABC-123.1")).run().futureValue
+
+        POST(s"v1/rmas/${rma.referenceNumber}/lock")
+
+        val response = POST(s"v1/rmas/${rma.referenceNumber}/unlock")
+        response.status must ===(StatusCodes.OK)
+
+        val unlockedRma = Rmas.findByRefNum(rma.referenceNumber).result.run().futureValue.head
+        unlockedRma.locked must ===(false)
+      }
+
+      "refuses to unlock an already unlocked RMA" in {
+        Orders.save(Factories.order.copy(referenceNumber = "ABC-123")).run().futureValue
+        val rma = Rmas.save(Factories.rma.copy(referenceNumber = "ABC-123.1")).run().futureValue
+        val response = POST(s"v1/rmas/${rma.referenceNumber}/unlock")
+
+        response.status must ===(StatusCodes.BadRequest)
+        response.errors must ===(GeneralFailure("Return is not locked").description)
+      }
+    }
+
     "GET /v1/rmas/:refNum/expanded" - {
       "should return expanded RMA by referenceNumber" in new Fixture {
         val response = GET(s"v1/rmas/${rma.refNum}/expanded")
@@ -142,6 +236,7 @@ class RmaIntegrationTest extends IntegrationTestBase
         val response = GET(s"v1/rmas/ABC-666/expanded")
         response.status must ===(StatusCodes.NotFound)
         response.errors must ===(NotFoundFailure404(Rma, "ABC-666").description)
+
       }
     }
   }
@@ -150,9 +245,11 @@ class RmaIntegrationTest extends IntegrationTestBase
     val (customer, order, rma) = (for {
       customer ← Customers.save(Factories.customer)
       order ← Orders.save(Factories.order.copy(
+        referenceNumber = "ABC-123",
         status = Order.RemorseHold,
         remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
       rma ← Rmas.save(Factories.rma.copy(
+        referenceNumber = "ABC-123.1",
         orderId = order.id,
         orderRefNum = order.referenceNumber,
         customerId = Some(customer.id)))

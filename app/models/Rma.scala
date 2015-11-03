@@ -1,9 +1,11 @@
 package models
 
+import java.time.Instant
+
 import scala.concurrent.ExecutionContext
 
 import com.pellucid.sealerate
-import models.Rma.{RmaType, Standard, Status, Pending}
+import models.Rma._
 import monocle.macros.GenLens
 
 import slick.ast.BaseTypedType
@@ -11,15 +13,27 @@ import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.CustomDirectives.SortAndPage
 
-import utils.{ModelWithLockParameter, TableQueryWithLock, ADT, GenericTable}
+import utils.{FSM, ModelWithLockParameter, TableQueryWithLock, ADT, GenericTable}
 import utils.Slick.implicits._
 
 final case class Rma(id: Int = 0, referenceNumber: String = "", orderId: Int, orderRefNum: String,
   rmaType: RmaType = Standard, status: Status = Pending, locked: Boolean = false,
   customerId: Option[Int] = None, storeAdminId: Option[Int] = None)
-  extends ModelWithLockParameter[Rma] {
+  extends ModelWithLockParameter[Rma]
+  with FSM[Rma.Status, Rma] {
 
   def refNum: String = referenceNumber
+
+  def stateLens = GenLens[Rma](_.status)
+
+  val fsm: Map[Status, Set[Status]] = Map(
+    Pending →
+      Set(Processing, Canceled),
+    Processing →
+      Set(Review, Complete, Canceled),
+    Review →
+      Set(Complete, Canceled)
+  )
 }
 
 object Rma {

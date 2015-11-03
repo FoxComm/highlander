@@ -12,7 +12,8 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 
 import models._
 import payloads._
-import services.{LineItemUpdater, RmaService}
+import services.{LockAwareRmaUpdater, RmaService}
+
 import responses.StoreAdminResponse
 import responses.RmaResponse._
 import slick.driver.PostgresDriver.api._
@@ -71,14 +72,19 @@ object RmaRoutes {
             genericRmaMock.copy(status = payload.status)
           }
         } ~
+        (get & path("lock") & pathEnd) {
+          goodOrFailures {
+            LockAwareRmaUpdater.getLockStatus(refNum)
+          }
+        } ~
         (post & path("lock") & pathEnd) {
-          good {
-            genericRmaMock
+          goodOrFailures {
+            LockAwareRmaUpdater.lock(refNum, admin)
           }
         } ~
         (post & path("unlock") & pathEnd) {
-          good {
-            genericRmaMock
+          goodOrFailures {
+            LockAwareRmaUpdater.unlock(refNum)
           }
         } ~
         (post & path("line-items") & entity(as[Seq[RmaSkuLineItemsPayload]])) { reqItems ⇒
