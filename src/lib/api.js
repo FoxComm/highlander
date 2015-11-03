@@ -64,7 +64,12 @@ export default class Api {
           throw error;
         }
       })
-      .then(response => response.json());
+      .then(response => response.text())
+      .then(responseText => {
+        if (responseText) {
+          return JSON.parse(responseText);
+        }
+      });
   }
 
   static submitForm(form) {
