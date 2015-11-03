@@ -70,7 +70,7 @@ object CustomerManager {
       val query = if (payload.term.contains("@"))
           Customers.filter(_.email.toLowerCase like likeQuery)
         else
-          Customers.filter { case c ⇒ c.email.toLowerCase.like(likeQuery) || c.name.toLowerCase.like(likeQuery) }
+          Customers.filter { c ⇒ c.email.toLowerCase.like(likeQuery) || c.name.toLowerCase.like(likeQuery) }
 
       val withNumOrders = query.joinLeft(Orders).on(_.id === _.customerId).groupBy(_._1.id).map {
         case (id, q) ⇒ (id, q.length)
