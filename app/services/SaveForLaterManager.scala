@@ -38,13 +38,9 @@ object SaveForLaterManager {
     }.transactionally.run()
   }
 
-  def deleteSaveForLater(id: Int)
-    (implicit db: Database, ec: ExecutionContext): Result[Unit] = {
-    val delete = SaveForLaters.deleteById(id).flatMap {
-      case 0 ⇒ DbResult.failure(NotFoundFailure404(SaveForLater, id))
-      case 1 ⇒ DbResult.unit
-    }
-    delete.transactionally.run()
+  def deleteSaveForLater(id: Int)(implicit db: Database, ec: ExecutionContext): Result[Unit] = {
+    val failure = DbResult.failure(NotFoundFailure404(SaveForLater, id))
+    SaveForLaters.deleteById(id, DbResult.unit, failure).transactionally.run()
   }
 
   private def findAllDbio(customer: Customer)(implicit ec: ExecutionContext, db: Database): DBIO[SavedForLater] = {

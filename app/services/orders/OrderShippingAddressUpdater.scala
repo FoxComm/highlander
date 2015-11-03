@@ -99,12 +99,10 @@ object OrderShippingAddressUpdater {
     val finder = Orders.findByRefNum(refNum)
 
     finder.selectOne({ order ⇒
-      OrderShippingAddresses.findByOrderId(order.id).delete.flatMap {
-        case 1 ⇒
-          DbResult.fromDbio(fullOrder(finder))
-        case 0 ⇒
-          DbResult.failure(NotFoundFailure400(s"Shipping Address for order with reference number $refNum not found"))
-      }
+      OrderShippingAddresses.findByOrderId(order.id).deleteAll(
+        onSuccess = DbResult.fromDbio(fullOrder(finder)),
+        onFailure = DbResult.failure(NotFoundFailure400(
+          s"Shipping Address for order with reference number $refNum not found")))
     }, checks = finder.checks + finder.mustBeCart)
   }
 

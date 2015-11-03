@@ -95,8 +95,9 @@ object OrderPaymentUpdater {
     finder.selectOneForUpdate ({ order ⇒
       OrderPayments
         .filter(_.orderId === order.id)
-        .byType(pmt).delete
-        .flatMap(fullOrderOrFailure(_, pmt, finder))
+        .byType(pmt).deleteAll(
+          onSuccess = DbResult.fromDbio(fullOrder(finder)),
+          onFailure = DbResult.failure(OrderPaymentNotFoundFailure(pmt)))
     }, checks = finder.checks + finder.mustBeCart)
   }
 
@@ -111,20 +112,13 @@ object OrderPaymentUpdater {
           OrderPayments
             .filter(_.paymentMethodId === giftCard.id)
             .filter(_.orderId === order.id)
-            .giftCards.delete
-            .flatMap(fullOrderOrFailure(_, PaymentMethod.GiftCard, finder))
+            .giftCards.deleteAll(
+              onSuccess = DbResult.fromDbio(fullOrder(finder)),
+              onFailure = DbResult.failure(OrderPaymentNotFoundFailure(PaymentMethod.GiftCard)))
 
         case None ⇒
           DbResult.failure(NotFoundFailure404(GiftCard, code))
       }
     }, checks = finder.checks + finder.mustBeCart)
-  }
-
-  private def fullOrderOrFailure(rowsDeleted: Int, pmt: PaymentMethod.Type, finder: Orders.QuerySeq)
-    (implicit ec: ExecutionContext, db: Database): DbResult[FullOrder.Root] = {
-    if (rowsDeleted == 0)
-      DbResult.failure(OrderPaymentNotFoundFailure(pmt))
-    else
-      DbResult.fromDbio(fullOrder(finder))
   }
 }

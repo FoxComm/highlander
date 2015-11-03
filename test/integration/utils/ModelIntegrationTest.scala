@@ -6,6 +6,7 @@ import models.{Addresses, Customers}
 import services.GeneralFailure
 import util.IntegrationTestBase
 import utils.Seeds.Factories
+import utils.Slick.DbResult
 import utils.Slick.implicits._
 
 class ModelIntegrationTest extends IntegrationTestBase {
@@ -33,6 +34,23 @@ class ModelIntegrationTest extends IntegrationTestBase {
       leftValue(result) must === (GeneralFailure(
         "ERROR: duplicate key value violates unique constraint \"address_shipping_default_idx\"\n" +
         "  Detail: Key (customer_id, is_default_shipping)=(1, t) already exists.").single)
+    }
+  }
+
+  "Model delete" - {
+    "returns value for successful delete" in {
+      val customer = rightValue(Customers.create(Factories.customer).run().futureValue)
+      val success = "Success"
+      val failure = DbResult.failure(GeneralFailure("Should not happen"))
+      val delete = Customers.deleteById(customer.id, DbResult.good(success), failure).run().futureValue
+      rightValue(delete) must === (success)
+    }
+
+    "returns failure for unsuccessful delete" in {
+      val success = DbResult.good("Should not happen")
+      val failure = GeneralFailure("Boom")
+      val delete = Customers.deleteById(13, success, DbResult.failure(failure)).run().futureValue
+      leftValue(delete) must === (failure.single)
     }
   }
 }
