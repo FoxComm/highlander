@@ -17,6 +17,13 @@ class CustomerTest extends TestBase {
           invalidValue(result) must includeFailure("email must not be empty")
         }
 
+        "fails if name contains '@' character" in {
+          val customer = Factories.customer.copy(name = Some("hi@there"))
+          val result = customer.validate
+          result mustBe 'invalid
+          invalidValue(result) must includeMatchesFailure("name", Customer.namePattern)
+        }
+
         "succeeds" in {
           Factories.customer.validate mustBe 'valid
         }

@@ -34,7 +34,7 @@ final case class Customer(id: Int = 0, email: String, password: Option[String] =
     } else {
       (notEmpty(name, "name")
         |@| notEmpty(name.getOrElse(""), "name")
-        |@| invalidExpr(name.getOrElse("").contains("@"), "name should not include '@' character")
+        |@| matches(name.getOrElse(""), Customer.namePattern , "name")
         |@| notEmpty(email, "email")
         ).map { case _ ⇒ this }
     }
@@ -42,6 +42,9 @@ final case class Customer(id: Int = 0, email: String, password: Option[String] =
 }
 
 object Customer {
+
+  val namePattern = "[^@]+"
+
   def buildGuest(email: String): Customer =
     Customer(isGuest = true, email = email)
 
