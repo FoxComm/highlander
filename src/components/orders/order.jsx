@@ -126,13 +126,17 @@ export default class Order extends React.Component {
         <SectionTitle title={`Order ${this.orderRefNum}`}>
           {this.remorseTimer}
         </SectionTitle>
-        <PanelList className="fc-grid-gutter">
-          <PanelListItem title="Order Status">{orderStatus}</PanelListItem>
-          <PanelListItem title="Shipment Status">{order.shippingStatus}</PanelListItem>
-          <PanelListItem title="Payment Status">{order.paymentStatus}</PanelListItem>
-          <PanelListItem title="Fraud Score">{order.fraudScore}</PanelListItem>
-          <PanelListItem title="Date/Time Placed"><DateTime value={order.createdAt} /></PanelListItem>
-        </PanelList>
+        <div className="fc-grid fc-grid-gutter">
+          <div className="fc-col-md-1-1">
+            <PanelList>
+              <PanelListItem title="Order Status">{orderStatus}</PanelListItem>
+              <PanelListItem title="Shipment Status">{order.shippingStatus}</PanelListItem>
+              <PanelListItem title="Payment Status">{order.paymentStatus}</PanelListItem>
+              <PanelListItem title="Fraud Score">{order.fraudScore}</PanelListItem>
+              <PanelListItem title="Date/Time Placed"><DateTime value={order.createdAt} /></PanelListItem>
+            </PanelList>
+          </div>
+        </div>
         {this.subNav}
       </div>
     );
