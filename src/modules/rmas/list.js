@@ -11,6 +11,7 @@ export const failRmas = createAction('RMAS_FAIL', (err, source, type, identifier
 
 function performFetch(source, url, type, identifier) {
   return dispatch => {
+    dispatch(requestRmas(type, identifier));
     return Api.get(url)
       .then(rmas => dispatch(receiveRmas(rmas, type, identifier)))
       .catch(err => dispatch(failRmas(err, source, type, identifier)));
@@ -19,7 +20,6 @@ function performFetch(source, url, type, identifier) {
 
 export function fetchRmas() {
   return dispatch => {
-    dispatch(requestRmas());
     dispatch(performFetch(fetchRmas, '/rmas'));
   };
 }
@@ -33,7 +33,6 @@ export function fetchChildRmas(entity) {
     } else {
       identifier = entity.id;
     }
-    dispatch(requestRmas(type, identifier));
     const url = `/rmas/${type}/${identifier}`;
     dispatch(performFetch(fetchChildRmas, url, type, identifier));
   };

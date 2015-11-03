@@ -28,13 +28,6 @@ export default class Rma extends React.Component {
     fetchRma: PropTypes.func.isRequired
   };
 
-  constructor(...args) {
-    super(...args);
-    this.state = {
-      pendingStatus: null
-    };
-  }
-
   get rma() {
     return this.props.rma.currentRma;
   }
