@@ -1,37 +1,31 @@
-'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
+import { PrimaryButton } from '../common/buttons';
 import Title from './title';
 
-export default class SectionTitle extends React.Component {
-  static propTypes = {
-    title: React.PropTypes.node,
-    subtitle: React.PropTypes.node,
-    buttonClickHandler: React.PropTypes.func,
-    children: React.PropTypes.node
-  };
-
-  get buttonMarkup() {
-    return (
+const SectionTitle = (props) => {
+  return (
+    <div className="fc-grid fc-section-title">
+      <div className="fc-col-md-2-6">
+        <Title title={ props.title } subtitle={ props.subtitle } />
+      </div>
       <div className="fc-col-md-2-6 fc-push-md-2-6 fc-section-title-actions">
-        {this.props.buttonClickHandler && (
-          <button className="fc-btn fc-btn-primary" onClick={this.props.buttonClickHandler.bind(this)}>
-            <i className="icon-add"></i> {this.props.title}
-          </button>
-         )}
-          {this.props.children}
+        {props.buttonClickHandler && (
+          <PrimaryButton icon="add" onClick={props.buttonClickHandler}>
+            {props.title}
+          </PrimaryButton>
+        )}
+        {props.children}
       </div>
-    );
-  }
+    </div>
+  );
+};
 
-  render() {
-    return (
-      <div className="fc-grid fc-section-title">
-        <div className="fc-col-md-2-6">
-          <Title title={ this.props.title } subtitle={ this.props.subtitle } />
-        </div>
-        { this.buttonMarkup }
-      </div>
-    );
-  }
-}
+SectionTitle.propTypes = {
+  title: PropTypes.node,
+  subtitle: PropTypes.node,
+  buttonClickHandler: PropTypes.func,
+  children: PropTypes.node
+};
+
+export default SectionTitle;

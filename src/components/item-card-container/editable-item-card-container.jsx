@@ -2,6 +2,7 @@
 
 import React, { PropTypes } from 'react';
 import ItemCardContainer from './item-card-container';
+import { Checkbox } from '../checkbox/checkbox';
 
 export default class EditableItemCardContainer extends React.Component {
 
@@ -23,8 +24,8 @@ export default class EditableItemCardContainer extends React.Component {
     let className = `${this.props.className}-default`;
     return (
       <label className={ className }>
-        <input type="checkbox" defaultChecked={ this.props.initiallyIsDefault }
-                               onClick={ this.props.checkboxClickHandler } />
+        <Checkbox defaultChecked={ this.props.initiallyIsDefault }
+                  onClick={ this.props.checkboxClickHandler } />
         <span>{ this.props.checkboxLabel }</span>
       </label>
     );

@@ -27,4 +27,10 @@ const OrderDetails = (props) => {
   );
 };
 
+OrderDetails.propsTypes = {
+  order: PropTypes.shape({
+    currentOrder: PropTypes.object
+  }).isRequired
+};
+
 export default OrderDetails;

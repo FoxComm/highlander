@@ -4,9 +4,15 @@
   "description": "FoxCommerce CMS",
   "private": true,
   "main": "server/index.js",
+  "engines": {
+    "node": ">=4.2.0"
+  },
+  "os": [
+    "!win32"
+  ],
   "scripts": {
     "test": "make test",
-    "start": "iojs --harmony boot.js",
+    "start": "node --harmony boot.js",
     "stop": "kill -USR2 $(ps aux | grep '[m]-ashes' | awk '{print $2}')",
     "build": "./node_modules/.bin/gulp",
     "dev": "./node_modules/.bin/gulp dev"
@@ -98,6 +104,7 @@
     "htmlescape": "^1.1.0",
     "imagemin-pngquant": "^4.2.0",
     "immutable": "^3.7.4",
+    "isomorphic-fetch": "^2.2.0",
     "koa": "^1.0.0",
     "koa-body": "^1.2.1",
     "koa-favicon": "^1.2.0",
@@ -111,6 +118,7 @@
     "lodash": "^3.10.1",
     "moment": "^2.10.3",
     "normalize.css": "^3.0.3",
+    "querystring": "^0.2.0",
     "react": "^0.14.0",
     "react-addons-create-fragment": "^0.14.0-rc1",
     "react-dom": "^0.14.0-rc1",
@@ -156,14 +164,19 @@
     "localStorage": "^1.0.3",
     "merge-stream": "^1.0.0",
     "mocha": "^2.3.0",
+    "nock": "^2.16.0",
     "node-notifier": "^4.2.3",
-    "react-addons-test-utils": "^0.14.0-rc1",
+    "react-addons-test-utils": "^0.14.0",
+    "react-shallow-testutils": "^0.6.0",
+    "rewire": "^2.3.4",
     "rimraf": "^2.4.2",
     "run-sequence": "^1.1.2",
     "sinon": "^1.16.1",
     "strip-ansi": "^3.0.0",
     "testdom": "git+https://github.com/FoxComm/testdom.git",
     "through2": "^2.0.0",
+    "unexpected": "^10.0.2",
+    "unexpected-react-shallow": "^0.7.0",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^3.3.1",

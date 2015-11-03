@@ -14,8 +14,7 @@ module.exports = function(app) {
   // lets do renderReact property is lazy
   Object.defineProperty(app, 'renderReact', {
     get: function() {
-      const appFile = path.join(config.layout.publicDir, 'admin.js');
-      const App = require(appFile);
+      const App = require('../src/app');
 
       return App.renderReact;
     }
