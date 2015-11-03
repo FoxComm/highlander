@@ -89,11 +89,13 @@ object Customers extends TableQueryWithId[Customer, Customers](
 
       /* Returns Query with additional information like
        * included shippingRegion and billingRegion and rank for customer
-       * shippingRegion comes from default address of customer
-       * billingRegion comes from default creditCard of customer
+       * - shippingRegion comes from default address of customer
+       * - billingRegion comes from default creditCard of customer
+       * - rank is calculated as percentile from net revenue
        */
+      def withRegionsAndRank: Query[(Customers, Rep[Option[Regions]], Rep[Option[Regions]],
+        Rep[Option[CustomersRanks]]), (Customer, Option[Region], Option[Region], Option[CustomerRank]), Seq] = {
 
-      def withAdditionalInfo = {
         val customerWithShipRegion = for {
           ((c, a), r) ← query.joinLeft(Addresses).on {
             case (a, b) ⇒ a.id === b.customerId && b.isDefaultShipping === true

@@ -8,7 +8,7 @@ import utils.GenericTable.TableWithId
 import slick.driver.PostgresDriver.api._
 
 final case class CustomerRank(id: Int = 0, revenue: Int = 0, rank: Int = 0)
-  extends ModelWithIdParameter {
+  extends ModelWithIdParameter[CustomerRank] {
 }
 
 

@@ -3,7 +3,6 @@ package utils
 import java.time.{ZoneId, Instant}
 import java.time.temporal.ChronoField
 
-import scala.collection.immutable
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.Random
@@ -66,7 +65,7 @@ object Seeds {
     val location = "Arkham"
 
     def makeOrders(c: Customer) = {
-      (1 to Random.nextInt(20)).map { i ⇒ generateOrder(Order.Shipped, c.id) }
+      (1 to 5 + Random.nextInt(20)).map { i ⇒ generateOrder(Order.Shipped, c.id) }
     }
 
     def makePayment(o: Order, pm: CreditCard) = {
@@ -81,7 +80,7 @@ object Seeds {
     val insertOrders = Customers.filter(_.location === location).result.flatMap {
       case customers ⇒
         DBIO.sequence(Seq(
-          CreditCards ++= customers.map { case c ⇒ Factories.creditCard.copy(customerId = c.id,
+          CreditCards ++= customers.map { c ⇒ Factories.creditCard.copy(customerId = c.id,
             holderName = c.name.getOrElse(""))
           },
           Orders ++= customers.flatMap(makeOrders)))
@@ -92,8 +91,8 @@ object Seeds {
         (o, cc) ← Orders.join(CreditCards).on(_.customerId === _.customerId)
       } yield (o, cc)).result
 
-      action.flatMap { case ordersWithCc ⇒
-          OrderPayments ++= ordersWithCc.map { case c ⇒ makePayment(c._1, c._2) }
+      action.flatMap { ordersWithCc ⇒
+          OrderPayments ++= ordersWithCc.map { c ⇒ makePayment(c._1, c._2) }
       }
     }
 
@@ -207,7 +206,7 @@ object Seeds {
       Order(customerId = customerId, referenceNumber = randomString(8) + "-17", status = status)
     }
 
-    def generateOrderPayment[A <: PaymentMethod with ModelWithIdParameter](orderId: Int,
+    def generateOrderPayment[A <: PaymentMethod with ModelWithIdParameter[A]](orderId: Int,
       paymentMethod: A, amount: Int = 100): OrderPayment = {
       orderPayment.copy(orderId = orderId, amount = Some(amount),
         paymentMethodId = paymentMethod.id)

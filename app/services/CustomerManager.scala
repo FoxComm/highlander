@@ -32,7 +32,7 @@ object CustomerManager {
   }
 
   def findAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
-    val query = Customers.withAdditionalInfo
+    val query = Customers.withRegionsAndRank
 
     val queryWithMetadata = query.withMetadata.sortAndPageIfNeeded { case (s, (customer, _, _, _)) ⇒
       s.sortColumn match {
@@ -57,7 +57,7 @@ object CustomerManager {
     queryWithMetadata.result.map {
       _.map {
         case (customer, shipRegion, billRegion, rank) ⇒
-          build(customer, shipRegion, billRegion, rank)
+          build(customer = customer, shippingRegion = shipRegion, billingRegion = billRegion, rank = rank)
       }
     }
   }
@@ -85,17 +85,17 @@ object CustomerManager {
     payload.validate match {
       case Valid(_) ⇒
         customersAndNumOrders.withMetadata.result.map(_.map { case (customer, numOrders) ⇒
-          build(customer, numOrders = Some(numOrders))
+          build(customer = customer, numOrders = Some(numOrders))
         })
       case Invalid(errors) ⇒ ResultWithMetadata.fromFailures(errors)
     }
   }
 
   def getById(id: Int)(implicit db: Database, ec: ExecutionContext): Result[Root] = {
-    val query = Customers.filter(_.id === id).withAdditionalInfo
+    val query = Customers.filter(_.id === id).withRegionsAndRank
     query.result.headOption.run().flatMap {
       case Some((customer, shipRegion, billRegion, rank)) ⇒
-        Result.right(build(customer, shipRegion, billRegion, rank))
+        Result.right(build(customer = customer, shippingRegion = shipRegion, billingRegion = billRegion, rank = rank))
       case _ ⇒
         Result.failure(NotFoundFailure404(Customer, id))
     }
