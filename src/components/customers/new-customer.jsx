@@ -49,14 +49,14 @@ export default class NewCustomer extends React.Component {
   render () {
     return (
       <div className="fc-customer-create">
-        <div className="gutter">
-          <header className="fc-customer-form-header">
+        <div className="fc-grid">
+          <header className="fc-customer-form-header fc-col-md-1-1">
             <h1 className="fc-title">
               New Customer
             </h1>
           </header>
-          <article>
-            <div className="fc-grid">
+          <article className="fc-col-md-1-1">
+            <div className="fc-grid fc-grid-no-gutter">
               <Form className="fc-customer-form fc-form-vertical fc-col-md-2-5"
                     action="/customers"
                     method="POST"
