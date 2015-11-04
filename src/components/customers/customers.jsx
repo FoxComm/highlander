@@ -92,8 +92,8 @@ export default class Customers extends React.Component {
     };
 
     return (
-      <div id="customers">
-        <div className="fc-list-header">
+      <div className="fc-list-page">
+        <div className="fc-list-page-header">
           <SectionTitle title="Customers"
                         count={this.props.customers.length}
                         buttonClickHandler={ this.onAddCustomerClick }/>
@@ -108,9 +108,9 @@ export default class Customers extends React.Component {
             <TabView>What</TabView>
           </TabListView>
         </div>
-        <div className="fc-grid fc-tab-view-content">
-          <div className="fc-col-md-1-1 fc-action-bar clearfix">
-            <button className="fc-btn fc-right">
+        <div className="fc-grid fc-list-page-content">
+          <div className="fc-col-md-1-1 fc-action-bar fc-align-right">
+            <button className="fc-btn">
               <i className="icon-external-link"></i>
             </button>
           </div>
