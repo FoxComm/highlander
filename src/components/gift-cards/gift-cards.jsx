@@ -14,13 +14,10 @@ import { connect } from 'react-redux';
 import * as giftCardActions from '../../modules/gift-cards/cards';
 
 @connect(state => ({giftCards: state.giftCards.cards}), giftCardActions)
-export default
-class GiftCards extends React.Component {
+export default class GiftCards extends React.Component {
 
   static propTypes = {
-    tableColumns: PropTypes.array,
-    items: PropTypes.array,
-    fetchGiftCardsIfNeeded: PropTypes.func
+    tableColumns: PropTypes.array
   };
 
   static defaultProps = {
