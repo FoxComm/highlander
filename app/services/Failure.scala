@@ -67,10 +67,6 @@ case object CustomerHasDefaultCreditCard extends Failure {
   override def description = List("customer already has default credit card")
 }
 
-final case class CustomerHasCart(id: Int) extends Failure {
-  override def description = List(s"customer with id=$id already has an active cart")
-}
-
 final case class OrderStatusTransitionNotAllowed(from: Order.Status, to: Order.Status, refNum: String) extends Failure {
   override def description = List(s"Transition from $from to $to is not allowed for order with refNum=$refNum")
 }
@@ -79,8 +75,38 @@ case object CustomerEmailNotUnique extends Failure {
   override def description = List("The email address you entered is already in use")
 }
 
-final case class OrderMustBeCart(referenceNumber: String) extends Failure {
-  override def description = List(s"order with referenceNumber=$referenceNumber is not in cart status")
+final case class OrderUpdateFailure(referenceNumber: String, reason: String) extends Failure {
+  override def description = List(reason)
+}
+
+object CartFailures {
+  final case class OrderMustBeCart(refNum: String) extends Failure {
+    override def description = List(s"order with referenceNumber=$refNum is not in cart status")
+  }
+
+  final case class CustomerHasCart(id: Int) extends Failure {
+    override def description = List(s"customer with id=$id already has an active cart")
+  }
+
+  final case class EmptyCart(refNum: String) extends Failure {
+    override def description = List(s"order with referenceNumber=$refNum is an empty cart")
+  }
+
+  final case class NoShipAddress(refNum: String) extends Failure {
+    override def description = List(s"order with referenceNumber=$refNum has no shipping address")
+  }
+
+  final case class NoShipMethod(refNum: String) extends Failure {
+    override def description = List(s"order with referenceNumber=$refNum has no shipping method")
+  }
+
+  final case class InvalidShippingMethod(refNum: String) extends Failure {
+    override def description = List(s"order with referenceNumber=$refNum has invalid shipping method")
+  }
+
+  final case class InsufficientFunds(refNum: String) extends Failure {
+    override def description = List(s"order with referenceNumber=$refNum has insufficient funds")
+  }
 }
 
 final case class GiftCardMustBeCart(code: String) extends Failure {

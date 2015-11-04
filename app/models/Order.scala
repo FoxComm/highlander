@@ -4,6 +4,7 @@ import java.time.Instant
 
 import cats.data.Validated.valid
 import cats.data.{Xor, ValidatedNel}
+import services.CartFailures.OrderMustBeCart
 import services._
 
 import scala.concurrent.ExecutionContext
@@ -12,6 +13,7 @@ import com.pellucid.sealerate
 import models.Order.{Cart, Status}
 import monocle.macros.GenLens
 import services.orders.OrderTotaler
+import services.CartFailures.OrderMustBeCart
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
@@ -57,7 +59,7 @@ final case class Order(id: Int = 0, referenceNumber: String = "", customerId: In
     case _ ⇒ None
   }
 
-  def mustBeCart: Failures Xor Order = if (isCart) Xor.Right(this) else Xor.Left(OrderMustBeCart(refNum).single)
+  def mustBeCart: Failures Xor Order = if (isCart) Xor.Right(this) else Xor.Left(OrderMustBeCart(this.refNum).single)
 }
 
 object Order {

@@ -5,10 +5,12 @@ import scala.concurrent.ExecutionContext
 import cats.data.Xor
 import cats.data.Validated.{Valid, Invalid}
 import models._
+import CartFailures.OrderMustBeCart
 import models.OrderLineItems.scope._
 import payloads.{AddGiftCardLineItem, UpdateLineItemsPayload}
 import cats.implicits._
 import responses.FullOrder
+import services.CartFailures.OrderMustBeCart
 import slick.driver.PostgresDriver.api._
 import utils.Slick._
 import utils.Slick.implicits._
@@ -57,7 +59,7 @@ object LineItemUpdater {
 
           Orders.findByRefNum(refNum).one.flatMap {
             case Some(order) if order.isCart ⇒ DbResult.fromDbio(update >> FullOrder.fromOrder(order))
-            case Some(order)                 ⇒ DbResult.failure(OrderMustBeCart(refNum))
+            case Some(order)                 ⇒ DbResult.failure(OrderMustBeCart(order.refNum))
             case None                        ⇒ DbResult.failure(NotFoundFailure404(Order, refNum))
           }
         }, checks = finder.checks + finder.mustBeCart)
@@ -83,7 +85,7 @@ object LineItemUpdater {
 
           Orders.findByRefNum(refNum).one.flatMap {
             case Some(order) if order.isCart ⇒ DbResult.fromDbio(deleteAll >> FullOrder.fromOrder(order))
-            case Some(order)                 ⇒ DbResult.failure(OrderMustBeCart(refNum))
+            case Some(order)                 ⇒ DbResult.failure(OrderMustBeCart(order.refNum))
             case None                        ⇒ DbResult.failure(NotFoundFailure404(Order, refNum))
           }
         case None ⇒

@@ -3,7 +3,8 @@ import models.{Order, Customer, Customers}
 import payloads.CreateOrder
 import responses.FullOrder.Root
 import services.orders.OrderCreator
-import services.{CustomerHasCart, NotFoundFailure404}
+import services.CartFailures.CustomerHasCart
+import services.NotFoundFailure404
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import util.SlickSupport.implicits._
