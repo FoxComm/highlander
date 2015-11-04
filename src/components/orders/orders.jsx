@@ -62,8 +62,8 @@ export default class Orders extends React.Component {
     );
 
     return (
-      <div id="orders">
-        <div>
+      <div className="fc-list-page">
+        <div className="fc-list-page-header">
           <SectionTitle title="Orders" subtitle={this.props.orders.total}
                         onAddClick={this.handleAddOrderClick }
                         addTitle="Order"
@@ -77,13 +77,15 @@ export default class Orders extends React.Component {
             <TabView>What</TabView>
           </TabListView>
         </div>
-        <div>
-          <TableView
-            columns={this.props.tableColumns}
-            data={this.props.orders}
-            renderRow={renderRow}
-            setState={this.props.setFetchParams}
+        <div className="fc-grid fc-list-page-content">
+          <div className="fc-col-md-1-1">
+            <TableView
+              columns={this.props.tableColumns}
+              data={this.props.orders}
+              renderRow={renderRow}
+              setState={this.props.setFetchParams}
             />
+          </div>
         </div>
       </div>
     );

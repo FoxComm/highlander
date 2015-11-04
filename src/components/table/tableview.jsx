@@ -22,15 +22,21 @@ const TableView = (props) => {
   return (
     <div className="fc-tableview">
       {tableNeedsPagination && (
-        <div className="fc-table-header">
-          {tablePaginator}
+        <div className="fc-table-header fc-grid fc-grid-no-gutter">
+          <div className="fc-col-md-2-12 fc-push-md-10-12 fc-align-right">
+            {tablePaginator}
+          </div>
         </div>
       )}
       <Table columns={props.columns} data={props.data} renderRow={props.renderRow} setState={setState}/>
       {tableNeedsPagination && (
-        <div className="fc-table-footer">
-          {tablePageSize}
-          {tablePaginator}
+        <div className="fc-table-footer fc-grid fc-grid-no-gutter">
+          <div className="fc-col-md-2-12 fc-align-left">
+            {tablePageSize}
+          </div>
+          <div className="fc-col-md-2-12 fc-push-md-8-12 fc-align-right">
+            {tablePaginator}
+          </div>
         </div>
       )}
     </div>
