@@ -10,6 +10,8 @@ import moment from 'moment';
 import SectionTitle from '../section-title/section-title';
 import Panel from '../panel/panel';
 import {PanelList, PanelListItem} from '../panel/panel-list';
+import Dropdown from '../dropdown/dropdown';
+import DropdownItem from '../dropdown/dropdownItem';
 import LocalNav from '../local-nav/local-nav';
 
 @connect((state, props) => ({
@@ -35,7 +37,8 @@ export default class GiftCard extends React.Component {
     this.props.fetchGiftCardIfNeeded(giftcard);
   }
 
-  changeState({target}) {
+  @autobind
+  onChangeState({target}) {
     this.props.editGiftCard(this.props.card.code, {status: target.value});
   }
 
@@ -71,11 +74,11 @@ export default class GiftCard extends React.Component {
       return <span>{status}</span>;
     } else {
       return (
-        <select value={status} onChange={this.changeState.bind(this)}>
-          <option value="active">Active</option>
-          <option value="onHold">On Hold</option>
-          <option value="canceled">Cancel Gift Card</option>
-        </select>
+        <Dropdown onChange={this.onChangeState} value={status}>
+          <DropdownItem value="active">Active</DropdownItem>
+          <DropdownItem value="onHold">On Hold</DropdownItem>
+          <DropdownItem value="canceled">Cancel Gift Card</DropdownItem>
+        </Dropdown>
       );
     }
   }
