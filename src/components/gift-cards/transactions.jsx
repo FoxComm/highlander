@@ -1,31 +1,33 @@
 'use strict';
 
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
-import Api from '../../lib/api';
 import { createSelector } from 'reselect';
-import TableHead from '../tables/head';
-import TableBody from '../tables/body';
+import TableView from '../table/tableview';
+import TableRow from '../table/row';
+import TableCell from '../table/cell';
 import * as GiftCardsTransactionActions from '../../modules/gift-cards/transactions';
 
 import { connect } from 'react-redux';
 
 const mapStateToProps = createSelector(
-  state => state.router.params.giftcard,
-  state => state.giftCards.transactions,
+    state => state.router.params.giftcard,
+    state => state.giftCards.transactions,
   (identity, transactions) => ({
-    transactions: transactions[identity] && transactions[identity].items || []
+    transactions: _.get(transactions, [identity, 'items'])
   })
 );
 
 @connect(mapStateToProps, GiftCardsTransactionActions)
-export default class GiftCardTransactions extends React.Component {
+export default
+class GiftCardTransactions extends React.Component {
   static propTypes = {
     fetchTransactionsIfNeeded: PropTypes.func,
     tableColumns: PropTypes.array,
     params: PropTypes.shape({
       giftcard: PropTypes.string.isRequired
     }).isRequired,
-    transactions: PropTypes.object
+    transactions: PropTypes.any
   };
 
   static defaultProps = {
@@ -46,11 +48,16 @@ export default class GiftCardTransactions extends React.Component {
 
   render() {
     return (
-      <div id="gift-card-transactions">
-        <table className="fc-table">
-          <TableHead columns={this.props.tableColumns} />
-          <TableBody columns={this.props.tableColumns} rows={this.props.transactions} model="gift-card-transaction" />
-        </table>
+      <div>
+        <TableView
+          columns={this.props.tableColumns}
+          data={{
+            rows: _.get(this.props.transactions, 'result', []),
+            total: _.get(this.props.transactions, ['pagination', 'total'], 0)
+          }}
+          setState={()=>{}}
+          paginator={false}
+          />
       </div>
     );
   }
