@@ -34,15 +34,15 @@ export const notesUri = (entity, noteId) => {
   return uri;
 };
 
-export function fetchNotes(entity, extraFetchParams) {
+export function fetchNotes(entity, newFetchParams) {
   const {entityType, entityId} = entity;
 
   return (dispatch, getState) => {
     const state = get(getState(), ['notes', entityType, entityId]);
-    const fetchParams = pickFetchParams(state, extraFetchParams);
+    const fetchParams = pickFetchParams(state, newFetchParams);
 
-    dispatch(actionSetFetchParams(entity, fetchParams));
     dispatch(actionFetch(entity));
+    dispatch(actionSetFetchParams(entity, newFetchParams));
     Api.get(notesUri(entity), fetchParams)
       .then(json => dispatch(actionReceived(entity, json)))
       .catch(err => dispatch(actionFetchFailed(entity, err)));
