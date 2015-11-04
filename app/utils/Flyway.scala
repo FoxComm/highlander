@@ -22,8 +22,8 @@ object flyway {
 
   private object FlywayLog extends org.flywaydb.core.internal.util.logging.Log {
     def debug(message: String) = {}
-    def info(message: String) = { Console.err.println(message) }
-    def warn(message: String) = { Console.err.println(message) }
+    def info(message: String) = {}
+    def warn(message: String) = {}
     def error(message: String) = { Console.err.println(message) }
     def error(message: String, e: Exception) = {
       Console.err.println(message)
