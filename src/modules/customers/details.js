@@ -11,9 +11,9 @@ const failCustomer = createAction('CUSTOMER_FAIL', (id, err, source) => [id, err
 const requestCustomer = createAction('CUSTOMER_REQUEST');
 const updateCustomer = createAction('CUSTOMER_UPDATED', (id, customer) => [id, customer]);
 const receiveCustomerAdresses = createAction('CUSTOMER_ADDRESSES_RECEIVE', (id, addresses) => [id, addresses]);
-const receiveCustomerCreditCards = createAction('CUSTOMER_CREDIT_CARDS_RECEIVE', (id, cards) => [id, cards]);
+
 const requestCustomerAdresses = createAction('CUSTOMER_ADDRESSES_REQUEST');
-const requestCustomerCreditCards = createAction('CUSTOMER_CREDIT_CARDS_REQUEST');
+
 
 export function fetchCustomer(id) {
   return dispatch => {
@@ -38,16 +38,6 @@ export function fetchAdresses(id) {
 
     Api.get(`/customers/${id}/addresses`)
       .then(addresses => dispatch(receiveCustomerAdresses(id, addresses)))
-      .catch(err => dispatch(failCustomer(id, err, fetchCustomer)));
-  };
-}
-
-export function fetchCreditCards(id) {
-  return dispatch => {
-    dispatch(requestCustomerCreditCards(id));
-
-    Api.get(`/customers/${id}/payment-methods/credit-cards`)
-      .then(cards => dispatch(receiveCustomerCreditCards(id, cards)))
       .catch(err => dispatch(failCustomer(id, err, fetchCustomer)));
   };
 }
@@ -108,15 +98,6 @@ const reducer = createReducer({
       }
     };
   },
-  [requestCustomerCreditCards]: (state, id) => {
-    return {
-      ...state,
-      [id]: {
-        ...state[id],
-        isFetchingCards: true
-      }
-    };
-  },
   [receiveCustomerAdresses]: (state, [id, payload]) => {
     const addresses = _.get(payload, 'result', []);
     return {
@@ -125,17 +106,6 @@ const reducer = createReducer({
         ...state[id],
         isFetchingAddresses: false,
         addresses
-      }
-    };
-  },
-  [receiveCustomerCreditCards]: (state, [id, payload]) => {
-    const cards = _.get(payload, 'result', []);
-    return {
-      ...state,
-      [id]: {
-        ...state[id],
-        isFetchingCards: false,
-        cards
       }
     };
   }
