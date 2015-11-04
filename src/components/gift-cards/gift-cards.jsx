@@ -40,7 +40,7 @@ export default class GiftCards extends React.Component {
     const renderRow = (row, index) => (
       <TableRow key={`${index}`}>
         <TableCell>
-          <Link to={'giftcard'} params={{giftcard: row.code}}>
+          <Link to="giftcard" params={{giftcard: row.code}}>
             {row.code}
           </Link>
         </TableCell>
@@ -59,7 +59,7 @@ export default class GiftCards extends React.Component {
       <div className="fc-list-page">
         <div className="fc-list-page-header">
           <SectionTitle title="Gift Cards" subtitle={this.props.giftCards.total}>
-            <Link to='gift-cards-new' className="fc-btn fc-btn-primary">
+            <Link to="gift-cards-new" className="fc-btn fc-btn-primary">
               <i className="icon-add"></i> New Gift Card
             </Link>
           </SectionTitle>
