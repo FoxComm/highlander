@@ -15,7 +15,7 @@ export default class CustomerNotificationSettings extends React.Component {
             <span className="fc-customer-notification-title-comment">&nbsp;(must select 1)</span>
           </div>
         </div>
-        <div className="fc-grid fc-customer-settings-row">
+        <div className="fc-grid fc-grid-gutter">
             <div className="fc-col-md-2-3">
               SMS Notifications
             </div>
@@ -23,7 +23,7 @@ export default class CustomerNotificationSettings extends React.Component {
               <SliderCheckbox className="fc-right" id="customerSmsNotifications" defaultChecked={ false } />
             </div>
         </div>
-        <div className="fc-grid fc-customer-settings-row">
+        <div className="fc-grid fc-grid-gutter">
             <div className="fc-col-md-2-3">
               Email Notifications
             </div>
@@ -36,7 +36,7 @@ export default class CustomerNotificationSettings extends React.Component {
             <strong>Marketing</strong>
           </div>
         </div>
-        <div className="fc-grid fc-customer-settings-row">
+        <div className="fc-grid fc-grid-gutter">
             <div className="fc-col-md-2-3">
               SMS Promotional Offers
             </div>
@@ -44,7 +44,7 @@ export default class CustomerNotificationSettings extends React.Component {
               <SliderCheckbox className="fc-right" id="customerSmsPromoOffers" defaultChecked={ true } />
             </div>
         </div>
-        <div className="fc-grid fc-customer-settings-row">
+        <div className="fc-grid fc-grid-gutter">
             <div className="fc-col-md-2-3">
               Email Promotional Offers
             </div>
