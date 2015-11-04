@@ -5,6 +5,7 @@ import { Link, IndexLink } from '../link';
 import TitleBlock from './title-block';
 import { connect } from 'react-redux';
 import * as CustomersActions from '../../modules/customers/details';
+import LocalNav from '../local-nav/local-nav';
 
 @connect((state, props) => ({
   ...state.customers.details[props.params.customer]
@@ -36,22 +37,24 @@ export default class Customer extends React.Component {
   get page() {
     return (
       <div className="fc-customer">
-        <div className="gutter">
-          <TitleBlock customer={this.props.details} />
+        <div className="fc-grid">
+          <div className="fc-col-md-1-1">
+            <TitleBlock customer={this.props.details} />
+          </div>
         </div>
-        <div className="gutter">
-          <ul className="fc-tabbed-nav">
-            <li><a href="">Insights</a></li>
-            <li><IndexLink to="customer-details" params={this.props.params}>Details</IndexLink></li>
-            <li><a href="">Transaction</a></li>
-            <li><a href="">Items</a></li>
-            <li><a href="">Store Credit</a></li>
-            <li><a href="">Notifications</a></li>
-            <li><a href="">Reviews</a></li>
-            <li><Link to="customer-notes" params={this.props.params}>Notes</Link></li>
-            <li><a href="">Activity Trail</a></li>
-          </ul>
-          <div>
+        <LocalNav gutter={true}>
+          <a href="">Insights</a>
+          <IndexLink to="customer-details" params={this.props.params}>Details</IndexLink>
+          <a>Transaction</a>
+          <a href="">Items</a>
+          <a href="">Store Credit</a>
+          <a href="">Notifications</a>
+          <a href="">Reviews</a>
+          <Link to="customer-notes" params={this.props.params}>Notes</Link>
+          <a href="">Activity Trail</a>
+        </LocalNav>
+        <div className="fc-grid">
+          <div className="fc-col-md-1-1">
             { this.renderChildren() }
           </div>
         </div>
