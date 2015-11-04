@@ -4,10 +4,10 @@ import _ from 'lodash';
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 
-export const requestRmas = createAction('RMAS_REQUEST');
-export const receiveRmas = createAction('RMAS_RECEIVE');
-export const updateRmas = createAction('RMAS_UPDATE');
-export const failRmas = createAction('RMAS_FAIL', (err, source, type, identifier) => [err, source]);
+export const requestRmas = createAction('RMAS_REQUEST', (type, identifier) => [type, identifier]);
+export const receiveRmas = createAction('RMAS_RECEIVE', (payload, type, identifier) => [payload, type, identifier]);
+export const updateRmas = createAction('RMAS_UPDATE', (payload, type, identifier) => [payload, type, identifier]);
+export const failRmas = createAction('RMAS_FAIL', (err, source, type, identifier) => [err, source, type, identifier]);
 
 function performFetch(source, url, type, identifier) {
   return dispatch => {
@@ -53,7 +53,7 @@ const initialState = {
 };
 
 const reducer = createReducer({
-  [requestRmas]: (state, type, identifier) => {
+  [requestRmas]: (state, [type, identifier]) => {
     let newState = {...state};
     const result = {isFetching: true};
     switch(type) {
@@ -72,7 +72,7 @@ const reducer = createReducer({
 
     return newState;
   },
-  [receiveRmas]: (state, payload, type, identifier) => {
+  [receiveRmas]: (state, [payload, type, identifier]) => {
     let newState = {...state};
     const result = {
       isFetching: false,
@@ -93,7 +93,7 @@ const reducer = createReducer({
     }
     return newState;
   },
-  [updateRmas]: (state, payload, type, identifier) => {
+  [updateRmas]: (state, [payload, type, identifier]) => {
     const newState = {...state};
     let node;
     switch(type) {
@@ -109,7 +109,7 @@ const reducer = createReducer({
 
     return newState;
   },
-  [failRmas]: (state, [err, source], type, identifier) => {
+  [failRmas]: (state, [err, source, type, identifier]) => {
     console.error(err);
 
     if (source === fetchRmas) {
