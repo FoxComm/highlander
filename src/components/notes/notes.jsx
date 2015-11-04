@@ -143,7 +143,7 @@ export default class Notes extends React.Component {
   render() {
     return (
       <div>
-        <SectionTitle title="Notes">{this.controls}</SectionTitle>
+        <SectionTitle className="fc-grid-gutter" title="Notes">{this.controls}</SectionTitle>
         <TableView
           renderRow={this.renderRow}
           columns={this.props.tableColumns}
