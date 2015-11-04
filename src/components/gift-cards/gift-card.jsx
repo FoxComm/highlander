@@ -6,7 +6,7 @@ import { autobind } from 'core-decorators';
 import { formatCurrency } from '../../lib/format';
 import { connect } from 'react-redux';
 import * as GiftCardActions from '../../modules/gift-cards/details';
-import moment from 'moment';
+import { DateTime } from '../common/datetime';
 import SectionTitle from '../section-title/section-title';
 import Panel from '../panel/panel';
 import {PanelList, PanelListItem} from '../panel/panel-list';
@@ -114,7 +114,7 @@ export default class GiftCard extends React.Component {
             { formatCurrency(card.currentBalance) }
           </PanelListItem>
           <PanelListItem title="Date/Time Issued">
-            { moment(card.date).format('L LTS') }
+            <DateTime value={card.createdAt}/>
           </PanelListItem>
           <PanelListItem title="Gift Card Type">
             { card.originType }
