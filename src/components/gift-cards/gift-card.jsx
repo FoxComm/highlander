@@ -65,7 +65,7 @@ export default class GiftCard extends React.Component {
   }
 
   get cardStatus() {
-    const {status} = this.giftCard;
+    const {status} = this.props.card;
 
     if (status === 'Canceled') {
       return <span>{status}</span>;
