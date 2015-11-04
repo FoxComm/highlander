@@ -67,6 +67,13 @@
     }
   }
 
+  &.fc-grid-no-gutter {
+    .padding-right(0);
+    [class*='fc-col-']:first-child {
+      .padding-left(0);
+    }
+  }
+
   [class*='fc-pull-'], [class*='fc-push'] {
     position: relative;
   }
