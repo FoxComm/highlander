@@ -2,16 +2,20 @@
 
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
-import TableView from '../tables/tableview';
 import SectionTitle from '../section-title/section-title';
 import LocalNav from '../local-nav/local-nav';
+import TableView from '../table/tableview';
+import TableRow from '../table/row';
+import TableCell from '../table/cell';
+import Link from '../link/link';
+import { Date } from '../common/datetime';
 import { TabListView, TabView } from '../tabs';
-import { Link } from '../link';
 import { connect } from 'react-redux';
 import * as giftCardActions from '../../modules/gift-cards/cards';
 
-@connect(({giftCards}) => ({items: giftCards.cards.items}), giftCardActions)
-export default class GiftCards extends React.Component {
+@connect(state => ({giftCards: state.giftCards.cards}), giftCardActions)
+export default
+class GiftCards extends React.Component {
 
   static propTypes = {
     tableColumns: PropTypes.array,
@@ -27,19 +31,37 @@ export default class GiftCards extends React.Component {
       {field: 'currentBalance', text: 'Current Balance', type: 'currency'},
       {field: 'availableBalance', text: 'Available Balance', type: 'currency'},
       {field: 'status', text: 'Status'},
-      {field: 'date', text: 'Date Issued', type: 'date'}
+      {field: 'createdAt', text: 'Date Issued', type: 'date'}
     ]
   };
 
   componentDidMount() {
-    this.props.fetchGiftCardsIfNeeded();
+    this.props.fetch(this.props.giftCards);
   }
 
   render() {
+    const renderRow = (row, index) => (
+      <TableRow key={`${index}`}>
+        <TableCell>
+          <Link to={'giftcard'} params={{giftcard: row.id}}>
+            {row.id}
+          </Link>
+        </TableCell>
+        <TableCell>{row.originType}</TableCell>
+        <TableCell>{row.originalBalance}</TableCell>
+        <TableCell>{row.currentBalance}</TableCell>
+        <TableCell>{row.availableBalance}</TableCell>
+        <TableCell>{row.status}</TableCell>
+        <TableCell>
+          <Date value={row.createdAt}/>
+        </TableCell>
+      </TableRow>
+    );
+
     return (
       <div className="fc-list-page">
         <div className="fc-list-page-header">
-          <SectionTitle title="Gift Cards" subtitle={this.props.items.length}>
+          <SectionTitle title="Gift Cards" subtitle={this.props.giftCards.total}>
             <Link to='gift-cards-new' className="fc-btn fc-btn-primary">
               <i className="icon-add"></i> New Gift Card
             </Link>
@@ -56,10 +78,11 @@ export default class GiftCards extends React.Component {
         <div className="fc-grid fc-list-page-content">
           <div className="fc-col-md-1-1">
             <TableView
-                columns={this.props.tableColumns}
-                rows={this.props.items}
-                model='giftcard'
-            />
+              columns={this.props.tableColumns}
+              data={this.props.giftCards}
+              renderRow={renderRow}
+              setState={this.props.setFetchParams}
+              />
           </div>
         </div>
       </div>
