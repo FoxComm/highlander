@@ -3,11 +3,12 @@ import ContentBox from '../content-box/content-box';
 import AddressBox from '../addresses/address-box';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
-import * as CustomersActions from '../../modules/customers/details';
+import * as CustomerAddressesActions from '../../modules/customers/addresses';
+
 
 @connect((state, props) => ({
-  ...state.customers.details[props.customerId]
-}), CustomersActions)
+  ...state.customers.addresses[props.customerId]
+}), CustomerAddressesActions)
 export default class CustomerAddressBook extends React.Component {
 
   static propTypes = {
