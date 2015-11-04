@@ -231,7 +231,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.OK)
 
       val created = Customers.findOneById(root.id).run().futureValue.value
-      CustomerResponse.build(created) must === (root.copy(name = Some("test")))
+      CustomerResponse.build(created) must === (root.copy(name = Some("test"), isGuest = false))
       created.isGuest must === (false)
     }
   }
@@ -451,6 +451,15 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
       response.status must === (StatusCodes.BadRequest)
       response.errors must === (List("Your card's expiration year is invalid"))
+    }
+  }
+
+  "GET /v1/customers/searchForNewOrder?term=:term" - {
+    "successfully search by term" in new Fixture {
+      val response = GET(s"${uriPrefix}/searchForNewOrder?term=${customer.email.drop(2)}")
+      response.status must === (StatusCodes.OK)
+
+      response.as[CustomerResponse.Root#ResponseMetadataSeq].result.size must === (1)
     }
   }
 

@@ -21,4 +21,13 @@ object CustomMatchers {
   def includeFailure(expectedSubstring: String) = new IncludeFailureMatcher(GeneralFailure(expectedSubstring))
 
   def includeFailure(f: Failure) = new IncludeFailureMatcher(f)
+
+  def buildMatchesFailure(constraint: String, pattern: String) = {
+    GeneralFailure(s"$constraint must fully match regular expression '$pattern'")
+  }
+
+  def includeMatchesFailure(constraint: String, pattern: String) = {
+    includeFailure(buildMatchesFailure(constraint, pattern))
+  }
+
 }

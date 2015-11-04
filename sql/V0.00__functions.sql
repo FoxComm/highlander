@@ -1,3 +1,13 @@
+-- extensions
+create schema if not exists exts;
+create extension if not exists pg_trgm schema exts;
+
+DO $$
+BEGIN
+   execute 'alter database ' || current_database() || ' set search_path = "$user",public,exts';
+END;
+$$;
+
 -- creates an inventory_event so we have an ID for the child table in our concrete table pattern
 create function make_inventory_event_id() returns bigint as $$
 declare

@@ -14,7 +14,7 @@ import utils.CustomDirectives.SortAndPage
 import utils.Slick.DbResult
 import utils.Slick.implicits._
 import utils.Slick.UpdateReturning._
-import payloads.{CreateCustomerPayload, UpdateCustomerPayload, ActivateCustomerPayload}
+import payloads.{CreateCustomerPayload, UpdateCustomerPayload, ActivateCustomerPayload, CustomerSearchForNewOrder}
 import utils.jdbc._
 
 object CustomerManager {
@@ -59,6 +59,35 @@ object CustomerManager {
         case (customer, shipRegion, billRegion) ⇒
           build(customer, shipRegion, billRegion)
       }
+    }
+  }
+
+  def searchForNewOrder(payload: CustomerSearchForNewOrder)
+    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
+
+    def customersAndNumOrders = {
+      val likeQuery = s"%${payload.term}%".toLowerCase
+      val query = if (payload.term.contains("@"))
+          Customers.filter(_.email.toLowerCase like likeQuery)
+        else
+          Customers.filter { c ⇒ c.email.toLowerCase.like(likeQuery) || c.name.toLowerCase.like(likeQuery) }
+
+      val withNumOrders = query.joinLeft(Orders).on(_.id === _.customerId).groupBy(_._1.id).map {
+        case (id, q) ⇒ (id, q.length)
+      }
+
+      for {
+        c ← query
+        (id, count) ← withNumOrders if id === c.id
+      } yield (c, count)
+    }
+
+    payload.validate match {
+      case Valid(_) ⇒
+        customersAndNumOrders.withMetadata.result.map(_.map { case (customer, numOrders) ⇒
+          build(customer, numOrders = Some(numOrders))
+        })
+      case Invalid(errors) ⇒ ResultWithMetadata.fromFailures(errors)
     }
   }
 

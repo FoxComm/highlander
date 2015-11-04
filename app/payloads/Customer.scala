@@ -36,3 +36,10 @@ final case class ActivateCustomerPayload(name: String)
 
 final case class ToggleCustomerDisabled(disabled: Boolean)
 
+final case class CustomerSearchForNewOrder(term: String)
+  extends Validation[CustomerSearchForNewOrder] {
+
+  def validate: ValidatedNel[Failure, CustomerSearchForNewOrder] =
+    greaterThan(term.size, 1, "term size").map { case _ ⇒ this }
+}
+

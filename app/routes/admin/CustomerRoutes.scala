@@ -35,6 +35,14 @@ object CustomerRoutes {
             CustomerManager.findAll
           }
         } ~
+        (get & pathPrefix("searchForNewOrder") & pathEnd &
+          parameters('term).as(payloads.CustomerSearchForNewOrder)) { p ⇒
+          (sortAndPage) { implicit sortAndPage ⇒
+            goodOrFailures {
+              CustomerManager.searchForNewOrder(p)
+            }
+           }
+        } ~
         (post & entity(as[payloads.CreateCustomerPayload]) & pathEnd) { payload ⇒
           goodOrFailures {
             CustomerManager.create(payload)

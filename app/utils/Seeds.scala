@@ -17,6 +17,7 @@ import slick.dbio.Effect.{All, Write}
 import slick.driver.PostgresDriver
 import slick.driver.PostgresDriver.api._
 import utils.Money.Currency
+import utils.flyway.newFlyway
 
 object Seeds {
 
@@ -314,11 +315,9 @@ object Seeds {
   }
 
   private def flyWayMigrate(config: com.typesafe.config.Config): Unit = {
-    val flyway = new Flyway
-    flyway.setDataSource(jdbcDataSourceFromConfig("db", config))
-    flyway.setLocations("filesystem:./sql")
-    flyway.clean()
+    val flyway = newFlyway(jdbcDataSourceFromConfig("db", config))
 
+    flyway.clean()
     flyway.migrate()
   }
 
