@@ -10,6 +10,7 @@ const
   exec        = require('child_process').exec;
 
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
+process.env.PHOENIX_URL = process.env.PHOENIX_URL || 'http://localhost:9090';
 
 let forks = process.env.NODE_ENV === 'production' ? cpus : 1;
 
@@ -63,11 +64,12 @@ cluster.on('listening', function(worker, address) {
   exec(cmd, function(err, stdout, stderr) {
     let sha = stdout.toString().trim();
     let args = [
-      `%s: %s (${clc.blackBright('%s')}) ${clc.blue('%s')} ${clc.red('%d')}`,
+      `%s: %s (${clc.blackBright('%s')}) ${clc.blue('%s')} ${clc.green('phoenix: %s')} ${clc.red('%d')}`,
       timestamp(),
       description,
       sha,
       process.env.NODE_ENV,
+      process.env.PHOENIX_URL,
       address.port
     ]
     console.log.apply(this, args);

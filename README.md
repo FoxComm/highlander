@@ -36,6 +36,16 @@ Also gulp can notify you about tasks completion if env variable ASHES_NOTIFY_ABO
 The default mode for watchify is polling. You can override polling interval via WATCHIFY_POLL_INTERVAL env variable
 or completely override watchify options via `.watchifyrc` file in project root.
 
+### Pointing to Phoenix
+
+By default, Ashes looks locally for phoenix at `http://localhost:9090`. If you want to change
+which phoenix server Ashes uses, you can set the `PHOENIX_URL` environment variable.
+
+```
+export PHOENIX_URL=http://10.240.0.3:9090
+npm run dev
+```
+
 ### Git Hooks
 
 If you want to setup some Git hooks, run the following:

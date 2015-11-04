@@ -4,16 +4,14 @@ module.exports = function(env) {
   const version = 'v1';
 
   function uri() {
-    switch(env) {
+    switch(env.environment) {
       case 'apiary': return 'http://private-5b93a4-foxcomm1.apiary-mock.com/';
-      case 'staging': return `http://10.240.230.233:9090/${version}`;
-      case 'production': return `http://10.240.230.233:9090/${version}`;
-      default: return `http://localhost:9090/${version}`;
+      default: return `${env.phoenix_url}/${version}`;
     }
   }
 
   function auth() {
-    switch(env) {
+    switch(env.environment) {
       case 'staging': return {user: 'admin@admin.com', password: 'password' };
       default: return {user: 'admin@admin.com', password: 'password'};
     }
