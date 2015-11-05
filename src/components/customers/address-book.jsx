@@ -3,6 +3,7 @@
 import React, { PropTypes } from 'react';
 import ContentBox from '../content-box/content-box';
 import AddressBox from '../addresses/address-box';
+import { AddButton } from '../common/buttons';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import * as CustomersActions from '../../modules/customers/details';
@@ -26,9 +27,7 @@ export default class CustomerAddressBook extends React.Component {
 
   get actionBlock() {
     return (
-      <button className="fc-btn">
-        <i className="icon-add"></i>
-      </button>
+      <AddButton />
     );
   }
 

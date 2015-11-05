@@ -37,6 +37,10 @@ const EditButton = (props) => {
   return <DefaultButton icon='edit' {...props} />;
 };
 
+const AddButton = (props) => {
+  return <DefaultButton icon='add' {...props} />;
+};
+
 const IncrementButton = (props) => {
   return <DefaultButton icon='chevron-up' {...props} />;
 };
@@ -61,6 +65,7 @@ export {
   DecrementButton,
   DeleteButton,
   EditButton,
+  AddButton,
   IncrementButton,
   PrimaryButton
 };
