@@ -13,14 +13,14 @@ export default class CustomerAddressBook extends React.Component {
 
   static propTypes = {
     customerId: PropTypes.number.isRequired,
-    fetchAdresses: PropTypes.func,
+    fetchAddresses: PropTypes.func,
     addresses: PropTypes.array
   }
 
   componentDidMount() {
     const customer = this.props.customerId;
 
-    this.props.fetchAdresses(customer);
+    this.props.fetchAddresses(customer);
   }
 
   get actionBlock() {
