@@ -5,17 +5,21 @@ import TableHead from './head';
 import TableBody from './body';
 
 const Table = (props) => {
+  const {data, setState, renderRow, ...rest} = props;
+
   return (
     <table className='fc-table'>
-      <TableHead columns={props.columns} sortBy={props.data.sortBy} setState={props.setState}/>
-      <TableBody columns={props.columns} rows={props.data.rows} renderRow={props.renderRow}/>
+      <TableHead {...rest} sortBy={data.sortBy} setState={setState}/>
+      <TableBody {...rest} rows={data.rows} renderRow={renderRow}/>
     </table>
   );
 };
 
 Table.propTypes = {
   data: PropTypes.object.isRequired,
-  renderRow: PropTypes.func
+  renderRow: PropTypes.func,
+  predicate: PropTypes.func,
+  processTbody: PropTypes.func
 };
 
 export default Table;
