@@ -96,10 +96,10 @@ object Validation {
     toValidatedNel(constraint, new MatchesRegex(regex.r.pattern, partialMatchAllowed = false).apply(value))
 
   def between(value: Int, lowerBound: Int, upperBound: Int, constraint: String): ValidatedNel[Failure, Unit] =
-    toValidatedNel(constraint, new Between[Int](lowerBound, upperBound, prefix).apply(value))
+    toValidatedNel(constraint, new InRangeInclusive[Int](lowerBound, upperBound, prefix).apply(value))
 
   def isMonth(month: Int, constraint: String): ValidatedNel[Failure, Unit] =
-    toValidatedNel(s"$constraint month", new Between[Int](1, 12, prefix).apply(month))
+    toValidatedNel(s"$constraint month", new InRangeInclusive[Int](1, 12, prefix).apply(month))
 
   def lesserThan(value: Int, limit: Int, constraint: String): ValidatedNel[Failure, Unit] =
     toValidatedNel(constraint, new LesserThan[Int](limit, prefix).apply(value))

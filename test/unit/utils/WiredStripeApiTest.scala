@@ -25,5 +25,5 @@ class WiredStripeApiTest extends TestBase {
     }
   }
 
-  private object someStripeException extends StripeException("Some error") with NoStackTrace
+  private object someStripeException extends StripeException("Some error", "X_REQUEST_ID: 1", 400) with NoStackTrace
 }

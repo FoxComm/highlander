@@ -443,8 +443,9 @@ class CustomerIntegrationTest extends IntegrationTestBase
           StripeRuntimeException(
             new CardException(
               "Your card's expiration year is invalid",
+              "X_REQUEST_ID: 1",
               "invalid_expiry_year",
-              "exp_year", null, null, null))))
+              "exp_year", null, null, null, null))))
 
       val payload = payloads.EditCreditCard(expYear = Some(2000))
       val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
