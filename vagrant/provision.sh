@@ -2,6 +2,7 @@
 
 set -x
 
+
 #install scala
 if [[ ! -d /usr/local/share/scala ]]; then
     echo "downloading scala 2.11.6..."
@@ -27,7 +28,7 @@ fi
 
 echo "installing a bunch of other stuff.."
 apt-get update -y
-apt-get install -y --force-yes sbt tmux unzip
+apt-get install -y --force-yes sbt tmux unzip make
 
 #install flyway
 if [[ ! -d /usr/local/share/flyway ]]; then
