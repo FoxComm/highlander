@@ -10,6 +10,23 @@ import DropdownItem from '../dropdown/dropdownItem';
 
 export default class NewCreditCardBox extends React.Component {
 
+  get monthList() {
+    return {
+      1: '01 - January',
+      2: '02 - February',
+      3: '03 - March',
+      4: '04 - April',
+      5: '05 - May',
+      6: '06 - June',
+      7: '07 - July',
+      8: '08 - August',
+      9: '09 - September',
+      10: '10 - October',
+      11: '11 - November',
+      12: '12 - December'
+    };
+  }
+
   render() {
     return (
       <li className="fc-card-container fc-credit-cards fc-credit-cards-new">
@@ -63,10 +80,10 @@ export default class NewCreditCardBox extends React.Component {
                 <FormField label="Expiration Date">
                   <div className="fc-grid">
                     <div className="fc-col-md-1-2">
-                      <Dropdown name="" items={[]} placeholder="Month" value={null}/>
+                      <Dropdown name="" items={this.monthList} placeholder="Month" value={null}/>
                     </div>
                     <div className="fc-col-md-1-2">
-                      <Dropdown name="" items={[]} placeholder="Year" value={null}/>
+                      <Dropdown name="" items={{}} placeholder="Year" value={null}/>
                     </div>
                   </div>
                 </FormField>
@@ -83,7 +100,7 @@ export default class NewCreditCardBox extends React.Component {
           </div>
           <div>
             <a className="fc-btn-link" onClick={ this.props.onCancel }>Cancel</a>
-            <PrimaryButton type="submit">Save Customer</PrimaryButton>
+            <PrimaryButton type="submit">Save</PrimaryButton>
           </div>
         </Form>
       </li>
