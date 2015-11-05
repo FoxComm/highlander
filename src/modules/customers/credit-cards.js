@@ -8,6 +8,8 @@ import { haveType } from '../state-helpers';
 // State change reducers
 export const newCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARD_NEW');
 export const cancelNewCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARD_NEW_CANCEL');
+export const editCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARDS_EDIT', (customerId, cardId) => [customerId, cardId]);
+export const cancelEditCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARDS_EDIT_CANCEL', (customerId, cardId) => [customerId, cardId]);
 
 // API reducers
 const receiveCustomerCreditCards = createAction('CUSTOMER_CREDIT_CARDS_RECEIVE', (id, cards) => [id, cards]);
@@ -44,6 +46,26 @@ const reducer = createReducer({
       ...state,
       [id]: {
         ...restState
+      }
+    }
+  },
+  [editCustomerCreditCard]: (state, [customerId, cardId]) => {
+    console.log('editCustomerCreditCard');
+    return {
+      ...state,
+      [id]: {
+        ...state[id],
+        editingId: cardId
+      }
+    }
+  },
+  [cancelEditCustomerCreditCard]: (state, [customerId, cardId]) => {
+    console.log('cancelEditCustomerCreditCard');
+    return {
+      ...state,
+      [id]: {
+        ...state[id],
+        editingId: null
       }
     }
   },
