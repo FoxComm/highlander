@@ -88,7 +88,7 @@ export default class NewCreditCardBox extends React.Component {
                 </div>
               </li>
               <li className="fc-credit-card-form-line">
-                <label>"Expiration Date"</label>
+                <label>Expiration Date</label>
                 <div className="fc-grid">
                   <div className="fc-col-md-1-2">
                     <Dropdown name="" items={this.monthList} placeholder="Month" value={null}/>
@@ -104,11 +104,13 @@ export default class NewCreditCardBox extends React.Component {
                     Billing Address
                   </label>
                   <input type="hidden" name="billingAddressId" id="billingAddressIdCardFormField" />
+                  <div className="fc-credit-card-form-address-book">
+                  </div>
                 </div>
               </li>
             </ul>
           </div>
-          <div>
+          <div className="fc-credit-card-form-controls">
             <a className="fc-btn-link" onClick={ this.props.onCancel }>Cancel</a>
             <PrimaryButton type="submit">Save</PrimaryButton>
           </div>
