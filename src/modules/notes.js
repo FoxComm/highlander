@@ -80,6 +80,9 @@ export function deleteNote(entity, id) {
 const initialState = {};
 
 const reducer = createReducer({
+  [actionReceived]: (state, [{entityType, entityId}, notes]) => {
+    return assoc(state, [entityType, entityId, 'wasReceived'], true);
+  },
   [updateNotes]: (state, [{entityType, entityId}, notes]) => {
     return update(state, [entityType, entityId, 'rows'], updateItems, notes);
   },

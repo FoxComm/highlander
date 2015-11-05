@@ -143,7 +143,8 @@ export default class Notes extends React.Component {
         <SectionTitle className="fc-grid-gutter" title="Notes">{this.controls}</SectionTitle>
         <TableView
           renderRow={this.renderNoteRow}
-          processTbody={this.injectAddingForm}
+          processRows={this.injectAddingForm}
+          detectNewRows={this.props.wasReceived}
           columns={this.props.tableColumns}
           data={this.props.data}
           setState={(data, params) => this.props.fetchNotes(params)}

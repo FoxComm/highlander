@@ -12,12 +12,14 @@ export default class TableBody extends React.Component {
     rows: PropTypes.array.isRequired,
     renderRow: PropTypes.func,
     predicate: PropTypes.func,
-    processTbody: PropTypes.func
+    processRows: PropTypes.func,
+    detectNewRows: PropTypes.bool
   };
 
   static defaultProps = {
     predicate: entity => entity.id,
-    processTbody: _.identity
+    processRows: _.identity,
+    detectNewRows: false
   };
 
   constructor(props, context) {
@@ -36,23 +38,25 @@ export default class TableBody extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    let newIds = [];
+    if (this.props.detectNewRows) {
+      let newIds = [];
 
-    if (this.props.predicate && nextProps.rows && nextProps.rows !== this.props.rows && this.props.rows.length) {
+      if (this.props.predicate && nextProps.rows && nextProps.rows !== this.props.rows) {
 
-      const oldRows = _.indexBy(this.props.rows, this.props.predicate);
-      const newRows = _.indexBy(nextProps.rows, this.props.predicate);
+        const oldRows = _.indexBy(this.props.rows, this.props.predicate);
+        const newRows = _.indexBy(nextProps.rows, this.props.predicate);
 
-      newIds = _.difference(_.keys(newRows), _.keys(oldRows));
+        newIds = _.difference(_.keys(newRows), _.keys(oldRows));
+      }
+      this.setState({ newIds });
     }
-    this.setState({ newIds });
   }
 
   get tableRows() {
     const renderRow = this.props.renderRow || this.defaultRenderRow;
 
     return _.flatten(this.props.rows.map((row, index) => {
-      const isNew = this.props.predicate && (this.state.newIds.indexOf(String(this.props.predicate(row))) != -1);
+      const isNew = this.props.detectNewRows && this.props.predicate && (this.state.newIds.indexOf(String(this.props.predicate(row))) != -1);
 
       return renderRow(row, index, isNew);
     }));
@@ -61,7 +65,7 @@ export default class TableBody extends React.Component {
   render() {
     return (
       <tbody className="fc-table-tbody">
-        {this.props.processTbody(this.tableRows)}
+        {this.props.processRows(this.tableRows)}
       </tbody>
     );
   }

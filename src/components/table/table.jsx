@@ -19,7 +19,8 @@ Table.propTypes = {
   data: PropTypes.object.isRequired,
   renderRow: PropTypes.func,
   predicate: PropTypes.func,
-  processTbody: PropTypes.func
+  processRows: PropTypes.func,
+  detectNewRows: PropTypes.bool
 };
 
 export default Table;

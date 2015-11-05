@@ -53,7 +53,8 @@ TableView.propTypes = {
   }).isRequired,
   setState: PropTypes.func.isRequired,
   renderRow: PropTypes.func,
-  processTbody: PropTypes.func,
+  processRows: PropTypes.func,
+  detectNewRows: PropTypes.bool,
   paginator: PropTypes.bool
 };
 
