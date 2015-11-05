@@ -100,8 +100,8 @@ const reducer = createReducer({
     return dissoc(state, [entityType, entityId, 'noteIdToDelete']);
   },
   [startAddingNote]: (state, {entityType, entityId}) => {
-    // true means that we adding note
-    return assoc(state, [entityType, entityId, 'editingNoteId'], true);
+    // -1 means that we adding note
+    return assoc(state, [entityType, entityId, 'editingNoteId'], -1);
   },
   [startEditingNote]: (state, [{entityType, entityId}, id]) => {
     return assoc(state, [entityType, entityId, 'editingNoteId'], id);

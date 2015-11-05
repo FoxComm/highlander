@@ -115,7 +115,8 @@ export default class Notes extends React.Component {
 
   @autobind
   injectAddingForm(rows) {
-    if (this.props.editingNoteId === true) {
+    // -1 means we want add new note
+    if (this.props.editingNoteId === -1) {
       return [
         <TableRow key="row-add">
           <TableCell colspan={this.props.tableColumns.length}>
