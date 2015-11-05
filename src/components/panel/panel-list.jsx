@@ -17,10 +17,10 @@ export const PanelListItem = props => {
       <div className="fc-panel-list-header">
         {props.title}
       </div>
-      <p className="fc-panel-list-content">
+      <div className="fc-panel-list-content">
         {props.content && props.content.props.children}
         {props.children}
-      </p>
+      </div>
     </div>
   );
 };
