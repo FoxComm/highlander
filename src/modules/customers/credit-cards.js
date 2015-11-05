@@ -37,7 +37,7 @@ const reducer = createReducer({
         ...state[id],
         newCreditCard: {}
       }
-    }
+    };
   },
   [cancelNewCustomerCreditCard]: (state, id) => {
     console.log("cancelNewCustomerCreditCard");
@@ -47,7 +47,7 @@ const reducer = createReducer({
       [id]: {
         ...restState
       }
-    }
+    };
   },
   [editCustomerCreditCard]: (state, [customerId, cardId]) => {
     console.log('editCustomerCreditCard');
@@ -57,7 +57,7 @@ const reducer = createReducer({
         ...state[id],
         editingId: cardId
       }
-    }
+    };
   },
   [cancelEditCustomerCreditCard]: (state, [customerId, cardId]) => {
     console.log('cancelEditCustomerCreditCard');
@@ -67,7 +67,7 @@ const reducer = createReducer({
         ...state[id],
         editingId: null
       }
-    }
+    };
   },
   [requestCustomerCreditCards]: (state, id) => {
     return {

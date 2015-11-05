@@ -2,7 +2,7 @@
 
 import React, { PropTypes } from 'react';
 import { PrimaryButton } from '../common/buttons';
-import { CheckBox } from '../checkbox/checkbox';
+import { Checkbox } from '../checkbox/checkbox';
 import FormField from '../forms/formfield.jsx';
 import Form from '../forms/form.jsx';
 import Dropdown from '../dropdown/dropdown';
@@ -14,12 +14,18 @@ export default class NewCreditCardBox extends React.Component {
     return (
       <li className="fc-card-container fc-credit-cards fc-credit-cards-new">
         <Form className="fc-customer-credit-card-form fc-form-vertical">
-          <div>
+          <header>
             New Credit Card
-          </div>
+          </header>
           <div>
             <ul className="fc-credit-card-form-fields">
-              <li>
+              <li className="fc-credit-card-form-line">
+                <label className="fc-credit-card-default-checkbox">
+                  <Checkbox defaultChecked={ false } />
+                  <span>Default Card</span>
+                </label>
+              </li>
+              <li className="fc-credit-card-form-line">
                 <FormField label="Name on Card" validator="ascii">
                   <input id="nameCardFormField"
                          className="fc-customer-form-input"
@@ -29,29 +35,48 @@ export default class NewCreditCardBox extends React.Component {
                          required />
                 </FormField>
               </li>
-              <li>
-                <FormField label="Card Number" validator="ascii">
-                  <input id="numberCardFormField"
-                         className="fc-customer-form-input"
-                         name="name"
-                         maxLength="255"
-                         type="text"
-                         required />
-                </FormField>
-                <FormField label="CVV" validator="ascii">
-                  <input id="cvvCardFormField"
-                         className="fc-customer-form-input"
-                         name="name"
-                         maxLength="255"
-                         type="text"
-                         required />
-                </FormField>
+              <li className="fc-credit-card-form-line">
+                <div className="fc-grid">
+                  <div className="fc-col-md-3-4">
+                    <FormField label="Card Number" validator="ascii">
+                      <input id="numberCardFormField"
+                             className="fc-customer-form-input"
+                             name="name"
+                             maxLength="255"
+                             type="text"
+                             required />
+                    </FormField>
+                  </div>
+                  <div className="fc-col-md-1-4">
+                    <FormField label="CVV" validator="ascii">
+                      <input id="cvvCardFormField"
+                             className="fc-customer-form-input"
+                             name="name"
+                             maxLength="255"
+                             type="text"
+                             required />
+                    </FormField>
+                  </div>
+                </div>
+              </li>
+              <li className="fc-credit-card-form-line">
                 <FormField label="Expiration Date">
-                  <Dropdown name="" items={[]} placeholder="Month" value={null}/>
-                  <Dropdown name="" items={[]} placeholder="Year" value={null}/>
+                  <div className="fc-grid">
+                    <div className="fc-col-md-1-2">
+                      <Dropdown name="" items={[]} placeholder="Month" value={null}/>
+                    </div>
+                    <div className="fc-col-md-1-2">
+                      <Dropdown name="" items={[]} placeholder="Year" value={null}/>
+                    </div>
+                  </div>
                 </FormField>
+              </li>
+              <li className="fc-credit-card-form-line">
                 <div>
-                  Billing Address
+                  <label>
+                    Billing Address
+                  </label>
+                  <input type="hidden" name="billingAddressId" id="billingAddressIdCardFormField" />
                 </div>
               </li>
             </ul>
