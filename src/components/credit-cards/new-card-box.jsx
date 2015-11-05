@@ -1,5 +1,6 @@
 'use strict';
 
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { PrimaryButton } from '../common/buttons';
 import { Checkbox } from '../checkbox/checkbox';
@@ -25,6 +26,16 @@ export default class NewCreditCardBox extends React.Component {
       11: '11 - November',
       12: '12 - December'
     };
+  }
+
+  get expirationYears() {
+    let years = {};
+    const current = new Date().getFullYear();
+    _.each(_.range(20), (inc) => {
+      let year = (current + inc);
+      years[year] = year;
+    });
+    return years;
   }
 
   render() {
@@ -77,16 +88,15 @@ export default class NewCreditCardBox extends React.Component {
                 </div>
               </li>
               <li className="fc-credit-card-form-line">
-                <FormField label="Expiration Date">
-                  <div className="fc-grid">
-                    <div className="fc-col-md-1-2">
-                      <Dropdown name="" items={this.monthList} placeholder="Month" value={null}/>
-                    </div>
-                    <div className="fc-col-md-1-2">
-                      <Dropdown name="" items={{}} placeholder="Year" value={null}/>
-                    </div>
+                <label>"Expiration Date"</label>
+                <div className="fc-grid">
+                  <div className="fc-col-md-1-2">
+                    <Dropdown name="" items={this.monthList} placeholder="Month" value={null}/>
                   </div>
-                </FormField>
+                  <div className="fc-col-md-1-2">
+                    <Dropdown name="" items={this.expirationYears} placeholder="Year" value={null}/>
+                  </div>
+                </div>
               </li>
               <li className="fc-credit-card-form-line">
                 <div>
