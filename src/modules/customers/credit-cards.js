@@ -8,6 +8,7 @@ import { haveType } from '../state-helpers';
 // State change reducers
 export const newCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARD_NEW');
 export const cancelNewCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARD_NEW_CANCEL');
+export const changeNewCustomerCreditCardFormData = createAction('CUSTOMER_CREDIT_CARD_NEW_CHANGE_FORM', (id, name, value) => [id, name, value]);
 export const editCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARDS_EDIT', (customerId, cardId) => [customerId, cardId]);
 export const cancelEditCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARDS_EDIT_CANCEL', (customerId, cardId) => [customerId, cardId]);
 
@@ -35,7 +36,15 @@ const reducer = createReducer({
       ...state,
       [id]: {
         ...state[id],
-        newCreditCard: {}
+        newCreditCard: {
+          isDefault: false,
+          name: null,
+          cardNumber: null,
+          cvv: null,
+          expitationMonth: null,
+          expitationYear: null,
+          billingAddressId: 1
+        }
       }
     };
   },
@@ -48,6 +57,24 @@ const reducer = createReducer({
         ...restState
       }
     };
+  },
+  [changeNewCustomerCreditCardFormData]: (state, [id, name, value]) => {
+    console.log(name);
+    console.log(value);
+    const newCreditCard = _.get(state, [id, 'newCreditCard']);
+    console.log(newCreditCard);
+    const newState = {
+      ...state,
+      [id]: {
+        ...state[id],
+        newCreditCard: {
+          ...newCreditCard,
+          [name]: value
+        }
+      }
+    };
+
+    return newState;
   },
   [editCustomerCreditCard]: (state, [customerId, cardId]) => {
     console.log('editCustomerCreditCard');

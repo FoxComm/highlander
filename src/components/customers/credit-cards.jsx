@@ -43,6 +43,12 @@ export default class CustomerCreditCards extends React.Component {
     this.props.cancelNewCustomerCreditCard(customer);
   }
 
+  @autobind
+  onChangeNewFormValue({target}) {
+    const customer = this.props.customerId;
+    this.props.changeNewCustomerCreditCardFormData(customer, target.name, target.value || target.checked);
+  }
+
   render() {
     let actionBlock = (
       <AddButton onClick={this.onAddClick} />
@@ -63,7 +69,9 @@ export default class CustomerCreditCards extends React.Component {
                   actionBlock={ actionBlock }>
         <ul className="fc-float-list">
           {(this.props.cards && this.props.cards.map(createCardBox))}
-          {(this.props.newCreditCard && <NewCreditCardBox onCancel={ this.onAddingCancel }/>)}
+          {(this.props.newCreditCard && <NewCreditCardBox customerId={ this.props.customerId }
+                                                          onCancel={ this.onAddingCancel }
+                                                          onChange={ this.onChangeNewFormValue }/>)}
         </ul>
       </ContentBox>
     );

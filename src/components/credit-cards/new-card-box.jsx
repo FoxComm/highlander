@@ -41,7 +41,8 @@ export default class NewCreditCardBox extends React.Component {
   render() {
     return (
       <li className="fc-card-container fc-credit-cards fc-credit-cards-new">
-        <Form className="fc-customer-credit-card-form fc-form-vertical">
+        <Form className="fc-customer-credit-card-form fc-form-vertical"
+              onChange={ this.props.onChange }>
           <header>
             New Credit Card
           </header>
@@ -49,7 +50,7 @@ export default class NewCreditCardBox extends React.Component {
             <ul className="fc-credit-card-form-fields">
               <li className="fc-credit-card-form-line">
                 <label className="fc-credit-card-default-checkbox">
-                  <Checkbox defaultChecked={ false } />
+                  <Checkbox defaultChecked={ false } name="isDefault" />
                   <span>Default Card</span>
                 </label>
               </li>
@@ -69,7 +70,7 @@ export default class NewCreditCardBox extends React.Component {
                     <FormField label="Card Number" validator="ascii">
                       <input id="numberCardFormField"
                              className="fc-customer-form-input"
-                             name="name"
+                             name="cardNumber"
                              maxLength="255"
                              type="text"
                              required />
@@ -79,7 +80,7 @@ export default class NewCreditCardBox extends React.Component {
                     <FormField label="CVV" validator="ascii">
                       <input id="cvvCardFormField"
                              className="fc-customer-form-input"
-                             name="name"
+                             name="cvv"
                              maxLength="255"
                              type="text"
                              required />
@@ -91,10 +92,10 @@ export default class NewCreditCardBox extends React.Component {
                 <label>Expiration Date</label>
                 <div className="fc-grid">
                   <div className="fc-col-md-1-2">
-                    <Dropdown name="" items={this.monthList} placeholder="Month" value={null}/>
+                    <Dropdown name="expitationMonth" items={this.monthList} placeholder="Month" value={null}/>
                   </div>
                   <div className="fc-col-md-1-2">
-                    <Dropdown name="" items={this.expirationYears} placeholder="Year" value={null}/>
+                    <Dropdown name="expitationYear" items={this.expirationYears} placeholder="Year" value={null}/>
                   </div>
                 </div>
               </li>
