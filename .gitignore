@@ -28,6 +28,10 @@ workbench.xmi
 phoenix-scala.iml
 /bin/
 
+# Ensime
+.ensime
+.ensime_cache/
+
 # Vagrant
 .vagrant
 
