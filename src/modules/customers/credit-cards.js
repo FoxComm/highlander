@@ -5,6 +5,11 @@ import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 import { haveType } from '../state-helpers';
 
+// State change reducers
+export const newCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARD_NEW');
+export const cancelNewCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARD_NEW_CANCEL');
+
+// API reducers
 const receiveCustomerCreditCards = createAction('CUSTOMER_CREDIT_CARDS_RECEIVE', (id, cards) => [id, cards]);
 const requestCustomerCreditCards = createAction('CUSTOMER_CREDIT_CARDS_REQUEST');
 const failCustomerCreditCards = createAction('CUSTOMER_CREDIT_CARDS_FAIL', (id, err, source) => [id, err, source]);
@@ -22,6 +27,26 @@ export function fetchCreditCards(id) {
 const initialState = {};
 
 const reducer = createReducer({
+  [newCustomerCreditCard]: (state, id) => {
+    console.log("newCustomerCreditCard");
+    return {
+      ...state,
+      [id]: {
+        ...state[id],
+        newCreditCard: {}
+      }
+    }
+  },
+  [cancelNewCustomerCreditCard]: (state, id) => {
+    console.log("cancelNewCustomerCreditCard");
+    const { newCreditCard, ...restState } = state[id];
+    return {
+      ...state,
+      [id]: {
+        ...restState
+      }
+    }
+  },
   [requestCustomerCreditCards]: (state, id) => {
     return {
       ...state,
