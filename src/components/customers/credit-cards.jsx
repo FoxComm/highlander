@@ -40,13 +40,20 @@ export default class CustomerCreditCards extends React.Component {
     console.log('onAddingCancel');
     const customer = this.props.customerId;
 
-    this.props.cancelNewCustomerCreditCard(customer);
+    this.props.closeNewCustomerCreditCard(customer);
   }
 
   @autobind
   onChangeNewFormValue({target}) {
     const customer = this.props.customerId;
     this.props.changeNewCustomerCreditCardFormData(customer, target.name, target.value || target.checked);
+  }
+
+  @autobind
+  onSubmitNewForm(event) {
+    event.preventDefault();
+    const customer = this.props.customerId;
+    this.props.createCreditCard(customer);
   }
 
   render() {
@@ -71,6 +78,7 @@ export default class CustomerCreditCards extends React.Component {
           {(this.props.cards && this.props.cards.map(createCardBox))}
           {(this.props.newCreditCard && <NewCreditCardBox customerId={ this.props.customerId }
                                                           onCancel={ this.onAddingCancel }
+                                                          onSubmit={ this.onSubmitNewForm }
                                                           onChange={ this.onChangeNewFormValue }/>)}
         </ul>
       </ContentBox>

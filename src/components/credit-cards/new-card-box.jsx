@@ -42,7 +42,8 @@ export default class NewCreditCardBox extends React.Component {
     return (
       <li className="fc-card-container fc-credit-cards fc-credit-cards-new">
         <Form className="fc-customer-credit-card-form fc-form-vertical"
-              onChange={ this.props.onChange }>
+              onChange={ this.props.onChange }
+              onSubmit={ this.props.onSubmit }>
           <header>
             New Credit Card
           </header>
