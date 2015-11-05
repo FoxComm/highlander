@@ -7,6 +7,7 @@ import { haveType } from '../state-helpers';
 
 const receiveCustomerCreditCards = createAction('CUSTOMER_CREDIT_CARDS_RECEIVE', (id, cards) => [id, cards]);
 const requestCustomerCreditCards = createAction('CUSTOMER_CREDIT_CARDS_REQUEST');
+const failCustomerCreditCards = createAction('CUSTOMER_CREDIT_CARDS_FAIL', (id, err, source) => [id, err, source]);
 
 export function fetchCreditCards(id) {
   return dispatch => {
@@ -40,7 +41,21 @@ const reducer = createReducer({
         isFetching: false
       }
     };
-  }
+  },
+  [failCustomerCreditCards]: (state, [id, err, source]) => {
+    console.error(err);
+
+    return {
+      ...state,
+      [id]: {
+        ...state[id],
+        err,
+        ...(
+          source === requestCustomerCreditCards ? {isFetching: false} : {}
+        )
+      }
+    };
+  },
 }, initialState);
 
 export default reducer;
