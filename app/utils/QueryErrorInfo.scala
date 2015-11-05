@@ -16,7 +16,7 @@ object QueryErrorInfo {
     case Filter(_, from, where) ⇒
       val key = findSearchKey(where, searchTerm)
       if (key.isDefined) key else findSearchKey(from, searchTerm)
-    case a @ Apply(_, children) ⇒ children.toList match {
+    case a @ Apply(_, children) ⇒ children.toSeq.toList match {
       case (Path(term :: _)) :: (l: LiteralNode) :: Nil if term.name.underscoreToCamel == searchTerm ⇒ Some(l.value)
       case _ ⇒ None
     }
