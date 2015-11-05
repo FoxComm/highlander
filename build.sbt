@@ -108,7 +108,7 @@ lazy val phoenixScala = (project in file(".")).
         // Database
         "com.typesafe.slick"   %% "slick"                    % "3.1.0",
         "com.typesafe.slick"   %% "slick-hikaricp"           % "3.1.0",
-        "com.zaxxer"           %  "HikariCP"                 % "2.3.8",
+        "com.zaxxer"           %  "HikariCP"                 % "2.4.1" % "provided",
         "org.postgresql"       %  "postgresql"               % "9.4-1201-jdbc41",
         "org.flywaydb"         %  "flyway-core"              % "3.2.1",
         // Validations
