@@ -5,11 +5,11 @@ import ContentBox from '../content-box/content-box';
 import CreditCardBox from '../credit-cards/card-box';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
-import * as CustomersActions from '../../modules/customers/details';
+import * as CustomerCreditCardActions from '../../modules/customers/credit-cards';
 
 @connect((state, props) => ({
-  ...state.customers.details[props.customerId]
-}), CustomersActions)
+  ...state.customers.creditCards[props.customerId]
+}), CustomerCreditCardActions)
 export default class CustomerCreditCards extends React.Component {
 
   static propTypes = {

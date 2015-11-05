@@ -26,7 +26,7 @@ const reducer = createReducer({
       ...state,
       [id]: {
         ...state[id],
-        isFetchingCards: true
+        isFetching: true
       }
     };
   },
@@ -36,8 +36,8 @@ const reducer = createReducer({
       ...state,
       [id]: {
         ...state[id],
-        isFetchingCards: false,
-        cards
+        cards,
+        isFetching: false
       }
     };
   }
