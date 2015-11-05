@@ -7,7 +7,7 @@ import scala.annotation.tailrec
 import org.flywaydb.core.Flyway
 import utils.flyway.newFlyway
 import org.scalatest.{BeforeAndAfterAll, Outcome, Suite, SuiteMixin}
-import slick.jdbc.HikariCPJdbcDataSource
+import slick.jdbc.hikaricp.HikariCPJdbcDataSource
 import java.sql.Connection
 
 trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒

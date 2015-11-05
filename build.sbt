@@ -19,15 +19,15 @@ lazy val commonSettings = Seq(
   )
 )
 
-/** Work around slick-pg issue with json4s until fix gets merged. */
-lazy val jmatayaSlickPG = RootProject(uri("git://github.com/jmataya/slick-pg.git#temp/json4s-3.3.0"))
+/** Work arounds to use json4s-3.3.0 **/
+lazy val fcSlickPG      = RootProject(uri("git://github.com/FoxComm/slick-pg.git#patch/json4s-3.3.0"))
 
 lazy val testWartWarnings = Seq(Wart.OptionPartial)
 
 lazy val phoenixScala = (project in file(".")).
   settings(commonSettings).
   configs(IT).
-  dependsOn(jmatayaSlickPG).
+  dependsOn(fcSlickPG).
   settings(inConfig(IT)(Defaults.testSettings)).
   settings(
     wartremoverWarnings in(Test, compile) ++= testWartWarnings,
@@ -76,7 +76,11 @@ lazy val phoenixScala = (project in file(".")).
     name      := "phoenix-scala",
     version   := "1.0",
     /** Work around SBT warning for multiple dependencies */
-    dependencyOverrides += "org.scala-lang" % "scala-library" % scalaVersion.value,
+    dependencyOverrides ++= Set(
+      "org.scala-lang"         % "scala-library"              % scalaVersion.value,
+      "com.typesafe.slick"     %% "slick"                     % "3.1.0",
+      "com.typesafe.slick"     %% "slick-hikaricp"            % "3.1.0"
+    ),
     ivyScala            := ivyScala.value.map(_.copy(overrideScalaVersion = true)),
     resolvers ++= Seq(
       "hseeberger bintray" at "http://dl.bintray.com/hseeberger/maven",
@@ -102,8 +106,9 @@ lazy val phoenixScala = (project in file(".")).
         "org.json4s"           %% "json4s-ext"               % json4sVersion,
         "de.heikoseeberger"    %% "akka-http-json4s"         % "1.0.0",
         // Database
-        "com.typesafe.slick"   %% "slick"                    % "3.0.1",
-        "com.zaxxer"           %  "HikariCP"                 % "2.3.8",
+        "com.typesafe.slick"   %% "slick"                    % "3.1.0",
+        "com.typesafe.slick"   %% "slick-hikaricp"           % "3.1.0",
+        "com.zaxxer"           %  "HikariCP"                 % "2.4.1" % "provided",
         "org.postgresql"       %  "postgresql"               % "9.4-1201-jdbc41",
         "org.flywaydb"         %  "flyway-core"              % "3.2.1",
         // Validations
