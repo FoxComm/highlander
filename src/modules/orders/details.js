@@ -1,7 +1,7 @@
 
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
-import { haveType } from './state-helpers';
+import { haveType } from '../state-helpers';
 
 export const orderRequest = createAction('ORDER_REQUEST');
 export const orderSuccess = createAction('ORDER_SUCCESS');
