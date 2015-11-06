@@ -86,11 +86,16 @@ object Customers extends TableQueryWithId[Customer, Customers](
 
   object scope {
     implicit class CustomersQuerySeqConversions(query: QuerySeq) {
-      /* Returns Query with included shippingRegion and billingRegion for customer.
-       * shippingRegion comes from default address of customer
-       * billingRegion comes from default creditCard of customer
+
+      /* Returns Query with additional information like
+       * included shippingRegion and billingRegion and rank for customer
+       * - shippingRegion comes from default address of customer
+       * - billingRegion comes from default creditCard of customer
+       * - rank is calculated as percentile from net revenue
        */
-      def withDefaultRegions = {
+      def withRegionsAndRank: Query[(Customers, Rep[Option[Regions]], Rep[Option[Regions]],
+        Rep[Option[CustomersRanks]]), (Customer, Option[Region], Option[Region], Option[CustomerRank]), Seq] = {
+
         val customerWithShipRegion = for {
           ((c, a), r) ← query.joinLeft(Addresses).on {
             case (a, b) ⇒ a.id === b.customerId && b.isDefaultShipping === true
@@ -98,14 +103,19 @@ object Customers extends TableQueryWithId[Customer, Customers](
         } yield (c, r)
 
         val CcWithRegions = CreditCards.join(Regions).on {
-          case (c, r) ⇒ c.regionId === r.id && c.isDefault === true
+          case (c, r) ⇒ c.regionId === r.id && c.isDefault === true && c.inWallet === true
         }
 
-        for {
+        val withRegions = for {
           ((c, shipRegion), billInfo) ←
           customerWithShipRegion.joinLeft(CcWithRegions).on(_._1.id === _._1.customerId)
         } yield (c, shipRegion, billInfo.map(_._2))
+
+        for {
+          ((c, shipRegion, billRegion), rank) ← withRegions.joinLeft(CustomersRanks).on(_._1.id === _.id)
+        } yield (c, shipRegion, billRegion, rank)
       }
+
     }
   }
 }

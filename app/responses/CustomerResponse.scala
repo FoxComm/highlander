@@ -2,11 +2,9 @@ package responses
 
 import java.time.Instant
 
-import models.{Region, Customer}
+import models.{Region, Customer, CustomerRank}
 
 object CustomerResponse {
-  val mockCustomerRank = "top 10"
-
   final case class Root(
     id: Int = 0,
     email: String,
@@ -18,7 +16,7 @@ object CustomerResponse {
     disabled: Boolean,
     isGuest: Boolean,
     blacklisted: Boolean,
-    rank: String,
+    rank: Option[Int] = None,
     numOrders: Option[Int] = None,
     billingRegion: Option[String] = None,
     shippingRegion: Option[String] = None) extends ResponseItem
@@ -26,7 +24,8 @@ object CustomerResponse {
   def build(customer: Customer,
     shippingRegion: Option[Region] = None,
     billingRegion: Option[Region] = None,
-    numOrders: Option[Int] = None): Root =
+    numOrders: Option[Int] = None,
+    rank: Option[CustomerRank] = None): Root =
     Root(id = customer.id,
       email = customer.email,
       name = customer.name,
@@ -37,7 +36,7 @@ object CustomerResponse {
       isGuest = customer.isGuest,
       disabled = customer.isDisabled,
       blacklisted = customer.isBlacklisted,
-      rank = mockCustomerRank,
+      rank = rank.map(_.rank),
       numOrders = numOrders,
       billingRegion = billingRegion.map(_.name),
       shippingRegion = shippingRegion.map(_.name))
