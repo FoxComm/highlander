@@ -148,8 +148,8 @@ const reducer = createReducer({
     console.log('closeDeleteCustomerCreditCard');
     return {
       ...state,
-      [customerId]: {
-        ...state[customerId],
+      [id]: {
+        ...state[id],
         deletingId: null
       }
     };

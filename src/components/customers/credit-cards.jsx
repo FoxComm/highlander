@@ -75,14 +75,18 @@ export default class CustomerCreditCards extends React.Component {
   onDeleteCancel() {
     const customer = this.props.customerId;
     console.log("onDeleteCancel");
+    this.props.closeDeleteCustomerCreditCard(customer);
   }
 
   @autobind
   onDeleteConfirm() {
     const customer = this.props.customerId;
     console.log("onDeleteConfirm");
+    this.props.confirmCreditCardDeletion(customer);
   }
 
+  ////
+  // Rendering
   render() {
     let actionBlock = (
       <AddButton onClick={this.onAddClick} />
