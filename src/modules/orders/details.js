@@ -2,6 +2,7 @@
 
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
+import { haveType } from './state-helpers';
 
 export const orderRequest = createAction('ORDER_REQUEST');
 export const orderSuccess = createAction('ORDER_SUCCESS');
@@ -91,7 +92,7 @@ const reducer = createReducer({
       ...state,
       isFetching: false,
       didInvalidate: false,
-      currentOrder: payload,
+      currentOrder: haveType(payload, 'order'),
       lineItems: {
         ...state.lineItems,
         items: payload.lineItems.skus

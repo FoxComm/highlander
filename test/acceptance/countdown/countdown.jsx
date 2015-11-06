@@ -1,48 +1,35 @@
-'use strict';
 
-require('testdom')('<html><body></body></html>');
-
-const React = require('react');
-
-const TestUtils = require('react-addons-test-utils');
-const ReactDOM = require('react-dom');
-
-const path = require('path');
-const moment = require('moment');
+import React from 'react';
+import moment from 'moment';
 
 describe('Countdown', function() {
-  let Countdown = require(path.resolve('src/components/countdown/countdown.jsx'));
-  let container = null;
+  const Countdown = requireComponent('countdown/countdown.jsx');
 
-  beforeEach(function() {
-    container = document.createElement('div');
+  let countdown;
+
+  afterEach(function() {
+    if (countdown) {
+      countdown.unmount();
+      countdown = null;
+    }
   });
 
-  afterEach(function(done) {
-    ReactDOM.unmountComponentAtNode(container);
-    setTimeout(done);
-  });
-
-  it('should render', function *() {
-    let countdown = ReactDOM.render(
+  it('should render', function () {
+    countdown = shallowRender(
       <Countdown endDate={moment().add(5, 'm').utc().format()}/>
-      , container);
-    let countdownNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithTag(countdown, 'div'));
-
-    expect(countdownNode).to.be.instanceof(Object);
-    expect(countdownNode.className).to.contain('fc-countdown');
-    expect(countdownNode.innerHTML).to.match(/\d{2}:\d{2}:\d{2}/);
+    );
+    countdown.instance.tick();
+    expect(countdown.props.children).to.match(/\d{2}:\d{2}:\d{2}/);
   });
 
-  it('should create ending mode', function *() {
-    let countdown = ReactDOM.render(
+  it('should create ending mode', function () {
+    countdown = shallowRender(
       <Countdown endDate={moment().add(1, 'm').utc().format()}/>
-      , container);
-    let countdownNode = ReactDOM.findDOMNode(TestUtils.findRenderedDOMComponentWithTag(countdown, 'div'));
+    );
+    countdown.instance.tick();
 
-    expect(countdownNode).to.be.instanceof(Object);
-    expect(countdownNode.className).to.contain('fc-countdown');
-    expect(countdownNode.className).to.contain('fc-countdown_ending');
-    expect(countdownNode.innerHTML).to.match(/\d{2}:\d{2}:\d{2}/);
+    expect(countdown.props.className).to.contain('fc-countdown');
+    expect(countdown.props.className).to.contain('fc-countdown_ending');
+    expect(countdown.props.children).to.match(/\d{2}:\d{2}:\d{2}/);
   });
 });

@@ -2,6 +2,13 @@
    width: 100%;
 
   .fc-customer-title-block {
+    .margin(40px 0);
+    background: @color-white;
+
+    .fc-customer-info-avatar {
+      background-color: @color-white;
+    }
+
     .fc-customer-info-header {
       height: 6rem;
     }
@@ -16,6 +23,14 @@
       text-align: right;
     }
 
+    .fc-customer-name-block {
+      .margin-bottom(15px);
+    }
+
+    .fc-customer-info-fields li {
+      .margin-top(15px);
+      height: pxtorem(24px);
+    }
   }
 
   .fc-comment {
@@ -23,15 +38,17 @@
     font-weight: bold;
   }
 
+  .fc-customer-info-fields {
+    width: 45%;
+    float: left;
+  }
+
   dt {
-    font-weight: 600;
-    line-height: 2.4rem;
-    font-size: 1.8rem;
+    .font-spec(16px, 600, 24px);
   }
 
   dd {
-    line-height: 1.9rem;
-    font-size: 1.4rem;
+    .font-spec(13px, 19px);
     -webkit-margin-start: 0;
   }
 
@@ -43,9 +60,28 @@
     .clearfix();
   }
 
+  .fc-customer-address {
+    width: pxtorem(370px);
+    height: pxtorem(233px);
+    .margin(20px);
+  }
+
   .fc-address-details {
     li {
       display: list-item;
+    }
+  }
+
+  .fc-card-container {
+    width: pxtorem(370px);
+    height: pxtorem(368px);
+    .margin(20px);
+    .padding(20px 10px);
+  }
+
+  .fc-card-container-content {
+    dt {
+      .font-spec(16px, 600, 22px);
     }
   }
 
@@ -53,6 +89,33 @@
     .fc-customer-status-row {
       margin-top: .9rem;
       padding-top: .5rem;
+    }
+  }
+
+  .fc-customer-notification-settings {
+    .fc-customer-settings-title-row {
+      .padding(10px 0);
+      border-bottom: 2px solid @color-text-gray;
+    }
+
+    .fc-customer-notification-title-comment {
+      color: @color-text-gray;
+      font-weight: 600;
+    }
+  }
+
+  .fc-customer-info-fields {
+    width: 45%;
+    float: left;
+  }
+
+  .fc-customer-details {
+    > .fc-grid {
+     padding-right: 0;
+     margin-left: -1.85%;
+    }
+    h2 {
+      margin-top: 0;
     }
   }
 }

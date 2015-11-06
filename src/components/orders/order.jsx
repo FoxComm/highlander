@@ -1,6 +1,8 @@
 'use strict';
 
 import React, { PropTypes } from 'react';
+import Dropdown from '../dropdown/dropdown';
+import DropdownItem from '../dropdown/dropdownItem';
 import { Link, IndexLink } from '../link';
 import Viewers from '../viewers/viewers';
 import ConfirmModal from '../modal/confirm';
@@ -8,7 +10,10 @@ import RemorseTimer from './remorseTimer';
 import { connect } from 'react-redux';
 import * as orderActions from '../../modules/orders/details';
 import * as shippingMethodActions from '../../modules/orders/shipping-methods';
-import DateTime from '../datetime/datetime';
+import { DateTime } from '../common/datetime';
+import LocalNav from '../local-nav/local-nav';
+import { PanelList, PanelListItem } from '../panel/panel-list';
+import SectionTitle from '../section-title/section-title';
 
 const mapStateToProps = (state) => {
   return {
@@ -62,78 +67,87 @@ export default class Order extends React.Component {
     return this.props.order.currentOrder;
   }
 
+  get remorseTimer() {
+    if (this.order.id && this.order.orderStatus === 'remorseHold') {
+      return remorseTimer = <RemorseTimer endDate={this.order.remorseEnd} />;
+    }
+  }
+
+  get viewers () {
+    if (this.order.id) return <Viewers model='orders' modelId={this.order.id}/>;
+  }
+
+  get subNav() {
+    if (this.order.id) {
+      const content = React.cloneElement(this.props.children, {...this.props, entity: this.order});
+      let params = {order: this.order.referenceNumber};
+
+      return (
+        <div>
+          <LocalNav>
+            <IndexLink to="order-details" params={params}>Details</IndexLink>
+            <a href="">Shipments</a>
+            <Link to="order-returns" params={params}>Returns</Link>
+            <Link to="order-notifications" params={params}>Transaction Notifications</Link>
+            <Link to="order-notes" params={params}>Notes</Link>
+            <Link to="order-activity-trail" params={params}>Activity Trail</Link>
+          </LocalNav>
+          <div className="fc-grid">
+            <div className="fc-col-md-1-1">
+              {content}
+            </div>
+          </div>
+        </div>
+      );
+    }
+  }
+
   componentDidMount() {
     this.props.fetchOrderIfNeeded(this.orderRefNum);
   }
 
   render() {
     let
-      order         = this.order,
-      subNav        = null,
-      viewers       = null,
-      orderStatus   = null,
-      remorseTimer  = null;
+      order         = this.order;
 
     if (!order) {
       return <div className="fc-order"></div>;
     }
 
-    const content = React.cloneElement(this.props.children, {order, modelName: 'order', ...this.props});
+    // order status render
+    const orderStatuses = {
+      cart: 'Cart',
+      remorseHold: 'Remorse Hold',
+      manualHold: 'Manual Hold',
+      fraudHold: 'Fraud Hold',
+      fulfillmentStarted: 'Fulfillment Started',
+      canceled: 'Canceled',
+      partiallyShipped: 'Partially Shipped',
+      shipped: 'Shipped'
+    };
 
-    if (order.id) {
-      let params = {order: order.referenceNumber};
-
-      subNav = (
-        <div className="gutter">
-          <ul className="fc-tabbed-nav">
-            <li><IndexLink to="order-details" params={params}>Details</IndexLink></li>
-            <li><a href="">Shipments</a></li>
-            <li><Link to="order-returns" params={params}>Returns</Link></li>
-            <li><Link to="order-notifications" params={params}>Transaction Notifications</Link></li>
-            <li><Link to="order-notes" params={params}>Notes</Link></li>
-            <li><Link to="order-activity-trail" params={params}>Activity Trail</Link></li>
-          </ul>
-          {content}
-        </div>
-      );
-
-      viewers = <Viewers model='orders' modelId={order.id}/>;
-
-      if (order.orderStatus === 'remorseHold') remorseTimer = <RemorseTimer endDate={order.remorseEnd} />;
-    }
+    const orderStatus = (
+      <Dropdown name="orderStatus" items={orderStatuses} placeholder={'Order status'} value={order.orderStatus}/>
+    );
 
     return (
       <div className="fc-order">
-        {viewers}
-          <div className="gutter title">
-          <div>
-            <h1>Order {order.referenceNumber}</h1>
-            {remorseTimer}
+        {this.viewers}
+        <SectionTitle title={`Order ${this.orderRefNum}`}>
+          {this.remorseTimer}
+        </SectionTitle>
+        <div className="fc-grid fc-grid-gutter">
+          <div className="fc-col-md-1-1">
+            <PanelList>
+              <PanelListItem title="Order Status">{orderStatus}</PanelListItem>
+              <PanelListItem title="Shipment Status">{order.shippingStatus}</PanelListItem>
+              <PanelListItem title="Payment Status">{order.paymentStatus}</PanelListItem>
+              <PanelListItem title="Fraud Score">{order.fraudScore}</PanelListItem>
+              <PanelListItem title="Date/Time Placed"><DateTime value={order.createdAt} /></PanelListItem>
+            </PanelList>
           </div>
         </div>
-        <div className="gutter statuses">
-          <dl>
-            <dt>Order Status</dt>
-            <dd>{orderStatus}</dd>
-          </dl>
-          <dl>
-            <dt>Shipment Status</dt>
-            <dd>{order.shippingStatus}</dd>
-          </dl>
-          <dl>
-            <dt>Payment Status</dt>
-            <dd>{order.paymentStatus}</dd>
-          </dl>
-          <dl>
-            <dt>Fraud Score</dt>
-            <dd>{order.fraudScore}</dd>
-          </dl>
-          <dl>
-            <dt>Date/Time Placed</dt>
-            <dd><DateTime value={order.createdAt} /></dd>
-          </dl>
-        </div>
-        {subNav}
+        {this.subNav}
       </div>
     );
   }

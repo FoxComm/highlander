@@ -11,7 +11,7 @@ import { Link } from '../link';
 import { connect } from 'react-redux';
 import { Form, FormField } from '../forms';
 import * as GiftCardNewActions from '../../modules/gift-cards/new';
-import * as CustomersActions from '../../modules/customers';
+import * as CustomersActions from '../../modules/customers/customers';
 import { createGiftCard } from '../../modules/gift-cards/cards';
 
 const filterCustomers = createSelector(
@@ -250,8 +250,10 @@ export default class NewGiftCard extends React.Component {
             </label>
             { emailCSV }
           </fieldset>
-          <Link to='gift-cards'>Cancel</Link>
+
+          <Link to='gift-cards' className="fc-btn-link">Cancel</Link>
           <button className="fc-btn fc-btn-primary" type="submit">Issue Gift Card</button>
+
         </form>
       </div>
     );

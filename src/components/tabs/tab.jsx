@@ -6,7 +6,12 @@ export default class TabView extends React.Component {
 
   static propTypes = {
     selector: PropTypes.string,
-    children: PropTypes.node
+    children: PropTypes.node,
+    draggable: PropTypes.bool
+  };
+
+  static defaultProps = {
+    draggable: true
   };
 
   constructor(props, context) {
@@ -17,11 +22,21 @@ export default class TabView extends React.Component {
   }
 
   render() {
-    return (
-      <li className="fc-tab">
-        <i className="fc-tab-icon icon-drag-drop"></i>&nbsp;
-        {this.props.children}
-      </li>
-    );
+    let tab = null;
+    if (this.props.draggable) {
+      tab = (
+        <li className="fc-tab">
+          <i className="icon-drag-drop"></i>&nbsp;
+          {this.props.children}
+        </li>
+      );
+    } else {
+      tab = (
+        <li className="fc-tab">
+          {this.props.children}
+        </li>
+      );
+    }
+    return tab;
   }
 }

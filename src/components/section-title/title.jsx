@@ -1,27 +1,30 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 
-export default class Title extends React.Component {
-  static propTypes = {
-    title: React.PropTypes.string,
-    subtitle: React.PropTypes.node
-  };
-
-  render() {
-    let subtitle = null;
-    if (this.props.subtitle) {
-      subtitle = (
-        <span className="fc-section-title-subtitle fc-light">
-          &nbsp;
-          { this.props.subtitle }
-        </span>
-      );
-    }
+const subtitle = (props) => {
+  if (props.subtitle) {
     return (
-      <h1 className="fc-section-title-title">
-        { this.props.title }
-        { subtitle }
-      </h1>);
+      <span className="fc-section-title-subtitle fc-light">
+        &nbsp;
+        { props.subtitle }
+      </span>
+    );
   }
-}
+};
+
+const Title = (props) => {
+  return (
+    <h1 className="fc-section-title-title">
+      { props.title }
+      { subtitle(props) }
+    </h1>
+  );
+};
+
+Title.propTypes = {
+  title: PropTypes.string,
+  subtitle: PropTypes.node
+};
+
+export default Title;

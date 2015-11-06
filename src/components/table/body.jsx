@@ -1,40 +1,28 @@
 'use strict';
 
-import React from 'react';
-import TableStore from '../../lib/table-store';
+import _ from 'lodash';
+import React, { PropTypes } from 'react';
 import TableRow from './row';
 import TableCell from './cell';
 
-export default class TableBody extends React.Component {
-  static propTypes = {
-    store: React.PropTypes.instanceOf(TableStore),
-    renderRow: React.PropTypes.func
-  };
+const TableBody = (props) => {
+  const renderRow = props.renderRow || ((row) => (
+    <TableRow>
+      {props.columns.map((column) => <TableCell>{row[column.field]}</TableCell>)}
+    </TableRow>
+  ));
 
-  static defaultProps = {
-    renderRow: function(row) {
-      return (
-        <div>
-          <TableRow>
-            {this.props.store.columns.map((column) => {
-              return <TableCell>{row[column.field]}</TableCell>;
-            })}
-          </TableRow>
-        </div>
-      );
-    }
-  };
+  return (
+    <tbody className="fc-table-tbody">
+      {_.flatten(props.rows.map(renderRow))}
+    </tbody>
+  );
+};
 
-  render() {
-    let renderRow = this.props.renderRow.bind(this);
-    return (
-      <tbody className="fc-table-tbody">
-      {this.props.store.rows.map((row, index) => {
-        return renderRow(row, index).props.children;
-      })}
-      </tbody>
-    );
-  }
-}
+TableBody.propTypes = {
+  columns: PropTypes.array.isRequired,
+  rows: PropTypes.array.isRequired,
+  renderRow: PropTypes.func
+};
 
-
+export default TableBody;

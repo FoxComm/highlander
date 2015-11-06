@@ -6,11 +6,13 @@ import Site from './components/site/site';
 import Home from './components/home/home';
 import Rmas from './components/rmas/rmas';
 import Rma from './components/rmas/rma';
+import RmaChildList from './components/rmas/child-list';
 import RmaDetails from './components/rmas/details';
 import Orders from './components/orders/orders';
 import Order from './components/orders/order';
 import OrderDetails from './components/orders/details';
 import Customers from './components/customers/customers';
+import NewCustomer from './components/customers/new-customer';
 import Customer from './components/customers/customer';
 import CustomerDetails from './components/customers/details';
 import Notes from './components/notes/notes';
@@ -41,14 +43,16 @@ const routes = (
     <Route name='order' path='orders/:order' component={Order}>
       <IndexRoute name='order-details' component={OrderDetails}/>
       <Route name='order-notes' path='notes' component={Notes}/>
-      <Route name='order-returns' path='returns' component={Rmas}/>
+      <Route name='order-returns' path='returns' component={RmaChildList}/>
       <Route name='order-notifications' path='notifications' component={Notifications}/>
       <Route name='order-activity-trail' path='activity-trail' component={ActivityTrail}/>
     </Route>
     <Route name='customers' path='customers' component={Customers}/>
+    <Route name='customers-new' path='customers/new' component={NewCustomer} />
     <Route name='customer' path='customers/:customer' component={Customer}>
       <IndexRoute name='customer-details' component={CustomerDetails}/>
       <Route name='customer-addresses' path='addresses' component={AddressBook} />
+      <Route name='customer-notes' path='notes' component={Notes} />
     </Route>
     <Route name='gift-cards' path='gift-cards' component={GiftCards} />
     <Route name='gift-cards-new' path='gift-cards/new' component={NewGiftCard} />

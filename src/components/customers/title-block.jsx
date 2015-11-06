@@ -25,22 +25,21 @@ export default class Customer extends React.Component {
         </div>
         <article className="fc-customer-info-body">
           <div className="fc-grid">
-            <div className="fc-col-1-1">
-              <div className="fc-col-1-12">
-                <div className="fc-customer-info-avatar">
-                  <i className="icon-customer"></i>
+            <div className="fc-col-md-1-12">
+              <div className="fc-customer-info-avatar">
+                <i className="icon-customer"></i>
+              </div>
+            </div>
+            <div className="fc-col-md-11-12">
+              <div className="fc-col-md-1-1 fc-customer-name-block">
+                <div className="fc-customer-info-name">
+                  {customer.name}
+                </div>
+                <div className="fc-customer-info-email">
+                  {customer.email}
                 </div>
               </div>
-              <div className="fc-col-11-12">
-                <div className="fc-col-1-1">
-                  <div className="fc-customer-info-name">
-                    {customer.name}
-                  </div>
-                  <div className="fc-customer-info-email">
-                    {customer.email}
-                  </div>
-                </div>
-                <div className="fc-col-1-2">
+              <div className="fc-col-md-1-1 fc-customer-details-block">
                   <ul className="fc-customer-info-fields">
                     <li>
                       <i className="icon-customer"></i><span>{ customer.id }</span>
@@ -57,8 +56,6 @@ export default class Customer extends React.Component {
                       <span className="fc-comment">&nbsp;Date joined</span>
                     </li>
                   </ul>
-                </div>
-                <div className="fc-col-1-2">
                   <ul className="fc-customer-info-fields">
                     <li>
                       <i className="icon-mobile"></i><span>{ customer.modality }</span>
@@ -75,7 +72,6 @@ export default class Customer extends React.Component {
                       <i>{ customer.id}</i><span>days since last order</span>
                     </li>
                   </ul>
-                </div>
               </div>
             </div>
           </div>

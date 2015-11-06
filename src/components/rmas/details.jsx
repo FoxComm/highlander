@@ -1,8 +1,7 @@
 'use strict';
 
 import React from 'react';
-import RmaSummary from './summary';
-import CustomerInfo from './customer-info';
+import { CustomerInfo, RmaSummary } from './helpers';
 import LineItems from '../line-items/line-items';
 import Payment from '../payment/payment';
 import RmaStore from '../../stores/rmas';
@@ -26,7 +25,7 @@ export default class RmaDetails extends React.Component {
       {field: 'reason', text: 'Reason'}
     ];
 
-    return (
+    /*return (
       <div className="fc-rma-details fc-grid fc-grid-match">
         <div className="fc-col-md-3-10">
           <RmaSummary rma={rma} isEditing={isEditing}/>
@@ -48,7 +47,8 @@ export default class RmaDetails extends React.Component {
           <Payment rma={rma} isEditing={isEditing}/>
         </div>
       </div>
-    );
+    );*/
+    return null;
   }
 }
 

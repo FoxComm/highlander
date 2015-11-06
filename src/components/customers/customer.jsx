@@ -3,83 +3,66 @@
 import React, { PropTypes } from 'react';
 import { Link, IndexLink } from '../link';
 import TitleBlock from './title-block';
+import { connect } from 'react-redux';
+import * as CustomersActions from '../../modules/customers/details';
+import LocalNav from '../local-nav/local-nav';
 
-import CustomerStore from '../../stores/customers';
-
+@connect((state, props) => ({
+  ...state.customers.details[props.params.customer]
+}), CustomersActions)
 export default class Customer extends React.Component {
 
   static propTypes = {
     params: PropTypes.shape({
       customer: PropTypes.string.isRequired
     }).isRequired,
+    details: PropTypes.object,
     children: PropTypes.node
   };
 
-  constructor(props, context) {
-    super(props, context);
-    this.state = {
-      customer: {}
-    };
-  }
-
-  get customerId() {
-    return this.props.params.customer;
-  }
-
   componentDidMount() {
-    CustomerStore.listenToEvent('change-item', this);
-    CustomerStore.fetch(this.customerId);
-  }
+    const { customer } = this.props.params;
 
-  componentWillUnmount() {
-    CustomerStore.stopListeningToEvent('change-item', this);
-  }
-
-  onChangeItemCustomerStore(customer) {
-    if (parseInt(this.customerId) !== customer.id) {
-      return;
-    }
-
-    this.setState({
-      customer: customer
-    });
+    this.props.fetchCustomer(customer);
   }
 
   renderChildren() {
-    if (this.state.customer.id === undefined) {
-      return null;
-    }
-
     return React.Children.map(this.props.children, function (child) {
       return React.cloneElement(child, {
-        customer: this.state.customer
+        entity: this.props.details
       });
     }.bind(this));
   }
 
-  render() {
+  get page() {
     return (
       <div className="fc-customer">
-        <div className="gutter">
-          <TitleBlock customer={this.state.customer} />
+        <div className="fc-grid">
+          <div className="fc-col-md-1-1">
+            <TitleBlock customer={this.props.details} />
+          </div>
         </div>
-        <div className="gutter">
-          <ul className="fc-tabbed-nav">
-            <li><a href="">Insights</a></li>
-            <li><IndexLink to="customer-details" params={this.props.params}>Details</IndexLink></li>
-            <li><a href="">Transaction</a></li>
-            <li><a href="">Items</a></li>
-            <li><a href="">Store Credit</a></li>
-            <li><a href="">Notifications</a></li>
-            <li><a href="">Reviews</a></li>
-            <li><a href="">Notes</a></li>
-            <li><a href="">Activity Trail</a></li>
-          </ul>
-          <div>
+        <LocalNav gutter={true}>
+          <a href="">Insights</a>
+          <IndexLink to="customer-details" params={this.props.params}>Details</IndexLink>
+          <a>Transaction</a>
+          <a href="">Items</a>
+          <a href="">Store Credit</a>
+          <a href="">Notifications</a>
+          <a href="">Reviews</a>
+          <Link to="customer-notes" params={this.props.params}>Notes</Link>
+          <a href="">Activity Trail</a>
+        </LocalNav>
+        <div className="fc-grid">
+          <div className="fc-col-md-1-1">
             { this.renderChildren() }
           </div>
         </div>
       </div>
     );
+  }
+
+  render() {
+    return (this.props.details ? this.page : null);
   }
 }

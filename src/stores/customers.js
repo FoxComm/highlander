@@ -1,25 +1,46 @@
 'use strict';
 
-import { List } from 'immutable';
-import BaseStore from './base-store';
-import CustomerConstants from '../constants/customers';
+import TableStore from '../lib/table-store';
 
-class CustomerStore extends BaseStore {
-  constructor() {
-    super();
-    this.changeEvent = 'change-customers';
-    this.state = List([]);
+class CustomerStore extends TableStore {
+  get baseUri() { return '/customers'; }
 
-    this.bindListener(CustomerConstants.UPDATE_CUSTOMERS, this.handleUpdateCustomers);
-    this.bindListener(CustomerConstants.FAILED_CUSTOMERS, this.handleFailedCustomers);
+  constructor(...args) {
+    super(...args);
+    this.columns = [
+      {
+        field: 'name',
+        title: 'Name'
+      },
+      {
+        field: 'email',
+        title: 'Email'
+      },
+      {
+        field: 'id',
+        title: 'Customer ID'
+      },
+      {
+        field: 'shipRegion',
+        title: 'Ship To Region'
+      },
+      {
+        field: 'billRegion',
+        title: 'Bill To Region'
+      },
+      {
+        field: 'rank',
+        title: 'Rank'
+      },
+      {
+        field: 'createdAt',
+        title: 'Date/Time Joined'
+      }
+    ];
   }
 
-  handleUpdateCustomers(action) {
-    this.setState(List(action.customers));
-  }
-
-  handleFailedCustomers(action) {
-    console.error(action.errorMessage.trim());
+  identity(item) {
+    return item.id;
   }
 }
 

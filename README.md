@@ -4,17 +4,17 @@
 
 ### Prerequisites
 
-* iojs
+* node
 
-2.x.x is required version for Ashes.
+>=4.2.0 is required version for Ashes.
 Newer version is incompatible with current version of project due to dependencies used.
-To install 2.x.x version you can use [nvm](https://github.com/creationix/nvm) or [n](https://github.com/tj/n) node version manager.
+To install 4.2.x or later version you can use [nvm](https://github.com/creationix/nvm) or [n](https://github.com/tj/n) node version manager.
 
-If using nvm, run the following to install the version listed in `.nvmrc`. For example, if using iojs `v2.5.0`, follow these commands:
+If using nvm, run the following to install the version listed in `.nvmrc`. For example, if using node `v4.2.1`, follow these commands:
 
 ```
-nvm install iojs-v2.5.0
-nvm use iojs-v2.5.0
+nvm install 4.2.1
+nvm use 4.2.1
 ```
 
 ### Install npm modules
@@ -35,6 +35,16 @@ Also gulp can notify you about tasks completion if env variable ASHES_NOTIFY_ABO
 
 The default mode for watchify is polling. You can override polling interval via WATCHIFY_POLL_INTERVAL env variable
 or completely override watchify options via `.watchifyrc` file in project root.
+
+### Pointing to Phoenix
+
+By default, Ashes looks locally for phoenix at `http://localhost:9090`. If you want to change
+which phoenix server Ashes uses, you can set the `PHOENIX_URL` environment variable.
+
+```
+export PHOENIX_URL=http://10.240.0.3:9090
+npm run dev
+```
 
 ### Git Hooks
 

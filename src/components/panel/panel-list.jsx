@@ -3,7 +3,7 @@
 import React from 'react';
 
 export const PanelList = props => {
-  const classList = `${props.className ? props.className : null} fc-grid fc-grid-collapse fc-panel-list`;
+  const classList = `${props.className ? props.className : ''} fc-panel-list`;
   return (
     <div className={classList}>
       {props.children}
@@ -17,10 +17,10 @@ export const PanelListItem = props => {
       <div className="fc-panel-list-header">
         {props.title}
       </div>
-      <p className="fc-panel-list-content">
+      <div className="fc-panel-list-content">
         {props.content && props.content.props.children}
         {props.children}
-      </p>
+      </div>
     </div>
   );
 };

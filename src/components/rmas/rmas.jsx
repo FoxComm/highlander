@@ -1,73 +1,57 @@
 'use strict';
 
-import React from 'react';
-import Immutable from 'immutable';
-import TableView from '../tables/tableview';
-import RmaStore from '../../stores/rmas';
+import React, { PropTypes } from 'react';
+import SectionTitle from '../section-title/section-title';
+import LocalNav from '../local-nav/local-nav';
+import { TabListView, TabView } from '../tabs';
+import { Link } from '../link';
+import { connect } from 'react-redux';
+import * as rmaActions from '../../modules/rmas/list';
+import {RmaList} from './helpers';
 
+@connect(({rmas}) => ({items: rmas.list.items}), rmaActions)
 export default class Rmas extends React.Component {
-  constructor(props, context) {
-    super(props, context);
-    let immutableSet = Immutable.Set;
-    this.state = {
-      rmas: RmaStore.getState(),
-      selected: immutableSet()
-    };
-  }
+  static propTypes = {
+    tableColumns: PropTypes.array,
+    fetchRmas: PropTypes.func.isRequired,
+    items: PropTypes.array.isRequired
+  };
+
+  static defaultProps = {
+    tableColumns: [
+      {field: 'referenceNumber', text: 'Return', type: 'id'},
+      {field: 'createdAt', text: 'Date', type: 'date'},
+      {field: 'orderRefNum', text: 'Order', model: 'order', type: 'id'},
+      {field: 'email', text: 'Email', component: 'RmaEmail'},
+      {field: 'status', text: 'Return Status', type: 'rmaStatus'},
+      {field: 'returnTotal', text: 'Total', component: 'RmaTotal'}
+    ]
+  };
 
   componentDidMount() {
-    RmaStore.listenToEvent('change', this);
-    RmaStore.fetch();
-  }
-
-  componentWillUnmount() {
-    RmaStore.stopListeningToEvent('change', this);
-  }
-
-  onChangeRmaStore(rmas) {
-    this.setState({rmas});
-  }
-
-  onSelectedChange(event) {
-    let model = this.props.model;
-    let checked = event.target.checked;
-    this.setState({
-      selected: this.state.selected[checked ? 'add' : 'delete'](model)
-    });
-  }
-
-  getSelectedValue(model) {
-    return this.state.selected.has(model);
+    this.props.fetchRmas();
   }
 
   render() {
     return (
-      <div id="rmas">
-        <div className="gutter">
-          <TableView
-            columns={this.props.tableColumns}
-            rows={this.state.rmas}
-            model='rma'
-            sort={RmaStore.sort.bind(RmaStore)}
-            />
+      <div className="fc-list-page">
+        <div className="fc-list-page-header">
+          <SectionTitle title="Returns" subtitle={this.props.items.length} />
+          <LocalNav>
+            <a href="">Lists</a>
+            <a href="">Returns</a>
+          </LocalNav>
+          <TabListView>
+            <TabView>All</TabView>
+            <TabView>Active</TabView>
+          </TabListView>
+        </div>
+        <div className="fc-grid fc-list-page-content">
+          <div className="fc-col-md-1-1">
+            <RmaList {...this.props} />
+          </div>
         </div>
       </div>
     );
   }
 }
-
-Rmas.propTypes = {
-  tableColumns: React.PropTypes.array,
-  model: React.PropTypes.object
-};
-
-Rmas.defaultProps = {
-  tableColumns: [
-    {field: 'referenceNumber', text: 'Return', type: 'id'},
-    {field: 'createdAt', text: 'Date', type: 'date'},
-    {field: 'orderNumber', text: 'Order', model: 'order', type: 'id'},
-    {field: 'email', text: 'Email'},
-    {field: 'returnStatus', text: 'Return Status', type: 'returnStatus'},
-    {field: 'returnTotal', text: 'Total', type: 'currency'}
-  ]
-};

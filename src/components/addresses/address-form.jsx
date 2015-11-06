@@ -71,8 +71,8 @@ export default class AddressForm extends React.Component {
           formData: _.extend(this.state.formData, {regionId: country.regions[0].id})
         });
       })
-      .catch(({errors}) => {
-        this.setState({errors});
+      .catch(error => {
+        this.setState({error});
       });
   }
 
@@ -81,13 +81,13 @@ export default class AddressForm extends React.Component {
   }
 
   componentWillUpdate(nextProps, nextState) {
-    if (!this.state.errors && nextState.errors) {
+    if (!this.state.error && nextState.error) {
       this.shouldScrollToErrors = true;
     }
   }
 
   componentDidUpdate() {
-    if (this.shouldScrollToErrors && this.state.errors) {
+    if (this.shouldScrollToErrors && this.state.error) {
       this.refs.errorMessages.scrollIntoView();
       this.shouldScrollToErrors = false;
     }
@@ -126,7 +126,7 @@ export default class AddressForm extends React.Component {
 
     willSaved
       .then((address) => {
-        this.setState({errors: null});
+        this.setState({error: null});
 
         if (this.props.onSaved) {
           this.props.onSaved(address.id);
@@ -135,8 +135,8 @@ export default class AddressForm extends React.Component {
       .then(() => {
         this.close();
       })
-      .catch(({errors}) => {
-        this.setState({errors});
+      .catch(error => {
+        this.setState({error});
       });
   }
 
@@ -192,11 +192,11 @@ export default class AddressForm extends React.Component {
   }
 
   get errorMessages() {
-    return <ErrorAlerts errors={this.state.errors} ref="errorMessages"/>;
+    return <ErrorAlerts error={this.state.error} ref="errorMessages"/>;
   }
 
   get actions() {
-    return <i onClick={this.close.bind(this)} className="icon-close" title="Close"></i>;
+    return <i onClick={this.close.bind(this)} className="fc-btn-close icon-close" title="Close"></i>;
   }
 
   render() {

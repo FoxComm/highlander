@@ -1,8 +1,7 @@
 'use strict';
 
 import React from 'react';
-import IncrementButton from '../common/increment-button';
-import DecrementButton from '../common/decrement-button';
+import {IncrementButton, DecrementButton} from '../common/buttons';
 
 const defaultProps = {
   value: 1,
