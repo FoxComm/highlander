@@ -7,7 +7,7 @@
   .margin(0 0 40px 0);
   border-bottom: pxtorem(2px) solid @color-decor7;
 
-  > li {
+  &-item {
     .font-spec(14px);
     font-weight: 600;
     color: @color-decor36;
@@ -20,14 +20,10 @@
 
     a,
     a:visited {
+      display: inline-block;
       color: @color-decor36;
-      display: block;
       .padding(0px 20px);
       .padding-bottom(10px);
-      &:hover {
-        cursor: pointer;
-        color: @color-decor37;
-      }
     }
   }
 
@@ -56,5 +52,15 @@
 
   &-parent {
     position: relative;
+
+    > a,
+    > a:visited {
+      &:after {
+        font-family: "fontello";
+        content: "\e807";
+        display: inline-block;
+        .padding-left(10px);
+      }
+    }
   }
 }

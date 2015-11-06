@@ -1,8 +1,17 @@
 .fc-tabbed-nav {
+  &-item {
+    a:hover {
+      cursor: pointer;
+      color: @color-decor37;
+    }
+  }
   &-selected {
-    color: @color-decor37;
     margin-bottom: pxtorem(-2px);
     border-bottom: pxtorem(2px) solid @color-decor3;
+    > a,
+    > a:visited {
+      color: @color-decor37;
+    }
   }
   &-parent {
     &:hover {
