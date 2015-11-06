@@ -96,7 +96,8 @@ export default class Customers extends React.Component {
         <div className="fc-list-page-header">
           <SectionTitle title="Customers"
                         count={this.props.customers.length}
-                        buttonClickHandler={ this.onAddCustomerClick }/>
+                        onAddClick={ this.onAddCustomerClick }
+                        addTitle="Customer" />
           <LocalNav>
             <Link to="customers">Lists</Link>
             <a href="">Customer Groups</a>
