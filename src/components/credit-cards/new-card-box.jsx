@@ -59,7 +59,7 @@ export default class NewCreditCardBox extends React.Component {
                 <FormField label="Name on Card" validator="ascii">
                   <input id="nameCardFormField"
                          className="fc-customer-form-input"
-                         name="name"
+                         name="holderName"
                          maxLength="255"
                          type="text"
                          required />
@@ -71,7 +71,7 @@ export default class NewCreditCardBox extends React.Component {
                     <FormField label="Card Number" validator="ascii">
                       <input id="numberCardFormField"
                              className="fc-customer-form-input"
-                             name="cardNumber"
+                             name="number"
                              maxLength="255"
                              type="text"
                              required />
@@ -93,10 +93,10 @@ export default class NewCreditCardBox extends React.Component {
                 <label>Expiration Date</label>
                 <div className="fc-grid">
                   <div className="fc-col-md-1-2">
-                    <Dropdown name="expitationMonth" items={this.monthList} placeholder="Month" value={null}/>
+                    <Dropdown name="expMonth" items={this.monthList} placeholder="Month" value={null}/>
                   </div>
                   <div className="fc-col-md-1-2">
-                    <Dropdown name="expitationYear" items={this.expirationYears} placeholder="Year" value={null}/>
+                    <Dropdown name="expYear" items={this.expirationYears} placeholder="Year" value={null}/>
                   </div>
                 </div>
               </li>
@@ -105,7 +105,7 @@ export default class NewCreditCardBox extends React.Component {
                   <label>
                     Billing Address
                   </label>
-                  <input type="hidden" name="billingAddressId" id="billingAddressIdCardFormField" />
+                  <input type="hidden" name="addressId" id="billingAddressIdCardFormField" />
                   <div className="fc-credit-card-form-address-book">
                   </div>
                 </div>

@@ -58,12 +58,12 @@ const reducer = createReducer({
         ...state[id],
         newCreditCard: {
           isDefault: false,
-          name: null,
-          cardNumber: null,
+          holderName: null,
+          number: null,
           cvv: null,
-          expitationMonth: null,
-          expitationYear: null,
-          billingAddressId: 1
+          expMonth: null,
+          expYear: null,
+          addressId: 1
         }
       }
     };
