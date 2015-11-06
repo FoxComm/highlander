@@ -15,12 +15,12 @@ export const cancelEditCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARDS_
 // API reducers
 const receiveCustomerCreditCards = createAction('CUSTOMER_CREDIT_CARDS_RECEIVE', (id, cards) => [id, cards]);
 const requestCustomerCreditCards = createAction('CUSTOMER_CREDIT_CARDS_REQUEST');
-const failCustomerCreditCards = createAction('CUSTOMER_CREDIT_CARDS_FAIL', (id, err, source) => [id, err, source]);
+const failCustomerCreditCards = createAction('CUSTOMER_CREDIT_CARDS_FAIL', (id, err, source) => [id, err]);
 
 function fetchForCustomer(id, dispatch) {
   Api.get(`/customers/${id}/payment-methods/credit-cards`)
     .then(cards => dispatch(receiveCustomerCreditCards(id, cards)))
-    .catch(err => dispatch(failCustomer(id, err, fetchCustomer)));
+    .catch(err => dispatch(failCustomerCreditCards(id, err)));
 }
 
 export function fetchCreditCards(id) {
@@ -32,12 +32,18 @@ export function fetchCreditCards(id) {
 }
 
 export function createCreditCard(id) {
-  return dispatch => {
+  return (dispatch, getState) => {
     dispatch(requestCustomerCreditCards(id));
 
-    // ToDo: submit form here
-    dispatch(closeNewCustomerCreditCard(id));
-    fetchForCustomer(id, dispatch);
+    const cardData = getState().customers.creditCards;
+    console.log(cardData);
+    Api.post(`/customers/${id}/payment-methods/credit-cards`, cardData)
+      .then(() => {
+        dispatch(closeNewCustomerCreditCard(id));
+        fetchForCustomer(id, dispatch);
+      })
+      .catch(err => dispatch(failCustomerCreditCards(id, err)));
+
   };
 }
 
@@ -130,7 +136,7 @@ const reducer = createReducer({
       }
     };
   },
-  [failCustomerCreditCards]: (state, [id, err, source]) => {
+  [failCustomerCreditCards]: (state, [id, err]) => {
     console.error(err);
 
     return {
@@ -138,9 +144,7 @@ const reducer = createReducer({
       [id]: {
         ...state[id],
         err,
-        ...(
-          source === requestCustomerCreditCards ? {isFetching: false} : {}
-        )
+        isFetching: false
       }
     };
   },
