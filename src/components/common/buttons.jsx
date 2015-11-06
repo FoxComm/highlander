@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import React from 'react';
 import _ from 'lodash';
 
-const DefaultButton = (props) => {
+const DefaultButton = (props={}) => {
   const {icon, children, ...restProps} = props;
 
   return (
