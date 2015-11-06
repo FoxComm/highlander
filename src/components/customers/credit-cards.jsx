@@ -64,9 +64,11 @@ export default class CustomerCreditCards extends React.Component {
   ////
   // Handlers for deleting credit card
   @autobind
-  onDeleteClick() {
+  onDeleteClick(cardId) {
     const customer = this.props.customerId;
     console.log("onDeleteClick");
+    console.log(cardId);
+    this.props.deleteCustomerCreditCard(customer, cardId);
   }
 
   @autobind
@@ -92,7 +94,7 @@ export default class CustomerCreditCards extends React.Component {
         <CreditCardBox key={ key }
                        card={ card }
                        customerId={ this.props.customerId }
-                       onDeleteClick={ this.onDeleteClick } />
+                       onDeleteClick={ this.onDeleteClick.bind(this, card.id) } />
       );
     };
 
@@ -107,6 +109,14 @@ export default class CustomerCreditCards extends React.Component {
                                                           onSubmit={ this.onSubmitNewForm }
                                                           onChange={ this.onChangeNewFormValue }/>)}
         </ul>
+        <ConfirmationDialog
+          isVisible={ this.props.deletingId != null } /* null and undefined */
+           header='Confirm'
+          body='Are you sure you want to delete this credit card?'
+          cancel='Cancel'
+          confirm='Yes, Delete'
+          cancelAction={ this.onDeleteCancel }
+          confirmAction={ this.onDeleteConfirm } />
       </ContentBox>
     );
   }

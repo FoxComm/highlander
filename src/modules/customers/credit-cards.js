@@ -140,7 +140,7 @@ const reducer = createReducer({
       ...state,
       [customerId]: {
         ...state[customerId],
-        delitingId: cardId
+        deletingId: cardId
       }
     };
   },
@@ -150,7 +150,7 @@ const reducer = createReducer({
       ...state,
       [customerId]: {
         ...state[customerId],
-        delitingId: null
+        deletingId: null
       }
     };
   },
