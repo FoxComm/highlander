@@ -45,7 +45,12 @@ export default class Customer extends React.Component {
         <LocalNav gutter={true}>
           <a href="">Insights</a>
           <IndexLink to="customer-details" params={this.props.params}>Details</IndexLink>
-          <a>Transaction</a>
+          <li>
+            <a>Transaction</a>
+            <ul className="fc-tabbed-nav-dropdown">
+              <li><Link to="customer-returns" params={this.props.params}>Returns</Link></li>
+            </ul>
+          </li>
           <a href="">Items</a>
           <a href="">Store Credit</a>
           <a href="">Notifications</a>

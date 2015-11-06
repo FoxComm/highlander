@@ -36,4 +36,31 @@
       }
     }
   }
+
+  &-dropdown {
+    z-index: 999;
+    display: none;
+    position: absolute;
+    min-width: pxtorem(150px);
+    background: @color-white;
+    border: pxtorem(1px) solid @color-decor9;
+    box-shadow: 0 pxtorem(2px) pxtorem(4px) 0 rgba(0,0,0,0.50);
+    border-radius: pxtorem(3px);
+    top: pxtorem(30px);
+
+    li {
+      color: @color-decor1;
+      width: 100%;
+      height: pxtorem(44px);
+      a, a:hover {
+        .padding(0 20px);
+        line-height: pxtorem(44px);
+        color: @color-decor1;
+      }
+    }
+  }
+
+  &-parent {
+    position: relative;
+  }
 }

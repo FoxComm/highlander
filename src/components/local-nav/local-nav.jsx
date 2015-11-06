@@ -2,7 +2,15 @@
 
 import React, { PropTypes } from 'react';
 
-const renderItem = child => <li>{child}</li>;
+const renderItem = child => {
+  if (child.type === 'li') {
+    return React.cloneElement(child, {
+      className: 'fc-tabbed-nav-parent'
+    });
+  } else {
+    return <li>{child}</li>;
+  }
+};
 
 const LocalNav = props => {
   return (
