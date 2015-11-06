@@ -16,6 +16,8 @@ import * as CustomerCreditCardActions from '../../modules/customers/credit-cards
 }), CustomerCreditCardActions)
 export default class CustomerCreditCards extends React.Component {
 
+  ////
+  // Component default methods
   static propTypes = {
     customerId: PropTypes.number.isRequired,
     fetchCreditCards: PropTypes.func,
@@ -28,6 +30,8 @@ export default class CustomerCreditCards extends React.Component {
     this.props.fetchCreditCards(customer);
   }
 
+  ////
+  // Handlers for adding new credit card
   @autobind
   onAddClick() {
     console.log("onAddClick");
@@ -57,6 +61,26 @@ export default class CustomerCreditCards extends React.Component {
     this.props.createCreditCard(customer);
   }
 
+  ////
+  // Handlers for deleting credit card
+  @autobind
+  onDeleteClick() {
+    const customer = this.props.customerId;
+    console.log("onDeleteClick");
+  }
+
+  @autobind
+  onDeleteCancel() {
+    const customer = this.props.customerId;
+    console.log("onDeleteCancel");
+  }
+
+  @autobind
+  onDeleteConfirm() {
+    const customer = this.props.customerId;
+    console.log("onDeleteConfirm");
+  }
+
   render() {
     let actionBlock = (
       <AddButton onClick={this.onAddClick} />
@@ -67,7 +91,8 @@ export default class CustomerCreditCards extends React.Component {
       return (
         <CreditCardBox key={ key }
                        card={ card }
-                       customerId={ this.props.customerId } />
+                       customerId={ this.props.customerId }
+                       onDeleteClick={ this.onDeleteClick } />
       );
     };
 

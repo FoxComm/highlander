@@ -3,6 +3,7 @@
 import React, { PropTypes } from 'react';
 import CreditCardDetails from './card-details';
 import EditableItemCardContainer from '../item-card-container/editable-item-card-container';
+import { autobind } from 'core-decorators';
 
 export default class CreditCardBox extends React.Component {
 
@@ -19,8 +20,13 @@ export default class CreditCardBox extends React.Component {
     console.log('Is default state changed');
   }
 
+  @autobind
   handleDeleteClick() {
-    console.log('Delete button action triggered');
+    if (this.props.onDeleteClick) {
+      this.props.onDeleteClick();
+    } else {
+      console.log('Delete button action triggered');
+    }
   }
 
   render() {
