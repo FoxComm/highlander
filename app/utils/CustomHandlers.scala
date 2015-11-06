@@ -47,15 +47,11 @@ object CustomHandlers {
       ctx.complete(HttpResponse(status, entity = errorsJsonEntity(info.format(isProduction))))
     }
     case e: IllegalArgumentException ⇒ ctx ⇒ {
-      val errMsg = e.getMessage + e.getStackTrace.mkString(":" + EOL, EOL, EOL)
       ctx.log.warning(s"Bad request: {}", ctx.request)
-      ctx.complete(HttpResponse(BadRequest, entity = errorsJsonEntity(errMsg)))
+      ctx.complete(HttpResponse(BadRequest, entity = errorsJsonEntity(e.getMessage)))
     }
     case NonFatal(e) ⇒ ctx ⇒ {
-      val errMsg = if(isProduction)
-        "There was an internal server error."
-      else
-        e.getMessage + e.getStackTrace.mkString(":" + EOL, EOL, EOL)
+      val errMsg = if(isProduction) "There was an internal server error." else e.getMessage
       ctx.log.warning("Error {} during processing of request {}", e, ctx.request)
       ctx.complete(HttpResponse(InternalServerError, entity = errorsJsonEntity(errMsg)))
     }
