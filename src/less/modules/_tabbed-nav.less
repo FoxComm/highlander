@@ -7,7 +7,7 @@
   .margin(0 0 40px 0);
   border-bottom: pxtorem(2px) solid @color-decor7;
 
-  li {
+  > li {
     .font-spec(14px);
     font-weight: 600;
     color: @color-decor36;
@@ -28,12 +28,6 @@
         cursor: pointer;
         color: @color-decor37;
       }
-
-      &.is-active {
-        color: @color-decor37;
-        margin-bottom: pxtorem(-2px);
-        border-bottom: pxtorem(2px) solid @color-decor3;
-      }
     }
   }
 
@@ -46,7 +40,7 @@
     border: pxtorem(1px) solid @color-decor9;
     box-shadow: 0 pxtorem(2px) pxtorem(4px) 0 rgba(0,0,0,0.50);
     border-radius: pxtorem(3px);
-    top: pxtorem(30px);
+    top: pxtorem(31px);
 
     li {
       color: @color-decor1;
