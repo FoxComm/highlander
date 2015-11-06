@@ -37,8 +37,8 @@ export function createCreditCard(id) {
   return (dispatch, getState) => {
     dispatch(requestCustomerCreditCards(id));
 
-    const cards = _.get(getState(), 'customers.creditCards', []);
-    const cardData = _.get(cards, "${id}.newCreditCard", {});
+    const cards = _.get(getState(), 'customers.creditCards', {});
+    const cardData = _.get(cards, `${id}.newCreditCard`, {});
     console.log(cardData);
     Api.post(`/customers/${id}/payment-methods/credit-cards`, cardData)
       .then(() => {
@@ -54,9 +54,9 @@ export function confirmCreditCardDeletion(id) {
   return (dispatch, getState) => {
     dispatch(requestCustomerCreditCards(id));
 
-    // ToDo: get credit card id from state
-    const creditCardId = null;
-    Api.post(`/customers/${id}/payment-methods/credit-cards/${creditCardId}`)
+    const cards = _.get(getState(), 'customers.creditCards', {});
+    const creditCardId = _.get(cards, `${id}.deletingId`);
+    Api.delete(`/customers/${id}/payment-methods/credit-cards/${creditCardId}`)
       .then(() => {
         dispatch(closeDeleteCustomerCreditCard(id));
         fetchForCustomer(id, dispatch);
