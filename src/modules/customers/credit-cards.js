@@ -7,10 +7,12 @@ import { haveType } from '../state-helpers';
 
 // State change reducers
 export const newCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARD_NEW');
-export const closeNewCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARD_NEW_CANCEL');
+export const closeNewCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARD_NEW_CLOSE');
 export const changeNewCustomerCreditCardFormData = createAction('CUSTOMER_CREDIT_CARD_NEW_CHANGE_FORM', (id, name, value) => [id, name, value]);
 export const editCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARDS_EDIT', (customerId, cardId) => [customerId, cardId]);
 export const cancelEditCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARDS_EDIT_CANCEL', (customerId, cardId) => [customerId, cardId]);
+export const deleteCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARDS_DELETE', (customerId, cardId) => [customerId, cardId]);
+export const closeDeleteCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARDS_DELETE_CLOSE');
 
 // API reducers
 const receiveCustomerCreditCards = createAction('CUSTOMER_CREDIT_CARDS_RECEIVE', (id, cards) => [id, cards]);
@@ -35,7 +37,8 @@ export function createCreditCard(id) {
   return (dispatch, getState) => {
     dispatch(requestCustomerCreditCards(id));
 
-    const cardData = getState().customers.creditCards;
+    const cards = _.get(getState(), 'customers.creditCards', []);
+    const cardData = _.get(cards, "${id}.newCreditCard", {});
     console.log(cardData);
     Api.post(`/customers/${id}/payment-methods/credit-cards`, cardData)
       .then(() => {
@@ -44,6 +47,21 @@ export function createCreditCard(id) {
       })
       .catch(err => dispatch(failCustomerCreditCards(id, err)));
 
+  };
+}
+
+export function confirmCreditCardDeletion(id) {
+  return (dispatch, getState) => {
+    dispatch(requestCustomerCreditCards(id));
+
+    // ToDo: get credit card id from state
+    const creditCardId = null;
+    Api.post(`/customers/${id}/payment-methods/credit-cards/${creditCardId}`)
+      .then(() => {
+        dispatch(closeDeleteCustomerCreditCard(id));
+        fetchForCustomer(id, dispatch);
+      })
+      .catch(err => dispatch(failCustomerCreditCards(id, err)));
   };
 }
 
@@ -100,8 +118,8 @@ const reducer = createReducer({
     console.log('editCustomerCreditCard');
     return {
       ...state,
-      [id]: {
-        ...state[id],
+      [customerId]: {
+        ...state[customerId],
         editingId: cardId
       }
     };
@@ -110,9 +128,29 @@ const reducer = createReducer({
     console.log('cancelEditCustomerCreditCard');
     return {
       ...state,
-      [id]: {
-        ...state[id],
+      [customerId]: {
+        ...state[customerId],
         editingId: null
+      }
+    };
+  },
+  [deleteCustomerCreditCard]: (state, [customerId, cardId]) => {
+    console.log('deleteCustomerCreditCard');
+    return {
+      ...state,
+      [customerId]: {
+        ...state[customerId],
+        delitingId: cardId
+      }
+    };
+  },
+  [closeDeleteCustomerCreditCard]: (state, id) => {
+    console.log('closeDeleteCustomerCreditCard');
+    return {
+      ...state,
+      [customerId]: {
+        ...state[customerId],
+        delitingId: null
       }
     };
   },

@@ -5,6 +5,7 @@ import ContentBox from '../content-box/content-box';
 import CreditCardBox from '../credit-cards/card-box';
 import EditCreditCardBox from '../credit-cards/edit-card-box';
 import NewCreditCardBox from '../credit-cards/new-card-box';
+import ConfirmationDialog from '../modal/confirmation-dialog';
 import { AddButton } from '../common/buttons';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
