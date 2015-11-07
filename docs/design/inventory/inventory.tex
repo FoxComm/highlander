@@ -1,0 +1,398 @@
+\documentclass[11pt]{article}
+
+\usepackage{hyperref}
+\usepackage{listings}
+%for dotex
+\usepackage[pdftex]{graphicx}
+\usepackage[pdf]{graphviz}
+\usepackage[boxed]{algorithm2e} %end for dote
+\usepackage{color}
+
+% "define" Scala
+\lstdefinelanguage{scala}{
+  morekeywords={abstract,case,catch,class,def,%
+    do,else,extends,false,final,finally,%
+    for,if,implicit,import,match,mixin,%
+    new,null,object,override,package,%
+    private,protected,requires,return,sealed,%
+    super,this,throw,trait,true,try,%
+    type,val,var,while,with,yield},
+  otherkeywords={=>,<-,<\%,<:,>:,\#,@},
+  sensitive=true,
+  morecomment=[l]{//},
+  morecomment=[n]{/*}{*/},
+  morestring=[b]",
+  morestring=[b]',
+  morestring=[b]"""
+}
+
+\lstset{ %
+    language=scala,
+    identifierstyle=\textbf
+}
+
+\title{Inventory Design}
+\author{Maxim Noah Khailo}
+\begin{document}
+\maketitle
+\section{Purpose}
+
+An inventory system provides a way to determine if a SKU is in stock. 
+
+\section{Forces}
+
+There are several forces that the architecture of the inventory system has to balance.
+
+\begin{itemize}
+        \item Connectability to WMSes.
+        \item Connectability to storefronts
+        \item Filtering and grouping by SKUs
+        \item Filtering and grouping by Catalog information 
+        \item Managing an audit trail of inventory changes.
+\end{itemize}
+
+The design here will provide a space to balance these forces.
+
+\section{Concepts}
+
+This section provides several concepts which can be combined to provide the functionality 
+of the inventory system.
+
+\subsection{Identifiable}
+
+Something you can assign an id to. This is used for equality checking, filtering, and search.
+
+\begin{lstlisting}
+    type Id = String
+    trait Identifiable {
+        def id(): Id
+    }
+\end{lstlisting}
+
+\subsection{SingularUnit}
+
+Something where all values are of a single unit.
+
+\begin{lstlisting}
+    type UnitType = String
+    trait SingularUnit {
+        def unit(): UnitType
+    }
+\end{lstlisting}
+
+\subsection{Location, ShippingRestriction}
+
+A trait for filtering based on shipping. This needs to be flushed out more based on
+Jeff's shipping restrictions work.
+
+\begin{lstlisting}
+    type Location = String
+    trait Locatable {
+        def location() : Location
+    }
+
+    trait HasShippingRestrictions {
+        def shippingRestrictions(): Seq[ShippingRestrictions]
+    }
+
+\end{lstlisting}
+
+\subsection{OnHand}
+
+Something which can be counted using some units, for example a SKU. 
+The setAmount function is used by a WMS for updating. This function
+can also be a good place to implement audit trail.
+
+\begin{lstlisting}
+
+    trait OnHand extends Identifiable with SingularUnit{ 
+        def onHand(): Int
+    }
+\end{lstlisting}
+
+
+\subsection{Handy}
+
+A collection of On Hand things. For example, a Sku
+
+\begin{lstlisting}
+    trait Handy {
+        def findOnHand(id: Id): Result[OnHand]
+    }
+\end{lstlisting}
+
+\subsection{Holdable}
+
+An holdable is a trait which modifies adjusts the on hand amount without mutating the original
+amount.
+
+\begin{lstlisting}
+    trait Holdable extends Identifiable with SingularUnit { 
+        def held() : Int
+    }
+\end{lstlisting}
+
+
+\subsection{Holdables}
+
+A collection of held things. For example our Inventory system.
+
+\begin{lstlisting}
+    trait Holdables { 
+        def findHoldable(id: Id): Result[Holdable]
+    }
+\end{lstlisting}
+
+\subsection{Reservable}
+
+A reservable is something that goes out of availability. 
+
+\begin{lstlisting}
+    class Reservable extends Identifiable with SingularUnit{ 
+        def reserved() : Result[Int]
+    }
+\end{lstlisting}
+
+\subsection{Reservables}
+
+A collection of reservable things. 
+
+\begin{lstlisting}
+    trait Reservables {
+        def findReservable(id: Id): Result[Reservable]
+    }
+\end{lstlisting}
+
+\subsection{NonSellable}
+
+A non sellable is something that isn't available yet. For example, boxes arrived
+in loading dock for a sku.
+
+\begin{lstlisting}
+    class NonSellable extends Identifiable with SingularUnit{ 
+        def nonSellable() : Result[Int]
+    }
+\end{lstlisting}
+
+\subsection{NonSellables}
+
+A collection of non sellable things. 
+
+\begin{lstlisting}
+    trait NonSellables {
+        def findNonSellable(id: Id): Result[NonSellable]
+    }
+\end{lstlisting}
+
+\subsection{InventoryItem}
+
+A inventory item combines several concepts into one that provides the various values that
+make up the inventory calculation.
+
+\begin{lstlisting}
+    trait InventoryItem extends 
+        OnHand with 
+        Reservable with
+        Holdable with
+        NonSellable{}
+\end{lstlisting}
+
+\subsection{InventoryItems}
+
+A collection of inventory items.
+
+\begin{lstlisting}
+    trait InventoryItems extends
+        OnHand with
+        Reservables with
+        Holdables with
+        NonSellables {
+
+        def findInventoryItem(id: Id): Result[InventoryItem]
+    }
+\end{lstlisting}
+
+\subsection{Adjustments}
+
+Adjustments are designed to model the ledger which is used to modify inventory items.
+The adjustments are applied by a warehouse to inventory items.
+
+\begin{lstlisting}
+    object Adjustments {
+        sealed trait Adjustment
+        case class OnHand(id: Id, amount: Int) extends Adjustment
+        case class Held(id: Id, amount: Int) extends Adjustment
+        case class Reserved(id: Id, amount: Int) extends Adjustment
+        case class NonSellable(id: Id, amount: Int) extends Adjustment
+        case class And(left: Adjustment, right: Adjustment)
+
+        type Ledger = Seq[Adjustment]
+    }
+\end{lstlisting}
+
+\subsection{Warehouse}
+
+A Warehouse is a set of inventory items. It has a location and shipping restrictions.  
+It can return inventory items and also apply adjustments to the inventory.
+
+The implementation to this will integrate with a 3rd party WMS and our own inventory 
+tracking database.
+
+\begin{lstlisting}
+    trait Warehouse extends 
+      Identifiable with
+      Locatable with
+      HasShippingRestrictions with
+      InventoryItems {
+
+          def apply(adjustments: Adjustments.Ledger) : Result[Unit]
+      
+      }
+\end{lstlisting}
+
+\subsection{WarehouseManagementSystem}
+
+This is to model the integration with a WMS. At the highest level it supports
+an update process which is automatic or manual. It also returns a sequence of warehouses
+the WMS manages.
+
+\begin{lstlisting}
+    trait WarehouseManagementSystem extends Identifiable { 
+        def warehouses() : Seq[Warehouses]
+        def update(Warehouse): Future[Result]
+    }
+\end{lstlisting}
+
+\section{Models}
+
+Given the concepts above we can define some models like SKU, and WMS 
+
+\subsection{InventorySku}
+
+An inventory Sku represents an inventory item. It also computes available for sale of a
+sku in a particular warehouse.
+
+\begin{lstlisting}
+    case class InventorySku( item: InventoryItem, restrictions: ShippingRestrictions) extends 
+        HasShippingRestrictions with InventoryItem {
+
+        def id() = item.id()
+
+        def availableForSale(): Int = 
+            math.max(item.onHand() - item.reserved() - item.held(), 0)
+
+        def onHand() = item.onHand()
+        def held() = item.held()
+        def reserved() = item.reserved()
+        def nonSellable() = item.nonSellable()
+        def unit() = item.unit()
+        def shippingRestrictions() = restrictions
+    }
+\end{lstlisting}
+
+\subsection{Inventory}
+
+An inventory is a collection of warehouses. It will implement the algorithm that finds
+skus in warehouses and computes availble for sale.
+
+\begin{lstlisting}
+    class SearchContext(
+        l: Option[Location],
+        w: Option[Id],
+        f: InventoryItem => Boolean) {
+            val location = l
+            val warehouseId = w
+            val filter = f
+    }
+
+    case class Inventory(inventoryId: Id, warehouses: Seq[Warehouse]) {
+        def id() = inventoryId
+
+        def findInventoryItems( id: Id, c: SearchContext)(implicit ec: ExecutionContext) : Seq[Result[InventoryItem]] = {
+            warehouses.map{_.findInventoryItem(id)}
+        }
+
+        def findShippingRestrictions(id: Id)(implicit ec: ExecutionContext): Result[ShippingRestrictions] = 
+            Result.good(Seq.empty) //TODO: Implement
+
+        def findSkus(id: Id, c: SearchContext)(implicit ec: ExecutionContext) : Seq[Result[InventorySku]] = {
+            val restrictions = Seq.empty
+            for {
+            items ← findInventoryItems(id, c)
+            } yield items flatMap {
+                case Xor.Right(item) ⇒  Result.good(InventorySku(item, restrictions))
+                case Xor.Left(failures) ⇒  Result.failures(failures)
+            }
+        }
+    }
+\end{lstlisting}
+
+\subsection{Discussion}
+
+The idea behind the inventory model is to model the half object of the Sku. WMSes do not
+keep track of held items from a storefront.
+
+If we trust the on hand amount, we can only hold it on the other side via
+a holdable. The other concept is a reservable and this is to model the order reserve transaction
+which would send the reserve to a WMS.
+
+We can then have implementations of a warehouse that polls from a WMS creating cached inventory items
+in a DB or somewhere else which regularly updates. We can also implement an holdable that
+gets its value from a DB stored by the inventory system. Combining the cached and held value
+gives you the SKU and amount for sale.
+
+Filtering based on shipping restrictions from and to. We can also do more fancier
+things like filtering based on attributes for display purposes.
+
+Notice that you cannot simply find one SKU in the inventory system, but it returns multiple
+SKUs as a SKU can be in multiple warehouses.
+
+AFS becomes an accumulation over the SKUs
+
+\section{Architecture}
+
+The inventory system will be composed of an inventory and a set of WMSes. 
+
+\begin{lstlisting}
+    class InventorySystem(i: Inventory, 
+        ws: Seq[WarehouseManagementSystem]) {
+
+            var inventory = i;
+            val wmses = ws
+
+            def afs(sku: Id) = //stuff
+            def afs(sku: Id, c: SearchContext) = //stuff
+    }
+
+    class InventorySystems(syss: Seq[InventorySystems]) {
+        def systems = syss
+
+        def findSystem(id: Id) = //gets system by id
+    }
+
+\end{lstlisting}
+
+\subsection{Diagram}
+\digraph{Parts} {
+    node [shape=record];
+    InventorySystem [label="<f0>InventorySystem | {inventory | WMSes}"];
+    Inventory [label="<f0>Inventory | {id | warehouses}"];
+    Warehouse [label="<f0>Warehouse | {id | find(..)}"];
+    WMS [label="<f0>WMS | {warehouses | update(Warehouse)}"];
+    ActualWMS [label="Actual WMS"]
+    InventorySystem -> Inventory [label="Has One"];
+    Inventory -> Warehouse [label="Has Many"];
+    InventorySystem -> WMS [label="Has Many"];
+    WMS -> Warehouse [label="Has Many"];
+    WMS -> ActualWMS [label="Integrates With"];
+    Warehouse -> ActualWMS [label="Possibly Integrates With"];
+}
+
+\section{TODO}
+
+\begin{itemize}
+    \item Todo, flush out shipping restrictions
+    \item Figure out how to incorporate catalog and filtering
+\end{itemize}
+
+\end{document}
