@@ -27,7 +27,7 @@ const OrderDetails = (props) => {
   );
 };
 
-OrderDetails.propsTypes = {
+OrderDetails.propTypes = {
   order: PropTypes.shape({
     currentOrder: PropTypes.object
   }).isRequired
