@@ -11,17 +11,8 @@ export default class Viewers extends React.Component {
   constructor(props, context) {
     super(props, context);
     ViewerStore.uriRoot = `${this.props.model}/${this.props.modelId}`;
-    this.state = {
-      viewers: []
-    };
-  }
-
-  componentDidMount() {
-    ViewerStore.listenToEvent('change', this);
-    // disabled until we have API for this
-    // this.onTimeout();
     // mock data
-    this.setState({
+    this.state = {
       viewers: [
         {
           id: 1,
@@ -48,7 +39,13 @@ export default class Viewers extends React.Component {
           email: 'jeff@foxcommerce.com'
         }
       ]
-    });
+    };
+  }
+
+  componentDidMount() {
+    ViewerStore.listenToEvent('change', this);
+    // disabled until we have API for this
+    // this.onTimeout();
   }
 
   componentWillUnmount() {
