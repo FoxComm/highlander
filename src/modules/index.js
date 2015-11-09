@@ -6,6 +6,7 @@ import orders from './orders';
 import order from './order';
 import rmas from './rmas';
 import notes from './notes';
+import countries from './countries';
 
 const rootReducer = combineReducers({
   router: routerStateReducer,
@@ -14,7 +15,8 @@ const rootReducer = combineReducers({
   orders,
   order,
   rmas,
-  notes
+  notes,
+  countries
 });
 
 export default rootReducer;
