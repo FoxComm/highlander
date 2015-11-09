@@ -19,7 +19,7 @@ import utils.Slick.implicits._
 
 final case class Rma(id: Int = 0, referenceNumber: String = "", orderId: Int, orderRefNum: String,
   rmaType: RmaType = Standard, status: Status = Pending, locked: Boolean = false,
-  customerId: Option[Int] = None, storeAdminId: Option[Int] = None, createdAt: Instant = Instant.now,
+  customerId: Int, storeAdminId: Option[Int] = None, createdAt: Instant = Instant.now,
   updatedAt: Instant = Instant.now, deletedAt: Option[Instant] = None)
   extends ModelWithLockParameter[Rma]
   with FSM[Rma.Status, Rma] {
@@ -74,7 +74,7 @@ class Rmas(tag: Tag) extends GenericTable.TableWithLock[Rma](tag, "rmas")  {
   def rmaType = column[RmaType]("rma_type")
   def status = column[Status]("status")
   def locked = column[Boolean]("locked")
-  def customerId = column[Option[Int]]("customer_id")
+  def customerId = column[Int]("customer_id")
   def storeAdminId = column[Option[Int]]("store_admin_id")
   def createdAt = column[Instant]("created_at")
   def updatedAt = column[Instant]("updated_at")
@@ -91,35 +91,6 @@ object Rmas extends TableQueryWithLock[Rma, Rmas](
   override def primarySearchTerm: String = "referenceNumber"
 
   val returningIdAndReferenceNumber = this.returning(map { rma ⇒ (rma.id, rma.referenceNumber) })
-
-  def sortedAndPaged(query: QuerySeq)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata = {
-    query.withMetadata.sortAndPageIfNeeded { (s, rma) ⇒
-      s.sortColumn match {
-        case "id"               ⇒ if (s.asc) rma.id.asc               else rma.id.desc
-        case "referenceNumber"  ⇒ if (s.asc) rma.referenceNumber.asc  else rma.referenceNumber.desc
-        case "orderId"          ⇒ if (s.asc) rma.orderId.asc          else rma.orderId.desc
-        case "orderRefNum"      ⇒ if (s.asc) rma.orderRefNum.asc      else rma.orderRefNum.desc
-        case "rmaType"          ⇒ if (s.asc) rma.rmaType.asc          else rma.rmaType.desc
-        case "status"           ⇒ if (s.asc) rma.status.asc           else rma.status.desc
-        case "locked"           ⇒ if (s.asc) rma.locked.asc           else rma.locked.desc
-        case "customerId"       ⇒ if (s.asc) rma.customerId.asc       else rma.customerId.desc
-        case "storeAdminId"     ⇒ if (s.asc) rma.storeAdminId.asc     else rma.storeAdminId.desc
-        case other              ⇒ invalidSortColumn(other)
-      }
-    }
-  }
-
-  def queryAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata =
-    sortedAndPaged(this)
-
-  def queryByOrderRefNum(refNum: String)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata =
-    sortedAndPaged(findByOrderRefNum(refNum))
-
-  def queryByCustomerId(customerId: Int)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata =
-    sortedAndPaged(findByCustomerId(customerId))
 
   override def saveNew(rma: Rma)(implicit ec: ExecutionContext): DBIO[Rma] = for {
     (newId, refNum) ← returningIdAndReferenceNumber += rma

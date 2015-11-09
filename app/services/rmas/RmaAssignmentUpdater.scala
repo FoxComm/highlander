@@ -46,7 +46,7 @@ object RmaAssignmentUpdater {
       rmas ← Rmas.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result
       admin ← StoreAdmins.findById(payload.assigneeId).result
       newAssignments = for (r ← rmas; a ← admin) yield RmaAssignment(rmaId = r.id, assigneeId = a.id)
-      allRmas ← (RmaAssignments ++= newAssignments) >> RmaQueries.findAll.result
+      allRmas ← (RmaAssignments ++= newAssignments) >> RmaQueries.findAll(Rmas).result
       adminNotFound = adminNotFoundFailure(admin.headOption, payload.assigneeId)
       rmasNotFound = rmasNotFoundFailures(payload.referenceNumbers, rmas.map(_.referenceNumber))
     } yield ResponseWithFailuresAndMetadata.fromXor(
@@ -67,7 +67,7 @@ object RmaAssignmentUpdater {
         .filter(_.assigneeId === payload.assigneeId)
         .filter(_.rmaId.inSetBind(rmas.map(_.id)))
         .delete
-      allRmas ← delete >> RmaQueries.findAll.result
+      allRmas ← delete >> RmaQueries.findAll(Rmas).result
       adminNotFound = adminNotFoundFailure(adminId.headOption, payload.assigneeId)
       rmasNotFound = rmasNotFoundFailures(payload.referenceNumbers, rmas.map(_.referenceNumber))
     } yield ResponseWithFailuresAndMetadata.fromXor(

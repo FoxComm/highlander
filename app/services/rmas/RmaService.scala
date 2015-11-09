@@ -3,6 +3,7 @@ package services.rmas
 import scala.concurrent.{Future, ExecutionContext}
 
 import models._
+import responses.AllRmas
 import services._
 import responses.RmaResponse._
 import slick.driver.PostgresDriver.api._
@@ -23,25 +24,21 @@ object RmaService {
     finder.selectOne(rma ⇒ DbResult.fromDbio(fromRmaExpanded(rma)))
   }
 
-  def findAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
-    Rmas.queryAll.result.map(_.map(build(_)))
-  }
-
   def findByOrderRef(refNum: String)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Future[ResultWithMetadata[Seq[Root]]] = {
+    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Future[ResultWithMetadata[Seq[AllRmas.Root]]] = {
 
     val finder = Orders.findByRefNum(refNum)
     finder.selectOneWithMetadata({
-      order ⇒ Rmas.queryByOrderRefNum(refNum).result.map(_.map(build(_)))
+      order ⇒ RmaQueries.findAll(Rmas.findByRefNum(refNum))
     })
   }
 
   def findByCustomerId(customerId: Int)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Future[ResultWithMetadata[Seq[Root]]] = {
+    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Future[ResultWithMetadata[Seq[AllRmas.Root]]] = {
 
     val finder = Customers.filter(_.id === customerId)
     finder.selectOneWithMetadata({
-      customer ⇒ Rmas.queryByCustomerId(customerId).result.map(_.map(build(_)))
+      customer ⇒ RmaQueries.findAll(Rmas.findByCustomerId(customerId))
     })
   }
 }

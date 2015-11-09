@@ -30,7 +30,7 @@ object RmaRoutes {
       pathPrefix("rmas") {
         (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
           goodOrFailures {
-            RmaService.findAll
+            RmaQueries.findAll(Rmas)
           }
         } ~
         (get & path("customer" / IntNumber)) { customerId ⇒

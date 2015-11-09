@@ -50,7 +50,7 @@ with SortingAndPaging[RmaResponse.Root] {
         referenceNumber = s"RMA-$i",
         orderId = currentOrder.id,
         orderRefNum = currentOrder.referenceNumber,
-        customerId = Some(currentCustomer.id))
+        customerId = currentCustomer.id)
       ).run()
 
       future.map(RmaResponse.build(_))
@@ -306,7 +306,7 @@ with SortingAndPaging[RmaResponse.Root] {
         referenceNumber = "ABC-123.1",
         orderId = order.id,
         orderRefNum = order.referenceNumber,
-        customerId = Some(customer.id)))
+        customerId = customer.id))
     } yield (storeAdmin, customer, order, rma)).run().futureValue
   }
 }

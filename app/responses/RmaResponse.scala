@@ -154,8 +154,8 @@ object RmaResponse {
 
   private def fetchRmaDetails(rma: Rma)(implicit ec: ExecutionContext, db: Database) = {
     for {
-      customer ← rma.customerId.map(id ⇒ Customers.findById(id).extract.one).getOrElse(lift(None))
-      storeAdmin ← rma.customerId.map(id ⇒ StoreAdmins.findById(id).extract.one).getOrElse(lift(None))
+      customer ← Customers.findById(rma.customerId).extract.one
+      storeAdmin ← rma.storeAdminId.map(id ⇒ StoreAdmins.findById(id).extract.one).getOrElse(lift(None))
 
       assignments ← RmaAssignments.filter(_.rmaId === rma.id).result
       admins ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.assigneeId))).result
@@ -167,8 +167,8 @@ object RmaResponse {
       order ← Orders.findById(rma.orderId).extract.one
       fullOrder ← order.map(o ⇒ FullOrder.fromOrder(o).map(Some(_))).getOrElse(lift(None))
 
-      customer ← rma.customerId.map(id ⇒ Customers.findById(id).extract.one).getOrElse(lift(None))
-      storeAdmin ← rma.customerId.map(id ⇒ StoreAdmins.findById(id).extract.one).getOrElse(lift(None))
+      customer ← Customers.findById(rma.customerId).extract.one
+      storeAdmin ← rma.storeAdminId.map(id ⇒ StoreAdmins.findById(id).extract.one).getOrElse(lift(None))
 
       assignments ← RmaAssignments.filter(_.rmaId === rma.id).result
       admins ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.assigneeId))).result

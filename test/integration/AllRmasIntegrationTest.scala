@@ -136,8 +136,8 @@ with AutomaticAuth {
     val (rma1, rma2, admin) = (for {
       customer ← Customers.saveNew(Factories.customer)
       order ← Orders.saveNew(Factories.order.copy(id = 1, referenceNumber = "foo", customerId = customer.id))
-      rma1 ← Rmas.saveNew(Factories.rma.copy(id = 1, referenceNumber = "foo", customerId = Some(customer.id)))
-      rma2 ← Rmas.saveNew(Factories.rma.copy(id = 2, referenceNumber = "bar", customerId = Some(customer.id)))
+      rma1 ← Rmas.saveNew(Factories.rma.copy(id = 1, referenceNumber = "foo", customerId = customer.id))
+      rma2 ← Rmas.saveNew(Factories.rma.copy(id = 2, referenceNumber = "bar", customerId = customer.id))
       admin ← StoreAdmins.saveNew(Factories.storeAdmin)
     } yield (rma1, rma2, admin)).run().futureValue
 
