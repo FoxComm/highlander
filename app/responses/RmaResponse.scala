@@ -49,7 +49,6 @@ object RmaResponse {
     assignees: Seq[AssignmentResponse.Root],
     createdAt: Instant,
     updatedAt: Instant,
-    deletedAt: Option[Instant] = None,
     total: Totals) extends ResponseItem
 
   final case class RootExpanded(
@@ -65,7 +64,6 @@ object RmaResponse {
     assignees: Seq[AssignmentResponse.Root],
     createdAt: Instant,
     updatedAt: Instant,
-    deletedAt: Option[Instant] = None,
     total: Totals) extends ResponseItem
 
   final case class LineItems(
@@ -132,7 +130,6 @@ object RmaResponse {
       assignees = assignees,
       createdAt = rma.createdAt,
       updatedAt = rma.updatedAt,
-      deletedAt = rma.deletedAt,
       total = mockTotal)
   }
 
@@ -148,7 +145,6 @@ object RmaResponse {
       assignees = assignees,
       createdAt = rma.createdAt,
       updatedAt = rma.updatedAt,
-      deletedAt = rma.deletedAt,
       total = mockTotal)
   }
 

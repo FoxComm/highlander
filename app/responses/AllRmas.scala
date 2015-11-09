@@ -6,6 +6,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import models._
 import slick.driver.PostgresDriver.api._
+import utils.Slick._
 
 object AllRmas {
   type Response = Future[Seq[Root]]
@@ -21,15 +22,15 @@ object AllRmas {
     status: Rma.Status,
     customer: CustomerResponse.Root,
     storeAdmin: Option[StoreAdminResponse.Root] = None,
+    assignees: Seq[AssignmentResponse.Root],
     createdAt: Instant,
     updatedAt: Instant,
-    deletedAt: Option[Instant] = None,
     total: Option[Int] = None
     ) extends ResponseItem
 
   def build(rma: Rma, customer: Customer, admin: Option[StoreAdmin] = None)
-    (implicit ec: ExecutionContext): DBIO[Root] = {
-    DBIO.successful(
+    (implicit ec: ExecutionContext, db: Database): DBIO[Root] = {
+    fetchAssignees(rma).map { case (assignments) ⇒
       Root(
         id = rma.id,
         referenceNumber = rma.referenceNumber,
@@ -39,11 +40,18 @@ object AllRmas {
         status = rma.status,
         customer = CustomerResponse.build(customer),
         storeAdmin = admin.map(StoreAdminResponse.build),
+        assignees = assignments.map((AssignmentResponse.buildForRma _).tupled),
         createdAt = rma.createdAt,
         updatedAt = rma.updatedAt,
-        deletedAt = rma.deletedAt,
         total = Some(mockTotal)
       )
-    )
+    }
+  }
+
+  private def fetchAssignees(rma: Rma)(implicit ec: ExecutionContext, db: Database) = {
+    for {
+      assignments ← RmaAssignments.filter(_.rmaId === rma.id).result
+      admins ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.assigneeId))).result
+    } yield assignments.zip(admins)
   }
 }
