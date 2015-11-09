@@ -13,6 +13,10 @@ const subtitle = (props) => {
   }
 };
 
+subtitle.propTypes = {
+  subtitle: PropTypes.node
+};
+
 const Title = (props) => {
   return (
     <h1 className="fc-section-title-title">
