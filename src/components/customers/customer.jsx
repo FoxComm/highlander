@@ -17,6 +17,7 @@ export default class Customer extends React.Component {
       customer: PropTypes.string.isRequired
     }).isRequired,
     details: PropTypes.object,
+    fetchCustomer: PropTypes.func,
     children: PropTypes.node
   };
 
