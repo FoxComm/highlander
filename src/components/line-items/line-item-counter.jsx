@@ -5,13 +5,6 @@ import Counter from '../forms/counter';
 import ConfirmModal from '../modal/confirm';
 import LineItemActions from '../../actions/line-items';
 
-const confirmOptions = {
-  header: 'Confirm',
-  body: 'Are you sure you want to delete this item?',
-  cancel: 'Cancel',
-  proceed: 'Yes, Delete'
-};
-
 const LineItemCounter = (props) => {
   return (
     <Counter
@@ -21,7 +14,7 @@ const LineItemCounter = (props) => {
       maxValue={1000000}
       model={props.model}
       stepUp={props.stepUp}
-      stepDown={props.stepDown} />
+      stepDown={props.stepDown}/>
   );
 };
 
