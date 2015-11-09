@@ -86,21 +86,52 @@ export default class CustomerCreditCards extends React.Component {
   }
 
   ////
+  // Handlers for editing credit card
+  @autobind
+  onEditClick(cardId) {
+    const customer = this.props.customerId;
+    console.log("onEditClick");
+    console.log(cardId);
+    this.props.editCustomerCreditCard(customer, cardId);
+  }
+
+  @autobind
+  onEditCancel() {
+    const customer = this.props.customerId;
+    console.log("onEditCancel");
+    this.props.cancelEditCustomerCreditCard(customer);
+  }
+
+  ////
   // Rendering
   render() {
-    let actionBlock = (
+    const actionBlock = (
       <AddButton onClick={this.onAddClick} />
     );
 
-    let createCardBox = (card) => {
-      let key = `cutomer-card-${ card.id }`;
-      return (
-        <CreditCardBox key={ key }
-                       card={ card }
-                       customerId={ this.props.customerId }
-                       onDeleteClick={ this.onDeleteClick.bind(this, card.id) } />
-      );
+    const createCardBox = (card) => {
+      const key = `cutomer-card-${ card.id }`;
+      let box = null;
+      if (card.id === this.props.editingId) {
+        box = (
+          <EditCreditCardBox key={ key }
+                             card={ card }
+                             customerId={ this.props.customerId }
+                             onCancel={ this.onEditCancel } />
+        );
+      } else {
+        box = (
+          <CreditCardBox key={ key }
+                         card={ card }
+                         customerId={ this.props.customerId }
+                         onDeleteClick={ this.onDeleteClick.bind(this, card.id) }
+                         onEditClick={ this.onEditClick.bind(this, card.id) } />
+        );
+      }
+      return box;
     };
+
+    const showConfirm = this.props.deletingId !== undefined && this.props.deletingId !== null;
 
     return (
       <ContentBox title="Credit Cards"
@@ -114,8 +145,8 @@ export default class CustomerCreditCards extends React.Component {
                                                           onChange={ this.onChangeNewFormValue }/>)}
         </ul>
         <ConfirmationDialog
-          isVisible={ this.props.deletingId != null } /* null and undefined */
-           header='Confirm'
+          isVisible={ showConfirm }
+          header='Confirm'
           body='Are you sure you want to delete this credit card?'
           cancel='Cancel'
           confirm='Yes, Delete'

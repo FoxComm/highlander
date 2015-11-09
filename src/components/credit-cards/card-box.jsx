@@ -30,14 +30,15 @@ export default class CreditCardBox extends React.Component {
   }
 
   render() {
-    let card = this.props.card;
+    const card = this.props.card;
 
     return (
       <EditableItemCardContainer className="fc-credit-cards"
                                  checkboxLabel="Default card"
                                  initiallyIsDefault={ card.isDefault }
                                  checkboxClickHandler={ this.handleIsDefaultChange }
-                                 deleteHandler={ this.handleDeleteClick }>
+                                 deleteHandler={ this.handleDeleteClick }
+                                 editHandler={ this.props.onEditClick } >
         <CreditCardDetails customerId={ this.props.customerId} card={ this.props.card } />
       </EditableItemCardContainer>
     );
