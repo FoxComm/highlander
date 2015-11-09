@@ -12,7 +12,7 @@ const Moment = props => {
 };
 
 Moment.propTypes = {
-  value: PropTypes.string.isRequired,
+  value: PropTypes.string,
   format: PropTypes.string
 };
 
