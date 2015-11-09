@@ -18,4 +18,14 @@ Table.propTypes = {
   renderRow: PropTypes.func
 };
 
+Table.defaultProps = {
+  columns: [],
+  data: {
+    rows: [],
+    from: 0,
+    size: 0,
+    total: 0
+  }
+};
+
 export default Table;

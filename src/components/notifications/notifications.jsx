@@ -1,8 +1,7 @@
 'use strict';
 
 import React, { PropTypes } from 'react';
-import TableHead from '../tables/head';
-import TableBody from '../tables/body';
+import TableView from '../table/tableview';
 import NotificationStore from '../../stores/notifications';
 import ResendButton from './button';
 
@@ -53,12 +52,7 @@ export default class Notifications extends React.Component {
   render() {
     return (
       <div id="notifications">
-        <table className="fc-table">
-          <TableHead columns={this.props.tableColumns}/>
-          <TableBody columns={this.props.tableColumns} rows={this.state.notifications} model='notification'>
-            <ResendButton />
-          </TableBody>
-        </table>
+        <TableView columns={this.props.tableColumns} data={{rows: this.state.notifications}} />
       </div>
     );
   }

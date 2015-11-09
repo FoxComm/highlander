@@ -1,8 +1,7 @@
 'use strict';
 
 import React from 'react';
-import TableHead from '../tables/head';
-import TableBody from '../tables/body';
+import TableView from '../table/tableview';
 import UserInitials from '../users/initials';
 import ActivityTrailStore from '../../stores/activity-trail';
 import { pluralize } from 'fleck';
@@ -34,13 +33,7 @@ export default class ActivityTrail extends React.Component {
     return (
       <div id="activity-trail">
         <h2>Activity Trail</h2>
-        <table className="fc-table">
-          <TableHead columns={this.props.tableColumns}/>
-          <TableBody columns={this.props.tableColumns} rows={this.state.activities}
-                     model={this.props.entity.entityType}>
-            <UserInitials/>
-          </TableBody>
-        </table>
+        <TableView columns={this.props.tableColumns} data={{rows: this.state.activities}}/>
       </div>
     );
   }

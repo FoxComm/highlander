@@ -10,8 +10,8 @@ import SectionTitle from '../section-title/section-title';
 import { PrimaryButton } from '../common/buttons';
 import LocalNav from '../local-nav/local-nav';
 import { PanelList, PanelListItem } from '../panel/panel-list';
-import { rmaStatuses } from '../../lib/format';
 import ContentBox from '../content-box/content-box';
+import Status from '../common/status';
 
 @connect((state, props) => ({
   rma: state.rmas.details
@@ -82,10 +82,6 @@ export default class Rma extends React.Component {
     return `for order ${this.rma.orderId}`;
   }
 
-  get returnState() {
-    return rmaStatuses[this.rma.status];
-  }
-
   render() {
     const rma = this.rma;
     const params = {rma: rma && rma.referenceNumber || ''};
@@ -100,7 +96,7 @@ export default class Rma extends React.Component {
           <div className="fc-col-md-3-4">
             <PanelList>
               <PanelListItem title="Return State">
-                {this.returnState}
+                <Status value={this.rma.status} model="rma"/>
               </PanelListItem>
               <PanelListItem title="Return Type">
                 {rma.rmaType}

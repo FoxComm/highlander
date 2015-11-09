@@ -6,8 +6,8 @@ import TablePaginator from './paginator';
 import TablePageSize from './pagesize';
 
 const TableView = (props) => {
-  const setState = props.setState.bind(this, props.data);
-  const tableNeedsPagination = props.paginator && props.data.total > 0;
+  const setState = props.setState && props.setState.bind(this, props.data);
+  const tableNeedsPagination = props.paginator && props.setState && props.data.total > 0;
   const tablePaginator = tableNeedsPagination && (
       <TablePaginator
         total={props.data.total}
@@ -45,13 +45,8 @@ const TableView = (props) => {
 
 TableView.propTypes = {
   columns: PropTypes.array.isRequired,
-  data: PropTypes.shape({
-    rows: PropTypes.array,
-    total: PropTypes.number,
-    from: PropTypes.number,
-    size: PropTypes.number
-  }).isRequired,
-  setState: PropTypes.func.isRequired,
+  data: PropTypes.object,
+  setState: PropTypes.func,
   renderRow: PropTypes.func,
   paginator: PropTypes.bool
 };
