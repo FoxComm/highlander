@@ -17,7 +17,10 @@ import * as giftCardActions from '../../modules/gift-cards/cards';
 export default class GiftCards extends React.Component {
 
   static propTypes = {
-    tableColumns: PropTypes.array
+    giftCards: PropTypes.object,
+    tableColumns: PropTypes.array,
+    fetch: PropTypes.func,
+    setFetchParams: PropTypes.func
   };
 
   static defaultProps = {
