@@ -2,7 +2,7 @@
 
 import React, { PropTypes } from 'react';
 
-const subtitle = (props) => {
+const SubTitle = (props) => {
   if (props.subtitle) {
     return (
       <span className="fc-section-title-subtitle fc-light">
@@ -13,7 +13,7 @@ const subtitle = (props) => {
   }
 };
 
-subtitle.propTypes = {
+SubTitle.propTypes = {
   subtitle: PropTypes.node
 };
 
@@ -21,7 +21,7 @@ const Title = (props) => {
   return (
     <h1 className="fc-section-title-title">
       { props.title }
-      { subtitle(props) }
+      { SubTitle(props) }
     </h1>
   );
 };
