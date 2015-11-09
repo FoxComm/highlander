@@ -4,6 +4,7 @@ import java.time.Instant
 
 import scala.concurrent.ExecutionContext
 
+import cats.data.Xor
 import com.pellucid.sealerate
 import models.GiftCardAdjustment.{Auth, Status}
 import models.Notes._
@@ -11,6 +12,7 @@ import monocle.macros.GenLens
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
+import services.Failures
 import utils.CustomDirectives.SortAndPage
 import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId}
 import utils.Slick.implicits._
@@ -23,6 +25,7 @@ final case class GiftCardAdjustment(id: Int = 0, giftCardId: Int, orderPaymentId
   import GiftCardAdjustment._
 
   def stateLens = GenLens[GiftCardAdjustment](_.status)
+  override def updateTo(newModel: GiftCardAdjustment): Failures Xor GiftCardAdjustment = super.transitionModel(newModel)
 
   def getAmount: Int = if (credit > 0) credit else -debit
 

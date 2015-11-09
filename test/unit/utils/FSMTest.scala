@@ -1,7 +1,9 @@
 package utils
 
+import cats.data.Xor
 import monocle.macros.GenLens
 import org.scalatest.prop.TableDrivenPropertyChecks._
+import services.Failures
 import util.TestBase
 
 class FSMTest extends TestBase {
@@ -13,8 +15,9 @@ class FSMTest extends TestBase {
   case object LockAndPop extends Operation
   case object BreakItDown extends Operation
 
-  case class Robot(state: Operation) extends FSM[Operation, Robot] {
+  case class Robot(id: Int = 0, state: Operation) extends ModelWithIdParameter[Robot] with FSM[Operation, Robot] {
     val stateLens = GenLens[Robot](_.state)
+    override def updateTo(newModel: Robot): Failures Xor Robot = super.transitionModel(newModel)
 
     val fsm: Map[Operation, Set[Operation]] = Map(
       Pop → Set(Lock, LockAndPop),
@@ -31,8 +34,8 @@ class FSMTest extends TestBase {
     }
 
     "transitions the model" in {
-      val fineRobot = Robot(Pop)
-      val newRobot  = rightValue(fineRobot.transitionTo(Lock))
+      val fineRobot = Robot(state = Pop)
+      val newRobot  = rightValue(fineRobot.transitionState(Lock))
 
       newRobot.state must === (Lock)
       newRobot       must === (fineRobot.copy(state = Lock))
@@ -49,7 +52,8 @@ class FSMTest extends TestBase {
       )
 
       forAll(states) { case (state) ⇒
-        rightValue(Robot(state = state).transitionState(state)) must === (state)
+        val robot = Robot(state = state)
+        rightValue(robot.transitionState(state)) must === (robot)
       }
     }
 
@@ -59,6 +63,11 @@ class FSMTest extends TestBase {
 
     "cannot transition from a state which has no mapping step and is not identity" in {
       Robot(state = BreakItDown).transitionState(Pop) mustBe 'left
+    }
+
+    "decides if it can transition to another model" in {
+      Robot(state = Pop).updateTo(Robot(state = Lock)) mustBe 'right
+      Robot(state = Pop).updateTo(Robot(state = PopAndLock)) mustBe 'left
     }
   }
 }

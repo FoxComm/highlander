@@ -1,10 +1,12 @@
 package models
 
+import cats.data.Xor
 import com.pellucid.sealerate
 import monocle.macros.GenLens
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
+import services.Failures
 import utils._
 
 final case class CreditCardCharge(id: Int = 0, creditCardId: Int, orderPaymentId: Int,
@@ -15,6 +17,7 @@ final case class CreditCardCharge(id: Int = 0, creditCardId: Int, orderPaymentId
   import CreditCardCharge._
 
   def stateLens = GenLens[CreditCardCharge](_.status)
+  override def updateTo(newModel: CreditCardCharge): Failures Xor CreditCardCharge = super.transitionModel(newModel)
 
   val fsm: Map[Status, Set[Status]] = Map(
     Cart →
@@ -63,5 +66,3 @@ object CreditCardCharges extends TableQueryWithId[CreditCardCharge, CreditCardCh
   idLens = GenLens[CreditCardCharge](_.id)
 )(new CreditCardCharges(_)) {
 }
-
-

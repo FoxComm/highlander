@@ -135,8 +135,8 @@ object StoreCreditService {
         val finder = StoreCredits.filter(_.id === id)
 
         finder.selectOneForUpdate { sc ⇒
-          sc.transitionTo(payload.status) match {
-            case Xor.Left(message) ⇒ DbResult.failure(GeneralFailure(message))
+          sc.transitionState(payload.status) match {
+            case Xor.Left(message) ⇒ DbResult.failures(message)
             case Xor.Right(_)      ⇒ cancelOrUpdate(finder, sc)
           }
         }
@@ -175,4 +175,3 @@ object StoreCreditService {
     storeCredit ← StoreCredits.findOneById(id)
   } yield storeCredit
 }
-

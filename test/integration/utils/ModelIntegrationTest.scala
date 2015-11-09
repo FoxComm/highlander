@@ -2,8 +2,8 @@ package utils
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import models.{Addresses, Customers}
-import services.GeneralFailure
+import models._
+import services.{GeneralFailure, StatusTransitionNotAllowed}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.DbResult
@@ -51,6 +51,21 @@ class ModelIntegrationTest extends IntegrationTestBase {
       val failure = GeneralFailure("Boom")
       val delete = Customers.deleteById(13, success, DbResult.failure(failure)).run().futureValue
       leftValue(delete) must === (failure.single)
+    }
+  }
+
+  "Model update" - {
+    "model decides if it can be updated successfully" in {
+      val origin = Factories.order
+      val destination = origin.copy(customerId = 123)
+      rightValue(origin.updateTo(destination)) must === (destination)
+    }
+
+    "model refuses to update if FSM check fails" in {
+      val origin = Factories.order
+      val destination = origin.copy(status = Order.Cart)
+      val failure = leftValue(origin.updateTo(destination))
+      failure must === (StatusTransitionNotAllowed(origin.status,destination.status, origin.refNum).single)
     }
   }
 }

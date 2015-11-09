@@ -13,6 +13,7 @@ import utils.Litterbox._
 
 import com.pellucid.sealerate
 import models.GiftCard.{CustomerPurchase, OnHold, OriginType, Status}
+import monocle.Lens
 import monocle.macros.GenLens
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
@@ -50,6 +51,8 @@ final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = C
   }
 
   def stateLens = GenLens[GiftCard](_.status)
+  override def primarySearchKeyLens: Lens[GiftCard, String] = GenLens[GiftCard](_.code)
+  override def updateTo(newModel: GiftCard): Failures Xor GiftCard = super.transitionModel(newModel)
 
   val fsm: Map[Status, Set[Status]] = Map(
     OnHold → Set(Active, Canceled),
@@ -122,7 +125,7 @@ object GiftCard {
     } else {
       valid({})
     }
-  }   
+  }
 
   implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
   implicit val originTypeColumnType: JdbcType[OriginType] with BaseTypedType[OriginType] = OriginType.slickColumn
