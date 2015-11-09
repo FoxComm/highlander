@@ -4,6 +4,7 @@ import React, { PropTypes } from 'react';
 import { Moment, Date, DateTime, Time } from '../common/datetime';
 import Currency from '../common/currency';
 import Status from '../common/status';
+import Link from '../link/link';
 
 const TableCell = (props) => {
   const render = (cell, column = {}) => {
