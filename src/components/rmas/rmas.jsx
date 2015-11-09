@@ -1,6 +1,7 @@
 'use strict';
 
 import React, { PropTypes } from 'react';
+import { autobind } from 'core-decorators';
 import SectionTitle from '../section-title/section-title';
 import LocalNav from '../local-nav/local-nav';
 import { TabListView, TabView } from '../tabs';
@@ -37,7 +38,7 @@ export default class Rmas extends React.Component {
   }
 
   setFetchParams(state, fetchParams) {
-    this.props.setFetchParams({entityType: 'rma'}, state, fetchParams);
+    this.props.setFetchParams(state, {entityType: 'rma'}, fetchParams);
   }
 
   render() {
@@ -56,7 +57,12 @@ export default class Rmas extends React.Component {
         </div>
         <div className="fc-grid fc-list-page-content">
           <div className="fc-col-md-1-1">
-            <TableView data={this.props.rmas} columns={this.props.tableColumns} setState={this.setFetchParams} renderRow={renderRow} />
+            <TableView
+                data={this.props.rmas}
+                columns={this.props.tableColumns}
+                setState={this.setFetchParams}
+                renderRow={renderRow}
+            />
           </div>
         </div>
       </div>

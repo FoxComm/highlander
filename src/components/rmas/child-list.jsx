@@ -1,6 +1,7 @@
 'use strict';
 
 import React, { PropTypes } from 'react';
+import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import * as rmaActions from '../../modules/rmas/list';
 import { renderRow } from './helpers';
@@ -49,13 +50,19 @@ export default class RmaChildList extends React.Component {
     return get(this.props.rmas, [this.entityType, this.entity.entityId], rmaActions.paginationState);
   }
 
+  @autobind
   setFetchParams(state, fetchParams) {
-    this.props.setFetchParams(this.entity, state, fetchParams);
+    this.props.setFetchParams(state, this.entity, fetchParams);
   }
 
   render() {
     return (
-      <TableView data={this.data} columns={this.props.tableColumns} setState={this.setFetchParams} renderRow={renderRow} />
+      <TableView
+          data={this.data}
+          columns={this.props.tableColumns}
+          setState={this.setFetchParams}
+          renderRow={renderRow}
+      />
     );
   }
 }

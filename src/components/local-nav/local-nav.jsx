@@ -8,6 +8,12 @@ import { connect } from 'react-redux';
 
 @connect(state => ({router: state.router}))
 export default class LocalNav extends React.Component {
+  static propTypes = {
+    router: PropTypes.shape({
+      routes: PropTypes.array
+    }),
+    children: PropTypes.node
+  };
   @autobind
   compileLinks(item) {
     let linkList = [];

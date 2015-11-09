@@ -93,7 +93,7 @@ const reducer = createReducer({
   [actionReceived]: (state, [{entityType, entityId}, payload]) => {
     if (entityId) {
       return assoc(state, [entityType, entityId], {
-          ...state[entityType][entityId],
+        ...state[entityType][entityId],
         isFetching: false,
         rows: get(payload, 'result', payload),
         total: get(payload, ['pagination', 'total'], payload.length)
@@ -113,6 +113,18 @@ const reducer = createReducer({
     return {
       ...state,
       isFetching: false
+    };
+  },
+  [actionSetFetchParams]: (state, [{entityType, entityId}, payload]) => {
+    if (entityId) {
+      return assoc(state, [entityType, entityId], {
+        ...state[entityType][entityId],
+        ...payload
+      });
+    }
+    return {
+      ...state,
+      ...payload
     };
   }
 }, initialState);
