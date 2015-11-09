@@ -102,7 +102,7 @@ class OrderIntegrationTest extends IntegrationTestBase
   "PATCH /v1/orders/:refNum" - {
 
     "successfully" in {
-      val order = Orders.save(Factories.order).run().futureValue
+      val order = Orders.saveNew(Factories.order).run().futureValue
 
       val response = PATCH(
         s"v1/orders/${order.referenceNumber}",
@@ -115,7 +115,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
 
     "fails if transition to destination status is not allowed" in {
-      val order = Orders.save(Factories.order).run().futureValue
+      val order = Orders.saveNew(Factories.order).run().futureValue
 
       val response = PATCH(
         s"v1/orders/${order.referenceNumber}",
@@ -126,7 +126,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
 
     "fails if transition from current status is not allowed" in {
-      val order = Orders.save(Factories.order.copy(status = Canceled)).run().futureValue
+      val order = Orders.saveNew(Factories.order.copy(status = Canceled)).run().futureValue
 
       val response = PATCH(
         s"v1/orders/${order.referenceNumber}",
@@ -137,7 +137,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
 
     "fails if the order is not found" in {
-      Orders.save(Factories.order).run().futureValue
+      Orders.saveNew(Factories.order).run().futureValue
 
       val response = PATCH(s"v1/orders/NOPE", UpdateOrderPayload(ManualHold))
 
@@ -170,7 +170,7 @@ class OrderIntegrationTest extends IntegrationTestBase
   "POST /v1/orders/:refNum/increase-remorse-period" - {
 
     "successfully" in {
-      val order = Orders.save(Factories.order.copy(status = Order.RemorseHold)).run().futureValue
+      val order = Orders.saveNew(Factories.order.copy(status = Order.RemorseHold)).run().futureValue
       val response = POST(s"v1/orders/${order.referenceNumber}/increase-remorse-period")
 
       val result = parse(response.bodyText).extract[FullOrder.Root]
@@ -178,7 +178,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
 
     "only when in RemorseHold status" in {
-      val order = Orders.save(Factories.order).run().futureValue
+      val order = Orders.saveNew(Factories.order).run().futureValue
       val response = POST(s"v1/orders/${order.referenceNumber}/increase-remorse-period")
       response.status must ===(StatusCodes.BadRequest)
 
@@ -189,8 +189,8 @@ class OrderIntegrationTest extends IntegrationTestBase
 
   "POST /v1/orders/:refNum/lock" - {
     "successfully locks an order" in {
-      val order = Orders.save(Factories.order).run().futureValue
-      StoreAdmins.save(Factories.storeAdmin).run().futureValue
+      val order = Orders.saveNew(Factories.order).run().futureValue
+      StoreAdmins.saveNew(Factories.storeAdmin).run().futureValue
 
       val response = POST(s"v1/orders/${order.referenceNumber}/lock")
       response.status must === (StatusCodes.OK)
@@ -205,7 +205,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
 
     "refuses to lock an already locked order" in {
-      val order = Orders.save(Factories.order.copy(locked = true)).run().futureValue
+      val order = Orders.saveNew(Factories.order.copy(locked = true)).run().futureValue
 
       val response = POST(s"v1/orders/${order.referenceNumber}/lock")
       response.status must === (StatusCodes.BadRequest)
@@ -213,8 +213,8 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
 
     "avoids race condition" in {
-      StoreAdmins.save(Factories.storeAdmin).run().futureValue
-      val order = Orders.save(Factories.order).run().futureValue
+      StoreAdmins.saveNew(Factories.storeAdmin).run().futureValue
+      val order = Orders.saveNew(Factories.order).run().futureValue
 
       def request = POST(s"v1/orders/${order.referenceNumber}/lock")
 
@@ -226,8 +226,8 @@ class OrderIntegrationTest extends IntegrationTestBase
 
   "POST /v1/orders/:refNum/unlock" - {
     "unlocks an order" in {
-      StoreAdmins.save(Factories.storeAdmin).run().futureValue
-      val order = Orders.save(Factories.order).run().futureValue
+      StoreAdmins.saveNew(Factories.storeAdmin).run().futureValue
+      val order = Orders.saveNew(Factories.order).run().futureValue
 
       POST(s"v1/orders/${order.referenceNumber}/lock")
 
@@ -239,7 +239,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
 
     "refuses to unlock an already unlocked order" in {
-      val order = Orders.save(Factories.order).run().futureValue
+      val order = Orders.saveNew(Factories.order).run().futureValue
       val response = POST(s"v1/orders/${order.referenceNumber}/unlock")
 
       response.status must === (StatusCodes.BadRequest)
@@ -270,7 +270,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
 
     "uses most recent lock record" in new RemorseFixture {
-      OrderLockEvents.save(OrderLockEvent(id = 1, lockedBy = 1, orderId = 1, lockedAt = Instant.now.minusMinutes(30)))
+      OrderLockEvents.saveNew(OrderLockEvent(id = 1, lockedBy = 1, orderId = 1, lockedAt = Instant.now.minusMinutes(30)))
 
       POST(s"v1/orders/$refNum/lock")
       POST(s"v1/orders/$refNum/unlock")
@@ -303,9 +303,9 @@ class OrderIntegrationTest extends IntegrationTestBase
 
     "can be assigned to locked order" in {
       val (order, storeAdmin) = (for {
-        customer ← Customers.save(Factories.customer)
-        order ← Orders.save(Factories.order.copy(locked = true, customerId = customer.id))
-        storeAdmin ← StoreAdmins.save(authedStoreAdmin)
+        customer ← Customers.saveNew(Factories.customer)
+        order ← Orders.saveNew(Factories.order.copy(locked = true, customerId = customer.id))
+        storeAdmin ← StoreAdmins.saveNew(authedStoreAdmin)
       } yield (order, storeAdmin)).run().futureValue
       val response = POST(s"v1/orders/${order.referenceNumber}/assignees", Assignment(Seq(storeAdmin.id)))
       response.status must === (StatusCodes.OK)
@@ -447,7 +447,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       }
 
       "removes an existing shipping address before copying new address" in new AddressFixture {
-        val newAddress = Addresses.save(address.copy(name = "New", isDefaultShipping = false)).run().futureValue
+        val newAddress = Addresses.saveNew(address.copy(name = "New", isDefaultShipping = false)).run().futureValue
 
         val fst :: snd :: Nil = List(address.id, newAddress.id).map { id ⇒
           PATCH(s"v1/orders/${order.referenceNumber}/shipping-address/$id")
@@ -651,30 +651,30 @@ class OrderIntegrationTest extends IntegrationTestBase
 
   trait Fixture {
     val (order, storeAdmin, customer) = (for {
-      customer ← Customers.save(Factories.customer)
-      order ← Orders.save(Factories.order.copy(customerId = customer.id, status = Order.Cart))
-      storeAdmin ← StoreAdmins.save(authedStoreAdmin)
+      customer ← Customers.saveNew(Factories.customer)
+      order ← Orders.saveNew(Factories.order.copy(customerId = customer.id, status = Order.Cart))
+      storeAdmin ← StoreAdmins.saveNew(authedStoreAdmin)
     } yield (order, storeAdmin, customer)).run().futureValue
   }
 
   trait OrderFixture {
     val (order, storeAdmin, customer) = (for {
-      customer ← Customers.save(Factories.customer)
-      order ← Orders.save(Factories.order.copy(customerId = customer.id, status = Order.Cart))
-      storeAdmin ← StoreAdmins.save(authedStoreAdmin)
+      customer ← Customers.saveNew(Factories.customer)
+      order ← Orders.saveNew(Factories.order.copy(customerId = customer.id, status = Order.Cart))
+      storeAdmin ← StoreAdmins.saveNew(authedStoreAdmin)
       skus ← Skus ++= Factories.skus
       summaries ← InventorySummaries ++= Factories.inventorySummaries
     } yield (order, storeAdmin, customer)).run().futureValue
   }
 
   trait AddressFixture extends Fixture {
-    val address = Addresses.save(Factories.address.copy(customerId = customer.id)).run().futureValue
+    val address = Addresses.saveNew(Factories.address.copy(customerId = customer.id)).run().futureValue
   }
 
   trait ShippingAddressFixture extends AddressFixture {
     val (orderShippingAddress, newAddress) = (for {
       orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
-      newAddress ← Addresses.save(Factories.address.copy(customerId = customer.id, isDefaultShipping = false,
+      newAddress ← Addresses.saveNew(Factories.address.copy(customerId = customer.id, isDefaultShipping = false,
         name = "New Shipping", address1 = "29918 Kenloch Dr", city = "Farmington Hills", regionId = 4177))
     } yield(orderShippingAddress, newAddress)).run().futureValue
   }
@@ -704,21 +704,21 @@ class OrderIntegrationTest extends IntegrationTestBase
       """.stripMargin).extract[QueryStatement]
 
     val (lowShippingMethod, inactiveShippingMethod, highShippingMethod) = (for {
-      sku ← Skus.save(Factories.skus.head.copy(price = 100))
-      lineItemSku ← OrderLineItemSkus.save(OrderLineItemSku(skuId = sku.id, orderId = order.id))
-      lineItem ← OrderLineItems.save(OrderLineItem(orderId = order.id, originId = lineItemSku.id,
+      sku ← Skus.saveNew(Factories.skus.head.copy(price = 100))
+      lineItemSku ← OrderLineItemSkus.saveNew(OrderLineItemSku(skuId = sku.id, orderId = order.id))
+      lineItem ← OrderLineItems.saveNew(OrderLineItem(orderId = order.id, originId = lineItemSku.id,
         originType = OrderLineItem.SkuItem))
 
-      lowShippingMethod ← ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(lowConditions)))
-      inactiveShippingMethod ← ShippingMethods.save(lowShippingMethod.copy(isActive = false))
-      highShippingMethod ← ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(highConditions)))
+      lowShippingMethod ← ShippingMethods.saveNew(Factories.shippingMethods.head.copy(conditions = Some(lowConditions)))
+      inactiveShippingMethod ← ShippingMethods.saveNew(lowShippingMethod.copy(isActive = false))
+      highShippingMethod ← ShippingMethods.saveNew(Factories.shippingMethods.head.copy(conditions = Some(highConditions)))
     } yield (lowShippingMethod, inactiveShippingMethod, highShippingMethod)).run().futureValue
   }
 
   trait RemorseFixture {
     val (admin, order) = (for {
-      admin ← StoreAdmins.save(Factories.storeAdmin)
-      order ← Orders.save(Factories.order.copy(
+      admin ← StoreAdmins.saveNew(Factories.storeAdmin)
+      order ← Orders.saveNew(Factories.order.copy(
         status = Order.RemorseHold,
         remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
     } yield (admin, order)).run().futureValue
@@ -729,9 +729,9 @@ class OrderIntegrationTest extends IntegrationTestBase
 
   trait PaymentStatusFixture extends Fixture {
     val (cc, op, ccc) = (for {
-      cc ← CreditCards.save(Factories.creditCard.copy(customerId = customer.id))
-      op ← OrderPayments.save(Factories.orderPayment.copy(orderId = order.id, paymentMethodId = cc.id))
-      ccc ← CreditCardCharges.save(Factories.creditCardCharge.copy(creditCardId = cc.id, orderPaymentId = op.id))
+      cc ← CreditCards.saveNew(Factories.creditCard.copy(customerId = customer.id))
+      op ← OrderPayments.saveNew(Factories.orderPayment.copy(orderId = order.id, paymentMethodId = cc.id))
+      ccc ← CreditCardCharges.saveNew(Factories.creditCardCharge.copy(creditCardId = cc.id, orderPaymentId = op.id))
     } yield (cc, op, ccc)).run().futureValue
   }
 }

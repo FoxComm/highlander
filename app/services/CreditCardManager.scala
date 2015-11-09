@@ -34,11 +34,11 @@ object CreditCardManager {
     ResultT[DBIO[CreditCard]] = {
       val cc = CreditCard.build(customer.id, stripeCustomer, stripeCard, payload, address)
       val saveAddress = if (address.isNew)
-        Addresses.save(address.copy(customerId = customer.id))
+        Addresses.saveNew(address.copy(customerId = customer.id))
       else
         DBIO.successful(address)
 
-      ResultT.rightAsync(saveAddress >> CreditCards.save(cc))
+      ResultT.rightAsync(saveAddress >> CreditCards.saveNew(cc))
     }
 
     def getExistingStripeIdAndAddress: ResultT[(Option[String], Address)] = {
@@ -108,7 +108,7 @@ object CreditCardManager {
           expMonth = payload.expMonth.getOrElse(cc.expMonth)
         )
 
-        val newVersion = CreditCards.save(updated)
+        val newVersion = CreditCards.saveNew(updated)
         val deactivate = CreditCards.findById(cc.id).extract.map(_.inWallet).update(false)
 
         ResultT(new StripeGateway().editCard(updated).map {
@@ -121,7 +121,7 @@ object CreditCardManager {
     def createNewAddressIfProvided(dbio: DBIO[CreditCard]): ResultT[DBIO[CreditCard]] = ResultT.rightAsync(
       if (payload.address.isDefined)
         dbio.flatMap { cc ⇒
-          Addresses.save(Address.fromCreditCard(cc).copy(customerId = customerId)) >> DBIO.successful(cc)
+          Addresses.saveNew(Address.fromCreditCard(cc).copy(customerId = customerId)) >> DBIO.successful(cc)
         }
       else
         dbio

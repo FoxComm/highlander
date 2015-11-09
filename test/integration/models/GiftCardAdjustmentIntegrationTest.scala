@@ -12,9 +12,9 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
   "GiftCardAdjustment" - {
     "neither credit nor debit can be negative" in new Fixture {
       val inserts = for {
-        origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
-        gc ← GiftCards.save(Factories.giftCard.copy(originId = origin.id))
-        payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = gc.id))
+        origin ← GiftCardManuals.saveNew(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
+        gc ← GiftCards.saveNew(Factories.giftCard.copy(originId = origin.id))
+        payment ← OrderPayments.saveNew(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = gc.id))
         adjustment ← GiftCards.auth(giftCard = gc, orderPaymentId = Some(payment.id), debit = 0, credit = -1)
       } yield (gc, adjustment)
 
@@ -24,9 +24,9 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
 
     "only one of credit or debit can be greater than zero" in new Fixture {
       val inserts = for {
-        origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
-        gc ← GiftCards.save(Factories.giftCard.copy(originId = origin.id))
-        payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = gc.id))
+        origin ← GiftCardManuals.saveNew(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
+        gc ← GiftCards.saveNew(Factories.giftCard.copy(originId = origin.id))
+        payment ← OrderPayments.saveNew(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = gc.id))
         adjustment ← GiftCards.auth(giftCard = gc, orderPaymentId = Some(payment.id), debit = 50, credit = 50)
       } yield (gc, adjustment)
 
@@ -36,9 +36,9 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
 
     "one of credit or debit must be greater than zero" in new Fixture {
       val (_, adjustment) = (for {
-        origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
-        gc ← GiftCards.save(Factories.giftCard.copy(originId = origin.id, originalBalance = 50))
-        payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = gc.id))
+        origin ← GiftCardManuals.saveNew(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
+        gc ← GiftCards.saveNew(Factories.giftCard.copy(originId = origin.id, originalBalance = 50))
+        payment ← OrderPayments.saveNew(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = gc.id))
         adjustment ← GiftCards.capture(giftCard = gc, orderPaymentId = Some(payment.id), debit = 50, credit = 0)
       } yield (gc, adjustment)).run().futureValue
 
@@ -47,9 +47,9 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
 
     "updates the GiftCard's currentBalance and availableBalance after insert" in new Fixture {
       val gc = (for {
-        origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
-        gc ← GiftCards.save(Factories.giftCard.copy(originId = origin.id, originalBalance = 500))
-        payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = gc.id))
+        origin ← GiftCardManuals.saveNew(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
+        gc ← GiftCards.saveNew(Factories.giftCard.copy(originId = origin.id, originalBalance = 500))
+        payment ← OrderPayments.saveNew(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = gc.id))
         _ ← GiftCards.capture(giftCard = gc, orderPaymentId = Some(payment.id), debit = 50, credit = 0)
         _ ← GiftCards.capture(giftCard = gc, orderPaymentId = Some(payment.id), debit = 25, credit = 0)
         _ ← GiftCards.capture(giftCard = gc, orderPaymentId = Some(payment.id), debit = 15, credit = 0)
@@ -67,9 +67,9 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
 
     "cancels an adjustment and removes its effect on current/available balances" in new Fixture {
       val (gc, payment) = (for {
-        origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
-        gc ← GiftCards.save(Factories.giftCard.copy(originId = origin.id, originalBalance = 500))
-        payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = gc.id))
+        origin ← GiftCardManuals.saveNew(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
+        gc ← GiftCards.saveNew(Factories.giftCard.copy(originId = origin.id, originalBalance = 500))
+        payment ← OrderPayments.saveNew(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = gc.id))
       } yield (gc, payment)).run().futureValue
 
       val debits = List(50, 25, 15, 10)
@@ -89,11 +89,11 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
   trait Fixture {
     val adminFactory = Factories.storeAdmin
     val (admin, reason, order) = (for {
-      customer ← Customers.save(Factories.customer)
+      customer ← Customers.saveNew(Factories.customer)
       admin ← (StoreAdmins.returningId += adminFactory).map { id ⇒ adminFactory.copy(id = id) }
-      reason ← Reasons.save(Factories.reason.copy(storeAdminId = admin.id))
-      order ← Orders.save(Factories.order.copy(customerId = customer.id))
-      reason ← Reasons.save(Factories.reason.copy(storeAdminId = admin.id))
+      reason ← Reasons.saveNew(Factories.reason.copy(storeAdminId = admin.id))
+      order ← Orders.saveNew(Factories.order.copy(customerId = customer.id))
+      reason ← Reasons.saveNew(Factories.reason.copy(storeAdminId = admin.id))
     } yield (admin, reason, order)).run().futureValue
   }
 }

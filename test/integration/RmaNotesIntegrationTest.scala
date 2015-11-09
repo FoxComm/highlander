@@ -101,12 +101,12 @@ class RmaNotesIntegrationTest extends IntegrationTestBase with HttpSupport with 
 
   trait Fixture {
     val (admin, rma) = (for {
-      admin ← StoreAdmins.save(authedStoreAdmin)
-      customer ← Customers.save(Factories.customer)
-      order ← Orders.save(Factories.order.copy(
+      admin ← StoreAdmins.saveNew(authedStoreAdmin)
+      customer ← Customers.saveNew(Factories.customer)
+      order ← Orders.saveNew(Factories.order.copy(
         status = Order.RemorseHold,
         remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
-      rma ← Rmas.save(Factories.rma.copy(
+      rma ← Rmas.saveNew(Factories.rma.copy(
         orderId = order.id,
         orderRefNum = order.referenceNumber,
         customerId = Some(customer.id)))

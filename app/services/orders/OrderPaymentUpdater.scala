@@ -21,7 +21,7 @@ object OrderPaymentUpdater {
         case Some(gc) if gc.isActive ⇒
           if (gc.hasAvailable(payload.amount)) {
             val payment = OrderPayment.build(gc).copy(orderId = order.id, amount = Some(payload.amount))
-            DbResult.fromDbio(OrderPayments.save(payment) >> fullOrder(finder))
+            DbResult.fromDbio(OrderPayments.saveNew(payment) >> fullOrder(finder))
           } else {
             DbResult.failure(GiftCardNotEnoughBalance(gc, payload.amount))
           }
@@ -71,7 +71,7 @@ object OrderPaymentUpdater {
           val payment = OrderPayment.build(cc).copy(orderId = order.id, amount = None)
           val delete = OrderPayments.filter(_.orderId === order.id).creditCards.delete
 
-          DbResult.fromDbio(delete >> OrderPayments.save(payment) >> fullOrder(finder))
+          DbResult.fromDbio(delete >> OrderPayments.saveNew(payment) >> fullOrder(finder))
 
         case Some(cc) ⇒
           DbResult.failure(CannotUseInactiveCreditCard(cc))

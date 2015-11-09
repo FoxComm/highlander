@@ -22,7 +22,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
   private var currentCustomer: Customer = _
 
   override def beforeSortingAndPaging() = {
-    currentCustomer = Customers.save(Factories.customer).futureValue
+    currentCustomer = Customers.saveNew(Factories.customer).futureValue
   }
 
   def uriPrefix = s"v1/customers/${currentCustomer.id}/addresses"
@@ -30,7 +30,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
   def responseItems = {
     val items = (1 to numOfResults).map { i ⇒
       val dbio = for {
-        address ← Addresses.save(Factories.generateAddress.copy(customerId = currentCustomer.id))
+        address ← Addresses.saveNew(Factories.generateAddress.copy(customerId = currentCustomer.id))
         region  ← Regions.findById(address.regionId).result.head
       } yield (address, region)
 
@@ -92,7 +92,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
     }
 
     "sets a new shipping address if there's already a default shipping address" in new AddressFixture {
-      val another = Addresses.save(address.copy(id = 0, isDefaultShipping = false)).futureValue
+      val another = Addresses.saveNew(address.copy(id = 0, isDefaultShipping = false)).futureValue
       val payload = payloads.ToggleDefaultShippingAddress(isDefault = true)
       val response = POST(s"v1/customers/${customer.id}/addresses/${another.id}/default", payload)
 
@@ -206,25 +206,25 @@ class AddressesIntegrationTest extends IntegrationTestBase
   }
 
   trait CustomerFixture {
-    val customer = Customers.save(Factories.customer).futureValue
+    val customer = Customers.saveNew(Factories.customer).futureValue
   }
 
   trait AddressFixture extends CustomerFixture {
-    val address = Addresses.save(Factories.address.copy(customerId = customer.id,
+    val address = Addresses.saveNew(Factories.address.copy(customerId = customer.id,
       isDefaultShipping = true)).futureValue
   }
 
   trait ShippingAddressFixture extends AddressFixture {
     (for {
-      order ← Orders.save(Factories.order.copy(customerId = customer.id))
+      order ← Orders.saveNew(Factories.order.copy(customerId = customer.id))
       shippingAddress ← OrderShippingAddresses.copyFromAddress(address, order.id)
     } yield (order, shippingAddress)).futureValue
   }
 
   trait NoDefaultAddressFixture extends CustomerFixture {
     val (address, order, shippingAddress) = (for {
-      address ← Addresses.save(Factories.address.copy(customerId = customer.id, isDefaultShipping = false))
-      order ← Orders.save(Factories.order.copy(customerId = customer.id))
+      address ← Addresses.saveNew(Factories.address.copy(customerId = customer.id, isDefaultShipping = false))
+      order ← Orders.saveNew(Factories.order.copy(customerId = customer.id))
       shippingAddress ← OrderShippingAddresses.copyFromAddress(address, order.id)
     } yield (address, order, shippingAddress)).run().futureValue
   }

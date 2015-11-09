@@ -155,13 +155,13 @@ class GiftCardAsLineItemIntegrationTest extends IntegrationTestBase
 
   trait LineItemFixture {
     val (customer, order, giftCard) = (for {
-      customer ← Customers.save(Factories.customer)
-      order ← Orders.save(Factories.order.copy(customerId = customer.id, status = Order.Cart))
+      customer ← Customers.saveNew(Factories.customer)
+      order ← Orders.saveNew(Factories.order.copy(customerId = customer.id, status = Order.Cart))
 
-      gcOrigin ← GiftCardOrders.save(GiftCardOrder(orderId = order.id))
-      giftCard ← GiftCards.save(GiftCard.buildLineItem(balance = 150, originId = gcOrigin.id, currency = Currency.USD))
-      lineItemGc ← OrderLineItemGiftCards.save(OrderLineItemGiftCard(giftCardId = giftCard.id, orderId = order.id))
-      lineItem ← OrderLineItems.save(OrderLineItem.buildGiftCard(order, lineItemGc))
+      gcOrigin ← GiftCardOrders.saveNew(GiftCardOrder(orderId = order.id))
+      giftCard ← GiftCards.saveNew(GiftCard.buildLineItem(balance = 150, originId = gcOrigin.id, currency = Currency.USD))
+      lineItemGc ← OrderLineItemGiftCards.saveNew(OrderLineItemGiftCard(giftCardId = giftCard.id, orderId = order.id))
+      lineItem ← OrderLineItems.saveNew(OrderLineItem.buildGiftCard(order, lineItemGc))
     } yield (customer, order, giftCard)).run().futureValue
   }
 }

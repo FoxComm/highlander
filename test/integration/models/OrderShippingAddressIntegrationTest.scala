@@ -13,7 +13,7 @@ class OrderShippingAddressIntegrationTest extends IntegrationTestBase {
   "OrderShippingAddress" - {
     "has only one shipping address per order" in new Fixture {
       val result = withUniqueConstraint {
-        OrderShippingAddresses.save(shippingAddress.copy(name = "Yax2")).run()
+        OrderShippingAddresses.saveNew(shippingAddress.copy(name = "Yax2")).run()
       } { notUnique ⇒ GeneralFailure("There was already a shipping address") }
 
       result.futureValue mustBe 'left
@@ -22,9 +22,9 @@ class OrderShippingAddressIntegrationTest extends IntegrationTestBase {
 
   trait Fixture {
     val (order, shippingAddress) = (for {
-      customer ← Customers.save(Factories.customer)
-      order ← Orders.save(Factories.order.copy(customerId = customer.id))
-      shippingAddress ← OrderShippingAddresses.save(Factories.shippingAddress.copy(orderId = order.id))
+      customer ← Customers.saveNew(Factories.customer)
+      order ← Orders.saveNew(Factories.order.copy(customerId = customer.id))
+      shippingAddress ← OrderShippingAddresses.saveNew(Factories.shippingAddress.copy(orderId = order.id))
     } yield (order, shippingAddress)).run().futureValue
   }
 }

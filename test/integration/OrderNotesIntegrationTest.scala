@@ -96,9 +96,9 @@ class OrderNotesIntegrationTest extends IntegrationTestBase with HttpSupport wit
 
   trait Fixture {
     val (order, storeAdmin, customer) = (for {
-      customer ← Customers.save(Factories.customer)
-      order ← Orders.save(Factories.order.copy(customerId = customer.id, status = Order.Cart))
-      storeAdmin ← StoreAdmins.save(authedStoreAdmin)
+      customer ← Customers.saveNew(Factories.customer)
+      order ← Orders.saveNew(Factories.order.copy(customerId = customer.id, status = Order.Cart))
+      storeAdmin ← StoreAdmins.saveNew(authedStoreAdmin)
     } yield (order, storeAdmin, customer)).run().futureValue
   }
 }

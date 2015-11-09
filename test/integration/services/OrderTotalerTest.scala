@@ -44,27 +44,27 @@ class OrderTotalerTest extends IntegrationTestBase {
 
   trait Fixture {
     val (customer, address, order) = (for {
-      customer ← Customers.save(Factories.customer)
-      address ← Addresses.save(Factories.address.copy(customerId = customer.id))
-      order ← Orders.save(Factories.order.copy(customerId = customer.id))
+      customer ← Customers.saveNew(Factories.customer)
+      address ← Addresses.saveNew(Factories.address.copy(customerId = customer.id))
+      order ← Orders.saveNew(Factories.order.copy(customerId = customer.id))
     } yield (customer, address, order)).run().futureValue
   }
 
   trait SkuLineItemsFixture extends Fixture {
     val sku = (for {
-      sku ← Skus.save(Factories.skus.head)
-      _   ← OrderLineItemSkus.save(OrderLineItemSku(skuId = sku.id, orderId = order.id))
-      _   ← OrderLineItems.save(OrderLineItem.buildSku(order, sku))
+      sku ← Skus.saveNew(Factories.skus.head)
+      _   ← OrderLineItemSkus.saveNew(OrderLineItemSku(skuId = sku.id, orderId = order.id))
+      _   ← OrderLineItems.saveNew(OrderLineItem.buildSku(order, sku))
     } yield sku).run().futureValue
   }
 
   trait AllLineItemsFixture extends SkuLineItemsFixture {
     val (giftCard, lineItems) = (for {
-      origin    ← GiftCardOrders.save(GiftCardOrder(orderId = order.id))
-      giftCard  ← GiftCards.save(GiftCard.buildLineItem(balance = 150, originId = origin.id, currency = Currency.USD))
-      gcLi      ← OrderLineItemGiftCards.save(OrderLineItemGiftCard(giftCardId = giftCard.id, orderId = order.id))
+      origin    ← GiftCardOrders.saveNew(GiftCardOrder(orderId = order.id))
+      giftCard  ← GiftCards.saveNew(GiftCard.buildLineItem(balance = 150, originId = origin.id, currency = Currency.USD))
+      gcLi      ← OrderLineItemGiftCards.saveNew(OrderLineItemGiftCard(giftCardId = giftCard.id, orderId = order.id))
 
-      lineItems ← OrderLineItems.save(OrderLineItem.buildGiftCard(order, gcLi))
+      lineItems ← OrderLineItems.saveNew(OrderLineItem.buildGiftCard(order, gcLi))
     } yield (giftCard, lineItems)).run().futureValue
   }
 }

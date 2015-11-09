@@ -187,13 +187,13 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
   def cancelByCsr(storeCredit: StoreCredit, storeAdmin: StoreAdmin)(implicit ec: ExecutionContext): DBIO[Adj] = {
     val adjustment = Adj(storeCreditId = storeCredit.id, orderPaymentId = None, storeAdminId = storeAdmin.id.some,
       debit = storeCredit.availableBalance, availableBalance = 0, status = Adj.CancellationCapture)
-    Adjs.save(adjustment)
+    Adjs.saveNew(adjustment)
   }
 
   def redeemToGiftCard(storeCredit: StoreCredit, storeAdmin: StoreAdmin)(implicit ec: ExecutionContext): DBIO[Adj] = {
     val adjustment = Adj(storeCreditId = storeCredit.id, orderPaymentId = None, storeAdminId = storeAdmin.id.some,
       debit = storeCredit.availableBalance, availableBalance = 0, status = Adj.Capture)
-    Adjs.save(adjustment)
+    Adjs.saveNew(adjustment)
   }
 
   def findActiveById(id: Int)(implicit ec: ExecutionContext): QuerySeq = filter(_.id === id)
@@ -212,6 +212,6 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
     (implicit ec: ExecutionContext): DBIO[Adj] = {
     val adjustment = Adj(storeCreditId = storeCredit.id, orderPaymentId = orderPaymentId,
       debit = amount, availableBalance = storeCredit.availableBalance, status = status)
-    Adjs.save(adjustment)
+    Adjs.saveNew(adjustment)
   }
 }

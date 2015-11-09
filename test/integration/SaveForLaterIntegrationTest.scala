@@ -19,7 +19,7 @@ class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport w
       emptyResponse.status must === (StatusCodes.OK)
       emptyResponse.as[SavedForLater].result mustBe empty
 
-      SaveForLaters.save(SaveForLater(customerId = customer.id, skuId = sku.id)).run().futureValue
+      SaveForLaters.saveNew(SaveForLater(customerId = customer.id, skuId = sku.id)).run().futureValue
       val notEmptyResponse = GET(s"v1/save-for-later/${customer.id}")
       notEmptyResponse.status must === (StatusCodes.OK)
       notEmptyResponse.as[SavedForLater].result must === (roots)
@@ -86,8 +86,8 @@ class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport w
 
   trait Fixture {
     val (customer, sku) = (for {
-      customer ← Customers.save(Factories.customer)
-      sku ← Skus.save(Factories.skus.head)
+      customer ← Customers.saveNew(Factories.customer)
+      sku ← Skus.saveNew(Factories.skus.head)
     } yield (customer, sku)).run().futureValue
 
     def roots = Seq(rightValue(SaveForLaterResponse.forSkuId(sku.id).run().futureValue))

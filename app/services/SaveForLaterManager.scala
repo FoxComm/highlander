@@ -28,7 +28,7 @@ object SaveForLaterManager {
           case Some(_) ⇒
             DbResult.failure(AlreadySavedForLater(customerId, skuId))
           case None ⇒
-            val insert = SaveForLaters.save(SaveForLater(customerId = customerId, skuId = skuId))
+            val insert = SaveForLaters.saveNew(SaveForLater(customerId = customerId, skuId = skuId))
             DbResult.fromDbio(insert >> findAllDbio(customer))
         }
       case (None, _) ⇒

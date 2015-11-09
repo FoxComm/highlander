@@ -151,11 +151,11 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
   }
 
   trait Fixture {
-    val customer = Customers.save(Factories.customer).futureValue
+    val customer = Customers.saveNew(Factories.customer).futureValue
   }
 
   trait AddressFixture extends Fixture {
-    val address = Addresses.save(Factories.address.copy(customerId = customer.id)).futureValue
+    val address = Addresses.saveNew(Factories.address.copy(customerId = customer.id)).futureValue
   }
 }
 

@@ -101,8 +101,8 @@ class CustomerNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
 
   trait Fixture {
     val (admin, customer) = (for {
-      admin ← StoreAdmins.save(authedStoreAdmin)
-      customer ← Customers.save(Factories.customer)
+      admin ← StoreAdmins.saveNew(authedStoreAdmin)
+      customer ← Customers.saveNew(Factories.customer)
     } yield (admin, customer)).run().futureValue
   }
 

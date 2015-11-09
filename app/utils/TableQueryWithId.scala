@@ -72,7 +72,7 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.
     filter(_.id.inSet(ids))
 
   // TODO: if isNew create else update
-  def save(model: M)(implicit ec: ExecutionContext): DBIO[M] = for {
+  def saveNew(model: M)(implicit ec: ExecutionContext): DBIO[M] = for {
     id ← returningId += model
   } yield idLens.set(id)(model)
 
@@ -82,7 +82,7 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.
     model
       .sanitize
       .validate.fold(DbResult.failures, valid ⇒ {
-      save(valid).asTry.flatMap {
+      saveNew(valid).asTry.flatMap {
         case Success(newModel) ⇒ DbResult.good(newModel)
         case Failure(e) ⇒ DbResult.failure(GeneralFailure(e.getMessage))
       }

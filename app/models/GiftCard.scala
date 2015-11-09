@@ -199,13 +199,13 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
   def cancelByCsr(giftCard: GiftCard, storeAdmin: StoreAdmin)(implicit ec: ExecutionContext): DBIO[Adj] = {
     val adjustment = Adj(giftCardId = giftCard.id, orderPaymentId = None, storeAdminId = storeAdmin.id.some,
       debit = giftCard.availableBalance, credit = 0, availableBalance = 0, status = Adj.CancellationCapture)
-    Adjs.save(adjustment)
+    Adjs.saveNew(adjustment)
   }
 
   def redeemToStoreCredit(giftCard: GiftCard, storeAdmin: StoreAdmin)(implicit ec: ExecutionContext): DBIO[Adj] = {
     val adjustment = Adj(giftCardId = giftCard.id, orderPaymentId = None, storeAdminId = storeAdmin.id.some,
       debit = giftCard.availableBalance, credit = 0, availableBalance = 0, status = Adj.Capture)
-    Adjs.save(adjustment)
+    Adjs.saveNew(adjustment)
   }
 
   def findByCode(code: String): QuerySeq =
@@ -216,7 +216,7 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
 
   val returningIdCodeAndBalance = this.returning(map { gc ⇒ (gc.id, gc.code, gc.currentBalance, gc.availableBalance) })
 
-  override def save(gc: GiftCard)(implicit ec: ExecutionContext): DBIO[GiftCard] = for {
+  override def saveNew(gc: GiftCard)(implicit ec: ExecutionContext): DBIO[GiftCard] = for {
     (newId, code, currentBalance, availableBalance) ← returningIdCodeAndBalance += gc
   } yield gc.copy(id = newId, code = code, currentBalance = currentBalance, availableBalance = availableBalance)
 
@@ -226,7 +226,7 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
     val balance = giftCard.availableBalance - debit + credit
     val adjustment = Adj(giftCardId = giftCard.id, orderPaymentId = orderPaymentId,
       debit = debit, credit = credit, availableBalance = balance, status = status)
-    Adjs.save(adjustment)
+    Adjs.saveNew(adjustment)
   }
 
   implicit class GiftCardQueryWrappers(q: QuerySeq) extends TableQueryWrappers(q) {

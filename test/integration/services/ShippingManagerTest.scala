@@ -46,7 +46,7 @@ class ShippingManagerTest extends IntegrationTestBase {
 
       "Is true when the order total is $27 and shipped to CA" in new StateAndPriceCondition {
         val (address, orderShippingAddress) = db.run(for {
-          address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = washingtonId))
+          address ← Addresses.saveNew(Factories.address.copy(customerId = customer.id, regionId = washingtonId))
           orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
         } yield (address, orderShippingAddress)).futureValue
 
@@ -56,7 +56,7 @@ class ShippingManagerTest extends IntegrationTestBase {
 
       "Is false when the order total is $27 and shipped to MI" in new StateAndPriceCondition {
         val (address, orderShippingAddress) = db.run(for {
-          address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = michiganId))
+          address ← Addresses.saveNew(Factories.address.copy(customerId = customer.id, regionId = michiganId))
           orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
         } yield (address, orderShippingAddress)).futureValue
 
@@ -70,7 +70,7 @@ class ShippingManagerTest extends IntegrationTestBase {
 
       "Is true when the order total is greater than $10 and no address field contains a P.O. Box" in new POCondition {
         val (address, orderShippingAddress) = db.run(for {
-          address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = washingtonId))
+          address ← Addresses.saveNew(Factories.address.copy(customerId = customer.id, regionId = washingtonId))
           orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
         } yield (address, orderShippingAddress)).futureValue
 
@@ -80,7 +80,7 @@ class ShippingManagerTest extends IntegrationTestBase {
 
       "Is false when the order total is greater than $10 and address1 contains a P.O. Box" in new POCondition {
         val (address, orderShippingAddress) = db.run(for {
-          address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = washingtonId,
+          address ← Addresses.saveNew(Factories.address.copy(customerId = customer.id, regionId = washingtonId,
             address1 = "P.O. Box 1234"))
           orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
         } yield (address, orderShippingAddress)).futureValue
@@ -91,7 +91,7 @@ class ShippingManagerTest extends IntegrationTestBase {
 
       "Is false when the order total is greater than $10 and address2 contains a P.O. Box" in new POCondition {
         val (address, orderShippingAddress) = db.run(for {
-          address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = washingtonId,
+          address ← Addresses.saveNew(Factories.address.copy(customerId = customer.id, regionId = washingtonId,
             address2 = Some("P.O. Box 1234")))
           orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
         } yield (address, orderShippingAddress)).futureValue
@@ -106,11 +106,11 @@ class ShippingManagerTest extends IntegrationTestBase {
 
   trait Fixture {
     val (customer, order) = db.run(for {
-      customer ← Customers.save(Factories.customer)
-      order ← Orders.save(Factories.order.copy(customerId = customer.id))
-      sku ← Skus.save(Factories.skus.head.copy(name = Some("Donkey"), price = 27))
-      lineItemSku ← OrderLineItemSkus.save(OrderLineItemSku(skuId = sku.id, orderId = order.id))
-      lineItem ← OrderLineItems.save(OrderLineItem(orderId = order.id, originId = lineItemSku.id,
+      customer ← Customers.saveNew(Factories.customer)
+      order ← Orders.saveNew(Factories.order.copy(customerId = customer.id))
+      sku ← Skus.saveNew(Factories.skus.head.copy(name = Some("Donkey"), price = 27))
+      lineItemSku ← OrderLineItemSkus.saveNew(OrderLineItemSku(skuId = sku.id, orderId = order.id))
+      lineItem ← OrderLineItems.saveNew(OrderLineItem(orderId = order.id, originId = lineItemSku.id,
         originType = OrderLineItem.SkuItem))
     } yield (customer, order)).futureValue
 
@@ -122,7 +122,7 @@ class ShippingManagerTest extends IntegrationTestBase {
 
   trait OrderFixture extends Fixture {
     val (address, orderShippingAddress) = db.run(for {
-      address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = californiaId))
+      address ← Addresses.saveNew(Factories.address.copy(customerId = customer.id, regionId = californiaId))
       orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
     } yield (address, orderShippingAddress)).futureValue
   }
@@ -153,27 +153,27 @@ class ShippingManagerTest extends IntegrationTestBase {
         | }
       """.stripMargin).extract[QueryStatement]
 
-    val action = ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
+    val action = ShippingMethods.saveNew(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
     val shippingMethod = db.run(action).futureValue
   }
 
   trait CaliforniaOrderFixture extends WestCoastConditionFixture {
     val (address, orderShippingAddress) = db.run(for {
-      address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = californiaId))
+      address ← Addresses.saveNew(Factories.address.copy(customerId = customer.id, regionId = californiaId))
       orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
     } yield (address, orderShippingAddress)).futureValue
   }
 
   trait WashingtonOrderFixture extends WestCoastConditionFixture {
     val (address, orderShippingAddress) = db.run(for {
-      address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = washingtonId))
+      address ← Addresses.saveNew(Factories.address.copy(customerId = customer.id, regionId = washingtonId))
       orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
     } yield (address, orderShippingAddress)).futureValue
   }
 
   trait MichiganOrderFixture extends WestCoastConditionFixture {
     val (address, orderShippingAddress) = db.run(for {
-      address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = michiganId))
+      address ← Addresses.saveNew(Factories.address.copy(customerId = customer.id, regionId = michiganId))
       orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
     } yield (address, orderShippingAddress)).futureValue
   }
@@ -197,7 +197,7 @@ val conditions = parse(
     | }
   """.stripMargin).extract[QueryStatement]
 
-    val action = ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
+    val action = ShippingMethods.saveNew(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
     val shippingMethod = db.run(action).futureValue
   }
 
@@ -213,21 +213,21 @@ val conditions = parse(
       """.stripMargin).extract[QueryStatement]
 
     val (shippingMethod, cheapOrder, expensiveOrder) = db.run(for {
-      shippingMethod ← ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
-      cheapOrder ← Orders.save(Factories.order.copy(customerId = customer.id, referenceNumber = "CS1234-AA"))
-      cheapSku ← Skus.save(Factories.skus.head.copy(name = Some("Cheap Donkey"), price = 10))
-      cheapLineItemSku ← OrderLineItemSkus.save(OrderLineItemSku(skuId = cheapSku.id, orderId = cheapOrder.id))
-      cheapLineItem ← OrderLineItems.save(OrderLineItem(orderId = cheapOrder.id, originId = cheapLineItemSku.id,
+      shippingMethod ← ShippingMethods.saveNew(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
+      cheapOrder ← Orders.saveNew(Factories.order.copy(customerId = customer.id, referenceNumber = "CS1234-AA"))
+      cheapSku ← Skus.saveNew(Factories.skus.head.copy(name = Some("Cheap Donkey"), price = 10))
+      cheapLineItemSku ← OrderLineItemSkus.saveNew(OrderLineItemSku(skuId = cheapSku.id, orderId = cheapOrder.id))
+      cheapLineItem ← OrderLineItems.saveNew(OrderLineItem(orderId = cheapOrder.id, originId = cheapLineItemSku.id,
         originType = OrderLineItem.SkuItem))
-      cheapAddress ← Addresses.save(Factories.address.copy(customerId = customer.id, isDefaultShipping = false))
+      cheapAddress ← Addresses.saveNew(Factories.address.copy(customerId = customer.id, isDefaultShipping = false))
       _ ← OrderShippingAddresses.copyFromAddress(address = cheapAddress, orderId = cheapOrder.id)
-      expensiveOrder ← Orders.save(Factories.order.copy(customerId = customer.id, referenceNumber = "CS1234-AA"))
-      expensiveSku ← Skus.save(Factories.skus.head.copy(name = Some("Expensive Donkey"), price = 100))
-      expensiveLineItemSku ← OrderLineItemSkus.save(OrderLineItemSku(skuId = expensiveSku.id,
+      expensiveOrder ← Orders.saveNew(Factories.order.copy(customerId = customer.id, referenceNumber = "CS1234-AA"))
+      expensiveSku ← Skus.saveNew(Factories.skus.head.copy(name = Some("Expensive Donkey"), price = 100))
+      expensiveLineItemSku ← OrderLineItemSkus.saveNew(OrderLineItemSku(skuId = expensiveSku.id,
         orderId = expensiveOrder.id))
-      expensiveLineItem ← OrderLineItems.save(OrderLineItem(orderId = expensiveOrder.id,
+      expensiveLineItem ← OrderLineItems.saveNew(OrderLineItem(orderId = expensiveOrder.id,
         originId = expensiveLineItemSku.id, originType = OrderLineItem.SkuItem))
-      expensiveAddress ← Addresses.save(Factories.address.copy(customerId = customer.id, isDefaultShipping = false))
+      expensiveAddress ← Addresses.saveNew(Factories.address.copy(customerId = customer.id, isDefaultShipping = false))
       _ ← OrderShippingAddresses.copyFromAddress(address = expensiveAddress, orderId = expensiveOrder.id)
     } yield(shippingMethod, cheapOrder, expensiveOrder)).futureValue
   }
@@ -278,7 +278,7 @@ val conditions = parse(
         | }
       """.stripMargin).extract[QueryStatement]
 
-    val action = ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
+    val action = ShippingMethods.saveNew(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
     val shippingMethod = db.run(action).futureValue
   }
 }

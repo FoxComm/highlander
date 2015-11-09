@@ -14,7 +14,7 @@ class TableQueryIntegrationTest extends IntegrationTestBase with CatsHelpers {
 
   "for models with id" - {
     "should return model if present" in {
-      val order = db.run(Orders.save(Factories.order)).futureValue
+      val order = db.run(Orders.saveNew(Factories.order)).futureValue
 
       val result = Orders.findByRefNum(order.referenceNumber).selectOneForUpdate(DbResult.good).futureValue
       result.isRight mustBe true
@@ -47,7 +47,7 @@ class TableQueryIntegrationTest extends IntegrationTestBase with CatsHelpers {
     }
 
     trait Fixture {
-      val order = db.run(Orders.save(Factories.order.copy(locked = true))).futureValue
+      val order = db.run(Orders.saveNew(Factories.order.copy(locked = true))).futureValue
       val finder = Orders.findByRefNum(order.referenceNumber)
     }
   }

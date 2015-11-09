@@ -33,12 +33,12 @@ class OrderAssignmentsIntegrationTest extends IntegrationTestBase {
 
     trait Fixture {
       val (order1, order2, order3, admin1, admin2, admin3) = db.run(for {
-        order1 ← Orders.save(Factories.order)
-        order2 ← Orders.save(Factories.order.copy(id = 2, referenceNumber = "foo"))
-        order3 ← Orders.save(Factories.order.copy(id = 3, referenceNumber = "bar"))
-        admin1 ← StoreAdmins.save(Factories.storeAdmin)
-        admin2 ← StoreAdmins.save(Factories.storeAdmin.copy(id = 2, email = "foo@foo.foo"))
-        admin3 ← StoreAdmins.save(Factories.storeAdmin.copy(id = 3, email = "bar@bar.bar"))
+        order1 ← Orders.saveNew(Factories.order)
+        order2 ← Orders.saveNew(Factories.order.copy(id = 2, referenceNumber = "foo"))
+        order3 ← Orders.saveNew(Factories.order.copy(id = 3, referenceNumber = "bar"))
+        admin1 ← StoreAdmins.saveNew(Factories.storeAdmin)
+        admin2 ← StoreAdmins.saveNew(Factories.storeAdmin.copy(id = 2, email = "foo@foo.foo"))
+        admin3 ← StoreAdmins.saveNew(Factories.storeAdmin.copy(id = 3, email = "bar@bar.bar"))
       } yield (order1, order2, order3, admin1, admin2, admin3)).futureValue
     }
   }
@@ -48,5 +48,5 @@ class OrderAssignmentsIntegrationTest extends IntegrationTestBase {
   def assignedTo(admin: StoreAdmin): Seq[Order] = OrderAssignments.assignedTo(admin).run.futureValue
 
   def assign(admin: StoreAdmin, order: Order) =
-    OrderAssignments.save(OrderAssignment(orderId = order.id, assigneeId = admin.id)).run().futureValue
+    OrderAssignments.saveNew(OrderAssignment(orderId = order.id, assigneeId = admin.id)).run().futureValue
 }

@@ -107,7 +107,7 @@ object CustomerManager {
 
     def result = {
       withUniqueConstraint {
-        Customers.save(customer).run()
+        Customers.saveNew(customer).run()
       } { e ⇒ CustomerEmailNotUnique }.flatMap {
         case Xor.Right(c) ⇒ Result.good(build(c))
         case Xor.Left(e) ⇒ Result.failure(e)

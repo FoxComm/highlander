@@ -31,8 +31,8 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
   def responseItems = {
     val items = (1 to numOfResults).map { i ⇒
       val dbio = for {
-        customer ← Customers.save(Factories.generateCustomer)
-        order    ← Orders.save(Factories.order.copy(
+        customer ← Customers.saveNew(Factories.generateCustomer)
+        order    ← Orders.saveNew(Factories.order.copy(
           customerId = customer.id,
           referenceNumber = Factories.randomString(10),
           status = Order.RemorseHold,
@@ -62,8 +62,8 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
   
   "GET /v1/orders" - {
     "find all" in {
-      val cId = Customers.save(Factories.customer).run().futureValue.id
-      Orders.save(Factories.order.copy(customerId = cId)).run().futureValue
+      val cId = Customers.saveNew(Factories.customer).run().futureValue.id
+      Orders.saveNew(Factories.order.copy(customerId = cId)).run().futureValue
 
       val responseJson = GET(s"v1/orders")
       responseJson.status must === (StatusCodes.OK)
@@ -106,8 +106,8 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
     }
 
     "refuses invalid status transition" in {
-      val customer = Customers.save(Factories.customer).run().futureValue
-      val order = Orders.save(Factories.order.copy(customerId = customer.id)).run().futureValue
+      val customer = Customers.saveNew(Factories.customer).run().futureValue
+      val order = Orders.saveNew(Factories.order.copy(customerId = customer.id)).run().futureValue
       val response = PATCH("v1/orders", BulkUpdateOrdersPayload(Seq(order.refNum), Cart))
 
       response.status must === (StatusCodes.OK)
@@ -242,20 +242,20 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
 
   trait StatusUpdateFixture {
     (for {
-      customer ← Customers.save(Factories.customer)
-      foo ← Orders.save(Factories.order.copy(customerId = customer.id, referenceNumber = "foo", status = FraudHold))
-      bar ← Orders.save(Factories.order.copy(customerId = customer.id, referenceNumber = "bar", status = RemorseHold,
+      customer ← Customers.saveNew(Factories.customer)
+      foo ← Orders.saveNew(Factories.order.copy(customerId = customer.id, referenceNumber = "foo", status = FraudHold))
+      bar ← Orders.saveNew(Factories.order.copy(customerId = customer.id, referenceNumber = "bar", status = RemorseHold,
         locked = true))
-      baz ← Orders.save(Factories.order.copy(customerId = customer.id, referenceNumber = "baz", status = ManualHold))
+      baz ← Orders.saveNew(Factories.order.copy(customerId = customer.id, referenceNumber = "baz", status = ManualHold))
     } yield (customer, foo, bar)).run().futureValue
   }
 
   trait BulkAssignmentFixture {
     val (order1, order2, admin) = (for {
-      customer ← Customers.save(Factories.customer)
-      order1 ← Orders.save(Factories.order.copy(id = 1, referenceNumber = "foo", customerId = customer.id))
-      order2 ← Orders.save(Factories.order.copy(id = 2, referenceNumber = "bar", customerId = customer.id))
-      admin ← StoreAdmins.save(Factories.storeAdmin)
+      customer ← Customers.saveNew(Factories.customer)
+      order1 ← Orders.saveNew(Factories.order.copy(id = 1, referenceNumber = "foo", customerId = customer.id))
+      order2 ← Orders.saveNew(Factories.order.copy(id = 2, referenceNumber = "bar", customerId = customer.id))
+      admin ← StoreAdmins.saveNew(Factories.storeAdmin)
     } yield (order1, order2, admin)).run().futureValue
     val orderRef1 = order1.referenceNumber
     val orderRef2 = order2.referenceNumber

@@ -65,9 +65,9 @@ object StoreCreditService {
       ResultT[DBIO[Root]] = {
 
       val actions = for {
-        origin ← StoreCreditManuals.save(StoreCreditManual(adminId = admin.id, reasonId = payload.reasonId,
+        origin ← StoreCreditManuals.saveNew(StoreCreditManual(adminId = admin.id, reasonId = payload.reasonId,
           subReasonId = payload.subReasonId))
-        sc ← StoreCredits.save(StoreCredit.buildAppeasement(customerId = customer.id, originId = origin.id,
+        sc ← StoreCredits.saveNew(StoreCredit.buildAppeasement(customerId = customer.id, originId = origin.id,
           payload = payload))
       } yield sc
 

@@ -147,27 +147,27 @@ object Seeds {
       storeAdmin ← (StoreAdmins.returningId += s.storeAdmin).map(id ⇒ s.storeAdmin.copy(id = id))
       skus ← Skus ++= s.skus
       summaries ← InventorySummaries ++= s.inventorySummaries
-      order ← Orders.save(s.order.copy(customerId = customer.id))
+      order ← Orders.saveNew(s.order.copy(customerId = customer.id))
       orderNotes ← Notes ++= s.orderNotes
       orderLineItemOrigins ← OrderLineItemSkus ++= s.orderLineItemSkus
       orderLineItem ← OrderLineItems ++= s.orderLineItems
-      address ← Addresses.save(s.address.copy(customerId = customer.id))
-      shippingAddress ← OrderShippingAddresses.save(Factories.shippingAddress.copy(orderId = order.id))
+      address ← Addresses.saveNew(s.address.copy(customerId = customer.id))
+      shippingAddress ← OrderShippingAddresses.saveNew(Factories.shippingAddress.copy(orderId = order.id))
       shippingMethods ← ShippingMethods ++= s.shippingMethods
-      creditCard ← CreditCards.save(s.cc.copy(customerId = customer.id))
-      orderPayment ← OrderPayments.save(Factories.orderPayment.copy(orderId = order.id,
+      creditCard ← CreditCards.saveNew(s.cc.copy(customerId = customer.id))
+      orderPayment ← OrderPayments.saveNew(Factories.orderPayment.copy(orderId = order.id,
         paymentMethodId = creditCard.id, amount = Some(100)))
       shippingPriceRule ← ShippingPriceRules ++= s.shippingPriceRules
       shippingMethodRuleMappings ← ShippingMethodsPriceRules ++= s.shippingMethodRuleMappings
-      shipments ← Shipments.save(s.shipment)
+      shipments ← Shipments.saveNew(s.shipment)
       reasons ← Reasons ++= s.reasons.map(_.copy(storeAdminId = storeAdmin.id))
       gcSubTypes ← GiftCardSubtypes ++= s.gcSubTypes
       scSubTypes ← StoreCreditSubtypes ++= s.scSubTypes
-      gcOrigin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = storeAdmin.id, reasonId = 1))
-      giftCard ← GiftCards.save(s.paymentMethods.giftCard.copy(originId = gcOrigin.id))
+      gcOrigin ← GiftCardManuals.saveNew(Factories.giftCardManual.copy(adminId = storeAdmin.id, reasonId = 1))
+      giftCard ← GiftCards.saveNew(s.paymentMethods.giftCard.copy(originId = gcOrigin.id))
       gcAdjustments ← GiftCards.auth(giftCard, Some(orderPayment.id), 10)
-      scOrigin ← StoreCreditManuals.save(Factories.storeCreditManual.copy(adminId = storeAdmin.id, reasonId = 1))
-      storeCredit ← StoreCredits.save(s.paymentMethods.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))
+      scOrigin ← StoreCreditManuals.saveNew(Factories.storeCreditManual.copy(adminId = storeAdmin.id, reasonId = 1))
+      storeCredit ← StoreCredits.saveNew(s.paymentMethods.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))
       storeCreditAdjustments ← StoreCredits.auth(storeCredit, Some(orderPayment.id), 10)
       rmaReasons ← RmaReasons ++= s.rmaReasons
       rma ← Rmas.create(s.rma.copy(customerId = Some(customer.id)))

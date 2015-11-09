@@ -13,7 +13,7 @@ class SlickTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global
 
   "supports update with returning query for a single column" in {
-    val customer = Customers.save(Factories.customer.copy(name = "Jane".some)).run().futureValue
+    val customer = Customers.saveNew(Factories.customer.copy(name = "Jane".some)).run().futureValue
     val update = Customers.filter(_.id === 1).map(_.name).
       updateReturning(Customers.map(_.name), "Sally".some)
 
@@ -22,7 +22,7 @@ class SlickTest extends IntegrationTestBase {
   }
 
   "supports update with returning query for a multiple columns" in {
-    val customer = Customers.save(Factories.customer.copy(name = "Jane".some)).run().futureValue
+    val customer = Customers.saveNew(Factories.customer.copy(name = "Jane".some)).run().futureValue
     val update = Customers.filter(_.id === 1).map { c ⇒ (c.name, c.password) }.
       updateReturning(Customers.map { c ⇒ (c.name, c.password) }, ("Sally".some, "123qwe".some))
 
@@ -32,7 +32,7 @@ class SlickTest extends IntegrationTestBase {
 
   "supports update with returning query for mapping to a new model" in {
     val (customer, updatedCustomer) = db.run(for {
-      customer ← Customers.save(Factories.customer.copy(name = "Jane".some))
+      customer ← Customers.saveNew(Factories.customer.copy(name = "Jane".some))
       updatedCustomer ← Customers.filter(_.id === 1).map(_.name).
         updateReturning(Customers.map(identity), "Sally".some).headOption
     } yield (customer, updatedCustomer.value)).futureValue
@@ -43,7 +43,7 @@ class SlickTest extends IntegrationTestBase {
 
   "supports update with returning query for mapping to a new model for multiple columns" in {
     val (customer, updatedCustomer) = db.run(for {
-      customer ← Customers.save(Factories.customer.copy(name = "Jane".some))
+      customer ← Customers.saveNew(Factories.customer.copy(name = "Jane".some))
       updatedCustomer ← Customers.filter(_.id === 1).map{c ⇒ (c.name, c.password) }.
         updateReturning(Customers.map(identity), ("Sally".some, "123qwe".some)).headOption
     } yield (customer, updatedCustomer.value)).futureValue

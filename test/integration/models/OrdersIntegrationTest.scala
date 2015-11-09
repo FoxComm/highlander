@@ -14,26 +14,26 @@ class OrdersIntegrationTest extends IntegrationTestBase {
 
   "Orders" - {
     "generates a referenceNumber in Postgres after insert when blank" in new Fixture {
-      val order = Orders.save(Factories.cart.copy(customerId = customer.id, referenceNumber = "")).run().futureValue
+      val order = Orders.saveNew(Factories.cart.copy(customerId = customer.id, referenceNumber = "")).run().futureValue
 
       order.referenceNumber must === ("BR10001")
     }
 
     "doesn't overwrite a non-empty referenceNumber after insert" in new Fixture {
-      val order = Orders.save(Factories.cart.copy(customerId = customer.id, referenceNumber = "R123456")).run()
+      val order = Orders.saveNew(Factories.cart.copy(customerId = customer.id, referenceNumber = "R123456")).run()
         .futureValue
       order.referenceNumber must === ("R123456")
     }
 
     "can only have one record in 'cart' status" in new Fixture {
-      val order = Orders.save(Factories.cart.copy(customerId = customer.id)).run().futureValue
+      val order = Orders.saveNew(Factories.cart.copy(customerId = customer.id)).run().futureValue
 
-      val failure = Orders.save(order.copy(id = 0)).failed.run().futureValue
+      val failure = Orders.saveNew(order.copy(id = 0)).failed.run().futureValue
       failure.getMessage must include( """value violates unique constraint "orders_has_only_one_cart"""")
     }
 
     "trigger sets remorse period end when order moves to RemorseHold" in {
-      val order = Orders.save(Factories.order).run().futureValue
+      val order = Orders.saveNew(Factories.order).run().futureValue
 
       order.remorsePeriodEnd must ===(None)
 
@@ -44,7 +44,7 @@ class OrdersIntegrationTest extends IntegrationTestBase {
     }
 
     "trigger resets remorse period after status changes from RemorseHold" in {
-      val order = Orders.save(Factories.order.copy(
+      val order = Orders.saveNew(Factories.order.copy(
         remorsePeriodEnd = Some(Instant.now),
         status = RemorseHold))
         .run().futureValue
@@ -57,6 +57,6 @@ class OrdersIntegrationTest extends IntegrationTestBase {
   }
 
   trait Fixture {
-    val customer = Customers.save(Factories.customer).run().futureValue
+    val customer = Customers.saveNew(Factories.customer).run().futureValue
   }
 }

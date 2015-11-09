@@ -46,8 +46,8 @@ object CustomerCreditConverter {
         adjustment ← GiftCards.redeemToStoreCredit(gc, admin)
 
         // Finally, convert to Store Credit
-        conversion ← StoreCreditFromGiftCards.save(StoreCreditFromGiftCard(giftCardId = gc.id))
-        sc ← StoreCredits.save(StoreCredit.buildFromGcTransfer(customerId, gc).copy(originId = conversion.id))
+        conversion ← StoreCreditFromGiftCards.saveNew(StoreCreditFromGiftCard(giftCardId = gc.id))
+        sc ← StoreCredits.saveNew(StoreCredit.buildFromGcTransfer(customerId, gc).copy(originId = conversion.id))
       } yield sc
 
       ResultT.rightAsync(queries.flatMap(sc ⇒ lift(StoreCreditResponse.build(sc))))
@@ -101,8 +101,8 @@ object CustomerCreditConverter {
         adjustment ← StoreCredits.redeemToGiftCard(sc, admin)
 
         // Convert to Gift Card
-        conversion ← GiftCardFromStoreCredits.save(GiftCardFromStoreCredit(storeCreditId = sc.id))
-        gc ← GiftCards.save(giftCard.copy(originId = conversion.id))
+        conversion ← GiftCardFromStoreCredits.saveNew(GiftCardFromStoreCredit(storeCreditId = sc.id))
+        gc ← GiftCards.saveNew(giftCard.copy(originId = conversion.id))
       } yield gc
 
       ResultT.rightAsync(queries.flatMap(gc ⇒ lift(GiftCardResponse.build(gc, None, Some(adminResponse)))))
