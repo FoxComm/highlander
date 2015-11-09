@@ -2,12 +2,14 @@ package models
 
 import java.time.Instant
 
+import cats.data.Xor
 import com.pellucid.sealerate
 import models.StoreCreditAdjustment.{Auth, Status}
 import monocle.macros.GenLens
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
+import services.Failures
 import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 final case class StoreCreditAdjustment(id: Int = 0, storeCreditId: Int, orderPaymentId: Option[Int],
@@ -18,6 +20,7 @@ final case class StoreCreditAdjustment(id: Int = 0, storeCreditId: Int, orderPay
   import StoreCreditAdjustment._
 
   def stateLens = GenLens[StoreCreditAdjustment](_.status)
+  override def updateTo(newModel: StoreCreditAdjustment): Failures Xor StoreCreditAdjustment = super.transitionModel(newModel)
 
   val fsm: Map[Status, Set[Status]] = Map(
     Auth → Set(Canceled, Capture)
@@ -72,4 +75,3 @@ object StoreCreditAdjustments
 
   def cancel(id: Int): DBIO[Int] = filter(_.id === id).map(_.status).update(Canceled)
 }
-

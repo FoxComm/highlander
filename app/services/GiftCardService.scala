@@ -128,8 +128,8 @@ object GiftCardService {
       case Valid(_) ⇒
         val finder = GiftCards.findByCode(code)
         finder.selectOneForUpdate { gc ⇒
-          gc.transitionTo(payload.status) match {
-            case Xor.Left(message) ⇒ DbResult.failure(GeneralFailure(message))
+          gc.transitionState(payload.status) match {
+            case Xor.Left(message) ⇒ DbResult.failures(message)
             case Xor.Right(_)      ⇒ cancelOrUpdate(finder, gc)
           }
         }

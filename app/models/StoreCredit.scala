@@ -5,7 +5,7 @@ import java.time.Instant
 import scala.concurrent.ExecutionContext
 
 import cats.data.Validated._
-import cats.data.ValidatedNel
+import cats.data.{ValidatedNel, Xor}
 import cats.implicits._
 import services._
 import utils.CustomDirectives.SortAndPage
@@ -51,6 +51,7 @@ final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, origin
   }
 
   def stateLens = GenLens[StoreCredit](_.status)
+  override def updateTo(newModel: StoreCredit): Failures Xor StoreCredit = super.transitionModel(newModel)
 
   val fsm: Map[Status, Set[Status]] = Map(
     OnHold → Set(Active, Canceled),

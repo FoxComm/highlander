@@ -25,6 +25,11 @@ trait ModelWithIdParameter[T <: ModelWithIdParameter[T]] extends Validation[T] {
   def validate: ValidatedNel[Failure, T] = Valid(this)
 
   def sanitize: T = this
+
+  def updateTo(newModel: T): Failures Xor T = Xor.right(newModel)
+
+  // Read-only lens that returns String representation of primary search key value
+  def primarySearchKeyLens: Lens[T, String] = Lens[T, String](_.id.toString)(_ ⇒ _ ⇒ this)
 }
 
 trait ModelWithLockParameter[T <: ModelWithLockParameter[T]] extends ModelWithIdParameter[T] { self: T ⇒

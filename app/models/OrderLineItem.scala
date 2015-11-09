@@ -1,11 +1,13 @@
 package models
 
+import cats.data.Xor
 import com.pellucid.sealerate
 import models.OrderLineItem.{Cart, Status, GiftCardItem, SkuItem, OriginType}
 import monocle.macros.GenLens
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
+import services.Failures
 import utils._
 
 final case class OrderLineItem(id: Int = 0, orderId: Int, originId: Int,
@@ -16,6 +18,7 @@ final case class OrderLineItem(id: Int = 0, orderId: Int, originId: Int,
   import OrderLineItem._
 
   def stateLens = GenLens[OrderLineItem](_.status)
+  override def updateTo(newModel: OrderLineItem): Failures Xor OrderLineItem = super.transitionModel(newModel)
 
   val fsm: Map[Status, Set[Status]] = Map(
     Cart →

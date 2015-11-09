@@ -11,6 +11,7 @@ import scala.concurrent.ExecutionContext
 
 import com.pellucid.sealerate
 import models.Order.{Cart, Status}
+import monocle.Lens
 import monocle.macros.GenLens
 import services.orders.OrderTotaler
 import services.CartFailures.OrderMustBeCart
@@ -39,6 +40,8 @@ final case class Order(id: Int = 0, referenceNumber: String = "", customerId: In
   def refNum: String = referenceNumber
 
   def stateLens = GenLens[Order](_.status)
+  override def updateTo(newModel: Order): Failures Xor Order = super.transitionModel(newModel)
+  override def primarySearchKeyLens: Lens[Order, String] = GenLens[Order](_.referenceNumber)
 
   val fsm: Map[Status, Set[Status]] = Map(
     Cart →

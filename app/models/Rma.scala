@@ -6,6 +6,7 @@ import scala.concurrent.ExecutionContext
 
 import com.pellucid.sealerate
 import models.Rma._
+import monocle.Lens
 import monocle.macros.GenLens
 
 import slick.ast.BaseTypedType
@@ -25,6 +26,7 @@ final case class Rma(id: Int = 0, referenceNumber: String = "", orderId: Int, or
   def refNum: String = referenceNumber
 
   def stateLens = GenLens[Rma](_.status)
+  override def primarySearchKeyLens: Lens[Rma, String] = GenLens[Rma](_.referenceNumber)
 
   val fsm: Map[Status, Set[Status]] = Map(
     Pending →

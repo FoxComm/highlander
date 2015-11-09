@@ -1,34 +1,32 @@
 package utils
 
 import cats.data.Xor
-import cats.data.Xor.{left, right}
 import monocle.Lens
+import services.{Failures, StatusTransitionNotAllowed}
 
-trait FSM[A, B] { self: B ⇒
+trait FSM[S, M <: FSM[S, M]] { self: M ⇒
   /* this is a def because a val confuses jackson somehow for json rendering
       see: https://github.com/FoxComm/phoenix-scala/pull/276/files#r37361391
    */
-  def stateLens: Lens[B, A]
+  def stateLens: Lens[M, S]
+  def primarySearchKeyLens: Lens[M, String]
 
-  val fsm: Map[A, Set[A]]
+  val fsm: Map[S, Set[S]]
 
   private def currentState = stateLens.get(this)
 
-  /** Returns the new state, but does not change the model */
-  def transitionState(newState: A): Xor[String, A] =
-    if (newState == currentState) right(newState)
-    else
-      fsm.get(currentState) match {
-        case Some(states) if states.contains(newState) ⇒ right(newState)
-        case _ ⇒ left(s"could not transition from '${currentState}' to '${newState}'")
+  def transitionState(newState: S): Failures Xor M =
+    if (newState == currentState) Xor.right(this)
+    else fsm.get(currentState) match {
+      case Some(states) if states.contains(newState) ⇒
+        Xor.right(stateLens.set(newState)(this))
+      case _ ⇒
+        val searchKey = primarySearchKeyLens.get(this)
+        Xor.left(StatusTransitionNotAllowed(self, currentState.toString, newState.toString, searchKey).single)
       }
 
-  /** Returns a Right of a copy of the model in the correct state, or a Left if the state
-    * can’t be changed. */
-  def transitionTo(newState: A): Xor[String, B] = for {
-    _ ← transitionState(newState)
-  } yield stateLens.set(newState)(this)
+  def transitionAllowed(newState: S): Boolean = transitionState(newState).isRight
 
-  def transitionAllowed(newState: A): Boolean = transitionState(newState).isRight
+  def transitionModel(newModel: M): Failures Xor M =
+    transitionState(newModel.stateLens.get(newModel)).map(_ ⇒ newModel)
 }
-
