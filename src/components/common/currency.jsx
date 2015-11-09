@@ -16,7 +16,7 @@ const formatCurrency = (amount, currency = '$') => {
 };
 
 const Currency = (props) => {
-  return <span>{formatCurrency(props.value)}</span>;
+  return <span className="fc-currency">{formatCurrency(props.value)}</span>;
 };
 
 Currency.propTypes = {
