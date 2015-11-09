@@ -3,19 +3,23 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import * as rmaActions from '../../modules/rmas/list';
-import { RmaList } from './helpers';
+import { renderRow } from './helpers';
+import TableView from '../table/tableview';
+import { get } from 'sprout-data';
 
 
-@connect(({rmas}) => ({list: rmas.list}), rmaActions)
+@connect(state => ({rmas: state.rmas.list}), rmaActions)
 export default class RmaChildList extends React.Component {
   static propTypes = {
     tableColumns: PropTypes.array,
-    fetchChildRmas: PropTypes.func.isRequired,
+    fetchRmas: PropTypes.func.isRequired,
+    setFetchParams: PropTypes.func.isRequired,
     entity: PropTypes.object,
-    list: PropTypes.shape({
-      orderRmas: PropTypes.object.isRequired,
-      customerRmas: PropTypes.object.isRequired
-    })
+    rmas: PropTypes.shape({
+      order: PropTypes.object.isRequired,
+      customer: PropTypes.object.isRequired
+    }),
+    paginationState: PropTypes.func
   };
 
   static defaultProps = {
@@ -30,7 +34,7 @@ export default class RmaChildList extends React.Component {
   };
 
   componentDidMount() {
-    this.props.fetchChildRmas(this.entity);
+    this.props.fetchRmas(this.entity);
   }
 
   get entity() {
@@ -41,23 +45,17 @@ export default class RmaChildList extends React.Component {
     return this.entity.entityType;
   }
 
-  get items() {
-    const list = this.props.list;
-    let thing;
-    if (this.entityType === 'order') {
-      thing = list.orderRmas[this.entity.referenceNumber];
-    } else if (this.entityType === 'customer') {
-      thing = list.customerRmas[this.entity.id];
-    }
+  get data() {
+    return get(this.props.rmas, [this.entityType, this.entity.entityId], rmaActions.paginationState);
+  }
 
-    if (thing && !thing.isFetching) {
-      return thing.items;
-    } else {
-      return [];
-    }
+  setFetchParams(state, fetchParams) {
+    this.props.setFetchParams(this.entity, state, fetchParams);
   }
 
   render() {
-    return <RmaList items={this.items} tableColumns={this.props.tableColumns} />;
+    return (
+      <TableView data={this.data} columns={this.props.tableColumns} setState={this.setFetchParams} renderRow={renderRow} />
+    );
   }
 }

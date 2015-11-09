@@ -4,13 +4,14 @@ import React from 'react';
 import _ from 'lodash';
 import { formatCurrency } from '../../lib/format';
 import ContentBox from '../content-box/content-box';
-import TableView from '../tables/tableview';
+import TableRow from '../table/row';
+import TableCell from '../table/cell';
 
 const RmaEmail = (props) => {
-  if (props.model.storeAdmin) {
-    return <span>{props.model.storeAdmin.email}</span>;
-  } else if (props.model.customer) {
-    return <span>{props.model.customer.email}</span>;
+  if (props.storeAdmin) {
+    return <span>{props.storeAdmin.email}</span>;
+  } else if (props.customer) {
+    return <span>{props.customer.email}</span>;
   }
 
   return null;
@@ -43,7 +44,7 @@ const PaymentMethod = (props) => {
 
 const RmaTotal = (props) => {
   return (
-    <span>{_.sum(props.model.lineItems.skus, (sku) => sku.totalPrice)}</span>
+    <span>{_.sum(props.lineItems.skus, (sku) => sku.totalPrice)}</span>
   );
 };
 
@@ -72,15 +73,16 @@ const RmaSummary = (props) => {
   );
 };
 
-const RmaList = (props) => {
+const renderRow = (row, index) => {
   return (
-    <TableView
-      columns={props.tableColumns}
-      rows={props.items}
-      model='rma'>
-      <RmaEmail />
-      <RmaTotal />
-    </TableView>
+    <TableRow key={`${index}`}>
+      <TableCell>{row.referenceNumber}</TableCell>
+      <TableCell>1</TableCell>
+      <TableCell>{row.orderRefNum}</TableCell>
+      <TableCell><RmaEmail {...row} /></TableCell>
+      <TableCell>{row.status}</TableCell>
+      <TableCell><RmaTotal {...row} /></TableCell>
+    </TableRow>
   );
 };
 
@@ -90,5 +92,5 @@ export {
   PaymentMethod,
   RmaTotal,
   RmaSummary,
-  RmaList
+  renderRow
 };

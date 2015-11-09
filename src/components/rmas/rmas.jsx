@@ -7,14 +7,18 @@ import { TabListView, TabView } from '../tabs';
 import { Link } from '../link';
 import { connect } from 'react-redux';
 import * as rmaActions from '../../modules/rmas/list';
-import {RmaList} from './helpers';
+import TableView from '../table/tableview';
+import { renderRow } from './helpers';
 
-@connect(({rmas}) => ({items: rmas.list.items}), rmaActions)
+@connect(state => ({rmas: state.rmas.list}), rmaActions)
 export default class Rmas extends React.Component {
   static propTypes = {
     tableColumns: PropTypes.array,
     fetchRmas: PropTypes.func.isRequired,
-    items: PropTypes.array.isRequired
+    setFetchParams: PropTypes.func.isRequired,
+    rmas: PropTypes.shape({
+      total: PropTypes.number
+    })
   };
 
   static defaultProps = {
@@ -29,14 +33,18 @@ export default class Rmas extends React.Component {
   };
 
   componentDidMount() {
-    this.props.fetchRmas();
+    this.props.fetchRmas({entityType: 'rma'});
+  }
+
+  setFetchParams(state, fetchParams) {
+    this.props.setFetchParams({entityType: 'rma'}, state, fetchParams);
   }
 
   render() {
     return (
       <div className="fc-list-page">
         <div className="fc-list-page-header">
-          <SectionTitle title="Returns" subtitle={this.props.items.length} />
+          <SectionTitle title="Returns" subtitle={this.props.rmas.total} />
           <LocalNav>
             <a href="">Lists</a>
             <a href="">Returns</a>
@@ -48,7 +56,7 @@ export default class Rmas extends React.Component {
         </div>
         <div className="fc-grid fc-list-page-content">
           <div className="fc-col-md-1-1">
-            <RmaList {...this.props} />
+            <TableView data={this.props.rmas} columns={this.props.tableColumns} setState={this.setFetchParams} renderRow={renderRow} />
           </div>
         </div>
       </div>

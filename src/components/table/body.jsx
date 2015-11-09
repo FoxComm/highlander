@@ -6,9 +6,9 @@ import TableRow from './row';
 import TableCell from './cell';
 
 const TableBody = (props) => {
-  const renderRow = props.renderRow || ((row) => (
-    <TableRow>
-      {props.columns.map((column) => <TableCell>{row[column.field]}</TableCell>)}
+  const renderRow = props.renderRow || ((row, idx) => (
+    <TableRow key={`row-${idx}`}>
+      {props.columns.map((column, idx) => <TableCell key={`cell-${idx}`}>{row[column.field]}</TableCell>)}
     </TableRow>
   ));
 
