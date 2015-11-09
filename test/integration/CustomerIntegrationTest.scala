@@ -516,7 +516,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
         orderId = order.id,
         status = Rma.Complete,
         orderRefNum = order.referenceNumber,
-        customerId = Some(customer.id)))
+        customerId = customer.id))
       rmaPayment ← sqlu"""insert into rma_payments(rma_id, payment_method_id, payment_method_type, amount, currency)
               values(${rma.id}, ${creditCard.id}, ${PaymentMethod.Type.show(PaymentMethod.CreditCard)}, 37,
                ${Currency.USD.toString})

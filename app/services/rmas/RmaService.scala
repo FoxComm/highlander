@@ -29,7 +29,7 @@ object RmaService {
 
     val finder = Orders.findByRefNum(refNum)
     finder.selectOneWithMetadata({
-      order ⇒ RmaQueries.findAll(Rmas.findByRefNum(refNum))
+      order ⇒ RmaQueries.findAll(Rmas.findByOrderRefNum(refNum))
     })
   }
 

@@ -16,16 +16,53 @@ import utils.Slick.implicits._
 import utils.time._
 
 class AllRmasIntegrationTest extends IntegrationTestBase
-with HttpSupport
-with AutomaticAuth {
+  with HttpSupport
+  with SortingAndPaging[AllRmas.Root]
+  with AutomaticAuth {
 
   import concurrent.ExecutionContext.Implicits.global
 
   import Extensions._
   import api._
 
+  // paging and sorting API
+  def uriPrefix = "v1/rmas"
+
+  def responseItems = {
+    val items = (1 to numOfResults).map { i ⇒
+      val orderRefNum = Factories.randomString(10)
+
+      val dbio = for {
+        customer ← Customers.saveNew(Factories.generateCustomer)
+        order ← Orders.saveNew(Factories.order.copy(
+          customerId = customer.id,
+          referenceNumber = orderRefNum,
+          status = Order.RemorseHold,
+          remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
+        rma ← Rmas.saveNew(Factories.rma.copy(
+          customerId = customer.id,
+          orderId = order.id,
+          orderRefNum = orderRefNum,
+          referenceNumber = s"RMA-$i"
+        ))
+      } yield (customer, rma)
+
+      dbio.flatMap { case (customer, rma) ⇒
+        AllRmas.build(rma, customer, None)
+      }
+    }
+
+    DBIO.sequence(items).transactionally.run().futureValue
+  }
+  val sortColumnName = "referenceNumber"
+
+  def responseItemsSort(items: IndexedSeq[AllRmas.Root]) = items.sortBy(_.referenceNumber)
+
+  def mf = implicitly[scala.reflect.Manifest[AllRmas.Root]]
+  // paging and sorting API end
+
   def getAllRmas: Seq[AllRmas.Root] = {
-    RmaQueries.findAll.result.run().futureValue match {
+    RmaQueries.findAll(Rmas).result.run().futureValue match {
       case Xor.Left(s)    ⇒ fail(s.toList.mkString(";"))
       case Xor.Right(seq) ⇒ seq
     }

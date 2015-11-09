@@ -7,7 +7,7 @@ import Extensions._
 import models._
 import org.json4s.jackson.JsonMethods._
 import payloads.RmaAssigneesPayload
-import responses.{StoreAdminResponse, ResponseWithFailuresAndMetadata, RmaResponse, RmaLockResponse}
+import responses.{AllRmas, StoreAdminResponse, ResponseWithFailuresAndMetadata, RmaResponse, RmaLockResponse}
 import responses.RmaResponse.FullRmaWithWarnings
 import services._
 import services.rmas._
@@ -20,51 +20,8 @@ import slick.driver.PostgresDriver.api._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class RmaIntegrationTest extends IntegrationTestBase
-with HttpSupport
-with AutomaticAuth
-with SortingAndPaging[RmaResponse.Root] {
-
-  // paging and sorting API
-  private var currentCustomer: Customer = _
-  private var currentOrder: Order = _
-
-  val uriPrefix = "v1/rmas"
-
-  override def beforeSortingAndPaging() = {
-    (for {
-      storeAdmin ← StoreAdmins.saveNew(Factories.storeAdmin)
-      customer ← Customers.saveNew(Factories.customer)
-      order ← Orders.saveNew(Factories.order.copy(
-        status = Order.RemorseHold,
-        remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
-    } yield (customer, order)).run().futureValue match {
-      case (cc, co) ⇒
-        currentCustomer = cc
-        currentOrder = co
-    }
-  }
-
-  def responseItems = {
-    val items = (1 to numOfResults).map { i ⇒
-      val future = Rmas.saveNew(Factories.rma.copy(
-        referenceNumber = s"RMA-$i",
-        orderId = currentOrder.id,
-        orderRefNum = currentOrder.referenceNumber,
-        customerId = currentCustomer.id)
-      ).run()
-
-      future.map(RmaResponse.build(_))
-    }
-
-    Future.sequence(items).futureValue
-  }
-
-  val sortColumnName = "referenceNumber"
-
-  def responseItemsSort(items: IndexedSeq[RmaResponse.Root]) = items.sortBy(_.referenceNumber)
-
-  def mf = implicitly[scala.reflect.Manifest[RmaResponse.Root]]
-  // paging and sorting API end
+  with HttpSupport
+  with AutomaticAuth {
 
   "RMAs" - {
     "GET /v1/rmas" - {
@@ -72,7 +29,7 @@ with SortingAndPaging[RmaResponse.Root] {
         val response = GET(s"v1/rmas")
         response.status must ===(StatusCodes.OK)
 
-        val root = response.as[ResponseWithFailuresAndMetadata[Seq[RmaResponse.Root]]]
+        val root = response.as[ResponseWithFailuresAndMetadata[Seq[AllRmas.Root]]]
         root.result.size must === (1)
         root.result.head.referenceNumber must ===(rma.refNum)
       }
@@ -83,7 +40,7 @@ with SortingAndPaging[RmaResponse.Root] {
         val response = GET(s"v1/rmas/customer/${customer.id}")
         response.status must ===(StatusCodes.OK)
 
-        val root = response.as[ResponseWithFailuresAndMetadata[Seq[RmaResponse.Root]]]
+        val root = response.as[ResponseWithFailuresAndMetadata[Seq[AllRmas.Root]]]
         root.result.size must === (1)
         root.result.head.referenceNumber must ===(rma.refNum)
       }
@@ -100,7 +57,7 @@ with SortingAndPaging[RmaResponse.Root] {
         val response = GET(s"v1/rmas/order/${order.refNum}")
         response.status must ===(StatusCodes.OK)
 
-        val root = response.as[ResponseWithFailuresAndMetadata[Seq[RmaResponse.Root]]]
+        val root = response.as[ResponseWithFailuresAndMetadata[Seq[AllRmas.Root]]]
         root.result.size must === (1)
         root.result.head.referenceNumber must ===(rma.refNum)
       }
@@ -130,6 +87,7 @@ with SortingAndPaging[RmaResponse.Root] {
 
     "GET /v1/rmas/:refNum/lock" - {
       "returns lock info on locked RMA" in {
+        Customers.saveNew(Factories.customer).run().futureValue
         Orders.saveNew(Factories.order.copy(referenceNumber = "ABC-123")).run().futureValue
         val rma = Rmas.saveNew(Factories.rma.copy(referenceNumber = "ABC-123.1")).run().futureValue
         val admin = StoreAdmins.saveNew(Factories.storeAdmin).run().futureValue
@@ -145,6 +103,7 @@ with SortingAndPaging[RmaResponse.Root] {
       }
 
       "returns negative lock status on unlocked RMA" in {
+        Customers.saveNew(Factories.customer).run().futureValue
         Orders.saveNew(Factories.order.copy(referenceNumber = "ABC-123")).run().futureValue
         val rma = Rmas.saveNew(Factories.rma.copy(referenceNumber = "ABC-123.1")).run().futureValue
 
@@ -158,11 +117,7 @@ with SortingAndPaging[RmaResponse.Root] {
     }
 
     "POST /v1/rmas/:refNum/lock" - {
-      "successfully locks an RMA" in {
-        Orders.saveNew(Factories.order.copy(referenceNumber = "ABC-123")).run().futureValue
-        val rma = Rmas.saveNew(Factories.rma.copy(referenceNumber = "ABC-123.1")).run().futureValue
-        StoreAdmins.saveNew(Factories.storeAdmin).run().futureValue
-
+      "successfully locks an RMA" in new Fixture {
         val response = POST(s"v1/rmas/${rma.referenceNumber}/lock")
         response.status must === (StatusCodes.OK)
 
@@ -176,6 +131,7 @@ with SortingAndPaging[RmaResponse.Root] {
       }
 
       "refuses to lock an already locked RMA" in {
+        Customers.saveNew(Factories.customer).run().futureValue
         Orders.saveNew(Factories.order.copy(referenceNumber = "ABC-123")).run().futureValue
         val rma = Rmas.saveNew(Factories.rma.copy(referenceNumber = "ABC-123.1", locked = true)).run().futureValue
 
@@ -184,11 +140,7 @@ with SortingAndPaging[RmaResponse.Root] {
         response.errors must === (LockedFailure(Rma, rma.referenceNumber).description)
       }
 
-      "avoids race condition" in {
-        StoreAdmins.saveNew(Factories.storeAdmin).run().futureValue
-        Orders.saveNew(Factories.order.copy(referenceNumber = "ABC-123")).run().futureValue
-        val rma = Rmas.saveNew(Factories.rma.copy(referenceNumber = "ABC-123.1")).run().futureValue
-
+      "avoids race condition" in new Fixture {
         def request = POST(s"v1/rmas/${rma.referenceNumber}/lock")
 
         val responses = Seq(0, 1).par.map(_ ⇒ request)
@@ -198,11 +150,7 @@ with SortingAndPaging[RmaResponse.Root] {
     }
 
     "POST /v1/rmas/:refNum/unlock" - {
-      "unlocks an RMA" in {
-        StoreAdmins.saveNew(Factories.storeAdmin).run().futureValue
-        Orders.saveNew(Factories.order.copy(referenceNumber = "ABC-123")).run().futureValue
-        val rma = Rmas.saveNew(Factories.rma.copy(referenceNumber = "ABC-123.1")).run().futureValue
-
+      "unlocks an RMA" in new Fixture {
         POST(s"v1/rmas/${rma.referenceNumber}/lock")
 
         val response = POST(s"v1/rmas/${rma.referenceNumber}/unlock")
@@ -212,9 +160,7 @@ with SortingAndPaging[RmaResponse.Root] {
         unlockedRma.locked must ===(false)
       }
 
-      "refuses to unlock an already unlocked RMA" in {
-        Orders.saveNew(Factories.order.copy(referenceNumber = "ABC-123")).run().futureValue
-        val rma = Rmas.saveNew(Factories.rma.copy(referenceNumber = "ABC-123.1")).run().futureValue
+      "refuses to unlock an already unlocked RMA" in new Fixture {
         val response = POST(s"v1/rmas/${rma.referenceNumber}/unlock")
 
         response.status must ===(StatusCodes.BadRequest)
@@ -303,7 +249,7 @@ with SortingAndPaging[RmaResponse.Root] {
         status = Order.RemorseHold,
         remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
       rma ← Rmas.saveNew(Factories.rma.copy(
-        referenceNumber = "ABC-123.1",
+        referenceNumber = s"${order.refNum}.1",
         orderId = order.id,
         orderRefNum = order.referenceNumber,
         customerId = customer.id))
