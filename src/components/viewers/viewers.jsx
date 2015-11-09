@@ -24,21 +24,25 @@ export default class Viewers extends React.Component {
     this.setState({
       viewers: [
         {
+          id: 1,
           firstName: 'Denys',
           lastName: 'Mikhalenko'
         },
         {
+          id: 2,
           firstName: 'Cameron',
           lastName: 'Stitt',
           email: 'cam@foxcommerce.com'
         },
         {
+          id: 3,
           firstName: 'Adil',
           lastName: 'Wali',
           email: 'adil@foxcommerce.com',
           isLocker: true
         },
         {
+          id: 4,
           firstName: 'Jeff',
           lastName: 'Mattaya',
           email: 'jeff@foxcommerce.com'
