@@ -16,6 +16,7 @@ export default class LineItems extends React.Component {
   static propTypes = {
     entity: PropTypes.object,
     tableColumns: PropTypes.array,
+    suggestedSkus: PropTypes.array,
     model: PropTypes.string
   };
 
