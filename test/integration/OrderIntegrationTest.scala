@@ -9,7 +9,7 @@ import models.rules.QueryStatement
 import payloads.{Assignment, UpdateOrderPayload}
 import responses.{StoreAdminResponse, FullOrderWithWarnings, FullOrder}
 import services.CartFailures.OrderMustBeCart
-import services.{OrderStatusTransitionNotAllowed, LockedFailure, GeneralFailure, NotFoundFailure404}
+import services.{StatusTransitionNotAllowed, LockedFailure, GeneralFailure, NotFoundFailure404}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.implicits._
@@ -122,7 +122,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         UpdateOrderPayload(Cart))
 
       response.status must === (StatusCodes.BadRequest)
-      response.errors must === (OrderStatusTransitionNotAllowed(order.status, Cart, order.refNum).description)
+      response.errors must === (StatusTransitionNotAllowed(order.status, Cart, order.refNum).description)
     }
 
     "fails if transition from current status is not allowed" in {
@@ -133,7 +133,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         UpdateOrderPayload(ManualHold))
 
       response.status must === (StatusCodes.BadRequest)
-      response.errors must === (OrderStatusTransitionNotAllowed(order.status, ManualHold, order.refNum).description)
+      response.errors must === (StatusTransitionNotAllowed(order.status, ManualHold, order.refNum).description)
     }
 
     "fails if the order is not found" in {

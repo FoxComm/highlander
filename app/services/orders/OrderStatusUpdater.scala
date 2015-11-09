@@ -56,7 +56,7 @@ object OrderStatusUpdater {
       updateQueries(absolutelyPossibleUpdates.map(_.id), newStatus).flatMap { _ ⇒
         // Failure handling
         val invalid = invalidTransitions.map { order ⇒
-          OrderStatusTransitionNotAllowed(order.status, newStatus, order.refNum)
+          StatusTransitionNotAllowed(order.status, newStatus, order.refNum)
         }
         val notFound = refNumbers
           .filterNot(refNum ⇒ orders.map(_.referenceNumber).contains(refNum))
