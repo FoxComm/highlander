@@ -115,7 +115,7 @@ object Rmas extends TableQueryWithLock[Rma, Rmas](
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata =
     sortedAndPaged(findByCustomerId(customerId))
 
-  override def save(rma: Rma)(implicit ec: ExecutionContext): DBIO[Rma] = for {
+  override def saveNew(rma: Rma)(implicit ec: ExecutionContext): DBIO[Rma] = for {
     (newId, refNum) ← returningIdAndReferenceNumber += rma
   } yield rma.copy(id = newId, referenceNumber = refNum)
 

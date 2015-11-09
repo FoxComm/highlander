@@ -33,10 +33,10 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
   override def beforeSortingAndPaging() = {
     (for {
-      admin    ← StoreAdmins.save(authedStoreAdmin)
-      customer ← Customers.save(Factories.customer)
-      scReason ← Reasons.save(Factories.reason.copy(storeAdminId = admin.id))
-      scOrigin ← StoreCreditManuals.save(Factories.storeCreditManual.copy(adminId = admin.id, reasonId = scReason.id))
+      admin    ← StoreAdmins.saveNew(authedStoreAdmin)
+      customer ← Customers.saveNew(Factories.customer)
+      scReason ← Reasons.saveNew(Factories.reason.copy(storeAdminId = admin.id))
+      scOrigin ← StoreCreditManuals.saveNew(Factories.storeCreditManual.copy(adminId = admin.id, reasonId = scReason.id))
     } yield (customer, scOrigin)).run().futureValue match {
       case (cc, co) ⇒
         currentCustomer = cc
@@ -51,7 +51,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
   def responseItems = {
     val items = regCurrencies.take(numOfResults).map { currency ⇒
       val balance = Random.nextInt(9999999)
-      val dbio = StoreCredits.save(Factories.storeCredit.copy(
+      val dbio = StoreCredits.saveNew(Factories.storeCredit.copy(
         currency = currency,
         originId = currentOrigin.id,
         customerId = currentCustomer.id,
@@ -323,16 +323,16 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
   trait Fixture {
     val (admin, customer, scReason, storeCredit, order, adjustment, scSecond, payment, scSubType) = (for {
-      admin       ← StoreAdmins.save(authedStoreAdmin)
-      customer    ← Customers.save(Factories.customer)
-      order       ← Orders.save(Factories.order.copy(customerId = customer.id))
-      scReason    ← Reasons.save(Factories.reason.copy(storeAdminId = admin.id))
-      scSubType   ← StoreCreditSubtypes.save(Factories.storeCreditSubTypes.head)
-      scOrigin    ← StoreCreditManuals.save(Factories.storeCreditManual.copy(adminId = admin.id,
+      admin       ← StoreAdmins.saveNew(authedStoreAdmin)
+      customer    ← Customers.saveNew(Factories.customer)
+      order       ← Orders.saveNew(Factories.order.copy(customerId = customer.id))
+      scReason    ← Reasons.saveNew(Factories.reason.copy(storeAdminId = admin.id))
+      scSubType   ← StoreCreditSubtypes.saveNew(Factories.storeCreditSubTypes.head)
+      scOrigin    ← StoreCreditManuals.saveNew(Factories.storeCreditManual.copy(adminId = admin.id,
         reasonId = scReason.id))
-      storeCredit ← StoreCredits.save(Factories.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))
-      scSecond ← StoreCredits.save(Factories.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))
-      payment ← OrderPayments.save(Factories.storeCreditPayment.copy(orderId = order.id,
+      storeCredit ← StoreCredits.saveNew(Factories.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))
+      scSecond ← StoreCredits.saveNew(Factories.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))
+      payment ← OrderPayments.saveNew(Factories.storeCreditPayment.copy(orderId = order.id,
         paymentMethodId = storeCredit.id, paymentMethodType = PaymentMethod.StoreCredit))
       adjustment ← StoreCredits.auth(storeCredit, Some(payment.id), 10)
     } yield (admin, customer, scReason, storeCredit, order, adjustment, scSecond, payment, scSubType)).run().futureValue

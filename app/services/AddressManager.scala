@@ -35,7 +35,7 @@ object AddressManager {
     address.validate match {
       case Valid(_) ⇒
         (for {
-          newAddress ← Addresses.save(address)
+          newAddress ← Addresses.saveNew(address)
           region     ← Regions.findOneById(newAddress.regionId)
         } yield (newAddress, region)).run().flatMap {
           case (address, Some(region))  ⇒ Result.good(Response.build(address, region))

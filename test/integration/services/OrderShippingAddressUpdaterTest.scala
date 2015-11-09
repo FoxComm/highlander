@@ -62,16 +62,16 @@ class OrderShippingAddressUpdaterTest extends IntegrationTestBase {
 
   trait Fixture {
     val (customer, address, order) = (for {
-      customer ← Customers.save(Factories.customer)
-      address ← Addresses.save(Factories.address.copy(customerId = customer.id))
-      order ← Orders.save(Factories.order.copy(customerId = customer.id))
+      customer ← Customers.saveNew(Factories.customer)
+      address ← Addresses.saveNew(Factories.address.copy(customerId = customer.id))
+      order ← Orders.saveNew(Factories.order.copy(customerId = customer.id))
     } yield (customer, address, order)).run().futureValue
   }
 
   trait UpdateAddressFixture extends Fixture {
     val (orderShippingAddress, newAddress) = (for {
       orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
-      newAddress ← Addresses.save(Factories.address.copy(customerId = customer.id, name = "New Address",
+      newAddress ← Addresses.saveNew(Factories.address.copy(customerId = customer.id, name = "New Address",
         isDefaultShipping = false))
     } yield (orderShippingAddress, newAddress)).run().futureValue
   }

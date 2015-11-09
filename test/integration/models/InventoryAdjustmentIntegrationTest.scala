@@ -9,9 +9,9 @@ class InventoryAdjustmentIntegrationTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global
 
   def seed(): (Sku, OrderLineItemSku, Order) = {
-    val sku = Skus.save(Factories.skus.head.copy(price = 5)).run().futureValue
-    val order = Orders.save(Order(id = 0, customerId = 1)).run().futureValue
-    val lineItemSku = OrderLineItemSkus.save(OrderLineItemSku(skuId = sku.id, orderId = order.id)).run().futureValue
+    val sku = Skus.saveNew(Factories.skus.head.copy(price = 5)).run().futureValue
+    val order = Orders.saveNew(Order(id = 0, customerId = 1)).run().futureValue
+    val lineItemSku = OrderLineItemSkus.saveNew(OrderLineItemSku(skuId = sku.id, orderId = order.id)).run().futureValue
     (sku, lineItemSku, order)
   }
 

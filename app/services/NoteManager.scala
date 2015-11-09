@@ -106,7 +106,7 @@ object NoteManager {
   private def createNote(note: Note)
     (implicit ec: ExecutionContext, db: Database): DbResult[Note] = {
     note.validate match {
-      case Valid(_)         ⇒ DbResult.fromDbio(Notes.save(note))
+      case Valid(_)         ⇒ DbResult.fromDbio(Notes.saveNew(note))
       case Invalid(errors)  ⇒ DbResult.failures(errors)
     }
   }

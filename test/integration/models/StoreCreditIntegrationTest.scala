@@ -45,13 +45,13 @@ class StoreCreditIntegrationTest extends IntegrationTestBase {
     val adminFactory = Factories.storeAdmin
     val (customer, origin, storeCredit, payment) = (for {
       admin ← (StoreAdmins.returningId += adminFactory).map { id ⇒ adminFactory.copy(id = id) }
-      customer ← Customers.save(Factories.customer)
-      order ← Orders.save(Factories.order.copy(customerId = customer.id))
-      reason ← Reasons.save(Factories.reason.copy(storeAdminId = admin.id))
-      origin ← StoreCreditManuals.save(Factories.storeCreditManual.copy(adminId = admin.id, reasonId = reason.id))
-      sc ← StoreCredits.save(Factories.storeCredit.copy(customerId = customer.id, originId = origin.id))
+      customer ← Customers.saveNew(Factories.customer)
+      order ← Orders.saveNew(Factories.order.copy(customerId = customer.id))
+      reason ← Reasons.saveNew(Factories.reason.copy(storeAdminId = admin.id))
+      origin ← StoreCreditManuals.saveNew(Factories.storeCreditManual.copy(adminId = admin.id, reasonId = reason.id))
+      sc ← StoreCredits.saveNew(Factories.storeCredit.copy(customerId = customer.id, originId = origin.id))
       storeCredit ← StoreCredits.findOneById(sc.id)
-      payment ← OrderPayments.save(Factories.orderPayment.copy(orderId = order.id,
+      payment ← OrderPayments.saveNew(Factories.orderPayment.copy(orderId = order.id,
         paymentMethodId = sc.id))
     } yield (customer, origin, storeCredit.value, payment)).run().futureValue
   }

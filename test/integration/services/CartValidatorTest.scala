@@ -54,12 +54,12 @@ class CartValidatorTest extends IntegrationTestBase {
         val notEnoughFunds = sku.price - 1
 
         (for {
-          admin ← StoreAdmins.save(Factories.storeAdmin)
-          reason ← Reasons.save(Factories.reason.copy(storeAdminId = admin.id))
-          origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
-          giftCard ← GiftCards.save(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active,
+          admin ← StoreAdmins.saveNew(Factories.storeAdmin)
+          reason ← Reasons.saveNew(Factories.reason.copy(storeAdminId = admin.id))
+          origin ← GiftCardManuals.saveNew(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
+          giftCard ← GiftCards.saveNew(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active,
             originalBalance = notEnoughFunds))
-          pmt ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = cart.id,
+          pmt ← OrderPayments.saveNew(Factories.giftCardPayment.copy(orderId = cart.id,
             amount = sku.price.some, paymentMethodId = giftCard.id))
         } yield pmt).run().futureValue
 
@@ -96,22 +96,22 @@ class CartValidatorTest extends IntegrationTestBase {
   }
 
   trait Fixture {
-    val cart = Orders.save(Factories.cart).run().futureValue
+    val cart = Orders.saveNew(Factories.cart).run().futureValue
   }
 
   trait LineItemsFixture extends Fixture {
     val (sku, items) = (for {
-      sku   ← Skus.save(Factories.skus.head)
-      _     ← OrderLineItemSkus.save(OrderLineItemSku(skuId = sku.id, orderId = cart.id))
-      items ← OrderLineItems.save(OrderLineItem.buildSku(cart, sku))
+      sku   ← Skus.saveNew(Factories.skus.head)
+      _     ← OrderLineItemSkus.saveNew(OrderLineItemSku(skuId = sku.id, orderId = cart.id))
+      items ← OrderLineItems.saveNew(OrderLineItem.buildSku(cart, sku))
     } yield (sku, items)).run().futureValue
   }
 
   trait CreditCartFixture extends Fixture {
     val (customer, cc) = (for {
-      customer ← Customers.save(Factories.customer)
-      cc ← CreditCards.save(Factories.creditCard.copy(customerId = customer.id))
-      _ ← OrderPayments.save(Factories.orderPayment.copy(orderId = cart.id, paymentMethodId = cc.id))
+      customer ← Customers.saveNew(Factories.customer)
+      cc ← CreditCards.saveNew(Factories.creditCard.copy(customerId = customer.id))
+      _ ← OrderPayments.saveNew(Factories.orderPayment.copy(orderId = cart.id, paymentMethodId = cc.id))
     } yield (customer, cc)).run().futureValue
   }
 }

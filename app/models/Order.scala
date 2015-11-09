@@ -110,7 +110,7 @@ object Orders extends TableQueryWithLock[Order, Orders](
 
   override def primarySearchTerm: String = "referenceNumber"
 
-  override def save(order: Order)(implicit ec: ExecutionContext): DBIO[Order] = for {
+  override def saveNew(order: Order)(implicit ec: ExecutionContext): DBIO[Order] = for {
      (newId, refNum) ← returningIdAndReferenceNumber += order
   } yield order.copy(id = newId, referenceNumber = refNum)
 

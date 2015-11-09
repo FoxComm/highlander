@@ -44,14 +44,14 @@ class GiftCardIntegrationTest extends IntegrationTestBase {
   trait Fixture {
     val adminFactory = Factories.storeAdmin
     val (origin, giftCard, payment) = (for {
-      customer ← Customers.save(Factories.customer)
-      order ← Orders.save(Factories.order.copy(customerId = customer.id))
+      customer ← Customers.saveNew(Factories.customer)
+      order ← Orders.saveNew(Factories.order.copy(customerId = customer.id))
       admin ← (StoreAdmins.returningId += adminFactory).map { id ⇒ adminFactory.copy(id = id) }
-      reason ← Reasons.save(Factories.reason.copy(storeAdminId = admin.id))
-      origin ← GiftCardManuals.save(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
-      gc ← GiftCards.save(Factories.giftCard.copy(originalBalance = 50, originId = origin.id))
+      reason ← Reasons.saveNew(Factories.reason.copy(storeAdminId = admin.id))
+      origin ← GiftCardManuals.saveNew(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
+      gc ← GiftCards.saveNew(Factories.giftCard.copy(originalBalance = 50, originId = origin.id))
       giftCard ← GiftCards.findOneById(gc.id)
-      payment ← OrderPayments.save(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = gc.id,
+      payment ← OrderPayments.saveNew(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = gc.id,
         paymentMethodType = PaymentMethod.GiftCard))
     } yield (origin, giftCard.value, payment)).run().futureValue
   }

@@ -50,7 +50,7 @@ object OrderShippingAddressUpdater {
       address.validate match {
         case Valid(_) ⇒
           (for {
-            newAddress ← Addresses.save(address.copy(customerId = order.customerId))
+            newAddress ← Addresses.saveNew(address.copy(customerId = order.customerId))
             region ← Regions.findOneById(newAddress.regionId)
             _ ← OrderShippingAddresses.findByOrderId(order.id).delete
             _ ← OrderShippingAddresses.copyFromAddress(newAddress, order.id)

@@ -12,13 +12,13 @@ class InventorySummaryIntegrationTest extends IntegrationTestBase {
   "InventorySummary" - {
     "Postgres triggers" - {
       def seed(): (Sku, Order) = {
-        val sku = Skus.save(Factories.skus.head.copy(price = 5)).run().futureValue
-        val order = Orders.save(Order(id = 0, customerId = 1)).run().futureValue
+        val sku = Skus.saveNew(Factories.skus.head.copy(price = 5)).run().futureValue
+        val order = Orders.saveNew(Order(id = 0, customerId = 1)).run().futureValue
         (sku, order)
       }
 
       def adjustment(skuId: Int, orderId: Int, reserved: Int): PostgresDriver.api.DBIO[InventoryAdjustment] =
-        InventoryAdjustments.save(InventoryAdjustment(skuId = skuId, inventoryEventId = orderId,
+        InventoryAdjustments.saveNew(InventoryAdjustment(skuId = skuId, inventoryEventId = orderId,
           reservedForFulfillment = reserved))
 
       "inserts a negative new record if there is none after an insert to InventoryAdjustment" in {

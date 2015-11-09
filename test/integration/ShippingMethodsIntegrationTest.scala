@@ -27,7 +27,7 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
             | }
           """.stripMargin).extract[QueryStatement]
 
-        val action = models.ShippingMethods.save(Factories.shippingMethods.head.copy(
+        val action = models.ShippingMethods.saveNew(Factories.shippingMethods.head.copy(
           conditions = Some(conditions)))
         val shippingMethod = db.run(action).futureValue
 
@@ -55,7 +55,7 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
             | }
           """.stripMargin).extract[QueryStatement]
 
-        val action = models.ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
+        val action = models.ShippingMethods.saveNew(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
         val shippingMethod = db.run(action).futureValue
 
         val response = GET(s"v1/shipping-methods/${order.referenceNumber}")
@@ -109,9 +109,9 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
 
       "Shipping method is returned, but disabled with a hazardous SKU" in new ShipToCaliforniaButNotHazardous {
         (for {
-          hazSku ← Skus.save(Sku(sku = "HAZ-SKU", name = Some("fox"), price = 56, isHazardous = true))
-          lineItemSku ← OrderLineItemSkus.save(OrderLineItemSku(orderId = order.id, skuId = hazSku.id))
-          lineItem ← OrderLineItems.save(OrderLineItem(orderId = order.id, originId = lineItemSku.id))
+          hazSku ← Skus.saveNew(Sku(sku = "HAZ-SKU", name = Some("fox"), price = 56, isHazardous = true))
+          lineItemSku ← OrderLineItemSkus.saveNew(OrderLineItemSku(orderId = order.id, skuId = hazSku.id))
+          lineItem ← OrderLineItems.saveNew(OrderLineItem(orderId = order.id, originId = lineItemSku.id))
         } yield lineItem).run().futureValue
 
         val response = GET(s"v1/shipping-methods/${order.referenceNumber}")
@@ -129,9 +129,9 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
 
   trait Fixture {
     val (order, storeAdmin, customer) = (for {
-      customer ← Customers.save(Factories.customer)
-      order ← Orders.save(Factories.order.copy(customerId = customer.id))
-      storeAdmin ← StoreAdmins.save(authedStoreAdmin)
+      customer ← Customers.saveNew(Factories.customer)
+      order ← Orders.saveNew(Factories.order.copy(customerId = customer.id))
+      storeAdmin ← StoreAdmins.saveNew(authedStoreAdmin)
     } yield (order, storeAdmin, customer)).run().futureValue
   }
 
@@ -142,11 +142,11 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
     val washingtonId = 4177
 
     val (address, orderShippingAddress) = (for {
-      address ← Addresses.save(Factories.address.copy(customerId = customer.id, regionId = californiaId))
+      address ← Addresses.saveNew(Factories.address.copy(customerId = customer.id, regionId = californiaId))
       orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
-      sku ← Skus.save(Factories.skus.head.copy(name = Some("Donkey"), price = 27))
-      lineItemSku ← OrderLineItemSkus.save(OrderLineItemSku(orderId = order.id, skuId = sku.id))
-      lineItems ← OrderLineItems.save(OrderLineItem(orderId = order.id, originId = lineItemSku.id))
+      sku ← Skus.saveNew(Factories.skus.head.copy(name = Some("Donkey"), price = 27))
+      lineItemSku ← OrderLineItemSkus.saveNew(OrderLineItemSku(orderId = order.id, skuId = sku.id))
+      lineItems ← OrderLineItems.saveNew(OrderLineItem(orderId = order.id, originId = lineItemSku.id))
     } yield (address, orderShippingAddress)).run().futureValue
   }
 
@@ -176,7 +176,7 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
           |}
         """.stripMargin).extract[QueryStatement]
 
-    val action = models.ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
+    val action = models.ShippingMethods.saveNew(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
     val shippingMethod = db.run(action).futureValue
   }
 
@@ -226,7 +226,7 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
           |}
       """.stripMargin).extract[QueryStatement]
 
-    val action = models.ShippingMethods.save(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
+    val action = models.ShippingMethods.saveNew(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
     val shippingMethod = db.run(action).futureValue
   }
 
@@ -262,7 +262,7 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
       """.stripMargin).extract[QueryStatement]
 
     val shippingMethod = (for {
-      shippingMethod ← models.ShippingMethods.save(Factories.shippingMethods.head.copy(
+      shippingMethod ← models.ShippingMethods.saveNew(Factories.shippingMethods.head.copy(
         conditions = Some(conditions), restrictions = Some(restrictions)))
     } yield shippingMethod).run().futureValue
   }

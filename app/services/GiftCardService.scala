@@ -186,8 +186,8 @@ object GiftCardService {
 
     def saveGiftCard(admin: StoreAdmin, payload: payloads.GiftCardCreateByCsr): ResultT[DBIO[Root]] = {
       val actions = for {
-        origin  ← GiftCardManuals.save(GiftCardManual(adminId = admin.id, reasonId = payload.reasonId))
-        gc      ← GiftCards.save(GiftCard.buildAppeasement(payload, origin.id))
+        origin  ← GiftCardManuals.saveNew(GiftCardManual(adminId = admin.id, reasonId = payload.reasonId))
+        gc      ← GiftCards.saveNew(GiftCard.buildAppeasement(payload, origin.id))
       } yield gc
 
       val storeAdminResponse = Some(StoreAdminResponse.build(admin))

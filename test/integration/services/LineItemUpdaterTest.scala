@@ -31,13 +31,13 @@ class LineItemUpdaterTest extends IntegrationTestBase {
   def createInventory(skuId: Int, availableOnHand: Int = 100): Unit = {
     val summary = InventorySummary(id = 0, skuId = skuId, availableOnHand = availableOnHand, availablePreOrder = 0,
                                    availableBackOrder = 0, outstandingPreOrders = 0, outstandingBackOrders = 0)
-    InventorySummaries.save(summary).run().futureValue
+    InventorySummaries.saveNew(summary).run().futureValue
   }
 
   "LineItemUpdater" - {
 
     "Adds line_items when the sku doesn't exist in order" in {
-      val order = Orders.save(Order(customerId = 1)).run().futureValue
+      val order = Orders.saveNew(Order(customerId = 1)).run().futureValue
       createSkusAndLinks(2, order)
       createInventory(1, 100)
       createInventory(2, 100)
@@ -63,7 +63,7 @@ class LineItemUpdaterTest extends IntegrationTestBase {
     }
 
     "Updates line_items when the Sku already is in order" in {
-      val order = Orders.save(Order(customerId = 1)).run().futureValue
+      val order = Orders.saveNew(Order(customerId = 1)).run().futureValue
       createSkusAndLinks(3, order)
       createInventory(1, 100)
       createInventory(2, 100)

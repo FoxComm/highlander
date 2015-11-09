@@ -28,7 +28,7 @@ object OrderCreator {
       hasCart   ← Orders.findByCustomerId(customerId).cartOnly.exists.result
     } yield (customer, hasCart)).run().flatMap {
       case (Some(customer), false) ⇒
-        Result.fromFuture(Orders.save(Order.buildCart(customerId)).run().map(root(_, customer)))
+        Result.fromFuture(Orders.saveNew(Order.buildCart(customerId)).run().map(root(_, customer)))
 
       case (Some(_), true) ⇒
         Result.failure(CustomerHasCart(customerId))
@@ -38,8 +38,8 @@ object OrderCreator {
     }
 
     def createCartAndGuest(email: String): Result[Root] = (for {
-      guest ← Customers.save(Customer.buildGuest(email = email))
-      cart  ← Orders.save(Order.buildCart(guest.id))
+      guest ← Customers.saveNew(Customer.buildGuest(email = email))
+      cart  ← Orders.saveNew(Order.buildCart(guest.id))
     } yield (cart, guest)).run().flatMap { case (cart, guest) ⇒
       Result.good(root(cart, guest))
     }

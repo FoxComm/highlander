@@ -34,11 +34,11 @@ object LineItemUpdater {
 
     finder.selectOne ({ order ⇒
       val queries = for {
-        gcOrigin ← GiftCardOrders.save(GiftCardOrder(orderId = order.id))
-        gc ← GiftCards.save(GiftCard.buildLineItem(balance = payload.balance, originId = gcOrigin.id,
+        gcOrigin ← GiftCardOrders.saveNew(GiftCardOrder(orderId = order.id))
+        gc ← GiftCards.saveNew(GiftCard.buildLineItem(balance = payload.balance, originId = gcOrigin.id,
           currency = payload.currency))
-        lineItemGc ← OrderLineItemGiftCards.save(OrderLineItemGiftCard(giftCardId = gc.id, orderId = order.id))
-        lineItem ← OrderLineItems.save(OrderLineItem.buildGiftCard(order, lineItemGc))
+        lineItemGc ← OrderLineItemGiftCards.saveNew(OrderLineItemGiftCard(giftCardId = gc.id, orderId = order.id))
+        lineItem ← OrderLineItems.saveNew(OrderLineItem.buildGiftCard(order, lineItemGc))
       } yield ()
 
       DbResult.fromDbio(queries >> fullOrder(finder))
@@ -158,7 +158,7 @@ object LineItemUpdater {
               relation ← OrderLineItemSkus.filter(_.skuId === sku.id).one
               origin ← relation match {
                 case Some(o)   ⇒ DBIO.successful(o)
-                case _         ⇒ OrderLineItemSkus.save(OrderLineItemSku(skuId = sku.id, orderId = order.id))
+                case _         ⇒ OrderLineItemSkus.saveNew(OrderLineItemSku(skuId = sku.id, orderId = order.id))
               }
               bulkInsert ← lineItems ++= (1 to delta).map { _ ⇒ OrderLineItem(0, order.id, origin.id) }.toSeq
             } yield ()

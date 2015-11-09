@@ -71,7 +71,7 @@ class OrderCreatorIntegrationTest extends IntegrationTestBase
   }
 
   trait Fixture {
-    val customer = Customers.save(Factories.customer).futureValue
+    val customer = Customers.saveNew(Factories.customer).futureValue
   }
 }
 

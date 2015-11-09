@@ -26,7 +26,7 @@ object OrderShippingMethodUpdater {
                 val orderShipping = OrderShippingMethod(orderId = order.id, shippingMethodId = shippingMethod.id)
                 val delete = OrderShippingMethods.findByOrderId(order.id).delete
 
-                DbResult.fromDbio(delete >> OrderShippingMethods.save(orderShipping) >> fullOrder(finder))
+                DbResult.fromDbio(delete >> OrderShippingMethods.saveNew(orderShipping) >> fullOrder(finder))
               } else {
                 DbResult.failure(ShippingMethodNotApplicableToOrder(payload.shippingMethodId, order.refNum))
               }

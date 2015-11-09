@@ -19,7 +19,7 @@ class ModelIntegrationTest extends IntegrationTestBase {
 
     "sanitizes model" in {
       val result = (for {
-        customer ← Customers.save(Factories.customer)
+        customer ← Customers.saveNew(Factories.customer)
         address ← Addresses.create(Factories.address.copy(zip = "123-45", customerId = customer.id))
       } yield address).run().futureValue
       rightValue(result).zip must === ("12345")
@@ -27,7 +27,7 @@ class ModelIntegrationTest extends IntegrationTestBase {
 
     "catches exceptions from DB" in {
       val result = (for {
-        customer ← Customers.save(Factories.customer)
+        customer ← Customers.saveNew(Factories.customer)
         original ← Addresses.create(Factories.address.copy(customerId = customer.id))
         copycat ← Addresses.create(Factories.address.copy(customerId = customer.id))
       } yield copycat).run().futureValue
