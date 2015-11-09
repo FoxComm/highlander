@@ -41,6 +41,8 @@ export default class EditCreditCardBox extends React.Component {
 
   render() {
     const card = this.props.card;
+    const form = this.props.form;
+    console.log(form);
     return (
       <li className="fc-card-container fc-credit-cards fc-credit-cards-edit">
         <Form className="fc-customer-credit-card-form fc-form-vertical"
@@ -64,7 +66,7 @@ export default class EditCreditCardBox extends React.Component {
                          name="holderName"
                          maxLength="255"
                          type="text"
-                         value={ card.holderName }
+                         value={ form.holderName }
                          required />
                 </FormField>
               </li>
@@ -75,13 +77,13 @@ export default class EditCreditCardBox extends React.Component {
                     <Dropdown name="expMonth"
                               items={this.monthList}
                               placeholder="Month"
-                              value={ card.expMonth }/>
+                              value={ form.expMonth }/>
                   </div>
                   <div className="fc-col-md-1-2">
                     <Dropdown name="expYear"
                               items={this.expirationYears}
                               placeholder="Year"
-                              value={ card.expYear }/>
+                              value={ form.expYear }/>
                   </div>
                 </div>
               </li>

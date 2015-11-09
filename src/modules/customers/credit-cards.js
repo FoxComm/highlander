@@ -11,6 +11,7 @@ export const closeNewCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARD_NEW
 export const changeNewCustomerCreditCardFormData = createAction('CUSTOMER_CREDIT_CARD_NEW_CHANGE_FORM', (id, name, value) => [id, name, value]);
 export const editCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARDS_EDIT', (customerId, cardId) => [customerId, cardId]);
 export const closeEditCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARDS_EDIT_CLOSE', (customerId, cardId) => [customerId, cardId]);
+export const changeEditCustomerCreditCardFormData = createAction('CUSTOMER_CREDIT_CARD_EDIT_CHANGE_FORM', (id, name, value) => [id, name, value]);
 export const deleteCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARDS_DELETE', (customerId, cardId) => [customerId, cardId]);
 export const closeDeleteCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARDS_DELETE_CLOSE');
 
@@ -70,7 +71,7 @@ export function saveCreditCard(id) {
     dispatch(requestCustomerCreditCards(id));
 
     const cards = _.get(getState(), 'customers.creditCards', {});
-    const creditCardId = _.get(cards, `${id}.editingCreditCard`);
+    const creditCardId = _.get(cards, [id, 'editingCreditCard'], {});
     Api.patch(`/customers/${id}/payment-methods/credit-cards/${creditCardId}`)
       .then(() => {
         dispatch(closeDeleteCustomerCreditCard(id));
@@ -128,7 +129,7 @@ const reducer = createReducer({
   },
   [editCustomerCreditCard]: (state, [customerId, cardId]) => {
     console.log('editCustomerCreditCard');
-    const cards = _.get(state, `${customerId}.cards`, []);
+    const cards = _.get(state, [customerId, 'cards'], []);
     const creditCard = _.find(cards, (card) => { return cardId === card.id });
     const {holderName, expMonth, expYear, isDefault} = creditCard;
     return {
@@ -144,6 +145,21 @@ const reducer = createReducer({
         }
       }
     };
+  },
+  [changeEditCustomerCreditCardFormData]: (state, [id, name, value]) => {
+    const editingCreditCard = _.get(state, [id, 'editingCreditCard']);
+    const newState = {
+      ...state,
+      [id]: {
+        ...state[id],
+        editingCreditCard: {
+          ...editingCreditCard,
+          [name]: value
+        }
+      }
+    };
+
+    return newState;
   },
   [closeEditCustomerCreditCard]: (state, [customerId, cardId]) => {
     console.log('cancelEditCustomerCreditCard');
