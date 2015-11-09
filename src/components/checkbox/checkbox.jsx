@@ -1,6 +1,6 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 
 const DefaultCheckbox = (props) => {
@@ -13,6 +13,10 @@ const DefaultCheckbox = (props) => {
   );
 };
 
+DefaultCheckbox.propTypes = {
+  id: PropTypes.string
+};
+
 const SliderCheckbox = (props) => {
   return (
     <DefaultCheckbox {...props}
@@ -20,11 +24,19 @@ const SliderCheckbox = (props) => {
   );
 };
 
+SliderCheckbox.propTypes = {
+  className: PropTypes.string
+};
+
 const Checkbox = (props) => {
   return (
     <DefaultCheckbox {...props}
                      className={ classNames('fc-checkbox', props.className) } />
   );
+};
+
+Checkbox.propTypes = {
+  className: PropTypes.string
 };
 
 export {
