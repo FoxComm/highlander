@@ -189,9 +189,8 @@ final case class AlreadySavedForLater(customerId: Int, skuId: Int) extends Failu
 
 object Util {
   def searchTerm[A](a: A): String = a match {
-    case Order ⇒ "referenceNumber"
-    case Rma ⇒ "referenceNumber"
-    case GiftCard ⇒ "code"
+    case Order | _: Order | Rma | _: Rma ⇒ "referenceNumber"
+    case GiftCard | _: GiftCard ⇒ "code"
     case _ ⇒ "id"
   }
 }
