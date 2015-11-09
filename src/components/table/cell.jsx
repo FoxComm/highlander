@@ -6,7 +6,7 @@ import Currency from '../common/currency';
 import Status from '../common/status';
 
 const TableCell = (props) => {
-  const render = (cell, column) => {
+  const render = (cell, column = {}) => {
     switch (column.type) {
       case 'id':
         return <Link to={column.model} params={{[column.model]: cell}}>{cell}</Link>;
