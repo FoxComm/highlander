@@ -1,6 +1,6 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 
 import ConfirmationDialog from '../modal/confirmation-dialog';
 import OrderLineItem from './order-line-item';
@@ -40,8 +40,18 @@ const OrderLineItems = (props) => {
   );
 };
 
+OrderLineItems.propTypes = {
+  order: PropTypes.object,
+  orderLineItemsStartEdit: PropTypes.func,
+  orderLineItemsCancelEdit: PropTypes.func
+};
+
 const renderViewContent = (props) => {
   return <TableView columns={viewModeColumns} rows={props.order.lineItems.items} />;
+};
+
+renderViewContent.propTypes = {
+  order: PropTypes.object
 };
 
 const renderEditContent = (props) => {
@@ -74,6 +84,11 @@ const renderEditContent = (props) => {
         confirmAction={() => props.deleteLineItem(order, lineItemsStatus.skuToDelete)} />
     </div>
   );
+};
+
+renderEditContent.propTypes = {
+  orderLineItemsCancelDelete: PropTypes.func,
+  deleteLineItem: PropTypes.func
 };
 
 export default OrderLineItems;
