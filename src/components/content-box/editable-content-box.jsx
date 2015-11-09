@@ -3,7 +3,7 @@
 import React, { PropTypes } from 'react';
 import { EditButton, PrimaryButton } from '../common/buttons';
 
-const EditableContentBox = (props) => {
+const EditableContentBox = props => {
   const compositeClassName = `fc-content-box ${props.className}`;
   const content = props.isEditing ? props.editContent : props.viewContent;
   return (
@@ -22,7 +22,7 @@ EditableContentBox.propTypes = {
   isEditing: PropTypes.bool
 };
 
-const renderTitle = (props) => {
+const renderTitle = props => {
   let editButton = null;
   if (!props.isEditing) {
     editButton = <EditButton onClick={props.editAction} />;
@@ -43,7 +43,7 @@ renderTitle.propTypes = {
   title: PropTypes.string
 };
 
-const renderFooter = (props) => {
+const renderFooter = props => {
   if (props.isEditing) {
     return (
       <footer>

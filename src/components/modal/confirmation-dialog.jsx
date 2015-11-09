@@ -2,7 +2,7 @@
 
 import React, { PropTypes } from 'react';
 
-const ConfirmationDialog = (props) => {
+const ConfirmationDialog = props => {
   if (props.isVisible) {
     return (
       <div className='fc-modal'>

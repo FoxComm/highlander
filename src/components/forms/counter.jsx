@@ -14,7 +14,7 @@ const noop = () => {
   return;
 };
 
-const Counter = (props) => {
+const Counter = props => {
   let handleChange = props.onChange || noop;
   let handleIncreaseTotal = props.increaseTotal || noop;
   let handleDecreaseTotal = props.decreaseTotal || noop;

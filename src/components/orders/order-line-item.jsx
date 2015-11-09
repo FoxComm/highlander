@@ -5,7 +5,7 @@ import { formatCurrency } from '../../lib/format';
 import Counter from '../forms/counter';
 import {DeleteButton} from '../common/buttons';
 
-const OrderLineItem = (props) => {
+const OrderLineItem = props => {
   let item = props.item;
   let order = props.order.currentOrder;
 

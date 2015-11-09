@@ -27,7 +27,7 @@ const editModeColumns = [
   {field: 'delete', text: 'Delete', component: 'DeleteLineItem'}
 ];
 
-const OrderLineItems = (props) => {
+const OrderLineItems = props => {
   return (
     <EditableContentBox
       className='fc-line-items'
@@ -46,7 +46,7 @@ OrderLineItems.propTypes = {
   orderLineItemsCancelEdit: PropTypes.func
 };
 
-const renderViewContent = (props) => {
+const renderViewContent = props => {
   return <TableView columns={viewModeColumns} rows={props.order.lineItems.items} />;
 };
 
@@ -54,7 +54,7 @@ renderViewContent.propTypes = {
   order: PropTypes.object
 };
 
-const renderEditContent = (props) => {
+const renderEditContent = props => {
   let order = props.order.currentOrder;
   let lineItemsStatus = props.order.lineItems;
 

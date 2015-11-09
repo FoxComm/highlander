@@ -9,7 +9,7 @@ const columns = [
   {field: 'price', text: 'Price', type: 'currency'}
 ];
 
-const ShippingMethod = (props) => {
+const ShippingMethod = props => {
   return (
     <EditableContentBox
       className='fc-shipping-method'

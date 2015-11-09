@@ -5,7 +5,7 @@ import Counter from '../forms/counter';
 import ConfirmModal from '../modal/confirm';
 import LineItemActions from '../../actions/line-items';
 
-const LineItemCounter = (props) => {
+const LineItemCounter = props => {
   return (
     <Counter
       defaultValue='quantity'

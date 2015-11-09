@@ -4,7 +4,7 @@ import React, { PropTypes } from 'react';
 import TableHead from './head';
 import TableBody from './body';
 
-const Table = (props) => {
+const Table = props => {
   return (
     <table className='fc-table'>
       <TableHead columns={props.columns} sortBy={props.data.sortBy} setState={props.setState}/>

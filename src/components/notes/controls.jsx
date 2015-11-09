@@ -4,7 +4,7 @@ import React, { PropTypes } from 'react';
 import UserInitials from '../users/initials';
 import { EditButton, DeleteButton } from '../common/buttons';
 
-const NoteControls = (props) => {
+const NoteControls = props => {
   return (
     <div className="fc-notes-item-controls">
       <UserInitials model={props.model.author}/>

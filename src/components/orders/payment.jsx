@@ -8,7 +8,7 @@ import TableHead from '../tables/head';
 import TableBody from '../tables/body';
 import ContentBox from '../content-box/content-box';
 
-const OrderPayment = (props) => {
+const OrderPayment = props => {
   const order = props.order.currentOrder;
 
   const viewContent = (

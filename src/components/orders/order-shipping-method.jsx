@@ -3,7 +3,7 @@
 import React from 'react';
 import ShippingMethod from '../shipping/shipping-method';
 
-const OrderShippingMethod = (props) => {
+const OrderShippingMethod = props => {
   const shippingMethod = props.order.currentOrder.shippingMethod;
   
   return (

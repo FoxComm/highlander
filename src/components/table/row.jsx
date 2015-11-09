@@ -2,7 +2,7 @@
 
 import React, { PropTypes } from 'react';
 
-const TableRow = (props) => {
+const TableRow = props => {
   return (
     <tr className="fc-table-tr">
       {props.children}

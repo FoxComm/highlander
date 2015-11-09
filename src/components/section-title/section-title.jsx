@@ -3,7 +3,7 @@ import React, { PropTypes } from 'react';
 import { PrimaryButton } from '../common/buttons';
 import Title from './title';
 
-const SectionTitle = (props) => {
+const SectionTitle = props => {
   return (
     <div className="fc-grid fc-section-title">
       <div className="fc-col-md-2-6">

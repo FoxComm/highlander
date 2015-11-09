@@ -5,7 +5,7 @@ import Table from './table';
 import TablePaginator from './paginator';
 import TablePageSize from './pagesize';
 
-const TableView = (props) => {
+const TableView = props => {
   const setState = props.setState.bind(this, props.data);
   const tableNeedsPagination = props.paginator && props.data.total > 0;
   const tablePaginator = tableNeedsPagination && (
