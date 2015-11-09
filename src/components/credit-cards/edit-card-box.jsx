@@ -55,7 +55,7 @@ export default class EditCreditCardBox extends React.Component {
             <ul className="fc-credit-card-form-fields">
               <li className="fc-credit-card-form-line">
                 <label className="fc-credit-card-default-checkbox">
-                  <Checkbox defaultChecked={ false } name="isDefault" />
+                  <Checkbox defaultChecked={ form.isDefault } name="isDefault" />
                   <span>Default Card</span>
                 </label>
               </li>
