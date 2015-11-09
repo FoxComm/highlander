@@ -19,7 +19,8 @@ import utils.Slick.implicits._
 
 final case class Rma(id: Int = 0, referenceNumber: String = "", orderId: Int, orderRefNum: String,
   rmaType: RmaType = Standard, status: Status = Pending, locked: Boolean = false,
-  customerId: Option[Int] = None, storeAdminId: Option[Int] = None)
+  customerId: Option[Int] = None, storeAdminId: Option[Int] = None, createdAt: Instant = Instant.now,
+  updatedAt: Instant = Instant.now, deletedAt: Option[Instant] = None)
   extends ModelWithLockParameter[Rma]
   with FSM[Rma.Status, Rma] {
 
@@ -75,9 +76,12 @@ class Rmas(tag: Tag) extends GenericTable.TableWithLock[Rma](tag, "rmas")  {
   def locked = column[Boolean]("locked")
   def customerId = column[Option[Int]]("customer_id")
   def storeAdminId = column[Option[Int]]("store_admin_id")
+  def createdAt = column[Instant]("created_at")
+  def updatedAt = column[Instant]("updated_at")
+  def deletedAt = column[Option[Instant]]("deleted_at")
 
   def * = (id, referenceNumber, orderId, orderRefNum, rmaType, status, locked, customerId,
-    storeAdminId) <> ((Rma.apply _).tupled, Rma.unapply)
+    storeAdminId, createdAt, updatedAt, deletedAt) <> ((Rma.apply _).tupled, Rma.unapply)
 }
 
 object Rmas extends TableQueryWithLock[Rma, Rmas](

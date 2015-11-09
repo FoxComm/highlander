@@ -1,10 +1,12 @@
 package responses
 
+import java.time.Instant
+
 import scala.concurrent.ExecutionContext
 
 import models._
 import payloads.{RmaCreditCardPayment, RmaGiftCardPayment, RmaStoreCreditPayment}
-import responses.FullOrder.DisplayLineItem
+import responses.FullOrder.{DisplayLineItem, Totals}
 import responses.CustomerResponse.{Root ⇒ Customer}
 import responses.StoreAdminResponse.{Root ⇒ StoreAdmin}
 import services.NotFoundFailure404
@@ -14,7 +16,7 @@ import utils.Slick._
 import utils.Slick.implicits._
 
 object RmaResponse {
-  val mockTotal = 10
+  val mockTotal = Totals(subTotal = 70, taxes = 10, adjustments = 10, total = 50)
 
   val mockLineItems = LineItems(
     skus = Seq(
@@ -30,7 +32,8 @@ object RmaResponse {
     storeCredit = Some(RmaStoreCreditPayment(amount = 10))
   )
 
-  final case class FullRmaWithWarnings(rma: RootExpanded, warnings: Seq[NotFoundFailure404])
+  final case class FullRmaWithWarnings(rma: Root, warnings: Seq[NotFoundFailure404])
+  final case class FullRmaExpandedWithWarnings(rma: RootExpanded, warnings: Seq[NotFoundFailure404])
 
   final case class Root(
     id: Int,
@@ -43,7 +46,11 @@ object RmaResponse {
     payments: Payments = Payments(),
     customer: Option[Customer] = None,
     storeAdmin: Option[StoreAdmin] = None,
-    total: Int) extends ResponseItem
+    assignees: Seq[AssignmentResponse.Root],
+    createdAt: Instant,
+    updatedAt: Instant,
+    deletedAt: Option[Instant] = None,
+    total: Totals) extends ResponseItem
 
   final case class RootExpanded(
     id: Int,
@@ -55,7 +62,11 @@ object RmaResponse {
     payment: Payments = Payments(),
     customer: Option[Customer] = None,
     storeAdmin: Option[StoreAdmin] = None,
-    total: Int) extends ResponseItem
+    assignees: Seq[AssignmentResponse.Root],
+    createdAt: Instant,
+    updatedAt: Instant,
+    deletedAt: Option[Instant] = None,
+    total: Totals) extends ResponseItem
 
   final case class LineItems(
     skus: Seq[FullOrder.DisplayLineItem] = Seq.empty,
@@ -68,22 +79,24 @@ object RmaResponse {
     storeCredit: Option[RmaStoreCreditPayment] = None) extends ResponseItem
 
   def fromRma(rma: Rma)(implicit ec: ExecutionContext, db: Database): DBIO[Root] = {
-    fetchRmaDetails(rma).map { case (customer, storeAdmin) ⇒
+    fetchRmaDetails(rma).map { case (customer, storeAdmin, assignments) ⇒
       build(
         rma = rma,
         customer = customer.map(CustomerResponse.build(_)),
-        storeAdmin = storeAdmin.map(StoreAdminResponse.build)
+        storeAdmin = storeAdmin.map(StoreAdminResponse.build),
+        assignees = assignments.map((AssignmentResponse.buildForRma _).tupled)
       )
     }
   }
 
   def fromRmaExpanded(rma: Rma)(implicit ec: ExecutionContext, db: Database): DBIO[RootExpanded] = {
-    fetchRmaDetailsExpanded(rma).map { case (customer, storeAdmin, fullOrder) ⇒
+    fetchRmaDetailsExpanded(rma).map { case (customer, storeAdmin, fullOrder, assignments) ⇒
       buildExpanded(
         rma = rma,
         order = fullOrder,
         customer = customer.map(CustomerResponse.build(_)),
-        storeAdmin = storeAdmin.map(StoreAdminResponse.build)
+        storeAdmin = storeAdmin.map(StoreAdminResponse.build),
+        assignees = assignments.map((AssignmentResponse.buildForRma _).tupled)
       )
     }
   }
@@ -101,9 +114,13 @@ object RmaResponse {
       storeAdmin = admin,
       lineItems = mockLineItems,
       payments = mockPayments,
+      assignees = Seq.empty,
+      createdAt = Instant.now,
+      updatedAt = Instant.now,
       total = mockTotal)
 
-  def build(rma: Rma, customer: Option[Customer] = None, storeAdmin: Option[StoreAdmin] = None): Root = {
+  def build(rma: Rma, customer: Option[Customer] = None, storeAdmin: Option[StoreAdmin] = None,
+    assignees: Seq[AssignmentResponse.Root] = Seq.empty): Root = {
     Root(id = rma.id,
       referenceNumber = rma.refNum,
       orderId = rma.orderId,
@@ -112,11 +129,15 @@ object RmaResponse {
       status = rma.status,
       customer = customer,
       storeAdmin = storeAdmin,
+      assignees = assignees,
+      createdAt = rma.createdAt,
+      updatedAt = rma.updatedAt,
+      deletedAt = rma.deletedAt,
       total = mockTotal)
   }
 
-  def buildExpanded(rma: Rma, order: Option[FullOrder.Root] = None,
-    customer: Option[Customer] = None, storeAdmin: Option[StoreAdmin] = None): RootExpanded = {
+  def buildExpanded(rma: Rma, order: Option[FullOrder.Root] = None, customer: Option[Customer] = None,
+    storeAdmin: Option[StoreAdmin] = None, assignees: Seq[AssignmentResponse.Root] = Seq.empty): RootExpanded = {
     RootExpanded(id = rma.id,
       referenceNumber = rma.refNum,
       order = order,
@@ -124,6 +145,10 @@ object RmaResponse {
       status = rma.status,
       customer = customer,
       storeAdmin = storeAdmin,
+      assignees = assignees,
+      createdAt = rma.createdAt,
+      updatedAt = rma.updatedAt,
+      deletedAt = rma.deletedAt,
       total = mockTotal)
   }
 
@@ -131,7 +156,10 @@ object RmaResponse {
     for {
       customer ← rma.customerId.map(id ⇒ Customers.findById(id).extract.one).getOrElse(lift(None))
       storeAdmin ← rma.customerId.map(id ⇒ StoreAdmins.findById(id).extract.one).getOrElse(lift(None))
-    } yield (customer, storeAdmin)
+
+      assignments ← RmaAssignments.filter(_.rmaId === rma.id).result
+      admins ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.assigneeId))).result
+    } yield (customer, storeAdmin, assignments.zip(admins))
   }
 
   private def fetchRmaDetailsExpanded(rma: Rma)(implicit ec: ExecutionContext, db: Database) = {
@@ -141,6 +169,9 @@ object RmaResponse {
 
       customer ← rma.customerId.map(id ⇒ Customers.findById(id).extract.one).getOrElse(lift(None))
       storeAdmin ← rma.customerId.map(id ⇒ StoreAdmins.findById(id).extract.one).getOrElse(lift(None))
-    } yield (customer, storeAdmin, fullOrder)
+
+      assignments ← RmaAssignments.filter(_.rmaId === rma.id).result
+      admins ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.assigneeId))).result
+    } yield (customer, storeAdmin, fullOrder, assignments.zip(admins))
   }
 }

@@ -2,7 +2,7 @@ package responses
 
 import java.time.Instant
 
-import models.{StoreAdmin, OrderAssignment}
+import models.{RmaAssignment, StoreAdmin, OrderAssignment}
 
 object AssignmentResponse {
 
@@ -12,6 +12,10 @@ object AssignmentResponse {
     ) extends ResponseItem
 
   def build(assignment: OrderAssignment, admin: StoreAdmin): Root = {
+    Root(StoreAdminResponse.build(admin), assignment.assignedAt)
+  }
+
+  def buildForRma(assignment: RmaAssignment, admin: StoreAdmin): Root = {
     Root(StoreAdminResponse.build(admin), assignment.assignedAt)
   }
 }

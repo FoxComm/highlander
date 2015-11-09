@@ -5,19 +5,24 @@ import scala.concurrent.Future
 
 import Extensions._
 import models._
+import org.json4s.jackson.JsonMethods._
+import payloads.RmaAssigneesPayload
 import responses.{StoreAdminResponse, ResponseWithFailuresAndMetadata, RmaResponse, RmaLockResponse}
-import services.{GeneralFailure, LockedFailure, NotFoundFailure404, LockAwareRmaUpdater}
-import slick.driver.PostgresDriver.api._
+import responses.RmaResponse.FullRmaWithWarnings
+import services._
+import services.rmas._
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.time._
 import utils.Slick.implicits._
+import slick.driver.PostgresDriver.api._
+
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class RmaIntegrationTest extends IntegrationTestBase
-  with HttpSupport
-  with AutomaticAuth
-  with SortingAndPaging[RmaResponse.Root] {
+with HttpSupport
+with AutomaticAuth
+with SortingAndPaging[RmaResponse.Root] {
 
   // paging and sorting API
   private var currentCustomer: Customer = _
@@ -48,8 +53,7 @@ class RmaIntegrationTest extends IntegrationTestBase
         customerId = Some(currentCustomer.id))
       ).run()
 
-      val mockAdmin = Some(StoreAdminResponse.build(authedStoreAdmin))
-      future.map(RmaResponse.build(_, None, mockAdmin))
+      future.map(RmaResponse.build(_))
     }
 
     Future.sequence(items).futureValue
@@ -84,9 +88,7 @@ class RmaIntegrationTest extends IntegrationTestBase
         root.result.head.referenceNumber must ===(rma.refNum)
       }
 
-      // TODO: Remove pending when `selectOneWithMetaData` will be merged
       "should return failure for non-existing customer" in new Fixture {
-        pending
         val response = GET(s"v1/rmas/customer/255")
         response.status must ===(StatusCodes.NotFound)
         response.errors must ===(NotFoundFailure404(Customer, 255).description)
@@ -103,9 +105,7 @@ class RmaIntegrationTest extends IntegrationTestBase
         root.result.head.referenceNumber must ===(rma.refNum)
       }
 
-      // TODO: Remove pending when `selectOneWithMetaData` will be merged
       "should return failure for non-existing order" in new Fixture {
-        pending
         val response = GET(s"v1/rmas/order/ABC-666")
         response.status must ===(StatusCodes.NotFound)
         response.errors must ===(NotFoundFailure404(Order, "ABC-666").description)
@@ -134,7 +134,7 @@ class RmaIntegrationTest extends IntegrationTestBase
         val rma = Rmas.saveNew(Factories.rma.copy(referenceNumber = "ABC-123.1")).run().futureValue
         val admin = StoreAdmins.saveNew(Factories.storeAdmin).run().futureValue
 
-        LockAwareRmaUpdater.lock("ABC-123.1", admin).futureValue
+        RmaLockUpdater.lock("ABC-123.1", admin).futureValue
 
         val response = GET(s"v1/rmas/${rma.referenceNumber}/lock")
         response.status must === (StatusCodes.OK)
@@ -239,13 +239,67 @@ class RmaIntegrationTest extends IntegrationTestBase
 
       }
     }
+
+    "POST /v1/rmas/:refNum/assignees" - {
+      "can be assigned to RMA" in new Fixture {
+        val response = POST(s"v1/rmas/${rma.referenceNumber}/assignees", RmaAssigneesPayload(Seq(storeAdmin.id)))
+        response.status must === (StatusCodes.OK)
+
+        val fullRmaWithWarnings = parse(response.bodyText).extract[FullRmaWithWarnings]
+        fullRmaWithWarnings.rma.assignees must not be empty
+        fullRmaWithWarnings.rma.assignees.map(_.assignee) mustBe Seq(StoreAdminResponse.build(storeAdmin))
+        fullRmaWithWarnings.warnings mustBe empty
+      }
+
+      "can be assigned to locked RMA" in new Fixture {
+        Rmas.findByRefNum(rma.referenceNumber).map(_.locked).update(true).run().futureValue
+        val response = POST(s"v1/rmas/${rma.referenceNumber}/assignees", RmaAssigneesPayload(Seq(storeAdmin.id)))
+        response.status must === (StatusCodes.OK)
+      }
+
+      "404 if RMA is not found" in new Fixture {
+        val response = POST(s"v1/rmas/NOPE/assignees", RmaAssigneesPayload(Seq(storeAdmin.id)))
+        response.status must === (StatusCodes.NotFound)
+      }
+
+      "warning if assignee is not found" in new Fixture {
+        val response = POST(s"v1/rmas/${rma.referenceNumber}/assignees", RmaAssigneesPayload(Seq(1, 999)))
+        response.status must === (StatusCodes.OK)
+
+        val fullRmaWithWarnings = parse(response.bodyText).extract[FullRmaWithWarnings]
+        fullRmaWithWarnings.rma.assignees.map(_.assignee) mustBe Seq(StoreAdminResponse.build(storeAdmin))
+        fullRmaWithWarnings.warnings mustBe Seq(NotFoundFailure404(StoreAdmin, 999))
+      }
+
+      "can be viewed with RMA" in new Fixture {
+        val response1 = GET(s"v1/rmas/${rma.referenceNumber}")
+        response1.status must === (StatusCodes.OK)
+        val responseOrder1 = parse(response1.bodyText).extract[RmaResponse.Root]
+        responseOrder1.assignees mustBe empty
+
+        POST(s"v1/rmas/${rma.referenceNumber}/assignees", RmaAssigneesPayload(Seq(storeAdmin.id)))
+        val response2 = GET(s"v1/rmas/${rma.referenceNumber}")
+        response2.status must === (StatusCodes.OK)
+
+        val responseRma2 = parse(response2.bodyText).extract[RmaResponse.Root]
+        responseRma2.assignees must not be empty
+        responseRma2.assignees.map(_.assignee) mustBe Seq(StoreAdminResponse.build(storeAdmin))
+      }
+
+      "do not create duplicate records" in new Fixture {
+        POST(s"v1/rmas/${rma.referenceNumber}/assignees", RmaAssigneesPayload(Seq(storeAdmin.id)))
+        POST(s"v1/rmas/${rma.referenceNumber}/assignees", RmaAssigneesPayload(Seq(storeAdmin.id)))
+
+        RmaAssignments.byRma(rma).result.run().futureValue.size mustBe 1
+      }
+    }
   }
 
   trait Fixture {
-    val (customer, order, rma) = (for {
+    val (storeAdmin, customer, order, rma) = (for {
+      storeAdmin ← StoreAdmins.saveNew(Factories.storeAdmin)
       customer ← Customers.saveNew(Factories.customer)
       order ← Orders.saveNew(Factories.order.copy(
-        referenceNumber = "ABC-123",
         status = Order.RemorseHold,
         remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
       rma ← Rmas.saveNew(Factories.rma.copy(
@@ -253,7 +307,6 @@ class RmaIntegrationTest extends IntegrationTestBase
         orderId = order.id,
         orderRefNum = order.referenceNumber,
         customerId = Some(customer.id)))
-    } yield (customer, order, rma)).run().futureValue
+    } yield (storeAdmin, customer, order, rma)).run().futureValue
   }
-
 }

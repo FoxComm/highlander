@@ -1,18 +1,15 @@
 package routes.admin
 
-import java.time.Instant
-
 import scala.collection.immutable.Seq
 import scala.concurrent.ExecutionContext
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 
 import models._
 import payloads._
-import services.{LockAwareRmaUpdater, RmaService}
+import services.rmas._
 
 import responses.StoreAdminResponse
 import responses.RmaResponse._
@@ -33,26 +30,42 @@ object RmaRoutes {
       pathPrefix("rmas") {
         (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
           goodOrFailures {
-            RmaService.findAll(admin)
+            RmaService.findAll
           }
         } ~
         (get & path("customer" / IntNumber)) { customerId ⇒
           (pathEnd & sortAndPage) { implicit sortAndPage ⇒
             goodOrFailures {
-              RmaService.findByCustomerId(admin, customerId)
+              RmaService.findByCustomerId(customerId)
             }
           }
         } ~
         (get & path("order" / Order.orderRefNumRegex)) { refNum ⇒
           (pathEnd & sortAndPage) { implicit sortAndPage ⇒
             goodOrFailures {
-              RmaService.findByOrderRef(admin, refNum)
+              RmaService.findByOrderRef(refNum)
             }
           }
         } ~
         (post & pathEnd & entity(as[RmaCreatePayload])) { payload ⇒
           good {
             genericRmaMock.copy(orderId = payload.orderId, orderRefNum = payload.orderRefNum)
+          }
+        } ~
+        pathPrefix("assignees") {
+          (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+            entity(as[RmaBulkAssigneesPayload]) { payload ⇒
+              goodOrFailures {
+                RmaAssignmentUpdater.assign(payload)
+              }
+            }
+          } ~
+          (post & path("delete") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+            entity(as[RmaBulkAssigneesPayload]) { payload ⇒
+              goodOrFailures {
+                RmaAssignmentUpdater.unassign(payload)
+              }
+            }
           }
         }
       } ~
@@ -74,17 +87,17 @@ object RmaRoutes {
         } ~
         (get & path("lock") & pathEnd) {
           goodOrFailures {
-            LockAwareRmaUpdater.getLockStatus(refNum)
+            RmaLockUpdater.getLockStatus(refNum)
           }
         } ~
         (post & path("lock") & pathEnd) {
           goodOrFailures {
-            LockAwareRmaUpdater.lock(refNum, admin)
+            RmaLockUpdater.lock(refNum, admin)
           }
         } ~
         (post & path("unlock") & pathEnd) {
           goodOrFailures {
-            LockAwareRmaUpdater.unlock(refNum)
+            RmaLockUpdater.unlock(refNum)
           }
         } ~
         (post & path("line-items") & pathEnd & entity(as[Seq[RmaSkuLineItemsPayload]])) { reqItems ⇒
@@ -103,12 +116,12 @@ object RmaRoutes {
           }
         } ~
         pathPrefix("payment-methods" / "credit-cards") {
-          ((post | patch) & pathEnd & entity(as[payloads.RmaCreditCardPayment])) { payload ⇒
+         ((post | patch) & entity(as[payloads.RmaCreditCardPayment]) & pathEnd) { payload ⇒
             good {
               genericRmaMock
             }
           } ~
-          (delete & pathEnd) {
+         (delete & pathEnd) {
             good {
               genericRmaMock
             }
@@ -135,6 +148,13 @@ object RmaRoutes {
           (delete & pathEnd) {
             good {
               genericRmaMock
+            }
+          }
+        } ~
+        pathPrefix("assignees") {
+          (post & entity(as[RmaAssigneesPayload])) { payload ⇒
+            goodOrFailures {
+              RmaAssignmentUpdater.assign(refNum, payload.assignees)
             }
           }
         }
