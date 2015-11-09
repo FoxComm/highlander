@@ -1,6 +1,6 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import _ from 'lodash';
 import { formatCurrency } from '../../lib/format';
 import ContentBox from '../content-box/content-box';
@@ -16,6 +16,10 @@ const RmaEmail = (props) => {
   return null;
 };
 
+RmaEmail.propTypes = {
+  model: PropTypes.string
+};
+
 const CustomerInfo = (props) => {
   return (
     <div className="fc-rma-summary fc-content-box">
@@ -25,6 +29,10 @@ const CustomerInfo = (props) => {
       </article>
     </div>
   );
+};
+
+CustomerInfo.propTypes = {
+  rma: PropTypes.object
 };
 
 const PaymentMethod = (props) => {
@@ -45,6 +53,10 @@ const RmaTotal = (props) => {
   return (
     <span>{_.sum(props.model.lineItems.skus, (sku) => sku.totalPrice)}</span>
   );
+};
+
+RmaTotal.propTypes = {
+  model: PropTypes.string
 };
 
 const RmaSummary = (props) => {
@@ -82,6 +94,11 @@ const RmaList = (props) => {
       <RmaTotal />
     </TableView>
   );
+};
+
+RmaList.propTypes = {
+  tableColumns: PropTypes.array,
+  items: PropTypes.array
 };
 
 export {
