@@ -1,6 +1,6 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import EditableContentBox from '../content-box/editable-content-box';
 import TableView from '../tables/tableview';
 
@@ -20,6 +20,10 @@ const ShippingMethod = (props) => {
       viewContent={<TableView columns={columns} rows={props.shippingMethods} />}
       />
   );
+};
+
+ShippingMethod.propTypes = {
+  shippingMethods: PropTypes.array
 };
 
 export default ShippingMethod;
