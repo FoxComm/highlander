@@ -18,6 +18,7 @@ const Table = (props) => {
 Table.propTypes = {
   data: PropTypes.object.isRequired,
   renderRow: PropTypes.func,
+  setState: PropTypes.func,
   predicate: PropTypes.func,
   processRows: PropTypes.func,
   detectNewRows: PropTypes.bool
