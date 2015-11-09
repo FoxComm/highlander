@@ -1,4 +1,6 @@
 import React, { PropTypes } from 'react';
+import { autobind } from 'core-decorators';
+import { Button } from '../common/buttons';
 import Address from './address';
 import AddressForm from './address-form';
 import AddressStore from '../../stores/addresses';
@@ -49,6 +51,7 @@ export default class AddressBook extends React.Component {
     }
   }
 
+  @autobind
   addNew() {
     dispatch('toggleModal', <AddressForm customerId={this.state.customerId} order={this.props.order}/>);
   }
@@ -61,7 +64,7 @@ export default class AddressBook extends React.Component {
       <div className="fc-addresses">
         <header>
           <div className="fc-addresses-title">Address Book</div>
-          <button className="fc-btn icon-add" onClick={this.addNew.bind(this)}></button>
+          <Button icon="add" onClick={this.addNew} />
         </header>
         <ul className="fc-addresses-list">
           {addresses.map((address, idx) => {

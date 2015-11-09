@@ -1,26 +1,28 @@
+
 import React, { PropTypes } from 'react';
-import CountryStore from '../../stores/countries';
 import PhoneNumber from '../phone-number/phone-number';
+import * as CountriesActions from '../../modules/countries';
+import { connect } from 'react-redux';
 
-class AddressDetails extends React.Component {
+function mapStateToProps(state, props) {
+  return {
+    country: props.address && state.countries[props.address.region.countryId]
+  };
+}
 
-  constructor(...args) {
-    super(...args);
-    this.state = {
-      countryName: null
-    };
-  }
+@connect(mapStateToProps, CountriesActions)
+export default class AddressDetails extends React.Component {
+
+  static propTypes = {
+    address: PropTypes.shape({
+      region: PropTypes.shape({
+        countryId: PropTypes.number
+      }).isRequired
+    }).isRequired
+  };
 
   componentDidMount() {
-    CountryStore.lazyFetch().then(this.updateCountryName.bind(this));
-  }
-
-  updateCountryName() {
-    if (this.props.address.region) {
-      this.setState({
-        countryName: CountryStore.countryName(this.props.address.region.countryId)
-      });
-    }
+    this.props.fetchCountry(this.props.address.region.countryId);
   }
 
   get address2() {
@@ -50,15 +52,9 @@ class AddressDetails extends React.Component {
         <li>
           {address.city}, <span>{address.region && address.region.name}</span> <span>{address.zip}</span>
         </li>
-        <li>{this.state.countryName}</li>
+        <li>{this.props.country && this.props.country.name}</li>
         {this.phoneNumber}
       </ul>
     );
   }
 }
-
-AddressDetails.propTypes = {
-  address: PropTypes.object.isRequired
-};
-
-export default AddressDetails;

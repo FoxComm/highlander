@@ -2,22 +2,22 @@
 describe('Buttons', function() {
   const Buttons = requireComponent('common/buttons.jsx');
 
-  it('should render DefaultButton', function() {
+  it('should render Button', function() {
     const props = {
       children: 'Done'
     };
-    const button = Buttons.DefaultButton(props);
+    const button = Buttons.Button(props);
 
     expect(button).to.be.instanceof(Object);
     expect(button.props.className).to.contain('fc-btn');
     expect(button.props.children).to.contain('Done');
   });
 
-  it('should pass onClick to DefaultButton', function() {
+  it('should pass onClick to Button', function() {
     const props = {
       onClick: () => {return;}
     };
-    const button = Buttons.DefaultButton(props);
+    const button = Buttons.Button(props);
 
     expect(button).to.be.instanceof(Object);
     expect(button.props.className).to.contain('fc-btn');

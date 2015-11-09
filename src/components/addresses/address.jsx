@@ -1,8 +1,6 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
-import AddressStore from '../../stores/addresses';
-import { dispatch } from '../../lib/dispatcher';
 import AddressForm from './address-form';
 import AddressDetails from './address-details';
 import ConfirmModal from '../modal/confirm';

@@ -1,9 +1,10 @@
 import React, { PropTypes } from 'react';
+import { EditButton, PrimaryButton } from '../common/buttons';
 import Addresses from '../addresses/addresses';
 import AddressDetails from '../addresses/address-details';
 import * as OrdersActions from '../../modules/orders/list';
-import AddressStore from '../../stores/addresses';
 import ContentBox from '../content-box/content-box';
+import { connect } from 'react-redux';
 
 
 export default class OrderShippingAddress extends React.Component {
@@ -56,8 +57,7 @@ export default class OrderShippingAddress extends React.Component {
       footer = (
         <footer className="fc-line-items-footer">
           <div>
-            <button className="fc-btn fc-btn-primary"
-                    onClick={ this.toggleEdit.bind(this) } >Done</button>
+            <PrimaryButton onClick={this.toggleEdit}>Done</PrimaryButton>
           </div>
         </footer>
       );
@@ -67,8 +67,7 @@ export default class OrderShippingAddress extends React.Component {
       );
       editButton = (
         <div>
-          <button className="fc-btn icon-edit fc-right" onClick={this.toggleEdit.bind(this)}>
-          </button>
+          <EditButton onClick={this.toggleEdit} />
         </div>
       );
     }
