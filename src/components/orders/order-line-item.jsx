@@ -1,6 +1,6 @@
 'use strict';
 
-import React, { PropTypes} from 'react';
+import React, { PropTypes } from 'react';
 import { formatCurrency } from '../../lib/format';
 import Counter from '../forms/counter';
 import {DeleteButton} from '../common/buttons';
@@ -36,6 +36,10 @@ const OrderLineItem = (props) => {
       </td>
     </tr>
   );
+};
+
+OrderLineItem.propTypes = {
+  orderLineItemsStartDelete: PropTypes.func
 };
 
 export default OrderLineItem;
