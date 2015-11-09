@@ -1,7 +1,7 @@
 'use strict';
 
-import React from 'react';
-import {IncrementButton, DecrementButton} from '../common/buttons';
+import React, { PropTypes } from 'react';
+import { IncrementButton, DecrementButton } from '../common/buttons';
 
 const defaultProps = {
   value: 1,
@@ -42,6 +42,10 @@ const Counter = (props) => {
       </div>
     </div>
   );
+};
+
+Counter.propTypes = {
+  inputName: PropTypes.string
 };
 
 export default Counter;
