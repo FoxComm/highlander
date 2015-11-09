@@ -1,6 +1,6 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 
 export const PanelList = props => {
   const classList = `${props.className ? props.className : ''} fc-panel-list`;
@@ -9,6 +9,10 @@ export const PanelList = props => {
       {props.children}
     </div>
   );
+};
+
+PanelList.propTypes = {
+  children: PropTypes.node
 };
 
 export const PanelListItem = props => {
@@ -23,4 +27,10 @@ export const PanelListItem = props => {
       </div>
     </div>
   );
+};
+
+PanelListItem.propTypes = {
+  children: PropTypes.node,
+  content: PropTypes.node,
+  title: PropTypes.node
 };
