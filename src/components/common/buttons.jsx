@@ -1,6 +1,6 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import _ from 'lodash';
 
 const DefaultButton = (props) => {
@@ -52,6 +52,10 @@ const PrimaryButton = (props) => {
       {props.children}
     </DefaultButton>
   );
+};
+
+PrimaryButton.propTypes = {
+  children: PropTypes.node
 };
 
 export {
