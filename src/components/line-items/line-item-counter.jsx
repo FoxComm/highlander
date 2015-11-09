@@ -1,6 +1,6 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import Counter from '../forms/counter';
 import ConfirmModal from '../modal/confirm';
 import LineItemActions from '../../actions/line-items';
@@ -23,6 +23,12 @@ const LineItemCounter = (props) => {
       stepUp={props.stepUp}
       stepDown={props.stepDown} />
   );
+};
+
+LineItemCounter.propTypes = {
+  model: PropTypes.object,
+  stepUp: PropTypes.number,
+  stepDown: PropTypes.number
 };
 
 export default LineItemCounter;
