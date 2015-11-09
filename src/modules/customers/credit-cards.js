@@ -10,7 +10,7 @@ export const newCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARD_NEW');
 export const closeNewCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARD_NEW_CLOSE');
 export const changeNewCustomerCreditCardFormData = createAction('CUSTOMER_CREDIT_CARD_NEW_CHANGE_FORM', (id, name, value) => [id, name, value]);
 export const editCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARDS_EDIT', (customerId, cardId) => [customerId, cardId]);
-export const cancelEditCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARDS_EDIT_CANCEL', (customerId, cardId) => [customerId, cardId]);
+export const closeEditCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARDS_EDIT_CLOSE', (customerId, cardId) => [customerId, cardId]);
 export const deleteCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARDS_DELETE', (customerId, cardId) => [customerId, cardId]);
 export const closeDeleteCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARDS_DELETE_CLOSE');
 
@@ -65,6 +65,21 @@ export function confirmCreditCardDeletion(id) {
   };
 }
 
+export function saveCreditCard(id) {
+  return (dispatch, getState) => {
+    dispatch(requestCustomerCreditCards(id));
+
+    const cards = _.get(getState(), 'customers.creditCards', {});
+    const creditCardId = _.get(cards, `${id}.editingCreditCard`);
+    Api.patch(`/customers/${id}/payment-methods/credit-cards/${creditCardId}`)
+      .then(() => {
+        dispatch(closeDeleteCustomerCreditCard(id));
+        fetchForCustomer(id, dispatch);
+      })
+      .catch(err => dispatch(failCustomerCreditCards(id, err)));
+  };
+}
+
 const initialState = {};
 
 const reducer = createReducer({
@@ -97,10 +112,7 @@ const reducer = createReducer({
     };
   },
   [changeNewCustomerCreditCardFormData]: (state, [id, name, value]) => {
-    console.log(name);
-    console.log(value);
     const newCreditCard = _.get(state, [id, 'newCreditCard']);
-    console.log(newCreditCard);
     const newState = {
       ...state,
       [id]: {
@@ -116,21 +128,31 @@ const reducer = createReducer({
   },
   [editCustomerCreditCard]: (state, [customerId, cardId]) => {
     console.log('editCustomerCreditCard');
+    const cards = _.get(state, `${customerId}.cards`, []);
+    const creditCard = _.find(cards, (card) => { return cardId === card.id });
+    const {holderName, expMonth, expYear, isDefault} = creditCard;
     return {
       ...state,
       [customerId]: {
         ...state[customerId],
-        editingId: cardId
+        editingId: cardId,
+        editingCreditCard: {
+          holderName,
+          expMonth,
+          expYear,
+          isDefault
+        }
       }
     };
   },
-  [cancelEditCustomerCreditCard]: (state, [customerId, cardId]) => {
+  [closeEditCustomerCreditCard]: (state, [customerId, cardId]) => {
     console.log('cancelEditCustomerCreditCard');
     return {
       ...state,
       [customerId]: {
         ...state[customerId],
-        editingId: null
+        editingId: null,
+        editingCreditCard: null
       }
     };
   },

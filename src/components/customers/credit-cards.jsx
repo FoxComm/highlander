@@ -99,7 +99,7 @@ export default class CustomerCreditCards extends React.Component {
   onEditCancel() {
     const customer = this.props.customerId;
     console.log("onEditCancel");
-    this.props.cancelEditCustomerCreditCard(customer);
+    this.props.closeEditCustomerCreditCard(customer);
   }
 
   ////
