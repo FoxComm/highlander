@@ -1,6 +1,6 @@
 create table orders (
     id bigint primary key,
-    reference_number reference_number not null,
+    reference_number reference_number not null unique,
     customer_id integer,
     status generic_string not null,
     locked boolean default false,

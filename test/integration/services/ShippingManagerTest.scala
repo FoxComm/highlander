@@ -221,7 +221,7 @@ val conditions = parse(
         originType = OrderLineItem.SkuItem))
       cheapAddress ← Addresses.saveNew(Factories.address.copy(customerId = customer.id, isDefaultShipping = false))
       _ ← OrderShippingAddresses.copyFromAddress(address = cheapAddress, orderId = cheapOrder.id)
-      expensiveOrder ← Orders.saveNew(Factories.order.copy(customerId = customer.id, referenceNumber = "CS1234-AA"))
+      expensiveOrder ← Orders.saveNew(Factories.order.copy(customerId = customer.id, referenceNumber = "CS1234-AB"))
       expensiveSku ← Skus.saveNew(Factories.skus.head.copy(name = Some("Expensive Donkey"), price = 100))
       expensiveLineItemSku ← OrderLineItemSkus.saveNew(OrderLineItemSku(skuId = expensiveSku.id,
         orderId = expensiveOrder.id))
