@@ -71,8 +71,9 @@ export function saveCreditCard(id) {
     dispatch(requestCustomerCreditCards(id));
 
     const cards = _.get(getState(), 'customers.creditCards', {});
-    const creditCardId = _.get(cards, [id, 'editingCreditCard'], {});
-    Api.patch(`/customers/${id}/payment-methods/credit-cards/${creditCardId}`)
+    const creditCardId = _.get(cards, [id, 'editingId']);
+    const form = _.get(cards, [id, 'editingCreditCard']);
+    Api.patch(`/customers/${id}/payment-methods/credit-cards/${creditCardId}`, form)
       .then(() => {
         dispatch(closeDeleteCustomerCreditCard(id));
         fetchForCustomer(id, dispatch);

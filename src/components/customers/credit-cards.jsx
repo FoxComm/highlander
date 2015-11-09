@@ -108,6 +108,13 @@ export default class CustomerCreditCards extends React.Component {
     this.props.changeEditCustomerCreditCardFormData(customer, target.name, target.value || target.checked);
   }
 
+  @autobind
+  onEditFormSubmit(event) {
+    event.preventDefault();
+    const customer = this.props.customerId;
+    this.props.saveCreditCard(customer);
+  }
+
   ////
   // Rendering
   render() {
@@ -125,7 +132,8 @@ export default class CustomerCreditCards extends React.Component {
                              form={ this.props.editingCreditCard }
                              customerId={ this.props.customerId }
                              onCancel={ this.onEditCancel }
-                             onChange={ this.onEditFormChange } />
+                             onChange={ this.onEditFormChange }
+                             onSubmit={ this.onEditFormSubmit } />
         );
       } else {
         box = (
