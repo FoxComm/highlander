@@ -156,6 +156,7 @@ export default class CustomerCreditCards extends React.Component {
         <ul className="fc-float-list">
           {(this.props.cards && this.props.cards.map(createCardBox))}
           {(this.props.newCreditCard && <NewCreditCardBox customerId={ this.props.customerId }
+                                                          form={ this.props.newCreditCard }
                                                           onCancel={ this.onAddingCancel }
                                                           onSubmit={ this.onSubmitNewForm }
                                                           onChange={ this.onChangeNewFormValue }/>)}

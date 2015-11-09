@@ -39,8 +39,8 @@ export function createCreditCard(id) {
     dispatch(requestCustomerCreditCards(id));
 
     const cards = _.get(getState(), 'customers.creditCards', {});
-    const cardData = _.get(cards, `${id}.newCreditCard`, {});
-    console.log(cardData);
+    const cardData = _.get(cards, [id, 'newCreditCard'], {});
+
     Api.post(`/customers/${id}/payment-methods/credit-cards`, cardData)
       .then(() => {
         dispatch(closeNewCustomerCreditCard(id));
@@ -56,7 +56,7 @@ export function confirmCreditCardDeletion(id) {
     dispatch(requestCustomerCreditCards(id));
 
     const cards = _.get(getState(), 'customers.creditCards', {});
-    const creditCardId = _.get(cards, `${id}.deletingId`);
+    const creditCardId = _.get(cards, [id, 'deletingId']);
     Api.delete(`/customers/${id}/payment-methods/credit-cards/${creditCardId}`)
       .then(() => {
         dispatch(closeDeleteCustomerCreditCard(id));
@@ -86,7 +86,6 @@ const initialState = {};
 
 const reducer = createReducer({
   [newCustomerCreditCard]: (state, id) => {
-    console.log("newCustomerCreditCard");
     return {
       ...state,
       [id]: {
@@ -104,7 +103,6 @@ const reducer = createReducer({
     };
   },
   [closeNewCustomerCreditCard]: (state, id) => {
-    console.log("cancelNewCustomerCreditCard");
     const { newCreditCard, ...restState } = state[id];
     return {
       ...state,
@@ -129,9 +127,8 @@ const reducer = createReducer({
     return newState;
   },
   [editCustomerCreditCard]: (state, [customerId, cardId]) => {
-    console.log('editCustomerCreditCard');
     const cards = _.get(state, [customerId, 'cards'], []);
-    const creditCard = _.find(cards, (card) => { return cardId === card.id });
+    const creditCard = _.find(cards, (card) => { return (cardId === card.id); });
     const {holderName, expMonth, expYear, isDefault} = creditCard;
     return {
       ...state,
@@ -163,7 +160,6 @@ const reducer = createReducer({
     return newState;
   },
   [closeEditCustomerCreditCard]: (state, [customerId, cardId]) => {
-    console.log('cancelEditCustomerCreditCard');
     return {
       ...state,
       [customerId]: {
@@ -174,7 +170,6 @@ const reducer = createReducer({
     };
   },
   [deleteCustomerCreditCard]: (state, [customerId, cardId]) => {
-    console.log('deleteCustomerCreditCard');
     return {
       ...state,
       [customerId]: {
@@ -184,7 +179,6 @@ const reducer = createReducer({
     };
   },
   [closeDeleteCustomerCreditCard]: (state, id) => {
-    console.log('closeDeleteCustomerCreditCard');
     return {
       ...state,
       [id]: {

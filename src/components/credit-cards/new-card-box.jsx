@@ -39,6 +39,7 @@ export default class NewCreditCardBox extends React.Component {
   }
 
   render() {
+    const form = this.props.form;
     return (
       <li className="fc-card-container fc-credit-cards fc-credit-cards-new">
         <Form className="fc-customer-credit-card-form fc-form-vertical"
@@ -51,7 +52,7 @@ export default class NewCreditCardBox extends React.Component {
             <ul className="fc-credit-card-form-fields">
               <li className="fc-credit-card-form-line">
                 <label className="fc-credit-card-default-checkbox">
-                  <Checkbox defaultChecked={ false } name="isDefault" />
+                  <Checkbox defaultChecked={ form.isDefault } name="isDefault" />
                   <span>Default Card</span>
                 </label>
               </li>
@@ -62,7 +63,8 @@ export default class NewCreditCardBox extends React.Component {
                          name="holderName"
                          maxLength="255"
                          type="text"
-                         required />
+                         required
+                         value={ form.holderName } />
                 </FormField>
               </li>
               <li className="fc-credit-card-form-line">
@@ -74,7 +76,8 @@ export default class NewCreditCardBox extends React.Component {
                              name="number"
                              maxLength="255"
                              type="text"
-                             required />
+                             required
+                             value={ form.number } />
                     </FormField>
                   </div>
                   <div className="fc-col-md-1-4">
@@ -84,7 +87,8 @@ export default class NewCreditCardBox extends React.Component {
                              name="cvv"
                              maxLength="255"
                              type="text"
-                             required />
+                             required
+                             value={ form.cvv } />
                     </FormField>
                   </div>
                 </div>
@@ -93,10 +97,16 @@ export default class NewCreditCardBox extends React.Component {
                 <label>Expiration Date</label>
                 <div className="fc-grid">
                   <div className="fc-col-md-1-2">
-                    <Dropdown name="expMonth" items={this.monthList} placeholder="Month" value={null}/>
+                    <Dropdown name="expMonth"
+                              items={this.monthList}
+                              placeholder="Month"
+                              value={ form.expMonth } />
                   </div>
                   <div className="fc-col-md-1-2">
-                    <Dropdown name="expYear" items={this.expirationYears} placeholder="Year" value={null}/>
+                    <Dropdown name="expYear"
+                              items={this.expirationYears}
+                              placeholder="Year"
+                              value={ form.expYear } />
                   </div>
                 </div>
               </li>
@@ -105,7 +115,7 @@ export default class NewCreditCardBox extends React.Component {
                   <label>
                     Billing Address
                   </label>
-                  <input type="hidden" name="addressId" id="billingAddressIdCardFormField" />
+                  <input type="hidden" name="addressId" id="billingAddressIdCardFormField" value={ form.addressId } />
                   <div className="fc-credit-card-form-address-book">
                   </div>
                 </div>
