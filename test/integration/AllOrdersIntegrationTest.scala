@@ -8,7 +8,7 @@ import payloads.{BulkAssignment, BulkUpdateOrdersPayload}
 import responses.ResponseWithFailuresAndMetadata.BulkOrderUpdateResponse
 import responses.{StoreAdminResponse, FullOrder, AllOrders}
 import services.orders.OrderQueries
-import services.{OrderStatusTransitionNotAllowed, LockedFailure, NotFoundFailure404}
+import services.{StatusTransitionNotAllowed, LockedFailure, NotFoundFailure404}
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.implicits._
@@ -116,7 +116,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
 
       allOrders must === (Seq((order.refNum, order.status)))
 
-      all.errors.value must === (OrderStatusTransitionNotAllowed(order.status, Cart, order.refNum).description)
+      all.errors.value must === (StatusTransitionNotAllowed(order.status, Cart, order.refNum).description)
     }
 
     "bulk update statuses with paging and sorting" in new StatusUpdateFixture {
