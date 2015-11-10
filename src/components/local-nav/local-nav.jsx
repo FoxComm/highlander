@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 import { Link, IndexLink } from '../link';
 import _ from 'lodash';
@@ -68,6 +66,7 @@ export default class LocalNav extends React.Component {
 }
 
 LocalNav.propTypes = {
+  children: PropTypes.node,
   gutter: PropTypes.bool
 };
 

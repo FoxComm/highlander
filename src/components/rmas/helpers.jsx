@@ -1,24 +1,26 @@
-'use strict';
-
-import React from 'react';
+import React, { PropTypes } from 'react';
 import _ from 'lodash';
-import { formatCurrency } from '../../lib/format';
 import ContentBox from '../content-box/content-box';
 import TableRow from '../table/row';
 import TableCell from '../table/cell';
 import { DateTime } from '../common/datetime';
+import Currency from '../common/currency';
 
-const RmaEmail = (props) => {
+const RmaEmail = props => {
   if (props.storeAdmin) {
     return <span>{props.storeAdmin.email}</span>;
-  } else if (props.customer) {
+  } else if (props.model.customer) {
     return <span>{props.customer.email}</span>;
   }
 
   return null;
 };
 
-const CustomerInfo = (props) => {
+RmaEmail.propTypes = {
+  model: PropTypes.string
+};
+
+const CustomerInfo = props => {
   return (
     <div className="fc-rma-summary fc-content-box">
       <header className="fc-content-box-header">Message for Customer</header>
@@ -29,7 +31,11 @@ const CustomerInfo = (props) => {
   );
 };
 
-const PaymentMethod = (props) => {
+CustomerInfo.propTypes = {
+  rma: PropTypes.object
+};
+
+const PaymentMethod = props => {
   const model = props.model;
 
   return (
@@ -43,13 +49,17 @@ const PaymentMethod = (props) => {
   );
 };
 
-const RmaTotal = (props) => {
+const RmaTotal = props => {
   return (
-    <span>{_.sum(props.lineItems.skus, (sku) => sku.totalPrice)}</span>
+    <span><Currency value={_.sum(props.lineItems.skus, (sku) => sku.totalPrice)} /></span>
   );
 };
 
-const RmaSummary = (props) => {
+RmaTotal.propTypes = {
+  model: PropTypes.string
+};
+
+const RmaSummary = props => {
   const rma = props.rma;
 
   return (
@@ -57,17 +67,17 @@ const RmaSummary = (props) => {
       <article>
         <dl className="rma-totals">
           <dt>Subtotal</dt>
-          <dd>{formatCurrency(rma.totals.subtotal)}</dd>
+          <dd><Currency value={rma.totals.subtotal}/></dd>
           <dt>Shipping</dt>
-          <dd>{formatCurrency(rma.totals.shipping)}</dd>
+          <dd><Currency value={rma.totals.shipping}/></dd>
           <dt>Tax</dt>
-          <dd>{formatCurrency(rma.totals.taxes)}</dd>
+          <dd><Currency value={rma.totals.taxes}/></dd>
         </dl>
       </article>
       <footer className="is-highlighted">
         <dl className="grand-total">
           <dt>Refunds Total</dt>
-          <dd>{formatCurrency(rma.totals.total)}</dd>
+          <dd><Currency value={rma.totals.total}/></dd>
         </dl>
       </footer>
     </ContentBox>

@@ -1,13 +1,11 @@
-'use strict';
-
-import React from 'react';
+import React, { PropTypes } from 'react';
 
 export default class NoteForm extends React.Component {
   static propTypes = {
-    body: React.PropTypes.string,
-    maxBodyLength: React.PropTypes.number,
-    onReset: React.PropTypes.func,
-    onSubmit: React.PropTypes.func
+    body: PropTypes.string,
+    maxBodyLength: PropTypes.number,
+    onReset: PropTypes.func,
+    onSubmit: PropTypes.func
   };
 
   static defaultProps = {

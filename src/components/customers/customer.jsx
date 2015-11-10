@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 import { Link, IndexLink } from '../link';
 import TitleBlock from './title-block';
@@ -17,6 +15,7 @@ export default class Customer extends React.Component {
       customer: PropTypes.string.isRequired
     }).isRequired,
     details: PropTypes.object,
+    fetchCustomer: PropTypes.func,
     children: PropTypes.node
   };
 

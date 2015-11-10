@@ -1,6 +1,4 @@
-'use strict';
-
-import React from 'react';
+import React, { PropTypes } from 'react';
 import { IndexLink, Link } from '../link';
 
 const StyleGuide = props => {
@@ -18,6 +16,10 @@ const StyleGuide = props => {
       </div>
     </div>
   );
+};
+
+StyleGuide.propTypes = {
+  children: PropTypes.node
 };
 
 export default StyleGuide;

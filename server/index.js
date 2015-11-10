@@ -1,5 +1,3 @@
-'use strict';
-
 require('babel/register');
 const koa = require('koa');
 const path = require('path');

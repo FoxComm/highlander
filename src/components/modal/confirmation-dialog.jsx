@@ -1,5 +1,3 @@
-'use strict';
-
 import { autobind } from 'core-decorators';
 import React, { PropTypes } from 'react';
 
@@ -52,7 +50,8 @@ export default class ConfirmationDialog extends React.Component {
               <a tabIndex="2" className='fc-modal-close' onClick={() => props.cancelAction()}>
                 {props.cancel}
               </a>
-              <button tabIndex="1" className='fc-btn' onClick={() => props.confirmAction()} ref="confirmButton" onKeyUp={this.onKeyUp}>
+              <button tabIndex="1" className='fc-btn' ref="confirmButton"
+                      onClick={() => props.confirmAction()} onKeyUp={this.onKeyUp}>
                 {props.confirm}
               </button>
             </div>
@@ -61,4 +60,15 @@ export default class ConfirmationDialog extends React.Component {
       </div>
     );
   }
-}
+};
+
+ConfirmationDialog.propTypes = {
+  isVisible: PropTypes.bool.isRequired,
+  body: PropTypes.node.isRequired,
+  cancel: PropTypes.string.isRequired,
+  confirm: PropTypes.string.isRequired,
+  cancelAction: PropTypes.func.isRequired,
+  confirmAction: PropTypes.func.isRequired
+};
+
+export default ConfirmationDialog;

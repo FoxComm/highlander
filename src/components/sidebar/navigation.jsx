@@ -1,5 +1,3 @@
-'use strict';
-
 import React from 'react';
 import { IndexLink, Link } from '../link';
 

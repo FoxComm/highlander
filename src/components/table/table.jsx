@@ -1,10 +1,8 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 import TableHead from './head';
 import TableBody from './body';
 
-const Table = (props) => {
+const Table = props => {
   const {data, setState, renderRow, ...rest} = props;
 
   return (
@@ -22,6 +20,16 @@ Table.propTypes = {
   predicate: PropTypes.func,
   processRows: PropTypes.func,
   detectNewRows: PropTypes.bool
+};
+
+Table.defaultProps = {
+  columns: [],
+  data: {
+    rows: [],
+    from: 0,
+    size: 0,
+    total: 0
+  }
 };
 
 export default Table;

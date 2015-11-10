@@ -1,5 +1,3 @@
-'use strict';
-
 import _ from 'lodash';
 import { createSelector } from 'reselect';
 import { autobind } from 'core-decorators';

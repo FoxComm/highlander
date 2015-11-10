@@ -1,30 +1,22 @@
-'use strict';
-
 import _ from 'lodash';
-import React from 'react';
+import React, { PropTypes } from 'react';
 import PaymentMethod from './payment-method';
-import TableHead from '../tables/head';
-import TableBody from '../tables/body';
+import TableView from '../table/tableview';
 import ContentBox from '../content-box/content-box';
 
 export default class RmaPayment extends React.Component {
   render() {
     return (
       <ContentBox title="Payment" id="payment">
-        <table className="fc-table">
-          <TableHead columns={this.props.tableColumns}/>
-          <TableBody columns={this.props.tableColumns} rows={_.compact([this.props.rma.payment])} model='rma'>
-            <PaymentMethod/>
-          </TableBody>
-        </table>
+        <TableView columns={this.props.tableColumns} data={{rows: _.compact([this.props.rma.payment])}} />
       </ContentBox>
     );
   }
 }
 
 RmaPayment.propTypes = {
-  rma: React.PropTypes.object,
-  tableColumns: React.PropTypes.array
+  rma: PropTypes.object,
+  tableColumns: PropTypes.array
 };
 
 RmaPayment.defaultProps = {

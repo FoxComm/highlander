@@ -1,5 +1,3 @@
-'use strict';
-
 import Api from '../lib/api';
 import AshesDispatcher from '../lib/dispatcher';
 import GiftCardTransactionConstants from '../constants/gift-card-transactions';

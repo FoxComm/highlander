@@ -1,6 +1,4 @@
-'use strict';
-
-import React from 'react';
+import React, { PropTypes } from 'react';
 import { dispatch } from '../../lib/dispatcher';
 import ResendModal from './resend';
 
@@ -19,5 +17,5 @@ export default class ResendButton extends React.Component {
 }
 
 ResendButton.propTypes = {
-  model: React.PropTypes.object
+  model: PropTypes.object
 };

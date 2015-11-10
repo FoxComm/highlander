@@ -1,7 +1,5 @@
-'use strict';
-
+import React, { PropTypes } from 'react';
 import lineItemActions from '../../actions/line-items';
-import React from 'react';
 import ConfirmModal from '../modal/confirm';
 import { dispatch, listenTo, stopListeningTo } from '../../lib/dispatcher';
 
@@ -37,7 +35,7 @@ export default class DeleteLineItem extends React.Component {
 }
 
 DeleteLineItem.propTypes = {
-  model: React.PropTypes.object,
-  entityName: React.PropTypes.string,
-  entity: React.PropTypes.object
+  model: PropTypes.object,
+  entityName: PropTypes.string,
+  entity: PropTypes.object
 };
