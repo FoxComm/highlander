@@ -1,5 +1,5 @@
-import React from 'react';
-import {IncrementButton, DecrementButton} from '../common/buttons';
+import React, { PropTypes } from 'react';
+import { IncrementButton, DecrementButton } from '../common/buttons';
 
 const defaultProps = {
   value: 1,
@@ -12,7 +12,7 @@ const noop = () => {
   return;
 };
 
-const Counter = (props) => {
+const Counter = props => {
   let handleChange = props.onChange || noop;
   let handleIncreaseTotal = props.increaseTotal || noop;
   let handleDecreaseTotal = props.decreaseTotal || noop;
@@ -40,6 +40,10 @@ const Counter = (props) => {
       </div>
     </div>
   );
+};
+
+Counter.propTypes = {
+  inputName: PropTypes.string
 };
 
 export default Counter;

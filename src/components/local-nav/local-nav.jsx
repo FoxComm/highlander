@@ -15,6 +15,7 @@ const LocalNav = props => {
 };
 
 LocalNav.propTypes = {
+  children: PropTypes.node,
   gutter: PropTypes.bool
 };
 

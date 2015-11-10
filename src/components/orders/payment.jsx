@@ -5,7 +5,7 @@ import PaymentMethod from './payment-method';
 import TableView from '../table/tableview';
 import ContentBox from '../content-box/content-box';
 
-const OrderPayment = (props) => {
+const OrderPayment = props => {
   const order = props.order.currentOrder;
 
   return (
@@ -19,8 +19,8 @@ const OrderPayment = (props) => {
 };
 
 OrderPayment.propTypes = {
-  order: React.PropTypes.object,
-  tableColumns: React.PropTypes.array
+  order: PropTypes.object,
+  tableColumns: PropTypes.array
 };
 
 OrderPayment.defaultProps = {

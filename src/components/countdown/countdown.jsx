@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 import moment from 'moment';
 
@@ -55,8 +55,8 @@ export default class Countdown extends React.Component {
 }
 
 Countdown.propTypes = {
-  endDate: React.PropTypes.string,
-  frozen: React.PropTypes.bool
+  endDate: PropTypes.string,
+  frozen: PropTypes.bool
 };
 
 Countdown.defaultProps = {

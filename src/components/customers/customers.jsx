@@ -57,7 +57,7 @@ export default class Customers extends React.Component {
 
   static propTypes = {
     fetch: PropTypes.func,
-    setFetchData: PropTypes.func,
+    setFetchParams: PropTypes.func,
     customers: PropTypes.shape({
       length: PropTypes.number.isRequired
     }).isRequired,

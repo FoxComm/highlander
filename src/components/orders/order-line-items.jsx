@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 
 import ConfirmationDialog from '../modal/confirmation-dialog';
 import OrderLineItem from './order-line-item';
@@ -24,7 +24,7 @@ const editModeColumns = [
   {field: 'delete', text: 'Delete', component: 'DeleteLineItem'}
 ];
 
-const OrderLineItems = (props) => {
+const OrderLineItems = props => {
   return (
     <EditableContentBox
       className='fc-line-items'
@@ -37,11 +37,21 @@ const OrderLineItems = (props) => {
   );
 };
 
-const renderViewContent = (props) => {
-  return <TableView columns={viewModeColumns} data={{rows: props.order.lineItems.items}} />;
+OrderLineItems.propTypes = {
+  order: PropTypes.object,
+  orderLineItemsStartEdit: PropTypes.func,
+  orderLineItemsCancelEdit: PropTypes.func
 };
 
-const renderEditContent = (props) => {
+const renderViewContent = props => {
+  return <TableView columns={viewModeColumns} data={{rows: props.order.lineItems.items}}/>;
+};
+
+renderViewContent.propTypes = {
+  order: PropTypes.object
+};
+
+const renderEditContent = props => {
   let order = props.order.currentOrder;
   let lineItemsStatus = props.order.lineItems;
 
@@ -66,6 +76,11 @@ const renderEditContent = (props) => {
         confirmAction={() => props.deleteLineItem(order, lineItemsStatus.skuToDelete)} />
     </div>
   );
+};
+
+renderEditContent.propTypes = {
+  orderLineItemsCancelDelete: PropTypes.func,
+  deleteLineItem: PropTypes.func
 };
 
 export default OrderLineItems;

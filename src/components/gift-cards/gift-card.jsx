@@ -19,7 +19,8 @@ export default class GiftCard extends React.Component {
 
   static propTypes = {
     card: PropTypes.shape({
-      code: PropTypes.string
+      code: PropTypes.string,
+      status: PropTypes.string
     }),
     children: PropTypes.node,
     editGiftCard: PropTypes.func,

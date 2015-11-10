@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import EditableContentBox from '../content-box/editable-content-box';
 import TableView from '../table/tableview';
 
@@ -7,7 +7,7 @@ const columns = [
   {field: 'price', text: 'Price', type: 'currency'}
 ];
 
-const ShippingMethod = (props) => {
+const ShippingMethod = props => {
   return (
     <EditableContentBox
       className='fc-shipping-method'
@@ -18,6 +18,10 @@ const ShippingMethod = (props) => {
       viewContent={<TableView columns={columns} data={{rows: props.shippingMethods}} />}
       />
   );
+};
+
+ShippingMethod.propTypes = {
+  shippingMethods: PropTypes.array
 };
 
 export default ShippingMethod;

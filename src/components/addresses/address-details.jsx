@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import CountryStore from '../../stores/countries';
 import PhoneNumber from '../phone-number/phone-number';
 
@@ -58,7 +58,7 @@ class AddressDetails extends React.Component {
 }
 
 AddressDetails.propTypes = {
-  address: React.PropTypes.object.isRequired
+  address: PropTypes.object.isRequired
 };
 
 export default AddressDetails;

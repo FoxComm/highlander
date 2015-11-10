@@ -4,7 +4,7 @@ import Currency from '../common/currency';
 import Status from '../common/status';
 import Link from '../link/link';
 
-const TableCell = (props) => {
+const TableCell = props => {
   const render = (cell, column = {}) => {
     switch (column.type) {
       case 'id':

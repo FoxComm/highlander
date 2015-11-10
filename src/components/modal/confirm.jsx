@@ -1,5 +1,4 @@
-import React from 'react';
-import { camelize } from 'fleck';
+import React, { PropTypes } from 'react';
 import { dispatch } from '../../lib/dispatcher';
 
 // THIS COMPONENT IS DEPRECATED.
@@ -42,9 +41,9 @@ export default class ConfirmModal extends React.Component {
 }
 
 ConfirmModal.propTypes = {
-  details: React.PropTypes.object,
-  callback: React.PropTypes.func,
-  closeOnSuccess: React.PropTypes.bool
+  details: PropTypes.object,
+  callback: PropTypes.func,
+  closeOnSuccess: PropTypes.bool
 };
 
 ConfirmModal.defaultProps = {

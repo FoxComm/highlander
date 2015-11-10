@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 
-const DefaultCheckbox = (props) => {
+const DefaultCheckbox = props => {
   const {className, ...rest} = props;
   return (
     <div className={ className }>
@@ -11,18 +11,30 @@ const DefaultCheckbox = (props) => {
   );
 };
 
-const SliderCheckbox = (props) => {
+DefaultCheckbox.propTypes = {
+  id: PropTypes.string
+};
+
+const SliderCheckbox = props => {
   return (
     <DefaultCheckbox {...props}
                      className={ classNames('fc-slide-checkbox', props.className) } />
   );
 };
 
-const Checkbox = (props) => {
+SliderCheckbox.propTypes = {
+  className: PropTypes.string
+};
+
+const Checkbox = props => {
   return (
     <DefaultCheckbox {...props}
                      className={ classNames('fc-checkbox', props.className) } />
   );
+};
+
+Checkbox.propTypes = {
+  className: PropTypes.string
 };
 
 export {

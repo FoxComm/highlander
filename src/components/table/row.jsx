@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import React, { PropTypes } from 'react';
 
-const TableRow = (props) => {
+const TableRow = props => {
   return (
     <tr className={ classNames('fc-table-tr', {'is-new': props.isNew }) } >
       {props.children}

@@ -1,7 +1,7 @@
-import React from 'react';
-import {EditButton, PrimaryButton} from '../common/buttons';
+import React, { PropTypes } from 'react';
+import { EditButton, PrimaryButton } from '../common/buttons';
 
-const EditableContentBox = (props) => {
+const EditableContentBox = props => {
   const compositeClassName = `fc-content-box ${props.className}`;
   const content = props.isEditing ? props.editContent : props.viewContent;
   return (
@@ -13,7 +13,14 @@ const EditableContentBox = (props) => {
   );
 };
 
-const renderTitle = (props) => {
+EditableContentBox.propTypes = {
+  className: PropTypes.string,
+  editContent: PropTypes.node,
+  viewContent: PropTypes.node,
+  isEditing: PropTypes.bool
+};
+
+const renderTitle = props => {
   let editButton = null;
   if (!props.isEditing) {
     editButton = <EditButton onClick={props.editAction} />;
@@ -29,7 +36,12 @@ const renderTitle = (props) => {
   );
 };
 
-const renderFooter = (props) => {
+renderTitle.propTypes = {
+  isEditing: PropTypes.bool,
+  title: PropTypes.string
+};
+
+const renderFooter = props => {
   if (props.isEditing) {
     return (
       <footer>
@@ -41,6 +53,11 @@ const renderFooter = (props) => {
   } else {
     return <div></div>;
   }
+};
+
+renderFooter.propTypes = {
+  isEditing: PropTypes.bool,
+  doneAction: PropTypes.func
 };
 
 export default EditableContentBox;

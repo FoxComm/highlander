@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 import UserInitials from '../users/initials';
 import ViewerStore from '../../stores/viewers';
@@ -9,8 +9,34 @@ export default class Viewers extends React.Component {
   constructor(props, context) {
     super(props, context);
     ViewerStore.uriRoot = `${this.props.model}/${this.props.modelId}`;
+    // mock data
     this.state = {
-      viewers: []
+      viewers: [
+        {
+          id: 1,
+          firstName: 'Denys',
+          lastName: 'Mikhalenko'
+        },
+        {
+          id: 2,
+          firstName: 'Cameron',
+          lastName: 'Stitt',
+          email: 'cam@foxcommerce.com'
+        },
+        {
+          id: 3,
+          firstName: 'Adil',
+          lastName: 'Wali',
+          email: 'adil@foxcommerce.com',
+          isLocker: true
+        },
+        {
+          id: 4,
+          firstName: 'Jeff',
+          lastName: 'Mattaya',
+          email: 'jeff@foxcommerce.com'
+        }
+      ]
     };
   }
 
@@ -18,31 +44,6 @@ export default class Viewers extends React.Component {
     ViewerStore.listenToEvent('change', this);
     // disabled until we have API for this
     // this.onTimeout();
-    // mock data
-    this.setState({
-      viewers: [
-        {
-          firstName: 'Denys',
-          lastName: 'Mikhalenko'
-        },
-        {
-          firstName: 'Cameron',
-          lastName: 'Stitt',
-          email: 'cam@foxcommerce.com'
-        },
-        {
-          firstName: 'Adil',
-          lastName: 'Wali',
-          email: 'adil@foxcommerce.com',
-          isLocker: true
-        },
-        {
-          firstName: 'Jeff',
-          lastName: 'Mattaya',
-          email: 'jeff@foxcommerce.com'
-        }
-      ]
-    });
   }
 
   componentWillUnmount() {
@@ -88,9 +89,9 @@ export default class Viewers extends React.Component {
 }
 
 Viewers.propTypes = {
-  model: React.PropTypes.string,
-  modelId: React.PropTypes.oneOfType([
-    React.PropTypes.string,
-    React.PropTypes.number
+  model: PropTypes.string,
+  modelId: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number
   ])
 };

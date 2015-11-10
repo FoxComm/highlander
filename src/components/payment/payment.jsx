@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import React from 'react';
+import React, { PropTypes } from 'react';
 import PaymentMethod from './payment-method';
 import TableView from '../table/tableview';
 import ContentBox from '../content-box/content-box';
@@ -15,8 +15,8 @@ export default class RmaPayment extends React.Component {
 }
 
 RmaPayment.propTypes = {
-  rma: React.PropTypes.object,
-  tableColumns: React.PropTypes.array
+  rma: PropTypes.object,
+  tableColumns: PropTypes.array
 };
 
 RmaPayment.defaultProps = {

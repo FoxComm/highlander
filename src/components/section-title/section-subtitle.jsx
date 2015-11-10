@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 
-const SectionSubtitle = (props) => {
+const SectionSubtitle = props => {
   return (
     <div>
       <h2>{ props.title }</h2>

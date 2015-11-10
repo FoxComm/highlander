@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 import TableHead from './head';
 import TableBody from './body';
 
-const Table = (props) => {
+const Table = props => {
   const {data, setState, renderRow, ...rest} = props;
 
   return (

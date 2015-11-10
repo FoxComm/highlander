@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import { dispatch } from '../../lib/dispatcher';
 import NotificationStore from '../../stores/notifications';
 
@@ -59,5 +59,5 @@ export default class ResendModal extends React.Component {
 }
 
 ResendModal.propTypes = {
-  notification: React.PropTypes.object
+  notification: PropTypes.object
 };

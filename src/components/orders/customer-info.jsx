@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 
 export default class CustomerInfo extends React.Component {
   render() {
@@ -82,5 +82,5 @@ export default class CustomerInfo extends React.Component {
 }
 
 CustomerInfo.propTypes = {
-  order: React.PropTypes.object
+  order: PropTypes.object
 };

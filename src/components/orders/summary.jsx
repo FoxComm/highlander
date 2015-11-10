@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import ContentBox from '../content-box/content-box';
 import Currency from '../common/currency';
 
@@ -53,5 +53,5 @@ export default class OrderSummary extends React.Component {
 }
 
 OrderSummary.propTypes = {
-  order: React.PropTypes.object
+  order: PropTypes.object
 };

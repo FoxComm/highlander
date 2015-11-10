@@ -56,7 +56,9 @@ export default class TableBody extends React.Component {
     const renderRow = this.props.renderRow || this.defaultRenderRow;
 
     return _.flatten(this.props.rows.map((row, index) => {
-      const isNew = this.props.detectNewRows && this.props.predicate && (this.state.newIds.indexOf(String(this.props.predicate(row))) != -1);
+      const isNew = this.props.detectNewRows &&
+                    this.props.predicate &&
+                    (this.state.newIds.indexOf(String(this.props.predicate(row))) != -1);
 
       return renderRow(row, index, isNew);
     }));

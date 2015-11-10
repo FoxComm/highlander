@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import TableView from '../table/tableview';
 import UserInitials from '../users/initials';
 import ActivityTrailStore from '../../stores/activity-trail';
@@ -38,8 +38,8 @@ export default class ActivityTrail extends React.Component {
 }
 
 ActivityTrail.propTypes = {
-  tableColumns: React.PropTypes.array,
-  entity: React.PropTypes.object
+  tableColumns: PropTypes.array,
+  entity: PropTypes.object
 };
 
 ActivityTrail.defaultProps = {

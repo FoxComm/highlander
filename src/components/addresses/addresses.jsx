@@ -18,15 +18,8 @@ export default class AddressBook extends React.Component {
 
   constructor(props, context) {
     super(props, context);
-    this.state = {
-      addresses: [],
-      customerId: null
-    };
-  }
 
-  componentDidMount() {
     let customerId;
-    AddressStore.listenToEvent('change', this);
     if (this.props.order) {
       customerId = this.props.order.customer.id;
     } else if (this.props.params && this.props.params.customer) {
@@ -35,7 +28,14 @@ export default class AddressBook extends React.Component {
       throw new Error('customer not provided to AddressBook');
     }
 
-    this.setState({customerId});
+    this.state = {
+      addresses: [],
+      customerId: customerId
+    };
+  }
+
+  componentDidMount() {
+    AddressStore.listenToEvent('change', this);
     AddressStore.fetch(customerId);
   }
 
