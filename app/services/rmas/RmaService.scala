@@ -16,15 +16,13 @@ import utils.Slick.DbResult
 import utils.Slick.implicits._
 
 object RmaService {
-  def createByAdmin(admin: StoreAdmin, payload: RmaCreatePayload)(implicit db: Database, ec: ExecutionContext): Result[Root] = {
+  def createByAdmin(admin: StoreAdmin, payload: RmaCreatePayload)
+    (implicit db: Database, ec: ExecutionContext): Result[Root] = {
+
     val finder = Orders.findByRefNum(payload.orderRefNum)
     finder.selectOne({ order ⇒
-      val actions = for {
-        rma ← Rmas.saveNew(Rma.build(order, admin, payload.rmaType))
-        customer ← Customers.findOneById(order.customerId)
-      } yield (rma, customer)
 
-      val future = actions.withTransactionIsolation(TransactionIsolation.ReadCommitted).run().flatMap {
+      val future = createActions(order, admin, payload.rmaType).run().flatMap {
         case (rma, customer) ⇒
           val adminResponse = Some(StoreAdminResponse.build(admin))
           val customerResponse = customer.map(CustomerResponse.build(_))
@@ -33,6 +31,17 @@ object RmaService {
 
       DbResult.fromFuture(future)
     })
+  }
+
+  def createActions(order: Order, admin: StoreAdmin, rmaType: Rma.RmaType)
+    (implicit db: Database, ec: ExecutionContext) = {
+
+    val actions = for {
+      rma ← Rmas.saveNew(Rma.build(order, admin, rmaType))
+      customer ← Customers.findOneById(order.customerId)
+    } yield (rma, customer)
+
+    actions.withTransactionIsolation(TransactionIsolation.Serializable)
   }
 
   def getByRefNum(refNum: String)(implicit db: Database, ec: ExecutionContext): Result[Root] = {
