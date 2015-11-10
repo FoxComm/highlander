@@ -2,8 +2,10 @@ package services
 
 import java.time.Instant
 
-import models.{OrderLineItem, OrderLineItems, OrderLineItemGiftCard, OrderLineItemGiftCards, GiftCard, GiftCards,
-GiftCardOrder, GiftCardOrders, Customers, Orders, Order}
+import models.{GiftCardAdjustment, GiftCardAdjustments, GiftCardManuals, StoreCreditAdjustment,
+StoreCreditAdjustments, Reasons, OrderPayments, OrderLineItem, OrderLineItems, OrderLineItemGiftCard,
+OrderLineItemGiftCards, GiftCard, GiftCards, GiftCardOrder, GiftCardOrders, Customers, Orders, Order, StoreAdmins,
+StoreAdmin, StoreCredits, StoreCreditManuals}
 import models.Orders.scope._
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
@@ -19,6 +21,8 @@ class CheckoutTest
   extends IntegrationTestBase
   with MockitoSugar {
   import concurrent.ExecutionContext.Implicits.global
+
+  type SCA = StoreCreditAdjustment
 
   def cartValidator(resp: CartValidatorResponse = CartValidatorResponse()): CartValidation = {
     val m = mock[CartValidation]
@@ -80,7 +84,51 @@ class CheckoutTest
       val current = Orders.findById(cart.id).extract.one.run().futureValue.value
       val gc = GiftCards.findById(giftCard.id).extract.one.run().futureValue.value
 
-      gc.status must === (GiftCard.OnHold)
+      gc.status must ===(GiftCard.OnHold)
+    }
+
+    "authorizes payments" - {
+      "for all gift cards" in new PaymentFixture {
+        val (ids, _) = (for {
+          origin ← GiftCardManuals.saveNew(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
+          ids ← GiftCards.returningId ++= (1 to 3).map { _ ⇒
+            Factories.giftCard.copy(originalBalance = 25, originId = origin.id)
+          }
+          pmts ← OrderPayments.returningId ++= ids.map { id ⇒
+            Factories.giftCardPayment.copy(orderId = cart.id, paymentMethodId = id, amount = 25.some)
+          }
+        } yield (ids, pmts)).run().futureValue
+
+        val result = rightValue(Checkout(cart, cartValidator()).checkout.futureValue)
+        val current = Orders.findById(cart.id).extract.one.run().futureValue.value
+        val adjustments = GiftCardAdjustments.filter(_.giftCardId.inSet(ids)).result.run().futureValue
+
+        import GiftCardAdjustment._
+
+        adjustments.map(_.status).toSet must === (Set[Status](Auth))
+        adjustments.map(_.debit) must === (List(25, 25, 25))
+      }
+
+      "for all store credits" in new PaymentFixture {
+        val (ids, _) = (for {
+          origin ← StoreCreditManuals.saveNew(Factories.storeCreditManual.copy(adminId = admin.id, reasonId = reason.id))
+          ids ← StoreCredits.returningId ++= (1 to 3).map { _ ⇒
+            Factories.storeCredit.copy(originalBalance = 25, originId = origin.id)
+          }
+          pmts ← OrderPayments.returningId ++= ids.map { id ⇒
+            Factories.storeCreditPayment.copy(orderId = cart.id, paymentMethodId = id, amount = 25.some)
+          }
+        } yield (ids, pmts)).run().futureValue
+
+        val result = rightValue(Checkout(cart, cartValidator()).checkout.futureValue)
+        val current = Orders.findById(cart.id).extract.one.run().futureValue.value
+        val adjustments = StoreCreditAdjustments.filter(_.storeCreditId.inSet(ids)).result.run().futureValue
+
+        import StoreCreditAdjustment._
+
+        adjustments.map(_.status).toSet must === (Set[Status](Auth))
+        adjustments.map(_.debit) must === (List(25, 25, 25))
+      }
     }
   }
 
@@ -99,4 +147,12 @@ class CheckoutTest
     } yield (customer, cart, giftCard)).run().futureValue
   }
 
+  trait PaymentFixture {
+    val (admin, customer, cart, reason) = (for {
+      admin ← StoreAdmins.saveNew(Factories.storeAdmin)
+      customer ← Customers.saveNew(Factories.customer)
+      cart ← Orders.saveNew(Factories.cart.copy(customerId = customer.id))
+      reason ← Reasons.saveNew(Factories.reason.copy(storeAdminId = admin.id))
+    } yield (admin, customer, cart, reason)).run().futureValue
+  }
 }
