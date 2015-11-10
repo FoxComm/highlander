@@ -10,13 +10,22 @@ import { connect } from 'react-redux';
 import * as rmaActions from '../../modules/rmas/list';
 import TableView from '../table/tableview';
 import { renderRow } from './helpers';
+import { assoc } from 'sprout-data';
 
-@connect(state => ({rmas: state.rmas.list}), rmaActions)
+function mapStateToProps(state) {
+  const rmaData = state.rmas.list;
+  const rows = rmaData.rows || [];
+
+  return {
+    rmas: assoc(rmaData, 'rows', rows)
+  };
+}
+
+@connect(mapStateToProps, rmaActions)
 export default class Rmas extends React.Component {
   static propTypes = {
     tableColumns: PropTypes.array,
     fetchRmas: PropTypes.func.isRequired,
-    setFetchParams: PropTypes.func.isRequired,
     rmas: PropTypes.shape({
       total: PropTypes.number
     })
@@ -35,10 +44,6 @@ export default class Rmas extends React.Component {
 
   componentDidMount() {
     this.props.fetchRmas({entityType: 'rma'});
-  }
-
-  setFetchParams(state, fetchParams) {
-    this.props.setFetchParams(state, {entityType: 'rma'}, fetchParams);
   }
 
   render() {
@@ -60,7 +65,7 @@ export default class Rmas extends React.Component {
             <TableView
                 data={this.props.rmas}
                 columns={this.props.tableColumns}
-                setState={this.setFetchParams}
+                setState={(data, params) => this.props.fetchRmas(params)}
                 renderRow={renderRow}
             />
           </div>

@@ -3,8 +3,8 @@
 import _ from 'lodash';
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
-import { assoc, merge, get } from 'sprout-data';
-import { paginateReducer, pickFetchParams, createFetchActions, DEFAULT_PAGE_SIZE } from '../pagination';
+import { update, get } from 'sprout-data';
+import { paginate, createFetchActions, pickFetchParams, paginateReducer } from '../pagination';
 
 const RMAS = 'RMAS';
 const {
@@ -30,7 +30,7 @@ function getStateForEntity(state, entityType, entityId) {
   return get(state, ['items']);
 }
 
-function fetchRmas(entity, extraFetchParams) {
+export function fetchRmas(entity={entityType: 'rma'}, extraFetchParams) {
   const {entityType, entityId} = entity;
 
   return (dispatch, getState) => {
@@ -46,93 +46,25 @@ function fetchRmas(entity, extraFetchParams) {
   };
 }
 
-function setFetchParams(entity, state, fetchParams) {
-  const {entityType, entityId} = entity;
+function paginateBehaviour(state, action, actionType) {
+  //behaviour for initial state
+  if (actionType === void 0) return state;
 
-  return dispatch => {
-    dispatch(actionSetFetchParams(fetchParams));
-    dispatch(fetchRmas(entity, {
-      ...state,
-      ...fetchParams
-    }));
-  };
-};
+  const [{entityType, entityId}, payload] = action.payload;
 
-const paginationState = {
-  rows: [],
-  total: 0,
-  from: 0,
-  size: DEFAULT_PAGE_SIZE
-};
-
-const initialState = {
-  isFetching: false,
-  order: {},
-  customer: {},
-  ...paginationState
-};
-
-const reducer = createReducer({
-  [actionFetch]: (state, [{entityType, entityId}]) => {
-    if (entityId) {
-      const response = merge({...state}, {
-        [entityType]: {
-          [entityId]: {
-            ...paginationState,
-            isFetching: true
-          }
-        }
-      });
-      return response;
-    }
-    return {
-      ...state,
-      isFetching: true
-    };
-  },
-  [actionReceived]: (state, [{entityType, entityId}, payload]) => {
-    if (entityId) {
-      return assoc(state, [entityType, entityId], {
-        ...state[entityType][entityId],
-        isFetching: false,
-        rows: get(payload, 'result', payload),
-        total: get(payload, ['pagination', 'total'], payload.length)
-      });
-    }
-    return {
-      ...state,
-      isFetching: false,
-      rows: get(payload, 'result', payload),
-      total: get(payload, ['pagination', 'total'], payload.length)
-    };
-  },
-  [actionFetchFailed]: (state, [{entityType, entityId}]) => {
-    if (entityId) {
-      return assoc(state, [entityType, entityId, 'isFetching'], false);
-    }
-    return {
-      ...state,
-      isFetching: false
-    };
-  },
-  [actionSetFetchParams]: (state, [{entityType, entityId}, payload]) => {
-    if (entityId) {
-      return assoc(state, [entityType, entityId], {
-        ...state[entityType][entityId],
-        ...payload
-      });
-    }
-    return {
-      ...state,
-      ...payload
-    };
+  if (entityId) {
+    // For any child rma list eg. /rmas/order/1
+    return update(state, [entityType, entityId], paginate, {
+      ...action,
+      payload,
+      type: actionType
+    });
   }
-}, initialState);
+  return paginate(state, {
+    ...action,
+    payload,
+    type: actionType
+  });
+}
 
-export {
-  fetchRmas,
-  setFetchParams,
-  paginationState
-};
-
-export default reducer;
+export default paginateReducer(RMAS, state => state, paginateBehaviour);
