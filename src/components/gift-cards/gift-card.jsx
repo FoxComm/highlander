@@ -101,7 +101,7 @@ export default class GiftCard extends React.Component {
         </SectionTitle>
         <div className="fc-grid">
           <div className="fc-col-md-1-3">
-            <Panel title="Available Balance" featured={true} className="fc-gift-card-ballance">
+            <Panel title="Available Balance" featured={true} className="fc-gift-card-balance">
               { formatCurrency(card.availableBalance) }
             </Panel>
           </div>
