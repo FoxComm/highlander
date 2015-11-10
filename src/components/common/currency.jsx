@@ -20,7 +20,7 @@ const Currency = (props) => {
 };
 
 Currency.propTypes = {
-  value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired
+  value: PropTypes.number.isRequired
 };
 
 export default Currency;
