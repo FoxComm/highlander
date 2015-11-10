@@ -41,7 +41,7 @@ const EditButton = props => {
   return <DefaultButton icon='edit' {...props} />;
 };
 
-const AddButton = (props) => {
+const AddButton = props => {
   return <DefaultButton icon='add' {...props} />;
 };
 
