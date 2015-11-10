@@ -1,5 +1,3 @@
-'use strict';
-
 import _ from 'lodash';
 import Api from './api';
 import { EventEmitter } from 'events';

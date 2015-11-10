@@ -1,5 +1,3 @@
-'use strict';
-
 import zipcodes from 'zipcodes-regex';
 
 export function zipCode(value, country) {

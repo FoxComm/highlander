@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 import ItemCardContainer from './item-card-container';
 import { Checkbox } from '../checkbox/checkbox';

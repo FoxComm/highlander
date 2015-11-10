@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 import lineItemActions from '../../actions/line-items';
 import ConfirmModal from '../modal/confirm';

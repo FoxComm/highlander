@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 import { CustomerInfo, RmaSummary } from './helpers';
 import LineItems from '../line-items/line-items';

@@ -1,5 +1,3 @@
-'use strict';
-
 import _ from 'lodash';
 import Api from '../lib/api';
 import { createAction, createReducer } from 'redux-act';
@@ -49,7 +47,7 @@ export function createFetchActions(namespace, payloadReducer, metaReducer) {
 
   return _.transform(actionTypes, (result, type) => {
     const name = _.camelCase(`action_${type}`);
-    result[name] =createFetchAction(type);
+    result[name] = createFetchAction(type);
   });
 }
 

@@ -1,5 +1,3 @@
-'use strict';
-
 import TableStore from '../lib/table-store';
 
 class CustomerStore extends TableStore {

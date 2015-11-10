@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 import { Link as ReactRouterLink } from 'react-router';
 

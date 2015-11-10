@@ -1,5 +1,3 @@
-'use strict';
-
 import _ from 'lodash';
 import Api from '../../lib/api';
 import { createAction as _createAction, createReducer } from 'redux-act';

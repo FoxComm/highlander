@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 import { dispatch } from '../../lib/dispatcher';
 import ResendModal from './resend';

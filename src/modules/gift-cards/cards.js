@@ -1,5 +1,3 @@
-'use strict';
-
 import makePagination from '../pagination';
 
 const {reducer, actions: {fetch, setFetchParams}} = makePagination('/gift-cards', 'GIFT_CARDS');

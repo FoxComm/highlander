@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 import CountryStore from '../../stores/countries';
 import PhoneNumber from '../phone-number/phone-number';

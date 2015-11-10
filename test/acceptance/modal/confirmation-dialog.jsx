@@ -14,19 +14,13 @@ describe('ConfirmationDialog', function() {
   };
 
   it('should not render if isVisible is falsy', function *() {
-    const dialog = ConfirmationDialog({
-      ...defaultProps,
-      isVisible: false
-    });
+    const dialog = shallowRender(<ConfirmationDialog {...defaultProps} isVisible={false} />);
 
     expect(ShallowTestUtils.findAllWithClass(dialog, 'fc-modal')).to.be.empty;
   });
 
   it('should render if isVisible is truly', function *() {
-    const dialog = ConfirmationDialog({
-      ...defaultProps,
-      isVisible: true
-    });
+    const dialog = shallowRender(<ConfirmationDialog {...defaultProps} isVisible={true} />);
 
     ShallowTestUtils.findWithClass(dialog, 'fc-modal');
   });

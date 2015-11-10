@@ -1,11 +1,8 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 
 import ConfirmationDialog from '../modal/confirmation-dialog';
 import OrderLineItem from './order-line-item';
-import TableView from '../tables/tableview';
-import TableHead from '../tables/head';
+import TableView from '../table/tableview';
 import EditableContentBox from '../content-box/editable-content-box';
 
 const viewModeColumns = [
@@ -47,7 +44,7 @@ OrderLineItems.propTypes = {
 };
 
 const renderViewContent = props => {
-  return <TableView columns={viewModeColumns} rows={props.order.lineItems.items} />;
+  return <TableView columns={viewModeColumns} data={{rows: props.order.lineItems.items}}/>;
 };
 
 renderViewContent.propTypes = {
@@ -65,12 +62,7 @@ const renderEditContent = props => {
   // TODO: Re-add the Typeahead after Andrey's refactor is complete.
   return (
     <div>
-      <table className='fc-table'>
-        <TableHead columns={editModeColumns} />
-        <tbody>
-          {orderLineItems}
-        </tbody>
-      </table>
+      <TableView columns={editModeColumns} data={{rows: orderLineItems}} />
       <div>
         <strong>Add Item</strong>
       </div>

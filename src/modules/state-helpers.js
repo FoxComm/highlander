@@ -1,5 +1,3 @@
-'use strict';
-
 import _ from 'lodash';
 
 export function entityId(entity, type=entity.entityType) {
