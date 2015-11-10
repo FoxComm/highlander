@@ -49,7 +49,7 @@ export function createFetchActions(namespace, payloadReducer, metaReducer) {
 
   return _.transform(actionTypes, (result, type) => {
     const name = _.camelCase(`action_${type}`);
-    result[name] =createFetchAction(type);
+    result[name] = createFetchAction(type);
   });
 }
 

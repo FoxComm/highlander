@@ -79,7 +79,7 @@ export default class Notes extends React.Component {
   }
 
   @autobind
-  renderNoteRow(row, index) {
+  renderNoteRow(row, index, isNew) {
     if (this.props.editingNoteId === row.id) {
       return (
         <TableRow key={`row-${index}`}>
@@ -94,7 +94,7 @@ export default class Notes extends React.Component {
       );
     } else {
       return (
-        <TableRow key={`row-${index}`}>
+        <TableRow key={`row-${index}`} isNew={isNew}>
           <TableCell>
             <DateTime value={row.createdAt}/>
           </TableCell>
@@ -114,10 +114,9 @@ export default class Notes extends React.Component {
   }
 
   @autobind
-  renderRow(row, index) {
-    const noteRow = this.renderNoteRow(row, index);
-
-    if (index === 0 && this.props.editingNoteId === true) {
+  injectAddingForm(rows) {
+    // -1 means we want add new note
+    if (this.props.editingNoteId === -1) {
       return [
         <TableRow key="row-add">
           <TableCell colspan={this.props.tableColumns.length}>
@@ -127,11 +126,10 @@ export default class Notes extends React.Component {
             />
           </TableCell>
         </TableRow>,
-        noteRow
+        ...rows
       ];
     }
-
-    return noteRow;
+    return rows;
   }
 
   get controls() {
@@ -143,9 +141,11 @@ export default class Notes extends React.Component {
   render() {
     return (
       <div>
-        <SectionTitle title="Notes">{this.controls}</SectionTitle>
+        <SectionTitle className="fc-grid-gutter" title="Notes">{this.controls}</SectionTitle>
         <TableView
-          renderRow={this.renderRow}
+          renderRow={this.renderNoteRow}
+          processRows={this.injectAddingForm}
+          detectNewRows={this.props.wasReceived}
           columns={this.props.tableColumns}
           data={this.props.data}
           setState={(data, params) => this.props.fetchNotes(params)}
