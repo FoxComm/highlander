@@ -8,6 +8,7 @@ import responses.{CustomerResponse, StoreAdminResponse, AllRmas}
 import services._
 import responses.RmaResponse._
 import slick.driver.PostgresDriver.api._
+import slick.jdbc.TransactionIsolation
 import utils.CustomDirectives
 import utils.CustomDirectives.SortAndPage
 import utils.Slick._
@@ -23,10 +24,11 @@ object RmaService {
         customer ← Customers.findOneById(order.customerId)
       } yield (rma, customer)
 
-      val future = actions.run().flatMap { case (rma, customer) ⇒
-        val adminResponse = Some(StoreAdminResponse.build(admin))
-        val customerResponse = customer.map(CustomerResponse.build(_))
-        Future.successful(build(rma, customerResponse, adminResponse))
+      val future = actions.withTransactionIsolation(TransactionIsolation.ReadCommitted).run().flatMap {
+        case (rma, customer) ⇒
+          val adminResponse = Some(StoreAdminResponse.build(admin))
+          val customerResponse = customer.map(CustomerResponse.build(_))
+          Future.successful(build(rma, customerResponse, adminResponse))
       }
 
       DbResult.fromFuture(future)
