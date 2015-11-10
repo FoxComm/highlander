@@ -13,13 +13,18 @@ import slick.driver.PostgresDriver.api._
 import utils.Slick.lift
 import utils.Slick.implicits._
 
+trait CartValidation {
+  def validate: Result[CartValidatorResponse]
+}
+
 // warnings would be turned into `errors` during checkout but if we're still in cart mode
 // then we'll display to end-user as warnings/alerts since they are not "done" with their cart
 final case class CartValidatorResponse(
   alerts:   List[Failure] = List.empty[Failure],
   warnings: List[Failure] = List.empty[Failure])
 
-final case class CartValidator(cart: Order)(implicit db: Database, ec: ExecutionContext) {
+final case class CartValidator(cart: Order)(implicit db: Database, ec: ExecutionContext)
+  extends CartValidation {
 
   def validate: Result[CartValidatorResponse] = {
     val response = CartValidatorResponse()

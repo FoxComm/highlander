@@ -59,4 +59,5 @@ package object services {
 
     def left[A](f: Future[Failures])(implicit ec: ExecutionContext):  ResultT[A] = XorT.left(f)
     def leftAsync[A](f: Failures)(implicit ec: ExecutionContext):     ResultT[A] = XorT.left(Future.successful(f))
-  }}
+  }
+}

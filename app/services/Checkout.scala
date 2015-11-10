@@ -4,107 +4,62 @@ import java.time.Instant
 
 import scala.concurrent.{ExecutionContext, Future}
 
-import cats.data.Xor
+import cats.data.{ValidatedNel, Xor}
+import cats.data.Validated.{valid, invalid}
+import cats.implicits._
+import models.Order.RemorseHold
 import models._
-
+import collection.immutable
 import slick.driver.PostgresDriver.api._
+import utils.Slick.DbResult
+import utils.Slick.UpdateReturning._
 import utils.Slick.implicits._
+import OrderPayments.scope._
 
-
-class Checkout(order: Order)(implicit ec: ExecutionContext, db: Database) {
-
+/*
+  1) Run cart through validator
+  2) Check inventory availability for every item (currently, that we have some items since our inventory is bunk)
+  3) Re-validate that applied promos are active
+  4) Authorize each payment method (stripe for cc, and gc and sc internally)
+  5) Transition order to Remorse Hold**
+  6) Create new cart for customer
+ */
+final case class Checkout(cart: Order, cartValidator: CartValidation)(implicit db: Database, ec: ExecutionContext) {
   def checkout: Result[Order] = {
-    // Realistically, what we'd do here is actually
-    // 0) Check that line items exist -- DONE
-    // 1) Check Inventory
-    // 2) Verify Payment (re-auth)
-    // 3) Validate addresses
-    // 4) Validate promotions/coupons
-    // 5) Final Auth on the payment
-    // 6) Check & Reserve inventory
+    cartValidator.validate.flatMap {
+      case Xor.Left(f) ⇒
+        Result.failures(f)
 
-    hasLineItems.run().flatMap { has ⇒
-      if (has) {
-        authorizePayments.flatMap { payments ⇒
-          val errors = payments.values.toList.flatten
-          if (errors.isEmpty) {
-//            completeOrderAndCreateNew(order).map(Good(_))
-            Result.good(order)
-          } else {
-            Result.failures(errors: _*)
-          }
-        }
-      } else {
-        Result.failure(NotFoundFailure404("No Line Items in Order!"))
-      }
+      case Xor.Right(resp) if resp.warnings.nonEmpty ⇒
+        Result.failures(resp.warnings: _*)
+
+      case Xor.Right(_) ⇒
+        (for {
+          _ ← checkInventory
+          _ ← activePromos
+          _ ← authPayments
+          _ ← remorseHold
+          order ← createNewCart
+        } yield order).run()
     }
   }
 
-  def authorizePayments: Future[Map[OrderPayment, List[Failure]]] = {
-    for {
-      payments ← OrderPayments.findAllPaymentsFor(order.id).result.run()
-      authorized ← Future.sequence(authorizePayments(payments))
-    } yield updatePaymentsWithAuthorizationErrors(authorized)
-  }
+  private def checkInventory: DbResult[Unit] = DbResult.unit
 
-  def decrementInventory(order: Order): Future[Int] =
-    InventoryAdjustments.createAdjustmentsForOrder(order).run()
+  private def activePromos: DbResult[Unit] = DbResult.unit
 
-  def validateAddresses: Failures = {
-    Failures()
-  }
+  private def authPayments: DbResult[Unit] = DbResult.unit
 
-  private def authorizePayments(payments: Seq[(OrderPayment, CreditCard)]) = {
-    for {
-      (payment, creditCard) ← payments
-    } yield authorizePayment(payment, creditCard)
-  }
-
-  // TODO: we must do this *after* auth'ing GC/SC
-  private def authorizePayment(payment : OrderPayment, creditCard : CreditCard) = {
-    creditCard.authorize(payment.amount.getOrElse(-50)).flatMap { xor ⇒
-      xor.fold(
-      { _ ⇒ Future.successful((payment, xor))},
-      { chargeId ⇒  updateOrderPaymentWithCharge(payment, chargeId, xor) })
-    }
-  }
-
-  private def updatePaymentsWithAuthorizationErrors(payments: Seq[(OrderPayment, Xor[Failures, String])]) = {
-    payments.foldLeft(Map.empty[OrderPayment, List[Failure]]) {
-      case (pmts, (payment, result)) ⇒
-        updatePaymentWithAuthorizationErrors(pmts, payment, result)
-    }
-  }
-
-  private def updatePaymentWithAuthorizationErrors(
-    payments: Map[OrderPayment, List[Failure]],
-    payment:  OrderPayment,
-    result:  Failures Xor String) =
-      payments.updated(
-        payment,
-        result.fold(bad ⇒ bad.toList, good ⇒ Nil))
-
-  // sets incoming order.status == Order.ordered and creates a new order
-  /*
-  private def completeOrderAndCreateNew(order: Order): Future[Order] = {
-    db.run(for {
-      _ ← Orders.findById(order.id).extract
+  private def remorseHold: DbResult[Order] = {
+    val changed = cart.updateTo(cart.copy(status = RemorseHold, placedAt = Instant.now.some))
+    changed.fold(DbResult.failures, { c ⇒
+      Orders.findById(cart.id).extract
         .map { o ⇒ (o.status, o.placedAt) }
-        .update((Order.Ordered, Some(Instant.now)))
-
-        newOrder ← Orders.create(Order.buildCart(order.customerId))
-    } yield newOrder)
-  }
-  */
-
-  private def updateOrderPaymentWithCharge(payment : OrderPayment, chargeId : String, or: Failures Xor String) = {
-    OrderPayments.update(payment).run().map { _ ⇒ (payment, or) }
+        .update((c.status, c.placedAt))
+        .flatMap(_ ⇒ DbResult.good(c))
+    })
   }
 
-  private def hasLineItems = {
-    for { count ← OrderLineItems.countByOrder(order) } yield (count > 0)
-  }
-
-
-
+  private def createNewCart: DbResult[Order] =
+    Orders.saveNew(Order.buildCart(cart.customerId)).flatMap(DbResult.good)
 }

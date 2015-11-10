@@ -1,107 +1,78 @@
 package services
 
-import cats.data.Xor
-import models.{Address, Addresses, OrderPayment, OrderPayments, CreditCard, CreditCards, Customer, Customers, Order, OrderLineItem, OrderLineItems, Orders}
+import java.time.Instant
 
-import org.scalatest.Inside
+import models.{Orders, Order}
+import models.Orders.scope._
+import org.mockito.Mockito._
+import org.scalatest.mock.MockitoSugar
+import services.CartFailures._
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.implicits._
+import cats.implicits._
+import slick.driver.PostgresDriver.api._
 
-class CheckoutTest extends IntegrationTestBase with Inside {
+class CheckoutTest
+  extends IntegrationTestBase
+  with MockitoSugar {
   import concurrent.ExecutionContext.Implicits.global
 
   "Checkout" - {
-    "checkout" - {
-      "returns a new Order with the 'Cart' status" ignore { /** Needs Stripe mocks */
-        val (order, _) = testData()
+    "fails if the order is not a cart" in new Fixture {
+      val nonCart = cart.copy(status = Order.RemorseHold)
+      val result = leftValue(Checkout(nonCart, CartValidator(nonCart)).checkout.futureValue)
+      val current = Orders.findById(cart.id).extract.one.run().futureValue.value
 
-        val lineItemStub1 = OrderLineItem(id = 0, orderId = 0, originId = 1, originType = OrderLineItem.SkuItem)
-        val lineItemStub2 = OrderLineItem(id = 0, orderId = 0, originId = 2, originType = OrderLineItem.SkuItem)
-
-        val actions = for {
-          _ ← OrderLineItems.returningId += lineItemStub1.copy(orderId = order.id)
-          _ ← OrderLineItems.returningId += lineItemStub2.copy(orderId = order.id)
-        } yield ()
-
-        actions.run()
-
-        val checkout = new Checkout(order)
-        val result   = checkout.checkout.futureValue
-
-        val newOrder = result.get
-        newOrder.status must === (Order.Cart)
-        newOrder.id     must !== (order.id)
-      }
-
-      "returns an errors if it has no line items" in {
-        val (order, _) = testData()
-        val checkout = new Checkout(order)
-
-        val result = checkout.checkout.futureValue
-        result mustBe 'left
-
-        inside(result) {
-          case Xor.Left(nel) ⇒
-            inside(nel.head) {
-              case NotFoundFailure404(message) ⇒
-                message must include ("No Line Items")
-            }
-        }
-      }
-
-      /** Test data leak? */
-
-      "returns an error if authorizePayments fails" in {
-        pending /** Need a way to mock Stripe */
-
-        val (order, _) = testData(gatewayCustomerId = "")
-
-        val lineItemStub1 = OrderLineItem(id = 0, orderId = 0, originId = 1, originType = OrderLineItem.SkuItem)
-        val lineItemStub2 = OrderLineItem(id = 0, orderId = 0, originId = 2, originType = OrderLineItem.SkuItem)
-
-        val actions = for {
-          _ ← OrderLineItems.returningId += lineItemStub1.copy(orderId = order.id)
-          _ ← OrderLineItems.returningId += lineItemStub2.copy(orderId = order.id)
-        } yield ()
-
-        actions.run()
-
-        val checkout = new Checkout(order)
-        val result   = checkout.checkout.futureValue
-
-        inside(result) {
-          case Xor.Left(nel) ⇒
-            inside(nel.head) {
-              case StripeFailure(errorMessage) ⇒
-                errorMessage.getMessage must include ("cannot set 'customer' to an empty string.")
-            }
-        }
-
-      }
+      result must === (OrderMustBeCart(nonCart.refNum).single)
+      current.status must === (cart.status)
     }
 
-    "Authorizes each payment" in pendingUntilFixed { /** Needs Stripe mocks */
-      fail("fix me")
+    "fails if the cart validator fails" in {
+      val failure = GeneralFailure("scalac").single
+      val mockValidator = mock[CartValidation]
+      when(mockValidator.validate).thenReturn(Result.failures(failure))
+
+      val result = leftValue(Checkout(Factories.cart, mockValidator).checkout.futureValue)
+      result must === (failure)
+    }
+
+    "fails if the cart validator has warnings" in {
+      val failure = GeneralFailure("scalac").single
+      val mockValidator = mock[CartValidation]
+      when(mockValidator.validate).thenReturn(Result.good(CartValidatorResponse(warnings = failure.toList)))
+
+      val result = leftValue(Checkout(Factories.cart, mockValidator).checkout.futureValue)
+      result must === (failure)
+    }
+
+    "updates status to RemorseHold and touches placedAt" in new Fixture {
+      val before = Instant.now
+      val mockValidator = mock[CartValidation]
+      when(mockValidator.validate).thenReturn(Result.good(CartValidatorResponse()))
+      val result = rightValue(Checkout(cart, mockValidator).checkout.futureValue)
+      val current = Orders.findById(cart.id).extract.one.run().futureValue.value
+
+      current.status must === (Order.RemorseHold)
+      current.placedAt.value mustBe >= (before)
+    }
+
+    "creates new cart for user at the end" in new Fixture {
+      val mockValidator = mock[CartValidation]
+      when(mockValidator.validate).thenReturn(Result.good(CartValidatorResponse()))
+      val result = rightValue(Checkout(cart, mockValidator).checkout.futureValue)
+      val current = Orders.findById(cart.id).extract.one.run().futureValue.value
+      val newCart = Orders.findByCustomerId(cart.customerId).cartOnly.one.run().futureValue.value
+
+      newCart.id must !== (cart.id)
+      newCart.status must === (Order.Cart)
+      newCart.locked mustBe false
+      newCart.placedAt mustBe 'empty
+      newCart.remorsePeriodEnd mustBe 'empty
     }
   }
 
-  def testData(gatewayCustomerId:String = "cus_6Rh139qdpaFdRP") = {
-    val customerStub = Customer(email = "yax@yax.com", password = Some("password"), name = Some("Yax Fuentes"))
-    val orderStub    = Order(id = 0, customerId = 0)
-    val addressStub  = Address(id = 0, customerId = 0, regionId = 1, name = "Yax Home", address1 = "555 E Lake Union " +
-      "St.", address2 = None, city = "Seattle", zip = "12345", phoneNumber = None)
-    val gatewayStub  = Factories.creditCard.copy(gatewayCustomerId = gatewayCustomerId, lastFour = "4242",
-      expMonth = 11, expYear = 2018)
-
-    val (payment, order) = (for {
-      customer ← (Customers.returningId += customerStub).map(id ⇒ customerStub.copy(id = id))
-      order    ← Orders.saveNew(orderStub.copy(customerId = customer.id))
-      address  ← Addresses.saveNew(addressStub.copy(customerId = customer.id))
-      creditCard ← CreditCards.saveNew(gatewayStub.copy(customerId = customer.id))
-      payment  ← OrderPayments.saveNew(Factories.orderPayment.copy(orderId = order.id, paymentMethodId = creditCard.id))
-    } yield (payment, order)).run().futureValue
-
-    (order, payment)
+  trait Fixture {
+    val cart = Orders.saveNew(Factories.cart).run().futureValue
   }
 }
