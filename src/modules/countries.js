@@ -25,7 +25,7 @@ export function fetchCountries() {
     Api.get('/countries')
       .then(json => dispatch(countriesReceived(json)))
       .catch(err => dispatch(countriesFailed(err)));
-  }
+  };
 }
 
 const initialState = {};
@@ -38,10 +38,7 @@ const reducer = createReducer({
     };
   },
   [countriesReceived]: (state, countries) => {
-    return {
-      ...state,
-      ...deepMerge(state, _.indexBy(countries, 'id'))
-    }
+    return deepMerge(state, _.indexBy(countries, 'id'));
   },
   [countriesFailed]: (state, err) => {
     console.error(err);
