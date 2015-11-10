@@ -43,7 +43,7 @@ object RmaLineItem {
     InventoryDisposition.slickColumn
 }
 
-class RmaLineItems(tag: Tag) extends GenericTable.TableWithId[RmaLineItem](tag, "rma_line_items")  {
+class RmaLineItems(tag: Tag) extends GenericTable.TableWithId[RmaLineItem](tag, "rma_line_items") {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def rmaId = column[Int]("rma_id")
   def reasonId = column[Int]("reason_id")

@@ -16,7 +16,6 @@ object AllRmas {
   final case class Root(
     id: Int,
     referenceNumber: String,
-    orderId: Int,
     orderRefNum: String,
     rmaType: Rma.RmaType,
     status: Rma.Status,
@@ -34,7 +33,6 @@ object AllRmas {
       Root(
         id = rma.id,
         referenceNumber = rma.referenceNumber,
-        orderId = rma.orderId,
         orderRefNum = rma.orderRefNum,
         rmaType = rma.rmaType,
         status = rma.status,

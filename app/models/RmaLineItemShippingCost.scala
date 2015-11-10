@@ -12,7 +12,7 @@ final case class RmaLineItemShippingCost(id: Int = 0, rmaId: Int, shipmentId: In
 object RmaLineItemShippingCost {}
 
 class RmaLineItemShippingCosts(tag: Tag) extends
-GenericTable.TableWithId[RmaLineItemShippingCost](tag, "rma_line_item_shipments")  {
+GenericTable.TableWithId[RmaLineItemShippingCost](tag, "rma_line_item_shipments") {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def rmaId = column[Int]("rma_id")
   def shipmentId = column[Int]("shipment_id")

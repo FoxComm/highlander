@@ -22,17 +22,15 @@ class OrderAssignments(tag: Tag) extends GenericTable.TableWithId[OrderAssignmen
   def assignedAt = column[Instant]("assigned_at")
 
   def * = (id, orderId, assigneeId, assignedAt) <>((OrderAssignment.apply _).tupled, OrderAssignment.unapply)
-  def order = foreignKey("order_fk", orderId, Orders)(_.id)
-  def assignee = foreignKey("assignee_fk", assigneeId, StoreAdmins)(_.id)
+  def order = foreignKey(Orders.tableName, orderId, Orders)(_.id)
+  def assignee = foreignKey(StoreAdmins.tableName, assigneeId, StoreAdmins)(_.id)
 }
 
 object OrderAssignments extends TableQueryWithId[OrderAssignment, OrderAssignments](
   idLens = GenLens[OrderAssignment](_.id)
 )(new OrderAssignments(_)) {
 
-  def byAssignee(admin: StoreAdmin): QuerySeq = {
-    filter(_.assigneeId === admin.id)
-  }
+  def byAssignee(admin: StoreAdmin): QuerySeq = filter(_.assigneeId === admin.id)
 
   def assignedTo(admin: StoreAdmin)(implicit ec: ExecutionContext): DBIO[Seq[Order]] = {
     for {
@@ -42,9 +40,7 @@ object OrderAssignments extends TableQueryWithId[OrderAssignment, OrderAssignmen
     } yield orders
   }
 
-  def byOrder(order: Order): QuerySeq = {
-    filter(_.orderId === order.id)
-  }
+  def byOrder(order: Order): QuerySeq = filter(_.orderId === order.id)
 
   def assigneesFor(order: Order)(implicit ec: ExecutionContext): DBIO[Seq[StoreAdmin]] = {
     for {

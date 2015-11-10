@@ -25,7 +25,7 @@ object RmaRoutes {
 
     authenticateBasicAsync(realm = "admin", storeAdminAuth) { admin ⇒
       val adminResponse = Some(StoreAdminResponse.build(admin))
-      val genericRmaMock = buildMockRma(id = 1, refNum = "ABC-123", orderId = 1, admin = adminResponse)
+      val genericRmaMock = buildMockRma(id = 1, refNum = "ABC-123", admin = adminResponse)
 
       pathPrefix("rmas") {
         (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
@@ -49,7 +49,7 @@ object RmaRoutes {
         } ~
         (post & pathEnd & entity(as[RmaCreatePayload])) { payload ⇒
           good {
-            genericRmaMock.copy(orderId = payload.orderId, orderRefNum = payload.orderRefNum)
+            genericRmaMock.copy(orderRefNum = payload.orderRefNum)
           }
         } ~
         pathPrefix("assignees") {

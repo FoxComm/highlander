@@ -38,7 +38,6 @@ object RmaResponse {
   final case class Root(
     id: Int,
     referenceNumber: String,
-    orderId: Int,
     orderRefNum: String,
     rmaType: Rma.RmaType,
     status: Rma.Status,
@@ -99,12 +98,10 @@ object RmaResponse {
     }
   }
 
-  def buildMockRma(id: Int, refNum: String, orderId: Int, admin: Option[StoreAdmin] = None,
-    customer: Option[Customer] = None): Root =
+  def buildMockRma(id: Int, refNum: String, admin: Option[StoreAdmin] = None, customer: Option[Customer] = None): Root =
     Root(
       id = id,
       referenceNumber = refNum,
-      orderId = orderId,
       orderRefNum = "ABC-123",
       rmaType = Rma.Standard,
       status = Rma.Pending,
@@ -121,7 +118,6 @@ object RmaResponse {
     assignees: Seq[AssignmentResponse.Root] = Seq.empty): Root = {
     Root(id = rma.id,
       referenceNumber = rma.refNum,
-      orderId = rma.orderId,
       orderRefNum = rma.orderRefNum,
       rmaType = rma.rmaType,
       status = rma.status,

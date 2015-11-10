@@ -31,10 +31,7 @@ object RmaPayment {
 
 }
 
-class RmaPayments(tag: Tag)
-  extends GenericTable.TableWithId[RmaPayment](tag, "rma_payments")
-{
-
+class RmaPayments(tag: Tag) extends GenericTable.TableWithId[RmaPayment](tag, "rma_payments") {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def rmaId = column[Int]("rma_id")
   def paymentMethodId = column[Int]("payment_method_id")

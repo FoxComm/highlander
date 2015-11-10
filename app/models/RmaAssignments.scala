@@ -22,17 +22,15 @@ class RmaAssignments(tag: Tag) extends GenericTable.TableWithId[RmaAssignment](t
   def assignedAt = column[Instant]("assigned_at")
 
   def * = (id, rmaId, assigneeId, assignedAt) <>((RmaAssignment.apply _).tupled, RmaAssignment.unapply)
-  def rma = foreignKey("rma_fk", rmaId, Rmas)(_.id)
-  def assignee = foreignKey("assignee_fk", assigneeId, StoreAdmins)(_.id)
+  def rma = foreignKey(Rmas.tableName, rmaId, Rmas)(_.id)
+  def assignee = foreignKey(StoreAdmins.tableName, assigneeId, StoreAdmins)(_.id)
 }
 
 object RmaAssignments extends TableQueryWithId[RmaAssignment, RmaAssignments](
   idLens = GenLens[RmaAssignment](_.id)
 )(new RmaAssignments(_)) {
 
-  def byAssignee(admin: StoreAdmin): QuerySeq = {
-    filter(_.assigneeId === admin.id)
-  }
+  def byAssignee(admin: StoreAdmin): QuerySeq = filter(_.assigneeId === admin.id)
 
   def assignedTo(admin: StoreAdmin)(implicit ec: ExecutionContext): DBIO[Seq[Rma]] = {
     for {
@@ -42,9 +40,7 @@ object RmaAssignments extends TableQueryWithId[RmaAssignment, RmaAssignments](
     } yield rmas
   }
 
-  def byRma(rma: Rma): QuerySeq = {
-    filter(_.rmaId === rma.id)
-  }
+  def byRma(rma: Rma): QuerySeq = filter(_.rmaId === rma.id)
 
   def assigneesFor(rma: Rma)(implicit ec: ExecutionContext): DBIO[Seq[StoreAdmin]] = {
     for {
