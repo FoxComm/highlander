@@ -2,6 +2,7 @@
 
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
+import { autobind } from 'core-decorators';
 import TableRow from './row';
 import TableCell from './cell';
 
@@ -29,6 +30,7 @@ export default class TableBody extends React.Component {
     };
   }
 
+  @autobind
   defaultRenderRow(row, index, isNew) {
     return (
       <TableRow isNew={isNew}>

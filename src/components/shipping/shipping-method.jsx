@@ -2,7 +2,7 @@
 
 import React from 'react';
 import EditableContentBox from '../content-box/editable-content-box';
-import TableView from '../tables/tableview';
+import TableView from '../table/tableview';
 
 const columns = [
   {field: 'name', text: 'Method'},
@@ -10,6 +10,14 @@ const columns = [
 ];
 
 const ShippingMethod = (props) => {
+  const editContent = (
+    <TableView columns={columns} data={{rows: props.availableShippingMethods}} setState={()=>{}} />
+  );
+
+  const viewContent = (
+    <TableView columns={columns} data={{rows: props.shippingMethods}} setState={()=>{}} />
+  );
+
   return (
     <EditableContentBox
       className='fc-shipping-method'
@@ -17,8 +25,8 @@ const ShippingMethod = (props) => {
       isEditing={props.isEditing}
       editAction={props.editAction}
       doneAction={props.doneAction}
-      viewContent={<TableView columns={columns} rows={props.shippingMethods} />}
-      editContent={<TableView columns={columns} rows={props.availableShippingMethods} />}
+      viewContent={viewContent}
+      editContent={editContent}
       />
   );
 };
