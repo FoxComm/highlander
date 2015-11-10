@@ -32,7 +32,7 @@ object OrderRoutes {
             OrderQueries.findAll
           }
         } ~
-        (post & entity(as[CreateOrder]) & pathEnd) { payload ⇒
+        (post & pathEnd & entity(as[CreateOrder])) { payload ⇒
           goodOrFailures { OrderCreator.createCart(payload) }
         } ~
         (patch & pathEnd & sortAndPage) { implicit sortAndPage ⇒
@@ -68,7 +68,7 @@ object OrderRoutes {
             }
           }
         } ~
-        (patch & entity(as[UpdateOrderPayload])) { payload ⇒
+        (patch & pathEnd & entity(as[UpdateOrderPayload])) { payload ⇒
           goodOrFailures {
             OrderStatusUpdater.updateStatus(refNum, payload.status)
           }
@@ -93,17 +93,17 @@ object OrderRoutes {
             Result.unit // FIXME Stubbed until checkout is updated
           }
         } ~
-        (post & path("line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems ⇒
+        (post & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems ⇒
           goodOrFailures {
             LineItemUpdater.updateQuantitiesOnOrder(refNum, reqItems)
           }
         } ~
-        (post & path("gift-cards") & entity(as[AddGiftCardLineItem]) & pathEnd) { payload ⇒
+        (post & path("gift-cards") & pathEnd & entity(as[AddGiftCardLineItem])) { payload ⇒
           goodOrFailures {
             LineItemUpdater.addGiftCard(refNum, payload)
           }
         } ~
-        (patch & path("gift-cards" / giftCardCodeRegex) & entity(as[AddGiftCardLineItem]) & pathEnd) { (code, payload) ⇒
+        (patch & path("gift-cards" / giftCardCodeRegex) & pathEnd & entity(as[AddGiftCardLineItem])) { (code, payload) ⇒
           goodOrFailures {
             LineItemUpdater.editGiftCard(refNum, code, payload)
           }
@@ -114,7 +114,7 @@ object OrderRoutes {
           }
         } ~
         pathPrefix("payment-methods" / "credit-cards") {
-          ((post | patch) & entity(as[payloads.CreditCardPayment]) & pathEnd) { payload ⇒
+          ((post | patch) & pathEnd & entity(as[payloads.CreditCardPayment])) { payload ⇒
             goodOrFailures { OrderPaymentUpdater.addCreditCard(refNum, payload.creditCardId) }
           } ~
           (delete & pathEnd) {
@@ -122,7 +122,7 @@ object OrderRoutes {
           }
         } ~
         pathPrefix("payment-methods" / "gift-cards") {
-          (post & entity(as[payloads.GiftCardPayment]) & pathEnd) { payload ⇒
+          (post & pathEnd & entity(as[payloads.GiftCardPayment])) { payload ⇒
             goodOrFailures { OrderPaymentUpdater.addGiftCard(refNum, payload) }
           } ~
           (delete & path(GiftCard.giftCardCodeRegex) & pathEnd) { code ⇒
@@ -130,10 +130,10 @@ object OrderRoutes {
           }
         } ~
         pathPrefix("payment-methods" / "store-credit") {
-          (post & entity(as[payloads.StoreCreditPayment]) & pathEnd) { payload ⇒
+          (post & pathEnd & entity(as[payloads.StoreCreditPayment])) { payload ⇒
             goodOrFailures { OrderPaymentUpdater.addStoreCredit(refNum, payload) }
           } ~
-          (patch & entity(as[payloads.StoreCreditPayment]) & pathEnd) { payload ⇒
+          (patch & pathEnd & entity(as[payloads.StoreCreditPayment])) { payload ⇒
             goodOrFailures { OrderPaymentUpdater.addStoreCredit(refNum, payload) }
           } ~
           (delete & pathEnd) {
@@ -141,19 +141,19 @@ object OrderRoutes {
           }
         } ~
         pathPrefix("assignees") {
-          (post & entity(as[Assignment])) { payload ⇒
+          (post & pathEnd & entity(as[Assignment])) { payload ⇒
             goodOrFailures {
               OrderAssignmentUpdater.assign(refNum, payload.assignees)
             }
           }
         } ~
         pathPrefix("shipping-address") {
-          (post & entity(as[payloads.CreateAddressPayload]) & pathEnd) { payload ⇒
+          (post & pathEnd & entity(as[payloads.CreateAddressPayload])) { payload ⇒
             goodOrFailures {
               OrderShippingAddressUpdater.createShippingAddressFromPayload(payload, refNum)
             }
           } ~
-          (patch & entity(as[payloads.UpdateAddressPayload]) & pathEnd) { payload ⇒
+          (patch & pathEnd & entity(as[payloads.UpdateAddressPayload])) { payload ⇒
             goodOrFailures {
               OrderShippingAddressUpdater.updateShippingAddressFromPayload(payload, refNum)
             }
@@ -170,7 +170,7 @@ object OrderRoutes {
           }
         } ~
         pathPrefix("shipping-method") {
-          (patch & entity(as[payloads.UpdateShippingMethod]) & pathEnd) { payload ⇒
+          (patch & pathEnd & entity(as[payloads.UpdateShippingMethod])) { payload ⇒
             goodOrFailures {
               OrderShippingMethodUpdater.updateShippingMethod(payload, refNum)
             }

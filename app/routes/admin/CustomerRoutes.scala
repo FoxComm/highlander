@@ -43,7 +43,7 @@ object CustomerRoutes {
             }
            }
         } ~
-        (post & entity(as[payloads.CreateCustomerPayload]) & pathEnd) { payload ⇒
+        (post & pathEnd & entity(as[payloads.CreateCustomerPayload])) { payload ⇒
           goodOrFailures {
             CustomerManager.create(payload)
           }
@@ -55,17 +55,17 @@ object CustomerRoutes {
             CustomerManager.getById(customerId)
           }
         } ~
-        (patch & entity(as[UpdateCustomerPayload]) & pathEnd) { payload ⇒
+        (patch & pathEnd & entity(as[UpdateCustomerPayload])) { payload ⇒
           goodOrFailures {
             CustomerManager.update(customerId, payload)
           }
         } ~
-        (post & path("activate") & entity(as[ActivateCustomerPayload])) { payload ⇒
+        (post & path("activate") & pathEnd & entity(as[ActivateCustomerPayload])) { payload ⇒
           goodOrFailures {
             CustomerManager.activate(customerId, payload)
           }
         } ~
-        (post & path("disable") & entity(as[payloads.ToggleCustomerDisabled])) { payload ⇒
+        (post & path("disable") & pathEnd & entity(as[payloads.ToggleCustomerDisabled])) { payload ⇒
           goodOrFailures {
             CustomerManager.toggleDisabled(customerId, payload.disabled, admin)
           }
@@ -76,18 +76,18 @@ object CustomerRoutes {
               AddressManager.findAllVisibleByCustomer(customerId)
             }
           } ~
-          (post & entity(as[CreateAddressPayload]) & pathEnd) { payload ⇒
+          (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
             goodOrFailures {
               AddressManager.create(payload, customerId)
             }
           } ~
-          (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultShippingAddress]) & pathEnd) {
+          (post & path(IntNumber / "default") & pathEnd & entity(as[payloads.ToggleDefaultShippingAddress])) {
             (id, payload) ⇒
               nothingOrFailures {
                 AddressManager.setDefaultShippingAddress(customerId, id)
               }
           } ~
-          (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultShippingAddress]) & pathEnd) {
+          (post & path(IntNumber / "default") & pathEnd & entity(as[payloads.ToggleDefaultShippingAddress])) {
             (id, payload) ⇒
               nothingOrFailures {
                 AddressManager.setDefaultShippingAddress(customerId, id)
@@ -110,7 +110,7 @@ object CustomerRoutes {
               AddressManager.removeDefaultShippingAddress(customerId)
             }
           } ~
-          (patch & path(IntNumber) & entity(as[CreateAddressPayload]) & pathEnd) { (addressId, payload) ⇒
+          (patch & path(IntNumber) & pathEnd & entity(as[CreateAddressPayload])) { (addressId, payload) ⇒
             goodOrFailures {
               AddressManager.edit(addressId, customerId, payload)
             }
@@ -130,20 +130,20 @@ object CustomerRoutes {
               CreditCardManager.creditCardsInWalletFor(customerId)
             }
           } ~
-          (post & path(IntNumber / "default") & entity(as[payloads.ToggleDefaultCreditCard]) & pathEnd) {
+          (post & path(IntNumber / "default") & pathEnd & entity(as[payloads.ToggleDefaultCreditCard])) {
             (cardId, payload) ⇒
               goodOrFailures {
                 CreditCardManager.toggleCreditCardDefault(customerId, cardId, payload.isDefault)
               }
           } ~
-          (post & entity(as[payloads.CreateCreditCard]) & pathEnd) { payload ⇒
+          (post & pathEnd & entity(as[payloads.CreateCreditCard])) { payload ⇒
             complete {
               whenFound(Customers.findOneById(customerId).run()) { customer ⇒
                 CreditCardManager.createCardThroughGateway(customer, payload)
               }
             }
           } ~
-          (patch & path(IntNumber) & entity(as[payloads.EditCreditCard]) & pathEnd) { (cardId, payload) ⇒
+          (patch & path(IntNumber) & pathEnd & entity(as[payloads.EditCreditCard])) { (cardId, payload) ⇒
             nothingOrFailures {
               CreditCardManager.editCreditCard(customerId, cardId, payload)
             }
@@ -160,12 +160,12 @@ object CustomerRoutes {
               StoreCreditService.findAllByCustomer(customerId)
             }
           } ~
-          (post & entity(as[payloads.CreateManualStoreCredit])) { payload ⇒
+          (post & pathEnd & entity(as[payloads.CreateManualStoreCredit])) { payload ⇒
             goodOrFailures {
               StoreCreditService.createManual(admin, customerId, payload)
             }
           } ~
-          (post & path(IntNumber / "convert")) { storeCreditId ⇒
+          (post & path(IntNumber / "convert") & pathEnd) { storeCreditId ⇒
             goodOrFailures {
               CustomerCreditConverter.toGiftCard(storeCreditId, customerId, admin)
             }

@@ -50,7 +50,7 @@ object RmaRoutes {
             }
           }
         } ~
-        (post & entity(as[RmaCreatePayload]) & pathEnd) { payload ⇒
+        (post & pathEnd & entity(as[RmaCreatePayload])) { payload ⇒
           good {
             genericRmaMock.copy(orderId = payload.orderId, orderRefNum = payload.orderRefNum)
           }
@@ -87,23 +87,23 @@ object RmaRoutes {
             LockAwareRmaUpdater.unlock(refNum)
           }
         } ~
-        (post & path("line-items") & entity(as[Seq[RmaSkuLineItemsPayload]])) { reqItems ⇒
+        (post & path("line-items") & pathEnd & entity(as[Seq[RmaSkuLineItemsPayload]])) { reqItems ⇒
           good {
             genericRmaMock
           }
         } ~
-        (post & path("gift-cards") & entity(as[Seq[RmaGiftCardLineItemsPayload]])) { reqItems ⇒
+        (post & path("gift-cards") & pathEnd & entity(as[Seq[RmaGiftCardLineItemsPayload]])) { reqItems ⇒
           good {
             genericRmaMock
           }
         } ~
-        (post & path("shipping-costs") & entity(as[Seq[RmaShippingCostLineItemsPayload]])) { reqItems ⇒
+        (post & path("shipping-costs") & pathEnd & entity(as[Seq[RmaShippingCostLineItemsPayload]])) { reqItems ⇒
           good {
             genericRmaMock
           }
         } ~
         pathPrefix("payment-methods" / "credit-cards") {
-          ((post | patch) & entity(as[payloads.RmaCreditCardPayment]) & pathEnd) { payload ⇒
+          ((post | patch) & pathEnd & entity(as[payloads.RmaCreditCardPayment])) { payload ⇒
             good {
               genericRmaMock
             }
@@ -115,7 +115,7 @@ object RmaRoutes {
           }
         } ~
         pathPrefix("payment-methods" / "gift-cards") {
-          (post & entity(as[payloads.RmaGiftCardPayment]) & pathEnd) { payload ⇒
+          (post & pathEnd & entity(as[payloads.RmaGiftCardPayment])) { payload ⇒
             good {
               genericRmaMock
             }
@@ -127,7 +127,7 @@ object RmaRoutes {
           }
         } ~
         pathPrefix("payment-methods" / "store-credit") {
-          ((post | patch) & entity(as[payloads.RmaStoreCreditPayment]) & pathEnd) { payload ⇒
+          ((post | patch) & pathEnd & entity(as[payloads.RmaStoreCreditPayment])) { payload ⇒
             good {
               genericRmaMock
             }

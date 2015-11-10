@@ -18,7 +18,7 @@ object Public {
     import utils.Http._
 
     pathPrefix("registrations") {
-      (post & path("new") & entity(as[payloads.CreateCustomerPayload])) { regRequest ⇒
+      (post & path("new") & pathEnd & entity(as[payloads.CreateCustomerPayload])) { regRequest ⇒
          goodOrFailures {
           CustomerManager.create(regRequest)
         }
