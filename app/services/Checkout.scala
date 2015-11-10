@@ -40,7 +40,7 @@ final case class Checkout(cart: Order, cartValidator: CartValidation)(implicit d
           _ ← authPayments
           _ ← remorseHold
           order ← createNewCart
-        } yield order).run()
+        } yield order).transactionally.run()
     }
   }
 
@@ -52,11 +52,20 @@ final case class Checkout(cart: Order, cartValidator: CartValidation)(implicit d
 
   private def remorseHold: DbResult[Order] = {
     val changed = cart.updateTo(cart.copy(status = RemorseHold, placedAt = Instant.now.some))
+
     changed.fold(DbResult.failures, { c ⇒
-      Orders.findById(cart.id).extract
+      val updateOrder = Orders.findById(cart.id).extract
         .map { o ⇒ (o.status, o.placedAt) }
         .update((c.status, c.placedAt))
-        .flatMap(_ ⇒ DbResult.good(c))
+
+      val updateGcs = for {
+        items  ← OrderLineItemGiftCards.findByOrderId(cart.id).result
+        holds  ← GiftCards
+          .filter(_.id.inSet(items.map(_.giftCardId)))
+          .map(_.status).update(GiftCard.OnHold)
+      } yield holds
+
+      (updateGcs >> updateOrder).flatMap(_ ⇒ DbResult.good(c))
     })
   }
 
