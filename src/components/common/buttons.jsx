@@ -1,16 +1,12 @@
-'use strict';
-
+import classNames from 'classnames';
 import React from 'react';
 import _ from 'lodash';
 
-const DefaultButton = (props) => {
+const DefaultButton = (props={}) => {
   const {icon, children, ...restProps} = props;
-  const buttonProps = {
-    ...restProps,
-    className: `fc-btn ${props.className || ''}`.trim()
-  };
+
   return (
-    <button {...buttonProps}>
+    <button {...restProps} className={ classNames('fc-btn', props.className) }>
       {icon && <i className={`icon-${icon}`}></i>}
       {children}
     </button>
@@ -29,8 +25,8 @@ const DecrementButton = (props) => {
   return <DefaultButton icon='chevron-down' {...props} />;
 };
 
-const DeleteButton = (props) => {
-  return <DefaultButton icon='trash' {...props} />;
+const DeleteButton = (props={}) => {
+  return <DefaultButton icon='trash' {...props} className={ classNames('fc-btn-remove', props.className) } />;
 };
 
 const EditButton = (props) => {
@@ -41,14 +37,9 @@ const IncrementButton = (props) => {
   return <DefaultButton icon='chevron-up' {...props} />;
 };
 
-const PrimaryButton = (props) => {
-  const buttonProps = {
-    ...props,
-    className: `fc-btn-primary ${props.className || ''}`
-  };
-
+const PrimaryButton = (props={}) => {
   return (
-    <DefaultButton {...buttonProps}>
+    <DefaultButton {...props} className={ classNames('fc-btn-primary', props.className) }>
       {props.children}
     </DefaultButton>
   );

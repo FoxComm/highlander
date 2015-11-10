@@ -1,5 +1,3 @@
-'use strict';
-
 import React from 'react';
 import AddressDetails from './address-details';
 import EditableItemCardContainer from '../item-card-container/editable-item-card-container';

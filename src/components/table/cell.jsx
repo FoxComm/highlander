@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 import { Moment, Date, DateTime, Time } from '../common/datetime';
 import Currency from '../common/currency';

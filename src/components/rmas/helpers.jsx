@@ -1,5 +1,3 @@
-'use strict';
-
 import React from 'react';
 import _ from 'lodash';
 import ContentBox from '../content-box/content-box';

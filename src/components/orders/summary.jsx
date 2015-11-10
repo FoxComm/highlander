@@ -1,5 +1,3 @@
-'use strict';
-
 import React from 'react';
 import ContentBox from '../content-box/content-box';
 import Currency from '../common/currency';

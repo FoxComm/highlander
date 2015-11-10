@@ -1,5 +1,3 @@
-'use strict';
-
 import _ from 'lodash';
 import Api from '../lib/api';
 import { createAction, createReducer } from 'redux-act';
@@ -34,15 +32,15 @@ export const notesUri = (entity, noteId) => {
   return uri;
 };
 
-export function fetchNotes(entity, extraFetchParams) {
+export function fetchNotes(entity, newFetchParams) {
   const {entityType, entityId} = entity;
 
   return (dispatch, getState) => {
     const state = get(getState(), ['notes', entityType, entityId]);
-    const fetchParams = pickFetchParams(state, extraFetchParams);
+    const fetchParams = pickFetchParams(state, newFetchParams);
 
-    dispatch(actionSetFetchParams(entity, fetchParams));
     dispatch(actionFetch(entity));
+    dispatch(actionSetFetchParams(entity, newFetchParams));
     Api.get(notesUri(entity), fetchParams)
       .then(json => dispatch(actionReceived(entity, json)))
       .catch(err => dispatch(actionFetchFailed(entity, err)));
@@ -80,6 +78,9 @@ export function deleteNote(entity, id) {
 const initialState = {};
 
 const reducer = createReducer({
+  [actionReceived]: (state, [{entityType, entityId}, notes]) => {
+    return assoc(state, [entityType, entityId, 'wasReceived'], true);
+  },
   [updateNotes]: (state, [{entityType, entityId}, notes]) => {
     return update(state, [entityType, entityId, 'rows'], updateItems, notes);
   },
@@ -97,8 +98,8 @@ const reducer = createReducer({
     return dissoc(state, [entityType, entityId, 'noteIdToDelete']);
   },
   [startAddingNote]: (state, {entityType, entityId}) => {
-    // true means that we adding note
-    return assoc(state, [entityType, entityId, 'editingNoteId'], true);
+    // -1 means that we adding note
+    return assoc(state, [entityType, entityId, 'editingNoteId'], -1);
   },
   [startEditingNote]: (state, [{entityType, entityId}, id]) => {
     return assoc(state, [entityType, entityId, 'editingNoteId'], id);

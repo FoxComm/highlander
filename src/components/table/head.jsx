@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';

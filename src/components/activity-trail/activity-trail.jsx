@@ -1,5 +1,3 @@
-'use strict';
-
 import React from 'react';
 import TableView from '../table/tableview';
 import UserInitials from '../users/initials';

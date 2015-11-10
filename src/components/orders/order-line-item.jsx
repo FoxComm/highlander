@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { PropTypes} from 'react';
 import Counter from '../forms/counter';
 import {DeleteButton} from '../common/buttons';

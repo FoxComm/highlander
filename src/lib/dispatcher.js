@@ -1,5 +1,3 @@
-'use strict';
-
 import _ from 'lodash';
 import { camelize } from 'fleck';
 import { EventEmitter } from 'events';

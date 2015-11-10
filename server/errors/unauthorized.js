@@ -1,5 +1,3 @@
-'use strict';
-
 class Unauthorized extends Error {
   constructor() {
     super('Unauthorized');

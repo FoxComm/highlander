@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 import TableView from '../table/tableview';
 import NotificationStore from '../../stores/notifications';

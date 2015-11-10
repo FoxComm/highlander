@@ -1,5 +1,3 @@
-'use strict';
-
 import lineItemActions from '../../actions/line-items';
 import React from 'react';
 import ConfirmModal from '../modal/confirm';

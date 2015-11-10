@@ -1,5 +1,3 @@
-'use strict';
-
 import { routerStateReducer } from 'redux-router';
 import { combineReducers } from 'redux';
 import giftCards from './gift-cards';

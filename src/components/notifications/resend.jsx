@@ -1,5 +1,3 @@
-'use strict';
-
 import React from 'react';
 import { dispatch } from '../../lib/dispatcher';
 import NotificationStore from '../../stores/notifications';
