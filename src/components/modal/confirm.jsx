@@ -1,7 +1,6 @@
 'use strict';
 
 import React, { PropTypes } from 'react';
-import { camelize } from 'fleck';
 import { dispatch } from '../../lib/dispatcher';
 
 // THIS COMPONENT IS DEPRECATED.
