@@ -121,6 +121,8 @@ const reducer = createReducer({
     };
   },
   [changeNewCustomerCreditCardFormData]: (state, [id, name, value]) => {
+    console.log(name);
+    console.log(value);
     const newCreditCard = _.get(state, [id, 'newCreditCard']);
     const newState = {
       ...state,
