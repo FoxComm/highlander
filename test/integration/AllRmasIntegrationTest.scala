@@ -133,11 +133,17 @@ class AllRmasIntegrationTest extends IntegrationTestBase
       val unassign2 = POST(s"v1/rmas/assignees/delete", RmaBulkAssigneesPayload(Seq(rmaRef1), adminId))
       unassign2.status must === (StatusCodes.OK)
 
-      val updOrder1 = GET(s"v1/rmas/$rmaRef1").as[RmaResponse.Root]
-      updOrder1.assignees mustBe empty
+      val updOrder1 = GET(s"v1/rmas/$rmaRef1")
+      updOrder1.status must === (StatusCodes.OK)
 
-      val updOrder2 = GET(s"v1/rmas/$rmaRef2").as[RmaResponse.Root]
-      updOrder2.assignees.map(_.assignee) must === (Seq(StoreAdminResponse.build(admin)))
+      val updOrder1Root = updOrder1.as[RmaResponse.Root]
+      updOrder1Root.assignees mustBe empty
+
+      val updOrder2 = GET(s"v1/rmas/$rmaRef2")
+      updOrder2.status must === (StatusCodes.OK)
+
+      val updOrder2Root = updOrder2.as[RmaResponse.Root]
+      updOrder2Root.assignees.map(_.assignee) must === (Seq(StoreAdminResponse.build(admin)))
     }
 
     "unassigns successfully ignoring wrong attempts with sorting and paging" in new BulkAssignmentFixture {
