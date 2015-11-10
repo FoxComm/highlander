@@ -4,7 +4,6 @@ import { Button } from '../common/buttons';
 import Address from './address';
 import AddressForm from './address-form';
 import AddressStore from '../../stores/addresses';
-import { dispatch } from '../../lib/dispatcher';
 
 export default class AddressBook extends React.Component {
 
