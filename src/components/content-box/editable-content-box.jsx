@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 import { EditButton, PrimaryButton } from '../common/buttons';
 
