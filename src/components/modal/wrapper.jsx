@@ -1,0 +1,36 @@
+
+import { autobind } from 'core-decorators';
+import React, { PropTypes } from 'react';
+import { ModalContainer } from './base';
+
+export default function wrapModal(Modal) {
+  class ModalWrapper extends React.Component {
+
+    static propTypes = {
+      children: PropTypes.node,
+      isVisible: PropTypes.bool,
+      modalComponent: PropTypes.oneOfType([
+        PropTypes.instanceOf(React.Component),
+        PropTypes.func
+      ])
+    };
+
+    componentDidUpdate() {
+      document.body.classList[this.props.isVisible ? 'add' : 'remove']('fc-is-modal-opened');
+    }
+
+    render() {
+      if (!this.props.isVisible) return null;
+
+      return (
+        <ModalContainer {...this.props}>
+          <Modal {...this.props}>
+            {this.props.children}
+          </Modal>
+        </ModalContainer>
+      );
+    }
+  }
+
+  return ModalWrapper;
+}
