@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { PropTypes} from 'react';
 import { formatCurrency } from '../../lib/format';
 import Counter from '../forms/counter';

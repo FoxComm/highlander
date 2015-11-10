@@ -1,5 +1,3 @@
-'use strict';
-
 const
   Router  = require('koa-router'),
   Api     = require('../lib/api'),

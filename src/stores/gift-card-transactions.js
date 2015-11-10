@@ -1,5 +1,3 @@
-'use strict';
-
 import GiftCardTransactionConstants from '../constants/gift-card-transactions';
 import { List, Map } from 'immutable';
 import BaseStore from './base-store';

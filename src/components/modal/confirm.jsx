@@ -1,5 +1,3 @@
-'use strict';
-
 import React from 'react';
 import { camelize } from 'fleck';
 import { dispatch } from '../../lib/dispatcher';

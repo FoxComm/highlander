@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 import CreditCardDetails from './card-details';
 import EditableItemCardContainer from '../item-card-container/editable-item-card-container';

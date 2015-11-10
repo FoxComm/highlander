@@ -1,5 +1,3 @@
-'use strict';
-
 import React from 'react';
 import EditableContentBox from '../content-box/editable-content-box';
 import TableView from '../tables/tableview';

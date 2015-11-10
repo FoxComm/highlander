@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 import TableView from '../tables/tableview';
 import LineItemCounter from './line-item-counter';

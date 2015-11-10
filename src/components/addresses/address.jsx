@@ -1,5 +1,3 @@
-'use strict';
-
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';

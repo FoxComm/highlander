@@ -1,5 +1,3 @@
-'use strict';
-
 import HashStore from '../lib/hash-store';
 
 class CreditCardsStore extends HashStore {

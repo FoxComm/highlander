@@ -1,5 +1,3 @@
-'use strict';
-
 import { combineReducers } from 'redux';
 import cards from './cards';
 import adding from './new';
