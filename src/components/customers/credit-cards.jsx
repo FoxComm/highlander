@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 import ContentBox from '../content-box/content-box';
 import CreditCardBox from '../credit-cards/card-box';
