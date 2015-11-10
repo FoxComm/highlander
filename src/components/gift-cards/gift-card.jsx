@@ -99,7 +99,7 @@ export default class GiftCard extends React.Component {
         <SectionTitle title="Gift Card" subtitle={card.code}>
           <button onClick={this.resendGiftCard.bind(this)} className="fc-btn fc-btn-primary">Resend Gift Card</button>
         </SectionTitle>
-        <div className="fc-grid">
+        <div className="fc-grid fc-grid-gutter">
           <div className="fc-col-md-1-3">
             <Panel title="Available Balance" featured={true}>
               { formatCurrency(card.availableBalance) }
