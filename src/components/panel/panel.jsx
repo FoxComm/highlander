@@ -15,6 +15,14 @@ export default class Panel extends React.Component {
     featured: false
   };
 
+  get rootClassName() {
+    let result = 'fc-panel';
+    if (this.props.className) {
+      result = `${this.props.className} fc-panel`;
+    }
+    return result;
+  }
+
   get contentClasses() {
     return `fc-panel-content ${this.props.featured ? 'fc-panel-content-featured' : null}`;
   }
