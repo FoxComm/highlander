@@ -2,7 +2,7 @@
 
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
-import ClassNames from 'classnames';
+import classNames from 'classnames';
 import DropdownItem from './dropdownItem';
 
 export default class Dropdown extends React.Component {
@@ -65,7 +65,7 @@ export default class Dropdown extends React.Component {
   }
 
   render() {
-    const classnames = ClassNames({
+    const classnames = classNames({
       'fc-dropdown': true,
       'is_dropdown_primary': this.props.primary,
       'is_dropdown_editable': this.props.editable,

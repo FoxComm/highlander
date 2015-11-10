@@ -1,7 +1,7 @@
 'use strict';
 
 import React, { PropTypes } from 'react';
-import ClassNames from 'classnames';
+import classNames from 'classnames';
 
 export default class TableHead extends React.Component {
   constructor(props, context) {
@@ -23,7 +23,7 @@ export default class TableHead extends React.Component {
   render() {
     let createColumn = (column, idx) => {
       // TODO: Re-enable sorting functionality
-      // let classnames = ClassNames({
+      // let classnames = classNames({
       //   'fc-table-th': true,
       //   'sorting': this.props.setSorting,
       //   'sorting-desc': this.props.setSorting && (this.state.sortingField === column.field) && this.state.sortingOrder,
