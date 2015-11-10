@@ -11,6 +11,10 @@ const _createAction = (description, ...args) => {
   return createAction('CUSTOMER_ADDRESSES_' + description, ...args);
 };
 
+// ui state actions
+export const newAddress = _createAction("NEW");
+
+// API actions
 const failAddress = _createAction('FAILED', (entity, err) => [entity, err]);
 const failFetchAddress = _createAction('FAILED_FETCH', (entity, err) => [entity, err]);
 const receivedCustomerAddresses = _createAction('RECEIVED', (id, addresses) => [id, addresses]);
@@ -39,6 +43,14 @@ export function createAddress(id,  data) {
 const initialState = {};
 
 const reducer = createReducer({
+  [newAddress]: (state, id) => {
+    return assoc(state, [id, 'newAddressCard'], {
+      isDefaultShipping: false,
+      firstName: '',
+      lastName: '',
+
+    });
+  },
   [requestCustomerAddresses]: (state, id) => {
     return assoc(state, [id, 'isFetching'], true);
   },

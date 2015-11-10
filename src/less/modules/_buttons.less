@@ -1,8 +1,11 @@
+@button-height: 40px;
+@button-font-size: 14px;
+
 .fc-btn {
   .colors(@color-control-standard-fg, @color-control-standard-bg);
   .padding(0 20px);
-  .height(40px);
-  .font-spec(14px, 600, 40px);
+  .height(@button-height);
+  .font-spec(@button-font-size, 600, 40px);
   border: none;
   border-radius: pxtorem(3px);
   user-select: none;

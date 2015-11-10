@@ -5,7 +5,8 @@ import AddressStore from '../../stores/addresses';
 import { dispatch } from '../../lib/dispatcher';
 import AddressForm from './address-form';
 import AddressDetails from './address-details';
-import ConfirmModal from '../modal/confirm';
+import ConfirmationDialog from '../modal/confirmation-dialog';
+import { autobind } from 'core-decorators';
 
 const confirmDeleteOptions = {
   header: 'Confirm',
