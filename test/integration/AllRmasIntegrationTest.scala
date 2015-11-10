@@ -105,7 +105,7 @@ class AllRmasIntegrationTest extends IntegrationTestBase
       responseObj1.errors mustBe empty
     }
 
-    "warns when RMA to assign not found" in new BulkAssignmentFixture {
+    "errors when RMA to assign not found" in new BulkAssignmentFixture {
       val response = POST(s"v1/rmas/assignees", RmaBulkAssigneesPayload(Seq(rmaRef1, "NOPE"), adminId))
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkRmaUpdateResponse]
@@ -113,7 +113,7 @@ class AllRmasIntegrationTest extends IntegrationTestBase
       responseObj.errors.value must === (NotFoundFailure404(Rma, "NOPE").description)
     }
 
-    "warns when admin to assign not found" in new BulkAssignmentFixture {
+    "errors when admin to assign not found" in new BulkAssignmentFixture {
       val response = POST(s"v1/rmas/assignees", RmaBulkAssigneesPayload(Seq(rmaRef1), 777))
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkRmaUpdateResponse]
@@ -152,7 +152,7 @@ class AllRmasIntegrationTest extends IntegrationTestBase
       responseObj.errors mustBe empty
     }
 
-    "warns when RMA to unassign not found" in new BulkAssignmentFixture {
+    "errors when RMA to unassign not found" in new BulkAssignmentFixture {
       val response = POST(s"v1/rmas/assignees/delete", RmaBulkAssigneesPayload(Seq(rmaRef1, "NOPE"), adminId))
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkRmaUpdateResponse]
@@ -160,7 +160,7 @@ class AllRmasIntegrationTest extends IntegrationTestBase
       responseObj.errors.value must === (NotFoundFailure404(Rma, "NOPE").description)
     }
 
-    "warns when admin to unassign not found" in new BulkAssignmentFixture {
+    "errors when admin to unassign not found" in new BulkAssignmentFixture {
       val response = POST(s"v1/rmas/assignees/delete", RmaBulkAssigneesPayload(Seq(rmaRef1), 777))
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkRmaUpdateResponse]
