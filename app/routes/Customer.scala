@@ -37,7 +37,7 @@ object Customer {
               AddressManager.findAllVisibleByCustomer(customer.id)
             }
           } ~
-          (post & entity(as[CreateAddressPayload])) { payload ⇒
+          (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
             complete {
               AddressManager.create(payload, customer.id).map(renderGoodOrFailures)
             }
@@ -63,7 +63,7 @@ object Customer {
               Result.unit // FIXME Stubbed until checkout is updated
             }
           } ~
-          (post & path("line-items") & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems ⇒
+          (post & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems ⇒
             goodOrFailures {
               LineItemUpdater.updateQuantitiesOnCustomersOrder(customer, reqItems)
             }

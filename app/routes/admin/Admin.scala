@@ -26,7 +26,7 @@ object Admin {
             StoreCreditService.getOriginTypes
           }
         } ~
-        (patch & entity(as[payloads.StoreCreditBulkUpdateStatusByCsr]) & pathEnd) { payload ⇒
+        (patch & pathEnd & entity(as[payloads.StoreCreditBulkUpdateStatusByCsr])) { payload ⇒
           goodOrFailures {
             StoreCreditService.bulkUpdateStatusByCsr(payload, admin)
           }
@@ -38,7 +38,7 @@ object Admin {
             StoreCreditService.getById(storeCreditId)
           }
         } ~
-        (patch & entity(as[payloads.StoreCreditUpdateStatusByCsr]) & pathEnd) { payload ⇒
+        (patch & pathEnd & entity(as[payloads.StoreCreditUpdateStatusByCsr])) { payload ⇒
           goodOrFailures {
             StoreCreditService.updateStatusByCsr(storeCreditId, payload, admin)
           }
@@ -72,12 +72,12 @@ object Admin {
               NoteManager.forOrder(refNum)
             }
           } ~
-          (post & entity(as[payloads.CreateNote])) { payload ⇒
+          (post & pathEnd & entity(as[payloads.CreateNote])) { payload ⇒
             goodOrFailures {
               NoteManager.createOrderNote(refNum, admin, payload)
             }
           } ~
-          (patch & path(IntNumber) & entity(as[payloads.UpdateNote])) { (noteId, payload) ⇒
+          (patch & path(IntNumber) & pathEnd & entity(as[payloads.UpdateNote])) { (noteId, payload) ⇒
             goodOrFailures {
               NoteManager.updateOrderNote(refNum, noteId, admin, payload)
             }
@@ -94,13 +94,13 @@ object Admin {
               NoteManager.forGiftCard(code)
             }
           } ~
-          (post & entity(as[payloads.CreateNote]) & pathEnd) { payload ⇒
+          (post & pathEnd & entity(as[payloads.CreateNote])) { payload ⇒
             goodOrFailures {
               NoteManager.createGiftCardNote(code, admin, payload)
             }
           } ~
           path(IntNumber) { noteId ⇒
-            (patch & entity(as[payloads.UpdateNote]) & pathEnd) { payload ⇒
+            (patch & pathEnd & entity(as[payloads.UpdateNote])) { payload ⇒
               goodOrFailures {
                 NoteManager.updateGiftCardNote(code, noteId, admin, payload)
               }
@@ -118,13 +118,13 @@ object Admin {
               NoteManager.forCustomer(id)
             }
           } ~
-          (post & entity(as[payloads.CreateNote]) & pathEnd) { payload ⇒
+          (post & pathEnd & entity(as[payloads.CreateNote])) { payload ⇒
             goodOrFailures {
               NoteManager.createCustomerNote(id, admin, payload)
             }
           } ~
           path(IntNumber) { noteId ⇒
-            (patch & entity(as[payloads.UpdateNote]) & pathEnd) { payload ⇒
+            (patch & pathEnd & entity(as[payloads.UpdateNote])) { payload ⇒
               goodOrFailures {
                 NoteManager.updateCustomerNote(id, noteId, admin, payload)
               }
@@ -142,13 +142,13 @@ object Admin {
               NoteManager.forRma(refNum)
             }
           } ~
-          (post & entity(as[payloads.CreateNote]) & pathEnd) { payload ⇒
+          (post & pathEnd & entity(as[payloads.CreateNote])) { payload ⇒
             goodOrFailures {
               NoteManager.createRmaNote(refNum, admin, payload)
             }
           } ~
           path(IntNumber) { noteId ⇒
-            (patch & entity(as[payloads.UpdateNote]) & pathEnd) { payload ⇒
+            (patch & pathEnd & entity(as[payloads.UpdateNote])) { payload ⇒
               goodOrFailures {
                 NoteManager.updateRmaNote(refNum, noteId, admin, payload)
               }
