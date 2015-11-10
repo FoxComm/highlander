@@ -14,10 +14,12 @@ import { assoc } from 'sprout-data';
 
 function mapStateToProps(state) {
   const rmaData = state.rmas.list;
-  const rows = rmaData.rows || [];
 
   return {
-    rmas: assoc(rmaData, 'rows', rows)
+    'rmas': assoc(
+      rmaData,
+      'rows', rmaData.rows || []
+    )
   };
 }
 

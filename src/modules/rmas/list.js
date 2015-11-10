@@ -30,16 +30,16 @@ function getStateForEntity(state, entityType, entityId) {
   return get(state, ['items']);
 }
 
-export function fetchRmas(entity={entityType: 'rma'}, extraFetchParams) {
+export function fetchRmas(entity={entityType: 'rma'}, newFetchParams) {
   const {entityType, entityId} = entity;
 
   return (dispatch, getState) => {
     const uri = buildUri(entityType, entityId);
     const state = getStateForEntity(getState(), entityType, entityId);
-    const fetchParams = pickFetchParams(state, extraFetchParams);
+    const fetchParams = pickFetchParams(state, newFetchParams);
 
-    dispatch(actionSetFetchParams(entity, fetchParams));
     dispatch(actionFetch(entity));
+    dispatch(actionSetFetchParams(entity, newFetchParams));
     return Api.get(uri, fetchParams)
       .then(json => dispatch(actionReceived(entity, json)))
       .catch(err => dispatch(actionFetchFailed(entity, err)));
@@ -60,7 +60,7 @@ function paginateBehaviour(state, action, actionType) {
       type: actionType
     });
   }
-  return paginate(state, {
+  return paginate(undefined, {
     ...action,
     payload,
     type: actionType
