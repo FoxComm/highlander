@@ -77,8 +77,8 @@ class AllRmasIntegrationTest extends IntegrationTestBase
       responseObj1.errors mustBe empty
 
       val updOrderResponse1 = GET(s"v1/rmas/$rmaRef1")
-      val updOrder1 = updOrderResponse1.as[RmaResponse.Root]
-      updOrder1.assignees.map(_.assignee) must === (Seq(StoreAdminResponse.build(admin)))
+      val updRma1 = updOrderResponse1.as[RmaResponse.Root]
+      updRma1.assignees.map(_.assignee) must === (Seq(StoreAdminResponse.build(admin)))
 
       // Don't complain about duplicates
       val assignResponse2 = POST(s"v1/rmas/assignees", RmaBulkAssigneesPayload(Seq(rmaRef1, rmaRef2), adminId))
@@ -88,8 +88,8 @@ class AllRmasIntegrationTest extends IntegrationTestBase
       responseObj2.errors mustBe empty
 
       val updOrderResponse2 = GET(s"v1/rmas/$rmaRef1")
-      val updOrder2 = updOrderResponse2.as[RmaResponse.Root]
-      updOrder2.assignees.map(_.assignee) must === (Seq(StoreAdminResponse.build(admin)))
+      val updRma2 = updOrderResponse2.as[RmaResponse.Root]
+      updRma2.assignees.map(_.assignee) must === (Seq(StoreAdminResponse.build(admin)))
 
       val updOrderResponse3 = GET(s"v1/rmas/$rmaRef2")
       val updOrder3 = updOrderResponse3.as[RmaResponse.Root]
@@ -133,17 +133,17 @@ class AllRmasIntegrationTest extends IntegrationTestBase
       val unassign2 = POST(s"v1/rmas/assignees/delete", RmaBulkAssigneesPayload(Seq(rmaRef1), adminId))
       unassign2.status must === (StatusCodes.OK)
 
-      val updOrder1 = GET(s"v1/rmas/$rmaRef1")
-      updOrder1.status must === (StatusCodes.OK)
+      val updRma1 = GET(s"v1/rmas/$rmaRef1")
+      updRma1.status must === (StatusCodes.OK)
 
-      val updOrder1Root = updOrder1.as[RmaResponse.Root]
-      updOrder1Root.assignees mustBe empty
+      val updRma1Root = updRma1.as[RmaResponse.Root]
+      updRma1Root.assignees mustBe empty
 
-      val updOrder2 = GET(s"v1/rmas/$rmaRef2")
-      updOrder2.status must === (StatusCodes.OK)
+      val updRma2 = GET(s"v1/rmas/$rmaRef2")
+      updRma2.status must === (StatusCodes.OK)
 
-      val updOrder2Root = updOrder2.as[RmaResponse.Root]
-      updOrder2Root.assignees.map(_.assignee) must === (Seq(StoreAdminResponse.build(admin)))
+      val updRma2Root = updRma2.as[RmaResponse.Root]
+      updRma2Root.assignees.map(_.assignee) must === (Seq(StoreAdminResponse.build(admin)))
     }
 
     "unassigns successfully ignoring wrong attempts with sorting and paging" in new BulkAssignmentFixture {
