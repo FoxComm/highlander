@@ -6,7 +6,7 @@ import scala.concurrent.Future
 import Extensions._
 import models._
 import org.json4s.jackson.JsonMethods._
-import payloads.RmaAssigneesPayload
+import payloads.{RmaCreatePayload, RmaAssigneesPayload}
 import responses.{AllRmas, StoreAdminResponse, ResponseWithFailuresAndMetadata, RmaResponse, RmaLockResponse}
 import responses.RmaResponse.FullRmaWithWarnings
 import services._
@@ -82,6 +82,24 @@ class RmaIntegrationTest extends IntegrationTestBase
         val response = GET(s"v1/rmas/ABC-666")
         response.status must ===(StatusCodes.NotFound)
         response.errors must ===(NotFoundFailure404(Rma, "ABC-666").description)
+      }
+    }
+
+    "POST /v1/rmas" - {
+      "successfully creates new RMA" in new Fixture {
+        val response = POST(s"v1/rmas", RmaCreatePayload(orderRefNum = order.refNum, rmaType = Rma.Standard))
+        response.status must === (StatusCodes.OK)
+
+        val root = response.as[RmaResponse.Root]
+        root.referenceNumber must === (s"${order.refNum}.2")
+        root.customer.head.id must === (order.customerId)
+        root.storeAdmin.head.id must === (storeAdmin.id)
+      }
+
+      "fails to create RMA with invalid order refNum provided" in new Fixture {
+        val response = POST(s"v1/rmas", RmaCreatePayload(orderRefNum = "ABC-666", rmaType = Rma.Standard))
+        response.status must === (StatusCodes.NotFound)
+        response.errors must === (NotFoundFailure404(Order, "ABC-666").description)
       }
     }
 
@@ -247,6 +265,7 @@ class RmaIntegrationTest extends IntegrationTestBase
       customer ← Customers.saveNew(Factories.customer)
       order ← Orders.saveNew(Factories.order.copy(
         status = Order.RemorseHold,
+        customerId = customer.id,
         remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
       rma ← Rmas.saveNew(Factories.rma.copy(
         referenceNumber = s"${order.refNum}.1",
