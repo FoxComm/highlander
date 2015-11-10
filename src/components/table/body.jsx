@@ -1,6 +1,7 @@
 'use strict';
 
 import _ from 'lodash';
+import { autobind } from 'core-decorators';
 import React, { PropTypes } from 'react';
 import TableRow from './row';
 import TableCell from './cell';
@@ -29,10 +30,11 @@ export default class TableBody extends React.Component {
     };
   }
 
+  @autobind
   defaultRenderRow(row, index, isNew) {
     return (
-      <TableRow isNew={isNew}>
-        {this.props.columns.map((column) => <TableCell>{row[column.field]}</TableCell>)}
+      <TableRow key={`${index}`} isNew={isNew}>
+        {this.props.columns.map(column => <TableCell column={column}>{row[column.field]}</TableCell>)}
       </TableRow>
     );
   }

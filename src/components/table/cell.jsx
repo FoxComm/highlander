@@ -27,7 +27,6 @@ const TableCell = (props) => {
         return cell;
     }
   };
-
   return (
     <td className="fc-table-td" colSpan={props.colspan}>
       {render(props.children, props.column)}
@@ -37,7 +36,8 @@ const TableCell = (props) => {
 
 TableCell.propTypes = {
   children: PropTypes.node,
-  colspan: PropTypes.number
+  colspan: PropTypes.number,
+  column: PropTypes.object
 };
 
 export default TableCell;
