@@ -1,6 +1,6 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import { formatCurrency } from '../../lib/format';
 import ContentBox from '../content-box/content-box';
 
@@ -55,5 +55,5 @@ export default class OrderSummary extends React.Component {
 }
 
 OrderSummary.propTypes = {
-  order: React.PropTypes.object
+  order: PropTypes.object
 };

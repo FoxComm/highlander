@@ -1,14 +1,14 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import AddressDetails from './address-details';
 import EditableItemCardContainer from '../item-card-container/editable-item-card-container';
 
 export default class AddressBox extends React.Component {
 
   static propTypes = {
-    address: React.PropTypes.object,
-    customerId: React.PropTypes.number.isRequired,
+    address: PropTypes.object,
+    customerId: PropTypes.number.isRequired
   };
 
   constructor(props, context) {

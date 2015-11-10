@@ -1,6 +1,6 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import ClassNames from 'classnames';
 
 export default class TableHead extends React.Component {
@@ -47,5 +47,5 @@ export default class TableHead extends React.Component {
 }
 
 TableHead.propTypes = {
-  columns: React.PropTypes.array
+  columns: PropTypes.array
 };

@@ -1,6 +1,6 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 import UserInitials from '../users/initials';
 import ViewerStore from '../../stores/viewers';
@@ -91,9 +91,9 @@ export default class Viewers extends React.Component {
 }
 
 Viewers.propTypes = {
-  model: React.PropTypes.string,
-  modelId: React.PropTypes.oneOfType([
-    React.PropTypes.string,
-    React.PropTypes.number
+  model: PropTypes.string,
+  modelId: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number
   ])
 };

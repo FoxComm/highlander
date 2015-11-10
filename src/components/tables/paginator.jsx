@@ -1,6 +1,6 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 
 export default class TablePaginator extends React.Component {
   onPrevPageClick() {
@@ -30,10 +30,10 @@ export default class TablePaginator extends React.Component {
 }
 
 TablePaginator.propTypes = {
-  columns: React.PropTypes.array,
-  rows: React.PropTypes.array,
-  start: React.PropTypes.number,
-  limit: React.PropTypes.number,
-  total: React.PropTypes.number,
-  setStart: React.PropTypes.func
+  columns: PropTypes.array,
+  rows: PropTypes.array,
+  start: PropTypes.number,
+  limit: PropTypes.number,
+  total: PropTypes.number,
+  setStart: PropTypes.func
 };

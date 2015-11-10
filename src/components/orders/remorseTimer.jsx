@@ -1,6 +1,6 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import moment from 'moment';
 import Countdown from '../countdown/countdown';
 import { listenTo, stopListeningTo } from '../../lib/dispatcher';
@@ -63,5 +63,5 @@ export default class RemorseTimer extends React.Component {
 }
 
 RemorseTimer.propTypes = {
-  endDate: React.PropTypes.string
+  endDate: PropTypes.string
 };

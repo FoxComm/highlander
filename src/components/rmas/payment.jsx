@@ -1,7 +1,7 @@
 'use strict';
 
 import _ from 'lodash';
-import React from 'react';
+import React, { PropTypes } from 'react';
 import {PaymentMethod} from './helpers';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
@@ -23,8 +23,8 @@ export default class RmaPayment extends React.Component {
 }
 
 RmaPayment.propTypes = {
-  rma: React.PropTypes.object,
-  tableColumns: React.PropTypes.array
+  rma: PropTypes.object,
+  tableColumns: PropTypes.array
 };
 
 RmaPayment.defaultProps = {

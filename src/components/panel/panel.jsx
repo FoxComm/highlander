@@ -5,10 +5,10 @@ import _ from 'lodash';
 
 export default class Panel extends React.Component {
   static propTypes = {
-    children: React.PropTypes.any,
-    title: React.PropTypes.string,
-    content: React.PropTypes.any,
-    featured: React.PropTypes.bool
+    children: PropTypes.any,
+    title: PropTypes.string,
+    content: PropTypes.any,
+    featured: PropTypes.bool
   };
 
   static defaultProps = {

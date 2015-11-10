@@ -1,6 +1,6 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import { formatCurrency } from '../../lib/format';
 
 export default class SkuResult extends React.Component {
@@ -18,5 +18,5 @@ export default class SkuResult extends React.Component {
 }
 
 SkuResult.propTypes = {
-  model: React.PropTypes.object
+  model: PropTypes.object
 };

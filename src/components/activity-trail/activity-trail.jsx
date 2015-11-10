@@ -1,6 +1,6 @@
 'use strict';
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';
 import UserInitials from '../users/initials';
@@ -47,8 +47,8 @@ export default class ActivityTrail extends React.Component {
 }
 
 ActivityTrail.propTypes = {
-  tableColumns: React.PropTypes.array,
-  entity: React.PropTypes.object
+  tableColumns: PropTypes.array,
+  entity: PropTypes.object
 };
 
 ActivityTrail.defaultProps = {
