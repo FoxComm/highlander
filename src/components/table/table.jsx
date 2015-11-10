@@ -22,4 +22,14 @@ Table.propTypes = {
   detectNewRows: PropTypes.bool
 };
 
+Table.defaultProps = {
+  columns: [],
+  data: {
+    rows: [],
+    from: 0,
+    size: 0,
+    total: 0
+  }
+};
+
 export default Table;

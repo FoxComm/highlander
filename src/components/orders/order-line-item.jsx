@@ -1,7 +1,7 @@
 import React, { PropTypes} from 'react';
-import { formatCurrency } from '../../lib/format';
 import Counter from '../forms/counter';
 import {DeleteButton} from '../common/buttons';
+import Currency from '../common/currency';
 
 const OrderLineItem = (props) => {
   let item = props.item;
@@ -16,7 +16,7 @@ const OrderLineItem = (props) => {
       <td><img src={item.imagePath} /></td>
       <td>{item.name}</td>
       <td>{item.sku}</td>
-      <td>{formatCurrency(item.price)}</td>
+      <td><Currency value={item.price}/></td>
       <td>
         <Counter
           inputName={`line-item-quantity-${item.sku}`}
@@ -28,7 +28,7 @@ const OrderLineItem = (props) => {
           decreaseTotal={() => props.updateLineItemCount(order, item.sku, item.quantity - 1)}
           increaseTotal={() => props.updateLineItemCount(order, item.sku, item.quantity + 1)} />
       </td>
-      <td>{formatCurrency(item.totalPrice)}</td>
+      <td><Currency value={item.totalPrice}/></td>
       <td>
         <DeleteButton onClick={() => props.orderLineItemsStartDelete(item.sku)} />
       </td>

@@ -1,8 +1,8 @@
 import React from 'react';
 import _ from 'lodash';
-import { formatCurrency } from '../../lib/format';
 import ContentBox from '../content-box/content-box';
-import TableView from '../tables/tableview';
+import TableView from '../table/tableview';
+import Currency from '../common/currency';
 
 const RmaEmail = (props) => {
   if (props.model.storeAdmin) {
@@ -53,17 +53,17 @@ const RmaSummary = (props) => {
       <article>
         <dl className="rma-totals">
           <dt>Subtotal</dt>
-          <dd>{formatCurrency(rma.totals.subtotal)}</dd>
+          <dd><Currency value={rma.totals.subtotal}/></dd>
           <dt>Shipping</dt>
-          <dd>{formatCurrency(rma.totals.shipping)}</dd>
+          <dd><Currency value={rma.totals.shipping}/></dd>
           <dt>Tax</dt>
-          <dd>{formatCurrency(rma.totals.taxes)}</dd>
+          <dd><Currency value={rma.totals.taxes}/></dd>
         </dl>
       </article>
       <footer className="is-highlighted">
         <dl className="grand-total">
           <dt>Refunds Total</dt>
-          <dd>{formatCurrency(rma.totals.total)}</dd>
+          <dd><Currency value={rma.totals.total}/></dd>
         </dl>
       </footer>
     </ContentBox>
@@ -71,15 +71,7 @@ const RmaSummary = (props) => {
 };
 
 const RmaList = (props) => {
-  return (
-    <TableView
-      columns={props.tableColumns}
-      rows={props.items}
-      model='rma'>
-      <RmaEmail />
-      <RmaTotal />
-    </TableView>
-  );
+  return <TableView columns={props.tableColumns} data={{rows: props.items}} />;
 };
 
 export {

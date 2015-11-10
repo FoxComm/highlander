@@ -1,6 +1,6 @@
 import React from 'react';
-import { formatCurrency } from '../../lib/format';
 import ContentBox from '../content-box/content-box';
+import Currency from '../common/currency';
 
 export default class OrderSummary extends React.Component {
   get footer() {
@@ -9,7 +9,7 @@ export default class OrderSummary extends React.Component {
       <footer className="fc-content-box-footer is-highlighted">
         <dl className="fc-grand-total">
           <dt>Grand Total</dt>
-          <dd>{formatCurrency(order.totals.total)}</dd>
+          <dd><Currency value={order.totals.total}/></dd>
         </dl>
       </footer>
     );
@@ -27,9 +27,9 @@ export default class OrderSummary extends React.Component {
       discounts = (
         <div>
           <dt>Discounts</dt>
-          <dd>{formatCurrency(order.totals.adjustments)}</dd>
+          <dd><Currency value={order.totals.adjustments}/></dd>
           <dt className="fc-order-summary-new-subtotal">New Subtotal</dt>
-          <dd className="fc-order-summary-new-subtotal">{formatCurrency(subTotalWithDiscounts)}</dd>
+          <dd className="fc-order-summary-new-subtotal"><Currency value={subTotalWithDiscounts}/></dd>
         </div>
       );
     }
@@ -39,12 +39,12 @@ export default class OrderSummary extends React.Component {
         <article>
           <dl className="order-totals">
             <dt>Subtotal</dt>
-            <dd>{formatCurrency(subtotalWithoutDiscounts)}</dd>
+            <dd><Currency value={subtotalWithoutDiscounts}/></dd>
             {discounts}
             <dt>Shipping</dt>
-            <dd>{formatCurrency(order.totals.shipping)}</dd>
+            <dd><Currency value={order.totals.shipping}/></dd>
             <dt>Tax</dt>
-            <dd>{formatCurrency(order.totals.taxes)}</dd>
+            <dd><Currency value={order.totals.taxes}/></dd>
           </dl>
         </article>
       </ContentBox>
