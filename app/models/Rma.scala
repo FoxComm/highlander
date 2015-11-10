@@ -64,6 +64,16 @@ object Rma {
   implicit val StatusTypeColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
 
   val rmaRefNumRegex = """([a-zA-Z0-9-_.]*)""".r
+
+  def build(order: Order, admin: StoreAdmin, rmaType: RmaType): Rma = {
+    Rma(
+      orderId = order.id,
+      orderRefNum = order.refNum,
+      rmaType = rmaType,
+      customerId = order.customerId,
+      storeAdminId = Some(admin.id)
+    )
+  }
 }
 
 class Rmas(tag: Tag) extends GenericTable.TableWithLock[Rma](tag, "rmas")  {
