@@ -3,20 +3,31 @@ import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 import { haveType } from '../state-helpers';
 
+const _createAction = (description, ...args) => {
+  return createAction('CUSTOMER_CREDIT_CARD_' + description, ...args);
+};
+
 // State change reducers
-export const newCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARD_NEW');
-export const closeNewCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARD_NEW_CLOSE');
-export const changeNewCustomerCreditCardFormData = createAction('CUSTOMER_CREDIT_CARD_NEW_CHANGE_FORM', (id, name, value) => [id, name, value]);
-export const editCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARDS_EDIT', (customerId, cardId) => [customerId, cardId]);
-export const closeEditCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARDS_EDIT_CLOSE', (customerId, cardId) => [customerId, cardId]);
-export const changeEditCustomerCreditCardFormData = createAction('CUSTOMER_CREDIT_CARD_EDIT_CHANGE_FORM', (id, name, value) => [id, name, value]);
-export const deleteCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARDS_DELETE', (customerId, cardId) => [customerId, cardId]);
-export const closeDeleteCustomerCreditCard = createAction('CUSTOMER_CREDIT_CARDS_DELETE_CLOSE');
+export const newCustomerCreditCard = _createAction('NEW');
+export const closeNewCustomerCreditCard = _createAction('NEW_CLOSE');
+export const changeNewCustomerCreditCardFormData = _createAction('NEW_CHANGE_FORM',
+                                                                 (id, name, value) => [id, name, value]);
+export const editCustomerCreditCard = _createAction('EDIT',
+                                                    (customerId, cardId) => [customerId, cardId]);
+export const closeEditCustomerCreditCard = _createAction('EDIT_CLOSE',
+                                                         (customerId, cardId) => [customerId, cardId]);
+export const changeEditCustomerCreditCardFormData = _createAction('EDIT_CHANGE_FORM',
+                                                                  (id, name, value) => [id, name, value]);
+export const deleteCustomerCreditCard = _createAction('DELETE',
+                                                      (customerId, cardId) => [customerId, cardId]);
+export const closeDeleteCustomerCreditCard = _createAction('DELETE_CLOSE');
 
 // API reducers
-const receiveCustomerCreditCards = createAction('CUSTOMER_CREDIT_CARDS_RECEIVE', (id, cards) => [id, cards]);
-const requestCustomerCreditCards = createAction('CUSTOMER_CREDIT_CARDS_REQUEST');
-const failCustomerCreditCards = createAction('CUSTOMER_CREDIT_CARDS_FAIL', (id, err, source) => [id, err]);
+const receiveCustomerCreditCards = _createAction('RECEIVE',
+                                                 (id, cards) => [id, cards]);
+const requestCustomerCreditCards = _createAction('REQUEST');
+const failCustomerCreditCards = _createAction('FAIL',
+                                              (id, err, source) => [id, err]);
 
 function fetchForCustomer(id, dispatch) {
   Api.get(`/customers/${id}/payment-methods/credit-cards`)

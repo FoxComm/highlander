@@ -24,7 +24,6 @@ export default class CustomerCreditCards extends React.Component {
 
   componentDidMount() {
     const customer = this.props.customerId;
-
     this.props.fetchCreditCards(customer);
   }
 
@@ -32,17 +31,13 @@ export default class CustomerCreditCards extends React.Component {
   // Handlers for adding new credit card
   @autobind
   onAddClick() {
-    console.log("onAddClick");
     const customer = this.props.customerId;
-
     this.props.newCustomerCreditCard(customer);
   }
 
   @autobind
   onAddingCancel() {
-    console.log('onAddingCancel');
     const customer = this.props.customerId;
-
     this.props.closeNewCustomerCreditCard(customer);
   }
 
@@ -64,22 +59,18 @@ export default class CustomerCreditCards extends React.Component {
   @autobind
   onDeleteClick(cardId) {
     const customer = this.props.customerId;
-    console.log("onDeleteClick");
-    console.log(cardId);
     this.props.deleteCustomerCreditCard(customer, cardId);
   }
 
   @autobind
   onDeleteCancel() {
     const customer = this.props.customerId;
-    console.log("onDeleteCancel");
     this.props.closeDeleteCustomerCreditCard(customer);
   }
 
   @autobind
   onDeleteConfirm() {
     const customer = this.props.customerId;
-    console.log("onDeleteConfirm");
     this.props.confirmCreditCardDeletion(customer);
   }
 
@@ -88,15 +79,12 @@ export default class CustomerCreditCards extends React.Component {
   @autobind
   onEditClick(cardId) {
     const customer = this.props.customerId;
-    console.log("onEditClick");
-    console.log(cardId);
     this.props.editCustomerCreditCard(customer, cardId);
   }
 
   @autobind
   onEditCancel() {
     const customer = this.props.customerId;
-    console.log("onEditCancel");
     this.props.closeEditCustomerCreditCard(customer);
   }
 
