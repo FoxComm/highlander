@@ -7,6 +7,7 @@ import Form from '../forms/form.jsx';
 import Dropdown from '../dropdown/dropdown';
 import DropdownItem from '../dropdown/dropdownItem';
 import AddressDetails from '../addresses/address-details';
+import { autobind } from 'core-decorators';
 
 export default class EditCreditCardBox extends React.Component {
 
@@ -35,6 +36,16 @@ export default class EditCreditCardBox extends React.Component {
       years[year] = year;
     });
     return years;
+  }
+
+  @autobind
+  onExpYearChange(value) {
+    this.props.onChange( {target: {name: 'expYear', value: +value} } );
+  }
+
+  @autobind
+  onExpMonthChange(value) {
+    this.props.onChange( {target: {name: 'expMonth', value: +value} } );
   }
 
   render() {
@@ -74,13 +85,15 @@ export default class EditCreditCardBox extends React.Component {
                     <Dropdown name="expMonth"
                               items={this.monthList}
                               placeholder="Month"
-                              value={ form.expMonth }/>
+                              value={ form.expMonth }
+                              onChange={ this.onExpMonthChange } />
                   </div>
                   <div className="fc-col-md-1-2">
                     <Dropdown name="expYear"
                               items={this.expirationYears}
                               placeholder="Year"
-                              value={ form.expYear }/>
+                              value={ form.expYear }
+                              onChange={ this.onExpYearChange } />
                   </div>
                 </div>
               </li>
