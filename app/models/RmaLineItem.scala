@@ -1,8 +1,10 @@
 package models
 
+import java.time.Instant
+
 import com.pellucid.sealerate
 import models.Rma.{RmaType, Standard, Status, Pending}
-import models.RmaLineItem.{OriginType, SkuItem, InventoryDisposition, Putaway}
+import models.RmaLineItem.{OriginType, InventoryDisposition, Putaway}
 import monocle.macros.GenLens
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
@@ -10,7 +12,8 @@ import slick.jdbc.JdbcType
 import utils.{ADT, TableQueryWithId, GenericTable, ModelWithIdParameter}
 
 final case class RmaLineItem(id: Int = 0, rmaId: Int, reasonId: Int, originId: Int, originType: OriginType,
-  rmaType: RmaType = Standard, status: Status = Pending, inventoryDisposition: InventoryDisposition = Putaway)
+  rmaType: RmaType = Standard, status: Status = Pending, inventoryDisposition: InventoryDisposition = Putaway,
+  createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[RmaLineItem] {
 
 }
@@ -40,7 +43,7 @@ object RmaLineItem {
     InventoryDisposition.slickColumn
 }
 
-class RmaLineItems(tag: Tag) extends GenericTable.TableWithId[RmaLineItem](tag, "rma_line_items")  {
+class RmaLineItems(tag: Tag) extends GenericTable.TableWithId[RmaLineItem](tag, "rma_line_items") {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def rmaId = column[Int]("rma_id")
   def reasonId = column[Int]("reason_id")
@@ -49,9 +52,10 @@ class RmaLineItems(tag: Tag) extends GenericTable.TableWithId[RmaLineItem](tag, 
   def rmaType = column[RmaType]("rma_type")
   def status = column[Status]("status")
   def inventoryDisposition = column[InventoryDisposition]("inventory_disposition")
+  def createdAt = column[Instant]("created_at")
 
   def * = (id, rmaId, reasonId, originId, originType, rmaType, status,
-    inventoryDisposition) <> ((RmaLineItem.apply _).tupled, RmaLineItem.unapply)
+    inventoryDisposition, createdAt) <> ((RmaLineItem.apply _).tupled, RmaLineItem.unapply)
 }
 
 object RmaLineItems extends TableQueryWithId[RmaLineItem, RmaLineItems](

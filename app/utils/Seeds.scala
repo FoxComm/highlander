@@ -170,7 +170,7 @@ object Seeds {
       storeCredit ← StoreCredits.saveNew(s.paymentMethods.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))
       storeCreditAdjustments ← StoreCredits.auth(storeCredit, Some(orderPayment.id), 10)
       rmaReasons ← RmaReasons ++= s.rmaReasons
-      rma ← Rmas.create(s.rma.copy(customerId = Some(customer.id)))
+      rma ← Rmas.create(s.rma.copy(customerId = customer.id))
       rmaLineItemSkus ← RmaLineItemSkus ++= s.rmaLineItemSkus
       rmaLineItems ← RmaLineItems ++= s.rmaLineItems
     } yield (customers, order, address, shippingAddress, creditCard, giftCard, storeCredit)
@@ -364,7 +364,7 @@ object Seeds {
     )
 
     def rma = Rma(id = 0, referenceNumber = "", orderId = 1, orderRefNum = order.referenceNumber, rmaType = Rma.Standard,
-      status = Rma.Pending)
+      status = Rma.Pending, customerId = 1)
 
     def rmaLineItemSkus = Seq(
       RmaLineItemSku(id = 0, rmaId = 1, orderLineItemSkuId = 1),

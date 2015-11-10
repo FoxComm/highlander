@@ -21,3 +21,9 @@ final case class RmaCreditCardPayment(id: Int, amount: Int)
 final case class RmaGiftCardPayment(amount: Int)
 
 final case class RmaStoreCreditPayment(amount: Int)
+
+/* Assignees */
+
+final case class RmaAssigneesPayload(assignees: Seq[Int])
+
+final case class RmaBulkAssigneesPayload(referenceNumbers: Seq[String], assigneeId: Int)

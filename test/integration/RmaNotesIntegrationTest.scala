@@ -109,7 +109,7 @@ class RmaNotesIntegrationTest extends IntegrationTestBase with HttpSupport with 
       rma ← Rmas.saveNew(Factories.rma.copy(
         orderId = order.id,
         orderRefNum = order.referenceNumber,
-        customerId = Some(customer.id)))
+        customerId = customer.id))
     } yield (admin, rma)).run().futureValue
   }
 }
