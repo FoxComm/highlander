@@ -48,8 +48,8 @@ object RmaRoutes {
           }
         } ~
         (post & pathEnd & entity(as[RmaCreatePayload])) { payload ⇒
-          good {
-            genericRmaMock.copy(orderRefNum = payload.orderRefNum)
+          goodOrFailures {
+            RmaService.createByAdmin(admin, payload)
           }
         } ~
         pathPrefix("assignees") {
