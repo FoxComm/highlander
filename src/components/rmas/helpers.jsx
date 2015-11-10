@@ -6,6 +6,7 @@ import { formatCurrency } from '../../lib/format';
 import ContentBox from '../content-box/content-box';
 import TableRow from '../table/row';
 import TableCell from '../table/cell';
+import { DateTime } from '../common/datetime';
 
 const RmaEmail = (props) => {
   if (props.storeAdmin) {
@@ -77,7 +78,7 @@ const renderRow = (row, index) => {
   return (
     <TableRow key={`${index}`}>
       <TableCell>{row.referenceNumber}</TableCell>
-      <TableCell>1</TableCell>
+      <TableCell><DateTime value={row.createdAt} /></TableCell>
       <TableCell>{row.orderRefNum}</TableCell>
       <TableCell><RmaEmail {...row} /></TableCell>
       <TableCell>{row.status}</TableCell>
