@@ -1,7 +1,7 @@
 'use strict';
 
 import React, { PropTypes } from 'react';
-import _ from 'lodash';
+import classNames from 'classnames';
 
 export default class Panel extends React.Component {
   static propTypes = {
@@ -15,21 +15,13 @@ export default class Panel extends React.Component {
     featured: false
   };
 
-  get rootClassName() {
-    return `fc-panel ${this.props.className ? this.props.className : ''}`;
-  }
-
-  get contentClasses() {
-    return `fc-panel-content ${this.props.featured ? 'fc-panel-content-featured' : ''}`;
-  }
-
   render() {
     return (
-      <div className={ this.rootClassName }>
+      <div className={classNames('fc-panel', this.props.className)}>
         <div className="fc-panel-header">
           {this.props.title}
         </div>
-        <div className={this.contentClasses}>
+        <div className={classNames('fc-panel-content', {'fc-panel-content-featured': this.props.featured})}>
           {this.props.content && this.props.content.props.children}
           {this.props.children}
         </div>
