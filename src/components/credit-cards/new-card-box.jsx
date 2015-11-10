@@ -6,9 +6,20 @@ import FormField from '../forms/formfield.jsx';
 import Form from '../forms/form.jsx';
 import Dropdown from '../dropdown/dropdown';
 import DropdownItem from '../dropdown/dropdownItem';
+import AddressSelect from '../addresses/address-select';
+import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
+import * as CustomersActions from '../../modules/customers/details';
 
+@connect((state, props) => ({
+  ...state.customers.details[props.customerId]
+}), CustomersActions)
 export default class NewCreditCardBox extends React.Component {
+
+  componentDidMount() {
+    const customer = this.props.customerId;
+    this.props.fetchAdresses(customer);
+  }
 
   get monthList() {
     return {
@@ -126,9 +137,7 @@ export default class NewCreditCardBox extends React.Component {
                   <label>
                     Billing Address
                   </label>
-                  <input type="hidden" name="addressId" id="billingAddressIdCardFormField" value={ form.addressId } />
-                  <div className="fc-credit-card-form-address-book">
-                  </div>
+                  <AddressSelect name="addressId" items={ this.props.addresses } value={ form.addressId } />
                 </div>
               </li>
             </ul>
