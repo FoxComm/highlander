@@ -34,7 +34,7 @@ object RmaService {
   }
 
   def createActions(order: Order, admin: StoreAdmin, rmaType: Rma.RmaType)
-    (implicit db: Database, ec: ExecutionContext) = {
+    (implicit db: Database, ec: ExecutionContext): DBIO[(Rma, Option[Customer])] = {
 
     val actions = for {
       rma ← Rmas.saveNew(Rma.build(order, admin, rmaType))
