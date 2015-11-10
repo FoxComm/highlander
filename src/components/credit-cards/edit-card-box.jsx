@@ -40,7 +40,6 @@ export default class EditCreditCardBox extends React.Component {
   render() {
     const card = this.props.card;
     const form = this.props.form;
-    console.log(form);
     return (
       <li className="fc-card-container fc-credit-cards fc-credit-cards-edit">
         <Form className="fc-customer-credit-card-form fc-form-vertical"
