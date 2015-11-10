@@ -16,15 +16,11 @@ export default class Panel extends React.Component {
   };
 
   get rootClassName() {
-    let result = 'fc-panel';
-    if (this.props.className) {
-      result = `${this.props.className} fc-panel`;
-    }
-    return result;
+    return `fc-panel ${this.props.className ? this.props.className : ''}`;
   }
 
   get contentClasses() {
-    return `fc-panel-content ${this.props.featured ? 'fc-panel-content-featured' : null}`;
+    return `fc-panel-content ${this.props.featured ? 'fc-panel-content-featured' : ''}`;
   }
 
   render() {
