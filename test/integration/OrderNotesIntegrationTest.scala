@@ -58,8 +58,8 @@ class OrderNotesIntegrationTest extends IntegrationTestBase with HttpSupport wit
 
   "PATCH /v1/notes/order/:refNum/:noteId" - {
     "can update the body text" in new Fixture {
-      val rootNote = rightValue(NoteManager.createOrderNote(order.refNum, storeAdmin,
-        payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue)
+      val rootNote = NoteManager.createOrderNote(order.refNum, storeAdmin,
+        payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue.rightVal
 
       val response = PATCH(s"v1/notes/order/${order.referenceNumber}/${rootNote.id}",
         payloads.UpdateNote(body = "donkey"))

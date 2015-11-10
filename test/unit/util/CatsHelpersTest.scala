@@ -102,4 +102,22 @@ class CatsHelpersTest extends TestBase with CatsHelpers {
       }
     }
   }
+
+  "implicits" - {
+    "right" in {
+      right("left").rightVal must === ("left")
+    }
+
+    "left" in {
+      left("right").leftVal must === ("right")
+    }
+
+    "valid" in {
+      Validated.valid("totally valid").validVal must === ("totally valid")
+    }
+
+    "invalid" in {
+      Validated.invalid("seems fishy").invalidVal must === ("seems fishy")
+    }
+  }
 }

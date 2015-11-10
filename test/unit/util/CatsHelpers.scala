@@ -33,4 +33,14 @@ trait CatsHelpers { this: Suite ⇒ /** For fail */
       e ⇒ e,
       a ⇒ fail(s"Expected Invalid[${ ttA.tpe.dealias }], got Valid[${ ttE.tpe.dealias }]: $a")
     )
+
+  implicit class ImplicitCatsHelpersXor[A, B](xor: A Xor B) {
+    def rightVal(implicit ttA: TypeTag[A], ttB: TypeTag[B]) = rightValue(xor)
+    def leftVal(implicit ttA: TypeTag[A], ttB: TypeTag[B]) = leftValue(xor)
+  }
+
+  implicit class ImplicitCatsHelpersValidated[E, A](validated: Validated[E, A]) {
+    def validVal(implicit ttA: TypeTag[A], ttE: TypeTag[E]) = validValue(validated)
+    def invalidVal(implicit ttA: TypeTag[A], ttE: TypeTag[E]) = invalidValue(validated)
+  }
 }
