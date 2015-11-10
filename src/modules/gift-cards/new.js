@@ -1,5 +1,3 @@
-'use strict';
-
 // state for gift card adding form
 
 import _ from 'lodash';

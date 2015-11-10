@@ -1,5 +1,3 @@
-'use strict';
-
 import fetch from 'isomorphic-fetch';
 
 const isServer = typeof self === 'undefined';

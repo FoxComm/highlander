@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 import Api from '../../lib/api';
 import TypeaheadItems from './items';

@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 import Table from './table';
 import TablePaginator from './paginator';

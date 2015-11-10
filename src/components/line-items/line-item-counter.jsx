@@ -1,5 +1,3 @@
-'use strict';
-
 import React from 'react';
 import Counter from '../forms/counter';
 import ConfirmModal from '../modal/confirm';

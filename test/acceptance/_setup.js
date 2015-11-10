@@ -1,5 +1,3 @@
-'use strict';
-
 require('testdom')('<html><body></body></html>');
 
 const path = require('path');

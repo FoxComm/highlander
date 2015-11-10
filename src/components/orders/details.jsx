@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 import OrderSummary from './summary';
 import CustomerInfo from './customer-info';

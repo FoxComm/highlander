@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 import TableHead from '../tables/head';
 import TableBody from '../tables/body';

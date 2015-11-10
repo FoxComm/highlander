@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 import { Date } from '../common/datetime';
 import { Link } from '../link';
