@@ -20,7 +20,7 @@ class RmaServiceTest extends IntegrationTestBase {
 
   "RmaService" - {
     "doesn't create duplicate IDs during parallel requests" in new Fixture {
-      pendinggi
+      pending
       (1 to numberOfInserts).par.map(_ ⇒ RmaService.createActions(order, storeAdmin, Rma.Standard).run())
 
       val rmas = Rmas.result.run().futureValue
