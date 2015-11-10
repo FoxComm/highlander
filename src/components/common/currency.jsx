@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 
 const isNumber = (n) => !isNaN(parseFloat(n)) && isFinite(n);

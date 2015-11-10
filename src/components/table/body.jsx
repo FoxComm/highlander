@@ -1,5 +1,3 @@
-'use strict';
-
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import React, { PropTypes } from 'react';
