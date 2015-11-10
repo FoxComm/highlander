@@ -48,8 +48,8 @@ describe('Notes module', function() {
 
     it('fetchNotes', function *() {
       const expectedActions = [
-        actions.actionSetFetchParams,
         actions.actionFetch,
+        actions.actionSetFetchParams,
         { type: actions.actionReceived, payload: [entity, notesPayload]}
       ];
 
