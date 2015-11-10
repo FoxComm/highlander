@@ -27,10 +27,10 @@ global.shallowRender = function(element) {
     }
   });
 
-  ['type', 'props'].map(property => {
+  ['type', 'props', '$$typeof', 'key', 'ref', '_store', '_owner'].map(property => {
     Object.defineProperty(renderer, property, {
       get: function() {
-        return this.getRenderOutput()[property];
+        return this.getRenderOutput() && this.getRenderOutput()[property];
       }
     });
   });
