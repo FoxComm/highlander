@@ -45,7 +45,7 @@ export default class Rmas extends React.Component {
   };
 
   componentDidMount() {
-    this.props.fetchRmas({entityType: 'rma'});
+    this.props.fetchRmas();
   }
 
   render() {

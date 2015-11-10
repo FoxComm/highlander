@@ -8,19 +8,22 @@ import { renderRow } from './helpers';
 import TableView from '../table/tableview';
 import { get } from 'sprout-data';
 
+function mapStateToProps(state, {entity}) {
+  const rmaData = get(state.rmas.list, [entity.entityType, entity.entityId], {rows: []});
 
-@connect(state => ({rmas: state.rmas.list}), rmaActions)
+  return {
+    'rmas': rmaData
+  };
+}
+
+
+@connect(mapStateToProps, rmaActions)
 export default class RmaChildList extends React.Component {
   static propTypes = {
     tableColumns: PropTypes.array,
     fetchRmas: PropTypes.func.isRequired,
-    setFetchParams: PropTypes.func.isRequired,
     entity: PropTypes.object,
-    rmas: PropTypes.shape({
-      order: PropTypes.object.isRequired,
-      customer: PropTypes.object.isRequired
-    }),
-    paginationState: PropTypes.func
+    rmas: PropTypes.object.isRequired
   };
 
   static defaultProps = {
@@ -35,32 +38,15 @@ export default class RmaChildList extends React.Component {
   };
 
   componentDidMount() {
-    this.props.fetchRmas(this.entity);
-  }
-
-  get entity() {
-    return this.props.entity;
-  }
-
-  get entityType() {
-    return this.entity.entityType;
-  }
-
-  get data() {
-    return get(this.props.rmas, [this.entityType, this.entity.entityId], rmaActions.paginationState);
-  }
-
-  @autobind
-  setFetchParams(state, fetchParams) {
-    this.props.setFetchParams(state, this.entity, fetchParams);
+    this.props.fetchRmas(this.props.entity);
   }
 
   render() {
     return (
       <TableView
-          data={this.data}
+          data={this.props.rmas}
           columns={this.props.tableColumns}
-          setState={this.setFetchParams}
+          setState={(data, params) => this.props.fetchRmas(params)}
           renderRow={renderRow}
       />
     );
