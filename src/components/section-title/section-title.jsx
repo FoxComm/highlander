@@ -6,7 +6,7 @@ import Title from './title';
 
 const SectionTitle = props => {
   return (
-    <div className={ classNames("fc-grid fc-section-title", props.className) }>
+    <div className={ classNames('fc-grid fc-section-title', props.className) }>
       <div className="fc-col-md-2-6">
         <Title title={ props.title } subtitle={ props.subtitle } />
       </div>

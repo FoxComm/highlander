@@ -13,6 +13,10 @@ const DefaultButton = (props = {}) => {
   );
 };
 
+DefaultButton.propTypes = {
+  className: PropTypes.string
+};
+
 const LeftButton = props => {
   return <DefaultButton icon='chevron-left' {...props} />;
 };
@@ -27,6 +31,10 @@ const DecrementButton = props => {
 
 const DeleteButton = (props = {}) => {
   return <DefaultButton icon='trash' {...props} className={ classNames('fc-btn-remove', props.className) } />;
+};
+
+DeleteButton.propTypes = {
+  className: PropTypes.string
 };
 
 const EditButton = props => {
