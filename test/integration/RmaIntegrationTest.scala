@@ -268,7 +268,6 @@ class RmaIntegrationTest extends IntegrationTestBase
         customerId = customer.id,
         remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
       rma ← Rmas.saveNew(Factories.rma.copy(
-        referenceNumber = s"${order.refNum}.1",
         orderId = order.id,
         orderRefNum = order.referenceNumber,
         customerId = customer.id))

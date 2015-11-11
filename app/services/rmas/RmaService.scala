@@ -34,15 +34,10 @@ object RmaService {
   }
 
   def createActions(order: Order, admin: StoreAdmin, rmaType: Rma.RmaType)
-    (implicit db: Database, ec: ExecutionContext): DBIO[(Rma, Option[Customer])] = {
-
-    val actions = for {
+    (implicit db: Database, ec: ExecutionContext): DBIO[(Rma, Option[Customer])] = for {
       rma ← Rmas.saveNew(Rma.build(order, admin, rmaType))
       customer ← Customers.findOneById(order.customerId)
-    } yield (rma, customer)
-
-    actions.withTransactionIsolation(TransactionIsolation.Serializable)
-  }
+  } yield (rma, customer)
 
   def getByRefNum(refNum: String)(implicit db: Database, ec: ExecutionContext): Result[Root] = {
     val finder = Rmas.findByRefNum(refNum)

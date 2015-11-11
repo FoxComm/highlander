@@ -65,7 +65,7 @@ object Rma {
 
   val rmaRefNumRegex = """([a-zA-Z0-9-_.]*)""".r
 
-  def build(order: Order, admin: StoreAdmin, rmaType: RmaType): Rma = {
+  def build(order: Order, admin: StoreAdmin, rmaType: RmaType = Rma.Standard): Rma = {
     Rma(
       orderId = order.id,
       orderRefNum = order.refNum,
