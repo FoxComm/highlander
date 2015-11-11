@@ -23,10 +23,6 @@ export default class AddressSelect extends React.Component {
     });
   }
 
-  componentDidUpdate() {
-    console.log(this.state);
-  }
-
   @autobind
   renderSelectItem(address) {
     const isSelected = address.id === this.state.value;
