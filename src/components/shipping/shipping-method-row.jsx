@@ -1,4 +1,5 @@
 import React from 'react';
+import Currency from '../common/currency';
 import TableRow from '../table/row';
 import TableCell from '../table/cell';
 
@@ -18,7 +19,9 @@ const ShippingMethodRow = (props) => {
           <span className='name-field'>{shippingMethod.name}</span>
         </div>
       </TableCell>
-      <TableCell>{shippingMethod.price}</TableCell>
+      <TableCell>
+        <Currency value={shippingMethod.price} />
+      </TableCell>
     </TableRow>
   );
 };
