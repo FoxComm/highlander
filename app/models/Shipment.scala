@@ -9,7 +9,7 @@ import slick.jdbc.JdbcType
 import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId}
 import utils.Slick.implicits._
 
-final case class Shipment(id: Int = 0, orderId: Int, shippingMethodId: Option[Int] = None, shippingAddressId:
+final case class Shipment(id: Int = 0, orderId: Int, orderShippingMethodId: Option[Int] = None, shippingAddressId:
 Option[Int] = None, status: Shipment.Status = Cart, shippingPrice: Option[Int] = None)
   extends ModelWithIdParameter[Shipment]
 
@@ -35,12 +35,13 @@ object Shipment {
 class Shipments(tag: Tag) extends GenericTable.TableWithId[Shipment](tag, "shipments")  {
   def id = column[Int]("id", O.PrimaryKey)
   def orderId = column[Int]("order_id")
-  def shippingMethodId = column[Option[Int]]("shipping_method_id")
+  def orderShippingMethodId = column[Option[Int]]("order_shipping_method_id")
   def shippingAddressId = column[Option[Int]]("shipping_address_id") //Addresses table
   def status = column[Shipment.Status]("status")
   def shippingPrice = column[Option[Int]]("shipping_price") //gets filled in upon checkout
 
-  def * = (id, orderId, shippingMethodId, shippingAddressId, status, shippingPrice) <> ((Shipment.apply _).tupled, Shipment.unapply)
+  def * = (id, orderId, orderShippingMethodId, shippingAddressId, status, shippingPrice) <> ((Shipment.apply _).tupled,
+    Shipment.unapply)
 }
 
 object Shipments extends TableQueryWithId[Shipment, Shipments](
