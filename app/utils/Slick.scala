@@ -6,7 +6,7 @@ import scala.util.matching.Regex
 import cats.data.Xor
 import models.Orders
 import responses.FullOrder
-import services.{Failure, Failures, Result}
+import services.{Failure, Failures, Result, GeneralFailure}
 import slick.ast._
 import slick.driver.PostgresDriver._
 import slick.driver.PostgresDriver.api._
@@ -17,6 +17,7 @@ import slick.profile.{SqlAction, SqlStreamingAction}
 import slick.relational.{CompiledMapping, ResultConverter}
 import slick.util.SQLBuilder
 import utils.CustomDirectives.{Sort, SortAndPage}
+import utils.ExceptionWrapper._
 
 object Slick {
 
@@ -71,9 +72,19 @@ object Slick {
 
     implicit class UpdateReturningInvoker[E, U, C[_]](val updateQuery: Query[E, U, C]) extends AnyVal {
 
+      def updateReturningHead[A, F](returningQuery: Query[A, F, C], v: U)
+        (implicit ec: ExecutionContext, db: Database): DbResult[F] =
+        wrapDbio(updateReturning(returningQuery, v).head)
+
+      def updateReturningHeadOption[A, F](returningQuery: Query[A, F, C], v: U, notFoundFailure: Failure)
+        (implicit ec: ExecutionContext, db: Database): DbResult[F] =
+        wrapDbResult(updateReturning(returningQuery, v).headOption
+          .map(res ⇒ Xor.fromOption(res, notFoundFailure.single)))
+
       @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.Any",
         "org.brianmckenna.wartremover.warts.IsInstanceOf", "org.brianmckenna.wartremover.warts.AsInstanceOf"))
-      def updateReturning[A, F](returningQuery: Query[A, F, C], v: U)(implicit db: Database) = {
+      private def updateReturning[A, F](returningQuery: Query[A, F, C], v: U)
+        (implicit ec: ExecutionContext, db: Database): SqlStreamingAction[Vector[F], F, Effect.All] = {
         val ResultSetMapping(_,
           CompiledStatement(_, sres: SQLBuilder.Result, _),
           CompiledMapping(_updateConverter, _)) = updateCompiler.run(updateQuery.toNode).tree

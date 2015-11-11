@@ -61,6 +61,8 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.
   (construct: Tag ⇒ T)
   (implicit ev: BaseTypedType[M#Id]) extends TableQuery[T](construct) {
 
+  import ExceptionWrapper._
+
   def tableName: String = baseTableRow.tableName
 
   val returningId =
@@ -181,6 +183,27 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.
 
     protected def mustExist(maybe: Option[M], notFoundFailure: Failure): Failures Xor M =
       Xor.fromOption(maybe, notFoundFailure.single)
+  }
+}
+
+object ExceptionWrapper {
+  def wrapDbio[A](dbio: DBIO[A])(implicit ec: ExecutionContext): DbResult[A] = {
+    import scala.util.{Failure, Success}
+    import services.DatabaseFailure
+
+    dbio.asTry.flatMap {
+      case Success(value) ⇒ DbResult.good(value)
+      case Failure(e) ⇒ DbResult.failure(DatabaseFailure(e.getMessage))
+    }
+  }
+
+  def wrapDbResult[A](dbresult: DbResult[A])(implicit ec: ExecutionContext): DbResult[A] = {
+    import scala.util.{Failure, Success}
+
+    dbresult.asTry.flatMap {
+      case Success(value) ⇒ lift(value)
+      case Failure(e) ⇒ DbResult.failure(DatabaseFailure(e.getMessage))
+    }
   }
 }
 

@@ -31,6 +31,10 @@ object NotFoundFailure400 {
   }
 }
 
+final case class DatabaseFailure(message: String) extends Failure {
+  override def description = List(message)
+}
+
 final case class StripeFailure(exception: StripeException) extends Failure {
   override def description = List(exception.getMessage)
 }
