@@ -7,9 +7,27 @@ import Form from '../forms/form.jsx';
 import Dropdown from '../dropdown/dropdown';
 import DropdownItem from '../dropdown/dropdownItem';
 import AddressDetails from '../addresses/address-details';
+import AddressSelect from '../addresses/address-select';
+import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
+import * as CustomersActions from '../../modules/customers/details';
 
+@connect((state, props) => ({
+  ...state.customers.details[props.customerId]
+}), CustomersActions)
 export default class EditCreditCardBox extends React.Component {
+
+  constructor(...args) {
+    super(...args);
+    this.state = {
+      editingAddress: false
+    };
+  }
+
+  componentDidMount() {
+    const customer = this.props.customerId;
+    this.props.fetchAdresses(customer);
+  }
 
   get monthList() {
     return {
@@ -38,6 +56,23 @@ export default class EditCreditCardBox extends React.Component {
     return years;
   }
 
+  get addressBlock() {
+    const block = this.state.editingAddress ?
+                    ( <AddressSelect name="addressId"
+                                     items={ this.props.addresses }
+                                     value={ this.props.form.addressId }
+                                     onItemSelect={ this.onAddressChange } />) :
+                    ( <AddressDetails customerId={ this.props.customerId }
+                                      address={ this.props.card } />);
+    return block;
+  }
+
+  @autobind
+  toggleSelectAddress() {
+    const newState = { editingAddress: !this.state.editingAddress }
+    this.setState(newState);
+  }
+
   @autobind
   onExpYearChange(value) {
     this.props.onChange( {target: {name: 'expYear', value: +value} } );
@@ -46,6 +81,11 @@ export default class EditCreditCardBox extends React.Component {
   @autobind
   onExpMonthChange(value) {
     this.props.onChange( {target: {name: 'expMonth', value: +value} } );
+  }
+
+  @autobind
+  onAddressChange(value) {
+    this.props.onChange( {target: {name: 'addressId', value: +value} } );
   }
 
   render() {
@@ -100,10 +140,9 @@ export default class EditCreditCardBox extends React.Component {
               <li className="fc-credit-card-form-line">
                 <div>
                   <label>
-                    Billing Address - <a className="fc-btn-link">Change</a>
+                    Billing Address - <a className="fc-btn-link" onClick={ this.toggleSelectAddress }>Change</a>
                   </label>
-                  <AddressDetails customerId={ this.props.customerId }
-                                  address={ card } />
+                  { this.addressBlock }
                 </div>
               </li>
             </ul>
