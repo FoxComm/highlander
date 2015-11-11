@@ -23,7 +23,7 @@ import utils.Slick.implicits._
 
 final case class Order(id: Int = 0, referenceNumber: String = "", customerId: Int,
   status: Status = Cart, locked: Boolean = false, placedAt: Option[Instant] = None,
-  remorsePeriodEnd: Option[Instant] = None)
+  remorsePeriodEnd: Option[Instant] = None, rmaCount: Int = 0)
   extends ModelWithLockParameter[Order]
   with FSM[Order.Status, Order]
   with Validation[Order] {
@@ -97,8 +97,10 @@ class Orders(tag: Tag) extends GenericTable.TableWithLock[Order](tag, "orders") 
   def locked = column[Boolean]("locked")
   def placedAt = column[Option[Instant]]("placed_at")
   def remorsePeriodEnd = column[Option[Instant]]("remorse_period_end")
+  def rmaCount = column[Int]("rma_count")
 
-  def * = (id, referenceNumber, customerId, status, locked, placedAt, remorsePeriodEnd) <>((Order.apply _).tupled, Order.unapply)
+  def * = (id, referenceNumber, customerId, status, locked, placedAt, remorsePeriodEnd,
+    rmaCount) <>((Order.apply _).tupled, Order.unapply)
 
   def assignees = OrderAssignments.filter(_.orderId === id).flatMap(_.assignee)
 }

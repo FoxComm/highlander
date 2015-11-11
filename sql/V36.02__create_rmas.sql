@@ -1,6 +1,6 @@
 create table rmas (
     id serial primary key,
-    reference_number reference_number not null,
+    reference_number reference_number not null unique,
     order_id integer not null references orders(id) on update restrict on delete restrict,
     order_refnum reference_number not null,
     rma_type rma_type not null,
@@ -16,12 +16,9 @@ create table rmas (
 create index rmas_order_id_and_status on rmas (order_id, status);
 
 create function set_rmas_reference_number() returns trigger as $$
-declare
-    order_rma_count integer default 0;
 begin
     if length(new.reference_number) = 0 then
-        select count(*) into order_rma_count from rmas where order_refnum = new.order_refnum;
-        new.reference_number = concat(new.order_refnum, '.', order_rma_count + 1);
+        new.reference_number = concat(new.order_refnum, '.', next_rma_id(new.order_id));
     end if;
     return new;
 end;

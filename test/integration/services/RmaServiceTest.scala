@@ -2,6 +2,8 @@ package services
 
 import java.time.Instant
 
+import scala.concurrent.Future
+
 import models._
 import payloads.RmaCreatePayload
 import services.rmas.RmaService
@@ -16,34 +18,36 @@ class RmaServiceTest extends IntegrationTestBase {
 
   import concurrent.ExecutionContext.Implicits.global
 
-  val numberOfInserts = 50
+  val numberOfInserts = 100
 
   "RmaService" - {
-    "doesn't create duplicate IDs during parallel requests" in new Fixture {
-      pending
-      (1 to numberOfInserts).par.map(_ ⇒ RmaService.createActions(order, storeAdmin, Rma.Standard).run())
+    "doesn't create duplicate IDs during parallel requests for single order" in new Fixture {
+      val futures = (1 to numberOfInserts).map { _ ⇒ RmaService.createActions(order, admin, Rma.Standard).run() }
+      Future.sequence(futures).futureValue
 
       val rmas = Rmas.result.run().futureValue
       val refs = rmas.map(_.refNum)
-      //refs.length must === (numberOfInserts + 1)
+      refs.length must === (numberOfInserts)
       refs.distinct must === (refs)
+
+      val orderUpdated = Orders.findOneById(order.id).run().futureValue.value
+      orderUpdated.rmaCount must === (numberOfInserts)
+
+      val rmaCount = Rmas.findByOrderRefNum(order.refNum).length.result.run().futureValue
+      rmaCount must === (numberOfInserts)
     }
   }
 
   trait Fixture {
-    val (storeAdmin, customer, order, rma) = (for {
-      storeAdmin ← StoreAdmins.saveNew(Factories.storeAdmin)
+    val (admin, order) = (for {
+      admin ← StoreAdmins.saveNew(Factories.storeAdmin)
       customer ← Customers.saveNew(Factories.customer)
       order ← Orders.saveNew(Factories.order.copy(
+        referenceNumber = "ABC-123",
         status = Order.RemorseHold,
         customerId = customer.id,
         remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
-      rma ← Rmas.saveNew(Factories.rma.copy(
-        referenceNumber = s"${order.refNum}.1",
-        orderId = order.id,
-        orderRefNum = order.referenceNumber,
-        customerId = customer.id))
-    } yield (storeAdmin, customer, order, rma)).run().futureValue
+    } yield (admin, order)).run().futureValue
   }
 }
 
