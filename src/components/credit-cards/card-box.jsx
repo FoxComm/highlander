@@ -10,6 +10,7 @@ export default class CreditCardBox extends React.Component {
   static propTypes = {
     card: PropTypes.object,
     customerId: PropTypes.number.isRequired,
+    onDeleteClick: PropTypes.func
   };
 
   constructor(props, context) {
@@ -20,15 +21,6 @@ export default class CreditCardBox extends React.Component {
     console.log('Is default state changed');
   }
 
-  @autobind
-  handleDeleteClick() {
-    if (this.props.onDeleteClick) {
-      this.props.onDeleteClick();
-    } else {
-      console.log('Delete button action triggered');
-    }
-  }
-
   render() {
     const card = this.props.card;
 
@@ -37,7 +29,7 @@ export default class CreditCardBox extends React.Component {
                                  checkboxLabel="Default card"
                                  initiallyIsDefault={ card.isDefault }
                                  checkboxClickHandler={ this.handleIsDefaultChange }
-                                 deleteHandler={ this.handleDeleteClick }
+                                 deleteHandler={ this.props.onDeleteClick }
                                  editHandler={ this.props.onEditClick } >
         <CreditCardDetails customerId={ this.props.customerId} card={ this.props.card } />
       </EditableItemCardContainer>
