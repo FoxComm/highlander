@@ -8,13 +8,13 @@ const columns = [
   {field: 'price', text: 'Price', type: 'currency'}
 ];
 
-const renderRowFn = (isEditingPrice, editPriceAction, cancelPriceAction, submitPriceAction) => {
+const renderRowFn = (order, updateAction, isEditingPrice, editPriceAction, cancelPriceAction, submitPriceAction) => {
   return (row, index, isNew) => {
     const isSelected = row.isSelected;
     return (
       <ShippingMethodRow 
         shippingMethod={row}
-        onSelect={()=>{}} 
+        updateAction={isSelected ? ()=>{} : () => updateAction(order, row)} 
         isEditingPrice={isEditingPrice}
         editPriceAction={editPriceAction}
         cancelPriceAction={cancelPriceAction}
@@ -37,7 +37,12 @@ const ShippingMethod = props => {
     };
   });
 
-  const renderRow = renderRowFn(props.isEditingPrice, props.editPriceAction, props.cancelPriceAction);
+  const renderRow = renderRowFn(
+      props.currentOrder,
+      props.updateAction, 
+      props.isEditingPrice, 
+      props.editPriceAction, 
+      props.cancelPriceAction);
 
   const editContent = (
     <TableView 
@@ -65,6 +70,7 @@ const ShippingMethod = props => {
 };
 
 ShippingMethod.propTypes = {
+  order: PropTypes.object,
   availableShippingMethods: PropTypes.array,
   isEditing: PropTypes.bool.isRequired,
   editAction: PropTypes.func,

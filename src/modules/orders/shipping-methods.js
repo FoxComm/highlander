@@ -1,5 +1,6 @@
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
+import { orderSuccess } from './details.js'
 
 export const orderShippingMethodRequest = createAction('ORDER_SHIPPING_METHOD_REQUEST');
 export const orderShippingMethodRequestSuccess = createAction('ORDER_SHIPPING_METHOD_REQUEST_SUCCESS');
@@ -8,6 +9,9 @@ export const orderShippingMethodStartEdit = createAction('ORDER_SHIPPING_METHOD_
 export const orderShippingMethodCancelEdit = createAction('ORDER_SHIPPING_METHOD_CANCEL_EDIT');
 export const orderShippingMethodStartEditPrice = createAction('ORDER_SHIPPING_METHOD_START_EDIT_PRICE');
 export const orderShippingMethodCancelEditPrice = createAction('ORDER_SHIPPING_METHOD_CANCEL_EDIT_PRICE');
+export const orderShippingMethodUpdate = createAction('ORDER_SHIPPING_METHOD_UPDATE');
+export const orderShippingMethodUpdateSuccess = createAction('ORDER_SHIPPING_METHOD_UPDATE_SUCCESS');
+export const orderShippingMethodUpdateFailed = createAction('ORDER_SHIPPING_METHOD_UPDATE_FAILED');
 
 export function fetchShippingMethods(order) {
   return dispatch => {
@@ -21,10 +25,24 @@ export function fetchShippingMethods(order) {
   };
 }
 
+export function updateShippingMethod(order, shippingMethod) {
+  return dispatch => {
+    dispatch(orderShippingMethodUpdate());
+    const payload = { shippingMethodId: shippingMethod.id };
+    return Api.patch(`/orders/${order.referenceNumber}/shipping-method`, payload)
+      .then(order => {
+        dispatch(orderShippingMethodUpdateSuccess());
+        dispatch(orderSuccess(order));
+      })
+      .catch(error => dispatch(orderShippingMethodUpdateFailed(err)));
+  };
+}
+
 const initialState = {
   isEditing: false,
   isEditingPrice: false,
   isFetching: false,
+  isUpdating: false,
   availableMethods: []
 };
 
@@ -73,6 +91,25 @@ const reducer = createReducer({
     return {
       ...state,
       isEditingPrice: false
+    };
+  },
+  [orderShippingMethodUpdate]: (state) => {
+    return {
+      ...state,
+      isUpdating: true
+    };
+  },
+  [orderShippingMethodUpdateSuccess]: (state) => {
+    return {
+      ...state,
+      isUpdating: false
+    };
+  },
+  [orderShippingMethodUpdateFailed]: (state, err) => {
+    console.log(err);
+    return {
+      ...store,
+      isUpdating: false
     };
   }
 }, initialState);

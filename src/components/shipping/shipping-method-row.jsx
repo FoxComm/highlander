@@ -39,12 +39,12 @@ const editBlock = (shippingMethod, isEditingPrice, editPriceAction, cancelPriceA
 };
 
 const ShippingMethodRow = (props) => {
-  const { shippingMethod, onSelect, isEditingPrice, editPriceAction, cancelPriceAction, ...rest} = props;
+  const { shippingMethod, updateAction, isEditingPrice, editPriceAction, cancelPriceAction, ...rest} = props;
   return (
     <TableRow {...rest} >
-      <TableCell onClick={onSelect}>
+      <TableCell>
         <div className='contents'>
-          <RadioButton className='name-control' checked={shippingMethod.isSelected}>
+          <RadioButton className='name-control' checked={shippingMethod.isSelected} onClick={updateAction}>
             <span className='name-field'>{shippingMethod.name}</span>
           </RadioButton>
         </div>

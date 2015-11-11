@@ -6,11 +6,13 @@ const OrderShippingMethod = props => {
 
   return (
     <ShippingMethod
+      currentOrder={props.order.currentOrder}
       availableShippingMethods={props.shippingMethods.availableMethods}
       shippingMethods={[shippingMethod]}
       isEditing={props.shippingMethods.isEditing}
       editAction={() => props.fetchShippingMethods(props.order.currentOrder)}
       doneAction={props.orderShippingMethodCancelEdit}
+      updateAction={props.updateShippingMethod}
       isEditingPrice={props.shippingMethods.isEditingPrice}
       editPriceAction={props.orderShippingMethodStartEditPrice}
       cancelPriceAction={props.orderShippingMethodCancelEditPrice} />
