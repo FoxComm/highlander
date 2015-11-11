@@ -15,11 +15,12 @@ export default class AddressSelect extends React.Component {
 
   onItemSelect(value) {
     console.log("onItemSelect");
+    console.log(this.props);
     this.setState({
       value: value
     }, () => {
       if (this.props.onItemSelect) {
-        this.props.onItemSelect(value, title);
+        this.props.onItemSelect(value);
       }
     });
   }

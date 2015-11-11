@@ -58,6 +58,11 @@ export default class NewCreditCardBox extends React.Component {
     this.props.onChange( {target: {name: 'expMonth', value: +value} } );
   }
 
+  @autobind
+  onAddressChange(value) {
+    this.props.onChange( {target: {name: 'addressId', value: +value} } );
+  }
+
   render() {
     const form = this.props.form;
     return (
@@ -137,7 +142,10 @@ export default class NewCreditCardBox extends React.Component {
                   <label>
                     Billing Address
                   </label>
-                  <AddressSelect name="addressId" items={ this.props.addresses } value={ form.addressId } />
+                  <AddressSelect name="addressId"
+                                 items={ this.props.addresses }
+                                 value={ form.addressId }
+                                 onItemSelect={ this.onAddressChange } />
                 </div>
               </li>
             </ul>
