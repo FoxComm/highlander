@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { autobind } from 'core-decorators';
 import React, { PropTypes } from 'react';
 import FormField from '../forms/formfield';
 import InputMask from 'react-input-mask';
@@ -8,41 +9,41 @@ import AddressStore from '../../stores/addresses';
 import * as validators from '../../lib/validators';
 import ErrorAlerts from '../alerts/error-alerts';
 import ContentBox from '../content-box/content-box';
+import modalWrapper from '../modal/wrapper';
+import { connect } from 'react-redux';
+import * as CountriesActions from '../../modules/countries';
+import * as AddressFormActions from '../../modules/addressForm';
+import { createSelector } from 'reselect';
 
 const DEFAULT_COUNTRY = 'US';
 
+const selectCurrentCountry = createSelector(
+  state => state.countries,
+  state => state.addressForm.countryId,
+  (countries, countryId) => countries[countryId]
+);
+
+@connect(state => state, {
+  ...CountriesActions,
+  ...AddressFormActions
+})
+@modalWrapper
 export default class AddressForm extends React.Component {
 
   static propTypes = {
     address: PropTypes.object,
     customerId: PropTypes.number,
-    onSaved: PropTypes.func
+    onSaved: PropTypes.func,
+    closeAction: PropTypes.func.isRequired
   };
-
-  constructor(props, context) {
-    super(props, context);
-
-    let address = props.address;
-    let formData = address ? _.omit(address, 'region') : {};
-    formData.regionId = address ? address.region.id : null;
-
-    this.state = {
-      formData,
-      countryId: address ? address.region.countryId : null
-    };
-  }
 
   get isAddingForm() {
     return !this.props.address;
   }
 
   componentDidMount() {
-    CountryStore.listenToEvent('change', this);
-    CountryStore.fetch();
-  }
-
-  componentWillUnmount() {
-    CountryStore.stopListeningToEvent('change', this);
+    this.props.fetchCountries();
+    this.props.assignAddress(this.props.address);
   }
 
   onChangeCountryStore(countries) {
@@ -73,10 +74,6 @@ export default class AddressForm extends React.Component {
       });
   }
 
-  close() {
-    dispatch('toggleModal', null);
-  }
-
   componentWillUpdate(nextProps, nextState) {
     if (!this.state.error && nextState.error) {
       this.shouldScrollToErrors = true;
@@ -105,6 +102,7 @@ export default class AddressForm extends React.Component {
     }
   }
 
+  @autobind
   onSubmitForm(event) {
     event.preventDefault();
 
@@ -129,28 +127,17 @@ export default class AddressForm extends React.Component {
           this.props.onSaved(address.id);
         }
       })
-      .then(() => {
-        this.close();
-      })
+      .then(() => this.props.onClose())
       .catch(error => {
         this.setState({error});
       });
   }
 
+  @autobind
   onChangeValue({target}) {
-    if (target.name === 'country') {
-      let countryId = Number(target.value);
-      this.setState({countryId});
-      this.updateRegions(countryId);
-    } else {
-      let value = target.dataset.type === 'int' ? Number(target.value) : target.value;
+    const value = target.dataset.type === 'int' ? Number(target.value) : target.value;
 
-      let formData = _.extend({}, this.state.formData, {
-        [target.name]: value
-      });
-
-      this.setState({formData});
-    }
+    this.props.changeValue(target.name, value);
   }
 
   get countryCode() {
@@ -177,7 +164,7 @@ export default class AddressForm extends React.Component {
     if (this.countryCode === 'US') {
       return (
         <InputMask type="tel" name="phoneNumber" mask={CountryStore.phoneMask(this.countryCode)}
-                        onChange={this.onChangeValue.bind(this)}
+                        onChange={this.onChangeValue}
                         formFieldTarget
                         value={formData.phoneNumber} placeholder={CountryStore.phoneExample(this.countryCode)}/>
       );
@@ -193,7 +180,7 @@ export default class AddressForm extends React.Component {
   }
 
   get actions() {
-    return <i onClick={this.close.bind(this)} className="fc-btn-close icon-close" title="Close"></i>;
+    return <i onClick={this.props.closeAction} className="fc-btn-close icon-close" title="Close"></i>;
   }
 
   render() {
@@ -210,8 +197,8 @@ export default class AddressForm extends React.Component {
         {this.errorMessages}
         <article>
           <Form action={AddressStore.uri(this.props.customerId)}
-                onSubmit={this.onSubmitForm.bind(this)}
-                onChange={this.onChangeValue.bind(this)}>
+                onSubmit={this.onSubmitForm}
+                onChange={this.onChangeValue}>
             <ul className="fc-address-form-fields">
               <li>
                 <div className="fc-address-form-field-title">{title}</div>
@@ -223,7 +210,7 @@ export default class AddressForm extends React.Component {
               </li>
               <li>
                 <FormField label="Country">
-                  <select name="country" value={this.state.countryId}>
+                  <select name="countryId" data-type="int" value={this.state.countryId}>
                     {countries.map((country, index) => {
                       return <option value={country.id} key={`${index}-${country.id}`}>{country.name}</option>;
                       })}
@@ -267,7 +254,7 @@ export default class AddressForm extends React.Component {
                 </FormField>
               </li>
               <li className="fc-address-form-controls">
-                <a onClick={this.close.bind(this)} className="fc-btn-link" href="javascript:void(0)">Cancel</a>
+                <a onClick={this.props.closeAction} className="fc-btn-link" href="javascript:void(0)">Cancel</a>
                 <button className="fc-btn fc-btn-primary" type="submit">Save and choose</button>
               </li>
             </ul>

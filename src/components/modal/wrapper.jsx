@@ -3,6 +3,14 @@ import { autobind } from 'core-decorators';
 import React, { PropTypes } from 'react';
 import { ModalContainer } from './base';
 
+/**
+ * Wrapper for modal for add extra functionality.
+ *
+ * Currently it supports only toggling 'fc-is-modal-opened' class on body. It may be helpful if you are using
+ * huge modal which can have a greater height than viewport.
+ * @param Modal
+ * @returns {ModalWrapper}
+ */
 export default function wrapModal(Modal) {
   class ModalWrapper extends React.Component {
 
