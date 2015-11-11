@@ -9,7 +9,7 @@ import models.rules.QueryStatement
 import payloads.{Assignment, UpdateOrderPayload}
 import responses.{StoreAdminResponse, FullOrderWithWarnings, FullOrder}
 import services.CartFailures.OrderMustBeCart
-import services.{StatusTransitionNotAllowed, LockedFailure, GeneralFailure, NotFoundFailure404}
+import services._
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.Slick.implicits._
@@ -243,7 +243,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       val response = POST(s"v1/orders/${order.referenceNumber}/unlock")
 
       response.status must === (StatusCodes.BadRequest)
-      response.errors must === (GeneralFailure("Order is not locked").description)
+      response.errors must === (NotLockedFailure(Order, order.refNum).description)
     }
 
     "adjusts remorse period when order is unlocked" in new RemorseFixture {

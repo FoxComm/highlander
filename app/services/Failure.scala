@@ -159,6 +159,16 @@ object LockedFailure {
   }
 }
 
+final case class NotLockedFailure(message: String) extends Failure {
+  override def description = List(message)
+}
+
+object NotLockedFailure {
+  def apply[A](a: A, searchKey: Any): NotLockedFailure = {
+    NotLockedFailure(s"${friendlyClassName(a)} with ${searchTerm(a)}=$searchKey is not locked")
+  }
+}
+
 final case class CustomerHasInsufficientStoreCredit(id: Int, has: Int, want: Int) extends Failure {
   override def description = List(s"customer with id=$id has storeCredit=$has less than requestedAmount=$want")
 }
