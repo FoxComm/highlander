@@ -24,9 +24,13 @@ object OrderShippingMethodUpdater {
             case Right(res) ⇒
               if (res) {
                 val orderShipping = OrderShippingMethod(orderId = order.id, shippingMethodId = shippingMethod.id)
-                val delete = OrderShippingMethods.findByOrderId(order.id).delete
 
-                DbResult.fromDbio(delete >> OrderShippingMethods.saveNew(orderShipping) >> fullOrder(finder))
+                DbResult.fromDbio(for {
+                  delete ← OrderShippingMethods.findByOrderId(order.id).delete
+                  orderShippingMethod ← OrderShippingMethods.saveNew(orderShipping)
+                  shipments ← Shipments.filter(_.orderId === order.id).map(_.orderShippingMethodId).update(Some(orderShippingMethod.id))
+                  order ← fullOrder(finder)
+                } yield order)
               } else {
                 DbResult.failure(ShippingMethodNotApplicableToOrder(payload.shippingMethodId, order.refNum))
               }
@@ -47,5 +51,4 @@ object OrderShippingMethodUpdater {
       DbResult.fromDbio(OrderShippingMethods.findByOrderId(order.id).delete >> fullOrder(finder))
     }
   }
-
 }
