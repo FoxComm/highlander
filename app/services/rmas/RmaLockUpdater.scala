@@ -47,7 +47,7 @@ object RmaLockUpdater {
     Rmas.findByRefNum(refNum).selectOneForUpdate ({ rma ⇒
       if (rma.locked) {
         RmaLockEvents.findByRma(rma).mostRecentLock.one.flatMap { _ ⇒ doUnlock(rma.id) }
-      } else DbResult.failure(GeneralFailure("Return is not locked"))
+      } else DbResult.failure(NotLockedFailure(Rma, rma.refNum))
     }, checks = Set.empty)
   }
 

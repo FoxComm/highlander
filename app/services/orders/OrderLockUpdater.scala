@@ -45,7 +45,7 @@ object OrderLockUpdater {
           case None ⇒
             doUnlock(order.id, order.remorsePeriodEnd.map(_.plusMinutes(15)))
         }
-      } else DbResult.failure(GeneralFailure("Order is not locked"))
+      } else DbResult.failure(NotLockedFailure(Order, order.refNum))
     }, checks = Set.empty)
   }
 }

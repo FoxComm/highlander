@@ -182,7 +182,7 @@ class RmaIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/rmas/${rma.referenceNumber}/unlock")
 
         response.status must ===(StatusCodes.BadRequest)
-        response.errors must ===(GeneralFailure("Return is not locked").description)
+        response.errors must ===(NotLockedFailure(Rma, rma.refNum).description)
       }
     }
 
