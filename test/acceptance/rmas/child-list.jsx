@@ -1,10 +1,11 @@
 import React from 'react';
 import sinon from 'sinon';
 
-describe('Rmas', function() {
-  const Rmas = requireComponent('rmas/rmas.jsx');
+describe('Child Rmas', function() {
+  const Rmas = requireComponent('rmas/child-list.jsx');
   const TableView = requireComponent('table/tableview.jsx');
   const rma = require('../../fixtures/rma.json');
+  const helpers = requireComponent('rmas/helpers.jsx');
 
   it('should render', function*() {
     const Wrapped = Rmas.WrappedComponent;
@@ -19,7 +20,6 @@ describe('Rmas', function() {
     };
     let rmaList = shallowRender(<Wrapped {...props} />);
 
-    expect(rmaList.props.className).to.equal('fc-list-page');
-    expect(rmaList, 'to contain', <TableView/>);
+    expect(rmaList, 'to have rendered', <TableView/>);
   });
 });
