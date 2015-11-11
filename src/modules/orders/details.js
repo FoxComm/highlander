@@ -19,7 +19,7 @@ export function fetchOrder(refNum) {
     dispatch(orderRequest(refNum));
     return Api.get(`/orders/${refNum}`)
       .then(order => dispatch(orderSuccess(order)))
-      .catch(err => dispatch(orderFailed(err, fetchOrder)));
+      .then(err => dispatch(orderFailed(err, fetchOrder)));
   };
 }
 

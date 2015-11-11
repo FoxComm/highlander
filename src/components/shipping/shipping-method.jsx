@@ -8,16 +8,41 @@ const columns = [
   {field: 'price', text: 'Price', type: 'currency'}
 ];
 
-const renderRow = (row, index, isNew) => {
-  return <ShippingMethodRow shippingMethod={row} isSelected={false} onSelect={()=>{}} />;
+const renderRowFn = (isEditingPrice, editPriceAction, cancelPriceAction, submitPriceAction) => {
+  return (row, index, isNew) => {
+    const isSelected = row.isSelected;
+    return (
+      <ShippingMethodRow 
+        shippingMethod={row}
+        onSelect={()=>{}} 
+        isEditingPrice={isEditingPrice}
+        editPriceAction={editPriceAction}
+        cancelPriceAction={cancelPriceAction}
+        submitPriceAction={submitPriceAction} />
+    );
+  };
 };
 
 
 const ShippingMethod = props => {
+  const availableShippingMethods = props.availableShippingMethods.map(shippingMethod => {
+    let isSelected = false;
+    if (props.shippingMethods && props.shippingMethods.length > 0) {
+      isSelected = props.shippingMethods[0].id == shippingMethod.id;
+    }
+
+    return {
+      ...shippingMethod,
+      isSelected: isSelected
+    };
+  });
+
+  const renderRow = renderRowFn(props.isEditingPrice, props.editPriceAction, props.cancelPriceAction);
+
   const editContent = (
     <TableView 
       columns={columns} 
-      data={{rows: props.availableShippingMethods}}
+      data={{rows: availableShippingMethods}}
       renderRow={renderRow}
       />
   );
@@ -40,7 +65,14 @@ const ShippingMethod = props => {
 };
 
 ShippingMethod.propTypes = {
-  shippingMethods: PropTypes.array
+  availableShippingMethods: PropTypes.array,
+  isEditing: PropTypes.bool.isRequired,
+  editAction: PropTypes.func,
+  doneAction: PropTypes.func,
+  isEditingPrice: PropTypes.bool,
+  editPriceAction: PropTypes.func,
+  cancelPriceAction: PropTypes.func,
+  shippingMethods: PropTypes.array.isRequired
 };
 
 export default ShippingMethod;

@@ -10,7 +10,10 @@ const OrderShippingMethod = props => {
       shippingMethods={[shippingMethod]}
       isEditing={props.shippingMethods.isEditing}
       editAction={() => props.fetchShippingMethods(props.order.currentOrder)}
-      doneAction={props.orderShippingMethodCancelEdit} />
+      doneAction={props.orderShippingMethodCancelEdit}
+      isEditingPrice={props.shippingMethods.isEditingPrice}
+      editPriceAction={props.orderShippingMethodStartEditPrice}
+      cancelPriceAction={props.orderShippingMethodCancelEditPrice} />
   );
 };
 

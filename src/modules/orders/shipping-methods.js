@@ -1,5 +1,3 @@
-'use strict';
-
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 
@@ -8,6 +6,8 @@ export const orderShippingMethodRequestSuccess = createAction('ORDER_SHIPPING_ME
 export const orderShippingMethodRequestFailed = createAction('ORDER_SHIPPING_METHOD_REQUEST_FAILED');
 export const orderShippingMethodStartEdit = createAction('ORDER_SHIPPING_METHOD_START_EDIT');
 export const orderShippingMethodCancelEdit = createAction('ORDER_SHIPPING_METHOD_CANCEL_EDIT');
+export const orderShippingMethodStartEditPrice = createAction('ORDER_SHIPPING_METHOD_START_EDIT_PRICE');
+export const orderShippingMethodCancelEditPrice = createAction('ORDER_SHIPPING_METHOD_CANCEL_EDIT_PRICE');
 
 export function fetchShippingMethods(order) {
   return dispatch => {
@@ -23,6 +23,7 @@ export function fetchShippingMethods(order) {
 
 const initialState = {
   isEditing: false,
+  isEditingPrice: false,
   isFetching: false,
   availableMethods: []
 };
@@ -51,13 +52,27 @@ const reducer = createReducer({
   [orderShippingMethodStartEdit]: (state) => {
     return {
       ...state,
-      isEditing: true
+      isEditing: true,
+      isEditingPrice: false
     };
   },
   [orderShippingMethodCancelEdit]: (state) => {
     return {
       ...state,
-      isEditing: false
+      isEditing: false,
+      isEditingPrice: false
+    };
+  },
+  [orderShippingMethodStartEditPrice]: (state) => {
+    return {
+      ...state,
+      isEditingPrice: true
+    };
+  },
+  [orderShippingMethodCancelEditPrice]: (state) => {
+    return {
+      ...state,
+      isEditingPrice: false
     };
   }
 }, initialState);
