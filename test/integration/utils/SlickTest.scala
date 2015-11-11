@@ -15,18 +15,18 @@ class SlickTest extends IntegrationTestBase {
   "supports update with returning query for a single column" in {
     val customer = Customers.saveNew(Factories.customer.copy(name = "Jane".some)).run().futureValue
     val update = Customers.filter(_.id === 1).map(_.name).
-      updateReturning(Customers.map(_.name), "Sally".some)
+      updateReturningHead(Customers.map(_.name), "Sally".some)
 
-    val firstName = update.one.futureValue.value
+    val firstName = update.futureValue.rightVal
     firstName must === ("Sally".some)
   }
 
   "supports update with returning query for a multiple columns" in {
     val customer = Customers.saveNew(Factories.customer.copy(name = "Jane".some)).run().futureValue
     val update = Customers.filter(_.id === 1).map { c ⇒ (c.name, c.password) }.
-      updateReturning(Customers.map { c ⇒ (c.name, c.password) }, ("Sally".some, "123qwe".some))
+      updateReturningHead(Customers.map { c ⇒ (c.name, c.password) }, ("Sally".some, "123qwe".some))
 
-    val names = update.one.futureValue.value
+    val names = update.futureValue.rightVal
     names must === (("Sally".some, "123qwe".some))
   }
 
@@ -34,7 +34,7 @@ class SlickTest extends IntegrationTestBase {
     val (customer, updatedCustomer) = db.run(for {
       customer ← Customers.saveNew(Factories.customer.copy(name = "Jane".some))
       updatedCustomer ← Customers.filter(_.id === 1).map(_.name).
-        updateReturning(Customers.map(identity), "Sally".some).headOption
+        updateReturningHead(Customers.map(identity), "Sally".some).map(rightValue)
     } yield (customer, updatedCustomer.value)).futureValue
 
     customer must !== (updatedCustomer)
@@ -45,7 +45,7 @@ class SlickTest extends IntegrationTestBase {
     val (customer, updatedCustomer) = db.run(for {
       customer ← Customers.saveNew(Factories.customer.copy(name = "Jane".some))
       updatedCustomer ← Customers.filter(_.id === 1).map{c ⇒ (c.name, c.password) }.
-        updateReturning(Customers.map(identity), ("Sally".some, "123qwe".some)).headOption
+        updateReturningHead(Customers.map(identity), ("Sally".some, "123qwe".some)).map(rightValue)
     } yield (customer, updatedCustomer.value)).futureValue
 
     customer must !== (updatedCustomer)

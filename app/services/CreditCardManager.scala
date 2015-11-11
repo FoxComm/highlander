@@ -18,7 +18,7 @@ import utils.Apis
 import utils.CustomDirectives.SortAndPage
 import utils.Slick.UpdateReturning._
 import utils.Slick.implicits._
-import utils.jdbc.withUniqueConstraint
+import utils.jdbc._
 
 import utils.time.JavaTimeSlickMapper.instantAndTimestampWithoutZone
 
@@ -69,16 +69,11 @@ object CreditCardManager {
 
   def toggleCreditCardDefault(customerId: Int, cardId: Int, isDefault: Boolean)
     (implicit ec: ExecutionContext, db: Database): Result[CreditCard] = {
-    val result = withUniqueConstraint {
+    def ifNotFound = NotFoundFailure404(CreditCard, cardId)
+    swapDatabaseFailure {
       CreditCards.findById(cardId).extract.filter(_.customerId === customerId).map(_.isDefault).
-        updateReturning(CreditCards.map(identity), isDefault).headOption.run()
-    } { notUnique ⇒ CustomerHasDefaultCreditCard }
-
-    result.flatMap {
-      case Xor.Right(Some(cc)) ⇒ Result.good(cc)
-      case Xor.Right(None)     ⇒ Result.failure(NotFoundFailure404(CreditCard, cardId))
-      case Xor.Left(f)         ⇒ Result.failure(f)
-    }
+        updateReturningHeadOption(CreditCards.map(identity), isDefault, ifNotFound).run()
+    } { (NotUnique, CustomerHasDefaultCreditCard) }
   }
 
   def deleteCreditCard(customerId: Int, id: Int)
@@ -189,5 +184,3 @@ object CreditCardManager {
 
   private def creditCardNotFound(id: Int) = NotFoundFailure404(CreditCard, id).single
 }
-
-

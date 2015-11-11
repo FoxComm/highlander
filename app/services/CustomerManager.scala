@@ -23,12 +23,8 @@ object CustomerManager {
     (implicit ec: ExecutionContext, db: Database): Result[Customer] = {
     (for {
       updated ← Customers.filter(_.id === customerId).map { t ⇒ (t.isDisabled, t.disabledBy) }.
-        updateReturning(Customers.map(identity), (disabled, Some(admin.id))).headOption
-    } yield updated).run().flatMap {
-      /** We’d need to flatMap now */
-      case Some(c) ⇒ Result.good(c)
-      case None    ⇒ Result.failures(NotFoundFailure404(Customer, customerId).single)
-    }
+        updateReturningHeadOption(Customers.map(identity), (disabled, Some(admin.id)), NotFoundFailure404(Customer, customerId))
+    } yield updated).run()
   }
 
   def findAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
@@ -106,11 +102,11 @@ object CustomerManager {
     val customer = Customer.buildFromPayload(payload)
 
     def result = {
-      withUniqueConstraint {
-        Customers.saveNew(customer).run()
-      } { e ⇒ CustomerEmailNotUnique }.flatMap {
+      swapDatabaseFailure {
+        Customers.saveNew(customer).map(Xor.right).run() // FIXME after #522
+      } { (NotUnique, CustomerEmailNotUnique) }.flatMap {
         case Xor.Right(c) ⇒ Result.good(build(c))
-        case Xor.Left(e) ⇒ Result.failure(e)
+        case Xor.Left(eh) ⇒ Result.failures(eh)
       }
     }
 
@@ -125,19 +121,18 @@ object CustomerManager {
 
     def result = {
       val finder = Customers.filter(_.id === customerId)
-      val result = withUniqueConstraint {
+      val result = swapDatabaseFailure {
         finder.selectOneForUpdate { customer ⇒
-          val updated = finder.map { c ⇒ (c.name, c.email, c.phoneNumber) }
-            .updateReturning(Customers.map(identity),
+          finder.map { c ⇒ (c.name, c.email, c.phoneNumber) }
+            .updateReturningHead(Customers.map(identity),
               (payload.name.fold(customer.name)(Some(_)),
                 payload.email.getOrElse(customer.email),
-                payload.phoneNumber.fold(customer.phoneNumber)(Some(_)))).head
-
-          updated.flatMap(updCustomer ⇒ DbResult.good(build(updCustomer)))
+                payload.phoneNumber.fold(customer.phoneNumber)(Some(_))))
+            .map(_.map(build(_)))
         }
-      } { notUnique ⇒ CustomerEmailNotUnique }
+      } { (NotUnique, CustomerEmailNotUnique) }
 
-      result.flatMap(_.fold(Result.failure(_), Future.successful(_)))
+      result.flatMap(_.fold(Result.failures, Result.good))
     }
 
     (for {
@@ -152,17 +147,15 @@ object CustomerManager {
 
     def result = {
       val finder = Customers.filter(_.id === customerId)
-      val result = withUniqueConstraint {
+      val result = swapDatabaseFailure {
         finder.selectOneForUpdate { customer ⇒
-          val updated = finder.map { c ⇒ (c.name, c.isGuest) }
-            .updateReturning(Customers.map(identity),
-              (Some(payload.name), false)).head
-
-          updated.flatMap(updCustomer ⇒ DbResult.good(build(updCustomer)))
+          finder.map { c ⇒ (c.name, c.isGuest) }
+            .updateReturningHead(Customers.map(identity), (Some(payload.name), false))
+            .map(_.map(build(_)))
         }
-      } { notUnique ⇒ CustomerEmailNotUnique }
+      } { (NotUnique, CustomerEmailNotUnique) }
 
-      result.flatMap(_.fold(Result.failure(_), Future.successful(_)))
+      result.flatMap(_.fold(Result.failures, Result.good))
     }
 
     (for {
@@ -171,4 +164,3 @@ object CustomerManager {
     } yield root).value
   }
 }
-

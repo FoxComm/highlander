@@ -36,10 +36,10 @@ object RmaLockUpdater {
     val finder = Rmas.findByRefNum(refNum)
 
     finder.selectOneForUpdate { rma ⇒
-      val lock = finder.map(_.locked).updateReturning(updatedRma, true).head
-      val blame = RmaLockEvents += RmaLockEvent(rmaId = rma.id, lockedBy = admin.id)
+      val lock = finder.map(_.locked).updateReturningHead(updatedRma, true)
+      val blame = RmaLockEvents += RmaLockEvent(rmaId = rma.id, lockedBy = admin.id) // FIXME after #522
 
-      DbResult.fromDbio(blame >> lock.flatMap(RmaResponse.fromRma))
+      lock.flatMap(xor ⇒ xorMapDbio(xor)(rma ⇒ blame >> RmaResponse.fromRma(rma)))
     }
   }
 
@@ -54,7 +54,7 @@ object RmaLockUpdater {
   private def doUnlock(rmaId: Int)(implicit ec: ExecutionContext, db: Database) = {
     Rmas.findById(rmaId).extract
       .map(_.locked)
-      .updateReturning(updatedRma, false).head
-      .flatMap { rma ⇒ DbResult.fromDbio(RmaResponse.fromRma(rma)) }
+      .updateReturningHead(updatedRma, false)
+      .flatMap { xor ⇒ xorMapDbio(xor)(RmaResponse.fromRma) }
   }
 }

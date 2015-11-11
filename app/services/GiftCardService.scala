@@ -111,17 +111,16 @@ object GiftCardService {
   def updateStatusByCsr(code: String, payload: payloads.GiftCardUpdateStatusByCsr, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
 
-    def cancelOrUpdate(finder: QuerySeq, giftCard: GiftCard) = (payload.status, payload.reasonId) match {
+    def cancelOrUpdate(finder: QuerySeq, giftCard: GiftCard): DbResult[Root] = (payload.status, payload.reasonId) match {
       case (Canceled, Some(reason)) ⇒
         cancelByCsr(finder, giftCard, payload, admin)
       case (Canceled, None) ⇒
         DbResult.failure(EmptyCancellationReasonFailure)
       case (_, _) ⇒
-        val update = finder.map(_.status).updateReturning(GiftCards.map(identity), payload.status).headOption
-        update.flatMap {
-          case Some(gc) ⇒ DbResult.good(GiftCardResponse.build(gc))
-          case _        ⇒ DbResult.failure(NotFoundFailure404(GiftCard, giftCard.code))
-        }
+        val ifNotFound = NotFoundFailure404(GiftCard, giftCard.code)
+        finder.map(_.status)
+          .updateReturningHeadOption(GiftCards.map(identity), payload.status, ifNotFound)
+          .map(_.map(GiftCardResponse.build(_)))
     }
 
     payload.validate match {
@@ -152,12 +151,12 @@ object GiftCardService {
             val data = (payload.status, Some(gc.availableBalance), payload.reasonId)
             val cancellation = finder
               .map { gc ⇒ (gc.status, gc.canceledAmount, gc.canceledReason) }
-              .updateReturning(GiftCards.map(identity), data)
-              .head
+              .updateReturningHead(GiftCards.map(identity), data)
+              .map(_.map(GiftCardResponse.build(_)))
 
             val cancelAdjustment = GiftCards.cancelByCsr(gc, admin)
 
-            DbResult.fromDbio(cancelAdjustment >> cancellation.map(GiftCardResponse.build(_)))
+            cancellation.flatMap { xor ⇒ xorMapDbio(xor)(gc ⇒ cancelAdjustment >> lift(gc)) }
         }
     }
   }

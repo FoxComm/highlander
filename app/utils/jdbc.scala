@@ -4,23 +4,28 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.language.implicitConversions
 
 import cats.data.Xor
-import org.postgresql.util.{PSQLException, PSQLState}
-import services.Failure
+import services.{Failure, Failures, DatabaseFailure, CustomerEmailNotUnique, Result}
+import scala.util.matching.Regex
 
 object jdbc {
-  final case class RecordNotUnique(p: PSQLException)
-    extends PSQLException(p.getMessage, new PSQLState(p.getSQLState))
 
-  final case class FailsConstraintCheck(p: PSQLException)
-    extends PSQLException(p.getMessage, new PSQLState(p.getSQLState))
+  sealed trait FailureSwap
+  case object NotUnique extends FailureSwap
 
-  val uniqueConstraintError = """ERROR: duplicate key value violates unique constraint""".r
+  val constraints: Map[FailureSwap, Regex] = Map (
+    NotUnique → """ERROR: duplicate key value violates unique constraint""".r
+  )
 
-  def withUniqueConstraint[A](f: ⇒ Future[A])(failed: RecordNotUnique ⇒ Failure)(implicit ec: ExecutionContext):
-  Future[Failure Xor A] = {
-    f.map(Xor.right).recover {
-      case e: PSQLException if uniqueConstraintError.findFirstIn(e.getMessage).nonEmpty ⇒
-        Xor.left(failed(RecordNotUnique(e)))
-    }
+  def swapDatabaseFailure[A](result: Result[A])(failed: (FailureSwap, Failure)) // TODO (FailureSwap, Failure)*
+    (implicit ec: ExecutionContext): Result[A] = {
+    result.map(_.leftMap { currentFailures ⇒ (currentFailures.head, failed) match {
+        case (dbFailure: DatabaseFailure, (symbol, replacement)) ⇒
+          constraints.get(symbol).map { regex ⇒
+            if (regex.findFirstIn(dbFailure.description.head).nonEmpty) replacement.single
+            else dbFailure.single
+          }.getOrElse(dbFailure.single)
+        case (otherFailure, _) ⇒
+          otherFailure.single
+    }})
   }
 }

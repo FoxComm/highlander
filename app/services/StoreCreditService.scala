@@ -117,17 +117,16 @@ object StoreCreditService {
   def updateStatusByCsr(id: Int, payload: payloads.StoreCreditUpdateStatusByCsr, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
 
-    def cancelOrUpdate(finder: QuerySeq, sc: StoreCredit) = (payload.status, payload.reasonId) match {
+    def cancelOrUpdate(finder: QuerySeq, sc: StoreCredit): DbResult[Root] = (payload.status, payload.reasonId) match {
       case (Canceled, Some(reason)) ⇒
         cancelByCsr(finder, sc, payload, admin)
       case (Canceled, None) ⇒
         DbResult.failure(EmptyCancellationReasonFailure)
       case (_, _) ⇒
-        val update = finder.map(_.status).updateReturning(StoreCredits.map(identity), payload.status).headOption
-        update.flatMap {
-          case Some(gc) ⇒ DbResult.good(StoreCreditResponse.build(gc))
-          case _        ⇒ DbResult.failure(NotFoundFailure404(StoreCredit, sc.id))
-        }
+        val ifNotFound = NotFoundFailure404(StoreCredit, sc.id)
+        finder.map(_.status)
+          .updateReturningHeadOption(StoreCredits.map(identity), payload.status, ifNotFound)
+          .map(_.map(StoreCreditResponse.build))
     }
 
     payload.validate match {
@@ -146,7 +145,7 @@ object StoreCreditService {
   }
 
   private def cancelByCsr(finder: QuerySeq, sc: StoreCredit, payload: payloads.StoreCreditUpdateStatusByCsr,
-    admin: StoreAdmin)(implicit ec: ExecutionContext, db: Database) = {
+    admin: StoreAdmin)(implicit ec: ExecutionContext, db: Database): DbResult[Root] = {
 
     StoreCreditAdjustments.lastAuthByStoreCreditId(sc.id).one.flatMap {
       case Some(adjustment) ⇒
@@ -159,14 +158,12 @@ object StoreCreditService {
             val data = (payload.status, Some(sc.availableBalance), payload.reasonId)
             val cancellation = finder
               .map { gc ⇒ (gc.status, gc.canceledAmount, gc.canceledReason) }
-              .updateReturning(StoreCredits.map(identity), data)
-              .head
+              .updateReturningHead(StoreCredits.map(identity), data)
+              .map(_.map(StoreCreditResponse.build))
 
             val cancelAdjustment = StoreCredits.cancelByCsr(sc, admin)
 
-            DbResult.fromDbio(cancelAdjustment >> cancellation.flatMap {
-              sc ⇒ lift(StoreCreditResponse.build(sc))
-            })
+            cancellation.flatMap { xor ⇒ xorMapDbio(xor)(sc ⇒ cancelAdjustment >> lift(sc)) }
         }
     }
   }
