@@ -32,7 +32,7 @@ export function editCustomer(id, data) {
   };
 }
 
-export function fetchAdresses(id) {
+export function fetchAddresses(id) {
   return dispatch => {
     dispatch(requestCustomerAdresses(id));
 

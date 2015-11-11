@@ -19,7 +19,7 @@ export default class NewCreditCardBox extends React.Component {
 
   componentDidMount() {
     const customer = this.props.customerId;
-    this.props.fetchAdresses(customer);
+    this.props.fetchAddresses(customer);
   }
 
   @autobind

@@ -27,7 +27,7 @@ export default class EditCreditCardBox extends React.Component {
 
   componentDidMount() {
     const customer = this.props.customerId;
-    this.props.fetchAdresses(customer);
+    this.props.fetchAddresses(customer);
   }
 
   get addressBlock() {
