@@ -11,6 +11,7 @@ import AddressSelect from '../addresses/address-select';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import * as CustomersActions from '../../modules/customers/details';
+import * as CardUtils from '../../lib/credit-card-utils';
 
 @connect((state, props) => ({
   ...state.customers.details[props.customerId]
@@ -27,33 +28,6 @@ export default class EditCreditCardBox extends React.Component {
   componentDidMount() {
     const customer = this.props.customerId;
     this.props.fetchAdresses(customer);
-  }
-
-  get monthList() {
-    return {
-      1: '01 - January',
-      2: '02 - February',
-      3: '03 - March',
-      4: '04 - April',
-      5: '05 - May',
-      6: '06 - June',
-      7: '07 - July',
-      8: '08 - August',
-      9: '09 - September',
-      10: '10 - October',
-      11: '11 - November',
-      12: '12 - December'
-    };
-  }
-
-  get expirationYears() {
-    let years = {};
-    const current = new Date().getFullYear();
-    _.each(_.range(20), (inc) => {
-      let year = (current + inc);
-      years[year] = year;
-    });
-    return years;
   }
 
   get addressBlock() {
@@ -121,14 +95,14 @@ export default class EditCreditCardBox extends React.Component {
                 <div className="fc-grid">
                   <div className="fc-col-md-1-2">
                     <Dropdown name="expMonth"
-                              items={this.monthList}
+                              items={ CardUtils.monthList() }
                               placeholder="Month"
                               value={ form.expMonth }
                               onChange={ this.onExpMonthChange } />
                   </div>
                   <div className="fc-col-md-1-2">
                     <Dropdown name="expYear"
-                              items={this.expirationYears}
+                              items={ CardUtils.expirationYears() }
                               placeholder="Year"
                               value={ form.expYear }
                               onChange={ this.onExpYearChange } />
