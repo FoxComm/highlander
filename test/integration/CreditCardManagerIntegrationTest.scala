@@ -4,7 +4,8 @@ import akka.http.scaladsl.model.StatusCodes
 
 import models.{Address, Customer, CreditCards, CreditCard, Customers, Addresses}
 import payloads.CreateAddressPayload
-import services.{CVCFailure, NotFoundFailure404}
+import services.NotFoundFailure404
+import services.CreditCardFailure.InvalidCvc
 import util.{StripeSupport, IntegrationTestBase}
 import utils.Seeds.Factories
 import utils.Slick.implicits._
@@ -128,12 +129,12 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
         }
 
         "if Stripe's CVC check fails" ignore new AddressFixture {
-          val payload   = payloadStub.copy(number = StripeSupport.incorrectCVC, addressId = Some(1))
+          val payload   = payloadStub.copy(number = StripeSupport.incorrectCvc, addressId = Some(1))
           val response  = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
           val cards     = CreditCards.futureValue
 
           response.status must ===(StatusCodes.BadRequest)
-          response.errors must ===(CVCFailure.description)
+          response.errors must ===(InvalidCvc.description)
           cards mustBe 'empty
         }
 

@@ -35,16 +35,8 @@ final case class DatabaseFailure(message: String) extends Failure {
   override def description = List(message)
 }
 
-final case class StripeFailure(exception: StripeException) extends Failure {
-  override def description = List(exception.getMessage)
-}
-
 final case class InvalidFieldFailure(name: String) extends Failure {
   override def description = List(s"Invalid value for field '${name}' provided")
-}
-
-case object CVCFailure extends Failure {
-  override def description = List("failed CVC check")
 }
 
 final case class GeneralFailure(a: String) extends Failure {
@@ -193,12 +185,58 @@ case object CreditCardMustHaveAddress extends Failure {
   override def description = List("cannot create creditCard without an address")
 }
 
-final case class StripeRuntimeException[E <: StripeException](exception: E) extends Failure {
-  val description = List(exception.getMessage)
-}
-
 final case class AlreadySavedForLater(customerId: Int, skuId: Int) extends Failure {
   override def description = List(s"Customer with id=$customerId already has SKU with id=$skuId saved for later")
+}
+
+object CreditCardFailure {
+  final case class StripeFailure(exception: StripeException) extends Failure {
+    override def description = List(exception.getMessage)
+  }
+
+  case object InvalidCvc extends Failure {
+    override def description = List("failed CVC check")
+  }
+
+  case object IncorrectCvc extends Failure {
+    override def description = List("The credit card's cvc is incorrect")
+  }
+
+  case object MonthExpirationInvalid extends Failure {
+    override def description = List("The credit card's month expiration is invalid")
+  }
+
+  case object YearExpirationInvalid extends Failure {
+    override def description = List("The credit card's year expiration is invalid")
+  }
+
+  case object IncorrectNumber extends Failure {
+    override def description = List("The credit card's number is incorrect")
+  }
+
+  case object InvalidNumber extends Failure {
+    override def description = List("The card number is not a valid credit card number")
+  }
+
+  case object ExpiredCard extends Failure {
+    override def description = List("The credit card is expired")
+  }
+
+  case object IncorrectZip extends Failure {
+    override def description = List("The zip code failed verification")
+  }
+
+  case object CardDeclined extends Failure {
+    override def description = List("The credit card was declined")
+  }
+
+  case object Missing extends Failure {
+    override def description = List("Could not find a credit card for the customer")
+  }
+
+  case object ProcessingError extends Failure {
+    override def description = List("There was an error processing the credit card request")
+  }
 }
 
 object Util {

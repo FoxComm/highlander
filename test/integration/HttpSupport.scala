@@ -19,18 +19,23 @@ import models.{Customer, StoreAdmin}
 import org.json4s.Formats
 import org.json4s.jackson.Serialization.{write ⇒ writeJson}
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
+import org.scalatest.mock.MockitoSugar
 import org.scalatest.{MustMatchers, Args, Status, Suite, SuiteMixin}
 import server.Service
 import services.Authenticator
 import util.DbTestSupport
-import utils.{Apis, JsonFormatters}
+import utils.{StripeApi, Apis, JsonFormatters}
 import concurrent.ExecutionContext.Implicits.global
 
 import cats.std.future._
 import cats.syntax.flatMap._
 
 // TODO: Move away from root package when `Service' moverd
-trait HttpSupport extends SuiteMixin with ScalaFutures with MustMatchers { this: Suite with PatienceConfiguration with DbTestSupport ⇒
+trait HttpSupport
+  extends SuiteMixin
+  with ScalaFutures
+  with MustMatchers
+  with MockitoSugar { this: Suite with PatienceConfiguration with DbTestSupport ⇒
 
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 
@@ -76,7 +81,7 @@ trait HttpSupport extends SuiteMixin with ScalaFutures with MustMatchers { this:
       |}
     """.stripMargin).withFallback(ConfigFactory.load)
 
-  def makeApis: Option[Apis] = None
+  def makeApis: Option[Apis] = Some(Apis(mock[StripeApi]))
 
   def overrideStoreAdminAuth: AsyncAuthenticator[StoreAdmin] = Authenticator.storeAdmin
 
@@ -87,7 +92,7 @@ trait HttpSupport extends SuiteMixin with ScalaFutures with MustMatchers { this:
     systemOverride = Some(system),
     apisOverride = makeApis,
     addRoutes = additionalRoutes) {
-    
+
     override def storeAdminAuth: AsyncAuthenticator[StoreAdmin] = overrideStoreAdminAuth
 
     override def customerAuth: AsyncAuthenticator[Customer] = overrideCustomerAuth

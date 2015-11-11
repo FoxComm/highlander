@@ -7,24 +7,25 @@ import cats.implicits._
 
 import cats.data.{XorT, Xor}
 import cats.data.Xor.{left, right}
-import com.stripe.exception.{StripeException, CardException, InvalidRequestException}
+import com.stripe.exception.{AuthenticationException, StripeException, CardException, InvalidRequestException}
 import com.stripe.model.{Card ⇒ StripeCard, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer, Account, ExternalAccount}
 import com.stripe.net.{RequestOptions ⇒ StripeRequestOptions}
 import models.{CreditCard, Customer, Address}
 
 import payloads.{EditCreditCard, CreateCreditCard}
 import utils.{StripeApi, Apis}
-
-abstract class PaymentGateway
-case object BraintreeGateway extends PaymentGateway
+import utils.Money._
 
 // TODO(yax): do not default apiKey, it should come from store
-final case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ") extends PaymentGateway {
+final case class Stripe(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ")
+  (implicit apis: Apis, ec: ExecutionContext) {
+
+  val api: StripeApi = apis.stripe
 
   // Creates a customer in Stripe along with their first CC
   @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.AsInstanceOf"))
-  def createCard(email: String, card: CreateCreditCard, stripeCustomerId: Option[String], address: Address)
-    (implicit ec: ExecutionContext, apis: Apis): Result[(StripeCustomer, StripeCard)] = {
+  def createCard(email: String, card: CreateCreditCard,
+    stripeCustomerId: Option[String], address: Address): Result[(StripeCustomer, StripeCard)] = {
 
     val source = Map[String, Object](
       "object"        → "card",
@@ -44,9 +45,7 @@ final case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVL
 
       for {
         cust ← ResultT(getCustomer(id))
-        card ← ResultT(tryFutureWrap[StripeCard] {
-          Xor.right(cust.createCard(mapAsJavaMap(params), options))
-        })
+        card ← ResultT(api.createCard(cust, params, apiKey))
       } yield (cust, card)
     }
 
@@ -58,9 +57,7 @@ final case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVL
       )
 
       for {
-        cust  ← ResultT(tryFutureWrap[StripeCustomer] {
-          Xor.right(StripeCustomer.create(mapAsJavaMap(params), options))
-        })
+        cust  ← ResultT(api.createCustomer(params, apiKey))
         card  ← ResultT(getCard(cust))
         _     ← ResultT.fromXor(cvcCheck(card))
       } yield (cust, card)
@@ -69,26 +66,20 @@ final case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVL
     stripeCustomerId.fold(newCustomer)(existingCustomer).value
   }
 
-  def authorizeAmount(customerId: String, amount: Int)
-                     (implicit ec: ExecutionContext): Result[String] = tryFutureWrap {
-    val capture: java.lang.Boolean = false
-    val chargeMap: Map[String, Object] = Map("amount" → "100", "currency" → "usd",
-      "customer" → customerId, "capture" → capture)
+  def authorizeAmount(customerId: String, amount: Int, currency: Currency): Result[StripeCharge] = {
+    val chargeMap: Map[String, Object] = Map(
+      "amount"    → amount.toString,
+      "currency"  → currency.toString,
+      "customer"  → customerId,
+      "capture"   → (false: java.lang.Boolean)
+    )
 
-    val charge = StripeCharge.create(mapAsJavaMap(chargeMap), options)
-    /*
-      TODO: https://stripe.com/docs/api#create_charge
-      Since we're using tokenized, we presumably pass verification process, but might want to handle here
-    */
-
-    Xor.right(charge.getId)
+    api.createCharge(chargeMap, apiKey)
   }
 
-  def editCard(cc: CreditCard)
-    (implicit ec: ExecutionContext, apis: Apis): Result[ExternalAccount] = {
+  def editCard(cc: CreditCard): Result[ExternalAccount] = {
 
-    def update(stripeCard: StripeCard)
-      (implicit ec: ExecutionContext): Result[ExternalAccount] = {
+    def update(stripeCard: StripeCard): Result[ExternalAccount] = {
 
       val params = Map[String, Object](
         "address_line1" → cc.address1,
@@ -101,7 +92,7 @@ final case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVL
         "exp_month" → cc.expMonth.toString
       )
 
-      apis.stripe.updateExternalAccount(stripeCard, params, this.apiKey)
+      api.updateExternalAccount(stripeCard, params, this.apiKey)
     }
 
     (for {
@@ -111,31 +102,17 @@ final case class StripeGateway(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVL
     } yield updated).value
   }
 
-  private def getCustomer(id: String)
-    (implicit ec: ExecutionContext, apis: Apis): Result[StripeCustomer] =
-    apis.stripe.findCustomer(id, this.apiKey)
+  private def getCustomer(id: String): Result[StripeCustomer] =
+    api.findCustomer(id, this.apiKey)
 
-
-  private def getCard(customer: StripeCustomer)
-    (implicit ec: ExecutionContext, apis: Apis): Result[StripeCard] =
-      apis.stripe.findDefaultCard(customer, this.apiKey)
+  private def getCard(customer: StripeCustomer): Result[StripeCard] =
+    api.findDefaultCard(customer, this.apiKey)
 
   private def cvcCheck(card: StripeCard): Failures Xor StripeCard = {
     card.getCvcCheck.some.getOrElse("").toLowerCase match {
       case "pass" ⇒ right(card)
-      case _      ⇒ left(CVCFailure.single)
+      case _      ⇒ left(CreditCardFailure.InvalidCvc.single)
     }
   }
-
-  private [this] def tryFutureWrap[A](f: ⇒ Failures Xor A)
-                                     (implicit ec: ExecutionContext): Result[A] = {
-    Future(f).recoverWith {
-      case t: CardException if t.getCode == "incorrect_cvc" ⇒
-        Result.failure(CVCFailure)
-      case t: StripeException ⇒
-        Result.failure(StripeFailure(t))
-    }
-  }
-
-  private [this] def options: StripeRequestOptions = StripeRequestOptions.builder().setApiKey(this.apiKey).build()
 }
+

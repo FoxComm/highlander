@@ -32,5 +32,5 @@ object StripeSupport {
 
   def incorrectNumberCard:  String = this.failureCards.getOrElse("incorrect_number", dummyDefaultValue)
 
-  def incorrectCVC:         String = this.failureCards.getOrElse("incorrect_cvc_code", dummyDefaultValue)
+  def incorrectCvc:         String = this.failureCards.getOrElse("incorrect_cvc_code", dummyDefaultValue)
 }

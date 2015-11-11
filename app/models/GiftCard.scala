@@ -60,9 +60,6 @@ final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = C
     Cart   → Set(Canceled)
   )
 
-  def authorize(amount: Int)(implicit ec: ExecutionContext): Result[String] =
-    Result.good("authenticated")
-
   def isActive: Boolean = status == Active
   def isCart: Boolean   = status == Cart
 
