@@ -97,9 +97,6 @@ export default class EditCreditCardBox extends React.Component {
         <Form className="fc-customer-credit-card-form fc-form-vertical"
               onChange={ this.props.onChange }
               onSubmit={ this.props.onSubmit }>
-          <header>
-            New Credit Card
-          </header>
           <div>
             <ul className="fc-credit-card-form-fields">
               <li className="fc-credit-card-form-line">
