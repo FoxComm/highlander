@@ -57,6 +57,7 @@ export default class EditCreditCardBox extends React.Component {
   }
 
   get addressBlock() {
+    console.log(this.props);
     const block = this.state.editingAddress ?
                     ( <AddressSelect name="addressId"
                                      items={ this.props.addresses }

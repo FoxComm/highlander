@@ -14,8 +14,6 @@ export default class AddressSelect extends React.Component {
   }
 
   onItemSelect(value) {
-    console.log("onItemSelect");
-    console.log(this.props);
     this.setState({
       value: value
     }, () => {
