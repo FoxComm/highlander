@@ -5,18 +5,19 @@ import java.time.Instant
 import scala.concurrent.ExecutionContext
 
 import models._
-import payloads.{RmaCreditCardPayment, RmaGiftCardPayment, RmaStoreCreditPayment}
-import responses.FullOrder.{DisplayLineItem, Totals}
+import payloads._
+import responses.FullOrder.DisplayLineItem
 import responses.CustomerResponse.{Root ⇒ Customer}
 import responses.StoreAdminResponse.{Root ⇒ StoreAdmin}
 import services.NotFoundFailure404
 
 import slick.driver.PostgresDriver.api._
+import utils.Money._
 import utils.Slick._
 import utils.Slick.implicits._
 
 object RmaResponse {
-  val mockTotal = Totals(subTotal = 70, taxes = 10, adjustments = 10, total = 50)
+  val mockTotal = RmaTotals(subTotal = 70, shipping = 10, taxes = 10, total = 50)
 
   val mockLineItems = LineItems(
     skus = Seq(
@@ -26,11 +27,7 @@ object RmaResponse {
     )
   )
 
-  val mockPayments = Payments(
-    creditCard = Some(RmaCreditCardPayment(id = 1, amount = 10)),
-    giftCard = Some(RmaGiftCardPayment(amount = 10)),
-    storeCredit = Some(RmaStoreCreditPayment(amount = 10))
-  )
+  final case class RmaTotals(subTotal: Int, shipping: Int, taxes: Int, total: Int) extends ResponseItem
 
   final case class FullRmaWithWarnings(rma: Root, warnings: Seq[NotFoundFailure404])
   final case class FullRmaExpandedWithWarnings(rma: RootExpanded, warnings: Seq[NotFoundFailure404])
@@ -42,13 +39,13 @@ object RmaResponse {
     rmaType: Rma.RmaType,
     status: Rma.Status,
     lineItems: LineItems = LineItems(),
-    payments: Payments = Payments(),
+    payments: Seq[DisplayPayment] = Seq.empty,
     customer: Option[Customer] = None,
     storeAdmin: Option[StoreAdmin] = None,
     assignees: Seq[AssignmentResponse.Root],
     createdAt: Instant,
     updatedAt: Instant,
-    total: Totals) extends ResponseItem
+    totals: RmaTotals) extends ResponseItem
 
   final case class RootExpanded(
     id: Int,
@@ -57,42 +54,55 @@ object RmaResponse {
     rmaType: Rma.RmaType,
     status: Rma.Status,
     lineItems: LineItems = LineItems(),
-    payment: Payments = Payments(),
+    payments: Seq[DisplayPayment] = Seq.empty,
     customer: Option[Customer] = None,
     storeAdmin: Option[StoreAdmin] = None,
     assignees: Seq[AssignmentResponse.Root],
     createdAt: Instant,
     updatedAt: Instant,
-    total: Totals) extends ResponseItem
+    totals: RmaTotals) extends ResponseItem
 
   final case class LineItems(
     skus: Seq[FullOrder.DisplayLineItem] = Seq.empty,
     giftCards: Seq[GiftCardResponse.Root] = Seq.empty,
     shippingCosts: Seq[ShipmentResponse.Root] = Seq.empty) extends ResponseItem
 
-  final case class Payments(
-    creditCard: Option[RmaCreditCardPayment] = None,
-    giftCard: Option[RmaGiftCardPayment] = None,
-    storeCredit: Option[RmaStoreCreditPayment] = None) extends ResponseItem
+  final case class DisplayPayment(
+    id: Int,
+    amount: Int,
+    currency: Currency = Currency.USD,
+    paymentMethodId: Int,
+    paymentMethodType: PaymentMethod.Type) extends ResponseItem
+
+  def buildPayment(pmt: RmaPayment): DisplayPayment =
+    DisplayPayment(
+      id = pmt.id,
+      amount = pmt.amount,
+      currency = pmt.currency,
+      paymentMethodId = pmt.paymentMethodId,
+      paymentMethodType = pmt.paymentMethodType
+    )
 
   def fromRma(rma: Rma)(implicit ec: ExecutionContext, db: Database): DBIO[Root] = {
-    fetchRmaDetails(rma).map { case (customer, storeAdmin, assignments) ⇒
+    fetchRmaDetails(rma).map { case (customer, storeAdmin, assignments, payments) ⇒
       build(
         rma = rma,
         customer = customer.map(CustomerResponse.build(_)),
         storeAdmin = storeAdmin.map(StoreAdminResponse.build),
+        payments = payments.map(buildPayment),
         assignees = assignments.map((AssignmentResponse.buildForRma _).tupled)
       )
     }
   }
 
   def fromRmaExpanded(rma: Rma)(implicit ec: ExecutionContext, db: Database): DBIO[RootExpanded] = {
-    fetchRmaDetailsExpanded(rma).map { case (customer, storeAdmin, fullOrder, assignments) ⇒
+    fetchRmaDetailsExpanded(rma).map { case (customer, storeAdmin, fullOrder, assignments, payments) ⇒
       buildExpanded(
         rma = rma,
         order = fullOrder,
         customer = customer.map(CustomerResponse.build(_)),
         storeAdmin = storeAdmin.map(StoreAdminResponse.build),
+        payments = payments.map(buildPayment),
         assignees = assignments.map((AssignmentResponse.buildForRma _).tupled)
       )
     }
@@ -108,14 +118,13 @@ object RmaResponse {
       customer = customer,
       storeAdmin = admin,
       lineItems = mockLineItems,
-      payments = mockPayments,
       assignees = Seq.empty,
       createdAt = Instant.now,
       updatedAt = Instant.now,
-      total = mockTotal)
+      totals = mockTotal)
 
   def build(rma: Rma, customer: Option[Customer] = None, storeAdmin: Option[StoreAdmin] = None,
-    assignees: Seq[AssignmentResponse.Root] = Seq.empty): Root = {
+    payments: Seq[DisplayPayment] = Seq.empty, assignees: Seq[AssignmentResponse.Root] = Seq.empty): Root = {
     Root(id = rma.id,
       referenceNumber = rma.refNum,
       orderRefNum = rma.orderRefNum,
@@ -123,14 +132,16 @@ object RmaResponse {
       status = rma.status,
       customer = customer,
       storeAdmin = storeAdmin,
+      payments = payments,
       assignees = assignees,
       createdAt = rma.createdAt,
       updatedAt = rma.updatedAt,
-      total = mockTotal)
+      totals = mockTotal)
   }
 
   def buildExpanded(rma: Rma, order: Option[FullOrder.Root] = None, customer: Option[Customer] = None,
-    storeAdmin: Option[StoreAdmin] = None, assignees: Seq[AssignmentResponse.Root] = Seq.empty): RootExpanded = {
+    storeAdmin: Option[StoreAdmin] = None, payments: Seq[DisplayPayment] = Seq.empty,
+    assignees: Seq[AssignmentResponse.Root] = Seq.empty): RootExpanded = {
     RootExpanded(id = rma.id,
       referenceNumber = rma.refNum,
       order = order,
@@ -138,10 +149,11 @@ object RmaResponse {
       status = rma.status,
       customer = customer,
       storeAdmin = storeAdmin,
+      payments = payments,
       assignees = assignees,
       createdAt = rma.createdAt,
       updatedAt = rma.updatedAt,
-      total = mockTotal)
+      totals = mockTotal)
   }
 
   private def fetchRmaDetails(rma: Rma)(implicit ec: ExecutionContext, db: Database) = {
@@ -151,7 +163,9 @@ object RmaResponse {
 
       assignments ← RmaAssignments.filter(_.rmaId === rma.id).result
       admins ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.assigneeId))).result
-    } yield (customer, storeAdmin, assignments.zip(admins))
+
+      payments ← RmaPayments.filter(_.rmaId === rma.id).result
+    } yield (customer, storeAdmin, assignments.zip(admins), payments)
   }
 
   private def fetchRmaDetailsExpanded(rma: Rma)(implicit ec: ExecutionContext, db: Database) = {
@@ -164,6 +178,8 @@ object RmaResponse {
 
       assignments ← RmaAssignments.filter(_.rmaId === rma.id).result
       admins ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.assigneeId))).result
-    } yield (customer, storeAdmin, fullOrder, assignments.zip(admins))
+
+      payments ← RmaPayments.filter(_.rmaId === rma.id).result
+    } yield (customer, storeAdmin, fullOrder, assignments.zip(admins), payments)
   }
 }

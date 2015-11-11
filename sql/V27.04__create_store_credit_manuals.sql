@@ -9,7 +9,7 @@ create table store_credit_manuals (
     foreign key (reason_id) references reasons(id) on update restrict on delete restrict
 );
 
-create index store_credit_manuals_idx on store_credit_manuals (admin_id);
+create index store_credit_manuals_admin_idx on store_credit_manuals (admin_id);
 
 create trigger set_store_credits_manuals_id
     before insert

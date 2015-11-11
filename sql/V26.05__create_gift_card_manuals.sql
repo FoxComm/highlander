@@ -8,7 +8,7 @@ create table gift_card_manuals (
     foreign key (reason_id) references reasons(id) on update restrict on delete restrict
 );
 
-create index gift_card_manuals_idx on gift_card_manuals (admin_id);
+create index gift_card_manuals_admin_idx on gift_card_manuals (admin_id);
 
 create trigger set_gift_card_manuals_id
     before insert

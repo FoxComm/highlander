@@ -115,4 +115,9 @@ object Rmas extends TableQueryWithLock[Rma, Rmas](
   def findByCustomerId(customerId: Int): QuerySeq = filter(_.customerId === customerId)
 
   def findByOrderRefNum(refNum: String): QuerySeq = filter(_.orderRefNum === refNum)
+
+  def findOneByRefNum(refNum: String): DBIO[Option[Rma]] = filter(_.referenceNumber === refNum).one
+
+  def findOnePendingByRefNum(refNum: String): DBIO[Option[Rma]] =
+    filter(_.referenceNumber === refNum).filter(_.status === (Rma.Pending: Rma.Status)).one
 }

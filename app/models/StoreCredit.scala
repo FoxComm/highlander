@@ -58,7 +58,7 @@ final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, origin
     Active → Set(OnHold, Canceled)
   )
 
-  def isActive: Boolean = activeStatuses.contains(status)
+  def isActive: Boolean = status == Active
 }
 
 object StoreCredit {
@@ -71,7 +71,7 @@ object StoreCredit {
   sealed trait OriginType
   case object CsrAppeasement extends OriginType
   case object GiftCardTransfer extends OriginType
-  case object ReturnProcess extends OriginType
+  case object RmaProcess extends OriginType
 
   object Status extends ADT[Status] {
     def types = sealerate.values[Status]
@@ -80,8 +80,6 @@ object StoreCredit {
   object OriginType extends ADT[OriginType] {
     def types = sealerate.values[OriginType]
   }
-
-  val activeStatuses = Set[Status](Active)
 
   def validateStatusReason(status: Status, reason: Option[Int]): ValidatedNel[Failure, Unit] = {
     if (status == Canceled) {
@@ -99,6 +97,11 @@ object StoreCredit {
   def buildAppeasement(customerId: Int, originId: Int, payload: payloads.CreateManualStoreCredit): StoreCredit = {
     StoreCredit(customerId = customerId, originId = originId, originType = StoreCredit.CsrAppeasement,
       subTypeId = payload.subTypeId, currency = payload.currency, originalBalance = payload.amount)
+  }
+
+  def buildRmaProcess(customerId: Int, originId: Int, currency: Currency): StoreCredit = {
+    StoreCredit(customerId = customerId, originId = originId, originType = StoreCredit.RmaProcess,
+      currency = currency, originalBalance = 0)
   }
 
   implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn

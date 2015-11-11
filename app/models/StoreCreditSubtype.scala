@@ -30,7 +30,7 @@ object StoreCreditSubtypes extends TableQueryWithId[StoreCreditSubtype, StoreCre
     implicit class OriginTypeQuerySeqConversions(q: QuerySeq) {
       def giftCardTransfers: QuerySeq = q.byOriginType(StoreCredit.GiftCardTransfer)
       def csrAppeasements: QuerySeq  = q.byOriginType(StoreCredit.CsrAppeasement)
-      def returnProcesses: QuerySeq  = q.byOriginType(StoreCredit.ReturnProcess)
+      def rmaProcesses: QuerySeq  = q.byOriginType(StoreCredit.RmaProcess)
 
       def byOriginType(originType: OriginType): QuerySeq = filter(_.originType === (originType: OriginType))
     }

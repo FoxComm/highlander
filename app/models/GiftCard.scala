@@ -81,6 +81,7 @@ object GiftCard {
   case object CsrAppeasement extends OriginType
   case object CustomerPurchase extends OriginType
   case object FromStoreCredit extends OriginType
+  case object RmaProcess extends OriginType
 
   object Status extends ADT[Status] {
     def types = sealerate.values[Status]
@@ -114,6 +115,18 @@ object GiftCard {
       originalBalance = balance,
       availableBalance = balance,
       currentBalance = balance
+    )
+  }
+
+  def buildRmaProcess(originId: Int, currency: Currency): GiftCard = {
+    GiftCard(
+      originId = originId,
+      originType = GiftCard.RmaProcess,
+      status = GiftCard.Cart,
+      currency = currency,
+      originalBalance = 0,
+      availableBalance = 0,
+      currentBalance = 0
     )
   }
 

@@ -44,7 +44,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/orders/ABC123/payment-methods/gift-cards", payload)
 
         response.status must === (StatusCodes.NotFound)
-        giftCardPayments(order) must have size(0)
+        giftCardPayments(order) mustBe 'empty
       }
 
       "fails if the giftCard is not found" in new GiftCardFixture {
@@ -53,7 +53,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
         response.status must === (StatusCodes.BadRequest)
         parseErrors(response) must === (NotFoundFailure404(GiftCard, payload.code).description)
-        giftCardPayments(order) must have size(0)
+        giftCardPayments(order) mustBe 'empty
       }
 
       "fails if the giftCard does not have sufficient available balance" in new GiftCardFixture {
@@ -62,7 +62,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
         response.status must === (StatusCodes.BadRequest)
         parseErrors(response) must === (GiftCardNotEnoughBalance(giftCard, payload.amount).description)
-        giftCardPayments(order) must have size(0)
+        giftCardPayments(order) mustBe 'empty
       }
 
       "fails if the order is not in cart status" in new GiftCardFixture {
@@ -82,7 +82,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
         response.status must === (StatusCodes.BadRequest)
         parseErrors(response) must === (GiftCardIsInactive(giftCard).description)
-        giftCardPayments(order) must have size(0)
+        giftCardPayments(order) mustBe 'empty
       }
 
       "fails to add GC with cart status as payment method" in new GiftCardFixture {
@@ -105,7 +105,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val payments = creditCardPayments(order)
 
         response.status must ===(StatusCodes.OK)
-        payments must have size (0)
+        payments mustBe 'empty
       }
 
       "fails if the order is not found" in new GiftCardFixture {
@@ -113,7 +113,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
         response.status must === (StatusCodes.NotFound)
         response.errors must === (NotFoundFailure404(Order, 99).description)
-        creditCardPayments(order) must have size(0)
+        creditCardPayments(order) mustBe 'empty
       }
 
       "fails if the giftCard is not found" in new GiftCardFixture {
@@ -121,7 +121,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
         response.status must === (StatusCodes.NotFound)
         parseErrors(response) must === (NotFoundFailure404(GiftCard, "abc-123").description)
-        creditCardPayments(order) must have size(0)
+        creditCardPayments(order) mustBe 'empty
       }
 
       "fails if the giftCard orderPayment is not found" in new GiftCardFixture {
@@ -129,7 +129,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
         response.status must === (StatusCodes.BadRequest)
         parseErrors(response) must === (OrderPaymentNotFoundFailure(GiftCard).description)
-        creditCardPayments(order) must have size(0)
+        creditCardPayments(order) mustBe 'empty
       }
     }
   }
@@ -192,7 +192,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
         response.status must ===(StatusCodes.NotFound)
         response.errors must === (NotFoundFailure404(Order, notFound.refNum).description)
-        storeCreditPayments(order) must have size (0)
+        storeCreditPayments(order) mustBe 'empty
       }
 
       "fails if the customer has no active store credit" in new Fixture {
@@ -202,7 +202,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         response.status must ===(StatusCodes.BadRequest)
         val error = CustomerHasInsufficientStoreCredit(customer.id, 0, 50).description
         parseErrors(response) must ===(error)
-        storeCreditPayments(order) must have size (0)
+        storeCreditPayments(order) mustBe 'empty
       }
 
       "fails if the customer has insufficient available store credit" in new StoreCreditFixture {
@@ -213,7 +213,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val has = storeCredits.map(_.availableBalance).sum
         val error = CustomerHasInsufficientStoreCredit(customer.id, has, payload.amount).description
         parseErrors(response) must ===(error)
-        storeCreditPayments(order) must have size (0)
+        storeCreditPayments(order) mustBe 'empty
       }
 
       "fails if the order is not in cart status" in new StoreCreditFixture {
@@ -236,7 +236,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/store-credit")
 
         response.status must ===(StatusCodes.OK)
-        storeCreditPayments(order) must have size (0)
+        storeCreditPayments(order) mustBe 'empty
       }
     }
   }
@@ -259,7 +259,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
         response.status must === (StatusCodes.NotFound)
         response.errors must === (NotFoundFailure404(Order, 99).description)
-        creditCardPayments(order) must have size(0)
+        creditCardPayments(order) mustBe 'empty
       }
 
       "fails if the creditCard is not found" in new CreditCardFixture {
@@ -268,7 +268,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
         response.status must === (StatusCodes.BadRequest)
         parseErrors(response) must === (NotFoundFailure404(CreditCard, 99).description)
-        creditCardPayments(order) must have size(0)
+        creditCardPayments(order) mustBe 'empty
       }
 
       "fails if the creditCard is inActive" in new CreditCardFixture {
@@ -278,7 +278,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
         response.status must ===(StatusCodes.BadRequest)
         parseErrors(response) must ===(CannotUseInactiveCreditCard(creditCard).description)
-        creditCardPayments(order) must have size(0)
+        creditCardPayments(order) mustBe 'empty
       }
 
       "fails if the order is not in cart status" in new CreditCardFixture {
@@ -319,7 +319,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val payments = creditCardPayments(order)
 
         response.status must ===(StatusCodes.OK)
-        payments must have size (0)
+        payments mustBe 'empty
       }
 
       "fails if the order is not found" in new CreditCardFixture {
@@ -328,7 +328,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
         response.status must === (StatusCodes.NotFound)
         response.errors must === (NotFoundFailure404(Order, 99).description)
-        creditCardPayments(order) must have size(0)
+        creditCardPayments(order) mustBe 'empty
       }
 
       "fails if there is no creditCard payment" in new CreditCardFixture {
@@ -336,7 +336,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val payments = creditCardPayments(order)
 
         response.status must ===(StatusCodes.BadRequest)
-        payments must have size (0)
+        payments mustBe 'empty
       }
     }
   }
@@ -356,10 +356,6 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       order ← Orders.saveNew(Factories.order.copy(customerId = customer.id, status = Order.Cart))
       admin ← StoreAdmins.saveNew(authedStoreAdmin)
     } yield (order, admin, customer)).run().futureValue
-  }
-
-  trait AddressFixture extends Fixture {
-    val address = Addresses.saveNew(Factories.address.copy(customerId = customer.id)).run().futureValue
   }
 
   trait GiftCardFixture extends Fixture {

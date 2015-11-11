@@ -29,6 +29,7 @@ object GiftCardSubtypes extends TableQueryWithId[GiftCardSubtype, GiftCardSubtyp
       def customerPurchases: QuerySeq = q.byOriginType(GiftCard.CustomerPurchase)
       def csrAppeasements: QuerySeq = q.byOriginType(GiftCard.CsrAppeasement)
       def fromStoreCredits: QuerySeq = q.byOriginType(GiftCard.FromStoreCredit)
+      def rmaProcesses: QuerySeq = q.byOriginType(GiftCard.RmaProcess)
 
       def byOriginType(originType: OriginType): QuerySeq = filter(_.originType === (originType: OriginType))
     }

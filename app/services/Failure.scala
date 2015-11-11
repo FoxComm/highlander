@@ -132,6 +132,10 @@ object OrderPaymentNotFoundFailure {
   def apply[M](m: M): NotFoundFailure400 = NotFoundFailure400(s"${friendlyClassName(m)} payment not found")
 }
 
+object RmaPaymentNotFoundFailure {
+  def apply[M](m: M): NotFoundFailure400 = NotFoundFailure400(s"${friendlyClassName(m)} payment not found")
+}
+
 final case class GiftCardNotEnoughBalance(gc: GiftCard, requestedAmount: Int) extends Failure {
   override def description =
     List(s"giftCard has availableBalance=${gc.availableBalance} less than requestedAmount=$requestedAmount")
@@ -139,6 +143,10 @@ final case class GiftCardNotEnoughBalance(gc: GiftCard, requestedAmount: Int) ex
 
 final case class GiftCardIsInactive(gc: GiftCard) extends Failure {
   override def description = List(s"giftCard with id=${gc.id} is inactive")
+}
+
+final case class StoreCreditIsInactive(sc: StoreCredit) extends Failure {
+  override def description = List(s"storeCredit with id=${sc.id} is inactive")
 }
 
 final case class CannotUseInactiveCreditCard(cc: CreditCard) extends Failure {
