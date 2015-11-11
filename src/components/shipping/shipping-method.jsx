@@ -1,17 +1,26 @@
-'use strict';
-
 import React from 'react';
 import EditableContentBox from '../content-box/editable-content-box';
 import TableView from '../table/tableview';
+import ShippingMethodRow from './shipping-method-row';
 
 const columns = [
   {field: 'name', text: 'Method'},
   {field: 'price', text: 'Price', type: 'currency'}
 ];
 
+const renderRow = (row, index, isNew) => {
+  return <ShippingMethodRow shippingMethod={row} isSelected={false} onSelect={()=>{}} />;
+};
+
+
 const ShippingMethod = (props) => {
   const editContent = (
-    <TableView columns={columns} data={{rows: props.availableShippingMethods}} setState={()=>{}} />
+    <TableView 
+      columns={columns} 
+      data={{rows: props.availableShippingMethods}}
+      renderRow={renderRow}
+      setState={()=>{}}
+      />
   );
 
   const viewContent = (
@@ -20,7 +29,7 @@ const ShippingMethod = (props) => {
 
   return (
     <EditableContentBox
-      className='fc-shipping-method'
+      className='fc-shipping-methods'
       title='Shipping Method'
       isEditing={props.isEditing}
       editAction={props.editAction}
