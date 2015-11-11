@@ -63,12 +63,17 @@ object OrderPayments extends TableQueryWithId[OrderPayment, OrderPayments](
   def findAllStoreCredit: QuerySeq =
     filter(_.paymentMethodType === (Pay.StoreCredit: Pay.Type))
 
-  def findAllPaymentsFor(orderId: Int): Query[(OrderPayments, CreditCards), (OrderPayment, CreditCard), Seq] = {
+  def findAllGiftCardsByOrderId(id: Int): Query[(OrderPayments, GiftCards), (OrderPayment, GiftCard), Seq] =
     for {
-      payments ← this.filter(_.orderId === orderId)
-      cards    ← CreditCards if cards.id === payments.id
-    } yield (payments, cards)
-  }
+      pmts  ← OrderPayments.filter(_.orderId === id)
+      gc    ← GiftCards if gc.id === pmts.paymentMethodId
+    } yield (pmts, gc)
+
+  def findAllStoreCreditsByOrderId(id: Int): Query[(OrderPayments, StoreCredits), (OrderPayment, StoreCredit), Seq] =
+    for {
+      pmts  ← OrderPayments.filter(_.orderId === id)
+      sc    ← StoreCredits if sc.id === pmts.paymentMethodId
+    } yield (pmts, sc)
 
   def findAllCreditCardsForOrder(orderId: Rep[Int]): QuerySeq =
     filter(_.orderId === orderId).filter(_.paymentMethodType === (Pay.CreditCard: Pay.Type))

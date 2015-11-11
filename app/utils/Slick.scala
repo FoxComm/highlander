@@ -260,6 +260,9 @@ object Slick {
     implicit class RunOnDbIO[R](val dbio: DBIO[R]) extends AnyVal {
       def run()(implicit db: Database): Future[R] =
         db.run(dbio)
+
+      def toXor(implicit ec: ExecutionContext): DbResult[R] =
+        DbResult.fromDbio(dbio)
     }
   }
 }

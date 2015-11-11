@@ -181,6 +181,10 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
     (implicit ec: ExecutionContext): DBIO[Adj] =
     debit(storeCredit = storeCredit, orderPaymentId = orderPaymentId, amount = amount, status = Adj.Auth)
 
+  def authOrderPayment(storeCredit: StoreCredit, pmt: OrderPayment)
+    (implicit ec: ExecutionContext): DBIO[Adj] =
+    auth(storeCredit = storeCredit, orderPaymentId = pmt.id.some, amount = pmt.amount.getOrElse(0))
+
   def capture(storeCredit: StoreCredit, orderPaymentId: Option[Int], amount: Int = 0)
     (implicit ec: ExecutionContext): DBIO[Adj] =
     debit(storeCredit = storeCredit, orderPaymentId = orderPaymentId, amount = amount, status = Adj.Capture)
