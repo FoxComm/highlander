@@ -1,35 +1,29 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
-import _ from 'lodash';
+import classNames from 'classnames';
 
-export default class Panel extends React.Component {
-  static propTypes = {
-    children: React.PropTypes.any,
-    title: React.PropTypes.string,
-    content: React.PropTypes.any,
-    featured: React.PropTypes.bool
-  };
-
-  static defaultProps = {
-    featured: false
-  };
-
-  get contentClasses() {
-    return `fc-panel-content ${this.props.featured ? 'fc-panel-content-featured' : null}`;
-  }
-
-  render() {
-    return (
-      <div className={ this.rootClassName }>
-        <div className="fc-panel-header">
-          {this.props.title}
-        </div>
-        <div className={this.contentClasses}>
-          {this.props.content && this.props.content.props.children}
-          {this.props.children}
-        </div>
+const Panel = props => {
+  return (
+    <div className={classNames('fc-panel', props.className)}>
+      <div className="fc-panel-header">
+        {props.title}
       </div>
-    );
-  }
-}
+      <div className={classNames('fc-panel-content', {'fc-panel-content-featured': props.featured})}>
+        {props.content && props.content.props.children}
+        {props.children}
+      </div>
+    </div>
+  );
+};
+
+Panel.propTypes = {
+  children: PropTypes.any,
+  title: PropTypes.string,
+  content: PropTypes.any,
+  featured: PropTypes.bool
+};
+
+Panel.defaultProps = {
+  featured: false
+};
+
+export default Panel;

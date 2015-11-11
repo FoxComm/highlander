@@ -1,5 +1,3 @@
-'use strict';
-
 const OrderConstants = {
   UPDATE_ORDERS: 'UPDATE_ORDERS',
   FAILED_ORDERS: 'FAILED_ORDERS',

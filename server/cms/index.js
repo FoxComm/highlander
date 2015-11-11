@@ -1,5 +1,3 @@
-'use strict';
-
 const
   Router  = require('koa-router'),
   parse   = require('co-body');

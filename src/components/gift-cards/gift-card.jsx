@@ -1,12 +1,10 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 import { IndexLink, Link } from '../link';
 import { autobind } from 'core-decorators';
-import { formatCurrency } from '../../lib/format';
 import { connect } from 'react-redux';
 import * as GiftCardActions from '../../modules/gift-cards/details';
 import { DateTime } from '../common/datetime';
+import Currency from '../common/currency';
 import SectionTitle from '../section-title/section-title';
 import Panel from '../panel/panel';
 import {PanelList, PanelListItem} from '../panel/panel-list';
@@ -21,7 +19,8 @@ export default class GiftCard extends React.Component {
 
   static propTypes = {
     card: PropTypes.shape({
-      code: PropTypes.string
+      code: PropTypes.string,
+      status: PropTypes.string
     }),
     children: PropTypes.node,
     editGiftCard: PropTypes.func,
@@ -99,19 +98,19 @@ export default class GiftCard extends React.Component {
         <SectionTitle title="Gift Card" subtitle={card.code}>
           <button onClick={this.resendGiftCard.bind(this)} className="fc-btn fc-btn-primary">Resend Gift Card</button>
         </SectionTitle>
-        <div className="fc-grid">
+        <div className="fc-grid fc-grid-gutter">
           <div className="fc-col-md-1-3">
             <Panel title="Available Balance" featured={true}>
-              { formatCurrency(card.availableBalance) }
+              <Currency value={card.availableBalance}/>
             </Panel>
           </div>
         </div>
         <PanelList className="fc-grid fc-grid-collapse fc-grid-md-1-5">
           <PanelListItem title="Original Balance">
-            { formatCurrency(card.originalBalance) }
+            <Currency value={card.originalBalance}/>
           </PanelListItem>
           <PanelListItem title="Current Balance">
-            { formatCurrency(card.currentBalance) }
+            <Currency value={card.currentBalance}/>
           </PanelListItem>
           <PanelListItem title="Date/Time Issued">
             <DateTime value={card.createdAt}/>

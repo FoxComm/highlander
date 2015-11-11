@@ -1,5 +1,3 @@
-'use strict';
-
 import BaseStore from './base-store.js';
 
 export default class TableStore extends BaseStore {

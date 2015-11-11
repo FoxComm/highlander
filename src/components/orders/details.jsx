@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 import OrderSummary from './summary';
 import CustomerInfo from './customer-info';
@@ -8,7 +6,7 @@ import OrderShippingAddress from './shipping-address';
 import OrderShippingMethod from './order-shipping-method';
 import OrderPayment from './payment';
 
-const OrderDetails = (props) => {
+const OrderDetails = props => {
   return (
     <div className="fc-order-details">
       <div className="fc-order-details-body">
@@ -27,10 +25,10 @@ const OrderDetails = (props) => {
   );
 };
 
-OrderDetails.propsTypes = {
+OrderDetails.propTypes = {
   order: PropTypes.shape({
     currentOrder: PropTypes.object
-  }).isRequired
+  })
 };
 
 export default OrderDetails;

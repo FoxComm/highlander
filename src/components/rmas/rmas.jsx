@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 import SectionTitle from '../section-title/section-title';
 import LocalNav from '../local-nav/local-nav';

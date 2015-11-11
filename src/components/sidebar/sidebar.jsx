@@ -1,5 +1,3 @@
-'use strict';
-
 import React from 'react';
 import Navigation from './navigation';
 import static_url from '../../lib/s3';

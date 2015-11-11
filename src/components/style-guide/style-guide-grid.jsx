@@ -1,6 +1,4 @@
-'use strict';
-
-import React from 'react';
+import React, { PropTypes } from 'react';
 import { Link } from '../link';
 import DescriptiveGridColumn from './descriptive-grid-column';
 
@@ -46,6 +44,10 @@ const StyleGuideGridGenerator = props => {
       </div>
     </div>
   );
+};
+
+StyleGuideGridGenerator.propTypes = {
+  size: PropTypes.number
 };
 
 const StyleGuideGrid = props => {
@@ -103,6 +105,10 @@ const StyleGuideGrid = props => {
       </div>
     </div>
   );
+};
+
+StyleGuideGrid.propTypes = {
+  size: PropTypes.number
 };
 
 export default StyleGuideGrid;

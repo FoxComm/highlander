@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 import CustomerContacts from './contacts';
 import CustomerAccountPassword from './account-password';
@@ -11,7 +9,7 @@ import CustomerNotificationSettings from './notification-settings';
 import CustomerAccountStatus from './account-status';
 import SectionSubtitle from '../section-title/section-subtitle';
 
-const CustomerDetails = (props) => {
+const CustomerDetails = props => {
   const customer = props.entity;
   return (
     <div className="fc-customer-details">

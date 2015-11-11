@@ -1,5 +1,3 @@
-'use strict';
-
 const unexpected = require('unexpected');
 global.unexpected = unexpected
   .use(require('./_unexpected_actions'));

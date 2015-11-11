@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import EditableContentBox from '../content-box/editable-content-box';
 import TableView from '../table/tableview';
 import ShippingMethodRow from './shipping-method-row';
@@ -13,18 +13,17 @@ const renderRow = (row, index, isNew) => {
 };
 
 
-const ShippingMethod = (props) => {
+const ShippingMethod = props => {
   const editContent = (
     <TableView 
       columns={columns} 
       data={{rows: props.availableShippingMethods}}
       renderRow={renderRow}
-      setState={()=>{}}
       />
   );
 
   const viewContent = (
-    <TableView columns={columns} data={{rows: props.shippingMethods}} setState={()=>{}} />
+    <TableView columns={columns} data={{rows: props.shippingMethods}} />
   );
 
   return (
@@ -38,6 +37,10 @@ const ShippingMethod = (props) => {
       editContent={editContent}
       />
   );
+};
+
+ShippingMethod.propTypes = {
+  shippingMethods: PropTypes.array
 };
 
 export default ShippingMethod;

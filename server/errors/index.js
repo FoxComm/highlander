@@ -1,5 +1,3 @@
-'use strict';
-
 const fs = require('fs');
 
 for (let file of fs.readdirSync(__dirname)) {
