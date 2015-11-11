@@ -18,6 +18,10 @@ import * as CardUtils from '../../lib/credit-card-utils';
 }), CustomersActions)
 export default class EditCreditCardBox extends React.Component {
 
+  static propTypes = {
+    customerId: PropTypes.number.isRequired
+  }
+
   constructor(...args) {
     super(...args);
     this.state = {
@@ -96,14 +100,14 @@ export default class EditCreditCardBox extends React.Component {
                     <Dropdown name="expMonth"
                               items={ CardUtils.monthList() }
                               placeholder="Month"
-                              value={ form.expMonth }
+                              value={ form.expMonth.toString() }
                               onChange={ this.onExpMonthChange } />
                   </div>
                   <div className="fc-col-md-1-2">
                     <Dropdown name="expYear"
                               items={ CardUtils.expirationYears() }
                               placeholder="Year"
-                              value={ form.expYear }
+                              value={ form.expYear.toString() }
                               onChange={ this.onExpYearChange } />
                   </div>
                 </div>

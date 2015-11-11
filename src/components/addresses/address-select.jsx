@@ -1,10 +1,19 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import AddressDetails from './address-details';
 import { DefaultButton, AddButton } from '../common/buttons';
 import classnames from 'classnames';
 import { autobind } from 'core-decorators';
 
 export default class AddressSelect extends React.Component {
+
+  static propTypes = {
+    customerId: PropTypes.number.isRequired,
+    name: PropTypes.string,
+    value: PropTypes.string,
+    items: PropTypes.array,
+    onItemSelect: PropTypes.func,
+    className: PropTypes.string
+  }
 
   constructor(...args) {
     super(...args);
@@ -27,8 +36,8 @@ export default class AddressSelect extends React.Component {
   renderSelectItem(address) {
     const isSelected = address.id === this.state.value;
     const itemClassName = classnames(
-      "fc-address-select-item",
-      { "fc-address-select-item-active": isSelected }
+      'fc-address-select-item',
+      { 'fc-address-select-item-active': isSelected }
     );
     const key = `cutomer-address-${ address.id }`;
     return (
@@ -46,7 +55,7 @@ export default class AddressSelect extends React.Component {
   }
 
   render() {
-    const rootClassName = classnames("fc-address-select", this.props.className);
+    const rootClassName = classnames('fc-address-select', this.props.className);
     return (
       <div className={ rootClassName }>
         <div className="fc-address-select-header">

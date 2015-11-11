@@ -17,6 +17,10 @@ import * as CardUtils from '../../lib/credit-card-utils';
 }), CustomersActions)
 export default class NewCreditCardBox extends React.Component {
 
+  static propTypes = {
+    customerId: PropTypes.number.isRequired
+  }
+
   componentDidMount() {
     const customer = this.props.customerId;
     this.props.fetchAddresses(customer);
@@ -117,6 +121,7 @@ export default class NewCreditCardBox extends React.Component {
                     Billing Address
                   </label>
                   <AddressSelect name="addressId"
+                                 customerId={ this.props.customerId }
                                  items={ this.props.addresses }
                                  value={ form.addressId }
                                  onItemSelect={ this.onAddressChange } />
