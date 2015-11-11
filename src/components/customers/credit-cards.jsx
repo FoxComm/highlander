@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import ContentBox from '../content-box/content-box';
 import CreditCardBox from '../credit-cards/card-box';
@@ -9,9 +10,17 @@ import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import * as CustomerCreditCardActions from '../../modules/customers/credit-cards';
 
+function mapDispatchToProps(dispatch, props) {
+  return _.transform(CustomerCreditCardActions, (result, action, key) => {
+    result[key] = (...args) => {
+      return dispatch(action(props.customerId, ...args));
+    };
+  });
+}
+
 @connect((state, props) => ({
   ...state.customers.creditCards[props.customerId]
-}), CustomerCreditCardActions)
+}), mapDispatchToProps)
 export default class CustomerCreditCards extends React.Component {
 
   ////
@@ -23,82 +32,70 @@ export default class CustomerCreditCards extends React.Component {
   }
 
   componentDidMount() {
-    const customer = this.props.customerId;
-    this.props.fetchCreditCards(customer);
+    this.props.fetchCreditCards();
   }
 
   ////
   // Handlers for adding new credit card
   @autobind
   onAddClick() {
-    const customer = this.props.customerId;
-    this.props.newCustomerCreditCard(customer);
+    this.props.newCustomerCreditCard();
   }
 
   @autobind
   onAddingCancel() {
-    const customer = this.props.customerId;
-    this.props.closeNewCustomerCreditCard(customer);
+    this.props.closeNewCustomerCreditCard();
   }
 
   @autobind
   onChangeNewFormValue({target}) {
-    const customer = this.props.customerId;
-    this.props.changeNewCustomerCreditCardFormData(customer, target.name, target.value || target.checked);
+    this.props.changeNewCustomerCreditCardFormData(target.name, target.value || target.checked);
   }
 
   @autobind
   onSubmitNewForm(event) {
     event.preventDefault();
-    const customer = this.props.customerId;
-    this.props.createCreditCard(customer);
+    this.props.createCreditCard();
   }
 
   ////
   // Handlers for deleting credit card
   @autobind
   onDeleteClick(cardId) {
-    const customer = this.props.customerId;
-    this.props.deleteCustomerCreditCard(customer, cardId);
+    this.props.deleteCustomerCreditCard(cardId);
   }
 
   @autobind
   onDeleteCancel() {
-    const customer = this.props.customerId;
-    this.props.closeDeleteCustomerCreditCard(customer);
+    this.props.closeDeleteCustomerCreditCard();
   }
 
   @autobind
   onDeleteConfirm() {
-    const customer = this.props.customerId;
-    this.props.confirmCreditCardDeletion(customer);
+    this.props.confirmCreditCardDeletion();
   }
 
   ////
   // Handlers for editing credit card
   @autobind
   onEditClick(cardId) {
-    const customer = this.props.customerId;
-    this.props.editCustomerCreditCard(customer, cardId);
+    this.props.editCustomerCreditCard(cardId);
   }
 
   @autobind
   onEditCancel() {
-    const customer = this.props.customerId;
-    this.props.closeEditCustomerCreditCard(customer);
+    this.props.closeEditCustomerCreditCard();
   }
 
   @autobind
   onEditFormChange({target}) {
-    const customer = this.props.customerId;
-    this.props.changeEditCustomerCreditCardFormData(customer, target.name, target.value || target.checked);
+    this.props.changeEditCustomerCreditCardFormData(target.name, target.value || target.checked);
   }
 
   @autobind
   onEditFormSubmit(event) {
     event.preventDefault();
-    const customer = this.props.customerId;
-    this.props.saveCreditCard(customer);
+    this.props.saveCreditCard();
   }
 
   ////

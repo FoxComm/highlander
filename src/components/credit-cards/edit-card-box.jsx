@@ -39,6 +39,7 @@ export default class EditCreditCardBox extends React.Component {
                     ( <AddressSelect name="addressId"
                                      items={ this.props.addresses }
                                      value={ this.props.form.addressId }
+                                     customerId={ this.props.customerId }
                                      onItemSelect={ this.onAddressChange } />) :
                     ( <AddressDetails customerId={ this.props.customerId }
                                       address={ this.props.card } />);
