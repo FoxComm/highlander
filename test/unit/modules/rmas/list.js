@@ -8,9 +8,22 @@ const { reducer, ...actions } = importModule('rmas/list.js', [
 ]);
 
 describe('Rmas module', function() {
-  const entity = {
+  const rmaEntity = {
     entityType: 'rma'
   };
+
+  const orderEntity = {
+    entityType: 'order',
+    entityId: 'ABC-123'
+  };
+
+  function rmaUri(entity) {
+    if (entity.entityId) {
+      return `/api/v1/rmas/${entity.entityType}/${entity.entityId}`;
+    } else {
+      return '/api/v1/rmas';
+    }
+  }
 
   const rma = require('../../../fixtures/rma.json');
 
@@ -31,7 +44,11 @@ describe('Rmas module', function() {
   context('async actions', function() {
     before(function() {
       nock(phoenixUrl)
-        .get('/api/v1/rmas')
+        .get(rmaUri(rmaEntity))
+        .reply(200, rmaPayload);
+
+      nock(phoenixUrl)
+        .get(rmaUri(orderEntity))
         .reply(200, rmaPayload);
     });
 
@@ -43,10 +60,20 @@ describe('Rmas module', function() {
       const expectedActions = [
         actions.actionFetch,
         actions.actionSetFetchParams,
-        { type: actions.actionReceived, payload: [entity, rmaPayload]}
+        { type: actions.actionReceived, payload: [rmaEntity, rmaPayload]}
       ];
 
       yield expect(actions.fetchRmas(), 'to dispatch actions', expectedActions);
+    });
+
+    it('fetchRmas for child', function*() {
+      const expectedActions = [
+        actions.actionFetch,
+        actions.actionSetFetchParams,
+        { type: actions.actionReceived, payload: [orderEntity, rmaPayload]}
+      ];
+
+      yield expect(actions.fetchRmas(orderEntity), 'to dispatch actions', expectedActions);
     });
   });
 });
