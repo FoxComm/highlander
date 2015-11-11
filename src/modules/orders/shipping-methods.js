@@ -1,6 +1,6 @@
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
-import { orderSuccess } from './details.js'
+import { orderSuccess } from './details.js';
 
 export const orderShippingMethodRequest = createAction('ORDER_SHIPPING_METHOD_REQUEST');
 export const orderShippingMethodRequestSuccess = createAction('ORDER_SHIPPING_METHOD_REQUEST_SUCCESS');
