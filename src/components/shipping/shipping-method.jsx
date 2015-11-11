@@ -38,7 +38,9 @@ const viewContent = props => {
 const ShippingMethod = props => {
   const availableShippingMethods = props.availableShippingMethods.map(shippingMethod => {
     let isSelected = false;
-    if (props.shippingMethods && props.shippingMethods.length > 0) {
+    if (props.shippingMethods !== undefined && 
+        props.shippingMethods.length > 0 &&
+        props.shippingMethods[0] !== undefined) {
       isSelected = props.shippingMethods[0].id == shippingMethod.id;
     }
 

@@ -185,4 +185,42 @@ describe('Order Shipping Methods', function() {
     expect(emptyText.innerHTML).to.equal('No shipping method applied.');
     container.unmount();
   });
+
+  it('should render available options when there is no selected shipping method', function *() {
+    const props = {
+      ...defaultProps,
+      order: {
+        currentOrder: {
+          shippingMethod: {}
+        }
+      },
+      shippingMethods: {
+        ...defaultProps.shippingMethods,
+        isEditing: true
+      }
+    };
+
+    const { container } = yield renderIntoDocument(
+      <div><ShippingMethods {...props} /></div>
+    );
+
+    const firstRow = getTableRow(container, 0);
+    const secondRow = getTableRow(container, 1);
+    const thirdRow = getTableRow(container, 2);
+
+    const firstMethodName = getEditableMethodName(firstRow);
+    const firstMethodPrice = getMethodPrice(firstRow);
+    const secondMethodName = getEditableMethodName(secondRow);
+    const secondMethodPrice = getMethodPrice(secondRow);
+    const thirdMethodName = getEditableMethodName(thirdRow);
+    const thirdMethodPrice = getMethodPrice(thirdRow);
+
+    expect(firstMethodName).to.equal('Test Shipping Method');
+    expect(firstMethodPrice).to.equal('$35.00');
+    expect(secondMethodName).to.equal('Another Shipping Method');
+    expect(secondMethodPrice).to.equal('$12.30');
+    expect(thirdMethodName).to.equal('A Third Shipping Method');
+    expect(thirdMethodPrice).to.equal('$90.80');
+    container.unmount();
+  });
 });
