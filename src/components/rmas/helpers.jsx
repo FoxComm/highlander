@@ -7,20 +7,6 @@ import { DateTime } from '../common/datetime';
 import Currency from '../common/currency';
 import { Link } from '../link';
 
-const RmaEmail = props => {
-  if (props.storeAdmin) {
-    return <span>{props.storeAdmin.email}</span>;
-  } else if (props.customer) {
-    return <span>{props.customer.email}</span>;
-  }
-
-  return null;
-};
-
-RmaEmail.propTypes = {
-  model: PropTypes.string
-};
-
 const CustomerInfo = props => {
   return (
     <div className="fc-rma-summary fc-content-box">
@@ -81,7 +67,7 @@ const renderRow = (row, index) => {
       <TableCell><Link to="rma" params={{rma: row.referenceNumber}}>{row.referenceNumber}</Link></TableCell>
       <TableCell><DateTime value={row.createdAt} /></TableCell>
       <TableCell><Link to="order" params={{order: row.orderRefNum}}>{row.orderRefNum}</Link></TableCell>
-      <TableCell><RmaEmail {...row} /></TableCell>
+      <TableCell>{row.customer.email}</TableCell>
       <TableCell>{row.status}</TableCell>
       <TableCell><Currency value={row.total} /></TableCell>
     </TableRow>
@@ -89,7 +75,6 @@ const renderRow = (row, index) => {
 };
 
 export {
-  RmaEmail,
   CustomerInfo,
   PaymentMethod,
   RmaSummary,

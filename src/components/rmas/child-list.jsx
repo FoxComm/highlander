@@ -29,9 +29,9 @@ export default class RmaChildList extends React.Component {
       {field: 'referenceNumber', text: 'Return', type: 'id'},
       {field: 'createdAt', text: 'Date', type: 'date'},
       {field: 'orderId', text: 'Order', model: 'order', type: 'id'},
-      {field: 'email', text: 'Email', component: 'RmaEmail'},
+      {field: 'email', text: 'Email'},
       {field: 'status', text: 'Return Status', type: 'rmaStatus'},
-      {field: 'returnTotal', text: 'Total', component: 'RmaTotal'}
+      {field: 'returnTotal', text: 'Total', type: 'currency'}
     ]
   };
 

@@ -36,7 +36,7 @@ export default class Rmas extends React.Component {
       {field: 'referenceNumber', text: 'Return', type: 'id'},
       {field: 'createdAt', text: 'Date', type: 'date'},
       {field: 'orderRefNum', text: 'Order', model: 'order', type: 'id'},
-      {field: 'email', text: 'Email', component: 'RmaEmail'},
+      {field: 'email', text: 'Email'},
       {field: 'status', text: 'Return Status', type: 'rmaStatus'},
       {field: 'returnTotal', text: 'Total', type: 'currency'}
     ]
