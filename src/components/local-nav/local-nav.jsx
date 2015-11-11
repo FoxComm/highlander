@@ -4,8 +4,24 @@ import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 
+const NavDropdown = props => {
+  return (
+    <li className={`fc-tabbed-nav-parent fc-tabbed-nav-item ${props.className}`}>
+      <a>{props.title}</a>
+      <ul className="fc-tabbed-nav-dropdown">
+        {React.Children.map(props.children, item => <li>{item}</li>)}
+      </ul>
+    </li>
+  );
+};
+
+NavDropdown.propTypes = {
+  title: PropTypes.string.isRequired,
+  children: PropTypes.node.isRequired
+};
+
 @connect(state => ({router: state.router}))
-export default class LocalNav extends React.Component {
+class LocalNav extends React.Component {
   static propTypes = {
     router: PropTypes.shape({
       routes: PropTypes.array
@@ -41,12 +57,12 @@ export default class LocalNav extends React.Component {
 
   @autobind
   renderItem(item) {
-    if (item.type === 'li') {
+    if (item.type === NavDropdown) {
       let isActive = this.hasActiveLink(item);
-      const parentItem = React.cloneElement(item, {
-        className: `fc-tabbed-nav-parent fc-tabbed-nav-item ${isActive ? 'fc-tabbed-nav-selected' : ''}`
+      const dropdownItem = React.cloneElement(item, {
+        className: isActive ? 'fc-tabbed-nav-selected' : ''
       });
-      return parentItem;
+      return dropdownItem;
     } else {
       return <li className="fc-tabbed-nav-item">{item}</li>;
     }
@@ -72,4 +88,9 @@ LocalNav.propTypes = {
 
 LocalNav.defaultProps = {
   gutter: false
+};
+
+export {
+  LocalNav as default,
+  NavDropdown
 };

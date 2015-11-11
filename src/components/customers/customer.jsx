@@ -3,7 +3,7 @@ import { Link, IndexLink } from '../link';
 import TitleBlock from './title-block';
 import { connect } from 'react-redux';
 import * as CustomersActions from '../../modules/customers/details';
-import LocalNav from '../local-nav/local-nav';
+import LocalNav, { NavDropdown } from '../local-nav/local-nav';
 
 @connect((state, props) => ({
   ...state.customers.details[props.params.customer]
@@ -44,12 +44,9 @@ export default class Customer extends React.Component {
         <LocalNav gutter={true}>
           <a href="">Insights</a>
           <IndexLink to="customer-details" params={this.props.params}>Details</IndexLink>
-          <li>
-            <a>Transaction</a>
-            <ul className="fc-tabbed-nav-dropdown">
-              <li><Link to="customer-returns" params={this.props.params}>Returns</Link></li>
-            </ul>
-          </li>
+          <NavDropdown title="Transaction">
+            <Link to="customer-returns" params={this.props.params}>Returns</Link>
+          </NavDropdown>
           <a href="">Items</a>
           <a href="">Store Credit</a>
           <a href="">Notifications</a>
