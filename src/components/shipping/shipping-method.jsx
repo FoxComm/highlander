@@ -23,6 +23,17 @@ const renderRowFn = (order, updateAction, isEditingPrice, editPriceAction, cance
   };
 };
 
+const viewContent = props => {
+  const shippingMethods = props.shippingMethods;
+  if (shippingMethods !== undefined && 
+      shippingMethods[0] !== undefined &&
+      shippingMethods[0].name && 
+      shippingMethods[0].price) {
+    return <TableView columns={columns} data={{rows: shippingMethods}} />;
+  } else {
+    return <span className='empty-text'>No shipping method applied.</span>;
+  }
+};
 
 const ShippingMethod = props => {
   const availableShippingMethods = props.availableShippingMethods.map(shippingMethod => {
@@ -52,10 +63,6 @@ const ShippingMethod = props => {
       />
   );
 
-  const viewContent = (
-    <TableView columns={columns} data={{rows: props.shippingMethods}} />
-  );
-
   return (
     <EditableContentBox
       className='fc-shipping-methods'
@@ -63,7 +70,7 @@ const ShippingMethod = props => {
       isEditing={props.isEditing}
       editAction={props.editAction}
       doneAction={props.doneAction}
-      viewContent={viewContent}
+      viewContent={viewContent(props)}
       editContent={editContent}
       />
   );

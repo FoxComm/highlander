@@ -1,4 +1,5 @@
 import React from 'react';
+import formatCurrency from '../../lib/format-currency';
 import Currency from '../common/currency';
 import { EditButton, PrimaryButton } from '../common/buttons';
 import PrependMoneyInput from '../forms/prepend-money-input';
@@ -13,10 +14,12 @@ const columns = [
 
 const editBlock = (shippingMethod, isEditingPrice, editPriceAction, cancelPriceAction, submitPriceAction) => {
   if (shippingMethod.isSelected && isEditingPrice) {
+    const price = formatCurrency(shippingMethod.price, 100, '');
+
     return (
       <div className='contents'>
         <div className='shipping-method-input-price'>
-          <PrependMoneyInput value={shippingMethod.price} />
+          <PrependMoneyInput value={price} />
         </div>
         <div className='shipping-method-action'>
           <a className='shipping-cancel-action' onClick={cancelPriceAction}>Cancel</a>
