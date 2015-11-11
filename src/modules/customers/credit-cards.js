@@ -106,7 +106,7 @@ const reducer = createReducer({
           cvv: null,
           expMonth: null,
           expYear: null,
-          addressId: 1
+          addressId: null
         }
       }
     };

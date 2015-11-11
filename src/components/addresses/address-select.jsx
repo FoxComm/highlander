@@ -6,9 +6,31 @@ import { autobind } from 'core-decorators';
 
 export default class AddressSelect extends React.Component {
 
+  constructor(...args) {
+    super(...args);
+    this.state = {
+      value: this.props.value
+    };
+  }
+
+  onItemSelect(value) {
+    console.log("onItemSelect");
+    this.setState({
+      value: value
+    }, () => {
+      if (this.props.onItemSelect) {
+        this.props.onItemSelect(value, title);
+      }
+    });
+  }
+
+  componentDidUpdate() {
+    console.log(this.state);
+  }
+
   @autobind
   renderSelectItem(address) {
-    const isSelected = address.id === this.props.value;
+    const isSelected = address.id === this.state.value;
     const itemClassName = classnames(
       "fc-address-select-item",
       { "fc-address-select-item-active": isSelected }
@@ -22,7 +44,7 @@ export default class AddressSelect extends React.Component {
                           customerId={ this.props.customerId }/>
         </div>
         <div className="fc-address-select-item-controlls">
-          <DefaultButton>Choose</DefaultButton>
+          <DefaultButton type="button" onClick={ this.onItemSelect.bind(this, address.id) } >Choose</DefaultButton>
         </div>
       </div>
     );
@@ -41,7 +63,7 @@ export default class AddressSelect extends React.Component {
           </div>
         </div>
         <div className="fc-address-select-body">
-          <input type="hidden" name={ this.props.name } value={ this.props.value } />
+          <input type="hidden" name={ this.props.name } value={ this.state.value } />
           <div className="gc-address-select-list">
             {(this.props.items && this.props.items.map( this.renderSelectItem ))}
           </div>
