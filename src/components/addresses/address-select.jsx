@@ -9,7 +9,7 @@ export default class AddressSelect extends React.Component {
   static propTypes = {
     customerId: PropTypes.number.isRequired,
     name: PropTypes.string,
-    value: PropTypes.string,
+    value: PropTypes.number,
     items: PropTypes.array,
     onItemSelect: PropTypes.func,
     className: PropTypes.string
@@ -22,6 +22,7 @@ export default class AddressSelect extends React.Component {
     };
   }
 
+  @autobind
   onItemSelect(value) {
     this.setState({
       value: value
@@ -48,7 +49,7 @@ export default class AddressSelect extends React.Component {
                           customerId={ this.props.customerId }/>
         </div>
         <div className="fc-address-select-item-controlls">
-          <DefaultButton type="button" onClick={ this.onItemSelect.bind(this, address.id) } >Choose</DefaultButton>
+          <DefaultButton type="button" onClick={ () => this.onItemSelect(address.id) } >Choose</DefaultButton>
         </div>
       </div>
     );
