@@ -195,6 +195,10 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
     (implicit ec: ExecutionContext): DBIO[Adj] =
     adjust(giftCard, orderPaymentId, debit = debit, credit = credit, status = Adj.Auth)
 
+  def authOrderPayment(giftCard: GiftCard, pmt: OrderPayment)
+    (implicit ec: ExecutionContext): DBIO[Adj] =
+    auth(giftCard = giftCard, orderPaymentId = pmt.id.some, debit = pmt.amount.getOrElse(0))
+
   def capture(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int = 0, credit: Int = 0)
     (implicit ec: ExecutionContext): DBIO[Adj] =
     adjust(giftCard, orderPaymentId, debit = debit, credit = credit, status = Adj.Capture)

@@ -17,7 +17,7 @@ import utils.Slick.UpdateReturning._
 import utils.Slick.implicits._
 import OrderPayments.scope._
 import utils.Litterbox._
-import utils.friendlyClassName
+import utils.{TableQueryWithId, friendlyClassName}
 
 /*
   1) Run cart through validator
@@ -53,8 +53,8 @@ final case class Checkout(cart: Order, cartValidator: CartValidation)(implicit d
 
   private def authPayments: DbResult[Unit] = {
     (for {
-      giftCards     ← authGiftCards
-      storeCredits  ← authStoreCredits
+      giftCards ← authGiftCards
+      storeCredits ← authStoreCredits
     } yield (giftCards, storeCredits)).map { case (gc, sc) ⇒
       // not-so-easy-way to combine error messages from both Xors
       gc.map(_ ⇒ {}).combine(sc.map(_ ⇒ {}))
@@ -62,36 +62,22 @@ final case class Checkout(cart: Order, cartValidator: CartValidation)(implicit d
   }
 
   private def authGiftCards: DbResult[List[GiftCardAdjustment]] = {
-    (for {
-      pmts ← OrderPayments.filter(_.orderId === cart.id)
-      gc ← GiftCards if gc.id === pmts.paymentMethodId
-    } yield (pmts, gc)).result.flatMap { results ⇒
-      if (results.isEmpty)
-        DbResult.good(List.empty[GiftCardAdjustment])
-      else {
-        val auths = results.map { case (pmt, gc) ⇒
-         val auth = GiftCards.auth(giftCard = gc, orderPaymentId = pmt.id.some, debit = pmt.amount.getOrElse(0))
-          DbResult.fromDbio(auth)
-        }
-
-        DBIO.sequence(auths).map(_.toList.sequenceU)
-      }
-    }
+    val payments = OrderPayments.findAllGiftCardsByOrderId(cart.id).result
+    authInternalPaymentMethod(payments)(GiftCards.authOrderPayment)
   }
 
   private def authStoreCredits: DbResult[List[StoreCreditAdjustment]] = {
-    (for {
-      pmts ← OrderPayments.filter(_.orderId === cart.id)
-      sc ← StoreCredits if sc.id === pmts.paymentMethodId
-    } yield (pmts, sc)).result.flatMap { results ⇒
-      if (results.isEmpty)
-        DbResult.good(List.empty[StoreCreditAdjustment])
-      else {
-        val auths = results.map { case (pmt, sc) ⇒
-          val auth = StoreCredits.auth(storeCredit = sc, orderPaymentId = pmt.id.some, amount = pmt.amount.getOrElse(0))
-          DbResult.fromDbio(auth)
-        }
+    val payments = OrderPayments.findAllStoreCreditsByOrderId(cart.id).result
+    authInternalPaymentMethod(payments)(StoreCredits.authOrderPayment)
+  }
 
+  private def authInternalPaymentMethod[M, Adj]
+  (dbio: DBIO[Seq[(OrderPayment, M)]])(auth: (M, OrderPayment) ⇒ DBIO[Adj]): DbResult[List[Adj]] = {
+    dbio.flatMap { results ⇒
+      if (results.isEmpty)
+        DbResult.good(List.empty[Adj])
+      else {
+        val auths = results.map { case (pmt, m) ⇒ auth(m, pmt).toXor }
         DBIO.sequence(auths).map(_.toList.sequenceU)
       }
     }
