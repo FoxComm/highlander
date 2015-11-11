@@ -44,7 +44,7 @@ export default class EditCreditCardBox extends React.Component {
 
   @autobind
   toggleSelectAddress() {
-    const newState = { editingAddress: !this.state.editingAddress }
+    const newState = { editingAddress: !this.state.editingAddress };
     this.setState(newState);
   }
 
