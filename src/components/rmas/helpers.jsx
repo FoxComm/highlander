@@ -5,11 +5,12 @@ import TableRow from '../table/row';
 import TableCell from '../table/cell';
 import { DateTime } from '../common/datetime';
 import Currency from '../common/currency';
+import { Link } from '../link';
 
 const RmaEmail = props => {
   if (props.storeAdmin) {
     return <span>{props.storeAdmin.email}</span>;
-  } else if (props.model.customer) {
+  } else if (props.customer) {
     return <span>{props.customer.email}</span>;
   }
 
@@ -49,16 +50,6 @@ const PaymentMethod = props => {
   );
 };
 
-const RmaTotal = props => {
-  return (
-    <span><Currency value={_.sum(props.lineItems.skus, (sku) => sku.totalPrice)} /></span>
-  );
-};
-
-RmaTotal.propTypes = {
-  model: PropTypes.string
-};
-
 const RmaSummary = props => {
   const rma = props.rma;
 
@@ -87,12 +78,12 @@ const RmaSummary = props => {
 const renderRow = (row, index) => {
   return (
     <TableRow key={`${index}`}>
-      <TableCell>{row.referenceNumber}</TableCell>
+      <TableCell><Link to="rma" params={{rma: row.referenceNumber}}>{row.referenceNumber}</Link></TableCell>
       <TableCell><DateTime value={row.createdAt} /></TableCell>
-      <TableCell>{row.orderRefNum}</TableCell>
+      <TableCell><Link to="order" params={{order: row.orderRefNum}}>{row.orderRefNum}</Link></TableCell>
       <TableCell><RmaEmail {...row} /></TableCell>
       <TableCell>{row.status}</TableCell>
-      <TableCell><RmaTotal {...row} /></TableCell>
+      <TableCell><Currency value={row.total} /></TableCell>
     </TableRow>
   );
 };
@@ -101,7 +92,6 @@ export {
   RmaEmail,
   CustomerInfo,
   PaymentMethod,
-  RmaTotal,
   RmaSummary,
   renderRow
 };

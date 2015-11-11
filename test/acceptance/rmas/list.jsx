@@ -1,13 +1,11 @@
 import React from 'react';
 import TestUtils from 'react-addons-test-utils';
-import ReactDom from 'react-dom';
-
+import sinon from 'sinon';
+import { Provider } from 'react-redux';
+import nock from 'nock';
 
 describe('Rmas', function() {
   const Rmas = requireComponent('rmas/rmas.jsx');
-
-  beforeEach(function() {
-  });
 
   it('should render', function*() {
   });
