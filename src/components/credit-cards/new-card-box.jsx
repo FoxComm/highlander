@@ -7,23 +7,14 @@ import Form from '../forms/form.jsx';
 import Dropdown from '../dropdown/dropdown';
 import DropdownItem from '../dropdown/dropdownItem';
 import AddressSelect from '../addresses/address-select';
-import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
-import * as CustomersActions from '../../modules/customers/details';
 import * as CardUtils from '../../lib/credit-card-utils';
 
-@connect((state, props) => ({
-  ...state.customers.details[props.customerId]
-}), CustomersActions)
 export default class NewCreditCardBox extends React.Component {
 
   static propTypes = {
-    customerId: PropTypes.number.isRequired
-  }
-
-  componentDidMount() {
-    const customer = this.props.customerId;
-    this.props.fetchAddresses(customer);
+    customerId: PropTypes.number.isRequired,
+    addresses: PropTypes.array
   }
 
   @autobind

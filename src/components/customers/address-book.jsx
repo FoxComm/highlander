@@ -19,12 +19,6 @@ export default class CustomerAddressBook extends React.Component {
     addresses: PropTypes.array
   }
 
-  componentDidMount() {
-    const customer = this.props.customerId;
-
-    this.props.fetchAddresses(customer);
-  }
-
   get actionBlock() {
     return (
       <AddButton />

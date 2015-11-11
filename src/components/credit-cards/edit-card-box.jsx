@@ -8,18 +8,14 @@ import Dropdown from '../dropdown/dropdown';
 import DropdownItem from '../dropdown/dropdownItem';
 import AddressDetails from '../addresses/address-details';
 import AddressSelect from '../addresses/address-select';
-import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
-import * as CustomersActions from '../../modules/customers/details';
 import * as CardUtils from '../../lib/credit-card-utils';
 
-@connect((state, props) => ({
-  ...state.customers.details[props.customerId]
-}), CustomersActions)
 export default class EditCreditCardBox extends React.Component {
 
   static propTypes = {
-    customerId: PropTypes.number.isRequired
+    customerId: PropTypes.number.isRequired,
+    addresses: PropTypes.array
   }
 
   constructor(...args) {
@@ -27,11 +23,6 @@ export default class EditCreditCardBox extends React.Component {
     this.state = {
       editingAddress: false
     };
-  }
-
-  componentDidMount() {
-    const customer = this.props.customerId;
-    this.props.fetchAddresses(customer);
   }
 
   get addressBlock() {
