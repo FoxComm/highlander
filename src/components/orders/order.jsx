@@ -100,8 +100,7 @@ export default class Order extends React.Component {
   }
 
   render() {
-    let
-      order         = this.order;
+    const order = this.order;
 
     if (!order) {
       return <div className="fc-order"></div>;
