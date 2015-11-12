@@ -1,13 +1,14 @@
+
 import React, { PropTypes } from 'react';
 
-export default class CreditCardBox extends React.Component {
+export default class ItemCardContainer extends React.Component {
 
   static propTypes = {
     className: PropTypes.string,
     leftControls: PropTypes.node,
     rightControls: PropTypes.node,
     children: PropTypes.node
-  }
+  };
 
   get cartClassName() {
     return `fc-card-container ${this.props.className}`;

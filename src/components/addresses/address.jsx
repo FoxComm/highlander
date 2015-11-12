@@ -17,7 +17,6 @@ export default class Address extends React.Component {
   static propTypes = {
     address: PropTypes.object,
     order: PropTypes.object,
-    customerId: PropTypes.number.isRequired,
     onSelectAddress: PropTypes.func,
     onDeleteAddress: PropTypes.func,
     isSelected: PropTypes.bool

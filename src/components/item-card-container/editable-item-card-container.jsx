@@ -5,7 +5,7 @@ import { Checkbox } from '../checkbox/checkbox';
 export default class EditableItemCardContainer extends React.Component {
 
   static propTypes = {
-    className: PropTypes.string,
+    className: PropTypes.string.isRequired,
     initiallyIsDefault: PropTypes.bool,
     checkboxLabel: PropTypes.string,
     checkboxClickHandler: PropTypes.func,
@@ -31,7 +31,7 @@ export default class EditableItemCardContainer extends React.Component {
 
   get editButton() {
     let editButton = null;
-    if (this.props.editHandler !== undefined) {
+    if (this.props.editHandler) {
       editButton = (<button className="fc-btn icon-edit" onClick={ this.props.editHandler }></button>);
     }
     return editButton;
@@ -39,7 +39,7 @@ export default class EditableItemCardContainer extends React.Component {
 
   get deleteButton() {
     let deleteButton = null;
-    if (this.props.deleteHandler !== undefined) {
+    if (this.props.deleteHandler) {
       deleteButton = (<button className="fc-btn icon-trash" onClick={ this.props.deleteHandler }></button>);
     }
     return deleteButton;

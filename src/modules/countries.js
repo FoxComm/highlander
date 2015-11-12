@@ -14,7 +14,7 @@ const countriesFailed = createAction('COUNTRIES_FAILED');
 
 export function fetchCountry(countryId) {
   return dispatch => {
-    Api.get(`/countries/${countryId}`)
+    return Api.get(`/countries/${countryId}`)
       .then(json => dispatch(countryReceived(json)))
       .catch(err => dispatch(countryFailed(id, err)));
   };
@@ -22,7 +22,7 @@ export function fetchCountry(countryId) {
 
 export function fetchCountries() {
   return dispatch => {
-    Api.get('/countries')
+    return Api.get('/countries')
       .then(json => dispatch(countriesReceived(json)))
       .catch(err => dispatch(countriesFailed(err)));
   };

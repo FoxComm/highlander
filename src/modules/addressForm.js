@@ -1,9 +1,16 @@
 
 import { assoc, merge } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
+import { fetchCountry } from  './countries';
 
-export const changeValue = createAction('ADDRESS_FORM_CHANGE', (name, value) => [name, value]);
+const changeForm = createAction('ADDRESS_FORM_CHANGE', (name, value) => [name, value]);
 export const assignAddress = createAction('ADDRESS_FORM_ASSIGN_ADDRESS');
+
+export function changeValue(name, value) {
+  return dispatch => {
+
+  };
+}
 
 
 const initialState = {
@@ -11,8 +18,10 @@ const initialState = {
 };
 
 const reducer = createReducer({
-  [changeValue]: (state, [name, value]) => {
-    return assoc(state, ['formData', name], value);
+  [changeForm]: (state, [name, value]) => {
+    const path = name === 'countryId' ? [name] : ['formData', name];
+
+    return assoc(state, path, value);
   },
   [assignAddress]: (state, address) => {
     const {region, ...formData} = address || {};

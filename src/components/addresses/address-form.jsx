@@ -1,3 +1,4 @@
+
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import React, { PropTypes } from 'react';
@@ -23,7 +24,15 @@ const selectCurrentCountry = createSelector(
   (countries, countryId) => countries[countryId]
 );
 
-@connect(state => state, {
+function mapStateToProps(state) {
+  return {
+    countries: state.countries,
+    country: selectCurrentCountry(state),
+    ...state.addressForm
+  };
+}
+
+@connect(mapStateToProps, {
   ...CountriesActions,
   ...AddressFormActions
 })
@@ -103,7 +112,7 @@ export default class AddressForm extends React.Component {
   }
 
   @autobind
-  onSubmitForm(event) {
+  handleFormSubmit(event) {
     event.preventDefault();
 
     const customerId = this.props.customerId;
@@ -127,14 +136,14 @@ export default class AddressForm extends React.Component {
           this.props.onSaved(address.id);
         }
       })
-      .then(() => this.props.onClose())
+      .then(this.props.closeAction)
       .catch(error => {
         this.setState({error});
       });
   }
 
   @autobind
-  onChangeValue({target}) {
+  handleFormChange({target}) {
     const value = target.dataset.type === 'int' ? Number(target.value) : target.value;
 
     this.props.changeValue(target.name, value);
@@ -164,7 +173,7 @@ export default class AddressForm extends React.Component {
     if (this.countryCode === 'US') {
       return (
         <InputMask type="tel" name="phoneNumber" mask={CountryStore.phoneMask(this.countryCode)}
-                        onChange={this.onChangeValue}
+                        onChange={this.handleFormChange}
                         formFieldTarget
                         value={formData.phoneNumber} placeholder={CountryStore.phoneExample(this.countryCode)}/>
       );
@@ -197,8 +206,8 @@ export default class AddressForm extends React.Component {
         {this.errorMessages}
         <article>
           <Form action={AddressStore.uri(this.props.customerId)}
-                onSubmit={this.onSubmitForm}
-                onChange={this.onChangeValue}>
+                onSubmit={this.handleFormSubmit}
+                onChange={this.handleFormChange}>
             <ul className="fc-address-form-fields">
               <li>
                 <div className="fc-address-form-field-title">{title}</div>

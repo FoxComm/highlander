@@ -1,3 +1,4 @@
+
 import React, { PropTypes } from 'react';
 import AddressDetails from './address-details';
 import EditableItemCardContainer from '../item-card-container/editable-item-card-container';
@@ -6,12 +7,9 @@ export default class AddressBox extends React.Component {
 
   static propTypes = {
     address: PropTypes.object,
-    customerId: PropTypes.number.isRequired
+    editAction: PropTypes.func,
+    deleteAction: PropTypes.func
   };
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   handleIsDefaultChange() {
     console.log('Is default state changed');
