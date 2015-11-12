@@ -26,6 +26,7 @@ object OrderShippingMethodUpdater {
                 val orderShipping = OrderShippingMethod(orderId = order.id, shippingMethodId = shippingMethod.id)
 
                 DbResult.fromDbio(for {
+                  deleteShipping ← Shipments.filter(_.orderId === order.id).map(_.orderShippingMethodId).update(None)
                   delete ← OrderShippingMethods.findByOrderId(order.id).delete
                   orderShippingMethod ← OrderShippingMethods.saveNew(orderShipping)
                   shipments ← Shipments.filter(_.orderId === order.id).map(_.orderShippingMethodId).update(Some(orderShippingMethod.id))
