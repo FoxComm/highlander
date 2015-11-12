@@ -43,7 +43,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
   def responseItems = {
     val items = (1 to numOfResults).map { i ⇒
-      val dbio = Customers.saveNew(Seeds.Factories.generateCustomer)
+      val dbio = Customers.create(Seeds.Factories.generateCustomer).map(rightValue)
 
       dbio.map { CustomerResponse.build(_) }
     }
@@ -63,19 +63,17 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
   "Customer" - {
     "accounts are unique based on email, non-guest, and active" in {
-      pending // FIXME after #522
-
       val stub = Factories.customer.copy(isGuest = false, isDisabled = false)
-      Customers.saveNew(stub).futureValue
+      Customers.create(stub).futureValue
       val failure = GeneralFailure("record was not unique")
-      val xor = swapDatabaseFailure(Customers.saveNew(stub).map(Xor.right).run())((NotUnique, failure)).futureValue
+      val xor = swapDatabaseFailure(Customers.create(stub).run())((NotUnique, failure)).futureValue
 
       xor.leftVal must === (failure.single)
     }
 
     "accounts are NOT unique for guest account and email" in {
       val stub = Factories.customer.copy(isGuest = true)
-      val customers = (1 to 3).map(_ ⇒ Customers.saveNew(stub).futureValue)
+      val customers = (1 to 3).map(_ ⇒ Customers.create(stub).futureValue.rightVal)
       customers.map(_.id) must contain allOf(1, 2, 3)
     }
   }
@@ -131,8 +129,6 @@ class CustomerIntegrationTest extends IntegrationTestBase
     }
 
     "fails if email is already in use" in new Fixture {
-      pending // FIXME after #522
-
       val response = POST(s"v1/customers", payloads.CreateCustomerPayload(email = customer.email,
         name = Some("test")))
 
@@ -274,7 +270,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
   "GET /v1/customers/:customerId/payment-methods/credit-cards" - {
     "shows customer's credit cards only in their wallet" in new CreditCardFixture {
-      val deleted = CreditCards.saveNew(creditCard.copy(id = 0, inWallet = false)).run().futureValue
+      val deleted = CreditCards.create(creditCard.copy(id = 0, inWallet = false)).run().futureValue.rightVal
 
       val response = GET(s"$uriPrefix/${customer.id}/payment-methods/credit-cards")
       val cc = response.as[ResponseWithFailuresAndMetadata[Seq[CreditCard]]].result
@@ -298,10 +294,10 @@ class CustomerIntegrationTest extends IntegrationTestBase
     }
 
     "fails to set the credit card as default if a default currently exists" in new Fixture {
-      val default = CreditCards.saveNew(Factories.creditCard.copy(isDefault = true, customerId = customer.id))
-        .run().futureValue
-      val nonDefault = CreditCards.saveNew(Factories.creditCard.copy(isDefault = false, customerId = customer.id))
-        .run().futureValue
+      val default = CreditCards.create(Factories.creditCard.copy(isDefault = true, customerId = customer.id))
+        .run().futureValue.rightVal
+      val nonDefault = CreditCards.create(Factories.creditCard.copy(isDefault = false, customerId = customer.id))
+        .run().futureValue.rightVal
 
       val payload = payloads.ToggleDefaultCreditCard(isDefault = true)
       val response = POST(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${nonDefault.id}/default", payload)
@@ -377,7 +373,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
         when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any())).
           thenReturn(Result.good(mock[Card]))
 
-        val order = Orders.saveNew(Factories.cart.copy(customerId = customer.id)).run().futureValue
+        val order = Orders.create(Factories.cart.copy(customerId = customer.id)).run().futureValue.rightVal
         OrderPaymentUpdater.addCreditCard(order.refNum, creditCard.id).futureValue
 
         val payload = payloads.EditCreditCard(holderName = Some("Bob"))
@@ -491,38 +487,38 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
   trait Fixture {
     val (customer, address, region, admin) = (for {
-      customer ← Customers.saveNew(Factories.customer)
-      address ← Addresses.saveNew(Factories.address.copy(customerId = customer.id))
+      customer ← Customers.create(Factories.customer).map(rightValue)
+      address ← Addresses.create(Factories.address.copy(customerId = customer.id)).map(rightValue)
       region ← Regions.findOneById(address.regionId)
-      admin ← StoreAdmins.saveNew(authedStoreAdmin)
+      admin ← StoreAdmins.create(authedStoreAdmin).map(rightValue)
     } yield (customer, address, region, admin)).run().futureValue
   }
 
   trait CreditCardFixture extends Fixture {
-    val creditCard = CreditCards.saveNew(Factories.creditCard.copy(customerId = customer.id)).run().futureValue
+    val creditCard = CreditCards.create(Factories.creditCard.copy(customerId = customer.id)).run().futureValue.rightVal
   }
 
   trait FixtureForRanking extends CreditCardFixture {
     val (order, orderPayment, customer2) = (for {
-      customer2 ← Customers.saveNew(Factories.customer.copy(email = "second@example.org", name = Some("second")))
-      order ← Orders.saveNew(Factories.order.copy(customerId = customer.id,
+      customer2 ← Customers.create(Factories.customer.copy(email = "second@example.org", name = Some("second"))).map(rightValue)
+      order ← Orders.create(Factories.order.copy(customerId = customer.id,
         status = Order.Shipped,
-        referenceNumber = "ABC-123"))
-      order2 ← Orders.saveNew(Factories.order.copy(customerId = customer2.id,
+        referenceNumber = "ABC-123")).map(rightValue)
+      order2 ← Orders.create(Factories.order.copy(customerId = customer2.id,
         status = Order.Shipped,
-        referenceNumber = "ABC-456"))
-      orderPayment ← OrderPayments.saveNew(Factories.orderPayment.copy(orderId = order.id,
+        referenceNumber = "ABC-456")).map(rightValue)
+      orderPayment ← OrderPayments.create(Factories.orderPayment.copy(orderId = order.id,
         paymentMethodId = creditCard.id,
-        amount = Some(100)))
-      orderPayment2 ← OrderPayments.saveNew(Factories.orderPayment.copy(orderId = order2.id,
+        amount = Some(100))).map(rightValue)
+      orderPayment2 ← OrderPayments.create(Factories.orderPayment.copy(orderId = order2.id,
         paymentMethodId = creditCard.id,
-        amount = Some(100)))
-      rma ← Rmas.saveNew(Factories.rma.copy(
+        amount = Some(100))).map(rightValue)
+      rma ← Rmas.create(Factories.rma.copy(
         referenceNumber = "ABC-123.1",
         orderId = order.id,
         status = Rma.Complete,
         orderRefNum = order.referenceNumber,
-        customerId = customer.id))
+        customerId = customer.id)).map(rightValue)
       rmaPayment ← sqlu"""insert into rma_payments(rma_id, payment_method_id, payment_method_type, amount, currency)
               values(${rma.id}, ${creditCard.id}, ${PaymentMethod.Type.show(PaymentMethod.CreditCard)}, 37,
                ${Currency.USD.toString})

@@ -20,6 +20,7 @@ import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.{ADT, FSM, GenericTable, ModelWithLockParameter, TableQueryWithLock, Validation}
 import utils.Slick.implicits._
+import utils.Slick.DbResult
 
 final case class Order(id: Int = 0, referenceNumber: String = "", customerId: Int,
   status: Status = Cart, locked: Boolean = false, placedAt: Option[Instant] = None,
@@ -113,11 +114,14 @@ object Orders extends TableQueryWithLock[Order, Orders](
 
   val returningIdAndReferenceNumber = this.returning(map { o ⇒ (o.id, o.referenceNumber) })
 
-  override def primarySearchTerm: String = "referenceNumber"
+  def returningAction(ret: (Int, String))(order: Order): Order = ret match {
+    case (id, referenceNumber) ⇒ order.copy(id = id, referenceNumber = referenceNumber)
+  }
 
-  override def saveNew(order: Order)(implicit ec: ExecutionContext): DBIO[Order] = for {
-     (newId, refNum) ← returningIdAndReferenceNumber += order
-  } yield order.copy(id = newId, referenceNumber = refNum)
+  override def create[R](order: Order, returning: Returning[R], action: R ⇒ Order ⇒ Order)
+    (implicit ec: ExecutionContext): DbResult[Order] = super.create(order, returningIdAndReferenceNumber, returningAction)
+
+  override def primarySearchTerm: String = "referenceNumber"
 
   def findByCustomer(cust: Customer): QuerySeq =
     findByCustomerId(cust.id)

@@ -22,22 +22,20 @@ object RmaService {
     val finder = Orders.findByRefNum(payload.orderRefNum)
     finder.selectOne({ order ⇒
 
-      val future = createActions(order, admin, payload.rmaType).run().flatMap {
+      createActions(order, admin, payload.rmaType).map { _.map {
         case (rma, customer) ⇒
           val adminResponse = Some(StoreAdminResponse.build(admin))
           val customerResponse = customer.map(CustomerResponse.build(_))
-          Future.successful(build(rma, customerResponse, adminResponse))
-      }
-
-      DbResult.fromFuture(future)
+          build(rma, customerResponse, adminResponse)
+      }}
     })
   }
 
   def createActions(order: Order, admin: StoreAdmin, rmaType: Rma.RmaType)
-    (implicit db: Database, ec: ExecutionContext): DBIO[(Rma, Option[Customer])] = for {
-      rma ← Rmas.saveNew(Rma.build(order, admin, rmaType))
-      customer ← Customers.findOneById(order.customerId)
-  } yield (rma, customer)
+    (implicit db: Database, ec: ExecutionContext): DbResult[(Rma, Option[Customer])] = for {
+        rmaXor ← Rmas.create(Rma.build(order, admin, rmaType))
+        customer ← Customers.findOneById(order.customerId)
+      } yield rmaXor.map(rma ⇒ (rma, customer))
 
   def getByRefNum(refNum: String)(implicit db: Database, ec: ExecutionContext): Result[Root] = {
     val finder = Rmas.findByRefNum(refNum)

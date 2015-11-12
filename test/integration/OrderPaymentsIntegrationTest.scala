@@ -364,9 +364,9 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
   trait GiftCardFixture extends Fixture {
     val giftCard = (for {
-      reason ← Reasons.saveNew(Factories.reason.copy(storeAdminId = admin.id))
-      origin ← GiftCardManuals.saveNew(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
-      giftCard ← GiftCards.saveNew(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active))
+      reason ← Reasons.create(Factories.reason.copy(storeAdminId = admin.id)).map(rightValue)
+      origin ← GiftCardManuals.create(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id)).map(rightValue)
+      giftCard ← GiftCards.create(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active)).map(rightValue)
     } yield giftCard).run().futureValue
   }
 
@@ -390,4 +390,3 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
     } yield cc).run().futureValue
   }
 }
-

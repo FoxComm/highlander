@@ -101,10 +101,10 @@ class GiftCardNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
 
   trait Fixture {
     val (admin, giftCard) = (for {
-      admin ← StoreAdmins.saveNew(authedStoreAdmin)
-      reason ← Reasons.saveNew(Factories.reason.copy(storeAdminId = admin.id))
-      origin ← GiftCardManuals.saveNew(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
-      giftCard ← GiftCards.saveNew(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active))
+      admin ← StoreAdmins.create(authedStoreAdmin).map(rightValue)
+      reason ← Reasons.create(Factories.reason.copy(storeAdminId = admin.id)).map(rightValue)
+      origin ← GiftCardManuals.create(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id)).map(rightValue)
+      giftCard ← GiftCards.create(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active)).map(rightValue)
     } yield (admin, giftCard)).run().futureValue
   }
 

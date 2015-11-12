@@ -13,10 +13,8 @@ class OrderShippingAddressIntegrationTest extends IntegrationTestBase {
 
   "OrderShippingAddress" - {
     "has only one shipping address per order" in new Fixture {
-      pending // FIXME after #522
-
       val result = swapDatabaseFailure {
-        OrderShippingAddresses.saveNew(shippingAddress.copy(name = "Yax2")).map(Xor.right).run()
+        OrderShippingAddresses.create(shippingAddress.copy(name = "Yax2")).run()
       } { (NotUnique, GeneralFailure("There was already a shipping address")) }
 
       result.futureValue mustBe 'left
@@ -25,9 +23,9 @@ class OrderShippingAddressIntegrationTest extends IntegrationTestBase {
 
   trait Fixture {
     val (order, shippingAddress) = (for {
-      customer ← Customers.saveNew(Factories.customer)
-      order ← Orders.saveNew(Factories.order.copy(customerId = customer.id))
-      shippingAddress ← OrderShippingAddresses.saveNew(Factories.shippingAddress.copy(orderId = order.id))
+      customer ← Customers.create(Factories.customer).map(rightValue)
+      order ← Orders.create(Factories.order.copy(customerId = customer.id)).map(rightValue)
+      shippingAddress ← OrderShippingAddresses.create(Factories.shippingAddress.copy(orderId = order.id)).map(rightValue)
     } yield (order, shippingAddress)).run().futureValue
   }
 }
