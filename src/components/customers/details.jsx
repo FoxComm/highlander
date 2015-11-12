@@ -14,7 +14,7 @@ import { connect } from 'react-redux';
 import * as CustomerDetailsActions from '../../modules/customers/details';
 
 @connect((state, props) => ({
-  ...state.customers.details[props.customerId]
+  ...state.customers.details[props.entity.id]
 }), CustomerDetailsActions)
 export default class CustomerDetails extends React.Component {
 
