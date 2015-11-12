@@ -7,6 +7,7 @@ import cats.{Monad, Applicative, Functor}
 import cats.data.{Validated, XorT, Xor}
 import slick.driver.PostgresDriver._
 import slick.driver.PostgresDriver.api._
+import slick.profile.SqlAction
 
 object DbResultT {
   type IO[A] = DBIOAction[A, NoStream, api.Effect.All]
@@ -55,6 +56,9 @@ object DbResultT {
   object * {
     def <~[A](v: DBIO[Failures Xor A])(implicit ec: ExecutionContext): DbResultT[A] =
       DbResultT(v)
+
+    def <~[A](v: SqlAction[A, NoStream, Effect.All])(implicit ec: ExecutionContext): DbResultT[A] =
+      DbResultT(v.map(Xor.right))
 
     def <~[A](v: Failures Xor A)(implicit ec: ExecutionContext): DbResultT[A] =
       DbResultT.fromXor(v)

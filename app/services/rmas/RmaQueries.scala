@@ -4,7 +4,7 @@ import scala.concurrent.ExecutionContext
 
 import models.Rmas._
 import models._
-import responses.AllRmas
+import responses.{AssignmentResponse, AllRmas}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives
 import utils.CustomDirectives.SortAndPage
@@ -51,11 +51,20 @@ object RmaQueries {
     }
 
     sortedQuery.result.flatMap(xor ⇒ xorMapDbio(xor) { results ⇒
-      val roots = results.map {
-        case ((rma, customer), admin) ⇒
-          AllRmas.build(rma, customer, admin)
+      val rmaIds = results.map { case ((rma, customer), admin) ⇒ rma.id }
+
+      val dbio = for {
+        liftResults ← lift(results)
+        assignments ← RmaAssignments.filter(_.rmaId.inSet(rmaIds)).result
+        admins ← StoreAdmins.filter(_.id.inSet(assignments.map(_.assigneeId))).result
+      } yield (liftResults, assignments.zip(admins))
+
+      dbio.map { case (liftResults, assignees) ⇒
+        liftResults.map { case ((rma, customer), admin) ⇒
+          val currentAssignees = assignees.filter(_._1.rmaId == rma.id).map((AssignmentResponse.buildForRma _).tupled)
+          AllRmas.build(rma, customer, admin, currentAssignees)
+        }
       }
-      DBIO.sequence(roots)
     })
   }
 }

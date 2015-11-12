@@ -8,10 +8,13 @@ import models._
 import payloads._
 import responses.ResponseWithFailuresAndMetadata.BulkRmaUpdateResponse
 import responses.{StoreAdminResponse, RmaResponse, AllRmas}
-import services.rmas.RmaQueries
-import services.NotFoundFailure404
+import services.rmas._
+import services._
+import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
+import utils.DbResultT
 import utils.Seeds.Factories
+import utils.Slick._
 import utils.Slick.implicits._
 import utils.time._
 
@@ -25,35 +28,39 @@ class AllRmasIntegrationTest extends IntegrationTestBase
   import Extensions._
   import api._
 
+  import utils.DbResultT.*
+  import DbResultT.implicits._
+
   // paging and sorting API
   def uriPrefix = "v1/rmas"
 
   def responseItems = {
-    val items = (1 to numOfResults).map { i ⇒
-      val orderRefNum = Factories.randomString(10)
+    val orderRefNum = Factories.randomString(10)
 
-      val dbio = for {
-        customer ← Customers.saveNew(Factories.generateCustomer)
-        order ← Orders.saveNew(Factories.order.copy(
-          customerId = customer.id,
-          referenceNumber = orderRefNum,
-          status = Order.RemorseHold,
-          remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
-        rma ← Rmas.saveNew(Factories.rma.copy(
+    val dbio = for {
+      customer ← * <~ Customers.create(Factories.generateCustomer)
+      order ← * <~ Orders.create(Factories.order.copy(
+        customerId = customer.id,
+        referenceNumber = orderRefNum,
+        status = Order.RemorseHold,
+        remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
+
+      insertRmas = (1 to numOfResults).map { i ⇒
+        Factories.rma.copy(
           customerId = customer.id,
           orderId = order.id,
           orderRefNum = orderRefNum,
           referenceNumber = s"RMA-$i"
-        ))
-      } yield (customer, rma)
-
-      dbio.flatMap { case (customer, rma) ⇒
-        AllRmas.build(rma, customer, None)
+        )
       }
-    }
 
-    DBIO.sequence(items).transactionally.run().futureValue
+      _ ← * <~ (Rmas ++= insertRmas)
+    } yield ()
+
+    dbio.value.transactionally.run().futureValue
+    getAllRmas.toIndexedSeq
   }
+
   val sortColumnName = "referenceNumber"
 
   def responseItemsSort(items: IndexedSeq[AllRmas.Root]) = items.sortBy(_.referenceNumber)

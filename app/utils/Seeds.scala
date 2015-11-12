@@ -92,7 +92,7 @@ object Seeds {
       } yield (o, cc)).result
 
       action.flatMap { ordersWithCc ⇒
-          OrderPayments ++= ordersWithCc.map { c ⇒ makePayment(c._1, c._2) }
+        OrderPayments ++= ordersWithCc.map { case (order, cc) ⇒ makePayment(order, cc) }
       }
     }
 

@@ -2,18 +2,20 @@ import java.time.Instant
 import akka.http.scaladsl.model.StatusCodes
 
 import cats.data.Xor
+import cats.implicits._
 import models.Order._
 import models._
 import payloads.{BulkAssignment, BulkUpdateOrdersPayload}
 import responses.ResponseWithFailuresAndMetadata.BulkOrderUpdateResponse
-import responses.{RmaResponse, StoreAdminResponse, FullOrder, AllOrders}
+import responses.{StoreAdminResponse, FullOrder, AllOrders}
 import services.orders.OrderQueries
 import services.{StatusTransitionNotAllowed, LockedFailure, NotFoundFailure404}
 import util.IntegrationTestBase
+import utils.DbResultT
 import utils.Seeds.Factories
 import utils.Slick.implicits._
+import util.SlickSupport.implicits._
 import utils.time._
-import cats.implicits._
 
 class AllOrdersIntegrationTest extends IntegrationTestBase
   with HttpSupport
@@ -25,27 +27,28 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
   import Extensions._
   import api._
 
+  import utils.DbResultT.*
+  import DbResultT.implicits._
+
   // paging and sorting API
   def uriPrefix = "v1/orders"
 
   def responseItems = {
-    val items = (1 to numOfResults).map { i ⇒
-      val dbio = for {
-        customer ← Customers.saveNew(Factories.generateCustomer)
-        order    ← Orders.saveNew(Factories.order.copy(
-          customerId = customer.id,
-          referenceNumber = Factories.randomString(10),
-          status = Order.RemorseHold,
-          remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
-      } yield (customer, order)
+    val dbio = for {
+      customer ← * <~ Customers.create(Factories.generateCustomer)
+      insertOrders = (1 to numOfResults).map { _ ⇒ Factories.order.copy(
+        customerId = customer.id,
+        referenceNumber = Factories.randomString(10),
+        status = Order.RemorseHold,
+        remorsePeriodEnd = Some(Instant.now.plusMinutes(30))) }
 
-      dbio.flatMap { case (customer, order) ⇒
-        AllOrders.build(order, customer, None)
-      }
-    }
+      _ ← * <~ (Orders ++= insertOrders)
+    } yield ()
 
-    DBIO.sequence(items).transactionally.run().futureValue
+    dbio.value.transactionally.run().futureValue
+    getAllOrders.toIndexedSeq
   }
+
   val sortColumnName = "referenceNumber"
 
   def responseItemsSort(items: IndexedSeq[AllOrders.Root]) = items.sortBy(_.referenceNumber)
