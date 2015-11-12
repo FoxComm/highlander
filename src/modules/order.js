@@ -5,7 +5,7 @@ import { haveType } from './state-helpers';
 export const orderRequest = createAction('ORDER_REQUEST');
 export const orderSuccess = createAction('ORDER_SUCCESS');
 export const orderFailed = createAction('ORDER_FAILED', (err, source) => [err, source]);
-export const orderUpdated = createAction('ORDER_UPDATED', (id, data) => [id, data]);
+export const orderUpdated = createAction('ORDER_UPDATED', (id, data) => data);
 export const orderLineItemsStartEdit = createAction('ORDER_LINE_ITEMS_START_EDIT');
 export const orderLineItemsCancelEdit = createAction('ORDER_LINE_ITEMS_CANCEL_EDIT');
 export const orderLineItemsRequest = createAction('ORDER_LINE_ITEMS_REQUEST');
@@ -100,7 +100,7 @@ const reducer = createReducer({
   [orderUpdated]: (state, payload) => {
     return {
       ...state,
-      ...payload
+      currentOrder: haveType(payload, 'order')
     }
   },
   [orderLineItemsStartEdit]: (state) => {
