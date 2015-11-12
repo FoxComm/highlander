@@ -34,7 +34,7 @@ export function updateShippingMethod(order, shippingMethod) {
         dispatch(orderShippingMethodUpdateSuccess());
         dispatch(orderSuccess(order));
       })
-      .catch(error => dispatch(orderShippingMethodUpdateFailed(err)));
+      .catch(err => dispatch(orderShippingMethodUpdateFailed(err)));
   };
 }
 
@@ -108,7 +108,7 @@ const reducer = createReducer({
   [orderShippingMethodUpdateFailed]: (state, err) => {
     console.log(err);
     return {
-      ...store,
+      ...state,
       isUpdating: false
     };
   }

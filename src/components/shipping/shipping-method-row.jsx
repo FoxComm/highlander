@@ -17,8 +17,8 @@ const editBlock = (shippingMethod, isEditingPrice, editPriceAction, cancelPriceA
     const price = formatCurrency(shippingMethod.price, 100, '');
 
     return (
-      <div className='contents'>
-        <div className='shipping-method-input-price'>
+      <div>
+        <div className='fc-shipping-method-input-price fc-left'>
           <CurrencyInput defaultValue={price} />
         </div>
         <div className='fc-right'>
@@ -30,7 +30,7 @@ const editBlock = (shippingMethod, isEditingPrice, editPriceAction, cancelPriceA
   } else {
     return (
       <div>
-        <div className='shipping-method-row-price-field'>
+        <div className='fc-shipping-method-row-price-field'>
           <Currency value={shippingMethod.price} />
         </div>
         <div className='fc-right'>
@@ -46,8 +46,8 @@ const ShippingMethodRow = (props) => {
   return (
     <TableRow {...rest} >
       <TableCell>
-        <RadioButton className='shipping-method-row-name-control' checked={shippingMethod.isSelected} onChange={updateAction}>
-          <span className='shipping-method-row-name-field'>{shippingMethod.name}</span>
+        <RadioButton className='fc-shipping-method-row-name-control' checked={shippingMethod.isSelected} onChange={updateAction}>
+          <span className='fc-shipping-method-row-name-field'>{shippingMethod.name}</span>
         </RadioButton>
       </TableCell>
       <TableCell>
