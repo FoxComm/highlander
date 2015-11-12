@@ -1,8 +1,7 @@
-// state for customer adding form
-
 import _ from 'lodash';
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
+import { assoc } from 'sprout-data';
 
 export const changeFormData = createAction('CUSTOMER_NEW_CHANGE_FORM', (name, value) => [name, value]);
 export const submitCustomer = createAction('CUSTOMER_SUMBIT');
@@ -29,33 +28,18 @@ const initialState = {
 
 const reducer = createReducer({
   [changeFormData]: (state, [name, value]) => {
-    const newState = {
-      ...state,
-      [name]: value
-    };
-
-    return newState;
+    return assoc(state, [name], value);
   },
   [submitCustomer]: (state) => {
-    return {
-      ...state,
-      isFetching: true
-    };
+    return assoc(state, ['isFetching'], true);
   },
   [openCustomerDetails]: (state, payload) => {
-    return {
-      ...state,
-      id: payload.id,
-      isFetching: false
-    };
+    return assoc(state, ['id'], payload.id, ['isFetching'], false);
   },
   [failNewCustomer]: (state, [err, source]) => {
     console.error(err);
 
-    return {
-      ...state,
-      isFetching: false
-    };
+    return assoc(state, ['err'], err, ['isFetching'], false);
   }
 }, initialState);
 
