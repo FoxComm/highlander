@@ -1,15 +1,15 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 import { IndexLink, Link } from '../link';
 import { autobind } from 'core-decorators';
-import { formatCurrency } from '../../lib/format';
 import { connect } from 'react-redux';
 import * as GiftCardActions from '../../modules/gift-cards/details';
-import moment from 'moment';
+import { DateTime } from '../common/datetime';
+import Currency from '../common/currency';
 import SectionTitle from '../section-title/section-title';
 import Panel from '../panel/panel';
 import {PanelList, PanelListItem} from '../panel/panel-list';
+import Dropdown from '../dropdown/dropdown';
+import DropdownItem from '../dropdown/dropdownItem';
 import LocalNav from '../local-nav/local-nav';
 
 @connect((state, props) => ({
@@ -19,7 +19,8 @@ export default class GiftCard extends React.Component {
 
   static propTypes = {
     card: PropTypes.shape({
-      code: PropTypes.string
+      code: PropTypes.string,
+      status: PropTypes.string
     }),
     children: PropTypes.node,
     editGiftCard: PropTypes.func,
@@ -35,7 +36,8 @@ export default class GiftCard extends React.Component {
     this.props.fetchGiftCardIfNeeded(giftcard);
   }
 
-  changeState({target}) {
+  @autobind
+  onChangeState({target}) {
     this.props.editGiftCard(this.props.card.code, {status: target.value});
   }
 
@@ -65,17 +67,17 @@ export default class GiftCard extends React.Component {
   }
 
   get cardStatus() {
-    const {status} = this.giftCard;
+    const {status} = this.props.card;
 
     if (status === 'Canceled') {
       return <span>{status}</span>;
     } else {
       return (
-        <select value={status} onChange={this.changeState.bind(this)}>
-          <option value="active">Active</option>
-          <option value="onHold">On Hold</option>
-          <option value="canceled">Cancel Gift Card</option>
-        </select>
+        <Dropdown onChange={this.onChangeState} value={status}>
+          <DropdownItem value="active">Active</DropdownItem>
+          <DropdownItem value="onHold">On Hold</DropdownItem>
+          <DropdownItem value="canceled">Cancel Gift Card</DropdownItem>
+        </Dropdown>
       );
     }
   }
@@ -96,22 +98,22 @@ export default class GiftCard extends React.Component {
         <SectionTitle title="Gift Card" subtitle={card.code}>
           <button onClick={this.resendGiftCard.bind(this)} className="fc-btn fc-btn-primary">Resend Gift Card</button>
         </SectionTitle>
-        <div className="fc-grid">
+        <div className="fc-grid fc-grid-gutter">
           <div className="fc-col-md-1-3">
             <Panel title="Available Balance" featured={true}>
-              { formatCurrency(card.availableBalance) }
+              <Currency value={card.availableBalance}/>
             </Panel>
           </div>
         </div>
         <PanelList className="fc-grid fc-grid-collapse fc-grid-md-1-5">
           <PanelListItem title="Original Balance">
-            { formatCurrency(card.originalBalance) }
+            <Currency value={card.originalBalance}/>
           </PanelListItem>
           <PanelListItem title="Current Balance">
-            { formatCurrency(card.currentBalance) }
+            <Currency value={card.currentBalance}/>
           </PanelListItem>
           <PanelListItem title="Date/Time Issued">
-            { moment(card.date).format('L LTS') }
+            <DateTime value={card.createdAt}/>
           </PanelListItem>
           <PanelListItem title="Gift Card Type">
             { card.originType }

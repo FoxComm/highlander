@@ -1,24 +1,12 @@
-'use strict';
-
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import EditableContentBox from '../content-box/editable-content-box';
 import PaymentMethod from './payment-method';
-import TableHead from '../tables/head';
-import TableBody from '../tables/body';
+import TableView from '../table/tableview';
 import ContentBox from '../content-box/content-box';
 
-const OrderPayment = (props) => {
+const OrderPayment = props => {
   const order = props.order.currentOrder;
-
-  const viewContent = (
-    <table className="fc-table">
-      <TableHead columns={props.tableColumns}/>
-      <TableBody columns={props.tableColumns} rows={_.compact([order.payment])} model='payment-method'>
-        <PaymentMethod/>
-      </TableBody>
-    </table>
-  );
 
   return (
     <EditableContentBox
@@ -26,13 +14,13 @@ const OrderPayment = (props) => {
       title='Payment'
       isEditing={false}
       editAction={() => console.log('Not implemented')}
-      viewContent={viewContent} />
+      viewContent={<TableView columns={props.tableColumns} data={{rows: _.compact([order.payment])}} />}/>
   );
 };
 
 OrderPayment.propTypes = {
-  order: React.PropTypes.object,
-  tableColumns: React.PropTypes.array
+  order: PropTypes.object,
+  tableColumns: PropTypes.array
 };
 
 OrderPayment.defaultProps = {

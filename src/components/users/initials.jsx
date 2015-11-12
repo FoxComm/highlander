@@ -1,6 +1,4 @@
-'use strict';
-
-import React from 'react';
+import React, { PropTypes } from 'react';
 
 export default class UserInitials extends React.Component {
   initials() {
@@ -29,5 +27,5 @@ export default class UserInitials extends React.Component {
 }
 
 UserInitials.propTypes = {
-  model: React.PropTypes.object
+  model: PropTypes.object
 };

@@ -1,9 +1,35 @@
-'use strict';
-
+import { autobind } from 'core-decorators';
 import React, { PropTypes } from 'react';
 
-const ConfirmationDialog = (props) => {
-  if (props.isVisible) {
+export default class ConfirmationDialog extends React.Component {
+
+  static propTypes = {
+    isVisible: PropTypes.bool.isRequired,
+    body: PropTypes.node.isRequired,
+    cancel: PropTypes.string.isRequired,
+    confirm: PropTypes.string.isRequired,
+    cancelAction: PropTypes.func.isRequired,
+    confirmAction: PropTypes.func.isRequired
+  };
+
+  componentDidUpdate() {
+    if (this.props.isVisible) {
+      this.refs.confirmButton.focus();
+    }
+  }
+
+  @autobind
+  onKeyUp(event) {
+    if (event.keyCode === 27) {
+      this.props.cancelAction();
+    }
+  }
+
+  render() {
+    const props = this.props;
+
+    if (!props.isVisible) return null;
+
     return (
       <div className='fc-modal'>
         <div className='fc-modal-container'>
@@ -21,10 +47,11 @@ const ConfirmationDialog = (props) => {
               {props.body}
             </div>
             <div className='fc-modal-footer'>
-              <a className='fc-modal-close' onClick={() => props.cancelAction()}>
+              <a tabIndex="2" className='fc-modal-close' onClick={() => props.cancelAction()}>
                 {props.cancel}
               </a>
-              <button className='fc-btn' onClick={() => props.confirmAction()}>
+              <button tabIndex="1" className='fc-btn' ref="confirmButton"
+                      onClick={() => props.confirmAction()} onKeyUp={this.onKeyUp}>
                 {props.confirm}
               </button>
             </div>
@@ -32,8 +59,6 @@ const ConfirmationDialog = (props) => {
         </div>
       </div>
     );
-  } else {
-    return <div></div>;
   }
 };
 

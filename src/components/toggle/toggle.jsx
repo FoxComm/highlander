@@ -1,6 +1,4 @@
-'use strict';
-
-import React from 'react';
+import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 
 /**
@@ -44,6 +42,6 @@ export default class Toggle extends React.Component {
 }
 
 Toggle.propTypes = {
-  value: React.PropTypes.bool,
-  onToggle: React.PropTypes.func
+  value: PropTypes.bool,
+  onToggle: PropTypes.func
 };

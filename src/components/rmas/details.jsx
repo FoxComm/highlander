@@ -1,6 +1,4 @@
-'use strict';
-
-import React from 'react';
+import React, { PropTypes } from 'react';
 import { CustomerInfo, RmaSummary } from './helpers';
 import LineItems from '../line-items/line-items';
 import Payment from '../payment/payment';
@@ -53,5 +51,5 @@ export default class RmaDetails extends React.Component {
 }
 
 RmaDetails.propTypes = {
-  rma: React.PropTypes.object
+  rma: PropTypes.object
 };

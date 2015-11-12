@@ -16,7 +16,7 @@ function parseError(err) {
   return errors;
 }
 
-const ErrorAlerts = (props) => {
+const ErrorAlerts = props => {
   const errors = props.errors || parseError(props.error);
 
   if (errors && errors.length) {

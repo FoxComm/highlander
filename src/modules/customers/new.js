@@ -1,5 +1,3 @@
-'use strict';
-
 // state for customer adding form
 
 import _ from 'lodash';

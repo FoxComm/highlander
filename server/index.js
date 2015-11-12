@@ -1,5 +1,3 @@
-'use strict';
-
 require('babel/register');
 const koa = require('koa');
 const path = require('path');
@@ -15,7 +13,7 @@ app.init = co.wrap(function *(env) {
   app.config = new Config(app.env);
   app.use(serve(app.config.server.publicDir));
   app.use(favicon(app.config.layout.favicon));
-  if (app.env !== 'production') {
+  if (app.env.environment !== 'production') {
     app.use(require('koa-logger')());
   }
   

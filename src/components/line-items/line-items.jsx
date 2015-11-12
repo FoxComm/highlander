@@ -1,7 +1,5 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
-import TableView from '../tables/tableview';
+import TableView from '../table/tableview';
 import LineItemCounter from './line-item-counter';
 import { autobind } from 'core-decorators';
 import LineItemActions from '../../actions/line-items';
@@ -16,6 +14,7 @@ export default class LineItems extends React.Component {
   static propTypes = {
     entity: PropTypes.object,
     tableColumns: PropTypes.array,
+    suggestedSkus: PropTypes.array,
     model: PropTypes.string
   };
 
@@ -74,13 +73,7 @@ export default class LineItems extends React.Component {
     let columns = this.props.tableColumns;
     let rows = this.props.entity.lineItems.skus;
     let headerActions = null;
-    let body = (
-      <TableView
-        columns={columns}
-        rows={rows}
-        model={this.props.model}
-        />
-    );
+    let body = <TableView columns={columns} data={{rows: rows}} />;
 
     if (this.props.model === 'order') {
       if (this.state.isEditing) {

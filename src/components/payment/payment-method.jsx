@@ -1,6 +1,4 @@
-'use strict';
-
-import React from 'react';
+import React, { PropTypes } from 'react';
 
 export default class PaymentMethod extends React.Component {
   render() {
@@ -19,5 +17,5 @@ export default class PaymentMethod extends React.Component {
 }
 
 PaymentMethod.propTypes = {
-  model: React.PropTypes.object
+  model: PropTypes.object
 };

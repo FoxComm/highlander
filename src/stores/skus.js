@@ -1,5 +1,3 @@
-'use strict';
-
 import BaseStore from '../lib/base-store';
 
 class SkuStore extends BaseStore {

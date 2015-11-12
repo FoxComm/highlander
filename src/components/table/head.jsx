@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
@@ -7,14 +5,14 @@ import TableRow from './row';
 
 class TableHead extends React.Component {
   static propTypes = {
-    setState: PropTypes.func.isRequired,
     columns: PropTypes.array.isRequired,
+    setState: PropTypes.func,
     sortBy: PropTypes.string
   };
 
   onHeaderClick(field, event) {
     event.preventDefault();
-    this.props.setState({
+    this.props.setState && this.props.setState({
       sortBy: this.props.sortBy === field ? `-${field}` : `${field}`
     });
   }
@@ -23,7 +21,7 @@ class TableHead extends React.Component {
   renderColumn(column, index) {
     const classnames = classNames({
       'fc-table-th': true,
-      'sorting': true,
+      'sorting': this.props.setState,
       'sorting-desc': `${column.field}` === this.props.sortBy,
       'sorting-asc': `-${column.field}` === this.props.sortBy
     });

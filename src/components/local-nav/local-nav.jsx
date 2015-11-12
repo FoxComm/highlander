@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 
 const renderItem = child => <li>{child}</li>;
@@ -17,6 +15,7 @@ const LocalNav = props => {
 };
 
 LocalNav.propTypes = {
+  children: PropTypes.node,
   gutter: PropTypes.bool
 };
 

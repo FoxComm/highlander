@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import ContentBox from '../content-box/content-box';
 import CreditCardBox from '../credit-cards/card-box';
@@ -111,14 +110,14 @@ export default class CustomerCreditCards extends React.Component {
       if (card.id === this.props.editingId) {
         box = (
           <CreditCardForm key={ key }
-                             card={ card }
-                             form={ this.props.editingCreditCard }
-                             customerId={ this.props.customerId }
-                             addresses={ this.props.addresses }
-                             onCancel={ this.onEditCancel }
-                             onChange={ this.onEditFormChange }
-                             onSubmit={ this.onEditFormSubmit }
-                             isNew={ false } />
+                          card={ card }
+                          form={ this.props.editingCreditCard }
+                          customerId={ this.props.customerId }
+                          addresses={ this.props.addresses }
+                          onCancel={ this.onEditCancel }
+                          onChange={ this.onEditFormChange }
+                          onSubmit={ this.onEditFormSubmit }
+                          isNew={ false } />
         );
       } else {
         box = (

@@ -1,11 +1,12 @@
 
 import React, { PropTypes } from 'react';
+import classNames from 'classnames';
 import { PrimaryButton } from '../common/buttons';
 import Title from './title';
 
-const SectionTitle = (props) => {
+const SectionTitle = props => {
   return (
-    <div className="fc-grid fc-section-title">
+    <div className={ classNames('fc-grid fc-section-title', props.className) }>
       <div className="fc-col-md-2-6">
         <Title title={ props.title } subtitle={ props.subtitle } />
       </div>
@@ -25,7 +26,8 @@ SectionTitle.propTypes = {
   title: PropTypes.node,
   subtitle: PropTypes.node,
   onAddClick: PropTypes.func,
-  children: PropTypes.node
+  children: PropTypes.node,
+  className: PropTypes.string
 };
 
 export default SectionTitle;

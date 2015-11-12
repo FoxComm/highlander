@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 
 export default class TabView extends React.Component {

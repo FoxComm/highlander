@@ -1,5 +1,3 @@
-'use strict';
-
 import { List } from 'immutable';
 import BaseStore from './base-store';
 import GiftCardConstants from '../constants/gift-card';

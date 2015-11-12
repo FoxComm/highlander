@@ -1,11 +1,8 @@
-'use strict';
-
-import React from 'react';
+import React, { PropTypes } from 'react';
 
 import ConfirmationDialog from '../modal/confirmation-dialog';
 import OrderLineItem from './order-line-item';
-import TableView from '../tables/tableview';
-import TableHead from '../tables/head';
+import TableView from '../table/tableview';
 import EditableContentBox from '../content-box/editable-content-box';
 
 const viewModeColumns = [
@@ -27,7 +24,7 @@ const editModeColumns = [
   {field: 'delete', text: 'Delete', component: 'DeleteLineItem'}
 ];
 
-const OrderLineItems = (props) => {
+const OrderLineItems = props => {
   return (
     <EditableContentBox
       className='fc-line-items'
@@ -40,11 +37,21 @@ const OrderLineItems = (props) => {
   );
 };
 
-const renderViewContent = (props) => {
-  return <TableView columns={viewModeColumns} rows={props.order.lineItems.items} />;
+OrderLineItems.propTypes = {
+  order: PropTypes.object,
+  orderLineItemsStartEdit: PropTypes.func,
+  orderLineItemsCancelEdit: PropTypes.func
 };
 
-const renderEditContent = (props) => {
+const renderViewContent = props => {
+  return <TableView columns={viewModeColumns} data={{rows: props.order.lineItems.items}}/>;
+};
+
+renderViewContent.propTypes = {
+  order: PropTypes.object
+};
+
+const renderEditContent = props => {
   let order = props.order.currentOrder;
   let lineItemsStatus = props.order.lineItems;
 
@@ -55,12 +62,7 @@ const renderEditContent = (props) => {
   // TODO: Re-add the Typeahead after Andrey's refactor is complete.
   return (
     <div>
-      <table className='fc-table'>
-        <TableHead columns={editModeColumns} />
-        <tbody>
-          {orderLineItems}
-        </tbody>
-      </table>
+      <TableView columns={editModeColumns} data={{rows: orderLineItems}} />
       <div>
         <strong>Add Item</strong>
       </div>
@@ -74,6 +76,11 @@ const renderEditContent = (props) => {
         confirmAction={() => props.deleteLineItem(order, lineItemsStatus.skuToDelete)} />
     </div>
   );
+};
+
+renderEditContent.propTypes = {
+  orderLineItemsCancelDelete: PropTypes.func,
+  deleteLineItem: PropTypes.func
 };
 
 export default OrderLineItems;

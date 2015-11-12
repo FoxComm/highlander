@@ -1,13 +1,11 @@
-'use strict';
-
 import React, { PropTypes } from 'react';
 import Table from './table';
 import TablePaginator from './paginator';
 import TablePageSize from './pagesize';
 
-const TableView = (props) => {
-  const setState = props.setState.bind(this, props.data);
-  const tableNeedsPagination = props.paginator && props.data.total > 0;
+const TableView = props => {
+  const setState = props.setState && props.setState.bind(this, props.data);
+  const tableNeedsPagination = props.paginator && props.setState && props.data.total > 0;
   const tablePaginator = tableNeedsPagination && (
       <TablePaginator
         total={props.data.total}
@@ -28,7 +26,7 @@ const TableView = (props) => {
           </div>
         </div>
       )}
-      <Table columns={props.columns} data={props.data} renderRow={props.renderRow} setState={setState}/>
+      <Table {...props} setState={setState}/>
       {tableNeedsPagination && (
         <div className="fc-table-footer fc-grid fc-grid-no-gutter">
           <div className="fc-col-md-2-12 fc-align-left">
@@ -51,8 +49,10 @@ TableView.propTypes = {
     from: PropTypes.number,
     size: PropTypes.number
   }).isRequired,
-  setState: PropTypes.func.isRequired,
+  setState: PropTypes.func,
   renderRow: PropTypes.func,
+  processRows: PropTypes.func,
+  detectNewRows: PropTypes.bool,
   paginator: PropTypes.bool
 };
 
