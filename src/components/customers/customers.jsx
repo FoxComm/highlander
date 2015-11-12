@@ -58,7 +58,7 @@ export default class Customers extends React.Component {
   static propTypes = {
     fetch: PropTypes.func,
     setFetchParams: PropTypes.func,
-    customers: PropTypes.array,
+    customers: PropTypes.object,
     tableColumns: PropTypes.array
   }
 
@@ -91,7 +91,7 @@ export default class Customers extends React.Component {
       <div className="fc-list-page">
         <div className="fc-list-page-header">
           <SectionTitle title="Customers"
-                        count={this.props.customers.length}
+                        subtitle={ this.props.customers.total }
                         onAddClick={ this.onAddCustomerClick }
                         addTitle="Customer" />
           <LocalNav>
