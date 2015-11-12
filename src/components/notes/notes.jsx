@@ -4,7 +4,6 @@ import { autobind } from 'core-decorators';
 import ConfirmationDialog from '../modal/confirmation-dialog';
 import { PrimaryButton } from '../../components/common/buttons';
 import SectionTitle from '../section-title/section-title';
-import ContentBox from '../content-box/content-box';
 import TableView from '../table/tableview';
 import TableRow from '../table/row';
 import TableCell from '../table/cell';

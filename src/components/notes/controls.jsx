@@ -14,7 +14,7 @@ const NoteControls = props => {
 
 NoteControls.propTypes = {
   model: PropTypes.shape({
-    author: PropTypes.string
+    author: PropTypes.object.isRequired
   }).isRequired,
   onEditClick: PropTypes.func.isRequired,
   onDeleteClick: PropTypes.func.isRequired

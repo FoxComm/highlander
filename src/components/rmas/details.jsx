@@ -13,6 +13,10 @@ export default class RmaDetails extends React.Component {
     };
   }
 
+  static propTypes = {
+    entity: PropTypes.object
+  };
+
   get lineItemColumns() {
     return [
       {field: 'imagePath', text: 'Image', type: 'image'},
@@ -55,7 +59,3 @@ export default class RmaDetails extends React.Component {
     return null;
   }
 }
-
-RmaDetails.propTypes = {
-  rma: PropTypes.object
-};
