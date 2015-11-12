@@ -2,9 +2,8 @@ import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import ContentBox from '../content-box/content-box';
 import CreditCardBox from '../credit-cards/card-box';
-import EditCreditCardBox from '../credit-cards/edit-card-box';
-import NewCreditCardBox from '../credit-cards/new-card-box';
 import ConfirmationDialog from '../modal/confirmation-dialog';
+import CreditCardForm from '../credit-cards/card-form';
 import { AddButton } from '../common/buttons';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
@@ -111,14 +110,15 @@ export default class CustomerCreditCards extends React.Component {
       let box = null;
       if (card.id === this.props.editingId) {
         box = (
-          <EditCreditCardBox key={ key }
+          <CreditCardForm key={ key }
                              card={ card }
                              form={ this.props.editingCreditCard }
                              customerId={ this.props.customerId }
                              addresses={ this.props.addresses }
                              onCancel={ this.onEditCancel }
                              onChange={ this.onEditFormChange }
-                             onSubmit={ this.onEditFormSubmit } />
+                             onSubmit={ this.onEditFormSubmit }
+                             isNew={ false } />
         );
       } else {
         box = (
@@ -140,12 +140,13 @@ export default class CustomerCreditCards extends React.Component {
                   actionBlock={ actionBlock }>
         <ul className="fc-float-list">
           {(this.props.cards && this.props.cards.map(createCardBox))}
-          {(this.props.newCreditCard && <NewCreditCardBox customerId={ this.props.customerId }
+          {(this.props.newCreditCard && <CreditCardForm customerId={ this.props.customerId }
                                                           form={ this.props.newCreditCard }
                                                           addresses={ this.props.addresses }
                                                           onCancel={ this.onAddingCancel }
                                                           onSubmit={ this.onSubmitNewForm }
-                                                          onChange={ this.onChangeNewFormValue }/>)}
+                                                          onChange={ this.onChangeNewFormValue }
+                                                          isNew={ true } />)}
         </ul>
         <ConfirmationDialog
           isVisible={ showConfirm }
