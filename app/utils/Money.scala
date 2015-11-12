@@ -17,7 +17,9 @@ object Money {
   object Currency {
     val USD = Currency("USD")
 
-    def apply(s: String): Currency = Xor.fromTryCatch[BadCurrency] { CurrencyUnit.of(s) }.fold(_ ⇒ USD, identity)
+    def apply(s: String): Currency =
+      Xor.fromTryCatch[BadCurrency] { CurrencyUnit.of(s.toUpperCase) }.fold(_ ⇒ USD, identity)
+
     def unapply(c: Currency): Option[String] = Some(c.getCode)
   }
 
