@@ -52,7 +52,7 @@ object Seeds {
     orderPayments: Seq[OrderPayment], shipment: Shipment, paymentMethods: AllPaymentMethods, reasons: Seq[Reason],
     orderLineItemSkus: Seq[OrderLineItemSku], inventorySummaries: Seq[InventorySummary],
     gcSubTypes: Seq[GiftCardSubtype], scSubTypes: Seq[StoreCreditSubtype], rmaReasons: Seq[RmaReason], rma: Rma,
-    rmaLineItems: Seq[RmaLineItem], rmaLineItemSkus: Seq[RmaLineItemSku])
+    rmaLineItems: Seq[RmaLineItem], rmaLineItemSkus: Seq[RmaLineItemSku], rmaNotes: Seq[Note])
 
   final case class AllPaymentMethods(giftCard: GiftCard = Factories.giftCard, storeCredit: StoreCredit = Factories
     .storeCredit)
@@ -128,7 +128,8 @@ object Seeds {
       rmaReasons = Factories.rmaReasons,
       rma = Factories.rma,
       rmaLineItemSkus = Factories.rmaLineItemSkus,
-      rmaLineItems = Factories.rmaLineItems
+      rmaLineItems = Factories.rmaLineItems,
+      rmaNotes = Factories.rmaNotes
     )
 
     s.address.validate.fold(err ⇒ throw new Exception(err.mkString("\n")), _ ⇒ {})
@@ -173,6 +174,7 @@ object Seeds {
       rma ← Rmas.saveNew(s.rma.copy(customerId = customer.id))
       rmaLineItemSkus ← RmaLineItemSkus ++= s.rmaLineItemSkus
       rmaLineItems ← RmaLineItems ++= s.rmaLineItems
+      rmaNotes ← Notes ++= s.rmaNotes
     } yield (customers, order, address, shippingAddress, creditCard, giftCard, storeCredit)
   }
 
@@ -376,6 +378,14 @@ object Seeds {
         rmaType = Rma.Standard, status = Rma.Pending, inventoryDisposition = RmaLineItem.Putaway),
       RmaLineItem(id = 0, rmaId = 1, reasonId = 12, originId = 2, originType = RmaLineItem.SkuItem,
         rmaType = Rma.Standard, status = Rma.Pending, inventoryDisposition = RmaLineItem.Putaway)
+    )
+
+    def rmaNotes: Seq[Note] = Seq(
+      Note(referenceId = 1, referenceType = Note.Rma, storeAdminId = 1, body = "This customer is a donkey."),
+      Note(referenceId = 1, referenceType = Note.Rma, storeAdminId = 1, body = "No, seriously."),
+      Note(referenceId = 1, referenceType = Note.Rma, storeAdminId = 1, body = "Like, an actual donkey."),
+      Note(referenceId = 1, referenceType = Note.Rma, storeAdminId = 1, body = "How did a donkey even place an order " +
+        "on our website?")
     )
   }
 
