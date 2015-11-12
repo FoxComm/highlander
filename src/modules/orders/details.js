@@ -19,7 +19,7 @@ export function fetchOrder(refNum) {
     dispatch(orderRequest(refNum));
     return Api.get(`/orders/${refNum}`)
       .then(order => dispatch(orderSuccess(order)))
-      .then(err => dispatch(orderFailed(err, fetchOrder)));
+      .catch(err => dispatch(orderFailed(err, fetchOrder)));
   };
 }
 
@@ -98,9 +98,9 @@ const reducer = createReducer({
     };
   },
   [orderFailed]: (state, [err, source]) => {
-    console.error(err);
-
     if (source === fetchOrder) {
+      console.error(err);
+
       return {
         ...state,
         isFetching: false,

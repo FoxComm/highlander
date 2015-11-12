@@ -20,7 +20,7 @@ const mapStateToProps = (state) => {
   };
 };
 
-const mapDispatchToProps = Object.assign({}, orderActions, shippingMethodActions);
+const mapDispatchToProps = {...orderActions, ...shippingMethodActions};
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class Order extends React.Component {
