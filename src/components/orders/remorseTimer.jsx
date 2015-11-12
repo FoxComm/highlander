@@ -1,9 +1,6 @@
 import React, { PropTypes } from 'react';
 import moment from 'moment';
 import Countdown from '../countdown/countdown';
-import { listenTo, stopListeningTo } from '../../lib/dispatcher';
-
-const editEvent = 'toggle-order-edit';
 
 export default class RemorseTimer extends React.Component {
   constructor(props, context) {
@@ -18,14 +15,6 @@ export default class RemorseTimer extends React.Component {
     this.setState({
       endDate: moment(this.state.endDate).add(number, key)
     });
-  }
-
-  componentDidMount() {
-    listenTo(editEvent, this);
-  }
-
-  componentWillUnmount() {
-    stopListeningTo(editEvent, this);
   }
 
   onToggleOrderEdit() {
