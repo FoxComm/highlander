@@ -9,14 +9,14 @@ import countries from './countries';
 import addressForm from './addressForm';
 
 const rootReducer = combineReducers({
-  router: routerStateReducer,
-  giftCards,
-  customers,
-  orders,
-  rmas,
-  notes,
-  countries,
-  addressForm
+  router: routerStateReducer
+  ,giftCards
+  ,customers
+  ,orders
+  ,rmas
+  ,notes
+  ,countries
+  ,addressForm
 });
 
 export default rootReducer;

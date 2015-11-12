@@ -1,0 +1,39 @@
+.fc-addresses-new, .fc-addresses-edit {
+  .padding(25px 10px 20px);
+
+  header {
+    .font-spec(18px, 600, 24px);
+    .margin-bottom(35px);
+  }
+
+  .fc-address-form-line {
+    display: block;
+    width: 100%;
+    .margin-bottom(20px);
+  }
+
+  label {
+    .font-spec(16px, 600, 22px);
+    .margin-bottom(15px);
+  }
+
+  input {
+    width: 100%;
+  }
+
+  .fc-address-form-controls {
+    button {
+      vertical-align: baseline;
+      .margin-left(@button-height/2);
+    }
+    a {
+      vertical-align: baseline;
+      font-size: pxtorem(@button-font-size);
+    }
+  }
+}
+
+.fc-customer .fc-card-container.fc-addresses-new {
+  padding-bottom: @button-height/2;
+  height: inherit;
+}
