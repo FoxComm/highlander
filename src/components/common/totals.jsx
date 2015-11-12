@@ -1,5 +1,6 @@
 import React from 'react';
 import ContentBox from '../content-box/content-box';
+import Currency from './currency';
 
 const TotalsFooter = props => {
   const { entityType } = props.entity;
@@ -7,10 +8,10 @@ const TotalsFooter = props => {
   if (entityType === 'rma') text = 'Refunds Total';
 
   return (
-    <footer classname="fc-content-box-footer is-highlighted">
+    <footer className="fc-content-box-footer is-highlighted">
       <dl className="fc-totals-summary-grand-total">
         <dt>{text}</dt>
-        <dd><Currency value={props.entity.total.total} /></dd>
+        <dd><Currency value={props.entity.totals.total} /></dd>
       </dl>
     </footer>
   );
@@ -23,21 +24,30 @@ const title = entityType => {
   return 'Order Summary';
 };
 
-const TotalsDiscounts = props => {
-  const subTotalWithDiscounts = entity.totals.subTotal;
+const discounts = (adjustments, totals) => {
+  if (!adjustments) return null;
 
-  if (props.adjustments) {
-    return (
-      <div>
-        <dt>Discounts</dt>
-        <dd><Currency value={props.adjustments}/></dd>
-        <dt className="fc-totals-summary-new-subtotal">New Subtotal</dt>
-        <dd className="fc-totals-summary-new-subtotal"><Currency value={subTotalWithDiscounts}/></dd>
-      </div>
-    );
-  } else {
-    return null;
-  }
+  const subTotalWithDiscounts = totals.subTotal;
+
+  return (
+    <div>
+      <dt>Discounts</dt>
+      <dd><Currency value={adjustments}/></dd>
+      <dt className="fc-totals-summary-new-subtotal">New Subtotal</dt>
+      <dd className="fc-totals-summary-new-subtotal"><Currency value={subTotalWithDiscounts}/></dd>
+    </div>
+  );
+};
+
+const shipping = totals => {
+  if (!totals.shipping) return null;
+
+  return (
+    <div>
+      <dt>Shipping</dt>
+      <dd><Currency value={totals.shipping}/></dd>
+    </div>
+  );
 };
 
 const TotalsSummary = props => {
@@ -51,11 +61,10 @@ const TotalsSummary = props => {
         <dl className="rma-totals">
           <dt>Subtotal</dt>
           <dd><Currency value={subtotalWithoutDiscounts}/></dd>
-          <TotalsDiscounts {...props} adjustments={adjustments} />
-          <dt>Shipping</dt>
-          <dd><Currency value={rma.totals.shipping}/></dd>
+          {discounts(adjustments, entity.totals)}
+          {shipping(entity.totals)}
           <dt>Tax</dt>
-          <dd><Currency value={rma.totals.taxes}/></dd>
+          <dd><Currency value={entity.totals.taxes}/></dd>
         </dl>
       </article>
     </ContentBox>
