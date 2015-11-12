@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { assoc, dissoc } from 'sprout-data';
+import { assoc, dissoc, update, merge } from 'sprout-data';
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 import { haveType } from '../state-helpers';
@@ -96,21 +96,17 @@ const initialState = {};
 
 const reducer = createReducer({
   [newCustomerCreditCard]: (state, id) => {
-    return {
-      ...state,
-      [id]: {
-        ...state[id],
-        newCreditCard: {
-          isDefault: false,
-          holderName: null,
-          number: null,
-          cvv: null,
-          expMonth: null,
-          expYear: null,
-          addressId: null
-        }
+    return update(state, id, merge, {
+      newCreditCard: {
+        isDefault: false,
+        holderName: null,
+        number: null,
+        cvv: null,
+        expMonth: null,
+        expYear: null,
+        addressId: null
       }
-    };
+    });
   },
   [closeNewCustomerCreditCard]: (state, id) => {
     return dissoc(state, [id, 'newCreditCard']);
@@ -121,21 +117,14 @@ const reducer = createReducer({
   [editCustomerCreditCard]: (state, [customerId, cardId]) => {
     const cards = _.get(state, [customerId, 'cards'], []);
     const creditCard = _.find(cards, (card) => { return (cardId === card.id); });
-    const {holderName, expMonth, expYear, isDefault} = creditCard;
-    return {
-      ...state,
-      [customerId]: {
-        ...state[customerId],
-        editingId: cardId,
-        editingCreditCard: {
-          holderName,
-          expMonth,
-          expYear,
-          isDefault,
-          addressId: null
-        }
+
+    return update(state, customerId, merge, {
+      editingId: cardId,
+      editingCreditCard: {
+        ...creditCard,
+        addressId: null
       }
-    };
+    });
   },
   [changeEditCustomerCreditCardFormData]: (state, [id, name, value]) => {
     return assoc(state, [id, 'editingCreditCard', name], value);
