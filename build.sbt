@@ -151,7 +151,7 @@ lazy val phoenixScala = (project in file(".")).
         """.stripMargin,
     initialCommands in (Compile, consoleQuick) := "",
     // add ms report for every test
-    testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD"),
+    testOptions in Test ++= Seq(Tests.Argument(TestFrameworks.ScalaTest, "-oD"), Tests.Argument("-l", "tags.External")),
     javaOptions in Test ++= Seq("-Xmx2G", "-XX:+UseConcMarkSweepGC"),
     parallelExecution in Test := true,
     parallelExecution in IT   := false,
