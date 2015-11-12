@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import { autobind } from 'core-decorators';
 import Dropdown from '../dropdown/dropdown';
 import DropdownItem from '../dropdown/dropdownItem';
 import { Link, IndexLink } from '../link';
@@ -31,7 +32,6 @@ export default class Order extends React.Component {
     order: PropTypes.shape({
       currentOrder: PropTypes.object
     }),
-    fetchOrderIfNeeded: PropTypes.func,
     children: PropTypes.node
   };
 
@@ -67,7 +67,7 @@ export default class Order extends React.Component {
 
   get remorseTimer() {
     if (this.order.id && this.order.orderStatus === 'remorseHold') {
-      return remorseTimer = <RemorseTimer endDate={this.order.remorseEnd} />;
+      return <RemorseTimer endDate={this.order.remorsePeriodEnd} />;
     }
   }
 
@@ -100,13 +100,17 @@ export default class Order extends React.Component {
     }
   }
 
+  @autobind
+  onStatusChange(value) {
+    this.props.updateOrder(this.orderRefNum, {status: value});
+  }
+
   componentDidMount() {
-    this.props.fetchOrderIfNeeded(this.orderRefNum);
+    this.props.fetchOrder(this.orderRefNum);
   }
 
   render() {
-    let
-      order         = this.order;
+    const order = this.order;
 
     if (!order) {
       return <div className="fc-order"></div>;
@@ -125,7 +129,13 @@ export default class Order extends React.Component {
     };
 
     const orderStatus = (
-      <Dropdown name="orderStatus" items={orderStatuses} placeholder={'Order status'} value={order.orderStatus}/>
+      <Dropdown
+        name="orderStatus"
+        items={orderStatuses}
+        placeholder={'Order status'}
+        value={order.orderStatus}
+        onChange={this.onStatusChange}
+      />
     );
 
     return (
