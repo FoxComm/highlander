@@ -5,6 +5,7 @@ import { haveType } from './state-helpers';
 export const orderRequest = createAction('ORDER_REQUEST');
 export const orderSuccess = createAction('ORDER_SUCCESS');
 export const orderFailed = createAction('ORDER_FAILED', (err, source) => [err, source]);
+export const orderUpdated = createAction('ORDER_UPDATED', (id, data) => [id, data]);
 export const orderLineItemsStartEdit = createAction('ORDER_LINE_ITEMS_START_EDIT');
 export const orderLineItemsCancelEdit = createAction('ORDER_LINE_ITEMS_CANCEL_EDIT');
 export const orderLineItemsRequest = createAction('ORDER_LINE_ITEMS_REQUEST');
@@ -38,6 +39,14 @@ export function fetchOrderIfNeeded(refNum) {
     if (shouldFetchOrder(refNum, getState())) {
       return dispatch(fetchOrder(refNum));
     }
+  };
+}
+
+export function updateOrder(id, data) {
+  return dispatch => {
+    Api.patch(`/orders/${id}`, data)
+      .then(data => dispatch(orderUpdated(id, data)))
+      .catch(err => dispatch(orderFailed(id, err, updateOrder)));
   };
 }
 
@@ -109,6 +118,12 @@ const reducer = createReducer({
     }
 
     return state;
+  },
+  [orderUpdated]: (state, payload) => {
+    return {
+      ...state,
+      ...payload
+    }
   },
   [orderLineItemsStartEdit]: (state) => {
     return {

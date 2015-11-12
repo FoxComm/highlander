@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import { autobind } from 'core-decorators';
 import Dropdown from '../dropdown/dropdown';
 import DropdownItem from '../dropdown/dropdownItem';
 import { Link, IndexLink } from '../link';
@@ -90,6 +91,13 @@ export default class Order extends React.Component {
     }
   }
 
+  @autobind
+  onStatusChange(value) {
+    this.props.updateOrder(this.orderRefNum, {
+      orderStatus: value
+    });
+  }
+
   componentDidMount() {
     this.props.fetchOrderIfNeeded(this.orderRefNum);
   }
@@ -115,7 +123,13 @@ export default class Order extends React.Component {
     };
 
     const orderStatus = (
-      <Dropdown name="orderStatus" items={orderStatuses} placeholder={'Order status'} value={order.orderStatus}/>
+      <Dropdown
+        name="orderStatus"
+        items={orderStatuses}
+        placeholder={'Order status'}
+        value={order.orderStatus}
+        onChange={this.onStatusChange}
+      />
     );
 
     return (
