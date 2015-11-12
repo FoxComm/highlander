@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 
 const NavDropdown = props => {
   return (
-    <li className={`fc-tabbed-nav-parent fc-tabbed-nav-item ${props.className}`}>
+    <li className={`fc-tabbed-nav-parent fc-tabbed-nav-item ${props.className || ''}`}>
       <a>{props.title}</a>
       <ul className="fc-tabbed-nav-dropdown">
         {React.Children.map(props.children, item => <li>{item}</li>)}
@@ -58,7 +58,7 @@ class LocalNav extends React.Component {
   @autobind
   renderItem(item) {
     if (item.type === NavDropdown) {
-      let isActive = this.hasActiveLink(item);
+      const isActive = this.hasActiveLink(item);
       const dropdownItem = React.cloneElement(item, {
         className: isActive ? 'fc-tabbed-nav-selected' : ''
       });

@@ -3,8 +3,7 @@ import ContentBox from '../content-box/content-box';
 
 const TotalsFooter = props => {
   const { entityType } = props.entity;
-  let text = 'Grand Total';
-  if (entityType === 'rma') text = 'Refunds Total';
+  const text = entityType === 'rma' ? 'Refunds Total' : 'Grand Total';
 
   return (
     <footer classname="fc-content-box-footer is-highlighted">
@@ -17,10 +16,7 @@ const TotalsFooter = props => {
 };
 
 const title = entityType => {
-  if (entityType === 'rma') {
-    return 'Return Summary';
-  }
-  return 'Order Summary';
+  return entityType === 'rma' ? 'Return Summary' : 'Order Summary';
 };
 
 const TotalsDiscounts = props => {
