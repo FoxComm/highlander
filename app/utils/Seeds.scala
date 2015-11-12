@@ -160,7 +160,8 @@ object Seeds {
         paymentMethodId = creditCard.id, amount = Some(100)))
       shippingPriceRule ← ShippingPriceRules ++= s.shippingPriceRules
       shippingMethodRuleMappings ← ShippingMethodsPriceRules ++= s.shippingMethodRuleMappings
-      shipments ← Shipments.saveNew(s.shipment)
+      orderShippingMethod ← OrderShippingMethods.saveNew(OrderShippingMethod(orderId = order.id, shippingMethodId = 1))
+      shipments ← Shipments.saveNew(s.shipment.copy(orderShippingMethodId = Some(orderShippingMethod.id)))
       reasons ← Reasons ++= s.reasons.map(_.copy(storeAdminId = storeAdmin.id))
       gcSubTypes ← GiftCardSubtypes ++= s.gcSubTypes
       scSubTypes ← StoreCreditSubtypes ++= s.scSubTypes

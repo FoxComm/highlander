@@ -619,8 +619,16 @@ class OrderIntegrationTest extends IntegrationTestBase
     "succeeds if the order meets the shipping restrictions" in new ShippingMethodFixture {
       val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-method",
         payloads.UpdateShippingMethod(shippingMethodId = lowShippingMethod.id))
+      val fullOrder = response.as[FullOrder.Root]
 
       response.status must === (StatusCodes.OK)
+      fullOrder.shippingMethod match {
+        case Some(sm) ⇒
+          sm.name must === (lowShippingMethod.adminDisplayName)
+
+        case None ⇒
+          fail("Full order should have a shipping method")
+      }
 
       val orderShippingMethod = OrderShippingMethods.findByOrderId(order.id).result.run().futureValue.head
       orderShippingMethod.orderId must === (order.id)
@@ -703,15 +711,18 @@ class OrderIntegrationTest extends IntegrationTestBase
         | }
       """.stripMargin).extract[QueryStatement]
 
+    val lowSm = Factories.shippingMethods.head.copy(adminDisplayName = "Low", conditions = Some(lowConditions))
+    val highSm = Factories.shippingMethods.head.copy(adminDisplayName = "High", conditions = Some(highConditions))
+
     val (lowShippingMethod, inactiveShippingMethod, highShippingMethod) = (for {
       sku ← Skus.saveNew(Factories.skus.head.copy(price = 100))
       lineItemSku ← OrderLineItemSkus.saveNew(OrderLineItemSku(skuId = sku.id, orderId = order.id))
       lineItem ← OrderLineItems.saveNew(OrderLineItem(orderId = order.id, originId = lineItemSku.id,
         originType = OrderLineItem.SkuItem))
 
-      lowShippingMethod ← ShippingMethods.saveNew(Factories.shippingMethods.head.copy(conditions = Some(lowConditions)))
+      lowShippingMethod ← ShippingMethods.saveNew(lowSm)
       inactiveShippingMethod ← ShippingMethods.saveNew(lowShippingMethod.copy(isActive = false))
-      highShippingMethod ← ShippingMethods.saveNew(Factories.shippingMethods.head.copy(conditions = Some(highConditions)))
+      highShippingMethod ← ShippingMethods.saveNew(highSm)
     } yield (lowShippingMethod, inactiveShippingMethod, highShippingMethod)).run().futureValue
   }
 

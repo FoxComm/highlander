@@ -124,8 +124,8 @@ object FullOrder {
 
   private def fetchOrderDetails(order: Order)(implicit ec: ExecutionContext) = {
     val shippingMethodQ = for {
-      shipment ← Shipments.filter(_.orderId === order.id)
-      shipMethod ← models.ShippingMethods.filter(_.id === shipment.shippingMethodId)
+      orderShippingMethod ← models.OrderShippingMethods.filter(_.orderId === order.id)
+      shipMethod ← models.ShippingMethods.filter(_.id === orderShippingMethod.shippingMethodId)
     } yield shipMethod
 
     val paymentQ = for {
