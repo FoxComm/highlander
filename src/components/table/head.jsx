@@ -21,7 +21,7 @@ class TableHead extends React.Component {
   renderColumn(column, index) {
     const classnames = classNames({
       'fc-table-th': true,
-      'sorting': true,
+      'sorting': this.props.setState,
       'sorting-desc': `${column.field}` === this.props.sortBy,
       'sorting-asc': `-${column.field}` === this.props.sortBy
     });
