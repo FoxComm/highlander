@@ -43,3 +43,4 @@ public/admin.*
 
 .DS_Store
 .#*
+.swp

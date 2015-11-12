@@ -13,6 +13,7 @@ import LocalNav from '../local-nav/local-nav';
 import PilledSearch from '../pilled-search/pilled-search';
 import Currency from '../common/currency';
 import Status from '../common/status';
+import LiveSearch from '../live-search/live-search';
 
 @connect(state => ({orders: state.orders.list}), ordersActions)
 export default class Orders extends React.Component {
@@ -71,6 +72,19 @@ export default class Orders extends React.Component {
       { display: 'Order : Search' },
       { display: 'Shipment : Search' }
     ];
+    /**
+    * +     *
+    * +          <LiveSearch 
+    * +            updateSearch={this.props.updateSearch}
+    * +            searchOptions={ordersSearchTerms}
+    * +            state={this.props.orders}
+    * +            selectDown={this.props.selectDown}
+    * +            selectUp={this.props.selectUp}
+    * +            goBack={this.props.goBack}
+    * +            submitFilter={this.props.submitFilter}
+    * +            deleteSearchFilter={this.props.deleteSearchFilter}
+    * +          />
+  * +          */
 
     return (
       <div className="fc-list-page">
