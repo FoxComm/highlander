@@ -12,7 +12,7 @@ import { Link } from '../link';
 import { transitionTo } from '../../route-helpers';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
-import * as customersActions from '../../modules/customers/customers';
+import * as customersActions from '../../modules/customers/list';
 
 @connect(state => ({customers: state.customers.customers}), customersActions)
 export default class Customers extends React.Component {
@@ -59,7 +59,7 @@ export default class Customers extends React.Component {
     fetch: PropTypes.func,
     setFetchParams: PropTypes.func,
     customers: PropTypes.shape({
-      length: PropTypes.number.isRequired
+      total: PropTypes.number.isRequired
     }).isRequired,
     tableColumns: PropTypes.array
   }
@@ -93,7 +93,7 @@ export default class Customers extends React.Component {
       <div className="fc-list-page">
         <div className="fc-list-page-header">
           <SectionTitle title="Customers"
-                        count={this.props.customers.length}
+                        count={this.props.customers.total}
                         onAddClick={ this.onAddCustomerClick }
                         addTitle="Customer" />
           <LocalNav>

@@ -9,7 +9,7 @@ import { Link } from '../link';
 import { connect } from 'react-redux';
 import { Form, FormField } from '../forms';
 import * as GiftCardNewActions from '../../modules/gift-cards/new';
-import * as CustomersActions from '../../modules/customers/customers';
+import * as CustomersActions from '../../modules/customers/list';
 import { createGiftCard } from '../../modules/gift-cards/cards';
 
 const filterCustomers = createSelector(
