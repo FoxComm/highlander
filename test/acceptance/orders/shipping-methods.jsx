@@ -18,7 +18,7 @@ const getMethodName = row => {
 };
 
 const getEditableMethodName = row => {
-  const query = '.fc-table-td:nth-child(1) .shipping-method-row-name-field';
+  const query = '.fc-table-td:nth-child(1) .fc-shipping-method-row-name-field';
   return row.querySelector(query).innerHTML;
 };
 
@@ -28,7 +28,7 @@ const getMethodPrice = row => {
 };
 
 const getEditableMethodPrice = row => {
-  const query = '.fc-table-td:nth-child(2) .shipping-method-input-price input';
+  const query = '.fc-table-td:nth-child(2) .fc-shipping-method-input-price input';
   return row.querySelector(query).value;
 };
 
