@@ -13,7 +13,7 @@ export default class RemorseTimer extends React.Component {
 
   addTime(number, key) {
     this.setState({
-      endDate: moment(this.state.endDate).add(number, key)
+      endDate: moment(this.state.endDate).add(number, key).format()
     });
   }
 
