@@ -51,9 +51,6 @@ object RmaPayments extends TableQueryWithId[RmaPayment, RmaPayments](
 
   import models.{PaymentMethod ⇒ Pay}
 
-  def update(payment: RmaPayment)(implicit db: Database): DBIO[Int] =
-    this.findById(payment.id).update(payment)
-
   def findAllByOrderId(id: Int): QuerySeq =
     filter(_.rmaId === id)
 
