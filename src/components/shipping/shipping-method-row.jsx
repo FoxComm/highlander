@@ -2,7 +2,7 @@ import React from 'react';
 import formatCurrency from '../../lib/format-currency';
 import Currency from '../common/currency';
 import { EditButton, PrimaryButton } from '../common/buttons';
-import PrependMoneyInput from '../forms/prepend-money-input';
+import CurrencyInput from '../forms/currency-input';
 import RadioButton from '../forms/radio-button';
 import TableRow from '../table/row';
 import TableCell from '../table/cell';
@@ -19,7 +19,7 @@ const editBlock = (shippingMethod, isEditingPrice, editPriceAction, cancelPriceA
     return (
       <div className='contents'>
         <div className='shipping-method-input-price'>
-          <PrependMoneyInput value={price} />
+          <CurrencyInput value={price} />
         </div>
         <div className='shipping-method-action'>
           <a className='shipping-cancel-action' onClick={cancelPriceAction}>Cancel</a>
