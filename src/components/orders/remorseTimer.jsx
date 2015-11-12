@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import moment from 'moment';
+import { AddButton } from '../common/buttons';
 import Countdown from '../countdown/countdown';
 
 export default class RemorseTimer extends React.Component {
@@ -25,9 +26,9 @@ export default class RemorseTimer extends React.Component {
 
   extendButton() {
     return (
-      <button className="fc-btn fc-remorse-timer-extend" onClick={this.addTime.bind(this, 15, 'm')}>
-        <i className="icon-add"></i> 15 min
-      </button>
+      <AddButton className="fc-remorse-timer-extend" onClick={this.addTime.bind(this, 15, 'm')}>
+        &nbsp;15 min
+      </AddButton>
     );
   }
 
