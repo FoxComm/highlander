@@ -27,7 +27,7 @@ export default class RemorseTimer extends React.Component {
   extendButton() {
     return (
       <AddButton className="fc-remorse-timer-extend" onClick={this.addTime.bind(this, 15, 'm')}>
-        &nbsp;15 min
+        15 min
       </AddButton>
     );
   }
