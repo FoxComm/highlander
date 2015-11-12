@@ -23,7 +23,6 @@ final case class Stripe(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ")
   val api: StripeApi = apis.stripe
 
   // Creates a customer in Stripe along with their first CC
-  @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.AsInstanceOf"))
   def createCard(email: String, card: CreateCreditCard,
     stripeCustomerId: Option[String], address: Address): Result[(StripeCustomer, StripeCard)] = {
 
