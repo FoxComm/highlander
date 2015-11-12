@@ -130,11 +130,7 @@ export default class Notes extends React.Component {
     return rows;
   }
 
-  get controls() {
-    return (
-      <PrimaryButton icon="add" onClick={this.props.startAddingNote} disabled={!!this.props.isAddingNote } />
-    );
-  }
+
 
   render() {
     return (

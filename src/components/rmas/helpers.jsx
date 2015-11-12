@@ -36,31 +36,6 @@ const PaymentMethod = props => {
   );
 };
 
-const RmaSummary = props => {
-  const rma = props.rma;
-
-  return (
-    <ContentBox title="Return Summary" className="fc-rma-summary">
-      <article>
-        <dl className="rma-totals">
-          <dt>Subtotal</dt>
-          <dd><Currency value={rma.totals.subtotal}/></dd>
-          <dt>Shipping</dt>
-          <dd><Currency value={rma.totals.shipping}/></dd>
-          <dt>Tax</dt>
-          <dd><Currency value={rma.totals.taxes}/></dd>
-        </dl>
-      </article>
-      <footer className="is-highlighted">
-        <dl className="grand-total">
-          <dt>Refunds Total</dt>
-          <dd><Currency value={rma.totals.total}/></dd>
-        </dl>
-      </footer>
-    </ContentBox>
-  );
-};
-
 const renderRow = (row, index) => {
   return (
     <TableRow key={`${index}`}>
@@ -77,6 +52,5 @@ const renderRow = (row, index) => {
 export {
   CustomerInfo,
   PaymentMethod,
-  RmaSummary,
   renderRow
 };
