@@ -22,7 +22,6 @@ export default class Order extends React.Component {
     order: PropTypes.shape({
       currentOrder: PropTypes.object
     }),
-    fetchOrderIfNeeded: PropTypes.func,
     children: PropTypes.node
   };
 
@@ -97,7 +96,7 @@ export default class Order extends React.Component {
   }
 
   componentDidMount() {
-    this.props.fetchOrderIfNeeded(this.orderRefNum);
+    this.props.fetchOrder(this.orderRefNum);
   }
 
   render() {
