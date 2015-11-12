@@ -62,7 +62,9 @@ describe('Order Shipping Methods', function() {
           name: 'A Third Shipping Method',
           price: 9080
         }
-      ]
+      ],
+      isEditing: false,
+      isEditingPrice: false
     }
   };
 
@@ -150,7 +152,9 @@ describe('Order Shipping Methods', function() {
         currentOrder: {}
       },
       shippingMethods: {
-        availableMethods: []
+        availableMethods: [],
+        isEditing: false,
+        isEditingPrice: false
       }
     };
 
@@ -172,7 +176,9 @@ describe('Order Shipping Methods', function() {
         }
       },
       shippingMethods: {
-        availableMethods: []
+        availableMethods: [],
+        isEditing: false,
+        isEditingPrice: false
       }
     };
 

@@ -19,7 +19,7 @@ const editBlock = (shippingMethod, isEditingPrice, editPriceAction, cancelPriceA
     return (
       <div className='contents'>
         <div className='shipping-method-input-price'>
-          <CurrencyInput value={price} />
+          <CurrencyInput defaultValue={price} />
         </div>
         <div className='fc-right'>
           <a className='fc-action-block-cancel' onClick={cancelPriceAction}>Cancel</a>
@@ -46,7 +46,7 @@ const ShippingMethodRow = (props) => {
   return (
     <TableRow {...rest} >
       <TableCell>
-        <RadioButton className='shipping-method-row-name-control' checked={shippingMethod.isSelected} onClick={updateAction}>
+        <RadioButton className='shipping-method-row-name-control' checked={shippingMethod.isSelected} onChange={updateAction}>
           <span className='shipping-method-row-name-field'>{shippingMethod.name}</span>
         </RadioButton>
       </TableCell>
