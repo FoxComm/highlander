@@ -45,6 +45,10 @@ const IncrementButton = props => {
   return <DefaultButton icon='chevron-up' {...props} />;
 };
 
+const AddButton = props => {
+  return <DefaultButton icon='add' {...props} />;
+};
+
 const PrimaryButton = (props = {}) => {
   return (
     <DefaultButton {...props} className={ classNames('fc-btn-primary', props.className) }>
@@ -65,5 +69,6 @@ export {
   DeleteButton,
   EditButton,
   IncrementButton,
+  AddButton,
   PrimaryButton
 };

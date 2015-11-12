@@ -19,8 +19,9 @@ export default class Countdown extends React.Component {
     }
   }
 
-  tick() {
-    let timeLeft = Math.max(0, moment(this.props.endDate).utc().diff(moment.utc()));
+  tick(end) {
+    const endDate = end || this.props.endDate;
+    const timeLeft = Math.max(0, moment(endDate).utc().diff(moment.utc()));
     this.setState({
       ending: timeLeft < moment.duration(3, 'm'),
       difference: moment.utc(timeLeft).format('HH:mm:ss')
@@ -35,6 +36,11 @@ export default class Countdown extends React.Component {
   componentDidMount() {
     this.tick();
     this.startInterval();
+  }
+
+  componentWillReceiveProps(nextProps) {
+    // force recalc of difference value
+    this.tick(nextProps.endDate);
   }
 
   componentWillUnmount() {
