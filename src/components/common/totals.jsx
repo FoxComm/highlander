@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import ContentBox from '../content-box/content-box';
 import Currency from './currency';
 
@@ -15,6 +15,14 @@ const TotalsFooter = props => {
       </dl>
     </footer>
   );
+};
+
+TotalsFooter.propTypes = {
+  entity: PropTypes.shape({
+    totals: PropTypes.shape({
+      total: PropTypes.number.isRequired
+    })
+  })
 };
 
 const title = entityType => {
