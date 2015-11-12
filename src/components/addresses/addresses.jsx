@@ -1,20 +1,16 @@
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import { Button } from '../common/buttons';
-import Address from './address';
+import AddressBox from './address-box';
 import AddressForm from './address-form';
 import AddressStore from '../../stores/addresses';
 
 export default class AddressBook extends React.Component {
 
   static propTypes = {
-    order: PropTypes.object,
     onSelectAddress: PropTypes.func,
     onDeleteAddress: PropTypes.func,
-    isAddressSelected: PropTypes.func,
-    params: PropTypes.shape({
-      customer: PropTypes.string
-    })
+    isAddressSelected: PropTypes.func
   };
 
   constructor(props, context) {
@@ -52,12 +48,11 @@ export default class AddressBook extends React.Component {
 
   @autobind
   addNew() {
-    dispatch('toggleModal', <AddressForm customerId={this.state.customerId} order={this.props.order}/>);
+    dispatch('toggleModal', <AddressForm customerId={this.state.customerId} />);
   }
 
   render() {
     const addresses = this.state.addresses;
-    const order = this.props.order || null;
 
     return (
       <div className="fc-addresses">
@@ -68,11 +63,10 @@ export default class AddressBook extends React.Component {
         <ul className="fc-addresses-list">
           {addresses.map((address, idx) => {
             return (
-              <Address key={`${idx}-${address.id}`}
+              <AddressBox key={`${idx}-${address.id}`}
                 address={address}
-                order={order}
-                isSelected={this.props.isAddressSelected ? this.props.isAddressSelected(address) : false}
-                onSelectAddress={this.props.onSelectAddress}
+                choosen={this.props.isAddressSelected ? this.props.isAddressSelected(address) : false}
+                chooseAction={this.props.chooseAction}
                 onDeleteAddress={this.props.onDeleteAddress}
                 customerId={this.state.customerId}
               />
