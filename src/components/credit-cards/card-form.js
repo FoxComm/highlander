@@ -13,6 +13,15 @@ import classnames from 'classnames';
 
 export default class CreditCardForm extends React.Component {
 
+  static propTypes = {
+    onChange: PropTypes.func,
+    onSubmit: PropTypes.func,
+    onCancel: PropTypes.func,
+    isNew: PropTypes.bool,
+    form: PropTypes.object,
+    addresses: PropTypes.array
+  }
+
   constructor(...args) {
     super(...args);
     this.state = {
