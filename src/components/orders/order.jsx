@@ -93,9 +93,7 @@ export default class Order extends React.Component {
 
   @autobind
   onStatusChange(value) {
-    this.props.updateOrder(this.orderRefNum, {
-      orderStatus: value
-    });
+    this.props.updateOrder(this.orderRefNum, {status: value});
   }
 
   componentDidMount() {
