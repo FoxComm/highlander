@@ -21,19 +21,19 @@ const editBlock = (shippingMethod, isEditingPrice, editPriceAction, cancelPriceA
         <div className='shipping-method-input-price'>
           <CurrencyInput value={price} />
         </div>
-        <div className='shipping-method-action'>
-          <a className='shipping-cancel-action' onClick={cancelPriceAction}>Cancel</a>
+        <div className='fc-right'>
+          <a className='fc-action-block-cancel' onClick={cancelPriceAction}>Cancel</a>
           <PrimaryButton onClick={() => submitPriceAction(shippingMethod.id)}>Save</PrimaryButton>
         </div>
       </div>
     );
   } else {
     return (
-      <div className='contents'>
-        <div className='shipping-method-price'>
+      <div>
+        <div className='shipping-method-row-price-field'>
           <Currency value={shippingMethod.price} />
         </div>
-        <div className='shipping-method-action'>
+        <div className='fc-right'>
           {shippingMethod.isSelected ? <EditButton onClick={editPriceAction} /> : null}
         </div>
       </div>
@@ -46,11 +46,9 @@ const ShippingMethodRow = (props) => {
   return (
     <TableRow {...rest} >
       <TableCell>
-        <div className='contents'>
-          <RadioButton className='name-control' checked={shippingMethod.isSelected} onClick={updateAction}>
-            <span className='name-field'>{shippingMethod.name}</span>
-          </RadioButton>
-        </div>
+        <RadioButton className='shipping-method-row-name-control' checked={shippingMethod.isSelected} onClick={updateAction}>
+          <span className='shipping-method-row-name-field'>{shippingMethod.name}</span>
+        </RadioButton>
       </TableCell>
       <TableCell>
         {editBlock(shippingMethod, isEditingPrice, editPriceAction, cancelPriceAction)}

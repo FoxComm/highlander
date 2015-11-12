@@ -31,7 +31,7 @@ const viewContent = props => {
       shippingMethods[0].price) {
     return <TableView columns={columns} data={{rows: shippingMethods}} />;
   } else {
-    return <span className='empty-text'>No shipping method applied.</span>;
+    return <div className='fc-content-box-empty-text'>No shipping method applied.</div>;
   }
 };
 

@@ -18,7 +18,7 @@ const getMethodName = row => {
 };
 
 const getEditableMethodName = row => {
-  const query = '.fc-table-td:nth-child(1) .name-field';
+  const query = '.fc-table-td:nth-child(1) .shipping-method-row-name-field';
   return row.querySelector(query).innerHTML;
 };
 
@@ -158,7 +158,7 @@ describe('Order Shipping Methods', function() {
       <div><ShippingMethods {...emptyProps} /></div>
     );
 
-    const emptyText = container.querySelector('.fc-shipping-methods .empty-text');
+    const emptyText = container.querySelector('.fc-content-box-empty-text');
     expect(emptyText).to.not.equal(null);
     expect(emptyText.innerHTML).to.equal('No shipping method applied.');
     container.unmount();
@@ -180,7 +180,7 @@ describe('Order Shipping Methods', function() {
       <div><ShippingMethods {...emptyProps} /></div>
     );
 
-    const emptyText = container.querySelector('.fc-shipping-methods .empty-text');
+    const emptyText = container.querySelector('.fc-content-box-empty-text');
     expect(emptyText).to.not.equal(null);
     expect(emptyText.innerHTML).to.equal('No shipping method applied.');
     container.unmount();
