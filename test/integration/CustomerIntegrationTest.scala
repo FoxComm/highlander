@@ -16,8 +16,9 @@ import payloads.CreateAddressPayload
 
 import responses.{ResponseWithFailuresAndMetadata, CustomerResponse}
 import services.orders.OrderPaymentUpdater
+import services.CreditCardFailure.StripeFailure
 import services.{CannotUseInactiveCreditCard, CreditCardManager, GeneralFailure, NotFoundFailure404,
-Result, StripeRuntimeException, CustomerEmailNotUnique}
+Result, CustomerEmailNotUnique}
 import util.IntegrationTestBase
 import utils.Money.Currency
 import utils.Seeds.Factories
@@ -464,7 +465,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
       when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any())).
         thenReturn(Result.failure(
-          StripeRuntimeException(
+          StripeFailure(
             new CardException(
               "Your card's expiration year is invalid",
               "X_REQUEST_ID: 1",

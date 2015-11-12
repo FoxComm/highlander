@@ -5,7 +5,7 @@ import scala.concurrent.duration.Duration.Inf
 import scala.util.control.NoStackTrace
 
 import com.stripe.exception.StripeException
-import services.StripeRuntimeException
+import services.CreditCardFailure.StripeFailure
 import util.TestBase
 
 class WiredStripeApiTest extends TestBase {
@@ -14,7 +14,7 @@ class WiredStripeApiTest extends TestBase {
   "Wired Stripe API" - {
     "catches StripeException and returns a Result.failure" in {
       val result = api.inBlockingPool("abc")(_ ⇒ throw someStripeException)
-      leftValue(result.futureValue).head must === (StripeRuntimeException(someStripeException))
+      leftValue(result.futureValue).head must === (StripeFailure(someStripeException))
     }
 
     "does not catch other exceptions" in {

@@ -8,9 +8,7 @@ import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import utils.ADT
 
-abstract class PaymentMethod {
-  def authorize(amount: Int)(implicit ec: ExecutionContext): Result[String]
-}
+abstract class PaymentMethod {}
 
 object PaymentMethod {
   sealed trait Type

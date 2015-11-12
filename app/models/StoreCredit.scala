@@ -58,10 +58,6 @@ final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, origin
     Active → Set(OnHold, Canceled)
   )
 
-  // TODO: not sure we use this polymorphically
-  def authorize(amount: Int)(implicit ec: ExecutionContext): Result[String] =
-    Result.good("authenticated")
-
   def isActive: Boolean = activeStatuses.contains(status)
 }
 

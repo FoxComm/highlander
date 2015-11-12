@@ -13,7 +13,7 @@ import com.stripe.model.{Card ⇒ StripeCard, Customer ⇒ StripeCustomer}
 import monocle.Lens
 import monocle.macros.GenLens
 import payloads.CreateCreditCard
-import services.{Failure, Result, StripeGateway}
+import services.{Failure, Result, Stripe}
 import slick.driver.PostgresDriver.api._
 import utils._
 import utils.Slick.implicits._
@@ -36,10 +36,6 @@ final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerI
   def name: String = addressName
   def phoneNumber: Option[String] = None
   def zipLens: Lens[CreditCard, String] = GenLens[CreditCard](_.zip)
-
-  def authorize(amount: Int)(implicit ec: ExecutionContext): Result[String] = {
-    new StripeGateway().authorizeAmount(gatewayCustomerId, amount)
-  }
 
   override def validate: ValidatedNel[Failure, CreditCard] = {
     ( matches(lastFour, "[0-9]{4}", "lastFour")

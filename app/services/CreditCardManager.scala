@@ -23,7 +23,7 @@ import utils.jdbc._
 import utils.time.JavaTimeSlickMapper.instantAndTimestampWithoutZone
 
 object CreditCardManager {
-  val gateway = StripeGateway()
+  private def gateway(implicit ec: ExecutionContext, apis: Apis): Stripe = Stripe()
 
   type QuerySeq = models.CreditCards.QuerySeq
 
@@ -106,7 +106,7 @@ object CreditCardManager {
         val newVersion = CreditCards.saveNew(updated)
         val deactivate = CreditCards.findById(cc.id).extract.map(_.inWallet).update(false)
 
-        ResultT(new StripeGateway().editCard(updated).map {
+        ResultT(gateway.editCard(updated).map {
           case Xor.Left(f)  ⇒ Xor.left(f)
           case Xor.Right(_) ⇒ Xor.right(deactivate >> newVersion)
         })

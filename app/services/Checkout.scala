@@ -53,8 +53,8 @@ final case class Checkout(cart: Order, cartValidator: CartValidation)(implicit d
 
   private def authPayments: DbResult[Unit] = {
     (for {
-      giftCards ← authGiftCards
-      storeCredits ← authStoreCredits
+      giftCards     ← authGiftCards
+      storeCredits  ← authStoreCredits
     } yield (giftCards, storeCredits)).map { case (gc, sc) ⇒
       // not-so-easy-way to combine error messages from both Xors
       gc.map(_ ⇒ {}).combine(sc.map(_ ⇒ {}))
@@ -91,14 +91,14 @@ final case class Checkout(cart: Order, cartValidator: CartValidation)(implicit d
         .map { o ⇒ (o.status, o.placedAt) }
         .update((c.status, c.placedAt))
 
-      val updateGcs = for {
+      val updatedPurchasedGcs = for {
         items  ← OrderLineItemGiftCards.findByOrderId(cart.id).result
         holds  ← GiftCards
           .filter(_.id.inSet(items.map(_.giftCardId)))
           .map(_.status).update(GiftCard.OnHold)
       } yield holds
 
-      (updateGcs >> updateOrder).flatMap(_ ⇒ DbResult.good(c))
+      (updatedPurchasedGcs >> updateOrder).flatMap(_ ⇒ DbResult.good(c))
     })
   }
 
