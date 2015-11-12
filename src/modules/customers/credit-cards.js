@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { assoc, dissoc } from 'sprout-data';
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 import { haveType } from '../state-helpers';
@@ -112,28 +113,10 @@ const reducer = createReducer({
     };
   },
   [closeNewCustomerCreditCard]: (state, id) => {
-    const { newCreditCard, ...restState } = state[id];
-    return {
-      ...state,
-      [id]: {
-        ...restState
-      }
-    };
+    return dissoc(state, [id, 'newCreditCard']);
   },
   [changeNewCustomerCreditCardFormData]: (state, [id, name, value]) => {
-    const newCreditCard = _.get(state, [id, 'newCreditCard']);
-    const newState = {
-      ...state,
-      [id]: {
-        ...state[id],
-        newCreditCard: {
-          ...newCreditCard,
-          [name]: value
-        }
-      }
-    };
-
-    return newState;
+    return assoc(state, [id, 'newCreditCard', name], value);
   },
   [editCustomerCreditCard]: (state, [customerId, cardId]) => {
     const cards = _.get(state, [customerId, 'cards'], []);
@@ -155,79 +138,27 @@ const reducer = createReducer({
     };
   },
   [changeEditCustomerCreditCardFormData]: (state, [id, name, value]) => {
-    const editingCreditCard = _.get(state, [id, 'editingCreditCard']);
-    const newState = {
-      ...state,
-      [id]: {
-        ...state[id],
-        editingCreditCard: {
-          ...editingCreditCard,
-          [name]: value
-        }
-      }
-    };
-
-    return newState;
+    return assoc(state, [id, 'editingCreditCard', name], value);
   },
   [closeEditCustomerCreditCard]: (state, [customerId, cardId]) => {
-    return {
-      ...state,
-      [customerId]: {
-        ...state[customerId],
-        editingId: null,
-        editingCreditCard: null
-      }
-    };
+    return dissoc(state, [customerId, 'editingId'], [customerId, 'editingCreditCard']);
   },
   [deleteCustomerCreditCard]: (state, [customerId, cardId]) => {
-    return {
-      ...state,
-      [customerId]: {
-        ...state[customerId],
-        deletingId: cardId
-      }
-    };
+    return assoc(state, [customerId, 'deletingId'], cardId);
   },
   [closeDeleteCustomerCreditCard]: (state, id) => {
-    return {
-      ...state,
-      [id]: {
-        ...state[id],
-        deletingId: null
-      }
-    };
+    return dissoc(state, [id, 'deletingId']);
   },
   [requestCustomerCreditCards]: (state, id) => {
-    return {
-      ...state,
-      [id]: {
-        ...state[id],
-        isFetching: true
-      }
-    };
+    return assoc(state, [id, 'isFetching'], true);
   },
   [receiveCustomerCreditCards]: (state, [id, payload]) => {
     const cards = _.get(payload, 'result', []);
-    return {
-      ...state,
-      [id]: {
-        ...state[id],
-        cards,
-        isFetching: false
-      }
-    };
+    return assoc(state, [id, 'cards'], cards, [id, 'isFetiching'], false);
   },
   [failCustomerCreditCards]: (state, [id, err]) => {
     console.error(err);
-
-    return {
-      ...state,
-      [id]: {
-        ...state[id],
-        err,
-        isFetching: false
-      }
-    };
+    return assoc(state, [id, 'err'], err, [id, 'isFetiching'], false);
   },
 }, initialState);
 
