@@ -4,7 +4,7 @@ import slick.ast.{Apply, Filter, LiteralNode, Node, Path}
 import slick.lifted.Query
 import utils.Strings._
 
-case class QueryErrorInfo(modelType: String, searchKey: Any, searchTerm: String)
+final case class QueryErrorInfo(modelType: String, searchKey: Any, searchTerm: String)
 
 object QueryErrorInfo {
 
@@ -12,6 +12,7 @@ object QueryErrorInfo {
     findSearchKey(query.toNode, primarySearchTerm)
   }
 
+  @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.IsInstanceOf", "org.brianmckenna.wartremover.warts.AsInstanceOf"))
   private def findSearchKey(node: Node, searchTerm: String): Option[Any] = node match {
     case Filter(_, from, where) ⇒
       val key = findSearchKey(where, searchTerm)

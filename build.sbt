@@ -29,10 +29,10 @@ lazy val phoenixScala = (project in file(".")).
   configs(IT).
   dependsOn(fcSlickPG).
   settings(inConfig(IT)(Defaults.testSettings)).
+  settings(inConfig(Test)(wartremoverWarnings ++= testWartWarnings)).
+  settings(inConfig(IT)(wartremoverWarnings ++= testWartWarnings)).
   settings(
-    wartremoverWarnings in(Test, compile) ++= testWartWarnings,
-    wartremoverWarnings in(IT, compile) ++= testWartWarnings,
-    wartremoverWarnings in(Sources, compile) ++=
+    wartremoverWarnings in (Compile, compile) ++=
       Warts.allBut(
         /** Covered by the compiler */
         Wart.Any,

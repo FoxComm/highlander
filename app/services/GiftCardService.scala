@@ -171,14 +171,14 @@ object GiftCardService {
           case Some(id) ⇒ GiftCardSubtypes.csrAppeasements.filter(_.id === id).one
           case None     ⇒ lift(None)
         }
-      } yield (reason, subtype)
+      } yield (reason, subtype, payload.subTypeId)
 
       ResultT(queries.run().map {
-        case (None, _) ⇒
+        case (None, _, _) ⇒
           Xor.left(NotFoundFailure400(Reason, payload.reasonId).single)
-        case (_, None) if payload.subTypeId.isDefined ⇒
-          Xor.left(NotFoundFailure400(GiftCardSubtype, payload.subTypeId.head).single)
-        case (Some(r), s) ⇒
+        case (_, None, Some(subId)) ⇒
+          Xor.left(NotFoundFailure400(GiftCardSubtype, subId).single)
+        case (Some(r), s, _) ⇒
           Xor.right((r, s))
       })
     }
