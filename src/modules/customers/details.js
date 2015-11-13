@@ -17,10 +17,17 @@ const requestCustomerAdresses = createAction('CUSTOMER_ADDRESSES_REQUEST');
 // status
 const submitToggleDisableStatus = createAction('CUSTOMER_SUBMIT_DISABLE_STATUS');
 const receivedDisableStatus = createAction('CUSTOMER_RECEIVED_DISABLE_STATUS', (id, customer) => [id, customer]);
+
+const submitToggleBlacklisted = createAction('CUSTOMER_SUBMIT_BLACKLISTED');
+const receivedBlacklisted = createAction('CUSTOMER_RECEIVED_BLACKLISTED', (id, customer) => [id, customer]);
+
 const failChangeStatus = createAction('CUSTOMER_FAIL_CHANGE_STATUS', (id, err) => [id, err]);
 
 export const startDisablingCustomer = createAction('CUSTOMER_START_DISABLING');
 export const stopDisablingCustomer = createAction('CUSTOMER_STOP_DISABLING');
+
+export const startBlacklistCustomer = createAction('CUSTOMER_START_BLACKLIST');
+export const stopBlacklistCustomer = createAction('CUSTOMER_STOP_BLACKLIST');
 
 
 export function fetchCustomer(id) {
@@ -51,12 +58,23 @@ export function fetchAddresses(id) {
 }
 
 export function toggleDisableStatus(id, isDisabled) {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch(stopDisablingCustomer());
     dispatch(submitToggleDisableStatus(id));
 
     Api.post(`/customers/${id}/disable`, {disabled: isDisabled})
       .then(customer => dispatch(receivedDisableStatus(id, customer)))
+      .catch(err => dispatch(failChangeStatus(id, err)));
+  };
+}
+
+export function toggleBlacklisted(id, isBlacklisted) {
+  return dispatch => {
+    dispatch(stopBlacklistCustomer());
+    dispatch(submitToggleBlacklisted(id));
+
+    Api.post(`/customers/${id}/blacklist`, {blacklisted: isBlacklisted})
+      .then(customer => dispatch(receivedBlacklisted(id, customer)))
       .catch(err => dispatch(failChangeStatus(id, err)));
   };
 }
@@ -97,10 +115,18 @@ const reducer = createReducer({
   [submitToggleDisableStatus]: (state, id) => {
     return assoc(state, [id, 'isFetchingStatus'], true);
   },
+  [submitToggleBlacklisted]: (state, id) => {
+    return assoc(state, [id, 'isFetchingStatus'], true);
+  },
   [receivedDisableStatus]: (state, [id, customer]) => {
     return update(state, id, deepMerge, {
       isFetchingStatus: false,
-      details: {disabled: customer.isDisabled}});
+      details: {disabled: customer.disabled}});
+  },
+  [receivedBlacklisted]: (state, [id, customer]) => {
+    return update(state, id, deepMerge, {
+      isFetchingStatus: false,
+      details: {blacklisted: customer.blacklisted}});
   },
   [failChangeStatus]: (state, [id, err]) => {
     console.error(err);

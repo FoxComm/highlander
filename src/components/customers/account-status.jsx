@@ -16,7 +16,10 @@ export default class CustomerAccountStatus extends React.Component {
     customer: PropTypes.object.isRequired,
     toggleDisableStatus: PropTypes.func.isRequired,
     startDisablingCustomer: PropTypes.func.isRequired,
-    stopDisablingCustomer: PropTypes.func.isRequired
+    stopDisablingCustomer: PropTypes.func.isRequired,
+    toggleBlacklisted: PropTypes.func.isRequired,
+    startBlacklistCustomer: PropTypes.func.isRequired,
+    stopBlacklistCustomer: PropTypes.func.isRequired
   };
 
   static customerInfo(customer) {
@@ -54,6 +57,32 @@ export default class CustomerAccountStatus extends React.Component {
     }
   }
 
+  get blacklistedOptions() {
+    const customer = this.props.customer;
+    if (customer.blacklisted) {
+      return {
+        header: 'Remove Customer From Blacklist',
+        body: (<div className="fc-customer-blacklist-confirm">
+          <div>Are you sure you want to remove the following customer from the Blacklist?</div>
+          {CustomerAccountStatus.customerInfo(customer)}
+          <div>You can place this customer on the Blacklist at anytime.</div>
+        </div>),
+        confirm: 'Yes, Remove',
+        cancel: 'Cancel'
+      };
+    } else {
+      return {
+        header: 'Blacklist Customer',
+        body: (<div className="fc-customer-blacklist-confirm">
+          <div>Are you sure you want to place the following custom on the Blacklist?</div>
+          {CustomerAccountStatus.customerInfo(customer)}
+          <div>You can take this customer off the Blacklist at anytime.</div></div>),
+        confirm: 'Yes, Blacklist',
+        cancel: 'Cancel'
+      };
+    }
+  }
+
   render() {
     let customer = this.props.customer;
     return (
@@ -73,7 +102,8 @@ export default class CustomerAccountStatus extends React.Component {
               <strong>Blacklist Customer</strong>
             </div>
             <div className="fc-col-md-1-3">
-              <SliderCheckbox className="fc-right" id="customerBlacklisted" defaultChecked={ customer.blacklisted } />
+              <SliderCheckbox className="fc-right" onChange={this.props.startBlacklistCustomer}
+                              id="customerBlacklisted" checked={ customer.blacklisted } />
             </div>
         </div>
         <ConfirmationDialog
@@ -84,6 +114,14 @@ export default class CustomerAccountStatus extends React.Component {
             this.props.toggleDisableStatus(customer.id, !customer.disabled);
           }}
           cancelAction={this.props.stopDisablingCustomer}/>
+        <ConfirmationDialog
+          {...this.blacklistedOptions}
+          isVisible={this.props.isBlacklistedStarted}
+          confirmAction={() => {
+            const customer = this.props.customer;
+            this.props.toggleBlacklisted(customer.id, !customer.blacklisted);
+          }}
+          cancelAction={this.props.stopBlacklistCustomer}/>
       </ContentBox>
     </div>
     );
