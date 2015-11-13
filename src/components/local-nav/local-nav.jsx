@@ -28,22 +28,15 @@ class LocalNav extends React.Component {
     }),
     children: PropTypes.node
   };
+
   @autobind
   compileLinks(item) {
-    let linkList = [];
     let children = item.props.children;
     if (!_.isArray(children)) children = [children];
 
-    for (let child of children) {
-      if (child.type === Link) {
-        linkList.push(child);
-      } else if (_.isArray(child.props.children)) {
-        linkList.push(...this.compileLinks(child));
-      } else if (_.isObject(child.props.children)) {
-        linkList.push(...this.compileLinks(child.props.children));
-      }
-    }
-    return linkList;
+    return _.flatMap(children, function(child) {
+        return child.type === Link ? child : compileLinks(child);
+    });
   }
 
   @autobind

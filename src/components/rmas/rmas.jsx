@@ -14,10 +14,10 @@ function mapStateToProps(state) {
   const rmaData = state.rmas.list;
 
   return {
-    'rmas': assoc(
-      rmaData,
-      'rows', rmaData.rows || []
-    )
+    'rmas': {
+      ...rmaData,
+      'rows': rmaData.rows || []
+    }
   };
 }
 
