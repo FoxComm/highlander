@@ -34,7 +34,7 @@ class LocalNav extends React.Component {
     let children = item.props.children;
     if (!_.isArray(children)) children = [children];
 
-    return _.flatMap(children, function(child) {
+    return _.flatMap(children, (child) => {
         return child.type === Link ? child : compileLinks(child);
     });
   }
