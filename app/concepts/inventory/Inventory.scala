@@ -77,11 +77,11 @@ trait NonSellables {
 
 object Adjustments {
   sealed trait Adjustment
-  case class OnHand(id: Id, amount: Int) extends Adjustment
-  case class Held(id: Id, amount: Int) extends Adjustment
-  case class Reserved(id: Id, amount: Int) extends Adjustment
-  case class NonSellable(id: Id, amount: Int) extends Adjustment
-  case class And(left: Adjustment, right: Adjustment)
+  final case class OnHand(id: Id, amount: Int) extends Adjustment
+  final case class Held(id: Id, amount: Int) extends Adjustment
+  final case class Reserved(id: Id, amount: Int) extends Adjustment
+  final case class NonSellable(id: Id, amount: Int) extends Adjustment
+  final case class And(left: Adjustment, right: Adjustment)
 
   type Ledger = Seq[Adjustment]
 }
