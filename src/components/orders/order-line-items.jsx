@@ -33,6 +33,7 @@ const OrderLineItems = props => {
       editAction={props.orderLineItemsStartEdit}
       doneAction={props.orderLineItemsCancelEdit}
       editContent={renderEditContent(props)}
+      editFooter={renderEditFooter(props)}
       viewContent={renderViewContent(props)} />
   );
 };
@@ -52,10 +53,10 @@ renderViewContent.propTypes = {
 };
 
 const renderEditContent = props => {
-  let order = props.order.currentOrder;
-  let lineItemsStatus = props.order.lineItems;
+  const order = props.order.currentOrder;
+  const lineItemsStatus = props.order.lineItems;
 
-  let orderLineItems = lineItemsStatus.items.map((lineItem, idx) => {
+  const orderLineItems = lineItemsStatus.items.map((lineItem, idx) => {
     return <OrderLineItem key={`lineItem-${idx}`} item={lineItem} {...props} />;
   });
 
@@ -63,9 +64,6 @@ const renderEditContent = props => {
   return (
     <div>
       <TableView columns={editModeColumns} data={{rows: orderLineItems}} />
-      <div>
-        <strong>Add Item</strong>
-      </div>
       <ConfirmationDialog
         isVisible={lineItemsStatus.isDeleting}
         header='Confirm'
@@ -74,6 +72,14 @@ const renderEditContent = props => {
         confirm='Yes, Delete'
         cancelAction={() => props.orderLineItemsCancelDelete(lineItemsStatus.skuToDelete)}
         confirmAction={() => props.deleteLineItem(order, lineItemsStatus.skuToDelete)} />
+    </div>
+  );
+};
+
+const renderEditFooter = props => {
+  return (
+    <div>
+      <strong>Add Item</strong>
     </div>
   );
 };

@@ -5,7 +5,7 @@ import { EditButton, PrimaryButton } from '../common/buttons';
 import Addresses from '../addresses/addresses';
 import AddressDetails from '../addresses/address-details';
 import * as OrdersActions from '../../modules/orders/list';
-import EditableContentBox from '../content-box/editable-content-box';
+import EditableContentBox, { EditDoneButton } from '../content-box/editable-content-box';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
 import * as CustomerAddressesActions from '../../modules/customers/addresses';
@@ -86,6 +86,7 @@ export default class OrderShippingAddress extends React.Component {
         isEditing={props.isEditing}
         editAction={() => props.startEditingAddress(props.customerId, addressId)}
         doneAction={() => props.stopEditingAddress(props.customerId, addressId)}
+        renderFooter={null}
         renderContent={isEditing => isEditing ? this.editContent : this.viewContent}
       />
     );
