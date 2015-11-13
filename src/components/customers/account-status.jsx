@@ -20,9 +20,12 @@ export default class CustomerAccountStatus extends React.Component {
   };
 
   static customerInfo(customer) {
-    return (<div><b>{customer.name}</b><br/>
-    {customer.email}<br/>
-    {customer.phoneNumber}</div>);
+    return (<ul className="fc-customer-disable-confirm-customer">
+
+    <li><strong>{customer.name}</strong></li>
+    <li>{customer.email}</li>
+    <li>{customer.phoneNumber}</li>
+    </ul>);
   }
 
   get disableOptions() {
@@ -30,21 +33,21 @@ export default class CustomerAccountStatus extends React.Component {
     if (customer.disabled) {
       return {
         header: 'Activate Customer Account',
-        body: (<div>Are you sure you want to active the account for the following customer?
-        <br/><br/>
+        body: (<div className="fc-customer-disable-confirm">
+          <div>Are you sure you want to active the account for the following customer?</div>
         {CustomerAccountStatus.customerInfo(customer)}
-        <br/>
-        You can deactivate this account at anytime.</div>),
+          <div>You can deactivate this account at anytime.</div>
+        </div>),
         confirm: 'Yes, Activate Account',
         cancel: 'Cancel'
       };
     } else {
       return {
         header: 'Deactivate Customer Account',
-        body: (<div>Are you sure you want to deactivate the account for the following customer?
-        <br/><br/>
+        body: (<div className="fc-customer-disable-confirm">
+          <div>Are you sure you want to deactivate the account for the following customer?</div>
         {CustomerAccountStatus.customerInfo(customer)}
-        <br/>You can reactivate this account at anytime.</div>),
+        <div>You can reactivate this account at anytime.</div></div>),
         confirm: 'Yes, Deactivate Account',
         cancel: 'Cancel'
       };
@@ -73,8 +76,7 @@ export default class CustomerAccountStatus extends React.Component {
               <SliderCheckbox className="fc-right" id="customerBlacklisted" defaultChecked={ customer.blacklisted } />
             </div>
         </div>
-      </ContentBox>
-      <ConfirmationDialog
+        <ConfirmationDialog
           {...this.disableOptions}
           isVisible={this.props.isDisablingStarted}
           confirmAction={() => {
@@ -82,6 +84,7 @@ export default class CustomerAccountStatus extends React.Component {
             this.props.toggleDisableStatus(customer.id, !customer.disabled);
           }}
           cancelAction={this.props.stopDisablingCustomer}/>
+      </ContentBox>
     </div>
     );
   }
