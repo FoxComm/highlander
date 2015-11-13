@@ -58,7 +58,7 @@ function paginateBehaviour(state, action, actionType) {
       type: actionType
     });
   }
-  return paginate(undefined, {
+  return paginate(state, {
     ...action,
     payload,
     type: actionType
