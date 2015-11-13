@@ -280,7 +280,15 @@ object Slick {
         DbResult.fromDbio(dbio)
     }
 
-    implicit class EnrichedDbResult[A](val r: DbResult[A]) {
+    implicit class EnrichedDBIOpt[R](val dbio: DBIO[Option[R]]) extends AnyVal {
+      def mustFindOr(notFoundFailure: ⇒ Failure)(implicit ec: ExecutionContext): DbResult[R] =
+        dbio.flatMap {
+          case Some(model) ⇒ DbResult.good(model)
+          case None ⇒ DbResult.failure(notFoundFailure)
+        }
+    }
+
+    implicit class EnrichedDbResult[A](val r: DbResult[A]) extends AnyVal {
       def toXorT(implicit ec: ExecutionContext): DbResultT[A] = DbResultT(r)
     }
   }

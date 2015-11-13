@@ -19,6 +19,9 @@ import OrderPayments.scope._
 import utils.Litterbox._
 import utils.{TableQueryWithId, friendlyClassName}
 
+import utils.DbResultT.*
+import utils.DbResultT.implicits._
+
 /*
   1) Run cart through validator
   2) Check inventory availability for every item (currently, that we have some items since our inventory is bunk)
@@ -84,22 +87,19 @@ final case class Checkout(cart: Order, cartValidator: CartValidation)(implicit d
   }
 
   private def remorseHold: DbResult[Order] = {
-    val changed = cart.updateTo(cart.copy(status = RemorseHold, placedAt = Instant.now.some))
+    (for {
+      remorseHold ← * <~ cart.updateTo(cart.copy(status = RemorseHold, placedAt = Instant.now.some))
 
-    changed.fold(DbResult.failures, { c ⇒
-      val updateOrder = Orders.findById(cart.id).extract
-        .map { o ⇒ (o.status, o.placedAt) }
-        .update((c.status, c.placedAt))
+      newCart ← * <~ Orders.update(cart, remorseHold)
 
-      val updatedPurchasedGcs = for {
-        items  ← OrderLineItemGiftCards.findByOrderId(cart.id).result
-        holds  ← GiftCards
+      onHoldGcs ← * <~ (for {
+        items ← OrderLineItemGiftCards.findByOrderId(cart.id).result
+        holds ← GiftCards
           .filter(_.id.inSet(items.map(_.giftCardId)))
           .map(_.status).update(GiftCard.OnHold)
-      } yield holds
+      } yield holds).toXor
 
-      (updatedPurchasedGcs >> updateOrder).flatMap(_ ⇒ DbResult.good(c))
-    })
+    } yield newCart).value
   }
 
   private def createNewCart: DbResult[Order] =

@@ -158,6 +158,14 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.
       selectInner(q.result.headOption)(action, checks)
     }
 
+    def mustFindById(id: M#Id)(notFoundFailure: M#Id ⇒ Failure = (id: M#Id) ⇒ notFound404)
+      (implicit ec: ExecutionContext, db: Database): DbResult[M] = {
+      findOneById(id).flatMap {
+        case Some(model) ⇒ DbResult.good(model)
+        case None ⇒ DbResult.failure(notFoundFailure(id))
+      }
+    }
+
     def selectOneWithMetadata[R](action: M ⇒ ResultWithMetadata[R], checks: Checks = checks,
       notFoundFailure: Failure = notFound404)
       (implicit ec: ExecutionContext, db: Database): Future[ResultWithMetadata[R]] = {

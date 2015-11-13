@@ -4,7 +4,7 @@ import scala.concurrent.ExecutionContext
 
 import services.Failures
 import cats.{Monad, Applicative, Functor}
-import cats.data.{XorT, Xor}
+import cats.data.{Validated, XorT, Xor}
 import slick.driver.PostgresDriver._
 import slick.driver.PostgresDriver.api._
 
@@ -31,7 +31,7 @@ object DbResultT {
 
   import implicits._
 
-  def apply[A](v: DBIO[Failures Xor A])(implicit ec: ExecutionContext): DbResultT[A] =
+  def apply[A](v: IO[Failures Xor A])(implicit ec: ExecutionContext): DbResultT[A] =
     XorT[IO, Failures, A](v)
 
   def pure[A](v: A)(implicit ec: ExecutionContext): DbResultT[A] =
@@ -50,5 +50,19 @@ object DbResultT {
     XorT.left[IO, Failures, A](v)
 
   def leftLift[A](v: Failures)(implicit ec: ExecutionContext): DbResultT[A] =
-    XorT.left[IO, Failures, A](DBIO.successful(v))
+    left(DBIO.successful(v))
+
+  object * {
+    def <~[A](v: DBIO[Failures Xor A])(implicit ec: ExecutionContext): DbResultT[A] =
+      DbResultT(v)
+
+    def <~[A](v: Failures Xor A)(implicit ec: ExecutionContext): DbResultT[A] =
+      DbResultT.fromXor(v)
+
+    def <~[A](v: A)(implicit ec: ExecutionContext): DbResultT[A] =
+      DbResultT.pure(v)
+
+    def <~[A](v: Validated[Failures, A])(implicit ec: ExecutionContext): DbResultT[A] =
+      DbResultT.fromXor(v.toXor)
+  }
 }

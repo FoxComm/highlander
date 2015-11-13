@@ -14,7 +14,7 @@ import utils.{ModelWithIdParameter, TableQueryWithId, Validation}
 
 final case class Address(id: Int = 0, customerId: Int, regionId: Int, name: String,
   address1: String, address2: Option[String], city: String, zip: String,
-  isDefaultShipping: Boolean = false, phoneNumber: Option[String] = None, 
+  isDefaultShipping: Boolean = false, phoneNumber: Option[String] = None,
   deletedAt: Option[Instant] = None)
   extends ModelWithIdParameter[Address]
   with Addressable[Address]
@@ -112,8 +112,11 @@ object Addresses extends TableQueryWithId[Address, Addresses](
   def findShippingDefaultByCustomerId(customerId: Int): QuerySeq =
    filter(_.customerId === customerId).filter(_.isDefaultShipping === true)
 
-  def findById(customerId: Int, addressId: Int): QuerySeq = 
+  def findById(customerId: Int, addressId: Int): QuerySeq =
    findById(addressId).extract.filter(_.customerId === customerId)
+
+  def findByIdAndCustomer(addressId: Int, customerId: Int): DBIO[Option[Address]] =
+    findById(addressId).extract.filter(_.customerId === customerId).result.headOption
 
   object scope {
     implicit class AddressesQuerySeqConversions(q: QuerySeq) {
