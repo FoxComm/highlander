@@ -1,132 +1,68 @@
 import _ from 'lodash';
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
+import { update, get } from 'sprout-data';
+import { paginate, createFetchActions, pickFetchParams, paginateReducer } from '../pagination';
 
-export const requestRmas = createAction('RMAS_REQUEST', (type, identifier) => [type, identifier]);
-export const receiveRmas = createAction('RMAS_RECEIVE', (payload, type, identifier) => [payload, type, identifier]);
-export const updateRmas = createAction('RMAS_UPDATE', (payload, type, identifier) => [payload, type, identifier]);
-export const failRmas = createAction('RMAS_FAIL', (err, source, type, identifier) => [err, source, type, identifier]);
+const RMAS = 'RMAS';
+const {
+  actionFetch,
+  actionReceived,
+  actionFetchFailed,
+  actionSetFetchParams,
+  actionAddEntity,
+  actionRemoveEntity
+} = createFetchActions(RMAS, (entity, payload) => [entity, payload]);
 
-function performFetch(source, url, type, identifier) {
-  return dispatch => {
-    dispatch(requestRmas(type, identifier));
-    return Api.get(url)
-      .then(rmas => dispatch(receiveRmas(rmas, type, identifier)))
-      .catch(err => dispatch(failRmas(err, source, type, identifier)));
+function buildUri(entityType, entityId) {
+  if (entityId) {
+    return `/rmas/${entityType}/${entityId}`;
+  }
+  return '/rmas';
+}
+
+function getStateForEntity(state, entityType, entityId) {
+  if (entityId) {
+    return get(state, [entityType, entityId, 'items']);
+  }
+  return get(state, ['items']);
+}
+
+export function fetchRmas(entity={entityType: 'rma'}, newFetchParams) {
+  const {entityType, entityId} = entity;
+
+  return (dispatch, getState) => {
+    const uri = buildUri(entityType, entityId);
+    const state = getStateForEntity(getState(), entityType, entityId);
+    const fetchParams = pickFetchParams(state, newFetchParams);
+
+    dispatch(actionFetch(entity));
+    dispatch(actionSetFetchParams(entity, newFetchParams));
+    return Api.get(uri, fetchParams)
+      .then(json => dispatch(actionReceived(entity, json)))
+      .catch(err => dispatch(actionFetchFailed(entity, err)));
   };
 }
 
-export function fetchRmas() {
-  return dispatch => {
-    dispatch(performFetch(fetchRmas, '/rmas'));
-  };
-}
+function paginateBehaviour(state, action, actionType) {
+  //behaviour for initial state
+  if (actionType === void 0) return state;
 
-export function fetchChildRmas(entity) {
-  return dispatch => {
-    let identifier;
-    let type = entity.entityType;
-    if (type === 'order') {
-      identifier = entity.referenceNumber;
-    } else {
-      identifier = entity.id;
-    }
-    const url = `/rmas/${type}/${identifier}`;
-    dispatch(performFetch(fetchChildRmas, url, type, identifier));
-  };
-}
+  const [{entityType, entityId}, payload] = action.payload;
 
-function updateItems(items, newItems) {
-  return _.values({
-    ..._.indexBy(items, 'id'),
-    ..._.indexBy(newItems, 'id')
+  if (entityId) {
+    // For any child rma list eg. /rmas/order/1
+    return update(state, [entityType, entityId], paginate, {
+      ...action,
+      payload,
+      type: actionType
+    });
+  }
+  return paginate(state, {
+    ...action,
+    payload,
+    type: actionType
   });
 }
 
-const initialState = {
-  isFetching: false,
-  items: [],
-  orderRmas: {},
-  customerRmas: {}
-};
-
-const reducer = createReducer({
-  [requestRmas]: (state, [type, identifier]) => {
-    let newState = {...state};
-    const result = {isFetching: true};
-    switch(type) {
-      case 'order':
-        newState.orderRmas[identifier] = result;
-        break;
-      case 'customer':
-        newState.customerRmas[identifier] = result;
-        break;
-      default:
-        newState = {
-          ...newState,
-          ...result
-        };
-    }
-
-    return newState;
-  },
-  [receiveRmas]: (state, [payload, type, identifier]) => {
-    let newState = {...state};
-    const result = {
-      isFetching: false,
-      items: payload.result
-    };
-    switch(type) {
-      case 'order':
-        newState.orderRmas[identifier] = result;
-        break;
-      case 'customer':
-        newState.customerRmas[identifier] = result;
-        break;
-      default:
-        newState = {
-          ...state,
-          ...result
-        };
-    }
-    return newState;
-  },
-  [updateRmas]: (state, [payload, type, identifier]) => {
-    const newState = {...state};
-    let node;
-    switch(type) {
-      case 'order':
-        node = state.orderRmas[identifier];
-        node.items = updateItems(node.items, payload.result);
-      case 'customer':
-        node = state.customerRmas[identifier];
-        node.items = updateItems(node.items, payload.result);
-      default:
-        newState.items = updateItems(state.items, payload.result);
-    }
-
-    return newState;
-  },
-  [failRmas]: (state, [err, source, type, identifier]) => {
-    console.error(err);
-
-    if (source === fetchRmas) {
-      return {
-        ...state,
-        isFetching: false
-      };
-    } else if (source === fetchChildRmas) {
-      let newState = {...state};
-      if (type === 'order') {
-        newState.orderRmas[identifier].isFetching = false;
-      } else if (type === 'customer') {
-        newState.customerRmas[identifier].isFetching = false;
-      }
-      return newState;
-    }
-
-    return state;
-  }
-}, initialState);
-
-export default reducer;
+export default paginateReducer(RMAS, state => state, paginateBehaviour);

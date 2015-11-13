@@ -1,19 +1,27 @@
 import React, { PropTypes } from 'react';
+import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import * as rmaActions from '../../modules/rmas/list';
-import { RmaList } from './helpers';
+import { renderRow } from './helpers';
+import TableView from '../table/tableview';
+import { get } from 'sprout-data';
+
+function mapStateToProps(state, {entity}) {
+  const rmaData = get(state.rmas.list, [entity.entityType, entity.entityId], {rows: []});
+
+  return {
+    'rmas': rmaData
+  };
+}
 
 
-@connect(({rmas}) => ({list: rmas.list}), rmaActions)
+@connect(mapStateToProps, rmaActions)
 export default class RmaChildList extends React.Component {
   static propTypes = {
     tableColumns: PropTypes.array,
-    fetchChildRmas: PropTypes.func.isRequired,
+    fetchRmas: PropTypes.func.isRequired,
     entity: PropTypes.object,
-    list: PropTypes.shape({
-      orderRmas: PropTypes.object.isRequired,
-      customerRmas: PropTypes.object.isRequired
-    })
+    rmas: PropTypes.object.isRequired
   };
 
   static defaultProps = {
@@ -21,41 +29,24 @@ export default class RmaChildList extends React.Component {
       {field: 'referenceNumber', text: 'Return', type: 'id'},
       {field: 'createdAt', text: 'Date', type: 'date'},
       {field: 'orderId', text: 'Order', model: 'order', type: 'id'},
-      {field: 'email', text: 'Email', component: 'RmaEmail'},
+      {field: 'email', text: 'Email'},
       {field: 'status', text: 'Return Status', type: 'rmaStatus'},
-      {field: 'returnTotal', text: 'Total', component: 'RmaTotal'}
+      {field: 'returnTotal', text: 'Total', type: 'currency'}
     ]
   };
 
   componentDidMount() {
-    this.props.fetchChildRmas(this.entity);
-  }
-
-  get entity() {
-    return this.props.entity;
-  }
-
-  get entityType() {
-    return this.entity.entityType;
-  }
-
-  get items() {
-    const list = this.props.list;
-    let thing;
-    if (this.entityType === 'order') {
-      thing = list.orderRmas[this.entity.referenceNumber];
-    } else if (this.entityType === 'customer') {
-      thing = list.customerRmas[this.entity.id];
-    }
-
-    if (thing && !thing.isFetching) {
-      return thing.items;
-    } else {
-      return [];
-    }
+    this.props.fetchRmas(this.props.entity);
   }
 
   render() {
-    return <RmaList items={this.items} tableColumns={this.props.tableColumns} />;
+    return (
+      <TableView
+          data={this.props.rmas}
+          columns={this.props.tableColumns}
+          setState={(data, params) => this.props.fetchRmas(params)}
+          renderRow={renderRow}
+      />
+    );
   }
 }

@@ -163,7 +163,7 @@
     "localStorage": "^1.0.3",
     "merge-stream": "^1.0.0",
     "mocha": "^2.3.0",
-    "nock": "^2.16.0",
+    "nock": "^2.17.0",
     "node-notifier": "^4.2.3",
     "react-addons-test-utils": "^0.14.0",
     "react-shallow-testutils": "^0.6.0",

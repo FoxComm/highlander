@@ -3,7 +3,6 @@ import path from 'path';
 import rewire from 'rewire';
 
 global.localStorage = require('localStorage');
-global.phoenixUrl = 'https://api.foxcommerce/';
 
 const modulesCache = {};
 
