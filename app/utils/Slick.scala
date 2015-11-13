@@ -17,6 +17,7 @@ import slick.profile.{SqlAction, SqlStreamingAction}
 import slick.relational.{CompiledMapping, ResultConverter}
 import slick.util.SQLBuilder
 import utils.CustomDirectives.{Sort, SortAndPage}
+import utils.DbResultT.DbResultT
 import utils.ExceptionWrapper._
 
 object Slick {
@@ -277,6 +278,10 @@ object Slick {
 
       def toXor(implicit ec: ExecutionContext): DbResult[R] =
         DbResult.fromDbio(dbio)
+    }
+
+    implicit class EnrichedDbResult[A](val r: DbResult[A]) {
+      def toXorT(implicit ec: ExecutionContext): DbResultT[A] = DbResultT(r)
     }
   }
 }
