@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import Api from '../../lib/api';
-import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 import { haveType } from '../state-helpers';
 import { assoc, update, deepMerge } from 'sprout-data';
@@ -19,6 +18,9 @@ const requestCustomerAdresses = createAction('CUSTOMER_ADDRESSES_REQUEST');
 const submitToggleDisableStatus = createAction('CUSTOMER_SUBMIT_DISABLE_STATUS');
 const receivedDisableStatus = createAction('CUSTOMER_RECEIVED_DISABLE_STATUS', (id, customer) => [id, customer]);
 const failChangeStatus = createAction('CUSTOMER_FAIL_CHANGE_STATUS', (id, err) => [id, err]);
+
+export const startDisablingCustomer = createAction('CUSTOMER_START_DISABLING');
+export const stopDisablingCustomer = createAction('CUSTOMER_STOP_DISABLING');
 
 
 export function fetchCustomer(id) {
@@ -50,6 +52,7 @@ export function fetchAddresses(id) {
 
 export function toggleDisableStatus(id, isDisabled) {
   return (dispatch, getState) => {
+    dispatch(stopDisablingCustomer());
     dispatch(submitToggleDisableStatus(id));
 
     Api.post(`/customers/${id}/disable`, {disabled: isDisabled})
@@ -102,6 +105,18 @@ const reducer = createReducer({
   [failChangeStatus]: (state, [id, err]) => {
     console.error(err);
     return assoc(state, [id, 'isFetchingStatus'], false);
+  },
+  [startDisablingCustomer]: (state) => {
+    return assoc(state, 'isDisablingStarted', true);
+  },
+  [stopDisablingCustomer]: (state) => {
+    return assoc(state, 'isDisablingStarted', false);
+  },
+  [startBlacklistCustomer]: (state) => {
+    return assoc(state, 'isBlacklistedStarted', true);
+  },
+  [stopBlacklistCustomer]: (state) => {
+    return assoc(state, 'isBlacklistedStarted', false);
   },
   [receiveCustomerAdresses]: (state, [id, payload]) => {
     const addresses = _.get(payload, 'result', []);
