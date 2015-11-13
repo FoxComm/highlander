@@ -264,7 +264,18 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val response = POST(s"$uriPrefix/${customer.id}/disable", payloads.ToggleCustomerDisabled(true))
       response.status must === (StatusCodes.OK)
 
-      response.as[Customer].isDisabled must === (true)
+      response.as[CustomerResponse.Root].disabled must === (true)
+    }
+  }
+
+  "POST /v1/customers/:customerId/blacklist" - {
+    "toggles the isBlacklisted flag on a customer account" in new Fixture {
+      customer.isBlacklisted must === (false)
+
+      val response = POST(s"$uriPrefix/${customer.id}/blacklist", payloads.ToggleCustomerBlacklisted(true))
+      response.status must === (StatusCodes.OK)
+
+      response.as[CustomerResponse.Root].blacklisted must === (true)
     }
   }
 
