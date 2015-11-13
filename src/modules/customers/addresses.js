@@ -1,7 +1,6 @@
-'use strict';
 
 import _ from 'lodash';
-import { assoc, update, merge } from 'sprout-data';
+import { assoc, update, merge, dissoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 
 import Api from '../../lib/api';
@@ -12,59 +11,91 @@ const _createAction = (description, ...args) => {
 };
 
 // ui state actions
-export const newAddress = _createAction("NEW");
+export const startAddingAddress = _createAction('START_ADDING');
+export const stopAddingAddress = _createAction('STOP_ADDING');
+
+export const startEditingAddress = _createAction('START_EDITING', (customerId, addressId) => [customerId, addressId]);
+export const stopEditingAddress = _createAction('STOP_EDITING', (customerId, addressId) => [customerId, addressId]);
+
+export const startDeletingAddress = _createAction('START_DELETING', (customerId, addressId) => [customerId, addressId]);
+export const stopDeletingAddress = _createAction('STOP_DELETING');
 
 // API actions
-const failAddress = _createAction('FAILED', (entity, err) => [entity, err]);
-const failFetchAddress = _createAction('FAILED_FETCH', (entity, err) => [entity, err]);
-const receivedCustomerAddresses = _createAction('RECEIVED', (id, addresses) => [id, addresses]);
+const failAddress = _createAction('FAILED', (customerId, err) => [customerId, err]);
+const failFetchAddress = _createAction('FAILED_FETCH', (customerId, err) => [customerId, err]);
+const receivedCustomerAddresses = _createAction('RECEIVED', (customerId, addresses) => [customerId, addresses]);
 const requestCustomerAddresses = _createAction('REQUEST');
-const addressCreated = _createAction('CREATED', (id, entity) => [id, entity]);
+const addressCreated = _createAction('CREATED', (customerId, entity) => [customerId, entity]);
+const removeAddress = _createAction('REMOVE', (customerId, addressId) => [customerId, addressId]);
 
-
-export function fetchAddresses(id) {
+export function fetchAddresses(customerId) {
   return dispatch => {
-    dispatch(requestCustomerAddresses(id));
+    dispatch(requestCustomerAddresses(customerId));
 
-    Api.get(`/customers/${id}/addresses`)
-      .then(addresses => dispatch(receivedCustomerAddresses(id, addresses)))
-      .catch(err => dispatch(failFetchAddress(id, err)));
+    Api.get(`/customers/${customerId}/addresses`)
+      .then(addresses => dispatch(receivedCustomerAddresses(customerId, addresses)))
+      .catch(err => dispatch(failFetchAddress(customerId, err)));
   };
 }
 
-export function createAddress(id,  data) {
+export function createAddress(customerId, data) {
   return dispatch => {
-    Api.post(`/customers/${id}/addresses`, data)
-      .then(address => dispatch(addressCreated(id, address)))
-      .catch(err => dispatch(failAddress(id, err)));
+    Api.post(`/customers/${customerId}/addresses`, data)
+      .then(address => dispatch(addressCreated(customerId, address)))
+      .catch(err => dispatch(failAddress(customerId, err)));
+  };
+}
+
+export function deleteAddress(customerId, addressId) {
+  return dispatch => {
+    dispatch(stopDeletingAddress(customerId));
+    return Api.delete(`customers/${customerId}/addresses/${addressId}`)
+      .then(ok => dispatch(removeAddress(customerId, addressId)))
+      .catch(err => dispatch(failAddress(customerId, err)));
   };
 }
 
 const initialState = {};
 
 const reducer = createReducer({
-  [newAddress]: (state, id) => {
-    return assoc(state, [id, 'newAddressCard'], {
-      isDefaultShipping: false,
-      firstName: '',
-      lastName: '',
-
+  [startAddingAddress]: (state, customerId) => {
+    return assoc(state, [customerId, 'isAdding'], true);
+  },
+  [stopAddingAddress]: (state, customerId) => {
+    return dissoc(state, [customerId, 'isAdding']);
+  },
+  [startEditingAddress]: (state, [customerId, addressId]) => {
+    return update(state, [customerId, 'editingIds'], (ids = []) => {
+      return [...ids, addressId];
     });
   },
-  [requestCustomerAddresses]: (state, id) => {
-    return assoc(state, [id, 'isFetching'], true);
+  [stopEditingAddress]: (state, [customerId, addressId]) => {
+    return update(state, [customerId, 'editingIds'], _.without, addressId);
   },
-  [receivedCustomerAddresses]: (state, [id, payload]) => {
+  [requestCustomerAddresses]: (state, customerId) => {
+    return assoc(state, [customerId, 'isFetching'], true);
+  },
+  [receivedCustomerAddresses]: (state, [customerId, payload]) => {
     const addresses = _.get(payload, 'result', []);
-    return update(state, id, merge, {isFetching: false, addresses});
+
+    return update(state, customerId, merge, {isFetching: false, addresses});
   },
-  [failFetchAddress]: (state, [id, err]) => {
+  [failFetchAddress]: (state, [customerId, err]) => {
     console.error(err);
-    return update(state, id, merge, { isFetching: false, err});
+    return update(state, customerId, merge, {isFetching: false, err});
   },
-  [failAddress]: (state, [id, err]) => {
+  [failAddress]: (state, [customerId, err]) => {
     console.error(err);
-    return assoc(state, id, 'err', err);
+    return assoc(state, customerId, 'err', err);
+  },
+  [startDeletingAddress]: (state, [customerId, addressId]) => {
+    return assoc(state, [customerId, 'deletingId'], addressId);
+  },
+  [stopDeletingAddress]: (state, customerId) => {
+    return dissoc(state, [customerId, 'deletingId']);
+  },
+  [removeAddress]: (state, [customerId, addressId]) => {
+    return update(state, [customerId, 'addresses'], _.reject, id => addressId);
   }
 }, initialState);
 

@@ -1,13 +1,13 @@
+
 import React, { PropTypes } from 'react';
 import ContentBox from '../content-box/content-box';
+import Addresses from '../addresses/addresses';
 import AddressBox from '../addresses/address-box';
-import ConfirmationDialog from '../modal/confirmation-dialog';
 import { AddButton } from '../common/buttons';
 import EditAddressBox from './address-edit';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import * as CustomerAddressesActions from '../../modules/customers/addresses';
-
 
 @connect((state, props) => ({
   ...state.customers.addresses[props.customerId]
@@ -19,54 +19,35 @@ export default class CustomerAddressBook extends React.Component {
     fetchAddresses: PropTypes.func,
     newAddress: PropTypes.func,
     addresses: PropTypes.array
-  }
+  };
 
   componentDidMount() {
-    const customer = this.props.customerId;
-
-    this.props.fetchAddresses(customer);
+    this.props.fetchAddresses(this.props.customerId);
   }
 
   @autobind
-  onAddClick() {
-    console.debug("onAddClick");
-    const customer = this.props.customerId;
-    this.props.newAddress(customer);
+  injectNewAddressCard(addresses) {
+    if (this.props.isAdding) {
+      return [
+        ...addresses,
+        <div>
+          Hey! Wanna add some more new addresses ?
+        </div>
+      ];
+    }
+
+    return addresses;
   }
 
   render() {
-    const actionBlock = (
-      <AddButton onClick={this.onAddClick}/>
-    );
-    let createAddressBox = (addr) => {
-      let key = `customer-address-${ addr.id }`;
-      return (
-        <AddressBox key={ key }
-                    address={ addr }
-                    customerId={ this.props.customerId } />
-      );
-    };
+    const props = this.props;
+
     return (
       <ContentBox title="Address Book"
                   className="fc-customer-address-book"
-                  actionBlock={ actionBlock }>
+                  actionBlock={ <AddButton onClick={() => props.newAddress(props.customerId)}/> }>
 
-        <ul className="fc-float-list">
-          {(this.props.addresses && this.props.addresses.map(createAddressBox))}
-          {(this.props.newAddressCard && <EditAddressBox customerId={ this.props.customerId }
-                                                         form={ this.props.newAddressCard }
-                                                         onCancel={ this.onAddingCancel }
-                                                         onSubmit={ this.onSubmitNewForm }
-                                                         onChange={ this.onChangeNewFormValue }/>)}
-        </ul>
-        <ConfirmationDialog
-          isVisible={ this.props.deletingId != null } /* null and undefined */
-          header='Confirm'
-          body='Are you sure you want to delete this address?'
-          cancel='Cancel'
-          confirm='Yes, Delete'
-          cancelAction={ this.onDeleteCancel }
-          confirmAction={ this.onDeleteConfirm } />
+        <Addresses {...props} processContent={ this.injectNewAddressCard } />
       </ContentBox>
     );
   }

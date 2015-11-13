@@ -1,44 +1,11 @@
+
+import classNames from 'classnames';
 import React, { PropTypes } from 'react';
 import { EditButton, PrimaryButton } from '../common/buttons';
+import ContextBox from './content-box';
 
-const EditableContentBox = props => {
-  const compositeClassName = `fc-content-box ${props.className}`;
-  const content = props.isEditing ? props.editContent : props.viewContent;
-  return (
-    <div className={compositeClassName}>
-      {renderTitle(props)}
-      {content}
-      {renderFooter(props)}
-    </div>
-  );
-};
-
-EditableContentBox.propTypes = {
-  className: PropTypes.string,
-  editContent: PropTypes.node,
-  viewContent: PropTypes.node,
-  isEditing: PropTypes.bool
-};
-
-const renderTitle = props => {
-  let editButton = null;
-  if (!props.isEditing) {
-    editButton = <EditButton onClick={props.editAction} />;
-  }
-
-  return (
-    <header>
-      <div className='fc-grid fc-content-box-header'>
-        <div className='fc-col-md-2-3 fc-title'>{props.title}</div>
-        <div className='fc-col-md-1-3 fc-controls'>{editButton}</div>
-      </div>
-    </header>
-  );
-};
-
-renderTitle.propTypes = {
-  isEditing: PropTypes.bool,
-  title: PropTypes.string
+const renderActions = props => {
+  return props.isEditing ? null : <EditButton onClick={props.editAction} />;
 };
 
 const renderFooter = props => {
@@ -51,13 +18,32 @@ const renderFooter = props => {
       </footer>
     );
   } else {
-    return <div></div>;
+    return null;
   }
 };
 
-renderFooter.propTypes = {
+const EditableContentBox = props => {
+  return (
+    <ContextBox {...props} actionBlock={ renderActions(props) } footer={ renderFooter(props) }>
+      {props.renderContent(props.isEditing, props)}
+    </ContextBox>
+  );
+};
+
+EditableContentBox.propTypes = {
+  className: PropTypes.string,
+  editContent: PropTypes.node,
+  viewContent: PropTypes.node,
   isEditing: PropTypes.bool,
-  doneAction: PropTypes.func
+  editAction: PropTypes.func,
+  doneAction: PropTypes.func,
+  renderContent: PropTypes.func
+};
+
+EditableContentBox.defaultProps = {
+  renderContent: (isEditing, props) => {
+    return isEditing ? props.editContent : props.viewContent;
+  }
 };
 
 export default EditableContentBox;

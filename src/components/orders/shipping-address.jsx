@@ -1,24 +1,46 @@
+
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { EditButton, PrimaryButton } from '../common/buttons';
 import Addresses from '../addresses/addresses';
 import AddressDetails from '../addresses/address-details';
 import * as OrdersActions from '../../modules/orders/list';
-import ContentBox from '../content-box/content-box';
+import EditableContentBox from '../content-box/editable-content-box';
 import { connect } from 'react-redux';
+import { createSelector } from 'reselect';
+import * as CustomerAddressesActions from '../../modules/customers/addresses';
 
+const detectIsEditing = createSelector(
+  (state, props) => props.address.id,
+  (state, props) => state && state.editingIds || [],
+  (addressId, editingIds) => editingIds.indexOf(addressId) != -1
+);
 
+function mapStateToProps(state, props) {
+  const nestedState = state.customers.addresses[props.order.customer.id];
+  const selectedProps = {
+    customerId: props.order.customer.id,
+    address: props.order.shippingAddress
+  };
+
+  return {
+    ...nestedState,
+    ...selectedProps,
+    isEditing: detectIsEditing(nestedState, selectedProps)
+  };
+}
+
+/*eslint "react/prop-types": 0*/
+
+@connect(mapStateToProps, CustomerAddressesActions)
 export default class OrderShippingAddress extends React.Component {
 
   static propTypes = {
-    order: PropTypes.object.isRequired,
-    isEditing: PropTypes.bool
+    order: PropTypes.object.isRequired
   };
 
-  constructor(props, context) {
-    super(props, context);
-    this.state = {
-      isEditing: false
-    };
+  componentDidMount() {
+    this.props.fetchAddresses(this.props.customerId);
   }
 
   onSelectAddress(address) {
@@ -32,54 +54,39 @@ export default class OrderShippingAddress extends React.Component {
     AddressStore.delete(this.props.order.customer.id, address.id);
   }
 
-  toggleEdit() {
-    this.setState({
-      isEditing: !this.state.isEditing
-    });
-  }
-
   isAddressSelected(address) {
     return this.props.order ? address.id === this.props.order.shippingAddress.id : false;
   }
 
-  render() {
-    let address = this.props.order.shippingAddress;
-    let body = null;
-    let editButton = null;
-    let footer = null;
+  get editContent() {
+    return (
+      <div className="fc-tableview">
+        <Addresses
+          customerId={this.props.customerId}
+          addresses={ this.props.addresses }
+          onSelectAddress={this.onSelectAddress.bind(this)}
+        />
+      </div>
+    );
+  }
 
-    if (this.state.isEditing) {
-      body = (
-        <div className="fc-tableview">
-          <Addresses order={this.props.order} onSelectAddress={this.onSelectAddress.bind(this)} />
-        </div>
-      );
-      footer = (
-        <footer className="fc-line-items-footer">
-          <div>
-            <PrimaryButton onClick={this.toggleEdit}>Done</PrimaryButton>
-          </div>
-        </footer>
-      );
-    } else {
-      body = (
-        <AddressDetails address={address} />
-      );
-      editButton = (
-        <div>
-          <EditButton onClick={this.toggleEdit} />
-        </div>
-      );
-    }
+  get viewContent() {
+    return <AddressDetails address={this.props.address} />;
+  }
+
+  render() {
+    const props = this.props;
+    const addressId = props.address.id;
 
     return (
-      <ContentBox
+      <EditableContentBox
+        className='fc-order-shipping-address'
         title="Shipping Address"
-        actionBlock={editButton}
-        className="fc-order-shipping-address">
-        {body}
-        {footer}
-      </ContentBox>
+        isEditing={props.isEditing}
+        editAction={() => props.startEditingAddress(props.customerId, addressId)}
+        doneAction={() => props.stopEditingAddress(props.customerId, addressId)}
+        renderContent={isEditing => isEditing ? this.editContent : this.viewContent}
+      />
     );
   }
 }

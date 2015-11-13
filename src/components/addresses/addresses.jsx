@@ -1,79 +1,59 @@
+
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
-import { autobind } from 'core-decorators';
-import { Button } from '../common/buttons';
 import AddressBox from './address-box';
-import AddressForm from './address-form';
-import AddressStore from '../../stores/addresses';
+import { connect } from 'react-redux';
+import ConfirmationDialog from '../modal/confirmation-dialog';
+import * as CustomerAddressesActions from '../../modules/customers/addresses';
 
-export default class AddressBook extends React.Component {
+/**
+ * Address list. Requires actions from customers/address module.
+ */
+const Addresses = props => {
+  const content = props.processContent(props.addresses.map((address, idx) => props.createAddressBox(address, idx, props)));
 
-  static propTypes = {
-    onSelectAddress: PropTypes.func,
-    onDeleteAddress: PropTypes.func,
-    isAddressSelected: PropTypes.func
-  };
+  return (
+    <div>
+      <ul className="fc-addresses-list fc-float-list">
+        {content}
+      </ul>
+      <ConfirmationDialog
+        isVisible={ props.deletingId != null } /* null and undefined */
+        header='Confirm'
+        body='Are you sure you want to delete this address?'
+        cancel='Cancel'
+        confirm='Yes, Delete'
+        cancelAction={() => props.stopDeletingAddress(props.customerId) }
+        confirmAction={() => {
+            props.deleteAddress(props.deletingId);
+            props.onDeleteAddress && props.onDeleteAddress(props.deletingId);
+          }} />
+    </div>
+  );
+};
 
-  constructor(props, context) {
-    super(props, context);
+Addresses.propTypes = {
+  customerId: PropTypes.number.isRequired,
+  fetchAddresses: PropTypes.func,
+  chooseAction: PropTypes.func,
+  onDeleteAddress: PropTypes.func,
+  isAddressSelected: PropTypes.func,
+  createAddressBox: PropTypes.func,
+  processContent: PropTypes.func
+};
 
-    let customerId;
-    if (this.props.order) {
-      customerId = this.props.order.customer.id;
-    } else if (this.props.params && this.props.params.customer) {
-      customerId = this.props.params.customer;
-    } else {
-      throw new Error('customer not provided to AddressBook');
-    }
-
-    this.state = {
-      addresses: [],
-      customerId: customerId
-    };
-  }
-
-  componentDidMount() {
-    AddressStore.listenToEvent('change', this);
-    AddressStore.fetch(customerId);
-  }
-
-  componentWillUnmount() {
-    AddressStore.stopListeningToEvent('change', this);
-  }
-
-  onChangeAddressStore(customerId, addresses) {
-    if (customerId === this.state.customerId) {
-      this.setState({addresses});
-    }
-  }
-
-  @autobind
-  addNew() {
-    dispatch('toggleModal', <AddressForm customerId={this.state.customerId} />);
-  }
-
-  render() {
-    const addresses = this.state.addresses;
-
+Addresses.defaultProps = {
+  createAddressBox: (address, idx, props) => {
     return (
-      <div className="fc-addresses">
-        <header>
-          <div className="fc-addresses-title">Address Book</div>
-          <Button icon="add" onClick={this.addNew} />
-        </header>
-        <ul className="fc-addresses-list">
-          {addresses.map((address, idx) => {
-            return (
-              <AddressBox key={`${idx}-${address.id}`}
-                address={address}
-                choosen={this.props.isAddressSelected ? this.props.isAddressSelected(address) : false}
-                chooseAction={this.props.chooseAction}
-                onDeleteAddress={this.props.onDeleteAddress}
-                customerId={this.state.customerId}
-              />
-            );
-          })}
-        </ul>
-      </div>
+      <AddressBox key={`address-${idx}`}
+                  address={address}
+                  choosen={props.isAddressSelected ? props.isAddressSelected(address) : false}
+                  chooseAction={props.chooseAction}
+                  onDeleteAddress={props.startDeletingAddress}
+      />
     );
-  }
-}
+  },
+  processContent: _.identity
+};
+
+export default Addresses;
