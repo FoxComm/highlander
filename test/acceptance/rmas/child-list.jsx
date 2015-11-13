@@ -18,7 +18,7 @@ describe('Child Rmas', function() {
       },
       fetchRmas: sinon.spy()
     };
-    let rmaList = shallowRender(<Wrapped {...props} />);
+    const rmaList = shallowRender(<Wrapped {...props} />);
 
     expect(rmaList, 'to have rendered', <TableView/>);
   });

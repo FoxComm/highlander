@@ -17,7 +17,7 @@ describe('Rmas', function() {
       },
       fetchRmas: sinon.spy()
     };
-    let rmaList = shallowRender(<Wrapped {...props} />);
+    const rmaList = shallowRender(<Wrapped {...props} />);
 
     expect(rmaList.props.className).to.equal('fc-list-page');
     expect(rmaList, 'to contain', <TableView/>);
