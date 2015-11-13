@@ -60,19 +60,19 @@ trait NonSellable extends Identifiable with SingularUnit {
 }
 
 trait Handy { 
-    def findOnHand(id: Identifiable.Id)(implicit ec: ExecutionContext) : Result[OnHand]
+    def findOnHandById(id: Identifiable.Id)(implicit ec: ExecutionContext) : Result[OnHand]
 }
 
 trait Holdables {
-    def findHoldable(id: Id)(implicit ec: ExecutionContext) : Result[Holdable]
+    def findHoldableById(id: Id)(implicit ec: ExecutionContext) : Result[Holdable]
 }
 
 trait Reservables { 
-    def findReservable(id: Id)(implicit ec: ExecutionContext) : Result[Reservable]
+    def findReservableById(id: Id)(implicit ec: ExecutionContext) : Result[Reservable]
 }
 
 trait NonSellables { 
-    def findNonSellable(id: Id)(implicit ec: ExecutionContext) : Result[NonSellable]
+    def findNonSellableById(id: Id)(implicit ec: ExecutionContext) : Result[NonSellable]
 }
 
 object Adjustments {
@@ -98,7 +98,7 @@ trait InventoryItems extends
   Reservables with
   Holdables with
   NonSellables { 
-    def findInventoryItem(id: Id)(implicit ec: ExecutionContext) : Result[InventoryItem]
+    def findInventoryItemById(id: Id)(implicit ec: ExecutionContext) : Result[InventoryItem]
 }
 
 trait Warehouse extends

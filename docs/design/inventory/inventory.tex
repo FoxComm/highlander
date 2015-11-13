@@ -117,7 +117,7 @@ A collection of On Hand things. For example, a Sku
 
 \begin{lstlisting}
     trait Handy {
-        def findOnHand(id: Id): Result[OnHand]
+        def findOnHandById(id: Id): Result[OnHand]
     }
 \end{lstlisting}
 
@@ -139,7 +139,7 @@ A collection of held things. For example our Inventory system.
 
 \begin{lstlisting}
     trait Holdables { 
-        def findHoldable(id: Id): Result[Holdable]
+        def findHoldableById(id: Id): Result[Holdable]
     }
 \end{lstlisting}
 
@@ -159,7 +159,7 @@ A collection of reservable things.
 
 \begin{lstlisting}
     trait Reservables {
-        def findReservable(id: Id): Result[Reservable]
+        def findReservableById(id: Id): Result[Reservable]
     }
 \end{lstlisting}
 
@@ -180,7 +180,7 @@ A collection of non sellable things.
 
 \begin{lstlisting}
     trait NonSellables {
-        def findNonSellable(id: Id): Result[NonSellable]
+        def findNonSellableById(id: Id): Result[NonSellable]
     }
 \end{lstlisting}
 
@@ -208,7 +208,7 @@ A collection of inventory items.
         Holdables with
         NonSellables {
 
-        def findInventoryItem(id: Id): Result[InventoryItem]
+        def findInventoryItemById(id: Id): Result[InventoryItem]
     }
 \end{lstlisting}
 
