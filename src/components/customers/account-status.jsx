@@ -1,11 +1,26 @@
 import React, { PropTypes } from 'react';
+import { autobind } from 'core-decorators';
 import ContentBox from '../content-box/content-box';
 import { SliderCheckbox } from '../checkbox/checkbox';
+import { connect } from 'react-redux';
+import * as CustomersActions from '../../modules/customers/details';
 
+
+@connect((state, props) => ({
+  ...state.customers.status
+}), CustomersActions)
 export default class CustomerAccountStatus extends React.Component {
 
   static propTypes = {
-    customer: PropTypes.object.isRequired
+    customer: PropTypes.object.isRequired,
+    toggleDisableStatus: PropTypes.func.isRequired
+  }
+
+  @autobind
+  onActiveChange(event) {
+    const customer = this.props.customer;
+    this.props.toggleDisableStatus(customer.id, !customer.disabled);
+    return true;
   }
 
   render() {
@@ -17,7 +32,8 @@ export default class CustomerAccountStatus extends React.Component {
               <strong>Active Account</strong>
             </div>
             <div className="fc-col-md-1-3">
-              <SliderCheckbox className="fc-right" id="customerDisabled" defaultChecked={ !customer.disabled } />
+              <SliderCheckbox className="fc-right" onChange={this.onActiveChange}
+                              id="customerDisabled" checked={ !customer.disabled } />
             </div>
         </div>
         <div className="fc-grid fc-customer-status-row">

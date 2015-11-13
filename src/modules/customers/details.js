@@ -3,6 +3,7 @@ import Api from '../../lib/api';
 import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 import { haveType } from '../state-helpers';
+import { assoc, update, deepMerge } from 'sprout-data';
 
 
 const receiveCustomer = createAction('CUSTOMER_RECEIVE', (id, customer) => [id, customer]);
@@ -12,6 +13,12 @@ const updateCustomer = createAction('CUSTOMER_UPDATED', (id, customer) => [id, c
 const receiveCustomerAdresses = createAction('CUSTOMER_ADDRESSES_RECEIVE', (id, addresses) => [id, addresses]);
 
 const requestCustomerAdresses = createAction('CUSTOMER_ADDRESSES_REQUEST');
+
+
+// status
+const submitToggleDisableStatus = createAction('CUSTOMER_SUBMIT_DISABLE_STATUS');
+const receivedDisableStatus = createAction('CUSTOMER_RECEIVED_DISABLE_STATUS', (id, customer) => [id, customer]);
+const failChangeStatus = createAction('CUSTOMER_FAIL_CHANGE_STATUS', (id, err) => [id, err]);
 
 
 export function fetchCustomer(id) {
@@ -38,6 +45,16 @@ export function fetchAddresses(id) {
     Api.get(`/customers/${id}/addresses`)
       .then(addresses => dispatch(receiveCustomerAdresses(id, addresses)))
       .catch(err => dispatch(failCustomer(id, err, fetchCustomer)));
+  };
+}
+
+export function toggleDisableStatus(id, isDisabled) {
+  return (dispatch, getState) => {
+    dispatch(submitToggleDisableStatus(id));
+
+    Api.post(`/customers/${id}/disable`, {disabled: isDisabled})
+      .then(customer => dispatch(receivedDisableStatus(id, customer)))
+      .catch(err => dispatch(failChangeStatus(id, err)));
   };
 }
 
@@ -73,6 +90,18 @@ const reducer = createReducer({
   },
   [requestCustomerAdresses]: (state, id) => {
     return assoc(state, [id, 'isFetchingAddresses'], true);
+  },
+  [submitToggleDisableStatus]: (state, id) => {
+    return assoc(state, [id, 'isFetchingStatus'], true);
+  },
+  [receivedDisableStatus]: (state, [id, customer]) => {
+    return update(state, id, deepMerge, {
+      isFetchingStatus: false,
+      details: {disabled: customer.isDisabled}});
+  },
+  [failChangeStatus]: (state, [id, err]) => {
+    console.error(err);
+    return assoc(state, [id, 'isFetchingStatus'], false);
   },
   [receiveCustomerAdresses]: (state, [id, payload]) => {
     const addresses = _.get(payload, 'result', []);
