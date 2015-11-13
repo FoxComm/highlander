@@ -70,6 +70,11 @@ object CustomerRoutes {
             CustomerManager.toggleDisabled(customerId, payload.disabled, admin)
           }
         } ~
+        (post & path("blacklist") & pathEnd & entity(as[payloads.ToggleCustomerBlacklisted])) { payload ⇒
+          goodOrFailures {
+            CustomerManager.toggleBlacklisted(customerId, payload.blacklisted, admin)
+          }
+        } ~
         pathPrefix("addresses") {
           (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
             goodOrFailures {

@@ -20,10 +20,21 @@ import utils.jdbc._
 object CustomerManager {
 
   def toggleDisabled(customerId: Int, disabled: Boolean, admin: StoreAdmin)
-    (implicit ec: ExecutionContext, db: Database): Result[Customer] = {
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
     (for {
       updated ← Customers.filter(_.id === customerId).map { t ⇒ (t.isDisabled, t.disabledBy) }.
-        updateReturningHeadOption(Customers.map(identity), (disabled, Some(admin.id)), NotFoundFailure404(Customer, customerId))
+        updateReturningHeadOption(Customers.map(identity), (disabled, Some(admin.id)), NotFoundFailure404(Customer,
+          customerId)).map(_.map(build(_)))
+    } yield updated).run()
+  }
+
+  def toggleBlacklisted(customerId: Int, blacklisted: Boolean, admin: StoreAdmin)
+    // TODO: add blacklistedReason later
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
+    (for {
+      updated ← Customers.filter(_.id === customerId).map { t ⇒ (t.isBlacklisted, t.blacklistedBy) }.
+        updateReturningHeadOption(Customers.map(identity), (blacklisted, Some(admin.id)), NotFoundFailure404
+        (Customer, customerId)).map(_.map(build(_)))
     } yield updated).run()
   }
 
