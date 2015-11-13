@@ -24,7 +24,7 @@ const renderFooter = props => {
 
 const EditableContentBox = props => {
   return (
-    <ContextBox {...props} actionBlock={ renderActions(props) } footer={ renderFooter(props) }>
+    <ContextBox actionBlock={ renderActions(props) } footer={ renderFooter(props) } isTable={true} {...props}>
       {props.renderContent(props.isEditing, props)}
     </ContextBox>
   );

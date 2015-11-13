@@ -82,6 +82,7 @@ export default class OrderShippingAddress extends React.Component {
       <EditableContentBox
         className='fc-order-shipping-address'
         title="Shipping Address"
+        isTable={false}
         isEditing={props.isEditing}
         editAction={() => props.startEditingAddress(props.customerId, addressId)}
         doneAction={() => props.stopEditingAddress(props.customerId, addressId)}
