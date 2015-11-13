@@ -2,7 +2,7 @@ package responses
 
 import services.{Failure, Failures}
 
-case class ResponseWithFailures[A <: AnyRef](result: A, errors: Option[Seq[String]])
+final case class ResponseWithFailures[A <: AnyRef](result: A, errors: Option[Seq[String]])
 
 object ResponseWithFailures {
 

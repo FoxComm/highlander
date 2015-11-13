@@ -16,6 +16,7 @@ object jdbc {
     NotUnique → """ERROR: duplicate key value violates unique constraint""".r
   )
 
+  @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.IsInstanceOf", "org.brianmckenna.wartremover.warts.AsInstanceOf"))
   def swapDatabaseFailure[A](result: Result[A])(failed: (FailureSwap, Failure)) // TODO (FailureSwap, Failure)*
     (implicit ec: ExecutionContext): Result[A] = {
     result.map(_.leftMap { currentFailures ⇒ (currentFailures.head, failed) match {

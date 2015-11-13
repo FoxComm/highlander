@@ -47,16 +47,16 @@ object StoreCreditService {
           case Some(id) ⇒ StoreCreditSubtypes.csrAppeasements.filter(_.id === id).one
           case None     ⇒ lift(None)
         }
-      } yield (customer, reason, subtype)
+      } yield (customer, reason, subtype, payload.subTypeId)
 
       ResultT(queries.run().map {
-        case (None, _, _) ⇒
+        case (None, _, _, _) ⇒
           Xor.left(NotFoundFailure404(Customer, customerId).single)
-        case (_, None, _) ⇒
+        case (_, None, _, _) ⇒
           Xor.left(NotFoundFailure400(Reason, payload.reasonId).single)
-        case (_, _, None) if payload.subTypeId.isDefined ⇒
-          Xor.left(NotFoundFailure400(StoreCreditSubtype, payload.subTypeId.head).single)
-        case (Some(c), Some(r), s) ⇒
+        case (_, _, None, Some(subId)) ⇒
+          Xor.left(NotFoundFailure400(StoreCreditSubtype, subId).single)
+        case (Some(c), Some(r), s, _) ⇒
           Xor.right((c, r, s))
       })
     }
