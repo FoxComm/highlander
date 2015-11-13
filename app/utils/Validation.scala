@@ -45,7 +45,7 @@ object Validation {
   def notExpired(expYear: Int, expMonth: Int, message: String): ValidatedNel[Failure, Unit] = {
     val today = LocalDateTime.now()
 
-    val validDate = Validated.fromTryCatch[java.time.DateTimeException] {
+    val validDate = Validated.catchOnly[java.time.DateTimeException] {
       LocalDateTime.of(expYear, expMonth, 1, 0, 0).plusMonths(1).minusSeconds(1)
     }
 
@@ -64,7 +64,7 @@ object Validation {
   def withinNumberOfYears(expYear: Int, expMonth: Int, numYears: Int, message: String): ValidatedNel[Failure, Unit] = {
     val today = LocalDateTime.now()
 
-    val validDate = Validated.fromTryCatch[java.time.DateTimeException] {
+    val validDate = Validated.catchOnly[java.time.DateTimeException] {
       LocalDateTime.of(expYear, expMonth, 1, 0, 0).plusMonths(1).minusSeconds(1)
     }
 
