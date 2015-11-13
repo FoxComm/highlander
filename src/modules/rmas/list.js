@@ -46,7 +46,7 @@ export function fetchRmas(entity={entityType: 'rma'}, newFetchParams) {
 
 function paginateBehaviour(state, action, actionType) {
   //behaviour for initial state
-  if (actionType === void 0) return state;
+  if (actionType === void 0) return paginate(state, {});
 
   const [{entityType, entityId}, payload] = action.payload;
 
@@ -58,6 +58,7 @@ function paginateBehaviour(state, action, actionType) {
       type: actionType
     });
   }
+
   return paginate(state, {
     ...action,
     payload,
