@@ -5,6 +5,7 @@ import java.time.Instant
 import scala.concurrent.{Future, ExecutionContext}
 
 import cats.data.Validated.{Invalid, Valid}
+import cats.data.Xor
 import cats.implicits._
 import models.{OrderShippingAddress, Order, Orders, Customer, OrderShippingAddresses, Address, Addresses, Region,
 Regions}
@@ -15,12 +16,20 @@ import responses.{Addresses ⇒ Response}
 import slick.driver.PostgresDriver
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
+import utils.Slick.DbResult
 import utils.Slick.implicits._
 import cats.implicits._
+
+import utils.DbResultT.*
+import utils.DbResultT.implicits._
 
 import utils.time.JavaTimeSlickMapper.instantAndTimestampWithoutZone
 
 object AddressManager {
+
+  private def regionNotFound(id: Int): NotFoundFailure404 = NotFoundFailure404(Region, id)
+
+  private def addressNotFound(id: Int): NotFoundFailure404 = NotFoundFailure404(Address, id)
 
   def findAllVisibleByCustomer(customerId: Int)
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
@@ -30,75 +39,42 @@ object AddressManager {
   }
 
   def create(payload: CreateAddressPayload, customerId: Int)
-    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
-    val address = Address.fromPayload(payload).copy(customerId = customerId)
-    address.validate match {
-      case Valid(_) ⇒
-        (for {
-          newAddress ← Addresses.saveNew(address)
-          region     ← Regions.findOneById(newAddress.regionId)
-        } yield (newAddress, region)).run().flatMap {
-          case (address, Some(region))  ⇒ Result.good(Response.build(address, region))
-          case (_, None)                ⇒ Result.failure(NotFoundFailure404(Region, address.regionId))
-        }
-      case Invalid(errors) ⇒ Result.failures(errors)
-    }
-  }
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
+
+    address ← * <~ Addresses.create(Address.fromPayload(payload).copy(customerId = customerId))
+    region  ← * <~ Regions.mustFindById(address.regionId)(regionNotFound)
+  } yield Response.build(address, region)).value.run()
 
   def edit(addressId: Int, customerId: Int, payload: CreateAddressPayload)
-    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
-    val address = Address.fromPayload(payload).copy(customerId = customerId, id = addressId)
-    address.validate match {
-      case Valid(_) ⇒
-        ((for {
-          rowsAffected ← Addresses.insertOrUpdate(address)
-          region       ← Regions.findOneById(address.regionId)
-        } yield (rowsAffected, address, region)).transactionally).run().flatMap {
-          case (1, address, Some(region)) ⇒ Result.good(Response.build(address, region))
-          case (_, address, Some(region)) ⇒ Result.failure(NotFoundFailure404(Address, address))
-          case (_, _, None)               ⇒ Result.failure(NotFoundFailure404(Region, address.regionId))
-        }
-      case Invalid(errors) ⇒ Result.failures(errors)
-    }
-  }
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
+
+    address ← * <~ Address.fromPayload(payload).copy(customerId = customerId, id = addressId).validate
+    _       ← * <~ Addresses.insertOrUpdate(address).toXor
+    region  ← * <~ Regions.mustFindById(address.regionId)(regionNotFound)
+  } yield Response.build(address, region)).value.run()
 
   def get(customerId: Int, addressId: Int)
-    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
-      val query = for {
-        Some(address) ← Addresses.findById(customerId, addressId).one
-        region  ← Regions.findOneById(address.regionId)
-      } yield (address, region)
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
 
-      query.run().flatMap {
-          case (address, Some(region)) ⇒ Result.good(Response.build(address, region, Some(address.isDefaultShipping)))
-          case (address, None)         ⇒ Result.failure(NotFoundFailure404(Region, address.regionId))
-          case (_, _)                  ⇒ Result.failure(NotFoundFailure404(Address,addressId))
-      }
-  }
-
+    address ← * <~ Addresses.findByIdAndCustomer(addressId, customerId).mustFindOr { addressNotFound(addressId) }
+    region  ← * <~ Regions.mustFindById(address.regionId)(regionNotFound)
+  }  yield Response.build(address, region, address.isDefaultShipping.some)).value.run()
 
   def remove(customerId: Int, addressId: Int)
-    (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
-    val query =
-      Addresses.findById(customerId, addressId)
-      .map{ a ⇒ (a.deletedAt, a.isDefaultShipping)}
-      .update((Some(Instant.now()), false))  //set delete time and set default to false
+    (implicit ec: ExecutionContext, db: Database): Result[Unit] = (for {
 
-      query.run().flatMap{
-        case 1 ⇒ Result.unit
-        case _ ⇒ Result.failure(NotFoundFailure404(Address, addressId))
-      }
-  }
+    address     ← * <~ Addresses.findByIdAndCustomer(addressId, customerId).mustFindOr { addressNotFound(addressId) }
+    softDelete  ← * <~ address.updateTo(address.copy(deletedAt = Instant.now.some, isDefaultShipping = false))
+    updated     ← * <~ Addresses.update(address, softDelete)
+  } yield {}).value.run()
 
   def setDefaultShippingAddress(customerId: Int, addressId: Int)
-    (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
-    ((for {
-      _ ← Addresses.findShippingDefaultByCustomerId(customerId).map(_.isDefaultShipping).update(false)
-      newDefault ← Addresses.findById(addressId).extract.map(_.isDefaultShipping).update(true)
-    } yield newDefault).transactionally).run().flatMap {
-      case rowsAffected if rowsAffected == 1 ⇒ Result.unit
-      case _                                 ⇒ Result.failure(NotFoundFailure404(Address, addressId))
-    }
+    (implicit ec: ExecutionContext, db: Database): Result[Unit] = (for {
+    _           ← Addresses.findShippingDefaultByCustomerId(customerId).map(_.isDefaultShipping).update(false)
+    newDefault  ← Addresses.findById(addressId).extract.map(_.isDefaultShipping).update(true)
+  } yield newDefault).transactionally.run().flatMap {
+    case rowsAffected if rowsAffected == 1 ⇒ Result.unit
+    case _ ⇒ Result.failure(NotFoundFailure404(Address, addressId))
   }
 
   def removeDefaultShippingAddress(customerId: Int)
