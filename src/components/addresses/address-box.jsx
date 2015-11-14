@@ -17,10 +17,13 @@ export default class AddressBox extends React.Component {
   };
 
   get chooseButton() {
-    if (this.props.chooseAction) {
+    const props = this.props;
+
+    if (props.chooseAction) {
       return (
         <div>
-          <Button className="fc-address-choose" onClick={this.props.chooseAction} disabled={this.props.choosen}>
+          <Button className="fc-address-choose"
+                  onClick={() => props.chooseAction(props.address)} disabled={props.choosen}>
             Choose
           </Button>
         </div>

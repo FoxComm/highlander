@@ -39,7 +39,7 @@ const EditButton = props => {
 };
 
 const AddButton = props => {
-  return <DefaultButton icon='add' {...props} />;
+  return <Button icon='add' {...props} />;
 };
 
 const IncrementButton = props => {

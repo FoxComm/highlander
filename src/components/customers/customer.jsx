@@ -6,7 +6,7 @@ import * as CustomersActions from '../../modules/customers/details';
 import LocalNav from '../local-nav/local-nav';
 
 @connect((state, props) => ({
-  ...state.customers.details[props.params.customer]
+  ...state.customers.details[props.params.customerId]
 }), CustomersActions)
 export default class Customer extends React.Component {
 

@@ -49,11 +49,11 @@ export default class Customers extends React.Component {
         type: 'date'
       }
     ]
-  }
+  };
 
   static contextTypes = {
     history: PropTypes.object.isRequired
-  }
+  };
 
   static propTypes = {
     fetch: PropTypes.func,
@@ -62,7 +62,7 @@ export default class Customers extends React.Component {
       length: PropTypes.number.isRequired
     }).isRequired,
     tableColumns: PropTypes.array
-  }
+  };
 
   componentDidMount() {
     this.props.fetch(this.props.customers);
@@ -74,8 +74,9 @@ export default class Customers extends React.Component {
   }
 
   render() {
-    let renderRow = (row, index) => {
-      let params = {customer: row.id};
+    const renderRow = row => {
+      const params = {customerId: row.id};
+
       return (
         <TableRow key={`customer-row-${row.id}`}>
           <TableCell><Link to='customer' params={params}>{ row.name }</Link></TableCell>

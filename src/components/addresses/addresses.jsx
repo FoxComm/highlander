@@ -10,7 +10,9 @@ import * as CustomerAddressesActions from '../../modules/customers/addresses';
  * Address list. Requires actions from customers/address module.
  */
 const Addresses = props => {
-  const content = props.processContent(props.addresses.map((address, idx) => props.createAddressBox(address, idx, props)));
+  const content = props.processContent(
+    props.addresses.map((address, idx) => props.createAddressBox(address, idx, props))
+  );
 
   return (
     <div>
@@ -34,22 +36,29 @@ const Addresses = props => {
 
 Addresses.propTypes = {
   customerId: PropTypes.number.isRequired,
+  addresses: PropTypes.array,
   fetchAddresses: PropTypes.func,
   chooseAction: PropTypes.func,
   onDeleteAddress: PropTypes.func,
   isAddressSelected: PropTypes.func,
   createAddressBox: PropTypes.func,
-  processContent: PropTypes.func
+  processContent: PropTypes.func,
+  startDeletingAddress: PropTypes.func,
+  stopDeletingAddress: PropTypes.func,
+  startEditingAddress: PropTypes.func
 };
 
+
 Addresses.defaultProps = {
+  addresses: [],
   createAddressBox: (address, idx, props) => {
     return (
       <AddressBox key={`address-${idx}`}
                   address={address}
                   choosen={props.isAddressSelected ? props.isAddressSelected(address) : false}
-                  chooseAction={props.chooseAction}
-                  onDeleteAddress={props.startDeletingAddress}
+                  editAction={address => props.startEditingAddress(props.customerId, address.id)}
+                  chooseAction={address => props.chooseAction(props.customerId, address.id)}
+                  deleteAction={address => props.startDeletingAddress(props.customerId, address.id)}
       />
     );
   },

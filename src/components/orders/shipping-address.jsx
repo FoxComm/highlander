@@ -5,34 +5,32 @@ import { EditButton, PrimaryButton } from '../common/buttons';
 import Addresses from '../addresses/addresses';
 import AddressDetails from '../addresses/address-details';
 import * as OrdersActions from '../../modules/orders/list';
-import EditableContentBox, { EditDoneButton } from '../content-box/editable-content-box';
+import EditableContentBox from '../content-box/editable-content-box';
 import { connect } from 'react-redux';
-import { createSelector } from 'reselect';
 import * as CustomerAddressesActions from '../../modules/customers/addresses';
+import * as ShippingAddressesActions from '../../modules/orders/shipping-addresses';
 
-const detectIsEditing = createSelector(
-  (state, props) => props.address.id,
-  (state, props) => state && state.editingIds || [],
-  (addressId, editingIds) => editingIds.indexOf(addressId) != -1
-);
 
 function mapStateToProps(state, props) {
-  const nestedState = state.customers.addresses[props.order.customer.id];
+  const addressesState = state.customers.addresses[props.order.customer.id];
   const selectedProps = {
     customerId: props.order.customer.id,
     address: props.order.shippingAddress
   };
 
   return {
-    ...nestedState,
+    ...addressesState,
     ...selectedProps,
-    isEditing: detectIsEditing(nestedState, selectedProps)
+    ...state.orders.shippingAddresses
   };
 }
 
 /*eslint "react/prop-types": 0*/
 
-@connect(mapStateToProps, CustomerAddressesActions)
+@connect(mapStateToProps, {
+  ...CustomerAddressesActions,
+  ...ShippingAddressesActions
+})
 export default class OrderShippingAddress extends React.Component {
 
   static propTypes = {
@@ -62,8 +60,7 @@ export default class OrderShippingAddress extends React.Component {
     return (
       <div className="fc-tableview">
         <Addresses
-          customerId={this.props.customerId}
-          addresses={ this.props.addresses }
+          {...this.props}
           onSelectAddress={this.onSelectAddress.bind(this)}
         />
       </div>
@@ -76,7 +73,6 @@ export default class OrderShippingAddress extends React.Component {
 
   render() {
     const props = this.props;
-    const addressId = props.address.id;
 
     return (
       <EditableContentBox
@@ -84,8 +80,8 @@ export default class OrderShippingAddress extends React.Component {
         title="Shipping Address"
         isTable={false}
         isEditing={props.isEditing}
-        editAction={() => props.startEditingAddress(props.customerId, addressId)}
-        doneAction={() => props.stopEditingAddress(props.customerId, addressId)}
+        editAction={props.startEditing}
+        doneAction={props.stopEditing}
         renderFooter={null}
         renderContent={isEditing => isEditing ? this.editContent : this.viewContent}
       />
