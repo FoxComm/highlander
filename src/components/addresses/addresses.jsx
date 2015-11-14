@@ -45,7 +45,8 @@ Addresses.propTypes = {
   processContent: PropTypes.func,
   startDeletingAddress: PropTypes.func,
   stopDeletingAddress: PropTypes.func,
-  startEditingAddress: PropTypes.func
+  startEditingAddress: PropTypes.func,
+  setAddressDefault: PropTypes.func
 };
 
 
@@ -56,9 +57,10 @@ Addresses.defaultProps = {
       <AddressBox key={`address-${idx}`}
                   address={address}
                   choosen={props.isAddressSelected ? props.isAddressSelected(address) : false}
-                  editAction={address => props.startEditingAddress(props.customerId, address.id)}
-                  chooseAction={address => props.chooseAction(props.customerId, address.id)}
-                  deleteAction={address => props.startDeletingAddress(props.customerId, address.id)}
+                  editAction={() => props.startEditingAddress(props.customerId, address.id)}
+                  toggleDefaultAction={() => props.setAddressDefault(props.customerId, address.id, !address.isDefault)}
+                  chooseAction={() => props.chooseAction(props.customerId, address.id)}
+                  deleteAction={() => props.startDeletingAddress(props.customerId, address.id)}
       />
     );
   },

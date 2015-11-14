@@ -22,6 +22,7 @@ export const stopDeletingAddress = _createAction('STOP_DELETING');
 
 // API actions
 const failAddress = _createAction('FAILED', (customerId, err) => [customerId, err]);
+const updateAddress = _createAction('UPDATE', (customerId, addressId, data) => [customerId, addressId, data]);
 const failFetchAddress = _createAction('FAILED_FETCH', (customerId, err) => [customerId, err]);
 const receivedCustomerAddresses = _createAction('RECEIVED', (customerId, addresses) => [customerId, addresses]);
 const requestCustomerAddresses = _createAction('REQUEST');
@@ -55,6 +56,16 @@ export function deleteAddress(customerId, addressId) {
   };
 }
 
+export function setAddressDefault(customerId, addressId, isDefault) {
+  return dispatch => {
+    return Api.post(`customers/${customerId}/addresses/${addressId}/default`, {
+      isDefault
+    })
+      .then(ok => dispatch(updateAddress(customerId, addressId, {isDefault})))
+      .catch(err => dispatch(failAddress(customerId, err)));
+  };
+}
+
 const initialState = {};
 
 const reducer = createReducer({
@@ -79,6 +90,13 @@ const reducer = createReducer({
     const addresses = _.get(payload, 'result', []);
 
     return update(state, customerId, merge, {isFetching: false, addresses});
+  },
+  [updateAddress]: (state, [customerId, addressId, data]) => {
+    return update(state, [customerId, 'addresses'], addresses => {
+      const index = _.findIndex(addresses, {id: addressId});
+
+      return update(addresses, index, merge, data);
+    });
   },
   [failFetchAddress]: (state, [customerId, err]) => {
     console.error(err);
