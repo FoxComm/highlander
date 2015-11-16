@@ -8,7 +8,7 @@ create table inventory_adjustments (
     on_hold integer not null default 0,
     reserved integer not null default 0,
     non_sellable integer not null default 0,
-    note_id integer, --optional reference to 
+    note_id integer, 
     created_at timestamp without time zone default (now() at time zone 'utc'),
     foreign key (sku_id) references skus(id) on update restrict on delete restrict,
     foreign key (warehouse_id) references warehouses(id) on update restrict on delete restrict,
