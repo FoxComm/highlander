@@ -38,7 +38,7 @@ export default class AddressSelect extends React.Component {
     const isSelected = address.id === this.state.value;
     const itemClassName = classnames(
       'fc-address-select-item',
-      { 'fc-address-select-item-active': isSelected }
+      { 'is-address-select-item-active': isSelected }
     );
     const key = `cutomer-address-${ address.id }`;
     return (
