@@ -9,45 +9,44 @@ import slick.driver.PostgresDriver._
 import slick.driver.PostgresDriver.api._
 
 object DbResultT {
-  type IO[A] = DBIOAction[A, NoStream, api.Effect.All]
-  type DbResultT[A] = XorT[IO, Failures, A]
+  type DbResultT[A] = XorT[DBIO, Failures, A]
 
   object implicits {
-    implicit def dbioApplicative(implicit ec: ExecutionContext): Applicative[IO] = new Applicative[IO] {
-      def ap[A, B](fa: IO[A])(f: IO[A => B]): IO[B] =
+    implicit def dbioApplicative(implicit ec: ExecutionContext): Applicative[DBIO] = new Applicative[DBIO] {
+      def ap[A, B](fa: DBIO[A])(f: DBIO[A => B]): DBIO[B] =
         fa.flatMap(a ⇒ f.map(ff ⇒ ff(a)))
 
-      def pure[A](a: A): IO[A] = DBIO.successful(a)
+      def pure[A](a: A): DBIO[A] = DBIO.successful(a)
     }
 
-    implicit def dbioMonad(implicit ec: ExecutionContext, app: Applicative[IO]) = new Functor[IO] with Monad[IO] {
-      override def map[A, B](fa: IO[A])(f: A ⇒ B): IO[B] = fa.map(f)
+    implicit def dbioMonad(implicit ec: ExecutionContext, app: Applicative[DBIO]) = new Functor[DBIO] with Monad[DBIO] {
+      override def map[A, B](fa: DBIO[A])(f: A ⇒ B): DBIO[B] = fa.map(f)
 
-      override def pure[A](a: A): IO[A] = DBIO.successful(a)
+      override def pure[A](a: A): DBIO[A] = DBIO.successful(a)
 
-      override def flatMap[A, B](fa: IO[A])(f: A => IO[B]): IO[B] = fa.flatMap(f)
+      override def flatMap[A, B](fa: DBIO[A])(f: A => DBIO[B]): DBIO[B] = fa.flatMap(f)
     }
   }
 
   import implicits._
 
-  def apply[A](v: IO[Failures Xor A])(implicit ec: ExecutionContext): DbResultT[A] =
-    XorT[IO, Failures, A](v)
+  def apply[A](v: DBIO[Failures Xor A])(implicit ec: ExecutionContext): DbResultT[A] =
+    XorT[DBIO, Failures, A](v)
 
   def pure[A](v: A)(implicit ec: ExecutionContext): DbResultT[A] =
-    XorT.pure[IO, Failures, A](v)
+    XorT.pure[DBIO, Failures, A](v)
 
   def fromXor[A](v: Failures Xor A)(implicit ec: ExecutionContext): DbResultT[A] =
     v.fold(leftLift, rightLift)
 
-  def right[A](v: IO[A])(implicit ec: ExecutionContext): DbResultT[A] =
-    XorT.right[IO, Failures, A](v)
+  def right[A](v: DBIO[A])(implicit ec: ExecutionContext): DbResultT[A] =
+    XorT.right[DBIO, Failures, A](v)
 
   def rightLift[A](v: A)(implicit ec: ExecutionContext): DbResultT[A] =
-    XorT.right[IO, Failures, A](DBIO.successful(v))
+    XorT.right[DBIO, Failures, A](DBIO.successful(v))
 
-  def left[A](v: IO[Failures])(implicit ec: ExecutionContext): DbResultT[A] =
-    XorT.left[IO, Failures, A](v)
+  def left[A](v: DBIO[Failures])(implicit ec: ExecutionContext): DbResultT[A] =
+    XorT.left[DBIO, Failures, A](v)
 
   def leftLift[A](v: Failures)(implicit ec: ExecutionContext): DbResultT[A] =
     left(DBIO.successful(v))
