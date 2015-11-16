@@ -3,8 +3,11 @@ import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 import models.{Addresses, Customer, Customers, OrderShippingAddresses, Orders, Regions}
 import util.IntegrationTestBase
 import util.SlickSupport.implicits._
+import utils.DbResultT
 import utils.Seeds.Factories
 import utils.Slick.implicits._
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 
 class AddressesIntegrationTest extends IntegrationTestBase
   with HttpSupport
@@ -21,19 +24,20 @@ class AddressesIntegrationTest extends IntegrationTestBase
   private var currentCustomer: Customer = _
 
   override def beforeSortingAndPaging() = {
-    currentCustomer = Customers.saveNew(Factories.customer).futureValue
+    currentCustomer = Customers.create(Factories.customer).futureValue.rightVal
   }
 
   def uriPrefix = s"v1/customers/${currentCustomer.id}/addresses"
 
   def responseItems = {
-    val dbio = for {
-      region ← Regions.findById(Factories.generateAddress.regionId).result.headOption
-      insertAddresses = (1 to numOfResults).map { _ ⇒ Factories.generateAddress.copy(customerId = currentCustomer.id) }
-      addresses ← (Addresses ++= insertAddresses) >> Addresses.findAllByCustomerId(currentCustomer.id).result
-    } yield addresses.map(responses.Addresses.build(_, region.value))
+    val items = (1 to numOfResults).map { i ⇒
+      for {
+        address ← * <~ Addresses.create(Factories.generateAddress.copy(customerId = currentCustomer.id))
+        region  ← * <~ Regions.mustFindById(address.regionId)
+      } yield responses.Addresses.build(address, region)
+    }
 
-    dbio.transactionally.run().futureValue.toIndexedSeq
+    DbResultT.sequence(items).value.transactionally.run().futureValue.rightVal
   }
 
   val sortColumnName = "name"

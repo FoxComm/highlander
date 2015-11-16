@@ -48,6 +48,8 @@ object Slick {
 
     val unit: DbResult[Unit] = DBIO.successful(Xor.right(Unit))
 
+    def none[A]: DbResult[Option[A]] = good(Option.empty[A])
+
     def fromXor[A](xor: Failures Xor A): DbResult[A] = xor.fold(failures, good)
 
     def good[A](v: A): DbResult[A] = lift(Xor.right(v))

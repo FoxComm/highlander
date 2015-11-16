@@ -1,11 +1,11 @@
 package utils
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{Future, ExecutionContext}
 
 import services.Failures
 import cats.{Monad, Applicative, Functor}
 import cats.data.{Validated, XorT, Xor}
-import slick.driver.PostgresDriver._
+import scala.collection.generic.CanBuildFrom
 import slick.driver.PostgresDriver.api._
 import slick.profile.SqlAction
 
@@ -51,6 +51,12 @@ object DbResultT {
 
   def leftLift[A](v: Failures)(implicit ec: ExecutionContext): DbResultT[A] =
     left(DBIO.successful(v))
+
+  def sequence[A, M[X] <: TraversableOnce[X]](in: M[DbResultT[A]])
+    (implicit cbf: CanBuildFrom[M[DbResultT[A]], A, M[A]], ec: ExecutionContext): DbResultT[M[A]] =
+    in.foldLeft(rightLift(cbf(in))) {
+      (fr, fa) ⇒ for (r ← fr; a ← fa) yield r += a
+    }.map(_.result())
 
   object * {
     def <~[A](v: DBIO[Failures Xor A])(implicit ec: ExecutionContext): DbResultT[A] =
