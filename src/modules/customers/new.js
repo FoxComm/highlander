@@ -28,18 +28,28 @@ const initialState = {
 
 const reducer = createReducer({
   [changeFormData]: (state, [name, value]) => {
-    return assoc(state, [name], value);
+    return assoc(state, name, value);
   },
   [submitCustomer]: (state) => {
-    return assoc(state, ['isFetching'], true);
+    return {
+      ...state,
+      isFetching: true
+    };
   },
   [openCustomerDetails]: (state, payload) => {
-    return assoc(state, ['id'], payload.id, ['isFetching'], false);
+    return {
+      ...state,
+      id: payload.id,
+      isFetching: false
+    };
   },
   [failNewCustomer]: (state, [err, source]) => {
     console.error(err);
 
-    return assoc(state, ['err'], err, ['isFetching'], false);
+    return {
+      ...state,
+      isFetching: false
+    };
   }
 }, initialState);
 
