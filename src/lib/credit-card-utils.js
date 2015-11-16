@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-function monthList() {
+export function monthList() {
   return {
     '1': '01 - January',
     '2': '02 - February',
@@ -17,7 +17,7 @@ function monthList() {
   };
 }
 
-function expirationYears() {
+export function expirationYears() {
   let years = {};
   const current = new Date().getFullYear();
   _.each(_.range(20), (inc) => {
@@ -26,5 +26,3 @@ function expirationYears() {
   });
   return years;
 }
-
-export {monthList, expirationYears};
