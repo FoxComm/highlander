@@ -2,7 +2,7 @@
 import React from 'react';
 import TestUtils from 'react-addons-test-utils';
 import ReactDOM from 'react-dom';
-const order = require('../orders/order-sample.json');
+const order = require('../../fixtures/order.json');
 
  describe('OrderLineItems', function() {
    const LineItems = requireComponent('line-items/line-items.jsx');

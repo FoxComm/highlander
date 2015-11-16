@@ -7,7 +7,7 @@
   .margin(0 0 40px 0);
   border-bottom: pxtorem(2px) solid @color-decor7;
 
-  li {
+  &-item {
     .font-spec(14px);
     font-weight: 600;
     color: @color-decor36;
@@ -20,19 +20,46 @@
 
     a,
     a:visited {
+      display: inline-block;
       color: @color-decor36;
-      display: block;
       .padding(0px 20px);
       .padding-bottom(10px);
-      &:hover {
-        cursor: pointer;
-        color: @color-decor37;
-      }
+    }
+  }
 
-      &.is-active {
-        color: @color-decor37;
-        margin-bottom: pxtorem(-2px);
-        border-bottom: pxtorem(2px) solid @color-decor3;
+  &-dropdown {
+    z-index: 999;
+    display: none;
+    position: absolute;
+    min-width: pxtorem(150px);
+    background: @color-white;
+    border: pxtorem(1px) solid @color-decor9;
+    box-shadow: 0 pxtorem(2px) pxtorem(4px) 0 rgba(0,0,0,0.50);
+    border-radius: pxtorem(3px);
+    top: pxtorem(31px);
+
+    li {
+      color: @color-decor1;
+      width: 100%;
+      height: pxtorem(44px);
+      a, a:hover {
+        .padding(0 20px);
+        line-height: pxtorem(44px);
+        color: @color-decor1;
+      }
+    }
+  }
+
+  &-parent {
+    position: relative;
+
+    > a,
+    > a:visited {
+      &:after {
+        font-family: "fontello";
+        content: "\e807";
+        display: inline-block;
+        .padding-left(10px);
       }
     }
   }

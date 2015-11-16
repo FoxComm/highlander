@@ -1,22 +1,11 @@
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
 import ContentBox from '../content-box/content-box';
-import TableView from '../table/tableview';
+import TableRow from '../table/row';
+import TableCell from '../table/cell';
+import { DateTime } from '../common/datetime';
 import Currency from '../common/currency';
-
-const RmaEmail = props => {
-  if (props.model.storeAdmin) {
-    return <span>{props.model.storeAdmin.email}</span>;
-  } else if (props.model.customer) {
-    return <span>{props.model.customer.email}</span>;
-  }
-
-  return null;
-};
-
-RmaEmail.propTypes = {
-  model: PropTypes.string
-};
+import { Link } from '../link';
 
 const CustomerInfo = props => {
   return (
@@ -47,55 +36,21 @@ const PaymentMethod = props => {
   );
 };
 
-const RmaTotal = props => {
+const renderRow = (row, index) => {
   return (
-    <span>{_.sum(props.model.lineItems.skus, (sku) => sku.totalPrice)}</span>
+    <TableRow key={`${index}`}>
+      <TableCell><Link to="rma" params={{rma: row.referenceNumber}}>{row.referenceNumber}</Link></TableCell>
+      <TableCell><DateTime value={row.createdAt} /></TableCell>
+      <TableCell><Link to="order" params={{order: row.orderRefNum}}>{row.orderRefNum}</Link></TableCell>
+      <TableCell>{row.customer.email}</TableCell>
+      <TableCell>{row.status}</TableCell>
+      <TableCell><Currency value={row.total} /></TableCell>
+    </TableRow>
   );
-};
-
-RmaTotal.propTypes = {
-  model: PropTypes.string
-};
-
-const RmaSummary = props => {
-  const rma = props.rma;
-
-  return (
-    <ContentBox title="Return Summary" className="fc-rma-summary">
-      <article>
-        <dl className="rma-totals">
-          <dt>Subtotal</dt>
-          <dd><Currency value={rma.totals.subtotal}/></dd>
-          <dt>Shipping</dt>
-          <dd><Currency value={rma.totals.shipping}/></dd>
-          <dt>Tax</dt>
-          <dd><Currency value={rma.totals.taxes}/></dd>
-        </dl>
-      </article>
-      <footer className="is-highlighted">
-        <dl className="grand-total">
-          <dt>Refunds Total</dt>
-          <dd><Currency value={rma.totals.total}/></dd>
-        </dl>
-      </footer>
-    </ContentBox>
-  );
-};
-
-const RmaList = (props) => {
-  return <TableView columns={props.tableColumns} data={{rows: props.items}} />;
-};
-
-RmaList.propTypes = {
-  tableColumns: PropTypes.array,
-  items: PropTypes.array
 };
 
 export {
-  RmaEmail,
   CustomerInfo,
   PaymentMethod,
-  RmaTotal,
-  RmaSummary,
-  RmaList
+  renderRow
 };

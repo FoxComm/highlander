@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
-import { CustomerInfo, RmaSummary } from './helpers';
+import { CustomerInfo } from './helpers';
+import TotalsSummary from '../common/totals';
 import LineItems from '../line-items/line-items';
 import Payment from '../payment/payment';
 import RmaStore from '../../stores/rmas';
@@ -7,13 +8,17 @@ import RmaStore from '../../stores/rmas';
 export default class RmaDetails extends React.Component {
   constructor(props, context) {
     super(props, context);
-    this.state = {};
+    this.state = {
+      isEditing: false
+    };
   }
 
-  render() {
-    let rma = this.props.rma;
-    let isEditing = this.state.isEditing;
-    let lineColumns = [
+  static propTypes = {
+    entity: PropTypes.object
+  };
+
+  get lineItemColumns() {
+    return [
       {field: 'imagePath', text: 'Image', type: 'image'},
       {field: 'name', text: 'Name'},
       {field: 'sku', text: 'SKU'},
@@ -22,11 +27,16 @@ export default class RmaDetails extends React.Component {
       {field: 'refund', text: 'Refund', type: 'currency'},
       {field: 'reason', text: 'Reason'}
     ];
+  }
 
-    /*return (
+  render() {
+    let rma = this.props.entity;
+    let isEditing = this.state.isEditing;
+
+    return (
       <div className="fc-rma-details fc-grid fc-grid-match">
         <div className="fc-col-md-3-10">
-          <RmaSummary rma={rma} isEditing={isEditing}/>
+          {/*<TotalsSummary entity={rma} />*/}
         </div>
         <div className="fc-col-md-7-10">
           <CustomerInfo rma={rma} isEditing={isEditing}/>
@@ -35,7 +45,7 @@ export default class RmaDetails extends React.Component {
           <LineItems
             entity={rma}
             isEditing={isEditing}
-            tableColumns={lineColumns}
+            tableColumns={this.lineItemColumns}
             model={'rma'}
             />
         </div>
@@ -45,11 +55,7 @@ export default class RmaDetails extends React.Component {
           <Payment rma={rma} isEditing={isEditing}/>
         </div>
       </div>
-    );*/
+    );
     return null;
   }
 }
-
-RmaDetails.propTypes = {
-  rma: PropTypes.object
-};

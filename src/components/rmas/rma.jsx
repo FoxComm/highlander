@@ -72,17 +72,20 @@ export default class Rma extends React.Component {
   }
 
   get itemsCount() {
-    return 0;
-    //return this.rma.lineItems.length;
+    return this.rma.lineItems.skus.length;
   }
 
   get orderSubtitle() {
-    return `for order ${this.rma.orderId}`;
+    return `for order ${this.rma.orderRefNum}`;
   }
 
   render() {
     const rma = this.rma;
     const params = {rma: rma && rma.referenceNumber || ''};
+
+    if (!rma.id) {
+      return null;
+    }
 
     return (
       <div>
