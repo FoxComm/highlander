@@ -42,19 +42,20 @@ class GiftCardIntegrationTest extends IntegrationTestBase
   val regCurrencies = CurrencyUnit.registeredCurrencies.asScala.toIndexedSeq
 
   def responseItems = {
-    val items = regCurrencies.take(numOfResults).map { currency ⇒
+    val insertGcs = regCurrencies.take(numOfResults).map { currency ⇒
       val balance = Random.nextInt(9999999)
-      val dbio = GiftCards.create(Factories.giftCard.copy(
+
+      Factories.giftCard.copy(
         currency = currency,
         originId = currentOrigin.id,
         originalBalance = balance,
         currentBalance = balance,
-        availableBalance = balance)).map(rightValue)
-
-      dbio.map { responses.GiftCardResponse.build(_) }
+        availableBalance = balance)
     }
 
-    DBIO.sequence(items).transactionally.run().futureValue
+    ((GiftCards ++= insertGcs) >> GiftCards.result).map { giftCards ⇒
+      giftCards.map(responses.GiftCardResponse.build(_))
+    }.transactionally.run().futureValue.toIndexedSeq
   }
 
   val sortColumnName = "availableBalance"

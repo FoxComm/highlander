@@ -27,23 +27,33 @@ object AllRmas {
     total: Option[Int] = None
     ) extends ResponseItem
 
-  def build(rma: Rma, customer: Customer, admin: Option[StoreAdmin] = None)
+  def fromRma(rma: Rma, customer: Customer, admin: Option[StoreAdmin] = None)
     (implicit ec: ExecutionContext, db: Database): DBIO[Root] = {
-    fetchAssignees(rma).map { case (assignments) ⇒
-      Root(
-        id = rma.id,
-        referenceNumber = rma.referenceNumber,
-        orderRefNum = rma.orderRefNum,
-        rmaType = rma.rmaType,
-        status = rma.status,
-        customer = CustomerResponse.build(customer),
-        storeAdmin = admin.map(StoreAdminResponse.build),
-        assignees = assignments.map((AssignmentResponse.buildForRma _).tupled),
-        createdAt = rma.createdAt,
-        updatedAt = rma.updatedAt,
-        total = Some(mockTotal)
+    fetchAssignees(rma).map { case (assignees) ⇒
+      build(
+        rma = rma,
+        customer = customer,
+        admin = admin,
+        assignees = assignees.map((AssignmentResponse.buildForRma _).tupled)
       )
     }
+  }
+
+  def build(rma: Rma, customer: Customer, admin: Option[StoreAdmin] = None,
+    assignees: Seq[AssignmentResponse.Root] = Seq.empty): Root  = {
+    Root(
+      id = rma.id,
+      referenceNumber = rma.referenceNumber,
+      orderRefNum = rma.orderRefNum,
+      rmaType = rma.rmaType,
+      status = rma.status,
+      customer = CustomerResponse.build(customer),
+      storeAdmin = admin.map(StoreAdminResponse.build),
+      assignees = assignees,
+      createdAt = rma.createdAt,
+      updatedAt = rma.updatedAt,
+      total = Some(mockTotal)
+    )
   }
 
   private def fetchAssignees(rma: Rma)(implicit ec: ExecutionContext, db: Database) = {

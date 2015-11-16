@@ -49,20 +49,21 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
   val regCurrencies = CurrencyUnit.registeredCurrencies.asScala.toIndexedSeq
 
   def responseItems = {
-    val items = regCurrencies.take(numOfResults).map { currency ⇒
+    val insertScs = regCurrencies.take(numOfResults).map { currency ⇒
       val balance = Random.nextInt(9999999)
-      val dbio = StoreCredits.saveNew(Factories.storeCredit.copy(
+
+      Factories.storeCredit.copy(
         currency = currency,
         originId = currentOrigin.id,
         customerId = currentCustomer.id,
         originalBalance = balance,
         currentBalance = balance,
-        availableBalance = balance))
-
-      dbio.map { responses.StoreCreditResponse.build }
+        availableBalance = balance)
     }
 
-    DBIO.sequence(items).transactionally.run().futureValue
+    ((StoreCredits ++= insertScs) >> StoreCredits.result).map { storeCredits ⇒
+      storeCredits.map(responses.StoreCreditResponse.build)
+    }.transactionally.run().futureValue.toIndexedSeq
   }
 
   val sortColumnName = "currency"

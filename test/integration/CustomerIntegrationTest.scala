@@ -42,14 +42,14 @@ class CustomerIntegrationTest extends IntegrationTestBase
   val uriPrefix = "v1/customers"
 
   def responseItems = {
-    val items = (1 to numOfResults).map { i ⇒
-      val dbio = Customers.create(Seeds.Factories.generateCustomer).map(rightValue)
+    val insertCustomers = (1 to numOfResults).map { _ ⇒ Seeds.Factories.generateCustomer }
+    val dbio = for {
+      customers ← (Customers ++= insertCustomers) >> Customers.result
+    } yield customers.map(CustomerResponse.build(_))
 
-      dbio.map { CustomerResponse.build(_) }
-    }
-
-    DBIO.sequence(items).transactionally.run().futureValue
+    dbio.transactionally.run().futureValue.toIndexedSeq
   }
+
   val sortColumnName = "name"
 
   def responseItemsSort(items: IndexedSeq[CustomerResponse.Root]) = items.sortBy(_.name)

@@ -1,11 +1,10 @@
 package services.orders
 
-import models.{OrderLineItems, Skus, Orders, Order, OrderLineItemSkus, OrderLineItemGiftCards, OrderLineItem}
+import models.Order
 import slick.driver.PostgresDriver.api._
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 import cats.implicits._
 import utils.Slick.implicits._
-import slick.jdbc.GetResult
 
 object OrderTotaler {
   def subTotal(order: Order)(implicit ec: ExecutionContext): DBIO[Option[Int]] =

@@ -1,4 +1,3 @@
-import scala.concurrent.Future
 import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 
 import models.{Addresses, Customer, Customers, OrderShippingAddresses, Orders, Regions}
@@ -28,18 +27,13 @@ class AddressesIntegrationTest extends IntegrationTestBase
   def uriPrefix = s"v1/customers/${currentCustomer.id}/addresses"
 
   def responseItems = {
-    val items = (1 to numOfResults).map { i ⇒
-      val dbio = for {
-        address ← Addresses.saveNew(Factories.generateAddress.copy(customerId = currentCustomer.id))
-        region  ← Regions.findById(address.regionId).result.head
-      } yield (address, region)
+    val dbio = for {
+      region ← Regions.findById(Factories.generateAddress.regionId).result.headOption
+      insertAddresses = (1 to numOfResults).map { _ ⇒ Factories.generateAddress.copy(customerId = currentCustomer.id) }
+      addresses ← (Addresses ++= insertAddresses) >> Addresses.findAllByCustomerId(currentCustomer.id).result
+    } yield addresses.map(responses.Addresses.build(_, region.value))
 
-      dbio.map { case (address, region) ⇒
-        responses.Addresses.build(address, region)
-      }
-    }
-
-    DBIO.sequence(items).transactionally.run().futureValue
+    dbio.transactionally.run().futureValue.toIndexedSeq
   }
 
   val sortColumnName = "name"
