@@ -3,14 +3,15 @@ import React, { PropTypes } from 'react';
 const isNumber = (n) => !isNaN(parseFloat(n)) && isFinite(n);
 
 const formatCurrency = (amount, base, currency) => {
-  if (!isNumber(amount)) {
+  if (!(isNumber(amount) && isNumber(base))) {
     return null;
   }
-  const parsed = parseFloat(amount / base).toFixed(2);
+  const sign = amount < 0 ? '-' : '';
+  const parsed = (Math.abs(amount) / base).toFixed(2);
   const decimal = parsed.slice(0, -3);
   const fract = parsed.slice(-2);
   const delimited = decimal.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  return `${currency}${delimited}.${fract}`;
+  return `${sign}${currency}${delimited}.${fract}`;
 };
 
 const Currency = (props) => {
