@@ -8,6 +8,7 @@ import scala.concurrent.duration._
 import scala.util.Random
 
 import models._
+import models.inventory._
 import models.rules._
 import org.flywaydb.core.Flyway
 import org.json4s.jackson.JsonMethods._
@@ -50,7 +51,7 @@ object Seeds {
     shippingMethods: Seq[ShippingMethod], shippingPriceRules: Seq[ShippingPriceRule],
     shippingMethodRuleMappings: Seq[ShippingMethodPriceRule], skus: Seq[Sku], orderLineItems: Seq[OrderLineItem],
     orderPayments: Seq[OrderPayment], shipment: Shipment, paymentMethods: AllPaymentMethods, reasons: Seq[Reason],
-    orderLineItemSkus: Seq[OrderLineItemSku], inventorySummaries: Seq[InventorySummary],
+    orderLineItemSkus: Seq[OrderLineItemSku], warehouses: Seq[Warehouse], inventorySummaries: Seq[InventorySummary],
     gcSubTypes: Seq[GiftCardSubtype], scSubTypes: Seq[StoreCreditSubtype], rmaReasons: Seq[RmaReason], rma: Rma,
     rmaLineItems: Seq[RmaLineItem], rmaLineItemSkus: Seq[RmaLineItemSku], rmaNotes: Seq[Note])
 
@@ -122,6 +123,7 @@ object Seeds {
       paymentMethods = AllPaymentMethods(giftCard = Factories.giftCard, storeCredit = Factories.storeCredit),
       reasons = Factories.reasons,
       orderLineItemSkus = Factories.orderLineItemSkus,
+      warehouses = Factories.warehouses,
       inventorySummaries = Factories.inventorySummaries,
       gcSubTypes = Factories.giftCardSubTypes,
       scSubTypes = Factories.storeCreditSubTypes,
@@ -147,6 +149,7 @@ object Seeds {
       customers ← Customers ++= s.customers
       storeAdmin ← (StoreAdmins.returningId += s.storeAdmin).map(id ⇒ s.storeAdmin.copy(id = id))
       skus ← Skus ++= s.skus
+      warehouses ← Warehouses ++= s.warehouses
       summaries ← InventorySummaries ++= s.inventorySummaries
       order ← Orders.saveNew(s.order.copy(customerId = customer.id))
       orderNotes ← Notes ++= s.orderNotes
@@ -239,10 +242,13 @@ object Seeds {
       Sku(sku = "SKU-ABC", name = Some("Shark"), price = 45),
       Sku(sku = "SKU-ZYA", name = Some("Dolphin"), price = 88))
 
+    val defaultWarehouse = Warehouse.buildDefault()
+    def warehouses: Seq[Warehouse] = Seq(defaultWarehouse)
+
     def inventorySummaries: Seq[InventorySummary] = Seq(
-      InventorySummary.buildNew(skuId = 1, availableOnHand = 100),
-      InventorySummary.buildNew(skuId = 2, availableOnHand = 100),
-      InventorySummary.buildNew(skuId = 3, availableOnHand = 100))
+      InventorySummary.buildNew(defaultWarehouse.id, skuId = 1, onHand = 100),
+      InventorySummary.buildNew(defaultWarehouse.id, skuId = 2, onHand = 100),
+      InventorySummary.buildNew(defaultWarehouse.id, skuId = 3, onHand = 100))
 
     def orderLineItemSkus: Seq[OrderLineItemSku] = Seq(
       OrderLineItemSku(id = 0, orderId = 1, skuId = 1),

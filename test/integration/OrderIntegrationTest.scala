@@ -5,6 +5,7 @@ import akka.pattern.ask
 import akka.testkit.TestActorRef
 
 import models._
+import models.inventory._
 import models.rules.QueryStatement
 import payloads.{Assignment, UpdateOrderPayload}
 import responses.{StoreAdminResponse, FullOrderWithWarnings, FullOrder}
@@ -671,6 +672,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       order ← Orders.saveNew(Factories.order.copy(customerId = customer.id, status = Order.Cart))
       storeAdmin ← StoreAdmins.saveNew(authedStoreAdmin)
       skus ← Skus ++= Factories.skus
+      warehouses ← Warehouses ++= Factories.warehouses
       summaries ← InventorySummaries ++= Factories.inventorySummaries
     } yield (order, storeAdmin, customer)).run().futureValue
   }

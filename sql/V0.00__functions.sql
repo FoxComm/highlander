@@ -27,14 +27,18 @@ $$ language plpgsql;
 
 create function update_inventory_summaries() returns trigger as $$
 declare
-    reserved_for_fulfillment integer default 0;
+    new_on_hand integer default 0;
+    new_on_hold integer default 0;
+    new_reserved integer default 0;
 begin
-    reserved_for_fulfillment := new.reserved_for_fulfillment;
+    new_reserved := new.reserved;
+    new_on_hand := new.on_hand;
+    new_on_hold := new.on_hold;
 
-    update inventory_summaries set available_on_hand = (available_on_hand - reserved_for_fulfillment) where sku_id = new.sku_id;
+    update inventory_summaries set on_hand=(on_hand + new_on_hand), on_hold=(on_hold + new_on_hold), reserved=(reserved + new_reserved) where warehouse_id = new.warehouse_id and sku_id = new.sku_id;
     if found then return new; end if;
     if not found then
-        insert into inventory_summaries (sku_id, available_on_hand) values (new.sku_id, -reserved_for_fulfillment);
+        insert into inventory_summaries (warehouse_id, sku_id, on_hand, on_hold, reserved) values (new.warehouse_id, new.sku_id, new_on_hand, new_on_hold, new_reserved);
     end if;
 
     return new;

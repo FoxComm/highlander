@@ -1,6 +1,7 @@
 package models
 
 import scala.concurrent.ExecutionContext
+import models.inventory.InventorySummaries
 
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
@@ -24,13 +25,17 @@ object Skus extends TableQueryWithId[Sku, Skus](
   idLens = GenLens[Sku](_.id)
 )(new Skus(_)) {
 
-  def isAvailableOnHand(id: Int)(implicit ec: ExecutionContext, db: Database): Rep[Boolean] =
-    InventorySummaries.findBySkuId(id).filter(_.availableOnHand > 0).exists
+  def isAvailableOnHand(id: Int)(implicit ec: ExecutionContext, db: Database): Rep[Boolean] = {
+    //TODO: Use inventory system here
+    val HARD_CODED_WAREHOUSE_ID = 1
+    InventorySummaries.findBySkuId(HARD_CODED_WAREHOUSE_ID, id).filter(s => (s.onHand - s.reserved) > 0).exists
+  }
 
   def qtyAvailableForSkus(skus: Seq[String])(implicit ec: ExecutionContext, db: Database): DBIO[Map[Sku, Int]] = {
+    //TODO: Use inventory system here
     (for {
       sku  ← Skus.filter(_.sku inSet skus)
       summ ← InventorySummaries if summ.skuId === sku.id
-    } yield (sku, summ.availableOnHand)).result.map(_.toMap)
+    } yield (sku, summ.onHand)).result.map(_.toMap)
   }
 }
