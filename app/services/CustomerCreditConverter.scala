@@ -42,7 +42,7 @@ object CustomerCreditConverter {
     def saveStoreCredit(gc: GiftCard, admin: StoreAdmin): ResultT[DBIO[StoreCreditResponse.Root]] = {
       val queries = for {
         // Update status and make adjustment
-        gcUpdated ← GiftCards.findActiveByCode(gc.code).map(_.status).update(GiftCard.FullyRedeemed)
+        _ ← GiftCards.findActiveByCode(gc.code).map(_.status).update(GiftCard.FullyRedeemed)
         adjustment ← GiftCards.redeemToStoreCredit(gc, admin)
 
         // Finally, convert to Store Credit

@@ -103,5 +103,5 @@ final case class Checkout(cart: Order, cartValidator: CartValidation)(implicit d
   }
 
   private def createNewCart: DbResult[Order] =
-    Orders.saveNew(Order.buildCart(cart.customerId)).flatMap(DbResult.good)
+    Orders.create(Order.buildCart(cart.customerId))
 }

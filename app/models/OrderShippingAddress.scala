@@ -5,6 +5,7 @@ import scala.concurrent.ExecutionContext
 import monocle.macros.GenLens
 import payloads.UpdateAddressPayload
 import slick.driver.PostgresDriver.api._
+import utils.Slick._
 import utils.GenericTable.TableWithId
 import utils.{ModelWithIdParameter, TableQueryWithId}
 
@@ -65,9 +66,8 @@ object OrderShippingAddresses extends TableQueryWithId[OrderShippingAddress, Ord
 
   import scope._
 
-  def copyFromAddress(address: Address, orderId: Int)(implicit ec: ExecutionContext):
-  DBIO[OrderShippingAddress] =
-    saveNew(OrderShippingAddress.buildFromAddress(address).copy(orderId = orderId))
+  def copyFromAddress(address: Address, orderId: Int)(implicit ec: ExecutionContext): DbResult[OrderShippingAddress] =
+    create(OrderShippingAddress.buildFromAddress(address).copy(orderId = orderId))
 
   def findByOrderId(orderId: Int): QuerySeq =
     filter(_.orderId === orderId)

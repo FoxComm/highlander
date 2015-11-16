@@ -2,7 +2,7 @@ package services
 
 import scala.concurrent.{ExecutionContext, Future}
 
-import cats.data.Xor
+import cats.data.{XorT, Xor}
 import cats.data.Validated.{Valid, Invalid}
 import cats.implicits._
 
@@ -14,11 +14,15 @@ import models.GiftCardSubtypes.scope._
 import responses.{GiftCardSubTypesResponse, GiftCardResponse, CustomerResponse, StoreAdminResponse}
 import responses.GiftCardResponse._
 import responses.GiftCardBulkResponse._
+import slick.driver.PostgresDriver
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.Slick._
 import utils.Slick.UpdateReturning._
 import utils.Slick.implicits._
+import utils.DbResultT
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 
 object GiftCardService {
   val mockCustomerId = 1
@@ -164,44 +168,25 @@ object GiftCardService {
   private def createGiftCardModel(admin: StoreAdmin, payload: payloads.GiftCardCreateByCsr)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
 
-    def prepareForCreate(payload: payloads.GiftCardCreateByCsr): ResultT[(Reason, Option[GiftCardSubtype])] = {
-      val queries = for {
-        reason   ← Reasons.findOneById(payload.reasonId)
-        subtype  ← payload.subTypeId match {
-          case Some(id) ⇒ GiftCardSubtypes.csrAppeasements.filter(_.id === id).one
-          case None     ⇒ lift(None)
-        }
-      } yield (reason, subtype, payload.subTypeId)
-
-      ResultT(queries.run().map {
-        case (None, _, _) ⇒
-          Xor.left(NotFoundFailure400(Reason, payload.reasonId).single)
-        case (_, None, Some(subId)) ⇒
-          Xor.left(NotFoundFailure400(GiftCardSubtype, subId).single)
-        case (Some(r), s, _) ⇒
-          Xor.right((r, s))
-      })
-    }
-
-    def saveGiftCard(admin: StoreAdmin, payload: payloads.GiftCardCreateByCsr): ResultT[DbResult[Root]] = {
-      val actions = for {
-        origin  ← GiftCardManuals.saveNew(GiftCardManual(adminId = admin.id, reasonId = payload.reasonId))
-        gc      ← GiftCards.create(GiftCard.buildAppeasement(payload, origin.id))
-      } yield gc
-
-      val storeAdminResponse = Some(StoreAdminResponse.build(admin))
-      ResultT.rightAsync(actions.map(_.map(gc ⇒ build(gc, None, storeAdminResponse))))
-    }
-
-    val transformer = for {
-      prepare ← prepareForCreate(payload)
-      gc ← prepare match { case (reason, subtype) ⇒
-        val newPayload = payload.copy(subTypeId = subtype.map(_.id))
-        saveGiftCard(admin, newPayload)
+    def prepareForCreate(payload: payloads.GiftCardCreateByCsr): DbResult[Option[GiftCardSubtype]] = (for {
+      _       ← * <~ Reasons.mustFindById(payload.reasonId, NotFoundFailure400(Reason, _))
+      // If `subTypeId` is absent, don't query. Check for model existence otherwise.
+      subtype ← * <~ payload.subTypeId.fold(DbResult.none[GiftCardSubtype]) { subId ⇒
+        GiftCardSubtypes.csrAppeasements.filter(_.id === subId).one
+          .mustFindOr(NotFoundFailure400(GiftCardSubtype, subId))
+          .map(_.map(Some(_))) // A bit silly but need to rewrap it back
       }
-    } yield gc
+    } yield subtype).value
 
-    transformer.value.flatMap(_.fold(Result.left, dbio ⇒ dbio.transactionally.run()))
+    def saveGiftCard(admin: StoreAdmin, payload: payloads.GiftCardCreateByCsr): DbResultT[Root] = for {
+      origin  ← * <~ GiftCardManuals.create(GiftCardManual(adminId = admin.id, reasonId = payload.reasonId))
+      gc      ← * <~ GiftCards.create(GiftCard.buildAppeasement(payload, origin.id))
+      storeAdminResponse = Some(StoreAdminResponse.build(admin))
+    } yield build(gc = gc, admin = storeAdminResponse)
+
+    DbResultT(prepareForCreate(payload)).flatMap { subtype ⇒
+      saveGiftCard(admin, payload.copy(subTypeId = subtype.map(_.id)))
+    }.value.transactionally.run()
   }
 
   private def fetchDetails(code: String)(implicit db: Database, ec: ExecutionContext) = for {

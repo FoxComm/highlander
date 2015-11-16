@@ -27,8 +27,6 @@ import utils.time.JavaTimeSlickMapper.instantAndTimestampWithoutZone
 
 object AddressManager {
 
-  private def regionNotFound(id: Int): NotFoundFailure404 = NotFoundFailure404(Region, id)
-
   private def addressNotFound(id: Int): NotFoundFailure404 = NotFoundFailure404(Address, id)
 
   def findAllVisibleByCustomer(customerId: Int)
@@ -42,7 +40,7 @@ object AddressManager {
     (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
 
     address ← * <~ Addresses.create(Address.fromPayload(payload).copy(customerId = customerId))
-    region  ← * <~ Regions.mustFindById(address.regionId)(regionNotFound)
+    region  ← * <~ Regions.mustFindById(address.regionId)
   } yield Response.build(address, region)).value.run()
 
   def edit(addressId: Int, customerId: Int, payload: CreateAddressPayload)
@@ -50,14 +48,14 @@ object AddressManager {
 
     address ← * <~ Address.fromPayload(payload).copy(customerId = customerId, id = addressId).validate
     _       ← * <~ Addresses.insertOrUpdate(address).toXor
-    region  ← * <~ Regions.mustFindById(address.regionId)(regionNotFound)
+    region  ← * <~ Regions.mustFindById(address.regionId)
   } yield Response.build(address, region)).value.run()
 
   def get(customerId: Int, addressId: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
 
     address ← * <~ Addresses.findByIdAndCustomer(addressId, customerId).mustFindOr { addressNotFound(addressId) }
-    region  ← * <~ Regions.mustFindById(address.regionId)(regionNotFound)
+    region  ← * <~ Regions.mustFindById(address.regionId)
   }  yield Response.build(address, region, address.isDefaultShipping.some)).value.run()
 
   def remove(customerId: Int, addressId: Int)
