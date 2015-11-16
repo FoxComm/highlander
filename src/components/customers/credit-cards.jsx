@@ -98,48 +98,51 @@ export default class CustomerCreditCards extends React.Component {
     this.props.saveCreditCard();
   }
 
+  get showConfirm() {
+    return this.props.deletingId !== undefined && this.props.deletingId !== null;
+  }
+
+  get actionBlock() {
+      return (<AddButton onClick={this.onAddClick} />);
+  }
+
+  @autobind
+  createCardBox(card) {
+    const key = `cutomer-card-${ card.id }`;
+    let box = null;
+    if (card.id === this.props.editingId) {
+      box = (
+        <CreditCardForm key={ key }
+                        card={ card }
+                        form={ this.props.editingCreditCard }
+                        customerId={ this.props.customerId }
+                        addresses={ this.props.addresses }
+                        onCancel={ this.onEditCancel }
+                        onChange={ this.onEditFormChange }
+                        onSubmit={ this.onEditFormSubmit }
+                        isNew={ false } />
+      );
+    } else {
+      box = (
+        <CreditCardBox key={ key }
+                       card={ card }
+                       customerId={ this.props.customerId }
+                       onDeleteClick={ this.onDeleteClick.bind(this, card.id) }
+                       onEditClick={ this.onEditClick.bind(this, card.id) } />
+      );
+    }
+    return box;
+  }
+
   ////
   // Rendering
   render() {
-    const actionBlock = (
-      <AddButton onClick={this.onAddClick} />
-    );
-
-    const createCardBox = (card) => {
-      const key = `cutomer-card-${ card.id }`;
-      let box = null;
-      if (card.id === this.props.editingId) {
-        box = (
-          <CreditCardForm key={ key }
-                          card={ card }
-                          form={ this.props.editingCreditCard }
-                          customerId={ this.props.customerId }
-                          addresses={ this.props.addresses }
-                          onCancel={ this.onEditCancel }
-                          onChange={ this.onEditFormChange }
-                          onSubmit={ this.onEditFormSubmit }
-                          isNew={ false } />
-        );
-      } else {
-        box = (
-          <CreditCardBox key={ key }
-                         card={ card }
-                         customerId={ this.props.customerId }
-                         onDeleteClick={ this.onDeleteClick.bind(this, card.id) }
-                         onEditClick={ this.onEditClick.bind(this, card.id) } />
-        );
-      }
-      return box;
-    };
-
-    const showConfirm = this.props.deletingId !== undefined && this.props.deletingId !== null;
-
     return (
       <ContentBox title="Credit Cards"
                   className="fc-customer-credit-cards"
-                  actionBlock={ actionBlock }>
+                  actionBlock={ this.actionBlock }>
         <ul className="fc-float-list">
-          {(this.props.cards && this.props.cards.map(createCardBox))}
+          {(this.props.cards && this.props.cards.map(this.createCardBox))}
           {(this.props.newCreditCard && <CreditCardForm customerId={ this.props.customerId }
                                                           form={ this.props.newCreditCard }
                                                           addresses={ this.props.addresses }
@@ -149,7 +152,7 @@ export default class CustomerCreditCards extends React.Component {
                                                           isNew={ true } />)}
         </ul>
         <ConfirmationDialog
-          isVisible={ showConfirm }
+          isVisible={ this.showConfirm }
           header='Confirm'
           body='Are you sure you want to delete this credit card?'
           cancel='Cancel'
