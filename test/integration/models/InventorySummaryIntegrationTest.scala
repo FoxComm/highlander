@@ -14,7 +14,7 @@ class InventorySummaryIntegrationTest extends IntegrationTestBase {
   "InventorySummary" - {
     "Postgres triggers" - {
       def seed(): (Warehouse, Sku, Order) = {
-        val warehouse = Warehouses.saveNew(Factories.defaultWarehouse).run().futureValue
+        val warehouse = Warehouses.saveNew(Factories.warehouse).run().futureValue
         val sku = Skus.saveNew(Factories.skus.head.copy(price = 5)).run().futureValue
         val order = Orders.saveNew(Order(id = 0, customerId = 1)).run().futureValue
         (warehouse, sku, order)

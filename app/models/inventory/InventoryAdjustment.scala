@@ -17,8 +17,7 @@ final case class InventoryAdjustment(
   onHold: Int = 0,
   reserved: Int = 0, 
   nonSellable: Int = 0, 
-  description: Option[String] = None,
-  sourceNotes: Option[String] = None,
+  noteId: Option[Int] = None,
   createdAt: Instant = Instant.now()) extends ModelWithIdParameter[InventoryAdjustment]
 
 class InventoryAdjustments(tag: Tag) extends GenericTable.TableWithId[InventoryAdjustment](tag, "inventory_adjustments")  {
@@ -30,11 +29,10 @@ class InventoryAdjustments(tag: Tag) extends GenericTable.TableWithId[InventoryA
   def onHold = column[Int]("on_hold")
   def reserved = column[Int]("reserved")
   def nonSellable = column[Int]("non_sellable")
-  def description = column[Option[String]]("description")
-  def sourceNotes = column[Option[String]]("source_notes") //Notes about a third party source
+  def noteId = column[Option[Int]]("note_id")
   def createdAt = column[Instant]("created_at")
 
-  def * = (id, warehouseId, skuId, eventId, onHand, onHold, reserved, nonSellable, description, sourceNotes, createdAt) <> 
+  def * = (id, warehouseId, skuId, eventId, onHand, onHold, reserved, nonSellable, noteId, createdAt) <> 
   ((InventoryAdjustment.apply _).tupled, InventoryAdjustment.unapply)
 }
 

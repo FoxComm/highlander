@@ -8,11 +8,11 @@ create table inventory_adjustments (
     on_hold integer not null default 0,
     reserved integer not null default 0,
     non_sellable integer not null default 0,
-    description generic_string,
-    source_notes text,
+    note_id integer, --optional reference to 
     created_at timestamp without time zone default (now() at time zone 'utc'),
     foreign key (sku_id) references skus(id) on update restrict on delete restrict,
-    foreign key (warehouse_id) references warehouses(id) on update restrict on delete restrict
+    foreign key (warehouse_id) references warehouses(id) on update restrict on delete restrict,
+    foreign key (note_id) references notes(id) on update restrict on delete restrict
 );
 
 create trigger update_inventory_summaries 

@@ -32,7 +32,7 @@ class LineItemUpdaterTest extends IntegrationTestBase {
   }
 
   def createDefaultWarehouse() : Warehouse = 
-    Warehouses.saveNew(Factories.defaultWarehouse).run().futureValue
+    Warehouses.saveNew(Factories.warehouse).run().futureValue
 
   def createInventory(warehouseId: Int, skuId: Int, onHand: Int = 100): Unit = {
     val summary = InventorySummary(

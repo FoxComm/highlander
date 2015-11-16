@@ -242,13 +242,13 @@ object Seeds {
       Sku(sku = "SKU-ABC", name = Some("Shark"), price = 45),
       Sku(sku = "SKU-ZYA", name = Some("Dolphin"), price = 88))
 
-    val defaultWarehouse = Warehouse.buildDefault()
-    def warehouses: Seq[Warehouse] = Seq(defaultWarehouse)
+    def warehouse: Warehouse = Warehouse.buildDefault()
+    def warehouses: Seq[Warehouse] = Seq(warehouse)
 
     def inventorySummaries: Seq[InventorySummary] = Seq(
-      InventorySummary.buildNew(defaultWarehouse.id, skuId = 1, onHand = 100),
-      InventorySummary.buildNew(defaultWarehouse.id, skuId = 2, onHand = 100),
-      InventorySummary.buildNew(defaultWarehouse.id, skuId = 3, onHand = 100))
+      InventorySummary.buildNew(warehouse.id, skuId = 1, onHand = 100),
+      InventorySummary.buildNew(warehouse.id, skuId = 2, onHand = 100),
+      InventorySummary.buildNew(warehouse.id, skuId = 3, onHand = 100))
 
     def orderLineItemSkus: Seq[OrderLineItemSku] = Seq(
       OrderLineItemSku(id = 0, orderId = 1, skuId = 1),
