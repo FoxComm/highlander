@@ -3,7 +3,7 @@ import React, { PropTypes } from 'react';
 const isNumber = (n) => !isNaN(parseFloat(n)) && isFinite(n);
 
 const formatCurrency = (amount, base, currency) => {
-  if (!isNumber(amount)) {
+  if (!(isNumber(amount) && isNumber(base))) {
     return null;
   }
   const sign = amount < 0 ? '-' : '';
