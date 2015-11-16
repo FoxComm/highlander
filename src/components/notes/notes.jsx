@@ -136,9 +136,14 @@ export default class Notes extends React.Component {
     );
   }
 
+  get sectionClassName() {
+    const entityType = this.props.entity.entityType;
+    return `fc-${entityType}-notes`;
+  }
+
   render() {
     return (
-      <div>
+      <div className={this.sectionClassName} >
         <SectionTitle className="fc-grid-gutter" title="Notes">{this.controls}</SectionTitle>
         <TableView
           renderRow={this.renderNoteRow}
