@@ -1,8 +1,8 @@
 import React, { PropTypes } from 'react';
 import { PrimaryButton } from '../common/buttons';
 import { Checkbox } from '../checkbox/checkbox';
-import FormField from '../forms/formfield.jsx';
-import Form from '../forms/form.jsx';
+import FormField from '../forms/formfield';
+import Form from '../forms/form';
 import Dropdown from '../dropdown/dropdown';
 import DropdownItem from '../dropdown/dropdownItem';
 import AddressDetails from '../addresses/address-details';
