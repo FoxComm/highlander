@@ -21,7 +21,7 @@ export function expirationYears() {
   let years = {};
   const current = new Date().getFullYear();
   _.each(_.range(20), (inc) => {
-    let year = (current + inc).toString();
+    const year = (current + inc).toString();
     years[year] = year;
   });
   return years;
