@@ -7,8 +7,6 @@ import models.{OrderShippingMethods, Order, OrderLineItems, OrderShippingAddress
 StoreCredits, GiftCards}
 import OrderPayments.scope._
 import services.orders.OrderTotaler
-import slick.dbio
-import slick.dbio.Effect.All
 import slick.driver.PostgresDriver.api._
 import utils.Slick.lift
 import utils.Slick.implicits._

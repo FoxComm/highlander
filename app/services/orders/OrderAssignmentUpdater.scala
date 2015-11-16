@@ -11,31 +11,26 @@ import utils.CustomDirectives
 import utils.CustomDirectives.SortAndPage
 import utils.Slick.DbResult
 import utils.Slick.implicits._
+import utils.DbResultT.*
+import utils.DbResultT.implicits._
+import orders.Helpers._
 
 object OrderAssignmentUpdater {
 
   def assign(refNum: String, requestedAssigneeIds: Seq[Int])(implicit db: Database, ec: ExecutionContext,
-    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): Result[FullOrderWithWarnings] = {
-    val finder = Orders.findByRefNum(refNum)
+    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): Result[FullOrderWithWarnings] = (for {
 
-    finder.selectOne({ order ⇒
-      DbResult.fromDbio(for {
-        existingAdminIds ← StoreAdmins.filter(_.id.inSetBind(requestedAssigneeIds)).map(_.id).result
+    order           ← * <~ mustFindOrderByRefNum(refNum)
+    adminIds        ← * <~ StoreAdmins.filter(_.id.inSetBind(requestedAssigneeIds)).map(_.id).result
+    assignees       ← * <~ OrderAssignments.assigneesFor(order).toXor
+    newAssignments  = adminIds.diff(assignees.map(_.id))
+      .map(adminId ⇒ OrderAssignment(orderId = order.id, assigneeId = adminId))
 
-        alreadyAssigned ← OrderAssignments.assigneesFor(order)
-        alreadyAssignedIds = alreadyAssigned.map(_.id)
-
-        newAssignments = existingAdminIds.diff(alreadyAssignedIds)
-          .map(adminId ⇒ OrderAssignment(orderId = order.id, assigneeId = adminId))
-
-        inserts = OrderAssignments ++= newAssignments
-        newOrder ← inserts >> finder.result.head
-
-        fullOrder ← FullOrder.fromOrder(newOrder)
-        warnings = requestedAssigneeIds.diff(existingAdminIds).map(NotFoundFailure404(StoreAdmin, _))
-      } yield FullOrderWithWarnings(fullOrder, warnings))
-    }, checks = Set.empty)
-  }
+    inserts   = OrderAssignments ++= newAssignments
+    newOrder  ← * <~ (inserts >> Orders.findByRefNum(refNum).result.head.toXor)
+    fullOrder ← * <~ FullOrder.fromOrder(newOrder).toXor
+    warnings  = requestedAssigneeIds.diff(adminIds).map(NotFoundFailure404(StoreAdmin, _))
+  } yield FullOrderWithWarnings(fullOrder, warnings)).value.transactionally.run()
 
   def assign(payload: payloads.BulkAssignment)
     (implicit ec: ExecutionContext, db: Database, sortAndPage: SortAndPage): Result[BulkOrderUpdateResponse] = {

@@ -12,6 +12,8 @@ import utils.Slick.implicits._
 
 object SaveForLaterManager {
 
+  def notFound(id: Int): NotFoundFailure404 = NotFoundFailure404(SaveForLater, id)
+
   def findAll(customerId: Int)(implicit db: Database, ec: ExecutionContext): Result[SavedForLater] = {
     Customers.findById(customerId).extract.selectOne { customer ⇒
       DbResult.fromDbio(findAllDbio(customer))
@@ -20,8 +22,10 @@ object SaveForLaterManager {
 
   def saveForLater(customerId: Int, skuId: Int)
     (implicit db: Database, ec: ExecutionContext): Result[SavedForLater] = {
+
     val customerQ = Customers.findOneById(customerId)
     val skuQ = Skus.findOneById(skuId)
+
     customerQ.zip(skuQ).flatMap {
       case (Some(customer), Some(sku)) ⇒
         SaveForLaters.filter(_.customerId === customerId).filter(_.skuId === skuId).one.flatMap {
@@ -35,13 +39,12 @@ object SaveForLaterManager {
         DbResult.failure(NotFoundFailure404(Customer, customerId))
       case (_, None) ⇒
         DbResult.failure(NotFoundFailure404(Sku, skuId))
+
     }.transactionally.run()
   }
 
-  def deleteSaveForLater(id: Int)(implicit db: Database, ec: ExecutionContext): Result[Unit] = {
-    val failure = DbResult.failure(NotFoundFailure404(SaveForLater, id))
-    SaveForLaters.deleteById(id, DbResult.unit, failure).transactionally.run()
-  }
+  def deleteSaveForLater(id: Int)(implicit db: Database, ec: ExecutionContext): Result[Unit] =
+    SaveForLaters.deleteById(id, DbResult.unit, notFound).transactionally.run()
 
   private def findAllDbio(customer: Customer)(implicit ec: ExecutionContext, db: Database): DBIO[SavedForLater] = {
     SaveForLaters.filter(_.customerId === customer.id).result.flatMap { all ⇒

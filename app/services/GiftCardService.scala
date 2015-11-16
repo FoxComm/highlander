@@ -24,29 +24,27 @@ import utils.DbResultT
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 
+import utils.DbResultT.*
+import utils.DbResultT.implicits._
+
 object GiftCardService {
   val mockCustomerId = 1
 
-  val gcManuals = TableQuery[GiftCardManuals]
-
-  type Account = Customer :+: StoreAdmin :+: CNil
   type QuerySeq = GiftCards.QuerySeq
 
-  def getOriginTypes(implicit db: Database, ec: ExecutionContext): Result[Seq[GiftCardSubTypesResponse.Root]] = {
-    GiftCardSubtypes.select({ subTypes ⇒
-      DbResult.good(GiftCardSubTypesResponse.build(GiftCard.OriginType.types.toSeq, subTypes))
-    })
-  }
+  def getOriginTypes
+  (implicit db: Database, ec: ExecutionContext): Result[Seq[GiftCardSubTypesResponse.Root]] = (for {
 
-  def findAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
+    subTypes ← * <~ GiftCardSubtypes.result.toXor
+    response ← * <~ GiftCardSubTypesResponse.build(GiftCard.OriginType.types.toSeq, subTypes)
+  } yield response).value.run()
+
+  def findAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] =
     GiftCards.queryAll.result.map(_.map(GiftCardResponse.build(_)))
-  }
 
   def findByCode(code: String)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
-    val query = GiftCards.queryByCode(code)
-    query.result.map(_.map(GiftCardResponse.build(_)))
-  }
+    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] =
+    GiftCards.queryByCode(code).result.map(_.map(GiftCardResponse.build(_)))
 
   def getByCode(code: String)(implicit db: Database, ec: ExecutionContext): Result[Root] = {
     fetchDetails(code).run().flatMap {
@@ -62,13 +60,11 @@ object GiftCardService {
   }
 
   def createByAdmin(admin: StoreAdmin, payload: payloads.GiftCardCreateByCsr)
-    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
 
-    payload.validate match {
-      case Invalid(errors) ⇒ Result.failures(errors)
-      case Valid(_)        ⇒ createGiftCardModel(admin, payload)
-    }
-  }
+    pay       ← ResultT(Future.successful(payload.validate.toXor))
+    response  ← ResultT(createGiftCardModel(admin, payload))
+  } yield response).value
 
   def createBulkByAdmin(admin: StoreAdmin, payload: payloads.GiftCardBulkCreateByCsr)
     (implicit ec: ExecutionContext, db: Database): Result[Seq[ItemResult]] = {
@@ -192,7 +188,7 @@ object GiftCardService {
   private def fetchDetails(code: String)(implicit db: Database, ec: ExecutionContext) = for {
     giftCard  ← GiftCards.findByCode(code).one
     gcOrigin  ← giftCard match {
-      case Some(gc) if gc.originType == GiftCard.CsrAppeasement ⇒ gcManuals.filter(_.id === gc.originId).one
+      case Some(gc) if gc.originType == GiftCard.CsrAppeasement ⇒ GiftCardManuals.filter(_.id === gc.originId).one
       case _                                                    ⇒ DBIO.successful(None)
     }
     account   ← getAccount(giftCard, gcOrigin)

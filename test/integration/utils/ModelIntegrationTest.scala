@@ -48,16 +48,16 @@ class ModelIntegrationTest extends IntegrationTestBase {
     "returns value for successful delete" in {
       val customer = Customers.create(Factories.customer).run().futureValue.rightVal
       val success = "Success"
-      val failure = DbResult.failure(GeneralFailure("Should not happen"))
+      val failure = (id: Customer#Id) ⇒ GeneralFailure("Should not happen")
       val delete = Customers.deleteById(customer.id, DbResult.good(success), failure).run().futureValue.rightVal
       delete must === (success)
     }
 
     "returns failure for unsuccessful delete" in {
       val success = DbResult.good("Should not happen")
-      val failure = GeneralFailure("Boom")
-      val delete = Customers.deleteById(13, success, DbResult.failure(failure)).run().futureValue
-      leftValue(delete) must === (failure.single)
+      val failure = (id: Customer#Id) ⇒ GeneralFailure("Boom")
+      val delete = Customers.deleteById(13, success, failure).run().futureValue
+      leftValue(delete) must === (failure(13).single)
     }
   }
 
