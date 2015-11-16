@@ -94,7 +94,7 @@ export default class CreditCardForm extends React.Component {
     const block = this.state.editingAddress ?
                     ( <AddressSelect name="addressId"
                                      items={ this.props.addresses }
-                                     value={ this.props.form.addressId }
+                                     initialValue={ this.props.form.addressId }
                                      customerId={ this.props.customerId }
                                      onItemSelect={ this.onAddressChange } />) :
                     ( <AddressDetails customerId={ this.props.customerId }
@@ -114,7 +114,7 @@ export default class CreditCardForm extends React.Component {
             <AddressSelect name="addressId"
                            customerId={ this.props.customerId }
                            items={ this.props.addresses }
-                           value={ this.props.form.addressId }
+                           initialValue={ this.props.form.addressId }
                            onItemSelect={ this.onAddressChange } />
           </div>
         </li>

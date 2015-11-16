@@ -9,7 +9,7 @@ export default class AddressSelect extends React.Component {
   static propTypes = {
     customerId: PropTypes.number.isRequired,
     name: PropTypes.string,
-    value: PropTypes.number,
+    initialValue: PropTypes.number,
     items: PropTypes.array,
     onItemSelect: PropTypes.func,
     className: PropTypes.string
@@ -18,7 +18,7 @@ export default class AddressSelect extends React.Component {
   constructor(...args) {
     super(...args);
     this.state = {
-      value: this.props.value
+      value: this.props.initialValue
     };
   }
 
