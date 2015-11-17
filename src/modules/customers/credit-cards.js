@@ -92,6 +92,17 @@ export function saveCreditCard(id) {
   };
 }
 
+export function toggleDefault(customerId, creditCardId) {
+  return (dispatch, getState) => {
+    dispatch(requestCustomerCreditCards(customerId));
+
+    Api.post(`/customers/${id}/payment-methods/credit-cards/${creditCardId}`, {isDefault: true})
+      .then(() => {
+        fetchForCustomer(id, dispatch);
+       }).catch(err => dispatch(failCustomerCreditCards(id, err)));
+  };
+}
+
 const initialState = {};
 
 const reducer = createReducer({
