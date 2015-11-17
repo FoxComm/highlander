@@ -23,12 +23,13 @@ export default class CustomerAccountStatus extends React.Component {
   };
 
   static customerInfo(customer) {
-    return (<ul className="fc-customer-disable-confirm-customer">
-
-    <li><strong>{customer.name}</strong></li>
-    <li>{customer.email}</li>
-    <li>{customer.phoneNumber}</li>
-    </ul>);
+    return (
+      <ul className="fc-customer-disable-confirm-customer">
+        <li><strong>{customer.name}</strong></li>
+        <li>{customer.email}</li>
+        <li>{customer.phoneNumber}</li>
+      </ul>
+    );
   }
 
   get disableOptions() {
@@ -36,21 +37,26 @@ export default class CustomerAccountStatus extends React.Component {
     if (customer.disabled) {
       return {
         header: 'Activate Customer Account',
-        body: (<div className="fc-customer-disable-confirm">
-          <div>Are you sure you want to active the account for the following customer?</div>
-        {CustomerAccountStatus.customerInfo(customer)}
-          <div>You can deactivate this account at anytime.</div>
-        </div>),
+        body: (
+          <div className="fc-customer-disable-confirm">
+            <div>Are you sure you want to active the account for the following customer?</div>
+            {CustomerAccountStatus.customerInfo(customer)}
+            <div>You can deactivate this account at anytime.</div>
+          </div>
+        ),
         confirm: 'Yes, Activate Account',
         cancel: 'Cancel'
       };
     } else {
       return {
         header: 'Deactivate Customer Account',
-        body: (<div className="fc-customer-disable-confirm">
-          <div>Are you sure you want to deactivate the account for the following customer?</div>
-        {CustomerAccountStatus.customerInfo(customer)}
-        <div>You can reactivate this account at anytime.</div></div>),
+        body: (
+          <div className="fc-customer-disable-confirm">
+            <div>Are you sure you want to deactivate the account for the following customer?</div>
+            {CustomerAccountStatus.customerInfo(customer)}
+            <div>You can reactivate this account at anytime.</div>
+          </div>
+        ),
         confirm: 'Yes, Deactivate Account',
         cancel: 'Cancel'
       };
@@ -62,21 +68,26 @@ export default class CustomerAccountStatus extends React.Component {
     if (customer.blacklisted) {
       return {
         header: 'Remove Customer From Blacklist',
-        body: (<div className="fc-customer-blacklist-confirm">
-          <div>Are you sure you want to remove the following customer from the Blacklist?</div>
-          {CustomerAccountStatus.customerInfo(customer)}
-          <div>You can place this customer on the Blacklist at anytime.</div>
-        </div>),
+        body: (
+          <div className="fc-customer-blacklist-confirm">
+            <div>Are you sure you want to remove the following customer from the Blacklist?</div>
+            {CustomerAccountStatus.customerInfo(customer)}
+            <div>You can place this customer on the Blacklist at anytime.</div>
+          </div>
+        ),
         confirm: 'Yes, Remove',
         cancel: 'Cancel'
       };
     } else {
       return {
         header: 'Blacklist Customer',
-        body: (<div className="fc-customer-blacklist-confirm">
-          <div>Are you sure you want to place the following custom on the Blacklist?</div>
-          {CustomerAccountStatus.customerInfo(customer)}
-          <div>You can take this customer off the Blacklist at anytime.</div></div>),
+        body: (
+          <div className="fc-customer-blacklist-confirm">
+            <div>Are you sure you want to place the following custom on the Blacklist?</div>
+            {CustomerAccountStatus.customerInfo(customer)}
+            <div>You can take this customer off the Blacklist at anytime.</div>
+          </div>
+        ),
         confirm: 'Yes, Blacklist',
         cancel: 'Cancel'
       };
