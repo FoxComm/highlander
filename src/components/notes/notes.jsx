@@ -129,7 +129,11 @@ export default class Notes extends React.Component {
     return rows;
   }
 
-
+  get controls() {
+    return (
+      <PrimaryButton icon="add" onClick={this.props.startAddingNote} disabled={!!this.props.isAddingNote } />
+    );
+  }
 
   get sectionClassName() {
     const entityType = this.props.entity.entityType;
@@ -139,7 +143,7 @@ export default class Notes extends React.Component {
   render() {
     return (
       <div className={this.sectionClassName} >
-        <SectionTitle className="fc-grid-gutter"
+        <SectionTitle className="fc-grid-gutter fc-notes-section-title"
                       title="Notes"
                       isPrimary={false}>{this.controls}</SectionTitle>
         <TableView
