@@ -1,23 +1,8 @@
 import React, { PropTypes } from 'react';
-import classnames from 'classnames';
-
-const SubTitle = props => {
-  if (props.subtitle) {
-    return (
-      <span className="fc-section-title-subtitle fc-light">
-        &nbsp;
-        { props.subtitle }
-      </span>
-    );
-  }
-};
-
-SubTitle.propTypes = {
-  subtitle: PropTypes.node
-};
+import SubTitle from './subtitle';
 
 const Title = props => {
-  const titleClass = props.isPrimary ? 'fc-section-title-primary' : 'fc-section-title-secondary'
+  const titleClass = props.isPrimary ? 'fc-section-title-primary' : 'fc-section-title-secondary';
   return (
     <h1 className={ titleClass } >
       { props.title }

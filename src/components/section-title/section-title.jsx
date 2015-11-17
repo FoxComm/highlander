@@ -25,6 +25,7 @@ const SectionTitle = props => {
 SectionTitle.propTypes = {
   title: PropTypes.node,
   subtitle: PropTypes.node,
+  addTitle: PropTypes.node,
   onAddClick: PropTypes.func,
   children: PropTypes.node,
   className: PropTypes.string,
@@ -33,6 +34,6 @@ SectionTitle.propTypes = {
 
 SectionTitle.defaultProps = {
   isPrimary: true
-}
+};
 
 export default SectionTitle;
