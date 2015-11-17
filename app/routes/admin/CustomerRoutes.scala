@@ -125,8 +125,8 @@ object CustomerRoutes {
           }
         } ~
         pathPrefix("payment-methods" / "credit-cards") {
-          (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            goodOrFailures {
+          (get & pathEnd) {
+            complete {
               CreditCardManager.creditCardsInWalletFor(customerId)
             }
           } ~
