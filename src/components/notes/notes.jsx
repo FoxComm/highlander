@@ -66,8 +66,8 @@ export default class Notes extends React.Component {
 
   static defaultProps = {
     tableColumns: [
-      {field: 'createdAt', text: 'Date/Type'},
-      {field: 'body', text: 'Body'},
+      {field: 'createdAt', text: 'Date/Time'},
+      {field: 'body', text: 'Note'},
       {field: 'author', text: 'Author'}
     ]
   };
