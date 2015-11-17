@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import classnames from 'classnames';
 
 const SubTitle = props => {
   if (props.subtitle) {
@@ -16,8 +17,9 @@ SubTitle.propTypes = {
 };
 
 const Title = props => {
+  const titleClass = props.isPrimary ? 'fc-section-title-primary' : 'fc-section-title-secondary'
   return (
-    <h1 className="fc-section-title-title">
+    <h1 className={ titleClass } >
       { props.title }
       { SubTitle(props) }
     </h1>
@@ -26,7 +28,8 @@ const Title = props => {
 
 Title.propTypes = {
   title: PropTypes.string,
-  subtitle: PropTypes.node
+  subtitle: PropTypes.node,
+  isPrimary: PropTypes.bool
 };
 
 export default Title;

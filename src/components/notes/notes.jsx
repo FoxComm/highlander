@@ -144,7 +144,9 @@ export default class Notes extends React.Component {
   render() {
     return (
       <div className={this.sectionClassName} >
-        <SectionTitle className="fc-grid-gutter" title="Notes">{this.controls}</SectionTitle>
+        <SectionTitle className="fc-grid-gutter"
+                      title="Notes"
+                      isPrimary={false}>{this.controls}</SectionTitle>
         <TableView
           renderRow={this.renderNoteRow}
           processRows={this.injectAddingForm}

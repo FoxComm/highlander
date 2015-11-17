@@ -8,7 +8,7 @@ const SectionTitle = props => {
   return (
     <div className={ classNames('fc-grid fc-section-title', props.className) }>
       <div className="fc-col-md-2-6">
-        <Title title={ props.title } subtitle={ props.subtitle } />
+        <Title title={ props.title } subtitle={ props.subtitle } isPrimary={ props.isPrimary } />
       </div>
       <div className="fc-col-md-2-6 fc-push-md-2-6 fc-section-title-actions">
         {props.onAddClick && (
@@ -27,7 +27,12 @@ SectionTitle.propTypes = {
   subtitle: PropTypes.node,
   onAddClick: PropTypes.func,
   children: PropTypes.node,
-  className: PropTypes.string
+  className: PropTypes.string,
+  isPrimary: PropTypes.bool
 };
+
+SectionTitle.defaultProps = {
+  isPrimary: true
+}
 
 export default SectionTitle;
