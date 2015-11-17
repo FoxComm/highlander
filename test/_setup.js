@@ -21,3 +21,5 @@ global.later = function(func) {
     });
   };
 };
+
+global.phoenixUrl = 'https://api.foxcommerce/';

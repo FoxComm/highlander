@@ -7,10 +7,10 @@ import Title from './title';
 const SectionTitle = props => {
   return (
     <div className={ classNames('fc-grid fc-section-title', props.className) }>
-      <div className="fc-col-md-2-6">
+      <div className="fc-col-md-2-3">
         <Title title={ props.title } subtitle={ props.subtitle } isPrimary={ props.isPrimary } />
       </div>
-      <div className="fc-col-md-2-6 fc-push-md-2-6 fc-section-title-actions">
+      <div className="fc-col-md-1-3 fc-section-title-actions">
         {props.onAddClick && (
           <PrimaryButton icon="add" onClick={props.onAddClick}>
             {props.addTitle}

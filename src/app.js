@@ -8,6 +8,9 @@ import routes from './routes';
 import { Provider } from 'react-redux';
 import configureStore from './store';
 import { addRouteLookupForHistory } from './route-helpers';
+import _ from 'lodash';
+
+_.mixin({'flatMap': _.compose(_.flatten, _.map) });
 
 const createHistory = addRouteLookupForHistory(_createHistory, routes);
 const createMemoryHistory = addRouteLookupForHistory(_createMemoryHistory, routes);

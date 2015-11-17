@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import Api from '../../lib/api';
+import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 import { haveType } from '../state-helpers';
 
@@ -9,9 +10,9 @@ const failCustomer = createAction('CUSTOMER_FAIL', (id, err, source) => [id, err
 const requestCustomer = createAction('CUSTOMER_REQUEST');
 const updateCustomer = createAction('CUSTOMER_UPDATED', (id, customer) => [id, customer]);
 const receiveCustomerAdresses = createAction('CUSTOMER_ADDRESSES_RECEIVE', (id, addresses) => [id, addresses]);
-const receiveCustomerCreditCards = createAction('CUSTOMER_CREDIT_CARDS_RECEIVE', (id, cards) => [id, cards]);
+
 const requestCustomerAdresses = createAction('CUSTOMER_ADDRESSES_REQUEST');
-const requestCustomerCreditCards = createAction('CUSTOMER_CREDIT_CARDS_REQUEST');
+
 
 export function fetchCustomer(id) {
   return dispatch => {
@@ -30,7 +31,7 @@ export function editCustomer(id, data) {
   };
 }
 
-export function fetchAdresses(id) {
+export function fetchAddresses(id) {
   return dispatch => {
     dispatch(requestCustomerAdresses(id));
 
@@ -40,102 +41,46 @@ export function fetchAdresses(id) {
   };
 }
 
-export function fetchCreditCards(id) {
-  return dispatch => {
-    dispatch(requestCustomerCreditCards(id));
-
-    Api.get(`/customers/${id}/payment-methods/credit-cards`)
-      .then(cards => dispatch(receiveCustomerCreditCards(id, cards)))
-      .catch(err => dispatch(failCustomer(id, err, fetchCustomer)));
-  };
-}
-
 const initialState = {};
 
 const reducer = createReducer({
   [requestCustomer]: (entries, id) => {
-    return {
-      ...entries,
-      [id]: {
-        ...entries[id],
-        isFetching: true,
-        err: null
-      }
-    };
+    return assoc(entries,
+      [id, 'isFetching'], true,
+      [id, 'err'], null
+    );
   },
   [receiveCustomer]: (state, [id, details]) => {
-    return {
-      ...state,
-      [id]: {
-        err: null,
-        isFetching: false,
-        details: haveType(details, 'customer')
-      }
-    };
+    return assoc(state,
+      [id, 'err'], null,
+      [id, 'isFetching'], false,
+      [id, 'details'], haveType(details, 'customer')
+    );
   },
   [failCustomer]: (state, [id, err, source]) => {
     console.error(err);
 
-    return {
-      ...state,
-      [id]: {
-        ...state[id],
-        err,
-        ...(
-          source === fetchCustomer ? {isFetching: false} : {}
-        )
-      }
-    };
+    return assoc(state,
+      [id, 'err'], err,
+      [id, 'isFetching'], false
+    );
   },
   [updateCustomer]: (state, [id, details]) => {
-    return {
-      ...state,
-      [id]: {
-        ...state[id],
-        err: null,
-        details
-      }
-    };
+    return assoc(state,
+      [id, 'details'], details,
+      [id, 'err'], null
+    );
   },
   [requestCustomerAdresses]: (state, id) => {
-    return {
-      ...state,
-      [id]: {
-        ...state[id],
-        isFetchingAddresses: true
-      }
-    };
-  },
-  [requestCustomerCreditCards]: (state, id) => {
-    return {
-      ...state,
-      [id]: {
-        ...state[id],
-        isFetchingCards: true
-      }
-    };
+    return assoc(state, [id, 'isFetchingAddresses'], true);
   },
   [receiveCustomerAdresses]: (state, [id, payload]) => {
     const addresses = _.get(payload, 'result', []);
-    return {
-      ...state,
-      [id]: {
-        ...state[id],
-        isFetchingAddresses: false,
-        addresses
-      }
-    };
-  },
-  [receiveCustomerCreditCards]: (state, [id, payload]) => {
-    const cards = _.get(payload, 'result', []);
-    return {
-      ...state,
-      [id]: {
-        ...state[id],
-        isFetchingCards: false,
-        cards
-      }
-    };
+
+    return assoc(state,
+      [id, 'isFetchingAddresses'], false,
+      [id, 'addresses'], addresses
+    );
   }
 }, initialState);
 

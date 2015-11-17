@@ -1,0 +1,30 @@
+.fc-address-select {
+  .clearfix();
+
+  &-header {
+    .clearfix();
+    .margin-bottom(10px);
+    .font-spec(16px, 600, 40px);
+  }
+
+  &-body {
+    width: 100%;
+    max-height: pxtorem(350px);
+    overflow-y: auto;
+    background: @color-white;
+  }
+
+  &-item {
+    .margin-bottom(10px);
+    background: @color-white;
+    .padding(20px 10px);
+  }
+
+  &-item-controlls {
+    text-align: center;
+  }
+
+  .fc-address-details {
+    height: inherit;
+  }
+}

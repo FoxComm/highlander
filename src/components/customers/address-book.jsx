@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import ContentBox from '../content-box/content-box';
 import AddressBox from '../addresses/address-box';
+import { AddButton } from '../common/buttons';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import * as CustomersActions from '../../modules/customers/details';
@@ -12,21 +13,13 @@ export default class CustomerAddressBook extends React.Component {
 
   static propTypes = {
     customerId: PropTypes.number.isRequired,
-    fetchAdresses: PropTypes.func,
+    fetchAddresses: PropTypes.func,
     addresses: PropTypes.array
-  }
-
-  componentDidMount() {
-    const customer = this.props.customerId;
-
-    this.props.fetchAdresses(customer);
   }
 
   get actionBlock() {
     return (
-      <button className="fc-btn">
-        <i className="icon-add"></i>
-      </button>
+      <AddButton />
     );
   }
 
