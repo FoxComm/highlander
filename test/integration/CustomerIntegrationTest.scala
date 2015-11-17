@@ -266,6 +266,13 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
       response.as[CustomerResponse.Root].disabled must === (true)
     }
+
+    "fails if customer not found" in new Fixture {
+      val response = POST(s"$uriPrefix/999/disable", payloads.ToggleCustomerDisabled(true))
+
+      response.status must === (StatusCodes.NotFound)
+      response.errors must === (NotFoundFailure404(Customer, 999).description)
+    }
   }
 
   "POST /v1/customers/:customerId/blacklist" - {
@@ -276,6 +283,13 @@ class CustomerIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.OK)
 
       response.as[CustomerResponse.Root].blacklisted must === (true)
+    }
+
+    "fails if customer not found" in new Fixture {
+      val response = POST(s"$uriPrefix/999/blacklist", payloads.ToggleCustomerBlacklisted(true))
+
+      response.status must === (StatusCodes.NotFound)
+      response.errors must === (NotFoundFailure404(Customer, 999).description)
     }
   }
 
