@@ -18,6 +18,8 @@ import Order._
 import utils.{RemorseTimer, Tick}
 import models.OrderLockEvents.scope._
 import org.json4s.jackson.JsonMethods._
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 
 import utils.time._
 
@@ -615,20 +617,14 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
   }
 
-  "adding a shipping method method to an order" - {
+  "adding a shipping method to an order" - {
     "succeeds if the order meets the shipping restrictions" in new ShippingMethodFixture {
       val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-method",
         payloads.UpdateShippingMethod(shippingMethodId = lowShippingMethod.id))
       val fullOrder = response.as[FullOrder.Root]
 
       response.status must === (StatusCodes.OK)
-      fullOrder.shippingMethod match {
-        case Some(sm) ⇒
-          sm.name must === (lowShippingMethod.adminDisplayName)
-
-        case None ⇒
-          fail("Full order should have a shipping method")
-      }
+      fullOrder.shippingMethod.value.name must === (lowShippingMethod.adminDisplayName)
 
       val orderShippingMethod = OrderShippingMethods.findByOrderId(order.id).result.run().futureValue.head
       orderShippingMethod.orderId must === (order.id)
@@ -654,6 +650,21 @@ class OrderIntegrationTest extends IntegrationTestBase
         payloads.UpdateShippingMethod(shippingMethodId = inactiveShippingMethod.id))
 
       response.status must === (StatusCodes.BadRequest)
+    }
+  }
+
+  "updating a shipping method on an order" - {
+    "succeeds if the order meets the shipping restrictions" in new OrderShippingMethodFixture {
+      val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-method",
+        payloads.UpdateShippingMethod(shippingMethodId = lowShippingMethod.id))
+      val fullOrder = response.as[FullOrder.Root]
+
+      response.status must === (StatusCodes.OK)
+      fullOrder.shippingMethod.value.name must === (lowShippingMethod.adminDisplayName)
+
+      val orderShippingMethod = OrderShippingMethods.findByOrderId(order.id).result.run().futureValue.headOption.value
+      orderShippingMethod.orderId must === (order.id)
+      orderShippingMethod.shippingMethodId must === (lowShippingMethod.id)
     }
   }
 
@@ -726,6 +737,14 @@ class OrderIntegrationTest extends IntegrationTestBase
     } yield (lowShippingMethod, inactiveShippingMethod, highShippingMethod)).run().futureValue
   }
 
+  trait OrderShippingMethodFixture extends ShippingMethodFixture {
+    val shipment = (for {
+      orderShipMethod ← * <~ OrderShippingMethods.create(
+        OrderShippingMethod(orderId = order.id, shippingMethodId = highShippingMethod.id))
+      shipment ← * <~ Shipments.create(Shipment(orderId = order.id, orderShippingMethodId = Some(orderShipMethod.id)))
+    } yield shipment).value.run().futureValue
+  }
+
   trait RemorseFixture {
     val (admin, order) = (for {
       admin ← StoreAdmins.saveNew(Factories.storeAdmin)
@@ -746,4 +765,3 @@ class OrderIntegrationTest extends IntegrationTestBase
     } yield (cc, op, ccc)).run().futureValue
   }
 }
-
