@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import Api from '../../lib/api';
+import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 import { haveType } from '../state-helpers';
 
@@ -44,68 +45,42 @@ const initialState = {};
 
 const reducer = createReducer({
   [requestCustomer]: (entries, id) => {
-    return {
-      ...entries,
-      [id]: {
-        ...entries[id],
-        isFetching: true,
-        err: null
-      }
-    };
+    return assoc(entries,
+      [id, 'isFetching'], true,
+      [id, 'err'], null
+    );
   },
   [receiveCustomer]: (state, [id, details]) => {
-    return {
-      ...state,
-      [id]: {
-        err: null,
-        isFetching: false,
-        details: haveType(details, 'customer')
-      }
-    };
+    return assoc(state,
+      [id, 'err'], null,
+      [id, 'isFetching'], false,
+      [id, 'details'], haveType(details, 'customer')
+    );
   },
   [failCustomer]: (state, [id, err, source]) => {
     console.error(err);
 
-    return {
-      ...state,
-      [id]: {
-        ...state[id],
-        err,
-        ...(
-          source === fetchCustomer ? {isFetching: false} : {}
-        )
-      }
-    };
+    return assoc(state,
+      [id, 'err'], err,
+      [id, 'isFetching'], false
+    );
   },
   [updateCustomer]: (state, [id, details]) => {
-    return {
-      ...state,
-      [id]: {
-        ...state[id],
-        err: null,
-        details
-      }
-    };
+    return assoc(state,
+      [id, 'details'], details,
+      [id, 'err'], null
+    );
   },
   [requestCustomerAdresses]: (state, id) => {
-    return {
-      ...state,
-      [id]: {
-        ...state[id],
-        isFetchingAddresses: true
-      }
-    };
+    return assoc(state, [id, 'isFetchingAddresses'], true);
   },
   [receiveCustomerAdresses]: (state, [id, payload]) => {
     const addresses = _.get(payload, 'result', []);
-    return {
-      ...state,
-      [id]: {
-        ...state[id],
-        isFetchingAddresses: false,
-        addresses
-      }
-    };
+
+    return assoc(state,
+      [id, 'isFetchingAddresses'], false,
+      [id, 'addresses'], addresses
+    );
   }
 }, initialState);
 

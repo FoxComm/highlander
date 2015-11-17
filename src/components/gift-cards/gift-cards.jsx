@@ -28,8 +28,8 @@ export default class GiftCards extends React.Component {
       {field: 'originalBalance', text: 'Original Balance', type: 'currency'},
       {field: 'currentBalance', text: 'Current Balance', type: 'currency'},
       {field: 'availableBalance', text: 'Available Balance', type: 'currency'},
-      {field: 'status', text: 'Status'},
-      {field: 'createdAt', text: 'Date Issued', type: 'date'}
+      {field: 'status', text: 'State'},
+      {field: 'createdAt', text: 'Date/Time Issued', type: 'date'}
     ]
   };
 

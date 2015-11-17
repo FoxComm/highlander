@@ -25,6 +25,14 @@ describe('Currency', function() {
     );
   });
 
+  it('should render correct negative value', function() {
+    expect(
+      Currency({value: -123, base: 100, currency: '$'}),
+      'to equal',
+      <span className="fc-currency">-$1.23</span>
+    );
+  });
+
   it('should render value with delimiter', function() {
     expect(
       Currency({value: 1234567890, base: 100, currency: '$'}),
