@@ -7,31 +7,26 @@ import models.Order.{Canceled, _}
 import models.{Order, OrderLineItem, OrderLineItems, Orders}
 import responses.ResponseWithFailuresAndMetadata.BulkOrderUpdateResponse
 import responses.{FullOrder, ResponseWithFailuresAndMetadata}
-import services._
+import services.{Result, StatusTransitionNotAllowed, NotFoundFailure400, LockedFailure, Failures}
+import services.orders.Helpers._
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives
 import utils.CustomDirectives.SortAndPage
 import utils.Slick.implicits._
 import utils.Slick.{DbResult, _}
+import utils.DbResultT.*
+import utils.DbResultT.implicits._
 
 object OrderStatusUpdater {
 
   def updateStatus(refNum: String, newStatus: Order.Status)
-    (implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
-    val finder = Orders.findByRefNum(refNum)
-    finder.selectOneForUpdate { order ⇒
-      updateStatusesDbio(Seq(refNum), newStatus).flatMap {
-        case Xor.Right(_) ⇒
-          DbResult.fromDbio(fullOrder(finder))
-        case Xor.Left(failures) ⇒
-          val fs = failures.toList.map {
-            case NotFoundFailure400(msg) ⇒ NotFoundFailure404(msg)
-            case anyOtherFailure ⇒ anyOtherFailure
-          }
-          DbResult.failures(Failures(fs: _*))
-      }
-    }
-  }
+    (implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = (for {
+
+    order     ← * <~ mustFindOrderByRefNum(refNum)
+    _         ← * <~ updateStatusesDbio(Seq(refNum), newStatus)
+    updated   ← * <~ mustFindOrderByRefNum(refNum)
+    response  ← * <~ FullOrder.fromOrder(updated).toXor
+  } yield response).value.transactionally.run()
 
   // TODO: transfer sorting-paging metadata
   def updateStatuses(refNumbers: Seq[String], newStatus: Order.Status)

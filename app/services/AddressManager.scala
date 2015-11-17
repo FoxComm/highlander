@@ -54,14 +54,14 @@ object AddressManager {
   def get(customerId: Int, addressId: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
 
-    address ← * <~ Addresses.findByIdAndCustomer(addressId, customerId).mustFindOr { addressNotFound(addressId) }
+    address ← * <~ Addresses.findByIdAndCustomer(addressId, customerId).mustFindOr(addressNotFound(addressId))
     region  ← * <~ Regions.mustFindById(address.regionId)
   }  yield Response.build(address, region, address.isDefaultShipping.some)).value.run()
 
   def remove(customerId: Int, addressId: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Unit] = (for {
 
-    address     ← * <~ Addresses.findByIdAndCustomer(addressId, customerId).mustFindOr { addressNotFound(addressId) }
+    address     ← * <~ Addresses.findByIdAndCustomer(addressId, customerId).mustFindOr(addressNotFound(addressId))
     softDelete  ← * <~ address.updateTo(address.copy(deletedAt = Instant.now.some, isDefaultShipping = false))
     updated     ← * <~ Addresses.update(address, softDelete)
   } yield {}).value.run()

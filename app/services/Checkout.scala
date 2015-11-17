@@ -31,24 +31,21 @@ import utils.DbResultT.implicits._
   6) Create new cart for customer
  */
 final case class Checkout(cart: Order, cartValidator: CartValidation)(implicit db: Database, ec: ExecutionContext) {
-  def checkout: Result[Order] = {
-    cartValidator.validate.flatMap {
-      case Xor.Left(f) ⇒
-        Result.failures(f)
+  def checkout: Result[Order] = (for {
+    validated ← ResultT(cartValidator.validate)
 
-      case Xor.Right(resp) if resp.warnings.nonEmpty ⇒
-        Result.failures(resp.warnings: _*)
+    response  ← if (validated.warnings.nonEmpty)
+      ResultT(Result.failures(validated.warnings: _*)): ResultT[Order]
+    else
+      ResultT((for {
+        _ ← checkInventory
+        _ ← activePromos
+        _ ← authPayments
+        _ ← remorseHold
+        order ← createNewCart
+      } yield order).transactionally.run())
 
-      case Xor.Right(_) ⇒
-        (for {
-          _ ← checkInventory
-          _ ← activePromos
-          _ ← authPayments
-          _ ← remorseHold
-          order ← createNewCart
-        } yield order).transactionally.run()
-    }
-  }
+  } yield response).value
 
   private def checkInventory: DbResult[Unit] = DbResult.unit
 
@@ -86,21 +83,19 @@ final case class Checkout(cart: Order, cartValidator: CartValidation)(implicit d
     }
   }
 
-  private def remorseHold: DbResult[Order] = {
-    (for {
-      remorseHold ← * <~ cart.updateTo(cart.copy(status = RemorseHold, placedAt = Instant.now.some))
+  private def remorseHold: DbResult[Order] = (for {
+    remorseHold ← * <~ cart.updateTo(cart.copy(status = RemorseHold, placedAt = Instant.now.some))
 
-      newCart ← * <~ Orders.update(cart, remorseHold)
+    newCart ← * <~ Orders.update(cart, remorseHold)
 
-      onHoldGcs ← * <~ (for {
-        items ← OrderLineItemGiftCards.findByOrderId(cart.id).result
-        holds ← GiftCards
-          .filter(_.id.inSet(items.map(_.giftCardId)))
-          .map(_.status).update(GiftCard.OnHold)
-      } yield holds).toXor
+    onHoldGcs ← * <~ (for {
+      items ← OrderLineItemGiftCards.findByOrderId(cart.id).result
+      holds ← GiftCards
+        .filter(_.id.inSet(items.map(_.giftCardId)))
+        .map(_.status).update(GiftCard.OnHold)
+    } yield holds).toXor
 
-    } yield newCart).value
-  }
+  } yield newCart).value
 
   private def createNewCart: DbResult[Order] =
     Orders.create(Order.buildCart(cart.customerId))

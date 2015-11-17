@@ -40,6 +40,12 @@ object Note {
   }
 
   implicit val noteColumnType: JdbcType[ReferenceType] with BaseTypedType[ReferenceType] = ReferenceType.slickColumn
+
+  def forOrder(orderId: Int, adminId: Int, payload: payloads.CreateNote): Note = Note(
+    storeAdminId = adminId,
+    referenceId = orderId,
+    referenceType = Note.Order,
+    body = payload.body)
 }
 
 class Notes(tag: Tag) extends GenericTable.TableWithId[Note](tag, "notes")  {

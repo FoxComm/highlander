@@ -107,10 +107,10 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.
       .validate
       .toXor
 
-  def deleteById[A](id: M#Id, onSuccess: ⇒ DbResult[A], onFailure: ⇒ DbResult[A])
+  def deleteById[A](id: M#Id, onSuccess: ⇒ DbResult[A], onFailure: M#Id ⇒ Failure)
     (implicit ec: ExecutionContext): DbResult[A] = {
     val deleteResult = findById(id).delete.flatMap {
-      case 0 ⇒ onFailure
+      case 0 ⇒ DbResult.failure(onFailure(id))
       case _ ⇒ onSuccess
     }
     wrapDbResult(deleteResult)

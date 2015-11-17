@@ -4,6 +4,7 @@ import java.time.Instant
 
 import cats.data.Validated.valid
 import cats.data.{Xor, ValidatedNel}
+import Xor.{left, right}
 import services.CartFailures.OrderMustBeCart
 import services._
 
@@ -63,7 +64,11 @@ final case class Order(id: Int = 0, referenceNumber: String = "", customerId: In
     case _ ⇒ None
   }
 
-  def mustBeCart: Failures Xor Order = if (isCart) Xor.Right(this) else Xor.Left(OrderMustBeCart(this.refNum).single)
+  def mustBeCart: Failures Xor Order =
+    if (isCart) right(this) else left(OrderMustBeCart(this.refNum).single)
+
+  def mustBeRemorseHold: Failures Xor Order =
+    if (status == RemorseHold) right(this) else left(GeneralFailure("Order is not in RemorseHold status").single)
 }
 
 object Order {
@@ -131,6 +136,9 @@ object Orders extends TableQueryWithLock[Order, Orders](
 
   def findByRefNum(refNum: String): QuerySeq =
     filter(_.referenceNumber === refNum)
+
+  def findOneByRefNum(refNum: String): DBIO[Option[Order]] =
+    filter(_.referenceNumber === refNum).one
 
   def findCartByRefNum(refNum: String): QuerySeq =
     findByRefNum(refNum).cartOnly

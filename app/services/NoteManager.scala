@@ -9,19 +9,25 @@ import models._
 import responses.AdminNotes
 import responses.AdminNotes.Root
 import slick.driver.PostgresDriver.api._
+import services.orders._
+import utils.DbResultT.DbResultT
 import utils.Slick.DbResult
 import utils.Slick.implicits._
 import utils.ModelWithIdParameter
 import models.Notes.scope._
 
+import utils.DbResultT.*
+import utils.DbResultT.implicits._
+import services.orders.Helpers._
+
 object NoteManager {
 
   def createOrderNote(refNum: String, author: StoreAdmin, payload: payloads.CreateNote)
-    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
-    Orders.findByRefNum(refNum).selectOne { order ⇒
-      createModelNote(order.id, Note.Order, author, payload)
-    }
-  }
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
+
+    order ← * <~ mustFindOrderByRefNum(refNum)
+    note  ← * <~ Notes.create(Note.forOrder(order.id, author.id, payload))
+  } yield AdminNotes.build(note, author)).value.run()
 
   def createGiftCardNote(code: String, author: StoreAdmin, payload: payloads.CreateNote)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
