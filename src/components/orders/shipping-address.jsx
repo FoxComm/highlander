@@ -1,7 +1,7 @@
 
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
-import { EditButton, PrimaryButton } from '../common/buttons';
+import { EditButton, PrimaryButton, AddButton } from '../common/buttons';
 import Addresses from '../addresses/addresses';
 import AddressDetails from '../addresses/address-details';
 import * as OrdersActions from '../../modules/orders/list';
@@ -58,11 +58,17 @@ export default class OrderShippingAddress extends React.Component {
 
   get editContent() {
     return (
-      <div className="fc-tableview">
-        <Addresses
-          {...this.props}
-          onSelectAddress={this.onSelectAddress.bind(this)}
-        />
+      <div>
+        <header className="fc-shipping-address-header">
+          <h3>Address Book</h3>
+          <AddButton onClick={this.props.startAddingAddress}></AddButton>
+        </header>
+        <div className="fc-tableview">
+          <Addresses
+            {...this.props}
+            onSelectAddress={this.onSelectAddress.bind(this)}
+          />
+        </div>
       </div>
     );
   }
@@ -76,7 +82,7 @@ export default class OrderShippingAddress extends React.Component {
 
     return (
       <EditableContentBox
-        className='fc-order-shipping-address'
+        className='fc-shipping-address'
         title="Shipping Address"
         isTable={false}
         isEditing={props.isEditing}
