@@ -2,7 +2,7 @@ import _ from 'lodash';
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 import { haveType } from '../state-helpers';
-import { assoc, update, deepMerge } from 'sprout-data';
+import { assoc } from 'sprout-data';
 
 
 const receiveCustomer = createAction('CUSTOMER_RECEIVE', (id, customer) => [id, customer]);
@@ -119,14 +119,14 @@ const reducer = createReducer({
     return assoc(state, [id, 'isFetchingStatus'], true);
   },
   [receivedDisableStatus]: (state, [id, customer]) => {
-    return update(state, id, deepMerge, {
-      isFetchingStatus: false,
-      details: {disabled: customer.disabled}});
+    return assoc(state,
+      [id, 'isFetchingStatus'], false,
+      [id, 'details', 'disabled'],  customer.disabled);
   },
   [receivedBlacklisted]: (state, [id, customer]) => {
-    return update(state, id, deepMerge, {
-      isFetchingStatus: false,
-      details: {blacklisted: customer.blacklisted}});
+    return assoc(state,
+      [id, 'isFetchingStatus'], false,
+      [id, 'details', 'blacklisted'],  customer.blacklisted);
   },
   [failChangeStatus]: (state, [id, err]) => {
     console.error(err);
