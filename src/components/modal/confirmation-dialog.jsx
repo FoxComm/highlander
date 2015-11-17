@@ -8,47 +8,27 @@ import { PrimaryButton } from '../common/buttons';
 const ConfirmationDialog = props => {
   let modalIcon = null;
   if (props.icon) {
-    modalIcon = <i className='icon-{props.icon}' />;
+    modalIcon = <i className={ `icon-${props.icon}` } />;
   }
 
-  let children = (
-    <div className='fc-modal-confirm'>
-    <div className='fc-modal-header'>
+  const title = (
+    <div>
       <div className='fc-modal-icon'>
         {modalIcon}
       </div>
       <div className='fc-modal-title'>{props.header}</div>
-      <a className='fc-modal-close' onClick={() => props.cancelAction()}>
-        <i className='icon-close'></i>
-      </a>
     </div>
-
-  </div>
   );
 
-  let testBlock = (
+  const actionBlock = (
     <a className='fc-modal-close' onClick={() => props.cancelAction()}>
       <i className='icon-close'></i>
     </a>
   );
 
-  let footer = (
-    <div>
-      <a tabIndex="2" className='fc-modal-close' onClick={() => props.cancelAction()}>
-        {props.cancel}
-      </a>
-      <PrimaryButton tabIndex="1" autoFocus={true}
-                     onClick={() => props.confirmAction()}
-                     onKeyUp={({keyCode}) => keyCode === 27 && props.cancelAction()}
-      >
-        {props.confirm}
-      </PrimaryButton>
-    </div>
-  );
-
   return (
     <ModalContainer {...props}>
-      <ContentBox title={props.header} actionBlock={testBlock}>
+      <ContentBox title={title} actionBlock={actionBlock}>
         <div className='fc-modal-body'>
           {props.body}
         </div>

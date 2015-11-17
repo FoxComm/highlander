@@ -109,6 +109,7 @@ export default class CustomerAccountStatus extends React.Component {
         <ConfirmationDialog
           {...this.disableOptions}
           isVisible={this.props.isDisablingStarted}
+
           confirmAction={() => {
             const customer = this.props.customer;
             this.props.toggleDisableStatus(customer.id, !customer.disabled);

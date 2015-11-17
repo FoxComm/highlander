@@ -17,21 +17,38 @@
     max-width: 50vw;
     .border-radius(5px);
     background-color: @color-white;
-    > .fc-content-box {
-      margin-bottom: 0;
+
+    .fc-modal-icon {
+      vertical-align: middle;
+      display: inline-block;
+    }
+
+    .fc-modal-title {
+      vertical-align: middle;
+      display: inline-block;
+    }
+
+    .fc-content-box > .fc-content-box-content {
+      .margin-bottom(20px);
     }
   }
 
-  .fc-content-box {
-    background-color: @color-white;
-  }
 
-  a {
+  a.fc-modal-close {
     cursor: pointer;
+    display: inline-block;
+    text-decoration: underline;
+    vertical-align: baseline;
+  }
+  button {
+    display: inline-block;
+    vertical-align: baseline;
+    .margin-left(40px);
   }
 
   &-footer {
     text-align: right;
     .margin(20px);
+    .margin-top(50px);
   }
 }
