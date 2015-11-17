@@ -11,11 +11,15 @@
   background: rgba(0, 0, 0, 0.5);
   z-index: 1000;
 
+
   &-container {
     margin: auto;
     max-width: 50vw;
     .border-radius(5px);
     background-color: @color-white;
+    > .fc-content-box {
+      margin-bottom: 0;
+    }
   }
 
   .fc-content-box {
@@ -26,47 +30,8 @@
     cursor: pointer;
   }
 
-  &-header {
-    border-bottom: 1px solid @color-border;
-    white-space: nowrap;
-    > div {
-      vertical-align: middle;
-      display: inline-block;
-      .padding(5px);
-      .fc-modal-icon {
-        border-right: 1px solid @color-border;
-      }
-    }
-    .fc-modal-title {
-      .padding-left(20px);
-      .line-height(28px);
-    }
-    .fc-modal-close {
-      position: absolute;
-      .top(10px);
-      .right(20px);
-      .font-spec(20px);
-    }
-    i {
-      .font-spec(28px);
-    }
-  }
-
-  &-body {
-    .margin(20px);
-  }
-
-  &-confirm {
-    border: 1px solid @color-border;
-    border-radius: 5px;
-    box-shadow: 0 0 3px 0 rgba(0, 0, 0, 0.25);
-    .min-width(350px);
-    background-color: @color-decor0;
-  }
-
-
   &-footer {
     text-align: right;
-    .padding(20px);
+    .margin(20px);
   }
 }
