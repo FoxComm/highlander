@@ -1,5 +1,8 @@
 package services
 
+import models.inventory._
+import java.time.Instant
+
 import cats.data.Xor
 import models._
 import utils.Seeds.Factories
@@ -28,19 +31,33 @@ class LineItemUpdaterTest extends IntegrationTestBase {
     db.run(insert).futureValue
   }
 
-  def createInventory(skuId: Int, availableOnHand: Int = 100): Unit = {
-    val summary = InventorySummary(id = 0, skuId = skuId, availableOnHand = availableOnHand, availablePreOrder = 0,
-                                   availableBackOrder = 0, outstandingPreOrders = 0, outstandingBackOrders = 0)
-    InventorySummaries.create(summary).run().futureValue.rightVal
+  def createDefaultWarehouse() : Warehouse = 
+    Warehouses.saveNew(Factories.warehouse).run().futureValue
+
+  def createInventory(warehouseId: Int, skuId: Int, onHand: Int = 100): Unit = {
+    val summary = InventorySummary(
+      id = 0, 
+      warehouseId = warehouseId,
+      skuId = skuId, 
+      onHand = onHand, 
+      onHold = 0, 
+      reserved = 0, 
+      nonSellable = 0,
+      safetyStock = 0, 
+      updatedAt = Instant.now())
+
+    InventorySummaries.saveNew(summary).run().futureValue
   }
 
   "LineItemUpdater" - {
 
     "Adds line_items when the sku doesn't exist in order" in {
       val order = Orders.create(Order(customerId = 1)).run().futureValue.rightVal
+      val warehouse = createDefaultWarehouse()
+      createDefaultWarehouse()
       createSkusAndLinks(2, order)
-      createInventory(1, 100)
-      createInventory(2, 100)
+      createInventory(warehouse.id, 1, 100)
+      createInventory(warehouse.id, 2, 100)
 
       val payload = Seq[Payload](
         Payload(sku = "1", quantity = 3),
@@ -64,10 +81,11 @@ class LineItemUpdaterTest extends IntegrationTestBase {
 
     "Updates line_items when the Sku already is in order" in {
       val order = Orders.create(Order(customerId = 1)).run().futureValue.rightVal
+      val warehouse = createDefaultWarehouse()
       createSkusAndLinks(3, order)
-      createInventory(1, 100)
-      createInventory(2, 100)
-      createInventory(3, 100)
+      createInventory(warehouse.id, 1, 100)
+      createInventory(warehouse.id, 2, 100)
+      createInventory(warehouse.id, 3, 100)
       val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { linkId ⇒
         OrderLineItem(id = 0, orderId = 1, originId = linkId, originType = OrderLineItem.SkuItem)
       }

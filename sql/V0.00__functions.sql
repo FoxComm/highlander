@@ -25,22 +25,6 @@ begin
 end;
 $$ language plpgsql;
 
-create function update_inventory_summaries() returns trigger as $$
-declare
-    reserved_for_fulfillment integer default 0;
-begin
-    reserved_for_fulfillment := new.reserved_for_fulfillment;
-
-    update inventory_summaries set available_on_hand = (available_on_hand - reserved_for_fulfillment) where sku_id = new.sku_id;
-    if found then return new; end if;
-    if not found then
-        insert into inventory_summaries (sku_id, available_on_hand) values (new.sku_id, -reserved_for_fulfillment);
-    end if;
-
-    return new;
-end;
-$$ language plpgsql;
-
 -- ISO4217 declares currency as alphanumeric-3
 create domain currency character(3) not null;
 
