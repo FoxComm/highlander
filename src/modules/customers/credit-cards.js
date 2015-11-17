@@ -96,10 +96,15 @@ export function toggleDefault(customerId, creditCardId) {
   return (dispatch, getState) => {
     dispatch(requestCustomerCreditCards(customerId));
 
-    Api.post(`/customers/${id}/payment-methods/credit-cards/${creditCardId}`, {isDefault: true})
+    const cards = _.get(getState(), 'customers.creditCards', {});
+    const cardsArray = _.get(cards, [customerId, 'cards']);
+    const card = _.find(cardsArray, (card) => card.id === creditCardId);
+    const payload = {isDefault: !card.isDefault};
+
+    Api.post(`/customers/${customerId}/payment-methods/credit-cards/${creditCardId}/default`, payload)
       .then(() => {
-        fetchForCustomer(id, dispatch);
-       }).catch(err => dispatch(failCustomerCreditCards(id, err)));
+        fetchForCustomer(customerId, dispatch);
+       }).catch(err => dispatch(failCustomerCreditCards(customerId, err)));
   };
 }
 
