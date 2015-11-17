@@ -261,10 +261,13 @@ class CustomerIntegrationTest extends IntegrationTestBase
     "toggles the isDisabled flag on a customer account" in new Fixture {
       customer.isDisabled must === (false)
 
-      val response = POST(s"$uriPrefix/${customer.id}/disable", payloads.ToggleCustomerDisabled(true))
-      response.status must === (StatusCodes.OK)
+      val disableResp = POST(s"$uriPrefix/${customer.id}/disable", payloads.ToggleCustomerDisabled(true))
+      disableResp.status must === (StatusCodes.OK)
+      disableResp.as[CustomerResponse.Root].disabled must === (true)
 
-      response.as[CustomerResponse.Root].disabled must === (true)
+      val enableResp = POST(s"$uriPrefix/${customer.id}/disable", payloads.ToggleCustomerDisabled(false))
+      enableResp.status must === (StatusCodes.OK)
+      enableResp.as[CustomerResponse.Root].disabled must === (false)
     }
 
     "fails if customer not found" in new Fixture {
@@ -279,10 +282,13 @@ class CustomerIntegrationTest extends IntegrationTestBase
     "toggles the isBlacklisted flag on a customer account" in new Fixture {
       customer.isBlacklisted must === (false)
 
-      val response = POST(s"$uriPrefix/${customer.id}/blacklist", payloads.ToggleCustomerBlacklisted(true))
-      response.status must === (StatusCodes.OK)
+      val responseAdd = POST(s"$uriPrefix/${customer.id}/blacklist", payloads.ToggleCustomerBlacklisted(true))
+      responseAdd.status must === (StatusCodes.OK)
+      responseAdd.as[CustomerResponse.Root].blacklisted must === (true)
 
-      response.as[CustomerResponse.Root].blacklisted must === (true)
+      val responseRemove = POST(s"$uriPrefix/${customer.id}/blacklist", payloads.ToggleCustomerBlacklisted(false))
+      responseRemove.status must === (StatusCodes.OK)
+      responseRemove.as[CustomerResponse.Root].blacklisted must === (false)
     }
 
     "fails if customer not found" in new Fixture {
