@@ -22,7 +22,8 @@ export default class CustomerAccountStatus extends React.Component {
     stopBlacklistCustomer: PropTypes.func.isRequired
   };
 
-  static customerInfo(customer) {
+  get customerInfo() {
+    const customer = this.props.customer;
     return (
       <ul className="fc-customer-disable-confirm-customer">
         <li><strong>{customer.name}</strong></li>
@@ -40,7 +41,7 @@ export default class CustomerAccountStatus extends React.Component {
         body: (
           <div className="fc-customer-disable-confirm">
             <div>Are you sure you want to active the account for the following customer?</div>
-            {CustomerAccountStatus.customerInfo(customer)}
+            {this.customerInfo}
             <div>You can deactivate this account at anytime.</div>
           </div>
         ),
@@ -53,7 +54,7 @@ export default class CustomerAccountStatus extends React.Component {
         body: (
           <div className="fc-customer-disable-confirm">
             <div>Are you sure you want to deactivate the account for the following customer?</div>
-            {CustomerAccountStatus.customerInfo(customer)}
+            {this.customerInfo}
             <div>You can reactivate this account at anytime.</div>
           </div>
         ),
@@ -71,7 +72,7 @@ export default class CustomerAccountStatus extends React.Component {
         body: (
           <div className="fc-customer-blacklist-confirm">
             <div>Are you sure you want to remove the following customer from the Blacklist?</div>
-            {CustomerAccountStatus.customerInfo(customer)}
+            {this.customerInfo}
             <div>You can place this customer on the Blacklist at anytime.</div>
           </div>
         ),
@@ -84,7 +85,7 @@ export default class CustomerAccountStatus extends React.Component {
         body: (
           <div className="fc-customer-blacklist-confirm">
             <div>Are you sure you want to place the following custom on the Blacklist?</div>
-            {CustomerAccountStatus.customerInfo(customer)}
+            {this.customerInfo}
             <div>You can take this customer off the Blacklist at anytime.</div>
           </div>
         ),
