@@ -9,7 +9,7 @@ import EditableContentBox from '../content-box/editable-content-box';
 import { connect } from 'react-redux';
 import * as CustomerAddressesActions from '../../modules/customers/addresses';
 import * as ShippingAddressesActions from '../../modules/orders/shipping-addresses';
-
+import AddressForm from '../addresses/address-form';
 
 function mapStateToProps(state, props) {
   const addressesState = state.customers.addresses[props.order.customer.id];
@@ -61,7 +61,7 @@ export default class OrderShippingAddress extends React.Component {
       <div>
         <header className="fc-shipping-address-header">
           <h3>Address Book</h3>
-          <AddButton onClick={this.props.startAddingAddress}></AddButton>
+          <AddButton onClick={() => this.props.startAddingAddress(this.props.customerId)}></AddButton>
         </header>
         <div className="fc-tableview">
           <Addresses
@@ -81,16 +81,22 @@ export default class OrderShippingAddress extends React.Component {
     const props = this.props;
 
     return (
-      <EditableContentBox
-        className='fc-shipping-address'
-        title="Shipping Address"
-        isTable={false}
-        isEditing={props.isEditing}
-        editAction={props.startEditing}
-        doneAction={props.stopEditing}
-        renderFooter={null}
-        renderContent={isEditing => isEditing ? this.editContent : this.viewContent}
-      />
+      <div>
+        <EditableContentBox
+          className='fc-shipping-address'
+          title="Shipping Address"
+          isTable={false}
+          isEditing={props.isEditing}
+          editAction={props.startEditing}
+          doneAction={props.stopEditing}
+          renderFooter={null}
+          renderContent={isEditing => isEditing ? this.editContent : this.viewContent}
+        />
+
+        <AddressForm
+          isVisible={props.isAdding}
+        />
+      </div>
     );
   }
 }

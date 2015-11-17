@@ -22,6 +22,16 @@ export default class CreditCardDetails extends React.Component {
       cardNumber: `xxxx-xxxx-xxxx-${card.lastFour}`
     };
 
+    // @TODO: get rid of this ad-hoc after
+    // this task https://www.pivotaltracker.com/n/projects/1352060/stories/108365902 is solved
+    // @TODO2: create GH/pivotal issue for that!
+    card = {
+      ...card,
+      region: {
+        countryId: 21
+      }
+    };
+
     return (
       <div>
         <div>

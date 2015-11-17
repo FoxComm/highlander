@@ -17,7 +17,7 @@ export default class CustomerAddressBook extends React.Component {
   static propTypes = {
     customerId: PropTypes.number.isRequired,
     fetchAddresses: PropTypes.func,
-    newAddress: PropTypes.func,
+    startAddingAddress: PropTypes.func,
     addresses: PropTypes.array
   };
 
@@ -45,7 +45,7 @@ export default class CustomerAddressBook extends React.Component {
     return (
       <ContentBox title="Address Book"
                   className="fc-customer-address-book"
-                  actionBlock={ <AddButton onClick={() => props.newAddress(props.customerId)}/> }>
+                  actionBlock={ <AddButton onClick={() => props.startAddingAddress(props.customerId)}/> }>
 
         <Addresses {...props} processContent={ this.injectNewAddressCard } />
       </ContentBox>

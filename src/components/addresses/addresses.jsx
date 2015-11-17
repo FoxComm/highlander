@@ -53,13 +53,15 @@ Addresses.propTypes = {
 Addresses.defaultProps = {
   addresses: [],
   createAddressBox: (address, idx, props) => {
+    const chooseAction = props.chooseAction ? () => props.chooseAction(props.customerId, address.id) : null;
+
     return (
       <AddressBox key={`address-${idx}`}
                   address={address}
                   choosen={props.isAddressSelected ? props.isAddressSelected(address) : false}
                   editAction={() => props.startEditingAddress(props.customerId, address.id)}
                   toggleDefaultAction={() => props.setAddressDefault(props.customerId, address.id, !address.isDefault)}
-                  chooseAction={() => props.chooseAction(props.customerId, address.id)}
+                  chooseAction={chooseAction}
                   deleteAction={() => props.startDeletingAddress(props.customerId, address.id)}
       />
     );

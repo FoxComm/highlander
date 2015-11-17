@@ -6,7 +6,7 @@ import orders from './orders';
 import rmas from './rmas';
 import notes from './notes';
 import countries from './countries';
-import addressForm from './addressForm';
+import addressForm from './address-form';
 
 const rootReducer = combineReducers({
   router: routerStateReducer

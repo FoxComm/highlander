@@ -11,12 +11,11 @@ import * as validators from '../../lib/validators';
 import ErrorAlerts from '../alerts/error-alerts';
 import ContentBox from '../content-box/content-box';
 import modalWrapper from '../modal/wrapper';
+import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as CountriesActions from '../../modules/countries';
-import * as AddressFormActions from '../../modules/addressForm';
+import * as AddressFormActions from '../../modules/address-form';
 import { createSelector } from 'reselect';
-
-const DEFAULT_COUNTRY = 'US';
 
 const selectCurrentCountry = createSelector(
   state => state.countries,
@@ -32,10 +31,21 @@ function mapStateToProps(state) {
   };
 }
 
-@connect(mapStateToProps, {
-  ...CountriesActions,
-  ...AddressFormActions
-})
+function mapDispatchToProps(dispatch, props) {
+  const formName = props.address && props.address.id || 'new';
+  const boundAddressFormActions = _.transform(AddressFormActions, (result, action, key) => {
+    result[key] = (...args) => {
+      return dispatch(action(formName, ...args));
+    };
+  });
+
+  return {
+    ...boundAddressFormActions,
+    ...bindActionCreators(CountriesActions, dispatch)
+  };
+}
+
+@connect(mapStateToProps, mapDispatchToProps)
 @modalWrapper
 export default class AddressForm extends React.Component {
 
@@ -52,35 +62,7 @@ export default class AddressForm extends React.Component {
 
   componentDidMount() {
     this.props.fetchCountries();
-    this.props.assignAddress(this.props.address);
-  }
-
-  onChangeCountryStore(countries) {
-    this.setState({countries});
-
-    if (!this.state.country && !this.countryWillFetch) {
-      this.updateRegions();
-    }
-  }
-
-  updateRegions(countryId=this.state.countryId) {
-    if (countryId === null) {
-      let country = CountryStore.findWhere({alpha2: DEFAULT_COUNTRY});
-      countryId = country.id;
-    }
-
-    this.countryWillFetch = true;
-    CountryStore.fetch(countryId)
-      .then(country => {
-        this.setState({
-          country,
-          countryId,
-          formData: _.extend(this.state.formData, {regionId: country.regions[0].id})
-        });
-      })
-      .catch(error => {
-        this.setState({error});
-      });
+    this.props.setAddress(this.props.address);
   }
 
   componentWillUpdate(nextProps, nextState) {
