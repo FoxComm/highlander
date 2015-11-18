@@ -117,17 +117,17 @@ export function saveCreditCard(id) {
     const form = _.get(cards, [id, 'editingCreditCard']);
     const cardsArray = _.get(cards, [id, 'cards']);
     const currentDefault = _.find(cardsArray, card => card.isDefault);
-    const isDefault = form.isDefault === "on";
+    const isDefault = form.isDefault;
 
     if (isDefault && currentDefault && currentDefault.id !== creditCardId) {
       const currentDefaultId = currentDefault.id;
       const resetPayload = {isDefault: false};
       const payload = {isDefault: true};
       Api.patch(`/customers/${id}/payment-methods/credit-cards/${creditCardId}`, form)
-        .then(() => {
+        .then((card) => {
           Api.post(`/customers/${id}/payment-methods/credit-cards/${currentDefaultId}/default`, resetPayload)
             .then(() => {
-              Api.post(`/customers/${id}/payment-methods/credit-cards/${creditCardId}/default`, payload)
+              Api.post(`/customers/${id}/payment-methods/credit-cards/${card.id}/default`, payload)
                 .then(() => {
                   dispatch(closeEditCustomerCreditCard(id));
                   fetchForCustomer(id, dispatch);
@@ -137,8 +137,8 @@ export function saveCreditCard(id) {
     } else if (isDefault && (currentDefault === null || currentDefault === undefined)) {
       const payload = {isDefault: true};
       Api.patch(`/customers/${id}/payment-methods/credit-cards/${creditCardId}`, form)
-        .then(() => {
-          Api.post(`/customers/${id}/payment-methods/credit-cards/${creditCardId}/default`, payload)
+        .then((card) => {
+          Api.post(`/customers/${id}/payment-methods/credit-cards/${card.id}/default`, payload)
             .then(() => {
               dispatch(closeEditCustomerCreditCard(id));
               fetchForCustomer(id, dispatch);
