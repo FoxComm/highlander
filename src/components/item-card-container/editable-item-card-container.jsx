@@ -20,7 +20,6 @@ export default class EditableItemCardContainer extends React.Component {
 
   get isDefault() {
     let className = `${this.props.className}-default`;
-    console.log(this.props.initiallyIsDefault);
     return (
       <label className={ className }>
         <Checkbox checked={ this.props.initiallyIsDefault }
