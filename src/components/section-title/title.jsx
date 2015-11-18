@@ -1,23 +1,10 @@
 import React, { PropTypes } from 'react';
-
-const SubTitle = props => {
-  if (props.subtitle) {
-    return (
-      <span className="fc-section-title-subtitle fc-light">
-        &nbsp;
-        { props.subtitle }
-      </span>
-    );
-  }
-};
-
-SubTitle.propTypes = {
-  subtitle: PropTypes.node
-};
+import SubTitle from './subtitle';
 
 const Title = props => {
+  const titleClass = props.isPrimary ? 'fc-section-title-primary' : 'fc-section-title-secondary';
   return (
-    <h1 className="fc-section-title-title">
+    <h1 className={ titleClass } >
       { props.title }
       { SubTitle(props) }
     </h1>
@@ -26,7 +13,8 @@ const Title = props => {
 
 Title.propTypes = {
   title: PropTypes.string,
-  subtitle: PropTypes.node
+  subtitle: PropTypes.node,
+  isPrimary: PropTypes.bool
 };
 
 export default Title;

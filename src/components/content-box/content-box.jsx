@@ -9,7 +9,7 @@ export default class ContentBox extends React.Component {
     children: PropTypes.node,
     isTable: PropTypes.bool,
     footer: PropTypes.node
-  }
+  };
 
   get rootClassName() {
     return `${this.props.className ? this.props.className : null} fc-content-box`;

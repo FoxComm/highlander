@@ -3,7 +3,7 @@ import React from 'react';
 
 describe('OrderDetails', function() {
   const OrderDetails = requireComponent('orders/details.jsx');
-  const order = require('./order-sample.json');
+  const order = require('../../fixtures/order.json');
 
   it('should render', function() {
     const props = {

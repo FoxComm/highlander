@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import * as validators from '../../lib/validators';
+import classnames from 'classnames';
 
 function overrideEventHandlers(child, newEventHandlers) {
   return _.transform(newEventHandlers, (result, handler, type) => {
@@ -23,7 +24,8 @@ export default class FormField extends React.Component {
     children: PropTypes.node.isRequired,
     required: PropTypes.any,
     maxLength: PropTypes.number,
-    label: PropTypes.node
+    label: PropTypes.node,
+    labelClassName: PropTypes.string
   };
 
   static contextTypes = {
@@ -233,8 +235,9 @@ export default class FormField extends React.Component {
   get label() {
     if (this.props.label) {
       const optionalMark = 'optional' in this.props ? <span className="fc-form-field-optional">(optional)</span> : null;
+      const className = classnames('fc-form-field-label', this.props.labelClassName);
       return (
-        <label className="fc-form-field-label" htmlFor={this.inputId}>
+        <label className={className} htmlFor={this.inputId}>
           {this.props.label}
           {optionalMark}
         </label>
