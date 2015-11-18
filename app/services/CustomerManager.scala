@@ -25,7 +25,7 @@ object CustomerManager {
 
   def toggleDisabled(customerId: Int, disabled: Boolean, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
-      customer ← * <~ Customers.mustFindById(customerId)(customerNotFound)
+      customer ← * <~ Customers.mustFindById(customerId, customerNotFound)
       updated ← * <~ Customers.update(customer, customer.copy(isDisabled = disabled, disabledBy = Some(admin.id)))
     } yield build(updated)).value.run()
 
@@ -33,7 +33,7 @@ object CustomerManager {
   // TODO: add blacklistedReason later
   def toggleBlacklisted(customerId: Int, blacklisted: Boolean, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
-      customer ← * <~ Customers.mustFindById(customerId)(customerNotFound)
+      customer ← * <~ Customers.mustFindById(customerId, customerNotFound)
       updated ← * <~ Customers.update(customer, customer.copy(isBlacklisted = blacklisted, blacklistedBy = Some(admin
         .id)))
     } yield build(updated)).value.run()
