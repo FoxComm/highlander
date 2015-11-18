@@ -1,6 +1,10 @@
 package payloads
 
+import cats.data._
 import models.Rma
+import services.Failure
+import utils.Validation
+import Validation._
 
 final case class RmaCreatePayload(orderRefNum: String, rmaType: Rma.RmaType)
 
@@ -16,11 +20,19 @@ final case class RmaShippingCostLineItemsPayload(id: Int, reasonId: Int)
 
 /* Payment payloads */
 
-final case class RmaCreditCardPayment(id: Int, amount: Int)
+final case class RmaPaymentPayload(amount: Int) extends Validation[RmaPaymentPayload] {
 
-final case class RmaGiftCardPayment(amount: Int)
+  def validate: ValidatedNel[Failure, RmaPaymentPayload] = {
+    greaterThan(amount, 0, "Amount").map { case _ ⇒ this }
+  }
+}
 
-final case class RmaStoreCreditPayment(amount: Int)
+final case class RmaCcPaymentPayload(creditCardId: Int, amount: Int) extends Validation[RmaCcPaymentPayload] {
+
+  def validate: ValidatedNel[Failure, RmaCcPaymentPayload] = {
+    greaterThan(amount, 0, "Amount").map { case _ ⇒ this }
+  }
+}
 
 /* Assignees */
 

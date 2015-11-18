@@ -7,7 +7,6 @@ import cats.data.Xor
 import cats.implicits._
 
 import models.StoreCredit.Canceled
-import models.StoreCredit.{CsrAppeasement, GiftCardTransfer, ReturnProcess}
 import models._
 import models.StoreCreditSubtypes.scope._
 import responses.{StoreCreditSubTypesResponse, StoreCreditResponse}

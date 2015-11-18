@@ -28,6 +28,7 @@ object JsonFormatters {
     CreditCardCharge.Status.jsonFormat +
     CountryWithRegions.jsonFormat +
     QueryStatement.Comparison.jsonFormat +
-    Condition.Operator.jsonFormat
+    Condition.Operator.jsonFormat +
+    PaymentMethod.Type.jsonFormat
 }
 

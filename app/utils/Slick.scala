@@ -4,8 +4,8 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.matching.Regex
 
 import cats.data.Xor
-import models.Orders
-import responses.FullOrder
+import models.{Rmas, Orders}
+import responses.{RmaResponse, FullOrder}
 import services.{Failure, Failures, Result, GeneralFailure}
 import slick.ast._
 import slick.driver.PostgresDriver._
@@ -42,6 +42,10 @@ object Slick {
 
   def fullOrder(finder: Orders.QuerySeq)(implicit ec: ExecutionContext, db: Database): DBIO[FullOrder.Root] = {
     finder.result.head.flatMap(FullOrder.fromOrder)
+  }
+
+  def fullRma(finder: Rmas.QuerySeq)(implicit ec: ExecutionContext, db: Database): DBIO[RmaResponse.Root] = {
+    finder.result.head.flatMap(RmaResponse.fromRma)
   }
 
   object DbResult {

@@ -116,38 +116,38 @@ object RmaRoutes {
           }
         } ~
         pathPrefix("payment-methods" / "credit-cards") {
-         ((post | patch) & entity(as[payloads.RmaCreditCardPayment]) & pathEnd) { payload ⇒
-            good {
-              genericRmaMock
+          ((post | patch) & pathEnd & entity(as[payloads.RmaCcPaymentPayload])) { payload ⇒
+            goodOrFailures {
+              RmaPaymentUpdater.addCreditCard(refNum, payload)
             }
           } ~
-         (delete & pathEnd) {
-            good {
-              genericRmaMock
+          (delete & pathEnd) {
+            goodOrFailures {
+              RmaPaymentUpdater.deleteCreditCard(refNum)
             }
           }
         } ~
         pathPrefix("payment-methods" / "gift-cards") {
-          (post & pathEnd & entity(as[payloads.RmaGiftCardPayment])) { payload ⇒
-            good {
-              genericRmaMock
+          ((post | patch) & pathEnd & entity(as[payloads.RmaPaymentPayload])) { payload ⇒
+            goodOrFailures {
+              RmaPaymentUpdater.addGiftCard(admin, refNum, payload)
             }
           } ~
-          (delete & path(GiftCard.giftCardCodeRegex) & pathEnd) { code ⇒
-            good {
-              genericRmaMock
+          (delete & pathEnd) {
+            goodOrFailures {
+              RmaPaymentUpdater.deleteGiftCard(refNum)
             }
           }
         } ~
         pathPrefix("payment-methods" / "store-credit") {
-          ((post | patch) & pathEnd & entity(as[payloads.RmaStoreCreditPayment])) { payload ⇒
-            good {
-              genericRmaMock
+          ((post | patch) & pathEnd & entity(as[payloads.RmaPaymentPayload])) { payload ⇒
+            goodOrFailures {
+              RmaPaymentUpdater.addStoreCredit(admin, refNum, payload)
             }
           } ~
           (delete & pathEnd) {
-            good {
-              genericRmaMock
+            goodOrFailures {
+              RmaPaymentUpdater.deleteStoreCredit(refNum)
             }
           }
         } ~

@@ -3,9 +3,8 @@ import scala.util.Random
 import scala.collection.JavaConverters._
 import akka.http.scaladsl.model.StatusCodes
 
-import models.StoreCredit.{ReturnProcess, GiftCardTransfer, CsrAppeasement}
 import models._
-import models.StoreCredit.{Canceled, Active, OnHold}
+import models.StoreCredit._
 import org.joda.money.CurrencyUnit
 import responses._
 import org.scalatest.BeforeAndAfterEach

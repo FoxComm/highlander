@@ -1,5 +1,5 @@
 create domain sc_origin_type text not null check (
-    value in ('giftCardTransfer', 'csrAppeasement', 'returnProcess')
+    value in ('giftCardTransfer', 'csrAppeasement', 'rmaProcess')
 );
 
 create table store_credit_subtypes (

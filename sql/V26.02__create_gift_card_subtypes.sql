@@ -1,5 +1,5 @@
 create domain gc_origin_type text not null check (
-    value in ('customerPurchase', 'csrAppeasement', 'fromStoreCredit')
+    value in ('customerPurchase', 'csrAppeasement', 'fromStoreCredit', 'rmaProcess')
 );
 
 create table gift_card_subtypes (
