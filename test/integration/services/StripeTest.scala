@@ -108,5 +108,23 @@ class StripeTest
         card.getCountry must === ("US")
       }
     }
+
+    "captureCharge" - {
+      "fails if the charge was not found" taggedAs External in {
+        val result = service.captureCharge("BAD-CHARGE-ID", 100).futureValue
+
+        result.leftVal.head.description.head must include("No such charge")
+      }
+
+      "successfully captures a charge" taggedAs External in {
+        val auth = service.authorizeAmount(existingCustId, 100, currency = Currency.USD).futureValue
+        val capture = service.captureCharge(auth.rightVal.getId, 75).futureValue.rightVal
+
+        capture.getCaptured mustBe true
+        capture.getPaid mustBe true
+        capture.getAmount.toInt must === (100)
+        capture.getAmountRefunded.toInt must === (25)
+      }
+    }
   }
 }
