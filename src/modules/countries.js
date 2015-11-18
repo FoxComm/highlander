@@ -15,8 +15,8 @@ const countriesFailed = createAction('COUNTRIES_FAILED');
 export function fetchCountry(countryId) {
   return dispatch => {
     return Api.get(`/countries/${countryId}`)
-      .then(json => dispatch(countryReceived(json)))
-      .catch(err => dispatch(countryFailed(id, err)));
+      .then(json => dispatch(countryReceived(json)) && json)
+      .catch(err => dispatch(countryFailed(id, err)) && err);
   };
 }
 

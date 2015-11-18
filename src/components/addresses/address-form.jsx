@@ -17,25 +17,31 @@ import * as CountriesActions from '../../modules/countries';
 import * as AddressFormActions from '../../modules/address-form';
 import { createSelector } from 'reselect';
 
+const formNamespace = props => props.address && props.address.id || 'new';
+
 const selectCurrentCountry = createSelector(
   state => state.countries,
-  state => state.addressForm.countryId,
-  (countries, countryId) => countries[countryId]
+  (state, props) => {
+    const addressForm = state.addressForm[formNamespace(props)];
+    return addressForm && addressForm.countryId;
+  },
+  (countries={}, countryId) => countries[countryId]
+
 );
 
-function mapStateToProps(state) {
+function mapStateToProps(state, props) {
   return {
-    countries: state.countries,
-    country: selectCurrentCountry(state),
-    ...state.addressForm
+    countries: _.values(state.countries),
+    country: selectCurrentCountry(state, props),
+    formData: {},
+    ...state.addressForm[formNamespace(props)]
   };
 }
 
 function mapDispatchToProps(dispatch, props) {
-  const formName = props.address && props.address.id || 'new';
   const boundAddressFormActions = _.transform(AddressFormActions, (result, action, key) => {
     result[key] = (...args) => {
-      return dispatch(action(formName, ...args));
+      return dispatch(action(formNamespace(props), ...args));
     };
   });
 
@@ -45,8 +51,8 @@ function mapDispatchToProps(dispatch, props) {
   };
 }
 
-@connect(mapStateToProps, mapDispatchToProps)
 @modalWrapper
+@connect(mapStateToProps, mapDispatchToProps)
 export default class AddressForm extends React.Component {
 
   static propTypes = {
@@ -56,71 +62,37 @@ export default class AddressForm extends React.Component {
     closeAction: PropTypes.func.isRequired
   };
 
-  get isAddingForm() {
-    return !this.props.address;
-  }
-
   componentDidMount() {
     this.props.fetchCountries();
-    this.props.setAddress(this.props.address);
+    this.props.init(this.props.address);
   }
 
-  componentWillUpdate(nextProps, nextState) {
-    if (!this.state.error && nextState.error) {
+  /*componentWillUpdate(nextProps, nextState) {
+    if (!this.props.error && nextState.error) {
       this.shouldScrollToErrors = true;
     }
   }
 
   componentDidUpdate() {
-    if (this.shouldScrollToErrors && this.state.error) {
+    if (this.shouldScrollToErrors && this.props.error) {
       this.refs.errorMessages.scrollIntoView();
       this.shouldScrollToErrors = false;
     }
-  }
-
-  /**
-   * Prepare value before submitting to server
-   * @param name
-   * @param value
-   */
-  prepareValue(name, value) {
-    switch (name) {
-      case 'phoneNumber':
-        return value.replace(/[^\d]/g, '');
-        break;
-      default:
-        return value;
-    }
-  }
+  }*/
 
   @autobind
   handleFormSubmit(event) {
     event.preventDefault();
 
     const customerId = this.props.customerId;
-    const formData = _.transform(this.state.formData, (result, value, name) => {
-      result[name] = this.prepareValue(name, value);
-    });
 
-    let willSaved;
-
-    if (this.isAddingForm) {
-      willSaved = AddressStore.create(customerId, formData);
-    } else {
-      willSaved = AddressStore.patch(customerId, this.props.address.id, formData);
-    }
-
-    willSaved
-      .then((address) => {
-        this.setState({error: null});
-
+    this.props.submitForm(customerId)
+      .then(address => {
         if (this.props.onSaved) {
           this.props.onSaved(address.id);
         }
-      })
-      .then(this.props.closeAction)
-      .catch(error => {
-        this.setState({error});
+
+        this.props.closeAction();
       });
   }
 
@@ -132,15 +104,14 @@ export default class AddressForm extends React.Component {
   }
 
   get countryCode() {
-    const state = this.state;
+    const props = this.props;
 
-    return state.country && state.country.alpha2;
+    return props.country && props.country.alpha2;
   }
 
   validateZipCode() {
-    const state = this.state;
     const countryCode = this.countryCode;
-    const formData = state.formData;
+    const formData = this.props.formData;
 
     if (validators.zipCode(formData.zip, countryCode)) {
       return null;
@@ -150,7 +121,7 @@ export default class AddressForm extends React.Component {
   }
 
   get phoneInput() {
-    const formData = this.state.formData;
+    const formData = this.props.formData;
 
     if (this.countryCode === 'US') {
       return (
@@ -167,7 +138,7 @@ export default class AddressForm extends React.Component {
   }
 
   get errorMessages() {
-    return <ErrorAlerts error={this.state.error} ref="errorMessages"/>;
+    return <ErrorAlerts error={this.props.err} ref="errorMessages"/>;
   }
 
   get actions() {
@@ -175,13 +146,13 @@ export default class AddressForm extends React.Component {
   }
 
   render() {
-    const state = this.state;
-    const formData = state.formData;
-    const countries = state.countries || [];
+    const props = this.props;
+    const formData = props.formData;
+    const countries = props.countries || [];
 
     const countryCode = this.countryCode;
-    const regions = state.country && state.country.regions || [];
-    const title = this.isAddingForm ? 'New Address' : 'Edit Address';
+    const regions = props.country && props.country.regions || [];
+    const title = props.isAdding ? 'New Address' : 'Edit Address';
 
     return (
       <ContentBox title="Address Book" className="fc-address-form" actionBlock={this.actions}>
@@ -201,7 +172,7 @@ export default class AddressForm extends React.Component {
               </li>
               <li>
                 <FormField label="Country">
-                  <select name="countryId" data-type="int" value={this.state.countryId}>
+                  <select name="countryId" data-type="int" value={this.props.countryId}>
                     {countries.map((country, index) => {
                       return <option value={country.id} key={`${index}-${country.id}`}>{country.name}</option>;
                       })}

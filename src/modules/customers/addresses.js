@@ -33,7 +33,7 @@ export function fetchAddresses(customerId) {
   return dispatch => {
     dispatch(requestCustomerAddresses(customerId));
 
-    Api.get(`/customers/${customerId}/addresses`)
+    return Api.get(`/customers/${customerId}/addresses`)
       .then(addresses => dispatch(receivedCustomerAddresses(customerId, addresses)))
       .catch(err => dispatch(failFetchAddress(customerId, err)));
   };
@@ -41,8 +41,16 @@ export function fetchAddresses(customerId) {
 
 export function createAddress(customerId, data) {
   return dispatch => {
-    Api.post(`/customers/${customerId}/addresses`, data)
-      .then(address => dispatch(addressCreated(customerId, address)))
+    return Api.post(`/customers/${customerId}/addresses`, data)
+      .then(address => dispatch(addressCreated(customerId, address)) && address)
+      .catch(err => dispatch(failAddress(customerId, err)));
+  };
+}
+
+export function patchAddress(customerId, addressId, data) {
+  return dispatch => {
+    return Api.patch(`/customers/${customerId}/addresses/${addressId}`, data)
+      .then(address => dispatch(updateAddress(customerId, addressId, address)) && address)
       .catch(err => dispatch(failAddress(customerId, err)));
   };
 }

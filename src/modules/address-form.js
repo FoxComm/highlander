@@ -1,13 +1,18 @@
 
-import { assoc, merge } from 'sprout-data';
+import _ from 'lodash';
+import Api from '../lib/api';
+import { assoc, merge, get } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 import { fetchCountry } from './countries';
+import { createAddress, patchAddress } from './customers/addresses';
 
 const DEFAULT_COUNTRY = 'US';
 
 const changeForm = createAction('ADDRESS_FORM_CHANGE', (form, name, value) => [form, name, value]);
 const assignAddress = createAction('ADDRESS_FORM_ASSIGN_ADDRESS', (form, address) => [form, address]);
 const setNewCountry = createAction('ADDRESS_FORM_SET_NEW_COUNTRY', (form, country) => [form, country]);
+const resetForm = createAction('ADDRESS_FORM_RESET', (form, isAdding) => [form, isAdding]);
+const setError = createAction('ADDRESS_FORM_SET_ERROR', (form, err) => [form, err]);
 
 export function changeValue(form, name, value) {
   return dispatch => {
@@ -23,23 +28,59 @@ export function setCountry(form, countryId) {
     if (countryId == null) countryId =_.findWhere(getState().countries, {alpha2: DEFAULT_COUNTRY}).id;
 
     return dispatch(fetchCountry(countryId))
-      .then(dispatch(setNewCountry(form, getState().countries[countryId])));
+      .then(country => {
+        dispatch(setNewCountry(form, country));
+      });
   };
 }
 
-export function setAddress(form, address) {
-  return (dispatch, getState) => {
+export function init(form, address) {
+  return dispatch => {
     if (address) {
       dispatch(assignAddress(form, address));
     } else {
+      dispatch(resetForm(form, true));
       dispatch(setCountry(form));
     }
   };
 }
 
-const initialState = {
-  formData: {}
-};
+/**
+ * Prepare value before submitting to server
+ * @param name
+ * @param value
+ */
+function prepareValue(name, value) {
+  switch (name) {
+    case 'phoneNumber':
+      return value.replace(/[^\d]/g, '');
+      break;
+    default:
+      return value;
+  }
+}
+
+export function submitForm(form, customerId) {
+  return (dispatch, getState) => {
+    const state = get(getState(), ['addressForm', form]);
+
+    const formData = _.transform(state.formData, (result, value, name) => {
+      result[name] = prepareValue(name, value);
+    });
+
+    if (state.isAdding) {
+      return Api.post(`/customers/${customerId}/addresses`, formData)
+        .then(address => dispatch(setError(null)) && address)
+        .catch(err => dispatch(setError(err)) && err);
+    } else {
+      return Api.patch(`/customers/${customerId}/addresses/${state.addressId}`, formData)
+        .then(address => dispatch(setError(null)) && address)
+        .catch(err => dispatch(setError(err)) && err);
+    }
+  };
+}
+
+const initialState = {};
 
 const reducer = createReducer({
   [changeForm]: (state, [form, name, value]) => {
@@ -54,14 +95,27 @@ const reducer = createReducer({
     const countryId = region && region.countryId;
 
     return update(state, form, merge, {
+      isAdding: false,
       formData,
-      countryId
+      countryId,
+      addressId: address.id
     });
   },
   [setNewCountry]: (state, [form, country]) => {
     return assoc(state,
       [form, 'countryId'], country.id,
       [form, 'formData', 'regionId'], country.regions[0].id
+    );
+  },
+  [resetForm]: (state, [form, isAdding]) => {
+    return assoc(state,
+      [form, 'isAdding'], isAdding,
+      [form, 'formData'], {}
+    );
+  },
+  [setError]: (state, [form, err]) => {
+    return assoc(state,
+      [form, 'err'], err
     );
   }
 }, initialState);

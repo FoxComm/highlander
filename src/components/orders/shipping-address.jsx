@@ -95,6 +95,8 @@ export default class OrderShippingAddress extends React.Component {
 
         <AddressForm
           isVisible={props.isAdding}
+          closeAction={() => props.stopAddingAddress(props.customerId)}
+          customerId={props.customerId}
         />
       </div>
     );
