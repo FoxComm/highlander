@@ -65,8 +65,8 @@ export default class Notes extends React.Component {
 
   static defaultProps = {
     tableColumns: [
-      {field: 'createdAt', text: 'Date/Type'},
-      {field: 'body', text: 'Body'},
+      {field: 'createdAt', text: 'Date/Time'},
+      {field: 'body', text: 'Note'},
       {field: 'author', text: 'Author'}
     ]
   };
@@ -129,12 +129,23 @@ export default class Notes extends React.Component {
     return rows;
   }
 
+  get controls() {
+    return (
+      <PrimaryButton icon="add" onClick={this.props.startAddingNote} disabled={!!this.props.isAddingNote } />
+    );
+  }
 
+  get sectionClassName() {
+    const entityType = this.props.entity.entityType;
+    return `fc-${entityType}-notes`;
+  }
 
   render() {
     return (
-      <div>
-        <SectionTitle className="fc-grid-gutter" title="Notes">{this.controls}</SectionTitle>
+      <div className={this.sectionClassName} >
+        <SectionTitle className="fc-grid-gutter fc-notes-section-title"
+                      title="Notes"
+                      isPrimary={false}>{this.controls}</SectionTitle>
         <TableView
           renderRow={this.renderNoteRow}
           processRows={this.injectAddingForm}
