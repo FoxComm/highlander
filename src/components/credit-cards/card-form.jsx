@@ -134,6 +134,18 @@ export default class CreditCardForm extends React.Component {
     return block;
   }
 
+  get header() {
+    if (!this.props.isNew) {
+      return null;
+    }
+
+    return (
+      <header className="fc-credit-card-form-header">
+        New Credit Card
+      </header>
+    );
+  }
+
   render() {
     const form = this.props.form;
     const containerClass = classnames(
@@ -147,9 +159,7 @@ export default class CreditCardForm extends React.Component {
         <Form className="fc-customer-credit-card-form fc-form-vertical"
               onChange={ this.props.onChange }
               onSubmit={ this.props.onSubmit }>
-          <header className="fc-credit-card-form-header">
-            New Credit Card
-          </header>
+          { this.header }
           <div>
             <ul className="fc-credit-card-form-fields">
               <li className="fc-credit-card-form-line">
