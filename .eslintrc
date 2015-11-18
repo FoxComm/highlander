@@ -12,6 +12,7 @@
   },
   "rules": {
     "semi": 2,
+    "react/prop-types": 1, // raise to 2?
     "strict": 0,
     "react/no-did-mount-set-state": [1, "allow-in-func"]
   },
