@@ -54,7 +54,7 @@ export function createCreditCard(id) {
     const currentDefault = _.find(cardsArray, card => card.isDefault);
     const isDefault = cardData.isDefault;
 
-    if (isDefault && currentDefault && currentDefault.id !== creditCardId) {
+    if (isDefault && currentDefault) {
       const currentDefaultId = currentDefault.id;
       const resetPayload = {isDefault: false};
       const payload = {isDefault: true};
