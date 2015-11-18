@@ -6,12 +6,13 @@ import scala.collection.JavaConversions.mapAsJavaMap
 import scala.concurrent.{ExecutionContext, Future, blocking}
 
 import cats.data.Xor
+import cats.implicits._
 import com.stripe.exception.StripeException
 import com.stripe.model.{Card ⇒ StripeCard, Customer ⇒ StripeCustomer, ExternalAccount, Charge ⇒ StripeCharge}
 import com.stripe.exception.{StripeException, CardException}
 import com.stripe.net.RequestOptions
 import services.CreditCardFailure.StripeFailure
-import services.{CreditCardFailure, Failure, Failures, GeneralFailure, Result}
+import services.{ResultT, CreditCardFailure, Failure, Failures, GeneralFailure, Result}
 
 final case class Apis(stripe: StripeApi)
 
@@ -21,6 +22,8 @@ trait StripeApi {
   def createCard(customer: StripeCustomer, options: Map[String, AnyRef], secretKey: String): Result[StripeCard]
 
   def createCharge(options: Map[String, AnyRef], secretKey: String): Result[StripeCharge]
+
+  def captureCharge(chargeId: String, options: Map[String, AnyRef], secretKey: String): Result[StripeCharge]
 
   def getExtAccount(customer: StripeCustomer, id: String, secretKey: String): Result[ExternalAccount]
 
@@ -72,6 +75,20 @@ class WiredStripeApi extends StripeApi {
 
   def createCharge(options: Map[String, AnyRef], secretKey: String): Result[StripeCharge] =
     inBlockingPool(secretKey)(requestOptions ⇒ StripeCharge.create(mapAsJavaMap(options), requestOptions))
+
+  def getCharge(chargeId: String, secretKey: String): Result[StripeCharge] =
+    inBlockingPool(secretKey)(requestOptions ⇒ StripeCharge.retrieve(chargeId, requestOptions))
+
+  def captureCharge(chargeId: String, options: Map[String, AnyRef], secretKey: String): Result[StripeCharge] = {
+    // for ResultT
+    implicit val ec: ExecutionContext = blockingIOPool
+
+    (for {
+      charge  ← ResultT(getCharge(chargeId, secretKey))
+      capture ← ResultT(inBlockingPool(secretKey)(requestOptions ⇒ charge.capture(mapAsJavaMap(options),
+        requestOptions)))
+    } yield capture).value
+  }
 
   def createCard(customer: StripeCustomer, options: Map[String, AnyRef], secretKey: String): Result[StripeCard] =
     inBlockingPool(secretKey)(requestOptions ⇒ customer.createCard(mapAsJavaMap(options), requestOptions))

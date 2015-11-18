@@ -76,6 +76,9 @@ final case class Stripe(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ")
     api.createCharge(chargeMap, apiKey)
   }
 
+  def captureCharge(chargeId: String, amount: Int): Result[StripeCharge] =
+    api.captureCharge(chargeId, Map[String, Object]("amount" → amount.toString), apiKey)
+
   def editCard(cc: CreditCard): Result[ExternalAccount] = {
 
     def update(stripeCard: StripeCard): Result[ExternalAccount] = {
