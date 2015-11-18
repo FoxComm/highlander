@@ -1,10 +1,10 @@
 
 import _ from 'lodash';
 import Api from '../lib/api';
-import { assoc, merge, get } from 'sprout-data';
+import { assoc, merge, get, update } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 import { fetchCountry } from './countries';
-import { createAddress, patchAddress } from './customers/addresses';
+import { createAddress, patchAddress } from './addresses';
 
 const DEFAULT_COUNTRY = 'US';
 
@@ -88,18 +88,18 @@ const reducer = createReducer({
 
     return assoc(state, path, value);
   },
-  [assignAddress]: (form, state, address) => {
+  [assignAddress]: (state, [form, address]) => {
     const {region, ...formData} = address || {};
 
     formData.regionId = region && region.id;
     const countryId = region && region.countryId;
 
-    return update(state, form, merge, {
-      isAdding: false,
-      formData,
-      countryId,
-      addressId: address.id
-    });
+    return assoc(state,
+      [form, 'isAdding'], false,
+      [form, 'formData'], formData,
+      [form, 'countryId'], countryId,
+      [form, 'addressId'], address.id
+    );
   },
   [setNewCountry]: (state, [form, country]) => {
     return assoc(state,

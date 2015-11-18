@@ -7,7 +7,7 @@ import ConfirmationDialog from '../modal/confirmation-dialog';
 import * as CustomerAddressesActions from '../../modules/customers/addresses';
 
 /**
- * Address list. Requires actions from customers/address module.
+ * Address list. Requires actions which interface described in customers/address and address modules.
  */
 const Addresses = props => {
   const content = props.processContent(
@@ -45,8 +45,8 @@ Addresses.propTypes = {
   processContent: PropTypes.func,
   startDeletingAddress: PropTypes.func,
   stopDeletingAddress: PropTypes.func,
-  startEditingAddress: PropTypes.func,
-  setAddressDefault: PropTypes.func
+  setAddressDefault: PropTypes.func,
+  startEditingAddress: PropTypes.func
 };
 
 
@@ -59,7 +59,7 @@ Addresses.defaultProps = {
       <AddressBox key={`address-${idx}`}
                   address={address}
                   choosen={props.isAddressSelected ? props.isAddressSelected(address) : false}
-                  editAction={() => props.startEditingAddress(props.customerId, address.id)}
+                  editAction={() => props.startEditingAddress(address.id)}
                   toggleDefaultAction={() => props.setAddressDefault(props.customerId, address.id, !address.isDefault)}
                   chooseAction={chooseAction}
                   deleteAction={() => props.startDeletingAddress(props.customerId, address.id)}

@@ -7,12 +7,12 @@ import AddressDetails from '../addresses/address-details';
 import * as OrdersActions from '../../modules/orders/list';
 import EditableContentBox from '../content-box/editable-content-box';
 import { connect } from 'react-redux';
-import * as CustomerAddressesActions from '../../modules/customers/addresses';
+import * as AddressesActions from '../../modules/addresses';
 import * as ShippingAddressesActions from '../../modules/orders/shipping-addresses';
 import AddressForm from '../addresses/address-form';
 
 function mapStateToProps(state, props) {
-  const addressesState = state.customers.addresses[props.order.customer.id];
+  const addressesState = state.addresses[props.order.customer.id];
   const selectedProps = {
     customerId: props.order.customer.id,
     address: props.order.shippingAddress
@@ -28,7 +28,7 @@ function mapStateToProps(state, props) {
 /*eslint "react/prop-types": 0*/
 
 @connect(mapStateToProps, {
-  ...CustomerAddressesActions,
+  ...AddressesActions,
   ...ShippingAddressesActions
 })
 export default class OrderShippingAddress extends React.Component {
@@ -61,7 +61,7 @@ export default class OrderShippingAddress extends React.Component {
       <div>
         <header className="fc-shipping-address-header">
           <h3>Address Book</h3>
-          <AddButton onClick={() => this.props.startAddingAddress(this.props.customerId)}></AddButton>
+          <AddButton onClick={() => this.props.startAddingAddress()}></AddButton>
         </header>
         <div className="fc-tableview">
           <Addresses
@@ -94,8 +94,9 @@ export default class OrderShippingAddress extends React.Component {
         />
 
         <AddressForm
-          isVisible={props.isAdding}
-          closeAction={() => props.stopAddingAddress(props.customerId)}
+          isVisible={props.editingId != null}
+          address={_.findWhere(props.addresses, {id: props.editingId})}
+          closeAction={() => props.stopAddingOrEditingAddress(props.customerId)}
           customerId={props.customerId}
         />
       </div>
