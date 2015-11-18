@@ -1,9 +1,35 @@
 import React, { PropTypes } from 'react';
 import moment from 'moment';
+import Currency from '../common/currency';
+import _ from 'lodash';
 
 export default class Customer extends React.Component {
   static propTypes ={
     customer: PropTypes.object.isRequired
+  }
+
+  get customerName() {
+    const customer = this.props.customer;
+    if (customer.name) {
+      return (
+        <div className="fc-customer-info-name">
+          {customer.name}
+        </div>
+      );
+    }
+    return null;
+  }
+
+  get customerRank() {
+    const customer = this.props.customer;
+    if (_.isNumber(customer.rank)) {
+      return (
+        <div className="fc-customer-info-rank">
+          Top {customer.rank}%
+        </div>
+      );
+    }
+    return null;
   }
 
   render() {
@@ -12,13 +38,12 @@ export default class Customer extends React.Component {
     if (customer.createdAt !== undefined) {
       joinedAt = moment(customer.createdAt).format('MM/DD/YYYY HH:mm:ss');
     }
+
     return (
       <div className="fc-content-box fc-customer-title-block">
         <div className="fc-customer-info-header">
           <div className="fc-customer-info-head">
-            <div className="fc-customer-info-rank">
-              {customer.rank}
-            </div>
+            {this.customerRank}
           </div>
         </div>
         <article className="fc-customer-info-body">
@@ -30,9 +55,7 @@ export default class Customer extends React.Component {
             </div>
             <div className="fc-col-md-11-12">
               <div className="fc-col-md-1-1 fc-customer-name-block">
-                <div className="fc-customer-info-name">
-                  {customer.name}
-                </div>
+                {this.customerName}
                 <div className="fc-customer-info-email">
                   {customer.email}
                 </div>
@@ -51,7 +74,7 @@ export default class Customer extends React.Component {
                     <li>
                       <i className="icon-calendar"></i>
                       <span>{ joinedAt }</span>
-                      <span className="fc-comment">&nbsp;Date joined</span>
+                      <span className="fc-customer-info-comment">&nbsp;Date joined</span>
                     </li>
                   </ul>
                   <ul className="fc-customer-info-fields">
@@ -60,14 +83,14 @@ export default class Customer extends React.Component {
                     </li>
                     <li>
                       <i className="icon-usd"></i>
-                      <span>{ customer.totalSpent}</span>
-                      <span className="fc-comment">&nbsp;Total Sales</span>
+                      <span><Currency value={customer.totalSales} /></span>
+                      <span className="fc-customer-info-comment">&nbsp;Total Sales</span>
                     </li>
-                    <li>
-                      <i>{ customer.id}</i><span>days since last visit</span>
+                    <li className="fc-customer-info-days">
+                      <i>{ customer.id}</i><span>Days since last visit</span>
                     </li>
-                    <li>
-                      <i>{ customer.id}</i><span>days since last order</span>
+                    <li className="fc-customer-info-days">
+                      <i>{ customer.id}</i><span>Days since last order</span>
                     </li>
                   </ul>
               </div>
