@@ -17,6 +17,7 @@ object CustomerResponse {
     isGuest: Boolean,
     blacklisted: Boolean,
     rank: Option[Int] = None,
+    totalSales: Option[Int] = None,
     numOrders: Option[Int] = None,
     billingRegion: Option[String] = None,
     shippingRegion: Option[String] = None) extends ResponseItem
@@ -37,6 +38,7 @@ object CustomerResponse {
       disabled = customer.isDisabled,
       blacklisted = customer.isBlacklisted,
       rank = rank.map(_.rank),
+      totalSales = rank.map(_.revenue),
       numOrders = numOrders,
       billingRegion = billingRegion.map(_.name),
       shippingRegion = shippingRegion.map(_.name))
