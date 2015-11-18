@@ -89,6 +89,7 @@ class CreditCards(tag: Tag)
     regionId, addressName, address1, address2, city, zip) <> ((CreditCard.apply _).tupled, CreditCard.unapply)
 
   def customer        = foreignKey(Customers.tableName, customerId, Customers)(_.id)
+  def region          = foreignKey(Regions.tableName, regionId, Regions)(_.id)
 }
 
 object CreditCards extends TableQueryWithId[CreditCard, CreditCards](

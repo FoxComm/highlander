@@ -15,6 +15,7 @@ import org.scalatest.mock.MockitoSugar
 import payloads.CreateAddressPayload
 
 import responses.{ResponseWithFailuresAndMetadata, CustomerResponse}
+import responses.CreditCardsResponse.{Root ⇒ CardResponse}
 import services.orders.OrderPaymentUpdater
 import services.CreditCardFailure.StripeFailure
 import services.{CannotUseInactiveCreditCard, CreditCardManager, GeneralFailure, NotFoundFailure404,
@@ -322,11 +323,12 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val deleted = CreditCards.create(creditCard.copy(id = 0, inWallet = false)).run().futureValue.rightVal
 
       val response = GET(s"$uriPrefix/${customer.id}/payment-methods/credit-cards")
-      val cc = response.as[ResponseWithFailuresAndMetadata[Seq[CreditCard]]].result
+      val cc = response.as[Seq[CardResponse]]
+      val ccRegion = Regions.findOneById(creditCard.regionId).run().futureValue.value
 
       response.status must === (StatusCodes.OK)
       cc must have size 1
-      cc.head must === (creditCard)
+      cc.head must === (responses.CreditCardsResponse.build(creditCard, ccRegion))
       cc.head.id must !== (deleted.id)
     }
   }
@@ -339,7 +341,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val response = POST(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}/default", payload)
       response.status must === (StatusCodes.OK)
 
-      response.as[CreditCard].isDefault must === (true)
+      response.as[CardResponse].isDefault must === (true)
     }
 
     "fails to set the credit card as default if a default currently exists" in new Fixture {

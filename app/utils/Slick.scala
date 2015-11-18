@@ -8,6 +8,7 @@ import models.{Rmas, Orders}
 import responses.{RmaResponse, FullOrder}
 import services.{Failure, Failures, Result, GeneralFailure}
 import slick.ast._
+import slick.dbio.Effect.All
 import slick.driver.PostgresDriver._
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.{ResultSetInvoker, SQLActionBuilder, GetResult, JdbcResultConverterDomain, SetParameter}
@@ -287,11 +288,16 @@ object Slick {
     }
 
     implicit class EnrichedDBIOpt[R](val dbio: DBIO[Option[R]]) extends AnyVal {
-      def mustFindOr(notFoundFailure: Failure)(implicit ec: ExecutionContext): DbResult[R] =
-        dbio.flatMap {
-          case Some(model) ⇒ DbResult.good(model)
-          case None ⇒ DbResult.failure(notFoundFailure)
-        }
+      def mustFindOr(notFoundFailure: Failure)(implicit ec: ExecutionContext): DbResult[R] = dbio.flatMap {
+        case Some(model) ⇒ DbResult.good(model)
+        case None ⇒ DbResult.failure(notFoundFailure)
+      }
+
+      // we only use this when we *know* we can call head safely on a query. (e.g., you've created a record which
+      // has a FK constraint to another table and you then fetch that associated record -- we already *know* it must
+      // exist.
+      @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.OptionPartial"))
+      def safeGet(implicit ec: ExecutionContext): DBIO[R] = dbio.map(_.get)
     }
 
     implicit class EnrichedDbResult[A](val r: DbResult[A]) extends AnyVal {

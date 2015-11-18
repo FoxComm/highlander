@@ -10,25 +10,37 @@ import cats.implicits._
 import com.stripe.model.{Card ⇒ StripeCard, Customer ⇒ StripeCustomer}
 import models.OrderPayments.scope._
 import models.Orders.scope._
-import models.{Address, Addresses, CreditCard, CreditCards, Customer, OrderPayments, Orders}
+import models.{Region, Regions, Address, Addresses, CreditCard, CreditCards, Customer, OrderPayments, Orders}
 import payloads.{CreateAddressPayload, CreateCreditCard, EditCreditCard}
+import slick.dbio
+import slick.dbio.Effect.All
 
 import slick.driver.PostgresDriver.api._
 import utils.Apis
 import utils.CustomDirectives.SortAndPage
+import utils.Slick.DbResult
 import utils.Slick.UpdateReturning._
 import utils.Slick.implicits._
 import utils.jdbc._
+
+import utils.DbResultT.*
+import utils.DbResultT.implicits._
 
 import utils.time.JavaTimeSlickMapper.instantAndTimestampWithoutZone
 
 object CreditCardManager {
   private def gateway(implicit ec: ExecutionContext, apis: Apis): Stripe = Stripe()
 
-  type QuerySeq = models.CreditCards.QuerySeq
+  type Root = responses.CreditCardsResponse.Root
+
+  def buildResponse(card: CreditCard, region: Region): Root =
+    responses.CreditCardsResponse.build(card, region)
+
+  def buildResponses(records: Seq[(CreditCard, Region)]): Seq[Root] =
+    records.map((buildResponse _).tupled)
 
   def createCardThroughGateway(customer: Customer, payload: CreateCreditCard)
-    (implicit ec: ExecutionContext, db: Database, apis: Apis): Result[CreditCard] = {
+    (implicit ec: ExecutionContext, db: Database, apis: Apis): Result[Root] = {
 
     def saveCardAndAddress(stripeCustomer: StripeCustomer, stripeCard: StripeCard, address: Address):
     ResultT[DBIO[CreditCard]] = {
@@ -64,15 +76,25 @@ object CreditCardManager {
       }
     } yield newCard
 
-    transformer.value.flatMap(_.fold(Result.left, dbio ⇒ Result.fromFuture(dbio.transactionally.run())))
+    transformer.value.flatMap { res ⇒
+      res.fold(
+        Result.left,
+        _.flatMap { newCard ⇒
+          DBIO.successful(newCard).zip(Regions.findOneById(newCard.regionId).safeGet)
+        }.transactionally.run().flatMap { case (cc, r) ⇒ Result.good(buildResponse(cc, r)) }
+      )
+    }
   }
 
   def toggleCreditCardDefault(customerId: Int, cardId: Int, isDefault: Boolean)
-    (implicit ec: ExecutionContext, db: Database): Result[CreditCard] = {
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
     def ifNotFound = NotFoundFailure404(CreditCard, cardId)
     swapDatabaseFailure {
-      CreditCards.findById(cardId).extract.filter(_.customerId === customerId).map(_.isDefault).
-        updateReturningHeadOption(CreditCards.map(identity), isDefault, ifNotFound).run()
+      (for {
+        cc      ← * <~ CreditCards.findById(cardId).extract.filter(_.customerId === customerId).map(_.isDefault).
+          updateReturningHeadOption(CreditCards.map(identity), isDefault, ifNotFound)
+        region  ← * <~ Regions.findOneById(cc.regionId).safeGet.toXor
+      } yield buildResponse(cc, region)).value.run()
     } { (NotUnique, CustomerHasDefaultCreditCard) }
   }
 
@@ -90,7 +112,7 @@ object CreditCardManager {
   }
 
   def editCreditCard(customerId: Int, id: Int, payload: EditCreditCard)
-    (implicit ec: ExecutionContext, db: Database, apis: Apis): Result[CreditCard] = {
+    (implicit ec: ExecutionContext, db: Database, apis: Apis): Result[Root] = {
 
     def update(cc: CreditCard): ResultT[DBIO[CreditCard]] = {
       if (!cc.inWallet)
@@ -155,17 +177,23 @@ object CreditCardManager {
       payment ← cascadeChangesToCarts(withAddress)
     } yield payment
 
-    transformer.value.flatMap(_.fold(Result.left, dbio ⇒ Result.fromFuture(dbio.transactionally.run())))
+    transformer.value.flatMap { res ⇒
+      res.fold(
+        Result.left,
+        _.flatMap { newCard ⇒
+          DBIO.successful(newCard).zip(Regions.findOneById(newCard.regionId).safeGet)
+        }.transactionally.run().flatMap { case (cc, r) ⇒ Result.good(buildResponse(cc, r)) }
+      )
+    }
   }
 
   def creditCardsInWalletFor(customerId: Int)
-    (implicit ec: ExecutionContext, db: Database, sortAndPage: SortAndPage): ResultWithMetadata[Seq[CreditCard]] = {
-    val query = CreditCards.findInWalletByCustomerId(customerId)
+    (implicit ec: ExecutionContext, db: Database): Future[Seq[Root]] = (for {
+    cc      ← CreditCards.findInWalletByCustomerId(customerId)
+    region  ← cc.region
+  } yield (cc, region)).result.map(buildResponses).run()
 
-    CreditCards.sortedAndPaged(query).result
-  }
-
-  def getCard(customerId: Int, id: Int)
+  private def getCard(customerId: Int, id: Int)
     (implicit ec: ExecutionContext, db: Database): DBIO[Option[CreditCard]] =
     CreditCards.findById(id).extract.filter(_.customerId === customerId).one
 
