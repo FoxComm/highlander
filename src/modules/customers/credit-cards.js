@@ -98,13 +98,26 @@ export function toggleDefault(customerId, creditCardId) {
 
     const cards = _.get(getState(), 'customers.creditCards', {});
     const cardsArray = _.get(cards, [customerId, 'cards']);
-    const card = _.find(cardsArray, (card) => card.id === creditCardId);
+    const currentDefault = _.find(cardsArray, card => card.isDefault);
+    const card = _.find(cardsArray, card => card.id === creditCardId);
     const payload = {isDefault: !card.isDefault};
 
-    Api.post(`/customers/${customerId}/payment-methods/credit-cards/${creditCardId}/default`, payload)
-      .then(() => {
-        fetchForCustomer(customerId, dispatch);
-       }).catch(err => dispatch(failCustomerCreditCards(customerId, err)));
+    if (currentDefault !== null && currentDefault !== undefined) {
+      const currentDefaultId = currentDefault.id;
+      const resetPayload = {isDefault: false};
+      Api.post(`/customers/${customerId}/payment-methods/credit-cards/${currentDefaultId}/default`, resetPayload)
+        .then(() => {
+          Api.post(`/customers/${customerId}/payment-methods/credit-cards/${creditCardId}/default`, payload)
+            .then(() => {
+              fetchForCustomer(customerId, dispatch);
+            });
+         }).catch(err => dispatch(failCustomerCreditCards(customerId, err)));
+    } else {
+      Api.post(`/customers/${customerId}/payment-methods/credit-cards/${creditCardId}/default`, payload)
+        .then(() => {
+          fetchForCustomer(customerId, dispatch);
+         }).catch(err => dispatch(failCustomerCreditCards(customerId, err)));
+    }
   };
 }
 
@@ -159,11 +172,11 @@ const reducer = createReducer({
   },
   [receiveCustomerCreditCards]: (state, [id, payload]) => {
     const cards = _.get(payload, 'result', []);
-    return assoc(state, [id, 'cards'], cards, [id, 'isFetiching'], false);
+    return assoc(state, [id, 'cards'], cards, [id, 'isFetching'], false);
   },
   [failCustomerCreditCards]: (state, [id, err]) => {
     console.error(err);
-    return assoc(state, [id, 'err'], err, [id, 'isFetiching'], false);
+    return assoc(state, [id, 'err'], err, [id, 'isFetching'], false);
   },
 }, initialState);
 

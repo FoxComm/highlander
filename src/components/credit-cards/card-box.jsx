@@ -21,6 +21,7 @@ export default class CreditCardBox extends React.Component {
 
   render() {
     const card = this.props.card;
+    console.log(`Card ${card.id} is ${card.isDefault}`);
 
     return (
       <EditableItemCardContainer className="fc-credit-cards"
