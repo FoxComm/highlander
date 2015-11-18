@@ -3,7 +3,6 @@ import classNames from 'classnames';
 
 const DefaultCheckbox = props => {
   const {className, ...rest} = props;
-  console.log(props);
   return (
     <div className={ className }>
       <input type="checkbox" {...rest} />
