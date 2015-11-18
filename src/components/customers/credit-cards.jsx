@@ -35,10 +35,6 @@ export default class CustomerCreditCards extends React.Component {
     this.props.fetchCreditCards();
   }
 
-  componentDidUpdate() {
-    console.log(this.props);
-  }
-
   ////
   // Handlers for adding new credit card
   @autobind
