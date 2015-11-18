@@ -2,16 +2,20 @@ import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 import { orderSuccess } from './details.js';
 
-export const orderShippingMethodRequest = createAction('ORDER_SHIPPING_METHOD_REQUEST');
-export const orderShippingMethodRequestSuccess = createAction('ORDER_SHIPPING_METHOD_REQUEST_SUCCESS');
-export const orderShippingMethodRequestFailed = createAction('ORDER_SHIPPING_METHOD_REQUEST_FAILED');
-export const orderShippingMethodStartEdit = createAction('ORDER_SHIPPING_METHOD_START_EDIT');
-export const orderShippingMethodCancelEdit = createAction('ORDER_SHIPPING_METHOD_CANCEL_EDIT');
-export const orderShippingMethodStartEditPrice = createAction('ORDER_SHIPPING_METHOD_START_EDIT_PRICE');
-export const orderShippingMethodCancelEditPrice = createAction('ORDER_SHIPPING_METHOD_CANCEL_EDIT_PRICE');
-export const orderShippingMethodUpdate = createAction('ORDER_SHIPPING_METHOD_UPDATE');
-export const orderShippingMethodUpdateSuccess = createAction('ORDER_SHIPPING_METHOD_UPDATE_SUCCESS');
-export const orderShippingMethodUpdateFailed = createAction('ORDER_SHIPPING_METHOD_UPDATE_FAILED');
+export const orderShippingMethodRequest = _createAction('REQUEST');
+export const orderShippingMethodRequestSuccess = _createAction('REQUEST_SUCCESS');
+export const orderShippingMethodRequestFailed = _createAction('REQUEST_FAILED');
+export const orderShippingMethodStartEdit = _createAction('START_EDIT');
+export const orderShippingMethodCancelEdit = _createAction('CANCEL_EDIT');
+export const orderShippingMethodStartEditPrice = _createAction('START_EDIT_PRICE');
+export const orderShippingMethodCancelEditPrice = _createAction('CANCEL_EDIT_PRICE');
+export const orderShippingMethodUpdate = _createAction('UPDATE');
+export const orderShippingMethodUpdateSuccess = _createAction('UPDATE_SUCCESS');
+export const orderShippingMethodUpdateFailed = _createAction('UPDATE_FAILED');
+
+const _createAction = (description, ...args) => {
+  return createAction(`ORDER_SHIPPING_METHOD_${description}`, ...args);
+};
 
 export function fetchShippingMethods(order) {
   return dispatch => {
