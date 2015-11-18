@@ -31,10 +31,11 @@ final case class ActivateCustomerPayload(name: String)
 
   def validate: ValidatedNel[Failure, ActivateCustomerPayload] =
     notEmpty(name, "name").map { case _ ⇒ this }
-
 }
 
 final case class ToggleCustomerDisabled(disabled: Boolean)
+// TODO: add blacklistedReason later
+final case class ToggleCustomerBlacklisted(blacklisted: Boolean)
 
 final case class CustomerSearchForNewOrder(term: String)
   extends Validation[CustomerSearchForNewOrder] {

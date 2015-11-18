@@ -20,7 +20,8 @@ import payloads.CreateCustomerPayload
 import utils.Passwords._
 
 final case class Customer(id: Int = 0, email: String, password: Option[String] = None,
-  name: Option[String] = None, isDisabled: Boolean = false, isBlacklisted: Boolean = false,
+  name: Option[String] = None, isDisabled: Boolean = false, disabledBy: Option[Int] = None,
+  isBlacklisted: Boolean = false, blacklistedBy: Option[Int] = None,
   phoneNumber: Option[String] = None, location: Option[String] = None,
   modality: Option[String] = None, isGuest: Boolean = false, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[Customer]
@@ -72,7 +73,7 @@ class Customers(tag: Tag) extends TableWithId[Customer](tag, "customers") {
   def createdAt = column[Instant]("created_at")
 
   def * = (id, email, password, name,
-    isDisabled, isBlacklisted, phoneNumber,
+    isDisabled, disabledBy, isBlacklisted, blacklistedBy, phoneNumber,
     location, modality, isGuest, createdAt) <>((Customer.apply _).tupled, Customer.unapply)
 }
 

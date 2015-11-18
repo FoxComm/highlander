@@ -261,10 +261,59 @@ class CustomerIntegrationTest extends IntegrationTestBase
     "toggles the isDisabled flag on a customer account" in new Fixture {
       customer.isDisabled must === (false)
 
+      val disableResp = POST(s"$uriPrefix/${customer.id}/disable", payloads.ToggleCustomerDisabled(true))
+      disableResp.status must === (StatusCodes.OK)
+      disableResp.as[CustomerResponse.Root].disabled must === (true)
+
+      val enableResp = POST(s"$uriPrefix/${customer.id}/disable", payloads.ToggleCustomerDisabled(false))
+      enableResp.status must === (StatusCodes.OK)
+      enableResp.as[CustomerResponse.Root].disabled must === (false)
+    }
+
+    "fails if customer not found" in new Fixture {
+      val response = POST(s"$uriPrefix/999/disable", payloads.ToggleCustomerDisabled(true))
+
+      response.status must === (StatusCodes.NotFound)
+      response.errors must === (NotFoundFailure404(Customer, 999).description)
+    }
+
+    "disable already disabled account is ok (overwrite behaviour)" in new Fixture {
+      val updated = rightValue(Customers.update(customer, customer.copy(isDisabled = true)).futureValue)
+      updated.isDisabled must === (true)
+
       val response = POST(s"$uriPrefix/${customer.id}/disable", payloads.ToggleCustomerDisabled(true))
       response.status must === (StatusCodes.OK)
+      response.as[CustomerResponse.Root].disabled must === (true)
+    }
+  }
 
-      response.as[Customer].isDisabled must === (true)
+  "POST /v1/customers/:customerId/blacklist" - {
+    "toggles the isBlacklisted flag on a customer account" in new Fixture {
+      customer.isBlacklisted must === (false)
+
+      val responseAdd = POST(s"$uriPrefix/${customer.id}/blacklist", payloads.ToggleCustomerBlacklisted(true))
+      responseAdd.status must === (StatusCodes.OK)
+      responseAdd.as[CustomerResponse.Root].blacklisted must === (true)
+
+      val responseRemove = POST(s"$uriPrefix/${customer.id}/blacklist", payloads.ToggleCustomerBlacklisted(false))
+      responseRemove.status must === (StatusCodes.OK)
+      responseRemove.as[CustomerResponse.Root].blacklisted must === (false)
+    }
+
+    "fails if customer not found" in new Fixture {
+      val response = POST(s"$uriPrefix/999/blacklist", payloads.ToggleCustomerBlacklisted(true))
+
+      response.status must === (StatusCodes.NotFound)
+      response.errors must === (NotFoundFailure404(Customer, 999).description)
+    }
+
+    "blacklist already blacklisted account is ok (overwrite behaviour)" in new Fixture {
+      val updated = rightValue(Customers.update(customer, customer.copy(isBlacklisted = true)).futureValue)
+      updated.isBlacklisted must === (true)
+
+      val response = POST(s"$uriPrefix/${customer.id}/blacklist", payloads.ToggleCustomerBlacklisted(true))
+      response.status must === (StatusCodes.OK)
+      response.as[CustomerResponse.Root].blacklisted must === (true)
     }
   }
 

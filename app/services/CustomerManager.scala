@@ -1,17 +1,19 @@
 package services
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.ExecutionContext
 
 import cats.data.Validated.{Valid, Invalid}
-import cats.data.{XorT, Xor}
+import cats.data.Xor
 import cats.implicits._
 import models._
-import models.{Customers, StoreAdmin, Customer}
 import models.Customers.scope._
 import responses.CustomerResponse._
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
-import utils.Slick.DbResult
+
+import utils.DbResultT.*
+import utils.DbResultT.implicits._
+
 import utils.Slick.implicits._
 import utils.Slick.UpdateReturning._
 import payloads.{CreateCustomerPayload, UpdateCustomerPayload, ActivateCustomerPayload, CustomerSearchForNewOrder}
@@ -19,13 +21,22 @@ import utils.jdbc._
 
 object CustomerManager {
 
+  private def customerNotFound(id: Int): NotFoundFailure404 = NotFoundFailure404(Customer, id)
+
   def toggleDisabled(customerId: Int, disabled: Boolean, admin: StoreAdmin)
-    (implicit ec: ExecutionContext, db: Database): Result[Customer] = {
-    (for {
-      updated ← Customers.filter(_.id === customerId).map { t ⇒ (t.isDisabled, t.disabledBy) }.
-        updateReturningHeadOption(Customers.map(identity), (disabled, Some(admin.id)), NotFoundFailure404(Customer, customerId))
-    } yield updated).run()
-  }
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
+      customer ← * <~ Customers.mustFindById(customerId)(customerNotFound)
+      updated ← * <~ Customers.update(customer, customer.copy(isDisabled = disabled, disabledBy = Some(admin.id)))
+    } yield build(updated)).value.run()
+
+
+  // TODO: add blacklistedReason later
+  def toggleBlacklisted(customerId: Int, blacklisted: Boolean, admin: StoreAdmin)
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
+      customer ← * <~ Customers.mustFindById(customerId)(customerNotFound)
+      updated ← * <~ Customers.update(customer, customer.copy(isBlacklisted = blacklisted, blacklistedBy = Some(admin
+        .id)))
+    } yield build(updated)).value.run()
 
   def findAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
     val query = Customers.withRegionsAndRank
