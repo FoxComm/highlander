@@ -33,7 +33,7 @@ export default class CustomerDetails extends React.Component {
     return (
       <div className="fc-customer-details">
         <SectionSubtitle title="Details" />
-        <div className="fc-grid">
+        <div className="fc-grid fc-grid-gutter">
           <div className="fc-col-md-1-2">
             <CustomerContacts customer={ customer } />
           </div>
@@ -42,22 +42,22 @@ export default class CustomerDetails extends React.Component {
             <CustomerRoles />
           </div>
         </div>
-        <div className="fc-grid">
+        <div className="fc-grid fc-grid-gutter">
           <div className="fc-col-md-1-1">
             <CustomerAddressBook customerId={ customer.id } addresses={ addresses } />
           </div>
         </div>
-        <div className="fc-grid">
+        <div className="fc-grid fc-grid-gutter">
           <div className="fc-col-md-1-1">
             <CustomerCreditCards customerId={ customer.id } addresses={ addresses } />
           </div>
         </div>
-        <div className="fc-grid">
+        <div className="fc-grid fc-grid-gutter">
           <div className="fc-col-md-1-1">
             <CustomerGroups />
           </div>
         </div>
-        <div className="fc-grid">
+        <div className="fc-grid fc-grid-gutter">
           <div className="fc-col-md-1-2">
             <CustomerNotificationSettings />
           </div>

@@ -3,7 +3,6 @@ import React, { PropTypes } from 'react';
 import FormField from '../forms/formfield';
 import InputMask from 'react-input-mask';
 import Form from '../forms/form';
-import { listenTo, stopListeningTo, dispatch } from '../../lib/dispatcher';
 import CountryStore from '../../stores/countries';
 import AddressStore from '../../stores/addresses';
 import * as validators from '../../lib/validators';

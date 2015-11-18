@@ -14,14 +14,20 @@ describe('ConfirmationDialog', function() {
   };
 
   it('should not render if isVisible is falsy', function *() {
-    const dialog = shallowRender(<ConfirmationDialog {...defaultProps} isVisible={false} />);
+    const { container } = yield renderIntoDocument(
+      <div><ConfirmationDialog {...defaultProps} isVisible={false}/></div>
+    );
 
-    expect(ShallowTestUtils.findAllWithClass(dialog, 'fc-modal')).to.be.empty;
+    expect(container.querySelector('.fc-modal')).to.be.null;
+    container.unmount();
   });
 
   it('should render if isVisible is truly', function *() {
-    const dialog = shallowRender(<ConfirmationDialog {...defaultProps} isVisible={true} />);
+    const { container } = yield renderIntoDocument(
+      <div><ConfirmationDialog {...defaultProps} isVisible={true}/></div>
+    );
 
-    ShallowTestUtils.findWithClass(dialog, 'fc-modal');
+    expect(container.querySelector('.fc-modal')).to.be.ok;
+    container.unmount();
   });
 });

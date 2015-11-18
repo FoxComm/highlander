@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import Api from '../../lib/api';
-import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 import { haveType } from '../state-helpers';
+import { assoc } from 'sprout-data';
 
 
 const receiveCustomer = createAction('CUSTOMER_RECEIVE', (id, customer) => [id, customer]);
@@ -12,6 +12,22 @@ const updateCustomer = createAction('CUSTOMER_UPDATED', (id, customer) => [id, c
 const receiveCustomerAdresses = createAction('CUSTOMER_ADDRESSES_RECEIVE', (id, addresses) => [id, addresses]);
 
 const requestCustomerAdresses = createAction('CUSTOMER_ADDRESSES_REQUEST');
+
+
+// status
+const submitToggleDisableStatus = createAction('CUSTOMER_SUBMIT_DISABLE_STATUS');
+const receivedDisableStatus = createAction('CUSTOMER_RECEIVED_DISABLE_STATUS', (id, customer) => [id, customer]);
+
+const submitToggleBlacklisted = createAction('CUSTOMER_SUBMIT_BLACKLISTED');
+const receivedBlacklisted = createAction('CUSTOMER_RECEIVED_BLACKLISTED', (id, customer) => [id, customer]);
+
+const failChangeStatus = createAction('CUSTOMER_FAIL_CHANGE_STATUS', (id, err) => [id, err]);
+
+export const startDisablingCustomer = createAction('CUSTOMER_START_DISABLING');
+export const stopDisablingCustomer = createAction('CUSTOMER_STOP_DISABLING');
+
+export const startBlacklistCustomer = createAction('CUSTOMER_START_BLACKLIST');
+export const stopBlacklistCustomer = createAction('CUSTOMER_STOP_BLACKLIST');
 
 
 export function fetchCustomer(id) {
@@ -38,6 +54,28 @@ export function fetchAddresses(id) {
     Api.get(`/customers/${id}/addresses`)
       .then(addresses => dispatch(receiveCustomerAdresses(id, addresses)))
       .catch(err => dispatch(failCustomer(id, err, fetchCustomer)));
+  };
+}
+
+export function toggleDisableStatus(id, isDisabled) {
+  return dispatch => {
+    dispatch(stopDisablingCustomer());
+    dispatch(submitToggleDisableStatus(id));
+
+    Api.post(`/customers/${id}/disable`, {disabled: isDisabled})
+      .then(customer => dispatch(receivedDisableStatus(id, customer)))
+      .catch(err => dispatch(failChangeStatus(id, err)));
+  };
+}
+
+export function toggleBlacklisted(id, isBlacklisted) {
+  return dispatch => {
+    dispatch(stopBlacklistCustomer());
+    dispatch(submitToggleBlacklisted(id));
+
+    Api.post(`/customers/${id}/blacklist`, {blacklisted: isBlacklisted})
+      .then(customer => dispatch(receivedBlacklisted(id, customer)))
+      .catch(err => dispatch(failChangeStatus(id, err)));
   };
 }
 
@@ -73,6 +111,38 @@ const reducer = createReducer({
   },
   [requestCustomerAdresses]: (state, id) => {
     return assoc(state, [id, 'isFetchingAddresses'], true);
+  },
+  [submitToggleDisableStatus]: (state, id) => {
+    return assoc(state, [id, 'isFetchingStatus'], true);
+  },
+  [submitToggleBlacklisted]: (state, id) => {
+    return assoc(state, [id, 'isFetchingStatus'], true);
+  },
+  [receivedDisableStatus]: (state, [id, customer]) => {
+    return assoc(state,
+      [id, 'isFetchingStatus'], false,
+      [id, 'details', 'disabled'],  customer.disabled);
+  },
+  [receivedBlacklisted]: (state, [id, customer]) => {
+    return assoc(state,
+      [id, 'isFetchingStatus'], false,
+      [id, 'details', 'blacklisted'],  customer.blacklisted);
+  },
+  [failChangeStatus]: (state, [id, err]) => {
+    console.error(err);
+    return assoc(state, [id, 'isFetchingStatus'], false);
+  },
+  [startDisablingCustomer]: (state) => {
+    return assoc(state, 'isDisablingStarted', true);
+  },
+  [stopDisablingCustomer]: (state) => {
+    return assoc(state, 'isDisablingStarted', false);
+  },
+  [startBlacklistCustomer]: (state) => {
+    return assoc(state, 'isBlacklistedStarted', true);
+  },
+  [stopBlacklistCustomer]: (state) => {
+    return assoc(state, 'isBlacklistedStarted', false);
   },
   [receiveCustomerAdresses]: (state, [id, payload]) => {
     const addresses = _.get(payload, 'result', []);
