@@ -1,10 +1,13 @@
 import _ from 'lodash';
 import nock from 'nock';
+import thunk from 'redux-thunk';
 
 const { reducer, ...actions } = importModule('customers/credit-cards.js', [
   'fetchCreditCards',
   'requestCustomerCreditCards',
-  'receiveCustomerCreditCards'
+  'receiveCustomerCreditCards',
+  'createCreditCard',
+  'closeNewCustomerCreditCard'
 ]);
 
 describe('customers credit cards module', function() {
@@ -34,6 +37,45 @@ describe('customers credit cards module', function() {
       ];
 
       yield expect(actions.fetchCreditCards(customerId), 'to dispatch actions', expectedActions);
+    });
+
+    context('createCreditCard', function() {
+      const payload = {
+        holderName: 'Yax',
+        number: '4242424242424242',
+        cvv: '123',
+        expMonth: 11,
+        expYear: 2017,
+        isDefault: false,
+        addressId: 1
+      };
+
+      beforeEach(function() {
+        const uri = creditCardsUrl(customerId);
+        nock(phoenixUrl)
+          .get(uri)
+          .reply(200, creditCardPayload)
+          .post(uri)
+          .reply(201, payload);
+      });
+
+      const initialState = {
+        [customerId]: {
+          cards: [],
+          newCreditCard: payload
+        }
+      };
+
+      it('should close form and fetch customers', function*() {
+        const expectedActions = [
+          actions.requestCustomerCreditCards,
+          actions.closeNewCustomerCreditCard,
+          actions.receiveCustomerCreditCards
+        ];
+
+        yield expect(actions.createCreditCard(customerId), 'to dispatch actions', expectedActions, initialState);
+      });
+
     });
 
   });
