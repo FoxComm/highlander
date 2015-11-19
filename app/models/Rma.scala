@@ -20,8 +20,8 @@ import utils.Slick.DbResult
 
 final case class Rma(id: Int = 0, referenceNumber: String = "", orderId: Int, orderRefNum: String,
   rmaType: RmaType = Standard, status: Status = Pending, locked: Boolean = false,
-  customerId: Int, storeAdminId: Option[Int] = None, createdAt: Instant = Instant.now,
-  updatedAt: Instant = Instant.now, deletedAt: Option[Instant] = None)
+  customerId: Int, storeAdminId: Option[Int] = None, messageToCustomer: Option[String] = None,
+  createdAt: Instant = Instant.now, updatedAt: Instant = Instant.now, deletedAt: Option[Instant] = None)
   extends ModelWithLockParameter[Rma]
   with FSM[Rma.Status, Rma] {
 
@@ -65,6 +65,7 @@ object Rma {
   implicit val StatusTypeColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
 
   val rmaRefNumRegex = """([a-zA-Z0-9-_.]*)""".r
+  val messageToCustomerMaxLength = 1000
 
   def build(order: Order, admin: StoreAdmin, rmaType: RmaType = Rma.Standard): Rma = {
     Rma(
@@ -87,12 +88,13 @@ class Rmas(tag: Tag) extends GenericTable.TableWithLock[Rma](tag, "rmas")  {
   def locked = column[Boolean]("locked")
   def customerId = column[Int]("customer_id")
   def storeAdminId = column[Option[Int]]("store_admin_id")
+  def messageToCustomer = column[Option[String]]("message_to_customer")
   def createdAt = column[Instant]("created_at")
   def updatedAt = column[Instant]("updated_at")
   def deletedAt = column[Option[Instant]]("deleted_at")
 
   def * = (id, referenceNumber, orderId, orderRefNum, rmaType, status, locked, customerId,
-    storeAdminId, createdAt, updatedAt, deletedAt) <> ((Rma.apply _).tupled, Rma.unapply)
+    storeAdminId, messageToCustomer, createdAt, updatedAt, deletedAt) <> ((Rma.apply _).tupled, Rma.unapply)
 }
 
 object Rmas extends TableQueryWithLock[Rma, Rmas](

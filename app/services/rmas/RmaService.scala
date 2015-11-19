@@ -7,15 +7,26 @@ import payloads._
 import responses.{CustomerResponse, StoreAdminResponse, AllRmas}
 import services._
 import responses.RmaResponse._
+import services.rmas.Helpers._
 import slick.driver.PostgresDriver.api._
-import slick.jdbc.TransactionIsolation
 import utils.CustomDirectives
 import utils.CustomDirectives.SortAndPage
+import utils.DbResultT.*
+import utils.DbResultT.implicits._
 import utils.Slick._
 import utils.Slick.DbResult
 import utils.Slick.implicits._
 
 object RmaService {
+  def updateMessageToCustomer(refNum: String, payload: RmaMessageToCustomerPayload)
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
+    _         ← * <~ payload.validate.toXor
+    rma       ← * <~ mustFindPendingRmaByRefNum(refNum)
+    newMessage = if (payload.message.length > 0) Some(payload.message) else None
+    update    ← * <~ Rmas.update(rma, rma.copy(messageToCustomer = newMessage))
+    response  ← * <~ fullRma(Rmas.findByRefNum(refNum)).toXor
+  } yield response).value.transactionally.run()
+
   def createByAdmin(admin: StoreAdmin, payload: RmaCreatePayload)
     (implicit db: Database, ec: ExecutionContext): Result[Root] = {
 

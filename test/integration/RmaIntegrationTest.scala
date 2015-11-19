@@ -6,7 +6,7 @@ import scala.concurrent.Future
 import Extensions._
 import models._
 import org.json4s.jackson.JsonMethods._
-import payloads.{RmaCreatePayload, RmaAssigneesPayload}
+import payloads.{RmaMessageToCustomerPayload, RmaCreatePayload, RmaAssigneesPayload}
 import responses.{AllRmas, StoreAdminResponse, ResponseWithFailuresAndMetadata, RmaResponse, RmaLockResponse}
 import responses.RmaResponse.FullRmaWithWarnings
 import services._
@@ -100,6 +100,41 @@ class RmaIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/rmas", RmaCreatePayload(orderRefNum = "ABC-666", rmaType = Rma.Standard))
         response.status must === (StatusCodes.NotFound)
         response.errors must === (NotFoundFailure404(Order, "ABC-666").description)
+      }
+    }
+
+    "POST /v1/rmas/:refNum/message" - {
+      "successfully manipulates with message to the customer" in new Fixture {
+        // Creates message
+        val payload = RmaMessageToCustomerPayload(message = "Hello!")
+        val response = POST(s"v1/rmas/${rma.referenceNumber}/message", payload)
+        response.status must === (StatusCodes.OK)
+
+        val root = response.as[RmaResponse.Root]
+        root.messageToCustomer.head must === (payload.message)
+
+        // Edits (cleans) message
+        val responseClean = POST(s"v1/rmas/${rma.referenceNumber}/message", RmaMessageToCustomerPayload(message = ""))
+        responseClean.status must === (StatusCodes.OK)
+
+        val rootClean = responseClean.as[RmaResponse.Root]
+        rootClean.messageToCustomer must === (None)
+      }
+
+      "fails if RMA not found" in new Fixture {
+        val payload = RmaMessageToCustomerPayload(message = "Hello!")
+        val response = POST(s"v1/rmas/99/message", payload)
+
+        response.status must === (StatusCodes.NotFound)
+        response.errors must === (NotFoundFailure404(Rma, "99").description)
+      }
+
+      "fails if message is too long" in new Fixture {
+        val payload = RmaMessageToCustomerPayload(message = List.fill(Rma.messageToCustomerMaxLength)("Yax").mkString)
+        val response = POST(s"v1/rmas/99/message", payload)
+
+        response.status must === (StatusCodes.BadRequest)
+        response.errors must === (GeneralFailure("Message length got 3000, expected 1000 or less").description)
       }
     }
 

@@ -1,10 +1,14 @@
 package payloads
 
 import cats.data._
+import cats.implicits._
 import models.Rma
 import services.Failure
+import utils.Litterbox._
 import utils.Validation
 import Validation._
+
+/* General */
 
 final case class RmaCreatePayload(orderRefNum: String, rmaType: Rma.RmaType)
 
@@ -39,3 +43,14 @@ final case class RmaCcPaymentPayload(creditCardId: Int, amount: Int) extends Val
 final case class RmaAssigneesPayload(assignees: Seq[Int])
 
 final case class RmaBulkAssigneesPayload(referenceNumbers: Seq[String], assigneeId: Int)
+
+/* Misc */
+
+final case class RmaMessageToCustomerPayload(message: String) extends Validation[RmaMessageToCustomerPayload] {
+
+  def validate: ValidatedNel[Failure, RmaMessageToCustomerPayload] = {
+    (greaterThanOrEqual(message.length , 0, "Message length")
+      |@| lesserThanOrEqual(message.length, Rma.messageToCustomerMaxLength, "Message length")
+      ).map { case _ ⇒ this }
+  }
+}
