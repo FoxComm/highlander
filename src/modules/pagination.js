@@ -26,7 +26,7 @@ export function fetchMeta(namespace, actionType) {
 
 export function pickFetchParams(state, extraState = {}) {
   return {
-    from: get(extraState, 'from', state && state.from) || null, // we don't want pass 0 to phoenix
+    from: get(extraState, 'from', state && state.from),
     size: get(extraState, 'size', state && state.size),
     sortBy: get(extraState, 'sortBy', state && state.sortBy)
   };
