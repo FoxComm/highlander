@@ -11,8 +11,6 @@ import models._
 import payloads._
 import services.rmas._
 
-import responses.StoreAdminResponse
-import responses.RmaResponse._
 import slick.driver.PostgresDriver.api._
 import utils.Apis
 import utils.Http._
@@ -24,9 +22,6 @@ object RmaRoutes {
     mat: Materializer, storeAdminAuth: AsyncAuthenticator[StoreAdmin], apis: Apis) = {
 
     authenticateBasicAsync(realm = "admin", storeAdminAuth) { admin ⇒
-      val adminResponse = Some(StoreAdminResponse.build(admin))
-      val genericRmaMock = buildMockRma(id = 1, refNum = "ABC-123", admin = adminResponse)
-
       pathPrefix("rmas") {
         (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
           goodOrFailures {
@@ -80,11 +75,6 @@ object RmaRoutes {
             RmaService.getExpandedByRefNum(refNum)
           }
         } ~
-        (patch & entity(as[RmaUpdateStatusPayload]) & pathEnd) { payload ⇒
-          good {
-            genericRmaMock.copy(status = payload.status)
-          }
-        } ~
         (post & path("message") & pathEnd & entity(as[RmaMessageToCustomerPayload])) { payload ⇒
           goodOrFailures {
             RmaService.updateMessageToCustomer(refNum, payload)
@@ -105,23 +95,44 @@ object RmaRoutes {
             RmaLockUpdater.unlock(refNum)
           }
         } ~
-        (post & path("line-items") & pathEnd & entity(as[Seq[RmaSkuLineItemsPayload]])) { reqItems ⇒
-          good {
-            genericRmaMock
+        pathPrefix("line-items" / "skus") {
+          (post & pathEnd & entity(as[RmaSkuLineItemsPayload])) { payload ⇒
+            goodOrFailures {
+              RmaLineItemUpdater.addSkuLineItem(refNum, payload)
+            }
+          } ~
+          (delete & path(IntNumber) & pathEnd) { lineItemId ⇒
+            goodOrFailures {
+              RmaLineItemUpdater.deleteSkuLineItem(refNum, lineItemId)
+            }
           }
         } ~
-        (post & path("gift-cards") & pathEnd & entity(as[Seq[RmaGiftCardLineItemsPayload]])) { reqItems ⇒
-          good {
-            genericRmaMock
+        pathPrefix("line-items" / "gift-cards") {
+          (post & pathEnd & entity(as[RmaGiftCardLineItemsPayload])) { payload ⇒
+            goodOrFailures {
+              RmaLineItemUpdater.addGiftCardLineItem(refNum, payload)
+            }
+          } ~
+          (delete & path(IntNumber) & pathEnd) { lineItemId ⇒
+            goodOrFailures {
+              RmaLineItemUpdater.deleteGiftCardLineItem(refNum, lineItemId)
+            }
           }
         } ~
-        (post & path("shipping-costs") & pathEnd & entity(as[Seq[RmaShippingCostLineItemsPayload]])) { reqItems ⇒
-          good {
-            genericRmaMock
+        pathPrefix("line-items" / "shipping-costs") {
+          (post & pathEnd & entity(as[RmaShippingCostLineItemsPayload])) { payload ⇒
+            goodOrFailures {
+              RmaLineItemUpdater.addShippingCostItem(refNum, payload)
+            }
+          } ~
+          (delete & path(IntNumber) & pathEnd) { lineItemId ⇒
+            goodOrFailures {
+              RmaLineItemUpdater.deleteShippingCostLineItem(refNum, lineItemId)
+            }
           }
         } ~
         pathPrefix("payment-methods" / "credit-cards") {
-          ((post | patch) & pathEnd & entity(as[payloads.RmaCcPaymentPayload])) { payload ⇒
+          ((post | patch) & pathEnd & entity(as[RmaCcPaymentPayload])) { payload ⇒
             goodOrFailures {
               RmaPaymentUpdater.addCreditCard(refNum, payload)
             }
@@ -133,7 +144,7 @@ object RmaRoutes {
           }
         } ~
         pathPrefix("payment-methods" / "gift-cards") {
-          ((post | patch) & pathEnd & entity(as[payloads.RmaPaymentPayload])) { payload ⇒
+          ((post | patch) & pathEnd & entity(as[RmaPaymentPayload])) { payload ⇒
             goodOrFailures {
               RmaPaymentUpdater.addGiftCard(admin, refNum, payload)
             }
@@ -145,7 +156,7 @@ object RmaRoutes {
           }
         } ~
         pathPrefix("payment-methods" / "store-credit") {
-          ((post | patch) & pathEnd & entity(as[payloads.RmaPaymentPayload])) { payload ⇒
+          ((post | patch) & pathEnd & entity(as[RmaPaymentPayload])) { payload ⇒
             goodOrFailures {
               RmaPaymentUpdater.addStoreCredit(admin, refNum, payload)
             }

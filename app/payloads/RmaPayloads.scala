@@ -3,6 +3,7 @@ package payloads
 import cats.data._
 import cats.implicits._
 import models.Rma
+import models.RmaLineItem.InventoryDisposition
 import services.Failure
 import utils.Litterbox._
 import utils.Validation
@@ -16,11 +17,17 @@ final case class RmaUpdateStatusPayload(status: Rma.Status)
 
 /* Line item updater payloads */
 
-final case class RmaSkuLineItemsPayload(sku: String, quantity: Int, reasonId: Int)
+final case class RmaSkuLineItemsPayload(sku: String, quantity: Int, reasonId: Int, isReturnItem: Boolean,
+  inventoryDisposition: InventoryDisposition) extends Validation[RmaSkuLineItemsPayload] {
+
+  def validate: ValidatedNel[Failure, RmaSkuLineItemsPayload] = {
+    greaterThan(quantity, 0, "Quantity").map { case _ ⇒ this }
+  }
+}
 
 final case class RmaGiftCardLineItemsPayload(code: String, reasonId: Int)
 
-final case class RmaShippingCostLineItemsPayload(id: Int, reasonId: Int)
+final case class RmaShippingCostLineItemsPayload(reasonId: Int)
 
 /* Payment payloads */
 

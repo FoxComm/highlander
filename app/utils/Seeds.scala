@@ -376,15 +376,15 @@ object Seeds {
       status = Rma.Pending, customerId = 1)
 
     def rmaLineItemSkus = Seq(
-      RmaLineItemSku(id = 0, rmaId = 1, orderLineItemSkuId = 1),
-      RmaLineItemSku(id = 0, rmaId = 1, orderLineItemSkuId = 2)
+      RmaLineItemSku(id = 0, rmaId = 1, skuId = 1),
+      RmaLineItemSku(id = 0, rmaId = 1, skuId = 2)
     )
 
     def rmaLineItems = Seq(
       RmaLineItem(id = 0, rmaId = 1, reasonId = 12, originId = 1, originType = RmaLineItem.SkuItem,
-        rmaType = Rma.Standard, status = Rma.Pending, inventoryDisposition = RmaLineItem.Putaway),
+        inventoryDisposition = RmaLineItem.Putaway),
       RmaLineItem(id = 0, rmaId = 1, reasonId = 12, originId = 2, originType = RmaLineItem.SkuItem,
-        rmaType = Rma.Standard, status = Rma.Pending, inventoryDisposition = RmaLineItem.Putaway)
+        inventoryDisposition = RmaLineItem.Putaway)
     )
 
     def rmaNotes: Seq[Note] = Seq(

@@ -3,16 +3,17 @@ package models
 import java.time.Instant
 
 import com.pellucid.sealerate
-import models.Rma.{RmaType, Standard, Status, Pending}
+import models.Rma.Status
 import models.RmaLineItem.{OriginType, InventoryDisposition, Putaway}
 import monocle.macros.GenLens
+import payloads.RmaSkuLineItemsPayload
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.{ADT, TableQueryWithId, GenericTable, ModelWithIdParameter}
 
 final case class RmaLineItem(id: Int = 0, rmaId: Int, reasonId: Int, originId: Int, originType: OriginType,
-  rmaType: RmaType = Standard, status: Status = Pending, inventoryDisposition: InventoryDisposition = Putaway,
+  quantity: Int = 1, isReturnItem: Boolean = false, inventoryDisposition: InventoryDisposition = Putaway,
   createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[RmaLineItem] {
 
@@ -38,6 +39,36 @@ object RmaLineItem {
     def types = sealerate.values[InventoryDisposition]
   }
 
+  def buildSku(rma: Rma, reason: RmaReason, origin: RmaLineItemSku, payload: RmaSkuLineItemsPayload): RmaLineItem = {
+    RmaLineItem(
+      rmaId = rma.id,
+      reasonId = reason.id,
+      quantity = payload.quantity,
+      originId = origin.id,
+      originType = SkuItem,
+      isReturnItem = payload.isReturnItem,
+      inventoryDisposition = payload.inventoryDisposition
+    )
+  }
+
+  def buildGiftCard(rma: Rma, reason: RmaReason, origin: RmaLineItemGiftCard): RmaLineItem = {
+    RmaLineItem(
+      rmaId = rma.id,
+      reasonId = reason.id,
+      originId = origin.id,
+      originType = GiftCardItem
+    )
+  }
+
+  def buildShippinCost(rma: Rma, reason: RmaReason, origin: RmaLineItemShippingCost): RmaLineItem = {
+    RmaLineItem(
+      rmaId = rma.id,
+      reasonId = reason.id,
+      originId = origin.id,
+      originType = ShippingCost
+    )
+  }
+
   implicit val OriginTypeColumnType: JdbcType[OriginType] with BaseTypedType[OriginType] = OriginType.slickColumn
   implicit val InvDispColumnType: JdbcType[InventoryDisposition] with BaseTypedType[InventoryDisposition] =
     InventoryDisposition.slickColumn
@@ -49,12 +80,12 @@ class RmaLineItems(tag: Tag) extends GenericTable.TableWithId[RmaLineItem](tag, 
   def reasonId = column[Int]("reason_id")
   def originId = column[Int]("origin_id")
   def originType = column[OriginType]("origin_type")
-  def rmaType = column[RmaType]("rma_type")
-  def status = column[Status]("status")
+  def quantity = column[Int]("quantity")
+  def isReturnItem = column[Boolean]("is_return_item")
   def inventoryDisposition = column[InventoryDisposition]("inventory_disposition")
   def createdAt = column[Instant]("created_at")
 
-  def * = (id, rmaId, reasonId, originId, originType, rmaType, status,
+  def * = (id, rmaId, reasonId, originId, originType, quantity, isReturnItem,
     inventoryDisposition, createdAt) <> ((RmaLineItem.apply _).tupled, RmaLineItem.unapply)
 }
 

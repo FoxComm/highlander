@@ -21,7 +21,7 @@ import utils.Slick.implicits._
 object RmaPaymentUpdater {
   def addCreditCard(refNum: String, payload: RmaCcPaymentPayload)
     (implicit ec: ExecutionContext, db: Database): Result[RmaResponse.Root] = (for {
-      _         ← * <~ payload.validate.toXor
+      _         ← * <~ payload.validate
       rma       ← * <~ mustFindPendingRmaByRefNum(refNum)
       cc        ← * <~ CreditCards.filter(_.id === payload.creditCardId).one
         .mustFindOr(NotFoundFailure404(CreditCard, payload.creditCardId))
@@ -32,7 +32,7 @@ object RmaPaymentUpdater {
 
   def addGiftCard(admin: StoreAdmin, refNum: String, payload: RmaPaymentPayload)
     (implicit ec: ExecutionContext, db: Database): Result[RmaResponse.Root] = (for {
-      _         ← * <~ payload.validate.toXor
+      _         ← * <~ payload.validate
       rma       ← * <~ mustFindPendingRmaByRefNum(refNum)
       deleteAll ← * <~ deleteGc(rma.id).toXor
       origin    ← * <~ GiftCardRefunds.create(GiftCardRefund(rmaId = rma.id))
@@ -43,7 +43,7 @@ object RmaPaymentUpdater {
 
   def addStoreCredit(admin: StoreAdmin, refNum: String, payload: RmaPaymentPayload)
     (implicit ec: ExecutionContext, db: Database): Result[RmaResponse.Root] = (for {
-      _         ← * <~ payload.validate.toXor
+      _         ← * <~ payload.validate
       rma       ← * <~ mustFindPendingRmaByRefNum(refNum)
       deleteAll ← * <~ deleteGc(rma.id).toXor
       origin    ← * <~ StoreCreditRefunds.create(StoreCreditRefund(rmaId = rma.id))
