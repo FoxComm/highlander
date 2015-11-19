@@ -32,12 +32,15 @@ const failCustomerCreditCards = _createAction('FAIL',
 
 function fetchForCustomer(id, dispatch) {
   Api.get(`/customers/${id}/payment-methods/credit-cards`)
-    .then(cards => dispatch(receiveCustomerCreditCards(id, cards)))
-    .catch(err => dispatch(failCustomerCreditCards(id, err)));
+    .then(cards => {
+      dispatch(receiveCustomerCreditCards(id, cards));
+    })
+    .catch(err => {
+      dispatch(failCustomerCreditCards(id, err));
+    });
 }
 
 function setDefaultCreditCard(customerId, cardId, onSuccess) {
-  console.log("setDefaultCreditCard");
   const payload = {isDefault: true};
   Api.post(`/customers/${customerId}/payment-methods/credit-cards/${cardId}/default`, payload)
     .then(() => onSuccess());
@@ -45,7 +48,6 @@ function setDefaultCreditCard(customerId, cardId, onSuccess) {
 
 function resetDefaultCreditCard(customerId, cardId, currentDefaultId, onSuccess) {
   const resetPayload = {isDefault: false};
-  console.log("resetDefaultCreditCard");
   Api.post(`/customers/${customerId}/payment-methods/credit-cards/${currentDefaultId}/default`, resetPayload)
     .then(() => {
       setDefaultCreditCard(customerId, cardId, onSuccess);
@@ -236,7 +238,9 @@ const reducer = createReducer({
     // fallback to plain array
     const cards = _.get(payload, 'result', payload);
     const sortedCards = _.sortBy(cards, 'id');
-    return assoc(state, [id, 'cards'], sortedCards, [id, 'isFetching'], false);
+    return assoc(state, [id, 'cards'], sortedCards,
+                        [id, 'isFetching'], false,
+                        [id, 'err'], null);
   },
   [failCustomerCreditCards]: (state, [id, err]) => {
     console.error(err);
