@@ -11,9 +11,14 @@ export default class AddressBox extends React.Component {
     address: PropTypes.object,
     editAction: PropTypes.func,
     toggleDefaultAction: PropTypes.func,
+    checkboxLabel: PropTypes.string,
     deleteAction: PropTypes.func,
     chooseAction: PropTypes.func,
     choosen: PropTypes.bool
+  };
+
+  static defaultProps = {
+    checkboxLabel: 'Default shipping address'
   };
 
   get chooseButton() {
@@ -32,15 +37,16 @@ export default class AddressBox extends React.Component {
   }
 
   render() {
-    const address = this.props.address;
+    const props = this.props;
+    const address = props.address;
 
     return (
-      <EditableItemCardContainer className={ classNames('fc-address', {'is-active': this.props.choosen}) }
-                                 checkboxLabel="Default shipping address"
+      <EditableItemCardContainer className={ classNames('fc-address', {'is-active': props.choosen}) }
+                                 checkboxLabel={ props.checkboxLabel }
                                  initiallyIsDefault={ address.isDefault }
-                                 checkboxClickHandler={() => this.props.toggleDefaultAction(address) }
-                                 editHandler={() => this.props.editAction(address) }
-                                 deleteHandler={() => this.props.deleteAction(address) }>
+                                 checkboxClickHandler={() => props.toggleDefaultAction(address) }
+                                 editHandler={() => props.editAction(address) }
+                                 deleteHandler={() => props.deleteAction(address) }>
         <AddressDetails address={address} />
         { this.chooseButton }
       </EditableItemCardContainer>

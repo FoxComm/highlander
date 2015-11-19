@@ -19,13 +19,17 @@ export default class EditableItemCardContainer extends React.Component {
   }
 
   get isDefault() {
-    return (
-      <label className="fc-card-is-default">
-        <Checkbox defaultChecked={ this.props.initiallyIsDefault }
-                  onClick={ this.props.checkboxClickHandler } />
-        <span>{ this.props.checkboxLabel }</span>
-      </label>
-    );
+    const props = this.props;
+
+    if (props.checkboxLabel) {
+      return (
+        <label className="fc-card-is-default">
+          <Checkbox defaultChecked={ props.initiallyIsDefault }
+                    onClick={ props.checkboxClickHandler } />
+          <span>{ props.checkboxLabel }</span>
+        </label>
+      );
+    }
   }
 
   get editButton() {

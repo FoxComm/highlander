@@ -4,7 +4,7 @@ import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 import { assoc, update, merge, dissoc } from 'sprout-data';
 
-import { fetchOrder } from './details';
+import { orderSuccess, fetchOrder } from './details';
 
 const _createAction = (description, ...args) => {
   return createAction(`SHIPPING_ADDRESSES_${description}`, ...args);
@@ -15,7 +15,8 @@ export const stopEditing = _createAction('STOP_EDITING');
 
 export const startAddingAddress = _createAction('START_ADDING_ADDRESS');
 
-export const startEditingAddress = _createAction('START_EDITING_ADDRESS');
+export const startEditingAddress = _createAction('START_EDITING_ADDRESS',
+  (addressId, isOrderShipping) => [addressId, isOrderShipping]);
 export const stopAddingOrEditingAddress = _createAction('STOP_ADDING_OR_EDITING');
 
 export const startDeletingAddress = _createAction('START_DELETING');
@@ -23,7 +24,14 @@ export const stopDeletingAddress = _createAction('STOP_DELETING');
 
 export function chooseAddress(refNum, addressId) {
   return dispatch => {
-    return Api.patch(`/orders/${refNum}/shipping-address`, {addressId})
+    return Api.patch(`/orders/${refNum}/shipping-address/${addressId}`)
+      .then(order => dispatch(orderSuccess(order)));
+  };
+}
+
+export function deleteShippingAddress(refNum) {
+  return dispatch => {
+    return Api.delete(`/orders/${refNum}/shipping-address`)
       .then(ok => dispatch(fetchOrder(refNum)));
   };
 }
@@ -43,8 +51,11 @@ const reducer = createReducer({
     // -1 means that we add address
     return assoc(state, 'editingId', -1);
   },
-  [startEditingAddress]: (state, addressId) => {
-    return assoc(state, 'editingId', addressId);
+  [startEditingAddress]: (state, [addressId, isOrderShipping]) => {
+    return assoc(state,
+      'editingId', addressId,
+      'editingOrderShipping', isOrderShipping
+    );
   },
   [stopAddingOrEditingAddress]: state => {
     return dissoc(state, 'editingId');
