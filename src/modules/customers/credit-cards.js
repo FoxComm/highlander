@@ -235,7 +235,8 @@ const reducer = createReducer({
   [receiveCustomerCreditCards]: (state, [id, payload]) => {
     // fallback to plain array
     const cards = _.get(payload, 'result', payload);
-    return assoc(state, [id, 'cards'], cards, [id, 'isFetching'], false);
+    const sortedCards = _.sortBy(cards, 'id');
+    return assoc(state, [id, 'cards'], sortedCards, [id, 'isFetching'], false);
   },
   [failCustomerCreditCards]: (state, [id, err]) => {
     console.error(err);
