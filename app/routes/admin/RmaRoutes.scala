@@ -85,6 +85,11 @@ object RmaRoutes {
             genericRmaMock.copy(status = payload.status)
           }
         } ~
+        (post & path("message") & pathEnd & entity(as[RmaMessageToCustomerPayload])) { payload ⇒
+          goodOrFailures {
+            RmaService.updateMessageToCustomer(refNum, payload)
+          }
+        } ~
         (get & path("lock") & pathEnd) {
           goodOrFailures {
             RmaLockUpdater.getLockStatus(refNum)

@@ -43,6 +43,7 @@ object RmaResponse {
     customer: Option[Customer] = None,
     storeAdmin: Option[StoreAdmin] = None,
     assignees: Seq[AssignmentResponse.Root],
+    messageToCustomer: Option[String] = None,
     createdAt: Instant,
     updatedAt: Instant,
     totals: RmaTotals) extends ResponseItem
@@ -58,6 +59,7 @@ object RmaResponse {
     customer: Option[Customer] = None,
     storeAdmin: Option[StoreAdmin] = None,
     assignees: Seq[AssignmentResponse.Root],
+    messageToCustomer: Option[String] = None,
     createdAt: Instant,
     updatedAt: Instant,
     totals: RmaTotals) extends ResponseItem
@@ -119,6 +121,7 @@ object RmaResponse {
       storeAdmin = admin,
       lineItems = mockLineItems,
       assignees = Seq.empty,
+      messageToCustomer = Some("Psst... have you ever heard of microservices?"),
       createdAt = Instant.now,
       updatedAt = Instant.now,
       totals = mockTotal)
@@ -134,6 +137,7 @@ object RmaResponse {
       storeAdmin = storeAdmin,
       payments = payments,
       assignees = assignees,
+      messageToCustomer = rma.messageToCustomer,
       createdAt = rma.createdAt,
       updatedAt = rma.updatedAt,
       totals = mockTotal)
@@ -151,6 +155,7 @@ object RmaResponse {
       storeAdmin = storeAdmin,
       payments = payments,
       assignees = assignees,
+      messageToCustomer = rma.messageToCustomer,
       createdAt = rma.createdAt,
       updatedAt = rma.updatedAt,
       totals = mockTotal)
