@@ -7,13 +7,21 @@ const { reducer, ...actions } = importModule('customers/credit-cards.js', [
   'requestCustomerCreditCards',
   'receiveCustomerCreditCards',
   'createCreditCard',
-  'closeNewCustomerCreditCard'
+  'closeNewCustomerCreditCard',
+  'saveCreditCard',
+  'closeEditCustomerCreditCard',
+  'confirmCreditCardDeletion',
+  'closeDeleteCustomerCreditCard'
 ]);
 
 describe('customers credit cards module', function() {
 
   function creditCardsUrl(customerId) {
     return `/api/v1/customers/${customerId}/payment-methods/credit-cards`;
+  }
+
+  function creditCardUrl(customerId, cardId) {
+    return `/api/v1/customers/${customerId}/payment-methods/credit-cards/${cardId}`;
   }
 
   const creditCardPayload = require('../../../fixtures/customer-credit-cards.json');
@@ -60,9 +68,12 @@ describe('customers credit cards module', function() {
       });
 
       const initialState = {
-        [customerId]: {
-          cards: [],
-          newCreditCard: payload
+        customers: {
+          creditCards: {
+            [customerId]: {
+              newCreditCard: payload
+            }
+          }
         }
       };
 
@@ -73,7 +84,87 @@ describe('customers credit cards module', function() {
           actions.receiveCustomerCreditCards
         ];
 
-        yield expect(actions.createCreditCard(customerId), 'to dispatch actions', expectedActions, initialState);
+        yield expect(actions.createCreditCard(customerId),
+                     'to dispatch actions', expectedActions, initialState);
+      });
+
+    });
+
+    context('saveCreditCard', function() {
+      const payload = {
+        holderName: 'Yax',
+        number: '4242424242424242',
+        cvv: '123',
+        expMonth: 11,
+        expYear: 2017,
+        isDefault: false,
+        addressId: 1,
+        id: 10
+      };
+
+      beforeEach(function() {
+        nock(phoenixUrl)
+          .get(creditCardsUrl(customerId))
+          .reply(200, creditCardPayload)
+          .patch(creditCardUrl(customerId, payload.id))
+          .reply(200, payload);
+      });
+
+      const initialState = {
+        customers: {
+          creditCards: {
+            [customerId]: {
+              cards: [],
+              editingCreditCard: payload,
+              editingId: payload.id
+            }
+          }
+        }
+      };
+
+      it('should close form and fetch customers', function*() {
+        const expectedActions = [
+          actions.requestCustomerCreditCards,
+          actions.closeEditCustomerCreditCard,
+          actions.receiveCustomerCreditCards
+        ];
+
+        yield expect(actions.saveCreditCard(customerId),
+                     'to dispatch actions', expectedActions, initialState);
+      });
+
+    });
+
+    context('confirmCreditCardDeletion', function() {
+
+      beforeEach(function() {
+        nock(phoenixUrl)
+          .get(creditCardsUrl(customerId))
+          .reply(200, creditCardPayload)
+          .delete(creditCardUrl(customerId, 10))
+          .reply(204);
+      });
+
+      const initialState = {
+        customers: {
+          creditCards: {
+            [customerId]: {
+              cards: creditCardPayload,
+              deletingId: 10
+            }
+          }
+        }
+      };
+
+      it('should close form and fetch customers', function*() {
+        const expectedActions = [
+          actions.requestCustomerCreditCards,
+          actions.closeDeleteCustomerCreditCard,
+          actions.receiveCustomerCreditCards
+        ];
+
+        yield expect(actions.confirmCreditCardDeletion(customerId, 10),
+                     'to dispatch actions', expectedActions, initialState);
       });
 
     });
