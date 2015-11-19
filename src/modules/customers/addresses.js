@@ -17,6 +17,8 @@ export const stopAddingAddress = _createAction('STOP_ADDING');
 export const startEditingAddress = _createAction('START_EDITING');
 export const stopEditingAddress = _createAction('STOP_EDITING');
 
+export const startDeletingAddress = _createAction('START_DELETING');
+export const stopDeletingAddress = _createAction('STOP_DELETING');
 
 const initialState = {
   isAdding: false,
@@ -37,6 +39,12 @@ const reducer = createReducer({
   },
   [stopEditingAddress]: (state, addressId) => {
     return update(state, 'editingIds', _.without, addressId);
+  },
+  [startDeletingAddress]: (state, addressId) => {
+    return assoc(state, 'deletingId', addressId);
+  },
+  [stopDeletingAddress]: state => {
+    return dissoc(state, 'deletingId');
   }
 }, initialState);
 

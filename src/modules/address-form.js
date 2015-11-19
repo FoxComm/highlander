@@ -69,11 +69,11 @@ export function submitForm(form, customerId) {
     });
 
     if (state.isAdding) {
-      return Api.post(`/customers/${customerId}/addresses`, formData)
+      return dispatch(createAddress(customerId, formData))
         .then(address => dispatch(setError(null)) && address)
         .catch(err => dispatch(setError(err)) && err);
     } else {
-      return Api.patch(`/customers/${customerId}/addresses/${state.addressId}`, formData)
+      return dispatch(patchAddress(customerId, state.addressId, formData))
         .then(address => dispatch(setError(null)) && address)
         .catch(err => dispatch(setError(err)) && err);
     }

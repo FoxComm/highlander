@@ -27,8 +27,11 @@ const Addresses = props => {
         confirm='Yes, Delete'
         cancelAction={() => props.stopDeletingAddress(props.customerId) }
         confirmAction={() => {
-            props.deleteAddress(props.deletingId);
-            props.onDeleteAddress && props.onDeleteAddress(props.deletingId);
+            props.stopDeletingAddress();
+            props.deleteAddress(props.customerId, props.deletingId)
+              .then(() => {
+                props.onDeleteAddress && props.onDeleteAddress(props.deletingId);
+              });
           }} />
     </div>
   );
@@ -62,7 +65,7 @@ Addresses.defaultProps = {
                   editAction={() => props.startEditingAddress(address.id)}
                   toggleDefaultAction={() => props.setAddressDefault(props.customerId, address.id, !address.isDefault)}
                   chooseAction={chooseAction}
-                  deleteAction={() => props.startDeletingAddress(props.customerId, address.id)}
+                  deleteAction={() => props.startDeletingAddress(address.id)}
       />
     );
   },
