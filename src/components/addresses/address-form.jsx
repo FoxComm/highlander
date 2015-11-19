@@ -5,8 +5,6 @@ import React, { PropTypes } from 'react';
 import FormField from '../forms/formfield';
 import InputMask from 'react-input-mask';
 import Form from '../forms/form';
-import CountryStore from '../../stores/countries';
-import AddressStore from '../../stores/addresses';
 import * as validators from '../../lib/validators';
 import ErrorAlerts from '../alerts/error-alerts';
 import ContentBox from '../content-box/content-box';
@@ -16,6 +14,7 @@ import { connect } from 'react-redux';
 import * as CountriesActions from '../../modules/countries';
 import * as AddressFormActions from '../../modules/address-form';
 import { createSelector } from 'reselect';
+import {regionName, zipName, zipExample, phoneExample, phoneMask} from '../../i18n';
 
 const formNamespace = props => props.address && props.address.id || 'new';
 
@@ -116,7 +115,7 @@ export default class AddressForm extends React.Component {
     if (validators.zipCode(formData.zip, countryCode)) {
       return null;
     } else {
-      return `${CountryStore.zipName(countryCode)} is invalid for selected country`;
+      return `${zipName(countryCode)} is invalid for selected country`;
     }
   }
 
@@ -125,15 +124,15 @@ export default class AddressForm extends React.Component {
 
     if (this.countryCode === 'US') {
       return (
-        <InputMask type="tel" name="phoneNumber" mask={CountryStore.phoneMask(this.countryCode)}
+        <InputMask type="tel" name="phoneNumber" mask={phoneMask(this.countryCode)}
                         onChange={this.handleFormChange}
                         formFieldTarget
-                        value={formData.phoneNumber} placeholder={CountryStore.phoneExample(this.countryCode)}/>
+                        value={formData.phoneNumber} placeholder={phoneExample(this.countryCode)}/>
       );
     }
     return (
       <input type="tel" name="phoneNumber" value={formData.phoneNumber}
-             maxLength="15" placeholder={CountryStore.phoneExample(this.countryCode)} />
+             maxLength="15" placeholder={phoneExample(this.countryCode)} />
     );
   }
 
@@ -158,8 +157,7 @@ export default class AddressForm extends React.Component {
       <ContentBox title="Address Book" className="fc-address-form" actionBlock={this.actions}>
         {this.errorMessages}
         <article>
-          <Form action={AddressStore.uri(this.props.customerId)}
-                onSubmit={this.handleFormSubmit}
+          <Form onSubmit={this.handleFormSubmit}
                 onChange={this.handleFormChange}>
             <ul className="fc-address-form-fields">
               <li>
@@ -195,7 +193,7 @@ export default class AddressForm extends React.Component {
                 </FormField>
               </li>
               <li>
-                <FormField label={CountryStore.regionName(countryCode)}>
+                <FormField label={regionName(countryCode)}>
                   <select name="regionId" value={formData.regionId} data-type="int" required>
                     {regions.map((state, index) => {
                       return <option value={state.id} key={`${index}-${state.id}`}>{state.name}</option>;
@@ -204,9 +202,9 @@ export default class AddressForm extends React.Component {
                 </FormField>
               </li>
               <li>
-                <FormField label={CountryStore.zipName(countryCode)} validator={this.validateZipCode.bind(this)}>
+                <FormField label={zipName(countryCode)} validator={this.validateZipCode.bind(this)}>
                   <input type="text" name="zip"
-                         placeholder={CountryStore.zipExample(countryCode)}
+                         placeholder={zipExample(countryCode)}
                          value={formData.zip} className='control' required />
                 </FormField>
               </li>
