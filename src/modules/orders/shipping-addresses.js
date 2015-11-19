@@ -1,7 +1,10 @@
 
 import _ from 'lodash';
+import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 import { assoc, update, merge, dissoc } from 'sprout-data';
+
+import { fetchOrder } from './details';
 
 const _createAction = (description, ...args) => {
   return createAction(`SHIPPING_ADDRESSES_${description}`, ...args);
@@ -17,6 +20,13 @@ export const stopAddingOrEditingAddress = _createAction('STOP_ADDING_OR_EDITING'
 
 export const startDeletingAddress = _createAction('START_DELETING');
 export const stopDeletingAddress = _createAction('STOP_DELETING');
+
+export function chooseAddress(refNum, addressId) {
+  return dispatch => {
+    return Api.patch(`/orders/${refNum}/shipping-address`, {addressId})
+      .then(ok => dispatch(fetchOrder(refNum)));
+  };
+}
 
 const initialState = {
   isEditing: false

@@ -52,10 +52,6 @@ export default class OrderShippingAddress extends React.Component {
     AddressStore.delete(this.props.order.customer.id, address.id);
   }
 
-  isAddressSelected(address) {
-    return this.props.order ? address.id === this.props.order.shippingAddress.id : false;
-  }
-
   get editContent() {
     return (
       <div>
@@ -67,6 +63,8 @@ export default class OrderShippingAddress extends React.Component {
           <Addresses
             {...this.props}
             onSelectAddress={this.onSelectAddress.bind(this)}
+            selectedAddressId={this.props.order.shippingAddress.id}
+            chooseAction={(addressId) => this.props.chooseAddress(this.props.order.referenceNumber, addressId)}
           />
         </div>
       </div>
