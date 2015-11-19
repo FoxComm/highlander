@@ -24,6 +24,7 @@ import util.IntegrationTestBase
 import utils.Money.Currency
 import utils.Seeds.Factories
 import utils.Slick.implicits._
+import utils.CustomDirectives
 import utils.jdbc._
 import utils.{Apis, Seeds, StripeApi}
 
@@ -86,6 +87,31 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
       response.status must === (StatusCodes.OK)
       response.as[CustomerResponse.Root#ResponseMetadataSeq].result must === (Seq(customerRoot))
+    }
+
+    "returns only 2 customers" in new Fixture {
+      pendingUntilFixed {
+        (Customers ++= (1 to 3).map { _ ⇒ Seeds.Factories.generateCustomer }).run().futureValue
+
+        val response = GET(s"$uriPrefix?size=2")
+        val customers = response.as[CustomerResponse.Root#ResponseMetadataSeq]
+
+        response.status must ===(StatusCodes.OK)
+        customers.checkPagingMetadata(from = 0, size = 2, resultSize = 2)
+      }
+    }
+
+    "count of requested customers should be limited to default page size" in new Fixture {
+      pendingUntilFixed {
+        (Customers ++= (1 to (CustomDirectives.DefaultPageSize + 1)).map { _ ⇒
+          Seeds.Factories.generateCustomer
+        }).run().futureValue
+
+        val response = GET(s"$uriPrefix")
+        response.status must ===(StatusCodes.OK)
+        response.as[CustomerResponse.Root#ResponseMetadataSeq].checkPagingMetadata(from = 0,
+          size = CustomDirectives.DefaultPageSize, resultSize = CustomDirectives.DefaultPageSize)
+      }
     }
 
     "lists customers without default address" in new Fixture {

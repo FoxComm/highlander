@@ -183,8 +183,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         val adjustments = response.as[StoreCreditAdjustmentsResponse.Root#ResponseMetadataSeq]
 
         response.status must ===(StatusCodes.OK)
-        adjustments.result.size must === (1)
-        adjustments.checkSortingAndPagingMetadata("-id", 2, 2)
+        adjustments.checkSortingAndPagingMetadata("-id", from = 2, size = 2, resultSize = 1)
 
         val firstAdjustment = adjustments.result.head
         firstAdjustment.debit must === (10)
