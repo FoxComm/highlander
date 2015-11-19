@@ -22,6 +22,8 @@ final case class StoreCreditAdjustment(id: Int = 0, storeCreditId: Int, orderPay
   def stateLens = GenLens[StoreCreditAdjustment](_.status)
   override def updateTo(newModel: StoreCreditAdjustment): Failures Xor StoreCreditAdjustment = super.transitionModel(newModel)
 
+  def getAmount: Int = debit
+
   val fsm: Map[Status, Set[Status]] = Map(
     Auth → Set(Canceled, Capture)
   )

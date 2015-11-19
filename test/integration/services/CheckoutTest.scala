@@ -15,6 +15,7 @@ import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT.implicits._
 import utils.DbResultT._
+import utils.{StripeApi, Apis}
 import utils.Money.Currency
 import utils.Seeds.Factories
 import utils.Slick.DbResult
@@ -24,6 +25,8 @@ class CheckoutTest
   extends IntegrationTestBase
   with MockitoSugar {
   import concurrent.ExecutionContext.Implicits.global
+
+  implicit val apis: Apis = Apis(mock[StripeApi])
 
   def cartValidator(resp: CartValidatorResponse = CartValidatorResponse()): CartValidation = {
     val m = mock[CartValidation]
