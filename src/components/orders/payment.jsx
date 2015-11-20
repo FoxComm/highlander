@@ -1,35 +1,53 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import EditableContentBox from '../content-box/editable-content-box';
-import PaymentMethod from './payment-method';
 import TableView from '../table/tableview';
 import ContentBox from '../content-box/content-box';
+import PaymentMethodRow from './payment-method-row';
+
+const columns = [
+  {field: 'name', text: 'Method'},
+  {field: 'amount', text: 'Amount', type: 'currency'}
+];
+
+const viewContent = props => {
+  const paymentMethods = props.order.paymentMethods;
+
+  const renderRow = (row, index, isNew) => {
+    return <PaymentMethodRow paymentMethod={row}/>;
+  };
+
+  if (_.isEmpty(paymentMethods)) {
+    return <div className="fc-content-box-empty-text">No payment method applied.</div>;
+  } else {
+    return (
+      <TableView
+        columns={columns}
+        data={{rows: paymentMethods}}
+        renderRow={renderRow}
+      />
+    );
+  }
+};
 
 const OrderPayment = props => {
-  const order = props.order.currentOrder;
+  const order = props.order;
 
   return (
     <EditableContentBox
-      className='fc-order-payment'
-      title='Payment'
+      className="fc-order-payment"
+      title="Payment Method"
+      isTable={true}
       isEditing={false}
-      editAction={() => console.log('Not implemented')}
-      viewContent={<TableView columns={props.tableColumns} data={{rows: _.compact([order.payment])}} />}/>
+      editAction={() => console.log("Not implemented")}
+      renderFooter={null}
+      viewContent={viewContent(props)}
+    />
   );
 };
 
 OrderPayment.propTypes = {
-  order: PropTypes.object,
-  tableColumns: PropTypes.array
-};
-
-OrderPayment.defaultProps = {
-  tableColumns: [
-    {field: 'paymentMethod', text: 'Method', component: 'PaymentMethod'},
-    {field: 'amount', text: 'Amount', type: 'currency'},
-    {field: 'status', text: 'Status'},
-    {field: 'createdAt', text: 'Date/Time', type: 'date'}
-  ]
+  order: PropTypes.object.isRequired
 };
 
 export default OrderPayment;

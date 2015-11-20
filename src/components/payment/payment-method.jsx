@@ -1,15 +1,20 @@
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
+import * as CardUtils from '../../lib/credit-card-utils';
+import static_url from '../../lib/s3';
 
 export default class PaymentMethod extends React.Component {
   render() {
-    let model = this.props.model;
+    const card = this.props.card;
 
     return (
       <div className="fc-payment-method">
-        <i className={`fc-icon-lg icon-cc-${model.cardType}`}></i>
-        <div>
-          <div className="fc-strong">{model.cardNumber}</div>
-          <div>{model.cardExp}</div>
+        <div className="fc-left">
+          <img className="fc-icon-lg" src={static_url(`images/payments/payment_${card.brand.toLowerCase()}.png`)}></img>
+        </div>
+        <div className="fc-left">
+          <div className="fc-strong">{CardUtils.formatNumber(card)}</div>
+          <div>{CardUtils.formatExpiration(card)}</div>
         </div>
       </div>
     );
@@ -17,5 +22,5 @@ export default class PaymentMethod extends React.Component {
 }
 
 PaymentMethod.propTypes = {
-  model: PropTypes.object
+  card: PropTypes.object.isRequired
 };

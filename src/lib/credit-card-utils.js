@@ -18,11 +18,16 @@ export function monthList() {
 }
 
 export function expirationYears() {
-  let years = {};
   const current = new Date().getFullYear();
-  _.each(_.range(20), (inc) => {
-    const year = (current + inc).toString();
-    years[year] = year;
-  });
-  return years;
+
+  return _.range(20).reduce( (years, n) => _.set(years, current + n,  (current + n).toString()), {});
+}
+
+export function formatExpiration(card) {
+  return `${card.expMonth}/${card.expYear}`;
+}
+
+
+export function formatNumber(card) {
+  return `xxxx xxxx xxxx ${card.lastFour}`;
 }

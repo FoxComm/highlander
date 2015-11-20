@@ -6,6 +6,7 @@ import TableCell from '../table/cell';
 import { DateTime } from '../common/datetime';
 import Currency from '../common/currency';
 import { Link } from '../link';
+import PaymentMethod from '../../components/payment/payment-method';
 
 const CustomerInfo = props => {
   return (
@@ -20,20 +21,6 @@ const CustomerInfo = props => {
 
 CustomerInfo.propTypes = {
   rma: PropTypes.object
-};
-
-const PaymentMethod = props => {
-  const model = props.model;
-
-  return (
-    <div className="fc-payment-method">
-      <i className={`fc-icon-lg icon-${model.cardType}`}></i>
-      <div>
-        <div className="fc-strong">{model.cardNumber}</div>
-        <div>{model.cardExp}</div>
-      </div>
-    </div>
-  );
 };
 
 const renderRow = (row, index) => {
