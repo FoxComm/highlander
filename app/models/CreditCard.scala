@@ -3,17 +3,18 @@ package models
 import java.time.Instant
 
 import cats.implicits._
+import models.Orders._
 import utils.CustomDirectives.SortAndPage
 import utils.Litterbox._
 
 import scala.concurrent.ExecutionContext
 
-import cats.data.ValidatedNel
+import cats.data.{Xor, ValidatedNel}
 import com.stripe.model.{Card ⇒ StripeCard, Customer ⇒ StripeCustomer}
 import monocle.Lens
 import monocle.macros.GenLens
 import payloads.CreateCreditCard
-import services.{Failure, Result, Stripe}
+import services.{Failures, CannotUseInactiveCreditCard, Failure}
 import slick.driver.PostgresDriver.api._
 import utils._
 import utils.Slick.implicits._
@@ -44,6 +45,8 @@ final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerI
       |@| super.validate
       ).map { case _ ⇒ this }
   }
+
+  def mustBeInWallet: Failures Xor CreditCard = if (inWallet) Xor.right(this) else Xor.left(CannotUseInactiveCreditCard(this).single)
 
   def copyFromAddress(a: Address): CreditCard = this.copy(
     regionId = a.regionId, addressName = a.name, address1 = a.address1, address2 = a.address2, city = a.city, zip = a.zip)

@@ -2,10 +2,9 @@ package services.orders
 
 import scala.concurrent.ExecutionContext
 
-import cats.data.Validated.{Invalid, Valid}
 import models._
 import payloads.{CreateAddressPayload, UpdateAddressPayload}
-import responses.FullOrder
+import responses.{TheResponse, FullOrder}
 import services.CartFailures.NoShipAddress
 import services._
 import slick.driver.PostgresDriver.api._
@@ -28,42 +27,49 @@ object OrderShippingAddressUpdater {
     OrderShippingAddresses.findByOrderId(order.id).one.mustFindOr(NoShipAddress(order.refNum))
 
   def createShippingAddressFromAddressId(addressId: Int, refNum: String)
-    (implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = (for {
+    (implicit db: Database, ec: ExecutionContext): Result[TheResponse[FullOrder.Root]] = (for {
 
     order         ← * <~ mustFindOrderByRefNum(refNum)
+    _             ← * <~ order.mustBeCart
     addAndReg     ← * <~ mustFindAddressWithRegion(addressId)
     _             ← * <~ OrderShippingAddresses.findByOrderId(order.id).delete
     (address, _)  = addAndReg
     shipAddress   ← * <~ OrderShippingAddresses.copyFromAddress(address, order.id)
-    response      ← * <~ FullOrder.fromOrder(order).toXor
-  } yield response).runT()
+    validated     ← * <~ CartValidator(order).validate
+    response      ← * <~ FullOrder.refreshAndFullOrder(order).toXor
+  } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).runT()
 
   def createShippingAddressFromPayload(payload: CreateAddressPayload, refNum: String)
-    (implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = (for {
+    (implicit db: Database, ec: ExecutionContext): Result[TheResponse[FullOrder.Root]] = (for {
 
     order       ← * <~ mustFindOrderByRefNum(refNum)
+    _           ← * <~ order.mustBeCart
     newAddress  ← * <~ Addresses.create(Address.fromPayload(payload).copy(customerId = order.customerId))
     _           ← * <~ OrderShippingAddresses.findByOrderId(order.id).delete
     _           ← * <~ OrderShippingAddresses.copyFromAddress(newAddress, order.id)
-    response    ← * <~ FullOrder.fromOrder(order).toXor
-  } yield response).runT()
+    validated   ← * <~ CartValidator(order).validate
+    response    ← * <~ FullOrder.refreshAndFullOrder(order).toXor
+  } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).runT()
 
   def updateShippingAddressFromPayload(payload: UpdateAddressPayload, refNum: String)
-    (implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = (for {
+    (implicit db: Database, ec: ExecutionContext): Result[TheResponse[FullOrder.Root]] = (for {
 
-    order         ← * <~ mustFindOrderByRefNum(refNum)
-    shipAddress   ← * <~ mustFindShipAddressForOrder(order)
-    _             ← * <~ OrderShippingAddresses.update(OrderShippingAddress.fromPatchPayload(shipAddress, payload))
-    response      ← * <~ FullOrder.fromOrder(order).toXor
-  } yield response).runT()
+    order       ← * <~ mustFindOrderByRefNum(refNum)
+    _           ← * <~ order.mustBeCart
+    shipAddress ← * <~ mustFindShipAddressForOrder(order)
+    _           ← * <~ OrderShippingAddresses.update(OrderShippingAddress.fromPatchPayload(shipAddress, payload))
+    validated   ← * <~ CartValidator(order).validate
+    response    ← * <~ FullOrder.refreshAndFullOrder(order).toXor
+  } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).runT()
 
   def removeShippingAddress(refNum: String)
-    (implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = (for {
+    (implicit db: Database, ec: ExecutionContext): Result[TheResponse[FullOrder.Root]] = (for {
 
     order     ← * <~ mustFindOrderByRefNum(refNum)
     _         ← * <~ order.mustBeCart
-    deleted   ← * <~ OrderShippingAddresses.findByOrderId(order.id).delete
-    resp      = if (deleted > 0) FullOrder.fromOrder(order).toXor else DbResult.failure(NoShipAddress(order.refNum))
-    response  ← * <~ resp
-  } yield response).runT()
+    response  ← * <~ OrderShippingAddresses.findByOrderId(order.id).deleteAll(
+                        onSuccess = FullOrder.refreshAndFullOrder(order).toXor,
+                        onFailure = DbResult.failure(NoShipAddress(order.refNum)))
+    validated ← * <~ CartValidator(order).validate
+  } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).runT()
 }

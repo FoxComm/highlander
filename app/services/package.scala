@@ -1,18 +1,20 @@
-import cats.data.{XorT, Xor, NonEmptyList}, Xor.{ left, right }
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ExecutionContext, Future}
+
+import cats.data.{NonEmptyList, Xor, XorT}
 import cats.implicits._
-import slick.driver.PostgresDriver.api._
-import slick.lifted.Query
-import slick.profile.RelationalTableComponent
-import utils.CustomDirectives.SortAndPage
-import utils.GenericTable.TableWithId
 
 package object services {
   type Failures = NonEmptyList[Failure]
 
+  // TODO: kill it with fire! https://github.com/FoxComm/phoenix-scala/issues/595
   def Failures(failures: Failure*): Failures = failures.toList match {
     case Nil          ⇒ throw new IllegalArgumentException("Can't instantiate NonEmptyList from an empty collection")
     case head :: tail ⇒ NonEmptyList(head, tail)
+  }
+
+  def Failurez(failures: Failure*): Option[Failures] = failures.toList match {
+    case Nil          ⇒ None
+    case head :: tail ⇒ Some(NonEmptyList(head, tail))
   }
 
   implicit class FailureOps(val underlying: Failure) extends AnyVal {
@@ -21,6 +23,8 @@ package object services {
 
   implicit class FailuresOps(val underlying: Failures) extends AnyVal {
     def toList: List[Failure] = underlying.head :: underlying.tail
+
+    def flatten: List[String] = underlying.toList.flatMap(_.description)
   }
 
   type Result[A] = Future[Failures Xor A]

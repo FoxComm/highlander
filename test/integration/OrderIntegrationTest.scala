@@ -5,11 +5,10 @@ import akka.pattern.ask
 import akka.testkit.TestActorRef
 
 import models._
-import models.inventory._
 import models.rules.QueryStatement
-import payloads.{Assignment, UpdateOrderPayload}
-import responses.{StoreAdminResponse, FullOrderWithWarnings, FullOrder}
-import services.CartFailures.OrderMustBeCart
+import payloads.{UpdateLineItemsPayload, Assignment, UpdateOrderPayload}
+import responses.{StoreAdminResponse, FullOrder}
+import services.CartFailures._
 import services._
 import util.IntegrationTestBase
 import utils.Seeds.Factories
@@ -74,38 +73,42 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
   }
 
+  // FIXME just fix me :(
   "POST /v1/orders/:refNum/line-items" - {
-    "should successfully update line items" in new OrderFixture {
-      val response = POST(
-        s"v1/orders/${order.refNum}/line-items",
-        """
-          | [ { "sku": "SKU-YAX", "quantity": 1 },
-          |   { "sku": "SKU-ABC", "quantity": 2 } ]
-        """.stripMargin)
+    val payload = Seq(UpdateLineItemsPayload("SKU-YAX", 2))
 
-      val root = parse(response.bodyText).extract[FullOrder.Root]
-      root.lineItems.skus.map(_.sku).sortBy(identity) must ===(List("SKU-ABC", "SKU-ABC", "SKU-YAX"))
+    "should successfully update line items" in new OrderShippingMethodFixture with ShippingAddressFixture with PaymentStatusFixture {
+      val response = POST(s"v1/orders/${order.refNum}/line-items", payload)
+
+      response.status must === (StatusCodes.OK)
+      val root = response.ignoreFailuresAndGiveMe[FullOrder.Root]
+      val skus = root.lineItems.skus
+      skus.map(_.sku) must === (Seq("SKU-YAX"))
+      skus.map(_.quantity) must === (Seq(1))
     }
 
-    "should return error if order is not in Cart state" in new OrderFixture {
-      pending
-      Orders.findByRefNum(order.refNum).map(_.status).update(Order.ManualHold).run().futureValue
+    "should run cart validator" in new Fixture {
+      val response = POST(s"v1/orders/${order.refNum}/line-items", payload)
 
-      val response = POST(
-        s"v1/orders/${order.refNum}/line-items",
-        """
-          | [ { "sku": "SKU-YAX", "quantity": 1 },
-          |   { "sku": "SKU-ABC", "quantity": 2 } ]
-        """.stripMargin)
+      response.status must === (StatusCodes.OK)
+      val ref = order.refNum
+      val expectedWarnings = List(EmptyCart(ref), NoShipAddress(ref), NoShipMethod(ref)).flatMap(_.description)
+      val responseWithValidation = response.withResultTypeOf[FullOrder.Root]
+      responseWithValidation.alerts must not be defined
+      responseWithValidation.warnings.value.toList must contain theSameElementsAs expectedWarnings
+    }
 
-      response.status must ===(StatusCodes.NotFound)
+    "should respond with 404 if order is not found" in {
+      val response = POST(s"v1/orders/NOPE/line-items", payload)
+      response.status must === (StatusCodes.NotFound)
+      response.errors must === (NotFoundFailure404(Order, "NOPE").description)
     }
   }
 
   "PATCH /v1/orders/:refNum" - {
 
     "successfully" in {
-      val order = Orders.saveNew(Factories.order).run().futureValue
+      val order = Orders.create(Factories.order).run().futureValue.rightVal
 
       val response = PATCH(
         s"v1/orders/${order.referenceNumber}",
@@ -113,12 +116,12 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       response.status must === (StatusCodes.OK)
 
-      val responseOrder = parse(response.bodyText).extract[FullOrder.Root]
+      val responseOrder = response.as[FullOrder.Root]
       responseOrder.orderStatus must === (FraudHold)
     }
 
     "fails if transition to destination status is not allowed" in {
-      val order = Orders.saveNew(Factories.order).run().futureValue
+      val order = Orders.create(Factories.order).run().futureValue.rightVal
 
       val response = PATCH(
         s"v1/orders/${order.referenceNumber}",
@@ -129,7 +132,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
 
     "fails if transition from current status is not allowed" in {
-      val order = Orders.saveNew(Factories.order.copy(status = Canceled)).run().futureValue
+      val order = Orders.create(Factories.order.copy(status = Canceled)).run().futureValue.rightVal
 
       val response = PATCH(
         s"v1/orders/${order.referenceNumber}",
@@ -140,7 +143,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
 
     "fails if the order is not found" in {
-      Orders.saveNew(Factories.order).run().futureValue
+      Orders.create(Factories.order).run().futureValue.rightVal
 
       val response = PATCH(s"v1/orders/NOPE", UpdateOrderPayload(ManualHold))
 
@@ -173,15 +176,15 @@ class OrderIntegrationTest extends IntegrationTestBase
   "POST /v1/orders/:refNum/increase-remorse-period" - {
 
     "successfully" in {
-      val order = Orders.saveNew(Factories.order.copy(status = Order.RemorseHold)).run().futureValue
+      val order = Orders.create(Factories.order.copy(status = Order.RemorseHold)).run().futureValue.rightVal
       val response = POST(s"v1/orders/${order.referenceNumber}/increase-remorse-period")
 
-      val result = parse(response.bodyText).extract[FullOrder.Root]
+      val result = response.as[FullOrder.Root]
       result.remorsePeriodEnd must ===(order.remorsePeriodEnd.map(_.plusMinutes(15)))
     }
 
     "only when in RemorseHold status" in {
-      val order = Orders.saveNew(Factories.order).run().futureValue
+      val order = Orders.create(Factories.order).run().futureValue.rightVal
       val response = POST(s"v1/orders/${order.referenceNumber}/increase-remorse-period")
       response.status must ===(StatusCodes.BadRequest)
 
@@ -192,8 +195,8 @@ class OrderIntegrationTest extends IntegrationTestBase
 
   "POST /v1/orders/:refNum/lock" - {
     "successfully locks an order" in {
-      val order = Orders.saveNew(Factories.order).run().futureValue
-      StoreAdmins.saveNew(Factories.storeAdmin).run().futureValue
+      val order = Orders.create(Factories.order).run().futureValue.rightVal
+      StoreAdmins.create(Factories.storeAdmin).run().futureValue.rightVal
 
       val response = POST(s"v1/orders/${order.referenceNumber}/lock")
       response.status must === (StatusCodes.OK)
@@ -208,7 +211,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
 
     "refuses to lock an already locked order" in {
-      val order = Orders.saveNew(Factories.order.copy(locked = true)).run().futureValue
+      val order = Orders.create(Factories.order.copy(locked = true)).run().futureValue.rightVal
 
       val response = POST(s"v1/orders/${order.referenceNumber}/lock")
       response.status must === (StatusCodes.BadRequest)
@@ -216,8 +219,8 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
 
     "avoids race condition" in {
-      StoreAdmins.saveNew(Factories.storeAdmin).run().futureValue
-      val order = Orders.saveNew(Factories.order).run().futureValue
+      StoreAdmins.create(Factories.storeAdmin).run().futureValue.rightVal
+      val order = Orders.create(Factories.order).run().futureValue.rightVal
 
       def request = POST(s"v1/orders/${order.referenceNumber}/lock")
 
@@ -229,8 +232,8 @@ class OrderIntegrationTest extends IntegrationTestBase
 
   "POST /v1/orders/:refNum/unlock" - {
     "unlocks an order" in {
-      StoreAdmins.saveNew(Factories.storeAdmin).run().futureValue
-      val order = Orders.saveNew(Factories.order).run().futureValue
+      StoreAdmins.create(Factories.storeAdmin).run().futureValue.rightVal
+      val order = Orders.create(Factories.order).run().futureValue.rightVal
 
       POST(s"v1/orders/${order.referenceNumber}/lock")
 
@@ -242,7 +245,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
 
     "refuses to unlock an already unlocked order" in {
-      val order = Orders.saveNew(Factories.order).run().futureValue
+      val order = Orders.create(Factories.order).run().futureValue.rightVal
       val response = POST(s"v1/orders/${order.referenceNumber}/unlock")
 
       response.status must === (StatusCodes.BadRequest)
@@ -273,7 +276,9 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
 
     "uses most recent lock record" in new RemorseFixture {
-      OrderLockEvents.saveNew(OrderLockEvent(id = 1, lockedBy = 1, orderId = 1, lockedAt = Instant.now.minusMinutes(30)))
+      OrderLockEvents.create(
+        OrderLockEvent(lockedBy = admin.id, orderId = order.id, lockedAt = Instant.now.plusMinutes(30))
+      ).run().futureValue.rightVal
 
       POST(s"v1/orders/$refNum/lock")
       POST(s"v1/orders/$refNum/unlock")
@@ -298,18 +303,17 @@ class OrderIntegrationTest extends IntegrationTestBase
       val response = POST(s"v1/orders/${order.referenceNumber}/assignees", Assignment(Seq(storeAdmin.id)))
       response.status must === (StatusCodes.OK)
 
-      val fullOrderWithWarnings = parse(response.bodyText).extract[FullOrderWithWarnings]
-      fullOrderWithWarnings.order.assignees must not be empty
-      fullOrderWithWarnings.order.assignees.map(_.assignee) mustBe Seq(StoreAdminResponse.build(storeAdmin))
+      val fullOrderWithWarnings = response.withResultTypeOf[FullOrder.Root]
+      fullOrderWithWarnings.result.assignees.map(_.assignee) must === (Seq(StoreAdminResponse.build(storeAdmin)))
       fullOrderWithWarnings.warnings mustBe empty
     }
 
     "can be assigned to locked order" in {
       val (order, storeAdmin) = (for {
-        customer ← Customers.saveNew(Factories.customer)
-        order ← Orders.saveNew(Factories.order.copy(locked = true, customerId = customer.id))
-        storeAdmin ← StoreAdmins.saveNew(authedStoreAdmin)
-      } yield (order, storeAdmin)).run().futureValue
+        customer   ← * <~ Customers.create(Factories.customer)
+        order      ← * <~ Orders.create(Factories.order.copy(locked = true, customerId = customer.id))
+        storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
+      } yield (order, storeAdmin)).runT().futureValue.rightVal
       val response = POST(s"v1/orders/${order.referenceNumber}/assignees", Assignment(Seq(storeAdmin.id)))
       response.status must === (StatusCodes.OK)
     }
@@ -323,21 +327,21 @@ class OrderIntegrationTest extends IntegrationTestBase
       val response = POST(s"v1/orders/${order.referenceNumber}/assignees", Assignment(Seq(1, 999)))
       response.status must === (StatusCodes.OK)
 
-      val fullOrderWithWarnings = parse(response.bodyText).extract[FullOrderWithWarnings]
-      fullOrderWithWarnings.order.assignees.map(_.assignee) mustBe Seq(StoreAdminResponse.build(storeAdmin))
-      fullOrderWithWarnings.warnings mustBe Seq(NotFoundFailure404("storeAdmin with id=999 not found"))
+      val fullOrderWithWarnings = response.withResultTypeOf[FullOrder.Root]
+      fullOrderWithWarnings.result.assignees.map(_.assignee) must === (Seq(StoreAdminResponse.build(storeAdmin)))
+      fullOrderWithWarnings.warnings.value must === (NotFoundFailure404(StoreAdmin, 999).description)
     }
 
     "can be viewed with order" in new Fixture {
       val response1 = GET(s"v1/orders/${order.referenceNumber}")
       response1.status must === (StatusCodes.OK)
-      val responseOrder1 = parse(response1.bodyText).extract[FullOrder.Root]
+      val responseOrder1 = response1.as[FullOrder.Root]
       responseOrder1.assignees mustBe empty
 
       POST(s"v1/orders/${order.referenceNumber}/assignees", Assignment(Seq(storeAdmin.id)))
       val response2 = GET(s"v1/orders/${order.referenceNumber}")
       response2.status must === (StatusCodes.OK)
-      val responseOrder2 = parse(response2.bodyText).extract[FullOrder.Root]
+      val responseOrder2 = response2.as[FullOrder.Root]
       responseOrder2.assignees must not be empty
       responseOrder2.assignees.map(_.assignee) mustBe Seq(StoreAdminResponse.build(storeAdmin))
     }
@@ -450,7 +454,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       }
 
       "removes an existing shipping address before copying new address" in new AddressFixture {
-        val newAddress = Addresses.saveNew(address.copy(name = "New", isDefaultShipping = false)).run().futureValue
+        val newAddress = Addresses.create(address.copy(name = "New", isDefaultShipping = false)).run().futureValue.rightVal
 
         val fst :: snd :: Nil = List(address.id, newAddress.id).map { id ⇒
           PATCH(s"v1/orders/${order.referenceNumber}/shipping-address/$id")
@@ -468,7 +472,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address/99")
 
         response.status must === (StatusCodes.NotFound)
-        parseErrors(response) must === (NotFoundFailure404(Address, 99).description)
+        response.errors must === (NotFoundFailure404(Address, 99).description)
       }
     }
 
@@ -493,7 +497,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address/99")
 
         response.status must === (StatusCodes.NotFound)
-        parseErrors(response) must === (NotFoundFailure404(Address, 99).description)
+        response.errors must === (NotFoundFailure404(Address, 99).description)
       }
 
       "does not change the current shipping address if the edit fails" in new ShippingAddressFixture {
@@ -544,44 +548,38 @@ class OrderIntegrationTest extends IntegrationTestBase
       addressBook.city must === (address.city)
     }
 
-    "full order returns updated shipping addresss" in new ShippingAddressFixture {
-      //update address
+    "full order returns updated shipping address" in new ShippingAddressFixture {
       val name = "Even newer name"
       val city = "Queen Max"
       val updateAddressPayload = payloads.UpdateAddressPayload(name = Some(name), city = Some(city))
       val addressUpdateResponse = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address", updateAddressPayload)
+      addressUpdateResponse.status must === (StatusCodes.OK)
+      checkOrder(addressUpdateResponse.ignoreFailuresAndGiveMe[FullOrder.Root])
 
-      //get full order
       val fullOrderResponse = GET(s"v1/orders/${order.referenceNumber}")
+      fullOrderResponse.status must === (StatusCodes.OK)
+      checkOrder(fullOrderResponse.as[FullOrder.Root])
 
-      //test both responses
-      val responses = Seq(addressUpdateResponse, fullOrderResponse)
-      responses.foreach(r ⇒ {
-        r.status must === (StatusCodes.OK)
-        val fullOrder = r.as[FullOrder.Root]
-        fullOrder.shippingAddress match {
-          case Some(addr) ⇒
-            addr.name must === (name)
-            addr.city must === (city)
-            addr.address1 must === (address.address1)
-            addr.address2 must === (address.address2)
-            val region = Regions.findOneById(address.regionId).run().futureValue.value
-            addr.region must === (region)
-            addr.zip must === (address.zip)
-
-          case None ⇒
-            fail("FullOrder should have a shipping address")
-        }
-      })
+      def checkOrder(fullOrder: FullOrder.Root) = {
+        val addr = fullOrder.shippingAddress.value
+        addr.name must === (name)
+        addr.city must === (city)
+        addr.address1 must === (address.address1)
+        addr.address2 must === (address.address2)
+        val region = Regions.findOneById(address.regionId).run().futureValue.value
+        addr.region must === (region)
+        addr.zip must === (address.zip)
+      }
     }
   }
 
   "DELETE /v1/orders/:refNum/shipping-address" - {
     "succeeds if an address exists" in new ShippingAddressFixture {
-      Orders.update(order.copy(status = Order.Cart)).run().futureValue
+      val noShipAddressFailure = NoShipAddress(order.refNum).description.headOption.value
 
       //get order and make sure it has a shipping address
       val fullOrderResponse = GET(s"v1/orders/${order.referenceNumber}")
+      fullOrderResponse.status must === (StatusCodes.OK)
       val fullOrder = fullOrderResponse.as[FullOrder.Root]
       fullOrder.shippingAddress mustBe defined
 
@@ -590,8 +588,9 @@ class OrderIntegrationTest extends IntegrationTestBase
       deleteResponse.status must === (StatusCodes.OK)
 
       //shipping address must not be defined
-      val lessThanFullOrder = deleteResponse.as[FullOrder.Root]
-      lessThanFullOrder.shippingAddress mustBe None
+      val lessThanFullOrder = deleteResponse.withResultTypeOf[FullOrder.Root]
+      lessThanFullOrder.result.shippingAddress must not be defined
+      lessThanFullOrder.warnings.value must contain (noShipAddressFailure)
 
       //fails if the order does not have shipping address
       val deleteFailedResponse = DELETE(s"v1/orders/${order.referenceNumber}/shipping-address")
@@ -599,10 +598,9 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
 
     "fails if the order is not found" in new ShippingAddressFixture {
-      Orders.update(order.copy(status = Order.Cart)).run().futureValue
-
       val response = DELETE(s"v1/orders/ABC-123/shipping-address")
       response.status must === (StatusCodes.NotFound)
+      response.errors must === (NotFoundFailure404(Order, "ABC-123").description)
 
       db.run(OrderShippingAddresses.length.result).futureValue must === (1)
     }
@@ -618,13 +616,13 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
   }
 
-  "adding a shipping method to an order" - {
+  "PATCH /v1/orders/:refNum/shipping-method" - {
     "succeeds if the order meets the shipping restrictions" in new ShippingMethodFixture {
       val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-method",
         payloads.UpdateShippingMethod(shippingMethodId = lowShippingMethod.id))
-      val fullOrder = response.as[FullOrder.Root]
 
       response.status must === (StatusCodes.OK)
+      val fullOrder = response.ignoreFailuresAndGiveMe[FullOrder.Root]
       fullOrder.shippingMethod.value.name must === (lowShippingMethod.adminDisplayName)
 
       val orderShippingMethod = OrderShippingMethods.findByOrderId(order.id).result.run().futureValue.head
@@ -654,53 +652,24 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
   }
 
-  "updating a shipping method on an order" - {
-    "succeeds if the order meets the shipping restrictions" in new OrderShippingMethodFixture {
-      val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-method",
-        payloads.UpdateShippingMethod(shippingMethodId = lowShippingMethod.id))
-      val fullOrder = response.as[FullOrder.Root]
-
-      response.status must === (StatusCodes.OK)
-      fullOrder.shippingMethod.value.name must === (lowShippingMethod.adminDisplayName)
-
-      val orderShippingMethod = OrderShippingMethods.findByOrderId(order.id).result.run().futureValue.headOption.value
-      orderShippingMethod.orderId must === (order.id)
-      orderShippingMethod.shippingMethodId must === (lowShippingMethod.id)
-    }
-  }
-
   trait Fixture {
     val (order, storeAdmin, customer) = (for {
-      customer ← Customers.saveNew(Factories.customer)
-      order ← Orders.saveNew(Factories.order.copy(customerId = customer.id, status = Order.Cart))
-      storeAdmin ← StoreAdmins.saveNew(authedStoreAdmin)
-    } yield (order, storeAdmin, customer)).run().futureValue
-  }
-
-  trait OrderFixture {
-    val (order, storeAdmin, customer) = (for {
-      customer ← Customers.saveNew(Factories.customer)
-      order ← Orders.saveNew(Factories.order.copy(customerId = customer.id, status = Order.Cart))
-      storeAdmin ← StoreAdmins.saveNew(authedStoreAdmin)
-      skus ← Skus ++= Factories.skus
-      warehouses ← Warehouses ++= Factories.warehouses
-      summaries ← InventorySummaries ++= Factories.inventorySummaries
-    } yield (order, storeAdmin, customer)).run().futureValue
+      customer   ← * <~ Customers.create(Factories.customer)
+      order      ← * <~ Orders.create(Factories.order.copy(customerId = customer.id, status = Order.Cart))
+      storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
+    } yield (order, storeAdmin, customer)).runT().futureValue.rightVal
   }
 
   trait AddressFixture extends Fixture {
-    val address = Addresses.saveNew(Factories.address.copy(customerId = customer.id)).run().futureValue
+    val address = Addresses.create(Factories.address.copy(customerId = customer.id)).run().futureValue.rightVal
   }
 
   trait ShippingAddressFixture extends AddressFixture {
     val (orderShippingAddress, newAddress) = (for {
-      orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
-      newAddress ← Addresses.saveNew(Factories.address.copy(customerId = customer.id, isDefaultShipping = false,
+      orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
+      newAddress ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id, isDefaultShipping = false,
         name = "New Shipping", address1 = "29918 Kenloch Dr", city = "Farmington Hills", regionId = 4177))
-    } yield(orderShippingAddress, newAddress)).run().futureValue
-  }
-
-  trait PaymentMethodsFixture extends AddressFixture {
+    } yield(orderShippingAddress, newAddress)).runT().futureValue.rightVal
   }
 
   trait ShippingMethodFixture extends AddressFixture {
@@ -728,15 +697,15 @@ class OrderIntegrationTest extends IntegrationTestBase
     val highSm = Factories.shippingMethods.head.copy(adminDisplayName = "High", conditions = Some(highConditions))
 
     val (lowShippingMethod, inactiveShippingMethod, highShippingMethod) = (for {
-      sku ← Skus.saveNew(Factories.skus.head.copy(price = 100))
-      lineItemSku ← OrderLineItemSkus.saveNew(OrderLineItemSku(skuId = sku.id, orderId = order.id))
-      lineItem ← OrderLineItems.saveNew(OrderLineItem(orderId = order.id, originId = lineItemSku.id,
+      sku         ← * <~ Skus.create(Factories.skus.head.copy(price = 100))
+      lineItemSku ← * <~ OrderLineItemSkus.create(OrderLineItemSku(skuId = sku.id, orderId = order.id))
+      lineItem    ← * <~ OrderLineItems.create(OrderLineItem(orderId = order.id, originId = lineItemSku.id,
         originType = OrderLineItem.SkuItem))
 
-      lowShippingMethod ← ShippingMethods.saveNew(lowSm)
-      inactiveShippingMethod ← ShippingMethods.saveNew(lowShippingMethod.copy(isActive = false))
-      highShippingMethod ← ShippingMethods.saveNew(highSm)
-    } yield (lowShippingMethod, inactiveShippingMethod, highShippingMethod)).run().futureValue
+      lowShippingMethod      ← * <~ ShippingMethods.create(lowSm)
+      inactiveShippingMethod ← * <~ ShippingMethods.create(lowShippingMethod.copy(isActive = false))
+      highShippingMethod     ← * <~ ShippingMethods.create(highSm)
+    } yield (lowShippingMethod, inactiveShippingMethod, highShippingMethod)).runT().futureValue.rightVal
   }
 
   trait OrderShippingMethodFixture extends ShippingMethodFixture {
@@ -749,11 +718,11 @@ class OrderIntegrationTest extends IntegrationTestBase
 
   trait RemorseFixture {
     val (admin, order) = (for {
-      admin ← StoreAdmins.saveNew(Factories.storeAdmin)
-      order ← Orders.saveNew(Factories.order.copy(
+      admin ← * <~ StoreAdmins.create(Factories.storeAdmin)
+      order ← * <~ Orders.create(Factories.order.copy(
         status = Order.RemorseHold,
         remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
-    } yield (admin, order)).run().futureValue
+    } yield (admin, order)).runT().futureValue.rightVal
 
     val refNum = order.referenceNumber
     val originalRemorseEnd = order.remorsePeriodEnd.value
@@ -761,9 +730,9 @@ class OrderIntegrationTest extends IntegrationTestBase
 
   trait PaymentStatusFixture extends Fixture {
     val (cc, op, ccc) = (for {
-      cc ← CreditCards.saveNew(Factories.creditCard.copy(customerId = customer.id))
-      op ← OrderPayments.saveNew(Factories.orderPayment.copy(orderId = order.id, paymentMethodId = cc.id))
-      ccc ← CreditCardCharges.saveNew(Factories.creditCardCharge.copy(creditCardId = cc.id, orderPaymentId = op.id))
-    } yield (cc, op, ccc)).run().futureValue
+      cc  ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
+      op  ← * <~ OrderPayments.create(Factories.orderPayment.copy(orderId = order.id, paymentMethodId = cc.id))
+      ccc ← * <~ CreditCardCharges.create(Factories.creditCardCharge.copy(creditCardId = cc.id, orderPaymentId = op.id))
+    } yield (cc, op, ccc)).runT().futureValue.rightVal
   }
 }

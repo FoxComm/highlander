@@ -1,7 +1,8 @@
 package models
 
+import cats.data.Xor
 import models.rules.QueryStatement
-import org.json4s.JValue
+import services.{ShippingMethodIsNotActive, Failures}
 import utils.ExPostgresDriver.api._
 import monocle.macros.GenLens
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
@@ -9,7 +10,12 @@ import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 final case class ShippingMethod(id: Int = 0, parentId: Option[Int] = None, adminDisplayName: String,
   storefrontDisplayName: String, shippingCarrierId: Option[Int] = None, price: Int, isActive: Boolean = true,
   conditions: Option[QueryStatement] = None, restrictions: Option[QueryStatement] = None)
-  extends ModelWithIdParameter[ShippingMethod]
+  extends ModelWithIdParameter[ShippingMethod] {
+
+  def mustBeActive: Failures Xor ShippingMethod =
+    if(isActive) Xor.right(this) else Xor.left(ShippingMethodIsNotActive(id).single)
+
+}
 
 object ShippingMethod
 

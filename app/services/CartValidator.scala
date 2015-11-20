@@ -1,42 +1,38 @@
 package services
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
+import cats.implicits._
+import models.{GiftCards, Order, OrderLineItems, OrderPayment, OrderPayments, OrderShippingAddresses, OrderShippingMethods, StoreCredits}
 import services.CartFailures._
-import models.{OrderShippingMethods, Order, OrderLineItems, OrderShippingAddresses, OrderPayments, OrderPayment,
-StoreCredits, GiftCards}
-import OrderPayments.scope._
 import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
-import utils.Slick.lift
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 import utils.Slick.implicits._
+import utils.Slick.{DbResult, lift}
 
 trait CartValidation {
-  def validate: Result[CartValidatorResponse]
+  def validate: DbResult[CartValidatorResponse]
 }
 
 // warnings would be turned into `errors` during checkout but if we're still in cart mode
 // then we'll display to end-user as warnings/alerts since they are not "done" with their cart
 final case class CartValidatorResponse(
-  alerts:   List[Failure] = List.empty[Failure],
-  warnings: List[Failure] = List.empty[Failure])
+  alerts:   Option[Failures] = None,
+  warnings: Option[Failures] = None)
 
 final case class CartValidator(cart: Order)(implicit db: Database, ec: ExecutionContext)
   extends CartValidation {
 
-  def validate: Result[CartValidatorResponse] = {
+  def validate: DbResult[CartValidatorResponse] = {
     val response = CartValidatorResponse()
-
-    if (cart.isCart) {
-      (for {
-        state ← hasItems(response)
-        state ← hasShipAddress(state)
-        state ← validShipMethod(state)
-        state ← sufficientPayments(state)
-      } yield state).run().flatMap(Result.good)
-    } else {
-      Result.failure(OrderMustBeCart(cart.refNum))
-    }
+    (for {
+      state ← hasItems(response)
+      state ← hasShipAddress(state)
+      state ← validShipMethod(state)
+      state ← sufficientPayments(state)
+    } yield state).flatMap(DbResult.good)
   }
 
   private def hasItems(response: CartValidatorResponse): DBIO[CartValidatorResponse] = {
@@ -59,8 +55,8 @@ final case class CartValidator(cart: Order)(implicit db: Database, ec: Execution
       case Some((osm, sm)) ⇒
         ShippingManager.evaluateShippingMethodForOrder(sm, cart).map { res ⇒
           res.fold(
-            _ ⇒ warning(response, InvalidShippingMethod(cart.refNum)),
-            isValid ⇒ if (isValid) response else warning(response, InvalidShippingMethod(cart.refNum))
+            _ ⇒ warning(response, InvalidShippingMethod(cart.refNum)), // FIXME validator warning and actual failure differ
+            _ ⇒ response
           )
         }
 
@@ -103,6 +99,6 @@ final case class CartValidator(cart: Order)(implicit db: Database, ec: Execution
   }
 
   private def warning(response: CartValidatorResponse, failure: Failure): CartValidatorResponse =
-    response.copy(warnings = response.warnings :+ failure)
+    response.copy(warnings = response.warnings.fold(Failures(failure).some)
+      (current ⇒ Failures(current.toList :+ failure: _*).some))
 }
-

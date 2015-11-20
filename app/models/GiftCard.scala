@@ -7,6 +7,7 @@ import scala.concurrent.ExecutionContext
 import cats.data.Validated._
 import cats.data.{Xor, ValidatedNel}
 import cats.implicits._
+import payloads.AddGiftCardLineItem
 import services._
 import utils.CustomDirectives.SortAndPage
 import utils.Litterbox._
@@ -67,6 +68,13 @@ final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = C
   def hasAvailable(amount: Int): Boolean = availableBalance >= amount
 
   def mustBeCart: Failures Xor GiftCard = if (isCart) Xor.Right(this) else Xor.Left(GiftCardMustBeCart(code).single)
+
+  def mustNotBeCart: Failures Xor GiftCard = if (!isCart) Xor.Right(this) else Xor.Left(GiftCardMustNotBeCart(code).single)
+
+  def mustBeActive: Failures Xor GiftCard = if (isActive) Xor.Right(this) else Xor.Left(GiftCardIsInactive(this).single)
+
+  def mustHaveEnoughBalance(amount: Int): Failures Xor GiftCard =
+    if (hasAvailable(amount)) Xor.Right(this) else Xor.Left(GiftCardNotEnoughBalance(this, amount).single)
 }
 
 object GiftCard {
@@ -92,6 +100,11 @@ object GiftCard {
   }
 
   val giftCardCodeRegex = """([a-zA-Z0-9-_]*)""".r
+
+  def update(giftCard: GiftCard, payload: AddGiftCardLineItem): GiftCard = {
+    giftCard.copy(availableBalance = payload.balance, currentBalance = payload.balance,
+      originalBalance = payload.balance, currency = payload.currency)
+  }
 
   def buildAppeasement(payload: payloads.GiftCardCreateByCsr, originId: Int): GiftCard = {
     GiftCard(
@@ -255,6 +268,12 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
   }
 
   implicit class GiftCardQueryWrappers(q: QuerySeq) extends TableQueryWrappers(q) {
-    def mustBeCart(giftCard: GiftCard): Failures Xor GiftCard = giftCard.mustBeCart
+    def mustFindByCode(code: String, notFoundFailure: String ⇒ Failure = notFound404K)
+      (implicit ec: ExecutionContext, db: Database): DbResult[GiftCard] = {
+      findByCode(code).one.flatMap {
+        case Some(model) ⇒ DbResult.good(model)
+        case None ⇒ DbResult.failure(notFoundFailure(code))
+      }
+    }
   }
 }

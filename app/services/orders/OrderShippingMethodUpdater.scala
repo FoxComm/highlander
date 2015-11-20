@@ -2,54 +2,39 @@ package services.orders
 
 import scala.concurrent.ExecutionContext
 
-import cats.data.Xor.{Left, Right}
+import cats.implicits._
 import models._
 import payloads.UpdateShippingMethod
-import responses.FullOrder
+import responses.{TheResponse, FullOrder}
 import services._
 import slick.driver.PostgresDriver.api._
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 import utils.Slick.implicits._
-import utils.Slick.{DbResult, _}
 
 object OrderShippingMethodUpdater {
 
   def updateShippingMethod(payload: UpdateShippingMethod, refNum: String)
-    (implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
-    val finder = Orders.findByRefNum(refNum)
-
-    finder.selectOneForUpdate { order ⇒
-      ShippingMethods.findActiveById(payload.shippingMethodId).one.flatMap {
-        case Some(shippingMethod) ⇒
-          ShippingManager.evaluateShippingMethodForOrder(shippingMethod, order).flatMap {
-            case Right(res) ⇒
-              if (res) {
-                val orderShipping = OrderShippingMethod(orderId = order.id, shippingMethodId = shippingMethod.id)
-
-                DbResult.fromDbio(for {
-                  deleteShipping ← Shipments.filter(_.orderId === order.id).map(_.orderShippingMethodId).update(None)
-                  delete ← OrderShippingMethods.findByOrderId(order.id).delete
-                  orderShippingMethod ← OrderShippingMethods.saveNew(orderShipping)
-                  shipments ← Shipments.filter(_.orderId === order.id).map(_.orderShippingMethodId).update(Some(orderShippingMethod.id))
-                  order ← fullOrder(finder)
-                } yield order)
-              } else {
-                DbResult.failure(ShippingMethodNotApplicableToOrder(payload.shippingMethodId, order.refNum))
-              }
-            case Left(f) ⇒
-              DbResult.failures(f)
-          }
-        case None ⇒
-          DbResult.failure(ShippingMethodDoesNotExist(payload.shippingMethodId))
-      }
-    }
-  }
+    (implicit db: Database, ec: ExecutionContext): Result[TheResponse[FullOrder.Root]] = (for {
+    order           ← * <~ Orders.mustFindByRefNum(refNum)
+    _               ← * <~ order.mustBeCart
+    shippingMethod  ← * <~ ShippingMethods.mustFindById(payload.shippingMethodId, i ⇒ NotFoundFailure400(ShippingMethod, i))
+    _               ← * <~ shippingMethod.mustBeActive
+    _               ← * <~ ShippingManager.evaluateShippingMethodForOrder(shippingMethod, order)
+    _               ← * <~ Shipments.filter(_.orderId === order.id).map(_.orderShippingMethodId).update(None)
+    _               ← * <~ OrderShippingMethods.findByOrderId(order.id).delete
+    orderShipMethod ← * <~ OrderShippingMethods.create(OrderShippingMethod(orderId = order.id, shippingMethodId = shippingMethod.id))
+    _               ← * <~ Shipments.filter(_.orderId === order.id).map(_.orderShippingMethodId).update(orderShipMethod.id.some)
+    validated       ← * <~ CartValidator(order).validate
+    response        ← * <~ FullOrder.refreshAndFullOrder(order).toXor
+  } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).runT()
 
   def deleteShippingMethod(refNum: String)
-    (implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
-    val finder = Orders.findByRefNum(refNum)
-
-    finder.selectOneForUpdate { order ⇒
-      DbResult.fromDbio(OrderShippingMethods.findByOrderId(order.id).delete >> fullOrder(finder))
-    }
-  }
+    (implicit db: Database, ec: ExecutionContext): Result[TheResponse[FullOrder.Root]] = (for {
+    order ← * <~ Orders.mustFindByRefNum(refNum)
+    _     ← * <~ order.mustBeCart
+    _     ← * <~ OrderShippingMethods.findByOrderId(order.id).delete
+    valid ← * <~ CartValidator(order).validate
+    resp  ← * <~ FullOrder.refreshAndFullOrder(order).toXor
+  } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)).runT()
 }
