@@ -11,7 +11,10 @@ const { reducer, ...actions } = importModule('customers/credit-cards.js', [
   'saveCreditCard',
   'closeEditCustomerCreditCard',
   'confirmCreditCardDeletion',
-  'closeDeleteCustomerCreditCard'
+  'closeDeleteCustomerCreditCard',
+  'creditCardsUrl',
+  'creditCardUrl',
+  'creditCardDefaultUrl'
 ]);
 
 describe('customers credit cards module', function() {
@@ -26,6 +29,28 @@ describe('customers credit cards module', function() {
 
   const creditCardPayload = require('../../../fixtures/customer-credit-cards.json');
   const customerId = 1;
+
+  context('helper functions', function() {
+
+    const customerId = Math.floor(Math.random() * 10) + 1;
+    const cardId = Math.floor(Math.random() * 10) + 1 ;
+
+    it('creditCardsUrl should construct valid url', function() {
+      const expected = `/customers/${customerId}/payment-methods/credit-cards`;
+      expect(actions.creditCardsUrl(customerId)).to.be.equal(expected);
+    });
+
+    it('creditCardUrl should construct valid url', function() {
+      const expected = `/customers/${customerId}/payment-methods/credit-cards/${cardId}`;
+      expect(actions.creditCardUrl(customerId, cardId)).to.be.equal(expected);
+    });
+
+    it('creditCardDefaultUrl should construct valid url', function() {
+      const expected = `/customers/${customerId}/payment-methods/credit-cards/${cardId}/default`;
+      expect(actions.creditCardDefaultUrl(customerId, cardId)).to.be.equal(expected);
+    });
+
+  });
 
   context('async actions', function() {
     before(function() {
