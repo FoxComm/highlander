@@ -110,6 +110,10 @@ export default class CreditCardForm extends React.Component {
 
   get addressSelectBlock() {
     let block = null;
+    let addressId = null;
+    if (this.props.card !== undefined && this.props.card.address !== undefined) {
+      addressId = this.props.card.address.id;
+    }
     if (this.props.isNew) {
       block = (
         <li className="fc-credit-card-form-line">
@@ -120,7 +124,7 @@ export default class CreditCardForm extends React.Component {
             <AddressSelect name="addressId"
                            customerId={ this.props.customerId }
                            items={ this.props.addresses }
-                           initialValue={ this.props.card.address.id }
+                           initialValue={ addressId }
                            onItemSelect={ this.onAddressChange } />
           </div>
         </li>

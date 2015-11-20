@@ -30,8 +30,20 @@ const requestCustomerCreditCards = _createAction('REQUEST');
 const failCustomerCreditCards = _createAction('FAIL',
                                               (id, err, source) => [id, err]);
 
+function creditCardsUrl(customerId) {
+  return `/customers/${customerId}/payment-methods/credit-cards`;
+}
+
+function creditCardUrl(customerId, cardId) {
+  return `/customers/${customerId}/payment-methods/credit-cards/${cardId}`;
+}
+
+function creditCardDefaultUrl(customerId, cardId) {
+  return `/customers/${customerId}/payment-methods/credit-cards/${cardId}/default`;
+}
+
 function fetchForCustomer(id, dispatch) {
-  Api.get(`/customers/${id}/payment-methods/credit-cards`)
+  Api.get(creditCardsUrl(id))
     .then(cards => {
       dispatch(receiveCustomerCreditCards(id, cards));
     })
@@ -42,13 +54,13 @@ function fetchForCustomer(id, dispatch) {
 
 function setDefaultCreditCard(customerId, cardId, onSuccess) {
   const payload = {isDefault: true};
-  Api.post(`/customers/${customerId}/payment-methods/credit-cards/${cardId}/default`, payload)
+  Api.post(creditCardDefaultUrl(customerId, cardId), payload)
     .then(() => onSuccess());
 }
 
 function resetDefaultCreditCard(customerId, cardId, currentDefaultId, onSuccess) {
   const resetPayload = {isDefault: false};
-  Api.post(`/customers/${customerId}/payment-methods/credit-cards/${currentDefaultId}/default`, resetPayload)
+  Api.post(creditCardDefaultUrl(customerId, currentDefaultId), resetPayload)
     .then(() => {
       setDefaultCreditCard(customerId, cardId, onSuccess);
     });
@@ -74,7 +86,7 @@ export function createCreditCard(id) {
 
     if (isDefault && currentDefault) {
       const currentDefaultId = currentDefault.id;
-      Api.post(`/customers/${id}/payment-methods/credit-cards`, cardData)
+      Api.post(creditCardsUrl(id), cardData)
         .then((card) => {
           resetDefaultCreditCard(id, card.id, currentDefaultId, () => {
             dispatch(closeNewCustomerCreditCard(id));
@@ -83,7 +95,7 @@ export function createCreditCard(id) {
         })
         .catch(err => dispatch(failCustomerCreditCards(id, err)));
     } else if (isDefault && (currentDefault === null || currentDefault === undefined)) {
-      Api.post(`/customers/${id}/payment-methods/credit-cards`, cardData)
+      Api.post(creditCardsUrl(id), cardData)
         .then((card) => {
           setDefaultCreditCard(id, card.id, () => {
             dispatch(closeNewCustomerCreditCard(id));
@@ -92,7 +104,7 @@ export function createCreditCard(id) {
         })
         .catch(err => dispatch(failCustomerCreditCards(id, err)));
     } else {
-      Api.post(`/customers/${id}/payment-methods/credit-cards`, cardData)
+      Api.post(creditCardsUrl(id), cardData)
         .then(() => {
           dispatch(closeNewCustomerCreditCard(id));
           fetchForCustomer(id, dispatch);
@@ -108,7 +120,7 @@ export function confirmCreditCardDeletion(id) {
 
     const cards = _.get(getState(), 'customers.creditCards', {});
     const creditCardId = _.get(cards, [id, 'deletingId']);
-    Api.delete(`/customers/${id}/payment-methods/credit-cards/${creditCardId}`)
+    Api.delete(creditCardUrl(id, creditCardId))
       .then(() => {
         dispatch(closeDeleteCustomerCreditCard(id));
         fetchForCustomer(id, dispatch);
@@ -130,7 +142,7 @@ export function saveCreditCard(id) {
 
     if (isDefault && currentDefault && currentDefault.id !== creditCardId) {
       const currentDefaultId = currentDefault.id;
-      Api.patch(`/customers/${id}/payment-methods/credit-cards/${creditCardId}`, form)
+      Api.patch(creditCardUrl(id, creditCardId), form)
         .then((card) => {
           resetDefaultCreditCard(id, card.id, currentDefaultId, () => {
             dispatch(closeEditCustomerCreditCard(id));
@@ -138,7 +150,7 @@ export function saveCreditCard(id) {
           });
         }).catch(err => dispatch(failCustomerCreditCards(id, err)));
     } else if (isDefault && (currentDefault === null || currentDefault === undefined)) {
-      Api.patch(`/customers/${id}/payment-methods/credit-cards/${creditCardId}`, form)
+      Api.patch(creditCardUrl(id, creditCardId), form)
         .then((card) => {
           setDefaultCreditCard(id, card.id, () => {
             dispatch(closeEditCustomerCreditCard(id));
@@ -146,7 +158,7 @@ export function saveCreditCard(id) {
           });
         }).catch(err => dispatch(failCustomerCreditCards(id, err)));
     } else {
-      Api.patch(`/customers/${id}/payment-methods/credit-cards/${creditCardId}`, form)
+      Api.patch(creditCardUrl(id, creditCardId), form)
         .then(() => {
           dispatch(closeEditCustomerCreditCard(id));
           fetchForCustomer(id, dispatch);
@@ -169,15 +181,15 @@ export function toggleDefault(customerId, creditCardId) {
     if (currentDefault !== null && currentDefault !== undefined) {
       const currentDefaultId = currentDefault.id;
       const resetPayload = {isDefault: false};
-      Api.post(`/customers/${customerId}/payment-methods/credit-cards/${currentDefaultId}/default`, resetPayload)
+      Api.post(creditCardDefaultUrl(customerId, currentDefaultId), resetPayload)
         .then(() => {
-          Api.post(`/customers/${customerId}/payment-methods/credit-cards/${creditCardId}/default`, payload)
+          Api.post(creditCardDefaultUrl(customerId, creditCardId), payload)
             .then(() => {
               fetchForCustomer(customerId, dispatch);
             });
          }).catch(err => dispatch(failCustomerCreditCards(customerId, err)));
     } else {
-      Api.post(`/customers/${customerId}/payment-methods/credit-cards/${creditCardId}/default`, payload)
+      Api.post(creditCardDefaultUrl(customerId, creditCardId), payload)
         .then(() => {
           fetchForCustomer(customerId, dispatch);
          }).catch(err => dispatch(failCustomerCreditCards(customerId, err)));
