@@ -16,7 +16,7 @@ const CreditCardBox = (props) => {
       <CreditCardDetails customerId={ props.customerId} card={ props.card } />
     </EditableItemCardContainer>
   );
-}
+};
 
 CreditCardBox.propTypes = {
   card: PropTypes.object,
