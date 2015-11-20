@@ -1,6 +1,6 @@
-import Api from '../lib/api';
+import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
-import { haveType } from './state-helpers';
+import { haveType } from '../state-helpers';
 
 export const orderRequest = createAction('ORDER_REQUEST');
 export const orderSuccess = createAction('ORDER_SUCCESS');
@@ -85,9 +85,9 @@ const reducer = createReducer({
     };
   },
   [orderFailed]: (state, [err, source]) => {
-    console.error(err);
-
     if (source === fetchOrder) {
+      console.error(err);
+
       return {
         ...state,
         isFetching: false

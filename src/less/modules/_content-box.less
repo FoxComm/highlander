@@ -72,7 +72,7 @@
     .padding(0);
   }
 
-  > footer, .fc-content-box-footer {
+  .fc-content-box-footer {
     .font-spec(17px, 700, 50px);
     .padding(0, 20px);
     &:last-child {
@@ -84,5 +84,11 @@
     > .fc-grid {
       flex: 1;
     }
+  }
+
+  &-empty-text {
+    .font-spec(18px, 400, 104px);
+    .padding-left(20px);
+    color: @color-decor8;
   }
 }

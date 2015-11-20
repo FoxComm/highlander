@@ -44,7 +44,7 @@ renderTitle.propTypes = {
 const renderFooter = props => {
   if (props.isEditing) {
     return (
-      <footer>
+      <footer className='fc-editable-content-box-footer'>
         <PrimaryButton onClick={props.doneAction}>
           Done
         </PrimaryButton>
