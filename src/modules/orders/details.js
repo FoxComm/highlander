@@ -106,27 +106,15 @@ const reducer = createReducer({
                         ['lineItems', 'items'], skus);
   },
   [orderLineItemsRequest]: (state, sku) => {
-    return {
-      ...state,
-      lineItems: {
-        ...state.lineItems,
-        isUpdating: true,
-        skuToUpdate: sku
-      }
-    };
+    return assoc(state, ['lineItems', 'isUpdating'], true,
+                        ['lineItems', 'skuToUpdate'], sku);
   },
   [orderLineItemsRequestSuccess]: (state, sku) => {
     if (sku === state.lineItems.skuToUpdate) {
-      return {
-        ...state,
-        lineItems: {
-          ...state.lineItems,
-          isUpdating: false,
-          isDeleting: false,
-          skuToUpdate: '',
-          skuToDelete: ''
-        }
-      };
+      return assoc(state, ['lineItems', 'isUpdating'], false,
+                          ['lineItems', 'isDeleting'], false,
+                          ['lineItems', 'skuToUpdate'], '',
+                          ['lineItems', 'skuToDelete'], '');
     }
 
     return state;
@@ -135,16 +123,10 @@ const reducer = createReducer({
     console.log(err);
 
     if (source === updateLineItemCount) {
-      return {
-        ...state,
-        lineItems: {
-          ...state.lineItems,
-          isUpdating: false,
-          isDeleting: false,
-          skuToUpdate: '',
-          skuToDelete: ''
-        }
-      };
+      return assoc(state, ['lineItems', 'isUpdating'], false,
+                          ['lineItems', 'isDeleting'], false,
+                          ['lineItems', 'skuToUpdate'], '',
+                          ['lineItems', 'skuToDelete'], '');
     }
 
     return state;
