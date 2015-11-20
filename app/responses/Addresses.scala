@@ -23,7 +23,7 @@ object Addresses {
       city = cc.city, zip = cc.zip, isDefault = None, phoneNumber = cc.phoneNumber)
 
   def build(records: Seq[(models.Address, Region)]): Seq[Root] =
-    records.map { case (address, region) ⇒ build(address, region) }
+    records.map { case (address, region) ⇒ build(address, region, Some(address.isDefaultShipping)) }
 
   def buildShipping(records: Seq[(models.Address, OrderShippingAddress, Region)]): Seq[Root] = {
     records.map { case (address, shippingAddress, region) ⇒
