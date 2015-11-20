@@ -130,26 +130,18 @@ object CustomerManager {
   def update(customerId: Int, payload: UpdateCustomerPayload)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
 
-    def result = {
-      val finder = Customers.filter(_.id === customerId)
-      val result = swapDatabaseFailure {
-        finder.selectOneForUpdate { customer ⇒
-          finder.map { c ⇒ (c.name, c.email, c.phoneNumber) }
-            .updateReturningHead(Customers.map(identity),
-              (payload.name.fold(customer.name)(Some(_)),
-                payload.email.getOrElse(customer.email),
-                payload.phoneNumber.fold(customer.phoneNumber)(Some(_))))
-            .map(_.map(build(_)))
-        }
-      } { (NotUnique, CustomerEmailNotUnique) }
+    swapDatabaseFailure {
+      (for {
+        _ ← * <~ payload.validate.toXor
+        customer ← * <~ Customers.mustFindById(customerId, customerNotFound)
+        updated ← * <~ Customers.update(customer, customer.copy(
+          name = payload.name.fold(customer.name)(Some(_)),
+          email = payload.email.getOrElse(customer.email),
+          phoneNumber = payload.phoneNumber.fold(customer.phoneNumber)(Some(_))
+        ))
+      } yield build(updated)).value.transactionally.run()
+    } { (NotUnique, CustomerEmailNotUnique) }
 
-      result.flatMap(_.fold(Result.failures, Result.good))
-    }
-
-    (for {
-      _ ← ResultT.fromXor(payload.validate.toXor)
-      root ← ResultT(result)
-    } yield root).value
   }
 
 
