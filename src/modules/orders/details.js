@@ -75,6 +75,8 @@ const reducer = createReducer({
     };
   },
   [orderSuccess]: (state, payload) => {
+    // here it is needed to merge skus
+    // skus.reduce(function(obj, elem){if (obj[elem.sku] != undefined) {obj[elem.sku] += 1} else {obj[elem.sku] = 1}; return obj;}, {});
     return {
       ...state,
       isFetching: false,
