@@ -8,7 +8,9 @@ export default class CreditCardBox extends React.Component {
   static propTypes = {
     card: PropTypes.object,
     customerId: PropTypes.number.isRequired,
-    onDeleteClick: PropTypes.func
+    onDeleteClick: PropTypes.func,
+    onDefaultToggle: PropTypes.func,
+    onEditClick: PropTypes.func
   };
 
   constructor(props, context) {

@@ -17,7 +17,7 @@ EditableContentBox.propTypes = {
   className: PropTypes.string,
   editContent: PropTypes.node,
   viewContent: PropTypes.node,
-  isEditing: PropTypes.bool
+  isEditing: PropTypes.bool,
 };
 
 const renderTitle = props => {
@@ -38,7 +38,8 @@ const renderTitle = props => {
 
 renderTitle.propTypes = {
   isEditing: PropTypes.bool,
-  title: PropTypes.string
+  title: PropTypes.string,
+  editAction: PropTypes.func
 };
 
 const renderFooter = props => {

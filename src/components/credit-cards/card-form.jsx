@@ -19,7 +19,13 @@ export default class CreditCardForm extends React.Component {
     onCancel: PropTypes.func,
     isNew: PropTypes.bool,
     form: PropTypes.object,
-    addresses: PropTypes.array
+    addresses: PropTypes.array,
+    card: PropTypes.shape({
+      address: PropTypes.shape({
+        id: PropTypes.number
+      })
+    }),
+    customerId: PropTypes.number
   }
 
   constructor(...args) {
