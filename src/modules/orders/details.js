@@ -39,7 +39,7 @@ export function updateLineItemCount(order, sku, quantity, confirmDelete = true) 
     } else {
       dispatch(orderLineItemsRequest(sku));
 
-      let payload = [{ sku: sku, quantity: quantity }];
+      const payload = [{ sku: sku, quantity: quantity }];
       return Api.post(`/orders/${order.referenceNumber}/line-items`, payload)
         .then(order => {
           dispatch(orderLineItemsRequestSuccess(sku));
@@ -150,25 +150,13 @@ const reducer = createReducer({
     return state;
   },
   [orderLineItemsStartDelete]: (state, sku) => {
-    return {
-      ...state,
-      lineItems: {
-        ...state.lineItems,
-        isDeleting: true,
-        skuToDelete: sku
-      }
-    };
+    return assoc(state, ['lineItems', 'isDeleting'], true,
+                        ['lineItems', 'skuToDelete'], sku);
   },
   [orderLineItemsCancelDelete]: (state, sku) => {
     if (state.lineItems.skuToDelete === sku) {
-      return {
-        ...state,
-        lineItems: {
-          ...state.lineItems,
-          isDeleting: false,
-          skuToDelete: ''
-        }
-      };
+      return assoc(state, ['lineItems', 'isDeleting'], false,
+                          ['lineItems', 'skuToDelete'], '');
     }
   }
 }, initialState);
