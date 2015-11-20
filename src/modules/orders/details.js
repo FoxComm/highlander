@@ -1,6 +1,7 @@
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 import { haveType } from '../state-helpers';
+import { get, assoc } from 'sprout-data';
 
 export const orderRequest = createAction('ORDER_REQUEST');
 export const orderSuccess = createAction('ORDER_SUCCESS');
@@ -97,23 +98,12 @@ const reducer = createReducer({
     return state;
   },
   [orderLineItemsStartEdit]: (state) => {
-    return {
-      ...state,
-      lineItems: {
-        ...state.lineItems,
-        isEditing: true
-      }
-    };
+    return assoc(state, ['lineItems', 'isEditing'], true);
   },
   [orderLineItemsCancelEdit]: (state) => {
-    return {
-      ...state,
-      lineItems: {
-        ...state.lineItems,
-        isEditing: false,
-        items: state.currentOrder.lineItems.skus
-      }
-    };
+    const skus = get(state, ['currentOrder', 'lineItems', 'skus'], []);
+    return assoc(state, ['lineItems', 'isEditing'], false,
+                        ['lineItems', 'items'], skus);
   },
   [orderLineItemsRequest]: (state, sku) => {
     return {

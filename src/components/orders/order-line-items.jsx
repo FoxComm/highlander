@@ -55,17 +55,20 @@ renderViewContent.propTypes = {
 };
 
 const renderEditContent = props => {
-  let order = props.order.currentOrder;
-  let lineItemsStatus = props.order.lineItems;
+  console.log(props);
+  const order = props.order.currentOrder;
+  const lineItemsStatus = props.order.lineItems;
 
-  let orderLineItems = lineItemsStatus.items.map((lineItem, idx) => {
-    return <OrderLineItem key={`lineItem-${idx}`} item={lineItem} {...props} />;
-  });
+  const renderRow = (lineItem) => {
+    return <OrderLineItem key={`lineItem-${lineItem.sku}`} item={lineItem} {...props} />;
+  };
 
   // TODO: Re-add the Typeahead after Andrey's refactor is complete.
   return (
     <div>
-      <TableView columns={editModeColumns} data={{rows: orderLineItems}} />
+      <TableView columns={ editModeColumns }
+                 data={{rows: lineItemsStatus.items}}
+                 renderRow={ renderRow } />
       <footer className="fc-line-items-footer">
         <div>
           <div className="fc-line-items-add-label">

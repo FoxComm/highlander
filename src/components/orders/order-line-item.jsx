@@ -4,10 +4,12 @@ import {DeleteButton} from '../common/buttons';
 import Currency from '../common/currency';
 
 const OrderLineItem = props => {
-  let item = props.item;
-  let order = props.order.currentOrder;
+  const item = props.item;
+  const order = props.order.currentOrder;
 
-  let handleChange = (event) => {
+  console.log('props');
+
+  const handleChange = (event) => {
     props.updateLineItemCount(order, item.sku, event.target.value);
   };
 
@@ -41,7 +43,6 @@ OrderLineItem.propTypes = {
   order: PropTypes.shape({
     currentOrder: PropTypes.object
   })
-
 };
 
 export default OrderLineItem;
