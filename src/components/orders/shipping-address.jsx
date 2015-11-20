@@ -11,8 +11,9 @@ import { connect } from 'react-redux';
 import * as AddressesActions from '../../modules/addresses';
 import * as ShippingAddressesActions from '../../modules/orders/shipping-addresses';
 import AddressForm from '../addresses/address-form';
+import ConfirmationDialog from '../modal/confirmation-dialog';
 
-const SELECTED_ADDRESS = 'selected';
+const addressTypes = ShippingAddressesActions.addressTypes;
 
 function mapStateToProps(state, props) {
   const addressesState = state.addresses[props.order.customer.id];
@@ -44,23 +45,24 @@ export default class OrderShippingAddress extends React.Component {
     this.props.fetchAddresses(this.props.customerId);
   }
 
-  onDeleteAddress(address) {
-    if (address.id === this.props.order.shippingAddress.id) {
-      OrdersActions.removeShippingAddress(this.props.order.referenceNumber);
-    }
-    AddressStore.delete(this.props.order.customer.id, address.id);
-  }
-
   get selectedShippingAddress() {
-    const address = this.props.order.shippingAddress;
+    const props = this.props;
+    const address = props.order.shippingAddress;
+
+    let deleteAction = null;
+
+    if (props.order.orderStatus === 'cart') {
+      deleteAction = () => props.startDeletingAddress(address.id, addressTypes.SHIPPING);
+    }
+
     if (address) {
       return (
         <AddressBox
           address={address}
           choosen={true}
           checkboxLabel={null}
-          editAction={() => props.startEditingAddress(address.id, true)}
-          deleteAction={() => props.startDeletingAddress(SELECTED_ADDRESS)}
+          editAction={() => props.startEditingAddress(address.id, addressTypes.SHIPPING)}
+          deleteAction={ deleteAction }
         />
       );
     }
@@ -68,6 +70,10 @@ export default class OrderShippingAddress extends React.Component {
 
   get editContent() {
     const props = this.props;
+
+    const deletingId = props.deletingAddress &&
+      props.deletingAddress.type === addressTypes.CUSTOMER &&
+      props.deletingAddress.id;
 
     return (
       <div>
@@ -79,17 +85,17 @@ export default class OrderShippingAddress extends React.Component {
         <div className="fc-tableview">
           <Addresses
             {...props}
-            deletingId={ props.deletingId === SELECTED_ADDRESS ? null : props.deletingId }
+            deletingId={ deletingId }
             chooseAction={addressId => props.chooseAddress(props.order.referenceNumber, addressId)}
             />
         </div>
         <ConfirmationDialog
-          isVisible={ props.deletingId == _.get(props.order, 'shippingAddress.id') } /* null and undefined */
+          isVisible={ props.deletingAddress && props.deletingAddress.type === addressTypes.SHIPPING } /* null and undefined */
           header='Confirm'
           body='Are you sure you want to delete this address?'
           cancel='Cancel'
           confirm='Yes, Delete'
-          cancelAction={() => props.stopDeletingAddress(props.customerId) }
+          cancelAction={() => props.stopDeletingAddress() }
           confirmAction={() => {
             props.stopDeletingAddress();
             props.deleteShippingAddress(props.order.referenceNumber);
@@ -105,6 +111,20 @@ export default class OrderShippingAddress extends React.Component {
   render() {
     const props = this.props;
 
+    const editingAddress = props.editingAddress &&
+      (
+        props.editingAddress.type === addressTypes.CUSTOMER ?
+          _.findWhere(props.addresses, {id: props.editingAddress.id}) : props.order.shippingAddress
+      );
+
+    let submitAction = null;
+
+    if (props.editingAddress && props.editingAddress.type === addressTypes.SHIPPING) {
+      submitAction = formData => {
+        return props.patchShippingAddress(props.order.referenceNumber, formData);
+      };
+    }
+
     return (
       <div>
         <EditableContentBox
@@ -119,10 +139,11 @@ export default class OrderShippingAddress extends React.Component {
         />
 
         <AddressForm
-          isVisible={props.editingId != null}
-          address={_.findWhere(props.addresses, {id: props.editingId})}
-          closeAction={() => props.stopAddingOrEditingAddress(props.customerId)}
-          customerId={props.customerId}
+          isVisible={ props.editingAddress != null }
+          address={ editingAddress }
+          submitAction={ submitAction }
+          closeAction={ () => props.stopAddingOrEditingAddress() }
+          customerId={ props.customerId }
         />
       </div>
     );

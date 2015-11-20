@@ -34,10 +34,10 @@ export function setCountry(form, countryId) {
   };
 }
 
-export function init(form, address) {
+export function init(form, address, addressType) {
   return dispatch => {
     if (address) {
-      dispatch(assignAddress(form, address));
+      dispatch(assignAddress(form, address, addressType));
     } else {
       dispatch(resetForm(form, true));
       dispatch(setCountry(form));
@@ -45,37 +45,19 @@ export function init(form, address) {
   };
 }
 
-/**
- * Prepare value before submitting to server
- * @param name
- * @param value
- */
-function prepareValue(name, value) {
-  switch (name) {
-    case 'phoneNumber':
-      return value.replace(/[^\d]/g, '');
-      break;
-    default:
-      return value;
-  }
-}
 
-export function submitForm(form, customerId) {
+export function submitForm(form, customerId, formData) {
   return (dispatch, getState) => {
     const state = get(getState(), ['addressForm', form]);
 
-    const formData = _.transform(state.formData, (result, value, name) => {
-      result[name] = prepareValue(name, value);
-    });
-
     if (state.isAdding) {
       return dispatch(createAddress(customerId, formData))
-        .then(address => dispatch(setError(null)) && address)
-        .catch(err => dispatch(setError(err)) && err);
+        .then(address => dispatch(setError(form, null)) && address)
+        .catch(err => dispatch(setError(form, err)) && err);
     } else {
       return dispatch(patchAddress(customerId, state.addressId, formData))
-        .then(address => dispatch(setError(null)) && address)
-        .catch(err => dispatch(setError(err)) && err);
+        .then(address => dispatch(setError(form, null)) && address)
+        .catch(err => dispatch(setError(form, err)) && err);
     }
   };
 }
@@ -88,7 +70,7 @@ const reducer = createReducer({
 
     return assoc(state, path, value);
   },
-  [assignAddress]: (state, [form, address]) => {
+  [assignAddress]: (state, [form, address, addressType]) => {
     const {region, ...formData} = address || {};
 
     formData.regionId = region && region.id;
@@ -98,7 +80,8 @@ const reducer = createReducer({
       [form, 'isAdding'], false,
       [form, 'formData'], formData,
       [form, 'countryId'], countryId,
-      [form, 'addressId'], address.id
+      [form, 'addressId'], address.id,
+      [form, 'addressType'], addressType
     );
   },
   [setNewCountry]: (state, [form, country]) => {
@@ -114,6 +97,8 @@ const reducer = createReducer({
     );
   },
   [setError]: (state, [form, err]) => {
+    if (err) console.error(err);
+
     return assoc(state,
       [form, 'err'], err
     );

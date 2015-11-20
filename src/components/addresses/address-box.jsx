@@ -46,7 +46,7 @@ export default class AddressBox extends React.Component {
                                  initiallyIsDefault={ address.isDefault }
                                  checkboxClickHandler={() => props.toggleDefaultAction(address) }
                                  editHandler={() => props.editAction(address) }
-                                 deleteHandler={() => props.deleteAction(address) }>
+                                 deleteHandler={ props.deleteAction && () => props.deleteAction(address) }>
         <AddressDetails address={address} />
         { this.chooseButton }
       </EditableItemCardContainer>

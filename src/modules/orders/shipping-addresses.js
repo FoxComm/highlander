@@ -10,16 +10,22 @@ const _createAction = (description, ...args) => {
   return createAction(`SHIPPING_ADDRESSES_${description}`, ...args);
 };
 
+export const addressTypes = {
+  CUSTOMER: 1,
+  SHIPPING: 2
+};
+
 export const startEditing = _createAction('START_EDITING');
 export const stopEditing = _createAction('STOP_EDITING');
 
 export const startAddingAddress = _createAction('START_ADDING_ADDRESS');
 
 export const startEditingAddress = _createAction('START_EDITING_ADDRESS',
-  (addressId, isOrderShipping) => [addressId, isOrderShipping]);
+  (addressId, addressType = addressTypes.CUSTOMER) => [addressId, addressType]);
 export const stopAddingOrEditingAddress = _createAction('STOP_ADDING_OR_EDITING');
 
-export const startDeletingAddress = _createAction('START_DELETING');
+export const startDeletingAddress = _createAction('START_DELETING',
+  (addressId, addressType = addressTypes.CUSTOMER) => [addressId, addressType]);
 export const stopDeletingAddress = _createAction('STOP_DELETING');
 
 export function chooseAddress(refNum, addressId) {
@@ -33,6 +39,13 @@ export function deleteShippingAddress(refNum) {
   return dispatch => {
     return Api.delete(`/orders/${refNum}/shipping-address`)
       .then(ok => dispatch(fetchOrder(refNum)));
+  };
+}
+
+export function patchShippingAddress(refNum, data) {
+  return dispatch => {
+    return Api.patch(`/orders/${refNum}/shipping-address`, data)
+      .then(order => dispatch(orderSuccess(order)));
   };
 }
 
@@ -51,20 +64,29 @@ const reducer = createReducer({
     // -1 means that we add address
     return assoc(state, 'editingId', -1);
   },
-  [startEditingAddress]: (state, [addressId, isOrderShipping]) => {
-    return assoc(state,
-      'editingId', addressId,
-      'editingOrderShipping', isOrderShipping
-    );
+  [startEditingAddress]: (state, [id, type]) => {
+    return {
+      ...state,
+      editingAddress: {
+        id,
+        type
+      }
+    };
   },
   [stopAddingOrEditingAddress]: state => {
-    return dissoc(state, 'editingId');
+    return dissoc(state, 'editingAddress');
   },
-  [startDeletingAddress]: (state, addressId) => {
-    return assoc(state, 'deletingId', addressId);
+  [startDeletingAddress]: (state, [id, type]) => {
+    return {
+      ...state,
+      deletingAddress: {
+        id,
+        type
+      }
+    };
   },
   [stopDeletingAddress]: state => {
-    return dissoc(state, 'deletingId');
+    return dissoc(state, 'deletingAddress');
   }
 }, initialState);
 

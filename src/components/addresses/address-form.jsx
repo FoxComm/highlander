@@ -56,14 +56,16 @@ export default class AddressForm extends React.Component {
 
   static propTypes = {
     address: PropTypes.object,
+    addressType: PropTypes.number,
     customerId: PropTypes.number,
     onSaved: PropTypes.func,
-    closeAction: PropTypes.func.isRequired
+    closeAction: PropTypes.func.isRequired,
+    submitAction: PropTypes.func
   };
 
   componentDidMount() {
     this.props.fetchCountries();
-    this.props.init(this.props.address);
+    this.props.init(this.props.address, this.props.addressType);
   }
 
   /*componentWillUpdate(nextProps, nextState) {
@@ -79,19 +81,48 @@ export default class AddressForm extends React.Component {
     }
   }*/
 
+  /**
+   * Prepare value before submitting to server
+   * @param name
+   * @param value
+   */
+  prepareValue(name, value) {
+    switch (name) {
+      case 'phoneNumber':
+        return value.replace(/[^\d]/g, '');
+        break;
+      default:
+        return value;
+    }
+  }
+
+
   @autobind
   handleFormSubmit(event) {
     event.preventDefault();
+    const props = this.props;
 
-    const customerId = this.props.customerId;
+    const customerId = props.customerId;
 
-    this.props.submitForm(customerId)
+    const formData = _.transform(props.formData, (result, value, name) => {
+      result[name] = this.prepareValue(name, value);
+    });
+
+    let willSaved;
+
+    if (props.submitAction) {
+      willSaved = props.submitAction(formData);
+    } else {
+      willSaved = props.submitForm(customerId, formData);
+    }
+
+    willSaved
       .then(address => {
-        if (this.props.onSaved) {
-          this.props.onSaved(address.id);
+        if (props.onSaved) {
+          props.onSaved(address.id);
         }
 
-        this.props.closeAction();
+        props.closeAction();
       });
   }
 
