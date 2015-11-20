@@ -48,7 +48,10 @@ const renderViewContent = props => {
 };
 
 renderViewContent.propTypes = {
-  order: PropTypes.object
+  order: PropTypes.shape({
+    currentOrder: PropTypes.object,
+    lineItems: PropTypes.array
+  })
 };
 
 const renderEditContent = props => {
@@ -63,9 +66,13 @@ const renderEditContent = props => {
   return (
     <div>
       <TableView columns={editModeColumns} data={{rows: orderLineItems}} />
-      <div>
-        <strong>Add Item</strong>
-      </div>
+      <footer className="fc-line-items-footer">
+        <div>
+          <div className="fc-line-items-add-label">
+            <strong>Add Item</strong>
+          </div>
+        </div>
+      </footer>
       <ConfirmationDialog
         isVisible={lineItemsStatus.isDeleting}
         header='Confirm'

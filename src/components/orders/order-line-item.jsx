@@ -37,7 +37,11 @@ const OrderLineItem = props => {
 };
 
 OrderLineItem.propTypes = {
-  orderLineItemsStartDelete: PropTypes.func
+  orderLineItemsStartDelete: PropTypes.func,
+  order: PropTypes.shape({
+    currentOrder: PropTypes.object
+  })
+
 };
 
 export default OrderLineItem;
