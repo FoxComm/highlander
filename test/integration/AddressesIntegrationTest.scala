@@ -82,17 +82,15 @@ class AddressesIntegrationTest extends IntegrationTestBase
   }
 
   "POST /v1/customers/:customerId/addresses/:addressId/default" - {
-    "sets the isDefaultShippingAddress flag on an address" in new AddressFixture {
-      val payload = payloads.ToggleDefaultShippingAddress(isDefault = false)
-      val response = POST(s"v1/customers/${customer.id}/addresses/${address.id}/default", payload)
-
+    "sets the isDefaultShippingAddress flag on an address" in new NoDefaultAddressFixture {
+      val response = POST(s"v1/customers/${customer.id}/addresses/${address.id}/default")
       response.status must === (StatusCodes.NoContent)
+      Addresses.findOneById(address.id).futureValue.value.isDefaultShipping mustBe true
     }
 
     "sets a new shipping address if there's already a default shipping address" in new AddressFixture {
       val another = Addresses.saveNew(address.copy(id = 0, isDefaultShipping = false)).futureValue
-      val payload = payloads.ToggleDefaultShippingAddress(isDefault = true)
-      val response = POST(s"v1/customers/${customer.id}/addresses/${another.id}/default", payload)
+      val response = POST(s"v1/customers/${customer.id}/addresses/${another.id}/default")
 
       response.status must === (StatusCodes.NoContent)
 

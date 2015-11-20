@@ -8,5 +8,3 @@ final case class UpdateAddressPayload(name: Option[String] = None, regionId: Opt
   city: Option[String] = None, zip: Option[String] = None, isDefault: Option[Boolean] = None,
   phoneNumber: Option[String] = None)
 
-final case class ToggleDefaultShippingAddress(isDefault: Boolean)
-
