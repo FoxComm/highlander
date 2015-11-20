@@ -27,11 +27,16 @@ trait SortingAndPaging[T <: ResponseItem] extends MockitoSugar { this: Integrati
     val itemsSorted: IndexedSeq[T] = responseItemsSort(items)
   }
 
-  implicit class ResponseWithFailuresAndMetadataChecks[A <: AnyRef](resp: ResponseWithFailuresAndMetadata[A]) {
-    def checkSortingAndPagingMetadata(sortBy: String, from: Int, size: Int, total: Option[Int] = None) = {
-      resp.sorting must be ('defined)
-      resp.sorting.value.sortBy must be ('defined)
-      resp.sorting.value.sortBy.value must === (sortBy)
+  implicit class ResponseWithFailuresAndMetadataChecks[A <: AnyRef](resp: ResponseWithFailuresAndMetadata[Seq[A]]) {
+    def checkSortingAndPagingMetadata(sortBy: String, from: Int, size: Int, resultSize: Int, total:
+        Option[Int] = None): ResponseWithFailuresAndMetadata[Seq[A]] = {
+      resp.checkSortingMetadata(sortBy).checkPagingMetadata(from, size, resultSize, total)
+      resp
+    }
+
+    def checkPagingMetadata(from: Int, size: Int, resultSize: Int, total:
+        Option[Int] = None): ResponseWithFailuresAndMetadata[Seq[A]] = {
+      resp.result.size must === (resultSize)
       resp.pagination must be ('defined)
       resp.pagination.value.from must be ('defined)
       resp.pagination.value.from.value must === (from)
@@ -41,6 +46,14 @@ trait SortingAndPaging[T <: ResponseItem] extends MockitoSugar { this: Integrati
       resp.pagination.value.pageNo.value must === ((from / size) + 1)
       resp.pagination.value.total must be ('defined)
       total.foreach(resp.pagination.value.total.value must === (_))
+      resp
+    }
+
+    def checkSortingMetadata(sortBy: String): ResponseWithFailuresAndMetadata[Seq[A]] = {
+      resp.sorting must be ('defined)
+      resp.sorting.value.sortBy must be ('defined)
+      resp.sorting.value.sortBy.value must === (sortBy)
+      resp
     }
   }
 
@@ -66,7 +79,7 @@ trait SortingAndPaging[T <: ResponseItem] extends MockitoSugar { this: Integrati
       val respWithMetadata = response.as[ResponseWithFailuresAndMetadata[Seq[T]]]
       respWithMetadata.result must === (itemsSorted.drop(12).take(6))
 
-      respWithMetadata.checkSortingAndPagingMetadata(sortColumnName, 12, 6, Some(30))
+      respWithMetadata.checkSortingAndPagingMetadata(sortColumnName, 12, 6, 6, Some(30))
     }
 
     "sort by a column with paging #2" in new SortingAndPagingFixture {
