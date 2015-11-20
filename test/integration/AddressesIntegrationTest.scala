@@ -34,7 +34,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
       for {
         address ← * <~ Addresses.create(Factories.generateAddress.copy(customerId = currentCustomer.id))
         region  ← * <~ Regions.mustFindById(address.regionId)
-      } yield responses.Addresses.build(address, region)
+      } yield responses.Addresses.build(address, region, Some(address.isDefaultShipping))
     }
 
     DbResultT.sequence(items).value.transactionally.run().futureValue.rightVal
