@@ -13,7 +13,7 @@ export const orderShippingMethodUpdate = _createAction('UPDATE');
 export const orderShippingMethodUpdateSuccess = _createAction('UPDATE_SUCCESS');
 export const orderShippingMethodUpdateFailed = _createAction('UPDATE_FAILED');
 
-const _createAction = (description, ...args) => {
+function _createAction(description, ...args) {
   return createAction(`ORDER_SHIPPING_METHOD_${description}`, ...args);
 };
 
