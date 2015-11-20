@@ -43,7 +43,7 @@ export default class AddressBox extends React.Component {
     return (
       <EditableItemCardContainer className={ classNames('fc-address', {'is-active': props.choosen}) }
                                  checkboxLabel={ props.checkboxLabel }
-                                 initiallyIsDefault={ address.isDefault }
+                                 isDefault={ address.isDefault }
                                  checkboxClickHandler={() => props.toggleDefaultAction(address) }
                                  editHandler={() => props.editAction(address) }
                                  deleteHandler={ props.deleteAction && () => props.deleteAction(address) }>

@@ -20,6 +20,7 @@ const receivedAddresses = _createAction('RECEIVED', (customerId, addresses) => [
 const requestAddresses = _createAction('REQUEST');
 const addressCreated = _createAction('CREATED', (customerId, entity) => [customerId, entity]);
 const removeAddress = _createAction('REMOVE', (customerId, addressId) => [customerId, addressId]);
+const resetDefaultFlags = _createAction('RESET_DEFAULTS');
 
 export function fetchAddresses(customerId) {
   return dispatch => {
@@ -53,10 +54,19 @@ export function deleteAddress(customerId, addressId) {
 
 export function setAddressDefault(customerId, addressId, isDefault) {
   return dispatch => {
-    return Api.post(`customers/${customerId}/addresses/${addressId}/default`, {
-        isDefault
-      })
-      .then(ok => dispatch(updateAddress(customerId, addressId, {isDefault})));
+    let willUpdated = null;
+
+    if (isDefault) {
+      willUpdated = Api.post(`customers/${customerId}/addresses/${addressId}/default`);
+    } else {
+      willUpdated = Api.delete(`customers/${customerId}/addresses/default`);
+    }
+
+    return willUpdated
+      .then(ok => {
+        dispatch(resetDefaultFlags(customerId));
+        dispatch(updateAddress(customerId, addressId, {isDefault}));
+      });
   };
 }
 
@@ -84,6 +94,13 @@ const reducer = createReducer({
       const index = _.findIndex(addresses, {id: addressId});
 
       return update(addresses, index, merge, data);
+    });
+  },
+  [resetDefaultFlags]: (state, customerId) => {
+    return update(state, [customerId, 'addresses'], addresses => {
+      return addresses.map(address => {
+        return assoc(address, 'isDefault', false);
+      });
     });
   },
   [failFetchAddress]: (state, [customerId, err]) => {

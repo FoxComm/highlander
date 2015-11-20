@@ -27,7 +27,7 @@ export default class CreditCardBox extends React.Component {
     return (
       <EditableItemCardContainer className="fc-credit-cards"
                                  checkboxLabel="Default card"
-                                 initiallyIsDefault={ card.isDefault }
+                                 isDefault={ card.isDefault }
                                  checkboxClickHandler={ this.handleIsDefaultChange }
                                  deleteHandler={ this.handleDeleteClick }>
         <CreditCardDetails customerId={ this.props.customerId} card={ this.props.card } />
