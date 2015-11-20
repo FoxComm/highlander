@@ -8,10 +8,11 @@ import models._
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
+import cats.implicits._
 
 object FullOrder {
   type Response = Future[Root]
-  type Payment = (OrderPayment, CreditCard, CreditCardCharge)
+  type Payment = (OrderPayment, CreditCard, Region)
 
   final case class Totals(subTotal: Int, taxes: Int, adjustments: Int, total: Int) extends ResponseItem
 
@@ -25,17 +26,17 @@ object FullOrder {
     referenceNumber: String,
     orderStatus: Order.Status,
     shippingStatus: Order.Status,
-    paymentStatus: Option[CreditCardCharge.Status],
+    paymentStatus: Option[CreditCardCharge.Status] = None,
     lineItems: LineItems,
     adjustments: Seq[Adjustment],
     fraudScore: Int,
     totals: Totals,
-    customer: Option[Customer],
-    shippingMethod: Option[ShippingMethods.Root],
-    shippingAddress: Option[Addresses.Root],
-    assignees: Seq[AssignmentResponse.Root],
-    remorsePeriodEnd: Option[Instant],
-    payment: Option[DisplayPayment] = None) extends ResponseItem
+    customer: Option[Customer] = None,
+    shippingMethod: Option[ShippingMethods.Root] = None,
+    shippingAddress: Option[Addresses.Root] = None,
+    assignees: Seq[AssignmentResponse.Root] = Seq.empty,
+    remorsePeriodEnd: Option[Instant] = None,
+    paymentMethods: Seq[CreditCardPayment] = Seq.empty) extends ResponseItem
 
   final case class DisplayLineItem(
     imagePath: String = "http://lorempixel.com/75/75/fashion",
@@ -46,19 +47,8 @@ object FullOrder {
     totalPrice: Int = 33,
     status: OrderLineItem.Status) extends ResponseItem
 
-  final case class DisplayPayment(
-    amount: Int,
-    status: CreditCardCharge.Status,
-    referenceNumber: String = "ABC123",
-    paymentMethod: DisplayPaymentMethod) extends ResponseItem
-   //
-  // TODO:
-  // Capture reference number
-
-  final case class DisplayPaymentMethod(
-    cardType: String = "visa",
-    cardExp: String,
-    cardNumber: String) extends ResponseItem
+  final case class CreditCardPayment(id: Int, holderName: String, lastFour: String, expMonth: Int, expYear: Int,
+    brand: String, address: Addresses.Root)
 
   def refreshAndFullOrder(order: Order)(implicit ec: ExecutionContext, db: Database): DBIO[FullOrder.Root] =
     Orders.refresh(order).flatMap(fromOrder)
@@ -84,16 +74,11 @@ object FullOrder {
     assignments: Seq[(OrderAssignment, StoreAdmin)] = Seq.empty,
     giftCards: Seq[(GiftCard, OrderLineItemGiftCard)] = Seq.empty): Root = {
 
-    val displayPayment = maybePayment.map { case (op, cc, ccc) ⇒
-      DisplayPayment(
-        amount = op.amount.getOrElse(0),
-        status = ccc.status,
-        paymentMethod = DisplayPaymentMethod(
-          cardExp = s"${cc.expMonth}/${cc.expYear}",
-          cardNumber = s"xxx-xxxx-xxxx-${cc.lastFour}"
-        )
-      )
-    }
+    val paymentMethods = maybePayment.map { case (pmt, cc, region) ⇒
+      val payment = CreditCardPayment(id = cc.id, holderName = cc.holderName, lastFour = cc.lastFour, expMonth = cc.expMonth,
+        expYear = cc.expYear, brand = cc.brand, address = Addresses.buildFromCreditCard(cc, region))
+      Seq(payment)
+    }.getOrElse(Seq.empty)
 
     val skuList = skus.map { case (sku, li) ⇒ DisplayLineItem(sku = sku.sku, status = li.status) }
     val gcList = giftCards.map { case (gc, li) ⇒ GiftCardResponse.build(gc) }
@@ -102,7 +87,8 @@ object FullOrder {
       referenceNumber = order.referenceNumber,
       orderStatus = order.status,
       shippingStatus = order.status,
-      paymentStatus = maybePayment.map(p ⇒ getPaymentStatus(order.status, p)),
+      paymentStatus = none,
+      //paymentStatus = maybePayment.map(p ⇒ getPaymentStatus(order.status, p)),
       lineItems = LineItems(skus = skuList, giftCards = gcList),
       adjustments = adjustments,
       fraudScore = scala.util.Random.nextInt(100),
@@ -112,16 +98,16 @@ object FullOrder {
       shippingMethod = shippingMethod.map(ShippingMethods.build(_)),
       assignees = assignments.map((AssignmentResponse.build _).tupled),
       remorsePeriodEnd = order.getRemorsePeriodEnd,
-      payment = displayPayment
+      paymentMethods = paymentMethods
     )
   }
 
-  private def getPaymentStatus(orderStatus: Order.Status, payment: Payment): CreditCardCharge.Status = {
-    (orderStatus, payment) match {
-      case (Order.Cart, _) ⇒ CreditCardCharge.Cart
-      case (_, (_, _, creditCardCharge)) ⇒ creditCardCharge.status
-    }
-  }
+//  private def getPaymentStatus(orderStatus: Order.Status, payment: Payment): CreditCardCharge.Status = {
+//    (orderStatus, payment) match {
+//      case (Order.Cart, _) ⇒ CreditCardCharge.Cart
+//      case (_, (_, _, creditCardCharge)) ⇒ creditCardCharge.status
+//    }
+//  }
 
   private def fetchOrderDetails(order: Order)(implicit ec: ExecutionContext) = {
     val shippingMethodQ = for {
@@ -130,10 +116,11 @@ object FullOrder {
     } yield shipMethod
 
     val paymentQ = for {
-      payment ← OrderPayments.filter(_.orderId === order.id)
-      creditCard ← CreditCards.filter(_.id === payment.paymentMethodId)
-      creditCardCharge ← CreditCardCharges.filter(_.orderPaymentId === payment.id)
-    } yield (payment, creditCard, creditCardCharge)
+      payment     ← OrderPayments.findAllByOrderId(order.id)
+      creditCard  ← CreditCards.filter(_.id === payment.paymentMethodId)
+      region      ← creditCard.region
+      //creditCardCharge ← CreditCardCharges.filter(_.orderPaymentId === payment.id)
+    } yield (payment, creditCard, region)//, creditCardCharge)
 
     for {
       customer ← Customers.findById(order.customerId).extract.one

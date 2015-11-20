@@ -23,7 +23,7 @@ final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerI
   gatewayCardId: String, holderName: String, lastFour: String, expMonth: Int, expYear: Int,
   isDefault: Boolean = false, address1Check: Option[String] = None, zipCheck: Option[String] = None,
   inWallet: Boolean = true, deletedAt: Option[Instant] = None, regionId: Int, addressName: String,
-  address1: String, address2: Option[String] = None, city: String, zip: String)
+  address1: String, address2: Option[String] = None, city: String, zip: String, brand: String)
   extends PaymentMethod
   with ModelWithIdParameter[CreditCard]
   with Addressable[CreditCard]
@@ -58,7 +58,7 @@ object CreditCard {
       p.holderName, lastFour = p.lastFour, expMonth = p.expMonth, expYear = p.expYear, isDefault = p.isDefault,
       address1Check = card.getAddressLine1Check.some, zipCheck = card.getAddressZipCheck.some,
       regionId = a.regionId, addressName = a.name, address1 = a.address1, address2 = a.address2,
-      city = a.city, zip = a.zip)
+      city = a.city, zip = a.zip, brand = card.getBrand)
   }
 }
 
@@ -74,6 +74,7 @@ class CreditCards(tag: Tag)
   def lastFour = column[String]("last_four")
   def expMonth = column[Int]("exp_month")
   def expYear = column[Int]("exp_year")
+  def brand = column[String]("brand")
   def isDefault = column[Boolean]("is_default")
   def address1Check = column[Option[String]]("address1_check")
   def zipCheck = column[Option[String]]("zip_check")
@@ -89,7 +90,7 @@ class CreditCards(tag: Tag)
 
   def * = (id, parentId, customerId, gatewayCustomerId, gatewayCardId, holderName,
     lastFour, expMonth, expYear, isDefault, address1Check, zipCheck, inWallet, deletedAt,
-    regionId, addressName, address1, address2, city, zip) <> ((CreditCard.apply _).tupled, CreditCard.unapply)
+    regionId, addressName, address1, address2, city, zip, brand) <> ((CreditCard.apply _).tupled, CreditCard.unapply)
 
   def customer        = foreignKey(Customers.tableName, customerId, Customers)(_.id)
   def region          = foreignKey(Regions.tableName, regionId, Regions)(_.id)

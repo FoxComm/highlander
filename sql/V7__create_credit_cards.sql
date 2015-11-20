@@ -11,6 +11,7 @@ create table credit_cards (
     last_four character(4) not null,
     exp_month integer not null,
     exp_year integer not null,
+    brand generic_string not null,
     is_default boolean default false not null,
     address1_check generic_string null,
     zip_check generic_string null,

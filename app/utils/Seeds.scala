@@ -151,7 +151,7 @@ object Seeds {
       skus ← Skus ++= s.skus
       warehouses ← Warehouses ++= s.warehouses
       summaries ← InventorySummaries ++= s.inventorySummaries
-      order ← Orders.saveNew(s.order.copy(customerId = customer.id))
+      order ← Orders.saveNew(s.order.copy(status = Order.Cart, customerId = customer.id))
       orderNotes ← Notes ++= s.orderNotes
       orderLineItemOrigins ← OrderLineItemSkus ++= s.orderLineItemSkus
       orderLineItem ← OrderLineItems ++= s.orderLineItems
@@ -274,7 +274,7 @@ object Seeds {
       CreditCard(customerId = 0, gatewayCustomerId = "cus_6uzC8j5doSTWth", gatewayCardId = "", holderName = "Yax", lastFour = "4242",
         expMonth = today.getMonthValue, expYear = today.getYear + 2, isDefault = true,
         regionId = 4129, addressName = "Old Jeff", address1 = "95 W. 5th Ave.", address2 = Some("Apt. 437"),
-        city = "San Mateo", zip = "94402")
+        city = "San Mateo", zip = "94402", brand = "Visa")
     }
 
     def creditCardCharge = CreditCardCharge(creditCardId = creditCard.id, orderPaymentId = orderPayment.id, chargeId = "foo")
