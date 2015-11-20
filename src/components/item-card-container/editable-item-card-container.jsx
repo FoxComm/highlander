@@ -6,7 +6,7 @@ export default class EditableItemCardContainer extends React.Component {
 
   static propTypes = {
     className: PropTypes.string,
-    initiallyIsDefault: PropTypes.bool,
+    isDefault: PropTypes.bool,
     checkboxLabel: PropTypes.string,
     checkboxClickHandler: PropTypes.func,
     deleteHandler: PropTypes.func,
@@ -22,7 +22,7 @@ export default class EditableItemCardContainer extends React.Component {
     let className = `${this.props.className}-default`;
     return (
       <label className={ className }>
-        <Checkbox checked={ this.props.initiallyIsDefault }
+        <Checkbox checked={ this.props.isDefault }
                   onClick={ this.props.checkboxClickHandler } />
         <span>{ this.props.checkboxLabel }</span>
       </label>
