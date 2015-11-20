@@ -2,6 +2,10 @@ import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 import { orderSuccess } from './details.js';
 
+const _createAction = (description, ...args) => {
+  return createAction('ORDER_SHIPPING_METHOD_' + description, ...args);
+};
+
 export const orderShippingMethodRequest = _createAction('REQUEST');
 export const orderShippingMethodRequestSuccess = _createAction('REQUEST_SUCCESS');
 export const orderShippingMethodRequestFailed = _createAction('REQUEST_FAILED');
@@ -12,10 +16,6 @@ export const orderShippingMethodCancelEditPrice = _createAction('CANCEL_EDIT_PRI
 export const orderShippingMethodUpdate = _createAction('UPDATE');
 export const orderShippingMethodUpdateSuccess = _createAction('UPDATE_SUCCESS');
 export const orderShippingMethodUpdateFailed = _createAction('UPDATE_FAILED');
-
-const _createAction = (description, ...args) => {
-  return createAction(`ORDER_SHIPPING_METHOD_${description}`, ...args);
-};
 
 export function fetchShippingMethods(order) {
   return dispatch => {
