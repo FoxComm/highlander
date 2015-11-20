@@ -57,13 +57,15 @@ export default class OrderShippingAddress extends React.Component {
 
     if (address) {
       return (
-        <AddressBox
-          address={address}
-          choosen={true}
-          checkboxLabel={null}
-          editAction={() => props.startEditingAddress(address.id, addressTypes.SHIPPING)}
-          deleteAction={ deleteAction }
-        />
+        <ul className="fc-addresses-list">
+          <AddressBox
+            address={address}
+            choosen={true}
+            checkboxLabel={null}
+            editAction={() => props.startEditingAddress(address.id, addressTypes.SHIPPING)}
+            deleteAction={ deleteAction }
+          />
+        </ul>
       );
     }
   }
@@ -90,7 +92,7 @@ export default class OrderShippingAddress extends React.Component {
             />
         </div>
         <ConfirmationDialog
-          isVisible={ props.deletingAddress && props.deletingAddress.type === addressTypes.SHIPPING } /* null and undefined */
+          isVisible={ props.deletingAddress && props.deletingAddress.type === addressTypes.SHIPPING }
           header='Confirm'
           body='Are you sure you want to delete this address?'
           cancel='Cancel'
@@ -105,7 +107,11 @@ export default class OrderShippingAddress extends React.Component {
   }
 
   get viewContent() {
-    return <AddressDetails address={this.props.address} />;
+    if (this.props.address) {
+      return <AddressDetails address={this.props.address} />;
+    } else {
+      return <div className="fc-content-box-notice">No shipping method applied.</div>;
+    }
   }
 
   render() {

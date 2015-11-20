@@ -4,7 +4,7 @@ import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 import { assoc, update, merge, dissoc } from 'sprout-data';
 
-import { orderSuccess, fetchOrder } from './details';
+import { orderSuccess } from './details';
 
 const _createAction = (description, ...args) => {
   return createAction(`SHIPPING_ADDRESSES_${description}`, ...args);
@@ -38,7 +38,7 @@ export function chooseAddress(refNum, addressId) {
 export function deleteShippingAddress(refNum) {
   return dispatch => {
     return Api.delete(`/orders/${refNum}/shipping-address`)
-      .then(ok => dispatch(fetchOrder(refNum)));
+      .then(order => dispatch(orderSuccess(order)));
   };
 }
 
@@ -62,7 +62,13 @@ const reducer = createReducer({
   },
   [startAddingAddress]: state => {
     // -1 means that we add address
-    return assoc(state, 'editingId', -1);
+    return {
+      ...state,
+      editingAddress: {
+        id: -1,
+        type: addressTypes.CUSTOMER
+      }
+    };
   },
   [startEditingAddress]: (state, [id, type]) => {
     return {
