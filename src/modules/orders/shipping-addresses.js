@@ -28,24 +28,29 @@ export const startDeletingAddress = _createAction('START_DELETING',
   (addressId, addressType = addressTypes.CUSTOMER) => [addressId, addressType]);
 export const stopDeletingAddress = _createAction('STOP_DELETING');
 
+const setError = _createAction('ERROR');
+
 export function chooseAddress(refNum, addressId) {
   return dispatch => {
     return Api.patch(`/orders/${refNum}/shipping-address/${addressId}`)
-      .then(order => dispatch(orderSuccess(order)));
+      .then(order => dispatch(orderSuccess(order)))
+      .catch(err => dispatch(setError(err)));
   };
 }
 
 export function deleteShippingAddress(refNum) {
   return dispatch => {
     return Api.delete(`/orders/${refNum}/shipping-address`)
-      .then(order => dispatch(orderSuccess(order)));
+      .then(order => dispatch(orderSuccess(order)))
+      .catch(err => dispatch(setError(err)));
   };
 }
 
 export function patchShippingAddress(refNum, data) {
   return dispatch => {
     return Api.patch(`/orders/${refNum}/shipping-address`, data)
-      .then(order => dispatch(orderSuccess(order)));
+      .then(order => dispatch(orderSuccess(order)))
+      .catch(err => dispatch(setError(err)));
   };
 }
 
@@ -93,6 +98,12 @@ const reducer = createReducer({
   },
   [stopDeletingAddress]: state => {
     return dissoc(state, 'deletingAddress');
+  },
+  [setError]: (state, err) => {
+    return {
+      ...state,
+      err
+    };
   }
 }, initialState);
 

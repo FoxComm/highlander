@@ -1,5 +1,6 @@
 
 import _ from 'lodash';
+import { autobind } from 'core-decorators';
 import React, { PropTypes } from 'react';
 import { EditButton, PrimaryButton, AddButton } from '../common/buttons';
 import Addresses from '../addresses/addresses';
@@ -12,6 +13,7 @@ import * as AddressesActions from '../../modules/addresses';
 import * as ShippingAddressesActions from '../../modules/orders/shipping-addresses';
 import AddressForm from '../addresses/address-form';
 import ConfirmationDialog from '../modal/confirmation-dialog';
+import ErrorAlerts from '../alerts/error-alerts';
 
 const addressTypes = ShippingAddressesActions.addressTypes;
 
@@ -114,6 +116,16 @@ export default class OrderShippingAddress extends React.Component {
     }
   }
 
+  @autobind
+  renderContent(isEditing) {
+    return (
+      <div>
+        <ErrorAlerts error={ this.props.err } />
+        { isEditing ? this.editContent : this.viewContent }
+      </div>
+    );
+  }
+
   render() {
     const props = this.props;
 
@@ -141,7 +153,7 @@ export default class OrderShippingAddress extends React.Component {
           editAction={props.startEditing}
           doneAction={props.stopEditing}
           renderFooter={null}
-          renderContent={isEditing => isEditing ? this.editContent : this.viewContent}
+          renderContent={ this.renderContent }
         />
 
         <AddressForm

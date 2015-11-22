@@ -168,7 +168,7 @@ export default class AddressForm extends React.Component {
   }
 
   get errorMessages() {
-    return <ErrorAlerts error={this.props.err} ref="errorMessages"/>;
+    return <ErrorAlerts error={this.props.err} ref="errorMessages" />;
   }
 
   get actions() {

@@ -1,19 +1,12 @@
 
+import { get } from 'sprout-data';
 import React, { PropTypes } from 'react';
 import Alert from './alert';
 
 function parseError(err) {
   if (!err) return null;
 
-  let errors = [err.toString()];
-
-  if (err.response) {
-    if (err.response.json) {
-      errors = [...errors, ...err.response.json().errors];
-    }
-  }
-
-  return errors;
+  return get(err, ['responseJson', 'errors'], [err.toString()]);
 }
 
 const ErrorAlerts = props => {
