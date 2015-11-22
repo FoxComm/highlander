@@ -5,12 +5,20 @@
     .font-spec(13px, 18px);
     color: @color-decor1;
     .padding(6px);
-    .margin(10px 10px 0 10px);
     .border-radius(3px);
 
     > i {
       .margin-right(5px);
+      .font-spec(20px, 20px);
     }
+  }
+
+  .fc-errors & {
+    &:first-child {
+      margin-top: 0;
+    }
+
+    .margin-top(10px);
   }
 
   &.is-alert-error {
