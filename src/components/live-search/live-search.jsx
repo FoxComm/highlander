@@ -109,8 +109,8 @@ export default class LiveSearch extends React.Component {
 
   render() {
     return (
-      <div className="fc-col-md-1-1 fc-live-search">
-        <div className="fc-col-md-1-1 fc-search-bar">
+      <div className="fc-col-md-1-1 fc-live-search fc-search-bar">
+        <div>
           <form>
             <div className="fc-search-input-container">
               <div className="fc-search-input-wrapper fc-form-field">

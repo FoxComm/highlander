@@ -1,17 +1,29 @@
 .fc-query-builder {
-  border: 1px solid #000;
-  border-radius: 5px;
-  margin-left: 47px;
-  margin-top: -55px;
-  padding: 10px 0;
+  background: @color-white;
+  .border(1px, solid, @color-decor9);
+  .box-shadow(0px, 2px, 4px, 0px, @color-decor51);
+  .border-radius(3px);
+  .margin(40px, 0);
   position: absolute;
 
   .fc-query-component {
-    padding: 5px 15px;
+    .font-spec(14px, 400, 44px);
+    .padding(0 20px);
 
-    &.fc-active-component {
-      background: red;
-      color: white;
+    &.is-active {
+      background: @color-decor11;
+    }
+
+    &.is-first {
+      .border-radius(3px 3px 0 0);
+    }
+
+    &-action {
+      color: @color-decor52;
+    }
+    
+    &-back {
+      .border-top(1px, solid,  @color-decor9);
     }
   }
 }

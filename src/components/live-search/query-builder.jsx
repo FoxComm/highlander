@@ -4,16 +4,17 @@ import classNames from 'classnames';
 const generateSearchActions = (selectedIndex, searchOptions) => {
   return searchOptions.map((option, idx) => {
     const klass = classNames('fc-query-component', { 
-      'fc-active-component': selectedIndex == idx 
+      'is-active': selectedIndex == idx,
+      'is-first': idx == 0
     });
+
     const action = option.action || 'Search';
     const key = `${option.term}-${idx}`;
     
     return (
       <li className={klass} key={key}>
-        <div className='contents'>
-          <strong>{option.term}</strong> {action}
-        </div>
+        <span className='fc-query-component-term'>{option.term}</span>
+        <span className='fc-query-component-action'> {action}</span>
       </li>
     );
   });
@@ -24,8 +25,8 @@ const QueryBuilder = (props) => {
     <div className='fc-query-builder'>
       <ul className-='fc-query-components'>
         { generateSearchActions(props.selectedIndex, props.searchOptions) }
-        <li>
-          <button onClick={props.onGoBack}>Back</button>
+        <li className='fc-query-component fc-query-component-back'>
+          <a onClick={props.onGoBack}>Back</a>
         </li>
       </ul>
     </div>
