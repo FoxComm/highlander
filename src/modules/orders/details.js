@@ -78,8 +78,8 @@ const initialState = {
     isEditing: false,
     isUpdating: false,
     isDeleting: false,
-    skuToUpdate: '',
-    skuToDelete: '',
+    skuToUpdate: null,
+    skuToDelete: null,
     items: []
   }
 };
@@ -131,8 +131,8 @@ const reducer = createReducer({
     if (sku === state.lineItems.skuToUpdate) {
       return assoc(state, ['lineItems', 'isUpdating'], false,
                           ['lineItems', 'isDeleting'], false,
-                          ['lineItems', 'skuToUpdate'], '',
-                          ['lineItems', 'skuToDelete'], '');
+                          ['lineItems', 'skuToUpdate'], null,
+                          ['lineItems', 'skuToDelete'], null);
     }
 
     return state;
@@ -143,8 +143,8 @@ const reducer = createReducer({
     if (source === updateLineItemCount) {
       return assoc(state, ['lineItems', 'isUpdating'], false,
                           ['lineItems', 'isDeleting'], false,
-                          ['lineItems', 'skuToUpdate'], '',
-                          ['lineItems', 'skuToDelete'], '');
+                          ['lineItems', 'skuToUpdate'], null,
+                          ['lineItems', 'skuToDelete'], null);
     }
 
     return state;
@@ -156,7 +156,7 @@ const reducer = createReducer({
   [orderLineItemsCancelDelete]: (state, sku) => {
     if (state.lineItems.skuToDelete === sku) {
       return assoc(state, ['lineItems', 'isDeleting'], false,
-                          ['lineItems', 'skuToDelete'], '');
+                          ['lineItems', 'skuToDelete'], null);
     }
   }
 }, initialState);
