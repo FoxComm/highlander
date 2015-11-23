@@ -11,7 +11,7 @@ import services.rmas.Helpers._
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives
 import utils.CustomDirectives.SortAndPage
-import utils.DbResultT.*
+import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick._
 import utils.Slick.DbResult
@@ -25,7 +25,7 @@ object RmaService {
     newMessage = if (payload.message.length > 0) Some(payload.message) else None
     update    ← * <~ Rmas.update(rma, rma.copy(messageToCustomer = newMessage))
     response  ← * <~ fullRma(Rmas.findByRefNum(refNum)).toXor
-  } yield response).value.transactionally.run()
+  } yield response).runT()
 
   def createByAdmin(admin: StoreAdmin, payload: RmaCreatePayload)
     (implicit db: Database, ec: ExecutionContext): Result[Root] = {

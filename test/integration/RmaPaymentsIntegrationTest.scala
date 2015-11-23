@@ -6,7 +6,7 @@ import responses.RmaResponse.Root
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT
-import utils.DbResultT.*
+import utils.DbResultT._
 import DbResultT.implicits._
 import util.IntegrationTestBase
 import utils.Seeds.Factories
@@ -181,13 +181,13 @@ class RmaPaymentsIntegrationTest extends IntegrationTestBase
       order ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
       admin ← * <~ StoreAdmins.create(authedStoreAdmin)
       rma ← * <~ Rmas.create(Factories.rma.copy(referenceNumber = "ABCD1234-11.1"))
-    } yield (rma, order, admin, customer)).value.run().futureValue.rightVal
+    } yield (rma, order, admin, customer)).runT(txn = false).futureValue.rightVal
   }
 
   trait CreditCardFixture extends Fixture {
     val creditCard = (for {
       address ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
       cc ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
-    } yield cc).value.run().futureValue.rightVal
+    } yield cc).runT(txn = false).futureValue.rightVal
   }
 }

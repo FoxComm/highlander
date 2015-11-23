@@ -11,7 +11,7 @@ import services._
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 import utils.Slick.{DbResult, _}
-import utils.DbResultT.*
+import utils.DbResultT._
 import utils.DbResultT.implicits._
 import orders.Helpers._
 import Addresses.scope._
@@ -36,7 +36,7 @@ object OrderShippingAddressUpdater {
     (address, _)  = addAndReg
     shipAddress   ← * <~ OrderShippingAddresses.copyFromAddress(address, order.id)
     response      ← * <~ FullOrder.fromOrder(order).toXor
-  } yield response).value.transactionally.run()
+  } yield response).runT()
 
   def createShippingAddressFromPayload(payload: CreateAddressPayload, refNum: String)
     (implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = (for {
@@ -46,7 +46,7 @@ object OrderShippingAddressUpdater {
     _           ← * <~ OrderShippingAddresses.findByOrderId(order.id).delete
     _           ← * <~ OrderShippingAddresses.copyFromAddress(newAddress, order.id)
     response    ← * <~ FullOrder.fromOrder(order).toXor
-  } yield response).value.transactionally.run()
+  } yield response).runT()
 
   def updateShippingAddressFromPayload(payload: UpdateAddressPayload, refNum: String)
     (implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = (for {
@@ -55,7 +55,7 @@ object OrderShippingAddressUpdater {
     shipAddress   ← * <~ mustFindShipAddressForOrder(order)
     _             ← * <~ OrderShippingAddresses.update(OrderShippingAddress.fromPatchPayload(shipAddress, payload))
     response      ← * <~ FullOrder.fromOrder(order).toXor
-  } yield response).value.transactionally.run()
+  } yield response).runT()
 
   def removeShippingAddress(refNum: String)
     (implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = (for {
@@ -65,5 +65,5 @@ object OrderShippingAddressUpdater {
     deleted   ← * <~ OrderShippingAddresses.findByOrderId(order.id).delete
     resp      = if (deleted > 0) FullOrder.fromOrder(order).toXor else DbResult.failure(NoShipAddress(order.refNum))
     response  ← * <~ resp
-  } yield response).value.transactionally.run()
+  } yield response).runT()
 }

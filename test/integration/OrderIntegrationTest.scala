@@ -744,7 +744,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       orderShipMethod ← * <~ OrderShippingMethods.create(
         OrderShippingMethod(orderId = order.id, shippingMethodId = highShippingMethod.id))
       shipment ← * <~ Shipments.create(Shipment(orderId = order.id, orderShippingMethodId = Some(orderShipMethod.id)))
-    } yield shipment).value.run().futureValue
+    } yield shipment).runT(txn = false).futureValue
   }
 
   trait RemorseFixture {

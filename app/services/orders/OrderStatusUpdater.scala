@@ -14,7 +14,7 @@ import utils.CustomDirectives
 import utils.CustomDirectives.SortAndPage
 import utils.Slick.implicits._
 import utils.Slick.{DbResult, _}
-import utils.DbResultT.*
+import utils.DbResultT._
 import utils.DbResultT.implicits._
 
 object OrderStatusUpdater {
@@ -26,7 +26,7 @@ object OrderStatusUpdater {
     _         ← * <~ updateStatusesDbio(Seq(refNum), newStatus)
     updated   ← * <~ mustFindOrderByRefNum(refNum)
     response  ← * <~ FullOrder.fromOrder(updated).toXor
-  } yield response).value.transactionally.run()
+  } yield response).runT()
 
   // TODO: transfer sorting-paging metadata
   def updateStatuses(refNumbers: Seq[String], newStatus: Order.Status)

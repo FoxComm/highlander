@@ -2,28 +2,19 @@ package services
 
 import java.time.Instant
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ExecutionContext, Future}
 
-import cats.data.Validated.{Invalid, Valid}
-import cats.data.Xor
 import cats.implicits._
-import models.{OrderShippingAddress, Order, Orders, Customer, OrderShippingAddresses, Address, Addresses, Region,
-Regions}
 import models.Order._
+import models.{Address, Addresses, Customer, Order, OrderShippingAddress, OrderShippingAddresses, Orders, Region, Regions}
 import payloads.CreateAddressPayload
 import responses.Addresses.Root
 import responses.{Addresses ⇒ Response}
-import slick.driver.PostgresDriver
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
-import utils.Slick.DbResult
-import utils.Slick.implicits._
-import cats.implicits._
-
-import utils.DbResultT.*
+import utils.DbResultT._
 import utils.DbResultT.implicits._
-
-import utils.time.JavaTimeSlickMapper.instantAndTimestampWithoutZone
+import utils.Slick.implicits._
 
 object AddressManager {
 
@@ -41,7 +32,7 @@ object AddressManager {
 
     address ← * <~ Addresses.create(Address.fromPayload(payload).copy(customerId = customerId))
     region  ← * <~ Regions.mustFindById(address.regionId)
-  } yield Response.build(address, region)).value.run()
+  } yield Response.build(address, region)).runT()
 
   def edit(addressId: Int, customerId: Int, payload: CreateAddressPayload)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
@@ -49,14 +40,14 @@ object AddressManager {
     address ← * <~ Address.fromPayload(payload).copy(customerId = customerId, id = addressId).validate
     _       ← * <~ Addresses.insertOrUpdate(address).toXor
     region  ← * <~ Regions.mustFindById(address.regionId)
-  } yield Response.build(address, region)).value.run()
+  } yield Response.build(address, region)).runT()
 
   def get(customerId: Int, addressId: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
 
     address ← * <~ Addresses.findByIdAndCustomer(addressId, customerId).mustFindOr(addressNotFound(addressId))
     region  ← * <~ Regions.mustFindById(address.regionId)
-  }  yield Response.build(address, region, address.isDefaultShipping.some)).value.run()
+  }  yield Response.build(address, region, address.isDefaultShipping.some)).runT()
 
   def remove(customerId: Int, addressId: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Unit] = (for {
@@ -64,7 +55,7 @@ object AddressManager {
     address     ← * <~ Addresses.findByIdAndCustomer(addressId, customerId).mustFindOr(addressNotFound(addressId))
     softDelete  ← * <~ address.updateTo(address.copy(deletedAt = Instant.now.some, isDefaultShipping = false))
     updated     ← * <~ Addresses.update(address, softDelete)
-  } yield {}).value.run()
+  } yield {}).runT()
 
   def setDefaultShippingAddress(customerId: Int, addressId: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Unit] = (for {

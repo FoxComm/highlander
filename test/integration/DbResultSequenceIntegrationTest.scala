@@ -1,12 +1,10 @@
 import models.{Customer, Customers}
-import services.{Failures, DatabaseFailure}
+import services.DatabaseFailure
 import util.IntegrationTestBase
 import utils.Seeds.Factories
-import utils.Slick.DbResult._
 import utils.Slick.implicits._
 import utils.DbResultT
 import utils.DbResultT._
-import utils.DbResultT.implicits._
 import slick.driver.PostgresDriver.api._
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -18,7 +16,7 @@ class DbResultSequenceIntegrationTest extends IntegrationTestBase {
         DbResultT(Customers.create(Factories.customer.copy(email = s"$i")))
       }
       val cool: DbResultT[Seq[Customer]] = DbResultT.sequence(sux)
-      cool.value.transactionally.run().futureValue.rightVal
+      cool.runT().futureValue.rightVal
 
       val allCustomers = Customers.result.run().futureValue
       allCustomers must have size 3
@@ -31,7 +29,7 @@ class DbResultSequenceIntegrationTest extends IntegrationTestBase {
       }
       val cool: DbResultT[Seq[Customer]] = DbResultT.sequence(sux)
 
-      val result = cool.value.transactionally.run().futureValue.leftVal
+      val result = cool.runT().futureValue.leftVal
       println(result)
 
       val allCustomers = Customers.result.run().futureValue
@@ -44,7 +42,7 @@ class DbResultSequenceIntegrationTest extends IntegrationTestBase {
       }
       val cool: DbResultT[Seq[Customer]] = DbResultT.sequence(sux)
 
-      val failures = cool.value.run().futureValue.leftVal
+      val failures = cool.runT(txn = false).futureValue.leftVal
       val expectedFailure = DatabaseFailure(
         "ERROR: duplicate key value violates unique constraint \"customers_active_non_guest_email\"\n" +
           "  Detail: Key (email, is_disabled, is_guest)=(boom, f, f) already exists.")

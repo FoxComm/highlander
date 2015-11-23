@@ -12,7 +12,7 @@ import utils.Slick.DbResult
 import utils.Slick.UpdateReturning._
 import utils.time._
 
-import utils.DbResultT.*
+import utils.DbResultT._
 import utils.DbResultT.implicits._
 
 object OrderUpdater {
@@ -24,5 +24,5 @@ object OrderUpdater {
     isRemorse ← * <~ order.mustBeRemorseHold
     updated   ← * <~ Orders.update(order, order.copy(remorsePeriodEnd = order.remorsePeriodEnd.map(_.plusMinutes(15))))
     response  ← * <~ FullOrder.fromOrder(updated).toXor
-  } yield response).value.run()
+  } yield response).runT()
 }

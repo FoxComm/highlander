@@ -37,7 +37,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
       } yield responses.Addresses.build(address, region, Some(address.isDefaultShipping))
     }
 
-    DbResultT.sequence(items).value.transactionally.run().futureValue.rightVal
+    DbResultT.sequence(items).runT().futureValue.rightVal
   }
 
   val sortColumnName = "name"

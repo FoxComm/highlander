@@ -16,7 +16,7 @@ import utils.Slick.implicits._
 import utils.ModelWithIdParameter
 import models.Notes.scope._
 
-import utils.DbResultT.*
+import utils.DbResultT._
 import utils.DbResultT.implicits._
 import services.orders.Helpers._
 
@@ -27,7 +27,7 @@ object NoteManager {
 
     order ← * <~ mustFindOrderByRefNum(refNum)
     note  ← * <~ Notes.create(Note.forOrder(order.id, author.id, payload))
-  } yield AdminNotes.build(note, author)).value.run()
+  } yield AdminNotes.build(note, author)).runT()
 
   def createGiftCardNote(code: String, author: StoreAdmin, payload: payloads.CreateNote)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {

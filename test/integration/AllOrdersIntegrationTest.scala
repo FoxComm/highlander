@@ -27,7 +27,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
   import Extensions._
   import api._
 
-  import utils.DbResultT.*
+  import utils.DbResultT._
   import DbResultT.implicits._
 
   // paging and sorting API
@@ -45,7 +45,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       _ ← * <~ (Orders ++= insertOrders)
     } yield ()
 
-    dbio.value.transactionally.run().futureValue
+    dbio.runT().futureValue
     getAllOrders.toIndexedSeq
   }
 
