@@ -13,16 +13,6 @@ export default class Site extends React.Component {
     children: PropTypes.node
   };
 
-  static childContextTypes = {
-    countries: PropTypes.object
-  };
-
-  getChildContext() {
-    return {
-      countries: this.props.countries
-    };
-  }
-
   componentDidMount() {
     this.props.fetchCountries();
   }

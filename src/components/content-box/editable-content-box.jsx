@@ -7,7 +7,7 @@ import ContextBox from './content-box';
 export const EditDoneButton = props => {
   return (
     <PrimaryButton onClick={props.doneAction} {...props}>
-      {props.children || "Done"}
+      {props.children || 'Done'}
     </PrimaryButton>
   );
 };

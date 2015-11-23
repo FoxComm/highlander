@@ -1,7 +1,9 @@
 
 import React, { PropTypes } from 'react';
 import PhoneNumber from '../phone-number/phone-number';
+import { connect } from 'react-redux';
 
+@connect(state => state)
 export default class AddressDetails extends React.Component {
 
   static propTypes = {
@@ -9,15 +11,12 @@ export default class AddressDetails extends React.Component {
       region: PropTypes.shape({
         countryId: PropTypes.number
       }).isRequired
-    }).isRequired
-  };
-
-  static contextTypes = {
+    }).isRequired,
     countries: PropTypes.object
   };
 
   get country() {
-    return this.context.countries && this.context.countries[this.props.address.region.countryId];
+    return this.props.countries && this.props.countries[this.props.address.region.countryId];
   }
 
   get address2() {
