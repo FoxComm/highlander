@@ -6,6 +6,7 @@ import Addresses, { createAddressBox } from '../addresses/addresses';
 import AddressBox from '../addresses/address-box';
 import AddressForm from '../addresses/address-form';
 import EditableItemContainer from '../item-card-container/editable-item-card-container';
+import ItemCardContainer from '../item-card-container/item-card-container';
 import { AddButton } from '../common/buttons';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
@@ -33,12 +34,23 @@ export default class CustomerAddressBook extends React.Component {
 
   @autobind
   injectNewAddressCard(addresses) {
-    if (this.props.isAdding) {
+    const props = this.props;
+
+    if (props.isAdding) {
+      const title = <div className="fc-address-new-title">New Address</div>;
+
       return [
         ...addresses,
-        <div>
-          Hey! Wanna add some more new addresses ?
-        </div>
+        <ItemCardContainer
+          key="address-new"
+          leftControls={ title }
+          className="fc-address is-editing">
+          <AddressForm
+            customerId={props.customerId}
+            closeAction={() => props.stopAddingAddress()}
+            showFormTitle={ false }
+          />
+        </ItemCardContainer>
       ];
     }
 
@@ -49,6 +61,7 @@ export default class CustomerAddressBook extends React.Component {
     if (_.contains(props.editingIds, address.id)) {
       return (
         <AddressBox
+          key={`address-${idx}`}
           address={address}
           toggleDefaultAction={() => props.setAddressDefault(props.customerId, address.id, !address.isDefault)}
           editAction={() => props.stopEditingAddress(address.id)}
