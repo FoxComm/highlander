@@ -1,16 +1,7 @@
 
 import React, { PropTypes } from 'react';
 import PhoneNumber from '../phone-number/phone-number';
-import * as CountriesActions from '../../modules/countries';
-import { connect } from 'react-redux';
 
-function mapStateToProps(state, props) {
-  return {
-    country: props.address && state.countries[props.address.region.countryId]
-  };
-}
-
-@connect(mapStateToProps, CountriesActions)
 export default class AddressDetails extends React.Component {
 
   static propTypes = {
@@ -21,8 +12,12 @@ export default class AddressDetails extends React.Component {
     }).isRequired
   };
 
-  componentDidMount() {
-    this.props.fetchCountry(this.props.address.region.countryId);
+  static contextTypes = {
+    countries: PropTypes.object
+  };
+
+  get country() {
+    return this.context.countries && this.context.countries[this.props.address.region.countryId];
   }
 
   get address2() {
@@ -52,7 +47,7 @@ export default class AddressDetails extends React.Component {
         <li>
           {address.city}, <span>{address.region && address.region.name}</span> <span>{address.zip}</span>
         </li>
-        <li>{this.props.country && this.props.country.name}</li>
+        <li>{this.country && this.country.name}</li>
         {this.phoneNumber}
       </ul>
     );
