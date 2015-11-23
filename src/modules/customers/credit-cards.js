@@ -44,22 +44,18 @@ function creditCardDefaultUrl(customerId, cardId) {
 
 function fetchForCustomer(id, dispatch) {
   Api.get(creditCardsUrl(id))
-    .then(cards => {
-      dispatch(receiveCustomerCreditCards(id, cards));
-    })
-    .catch(err => {
-      dispatch(failCustomerCreditCards(id, err));
-    });
+    .then(cards => dispatch(receiveCustomerCreditCards(id, cards)))
+    .catch(err => dispatch(failCustomerCreditCards(id, err)));
 }
 
-function setDefaultCreditCard(customerId, cardId, onSuccess, onError) {
+function setDefaultCreditCard(customerId, cardId, onSuccess) {
   const payload = {isDefault: true};
   Api.post(creditCardDefaultUrl(customerId, cardId), payload)
     .then(() => onSuccess())
     .catch(err => dispatch(failCustomerCreditCards(customerId, err)));
 }
 
-function resetDefaultCreditCard(customerId, cardId, currentDefaultId, onSuccess, onError) {
+function resetDefaultCreditCard(customerId, cardId, currentDefaultId, onSuccess) {
   const resetPayload = {isDefault: false};
   Api.post(creditCardDefaultUrl(customerId, currentDefaultId), resetPayload)
     .then(() => setDefaultCreditCard(customerId, cardId, onSuccess))
