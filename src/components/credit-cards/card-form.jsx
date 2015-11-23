@@ -145,15 +145,13 @@ export default class CreditCardForm extends React.Component {
   }
 
   get header() {
-    if (!this.props.isNew) {
-      return null;
+    if (this.props.isNew) {
+      return (
+        <header className="fc-credit-card-form-header">
+          New Credit Card
+        </header>
+      );
     }
-
-    return (
-      <header className="fc-credit-card-form-header">
-        New Credit Card
-      </header>
-    );
   }
 
   render() {
