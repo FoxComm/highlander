@@ -1,4 +1,3 @@
-"use strict";
 
 import Api from '../lib/api';
 import _ from 'lodash';
