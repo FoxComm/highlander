@@ -4,6 +4,8 @@ import ConfirmationDialog from '../modal/confirmation-dialog';
 import OrderLineItem from './order-line-item';
 import TableView from '../table/tableview';
 import EditableContentBox from '../content-box/editable-content-box';
+import Typeahead from '../typeahead/typeahead';
+import SkuResult from './sku-result';
 
 const viewModeColumns = [
   {field: 'imagePath', text: 'Image', type: 'image'},
@@ -21,7 +23,7 @@ const editModeColumns = [
   {field: 'price', text: 'Price', type: 'currency'},
   {field: 'lineItem', text: 'Qty', component: 'LineItemCounter'},
   {field: 'totalPrice', text: 'Total', type: 'currency'},
-  {field: 'delete', text: 'Delete', component: 'DeleteLineItem'}
+  {field: 'delete', text: '', component: 'DeleteLineItem'}
 ];
 
 const OrderLineItems = props => {
@@ -63,7 +65,6 @@ const renderEditContent = props => {
     return <OrderLineItem key={`lineItem-${lineItem.sku}`} item={lineItem} {...props} />;
   };
 
-  // TODO: Re-add the Typeahead after Andrey's refactor is complete.
   return (
     <div>
       <TableView columns={ editModeColumns }
@@ -74,6 +75,10 @@ const renderEditContent = props => {
           <div className="fc-line-items-add-label">
             <strong>Add Item</strong>
           </div>
+          <Typeahead onItemSelected={null}
+                     component={SkuResult}
+                     items={[]}
+                     placeholder="Product name or SKU..."/>
         </div>
       </footer>
       <ConfirmationDialog

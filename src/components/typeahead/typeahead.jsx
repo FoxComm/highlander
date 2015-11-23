@@ -20,8 +20,8 @@ export default class Typeahead extends React.Component {
     name: 'typeahead'
   };
 
-  constructor(props, context) {
-    super(props, context);
+  constructor(...args) {
+    super(...args);
     this.state = {
       showItems: false,
       updating: false
