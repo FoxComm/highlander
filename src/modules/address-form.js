@@ -38,6 +38,7 @@ export function init(form, address, addressType) {
   return dispatch => {
     if (address) {
       dispatch(assignAddress(form, address, addressType));
+      dispatch(setCountry(form, address.region.countryId));
     } else {
       dispatch(resetForm(form, true));
       dispatch(setCountry(form));

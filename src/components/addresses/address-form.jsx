@@ -11,7 +11,6 @@ import ContentBox from '../content-box/content-box';
 import modalWrapper from '../modal/wrapper';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import * as CountriesActions from '../../modules/countries';
 import * as AddressFormActions from '../../modules/address-form';
 import { createSelector } from 'reselect';
 import {regionName, zipName, zipExample, phoneExample, phoneMask} from '../../i18n';
@@ -38,16 +37,11 @@ function mapStateToProps(state, props) {
 }
 
 function mapDispatchToProps(dispatch, props) {
-  const boundAddressFormActions = _.transform(AddressFormActions, (result, action, key) => {
+  return _.transform(AddressFormActions, (result, action, key) => {
     result[key] = (...args) => {
       return dispatch(action(formNamespace(props), ...args));
     };
   });
-
-  return {
-    ...boundAddressFormActions,
-    ...bindActionCreators(CountriesActions, dispatch)
-  };
 }
 
 @modalWrapper
@@ -64,7 +58,6 @@ export default class AddressForm extends React.Component {
   };
 
   componentDidMount() {
-    this.props.fetchCountries();
     this.props.init(this.props.address, this.props.addressType);
   }
 
