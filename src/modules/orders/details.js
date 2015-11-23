@@ -121,7 +121,7 @@ const reducer = createReducer({
   [orderLineItemsCancelEdit]: (state) => {
     const skus = get(state, ['currentOrder', 'lineItems', 'skus'], []);
     return assoc(state, ['lineItems', 'isEditing'], false,
-                        ['lineItems', 'items'], skus);
+                        ['lineItems', 'items'], collectLineItems(skus));
   },
   [orderLineItemsRequest]: (state, sku) => {
     return assoc(state, ['lineItems', 'isUpdating'], true,
