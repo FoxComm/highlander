@@ -1,5 +1,7 @@
 package models
 
+import java.time.Instant
+
 import scala.concurrent.ExecutionContext
 
 import monocle.macros.GenLens
@@ -10,7 +12,8 @@ import utils.GenericTable.TableWithId
 import utils.{ModelWithIdParameter, TableQueryWithId}
 
 final case class OrderShippingAddress(id: Int = 0, orderId: Int = 0, regionId: Int, name: String,
-  address1: String, address2: Option[String], city: String, zip: String, phoneNumber: Option[String])
+  address1: String, address2: Option[String], city: String, zip: String, phoneNumber: Option[String],
+  createdAt: Instant = Instant.now, updatedAt: Instant = Instant.now)
   extends ModelWithIdParameter[OrderShippingAddress]
   with Addressable[OrderShippingAddress] {
 
@@ -51,9 +54,11 @@ class OrderShippingAddresses(tag: Tag) extends TableWithId[OrderShippingAddress]
   def city = column[String]("city")
   def zip = column[String]("zip")
   def phoneNumber = column[Option[String]]("phone_number")
+  def createdAt = column[Instant]("created_at")
+  def updatedAt = column[Instant]("updated_at")
 
-  def * = (id, orderId, regionId, name, address1, address2,
-    city, zip, phoneNumber) <> ((OrderShippingAddress.apply _).tupled, OrderShippingAddress.unapply)
+  def * = (id, orderId, regionId, name, address1, address2, city, zip, phoneNumber,
+    createdAt, updatedAt) <> ((OrderShippingAddress.apply _).tupled, OrderShippingAddress.unapply)
 
   def address = foreignKey(Addresses.tableName, id, Addresses)(_.id)
   def order = foreignKey(Orders.tableName, orderId, Orders)(_.id)

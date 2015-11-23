@@ -1,7 +1,7 @@
 import java.time.Instant
 
 import akka.http.scaladsl.model.StatusCodes
-import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 import Extensions._
 import models._
@@ -11,17 +11,14 @@ import responses.{AllRmas, StoreAdminResponse, ResponseWithFailuresAndMetadata, 
 import responses.RmaResponse.FullRmaWithWarnings
 import services._
 import services.rmas._
+import slick.driver.PostgresDriver.api._
 import utils.DbResultT
 import utils.DbResultT._
 import DbResultT.implicits._
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.time._
-import utils.Money.Currency
 import utils.Slick.implicits._
-import slick.driver.PostgresDriver.api._
-
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class RmaIntegrationTest extends IntegrationTestBase
   with HttpSupport
