@@ -34,10 +34,10 @@ export function setCountry(form, countryId) {
   };
 }
 
-export function init(form, address, addressType) {
+export function init(form, address) {
   return dispatch => {
     if (address) {
-      dispatch(assignAddress(form, address, addressType));
+      dispatch(assignAddress(form, address));
       dispatch(setCountry(form, address.region.countryId));
     } else {
       dispatch(resetForm(form, true));
@@ -71,7 +71,7 @@ const reducer = createReducer({
 
     return assoc(state, path, value);
   },
-  [assignAddress]: (state, [form, address, addressType]) => {
+  [assignAddress]: (state, [form, address]) => {
     const {region, ...formData} = address || {};
 
     formData.regionId = region && region.id;
@@ -81,8 +81,7 @@ const reducer = createReducer({
       [form, 'isAdding'], false,
       [form, 'formData'], formData,
       [form, 'countryId'], countryId,
-      [form, 'addressId'], address.id,
-      [form, 'addressType'], addressType
+      [form, 'addressId'], address.id
     );
   },
   [setNewCountry]: (state, [form, country]) => {

@@ -11,7 +11,7 @@ import EditableContentBox from '../content-box/editable-content-box';
 import { connect } from 'react-redux';
 import * as AddressesActions from '../../modules/addresses';
 import * as ShippingAddressesActions from '../../modules/orders/shipping-addresses';
-import AddressForm from '../addresses/address-form';
+import AddressForm from '../addresses/address-form/modal';
 import ConfirmationDialog from '../modal/confirmation-dialog';
 import ErrorAlerts from '../alerts/error-alerts';
 

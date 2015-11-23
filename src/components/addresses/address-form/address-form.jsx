@@ -2,18 +2,16 @@
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import React, { PropTypes } from 'react';
-import FormField from '../forms/formfield';
+import FormField from '../../forms/formfield';
 import InputMask from 'react-input-mask';
-import Form from '../forms/form';
-import * as validators from '../../lib/validators';
-import ErrorAlerts from '../alerts/error-alerts';
-import ContentBox from '../content-box/content-box';
-import modalWrapper from '../modal/wrapper';
+import Form from '../../forms/form';
+import * as validators from '../../../lib/validators';
+import ErrorAlerts from '../../alerts/error-alerts';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import * as AddressFormActions from '../../modules/address-form';
+import * as AddressFormActions from '../../../modules/address-form';
 import { createSelector } from 'reselect';
-import {regionName, zipName, zipExample, phoneExample, phoneMask} from '../../i18n';
+import {regionName, zipName, zipExample, phoneExample, phoneMask} from '../../../i18n';
 
 const formNamespace = props => props.address && props.address.id || 'new';
 
@@ -44,13 +42,11 @@ function mapDispatchToProps(dispatch, props) {
   });
 }
 
-@modalWrapper
 @connect(mapStateToProps, mapDispatchToProps)
 export default class AddressForm extends React.Component {
 
   static propTypes = {
     address: PropTypes.object,
-    addressType: PropTypes.number,
     customerId: PropTypes.number,
     onSaved: PropTypes.func,
     closeAction: PropTypes.func.isRequired,
@@ -58,7 +54,7 @@ export default class AddressForm extends React.Component {
   };
 
   componentDidMount() {
-    this.props.init(this.props.address, this.props.addressType);
+    this.props.init(this.props.address);
   }
 
   /**
@@ -151,10 +147,6 @@ export default class AddressForm extends React.Component {
     return <ErrorAlerts error={this.props.err} />;
   }
 
-  get actions() {
-    return <i onClick={this.props.closeAction} className="fc-btn-close icon-close" title="Close"></i>;
-  }
-
   render() {
     const props = this.props;
     const formData = props.formData;
@@ -165,7 +157,7 @@ export default class AddressForm extends React.Component {
     const title = props.isAdding ? 'New Address' : 'Edit Address';
 
     return (
-      <ContentBox title="Address Book" className="fc-address-form" actionBlock={this.actions}>
+      <div className="fc-address-form">
         {this.errorMessages}
         <article>
           <Form onSubmit={this.handleFormSubmit}
@@ -231,7 +223,7 @@ export default class AddressForm extends React.Component {
             </ul>
             </Form>
         </article>
-      </ContentBox>
+      </div>
     );
   }
 }
