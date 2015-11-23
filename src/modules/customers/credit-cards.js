@@ -94,7 +94,7 @@ export function createCreditCard(id) {
           });
         })
         .catch(err => dispatch(failCustomerCreditCards(id, err)));
-    } else if (isDefault && (currentDefault === null || currentDefault === undefined)) {
+    } else if (isDefault && _.isEmpty(currentDefault)) {
       Api.post(creditCardsUrl(id), cardData)
         .then((card) => {
           setDefaultCreditCard(id, card.id, () => {
@@ -149,7 +149,7 @@ export function saveCreditCard(id) {
             fetchForCustomer(id, dispatch);
           });
         }).catch(err => dispatch(failCustomerCreditCards(id, err)));
-    } else if (isDefault && (currentDefault === null || currentDefault === undefined)) {
+    } else if (isDefault && _.isEmpty(currentDefault)) {
       Api.patch(creditCardUrl(id, creditCardId), form)
         .then((card) => {
           setDefaultCreditCard(id, card.id, () => {
@@ -178,7 +178,7 @@ export function toggleDefault(customerId, creditCardId) {
     const card = _.find(cardsArray, card => card.id === creditCardId);
     const payload = {isDefault: !card.isDefault};
 
-    if (currentDefault !== null && currentDefault !== undefined) {
+    if (!_.isEmpty(currentDefault)) {
       const currentDefaultId = currentDefault.id;
       const resetPayload = {isDefault: false};
       Api.post(creditCardDefaultUrl(customerId, currentDefaultId), resetPayload)
