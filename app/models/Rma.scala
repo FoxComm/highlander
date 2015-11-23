@@ -4,15 +4,19 @@ import java.time.Instant
 
 import scala.concurrent.ExecutionContext
 
+import cats.data.Validated._
+import cats.data._
 import com.pellucid.sealerate
 import models.Rma._
 import monocle.Lens
 import monocle.macros.GenLens
+import services.Failure
 
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.CustomDirectives.SortAndPage
+import utils.Validation._
 
 import utils.{FSM, ModelWithLockParameter, TableQueryWithLock, ADT, GenericTable}
 import utils.Slick.implicits._
@@ -21,7 +25,8 @@ import utils.Slick.DbResult
 final case class Rma(id: Int = 0, referenceNumber: String = "", orderId: Int, orderRefNum: String,
   rmaType: RmaType = Standard, status: Status = Pending, locked: Boolean = false,
   customerId: Int, storeAdminId: Option[Int] = None, messageToCustomer: Option[String] = None,
-  createdAt: Instant = Instant.now, updatedAt: Instant = Instant.now, deletedAt: Option[Instant] = None)
+  canceledReason: Option[Int] = None, createdAt: Instant = Instant.now,
+  updatedAt: Instant = Instant.now, deletedAt: Option[Instant] = None)
   extends ModelWithLockParameter[Rma]
   with FSM[Rma.Status, Rma] {
 
@@ -76,6 +81,14 @@ object Rma {
       storeAdminId = Some(admin.id)
     )
   }
+
+  def validateStatusReason(status: Status, reason: Option[Int]): ValidatedNel[Failure, Unit] = {
+    if (status == Canceled) {
+      validExpr(reason.isDefined, "Please provide valid cancellation reason")
+    } else {
+      valid({})
+    }
+  }
 }
 
 class Rmas(tag: Tag) extends GenericTable.TableWithLock[Rma](tag, "rmas")  {
@@ -89,12 +102,13 @@ class Rmas(tag: Tag) extends GenericTable.TableWithLock[Rma](tag, "rmas")  {
   def customerId = column[Int]("customer_id")
   def storeAdminId = column[Option[Int]]("store_admin_id")
   def messageToCustomer = column[Option[String]]("message_to_customer")
+  def canceledReason = column[Option[Int]]("canceled_reason")
   def createdAt = column[Instant]("created_at")
   def updatedAt = column[Instant]("updated_at")
   def deletedAt = column[Option[Instant]]("deleted_at")
 
-  def * = (id, referenceNumber, orderId, orderRefNum, rmaType, status, locked, customerId,
-    storeAdminId, messageToCustomer, createdAt, updatedAt, deletedAt) <> ((Rma.apply _).tupled, Rma.unapply)
+  def * = (id, referenceNumber, orderId, orderRefNum, rmaType, status, locked, customerId, storeAdminId,
+    messageToCustomer, canceledReason, createdAt, updatedAt, deletedAt) <> ((Rma.apply _).tupled, Rma.unapply)
 }
 
 object Rmas extends TableQueryWithLock[Rma, Rmas](

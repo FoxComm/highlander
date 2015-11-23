@@ -5,6 +5,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import Extensions._
 import models._
+import models.Rma.{Processing, Canceled}
 import org.json4s.jackson.JsonMethods._
 import payloads._
 import responses.{AllRmas, StoreAdminResponse, ResponseWithFailuresAndMetadata, RmaResponse, RmaLockResponse}
@@ -83,6 +84,38 @@ class RmaIntegrationTest extends IntegrationTestBase
         val response = GET(s"v1/rmas/ABC-666")
         response.status must ===(StatusCodes.NotFound)
         response.errors must ===(NotFoundFailure404(Rma, "ABC-666").description)
+      }
+    }
+
+    "PATCH /v1/rmas/:refNum" - {
+      "successfully changes status of RMA" in new Fixture {
+        val response = PATCH(s"v1/rmas/${rma.referenceNumber}", payloads.RmaUpdateStatusPayload(status = Processing))
+        response.status must ===(StatusCodes.OK)
+
+        val root = response.as[RmaResponse.Root]
+        root.status must ===(Processing)
+      }
+
+      "successfully cancels RMA with valid reason" in new Fixture {
+        val payload = payloads.RmaUpdateStatusPayload(status = Canceled, reasonId = Some(reason.id))
+        val response = PATCH(s"v1/rmas/${rma.referenceNumber}", payload)
+        response.status must ===(StatusCodes.OK)
+
+        val root = response.as[RmaResponse.Root]
+        root.status must ===(Canceled)
+      }
+
+      "fails to cancel RMA if invalid reason provided" in new Fixture {
+        val response = PATCH(s"v1/rmas/${rma.referenceNumber}", payloads.RmaUpdateStatusPayload(status = Canceled,
+          reasonId = Some(999)))
+        response.status must ===(StatusCodes.BadRequest)
+        response.errors must ===(InvalidCancellationReasonFailure.description)
+      }
+
+      "fails if refNum is not found" in new LineItemFixture {
+        val response = PATCH(s"v1/rmas/ABC-666", payloads.RmaUpdateStatusPayload(status = Processing))
+        response.status must === (StatusCodes.NotFound)
+        response.errors must === (NotFoundFailure404(Rma, "ABC-666").description)
       }
     }
 
@@ -299,7 +332,7 @@ class RmaIntegrationTest extends IntegrationTestBase
     // SKU Line Items
     "POST /v1/rmas/:refNum/line-items/skus" - {
       "successfully adds SKU line item" in new LineItemFixture {
-        val payload = RmaSkuLineItemsPayload(sku = sku.sku, quantity = 1, reasonId = reason.id,
+        val payload = RmaSkuLineItemsPayload(sku = sku.sku, quantity = 1, reasonId = rmaReason.id,
           isReturnItem = true, inventoryDisposition = RmaLineItem.Putaway)
         val response = POST(s"v1/rmas/${rma.referenceNumber}/line-items/skus", payload)
         response.status must === (StatusCodes.OK)
@@ -309,7 +342,7 @@ class RmaIntegrationTest extends IntegrationTestBase
       }
 
       "fails if refNum is not found" in new LineItemFixture {
-        val payload = RmaSkuLineItemsPayload(sku = "ABC-666", quantity = 1, reasonId = reason.id,
+        val payload = RmaSkuLineItemsPayload(sku = "ABC-666", quantity = 1, reasonId = rmaReason.id,
           isReturnItem = true, inventoryDisposition = RmaLineItem.Putaway)
         val response = POST(s"v1/rmas/ABC-666/line-items/skus", payload)
 
@@ -327,7 +360,7 @@ class RmaIntegrationTest extends IntegrationTestBase
       }
 
       "fails if quantity is invalid" in new LineItemFixture {
-        val payload = RmaSkuLineItemsPayload(sku = "ABC-666", quantity = 0, reasonId = 1,
+        val payload = RmaSkuLineItemsPayload(sku = "ABC-666", quantity = 0, reasonId = rmaReason.id,
           isReturnItem = true, inventoryDisposition = RmaLineItem.Putaway)
         val response = POST(s"v1/rmas/${rma.referenceNumber}/line-items/skus", payload)
 
@@ -339,7 +372,7 @@ class RmaIntegrationTest extends IntegrationTestBase
     "DELETE /v1/rmas/:refNum/line-items/skus/:id" - {
       "successfully deletes SKU line item" in new LineItemFixture {
         // Create
-        val payload = RmaSkuLineItemsPayload(sku = sku.sku, quantity = 1, reasonId = reason.id,
+        val payload = RmaSkuLineItemsPayload(sku = sku.sku, quantity = 1, reasonId = rmaReason.id,
           isReturnItem = true, inventoryDisposition = RmaLineItem.Putaway)
         val updatedRma = RmaLineItemUpdater.addSkuLineItem(rma.referenceNumber, payload).futureValue.rightVal
         val lineItemId = updatedRma.lineItems.skus.headOption.value.lineItemId
@@ -367,7 +400,7 @@ class RmaIntegrationTest extends IntegrationTestBase
     // Gift Card Line Items
     "POST /v1/rmas/:refNum/line-items/gift-cards" - {
       "successfully adds gift card line item" in new LineItemFixture {
-        val payload = RmaGiftCardLineItemsPayload(code = giftCard.code, reasonId = reason.id)
+        val payload = RmaGiftCardLineItemsPayload(code = giftCard.code, reasonId = rmaReason.id)
         val response = POST(s"v1/rmas/${rma.referenceNumber}/line-items/gift-cards", payload)
         response.status must === (StatusCodes.OK)
 
@@ -376,7 +409,7 @@ class RmaIntegrationTest extends IntegrationTestBase
       }
 
       "fails if refNum is not found" in new LineItemFixture {
-        val payload = RmaGiftCardLineItemsPayload(code = "ABC-666", reasonId = reason.id)
+        val payload = RmaGiftCardLineItemsPayload(code = "ABC-666", reasonId = rmaReason.id)
         val response = POST(s"v1/rmas/ABC-666/line-items/gift-cards", payload)
 
         response.status must === (StatusCodes.NotFound)
@@ -395,7 +428,7 @@ class RmaIntegrationTest extends IntegrationTestBase
     "DELETE /v1/rmas/:refNum/line-items/gift-cards/:id" - {
       "successfully deletes gift card line item" in new LineItemFixture {
         // Create
-        val payload = RmaGiftCardLineItemsPayload(code = giftCard.code, reasonId = reason.id)
+        val payload = RmaGiftCardLineItemsPayload(code = giftCard.code, reasonId = rmaReason.id)
         val updatedRma = RmaLineItemUpdater.addGiftCardLineItem(rma.referenceNumber, payload).futureValue.rightVal
         val lineItemId = updatedRma.lineItems.giftCards.headOption.value.lineItemId
 
@@ -432,7 +465,7 @@ class RmaIntegrationTest extends IntegrationTestBase
 
 
       "fails if refNum is not found" in new LineItemFixture {
-        val payload = RmaShippingCostLineItemsPayload(reasonId = reason.id)
+        val payload = RmaShippingCostLineItemsPayload(reasonId = rmaReason.id)
         val response = POST(s"v1/rmas/ABC-666/line-items/shipping-costs", payload)
 
         response.status must === (StatusCodes.NotFound)
@@ -451,7 +484,7 @@ class RmaIntegrationTest extends IntegrationTestBase
     "DELETE /v1/rmas/:refNum/line-items/shipping-costs/:id" - {
       "successfully deletes shipping cost line item" in new LineItemFixture {
         // Create
-        val payload = RmaShippingCostLineItemsPayload(reasonId = reason.id)
+        val payload = RmaShippingCostLineItemsPayload(reasonId = rmaReason.id)
         val updatedRma = RmaLineItemUpdater.addShippingCostItem(rma.referenceNumber, payload).futureValue.rightVal
         val lineItemId = updatedRma.lineItems.shippingCosts.headOption.value.lineItemId
 
@@ -477,7 +510,7 @@ class RmaIntegrationTest extends IntegrationTestBase
   }
 
   trait Fixture {
-    val (storeAdmin, customer, order, rma) = (for {
+    val (storeAdmin, customer, order, rma, reason) = (for {
       storeAdmin ← * <~ StoreAdmins.create(Factories.storeAdmin)
       customer ← * <~ Customers.create(Factories.customer)
       order ← * <~ Orders.create(Factories.order.copy(
@@ -488,12 +521,13 @@ class RmaIntegrationTest extends IntegrationTestBase
         orderId = order.id,
         orderRefNum = order.referenceNumber,
         customerId = customer.id))
-    } yield (storeAdmin, customer, order, rma)).runT(txn = false).futureValue.rightVal
+      reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
+    } yield (storeAdmin, customer, order, rma, reason)).runT(txn = false).futureValue.rightVal
   }
 
   trait LineItemFixture extends Fixture {
-    val (reason, sku, giftCard, shipment) = (for {
-      reason ← * <~ RmaReasons.create(Factories.rmaReasons.head)
+    val (rmaReason, sku, giftCard, shipment) = (for {
+      rmaReason ← * <~ RmaReasons.create(Factories.rmaReasons.head)
       sku ← * <~ Skus.create(Factories.skus.head)
       skuLineItem ← * <~ OrderLineItemSkus.create(Factories.orderLineItemSkus.head)
       lineItem1 ← * <~ OrderLineItems.create(Factories.orderLineItems.head.copy(originId = skuLineItem.id,
@@ -514,6 +548,6 @@ class RmaIntegrationTest extends IntegrationTestBase
       orderShippingMethod ← * <~ OrderShippingMethods.create(
         OrderShippingMethod(orderId = order.id, shippingMethodId = shippingMethod.id))
       shipment ← * <~ Shipments.create(Factories.shipment)
-    } yield (reason, sku, giftCard, shipment)).runT(txn = false).futureValue.rightVal
+    } yield (rmaReason, sku, giftCard, shipment)).runT(txn = false).futureValue.rightVal
   }
 }

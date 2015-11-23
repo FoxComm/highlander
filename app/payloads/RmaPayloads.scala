@@ -6,6 +6,7 @@ import models.Rma
 import models.RmaLineItem.InventoryDisposition
 import services.Failure
 import utils.Litterbox._
+import utils.Money.Currency
 import utils.Validation
 import Validation._
 
@@ -13,7 +14,13 @@ import Validation._
 
 final case class RmaCreatePayload(orderRefNum: String, rmaType: Rma.RmaType)
 
-final case class RmaUpdateStatusPayload(status: Rma.Status)
+final case class RmaUpdateStatusPayload(status: Rma.Status, reasonId: Option[Int] = None)
+  extends Validation[RmaUpdateStatusPayload] {
+
+  def validate: ValidatedNel[Failure, RmaUpdateStatusPayload] = {
+    Rma.validateStatusReason(status, reasonId).map { case _ ⇒ this }
+  }
+}
 
 /* Line item updater payloads */
 
@@ -38,7 +45,7 @@ final case class RmaPaymentPayload(amount: Int) extends Validation[RmaPaymentPay
   }
 }
 
-final case class RmaCcPaymentPayload(creditCardId: Int, amount: Int) extends Validation[RmaCcPaymentPayload] {
+final case class RmaCcPaymentPayload(amount: Int) extends Validation[RmaCcPaymentPayload] {
 
   def validate: ValidatedNel[Failure, RmaCcPaymentPayload] = {
     greaterThan(amount, 0, "Amount").map { case _ ⇒ this }

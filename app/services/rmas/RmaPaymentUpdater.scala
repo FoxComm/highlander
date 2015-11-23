@@ -2,31 +2,28 @@ package services.rmas
 
 import scala.concurrent.ExecutionContext
 
-import cats.data.Validated.{Invalid, Valid}
-import cats.data.Xor
-import cats.implicits._
 import Helpers._
+import models.OrderPayments.scope._
 import models.RmaPayments.scope._
 import models._
-import payloads.{RmaPaymentPayload, RmaCcPaymentPayload}
+import payloads.RmaPaymentPayload
 import responses.RmaResponse
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import utils.Money.Currency
 import utils.Slick._
 import utils.Slick.implicits._
 
 object RmaPaymentUpdater {
-  def addCreditCard(refNum: String, payload: RmaCcPaymentPayload)
+  def addCreditCard(refNum: String, payload: RmaPaymentPayload)
     (implicit ec: ExecutionContext, db: Database): Result[RmaResponse.Root] = (for {
       _         ← * <~ payload.validate
       rma       ← * <~ mustFindPendingRmaByRefNum(refNum)
-      cc        ← * <~ CreditCards.filter(_.id === payload.creditCardId).one
-        .mustFindOr(NotFoundFailure404(CreditCard, payload.creditCardId))
+      payment   ← * <~ mustFindCcPaymentsByOrderId(rma.orderId)
+      cc        ← * <~ CreditCards.mustFindById(payment.paymentMethodId)
       deleteAll ← * <~ deleteCc(rma.id).toXor
-      ccRefund  ← * <~ RmaPayments.create(RmaPayment.build(cc, rma.id, payload.amount))
+      ccRefund  ← * <~ RmaPayments.create(RmaPayment.build(cc, rma.id, payload.amount, payment.currency))
       response  ← * <~ fullRma(Rmas.findByRefNum(refNum)).toXor
     } yield response).runT()
 
@@ -35,9 +32,10 @@ object RmaPaymentUpdater {
       _         ← * <~ payload.validate
       rma       ← * <~ mustFindPendingRmaByRefNum(refNum)
       deleteAll ← * <~ deleteGc(rma.id).toXor
+      payment   ← * <~ mustFindCcPaymentsByOrderId(rma.orderId)
       origin    ← * <~ GiftCardRefunds.create(GiftCardRefund(rmaId = rma.id))
-      gc        ← * <~ GiftCards.create(GiftCard.buildRmaProcess(originId = origin.id, currency = Currency.USD))
-      pmt       ← * <~ RmaPayments.create(RmaPayment.build(gc, rma.id, payload.amount))
+      gc        ← * <~ GiftCards.create(GiftCard.buildRmaProcess(origin.id, payment.currency))
+      pmt       ← * <~ RmaPayments.create(RmaPayment.build(gc, rma.id, payload.amount, payment.currency))
       response  ← * <~ fullRma(Rmas.findByRefNum(refNum)).toXor
     } yield response).runT()
 
@@ -46,10 +44,12 @@ object RmaPaymentUpdater {
       _         ← * <~ payload.validate
       rma       ← * <~ mustFindPendingRmaByRefNum(refNum)
       deleteAll ← * <~ deleteGc(rma.id).toXor
+      payment   ← * <~ mustFindCcPaymentsByOrderId(rma.orderId)
       origin    ← * <~ StoreCreditRefunds.create(StoreCreditRefund(rmaId = rma.id))
-      sc        ← * <~ StoreCredits.create(StoreCredit.buildRmaProcess(customerId = rma.customerId, originId = origin.id,
-        currency = Currency.USD))
-      pmt       ← * <~ RmaPayments.create(RmaPayment.build(sc, rma.id, payload.amount))
+
+      storeCredit = StoreCredit.buildRmaProcess(rma.customerId, origin.id, payment.currency)
+      sc        ← * <~ StoreCredits.create(storeCredit)
+      pmt       ← * <~ RmaPayments.create(RmaPayment.build(sc, rma.id, payload.amount, payment.currency))
       response  ← * <~ fullRma(Rmas.findByRefNum(refNum)).toXor
     } yield response).runT()
 
