@@ -22,7 +22,8 @@ export default class LiveSearch extends React.Component {
         selectedIndex: -1,
         searchOptions: options,
         visibleSearchOptions: visibleOptions(options)
-      }
+      },
+      searches: []
     };
   }
 
@@ -73,7 +74,12 @@ export default class LiveSearch extends React.Component {
       case 40:
         // Down arrow
         event.preventDefault(); 
-        selectedIndex = Math.min(selectedIndex + 1, visibleSearchOptions.length - 1);
+        if (!this.state.queryBuilder.show) {
+          this.inputFocus();
+          return;
+        } else {
+          selectedIndex = Math.min(selectedIndex + 1, visibleSearchOptions.length - 1);
+        }
         break;
       case 38:
         // Up arrow
@@ -83,11 +89,25 @@ export default class LiveSearch extends React.Component {
       case 13:
         // Enter
         event.preventDefault();
-        if (selectedIndex > -1) {
-          this.updateSearch(visibleSearchOptions[selectedIndex].term);
-          return;
+        if (visibleSearchOptions.length == 1) {
+          if (readyToSubmit(visibleSearchOptions[0], this.state.value)) {
+            let newSearches = this.state.searches;
+            newSearches.push(this.state.value);
+
+            this.setState({
+              ...this.state,
+              value: '',
+              searches: newSearches,
+              queryBuilder: {
+                ...this.state.queryBuilder,
+                show: false
+              }
+            });
+          }
+        } else {
+          this.selectOption(selectedIndex);
         }
-        break;
+        return;
       default:
         // Untracked action.
         return;
@@ -107,34 +127,63 @@ export default class LiveSearch extends React.Component {
     this.updateSearch(backSearchTerm(this.state.value));
   }
 
+  @autobind
+  selectOption(idx) {
+    const visibleSearchOptions = this.state.queryBuilder.visibleSearchOptions;
+    if (idx > -1) {
+      const inputValue = `${visibleSearchOptions[idx].term} : `;
+      this.updateSearch(inputValue);
+    }
+  }
+
+  get searchPills() {
+    return this.state.searches.map((search, idx) => {
+      return (
+        <div className='fc-live-search-pill' key={`search-${idx}`}>
+          <i className='icon-search fc-live-search-pill-icon'></i>
+          {search}
+          <div className='fc-live-search-pill-close'>
+            &times;
+          </div>
+        </div>
+      );
+    });
+  }
+
   render() {
     return (
-      <div className="fc-col-md-1-1 fc-live-search fc-search-bar">
+      <div className="fc-col-md-1-1 fc-live-search">
         <div>
           <form>
-            <div className="fc-search-input-container">
-              <div className="fc-search-input-wrapper fc-form-field">
-                <input 
-                  className="fc-search-input-field"
-                  type="text" 
-                  placeholder="Add another filter or keyword search"
-                  onChange={this.onChange}
-                  onKeyDown={this.keyDown}
-                  onFocus={this.inputFocus}
-                  value={this.state.value}
-                />
+            <div className='fc-live-search-meta-container'>
+              <div className="fc-live-search-input-container">
+                <div className='fc-live-search-pills'>
+                  {this.searchPills}
+                </div>
+                <div className="fc-live-search-icon-wrapper">
+                  <i className="icon-search"></i>
+                </div>
+                <div className="fc-live-search-input-wrapper">
+                  <input 
+                    className="fc-live-search-input-field"
+                    type="text" 
+                    placeholder="Add another filter or keyword search"
+                    onChange={this.onChange}
+                    onKeyDown={this.keyDown}
+                    onFocus={this.inputFocus}
+                    value={this.state.value}
+                  />
+                </div>
               </div>
-              <div className="fc-search-icon-wrapper">
-                <i className="icon-search"></i>
+              <div className='fc-live-search-btn-container'>
+                <button className='fc-btn fc-live-search-btn'>Save Search</button>
               </div>
-            </div>
-            <div className="fc-search-btn-container">
-              <button className="fc-btn fc-btn-search">Save Search</button>
             </div>
           </form>
         </div>
         { this.state.queryBuilder.show &&
           <QueryBuilder 
+            selectOption={this.selectOption}
             selectedIndex={this.state.queryBuilder.selectedIndex} 
             searchOptions={this.state.queryBuilder.visibleSearchOptions}
             onGoBack={this.goBack} /> }
@@ -145,11 +194,12 @@ export default class LiveSearch extends React.Component {
 
 const flattenOptions = (options, term = '') => {
   const allOptions = options.map(option => {
-    const termPrefix = _.isEmpty(term) ? '' : `${term} `;
+    const termPrefix = _.isEmpty(term) ? '' : `${term} : `;
     let returnOptions = [{
-      term: `${termPrefix}${option.term} :`,
+      term: `${termPrefix}${option.term}`,
       type: option.type,
-      suggestions: option.suggestions
+      suggestions: option.suggestions,
+      exactMatch: _.isEmpty(option.options),
     }];
     
     if (!_.isEmpty(option.options)) {
@@ -163,21 +213,54 @@ const flattenOptions = (options, term = '') => {
   return _.flatten(allOptions);
 }
 
+/**
+ * Implementation of the algorithm used for showing options in the QueryBuilder
+ * dropdown. The algorithm should be:
+ *
+ * TODO: Consider moving all of this logic into the child scope.
+ */
 const visibleOptions = (optionsList, term = '') => {
   const searchTerm = term.trim().toLowerCase();
-  const colonsInSearchTerm = (searchTerm.match(/:/g) || []).length;
-  let visibleSearchOptions = _.filter(optionsList, option => {
-    const colonsInOption = (option.term.match(/:/g) || []).length;
-    return _.startsWith(option.term.toLowerCase(), searchTerm) && (colonsInSearchTerm + 1 == colonsInOption);
-  }); 
+
+  let visibleSearchOptions = _.transform(optionsList, (result, option) => {
+    if (optionShouldBeVisible(option, searchTerm)) {
+      result.push(option);
+    }
+  });
 
   return visibleSearchOptions;
+};
+
+const optionShouldBeVisible = (option, term) => {
+  const optionTerm = option.term.toLowerCase();
+
+  let searchTerm = term;
+  if (option.exactMatch) {
+    const truncatedLength = Math.min(option.term.length, term.length);
+    searchTerm = term.slice(0, truncatedLength);
+  }
+
+  const colonsInSearchTerm = (searchTerm.match(/:/g) || []).length;
+  const colonsInOption = (option.term.match(/:/g) || []).length;
+
+  return colonsInSearchTerm == colonsInOption && _.startsWith(optionTerm, searchTerm);
+};
+
+const readyToSubmit = (option, term) => {
+  const optionTerm = option.term.toLowerCase();
+  const searchTerm = _.trim(term, ': ').toLowerCase();
+
+  if (option.exactMatch) {
+    return searchTerm.length > optionTerm.length && _.startsWith(searchTerm, optionTerm);
+  } else {
+    return false;
+  }
 };
 
 const backSearchTerm = searchTerm => {
   const lastIdx = _.trim(searchTerm, ' :').lastIndexOf(':');
   if (lastIdx > 0) {
-    return searchTerm.slice(0, lastIdx - 1);
+    return `${searchTerm.slice(0, lastIdx - 1)} : `;
   } else {
     return '';
   }

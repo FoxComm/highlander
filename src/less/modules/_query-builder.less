@@ -3,7 +3,6 @@
   .border(1px, solid, @color-decor9);
   .box-shadow(0px, 2px, 4px, 0px, @color-decor51);
   .border-radius(3px);
-  .margin(40px, 0);
   position: absolute;
 
   .fc-query-component {
@@ -24,6 +23,11 @@
     
     &-back {
       .border-top(1px, solid,  @color-decor9);
+    }
+
+    &:hover {
+      background: @color-decor11;
+      cursor: pointer;
     }
   }
 }
