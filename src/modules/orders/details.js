@@ -24,21 +24,11 @@ export function fetchOrder(refNum) {
   };
 }
 
-function shouldFetchOrder(refNum, state) {
-  const order = state.orders.details;
-  if (!order) {
-    return true;
-  } else if (order.isFetching) {
-    return false;
-  }
-  return order.didInvalidate;
-}
-
-export function fetchOrderIfNeeded(refNum) {
-  return (dispatch, getState) => {
-    if (shouldFetchOrder(refNum, getState())) {
-      return dispatch(fetchOrder(refNum));
-    }
+export function updateOrder(id, data) {
+  return dispatch => {
+    Api.patch(`/orders/${id}`, data)
+      .then(order => dispatch(orderSuccess(order)))
+      .catch(err => dispatch(orderFailed(id, err, updateOrder)));
   };
 }
 
@@ -66,7 +56,6 @@ export function deleteLineItem(order, sku) {
 
 const initialState = {
   isFetching: false,
-  didInvalidate: true,
   currentOrder: {},
   lineItems: {
     isEditing: false,
@@ -82,15 +71,13 @@ const reducer = createReducer({
   [orderRequest]: (state) => {
     return {
       ...state,
-      isFetching: true,
-      didInvalidate: false
+      isFetching: true
     };
   },
   [orderSuccess]: (state, payload) => {
     return {
       ...state,
       isFetching: false,
-      didInvalidate: false,
       currentOrder: haveType(payload, 'order'),
       lineItems: {
         ...state.lineItems,
@@ -99,13 +86,12 @@ const reducer = createReducer({
     };
   },
   [orderFailed]: (state, [err, source]) => {
-    console.error(err);
-
     if (source === fetchOrder) {
+      console.error(err);
+
       return {
         ...state,
-        isFetching: false,
-        didInvalidate: false
+        isFetching: false
       };
     }
 
@@ -195,7 +181,7 @@ const reducer = createReducer({
         }
       };
     }
-  },
+  }
 }, initialState);
 
 export default reducer;

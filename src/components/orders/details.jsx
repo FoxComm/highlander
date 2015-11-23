@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import OrderSummary from './summary';
+import TotalsSummary from '../common/totals';
 import CustomerInfo from './customer-info';
 import OrderLineItems from './order-line-items';
 import OrderShippingAddress from './shipping-address';
@@ -17,7 +17,7 @@ const OrderDetails = props => {
           <OrderPayment {...props} />
         </div>
         <div className="fc-order-details-aside">
-          <OrderSummary order={props.order.currentOrder} />
+          <TotalsSummary entity={props.order.currentOrder} />
           <CustomerInfo order={props.order.currentOrder} />
         </div>
       </div>

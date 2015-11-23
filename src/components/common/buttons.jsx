@@ -30,6 +30,10 @@ const DecrementButton = props => {
   return <Button icon='chevron-down' {...props} />;
 };
 
+const IncrementButton = props => {
+  return <Button icon='chevron-up' {...props} />;
+};
+
 const DeleteButton = (props = {}) => {
   return <Button icon='trash' {...props} className={ classNames('fc-btn-remove', props.className) } />;
 };
@@ -40,10 +44,6 @@ const EditButton = props => {
 
 const AddButton = props => {
   return <Button icon='add' {...props} />;
-};
-
-const IncrementButton = props => {
-  return <Button icon='chevron-up' {...props} />;
 };
 
 const PrimaryButton = (props = {}) => {

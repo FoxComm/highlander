@@ -48,6 +48,7 @@ const routes = (
     <Route name='customers-new' path='customers/new' component={NewCustomer} />
     <Route name='customer' path='customers/:customerId' component={Customer}>
       <IndexRoute name='customer-details' component={CustomerDetails}/>
+      <Route name='customer-returns' path='returns' component={RmaChildList}/>
       <Route name='customer-notes' path='notes' component={Notes} />
     </Route>
     <Route name='gift-cards' path='gift-cards' component={GiftCards} />

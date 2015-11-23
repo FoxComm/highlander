@@ -1,6 +1,6 @@
 
 import React from 'react';
-const order = require('../orders/order-sample.json');
+const order = require('../../fixtures/order.json');
 
 describe('LineItemDelete', function() {
   const DeleteLineItem = requireComponent('line-items/line-item-delete.jsx');

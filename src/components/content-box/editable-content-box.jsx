@@ -53,7 +53,7 @@ EditableContentBox.defaultProps = {
   renderFooter: (props, footer) => {
     if (props.isEditing) {
       return (
-        <footer>
+        <footer className="fc-editable-content-box-footer">
           {footer}
           <EditDoneButton doneAction={props.doneAction} />
         </footer>

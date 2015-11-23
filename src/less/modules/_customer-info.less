@@ -6,6 +6,11 @@
     text-align: center;
   }
 
+  &-comment {
+    .font-spec(14px, 600, 19px);
+    color: #C7C9CB;
+  }
+
   @head-height: 91px;
   @circle_size: 98px;
   @img_size: 84px;
@@ -50,10 +55,10 @@
     }
   }
 
-  @name-font-size: 18px;
-  @name-line-height: 24px;
-  @email-font-size: 14px;
-  @email-line-height: 19px;
+  @name-font-size: 30px;
+  @name-line-height: 41px;
+  @email-font-size: 17px;
+  @email-line-height: 23px;
 
   &-name {
     .font-spec(@name-font-size, 700, @name-line-height);
@@ -63,12 +68,12 @@
   }
 
   &-email {
-    .font-spec(@email-font-size, @email-line-height);
+    .font-spec(@email-font-size, 400, @email-line-height);
     color: @color-decor1;
   }
 
   &-body {
-    .font-spec(14px, 19px);
+    .font-spec(14px, 600, 19px);
     color: @color-decor1;
     .padding(9px 10px 20px 10px);
   }
@@ -87,11 +92,15 @@
 
       > i {
         float: left;
+        font-style: normal;
         .width(40px);
         .margin-left(-40px);
         .font-spec(22px, 24px);
         text-align: center;
         color: @color-decor6;
+      }
+      &.fc-customer-info-days > i {
+        .font-spec(15px, 700, 20px);
       }
     }
   }

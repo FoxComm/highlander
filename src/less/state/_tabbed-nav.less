@@ -1,0 +1,36 @@
+.fc-tabbed-nav {
+  &-item {
+    &:hover {
+      margin-bottom: pxtorem(-2px);
+      border-bottom: pxtorem(2px) solid @color-decor7;
+    }
+    a:hover {
+      cursor: pointer;
+      color: @color-decor37;
+    }
+  }
+  &-selected {
+    margin-bottom: pxtorem(-2px);
+    border-bottom: pxtorem(2px) solid @color-decor3;
+    &:hover {
+      border-bottom: pxtorem(2px) solid @color-decor3;
+    }
+    > a,
+    > a:visited {
+      color: @color-decor37;
+    }
+  }
+  &-parent {
+    &:hover {
+      ul {
+        display: block;
+      }
+    }
+  }
+
+  &-dropdown {
+    li:hover {
+      background: @color-decor11;
+    }
+  }
+}

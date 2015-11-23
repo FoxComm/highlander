@@ -4,7 +4,6 @@ import ContentBox from '../content-box/content-box';
 import Addresses from '../addresses/addresses';
 import AddressBox from '../addresses/address-box';
 import { AddButton } from '../common/buttons';
-import EditAddressBox from './address-edit';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import * as CustomerAddressesActions from '../../modules/customers/addresses';

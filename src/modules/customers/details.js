@@ -2,16 +2,27 @@ import _ from 'lodash';
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 import { haveType } from '../state-helpers';
-
+import { assoc } from 'sprout-data';
 
 const receiveCustomer = createAction('CUSTOMER_RECEIVE', (id, customer) => [id, customer]);
 const failCustomer = createAction('CUSTOMER_FAIL', (id, err, source) => [id, err, source]);
 const requestCustomer = createAction('CUSTOMER_REQUEST');
 const updateCustomer = createAction('CUSTOMER_UPDATED', (id, customer) => [id, customer]);
 
-const receiveCustomerCreditCards = createAction('CUSTOMER_CREDIT_CARDS_RECEIVE', (id, cards) => [id, cards]);
-const requestCustomerCreditCards = createAction('CUSTOMER_CREDIT_CARDS_REQUEST');
+// status
+const submitToggleDisableStatus = createAction('CUSTOMER_SUBMIT_DISABLE_STATUS');
+const receivedDisableStatus = createAction('CUSTOMER_RECEIVED_DISABLE_STATUS', (id, customer) => [id, customer]);
 
+const submitToggleBlacklisted = createAction('CUSTOMER_SUBMIT_BLACKLISTED');
+const receivedBlacklisted = createAction('CUSTOMER_RECEIVED_BLACKLISTED', (id, customer) => [id, customer]);
+
+const failChangeStatus = createAction('CUSTOMER_FAIL_CHANGE_STATUS', (id, err) => [id, err]);
+
+export const startDisablingCustomer = createAction('CUSTOMER_START_DISABLING');
+export const stopDisablingCustomer = createAction('CUSTOMER_STOP_DISABLING');
+
+export const startBlacklistCustomer = createAction('CUSTOMER_START_BLACKLIST');
+export const stopBlacklistCustomer = createAction('CUSTOMER_STOP_BLACKLIST');
 
 export function fetchCustomer(id) {
   return dispatch => {
@@ -30,13 +41,25 @@ export function editCustomer(id, data) {
   };
 }
 
-export function fetchCreditCards(id) {
+export function toggleDisableStatus(id, isDisabled) {
   return dispatch => {
-    dispatch(requestCustomerCreditCards(id));
+    dispatch(stopDisablingCustomer());
+    dispatch(submitToggleDisableStatus(id));
 
-    Api.get(`/customers/${id}/payment-methods/credit-cards`)
-      .then(cards => dispatch(receiveCustomerCreditCards(id, cards)))
-      .catch(err => dispatch(failCustomer(id, err, fetchCustomer)));
+    Api.post(`/customers/${id}/disable`, {disabled: isDisabled})
+      .then(customer => dispatch(receivedDisableStatus(id, customer)))
+      .catch(err => dispatch(failChangeStatus(id, err)));
+  };
+}
+
+export function toggleBlacklisted(id, isBlacklisted) {
+  return dispatch => {
+    dispatch(stopBlacklistCustomer());
+    dispatch(submitToggleBlacklisted(id));
+
+    Api.post(`/customers/${id}/blacklist`, {blacklisted: isBlacklisted})
+      .then(customer => dispatch(receivedBlacklisted(id, customer)))
+      .catch(err => dispatch(failChangeStatus(id, err)));
   };
 }
 
@@ -44,68 +67,63 @@ const initialState = {};
 
 const reducer = createReducer({
   [requestCustomer]: (entries, id) => {
-    return {
-      ...entries,
-      [id]: {
-        ...entries[id],
-        isFetching: true,
-        err: null
-      }
-    };
+    return assoc(entries,
+      [id, 'isFetching'], true,
+      [id, 'err'], null
+    );
   },
   [receiveCustomer]: (state, [id, details]) => {
-    return {
-      ...state,
-      [id]: {
-        err: null,
-        isFetching: false,
-        details: haveType(details, 'customer')
-      }
-    };
+    return assoc(state,
+      [id, 'err'], null,
+      [id, 'isFetching'], false,
+      [id, 'details'], haveType(details, 'customer')
+    );
   },
   [failCustomer]: (state, [id, err, source]) => {
     console.error(err);
 
-    return {
-      ...state,
-      [id]: {
-        ...state[id],
-        err,
-        ...(
-          source === fetchCustomer ? {isFetching: false} : {}
-        )
-      }
-    };
+    return assoc(state,
+      [id, 'err'], err,
+      [id, 'isFetching'], false
+    );
   },
   [updateCustomer]: (state, [id, details]) => {
-    return {
-      ...state,
-      [id]: {
-        ...state[id],
-        err: null,
-        details
-      }
-    };
+    return assoc(state,
+      [id, 'details'], details,
+      [id, 'err'], null
+    );
   },
-  [requestCustomerCreditCards]: (state, id) => {
-    return {
-      ...state,
-      [id]: {
-        ...state[id],
-        isFetchingCards: true
-      }
-    };
+  [submitToggleDisableStatus]: (state, id) => {
+    return assoc(state, [id, 'isFetchingStatus'], true);
   },
-  [receiveCustomerCreditCards]: (state, [id, payload]) => {
-    const cards = _.get(payload, 'result', []);
-    return {
-      ...state,
-      [id]: {
-        ...state[id],
-        isFetchingCards: false,
-        cards
-      }
-    };
+  [submitToggleBlacklisted]: (state, id) => {
+    return assoc(state, [id, 'isFetchingStatus'], true);
+  },
+  [receivedDisableStatus]: (state, [id, customer]) => {
+    return assoc(state,
+      [id, 'isFetchingStatus'], false,
+      [id, 'details', 'disabled'],  customer.disabled);
+  },
+  [receivedBlacklisted]: (state, [id, customer]) => {
+    return assoc(state,
+      [id, 'isFetchingStatus'], false,
+      [id, 'details', 'blacklisted'],  customer.blacklisted);
+  },
+  [failChangeStatus]: (state, [id, err]) => {
+    console.error(err);
+    return assoc(state, [id, 'isFetchingStatus'], false);
+  },
+  [startDisablingCustomer]: (state) => {
+    return assoc(state, 'isDisablingStarted', true);
+  },
+  [stopDisablingCustomer]: (state) => {
+    return assoc(state, 'isDisablingStarted', false);
+  },
+  [startBlacklistCustomer]: (state) => {
+    return assoc(state, 'isBlacklistedStarted', true);
+  },
+  [stopBlacklistCustomer]: (state) => {
+    return assoc(state, 'isBlacklistedStarted', false);
   }
 }, initialState);
 

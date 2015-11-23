@@ -4,7 +4,6 @@ import { autobind } from 'core-decorators';
 import ConfirmationDialog from '../modal/confirmation-dialog';
 import { PrimaryButton } from '../../components/common/buttons';
 import SectionTitle from '../section-title/section-title';
-import ContentBox from '../content-box/content-box';
 import TableView from '../table/tableview';
 import TableRow from '../table/row';
 import TableCell from '../table/cell';
@@ -66,8 +65,8 @@ export default class Notes extends React.Component {
 
   static defaultProps = {
     tableColumns: [
-      {field: 'createdAt', text: 'Date/Type'},
-      {field: 'body', text: 'Body'},
+      {field: 'createdAt', text: 'Date/Time'},
+      {field: 'body', text: 'Note'},
       {field: 'author', text: 'Author'}
     ]
   };
@@ -136,10 +135,17 @@ export default class Notes extends React.Component {
     );
   }
 
+  get sectionClassName() {
+    const entityType = this.props.entity.entityType;
+    return `fc-${entityType}-notes`;
+  }
+
   render() {
     return (
-      <div>
-        <SectionTitle className="fc-grid-gutter" title="Notes">{this.controls}</SectionTitle>
+      <div className={this.sectionClassName} >
+        <SectionTitle className="fc-grid-gutter fc-notes-section-title"
+                      title="Notes"
+                      isPrimary={false}>{this.controls}</SectionTitle>
         <TableView
           renderRow={this.renderNoteRow}
           processRows={this.injectAddingForm}
