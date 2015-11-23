@@ -19,7 +19,6 @@ function mapDispatchToProps(dispatch, props) {
 @connect((state, props) => ({
   ...state.customers.details[props.customerId]
 }), mapDispatchToProps)
-
 export default class CustomerContacts extends React.Component {
 
   static propTypes = {
@@ -30,8 +29,8 @@ export default class CustomerContacts extends React.Component {
     isContactsEditing: PropTypes.bool
   };
 
-  constructor(props, context) {
-    super(props, context);
+  constructor(props, ...args) {
+    super(props, ...args);
     this.state = {
       name: props.details.name,
       email: props.details.email,
@@ -124,7 +123,7 @@ export default class CustomerContacts extends React.Component {
   get formActions() {
     if (this.props.isContactsEditing) {
       return (
-        <div>
+        <div className='fc-customer-form-actions'>
           <a className='fc-customer-cancel-edit' onClick={ this.props.toggleEditCustomer }>
             Cancel
           </a>
