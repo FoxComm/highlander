@@ -1,13 +1,14 @@
 package utils
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.ExecutionContext
 
-import services.Failures
+import services.{Result, Failures}
 import cats.{Monad, Applicative, Functor}
 import cats.data.{Validated, XorT, Xor}
 import scala.collection.generic.CanBuildFrom
 import slick.driver.PostgresDriver.api._
 import slick.profile.SqlAction
+import utils.Slick.implicits._
 
 object DbResultT {
   type DbResultT[A] = XorT[DBIO, Failures, A]
@@ -74,4 +75,10 @@ object DbResultT {
     def <~[A](v: Validated[Failures, A])(implicit ec: ExecutionContext): DbResultT[A] =
       DbResultT.fromXor(v.toXor)
   }
+
+  implicit class EnrichedDbResultT[A](dbResultT: DbResultT[A]) {
+    def runT(txn: Boolean = true)(implicit ec: ExecutionContext, db: Database): Result[A] =
+      if (txn) dbResultT.value.transactionally.run() else dbResultT.value.run()
+  }
+
 }

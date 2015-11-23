@@ -11,7 +11,7 @@ import responses.CustomerResponse._
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 
-import utils.DbResultT.*
+import utils.DbResultT._
 import utils.DbResultT.implicits._
 
 import utils.Slick.implicits._
@@ -27,7 +27,7 @@ object CustomerManager {
     (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
       customer ← * <~ Customers.mustFindById(customerId, customerNotFound)
       updated ← * <~ Customers.update(customer, customer.copy(isDisabled = disabled, disabledBy = Some(admin.id)))
-    } yield build(updated)).value.run()
+    } yield build(updated)).runT()
 
 
   // TODO: add blacklistedReason later
@@ -36,7 +36,7 @@ object CustomerManager {
       customer ← * <~ Customers.mustFindById(customerId, customerNotFound)
       updated ← * <~ Customers.update(customer, customer.copy(isBlacklisted = blacklisted, blacklistedBy = Some(admin
         .id)))
-    } yield build(updated)).value.run()
+    } yield build(updated)).runT()
 
   def findAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
     val query = Customers.withRegionsAndRank
@@ -139,7 +139,7 @@ object CustomerManager {
           email = payload.email.getOrElse(customer.email),
           phoneNumber = payload.phoneNumber.fold(customer.phoneNumber)(Some(_))
         ))
-      } yield build(updated)).value.transactionally.run()
+      } yield build(updated)).runT()
     } { (NotUnique, CustomerEmailNotUnique) }
 
   }

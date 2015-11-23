@@ -491,7 +491,7 @@ class RmaIntegrationTest extends IntegrationTestBase
         orderId = order.id,
         orderRefNum = order.referenceNumber,
         customerId = customer.id))
-    } yield (storeAdmin, customer, order, rma)).value.run().futureValue.rightVal
+    } yield (storeAdmin, customer, order, rma)).runT(txn = false).futureValue.rightVal
   }
 
   trait LineItemFixture extends Fixture {
@@ -517,6 +517,6 @@ class RmaIntegrationTest extends IntegrationTestBase
       orderShippingMethod ← * <~ OrderShippingMethods.create(
         OrderShippingMethod(orderId = order.id, shippingMethodId = shippingMethod.id))
       shipment ← * <~ Shipments.create(Factories.shipment)
-    } yield (reason, sku, giftCard, shipment)).value.run().futureValue.rightVal
+    } yield (reason, sku, giftCard, shipment)).runT(txn = false).futureValue.rightVal
   }
 }

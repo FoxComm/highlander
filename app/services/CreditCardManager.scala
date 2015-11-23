@@ -12,18 +12,14 @@ import models.OrderPayments.scope._
 import models.Orders.scope._
 import models.{Region, Regions, Address, Addresses, CreditCard, CreditCards, Customer, OrderPayments, Orders}
 import payloads.{CreateAddressPayload, CreateCreditCard, EditCreditCard}
-import slick.dbio
-import slick.dbio.Effect.All
 
 import slick.driver.PostgresDriver.api._
 import utils.Apis
-import utils.CustomDirectives.SortAndPage
-import utils.Slick.DbResult
 import utils.Slick.UpdateReturning._
 import utils.Slick.implicits._
 import utils.jdbc._
 
-import utils.DbResultT.*
+import utils.DbResultT._
 import utils.DbResultT.implicits._
 
 import utils.time.JavaTimeSlickMapper.instantAndTimestampWithoutZone
@@ -94,7 +90,7 @@ object CreditCardManager {
         cc      ← * <~ CreditCards.findById(cardId).extract.filter(_.customerId === customerId).map(_.isDefault).
           updateReturningHeadOption(CreditCards.map(identity), isDefault, ifNotFound)
         region  ← * <~ Regions.findOneById(cc.regionId).safeGet.toXor
-      } yield buildResponse(cc, region)).value.run()
+      } yield buildResponse(cc, region)).runT()
     } { (NotUnique, CustomerHasDefaultCreditCard) }
   }
 

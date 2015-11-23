@@ -11,7 +11,7 @@ import utils.CustomDirectives
 import utils.CustomDirectives.SortAndPage
 import utils.Slick.DbResult
 import utils.Slick.implicits._
-import utils.DbResultT.*
+import utils.DbResultT._
 import utils.DbResultT.implicits._
 import orders.Helpers._
 
@@ -30,7 +30,7 @@ object OrderAssignmentUpdater {
     newOrder  ← * <~ (inserts >> Orders.findByRefNum(refNum).result.head.toXor)
     fullOrder ← * <~ FullOrder.fromOrder(newOrder).toXor
     warnings  = requestedAssigneeIds.diff(adminIds).map(NotFoundFailure404(StoreAdmin, _))
-  } yield FullOrderWithWarnings(fullOrder, warnings)).value.transactionally.run()
+  } yield FullOrderWithWarnings(fullOrder, warnings)).runT()
 
   def assign(payload: payloads.BulkAssignment)
     (implicit ec: ExecutionContext, db: Database, sortAndPage: SortAndPage): Result[BulkOrderUpdateResponse] = {

@@ -19,7 +19,7 @@ import OrderPayments.scope._
 import utils.Litterbox._
 import utils.{TableQueryWithId, friendlyClassName}
 
-import utils.DbResultT.*
+import utils.DbResultT._
 import utils.DbResultT.implicits._
 
 /*

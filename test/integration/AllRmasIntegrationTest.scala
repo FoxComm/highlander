@@ -28,7 +28,7 @@ class AllRmasIntegrationTest extends IntegrationTestBase
   import Extensions._
   import api._
 
-  import utils.DbResultT.*
+  import utils.DbResultT._
   import DbResultT.implicits._
 
   // paging and sorting API
@@ -57,7 +57,7 @@ class AllRmasIntegrationTest extends IntegrationTestBase
       _ ← * <~ (Rmas ++= insertRmas)
     } yield ()
 
-    dbio.value.transactionally.run().futureValue
+    dbio.runT().futureValue
     getAllRmas.toIndexedSeq
   }
 
