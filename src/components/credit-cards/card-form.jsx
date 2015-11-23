@@ -20,7 +20,7 @@ export default class CreditCardForm extends React.Component {
     isNew: PropTypes.bool,
     form: PropTypes.object,
     addresses: PropTypes.array
-  }
+  };
 
   constructor(...args) {
     super(...args);
@@ -98,7 +98,7 @@ export default class CreditCardForm extends React.Component {
                                      customerId={ this.props.customerId }
                                      onItemSelect={ this.onAddressChange } />) :
                     ( <AddressDetails customerId={ this.props.customerId }
-                                      address={ this.props.card } />);
+                                      address={ this.props.card.address } />);
     return block;
   }
 
