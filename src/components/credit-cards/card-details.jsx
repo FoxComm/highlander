@@ -14,22 +14,12 @@ export default class CreditCardDetails extends React.Component {
   }
 
   render() {
-    let card = this.props.card;
+    const card = this.props.card;
 
     let paymentMethod = {
       cardType: 'visa',
       cardExp: `${card.expMonth}/${card.expYear}`,
       cardNumber: `xxxx-xxxx-xxxx-${card.lastFour}`
-    };
-
-    // @TODO: get rid of this ad-hoc after
-    // this task https://www.pivotaltracker.com/n/projects/1352060/stories/108365902 is solved
-    // @TODO2: create GH/pivotal issue for that!
-    card = {
-      ...card,
-      region: {
-        countryId: 21
-      }
     };
 
     return (
@@ -45,7 +35,7 @@ export default class CreditCardDetails extends React.Component {
           <dt>Billing Address</dt>
           <dd>
             <AddressDetails customerId={ this.props.customerId }
-                            address={ card } />
+                            address={ card.address } />
           </dd>
         </dl>
       </div>

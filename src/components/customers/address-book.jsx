@@ -7,10 +7,14 @@ import { AddButton } from '../common/buttons';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import * as CustomerAddressesActions from '../../modules/customers/addresses';
+import * as AddressesActions from '../../modules/addresses';
 
 @connect((state, props) => ({
   ...state.customers.addresses[props.customerId]
-}), CustomerAddressesActions)
+}), {
+  ...CustomerAddressesActions,
+  ...AddressesActions
+})
 export default class CustomerAddressBook extends React.Component {
 
   static propTypes = {

@@ -141,8 +141,7 @@ const reducer = createReducer({
   [requestCustomerCreditCards]: (state, id) => {
     return assoc(state, [id, 'isFetching'], true);
   },
-  [receiveCustomerCreditCards]: (state, [id, payload]) => {
-    const cards = _.get(payload, 'result', []);
+  [receiveCustomerCreditCards]: (state, [id, cards]) => {
     return assoc(state, [id, 'cards'], cards, [id, 'isFetiching'], false);
   },
   [failCustomerCreditCards]: (state, [id, err]) => {
