@@ -52,18 +52,18 @@ function fetchForCustomer(id, dispatch) {
     });
 }
 
-function setDefaultCreditCard(customerId, cardId, onSuccess) {
+function setDefaultCreditCard(customerId, cardId, onSuccess, onError) {
   const payload = {isDefault: true};
   Api.post(creditCardDefaultUrl(customerId, cardId), payload)
-    .then(() => onSuccess());
+    .then(() => onSuccess())
+    .catch(err => dispatch(failCustomerCreditCards(customerId, err)));
 }
 
-function resetDefaultCreditCard(customerId, cardId, currentDefaultId, onSuccess) {
+function resetDefaultCreditCard(customerId, cardId, currentDefaultId, onSuccess, onError) {
   const resetPayload = {isDefault: false};
   Api.post(creditCardDefaultUrl(customerId, currentDefaultId), resetPayload)
-    .then(() => {
-      setDefaultCreditCard(customerId, cardId, onSuccess);
-    });
+    .then(() => setDefaultCreditCard(customerId, cardId, onSuccess))
+    .catch(err => dispatch(failCustomerCreditCards(customerId, err)));
 }
 
 export function fetchCreditCards(id) {
