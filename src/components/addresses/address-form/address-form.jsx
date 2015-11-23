@@ -50,7 +50,12 @@ export default class AddressForm extends React.Component {
     customerId: PropTypes.number,
     onSaved: PropTypes.func,
     closeAction: PropTypes.func.isRequired,
-    submitAction: PropTypes.func
+    submitAction: PropTypes.func,
+    showFormTitle: PropTypes.bool
+  };
+
+  static defaultProps = {
+    showFormTitle: true
   };
 
   componentDidMount() {
@@ -147,6 +152,18 @@ export default class AddressForm extends React.Component {
     return <ErrorAlerts error={this.props.err} />;
   }
 
+  get formTitle() {
+    if (this.props.showFormTitle) {
+      const title = props.isAdding ? 'New Address' : 'Edit Address';
+
+      return (
+        <li>
+          <div className="fc-address-form-field-title">{title}</div>
+        </li>
+      );
+    }
+  }
+
   render() {
     const props = this.props;
     const formData = props.formData;
@@ -154,7 +171,6 @@ export default class AddressForm extends React.Component {
 
     const countryCode = this.countryCode;
     const regions = props.country && props.country.regions || [];
-    const title = props.isAdding ? 'New Address' : 'Edit Address';
 
     return (
       <div className="fc-address-form">
@@ -163,9 +179,7 @@ export default class AddressForm extends React.Component {
           <Form onSubmit={this.handleFormSubmit}
                 onChange={this.handleFormChange}>
             <ul className="fc-address-form-fields">
-              <li>
-                <div className="fc-address-form-field-title">{title}</div>
-              </li>
+              { this.formTitle }
               <li>
                 <FormField label="Name" validator="ascii" maxLength={255}>
                   <input name="name" type="text" value={formData.name} required />

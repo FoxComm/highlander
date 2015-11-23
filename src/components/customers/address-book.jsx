@@ -57,6 +57,7 @@ export default class CustomerAddressBook extends React.Component {
             address={address}
             customerId={props.customerId}
             closeAction={() => props.stopEditingAddress(address.id)}
+            showFormTitle={ false }
           />
         </AddressBox>
       );
