@@ -47,7 +47,7 @@ export function updateLineItemCount(order, sku, quantity, confirmDelete = true) 
           dispatch(orderLineItemsRequestSuccess(sku));
           dispatch(orderSuccess(order));
         })
-        .catch(err => dispatch(orderLineItemsRequestFailed(err, updateLineItemCount)));
+        .catch(err => { console.log(err); dispatch(orderLineItemsRequestFailed(err, updateLineItemCount)); } );
     }
   };
 }

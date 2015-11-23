@@ -8,7 +8,9 @@ const { reducer, ...actions } = importModule('orders/details.js', [
   'orderLineItemsStartEdit',
   'orderLineItemsCancelEdit',
   'orderRequest',
-  'orderSuccess'
+  'orderSuccess',
+  'updateLineItemCount',
+  'orderLineItemsRequest'
 ]);
 
 describe('order details module', function() {
@@ -149,14 +151,17 @@ describe('order details module', function() {
   context('async actions', function() {
 
     const orderUrl = refNum => `/api/v1/orders/${refNum}`;
+    const orderLineItemsUrl = refNum => orderUrl(refNum) + '/line-items';
+    const orderRef = 'ABCD1234-11';
+    const sku = 'SKU-ABC';
+    const orderPayload = require('../../../fixtures/order.json');
 
     context('fetching orders', function() {
-      const orderRef = 'ABC-123';
 
       before(function() {
         nock(phoenixUrl)
           .get(orderUrl(orderRef))
-          .reply(200, {});
+          .reply(200, orderPayload);
       });
 
       after(function() {
@@ -174,14 +179,13 @@ describe('order details module', function() {
     });
 
     context('updating orders on server', function() {
-      const orderRef = 'ABC-123';
 
       before(function() {
         nock(phoenixUrl)
           .get(orderUrl(orderRef))
-          .reply(200, {})
+          .reply(200, orderPayload)
           .patch(orderUrl(orderRef))
-          .reply(200, {});
+          .reply(200, orderPayload);
       });
 
       after(function() {
@@ -196,6 +200,52 @@ describe('order details module', function() {
 
         yield expect(actions.fetchOrder(orderRef), 'to dispatch actions', expectedActions);
       });
+    });
+
+    context('deleting line items', function() {
+
+      beforeEach(function() {
+        nock(phoenixUrl)
+          .get(orderUrl(orderRef))
+          .reply(200, orderPayload)
+          .post(orderLineItemsUrl(orderRef))
+          .reply(200, orderPayload);
+      });
+
+      afterEach(function() {
+        nock.cleanAll();
+      });
+
+      it('should trigger delete confirmation firstly', function*() {
+        const expectedActions = [
+          actions.orderLineItemsStartDelete
+        ];
+
+        yield expect(actions.updateLineItemCount(orderRef, sku, 0), 'to dispatch actions', expectedActions);
+      });
+
+      it('should trigger delete API calls and proper actions', function*() {
+        const expectedActions = [
+          actions.orderLineItemsRequest,
+          actions.orderLineItemsRequestSuccess,
+          actions.orderSuccess
+        ];
+
+        yield expect(actions.updateLineItemCount({referenceNumber: orderRef}, sku, 0, false),
+                     'to dispatch actions', expectedActions);
+      });
+
+      it('deleteLineItem should trigger line item delete actions', function*() {
+        const expectedActions = [
+          actions.orderLineItemsRequest,
+          actions.orderLineItemsRequestSuccess,
+          actions.orderSuccess
+        ];
+
+        yield expect(actions.deleteLineItem({referenceNumber: orderRef}, sku),
+                     'to dispatch actions', expectedActions);
+      });
+
     });
 
   });
