@@ -5,6 +5,14 @@ import AddressDetails from './address-details';
 import EditableItemCardContainer from '../item-card-container/editable-item-card-container';
 import { Button } from '../common/buttons';
 
+const AddressBoxMainAction = props => {
+  return (
+    <div className="fc-address-main-action" {...props}>
+      {props.children}
+    </div>
+  );
+};
+
 export default class AddressBox extends React.Component {
 
   static propTypes = {
@@ -14,7 +22,8 @@ export default class AddressBox extends React.Component {
     checkboxLabel: PropTypes.string,
     deleteAction: PropTypes.func,
     chooseAction: PropTypes.func,
-    choosen: PropTypes.bool
+    choosen: PropTypes.bool,
+    actionBlock: PropTypes.node
   };
 
   static defaultProps = {
@@ -26,14 +35,27 @@ export default class AddressBox extends React.Component {
 
     if (props.chooseAction) {
       return (
-        <div>
-          <Button className="fc-address-choose"
-                  onClick={() => props.chooseAction(props.address)} disabled={props.choosen}>
+        <AddressBoxMainAction>
+          <Button onClick={() => props.chooseAction(props.address)} disabled={props.choosen}>
             Choose
           </Button>
-        </div>
+        </AddressBoxMainAction>
       );
     }
+  }
+
+  get mainActionBlock() {
+    const props = this.props;
+
+    if (props.actionBlock) {
+      return (
+        <AddressBoxMainAction>
+          {props.actionBlock}
+        </AddressBoxMainAction>
+      );
+    }
+
+    return this.chooseButton;
   }
 
   render() {
@@ -48,7 +70,7 @@ export default class AddressBox extends React.Component {
                                  editHandler={() => props.editAction(address) }
                                  deleteHandler={ props.deleteAction && () => props.deleteAction(address) }>
         <AddressDetails address={address} />
-        { this.chooseButton }
+        { this.mainActionBlock }
       </EditableItemCardContainer>
     );
   }

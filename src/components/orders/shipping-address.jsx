@@ -2,7 +2,7 @@
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import React, { PropTypes } from 'react';
-import { EditButton, PrimaryButton, AddButton } from '../common/buttons';
+import { EditButton, PrimaryButton, AddButton, Button } from '../common/buttons';
 import Addresses from '../addresses/addresses';
 import AddressBox from '../addresses/address-box';
 import AddressDetails from '../addresses/address-details';
@@ -51,10 +51,14 @@ export default class OrderShippingAddress extends React.Component {
     const props = this.props;
     const address = props.order.shippingAddress;
 
-    let deleteAction = null;
+    let actionBlock = null;
 
     if (props.order.orderStatus === 'cart') {
-      deleteAction = () => props.startDeletingAddress(address.id, addressTypes.SHIPPING);
+      actionBlock = (
+        <Button onClick={() => props.startDeletingAddress(address.id, addressTypes.SHIPPING)}>
+          Remove shipping address
+        </Button>
+      );
     }
 
     if (address) {
@@ -65,7 +69,7 @@ export default class OrderShippingAddress extends React.Component {
             choosen={true}
             checkboxLabel={null}
             editAction={() => props.startEditingAddress(address.id, addressTypes.SHIPPING)}
-            deleteAction={ deleteAction }
+            actionBlock={ actionBlock }
           />
         </ul>
       );
@@ -96,7 +100,7 @@ export default class OrderShippingAddress extends React.Component {
         <ConfirmationDialog
           isVisible={ props.deletingAddress && props.deletingAddress.type === addressTypes.SHIPPING }
           header='Confirm'
-          body='Are you sure you want to delete this address?'
+          body='Are you sure you want to remove shipping address from order?'
           cancel='Cancel'
           confirm='Yes, Delete'
           cancelAction={() => props.stopDeletingAddress() }
