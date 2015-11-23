@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { PrimaryButton } from '../common/buttons';
 import { Checkbox } from '../checkbox/checkbox';
@@ -110,10 +111,7 @@ export default class CreditCardForm extends React.Component {
 
   get addressSelectBlock() {
     let block = null;
-    let addressId = null;
-    if (this.props.card !== undefined && this.props.card.address !== undefined) {
-      addressId = this.props.card.address.id;
-    }
+    let addressId = _.get(this.props, 'card.address.id');
     if (this.props.isNew) {
       block = (
         <li className="fc-credit-card-form-line">
