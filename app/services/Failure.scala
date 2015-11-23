@@ -43,6 +43,10 @@ final case class GeneralFailure(a: String) extends Failure {
   override def description = List(a)
 }
 
+final case class ShipmentNotFoundFailure(orderRefNum: String) extends Failure {
+  override def description = List(s"No shipments found for order with refNum=$orderRefNum")
+}
+
 case object EmptyCancellationReasonFailure extends Failure {
   override def description = List("Please provide valid cancellation reason")
 }

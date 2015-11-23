@@ -1,5 +1,7 @@
 package models
 
+import java.time.Instant
+
 import com.pellucid.sealerate
 import models.RmaReason.{ReasonType, BaseReason}
 import models.Rma.{RmaType, Standard}
@@ -9,7 +11,8 @@ import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId}
 
-final case class RmaReason(id: Int = 0, name: String, reasonType: ReasonType = BaseReason, rmaType: RmaType = Standard)
+final case class RmaReason(id: Int = 0, name: String, reasonType: ReasonType = BaseReason, rmaType: RmaType = Standard,
+  createdAt: Instant = Instant.now, deletedAt: Option[Instant] = None)
   extends ModelWithIdParameter[RmaReason] {
 
 }
@@ -31,8 +34,10 @@ class RmaReasons(tag: Tag) extends GenericTable.TableWithId[RmaReason](tag, "rma
   def name = column[String]("name")
   def reasonType = column[ReasonType]("reason_type")
   def rmaType = column[RmaType]("rma_type")
+  def createdAt = column[Instant]("created_at")
+  def deletedAt = column[Option[Instant]]("deleted_at")
 
-  def * = (id, name, reasonType, rmaType) <> ((RmaReason.apply _).tupled, RmaReason.unapply)
+  def * = (id, name, reasonType, rmaType, createdAt, deletedAt) <> ((RmaReason.apply _).tupled, RmaReason.unapply)
 }
 
 object RmaReasons extends TableQueryWithId[RmaReason, RmaReasons](

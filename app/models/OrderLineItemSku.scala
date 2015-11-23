@@ -26,13 +26,11 @@ object OrderLineItemSkus extends TableQueryWithId[OrderLineItemSku, OrderLineIte
   def findByOrderId(orderId: Rep[Int]): QuerySeq =
     filter(_.orderId === orderId)
 
-  def findLineItemsByOrder(order: Order): Query[(Skus, OrderLineItems), (Sku, OrderLineItem), Seq] = {
-    for {
-      liSku ← findByOrderId(order.id)
-      li ← OrderLineItems if li.originId === liSku.id
-      sku ← Skus if sku.id === liSku.skuId
-    } yield (sku, li)
-  }
+  def findLineItemsByOrder(order: Order): Query[(Skus, OrderLineItems), (Sku, OrderLineItem), Seq] = for {
+    liSku ← findByOrderId(order.id)
+    li ← OrderLineItems if li.originId === liSku.id
+    sku ← Skus if sku.id === liSku.skuId
+  } yield (sku, li)
 
   object scope {
     implicit class OrderLineItemSkusQuerySeqConversions(q: QuerySeq) {

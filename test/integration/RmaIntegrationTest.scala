@@ -6,14 +6,18 @@ import scala.concurrent.Future
 import Extensions._
 import models._
 import org.json4s.jackson.JsonMethods._
-import payloads.{RmaMessageToCustomerPayload, RmaCreatePayload, RmaAssigneesPayload}
+import payloads._
 import responses.{AllRmas, StoreAdminResponse, ResponseWithFailuresAndMetadata, RmaResponse, RmaLockResponse}
 import responses.RmaResponse.FullRmaWithWarnings
 import services._
 import services.rmas._
+import utils.DbResultT
+import utils.DbResultT._
+import DbResultT.implicits._
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import utils.time._
+import utils.Money.Currency
 import utils.Slick.implicits._
 import slick.driver.PostgresDriver.api._
 
@@ -294,18 +298,225 @@ class RmaIntegrationTest extends IntegrationTestBase
     }
   }
 
+  "RMA Line Items" - {
+    // SKU Line Items
+    "POST /v1/rmas/:refNum/line-items/skus" - {
+      "successfully adds SKU line item" in new LineItemFixture {
+        val payload = RmaSkuLineItemsPayload(sku = sku.sku, quantity = 1, reasonId = reason.id,
+          isReturnItem = true, inventoryDisposition = RmaLineItem.Putaway)
+        val response = POST(s"v1/rmas/${rma.referenceNumber}/line-items/skus", payload)
+        response.status must === (StatusCodes.OK)
+
+        val root = response.as[RmaResponse.Root]
+        root.lineItems.skus.headOption.value.sku.sku must === (sku.sku)
+      }
+
+      "fails if refNum is not found" in new LineItemFixture {
+        val payload = RmaSkuLineItemsPayload(sku = "ABC-666", quantity = 1, reasonId = reason.id,
+          isReturnItem = true, inventoryDisposition = RmaLineItem.Putaway)
+        val response = POST(s"v1/rmas/ABC-666/line-items/skus", payload)
+
+        response.status must === (StatusCodes.NotFound)
+        response.errors must === (NotFoundFailure404(Rma, "ABC-666").description)
+      }
+
+      "fails if reason is not found" in new LineItemFixture {
+        val payload = RmaSkuLineItemsPayload(sku = "ABC-666", quantity = 1, reasonId = 100,
+          isReturnItem = true, inventoryDisposition = RmaLineItem.Putaway)
+        val response = POST(s"v1/rmas/${rma.referenceNumber}/line-items/skus", payload)
+
+        response.status must === (StatusCodes.BadRequest)
+        response.errors must === (NotFoundFailure400(RmaReason, 100).description)
+      }
+
+      "fails if quantity is invalid" in new LineItemFixture {
+        val payload = RmaSkuLineItemsPayload(sku = "ABC-666", quantity = 0, reasonId = 1,
+          isReturnItem = true, inventoryDisposition = RmaLineItem.Putaway)
+        val response = POST(s"v1/rmas/${rma.referenceNumber}/line-items/skus", payload)
+
+        response.status must === (StatusCodes.BadRequest)
+        response.errors must === (GeneralFailure("Quantity got 0, expected more than 0").description)
+      }
+    }
+
+    "DELETE /v1/rmas/:refNum/line-items/skus/:id" - {
+      "successfully deletes SKU line item" in new LineItemFixture {
+        // Create
+        val payload = RmaSkuLineItemsPayload(sku = sku.sku, quantity = 1, reasonId = reason.id,
+          isReturnItem = true, inventoryDisposition = RmaLineItem.Putaway)
+        val updatedRma = RmaLineItemUpdater.addSkuLineItem(rma.referenceNumber, payload).futureValue.rightVal
+        val lineItemId = updatedRma.lineItems.skus.headOption.value.lineItemId
+
+        // Delete
+        val response = DELETE(s"v1/rmas/${rma.referenceNumber}/line-items/skus/$lineItemId")
+        response.status must === (StatusCodes.OK)
+        val root = response.as[RmaResponse.Root]
+        root.lineItems.skus mustBe 'empty
+      }
+
+      "fails if refNum is not found" in new LineItemFixture {
+        val response = DELETE(s"v1/rmas/ABC-666/line-items/skus/1")
+        response.status must === (StatusCodes.NotFound)
+        response.errors must === (NotFoundFailure404(Rma, "ABC-666").description)
+      }
+
+      "fails if line item ID is not found" in new LineItemFixture {
+        val response = DELETE(s"v1/rmas/${rma.referenceNumber}/line-items/skus/666")
+        response.status must === (StatusCodes.BadRequest)
+        response.errors must === (NotFoundFailure400(RmaLineItem, 666).description)
+      }
+    }
+
+    // Gift Card Line Items
+    "POST /v1/rmas/:refNum/line-items/gift-cards" - {
+      "successfully adds gift card line item" in new LineItemFixture {
+        val payload = RmaGiftCardLineItemsPayload(code = giftCard.code, reasonId = reason.id)
+        val response = POST(s"v1/rmas/${rma.referenceNumber}/line-items/gift-cards", payload)
+        response.status must === (StatusCodes.OK)
+
+        val root = response.as[RmaResponse.Root]
+        root.lineItems.giftCards.headOption.value.giftCard.code must === (giftCard.code)
+      }
+
+      "fails if refNum is not found" in new LineItemFixture {
+        val payload = RmaGiftCardLineItemsPayload(code = "ABC-666", reasonId = reason.id)
+        val response = POST(s"v1/rmas/ABC-666/line-items/gift-cards", payload)
+
+        response.status must === (StatusCodes.NotFound)
+        response.errors must === (NotFoundFailure404(Rma, "ABC-666").description)
+      }
+
+      "fails if reason is not found" in new LineItemFixture {
+        val payload = RmaGiftCardLineItemsPayload(code = "ABC-666", reasonId = 100)
+        val response = POST(s"v1/rmas/${rma.referenceNumber}/line-items/gift-cards", payload)
+
+        response.status must === (StatusCodes.BadRequest)
+        response.errors must === (NotFoundFailure400(RmaReason, 100).description)
+      }
+    }
+
+    "DELETE /v1/rmas/:refNum/line-items/gift-cards/:id" - {
+      "successfully deletes gift card line item" in new LineItemFixture {
+        // Create
+        val payload = RmaGiftCardLineItemsPayload(code = giftCard.code, reasonId = reason.id)
+        val updatedRma = RmaLineItemUpdater.addGiftCardLineItem(rma.referenceNumber, payload).futureValue.rightVal
+        val lineItemId = updatedRma.lineItems.giftCards.headOption.value.lineItemId
+
+        // Delete
+        val response = DELETE(s"v1/rmas/${rma.referenceNumber}/line-items/gift-cards/$lineItemId")
+        response.status must === (StatusCodes.OK)
+        val root = response.as[RmaResponse.Root]
+        root.lineItems.giftCards mustBe 'empty
+      }
+
+      "fails if refNum is not found" in new LineItemFixture {
+        val response = DELETE(s"v1/rmas/ABC-666/line-items/gift-cards/1")
+        response.status must === (StatusCodes.NotFound)
+        response.errors must === (NotFoundFailure404(Rma, "ABC-666").description)
+      }
+
+      "fails if line item ID is not found" in new LineItemFixture {
+        val response = DELETE(s"v1/rmas/${rma.referenceNumber}/line-items/gift-cards/666")
+        response.status must === (StatusCodes.BadRequest)
+        response.errors must === (NotFoundFailure400(RmaLineItem, 666).description)
+      }
+    }
+
+    // Shipping Costs Line Items
+    "POST /v1/rmas/:refNum/line-items/shipping-costs" - {
+      "successfully adds shipping cost line item" in new LineItemFixture {
+        val payload = RmaShippingCostLineItemsPayload(reasonId = reason.id)
+        val response = POST(s"v1/rmas/${rma.referenceNumber}/line-items/shipping-costs", payload)
+        response.status must === (StatusCodes.OK)
+
+        val root = response.as[RmaResponse.Root]
+        root.lineItems.shippingCosts.headOption.value.shippingCost.id must === (shipment.id)
+      }
+
+
+      "fails if refNum is not found" in new LineItemFixture {
+        val payload = RmaShippingCostLineItemsPayload(reasonId = reason.id)
+        val response = POST(s"v1/rmas/ABC-666/line-items/shipping-costs", payload)
+
+        response.status must === (StatusCodes.NotFound)
+        response.errors must === (NotFoundFailure404(Rma, "ABC-666").description)
+      }
+
+      "fails if reason is not found" in new LineItemFixture {
+        val payload = RmaShippingCostLineItemsPayload(reasonId = 100)
+        val response = POST(s"v1/rmas/${rma.referenceNumber}/line-items/shipping-costs", payload)
+
+        response.status must === (StatusCodes.BadRequest)
+        response.errors must === (NotFoundFailure400(RmaReason, 100).description)
+      }
+    }
+
+    "DELETE /v1/rmas/:refNum/line-items/shipping-costs/:id" - {
+      "successfully deletes shipping cost line item" in new LineItemFixture {
+        // Create
+        val payload = RmaShippingCostLineItemsPayload(reasonId = reason.id)
+        val updatedRma = RmaLineItemUpdater.addShippingCostItem(rma.referenceNumber, payload).futureValue.rightVal
+        val lineItemId = updatedRma.lineItems.shippingCosts.headOption.value.lineItemId
+
+        // Delete
+        val response = DELETE(s"v1/rmas/${rma.referenceNumber}/line-items/shipping-costs/$lineItemId")
+        response.status must === (StatusCodes.OK)
+        val root = response.as[RmaResponse.Root]
+        root.lineItems.shippingCosts mustBe 'empty
+      }
+
+      "fails if refNum is not found" in new LineItemFixture {
+        val response = DELETE(s"v1/rmas/ABC-666/line-items/shipping-costs/1")
+        response.status must === (StatusCodes.NotFound)
+        response.errors must === (NotFoundFailure404(Rma, "ABC-666").description)
+      }
+
+      "fails if line item ID is not found" in new LineItemFixture {
+        val response = DELETE(s"v1/rmas/${rma.referenceNumber}/line-items/shipping-costs/666")
+        response.status must === (StatusCodes.BadRequest)
+        response.errors must === (NotFoundFailure400(RmaLineItem, 666).description)
+      }
+    }
+  }
+
   trait Fixture {
     val (storeAdmin, customer, order, rma) = (for {
-      storeAdmin ← StoreAdmins.create(Factories.storeAdmin).map(rightValue)
-      customer ← Customers.create(Factories.customer).map(rightValue)
-      order ← Orders.create(Factories.order.copy(
+      storeAdmin ← * <~ StoreAdmins.create(Factories.storeAdmin)
+      customer ← * <~ Customers.create(Factories.customer)
+      order ← * <~ Orders.create(Factories.order.copy(
         status = Order.RemorseHold,
         customerId = customer.id,
-        remorsePeriodEnd = Some(Instant.now.plusMinutes(30)))).map(rightValue)
-      rma ← Rmas.create(Factories.rma.copy(
+        remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
+      rma ← * <~ Rmas.create(Factories.rma.copy(
         orderId = order.id,
         orderRefNum = order.referenceNumber,
-        customerId = customer.id)).map(rightValue)
-    } yield (storeAdmin, customer, order, rma)).run().futureValue
+        customerId = customer.id))
+    } yield (storeAdmin, customer, order, rma)).value.run().futureValue.rightVal
+  }
+
+  trait LineItemFixture extends Fixture {
+    val (reason, sku, giftCard, shipment) = (for {
+      reason ← * <~ RmaReasons.create(Factories.rmaReasons.head)
+      sku ← * <~ Skus.create(Factories.skus.head)
+      skuLineItem ← * <~ OrderLineItemSkus.create(Factories.orderLineItemSkus.head)
+      lineItem1 ← * <~ OrderLineItems.create(Factories.orderLineItems.head.copy(originId = skuLineItem.id,
+        originType = OrderLineItem.SkuItem))
+
+      gcReason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
+      gcOrigin ← * <~ GiftCardManuals.create(Factories.giftCardManual.copy(adminId = storeAdmin.id, reasonId = gcReason.id))
+      giftCard ← * <~ GiftCards.create(Factories.giftCard.copy(originId = gcOrigin.id, originType = GiftCard.RmaProcess))
+
+      gcLineItem ← * <~ OrderLineItemGiftCards.create(OrderLineItemGiftCard(orderId = order.id,
+        giftCardId = giftCard.id))
+      lineItem2 ← * <~ OrderLineItems.create(Factories.orderLineItems.head.copy(originId = gcLineItem.id,
+        originType = OrderLineItem.GiftCardItem))
+    
+      shippingAddress ← * <~ OrderShippingAddresses.create(Factories.shippingAddress.copy(orderId = order.id,
+        regionId = 1))
+      shippingMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
+      orderShippingMethod ← * <~ OrderShippingMethods.create(
+        OrderShippingMethod(orderId = order.id, shippingMethodId = shippingMethod.id))
+      shipment ← * <~ Shipments.create(Factories.shipment)
+    } yield (reason, sku, giftCard, shipment)).value.run().futureValue.rightVal
   }
 }

@@ -26,12 +26,10 @@ object OrderLineItemGiftCards extends TableQueryWithId[OrderLineItemGiftCard, Or
   def findByOrderId(orderId: Rep[Int]): Query[OrderLineItemGiftCards, OrderLineItemGiftCard, Seq] =
     filter(_.orderId === orderId)
 
-  def findLineItemsByOrder(order: Order) = {
-    for {
-      liGc ← findByOrderId(order.id)
-      gc ← GiftCards if gc.id === liGc.giftCardId
-    } yield (gc, liGc)
-  }
+  def findLineItemsByOrder(order: Order) = for {
+    liGc ← findByOrderId(order.id)
+    gc ← GiftCards if gc.id === liGc.giftCardId
+  } yield (gc, liGc)
 
   object scope {
     implicit class OrderLineItemGiftCardsQuerySeqConversions(q: QuerySeq) {

@@ -50,4 +50,4 @@ create domain rma_reason_type text check (value in ('baseReason', 'productReturn
 create domain rma_type text check (value in ('standard', 'creditOnly', 'restockOnly'));
 create domain rma_status text check (value in ('pending', 'processing', 'review', 'complete', 'canceled'));
 create domain rma_inventory_disposition text check (value in ('putaway', 'damage', 'recovery', 'discontinued'));
-create domain rma_line_item_origin_type text check (value in ('skuItem', 'giftCard', 'shippingCost'));
+create domain rma_line_item_origin_type text check (value in ('skuItem', 'giftCardItem', 'shippingCost'));
