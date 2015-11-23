@@ -52,23 +52,25 @@ Addresses.propTypes = {
   startEditingAddress: PropTypes.func
 };
 
+export function createAddressBox(address, idx, props) {
+  const chooseAction = props.chooseAction ? () => props.chooseAction(address.id) : null;
+
+  return (
+    <AddressBox key={`address-${idx}`}
+                address={address}
+                choosen={props.selectedAddressId == address.id}
+                editAction={() => props.startEditingAddress(address.id)}
+                toggleDefaultAction={() => props.setAddressDefault(props.customerId, address.id, !address.isDefault)}
+                chooseAction={chooseAction}
+                deleteAction={() => props.startDeletingAddress(address.id)}
+    />
+  );
+}
+
 
 Addresses.defaultProps = {
   addresses: [],
-  createAddressBox: (address, idx, props) => {
-    const chooseAction = props.chooseAction ? () => props.chooseAction(address.id) : null;
-
-    return (
-      <AddressBox key={`address-${idx}`}
-                  address={address}
-                  choosen={props.selectedAddressId == address.id}
-                  editAction={() => props.startEditingAddress(address.id)}
-                  toggleDefaultAction={() => props.setAddressDefault(props.customerId, address.id, !address.isDefault)}
-                  chooseAction={chooseAction}
-                  deleteAction={() => props.startDeletingAddress(address.id)}
-      />
-    );
-  },
+  createAddressBox,
   processContent: _.identity
 };
 

@@ -16,11 +16,7 @@ export default function wrapModal(Modal) {
 
     static propTypes = {
       children: PropTypes.node,
-      isVisible: PropTypes.bool,
-      modalComponent: PropTypes.oneOfType([
-        PropTypes.instanceOf(React.Component),
-        PropTypes.func
-      ])
+      isVisible: PropTypes.bool
     };
 
     componentDidUpdate() {
