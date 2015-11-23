@@ -2,6 +2,7 @@ import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 import { haveType } from '../state-helpers';
 import { get, assoc } from 'sprout-data';
+import _ from 'lodash';
 
 export const orderRequest = createAction('ORDER_REQUEST');
 export const orderSuccess = createAction('ORDER_SUCCESS');
@@ -54,6 +55,22 @@ export function deleteLineItem(order, sku) {
   return updateLineItemCount(order, sku, 0, false);
 }
 
+function collectLineItems(skus) {
+  const uniqueSkus = _.unique(skus, 'sku');
+  const quantities = skus.reduce((quantities, elem) => {
+    if (quantities[elem.sku] !== undefined) {
+      quantities[elem.sku] += elem.quantity;
+    } else {
+      quantities[elem.sku] = elem.quantity;
+    }
+    return quantities;
+  }, {});
+  const itemList = uniqueSkus.map((item, idx) => {
+    return assoc(item, 'quantity', quantities[item.sku]);
+  });
+  return itemList;
+}
+
 const initialState = {
   isFetching: false,
   currentOrder: {},
@@ -75,15 +92,14 @@ const reducer = createReducer({
     };
   },
   [orderSuccess]: (state, payload) => {
-    // here it is needed to merge skus
-    // skus.reduce(function(obj, elem){if (obj[elem.sku] != undefined) {obj[elem.sku] += 1} else {obj[elem.sku] = 1}; return obj;}, {});
+    const itemList = collectLineItems(payload.lineItems.skus);
     return {
       ...state,
       isFetching: false,
       currentOrder: haveType(payload, 'order'),
       lineItems: {
         ...state.lineItems,
-        items: payload.lineItems.skus
+        items: itemList
       }
     };
   },
