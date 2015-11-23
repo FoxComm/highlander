@@ -1,16 +1,21 @@
 import _ from 'lodash';
+import nock from 'nock';
 
 const { reducer, ...actions } = importModule('orders/details.js', [
   'collectLineItems',
   'orderLineItemsStartDelete',
-  'orderLineItemsCancelDelete'
+  'orderLineItemsCancelDelete',
+  'orderLineItemsStartEdit',
+  'orderLineItemsCancelEdit',
+  'orderRequest',
+  'orderSuccess'
 ]);
 
 describe('order details module', function() {
 
-  context('collectLineItems', function() {
+  const orderLineItems = require('../../../fixtures/order-line-items.json');
 
-    const orderLineItems = require('../../../fixtures/order-line-items.json');
+  context('collectLineItems', function() {
 
     it('should collapse non-unique skus', function() {
       const result = actions.collectLineItems(orderLineItems);
@@ -73,6 +78,124 @@ describe('order details module', function() {
       const newState = reducer(initialState, actions.orderLineItemsCancelDelete(sku));
       expect(newState.lineItems.skuToDelete).to.be.equal(null);
       expect(newState.lineItems.isDeleting).to.be.equal(false);
+    });
+
+  });
+
+  context('updating line item', function() {
+
+    it('orderLineItemsStartEdit should set proper state', function() {
+      const initialState = {
+        isFetching: false,
+        currentOrder: {},
+        lineItems: {
+          isEditing: false,
+          isUpdating: false,
+          isDeleting: false,
+          skuToUpdate: null,
+          skuToDelete: null,
+          items: []
+        }
+      };
+
+      const newState = reducer(initialState, actions.orderLineItemsStartEdit());
+      expect(newState.lineItems.isEditing).to.be.equal(true);
+    });
+
+    it('orderLineItemsCancelEdit should set proper state', function() {
+      const sku = 'SKU-ABC';
+      const initialState = {
+        isFetching: false,
+        currentOrder: {},
+        lineItems: {
+          isEditing: true,
+          isUpdating: false,
+          isDeleting: false,
+          skuToUpdate: null,
+          skuToDelete: sku,
+          items: []
+        }
+      };
+
+      const newState = reducer(initialState, actions.orderLineItemsCancelEdit());
+      expect(newState.lineItems.isEditing).to.be.equal(false);
+    });
+
+    it('orderLineItemsCancelEdit should copy line items from order', function() {
+      const sku = 'SKU-ABC';
+      const initialState = {
+        isFetching: false,
+        currentOrder: {
+          lineItems: {
+            skus: orderLineItems
+          }
+        },
+        lineItems: {
+          isEditing: true,
+          isUpdating: false,
+          isDeleting: false,
+          skuToUpdate: null,
+          skuToDelete: sku,
+          items: []
+        }
+      };
+
+      const newState = reducer(initialState, actions.orderLineItemsCancelEdit());
+      expect(newState.lineItems.items).to.deep.equal(actions.collectLineItems(orderLineItems));
+    });
+
+  });
+
+  context('async actions', function() {
+
+    const orderUrl = refNum => `/api/v1/orders/${refNum}`;
+
+    context('fetching orders', function() {
+      const orderRef = 'ABC-123';
+
+      before(function() {
+        nock(phoenixUrl)
+          .get(orderUrl(orderRef))
+          .reply(200, {});
+      });
+
+      after(function() {
+        nock.cleanAll();
+      });
+
+      it('dispatches correct actions', function*() {
+        const expectedActions = [
+          actions.orderRequest,
+          actions.orderSuccess
+        ];
+
+        yield expect(actions.fetchOrder(orderRef), 'to dispatch actions', expectedActions);
+      });
+    });
+
+    context('updating orders on server', function() {
+      const orderRef = 'ABC-123';
+
+      before(function() {
+        nock(phoenixUrl)
+          .get(orderUrl(orderRef))
+          .reply(200, {})
+          .patch(orderUrl(orderRef))
+          .reply(200, {});
+      });
+
+      after(function() {
+        nock.cleanAll();
+      });
+
+      it('dispatches correct actions', function*() {
+        const expectedActions = [
+          actions.orderRequest,
+          actions.orderSuccess
+        ];
+
+        yield expect(actions.fetchOrder(orderRef), 'to dispatch actions', expectedActions);
+      });
     });
 
   });

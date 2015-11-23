@@ -27,6 +27,7 @@ export function fetchOrder(refNum) {
 
 export function updateOrder(id, data) {
   return dispatch => {
+    dispatch(orderRequest(id));
     Api.patch(`/orders/${id}`, data)
       .then(order => dispatch(orderSuccess(order)))
       .catch(err => dispatch(orderFailed(id, err, updateOrder)));
