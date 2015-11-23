@@ -3,7 +3,6 @@ import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 import AddressForm from './address-form';
 import AddressDetails from './address-details';
-import ConfirmationDialog from '../modal/confirmation-dialog';
 import { autobind } from 'core-decorators';
 
 const confirmDeleteOptions = {

@@ -68,19 +68,6 @@ export default class AddressForm extends React.Component {
     this.props.init(this.props.address, this.props.addressType);
   }
 
-  /*componentWillUpdate(nextProps, nextState) {
-    if (!this.props.error && nextState.error) {
-      this.shouldScrollToErrors = true;
-    }
-  }
-
-  componentDidUpdate() {
-    if (this.shouldScrollToErrors && this.props.error) {
-      this.refs.errorMessages.scrollIntoView();
-      this.shouldScrollToErrors = false;
-    }
-  }*/
-
   /**
    * Prepare value before submitting to server
    * @param name
@@ -168,7 +155,7 @@ export default class AddressForm extends React.Component {
   }
 
   get errorMessages() {
-    return <ErrorAlerts error={this.props.err} ref="errorMessages" />;
+    return <ErrorAlerts error={this.props.err} />;
   }
 
   get actions() {

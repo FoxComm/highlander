@@ -39,7 +39,7 @@ EditableContentBox.propTypes = {
   isEditing: PropTypes.bool,
   editAction: PropTypes.func,
   doneAction: PropTypes.func,
-  editFooter: PropTypes.func,
+  editFooter: PropTypes.node,
   renderContent: PropTypes.func,
   renderFooter: PropTypes.func,
   renderActions: PropTypes.func,

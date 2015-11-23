@@ -2,6 +2,7 @@
 import { get } from 'sprout-data';
 import React, { PropTypes } from 'react';
 import Alert from './alert';
+import AutoScroll from '../common/auto-scroll';
 
 function parseError(err) {
   if (!err) return null;
@@ -15,6 +16,7 @@ const ErrorAlerts = props => {
   if (errors && errors.length) {
     return (
       <div className="fc-errors">
+        <AutoScroll />
         {errors.map((error, index) => {
           return <Alert key={`error-${index}`} type={Alert.ERROR}>{error}</Alert>;
         })}

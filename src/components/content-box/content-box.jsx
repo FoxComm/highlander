@@ -22,7 +22,7 @@ const ContextBox = props => {
 };
 
 ContextBox.propTypes = {
-  title: PropTypes.string,
+  title: PropTypes.node,
   className: PropTypes.string,
   actionBlock: PropTypes.node,
   children: PropTypes.node,

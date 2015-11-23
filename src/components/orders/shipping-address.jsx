@@ -98,7 +98,7 @@ export default class OrderShippingAddress extends React.Component {
             />
         </div>
         <ConfirmationDialog
-          isVisible={ props.deletingAddress && props.deletingAddress.type === addressTypes.SHIPPING }
+          isVisible={ !!(props.deletingAddress && props.deletingAddress.type === addressTypes.SHIPPING) }
           header='Confirm'
           body='Are you sure you want to remove shipping address from order?'
           cancel='Cancel'
