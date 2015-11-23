@@ -13,7 +13,7 @@ const CreditCardBox = (props) => {
                                checkboxClickHandler={ props.onDefaultToggle }
                                deleteHandler={ props.onDeleteClick }
                                editHandler={ props.onEditClick } >
-      <CreditCardDetails customerId={ props.customerId} card={ props.card } />
+      <CreditCardDetails customerId={ props.customerId} card={ card } />
     </EditableItemCardContainer>
   );
 };
