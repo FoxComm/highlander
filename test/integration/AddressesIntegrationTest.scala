@@ -89,7 +89,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
     }
 
     "sets a new shipping address if there's already a default shipping address" in new AddressFixture {
-      val another = Addresses.saveNew(address.copy(id = 0, isDefaultShipping = false)).futureValue
+      val another = Addresses.create(address.copy(id = 0, isDefaultShipping = false)).futureValue.rightVal
       val response = POST(s"v1/customers/${customer.id}/addresses/${another.id}/default")
 
       response.status must === (StatusCodes.NoContent)
@@ -202,26 +202,26 @@ class AddressesIntegrationTest extends IntegrationTestBase
   }
 
   trait CustomerFixture {
-    val customer = Customers.saveNew(Factories.customer).futureValue
+    val customer = Customers.create(Factories.customer).futureValue.rightVal
   }
 
   trait AddressFixture extends CustomerFixture {
-    val address = Addresses.saveNew(Factories.address.copy(customerId = customer.id,
-      isDefaultShipping = true)).futureValue
+    val address = Addresses.create(Factories.address.copy(customerId = customer.id,
+      isDefaultShipping = true)).futureValue.rightVal
   }
 
   trait ShippingAddressFixture extends AddressFixture {
     (for {
-      order ← Orders.saveNew(Factories.order.copy(customerId = customer.id))
-      shippingAddress ← OrderShippingAddresses.copyFromAddress(address, order.id)
-    } yield (order, shippingAddress)).futureValue
+      order           ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
+      shippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address, order.id)
+    } yield (order, shippingAddress)).runT().futureValue.rightVal
   }
 
   trait NoDefaultAddressFixture extends CustomerFixture {
     val (address, order, shippingAddress) = (for {
-      address ← Addresses.saveNew(Factories.address.copy(customerId = customer.id, isDefaultShipping = false))
-      order ← Orders.saveNew(Factories.order.copy(customerId = customer.id))
-      shippingAddress ← OrderShippingAddresses.copyFromAddress(address, order.id)
-    } yield (address, order, shippingAddress)).run().futureValue
+      address ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id, isDefaultShipping = false))
+      order   ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
+      shipAdd ← * <~ OrderShippingAddresses.copyFromAddress(address, order.id)
+    } yield (address, order, shipAdd)).runT().futureValue.rightVal
   }
 }

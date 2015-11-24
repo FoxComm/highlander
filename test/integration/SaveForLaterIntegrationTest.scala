@@ -7,6 +7,8 @@ import responses.ResponseWithFailuresAndMetadata.SavedForLater
 import responses.SaveForLaterResponse
 import services.{AlreadySavedForLater, NotFoundFailure404}
 import util.IntegrationTestBase
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 import utils.Seeds.Factories
 import utils.Slick.implicits._
 import slick.driver.PostgresDriver.api._
@@ -19,7 +21,7 @@ class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport w
       emptyResponse.status must === (StatusCodes.OK)
       emptyResponse.as[SavedForLater].result mustBe empty
 
-      SaveForLaters.saveNew(SaveForLater(customerId = customer.id, skuId = sku.id)).run().futureValue
+      SaveForLaters.create(SaveForLater(customerId = customer.id, skuId = sku.id)).run().futureValue.rightVal
       val notEmptyResponse = GET(s"v1/save-for-later/${customer.id}")
       notEmptyResponse.status must === (StatusCodes.OK)
       notEmptyResponse.as[SavedForLater].result must === (roots)
@@ -86,9 +88,9 @@ class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport w
 
   trait Fixture {
     val (customer, sku) = (for {
-      customer ← Customers.saveNew(Factories.customer)
-      sku ← Skus.saveNew(Factories.skus.head)
-    } yield (customer, sku)).run().futureValue
+      customer ← * <~ Customers.create(Factories.customer)
+      sku      ← * <~ Skus.create(Factories.skus.head)
+    } yield (customer, sku)).runT().futureValue.rightVal
 
     def roots = Seq(rightValue(SaveForLaterResponse.forSkuId(sku.id).run().futureValue))
   }

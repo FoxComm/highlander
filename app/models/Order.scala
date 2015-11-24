@@ -5,6 +5,7 @@ import java.time.Instant
 import cats.data.Validated.valid
 import cats.data.{Xor, ValidatedNel}
 import Xor.{left, right}
+import models.traits.Lockable
 import responses.FullOrder
 import services.CartFailures.OrderMustBeCart
 import services._
@@ -15,21 +16,23 @@ import com.pellucid.sealerate
 import models.Order.{Cart, Status}
 import monocle.Lens
 import monocle.macros.GenLens
-import services.orders.OrderTotaler
 import services.CartFailures.OrderMustBeCart
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.Money.Currency
+import utils.table.SearchByRefNum
+
 import utils.{ADT, FSM, GenericTable, ModelWithLockParameter, TableQueryWithLock, Validation}
 import utils.Slick.implicits._
 import utils.Slick.DbResult
 
 final case class Order(id: Int = 0, referenceNumber: String = "", customerId: Int,
-  status: Status = Cart, locked: Boolean = false, placedAt: Option[Instant] = None,
+  status: Status = Cart, isLocked: Boolean = false, placedAt: Option[Instant] = None,
   remorsePeriodEnd: Option[Instant] = None, rmaCount: Int = 0, currency: Currency = Currency.USD)
   extends ModelWithLockParameter[Order]
   with FSM[Order.Status, Order]
+  with Lockable[Order]
   with Validation[Order] {
 
   import Order._
@@ -62,7 +65,7 @@ final case class Order(id: Int = 0, referenceNumber: String = "", customerId: In
 
   // If order is not in RemorseHold, remorsePeriodEnd should be None, but extra check wouldn't hurt
   val getRemorsePeriodEnd: Option[Instant] = status match {
-    case RemorseHold if !locked ⇒ remorsePeriodEnd
+    case RemorseHold if !isLocked ⇒ remorsePeriodEnd
     case _ ⇒ None
   }
 
@@ -102,13 +105,13 @@ class Orders(tag: Tag) extends GenericTable.TableWithLock[Order](tag, "orders") 
   def referenceNumber = column[String]("reference_number") //we should generate this based on certain rules; nullable until then
   def customerId = column[Int]("customer_id")
   def status = column[Order.Status]("status")
-  def locked = column[Boolean]("locked")
+  def isLocked = column[Boolean]("is_locked")
   def placedAt = column[Option[Instant]]("placed_at")
   def remorsePeriodEnd = column[Option[Instant]]("remorse_period_end")
   def rmaCount = column[Int]("rma_count")
   def currency = column[Currency]("currency")
 
-  def * = (id, referenceNumber, customerId, status, locked, placedAt, remorsePeriodEnd,
+  def * = (id, referenceNumber, customerId, status, isLocked, placedAt, remorsePeriodEnd,
     rmaCount, currency) <>((Order.apply _).tupled, Order.unapply)
 
   def assignees = OrderAssignments.filter(_.orderId === id).flatMap(_.assignee)
@@ -116,7 +119,8 @@ class Orders(tag: Tag) extends GenericTable.TableWithLock[Order](tag, "orders") 
 
 object Orders extends TableQueryWithLock[Order, Orders](
   idLens = GenLens[Order](_.id)
-  )(new Orders(_)){
+  )(new Orders(_))
+  with SearchByRefNum[Order, Orders] {
 
   import scope._
 
@@ -128,8 +132,6 @@ object Orders extends TableQueryWithLock[Order, Orders](
 
   override def create[R](order: Order, returning: Returning[R], action: R ⇒ Order ⇒ Order)
     (implicit ec: ExecutionContext): DbResult[Order] = super.create(order, returningIdAndReferenceNumber, returningAction)
-
-  override def primarySearchTerm: String = "referenceNumber"
 
   def findByCustomer(cust: Customer): QuerySeq =
     findByCustomerId(cust.id)
@@ -158,13 +160,5 @@ object Orders extends TableQueryWithLock[Order, Orders](
 
   implicit class OrderQueryWrappers(q: QuerySeq) extends LockableQueryWrappers(q) {
     def mustBeCart(order: Order): Failures Xor Order = order.mustBeCart
-
-    def mustFindByRefNum(refNum: String, notFoundFailure: String ⇒ Failure = notFound404K)
-      (implicit ec: ExecutionContext, db: Database): DbResult[Order] = {
-      findOneByRefNum(refNum).flatMap {
-        case Some(model) ⇒ DbResult.good(model)
-        case None ⇒ DbResult.failure(notFoundFailure(refNum))
-      }
-    }
   }
 }

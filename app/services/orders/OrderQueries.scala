@@ -30,7 +30,7 @@ object OrderQueries {
         case "referenceNumber"            ⇒ if (s.asc) order.referenceNumber.asc      else order.referenceNumber.desc
         case "customerId"                 ⇒ if (s.asc) order.customerId.asc           else order.customerId.desc
         case "status"                     ⇒ if (s.asc) order.status.asc               else order.status.desc
-        case "locked"                     ⇒ if (s.asc) order.locked.asc               else order.locked.desc
+        case "isLocked"                  ⇒ if (s.asc) order.isLocked.asc             else order.isLocked.desc
         case "placedAt"                   ⇒ if (s.asc) order.placedAt.asc             else order.placedAt.desc
         case "remorsePeriodEnd"           ⇒ if (s.asc) order.remorsePeriodEnd.asc     else order.remorsePeriodEnd.desc
         case "customer_id"                ⇒ if (s.asc) customer.id.asc                else customer.id.desc

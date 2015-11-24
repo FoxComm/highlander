@@ -15,12 +15,12 @@ object RmaLockResponse {
     lockedAt: Instant)
 
   def build(rma: Rma, event: Option[RmaLockEvent], admin: Option[StoreAdmin]): Root = {
-    (rma.locked, event, admin) match {
+    (rma.isLocked, event, admin) match {
       case (true, Some(e), Some(a)) ⇒
         val lock = Lock(id = e.id, lockedBy = StoreAdminResponse.build(a), lockedAt = e.lockedAt)
-        Root(rma.locked, Some(lock))
+        Root(rma.isLocked, Some(lock))
       case _ ⇒
-        Root(rma.locked, None)
+        Root(rma.isLocked, None)
     }
   }
 }

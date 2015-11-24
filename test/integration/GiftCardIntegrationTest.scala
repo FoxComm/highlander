@@ -11,6 +11,8 @@ import responses._
 import services._
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 import utils.Seeds.Factories
 import utils.Slick.implicits._
 import utils.Money._
@@ -274,8 +276,8 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
       "returns the list of adjustments with sorting and paging" in new Fixture {
 
-        val adjustment2 = GiftCards.auth(giftCard, Some(payment.id), 1).run().futureValue
-        val adjustment3 = GiftCards.auth(giftCard, Some(payment.id), 2).run().futureValue
+        val adjustment2 = GiftCards.auth(giftCard, Some(payment.id), 1).run().futureValue.rightVal
+        val adjustment3 = GiftCards.auth(giftCard, Some(payment.id), 2).run().futureValue.rightVal
 
         val response = GET(s"v1/gift-cards/${giftCard.code}/transactions?sortBy=-id&from=2&size=2")
         val adjustments = response.as[GiftCardAdjustmentsResponse.Root#ResponseMetadataSeq].result
@@ -368,20 +370,20 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
   trait Fixture {
     val (customer, admin, giftCard, order, payment, adjustment1, gcSecond, gcSubType) = (for {
-      customer ← Customers.create(Factories.customer).map(rightValue)
-      order ← Orders.create(Factories.order.copy(customerId = customer.id)).map(rightValue)
-      admin ← StoreAdmins.create(authedStoreAdmin).map(rightValue)
-      reason ← Reasons.create(Factories.reason.copy(storeAdminId = admin.id)).map(rightValue)
-      gcSubType ← GiftCardSubtypes.create(Factories.giftCardSubTypes.head).map(rightValue)
-      origin ← GiftCardManuals.create(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id)).map(rightValue)
-      giftCard ← GiftCards.create(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active)).map(rightValue)
-      gcSecond ← GiftCards.create(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active,
-        code = "ABC-234")).map(rightValue)
-      payment ← OrderPayments.create(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = giftCard.id,
-        paymentMethodType = PaymentMethod.GiftCard)).map(rightValue)
-      adjustment1 ← GiftCards.auth(giftCard, Some(payment.id), 10)
-      giftCard ← GiftCards.findOneById(giftCard.id)
-    } yield (customer, admin, giftCard.value, order, payment, adjustment1, gcSecond, gcSubType)).run()
-      .futureValue
+      customer  ← * <~ Customers.create(Factories.customer)
+      order     ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
+      admin     ← * <~ StoreAdmins.create(authedStoreAdmin)
+      reason    ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
+      gcSubType ← * <~ GiftCardSubtypes.create(Factories.giftCardSubTypes.head)
+      origin    ← * <~ GiftCardManuals.create(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
+      giftCard  ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active))
+      gcSecond  ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active,
+                                                                                                      code = "ABC-234"))
+      payment   ← * <~ OrderPayments.create(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId =
+                                                              giftCard.id, paymentMethodType = PaymentMethod.GiftCard))
+      adj1      ← * <~ GiftCards.auth(giftCard, Some(payment.id), 10)
+      giftCard  ← * <~ GiftCards.findOneById(giftCard.id).toXor
+    } yield (customer, admin, giftCard.value, order, payment, adj1, gcSecond, gcSubType)).runT()
+      .futureValue.rightVal
   }
 }

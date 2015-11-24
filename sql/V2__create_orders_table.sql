@@ -3,7 +3,7 @@ create table orders (
     reference_number reference_number not null unique,
     customer_id integer,
     status generic_string not null,
-    locked boolean default false,
+    is_locked boolean default false,
     created_at timestamp without time zone default (now() at time zone 'utc'),
     updated_at timestamp without time zone default (now() at time zone 'utc'),
     deleted_at timestamp without time zone null,

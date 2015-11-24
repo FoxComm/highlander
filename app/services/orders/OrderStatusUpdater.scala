@@ -46,7 +46,7 @@ object OrderStatusUpdater {
         .filterNot(_.status == newStatus)
         .partition(_.transitionAllowed(newStatus))
 
-      val (lockedOrders, absolutelyPossibleUpdates) = validTransitions.partition(_.locked)
+      val (lockedOrders, absolutelyPossibleUpdates) = validTransitions.partition(_.isLocked)
 
       updateQueries(absolutelyPossibleUpdates.map(_.id), newStatus).flatMap { _ ⇒
         // Failure handling

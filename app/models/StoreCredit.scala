@@ -10,6 +10,7 @@ import cats.implicits._
 import services._
 import utils.CustomDirectives.SortAndPage
 import utils.Litterbox._
+import utils.Slick._
 import utils.Validation
 
 import com.pellucid.sealerate
@@ -177,27 +178,27 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
     sortedAndPaged(findAllByCustomerId(customerId))
 
   def auth(storeCredit: StoreCredit, orderPaymentId: Option[Int], amount: Int = 0)
-    (implicit ec: ExecutionContext): DBIO[Adj] =
+    (implicit ec: ExecutionContext): DbResult[Adj] =
     debit(storeCredit = storeCredit, orderPaymentId = orderPaymentId, amount = amount, status = Adj.Auth)
 
   def authOrderPayment(storeCredit: StoreCredit, pmt: OrderPayment)
-    (implicit ec: ExecutionContext): DBIO[Adj] =
+    (implicit ec: ExecutionContext): DbResult[Adj] =
     auth(storeCredit = storeCredit, orderPaymentId = pmt.id.some, amount = pmt.amount.getOrElse(0))
 
   def capture(storeCredit: StoreCredit, orderPaymentId: Option[Int], amount: Int = 0)
-    (implicit ec: ExecutionContext): DBIO[Adj] =
+    (implicit ec: ExecutionContext): DbResult[Adj] =
     debit(storeCredit = storeCredit, orderPaymentId = orderPaymentId, amount = amount, status = Adj.Capture)
 
-  def cancelByCsr(storeCredit: StoreCredit, storeAdmin: StoreAdmin)(implicit ec: ExecutionContext): DBIO[Adj] = {
+  def cancelByCsr(storeCredit: StoreCredit, storeAdmin: StoreAdmin)(implicit ec: ExecutionContext): DbResult[Adj] = {
     val adjustment = Adj(storeCreditId = storeCredit.id, orderPaymentId = None, storeAdminId = storeAdmin.id.some,
       debit = storeCredit.availableBalance, availableBalance = 0, status = Adj.CancellationCapture)
-    Adjs.saveNew(adjustment)
+    Adjs.create(adjustment)
   }
 
-  def redeemToGiftCard(storeCredit: StoreCredit, storeAdmin: StoreAdmin)(implicit ec: ExecutionContext): DBIO[Adj] = {
+  def redeemToGiftCard(storeCredit: StoreCredit, storeAdmin: StoreAdmin)(implicit ec: ExecutionContext): DbResult[Adj] = {
     val adjustment = Adj(storeCreditId = storeCredit.id, orderPaymentId = None, storeAdminId = storeAdmin.id.some,
       debit = storeCredit.availableBalance, availableBalance = 0, status = Adj.Capture)
-    Adjs.saveNew(adjustment)
+    Adjs.create(adjustment)
   }
 
   def findActiveById(id: Int)(implicit ec: ExecutionContext): QuerySeq = filter(_.id === id)
@@ -213,9 +214,9 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
 
   private def debit(storeCredit: StoreCredit, orderPaymentId: Option[Int], amount: Int = 0,
     status: Adj.Status = Adj.Auth)
-    (implicit ec: ExecutionContext): DBIO[Adj] = {
+    (implicit ec: ExecutionContext): DbResult[Adj] = {
     val adjustment = Adj(storeCreditId = storeCredit.id, orderPaymentId = orderPaymentId,
       debit = amount, availableBalance = storeCredit.availableBalance, status = status)
-    Adjs.saveNew(adjustment)
+    Adjs.create(adjustment)
   }
 }

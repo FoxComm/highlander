@@ -1,4 +1,3 @@
-import scala.concurrent.Future
 import scala.util.Random
 import scala.collection.JavaConverters._
 import akka.http.scaladsl.model.StatusCodes
@@ -11,7 +10,8 @@ import org.scalatest.BeforeAndAfterEach
 import services._
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
-import utils.Money.Currency
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 import utils.Seeds.Factories
 import utils.Slick.implicits._
 
@@ -24,7 +24,6 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
   import concurrent.ExecutionContext.Implicits.global
 
   import Extensions._
-  import org.json4s.jackson.JsonMethods._
 
   // paging and sorting API
   private var currentCustomer: Customer = _
@@ -32,11 +31,12 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
   override def beforeSortingAndPaging() = {
     (for {
-      admin    ← StoreAdmins.saveNew(authedStoreAdmin)
-      customer ← Customers.saveNew(Factories.customer)
-      scReason ← Reasons.saveNew(Factories.reason.copy(storeAdminId = admin.id))
-      scOrigin ← StoreCreditManuals.saveNew(Factories.storeCreditManual.copy(adminId = admin.id, reasonId = scReason.id))
-    } yield (customer, scOrigin)).run().futureValue match {
+      admin    ← * <~ StoreAdmins.create(authedStoreAdmin)
+      customer ← * <~ Customers.create(Factories.customer)
+      scReason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
+      scOrigin ← * <~ StoreCreditManuals.create(Factories.storeCreditManual.copy(adminId = admin.id, reasonId =
+        scReason.id))
+    } yield (customer, scOrigin)).runT().futureValue.rightVal match {
       case (cc, co) ⇒
         currentCustomer = cc
         currentOrigin = co
@@ -322,19 +322,20 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
   trait Fixture {
     val (admin, customer, scReason, storeCredit, order, adjustment, scSecond, payment, scSubType) = (for {
-      admin       ← StoreAdmins.saveNew(authedStoreAdmin)
-      customer    ← Customers.saveNew(Factories.customer)
-      order       ← Orders.saveNew(Factories.order.copy(customerId = customer.id))
-      scReason    ← Reasons.saveNew(Factories.reason.copy(storeAdminId = admin.id))
-      scSubType   ← StoreCreditSubtypes.saveNew(Factories.storeCreditSubTypes.head)
-      scOrigin    ← StoreCreditManuals.saveNew(Factories.storeCreditManual.copy(adminId = admin.id,
+      admin       ← * <~ StoreAdmins.create(authedStoreAdmin)
+      customer    ← * <~ Customers.create(Factories.customer)
+      order       ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
+      scReason    ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
+      scSubType   ← * <~ StoreCreditSubtypes.create(Factories.storeCreditSubTypes.head)
+      scOrigin    ← * <~ StoreCreditManuals.create(Factories.storeCreditManual.copy(adminId = admin.id,
         reasonId = scReason.id))
-      storeCredit ← StoreCredits.saveNew(Factories.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))
-      scSecond ← StoreCredits.saveNew(Factories.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))
-      payment ← OrderPayments.saveNew(Factories.storeCreditPayment.copy(orderId = order.id,
+      storeCredit ← * <~ StoreCredits.create(Factories.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))
+      scSecond    ← * <~ StoreCredits.create(Factories.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))
+      payment     ← * <~ OrderPayments.create(Factories.storeCreditPayment.copy(orderId = order.id,
         paymentMethodId = storeCredit.id, paymentMethodType = PaymentMethod.StoreCredit))
-      adjustment ← StoreCredits.auth(storeCredit, Some(payment.id), 10)
-    } yield (admin, customer, scReason, storeCredit, order, adjustment, scSecond, payment, scSubType)).run().futureValue
+      adjustment ← * <~ StoreCredits.auth(storeCredit, Some(payment.id), 10)
+    } yield (admin, customer, scReason, storeCredit, order, adjustment, scSecond, payment, scSubType)).runT()
+      .futureValue.rightVal
   }
 }
 

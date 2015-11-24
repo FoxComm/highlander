@@ -1,12 +1,12 @@
 package models
 
-import slick.driver.PostgresDriver
 import util.IntegrationTestBase
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 import utils.Seeds.Factories
 import utils.Slick.implicits._
 
 class GiftCardIntegrationTest extends IntegrationTestBase {
-  import api._
   import concurrent.ExecutionContext.Implicits.global
 
   "GiftCardTest" - {
@@ -17,7 +17,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase {
     }
 
     "updates availableBalance if auth adjustment is created + cancel handling" in new Fixture {
-      val adjustment = GiftCards.capture(giftCard, Some(payment.id), 10).run().futureValue
+      val adjustment = GiftCards.capture(giftCard, Some(payment.id), 10).run().futureValue.rightVal
 
       val updatedGiftCard = GiftCards.findOneById(giftCard.id).run().futureValue.value
       updatedGiftCard.availableBalance must === (giftCard.availableBalance - 10)
@@ -28,7 +28,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase {
     }
 
     "updates availableBalance and currentBalance if capture adjustment is created + cancel handling" in new Fixture {
-      val adjustment = GiftCards.capture(giftCard, Some(payment.id), 0, 10).run().futureValue
+      val adjustment = GiftCards.capture(giftCard, Some(payment.id), 0, 10).run().futureValue.rightVal
 
       val updatedGiftCard = GiftCards.findOneById(giftCard.id).run().futureValue.value
       updatedGiftCard.availableBalance must === (giftCard.availableBalance + 10)
@@ -42,18 +42,17 @@ class GiftCardIntegrationTest extends IntegrationTestBase {
   }
 
   trait Fixture {
-    val adminFactory = Factories.storeAdmin
     val (origin, giftCard, payment) = (for {
-      customer ← Customers.saveNew(Factories.customer)
-      order ← Orders.saveNew(Factories.order.copy(customerId = customer.id))
-      admin ← (StoreAdmins.returningId += adminFactory).map { id ⇒ adminFactory.copy(id = id) }
-      reason ← Reasons.saveNew(Factories.reason.copy(storeAdminId = admin.id))
-      origin ← GiftCardManuals.saveNew(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
-      gc ← GiftCards.saveNew(Factories.giftCard.copy(originalBalance = 50, originId = origin.id))
-      giftCard ← GiftCards.findOneById(gc.id)
-      payment ← OrderPayments.saveNew(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = gc.id,
+      customer ← * <~ Customers.create(Factories.customer)
+      order    ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
+      admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
+      reason   ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
+      origin   ← * <~ GiftCardManuals.create(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
+      gc       ← * <~ GiftCards.create(Factories.giftCard.copy(originalBalance = 50, originId = origin.id))
+      giftCard ← * <~ GiftCards.findOneById(gc.id).toXor
+      payment  ← * <~ OrderPayments.create(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = gc.id,
         paymentMethodType = PaymentMethod.GiftCard))
-    } yield (origin, giftCard.value, payment)).run().futureValue
+    } yield (origin, giftCard.value, payment)).runT().futureValue.rightVal
   }
 }
 

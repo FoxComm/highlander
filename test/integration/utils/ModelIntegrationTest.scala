@@ -5,6 +5,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import models._
 import services.{GeneralFailure, DatabaseFailure, StatusTransitionNotAllowed}
 import util.IntegrationTestBase
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 import utils.Seeds.Factories
 import utils.Slick.DbResult
 import utils.Slick.implicits._
@@ -20,19 +22,19 @@ class ModelIntegrationTest extends IntegrationTestBase {
 
     "sanitizes model" in {
       val result = (for {
-        customer ← Customers.saveNew(Factories.customer)
-        address ← Addresses.create(Factories.address.copy(zip = "123-45", customerId = customer.id))
-      } yield address).run().futureValue.rightVal
+        customer ← * <~ Customers.create(Factories.customer)
+        address  ← * <~ Addresses.create(Factories.address.copy(zip = "123-45", customerId = customer.id))
+      } yield address).runT().futureValue.rightVal
       result.zip must === ("12345")
     }
 
     "catches exceptions from DB" in {
       val result = (for {
-        customer ← Customers.saveNew(Factories.customer)
-        original ← Addresses.create(Factories.address.copy(customerId = customer.id))
-        copycat ← Addresses.create(Factories.address.copy(customerId = customer.id))
-      } yield copycat).run().futureValue
-      leftValue(result) must === (DatabaseFailure(
+        customer ← * <~ Customers.create(Factories.customer)
+        original ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
+        copycat  ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
+      } yield copycat).runT().futureValue
+      result.leftVal must === (DatabaseFailure(
         "ERROR: duplicate key value violates unique constraint \"address_shipping_default_idx\"\n" +
         "  Detail: Key (customer_id, is_default_shipping)=(1, t) already exists.").single)
     }

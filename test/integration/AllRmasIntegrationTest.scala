@@ -184,12 +184,12 @@ class AllRmasIntegrationTest extends IntegrationTestBase
 
   trait BulkAssignmentFixture {
     val (rma1, rma2, admin) = (for {
-      customer ← Customers.saveNew(Factories.customer)
-      order ← Orders.saveNew(Factories.order.copy(id = 1, referenceNumber = "foo", customerId = customer.id))
-      rma1 ← Rmas.saveNew(Factories.rma.copy(id = 1, referenceNumber = "foo", customerId = customer.id))
-      rma2 ← Rmas.saveNew(Factories.rma.copy(id = 2, referenceNumber = "bar", customerId = customer.id))
-      admin ← StoreAdmins.saveNew(Factories.storeAdmin)
-    } yield (rma1, rma2, admin)).run().futureValue
+      cust  ← * <~ Customers.create(Factories.customer)
+      order ← * <~ Orders.create(Factories.order.copy(id = 1, referenceNumber = "foo", customerId = cust.id))
+      rma1  ← * <~ Rmas.create(Factories.rma.copy(id = 1, referenceNumber = "foo", customerId = cust.id))
+      rma2  ← * <~ Rmas.create(Factories.rma.copy(id = 2, referenceNumber = "bar", customerId = cust.id))
+      admin ← * <~ StoreAdmins.create(Factories.storeAdmin)
+    } yield (rma1, rma2, admin)).runT().futureValue.rightVal
 
     val rmaRef1 = rma1.referenceNumber
     val rmaRef2 = rma2.referenceNumber

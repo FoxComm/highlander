@@ -25,6 +25,7 @@ import utils.Money._
 import utils.Slick.DbResult
 import utils.Slick.implicits._
 import utils.Validation._
+import utils.table.SearchByCode
 
 final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = CustomerPurchase,
   code: String = "", subTypeId: Option[Int] = None, currency: Currency = Currency.USD, status: Status = GiftCard.Active,
@@ -178,12 +179,11 @@ class GiftCards(tag: Tag) extends GenericTable.TableWithId[GiftCard](tag, "gift_
 
 object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
   idLens = GenLens[GiftCard](_.id)
-  )(new GiftCards(_)){
+  )(new GiftCards(_))
+  with SearchByCode[GiftCard, GiftCards] {
 
   import GiftCard._
   import models.{GiftCardAdjustment ⇒ Adj, GiftCardAdjustments ⇒ Adjs}
-
-  override def primarySearchTerm: String = "code"
 
   def sortedAndPaged(query: QuerySeq)
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata = {
@@ -216,31 +216,34 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
     sortedAndPaged(findByCode(code))
 
   def auth(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int = 0, credit: Int = 0)
-    (implicit ec: ExecutionContext): DBIO[Adj] =
+    (implicit ec: ExecutionContext): DbResult[Adj] =
     adjust(giftCard, orderPaymentId, debit = debit, credit = credit, status = Adj.Auth)
 
   def authOrderPayment(giftCard: GiftCard, pmt: OrderPayment)
-    (implicit ec: ExecutionContext): DBIO[Adj] =
+    (implicit ec: ExecutionContext): DbResult[Adj] =
     auth(giftCard = giftCard, orderPaymentId = pmt.id.some, debit = pmt.amount.getOrElse(0))
 
   def capture(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int = 0, credit: Int = 0)
-    (implicit ec: ExecutionContext): DBIO[Adj] =
+    (implicit ec: ExecutionContext): DbResult[Adj] =
     adjust(giftCard, orderPaymentId, debit = debit, credit = credit, status = Adj.Capture)
 
-  def cancelByCsr(giftCard: GiftCard, storeAdmin: StoreAdmin)(implicit ec: ExecutionContext): DBIO[Adj] = {
+  def cancelByCsr(giftCard: GiftCard, storeAdmin: StoreAdmin)(implicit ec: ExecutionContext): DbResult[Adj] = {
     val adjustment = Adj(giftCardId = giftCard.id, orderPaymentId = None, storeAdminId = storeAdmin.id.some,
       debit = giftCard.availableBalance, credit = 0, availableBalance = 0, status = Adj.CancellationCapture)
-    Adjs.saveNew(adjustment)
+    Adjs.create(adjustment)
   }
 
-  def redeemToStoreCredit(giftCard: GiftCard, storeAdmin: StoreAdmin)(implicit ec: ExecutionContext): DBIO[Adj] = {
+  def redeemToStoreCredit(giftCard: GiftCard, storeAdmin: StoreAdmin)(implicit ec: ExecutionContext): DbResult[Adj] = {
     val adjustment = Adj(giftCardId = giftCard.id, orderPaymentId = None, storeAdminId = storeAdmin.id.some,
       debit = giftCard.availableBalance, credit = 0, availableBalance = 0, status = Adj.Capture)
-    Adjs.saveNew(adjustment)
+    Adjs.create(adjustment)
   }
 
   def findByCode(code: String): QuerySeq =
     filter(_.code === code)
+
+  def findOneByCode(code: String): DBIO[Option[GiftCard]] =
+    findByCode(code).one
 
   def findActiveByCode(code: String): QuerySeq =
     findByCode(code).filter(_.status === (GiftCard.Active: GiftCard.Status))
@@ -260,20 +263,11 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
 
   private def adjust(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int = 0, credit: Int = 0,
     status: Adj.Status = Adj.Auth)
-    (implicit ec: ExecutionContext): DBIO[Adj] = {
+    (implicit ec: ExecutionContext): DbResult[Adj] = {
     val balance = giftCard.availableBalance - debit + credit
     val adjustment = Adj(giftCardId = giftCard.id, orderPaymentId = orderPaymentId,
       debit = debit, credit = credit, availableBalance = balance, status = status)
-    Adjs.saveNew(adjustment)
+    Adjs.create(adjustment)
   }
 
-  implicit class GiftCardQueryWrappers(q: QuerySeq) extends TableQueryWrappers(q) {
-    def mustFindByCode(code: String, notFoundFailure: String ⇒ Failure = notFound404K)
-      (implicit ec: ExecutionContext, db: Database): DbResult[GiftCard] = {
-      findByCode(code).one.flatMap {
-        case Some(model) ⇒ DbResult.good(model)
-        case None ⇒ DbResult.failure(notFoundFailure(code))
-      }
-    }
-  }
 }

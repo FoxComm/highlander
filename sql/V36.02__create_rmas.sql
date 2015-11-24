@@ -5,7 +5,7 @@ create table rmas (
     order_refnum reference_number not null,
     rma_type rma_type not null,
     status rma_status not null,
-    locked boolean default false,
+    is_locked boolean default false,
     message_to_customer text null,
     customer_id integer not null references customers(id) on update restrict on delete restrict,
     store_admin_id integer null references store_admins(id) on update restrict on delete restrict,

@@ -2,6 +2,7 @@ package services.orders
 
 import scala.concurrent.ExecutionContext
 
+import cats.data.Xor
 import services.CartFailures._
 import cats.implicits._
 import models.Orders.scope._
@@ -11,7 +12,8 @@ import responses.FullOrder
 import responses.FullOrder.Root
 import services._
 import slick.driver.PostgresDriver.api._
-import utils.Slick.implicits._
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 
 object OrderCreator {
   def createCart(payload: CreateOrder)
@@ -24,25 +26,16 @@ object OrderCreator {
     }
 
     def createCartForCustomer(customerId: Int): Result[Root] = (for {
-      customer  ← Customers.findById(customerId).extract.one
-      hasCart   ← Orders.findByCustomerId(customerId).cartOnly.exists.result
-    } yield (customer, hasCart)).run().flatMap {
-      case (Some(customer), false) ⇒
-        Result.fromFuture(Orders.saveNew(Order.buildCart(customerId)).run().map(root(_, customer)))
-
-      case (Some(_), true) ⇒
-        Result.failure(CustomerHasCart(customerId))
-
-      case _ ⇒
-        Result.failure(NotFoundFailure400(Customer, customerId))
-    }
+        customer ← * <~ Customers.mustFindById(customerId, i ⇒ NotFoundFailure400(Customer, i))
+        hasCart  ← * <~ Orders.findByCustomerId(customerId).cartOnly.exists.result
+        _        ← * <~ (if (hasCart) Xor.left(CustomerHasCart(customer.id).single) else Xor.right({}))
+        newCart  ← * <~ Orders.create(Order.buildCart(customerId))
+      } yield root(newCart, customer)).runT()
 
     def createCartAndGuest(email: String): Result[Root] = (for {
-      guest ← Customers.saveNew(Customer.buildGuest(email = email))
-      cart  ← Orders.saveNew(Order.buildCart(guest.id))
-    } yield (cart, guest)).run().flatMap { case (cart, guest) ⇒
-      Result.good(root(cart, guest))
-    }
+      guest ← * <~ Customers.create(Customer.buildGuest(email = email))
+      cart  ← * <~ Orders.create(Order.buildCart(guest.id))
+    } yield root(cart, guest)).runT()
 
     (for {
       _     ← ResultT.fromXor(payload.validate.toXor)
