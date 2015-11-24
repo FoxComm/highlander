@@ -10,15 +10,15 @@ import addressForm from './address-form';
 import addresses from './addresses';
 
 const rootReducer = combineReducers({
-  router: routerStateReducer
-  ,giftCards
-  ,customers
-  ,orders
-  ,rmas
-  ,notes
-  ,countries
-  ,addressForm
-  ,addresses
+  router: routerStateReducer,
+  giftCards,
+  customers,
+  orders,
+  rmas,
+  notes,
+  countries,
+  addressForm,
+  addresses,
 });
 
 export default rootReducer;
