@@ -4,10 +4,9 @@ import React, { PropTypes } from 'react';
 import AddressBox from './address-box';
 import { connect } from 'react-redux';
 import ConfirmationDialog from '../modal/confirmation-dialog';
-import * as CustomerAddressesActions from '../../modules/customers/addresses';
 
 /**
- * Address list. Requires actions which interface described in customers/address and address modules.
+ * Address list. Requires actions which interface described in customers/address-details and address modules.
  */
 const Addresses = props => {
   const content = props.processContent(

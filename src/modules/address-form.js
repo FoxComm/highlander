@@ -4,7 +4,7 @@ import Api from '../lib/api';
 import { assoc, merge, get, update } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 import { fetchCountry } from './countries';
-import { createAddress, patchAddress } from './addresses';
+import { createAddress, patchAddress } from './customers/addresses';
 
 const DEFAULT_COUNTRY = 'US';
 

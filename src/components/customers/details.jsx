@@ -11,11 +11,11 @@ import CustomerNotificationSettings from './notification-settings';
 import CustomerAccountStatus from './account-status';
 import SectionSubtitle from '../section-title/section-subtitle';
 import { connect } from 'react-redux';
-import * as AddressesActions from '../../modules/addresses';
+import * as AddressesActions from '../../modules/customers/addresses';
 
 @connect((state, props) => ({
   ...state.customers.details[props.entity.id],
-  addresses: _.get(state.addresses, [props.entity.id, 'addresses'], [])
+  addresses: _.get(state.customers.addresses, [props.entity.id, 'addresses'], [])
 }), AddressesActions)
 export default class CustomerDetails extends React.Component {
 

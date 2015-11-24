@@ -10,13 +10,13 @@ import ItemCardContainer from '../item-card-container/item-card-container';
 import { AddButton } from '../common/buttons';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
-import * as CustomerAddressesActions from '../../modules/customers/addresses';
-import * as AddressesActions from '../../modules/addresses';
+import * as AddressesDetailsActions from '../../modules/customers/addresses-details';
+import * as AddressesActions from '../../modules/customers/addresses';
 
 @connect((state, props) => ({
-  ...state.customers.addresses
+  ...state.customers.addressesDetails
 }), {
-  ...CustomerAddressesActions,
+  ...AddressesDetailsActions,
   ...AddressesActions
 })
 export default class CustomerAddressBook extends React.Component {
@@ -25,12 +25,8 @@ export default class CustomerAddressBook extends React.Component {
     customerId: PropTypes.number.isRequired,
     fetchAddresses: PropTypes.func,
     startAddingAddress: PropTypes.func,
-    addresses: PropTypes.array
+    addresses: PropTypes.array.isRequired
   };
-
-  componentDidMount() {
-    this.props.fetchAddresses(this.props.customerId);
-  }
 
   @autobind
   injectNewAddressCard(addresses) {
