@@ -34,7 +34,9 @@ export default class Order extends React.Component {
     order: PropTypes.shape({
       currentOrder: PropTypes.object
     }),
-    children: PropTypes.node
+    children: PropTypes.node,
+    updateOrder: PropTypes.func,
+    fetchOrder: PropTypes.func
   };
 
   get changeOptions() {
