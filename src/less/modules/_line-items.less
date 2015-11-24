@@ -1,4 +1,6 @@
 .fc-line-items {
+  background-color: @color-decor12;
+
   input[type=number] {
     &::-webkit-inner-spin-button,
     &::-webkit-outer-spin-button {
@@ -8,7 +10,7 @@
   }
 
   &-add {
-    .padding(25px, 15px);
+    .margin(25px, 20px, 0);
     background-color: @color-decor12;
   }
 
@@ -50,12 +52,17 @@
   }
 
   &-count {
-    color: #B1B1B1;
+    color: @color-decor42;
     .font-spec(15px, 600, 20px);
     .margin(10px 20px 0 0);
   }
 
   .fc-line-item-sale {
-    color: #F7423B;
+    color: @color-decor50;
+  }
+
+  .fc-editable-content-box-footer {
+    border-top: none;
+    background-color: @color-decor12;
   }
 }

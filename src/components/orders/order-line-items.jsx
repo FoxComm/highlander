@@ -81,7 +81,7 @@ class RenderEditContent extends React.Component {
                    data={{rows: lineItemsStatus.items}}
                    renderRow={ renderRow } />
         <footer className="fc-line-items-footer">
-          <div>
+          <div className="fc-line-items-add">
             <div className="fc-line-items-add-label">
               <strong>Add Item</strong>
             </div>
