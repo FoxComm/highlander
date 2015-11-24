@@ -19,7 +19,7 @@ object FullOrder {
   final case class LineItems(
     skus: Seq[DisplayLineItem] = Seq.empty,
     giftCards: Seq[GiftCardResponse.Root] = Seq.empty
-    ) extends ResponseItem
+   ) extends ResponseItem
 
   final case class Root(
     id: Int,
@@ -47,26 +47,28 @@ object FullOrder {
     totalPrice: Int = 33,
     status: OrderLineItem.Status) extends ResponseItem
 
-//  final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = CustomerPurchase,
-//    code: String = "", subTypeId: Option[Int] = None, currency: Currency = Currency.USD, status: Status = GiftCard.Active,
-//    originalBalance: Int, currentBalance: Int = 0, availableBalance: Int = 0, canceledAmount: Option[Int] = None,
-//    canceledReason: Option[Int] = None, reloadable: Boolean = false, createdAt: Instant = Instant.now())
-
   sealed trait Payments
 
   object Payments {
-    final case class CreditCardPayment(id: Int, holderName: String, lastFour: String, expMonth: Int, expYear: Int,
-      brand: String, address: Addresses.Root) extends Payments
+    import PaymentMethod.Type
+    import PaymentMethod.{CreditCard, GiftCard, StoreCredit}
 
-    final case class GiftCardPayment(code: String, `type`: GiftCard.OriginType,
-      currentBalance: Int, availableBalance: Int, createdAt: Instant) extends Payments
+    final case class CreditCardPayment(id: Int, customerId: Int, holderName: String, lastFour: String, expMonth: Int,
+      expYear: Int, brand: String, address: Addresses.Root, `type`: Type = CreditCard) extends Payments
+
+    final case class GiftCardPayment(code: String, amount: Int, currentBalance: Int, availableBalance: Int,
+      createdAt: Instant, `type`: Type = GiftCard) extends Payments
+
+    final case class StoreCreditPayment(id: Int, amount: Int, currentBalance: Int, availableBalance: Int,
+      createdAt: Instant, `type`: Type = StoreCredit) extends Payments
   }
 
   def refreshAndFullOrder(order: Order)(implicit ec: ExecutionContext, db: Database): DBIO[FullOrder.Root] =
     Orders.refresh(order).flatMap(fromOrder)
 
   def fromOrder(order: Order)(implicit ec: ExecutionContext, db: Database): DBIO[Root] = {
-    fetchOrderDetails(order).map { case (customer, skus, shipMethod, shipAddress, ccPmt, gcPmts, assignees, giftCards) ⇒
+    fetchOrderDetails(order).map {
+      case (customer, skus, shipMethod, shipAddress, ccPmt, gcPmts, scPmts, assignees, giftCards) ⇒
       build(
         order = order,
         customer = customer,
@@ -76,7 +78,8 @@ object FullOrder {
         shippingMethod = shipMethod,
         assignments = assignees,
         ccPmt = ccPmt,
-        gcPmts = gcPmts
+        gcPmts = gcPmts,
+        scPmts = scPmts
       )
     }
   }
@@ -85,22 +88,28 @@ object FullOrder {
     shippingMethod: Option[ShippingMethod] = None, customer: Option[Customer] = None,
     shippingAddress: Option[Addresses.Root] = None,
     ccPmt: Option[CcPayment] = None, gcPmts: Seq[(OrderPayment, GiftCard)] = Seq.empty,
+    scPmts: Seq[(OrderPayment, StoreCredit)] = Seq.empty,
     assignments: Seq[(OrderAssignment, StoreAdmin)] = Seq.empty,
     giftCards: Seq[(GiftCard, OrderLineItemGiftCard)] = Seq.empty): Root = {
 
     val creditCardPmt = ccPmt.map { case (pmt, cc, region) ⇒
-      val payment = Payments.CreditCardPayment(id = cc.id, holderName = cc.holderName, lastFour = cc.lastFour,
-        expMonth = cc.expMonth, expYear = cc.expYear, brand = cc.brand,
+      val payment = Payments.CreditCardPayment(id = cc.id, customerId = cc.customerId, holderName = cc.holderName,
+        lastFour = cc.lastFour, expMonth = cc.expMonth, expYear = cc.expYear, brand = cc.brand,
         address = Addresses.buildFromCreditCard(cc, region))
       Seq(payment)
     }.getOrElse(Seq.empty)
 
     val giftCardPmts = gcPmts.map { case (pmt, gc) ⇒
-      Payments.GiftCardPayment(code = gc.code, `type` = gc.originType, currentBalance = gc.currentBalance,
+      Payments.GiftCardPayment(code = gc.code, amount = pmt.amount.getOrElse(0), currentBalance = gc.currentBalance,
         availableBalance = gc.availableBalance, createdAt = gc.createdAt)
     }
 
-    val paymentMethods: Seq[Payments] = creditCardPmt ++ giftCardPmts
+    val storeCreditPmts = scPmts.map { case (pmt, sc) ⇒
+      Payments.StoreCreditPayment(id = sc.id, amount = pmt.amount.getOrElse(0), currentBalance = sc.currentBalance,
+        availableBalance = sc.availableBalance, createdAt = sc.createdAt)
+    }
+
+    val paymentMethods: Seq[Payments] = creditCardPmt ++ giftCardPmts ++ storeCreditPmts
 
     val skuList = skus.map { case (sku, li) ⇒ DisplayLineItem(sku = sku.sku, status = li.status) }
     val gcList = giftCards.map { case (gc, li) ⇒ GiftCardResponse.build(gc) }
@@ -124,13 +133,6 @@ object FullOrder {
     )
   }
 
-//  private def getPaymentStatus(orderStatus: Order.Status, payment: Payment): CreditCardCharge.Status = {
-//    (orderStatus, payment) match {
-//      case (Order.Cart, _) ⇒ CreditCardCharge.Cart
-//      case (_, (_, _, creditCardCharge)) ⇒ creditCardCharge.status
-//    }
-//  }
-
   private def fetchOrderDetails(order: Order)(implicit ec: ExecutionContext) = {
     val shippingMethodQ = for {
       orderShippingMethod ← models.OrderShippingMethods.filter(_.orderId === order.id)
@@ -152,8 +154,10 @@ object FullOrder {
       shipAddress ← Addresses.forOrderId(order.id)
       payments ← ccPaymentQ.one
       gcPayments ← OrderPayments.findAllGiftCardsByOrderId(order.id).result
+      scPayments ← OrderPayments.findAllStoreCreditsByOrderId(order.id).result
       assignments ← OrderAssignments.filter(_.orderId === order.id).result
       admins ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.assigneeId))).result
-    } yield (customer, lineItems, shipMethod, shipAddress, payments, gcPayments, assignments.zip(admins), giftCards)
+    } yield (customer, lineItems, shipMethod, shipAddress, payments, gcPayments, scPayments, assignments.zip(admins),
+      giftCards)
   }
 }
