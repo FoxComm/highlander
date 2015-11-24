@@ -13,7 +13,6 @@ const initialState = {
 export function fetchProducts() {
   return dispatch => {
     dispatch(requestProducts());
-    console.log('fetch products');
     return Api.get('/products')
       .then(order => dispatch(receiveProducts(products)))
       .catch(err => dispatch(failProducts(err)));
@@ -22,14 +21,12 @@ export function fetchProducts() {
 
 const reducer = createReducer({
   [requestProducts]: state => {
-    console.log('requestProducts');
     return {
       ...state,
       isFetching: true
     };
   },
   [receiveProducts]: (state, payload) => {
-    console.log('receiveProducts');
     return {
       ...state,
       isFetching: false,
@@ -37,7 +34,6 @@ const reducer = createReducer({
     };
   },
   [failProducts]: (state, err) => {
-    console.log('failProducts');
     console.error(err);
 
     return {
