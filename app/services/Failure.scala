@@ -90,6 +90,12 @@ final case class OrderUpdateFailure(referenceNumber: String, reason: String) ext
   override def description = List(reason)
 }
 
+object RmaFailures {
+  final case class EmptyRma(refNum: String) extends Failure {
+    override def description = List(s"rma with referenceNumber=$refNum has no line items")
+  }
+}
+
 object CartFailures {
   final case class OrderMustBeCart(refNum: String) extends Failure {
     override def description = List(s"order with referenceNumber=$refNum is not in cart status")

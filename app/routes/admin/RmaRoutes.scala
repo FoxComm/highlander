@@ -75,6 +75,11 @@ object RmaRoutes {
             RmaService.getExpandedByRefNum(refNum)
           }
         } ~
+        (patch & pathEnd & entity(as[RmaUpdateStatusPayload])) { payload ⇒
+          goodOrFailures {
+            RmaService.updateStatusByCsr(refNum, payload)
+          }
+        } ~
         (post & path("message") & pathEnd & entity(as[RmaMessageToCustomerPayload])) { payload ⇒
           goodOrFailures {
             RmaService.updateMessageToCustomer(refNum, payload)
@@ -132,7 +137,7 @@ object RmaRoutes {
           }
         } ~
         pathPrefix("payment-methods" / "credit-cards") {
-          ((post | patch) & pathEnd & entity(as[RmaCcPaymentPayload])) { payload ⇒
+          ((post | patch) & pathEnd & entity(as[RmaPaymentPayload])) { payload ⇒
             goodOrFailures {
               RmaPaymentUpdater.addCreditCard(refNum, payload)
             }

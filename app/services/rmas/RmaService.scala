@@ -2,7 +2,9 @@ package services.rmas
 
 import scala.concurrent.{Future, ExecutionContext}
 
+import cats.data.Xor
 import models._
+import models.Rma.{Canceled, Complete}
 import payloads._
 import responses.{CustomerResponse, StoreAdminResponse, AllRmas}
 import services._
@@ -25,6 +27,28 @@ object RmaService {
     update    ← * <~ Rmas.update(rma, rma.copy(messageToCustomer = newMessage))
     response  ← * <~ fullRma(Rmas.findByRefNum(refNum)).toXor
   } yield response).runT()
+
+  def updateStatusByCsr(refNum: String, payload: RmaUpdateStatusPayload)
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
+    _         ← * <~ payload.validate.toXor
+    rma       ← * <~ mustFindRmaByRefNum(refNum)
+    reason    ← * <~ payload.reasonId.map(Reasons.findOneById).getOrElse(lift(None)).toXor
+    _         ← * <~ cancelOrUpdate(rma, reason, payload)
+    response  ← * <~ fullRma(Rmas.findByRefNum(refNum)).toXor
+  } yield response).runT()
+
+  private def cancelOrUpdate(rma: Rma, reason: Option[Reason], payload: RmaUpdateStatusPayload)
+    (implicit ec: ExecutionContext, db: Database) = {
+
+    (payload.status, reason) match {
+      case (Canceled, Some(r)) ⇒
+        Rmas.update(rma, rma.copy(status = payload.status, canceledReason = Some(r.id)))
+      case (Canceled, None) ⇒
+        DbResult.failure(InvalidCancellationReasonFailure)
+      case (_, _) ⇒
+        Rmas.update(rma, rma.copy(status = payload.status))
+    }
+  }
 
   def createByAdmin(admin: StoreAdmin, payload: RmaCreatePayload)
     (implicit db: Database, ec: ExecutionContext): Result[Root] = {

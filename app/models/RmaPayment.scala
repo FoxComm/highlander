@@ -20,13 +20,16 @@ object RmaPayment {
   def fromStripeCustomer(stripeCustomer: StripeCustomer, rma: Rma): RmaPayment =
     RmaPayment(rmaId = rma.id, paymentMethodId = 1, paymentMethodType = PaymentMethod.CreditCard)
 
-  def build(method: PaymentMethod, rmaId: Int, amount: Int): RmaPayment = method match {
+  def build(method: PaymentMethod, rmaId: Int, amount: Int, currency: Currency): RmaPayment = method match {
     case gc: GiftCard ⇒
-      RmaPayment(rmaId = rmaId, amount = amount, paymentMethodId = gc.id, paymentMethodType = PaymentMethod.GiftCard)
+      RmaPayment(rmaId = rmaId, amount = amount, currency = currency,
+        paymentMethodId = gc.id, paymentMethodType = PaymentMethod.GiftCard)
     case cc: CreditCard ⇒
-      RmaPayment(rmaId = rmaId, amount = amount, paymentMethodId = cc.id, paymentMethodType = PaymentMethod.CreditCard)
+      RmaPayment(rmaId = rmaId, amount = amount, currency = currency,
+        paymentMethodId = cc.id, paymentMethodType = PaymentMethod.CreditCard)
     case sc: StoreCredit ⇒
-      RmaPayment(rmaId = rmaId, amount = amount, paymentMethodId = sc.id, paymentMethodType = PaymentMethod.StoreCredit)
+      RmaPayment(rmaId = rmaId, amount = amount, currency = currency,
+        paymentMethodId = sc.id, paymentMethodType = PaymentMethod.StoreCredit)
   }
 
 }

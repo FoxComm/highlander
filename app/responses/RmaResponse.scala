@@ -57,6 +57,7 @@ object RmaResponse {
     storeAdmin: Option[StoreAdmin] = None,
     assignees: Seq[AssignmentResponse.Root],
     messageToCustomer: Option[String] = None,
+    canceledReason: Option[Int] = None,
     createdAt: Instant,
     updatedAt: Instant,
     totals: Option[RmaTotals]) extends ResponseItem
@@ -73,6 +74,7 @@ object RmaResponse {
     storeAdmin: Option[StoreAdmin] = None,
     assignees: Seq[AssignmentResponse.Root],
     messageToCustomer: Option[String] = None,
+    canceledReason: Option[Int] = None,
     createdAt: Instant,
     updatedAt: Instant,
     totals: Option[RmaTotals]) extends ResponseItem
@@ -150,6 +152,7 @@ object RmaResponse {
       lineItems = lineItems,
       assignees = assignees,
       messageToCustomer = rma.messageToCustomer,
+      canceledReason = rma.canceledReason,
       createdAt = rma.createdAt,
       updatedAt = rma.updatedAt,
       totals = totals)
@@ -170,6 +173,7 @@ object RmaResponse {
       lineItems = lineItems,
       assignees = assignees,
       messageToCustomer = rma.messageToCustomer,
+      canceledReason = rma.canceledReason,
       createdAt = rma.createdAt,
       updatedAt = rma.updatedAt,
       totals = totals)
