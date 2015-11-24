@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-
+import _ from 'lodash';
 import ConfirmationDialog from '../modal/confirmation-dialog';
 import OrderLineItem from './order-line-item';
 import TableView from '../table/tableview';
@@ -62,9 +62,12 @@ class RenderEditContent extends React.Component {
      this.props.fetchProducts();
   }
 
+  get products() {
+    return _.get(this.props, 'productActions.products', []);
+  }
+
   render() {
     const props = this.props;
-    console.log(props);
     const order = props.order.currentOrder;
     const lineItemsStatus = props.order.lineItems;
 
@@ -84,7 +87,7 @@ class RenderEditContent extends React.Component {
             </div>
             <Typeahead onItemSelected={null}
                        component={SkuResult}
-                       items={props.productActions.products}
+                       items={this.products}
                        placeholder="Product name or SKU..."/>
           </div>
         </footer>
