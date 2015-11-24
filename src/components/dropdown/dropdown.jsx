@@ -27,11 +27,14 @@ export default class Dropdown extends React.Component {
     };
   }
 
-  findTitleByValue(value) {
-    if (this.props.items) {
-      return this.props.items[value];
+  findTitleByValue(value, props) {
+    if (!props) {
+      props = this.props;
+    }
+    if (props.items) {
+      return props.items[value];
     } else {
-      const item = _.findWhere(React.Children.toArray(this.props.children), {props: {value: value}});
+      const item = _.findWhere(React.Children.toArray(props.children), {props: {value: value}});
       return item && item.props.children;
     }
   }
@@ -67,6 +70,16 @@ export default class Dropdown extends React.Component {
   @autobind
   onBlur() {
     this.setState({open: false});
+  }
+
+  componentWillReceiveProps(newProps) {
+    // todo: additional/different checks?
+    if (newProps.value != this.state.selectedValue) {
+      this.setState({
+        selectedValue: newProps.value,
+        selectedTitle: this.findTitleByValue(newProps.value, newProps)
+      });
+    }
   }
 
   render() {
