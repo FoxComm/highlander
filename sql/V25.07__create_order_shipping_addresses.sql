@@ -10,7 +10,6 @@ create table order_shipping_addresses (
     phone_number phone_number null,
     created_at timestamp without time zone default (now() at time zone 'utc'),
     updated_at timestamp without time zone default (now() at time zone 'utc'),
-    deleted_at timestamp without time zone null,
     foreign key (order_id) references orders(id) on update restrict on delete restrict
 );
 
