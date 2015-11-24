@@ -57,7 +57,7 @@ export function createAddressBox(address, idx, props) {
   return (
     <AddressBox key={`address-${idx}`}
                 address={address}
-                choosen={props.selectedAddressId == address.id}
+                chosen={props.selectedAddressId == address.id}
                 editAction={() => props.startEditingAddress(address.id)}
                 toggleDefaultAction={() => props.setAddressDefault(props.customerId, address.id, !address.isDefault)}
                 chooseAction={chooseAction}

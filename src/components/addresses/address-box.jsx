@@ -23,7 +23,7 @@ export default class AddressBox extends React.Component {
     checkboxLabel: PropTypes.string,
     deleteAction: PropTypes.func,
     chooseAction: PropTypes.func,
-    choosen: PropTypes.bool,
+    chosen: PropTypes.bool,
     actionBlock: PropTypes.node,
     children: PropTypes.node
   };
@@ -38,7 +38,7 @@ export default class AddressBox extends React.Component {
     if (props.chooseAction) {
       return (
         <AddressBoxMainAction>
-          <Button onClick={() => props.chooseAction(props.address)} disabled={props.choosen}>
+          <Button onClick={() => props.chooseAction(props.address)} disabled={props.chosen}>
             Choose
           </Button>
         </AddressBoxMainAction>
@@ -78,7 +78,7 @@ export default class AddressBox extends React.Component {
     const address = props.address;
 
     return (
-      <EditableItemCardContainer className={ classNames('fc-address', props.className, {'is-active': props.choosen}) }
+      <EditableItemCardContainer className={ classNames('fc-address', props.className, {'is-active': props.chosen}) }
                                  checkboxLabel={ props.checkboxLabel }
                                  isDefault={ address.isDefault }
                                  checkboxChangeHandler={() => props.toggleDefaultAction(address) }

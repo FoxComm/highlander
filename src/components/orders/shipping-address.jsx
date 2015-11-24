@@ -66,7 +66,7 @@ export default class OrderShippingAddress extends React.Component {
         <ul className="fc-addresses-list">
           <AddressBox
             address={address}
-            choosen={true}
+            chosen={true}
             checkboxLabel={null}
             editAction={() => props.startEditingAddress(address.id, addressTypes.SHIPPING)}
             actionBlock={ actionBlock }
