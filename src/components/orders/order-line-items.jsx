@@ -34,7 +34,7 @@ const OrderLineItems = props => {
       isEditing={props.order.lineItems.isEditing}
       editAction={props.orderLineItemsStartEdit}
       doneAction={props.orderLineItemsCancelEdit}
-      editContent={renderEditContent(props)}
+      editContent={ <RenderEditContent {...props} /> }
       viewContent={renderViewContent(props)} />
   );
 };
@@ -56,46 +56,55 @@ renderViewContent.propTypes = {
   })
 };
 
-const renderEditContent = props => {
-  console.log(props);
-  const order = props.order.currentOrder;
-  const lineItemsStatus = props.order.lineItems;
+class RenderEditContent extends React.Component {
 
-  const renderRow = (lineItem) => {
-    return <OrderLineItem key={`lineItem-${lineItem.sku}`} item={lineItem} {...props} />;
-  };
+  componentDidMount() {
+     this.props.fetchProducts();
+  }
 
-  return (
-    <div>
-      <TableView columns={ editModeColumns }
-                 data={{rows: lineItemsStatus.items}}
-                 renderRow={ renderRow } />
-      <footer className="fc-line-items-footer">
-        <div>
-          <div className="fc-line-items-add-label">
-            <strong>Add Item</strong>
+  render() {
+    const props = this.props;
+    console.log(props);
+    const order = props.order.currentOrder;
+    const lineItemsStatus = props.order.lineItems;
+
+    const renderRow = (lineItem) => {
+      return <OrderLineItem key={`lineItem-${lineItem.sku}`} item={lineItem} {...props} />;
+    };
+
+    return (
+      <div>
+        <TableView columns={ editModeColumns }
+                   data={{rows: lineItemsStatus.items}}
+                   renderRow={ renderRow } />
+        <footer className="fc-line-items-footer">
+          <div>
+            <div className="fc-line-items-add-label">
+              <strong>Add Item</strong>
+            </div>
+            <Typeahead onItemSelected={null}
+                       component={SkuResult}
+                       items={props.productActions.products}
+                       placeholder="Product name or SKU..."/>
           </div>
-          <Typeahead onItemSelected={null}
-                     component={SkuResult}
-                     items={[]}
-                     placeholder="Product name or SKU..."/>
-        </div>
-      </footer>
-      <ConfirmationDialog
-        isVisible={lineItemsStatus.isDeleting}
-        header='Confirm'
-        body='Are you sure you want to delete this item?'
-        cancel='Cancel'
-        confirm='Yes, Delete'
-        cancelAction={() => props.orderLineItemsCancelDelete(lineItemsStatus.skuToDelete)}
-        confirmAction={() => props.deleteLineItem(order, lineItemsStatus.skuToDelete)} />
-    </div>
-  );
+        </footer>
+        <ConfirmationDialog
+          isVisible={lineItemsStatus.isDeleting}
+          header='Confirm'
+          body='Are you sure you want to delete this item?'
+          cancel='Cancel'
+          confirm='Yes, Delete'
+          cancelAction={() => props.orderLineItemsCancelDelete(lineItemsStatus.skuToDelete)}
+          confirmAction={() => props.deleteLineItem(order, lineItemsStatus.skuToDelete)} />
+      </div>
+    );
+  }
 };
 
-renderEditContent.propTypes = {
+RenderEditContent.propTypes = {
   orderLineItemsCancelDelete: PropTypes.func,
-  deleteLineItem: PropTypes.func
+  deleteLineItem: PropTypes.func,
+  fetchProducts: PropTypes.func
 };
 
 export default OrderLineItems;

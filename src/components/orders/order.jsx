@@ -9,6 +9,7 @@ import RemorseTimer from './remorseTimer';
 import { connect } from 'react-redux';
 import * as orderActions from '../../modules/orders/details';
 import * as shippingMethodActions from '../../modules/orders/shipping-methods';
+import * as productActions from '../../modules/products';
 import { DateTime } from '../common/datetime';
 import LocalNav from '../local-nav/local-nav';
 import { PanelList, PanelListItem } from '../panel/panel-list';
@@ -17,11 +18,12 @@ import SectionTitle from '../section-title/section-title';
 const mapStateToProps = (state) => {
   return {
     order: state.orders.details,
-    shippingMethods: state.orders.shippingMethods
+    shippingMethods: state.orders.shippingMethods,
+    productActions: state.products
   };
 };
 
-const mapDispatchToProps = {...orderActions, ...shippingMethodActions};
+const mapDispatchToProps = {...orderActions, ...shippingMethodActions, ...productActions};
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class Order extends React.Component {
@@ -34,10 +36,6 @@ export default class Order extends React.Component {
     }),
     children: PropTypes.node
   };
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   get changeOptions() {
     return {
