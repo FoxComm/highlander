@@ -62,6 +62,12 @@ class RenderEditContent extends React.Component {
      this.props.fetchProducts();
   }
 
+  static propTypes = {
+    orderLineItemsCancelDelete: PropTypes.func,
+    deleteLineItem: PropTypes.func,
+    fetchProducts: PropTypes.func
+  };
+
   get products() {
     return _.get(this.props, 'productActions.products', []);
   }
@@ -102,12 +108,6 @@ class RenderEditContent extends React.Component {
       </div>
     );
   }
-};
-
-RenderEditContent.propTypes = {
-  orderLineItemsCancelDelete: PropTypes.func,
-  deleteLineItem: PropTypes.func,
-  fetchProducts: PropTypes.func
 };
 
 export default OrderLineItems;
