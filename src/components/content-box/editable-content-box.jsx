@@ -43,7 +43,8 @@ EditableContentBox.propTypes = {
   renderContent: PropTypes.func,
   renderFooter: PropTypes.func,
   renderActions: PropTypes.func,
-  renderActionsInBody: PropTypes.func
+  renderActionsInBody: PropTypes.func,
+  title: PropTypes.string
 };
 
 EditableContentBox.defaultProps = {

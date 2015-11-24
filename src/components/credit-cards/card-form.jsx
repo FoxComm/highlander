@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { PrimaryButton } from '../common/buttons';
 import { Checkbox } from '../checkbox/checkbox';
@@ -19,7 +20,13 @@ export default class CreditCardForm extends React.Component {
     onCancel: PropTypes.func,
     isNew: PropTypes.bool,
     form: PropTypes.object,
-    addresses: PropTypes.array
+    addresses: PropTypes.array,
+    card: PropTypes.shape({
+      address: PropTypes.shape({
+        id: PropTypes.number
+      })
+    }),
+    customerId: PropTypes.number
   };
 
   constructor(...args) {
@@ -94,7 +101,7 @@ export default class CreditCardForm extends React.Component {
     const block = this.state.editingAddress ?
                     ( <AddressSelect name="addressId"
                                      items={ this.props.addresses }
-                                     initialValue={ this.props.form.addressId }
+                                     initialValue={ this.props.card.address.id }
                                      customerId={ this.props.customerId }
                                      onItemSelect={ this.onAddressChange } />) :
                     ( <AddressDetails customerId={ this.props.customerId }
@@ -104,6 +111,7 @@ export default class CreditCardForm extends React.Component {
 
   get addressSelectBlock() {
     let block = null;
+    let addressId = _.get(this.props, 'card.address.id');
     if (this.props.isNew) {
       block = (
         <li className="fc-credit-card-form-line">
@@ -114,7 +122,7 @@ export default class CreditCardForm extends React.Component {
             <AddressSelect name="addressId"
                            customerId={ this.props.customerId }
                            items={ this.props.addresses }
-                           initialValue={ this.props.form.addressId }
+                           initialValue={ addressId }
                            onItemSelect={ this.onAddressChange } />
           </div>
         </li>
@@ -134,6 +142,16 @@ export default class CreditCardForm extends React.Component {
     return block;
   }
 
+  get header() {
+    if (this.props.isNew) {
+      return (
+        <header className="fc-credit-card-form-header">
+          New Credit Card
+        </header>
+      );
+    }
+  }
+
   render() {
     const form = this.props.form;
     const containerClass = classnames(
@@ -147,9 +165,7 @@ export default class CreditCardForm extends React.Component {
         <Form className="fc-customer-credit-card-form fc-form-vertical"
               onChange={ this.props.onChange }
               onSubmit={ this.props.onSubmit }>
-          <header className="fc-credit-card-form-header">
-            New Credit Card
-          </header>
+          { this.header }
           <div>
             <ul className="fc-credit-card-form-fields">
               <li className="fc-credit-card-form-line">
