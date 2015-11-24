@@ -154,7 +154,7 @@ export default class AddressForm extends React.Component {
 
   get formTitle() {
     if (this.props.showFormTitle) {
-      const title = props.isAdding ? 'New Address' : 'Edit Address';
+      const title = this.props.isAdding ? 'New Address' : 'Edit Address';
 
       return (
         <li>
