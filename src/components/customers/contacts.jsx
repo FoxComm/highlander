@@ -6,7 +6,7 @@ import Form from '../forms/form';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import * as CustomerContactActions from '../../modules/customers/contacts';
-import { PrimaryButton } from '../common/buttons';
+import { PrimaryButton, EditButton } from '../common/buttons';
 
 function mapDispatchToProps(dispatch, props) {
   return _.transform(CustomerContactActions, (result, action, key) => {
@@ -127,7 +127,7 @@ export default class CustomerContacts extends React.Component {
           <a className='fc-customer-cancel-edit' onClick={ this.props.toggleEditCustomer }>
             Cancel
           </a>
-          <PrimaryButton>
+          <PrimaryButton type="submit">
             Save
           </PrimaryButton>
         </div>
@@ -138,9 +138,7 @@ export default class CustomerContacts extends React.Component {
   get actionBlock() {
     if (!this.props.isContactsEditing) {
       return (
-        <button onClick={ this.onEditClick } className='fc-btn'>
-          <i className='icon-edit'></i>
-        </button>
+        <EditButton onClick={ this.onEditClick }/>
       );
     }
   }
