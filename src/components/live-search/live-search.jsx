@@ -2,8 +2,11 @@ import React from 'react';
 import { autobind } from 'core-decorators';
 
 import _ from 'lodash';
+import classNames from 'classnames';
 
-import QueryBuilder from './query-builder';
+import Menu from '../menu/menu';
+import MenuItem from '../menu/menu-item';
+import SearchOption from './search-option';
 import ordersSearchTerms from './orders-search-terms';
 
 /**
@@ -13,34 +16,28 @@ import ordersSearchTerms from './orders-search-terms';
  */
 export default class LiveSearch extends React.Component {
   constructor(props, context) {
-    const options = flattenOptions(ordersSearchTerms);
     super(props, context);
+    this.searchOptions = ordersSearchTerms;
     this.state = {
       value: '',
-      queryBuilder: {
-        show: false,
-        selectedIndex: -1,
-        searchOptions: options,
-        visibleSearchOptions: visibleOptions(options)
-      },
+      showQueryBuilder: false,
+      selectedIndex: -1,
+      visibleSearchOptions: visibleOptions(this.searchOptions, ''),
       searches: []
     };
   }
 
   @autobind
   updateSearch(searchTerm) {
-    const visibleSearchOptions = visibleOptions(this.state.queryBuilder.searchOptions, searchTerm);
+    const visibleSearchOptions = visibleOptions(this.searchOptions, searchTerm);
     const showQB = !_.isEmpty(visibleSearchOptions);
 
     this.setState({
       ...this.state,
       value: searchTerm,
-      queryBuilder: {
-        ...this.state.queryBuilder,
-        show: showQB,
-        selectedIndex: -1,
-        visibleSearchOptions: visibleSearchOptions
-      }
+      showQueryBuilder: showQB,
+      selectedIndex: -1,
+      visibleSearchOptions: visibleSearchOptions
     });
   }
 
@@ -52,29 +49,26 @@ export default class LiveSearch extends React.Component {
   @autobind
   inputFocus() {
     const searchTerm = this.state.value;
-    const searchOptions = this.state.queryBuilder.searchOptions;
+    const searchOptions = this.searchOptions;
     const visibleSearchOptions = visibleOptions(searchOptions, searchTerm);
 
     this.setState({
       ...this.state,
-      queryBuilder: {
-        ...this.state.queryBuilder,
-        visibleSearchOptions: visibleSearchOptions,
-        show: true
-      }
+      showQueryBuilder: true,
+      visibleSearchOptions: visibleSearchOptions
     });
   }
 
   @autobind
   keyDown(event) {
-    let selectedIndex = this.state.queryBuilder.selectedIndex;
-    const visibleSearchOptions = this.state.queryBuilder.visibleSearchOptions;
+    let selectedIndex = this.state.selectedIndex;
+    const visibleSearchOptions = this.state.visibleSearchOptions;
     
     switch(event.keyCode) {
       case 40:
         // Down arrow
         event.preventDefault(); 
-        if (!this.state.queryBuilder.show) {
+        if (!this.state.showQueryBuilder) {
           this.inputFocus();
           return;
         } else {
@@ -90,7 +84,7 @@ export default class LiveSearch extends React.Component {
         // Enter
         event.preventDefault();
         if (visibleSearchOptions.length == 1) {
-          if (readyToSubmit(visibleSearchOptions[0], this.state.value)) {
+          if (readyToFilter(visibleSearchOptions[0], this.state.value)) {
             let newSearches = this.state.searches;
             newSearches.push(this.state.value);
 
@@ -98,10 +92,7 @@ export default class LiveSearch extends React.Component {
               ...this.state,
               value: '',
               searches: newSearches,
-              queryBuilder: {
-                ...this.state.queryBuilder,
-                show: false
-              }
+              showQueryBuilder: false
             });
           }
         } else {
@@ -115,10 +106,7 @@ export default class LiveSearch extends React.Component {
 
     this.setState({
       ...this.state,
-      queryBuilder: {
-        ...this.state.queryBuilder,
-        selectedIndex: selectedIndex,
-      }
+      selectedIndex: selectedIndex
     });
   }
 
@@ -129,9 +117,9 @@ export default class LiveSearch extends React.Component {
 
   @autobind
   selectOption(idx) {
-    const visibleSearchOptions = this.state.queryBuilder.visibleSearchOptions;
+    const visibleSearchOptions = this.state.visibleSearchOptions;
     if (idx > -1) {
-      const inputValue = `${visibleSearchOptions[idx].term} : `;
+      const inputValue = `${visibleSearchOptions[idx].display} : `;
       this.updateSearch(inputValue);
     }
   }
@@ -148,6 +136,33 @@ export default class LiveSearch extends React.Component {
         </div>
       );
     });
+  }
+
+  get searchOptionsMenu() {
+    const searchOptions = this.state.visibleSearchOptions.map((option, idx) => {
+      const key = `${option.term}-${idx}`;
+      const klass = classNames({
+        'is-active': this.state.selectedIndex == idx,
+        'is-first': idx == 0
+      });
+
+      return (
+        <SearchOption 
+          className={klass}
+          key={key}
+          option={option}
+          onClick={() => this.selectOption(idx)} />
+      );
+    });
+
+    return (
+      <Menu>
+        {searchOptions}
+        <MenuItem className='fc-search-option-back' onClick={this.goBack}>
+          Back
+        </MenuItem>
+      </Menu>
+    );
   }
 
   render() {
@@ -181,76 +196,76 @@ export default class LiveSearch extends React.Component {
             </div>
           </form>
         </div>
-        { this.state.queryBuilder.show &&
-          <QueryBuilder 
-            selectOption={this.selectOption}
-            selectedIndex={this.state.queryBuilder.selectedIndex} 
-            searchOptions={this.state.queryBuilder.visibleSearchOptions}
-            onGoBack={this.goBack} /> }
+        { this.state.showQueryBuilder && this.searchOptionsMenu }
       </div>
     );
   }
 }
 
-const flattenOptions = (options, term = '') => {
-  const allOptions = options.map(option => {
-    const termPrefix = _.isEmpty(term) ? '' : `${term} : `;
-    let returnOptions = [{
-      term: `${termPrefix}${option.term}`,
-      type: option.type,
-      suggestions: option.suggestions,
-      exactMatch: _.isEmpty(option.options),
-    }];
-    
-    if (!_.isEmpty(option.options)) {
-      returnOptions = _.union(returnOptions, flattenOptions(option.options, returnOptions[0].term));
-      returnOptions = _.flatten(returnOptions);
-    }    
-
-    return returnOptions;
-  });
-
-  return _.flatten(allOptions);
-}
-
 /**
- * Implementation of the algorithm used for showing options in the QueryBuilder
- * dropdown. The algorithm should be:
- *
- * TODO: Consider moving all of this logic into the child scope.
+ * Implementation of that algorithm that determines what search options
+ * should be shown in this control.
+ * @param {array} optionsList The complete set of options that could be shown.
+ * @param {string} term The search term to filter by.
  */
-const visibleOptions = (optionsList, term = '') => {
-  const searchTerm = term.trim().toLowerCase();
+const visibleOptions = (optionsList, term, prefix = '') => {
+  const opts = _.transform(optionsList, (result, option) => {
+    const comp = searchCmp(term, option, prefix);
 
-  let visibleSearchOptions = _.transform(optionsList, (result, option) => {
-    if (optionShouldBeVisible(option, searchTerm)) {
-      result.push(option);
+    if (comp == 0) {
+      const displayTerm = _.isEmpty(prefix) ? option.term : `${prefix} : ${option.term}`;
+      result.push({
+        ...option,
+        display: displayTerm
+      });
+    } else if (comp > 0 && !_.isEmpty(option.options)) {
+      const newPrefix = _.isEmpty(prefix) ? option.term : `${prefix} : ${option.term}`;
+      const nestedVisibleOptions = visibleOptions(option.options, term, newPrefix);
+      _.forEach(nestedVisibleOptions, option => {
+        const displayTerm = `${newPrefix} : ${option.term}`;
+        result.push({
+          ...option,
+          display: displayTerm
+        });
+      });
     }
   });
 
-  return visibleSearchOptions;
+  return _.flattenDeep(opts);
 };
 
-const optionShouldBeVisible = (option, term) => {
-  const optionTerm = option.term.toLowerCase();
+/**
+ * Determine whether or not a single search option should be visible. It conforms
+ * to the old strncmp concept. If the search team matches the option, return 0,
+ * if the search string is too long, return 1, and if too short return -1.
+ * @param {string} searchTerm The term used to filter options.
+ * @param {object} option The option being tested.
+ * @param {string} prefix A prefix that tells the child string that was scoped.
+ * @return {int} 0 if an exact match, 1 if a possible match to a child, -1 if no match.
+ */
+const searchCmp = (searchTerm, option, prefix) => {
+  const nSearchTerm = searchTerm.toLowerCase();
+  const optionTerm = _.isEmpty(prefix) ? option.term : `${prefix} : ${option.term}`;
+  const nOptionTerm = optionTerm.toLowerCase();
 
-  let searchTerm = term;
-  if (option.exactMatch) {
-    const truncatedLength = Math.min(option.term.length, term.length);
-    searchTerm = term.slice(0, truncatedLength);
+  if (nSearchTerm > nOptionTerm) {
+    return _.isEmpty(option.options) && _.startsWith(nSearchTerm, nOptionTerm) ? 0 : 1;
+  } else {
+    return _.startsWith(nOptionTerm, nSearchTerm) ? 0 : -1;
   }
-
-  const colonsInSearchTerm = (searchTerm.match(/:/g) || []).length;
-  const colonsInOption = (option.term.match(/:/g) || []).length;
-
-  return colonsInSearchTerm == colonsInOption && _.startsWith(optionTerm, searchTerm);
 };
 
-const readyToSubmit = (option, term) => {
-  const optionTerm = option.term.toLowerCase();
+/**
+ * Check to see if the contents of the search box are ready to be turned into a filter.
+ * @param {object} option The currently matched option.
+ * @param {string} term The search team in the filter field.
+ * @return {boolean} True if ready, false otherwise.
+ */
+const readyToFilter = (option, term) => {
+  const optionTerm = option.display.toLowerCase();
   const searchTerm = _.trim(term, ': ').toLowerCase();
 
-  if (option.exactMatch) {
+  if (_.isEmpty(option.options)) {
     return searchTerm.length > optionTerm.length && _.startsWith(searchTerm, optionTerm);
   } else {
     return false;
