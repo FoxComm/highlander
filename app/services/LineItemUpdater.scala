@@ -2,16 +2,17 @@ package services
 
 import scala.concurrent.ExecutionContext
 
-import cats.data.Xor
 import cats.data.Validated.{Valid, Invalid}
 import models._
-import CartFailures.OrderMustBeCart
 import models.OrderLineItems.scope._
 import payloads.{AddGiftCardLineItem, UpdateLineItemsPayload}
 import cats.implicits._
-import responses.FullOrder
-import services.CartFailures.OrderMustBeCart
+import responses.FullOrder.refreshAndFullOrder
+import responses.{TheResponse, FullOrder}
+import TheResponse._
 import slick.driver.PostgresDriver.api._
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 import utils.Slick._
 import utils.Slick.implicits._
 
@@ -20,7 +21,7 @@ object LineItemUpdater {
   val orders = TableQuery[Orders]
 
   def addGiftCard(refNum: String, payload: AddGiftCardLineItem)
-    (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
+    (implicit ec: ExecutionContext, db: Database): Result[TheResponse[FullOrder.Root]] = {
 
     payload.validate match {
       case Valid(_)        ⇒ addGiftCardToOrder(refNum, payload)
@@ -29,87 +30,63 @@ object LineItemUpdater {
   }
 
   private def addGiftCardToOrder(refNum: String, payload: AddGiftCardLineItem)
-    (implicit ec: ExecutionContext, db: Database) = {
-    val finder = Orders.findByRefNum(refNum)
+    (implicit ec: ExecutionContext, db: Database) = (for {
+    p      ← * <~ payload.validate
+    order  ← * <~ Orders.mustFindByRefNum(refNum)
+    _      ← * <~ order.mustBeCart
+    origin ← * <~ GiftCardOrders.create(GiftCardOrder(orderId = order.id))
+    gc     ← * <~ GiftCards.create(GiftCard.buildLineItem(balance = p.balance, originId = origin.id, currency = p.currency))
+    liGc   ← * <~ OrderLineItemGiftCards.create(OrderLineItemGiftCard(giftCardId = gc.id, orderId = order.id))
+    _      ← * <~ OrderLineItems.create(OrderLineItem.buildGiftCard(order, liGc))
+    valid  ← * <~ CartValidator(order).validate
+    result ← * <~ refreshAndFullOrder(order).toXor
+  } yield TheResponse.build(result, alerts = valid.alerts, warnings = valid.warnings)).runT()
 
-    finder.selectOne ({ order ⇒
-      val queries = for {
-        gcOrigin ← GiftCardOrders.saveNew(GiftCardOrder(orderId = order.id))
-        gc ← GiftCards.saveNew(GiftCard.buildLineItem(balance = payload.balance, originId = gcOrigin.id,
-          currency = payload.currency))
-        lineItemGc ← OrderLineItemGiftCards.saveNew(OrderLineItemGiftCard(giftCardId = gc.id, orderId = order.id))
-        lineItem ← OrderLineItems.saveNew(OrderLineItem.buildGiftCard(order, lineItemGc))
-      } yield ()
-
-      DbResult.fromDbio(queries >> fullOrder(finder))
-    }, checks = finder.checks + finder.mustBeCart)
-  }
-
-  def editGiftCard(refNum: String, code: String, payload: AddGiftCardLineItem)
-    (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
-
-    payload.validate match {
-      case Valid(_) ⇒
-        val finder = GiftCards.findByCode(code)
-        finder.selectOneForUpdate ({ gc ⇒
-          val updatedGc = gc.copy(originalBalance = payload.balance,
-            availableBalance = payload.balance, currentBalance = payload.balance, currency = payload.currency)
-
-          val update = GiftCards.filter(_.id === gc.id).update(updatedGc)
-
-          Orders.findByRefNum(refNum).one.flatMap {
-            case Some(order) if order.isCart ⇒ DbResult.fromDbio(update >> FullOrder.fromOrder(order))
-            case Some(order)                 ⇒ DbResult.failure(OrderMustBeCart(order.refNum))
-            case None                        ⇒ DbResult.failure(NotFoundFailure404(Order, refNum))
-          }
-        }, checks = finder.checks + finder.mustBeCart)
-      case Invalid(errors) ⇒
-        Result.failures(errors)
-    }
-  }
+  def editGiftCard(refNum: String, code: String, liPayload: AddGiftCardLineItem)
+    (implicit ec: ExecutionContext, db: Database): Result[TheResponse[FullOrder.Root]] = (for {
+    payload  ← * <~ liPayload.validate
+    giftCard ← * <~ GiftCards.mustFindByCode(code)
+    _        ← * <~ giftCard.mustBeCart
+    order    ← * <~ Orders.mustFindByRefNum(refNum)
+    _        ← * <~ order.mustBeCart
+    _        ← * <~ GiftCards.filter(_.id === giftCard.id).update(GiftCard.update(giftCard, payload))
+    valid    ← * <~ CartValidator(order).validate
+    result   ← * <~ refreshAndFullOrder(order).toXor
+  } yield TheResponse.build(result, alerts = valid.alerts, warnings = valid.warnings)).runT()
 
   def deleteGiftCard(refNum: String, code: String)
-    (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
-
-    val finder = GiftCards.findByCode(code)
-    finder.selectOneForUpdate ({ gc ⇒
-      val origin = OrderLineItemGiftCards.filter(_.giftCardId === gc.id)
-      origin.one.flatMap {
-        case Some(o) ⇒
-          val deleteAll = for {
-            lineItemGiftCard ← origin.delete
-            lineItem ← OrderLineItems.filter(_.originId === o.id).giftCards.delete
-            giftCard ← GiftCards.filter(_.id === gc.id).delete
-            gcOrigin ← GiftCardOrders.filter(_.id === gc.originId).delete
-          } yield ()
-
-          Orders.findByRefNum(refNum).one.flatMap {
-            case Some(order) if order.isCart ⇒ DbResult.fromDbio(deleteAll >> FullOrder.fromOrder(order))
-            case Some(order)                 ⇒ DbResult.failure(OrderMustBeCart(order.refNum))
-            case None                        ⇒ DbResult.failure(NotFoundFailure404(Order, refNum))
-          }
-        case None ⇒
-          DbResult.failure(NotFoundFailure404(GiftCard, code))
-      }
-    }, checks = finder.checks + finder.mustBeCart)
-  }
+    (implicit ec: ExecutionContext, db: Database): Result[TheResponse[FullOrder.Root]] = (for {
+    gc    ← * <~ GiftCards.mustFindByCode(code)
+    _     ← * <~ gc.mustBeCart
+    order ← * <~ Orders.mustFindByRefNum(refNum)
+    _     ← * <~ order.mustBeCart
+    _     ← * <~ OrderLineItemGiftCards.findByGcId(gc.id).delete
+    _     ← * <~ OrderLineItems.filter(_.originId === order.id).giftCards.delete
+    _     ← * <~ GiftCards.filter(_.id === gc.id).delete
+    _     ← * <~ GiftCardOrders.filter(_.id === gc.originId).delete
+    valid ← * <~ CartValidator(order).validate
+    res   ← * <~ refreshAndFullOrder(order).toXor
+  } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runT()
 
   def updateQuantitiesOnOrder(refNum: String, payload: Seq[UpdateLineItemsPayload])
-    (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
-    val finder = Orders.findByRefNum(refNum)
-
-    finder.selectOneForUpdate { order ⇒
-      DbResult.fromDbio(updateQuantities(order, payload) >> fullOrder(finder))
-    }
-  }
+    (implicit ec: ExecutionContext, db: Database): Result[TheResponse[FullOrder.Root]] = (for {
+      order ← * <~ Orders.mustFindByRefNum(refNum)
+      _     ← * <~ order.mustBeCart
+      _     ← * <~ updateQuantities(order, payload)
+      valid ← * <~ CartValidator(order).validate
+      res   ← * <~ refreshAndFullOrder(order).toXor
+    } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runT()
 
   def updateQuantitiesOnCustomersOrder(customer: Customer, payload: Seq[UpdateLineItemsPayload])
-    (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
-    val finder = Orders.findActiveOrderByCustomer(customer)
-
-    finder.selectOneForUpdate { order ⇒
-      DbResult.fromDbio(updateQuantities(order, payload) >> fullOrder(finder))
-    }
+    (implicit ec: ExecutionContext, db: Database): Result[TheResponse[FullOrder.Root]] = {
+    def failure = NotFoundFailure404(s"Order with customerId=${customer.id} not found")
+    (for {
+      order ← * <~ Orders.findActiveOrderByCustomer(customer).one.mustFindOr(failure)
+      _     ← * <~ order.mustBeCart
+      _     ← * <~ updateQuantities(order, payload)
+      valid ← * <~ CartValidator(order).validate
+      res   ← * <~ refreshAndFullOrder(order).toXor
+    } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runT()
   }
 
   // TODO:

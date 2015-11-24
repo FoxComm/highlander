@@ -130,10 +130,7 @@ object OrderRoutes {
           }
         } ~
         pathPrefix("payment-methods" / "store-credit") {
-          (post & pathEnd & entity(as[payloads.StoreCreditPayment])) { payload ⇒
-            goodOrFailures { OrderPaymentUpdater.addStoreCredit(refNum, payload) }
-          } ~
-          (patch & pathEnd & entity(as[payloads.StoreCreditPayment])) { payload ⇒
+          ((post|patch) & pathEnd & entity(as[payloads.StoreCreditPayment])) { payload ⇒
             goodOrFailures { OrderPaymentUpdater.addStoreCredit(refNum, payload) }
           } ~
           (delete & pathEnd) {

@@ -23,13 +23,16 @@ object OrderLineItemGiftCards extends TableQueryWithId[OrderLineItemGiftCard, Or
   idLens = GenLens[OrderLineItemGiftCard](_.id)
 )(new OrderLineItemGiftCards(_)){
 
-  def findByOrderId(orderId: Rep[Int]): Query[OrderLineItemGiftCards, OrderLineItemGiftCard, Seq] =
+  def findByOrderId(orderId: Rep[Int]): QuerySeq =
     filter(_.orderId === orderId)
 
   def findLineItemsByOrder(order: Order) = for {
     liGc ← findByOrderId(order.id)
     gc ← GiftCards if gc.id === liGc.giftCardId
   } yield (gc, liGc)
+
+  def findByGcId(giftCardId: Int): QuerySeq =
+    filter(_.giftCardId === giftCardId)
 
   object scope {
     implicit class OrderLineItemGiftCardsQuerySeqConversions(q: QuerySeq) {

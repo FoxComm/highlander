@@ -116,6 +116,9 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.
     wrapDbResult(deleteResult)
   }
 
+  def refresh(model: M)(implicit ec: ExecutionContext): DBIO[M] =
+    findOneById(model.id).safeGet
+
   type QuerySeq = Query[T, M, Seq]
   type QuerySeqWithMetadata = QueryWithMetadata[T, M, Seq]
 
@@ -158,7 +161,7 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.
       selectInner(q.result.headOption)(action, checks)
     }
 
-    def mustFindById(id: M#Id, notFoundFailure: M#Id ⇒ Failure = (id: M#Id) ⇒ notFound404)
+    def mustFindById(id: M#Id, notFoundFailure: M#Id ⇒ Failure = notFound404K)
       (implicit ec: ExecutionContext, db: Database): DbResult[M] = {
       findOneById(id).flatMap {
         case Some(model) ⇒ DbResult.good(model)
@@ -201,6 +204,11 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.
 
     def notFound404 = NotFoundFailure404(s"$queryError not found")
     def notFound400 = NotFoundFailure400(s"$queryError not found")
+
+    protected def notFound404K[K](searchKey: K) =
+      NotFoundFailure404(s"${tableName.tableNameToCamel} with $primarySearchTerm=$searchKey not found")
+    protected def notFound400K[K](searchKey: K) =
+      NotFoundFailure400(s"${tableName.tableNameToCamel} with $primarySearchTerm=$searchKey not found")
 
     protected def mustExist(maybe: Option[M], notFoundFailure: Failure): Failures Xor M =
       Xor.fromOption(maybe, notFoundFailure.single)

@@ -32,14 +32,14 @@ object ShippingManager {
   }
 
   def evaluateShippingMethodForOrder(shippingMethod: models.ShippingMethod, order: Order)
-    (implicit db: Database, ec: ExecutionContext): DbResult[Boolean] = {
+    (implicit db: Database, ec: ExecutionContext): DbResult[Unit] = {
     getShippingData(order).flatMap { shippingData ⇒
+      val failure = ShippingMethodNotApplicableToOrder(shippingMethod.id, order.refNum)
       if (QueryStatement.evaluate(shippingMethod.conditions, shippingData, evaluateCondition)) {
         val hasRestrictions = QueryStatement.evaluate(shippingMethod.restrictions, shippingData, evaluateCondition)
-        DbResult.good(!hasRestrictions)
-      }
-      else {
-        DbResult.good(false)
+        if (hasRestrictions) DbResult.failure(failure) else DbResult.unit
+      } else {
+        DbResult.failure(failure)
       }
     }
   }

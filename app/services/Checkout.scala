@@ -2,18 +2,17 @@ package services
 
 import java.time.Instant
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
-import cats.data.Xor
-import cats.data.Validated.{valid, invalid}
 import cats.implicits._
 import models.Order.RemorseHold
 import models._
-import collection.immutable
-import payloads.StoreCreditPayment
+import responses.TheResponse
 import slick.driver.PostgresDriver.api._
+import utils.DbResultT._
+import utils.DbResultT.implicits._
+import utils.Litterbox._
 import utils.Slick.DbResult
-import utils.Slick.UpdateReturning._
 import utils.Slick.implicits._
 import OrderPayments.scope._
 import utils.Litterbox._
@@ -32,20 +31,15 @@ import utils.DbResultT.implicits._
  */
 final case class Checkout(cart: Order, cartValidator: CartValidation)(implicit db: Database, ec: ExecutionContext) {
   def checkout: Result[Order] = (for {
-    validated ← ResultT(cartValidator.validate)
-
-    response  ← if (validated.warnings.nonEmpty)
-      ResultT(Result.failures(validated.warnings: _*)): ResultT[Order]
-    else
-      ResultT((for {
-        _ ← checkInventory
-        _ ← activePromos
-        _ ← authPayments
-        _ ← remorseHold
-        order ← createNewCart
-      } yield order).transactionally.run())
-
-  } yield response).value
+      _     ← * <~ cart.mustBeCart
+      _     ← * <~ checkInventory
+      _     ← * <~ activePromos
+      _     ← * <~ authPayments
+      _     ← * <~ remorseHold
+      order ← * <~ createNewCart
+      valid ← * <~ cartValidator.validate
+      resp  ← * <~ valid.warnings.fold(DbResult.good(order))(DbResult.failures)
+    } yield resp).runT()
 
   private def checkInventory: DbResult[Unit] = DbResult.unit
 

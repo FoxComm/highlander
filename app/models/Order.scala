@@ -5,6 +5,7 @@ import java.time.Instant
 import cats.data.Validated.valid
 import cats.data.{Xor, ValidatedNel}
 import Xor.{left, right}
+import responses.FullOrder
 import services.CartFailures.OrderMustBeCart
 import services._
 
@@ -155,5 +156,13 @@ object Orders extends TableQueryWithLock[Order, Orders](
 
   implicit class OrderQueryWrappers(q: QuerySeq) extends LockableQueryWrappers(q) {
     def mustBeCart(order: Order): Failures Xor Order = order.mustBeCart
+
+    def mustFindByRefNum(refNum: String, notFoundFailure: String ⇒ Failure = notFound404K)
+      (implicit ec: ExecutionContext, db: Database): DbResult[Order] = {
+      findOneByRefNum(refNum).flatMap {
+        case Some(model) ⇒ DbResult.good(model)
+        case None ⇒ DbResult.failure(notFoundFailure(refNum))
+      }
+    }
   }
 }

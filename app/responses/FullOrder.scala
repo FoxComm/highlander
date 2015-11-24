@@ -9,8 +9,6 @@ import services._
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 
-final case class FullOrderWithWarnings(order: FullOrder.Root, warnings: Seq[NotFoundFailure404])
-
 object FullOrder {
   type Response = Future[Root]
   type Payment = (OrderPayment, CreditCard, CreditCardCharge)
@@ -61,6 +59,9 @@ object FullOrder {
     cardType: String = "visa",
     cardExp: String,
     cardNumber: String) extends ResponseItem
+
+  def refreshAndFullOrder(order: Order)(implicit ec: ExecutionContext, db: Database): DBIO[FullOrder.Root] =
+    Orders.refresh(order).flatMap(fromOrder)
 
   def fromOrder(order: Order)(implicit ec: ExecutionContext, db: Database): DBIO[Root] = {
     fetchOrderDetails(order).map { case (customer, skus, shipMethod, shipAddress, payment, assignees, giftCards) ⇒

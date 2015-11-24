@@ -64,19 +64,15 @@ class LineItemUpdaterTest extends IntegrationTestBase {
         Payload(sku = "2", quantity = 0)
       )
 
-      LineItemUpdater.updateQuantitiesOnOrder(order.refNum, payload).futureValue match {
-        case Xor.Right(root) ⇒
-          root.lineItems.skus.count(_.sku == "1") must be(3)
-          root.lineItems.skus.count(_.sku == "2") must be(0)
+      val root = LineItemUpdater.updateQuantitiesOnOrder(order.refNum, payload).futureValue.rightVal.result
+      root.lineItems.skus.count(_.sku == "1") must be(3)
+      root.lineItems.skus.count(_.sku == "2") must be(0)
 
-          val allRecords = db.run(lineItems.result).futureValue
-          root.lineItems.skus.size must === (allRecords.size)
+      val allRecords = db.run(lineItems.result).futureValue
+      root.lineItems.skus.size must === (allRecords.size)
 
-          val allRelations = db.run(lineItemSkus.result).futureValue
-          allRelations.size must === (2)
-
-        case Xor.Left(s) ⇒ fail(s.toList.mkString(";"))
-      }
+      val allRelations = db.run(lineItemSkus.result).futureValue
+      allRelations.size must === (2)
     }
 
     "Updates line_items when the Sku already is in order" in {
@@ -97,23 +93,19 @@ class LineItemUpdaterTest extends IntegrationTestBase {
         Payload(sku = "3", quantity = 1)
       )
 
-      LineItemUpdater.updateQuantitiesOnOrder(order.refNum, payload).futureValue match {
-        case Xor.Right(root) ⇒
-          root.lineItems.skus.count(_.sku == "1") must be(3)
-          root.lineItems.skus.count(_.sku == "2") must be(0)
-          root.lineItems.skus.count(_.sku == "3") must be(1)
+      val root = LineItemUpdater.updateQuantitiesOnOrder(order.refNum, payload).futureValue.rightVal.result
+      root.lineItems.skus.count(_.sku == "1") must be(3)
+      root.lineItems.skus.count(_.sku == "2") must be(0)
+      root.lineItems.skus.count(_.sku == "3") must be(1)
 
-          val allRecords = db.run(lineItems.result).futureValue
-          root.lineItems.skus.size must === (allRecords.size)
+      val allRecords = db.run(lineItems.result).futureValue
+      root.lineItems.skus.size must === (allRecords.size)
 
-          val allRelations = db.run(lineItemSkus.result).futureValue
-          allRelations.size must === (2)
-
-        case Xor.Left(s) ⇒ fail(s.toList.mkString(";"))
+      val allRelations = db.run(lineItemSkus.result).futureValue
+      allRelations.size must === (2)
       }
     }
 
     // if we've asked for more than available we will "reserve" up to available_on_hand in Skus
     "Adds line_items up to availableOnHand" in (pending)
-  }
 }

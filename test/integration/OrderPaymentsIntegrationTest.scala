@@ -8,11 +8,13 @@ import models.{CreditCards, CreditCard, Addresses, Order, Orders, StoreCredits, 
 OrderPayments, OrderPayment, Customers, GiftCards, GiftCard, GiftCardManuals, StoreAdmins, Reasons,
 PaymentMethod}
 import models.OrderPayments.scope._
-import services.{OrderPaymentNotFoundFailure, CannotUseInactiveCreditCard,
+import services.{GiftCardMustNotBeCart, OrderPaymentNotFoundFailure, CannotUseInactiveCreditCard,
 CustomerHasInsufficientStoreCredit, CreditCardManager, GiftCardIsInactive, GiftCardNotEnoughBalance, NotFoundFailure404}
 import services.CartFailures.OrderMustBeCart
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 import utils.Seeds.Factories
 import utils.Slick.implicits._
 
@@ -65,8 +67,8 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         giftCardPayments(order) mustBe 'empty
       }
 
-      "fails if the order is not in cart status" in new GiftCardFixture {
-        Orders.findCartByRefNum(order.referenceNumber).map(_.status).update(Order.RemorseHold).run().futureValue
+      "FIXME fails if the order is not in cart status" in new GiftCardFixture {
+        Orders.findByRefNum(order.referenceNumber).map(_.status).update(Order.RemorseHold).run().futureValue
         val payload = payloads.GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance)
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
 
@@ -91,7 +93,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/orders/${order.refNum}/payment-methods/gift-cards", payload)
 
         response.status must ===(StatusCodes.BadRequest)
-        response.errors must ===(NotFoundFailure404(GiftCard, giftCard.code).description)
+        response.errors must ===(GiftCardMustNotBeCart(giftCard.code).description)
       }
     }
 
@@ -298,7 +300,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
           payloads.CreditCardPayment(creditCard.id))
         first.status must ===(StatusCodes.OK)
 
-        val newCreditCard = CreditCards.saveNew(creditCard.copy(id = 0, isDefault = false)).run().futureValue
+        val newCreditCard = CreditCards.create(creditCard.copy(id = 0, isDefault = false)).run().futureValue.rightVal
         val second = PATCH(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards",
           payloads.CreditCardPayment(newCreditCard.id))
         second.status must ===(StatusCodes.OK)
@@ -352,23 +354,23 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
   trait Fixture {
     val (order, admin, customer) = (for {
-      customer ← Customers.saveNew(Factories.customer)
-      order ← Orders.saveNew(Factories.order.copy(customerId = customer.id, status = Order.Cart))
-      admin ← StoreAdmins.saveNew(authedStoreAdmin)
-    } yield (order, admin, customer)).run().futureValue
+      customer ← * <~ Customers.create(Factories.customer)
+      order    ← * <~ Orders.create(Factories.order.copy(customerId = customer.id, status = Order.Cart))
+      admin    ← * <~ StoreAdmins.create(authedStoreAdmin)
+    } yield (order, admin, customer)).runT().futureValue.rightVal
   }
 
   trait GiftCardFixture extends Fixture {
     val giftCard = (for {
-      reason ← Reasons.create(Factories.reason.copy(storeAdminId = admin.id)).map(rightValue)
-      origin ← GiftCardManuals.create(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id)).map(rightValue)
-      giftCard ← GiftCards.create(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active)).map(rightValue)
-    } yield giftCard).run().futureValue
+      reason   ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
+      origin   ← * <~ GiftCardManuals.create(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
+      giftCard ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active))
+    } yield giftCard).runT().futureValue.rightVal
   }
 
   trait StoreCreditFixture extends Fixture {
     val storeCredits = (for {
-      reason ← Reasons.saveNew(Factories.reason.copy(storeAdminId = admin.id))
+      reason ← Reasons.create(Factories.reason.copy(storeAdminId = admin.id)).map(rightValue)
       _ ← StoreCreditManuals ++= (1 to 5).map { _ ⇒
         Factories.storeCreditManual.copy(adminId = admin.id, reasonId = reason.id)
       }
@@ -381,8 +383,8 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
   trait CreditCardFixture extends Fixture {
     val creditCard = (for {
-      address ← Addresses.saveNew(Factories.address.copy(customerId = customer.id))
-      cc ← CreditCards.saveNew(Factories.creditCard.copy(customerId = customer.id))
-    } yield cc).run().futureValue
+      address ← Addresses.create(Factories.address.copy(customerId = customer.id))
+      cc      ← CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
+    } yield cc).run().futureValue.rightVal
   }
 }

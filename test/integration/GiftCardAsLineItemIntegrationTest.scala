@@ -20,11 +20,11 @@ class GiftCardAsLineItemIntegrationTest extends IntegrationTestBase
   import org.json4s.jackson.JsonMethods._
 
   "POST /v1/orders/:refNum/gift-cards" - {
-    "successuflly creates new GC as line item" in new LineItemFixture {
+    "successfully creates new GC as line item" in new LineItemFixture {
       val response = POST(s"v1/orders/${order.refNum}/gift-cards", payloads.AddGiftCardLineItem(balance = 100))
-      val root = response.as[FullOrder.Root]
-
       response.status must ===(StatusCodes.OK)
+
+      val root = response.ignoreFailuresAndGiveMe[FullOrder.Root]
       root.lineItems.giftCards.size must === (2)
 
       val newGiftCard = root.lineItems.giftCards.tail.head
@@ -59,11 +59,11 @@ class GiftCardAsLineItemIntegrationTest extends IntegrationTestBase
   }
 
   "PATCH /v1/orders/:refNum/gift-cards/:code" - {
-    "successuflly updates GC as line item" in new LineItemFixture {
+    "successfully updates GC as line item" in new LineItemFixture {
       val response = PATCH(s"v1/orders/${order.refNum}/gift-cards/${giftCard.code}", payloads.AddGiftCardLineItem(balance = 555))
 
       response.status must ===(StatusCodes.OK)
-      val root = response.as[FullOrder.Root]
+      val root = response.ignoreFailuresAndGiveMe[FullOrder.Root]
       root.lineItems.giftCards.size must === (1)
 
       val newGiftCard = root.lineItems.giftCards.head
@@ -112,11 +112,11 @@ class GiftCardAsLineItemIntegrationTest extends IntegrationTestBase
   }
 
   "DELETE /v1/orders/:refNum/gift-cards/:code" - {
-    "successuflly deletes GC as line item" in new LineItemFixture {
+    "successfully deletes GC as line item" in new LineItemFixture {
       val response = DELETE(s"v1/orders/${order.refNum}/gift-cards/${giftCard.code}")
 
       response.status must ===(StatusCodes.OK)
-      val root = response.as[FullOrder.Root]
+      val root = response.ignoreFailuresAndGiveMe[FullOrder.Root]
       root.lineItems.giftCards.size must === (0)
 
       GiftCards.findByCode(giftCard.code).one.run().futureValue.isEmpty mustBe true

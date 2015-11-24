@@ -6,6 +6,11 @@ import services.{Result, Failures}
 import cats.{Monad, Applicative, Functor}
 import cats.data.{Validated, XorT, Xor}
 import scala.collection.generic.CanBuildFrom
+import scala.concurrent.ExecutionContext
+
+import cats.data.{Validated, Xor, XorT}
+import cats.{Applicative, Functor, Monad}
+import services.{Failures, Result}
 import slick.driver.PostgresDriver.api._
 import slick.profile.SqlAction
 import utils.Slick.implicits._
@@ -74,6 +79,9 @@ object DbResultT {
 
     def <~[A](v: Validated[Failures, A])(implicit ec: ExecutionContext): DbResultT[A] =
       DbResultT.fromXor(v.toXor)
+
+    def <~[A](v: DbResultT[A])(implicit ec: ExecutionContext): DbResultT[A] =
+      v
   }
 
   implicit class EnrichedDbResultT[A](dbResultT: DbResultT[A]) {

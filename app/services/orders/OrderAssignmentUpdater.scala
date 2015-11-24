@@ -2,14 +2,14 @@ package services.orders
 
 import scala.concurrent.ExecutionContext
 
+import cats.implicits._
 import models.{Order, OrderAssignment, OrderAssignments, Orders, StoreAdmin, StoreAdmins}
 import responses.ResponseWithFailuresAndMetadata.BulkOrderUpdateResponse
-import responses.{FullOrder, FullOrderWithWarnings, ResponseWithFailuresAndMetadata}
+import responses.{TheResponse, FullOrder, ResponseWithFailuresAndMetadata}
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives
 import utils.CustomDirectives.SortAndPage
-import utils.Slick.DbResult
 import utils.Slick.implicits._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
@@ -18,7 +18,7 @@ import orders.Helpers._
 object OrderAssignmentUpdater {
 
   def assign(refNum: String, requestedAssigneeIds: Seq[Int])(implicit db: Database, ec: ExecutionContext,
-    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): Result[FullOrderWithWarnings] = (for {
+    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): Result[TheResponse[FullOrder.Root]] = (for {
 
     order           ← * <~ mustFindOrderByRefNum(refNum)
     adminIds        ← * <~ StoreAdmins.filter(_.id.inSetBind(requestedAssigneeIds)).map(_.id).result
@@ -29,8 +29,8 @@ object OrderAssignmentUpdater {
     inserts   = OrderAssignments ++= newAssignments
     newOrder  ← * <~ (inserts >> Orders.findByRefNum(refNum).result.head.toXor)
     fullOrder ← * <~ FullOrder.fromOrder(newOrder).toXor
-    warnings  = requestedAssigneeIds.diff(adminIds).map(NotFoundFailure404(StoreAdmin, _))
-  } yield FullOrderWithWarnings(fullOrder, warnings)).runT()
+    warnings  = Failurez(requestedAssigneeIds.diff(adminIds).map(NotFoundFailure404(StoreAdmin, _)): _*)
+  } yield TheResponse.build(fullOrder, warnings = warnings)).runT()
 
   def assign(payload: payloads.BulkAssignment)
     (implicit ec: ExecutionContext, db: Database, sortAndPage: SortAndPage): Result[BulkOrderUpdateResponse] = {

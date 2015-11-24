@@ -124,6 +124,10 @@ final case class GiftCardMustBeCart(code: String) extends Failure {
   override def description = List(s"giftCart with code=$code is not in cart status")
 }
 
+final case class GiftCardMustNotBeCart(code: String) extends Failure {
+  override def description = List(s"giftCart with code=$code must not be in cart status")
+}
+
 final case class GiftCardConvertFailure(gc: GiftCard) extends Failure {
   override def description = List(s"cannot convert a gift card with status '${gc.status}'")
 }
@@ -142,7 +146,7 @@ object RmaPaymentNotFoundFailure {
 
 final case class GiftCardNotEnoughBalance(gc: GiftCard, requestedAmount: Int) extends Failure {
   override def description =
-    List(s"giftCard has availableBalance=${gc.availableBalance} less than requestedAmount=$requestedAmount")
+    List(s"giftCard with code=${gc.code} has availableBalance=${gc.availableBalance} less than requestedAmount=$requestedAmount")
 }
 
 final case class GiftCardIsInactive(gc: GiftCard) extends Failure {
@@ -181,16 +185,12 @@ final case class CustomerHasInsufficientStoreCredit(id: Int, has: Int, want: Int
   override def description = List(s"customer with id=$id has storeCredit=$has less than requestedAmount=$want")
 }
 
-final case class OrderShippingMethodsCannotBeProcessed(referenceNumber: String) extends Failure {
-  override def description = List(s"Shipping methods for order ${referenceNumber} cannot be processed")
-}
-
-final case class ShippingMethodDoesNotExist(shippingMethodId: Int) extends Failure {
-  override def description = List(s"Shipping method ${shippingMethodId} can't be added because it doesn't exist")
+final case class ShippingMethodIsNotActive(shippingMethodId: Int) extends Failure {
+  override def description = List(s"Shipping method $shippingMethodId can't be added because it's not active")
 }
 
 final case class ShippingMethodNotApplicableToOrder(shippingMethodId: Int, referenceNumber: String) extends Failure {
-  override def description = List(s"Shipping method ${shippingMethodId} is not applicable to order ${referenceNumber}")
+  override def description = List(s"Shipping method $shippingMethodId is not applicable to order $referenceNumber")
 }
 
 case object CreditCardMustHaveAddress extends Failure {

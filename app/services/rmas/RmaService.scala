@@ -9,7 +9,6 @@ import services._
 import responses.RmaResponse._
 import services.rmas.Helpers._
 import slick.driver.PostgresDriver.api._
-import utils.CustomDirectives
 import utils.CustomDirectives.SortAndPage
 import utils.DbResultT._
 import utils.DbResultT.implicits._

@@ -21,6 +21,7 @@ import org.json4s.jackson.Serialization.{write ⇒ writeJson}
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{MustMatchers, Args, Status, Suite, SuiteMixin}
+import responses.TheResponse
 import server.Service
 import services.Authenticator
 import util.DbTestSupport
@@ -208,6 +209,12 @@ object Extensions {
 
     def as[A <: AnyRef](implicit fm: Formats, mf: scala.reflect.Manifest[A], mat: Materializer): A =
       parse(bodyText).extract[A]
+
+    def ignoreFailuresAndGiveMe[A <: AnyRef](implicit fm: Formats, mf: scala.reflect.Manifest[A], mat: Materializer): A =
+      parse(bodyText).extract[TheResponse[A]].result
+
+    def withResultTypeOf[A <: AnyRef](implicit fm: Formats, mf: scala.reflect.Manifest[A], mat: Materializer): TheResponse[A] =
+      parse(bodyText).extract[TheResponse[A]]
 
     def errors(implicit fm: Formats, mat: Materializer): List[String] =
       parse(bodyText).extract[Map[String, List[String]]].getOrElse("errors", List.empty[String])
