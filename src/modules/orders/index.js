@@ -9,7 +9,7 @@ const orderReducer = combineReducers({
   details,
   list,
   shippingMethods,
-  shippingAddresses
+  shippingAddresses,
 });
 
 export default orderReducer;

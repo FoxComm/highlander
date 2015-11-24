@@ -16,7 +16,7 @@ const rootReducer = combineReducers({
   rmas,
   notes,
   countries,
-  addressForm
+  addressForm,
 });
 
 export default rootReducer;
