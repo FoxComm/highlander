@@ -25,7 +25,9 @@ export function changeValue(form, name, value) {
 
 export function setCountry(form, countryId) {
   return (dispatch, getState) => {
-    if (countryId == null) countryId =_.findWhere(getState().countries, {alpha2: DEFAULT_COUNTRY}).id;
+    if (countryId == null) {
+      countryId =_.findWhere(getState().countries, {alpha2: DEFAULT_COUNTRY}).id;
+    }
 
     return dispatch(fetchCountry(countryId))
       .then(country => {

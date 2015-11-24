@@ -48,7 +48,7 @@ EditableContentBox.propTypes = {
   title: PropTypes.string
 };
 
-// eslink you are drunk, renderFooter and renderActionsInBody are just functions
+// eslint you are drunk, renderFooter and renderActionsInBody are just functions
 /*eslint "react/prop-types": 0*/
 
 EditableContentBox.defaultProps = {

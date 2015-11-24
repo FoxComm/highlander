@@ -4,7 +4,7 @@ import modalWrapper from '../../modal/wrapper';
 import AddressForm from './address-form';
 import ContentBox from '../../content-box/content-box';
 
-let ModalAddressForm = props => {
+const AddressFormWrapper = props => {
   const actionBlock = <i onClick={props.closeAction} className="fc-btn-close icon-close" title="Close"></i>;
 
   return (
@@ -14,10 +14,10 @@ let ModalAddressForm = props => {
   );
 };
 
-ModalAddressForm.propTypes = {
+AddressFormWrapper.propTypes = {
   closeAction: PropTypes.func.isRequired
 };
 
-ModalAddressForm = modalWrapper(ModalAddressForm);
+const ModalAddressForm = modalWrapper(AddressFormWrapper);
 
 export default ModalAddressForm;
