@@ -26,7 +26,7 @@ export default class NewDynamicGroup extends React.Component {
     customerCount: PropTypes.number
   };
 
-  static criterias = [
+  static criterions = [
     {
       term: 'Blacklisted status',
       type: 'bool'
@@ -85,7 +85,7 @@ export default class NewDynamicGroup extends React.Component {
                 </span>
                 <span className='fc-group-new-match-span'>of the following criteria:</span>
               </div>
-              <QueryBuilder criterias={NewDynamicGroup.criterias}/>
+              <QueryBuilder criterions={NewDynamicGroup.criterions}/>
               <div className='fc-group-new-title fc-group-new-count-title'>Customer Count:</div>
               <div className='fc-group-new-count'>{ this.props.customerCount }</div>
               <div className='fc-group-new-form-submits'>

@@ -1,13 +1,52 @@
 .fc-group-builder {
 
- &-add-criteria {
-   .font-spec(16px, 22px);
-   .margin-top(20px);
-   > * {
-     vertical-align: baseline;
-   }
-   span {
-     .margin-left(1rem);
-   }
- }
+  &-add-criterion {
+    .font-spec(16px, 22px);
+    .margin-top(20px);
+    > * {
+      vertical-align: baseline;
+    }
+    span {
+      .margin-left(1rem);
+    }
+  }
+
+  &-add-criterion {
+    display: inline-block;
+    cursor: pointer;
+  }
+  
+  &-remove-crit {
+    .font-spec(18px);
+    cursor: pointer;
+
+    // TODO: fixme?
+    position: relative;
+    top: 5.5px;
+
+    &:hover {
+      color: @color-decor22;
+    }
+  }
+
+  &-criterion-container {
+    > * {
+      vertical-align: baseline;
+    }
+    .margin-top(2rem);
+    i {
+      display: inline;
+    }
+  }
+
+  &-criterion {
+
+    display: inline;
+    > * {
+      display: inline-block;
+    }
+    .fc-dropdown {
+      .margin-right(3rem);
+    }
+  }
 }
