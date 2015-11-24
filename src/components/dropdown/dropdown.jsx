@@ -2,6 +2,7 @@ import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 import DropdownItem from './dropdownItem';
+import { autobind } from 'core-decorators';
 
 export default class Dropdown extends React.Component {
   static propTypes = {
@@ -62,6 +63,11 @@ export default class Dropdown extends React.Component {
     );
   }
 
+  @autobind
+  onBlur() {
+    this.setState({open: false});
+  }
+
   render() {
     const classnames = classNames({
       'fc-dropdown': true,
@@ -73,7 +79,7 @@ export default class Dropdown extends React.Component {
     const title = this.state.selectedTitle || this.findTitleByValue(value);
 
     return (
-      <div className={classnames}>
+      <div className={classnames} onBlur={this.onBlur} tabIndex="0">
         {this.props.editable && (
           <div className="fc-dropdown-controls">
             {this.dropdownButton}
