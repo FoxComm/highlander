@@ -18,7 +18,14 @@ const ErrorAlerts = props => {
       <div className="fc-errors">
         <AutoScroll />
         {errors.map((error, index) => {
-          return <Alert key={`error-${index}`} type={Alert.ERROR}>{error}</Alert>;
+          return (
+            <Alert
+              key={`error-${error}-${index}`}
+              type={Alert.ERROR}
+              closeAction={props.closeAction && () => props.closeAction(error, index)}>
+              {error}
+            </Alert>
+          );
         })}
       </div>
     );
@@ -29,7 +36,8 @@ const ErrorAlerts = props => {
 
 ErrorAlerts.propTypes = {
   errors: PropTypes.array,
-  error: PropTypes.object
+  error: PropTypes.object,
+  closeAction: PropTypes.func
 };
 
 export default ErrorAlerts;

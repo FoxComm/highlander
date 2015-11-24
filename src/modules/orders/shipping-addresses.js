@@ -29,6 +29,7 @@ export const startDeletingAddress = _createAction('START_DELETING',
 export const stopDeletingAddress = _createAction('STOP_DELETING');
 
 const setError = _createAction('ERROR');
+export const spliceError = _createAction('SPLICE_ERROR', (error, index) => [error, index]);
 
 export function chooseAddress(refNum, addressId) {
   return dispatch => {
@@ -104,6 +105,21 @@ const reducer = createReducer({
       ...state,
       err
     };
+  },
+  [spliceError]: (state, [error, index]) => {
+    if (state.err.responseJson) {
+      return update(state, ['err', 'responseJson', 'errors'], errors => {
+        return [
+          ...errors.slice(0, index),
+          ...errors.slice(index + 1)
+        ];
+      });
+    } else {
+      return {
+        ...state,
+        err: null
+      };
+    }
   }
 }, initialState);
 

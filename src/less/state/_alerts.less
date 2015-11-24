@@ -6,11 +6,24 @@
     color: @color-decor1;
     .padding(6px);
     .border-radius(3px);
+    position: relative;
 
-    > i {
+    > .icon-error {
       .margin-right(5px);
       .font-spec(20px, 20px);
     }
+  }
+
+  &.is-can-be-closed {
+    .padding-right(35px);
+  }
+
+  .fc-btn-close {
+    .font-spec(20px, 20px);
+    position: absolute;
+    .top(7px);
+    .right(7px);
+    margin: 0;
   }
 
   .fc-errors & {

@@ -124,7 +124,7 @@ export default class OrderShippingAddress extends React.Component {
   renderContent(isEditing) {
     return (
       <div>
-        <ErrorAlerts error={ this.props.err } />
+        <ErrorAlerts error={ this.props.err } closeAction={ this.props.spliceError } />
         { isEditing ? this.editContent : this.viewContent }
       </div>
     );
