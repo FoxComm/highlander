@@ -8,7 +8,7 @@ const AddressFormWrapper = props => {
   const actionBlock = <i onClick={props.closeAction} className="fc-btn-close icon-close" title="Close"></i>;
 
   return (
-    <ContentBox title="Address Book" actionBlock={ actionBlock }>
+    <ContentBox title="Address Book" className="fc-address-form-modal" actionBlock={ actionBlock }>
       <AddressForm {...props} />
     </ContentBox>
   );
