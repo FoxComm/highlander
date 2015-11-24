@@ -7,8 +7,6 @@ const OrderLineItem = props => {
   const item = props.item;
   const order = props.order.currentOrder;
 
-  console.log('props');
-
   const handleChange = (event) => {
     props.updateLineItemCount(order, item.sku, event.target.value);
   };
