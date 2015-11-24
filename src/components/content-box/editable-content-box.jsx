@@ -1,15 +1,35 @@
+
+import classNames from 'classnames';
 import React, { PropTypes } from 'react';
 import { EditButton, PrimaryButton } from '../common/buttons';
+import ContextBox from './content-box';
+
+export const EditDoneButton = props => {
+  return (
+    <PrimaryButton onClick={props.doneAction} {...props}>
+      {props.children || 'Done'}
+    </PrimaryButton>
+  );
+};
+
+EditDoneButton.propTypes = {
+  doneAction: PropTypes.func,
+  children: PropTypes.node
+};
 
 const EditableContentBox = props => {
-  const compositeClassName = `fc-content-box ${props.className}`;
-  const content = props.isEditing ? props.editContent : props.viewContent;
+  const {editFooter, ...rest} = props;
+
   return (
-    <div className={compositeClassName}>
-      {renderTitle(props)}
-      {content}
-      {renderFooter(props)}
-    </div>
+    <ContextBox
+      actionBlock={ props.renderActions(props) }
+      footer={ props.renderFooter && props.renderFooter(rest, editFooter) }
+      isTable={true}
+      {...rest}
+    >
+      {props.renderContent(props.isEditing, props)}
+      {props.renderActionsInBody(props)}
+    </ContextBox>
   );
 };
 
@@ -17,48 +37,48 @@ EditableContentBox.propTypes = {
   className: PropTypes.string,
   editContent: PropTypes.node,
   viewContent: PropTypes.node,
-  isEditing: PropTypes.bool
-};
-
-const renderTitle = props => {
-  let editButton = null;
-  if (!props.isEditing) {
-    editButton = <EditButton onClick={props.editAction} />;
-  }
-
-  return (
-    <header>
-      <div className='fc-grid fc-content-box-header'>
-        <div className='fc-col-md-2-3 fc-title'>{props.title}</div>
-        <div className='fc-col-md-1-3 fc-controls'>{editButton}</div>
-      </div>
-    </header>
-  );
-};
-
-renderTitle.propTypes = {
   isEditing: PropTypes.bool,
-  title: PropTypes.string,
-  editAction: PropTypes.func
+  editAction: PropTypes.func,
+  doneAction: PropTypes.func,
+  editFooter: PropTypes.node,
+  renderContent: PropTypes.func,
+  renderFooter: PropTypes.func,
+  renderActions: PropTypes.func,
+  renderActionsInBody: PropTypes.func,
+  title: PropTypes.string
 };
 
-const renderFooter = props => {
-  if (props.isEditing) {
-    return (
-      <footer className='fc-editable-content-box-footer'>
-        <PrimaryButton onClick={props.doneAction}>
-          Done
-        </PrimaryButton>
-      </footer>
-    );
-  } else {
-    return <div></div>;
+// eslint you are drunk, renderFooter and renderActionsInBody are just functions
+/*eslint "react/prop-types": 0*/
+
+EditableContentBox.defaultProps = {
+  renderContent: (isEditing, props) => {
+    return isEditing ? props.editContent : props.viewContent;
+  },
+  renderFooter: (props, footer) => {
+    if (props.isEditing) {
+      return (
+        <footer className="fc-editable-content-box-footer">
+          {footer}
+          <EditDoneButton doneAction={props.doneAction} />
+        </footer>
+      );
+    } else {
+      return null;
+    }
+  },
+  renderActions: props => {
+    return props.isEditing ? null : <EditButton onClick={props.editAction} />;
+  },
+  renderActionsInBody: ({isTable = true, ...props}) => {
+    if (!isTable && props.doneAction && !props.renderFooter && props.isEditing) {
+      return (
+        <div>
+          <EditDoneButton doneAction={props.doneAction} />
+        </div>
+      );
+    }
   }
-};
-
-renderFooter.propTypes = {
-  isEditing: PropTypes.bool,
-  doneAction: PropTypes.func
 };
 
 export default EditableContentBox;

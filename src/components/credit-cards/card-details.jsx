@@ -14,7 +14,7 @@ export default class CreditCardDetails extends React.Component {
   }
 
   render() {
-    let card = this.props.card;
+    const card = this.props.card;
 
     let paymentMethod = {
       cardType: 'visa',

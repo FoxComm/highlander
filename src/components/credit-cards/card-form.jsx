@@ -27,7 +27,7 @@ export default class CreditCardForm extends React.Component {
       })
     }),
     customerId: PropTypes.number
-  }
+  };
 
   constructor(...args) {
     super(...args);

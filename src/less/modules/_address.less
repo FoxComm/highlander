@@ -1,6 +1,5 @@
 
 .fc-address {
-  float: left;
   display: inline-block;
   border: 1px solid @color-decor9;
   background: @color-decor12;
@@ -23,7 +22,7 @@
     }
   }
 
-  &-default {
+  .fc-card-default-control {
     color: @color-decor31;
     .font-spec(12px, 16px);
     .inline-block();
@@ -41,7 +40,6 @@
 
   &-details {
     height: pxtorem(210px);
-    .margin-bottom(40px);
     list-style-type: none;
     .font-spec(14px, 19px);
 
@@ -50,13 +48,13 @@
     }
   }
 
-  &-choose {
-    .font-spec(14px, 19px);
-    position: absolute;
-    .bottom(20px);
-    .width(140px);
-    .left(50%);
-    .margin-left(-70px);
-    text-align: center;
+  &-main-action {
+    display: flex;
+    > .fc-btn {
+      margin: 0 auto;
+      .padding(0 50px);
+      .font-spec(14px, 19px);
+      text-align: center;
+    }
   }
 }

@@ -1,3 +1,5 @@
+
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import CustomerContacts from './contacts';
 import CustomerAccountPassword from './account-password';
@@ -9,11 +11,12 @@ import CustomerNotificationSettings from './notification-settings';
 import CustomerAccountStatus from './account-status';
 import SectionSubtitle from '../section-title/section-subtitle';
 import { connect } from 'react-redux';
-import * as CustomerDetailsActions from '../../modules/customers/details';
+import * as AddressesActions from '../../modules/customers/addresses';
 
 @connect((state, props) => ({
-  ...state.customers.details[props.entity.id]
-}), CustomerDetailsActions)
+  ...state.customers.details[props.entity.id],
+  addresses: _.get(state.customers.addresses, [props.entity.id, 'addresses'], [])
+}), AddressesActions)
 export default class CustomerDetails extends React.Component {
 
   static propTypes = {
@@ -23,8 +26,7 @@ export default class CustomerDetails extends React.Component {
   };
 
   componentDidMount() {
-    const customer = this.props.entity.id;
-    this.props.fetchAddresses(customer);
+    this.props.fetchAddresses(this.props.entity.id);
   }
 
   render() {

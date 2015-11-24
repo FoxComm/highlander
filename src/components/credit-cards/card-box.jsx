@@ -10,7 +10,7 @@ const CreditCardBox = (props) => {
     <EditableItemCardContainer className="fc-credit-cards"
                                checkboxLabel="Default card"
                                isDefault={ card.isDefault }
-                               checkboxClickHandler={ props.onDefaultToggle }
+                               checkboxChangeHandler={ props.onDefaultToggle }
                                deleteHandler={ props.onDeleteClick }
                                editHandler={ props.onEditClick } >
       <CreditCardDetails customerId={ props.customerId} card={ card } />

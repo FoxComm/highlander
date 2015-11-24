@@ -7,12 +7,12 @@ import Viewers from '../viewers/viewers';
 import ConfirmModal from '../modal/confirm';
 import RemorseTimer from './remorseTimer';
 import { connect } from 'react-redux';
-import * as orderActions from '../../modules/orders/details';
-import * as shippingMethodActions from '../../modules/orders/shipping-methods';
 import { DateTime } from '../common/datetime';
 import LocalNav from '../local-nav/local-nav';
 import { PanelList, PanelListItem } from '../panel/panel-list';
 import SectionTitle from '../section-title/section-title';
+import * as orderActions from '../../modules/orders/details';
+import * as shippingMethodActions from '../../modules/orders/shipping-methods';
 
 const mapStateToProps = (state) => {
   return {

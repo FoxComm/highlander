@@ -1,8 +1,9 @@
+
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 import _ from 'lodash';
 
-const DefaultButton = (props = {}) => {
+const Button = (props = {}) => {
   const {icon, children, ...restProps} = props;
 
   return (
@@ -13,28 +14,28 @@ const DefaultButton = (props = {}) => {
   );
 };
 
-DefaultButton.propTypes = {
+Button.propTypes = {
   className: PropTypes.string
 };
 
 const LeftButton = props => {
-  return <DefaultButton icon='chevron-left' {...props} />;
+  return <Button icon='chevron-left' {...props} />;
 };
 
 const RightButton = props => {
-  return <DefaultButton icon='chevron-right' {...props} />;
+  return <Button icon='chevron-right' {...props} />;
 };
 
 const DecrementButton = props => {
-  return <DefaultButton icon='chevron-down' {...props} />;
+  return <Button icon='chevron-down' {...props} />;
 };
 
 const IncrementButton = props => {
-  return <DefaultButton icon='chevron-up' {...props} />;
+  return <Button icon='chevron-up' {...props} />;
 };
 
 const DeleteButton = (props = {}) => {
-  return <DefaultButton icon='trash' {...props} className={ classNames('fc-btn-remove', props.className) } />;
+  return <Button icon='trash' {...props} className={ classNames('fc-btn-remove', props.className) } />;
 };
 
 DeleteButton.propTypes = {
@@ -42,33 +43,34 @@ DeleteButton.propTypes = {
 };
 
 const EditButton = props => {
-  return <DefaultButton icon='edit' {...props} />;
+  return <Button icon='edit' {...props} />;
 };
 
 const AddButton = props => {
-  return <DefaultButton icon='add' {...props} />;
+  return <Button icon='add' {...props} />;
 };
 
 const PrimaryButton = (props = {}) => {
   return (
-    <DefaultButton {...props} className={ classNames('fc-btn-primary', props.className) }>
+    <Button {...props} className={ classNames('fc-btn-primary', props.className) }>
       {props.children}
-    </DefaultButton>
+    </Button>
   );
 };
 
 PrimaryButton.propTypes = {
-  children: PropTypes.node
+  children: PropTypes.node,
+  className: PropTypes.string
 };
 
 export {
-  DefaultButton,
+  Button,
   LeftButton,
   RightButton,
   DecrementButton,
-  IncrementButton,
   DeleteButton,
   EditButton,
   AddButton,
+  IncrementButton,
   PrimaryButton
 };

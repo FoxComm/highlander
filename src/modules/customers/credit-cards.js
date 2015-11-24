@@ -217,7 +217,7 @@ const reducer = createReducer({
   },
   [editCustomerCreditCard]: (state, [customerId, cardId]) => {
     const cards = _.get(state, [customerId, 'cards'], []);
-    const creditCard = _.find(cards, (card) => { return (cardId === card.id); });
+    const creditCard = _.find(cards, card => cardId === card.id);
 
     return update(state, customerId, merge, {
       editingId: cardId,
@@ -246,14 +246,17 @@ const reducer = createReducer({
     // fallback to plain array
     const cards = _.get(payload, 'result', payload);
     const sortedCards = _.sortBy(cards, 'id');
-    return assoc(state, [id, 'cards'], sortedCards,
-                        [id, 'isFetching'], false,
-                        [id, 'err'], null);
+
+    return assoc(state,
+      [id, 'cards'], sortedCards,
+      [id, 'isFetching'], false,
+      [id, 'err'], null
+    );
   },
   [failCustomerCreditCards]: (state, [id, err]) => {
     console.error(err);
     return assoc(state, [id, 'err'], err, [id, 'isFetching'], false);
-  },
+  }
 }, initialState);
 
 export default reducer;
