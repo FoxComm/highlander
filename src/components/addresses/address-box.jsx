@@ -31,7 +31,7 @@ export default class AddressBox extends React.Component {
     return (
       <EditableItemCardContainer className="fc-customer-address"
                                  checkboxLabel="Default shipping address"
-                                 initiallyIsDefault={ address.isDefault }
+                                 isDefault={ address.isDefault }
                                  checkboxClickHandler={ this.handleIsDefaultChange }
                                  editHandler={ this.handleEditClick }
                                  deleteHandler={ this.handleDeleteClick }>

@@ -35,7 +35,7 @@ export default class CreditCardDetails extends React.Component {
           <dt>Billing Address</dt>
           <dd>
             <AddressDetails customerId={ this.props.customerId }
-                            address={ card } />
+                            address={ card.address } />
           </dd>
         </dl>
       </div>

@@ -3,34 +3,27 @@ import CreditCardDetails from './card-details';
 import EditableItemCardContainer from '../item-card-container/editable-item-card-container';
 import { autobind } from 'core-decorators';
 
-export default class CreditCardBox extends React.Component {
+const CreditCardBox = (props) => {
+  const card = props.card;
 
-  static propTypes = {
-    card: PropTypes.object,
-    customerId: PropTypes.number.isRequired,
-    onDeleteClick: PropTypes.func
-  };
+  return (
+    <EditableItemCardContainer className="fc-credit-cards"
+                               checkboxLabel="Default card"
+                               isDefault={ card.isDefault }
+                               checkboxClickHandler={ props.onDefaultToggle }
+                               deleteHandler={ props.onDeleteClick }
+                               editHandler={ props.onEditClick } >
+      <CreditCardDetails customerId={ props.customerId} card={ card } />
+    </EditableItemCardContainer>
+  );
+};
 
-  constructor(props, context) {
-    super(props, context);
-  }
+CreditCardBox.propTypes = {
+  card: PropTypes.object,
+  customerId: PropTypes.number.isRequired,
+  onDeleteClick: PropTypes.func,
+  onDefaultToggle: PropTypes.func,
+  onEditClick: PropTypes.func
+};
 
-  handleIsDefaultChange() {
-    console.log('Is default state changed');
-  }
-
-  render() {
-    const card = this.props.card;
-
-    return (
-      <EditableItemCardContainer className="fc-credit-cards"
-                                 checkboxLabel="Default card"
-                                 initiallyIsDefault={ card.isDefault }
-                                 checkboxClickHandler={ this.handleIsDefaultChange }
-                                 deleteHandler={ this.props.onDeleteClick }
-                                 editHandler={ this.props.onEditClick } >
-        <CreditCardDetails customerId={ this.props.customerId} card={ this.props.card } />
-      </EditableItemCardContainer>
-    );
-  }
-}
+export default CreditCardBox;

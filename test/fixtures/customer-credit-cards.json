@@ -1,0 +1,68 @@
+[
+  {
+    "id": 13,
+    "customerId": 1,
+    "holderName": "Yax",
+    "lastFour": "4242",
+    "expMonth": 3,
+    "expYear": 2017,
+    "isDefault": true,
+    "inWallet": true,
+    "address": {
+      "id": 0,
+      "region": {
+        "id": 4177,
+        "countryId": 234,
+        "name": "Washington"
+      },
+      "name": "Home",
+      "address1": "555 E Lake Union St.",
+      "city": "Seattle",
+      "zip": "12345"
+    }
+  },
+  {
+    "id": 12,
+    "customerId": 1,
+    "holderName": "Yax 1",
+    "lastFour": "4242",
+    "expMonth": 11,
+    "expYear": 2017,
+    "isDefault": false,
+    "inWallet": true,
+    "address": {
+      "id": 0,
+      "region": {
+        "id": 4177,
+        "countryId": 234,
+        "name": "Washington"
+      },
+      "name": "Home",
+      "address1": "555 E Lake Union St.",
+      "city": "Seattle",
+      "zip": "12345"
+    }
+  },
+  {
+    "id": 10,
+    "customerId": 1,
+    "holderName": "Yax 2",
+    "lastFour": "4242",
+    "expMonth": 11,
+    "expYear": 2017,
+    "isDefault": false,
+    "inWallet": true,
+    "address": {
+      "id": 0,
+      "region": {
+        "id": 4177,
+        "countryId": 234,
+        "name": "Washington"
+      },
+      "name": "Home",
+      "address1": "555 E Lake Union St.",
+      "city": "Seattle",
+      "zip": "12345"
+    }
+  }
+]

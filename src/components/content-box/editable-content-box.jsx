@@ -38,7 +38,8 @@ const renderTitle = props => {
 
 renderTitle.propTypes = {
   isEditing: PropTypes.bool,
-  title: PropTypes.string
+  title: PropTypes.string,
+  editAction: PropTypes.func
 };
 
 const renderFooter = props => {
