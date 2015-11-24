@@ -34,7 +34,7 @@ export function setCountry(form, countryId) {
   };
 }
 
-export function init(form, address) {
+export function setAddress(form, address = null) {
   return dispatch => {
     if (address) {
       dispatch(assignAddress(form, address));

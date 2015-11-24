@@ -51,7 +51,13 @@ export default class AddressForm extends React.Component {
     onSaved: PropTypes.func,
     closeAction: PropTypes.func.isRequired,
     submitAction: PropTypes.func,
-    showFormTitle: PropTypes.bool
+    showFormTitle: PropTypes.bool,
+    setAddress: PropTypes.func,
+    changeValue: PropTypes.func,
+    formData: PropTypes.object,
+    err: PropTypes.any,
+    isAdding: PropTypes.bool,
+    countryId: PropTypes.number
   };
 
   static defaultProps = {
@@ -59,7 +65,7 @@ export default class AddressForm extends React.Component {
   };
 
   componentDidMount() {
-    this.props.init(this.props.address);
+    this.props.setAddress(this.props.address);
   }
 
   /**

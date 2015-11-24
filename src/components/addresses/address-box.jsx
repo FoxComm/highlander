@@ -13,12 +13,16 @@ const AddressBoxMainAction = props => {
   );
 };
 
+AddressBoxMainAction.propTypes = {
+  children: PropTypes.node
+};
+
 export default class AddressBox extends React.Component {
 
   static propTypes = {
     className: PropTypes.string,
     address: PropTypes.object,
-    editAction: PropTypes.func,
+    editAction: PropTypes.func.isRequired,
     toggleDefaultAction: PropTypes.func.isRequired,
     checkboxLabel: PropTypes.string,
     deleteAction: PropTypes.func,

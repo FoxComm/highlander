@@ -48,8 +48,11 @@ Addresses.propTypes = {
   startDeletingAddress: PropTypes.func,
   stopDeletingAddress: PropTypes.func,
   setAddressDefault: PropTypes.func,
-  startEditingAddress: PropTypes.func
+  startEditingAddress: PropTypes.func,
+  deletingId: PropTypes.number
 };
+
+/*eslint "react/prop-types": 0*/
 
 export function createAddressBox(address, idx, props) {
   const chooseAction = props.chooseAction ? () => props.chooseAction(address.id) : null;

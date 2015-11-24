@@ -38,6 +38,10 @@ const DeleteButton = (props = {}) => {
   return <Button icon='trash' {...props} className={ classNames('fc-btn-remove', props.className) } />;
 };
 
+DeleteButton.propTypes = {
+  className: PropTypes.string
+};
+
 const EditButton = props => {
   return <Button icon='edit' {...props} />;
 };
@@ -55,7 +59,8 @@ const PrimaryButton = (props = {}) => {
 };
 
 PrimaryButton.propTypes = {
-  children: PropTypes.node
+  children: PropTypes.node,
+  className: PropTypes.string
 };
 
 export {

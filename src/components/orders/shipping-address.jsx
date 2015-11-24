@@ -88,7 +88,7 @@ export default class OrderShippingAddress extends React.Component {
         { this.selectedShippingAddress }
         <header className="fc-shipping-address-header">
           <h3>Address Book</h3>
-          <AddButton onClick={() => this.props.startAddingAddress()}></AddButton>
+          <AddButton onClick={() => this.props.startAddingAddress()} />
         </header>
         <div className="fc-tableview">
           <Addresses

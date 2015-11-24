@@ -10,7 +10,8 @@ import { connect } from 'react-redux';
 export default class Site extends React.Component {
 
   static propTypes = {
-    children: PropTypes.node
+    children: PropTypes.node,
+    fetchCountries: PropTypes.func
   };
 
   componentDidMount() {

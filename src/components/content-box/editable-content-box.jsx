@@ -13,7 +13,8 @@ export const EditDoneButton = props => {
 };
 
 EditDoneButton.propTypes = {
-  doneAction: PropTypes.func
+  doneAction: PropTypes.func,
+  children: PropTypes.node
 };
 
 const EditableContentBox = props => {
@@ -46,6 +47,9 @@ EditableContentBox.propTypes = {
   renderActionsInBody: PropTypes.func,
   title: PropTypes.string
 };
+
+// eslink you are drunk, renderFooter and renderActionsInBody are just functions
+/*eslint "react/prop-types": 0*/
 
 EditableContentBox.defaultProps = {
   renderContent: (isEditing, props) => {
