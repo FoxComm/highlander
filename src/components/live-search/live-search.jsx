@@ -50,6 +50,7 @@ export default class LiveSearch extends React.Component {
 
   @autobind
   keyDown(event) {
+    console.log(event.keyCode);
     let selectedIndex = this.state.selectedIndex;
     const visibleSearchOptions = this.state.visibleSearchOptions;
     
@@ -89,6 +90,13 @@ export default class LiveSearch extends React.Component {
           this.updateSearch(newSearchTerm);
         }
         return;
+      case 8:
+        // Backspace
+        if (_.isEmpty(this.state.value) && !_.isEmpty(this.state.searches)) {
+          this.deleteSearchPill(this.state.searches.length - 1);
+          return;
+        }
+         
       default:
         // Untracked action.
         return;
@@ -120,15 +128,23 @@ export default class LiveSearch extends React.Component {
     this.updateSearch(backSearchTerm(this.state.value));
   }
 
+  @autobind
+  deleteSearchPill(idx) {
+    this.setState({
+      ...this.state,
+      searches: _.without(this.state.searches, this.state.searches[idx])
+    });
+  }
+
   get searchPills() {
     return this.state.searches.map((search, idx) => {
       return (
         <div className='fc-live-search-pill' key={`search-${idx}`}>
           <i className='icon-search fc-live-search-pill-icon'></i>
           {search}
-          <div className='fc-live-search-pill-close'>
+          <a className='fc-live-search-pill-close' onClick={() => this.deleteSearchPill(idx)}>
             &times;
-          </div>
+          </a>
         </div>
       );
     });
