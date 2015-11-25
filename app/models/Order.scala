@@ -20,13 +20,14 @@ import services.CartFailures.OrderMustBeCart
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
+import utils.Money.Currency
 import utils.{ADT, FSM, GenericTable, ModelWithLockParameter, TableQueryWithLock, Validation}
 import utils.Slick.implicits._
 import utils.Slick.DbResult
 
 final case class Order(id: Int = 0, referenceNumber: String = "", customerId: Int,
   status: Status = Cart, locked: Boolean = false, placedAt: Option[Instant] = None,
-  remorsePeriodEnd: Option[Instant] = None, rmaCount: Int = 0)
+  remorsePeriodEnd: Option[Instant] = None, rmaCount: Int = 0, currency: Currency = Currency.USD)
   extends ModelWithLockParameter[Order]
   with FSM[Order.Status, Order]
   with Validation[Order] {
@@ -105,9 +106,10 @@ class Orders(tag: Tag) extends GenericTable.TableWithLock[Order](tag, "orders") 
   def placedAt = column[Option[Instant]]("placed_at")
   def remorsePeriodEnd = column[Option[Instant]]("remorse_period_end")
   def rmaCount = column[Int]("rma_count")
+  def currency = column[Currency]("currency")
 
   def * = (id, referenceNumber, customerId, status, locked, placedAt, remorsePeriodEnd,
-    rmaCount) <>((Order.apply _).tupled, Order.unapply)
+    rmaCount, currency) <>((Order.apply _).tupled, Order.unapply)
 
   def assignees = OrderAssignments.filter(_.orderId === id).flatMap(_.assignee)
 }

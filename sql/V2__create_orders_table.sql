@@ -10,6 +10,7 @@ create table orders (
     placed_at timestamp without time zone null,
     remorse_period_end timestamp without time zone null,
     rma_count integer default 0,
+    currency currency,
     foreign key (id) references inventory_events(id) on update restrict on delete restrict,
     constraint valid_status check (status in ('cart','ordered','fraudHold','remorseHold','manualHold','canceled',
                                               'fulfillmentStarted','shipped'))

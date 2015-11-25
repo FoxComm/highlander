@@ -11,6 +11,7 @@ import slick.jdbc.JdbcType
 import services.Failures
 import utils._
 import utils.Money.Currency
+import com.stripe.model.{Charge ⇒ StripeCharge}
 
 final case class CreditCardCharge(id: Int = 0, creditCardId: Int, orderPaymentId: Int,
   chargeId: String, status: CreditCardCharge.Status = CreditCardCharge.Cart, currency: Currency = Currency.USD,
@@ -48,6 +49,12 @@ object CreditCardCharge {
   }
 
   implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
+
+  import com.stripe.model.{Card ⇒ StripeCard, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer, Account, ExternalAccount}
+
+  def authFromStripe(card: CreditCard, pmt: OrderPayment, stripe: StripeCharge, currency: Currency): CreditCardCharge =
+    CreditCardCharge(creditCardId = card.id, orderPaymentId = pmt.id,
+      chargeId = stripe.getId, status = Auth, currency = currency)
 }
 
 class CreditCardCharges(tag: Tag)
