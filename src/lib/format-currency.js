@@ -4,6 +4,7 @@ const formatCurrency = (amount, base, currency) => {
   if (!(isNumber(amount) && isNumber(base))) {
     return null;
   }
+  currency = currency || '';
   const sign = amount < 0 ? '-' : '';
   const parsed = (Math.abs(amount) / base).toFixed(2);
   const decimal = parsed.slice(0, -3);

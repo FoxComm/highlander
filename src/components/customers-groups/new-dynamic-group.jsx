@@ -3,14 +3,12 @@ import SectionTitle from '../section-title/section-title';
 import FormField from '../forms/formfield.jsx';
 import Form from '../forms/form.jsx';
 import Dropdown from '../dropdown/dropdown';
-import DropdownItem from '../dropdown/dropdownItem';
-import { PrimaryButton, DefaultButton } from '../common/buttons';
+import { PrimaryButton, Button } from '../common/buttons';
 import { Link } from '../link';
 import QueryBuilder from './query-builder';
 import { transitionTo } from '../../route-helpers';
 import { connect } from 'react-redux';
-import { autobind } from 'core-decorators';
-
+import { assoc } from 'sprout-data';
 
 export default class NewDynamicGroup extends React.Component {
 
@@ -26,31 +24,12 @@ export default class NewDynamicGroup extends React.Component {
     customerCount: PropTypes.number
   };
 
-  static criterions = [
-    {
-      term: 'Blacklisted status',
-      type: 'bool'
-    },
-    {
-      term: 'Region',
-      type: 'enum',
-      suggestions: []
-    },
-    {
-      term: 'Total Sales',
-      type: 'number'
-    },
-    {
-      term: 'Date Joined',
-      type: 'date'
-    }
-  ];
-
   render () {
     const mainMatchStatuses = {
       all: 'all',
       none: 'none'
     };
+
     return (
       <div className='fc-group-new'>
         <div className='fc-grid'>
@@ -85,12 +64,12 @@ export default class NewDynamicGroup extends React.Component {
                 </span>
                 <span className='fc-group-new-match-span'>of the following criteria:</span>
               </div>
-              <QueryBuilder criterions={NewDynamicGroup.criterions}/>
+              <QueryBuilder/>
               <div className='fc-group-new-title fc-group-new-count-title'>Customer Count:</div>
               <div className='fc-group-new-count'>{ this.props.customerCount }</div>
               <div className='fc-group-new-form-submits'>
                 <Link to='customers'>Cancel</Link>
-                <DefaultButton>Make Manual Group</DefaultButton>
+                <Button>Make Manual Group</Button>
                 <PrimaryButton>Save Dynamic Group</PrimaryButton>
               </div>
             </Form>

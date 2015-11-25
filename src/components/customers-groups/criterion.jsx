@@ -1,120 +1,84 @@
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
-import SectionTitle from '../section-title/section-title';
-import FormField from '../forms/formfield.jsx';
-import Form from '../forms/form.jsx';
-import Dropdown from '../dropdown/dropdown';
-import DropdownItem from '../dropdown/dropdownItem';
-import { AddButton } from '../common/buttons';
-import { Link } from '../link';
-import { transitionTo } from '../../route-helpers';
 import { connect } from 'react-redux';
-import { autobind } from 'core-decorators';
-import { assoc } from 'sprout-data';
+import { assoc, get } from 'sprout-data';
+import Dropdown from '../dropdown/dropdown';
+import CurrencyInput from '../forms/currency-input';
+import DatePicker from '../datepicker/datepicker';
+import SelectVertical from './select-vertical';
+import * as GroupBuilderActions from '../../modules/groups/builder';
 
-
-export default class Criterion extends React.Component {
-  static propTypes = {
-    terms: PropTypes.array.isRequired,
-    criterions: PropTypes.array.isRequired,
-    onTermChange: PropTypes.func,
-    initialTerm: PropTypes.any
-  };
-
-  typeOperators = {
-    bool: {
-      is: null
-    },
-    date: {
-      'is after': null,
-      'is before': null
-    },
-    number: {
-      'is greater than': null,
-      'is less than': null
-    },
-    enum: {
-      'is one of': null,
-      'is not one of': null
-    }
-  };
-
-  constructor(props, ...args) {
-    super(props, ...args);
-    // type,
-    // suggestions: PropTypes.array from static
-
-    let items = {};
-    if (props.initialTerm) {
-      items[props.initialTerm] = props.initialTerm;
-    }
-
-    this.state = {
-      term: props.initialTerm,
-      initial: items,
-      current: _.chain(props.criterions)
-        .pick(({term}) => term == props.initialTerm)
-        .values().first().value()
+function mapDispatchToProps(dispatch, props) {
+  return _.transform(GroupBuilderActions, (result, action, key) => {
+    result[key] = (...args) => {
+      return dispatch(action(props.id, ...args));
     };
-  }
+  });
+}
 
-  @autobind
-  onTermChange(newTerm) {
-    if (this.props.onTermChange) {
-      this.props.onTermChange(this.state.term, newTerm);
-    }
-    this.setState({
-      term: newTerm,
-      initial: assoc({}, newTerm, newTerm),
-      current: _.chain(this.props.criterions)
-        .pick(({term}) => term == newTerm)
-        .values().first().value()
-    });
-  }
+@connect((state, props) => state.groups.builder.criterions[props.id], mapDispatchToProps)
+export default class Criterion extends React.Component {
+
+  static propTypes = {
+    id: PropTypes.string.isRequired,
+    terms: PropTypes.object.isRequired, // {value -> title}
+    term: PropTypes.string, // selected term value
+    value: PropTypes.object.isRequired, // {type: :widget-type, other fields, like :options}
+    operators: PropTypes.object, // {value -> title}
+    operator: PropTypes.string, // selected operator value
+    changeTerm: PropTypes.func.isRequired,
+    changeOperator: PropTypes.func.isRequired,
+    removeCriterion: PropTypes.func.isRequired,
+    changeValue: PropTypes.func
+  };
 
   get operator() {
-    if (!this.state.current) {
+    if (!this.props.value.type) {
       return;
     }
-    const operators = this.typeOperators[this.state.current.type];
-    if (!operators) {
-      console.error(`operator ${this.state.current.type} isn't supported`);
-      return;
-    }
-    const items = _.chain(operators).keys().reduce((p, k) => assoc(p, k, k), {}).value();
     return (
       <Dropdown
-        items={items}
-        value={_.first(_.keys(operators))}
+        className='fc-group-builder-crit-op'
+        items={ this.props.operators }
+        value={ this.props.operator }
+        onChange={ this.props.changeOperator }
       />
     );
   }
 
   get value() {
-    if (!this.state.current) {
+    if (!this.props.value.type) {
       return;
     }
-    return (
-      <input type='text'/>
-    );
+
+    switch(this.props.value.type) {
+      case 'date':
+        return <DatePicker/>;
+      case 'number':
+        return <input/>;
+      case 'currency':
+        return <CurrencyInput onChange={this.props.changeValue} value={this.props.value.value}/>;
+      case 'bool':
+        return <input/>;
+      case 'enum':
+        return <SelectVertical options={this.props.value.options}
+          onChange={this.props.changeValue}/>;
+    }
   }
 
   render() {
-    const value = () => {
-      return (
-        <div>{val}</div>
-      );
-    };
     return (
-      <div className='fc-group-builder-criterion'>
+      <div className='fc-grid fc-group-builder-criterion'>
         <Dropdown
-          items={ this.props.terms.reduce( (prev, term) => assoc(prev, term, term), this.state.initial) }
+          items={ this.props.terms }
+          className='fc-group-builder-crit-term'
           placeholder='- Select criteria -'
-          value={this.state.term}
-          onChange={ this.onTermChange }
+          value={this.props.term}
+          onChange={ this.props.changeTerm }
         />
         {this.operator}
-        {this.value}
+        <span className='fc-group-builder-crit-val'>{this.value}</span>
+        <i onClick={this.props.removeCriterion} className='fc-group-builder-remove-crit icon-close'/>
       </div>
     );
   }

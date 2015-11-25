@@ -14,12 +14,10 @@ const columns = [
 
 const editBlock = (shippingMethod, isEditingPrice, editPriceAction, cancelPriceAction, submitPriceAction) => {
   if (shippingMethod.isSelected && isEditingPrice) {
-    const price = formatCurrency(shippingMethod.price, 100, '');
-
     return (
       <div>
         <div className='fc-shipping-method-input-price fc-left'>
-          <CurrencyInput defaultValue={price} />
+          <CurrencyInput defaultValue={shippingMethod.price} />
         </div>
         <div className='fc-right'>
           <a className='fc-action-block-cancel' onClick={cancelPriceAction}>Cancel</a>

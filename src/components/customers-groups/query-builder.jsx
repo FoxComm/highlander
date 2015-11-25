@@ -1,69 +1,47 @@
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
 // components
-import SectionTitle from '../section-title/section-title';
-import FormField from '../forms/formfield.jsx';
-import Form from '../forms/form.jsx';
-import Dropdown from '../dropdown/dropdown';
-import DropdownItem from '../dropdown/dropdownItem';
 import { AddButton } from '../common/buttons';
-import { Link } from '../link';
 import Criterion from './criterion';
 // stuff
-import { transitionTo } from '../../route-helpers';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
-import { assoc, dissoc } from 'sprout-data';
+import { assoc, dissoc, get } from 'sprout-data';
+import * as GroupBuilderActions from '../../modules/groups/builder';
 
-const append = function(collection, item) {
-  return assoc(collection, collection.length, item);
-}
 
+@connect(state => state.groups.builder, GroupBuilderActions)
 export default class QueryBuilder extends React.Component {
 
-  constructor(props, ...args) {
-    super(props, ...args);
-    this.terms = _.pluck(props.criterions, 'term');
-
-    this.state = {
-      counter: 2,
-      current: {1: null}
-    };
-  }
-
   static propTypes = {
-    criterions: PropTypes.array.isRequired
+    termOptions: PropTypes.object.isRequired, // {value -> title} for terms
+    criterions: PropTypes.object.isRequired,
+    initBuilder: PropTypes.func.isRequired,
+    addCriterion: PropTypes.func.isRequired
   };
 
-  termChanged(key, _prev, current) {
-    this.setState({
-      current: assoc(this.state.current, key, current)
-    });
-  }
-
-  removeCriteria(key) {
-    this.setState({current: dissoc(this.state.current, key)});
-  }
-
-  @autobind
-  buildCriterion(key) {
-    return (
-      <div className='fc-group-builder-criterion-container' key={key}>
-        <Criterion
-          terms={_.difference(this.terms, _.values(this.state.current))}
-          initialTerm={ this.state.current[key] }
-          onTermChange={this.termChanged.bind(this, key)}
-          criterions={this.props.criterions}
-        />
-        <i onClick={this.removeCriteria.bind(this, key)} className='fc-group-builder-remove-crit icon-close'/>
-      </div>
-    );
+  componentDidMount() {
+    this.props.initBuilder();
   }
 
   get criterions() {
+    const selectedValues = _.pluck(_.values(this.props.criterions), 'term');
+    const availableValues = _.difference(_.keys(this.props.termOptions), selectedValues);
+    const items = availableValues.reduce((r, term) => assoc(r, term, this.props.termOptions[term]), {});
+
+    function buildCriterion(key) {
+      const selectedVal = get(this.props.criterions, [key, 'term']);
+      let curItems = items;
+      if (selectedVal) {
+        curItems = assoc(curItems, selectedVal, this.props.termOptions[selectedVal]);
+      }
+
+      return <Criterion key={key} id={key} terms={curItems} term={selectedVal}/>;
+    }
+
     return (
-      <div className='fc-group-builder-criterions'>
-        {_.keys(this.state.current).map(this.buildCriterion)}
+      <div className='fc-grid fc-group-builder-criterions'>
+        {_.keys(this.props.criterions).map(buildCriterion.bind(this))}
       </div>
     );
   };
@@ -71,21 +49,7 @@ export default class QueryBuilder extends React.Component {
   @autobind
   addCriterion(e) {
     e.preventDefault();
-    if (_.contains(_.values(this.state.current), null)) {
-      return;
-    }
-    if (this.terms.length == _.size(this.state.current)) return;
-
-    let term = null;
-    if (this.terms.length == _.size(this.state.current) + 1) {
-      term = _.first(_.difference(this.terms, _.values(this.state.current)));
-    }
-
-    const key = this.state.counter;
-    this.setState({
-      counter: key + 1,
-      current: assoc(this.state.current, key, term)
-    });
+    this.props.addCriterion();
   }
 
   render () {

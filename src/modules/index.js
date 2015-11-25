@@ -2,6 +2,7 @@ import { routerStateReducer } from 'redux-router';
 import { combineReducers } from 'redux';
 import giftCards from './gift-cards';
 import customers from './customers';
+import groups from './groups';
 import orders from './orders';
 import rmas from './rmas';
 import notes from './notes';
@@ -21,6 +22,7 @@ const rootReducer = combineReducers({
   countries,
   regions,
   addressForm,
+  groups,
 });
 
 export default rootReducer;

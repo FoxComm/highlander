@@ -73,7 +73,9 @@ export default class Dropdown extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
-    // todo: additional/different checks?
+    // fixme: additional/different checks?
+    // bug: if items not changed it's reset current selected value value
+    // todo: remove selectedValue and title from state
     if (newProps.value != this.state.selectedValue) {
       this.setState({
         selectedValue: newProps.value,

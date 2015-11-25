@@ -1,3 +1,5 @@
+@dropdown-height: 36px;
+
 .fc-dropdown {
   .inline-block();
   position: relative;
@@ -12,10 +14,10 @@
   }
 
   &-value {
-    .height(36px);
+    .height(@dropdown-height);
     .padding(0, 10px);
     .colors(@color-default-fg, @color-control-standard-bg);
-    .font-spec(14px, 400, 36px);
+    .font-spec(14px, 400, @dropdown-height);
     overflow: hidden;
     cursor: pointer;
     user-select: none;
@@ -24,8 +26,8 @@
   &-button {
     .inline-block();
     .colors(@color-control-standard-fg, @color-control-standard-bg);
-    .size(36px);
-    .font-spec(14px, 400, 36px);
+    .size(@dropdown-height);
+    .font-spec(14px, 400, @dropdown-height);
     float: right;
     text-align: center;
     cursor: pointer;
