@@ -140,11 +140,15 @@ export default class OrderShippingAddress extends React.Component {
       );
 
     let submitAction = null;
+    let saveTitle = 'Save and Choose';
+    let onSaved = addressId => props.chooseAddress(props.order.referenceNumber, addressId);
 
     if (props.editingAddress && props.editingAddress.type === addressTypes.SHIPPING) {
       submitAction = formData => {
         return props.patchShippingAddress(props.order.referenceNumber, formData);
       };
+      saveTitle = 'Save';
+      onSaved = null;
     }
 
     return (
@@ -166,6 +170,8 @@ export default class OrderShippingAddress extends React.Component {
           submitAction={ submitAction }
           closeAction={ () => props.stopAddingOrEditingAddress() }
           customerId={ props.customerId }
+          saveTitle={saveTitle}
+          onSaved={onSaved}
         />
       </div>
     );

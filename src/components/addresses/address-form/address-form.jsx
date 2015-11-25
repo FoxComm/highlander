@@ -57,11 +57,13 @@ export default class AddressForm extends React.Component {
     formData: PropTypes.object,
     err: PropTypes.any,
     isAdding: PropTypes.bool,
-    countryId: PropTypes.number
+    countryId: PropTypes.number,
+    saveTitle: PropTypes.node
   };
 
   static defaultProps = {
-    showFormTitle: true
+    showFormTitle: true,
+    saveTitle: 'Save'
   };
 
   componentDidMount() {
@@ -193,7 +195,7 @@ export default class AddressForm extends React.Component {
               </li>
               <li>
                 <FormField label="Country">
-                  <select name="countryId" data-type="int" value={this.props.countryId}>
+                  <select name="countryId" data-type="int" value={props.countryId}>
                     {countries.map((country, index) => {
                       return <option value={country.id} key={`${index}-${country.id}`}>{country.name}</option>;
                       })}
@@ -237,8 +239,8 @@ export default class AddressForm extends React.Component {
                 </FormField>
               </li>
               <li className="fc-address-form-controls">
-                <a onClick={this.props.closeAction} className="fc-btn-link" href="javascript:void(0)">Cancel</a>
-                <button className="fc-btn fc-btn-primary" type="submit">Save and choose</button>
+                <a onClick={props.closeAction} className="fc-btn-link" href="javascript:void(0)">Cancel</a>
+                <button className="fc-btn fc-btn-primary" type="submit">{props.saveTitle}</button>
               </li>
             </ul>
             </Form>
