@@ -8,6 +8,7 @@ import cats.data.Validated._
 import cats.data._
 import com.pellucid.sealerate
 import models.Rma._
+import models.traits.Lockable
 import monocle.Lens
 import monocle.macros.GenLens
 import services.Failure
@@ -17,17 +18,19 @@ import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.CustomDirectives.SortAndPage
 import utils.Validation._
+import utils.table.SearchByRefNum
 
 import utils.{FSM, ModelWithLockParameter, TableQueryWithLock, ADT, GenericTable}
 import utils.Slick.implicits._
 import utils.Slick.DbResult
 
 final case class Rma(id: Int = 0, referenceNumber: String = "", orderId: Int, orderRefNum: String,
-  rmaType: RmaType = Standard, status: Status = Pending, locked: Boolean = false,
+  rmaType: RmaType = Standard, status: Status = Pending, isLocked: Boolean = false,
   customerId: Int, storeAdminId: Option[Int] = None, messageToCustomer: Option[String] = None,
   canceledReason: Option[Int] = None, createdAt: Instant = Instant.now,
   updatedAt: Instant = Instant.now, deletedAt: Option[Instant] = None)
   extends ModelWithLockParameter[Rma]
+  with Lockable[Rma]
   with FSM[Rma.Status, Rma] {
 
   def refNum: String = referenceNumber
@@ -98,7 +101,7 @@ class Rmas(tag: Tag) extends GenericTable.TableWithLock[Rma](tag, "rmas")  {
   def orderRefNum = column[String]("order_refnum")
   def rmaType = column[RmaType]("rma_type")
   def status = column[Status]("status")
-  def locked = column[Boolean]("locked")
+  def isLocked = column[Boolean]("is_locked")
   def customerId = column[Int]("customer_id")
   def storeAdminId = column[Option[Int]]("store_admin_id")
   def messageToCustomer = column[Option[String]]("message_to_customer")
@@ -107,15 +110,14 @@ class Rmas(tag: Tag) extends GenericTable.TableWithLock[Rma](tag, "rmas")  {
   def updatedAt = column[Instant]("updated_at")
   def deletedAt = column[Option[Instant]]("deleted_at")
 
-  def * = (id, referenceNumber, orderId, orderRefNum, rmaType, status, locked, customerId, storeAdminId,
+  def * = (id, referenceNumber, orderId, orderRefNum, rmaType, status, isLocked, customerId, storeAdminId,
     messageToCustomer, canceledReason, createdAt, updatedAt, deletedAt) <> ((Rma.apply _).tupled, Rma.unapply)
 }
 
 object Rmas extends TableQueryWithLock[Rma, Rmas](
   idLens = GenLens[Rma](_.id)
-)(new Rmas(_)) {
-
-  override def primarySearchTerm: String = "referenceNumber"
+)(new Rmas(_))
+  with SearchByRefNum[Rma, Rmas] {
 
   val returningIdAndReferenceNumber = this.returning(map { rma ⇒ (rma.id, rma.referenceNumber) })
 

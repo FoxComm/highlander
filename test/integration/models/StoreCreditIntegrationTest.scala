@@ -1,12 +1,12 @@
 package models
 
-import slick.driver.PostgresDriver
 import util.IntegrationTestBase
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 import utils.Seeds.Factories
 import utils.Slick.implicits._
 
 class StoreCreditIntegrationTest extends IntegrationTestBase {
-  import api._
   import concurrent.ExecutionContext.Implicits.global
 
   "StoreCreditTest" - {
@@ -17,7 +17,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase {
     }
 
     "updates availableBalance if auth adjustment is created + cancel handling" in new Fixture {
-      val adjustment = StoreCredits.auth(storeCredit, Some(payment.id), 10).run().futureValue
+      val adjustment = StoreCredits.auth(storeCredit, Some(payment.id), 10).run().futureValue.rightVal
 
       val updatedStoreCredit = StoreCredits.findOneById(storeCredit.id).run().futureValue.value
       updatedStoreCredit.availableBalance must === (storeCredit.availableBalance - 10)
@@ -28,7 +28,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase {
     }
 
     "updates availableBalance and currentBalance if capture adjustment is created + cancel handling" in new Fixture {
-      val adjustment = StoreCredits.capture(storeCredit, Some(payment.id), 10).run().futureValue
+      val adjustment = StoreCredits.capture(storeCredit, Some(payment.id), 10).run().futureValue.rightVal
 
       val updatedStoreCredit = StoreCredits.findOneById(storeCredit.id).run().futureValue.value
       updatedStoreCredit.availableBalance must === (storeCredit.availableBalance - 10)
@@ -42,18 +42,16 @@ class StoreCreditIntegrationTest extends IntegrationTestBase {
   }
 
   trait Fixture {
-    val adminFactory = Factories.storeAdmin
     val (customer, origin, storeCredit, payment) = (for {
-      admin ← (StoreAdmins.returningId += adminFactory).map { id ⇒ adminFactory.copy(id = id) }
-      customer ← Customers.saveNew(Factories.customer)
-      order ← Orders.saveNew(Factories.order.copy(customerId = customer.id))
-      reason ← Reasons.saveNew(Factories.reason.copy(storeAdminId = admin.id))
-      origin ← StoreCreditManuals.saveNew(Factories.storeCreditManual.copy(adminId = admin.id, reasonId = reason.id))
-      sc ← StoreCredits.saveNew(Factories.storeCredit.copy(customerId = customer.id, originId = origin.id))
-      storeCredit ← StoreCredits.findOneById(sc.id)
-      payment ← OrderPayments.saveNew(Factories.orderPayment.copy(orderId = order.id,
-        paymentMethodId = sc.id))
-    } yield (customer, origin, storeCredit.value, payment)).run().futureValue
+      admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
+      customer ← * <~ Customers.create(Factories.customer)
+      order    ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
+      reason   ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
+      origin   ← * <~ StoreCreditManuals.create(Factories.storeCreditManual.copy(adminId = admin.id, reasonId = reason.id))
+      sc       ← * <~ StoreCredits.create(Factories.storeCredit.copy(customerId = customer.id, originId = origin.id))
+      sCredit  ← * <~ StoreCredits.findOneById(sc.id).toXor
+      payment  ← * <~ OrderPayments.create(Factories.orderPayment.copy(orderId = order.id, paymentMethodId = sc.id))
+    } yield (customer, origin, sCredit.value, payment)).runT().futureValue.rightVal
   }
 }
 

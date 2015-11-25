@@ -7,6 +7,8 @@ import models.{Notes, _}
 import responses.AdminNotes
 import services.{NotFoundFailure404, NoteManager}
 import util.IntegrationTestBase
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 import utils.Seeds.Factories
 import utils.Slick.implicits._
 import utils.time.RichInstant
@@ -101,9 +103,9 @@ class CustomerNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
 
   trait Fixture {
     val (admin, customer) = (for {
-      admin ← StoreAdmins.saveNew(authedStoreAdmin)
-      customer ← Customers.saveNew(Factories.customer)
-    } yield (admin, customer)).run().futureValue
+      admin    ← * <~ StoreAdmins.create(authedStoreAdmin)
+      customer ← * <~ Customers.create(Factories.customer)
+    } yield (admin, customer)).runT().futureValue.rightVal
   }
 
 }

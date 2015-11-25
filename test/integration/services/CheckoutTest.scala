@@ -78,7 +78,7 @@ class CheckoutTest
 
       newCart.id must !== (cart.id)
       newCart.status must === (Order.Cart)
-      newCart.locked mustBe false
+      newCart.isLocked mustBe false
       newCart.placedAt mustBe 'empty
       newCart.remorsePeriodEnd mustBe 'empty
     }

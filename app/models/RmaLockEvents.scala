@@ -21,8 +21,13 @@ object RmaLockEvents extends TableQueryWithId[RmaLockEvent, RmaLockEvents](
   idLens = GenLens[RmaLockEvent](_.id)
 )(new RmaLockEvents(_)) {
 
-  def findByRma(rma: Rma): Query[RmaLockEvents, RmaLockEvent, Seq] =
-    filter(_.rmaId === rma.id)
+  import scope._
+
+  def findByRma(rmaId: Rma#Id): QuerySeq =
+    filter(_.rmaId === rmaId)
+
+  def latestLockByRma(rmaId: Rma#Id): QuerySeq =
+    findByRma(rmaId).mostRecentLock
 
   object scope {
     implicit class RmaLockEventsQuerySeqConversions(q: QuerySeq) {

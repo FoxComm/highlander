@@ -7,7 +7,7 @@ import services.CartFailures.CustomerHasCart
 import services.NotFoundFailure404
 import util.IntegrationTestBase
 import utils.Seeds.Factories
-import util.SlickSupport.implicits._
+import utils.Slick.implicits._
 import cats.implicits._
 
 class OrderCreatorIntegrationTest extends IntegrationTestBase
@@ -71,7 +71,7 @@ class OrderCreatorIntegrationTest extends IntegrationTestBase
   }
 
   trait Fixture {
-    val customer = Customers.saveNew(Factories.customer).futureValue
+    val customer = Customers.create(Factories.customer).run().futureValue.rightVal
   }
 }
 

@@ -2,19 +2,19 @@ package utils
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import cats.data.Xor
 import models.{Order, Orders}
-import services.{LockedFailure, Failures, NotFoundFailure404, GeneralFailure}
+import services.{LockedFailure, NotFoundFailure404}
 import util.{CatsHelpers, IntegrationTestBase}
 import utils.Seeds.Factories
 import utils.Slick.DbResult
 import utils.Slick.UpdateReturning._
+import utils.Slick.implicits._
 
 class TableQueryIntegrationTest extends IntegrationTestBase with CatsHelpers {
 
   "for models with id" - {
     "should return model if present" in {
-      val order = db.run(Orders.saveNew(Factories.order)).futureValue
+      val order = Orders.create(Factories.order).run().futureValue.rightVal
 
       val result = Orders.findByRefNum(order.referenceNumber).selectOneForUpdate(DbResult.good).futureValue
       result.isRight mustBe true
@@ -24,8 +24,7 @@ class TableQueryIntegrationTest extends IntegrationTestBase with CatsHelpers {
     "should return failure if absent" in {
       val result = Orders.findByRefNum("foobar").selectOneForUpdate(DbResult.good).futureValue
 
-      result.isLeft mustBe true
-      leftValue(result).head must === (NotFoundFailure404(Order, "foobar"))
+      result.leftVal must === (NotFoundFailure404(Order, "foobar").single)
     }
   }
 
@@ -47,7 +46,7 @@ class TableQueryIntegrationTest extends IntegrationTestBase with CatsHelpers {
     }
 
     trait Fixture {
-      val order = db.run(Orders.saveNew(Factories.order.copy(locked = true))).futureValue
+      val order = Orders.create(Factories.order.copy(isLocked = true)).run().futureValue.rightVal
       val finder = Orders.findByRefNum(order.referenceNumber)
     }
   }

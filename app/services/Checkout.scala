@@ -15,6 +15,12 @@ import utils.DbResultT.implicits._
 import utils.Litterbox._
 import utils.Slick.DbResult
 import utils.Slick.implicits._
+import OrderPayments.scope._
+import utils.Litterbox._
+import utils.{DbResultT, TableQueryWithId, friendlyClassName}
+
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 
 /*
   1) Run cart through validator
@@ -57,24 +63,24 @@ final case class Checkout(cart: Order, cartValidator: CartValidation)
     }
   }
 
-  private def authGiftCards: DbResult[List[GiftCardAdjustment]] = {
+  private def authGiftCards: DbResult[Seq[GiftCardAdjustment]] = {
     val payments = OrderPayments.findAllGiftCardsByOrderId(cart.id).result
     authInternalPaymentMethod(payments)(GiftCards.authOrderPayment)
   }
 
-  private def authStoreCredits: DbResult[List[StoreCreditAdjustment]] = {
+  private def authStoreCredits: DbResult[Seq[StoreCreditAdjustment]] = {
     val payments = OrderPayments.findAllStoreCreditsByOrderId(cart.id).result
     authInternalPaymentMethod(payments)(StoreCredits.authOrderPayment)
   }
 
   private def authInternalPaymentMethod[M, Adj]
-  (dbio: DBIO[Seq[(OrderPayment, M)]])(auth: (M, OrderPayment) ⇒ DBIO[Adj]): DbResult[List[Adj]] = {
+  (dbio: DBIO[Seq[(OrderPayment, M)]])(auth: (M, OrderPayment) ⇒ DbResult[Adj]): DbResult[Seq[Adj]] = {
     dbio.flatMap { results ⇒
       if (results.isEmpty)
         DbResult.good(List.empty[Adj])
       else {
-        val auths = results.map { case (pmt, m) ⇒ auth(m, pmt).toXor }
-        DBIO.sequence(auths).map(_.toList.sequenceU)
+        val auths = results.map { case (pmt, m) ⇒ DbResultT(auth(m, pmt)) }
+        DbResultT.sequence(auths).value
       }
     }
   }

@@ -12,6 +12,7 @@ import utils.Slick.DbResult
 import utils.Slick._
 import utils.Slick.implicits._
 import utils.Strings._
+import utils.table.SearchById
 
 trait ModelWithIdParameter[T <: ModelWithIdParameter[T]] extends Validation[T] { self: T ⇒
   type Id = Int
@@ -33,7 +34,7 @@ trait ModelWithIdParameter[T <: ModelWithIdParameter[T]] extends Validation[T] {
 }
 
 trait ModelWithLockParameter[T <: ModelWithLockParameter[T]] extends ModelWithIdParameter[T] { self: T ⇒
-  def locked: Boolean
+  def isLocked: Boolean
 }
 
 trait TableWithIdColumn[I] {
@@ -41,7 +42,7 @@ trait TableWithIdColumn[I] {
 }
 
 trait TableWithLockColumn[I] extends TableWithIdColumn[I] {
-  def locked: Rep[Boolean]
+  def isLocked: Rep[Boolean]
 }
 
 private[utils] abstract class TableWithIdInternal[M <: ModelWithIdParameter[M], I](tag: Tag, name: String)
@@ -59,7 +60,7 @@ object GenericTable {
 abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.TableWithId[M]]
   (idLens: Lens[M, M#Id])
   (construct: Tag ⇒ T)
-  (implicit ev: BaseTypedType[M#Id]) extends TableQuery[T](construct) {
+  (implicit ev: BaseTypedType[M#Id]) extends TableQuery[T](construct) with SearchById[M, T] {
 
   import ExceptionWrapper._
 
@@ -122,8 +123,6 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.
   type QuerySeq = Query[T, M, Seq]
   type QuerySeqWithMetadata = QueryWithMetadata[T, M, Seq]
 
-  def primarySearchTerm: String = "id"
-
   implicit class TableQueryWrappers(q: QuerySeq) {
 
     type Checks = Set[M ⇒ Failures Xor M]
@@ -159,14 +158,6 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.
     def selectOne[R](action: M ⇒ DbResult[R], checks: Checks = checks, notFoundFailure: Failure = notFound404)
       (implicit ec: ExecutionContext, db: Database): Result[R] = {
       selectInner(q.result.headOption)(action, checks)
-    }
-
-    def mustFindById(id: M#Id, notFoundFailure: M#Id ⇒ Failure = notFound404K)
-      (implicit ec: ExecutionContext, db: Database): DbResult[M] = {
-      findOneById(id).flatMap {
-        case Some(model) ⇒ DbResult.good(model)
-        case None ⇒ DbResult.failure(notFoundFailure(id))
-      }
     }
 
     def selectOneWithMetadata[R](action: M ⇒ ResultWithMetadata[R], checks: Checks = checks,
@@ -205,11 +196,6 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.
     def notFound404 = NotFoundFailure404(s"$queryError not found")
     def notFound400 = NotFoundFailure400(s"$queryError not found")
 
-    protected def notFound404K[K](searchKey: K) =
-      NotFoundFailure404(s"${tableName.tableNameToCamel} with $primarySearchTerm=$searchKey not found")
-    protected def notFound400K[K](searchKey: K) =
-      NotFoundFailure400(s"${tableName.tableNameToCamel} with $primarySearchTerm=$searchKey not found")
-
     protected def mustExist(maybe: Option[M], notFoundFailure: Failure): Failures Xor M =
       Xor.fromOption(maybe, notFoundFailure.single)
   }
@@ -246,7 +232,7 @@ abstract class TableQueryWithLock[M <: ModelWithLockParameter[M], T <: GenericTa
     override def checks: Checks = super.checks + mustNotBeLocked
 
     def mustNotBeLocked(model: M): Failures Xor M =
-      if (model.locked) Xor.left(LockedFailure(s"$queryError is locked").single) else Xor.Right(model)
+      if (model.isLocked) Xor.left(LockedFailure(s"$queryError is locked").single) else Xor.Right(model)
   }
 
 }

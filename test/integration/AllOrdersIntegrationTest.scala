@@ -65,8 +65,8 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
   
   "GET /v1/orders" - {
     "find all" in {
-      val cId = Customers.saveNew(Factories.customer).run().futureValue.id
-      Orders.saveNew(Factories.order.copy(customerId = cId)).run().futureValue
+      val cId = Customers.create(Factories.customer).run().futureValue.rightVal.id
+      Orders.create(Factories.order.copy(customerId = cId)).run().futureValue.rightVal
 
       val responseJson = GET(s"v1/orders")
       responseJson.status must === (StatusCodes.OK)
@@ -109,8 +109,8 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
     }
 
     "refuses invalid status transition" in {
-      val customer = Customers.saveNew(Factories.customer).run().futureValue
-      val order = Orders.saveNew(Factories.order.copy(customerId = customer.id)).run().futureValue
+      val customer = Customers.create(Factories.customer).run().futureValue.rightVal
+      val order = Orders.create(Factories.order.copy(customerId = customer.id)).run().futureValue.rightVal
       val response = PATCH("v1/orders", BulkUpdateOrdersPayload(Seq(order.refNum), Cart))
 
       response.status must === (StatusCodes.OK)
@@ -251,21 +251,21 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
 
   trait StatusUpdateFixture {
     (for {
-      customer ← Customers.saveNew(Factories.customer)
-      foo ← Orders.saveNew(Factories.order.copy(customerId = customer.id, referenceNumber = "foo", status = FraudHold))
-      bar ← Orders.saveNew(Factories.order.copy(customerId = customer.id, referenceNumber = "bar", status = RemorseHold,
-        locked = true))
-      baz ← Orders.saveNew(Factories.order.copy(customerId = customer.id, referenceNumber = "baz", status = ManualHold))
-    } yield (customer, foo, bar)).run().futureValue
+      cust ← * <~ Customers.create(Factories.customer)
+      foo  ← * <~ Orders.create(Factories.order.copy(customerId = cust.id, referenceNumber = "foo", status = FraudHold))
+      bar  ← * <~ Orders.create(Factories.order.copy(customerId = cust.id, referenceNumber = "bar",
+                                                                                   status = RemorseHold, isLocked = true))
+      baz  ← * <~ Orders.create(Factories.order.copy(customerId = cust.id, referenceNumber = "baz", status = ManualHold))
+    } yield (cust, foo, bar)).runT().futureValue.rightVal
   }
 
   trait BulkAssignmentFixture {
     val (order1, order2, admin) = (for {
-      customer ← Customers.saveNew(Factories.customer)
-      order1 ← Orders.saveNew(Factories.order.copy(id = 1, referenceNumber = "foo", customerId = customer.id))
-      order2 ← Orders.saveNew(Factories.order.copy(id = 2, referenceNumber = "bar", customerId = customer.id))
-      admin ← StoreAdmins.saveNew(Factories.storeAdmin)
-    } yield (order1, order2, admin)).run().futureValue
+      customer ← * <~ Customers.create(Factories.customer)
+      order1   ← * <~ Orders.create(Factories.order.copy(id = 1, referenceNumber = "foo", customerId = customer.id))
+      order2   ← * <~ Orders.create(Factories.order.copy(id = 2, referenceNumber = "bar", customerId = customer.id))
+      admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
+    } yield (order1, order2, admin)).runT().futureValue.rightVal
     val orderRef1 = order1.referenceNumber
     val orderRef2 = order2.referenceNumber
     val adminId = admin.id

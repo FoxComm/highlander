@@ -5,12 +5,12 @@ import java.time.Instant
 import scala.concurrent.Future
 
 import models._
-import payloads.RmaCreatePayload
 import services.rmas.RmaService
 import util.IntegrationTestBase
 import utils.Seeds.Factories
 import slick.driver.PostgresDriver.api._
-import utils.Slick._
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 import utils.Slick.implicits._
 import utils.time._
 
@@ -40,14 +40,14 @@ class RmaServiceTest extends IntegrationTestBase {
 
   trait Fixture {
     val (admin, order) = (for {
-      admin ← StoreAdmins.saveNew(Factories.storeAdmin)
-      customer ← Customers.saveNew(Factories.customer)
-      order ← Orders.saveNew(Factories.order.copy(
+      admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
+      customer ← * <~ Customers.create(Factories.customer)
+      order    ← * <~ Orders.create(Factories.order.copy(
         referenceNumber = "ABC-123",
         status = Order.RemorseHold,
         customerId = customer.id,
         remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
-    } yield (admin, order)).run().futureValue
+    } yield (admin, order)).runT().futureValue.rightVal
   }
 }
 

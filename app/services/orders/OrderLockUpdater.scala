@@ -8,44 +8,31 @@ import models._
 import responses.FullOrder
 import services._
 import slick.driver.PostgresDriver.api._
-import utils.Slick._
-import utils.Slick.UpdateReturning._
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 import utils.Slick.implicits._
-import utils.time._
 
 object OrderLockUpdater {
 
   def lock(refNum: String, admin: StoreAdmin)
-    (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = {
-    val finder = Orders.findByRefNum(refNum)
-
-    finder.selectOneForUpdate { order ⇒
-      val lock = finder.map(_.locked).updateReturningHead(Orders.map(identity), true)
-      val blame = OrderLockEvents += OrderLockEvent(orderId = order.id, lockedBy = admin.id) // FIXME after #522
-
-      lock.flatMap(xor ⇒ xorMapDbio(xor)(order ⇒ blame >> FullOrder.fromOrder(order)))
-    }
-  }
-
-  private def doUnlock(orderId: Int, remorseEnd: Option[Instant])(implicit ec: ExecutionContext, db: Database) = {
-    Orders.findById(orderId).extract
-      .map { o ⇒ (o.locked, o.remorsePeriodEnd) }
-      .updateReturningHead(Orders.map(identity), (false, remorseEnd))
-      .flatMap { xor ⇒ xorMapDbio(xor)(FullOrder.fromOrder) }
-  }
+    (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = (for {
+    order ← * <~ Orders.mustFindByRefNum(refNum)
+    _     ← * <~ order.mustNotBeLocked
+    _     ← * <~ Orders.update(order, order.copy(isLocked = true))
+    _     ← * <~ OrderLockEvents.create(OrderLockEvent(orderId = order.id, lockedBy = admin.id))
+    resp  ← * <~ FullOrder.refreshAndFullOrder(order).toXor
+  } yield resp).runT()
 
   def unlock(refNum: String)(implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
-    Orders.findByRefNum(refNum).selectOneForUpdate({ order ⇒
-      if (order.locked) {
-        OrderLockEvents.latestLockByOrder(order.id).one.flatMap {
-          case Some(lockEvent) ⇒
-            val lockedPeriod = Duration.between(lockEvent.lockedAt, Instant.now)
-            val newEnd = order.remorsePeriodEnd.map(_.plus(lockedPeriod))
-            doUnlock(order.id, newEnd)
-          case None ⇒
-            doUnlock(order.id, order.remorsePeriodEnd.map(_.plusMinutes(15)))
-        }
-      } else DbResult.failure(NotLockedFailure(Order, order.refNum))
-    }, checks = Set.empty)
+    def increaseRemorse(order: Order)(duration: Duration) = order.remorsePeriodEnd.map(_.plus(duration))
+    (for {
+      order    ← * <~ Orders.mustFindByRefNum(refNum)
+      _        ← * <~ order.mustBeLocked
+      lastLock ← * <~ OrderLockEvents.latestLockByOrder(order.id).one.toXor
+      remorsePlus = increaseRemorse(order) _
+      newEnd   ← * <~ lastLock.fold(remorsePlus(Duration.ofMinutes(15)))(lock ⇒ remorsePlus(Duration.between(lock.lockedAt, Instant.now)))
+      _        ← * <~ Orders.update(order, order.copy(isLocked = false, remorsePeriodEnd = newEnd))
+      response ← * <~ FullOrder.refreshAndFullOrder(order).toXor
+    } yield response).runT()
   }
 }

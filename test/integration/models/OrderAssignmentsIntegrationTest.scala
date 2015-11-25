@@ -1,6 +1,8 @@
 package models
 
 import util.IntegrationTestBase
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 import utils.Seeds.Factories
 import utils.Slick.implicits._
 
@@ -16,9 +18,9 @@ class OrderAssignmentsIntegrationTest extends IntegrationTestBase {
 
       assign(admin2, order2)
 
-      assigneesFor(order1) mustBe Seq.empty
-      assigneesFor(order2) mustBe Seq(admin2)
-      assigneesFor(order3) mustBe Seq(admin1, admin2)
+      assigneesFor(order1) mustBe empty
+      assigneesFor(order2) must === (Seq(admin2))
+      assigneesFor(order3) must === (Seq(admin1, admin2))
     }
 
     "finds all orders assigned to admin" in new Fixture {
@@ -26,20 +28,20 @@ class OrderAssignmentsIntegrationTest extends IntegrationTestBase {
       assign(admin3, order1)
       assign(admin3, order2)
 
-      assignedTo(admin1) mustBe Seq.empty
-      assignedTo(admin2) mustBe Seq(order1)
-      assignedTo(admin3) mustBe Seq(order1, order2)
+      assignedTo(admin1) mustBe empty
+      assignedTo(admin2) must === (Seq(order1))
+      assignedTo(admin3) must === (Seq(order1, order2))
     }
 
     trait Fixture {
-      val (order1, order2, order3, admin1, admin2, admin3) = db.run(for {
-        order1 ← Orders.saveNew(Factories.order)
-        order2 ← Orders.saveNew(Factories.order.copy(id = 2, referenceNumber = "foo"))
-        order3 ← Orders.saveNew(Factories.order.copy(id = 3, referenceNumber = "bar"))
-        admin1 ← StoreAdmins.saveNew(Factories.storeAdmin)
-        admin2 ← StoreAdmins.saveNew(Factories.storeAdmin.copy(id = 2, email = "foo@foo.foo"))
-        admin3 ← StoreAdmins.saveNew(Factories.storeAdmin.copy(id = 3, email = "bar@bar.bar"))
-      } yield (order1, order2, order3, admin1, admin2, admin3)).futureValue
+      val (order1, order2, order3, admin1, admin2, admin3) = (for {
+        order1 ← * <~ Orders.create(Factories.order)
+        order2 ← * <~ Orders.create(Factories.order.copy(id = 2, referenceNumber = "foo"))
+        order3 ← * <~ Orders.create(Factories.order.copy(id = 3, referenceNumber = "bar"))
+        admin1 ← * <~ StoreAdmins.create(Factories.storeAdmin)
+        admin2 ← * <~ StoreAdmins.create(Factories.storeAdmin.copy(id = 2, email = "foo@foo.foo"))
+        admin3 ← * <~ StoreAdmins.create(Factories.storeAdmin.copy(id = 3, email = "bar@bar.bar"))
+      } yield (order1, order2, order3, admin1, admin2, admin3)).runT().futureValue.rightVal
     }
   }
 
@@ -48,5 +50,5 @@ class OrderAssignmentsIntegrationTest extends IntegrationTestBase {
   def assignedTo(admin: StoreAdmin): Seq[Order] = OrderAssignments.assignedTo(admin).run.futureValue
 
   def assign(admin: StoreAdmin, order: Order) =
-    OrderAssignments.saveNew(OrderAssignment(orderId = order.id, assigneeId = admin.id)).run().futureValue
+    OrderAssignments.create(OrderAssignment(orderId = order.id, assigneeId = admin.id)).run().futureValue.rightVal
 }

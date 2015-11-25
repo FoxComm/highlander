@@ -205,7 +205,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.OK)
 
       val lockedOrder = Orders.findByRefNum(order.referenceNumber).result.run().futureValue.head
-      lockedOrder.locked must === (true)
+      lockedOrder.isLocked must === (true)
 
       val locks = OrderLockEvents.findByOrder(order.id).result.run().futureValue
       locks.length must === (1)
@@ -214,7 +214,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
 
     "refuses to lock an already locked order" in {
-      val order = Orders.create(Factories.order.copy(locked = true)).run().futureValue.rightVal
+      val order = Orders.create(Factories.order.copy(isLocked = true)).run().futureValue.rightVal
 
       val response = POST(s"v1/orders/${order.referenceNumber}/lock")
       response.status must === (StatusCodes.BadRequest)
@@ -222,6 +222,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
 
     "avoids race condition" in {
+      pending // FIXME when DbResultT gets `select for update` https://github.com/FoxComm/phoenix-scala/issues/587
       StoreAdmins.create(Factories.storeAdmin).run().futureValue.rightVal
       val order = Orders.create(Factories.order).run().futureValue.rightVal
 
@@ -238,13 +239,14 @@ class OrderIntegrationTest extends IntegrationTestBase
       StoreAdmins.create(Factories.storeAdmin).run().futureValue.rightVal
       val order = Orders.create(Factories.order).run().futureValue.rightVal
 
-      POST(s"v1/orders/${order.referenceNumber}/lock")
+      val lock = POST(s"v1/orders/${order.referenceNumber}/lock")
+      lock.status must === (StatusCodes.OK)
 
-      val response = POST(s"v1/orders/${order.referenceNumber}/unlock")
-      response.status must === (StatusCodes.OK)
+      val unlock = POST(s"v1/orders/${order.referenceNumber}/unlock")
+      unlock.status must === (StatusCodes.OK)
 
       val unlockedOrder = Orders.findByRefNum(order.referenceNumber).result.run().futureValue.head
-      unlockedOrder.locked must === (false)
+      unlockedOrder.isLocked must === (false)
     }
 
     "refuses to unlock an already unlocked order" in {
@@ -314,7 +316,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     "can be assigned to locked order" in {
       val (order, storeAdmin) = (for {
         customer   ← * <~ Customers.create(Factories.customer)
-        order      ← * <~ Orders.create(Factories.order.copy(locked = true, customerId = customer.id))
+        order      ← * <~ Orders.create(Factories.order.copy(isLocked = true, customerId = customer.id))
         storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
       } yield (order, storeAdmin)).runT().futureValue.rightVal
       val response = POST(s"v1/orders/${order.referenceNumber}/assignees", Assignment(Seq(storeAdmin.id)))

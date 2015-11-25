@@ -29,7 +29,7 @@ class StripeTest
       "fails if the customerId doesn't exist" taggedAs External in {
         val result = service.authorizeAmount("BAD-CUSTOMER", 100, currency = Currency.USD).futureValue
 
-        result.leftVal.head.description.head must include("No such customer")
+        result.leftVal.getMessage must include("No such customer")
       }
 
       "successfully creates an authorization charge" taggedAs External in {
@@ -113,7 +113,7 @@ class StripeTest
       "fails if the charge was not found" taggedAs External in {
         val result = service.captureCharge("BAD-CHARGE-ID", 100).futureValue
 
-        result.leftVal.head.description.head must include("No such charge")
+        result.leftVal.getMessage must include("No such charge")
       }
 
       "successfully captures a charge" taggedAs External in {

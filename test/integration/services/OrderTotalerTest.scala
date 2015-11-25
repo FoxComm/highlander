@@ -3,9 +3,10 @@ package services
 import models._
 
 import services.orders.OrderTotaler
-import slick.driver.PostgresDriver.api._
 import utils.Money.Currency
 import util.IntegrationTestBase
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 import utils.Seeds.Factories
 import utils.Slick.implicits._
 
@@ -44,27 +45,26 @@ class OrderTotalerTest extends IntegrationTestBase {
 
   trait Fixture {
     val (customer, address, order) = (for {
-      customer ← Customers.saveNew(Factories.customer)
-      address ← Addresses.saveNew(Factories.address.copy(customerId = customer.id))
-      order ← Orders.saveNew(Factories.order.copy(customerId = customer.id))
-    } yield (customer, address, order)).run().futureValue
+      customer ← * <~ Customers.create(Factories.customer)
+      address  ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
+      order    ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
+    } yield (customer, address, order)).runT().futureValue.rightVal
   }
 
   trait SkuLineItemsFixture extends Fixture {
     val sku = (for {
-      sku ← Skus.saveNew(Factories.skus.head)
-      _   ← OrderLineItemSkus.saveNew(OrderLineItemSku(skuId = sku.id, orderId = order.id))
-      _   ← OrderLineItems.saveNew(OrderLineItem.buildSku(order, sku))
-    } yield sku).run().futureValue
+      sku ← * <~ Skus.create(Factories.skus.head)
+      _   ← * <~ OrderLineItemSkus.create(OrderLineItemSku(skuId = sku.id, orderId = order.id))
+      _   ← * <~ OrderLineItems.create(OrderLineItem.buildSku(order, sku))
+    } yield sku).runT().futureValue.rightVal
   }
 
   trait AllLineItemsFixture extends SkuLineItemsFixture {
     val (giftCard, lineItems) = (for {
-      origin    ← GiftCardOrders.saveNew(GiftCardOrder(orderId = order.id))
-      giftCard  ← GiftCards.saveNew(GiftCard.buildLineItem(balance = 150, originId = origin.id, currency = Currency.USD))
-      gcLi      ← OrderLineItemGiftCards.saveNew(OrderLineItemGiftCard(giftCardId = giftCard.id, orderId = order.id))
-
-      lineItems ← OrderLineItems.saveNew(OrderLineItem.buildGiftCard(order, gcLi))
-    } yield (giftCard, lineItems)).run().futureValue
+      origin    ← * <~ GiftCardOrders.create(GiftCardOrder(orderId = order.id))
+      giftCard  ← * <~ GiftCards.create(GiftCard.buildLineItem(balance = 150, originId = origin.id, currency = Currency.USD))
+      gcLi      ← * <~ OrderLineItemGiftCards.create(OrderLineItemGiftCard(giftCardId = giftCard.id, orderId = order.id))
+      lineItems ← * <~ OrderLineItems.create(OrderLineItem.buildGiftCard(order, gcLi))
+    } yield (giftCard, lineItems)).runT().futureValue.rightVal
   }
 }

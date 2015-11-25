@@ -2,10 +2,11 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import models.rules.QueryStatement
-import models.{Addresses, Customers, OrderLineItem, OrderLineItems, OrderShippingAddresses, Orders, Skus,
-StoreAdmins, _}
+import models._
 import org.json4s.jackson.JsonMethods._
 import util.IntegrationTestBase
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 import utils.Seeds.Factories
 import utils.Slick.implicits._
 import Extensions._
@@ -27,9 +28,9 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
             | }
           """.stripMargin).extract[QueryStatement]
 
-        val action = models.ShippingMethods.saveNew(Factories.shippingMethods.head.copy(
+        val action = models.ShippingMethods.create(Factories.shippingMethods.head.copy(
           conditions = Some(conditions)))
-        val shippingMethod = db.run(action).futureValue
+        val shippingMethod = db.run(action).futureValue.rightVal
 
         val response = GET(s"v1/shipping-methods/${order.referenceNumber}")
         response.status must ===(StatusCodes.OK)
@@ -55,8 +56,8 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
             | }
           """.stripMargin).extract[QueryStatement]
 
-        val action = models.ShippingMethods.saveNew(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
-        val shippingMethod = db.run(action).futureValue
+        val action = models.ShippingMethods.create(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
+        val shippingMethod = db.run(action).futureValue.rightVal
 
         val response = GET(s"v1/shipping-methods/${order.referenceNumber}")
         response.status must ===(StatusCodes.OK)
@@ -109,10 +110,10 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
 
       "Shipping method is returned, but disabled with a hazardous SKU" in new ShipToCaliforniaButNotHazardous {
         (for {
-          hazSku ← Skus.saveNew(Sku(sku = "HAZ-SKU", name = Some("fox"), price = 56, isHazardous = true))
-          lineItemSku ← OrderLineItemSkus.saveNew(OrderLineItemSku(orderId = order.id, skuId = hazSku.id))
-          lineItem ← OrderLineItems.saveNew(OrderLineItem(orderId = order.id, originId = lineItemSku.id))
-        } yield lineItem).run().futureValue
+          hazSku      ← * <~ Skus.create(Sku(sku = "HAZ-SKU", name = Some("fox"), price = 56, isHazardous = true))
+          lineItemSku ← * <~ OrderLineItemSkus.create(OrderLineItemSku(orderId = order.id, skuId = hazSku.id))
+          lineItem    ← * <~ OrderLineItems.create(OrderLineItem(orderId = order.id, originId = lineItemSku.id))
+        } yield lineItem).runT().futureValue.rightVal
 
         val response = GET(s"v1/shipping-methods/${order.referenceNumber}")
         response.status must ===(StatusCodes.OK)
@@ -129,10 +130,10 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
 
   trait Fixture {
     val (order, storeAdmin, customer) = (for {
-      customer ← Customers.saveNew(Factories.customer)
-      order ← Orders.saveNew(Factories.order.copy(customerId = customer.id))
-      storeAdmin ← StoreAdmins.saveNew(authedStoreAdmin)
-    } yield (order, storeAdmin, customer)).run().futureValue
+      customer   ← * <~ Customers.create(Factories.customer)
+      order      ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
+      storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
+    } yield (order, storeAdmin, customer)).runT().futureValue.rightVal
   }
 
   trait ShippingMethodsFixture extends Fixture {
@@ -142,12 +143,12 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
     val washingtonId = 4177
 
     val (address, orderShippingAddress) = (for {
-      address ← Addresses.saveNew(Factories.address.copy(customerId = customer.id, regionId = californiaId))
-      orderShippingAddress ← OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
-      sku ← Skus.saveNew(Factories.skus.head.copy(name = Some("Donkey"), price = 27))
-      lineItemSku ← OrderLineItemSkus.saveNew(OrderLineItemSku(orderId = order.id, skuId = sku.id))
-      lineItems ← OrderLineItems.saveNew(OrderLineItem(orderId = order.id, originId = lineItemSku.id))
-    } yield (address, orderShippingAddress)).run().futureValue
+      address     ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id, regionId = californiaId))
+      shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
+      sku         ← * <~ Skus.create(Factories.skus.head.copy(name = Some("Donkey"), price = 27))
+      lineItemSku ← * <~ OrderLineItemSkus.create(OrderLineItemSku(orderId = order.id, skuId = sku.id))
+      lineItems   ← * <~ OrderLineItems.create(OrderLineItem(orderId = order.id, originId = lineItemSku.id))
+    } yield (address, shipAddress)).runT().futureValue.rightVal
   }
 
   trait WestCoastShippingMethodsFixture extends ShippingMethodsFixture {
@@ -176,8 +177,8 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
           |}
         """.stripMargin).extract[QueryStatement]
 
-    val action = models.ShippingMethods.saveNew(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
-    val shippingMethod = db.run(action).futureValue
+    val action = models.ShippingMethods.create(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
+    val shippingMethod = db.run(action).futureValue.rightVal
   }
 
   trait ShippingMethodsStateAndPriceCondition extends ShippingMethodsFixture {
@@ -226,8 +227,8 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
           |}
       """.stripMargin).extract[QueryStatement]
 
-    val action = models.ShippingMethods.saveNew(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
-    val shippingMethod = db.run(action).futureValue
+    val action = models.ShippingMethods.create(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
+    val shippingMethod = db.run(action).futureValue.rightVal
   }
 
   trait ShipToCaliforniaButNotHazardous extends ShippingMethodsFixture {
@@ -262,9 +263,9 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
       """.stripMargin).extract[QueryStatement]
 
     val shippingMethod = (for {
-      shippingMethod ← models.ShippingMethods.saveNew(Factories.shippingMethods.head.copy(
+      shippingMethod ← models.ShippingMethods.create(Factories.shippingMethods.head.copy(
         conditions = Some(conditions), restrictions = Some(restrictions)))
-    } yield shippingMethod).run().futureValue
+    } yield shippingMethod).run().futureValue.rightVal
   }
 
 }

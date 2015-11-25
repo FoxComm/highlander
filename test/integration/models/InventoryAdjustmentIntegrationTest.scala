@@ -3,19 +3,20 @@ package models
 import models.inventory._
 import utils.Seeds.Factories
 import util.IntegrationTestBase
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 import utils.Slick.implicits._
 
 class InventoryAdjustmentIntegrationTest extends IntegrationTestBase {
   import api._
   import concurrent.ExecutionContext.Implicits.global
 
-  def seed(): (Warehouse, Sku, OrderLineItemSku, Order) = {
-    val warehouse = Warehouses.saveNew(Factories.warehouse).run().futureValue
-    val sku = Skus.saveNew(Factories.skus.head.copy(price = 5)).run().futureValue
-    val order = Orders.saveNew(Order(id = 0, customerId = 1)).run().futureValue
-    val lineItemSku = OrderLineItemSkus.saveNew(OrderLineItemSku(skuId = sku.id, orderId = order.id)).run().futureValue
-    (warehouse, sku, lineItemSku, order)
-  }
+  def seed(): (Warehouse, Sku, OrderLineItemSku, Order) = (for {
+    warehouse   ← * <~ Warehouses.create(Factories.warehouse)
+    sku         ← * <~ Skus.create(Factories.skus.head.copy(price = 5))
+    order       ← * <~ Orders.create(Order(id = 0, customerId = 1))
+    lineItemSku ← * <~ OrderLineItemSkus.create(OrderLineItemSku(skuId = sku.id, orderId = order.id))
+  } yield (warehouse, sku, lineItemSku, order)).runT().futureValue.rightVal
 
   "InventoryAdjustment" - {
     "createAdjustmentsForOrder creates an adjustment with the correct reservation based on line items" in {
