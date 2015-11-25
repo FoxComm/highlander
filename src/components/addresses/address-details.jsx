@@ -1,4 +1,3 @@
-
 import React, { PropTypes } from 'react';
 import PhoneNumber from '../phone-number/phone-number';
 import CountryInfo from './country-info';

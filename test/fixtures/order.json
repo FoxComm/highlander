@@ -68,14 +68,45 @@
     "zip": "12345",
     "isDefaultShipping": true
   },
-  "payment": {
-    "amount": 0,
-    "status": "Authorized",
-    "referenceNumber": "ABC123",
-    "paymentMethod": {
-      "cardType": "visa",
-      "cardExp": "9/2017",
-      "cardNumber": "xxx-xxxx-xxxx-4242"
+  "paymentMethods": [
+    {
+      "id": 1,
+      "customerId": 1,
+      "holderName": "Yax",
+      "lastFour": "4242",
+      "expMonth": 11,
+      "expYear": 2017,
+      "brand": "Visa",
+      "address": {
+        "id": 0,
+        "region": {
+          "id": 4129,
+          "countryId": 234,
+          "name": "California"
+        },
+        "name": "Old Jeff",
+        "address1": "95 W. 5th Ave.",
+        "address2": "Apt. 437",
+        "city": "San Mateo",
+        "zip": "94402"
+      },
+      "type": "creditCard"
+    },
+    {
+      "code": "158783CF0CA15F8",
+      "amount": 50000,
+      "currentBalance": 50,
+      "availableBalance": 40,
+      "createdAt": "2015-11-24T00:19:47.246Z",
+      "type": "giftCard"
+    },
+    {
+      "id": 3,
+      "amount": 2500,
+      "currentBalance": 50,
+      "availableBalance": 40,
+      "createdAt": "2015-11-24T00:19:47.247Z",
+      "type": "storeCredit"
     }
-  }
+  ]
 }
