@@ -130,4 +130,29 @@
   .fc-customer-notes {
     .margin-bottom(20px);
   }
+
+  &-contacts-form {
+    dt {
+      .font-spec(16px, @semibold, 22px);
+    }
+    .fc-form-field {
+      .margin-top(10px);
+      .font-spec(14px, @normal, 19px);
+      input {
+        width: 100%;
+      }
+    }
+    .fc-customer-form-actions {
+      .margin-top(30px);
+      > * {
+        vertical-align: baseline;
+      }
+      .fc-btn-primary {
+        .margin-left(3rem);
+      }
+      .fc-customer-cancel-edit {
+        text-decoration: underline;
+      }
+    }
+  }
 }

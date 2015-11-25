@@ -37,7 +37,7 @@ export default class CustomerDetails extends React.Component {
         <SectionSubtitle title="Details" />
         <div className="fc-grid fc-grid-gutter">
           <div className="fc-col-md-1-2">
-            <CustomerContacts customer={ customer } />
+            <CustomerContacts customerId={ customer.id } />
           </div>
           <div className="fc-col-md-1-2">
             <CustomerAccountPassword />
