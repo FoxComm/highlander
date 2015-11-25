@@ -34,7 +34,8 @@ const OrderLineItems = props => {
       isEditing={props.order.lineItems.isEditing}
       editAction={props.orderLineItemsStartEdit}
       doneAction={props.orderLineItemsCancelEdit}
-      editContent={ <RenderEditContent {...props} /> }
+      editContent={<RenderEditContent {...props} />}
+      editFooter={<RenderEditFooter {...props} />}
       viewContent={renderViewContent(props)} />
   );
 };
@@ -58,19 +59,10 @@ renderViewContent.propTypes = {
 
 class RenderEditContent extends React.Component {
 
-  componentDidMount() {
-     this.props.fetchSkus();
-  }
-
   static propTypes = {
     orderLineItemsCancelDelete: PropTypes.func,
-    deleteLineItem: PropTypes.func,
-    fetchSkus: PropTypes.func
+    deleteLineItem: PropTypes.func
   };
-
-  get skus() {
-    return _.get(this.props, 'skusActions.skus', []);
-  }
 
   render() {
     const props = this.props;
@@ -86,17 +78,6 @@ class RenderEditContent extends React.Component {
         <TableView columns={ editModeColumns }
                    data={{rows: lineItemsStatus.items}}
                    renderRow={ renderRow } />
-        <footer className="fc-line-items-footer">
-          <div className="fc-line-items-add">
-            <div className="fc-line-items-add-label">
-              <strong>Add Item</strong>
-            </div>
-            <Typeahead onItemSelected={null}
-                       component={SkuResult}
-                       items={this.skus}
-                       placeholder="Product name or SKU..."/>
-          </div>
-        </footer>
         <ConfirmationDialog
           isVisible={lineItemsStatus.isDeleting}
           header='Confirm'
@@ -105,6 +86,38 @@ class RenderEditContent extends React.Component {
           confirm='Yes, Delete'
           cancelAction={() => props.orderLineItemsCancelDelete(lineItemsStatus.skuToDelete)}
           confirmAction={() => props.deleteLineItem(order, lineItemsStatus.skuToDelete)} />
+      </div>
+    );
+  }
+};
+
+class RenderEditFooter extends React.Component {
+
+  static propTypes = {
+    fetchSkus: PropTypes.func,
+    skusActions: PropTypes.shape({
+      skus: PropTypes.array
+    })
+  };
+
+  componentDidMount() {
+     this.props.fetchSkus();
+  }
+
+  get skus() {
+    return _.get(this.props, 'skusActions.skus', []);
+  }
+
+  render() {
+    return (
+      <div className="fc-line-items-add">
+        <div className="fc-line-items-add-label">
+          <strong>Add Item</strong>
+        </div>
+        <Typeahead onItemSelected={null}
+                   component={SkuResult}
+                   items={this.skus}
+                   placeholder="Product name or SKU..."/>
       </div>
     );
   }

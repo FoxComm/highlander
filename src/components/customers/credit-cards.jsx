@@ -29,7 +29,7 @@ export default class CustomerCreditCards extends React.Component {
     fetchCreditCards: PropTypes.func,
     cards: PropTypes.array,
     addresses: PropTypes.array
-  }
+  };
 
   componentDidMount() {
     this.props.fetchCreditCards();
@@ -103,7 +103,7 @@ export default class CustomerCreditCards extends React.Component {
   }
 
   get actionBlock() {
-      return (<AddButton onClick={this.onAddClick} />);
+    return <AddButton onClick={this.onAddClick} />;
   }
 
   @autobind
@@ -127,8 +127,9 @@ export default class CustomerCreditCards extends React.Component {
         <CreditCardBox key={ key }
                        card={ card }
                        customerId={ this.props.customerId }
-                       onDeleteClick={ this.onDeleteClick.bind(this, card.id) }
-                       onEditClick={ this.onEditClick.bind(this, card.id) } />
+                       onDeleteClick={ () => this.onDeleteClick(card.id) }
+                       onEditClick={ () => this.onEditClick(card.id) }
+                       onDefaultToggle={ () => this.props.toggleDefault(card.id) } />
       );
     }
     return box;

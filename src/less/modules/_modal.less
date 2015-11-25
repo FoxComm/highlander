@@ -43,15 +43,14 @@
     }
   }
 
-  button {
-    display: inline-block;
-    vertical-align: baseline;
-    .margin-left(40px);
-  }
-
   &-footer {
     text-align: right;
-    .margin(20px);
-    .margin-top(50px);
+    .margin(50px 0 20px);
+
+    > .fc-btn {
+      display: inline-block;
+      vertical-align: baseline;
+      .margin-left(40px);
+    }
   }
 }

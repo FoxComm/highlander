@@ -1,4 +1,5 @@
-import makePagination from '../../modules/pagination';
+
+import makePagination from '../pagination';
 
 const {reducer, actions: {fetch, setFetchParams}} = makePagination('/orders', 'ORDERS');
 

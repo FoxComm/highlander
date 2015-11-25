@@ -55,21 +55,27 @@ export default class Api {
       }
     }
 
+    let error = null;
+
     return fetch(uri, options)
       .then(response => {
-        if (response.status >= 200 && response.status < 300) {
-          return response;
-        } else {
-          const error = new Error(response.statusText);
+        if (response.status < 200 || response.status >= 300) {
+          error = new Error(response.statusText);
           error.response = response;
-          throw error;
         }
+
+        return response;
       })
       .then(response => response.text())
       .then(responseText => {
-        if (responseText) {
-          return JSON.parse(responseText);
+        const json = responseText ? JSON.parse(responseText) : null;
+
+        if (error) {
+          error.responseJson = json;
+          throw error;
         }
+
+        return json;
       });
   }
 

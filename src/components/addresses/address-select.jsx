@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import AddressDetails from './address-details';
-import { DefaultButton, AddButton } from '../common/buttons';
+import { Button, AddButton } from '../common/buttons';
 import classnames from 'classnames';
 import { autobind } from 'core-decorators';
 
@@ -13,7 +13,7 @@ export default class AddressSelect extends React.Component {
     items: PropTypes.array,
     onItemSelect: PropTypes.func,
     className: PropTypes.string
-  }
+  };
 
   constructor(...args) {
     super(...args);
@@ -49,7 +49,7 @@ export default class AddressSelect extends React.Component {
                           customerId={ this.props.customerId }/>
         </div>
         <div className="fc-address-select-item-controlls">
-          <DefaultButton type="button" onClick={ () => this.onItemSelect(address.id) } >Choose</DefaultButton>
+          <Button type="button" onClick={ () => this.onItemSelect(address.id) } >Choose</Button>
         </div>
       </div>
     );

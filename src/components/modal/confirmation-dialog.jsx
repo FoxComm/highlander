@@ -28,7 +28,7 @@ const ConfirmationDialog = props => {
 
   return (
     <ModalContainer {...props}>
-      <ContentBox title={title} actionBlock={actionBlock}>
+      <ContentBox title={title} className="fc-confirmation-dialog" actionBlock={actionBlock}>
         <div className='fc-modal-body'>
           {props.body}
         </div>

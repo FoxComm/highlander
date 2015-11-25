@@ -30,7 +30,7 @@ describe('ContentBox', function() {
       <ContentBox title="" className={ className } />
     );
 
-    expect(contentBox.props.className).to.be.equal(`${className} fc-content-box`);
+    expect(contentBox.props.className).to.be.equal(`fc-content-box ${className}`);
   });
 
   it('should render container with action block when provided', function *() {

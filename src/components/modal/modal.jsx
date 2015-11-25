@@ -18,6 +18,11 @@ export default class Modal extends React.Component {
   }
 
   onToggleModal(component) {
+    console.error(`
+      Modal IS DEPRECATED.
+      When doing new development, please use ModalContainer with your own markup instead.
+      See ConfirmationDialog for example.
+    `);
     let isOpen = !this.state.isOpen;
     component = component || null;
     this.setState({

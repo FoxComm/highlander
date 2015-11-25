@@ -1,13 +1,22 @@
+
 import React, { PropTypes } from 'react';
 import Header from '../header/header';
 import Sidebar from '../sidebar/sidebar';
 import Modal from '../modal/modal';
+import * as CountriesActions from '../../modules/countries';
+import { connect } from 'react-redux';
 
+@connect(state => state, CountriesActions)
 export default class Site extends React.Component {
 
   static propTypes = {
-    children: PropTypes.node
+    children: PropTypes.node,
+    fetchCountries: PropTypes.func
   };
+
+  componentDidMount() {
+    this.props.fetchCountries();
+  }
 
   render() {
     return (

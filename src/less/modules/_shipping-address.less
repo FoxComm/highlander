@@ -1,14 +1,19 @@
 
-.fc-order-shipping-address {
+.fc-shipping-address {
 
-  > header {
-    > .fc-grid {
-      align-items: center;
+  &-header {
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid @color-decor7;
+    .padding-bottom(10px);
+    .margin-bottom(20px);
+
+
+    > h3 {
+      flex: 1;
+      .font-spec(16px, 700, 22px);
+      margin: 0;
     }
-  }
-
-  > article {
-    .padding(20px);
   }
 
   .address-line {
@@ -18,5 +23,10 @@
   .fc-edit-button {
     .padding(0 12px);
     .max-width(40px);
+  }
+
+  .fc-addresses-list {
+    overflow: auto;
+    .max-height(435px);
   }
 }
