@@ -60,6 +60,14 @@ export default class LiveSearch extends React.Component {
   }
 
   @autobind
+  blur() {
+    this.setState({
+      ...this.state,
+      showQueryBuilder: false
+    });
+  }
+
+  @autobind
   keyDown(event) {
     let selectedIndex = this.state.selectedIndex;
     const visibleSearchOptions = this.state.visibleSearchOptions;
@@ -186,6 +194,7 @@ export default class LiveSearch extends React.Component {
                     onChange={this.onChange}
                     onKeyDown={this.keyDown}
                     onFocus={this.inputFocus}
+                    onBlur={this.blur}
                     value={this.state.value}
                   />
                 </div>
