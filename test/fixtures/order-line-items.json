@@ -4,7 +4,6 @@
     "name": "donkey product",
     "sku": "SKU-YAX",
     "price": 33,
-    "quantity": 1,
     "totalPrice": 33,
     "status": "cart"
   },
@@ -13,7 +12,6 @@
     "name": "donkey product",
     "sku": "SKU-YAX",
     "price": 33,
-    "quantity": 1,
     "totalPrice": 33,
     "status": "cart"
   },
@@ -22,7 +20,6 @@
     "name": "donkey product",
     "sku": "SKU-YAX",
     "price": 33,
-    "quantity": 1,
     "totalPrice": 33,
     "status": "cart"
   },
@@ -31,7 +28,6 @@
     "name": "donkey product",
     "sku": "SKU-ABC",
     "price": 33,
-    "quantity": 2,
     "totalPrice": 33,
     "status": "cart"
   },
@@ -40,7 +36,6 @@
     "name": "donkey product",
     "sku": "SKU-ZYA",
     "price": 33,
-    "quantity": 1,
     "totalPrice": 33,
     "status": "cart"
   }

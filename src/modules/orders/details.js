@@ -49,7 +49,7 @@ export function updateLineItemCount(order, sku, quantity, confirmDelete = true) 
       return Api.post(`/orders/${order.referenceNumber}/line-items`, payload)
         .then(order => {
           dispatch(orderLineItemsRequestSuccess(sku));
-          dispatch(orderSuccess(order));
+          dispatch(orderSuccess(order.result));
         })
         .catch(err => dispatch(orderLineItemsRequestFailed(err, updateLineItemCount)));
     }
@@ -63,16 +63,17 @@ export function deleteLineItem(order, sku) {
 function collectLineItems(skus) {
   const uniqueSkus = _.unique(skus, 'sku');
   const quantities = skus.reduce((quantities, elem) => {
-    if (quantities[elem.sku] !== undefined) {
-      quantities[elem.sku] += elem.quantity;
+    if (quantities[elem.sku]) {
+      quantities[elem.sku]++;
     } else {
-      quantities[elem.sku] = elem.quantity;
+      quantities[elem.sku] = 1;
     }
     return quantities;
   }, {});
   const itemList = uniqueSkus.map((item, idx) => {
     return assoc(item, 'quantity', quantities[item.sku]);
   });
+
   return itemList;
 }
 
@@ -97,7 +98,9 @@ const reducer = createReducer({
     };
   },
   [orderSuccess]: (state, payload) => {
-    const itemList = collectLineItems(payload.lineItems.skus);
+    console.log(payload);
+    const skus = _.get(payload, 'lineItems.skus', []);
+    const itemList = collectLineItems(skus);
     return {
       ...state,
       isFetching: false,

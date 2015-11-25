@@ -5,7 +5,7 @@ import customers from './customers';
 import orders from './orders';
 import rmas from './rmas';
 import notes from './notes';
-import products from './products';
+import skus from './skus';
 
 const rootReducer = combineReducers({
   router: routerStateReducer,
@@ -14,7 +14,7 @@ const rootReducer = combineReducers({
   orders,
   rmas,
   notes,
-  products
+  skus
 });
 
 export default rootReducer;

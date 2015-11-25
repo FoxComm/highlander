@@ -32,8 +32,6 @@ describe('order details module', function() {
 
     it('should save quantity for unique skus', function() {
       const result = actions.collectLineItems(orderLineItems);
-      const skuAbc = _.find(result, obj => obj.sku === 'SKU-ABC');
-      expect(skuAbc.quantity).to.be.equal(2);
       const skuZya = _.find(result, obj => obj.sku === 'SKU-ZYA');
       expect(skuZya.quantity).to.be.equal(1);
     });

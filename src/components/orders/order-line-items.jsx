@@ -59,17 +59,17 @@ renderViewContent.propTypes = {
 class RenderEditContent extends React.Component {
 
   componentDidMount() {
-     this.props.fetchProducts();
+     this.props.fetchSkus();
   }
 
   static propTypes = {
     orderLineItemsCancelDelete: PropTypes.func,
     deleteLineItem: PropTypes.func,
-    fetchProducts: PropTypes.func
+    fetchSkus: PropTypes.func
   };
 
-  get products() {
-    return _.get(this.props, 'productActions.products', []);
+  get skus() {
+    return _.get(this.props, 'skusActions.skus', []);
   }
 
   render() {
@@ -93,7 +93,7 @@ class RenderEditContent extends React.Component {
             </div>
             <Typeahead onItemSelected={null}
                        component={SkuResult}
-                       items={this.products}
+                       items={this.skus}
                        placeholder="Product name or SKU..."/>
           </div>
         </footer>

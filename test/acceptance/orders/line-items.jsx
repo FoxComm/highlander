@@ -16,7 +16,7 @@ describe('Order line items', function() {
     },
     orderLineItemsStartEdit: f => f,
     orderLineItemsCancelEdit: f => f,
-    fetchProducts: () => []
+    fetchSkus: () => []
   };
 
   it('should render ConfirmationDialog if isDeleting is truly', function *() {
