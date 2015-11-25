@@ -62,20 +62,17 @@ export function deleteLineItem(order, sku) {
 }
 
 function collectLineItems(skus) {
-  const uniqueSkus = _.unique(skus, 'sku');
-  const quantities = skus.reduce((quantities, elem) => {
-    if (quantities[elem.sku]) {
-      quantities[elem.sku]++;
+  let uniqueSkus = {};
+  const items = _.transform(skus, (result, lineItem) => {
+    const sku = lineItem.sku;
+    if (_.isNumber(uniqueSkus[sku])) {
+      result[uniqueSkus[sku]].quantity += 1;
     } else {
-      quantities[elem.sku] = 1;
+      uniqueSkus[sku] = result.length;
+      result.push({ ...lineItem, quantity: 1 });
     }
-    return quantities;
-  }, {});
-  const itemList = uniqueSkus.map((item, idx) => {
-    return assoc(item, 'quantity', quantities[item.sku]);
   });
-
-  return itemList;
+  return items;
 }
 
 const initialState = {
