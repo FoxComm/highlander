@@ -99,7 +99,6 @@ const reducer = createReducer({
     };
   },
   [orderSuccess]: (state, payload) => {
-    console.log(payload);
     const skus = _.get(payload, 'lineItems.skus', []);
     const itemList = collectLineItems(skus);
     return {
@@ -131,12 +130,14 @@ const reducer = createReducer({
     const skus = get(state, ['currentOrder', 'lineItems', 'skus'], []);
     return assoc(state,
       ['lineItems', 'isEditing'], false,
-      ['lineItems', 'items'], collectLineItems(skus));
+      ['lineItems', 'items'], collectLineItems(skus)
+    );
   },
   [orderLineItemsRequest]: (state, sku) => {
     return assoc(state,
       ['lineItems', 'isUpdating'], true,
-      ['lineItems', 'skuToUpdate'], sku);
+      ['lineItems', 'skuToUpdate'],
+    );
   },
   [orderLineItemsRequestSuccess]: (state, sku) => {
     if (sku === state.lineItems.skuToUpdate) {
@@ -144,7 +145,8 @@ const reducer = createReducer({
         ['lineItems', 'isUpdating'], false,
         ['lineItems', 'isDeleting'], false,
         ['lineItems', 'skuToUpdate'], null,
-        ['lineItems', 'skuToDelete'], null);
+        ['lineItems', 'skuToDelete'], null
+      );
     }
 
     return state;
@@ -157,7 +159,8 @@ const reducer = createReducer({
         ['lineItems', 'isUpdating'], false,
         ['lineItems', 'isDeleting'], false,
         ['lineItems', 'skuToUpdate'], null,
-        ['lineItems', 'skuToDelete'], null);
+        ['lineItems', 'skuToDelete'], null
+      );
     }
 
     return state;
@@ -165,13 +168,15 @@ const reducer = createReducer({
   [orderLineItemsStartDelete]: (state, sku) => {
     return assoc(state,
       ['lineItems', 'isDeleting'], true,
-      ['lineItems', 'skuToDelete'], sku);
+      ['lineItems', 'skuToDelete'], sku
+    );
   },
   [orderLineItemsCancelDelete]: (state, sku) => {
     if (state.lineItems.skuToDelete === sku) {
       return assoc(state,
         ['lineItems', 'isDeleting'], false,
-        ['lineItems', 'skuToDelete'], null);
+        ['lineItems', 'skuToDelete'], null
+      );
     }
   }
 }, initialState);
