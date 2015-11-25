@@ -20,8 +20,8 @@ export default class Typeahead extends React.Component {
     name: 'typeahead'
   };
 
-  constructor(props, context) {
-    super(props, context);
+  constructor(...args) {
+    super(...args);
     this.state = {
       showItems: false,
       updating: false
@@ -87,7 +87,7 @@ export default class Typeahead extends React.Component {
     return (
       <div className="fc-typeahead">
         <FormField className="fc-typeahead-input-group" label={this.props.label}>
-          <div className="fc-input-prepend"><i className="icon-search"></i></div>
+          <div className="fc-input-prepend"><i className="fc-typeahead-input-icon icon-search"></i></div>
           <input className="fc-input fc-typeahead-input"
                  type="text"
                  name={this.props.name}

@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 describe('Order line items', function() {
@@ -16,7 +15,8 @@ describe('Order line items', function() {
       }
     },
     orderLineItemsStartEdit: f => f,
-    orderLineItemsCancelEdit: f => f
+    orderLineItemsCancelEdit: f => f,
+    fetchSkus: () => []
   };
 
   it('should render ConfirmationDialog if isDeleting is truly', function *() {

@@ -2,18 +2,24 @@
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 import { haveType } from '../state-helpers';
+import { get, assoc } from 'sprout-data';
+import _ from 'lodash';
+
+const _createLineItemAction = (description, ...args) => {
+  return createAction('ORDER_LINE_ITEMS_' + description, ...args);
+};
 
 export const orderRequest = createAction('ORDER_REQUEST');
 export const orderSuccess = createAction('ORDER_SUCCESS');
 export const orderFailed = createAction('ORDER_FAILED', (err, source) => [err, source]);
-export const orderLineItemsStartEdit = createAction('ORDER_LINE_ITEMS_START_EDIT');
-export const orderLineItemsCancelEdit = createAction('ORDER_LINE_ITEMS_CANCEL_EDIT');
-export const orderLineItemsRequest = createAction('ORDER_LINE_ITEMS_REQUEST');
-export const orderLineItemsRequestSuccess = createAction('ORDER_LINE_ITEMS_REQUEST_SUCCESS');
+export const orderLineItemsStartEdit = _createLineItemAction('START_EDIT');
+export const orderLineItemsCancelEdit = _createLineItemAction('CANCEL_EDIT');
+export const orderLineItemsRequest = _createLineItemAction('REQUEST');
+export const orderLineItemsRequestSuccess = _createLineItemAction('REQUEST_SUCCESS');
 export const orderLineItemsRequestFailed =
-  createAction('ORDER_LINE_ITEMS_REQUEST_FAILED', (err, source) => [err, source]);
-export const orderLineItemsStartDelete = createAction('ORDER_LINE_ITEMS_START_DELETE');
-export const orderLineItemsCancelDelete = createAction('ORDER_LINE_ITEMS_CANCEL_DELETE');
+  _createLineItemAction('REQUEST_FAILED', (err, source) => [err, source]);
+export const orderLineItemsStartDelete = _createLineItemAction('START_DELETE');
+export const orderLineItemsCancelDelete = _createLineItemAction('CANCEL_DELETE');
 
 export function fetchOrder(refNum) {
   return dispatch => {
@@ -26,6 +32,7 @@ export function fetchOrder(refNum) {
 
 export function updateOrder(id, data) {
   return dispatch => {
+    dispatch(orderRequest(id));
     Api.patch(`/orders/${id}`, data)
       .then(order => dispatch(orderSuccess(order)))
       .catch(err => dispatch(orderFailed(id, err, updateOrder)));
@@ -39,11 +46,11 @@ export function updateLineItemCount(order, sku, quantity, confirmDelete = true) 
     } else {
       dispatch(orderLineItemsRequest(sku));
 
-      let payload = [{ sku: sku, quantity: quantity }];
+      const payload = [{ sku: sku, quantity: quantity }];
       return Api.post(`/orders/${order.referenceNumber}/line-items`, payload)
         .then(order => {
           dispatch(orderLineItemsRequestSuccess(sku));
-          dispatch(orderSuccess(order));
+          dispatch(orderSuccess(order.result));
         })
         .catch(err => dispatch(orderLineItemsRequestFailed(err, updateLineItemCount)));
     }
@@ -54,6 +61,20 @@ export function deleteLineItem(order, sku) {
   return updateLineItemCount(order, sku, 0, false);
 }
 
+function collectLineItems(skus) {
+  let uniqueSkus = {};
+  const items = _.transform(skus, (result, lineItem) => {
+    const sku = lineItem.sku;
+    if (_.isNumber(uniqueSkus[sku])) {
+      result[uniqueSkus[sku]].quantity += 1;
+    } else {
+      uniqueSkus[sku] = result.length;
+      result.push({ ...lineItem, quantity: 1 });
+    }
+  });
+  return items;
+}
+
 const initialState = {
   isFetching: false,
   currentOrder: {},
@@ -61,8 +82,8 @@ const initialState = {
     isEditing: false,
     isUpdating: false,
     isDeleting: false,
-    skuToUpdate: '',
-    skuToDelete: '',
+    skuToUpdate: null,
+    skuToDelete: null,
     items: []
   }
 };
@@ -75,13 +96,15 @@ const reducer = createReducer({
     };
   },
   [orderSuccess]: (state, payload) => {
+    const skus = _.get(payload, 'lineItems.skus', []);
+    const itemList = collectLineItems(skus);
     return {
       ...state,
       isFetching: false,
       currentOrder: haveType(payload, 'order'),
       lineItems: {
         ...state.lineItems,
-        items: payload.lineItems.skus
+        items: itemList
       }
     };
   },
@@ -98,46 +121,29 @@ const reducer = createReducer({
     return state;
   },
   [orderLineItemsStartEdit]: (state) => {
-    return {
-      ...state,
-      lineItems: {
-        ...state.lineItems,
-        isEditing: true
-      }
-    };
+    return assoc(state, ['lineItems', 'isEditing'], true);
   },
   [orderLineItemsCancelEdit]: (state) => {
-    return {
-      ...state,
-      lineItems: {
-        ...state.lineItems,
-        isEditing: false,
-        items: state.currentOrder.lineItems.skus
-      }
-    };
+    const skus = get(state, ['currentOrder', 'lineItems', 'skus'], []);
+    return assoc(state,
+      ['lineItems', 'isEditing'], false,
+      ['lineItems', 'items'], collectLineItems(skus)
+    );
   },
   [orderLineItemsRequest]: (state, sku) => {
-    return {
-      ...state,
-      lineItems: {
-        ...state.lineItems,
-        isUpdating: true,
-        skuToUpdate: sku
-      }
-    };
+    return assoc(state,
+      ['lineItems', 'isUpdating'], true,
+      ['lineItems', 'skuToUpdate'], sku
+    );
   },
   [orderLineItemsRequestSuccess]: (state, sku) => {
     if (sku === state.lineItems.skuToUpdate) {
-      return {
-        ...state,
-        lineItems: {
-          ...state.lineItems,
-          isUpdating: false,
-          isDeleting: false,
-          skuToUpdate: '',
-          skuToDelete: ''
-        }
-      };
+      return assoc(state,
+        ['lineItems', 'isUpdating'], false,
+        ['lineItems', 'isDeleting'], false,
+        ['lineItems', 'skuToUpdate'], null,
+        ['lineItems', 'skuToDelete'], null
+      );
     }
 
     return state;
@@ -146,40 +152,28 @@ const reducer = createReducer({
     console.log(err);
 
     if (source === updateLineItemCount) {
-      return {
-        ...state,
-        lineItems: {
-          ...state.lineItems,
-          isUpdating: false,
-          isDeleting: false,
-          skuToUpdate: '',
-          skuToDelete: ''
-        }
-      };
+      return assoc(state,
+        ['lineItems', 'isUpdating'], false,
+        ['lineItems', 'isDeleting'], false,
+        ['lineItems', 'skuToUpdate'], null,
+        ['lineItems', 'skuToDelete'], null
+      );
     }
 
     return state;
   },
   [orderLineItemsStartDelete]: (state, sku) => {
-    return {
-      ...state,
-      lineItems: {
-        ...state.lineItems,
-        isDeleting: true,
-        skuToDelete: sku
-      }
-    };
+    return assoc(state,
+      ['lineItems', 'isDeleting'], true,
+      ['lineItems', 'skuToDelete'], sku
+    );
   },
   [orderLineItemsCancelDelete]: (state, sku) => {
     if (state.lineItems.skuToDelete === sku) {
-      return {
-        ...state,
-        lineItems: {
-          ...state.lineItems,
-          isDeleting: false,
-          skuToDelete: ''
-        }
-      };
+      return assoc(state,
+        ['lineItems', 'isDeleting'], false,
+        ['lineItems', 'skuToDelete'], null
+      );
     }
   }
 }, initialState);

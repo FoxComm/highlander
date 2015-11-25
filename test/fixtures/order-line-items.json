@@ -1,0 +1,42 @@
+[
+  {
+    "imagePath": "http://lorempixel.com/75/75/fashion",
+    "name": "donkey product",
+    "sku": "SKU-YAX",
+    "price": 33,
+    "totalPrice": 33,
+    "status": "cart"
+  },
+  {
+    "imagePath": "http://lorempixel.com/75/75/fashion",
+    "name": "donkey product",
+    "sku": "SKU-YAX",
+    "price": 33,
+    "totalPrice": 33,
+    "status": "cart"
+  },
+  {
+    "imagePath": "http://lorempixel.com/75/75/fashion",
+    "name": "donkey product",
+    "sku": "SKU-YAX",
+    "price": 33,
+    "totalPrice": 33,
+    "status": "cart"
+  },
+  {
+    "imagePath": "http://lorempixel.com/75/75/fashion",
+    "name": "donkey product",
+    "sku": "SKU-ABC",
+    "price": 33,
+    "totalPrice": 33,
+    "status": "cart"
+  },
+  {
+    "imagePath": "http://lorempixel.com/75/75/fashion",
+    "name": "donkey product",
+    "sku": "SKU-ZYA",
+    "price": 33,
+    "totalPrice": 33,
+    "status": "cart"
+  }
+]

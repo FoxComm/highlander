@@ -1,9 +1,11 @@
 import React, { PropTypes } from 'react';
-
+import _ from 'lodash';
 import ConfirmationDialog from '../modal/confirmation-dialog';
 import OrderLineItem from './order-line-item';
 import TableView from '../table/tableview';
 import EditableContentBox from '../content-box/editable-content-box';
+import Typeahead from '../typeahead/typeahead';
+import SkuResult from './sku-result';
 
 const viewModeColumns = [
   {field: 'imagePath', text: 'Image', type: 'image'},
@@ -21,7 +23,7 @@ const editModeColumns = [
   {field: 'price', text: 'Price', type: 'currency'},
   {field: 'lineItem', text: 'Qty', component: 'LineItemCounter'},
   {field: 'totalPrice', text: 'Total', type: 'currency'},
-  {field: 'delete', text: 'Delete', component: 'DeleteLineItem'}
+  {field: 'delete', text: '', component: 'DeleteLineItem'}
 ];
 
 const OrderLineItems = props => {
@@ -32,8 +34,8 @@ const OrderLineItems = props => {
       isEditing={props.order.lineItems.isEditing}
       editAction={props.orderLineItemsStartEdit}
       doneAction={props.orderLineItemsCancelEdit}
-      editContent={renderEditContent(props)}
-      editFooter={renderEditFooter(props)}
+      editContent={<RenderEditContent {...props} />}
+      editFooter={<RenderEditFooter {...props} />}
       viewContent={renderViewContent(props)} />
   );
 };
@@ -49,44 +51,76 @@ const renderViewContent = props => {
 };
 
 renderViewContent.propTypes = {
-  order: PropTypes.object
+  order: PropTypes.shape({
+    currentOrder: PropTypes.object,
+    lineItems: PropTypes.array
+  })
 };
 
-const renderEditContent = props => {
-  const order = props.order.currentOrder;
-  const lineItemsStatus = props.order.lineItems;
+class RenderEditContent extends React.Component {
 
-  const orderLineItems = lineItemsStatus.items.map((lineItem, idx) => {
-    return <OrderLineItem key={`lineItem-${idx}`} item={lineItem} {...props} />;
-  });
+  static propTypes = {
+    orderLineItemsCancelDelete: PropTypes.func,
+    deleteLineItem: PropTypes.func
+  };
 
-  // TODO: Re-add the Typeahead after Andrey's refactor is complete.
-  return (
-    <div>
-      <TableView columns={editModeColumns} data={{rows: orderLineItems}} />
-      <ConfirmationDialog
-        isVisible={lineItemsStatus.isDeleting}
-        header='Confirm'
-        body='Are you sure you want to delete this item?'
-        cancel='Cancel'
-        confirm='Yes, Delete'
-        cancelAction={() => props.orderLineItemsCancelDelete(lineItemsStatus.skuToDelete)}
-        confirmAction={() => props.deleteLineItem(order, lineItemsStatus.skuToDelete)} />
-    </div>
-  );
+  render() {
+    const props = this.props;
+    const order = props.order.currentOrder;
+    const lineItemsStatus = props.order.lineItems;
+
+    const renderRow = (lineItem) => {
+      return <OrderLineItem key={`lineItem-${lineItem.sku}`} item={lineItem} {...props} />;
+    };
+
+    return (
+      <div>
+        <TableView columns={ editModeColumns }
+                   data={{rows: lineItemsStatus.items}}
+                   renderRow={ renderRow } />
+        <ConfirmationDialog
+          isVisible={lineItemsStatus.isDeleting}
+          header='Confirm'
+          body='Are you sure you want to delete this item?'
+          cancel='Cancel'
+          confirm='Yes, Delete'
+          cancelAction={() => props.orderLineItemsCancelDelete(lineItemsStatus.skuToDelete)}
+          confirmAction={() => props.deleteLineItem(order, lineItemsStatus.skuToDelete)} />
+      </div>
+    );
+  }
 };
 
-const renderEditFooter = props => {
-  return (
-    <div>
-      <strong>Add Item</strong>
-    </div>
-  );
-};
+class RenderEditFooter extends React.Component {
 
-renderEditContent.propTypes = {
-  orderLineItemsCancelDelete: PropTypes.func,
-  deleteLineItem: PropTypes.func
+  static propTypes = {
+    fetchSkus: PropTypes.func,
+    skusActions: PropTypes.shape({
+      skus: PropTypes.array
+    })
+  };
+
+  componentDidMount() {
+     this.props.fetchSkus();
+  }
+
+  get skus() {
+    return _.get(this.props, 'skusActions.skus', []);
+  }
+
+  render() {
+    return (
+      <div className="fc-line-items-add">
+        <div className="fc-line-items-add-label">
+          <strong>Add Item</strong>
+        </div>
+        <Typeahead onItemSelected={null}
+                   component={SkuResult}
+                   items={this.skus}
+                   placeholder="Product name or SKU..."/>
+      </div>
+    );
+  }
 };
 
 export default OrderLineItems;

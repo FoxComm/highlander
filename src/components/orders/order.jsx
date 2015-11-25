@@ -13,15 +13,17 @@ import { PanelList, PanelListItem } from '../panel/panel-list';
 import SectionTitle from '../section-title/section-title';
 import * as orderActions from '../../modules/orders/details';
 import * as shippingMethodActions from '../../modules/orders/shipping-methods';
+import * as skusActions from '../../modules/skus';
 
 const mapStateToProps = (state) => {
   return {
     order: state.orders.details,
-    shippingMethods: state.orders.shippingMethods
+    shippingMethods: state.orders.shippingMethods,
+    skusActions: state.skusActions
   };
 };
 
-const mapDispatchToProps = {...orderActions, ...shippingMethodActions};
+const mapDispatchToProps = {...orderActions, ...shippingMethodActions, ...skusActions};
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class Order extends React.Component {
@@ -32,12 +34,10 @@ export default class Order extends React.Component {
     order: PropTypes.shape({
       currentOrder: PropTypes.object
     }),
-    children: PropTypes.node
+    children: PropTypes.node,
+    updateOrder: PropTypes.func,
+    fetchOrder: PropTypes.func
   };
-
-  constructor(props, context) {
-    super(props, context);
-  }
 
   get changeOptions() {
     return {
