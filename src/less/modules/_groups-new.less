@@ -1,0 +1,71 @@
+.fc-group-new {
+  .fc-title {
+    .font-spec(24px, @semibold, 33px);
+    // color: @color-decor1;
+    .margin-bottom(4px); // fixme
+  }
+
+  &-or {
+    .font-spec(14px, @normal, 19px);
+    &:hover {
+      color: #37BAC2;
+    }
+  }
+
+  &-title {
+    .font-spec(16px, @semibold, 22px);
+    color: #333A45;
+  }
+
+  &-name {
+    .margin-top(40px);
+    .margin-bottom(12px);
+    display: block;
+  }
+
+  &-form-name {
+    .width(557px);
+  }
+
+  &-match {
+    &-div {
+      .margin-top(35px);
+      .margin-bottom(30px);
+    }
+    &-span {
+      vertical-align: middle;
+    }
+    &-dropdown {
+      .margin-left(1rem);
+      .margin-right(1rem);
+      vertical-align: super;
+    }
+  }
+
+  &-match-dropdown {
+    > .fc-dropdown {
+      width: auto;
+    }
+  }
+
+  &-count {
+    &-title {
+      .margin-top(60px);
+    }
+    .font-spec(32px, @semibold, 43px);
+    color: #BFBFBF;
+    .margin-bottom(50px);
+  }
+
+  &-form-submits {
+    > * {
+      vertical-align: baseline;
+    }
+    a {
+      .margin-right(3rem);
+    }
+    .fc-btn-primary {
+      .margin-left(1rem);
+    }
+  }
+}

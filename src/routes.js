@@ -11,6 +11,8 @@ import Order from './components/orders/order';
 import OrderDetails from './components/orders/details';
 import Customers from './components/customers/customers';
 import NewCustomer from './components/customers/new-customer';
+import NewDynamicGroup from './components/customers-groups/new-dynamic-group';
+import NewManualGroup from './components/customers-groups/new-manual-group';
 import Customer from './components/customers/customer';
 import CustomerDetails from './components/customers/details';
 import Notes from './components/notes/notes';
@@ -51,6 +53,8 @@ const routes = (
       <Route name='customer-returns' path='returns' component={RmaChildList}/>
       <Route name='customer-notes' path='notes' component={Notes} />
     </Route>
+    <Route name='groups-new-dynamic' path='customers/groups/new-dynamic' component={NewDynamicGroup} />
+    <Route name='groups-new-manual' path='customers/groups/new-manual' component={NewManualGroup} />
     <Route name='gift-cards' path='gift-cards' component={GiftCards} />
     <Route name='gift-cards-new' path='gift-cards/new' component={NewGiftCard} />
     <Route name='giftcard' path='gift-cards/:giftcard' component={GiftCard}>
