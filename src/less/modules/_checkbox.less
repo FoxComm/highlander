@@ -130,14 +130,15 @@
   }
 
   & input[type=checkbox]:checked + label > span:before {
-    content: '✓';
+    font-family: "fontello";
+    content: "\e827";
     display: block;
-    width: 1.8rem;
+    width: 2rem;
     color: @color-white;
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     line-height: 2rem;
     text-align: center;
-    font-weight: 700;
+    font-weight: 500;
   }
 
   & input[type=checkbox][disabled] + label > span {
