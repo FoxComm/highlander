@@ -24,6 +24,7 @@ const ContextBox = props => {
         </div>
       </header>
       { body }
+      { props.footer }
     </div>
   );
 };
@@ -33,6 +34,7 @@ ContextBox.propTypes = {
   className: PropTypes.string,
   actionBlock: PropTypes.node,
   children: PropTypes.node,
+  footer: PropTypes.node,
   indentContent: PropTypes.bool
 };
 
