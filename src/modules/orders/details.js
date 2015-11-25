@@ -133,7 +133,7 @@ const reducer = createReducer({
   [orderLineItemsRequest]: (state, sku) => {
     return assoc(state,
       ['lineItems', 'isUpdating'], true,
-      ['lineItems', 'skuToUpdate'],
+      ['lineItems', 'skuToUpdate'], sku
     );
   },
   [orderLineItemsRequestSuccess]: (state, sku) => {
