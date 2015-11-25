@@ -16,16 +16,18 @@ import * as skusActions from '../../modules/skus';
 import SubNav from './sub-nav';
 import classNames from 'classnames';
 import Status, { statuses } from '../common/status';
+import * as paymentMethodActions from '../../modules/orders/payment-methods';
 
 const mapStateToProps = (state) => {
   return {
     order: state.orders.details,
     shippingMethods: state.orders.shippingMethods,
-    skusActions: state.skusActions
+    skusActions: state.skusActions,
+    payments: state.orders.paymentMethods
   };
 };
 
-const mapDispatchToProps = {...orderActions, ...shippingMethodActions, ...skusActions};
+const mapDispatchToProps = {...orderActions, ...shippingMethodActions, ...skusActions, ...paymentMethodActions};
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class Order extends React.Component {

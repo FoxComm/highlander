@@ -9,6 +9,7 @@ import CreditCardDetails from '../../components/credit-cards/card-details';
 import AddressDetails from '../addresses/address-details';
 import { autobind } from 'core-decorators';
 import static_url from '../../lib/s3';
+import { Button, EditButton } from '../common/buttons';
 
 export default class PaymentMethodRow extends React.Component {
   constructor(props, context) {
@@ -47,6 +48,7 @@ export default class PaymentMethodRow extends React.Component {
   render() {
     let nextDetailAction = null;
     let details = null;
+    let editActions = null;
 
     if (this.state.showDetails) {
       nextDetailAction = 'up';
@@ -54,6 +56,15 @@ export default class PaymentMethodRow extends React.Component {
     } else {
       nextDetailAction = 'down';
       details = '';
+    }
+
+    if (this.props.isEditing) {
+      editActions = (
+        <TableCell>
+          <EditButton  />
+          <Button icon='trash' className="fc-btn-remove" />
+        </TableCell>
+      );
     }
 
     return (
@@ -83,6 +94,7 @@ export default class PaymentMethodRow extends React.Component {
             </div>
           </div>
         </TableCell>
+        {editActions}
       </TableRow>
     );
   }
@@ -211,5 +223,6 @@ class CreditCardRow {
 }
 
 PaymentMethodRow.propTypes = {
-  paymentMethod: PropTypes.object.isRequired
+  paymentMethod: PropTypes.object.isRequired,
+  isEditing: PropTypes.bool.isRequired
 };

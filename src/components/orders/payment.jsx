@@ -5,16 +5,20 @@ import TableView from '../table/tableview';
 import ContentBox from '../content-box/content-box';
 import PaymentMethodRow from './payment-method-row';
 
-const columns = [
+const viewColumns = [
   {field: 'name', text: 'Method'},
   {field: 'amount', text: 'Amount', type: 'currency'}
 ];
 
+const editColumns = viewColumns.concat([
+  {field: 'edit'}
+]);
+
 const viewContent = props => {
-  const paymentMethods = props.order.paymentMethods;
+  const paymentMethods = props.order.currentOrder.paymentMethods;
 
   const renderRow = (row, index, isNew) => {
-    return <PaymentMethodRow paymentMethod={row}/>;
+    return <PaymentMethodRow paymentMethod={row} isEditing={false} />;
   };
 
   if (_.isEmpty(paymentMethods)) {
@@ -22,7 +26,27 @@ const viewContent = props => {
   } else {
     return (
       <TableView
-        columns={columns}
+        columns={viewColumns}
+        data={{rows: paymentMethods}}
+        renderRow={renderRow}
+      />
+    );
+  }
+};
+
+const editContent = props => {
+  const paymentMethods = props.order.currentOrder.paymentMethods;
+
+  const renderRow = (row, index, isNew) => {
+    return <PaymentMethodRow paymentMethod={row} isEditing={true}/>;
+  };
+
+  if (_.isEmpty(paymentMethods)) {
+    return <div className="fc-content-box-empty-text">Stuff will go here.</div>;
+  } else {
+    return (
+      <TableView
+        columns={editColumns}
         data={{rows: paymentMethods}}
         renderRow={renderRow}
       />
@@ -31,21 +55,29 @@ const viewContent = props => {
 };
 
 const OrderPayment = props => {
-  const order = props.order;
-
   return (
     <EditableContentBox
       className="fc-order-payment"
       title="Payment Method"
-      isEditing={false}
-      editAction={() => console.log("Not implemented")}
+      isTable={true}
+      editContent={editContent(props)}
+      isEditing={props.payments.isEditing}
+      editAction={props.orderPaymentMethodStartEdit}
+      doneAction={() => console.log('not implemented') }
       viewContent={viewContent(props)}
     />
   );
 };
 
 OrderPayment.propTypes = {
-  order: PropTypes.object.isRequired
+  order: PropTypes.shape({
+    currentOrder: PropTypes.shape({
+      paymentMethods: PropTypes.array
+    })
+  }).isRequired,
+  payments: PropTypes.shape({
+    isEditing: PropTypes.bool.isRequired
+  })
 };
 
 export default OrderPayment;

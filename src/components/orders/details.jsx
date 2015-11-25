@@ -20,7 +20,7 @@ const OrderDetails = props => {
             <OrderLineItems {...props} />
             <OrderShippingAddress order={order} />
             <OrderShippingMethod {...props} />
-            <OrderPayment order={order} />
+            <OrderPayment {...props} />
           </div>
           <div className="fc-order-details-aside">
             <TotalsSummary entity={order} title={order.title} />
