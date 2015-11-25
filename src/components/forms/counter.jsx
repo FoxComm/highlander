@@ -24,7 +24,7 @@ const Counter = props => {
   return (
     <div className="fc-input-group fc-counter">
       <div className="fc-input-prepend">
-        <DecrementButton onClick={handleDecreaseTotal} />
+        <DecrementButton onClick={handleDecreaseTotal} className="fc-btn-counter" />
       </div>
       <input
         type="number"
@@ -36,7 +36,7 @@ const Counter = props => {
         step={stepAmount}
         onChange={handleChange} />
       <div className="fc-input-append">
-        <IncrementButton onClick={handleIncreaseTotal} />
+        <IncrementButton onClick={handleIncreaseTotal} className="fc-btn-counter" />
       </div>
     </div>
   );
