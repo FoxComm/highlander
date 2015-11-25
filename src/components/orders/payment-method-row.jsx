@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import * as CardUtils from '../../lib/credit-card-utils';
+import GiftCardCode from '../../components/gift-cards/gift-card-code';
 import React, { PropTypes } from 'react';
 import formatCurrency from '../../lib/format-currency';
 import Currency from '../common/currency';
@@ -122,7 +123,7 @@ class GiftCardRow {
     return (
       <div className="fc-left">
         <div className="fc-strong">Gift Card</div>
-        <div>{this.giftCard.code}</div>
+        <div><GiftCardCode value={this.giftCard.code} /></div>
       </div>
     );
   }

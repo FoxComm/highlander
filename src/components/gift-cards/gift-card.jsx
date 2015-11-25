@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import { IndexLink, Link } from '../link';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
+import GiftCardCode from './gift-card-code';
 import * as GiftCardActions from '../../modules/gift-cards/details';
 import { DateTime } from '../common/datetime';
 import Currency from '../common/currency';
@@ -95,7 +96,7 @@ export default class GiftCard extends React.Component {
 
     return (
       <div>
-        <SectionTitle title="Gift Card" subtitle={card.code}>
+        <SectionTitle title="Gift Card" subtitle=<GiftCardCode value={card.code} />>
           <button onClick={this.resendGiftCard.bind(this)} className="fc-btn fc-btn-primary">Resend Gift Card</button>
         </SectionTitle>
         <div className="fc-grid fc-grid-gutter">

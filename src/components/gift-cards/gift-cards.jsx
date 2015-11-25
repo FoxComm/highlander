@@ -10,6 +10,7 @@ import { Date } from '../common/datetime';
 import { TabListView, TabView } from '../tabs';
 import { connect } from 'react-redux';
 import * as giftCardActions from '../../modules/gift-cards/cards';
+import GiftCardCode from './gift-card-code';
 
 @connect(state => ({giftCards: state.giftCards.cards}), giftCardActions)
 export default class GiftCards extends React.Component {
@@ -42,7 +43,7 @@ export default class GiftCards extends React.Component {
       <TableRow key={`${index}`}>
         <TableCell>
           <Link to="giftcard" params={{giftcard: row.code}}>
-            {row.code}
+            <GiftCardCode value={row.code} />
           </Link>
         </TableCell>
         <TableCell>{row.originType}</TableCell>
