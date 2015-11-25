@@ -18,22 +18,23 @@ EditDoneButton.propTypes = {
 };
 
 const EditableContentBox = props => {
-  const {editFooter, ...rest} = props;
+  const {editFooter, indentContent, ...rest} = props;
 
   const className = classNames(
     'fc-editable-content-box',
     props.className, {
-      'is-editing': props.isEditing
+      'is-editing': props.isEditing,
+      'is-indent-for-content': indentContent
     }
   );
 
   return (
     <ContextBox
-      className={ className }
       actionBlock={ props.renderActions(props) }
       {...rest}
+      className={ className }
+      indentContent={false}
     >
-      {className}
       <div className="fc-editable-content-box-content">
         { props.renderContent(props.isEditing, props) }
       </div>
@@ -53,7 +54,8 @@ EditableContentBox.propTypes = {
   renderContent: PropTypes.func,
   renderFooter: PropTypes.func,
   renderActions: PropTypes.func,
-  title: PropTypes.string
+  title: PropTypes.string,
+  indentContent: PropTypes.bool
 };
 
 // eslint you are drunk, renderFooter and renderActions are just functions

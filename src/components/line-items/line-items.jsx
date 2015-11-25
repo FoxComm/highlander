@@ -127,7 +127,7 @@ export default class LineItems extends React.Component {
         title="Items"
         className="fc-line-items"
         actionBlock={headerActions}
-        isTable={true}>
+        indentContent={false}>
         {body}
         {actions}
       </ContentBox>

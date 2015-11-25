@@ -157,8 +157,9 @@ export default class OrderShippingAddress extends React.Component {
     return (
       <div>
         <EditableContentBox
-          className="fc-shipping-address is-content-indented"
+          className="fc-shipping-address"
           title="Shipping Address"
+          indentContent={true}
           isEditing={props.isEditing}
           editAction={props.startEditing}
           doneAction={props.stopEditing}
