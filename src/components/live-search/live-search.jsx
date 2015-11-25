@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 
 import _ from 'lodash';
@@ -7,7 +7,6 @@ import classNames from 'classnames';
 import Menu from '../menu/menu';
 import MenuItem from '../menu/menu-item';
 import SearchOption from './search-option';
-import ordersSearchTerms from './orders-search-terms';
 
 /**
  * LiveSearch is a search bar dynamic faceted search that exists on most of the
@@ -17,29 +16,19 @@ import ordersSearchTerms from './orders-search-terms';
 export default class LiveSearch extends React.Component {
   constructor(props, context) {
     super(props, context);
-    this.searchOptions = ordersSearchTerms;
     this.state = {
       value: '',
       showQueryBuilder: false,
       selectedIndex: -1,
-      visibleSearchOptions: visibleOptions(this.searchOptions, ''),
+      visibleSearchOptions: [],
       searches: []
     };
   }
 
-  @autobind
-  updateSearch(searchTerm) {
-    const visibleSearchOptions = visibleOptions(this.searchOptions, searchTerm);
-    const showQB = !_.isEmpty(visibleSearchOptions);
+  static propTypes = {
+    searchOptions: PropTypes.array
+  };
 
-    this.setState({
-      ...this.state,
-      value: searchTerm,
-      showQueryBuilder: showQB,
-      selectedIndex: -1,
-      visibleSearchOptions: visibleSearchOptions
-    });
-  }
 
   @autobind
   onChange({target}) {
@@ -48,15 +37,7 @@ export default class LiveSearch extends React.Component {
 
   @autobind
   inputFocus() {
-    const searchTerm = this.state.value;
-    const searchOptions = this.searchOptions;
-    const visibleSearchOptions = visibleOptions(searchOptions, searchTerm);
-
-    this.setState({
-      ...this.state,
-      showQueryBuilder: true,
-      visibleSearchOptions: visibleSearchOptions
-    });
+    this.updateSearch(this.state.value);
   }
 
   @autobind
@@ -104,7 +85,8 @@ export default class LiveSearch extends React.Component {
             });
           }
         } else {
-          this.selectOption(selectedIndex);
+          const newSearchTerm = `${visibleSearchOptions[selectedIndex].display} : `;
+          this.updateSearch(newSearchTerm);
         }
         return;
       default:
@@ -119,17 +101,23 @@ export default class LiveSearch extends React.Component {
   }
 
   @autobind
-  goBack() {
-    this.updateSearch(backSearchTerm(this.state.value));
+  updateSearch(searchTerm) {
+    const visibleSearchOptions = visibleOptions(this.props.searchOptions, searchTerm);
+    const showQB = !_.isEmpty(visibleSearchOptions);
+
+    this.setState({
+      ...this.state,
+      value: searchTerm,
+      showQueryBuilder: showQB,
+      selectedIndex: -1,
+      visibleSearchOptions: visibleSearchOptions
+    });
   }
 
+
   @autobind
-  selectOption(idx) {
-    const visibleSearchOptions = this.state.visibleSearchOptions;
-    if (idx > -1) {
-      const inputValue = `${visibleSearchOptions[idx].display} : `;
-      this.updateSearch(inputValue);
-    }
+  goBack() {
+    this.updateSearch(backSearchTerm(this.state.value));
   }
 
   get searchPills() {
@@ -159,7 +147,7 @@ export default class LiveSearch extends React.Component {
           className={klass}
           key={key}
           option={option}
-          onClick={() => this.selectOption(idx)} />
+          onClick={() => this.updateSearch(option.display)} />
       );
     });
 

@@ -14,6 +14,7 @@ import PilledSearch from '../pilled-search/pilled-search';
 import Currency from '../common/currency';
 import Status from '../common/status';
 import LiveSearch from '../live-search/live-search';
+import ordersSearchTerms from './orders-search-terms';
 
 @connect(state => ({orders: state.orders.list}), ordersActions)
 export default class Orders extends React.Component {
