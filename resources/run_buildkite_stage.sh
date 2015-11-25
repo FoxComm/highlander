@@ -10,7 +10,7 @@ buildkite-agent artifact download "$ARTIFACT" ./
 /usr/local/share/flyway/flyway -configFile=sql/flyway.conf -locations=filesystem:sql migrate
 
 #seed db
-java -cp $ARTIFACT utils.Seeds
+java -cp $ARTIFACT utils.seeds.Seeds
 
 #run phoenix
 mkdir -p log

@@ -7,7 +7,8 @@ import models.{Notes, _}
 import responses.AdminNotes
 import services.{NotFoundFailure404, NoteManager}
 import util.IntegrationTestBase
-import utils.Seeds.Factories
+import utils.seeds.Seeds
+import Seeds.Factories
 import utils.Slick.implicits._
 import utils.time.RichInstant
 import scala.concurrent.ExecutionContext.Implicits.global

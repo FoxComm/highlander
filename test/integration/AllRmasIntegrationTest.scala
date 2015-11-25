@@ -13,9 +13,11 @@ import services._
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT
-import utils.Seeds.Factories
+import utils.seeds.{Seeds, SeedsGenerator}
+import Seeds.Factories
 import utils.Slick._
 import utils.Slick.implicits._
+import utils.seeds.SeedsGenerator
 import utils.time._
 
 class AllRmasIntegrationTest extends IntegrationTestBase
@@ -35,10 +37,10 @@ class AllRmasIntegrationTest extends IntegrationTestBase
   def uriPrefix = "v1/rmas"
 
   def responseItems = {
-    val orderRefNum = Factories.randomString(10)
+    val orderRefNum = SeedsGenerator.randomString(10)
 
     val dbio = for {
-      customer ← * <~ Customers.create(Factories.generateCustomer)
+      customer ← * <~ Customers.create(SeedsGenerator.generateCustomer)
       order ← * <~ Orders.create(Factories.order.copy(
         customerId = customer.id,
         referenceNumber = orderRefNum,

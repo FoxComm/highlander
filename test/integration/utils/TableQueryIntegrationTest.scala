@@ -5,7 +5,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import models.{Order, Orders}
 import services.{LockedFailure, NotFoundFailure404}
 import util.{CatsHelpers, IntegrationTestBase}
-import utils.Seeds.Factories
+import utils.seeds.Seeds
+import Seeds.Factories
 import utils.Slick.DbResult
 import utils.Slick.UpdateReturning._
 import utils.Slick.implicits._

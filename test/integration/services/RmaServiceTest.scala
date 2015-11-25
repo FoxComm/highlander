@@ -7,7 +7,8 @@ import scala.concurrent.Future
 import models._
 import services.rmas.RmaService
 import util.IntegrationTestBase
-import utils.Seeds.Factories
+import utils.seeds.Seeds
+import Seeds.Factories
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._

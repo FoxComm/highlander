@@ -3,16 +3,22 @@ package utils
 import scala.concurrent.{Future, ExecutionContext}
 
 import cats.data.Validated.Valid
-import cats.data.{Xor, ValidatedNel}
+import cats.data.{XorT, Xor, ValidatedNel}
 import monocle.Lens
 import services._
 import slick.ast.BaseTypedType
+import slick.dbio.Effect.Write
+import slick.dbio.{Effect, NoStream}
+import slick.driver.PostgresDriver
 import slick.driver.PostgresDriver.api._
+import slick.profile.FixedSqlAction
 import utils.Slick.DbResult
 import utils.Slick._
 import utils.Slick.implicits._
 import utils.Strings._
 import utils.table.SearchById
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 
 trait ModelWithIdParameter[T <: ModelWithIdParameter[T]] extends Validation[T] { self: T ⇒
   type Id = Int
@@ -79,6 +85,20 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.
   type Returning[R] = slick.driver.JdbcActionComponent#ReturningInsertActionComposer[M, R]
   val returningId: Returning[M#Id] = this.returning(map(_.id))
   def returningIdAction(id: M#Id)(model: M): M = idLens.set(id)(model)
+
+  def createAll(values: Seq[M])(implicit ec: ExecutionContext): DbResult[Option[Int]] = wrapDbResult((for {
+    saveUs ← * <~ beforeSaveBatch(values)
+    result ← * <~ (this ++= saveUs).toXor
+  } yield result).value)
+
+  def createAllReturningIds[R](values: Seq[M], returning: Returning[R] = returningId)
+    (implicit ec: ExecutionContext): DbResult[Seq[R]] = wrapDbResult((for {
+    saveUs ← * <~ beforeSaveBatch(values)
+    result ← * <~ (returning ++= saveUs).toXor
+  } yield result).value)
+
+  private def beforeSaveBatch(values: Seq[M])(implicit ec: ExecutionContext): DbResultT[Seq[M]] =
+    DbResultT.sequence(values.map(beforeSave).map(DbResultT.fromXor))
 
   /** DEPRECATION WARNING **
   * This method will soon be deprecated in favor of `create` which provides model sanitization,

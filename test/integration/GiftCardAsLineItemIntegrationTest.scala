@@ -7,7 +7,8 @@ import services.CartFailures.OrderMustBeCart
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.Money._
-import utils.Seeds.Factories
+import utils.seeds.Seeds
+import Seeds.Factories
 import utils.Slick.implicits._
 
 class GiftCardAsLineItemIntegrationTest extends IntegrationTestBase

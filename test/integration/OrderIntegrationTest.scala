@@ -11,7 +11,8 @@ import responses.{StoreAdminResponse, FullOrder}
 import services.CartFailures._
 import services._
 import util.IntegrationTestBase
-import utils.Seeds.Factories
+import utils.seeds.Seeds
+import Seeds.Factories
 import utils.Slick.implicits._
 import slick.driver.PostgresDriver.api._
 import Order._

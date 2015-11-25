@@ -12,7 +12,8 @@ import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import utils.Seeds.Factories
+import utils.seeds.Seeds
+import Seeds.Factories
 import utils.Slick.implicits._
 
 class StoreCreditIntegrationTest extends IntegrationTestBase
@@ -34,8 +35,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       admin    ← * <~ StoreAdmins.create(authedStoreAdmin)
       customer ← * <~ Customers.create(Factories.customer)
       scReason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
-      scOrigin ← * <~ StoreCreditManuals.create(Factories.storeCreditManual.copy(adminId = admin.id, reasonId =
-        scReason.id))
+      scOrigin ← * <~ StoreCreditManuals.create(StoreCreditManual(adminId = admin.id, reasonId = scReason.id))
     } yield (customer, scOrigin)).runT().futureValue.rightVal match {
       case (cc, co) ⇒
         currentCustomer = cc
@@ -341,8 +341,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       order       ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
       scReason    ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
       scSubType   ← * <~ StoreCreditSubtypes.create(Factories.storeCreditSubTypes.head)
-      scOrigin    ← * <~ StoreCreditManuals.create(Factories.storeCreditManual.copy(adminId = admin.id,
-        reasonId = scReason.id))
+      scOrigin    ← * <~ StoreCreditManuals.create(StoreCreditManual(adminId = admin.id, reasonId = scReason.id))
       storeCredit ← * <~ StoreCredits.create(Factories.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))
       scSecond    ← * <~ StoreCredits.create(Factories.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))
       payment     ← * <~ OrderPayments.create(Factories.storeCreditPayment.copy(orderId = order.id,

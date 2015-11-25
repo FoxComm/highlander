@@ -5,7 +5,8 @@ import java.time.Instant
 import slick.driver.PostgresDriver.api._
 import services.DatabaseFailure
 import util.IntegrationTestBase
-import utils.Seeds.Factories
+import utils.seeds.Seeds
+import Seeds.Factories
 import utils.Slick.implicits._
 import utils.time._
 

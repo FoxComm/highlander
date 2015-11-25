@@ -6,7 +6,8 @@ import services.orders.OrderCreator
 import services.CartFailures.CustomerHasCart
 import services.NotFoundFailure404
 import util.IntegrationTestBase
-import utils.Seeds.Factories
+import utils.seeds.Seeds
+import Seeds.Factories
 import utils.Slick.implicits._
 import cats.implicits._
 

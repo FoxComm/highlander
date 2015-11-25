@@ -13,7 +13,8 @@ import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import utils.Seeds.Factories
+import utils.seeds.Seeds
+import Seeds.Factories
 import utils.Slick.implicits._
 import utils.Money._
 
@@ -35,7 +36,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     currentOrigin = (for {
       admin ← StoreAdmins.create(authedStoreAdmin).map(rightValue)
       reason ← Reasons.create(Factories.reason.copy(storeAdminId = admin.id)).map(rightValue)
-      origin ← GiftCardManuals.create(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id)).map(rightValue)
+      origin ← GiftCardManuals.create(GiftCardManual(adminId = admin.id, reasonId = reason.id)).map(rightValue)
     } yield origin).run().futureValue
   }
 
@@ -375,7 +376,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       admin     ← * <~ StoreAdmins.create(authedStoreAdmin)
       reason    ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
       gcSubType ← * <~ GiftCardSubtypes.create(Factories.giftCardSubTypes.head)
-      origin    ← * <~ GiftCardManuals.create(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
+      origin    ← * <~ GiftCardManuals.create(GiftCardManual(adminId = admin.id, reasonId = reason.id))
       giftCard  ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active))
       gcSecond  ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active,
                                                                                                       code = "ABC-234"))

@@ -6,7 +6,8 @@ import cats.data._
 import util.TestBase
 import services._
 import org.scalatest.prop.TableDrivenPropertyChecks._
-import utils.Seeds.Factories
+import utils.seeds.Seeds
+import Seeds.Factories
 import util.CustomMatchers._
 
 class CreditCardTest extends TestBase {

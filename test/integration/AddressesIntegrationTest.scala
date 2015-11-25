@@ -4,10 +4,12 @@ import models.{Addresses, Customer, Customers, OrderShippingAddresses, Orders, R
 import util.IntegrationTestBase
 import util.SlickSupport.implicits._
 import utils.DbResultT
-import utils.Seeds.Factories
+import utils.seeds.{Seeds, SeedsGenerator}
+import Seeds.Factories
 import utils.Slick.implicits._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
+import utils.seeds.SeedsGenerator
 
 class AddressesIntegrationTest extends IntegrationTestBase
   with HttpSupport
@@ -32,7 +34,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
   def responseItems = {
     val items = (1 to numOfResults).map { i ⇒
       for {
-        address ← * <~ Addresses.create(Factories.generateAddress.copy(customerId = currentCustomer.id))
+        address ← * <~ Addresses.create(SeedsGenerator.generateAddress.copy(customerId = currentCustomer.id))
         region  ← * <~ Regions.mustFindById(address.regionId)
       } yield responses.Addresses.build(address, region, Some(address.isDefaultShipping))
     }

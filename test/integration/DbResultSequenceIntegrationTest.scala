@@ -1,7 +1,8 @@
 import models.{Customer, Customers}
 import services.DatabaseFailure
 import util.IntegrationTestBase
-import utils.Seeds.Factories
+import utils.seeds.Seeds
+import Seeds.Factories
 import utils.Slick.implicits._
 import utils.DbResultT
 import utils.DbResultT._
@@ -30,7 +31,6 @@ class DbResultSequenceIntegrationTest extends IntegrationTestBase {
       val cool: DbResultT[Seq[Customer]] = DbResultT.sequence(sux)
 
       val result = cool.runT().futureValue.leftVal
-      println(result)
 
       val allCustomers = Customers.result.run().futureValue
       allCustomers mustBe empty

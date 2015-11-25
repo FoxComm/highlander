@@ -7,7 +7,8 @@ import payloads.CreateAddressPayload
 import services.NotFoundFailure404
 import services.CreditCardFailure.InvalidCvc
 import util.{StripeSupport, IntegrationTestBase}
-import utils.Seeds.Factories
+import utils.seeds.Seeds
+import Seeds.Factories
 import utils.Slick.implicits._
 import cats.implicits._
 

@@ -5,7 +5,8 @@ import java.time.ZonedDateTime
 import services.{Failure, GeneralFailure}
 import util.TestBase
 import org.scalatest.prop.TableDrivenPropertyChecks._
-import utils.Seeds.Factories
+import utils.seeds.Seeds
+import Seeds.Factories
 import util.CustomMatchers._
 import cats.data.NonEmptyList
 import cats.implicits._

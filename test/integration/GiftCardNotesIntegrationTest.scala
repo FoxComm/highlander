@@ -7,7 +7,8 @@ import models.{Notes, _}
 import responses.AdminNotes
 import services.{NotFoundFailure404, NoteManager}
 import util.IntegrationTestBase
-import utils.Seeds.Factories
+import utils.seeds.Seeds
+import Seeds.Factories
 import utils.Slick.implicits._
 import utils.time.RichInstant
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -103,7 +104,7 @@ class GiftCardNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
     val (admin, giftCard) = (for {
       admin ← StoreAdmins.create(authedStoreAdmin).map(rightValue)
       reason ← Reasons.create(Factories.reason.copy(storeAdminId = admin.id)).map(rightValue)
-      origin ← GiftCardManuals.create(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id)).map(rightValue)
+      origin ← GiftCardManuals.create(GiftCardManual(adminId = admin.id, reasonId = reason.id)).map(rightValue)
       giftCard ← GiftCards.create(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active)).map(rightValue)
     } yield (admin, giftCard)).run().futureValue
   }

@@ -1,14 +1,15 @@
 package services
 
 import cats.implicits._
-import models.{CreditCards, Customers, GiftCard, GiftCardManuals, GiftCards, Order, OrderLineItem, OrderLineItemSku,
-OrderLineItemSkus, OrderLineItems, OrderPayments, Orders, Reasons, Skus, StoreAdmins}
+import models.{GiftCardManual, CreditCards, Customers, GiftCard, GiftCardManuals, GiftCards, Order, OrderLineItem,
+OrderLineItemSku, OrderLineItemSkus, OrderLineItems, OrderPayments, Orders, Reasons, Skus, StoreAdmins}
 import services.CartFailures._
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import utils.Seeds.Factories
+import utils.seeds.Seeds
+import Seeds.Factories
 import utils.Slick.implicits._
 
 class CartValidatorTest extends IntegrationTestBase {
@@ -52,7 +53,7 @@ class CartValidatorTest extends IntegrationTestBase {
         (for {
           admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
           reason   ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
-          origin   ← * <~ GiftCardManuals.create(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
+          origin   ← * <~ GiftCardManuals.create(GiftCardManual(adminId = admin.id, reasonId = reason.id))
           giftCard ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active,
             originalBalance = notEnoughFunds))
           payment  ← * <~ OrderPayments.create(Factories.giftCardPayment.copy(orderId = cart.id,

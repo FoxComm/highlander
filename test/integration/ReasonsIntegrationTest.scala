@@ -9,7 +9,7 @@ import utils.DbResultT
 import utils.DbResultT._
 import DbResultT.implicits._
 import util.IntegrationTestBase
-import utils.Seeds.Factories
+import utils.seeds.Seeds.Factories
 import utils.Slick.implicits._
 
 class ReasonsIntegrationTest extends IntegrationTestBase
