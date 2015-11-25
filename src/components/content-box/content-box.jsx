@@ -13,10 +13,7 @@ const ContextBox = props => {
           </div>
         </div>
       </header>
-      <article className={ classNames('fc-content-box-content', {'fc-content-box-table' : props.isTable}) }>
-        { props.children }
-      </article>
-      {props.footer}
+      { props.children }
     </div>
   );
 };
@@ -25,9 +22,7 @@ ContextBox.propTypes = {
   title: PropTypes.node,
   className: PropTypes.string,
   actionBlock: PropTypes.node,
-  children: PropTypes.node,
-  isTable: PropTypes.bool,
-  footer: PropTypes.node
+  children: PropTypes.node
 };
 
 export default ContextBox;

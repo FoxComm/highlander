@@ -157,13 +157,11 @@ export default class OrderShippingAddress extends React.Component {
     return (
       <div>
         <EditableContentBox
-          className='fc-shipping-address'
+          className="fc-shipping-address is-content-indented"
           title="Shipping Address"
-          isTable={false}
           isEditing={props.isEditing}
           editAction={props.startEditing}
           doneAction={props.stopEditing}
-          renderFooter={null}
           renderContent={ this.renderContent }
         />
 
