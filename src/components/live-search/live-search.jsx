@@ -93,6 +93,7 @@ export default class LiveSearch extends React.Component {
       case 8:
         // Backspace
         if (_.isEmpty(this.state.value) && !_.isEmpty(this.state.searches)) {
+          event.preventDefault();
           this.deleteSearchPill(this.state.searches.length - 1);
           return;
         }
@@ -222,50 +223,44 @@ export default class LiveSearch extends React.Component {
  * @param {string} term The search term to filter by.
  */
 const visibleOptions = (optionsList, term, prefix = '') => {
-  const opts = _.transform(optionsList, (result, option) => {
-    const comp = searchCmp(term, option, prefix);
+  if (!_.isEmpty(prefix)) {
+    prefix = `${prefix} : `;
+  }
 
-    if (comp == 0) {
-      const displayTerm = _.isEmpty(prefix) ? option.term : `${prefix} : ${option.term}`;
-      result.push({
-        ...option,
-        display: displayTerm
-      });
-    } else if (comp > 0 && !_.isEmpty(option.options)) {
-      const newPrefix = _.isEmpty(prefix) ? option.term : `${prefix} : ${option.term}`;
-      const nestedVisibleOptions = visibleOptions(option.options, term, newPrefix);
-      _.forEach(nestedVisibleOptions, option => {
-        const displayTerm = `${newPrefix} : ${option.term}`;
-        result.push({
-          ...option,
-          display: displayTerm
+  const opts = _.transform(optionsList, (result, option) => {
+    // Normalize the search terms
+    const nSearchTerm = term.toLowerCase();
+    const optionTerm = `${prefix}${option.term}`;
+    const nOptionTerm = optionTerm.toLowerCase();
+
+    if (nSearchTerm <= nOptionTerm) {
+      if (_.startsWith(nOptionTerm, nSearchTerm)) {
+        result.push({...option, display: optionTerm});
+      }
+    } else if (_.startsWith(nSearchTerm, nOptionTerm)) {
+      if (!_.isEmpty(option.options)) {
+        const nestedOptions = visibleOptions(option.options, term, optionTerm);
+        _.forEach(nestedOptions, option => {
+          result.push({
+            ...option,
+            display: `${prefix}${option.display}`
+          });
         });
-      });
+      } else if (option.type == "enum") {
+        _.forEach(option.suggestions, suggestion => {
+          result.push({
+            ...option,
+            display: optionTerm,
+            action: suggestion
+          });
+        });
+      } else {
+        result.push({...option, display: optionTerm});
+      }
     }
   });
 
-  return _.flattenDeep(opts);
-};
-
-/**
- * Determine whether or not a single search option should be visible. It conforms
- * to the old strncmp concept. If the search team matches the option, return 0,
- * if the search string is too long, return 1, and if too short return -1.
- * @param {string} searchTerm The term used to filter options.
- * @param {object} option The option being tested.
- * @param {string} prefix A prefix that tells the child string that was scoped.
- * @return {int} 0 if an exact match, 1 if a possible match to a child, -1 if no match.
- */
-const searchCmp = (searchTerm, option, prefix) => {
-  const nSearchTerm = searchTerm.toLowerCase();
-  const optionTerm = _.isEmpty(prefix) ? option.term : `${prefix} : ${option.term}`;
-  const nOptionTerm = optionTerm.toLowerCase();
-
-  if (nSearchTerm > nOptionTerm) {
-    return _.isEmpty(option.options) && _.startsWith(nSearchTerm, nOptionTerm) ? 0 : 1;
-  } else {
-    return _.startsWith(nOptionTerm, nSearchTerm) ? 0 : -1;
-  }
+  return opts;
 };
 
 /**
