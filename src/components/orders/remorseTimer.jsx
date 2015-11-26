@@ -11,6 +11,11 @@ export default class RemorseTimer extends React.Component {
     };
   }
 
+  static propTypes = {
+    initialEndDate: PropTypes.string,
+    onIncreaseClick: PropTypes.func
+  };
+
   onToggleOrderEdit() {
     this.setState({
       frozen: !this.state.frozen
@@ -42,8 +47,3 @@ export default class RemorseTimer extends React.Component {
     );
   }
 }
-
-RemorseTimer.propTypes = {
-  initialEndDate: PropTypes.string,
-  onIncreaseClick: PropTypes.func
-};

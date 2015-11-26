@@ -65,10 +65,7 @@ export function increaseRemorsePeriod(refNum) {
   return dispatch => {
     dispatch(orderRequest(refNum));
     return Api.post(`/orders/${refNum}/increase-remorse-period`)
-      .then(order => {
-        console.log(order);
-        dispatch(orderSuccess(order))
-      })
+      .then(order => dispatch(orderSuccess(order)))
       .catch(err => dispatch(orderFailed(err, fetchOrder)));
   };
 }
@@ -108,7 +105,6 @@ const reducer = createReducer({
     };
   },
   [orderSuccess]: (state, payload) => {
-    console.log(payload);
     const skus = _.get(payload, 'lineItems.skus', []);
     const itemList = collectLineItems(skus);
     return {
