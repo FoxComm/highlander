@@ -20,7 +20,8 @@ import GiftCards from './components/gift-cards/gift-cards';
 import NewGiftCard from './components/gift-cards/gift-cards-new';
 import GiftCard from './components/gift-cards/gift-card';
 import GiftCardTransactions from './components/gift-cards/transactions';
-import StoreCredits from './components/customers/store-credits';
+import StoreCredits from './components/customers/store-credits/store-credits';
+import StoreCreditsTransactions from './components/customers/store-credits/transactions';
 
 import StyleGuide from './components/style-guide/style-guide';
 import StyleGuideGrid from './components/style-guide/style-guide-grid';
@@ -52,6 +53,7 @@ const routes = (
       <Route name='customer-returns' path='returns' component={RmaChildList}/>
       <Route name='customer-notes' path='notes' component={Notes} />
       <Route name='customer-storecredits' path='storecredit' component={StoreCredits} />
+      <Route name='customer-storecredit-transactions' path='storecredit-transactions' component={StoreCreditsTransactions} />
     </Route>
     <Route name='gift-cards' path='gift-cards' component={GiftCards} />
     <Route name='gift-cards-new' path='gift-cards/new' component={NewGiftCard} />
