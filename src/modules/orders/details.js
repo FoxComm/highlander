@@ -108,6 +108,7 @@ const reducer = createReducer({
     };
   },
   [orderSuccess]: (state, payload) => {
+    console.log(payload);
     const skus = _.get(payload, 'lineItems.skus', []);
     const itemList = collectLineItems(skus);
     return {

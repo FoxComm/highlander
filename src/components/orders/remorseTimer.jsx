@@ -7,15 +7,8 @@ export default class RemorseTimer extends React.Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      endDate: props.initialEndDate,
       frozen: false
     };
-  }
-
-  addTime(number, key) {
-    this.setState({
-      endDate: moment(this.state.endDate).add(number, key).format()
-    });
   }
 
   onToggleOrderEdit() {
@@ -43,7 +36,7 @@ export default class RemorseTimer extends React.Component {
   render() {
     return (
       <div className="fc-remorse-timer">
-        <Countdown endDate={this.state.endDate} frozen={this.state.frozen}/>
+        <Countdown endDate={this.props.initialEndDate} frozen={this.state.frozen}/>
         <div className="fc-remorse-timer-controls">{this.controls()}</div>
       </div>
     );
@@ -51,6 +44,6 @@ export default class RemorseTimer extends React.Component {
 }
 
 RemorseTimer.propTypes = {
-  endDate: PropTypes.string,
+  initialEndDate: PropTypes.string,
   onIncreaseClick: PropTypes.func
 };
