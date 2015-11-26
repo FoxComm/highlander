@@ -63,7 +63,7 @@ const OrderPayment = props => {
       editContent={editContent(props)}
       isEditing={props.payments.isEditing}
       editAction={props.orderPaymentMethodStartEdit}
-      doneAction={() => console.log('not implemented') }
+      doneAction={props.orderPaymentMethodStopEdit}
       viewContent={viewContent(props)}
     />
   );
@@ -77,7 +77,9 @@ OrderPayment.propTypes = {
   }).isRequired,
   payments: PropTypes.shape({
     isEditing: PropTypes.bool.isRequired
-  })
+  }),
+  orderPaymentMethodStartEdit: PropTypes.func.isRequired,
+  orderPaymentMethodStopEdit: PropTypes.func.isRequired
 };
 
 export default OrderPayment;

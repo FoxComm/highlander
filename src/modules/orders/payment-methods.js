@@ -10,7 +10,7 @@ export const orderPaymentMethodRequest = _createAction('REQUEST');
 export const orderPaymentMethodRequestSuccess = _createAction('REQUEST_SUCCESS');
 export const orderPaymentMethodRequestFailed = _createAction('REQUEST_FAILED');
 export const orderPaymentMethodStartEdit = _createAction('START_EDIT');
-export const orderPaymentMethodCancelEdit = _createAction('CANCEL_EDIT');
+export const orderPaymentMethodStopEdit = _createAction('STOP_EDIT');
 
 const initialState = {
   isEditing: false,
@@ -43,7 +43,7 @@ const reducer = createReducer({
       isEditing: true
     };
   },
-  [orderPaymentMethodCancelEdit]: (state) => {
+  [orderPaymentMethodStopEdit]: (state) => {
     return {
       ...state,
       isEditing: false
