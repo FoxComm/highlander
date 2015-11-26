@@ -21,6 +21,12 @@ export const orderLineItemsRequestFailed =
 export const orderLineItemsStartDelete = _createLineItemAction('START_DELETE');
 export const orderLineItemsCancelDelete = _createLineItemAction('CANCEL_DELETE');
 
+
+// increase remorse period
+// /v1/orders/:refNum/increase-remorse-period
+// POST
+// adds 15 minutes to timer
+
 export function fetchOrder(refNum) {
   return dispatch => {
     dispatch(orderRequest(refNum));
