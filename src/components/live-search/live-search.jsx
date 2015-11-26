@@ -16,132 +16,66 @@ import SearchOption from './search-option';
 export default class LiveSearch extends React.Component {
   constructor(props, context) {
     super(props, context);
-    this.state = {
-      value: '',
-      showQueryBuilder: false,
-      selectedIndex: -1,
-      visibleSearchOptions: [],
-      searches: []
-    };
   }
 
   static propTypes = {
-    searchOptions: PropTypes.array
+    updateSearch: PropTypes.func.isRequired,
+    selectDown: PropTypes.func.isRequired,
+    searchOptions: PropTypes.array,
+    state: PropTypes.object.isRequired
   };
 
 
   @autobind
   onChange({target}) {
-    this.updateSearch(target.value);
+    this.props.updateSearch(target.value, this.props.searchOptions);
   } 
 
   @autobind
   inputFocus() {
-    this.updateSearch(this.state.value);
-  }
-
-  @autobind
-  blur() {
-    this.setState({
-      ...this.state,
-      showQueryBuilder: false
-    });
+    this.props.updateSearch(this.props.state.inputValue, this.props.searchOptions);
   }
 
   @autobind
   keyDown(event) {
-    console.log(event.keyCode);
-    let selectedIndex = this.state.selectedIndex;
-    const visibleSearchOptions = this.state.visibleSearchOptions;
-    
     switch(event.keyCode) {
       case 40:
         // Down arrow
-        event.preventDefault(); 
-        if (!this.state.showQueryBuilder) {
-          this.inputFocus();
-          return;
-        } else {
-          selectedIndex = Math.min(selectedIndex + 1, visibleSearchOptions.length - 1);
-        }
+        event.preventDefault();
+        this.props.selectDown();
         break;
       case 38:
         // Up arrow
-        event.preventDefault(); 
-        selectedIndex = Math.max(selectedIndex - 1, -1);
+        event.preventDefault();
+        this.props.selectUp();
         break;
       case 13:
         // Enter
         event.preventDefault();
-        if (visibleSearchOptions.length == 1) {
-          if (readyToFilter(visibleSearchOptions[0], this.state.value)) {
-            let newSearches = this.state.searches;
-            newSearches.push(this.state.value);
-
-            this.setState({
-              ...this.state,
-              value: '',
-              searches: newSearches,
-              showQueryBuilder: false
-            });
-          }
-        } else {
-          const newSearchTerm = `${visibleSearchOptions[selectedIndex].display} : `;
-          this.updateSearch(newSearchTerm);
-        }
-        return;
+        this.props.submitFilter();
+        break;
       case 8:
         // Backspace
-        if (_.isEmpty(this.state.value) && !_.isEmpty(this.state.searches)) {
-          event.preventDefault();
-          this.deleteSearchPill(this.state.searches.length - 1);
-          return;
-        }
-         
-      default:
-        // Untracked action.
-        return;
+        this.props.deleteSearchFilter(this.props.state.searches.length - 1);
+        break;
     };
-
-    this.setState({
-      ...this.state,
-      selectedIndex: selectedIndex
-    });
   }
-
-  @autobind
-  updateSearch(searchTerm) {
-    const visibleSearchOptions = visibleOptions(this.props.searchOptions, searchTerm);
-    const showQB = !_.isEmpty(visibleSearchOptions);
-
-    this.setState({
-      ...this.state,
-      value: searchTerm,
-      showQueryBuilder: showQB,
-      selectedIndex: -1,
-      visibleSearchOptions: visibleSearchOptions
-    });
-  }
-
 
   @autobind
   goBack() {
-    this.updateSearch(backSearchTerm(this.state.value));
+    this.props.goBack();
   }
 
   @autobind
   deleteSearchPill(idx) {
-    this.setState({
-      ...this.state,
-      searches: _.without(this.state.searches, this.state.searches[idx])
-    });
+    this.props.deleteSearchFilter(idx);
   }
 
   get searchPills() {
-    return this.state.searches.map((search, idx) => {
+    return this.props.state.searches.map((search, idx) => {
       return (
         <div className='fc-live-search-pill' key={`search-${idx}`}>
-          <i className='icon-search fc-live-search-pill-icon'></i>
+          <i className='icon-filter fc-live-search-pill-icon'></i>
           {search}
           <a className='fc-live-search-pill-close' onClick={() => this.deleteSearchPill(idx)}>
             &times;
@@ -152,19 +86,19 @@ export default class LiveSearch extends React.Component {
   }
 
   get searchOptionsMenu() {
-    const searchOptions = this.state.visibleSearchOptions.map((option, idx) => {
+    const searchOptions = this.props.state.currentOptions.map((option, idx) => {
       const key = `${option.term}-${idx}`;
       const klass = classNames({
-        'is-active': this.state.selectedIndex == idx,
+        'is-active': this.props.state.selectedIndex == idx,
         'is-first': idx == 0
       });
 
       return (
-        <SearchOption 
+        <SearchOption
           className={klass}
           key={key}
           option={option}
-          onClick={() => this.updateSearch(option.display)} />
+          clickAction={this.props.updateSearch} />
       );
     });
 
@@ -172,7 +106,8 @@ export default class LiveSearch extends React.Component {
       <Menu>
         {searchOptions}
         <MenuItem className='fc-search-option-back' onClick={this.goBack}>
-          Back
+          <i className='icon-back'></i>
+          <span className='contents'>Back</span>
         </MenuItem>
       </Menu>
     );
@@ -199,8 +134,7 @@ export default class LiveSearch extends React.Component {
                     onChange={this.onChange}
                     onKeyDown={this.keyDown}
                     onFocus={this.inputFocus}
-                    onBlur={this.blur}
-                    value={this.state.value}
+                    value={this.props.state.displayValue}
                   />
                 </div>
               </div>
@@ -210,82 +144,8 @@ export default class LiveSearch extends React.Component {
             </div>
           </form>
         </div>
-        { this.state.showQueryBuilder && this.searchOptionsMenu }
+        { this.props.state.isVisible && this.searchOptionsMenu }
       </div>
     );
   }
 }
-
-/**
- * Implementation of that algorithm that determines what search options
- * should be shown in this control.
- * @param {array} optionsList The complete set of options that could be shown.
- * @param {string} term The search term to filter by.
- */
-const visibleOptions = (optionsList, term, prefix = '') => {
-  if (!_.isEmpty(prefix)) {
-    prefix = `${prefix} : `;
-  }
-
-  const opts = _.transform(optionsList, (result, option) => {
-    // Normalize the search terms
-    const nSearchTerm = term.toLowerCase();
-    const optionTerm = `${prefix}${option.term}`;
-    const nOptionTerm = optionTerm.toLowerCase();
-
-    if (nSearchTerm <= nOptionTerm) {
-      if (_.startsWith(nOptionTerm, nSearchTerm)) {
-        result.push({...option, display: optionTerm});
-      }
-    } else if (_.startsWith(nSearchTerm, nOptionTerm)) {
-      if (!_.isEmpty(option.options)) {
-        const nestedOptions = visibleOptions(option.options, term, optionTerm);
-        _.forEach(nestedOptions, option => {
-          result.push({
-            ...option,
-            display: `${prefix}${option.display}`
-          });
-        });
-      } else if (option.type == "enum") {
-        _.forEach(option.suggestions, suggestion => {
-          result.push({
-            ...option,
-            display: optionTerm,
-            action: suggestion
-          });
-        });
-      } else {
-        result.push({...option, display: optionTerm});
-      }
-    }
-  });
-
-  return opts;
-};
-
-/**
- * Check to see if the contents of the search box are ready to be turned into a filter.
- * @param {object} option The currently matched option.
- * @param {string} term The search team in the filter field.
- * @return {boolean} True if ready, false otherwise.
- */
-const readyToFilter = (option, term) => {
-  const optionTerm = option.display.toLowerCase();
-  const searchTerm = _.trim(term, ': ').toLowerCase();
-
-  if (_.isEmpty(option.options)) {
-    return searchTerm.length > optionTerm.length && _.startsWith(searchTerm, optionTerm);
-  } else {
-    return false;
-  }
-};
-
-const backSearchTerm = searchTerm => {
-  const lastIdx = _.trim(searchTerm, ' :').lastIndexOf(':');
-  if (lastIdx > 0) {
-    return `${searchTerm.slice(0, lastIdx - 1)} : `;
-  } else {
-    return '';
-  }
-};
-
