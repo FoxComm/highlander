@@ -25,8 +25,8 @@ const OrderLineItem = props => {
           maxValue={1000000}
           stepAmount={1}
           onChange={handleChange}
-          decreaseTotal={() => props.updateLineItemCount(order, item.sku, item.quantity - 1)}
-          increaseTotal={() => props.updateLineItemCount(order, item.sku, item.quantity + 1)} />
+          decreaseAction={() => props.updateLineItemCount(order, item.sku, item.quantity - 1)}
+          increaseAction={() => props.updateLineItemCount(order, item.sku, item.quantity + 1)} />
       </td>
       <td><Currency value={item.totalPrice}/></td>
       <td>
