@@ -52,12 +52,13 @@ export function createFetchActions(namespace, payloadReducer, metaReducer) {
 }
 
 export function createActions(url, namespace) {
+  const fetchActions = createFetchActions(namespace);
   const {
     actionFetch,
     actionReceived,
     actionFetchFailed,
     actionSetFetchParams
-  } = createFetchActions(namespace);
+  } = fetchActions;
 
   const fetch = fetchData => dispatch => {
     dispatch(actionFetch());
@@ -76,7 +77,8 @@ export function createActions(url, namespace) {
 
   return {
     fetch,
-    setFetchParams
+    setFetchParams,
+    ...fetchActions
   };
 }
 
@@ -150,9 +152,9 @@ export function paginateReducer(namespace, reducer = state => state, updateBehav
     }
 
     const actionType = get(action, ['meta', 'fetch', 'actionType']);
-    const metaNamespace = get(action, ['meta', 'fetch', 'namespace']);
+    const actionNamespace = get(action, ['meta', 'fetch', 'namespace']);
 
-    if (actionType && metaNamespace === namespace) {
+    if (actionType && actionNamespace === namespace) {
       state = updateBehaviour(state, action, actionType);
     }
 
