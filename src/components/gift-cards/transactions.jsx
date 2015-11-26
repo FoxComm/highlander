@@ -2,8 +2,6 @@ import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { createSelector } from 'reselect';
 import TableView from '../table/tableview';
-import TableRow from '../table/row';
-import TableCell from '../table/cell';
 import * as GiftCardsTransactionActions from '../../modules/gift-cards/transactions';
 
 import { connect } from 'react-redux';

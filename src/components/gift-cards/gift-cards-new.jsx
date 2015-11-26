@@ -39,7 +39,7 @@ const customerItem = props => <div>{props.item.name}</div>;
   subTypes: subTypes(state)
 }), {
   ...GiftCardNewActions,
-  ...CustomersActions,
+  fetchCustomers: CustomersActions.fetch,
   createGiftCard
 })
 export default class NewGiftCard extends React.Component {
@@ -53,7 +53,7 @@ export default class NewGiftCard extends React.Component {
     createGiftCard: PropTypes.func.isRequired,
     customers: PropTypes.map,
     emailCSV: PropTypes.bool,
-    fetchCustomersIfNeeded: PropTypes.func.isRequired,
+    fetchCustomers: PropTypes.func.isRequired,
     removeCustomer: PropTypes.func,
     removeUser: PropTypes.func,
     sendToCustomer: PropTypes.bool,
@@ -75,7 +75,7 @@ export default class NewGiftCard extends React.Component {
   }
 
   componentDidMount() {
-    this.props.fetchCustomersIfNeeded();
+    this.props.fetchCustomers();
   }
 
   @autobind
