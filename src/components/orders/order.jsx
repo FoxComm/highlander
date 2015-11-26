@@ -67,7 +67,9 @@ export default class Order extends React.Component {
 
   get remorseTimer() {
     if (this.order.id && this.order.orderStatus === 'remorseHold') {
-      return <RemorseTimer endDate={this.order.remorsePeriodEnd} />;
+      const refNum = this.order.referenceNumber;
+      return <RemorseTimer initialEndDate={this.order.remorsePeriodEnd}
+                           onIncreaseClick={ () => this.props.increaseRemorsePeriod(refNum) }/>;
     }
   }
 

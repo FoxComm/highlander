@@ -21,12 +21,6 @@ export const orderLineItemsRequestFailed =
 export const orderLineItemsStartDelete = _createLineItemAction('START_DELETE');
 export const orderLineItemsCancelDelete = _createLineItemAction('CANCEL_DELETE');
 
-
-// increase remorse period
-// /v1/orders/:refNum/increase-remorse-period
-// POST
-// adds 15 minutes to timer
-
 export function fetchOrder(refNum) {
   return dispatch => {
     dispatch(orderRequest(refNum));
@@ -65,6 +59,18 @@ export function updateLineItemCount(order, sku, quantity, confirmDelete = true) 
 
 export function deleteLineItem(order, sku) {
   return updateLineItemCount(order, sku, 0, false);
+}
+
+export function increaseRemorsePeriod(refNum) {
+  return dispatch => {
+    dispatch(orderRequest(refNum));
+    return Api.post(`/orders/${refNum}/increase-remorse-period`)
+      .then(order => {
+        console.log(order);
+        dispatch(orderSuccess(order))
+      })
+      .catch(err => dispatch(orderFailed(err, fetchOrder)));
+  };
 }
 
 function collectLineItems(skus) {

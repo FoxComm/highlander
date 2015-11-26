@@ -7,7 +7,7 @@ export default class RemorseTimer extends React.Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      endDate: props.endDate,
+      endDate: props.initialEndDate,
       frozen: false
     };
   }
@@ -26,7 +26,7 @@ export default class RemorseTimer extends React.Component {
 
   extendButton() {
     return (
-      <AddButton className="fc-remorse-timer-extend" onClick={this.addTime.bind(this, 15, 'm')}>
+      <AddButton className="fc-remorse-timer-extend" onClick={ this.props.onIncreaseClick }>
         15 min
       </AddButton>
     );
@@ -51,5 +51,6 @@ export default class RemorseTimer extends React.Component {
 }
 
 RemorseTimer.propTypes = {
-  endDate: PropTypes.string
+  endDate: PropTypes.string,
+  onIncreaseClick: PropTypes.func
 };
