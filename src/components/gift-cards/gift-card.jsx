@@ -95,8 +95,8 @@ export default class GiftCard extends React.Component {
     }
 
     return (
-      <div>
-        <SectionTitle title="Gift Card" subtitle=<GiftCardCode value={card.code} />>
+      <div className="fc-gift-card">
+        <SectionTitle title="Gift Card" subtitle={<GiftCardCode value={card.code} />}>
           <button onClick={this.resendGiftCard.bind(this)} className="fc-btn fc-btn-primary">Resend Gift Card</button>
         </SectionTitle>
         <div className="fc-grid fc-grid-gutter">
