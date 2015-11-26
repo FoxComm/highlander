@@ -36,7 +36,8 @@ export default class Order extends React.Component {
     }),
     children: PropTypes.node,
     updateOrder: PropTypes.func,
-    fetchOrder: PropTypes.func
+    fetchOrder: PropTypes.func,
+    increaseRemorsePeriod: PropTypes.func
   };
 
   get changeOptions() {
@@ -68,8 +69,10 @@ export default class Order extends React.Component {
   get remorseTimer() {
     if (this.order.id && this.order.orderStatus === 'remorseHold') {
       const refNum = this.order.referenceNumber;
-      return <RemorseTimer initialEndDate={this.order.remorsePeriodEnd}
-                           onIncreaseClick={ () => this.props.increaseRemorsePeriod(refNum) }/>;
+      return (
+        <RemorseTimer initialEndDate={this.order.remorsePeriodEnd}
+                      onIncreaseClick={ () => this.props.increaseRemorsePeriod(refNum) }/>
+      );
     }
   }
 
