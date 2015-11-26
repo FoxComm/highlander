@@ -52,7 +52,14 @@ object Admin {
       pathPrefix("reasons") {
         (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
           goodOrFailures {
-            ReasonService.listAll
+            ReasonService.listReasons
+          }
+        }
+      } ~
+      pathPrefix("rma-reasons") {
+        (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+          goodOrFailures {
+            ReasonService.listRmaReasons
           }
         }
       } ~
