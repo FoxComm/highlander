@@ -51,7 +51,7 @@ const routes = (
       <IndexRoute name='customer-details' component={CustomerDetails}/>
       <Route name='customer-returns' path='returns' component={RmaChildList}/>
       <Route name='customer-notes' path='notes' component={Notes} />
-      <Route name='customer-storecredits' path='storecredits' component={StoreCredits} />
+      <Route name='customer-storecredits' path='storecredit' component={StoreCredits} />
     </Route>
     <Route name='gift-cards' path='gift-cards' component={GiftCards} />
     <Route name='gift-cards-new' path='gift-cards/new' component={NewGiftCard} />
