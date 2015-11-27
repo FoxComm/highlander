@@ -185,7 +185,7 @@ class CreditCardRow {
   }
 
   get amount() {
-    return _.get(this.creditCard, 'amount', 0);
+    return null;
   }
 
   get icon() {
