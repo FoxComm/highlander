@@ -8,52 +8,45 @@ const _createAction = (description, ...args) => {
 };
 
 const requestStoreCredits = _createAction('REQUEST');
-const receiveStoreCredits = _createAction('RECEIVE');
-const failStoreCredits = _createAction("FAIL");
+const receiveStoreCredits = _createAction('RECEIVE', (id, credits) => [id, credits]);
+const failStoreCredits = _createAction("FAIL", (id, err) => [id, err]);
 
-const initialState = {
-  isFetching: false,
-  storeCredits: []
-};
+const initialState = {};
 
 function storeCreditsUrl(customerId) {
   return `/customers/${customerId}/payment-methods/store-credit`;
 }
 
 export function fetchStoreCredits(customerId) {
+  console.log(customerId);
   return dispatch => {
-    dispatch(requestStoreCredits());
+    dispatch(requestStoreCredits(customerId));
     return Api.get(storeCreditsUrl(customerId))
       .then(storeCredits => {
-        dispatch(receiveStoreCredits(storeCredits));
+        dispatch(receiveStoreCredits(customerId, storeCredits));
       })
       .catch(err => {
-        dispatch(failStoreCredits(err));
+        dispatch(failStoreCredits(customerId, err));
       });
   };
 }
 
 const reducer = createReducer({
-  [requestStoreCredits]: state => {
-    return {
-      ...state,
-      isFetching: true
-    };
+  [requestStoreCredits]: (state, id) => {
+    return assoc(state, [id, 'isFetching'], true);
   },
-  [receiveStoreCredits]: (state, payload) => {
-    return {
-      ...state,
-      isFetching: false,
-      storeCredits: payload
-    };
+  [receiveStoreCredits]: (state, [id, payload]) => {
+    console.log(id);
+    console.log(payload);
+    return assoc(state,
+      [id, 'isFetching'], false,
+      [id, 'storeCredits'], payload
+    );
   },
-  [failStoreCredits]: (state, err) => {
+  [failStoreCredits]: (state, [id, err]) => {
     console.error(err);
 
-    return {
-      ...state,
-      isFetching: false
-    };
+    return assoc(state, [id, 'isFetching'], false);
   }
 }, initialState);
 
