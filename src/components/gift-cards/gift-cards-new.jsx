@@ -4,7 +4,8 @@ import { autobind } from 'core-decorators';
 import React, { PropTypes } from 'react';
 import Counter from '../forms/counter';
 import Typeahead from '../typeahead/typeahead';
-import CustomerStore from '../../stores/customers';
+import { Dropdown, DropdownItem }  from '../dropdown';
+import { Checkbox } from '../checkbox/checkbox';
 import { Link } from '../link';
 import { connect } from 'react-redux';
 import { Form, FormField } from '../forms';
@@ -86,7 +87,8 @@ export default class NewGiftCard extends React.Component {
 
   @autobind
   onChangeValue({target}) {
-    this.props.changeFormData(target.name, target.value || target.checked);
+    console.log('change from', target);
+    this.props.changeFormData(target.name,  target.checked != null ? target.checked : target.value);
   }
 
   changeCustomerMessage(event) {
@@ -97,27 +99,32 @@ export default class NewGiftCard extends React.Component {
     this.setState({csvMessageCount: event.target.value.length});
   }
 
+  get subTypes() {
+    const props = this.props;
+
+    if (props.subTypes.length > 0) {
+      return (
+        <div className="fc-new-gift-card-subtypes fc-col-md-1-2">
+          <label htmlFor="cardSubType">Subtype</label>
+          <Dropdown value={props.subTypes[0]} onChange={ value => props.changeFormData('cardSubType', value) }>
+            {props.subTypes.map((subType, idx) => {
+              return <DropdownItem key={`subType-${idx}`} value={subType}>{subType}</DropdownItem>;
+              })}
+          </Dropdown>
+        </div>
+      );
+    }
+  }
+
   render() {
+    const props = this.props;
+
     let
-      subTypeContent = null,
       customerSearch = null,
       quantity       = null,
       emailCSV       = null;
 
     const typeList = Object.keys(this.props.types);
-
-    if (this.props.subTypes.length > 0) {
-      subTypeContent = (
-        <div id="subTypes">
-          <label htmlFor="cardSubType">Subtype</label>
-          <select name="cardSubType">
-            {this.props.subTypes.map((subType, idx) => {
-              return <option key={`subType-${idx}`} val={subType}>{subType}</option>;
-             })};
-          </select>
-        </div>
-      );
-    }
 
     if (this.props.sendToCustomer) {
       customerSearch = (
@@ -186,24 +193,26 @@ export default class NewGiftCard extends React.Component {
     }
 
     return (
-      <div id="new-gift-card" className="gutter">
-        <h2>Issue New Gift Cards</h2>
+      <div className="fc-new-gift-card fc-grid">
+        <header className="fc-col-md-1-1">
+          <h1>Issue New Gift Card</h1>
+        </header>
         <form action="/gift-cards"
               method="POST"
-              className="vertical"
+              className="fc-form-vertical fc-col-md-1-1"
               onSubmit={this.submitForm}
               onChange={this.onChangeValue}>
-          <fieldset>
-            <div id="cardTypes">
+          <div className="fc-grid fc-grid-no-gutter">
+            <div className="fc-new-gift-card-types fc-col-md-1-2">
               <label htmlFor="originType">Gift Card Type</label>
-              <select name="originType">
+              <Dropdown value={typeList[0]} onChange={value => props.changeFormData('originType', value) }>
                 {typeList.map((type, idx) => {
-                  return <option value={type} key={`${idx}-${type}`}>{type}</option>;
+                  return <DropdownItem value={type} key={`${idx}-${type}`}>{type}</DropdownItem>;
                  })}
-              </select>
+              </Dropdown>
             </div>
-            {subTypeContent}
-          </fieldset>
+            {this.subTypes}
+          </div>
           <fieldset>
             <label htmlFor="value">Value</label>
             <div className="fc-input-group">
@@ -215,20 +224,20 @@ export default class NewGiftCard extends React.Component {
               {
                 [1000, 2500, 5000, 10000, 20000].map((balance, idx) => {
                   return (
-                    <a key={`balance-${idx}`}
-                       className="fc-btn-link btn" onClick={() => this.props.changeFormData('balance', balance)}>
+                    <div className="fc-new-gift-card-balance-value" key={`balance-${idx}`}
+                         onClick={() => this.props.changeFormData('balance', balance)}>
 
                       ${balance/100}
-                    </a>
+                    </div>
                   );
                 })
               }
             </div>
           </fieldset>
           <fieldset>
-            <label htmlFor="sendToCustomer" className="checkbox">
-              <input type="checkbox" name="sendToCustomer" value={this.props.sendToCustomer}/>
-              Send gift cards to customers?
+            <label>
+              <Checkbox id="sendToCustomer" name="sendToCustomer"  value={this.props.sendToCustomer} />
+              Send gift card(s) to customer(s)
             </label>
             { customerSearch }
           </fieldset>

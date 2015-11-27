@@ -42,6 +42,10 @@ export default class GiftCard extends React.Component {
     this.props.editGiftCard(this.props.card.code, {status: target.value});
   }
 
+  resendGiftCard() {
+    console.log('Resend');
+  }
+
   get subNav() {
     const params = {giftcard: this.props.card.code};
 
@@ -81,10 +85,6 @@ export default class GiftCard extends React.Component {
         </Dropdown>
       );
     }
-  }
-
-  resendGiftCard() {
-    console.log('Resend');
   }
 
   render() {
