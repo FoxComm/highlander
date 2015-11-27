@@ -58,12 +58,7 @@ export default class StoreCredits extends React.Component {
     this.props.fetchStoreCredits({entityType: 'storeCredits', entityId: customerId});
   }
 
-  componentDidUpdate() {
-    console.log('did update');
-  }
-
   renderRow(row) {
-    console.log(row);
     return (
       <TableRow key={`storeCredits-row-${row.id}`}>
         <TableCell><DateTime value={ row.createdAt }/></TableCell>
@@ -80,7 +75,6 @@ export default class StoreCredits extends React.Component {
 
   render() {
     const props = this.props;
-    console.log(props);
     return (
       <div className="fc-store-credits fc-list-page">
         <Summary {...props} />
@@ -88,10 +82,10 @@ export default class StoreCredits extends React.Component {
           <SearchBar />
           <div className="fc-col-md-1-1">
             <TableView
-              columns={this.props.tableColumns}
-              data={this.props.storeCredits}
+              columns={props.tableColumns}
+              data={props.storeCredits}
               renderRow={this.renderRow}
-              setState={this.props.setFetchParams}
+              setState={props.setFetchParams}
               />
           </div>
         </div>
