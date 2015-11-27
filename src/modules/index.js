@@ -7,6 +7,7 @@ import rmas from './rmas';
 import notes from './notes';
 import skus from './skus';
 import countries from './countries';
+import regions from './regions';
 import addressForm from './address-form';
 
 const rootReducer = combineReducers({
@@ -18,7 +19,8 @@ const rootReducer = combineReducers({
   notes,
   skus,
   countries,
-  addressForm
+  regions,
+  addressForm,
 });
 
 export default rootReducer;
