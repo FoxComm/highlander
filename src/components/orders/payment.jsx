@@ -37,10 +37,8 @@ const OrderPayment = props => {
     <EditableContentBox
       className="fc-order-payment"
       title="Payment Method"
-      isTable={true}
       isEditing={false}
       editAction={() => console.log("Not implemented")}
-      renderFooter={null}
       viewContent={viewContent(props)}
     />
   );

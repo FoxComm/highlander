@@ -63,15 +63,18 @@ export default class OrderShippingAddress extends React.Component {
 
     if (address) {
       return (
-        <ul className="fc-addresses-list">
-          <AddressBox
-            address={address}
-            chosen={true}
-            checkboxLabel={null}
-            editAction={() => props.startEditingAddress(address.id, addressTypes.SHIPPING)}
-            actionBlock={ actionBlock }
-          />
-        </ul>
+        <div>
+          <h3 className="fc-shipping-address-sub-title">Chosen Address</h3>
+          <ul className="fc-addresses-list">
+            <AddressBox
+              address={address}
+              chosen={true}
+              checkboxLabel={null}
+              editAction={() => props.startEditingAddress(address.id, addressTypes.SHIPPING)}
+              actionBlock={ actionBlock }
+            />
+          </ul>
+        </div>
       );
     }
   }
@@ -87,7 +90,7 @@ export default class OrderShippingAddress extends React.Component {
       <div>
         { this.selectedShippingAddress }
         <header className="fc-shipping-address-header">
-          <h3>Address Book</h3>
+          <h3 className="fc-shipping-address-sub-title">Address Book</h3>
           <AddButton onClick={() => this.props.startAddingAddress()} />
         </header>
         <div className="fc-tableview">
@@ -154,13 +157,12 @@ export default class OrderShippingAddress extends React.Component {
     return (
       <div>
         <EditableContentBox
-          className='fc-shipping-address'
+          className="fc-shipping-address"
           title="Shipping Address"
-          isTable={false}
+          indentContent={true}
           isEditing={props.isEditing}
           editAction={props.startEditing}
           doneAction={props.stopEditing}
-          renderFooter={null}
           renderContent={ this.renderContent }
         />
 

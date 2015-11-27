@@ -3,6 +3,16 @@ import classNames from 'classnames';
 import React, { PropTypes } from 'react';
 
 const ContextBox = props => {
+  let body = props.children;
+
+  if (props.indentContent) {
+    body = (
+      <div className="fc-content-box-indent">
+        {props.children}
+      </div>
+    );
+  }
+
   return (
     <div className={ classNames('fc-content-box', props.className) }>
       <header className="fc-content-box-header">
@@ -13,10 +23,8 @@ const ContextBox = props => {
           </div>
         </div>
       </header>
-      <article className={ classNames('fc-content-box-content', {'fc-content-box-table' : props.isTable}) }>
-        { props.children }
-      </article>
-      {props.footer}
+      { body }
+      { props.footer }
     </div>
   );
 };
@@ -26,8 +34,12 @@ ContextBox.propTypes = {
   className: PropTypes.string,
   actionBlock: PropTypes.node,
   children: PropTypes.node,
-  isTable: PropTypes.bool,
-  footer: PropTypes.node
+  footer: PropTypes.node,
+  indentContent: PropTypes.bool
+};
+
+ContextBox.defaultProps = {
+  indentContent: true
 };
 
 export default ContextBox;
