@@ -10,7 +10,7 @@ export default class StoreCredits extends React.Component {
 
   componentDidMount() {
     const customerId = this.props.params.customerId;
-    this.props.fetchStoreCredits(customerId);
+    this.props.fetchStoreCredits({entityType: 'storeCredits', entityId: customerId});
   }
 
   render() {
