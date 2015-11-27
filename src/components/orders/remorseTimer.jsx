@@ -7,16 +7,14 @@ export default class RemorseTimer extends React.Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      endDate: props.endDate,
       frozen: false
     };
   }
 
-  addTime(number, key) {
-    this.setState({
-      endDate: moment(this.state.endDate).add(number, key).format()
-    });
-  }
+  static propTypes = {
+    initialEndDate: PropTypes.string,
+    onIncreaseClick: PropTypes.func
+  };
 
   onToggleOrderEdit() {
     this.setState({
@@ -26,7 +24,7 @@ export default class RemorseTimer extends React.Component {
 
   extendButton() {
     return (
-      <AddButton className="fc-remorse-timer-extend" onClick={this.addTime.bind(this, 15, 'm')}>
+      <AddButton className="fc-remorse-timer-extend" onClick={ this.props.onIncreaseClick }>
         15 min
       </AddButton>
     );
@@ -43,13 +41,9 @@ export default class RemorseTimer extends React.Component {
   render() {
     return (
       <div className="fc-remorse-timer">
-        <Countdown endDate={this.state.endDate} frozen={this.state.frozen}/>
+        <Countdown endDate={this.props.initialEndDate} frozen={this.state.frozen}/>
         <div className="fc-remorse-timer-controls">{this.controls()}</div>
       </div>
     );
   }
 }
-
-RemorseTimer.propTypes = {
-  endDate: PropTypes.string
-};

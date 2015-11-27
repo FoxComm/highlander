@@ -61,6 +61,15 @@ export function deleteLineItem(order, sku) {
   return updateLineItemCount(order, sku, 0, false);
 }
 
+export function increaseRemorsePeriod(refNum) {
+  return dispatch => {
+    dispatch(orderRequest(refNum));
+    return Api.post(`/orders/${refNum}/increase-remorse-period`)
+      .then(order => dispatch(orderSuccess(order)))
+      .catch(err => dispatch(orderFailed(err, fetchOrder)));
+  };
+}
+
 function collectLineItems(skus) {
   let uniqueSkus = {};
   const items = _.transform(skus, (result, lineItem) => {
