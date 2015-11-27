@@ -4,6 +4,7 @@ import TableView from '../../table/tableview';
 import TableRow from '../../table/row';
 import TableCell from '../../table/cell';
 import { DateTime } from '../../common/datetime';
+import Currency from '../../common/currency';
 import SearchBar from '../../search-bar/search-bar';
 import { connect } from 'react-redux';
 import * as StoreCreditsActions from '../../../modules/customers/store-credits';
@@ -66,6 +67,13 @@ export default class StoreCredits extends React.Component {
     return (
       <TableRow key={`storeCredits-row-${row.id}`}>
         <TableCell><DateTime value={ row.createdAt }/></TableCell>
+        <TableCell>{ /* store credit, no data for it now */ }</TableCell>
+        <TableCell>{ row.originType }</TableCell>
+        <TableCell>{ /* store credit, no data for it too */ }</TableCell>
+        <TableCell><Currency value={ row.originalBalance } /></TableCell>
+        <TableCell><Currency value={ row.currentBalance } /></TableCell>
+        <TableCell><Currency value={ row.availableBalance } /></TableCell>
+        <TableCell>{ /* state */}</TableCell>
       </TableRow>
     );
   }
