@@ -62,7 +62,7 @@ function paginateBehaviour(state, action, actionType) {
 
   const [{entityType, entityId}, payload] = action.payload;
 
-  return update(state, entityId, paginate, {
+  return update(state, [entityId, entityType], paginate, {
     ...action,
     payload,
     type: actionType

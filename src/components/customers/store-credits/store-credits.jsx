@@ -57,11 +57,16 @@ export default class StoreCredits extends React.Component {
     this.props.fetchStoreCredits({entityType: 'storeCredits', entityId: customerId});
   }
 
+  componentDidUpdate() {
+    console.log('did update');
+  }
+
   renderRow(row) {
-    render(
+    console.log(row);
+    return (
       <TableRow key={`storeCredits-row-${row.id}`}>
-          <TableCell><DateTime value={ row.createdAt }/></TableCell>
-        </TableRow>
+        <TableCell><DateTime value={ row.createdAt }/></TableCell>
+      </TableRow>
     );
   }
 
