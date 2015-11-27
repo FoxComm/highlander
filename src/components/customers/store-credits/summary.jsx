@@ -19,7 +19,7 @@ const Summary = props => {
           <PanelList>
             <PanelListItem title="Total Availabale Balance">
               <div className="fc-store-credits-summary-balance">
-                <Currency value="106" /> {/* ToDo: Replace with real total */}
+                <Currency value={ 10600 } /> {/* ToDo: Replace with real total */}
               </div>
             </PanelListItem>
           </PanelList>

@@ -8,6 +8,7 @@ import addresses from './addresses';
 import contacts from './contacts';
 import creditCards from './credit-cards';
 import storeCredits from './store-credits';
+import storeCreditTransactions from './store-credit-transactions';
 import reduceReducers from 'reduce-reducers';
 
 const details = reduceReducers(_details, contacts);
@@ -19,7 +20,8 @@ const customerReducer = combineReducers({
   addressesDetails,
   addresses,
   creditCards,
-  storeCredits
+  storeCredits,
+  storeCreditTransactions
 });
 
 export default customerReducer;

@@ -6,7 +6,12 @@ import TableCell from '../../table/cell';
 import { DateTime } from '../../common/datetime';
 import Currency from '../../common/currency';
 import SearchBar from '../../search-bar/search-bar';
+import { connect } from 'react-redux';
+import * as StoreCreditTransactionsActions from '../../../modules/customers/store-credit-transactions';
 
+@connect((state, props) => ({
+  ...state.customers.storeCreditTransactions[props.params.customerId]
+}), StoreCreditTransactionsActions)
 export default class StoreCreditTransactions extends React.Component {
 
   static defaultProps = {
@@ -35,8 +40,21 @@ export default class StoreCreditTransactions extends React.Component {
     ]
   };
 
-  renderRow(row) {
+  componentDidMount() {
+    const customerId = this.props.params.customerId;
+    this.props.fetchStoreCreditTransactions({entityType: 'storeCreditTransactions', entityId: customerId});
+  }
 
+  renderRow(row) {
+    return (
+      <TableRow key={`storeCreditTransaction-row-${row.id}`}>
+        <TableCell><DateTime value={ row.createdAt }/></TableCell>
+        <TableCell>{ row.transaction }</TableCell>
+        <TableCell>{ row.amount }</TableCell>
+        <TableCell>{ row.paymentState }</TableCell>
+        <TableCell><Currency value={ row.totalAvailableBalance } /></TableCell>
+      </TableRow>
+    );
   }
 
   render() {
@@ -49,7 +67,7 @@ export default class StoreCreditTransactions extends React.Component {
           <div className="fc-col-md-1-1">
             <TableView
               columns={props.tableColumns}
-              data={props.StoreCreditTransactions}
+
               renderRow={this.renderRow}
               setState={props.setFetchParams}
               />

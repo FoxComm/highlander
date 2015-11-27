@@ -4,7 +4,7 @@ import { createAction, createReducer } from 'redux-act';
 import Api from '../../lib/api';
 import { paginateReducer, actionTypes, paginate, pickFetchParams, createFetchActions } from '../pagination';
 
-const STORE_CREDITS = 'STORE_CREDITS';
+const STORE_CREDIT_TRANSACTIONS = 'STORE_CREDIT_TRANSACTIONS';
 
 const {
   actionFetch,
@@ -13,23 +13,21 @@ const {
   actionSetFetchParams,
   actionAddEntity,
   actionRemoveEntity
-  } = createFetchActions(STORE_CREDITS, (entity, payload) => [entity, payload]);
+  } = createFetchActions(STORE_CREDIT_TRANSACTIONS, (entity, payload) => [entity, payload]);
 
 const _createAction = (description, ...args) => {
-  return createAction('CUSTOMER_STORE_CREDITS_' + description, ...args);
+  return createAction('CUSTOMER_STORE_CREDIT_TRANSACTIONS_' + description, ...args);
 };
 
-// const requestStoreCredits = _createAction('REQUEST');
-// const receiveStoreCredits = _createAction('RECEIVE', (id, credits) => [id, credits]);
-const failStoreCredits = _createAction("FAIL", (id, err) => [id, err]);
+const failStoreCreditTransactions = _createAction("FAIL", (id, err) => [id, err]);
 
 const initialState = {};
 
-function storeCreditsUrl(customerId) {
+function storeCreditTransactionsUrl(customerId) {
   return `/customers/${customerId}/payment-methods/store-credit`;
 }
 
-export function fetchStoreCredits(entity, newFetchParams) {
+export function fetchStoreCreditTransactions(entity, newFetchParams) {
   return (dispatch, getState) => {
     const customerId = entity.entityId;
     const state = get(getState(), 'customers');
@@ -37,7 +35,7 @@ export function fetchStoreCredits(entity, newFetchParams) {
 
     dispatch(actionFetch(entity));
     dispatch(actionSetFetchParams(entity, newFetchParams));
-    Api.get(storeCreditsUrl(customerId), fetchParams)
+    Api.get(storeCreditTransactionsUrl(customerId), fetchParams)
       .then(json => dispatch(actionReceived(entity, json)))
       .catch(err => dispatch(actionFetchFailed(entity, err)));
   };
@@ -47,7 +45,7 @@ const reducer = createReducer({
   [actionReceived]: (state, [{entityType, entityId}, storeCredits]) => {
     return assoc(state, [entityId, 'wasReceived'], true);
   },
-  [failStoreCredits]: (state, [{entityType, entityId}, error]) => {
+  [failStoreCreditTransactions]: (state, [{entityType, entityId}, error]) => {
     console.error(error);
 
     return assoc(state, entityId, {
@@ -69,4 +67,4 @@ function paginateBehaviour(state, action, actionType) {
   });
 }
 
-export default paginateReducer(STORE_CREDITS, reducer, paginateBehaviour);
+export default paginateReducer(STORE_CREDIT_TRANSACTIONS, reducer, paginateBehaviour);
