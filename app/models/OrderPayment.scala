@@ -1,11 +1,15 @@
 package models
 
+import cats.data.ValidatedNel
+import cats.data.Validated.valid
 import com.stripe.model.{Customer ⇒ StripeCustomer}
 import monocle.macros.GenLens
+import services.Failure
 import slick.driver.PostgresDriver.api._
 import utils.{TableQueryWithId, GenericTable, ModelWithIdParameter}
 import utils.Money._
 import utils.Slick.implicits._
+import utils.Validation._
 
 final case class OrderPayment(id: Int = 0, orderId: Int = 0, amount: Option[Int] = None,
   currency: Currency = Currency.USD, paymentMethodId: Int, paymentMethodType: PaymentMethod.Type)
@@ -14,6 +18,17 @@ final case class OrderPayment(id: Int = 0, orderId: Int = 0, amount: Option[Int]
   def isCreditCard:   Boolean = paymentMethodType == PaymentMethod.CreditCard
   def isGiftCard:     Boolean = paymentMethodType == PaymentMethod.GiftCard
   def isStoreCredit:  Boolean = paymentMethodType == PaymentMethod.StoreCredit
+
+  override def validate: ValidatedNel[Failure, OrderPayment] = {
+    val amountOk = paymentMethodType match {
+      case PaymentMethod.StoreCredit | PaymentMethod.GiftCard ⇒
+        invalidExpr(amount.getOrElse(0) > 0, s"amount must be > 0 for ${paymentMethodType}")
+      case PaymentMethod.CreditCard ⇒
+        invalidExpr(amount.isDefined, "amount must be empty for creditCard")
+    }
+
+    amountOk.map(_ ⇒ this)
+  }
 }
 
 object OrderPayment {
