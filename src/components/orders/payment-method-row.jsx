@@ -15,6 +15,7 @@ export default class PaymentMethodRow extends React.Component {
   constructor(props, context) {
     super(props, context);
 
+    this.orderRefNum = this.props.order.currentOrder.referenceNumber;
     this.paymentMethod = this.props.paymentMethod;
     this.presenter = null;
 
@@ -45,6 +46,17 @@ export default class PaymentMethodRow extends React.Component {
     });
   }
 
+  @autobind
+  deletePayment() {
+    const type = this.paymentMethod.type;
+
+    if (this.presenter instanceof GiftCardRow) {
+      this.props.deleteOrderPaymentMethod(this.orderRefNum, type, this.paymentMethod.code);
+    } else {
+      this.props.deleteOrderPaymentMethod(this.orderRefNum, type);
+    }
+  }
+
   render() {
     let nextDetailAction = null;
     let details = null;
@@ -61,8 +73,8 @@ export default class PaymentMethodRow extends React.Component {
     if (this.props.isEditing) {
       editActions = (
         <TableCell>
-          <EditButton  />
-          <Button icon='trash' className="fc-btn-remove" />
+          <EditButton />
+          <Button icon='trash' className="fc-btn-remove" onClick={this.deletePayment} />
         </TableCell>
       );
     }
@@ -224,5 +236,6 @@ class CreditCardRow {
 
 PaymentMethodRow.propTypes = {
   paymentMethod: PropTypes.object.isRequired,
-  isEditing: PropTypes.bool.isRequired
+  isEditing: PropTypes.bool.isRequired,
+  deleteOrderPaymentMethod: PropTypes.func.isRequired
 };

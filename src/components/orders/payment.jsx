@@ -18,7 +18,7 @@ const viewContent = props => {
   const paymentMethods = props.order.currentOrder.paymentMethods;
 
   const renderRow = (row, index, isNew) => {
-    return <PaymentMethodRow paymentMethod={row} isEditing={false} />;
+    return <PaymentMethodRow paymentMethod={row} isEditing={false} {...props} />;
   };
 
   if (_.isEmpty(paymentMethods)) {
@@ -38,11 +38,11 @@ const editContent = props => {
   const paymentMethods = props.order.currentOrder.paymentMethods;
 
   const renderRow = (row, index, isNew) => {
-    return <PaymentMethodRow paymentMethod={row} isEditing={true}/>;
+    return <PaymentMethodRow paymentMethod={row} isEditing={true} {...props}/>;
   };
 
   if (_.isEmpty(paymentMethods)) {
-    return <div className="fc-content-box-empty-text">Stuff will go here.</div>;
+    return <div className="fc-content-box-empty-text">Add a payment method.</div>;
   } else {
     return (
       <TableView
@@ -79,7 +79,8 @@ OrderPayment.propTypes = {
     isEditing: PropTypes.bool.isRequired
   }),
   orderPaymentMethodStartEdit: PropTypes.func.isRequired,
-  orderPaymentMethodStopEdit: PropTypes.func.isRequired
+  orderPaymentMethodStopEdit: PropTypes.func.isRequired,
+  deleteOrderPaymentMethod: PropTypes.func.isRequired
 };
 
 export default OrderPayment;
