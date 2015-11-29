@@ -5,6 +5,7 @@ import DropdownItem from './dropdownItem';
 import { autobind } from 'core-decorators';
 
 export default class Dropdown extends React.Component {
+
   static propTypes = {
     name: PropTypes.string,
     className: PropTypes.string,

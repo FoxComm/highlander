@@ -2,7 +2,7 @@
 import _ from 'lodash';
 import nock from 'nock';
 
-const {reducer, ...actions} = importModule('notes.js', [
+const {default: reducer, ...actions} = importModule('notes.js', [
   'actionFetch',
   'actionReceived',
   'actionSetFetchParams',

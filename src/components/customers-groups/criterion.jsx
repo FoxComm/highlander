@@ -6,6 +6,7 @@ import Dropdown from '../dropdown/dropdown';
 import CurrencyInput from '../forms/currency-input';
 import DatePicker from '../datepicker/datepicker';
 import SelectVertical from './select-vertical';
+import FormField from '../forms/formfield';
 import * as GroupBuilderActions from '../../modules/groups/builder';
 
 function mapDispatchToProps(dispatch, props) {
@@ -53,13 +54,15 @@ export default class Criterion extends React.Component {
 
     switch(this.props.value.type) {
       case 'date':
-        return <DatePicker/>;
+        return <DatePicker onChange={({target}) => this.props.changeValue(target.value)}/>;
       case 'number':
-        return <input/>;
+        return (<FormField><input onChange={({target}) => this.props.changeValue(target.value)}
+                                  type="number"/></FormField>);
       case 'currency':
         return <CurrencyInput onChange={this.props.changeValue} value={this.props.value.value}/>;
       case 'bool':
-        return <input/>;
+        return <Dropdown onChange={this.props.changeValue}
+                         value={this.props.value.value} items={{t: 'Yes', f: 'No'}}/>;
       case 'enum':
         return <SelectVertical options={this.props.value.options}
           onChange={this.props.changeValue}/>;

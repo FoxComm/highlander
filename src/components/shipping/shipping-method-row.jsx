@@ -1,5 +1,4 @@
 import React from 'react';
-import formatCurrency from '../../lib/format-currency';
 import Currency from '../common/currency';
 import { EditButton, PrimaryButton } from '../common/buttons';
 import CurrencyInput from '../forms/currency-input';

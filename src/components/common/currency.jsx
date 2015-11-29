@@ -2,18 +2,19 @@ import React, { PropTypes } from 'react';
 import formatCurrency from '../../lib/format-currency';
 
 const Currency = (props) => {
-  return <span className="fc-currency">{formatCurrency(props.value, props.base, props.currency)}</span>;
+  return <span className="fc-currency">{formatCurrency(props.value, {...props})}</span>;
 };
 
 Currency.propTypes = {
-  value: PropTypes.number.isRequired,
-  base: PropTypes.number,
-  currency: PropTypes.string
+  value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
+  fractionBase: PropTypes.number,
+  currency: PropTypes.string,
+  bigNumber: PropTypes.bool
 };
 
 Currency.defaultProps = {
-  base: 100,
-  currency: '$'
+  fractionBase: 2,
+  currency: 'USD'
 };
 
 export default Currency;

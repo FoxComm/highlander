@@ -18,8 +18,16 @@ function newVal(state, id, term, type) {
     type: type
   };
   switch(term) {
+    case 'revenue':
+      val['value'] = '1000000';
+      break;
     case 'region':
       val['options'] = state.groups.builder.staticData.regions;
+      break;
+  }
+  switch(type) {
+    case 'bool':
+      val['value'] = 't';
       break;
   }
   return val;
@@ -47,7 +55,7 @@ function newCrit(state, id, term) {
     operators: operators,
     operator: _.first(_.keys(operators)),
     value: newVal(state, id, term, type)
-  }
+  };
 }
 
 const currentTerms = state => {

@@ -18,7 +18,7 @@ export default class SelectVertical extends React.Component {
     this.state = {
       counter: 2,
       items: {1: null}
-    }
+    };
   }
 
   @autobind

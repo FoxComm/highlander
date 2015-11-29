@@ -3,6 +3,7 @@ import _ from 'lodash';
 // components
 import { AddButton } from '../common/buttons';
 import Criterion from './criterion';
+import Currency from '../common/currency';
 // stuff
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
