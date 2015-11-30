@@ -19,14 +19,17 @@ const _createAction = (description, ...args) => {
   return createAction('CUSTOMER_STORE_CREDITS_' + description, ...args);
 };
 
-// const requestStoreCredits = _createAction('REQUEST');
-// const receiveStoreCredits = _createAction('RECEIVE', (id, credits) => [id, credits]);
-const failStoreCredits = _createAction("FAIL", (id, err) => [id, err]);
+const updateStoreCredits = _createAction('UPDATE', (customerId, scId, data) => [customerId, scId, data]);
+const failStoreCredits = _createAction('FAIL', (id, err) => [id, err]);
 
 const initialState = {};
 
 function storeCreditsUrl(customerId) {
   return `/customers/${customerId}/payment-methods/store-credit`;
+}
+
+function updateStoreCreditsUrl(scId) {
+  return `/store-credits/${scId}`;
 }
 
 export function fetchStoreCredits(entity, newFetchParams) {
@@ -43,9 +46,34 @@ export function fetchStoreCredits(entity, newFetchParams) {
   };
 }
 
+export function changeStatus(entity, targetId, targetStatus) {
+  return (dispatch, getState) => {
+    const customerId = entity.entityId;
+    const state = get(getState(), 'customers');
+    const storeCredits = get(state, ['storeCredits', customerId, 'storeCredits', 'rows']);
+    const creditToUpdate = _.find(storeCredits, {id: targetId} );
+    const payload = {
+      ...creditToUpdate,
+      status: targetStatus
+    };
+
+    dispatch(actionFetch(entity));
+    Api.patch(updateStoreCreditsUrl(creditToUpdate.id), payload)
+      .then(json => dispatch(entity, updateStoreCredits(customerId, creditToUpdate.id, json)))
+      .catch(err => dispatch(actionFetchFailed(entity, err)));
+  }
+}
+
 const reducer = createReducer({
   [actionReceived]: (state, [{entityType, entityId}, storeCredits]) => {
     return assoc(state, [entityId, 'wasReceived'], true);
+  },
+  [updateStoreCredits]: (state, [customerId, scId, data]) => {
+    return update(state, [customerId, 'storeCredits', 'rows'], storeCredits => {
+      const index = _.findIndex(storeCredits, {id: scId});
+
+      return update(storeCredits, index, merge, data);
+    });
   },
   [failStoreCredits]: (state, [{entityType, entityId}, error]) => {
     console.error(error);

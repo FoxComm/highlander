@@ -12,13 +12,13 @@ import { connect } from 'react-redux';
 import * as StoreCreditsActions from '../../../modules/customers/store-credits';
 
 const activeStateTransitions = {
-  'OnHold': 'OnHold',
-  'Canceled': 'Canceled'
+  'onHold': 'OnHold',
+  'canceled': 'Canceled'
 };
 
 const onHoldStateTransitions = {
-  'Active': 'Active',
-  'Canceled': 'Canceled'
+  'active': 'Active',
+  'canceled': 'Canceled'
 };
 
 @connect((state, props) => ({
@@ -71,7 +71,8 @@ export default class StoreCredits extends React.Component {
   }
 
   @autobind
-  renderRowState(rowState) {
+  renderRowState(rowId, rowState) {
+    const customerId = this.props.params.customerId;
     switch(rowState) {
       case 'active':
         return (
@@ -79,7 +80,7 @@ export default class StoreCredits extends React.Component {
                     items={ activeStateTransitions }
                     placeholder={ rowState }
                     value={ rowState }
-                    onChange={ () => { console.log('not implemented yet') } } />
+                    onChange={ (value, title) => this.props.changeStatus({entityType: 'storeCredits', entityId: customerId}, rowId, value) } />
         );
       case 'onHold':
         return (
@@ -87,7 +88,7 @@ export default class StoreCredits extends React.Component {
                     items={ onHoldStateTransitions }
                     placeholder={ rowState }
                     value={ rowState }
-                    onChange={ () => { console.log('not implemented yet') } } />
+                    onChange={ (value, title) => this.props.changeStatus({entityType: 'storeCredits', entityId: customerId}, rowId, value) } />
         );
       default:
         return (<span>rowState</span>);
@@ -105,7 +106,7 @@ export default class StoreCredits extends React.Component {
         <TableCell><Currency value={ row.originalBalance } /></TableCell>
         <TableCell><Currency value={ row.currentBalance } /></TableCell>
         <TableCell><Currency value={ row.availableBalance } /></TableCell>
-        <TableCell>{ this.renderRowState(row.status) }</TableCell>
+        <TableCell>{ this.renderRowState(row.id, row.status) }</TableCell>
       </TableRow>
     );
   }
