@@ -8,6 +8,7 @@ import utils.DbResultT.implicits._
 import utils.Seeds.Factories
 import utils._
 import utils.ExPostgresDriver.jsonMethods._
+import utils.ExPostgresDriver.api._
 import utils.Slick.implicits._
 
 class ShippingManagerTest extends IntegrationTestBase {
@@ -28,6 +29,24 @@ class ShippingManagerTest extends IntegrationTestBase {
         rightValue(matchingMethods) mustBe 'empty
       }
 
+    }
+
+    "Evaluates rule: shipped to Canada" - {
+      "Is true when the order is shipped to Canada" in new CountryFixture {
+        val canada = Addresses.create(Factories.address.copy(customerId = customer.id,
+          name = "Canada, Eh", regionId = ontarioId, isDefaultShipping = false)).run().futureValue.rightVal
+        OrderShippingAddresses.filter(_.id === orderShippingAddress.id).delete.run().futureValue
+        OrderShippingAddresses.copyFromAddress(address = canada, orderId = order.id).run().futureValue.rightVal
+
+        val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).run().futureValue
+        Console.err.println(matchingMethods)
+        rightValue(matchingMethods).head.name must === (shippingMethod.adminDisplayName)
+      }
+
+      "Is false when the order is shipped to US" in new CountryFixture {
+        val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).run().futureValue
+        rightValue(matchingMethods) mustBe 'empty
+      }
     }
 
     "Evaluates rule: order total is greater than $25" - {
@@ -120,6 +139,7 @@ class ShippingManagerTest extends IntegrationTestBase {
     val michiganId = 4148
     val oregonId = 4164
     val washingtonId = 4177
+    val ontarioId = 548
   }
 
   trait OrderFixture extends Fixture {
@@ -283,4 +303,20 @@ val conditions = parse(
     val action = ShippingMethods.create(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
     val shippingMethod = action.run().futureValue.rightVal
   }
+
+  trait CountryFixture extends OrderFixture {
+    val conditions = parse(
+      """
+        | {
+        |   "comparison": "and",
+        |   "conditions": [
+        |     { "rootObject": "ShippingAddress", "field": "countryId", "operator": "equals", "valInt": 39 }
+        |   ]
+        | }
+      """.stripMargin).extract[QueryStatement]
+
+    val action = ShippingMethods.create(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
+    val shippingMethod = action.run().futureValue.rightVal
+  }
+
 }
