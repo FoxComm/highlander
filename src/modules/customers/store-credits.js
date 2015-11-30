@@ -59,9 +59,9 @@ export function changeStatus(entity, targetId, targetStatus) {
 
     dispatch(actionFetch(entity));
     Api.patch(updateStoreCreditsUrl(creditToUpdate.id), payload)
-      .then(json => dispatch(entity, updateStoreCredits(customerId, creditToUpdate.id, json)))
+      .then(json => dispatch(updateStoreCredits(customerId, creditToUpdate.id, json)))
       .catch(err => dispatch(actionFetchFailed(entity, err)));
-  }
+  };
 }
 
 const reducer = createReducer({
