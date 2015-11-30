@@ -1,6 +1,6 @@
 [Service]
 WorkingDirectory=/vagrant
-ExecStart=/usr/bin/npm start
+ExecStart=/bin/bash ops/vagrant/run_ashes.sh
 Restart=always
 StandardOutput=syslog
 StandardError=syslog

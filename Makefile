@@ -18,8 +18,15 @@ setup:
 	npm install
 	npm build
 
-deploy-staging: setup
+stop:
 	if [ `ps aux | awk '{print $2 " " $11}' | grep [m]-ashes | awk '{print $1}'` ]; then npm stop; fi
+
+deploy-staging: setup stop
 	export NODE_ENV=staging; nohup npm run dev 2>&1 &
+
+run: setup stop
+	if [ `ps aux | awk '{print $2 " " $11}' | grep [m]-ashes | awk '{print $1}'` ]; then npm stop; fi
+	nohup npm run dev 2>&1 &
+	
 
 .PHONY: test test-cov tag
