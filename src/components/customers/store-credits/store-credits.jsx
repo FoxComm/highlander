@@ -6,8 +6,20 @@ import TableCell from '../../table/cell';
 import { DateTime } from '../../common/datetime';
 import Currency from '../../common/currency';
 import SearchBar from '../../search-bar/search-bar';
+import Dropdown from '../../dropdown/dropdown';
+import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import * as StoreCreditsActions from '../../../modules/customers/store-credits';
+
+const activeStateTransitions = {
+  'OnHold': 'OnHold',
+  'Canceled': 'Canceled'
+};
+
+const onHoldStateTransitions = {
+  'Active': 'Active',
+  'Canceled': 'Canceled'
+};
 
 @connect((state, props) => ({
   ...state.customers.storeCredits[props.params.customerId]
@@ -58,6 +70,31 @@ export default class StoreCredits extends React.Component {
     this.props.fetchStoreCredits({entityType: 'storeCredits', entityId: customerId});
   }
 
+  @autobind
+  renderRowState(rowState) {
+    switch(rowState) {
+      case 'active':
+        return (
+          <Dropdown name="status"
+                    items={ activeStateTransitions }
+                    placeholder={ rowState }
+                    value={ rowState }
+                    onChange={ () => { console.log('not implemented yet') } } />
+        );
+      case 'onHold':
+        return (
+          <Dropdown name="status"
+                    items={ onHoldStateTransitions }
+                    placeholder={ rowState }
+                    value={ rowState }
+                    onChange={ () => { console.log('not implemented yet') } } />
+        );
+      default:
+        return (<span>rowState</span>);
+    }
+  }
+
+  @autobind
   renderRow(row) {
     return (
       <TableRow key={`storeCredits-row-${row.id}`}>
@@ -68,7 +105,7 @@ export default class StoreCredits extends React.Component {
         <TableCell><Currency value={ row.originalBalance } /></TableCell>
         <TableCell><Currency value={ row.currentBalance } /></TableCell>
         <TableCell><Currency value={ row.availableBalance } /></TableCell>
-        <TableCell>{ /* state */}</TableCell>
+        <TableCell>{ this.renderRowState(row.status) }</TableCell>
       </TableRow>
     );
   }
