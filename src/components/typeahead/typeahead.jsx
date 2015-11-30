@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import Api from '../../lib/api';
 import TypeaheadItems from './items';
 import { FormField } from '../forms';
+import classNames from 'classnames';
 import { debounce, autobind } from 'core-decorators';
 
 export default class Typeahead extends React.Component {
@@ -13,7 +14,8 @@ export default class Typeahead extends React.Component {
     items: PropTypes.array.isRequired,
     label: PropTypes.string,
     name: PropTypes.string,
-    placeholder: PropTypes.string
+    placeholder: PropTypes.string,
+    className: PropTypes.string
   };
 
   static defaultProps = {
@@ -85,9 +87,9 @@ export default class Typeahead extends React.Component {
 
   render() {
     return (
-      <div className="fc-typeahead">
+      <div className={ classNames('fc-typeahead', this.props.className) }>
         <FormField className="fc-typeahead-input-group" label={this.props.label}>
-          <div className="fc-input-prepend"><i className="fc-typeahead-input-icon icon-search"></i></div>
+          <i className="fc-typeahead-input-icon icon-search"></i>
           <input className="fc-input fc-typeahead-input"
                  type="text"
                  name={this.props.name}
