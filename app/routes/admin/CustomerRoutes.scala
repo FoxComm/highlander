@@ -153,6 +153,13 @@ object CustomerRoutes {
           }
         } ~
         pathPrefix("payment-methods" / "store-credit") {
+          pathPrefix("transactions") {
+            (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+              goodOrFailures {
+                StoreCreditAdjustmentsService.forCustomer(customerId)
+              }
+            }
+          } ~
           (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
             goodOrFailures {
               StoreCreditService.findAllByCustomer(customerId)

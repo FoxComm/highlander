@@ -2,15 +2,21 @@ package models
 
 import java.time.Instant
 
+import scala.concurrent.ExecutionContext
+
 import cats.data.Xor
 import com.pellucid.sealerate
+import models.GiftCards._
 import models.StoreCreditAdjustment.{Auth, Status}
 import monocle.macros.GenLens
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
+import slick.lifted.ColumnOrdered
 import slick.jdbc.JdbcType
 import services.Failures
-import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.CustomDirectives.SortAndPage
+import utils.Slick.implicits._
+import utils.{CustomDirectives, ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 final case class StoreCreditAdjustment(id: Int = 0, storeCreditId: Int, orderPaymentId: Option[Int],
   storeAdminId: Option[Int] = None, debit: Int, availableBalance: Int, status: Status = Auth, createdAt: Instant = Instant.now())
@@ -69,6 +75,27 @@ object StoreCreditAdjustments
   )(new StoreCreditAdjustments(_)){
 
   import StoreCreditAdjustment._
+
+  def matchSortColumn(s: CustomDirectives.Sort, adj: StoreCreditAdjustments): ColumnOrdered[_] = {
+    s.sortColumn match {
+      case "id"               ⇒ if (s.asc) adj.id.asc               else adj.id.desc
+      case "storeCreditId"    ⇒ if (s.asc) adj.storeCreditId.asc    else adj.storeCreditId.desc
+      case "orderPaymentId"   ⇒ if (s.asc) adj.orderPaymentId.asc   else adj.orderPaymentId.desc
+      case "debit"            ⇒ if (s.asc) adj.debit.asc            else adj.debit.desc
+      case "availableBalance" ⇒ if (s.asc) adj.availableBalance.asc else adj.availableBalance.desc
+      case "status"           ⇒ if (s.asc) adj.status.asc           else adj.status.desc
+      case "createdAt"        ⇒ if (s.asc) adj.createdAt.asc        else adj.createdAt.desc
+      case other              ⇒ invalidSortColumn(other)
+    }
+  }
+
+  def sortedAndPaged(query: QuerySeq)
+    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata = {
+    query.withMetadata.sortAndPageIfNeeded { (s, adj) ⇒ matchSortColumn(s, adj) }
+  }
+
+  def queryAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata =
+    sortedAndPaged(this)
 
   def filterByStoreCreditId(id: Int): QuerySeq = filter(_.storeCreditId === id)
 

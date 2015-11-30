@@ -146,18 +146,32 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         credits.result.map(_.id).sorted must ===(storeCredits.map(_.id).sorted)
       }
 
-      "returns store credit by ID" in new Fixture {
-        val response = GET(s"v1/store-credits/${storeCredit.id}")
-        val storeCreditResponse = response.as[StoreCreditResponse.Root]
+      // FIXME
+      "returns not found when customer doesn't exist" in new Fixture {
+        pending
+        val notFoundResponse = GET(s"v1/customers/99/payment-methods/store-credit")
+        notFoundResponse.status must ===(StatusCodes.NotFound)
+        notFoundResponse.errors must === (NotFoundFailure404(Customer, 99).description)
+      }
+    }
 
+    "GET /v1/customers/:id/payment-methods/store-credit/transactions" - {
+      "returns list of store credit transactions" in new Fixture {
+        val response = GET(s"v1/customers/${customer.id}/payment-methods/store-credit/transactions")
         response.status must ===(StatusCodes.OK)
-        storeCreditResponse.availableBalance must === (40)
+
+        val adjustments = response.as[StoreCreditAdjustmentsResponse.Root#ResponseMetadataSeq].result
+
+        adjustments.size must === (1)
+        adjustments.headOption.value.id must === (adjustment.id)
       }
 
-      "returns not found when SC doesn't exist" in new Fixture {
-        val notFoundResponse = GET(s"v1/store-credits/99")
+      // FIXME
+      "returns not found when customer doesn't exist" in new Fixture {
+        pending
+        val notFoundResponse = GET(s"v1/customers/99/payment-methods/store-credit/transactions")
         notFoundResponse.status must ===(StatusCodes.NotFound)
-        notFoundResponse.errors must === (NotFoundFailure404(StoreCredit, 99).description)
+        notFoundResponse.errors must === (NotFoundFailure404(Customer, 99).description)
       }
     }
 
