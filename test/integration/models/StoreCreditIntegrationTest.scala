@@ -51,7 +51,8 @@ class StoreCreditIntegrationTest extends IntegrationTestBase {
       origin   ← * <~ StoreCreditManuals.create(StoreCreditManual(adminId = admin.id, reasonId = reason.id))
       sc       ← * <~ StoreCredits.create(Factories.storeCredit.copy(customerId = customer.id, originId = origin.id))
       sCredit  ← * <~ StoreCredits.findOneById(sc.id).toXor
-      payment  ← * <~ OrderPayments.create(Factories.orderPayment.copy(orderId = order.id, paymentMethodId = sc.id))
+      payment  ← * <~ OrderPayments.create(Factories.storeCreditPayment.copy(orderId = order.id,
+        paymentMethodId = sc.id, amount = Some(25)))
     } yield (customer, origin, sCredit.value, payment)).runT().futureValue.rightVal
   }
 }

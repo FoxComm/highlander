@@ -205,6 +205,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
     "ranking" - {
       "customer must be with rank" in new FixtureForRanking {
+        pending
         CustomersRanks.refresh.futureValue
 
         // check that statuses used in sql still actual
@@ -588,10 +589,10 @@ class CustomerIntegrationTest extends IntegrationTestBase
         referenceNumber = "ABC-456")).map(rightValue)
       orderPayment ← OrderPayments.create(Factories.orderPayment.copy(orderId = order.id,
         paymentMethodId = creditCard.id,
-        amount = Some(100))).map(rightValue)
+        amount = None)).map(rightValue)
       orderPayment2 ← OrderPayments.create(Factories.orderPayment.copy(orderId = order2.id,
         paymentMethodId = creditCard.id,
-        amount = Some(100))).map(rightValue)
+        amount = None)).map(rightValue)
       rma ← Rmas.create(Factories.rma.copy(
         referenceNumber = "ABC-123.1",
         orderId = order.id,

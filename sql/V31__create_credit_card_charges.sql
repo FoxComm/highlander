@@ -4,6 +4,7 @@ create table credit_card_charges (
     order_payment_id integer not null,
     charge_id generic_string not null,
     status generic_string not null,
+    amount integer not null,
     currency currency,
     created_at timestamp without time zone default (now() at time zone 'utc'),
     foreign key (credit_card_id) references credit_cards(id) on update restrict on delete restrict,

@@ -212,6 +212,20 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
   def findByIdAndCustomerId(id: Int, customerId: Int)(implicit ec: ExecutionContext): DBIO[Option[StoreCredit]] =
     filter(_.customerId === customerId).filter(_.id === id).one
 
+  type ReturningIdAndBalances = (Int, Int, Int)
+
+  val returningIdAndBalances: Returning[ReturningIdAndBalances] =
+    this.returning(map { sc ⇒ (sc.id, sc.currentBalance, sc.availableBalance) })
+
+  def returningAction(ret: ReturningIdAndBalances)(gc: StoreCredit): StoreCredit = ret match {
+    case (id, currentBalance, availableBalance) ⇒
+      gc.copy(id = id, currentBalance = currentBalance, availableBalance = availableBalance)
+  }
+
+  override def create[R](sc: StoreCredit, returning: Returning[R], action: R ⇒ StoreCredit ⇒ StoreCredit)
+    (implicit ec: ExecutionContext): DbResult[StoreCredit] =
+    super.create(sc, returningIdAndBalances, returningAction)
+
   private def debit(storeCredit: StoreCredit, orderPaymentId: Option[Int], amount: Int = 0,
     status: Adj.Status = Adj.Auth)
     (implicit ec: ExecutionContext): DbResult[Adj] = {

@@ -174,7 +174,7 @@ class RmaPaymentsIntegrationTest extends IntegrationTestBase
       address ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
       cc ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
       orderPayment ← * <~ OrderPayments.create(Factories.orderPayment.copy(orderId = order.id,
-        paymentMethodId = cc.id, amount = Some(100)))
+        paymentMethodId = cc.id, amount = None))
       rma ← * <~ Rmas.create(Factories.rma.copy(referenceNumber = "ABCD1234-11.1"))
     } yield (rma, order, admin, customer)).runT(txn = false).futureValue.rightVal
   }

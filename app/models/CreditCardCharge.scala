@@ -15,7 +15,7 @@ import com.stripe.model.{Charge ⇒ StripeCharge}
 
 final case class CreditCardCharge(id: Int = 0, creditCardId: Int, orderPaymentId: Int,
   chargeId: String, status: CreditCardCharge.Status = CreditCardCharge.Cart, currency: Currency = Currency.USD,
-  createdAt: Instant = Instant.now)
+  amount: Int, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[CreditCardCharge]
   with FSM[CreditCardCharge.Status, CreditCardCharge] {
 
@@ -54,7 +54,7 @@ object CreditCardCharge {
 
   def authFromStripe(card: CreditCard, pmt: OrderPayment, stripe: StripeCharge, currency: Currency): CreditCardCharge =
     CreditCardCharge(creditCardId = card.id, orderPaymentId = pmt.id,
-      chargeId = stripe.getId, status = Auth, currency = currency)
+      chargeId = stripe.getId, status = Auth, currency = currency, amount = stripe.getAmount.toInt)
 }
 
 class CreditCardCharges(tag: Tag)
@@ -67,9 +67,10 @@ class CreditCardCharges(tag: Tag)
   def chargeId = column[String]("charge_id")
   def status = column[CreditCardCharge.Status]("status")
   def currency = column[Currency]("currency")
+  def amount = column[Int]("amount")
   def createdAt = column[Instant]("created_at")
 
-  def * = (id, creditCardId, orderPaymentId, chargeId, status, currency, createdAt) <>
+  def * = (id, creditCardId, orderPaymentId, chargeId, status, currency, amount, createdAt) <>
     ((CreditCardCharge.apply _).tupled, CreditCardCharge.unapply)
 
   def card          = foreignKey(CreditCards.tableName, creditCardId, CreditCards)(_.id)
