@@ -90,6 +90,8 @@ object ShippingManager {
           Condition.matches(shippingAddress.city, condition)
         case "regionId" ⇒
           Condition.matches(shippingAddress.regionId, condition)
+        case "countryId" ⇒
+          shippingData.shippingRegion.fold(false)(sr ⇒ Condition.matches(sr.countryId, condition))
         case "regionName" ⇒
           shippingData.shippingRegion.fold(false)(sr ⇒ Condition.matches(sr.name, condition))
         case "regionAbbrev" ⇒
