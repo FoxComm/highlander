@@ -13,8 +13,9 @@ import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import services.Failures
+import slick.lifted.ColumnOrdered
 import utils.CustomDirectives.SortAndPage
-import utils.{ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.{CustomDirectives, ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId}
 import utils.Slick.implicits._
 
 final case class GiftCardAdjustment(id: Int = 0, giftCardId: Int, orderPaymentId: Option[Int],
@@ -78,22 +79,24 @@ object GiftCardAdjustments extends TableQueryWithId[GiftCardAdjustment, GiftCard
 
   import GiftCardAdjustment._
 
+  def matchSortColumn(s: CustomDirectives.Sort, adj: GiftCardAdjustments): ColumnOrdered[_] = {
+    s.sortColumn match {
+      case "id"               ⇒ if (s.asc) adj.id.asc               else adj.id.desc
+      case "giftCardId"       ⇒ if (s.asc) adj.giftCardId.asc       else adj.giftCardId.desc
+      case "orderPaymentId"   ⇒ if (s.asc) adj.orderPaymentId.asc   else adj.orderPaymentId.desc
+      case "storeAdminId"     ⇒ if (s.asc) adj.storeAdminId.asc     else adj.storeAdminId.desc
+      case "credit"           ⇒ if (s.asc) adj.credit.asc           else adj.credit.desc
+      case "debit"            ⇒ if (s.asc) adj.debit.asc            else adj.debit.desc
+      case "availableBalance" ⇒ if (s.asc) adj.availableBalance.asc else adj.availableBalance.desc
+      case "status"           ⇒ if (s.asc) adj.status.asc           else adj.status.desc
+      case "createdAt"        ⇒ if (s.asc) adj.createdAt.asc        else adj.createdAt.desc
+      case other              ⇒ invalidSortColumn(other)
+    }
+  }
+
   def sortedAndPaged(query: QuerySeq)
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata =
-    query.withMetadata.sortAndPageIfNeeded { (s, giftCardAdj) ⇒
-      s.sortColumn match {
-        case "id"               ⇒ if(s.asc) giftCardAdj.id.asc               else giftCardAdj.id.desc
-        case "giftCardId"       ⇒ if(s.asc) giftCardAdj.giftCardId.asc       else giftCardAdj.giftCardId.desc
-        case "orderPaymentId"   ⇒ if(s.asc) giftCardAdj.orderPaymentId.asc   else giftCardAdj.orderPaymentId.desc
-        case "storeAdminId"     ⇒ if(s.asc) giftCardAdj.storeAdminId.asc     else giftCardAdj.storeAdminId.desc
-        case "credit"           ⇒ if(s.asc) giftCardAdj.credit.asc           else giftCardAdj.credit.desc
-        case "debit"            ⇒ if(s.asc) giftCardAdj.debit.asc            else giftCardAdj.debit.desc
-        case "availableBalance" ⇒ if(s.asc) giftCardAdj.availableBalance.asc else giftCardAdj.availableBalance.desc
-        case "status"           ⇒ if(s.asc) giftCardAdj.status.asc           else giftCardAdj.status.desc
-        case "createdAt"        ⇒ if(s.asc) giftCardAdj.createdAt.asc        else giftCardAdj.createdAt.desc
-        case other              ⇒ invalidSortColumn(other)
-      }
-    }
+    query.withMetadata.sortAndPageIfNeeded { (s, adj) ⇒ matchSortColumn(s, adj) }
 
   def filterByGiftCardId(id: Int): QuerySeq = filter(_.giftCardId === id)
 

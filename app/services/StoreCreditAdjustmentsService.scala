@@ -22,17 +22,9 @@ object StoreCreditAdjustmentsService {
         .joinLeft(Orders).on(_._2.map(_.orderId) === _.id)
 
       val queryWithMetadata = query.withMetadata.sortAndPageIfNeeded { case (s, ((storeCreditAdj, _), _)) ⇒
-        s.sortColumn match {
-          case "id"               ⇒ if(s.asc) storeCreditAdj.id.asc               else storeCreditAdj.id.desc
-          case "storeCreditId"    ⇒ if(s.asc) storeCreditAdj.storeCreditId.asc    else storeCreditAdj.storeCreditId.desc
-          case "orderPaymentId"   ⇒ if(s.asc) storeCreditAdj.orderPaymentId.asc   else storeCreditAdj.orderPaymentId.desc
-          case "debit"            ⇒ if(s.asc) storeCreditAdj.debit.asc            else storeCreditAdj.debit.desc
-          case "availableBalance" ⇒ if(s.asc) storeCreditAdj.availableBalance.asc else storeCreditAdj.availableBalance.desc
-          case "status"           ⇒ if(s.asc) storeCreditAdj.status.asc           else storeCreditAdj.status.desc
-          case "createdAt"        ⇒ if(s.asc) storeCreditAdj.createdAt.asc        else storeCreditAdj.createdAt.desc
-          case other              ⇒ invalidSortColumn(other)
-        }
+        StoreCreditAdjustments.matchSortColumn(s, storeCreditAdj)
       }
+
       queryWithMetadata.result.map {
         _.map {
           case ((adj, Some(payment)), Some(order)) ⇒ build(adj, Some(order.referenceNumber))
@@ -40,5 +32,28 @@ object StoreCreditAdjustmentsService {
         }
       }
     }
+  }
+
+  def forCustomer(customerId: Int)
+    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Future[ResultWithMetadata[Seq[Root]]] = {
+
+    val query = StoreCreditAdjustments
+      .joinLeft(OrderPayments).on(_.orderPaymentId === _.id)
+      .joinLeft(Orders).on(_._2.map(_.orderId) === _.id)
+      .join(Customers).on(_._1._1.storeCreditId === _.id)
+      .filter(_._2.id === customerId)
+
+    val queryWithMetadata = query.withMetadata.sortAndPageIfNeeded { case (s, (((storeCreditAdj, _), _), _)) ⇒
+      StoreCreditAdjustments.matchSortColumn(s, storeCreditAdj)
+    }
+
+    val response = queryWithMetadata.result.map {
+      _.map {
+        case (((adj, Some(payment)), Some(order)), _) ⇒ build(adj, Some(order.referenceNumber))
+        case (((adj, _), _), _)                       ⇒ build(adj)
+      }
+    }
+
+    Future.successful(response)
   }
 }

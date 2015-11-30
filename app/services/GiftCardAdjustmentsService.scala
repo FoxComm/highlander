@@ -24,18 +24,7 @@ object GiftCardAdjustmentsService {
         .joinLeft(Orders).on(_._2.map(_.orderId) === _.id)
 
       val queryWithMetadata = query.withMetadata.sortAndPageIfNeeded { case (s, ((giftCardAdj, _), _)) ⇒
-        s.sortColumn match {
-          case "id"               ⇒ if(s.asc) giftCardAdj.id.asc               else giftCardAdj.id.desc
-          case "giftCardId"       ⇒ if(s.asc) giftCardAdj.giftCardId.asc       else giftCardAdj.giftCardId.desc
-          case "orderPaymentId"   ⇒ if(s.asc) giftCardAdj.orderPaymentId.asc   else giftCardAdj.orderPaymentId.desc
-          case "storeAdminId"     ⇒ if(s.asc) giftCardAdj.storeAdminId.asc     else giftCardAdj.storeAdminId.desc
-          case "credit"           ⇒ if(s.asc) giftCardAdj.credit.asc           else giftCardAdj.credit.desc
-          case "debit"            ⇒ if(s.asc) giftCardAdj.debit.asc            else giftCardAdj.debit.desc
-          case "availableBalance" ⇒ if(s.asc) giftCardAdj.availableBalance.asc else giftCardAdj.availableBalance.desc
-          case "status"           ⇒ if(s.asc) giftCardAdj.status.asc           else giftCardAdj.status.desc
-          case "createdAt"        ⇒ if(s.asc) giftCardAdj.createdAt.asc        else giftCardAdj.createdAt.desc
-          case other              ⇒ invalidSortColumn(other)
-        }
+        GiftCardAdjustments.matchSortColumn(s, giftCardAdj)
       }
 
       queryWithMetadata.result.map { _.map {
