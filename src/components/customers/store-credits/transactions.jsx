@@ -66,11 +66,10 @@ export default class StoreCreditTransactions extends React.Component {
           <SearchBar />
           <div className="fc-col-md-1-1">
             <TableView
-              columns={props.tableColumns}
-
-              renderRow={this.renderRow}
-              setState={props.setFetchParams}
-              />
+              columns={ props.tableColumns }
+              data={ props.storeCreditTransactions }
+              renderRow={ this.renderRow }
+              setState={ props.setFetchParams } />
           </div>
         </div>
       </div>

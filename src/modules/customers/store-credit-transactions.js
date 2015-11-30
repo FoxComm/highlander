@@ -24,7 +24,7 @@ const failStoreCreditTransactions = _createAction("FAIL", (id, err) => [id, err]
 const initialState = {};
 
 function storeCreditTransactionsUrl(customerId) {
-  return `/customers/${customerId}/payment-methods/store-credit`;
+  return `/customers/${customerId}/payment-methods/store-credit/transactions`;
 }
 
 export function fetchStoreCreditTransactions(entity, newFetchParams) {
