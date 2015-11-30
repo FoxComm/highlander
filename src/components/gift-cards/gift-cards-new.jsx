@@ -13,14 +13,16 @@ import * as GiftCardNewActions from '../../modules/gift-cards/new';
 import * as CustomersActions from '../../modules/customers/list';
 import { createGiftCard } from '../../modules/gift-cards/cards';
 
+const selectCustomersList = state => _.get(state, ['customers', 'customers', 'rows'], []);
+
 const filterCustomers = createSelector(
-  state => state.customers.items,
+  selectCustomersList,
   ({giftCards: {adding}}) => adding.customersQuery,
   (customers, customersQuery) => _.filter(customers, customer => _.contains(customer.name, customersQuery))
 );
 
 const filterUsers = createSelector(
-  state => state.customers.items,
+  selectCustomersList,
   ({giftCards: {adding}}) => adding.usersQuery,
   (customers, usersQuery) => _.filter(customers, customer => _.contains(customer.name, usersQuery))
 );
@@ -87,8 +89,9 @@ export default class NewGiftCard extends React.Component {
 
   @autobind
   onChangeValue({target}) {
-    console.log('change from', target);
-    this.props.changeFormData(target.name,  target.checked != null ? target.checked : target.value);
+    const value = target.type === 'checkbox' ? target.checked : target.value;
+
+    this.props.changeFormData(target.name,  value);
   }
 
   changeCustomerMessage(event) {
@@ -121,6 +124,7 @@ export default class NewGiftCard extends React.Component {
       return (
         <div id="customerSearch">
           <Typeahead
+            className="_no-search-icon"
             items={this.props.suggestedCustomers}
             fetchItems={this.props.suggestCustomers}
             component={customerItem}
@@ -172,40 +176,7 @@ export default class NewGiftCard extends React.Component {
 
   render() {
     const props = this.props;
-
-    let emailCSV = null;
-
     const typeList = Object.keys(this.props.types);
-
-
-    if (this.props.emailCSV) {
-      emailCSV = (
-        <div id="userSearch">
-          <Typeahead
-            items={this.props.suggestedUsers}
-            fetchItems={this.props.suggestUsers}
-            component={customerItem}
-            onItemSelected={this.props.addUser}
-            label="Choose users:"
-            name="csvQuery"
-          />
-          <ul id="internalUserList">
-            {this.props.users.map((user, idx) => {
-              return (
-                <li key={`user-${idx}`}>
-                  {user.name}
-                  <input type="hidden" name="users[]" id={`user_${idx}`} value={user.id} />
-                  <a onClick={() => this.props.removeUser(user.id)}>&times;</a>
-                </li>
-              );
-             })}
-          </ul>
-          <label htmlFor="internalMessage">Write a message (optional):</label>
-          <div className="counter">{this.state.csvMessageCount}/1000</div>
-          <textarea name="internalMessage" maxLength="1000" onChange={this.changeCSVMessage.bind(this)}></textarea>
-        </div>
-      );
-    }
 
     return (
       <div className="fc-new-gift-card fc-grid">
@@ -249,30 +220,18 @@ export default class NewGiftCard extends React.Component {
               }
             </div>
           </fieldset>
-          {this.quantitySection}
           <fieldset>
             <label>
-              <Checkbox id="sendToCustomer" name="sendToCustomer"  value={this.props.sendToCustomer} />
+              <Checkbox id="sendToCustomer" name="sendToCustomer" checked={this.props.sendToCustomer} />
               Send gift card(s) to customer(s)
             </label>
             { this.customerListBlock }
           </fieldset>
-          <fieldset>
-            A CSV file of the gift cards can be created. What would you like to do?
-            <label htmlFor="download_csv">
-              <input type="checkbox" name="download_csv" />
-              Download CSV file immediately after it is created.
-            </label>
-            <label htmlFor="email_csv">
-              <input type="checkbox" name="emailCSV" value={this.props.emailCSV}/>
-              Email the CSV file.
-            </label>
-            { emailCSV }
-          </fieldset>
-
-          <Link to='gift-cards' className="fc-btn-link">Cancel</Link>
-          <button className="fc-btn fc-btn-primary" type="submit">Issue Gift Card</button>
-
+          {this.quantitySection}
+          <div className="fc-action-block">
+            <Link to='gift-cards' className="fc-btn-link fc-action-block-cancel">Cancel</Link>
+            <button className="fc-btn fc-btn-primary" type="submit">Issue Gift Card</button>
+          </div>
         </form>
       </div>
     );
