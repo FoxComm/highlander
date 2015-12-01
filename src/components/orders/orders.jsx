@@ -68,25 +68,6 @@ export default class Orders extends React.Component {
       </TableRow>
     );
 
-    // NOTE: This will get removed in the Live Search PR.
-    const searchOptions = [
-      { display: 'Order : Search' },
-      { display: 'Shipment : Search' }
-    ];
-    /**
-    * +     *
-    * +          <LiveSearch 
-    * +            updateSearch={this.props.updateSearch}
-    * +            searchOptions={ordersSearchTerms}
-    * +            state={this.props.orders}
-    * +            selectDown={this.props.selectDown}
-    * +            selectUp={this.props.selectUp}
-    * +            goBack={this.props.goBack}
-    * +            submitFilter={this.props.submitFilter}
-    * +            deleteSearchFilter={this.props.deleteSearchFilter}
-    * +          />
-  * +          */
-
     return (
       <div className="fc-list-page">
         <div className="fc-list-page-header">
@@ -108,11 +89,15 @@ export default class Orders extends React.Component {
           </TabListView>
         </div>
         <div className="fc-grid fc-list-page-content">
-          <PilledSearch
-            className="fc-col-md-1-1"
-            placeholder="Add another filter or keyword search"
-            searchButton={<button className="fc-btn">Save Search</button>}
-            searchOptions={searchOptions}
+          <LiveSearch 
+            updateSearch={this.props.updateSearch}
+            searchOptions={ordersSearchTerms}
+            state={this.props.orders}
+            selectDown={this.props.selectDown}
+            selectUp={this.props.selectUp}
+            goBack={this.props.goBack}
+            submitFilter={this.props.submitFilter}
+            deleteSearchFilter={this.props.deleteSearchFilter}
           />
           <div className="fc-col-md-1-1">
             <TableView
