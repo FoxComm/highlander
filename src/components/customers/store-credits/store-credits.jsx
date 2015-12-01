@@ -7,6 +7,7 @@ import { DateTime } from '../../common/datetime';
 import Currency from '../../common/currency';
 import SearchBar from '../../search-bar/search-bar';
 import Dropdown from '../../dropdown/dropdown';
+import ConfirmationDialog from '../../modal/confirmation-dialog';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import * as StoreCreditsActions from '../../../modules/customers/store-credits';
@@ -36,7 +37,9 @@ export default class StoreCredits extends React.Component {
   static propTypes = {
     params: PropTypes.object,
     tableColumns: PropTypes.array,
-    fetchStoreCredits: PropTypes.func
+    fetchStoreCredits: PropTypes.func,
+    fetchReasons: PropTypes.func,
+    cancelChange: PropTypes.func
   };
 
   static defaultProps = {
@@ -74,13 +77,15 @@ export default class StoreCredits extends React.Component {
         field: 'state',
         text: 'State'
       }
-
     ]
   };
 
+  get customerId() {
+    return this.props.params.customerId;
+  }
+
   componentDidMount() {
-    const customerId = this.props.params.customerId;
-    this.props.fetchStoreCredits(this.entityType(customerId));
+    this.props.fetchStoreCredits(this.entityType(this.customerId));
     this.props.fetchReasons();
   }
 
@@ -90,7 +95,7 @@ export default class StoreCredits extends React.Component {
 
   @autobind
   renderRowState(rowId, rowState) {
-    const customerId = this.props.params.customerId;
+    const customerId = this.customerId;
     const currentStatus = rowState.charAt(0).toUpperCase() + rowState.slice(1);
     switch(rowState) {
       case 'active':
@@ -100,7 +105,7 @@ export default class StoreCredits extends React.Component {
                     placeholder={ currentStatus }
                     value={ rowState }
                     onChange={ (value, title) =>
-                      this.props.triggerStatusChange(this.entityType(customerId), rowId, value) } />
+                      this.props.changeStatus(customerId, rowId, value) } />
         );
       case 'onHold':
         return (
@@ -109,7 +114,7 @@ export default class StoreCredits extends React.Component {
                     placeholder={ currentStatus }
                     value={ rowState }
                     onChange={ (value, title) =>
-                      this.props.triggerStatusChange(this.entityType(customerId), rowId, value) } />
+                      this.props.changeStatus(customerId, rowId, value) } />
         );
       default:
         return (<span>rowState</span>);
@@ -136,32 +141,36 @@ export default class StoreCredits extends React.Component {
     const message = (
       <span>
         Are you sure you want to change the gift card state to
-        <strong>On Hold</strong>
+        <strong>{this.props.storeCreditToChange && this.props.storeCreditToChange.status}</strong>
         ?
       </span>
     );
+    const shouldDisplay = this.props.storeCreditToChange &&
+      this.props.storeCreditToChange.status !== 'canceled';
     return (
       <ConfirmationDialog
-          isVisible={ this.showConfirm }
+          isVisible={ shouldDisplay }
           header='Change Store Credit State?'
           body={ message }
           cancel='Cancel'
           confirm='Yes, Change State'
-          cancelAction={ () => console.log('cancel not implemented') }
+          cancelAction={ () => this.props.cancelChange(this.customerId) }
           confirmAction={ () => console.log('confirm not implemented') } />
     );
   }
 
   get confirmCancellation() {
     const body = 'Are you sure you want to cancel this store credit?';
+    const shouldDisplay = this.props.storeCreditToChange &&
+      this.props.storeCreditToChange.status === 'canceled';
     return (
       <ConfirmationDialog
-          isVisible={ this.showConfirm }
+          isVisible={ shouldDisplay }
           header='Cancel Store Credit?'
           body={ body }
           cancel='Cancel'
           confirm='Yes, Cancel'
-          cancelAction={ () => console.log('cancel not implemented') }
+          cancelAction={ () => this.props.cancelChange(this.customerId) }
           confirmAction={ () => console.log('confirm not implemented') } />
     );
   }
@@ -182,7 +191,8 @@ export default class StoreCredits extends React.Component {
               />
           </div>
         </div>
-
+        { this.confirmStatusChange }
+        { this.confirmCancellation }
       </div>
     );
   }

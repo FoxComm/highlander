@@ -19,8 +19,11 @@ const _createAction = (description, ...args) => {
   return createAction('CUSTOMER_STORE_CREDITS_' + description, ...args);
 };
 
-const getCancellationReason = _createAction('GET_CANCELLATION_REASON', (customerId, targetId) => [customerId, targetId]);
-const updateStoreCredits = _createAction('UPDATE', (customerId, scId, data) => [customerId, scId, data]);
+export const changeStatus = _createAction('STATUS_CHANGE',
+                                          (customerId, targetId, targetStatus) => [customerId, targetId, targetStatus]);
+export const cancelChange = _createAction('CANCEL_STATUS_CHANGE');
+const updateStoreCredits = _createAction('UPDATE',
+                                         (customerId, scId, data) => [customerId, scId, data]);
 const failStoreCredits = _createAction('FAIL', (id, err) => [id, err]);
 
 const initialState = {};
@@ -47,28 +50,28 @@ export function fetchStoreCredits(entity, newFetchParams) {
   };
 }
 
-export function triggerStatusChange(entity, targetId, targetStatus) {
-  return (dispatch, getState) => {
-    const customerId = entity.entityId;
+// export function confirmStatusChange(entity, targetId, targetStatus) {
+//   return (dispatch, getState) => {
+//     const customerId = entity.entityId;
 
-    if (targetStatus === 'canceled') {
-      dispatch(getCancellationReason(customerId, targetId));
-    } else {
-      const state = get(getState(), 'customers');
-      const storeCredits = get(state, ['storeCredits', customerId, 'storeCredits', 'rows']);
-      const creditToUpdate = _.find(storeCredits, {id: targetId} );
-      const payload = {
-        ...creditToUpdate,
-        status: targetStatus
-      };
+//     if (targetStatus === 'canceled') {
+//       dispatch(getCancellationReason(customerId, targetId));
+//     } else {
+//       const state = get(getState(), 'customers');
+//       const storeCredits = get(state, ['storeCredits', customerId, 'storeCredits', 'rows']);
+//       const creditToUpdate = _.find(storeCredits, {id: targetId} );
+//       const payload = {
+//         ...creditToUpdate,
+//         status: targetStatus
+//       };
 
-      dispatch(actionFetch(entity));
-      Api.patch(updateStoreCreditsUrl(creditToUpdate.id), payload)
-        .then(json => dispatch(updateStoreCredits(customerId, creditToUpdate.id, json)))
-        .catch(err => dispatch(actionFetchFailed(entity, err)));
-    }
-  };
-}
+//       dispatch(actionFetch(entity));
+//       Api.patch(updateStoreCreditsUrl(creditToUpdate.id), payload)
+//         .then(json => dispatch(updateStoreCredits(customerId, creditToUpdate.id, json)))
+//         .catch(err => dispatch(actionFetchFailed(entity, err)));
+//     }
+//   };
+// }
 
 const reducer = createReducer({
   [actionReceived]: (state, [{entityType, entityId}, storeCredits]) => {
@@ -81,11 +84,18 @@ const reducer = createReducer({
       return update(storeCredits, index, merge, data);
     });
   },
-  [getCancellationReason]: (state, [customerId, targetId]) => {
+  [changeStatus]: (state, [customerId, targetId, targetStatus]) => {
     const storeCredits = get(state, [customerId, 'storeCredits', 'rows']);
-    const creditToCancel = _.find(storeCredits, {id: targetId} );
+    const creditToChange = _.find(storeCredits, {id: targetId} );
+    const preparedToChange = {
+      ...creditToChange,
+      status: targetStatus
+    };
 
-    return assoc(state, [customerId, 'storeCreditToCancel'], creditToCancel);
+    return assoc(state, [customerId, 'storeCreditToChange'], preparedToChange);
+  },
+  [cancelChange]: (state, customerId) => {
+    return assoc(state, [customerId, 'storeCreditToChange'], null);
   },
   [failStoreCredits]: (state, [{entityType, entityId}, error]) => {
     console.error(error);
