@@ -8,8 +8,10 @@ import { Checkbox } from '../checkbox/checkbox';
 export default class ChooseCustomers extends React.Component {
 
   static propTypes = {
-    items: PropTypes.array,
+    items: PropTypes.array.isRequired,
     updating: PropTypes.bool,
+    onAddCustomers: PropTypes.func.isRequired,
+    toggleVisibility: PropTypes.func.isRequired,
   };
 
   constructor(...args) {
@@ -31,6 +33,12 @@ export default class ChooseCustomers extends React.Component {
         selectedCustomers: assoc(selectedCustomers, customer.id, customer)
       });
     }
+  }
+
+  handleClickAddCustomers(event) {
+    event.preventDefault();
+    this.props.toggleVisibility(false);
+    this.props.onAddCustomers(this.state.selectedCustomers);
   }
 
   get chooseCustomers() {
@@ -63,14 +71,14 @@ export default class ChooseCustomers extends React.Component {
           })}
         </ul>
         <footer className="fc-choose-customers__footer">
-          <PrimaryButton>Add Customers</PrimaryButton>
+          <PrimaryButton onClick={event => this.handleClickAddCustomers(event)}>Add Customers</PrimaryButton>
         </footer>
       </div>
     );
   }
 
   render() {
-    if (this.props.items.length == 0) {
+    if (this.props.items.length == 0 || this.props.updating) {
       return <TypeaheadItems {...this.props} />;
     } else {
       return this.chooseCustomers;

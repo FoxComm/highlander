@@ -7,7 +7,7 @@ import { createAction, createReducer } from 'redux-act';
 export const changeFormData = createAction('GIFT_CARDS_NEW_CHANGE_FORM', (name, value) => ({name, value}));
 export const suggestCustomers = createAction('GIFT_CARDS_NEW_SUGGEST_CUSTOMERS');
 export const suggestUsers = createAction('GIFT_CARDS_NEW_SUGGEST_USERS');
-export const addCustomer = createAction('GIFT_CARDS_NEW_ADD_CUSTOMER');
+export const addCustomers = createAction('GIFT_CARDS_NEW_ADD_CUSTOMERS');
 export const removeCustomer = createAction('GIFT_CARDS_NEW_REMOVE_CUSTOMER');
 export const addUser = createAction('GIFT_CARDS_NEW_ADD_USER');
 export const removeUser = createAction('GIFT_CARDS_NEW_REMOVE_USER');
@@ -60,10 +60,10 @@ const reducer = createReducer({
       usersQuery
     };
   },
-  [addCustomer]: (state, customer) => {
+  [addCustomers]: (state, customers) => {
     return {
       ...state,
-      customers: _.uniq([...state.customers, customer], customer => customer.id)
+      customers: _.uniq([...state.customers, ...customers], customer => customer.id)
     };
   },
   [removeCustomer]: (state, id) => {

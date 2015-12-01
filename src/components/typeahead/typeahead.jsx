@@ -20,6 +20,7 @@ export default class Typeahead extends React.Component {
       PropTypes.func,
       PropTypes.instanceOf(React.Component)
     ]),
+    itemsProps: PropTypes.object,
   };
 
   static defaultProps = {
@@ -31,7 +32,7 @@ export default class Typeahead extends React.Component {
     super(...args);
     this.state = {
       showItems: false,
-      updating: false
+      updating: false,
     };
   }
 
@@ -101,6 +102,12 @@ export default class Typeahead extends React.Component {
     }
   }
 
+  toggleVisibility(show) {
+    this.setState({
+      showItems: show
+    });
+  }
+
   render() {
     const ItemsComponent = this.props.itemsComponent;
 
@@ -126,6 +133,8 @@ export default class Typeahead extends React.Component {
             component={this.props.component}
             updating={this.state.updating}
             items={this.props.items}
+            toggleVisibility={show => this.toggleVisibility(show)}
+            {...this.props.itemsProps}
           />
         </div>
       </div>

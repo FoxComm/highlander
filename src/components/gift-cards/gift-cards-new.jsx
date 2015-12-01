@@ -53,7 +53,7 @@ const subTypes = createSelector(
 export default class NewGiftCard extends React.Component {
 
   static propTypes = {
-    addCustomer: PropTypes.func,
+    addCustomers: PropTypes.func,
     addUser: PropTypes.func,
     balance: PropTypes.number,
     balanceText: PropTypes.string,
@@ -131,7 +131,9 @@ export default class NewGiftCard extends React.Component {
             items={this.props.suggestedCustomers}
             fetchItems={this.props.suggestCustomers}
             itemsComponent={ChooseCustomers}
-            onItemSelected={(_, event) => event.preventHiding()}
+            itemsProps={{
+              onAddCustomers: (customers) => this.props.addCustomers(_.values(customers))
+            }}
             label="Choose customers:"
             name="customerQuery"
           />

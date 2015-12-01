@@ -4,7 +4,11 @@ import React, { PropTypes } from 'react';
 const TypeaheadItems = props => {
   let innerContent = null;
 
-  if (props.items.length > 0) {
+  if (props.updating) {
+    innerContent = <li>Loading Results</li>;
+  } else if (props.items.length === 0) {
+    innerContent = <li>No results found.</li>;
+  } else {
     innerContent = props.items.map((item, index) => {
       return (
         <li onClick={() => { props.onItemSelected(item); }} key={`item-${index}`}>
@@ -12,12 +16,6 @@ const TypeaheadItems = props => {
         </li>
       );
     });
-  } else {
-    if (props.updating) {
-      innerContent = <li>Loading Results</li>;
-    } else {
-      innerContent = <li>No results found.</li>;
-    }
   }
 
   return (
