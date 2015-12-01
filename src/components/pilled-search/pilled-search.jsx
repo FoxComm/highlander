@@ -3,13 +3,19 @@ import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 import _ from 'lodash';
 
+import Menu from '../menu/menu';
+import MenuItem from '../menu/menu-item';
+
 export default class PilledSearch extends React.Component {
   constructor(props, context) {
     super(props, context);
 
     this.state = {
       pills: [],
-      searchValue: ''
+      options: [{display: 'Order :'}, {display: 'Shipment :'}],
+      optionsVisible: false,
+      searchValue: '',
+      selectionIndex: -1
     };
   }
 
@@ -50,6 +56,25 @@ export default class PilledSearch extends React.Component {
     }
   }
 
+  get searchOptions() {
+    const options = this.state.options.map((option, idx) => {
+      const key = `option-${idx}`;
+      const klass = classNames({
+        'is-active': this.state.selectionIndex == idx,
+        'is-first': idx == 0,
+        'is-last': idx == this.state.selectionIndex - 1
+      });
+
+      return (
+        <MenuItem className={klass} key={key}>
+          {option.display}
+        </MenuItem>
+      );
+    });
+
+    return <Menu>{options}</Menu>;
+  }
+
   @autobind
   change({target}) {
     this.setState({
@@ -86,6 +111,36 @@ export default class PilledSearch extends React.Component {
   @autobind
   keyDown(event) {
     switch(event.keyCode) {
+      case 40:
+        // Down arrow
+        event.preventDefault();
+        if (!_.isEmpty(this.state.options)) {
+          const newIdx = Math.min(
+            this.state.selectionIndex + 1, 
+            this.state.options.length - 1
+          );
+
+          this.setState({ 
+            ...this.state, 
+            optionsVisible: true,
+            selectionIndex: newIdx
+          });
+        }
+        break;
+      case 38:
+        // Up arrow
+        event.preventDefault();
+        if (!_.isEmpty(this.state.options)) {
+          if (this.state.selectionIndex < 0) {
+            this.setState({ ...this.state, optionsVisible: false });
+          } else {
+            this.setState({
+              ...this.state,
+              selectionIndex: this.state.selectionIndex - 1
+            });
+          }
+        }
+        break;
       case 13:
         // Enter
         event.preventDefault();
@@ -132,6 +187,7 @@ export default class PilledSearch extends React.Component {
             {this.searchButton}
           </div>
         </form>
+        {this.state.optionsVisible && this.searchOptions}
       </div>
     );
   }
