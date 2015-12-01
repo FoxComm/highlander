@@ -181,13 +181,17 @@ export default class StoreCredits extends React.Component {
         return acc;
       }, {});
     }
+    const value = this.props.storeCreditToChange &&
+      this.props.storeCreditToChange.reasonId;
     const body = (
       <div>
         <div>Are you sure you want to cancel this store credit?</div>
         <div>
           <Dropdown name="cancellationReason"
                     placeholder="- Select -"
-                    items={ reasons } />
+                    items={ reasons }
+                    value={ value }
+                    onChange={ (value) => this.props.reasonChange(this.customerId, value) } />
         </div>
       </div>
     );
@@ -201,7 +205,7 @@ export default class StoreCredits extends React.Component {
           cancel='Cancel'
           confirm='Yes, Cancel'
           cancelAction={ () => this.props.cancelChange(this.customerId) }
-          confirmAction={ () => console.log('confirm not implemented') } />
+          confirmAction={ () => this.props.saveStatusChange(this.entityType) } />
     );
   }
 

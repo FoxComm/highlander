@@ -22,6 +22,8 @@ const _createAction = (description, ...args) => {
 export const changeStatus = _createAction('STATUS_CHANGE',
                                           (customerId, targetId, targetStatus) => [customerId, targetId, targetStatus]);
 export const cancelChange = _createAction('CANCEL_STATUS_CHANGE');
+export const reasonChange = _createAction('REASON_CHANGE',
+                                          (customerId, reasonId) => [customerId, reasonId]);
 const updateStoreCredits = _createAction('UPDATE',
                                          (customerId, scId, data) => [customerId, scId, data]);
 const failStoreCredits = _createAction('FAIL', (id, err) => [id, err]);
@@ -50,14 +52,12 @@ export function fetchStoreCredits(entity, newFetchParams) {
   };
 }
 
-export function saveStatusChange(entity, reason) {
+export function saveStatusChange(entity,) {
   return (dispatch, getState) => {
     const customerId = entity.entityId;
     const creditToChange = get(getState(), ['customers', 'storeCredits', customerId, 'storeCreditToChange']);
-    const payload = assoc(creditToChange, 'reasonId', reason);
-    console.log(entity);
 
-    Api.patch(updateStoreCreditsUrl(creditToChange.id), payload)
+    Api.patch(updateStoreCreditsUrl(creditToChange.id), creditToChange)
       .then(json => {
         dispatch(cancelChange(customerId));
         dispatch(updateStoreCredits(customerId, creditToChange.id, json));
@@ -90,6 +90,14 @@ const reducer = createReducer({
   },
   [cancelChange]: (state, customerId) => {
     return assoc(state, [customerId, 'storeCreditToChange'], null);
+  },
+  [reasonChange]: (state, [customerId, reasonId]) => {
+    const creditToChange = get(state, [customerId, 'storeCreditToChange']);
+    const updated = {
+      ...creditToChange,
+      reasonId: parseInt(reasonId)
+    }
+    return assoc(state, [customerId, 'storeCreditToChange'], updated);
   },
   [failStoreCredits]: (state, [{entityType, entityId}, error]) => {
     console.error(error);
