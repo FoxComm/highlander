@@ -50,8 +50,8 @@ export default class StoreCredits extends React.Component {
         type: 'date'
       },
       {
-        field: 'storeCredit',
-        text: 'Store Credit'
+        field: 'id',
+        text: 'Store Credit Id'
       },
       {
         field: 'type',
@@ -126,7 +126,7 @@ export default class StoreCredits extends React.Component {
     return (
       <TableRow key={`storeCredits-row-${row.id}`}>
         <TableCell><DateTime value={ row.createdAt }/></TableCell>
-        <TableCell>{ /* store credit, no data for it now */ }</TableCell>
+        <TableCell>{ row.id }</TableCell>
         <TableCell>{ row.originType }</TableCell>
         <TableCell>{ /* store credit, no data for it too */ }</TableCell>
         <TableCell><Currency value={ row.originalBalance } /></TableCell>

@@ -37,6 +37,6 @@ const reducer = createReducer({
     console.error(err);
     return state;
   }
-}, initialState)
+}, initialState);
 
 export default reducer;
