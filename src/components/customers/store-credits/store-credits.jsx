@@ -26,6 +26,12 @@ const onHoldStateTransitions = {
 }), StoreCreditsActions)
 export default class StoreCredits extends React.Component {
 
+  static propTypes = {
+    params: PropTypes.object,
+    tableColumns: PropTypes.array,
+    fetchStoreCredits: PropTypes.func
+  };
+
   static defaultProps = {
     tableColumns: [
       {
@@ -67,7 +73,11 @@ export default class StoreCredits extends React.Component {
 
   componentDidMount() {
     const customerId = this.props.params.customerId;
-    this.props.fetchStoreCredits({entityType: 'storeCredits', entityId: customerId});
+    this.props.fetchStoreCredits(this.entityType(customerId));
+  }
+
+  entityType(customerId) {
+    return {entityType: 'storeCredits', entityId: customerId};
   }
 
   @autobind
@@ -80,7 +90,8 @@ export default class StoreCredits extends React.Component {
                     items={ activeStateTransitions }
                     placeholder={ rowState }
                     value={ rowState }
-                    onChange={ (value, title) => this.props.changeStatus({entityType: 'storeCredits', entityId: customerId}, rowId, value) } />
+                    onChange={ (value, title) =>
+                      this.props.changeStatus(this.entityType(customerId), rowId, value) } />
         );
       case 'onHold':
         return (
@@ -88,7 +99,8 @@ export default class StoreCredits extends React.Component {
                     items={ onHoldStateTransitions }
                     placeholder={ rowState }
                     value={ rowState }
-                    onChange={ (value, title) => this.props.changeStatus({entityType: 'storeCredits', entityId: customerId}, rowId, value) } />
+                    onChange={ (value, title) =>
+                      this.props.changeStatus(this.entityType(customerId), rowId, value) } />
         );
       default:
         return (<span>rowState</span>);

@@ -19,7 +19,7 @@ const _createAction = (description, ...args) => {
   return createAction('CUSTOMER_STORE_CREDIT_TRANSACTIONS_' + description, ...args);
 };
 
-const failStoreCreditTransactions = _createAction("FAIL", (id, err) => [id, err]);
+const failStoreCreditTransactions = _createAction('FAIL', (id, err) => [id, err]);
 
 const initialState = {};
 

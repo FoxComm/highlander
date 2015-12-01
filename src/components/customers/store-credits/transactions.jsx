@@ -14,6 +14,12 @@ import * as StoreCreditTransactionsActions from '../../../modules/customers/stor
 }), StoreCreditTransactionsActions)
 export default class StoreCreditTransactions extends React.Component {
 
+  static propTypes = {
+    params: PropTypes.object,
+    tableColumns: PropTypes.array,
+    fetchStoreCreditTransactions: PropTypes.func
+  };
+
   static defaultProps = {
     tableColumns: [
       {

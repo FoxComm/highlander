@@ -11,7 +11,7 @@ const Summary = props => {
     <div className="fc-list-page-header">
       <SectionTitle title="Store Credit"
                     addTitle="Store Credit"
-                    onAddClick={ () => console.log("onAddClick") }
+                    onAddClick={ () => console.log('Not implemented yet') }
                     isPrimary={false} />
 
       <div className="fc-grid fc-grid-gutter fc-store-credits-summary">
@@ -35,6 +35,10 @@ const Summary = props => {
       </TabListView>
     </div>
   );
+};
+
+Summary.propTypes = {
+  params: PropTypes.object
 };
 
 export default Summary;
