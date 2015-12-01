@@ -14,6 +14,7 @@ export default class PilledSearch extends React.Component {
       pills: [],
       options: [{display: 'Order :'}, {display: 'Shipment :'}],
       optionsVisible: false,
+      searchDisplay: '',
       searchValue: '',
       selectionIndex: -1
     };
@@ -79,6 +80,7 @@ export default class PilledSearch extends React.Component {
   change({target}) {
     this.setState({
       ...this.state,
+      searchDisplay: target.value,
       searchValue: target.value
     });
   }
@@ -123,6 +125,7 @@ export default class PilledSearch extends React.Component {
           this.setState({ 
             ...this.state, 
             optionsVisible: true,
+            searchDisplay: this.state.options[newIdx].display,
             selectionIndex: newIdx
           });
         }
@@ -134,9 +137,15 @@ export default class PilledSearch extends React.Component {
           if (this.state.selectionIndex < 0) {
             this.setState({ ...this.state, optionsVisible: false });
           } else {
+            const newIdx = this.state.selectionIndex - 1;
+            const display = newIdx == -1
+              ? this.state.searchValue
+              : this.state.options[newIdx].display;
+
             this.setState({
               ...this.state,
-              selectionIndex: this.state.selectionIndex - 1
+              searchDisplay: display,
+              selectionIndex: newIdx
             });
           }
         }
@@ -148,6 +157,7 @@ export default class PilledSearch extends React.Component {
           this.setState({
             ...this.state,
             pills: this.state.pills.concat(this.state.searchValue),
+            searchDisplay: '',
             searchValue: ''
           });
         }
@@ -180,7 +190,7 @@ export default class PilledSearch extends React.Component {
                   onChange={this.change}
                   onKeyDown={this.keyDown}
                   type="text"
-                  value={this.state.searchValue}
+                  value={this.state.searchDisplay}
                 />
               </div>
             </div>
