@@ -10,6 +10,7 @@ import SectionTitle from '../section-title/section-title';
 import { connect } from 'react-redux';
 import * as ordersActions from '../../modules/orders/list';
 import LocalNav from '../local-nav/local-nav';
+import PilledSearch from '../pilled-search/pilled-search';
 
 @connect(state => ({orders: state.orders.list}), ordersActions)
 export default class Orders extends React.Component {
@@ -59,6 +60,25 @@ export default class Orders extends React.Component {
       </TableRow>
     );
 
+    /**
+     *
+          <LiveSearch 
+            updateSearch={this.props.updateSearch}
+            searchOptions={ordersSearchTerms}
+            state={this.props.orders}
+            selectDown={this.props.selectDown}
+            selectUp={this.props.selectUp}
+            goBack={this.props.goBack}
+            submitFilter={this.props.submitFilter}
+            deleteSearchFilter={this.props.deleteSearchFilter}
+          />
+          */
+
+    const searchOptions = [
+      "Order : Search",
+      "Shipment : Search"
+    ];
+
     return (
       <div className="fc-list-page">
         <div className="fc-list-page-header">
@@ -79,6 +99,11 @@ export default class Orders extends React.Component {
           </TabListView>
         </div>
         <div className="fc-grid fc-list-page-content">
+          <PilledSearch
+            className="fc-col-md-1-1"
+            placeholder="Add another filter or keyword search"
+            searchButton={<button className="fc-btn">Save Search</button>}
+          />
           <div className="fc-col-md-1-1">
             <TableView
               columns={this.props.tableColumns}
