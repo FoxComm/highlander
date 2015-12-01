@@ -10,6 +10,7 @@ import Dropdown from '../../dropdown/dropdown';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import * as StoreCreditsActions from '../../../modules/customers/store-credits';
+import * as ReasonsActions from '../../../modules/reasons';
 
 const activeStateTransitions = {
   'onHold': 'On Hold',
@@ -21,9 +22,15 @@ const onHoldStateTransitions = {
   'canceled': 'Cancele Store Credit'
 };
 
+const actions = {
+  ...StoreCreditsActions,
+  ...ReasonsActions
+};
+
 @connect((state, props) => ({
-  ...state.customers.storeCredits[props.params.customerId]
-}), StoreCreditsActions)
+  ...state.customers.storeCredits[props.params.customerId],
+  ...state.reasons
+}), actions)
 export default class StoreCredits extends React.Component {
 
   static propTypes = {
@@ -74,6 +81,7 @@ export default class StoreCredits extends React.Component {
   componentDidMount() {
     const customerId = this.props.params.customerId;
     this.props.fetchStoreCredits(this.entityType(customerId));
+    this.props.fetchReasons();
   }
 
   entityType(customerId) {

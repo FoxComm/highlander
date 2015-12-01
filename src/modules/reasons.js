@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import Api from '../lib/api';
 import { createAction, createReducer } from 'redux-act';
 
@@ -25,10 +26,11 @@ const reducer = createReducer({
     };
   },
   [reasonsReceived]: (state, json) => {
+    const data = _.get(json, 'result', json);
     return {
       ...state,
       isFetching: false,
-      reasons: json
+      reasons: data
     };
   },
   [reasonsFailed]: (state, err) => {
@@ -36,3 +38,5 @@ const reducer = createReducer({
     return state;
   }
 }, initialState)
+
+export default reducer;

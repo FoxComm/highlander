@@ -8,6 +8,7 @@ import notes from './notes';
 import skus from './skus';
 import countries from './countries';
 import addressForm from './address-form';
+import reasons from './reasons';
 
 const rootReducer = combineReducers({
   router: routerStateReducer,
@@ -18,7 +19,8 @@ const rootReducer = combineReducers({
   notes,
   skus,
   countries,
-  addressForm
+  addressForm,
+  reasons
 });
 
 export default rootReducer;

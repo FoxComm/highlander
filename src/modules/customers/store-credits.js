@@ -67,7 +67,7 @@ export function triggerStatusChange(entity, targetId, targetStatus) {
         .then(json => dispatch(updateStoreCredits(customerId, creditToUpdate.id, json)))
         .catch(err => dispatch(actionFetchFailed(entity, err)));
     }
-  }
+  };
 }
 
 const reducer = createReducer({
