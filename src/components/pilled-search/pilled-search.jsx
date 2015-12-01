@@ -11,8 +11,8 @@ export default class PilledSearch extends React.Component {
     super(props, context);
 
     this.state = {
-      pills: [],
-      options: [{display: 'Order :'}, {display: 'Shipment :'}],
+      pills: props.pills,
+      options: props.searchOptions,
       optionsVisible: false,
       searchDisplay: '',
       searchValue: '',
@@ -22,13 +22,19 @@ export default class PilledSearch extends React.Component {
 
   static propTypes = {
     className: PropTypes.string,
+    onChange: PropTypes.func,
+    onSubmit: PropTypes.func,
     placeholder: PropTypes.string,
-    pillFormater: PropTypes.func,
+    pills: PropTypes.array,
+    pillFormatter: PropTypes.func,
     searchButton: PropTypes.node,
     searchOptions: PropTypes.array
   };
 
   static defaultProps = {
+    onChange: null,
+    onSubmit: null,
+    pills: [],
     placeholder: '',
     searchOptions: []
   };
@@ -83,6 +89,10 @@ export default class PilledSearch extends React.Component {
       searchDisplay: target.value,
       searchValue: target.value
     });
+
+    if (this.props.onChange) {
+      this.props.onChange(target.value);
+    }
   }
 
   @autobind
@@ -109,6 +119,15 @@ export default class PilledSearch extends React.Component {
     );
   }
 
+  @autobind
+  inputFocus() {
+    if (!_.isEmpty(this.state.options)) {
+      this.setState({
+        ...this.state,
+        optionsVisible: true
+      });
+    }
+  }
 
   @autobind
   keyDown(event) {
@@ -153,7 +172,9 @@ export default class PilledSearch extends React.Component {
       case 13:
         // Enter
         event.preventDefault();
-        if (!_.isEmpty(this.state.searchDisplay)) {
+        if (this.props.onSubmit) {
+          this.props.onSubmit(this.state.searchDisplay);
+        } else if (!_.isEmpty(this.state.searchDisplay)) {
           this.setState({
             ...this.state,
             optionsVisible: false,
@@ -190,6 +211,7 @@ export default class PilledSearch extends React.Component {
                   className="fc-pilled-search__input-field"
                   placeholder={this.props.placeholder}
                   onChange={this.change}
+                  onFocus={this.inputFocus}
                   onKeyDown={this.keyDown}
                   type="text"
                   value={this.state.searchDisplay}

@@ -75,8 +75,8 @@ export default class Orders extends React.Component {
           */
 
     const searchOptions = [
-      "Order : Search",
-      "Shipment : Search"
+      { display: 'Order : Search' },
+      { display: 'Shipment : Search' }
     ];
 
     return (
@@ -103,6 +103,8 @@ export default class Orders extends React.Component {
             className="fc-col-md-1-1"
             placeholder="Add another filter or keyword search"
             searchButton={<button className="fc-btn">Save Search</button>}
+            searchOptions={searchOptions}
+            onSubmit={() => console.log('Submitted')}
           />
           <div className="fc-col-md-1-1">
             <TableView
