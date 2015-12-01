@@ -35,6 +35,15 @@ server {
 
 	server_name _;
 
+    #Create unique UUID for each request
+    set_by_lua $uuid '
+        if ngx.var.http_x_request_id == nil then
+            return uuid4.getUUID()
+        else
+            return ngx.var.http_x_request_id
+        end
+    ';
+
     #This proxies to ElasticSearch phoenix index 
     #The location is kept internal for use by /api/search
     location /internal-search/ {
@@ -47,7 +56,6 @@ server {
     location /api/search/ {
         default_type 'application/json';
         content_by_lua ' 
-            local cjson = require "cjson"
 
             -- convert to internal query
             local uri = ngx.re.sub(ngx.var.uri, "api/search", "internal-search")

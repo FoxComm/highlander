@@ -25,7 +25,7 @@ run-staging: setup stop
 	export NODE_ENV=staging; nohup npm run dev 2>&1 &
 
 run-production: setup stop
-	export NODE_ENV=production; nohup npm run dev 2>&1 &
+	export NODE_ENV=production; nohup gulp server 2>&1 &
 	
 
 .PHONY: test test-cov tag

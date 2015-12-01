@@ -14,7 +14,12 @@ cd /vagrant
 
 #install nginx
 apt-get install -y nginx-extras
+
+#setup custom nginx config
+cp ops/nginx/uuid4.lua /etc/nginx/uuid4.lua
 cp ops/nginx/default /etc/nginx/sites-available/default
+cp ops/nginx/nginx.conf /etc/nginx/nginx.conf
+
 systemctl restart nginx
 
 #install ashes as a service

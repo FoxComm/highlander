@@ -3,9 +3,8 @@
 #source nvm
 . /home/vagrant/.nvm/nvm.sh
 
-#use correct version of node
-nvm use 4.2.1
 
-#start
+#use correct version of node
 cd /vagrant
+nvm use  # uses .nvmrc
 npm start
