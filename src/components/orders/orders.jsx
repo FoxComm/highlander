@@ -71,8 +71,11 @@ export default class Orders extends React.Component {
             <a href="">Returns</a>
           </LocalNav>
           <TabListView>
-            <TabView>What</TabView>
-            <TabView>What</TabView>
+            <TabView draggable={false} selected={true}>All</TabView>
+            <TabView>Remorse Hold</TabView>
+            <TabView>Last 30 Days</TabView>
+            <TabView>Manual Hold</TabView>
+            <TabView>Fraud Hold</TabView>
           </TabListView>
         </div>
         <div className="fc-grid fc-list-page-content">

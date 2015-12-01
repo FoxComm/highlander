@@ -1,40 +1,34 @@
 import React, { PropTypes } from 'react';
+import classnames from 'classnames';
 
-export default class TabView extends React.Component {
+const TabView = props => {
+  const klass = classnames(
+    'fc-tab',
+     { 'fc-tab-draggable': props.draggable },
+     { 'fc-tab-selected': props.selected });
 
-  static propTypes = {
-    selector: PropTypes.string,
-    children: PropTypes.node,
-    draggable: PropTypes.bool
-  };
+   const icon = props.draggable
+     ? <i className='fc-tab-icon icon-drag-drop'></i>
+     : null;
 
-  static defaultProps = {
-    draggable: true
-  };
+  return (
+    <li className={klass}>
+      {icon}
+      {props.children}
+    </li>
+  );
+};
 
-  constructor(props, context) {
-    super(props, context);
-    this.state = {
-      selected: false
-    };
-  }
+TabView.propTypes = {
+  selector: PropTypes.string,
+  children: PropTypes.node,
+  draggable: PropTypes.bool,
+  selected: PropTypes.bool
+};
 
-  render() {
-    let tab = null;
-    if (this.props.draggable) {
-      tab = (
-        <li className="fc-tab">
-          <i className="icon-drag-drop"></i>&nbsp;
-          {this.props.children}
-        </li>
-      );
-    } else {
-      tab = (
-        <li className="fc-tab">
-          {this.props.children}
-        </li>
-      );
-    }
-    return tab;
-  }
-}
+TabView.defaultProps = {
+  draggable: true,
+  selected: false
+};
+
+export default TabView;
