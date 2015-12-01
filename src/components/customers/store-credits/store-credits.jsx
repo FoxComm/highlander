@@ -83,12 +83,13 @@ export default class StoreCredits extends React.Component {
   @autobind
   renderRowState(rowId, rowState) {
     const customerId = this.props.params.customerId;
+    const currentStatus = rowState.charAt(0).toUpperCase() + rowState.slice(1);
     switch(rowState) {
       case 'active':
         return (
           <Dropdown name="status"
                     items={ activeStateTransitions }
-                    placeholder={ rowState }
+                    placeholder={ currentStatus }
                     value={ rowState }
                     onChange={ (value, title) =>
                       this.props.changeStatus(this.entityType(customerId), rowId, value) } />
@@ -97,7 +98,7 @@ export default class StoreCredits extends React.Component {
         return (
           <Dropdown name="status"
                     items={ onHoldStateTransitions }
-                    placeholder={ rowState }
+                    placeholder={ currentStatus }
                     value={ rowState }
                     onChange={ (value, title) =>
                       this.props.changeStatus(this.entityType(customerId), rowId, value) } />
