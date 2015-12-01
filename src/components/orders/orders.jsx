@@ -60,20 +60,7 @@ export default class Orders extends React.Component {
       </TableRow>
     );
 
-    /**
-     *
-          <LiveSearch 
-            updateSearch={this.props.updateSearch}
-            searchOptions={ordersSearchTerms}
-            state={this.props.orders}
-            selectDown={this.props.selectDown}
-            selectUp={this.props.selectUp}
-            goBack={this.props.goBack}
-            submitFilter={this.props.submitFilter}
-            deleteSearchFilter={this.props.deleteSearchFilter}
-          />
-          */
-
+    // NOTE: This will get removed in the Live Search PR.
     const searchOptions = [
       { display: 'Order : Search' },
       { display: 'Shipment : Search' }
@@ -104,7 +91,6 @@ export default class Orders extends React.Component {
             placeholder="Add another filter or keyword search"
             searchButton={<button className="fc-btn">Save Search</button>}
             searchOptions={searchOptions}
-            onSubmit={() => console.log('Submitted')}
           />
           <div className="fc-col-md-1-1">
             <TableView
