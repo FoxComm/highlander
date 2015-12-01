@@ -107,7 +107,7 @@ export default class NewGiftCard extends React.Component {
 
     if (props.subTypes.length > 0) {
       return (
-        <div className="fc-new-gift-card-subtypes fc-col-md-1-2">
+        <div className="fc-new-gift-card__subtypes fc-col-md-1-2">
           <label htmlFor="cardSubType">Subtype</label>
           <Dropdown value={props.subTypes[0]} onChange={ value => props.changeFormData('cardSubType', value) }>
             {props.subTypes.map((subType, idx) => {
@@ -121,8 +121,10 @@ export default class NewGiftCard extends React.Component {
 
   get customerListBlock() {
     if (this.props.sendToCustomer) {
+      const labelAtRight = <div className="fc-new-gift-card__counter">{this.state.customerMessageCount}/1000</div>;
+
       return (
-        <div id="customerSearch">
+        <div className="fc-new-gift-card__send-to-customers">
           <Typeahead
             className="_no-search-icon"
             items={this.props.suggestedCustomers}
@@ -143,9 +145,12 @@ export default class NewGiftCard extends React.Component {
                 );
               })}
           </ul>
-          <label htmlFor="customerMessage">Write a message for customers (optional):</label>
-          <div className="counter">{this.state.customerMessageCount}/1000</div>
-          <textarea name="customerMessage" maxLength="1000" onChange={this.changeCustomerMessage.bind(this)}></textarea>
+
+          <FormField className="fc-new-gift-card__message-to-customers"
+                     label="Write a message for customers" optional
+                     labelAtRight={ labelAtRight }>
+            <textarea className="fc-input" name="customerMessage" maxLength="1000" onChange={this.changeCustomerMessage.bind(this)}></textarea>
+          </FormField>
         </div>
       );
     }
@@ -189,7 +194,7 @@ export default class NewGiftCard extends React.Component {
               onSubmit={this.submitForm}
               onChange={this.onChangeValue}>
           <div className="fc-grid fc-grid-no-gutter">
-            <div className="fc-new-gift-card-types fc-col-md-1-2">
+            <div className="fc-new-gift-card__types fc-col-md-1-2">
               <label htmlFor="originType">Gift Card Type</label>
               <Dropdown value={typeList[0]} onChange={value => props.changeFormData('originType', value) }>
                 {typeList.map((type, idx) => {
@@ -210,7 +215,7 @@ export default class NewGiftCard extends React.Component {
               {
                 [1000, 2500, 5000, 10000, 20000].map((balance, idx) => {
                   return (
-                    <div className="fc-new-gift-card-balance-value" key={`balance-${idx}`}
+                    <div className="fc-new-gift-card__balance-value" key={`balance-${idx}`}
                          onClick={() => this.props.changeFormData('balance', balance)}>
 
                       ${balance/100}

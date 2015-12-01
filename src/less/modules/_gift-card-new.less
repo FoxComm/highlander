@@ -1,15 +1,14 @@
 .fc-new-gift-card {
-
   flex-direction: column;
 
-  &-types,
-  &-subtypes {
+  &__types,
+  &__subtypes {
     .fc-dropdown {
       max-width: initial;
     }
   }
 
-  &-balance-value {
+  &__balance-value {
     .inline-block();
     cursor: pointer;
     background: @color-white;
@@ -17,6 +16,30 @@
     .padding(5px);
     border-radius: 3px;
     .margin-right(5px);
+  }
+
+  &__send-to-customers {
+    background-color: @color-white;
+    .padding(15px);
+    .margin-top(10px);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.30);
+    border: 1px solid @color-decor9;
+    border-radius: 3px;
+
+    textarea,
+    .fc-typeahead input[type=text] {
+      width: 100%;
+      max-width: 100%;
+    }
+  }
+
+  &__message-to-customers {
+    .margin-top(50px);
+  }
+
+  &__counter {
+    color: @color-decor6;
+    .font-spec(14px, 20px);
   }
 
   > form {
@@ -43,24 +66,4 @@
   input[name="quantity"] {
     .width(60px);
   }
-
-  input[type="submit"] {
-    .margin-left(25px);
-  }
-
-  input[type="number"] {
-    &:invalid {
-      border: 1px solid red;
-    }
-  }
-  #customerSearch, #userSearch {
-    .padding(15px);
-    .margin-top(20px);
-    background-color: #eee;
-
-    textarea {
-      .width(500px);
-    }
-  }
-
 }

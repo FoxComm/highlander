@@ -28,6 +28,7 @@ export default class FormField extends React.Component {
     maxLength: PropTypes.number,
     label: PropTypes.node,
     labelClassName: PropTypes.string,
+    labelAtRight: PropTypes.node,
     target: PropTypes.string,
     getTargetValue: PropTypes.func,
     className: PropTypes.string,
@@ -203,6 +204,9 @@ export default class FormField extends React.Component {
         <label className={className} htmlFor={this.state.targetId}>
           {this.props.label}
           {optionalMark}
+          <div className="fc-right">
+            {this.props.labelAtRight}
+          </div>
         </label>
       );
     }
