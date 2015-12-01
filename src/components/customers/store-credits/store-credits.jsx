@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import Summary from './summary';
 import TableView from '../../table/tableview';
@@ -85,12 +86,12 @@ export default class StoreCredits extends React.Component {
   }
 
   componentDidMount() {
-    this.props.fetchStoreCredits(this.entityType(this.customerId));
+    this.props.fetchStoreCredits(this.entityType);
     this.props.fetchReasons();
   }
 
-  entityType(customerId) {
-    return {entityType: 'storeCredits', entityId: customerId};
+  get entityType() {
+    return {entityType: 'storeCredits', entityId: this.customerId};
   }
 
   @autobind
@@ -138,10 +139,23 @@ export default class StoreCredits extends React.Component {
   }
 
   get confirmStatusChange() {
+    let newStatus = null;
+    if (this.props.storeCreditToChange) {
+      switch (this.props.storeCreditToChange.status) {
+        case 'onHold':
+          newStatus = 'On Hold';
+          break;
+        case 'active':
+          newStatus = 'Active';
+        default:
+          newStatus = this.props.storeCreditToChange.status;
+      }
+    }
+
     const message = (
       <span>
         Are you sure you want to change the gift card state to
-        <strong>{this.props.storeCreditToChange && this.props.storeCreditToChange.status}</strong>
+        <strong>&nbsp;{ newStatus }</strong>
         ?
       </span>
     );
@@ -155,12 +169,28 @@ export default class StoreCredits extends React.Component {
           cancel='Cancel'
           confirm='Yes, Change State'
           cancelAction={ () => this.props.cancelChange(this.customerId) }
-          confirmAction={ () => console.log('confirm not implemented') } />
+          confirmAction={ () => this.props.saveStatusChange(this.entityType) } />
     );
   }
 
   get confirmCancellation() {
-    const body = 'Are you sure you want to cancel this store credit?';
+    let reasons = {}
+    if (this.props.reasons) {
+      reasons = _.reduce(this.props.reasons, (acc, reason) => {
+        acc[reason.id] = reason.body;
+        return acc;
+      }, {});
+    }
+    const body = (
+      <div>
+        <div>Are you sure you want to cancel this store credit?</div>
+        <div>
+          <Dropdown name="cancellationReason"
+                    placeholder="- Select -"
+                    items={ reasons } />
+        </div>
+      </div>
+    );
     const shouldDisplay = this.props.storeCreditToChange &&
       this.props.storeCreditToChange.status === 'canceled';
     return (

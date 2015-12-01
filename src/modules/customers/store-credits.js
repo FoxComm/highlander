@@ -50,35 +50,29 @@ export function fetchStoreCredits(entity, newFetchParams) {
   };
 }
 
-// export function confirmStatusChange(entity, targetId, targetStatus) {
-//   return (dispatch, getState) => {
-//     const customerId = entity.entityId;
+export function saveStatusChange(entity, reason) {
+  return (dispatch, getState) => {
+    const customerId = entity.entityId;
+    const creditToChange = get(getState(), ['customers', 'storeCredits', customerId, 'storeCreditToChange']);
+    const payload = assoc(creditToChange, 'reasonId', reason);
+    console.log(entity);
 
-//     if (targetStatus === 'canceled') {
-//       dispatch(getCancellationReason(customerId, targetId));
-//     } else {
-//       const state = get(getState(), 'customers');
-//       const storeCredits = get(state, ['storeCredits', customerId, 'storeCredits', 'rows']);
-//       const creditToUpdate = _.find(storeCredits, {id: targetId} );
-//       const payload = {
-//         ...creditToUpdate,
-//         status: targetStatus
-//       };
-
-//       dispatch(actionFetch(entity));
-//       Api.patch(updateStoreCreditsUrl(creditToUpdate.id), payload)
-//         .then(json => dispatch(updateStoreCredits(customerId, creditToUpdate.id, json)))
-//         .catch(err => dispatch(actionFetchFailed(entity, err)));
-//     }
-//   };
-// }
+    Api.patch(updateStoreCreditsUrl(creditToChange.id), payload)
+      .then(json => {
+        dispatch(cancelChange(customerId));
+        dispatch(updateStoreCredits(customerId, creditToChange.id, json));
+      })
+      .catch(err => dispatch(actionFetchFailed(entity, err)));
+  };
+}
 
 const reducer = createReducer({
   [actionReceived]: (state, [{entityType, entityId}, storeCredits]) => {
     return assoc(state, [entityId, 'wasReceived'], true);
   },
   [updateStoreCredits]: (state, [customerId, scId, data]) => {
-    return update(state, [customerId, 'storeCredits', 'rows'], storeCredits => {
+    return update(state,
+      [customerId, 'storeCredits', 'rows'], storeCredits => {
       const index = _.findIndex(storeCredits, {id: scId});
 
       return update(storeCredits, index, merge, data);
