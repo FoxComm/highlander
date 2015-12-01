@@ -19,6 +19,7 @@ const _createAction = (description, ...args) => {
   return createAction('CUSTOMER_STORE_CREDITS_' + description, ...args);
 };
 
+const getCancellationReason = _createAction('GET_CANCELLATION_REASON', (customerId, targetId) => [customerId, targetId]);
 const updateStoreCredits = _createAction('UPDATE', (customerId, scId, data) => [customerId, scId, data]);
 const failStoreCredits = _createAction('FAIL', (id, err) => [id, err]);
 
@@ -46,22 +47,27 @@ export function fetchStoreCredits(entity, newFetchParams) {
   };
 }
 
-export function changeStatus(entity, targetId, targetStatus) {
+export function triggerStatusChange(entity, targetId, targetStatus) {
   return (dispatch, getState) => {
     const customerId = entity.entityId;
-    const state = get(getState(), 'customers');
-    const storeCredits = get(state, ['storeCredits', customerId, 'storeCredits', 'rows']);
-    const creditToUpdate = _.find(storeCredits, {id: targetId} );
-    const payload = {
-      ...creditToUpdate,
-      status: targetStatus
-    };
 
-    dispatch(actionFetch(entity));
-    Api.patch(updateStoreCreditsUrl(creditToUpdate.id), payload)
-      .then(json => dispatch(updateStoreCredits(customerId, creditToUpdate.id, json)))
-      .catch(err => dispatch(actionFetchFailed(entity, err)));
-  };
+    if (targetStatus === 'canceled') {
+      dispatch(getCancellationReason(customerId, targetId));
+    } else {
+      const state = get(getState(), 'customers');
+      const storeCredits = get(state, ['storeCredits', customerId, 'storeCredits', 'rows']);
+      const creditToUpdate = _.find(storeCredits, {id: targetId} );
+      const payload = {
+        ...creditToUpdate,
+        status: targetStatus
+      };
+
+      dispatch(actionFetch(entity));
+      Api.patch(updateStoreCreditsUrl(creditToUpdate.id), payload)
+        .then(json => dispatch(updateStoreCredits(customerId, creditToUpdate.id, json)))
+        .catch(err => dispatch(actionFetchFailed(entity, err)));
+    }
+  }
 }
 
 const reducer = createReducer({
@@ -74,6 +80,12 @@ const reducer = createReducer({
 
       return update(storeCredits, index, merge, data);
     });
+  },
+  [getCancellationReason]: (state, [customerId, targetId]) => {
+    const storeCredits = get(state, [customerId, 'storeCredits', 'rows']);
+    const creditToCancel = _.find(storeCredits, {id: targetId} );
+
+    return assoc(state, [customerId, 'storeCreditToCancel'], creditToCancel);
   },
   [failStoreCredits]: (state, [{entityType, entityId}, error]) => {
     console.error(error);

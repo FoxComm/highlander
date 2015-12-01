@@ -12,13 +12,13 @@ import { connect } from 'react-redux';
 import * as StoreCreditsActions from '../../../modules/customers/store-credits';
 
 const activeStateTransitions = {
-  'onHold': 'OnHold',
-  'canceled': 'Canceled'
+  'onHold': 'On Hold',
+  'canceled': 'Cancele Store Credit'
 };
 
 const onHoldStateTransitions = {
   'active': 'Active',
-  'canceled': 'Canceled'
+  'canceled': 'Cancele Store Credit'
 };
 
 @connect((state, props) => ({
@@ -92,7 +92,7 @@ export default class StoreCredits extends React.Component {
                     placeholder={ currentStatus }
                     value={ rowState }
                     onChange={ (value, title) =>
-                      this.props.changeStatus(this.entityType(customerId), rowId, value) } />
+                      this.props.triggerStatusChange(this.entityType(customerId), rowId, value) } />
         );
       case 'onHold':
         return (
@@ -101,7 +101,7 @@ export default class StoreCredits extends React.Component {
                     placeholder={ currentStatus }
                     value={ rowState }
                     onChange={ (value, title) =>
-                      this.props.changeStatus(this.entityType(customerId), rowId, value) } />
+                      this.props.triggerStatusChange(this.entityType(customerId), rowId, value) } />
         );
       default:
         return (<span>rowState</span>);
@@ -124,6 +124,40 @@ export default class StoreCredits extends React.Component {
     );
   }
 
+  get confirmStatusChange() {
+    const message = (
+      <span>
+        Are you sure you want to change the gift card state to
+        <strong>On Hold</strong>
+        ?
+      </span>
+    );
+    return (
+      <ConfirmationDialog
+          isVisible={ this.showConfirm }
+          header='Change Store Credit State?'
+          body={ message }
+          cancel='Cancel'
+          confirm='Yes, Change State'
+          cancelAction={ () => console.log('cancel not implemented') }
+          confirmAction={ () => console.log('confirm not implemented') } />
+    );
+  }
+
+  get confirmCancellation() {
+    const body = 'Are you sure you want to cancel this store credit?';
+    return (
+      <ConfirmationDialog
+          isVisible={ this.showConfirm }
+          header='Cancel Store Credit?'
+          body={ body }
+          cancel='Cancel'
+          confirm='Yes, Cancel'
+          cancelAction={ () => console.log('cancel not implemented') }
+          confirmAction={ () => console.log('confirm not implemented') } />
+    );
+  }
+
   render() {
     const props = this.props;
     return (
@@ -140,6 +174,7 @@ export default class StoreCredits extends React.Component {
               />
           </div>
         </div>
+
       </div>
     );
   }
