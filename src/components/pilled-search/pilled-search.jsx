@@ -14,8 +14,8 @@ export default class PilledSearch extends React.Component {
       pills: props.pills,
       options: props.searchOptions,
       optionsVisible: false,
-      searchDisplay: '',
-      searchValue: '',
+      searchDisplay: props.searchValue,
+      searchValue: props.searchValue,
       selectionIndex: -1
     };
   }
@@ -23,20 +23,24 @@ export default class PilledSearch extends React.Component {
   static propTypes = {
     className: PropTypes.string,
     onChange: PropTypes.func,
+    onDeletePill: PropTypes.func,
     onSubmit: PropTypes.func,
     placeholder: PropTypes.string,
     pills: PropTypes.array,
     pillFormatter: PropTypes.func,
     searchButton: PropTypes.node,
-    searchOptions: PropTypes.array
+    searchOptions: PropTypes.array,
+    searchValue: PropTypes.searchValue
   };
 
   static defaultProps = {
     onChange: null,
+    onDeletePill: null,
     onSubmit: null,
     pills: [],
     placeholder: '',
-    searchOptions: []
+    searchOptions: [],
+    searchValue: ''
   };
 
   get className() {
@@ -97,10 +101,14 @@ export default class PilledSearch extends React.Component {
 
   @autobind
   deletePill(idx) {
-    this.setState({
-      ...this.state,
-      pills: _.without(this.state.pills, this.state.pills[idx])
-    });
+    if (this.props.onDeletePill) {
+      this.props.onDeletePill(idx);
+    } else {
+      this.setState({
+        ...this.state,
+        pills: _.without(this.state.pills, this.state.pills[idx])
+      });
+    }
   }
 
   @autobind
