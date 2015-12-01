@@ -73,7 +73,7 @@ export default class PilledSearch extends React.Component {
       });
 
       return (
-        <MenuItem className={klass} key={key}>
+        <MenuItem className={klass} key={key} onClick={() => this.selectOption(idx)}>
           {option.display}
         </MenuItem>
       );
@@ -172,18 +172,7 @@ export default class PilledSearch extends React.Component {
       case 13:
         // Enter
         event.preventDefault();
-        if (this.props.onSubmit) {
-          this.props.onSubmit(this.state.searchDisplay);
-        } else if (!_.isEmpty(this.state.searchDisplay)) {
-          this.setState({
-            ...this.state,
-            optionsVisible: false,
-            pills: this.state.pills.concat(this.state.searchDisplay),
-            searchDisplay: '',
-            searchValue: '',
-            selectionIndex: -1
-          });
-        }
+        this.submitSearch(this.state.searchDisplay);
         break;
       case 8:
         // Backspace
@@ -191,6 +180,28 @@ export default class PilledSearch extends React.Component {
           this.deletePill(this.state.pills.length - 1);
         }
         break;
+    }
+  }
+
+  @autobind
+  selectOption(idx) {
+    if (idx > -1 && idx < this.state.options.length) {
+      this.submitSearch(this.state.options[idx].display);
+    }
+  }
+
+  submitSearch(text) {
+    if (this.props.onSubmit) {
+      this.props.onSubmit(text);
+    } else if (!_.isEmpty(text)) {
+      this.setState({
+        ...this.state,
+        optionsVisible: false,
+        pills: this.state.pills.concat(text),
+        searchDisplay: '',
+        searchValue: '',
+        selectionIndex: -1
+      });
     }
   }
 
