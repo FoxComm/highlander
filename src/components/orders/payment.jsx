@@ -4,6 +4,8 @@ import EditableContentBox from '../content-box/editable-content-box';
 import TableView from '../table/tableview';
 import ContentBox from '../content-box/content-box';
 import PaymentMethodRow from './payment-method-row';
+import Dropdown from '../dropdown/dropdown';
+import { AddButton } from '../common/buttons';
 
 const viewColumns = [
   {field: 'name', text: 'Method'},
@@ -41,8 +43,36 @@ const editContent = props => {
     return <PaymentMethodRow paymentMethod={row} isEditing={true} {...props}/>;
   };
 
+  const paymentTypes = {
+    giftCard: 'Gift Card',
+    creditCard: 'Credit Card',
+    storeCredit: 'Store Credit'
+  };
+
   if (_.isEmpty(paymentMethods)) {
-    return <div className="fc-content-box-empty-text">Add a payment method.</div>;
+    // <div className="fc-content-box-empty-text">Add a payment method.</div>
+    return (
+      <div>
+        <header className="fc-shipping-address-header">
+          <h3 className="fc-shipping-address-sub-title">New Payment Method</h3>
+        </header>
+        <div>
+          <h3>Payment Type</h3>
+          <div>
+            <Dropdown
+              name="paymentType"
+              items={paymentTypes}
+              value="creditCard"
+              onChange={() => console.log("not implemented") }
+            />
+          </div>
+          <div>
+            <h3>Credit Cards</h3>
+            <AddButton onClick={() => console.log("blah") } />
+          </div>
+        </div>
+      </div>
+    );
   } else {
     return (
       <TableView
