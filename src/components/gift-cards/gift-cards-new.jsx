@@ -1,14 +1,21 @@
+
+// libs
 import _ from 'lodash';
 import { createSelector } from 'reselect';
 import { autobind } from 'core-decorators';
 import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
+
+// components
 import Counter from '../forms/counter';
 import Typeahead from '../typeahead/typeahead';
 import { Dropdown, DropdownItem }  from '../dropdown';
 import { Checkbox } from '../checkbox/checkbox';
 import { Link } from '../link';
-import { connect } from 'react-redux';
 import { Form, FormField } from '../forms';
+import ChooseCustomers from './choose-customers';
+
+// redux
 import * as GiftCardNewActions from '../../modules/gift-cards/new';
 import * as CustomersActions from '../../modules/customers/list';
 import { createGiftCard } from '../../modules/gift-cards/cards';
@@ -32,8 +39,6 @@ const subTypes = createSelector(
   ({giftCards: {adding}}) => adding.types,
   (originType, types) => types[originType]
 );
-
-const customerItem = props => <div>{props.item.name}</div>;
 
 @connect(state => ({
   ...state.giftCards.adding,
@@ -98,10 +103,6 @@ export default class NewGiftCard extends React.Component {
     this.setState({customerMessageCount: event.target.value.length});
   }
 
-  changeCSVMessage(event) {
-    this.setState({csvMessageCount: event.target.value.length});
-  }
-
   get subTypes() {
     const props = this.props;
 
@@ -129,21 +130,21 @@ export default class NewGiftCard extends React.Component {
             className="_no-search-icon"
             items={this.props.suggestedCustomers}
             fetchItems={this.props.suggestCustomers}
-            component={customerItem}
-            onItemSelected={this.props.addCustomer}
+            itemsComponent={ChooseCustomers}
+            onItemSelected={(_, event) => event.preventHiding()}
             label="Choose customers:"
             name="customerQuery"
           />
           <ul id="customerList">
             {this.props.customers.map((customer, idx) => {
               return (
-              <li key={`customer-${idx}`}>
-                {customer.name}
-                <input type="hidden" name="customers[]" id={`customer_${idx}`} value={customer.id}/>
-                <a onClick={() => this.props.removeCustomer(customer.id)}>&times;</a>
-              </li>
-                );
-              })}
+                <li key={`customer-${idx}`}>
+                  {customer.name}
+                  <input type="hidden" name="customers[]" id={`customer_${idx}`} value={customer.id}/>
+                  <a onClick={() => this.props.removeCustomer(customer.id)}>&times;</a>
+                </li>
+              );
+            })}
           </ul>
 
           <FormField className="fc-new-gift-card__message-to-customers"

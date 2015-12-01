@@ -1,44 +1,37 @@
+
 import React, { PropTypes } from 'react';
 
-export default class TypeaheadItems extends React.Component {
+const TypeaheadItems = props => {
+  let innerContent = null;
 
-  static propTypes = {
-    store: PropTypes.object,
-    component: PropTypes.func.isRequired,
-    showItems: PropTypes.bool,
-    updating: PropTypes.bool,
-    onItemSelected: PropTypes.func,
-    items: PropTypes.array.isRequired
-  };
-
-  createComponent(props) {
-    return React.createElement(this.props.component, props);
-  }
-
-  render() {
-    let innerContent = null;
-
-    if (this.props.items.length > 0) {
-      innerContent = this.props.items.map((item, index) => {
-        return (
-          <li onClick={() => { this.props.onItemSelected(item); }} key={`item-${index}`}>
-            {this.createComponent({item})}
-          </li>
-        );
-      });
+  if (props.items.length > 0) {
+    innerContent = props.items.map((item, index) => {
+      return (
+        <li onClick={() => { props.onItemSelected(item); }} key={`item-${index}`}>
+          {React.createElement(props.component, {item})}
+        </li>
+      );
+    });
+  } else {
+    if (props.updating) {
+      innerContent = <li>Loading Results</li>;
     } else {
-      if (this.props.updating) {
-        innerContent = <li>Loading Results</li>;
-      } else {
-        innerContent = <li>No results found.</li>;
-      }
+      innerContent = <li>No results found.</li>;
     }
-
-    return (
-      <ul className={`fc-typeahead-items ${this.props.showItems ? 'show' : ''}`}>
-        {innerContent}
-      </ul>
-    );
   }
-}
 
+  return (
+    <ul className="fc-typeahead__items">
+      {innerContent}
+    </ul>
+  );
+};
+
+TypeaheadItems.propTypes = {
+  component: PropTypes.func.isRequired,
+  updating: PropTypes.bool,
+  onItemSelected: PropTypes.func,
+  items: PropTypes.array.isRequired
+};
+
+export default TypeaheadItems;

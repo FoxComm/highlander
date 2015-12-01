@@ -15,11 +15,16 @@ export default class Typeahead extends React.Component {
     label: PropTypes.string,
     name: PropTypes.string,
     placeholder: PropTypes.string,
-    className: PropTypes.string
+    className: PropTypes.string,
+    itemsComponent: PropTypes.oneOfType([
+      PropTypes.func,
+      PropTypes.instanceOf(React.Component)
+    ]),
   };
 
   static defaultProps = {
-    name: 'typeahead'
+    name: 'typeahead',
+    itemsComponent: TypeaheadItems,
   };
 
   constructor(...args) {
@@ -40,11 +45,22 @@ export default class Typeahead extends React.Component {
 
   @autobind
   onItemSelected(item) {
-    this.setState({
-      showItems: false
-    });
+    let doHide = true;
+
+    const event = {
+      preventHiding() {
+        doHide = false;
+      }
+    };
+
     if (this.props.onItemSelected) {
-      this.props.onItemSelected(item);
+      this.props.onItemSelected(item, event);
+    }
+
+    if (doHide) {
+      this.setState({
+        showItems: false
+      });
     }
   }
 
@@ -86,6 +102,12 @@ export default class Typeahead extends React.Component {
   }
 
   render() {
+    const ItemsComponent = this.props.itemsComponent;
+
+    const menuClass = classNames('fc-typeahead__menu', {
+      '_visible': this.state.showItems
+    });
+
     return (
       <div className={ classNames('fc-typeahead', this.props.className) }>
         <FormField className="fc-typeahead-input-group" label={this.props.label}>
@@ -98,13 +120,14 @@ export default class Typeahead extends React.Component {
                  onKeyUp={this.inputKeyUp}
           />
         </FormField>
-        <TypeaheadItems
-          onItemSelected={this.onItemSelected}
-          component={this.props.component}
-          showItems={this.state.showItems}
-          updating={this.state.updating}
-          items={this.props.items}
-        />
+        <div className={menuClass}>
+          <ItemsComponent
+            onItemSelected={this.onItemSelected}
+            component={this.props.component}
+            updating={this.state.updating}
+            items={this.props.items}
+          />
+        </div>
       </div>
     );
   }
