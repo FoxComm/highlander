@@ -153,12 +153,14 @@ export default class PilledSearch extends React.Component {
       case 13:
         // Enter
         event.preventDefault();
-        if (!_.isEmpty(this.state.searchValue)) {
+        if (!_.isEmpty(this.state.searchDisplay)) {
           this.setState({
             ...this.state,
-            pills: this.state.pills.concat(this.state.searchValue),
+            optionsVisible: false,
+            pills: this.state.pills.concat(this.state.searchDisplay),
             searchDisplay: '',
-            searchValue: ''
+            searchValue: '',
+            selectionIndex: -1
           });
         }
         break;
