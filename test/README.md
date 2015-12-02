@@ -45,9 +45,9 @@ Usually you don't need this method.
 
 Imports any lib under `src/` path and exports private variables that you have defined.
 
-#### requireSource(path, variablesToExport = [])
+#### requireSource(path)
 
-Just helper for imports any lib under `src/` path, use regular `require` for import.
+Just helper for imports any lib under `src/` path, it uses regular `require` for import.
 For import non-exported attributes use `importSource` instead
 
 ## Components

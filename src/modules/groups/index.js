@@ -3,7 +3,7 @@ import builder from './builder';
 
 
 const groupReducer = combineReducers({
-  builder
+  builder,
 });
 
 export default groupReducer;
