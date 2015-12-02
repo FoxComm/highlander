@@ -62,7 +62,7 @@ trait OrderSeeds {
       _      ← * <~ OrderPayments.createAll(Seq(
         OrderPayment.build(gc1).copy(orderId = order.id, amount = 2000.some),
         OrderPayment.build(gc2).copy(orderId = order.id, amount = 3000.some),
-        OrderPayment.build(cc).copy(orderId = order.id, amount = (totals - 5000).some)
+        OrderPayment.build(cc).copy(orderId = order.id, amount = none)
       ))
       addr   ← * <~ getDefaultAddress(customerId)
       _      ← * <~ OrderShippingAddresses.create(OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
@@ -73,7 +73,7 @@ trait OrderSeeds {
     order ← * <~ Orders.create(Order(status = Cart, customerId = customerId))
     _     ← * <~ addSkusToOrder(skus.map(_.id), order.id, OrderLineItem.Cart)
     cc    ← * <~ getCc(customerId)
-    _     ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(orderId = order.id, amount = total(skus).some))
+    _     ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(orderId = order.id, amount = none))
     addr  ← * <~ getDefaultAddress(customerId)
     _     ← * <~ OrderShippingAddresses.create(OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
   } yield order
@@ -83,7 +83,7 @@ trait OrderSeeds {
     order ← * <~ Orders.create(Order(status = Shipped, customerId = customerId))
     _     ← * <~ addSkusToOrder(skus.map(_.id), order.id, OrderLineItem.Shipped)
     cc    ← * <~ getCc(customerId) // TODO: auth
-    op    ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(orderId = order.id, amount = total(skus).some))
+    op    ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(orderId = order.id, amount = none))
     addr  ← * <~ getDefaultAddress(customerId)
     shipA ← * <~ OrderShippingAddresses.create(OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
     shipM ← * <~ OrderShippingMethods.create(OrderShippingMethod(orderId = order.id, shippingMethodId = shipMethod))
