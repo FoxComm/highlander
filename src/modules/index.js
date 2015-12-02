@@ -20,7 +20,7 @@ const rootReducer = combineReducers({
   skus,
   countries,
   addressForm,
-  reasons
+  reasons,
 });
 
 export default rootReducer;

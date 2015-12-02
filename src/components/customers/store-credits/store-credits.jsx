@@ -139,16 +139,14 @@ export default class StoreCredits extends React.Component {
   }
 
   formattedStatus(status) {
-
-      switch (status) {
-        case 'onHold':
-          return 'On Hold';
-        case 'active':
-          return 'Active';
-        default:
-          newStatus = status;
-      }
-
+    switch (status) {
+      case 'onHold':
+        return 'On Hold';
+      case 'active':
+        return 'Active';
+      default:
+        return status;
+    }
   }
 
   get confirmStatusChange() {
