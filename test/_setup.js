@@ -1,3 +1,7 @@
+import _ from 'lodash';
+import path from 'path';
+import rewire from 'rewire';
+
 const unexpected = require('unexpected');
 global.unexpected = unexpected
   .use(require('./_unexpected_actions'));
@@ -21,5 +25,30 @@ global.later = function(func) {
     });
   };
 };
+
+global.localStorage = require('localStorage');
+
+const modulesCache = {};
+
+global.importSource = function(sourcePath, actionsToExport = []) {
+  const finalPath = path.resolve(`./src/${sourcePath}`);
+  if (!(finalPath in modulesCache)) {
+    const importedModule = rewire(finalPath);
+
+    actionsToExport.forEach(action => {
+      importedModule[action] = importedModule.__get__(action);
+    });
+
+    modulesCache[finalPath] = importedModule;
+  }
+
+  return modulesCache[finalPath];
+};
+
+global.requireSource = function(sourcePath) {
+  const finalPath = path.resolve(`./src/${sourcePath}`);
+  return require(finalPath);
+};
+
 
 global.phoenixUrl = 'https://api.foxcommerce/';

@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import nock from 'nock';
 
-const { reducer, ...actions } = importModule('orders/details.js', [
+const { default: reducer, ...actions } = importSource('modules/orders/details.js', [
   'collectLineItems',
   'orderLineItemsStartDelete',
   'orderLineItemsCancelDelete',

@@ -2,10 +2,13 @@ import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 import DropdownItem from './dropdownItem';
+import { autobind } from 'core-decorators';
 
 export default class Dropdown extends React.Component {
+
   static propTypes = {
     name: PropTypes.string,
+    className: PropTypes.string,
     value: PropTypes.string,
     editable: PropTypes.bool,
     primary: PropTypes.bool,
@@ -25,11 +28,14 @@ export default class Dropdown extends React.Component {
     };
   }
 
-  findTitleByValue(value) {
-    if (this.props.items) {
-      return this.props.items[value];
+  findTitleByValue(value, props) {
+    if (!props) {
+      props = this.props;
+    }
+    if (props.items) {
+      return props.items[value];
     } else {
-      const item = _.findWhere(React.Children.toArray(this.props.children), {props: {value: value}});
+      const item = _.findWhere(React.Children.toArray(props.children), {props: {value: value}});
       return item && item.props.children;
     }
   }
@@ -62,8 +68,25 @@ export default class Dropdown extends React.Component {
     );
   }
 
+  @autobind
+  onBlur() {
+    this.setState({open: false});
+  }
+
+  componentWillReceiveProps(newProps) {
+    // fixme: additional/different checks?
+    // bug: if items not changed it's reset current selected value value
+    // todo: remove selectedValue and title from state
+    if (newProps.value != this.state.selectedValue) {
+      this.setState({
+        selectedValue: newProps.value,
+        selectedTitle: this.findTitleByValue(newProps.value, newProps)
+      });
+    }
+  }
+
   render() {
-    const classnames = classNames({
+    const classnames = classNames(this.props.className, {
       'fc-dropdown': true,
       'is_dropdown_primary': this.props.primary,
       'is_dropdown_editable': this.props.editable,
@@ -73,7 +96,7 @@ export default class Dropdown extends React.Component {
     const title = this.state.selectedTitle || this.findTitleByValue(value);
 
     return (
-      <div className={classnames}>
+      <div className={classnames} onBlur={this.onBlur} tabIndex="0">
         {this.props.editable && (
           <div className="fc-dropdown-controls">
             {this.dropdownButton}

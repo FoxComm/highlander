@@ -2,7 +2,6 @@ import _ from 'lodash';
 import * as CardUtils from '../../lib/credit-card-utils';
 import GiftCardCode from '../../components/gift-cards/gift-card-code';
 import React, { PropTypes } from 'react';
-import formatCurrency from '../../lib/format-currency';
 import Currency from '../common/currency';
 import TableRow from '../table/row';
 import TableCell from '../table/cell';

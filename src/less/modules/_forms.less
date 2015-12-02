@@ -1,6 +1,15 @@
 .fc-input-group {
   .height(40px);
 
+  &._focused > .fc-input-prepend {
+    box-shadow: 2px 4px 6px rgba(0,0,0,0.4);
+  }
+
+  &._focused > .fc-input__input {
+    box-shadow: 2px 4px 6px rgba(0,0,0,0.4),
+    inset 1px 1px 1px 0 rgba(0,0,0,.1);
+  }
+
   .fc-input-prepend, .fc-input-append {
     .line-height(40px);
     .width(36px);
@@ -59,6 +68,8 @@
   input[type=text],
   input[type=tel],
   input[type=number],
+  input[type=date],
+  input[type=datetime],
   input[type=password],
   textarea {
     @base-styles();

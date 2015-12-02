@@ -97,7 +97,7 @@ export default class Customers extends React.Component {
                         addTitle="Customer" />
           <LocalNav>
             <Link to="customers">Lists</Link>
-            <a href="">Customer Groups</a>
+            <Link to="groups-new-dynamic">Customer Groups</Link>
             <a href="">Insights</a>
             <a href="">Activity Trial</a>
           </LocalNav>
