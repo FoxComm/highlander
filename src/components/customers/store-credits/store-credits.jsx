@@ -36,6 +36,10 @@ const actions = {
 }), actions)
 export default class StoreCredits extends React.Component {
 
+  static contextTypes = {
+    history: PropTypes.object.isRequired
+  };
+
   static propTypes = {
     params: PropTypes.object,
     tableColumns: PropTypes.array,
@@ -97,6 +101,10 @@ export default class StoreCredits extends React.Component {
 
   get entityType() {
     return {entityType: 'storeCredits', entityId: this.customerId};
+  }
+
+  onAddStoreCreditClick() {
+    ;
   }
 
   @autobind
@@ -230,7 +238,7 @@ export default class StoreCredits extends React.Component {
     const props = this.props;
     return (
       <div className="fc-store-credits fc-list-page">
-        <Summary {...props} />
+        <Summary {...props} onAddClick={this.onAddCustomerClick} />
         <div className="fc-grid fc-list-page-content">
           <SearchBar />
           <div className="fc-col-md-1-1 fc-store-credit-table-container">

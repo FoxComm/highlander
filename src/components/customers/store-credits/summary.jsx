@@ -5,13 +5,18 @@ import TabView from '../../tabs/tab';
 import Currency from '../../common/currency';
 import { PanelList, PanelListItem } from '../../panel/panel-list';
 import { Link } from '../../link';
+import { transitionTo } from '../../../route-helpers';
 
 const Summary = props => {
+  const params = {
+    ...props,
+    customerId: props.params.customerId
+  };
   return (
     <div className="fc-list-page-header">
       <SectionTitle title="Store Credit"
                     addTitle="Store Credit"
-                    onAddClick={ () => console.log('Not implemented yet') }
+                    onAddClick={ () => transitionTo(props.history, 'customer-storecredits-new', {customerId: props.params.customerId}) }
                     isPrimary={false} />
 
       <div className="fc-grid fc-grid-gutter fc-store-credits-summary">
@@ -38,7 +43,8 @@ const Summary = props => {
 };
 
 Summary.propTypes = {
-  params: PropTypes.object
+  params: PropTypes.object,
+  onAddClick: PropTypes.func
 };
 
 export default Summary;
