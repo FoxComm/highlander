@@ -17,22 +17,7 @@ import ChooseCustomers from './choose-customers';
 
 // redux
 import * as GiftCardNewActions from '../../modules/gift-cards/new';
-import * as CustomersActions from '../../modules/customers/list';
 import { createGiftCard } from '../../modules/gift-cards/cards';
-
-const selectCustomersList = state => _.get(state, ['customers', 'customers', 'rows'], []);
-
-const filterCustomers = createSelector(
-  selectCustomersList,
-  ({giftCards: {adding}}) => adding.customersQuery,
-  (customers, customersQuery) => _.filter(customers, customer => _.contains(customer.name, customersQuery))
-);
-
-const filterUsers = createSelector(
-  selectCustomersList,
-  ({giftCards: {adding}}) => adding.usersQuery,
-  (customers, usersQuery) => _.filter(customers, customer => _.contains(customer.name, usersQuery))
-);
 
 const subTypes = createSelector(
   ({giftCards: {adding}}) => adding.originType,
@@ -42,19 +27,15 @@ const subTypes = createSelector(
 
 @connect(state => ({
   ...state.giftCards.adding,
-  suggestedCustomers: filterCustomers(state),
-  suggestedUsers: filterUsers(state),
   subTypes: subTypes(state)
 }), {
   ...GiftCardNewActions,
-  fetchCustomers: CustomersActions.fetch,
   createGiftCard
 })
 export default class NewGiftCard extends React.Component {
 
   static propTypes = {
     addCustomers: PropTypes.func,
-    addUser: PropTypes.func,
     balance: PropTypes.number,
     balanceText: PropTypes.string,
     changeFormData: PropTypes.func.isRequired,
@@ -63,15 +44,12 @@ export default class NewGiftCard extends React.Component {
     emailCSV: PropTypes.bool,
     fetchCustomers: PropTypes.func.isRequired,
     removeCustomer: PropTypes.func,
-    removeUser: PropTypes.func,
     sendToCustomer: PropTypes.bool,
     subTypes: PropTypes.map,
     suggestCustomers: PropTypes.func,
     suggestedCustomers: PropTypes.array,
-    suggestUsers: PropTypes.func,
-    suggestedUsers: PropTypes.array,
     types: PropTypes.object,
-    users: PropTypes.map
+    users: PropTypes.map,
   };
 
   constructor(props, context) {
@@ -80,10 +58,6 @@ export default class NewGiftCard extends React.Component {
       customerMessageCount: 0,
       csvMessageCount: 0
     };
-  }
-
-  componentDidMount() {
-    this.props.fetchCustomers();
   }
 
   @autobind
@@ -131,6 +105,7 @@ export default class NewGiftCard extends React.Component {
             items={this.props.suggestedCustomers}
             fetchItems={this.props.suggestCustomers}
             itemsComponent={ChooseCustomers}
+            minQueryLength={2}
             itemsProps={{
               onAddCustomers: (customers) => this.props.addCustomers(_.values(customers))
             }}
@@ -152,7 +127,8 @@ export default class NewGiftCard extends React.Component {
           <FormField className="fc-new-gift-card__message-to-customers"
                      label="Write a message for customers" optional
                      labelAtRight={ labelAtRight }>
-            <textarea className="fc-input" name="customerMessage" maxLength="1000" onChange={this.changeCustomerMessage.bind(this)}></textarea>
+            <textarea className="fc-input" name="customerMessage"
+                      maxLength="1000" onChange={this.changeCustomerMessage.bind(this)}></textarea>
           </FormField>
         </div>
       );

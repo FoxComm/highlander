@@ -4,20 +4,28 @@ import _ from 'lodash';
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 
-export const changeFormData = createAction('GIFT_CARDS_NEW_CHANGE_FORM', (name, value) => ({name, value}));
-export const suggestCustomers = createAction('GIFT_CARDS_NEW_SUGGEST_CUSTOMERS');
-export const suggestUsers = createAction('GIFT_CARDS_NEW_SUGGEST_USERS');
-export const addCustomers = createAction('GIFT_CARDS_NEW_ADD_CUSTOMERS');
-export const removeCustomer = createAction('GIFT_CARDS_NEW_REMOVE_CUSTOMER');
-export const addUser = createAction('GIFT_CARDS_NEW_ADD_USER');
-export const removeUser = createAction('GIFT_CARDS_NEW_REMOVE_USER');
-export const changeQuantity = createAction('GIFT_CARDS_NEW_CHANGE_QUANTITY');
+const _createAction = (desc, ...args) => createAction(`GIFT_CARDS_NEW_${desc}`, ...args);
+
+export const changeFormData = _createAction('CHANGE_FORM', (name, value) => ({name, value}));
+export const addCustomers = _createAction('ADD_CUSTOMERS');
+export const removeCustomer = _createAction('REMOVE_CUSTOMER');
+export const changeQuantity = _createAction('CHANGE_QUANTITY');
+const setSuggestedCustomers = _createAction('SET_SUGGESTED_CUSTOMERS');
 
 const balanceToText = balance => (balance / 100).toFixed(2);
 const textToBalance = value => value * 100;
 
+export function suggestCustomers(term) {
+  return dispatch => {
+    return Api.get(`/customers/searchForNewOrder`, {term})
+      .then(response => dispatch(setSuggestedCustomers(response.result)))
+      .catch(err => dispatch(setSuggestedCustomers([])));
+  };
+}
+
 const initialState = {
   customers: [],
+  suggestedCustomers: [],
   users: [],
   balance: 100,
   quantity: 1,
@@ -48,16 +56,10 @@ const reducer = createReducer({
 
     return newState;
   },
-  [suggestCustomers]: (state, customersQuery) => {
+  [setSuggestedCustomers]: (state, customers) => {
     return {
       ...state,
-      customersQuery
-    };
-  },
-  [suggestUsers]: (state, usersQuery) => {
-    return {
-      ...state,
-      usersQuery
+      suggestedCustomers: customers
     };
   },
   [addCustomers]: (state, customers) => {
@@ -70,18 +72,6 @@ const reducer = createReducer({
     return {
       ...state,
       customers: _.reject(state.customers, customer => customer.id == id)
-    };
-  },
-  [addUser]: (state, user) => {
-    return {
-      ...state,
-      users: _.uniq([...state.users, user], user => user.id)
-    };
-  },
-  [removeUser]: (state, id) => {
-    return {
-      ...state,
-      users: _.reject(state.users, users => users.id == id)
     };
   },
   [changeQuantity]: (state, amount) => {

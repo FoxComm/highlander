@@ -1,14 +1,19 @@
+
+// libs
 import React, { PropTypes } from 'react';
-import Api from '../../lib/api';
-import TypeaheadItems from './items';
-import { FormField } from '../forms';
 import classNames from 'classnames';
 import { debounce, autobind } from 'core-decorators';
+
+// components
+import TypeaheadItems from './items';
+import { FormField } from '../forms';
+import Alert from '../alerts/alert';
 
 export default class Typeahead extends React.Component {
 
   static propTypes = {
     onItemSelected: PropTypes.func,
+    // fetchItems if passed should return promise for results
     fetchItems: PropTypes.func,
     component: PropTypes.func,
     items: PropTypes.array.isRequired,
@@ -20,19 +25,22 @@ export default class Typeahead extends React.Component {
       PropTypes.func,
       PropTypes.instanceOf(React.Component)
     ]),
+    minQueryLength: PropTypes.number,
     itemsProps: PropTypes.object,
   };
 
   static defaultProps = {
     name: 'typeahead',
     itemsComponent: TypeaheadItems,
+    minQueryLength: 1,
   };
 
   constructor(...args) {
     super(...args);
     this.state = {
-      showItems: false,
+      showMenu: false,
       updating: false,
+      query: '',
     };
   }
 
@@ -60,7 +68,7 @@ export default class Typeahead extends React.Component {
 
     if (doHide) {
       this.setState({
-        showItems: false
+        showMenu: false
       });
     }
   }
@@ -70,7 +78,7 @@ export default class Typeahead extends React.Component {
     if (keyCode === 27) {
       // They hit escape
       this.setState({
-        showItems: false
+        showMenu: false
       });
     }
   }
@@ -78,41 +86,68 @@ export default class Typeahead extends React.Component {
   @debounce(500)
   fetchItems(value) {
     if (this.props.fetchItems) {
-      this.props.fetchItems(value);
+      this.props.fetchItems(value).then(this.onFetchDone, this.onFetchDone);
     }
+  }
+
+  @autobind
+  onFetchDone() {
+    this.setState({
+      updating: false
+    });
   }
 
   @autobind
   textChange({target}) {
     let value = target.value;
 
+    const needUpdateItems = value.length >= this.props.minQueryLength;
+
     this.setState({
-      showItems: !(value === ''),
-      updating: true
+      showMenu: value.length > 0,
+      query: value,
+      updating: needUpdateItems
     });
 
-    this.fetchItems(value);
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.items && nextProps.items != this.props.items) {
-      this.setState({
-        updating: false
-      });
+    if (needUpdateItems) {
+      this.fetchItems(value);
     }
   }
 
   toggleVisibility(show) {
     this.setState({
-      showItems: show
+      showMenu: show
     });
   }
 
-  render() {
-    const ItemsComponent = this.props.itemsComponent;
+  get menuContent() {
+    const queryLength = this.state.query.length;
+    if (queryLength < this.props.minQueryLength && queryLength > 0) {
+      return (
+        <div className="fc-typeahead__need-more-characters">
+          <Alert type={Alert.WARNING}>
+            Please enter at least {this.props.minQueryLength} characters.
+          </Alert>
+        </div>
+      );
+    } else {
+      const ItemsComponent = this.props.itemsComponent;
 
+      return (
+        <ItemsComponent
+          onItemSelected={this.onItemSelected}
+          component={this.props.component}
+          updating={this.state.updating}
+          items={this.props.items}
+          toggleVisibility={show => this.toggleVisibility(show)}
+          {...this.props.itemsProps} />
+      );
+    }
+  }
+
+  render() {
     const menuClass = classNames('fc-typeahead__menu', {
-      '_visible': this.state.showItems
+      '_visible': this.state.showMenu
     });
 
     return (
@@ -128,14 +163,7 @@ export default class Typeahead extends React.Component {
           />
         </FormField>
         <div className={menuClass}>
-          <ItemsComponent
-            onItemSelected={this.onItemSelected}
-            component={this.props.component}
-            updating={this.state.updating}
-            items={this.props.items}
-            toggleVisibility={show => this.toggleVisibility(show)}
-            {...this.props.itemsProps}
-          />
+          {this.menuContent}
         </div>
       </div>
     );
