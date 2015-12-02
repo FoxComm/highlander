@@ -5,6 +5,7 @@ import { createSelector } from 'reselect';
 import { autobind } from 'core-decorators';
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
+import { transitionTo } from '../../route-helpers';
 
 // components
 import Counter from '../forms/counter';
@@ -19,10 +20,14 @@ import ChooseCustomers from './choose-customers';
 import * as GiftCardNewActions from '../../modules/gift-cards/new';
 import { createGiftCard } from '../../modules/gift-cards/cards';
 
+const typeTitles = {
+  'csrAppeasement': 'Appeasement'
+};
+
 const subTypes = createSelector(
   ({giftCards: {adding}}) => adding.originType,
   ({giftCards: {adding}}) => adding.types,
-  (originType, types) => types[originType]
+  (originType, types=[]) => _.get(_.findWhere(types, {originType}), 'subTypes', [])
 );
 
 @connect(state => ({
@@ -36,6 +41,7 @@ export default class NewGiftCard extends React.Component {
 
   static propTypes = {
     addCustomers: PropTypes.func,
+    fetchTypes: PropTypes.func,
     balance: PropTypes.number,
     balanceText: PropTypes.string,
     changeFormData: PropTypes.func.isRequired,
@@ -48,8 +54,12 @@ export default class NewGiftCard extends React.Component {
     subTypes: PropTypes.map,
     suggestCustomers: PropTypes.func,
     suggestedCustomers: PropTypes.array,
-    types: PropTypes.object,
+    types: PropTypes.array,
     users: PropTypes.map,
+  };
+
+  static contextTypes = {
+    history: PropTypes.object.isRequired
   };
 
   constructor(props, context) {
@@ -60,10 +70,15 @@ export default class NewGiftCard extends React.Component {
     };
   }
 
+  componentDidMount() {
+    this.props.fetchTypes();
+  }
+
   @autobind
   submitForm(event) {
     event.preventDefault();
-    this.props.createGiftCard();
+    this.props.createGiftCard()
+      .then(() => transitionTo(this.context.history, 'gift-cards'));
   }
 
   @autobind
@@ -80,14 +95,14 @@ export default class NewGiftCard extends React.Component {
   get subTypes() {
     const props = this.props;
 
-    if (props.subTypes.length > 0) {
+    if (props.subTypes && props.subTypes.length > 0) {
       return (
         <div className="fc-new-gift-card__subtypes fc-col-md-1-2">
-          <label htmlFor="cardSubType">Subtype</label>
-          <Dropdown value={props.subTypes[0]} onChange={ value => props.changeFormData('cardSubType', value) }>
+          <label htmlFor="subTypeId">Subtype</label>
+          <Dropdown value={props.subTypeId} onChange={ value => props.changeFormData('subTypeId', value) }>
             {props.subTypes.map((subType, idx) => {
-              return <DropdownItem key={`subType-${idx}`} value={subType}>{subType}</DropdownItem>;
-              })}
+              return <DropdownItem key={`subType-${idx}`} value={subType.id}>{subType.title}</DropdownItem>;
+            })}
           </Dropdown>
         </div>
       );
@@ -160,7 +175,6 @@ export default class NewGiftCard extends React.Component {
 
   render() {
     const props = this.props;
-    const typeList = Object.keys(this.props.types);
 
     return (
       <div className="fc-new-gift-card fc-grid">
@@ -175,9 +189,12 @@ export default class NewGiftCard extends React.Component {
           <div className="fc-grid fc-grid-no-gutter">
             <div className="fc-new-gift-card__types fc-col-md-1-2">
               <label htmlFor="originType">Gift Card Type</label>
-              <Dropdown value={typeList[0]} onChange={value => props.changeFormData('originType', value) }>
-                {typeList.map((type, idx) => {
-                  return <DropdownItem value={type} key={`${idx}-${type}`}>{type}</DropdownItem>;
+              <Dropdown value={props.originType} onChange={value => props.changeFormData('originType', value) }>
+                {props.types.map((entry, idx) => {
+                  const type = entry.originType;
+                  const title = typeTitles[entry.originType];
+
+                  return <DropdownItem value={type} key={`${idx}-${type}`}>{title}</DropdownItem>;
                  })}
               </Dropdown>
             </div>

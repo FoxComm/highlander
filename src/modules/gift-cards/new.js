@@ -11,6 +11,8 @@ export const addCustomers = _createAction('ADD_CUSTOMERS');
 export const removeCustomer = _createAction('REMOVE_CUSTOMER');
 export const changeQuantity = _createAction('CHANGE_QUANTITY');
 const setSuggestedCustomers = _createAction('SET_SUGGESTED_CUSTOMERS');
+const setError = _createAction('ERROR');
+const setTypes = _createAction('SET_TYPES');
 
 const balanceToText = balance => (balance / 100).toFixed(2);
 const textToBalance = value => value * 100;
@@ -33,11 +35,16 @@ const initialState = {
   originType: 'Appeasement',
   sendToCustomer: false,
   emailCSV: false,
-  types: {
-    Appeasement: [],
-    Marketing: ['One', 'Two']
-  }
+  types: [],
 };
+
+export function fetchTypes() {
+  return dispatch => {
+    Api.get(`/gift-cards/types`)
+      .then(types => dispatch(setTypes(types)))
+      .catch(err => dispatch(setError(err)));
+  };
+}
 
 const reducer = createReducer({
   [changeFormData]: (state, {name, value}) => {
@@ -83,6 +90,21 @@ const reducer = createReducer({
       ...state,
       quantity: amount
     };
+  },
+  [setTypes]: (state, types) => {
+    // allow only csrAppeasement type
+    const filteredTypes = _.filter(types, type => type.originType === 'csrAppeasement');
+    return {
+      ...state,
+      types: filteredTypes,
+      originType: 'csrAppeasement',
+      subTypeId: filteredTypes[0].subTypes[0].id
+    };
+  },
+  [setError]: (state, err) => {
+    console.error(err);
+
+    return state;
   }
 }, initialState);
 

@@ -11,7 +11,8 @@ export const actionTypes = {
   FETCH_FAILED: 'FETCH_FAILED',
   SET_FETCH_PARAMS: 'SET_FETCH_PARAMS',
   ADD_ENTITY: 'ADD_ENTITY',
-  REMOVE_ENTITY: 'REMOVE_ENTITY'
+  REMOVE_ENTITY: 'REMOVE_ENTITY',
+  ADD_ENTITIES: 'ADD_ENTITIES',
 };
 
 export function fetchMeta(namespace, actionType) {
@@ -111,6 +112,12 @@ export function paginate(state = initialState, action) {
         ...state,
         rows: [payload, ...state.rows],
         total: state.total + 1
+      };
+    case actionTypes.ADD_ENTITIES:
+      return {
+        ...state,
+        rows: [...payload, ...state.rows],
+        total: state.total + payload.length
       };
     case actionTypes.REMOVE_ENTITY:
       return {

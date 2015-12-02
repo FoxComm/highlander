@@ -1,5 +1,7 @@
 
+import _ from 'lodash';
 import { get } from 'sprout-data';
+import Api from '../../lib/api';
 import makePagination from '../pagination';
 
 const {
@@ -7,7 +9,7 @@ const {
   actions: {
     fetch,
     setFetchParams,
-    actionAddEntity
+    actionAddEntities
     }
   } = makePagination('/gift-cards', 'GIFT_CARDS');
 
@@ -15,18 +17,26 @@ export function createGiftCard() {
   return (dispatch, getState) => {
     const addingData = get(getState(), ['giftCards', 'adding']);
 
-      // @TODO: select correct data from state for gift card creation
-        // please don't ask me for get rid of this todo now, this task is not part of reduxing story.
-          Api.post('/gift-cards', giftCardsNew)
-      .then(json => dispatch(updateGiftCards([json])))
-      .catch(err => dispatch(failGiftCards(err)));
+    const postData = {
+      balance: addingData.balance,
+      subTypeId: addingData.subTypeId,
+      quantity: addingData.sendToCustomer ? addingData.customers.length : addingData.quantity,
+      reasonId: 1, // @TODO: there only reason for now
+      currency: 'USD'
+    };
+
+    return Api.post('/gift-cards', postData)
+      .then(results => {
+        const giftCards = _.filter(results, {success: true}).map(entry => entry.giftCard);
+        dispatch(actionAddEntities(giftCards));
+      })
+      .catch(err => console.error(err));
   };
 }
 
 
-export default reducer;
-
 export {
+  reducer as default,
   fetch,
   setFetchParams
 };
