@@ -96,7 +96,7 @@ const reducer = createReducer({
     const updated = {
       ...creditToChange,
       reasonId: parseInt(reasonId)
-    }
+    };
     return assoc(state, [customerId, 'storeCreditToChange'], updated);
   },
   [failStoreCredits]: (state, [{entityType, entityId}, error]) => {

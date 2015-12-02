@@ -35,7 +35,10 @@ const reducer = createReducer({
   },
   [reasonsFailed]: (state, err) => {
     console.error(err);
-    return state;
+    return {
+      ...state,
+      isFetching: false
+    };
   }
 }, initialState);
 

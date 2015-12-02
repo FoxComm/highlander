@@ -178,7 +178,7 @@ export default class StoreCredits extends React.Component {
   }
 
   get confirmCancellation() {
-    let reasons = {}
+    let reasons = {};
     if (this.props.reasons) {
       reasons = _.reduce(this.props.reasons, (acc, reason) => {
         acc[reason.id] = reason.body;
