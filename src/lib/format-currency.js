@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import getSymbol from 'currency-symbol-map';
 
 const isNumber = n => !isNaN(parseFloat(n)) && isFinite(n);
 
@@ -47,19 +48,13 @@ function formatCurrency(amount, options) {
   return intlFormatCurrency(amount, opts);
 }
 
-const currencySymbols = {
-  'USD': '$',
-  'EUR': '€',
-  'JPY': '¥'
-};
-
 // variant of formatCurrency but for safe work with bug numbers
 // mostly for usage without locale specific options like currency
 function formatBigCurrency(amount, opts) {
   if (opts.groupDigits == null) {
     opts.groupDigits = true;
   }
-  const currency = currencySymbols[opts.currency] || opts.currency || '';
+  const currencySymbol = getSymbol(opts.currency).replace('?', '');
 
   let val = amount.toString();
   if (val[0] == '-') {
@@ -81,7 +76,7 @@ function formatBigCurrency(amount, opts) {
     delimited = decimal.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   }
   const sign = amount < 0 ? '-' : '';
-  return `${sign}${currency}${delimited}.${fract}`;
+  return `${sign}${currencySymbol}${delimited}.${fract}`;
 }
 
 

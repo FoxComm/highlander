@@ -99,6 +99,7 @@
     "co": "^4.5.4",
     "co-body": "^4.0.0",
     "core-decorators": "^0.8.0",
+    "currency-symbol-map": "^2.1.0",
     "fleck": "^0.5.1",
     "history": "^1.12.0",
     "htmlescape": "^1.1.0",
