@@ -35,6 +35,10 @@ final case class DatabaseFailure(message: String) extends Failure {
   override def description = List(message)
 }
 
+final case class InvalidReasonTypeFailure(name: String) extends Failure {
+  override def description = List(s"Reason type named '${name}' doesn't exist")
+}
+
 final case class InvalidFieldFailure(name: String) extends Failure {
   override def description = List(s"Invalid value for field '${name}' provided")
 }

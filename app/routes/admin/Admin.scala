@@ -7,6 +7,7 @@ import akka.stream.Materializer
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.Order.orderRefNumRegex
+import models.Reason.reasonTypeRegex
 import models._
 import services._
 import slick.driver.PostgresDriver.api._
@@ -53,6 +54,13 @@ object Admin {
         (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
           goodOrFailures {
             ReasonService.listReasons
+          }
+        }
+      } ~
+      pathPrefix("reasons" / reasonTypeRegex) { reasonType ⇒
+        (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+          goodOrFailures {
+            ReasonService.listReasonsByType(reasonType)
           }
         }
       } ~
