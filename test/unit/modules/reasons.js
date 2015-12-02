@@ -41,8 +41,11 @@ describe('reasons module', function() {
         isFetching: true,
         reasons: []
       };
+      const err = console.error;
+      console.error = _.noop;
       const newState = reducer(initialState, actions.reasonsFailed('error'));
       expect(newState.isFetching).to.be.equal(false);
+      console.error = err;
     });
 
   });

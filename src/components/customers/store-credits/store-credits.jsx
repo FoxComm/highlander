@@ -104,7 +104,7 @@ export default class StoreCredits extends React.Component {
   }
 
   onAddStoreCreditClick() {
-    ;
+    transitionTo(this.context.history, 'customer-storecredits-new', {customerId: this.customerId});
   }
 
   @autobind

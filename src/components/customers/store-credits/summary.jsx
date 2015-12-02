@@ -16,7 +16,7 @@ const Summary = props => {
     <div className="fc-list-page-header">
       <SectionTitle title="Store Credit"
                     addTitle="Store Credit"
-                    onAddClick={ () => transitionTo(props.history, 'customer-storecredits-new', {customerId: props.params.customerId}) }
+                    onAddClick={ () => transitionTo(props.history, 'customer-storecredits-new', params) }
                     isPrimary={false} />
 
       <div className="fc-grid fc-grid-gutter fc-store-credits-summary">

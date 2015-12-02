@@ -38,8 +38,11 @@ describe('skus module', function() {
         isFetching: true,
         skus: []
       };
+      const err = console.error;
+      console.error = _.noop;
       const newState = reducer(initialState, actions.failSkus('error'));
       expect(newState.isFetching).to.be.equal(false);
+      console.error = err;
     });
 
   });
