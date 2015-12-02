@@ -26,10 +26,7 @@ export default class Dropdown extends React.Component {
     };
   }
 
-  findTitleByValue(value, props) {
-    if (!props) {
-      props = this.props;
-    }
+  findTitleByValue(value, props=this.props) {
     if (props.items) {
       return props.items[value];
     } else {
