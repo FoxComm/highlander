@@ -20,11 +20,6 @@ export default class NewDynamicGroup extends React.Component {
     };
   }
 
-  static propTypes = {
-    customerCount: PropTypes.number
-  };
-
-
   render() {
     const mainMatchStatuses = {
       all: 'all',
@@ -60,8 +55,6 @@ export default class NewDynamicGroup extends React.Component {
             <span className='fc-group-new-match-span'>of the following criteria:</span>
           </div>
           <QueryBuilder/>
-          <div className='fc-group-new-title fc-group-new-count-title'>Customer Count:</div>
-          <div className='fc-group-new-count'>{ this.props.customerCount }</div>
           <div className='fc-group-new-form-submits'>
             <Link to='customers'>Cancel</Link>
             <Button>Make Manual Group</Button>
