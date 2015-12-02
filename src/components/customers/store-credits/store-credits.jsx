@@ -210,10 +210,10 @@ export default class StoreCredits extends React.Component {
     return (
       <ConfirmationDialog
           isVisible={ shouldDisplay }
-          header='Cancel Store Credit?'
+          header="Cancel Store Credit?"
           body={ body }
-          cancel='Cancel'
-          confirm='Yes, Cancel'
+          cancel="Cancel"
+          confirm="Yes, Cancel"
           cancelAction={ () => this.props.cancelChange(this.customerId) }
           confirmAction={ () => this.props.saveStatusChange(this.entityType) } />
     );
