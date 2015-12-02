@@ -17,7 +17,7 @@ const Summary = props => {
       <div className="fc-grid fc-grid-gutter fc-store-credits-summary">
         <div className="fc-col-md-1-4">
           <PanelList>
-            <PanelListItem title="Total Availabale Balance">
+            <PanelListItem title="Total Available Balance">
               <div className="fc-store-credits-summary-balance">
                 <Currency value={ 10600 } /> {/* ToDo: Replace with real total */}
               </div>

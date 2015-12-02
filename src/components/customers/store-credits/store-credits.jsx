@@ -16,12 +16,12 @@ import * as ReasonsActions from '../../../modules/reasons';
 
 const activeStateTransitions = {
   'onHold': 'On Hold',
-  'canceled': 'Cancele Store Credit'
+  'canceled': 'Cancel Store Credit'
 };
 
 const onHoldStateTransitions = {
   'active': 'Active',
-  'canceled': 'Cancele Store Credit'
+  'canceled': 'Cancel Store Credit'
 };
 
 const actions = {
@@ -72,7 +72,7 @@ export default class StoreCredits extends React.Component {
       },
       {
         field: 'availableBalance',
-        text: 'Availabale Balance'
+        text: 'Available Balance'
       },
       {
         field: 'state',
@@ -150,7 +150,7 @@ export default class StoreCredits extends React.Component {
   }
 
   get confirmStatusChange() {
-    let status = "";
+    let status = '';
     if (this.props.storeCreditToChange) {
       status = this.formattedStatus(this.props.storeCreditToChange.status);
     }
@@ -166,10 +166,10 @@ export default class StoreCredits extends React.Component {
     return (
       <ConfirmationDialog
           isVisible={ shouldDisplay }
-          header='Change Store Credit State?'
+          header="Change Store Credit State?"
           body={ message }
-          cancel='Cancel'
-          confirm='Yes, Change State'
+          cancel="Cancel"
+          confirm="Yes, Change State"
           cancelAction={ () => this.props.cancelChange(this.customerId) }
           confirmAction={ () => this.props.saveStatusChange(this.entityType) } />
     );
