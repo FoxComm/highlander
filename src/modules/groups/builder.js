@@ -17,9 +17,6 @@ function newVal(state, id, term, type) {
   const val = {type};
 
   switch(term) {
-    case 'revenue':
-      val['value'] = '1000000';
-      break;
     case 'region':
       val['options'] = state.groups.builder.staticData.regions;
       break;
