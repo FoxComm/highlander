@@ -80,14 +80,16 @@ class OrderIntegrationTest extends IntegrationTestBase
   "POST /v1/orders/:refNum/line-items" - {
     val payload = Seq(UpdateLineItemsPayload("SKU-YAX", 2))
 
-    "should successfully update line items" in new OrderShippingMethodFixture with ShippingAddressFixture with PaymentStatusFixture {
+    "should successfully update line items" in new OrderShippingMethodFixture with ShippingAddressFixture with
+      PaymentStatusFixture {
       val response = POST(s"v1/orders/${order.refNum}/line-items", payload)
 
       response.status must === (StatusCodes.OK)
       val root = response.ignoreFailuresAndGiveMe[FullOrder.Root]
       val skus = root.lineItems.skus
-      skus.map(_.sku) must === (Seq("SKU-YAX"))
-      skus.map(_.quantity) must === (Seq(1))
+      skus must have size 2
+      skus.map(_.sku).toSet must === (Set("SKU-YAX"))
+      skus.map(_.quantity).toSet must === (Set(1))
     }
 
     "should run cart validator" in new Fixture {
