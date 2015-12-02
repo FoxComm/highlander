@@ -1,49 +1,38 @@
 import React, { PropTypes } from 'react';
 import { IncrementButton, DecrementButton } from '../common/buttons';
 
-const defaultProps = {
-  value: 1,
-  stepAmount: 1,
-  minValue: 1,
-  maxValue: 100
-};
-
-const noop = () => {
-  return;
-};
-
 const Counter = props => {
-  let handleChange = props.onChange || noop;
-  let handleIncreaseTotal = props.increaseTotal || noop;
-  let handleDecreaseTotal = props.decreaseTotal || noop;
-  let value = props.value || defaultProps.value;
-  let minValue = props.minValue || defaultProps.minValue;
-  let maxValue = props.maxValue || defaultProps.maxValue;
-  let stepAmount = props.stepAmount || defaultProps.stepAmount;
+  const {decreaseAction, increaseAction, ...rest} = props;
 
   return (
     <div className="fc-input-group fc-counter">
       <div className="fc-input-prepend">
-        <DecrementButton onClick={handleDecreaseTotal} className="fc-btn-counter" />
+        <DecrementButton onClick={decreaseAction} className="fc-btn-counter" />
       </div>
       <input
         type="number"
-        id={props.inputName}
-        name={props.inputName}
-        value={value}
-        min={minValue}
-        max={maxValue}
-        step={stepAmount}
-        onChange={handleChange} />
+        {...rest} />
       <div className="fc-input-append">
-        <IncrementButton onClick={handleIncreaseTotal} className="fc-btn-counter" />
+        <IncrementButton onClick={increaseAction} className="fc-btn-counter" />
       </div>
     </div>
   );
 };
 
 Counter.propTypes = {
-  inputName: PropTypes.string
+  value: PropTypes.number,
+  min: PropTypes.number,
+  max: PropTypes.number,
+  step: PropTypes.number,
+  decreaseAction: PropTypes.func,
+  increaseAction: PropTypes.func,
+};
+
+Counter.defaultProps = {
+  value: 1,
+  step: 1,
+  min: 1,
+  max: 100
 };
 
 export default Counter;

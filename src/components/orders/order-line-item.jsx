@@ -7,8 +7,8 @@ const OrderLineItem = props => {
   const item = props.item;
   const order = props.order.currentOrder;
 
-  const handleChange = (event) => {
-    props.updateLineItemCount(order, item.sku, event.target.value);
+  const toNumber = value => {
+    return value ? parseInt(value, 10) : 1;
   };
 
   return (
@@ -19,14 +19,14 @@ const OrderLineItem = props => {
       <td><Currency value={item.price}/></td>
       <td>
         <Counter
-          inputName={`line-item-quantity-${item.sku}`}
+          id={`line-item-quantity-${item.sku}`}
           value={item.quantity}
-          minValue={0}
-          maxValue={1000000}
-          stepAmount={1}
-          onChange={handleChange}
-          decreaseTotal={() => props.updateLineItemCount(order, item.sku, item.quantity - 1)}
-          increaseTotal={() => props.updateLineItemCount(order, item.sku, item.quantity + 1)} />
+          min={0}
+          max={1000000}
+          step={1}
+          onChange={({target}) => props.updateLineItemCount(order, item.sku, toNumber(target.value)) }
+          decreaseAction={() => props.updateLineItemCount(order, item.sku, item.quantity - 1)}
+          increaseAction={() => props.updateLineItemCount(order, item.sku, item.quantity + 1)} />
       </td>
       <td><Currency value={item.totalPrice}/></td>
       <td>
