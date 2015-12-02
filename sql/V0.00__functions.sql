@@ -46,6 +46,7 @@ create domain zip_code text check (
 );
 
 -- RMA-specific domains used in multiple tables
+create domain reason_type text check (value in('general', 'giftCardCreation', 'storeCreditCreation', 'cancellation'));
 create domain rma_reason_type text check (value in ('baseReason', 'productReturnCode'));
 create domain rma_type text check (value in ('standard', 'creditOnly', 'restockOnly'));
 create domain rma_status text check (value in ('pending', 'processing', 'review', 'complete', 'canceled'));

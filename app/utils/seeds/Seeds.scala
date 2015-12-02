@@ -8,6 +8,7 @@ import scala.concurrent.duration._
 
 import cats.data.Xor
 import models._
+import models.Reason._
 import org.postgresql.ds.PGSimpleDataSource
 import services.{Failures, FailuresOps}
 import slick.driver.PostgresDriver
@@ -75,9 +76,17 @@ object Seeds {
     def reason = Reason(id = 0, storeAdminId = 0, body = "I'm a reason", parentId = None)
 
     def reasons: Seq[Reason] = Seq(
-      Reason(body = "Other", parentId = None, storeAdminId = 0),
-      Reason(body = "Cancelled by customer request", parentId = None, storeAdminId = 0),
-      Reason(body = "Cancelled because duplication", parentId = None, storeAdminId = 0))
+      // Gift card creation reasons
+      Reason(body = "Gift to loyal customer", reasonType = GiftCardCreation, parentId = None, storeAdminId = 0),
+      Reason(body = "New year GC giveaway", reasonType = GiftCardCreation, parentId = None, storeAdminId = 0),
+      // Store credit creation reasons
+      Reason(body = "Gift to loyal customer", reasonType = StoreCreditCreation, parentId = None, storeAdminId = 0),
+      Reason(body = "New year SC giveaway", reasonType = StoreCreditCreation, parentId = None, storeAdminId = 0),
+      // Cancellation reasons
+      Reason(body = "Cancelled by customer request", reasonType = Cancellation, parentId = None, storeAdminId = 0),
+      Reason(body = "Cancelled because duplication", reasonType = Cancellation, parentId = None, storeAdminId = 0),
+      Reason(body = "Other cancellation reason", reasonType = Cancellation, parentId = None, storeAdminId = 0)
+    )
   }
 
   private def flyWayMigrate(config: com.typesafe.config.Config): Unit = {

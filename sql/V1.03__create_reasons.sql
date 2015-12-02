@@ -1,5 +1,6 @@
 create table reasons (
     id serial primary key,
+    reason_type reason_type not null,
     store_admin_id integer not null,
     body generic_string not null,
     parent_id integer,
