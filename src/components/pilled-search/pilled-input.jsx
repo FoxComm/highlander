@@ -28,6 +28,16 @@ const buttonsContainer = button => {
   }
 };
 
+const iconWrapper = icon => {
+  if (icon) {
+    return (
+      <div className="fc-pilled-input__icon-wrapper">
+        <i className={`icon-${icon}`}></i>
+      </div>
+    );
+  }
+};
+
 const PilledInput = props => {
 
   const { pills = [], ...rest } = props;
@@ -40,9 +50,7 @@ const PilledInput = props => {
             return props.formatPill(pill, idx, props);
           })}
         </div>
-        <div className="fc-pilled-input__icon-wrapper">
-          <i className={`icon-${props.icon}`}></i>
-        </div>
+        {iconWrapper(props.icon)}
         <div className="fc-pilled-input__input-wrapper">
           <input
             className="fc-pilled-input__input-field"
