@@ -30,7 +30,7 @@ export default class PilledSearch extends React.Component {
     pillFormatter: PropTypes.func,
     searchButton: PropTypes.node,
     searchOptions: PropTypes.array,
-    searchValue: PropTypes.searchValue
+    searchValue: PropTypes.string
   };
 
   static defaultProps = {
@@ -240,7 +240,9 @@ export default class PilledSearch extends React.Component {
             {this.searchButton}
           </div>
         </form>
-        {this.state.optionsVisible && this.searchOptions}
+        <div>
+          {this.state.optionsVisible && this.searchOptions}
+        </div>
       </div>
     );
   }
