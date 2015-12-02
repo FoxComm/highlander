@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import EditableContentBox from '../content-box/editable-content-box';
 import TableView from '../table/tableview';
@@ -12,9 +13,9 @@ const renderRowFn = (order, updateAction, isEditingPrice, editPriceAction, cance
   return (row, index, isNew) => {
     const isSelected = row.isSelected;
     return (
-      <ShippingMethodRow 
+      <ShippingMethodRow
         shippingMethod={row}
-        updateAction={isSelected ? ()=>{} : () => updateAction(order, row)} 
+        updateAction={isSelected ? ()=>{} : () => updateAction(order, row)}
         isEditingPrice={isEditingPrice}
         editPriceAction={editPriceAction}
         cancelPriceAction={cancelPriceAction}
@@ -25,10 +26,10 @@ const renderRowFn = (order, updateAction, isEditingPrice, editPriceAction, cance
 
 const viewContent = props => {
   const shippingMethods = props.shippingMethods;
-  if (shippingMethods !== undefined && 
+  if (shippingMethods !== undefined &&
       shippingMethods[0] !== undefined &&
-      shippingMethods[0].name && 
-      shippingMethods[0].price) {
+      shippingMethods[0].name &&
+      _.isNumber(shippingMethods[0].price)) {
     return <TableView columns={columns} data={{rows: shippingMethods}} />;
   } else {
     return <div className='fc-content-box-empty-text'>No shipping method applied.</div>;
@@ -38,7 +39,7 @@ const viewContent = props => {
 const ShippingMethod = props => {
   const availableShippingMethods = props.availableShippingMethods.map(shippingMethod => {
     let isSelected = false;
-    if (props.shippingMethods !== undefined && 
+    if (props.shippingMethods !== undefined &&
         props.shippingMethods.length > 0 &&
         props.shippingMethods[0] !== undefined) {
       isSelected = props.shippingMethods[0].id == shippingMethod.id;
@@ -52,14 +53,14 @@ const ShippingMethod = props => {
 
   const renderRow = renderRowFn(
       props.currentOrder,
-      props.updateAction, 
-      props.isEditingPrice, 
-      props.editPriceAction, 
+      props.updateAction,
+      props.isEditingPrice,
+      props.editPriceAction,
       props.cancelPriceAction);
 
   const editContent = (
-    <TableView 
-      columns={columns} 
+    <TableView
+      columns={columns}
       data={{rows: availableShippingMethods}}
       renderRow={renderRow}
       />
