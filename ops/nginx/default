@@ -1,0 +1,93 @@
+##
+# You should look at the following URL's in order to grasp a solid understanding
+# of Nginx configuration files in order to fully unleash the power of Nginx.
+# http://wiki.nginx.org/Pitfalls
+# http://wiki.nginx.org/QuickStart
+# http://wiki.nginx.org/Configuration
+#
+# Generally, you will want to move this file somewhere, and start with a clean
+# file but keep this around for reference. Or just disable in sites-enabled.
+#
+# Please see /usr/share/doc/nginx-doc/examples/ for more detailed examples.
+##
+
+#Change IP address here to point to elastic search
+#In the future, we probably want a template system to fill this in from some
+#service discovery mechanism.
+upstream search {
+    server 10.240.0.7:9200;
+}
+
+#Change IP address here to point to phoenix
+upstream phoenix {
+    server 10.240.0.3:9090;
+}
+
+upstream ashes {
+    server 127.0.0.1:4000;
+}
+
+server {
+	listen 80 default_server;
+	listen [::]:80 default_server;
+
+	index index.html index.htm index.nginx-debian.html;
+
+	server_name _;
+
+    #Create unique UUID for each request
+    set_by_lua $uuid '
+        if ngx.var.http_x_request_id == nil then
+            return uuid4.getUUID()
+        else
+            return ngx.var.http_x_request_id
+        end
+    ';
+
+    #This proxies to ElasticSearch phoenix index 
+    #The location is kept internal for use by /api/search
+    location /internal-search/ {
+        internal;
+        proxy_pass http://search/phoenix/;
+    }
+
+    #This proxies to the the internal search loctation and strips out the elastic search
+    #Metadata leaving only the results.
+    location /api/search/ {
+        default_type 'application/json';
+        content_by_lua ' 
+
+            -- convert to internal query
+            local uri = ngx.re.sub(ngx.var.uri, "api/search", "internal-search")
+            local req = uri .. "?" .. ngx.var.args
+
+            --get json result from elastic search
+            local res = ngx.location.capture(req)
+
+            --parse
+            local j = cjson.new()
+            local json = j.decode(res.body)
+
+            --only show hits
+            --TODO handle error better if hits is undefined.
+            ngx.say(j.encode(json.hits))
+        ';
+        break;
+    }
+
+
+    #This proxies to phoenix and authenticates using basic auth.
+    #TODO Update this when we have proper authentication
+	location /api/ {
+        proxy_pass http://phoenix/;
+
+        #admin@admin.com:password base64 encoded
+        proxy_set_header Authorization "Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk";
+        break;
+	}
+
+    #Finally proxy to ashes
+	location / {
+        proxy_pass http://ashes/;
+	}
+}

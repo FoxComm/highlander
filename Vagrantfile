@@ -16,11 +16,8 @@ Vagrant.configure("2") do |config|
         v.vmx["numvcpus"] = 2
     end
 
-    config.vm.provision :shell, :path => File.join("ops", "provision.sh")
+    config.vm.provision :shell, :path => File.join("ops", "vagrant", "provision.sh")
 
-    config.vm.provision "docker" do |d|
-        d.build_image "."
-    end
 
     config.vm.provider :google do |google, override|
         override.vm.box = "gce"
@@ -36,5 +33,5 @@ Vagrant.configure("2") do |config|
         override.ssh.private_key_path = ENV['GOOGLE_SSH_KEY']
     end
 
-    config.vm.network "forwarded_port", guest: 4000, host: 5000
+    config.vm.network "forwarded_port", guest: 80, host: 8181
 end
