@@ -5,7 +5,8 @@ import java.time.Instant
 
 import cats.data.Xor
 import models._
-import utils.Seeds.Factories
+import utils.seeds.Seeds
+import Seeds.Factories
 import payloads.{UpdateLineItemsPayload ⇒ Payload}
 import util.IntegrationTestBase
 import utils.Slick.implicits._

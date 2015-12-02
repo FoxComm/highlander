@@ -14,7 +14,8 @@ import org.scalatest.concurrent.ScalaFutures
 import services.orders.OrderUpdater
 import slick.driver.PostgresDriver.api._
 import util.{DbTestSupport, IntegrationTestBase}
-import utils.Seeds.Factories
+import utils.seeds.Seeds
+import Seeds.Factories
 import utils.Slick.implicits._
 
 import utils.time.JavaTimeSlickMapper._

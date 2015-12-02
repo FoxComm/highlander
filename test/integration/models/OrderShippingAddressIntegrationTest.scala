@@ -4,7 +4,8 @@ import cats.data.Xor
 import com.wix.accord.{Failure ⇒ ValidationFailure, Success ⇒ ValidationSuccess}
 import services.GeneralFailure
 import util.IntegrationTestBase
-import utils.Seeds.Factories
+import utils.seeds.Seeds
+import Seeds.Factories
 import utils.jdbc._
 import utils.Slick.implicits._
 

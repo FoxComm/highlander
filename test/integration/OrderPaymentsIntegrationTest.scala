@@ -4,9 +4,9 @@ import akka.http.scaladsl.model.StatusCodes
 
 
 import models.Order._
-import models.{CreditCards, CreditCard, Addresses, Order, Orders, StoreCredits, StoreCredit, StoreCreditManuals,
-OrderPayments, OrderPayment, Customers, GiftCards, GiftCard, GiftCardManuals, StoreAdmins, Reasons,
-PaymentMethod}
+import models.{StoreCreditManual, GiftCardManual, CreditCards, CreditCard, Addresses, Order, Orders, StoreCredits,
+StoreCredit, StoreCreditManuals, OrderPayments, OrderPayment, Customers, GiftCards, GiftCard, GiftCardManuals,
+StoreAdmins, Reasons, PaymentMethod}
 import models.OrderPayments.scope._
 import services.{GiftCardMustNotBeCart, OrderPaymentNotFoundFailure, CannotUseInactiveCreditCard,
 CustomerHasInsufficientStoreCredit, CreditCardManager, GiftCardIsInactive, GiftCardNotEnoughBalance, NotFoundFailure404}
@@ -15,7 +15,8 @@ import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import utils.Seeds.Factories
+import utils.seeds.Seeds
+import Seeds.Factories
 import utils.Slick.implicits._
 
 import utils.time.JavaTimeSlickMapper.instantAndTimestampWithoutZone
@@ -144,7 +145,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
           StoreCredits.filter(_.id === 3).map(_.createdAt).update(ZonedDateTime.now().minusMonths(2).toInstant).run().futureValue
           StoreCredits.filter(_.id === 4).map(_.createdAt).update(ZonedDateTime.now().minusMonths(1).toInstant).run().futureValue
 
-          val payload = payloads.StoreCreditPayment(amount = 75)
+          val payload = payloads.StoreCreditPayment(amount = 7500)
           val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
           val payments = storeCreditPayments(order)
 
@@ -152,7 +153,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
           payments must have size (2)
 
           val expected = payments.sortBy(_.paymentMethodId).map(p ⇒ (p.paymentMethodId, p.amount)).toList
-          expected must ===(List((3, Some(50)), (4, Some(25))))
+          expected must ===(List((3, Some(5000)), (4, Some(2500))))
         }
 
         "only uses active store credit" in new StoreCreditFixture {
@@ -160,7 +161,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
           StoreCredits.filter(_.id === 1).map(_.status).update(StoreCredit.Canceled).run().futureValue
           StoreCredits.filter(_.id === 2).map(_.availableBalance).update(0).run().futureValue
 
-          val payload = payloads.StoreCreditPayment(amount = 75)
+          val payload = payloads.StoreCreditPayment(amount = 7500)
           val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
 
           response.status must ===(StatusCodes.OK)
@@ -170,7 +171,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         }
 
         "adding or editing store credit should remove previous order payments" in new StoreCreditFixture {
-          val payload = payloads.StoreCreditPayment(amount = 75)
+          val payload = payloads.StoreCreditPayment(amount = 7500)
           val createdResponse = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
           val createdPayments = storeCreditPayments(order)
 
@@ -208,7 +209,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       }
 
       "fails if the customer has insufficient available store credit" in new StoreCreditFixture {
-        val payload = payloads.StoreCreditPayment(amount = 251)
+        val payload = payloads.StoreCreditPayment(amount = 25100)
         val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
 
         response.status must ===(StatusCodes.BadRequest)
@@ -363,22 +364,22 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
   trait GiftCardFixture extends Fixture {
     val giftCard = (for {
       reason   ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
-      origin   ← * <~ GiftCardManuals.create(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
+      origin   ← * <~ GiftCardManuals.create(GiftCardManual(adminId = admin.id, reasonId = reason.id))
       giftCard ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active))
     } yield giftCard).runT().futureValue.rightVal
   }
 
   trait StoreCreditFixture extends Fixture {
     val storeCredits = (for {
-      reason ← Reasons.create(Factories.reason.copy(storeAdminId = admin.id)).map(rightValue)
-      _ ← StoreCreditManuals ++= (1 to 5).map { _ ⇒
-        Factories.storeCreditManual.copy(adminId = admin.id, reasonId = reason.id)
-      }
-      _ ← StoreCredits ++= (1 to 5).map { i ⇒
+      reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
+      _ ← * <~ StoreCreditManuals.createAll((1 to 5).map { _ ⇒
+        StoreCreditManual(adminId = admin.id, reasonId = reason.id)
+      })
+      _ ← * <~ StoreCredits.createAll((1 to 5).map { i ⇒
         Factories.storeCredit.copy(status = StoreCredit.Active, customerId = customer.id, originId = i)
-      }
-      storeCredits ← StoreCredits.findAllByCustomerId(customer.id).result
-    } yield storeCredits).run().futureValue
+      })
+      storeCredits ← * <~ StoreCredits.findAllByCustomerId(customer.id).result
+    } yield storeCredits).runT().futureValue.rightVal
   }
 
   trait CreditCardFixture extends Fixture {

@@ -4,9 +4,10 @@ import java.time.{ZoneId, Instant}
 
 import services.CreditCardFailure.{IncorrectCvc, CardDeclined}
 import util.{StripeSupport, IntegrationTestBase}
+import utils.seeds.Seeds
 import utils.{WiredStripeApi, Apis}
 import utils.Money.Currency
-import utils.Seeds.Factories
+import Seeds.Factories
 import utils.Slick.implicits._
 import cats.implicits._
 import slick.driver.PostgresDriver.api._

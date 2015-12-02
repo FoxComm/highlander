@@ -5,7 +5,8 @@ import models.rules.QueryStatement
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import utils.Seeds.Factories
+import utils.seeds.{ShipmentSeeds, Seeds}
+import Seeds.Factories
 import utils._
 import utils.ExPostgresDriver.jsonMethods._
 import utils.ExPostgresDriver.api._
@@ -38,9 +39,8 @@ class ShippingManagerTest extends IntegrationTestBase {
         OrderShippingAddresses.filter(_.id === orderShippingAddress.id).delete.run().futureValue
         OrderShippingAddresses.copyFromAddress(address = canada, orderId = order.id).run().futureValue.rightVal
 
-        val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).run().futureValue
-        Console.err.println(matchingMethods)
-        rightValue(matchingMethods).head.name must === (shippingMethod.adminDisplayName)
+        val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).run().futureValue.rightVal
+        matchingMethods.headOption.value.name must === (shippingMethod.adminDisplayName)
       }
 
       "Is false when the order is shipped to US" in new CountryFixture {
@@ -304,7 +304,7 @@ val conditions = parse(
     val shippingMethod = action.run().futureValue.rightVal
   }
 
-  trait CountryFixture extends OrderFixture {
+  trait CountryFixture extends OrderFixture with ShipmentSeeds {
     val conditions = parse(
       """
         | {
@@ -315,7 +315,7 @@ val conditions = parse(
         | }
       """.stripMargin).extract[QueryStatement]
 
-    val action = ShippingMethods.create(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
+    val action = ShippingMethods.create(shippingMethods.headOption.value.copy(conditions = Some(conditions)))
     val shippingMethod = action.run().futureValue.rightVal
   }
 

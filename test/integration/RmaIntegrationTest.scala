@@ -17,7 +17,8 @@ import utils.DbResultT
 import utils.DbResultT._
 import DbResultT.implicits._
 import util.IntegrationTestBase
-import utils.Seeds.Factories
+import utils.seeds.Seeds
+import Seeds.Factories
 import utils.time._
 import utils.Slick.implicits._
 
@@ -530,18 +531,16 @@ class RmaIntegrationTest extends IntegrationTestBase
     val (rmaReason, sku, giftCard, shipment) = (for {
       rmaReason ← * <~ RmaReasons.create(Factories.rmaReasons.head)
       sku ← * <~ Skus.create(Factories.skus.head)
-      skuLineItem ← * <~ OrderLineItemSkus.create(Factories.orderLineItemSkus.head)
-      lineItem1 ← * <~ OrderLineItems.create(Factories.orderLineItems.head.copy(originId = skuLineItem.id,
-        originType = OrderLineItem.SkuItem))
+      _ ← * <~ Factories.addSkusToOrder(Seq(sku.id), order.id, OrderLineItem.Cart)
 
       gcReason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
-      gcOrigin ← * <~ GiftCardManuals.create(Factories.giftCardManual.copy(adminId = storeAdmin.id, reasonId = gcReason.id))
+      gcOrigin ← * <~ GiftCardManuals.create(GiftCardManual(adminId = storeAdmin.id, reasonId = gcReason.id))
       giftCard ← * <~ GiftCards.create(Factories.giftCard.copy(originId = gcOrigin.id, originType = GiftCard.RmaProcess))
 
       gcLineItem ← * <~ OrderLineItemGiftCards.create(OrderLineItemGiftCard(orderId = order.id,
         giftCardId = giftCard.id))
-      lineItem2 ← * <~ OrderLineItems.create(Factories.orderLineItems.head.copy(originId = gcLineItem.id,
-        originType = OrderLineItem.GiftCardItem))
+      lineItem2 ← * <~ OrderLineItems.create(OrderLineItem(originId = gcLineItem.id,
+        originType = OrderLineItem.GiftCardItem, orderId = order.id))
     
       shippingAddress ← * <~ OrderShippingAddresses.create(Factories.shippingAddress.copy(orderId = order.id,
         regionId = 1))

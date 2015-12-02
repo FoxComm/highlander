@@ -12,9 +12,11 @@ import services.orders.OrderQueries
 import services.{StatusTransitionNotAllowed, LockedFailure, NotFoundFailure404}
 import util.IntegrationTestBase
 import utils.DbResultT
-import utils.Seeds.Factories
+import utils.seeds.{Seeds, SeedsGenerator}
+import Seeds.Factories
 import utils.Slick.implicits._
 import util.SlickSupport.implicits._
+import utils.seeds.SeedsGenerator
 import utils.time._
 
 class AllOrdersIntegrationTest extends IntegrationTestBase
@@ -35,10 +37,10 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
 
   def responseItems = {
     val dbio = for {
-      customer ← * <~ Customers.create(Factories.generateCustomer)
+      customer ← * <~ Customers.create(SeedsGenerator.generateCustomer)
       insertOrders = (1 to numOfResults).map { _ ⇒ Factories.order.copy(
         customerId = customer.id,
-        referenceNumber = Factories.randomString(10),
+        referenceNumber = SeedsGenerator.randomString(10),
         status = Order.RemorseHold,
         remorsePeriodEnd = Some(Instant.now.plusMinutes(30))) }
 

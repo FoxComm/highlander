@@ -111,7 +111,10 @@ object FullOrder {
 
     val paymentMethods: Seq[Payments] = creditCardPmt ++ giftCardPmts ++ storeCreditPmts
 
-    val skuList = skus.map { case (sku, li) ⇒ DisplayLineItem(sku = sku.sku, status = li.status) }
+    val skuList = skus.map { case (sku, li) ⇒
+      DisplayLineItem(sku = sku.sku, status = li.status, name = sku.name.getOrElse("donkey product"),
+        price = sku.price, totalPrice = sku.price)
+    }
     val gcList = giftCards.map { case (gc, li) ⇒ GiftCardResponse.build(gc) }
 
     Root(id = order.id,

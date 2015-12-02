@@ -2,7 +2,8 @@ package models
 
 import com.wix.accord.{Failure ⇒ ValidationFailure, Success ⇒ ValidationSuccess}
 import util.IntegrationTestBase
-import utils.Seeds.Factories
+import utils.seeds.Seeds
+import Seeds.Factories
 import utils.Slick.implicits._
 
 import services._

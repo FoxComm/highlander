@@ -5,7 +5,8 @@ import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import utils.Seeds.Factories
+import utils.seeds.Seeds
+import Seeds.Factories
 import utils.Slick.UpdateReturning._
 import utils.Slick.implicits._
 import util.SlickSupport.implicits._

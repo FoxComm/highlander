@@ -7,7 +7,8 @@ import services.{GeneralFailure, DatabaseFailure, StatusTransitionNotAllowed}
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import utils.Seeds.Factories
+import utils.seeds.Seeds
+import Seeds.Factories
 import utils.Slick.DbResult
 import utils.Slick.implicits._
 import slick.driver.PostgresDriver.api._

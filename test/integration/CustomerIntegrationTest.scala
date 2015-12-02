@@ -22,11 +22,13 @@ import services.{CannotUseInactiveCreditCard, CreditCardManager, GeneralFailure,
 Result, CustomerEmailNotUnique}
 import util.IntegrationTestBase
 import utils.Money.Currency
-import utils.Seeds.Factories
+import utils.seeds.Seeds
+import Seeds.Factories
 import utils.Slick.implicits._
 import utils.CustomDirectives
 import utils.jdbc._
-import utils.{Apis, Seeds, StripeApi}
+import utils.seeds.SeedsGenerator.generateCustomer
+import utils.{Apis, StripeApi}
 
 class CustomerIntegrationTest extends IntegrationTestBase
   with HttpSupport
@@ -44,7 +46,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
   val uriPrefix = "v1/customers"
 
   def responseItems = {
-    val insertCustomers = (1 to numOfResults).map { _ ⇒ Seeds.Factories.generateCustomer }
+    val insertCustomers = (1 to numOfResults).map { _ ⇒ generateCustomer }
     val dbio = for {
       customers ← (Customers ++= insertCustomers) >> Customers.result
     } yield customers.map(CustomerResponse.build(_))
@@ -91,7 +93,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
     "returns only 2 customers" in new Fixture {
       pendingUntilFixed {
-        (Customers ++= (1 to 3).map { _ ⇒ Seeds.Factories.generateCustomer }).run().futureValue
+        (Customers ++= (1 to 3).map { _ ⇒ generateCustomer }).run().futureValue
 
         val response = GET(s"$uriPrefix?size=2")
         val customers = response.as[CustomerResponse.Root#ResponseMetadataSeq]
@@ -104,7 +106,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
     "count of requested customers should be limited to default page size" in new Fixture {
       pendingUntilFixed {
         (Customers ++= (1 to (CustomDirectives.DefaultPageSize + 1)).map { _ ⇒
-          Seeds.Factories.generateCustomer
+          generateCustomer
         }).run().futureValue
 
         val response = GET(s"$uriPrefix")

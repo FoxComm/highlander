@@ -3,7 +3,8 @@ package models
 import cats.data.NonEmptyList
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import services._
-import utils.Seeds.Factories
+import utils.seeds.Seeds
+import Seeds.Factories
 import util.TestBase
 
 class OrderShippingAddressTest extends TestBase {
