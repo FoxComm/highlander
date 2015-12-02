@@ -10,7 +10,8 @@ const { reducer, ...actions } = importModule('orders/details.js', [
   'orderRequest',
   'orderSuccess',
   'updateLineItemCount',
-  'orderLineItemsRequest'
+  'orderLineItemsRequest',
+  'increaseRemorsePeriod'
 ]);
 
 describe('order details module', function() {
@@ -150,6 +151,7 @@ describe('order details module', function() {
 
     const orderUrl = refNum => `/api/v1/orders/${refNum}`;
     const orderLineItemsUrl = refNum => orderUrl(refNum) + '/line-items';
+    const orderRemorsePeriodUrl = refNum => orderUrl(refNum) + '/increase-remorse-period';
     const orderRef = 'ABCD1234-11';
     const sku = 'SKU-ABC';
     const orderPayload = require('../../../fixtures/order.json');
@@ -241,6 +243,32 @@ describe('order details module', function() {
         ];
 
         yield expect(actions.deleteLineItem({referenceNumber: orderRef}, sku),
+                     'to dispatch actions', expectedActions);
+      });
+
+    });
+
+    context('remorse period', function() {
+
+      beforeEach(function() {
+        nock(phoenixUrl)
+          .get(orderUrl(orderRef))
+          .reply(200, orderPayload)
+          .post(orderRemorsePeriodUrl(orderRef))
+          .reply(200, orderPayload);
+      });
+
+      afterEach(function() {
+        nock.cleanAll();
+      });
+
+      it('increaseRemorsePeriod should trigger order refresh actions', function*() {
+        const expectedActions = [
+          actions.orderRequest,
+          actions.orderSuccess
+        ];
+
+        yield expect(actions.increaseRemorsePeriod(orderRef),
                      'to dispatch actions', expectedActions);
       });
 
