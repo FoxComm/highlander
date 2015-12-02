@@ -97,7 +97,7 @@ export default class StoreCredits extends React.Component {
   @autobind
   renderRowState(rowId, rowState) {
     const customerId = this.customerId;
-    const currentStatus = rowState.charAt(0).toUpperCase() + rowState.slice(1);
+    const currentStatus = this.formattedStatus(rowState);
     switch(rowState) {
       case 'active':
         return (
@@ -138,25 +138,28 @@ export default class StoreCredits extends React.Component {
     );
   }
 
-  get confirmStatusChange() {
-    let newStatus = null;
-    if (this.props.storeCreditToChange) {
-      switch (this.props.storeCreditToChange.status) {
-        case 'onHold':
-          newStatus = 'On Hold';
-          break;
-        case 'active':
-          newStatus = 'Active';
-          break;
-        default:
-          newStatus = this.props.storeCreditToChange.status;
-      }
-    }
+  formattedStatus(status) {
 
+      switch (status) {
+        case 'onHold':
+          return 'On Hold';
+        case 'active':
+          return 'Active';
+        default:
+          newStatus = status;
+      }
+
+  }
+
+  get confirmStatusChange() {
+    let status = "";
+    if (this.props.storeCreditToChange) {
+      status = this.formattedStatus(this.props.storeCreditToChange.status);
+    }
     const message = (
       <span>
         Are you sure you want to change the gift card state to
-        <strong>&nbsp;{ newStatus }</strong>
+        <strong className="fc-store-credit-new-status">{ status }</strong>
         ?
       </span>
     );
