@@ -147,6 +147,7 @@ export default class StoreCredits extends React.Component {
           break;
         case 'active':
           newStatus = 'Active';
+          break;
         default:
           newStatus = this.props.storeCreditToChange.status;
       }
@@ -186,12 +187,20 @@ export default class StoreCredits extends React.Component {
     const body = (
       <div>
         <div>Are you sure you want to cancel this store credit?</div>
-        <div>
-          <Dropdown name="cancellationReason"
-                    placeholder="- Select -"
-                    items={ reasons }
-                    value={ value }
-                    onChange={ (value) => this.props.reasonChange(this.customerId, value) } />
+        <div className="fc-store-credit-cancel-reason">
+          <div>
+            <label>
+              Cancel Reason
+              <span className="fc-store-credit-cancel-reason-asterisk">*</span>
+            </label>
+          </div>
+          <div className="fc-store-credit-cancel-reason-selector">
+            <Dropdown name="cancellationReason"
+                      placeholder="- Select -"
+                      items={ reasons }
+                      value={ value }
+                      onChange={ (value) => this.props.reasonChange(this.customerId, value) } />
+          </div>
         </div>
       </div>
     );
@@ -216,7 +225,7 @@ export default class StoreCredits extends React.Component {
         <Summary {...props} />
         <div className="fc-grid fc-list-page-content">
           <SearchBar />
-          <div className="fc-col-md-1-1">
+          <div className="fc-col-md-1-1 fc-store-credit-table-container">
             <TableView
               columns={props.tableColumns}
               data={props.storeCredits}
