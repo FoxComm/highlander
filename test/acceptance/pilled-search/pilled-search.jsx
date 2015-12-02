@@ -75,25 +75,25 @@ describe('PilledSearch', function() {
 
       searchInput = TestUtils.findRenderedDOMComponentWithClass(
         pilledSearch,
-        'fc-pilled-search__input-field'
+        'fc-pilled-input__input-field'
       );
     });
 
     it('should delete a pill backspacing an empty search box', function() {
       TestUtils.Simulate.click(searchInput);
       pressBackspace(searchInput);
-      const pills = renderedDOM().querySelector('.fc-pilled-search__pill');
+      const pills = renderedDOM().querySelector('.fc-pilled-input__pill');
       expect(pills).to.be.null;
     });
 
     it('should delete a pill when clicking the x on the pill', function *() {
       const pill = TestUtils.findRenderedDOMComponentWithClass(
         pilledSearch,
-        'fc-pilled-search__pill'
+        'fc-pilled-input__pill'
       );
       TestUtils.Simulate.click(pill);
       
-      const pills = renderedDOM().querySelectorAll('.fc-pilled-search__pill');
+      const pills = renderedDOM().querySelectorAll('.fc-pilled-input__pill');
       expect(pills).to.have.length(0);
     });
   });
@@ -107,7 +107,7 @@ describe('PilledSearch', function() {
       
       searchInput = TestUtils.findRenderedDOMComponentWithClass(
         pilledSearch,
-        'fc-pilled-search__input-field'
+        'fc-pilled-input__input-field'
       );
 
       TestUtils.Simulate.focus(searchInput);
@@ -174,7 +174,7 @@ describe('PilledSearch', function() {
       pressDown(searchInput);
       pressEnter(searchInput);
 
-      const pills = renderedDOM().querySelectorAll('.fc-pilled-search__pill span');
+      const pills = renderedDOM().querySelectorAll('.fc-pilled-input__pill span');
       expect(pills).to.have.length(1);
       expect(pills[0].innerHTML).to.be.equal(searchOptions[0].display);
     });
@@ -187,14 +187,14 @@ describe('PilledSearch', function() {
 
       TestUtils.Simulate.click(firstOption);
 
-      const pills = renderedDOM().querySelectorAll('.fc-pilled-search__pill span');
+      const pills = renderedDOM().querySelectorAll('.fc-pilled-input__pill span');
       expect(pills).to.have.length(1);
       expect(pills[0].innerHTML).to.be.equal(searchOptions[0].display);
     });
 
     it('should do nothing when enter is pressed with no search term', function() {
       pressEnter(searchInput);
-      const pills = renderedDOM().querySelectorAll('.fc-pilled-search__pill');
+      const pills = renderedDOM().querySelectorAll('.fc-pilled-input__pill');
       expect(pills).to.be.empty;
     });
 
@@ -216,7 +216,7 @@ describe('PilledSearch', function() {
       
       searchInput = TestUtils.findRenderedDOMComponentWithClass(
         pilledSearch,
-        'fc-pilled-search__input-field'
+        'fc-pilled-input__input-field'
       );
 
       TestUtils.Simulate.focus(searchInput);
@@ -224,7 +224,7 @@ describe('PilledSearch', function() {
 
     it('should create a pill when enter is pressed on a search term', function() {
       pressEnter(searchInput);
-      const pills = renderedDOM().querySelectorAll('.fc-pilled-search__pill');
+      const pills = renderedDOM().querySelectorAll('.fc-pilled-input__pill');
       expect(pills).to.have.length(1);
 
       const menu = renderedDOM().querySelectorAll('.fc-menu');
@@ -237,7 +237,7 @@ describe('PilledSearch', function() {
       pilledSearch = yield renderIntoDocument(<PilledSearch searchValue="test" />);
       searchInput = TestUtils.findRenderedDOMComponentWithClass(
         pilledSearch,
-        'fc-pilled-search__input-field'
+        'fc-pilled-input__input-field'
       );
 
       TestUtils.Simulate.focus(searchInput);

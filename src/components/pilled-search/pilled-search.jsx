@@ -3,6 +3,7 @@ import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 import _ from 'lodash';
 
+import PilledInput from './pilled-input';
 import Menu from '../menu/menu';
 import MenuItem from '../menu/menu-item';
 
@@ -45,26 +46,6 @@ export default class PilledSearch extends React.Component {
 
   get className() {
     return classNames('fc-pilled-search', this.props.className);
-  }
-
-  get pills() {
-    if (this.props.pillFormatter) {
-      return this.state.pills.map(this.props.pillFormatter);
-    } else {
-      return this.state.pills.map(this.formatPill);
-    }
-  }
-
-  get searchButton() {
-    if (this.props.searchButton) {
-      return (
-        <div className="fc-pilled-search__btn-container">
-          {this.props.searchButton}
-        </div>
-      );
-    } else {
-      return null;
-    }
   }
 
   get searchOptions() {
@@ -111,21 +92,6 @@ export default class PilledSearch extends React.Component {
     }
   }
 
-  @autobind
-  formatPill(pill, idx) {
-    return (
-      <div
-        className="fc-pilled-search__pill"
-        key={`pill-${idx}`}
-        onClick={() => this.deletePill(idx)}
-        >
-        {pill}
-        <a className="fc-pilled-search__pill-close">
-          &times;
-        </a>
-      </div>
-    );
-  }
 
   @autobind
   inputFocus() {
@@ -217,28 +183,16 @@ export default class PilledSearch extends React.Component {
     return (
       <div className={this.className}>
         <form>
-          <div className="fc-pilled-search__container">
-            <div className="fc-pilled-search__input-container">
-              <div className="fc-pilled-search__pills-wrapper">
-                {this.pills}
-              </div>
-              <div className="fc-pilled-search__icon-wrapper">
-                <i className="icon-search"></i>
-              </div>
-              <div className="fc-pilled-search__input-wrapper">
-                <input
-                  className="fc-pilled-search__input-field"
-                  placeholder={this.props.placeholder}
-                  onChange={this.change}
-                  onFocus={this.inputFocus}
-                  onKeyDown={this.keyDown}
-                  type="text"
-                  value={this.state.searchDisplay}
-                />
-              </div>
-            </div>
-            {this.searchButton}
-          </div>
+          <PilledInput
+            button={this.props.searchButton}
+            onPillClose={(pill, idx) => this.deletePill(idx)}
+            onPillClick={(pill, idx) => this.deletePill(idx)}
+            placeholder={this.props.placeholder}
+            onChange={this.change}
+            onFocus={this.inputFocus}
+            onKeyDown={this.keyDown}
+            pills={this.state.pills}
+            value={this.state.searchDisplay} />
         </form>
         <div>
           {this.state.optionsVisible && this.searchOptions}
