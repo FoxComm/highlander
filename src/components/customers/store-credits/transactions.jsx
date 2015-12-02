@@ -56,7 +56,7 @@ export default class StoreCreditTransactions extends React.Component {
       <TableRow key={`storeCreditTransaction-row-${row.id}`}>
         <TableCell><DateTime value={ row.createdAt }/></TableCell>
         <TableCell>{ row.transaction }</TableCell>
-        <TableCell>{ row.amount }</TableCell>
+        <TableCell><Currency value={ row.amount } /></TableCell>
         <TableCell>{ row.paymentState }</TableCell>
         <TableCell><Currency value={ row.totalAvailableBalance } /></TableCell>
       </TableRow>
