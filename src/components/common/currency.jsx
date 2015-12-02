@@ -14,7 +14,8 @@ Currency.propTypes = {
 
 Currency.defaultProps = {
   fractionBase: 2,
-  currency: 'USD'
+  currency: 'USD',
+  bigNumber: false
 };
 
 export default Currency;

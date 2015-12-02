@@ -45,5 +45,10 @@ global.importSource = function(sourcePath, actionsToExport = []) {
   return modulesCache[finalPath];
 };
 
+global.requireSource = function(sourcePath) {
+  const finalPath = path.resolve(`./src/${sourcePath}`);
+  return require(finalPath);
+};
+
 
 global.phoenixUrl = 'https://api.foxcommerce/';

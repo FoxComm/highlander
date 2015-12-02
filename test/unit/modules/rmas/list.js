@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import nock from 'nock';
 
-const { default: reducer, ...actions } = importModule('rmas/list.js', [
+const { default: reducer, ...actions } = importSource('modules/rmas/list.js', [
   'actionFetch',
   'actionReceived',
   'actionSetFetchParams'

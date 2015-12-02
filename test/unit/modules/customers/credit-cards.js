@@ -2,7 +2,7 @@ import _ from 'lodash';
 import nock from 'nock';
 import thunk from 'redux-thunk';
 
-const { default: reducer, ...actions } = importModule('customers/credit-cards.js', [
+const { default: reducer, ...actions } = importSource('modules/customers/credit-cards.js', [
   'fetchCreditCards',
   'requestCustomerCreditCards',
   'receiveCustomerCreditCards',

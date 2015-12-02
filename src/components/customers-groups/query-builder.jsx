@@ -26,18 +26,18 @@ export default class QueryBuilder extends React.Component {
   }
 
   get criterions() {
-    const selectedValues = _.pluck(_.values(this.props.criterions), 'term');
+    const selectedValues = _.pluck(_.values(this.props.criterions), 'selectedTerm');
     const availableValues = _.difference(_.keys(this.props.termOptions), selectedValues);
     const items = availableValues.reduce((r, term) => assoc(r, term, this.props.termOptions[term]), {});
 
     function buildCriterion(key) {
-      const selectedVal = get(this.props.criterions, [key, 'term']);
+      const selectedVal = get(this.props.criterions, [key, 'selectedTerm']);
       let curItems = items;
       if (selectedVal) {
         curItems = assoc(curItems, selectedVal, this.props.termOptions[selectedVal]);
       }
 
-      return <Criterion key={key} id={key} terms={curItems} term={selectedVal}/>;
+      return <Criterion key={key} id={key} terms={curItems} selectedTerm={selectedVal}/>;
     }
 
     return (

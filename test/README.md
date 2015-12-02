@@ -45,9 +45,10 @@ Usually you don't need this method.
 
 Imports any lib under `src/` path and exports private variables that you have defined.
 
-#### importModule(path, variablesToExport = [])
+#### requireSource(path, variablesToExport = [])
 
-Imports redux module under `src/modules/` path and exports private variables that you have defined.
+Just helper for imports any lib under `src/` path, use regular `require` for import.
+For import non-exported attributes use `importSource` instead
 
 ## Components
 

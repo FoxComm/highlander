@@ -35,7 +35,7 @@ function newVal(state, id, term, type) {
 
 function newCrit(state, id, term) {
   const nullCrit = {
-    term: null, operators: {}, operator: null, value: {}
+    selectedTerm: null, operators: {}, selectedOperator: null, value: {}
   };
   if (!term) {
     return nullCrit;
@@ -51,15 +51,15 @@ function newCrit(state, id, term) {
     return nullCrit;
   }
   return {
-    term: term,
+    selectedTerm: term,
     operators: operators,
-    operator: _.first(_.keys(operators)),
+    selectedOperator: _.first(_.keys(operators)),
     value: newVal(state, id, term, type)
   };
 }
 
 const currentTerms = state => {
-  return _.pluck(_.values(state.criterions), 'term');
+  return _.pluck(_.values(state.criterions), 'selectedTerm');
 };
 //</editor-fold>
 
@@ -154,7 +154,7 @@ const reducer = createReducer({
     return assoc(state, ['criterions', id], merge(state.criterions[id], newCrit));
   },
   [changeOperator]: (state, [id, newOpVal]) => {
-    return assoc(state, ['criterions', id, 'operator'], newOpVal);
+    return assoc(state, ['criterions', id, 'selectedOperator'], newOpVal);
   },
   [changeValue]: (state, [id, newVal]) => {
     return assoc(state, ['criterions', id, 'value', 'value'], newVal);
