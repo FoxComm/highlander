@@ -2,7 +2,8 @@ package services.orders
 
 import scala.concurrent.ExecutionContext
 
-import models._
+import models.{OrderPayments, Customers, Orders, javaTimeSlickMapper}
+import OrderPayments.scope._
 import responses.AllOrders
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives
@@ -14,15 +15,9 @@ object OrderQueries {
 
   def findAll(implicit ec: ExecutionContext, db: Database,
     sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): ResultWithMetadata[Seq[AllOrders.Root]] = {
-    val ordersAndCustomers = for {
-      (order, customer) ← Orders.join(Customers).on(_.customerId === _.id)
-    } yield (order, customer)
 
-    val creditCardPayments = for {
-      (orderPayment, creditCard) ← OrderPayments.join(CreditCards).on(_.id === _.id)
-    } yield (orderPayment, creditCard)
-
-    val query = ordersAndCustomers.joinLeft(creditCardPayments).on(_._1.id === _._1.orderId)
+    val ordersAndCustomers = Orders.join(Customers).on(_.customerId === _.id)
+    val query = ordersAndCustomers.joinLeft(OrderPayments.creditCards).on(_._1.id === _.orderId)
 
     val sortedQuery = query.withMetadata.sortAndPageIfNeeded { case (s, ((order, customer), _)) ⇒
       s.sortColumn match {
@@ -30,7 +25,7 @@ object OrderQueries {
         case "referenceNumber"            ⇒ if (s.asc) order.referenceNumber.asc      else order.referenceNumber.desc
         case "customerId"                 ⇒ if (s.asc) order.customerId.asc           else order.customerId.desc
         case "status"                     ⇒ if (s.asc) order.status.asc               else order.status.desc
-        case "isLocked"                  ⇒ if (s.asc) order.isLocked.asc             else order.isLocked.desc
+        case "isLocked"                   ⇒ if (s.asc) order.isLocked.asc             else order.isLocked.desc
         case "placedAt"                   ⇒ if (s.asc) order.placedAt.asc             else order.placedAt.desc
         case "remorsePeriodEnd"           ⇒ if (s.asc) order.remorsePeriodEnd.asc     else order.remorsePeriodEnd.desc
         case "customer_id"                ⇒ if (s.asc) customer.id.asc                else customer.id.desc
@@ -53,7 +48,7 @@ object OrderQueries {
     sortedQuery.result.flatMap(xor ⇒ xorMapDbio(xor) { results ⇒
       val roots = results.map {
         case ((order, customer), payment) ⇒
-          AllOrders.build(order, customer, payment.map(_._1))
+          AllOrders.build(order, customer, payment)
       }
       DBIO.sequence(roots)
     })
