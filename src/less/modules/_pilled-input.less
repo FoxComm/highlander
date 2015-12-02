@@ -1,0 +1,63 @@
+.fc-pilled-input {
+  display: flex;
+
+  &__pills-wrapper {
+    display: flex;
+  }
+
+  &__icon-wrapper {
+    .font-spec(18px, 400, 38px);
+    .margin(0 10px);
+    color: @color-decor8
+  }
+
+  &__input-container {
+    .border(1px, solid, @color-decor9);
+    .border-radius(3px 0 0 3px);
+    background-color: @color-decor11;
+    display: flex;
+    flex-grow: 1;
+  }
+
+  &__input-field {
+    background: none;
+    border: none;
+    width: 100%;
+    .line-height(38px);
+  }
+
+  &__input-wrapper {
+    flex-grow: 1;
+  }
+
+  &__btn-container {
+    .fc-btn {
+      border-radius: 0 3px 3px 0;
+      border: none;
+      .height(42px);
+    }
+  }
+
+  &__pill {
+    .border-radius(3px);
+    .font-spec(14px, 400, 34px);
+    .height(34px);
+    .margin-left(3px);
+    .margin-top(3px);
+    .padding(0, 10px);
+    background: @color-decor3;
+    box-shadow: inset 0 -2px 3px 0 rgba(0,0,0,0.50), inset 1px 1px 1px 0 rgba(255,255,255,0.89);
+    color: @color-white;
+    display: flex;
+
+    &-icon {
+      .margin-right(10px);
+    }
+
+    &-close {
+      .font-spec(16px, 700, 34px);
+      .margin-left(20px);
+      display: inline-block;
+    }
+  }
+}
