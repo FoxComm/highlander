@@ -91,6 +91,7 @@ export default class Orders extends React.Component {
         <div className="fc-grid fc-list-page-content">
           <LiveSearch 
             updateSearch={this.props.updateSearch}
+            submitFilter={this.props.submitFilter}
             searchOptions={ordersSearchTerms}
             state={this.props.orders}
             selectDown={this.props.selectDown}

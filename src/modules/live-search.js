@@ -48,57 +48,6 @@ function goBack(state) {
 }
 
 /**
- * Moves the selected item down one increment (increases index) if available.
- * If not, keeps the selection in the same place.
- * @param {object} state The state of the module before changing selection.
- * @return {object} The updated state of the module after changing selection.
- */
-function selectDown(state) {
-  if (state.selectedIndex + 1 < state.currentOptions.length) {
-    const newIndex = state.selectedIndex + 1;
-    const currentOption = state.currentOptions[newIndex];
-    return {
-      ...state,
-      isVisible: true,
-      displayValue: optionDisplay(currentOption),
-      selectedIndex: newIndex
-    };
-  }
-
-  return state;
-}
-
-/**
- * Moves the selected item up one increment (decreases index) if available.
- * If not, keeps the selection in the same place.
- * @param {object} state The state of the module before changing selection.
- * @return {object} The updated state of the module after changing selection.
- */
-function selectUp(state) {
-  const selectedIndex = state.selectedIndex;
-  if (selectedIndex > 0) {
-    const currentOption = state.currentOptions[selectedIndex - 1];
-    return {
-      ...state,
-      isVisible: true,
-      displayValue: optionDisplay(currentOption),
-      selectedIndex: selectedIndex - 1
-    };
-  } else if (selectedIndex == 0) {
-    return {
-      ...state,
-      selectedIndex: -1,
-      displayValue: state.inputValue
-    };
-  } else {
-    return {
-      ...state,
-      isVisible: false
-    };
-  }
-}
-
-/**
  * Attempts to submit a selected filter. If valid, it will either show the
  * filter's sub-options or it will save the filter as a search.
  * @param {object} state The state of the module before executing the action.
@@ -176,12 +125,6 @@ function liveSearchReducer(actionTypes) {
       case actionTypes.GO_BACK:
         return goBack(state);
 
-      case actionTypes.SELECT_DOWN:
-        return selectDown(state);
-
-      case actionTypes.SELECT_UP:
-        return selectUp(state);
-
       case actionTypes.SUBMIT_FILTER:
         return submitFilter(state);
 
@@ -258,8 +201,6 @@ function createLiveSearchActionTypes(namespace) {
   const actionTypes = [
     'DELETE_SEARCH_FILTER',
     'GO_BACK',
-    'SELECT_DOWN',
-    'SELECT_UP',
     'SUBMIT_FILTER',
     'UPDATE_SEARCH'
   ];
@@ -279,8 +220,6 @@ function createLiveSearchActions(namespace) {
   return {
     deleteSearchFilter: _createAction(namespace, 'DELETE_SEARCH_FILTER', (idx) => ({idx})),
     goBack: _createAction(namespace, 'GO_BACK'),
-    selectDown: _createAction(namespace, 'SELECT_DOWN'),
-    selectUp: _createAction(namespace, 'SELECT_UP'),
     submitFilter: _createAction(namespace, 'SUBMIT_FILTER'),
     updateSearch: _createAction(namespace, 'UPDATE_SEARCH', (searchTerm, options) => ({searchTerm, options}))
   };

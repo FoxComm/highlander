@@ -3,8 +3,6 @@ import nock from 'nock';
 
 const { default: reducer, ...actions } = importSource('modules/orders/list.js', [
   'updateSearch',
-  'selectDown',
-  'selectUp',
   'goBack',
   'submitFilter'
 ]);
@@ -91,79 +89,6 @@ describe('modules.orders.list', function() {
       });
     });
   });
-
-  describe('selectDown()', function() {
-    let newState = null;
-
-    context('when there are no visible search options', function() {
-      it('should not change the selectedIndex', function() {
-        newState = reducer(initialState, actions.selectDown());
-        expect(newState.selectedIndex).to.be.equal(-1);
-      });
-    });
-
-    context('when there are multiple search options', function() {
-      beforeEach(function() {
-        newState = reducer(initialState, actions.updateSearch('', ordersSearchTerms));
-      });
-
-      it('should select the first item in the list', function() {
-        const downOne = reducer(newState, actions.selectDown());
-        expect(downOne.selectedIndex).to.be.equal(0);
-      });
-
-      it('should not be able to select past the last item in the list', function() {
-        const maxIndex = newState.currentOptions.length - 1;
-        const modifiedState = { ...newState, selectedIndex: maxIndex };
-
-        const downOne = reducer(modifiedState, actions.selectDown());
-        expect(downOne.selectedIndex).to.be.equal(maxIndex);
-      });
-    });
-
-    context('when the search options are hidden', function() {
-      it('should show the search box', function() {
-        newState = reducer(
-          reducer(initialState, actions.updateSearch('', ordersSearchTerms)),
-          actions.selectDown()
-        );
-        expect(newState.isVisible).to.be.equal(true);
-      });
-    });
-  });  
-
-  describe('selectUp()', function() {
-    let newState = null;
-
-    context('when there are multiple search options', function() {
-      beforeEach(function() {
-        newState = reducer(initialState, actions.updateSearch('', ordersSearchTerms));
-      });
-
-      it('should collapse the menu when nothing is selected', function() {
-        newState = reducer(newState, actions.selectUp());
-        expect(newState.isVisible).to.be.equal(false);
-      });
-
-      it('should move selection up the list', function() {
-        const maxIndex = newState.currentOptions.length - 1;
-        const modifiedState = { ...newState, selectedIndex: maxIndex };
-
-        const downOne = reducer(modifiedState, actions.selectUp());
-        expect(downOne.selectedIndex).to.be.equal(maxIndex - 1);
-      });
-    });
-
-    context('when the search options are hidden', function() {
-      it('should show the search box', function() {
-        newState = reducer(
-          reducer(initialState, actions.updateSearch('', ordersSearchTerms)),
-          actions.selectDown()
-        );
-        expect(newState.isVisible).to.be.equal(true);
-      });
-    });
-  });  
 
   describe('goBack()', function() {
     let newState = null;
@@ -270,65 +195,5 @@ describe('modules.orders.list', function() {
         expect(newState.displayValue).to.be.equal(invalidSearchTerm);
       });
     });
-
-    context('when selecting an incomplete filter from the list', function() {
-      beforeEach(function() {
-        newState = reducer(
-          reducer(
-            reducer(initialState, actions.updateSearch('', ordersSearchTerms)),
-            actions.selectDown()
-          ),
-          actions.submitFilter()
-        );
-      });
-
-      it('should update the contents of the search box', function() {
-        const searchValue = `${ordersSearchTerms[0].term} : `;
-        expect(newState.inputValue).to.be.equal(searchValue);
-        expect(newState.displayValue).to.be.equal(searchValue);
-      });
-
-      it('should re-calculate the search options', function() {
-        expect(newState.currentOptions.length).to.be.equal(
-          ordersSearchTerms[0].options.length
-        );
-        _.forEach(newState.currentOptions, (option, idx) => {
-          const expected = `${ordersSearchTerms[0].term} : ${ordersSearchTerms[0].options[idx].term}`;
-          expect(option.display).to.be.equal(expected);
-        });
-      });
-
-      it('should not update the number of searches', function() {
-        expect(newState.searches.length).to.be.equal(0);
-      });
-    });
-
-    context('when selecting a complete filter from the list', function() {
-      beforeEach(function() {
-        newState = reducer(
-          reducer(
-            reducer(
-              initialState,
-              actions.updateSearch('Order : State : ', ordersSearchTerms)
-            ),
-            actions.selectDown()
-          ),
-          actions.submitFilter()
-        );
-      });
-
-      it('should create a new saved filter', function() {
-        expect(newState.searches.length).to.be.equal(1);
-      });
-
-      it('should clear the search box', function() {
-        expect(newState.inputValue).to.be.equal('');
-        expect(newState.displayValue).to.be.equal('');
-      });
-
-      it('should collapse the search options', function() {
-        expect(newState.isVisible).to.be.equal(false);
-      });
-    });
-  }); 
+  });
 });

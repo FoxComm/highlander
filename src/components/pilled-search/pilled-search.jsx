@@ -13,7 +13,6 @@ export default class PilledSearch extends React.Component {
 
     this.state = {
       pills: props.pills,
-      options: props.searchOptions,
       optionsVisible: false,
       searchDisplay: props.searchValue,
       searchValue: props.searchValue,
@@ -24,6 +23,7 @@ export default class PilledSearch extends React.Component {
   static propTypes = {
     className: PropTypes.string,
     onChange: PropTypes.func,
+    onSubmit: PropTypes.func,
     placeholder: PropTypes.string,
     pills: PropTypes.array,
     pillFormatter: PropTypes.func,
@@ -44,7 +44,7 @@ export default class PilledSearch extends React.Component {
   }
 
   get searchOptions() {
-    const options = this.state.options.map((option, idx) => {
+    const options = this.props.searchOptions.map((option, idx) => {
       const key = `option-${idx}`;
       const klass = classNames({
         'is-active': this.state.selectionIndex == idx,
@@ -86,7 +86,7 @@ export default class PilledSearch extends React.Component {
 
   @autobind
   inputFocus() {
-    if (!_.isEmpty(this.state.options)) {
+    if (!_.isEmpty(this.props.searchOptions)) {
       this.setState({
         ...this.state,
         optionsVisible: true
@@ -100,16 +100,16 @@ export default class PilledSearch extends React.Component {
       case 40:
         // Down arrow
         event.preventDefault();
-        if (!_.isEmpty(this.state.options)) {
+        if (!_.isEmpty(this.props.searchOptions)) {
           const newIdx = Math.min(
             this.state.selectionIndex + 1, 
-            this.state.options.length - 1
+            this.props.searchOptions.length - 1
           );
 
           this.setState({ 
             ...this.state, 
             optionsVisible: true,
-            searchDisplay: this.state.options[newIdx].display,
+            searchDisplay: this.props.searchOptions[newIdx].display,
             selectionIndex: newIdx
           });
         }
@@ -117,14 +117,14 @@ export default class PilledSearch extends React.Component {
       case 38:
         // Up arrow
         event.preventDefault();
-        if (!_.isEmpty(this.state.options)) {
+        if (!_.isEmpty(this.props.searchOptions)) {
           if (this.state.selectionIndex < 0) {
             this.setState({ ...this.state, optionsVisible: false });
           } else {
             const newIdx = this.state.selectionIndex - 1;
             const display = newIdx == -1
               ? this.state.searchValue
-              : this.state.options[newIdx].display;
+              : this.props.searchOptions[newIdx].display;
 
             this.setState({
               ...this.state,
@@ -150,8 +150,8 @@ export default class PilledSearch extends React.Component {
 
   @autobind
   selectOption(idx) {
-    if (idx > -1 && idx < this.state.options.length) {
-      this.submitSearch(this.state.options[idx].display);
+    if (idx > -1 && idx < this.props.searchOptions.length) {
+      this.submitSearch(this.props.searchOptions[idx].display);
     }
   }
 
@@ -165,6 +165,10 @@ export default class PilledSearch extends React.Component {
         searchValue: '',
         selectionIndex: -1
       });
+
+      if (this.props.onSubmit) {
+        this.props.onSubmit(text);
+      }
     }
   }
 

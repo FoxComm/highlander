@@ -7,8 +7,6 @@ const liveSearch = makeLiveSearch('ORDERS');
 const {
   deleteSearchFilter,
   goBack,
-  selectDown,
-  selectUp,
   submitFilter,
   updateSearch
 } = liveSearch.actions;
@@ -25,8 +23,6 @@ export {
   setFetchParams,
   deleteSearchFilter,
   goBack,
-  selectDown,
-  selectUp,
   submitFilter,
   updateSearch
 };
