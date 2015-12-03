@@ -75,7 +75,8 @@ function collectLineItems(skus) {
   const items = _.transform(skus, (result, lineItem) => {
     const sku = lineItem.sku;
     if (_.isNumber(uniqueSkus[sku])) {
-      result[uniqueSkus[sku]].quantity += 1;
+      const qty = result[uniqueSkus[sku]].quantity += 1;
+      result[uniqueSkus[sku]].totalPrice = lineItem.price * qty;
     } else {
       uniqueSkus[sku] = result.length;
       result.push({ ...lineItem, quantity: 1 });
