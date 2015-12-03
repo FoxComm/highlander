@@ -3,9 +3,11 @@
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 import { debounce, autobind } from 'core-decorators';
+import { cloneElement } from '../../lib/react-utils';
 
 // components
 import TypeaheadItems from './items';
+import TypeaheadInput from './input';
 import { FormField } from '../forms';
 import Alert from '../alerts/alert';
 
@@ -21,17 +23,14 @@ export default class Typeahead extends React.Component {
     name: PropTypes.string,
     placeholder: PropTypes.string,
     className: PropTypes.string,
-    itemsComponent: PropTypes.oneOfType([
-      PropTypes.func,
-      PropTypes.instanceOf(React.Component)
-    ]),
+    itemsElement: PropTypes.element,
+    inputElement: PropTypes.element,
     minQueryLength: PropTypes.number,
-    itemsProps: PropTypes.object,
   };
 
   static defaultProps = {
     name: 'typeahead',
-    itemsComponent: TypeaheadItems,
+    placeholder: 'Search',
     minQueryLength: 1,
   };
 
@@ -42,14 +41,6 @@ export default class Typeahead extends React.Component {
       updating: false,
       query: '',
     };
-  }
-
-  get placeholder() {
-    let placeholder = 'Search';
-    if (this.props.placeholder) {
-      placeholder = this.props.placeholder;
-    }
-    return placeholder;
   }
 
   @autobind
@@ -131,17 +122,41 @@ export default class Typeahead extends React.Component {
         </div>
       );
     } else {
-      const ItemsComponent = this.props.itemsComponent;
+      const itemsElement = this.props.itemsElement;
 
-      return (
-        <ItemsComponent
-          onItemSelected={this.onItemSelected}
-          component={this.props.component}
-          updating={this.state.updating}
-          items={this.props.items}
-          toggleVisibility={show => this.toggleVisibility(show)}
-          {...this.props.itemsProps} />
-      );
+      const ourProps = {
+        onItemSelected: this.onItemSelected,
+        component: this.props.component,
+        updating: this.state.updating,
+        items: this.props.items,
+        toggleVisibility: show => this.toggleVisibility(show),
+      };
+
+      if (itemsElement) {
+        return React.cloneElement(itemsElement, ourProps);
+      } else {
+        return <TypeaheadItems {...ourProps} />;
+      }
+    }
+  }
+
+  get inputContent() {
+    const inputElement = this.props.inputElement;
+
+    const defaultProps = {
+      name: this.props.name,
+      placeholder: this.props.placeholder,
+    };
+
+    const handlers = {
+      onChange: this.textChange,
+      onKeyUp: this.inputKeyUp,
+    };
+
+    if (inputElement) {
+      return cloneElement(inputElement, {defaultProps, handlers});
+    } else {
+      return <TypeaheadInput {...defaultProps} {...handlers} />;
     }
   }
 
@@ -152,15 +167,8 @@ export default class Typeahead extends React.Component {
 
     return (
       <div className={ classNames('fc-typeahead', this.props.className) }>
-        <FormField className="fc-typeahead-input-group" label={this.props.label}>
-          <i className="fc-typeahead-input-icon icon-search"></i>
-          <input className="fc-input fc-typeahead-input"
-                 type="text"
-                 name={this.props.name}
-                 placeholder={this.placeholder}
-                 onChange={this.textChange}
-                 onKeyUp={this.inputKeyUp}
-          />
+        <FormField className="fc-typeahead__input-group" label={this.props.label}>
+          {this.inputContent}
         </FormField>
         <div className={menuClass}>
           {this.menuContent}

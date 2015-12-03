@@ -15,6 +15,7 @@ import { Checkbox } from '../checkbox/checkbox';
 import { Link } from '../link';
 import { Form, FormField } from '../forms';
 import ChooseCustomers from './choose-customers';
+import PilledInput from '../pilled-search/pilled-input';
 
 // redux
 import * as GiftCardNewActions from '../../modules/gift-cards/new';
@@ -109,36 +110,41 @@ export default class NewGiftCard extends React.Component {
     }
   }
 
+  get chooseCustomersMenu() {
+    return (
+      <ChooseCustomers
+        onAddCustomers={(customers) => this.props.addCustomers(_.values(customers))} />
+    );
+  }
+
+  get chooseCustomersInput() {
+    const props = this.props;
+
+    return (
+      <PilledInput pills={props.customers.map(customer => customer.name)}
+        icon={null}
+        onPillClose={(name, idx) => props.removeCustomer(props.customers[idx].id)} />
+    );
+  }
+
   get customerListBlock() {
-    if (this.props.sendToCustomer) {
+    const props = this.props;
+
+    if (props.sendToCustomer) {
       const labelAtRight = <div className="fc-new-gift-card__counter">{this.state.customerMessageCount}/1000</div>;
 
       return (
         <div className="fc-new-gift-card__send-to-customers">
           <Typeahead
             className="_no-search-icon"
-            items={this.props.suggestedCustomers}
-            fetchItems={this.props.suggestCustomers}
-            itemsComponent={ChooseCustomers}
+            items={props.suggestedCustomers}
+            fetchItems={props.suggestCustomers}
+            itemsElement={this.chooseCustomersMenu}
+            inputElement={this.chooseCustomersInput}
             minQueryLength={2}
-            itemsProps={{
-              onAddCustomers: (customers) => this.props.addCustomers(_.values(customers))
-            }}
             label="Choose customers:"
             name="customerQuery"
           />
-          <ul id="customerList">
-            {this.props.customers.map((customer, idx) => {
-              return (
-                <li key={`customer-${idx}`}>
-                  {customer.name}
-                  <input type="hidden" name="customers[]" id={`customer_${idx}`} value={customer.id}/>
-                  <a onClick={() => this.props.removeCustomer(customer.id)}>&times;</a>
-                </li>
-              );
-            })}
-          </ul>
-
           <FormField className="fc-new-gift-card__message-to-customers"
                      label="Write a message for customers" optional
                      labelAtRight={ labelAtRight }>

@@ -4,17 +4,7 @@ import React, { PropTypes } from 'react';
 import { findDOMNode } from 'react-dom';
 import * as validators from '../../lib/validators';
 import classNames from 'classnames';
-
-function overrideEventHandlers(child, newEventHandlers) {
-  return _.transform(newEventHandlers, (result, handler, type) => {
-    result[type] = (event) => {
-      handler(event);
-      if (child.props[type]) {
-        return child.props[type](event);
-      }
-    };
-  });
-}
+import { mergeEventHandlers } from '../../lib/react-utils';
 
 export default class FormField extends React.Component {
 
