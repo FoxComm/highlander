@@ -88,10 +88,10 @@ object OrderPaymentUpdater {
     giftCard  ← * <~ GiftCards.mustFindByCode(code)
     validated ← * <~ CartValidator(order).validate
     deleteRes ← * <~ OrderPayments
-                    .filter(_.paymentMethodId === giftCard.id)
-                    .filter(_.orderId === order.id)
-                    .giftCards.deleteAll(
-                      onSuccess = refreshAndFullOrder(order).toXor,
-                      onFailure = DbResult.failure(OrderPaymentNotFoundFailure(PaymentMethod.GiftCard)))
+                      .filter(_.paymentMethodId === giftCard.id)
+                      .filter(_.orderId === order.id)
+                      .giftCards.deleteAll(
+                        onSuccess = refreshAndFullOrder(order).toXor,
+                        onFailure = DbResult.failure(OrderPaymentNotFoundFailure(PaymentMethod.GiftCard)))
   } yield TheResponse.build(deleteRes, alerts = validated.alerts, warnings = validated.warnings)).runT()
 }
