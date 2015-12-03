@@ -71,7 +71,7 @@ activity implies a grouping.
 \begin{lstlisting}
     case class Activity(
         id: Id, 
-        type: String, 
+        type: Type, 
         data: Json, 
         created: Instant)
 \end{lstlisting}
@@ -94,18 +94,23 @@ as a term to mean pointer. Instead, we will store a two way \emph{Connection}
         activity: Id, 
         previous: Id, 
         next: Id, 
-        head: Id)
+        tail: Id,
+        groupId: Id)
 \end{lstlisting}
 
 Each activity is connected by a two way connection creating a doubly linked list. Each
 connection belongs to some dimension and in each dimension an activity belongs to only
 one list. 
 
-Each list has a head activity and the head activity has a connection where
-the \emph{previous} points to the tail and the \emph{next} points to an activity next in time.
+Each list has a tail activity and the tail activity has a connection where
+the \emph{previous} points to the last activity in the trail and the \emph{next} points to the oldest activity (the head).
 
-Each connection points to the head for optimization purposes. We can create an
-index on the head to do quick queries based on dimension and head activity for that dimension.
+Each connection points to the tail for optimization purposes. We can create an
+index on the tail id to do quick queries based on the dimension.
+
+Each connection also has a groupId which is used to quickly query for all connections grouped
+by that id. The use case is if a dimension represents activity for a type of object, say customer,
+where we can put the customer id as the group id. 
 
 \subsection{Dimensions}
 
