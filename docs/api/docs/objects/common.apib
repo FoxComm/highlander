@@ -1,0 +1,31 @@
+# Data Structures
+
+### StoreAdminResponse
++ id: 1 (required, number) - Unique identifier.
++ firstName: Pavel (required, string) - First name.
++ lastName: Kiselev (required, string) - Last name.
++ email: `pavel@foxcommerce.com` (required, string) - E-mail.
+
+### AssignmentResponse
++ assignee (required, StoreAdminResponse) - Assigned admin.
++ assignedAt: `2015-09-10T14:55:50Z` (required, string) - Assign date.
+
+### Errors
++ errors (required, array[string]) - List of possible errors.
+    + `Validation errors`
+    + `Model-specific restrictions`
+    + `Other errors`
+
+### PagingMetadata
++ from:   0      (optional, number) - Start element (counting from 0) or # of elements to skip.
++ size:   10     (optional, number) - Page size.
++ pageNo: 1      (optional, number) - Page number (counting from 1).
++ total:  100500 (optional, number) - Total number of elements found.
+
+### SortingMetadata
++ sortBy: lastName (optional, string) - Field to sort by (`-fieldName` for descending order).
+
+### ResultMetadata
++ errors     (optional, array[string])     - Optional errors.
++ pagination (optional, PagingMetadata)    - Pagination metadata.
++ sorting    (optional, SortingMetadata)   - Sorting metadata.

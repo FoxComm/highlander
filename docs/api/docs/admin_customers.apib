@@ -1,0 +1,84 @@
+## Customer [/v1/customers/{id}]
+
++ Parameters
+    + id: 1 (required, number) - Unique Customer ID.
+
+### List [GET /v1/customers/{?size,from,sortBy}]
+
++ Parameters
+    + size:   1           (optional, number)       - Page size.
+    + from:   1           (optional, number)       - Start element (counting from 0) or # of elements to skip.
+    + sortBy: `createdAt` (optional, enum[string]) - Field to sort by (`-fieldName` for descending order).
+        + Members
+            + `id`
+			+ `isDisabled`
+			+ `disabledBy`
+			+ `isBlacklisted`
+			+ `blacklistedBy`
+			+ `blacklistedReason`
+			+ `email`
+			+ `name`
+			+ `phoneNumber`
+			+ `location`
+			+ `modality`
+			+ `isGuest`
+            + `createdAt`
++ Response 200 (application/json)
+    + Attributes (CustomersListWithRegions)
+
+### View [GET]
+
++ Response 200 (application/json)
+    + Attributes (CustomerResponseWithRegionsAndRank)
+
+### Create [POST /v1/customers]
+
++ Request (application/json)
+    + Attributes (CustomerCreatePayload)
++ Response 200 (application/json)
+    + Attributes (CustomerResponse)
++ Response 400 (application/json)
+    + Attributes (Errors)
+
+### Update [PATCH]
+
++ Request (application/json)
+	+ Attributes(CustomerUpdatePayload)
++ Response 200 (application/json)
+    + Attributes (CustomerResponse)
+
+### Toggle disabled flag [POST /v1/customers/{id}/disable]
+
++ Parameters
+    + id: 1 (required, number)
++ Request (application/json)
+	+ Attributes(CustomerToggleActivePayload)
++ Response 200 (application/json)
+    + Attributes (CustomerResponse)
+
+### Toggle blacklisted flag [POST /v1/customers/{id}/blacklist]
+
++ Parameters
+    + id: 1 (required, number)
++ Request (application/json)
+    + Attributes(CustomerToggleBlacklistedPayload)
++ Response 200 (application/json)
+    + Attributes (CustomerResponse)
+
+
+### Search customers for new order page [GET /v1/customers/searchForNewOrder?term={term}]
+
++ Parameters
+    + term: `yax` (required, string) - should be at least 2 characters
+
++ Response 200 (application/json)
+    + Attributes (CustomersListWithNumOrders)
+
+### Activate guest customer [POST /v1/customers/{id}/activate]
+
++ Parameters
+    + id: 1 (required, number)
++ Request (application/json)
+	+ Attributes(CustomerActivatePayload)
++ Response 200 (application/json)
+    + Attributes (CustomerResponse)
