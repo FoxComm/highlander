@@ -7,6 +7,7 @@ import models.{OrderLockEvents, Adjustment, CreditCard, CreditCardCharge, Credit
 Order, OrderAssignment, OrderAssignments, OrderLineItem, OrderLineItemGiftCard, OrderLineItemGiftCards,
 OrderLineItemSkus, OrderPayment, OrderPayments, Orders, PaymentMethod, Region, ShippingMethod, Sku, StoreAdmin,
 StoreAdmins, StoreCredit}
+import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 
@@ -17,6 +18,12 @@ object FullOrder {
   type CcPayment = (OrderPayment, CreditCard, Region)
 
   final case class Totals(subTotal: Int, taxes: Int, adjustments: Int, total: Int) extends ResponseItem
+
+  object Totals {
+    def build(subTotal: Int, taxes: Int, adjustments: Int): Totals =
+      Totals(subTotal = subTotal, taxes = taxes, adjustments = adjustments,
+        total = (adjustments - (subTotal + taxes)).abs)
+  }
 
   final case class LineItems(
     skus: Seq[DisplayLineItem] = Seq.empty,
@@ -70,7 +77,7 @@ object FullOrder {
 
   def fromOrder(order: Order)(implicit ec: ExecutionContext, db: Database): DBIO[Root] = {
     fetchOrderDetails(order).map {
-      case (customer, skus, shipMethod, shipAddress, ccPmt, gcPmts, scPmts, assignees, giftCards, lockedBy) ⇒
+      case (customer, skus, shipMethod, shipAddress, ccPmt, gcPmts, scPmts, assignees, giftCards, totals, lockedBy) ⇒
       build(
         order = order,
         customer = customer,
@@ -82,7 +89,8 @@ object FullOrder {
         ccPmt = ccPmt,
         gcPmts = gcPmts,
         scPmts = scPmts,
-        lockedBy = lockedBy
+        lockedBy = lockedBy,
+        totals = totals
       )
     }
   }
@@ -94,6 +102,7 @@ object FullOrder {
     scPmts: Seq[(OrderPayment, StoreCredit)] = Seq.empty,
     assignments: Seq[(OrderAssignment, StoreAdmin)] = Seq.empty,
     giftCards: Seq[(GiftCard, OrderLineItemGiftCard)] = Seq.empty,
+    totals: Option[Totals] = None,
     lockedBy: Option[StoreAdmin] = None): Root = {
 
     val creditCardPmt = ccPmt.map { case (pmt, cc, region) ⇒
@@ -132,7 +141,7 @@ object FullOrder {
       fraudScore = scala.util.Random.nextInt(100),
       customer = customer,
       shippingAddress = shippingAddress,
-      totals = Totals(subTotal = 333, taxes = 10, adjustments = 0, total = 510),
+      totals = totals.getOrElse(Totals.build(subTotal = 0, taxes = 0, adjustments = 0)),
       shippingMethod = shippingMethod.map(ShippingMethods.build(_)),
       assignees = assignments.map((AssignmentResponse.build _).tupled),
       remorsePeriodEnd = order.getRemorsePeriodEnd,
@@ -151,6 +160,13 @@ object FullOrder {
       DBIO.successful(none)
     }
   }
+
+  // TODO: Use utils.Money
+  private def totals(order: Order)(implicit ec: ExecutionContext): DBIO[Totals] = for {
+    maybeSubTotal ← OrderTotaler.subTotal(order)
+    subTotal = maybeSubTotal.getOrElse(0)
+    taxes = (subTotal * 0.05).toInt
+  } yield Totals.build(subTotal = subTotal, taxes = taxes, adjustments = 0)
 
   private def fetchOrderDetails(order: Order)(implicit ec: ExecutionContext) = {
     val shippingMethodQ = for {
@@ -176,8 +192,9 @@ object FullOrder {
       scPayments ← OrderPayments.findAllStoreCreditsByOrderId(order.id).result
       assignments ← OrderAssignments.filter(_.orderId === order.id).result
       admins ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.assigneeId))).result
+      totals ← totals(order)
       lockedBy ← currentLock(order)
     } yield (customer, lineItems, shipMethod, shipAddress, payments, gcPayments, scPayments, assignments.zip(admins),
-      giftCards, lockedBy)
+      giftCards, Option(totals), lockedBy)
   }
 }
