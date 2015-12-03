@@ -1,3 +1,5 @@
+drop materialized view if exists customers_orders_view;
+
 create temporary table tmp_addresses (
     address1            generic_string,
     address2            generic_string,
@@ -15,6 +17,7 @@ select
     c.name,
     c.email,
     c.is_blacklisted,
+    to_char(c.created_at, 'YYYY-MM-dd') as registration_date,
     -- Shipping addresses
     case when count(a) = 0
     then
@@ -46,3 +49,5 @@ left join store_credits as sc on (c.id = sc.customer_id)
 group by c.id;
 
 create unique index customer on customers_orders_view (id);
+
+select * from customers_orders_view;
