@@ -76,10 +76,6 @@ export default class Order extends React.Component {
     }
   }
 
-  get viewers () {
-    if (this.order.id) return <Viewers model='orders' modelId={this.order.id}/>;
-  }
-
   get subNav() {
     if (this.order.id) {
       const content = React.cloneElement(this.props.children, {...this.props, entity: this.order});
@@ -145,7 +141,6 @@ export default class Order extends React.Component {
 
     return (
       <div className="fc-order">
-        {this.viewers}
         <SectionTitle title={`Order ${this.orderRefNum}`}>
           {this.remorseTimer}
         </SectionTitle>
