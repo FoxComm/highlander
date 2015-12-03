@@ -41,9 +41,14 @@ Usually you don't need this method.
 
 * *result.unmount*: `<function>` method for unmount rendered markup from DOM
 
-#### importModule(path, variablesToExport = [])
+#### importSource(path, variablesToExport = [])
 
-Imports redux module under `src/modules/` path and exports private variables that you have defined.
+Imports any lib under `src/` path and exports private variables that you have defined.
+
+#### requireSource(path)
+
+Just helper for imports any lib under `src/` path, it uses regular `require` for import.
+For import non-exported attributes use `importSource` instead
 
 ## Components
 

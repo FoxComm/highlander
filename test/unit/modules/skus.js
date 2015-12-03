@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import nock from 'nock';
 
-const { reducer, ...actions } = importModule('skus.js', [
+const { default: reducer, ...actions } = importSource('modules/skus.js', [
   'requestSkus',
   'receiveSkus',
   'failSkus'

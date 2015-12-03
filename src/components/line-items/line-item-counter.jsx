@@ -7,12 +7,9 @@ const LineItemCounter = props => {
   return (
     <Counter
       defaultValue='quantity'
-      stepAmount={1}
-      minValue={0}
-      maxValue={1000000}
-      model={props.model}
-      stepUp={props.stepUp}
-      stepDown={props.stepDown}/>
+      step={1}
+      min={0}
+      max={1000000}/>
   );
 };
 

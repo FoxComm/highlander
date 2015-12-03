@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import nock from 'nock';
 
-const { reducer, ...actions } = importModule('reasons.js', [
+const { default: reducer, ...actions } = importSource('modules/reasons.js', [
   'reasonsRequested',
   'reasonsReceived',
   'reasonsFailed'

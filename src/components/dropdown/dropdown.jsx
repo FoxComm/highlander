@@ -5,8 +5,10 @@ import DropdownItem from './dropdownItem';
 import { autobind } from 'core-decorators';
 
 export default class Dropdown extends React.Component {
+
   static propTypes = {
     name: PropTypes.string,
+    className: PropTypes.string,
     value: PropTypes.string,
     editable: PropTypes.bool,
     primary: PropTypes.bool,
@@ -78,7 +80,7 @@ export default class Dropdown extends React.Component {
   }
 
   render() {
-    const classnames = classNames({
+    const classnames = classNames(this.props.className, {
       'fc-dropdown': true,
       'is_dropdown_primary': this.props.primary,
       'is_dropdown_editable': this.props.editable,
