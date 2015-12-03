@@ -69,7 +69,6 @@ export default class Dropdown extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
-    // todo: additional/different checks?
     if (newProps.value != this.state.selectedValue) {
       this.setState({
         selectedValue: newProps.value,
