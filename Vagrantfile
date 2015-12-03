@@ -3,6 +3,10 @@
 #
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/vivid64"
+  config.vm.network :forwarded_port, guest: 8181, host: 8181, auto_correct: true
+  config.vm.network :forwarded_port, guest: 9300, host: 9300, auto_correct: true
+  config.vm.network :forwarded_port, guest: 9092, host: 9092, auto_correct: true
+  config.vm.network :forwarded_port, guest: 8081, host: 8081, auto_correct: true
 
   config.vm.provider :virtualbox do |vb|
     vb.cpus = 2
@@ -26,7 +30,7 @@ Vagrant.configure("2") do |config|
 
     g.name = "green-river-stage-01"
     g.machine_type = "n1-standard-2"
-    g.image = "ubuntu-1404-trusty-v20150625"
+    g.image = "ubuntu-1504-vivid-v20151120"
     g.zone = "us-central1-a"
     g.tags = ['no-ip', 'vagrant']
   end
