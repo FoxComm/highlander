@@ -29,10 +29,11 @@ describe('reasons module', function() {
       };
       const skus = [];
       const payload = reasonsPayload;
+      const reasonType = 'donkeyResons';
 
-      const newState = reducer(initialState, actions.reasonsReceived(payload));
+      const newState = reducer(initialState, actions.reasonsReceived(payload, reasonType));
       expect(newState.isFetching).to.be.equal(false);
-      expect(newState.reasons).to.deep.equal(payload.result);
+      expect(newState.reasons[reasonType]).to.deep.equal(payload.result);
     });
 
     it('reasonsFailed should return proper state', function() {
