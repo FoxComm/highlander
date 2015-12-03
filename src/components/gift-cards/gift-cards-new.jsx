@@ -10,6 +10,7 @@ import { transitionTo } from '../../route-helpers';
 // components
 import Counter from '../forms/counter';
 import Typeahead from '../typeahead/typeahead';
+import { PrimaryButton } from '../common/buttons';
 import { Dropdown, DropdownItem }  from '../dropdown';
 import { Checkbox } from '../checkbox/checkbox';
 import { Link } from '../link';
@@ -244,7 +245,9 @@ export default class NewGiftCard extends React.Component {
           {this.quantitySection}
           <div className="fc-action-block">
             <Link to='gift-cards' className="fc-btn-link fc-action-block-cancel">Cancel</Link>
-            <button className="fc-btn fc-btn-primary" type="submit">Issue Gift Card</button>
+            <PrimaryButton disabled={props.sendToCustomer && props.customers.length === 0} type="submit">
+              Issue Gift Card
+            </PrimaryButton>
           </div>
         </form>
       </div>

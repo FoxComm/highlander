@@ -1,4 +1,5 @@
 
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { assoc, dissoc } from 'sprout-data';
 import { PrimaryButton } from '../common/buttons';
@@ -71,7 +72,10 @@ export default class ChooseCustomers extends React.Component {
           })}
         </ul>
         <footer className="fc-choose-customers__footer">
-          <PrimaryButton onClick={event => this.handleClickAddCustomers(event)}>Add Customers</PrimaryButton>
+          <PrimaryButton disabled={_.size(this.state.selectedCustomers) === 0}
+                         onClick={event => this.handleClickAddCustomers(event)}>
+            Add Customers
+          </PrimaryButton>
         </footer>
       </div>
     );
