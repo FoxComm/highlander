@@ -142,19 +142,21 @@ that state in the data section on a connection.
 
 \includegraphics[scale=0.40]{dimension}
 
-\section{Visualization}
+\section{Innovative UI}
+\subsection{Visualization}
 
 One requirement for an activity is that all the data necessary for visualization is stored
 in the JSON. While this will increase the amount of data stored, it will improve performance
 in the UI by reducing the amount of queries. 
 
-\section{Navigation}
+\subsection{Navigation}
 
 One huge advantage to the data structure is that you can easily navigate it along multiple
 dimensions efficiently. This provides interesting UI options in the future when you need
 to jump from one view of activities to another.
 
 \section{Implementation}
+
 
 \subsection{How are Activities Generated?}
 
@@ -173,7 +175,12 @@ is watching the object that activity tracks and add it to the user's notificatio
 
 Magical.
 
-\section{Pros}
+\subsection{Diagram}
+\includegraphics[scale=0.40]{implementation}
+\newpage
+
+\section{Discussion}
+\subsection{Pros}
 \begin{enumerate}
     \item Performance. Cachable completely in Elastic Search
     \item Simplified UI. Activity trail can use the search api instead of hitting DB.
@@ -186,7 +193,7 @@ Magical.
         watch an order, or a customer, or an admin, etc.
 \end{enumerate}
 
-\section{Cons}
+\subsection{Cons}
 
 There are many problems to this design.
 
