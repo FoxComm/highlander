@@ -55,18 +55,20 @@ Forces are problems we have to balance.
 \section{Data Structure}
 
 The following data structure design is motivated by the fact that we want to linearize 
-events along many dimensions. It is composed of two parts, activities and doubly linked
-lists along dimensions, where each dimension is a set of these linked lists where the head
-is used to represent the start of the activity along that dimension. 
+activities along many dimensions. It is composed of two parts, activities and trails along dimensions. 
 
+Each activity belongs to many trails. A trail belongs to a dimension. A trail is implemented
+as a doubly-linked list where each node in the list is called a Connection. 
+
+Each Connection, connects the activity to the trail.
 
 \newpage
 \subsection{Activity}
 
 An activity tracks changes to state made by both the computer and human actors.
 
-We use the term Activity here instead of Event because events are a type of activity, and
-activity implies a grouping.
+We use the term Activity here instead of Event. Though you can think of them as the same 
+thing. 
 
 \begin{lstlisting}
     case class Activity(
@@ -76,46 +78,14 @@ activity implies a grouping.
         created: Instant)
 \end{lstlisting}
 
-One requirement is that the activity stores all data needed to visualize and compute on that activity. The type is used to understand how to decode the json for visualization.
+One requirement is that the activity stores all data needed to visualize and compute on that activity in the data field. 
+The type is used to understand how to decode the json for visualization.
 
 An activity object is also immutable since it tracks changes to state but is NOT state.
 
-\subsection{Connection}
+\subsection{Dimensions and Trails}
 
-Each activity exists in doubly-linked lists in multiple dimensions.
-
-We connect activities together instead of linking them. Linking is traditionally used
-as a term to mean pointer. Instead, we will store a two way \emph{Connection}
-
-\begin{lstlisting}
-    case class Connection(
-        id: Id, 
-        dimension: Id, 
-        activity: Id, 
-        previous: Id, 
-        next: Id, 
-        tail: Id,
-        groupId: Id)
-\end{lstlisting}
-
-Each activity is connected by a two way connection creating a doubly linked list. Each
-connection belongs to some dimension and in each dimension an activity belongs to only
-one list. 
-
-Each list has a tail activity and the tail activity has a connection where
-the \emph{previous} points to the last activity in the trail and the \emph{next} points to the oldest activity (the head).
-
-Each connection points to the tail for optimization purposes. We can create an
-index on the tail id to do quick queries based on the dimension.
-
-Each connection also has a groupId which is used to quickly query for all connections grouped
-by that id. The use case is if a dimension represents activity for a type of object, say customer,
-where we can put the customer id as the group id. 
-
-\subsection{Dimensions}
-
-So what are dimensions and how do they help model activities trails? Dimensions are essentially
-a precomputed linearization of events based on a logical grouping.
+So what are dimensions? Dimensions are a collection of activity trails. 
 
 \begin{lstlisting}
     case class Dimension(
@@ -133,6 +103,43 @@ dimension which will have a head activity that contains the order.id in the json
 Another example, we may want to look at all activities by an admin. So we can have an \emph{admin\_activity}
 dimension.
 
+Another example, watch list is just another activity trail. So we would have a \emph{watched\_activities}
+dimension. 
+
+\subsection{Connection}
+
+Each activity exists in many trails. The trails are modeled as doubly-linked lists where
+a node in the list is called a Connection. It connects an activity to a trail.
+
+\begin{lstlisting}
+    case class Connection(
+        id: Id, 
+        dimension: Id, 
+        activity: Id, 
+        previous: Id, 
+        next: Id, 
+        tail: Id,
+        trailId: Id,
+        data: Json)
+\end{lstlisting}
+
+Each activity is connected to a trail by a connection creating a doubly linked list. Each
+trail belongs to some dimension. 
+
+Each list has a tail activity and the tail activity has a connection where
+the \emph{previous} points to the last activity in the trail and the \emph{next} points to the oldest activity (the head).
+
+Each connection points to the tail for optimization purposes. We can create an
+index on the tail id to do quick queries based on the dimension.
+
+Each connection also has a trailId which is used to quickly query for all connections grouped
+by that id. The use case is if a dimension represents activity for a type of object, say customer,
+where we can put the customer id as the trail id. 
+
+Also each connection can have data. For example, if we model a notification list as a trail in the
+watched\_activities dimension, we can model whether a user seen the activity by storing
+that state in the data section on a connection.
+
 \includegraphics[scale=0.40]{dimension}
 
 \section{Visualization}
@@ -146,6 +153,25 @@ in the UI by reducing the amount of queries.
 One huge advantage to the data structure is that you can easily navigate it along multiple
 dimensions efficiently. This provides interesting UI options in the future when you need
 to jump from one view of activities to another.
+
+\section{Implementation}
+
+\subsection{How are Activities Generated?}
+
+Activities themselves, since they are targeted towards end user will mostly be generated
+in phoenix and inserted into one activity table. Some activities might be able to 
+be created via kafka consumers but phoenix usually has all the metadata on hand
+to create an activity.
+
+\subsection{How are Activities Connected to Trails?}
+
+Activities are connected to a trail in a dimension by many Kafka consumers. The consumers
+will listen to the activity stream and then connect the activity to a trail.
+
+For example, we will have a notification consumer which will take an activity, check who
+is watching the object that activity tracks and add it to the user's notification activity trail.
+
+Magical.
 
 \section{Pros}
 \begin{enumerate}
@@ -165,8 +191,7 @@ to jump from one view of activities to another.
 There are many problems to this design.
 
 \begin{enumerate}
-    \item Adding an activity requires adding it to multiple
-lists in many dimensions. 
+    \item Adding an activity requires adding it to multiple trails in many dimensions. 
     \item Size used is greater because each activity stores all data needed for visualization.
     \item Tracking activity is now explicit. Either phoenix needs changes or we create
            Kafka consumers which look at db changes and create the activity objects.
