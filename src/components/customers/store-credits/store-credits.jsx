@@ -9,6 +9,7 @@ import Currency from '../../common/currency';
 import SearchBar from '../../search-bar/search-bar';
 import Dropdown from '../../dropdown/dropdown';
 import ConfirmationDialog from '../../modal/confirmation-dialog';
+import { ReasonType } from '../../../lib/reason-utils';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import * as StoreCreditsActions from '../../../modules/customers/store-credits';
@@ -85,9 +86,13 @@ export default class StoreCredits extends React.Component {
     return this.props.params.customerId;
   }
 
+  get reasonType() {
+    return ReasonType.CANCELLATION;
+  }
+
   componentDidMount() {
     this.props.fetchStoreCredits(this.entityType);
-    this.props.fetchReasons();
+    this.props.fetchReasons(this.reasonType);
   }
 
   get entityType() {
@@ -177,12 +182,14 @@ export default class StoreCredits extends React.Component {
 
   get confirmCancellation() {
     let reasons = {};
-    if (this.props.reasons) {
-      reasons = _.reduce(this.props.reasons, (acc, reason) => {
+    if (this.props.reasons &&
+        this.props.reasons[this.reasonType]) {
+      reasons = _.reduce(this.props.reasons[this.reasonType], (acc, reason) => {
         acc[reason.id] = reason.body;
         return acc;
       }, {});
     }
+    console.log(reasons);
     const value = this.props.storeCreditToChange &&
       this.props.storeCreditToChange.reasonId;
     const body = (
