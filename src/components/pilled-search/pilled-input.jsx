@@ -11,7 +11,7 @@ const formatPill = (pill, idx, props) => {
       onClick={() => props.onPillClick(pill, idx)}>
       {pill}
       <a onClick={() => props.onPillClose(pill, idx)}
-        className="fc-pilled-search__pill-close">
+        className="fc-pilled-input__pill-close">
         &times;
       </a>
     </div>
@@ -53,7 +53,7 @@ const PilledInput = props => {
         {iconWrapper(props.icon)}
         <div className="fc-pilled-input__input-wrapper">
           <input
-            className="fc-pilled-input__input-field"
+            className="fc-pilled-input__input-field _no-fc-behaviour"
             type="text"
             {...rest} />
         </div>
