@@ -1,20 +1,18 @@
 package routes.admin
 
-import scala.collection.immutable.Seq
-import scala.concurrent.ExecutionContext
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
-
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-
-import models._
-import payloads._
+import models.{Order, Rma, Rmas, StoreAdmin}
+import payloads.{RmaAssigneesPayload, RmaBulkAssigneesPayload, RmaCreatePayload, RmaGiftCardLineItemsPayload,
+RmaMessageToCustomerPayload, RmaPaymentPayload, RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload, RmaUpdateStatusPayload}
 import services.rmas._
-
 import slick.driver.PostgresDriver.api._
 import utils.Apis
-import utils.Http._
 import utils.CustomDirectives._
+import utils.Http._
+
+import scala.concurrent.ExecutionContext
 
 object RmaRoutes {
 

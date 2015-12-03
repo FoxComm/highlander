@@ -1,10 +1,11 @@
 package models.inventory
 
+import java.time.Instant
+
+import models.javaTimeSlickMapper
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
-import models._
-import java.time.Instant
 
 final case class InventorySummary(
   id: Int, 

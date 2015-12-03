@@ -1,38 +1,34 @@
 import java.time.Instant
 
+import Extensions._
 import akka.http.scaladsl.model.StatusCodes
 import akka.pattern.ask
 import akka.testkit.TestActorRef
-
-import models._
+import models.Order._
 import models.rules.QueryStatement
-import payloads.{UpdateLineItemsPayload, Assignment, UpdateOrderPayload}
-import responses.{StoreAdminResponse, FullOrder}
-import services.CartFailures._
-import services._
-import util.IntegrationTestBase
-import utils.seeds.Seeds
-import Seeds.Factories
-import utils.Slick.implicits._
-import slick.driver.PostgresDriver.api._
-import Order._
-import utils.{RemorseTimer, Tick}
-import models.OrderLockEvents.scope._
+import models.{Address, Addresses, CreditCardCharge, CreditCardCharges, CreditCards, Customers, Order, OrderAssignments,
+OrderLineItem, OrderLineItemSku, OrderLineItemSkus, OrderLineItems, OrderLockEvent, OrderLockEvents, OrderPayments,
+OrderShippingAddresses, OrderShippingMethod, OrderShippingMethods, Orders, Regions, Shipment, Shipments,
+ShippingMethods, Skus, StoreAdmin, StoreAdmins}
 import org.json4s.jackson.JsonMethods._
+import payloads.{Assignment, UpdateLineItemsPayload, UpdateOrderPayload}
+import responses.{FullOrder, StoreAdminResponse}
+import services.CartFailures._
+import services.{LockedFailure, NotFoundFailure404, NotLockedFailure, StatusTransitionNotAllowed}
+import slick.driver.PostgresDriver.api._
+import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-
+import utils.Slick.implicits._
+import utils.seeds.Seeds.Factories
 import utils.time._
+import utils.{RemorseTimer, Tick}
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class OrderIntegrationTest extends IntegrationTestBase
   with HttpSupport
   with AutomaticAuth {
-
-  import concurrent.ExecutionContext.Implicits.global
-
-  import Extensions._
-
-  type Errors = Map[String, Seq[String]]
 
   def getUpdated(refNum: String) = db.run(Orders.findByRefNum(refNum).result.headOption).futureValue.value
 
@@ -299,7 +295,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       POST(s"v1/orders/$refNum/lock")
       db.run(OrderLockEvents.findById(1).delete).futureValue
       // Sanity check
-      OrderLockEvents.findByOrder(order.id).mostRecentLock.result.headOption.run().futureValue must ===(None)
+      OrderLockEvents.latestLockByOrder(order.id).result.headOption.run().futureValue must ===(None)
       POST(s"v1/orders/$refNum/unlock")
       getUpdated(refNum).remorsePeriodEnd.value must ===(originalRemorseEnd.plusMinutes(15))
     }

@@ -2,13 +2,14 @@ package responses
 
 import java.time.Instant
 
-import scala.concurrent.{ExecutionContext, Future}
-
-import models._
-import services._
+import cats.implicits._
+import models.{Adjustment, CreditCard, CreditCardCharge, CreditCards, Customer, Customers, GiftCard, Order,
+OrderAssignment, OrderAssignments, OrderLineItem, OrderLineItemGiftCard, OrderLineItemGiftCards, OrderLineItemSkus,
+OrderPayment, OrderPayments, Orders, PaymentMethod, Region, ShippingMethod, Sku, StoreAdmin, StoreAdmins, StoreCredit}
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
-import cats.implicits._
+
+import scala.concurrent.{ExecutionContext, Future}
 
 object FullOrder {
   type Response = Future[Root]
@@ -50,8 +51,7 @@ object FullOrder {
   sealed trait Payments
 
   object Payments {
-    import PaymentMethod.Type
-    import PaymentMethod.{CreditCard, GiftCard, StoreCredit}
+    import PaymentMethod.{CreditCard, GiftCard, StoreCredit, Type}
 
     final case class CreditCardPayment(id: Int, customerId: Int, holderName: String, lastFour: String, expMonth: Int,
       expYear: Int, brand: String, address: Addresses.Root, `type`: Type = CreditCard) extends Payments

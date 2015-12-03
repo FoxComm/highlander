@@ -1,30 +1,31 @@
-import scala.util.Random
-import scala.collection.JavaConverters._
+import Extensions._
 import akka.http.scaladsl.model.StatusCodes
-
-import models._
 import models.StoreCredit._
+import models.{Customer, Customers, OrderPayments, Orders, PaymentMethod, Reason, Reasons, StoreAdmins, StoreCredit,
+StoreCreditAdjustment, StoreCreditAdjustments, StoreCreditManual, StoreCreditManuals, StoreCreditSubtype,
+StoreCreditSubtypes, StoreCredits}
 import org.joda.money.CurrencyUnit
-import responses._
 import org.scalatest.BeforeAndAfterEach
-import services._
+import responses.{GiftCardResponse, ResponseWithFailuresAndMetadata, StoreCreditAdjustmentsResponse,
+StoreCreditResponse, StoreCreditSubTypesResponse}
+import services.{EmptyCancellationReasonFailure, InvalidCancellationReasonFailure, NotFoundFailure404,
+OpenTransactionsFailure, StoreCreditConvertFailure}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import utils.seeds.Seeds
-import Seeds.Factories
 import utils.Slick.implicits._
+import utils.seeds.Seeds.Factories
+
+import scala.collection.JavaConverters._
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.Random
 
 class StoreCreditIntegrationTest extends IntegrationTestBase
   with HttpSupport
   with SortingAndPaging[responses.StoreCreditResponse.Root]
   with AutomaticAuth
   with BeforeAndAfterEach {
-
-  import concurrent.ExecutionContext.Implicits.global
-
-  import Extensions._
 
   // paging and sorting API
   private var currentCustomer: Customer = _

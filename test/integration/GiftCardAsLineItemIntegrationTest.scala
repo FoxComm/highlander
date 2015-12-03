@@ -1,24 +1,27 @@
 import akka.http.scaladsl.model.StatusCodes
-import models._
-import responses._
+import models.{Customers, GiftCard, GiftCardOrder, GiftCardOrders, GiftCards, Order, OrderLineItem,
+OrderLineItemGiftCard, OrderLineItemGiftCards, OrderLineItems, Orders}
 import org.scalatest.BeforeAndAfterEach
-import services._
+import responses.FullOrder
 import services.CartFailures.OrderMustBeCart
+import services.{GeneralFailure, GiftCardMustBeCart, NotFoundFailure404}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 import utils.Money._
-import utils.seeds.Seeds
-import Seeds.Factories
 import utils.Slick.implicits._
+import utils.seeds.Seeds
+import utils.seeds.Seeds.Factories
 
 class GiftCardAsLineItemIntegrationTest extends IntegrationTestBase
   with HttpSupport
   with AutomaticAuth
   with BeforeAndAfterEach {
 
-  import concurrent.ExecutionContext.Implicits.global
   import Extensions._
-  import org.json4s.jackson.JsonMethods._
+
+  import concurrent.ExecutionContext.Implicits.global
 
   "POST /v1/orders/:refNum/gift-cards" - {
     "successfully creates new GC as line item" in new LineItemFixture {
@@ -156,12 +159,12 @@ class GiftCardAsLineItemIntegrationTest extends IntegrationTestBase
 
   trait LineItemFixture {
     val (customer, order, giftCard) = (for {
-      customer ← Customers.create(Factories.customer).map(rightValue)
-      order ← Orders.create(Factories.order.copy(customerId = customer.id, status = Order.Cart)).map(rightValue)
-      gcOrigin ← GiftCardOrders.create(GiftCardOrder(orderId = order.id)).map(rightValue)
-      giftCard ← GiftCards.create(GiftCard.buildLineItem(balance = 150, originId = gcOrigin.id, currency = Currency.USD)).map(rightValue)
-      lineItemGc ← OrderLineItemGiftCards.create(OrderLineItemGiftCard(giftCardId = giftCard.id, orderId = order.id)).map(rightValue)
-      lineItem ← OrderLineItems.create(OrderLineItem.buildGiftCard(order, lineItemGc)).map(rightValue)
-    } yield (customer, order, giftCard)).run().futureValue
+      customer ← * <~ Customers.create(Factories.customer)
+      order ← * <~ Orders.create(Factories.order.copy(customerId = customer.id, status = Order.Cart))
+      gcOrigin ← * <~ GiftCardOrders.create(GiftCardOrder(orderId = order.id))
+      giftCard ← * <~ GiftCards.create(GiftCard.buildLineItem(balance = 150, originId = gcOrigin.id, currency = Currency.USD))
+      lineItemGc ← * <~ OrderLineItemGiftCards.create(OrderLineItemGiftCard(giftCardId = giftCard.id, orderId = order.id))
+      lineItem ← * <~ OrderLineItems.create(OrderLineItem.buildGiftCard(order, lineItemGc))
+    } yield (customer, order, giftCard)).runT().futureValue.rightVal
   }
 }

@@ -1,24 +1,24 @@
 package server
 
-import scala.collection.immutable
-import scala.concurrent.{ExecutionContextExecutor, Future}
-import scala.concurrent.duration._
-import akka.actor.{Cancellable, ActorSystem, Props}
+import akka.actor.{ActorSystem, Cancellable, Props}
 import akka.agent.Agent
 import akka.event.Logging
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.{Route, ExceptionHandler, RejectionHandler}
+import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler, Route}
 import akka.stream.ActorMaterializer
-
 import com.typesafe.config.Config
-import models._
-import org.json4s.{Formats, jackson}
+import models.{Customer, StoreAdmin}
 import org.json4s.jackson.Serialization
-import services._
+import org.json4s.{Formats, jackson}
+import services.Authenticator
 import slick.driver.PostgresDriver.api._
-import utils.{CustomHandlers, WiredStripeApi, Apis, RemorseTimer, RemorseTimerMate, Tick}
+import utils.{Apis, CustomHandlers, RemorseTimer, RemorseTimerMate, Tick, WiredStripeApi}
+
+import scala.collection.immutable
+import scala.concurrent.duration._
+import scala.concurrent.{ExecutionContextExecutor, Future}
 
 object Main extends App {
   val service = new Service()

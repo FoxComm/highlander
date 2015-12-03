@@ -2,15 +2,15 @@ package services.orders
 
 import java.time.{Duration, Instant}
 
-import scala.concurrent.ExecutionContext
-
-import models._
+import models.{Order, OrderLockEvent, OrderLockEvents, Orders, StoreAdmin}
 import responses.FullOrder
-import services._
+import services.Result
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
+
+import scala.concurrent.ExecutionContext
 
 object OrderLockUpdater {
 

@@ -1,22 +1,20 @@
 package services.rmas
 
-import scala.concurrent.{Future, ExecutionContext}
-
-import cats.data.Xor
-import models._
-import models.Rma.{Canceled, Complete}
-import payloads._
-import responses.{CustomerResponse, StoreAdminResponse, AllRmas}
-import services._
+import models.Rma.Canceled
+import models.{Customer, Customers, Order, Orders, Reason, Reasons, Rma, Rmas, StoreAdmin}
+import payloads.{RmaCreatePayload, RmaMessageToCustomerPayload, RmaUpdateStatusPayload}
 import responses.RmaResponse._
+import responses.{AllRmas, CustomerResponse, StoreAdminResponse}
 import services.rmas.Helpers._
+import services.{InvalidCancellationReasonFailure, Result}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import utils.Slick._
-import utils.Slick.DbResult
+import utils.Slick.{DbResult, _}
 import utils.Slick.implicits._
+
+import scala.concurrent.{ExecutionContext, Future}
 
 object RmaService {
   def updateMessageToCustomer(refNum: String, payload: RmaMessageToCustomerPayload)

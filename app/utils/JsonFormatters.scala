@@ -1,8 +1,8 @@
 package utils
 
-import models._
 import models.rules.{Condition, QueryStatement}
-import org.json4s.ext.DateTimeSerializer
+import models.{CreditCardCharge, GiftCard, GiftCardAdjustment, Order, OrderLineItem, PaymentMethod, Rma, RmaLineItem,
+RmaReason, Shipment, StoreCredit, StoreCreditAdjustment}
 import org.json4s.jackson
 import responses.CountryWithRegions
 

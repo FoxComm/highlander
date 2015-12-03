@@ -3,29 +3,25 @@ package models
 import java.time.Instant
 
 import cats.data.Validated.valid
-import cats.data.{Xor, ValidatedNel}
-import Xor.{left, right}
-import models.traits.Lockable
-import responses.FullOrder
-import services.CartFailures.OrderMustBeCart
-import services._
-
-import scala.concurrent.ExecutionContext
-
+import cats.data.Xor.{left, right}
+import cats.data.{ValidatedNel, Xor}
 import com.pellucid.sealerate
 import models.Order.{Cart, Status}
+import models.traits.Lockable
 import monocle.Lens
 import monocle.macros.GenLens
 import services.CartFailures.OrderMustBeCart
+import services.{Failure, Failures, GeneralFailure}
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.Money.Currency
-import utils.table.SearchByRefNum
-
-import utils.{ADT, FSM, GenericTable, ModelWithLockParameter, TableQueryWithLock, Validation}
-import utils.Slick.implicits._
 import utils.Slick.DbResult
+import utils.Slick.implicits._
+import utils.table.SearchByRefNum
+import utils.{ADT, FSM, GenericTable, ModelWithLockParameter, TableQueryWithLock, Validation}
+
+import scala.concurrent.ExecutionContext
 
 final case class Order(id: Int = 0, referenceNumber: String = "", customerId: Int,
   status: Status = Cart, isLocked: Boolean = false, placedAt: Option[Instant] = None,

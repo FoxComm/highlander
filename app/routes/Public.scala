@@ -5,8 +5,6 @@ import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
-import models._
-import org.json4s.jackson.Serialization.{write ⇒ json}
 import responses.PublicSku
 import slick.driver.PostgresDriver.api._
 import services.CustomerManager

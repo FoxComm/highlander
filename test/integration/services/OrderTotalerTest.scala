@@ -1,15 +1,14 @@
 package services
 
-import models._
-
+import models.{Addresses, Customers, GiftCard, GiftCardOrder, GiftCardOrders, GiftCards, OrderLineItem,
+OrderLineItemGiftCard, OrderLineItemGiftCards, OrderLineItemSku, OrderLineItemSkus, OrderLineItems, Orders, Skus}
 import services.orders.OrderTotaler
-import utils.Money.Currency
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import utils.seeds.Seeds
-import Seeds.Factories
+import utils.Money.Currency
 import utils.Slick.implicits._
+import utils.seeds.Seeds.Factories
 
 class OrderTotalerTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global

@@ -2,10 +2,9 @@ package models
 
 import cats.data.NonEmptyList
 import org.scalatest.prop.TableDrivenPropertyChecks._
-import services._
-import utils.seeds.Seeds
-import Seeds.Factories
+import services.{Failure, GeneralFailure}
 import util.TestBase
+import utils.seeds.Seeds.Factories
 
 class OrderShippingAddressTest extends TestBase {
 

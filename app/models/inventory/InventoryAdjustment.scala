@@ -1,12 +1,11 @@
 package models.inventory
 
+import java.time.Instant
+
+import models.{Order, javaTimeSlickMapper}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import utils.{TableQueryWithId, GenericTable, ModelWithIdParameter}
-import utils.Slick.implicits._
-
-import models._
-import java.time.Instant
+import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 final case class InventoryAdjustment(
   id: Int = 0, 

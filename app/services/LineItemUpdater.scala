@@ -1,20 +1,18 @@
 package services
 
-import scala.concurrent.ExecutionContext
-
-import cats.data.Validated.{Valid, Invalid}
-import models._
 import models.OrderLineItems.scope._
+import models.{Customer, GiftCard, GiftCardOrder, GiftCardOrders, GiftCards, Order, OrderLineItem,
+OrderLineItemGiftCard, OrderLineItemGiftCards, OrderLineItemSku, OrderLineItemSkus, OrderLineItems, Orders, Sku, Skus}
 import payloads.{AddGiftCardLineItem, UpdateLineItemsPayload}
-import cats.implicits._
 import responses.FullOrder.refreshAndFullOrder
-import responses.{TheResponse, FullOrder}
-import TheResponse._
+import responses.{FullOrder, TheResponse}
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick._
 import utils.Slick.implicits._
+
+import scala.concurrent.ExecutionContext
 
 object LineItemUpdater {
   def addGiftCard(refNum: String, payload: AddGiftCardLineItem)

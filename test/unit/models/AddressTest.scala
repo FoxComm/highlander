@@ -1,10 +1,10 @@
 package models
 
 import cats.data.NonEmptyList
-import services._
 import org.scalatest.prop.TableDrivenPropertyChecks._
-import util.TestBase
+import services.{Failure, GeneralFailure}
 import util.CustomMatchers._
+import util.TestBase
 
 class AddressTest extends TestBase {
 

@@ -1,16 +1,20 @@
 package utils.seeds
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
 import cats.implicits._
 import models.Order._
-import models._
+import models.{Addresses, CreditCards, Customer, GiftCard, GiftCardManual, GiftCardManuals, GiftCardOrder,
+GiftCardOrders, GiftCards, Note, Notes, Order, OrderLineItem, OrderLineItemGiftCard, OrderLineItemGiftCards,
+OrderLineItemSku, OrderLineItemSkus, OrderLineItems, OrderPayment, OrderPayments, OrderShippingAddress,
+OrderShippingAddresses, OrderShippingMethod, OrderShippingMethods, Orders, Shipment, Shipments, Sku, StoreCredit,
+StoreCreditManual, StoreCreditManuals, StoreCredits}
 import services.GeneralFailure
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT.implicits._
 import utils.DbResultT.{DbResultT, _}
 import utils.Money.Currency
 import utils.Slick.implicits._
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 trait OrderSeeds {
 
@@ -49,8 +53,8 @@ trait OrderSeeds {
   } yield order
 
   def createOrder3(customerId: Customer#Id, skus: Seq[Sku])(implicit db: Database): DbResultT[Order] = {
-    import models.GiftCard.{buildAppeasement ⇒ build}
-    import payloads.{GiftCardCreateByCsr ⇒ payload}
+    import models.GiftCard.{buildAppeasement => build}
+    import payloads.{GiftCardCreateByCsr => payload}
     for {
       order  ← * <~ Orders.create(Order(status = Cart, customerId = customerId))
       _      ← * <~ addSkusToOrder(skus.map(_.id), orderId = order.id, OrderLineItem.Cart)

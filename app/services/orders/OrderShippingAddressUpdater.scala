@@ -1,19 +1,19 @@
 package services.orders
 
-import scala.concurrent.ExecutionContext
-
-import models._
+import models.Addresses.scope._
+import models.{Address, Addresses, Order, OrderShippingAddress, OrderShippingAddresses, Region}
 import payloads.{CreateAddressPayload, UpdateAddressPayload}
-import responses.{TheResponse, FullOrder}
+import responses.{FullOrder, TheResponse}
 import services.CartFailures.NoShipAddress
-import services._
+import services.orders.Helpers._
+import services.{CartValidator, NotFoundFailure404, Result}
 import slick.driver.PostgresDriver.api._
-import utils.Slick.implicits._
-import utils.Slick.{DbResult, _}
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import orders.Helpers._
-import Addresses.scope._
+import utils.Slick.DbResult
+import utils.Slick.implicits._
+
+import scala.concurrent.ExecutionContext
 
 object OrderShippingAddressUpdater {
 

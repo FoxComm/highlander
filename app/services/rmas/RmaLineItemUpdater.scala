@@ -1,17 +1,17 @@
 package services.rmas
 
-import scala.concurrent.ExecutionContext
-
-import models._
-import Helpers._
-import payloads._
+import models.{GiftCard, GiftCards, OrderLineItemGiftCards, OrderLineItemSkus, RmaLineItem, RmaLineItemGiftCard, RmaLineItemGiftCards, RmaLineItemShippingCost, RmaLineItemShippingCosts, RmaLineItemSku, RmaLineItemSkus, RmaLineItems, RmaReason, RmaReasons, Rmas, Shipments, Sku, Skus}
+import payloads.{RmaGiftCardLineItemsPayload, RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload}
 import responses.RmaResponse.Root
-import services._
+import services.rmas.Helpers._
+import services.{NotFoundFailure400, NotFoundFailure404, Result, ShipmentNotFoundFailure}
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick._
 import utils.Slick.implicits._
+
+import scala.concurrent.ExecutionContext
 
 object RmaLineItemUpdater {
 

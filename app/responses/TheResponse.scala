@@ -1,6 +1,6 @@
 package responses
 
-import services._
+import services.Failures
 
 final case class TheResponse[A](
   result  : A,

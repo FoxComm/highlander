@@ -1,16 +1,16 @@
 package services
 
-import models._
 import models.rules.QueryStatement
+import models.{Addresses, Customers, OrderLineItem, OrderLineItemSku, OrderLineItemSkus, OrderLineItems, OrderShippingAddresses, Orders, ShippingMethods, Skus}
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import utils.seeds.{ShipmentSeeds, Seeds}
-import Seeds.Factories
-import utils._
-import utils.ExPostgresDriver.jsonMethods._
 import utils.ExPostgresDriver.api._
+import utils.ExPostgresDriver.jsonMethods._
 import utils.Slick.implicits._
+import utils._
+import utils.seeds.Seeds.Factories
+import utils.seeds.ShipmentSeeds
 
 class ShippingManagerTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global

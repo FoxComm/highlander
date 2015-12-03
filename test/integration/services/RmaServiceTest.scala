@@ -2,18 +2,17 @@ package services
 
 import java.time.Instant
 
-import scala.concurrent.Future
-
-import models._
+import models.{Customers, Order, Orders, Rma, Rmas, StoreAdmins}
 import services.rmas.RmaService
-import util.IntegrationTestBase
-import utils.seeds.Seeds
-import Seeds.Factories
 import slick.driver.PostgresDriver.api._
+import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
+import utils.seeds.Seeds.Factories
 import utils.time._
+
+import scala.concurrent.Future
 
 class RmaServiceTest extends IntegrationTestBase {
 
