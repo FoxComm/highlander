@@ -118,7 +118,7 @@ export default class StoreCredits extends React.Component {
                       this.props.changeStatus(customerId, rowId, value) } />
         );
       default:
-        return (<span>rowState</span>);
+        return (<span>{rowState}</span>);
     }
   }
 
