@@ -24,6 +24,7 @@ project/plugins/project/
 workbench.xmi
 
 # IntelliJ specific
+.idea/
 phoenix-scala.iml
 /bin/
 
