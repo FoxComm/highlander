@@ -19,7 +19,7 @@ If you have troubles with building `avro-c` dependency for bottledwater extensio
 
 ## Configuration
 
-* Elasticsearch - specify `cluster.name` in elasticsearch config (usually located in `/etc/elasticsearch/elasticsearch.yml`)
+* Elasticsearch - specify `cluster.name` in elasticsearch config
 * Postgres - see [configuration](https://github.com/FoxComm/bottledwater-pg#configuration)
 * Schema Registry - prepare basic configuration file:
 
@@ -30,7 +30,7 @@ If you have troubles with building `avro-c` dependency for bottledwater extensio
 	debug=false
 	```
 
-* Green River - see `application.conf`
+* Green River - see `src/main/resources/application.conf`
 
 	* Note: `elastic4s` library uses port 9300 by default, so you shouldn't probably change it.
 	
@@ -72,6 +72,4 @@ If you have troubles with building `avro-c` dependency for bottledwater extensio
 
 Drop replication slot in `psql` (don't forget to specify a schema via `\c`) if bottledwater won't start properly:
 
-```
-$ select pg_drop_replication_slot('bottledwater');
-```
+	$ select pg_drop_replication_slot('bottledwater');
