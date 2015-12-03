@@ -1,0 +1,10 @@
+[Service]
+WorkingDirectory=/vagrant
+ExecStart=/bin/bash vagrant/run_kafka.sh /home/vagrant/kafka
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=kafka
+
+[Install]
+WantedBy=multi-user.target
