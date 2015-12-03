@@ -1,0 +1,40 @@
+FORMAT: 1A
+
+## Save for later [/v1/save-for-later/{customerId}]
+
++ Parameters
+    + customerId: 1 (required, number) - Customer ID
+
+### List [GET]
+
+Status: Implemented.
+
++ Response 200 (application/json)
+    + Attributes (SaveForLaterResponse)
++ Response 404
+    + Attributes (Errors)
+
+### Save [POST /v1/save-for-later/{customerId}/{skuId}]
+
+Status: Implemented.
+
++ Parameters
+    + skuId: 1 (required, number) - SKU ID
+
++ Response 200 (application/json)
+    + Attributes (SaveForLaterResponse)
++ Response 404
+    + Attributes (Errors)
++ Response 400
+    + Attributes (Errors)
+
+### Delete [DELETE /v1/save-for-later/{saveForLaterId}]
+
+Status: Implemented.
+
++ Parameters
+    + saveForLaterId: 1 - Save for later ID
+
++ Response 204
++ Response 404
+    + Attributes (Errors)

@@ -1,0 +1,46 @@
+### List Reasons [GET /v1/reasons]
+
++ Parameters
+    + size:   1           (optional, number)       - Page size.
+    + from:   1           (optional, number)       - Start element (counting from 0) or # of elements to skip.
+    + sortBy: `parentId`  (optional, enum[string]) - Field to sort by (`-fieldName` for descending order).
+        + Members
+            + `id`
+            + `reasonType`
+            + `storeAdminId`
+            + `parentId`
+            + `body`
++ Response 200 (application/json)
+    + Attributes (Reasons)
+
+### List Reasons By Type [GET /v1/reasons/{type}]
+
++ Parameters
+    + type:  `general`    (required, string)       - Specified reason type.
+    + size:   1           (optional, number)       - Page size.
+    + from:   1           (optional, number)       - Start element (counting from 0) or # of elements to skip.
+    + sortBy: `parentId`  (optional, enum[string]) - Field to sort by (`-fieldName` for descending order).
+        + Members
+            + `id`
+            + `reasonType`
+            + `storeAdminId`
+            + `parentId`
+            + `body`
++ Response 200 (application/json)
+    + Attributes (Reasons)    
+
+### List Rma Reasons [GET /v1/rma-reasons]
+
++ Parameters
+    + size:   1           (optional, number)       - Page size.
+    + from:   1           (optional, number)       - Start element (counting from 0) or # of elements to skip.
+    + sortBy: `id`        (optional, enum[string]) - Field to sort by (`-fieldName` for descending order).
+        + Members
+            + `id`
+            + `name`
+            + `reasonType`
+            + `rmaType`
+            + `createdAt`
+            + `deletedAt`
++ Response 200 (application/json)
+    + Attributes (RmaReasons)

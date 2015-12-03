@@ -1,0 +1,274 @@
+## Return [/v1/rmas/{refNum}]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Unique RMA reference number
+
+### List [GET /v1/rmas/{?size,from,sortBy}]
+
++ Parameters
+    + size:   1           (optional, number)       - Page size.
+    + from:   1           (optional, number)       - Start element (counting from 0) or # of elements to skip.
+    + sortBy: `id`        (optional, enum[string]) - Field to sort by (`-fieldName` for descending order).
+        + Members
+            + `id`
+            + `referenceNumber`
+            + `orderId`
+            + `orderRefNum`
+            + `rmaType`
+            + `status`
+            + `locked`
+            + `customerId`
+            + `storeAdminId`
++ Response 200 (application/json)
+    + Attributes (Rmas)
+
+### List by Customer [GET /v1/rmas/customer/{customerId}/{?size,from,sortBy}]
+
++ Parameters
+    + customerId: 1 (required, number) - Customer ID.
+    + size:   1           (optional, number)       - Page size.
+    + from:   1           (optional, number)       - Start element (counting from 0) or # of elements to skip.
+    + sortBy: `id`        (optional, enum[string]) - Field to sort by (`-fieldName` for descending order).
+        + Members
+            + `id`
+            + `referenceNumber`
+            + `orderId`
+            + `orderRefNum`
+            + `rmaType`
+            + `status`
+            + `locked`
+            + `customerId`
+            + `storeAdminId`
++ Response 200 (application/json)
+    + Attributes (Rmas)
++ Response 404 (application/json)
+    + Attributes (Errors)
+
+### List by Order [GET /v1/rmas/order/{orderRef}/{?size,from,sortBy}]
+
++ Parameters
+    + orderRef: `ABC-123` (required, string) - Order reference number.
+    + size:   1           (optional, number)       - Page size.
+    + from:   1           (optional, number)       - Start element (counting from 0) or # of elements to skip.
+    + sortBy: `id`        (optional, enum[string]) - Field to sort by (`-fieldName` for descending order).
+        + Members
+            + `id`
+            + `referenceNumber`
+            + `orderId`
+            + `orderRefNum`
+            + `rmaType`
+            + `status`
+            + `locked`
+            + `customerId`
+            + `storeAdminId`
++ Response 200 (application/json)
+    + Attributes (Rmas)
++ Response 404 (application/json)
+    + Attributes (Errors)
+
+### View [GET]
+
++ Response 200 (application/json)
+    + Attributes (Rma)
++ Response 404 (application/json)
+    + Attributes (Errors)
+
+### Edit View [GET /v1/rmas/{code}/expanded]
+
+Expanded view with embedded Order + warnings and includes.
+
++ Response 200 (application/json)
+    + Attributes (RmaExpanded)
++ Response 404 (application/json)
+    + Attributes (Errors)
+
+### View Lock [GET /v1/rmas/{refNum}/lock]
+
++ Response 200 (application/json)
+    + Attributes (RmaLockInfo)
++ Response 404 (application/json)
+    + Attributes (Errors)
+
+### Lock [POST /v1/rmas/{refNum}/lock]
+
++ Response 200 (application/json)
+    + Attributes (Rma)
++ Response 404 (application/json)
+    + Attributes (Errors)
+
+### Unlock [POST /v1/rmas/{refNum}/unlock]
+
++ Response 200 (application/json)
+    + Attributes (Rma)
++ Response 404 (application/json)
+    + Attributes (Errors)
+
+### Create [POST /v1/rmas]
+
++ Request (application/json)
+    + Attributes (RmaCreatePayload)
++ Response 200 (application/json)
+    + Attributes (Rma)
+
+### Update Status [PATCH /v1/rmas/{refNum}/status]
+
+Update return status.
+
+Status: Not implemented.
+
++ Request (application/json)
+    + Attributes (RmaStatusUpdatePayload)
++ Response 200 (application/json)
+    + Attributes (Rma)
++ Response 400 (application/json)
+    + Attributes (Errors)
+
+### Update Message To Customer [POST /v1/rmas/{refNum}/message]
+
++ Request (application/json)
+    + Attributes (RmaMessageToCustomerUpdatePayload)
++ Response 200 (application/json)
+    + Attributes (Rma)
++ Response 400 (application/json)
+    + Attributes (Errors)
+
+### RMA Line Items SKUs [/v1/rmas/{refNum}/line-items/skus]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Unique RMA reference number
+
+### Add [POST]
+
++ Request (application/json)
+    + Attributes (array[RmaSkuLineItemPayload])
++ Response 200 (application/json)
+    + Attributes (Rma) 
+
+### Delete [DELETE /v1/rmas/{refNum}/line-items/skus/{id}]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Unique RMA reference number
+    + id: 1 (required, number) - Line item ID
++ Response 200 (application/json)
+    + Attributes (Rma)
+
+### RMA Line Items Gift Cards [/v1/rmas/{refNum}/line-items/gift-cards]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Unique RMA reference number
+
+### Add [POST]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - RMA referenceNumber.
++ Request (application/json)
+    + Attributes (array[RmaGiftCardLineItemPayload])
++ Response 200 (application/json)
+    + Attributes (Rma)
+
+### Delete [DELETE /v1/rmas/{refNum}/line-items/gift-cards/{id}]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Unique RMA reference number
+    + id: 1 (required, number) - Line item ID
++ Response 200 (application/json)
+    + Attributes (Rma)
+
+### RMA Line Items Shipping Costs [/v1/rmas/{refNum}/line-items/shipping-costs]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Unique RMA reference number
+
+### Add [POST]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - RMA referenceNumber.
++ Request (application/json)
+    + Attributes (array[RmaShippingCostLineItemPayload])
++ Response 200 (application/json)
+    + Attributes (Rma)
+
+### Delete [DELETE /v1/rmas/{refNum}/line-items/shipping-costs/{id}]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Unique RMA reference number
+    + id: 1 (required, number) - Line item ID
++ Response 200 (application/json)
+    + Attributes (Rma)    
+
+## RMA CC Payments [/v1/rmas/{refNum}/payment-methods/credit-cards]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Unique RMA reference number
+
+### Add Credit Card [POST]
+
++ Request (application/json)
+    + Attributes (RmaPaymentPayload)
++ Response 200 (application/json)
+    + Attributes (Rma)
+
+### Delete Credit Card [DELETE]
+
++ Response 200 (application/json)
+    + Attributes (Rma)
+
+## RMA GC Payments [/v1/rmas/{refNum}/payment-methods/gift-cards]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Unique RMA reference number
+
+### Add Gift Card [POST]
+
++ Request (application/json)
+    + Attributes (RmaPaymentPayload)
++ Response 200 (application/json)
+    + Attributes (Rma)
+
+### Delete Gift Card [DELETE]
+
++ Response 200 (application/json)
+    + Attributes (Rma)
+
+## RMA SC Payments [/v1/rmas/{refNum}/payment-methods/store-credits]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Unique RMA reference number
+
+### Add Store Credit [POST]
+
++ Request (application/json)
+    + Attributes (RmaPaymentPayload)
++ Response 200 (application/json)
+    + Attributes (Rma)
+
+### Delete Store Credit [DELETE]
+
++ Response 200 (application/json)
+    + Attributes (Rma)
+
+## RMA Assignees [/v1/rmas/{refNum}/assignees]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Unique RMA reference number
+
+### Assign [POST]
+
++ Request (application/json)
+    + Attributes (RmaAssignPayload)
++ Response 200 (application/json)
+    + Attributes (Rma)
+
+### Bulk Assign [POST /v1/rmas/assignees]
+
++ Request (application/json)
+    + Attributes (RmaBulkAssignPayload)
++ Response 200 (application/json)
+    + Attributes (Rma)
+
+### Bulk Unassign [POST /v1/rmas/assignees/delete]
+
++ Request (application/json)
+    + Attributes (RmaBulkAssignPayload)
++ Response 200 (application/json)
+    + Attributes (Rma)

@@ -1,0 +1,29 @@
+# Data Structures
+
+### Reason
++ id: 1 (required, number) - Unique identifier.
++ reasonType: `cancellation` (required, string) - Reason type.
++ storeAdminId: 1 (required, number) - ID of StoreAdmin.
++ body: `Cancelled by customer request` (required, string) - Reason text.
++ parentId: 1 (optional, number) - Parent reason ID
++ createdAt: `2015-09-10T14:55:50Z` (required, string) - Creation date.
++ deletedAt: `2015-09-10T14:55:50Z` (optional, string) - Deletion date.
+
+### RmaReason
++ id: 1 (required, number) - Unique identifier.
++ name: `Some reason` (required, string) - ID of StoreAdmin.
++ reasonType (required, enum[string]) - Reason type.
+    + Members
+        + `baseReason`
+        + `productReturnCode`
++ rmaType (required, enum[string]) - RMA type.
+    + Members
+        + `standard`
+        + `creditOnly`
+        + `restockOnly`
++ createdAt: `2015-09-10T14:55:50Z` (required, string) - Creation date.
++ deletedAt: `2015-09-10T14:55:50Z` (optional, string) - Deletion date.
+
+### Reasons (array[Reason])
+
+### RmaReasons (array[RmaReason])

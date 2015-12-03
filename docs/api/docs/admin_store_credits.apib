@@ -1,0 +1,91 @@
+## Store Credit [/v1/customer/{id}/payment-methods/store-credits]
+
++ Parameters
+    + id: 1 (required, number) - Customer ID
+
+### List [GET /v1/customer/{id}/payment-methods/store-credits/{?size,from,sortBy}]
+
++ Parameters
+    + size:   1           (optional, number)       - Page size.
+    + from:   1           (optional, number)       - Start element (counting from 0) or # of elements to skip.
+    + sortBy: `createdAt` (optional, enum[string]) - Field to sort by (`-fieldName` for descending order).
+        + Members
+            + `id`
+            + `originId`
+            + `originType`
+            + `customerId`
+            + `currency`
+            + `originalBalance`
+            + `currentBalance`
+            + `availableBalance`
+            + `canceledAmount`
+            + `canceledReason`
+            + `createdAt`
++ Response 200 (application/json)
+    + Attributes (StoreCredits)
+
+### List Types [GET /v1/store-credits/types]
+
++ Response 200 (application/json)
+    + Attributes (array[StoreCreditOriginTypeResponse])
+
+### List Subtypes [GET /v1/store-credits/{type}/subtypes]
+
++ Parameters
+    + type: `csrAppeasement` (required, string) - Gift card origin type
++ Response 200 (application/json)
+    + Attributes (array[GiftCardSubtype])
++ Response 400 (application/json)
+    + Attributes (Errors)
+
+### View [GET /v1/store-credits/{id}]
+
++ Parameters
+    + id: 1 (required, number) - Store Credit ID
++ Response 200 (application/json)
+    + Attributes (StoreCredit)
++ Response 404 (application/json)
+    + Attributes (Errors)
+
+### Create [POST /v1/store-credits]
+
++ Request (application/json)
+    + Attributes (StoreCreditCreatePayload)
++ Response 200 (application/json)
+    + Attributes (StoreCredit)
++ Response 400 (application/json)
+    + Attributes (Errors)
+
+### Update Status [PATCH /v1/store-credits/{id}]
+
++ Request (application/json)
+    + Attributes (StoreCreditUpdateStatusPayload)
++ Response 200 (application/json)
+    + Attributes (StoreCredit)
++ Response 400 (application/json)
+    + Attributes (Errors)
+
+### Bulk Update Status [PATCH /v1/store-credits]
+
++ Request (application/json)
+    + Attributes (StoreCreditBulkStatusUpdatePayload)
++ Response 200 (application/json)
+    + Attributes (array[StoreCreditBulkResponse])
+
+### List [GET /v1/store-credits/{id}/transactions/{?size,from,sortBy}]
+
++ Parameters
+    + id: 1 (required, number) - Store Credit ID
+    + size:   1           (optional, number)       - Page size.
+    + from:   1           (optional, number)       - Start element (counting from 0) or # of elements to skip.
+    + sortBy: `createdAt` (optional, enum[string]) - Field to sort by (`-fieldName` for descending order).
+        + Members
+            + `id`
+            + `storeCreditId`
+            + `orderPaymentId`
+            + `debit`
+            + `availableBalance`
+            + `status`
+            + `createdAt`
++ Response 200 (application/json)
+    + Attributes (StoreCreditAdjustments)
