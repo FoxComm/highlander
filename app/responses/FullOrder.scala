@@ -3,9 +3,10 @@ package responses
 import java.time.Instant
 
 import cats.implicits._
-import models.{Adjustment, CreditCard, CreditCardCharge, CreditCards, Customer, Customers, GiftCard, Order,
-OrderAssignment, OrderAssignments, OrderLineItem, OrderLineItemGiftCard, OrderLineItemGiftCards, OrderLineItemSkus,
-OrderPayment, OrderPayments, Orders, PaymentMethod, Region, ShippingMethod, Sku, StoreAdmin, StoreAdmins, StoreCredit}
+import models.{OrderLockEvents, Adjustment, CreditCard, CreditCardCharge, CreditCards, Customer, Customers, GiftCard,
+Order, OrderAssignment, OrderAssignments, OrderLineItem, OrderLineItemGiftCard, OrderLineItemGiftCards,
+OrderLineItemSkus, OrderPayment, OrderPayments, Orders, PaymentMethod, Region, ShippingMethod, Sku, StoreAdmin,
+StoreAdmins, StoreCredit}
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 
@@ -37,7 +38,8 @@ object FullOrder {
     shippingAddress: Option[Addresses.Root] = None,
     assignees: Seq[AssignmentResponse.Root] = Seq.empty,
     remorsePeriodEnd: Option[Instant] = None,
-    paymentMethods: Seq[Payments] = Seq.empty) extends ResponseItem
+    paymentMethods: Seq[Payments] = Seq.empty,
+    lockedBy: Option[StoreAdmin]) extends ResponseItem
 
   final case class DisplayLineItem(
     imagePath: String = "http://lorempixel.com/75/75/fashion",
@@ -68,7 +70,7 @@ object FullOrder {
 
   def fromOrder(order: Order)(implicit ec: ExecutionContext, db: Database): DBIO[Root] = {
     fetchOrderDetails(order).map {
-      case (customer, skus, shipMethod, shipAddress, ccPmt, gcPmts, scPmts, assignees, giftCards) ⇒
+      case (customer, skus, shipMethod, shipAddress, ccPmt, gcPmts, scPmts, assignees, giftCards, lockedBy) ⇒
       build(
         order = order,
         customer = customer,
@@ -79,7 +81,8 @@ object FullOrder {
         assignments = assignees,
         ccPmt = ccPmt,
         gcPmts = gcPmts,
-        scPmts = scPmts
+        scPmts = scPmts,
+        lockedBy = lockedBy
       )
     }
   }
@@ -90,7 +93,8 @@ object FullOrder {
     ccPmt: Option[CcPayment] = None, gcPmts: Seq[(OrderPayment, GiftCard)] = Seq.empty,
     scPmts: Seq[(OrderPayment, StoreCredit)] = Seq.empty,
     assignments: Seq[(OrderAssignment, StoreAdmin)] = Seq.empty,
-    giftCards: Seq[(GiftCard, OrderLineItemGiftCard)] = Seq.empty): Root = {
+    giftCards: Seq[(GiftCard, OrderLineItemGiftCard)] = Seq.empty,
+    lockedBy: Option[StoreAdmin] = None): Root = {
 
     val creditCardPmt = ccPmt.map { case (pmt, cc, region) ⇒
       val payment = Payments.CreditCardPayment(id = cc.id, customerId = cc.customerId, holderName = cc.holderName,
@@ -132,8 +136,20 @@ object FullOrder {
       shippingMethod = shippingMethod.map(ShippingMethods.build(_)),
       assignees = assignments.map((AssignmentResponse.build _).tupled),
       remorsePeriodEnd = order.getRemorsePeriodEnd,
-      paymentMethods = paymentMethods
+      paymentMethods = paymentMethods,
+      lockedBy = none
     )
+  }
+
+  private def currentLock(order: Order): DBIO[Option[StoreAdmin]] = {
+    if (order.isLocked) {
+      (for {
+        lock    ← OrderLockEvents.latestLockByOrder(order.id)
+        admin   ← lock.storeAdmin
+      } yield admin).one
+    } else {
+      DBIO.successful(none)
+    }
   }
 
   private def fetchOrderDetails(order: Order)(implicit ec: ExecutionContext) = {
@@ -160,7 +176,8 @@ object FullOrder {
       scPayments ← OrderPayments.findAllStoreCreditsByOrderId(order.id).result
       assignments ← OrderAssignments.filter(_.orderId === order.id).result
       admins ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.assigneeId))).result
+      lockedBy ← currentLock(order)
     } yield (customer, lineItems, shipMethod, shipAddress, payments, gcPayments, scPayments, assignments.zip(admins),
-      giftCards)
+      giftCards, lockedBy)
   }
 }
