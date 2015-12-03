@@ -4,6 +4,7 @@ import { createAction, createReducer } from 'redux-act';
 import { haveType } from '../state-helpers';
 import { get, assoc } from 'sprout-data';
 import _ from 'lodash';
+import OrderParagon from '../../paragons/order';
 
 const _createLineItemAction = (description, ...args) => {
   return createAction('ORDER_LINE_ITEMS_' + description, ...args);
@@ -112,7 +113,7 @@ const reducer = createReducer({
     return {
       ...state,
       isFetching: false,
-      currentOrder: haveType(order, 'order'),
+      currentOrder: new OrderParagon(order),
       lineItems: {
         ...state.lineItems,
         items: itemList

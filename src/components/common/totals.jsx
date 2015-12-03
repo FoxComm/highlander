@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import _ from 'lodash';
 import ContentBox from '../content-box/content-box';
 import Currency from './currency';
 
@@ -16,27 +17,13 @@ const TotalsFooter = props => {
   );
 };
 
-TotalsFooter.propTypes = {
-  entity: PropTypes.shape({
-    totals: PropTypes.shape({
-      total: PropTypes.number.isRequired
-    })
-  })
-};
-
-const title = entityType => {
-  return entityType === 'rma' ? 'Return Summary' : 'Order Summary';
-};
-
-const discounts = (adjustments, totals) => {
-  if (!adjustments) return null;
-
-  const subTotalWithDiscounts = totals.subTotal;
+const discounts = totals => {
+  const subTotalWithDiscounts = totals.subTotal + totals.adjustments;
 
   return (
     <div>
       <dt>Discounts</dt>
-      <dd><Currency value={adjustments}/></dd>
+      <dd><Currency value={totals.adjustments}/></dd>
       <dt className="fc-totals-summary-new-subtotal">New Subtotal</dt>
       <dd className="fc-totals-summary-new-subtotal"><Currency value={subTotalWithDiscounts}/></dd>
     </div>
@@ -44,8 +31,6 @@ const discounts = (adjustments, totals) => {
 };
 
 const shipping = totals => {
-  if (!totals.shipping) return null;
-
   return (
     <div>
       <dt>Shipping</dt>
@@ -56,23 +41,48 @@ const shipping = totals => {
 
 const TotalsSummary = props => {
   const entity = props.entity;
-  const adjustments = entity.totals.adjustments || 0;
-  const subtotalWithoutDiscounts = entity.totals.subTotal - adjustments;
+  const totals = entity.totals;
+  const title = `${props.title} Summary`;
 
   return (
-    <ContentBox title={title(entity.entityType)} className="fc-totals-summary" footer={<TotalsFooter {...props} />}>
+    <ContentBox title={title} className="fc-totals-summary" footer={<TotalsFooter {...props} />}>
       <article className="fc-totals-summary-content">
         <dl className="rma-totals">
           <dt>Subtotal</dt>
-          <dd><Currency value={subtotalWithoutDiscounts}/></dd>
-          {discounts(adjustments, entity.totals)}
+          <dd><Currency value={totals.subTotal}/></dd>
+          {discounts(entity.totals)}
           {shipping(entity.totals)}
           <dt>Tax</dt>
-          <dd><Currency value={entity.totals.taxes}/></dd>
+          <dd><Currency value={totals.taxes}/></dd>
         </dl>
       </article>
     </ContentBox>
   );
+};
+
+TotalsSummary.propTypes = {
+  entity: PropTypes.shape({
+    totals: PropTypes.shape({
+      subTotal: PropTypes.number.isRequired,
+      shipping: PropTypes.number.isRequired,
+      taxes: PropTypes.number.isRequired,
+      adjustments: PropTypes.number.isRequired,
+      total: PropTypes.number.isRequired
+    })
+  }),
+  title: PropTypes.string.isRequired
+};
+
+TotalsFooter.propTypes = {
+  entity: PropTypes.shape({
+    totals: PropTypes.shape({
+      subTotal: PropTypes.number.isRequired,
+      shipping: PropTypes.number.isRequired,
+      taxes: PropTypes.number.isRequired,
+      adjustments: PropTypes.number.isRequired,
+      total: PropTypes.number.isRequired
+    })
+  })
 };
 
 export default TotalsSummary;

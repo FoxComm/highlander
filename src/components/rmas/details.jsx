@@ -36,7 +36,7 @@ export default class RmaDetails extends React.Component {
     return (
       <div className="fc-rma-details fc-grid fc-grid-match">
         <div className="fc-col-md-3-10">
-          {/*<TotalsSummary entity={rma} />*/}
+          {/*<TotalsSummary entity={rma} title="Return"/>*/}
         </div>
         <div className="fc-col-md-7-10">
           <CustomerInfo rma={rma} isEditing={isEditing}/>
