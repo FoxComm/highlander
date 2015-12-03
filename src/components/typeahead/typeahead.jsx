@@ -18,7 +18,7 @@ export default class Typeahead extends React.Component {
     // fetchItems if passed should return promise for results
     fetchItems: PropTypes.func,
     component: PropTypes.func,
-    items: PropTypes.array.isRequired,
+    items: PropTypes.array,
     label: PropTypes.string,
     name: PropTypes.string,
     placeholder: PropTypes.string,
@@ -125,17 +125,17 @@ export default class Typeahead extends React.Component {
       const itemsElement = this.props.itemsElement;
 
       const ourProps = {
-        onItemSelected: this.onItemSelected,
-        component: this.props.component,
         updating: this.state.updating,
-        items: this.props.items,
         toggleVisibility: show => this.toggleVisibility(show),
       };
 
       if (itemsElement) {
         return React.cloneElement(itemsElement, ourProps);
       } else {
-        return <TypeaheadItems {...ourProps} />;
+        return <TypeaheadItems {...ourProps}
+          onItemSelected={this.onItemSelected}
+          component={this.props.component}
+          items={this.props.items} />;
       }
     }
   }

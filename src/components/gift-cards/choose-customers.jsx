@@ -11,7 +11,7 @@ export default class ChooseCustomers extends React.Component {
     items: PropTypes.array.isRequired,
     updating: PropTypes.bool,
     onAddCustomers: PropTypes.func.isRequired,
-    toggleVisibility: PropTypes.func.isRequired,
+    toggleVisibility: PropTypes.func,
   };
 
   constructor(...args) {

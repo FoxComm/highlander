@@ -47,16 +47,14 @@ export default class NewGiftCard extends React.Component {
     balanceText: PropTypes.string,
     changeFormData: PropTypes.func.isRequired,
     createGiftCard: PropTypes.func.isRequired,
-    customers: PropTypes.map,
+    customers: PropTypes.array,
     emailCSV: PropTypes.bool,
-    fetchCustomers: PropTypes.func.isRequired,
     removeCustomer: PropTypes.func,
     sendToCustomer: PropTypes.bool,
-    subTypes: PropTypes.map,
+    subTypes: PropTypes.array,
     suggestCustomers: PropTypes.func,
     suggestedCustomers: PropTypes.array,
     types: PropTypes.array,
-    users: PropTypes.map,
   };
 
   static contextTypes = {
@@ -67,7 +65,8 @@ export default class NewGiftCard extends React.Component {
     super(props, context);
     this.state = {
       customerMessageCount: 0,
-      csvMessageCount: 0
+      csvMessageCount: 0,
+      customersQuery: '',
     };
   }
 
@@ -100,9 +99,9 @@ export default class NewGiftCard extends React.Component {
       return (
         <div className="fc-new-gift-card__subtypes fc-col-md-1-2">
           <label htmlFor="subTypeId">Subtype</label>
-          <Dropdown value={props.subTypeId} onChange={ value => props.changeFormData('subTypeId', value) }>
+          <Dropdown value={`${props.subTypeId}`} onChange={ value => props.changeFormData('subTypeId', Number(value)) }>
             {props.subTypes.map((subType, idx) => {
-              return <DropdownItem key={`subType-${idx}`} value={subType.id}>{subType.title}</DropdownItem>;
+              return <DropdownItem key={`subType-${idx}`} value={`${props.subTypeId}`}>{subType.title}</DropdownItem>;
             })}
           </Dropdown>
         </div>
@@ -113,7 +112,13 @@ export default class NewGiftCard extends React.Component {
   get chooseCustomersMenu() {
     return (
       <ChooseCustomers
-        onAddCustomers={(customers) => this.props.addCustomers(_.values(customers))} />
+        items={this.props.suggestedCustomers}
+        onAddCustomers={(customers) => {
+          this.props.addCustomers(_.values(customers));
+          this.setState({
+            customersQuery: ''
+          });
+        }} />
     );
   }
 
@@ -121,7 +126,10 @@ export default class NewGiftCard extends React.Component {
     const props = this.props;
 
     return (
-      <PilledInput pills={props.customers.map(customer => customer.name)}
+      <PilledInput
+        value={this.state.customersQuery}
+        onChange={e => this.setState({customersQuery: e.target.value})}
+        pills={props.customers.map(customer => customer.name)}
         icon={null}
         onPillClose={(name, idx) => props.removeCustomer(props.customers[idx].id)} />
     );
@@ -137,7 +145,6 @@ export default class NewGiftCard extends React.Component {
         <div className="fc-new-gift-card__send-to-customers">
           <Typeahead
             className="_no-search-icon"
-            items={props.suggestedCustomers}
             fetchItems={props.suggestCustomers}
             itemsElement={this.chooseCustomersMenu}
             inputElement={this.chooseCustomersInput}

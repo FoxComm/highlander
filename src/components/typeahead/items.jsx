@@ -26,7 +26,7 @@ const TypeaheadItems = props => {
 };
 
 TypeaheadItems.propTypes = {
-  component: PropTypes.func.isRequired,
+  component: PropTypes.func,
   updating: PropTypes.bool,
   onItemSelected: PropTypes.func,
   items: PropTypes.array.isRequired
