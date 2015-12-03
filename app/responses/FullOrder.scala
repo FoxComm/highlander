@@ -151,7 +151,7 @@ object FullOrder {
 
     for {
       customer ← Customers.findById(order.customerId).extract.one
-      lineItems ← OrderLineItemSkus.findLineItemsByOrder(order).result
+      lineItems ← OrderLineItemSkus.findLineItemsByOrder(order).sortBy(_._1.sku).result
       giftCards ← OrderLineItemGiftCards.findLineItemsByOrder(order).result
       shipMethod ← shippingMethodQ.one
       shipAddress ← Addresses.forOrderId(order.id)

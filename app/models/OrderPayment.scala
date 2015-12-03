@@ -97,7 +97,7 @@ object OrderPayments extends TableQueryWithId[OrderPayment, OrderPayments](
       def creditCards:  QuerySeq = q.byType(Pay.CreditCard)
       def storeCredits: QuerySeq = q.byType(Pay.StoreCredit)
 
-      def byType(pmt: Pay.Type): QuerySeq = filter(_.paymentMethodType === (pmt: Pay.Type))
+      def byType(pmt: Pay.Type): QuerySeq = q.filter(_.paymentMethodType === (pmt: Pay.Type))
     }
   }
 }
