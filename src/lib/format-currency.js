@@ -7,14 +7,6 @@ function isInteger(n) {
   return isNumber(n) && n.toString().match(/[.,]/g) == null;
 }
 
-function _currentLocale() {
-  if (global.navigator) {
-    return global.navigator.userLanguage || global.navigator.language || undefined;
-  }
-}
-
-const currentLocale = _.memoize(_currentLocale);
-
 function intlFormatCurrency(amount, opts) {
   if (opts.fractionBase) {
     amount = amount / Math.pow(10, opts.fractionBase);
@@ -27,7 +19,7 @@ function intlFormatCurrency(amount, opts) {
     opts.minimumFractionDigits = 2;
     opts.maximumFractionDigits = 2;
   }
-  const formatter = global.Intl.NumberFormat(currentLocale(), opts);
+  const formatter = global.Intl.NumberFormat('en-US', opts);
   return formatter.format(amount);
 }
 
