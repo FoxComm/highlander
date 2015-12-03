@@ -41,7 +41,7 @@ export default class StoreCreditTransactions extends React.Component {
       },
       {
         field: 'totalAvailableBalance',
-        text: 'Total Availabale Balance'
+        text: 'Total Available Balance'
       }
     ]
   };
