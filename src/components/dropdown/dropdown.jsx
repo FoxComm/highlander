@@ -26,7 +26,7 @@ export default class Dropdown extends React.Component {
     };
   }
 
-  findTitleByValue(value, props=this.props) {
+  findTitleByValue(value, props) {
     if (props.items) {
       return props.items[value];
     } else {
@@ -86,7 +86,7 @@ export default class Dropdown extends React.Component {
       'is_dropdown_open': this.state.open
     });
     const value = this.state.selectedValue || this.props.value;
-    const title = this.state.selectedTitle || this.findTitleByValue(value);
+    const title = this.state.selectedTitle || this.findTitleByValue(value, this.props);
 
     return (
       <div className={classnames} onBlur={this.onBlur} tabIndex="0">
