@@ -18,7 +18,8 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
       val (sc, payment) = (for {
         origin  ← * <~ StoreCreditManuals.create(StoreCreditManual(adminId = admin.id, reasonId = reason.id))
         sc      ← * <~ StoreCredits.create(Factories.storeCredit.copy(originId = origin.id))
-        payment ← * <~ OrderPayments.create(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = sc.id))
+        payment ← * <~ OrderPayments.create(Factories.giftCardPayment.copy(orderId = order.id,
+          paymentMethodId = sc.id, amount = Some(25)))
       } yield (sc, payment)).runT().futureValue.rightVal
 
       val adjustments = Table(
@@ -37,7 +38,8 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
       val sc = (for {
         origin ← * <~ StoreCreditManuals.create(StoreCreditManual(adminId = admin.id, reasonId = reason.id))
         sc     ← * <~ StoreCredits.create(Factories.storeCredit.copy(originalBalance = 500, originId = origin.id))
-        pay    ← * <~ OrderPayments.create(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = sc.id))
+        pay    ← * <~ OrderPayments.create(Factories.giftCardPayment.copy(orderId = order.id,
+          paymentMethodId = sc.id, amount = Some(500)))
         _      ← * <~ StoreCredits.capture(storeCredit = sc, orderPaymentId = Some(pay.id), amount = 50)
         _      ← * <~ StoreCredits.capture(storeCredit = sc, orderPaymentId = Some(pay.id), amount = 25)
         _      ← * <~ StoreCredits.capture(storeCredit = sc, orderPaymentId = Some(pay.id), amount = 15)
@@ -57,7 +59,8 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
       val (sc, payment) = (for {
         origin  ← * <~ StoreCreditManuals.create(StoreCreditManual(adminId = admin.id, reasonId = reason.id))
         sc      ← * <~ StoreCredits.create(Factories.storeCredit.copy(originalBalance = 500, originId = origin.id))
-        payment ← * <~ OrderPayments.create(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = sc.id))
+        payment ← * <~ OrderPayments.create(Factories.giftCardPayment.copy(orderId = order.id,
+          paymentMethodId = sc.id, amount = Some(500)))
       } yield (sc, payment)).runT().futureValue.rightVal
 
       val debits = List(50, 25, 15, 10)

@@ -71,7 +71,8 @@ object Seeds {
     def shippingAddress = OrderShippingAddress(regionId = 4174, name = "Old Yax", address1 = "9313 Olde Mill Pond Dr",
       address2 = None, city = "Glen Allen", zip = "23060", phoneNumber = None)
 
-    def creditCardCharge = CreditCardCharge(creditCardId = creditCard.id, orderPaymentId = orderPayment.id, chargeId = "foo")
+    def creditCardCharge = CreditCardCharge(creditCardId = creditCard.id, orderPaymentId = orderPayment.id,
+      chargeId = "foo", amount = 25)
 
     def reason = Reason(id = 0, storeAdminId = 0, body = "I'm a reason", parentId = None)
 

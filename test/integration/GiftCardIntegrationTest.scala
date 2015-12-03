@@ -379,12 +379,11 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       origin    ← * <~ GiftCardManuals.create(GiftCardManual(adminId = admin.id, reasonId = reason.id))
       giftCard  ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active))
       gcSecond  ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active,
-                                                                                                      code = "ABC-234"))
+        code = "ABC-234"))
       payment   ← * <~ OrderPayments.create(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId =
-                                                              giftCard.id, paymentMethodType = PaymentMethod.GiftCard))
+        giftCard.id, paymentMethodType = PaymentMethod.GiftCard, amount = Some(25)))
       adj1      ← * <~ GiftCards.auth(giftCard, Some(payment.id), 10)
       giftCard  ← * <~ GiftCards.findOneById(giftCard.id).toXor
-    } yield (customer, admin, giftCard.value, order, payment, adj1, gcSecond, gcSubType)).runT()
-      .futureValue.rightVal
+    } yield (customer, admin, giftCard.value, order, payment, adj1, gcSecond, gcSubType)).runT().futureValue.rightVal
   }
 }

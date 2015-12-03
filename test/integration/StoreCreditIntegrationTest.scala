@@ -345,7 +345,8 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       storeCredit ← * <~ StoreCredits.create(Factories.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))
       scSecond    ← * <~ StoreCredits.create(Factories.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))
       payment     ← * <~ OrderPayments.create(Factories.storeCreditPayment.copy(orderId = order.id,
-        paymentMethodId = storeCredit.id, paymentMethodType = PaymentMethod.StoreCredit))
+        paymentMethodId = storeCredit.id, paymentMethodType = PaymentMethod.StoreCredit,
+        amount = Some(storeCredit.availableBalance)))
       adjustment ← * <~ StoreCredits.auth(storeCredit, Some(payment.id), 10)
     } yield (admin, customer, scReason, storeCredit, order, adjustment, scSecond, payment, scSubType)).runT()
       .futureValue.rightVal
