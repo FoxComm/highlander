@@ -11,6 +11,7 @@ export const addCustomer = createAction('GIFT_CARDS_NEW_ADD_CUSTOMER');
 export const removeCustomer = createAction('GIFT_CARDS_NEW_REMOVE_CUSTOMER');
 export const addUser = createAction('GIFT_CARDS_NEW_ADD_USER');
 export const removeUser = createAction('GIFT_CARDS_NEW_REMOVE_USER');
+export const changeQuantity = createAction('GIFT_CARDS_NEW_CHANGE_QUANTITY');
 
 const balanceToText = balance => (balance / 100).toFixed(2);
 const textToBalance = value => value * 100;
@@ -19,6 +20,7 @@ const initialState = {
   customers: [],
   users: [],
   balance: 100,
+  quantity: 1,
   balanceText: balanceToText(100),
   originType: 'Appeasement',
   sendToCustomer: false,
@@ -80,6 +82,16 @@ const reducer = createReducer({
     return {
       ...state,
       users: _.reject(state.users, users => users.id == id)
+    };
+  },
+  [changeQuantity]: (state, amount) => {
+    amount = Number(amount);
+    if (isNaN(amount)) amount = 1;
+    amount = Math.max(amount, 1);
+
+    return {
+      ...state,
+      quantity: amount
     };
   }
 }, initialState);

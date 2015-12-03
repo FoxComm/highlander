@@ -116,18 +116,9 @@ export default class NewGiftCard extends React.Component {
     }
   }
 
-  render() {
-    const props = this.props;
-
-    let
-      customerSearch = null,
-      quantity       = null,
-      emailCSV       = null;
-
-    const typeList = Object.keys(this.props.types);
-
+  get customerListBlock() {
     if (this.props.sendToCustomer) {
-      customerSearch = (
+      return (
         <div id="customerSearch">
           <Typeahead
             items={this.props.suggestedCustomers}
@@ -140,28 +131,52 @@ export default class NewGiftCard extends React.Component {
           <ul id="customerList">
             {this.props.customers.map((customer, idx) => {
               return (
-                <li key={`customer-${idx}`}>
-                  {customer.name}
-                  <input type="hidden" name="customers[]" id={`customer_${idx}`} value={customer.id} />
-                  <a onClick={() => this.props.removeCustomer(customer.id)}>&times;</a>
-                </li>
-              );
-             })}
+              <li key={`customer-${idx}`}>
+                {customer.name}
+                <input type="hidden" name="customers[]" id={`customer_${idx}`} value={customer.id}/>
+                <a onClick={() => this.props.removeCustomer(customer.id)}>&times;</a>
+              </li>
+                );
+              })}
           </ul>
           <label htmlFor="customerMessage">Write a message for customers (optional):</label>
           <div className="counter">{this.state.customerMessageCount}/1000</div>
           <textarea name="customerMessage" maxLength="1000" onChange={this.changeCustomerMessage.bind(this)}></textarea>
         </div>
       );
-
-      quantity = (
-        <span>
-          {this.props.customers.length} <input type="hidden" name="quantity" value={this.props.customers.length} />
-        </span>
-      );
-    } else {
-      quantity = <Counter inputName="quantity" />;
     }
+  }
+
+  get quantitySection() {
+    if (!this.props.sendToCustomer) {
+
+      const changeQuantity = (event, amount) => {
+        event.preventDefault();
+        this.props.changeQuantity(this.props.quantity + amount);
+      };
+
+      return (
+        <fieldset>
+          <label htmlFor="quantity">Quantity</label>
+          <Counter
+            id="quantity"
+            value={this.props.quantity}
+            increaseAction={event => changeQuantity(event, 1)}
+            decreaseAction={event => changeQuantity(event, -1)}
+            onChange={({target}) => this.props.changeQuantity(target.value)}
+            min={1} />
+        </fieldset>
+      );
+    }
+  }
+
+  render() {
+    const props = this.props;
+
+    let emailCSV = null;
+
+    const typeList = Object.keys(this.props.types);
+
 
     if (this.props.emailCSV) {
       emailCSV = (
@@ -234,16 +249,13 @@ export default class NewGiftCard extends React.Component {
               }
             </div>
           </fieldset>
+          {this.quantitySection}
           <fieldset>
             <label>
               <Checkbox id="sendToCustomer" name="sendToCustomer"  value={this.props.sendToCustomer} />
               Send gift card(s) to customer(s)
             </label>
-            { customerSearch }
-          </fieldset>
-          <fieldset>
-            <label htmlFor="quantity">Quantity</label>
-            {quantity}
+            { this.customerListBlock }
           </fieldset>
           <fieldset>
             A CSV file of the gift cards can be created. What would you like to do?
