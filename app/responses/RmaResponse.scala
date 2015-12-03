@@ -2,19 +2,18 @@ package responses
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext
-
-import models._
-import responses.CustomerResponse.{Root ⇒ Customer}
-import responses.FullOrder.Totals
-import responses.StoreAdminResponse.{Root ⇒ StoreAdmin}
+import models.{Customers, GiftCard, Orders, PaymentMethod, Rma, RmaAssignments, RmaLineItem, RmaLineItemGiftCards,
+RmaLineItemShippingCosts, RmaLineItemSkus, RmaPayment, RmaPayments, Shipment, Sku, StoreAdmins}
+import responses.CustomerResponse.{Root => Customer}
+import responses.StoreAdminResponse.{Root => StoreAdmin}
 import services.NotFoundFailure404
 import services.rmas.RmaTotaler
-
 import slick.driver.PostgresDriver.api._
 import utils.Money._
 import utils.Slick._
 import utils.Slick.implicits._
+
+import scala.concurrent.ExecutionContext
 
 object RmaResponse {
   final case class RmaTotals(subTotal: Int, shipping: Int, taxes: Int, total: Int) extends ResponseItem

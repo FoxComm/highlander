@@ -1,24 +1,19 @@
 package utils
 
-import scala.concurrent.{Future, ExecutionContext}
-
 import cats.data.Validated.Valid
-import cats.data.{XorT, Xor, ValidatedNel}
+import cats.data.{ValidatedNel, Xor}
 import monocle.Lens
-import services._
+import services.{DatabaseFailure, Failure, Failures, LockedFailure, NotFoundFailure400, NotFoundFailure404, Result}
 import slick.ast.BaseTypedType
-import slick.dbio.Effect.Write
-import slick.dbio.{Effect, NoStream}
-import slick.driver.PostgresDriver
 import slick.driver.PostgresDriver.api._
-import slick.profile.FixedSqlAction
-import utils.Slick.DbResult
-import utils.Slick._
-import utils.Slick.implicits._
-import utils.Strings._
-import utils.table.SearchById
 import utils.DbResultT._
 import utils.DbResultT.implicits._
+import utils.Slick.implicits._
+import utils.Slick.{DbResult, _}
+import utils.Strings._
+import utils.table.SearchById
+
+import scala.concurrent.{ExecutionContext, Future}
 
 trait ModelWithIdParameter[T <: ModelWithIdParameter[T]] extends Validation[T] { self: T ⇒
   type Id = Int
@@ -223,8 +218,9 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.
 
 object ExceptionWrapper {
   def wrapDbio[A](dbio: DBIO[A])(implicit ec: ExecutionContext): DbResult[A] = {
-    import scala.util.{Failure, Success}
     import services.DatabaseFailure
+
+    import scala.util.{Failure, Success}
 
     dbio.asTry.flatMap {
       case Success(value) ⇒ DbResult.good(value)

@@ -1,19 +1,16 @@
 package services.orders
 
-import scala.concurrent.ExecutionContext
-
-import models._
+import models.Orders
 import responses.FullOrder
-import services._
-import Helpers._
+import services.Result
+import services.orders.Helpers._
 import slick.driver.PostgresDriver.api._
-import utils.Slick.implicits._
-import utils.Slick.DbResult
-import utils.Slick.UpdateReturning._
-import utils.time._
-
 import utils.DbResultT._
 import utils.DbResultT.implicits._
+import utils.Slick.implicits._
+import utils.time._
+
+import scala.concurrent.ExecutionContext
 
 object OrderUpdater {
 

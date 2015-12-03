@@ -1,27 +1,22 @@
 package routes
 
-import scala.concurrent.ExecutionContext
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
-
-import cats.data.Xor
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport
-import models._
-
-import payloads._
-import responses.FullOrder
-import services._
+import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
+import models.{Orders, StoreCredits}
+import payloads.{CreateAddressPayload, UpdateLineItemsPayload}
+import services.{AddressManager, LineItemUpdater, Result, StoreCreditService}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives._
-import utils.Slick.DbResult
-import utils.Slick._
+import utils.Http._
 import utils.Slick.implicits._
+import utils.Slick.{DbResult, _}
+
+import scala.concurrent.ExecutionContext
 
 object Customer {
   def routes(implicit ec: ExecutionContext, db: Database,
-    mat: Materializer, customerAuth: AsyncAuthenticator[Customer]) = {
-    import Json4sSupport._
-    import utils.Http._
+    mat: Materializer, customerAuth: AsyncAuthenticator[models.Customer]) = {
 
     authenticateBasicAsync(realm = "private customer routes", customerAuth) { customer ⇒
       pathPrefix("my") {

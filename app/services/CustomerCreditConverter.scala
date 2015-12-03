@@ -2,14 +2,14 @@ package services
 
 import cats.data.Xor
 import cats.implicits._
-
-import models._
-import responses._
-
-import scala.concurrent.ExecutionContext
+import models.{Customer, Customers, GiftCard, GiftCardAdjustments, GiftCardFromStoreCredit, GiftCardFromStoreCredits,
+GiftCards, StoreAdmin, StoreCredit, StoreCreditAdjustments, StoreCreditFromGiftCard, StoreCreditFromGiftCards, StoreCredits}
+import responses.{GiftCardResponse, StoreAdminResponse, StoreCreditResponse}
 import slick.driver.PostgresDriver.api._
 import utils.Slick._
 import utils.Slick.implicits._
+
+import scala.concurrent.ExecutionContext
 
 object CustomerCreditConverter {
   def toStoreCredit(code: String, customerId: Int, admin: StoreAdmin)

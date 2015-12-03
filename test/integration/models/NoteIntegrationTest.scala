@@ -1,13 +1,9 @@
 package models
 
-import com.wix.accord.{Failure ⇒ ValidationFailure, Success ⇒ ValidationSuccess}
-import util.IntegrationTestBase
-import utils.seeds.Seeds
-import Seeds.Factories
-import utils.Slick.implicits._
-
-import services._
 import util.CustomMatchers._
+import util.IntegrationTestBase
+import utils.Slick.implicits._
+import utils.seeds.Seeds.Factories
 
 @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.AsInstanceOf"))
 class NoteIntegrationTest extends IntegrationTestBase {

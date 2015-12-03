@@ -1,19 +1,18 @@
 package services.orders
 
-import scala.concurrent.ExecutionContext
-
-import cats.implicits._
 import models.{Order, OrderAssignment, OrderAssignments, Orders, StoreAdmin, StoreAdmins}
 import responses.ResponseWithFailuresAndMetadata.BulkOrderUpdateResponse
-import responses.{TheResponse, FullOrder, ResponseWithFailuresAndMetadata}
-import services._
+import responses.{FullOrder, ResponseWithFailuresAndMetadata, TheResponse}
+import services.orders.Helpers._
+import services.{Failure, Failurez, NotFoundFailure404, Result}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives
 import utils.CustomDirectives.SortAndPage
-import utils.Slick.implicits._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import orders.Helpers._
+import utils.Slick.implicits._
+
+import scala.concurrent.ExecutionContext
 
 object OrderAssignmentUpdater {
 

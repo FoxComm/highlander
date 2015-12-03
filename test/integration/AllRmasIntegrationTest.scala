@@ -1,37 +1,30 @@
 import java.time.Instant
-import akka.http.scaladsl.model.StatusCodes
 
+import Extensions._
+import akka.http.scaladsl.model.StatusCodes
 import cats.data.Xor
-import cats.implicits._
-import models.Rma._
-import models._
-import payloads._
+import models.{StoreAdmins, Customers, Order, Orders, Rma, Rmas, StoreAdmin}
+import payloads.RmaBulkAssigneesPayload
 import responses.ResponseWithFailuresAndMetadata.BulkRmaUpdateResponse
-import responses.{StoreAdminResponse, RmaResponse, AllRmas}
+import responses.{AllRmas, RmaResponse, StoreAdminResponse}
+import services.NotFoundFailure404
 import services.rmas._
-import services._
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT
-import utils.seeds.{Seeds, SeedsGenerator}
-import Seeds.Factories
-import utils.Slick._
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 import utils.Slick.implicits._
-import utils.seeds.SeedsGenerator
+import utils.seeds.Seeds.Factories
+import utils.seeds.{Seeds, SeedsGenerator}
 import utils.time._
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class AllRmasIntegrationTest extends IntegrationTestBase
   with HttpSupport
   with SortingAndPaging[AllRmas.Root]
   with AutomaticAuth {
-
-  import concurrent.ExecutionContext.Implicits.global
-
-  import Extensions._
-  import api._
-
-  import utils.DbResultT._
-  import DbResultT.implicits._
 
   // paging and sorting API
   def uriPrefix = "v1/rmas"

@@ -1,10 +1,9 @@
 package util
 
-import cats.implicits._
 import cats.data._
-import org.scalatest._
-import matchers._
-import services._
+import cats.implicits._
+import org.scalatest.matchers._
+import services.{Failure, GeneralFailure}
 
 object CustomMatchers {
   // Same as `include`, used for Failure inner Strings

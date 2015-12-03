@@ -1,14 +1,12 @@
 package services
 
-import scala.concurrent.{Future, ExecutionContext}
-
-import models._
-import models.{GiftCardAdjustment, Orders, OrderPayments, GiftCardAdjustments, GiftCards}
+import models.{GiftCardAdjustments, GiftCards, OrderPayments, Orders}
 import responses.GiftCardAdjustmentsResponse._
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
-import utils.Slick._
 import utils.Slick.implicits._
+
+import scala.concurrent.{ExecutionContext, Future}
 
 object GiftCardAdjustmentsService {
 

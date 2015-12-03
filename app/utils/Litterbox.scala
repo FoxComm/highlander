@@ -3,7 +3,7 @@ package utils
 import cats.implicits._
 import cats.{SemigroupK, Semigroup}
 import cats.data.NonEmptyList
-import services._
+import services.Failure
 
 // useful extensions to cats
 object Litterbox {

@@ -1,19 +1,18 @@
 package services.rmas
 
-import scala.concurrent.ExecutionContext
-
-import Helpers._
-import models.OrderPayments.scope._
 import models.RmaPayments.scope._
-import models._
+import models.{CreditCards, GiftCard, GiftCardRefund, GiftCardRefunds, GiftCards, RmaPayment, RmaPayments, Rmas, StoreAdmin, StoreCredit, StoreCreditRefund, StoreCreditRefunds, StoreCredits}
 import payloads.RmaPaymentPayload
 import responses.RmaResponse
-import services._
+import services.Result
+import services.rmas.Helpers._
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick._
 import utils.Slick.implicits._
+
+import scala.concurrent.ExecutionContext
 
 object RmaPaymentUpdater {
   def addCreditCard(refNum: String, payload: RmaPaymentPayload)

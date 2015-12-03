@@ -2,23 +2,20 @@ package services
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext
-
 import cats.data.Validated.{Invalid, Valid}
-import models._
+import models.Notes.scope._
+import models.{Customers, GiftCards, Note, Notes, Orders, Rmas, StoreAdmin, javaTimeSlickMapper}
 import responses.AdminNotes
 import responses.AdminNotes.Root
+import services.orders.Helpers._
 import slick.driver.PostgresDriver.api._
-import services.orders._
-import utils.DbResultT.DbResultT
-import utils.Slick.DbResult
-import utils.Slick.implicits._
-import utils.ModelWithIdParameter
-import models.Notes.scope._
-
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import services.orders.Helpers._
+import utils.ModelWithIdParameter
+import utils.Slick.DbResult
+import utils.Slick.implicits._
+
+import scala.concurrent.ExecutionContext
 
 object NoteManager {
 

@@ -1,13 +1,13 @@
 package utils
 
-import java.time.{LocalDateTime, Instant, ZonedDateTime}
+import java.time.LocalDateTime
 
-import cats.data.Validated.{Valid, Invalid, valid, invalidNel}
+import cats.data.Validated.{Invalid, Valid, invalidNel, valid}
 import cats.data.{NonEmptyList, Validated, ValidatedNel}
 import com.wix.accord
-import com.wix.accord.combinators._
 import com.wix.accord.RuleViolation
-import services._
+import com.wix.accord.combinators._
+import services.{Failure, GeneralFailure}
 
 trait Validation[M] {
   def validate: ValidatedNel[Failure, M]

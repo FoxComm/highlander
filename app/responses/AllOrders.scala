@@ -2,11 +2,11 @@ package responses
 
 import java.time.Instant
 
-import scala.concurrent.{ExecutionContext, Future}
-
-import models._
+import models.{Customer, Order, OrderPayment}
 import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
+
+import scala.concurrent.{ExecutionContext, Future}
 
 object AllOrders {
   type Response = Future[Seq[Root]]

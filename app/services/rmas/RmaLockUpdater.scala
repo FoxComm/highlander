@@ -1,15 +1,15 @@
 package services.rmas
 
-import scala.concurrent.ExecutionContext
-
-import models._
+import models.{RmaLockEvent, RmaLockEvents, Rmas, StoreAdmin, StoreAdmins}
 import responses.{RmaLockResponse, RmaResponse}
-import services._
+import services.Result
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick._
 import utils.Slick.implicits._
+
+import scala.concurrent.ExecutionContext
 
 object RmaLockUpdater {
 

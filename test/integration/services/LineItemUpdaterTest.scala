@@ -1,18 +1,17 @@
 package services
 
-import models.inventory._
 import java.time.Instant
 
-import cats.data.Xor
-import models._
-import utils.seeds.Seeds
-import Seeds.Factories
-import payloads.{UpdateLineItemsPayload ⇒ Payload}
+import models.inventory._
+import models.{Order, OrderLineItem, OrderLineItemSku, OrderLineItemSkus, OrderLineItems, Orders, Skus}
+import payloads.{UpdateLineItemsPayload => Payload}
 import util.IntegrationTestBase
 import utils.Slick.implicits._
+import utils.seeds.Seeds.Factories
 
 class LineItemUpdaterTest extends IntegrationTestBase {
   import api._
+
   import concurrent.ExecutionContext.Implicits.global
 
   val lineItems = TableQuery[OrderLineItems]

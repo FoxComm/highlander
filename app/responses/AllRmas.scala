@@ -2,11 +2,10 @@ package responses
 
 import java.time.Instant
 
-import scala.concurrent.{ExecutionContext, Future}
-
-import models._
+import models.{Customer, Rma, RmaAssignments, StoreAdmin, StoreAdmins}
 import slick.driver.PostgresDriver.api._
-import utils.Slick._
+
+import scala.concurrent.{ExecutionContext, Future}
 
 object AllRmas {
   type Response = Future[Seq[Root]]

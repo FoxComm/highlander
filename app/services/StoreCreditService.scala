@@ -1,22 +1,22 @@
 package services
 
-import scala.concurrent.{ExecutionContext, Future}
-
-import cats.data.Validated.{Valid, Invalid}
+import cats.data.Validated.{Invalid, Valid}
 import cats.data.Xor
 import cats.implicits._
-
 import models.StoreCredit.Canceled
-import models._
 import models.StoreCreditSubtypes.scope._
-import responses.{StoreCreditSubTypesResponse, StoreCreditResponse}
-import responses.StoreCreditResponse._
+import models.{Customer, Customers, Reason, Reasons, StoreAdmin, StoreCredit, StoreCreditAdjustments, StoreCreditManual,
+StoreCreditManuals, StoreCreditSubtype, StoreCreditSubtypes, StoreCredits}
 import responses.StoreCreditBulkResponse._
+import responses.StoreCreditResponse._
+import responses.{StoreCreditResponse, StoreCreditSubTypesResponse}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
-import utils.Slick._
 import utils.Slick.UpdateReturning._
+import utils.Slick._
 import utils.Slick.implicits._
+
+import scala.concurrent.{ExecutionContext, Future}
 
 object StoreCreditService {
   type QuerySeq = StoreCredits.QuerySeq

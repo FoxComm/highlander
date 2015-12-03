@@ -1,18 +1,15 @@
-import akka.http.scaladsl.model.StatusCodes
-import scala.concurrent.ExecutionContext.Implicits.global
-
 import Extensions._
-import models._
+import akka.http.scaladsl.model.StatusCodes
+import models.{Reason, Reasons, RmaReason, RmaReasons, StoreAdmins}
 import responses.ResponseWithFailuresAndMetadata
 import services.InvalidReasonTypeFailure
-import slick.driver.PostgresDriver.api._
-import utils.DbResultT
-import utils.DbResultT._
-import DbResultT.implicits._
 import util.IntegrationTestBase
-import utils.seeds.Seeds.Factories
-import utils.Slick.implicits._
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 import utils.Strings._
+import utils.seeds.Seeds.Factories
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class ReasonsIntegrationTest extends IntegrationTestBase
 with HttpSupport

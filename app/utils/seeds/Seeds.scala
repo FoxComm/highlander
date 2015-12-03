@@ -2,13 +2,9 @@ package utils.seeds
 
 import java.time.{Instant, ZoneId}
 
-import scala.concurrent.Await
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
-
 import cats.data.Xor
-import models._
 import models.Reason._
+import models.{CreditCardCharge, OrderPayment, OrderShippingAddress, Reason, Reasons}
 import org.postgresql.ds.PGSimpleDataSource
 import services.{Failures, FailuresOps}
 import slick.driver.PostgresDriver
@@ -17,6 +13,10 @@ import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.JsonFormatters
 import utils.flyway.newFlyway
+
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 
 object Seeds {
 

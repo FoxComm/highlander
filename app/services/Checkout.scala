@@ -2,25 +2,20 @@ package services
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext
-
 import cats.implicits._
 import models.Order.RemorseHold
-import models._
+import models.{CreditCardCharge, CreditCardCharges, GiftCard, GiftCardAdjustment, GiftCards, Order,
+OrderLineItemGiftCards, OrderPayment, OrderPayments, Orders, StoreCreditAdjustment, StoreCredits}
 import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
-import utils.Apis
+import utils.{Apis, DbResultT}
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Litterbox._
 import utils.Slick.DbResult
 import utils.Slick.implicits._
-import OrderPayments.scope._
-import utils.Litterbox._
-import utils.{DbResultT, TableQueryWithId, friendlyClassName}
 
-import utils.DbResultT._
-import utils.DbResultT.implicits._
+import scala.concurrent.ExecutionContext
 
 /*
   1) Run cart through validator

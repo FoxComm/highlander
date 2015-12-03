@@ -1,6 +1,6 @@
 package services
 
-import models._
+import models.{Order, OrderShippingAddresses, Orders, Customers, Addresses}
 import services.orders.OrderShippingAddressUpdater._
 import util.IntegrationTestBase
 import utils.DbResultT._

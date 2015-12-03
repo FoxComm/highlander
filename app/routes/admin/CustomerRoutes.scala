@@ -1,24 +1,16 @@
 package routes.admin
 
-import akka.http.scaladsl.model.{HttpResponse, ContentTypes, HttpEntity}
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
-import akka.stream.scaladsl.Source
-import akka.stream.stage.{Context, PushPullStage}
-import akka.util.ByteString
-import cats.data.Xor
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import models._
-import org.json4s.{Formats, jackson}
-import org.json4s.jackson.Serialization
-import org.json4s.jackson.Serialization.{write ⇒ json}
-import payloads._
-import services._
+import models.{Customers, StoreAdmin}
+import payloads.{ActivateCustomerPayload, CreateAddressPayload, UpdateCustomerPayload}
+import services.{AddressManager, CreditCardManager, CustomerCreditConverter, CustomerManager, StoreCreditAdjustmentsService, StoreCreditService}
 import slick.driver.PostgresDriver.api._
 import utils.Apis
+import utils.CustomDirectives._
 import utils.Http._
 import utils.Slick.implicits._
-import utils.CustomDirectives._
 
 import scala.concurrent.{ExecutionContext, Future}
 

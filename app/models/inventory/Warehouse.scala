@@ -3,8 +3,6 @@ package models.inventory
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
-import models._
-import java.time.Instant
 
 final case class Warehouse(
   id: Int,

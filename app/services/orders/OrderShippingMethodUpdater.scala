@@ -1,16 +1,16 @@
 package services.orders
 
-import scala.concurrent.ExecutionContext
-
 import cats.implicits._
-import models._
+import models.{OrderShippingMethod, OrderShippingMethods, Orders, Shipments, ShippingMethod, ShippingMethods}
 import payloads.UpdateShippingMethod
-import responses.{TheResponse, FullOrder}
-import services._
+import responses.{FullOrder, TheResponse}
+import services.{CartValidator, NotFoundFailure400, Result, ShippingManager}
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
+
+import scala.concurrent.ExecutionContext
 
 object OrderShippingMethodUpdater {
 

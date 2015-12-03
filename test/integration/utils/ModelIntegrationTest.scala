@@ -1,17 +1,16 @@
 package utils
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
-import models._
-import services.{GeneralFailure, DatabaseFailure, StatusTransitionNotAllowed}
+import models.{Orders, Order, Customer, Addresses, Customers}
+import services.{DatabaseFailure, GeneralFailure, StatusTransitionNotAllowed}
+import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import utils.seeds.Seeds
-import Seeds.Factories
 import utils.Slick.DbResult
 import utils.Slick.implicits._
-import slick.driver.PostgresDriver.api._
+import utils.seeds.Seeds.Factories
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class ModelIntegrationTest extends IntegrationTestBase {
 

@@ -1,18 +1,18 @@
 package services.orders
 
-import scala.concurrent.ExecutionContext
-
 import models.OrderPayments.scope._
 import models.{CreditCard, CreditCards, GiftCard, GiftCards, OrderPayment, OrderPayments, Orders, PaymentMethod, StoreCredit, StoreCredits}
 import payloads.{GiftCardPayment, StoreCreditPayment}
 import responses.FullOrder.refreshAndFullOrder
-import responses.{TheResponse, FullOrder}
-import services._
+import responses.{FullOrder, TheResponse}
+import services.{CartValidator, CustomerHasInsufficientStoreCredit, NotFoundFailure400, OrderPaymentNotFoundFailure, Result}
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import utils.Slick.{DbResult, _}
+import utils.Slick.DbResult
 import utils.Slick.implicits._
+
+import scala.concurrent.ExecutionContext
 
 object OrderPaymentUpdater {
 
