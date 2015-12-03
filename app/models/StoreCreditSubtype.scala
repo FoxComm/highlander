@@ -32,7 +32,7 @@ object StoreCreditSubtypes extends TableQueryWithId[StoreCreditSubtype, StoreCre
       def csrAppeasements: QuerySeq  = q.byOriginType(StoreCredit.CsrAppeasement)
       def rmaProcesses: QuerySeq  = q.byOriginType(StoreCredit.RmaProcess)
 
-      def byOriginType(originType: OriginType): QuerySeq = filter(_.originType === (originType: OriginType))
+      def byOriginType(originType: OriginType): QuerySeq = q.filter(_.originType === (originType: OriginType))
     }
   }
 }
