@@ -6,15 +6,14 @@
 
 * node
 
->=4.2.0 is required version for Ashes.
-Newer version is incompatible with current version of project due to dependencies used.
-To install 4.2.x or later version you can use [nvm](https://github.com/creationix/nvm) or [n](https://github.com/tj/n) node version manager.
+>=5.1.0 is required version for Ashes.
+To install this or anothers versions of node you can use [nvm](https://github.com/creationix/nvm) or [n](https://github.com/tj/n) node version manager.
 
-If using nvm, run the following to install the version listed in `.nvmrc`. For example, if using node `v4.2.1`, follow these commands:
+If using nvm, run the following to install the version listed in `.nvmrc`. For example, if using node `v5.1.0`, follow these commands:
 
 ```
-nvm install 4.2.1
-nvm use 4.2.1
+nvm install 5.1.0
+nvm use 5.1.0
 ```
 
 ### Install npm modules
