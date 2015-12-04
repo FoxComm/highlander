@@ -221,7 +221,7 @@ export default class NewGiftCard extends React.Component {
               <input type="hidden" name="balance" value={this.props.balance} />
               <input type="number" className="_no-counters" name="balanceText" value={this.props.balanceText} step="0.01" min="1"/>
             </div>
-            <div id="balances">
+            <div className="fc-new-gift-card__balances">
               {
                 [1000, 2500, 5000, 10000, 20000].map((balance, idx) => {
                   return (
