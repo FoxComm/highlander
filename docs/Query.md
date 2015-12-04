@@ -12,7 +12,7 @@ Jump to:
 Currently, we store multiple types in Elasticsearch:
 * `countries`
 * `regions` 
-* `customers_orders_view`
+* `customers_search_view`
 
 Each type has a list of allowed fields (others will be filtered by consumer) with different field types and indexing rules.
 
