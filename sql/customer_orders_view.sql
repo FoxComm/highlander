@@ -102,6 +102,8 @@ left join save_for_later as later on (c.id = later.customer_id)
 left join skus as sku_later on (later.sku_id = sku_later.id)
 group by c.id;
 
-create unique index customer on customers_orders_view (id);
+create unique index customers_orders_view_idx on customers_orders_view (id);
+
+refresh materialized view concurrently customers_orders_view;    
 
 select * from customers_orders_view;
