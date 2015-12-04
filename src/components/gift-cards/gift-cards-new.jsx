@@ -192,7 +192,7 @@ export default class NewGiftCard extends React.Component {
     const props = this.props;
 
     return (
-      <div className="fc-new-gift-card fc-grid">
+      <div className="fc-new-gift-card">
         <header className="fc-col-md-1-1">
           <h1>Issue New Gift Card</h1>
         </header>
