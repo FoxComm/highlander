@@ -84,7 +84,7 @@ export default class OrderShippingAddress extends React.Component {
 
     const deletingId = props.deletingAddress &&
       props.deletingAddress.type === addressTypes.CUSTOMER &&
-      props.deletingAddress.id;
+      props.deletingAddress.id || null;
 
     return (
       <div>

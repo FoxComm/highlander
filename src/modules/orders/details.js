@@ -106,12 +106,13 @@ const reducer = createReducer({
     };
   },
   [orderSuccess]: (state, payload) => {
-    const skus = _.get(payload, 'lineItems.skus', []);
+    const order = _.get(payload, 'result', payload);
+    const skus = _.get(order, 'lineItems.skus', []);
     const itemList = collectLineItems(skus);
     return {
       ...state,
       isFetching: false,
-      currentOrder: haveType(payload, 'order'),
+      currentOrder: haveType(order, 'order'),
       lineItems: {
         ...state.lineItems,
         items: itemList
