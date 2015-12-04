@@ -2,7 +2,12 @@
 
 How to query `phoenix` index in Elasticsearch.
 
-## Index structure
+Jump to:
+* [Structure](#structure)
+* [Filtering](#filtering)
+* [Sorting](#sorting)
+
+## Structure
 
 Currently, we store multiple types in Elasticsearch:
 * `countries`
@@ -13,29 +18,51 @@ Each type has a list of allowed fields (others will be filtered by consumer) wit
 
 Most general examples are:
 * `integer`, `long` - used for numeric comparsions, e.g. [Range Query](https://www.elastic.co/guide/en/elasticsearch/reference/1.7/query-dsl-range-query.html)
+* `date` - also filtered by [Range Query](https://www.elastic.co/guide/en/elasticsearch/reference/1.7/query-dsl-range-query.html)
 * `string`
   * `not_analyzed` - used for ADT comparsion, when we know predefined range of values (e.g. `status`, `currency`)
   * `autocomplete` - custom analyzer used for partial match, based on [Edge NGram Tokenizer](https://www.elastic.co/guide/en/elasticsearch/reference/1.7/analysis-edgengram-tokenizer.html)
 * `boolean` - simplified ADT with two possible values, usually filtered by [Term Filter](https://www.elastic.co/guide/en/elasticsearch/reference/1.7/query-dsl-term-query.html)
 
-## Example
+## Filtering
 
-Query below returns a list of orders, that:
-* Have `Yax` substring in his name
+Query below returns a list of first 10 (seen `from` and `size` fields) customers, that:
+* Have `Adil` substring in his name
+* Are not blacklisted
+* Joined after December 3rd, 2015
+* Has 1 or more orders with any status
+* Has at least one order with "shipped" status and placed date after December 3rd, 2015
 
-Since we're using [And Filter](https://www.elastic.co/guide/en/elasticsearch/reference/1.7/query-dsl-and-filter.html), all conditions must be satisfied.
+To query nested objects in last expression, we use [Nested Filter](https://www.elastic.co/guide/en/elasticsearch/reference/2.0/query-dsl-nested-query.html)
+All conditions must be satisfied, when using [And Filter](https://www.elastic.co/guide/en/elasticsearch/reference/1.7/query-dsl-and-filter.html), 
+Also take a look at [Or Filter](https://www.elastic.co/guide/en/elasticsearch/reference/1.4/query-dsl-or-filter.html), if necessary.
 
-### Request
-
-URL: `http://localhost:9200/phoenix/customers_orders_view/_search`
+##### Request
 
 ```json
+GET phoenix/customers_search_view/_search
 {
     "query": {
         "filtered": {
             "filter": {
                 "and": [
-                    {"bool": {"must": {"query": {"match": {"name": "Yax"}}}}}
+                    {"bool": {"must": {"query": {"match": {"name": "Adil"}}}}},
+                    {"term": {"is_blacklisted": false}},
+                    {"range": {"date_joined": {"gt": "2015-12-03"}}},
+                    {"range": {"order_count": {"gte": 1}}},
+                    {
+                        "nested": {
+                            "path": "orders",
+                            "query": {
+                                "bool": {
+                                    "must" : [
+                                         {"term": {"status": "shipped"}},
+                                         {"range": {"date_placed": {"gt": "2015-12-03"}}}
+                                    ]
+                                }
+                            }
+                        }
+                    }
                 ]
             }    
         }
@@ -45,11 +72,11 @@ URL: `http://localhost:9200/phoenix/customers_orders_view/_search`
 }
 ```
 
-### Response
+##### Response
 
 ```json
 {
-   "took": 5,
+   "took": 4,
    "timed_out": false,
    "_shards": {
       "total": 5,
@@ -62,21 +89,59 @@ URL: `http://localhost:9200/phoenix/customers_orders_view/_search`
       "hits": [
          {
             "_index": "phoenix",
-            "_type": "customers_orders_view",
-            "_id": "1",
+            "_type": "customers_search_view",
+            "_id": "2",
             "_score": 1,
             "_source": {
-               "id": 1,
-               "name": "Yax Fuentes",
-               "email": "yax@yax.com",
+               "id": 2,
+               "name": "Adil Wali",
+               "email": "adil@adil.com",
+               "is_disabled": true,
+               "is_guest": false,
                "is_blacklisted": false,
+               "date_joined": "2015-12-04",
+               "revenue": 0,
+               "rank": 0,
+               "store_credit_count": 0,
+               "store_credit_total": 0,
+               "order_count": 1,
+               "orders": [
+                  {
+                     "reference_number": "BR10005",
+                     "status": "shipped",
+                     "date_placed": "2015-12-04"
+                  }
+               ],
+               "purchased_items_count": 2,
+               "purchased_items": [
+                  {
+                     "sku": "SKU-SHH",
+                     "name": "Sharkling",
+                     "price": 1500
+                  },
+                  {
+                     "sku": "SKU-YAX",
+                     "name": "Flonkey",
+                     "price": 3300
+                  }
+               ],
                "shipping_addresses": [
                   {
-                     "address1": "555 E Lake Union St.",
+                     "address1": "3104 Canterbury Court",
+                     "address2": "★ ★ ★",
+                     "city": "Cornelius",
+                     "zip": "28031",
+                     "region_name": "North Carolina",
+                     "country_name": "United States",
+                     "country_continent": "North America",
+                     "country_currency": "USD"
+                  },
+                  {
+                     "address1": "3345 Orchard Lane",
                      "address2": null,
-                     "city": "Seattle",
-                     "zip": "12345",
-                     "region_name": "Washington",
+                     "city": "Avon Lake",
+                     "zip": "44012",
+                     "region_name": "Ohio",
                      "country_name": "United States",
                      "country_continent": "North America",
                      "country_currency": "USD"
@@ -84,21 +149,42 @@ URL: `http://localhost:9200/phoenix/customers_orders_view/_search`
                ],
                "billing_addresses": [
                   {
-                     "address1": "95 W. 5th Ave.",
-                     "address2": "Apt. 437",
-                     "city": "San Mateo",
-                     "zip": "94402",
-                     "region_name": "California",
+                     "address1": "3564 Haymond Rocks Road",
+                     "address2": null,
+                     "city": "Grants Pass",
+                     "zip": "97526",
+                     "region_name": "Oregon",
                      "country_name": "United States",
                      "country_continent": "North America",
                      "country_currency": "USD"
                   }
                ],
-               "store_credit_count": 1,
-               "store_credit_total": 40
+               "saved_for_later_count": 0,
+               "save_for_later": []
             }
          }
       ]
    }
+}
+```
+
+## Sorting
+
+To perform [sorting](https://www.elastic.co/guide/en/elasticsearch/guide/current/_sorting.html), just add custom sorting fields in `sort` field.
+
+Example:
+
+```json
+GET phoenix/customers_search_view/_search
+{
+    "query": {
+        "match_all": {}
+    },
+    "sort": {
+        "billing_addresses.address1": "asc",
+        "date_joined": "asc",
+        "name": "asc",
+        "_score": "desc"
+    }
 }
 ```

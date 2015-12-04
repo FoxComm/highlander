@@ -1,6 +1,6 @@
 drop materialized view if exists customers_search_view;
 
-create table if not exists tmp_addresses (
+create table tmp_addresses (
     address1            generic_string,
     address2            generic_string,
     city                generic_string,
@@ -11,13 +11,13 @@ create table if not exists tmp_addresses (
     country_currency    currency
 );
 
-create table if not exists tmp_skus (
+create table tmp_skus (
     sku     generic_string,
     name    generic_string,
     price   integer
 );
 
-create table if not exists tmp_orders (
+create table tmp_orders (
     reference_number generic_string,
     status           generic_string,
     date_placed      generic_string   

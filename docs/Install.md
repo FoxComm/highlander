@@ -53,7 +53,7 @@ If you have troubles with building `avro-c` dependency for bottledwater extensio
 2. Run bottledwater to listen `phoenix_development` schema updates:
 
 	```
-	$ ./kafka/bottledwater --postgres=postgres://localhost/phoenix_development
+	$ ./kafka/bottledwater --postgres=postgres://localhost/phoenix_development --allow-unkeyed
 	```
 
 3. Run consumer with specified environment:
