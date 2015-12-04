@@ -14,8 +14,9 @@ import com.stripe.model.{Card ⇒ StripeCard, Customer ⇒ StripeCustomer}
 import monocle.Lens
 import monocle.macros.GenLens
 import payloads.CreateCreditCard
-import services.{Failures, CannotUseInactiveCreditCard, Failure}
+import services.{NotFoundFailure404, Failures, CannotUseInactiveCreditCard, Failure}
 import slick.driver.PostgresDriver.api._
+import utils.Slick.DbResult
 import utils._
 import utils.Slick.implicits._
 
@@ -141,5 +142,13 @@ object CreditCards extends TableQueryWithId[CreditCard, CreditCards](
 
   def findDefaultByCustomerId(customerId: Int)(implicit db: Database): Query[CreditCards, CreditCard, Seq] =
     findInWalletByCustomerId(customerId).filter(_.isDefault === true)
+
+  def mustFindByIdAndCustomer(id: Int, customerId: Int)
+    (implicit ec: ExecutionContext): DbResult[CreditCard] = {
+    filter(cc ⇒ cc.id === id && cc.customerId === customerId).one.flatMap {
+      case Some(cc) ⇒ DbResult.good(cc)
+      case None     ⇒ DbResult.failure(NotFoundFailure404(CreditCard, id))
+    }
+  }
 }
 

@@ -362,12 +362,14 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
       val payload = payloads.ToggleDefaultCreditCard(isDefault = true)
       val response = POST(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}/default", payload)
-      response.status must === (StatusCodes.OK)
 
-      response.as[CardResponse].isDefault must === (true)
+      response.status must === (StatusCodes.OK)
+      val ccResp = response.as[CardResponse]
+      ccResp.isDefault mustBe true
+      ccResp.id must === (creditCard.id)
     }
 
-    "fails to set the credit card as default if a default currently exists" in new Fixture {
+    "successfully replaces an existing default credit card" in new Fixture {
       val default = CreditCards.create(Factories.creditCard.copy(isDefault = true, customerId = customer.id))
         .run().futureValue.rightVal
       val nonDefault = CreditCards.create(Factories.creditCard.copy(isDefault = false, customerId = customer.id))
@@ -376,8 +378,23 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val payload = payloads.ToggleDefaultCreditCard(isDefault = true)
       val response = POST(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${nonDefault.id}/default", payload)
 
-      response.status must === (StatusCodes.BadRequest)
-      response.bodyText must include("customer already has default credit card")
+      val (prevDefault, currDefault) = (
+        CreditCards.refresh(default).run().futureValue,
+        CreditCards.refresh(nonDefault).run().futureValue)
+
+      response.status must === (StatusCodes.OK)
+      val ccResp = response.as[CardResponse]
+      ccResp.isDefault mustBe true
+      ccResp.id must === (currDefault.id)
+      prevDefault.isDefault mustBe false
+    }
+
+    "fails when the credit card doesn't exist" in new Fixture {
+      val payload = payloads.ToggleDefaultCreditCard(isDefault = true)
+      val response = POST(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/99/default", payload)
+
+      response.status must === (StatusCodes.NotFound)
+      response.errors must === (NotFoundFailure404(CreditCard, 99).description)
     }
   }
 
