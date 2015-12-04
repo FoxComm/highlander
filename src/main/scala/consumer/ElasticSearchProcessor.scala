@@ -39,7 +39,6 @@ class ElasticSearchProcessor(uri: String, cluster: String, indexName: String, to
     println("Creating index and type mappings...")
 
     client.execute {
-      // TODO: Mappings for materialized views
       create index indexName mappings (
         "countries" as (
           "id"        typed IntegerType,
@@ -51,7 +50,58 @@ class ElasticSearchProcessor(uri: String, cluster: String, indexName: String, to
           "id"          typed IntegerType,
           "country_id"  typed IntegerType,
           "name"        typed StringType analyzer "autocomplete"
-        ) parent "countries"
+        ),
+        "customers_search_view" as (
+          "id"                    typed IntegerType,
+          "name"                  typed StringType analyzer "autocomplete",
+          "email"                 typed StringType analyzer "autocomplete",
+          "is_disabled"           typed BooleanType,
+          "is_guest"              typed BooleanType,
+          "is_blacklisted"        typed BooleanType,
+          "date_joined"           typed DateType,
+          "revenue"               typed IntegerType,
+          "rank"                  typed IntegerType,
+          "store_credit_total"    typed IntegerType,
+          "store_credit_count"    typed IntegerType,
+          "orders"                nested (
+            "reference_number" typed StringType analyzer "autocomplete",
+            "status"           typed StringType index "not_analyzed",
+            "date_placed"      typed DateType
+          ),
+          "order_count"           typed IntegerType,
+          "purchased_items"       nested (
+            "sku"   typed StringType analyzer "autocomplete",
+            "name"  typed StringType analyzer "autocomplete",
+            "price" typed IntegerType
+          ),
+          "purchased_items_count" typed IntegerType,
+          "shipping_addresses"    nested (
+            "address1"          typed StringType analyzer "autocomplete",
+            "address2"          typed StringType analyzer "autocomplete",
+            "city"              typed StringType analyzer "autocomplete",
+            "zip"               typed StringType index "not_analyzed",
+            "region_name"       typed StringType analyzer "autocomplete",
+            "country_name"      typed StringType analyzer "autocomplete",
+            "country_continent" typed StringType analyzer "autocomplete",
+            "country_currency"  typed  StringType analyzer "autocomplete"
+          ),
+          "billing_addresses"     nested (
+            "address1"          typed StringType analyzer "autocomplete",
+            "address2"          typed StringType analyzer "autocomplete",
+            "city"              typed StringType analyzer "autocomplete",
+            "zip"               typed StringType index "not_analyzed",
+            "region_name"       typed StringType analyzer "autocomplete",
+            "country_name"      typed StringType analyzer "autocomplete",
+            "country_continent" typed StringType analyzer "autocomplete",
+            "country_currency"  typed  StringType analyzer "autocomplete"
+          ),
+          "saved_for_later"       nested (
+            "sku"   typed StringType analyzer "autocomplete",
+            "name"  typed StringType analyzer "autocomplete",
+            "price" typed IntegerType
+          ),
+          "saved_for_later_count" typed IntegerType
+        )
       ) analysis
         CustomAnalyzerDefinition(
           "autocomplete",
@@ -94,7 +144,8 @@ object ElasticSearchProcessor {
     topic match {
       case "countries"                ⇒ Some(List.empty)
       case "regions"                  ⇒ Some(List.empty)
-      case "customers_orders_view"    ⇒ Some(List("shipping_addresses", "billing_addresses"))
+      case "customers_search_view"    ⇒ Some(List("orders", "purchased_items", "shipping_addresses", 
+        "billing_addresses", "save_for_later"))
       case _                          ⇒ None
     }    
   }

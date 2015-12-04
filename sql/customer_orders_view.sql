@@ -1,6 +1,6 @@
-drop materialized view if exists customers_orders_view;
+drop materialized view if exists customers_search_view;
 
-create temporary table if not exists tmp_addresses (
+create table if not exists tmp_addresses (
     address1            generic_string,
     address2            generic_string,
     city                generic_string,
@@ -11,19 +11,19 @@ create temporary table if not exists tmp_addresses (
     country_currency    currency
 );
 
-create temporary table if not exists tmp_skus (
+create table if not exists tmp_skus (
     sku     generic_string,
     name    generic_string,
     price   integer
 );
 
-create temporary table if not exists tmp_orders (
+create table if not exists tmp_orders (
     reference_number generic_string,
     status           generic_string,
     date_placed      generic_string   
 );
 
-create materialized view customers_orders_view as
+create materialized view customers_search_view as
 select
     c.id as id,
     c.name as name,
@@ -102,8 +102,6 @@ left join save_for_later as later on (c.id = later.customer_id)
 left join skus as sku_later on (later.sku_id = sku_later.id)
 group by c.id;
 
-create unique index customers_orders_view_idx on customers_orders_view (id);
+create unique index customers_search_view_idx on customers_search_view (id);
 
-refresh materialized view concurrently customers_orders_view;    
-
-select * from customers_orders_view;
+select * from customers_search_view;
