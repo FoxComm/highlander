@@ -74,6 +74,6 @@ describe('FormField', function() {
 
     const inputNode = TestUtils.findRenderedDOMComponentWithTag(formfield, 'input');
 
-    expect(inputNode).to.equal(formfield.getInputNode());
+    expect(inputNode).to.equal(formfield.findTargetNode());
   });
 });

@@ -146,7 +146,6 @@ export default class AddressForm extends React.Component {
       return (
         <InputMask type="tel" name="phoneNumber" mask={phoneMask(this.countryCode)}
                         onChange={this.handleFormChange}
-                        formFieldTarget
                         value={formData.phoneNumber} placeholder={phoneExample(this.countryCode)}/>
       );
     }

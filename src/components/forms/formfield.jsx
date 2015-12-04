@@ -1,5 +1,7 @@
 import _ from 'lodash';
+import { autobind, debounce } from 'core-decorators';
 import React, { PropTypes } from 'react';
+import { findDOMNode } from 'react-dom';
 import * as validators from '../../lib/validators';
 import classnames from 'classnames';
 
@@ -25,75 +27,60 @@ export default class FormField extends React.Component {
     required: PropTypes.any,
     maxLength: PropTypes.number,
     label: PropTypes.node,
-    labelClassName: PropTypes.string
+    labelClassName: PropTypes.string,
+    target: PropTypes.string,
+    getTargetValue: PropTypes.func,
   };
 
   static contextTypes = {
     formDispatcher: PropTypes.object
   };
 
-  constructor(props, context) {
-    super(props, context);
+  static defaultProps = {
+    target: 'input,textarea,select',
+    getTargetValue: node => node.type == 'checkbox' ? node.checked : node.value,
+  };
 
-    this.onSubmit = _.bind(this.onSubmit, this);
-    this.autoValidate = _.debounce(_.bind(this.autoValidate, this), 200);
+  constructor(...args) {
+    super(...args);
+
+    this.state = {
+      targetId: ''
+    };
   }
 
-  isInputElement(element) {
-    const isInputNode = _.contains(['input', 'textarea', 'select'], element.type);
-    return 'formFieldTarget' in element.props || isInputNode;
+  findTargetNode() {
+    return findDOMNode(this).querySelector(this.props.target);
   }
 
-  cloneChildren(children, level=0) {
-    return React.Children.map(children, (child, idx) => {
-      if (!React.isValidElement(child)) return child;
+  toggleBindToTarget(bind) {
+    const targetNode = this.findTargetNode();
+    if (!targetNode) return;
 
-      let newProps = {
-        key: `form-field-${level}-${idx}`
-      };
-      let newChildren = null;
+    const toggleBind = bind ? targetNode.addEventListener : targetNode.removeEventListener;
 
-      if (child.props.children) {
-        newChildren = this.cloneChildren(child.props.children, level + 1);
+    toggleBind.call(targetNode, 'blur', this.validate);
+    toggleBind.call(targetNode, 'change', this.autoValidate);
+    toggleBind.call(targetNode, 'invalid', () => this.updateInputState(true));
+
+    let id = targetNode.getAttribute('id');
+
+    if (bind) {
+      if (!id) {
+        id = _.uniqueId('form-field-');
+        targetNode.setAttribute('id', id);
       }
 
-      if (this.isInputElement(child)) {
-        if (!child.props.id) {
-          newProps.id = _.uniqueId('form-field-');
-        }
-        this.inputId = child.props.id || newProps.id;
-        this.inputUnbound = true;
-
-        newProps = {...newProps, ...overrideEventHandlers(child, {
-          onBlur: (event) => {
-            this.validate();
-          },
-          onChange: this.autoValidate
-        })};
+      if (this.state.targetId != id) {
+        this.setState({
+          targetId: id
+        });
       }
-
-      return React.cloneElement(child, newProps, newChildren);
-    }, this);
-  }
-
-
-  updateChildren(children=this.props.children) {
-    this.inputId = null;
-
-    const clonedChildren = this.cloneChildren(children);
-
-    if (!this.inputId) {
-      console.error(
-        `Warning: Couldn't find input element for ${this.props.label || '<unnamed>'} form field.
-        Hint: if you using custom input element add 'formFieldTarget' attribute for it.`
-      );
     }
-
-    this.setState({
-      children: clonedChildren
-    });
   }
 
+  @autobind
+  @debounce(200)
   autoValidate() {
     // validate only if field has error message
     // so we don't produce error if user start typing for example
@@ -102,42 +89,34 @@ export default class FormField extends React.Component {
     }
   }
 
-  getInputNode() {
-    return document.getElementById(this.inputId);
-  }
-
   componentWillMount() {
     if (this.context.formDispatcher) {
       this.context.formDispatcher.on('submit', this.onSubmit);
     }
-
-    this.updateChildren();
   }
 
   componentDidMount() {
-    this.updateInputBind();
+    this.toggleBindToTarget(true);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.children && this.props.children !== nextProps.children) {
-      this.updateChildren(nextProps.children);
-    }
+  componentWillUpdate() {
+    this.toggleBindToTarget(false);
   }
 
   componentDidUpdate() {
-    const inputNode = this.getInputNode();
+    const targetNode = this.findTargetNode();
 
-    if (!inputNode) return;
+    if (!targetNode) return;
 
-    if (inputNode.setCustomValidity) {
-      inputNode.setCustomValidity(this.state.errorMessage || '');
+    if (targetNode.setCustomValidity) {
+      targetNode.setCustomValidity(this.state.errorMessage || '');
     }
     this.updateInputState(false);
-    this.updateInputBind();
+    this.toggleBindToTarget(true);
   }
 
   updateInputState(checkNativeValidity) {
-    const inputNode = this.getInputNode();
+    const inputNode = this.findTargetNode();
 
     let isError = !!this.state.errorMessage;
 
@@ -148,40 +127,23 @@ export default class FormField extends React.Component {
     inputNode.classList[isError ? 'add' : 'remove']('is-error');
   };
 
-  updateInputBind() {
-    const inputNode = this.getInputNode();
-
-    if (inputNode) {
-      inputNode.removeEventListener('invalid', this.updateInputState.bind(this, true));
-
-      if (this.inputUnbound) {
-        inputNode.addEventListener('invalid', this.updateInputState.bind(this, true));
-        this.inputUnbound = false;
-      }
-    }
-  }
-
   componentWillUnmount() {
     if (this.context.formDispatcher) {
       this.context.formDispatcher.removeListener('submit', this.onSubmit);
     }
-    this.updateInputBind();
+    this.toggleBindToTarget(false);
   }
 
+  @autobind
   onSubmit(reportValidity) {
     reportValidity(this.validate());
   }
 
-  getInputValue() {
-    const node = this.getInputNode();
-
-    if (node.type == 'checkbox') {
-      return node.checked;
-    } else {
-      return node.value;
-    }
+  getTargetValue() {
+    return this.props.getTargetValue(this.findTargetNode());
   }
 
+  @autobind
   validate() {
     let errors = [];
 
@@ -192,7 +154,7 @@ export default class FormField extends React.Component {
       validator = validators[validator];
     }
 
-    let value = this.getInputValue();
+    const value = this.getTargetValue();
 
     if (!_.isString(value) || value) {
       if (this.props.maxLength && _.isString(value) && value.length > this.props.maxLength) {
@@ -237,7 +199,7 @@ export default class FormField extends React.Component {
       const optionalMark = 'optional' in this.props ? <span className="fc-form-field-optional">(optional)</span> : null;
       const className = classnames('fc-form-field-label', this.props.labelClassName);
       return (
-        <label className={className} htmlFor={this.inputId}>
+        <label className={className} htmlFor={this.state.targetId}>
           {this.props.label}
           {optionalMark}
         </label>
@@ -249,7 +211,7 @@ export default class FormField extends React.Component {
     return (
       <div className="fc-form-field">
         {this.label}
-        {this.state.children}
+        {this.props.children}
         {this.errorMessages}
       </div>
     );
