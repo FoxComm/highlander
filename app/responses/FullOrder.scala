@@ -17,12 +17,17 @@ object FullOrder {
   type Response = Future[Root]
   type CcPayment = (OrderPayment, CreditCard, Region)
 
-  final case class Totals(subTotal: Int, taxes: Int, adjustments: Int, total: Int) extends ResponseItem
+  final case class Totals(subTotal: Int, taxes: Int, shipping: Int, adjustments: Int, total: Int) extends ResponseItem
 
   object Totals {
-    def build(subTotal: Int, taxes: Int, adjustments: Int): Totals =
-      Totals(subTotal = subTotal, taxes = taxes, adjustments = adjustments,
-        total = (adjustments - (subTotal + taxes)).abs)
+    def build(subTotal: Int, shipping: Int, adjustments: Int): Totals = {
+      val taxes = ((subTotal - adjustments + shipping) * 0.05).toInt
+
+      Totals(subTotal = subTotal, taxes = taxes, shipping = shipping, adjustments = adjustments,
+        total = (adjustments - (subTotal + taxes + shipping)).abs)
+    }
+
+    def empty: Totals = Totals(0,0,0,0,0)
   }
 
   final case class LineItems(
@@ -141,7 +146,7 @@ object FullOrder {
       fraudScore = scala.util.Random.nextInt(100),
       customer = customer,
       shippingAddress = shippingAddress,
-      totals = totals.getOrElse(Totals.build(subTotal = 0, taxes = 0, adjustments = 0)),
+      totals = totals.getOrElse(Totals.empty),
       shippingMethod = shippingMethod.map(ShippingMethods.build(_)),
       assignees = assignments.map((AssignmentResponse.build _).tupled),
       remorsePeriodEnd = order.getRemorsePeriodEnd,
@@ -162,11 +167,12 @@ object FullOrder {
   }
 
   // TODO: Use utils.Money
-  private def totals(order: Order)(implicit ec: ExecutionContext): DBIO[Totals] = for {
+  private def totals(order: Order, shipMethod: Option[ShippingMethod])
+    (implicit ec: ExecutionContext): DBIO[Totals] = for {
     maybeSubTotal ← OrderTotaler.subTotal(order)
     subTotal = maybeSubTotal.getOrElse(0)
-    taxes = (subTotal * 0.05).toInt
-  } yield Totals.build(subTotal = subTotal, taxes = taxes, adjustments = 0)
+    shipping = shipMethod.map(_.price).getOrElse(0)
+  } yield Totals.build(subTotal = subTotal, shipping = shipping, adjustments = 0)
 
   private def fetchOrderDetails(order: Order)(implicit ec: ExecutionContext) = {
     val shippingMethodQ = for {
@@ -192,7 +198,7 @@ object FullOrder {
       scPayments ← OrderPayments.findAllStoreCreditsByOrderId(order.id).result
       assignments ← OrderAssignments.filter(_.orderId === order.id).result
       admins ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.assigneeId))).result
-      totals ← totals(order)
+      totals ← totals(order, shipMethod)
       lockedBy ← currentLock(order)
     } yield (customer, lineItems, shipMethod, shipAddress, payments, gcPayments, scPayments, assignments.zip(admins),
       giftCards, Option(totals), lockedBy)
