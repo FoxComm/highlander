@@ -219,7 +219,7 @@ export default class NewGiftCard extends React.Component {
             <div className="fc-input-group">
               <div className="fc-input-prepend"><i className="icon-usd"></i></div>
               <input type="hidden" name="balance" value={this.props.balance} />
-              <input type="number" name="balanceText" value={this.props.balanceText} step="0.01" min="1"/>
+              <input type="number" className="_no-counters" name="balanceText" value={this.props.balanceText} step="0.01" min="1"/>
             </div>
             <div id="balances">
               {
