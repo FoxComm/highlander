@@ -22,4 +22,4 @@ $ sbt -Denv=localhost consume
 ## Docs
 
 * [Install](docs/Install.md)
-* [Query](docs/Query.md) - work in progress.
+* [Query](docs/Query.md)
