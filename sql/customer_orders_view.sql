@@ -1,6 +1,6 @@
 drop materialized view if exists customers_orders_view;
 
-create temporary table tmp_addresses (
+create temporary table if not exists tmp_addresses (
     address1            generic_string,
     address2            generic_string,
     city                generic_string,
@@ -11,10 +11,16 @@ create temporary table tmp_addresses (
     country_currency    currency
 );
 
-create temporary table sku_later (
+create temporary table if not exists tmp_sku_later (
     sku     generic_string,
     name    generic_string,
     price   integer
+);
+
+create temporary table if not exists tmp_orders (
+    reference_number generic_string,
+    status           generic_string,
+    date_placed      generic_string   
 );
 
 create materialized view customers_orders_view as
@@ -30,30 +36,41 @@ select
     coalesce(max(rank.revenue), 0) as revenue,
     coalesce(max(rank.rank), 0) as rank,
     -- Store credits
-    count(sc.*) as store_credit_count,
-    coalesce(sum(sc.available_balance), 0) as store_credit_total,
-    -- Shipping addresses
-    case when count(a) = 0
+    count(distinct sc.id) as store_credit_count,
+    coalesce(sum(distinct sc.available_balance), 0) as store_credit_total,
+    -- Orders
+    count(distinct o.id) as order_count,
+    case when count(distinct o) = 0
     then
         '[]'
     else
-        json_agg((a.address1, a.address2, a.city, a.zip, r1.name, c1.name, c1.continent, c1.currency)::tmp_addresses)
+        json_agg(distinct (o.reference_number, o.status, to_char(o.created_at, 'YYYY-MM-dd'))::tmp_orders)
+    end as orders,    
+    -- Shipping addresses
+    case when count(distinct a) = 0
+    then
+        '[]'
+    else
+        json_agg(distinct (a.address1, a.address2, a.city, a.zip, r1.name, c1.name, c1.continent, c1.currency)::tmp_addresses)
     end as shipping_addresses,
     -- Billing addresses
-    case when count(a) = 0
+    case when count(distinct a) = 0
     then
         '[]'
     else
-        json_agg((cc.address1, cc.address2, cc.city, cc.zip, r2.name, c2.name, c2.continent, c2.currency)::tmp_addresses)
+        json_agg(distinct (cc.address1, cc.address2, cc.city, cc.zip, r2.name, c2.name, c2.continent, c2.currency)::tmp_addresses)
     end as billing_addresses,
     -- Saved for later
+    count(distinct sku_later.id) as saved_for_later_count,
     case when count(sku_later) = 0
     then
         '[]'
     else
-        json_agg((sku_later.sku, sku_later.name, sku_later.price)::tmp_sku_later)
-    end as save_for_later
+        json_agg(distinct (sku_later.sku, sku_later.name, sku_later.price)::tmp_sku_later)
+    end as save_for_later  
 from customers as c
+-- Orders
+left join orders as o on (c.id = o.customer_id)
 -- Revenue + ranking
 left join customers_ranking as rank on (c.id = rank.id)
 -- Store credits
