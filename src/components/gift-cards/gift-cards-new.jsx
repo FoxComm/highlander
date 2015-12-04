@@ -12,7 +12,7 @@ import { transitionTo } from '../../route-helpers';
 import Counter from '../forms/counter';
 import Typeahead from '../typeahead/typeahead';
 import { PrimaryButton } from '../common/buttons';
-import { Dropdown, DropdownItem }  from '../dropdown';
+import { Dropdown, DropdownItem } from '../dropdown';
 import { Checkbox } from '../checkbox/checkbox';
 import { Link } from '../link';
 import { Form, FormField } from '../forms';
@@ -87,7 +87,7 @@ export default class NewGiftCard extends React.Component {
   onChangeValue({target}) {
     const value = target.type === 'checkbox' ? target.checked : target.value;
 
-    this.props.changeFormData(target.name,  value);
+    this.props.changeFormData(target.name, value);
   }
 
   changeCustomerMessage(event) {
