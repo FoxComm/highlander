@@ -2,10 +2,9 @@
 import _ from 'lodash';
 import React from 'react';
 
-function mergeHandlers(a, b) {
+function mergeHandlers(...handlers) {
   return (...args) => {
-    a(...args);
-    b(...args);
+    handlers.forEach(handler => handler(...args));
   };
 }
 
