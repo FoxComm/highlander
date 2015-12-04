@@ -1,19 +1,20 @@
 import React, { PropTypes } from 'react';
+import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import Dropdown from '../dropdown/dropdown';
 import DropdownItem from '../dropdown/dropdownItem';
-import { Link, IndexLink } from '../link';
 import Viewers from '../viewers/viewers';
 import ConfirmModal from '../modal/confirm';
 import RemorseTimer from './remorseTimer';
 import { connect } from 'react-redux';
 import { DateTime } from '../common/datetime';
-import LocalNav from '../local-nav/local-nav';
 import { PanelList, PanelListItem } from '../panel/panel-list';
 import SectionTitle from '../section-title/section-title';
 import * as orderActions from '../../modules/orders/details';
 import * as shippingMethodActions from '../../modules/orders/shipping-methods';
 import * as skusActions from '../../modules/skus';
+import SubNav from './sub-nav';
+import classNames from 'classnames';
 
 const mapStateToProps = (state) => {
   return {
@@ -67,7 +68,7 @@ export default class Order extends React.Component {
   }
 
   get remorseTimer() {
-    if (this.order.id && this.order.orderStatus === 'remorseHold') {
+    if (this.order.isRemorseHold) {
       const refNum = this.order.referenceNumber;
       return (
         <RemorseTimer initialEndDate={this.order.remorsePeriodEnd}
@@ -76,45 +77,26 @@ export default class Order extends React.Component {
     }
   }
 
-  get subNav() {
-    if (this.order.id) {
-      const content = React.cloneElement(this.props.children, {...this.props, entity: this.order});
-      let params = {order: this.order.referenceNumber};
-
-      return (
-        <div>
-          <LocalNav>
-            <IndexLink to="order-details" params={params}>Details</IndexLink>
-            <a href="">Shipments</a>
-            <Link to="order-returns" params={params}>Returns</Link>
-            <Link to="order-notifications" params={params}>Transaction Notifications</Link>
-            <Link to="order-notes" params={params}>Notes</Link>
-            <Link to="order-activity-trail" params={params}>Activity Trail</Link>
-          </LocalNav>
-          <div className="fc-grid">
-            <div className="fc-col-md-1-1">
-              {content}
-            </div>
-          </div>
+  get details() {
+    const details = React.cloneElement(this.props.children, {...this.props, entity: this.order});
+    return (
+      <div className="fc-grid">
+        <div className="fc-col-md-1-1">
+          {details}
         </div>
-      );
-    }
+      </div>
+    );
   }
 
-  @autobind
-  onStatusChange(value) {
-    this.props.updateOrder(this.orderRefNum, {status: value});
+  get subNav() {
+    return <SubNav order={this.order} />;
   }
 
-  componentDidMount() {
-    this.props.fetchOrder(this.orderRefNum);
-  }
-
-  render() {
+  get statusHeader() {
     const order = this.order;
 
-    if (!order) {
-      return <div className="fc-order"></div>;
+    if (order.isCart) {
+      return;
     }
 
     // order status render
@@ -140,22 +122,47 @@ export default class Order extends React.Component {
     );
 
     return (
-      <div className="fc-order">
-        <SectionTitle title={`Order ${this.orderRefNum}`}>
+      <div className="fc-grid fc-grid-gutter">
+        <div className="fc-col-md-1-1">
+          <PanelList>
+            <PanelListItem title="Order Status">{orderStatus}</PanelListItem>
+            <PanelListItem title="Shipment Status">{order.shippingStatus}</PanelListItem>
+            <PanelListItem title="Payment Status">{order.paymentStatus}</PanelListItem>
+            <PanelListItem title="Fraud Score">{order.fraudScore}</PanelListItem>
+            <PanelListItem title="Date/Time Placed"><DateTime value={order.createdAt} /></PanelListItem>
+          </PanelList>
+        </div>
+      </div>
+    );
+  }
+
+  @autobind
+  onStatusChange(value) {
+    this.props.updateOrder(this.orderRefNum, {status: value});
+  }
+
+  componentDidMount() {
+    this.props.fetchOrder(this.orderRefNum);
+  }
+
+  render() {
+    const order = this.order;
+    const className = classNames('fc-order', {'fc-cart': order.isCart});
+
+    if (_.isEmpty(order)) {
+      return <div className={className}></div>;
+    }
+
+    return (
+      <div className={className}>
+        <SectionTitle title={`${order.title} ${this.orderRefNum}`}>
           {this.remorseTimer}
         </SectionTitle>
-        <div className="fc-grid fc-grid-gutter">
-          <div className="fc-col-md-1-1">
-            <PanelList>
-              <PanelListItem title="Order Status">{orderStatus}</PanelListItem>
-              <PanelListItem title="Shipment Status">{order.shippingStatus}</PanelListItem>
-              <PanelListItem title="Payment Status">{order.paymentStatus}</PanelListItem>
-              <PanelListItem title="Fraud Score">{order.fraudScore}</PanelListItem>
-              <PanelListItem title="Date/Time Placed"><DateTime value={order.createdAt} /></PanelListItem>
-            </PanelList>
-          </div>
+        {this.statusHeader}
+        <div>
+          {this.subNav}
+          {this.details}
         </div>
-        {this.subNav}
       </div>
     );
   }

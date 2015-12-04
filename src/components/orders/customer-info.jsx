@@ -1,8 +1,27 @@
 import React, { PropTypes } from 'react';
 
 export default class CustomerInfo extends React.Component {
+  ensureNotEmpty(val) {
+    return val || <span>&nbsp;</span>;
+  }
+
+  get order() {
+    return this.props.order;
+  }
+
+  get modality() {
+    if (!this.order.isCart) {
+      return (
+        <li>
+          <i className="icon-tablet"></i>
+          <div>{this.ensureNotEmpty(this.order.customer.modality)}</div>
+        </li>
+      );
+    }
+  }
+
   render() {
-    let order = this.props.order;
+    const order = this.order;
     let customer = order.customer;
 
     const isGuest = customer.isGuest;
@@ -22,9 +41,6 @@ export default class CustomerInfo extends React.Component {
       );
     }
 
-    function ensureNotEmpty(val) {
-      return val || <span>&nbsp;</span>;
-    }
 
     let avatar = null;
 
@@ -46,7 +62,7 @@ export default class CustomerInfo extends React.Component {
             {avatar}
           </div>
           <div className="fc-customer-info-name">
-            {customer.firstName} {customer.lastName}
+            {customer.name}
           </div>
           <div className="fc-customer-info-email">
             {customer.email}
@@ -56,23 +72,20 @@ export default class CustomerInfo extends React.Component {
           <ul className="fc-customer-info-fields">
             <li>
               <i className="icon-customer"></i>
-              <div>{ensureNotEmpty(customer.id)}</div>
+              <div>{this.ensureNotEmpty(customer.id)}</div>
             </li>
             <li>
               <i className="icon-phone"></i>
-              <div>{ensureNotEmpty(customer.phoneNumber)}</div>
+              <div>{this.ensureNotEmpty(customer.phoneNumber)}</div>
             </li>
             <li>
               <i className="icon-location"></i>
-              <div>{ensureNotEmpty(customer.location)}</div>
+              <div>{this.ensureNotEmpty(customer.location)}</div>
             </li>
-            <li>
-              <i className="icon-tablet"></i>
-              <div>{ensureNotEmpty(customer.modality)}</div>
-            </li>
+            {this.modality}
             <li className="fc-customer-info-groups">
               <i className="icon-customers"></i>
-              {ensureNotEmpty(customerGroups)}
+              {this.ensureNotEmpty(customerGroups)}
             </li>
           </ul>
         </article>
