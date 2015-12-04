@@ -1,6 +1,7 @@
 
 // libs
 import _ from 'lodash';
+import classNames from 'classnames';
 import { createSelector } from 'reselect';
 import { autobind } from 'core-decorators';
 import React, { PropTypes } from 'react';
@@ -219,13 +220,19 @@ export default class NewGiftCard extends React.Component {
             <div className="fc-input-group">
               <div className="fc-input-prepend"><i className="icon-usd"></i></div>
               <input type="hidden" name="balance" value={this.props.balance} />
-              <input type="number" className="_no-counters" name="balanceText" value={this.props.balanceText} step="0.01" min="1"/>
+              <input type="number" className="_no-counters" name="balanceText"
+                     value={this.props.balanceText} step="0.01" min="1"/>
             </div>
             <div className="fc-new-gift-card__balances">
               {
                 [1000, 2500, 5000, 10000, 20000].map((balance, idx) => {
                   return (
-                    <div className="fc-new-gift-card__balance-value" key={`balance-${idx}`}
+                    <div className={
+                          classNames('fc-new-gift-card__balance-value', {
+                            '_selected': props.balance == balance
+                          })
+                        }
+                         key={`balance-${idx}`}
                          onClick={() => this.props.changeFormData('balance', balance)}>
 
                       ${balance/100}
