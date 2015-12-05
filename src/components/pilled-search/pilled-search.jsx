@@ -3,16 +3,15 @@ import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 import _ from 'lodash';
 
-import PilledInput from './pilled-input';
 import Menu from '../menu/menu';
 import MenuItem from '../menu/menu-item';
+import PilledInput from './pilled-input';
 
 export default class PilledSearch extends React.Component {
   constructor(props, context) {
     super(props, context);
 
     this.state = {
-      pills: props.pills,
       optionsVisible: false,
       searchDisplay: props.searchValue,
       searchValue: props.searchValue,
@@ -22,18 +21,16 @@ export default class PilledSearch extends React.Component {
 
   static propTypes = {
     className: PropTypes.string,
-    onChange: PropTypes.func,
     onSubmit: PropTypes.func,
     placeholder: PropTypes.string,
-    pills: PropTypes.array,
-    pillFormatter: PropTypes.func,
+    pillDelete: PropTypes.func,
+    renderSearchOption: PropTypes.func,
     searchButton: PropTypes.node,
     searchOptions: PropTypes.array,
     searchValue: PropTypes.string
   };
 
   static defaultProps = {
-    pills: [],
     placeholder: '',
     searchOptions: [],
     searchValue: ''
@@ -44,22 +41,51 @@ export default class PilledSearch extends React.Component {
   }
 
   get searchOptions() {
-    const options = this.props.searchOptions.map((option, idx) => {
-      const key = `option-${idx}`;
-      const klass = classNames({
-        'is-active': this.state.selectionIndex == idx,
-        'is-first': idx == 0,
-        'is-last': idx == this.state.selectionIndex - 1
-      });
+    const options = _.transform(this.props.searchOptions, (result, option, idx) => {
+      let renderSearchOption = this.renderSearchOption;
+      if (this.props.renderSearchOption) {
+        renderSearchOption = this.props.renderSearchOption;
+      }
 
-      return (
-        <MenuItem className={klass} key={key} onClick={() => this.selectOption(idx)}>
-          {option.display}
-        </MenuItem>
-      );
+      result.push(renderSearchOption(
+        option, 
+        this.state.searchValue, 
+        idx, 
+        this.state.selectionIndex
+      ));
     });
 
     return <Menu>{options}</Menu>;
+  }
+
+  @autobind
+  renderSearchOption(option, searchTerm, idx, selectionIndex) {
+    if (_.startsWith(option, searchTerm)) {
+      const key = `search-option-${idx}`;
+      const klass = classNames({
+        'is-active': selectionIndex == idx,
+        'is-first': idx == 0,
+        'is-last': idx == selectionIndex - 1
+      });
+
+      return (
+        <MenuItem className={klass} key={key} clickAction={() => this.props.onSubmit(option)}>
+          {option}
+        </MenuItem>
+      );
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const isVisible = nextProps.searchValue !== '' && nextProps.searchOptions.length > 0;
+
+    this.setState({
+      ...this.state,
+      optionsVisible: isVisible,
+      searchDisplay: nextProps.searchValue,
+      searchValue: nextProps.searchValue,
+      selectionIndex: -1
+    });
   }
 
   @autobind
@@ -69,20 +95,7 @@ export default class PilledSearch extends React.Component {
       searchDisplay: target.value,
       searchValue: target.value
     });
-
-    if (this.props.onChange) {
-      this.props.onChange(target.value);
-    }
   }
-
-  @autobind
-  deletePill(idx) {
-    this.setState({
-      ...this.state,
-      pills: _.without(this.state.pills, this.state.pills[idx])
-    });
-  }
-
 
   @autobind
   inputFocus() {
@@ -109,7 +122,7 @@ export default class PilledSearch extends React.Component {
           this.setState({ 
             ...this.state, 
             optionsVisible: true,
-            searchDisplay: this.props.searchOptions[newIdx].display,
+            searchDisplay: this.props.searchOptions[newIdx].selectionValue,
             selectionIndex: newIdx
           });
         }
@@ -124,7 +137,7 @@ export default class PilledSearch extends React.Component {
             const newIdx = this.state.selectionIndex - 1;
             const display = newIdx == -1
               ? this.state.searchValue
-              : this.props.searchOptions[newIdx].display;
+              : this.props.searchOptions[newIdx].selectionValue;
 
             this.setState({
               ...this.state,
@@ -137,38 +150,14 @@ export default class PilledSearch extends React.Component {
       case 13:
         // Enter
         event.preventDefault();
-        this.submitSearch(this.state.searchDisplay);
+        this.props.onSubmit(this.state.searchDisplay);
         break;
       case 8:
         // Backspace
-        if (_.isEmpty(this.state.searchValue) && !_.isEmpty(this.state.pills)) {
-          this.deletePill(this.state.pills.length - 1);
+        if (_.isEmpty(this.state.searchValue) && !_.isEmpty(this.props.pills)) {
+          this.props.deletePill(this.props.pills.length - 1);
         }
         break;
-    }
-  }
-
-  @autobind
-  selectOption(idx) {
-    if (idx > -1 && idx < this.props.searchOptions.length) {
-      this.submitSearch(this.props.searchOptions[idx].display);
-    }
-  }
-
-  submitSearch(text) {
-    if (!_.isEmpty(text)) {
-      this.setState({
-        ...this.state,
-        optionsVisible: false,
-        pills: this.state.pills.concat(text),
-        searchDisplay: '',
-        searchValue: '',
-        selectionIndex: -1
-      });
-
-      if (this.props.onSubmit) {
-        this.props.onSubmit(text);
-      }
     }
   }
 
@@ -178,13 +167,13 @@ export default class PilledSearch extends React.Component {
         <form>
           <PilledInput
             button={this.props.searchButton}
-            onPillClose={(pill, idx) => this.deletePill(idx)}
-            onPillClick={(pill, idx) => this.deletePill(idx)}
+            onPillClose={(pill, idx) => this.props.deletePill(idx)}
+            onPillClick={(pill, idx) => this.props.deletePill(idx)}
             placeholder={this.props.placeholder}
             onChange={this.change}
             onFocus={this.inputFocus}
             onKeyDown={this.keyDown}
-            pills={this.state.pills}
+            pills={this.props.pills}
             value={this.state.searchDisplay} />
         </form>
         <div>

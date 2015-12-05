@@ -1,4 +1,4 @@
-const ordersSearchOptions = [
+const searchTerms = [
   {
     term: 'Order',
     type: 'object',
@@ -6,8 +6,7 @@ const ordersSearchOptions = [
       {
         term: 'ID',
         type: 'string'
-      }, 
-      {
+      }, {
         term: 'State',
         type: 'enum',
         suggestions: [
@@ -20,8 +19,7 @@ const ordersSearchOptions = [
           'Partially Shipped',
           'Canceled'
         ]
-      }, 
-      {
+      }, {
         term: 'Date Placed',
         type: 'date'
       }
@@ -34,16 +32,13 @@ const ordersSearchOptions = [
         term: 'State',
         type: 'enum',
         suggestions: ['Shipped', 'Partially Shipped', 'Delivered']
-      },
-      {
+      }, {
         term: 'Method',
         type: 'string'
-      },
-      {
+      }, {
         term: 'Cost',
         type: 'number'
-      },
-      {
+      }, {
         term: 'Total Number',
         type: 'number'
       }
@@ -51,4 +46,4 @@ const ordersSearchOptions = [
   }
 ];
 
-export default ordersSearchOptions;
+export default searchTerms;

@@ -1,15 +1,6 @@
 import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
-
-const initialState = {
-  currentOptions: [],
-  isVisible: false,
-  potentialOptions: [],
-  inputValue: '',
-  displayValue: '',
-  selectedIndex: -1,
-  searches: []
-};
+import SearchTerm from '../paragons/search-term';
 
 /**
  * Deletes a saved search by it's index.
@@ -18,7 +9,7 @@ const initialState = {
  * @return {object} The state of the module after deleting the search.
  */
 function deleteSearchFilter(state, idx) {
-  if (!_.isEmpty(state.searches) && _.isEmpty(state.inputValue)) {
+  if (!_.isEmpty(state.searches) && _.isEmpty(state.searchValue)) {
     return {
       ...state,
       searches: _.without(state.searches, state.searches[idx])
@@ -35,11 +26,11 @@ function deleteSearchFilter(state, idx) {
  * @return {object} The updated state of the module after going back.
  */
 function goBack(state) {
-  const lastColonIdx = _.trim(state.inputValue, ' :').lastIndexOf(':');
+  const lastColonIdx = _.trim(state.searchValue, ' :').lastIndexOf(':');
 
   let newSearchTerm = null;
   if (lastColonIdx > 0) {
-    newSearchTerm = `${state.inputValue.slice(0, lastColonIdx - 1)} : `;
+    newSearchTerm = `${state.searchValue.slice(0, lastColonIdx - 1)} : `;
   } else {
     newSearchTerm = '';
   }
@@ -51,70 +42,55 @@ function goBack(state) {
  * Attempts to submit a selected filter. If valid, it will either show the
  * filter's sub-options or it will save the filter as a search.
  * @param {object} state The state of the module before executing the action.
+ * @param {string} searchTerm The term that is being submitted.
  * @return {object} The state of the module after the action.
  */
-function submitFilter(state) {
-  const options = state.currentOptions;
+function submitFilter(state, searchTerm) {
+  // First update the available terms.
+  let options = [];
+  let searches = state.searches;
+  let newSearchTerm = searchTerm;
 
-  let selectedIndex = null;
-  if (options.length == 1) {
-    selectedIndex = 0;
-  } else {
-    selectedIndex = state.selectedIndex;
+  _.forEach(state.potentialOptions, opts => {
+    const visibleOptions =  opts.applicableTerms(searchTerm);
+    if (!_.isEmpty(visibleOptions)) {
+      options = options.concat(visibleOptions);
+    }
+  });
+
+  // Second, if there is only one term, see if we can turn it into a saved search.
+  if (options.length == 1 && options[0].selectTerm(searchTerm)) {
+    _.forEach(state.potentialOptions, opts => {
+      const visibleOptions = opts.applicableTerms('');
+      if (!_.isEmpty(visibleOptions)) {
+        options = options.concat(visibleOptions);
+      }
+    });
+
+    searches.push(searchTerm);
+    newSearchTerm = '';
   }
 
-  if (selectedIndex == -1 || options.length == 0) {
-    // TODO: This will implement the search, not the filter.
-    return state;
-  }
-
-  const option = options[selectedIndex];
-
-  if (option.type == 'value' &&
-      _.trim(state.displayValue, ' :').length > option.display.length) {
-
-    // Turn it into a search.
-    return {
-      ...updateSearchTerm(state, ''),
-      searches: Array.concat(state.searches, state.displayValue),
-      isVisible: false
-    };
-  } else {
-    // Select it in the list.
-    return updateSearchTerm(
-      state,
-      `${option.display} : `,
-      [{...option, term: option.display}]
-    );
-  }
-
-  return state;
-}
-
-/**
- * Updates the current search term. Upon receiving the updated term, the
- * available search options will be recomputed and the decision about whether
- * to set the search options as visible will be made.
- * @param {object} state The state of the module before updating search.
- * @param {string} searchTerm The new term with which to update search.
- * @param {array} options Optional list of potential search options.
- * @return {object} The state of the module after updating search.
- */
-function updateSearchTerm(state, searchTerm, options) {
-  const potentialOptions = options || state.potentialOptions;
-  const currentOptions = visibleOptions(potentialOptions, searchTerm);
-
+  // Third, update the state.
   return {
     ...state,
-    isVisible: currentOptions.length > 0,
-    inputValue: searchTerm,
-    displayValue: searchTerm,
-    currentOptions: currentOptions,
-    potentialOptions: potentialOptions
+    currentOptions: options,
+    searches: searches,
+    searchValue: newSearchTerm
   };
 }
 
-function liveSearchReducer(actionTypes) {
+function liveSearchReducer(actionTypes, searchTerms) {
+  const terms = searchTerms.map(st => new SearchTerm(st));
+
+  const initialState = {
+    currentOptions: terms,
+    potentialOptions: terms,
+    selectedIndex: -1,
+    searches: [],
+    searchValue: ''
+  };
+
   return (state = initialState, action) => { 
     const payload = action.payload;
 
@@ -126,10 +102,7 @@ function liveSearchReducer(actionTypes) {
         return goBack(state);
 
       case actionTypes.SUBMIT_FILTER:
-        return submitFilter(state);
-
-      case actionTypes.UPDATE_SEARCH:
-        return updateSearchTerm(state, payload.searchTerm, payload.options);
+        return submitFilter(state, payload.searchTerm);
 
       default:
         return state;
@@ -137,72 +110,11 @@ function liveSearchReducer(actionTypes) {
   };
 }
 
-/**
- * Implementation of that algorithm that determines what search options
- * should be shown in this control.
- * @param {array} optionsList The complete set of options that could be shown.
- * @param {string} term The search term to filter by.
- */
-function visibleOptions(optionsList, term, prefix = '') {
-  if (!_.isEmpty(prefix)) {
-    prefix = `${prefix} : `;
-  }
-
-  const opts = _.transform(optionsList, (result, option) => {
-    const nSearchTerm = term.toLowerCase();
-    const optionTerm = `${prefix}${option.term}`;
-    const nOptionTerm = optionTerm.toLowerCase();
-
-    if (nSearchTerm <= nOptionTerm) {
-      if (_.startsWith(nOptionTerm, nSearchTerm)) {
-        result.push({...option, display: optionTerm});
-      }
-    } else if (_.startsWith(nSearchTerm, nOptionTerm)) {
-      if (option.type == 'object') {
-        const nestedOptions = visibleOptions(option.options, term, optionTerm);
-        _.forEach(nestedOptions, option => {
-          result.push({
-            ...option,
-            display: `${prefix}${option.display}`
-          });
-        });
-      } else if (option.type == 'enum') {
-        _.forEach(option.suggestions, suggestion => {
-          result.push({
-            ...option,
-            display: optionTerm,
-            action: suggestion,
-            suggestions: [],
-            type: 'value'
-          });
-        });
-      } else {
-        result.push({
-          ...option,
-          display: optionTerm,
-          type: 'value'
-        });
-      }   
-    }
-  });
-
-  return opts;
-}
-
-function optionDisplay(option) {
-  if (!_.isEmpty(option.action)) {
-    return `${option.display} : ${option.action}`;
-  } else {
-    return `${option.display} : `;
-  } 
-};
-
 function createLiveSearchActionTypes(namespace) {
   const actionTypes = [
     'DELETE_SEARCH_FILTER',
     'GO_BACK',
-    'SUBMIT_FILTER',
-    'UPDATE_SEARCH'
+    'SUBMIT_FILTER'
   ];
 
   return _.transform(actionTypes, (result, type) => {
@@ -220,14 +132,13 @@ function createLiveSearchActions(namespace) {
   return {
     deleteSearchFilter: _createAction(namespace, 'DELETE_SEARCH_FILTER', (idx) => ({idx})),
     goBack: _createAction(namespace, 'GO_BACK'),
-    submitFilter: _createAction(namespace, 'SUBMIT_FILTER'),
-    updateSearch: _createAction(namespace, 'UPDATE_SEARCH', (searchTerm, options) => ({searchTerm, options}))
+    submitFilter: _createAction(namespace, 'SUBMIT_FILTER', (searchTerm) => ({searchTerm})),
   };
 }
 
-export default function makeLiveSearch(namespace) {
+export default function makeLiveSearch(namespace, searchOptions) {
   const actions = createLiveSearchActions(namespace);
   const actionTypes = createLiveSearchActionTypes(namespace);
-  const reducer = liveSearchReducer(actionTypes);
+  const reducer = liveSearchReducer(actionTypes, searchOptions);
   return { reducer: reducer, actions: actions };
 }

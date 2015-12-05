@@ -4,8 +4,6 @@ import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import classNames from 'classnames';
 
-import Menu from '../menu/menu';
-import MenuItem from '../menu/menu-item';
 import SearchOption from './search-option';
 import PilledSearch from '../pilled-search/pilled-search';
 
@@ -26,21 +24,39 @@ export default class LiveSearch extends React.Component {
     state: PropTypes.object.isRequired
   };
 
-  render() {
-    // OK, this is a stupid hack that needs to be removed.
-    const opt = _.isEmpty(this.props.state.currentOptions)
-      ? [{ display: 'trollface' }]
-      : this.props.state.currentOptions;
+  @autobind
+  renderSearchOption(option, searchTerm, idx, selectionIndex) {
+    if (_.startsWith(option.displayTerm, searchTerm)) {
+      const key = `search-option-${idx}`;
+      const klass = classNames({
+        'is-active': selectionIndex == idx,
+        'is-first': idx == 0,
+        'is-last': idx == selectionIndex - 1
+      });
 
+      return ( 
+        <SearchOption
+          className={klass}
+          key={key}  
+          option={option} 
+          clickAction={this.props.submitSearch} />
+      );
+    }
+  }
+
+  render() {
     return (
       <PilledSearch
         className="fc-live-search fc-col-md-1-1"
         placeholder="Add another filter or keyword search"
         searchButton={<button className="fc-btn">Save Search</button>}
 
-        onChange={(term) => this.props.updateSearch(term, this.props.searchOptions)}
+        searchValue={this.props.state.displayValue}
         onSubmit={this.props.submitFilter}
-        searchOptions={opt}
+        pills={this.props.state.searches}
+        deletePill={this.props.deleteSearchFilter}
+        searchOptions={this.props.state.currentOptions}
+        renderSearchOption={this.renderSearchOption}
       />
     );
   }
