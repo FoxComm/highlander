@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import { Link } from '../link';
 
 export default class CustomerInfo extends React.Component {
   ensureNotEmpty(val) {
@@ -20,27 +21,32 @@ export default class CustomerInfo extends React.Component {
     }
   }
 
-  render() {
-    const order = this.order;
-    let customer = order.customer;
+  customerLink(text) {
+    return <Link to="customer-details" params={{customerId: this.order.customer.id}}>{text}</Link>;
+  }
 
-    const isGuest = customer.isGuest;
-    const customerRank = isGuest ? 'Guest' : customer.rank;
+  get customerGroups() {
+    const customer = this.order.customer;
 
-    let customerGroups = null;
-
-    if (isGuest) {
-      customerGroups = <div className="fc-customer-info-guest">Guest</div>;
+    if (customer.isGuest) {
+      return <div className="fc-customer-info-guest">Guest</div>;
     } else if (customer.groups) {
-      customerGroups = (
+      return (
         <div>
           {customer.groups.map((customer) => {
             return <div className="fc-customer-info-group">{customer}</div>;
           })}
         </div>
       );
+    } else {
+      return <div>None</div>;
     }
+  }
 
+  render() {
+    const order = this.order;
+    const customer = order.customer;
+    const customerRank = customer.isGuest ? 'Guest' : customer.rank;
 
     let avatar = null;
 
@@ -62,10 +68,10 @@ export default class CustomerInfo extends React.Component {
             {avatar}
           </div>
           <div className="fc-customer-info-name">
-            {customer.name}
+            {this.customerLink(customer.name)}
           </div>
           <div className="fc-customer-info-email">
-            {customer.email}
+            {this.customerLink(customer.email)}
           </div>
         </div>
         <article className="fc-customer-info-body">
@@ -85,7 +91,7 @@ export default class CustomerInfo extends React.Component {
             {this.modality}
             <li className="fc-customer-info-groups">
               <i className="icon-customers"></i>
-              {this.ensureNotEmpty(customerGroups)}
+              {this.ensureNotEmpty(this.customerGroups)}
             </li>
           </ul>
         </article>

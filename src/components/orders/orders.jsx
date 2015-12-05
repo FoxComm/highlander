@@ -3,7 +3,7 @@ import TableView from '../table/tableview';
 import TableRow from '../table/row';
 import TableCell from '../table/cell';
 import Link from '../link/link';
-import { Date } from '../common/datetime';
+import { DateTime } from '../common/datetime';
 import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
 import SectionTitle from '../section-title/section-title';
@@ -11,6 +11,8 @@ import { connect } from 'react-redux';
 import * as ordersActions from '../../modules/orders/list';
 import LocalNav from '../local-nav/local-nav';
 import PilledSearch from '../pilled-search/pilled-search';
+import Currency from '../common/currency';
+import Status from '../common/status';
 
 @connect(state => ({orders: state.orders.list}), ordersActions)
 export default class Orders extends React.Component {
@@ -27,11 +29,13 @@ export default class Orders extends React.Component {
 
   static defaultProps = {
     tableColumns: [
-      {field: 'referenceNumber', text: 'Order', type: 'id', model: 'order'},
-      {field: 'createdAt', text: 'Date', type: 'date'},
+      {field: 'referenceNumber', text: 'Order ID', type: 'id', model: 'order'},
+      {field: 'placedAt', text: 'Date/Time Placed', type: 'date'},
+      {field: 'name', text: 'Name'},
       {field: 'email', text: 'Email'},
-      {field: 'orderStatus', text: 'Order Status', type: 'orderStatus'},
-      {field: 'paymentStatus', text: 'Payment Status'},
+      {field: 'orderStatus', text: 'Order State', type: 'status', model: 'order'},
+      {field: 'paymentStatus', text: 'Payment State', type: 'status', model: 'payment'},
+      {field: 'shippingStatus', text: 'Shipment State', type: 'status', model: 'shipment'},
       {field: 'total', text: 'Total', type: 'currency'}
     ]
   };
@@ -52,11 +56,13 @@ export default class Orders extends React.Component {
             {row.referenceNumber}
           </Link>
         </TableCell>
-        <TableCell>{row.createdAt}</TableCell>
+        <TableCell><DateTime value={row.placedAt}/></TableCell>
+        <TableCell>{row.name}</TableCell>
         <TableCell>{row.email}</TableCell>
-        <TableCell>{row.orderStatus}</TableCell>
-        <TableCell>{row.paymentStatus}</TableCell>
-        <TableCell>{row.total}</TableCell>
+        <TableCell><Status value={row.orderStatus} model={"order"}/></TableCell>
+        <TableCell><Status value={row.paymentStatus} model={"payment"}/></TableCell>
+        <TableCell><Status value={row.shipmentStatus} model={"shipment"}/></TableCell>
+        <TableCell><Currency value={row.total}/></TableCell>
       </TableRow>
     );
 
@@ -75,7 +81,8 @@ export default class Orders extends React.Component {
           />
           <LocalNav>
             <a href="">Lists</a>
-            <a href="">Returns</a>
+            <a href="">Insights</a>
+            <a href="">Activity Trail</a>
           </LocalNav>
           <TabListView>
             <TabView draggable={false} selected={true}>All</TabView>
