@@ -1,8 +1,8 @@
-const { default: formatCurrency, stringToCurrency } = requireSource('lib/code-utils', [
+const { default: formatCurrency, stringToCurrency } = requireSource('lib/language-utils', [
   'codeToName'
 ]);
 
-describe('code utils', function () {
+describe('language utils', function () {
 
   if ('codeToName should create proper string', function() {
     const code = 'codeToName';

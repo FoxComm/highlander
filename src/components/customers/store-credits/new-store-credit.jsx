@@ -9,7 +9,7 @@ import Dropdown from '../../dropdown/dropdown';
 import Currency from '../../common/currency';
 import { transitionTo } from '../../../route-helpers';
 import { ReasonType } from '../../../lib/reason-utils';
-import { codeToName } from '../../../lib/code-utils';
+import { codeToName } from '../../../lib/language-utils';
 import classNames from 'classNames';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
@@ -26,12 +26,6 @@ const currencyList = {
 function validateCardCode(code) {
   if (!code) {
     return 'cannot be empty';
-  }
-}
-
-function validateAmount(amount) {
-  if (!_.isNumber(amount) || amount <= 0) {
-    return 'must be greater than 0';
   }
 }
 
@@ -56,7 +50,7 @@ export default class NewStoreCredit extends React.Component {
 
   static propTypes = {
     params: PropTypes.shape({
-      customerId: PropTypes.number.required()
+      customerId: PropTypes.number.required
     })
   }
 
@@ -67,17 +61,16 @@ export default class NewStoreCredit extends React.Component {
   }
 
   componentDidUpdate() {
-    if (this.props.reasons &&
-        this.props.reasons[this.reasonType] &&
-        this.props.reasons[this.reasonType][0]) {
-      this.props.changeScReason(this.props.reasons[this.reasonType][0].id);
+    const reasonId = _.get(this.props, ['reasons', this.reasonType, '0', 'id']);
+    if (_.isNumber(reasonId)) {
+      this.props.changeScReason(reasonId);
     }
   }
 
   shouldComponentUpdate(nextProps, nextState) {
     if (_.isNumber(nextProps.form.id)) {
       transitionTo(this.context.history, 'customer-storecredits', {customerId: this.customerId});
-      this.props.resetScForm();
+      this.props.resetForm();
       return false;
     }
     return true;
@@ -87,10 +80,8 @@ export default class NewStoreCredit extends React.Component {
   onChangeValue({target}) {
     if (target.name === 'code') {
       this.props.changeGCCode(target.value);
-    } else if (target.name === 'amountText') {
-      this.props.changeScFormData('amount', target.value * 100);
     } else {
-      this.props.changeScFormData(target.name, target.value || target.checked);
+      this.props.changeScFormData(target.name, target.value);
     }
   }
 
@@ -134,13 +125,12 @@ export default class NewStoreCredit extends React.Component {
   }
 
   get balances() {
-    const balances = [1000, 2500, 5000, 10000, 20000].map((balance, idx) => {
+    const balances = this.props.balances.map((balance, idx) => {
+      const classes = classNames('fc-store-credit-form__balance-value', {
+        '_selected': this.props.form.amount === balance
+      });
       return (
-        <div className={
-          classNames('fc-store-credit-form__balance-value', {
-            '_selected': this.props.form.amount === balance
-          })
-          }
+        <div className={classes}
           key={`balance-${idx}`}
           onClick={() => this.props.changeScFormData('amount', balance)}>
           ${balance/100}
@@ -161,10 +151,10 @@ export default class NewStoreCredit extends React.Component {
         <div>
           <Dropdown id="scTypeId"
                     name="type"
-                    items={ this.scTypes }
+                    items={this.scTypes}
                     placeholder="- Select -"
-                    value={ this.props.form.type }
-                    onChange={ (value) => this.props.changeScType(value) } />
+                    value={this.props.form.type}
+                    onChange={(value) => this.props.changeScType(value)} />
         </div>
       </li>
     );
@@ -174,17 +164,14 @@ export default class NewStoreCredit extends React.Component {
     const hiddenClass = classNames('fc-col-md-1-3', {
       '_hidden': _.isEmpty(this.scSubtypes)
     });
-    const action = `/customers/${this.customerId}/payment-methods/store-credit`;
     return (
       <Form className="fc-store-credit-form fc-form-vertical"
-              action={ action }
-              method="POST"
-              onChange={ this.onChangeValue }
-              onSubmit={ () => this.props.createStoreCredit(this.customerId) }>
+              onChange={this.onChangeValue}
+              onSubmit={() => this.props.createStoreCredit(this.customerId)}>
         <div className="fc-grid">
           <div className="fc-col-md-1-3">
             <ul>
-              { this.typeChangeField }
+              {this.typeChangeField}
               <li className="fc-store-credit-form__input-group">
                 <div>
                   <label htmlFor="scCurrencyField" className="fc-store-credit-form__label">
@@ -194,34 +181,33 @@ export default class NewStoreCredit extends React.Component {
                 <div>
                   <Dropdown id="scCurrencyField"
                             name="currency"
-                            items={ currencyList }
+                            items={currencyList}
                             placeholder="- Select -"
-                            value={ this.props.form.currency }
-                            onChange={ (value) => this.props.changeScFormData('currency', value) } />
+                            value={this.props.form.currency}
+                            onChange={(value) => this.props.changeScFormData('currency', value)} />
                 </div>
               </li>
               <li className="fc-store-credit-form__input-group-amount">
                 <FormField label="Value"
-                           labelClassName="fc-store-credit-form__label"
-                           validator={ validateAmount }>
+                           labelClassName="fc-store-credit-form__label">
                   <div className="fc-input-group">
                     <div className="fc-input-prepend"><i className="icon-usd"></i></div>
                     <input id="scAmountField"
                            type="hidden"
                            name="amount"
-                           value={ this.props.form.amount } />
+                           value={this.props.form.amount} />
                     <input id="scAmountField"
+                           className="_no-counters"
                            type="number"
                            name="amountText"
-                           value={ (this.props.form.amount / 100) }
-                           step="0.01"
+                           value={this.props.form.amountText}
                            min="0"
-                           formFieldTarget />
+                           step="0.01" />
                   </div>
                 </FormField>
               </li>
               <li className="fc-store-credit-form__balances">
-                { this.balances }
+                {this.balances}
               </li>
               <li className="fc-store-credit-form__controls">
                 <Link to="customer-storecredits"
@@ -233,7 +219,7 @@ export default class NewStoreCredit extends React.Component {
               </li>
             </ul>
           </div>
-          <div className={ hiddenClass } >
+          <div className={hiddenClass} >
             <div>
               <label htmlFor="subReasonIdField" className="fc-store-credit-form__label">
                 Subtype
@@ -242,10 +228,10 @@ export default class NewStoreCredit extends React.Component {
             <div>
               <Dropdown id="subReasonIdField"
                         name="subReasonId"
-                        items={ this.scSubtypes }
+                        items={this.scSubtypes}
                         placeholder="- Select -"
-                        value={ this.props.form.subTypeId }
-                        onChange={ (value) => this.props.changeScFormData('subTypeId', value) } />
+                        value={this.props.form.subTypeId}
+                        onChange={(value) => this.props.changeScFormData('subTypeId', value)} />
             </div>
           </div>
         </div>
@@ -254,27 +240,24 @@ export default class NewStoreCredit extends React.Component {
   }
 
   get giftCardConvertForm() {
-    const action = `/gift-cards/${this.props.form.code}/convert/${this.customerId}`;
     return (
       <Form className="fc-store-credit-form fc-form-vertical"
-              action={ action }
-              method="POST"
-              onChange={ this.onChangeValue }
-              onSubmit={ () => this.props.convertGiftCard(this.customerId) } >
+              onChange={this.onChangeValue}
+              onSubmit={() => this.props.convertGiftCard(this.customerId)} >
         <div className="fc-grid">
           <div className="fc-col-md-1-3">
             <ul>
-              { this.typeChangeField }
+              {this.typeChangeField}
               <li className="fc-store-credit-form__input-group">
                 <FormField label="Gift Card Number"
                            labelClassName="fc-store-credit-form__label"
-                           validator={ validateCardCode }>
+                           validator={validateCardCode}>
                   <input id="gcNumberField"
                          name="code"
                          type="text"
                          placeholder="1111 1111 1111 1111"
                          className="fc-customer-form-input"
-                         value={ this.props.form.code }
+                         value={this.props.form.code}
                          formFieldTarget />
                 </FormField>
               </li>
@@ -306,8 +289,8 @@ export default class NewStoreCredit extends React.Component {
       this.giftCardConvertForm : this.storeCreditForm;
     return (
       <div className="fc-store-credits-new">
-        <SectionTitle title="Issue New Store Credit" subtitle={ this.customerName }/>
-        { form }
+        <SectionTitle title="Issue New Store Credit" subtitle={this.customerName}/>
+        {form}
       </div>
     );
   }

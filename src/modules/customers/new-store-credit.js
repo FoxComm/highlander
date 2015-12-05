@@ -11,11 +11,11 @@ export const changeScFormData = _createAction('CHANGE', (name, value) => [name, 
 export const changeScAmount = _createAction('CHANGE_AMOUNT');
 export const changeScReason = _createAction('CHANGE_REASON');
 export const changeScType = _createAction('CHANGE_TYPE');
+export const resetForm = _createAction('RESET');
 
 const submitStoreCredit = _createAction('SUBMIT');
 const openStoreCreditList = _createAction('OPEN_LIST');
 const failNewStoreCredit = _createAction('FAIL');
-const resetForm = _createAction('RESET');
 
 function changeGiftCardUrl(customerId, code) {
   return `/gift-cards/${code}/convert/${customerId}`;
@@ -32,8 +32,10 @@ export function createStoreCredit(customerId) {
     const payload = dissoc(form, 'code', 'id', 'availableAmount');
 
     Api.post(saveStoreCreditUrl(customerId), payload)
-      .then(data => dispatch(openStoreCreditList(data)))
-      .catch(err => dispatch(failNewStoreCredit(err)));
+      .then(
+        data => dispatch(openStoreCreditList(data)),
+        err => dispatch(failNewStoreCredit(err))
+      );
   };
 }
 
@@ -45,8 +47,10 @@ export function convertGiftCard(customerId) {
 
     if (payload.code) {
       Api.post(changeGiftCardUrl(customerId, payload.code), payload)
-        .then(data => dispatch(openStoreCreditList(data)))
-        .catch(err => dispatch(failNewStoreCredit(err)));
+        .then(
+          data => dispatch(openStoreCreditList(data)),
+          err => dispatch(failNewStoreCredit(err))
+        );
     }
   };
 }
@@ -57,24 +61,22 @@ export function changeGCCode(value) {
 
     if (!_.isEmpty(value)) {
       Api.get(`/gift-cards/${value}`)
-        .then(json => {
-          dispatch(changeScFormData('availableAmount', json.currentBalance));
-        })
-        .catch(err => dispatch(changeScFormData('availableAmount', 0.0)));
+        .then(
+          json => dispatch(changeScFormData('availableAmount', json.currentBalance)),
+          err => dispatch(changeScFormData('availableAmount', 0.0))
+        );
     }
   };
 }
 
-export function resetScForm() {
-  return (dispatch) => {
-    dispatch(resetForm());
-  };
-}
+const amountToText = amount => (amount / 100).toFixed(2);
+const textToAmount = value => value * 100;
 
 const initialState = {
   form: {
     id: null,
     amount: null,
+    amountText: amountToText(100),
     currency: null,
     type: null,
     subTypeId: null,
@@ -82,15 +84,25 @@ const initialState = {
     code: null,
     availableAmount: 0
   },
+  balances: [1000, 2500, 5000, 10000, 20000],
   isFetching: false
 };
 
 const reducer = createReducer({
   [changeScFormData]: (state, [name, value]) => {
+    if (name === 'amountText') {
+      return assoc(state,
+        ['form', 'amount'], textToAmount(value),
+        ['form', 'amountText'], value
+      );
+    }
+    if (name === 'amount') {
+      return assoc(state,
+        ['form', 'amountText'], amountToText(value),
+        ['form', 'amount'], value
+      );
+    }
     return assoc(state, ['form', name], value);
-  },
-  [changeScAmount]: (state, newAmount) => {
-    return assoc(state, ['form', 'amount'], newAmount);
   },
   [changeScReason]: (state, newReason) => {
     return assoc(state,
