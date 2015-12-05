@@ -61,7 +61,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
   }
 
   "GET /v1/orders" - {
-    "find all" in {
+    "wtf: find all" in {
       val cId = Customers.create(Factories.customer).run().futureValue.rightVal.id
       Orders.create(Factories.order.copy(customerId = cId)).run().futureValue.rightVal
 
