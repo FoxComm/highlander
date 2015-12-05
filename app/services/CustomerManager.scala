@@ -19,6 +19,11 @@ import utils.Slick.UpdateReturning._
 import payloads.{CreateCustomerPayload, UpdateCustomerPayload, ActivateCustomerPayload, CustomerSearchForNewOrder}
 import utils.jdbc._
 
+import models.activity.Activities
+import models.activity.ActivityContext
+
+import services.activity.CustomerInfoChanged
+
 object CustomerManager {
 
   private def customerNotFound(id: Int): NotFoundFailure404 = NotFoundFailure404(Customer, id)
@@ -127,8 +132,18 @@ object CustomerManager {
     } yield root).value
   }
 
+  private def logUpdate(customer: Customer, payload: UpdateCustomerPayload)
+  (implicit ec: ExecutionContext, db: Database, ac: ActivityContext) = {
+    println(s"Saving id ${customer.id}")
+    Activities.log(
+      CustomerInfoChanged(
+        customerId = customer.id,
+        oldInfo = UpdateCustomerPayload(customer.name, Some(customer.email), customer.phoneNumber),
+        newInfo = payload))
+  }
+
   def update(customerId: Int, payload: UpdateCustomerPayload)
-    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = {
 
     swapDatabaseFailure {
       (for {
@@ -139,6 +154,7 @@ object CustomerManager {
           email = payload.email.getOrElse(customer.email),
           phoneNumber = payload.phoneNumber.fold(customer.phoneNumber)(Some(_))
         ))
+        _ ← * <~ logUpdate(customer, payload)
       } yield build(updated)).runT()
     } { (NotUnique, CustomerEmailNotUnique) }
 

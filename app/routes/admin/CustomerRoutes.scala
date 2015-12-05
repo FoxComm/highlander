@@ -9,6 +9,7 @@ import akka.util.ByteString
 import cats.data.Xor
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models._
+import models.activity.ActivityContext
 import org.json4s.{Formats, jackson}
 import org.json4s.jackson.Serialization
 import org.json4s.jackson.Serialization.{write ⇒ json}
@@ -24,7 +25,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 object CustomerRoutes {
 
-  def routes(implicit ec: ExecutionContext, db: Database,
+  def routes(implicit ec: ExecutionContext, db: Database, 
     mat: Materializer, storeAdminAuth: AsyncAuthenticator[StoreAdmin], apis: Apis) = {
 
     authenticateBasicAsync(realm = "admin", storeAdminAuth) { admin ⇒
@@ -57,6 +58,9 @@ object CustomerRoutes {
         } ~
         (patch & pathEnd & entity(as[UpdateCustomerPayload])) { payload ⇒
           goodOrFailures {
+            //TODO We need to extract action id from request head. Each request has a uuid
+            //which nginx generates and we can use that as the action id.
+            implicit val ac = ActivityContext(userId = admin.id, userType="admin", actionId="ABC")
             CustomerManager.update(customerId, payload)
           }
         } ~

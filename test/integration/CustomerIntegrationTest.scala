@@ -9,17 +9,25 @@ import com.stripe.exception.CardException
 import com.stripe.model.{Card, Customer ⇒ StripeCustomer}
 import models.OrderPayments.scope._
 import models._
+import models.activity.Activities
 import org.mockito.Mockito.{reset, when}
 import org.mockito.{Matchers ⇒ m}
 import org.scalatest.mock.MockitoSugar
 import payloads.CreateAddressPayload
+
+import org.json4s._
+import org.json4s.JsonAST.JValue
+import org.json4s.JsonAST.JString
+import org.json4s.JsonDSL._
 
 import responses.{ResponseWithFailuresAndMetadata, CustomerResponse}
 import responses.CreditCardsResponse.{Root ⇒ CardResponse}
 import services.orders.OrderPaymentUpdater
 import services.CreditCardFailure.StripeFailure
 import services.{CannotUseInactiveCreditCard, CreditCardManager, GeneralFailure, NotFoundFailure404,
-Result, CustomerEmailNotUnique}
+                 Result, CustomerEmailNotUnique}
+
+import services.activity.CustomerInfoChanged
 import util.IntegrationTestBase
 import utils.Money.Currency
 import utils.Seeds.Factories
@@ -235,6 +243,35 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val updated = response.as[responses.CustomerResponse.Root]
       (updated.name, updated.email, updated.phoneNumber) must === ((payload.name, newEmail, payload
         .phoneNumber))
+    }
+
+    "successfully creates activity after updating customer attributes" in new Fixture {
+
+      //Update email, name, and phone number
+      val payload = payloads.UpdateCustomerPayload(name = "Crazy Larry".some, email = "crazy.lary@crazy.com".some,
+        phoneNumber = "666 666 6666".some)
+
+      val response = PATCH(s"v1/customers/${customer.id}", payload)
+      response.status must === (StatusCodes.OK)
+
+      //Check the activity log to see if it was created
+      val activity = Activities.filterByData(
+        CustomerInfoChanged.typeName, 
+        "customer_id", customer.id.toString).result.headOption.run().futureValue.value
+
+      //make sure the activity has all the correct information
+      activity.activityType must === (CustomerInfoChanged.typeName)
+
+      (activity.data \ "customer_id") must === (JInt(customer.id))
+      (activity.data \ "old") must === (
+        ("name" → customer.name.getOrElse("")) ~ 
+        ("email" → customer.email) ~ 
+        ("phone" → customer.phoneNumber.getOrElse("")))
+
+      (activity.data \ "new") must === (
+        ("name" → payload.name.getOrElse("")) ~ 
+        ("email" → payload.email.getOrElse("")) ~ 
+        ("phone" → payload.phoneNumber.getOrElse("")))
     }
 
     "fails if email is already in use" in new Fixture {
