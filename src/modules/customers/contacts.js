@@ -37,10 +37,8 @@ const reducer = createReducer({
     );
   },
   [customerUpdated]: (state, [id, details]) => {
-    return assoc(state,
-      [id, 'details'], haveType(details, 'customer'),
-      [id, 'err'], null
-    );
+    state = update(state, [id, 'details'], merge, haveType(details, 'customer'));
+    return assoc(state, [id, 'err'], null);
   },
   [toggleEditCustomer]: (state, id) => {
     return update(state, [id, 'isContactsEditing'], isEdit => !isEdit);
