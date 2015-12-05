@@ -317,11 +317,11 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
       val responseAdd = POST(s"$uriPrefix/${customer.id}/blacklist", payloads.ToggleCustomerBlacklisted(true))
       responseAdd.status must === (StatusCodes.OK)
-      responseAdd.as[CustomerResponse.Root].blacklisted must === (true)
+      responseAdd.as[CustomerResponse.Root].isBlacklisted must === (true)
 
       val responseRemove = POST(s"$uriPrefix/${customer.id}/blacklist", payloads.ToggleCustomerBlacklisted(false))
       responseRemove.status must === (StatusCodes.OK)
-      responseRemove.as[CustomerResponse.Root].blacklisted must === (false)
+      responseRemove.as[CustomerResponse.Root].isBlacklisted must === (false)
     }
 
     "fails if customer not found" in new Fixture {
@@ -337,7 +337,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
       val response = POST(s"$uriPrefix/${customer.id}/blacklist", payloads.ToggleCustomerBlacklisted(true))
       response.status must === (StatusCodes.OK)
-      response.as[CustomerResponse.Root].blacklisted must === (true)
+      response.as[CustomerResponse.Root].isBlacklisted must === (true)
     }
   }
 

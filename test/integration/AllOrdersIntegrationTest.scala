@@ -59,7 +59,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       case Xor.Right(seq) ⇒ seq
     }
   }
-  
+
   "GET /v1/orders" - {
     "find all" in {
       val cId = Customers.create(Factories.customer).run().futureValue.rightVal.id
@@ -75,11 +75,13 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
 
       val expected = AllOrders.Root(
         referenceNumber = "ABCD1234-11",
+        name = Some("Yax Fuentes"),
         email = "yax@yax.com",
         orderStatus = Order.ManualHold,
+        paymentStatus = Some("FIXME"),
+        shippingStatus = Some("FIXME"),
         placedAt = None,
         total = None,
-        paymentStatus = None,
         remorsePeriodEnd = None)
 
       actual must === (expected)

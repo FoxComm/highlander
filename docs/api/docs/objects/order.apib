@@ -54,9 +54,11 @@
 
 ### ListOrder
 + referenceNumber: `ABC-123` (required, string) - Unique identifier.
++ name: Yax Fuentes (optional, string) - Customer full name.
 + email: yax@yax.com (required, string) - Customer email.
 + Include OrderStatus
 + Include PaymentStatus
++ Include ShippingStatus
 + placedAt: `2015-09-10T14:55:50Z` (optional, string) - Timestamp of when order was placed.
 + remorsePeriodEnd: `2015-09-10T15:25:50Z` (optional, string) - Timestamp of when remorse period ends.
 + customer (required, CustomerResponse) - associated customer.
