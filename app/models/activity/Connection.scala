@@ -22,11 +22,10 @@ import Aliases.Json
 final case class Connection(
   id: Int = 0, 
   dimensionId: Int, 
+  trailId: Int, 
   activityId: Int, 
   previousId: Option[Int], 
   nextId: Option[Int], 
-  tailId: Option[Int], 
-  trailId: Int, 
   data: Json, 
   connectedBy: Json,
   createdAt: Instant = Instant.now) extends ModelWithIdParameter[Connection]
@@ -35,11 +34,10 @@ final case class Connection(
 class Connections(tag: Tag) extends GenericTable.TableWithId[Connection](tag, "activity_connections")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def dimensionId = column[Int]("dimension_id")
+  def trailId = column[Int]("trail_id")
   def activityId = column[Int]("activity_id")
   def previousId = column[Option[Int]]("previous_id")
   def nextId = column[Option[Int]]("next_id")
-  def tailId = column[Option[Int]]("tail_id")
-  def trailId = column[Int]("trail_id")
   def data = column[Json]("data")
   def connectedBy = column[Json]("connected_by")
   def createdAt = column[Instant]("created_at")
@@ -47,11 +45,10 @@ class Connections(tag: Tag) extends GenericTable.TableWithId[Connection](tag, "a
   def * = (
     id, 
     dimensionId, 
+    trailId, 
     activityId, 
     previousId, 
     nextId, 
-    tailId, 
-    trailId, 
     data, 
     connectedBy, 
     createdAt) <> ((Connection.apply _).tupled, Connection.unapply)
