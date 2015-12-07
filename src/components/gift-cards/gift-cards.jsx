@@ -11,6 +11,7 @@ import { TabListView, TabView } from '../tabs';
 import { connect } from 'react-redux';
 import * as giftCardActions from '../../modules/gift-cards/cards';
 import GiftCardCode from './gift-card-code';
+import Currency from '../common/currency';
 
 @connect(state => ({giftCards: state.giftCards.cards}), giftCardActions)
 export default class GiftCards extends React.Component {
@@ -47,9 +48,9 @@ export default class GiftCards extends React.Component {
           </Link>
         </TableCell>
         <TableCell>{row.originType}</TableCell>
-        <TableCell>{row.originalBalance}</TableCell>
-        <TableCell>{row.currentBalance}</TableCell>
-        <TableCell>{row.availableBalance}</TableCell>
+        <TableCell><Currency value={row.originalBalance}/></TableCell>
+        <TableCell><Currency value={row.currentBalance}/></TableCell>
+        <TableCell><Currency value={row.availableBalance}/></TableCell>
         <TableCell>{row.status}</TableCell>
         <TableCell>
           <Date value={row.createdAt}/>

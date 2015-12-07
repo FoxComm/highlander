@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import { get } from 'sprout-data';
 
-const statuses = {
+export const statuses = {
   order: {
     cart: 'Cart',
     remorseHold: 'Remorse Hold',
@@ -9,6 +9,19 @@ const statuses = {
     fraudHold: 'Fraud Hold',
     fulfillmentStarted: 'Fulfillment Started',
     canceled: 'Canceled',
+    partiallyShipped: 'Partially Shipped',
+    shipped: 'Shipped'
+  },
+  payment: {
+    cart: 'Cart'
+  },
+  shipment: {
+    cart: 'Cart',
+    ordered: 'Ordered',
+    manualHold: 'Manual Hold',
+    remorseHold: 'Remorse Hold',
+    fraudHold: 'Fraud Hold',
+    fulfillmentStarted: 'Fulfillment Started',
     partiallyShipped: 'Partially Shipped',
     shipped: 'Shipped'
   },

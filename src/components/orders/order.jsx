@@ -15,6 +15,7 @@ import * as shippingMethodActions from '../../modules/orders/shipping-methods';
 import * as skusActions from '../../modules/skus';
 import SubNav from './sub-nav';
 import classNames from 'classnames';
+import Status, { statuses } from '../common/status';
 
 const mapStateToProps = (state) => {
   return {
@@ -99,17 +100,7 @@ export default class Order extends React.Component {
       return;
     }
 
-    // order status render
-    const orderStatuses = {
-      cart: 'Cart',
-      remorseHold: 'Remorse Hold',
-      manualHold: 'Manual Hold',
-      fraudHold: 'Fraud Hold',
-      fulfillmentStarted: 'Fulfillment Started',
-      canceled: 'Canceled',
-      partiallyShipped: 'Partially Shipped',
-      shipped: 'Shipped'
-    };
+    const orderStatuses = statuses.order;
 
     const orderStatus = (
       <Dropdown
@@ -125,11 +116,11 @@ export default class Order extends React.Component {
       <div className="fc-grid fc-grid-gutter">
         <div className="fc-col-md-1-1">
           <PanelList>
-            <PanelListItem title="Order Status">{orderStatus}</PanelListItem>
-            <PanelListItem title="Shipment Status">{order.shippingStatus}</PanelListItem>
-            <PanelListItem title="Payment Status">{order.paymentStatus}</PanelListItem>
+            <PanelListItem title="Order State">{orderStatus}</PanelListItem>
+            <PanelListItem title="Shipment State"><Status value={order.shippingStatus} model={"shipment"} /></PanelListItem>
+            <PanelListItem title="Payment State"><Status value={order.paymentStatus} model={"payment"} /></PanelListItem>
             <PanelListItem title="Fraud Score">{order.fraudScore}</PanelListItem>
-            <PanelListItem title="Date/Time Placed"><DateTime value={order.createdAt} /></PanelListItem>
+            <PanelListItem title="Date/Time Placed"><DateTime value={order.placedAt} /></PanelListItem>
           </PanelList>
         </div>
       </div>

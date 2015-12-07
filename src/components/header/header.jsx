@@ -7,19 +7,22 @@ export default class Header extends React.Component {
     location: PropTypes.object
   };
 
-  render() {
-    const { location }  = this.context;
-    let pathname = location.pathname.replace(/^\/|\/$/gm, '');
-    let items = pathname.split('/').map((item, index) => {
+  get breadcrumb() {
+    const pathname = this.context.location.pathname.replace(/^\/|\/$/gm, '');
+
+    const items = pathname.split('/').map((item, index) => {
       let classname = index > 0 ? 'icon-chevron-right' : null;
       let itemName = inflect(item, 'capitalize');
       return <span className={classname} key={`header-item-${index}`}>{` ${itemName} `}</span>;
     });
-    let breadcrumb = <div className="breadcrumb">{items}</div>;
 
+    return <div className="breadcrumb">{items}</div>;
+  }
+
+  render() {
     return (
       <header role='banner' className="fc-header">
-        {breadcrumb}
+        {this.breadcrumb}
         <div className="sub-nav">
           <div className="notifications">
             <i className="icon-bell"></i>
