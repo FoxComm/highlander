@@ -27,6 +27,10 @@ const SubNav = props => {
       </LocalNav>
     );
   }
-}
+};
+
+SubNav.propTypes = {
+  order: PropTypes.object
+};
 
 export default SubNav;
