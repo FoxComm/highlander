@@ -37,7 +37,7 @@ function submitFilter(state, searchTerm) {
   if (options.length == 1 && options[0].selectTerm(searchTerm)) {
     newSearchTerm = '';
     options = SearchTerm.potentialTerms(state.potentialOptions, newSearchTerm);
-    searches = state.searches.concat(searchTerm);
+    searches = [...state.searches, searchTerm];
   }
 
   // Third, update the state.

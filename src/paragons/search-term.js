@@ -96,7 +96,9 @@ export default class SearchTerm {
   }
 
   selectTerm(search) {
-    const nSearch = normalizeSearchTerm(search);
+    // Eliminate a hanging colon, we don't want to think an empty string
+    // is the search term.
+    const nSearch = _.trim(normalizeSearchTerm(search), ': ');
     const nTerm = this.displayTerm.toLowerCase();
 
     if (this._type == 'value') {
