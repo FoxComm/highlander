@@ -12,7 +12,7 @@ export default class NotificationPanel extends React.Component {
   get items() {
     const items = this.props.notifications.notifications;
     return items.map(item => {
-      return (<NotificationItem />);
+      return (<NotificationItem item={ item } />);
     });
   }
 

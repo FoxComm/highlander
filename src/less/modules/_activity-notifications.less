@@ -19,7 +19,7 @@
   }
 
   &__panel {
-    position: fixed;
+    position: absolute;
     .right(100px);
     .top(60px);
   }
@@ -50,11 +50,17 @@
   }
 
   &__overlay {
-    position: fixed;
+    position: absolute;
     .top(0);
     .bottom(0);
     .left(0);
     .right(0);
     z-index: 1000;
+  }
+}
+
+.fc-activity-notification-item {
+  &__content {
+    .margin(10px);
   }
 }

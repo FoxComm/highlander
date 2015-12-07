@@ -1,12 +1,26 @@
 import React, { PropTypes } from 'react';
+import { DateTime } from '../common/datetime';
 
-export default class NotificationItem extends React.Component {
-
-  render() {
-    return (
-      <div className="fc-activity-notification-item">
-        Item
+const NotificationItem = (props) => {
+  return (
+    <div className="fc-activity-notification-item">
+      <div className="fc-activity-notification-item__content">
+        <div className="fc-activity-notification-item__time">
+          <DateTime value={props.item.createdAt} />
+        </div>
+        <div className="fc-activity-notification-item__info">
+          <div className="fc-activity-notification-item__type">
+          </div>
+          <div className="fc-activity-notification-item__body">
+            <div className="fc-activity-notification-item__author">
+            </div>
+            <div className="fc-activity-notification-item__text">
+            </div>
+          </div>
+        </div>
       </div>
-    );
-  }
+    </div>
+  );
 }
+
+export default NotificationItem;
