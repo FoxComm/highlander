@@ -20,10 +20,10 @@ export default class LiveSearch extends React.Component {
 
     this.state = {
       optionsVisible: false,
-      pills: props.state.searches,
-      searchDisplay: props.state.searchValue,
-      searchOptions: props.state.currentOptions,
-      searchValue: props.state.searchValue,
+      pills: props.searches.searches,
+      searchDisplay: props.searches.searchValue,
+      searchOptions: props.searches.currentOptions,
+      searchValue: props.searches.searchValue,
       selectionIndex: -1
     };
   }
@@ -88,17 +88,17 @@ export default class LiveSearch extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const isVisible = nextProps.state.currentOptions.length > 0 &&
-      (nextProps.state.searches.length != this.state.pills.length ||
-       nextProps.state.searchValue !== '');
+    const isVisible = nextProps.searches.currentOptions.length > 0 &&
+      (nextProps.searches.searches.length != this.state.pills.length ||
+       nextProps.searches.searchValue !== '');
 
     this.setState({
       ...this.state,
       optionsVisible: isVisible,
-      pills: nextProps.state.searches,
-      searchDisplay: nextProps.state.searchValue,
-      searchOptions: nextProps.state.currentOptions,
-      searchValue: nextProps.state.searchValue,
+      pills: nextProps.searches.searches,
+      searchDisplay: nextProps.searches.searchValue,
+      searchOptions: nextProps.searches.currentOptions,
+      searchValue: nextProps.searches.searchValue,
       selectionIndex: -1
     });
   }

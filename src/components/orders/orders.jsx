@@ -9,12 +9,22 @@ import TabView from '../tabs/tab';
 import SectionTitle from '../section-title/section-title';
 import { connect } from 'react-redux';
 import * as ordersActions from '../../modules/orders/list';
+import * as searchActions from '../../modules/orders/search';
 import LocalNav from '../local-nav/local-nav';
 import Currency from '../common/currency';
 import Status from '../common/status';
 import LiveSearch from '../live-search/live-search';
+import util from 'util';
 
-@connect(state => ({orders: state.orders.list}), ordersActions)
+const actions = {
+  ...ordersActions,
+  ...searchActions
+};
+
+@connect(state => ({
+  orders: state.orders.list,
+  search: state.orders.search
+}), actions)
 export default class Orders extends React.Component {
   static propTypes = {
     fetch: PropTypes.func.isRequired,
@@ -90,10 +100,11 @@ export default class Orders extends React.Component {
         </div>
         <div className="fc-grid fc-list-page-content">
           <LiveSearch
-            submitFilter={this.props.submitFilter}
             state={this.props.orders}
             goBack={this.props.goBack}
             deleteSearchFilter={this.props.deleteSearchFilter}
+            submitFilter={this.props.submitFilter}
+            searches={this.props.search}
           />
           <div className="fc-col-md-1-1">
             <TableView
