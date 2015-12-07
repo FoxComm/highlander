@@ -28,7 +28,9 @@ export default class NotificationIndicator extends React.Component {
   render() {
     return (
       <div className="fc-activity-notifications">
-        <Button icon="bell" className="fc-activity-notifications__toggle">
+        <Button icon="bell"
+                className="fc-activity-notifications__toggle"
+                onClick={ this.props.toggleNotifiactions }>
           { this.indicator }
         </Button>
       </div>

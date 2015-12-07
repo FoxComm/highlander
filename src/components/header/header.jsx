@@ -1,6 +1,7 @@
 import React, {PropTypes} from 'react';
 import { inflect } from 'fleck';
 import NotificationIndicator from '../activity-notifications/indicator';
+import NotificationPanel from '../activity-notifications/panel';
 
 export default class Header extends React.Component {
 
@@ -28,6 +29,7 @@ export default class Header extends React.Component {
           <NotificationIndicator notificationsCount={ 5 } />
           <div className="sort">Name <i className="icon-chevron-down"></i></div>
         </div>
+        <NotificationPanel />
       </header>
     );
   }
