@@ -33,6 +33,6 @@ class Dimensions(tag: Tag) extends GenericTable.TableWithId[Dimension](tag, "act
 object Dimensions extends TableQueryWithId[Dimension, Dimensions](
   idLens = GenLens[Dimension](_.id))(new Dimensions(_)) {
 
-    private [this] def findByName(name: String) = filter(_.name === name)
+    def findByName(name: String) = filter(_.name === name)
 
   }
