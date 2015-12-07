@@ -1,257 +1,261 @@
+
+// libs
 import _ from 'lodash';
+import classNames from 'classnames';
 import { createSelector } from 'reselect';
 import { autobind } from 'core-decorators';
 import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
+import { transitionTo } from '../../route-helpers';
+
+// components
 import Counter from '../forms/counter';
 import Typeahead from '../typeahead/typeahead';
-import CustomerStore from '../../stores/customers';
+import { PrimaryButton } from '../common/buttons';
+import { Dropdown, DropdownItem } from '../dropdown';
+import { Checkbox } from '../checkbox/checkbox';
 import { Link } from '../link';
-import { connect } from 'react-redux';
 import { Form, FormField } from '../forms';
+import ChooseCustomers from './choose-customers';
+import PilledInput from '../pilled-search/pilled-input';
+
+// redux
 import * as GiftCardNewActions from '../../modules/gift-cards/new';
-import * as CustomersActions from '../../modules/customers/list';
 import { createGiftCard } from '../../modules/gift-cards/cards';
 
-const filterCustomers = createSelector(
-  state => state.customers.items,
-  ({giftCards: {adding}}) => adding.customersQuery,
-  (customers, customersQuery) => _.filter(customers, customer => _.contains(customer.name, customersQuery))
-);
-
-const filterUsers = createSelector(
-  state => state.customers.items,
-  ({giftCards: {adding}}) => adding.usersQuery,
-  (customers, usersQuery) => _.filter(customers, customer => _.contains(customer.name, usersQuery))
-);
+const typeTitles = {
+  'csrAppeasement': 'Appeasement'
+};
 
 const subTypes = createSelector(
   ({giftCards: {adding}}) => adding.originType,
   ({giftCards: {adding}}) => adding.types,
-  (originType, types) => types[originType]
+  (originType, types=[]) => _.get(_.findWhere(types, {originType}), 'subTypes', [])
 );
-
-const customerItem = props => <div>{props.item.name}</div>;
 
 @connect(state => ({
   ...state.giftCards.adding,
-  suggestedCustomers: filterCustomers(state),
-  suggestedUsers: filterUsers(state),
   subTypes: subTypes(state)
 }), {
   ...GiftCardNewActions,
-  ...CustomersActions,
   createGiftCard
 })
 export default class NewGiftCard extends React.Component {
 
   static propTypes = {
-    addCustomer: PropTypes.func,
-    addUser: PropTypes.func,
+    addCustomers: PropTypes.func,
+    fetchTypes: PropTypes.func,
     balance: PropTypes.number,
     balanceText: PropTypes.string,
     changeFormData: PropTypes.func.isRequired,
     createGiftCard: PropTypes.func.isRequired,
-    customers: PropTypes.map,
+    customers: PropTypes.array,
     emailCSV: PropTypes.bool,
-    fetchCustomersIfNeeded: PropTypes.func.isRequired,
     removeCustomer: PropTypes.func,
-    removeUser: PropTypes.func,
     sendToCustomer: PropTypes.bool,
-    subTypes: PropTypes.map,
+    subTypes: PropTypes.array,
     suggestCustomers: PropTypes.func,
     suggestedCustomers: PropTypes.array,
-    suggestUsers: PropTypes.func,
-    suggestedUsers: PropTypes.array,
-    types: PropTypes.object,
-    users: PropTypes.map
+    types: PropTypes.array,
+  };
+
+  static contextTypes = {
+    history: PropTypes.object.isRequired
   };
 
   constructor(props, context) {
     super(props, context);
     this.state = {
       customerMessageCount: 0,
-      csvMessageCount: 0
+      csvMessageCount: 0,
+      customersQuery: '',
     };
   }
 
   componentDidMount() {
-    this.props.fetchCustomersIfNeeded();
+    this.props.fetchTypes();
   }
 
   @autobind
   submitForm(event) {
     event.preventDefault();
-    this.props.createGiftCard();
+    this.props.createGiftCard()
+      .then(() => transitionTo(this.context.history, 'gift-cards'));
   }
 
   @autobind
   onChangeValue({target}) {
-    this.props.changeFormData(target.name, target.value || target.checked);
+    const value = target.type === 'checkbox' ? target.checked : target.value;
+
+    this.props.changeFormData(target.name, value);
   }
 
   changeCustomerMessage(event) {
     this.setState({customerMessageCount: event.target.value.length});
   }
 
-  changeCSVMessage(event) {
-    this.setState({csvMessageCount: event.target.value.length});
-  }
+  get subTypes() {
+    const props = this.props;
 
-  render() {
-    let
-      subTypeContent = null,
-      customerSearch = null,
-      quantity       = null,
-      emailCSV       = null;
-
-    const typeList = Object.keys(this.props.types);
-
-    if (this.props.subTypes.length > 0) {
-      subTypeContent = (
-        <div id="subTypes">
-          <label htmlFor="cardSubType">Subtype</label>
-          <select name="cardSubType">
-            {this.props.subTypes.map((subType, idx) => {
-              return <option key={`subType-${idx}`} val={subType}>{subType}</option>;
-             })};
-          </select>
+    if (props.subTypes && props.subTypes.length > 0) {
+      return (
+        <div className="fc-new-gift-card__subtypes fc-col-md-1-2">
+          <label htmlFor="subTypeId">Subtype</label>
+          <Dropdown value={`${props.subTypeId}`} onChange={ value => props.changeFormData('subTypeId', Number(value)) }>
+            {props.subTypes.map((subType, idx) => {
+              return <DropdownItem key={`subType-${idx}`} value={`${props.subTypeId}`}>{subType.title}</DropdownItem>;
+            })}
+          </Dropdown>
         </div>
       );
     }
+  }
 
-    if (this.props.sendToCustomer) {
-      customerSearch = (
-        <div id="customerSearch">
+  get chooseCustomersMenu() {
+    return (
+      <ChooseCustomers
+        items={this.props.suggestedCustomers}
+        onAddCustomers={(customers) => {
+          this.props.addCustomers(_.values(customers));
+          this.setState({
+            customersQuery: ''
+          });
+        }} />
+    );
+  }
+
+  get chooseCustomersInput() {
+    const props = this.props;
+
+    return (
+      <PilledInput
+        value={this.state.customersQuery}
+        onChange={e => this.setState({customersQuery: e.target.value})}
+        pills={props.customers.map(customer => customer.name)}
+        icon={null}
+        onPillClose={(name, idx) => props.removeCustomer(props.customers[idx].id)} />
+    );
+  }
+
+  get customerListBlock() {
+    const props = this.props;
+
+    if (props.sendToCustomer) {
+      const labelAtRight = <div className="fc-new-gift-card__counter">{this.state.customerMessageCount}/1000</div>;
+
+      return (
+        <div className="fc-new-gift-card__send-to-customers">
           <Typeahead
-            items={this.props.suggestedCustomers}
-            fetchItems={this.props.suggestCustomers}
-            component={customerItem}
-            onItemSelected={this.props.addCustomer}
+            className="_no-search-icon"
+            fetchItems={props.suggestCustomers}
+            itemsElement={this.chooseCustomersMenu}
+            inputElement={this.chooseCustomersInput}
+            minQueryLength={2}
             label="Choose customers:"
             name="customerQuery"
           />
-          <ul id="customerList">
-            {this.props.customers.map((customer, idx) => {
-              return (
-                <li key={`customer-${idx}`}>
-                  {customer.name}
-                  <input type="hidden" name="customers[]" id={`customer_${idx}`} value={customer.id} />
-                  <a onClick={() => this.props.removeCustomer(customer.id)}>&times;</a>
-                </li>
-              );
-             })}
-          </ul>
-          <label htmlFor="customerMessage">Write a message for customers (optional):</label>
-          <div className="counter">{this.state.customerMessageCount}/1000</div>
-          <textarea name="customerMessage" maxLength="1000" onChange={this.changeCustomerMessage.bind(this)}></textarea>
-        </div>
-      );
-
-      quantity = (
-        <span>
-          {this.props.customers.length} <input type="hidden" name="quantity" value={this.props.customers.length} />
-        </span>
-      );
-    } else {
-      quantity = <Counter inputName="quantity" />;
-    }
-
-    if (this.props.emailCSV) {
-      emailCSV = (
-        <div id="userSearch">
-          <Typeahead
-            items={this.props.suggestedUsers}
-            fetchItems={this.props.suggestUsers}
-            component={customerItem}
-            onItemSelected={this.props.addUser}
-            label="Choose users:"
-            name="csvQuery"
-          />
-          <ul id="internalUserList">
-            {this.props.users.map((user, idx) => {
-              return (
-                <li key={`user-${idx}`}>
-                  {user.name}
-                  <input type="hidden" name="users[]" id={`user_${idx}`} value={user.id} />
-                  <a onClick={() => this.props.removeUser(user.id)}>&times;</a>
-                </li>
-              );
-             })}
-          </ul>
-          <label htmlFor="internalMessage">Write a message (optional):</label>
-          <div className="counter">{this.state.csvMessageCount}/1000</div>
-          <textarea name="internalMessage" maxLength="1000" onChange={this.changeCSVMessage.bind(this)}></textarea>
+          <FormField className="fc-new-gift-card__message-to-customers"
+                     label="Write a message for customers" optional
+                     labelAtRight={ labelAtRight }>
+            <textarea className="fc-input" name="customerMessage"
+                      maxLength="1000" onChange={this.changeCustomerMessage.bind(this)}></textarea>
+          </FormField>
         </div>
       );
     }
+  }
+
+  get quantitySection() {
+    if (!this.props.sendToCustomer) {
+
+      const changeQuantity = (event, amount) => {
+        event.preventDefault();
+        this.props.changeQuantity(this.props.quantity + amount);
+      };
+
+      return (
+        <fieldset>
+          <label htmlFor="quantity">Quantity</label>
+          <Counter
+            id="quantity"
+            value={this.props.quantity}
+            increaseAction={event => changeQuantity(event, 1)}
+            decreaseAction={event => changeQuantity(event, -1)}
+            onChange={({target}) => this.props.changeQuantity(target.value)}
+            min={1} />
+        </fieldset>
+      );
+    }
+  }
+
+  render() {
+    const props = this.props;
 
     return (
-      <div id="new-gift-card" className="gutter">
-        <h2>Issue New Gift Cards</h2>
+      <div className="fc-new-gift-card">
+        <header className="fc-col-md-1-1">
+          <h1>Issue New Gift Card</h1>
+        </header>
         <form action="/gift-cards"
               method="POST"
-              className="vertical"
+              className="fc-form-vertical fc-col-md-1-1"
               onSubmit={this.submitForm}
               onChange={this.onChangeValue}>
-          <fieldset>
-            <div id="cardTypes">
+          <div className="fc-grid fc-grid-no-gutter">
+            <div className="fc-new-gift-card__types fc-col-md-1-2">
               <label htmlFor="originType">Gift Card Type</label>
-              <select name="originType">
-                {typeList.map((type, idx) => {
-                  return <option value={type} key={`${idx}-${type}`}>{type}</option>;
+              <Dropdown value={props.originType} onChange={value => props.changeFormData('originType', value) }>
+                {props.types.map((entry, idx) => {
+                  const type = entry.originType;
+                  const title = typeTitles[entry.originType];
+
+                  return <DropdownItem value={type} key={`${idx}-${type}`}>{title}</DropdownItem>;
                  })}
-              </select>
+              </Dropdown>
             </div>
-            {subTypeContent}
-          </fieldset>
+            {this.subTypes}
+          </div>
           <fieldset>
             <label htmlFor="value">Value</label>
             <div className="fc-input-group">
               <div className="fc-input-prepend"><i className="icon-usd"></i></div>
               <input type="hidden" name="balance" value={this.props.balance} />
-              <input type="number" name="balanceText" value={this.props.balanceText} step="0.01" min="1"/>
+              <input type="number" className="_no-counters" name="balanceText"
+                     value={this.props.balanceText} step="0.01" min="1"/>
             </div>
-            <div id="balances">
+            <div className="fc-new-gift-card__balances">
               {
                 [1000, 2500, 5000, 10000, 20000].map((balance, idx) => {
                   return (
-                    <a key={`balance-${idx}`}
-                       className="fc-btn-link btn" onClick={() => this.props.changeFormData('balance', balance)}>
+                    <div className={
+                          classNames('fc-new-gift-card__balance-value', {
+                            '_selected': props.balance == balance
+                          })
+                        }
+                         key={`balance-${idx}`}
+                         onClick={() => this.props.changeFormData('balance', balance)}>
 
                       ${balance/100}
-                    </a>
+                    </div>
                   );
                 })
               }
             </div>
           </fieldset>
           <fieldset>
-            <label htmlFor="sendToCustomer" className="checkbox">
-              <input type="checkbox" name="sendToCustomer" value={this.props.sendToCustomer}/>
-              Send gift cards to customers?
+            <label>
+              <Checkbox id="sendToCustomer" name="sendToCustomer" checked={this.props.sendToCustomer} />
+              Send gift card(s) to customer(s)
             </label>
-            { customerSearch }
+            { this.customerListBlock }
           </fieldset>
-          <fieldset>
-            <label htmlFor="quantity">Quantity</label>
-            {quantity}
-          </fieldset>
-          <fieldset>
-            A CSV file of the gift cards can be created. What would you like to do?
-            <label htmlFor="download_csv">
-              <input type="checkbox" name="download_csv" />
-              Download CSV file immediately after it is created.
-            </label>
-            <label htmlFor="email_csv">
-              <input type="checkbox" name="emailCSV" value={this.props.emailCSV}/>
-              Email the CSV file.
-            </label>
-            { emailCSV }
-          </fieldset>
-
-          <Link to='gift-cards' className="fc-btn-link">Cancel</Link>
-          <button className="fc-btn fc-btn-primary" type="submit">Issue Gift Card</button>
-
+          {this.quantitySection}
+          <div className="fc-action-block">
+            <Link to='gift-cards' className="fc-btn-link fc-action-block-cancel">Cancel</Link>
+            <PrimaryButton disabled={props.sendToCustomer && props.customers.length === 0} type="submit">
+              Issue Gift Card
+            </PrimaryButton>
+          </div>
         </form>
       </div>
     );

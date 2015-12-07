@@ -11,7 +11,8 @@ export const actionTypes = {
   FETCH_FAILED: 'FETCH_FAILED',
   SET_FETCH_PARAMS: 'SET_FETCH_PARAMS',
   ADD_ENTITY: 'ADD_ENTITY',
-  REMOVE_ENTITY: 'REMOVE_ENTITY'
+  REMOVE_ENTITY: 'REMOVE_ENTITY',
+  ADD_ENTITIES: 'ADD_ENTITIES',
 };
 
 export function fetchMeta(namespace, actionType) {
@@ -52,12 +53,13 @@ export function createFetchActions(namespace, payloadReducer, metaReducer) {
 }
 
 export function createActions(url, namespace) {
+  const fetchActions = createFetchActions(namespace);
   const {
     actionFetch,
     actionReceived,
     actionFetchFailed,
     actionSetFetchParams
-  } = createFetchActions(namespace);
+  } = fetchActions;
 
   const fetch = fetchData => dispatch => {
     dispatch(actionFetch());
@@ -76,7 +78,8 @@ export function createActions(url, namespace) {
 
   return {
     fetch,
-    setFetchParams
+    setFetchParams,
+    ...fetchActions
   };
 }
 
@@ -109,6 +112,12 @@ export function paginate(state = initialState, action) {
         ...state,
         rows: [payload, ...state.rows],
         total: state.total + 1
+      };
+    case actionTypes.ADD_ENTITIES:
+      return {
+        ...state,
+        rows: [...payload, ...state.rows],
+        total: state.total + payload.length
       };
     case actionTypes.REMOVE_ENTITY:
       return {
@@ -150,9 +159,9 @@ export function paginateReducer(namespace, reducer = state => state, updateBehav
     }
 
     const actionType = get(action, ['meta', 'fetch', 'actionType']);
-    const metaNamespace = get(action, ['meta', 'fetch', 'namespace']);
+    const actionNamespace = get(action, ['meta', 'fetch', 'namespace']);
 
-    if (actionType && metaNamespace === namespace) {
+    if (actionType && actionNamespace === namespace) {
       state = updateBehaviour(state, action, actionType);
     }
 

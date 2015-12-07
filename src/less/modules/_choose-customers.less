@@ -1,0 +1,38 @@
+
+.fc-choose-customers {
+  background-color: @color-white;
+  border: 1px solid @color-decor9;
+  .border-radius(3px);
+  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.50);
+
+  &__list {
+    max-height: pxtorem(264px);
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  &__entry {
+    padding: pxtorem(10px 20px 15px);
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid @color-decor9;
+
+    &:nth-child(even) {
+      background: @color-decor11;
+    }
+  }
+
+  &__info {
+    text-align: right;
+  }
+
+  &__customer-email {
+    font-weight: bold;
+  }
+
+  &__footer button {
+    .width(333px);
+    margin: pxtorem(10px auto);
+    display: block;
+  }
+}

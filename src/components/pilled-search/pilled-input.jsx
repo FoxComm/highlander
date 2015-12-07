@@ -11,7 +11,7 @@ const formatPill = (pill, idx, props) => {
       onClick={() => props.onPillClick(pill, idx)}>
       {pill}
       <a onClick={() => props.onPillClose(pill, idx)}
-        className="fc-pilled-search__pill-close">
+        className="fc-pilled-input__pill-close">
         &times;
       </a>
     </div>
@@ -23,6 +23,16 @@ const buttonsContainer = button => {
     return (
       <div className="fc-pilled-input__btn-container">
         {button}
+      </div>
+    );
+  }
+};
+
+const iconWrapper = icon => {
+  if (icon) {
+    return (
+      <div className="fc-pilled-input__icon-wrapper">
+        <i className={`icon-${icon}`}></i>
       </div>
     );
   }
@@ -40,12 +50,10 @@ const PilledInput = props => {
             return props.formatPill(pill, idx, props);
           })}
         </div>
-        <div className="fc-pilled-input__icon-wrapper">
-          <i className={`icon-${props.icon}`}></i>
-        </div>
+        {iconWrapper(props.icon)}
         <div className="fc-pilled-input__input-wrapper">
           <input
-            className="fc-pilled-input__input-field"
+            className="fc-pilled-input__input-field _no-fc-behaviour"
             type="text"
             {...rest} />
         </div>

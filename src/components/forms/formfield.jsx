@@ -3,18 +3,8 @@ import { autobind, debounce } from 'core-decorators';
 import React, { PropTypes } from 'react';
 import { findDOMNode } from 'react-dom';
 import * as validators from '../../lib/validators';
-import classnames from 'classnames';
-
-function overrideEventHandlers(child, newEventHandlers) {
-  return _.transform(newEventHandlers, (result, handler, type) => {
-    result[type] = (event) => {
-      handler(event);
-      if (child.props[type]) {
-        return child.props[type](event);
-      }
-    };
-  });
-}
+import classNames from 'classnames';
+import { mergeEventHandlers } from '../../lib/react-utils';
 
 export default class FormField extends React.Component {
 
@@ -28,8 +18,10 @@ export default class FormField extends React.Component {
     maxLength: PropTypes.number,
     label: PropTypes.node,
     labelClassName: PropTypes.string,
+    labelAtRight: PropTypes.node,
     target: PropTypes.string,
     getTargetValue: PropTypes.func,
+    className: PropTypes.string,
   };
 
   static contextTypes = {
@@ -197,11 +189,14 @@ export default class FormField extends React.Component {
   get label() {
     if (this.props.label) {
       const optionalMark = 'optional' in this.props ? <span className="fc-form-field-optional">(optional)</span> : null;
-      const className = classnames('fc-form-field-label', this.props.labelClassName);
+      const className = classNames('fc-form-field-label', this.props.labelClassName);
       return (
         <label className={className} htmlFor={this.state.targetId}>
           {this.props.label}
           {optionalMark}
+          <div className="fc-right">
+            {this.props.labelAtRight}
+          </div>
         </label>
       );
     }
@@ -209,7 +204,7 @@ export default class FormField extends React.Component {
 
   render() {
     return (
-      <div className="fc-form-field">
+      <div className={ classNames('fc-form-field', this.props.className) }>
         {this.label}
         {this.props.children}
         {this.errorMessages}
