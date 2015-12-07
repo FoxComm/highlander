@@ -1,5 +1,6 @@
 
 import _ from 'lodash';
+import { autobind } from 'core-decorators';
 import React, { PropTypes } from 'react';
 import { assoc, dissoc } from 'sprout-data';
 import { PrimaryButton } from '../common/buttons';
@@ -36,6 +37,7 @@ export default class ChooseCustomers extends React.Component {
     }
   }
 
+  @autobind
   handleClickAddCustomers(event) {
     event.preventDefault();
     this.props.toggleVisibility(false);
@@ -73,7 +75,7 @@ export default class ChooseCustomers extends React.Component {
         </ul>
         <footer className="fc-choose-customers__footer">
           <PrimaryButton disabled={_.size(this.state.selectedCustomers) === 0}
-                         onClick={event => this.handleClickAddCustomers(event)}>
+                         onClick={this.handleClickAddCustomers}>
             Add Customers
           </PrimaryButton>
         </footer>
