@@ -13,6 +13,7 @@ import addressForm from './address-form';
 import reasons from './reasons';
 import activityNotifications from './activity-notifications';
 import storeCreditTypes from './store-credit-types';
+import activityTrail from './activity-trail';
 
 const rootReducer = combineReducers({
   router: routerStateReducer,

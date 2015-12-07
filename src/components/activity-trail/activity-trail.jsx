@@ -1,8 +1,7 @@
+
 import React, { PropTypes } from 'react';
 import TableView from '../table/tableview';
 import UserInitials from '../users/initials';
-import ActivityTrailStore from '../../stores/activity-trail';
-import { pluralize } from 'fleck';
 
 export default class ActivityTrail extends React.Component {
 
