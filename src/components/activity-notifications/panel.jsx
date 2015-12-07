@@ -10,9 +10,15 @@ export default class NotificationPanel extends React.Component {
   get body() {
     if (this.props.notifications.displayed) {
       return (
-        <ContentBox title='Notifications'>
-          Notifications!
-        </ContentBox>
+        <div>
+          <div className="fc-activity-notifications__overlay"
+               onClick={ this.props.toggleNotifiactions }>
+          </div>
+          <ContentBox title='Notifications'
+                      className="fc-activity-notifications__box">
+            Notifications!
+          </ContentBox>
+        </div>
       );
     }
   }
