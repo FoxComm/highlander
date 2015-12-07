@@ -14,6 +14,7 @@ export default class PilledSearch extends React.Component {
     this.state = {
       optionsVisible: false,
       searchDisplay: props.searchValue,
+      searchOptions: props.searchOptions,
       searchValue: props.searchValue,
       selectionIndex: -1
     };
@@ -41,7 +42,7 @@ export default class PilledSearch extends React.Component {
   }
 
   get searchOptions() {
-    const options = _.transform(this.props.searchOptions, (result, option, idx) => {
+    const options = _.transform(this.state.searchOptions, (result, option, idx) => {
       let renderSearchOption = this.renderSearchOption;
       if (this.props.renderSearchOption) {
         renderSearchOption = this.props.renderSearchOption;
@@ -83,6 +84,7 @@ export default class PilledSearch extends React.Component {
       ...this.state,
       optionsVisible: isVisible,
       searchDisplay: nextProps.searchValue,
+      searchOptions: nextProps.searchOptions,
       searchValue: nextProps.searchValue,
       selectionIndex: -1
     });
@@ -99,7 +101,7 @@ export default class PilledSearch extends React.Component {
 
   @autobind
   inputFocus() {
-    if (!_.isEmpty(this.props.searchOptions)) {
+    if (!_.isEmpty(this.state.searchOptions)) {
       this.setState({
         ...this.state,
         optionsVisible: true
@@ -113,16 +115,16 @@ export default class PilledSearch extends React.Component {
       case 40:
         // Down arrow
         event.preventDefault();
-        if (!_.isEmpty(this.props.searchOptions)) {
+        if (!_.isEmpty(this.state.searchOptions)) {
           const newIdx = Math.min(
             this.state.selectionIndex + 1, 
-            this.props.searchOptions.length - 1
+            this.state.searchOptions.length - 1
           );
 
           this.setState({ 
             ...this.state, 
             optionsVisible: true,
-            searchDisplay: this.props.searchOptions[newIdx].selectionValue,
+            searchDisplay: this.state.searchOptions[newIdx].selectionValue,
             selectionIndex: newIdx
           });
         }
@@ -130,14 +132,14 @@ export default class PilledSearch extends React.Component {
       case 38:
         // Up arrow
         event.preventDefault();
-        if (!_.isEmpty(this.props.searchOptions)) {
+        if (!_.isEmpty(this.state.searchOptions)) {
           if (this.state.selectionIndex < 0) {
             this.setState({ ...this.state, optionsVisible: false });
           } else {
             const newIdx = this.state.selectionIndex - 1;
             const display = newIdx == -1
               ? this.state.searchValue
-              : this.props.searchOptions[newIdx].selectionValue;
+              : this.state.searchOptions[newIdx].selectionValue;
 
             this.setState({
               ...this.state,

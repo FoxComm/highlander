@@ -6,6 +6,15 @@ import util from 'util';
  * or the Dynamic Customer Group.
  */ 
 export default class SearchTerm {
+  static potentialTerms(searchTerms, str) {
+    return _.transform(searchTerms, (result, term) => {
+      const visible = term.applicableTerms(str);
+      if (!_.isEmpty(visible)) {
+        result.push(...visible);
+      }
+    });
+  }
+
   constructor(searchTermJson, parentTitle = '') {
     if (_.isEmpty(parentTitle)) {
       this._term = searchTermJson.term;

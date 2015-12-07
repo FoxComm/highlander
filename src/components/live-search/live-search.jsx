@@ -51,7 +51,7 @@ export default class LiveSearch extends React.Component {
         placeholder="Add another filter or keyword search"
         searchButton={<button className="fc-btn">Save Search</button>}
 
-        searchValue={this.props.state.displayValue}
+        searchValue={this.props.state.searchValue}
         onSubmit={this.props.submitFilter}
         pills={this.props.state.searches}
         deletePill={this.props.deleteSearchFilter}

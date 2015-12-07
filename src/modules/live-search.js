@@ -3,12 +3,6 @@ import { createAction, createReducer } from 'redux-act';
 import SearchTerm from '../paragons/search-term';
 import util from 'util';
 
-/**
- * Deletes a saved search by it's index.
- * @param {object} state The state of the module before deleting the search.
- * @param {int} idx The index of the search to delete.
- * @return {object} The state of the module after deleting the search.
- */
 function deleteSearchFilter(state, idx) {
   if (!_.isEmpty(state.searches) && _.isEmpty(state.searchValue)) {
     return {
@@ -20,12 +14,6 @@ function deleteSearchFilter(state, idx) {
   return state;
 }
 
-/**
- * Step back through the history of a search term by stripping off the newest
- * level (separated by ':'). If this search term is empty, this is a no-op.
- * @param {object} state The state of the module before going back.
- * @return {object} The updated state of the module after going back.
- */
 function goBack(state) {
   const lastColonIdx = _.trim(state.searchValue, ' :').lastIndexOf(':');
 
@@ -39,37 +27,17 @@ function goBack(state) {
   return submitFilter(state, newSearchTerm);
 }
 
-/**
- * Attempts to submit a selected filter. If valid, it will either show the
- * filter's sub-options or it will save the filter as a search.
- * @param {object} state The state of the module before executing the action.
- * @param {string} searchTerm The term that is being submitted.
- * @return {object} The state of the module after the action.
- */
 function submitFilter(state, searchTerm) {
   // First update the available terms.
-  let options = [];
   let searches = state.searches;
   let newSearchTerm = searchTerm;
-
-  _.forEach(state.potentialOptions, opts => {
-    const visibleOptions =  opts.applicableTerms(searchTerm);
-    if (!_.isEmpty(visibleOptions)) {
-      options = options.concat(visibleOptions);
-    }
-  });
+  let options = SearchTerm.potentialTerms(state.potentialOptions, searchTerm);
 
   // Second, if there is only one term, see if we can turn it into a saved search.
   if (options.length == 1 && options[0].selectTerm(searchTerm)) {
-    _.forEach(state.potentialOptions, opts => {
-      const visibleOptions = opts.applicableTerms('');
-      if (!_.isEmpty(visibleOptions)) {
-        options = options.concat(visibleOptions);
-      }
-    });
-
-    searches = state.searches.concat(searchTerm);
     newSearchTerm = '';
+    options = SearchTerm.potentialTerms(state.potentialOptions, newSearchTerm);
+    searches = state.searches.concat(searchTerm);
   }
 
   // Third, update the state.
