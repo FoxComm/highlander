@@ -1,7 +1,8 @@
 package models.rules
 
 import util.TestBase
-import utils.Seeds.Factories
+import utils.seeds.Seeds
+import Seeds.Factories
 
 class ConditionTest extends TestBase {
   "Condition" - {

@@ -1,20 +1,18 @@
 import akka.http.scaladsl.model.StatusCodes
-
-import models._
+import models.{Addresses, CreditCards, Customers, OrderPayments, Orders, Rma, Rmas, StoreAdmins}
 import responses.RmaResponse.Root
-import services._
-import utils.DbResultT
-import utils.DbResultT._
-import DbResultT.implicits._
+import services.{GeneralFailure, NotFoundFailure404}
 import util.IntegrationTestBase
-import utils.Seeds.Factories
-import utils.Slick.implicits._
+import utils.DbResultT._
+import utils.DbResultT.implicits._
+import utils.seeds.Seeds.Factories
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class RmaPaymentsIntegrationTest extends IntegrationTestBase
   with HttpSupport
   with AutomaticAuth {
 
-  import concurrent.ExecutionContext.Implicits.global
   import Extensions._
 
   "gift cards" - {
@@ -173,7 +171,7 @@ class RmaPaymentsIntegrationTest extends IntegrationTestBase
       address ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
       cc ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
       orderPayment ← * <~ OrderPayments.create(Factories.orderPayment.copy(orderId = order.id,
-        paymentMethodId = cc.id, amount = Some(100)))
+        paymentMethodId = cc.id, amount = None))
       rma ← * <~ Rmas.create(Factories.rma.copy(referenceNumber = "ABCD1234-11.1"))
     } yield (rma, order, admin, customer)).runT(txn = false).futureValue.rightVal
   }

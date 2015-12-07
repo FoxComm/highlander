@@ -3,7 +3,8 @@ package models
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import utils.Seeds.Factories
+import utils.seeds.Seeds
+import Seeds.Factories
 import utils.Slick.implicits._
 
 class GiftCardIntegrationTest extends IntegrationTestBase {
@@ -47,11 +48,11 @@ class GiftCardIntegrationTest extends IntegrationTestBase {
       order    ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
       admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
       reason   ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
-      origin   ← * <~ GiftCardManuals.create(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
+      origin   ← * <~ GiftCardManuals.create(GiftCardManual(adminId = admin.id, reasonId = reason.id))
       gc       ← * <~ GiftCards.create(Factories.giftCard.copy(originalBalance = 50, originId = origin.id))
       giftCard ← * <~ GiftCards.findOneById(gc.id).toXor
-      payment  ← * <~ OrderPayments.create(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId = gc.id,
-        paymentMethodType = PaymentMethod.GiftCard))
+      payment  ← * <~ OrderPayments.create(Factories.giftCardPayment.copy(orderId = order.id,
+        paymentMethodId = gc.id, paymentMethodType = PaymentMethod.GiftCard, amount = Some(gc.availableBalance)))
     } yield (origin, giftCard.value, payment)).runT().futureValue.rightVal
   }
 }

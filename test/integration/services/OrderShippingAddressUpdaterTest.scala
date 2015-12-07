@@ -1,11 +1,12 @@
 package services
 
-import models._
+import models.{Order, OrderShippingAddresses, Orders, Customers, Addresses}
 import services.orders.OrderShippingAddressUpdater._
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import utils.Seeds.Factories
+import utils.seeds.Seeds
+import Seeds.Factories
 
 class OrderShippingAddressUpdaterTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global

@@ -1,15 +1,16 @@
-import scala.concurrent.ExecutionContext.Implicits.global
+import Extensions._
 import akka.http.scaladsl.model.StatusCodes
-
 import models.rules.QueryStatement
-import models._
+import models.{Addresses, Customers, OrderLineItem, OrderLineItemSku, OrderLineItemSkus, OrderLineItems,
+OrderShippingAddresses, Orders, Sku, Skus, StoreAdmins}
 import org.json4s.jackson.JsonMethods._
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import utils.Seeds.Factories
 import utils.Slick.implicits._
-import Extensions._
+import utils.seeds.Seeds.Factories
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 

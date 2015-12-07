@@ -2,30 +2,29 @@ package models
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext
-
 import cats.data.Validated._
-import cats.data.{Xor, ValidatedNel}
+import cats.data.{ValidatedNel, Xor}
 import cats.implicits._
-import payloads.AddGiftCardLineItem
-import services._
-import utils.CustomDirectives.SortAndPage
-import utils.Litterbox._
-
 import com.pellucid.sealerate
-import models.GiftCard.{CustomerPurchase, OnHold, OriginType, Status}
+import models.GiftCard.{CustomerPurchase, OriginType, Status}
 import monocle.Lens
 import monocle.macros.GenLens
+import payloads.AddGiftCardLineItem
+import services.{Failure, Failures, GeneralFailure, GiftCardIsInactive, GiftCardMustBeCart, GiftCardMustNotBeCart,
+GiftCardNotEnoughBalance}
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
-
-import utils._
+import utils.CustomDirectives.SortAndPage
+import utils.Litterbox._
 import utils.Money._
 import utils.Slick.DbResult
 import utils.Slick.implicits._
 import utils.Validation._
+import utils._
 import utils.table.SearchByCode
+
+import scala.concurrent.ExecutionContext
 
 final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = CustomerPurchase,
   code: String = "", subTypeId: Option[Int] = None, currency: Currency = Currency.USD, status: Status = GiftCard.Active,

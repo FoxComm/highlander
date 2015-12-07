@@ -3,7 +3,8 @@ package models
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import util.TestBase
 import util.CustomMatchers._
-import utils.Seeds.Factories
+import utils.seeds.Seeds
+import Seeds.Factories
 
 class CustomerTest extends TestBase {
   "Customer" - {

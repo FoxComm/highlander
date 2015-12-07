@@ -1,7 +1,8 @@
 package models
 
 import util.TestBase
-import utils.Seeds.Factories
+import utils.seeds.Seeds
+import Seeds.Factories
 import util.CustomMatchers._
 
 class GiftCardTest extends TestBase {

@@ -4,10 +4,10 @@ import java.time.Instant
 
 import cats.implicits._
 import models.Orders.scope._
-import models.{Customers, GiftCard, GiftCardAdjustment, GiftCardAdjustments, GiftCardManuals, GiftCardOrder,
-GiftCardOrders, GiftCards, Order, OrderLineItem, OrderLineItemGiftCard, OrderLineItemGiftCards, OrderLineItems,
-OrderPayments, Orders, Reasons, StoreAdmins, StoreCreditAdjustment, StoreCreditAdjustments, StoreCreditManuals,
-StoreCredits}
+import models.{StoreCreditManual, GiftCardManual, Customers, GiftCard, GiftCardAdjustment, GiftCardAdjustments,
+GiftCardManuals, GiftCardOrder, GiftCardOrders, GiftCards, Order, OrderLineItem, OrderLineItemGiftCard,
+OrderLineItemGiftCards, OrderLineItems, OrderPayments, Orders, Reasons, StoreAdmins, StoreCreditAdjustment,
+StoreCreditAdjustments, StoreCreditManuals, StoreCredits}
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import services.CartFailures._
@@ -15,9 +15,10 @@ import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT.implicits._
 import utils.DbResultT._
+import utils.seeds.Seeds
 import utils.{StripeApi, Apis}
 import utils.Money.Currency
-import utils.Seeds.Factories
+import Seeds.Factories
 import utils.Slick.DbResult
 import utils.Slick.implicits._
 
@@ -94,7 +95,7 @@ class CheckoutTest
     "authorizes payments" - {
       "for all gift cards" in new PaymentFixture {
         val ids = (for {
-          origin ← * <~ GiftCardManuals.create(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
+          origin ← * <~ GiftCardManuals.create(GiftCardManual(adminId = admin.id, reasonId = reason.id))
           ids    ← * <~ (GiftCards.returningId ++= (1 to 3).map { _ ⇒
             Factories.giftCard.copy(originalBalance = 25, originId = origin.id)
           })
@@ -115,7 +116,7 @@ class CheckoutTest
 
       "for all store credits" in new PaymentFixture {
         val ids = (for {
-          origin ← * <~ StoreCreditManuals.create(Factories.storeCreditManual.copy(adminId = admin.id, reasonId = reason.id))
+          origin ← * <~ StoreCreditManuals.create(StoreCreditManual(adminId = admin.id, reasonId = reason.id))
           ids    ← * <~ (StoreCredits.returningId ++= (1 to 3).map { _ ⇒
             Factories.storeCredit.copy(originalBalance = 25, originId = origin.id)
           })

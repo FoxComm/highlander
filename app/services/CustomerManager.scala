@@ -1,28 +1,24 @@
 package services
 
-import scala.concurrent.ExecutionContext
-
-import cats.data.Validated.{Valid, Invalid}
+import cats.data.Validated.{Invalid, Valid}
 import cats.data.Xor
 import cats.implicits._
-import models._
 import models.Customers.scope._
+import models.{Customer, Customers, Orders, StoreAdmin, javaTimeSlickMapper}
+import models.activity.Activities
+import models.activity.ActivityContext
+import payloads.{ActivateCustomerPayload, CreateCustomerPayload, CustomerSearchForNewOrder, UpdateCustomerPayload}
 import responses.CustomerResponse._
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
-
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-
-import utils.Slick.implicits._
 import utils.Slick.UpdateReturning._
-import payloads.{CreateCustomerPayload, UpdateCustomerPayload, ActivateCustomerPayload, CustomerSearchForNewOrder}
+import utils.Slick.implicits._
 import utils.jdbc._
 
-import models.activity.Activities
-import models.activity.ActivityContext
-
 import services.activity.CustomerInfoChanged
+import scala.concurrent.ExecutionContext
 
 object CustomerManager {
 

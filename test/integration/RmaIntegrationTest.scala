@@ -1,25 +1,28 @@
 import java.time.Instant
 
-import akka.http.scaladsl.model.StatusCodes
-import scala.concurrent.ExecutionContext.Implicits.global
-
 import Extensions._
-import models._
-import models.Rma.{Processing, Canceled}
+import akka.http.scaladsl.model.StatusCodes
+import models.Rma.{Canceled, Processing}
+import models.{Customer, Customers, GiftCard, GiftCardManual, GiftCardManuals, GiftCards, Order, OrderLineItem,
+OrderLineItemGiftCard, OrderLineItemGiftCards, OrderLineItems, OrderShippingAddresses, OrderShippingMethod,
+OrderShippingMethods, Orders, Reasons, Rma, RmaAssignments, RmaLineItem, RmaLockEvents, RmaReason, RmaReasons, Rmas,
+Shipments, ShippingMethods, Skus, StoreAdmin, StoreAdmins}
 import org.json4s.jackson.JsonMethods._
-import payloads._
-import responses.{AllRmas, StoreAdminResponse, ResponseWithFailuresAndMetadata, RmaResponse, RmaLockResponse}
+import payloads.{RmaAssigneesPayload, RmaCreatePayload, RmaGiftCardLineItemsPayload, RmaMessageToCustomerPayload,
+RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload}
 import responses.RmaResponse.FullRmaWithWarnings
-import services._
-import services.rmas._
+import responses.{AllRmas, ResponseWithFailuresAndMetadata, RmaLockResponse, RmaResponse, StoreAdminResponse}
+import services.rmas.{RmaLineItemUpdater, RmaLockUpdater}
+import services.{GeneralFailure, InvalidCancellationReasonFailure, LockedFailure, NotFoundFailure400, NotFoundFailure404, NotLockedFailure}
 import slick.driver.PostgresDriver.api._
-import utils.DbResultT
-import utils.DbResultT._
-import DbResultT.implicits._
 import util.IntegrationTestBase
-import utils.Seeds.Factories
-import utils.time._
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 import utils.Slick.implicits._
+import utils.seeds.Seeds.Factories
+import utils.time._
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class RmaIntegrationTest extends IntegrationTestBase
   with HttpSupport
@@ -530,18 +533,15 @@ class RmaIntegrationTest extends IntegrationTestBase
     val (rmaReason, sku, giftCard, shipment) = (for {
       rmaReason ← * <~ RmaReasons.create(Factories.rmaReasons.head)
       sku ← * <~ Skus.create(Factories.skus.head)
-      skuLineItem ← * <~ OrderLineItemSkus.create(Factories.orderLineItemSkus.head)
-      lineItem1 ← * <~ OrderLineItems.create(Factories.orderLineItems.head.copy(originId = skuLineItem.id,
-        originType = OrderLineItem.SkuItem))
+      _ ← * <~ Factories.addSkusToOrder(Seq(sku.id), order.id, OrderLineItem.Cart)
 
       gcReason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
-      gcOrigin ← * <~ GiftCardManuals.create(Factories.giftCardManual.copy(adminId = storeAdmin.id, reasonId = gcReason.id))
+      gcOrigin ← * <~ GiftCardManuals.create(GiftCardManual(adminId = storeAdmin.id, reasonId = gcReason.id))
       giftCard ← * <~ GiftCards.create(Factories.giftCard.copy(originId = gcOrigin.id, originType = GiftCard.RmaProcess))
 
-      gcLineItem ← * <~ OrderLineItemGiftCards.create(OrderLineItemGiftCard(orderId = order.id,
-        giftCardId = giftCard.id))
-      lineItem2 ← * <~ OrderLineItems.create(Factories.orderLineItems.head.copy(originId = gcLineItem.id,
-        originType = OrderLineItem.GiftCardItem))
+      gcLineItem ← * <~ OrderLineItemGiftCards.create(OrderLineItemGiftCard(orderId = order.id, giftCardId = giftCard.id))
+      lineItem2 ← * <~ OrderLineItems.create(OrderLineItem(originId = gcLineItem.id,
+        originType = OrderLineItem.GiftCardItem, orderId = order.id))
     
       shippingAddress ← * <~ OrderShippingAddresses.create(Factories.shippingAddress.copy(orderId = order.id,
         regionId = 1))

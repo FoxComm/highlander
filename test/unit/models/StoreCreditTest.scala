@@ -1,9 +1,10 @@
 package models
 
+import cats.data.{NonEmptyList => NEL}
+import services.GeneralFailure
 import util.TestBase
-import utils.Seeds.Factories
-import services._
-import cats.data.{NonEmptyList ⇒ NEL}
+import utils.seeds.Seeds
+import utils.seeds.Seeds.Factories
 
 class StoreCreditTest extends TestBase {
   "StoreCredit" - {

@@ -15,6 +15,8 @@ class OrderLockEvents(tag: Tag) extends GenericTable.TableWithId[OrderLockEvent]
   def lockedAt = column[Instant]("locked_at")
   def lockedBy = column[Int]("locked_by")
   def * = (id, orderId, lockedAt, lockedBy) <>((OrderLockEvent.apply _).tupled, OrderLockEvent.unapply)
+
+  def storeAdmin = foreignKey(StoreAdmins.tableName, lockedBy, StoreAdmins)(_.id)
 }
 
 object OrderLockEvents extends TableQueryWithId[OrderLockEvent, OrderLockEvents](

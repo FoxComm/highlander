@@ -107,7 +107,7 @@ object OrderLineItems extends TableQueryWithId[OrderLineItem, OrderLineItems](
       def giftCards: QuerySeq = q.byOriginType(GiftCardItem)
       def skuItems: QuerySeq  = q.byOriginType(SkuItem)
 
-      def byOriginType(originType: OriginType): QuerySeq = filter(_.originType === (originType: OriginType))
+      def byOriginType(originType: OriginType): QuerySeq = q.filter(_.originType === (originType: OriginType))
     }
   }
 }

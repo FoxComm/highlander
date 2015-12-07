@@ -168,7 +168,7 @@ lazy val phoenixScala = (project in file(".")).
 lazy val IT = config("it") extend Test
 
 lazy val seed = inputKey[Unit]("Resets and seeds the database")
-seed := { (runMain in Compile).partialInput(" utils.Seeds").evaluated }
+seed := { (runMain in Compile).partialInput(" utils.seeds.Seeds").evaluated }
 
 /** Cats pulls in disciple which pulls in scalacheck, and SBT will notice and set up a test for ScalaCheck */
 lazy val noScalaCheckPlease: ExclusionRule = ExclusionRule(organization = "org.scalacheck")

@@ -3,9 +3,9 @@ package models
 import cats.data.NonEmptyList
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.scalatest.prop.Tables.Table
-import services._
+import services.GeneralFailure
 import util.TestBase
-import utils.Seeds.Factories
+import utils.seeds.Seeds.Factories
 
 class ReasonTest extends TestBase {
   "Reason" - {

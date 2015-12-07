@@ -1,29 +1,31 @@
-import scala.util.Random
-import scala.collection.JavaConverters._
+import Extensions._
 import akka.http.scaladsl.model.StatusCodes
-
-import models._
 import models.StoreCredit._
+import models.{Customer, Customers, OrderPayments, Orders, PaymentMethod, Reason, Reasons, StoreAdmins, StoreCredit,
+StoreCreditAdjustment, StoreCreditAdjustments, StoreCreditManual, StoreCreditManuals, StoreCreditSubtype,
+StoreCreditSubtypes, StoreCredits}
 import org.joda.money.CurrencyUnit
-import responses._
 import org.scalatest.BeforeAndAfterEach
-import services._
+import responses.{GiftCardResponse, ResponseWithFailuresAndMetadata, StoreCreditAdjustmentsResponse,
+StoreCreditResponse, StoreCreditSubTypesResponse}
+import services.{EmptyCancellationReasonFailure, InvalidCancellationReasonFailure, NotFoundFailure404,
+OpenTransactionsFailure, StoreCreditConvertFailure}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import utils.Seeds.Factories
 import utils.Slick.implicits._
+import utils.seeds.Seeds.Factories
+
+import scala.collection.JavaConverters._
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.Random
 
 class StoreCreditIntegrationTest extends IntegrationTestBase
   with HttpSupport
   with SortingAndPaging[responses.StoreCreditResponse.Root]
   with AutomaticAuth
   with BeforeAndAfterEach {
-
-  import concurrent.ExecutionContext.Implicits.global
-
-  import Extensions._
 
   // paging and sorting API
   private var currentCustomer: Customer = _
@@ -34,8 +36,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       admin    ← * <~ StoreAdmins.create(authedStoreAdmin)
       customer ← * <~ Customers.create(Factories.customer)
       scReason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
-      scOrigin ← * <~ StoreCreditManuals.create(Factories.storeCreditManual.copy(adminId = admin.id, reasonId =
-        scReason.id))
+      scOrigin ← * <~ StoreCreditManuals.create(StoreCreditManual(adminId = admin.id, reasonId = scReason.id))
     } yield (customer, scOrigin)).runT().futureValue.rightVal match {
       case (cc, co) ⇒
         currentCustomer = cc
@@ -341,12 +342,12 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       order       ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
       scReason    ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
       scSubType   ← * <~ StoreCreditSubtypes.create(Factories.storeCreditSubTypes.head)
-      scOrigin    ← * <~ StoreCreditManuals.create(Factories.storeCreditManual.copy(adminId = admin.id,
-        reasonId = scReason.id))
+      scOrigin    ← * <~ StoreCreditManuals.create(StoreCreditManual(adminId = admin.id, reasonId = scReason.id))
       storeCredit ← * <~ StoreCredits.create(Factories.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))
       scSecond    ← * <~ StoreCredits.create(Factories.storeCredit.copy(originId = scOrigin.id, customerId = customer.id))
       payment     ← * <~ OrderPayments.create(Factories.storeCreditPayment.copy(orderId = order.id,
-        paymentMethodId = storeCredit.id, paymentMethodType = PaymentMethod.StoreCredit))
+        paymentMethodId = storeCredit.id, paymentMethodType = PaymentMethod.StoreCredit,
+        amount = Some(storeCredit.availableBalance)))
       adjustment ← * <~ StoreCredits.auth(storeCredit, Some(payment.id), 10)
     } yield (admin, customer, scReason, storeCredit, order, adjustment, scSecond, payment, scSubType)).runT()
       .futureValue.rightVal

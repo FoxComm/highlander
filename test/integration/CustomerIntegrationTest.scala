@@ -1,40 +1,36 @@
-import java.time.Instant
-
-import scala.concurrent.Future
 import akka.http.scaladsl.model.StatusCodes
-
-import cats.data.Xor
 import cats.implicits._
 import com.stripe.exception.CardException
-import com.stripe.model.{Card, Customer ⇒ StripeCustomer}
+import com.stripe.model.{Card, Customer => StripeCustomer}
 import models.OrderPayments.scope._
-import models._
+import models.{Addresses, CreditCard, CreditCards, Customer, Customers, CustomersRanks, Order, OrderPayments, Orders,
+PaymentMethod, Regions, Rma, Rmas, StoreAdmins}
 import models.activity.Activities
 import org.mockito.Mockito.{reset, when}
-import org.mockito.{Matchers ⇒ m}
+import org.mockito.{Matchers => m}
 import org.scalatest.mock.MockitoSugar
 import payloads.CreateAddressPayload
-
-import org.json4s._
-import org.json4s.JsonAST.JValue
-import org.json4s.JsonAST.JString
-import org.json4s.JsonDSL._
-
-import responses.{ResponseWithFailuresAndMetadata, CustomerResponse}
-import responses.CreditCardsResponse.{Root ⇒ CardResponse}
-import services.orders.OrderPaymentUpdater
+import responses.CreditCardsResponse.{Root => CardResponse}
+import responses.CustomerResponse
 import services.CreditCardFailure.StripeFailure
-import services.{CannotUseInactiveCreditCard, CreditCardManager, GeneralFailure, NotFoundFailure404,
-                 Result, CustomerEmailNotUnique}
-
+import services.orders.OrderPaymentUpdater
+import services.{CannotUseInactiveCreditCard, CreditCardManager, CustomerEmailNotUnique, GeneralFailure, NotFoundFailure404, Result}
 import services.activity.CustomerInfoChanged
 import util.IntegrationTestBase
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 import utils.Money.Currency
-import utils.Seeds.Factories
 import utils.Slick.implicits._
-import utils.CustomDirectives
 import utils.jdbc._
-import utils.{Apis, Seeds, StripeApi}
+import utils.seeds.Seeds
+import utils.seeds.Seeds.Factories
+import utils.seeds.SeedsGenerator.generateCustomer
+import utils.{Apis, CustomDirectives, StripeApi}
+import Extensions._
+import slick.driver.PostgresDriver.api._
+import util.SlickSupport.implicits._
+
+import concurrent.ExecutionContext.Implicits.global
 
 class CustomerIntegrationTest extends IntegrationTestBase
   with HttpSupport
@@ -42,17 +38,11 @@ class CustomerIntegrationTest extends IntegrationTestBase
   with SortingAndPaging[CustomerResponse.Root]
   with MockitoSugar {
 
-  import concurrent.ExecutionContext.Implicits.global
-
-  import Extensions._
-  import slick.driver.PostgresDriver.api._
-  import util.SlickSupport.implicits._
-
   // paging and sorting API
   val uriPrefix = "v1/customers"
 
   def responseItems = {
-    val insertCustomers = (1 to numOfResults).map { _ ⇒ Seeds.Factories.generateCustomer }
+    val insertCustomers = (1 to numOfResults).map { _ ⇒ generateCustomer }
     val dbio = for {
       customers ← (Customers ++= insertCustomers) >> Customers.result
     } yield customers.map(CustomerResponse.build(_))
@@ -99,7 +89,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
     "returns only 2 customers" in new Fixture {
       pendingUntilFixed {
-        (Customers ++= (1 to 3).map { _ ⇒ Seeds.Factories.generateCustomer }).run().futureValue
+        (Customers ++= (1 to 3).map { _ ⇒ generateCustomer }).run().futureValue
 
         val response = GET(s"$uriPrefix?size=2")
         val customers = response.as[CustomerResponse.Root#ResponseMetadataSeq]
@@ -112,7 +102,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
     "count of requested customers should be limited to default page size" in new Fixture {
       pendingUntilFixed {
         (Customers ++= (1 to (CustomDirectives.DefaultPageSize + 1)).map { _ ⇒
-          Seeds.Factories.generateCustomer
+          generateCustomer
         }).run().futureValue
 
         val response = GET(s"$uriPrefix")
@@ -211,6 +201,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
     "ranking" - {
       "customer must be with rank" in new FixtureForRanking {
+        pending
         CustomersRanks.refresh.futureValue
 
         // check that statuses used in sql still actual
@@ -403,12 +394,14 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
       val payload = payloads.ToggleDefaultCreditCard(isDefault = true)
       val response = POST(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}/default", payload)
-      response.status must === (StatusCodes.OK)
 
-      response.as[CardResponse].isDefault must === (true)
+      response.status must === (StatusCodes.OK)
+      val ccResp = response.as[CardResponse]
+      ccResp.isDefault mustBe true
+      ccResp.id must === (creditCard.id)
     }
 
-    "fails to set the credit card as default if a default currently exists" in new Fixture {
+    "successfully replaces an existing default credit card" in new Fixture {
       val default = CreditCards.create(Factories.creditCard.copy(isDefault = true, customerId = customer.id))
         .run().futureValue.rightVal
       val nonDefault = CreditCards.create(Factories.creditCard.copy(isDefault = false, customerId = customer.id))
@@ -417,8 +410,23 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val payload = payloads.ToggleDefaultCreditCard(isDefault = true)
       val response = POST(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${nonDefault.id}/default", payload)
 
-      response.status must === (StatusCodes.BadRequest)
-      response.bodyText must include("customer already has default credit card")
+      val (prevDefault, currDefault) = (
+        CreditCards.refresh(default).run().futureValue,
+        CreditCards.refresh(nonDefault).run().futureValue)
+
+      response.status must === (StatusCodes.OK)
+      val ccResp = response.as[CardResponse]
+      ccResp.isDefault mustBe true
+      ccResp.id must === (currDefault.id)
+      prevDefault.isDefault mustBe false
+    }
+
+    "fails when the credit card doesn't exist" in new Fixture {
+      val payload = payloads.ToggleDefaultCreditCard(isDefault = true)
+      val response = POST(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/99/default", payload)
+
+      response.status must === (StatusCodes.NotFound)
+      response.errors must === (NotFoundFailure404(CreditCard, 99).description)
     }
   }
 
@@ -530,7 +538,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
             address1 = "3000 Coolio Dr", city = "Seattle", zip = "54321").some)
         val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
         val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).result.futureValue.toList
-        val addresses = Addresses.futureValue
+        val addresses = Addresses.result.run().futureValue
         val newAddress = addresses.last
 
         response.status must === (StatusCodes.NoContent)
@@ -602,11 +610,11 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
   trait Fixture {
     val (customer, address, region, admin) = (for {
-      customer ← Customers.create(Factories.customer).map(rightValue)
-      address ← Addresses.create(Factories.address.copy(customerId = customer.id)).map(rightValue)
-      region ← Regions.findOneById(address.regionId)
-      admin ← StoreAdmins.create(authedStoreAdmin).map(rightValue)
-    } yield (customer, address, region, admin)).run().futureValue
+      customer ← * <~ Customers.create(Factories.customer)
+      address ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
+      region ← * <~ Regions.findOneById(address.regionId).toXor
+      admin ← * <~ StoreAdmins.create(authedStoreAdmin)
+    } yield (customer, address, region, admin)).runT().futureValue.rightVal
   }
 
   trait CreditCardFixture extends Fixture {
@@ -615,29 +623,29 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
   trait FixtureForRanking extends CreditCardFixture {
     val (order, orderPayment, customer2) = (for {
-      customer2 ← Customers.create(Factories.customer.copy(email = "second@example.org", name = Some("second"))).map(rightValue)
-      order ← Orders.create(Factories.order.copy(customerId = customer.id,
+      customer2 ← * <~ Customers.create(Factories.customer.copy(email = "second@example.org", name = Some("second")))
+      order ← * <~ Orders.create(Factories.order.copy(customerId = customer.id,
         status = Order.Shipped,
-        referenceNumber = "ABC-123")).map(rightValue)
-      order2 ← Orders.create(Factories.order.copy(customerId = customer2.id,
+        referenceNumber = "ABC-123"))
+      order2 ← * <~ Orders.create(Factories.order.copy(customerId = customer2.id,
         status = Order.Shipped,
-        referenceNumber = "ABC-456")).map(rightValue)
-      orderPayment ← OrderPayments.create(Factories.orderPayment.copy(orderId = order.id,
+        referenceNumber = "ABC-456"))
+      orderPayment ← * <~ OrderPayments.create(Factories.orderPayment.copy(orderId = order.id,
         paymentMethodId = creditCard.id,
-        amount = Some(100))).map(rightValue)
-      orderPayment2 ← OrderPayments.create(Factories.orderPayment.copy(orderId = order2.id,
+        amount = None))
+      orderPayment2 ← * <~ OrderPayments.create(Factories.orderPayment.copy(orderId = order2.id,
         paymentMethodId = creditCard.id,
-        amount = Some(100))).map(rightValue)
-      rma ← Rmas.create(Factories.rma.copy(
+        amount = None))
+      rma ← * <~ Rmas.create(Factories.rma.copy(
         referenceNumber = "ABC-123.1",
         orderId = order.id,
         status = Rma.Complete,
         orderRefNum = order.referenceNumber,
-        customerId = customer.id)).map(rightValue)
-      rmaPayment ← sqlu"""insert into rma_payments(rma_id, payment_method_id, payment_method_type, amount, currency)
+        customerId = customer.id))
+      rmaPayment ← * <~ sqlu"""insert into rma_payments(rma_id, payment_method_id, payment_method_type, amount, currency)
               values(${rma.id}, ${creditCard.id}, ${PaymentMethod.Type.show(PaymentMethod.CreditCard)}, 37,
                ${Currency.USD.toString})
             """
-    } yield (order, orderPayment, customer2)).transactionally.run().futureValue
+    } yield (order, orderPayment, customer2)).runT().futureValue.rightVal
   }
 }

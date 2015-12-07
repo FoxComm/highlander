@@ -1,17 +1,17 @@
 package services.rmas
 
-import scala.concurrent.ExecutionContext
-
-import models.{StoreAdmin, RmaAssignment, RmaAssignments, StoreAdmins, Rmas, Rma}
+import models.{Rma, RmaAssignment, RmaAssignments, Rmas, StoreAdmin, StoreAdmins}
 import responses.ResponseWithFailuresAndMetadata
 import responses.ResponseWithFailuresAndMetadata._
 import responses.RmaResponse._
-import services._
+import services.{Failure, NotFoundFailure404, Result}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives
 import utils.CustomDirectives.SortAndPage
 import utils.Slick._
 import utils.Slick.implicits._
+
+import scala.concurrent.ExecutionContext
 
 object RmaAssignmentUpdater {
 

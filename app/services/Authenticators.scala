@@ -1,10 +1,11 @@
 package services
 
-import scala.concurrent.{ExecutionContext, Future}
 import akka.http.scaladsl.server.directives._
+import models.{Customer, Customers, StoreAdmin, StoreAdmins}
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
-import models._
+
+import scala.concurrent.{ExecutionContext, Future}
 
 // TODO: Implement real session-based authentication with JWT
 // TODO: Probably abstract this out so that we use one for both AdminUsers and Customers

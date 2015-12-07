@@ -2,28 +2,24 @@ package models
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext
-
 import cats.data.Validated._
 import cats.data.{ValidatedNel, Xor}
 import cats.implicits._
-import services._
-import utils.CustomDirectives.SortAndPage
-import utils.Litterbox._
-import utils.Slick._
-import utils.Validation
-
 import com.pellucid.sealerate
-import models.StoreCredit.{CsrAppeasement, Active, Status, OriginType}
+import models.StoreCredit.{Active, CsrAppeasement, OriginType, Status}
 import monocle.macros.GenLens
+import services.{Failure, Failures, GeneralFailure}
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
-
-import utils._
+import utils.CustomDirectives.SortAndPage
 import utils.Money._
+import utils.Slick._
 import utils.Slick.implicits._
 import utils.Validation._
+import utils.{Validation, _}
+
+import scala.concurrent.ExecutionContext
 
 final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: OriginType = CsrAppeasement,
   subTypeId: Option[Int] = None, currency: Currency = Currency.USD, originalBalance: Int, currentBalance: Int = 0,
@@ -152,7 +148,7 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
   )(new StoreCredits(_)){
 
   import StoreCredit._
-  import models.{StoreCreditAdjustment ⇒ Adj, StoreCreditAdjustments ⇒ Adjs}
+  import models.{StoreCreditAdjustment => Adj, StoreCreditAdjustments => Adjs}
 
   def sortedAndPaged(query: QuerySeq)
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata =
@@ -211,6 +207,20 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
 
   def findByIdAndCustomerId(id: Int, customerId: Int)(implicit ec: ExecutionContext): DBIO[Option[StoreCredit]] =
     filter(_.customerId === customerId).filter(_.id === id).one
+
+  type ReturningIdAndBalances = (Int, Int, Int)
+
+  val returningIdAndBalances: Returning[ReturningIdAndBalances] =
+    this.returning(map { sc ⇒ (sc.id, sc.currentBalance, sc.availableBalance) })
+
+  def returningAction(ret: ReturningIdAndBalances)(gc: StoreCredit): StoreCredit = ret match {
+    case (id, currentBalance, availableBalance) ⇒
+      gc.copy(id = id, currentBalance = currentBalance, availableBalance = availableBalance)
+  }
+
+  override def create[R](sc: StoreCredit, returning: Returning[R], action: R ⇒ StoreCredit ⇒ StoreCredit)
+    (implicit ec: ExecutionContext): DbResult[StoreCredit] =
+    super.create(sc, returningIdAndBalances, returningAction)
 
   private def debit(storeCredit: StoreCredit, orderPaymentId: Option[Int], amount: Int = 0,
     status: Adj.Status = Adj.Auth)

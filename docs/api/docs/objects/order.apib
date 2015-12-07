@@ -1,0 +1,169 @@
+# Data Structures
+
+### LineItemStatus
++ status: Cart (required, enum[string]) - Line item status.
+    + Members
+        + `Cart`
+        + `Pending`
+        + `PreOrdered`
+        + `BackOrdered`
+        + `Canceled`
+        + `Shipped`
+
+### OrderStatus
++ orderStatus: Cart (required, enum[string]) - Order Status.
+    + Members
+        + `Cart`
+        + `Ordered`
+        + `FraudHold`
+        + `RemorseHold`
+        + `ManualHold`
+        + `Canceled`
+        + `FulfillmentStarted`
+        + `Shipped`
+
+### PaymentStatus
++ paymentStatus: Cart (optional, enum[string]) - Credit Card payment status.
+    + Members
+        + `Cart`
+        + `Ordered`
+        + `FraudHold`
+        + `RemorseHold`
+        + `ManualHold`
+        + `Canceled`
+        + `FulfillmentStarted`
+        + `Shipped`
+
+### ShippingStatus
++ shippingStatus: Cart (required, enum[string]) - Shipping status.
+    + Members
+        + `Cart`
+        + `Ordered`
+        + `FraudHold`
+        + `RemorseHold`
+        + `ManualHold`
+        + `Canceled`
+        + `FulfillmentStarted`
+        + `Shipped`
+
+### Shipment
++ id: 1 (required, number) - ID.
++ orderId: 1 (required, number) - Order ID.
++ Include ShippingStatus
++ shippingPrice (optional, number) - Shipping price.
+
+### ListOrder
++ referenceNumber: `ABC-123` (required, string) - Unique identifier.
++ email: yax@yax.com (required, string) - Customer email.
++ Include OrderStatus
++ Include PaymentStatus
++ placedAt: `2015-09-10T14:55:50Z` (optional, string) - Timestamp of when order was placed.
++ remorsePeriodEnd: `2015-09-10T15:25:50Z` (optional, string) - Timestamp of when remorse period ends.
++ customer (required, CustomerResponse) - associated customer.
++ rmas (optional, array[Rma]) - list of associated RMAs.
++ total (optional, number) - grand total value.
+
+### FullOrder
++ id: 1 (required, number) - Unique identifier.
++ referenceNumber: ABC-123 (required, string) - Order reference number.
++ Include OrderStatus
++ Include ShippingStatus
++ Include PaymentStatus
++ lineItems (required, LineItems) - Line items with different types.
++ adjustments (required, array[Adjustment]) - Order adjustments.
++ fraudScore: 0 (required, number) - Fraud score.
++ customer (optional, CustomerResponse) - Associated customer.
++ totals (required, Totals) - Order totals.
++ shippingMethod (optional, ShippingMethod) - Shipping method.
++ shippingAddress (optional, OrderShippingAddress) - Shipping address.
++ assignees (required, array[OrderAssignee]) - Order assignees.
++ remorsePeriodEnd: `2015-09-10T14:55:50Z` (optional, string) - Remorse period end.
++ payment (optional, DisplayPayment) - Order payment.
++ lockedBy (optional, StoreAdminResponse) - Currently locked by.
+
+### OrderAssignee
++ assignee (required, StoreAdminResponse) - Assigned store admin.
++ assignedAt `2015-09-10T14:55:50Z` (optional, string) - Assignment date.
+
+### OrderShippingAddress
++ id: 1 (required, number) - Unique ID.
++ orderId: 1 (required, number) - Associated Order ID.
++ regionId: 1 (required, number) - Associated region ID.
++ name: `Default` (required, string) - Address record name.
++ address1: `38 Donkey Street` (required, string) - Actual address.
++ address2: `... or 39 Donkey Street` (optional, string) - Additional address line.
++ city: `Donkeyville` (required, string) - City.
++ zip: `55555` (required, string) - Zip code.
++ phoneNumber: `55555555555` (optional, string) - Phone number.
+
+### ShippingMethod
++ id: 1 (required, number) - Unique ID.
++ adminDisplayName: `FIXME` (optional, string) - Display name in Admin panel.
++ storefrontDisplayName: `FIXME` (optional, string) - Store front display name.
++ shippingCarrierId: 1 (optional, number) - Carrier ID.
++ price: 10 (required, number) - Price of shipping.
++ isActive: true (required, boolean) - Active flag.
++ conditions (optional, QueryStatement) - Possible conditions.
++ restrictions (optional, QueryStatement) - Possible restrictions.
+
+### QueryStatement
++ fixme: `FIXME` (required, string) - TBD.
+
+### DisplayPayment
++ amount: 10 (required, number) - Payment amount.
++ status: `auth` (required, string) - Payment status.
++ referenceNumber: `ABC-123` (required, string) - Reference number.
++ paymentMethod (required, DisplayPaymentMethod) - Payment method.
+
+### DisplayPaymentMethod
++ cardType: `visa` (required, string) - Card type.
++ cardExp: `FIXME` (required, string) - Card expiration date.
++ cardNumber: `FIXME` (required, string) - Card number.
+
+### Totals
++ subTotal: 100 (required, number) - Subtotal.
++ taxes: 50 (required, number) - Taxes total.
++ shipping: 5 (required, number) - Taxes total.
++ adjustments: 50 (required, number) - Adjustments total.
++ total: 100 (required, number) - Total.
+
+### LineItems
++ skus (required, array[SkuLineItem]) - SKU's as line items.
++ giftCard (required, array[GiftCard]) - Gift cards as line items.
+
+### SkuLineItem
++ imagePath: `http://lorempixel.com/75/75/fashion` (required, string) - Image URL.
++ name: `donkey product` (required, string) - Product name.
++ sku: `SKU-YAX` (required, string) - SKU.
++ price: 33 (required, number) - SKU price.
++ quantity: 1 (required, number) - Quantity.
++ Include LineItemStatus
++ totalPrice: 33 (required, number) - Price per item multiplied by quantity
+
+### Adjustment
++ id: 1 (required, number) - Unique identifier.
++ amount: 10 (required, number) - Amount.
++ sourceId: 1 (required, number) - Adjustment source ID.
++ sourceType: `order` (required, string) - Adjustment source type.
++ reason: `Lorem ipsum` (required, string) - Adjustment reason.
+
+### SelectedShippingMethod
++ id: 1 (required, number)
++ code: UPS5DAY (required, string)
++ name: `UPS 5-Day Shipping` (required, string)
++ price: 595 (required, number)
+
+### CreateCartPayload
++ customerId: 1 (optional, number)
++ email: yax@yax.com (optional, string)
+
+### UpdateLineItemsPayload
++ sku: `SKU-YAX` (required, string)
++ quantity: 5 (required, number)
+
+### CreateShippingAddressPayload
++ shippingMethodId: 1 (required, number)
+
+### OrderList
++ result (required, array[ListOrder]) - The resulting list of ListOrder-s.
++ Include ResultMetadata

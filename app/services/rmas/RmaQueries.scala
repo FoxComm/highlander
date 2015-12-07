@@ -1,19 +1,18 @@
 package services.rmas
 
-import scala.concurrent.ExecutionContext
-
-import models.Rmas._
-import models._
-import responses.{AssignmentResponse, AllRmas}
+import models.{RmaAssignments, Customers, Rmas, StoreAdmins, javaTimeSlickMapper}
+import responses.{AllRmas, AssignmentResponse}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives
 import utils.CustomDirectives.SortAndPage
 import utils.Slick._
 import utils.Slick.implicits._
 
+import scala.concurrent.ExecutionContext
+
 object RmaQueries {
 
-  def findAll(query: QuerySeq)(implicit ec: ExecutionContext, db: Database,
+  def findAll(query: Rmas.QuerySeq)(implicit ec: ExecutionContext, db: Database,
     sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): ResultWithMetadata[Seq[AllRmas.Root]] = {
 
     val rmasAndCustomers = for {

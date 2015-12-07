@@ -83,16 +83,15 @@ object CreditCardManager {
   }
 
   def toggleCreditCardDefault(customerId: Int, cardId: Int, isDefault: Boolean)
-    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
-    def ifNotFound = NotFoundFailure404(CreditCard, cardId)
-    swapDatabaseFailure {
-      (for {
-        cc      ← * <~ CreditCards.findById(cardId).extract.filter(_.customerId === customerId).map(_.isDefault).
-          updateReturningHeadOption(CreditCards.map(identity), isDefault, ifNotFound)
-        region  ← * <~ Regions.findOneById(cc.regionId).safeGet.toXor
-      } yield buildResponse(cc, region)).runT()
-    } { (NotUnique, CustomerHasDefaultCreditCard) }
-  }
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
+
+    _       ← * <~ CreditCards.findDefaultByCustomerId(customerId).map(_.isDefault).update(false)
+    cc      ← * <~ CreditCards.mustFindByIdAndCustomer(cardId, customerId)
+    // TODO: please fucking replace me with diffing update
+    default = cc.copy(isDefault = true)
+    _       ← * <~ CreditCards.filter(_.id === cardId).map(_.isDefault).update(true)
+    region  ← * <~ Regions.findOneById(cc.regionId).safeGet.toXor
+  } yield buildResponse(default, region)).runT()
 
   def deleteCreditCard(customerId: Int, id: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Unit] = {

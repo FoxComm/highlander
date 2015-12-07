@@ -1,0 +1,79 @@
+# Data Structures
+
+### GiftCardOriginType
++ originType: `csrAppeasement` (required, enum[string]) - GC origin type.
+    + Members
+        + `csrAppeasement`
+        + `customerPurchase`
+        + `fromStoreCredit`
+
+### GiftCardStatus
++ status: OnHold (required, enum[string]) - GC status.
+    + Members
+        + `onHold`
+        + `active`
+        + `canceled`
+
+### GiftCard
++ id: 1 (required, number) - Unique identifier.
++ createdAt: `2015-09-10T14:55:50Z` (required, string) - Creation date.
++ code: `ABC-123` (required, string) - Public unique identifier.
++ Include GiftCardOriginType
++ subTypeId: 1 (optional, number) - Optional subtype.
++ Include GiftCardStatus
++ originalBalance: 50 (required, number) - Opening balance for GC (amount it was issued for).
++ currentBalance: 50 (required, number) - Opening balance minus "captured" debits.
++ availableBalance: 50 (required, number) - Opening balance minus "auth" debits.
++ customer (optional, CustomerResponse) - If customer have purchased GiftCard, returns his info.
++ storeAdmin (optional, StoreAdminResponse) - If CSR created GiftCard, return his info.
++ message: Lorem ipsum (string) - Optional message entered by CSR or customer.
+
+### GiftCardOriginTypeResponse
++ Include GiftCardOriginType
++ subtypes (required, array[GiftCardSubtype]) - List of related subtypes.
+
+### GiftCardSubtype
++ id: 1 (required, number) - Unique ID.
++ title: `Appeasement Type A` (required, string) - Subtype title.
++ Include GiftCardOriginType
+
+### GiftCardAdjustment
++ id: 1 (required, number) - Unique identifier.
++ amount: 50 (required, number) - Amount of adjustment (can be negative).
++ availableBalance: 50 (required, number) - Gift card current balance plus amount.
++ state: Auth (required, enum[string]) - Gift Card status.
+    + Members
+        + `auth`
+        + `capture`
+        + `canceled`
++ orderRef: `ABC-123` (string) - Order reference number.
+
+### GiftCardBulkResponse
++ success: true (required, boolean) - Operation result.
++ code: `ABC-123` (optional, string) - Requested GiftCard identifier.
++ errors (optional, array[string]) - List of possible errors.
++ giftCard (optional, GiftCard) - Updated GiftCard.
+
+### GiftCardCreatePayload
++ balance: 10 (required, number) - Gift card balance.
++ quantity: 1 (required, number) - Quantity.
++ reasonId: 1 (required, number) - Reason ID for generation.
++ currency: USD (optional, string) - Gift card currency.
++ subTypeId: 1 (optional, number) - Possible subtype ID.
+
+### GiftCardUpdateStatusPayload
++ status: onHold (required, string) - New gift card status.
++ reasonId: 1 (optional, number) - ID of cancellation reason.
+
+### GiftCardBulkStatusUpdatePayload
++ codes: `ABC-123`, `ABC-345` (required, array[string]) - List of Gift Card codes.
++ status: onHold (required, string) - Status to be switched to.
++ reasonId: 1 (optional, number) - ID of cancellation reason.
+
+### GiftCards
++ result (required, array[GiftCard]) - The resulting list of GiftCard-s.
++ Include ResultMetadata
+
+### GiftCardAdjustments
++ result (required, array[GiftCardAdjustment]) - The resulting list of GiftCardAdjustment-s.
++ Include ResultMetadata

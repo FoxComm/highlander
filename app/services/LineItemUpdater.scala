@@ -1,36 +1,22 @@
 package services
 
-import scala.concurrent.ExecutionContext
-
-import cats.data.Validated.{Valid, Invalid}
-import models._
 import models.OrderLineItems.scope._
+import models.{Customer, GiftCard, GiftCardOrder, GiftCardOrders, GiftCards, Order, OrderLineItem,
+OrderLineItemGiftCard, OrderLineItemGiftCards, OrderLineItemSku, OrderLineItemSkus, OrderLineItems, Orders, Sku, Skus}
 import payloads.{AddGiftCardLineItem, UpdateLineItemsPayload}
-import cats.implicits._
 import responses.FullOrder.refreshAndFullOrder
-import responses.{TheResponse, FullOrder}
-import TheResponse._
+import responses.{FullOrder, TheResponse}
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick._
 import utils.Slick.implicits._
 
+import scala.concurrent.ExecutionContext
+
 object LineItemUpdater {
-  val lineItems = TableQuery[OrderLineItems]
-  val orders = TableQuery[Orders]
-
   def addGiftCard(refNum: String, payload: AddGiftCardLineItem)
-    (implicit ec: ExecutionContext, db: Database): Result[TheResponse[FullOrder.Root]] = {
-
-    payload.validate match {
-      case Valid(_)        ⇒ addGiftCardToOrder(refNum, payload)
-      case Invalid(errors) ⇒ Result.failures(errors)
-    }
-  }
-
-  private def addGiftCardToOrder(refNum: String, payload: AddGiftCardLineItem)
-    (implicit ec: ExecutionContext, db: Database) = (for {
+    (implicit ec: ExecutionContext, db: Database): Result[TheResponse[FullOrder.Root]] = (for {
     p      ← * <~ payload.validate
     order  ← * <~ Orders.mustFindByRefNum(refNum)
     _      ← * <~ order.mustBeCart
@@ -42,9 +28,9 @@ object LineItemUpdater {
     result ← * <~ refreshAndFullOrder(order).toXor
   } yield TheResponse.build(result, alerts = valid.alerts, warnings = valid.warnings)).runT()
 
-  def editGiftCard(refNum: String, code: String, liPayload: AddGiftCardLineItem)
+  def editGiftCard(refNum: String, code: String, payload: AddGiftCardLineItem)
     (implicit ec: ExecutionContext, db: Database): Result[TheResponse[FullOrder.Root]] = (for {
-    payload  ← * <~ liPayload.validate
+    _        ← * <~ payload.validate
     giftCard ← * <~ GiftCards.mustFindByCode(code)
     _        ← * <~ giftCard.mustBeCart
     order    ← * <~ Orders.mustFindByRefNum(refNum)
@@ -70,12 +56,12 @@ object LineItemUpdater {
 
   def updateQuantitiesOnOrder(refNum: String, payload: Seq[UpdateLineItemsPayload])
     (implicit ec: ExecutionContext, db: Database): Result[TheResponse[FullOrder.Root]] = (for {
-      order ← * <~ Orders.mustFindByRefNum(refNum)
-      _     ← * <~ order.mustBeCart
-      _     ← * <~ updateQuantities(order, payload)
-      valid ← * <~ CartValidator(order).validate
-      res   ← * <~ refreshAndFullOrder(order).toXor
-    } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runT()
+    order ← * <~ Orders.mustFindByRefNum(refNum)
+    _     ← * <~ order.mustBeCart
+    _     ← * <~ updateQuantities(order, payload)
+    valid ← * <~ CartValidator(order).validate
+    res   ← * <~ refreshAndFullOrder(order).toXor
+  } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runT()
 
   def updateQuantitiesOnCustomersOrder(customer: Customer, payload: Seq[UpdateLineItemsPayload])
     (implicit ec: ExecutionContext, db: Database): Result[TheResponse[FullOrder.Root]] = {
@@ -89,11 +75,16 @@ object LineItemUpdater {
     } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runT()
   }
 
-  // TODO:
-  //  validate sku in PIM
-  //  execute the fulfillment runner → creates fulfillments
-  //  validate inventory (might be in PIM maybe not)
-  //  run hooks to manage promotions
+  private def qtyAvailableForSkus(skus: Seq[String])
+    (implicit ec: ExecutionContext, db: Database): DBIO[Map[Sku, Int]] = {
+
+    // TODO: inventory... 'nuff said. (aka FIXME)
+    // Skus.qtyAvailableForSkus(updateQuantities.keys.toSeq).flatMap { availableQuantities ⇒
+    (for {
+      sku ← Skus.filter(_.sku.inSet(skus))
+    } yield (sku, 1000000)).result.map(_.toMap)
+  }
+
   private def updateQuantities(order: Order, payload: Seq[UpdateLineItemsPayload])
     (implicit ec: ExecutionContext, db: Database): DbResult[Seq[OrderLineItem]] = {
 
@@ -102,22 +93,22 @@ object LineItemUpdater {
       acc.updated(item.sku, quantity + item.quantity)
     }
 
-    // TODO: AW: We should insert some errors/messages into an array for each item that is unavailable.
-    // TODO: AW: Add the maximum available to the order if there aren't as many as requested
-    Skus.qtyAvailableForSkus(updateQuantities.keys.toSeq).flatMap { availableQuantities ⇒
+    qtyAvailableForSkus(updateQuantities.keys.toSeq).flatMap { availableQuantities ⇒
       val enoughOnHand = availableQuantities.foldLeft(Map.empty[Sku, Int]) { case (acc, (sku, numAvailable)) ⇒
         val numRequested = updateQuantities.getOrElse(sku.sku, 0)
-        if (numAvailable >= numRequested && numRequested >= 0)
-          acc.updated(sku, numRequested)
-        else
-          acc
+        if (numRequested >= 0) acc.updated(sku, numRequested) else acc
+          // TODO: reinstate when we have real inventory
+//        if (numAvailable >= numRequested && numRequested >= 0)
+//          acc.updated(sku, numRequested)
+//        else
+//          acc
       }
 
       // select oli_skus.sku_id as sku_id, count(1) from order_line_items
       // left join order_line_item_skus as oli_skus on origin_id = oli_skus.id
       // where order_id = $ and origin_type = 'skuItem' group by sku_id
       val counts = for {
-        (skuId, q) ← lineItems.filter(_.orderId === order.id).skuItems
+        (skuId, q) ← OrderLineItems.filter(_.orderId === order.id).skuItems
           .join(OrderLineItemSkus).on(_.originId === _.id).groupBy(_._2.skuId)
       } yield (skuId, q.length)
 
@@ -137,14 +128,14 @@ object LineItemUpdater {
                 case Some(o)   ⇒ DBIO.successful(o)
                 case _         ⇒ OrderLineItemSkus.saveNew(OrderLineItemSku(skuId = sku.id, orderId = order.id))
               }
-              bulkInsert ← lineItems ++= (1 to delta).map { _ ⇒ OrderLineItem(0, order.id, origin.id) }.toSeq
+              bulkInsert ← OrderLineItems ++= (1 to delta).map { _ ⇒ OrderLineItem(0, order.id, origin.id) }.toSeq
             } yield ()
 
             DbResult.fromDbio(queries)
           } else if (current - newQuantity > 0) {
             // otherwise delete N items
             val queries = for {
-              deleteLi ← lineItems.filter(_.id in lineItems.filter(_.orderId === order.id).skuItems
+              deleteLi ← OrderLineItems.filter(_.id in OrderLineItems.filter(_.orderId === order.id).skuItems
                 .join(OrderLineItemSkus).on(_.originId === _.id).filter(_._2.skuId === sku.id).sortBy(_._1.id.asc)
                 .take(current - newQuantity).map(_._1.id)).delete
 
@@ -162,7 +153,7 @@ object LineItemUpdater {
 
         DBIO.seq(changes: _*)
       }.flatMap { _ ⇒
-        DbResult.fromDbio(lineItems.filter(_.orderId === order.id).result)
+        DbResult.fromDbio(OrderLineItems.filter(_.orderId === order.id).result)
       }
     }
   }

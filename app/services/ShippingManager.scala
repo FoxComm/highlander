@@ -1,13 +1,11 @@
 package services
 
-import models.{OrderLineItemSkus, Sku, Skus, OrderLineItems, Order, OrderShippingAddress, Region, ShippingMethods}
-import models.OrderLineItems.scope._
+import models.{OrderLineItemSkus, Sku, Skus, Order, OrderShippingAddress, Region, ShippingMethods}
 import models.rules.{Condition, QueryStatement}
 import scala.concurrent.ExecutionContext
 import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
 import utils.JsonFormatters
-import Result._
 import utils.Slick.DbResult
 
 object ShippingManager {

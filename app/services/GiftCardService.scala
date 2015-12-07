@@ -1,31 +1,24 @@
 package services
 
-import scala.concurrent.{ExecutionContext, Future}
-
-import cats.data.{XorT, Xor}
-import cats.data.Validated.{Valid, Invalid}
+import cats.data.Validated.{Invalid, Valid}
+import cats.data.Xor
 import cats.implicits._
-
-import shapeless._
-import models._
-import models.GiftCard.{FromStoreCredit, CsrAppeasement, CustomerPurchase}
 import models.GiftCard.Canceled
 import models.GiftCardSubtypes.scope._
-import responses.{GiftCardSubTypesResponse, GiftCardResponse, CustomerResponse, StoreAdminResponse}
-import responses.GiftCardResponse._
+import models.{Customer, Customers, GiftCard, GiftCardAdjustments, GiftCardManual, GiftCardManuals, GiftCardSubtype, GiftCardSubtypes, GiftCards, Reason, Reasons, StoreAdmin, StoreAdmins}
 import responses.GiftCardBulkResponse._
-import slick.driver.PostgresDriver
+import responses.GiftCardResponse._
+import responses.{CustomerResponse, GiftCardResponse, GiftCardSubTypesResponse, StoreAdminResponse}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
-import utils.Slick._
-import utils.Slick.UpdateReturning._
-import utils.Slick.implicits._
 import utils.DbResultT
 import utils.DbResultT._
 import utils.DbResultT.implicits._
+import utils.Slick.UpdateReturning._
+import utils.Slick._
+import utils.Slick.implicits._
 
-import utils.DbResultT._
-import utils.DbResultT.implicits._
+import scala.concurrent.{ExecutionContext, Future}
 
 object GiftCardService {
   val mockCustomerId = 1

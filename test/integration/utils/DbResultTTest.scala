@@ -4,7 +4,8 @@ import cats.data.{XorT, Xor}
 import cats.implicits._
 import services.{GeneralFailure, Failures}
 import util.{DbTestSupport, TestBase, CatsHelpers}
-import utils.Seeds.Factories
+import utils.seeds.Seeds
+import Seeds.Factories
 import slick.driver.PostgresDriver._
 import slick.driver.PostgresDriver.api._
 import models.{Customers, Orders, Addresses}

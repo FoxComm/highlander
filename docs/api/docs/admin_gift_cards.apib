@@ -1,0 +1,98 @@
+## Gift Card [/v1/gift-cards/{code}]
+
++ Parameters
+    + code: `ABC-123` (required, string) - Gift card code
+
+### List [GET /v1/gift-cards/{?size,from,sortBy}]
+
++ Parameters
+    + size:   1           (optional, number)       - Page size.
+    + from:   1           (optional, number)       - Start element (counting from 0) or # of elements to skip.
+    + sortBy: `createdAt` (optional, enum[string]) - Field to sort by (`-fieldName` for descending order).
+        + Members
+            + `id`
+            + `originId`
+            + `originType`
+            + `subTypeId`
+            + `code`
+            + `status`
+            + `currency`
+            + `originalBalance`
+            + `currentBalance`
+            + `availableBalance`
+            + `canceledAmount`
+            + `canceledReason`
+            + `reloadable`
+            + `createdAt`
++ Response 200 (application/json)
+    + Attributes (GiftCards)
+
+### List Types [GET /v1/gift-cards/types]
+
++ Response 200 (application/json)
+    + Attributes (array[GiftCardOriginTypeResponse])
+
+### View [GET]
+
++ Response 200 (application/json)
+    + Attributes (GiftCard)
+
+### Create [POST /v1/gift-cards]
+
+Creates a GiftCard with `CsrAppeasement` type, which is only supported at this endpoint.
+If `quantity` parameter is provided in payload, multiple GiftCard will be generated.
+
++ Request (application/json)
+    + Attributes (GiftCardCreatePayload)
++ Response 200 (application/json)
+    + Attributes (GiftCard)
++ Response 400 (application/json)
+    + Attributes (Errors)
+
+### Update Status [PATCH]
+
++ Request (application/json)
+    + Attributes (GiftCardUpdateStatusPayload)
++ Response 200 (application/json)
+    + Attributes (GiftCard)
++ Response 400 (application/json)
+    + Attributes (Errors)
+
+### Bulk Update Status [PATCH /v1/gift-cards]
+
++ Request (application/json)
+    + Attributes (GiftCardBulkStatusUpdatePayload)
++ Response 200 (application/json)
+    + Attributes (array[GiftCardBulkResponse])
+
+### Convert to StoreCredit [POST /v1/gift-cards/{code}/convert/{customerId}]
+
+Converts GiftCard to specified customer's Store Credit if it's active and has no open adjustments.
+
++ Parameters
+    + code: `ABC-123` (required, string) - Gift card code.
+    + customerId: 1 (required, number) - Customer ID.
++ Response 200 (application/json)
+    + Attributes (StoreCredit)
++ Response 400 (application/json)
+    + Attributes (Errors)
+
+### List Adjustments [GET /v1/gift-cards/{code}/transactions/{?size,from,sortBy}]
+
++ Parameters
+    + code: `ABC-123` (required, string) - Gift card code
+    + size:   1           (optional, number)       - Page size.
+    + from:   1           (optional, number)       - Start element (counting from 0) or # of elements to skip.
+    + sortBy: `createdAt` (optional, enum[string]) - Field to sort by (`-fieldName` for descending order).
+        + Members
+            + `id`
+            + `giftCardId`
+            + `orderPaymentId`
+            + `storeAdminId`
+            + `credit`
+            + `debit`
+            + `availableBalance`
+            + `status`
+            + `createdAt`
++ Response 200 (application/json)
+    + Attributes (GiftCardAdjustments)

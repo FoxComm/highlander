@@ -1,13 +1,13 @@
 package services.rmas
 
-import scala.concurrent.ExecutionContext
-
 import cats.implicits._
-import services._
-import services.RmaFailures._
 import models.{Rma, RmaLineItems}
+import services.RmaFailures._
+import services.{Failure, Failures}
 import slick.driver.PostgresDriver.api._
 import utils.Slick._
+
+import scala.concurrent.ExecutionContext
 
 trait RmaValidation {
   def validate: DbResult[RmaValidatorResponse]

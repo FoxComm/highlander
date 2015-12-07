@@ -3,11 +3,12 @@ package models
 import java.time.ZonedDateTime
 
 import cats.data._
-import util.TestBase
-import services._
 import org.scalatest.prop.TableDrivenPropertyChecks._
-import utils.Seeds.Factories
+import services.{Failure, GeneralFailure}
 import util.CustomMatchers._
+import util.TestBase
+import utils.seeds.Seeds
+import utils.seeds.Seeds.Factories
 
 class CreditCardTest extends TestBase {
   val today = ZonedDateTime.now()

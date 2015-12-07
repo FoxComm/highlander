@@ -1,21 +1,25 @@
-import scala.collection.JavaConverters._
-import scala.concurrent.Future
-import scala.util.Random
+import Extensions._
 import akka.http.scaladsl.model.StatusCodes
-
-import models._
-import models.GiftCard.{Active, OnHold, Canceled, FromStoreCredit, CustomerPurchase, CsrAppeasement}
+import models.GiftCard._
+import models.{Customers, GiftCard, GiftCardAdjustment, GiftCardAdjustments, GiftCardManual, GiftCardManuals,
+GiftCardSubtype, GiftCardSubtypes, GiftCards, OrderPayments, Orders, PaymentMethod, Reason, Reasons, StoreAdmins}
 import org.joda.money.CurrencyUnit
 import org.scalatest.BeforeAndAfterEach
-import responses._
-import services._
+import responses.{GiftCardAdjustmentsResponse, GiftCardBulkResponse, GiftCardResponse, GiftCardSubTypesResponse,
+ResponseWithFailuresAndMetadata, StoreCreditResponse}
+import services.{EmptyCancellationReasonFailure, GeneralFailure, GiftCardConvertFailure,
+InvalidCancellationReasonFailure, NotFoundFailure404, OpenTransactionsFailure}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import utils.Seeds.Factories
-import utils.Slick.implicits._
 import utils.Money._
+import utils.Slick.implicits._
+import utils.seeds.Seeds.Factories
+
+import scala.collection.JavaConverters._
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.Random
 
 class GiftCardIntegrationTest extends IntegrationTestBase
   with HttpSupport
@@ -23,20 +27,15 @@ class GiftCardIntegrationTest extends IntegrationTestBase
   with AutomaticAuth
   with BeforeAndAfterEach {
 
-  import concurrent.ExecutionContext.Implicits.global
-
-  import Extensions._
-  import org.json4s.jackson.JsonMethods._
-
   // paging and sorting API
   private var currentOrigin: GiftCardManual = _
 
   override def beforeSortingAndPaging(): Unit = {
     currentOrigin = (for {
-      admin ← StoreAdmins.create(authedStoreAdmin).map(rightValue)
-      reason ← Reasons.create(Factories.reason.copy(storeAdminId = admin.id)).map(rightValue)
-      origin ← GiftCardManuals.create(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id)).map(rightValue)
-    } yield origin).run().futureValue
+      admin ← * <~ StoreAdmins.create(authedStoreAdmin)
+      reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
+      origin ← * <~ GiftCardManuals.create(GiftCardManual(adminId = admin.id, reasonId = reason.id))
+    } yield origin).runT().futureValue.rightVal
   }
 
   def uriPrefix = "v1/gift-cards"
@@ -375,15 +374,14 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       admin     ← * <~ StoreAdmins.create(authedStoreAdmin)
       reason    ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
       gcSubType ← * <~ GiftCardSubtypes.create(Factories.giftCardSubTypes.head)
-      origin    ← * <~ GiftCardManuals.create(Factories.giftCardManual.copy(adminId = admin.id, reasonId = reason.id))
+      origin    ← * <~ GiftCardManuals.create(GiftCardManual(adminId = admin.id, reasonId = reason.id))
       giftCard  ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active))
       gcSecond  ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active,
-                                                                                                      code = "ABC-234"))
+        code = "ABC-234"))
       payment   ← * <~ OrderPayments.create(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId =
-                                                              giftCard.id, paymentMethodType = PaymentMethod.GiftCard))
+        giftCard.id, paymentMethodType = PaymentMethod.GiftCard, amount = Some(25)))
       adj1      ← * <~ GiftCards.auth(giftCard, Some(payment.id), 10)
       giftCard  ← * <~ GiftCards.findOneById(giftCard.id).toXor
-    } yield (customer, admin, giftCard.value, order, payment, adj1, gcSecond, gcSubType)).runT()
-      .futureValue.rightVal
+    } yield (customer, admin, giftCard.value, order, payment, adj1, gcSecond, gcSubType)).runT().futureValue.rightVal
   }
 }

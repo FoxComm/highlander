@@ -1,14 +1,12 @@
 package services
 
-import scala.concurrent.{Future, ExecutionContext}
-
+import models.{Customers, OrderPayments, Orders, StoreCreditAdjustments, StoreCredits}
 import responses.StoreCreditAdjustmentsResponse.{Root, build}
-import models._
-import responses.StoreCreditAdjustmentsResponse.Root
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
-import utils.Slick._
 import utils.Slick.implicits._
+
+import scala.concurrent.{ExecutionContext, Future}
 
 object StoreCreditAdjustmentsService {
   def forStoreCredit(id: Int)
