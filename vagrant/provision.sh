@@ -45,6 +45,8 @@ if [[ ! -d /home/vagrant/kafka ]]; then
     #copy service files
     cp /vagrant/vagrant/kafka.service /etc/systemd/system/
     cp /vagrant/vagrant/zookeeper.service /etc/systemd/system/
+    systemctl enable kafka
+    systemctl enable zookeeper
     systemctl start kafka
     systemctl start zookeeper
 fi
@@ -55,6 +57,7 @@ if [[ ! -d /home/vagrant/elasticsearch ]]; then
     unzip elasticsearch-1.7.3.zip
     mv elasticsearch-1.7.3 /home/vagrant/elasticsearch
     cp /vagrant/vagrant/elasticsearch.service /etc/systemd/system/
+    systemctl enable elasticsearch
     systemctl start elasticsearch
 fi
 
