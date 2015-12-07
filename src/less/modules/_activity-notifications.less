@@ -26,6 +26,25 @@
 
   &__box {
     z-index: 1050;
+    .width(370px);
+
+    & .fc-content-box-header {
+      .colors(@color-decor1, @color-decor12);
+      .font-spec(14px, 600, 19px);
+      border-bottom: 1px solid @color-decor9;
+    }
+  }
+
+  &__footer {
+    width: 100%;
+    .height(60px);
+    border-top: 1px solid @color-decor9;
+    background: @color-decor12;
+  }
+
+  &__footer-button {
+    .width(310px);
+    .margin(10px, 30px);
   }
 
   &__overlay {
