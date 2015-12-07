@@ -7,55 +7,42 @@ const { reducer: reducer, actions: actions } = makeLiveSearch('TEST', ordersSear
 const { deleteSearchFilter, goBack, submitFilter } = actions;
 
 describe('modules.orders.list', function() {
-  //describe('goBack()', function() {
-    //let newState = null;
+  describe('goBack()', function() {
+    let newState = null;
 
-    //context('when searching against a first-level term', function() {
-      //beforeEach(function() {
-        //newState = reducer(initialState, actions.updateSearch('', ordersSearchTerms));
-      //});
+    context('when searching against a first-level term', function() {
+      beforeEach(function() {
+        newState = reducer(undefined, submitFilter(''));
+      });
 
-      //it('should do nothing when there is no search term', function() {
-        //newState = reducer(newState, actions.goBack());
-        //expect(newState.inputValue).to.be.equal('');
-      //});
+      it('should do nothing when there is no search term', function() {
+        newState = reducer(newState, goBack());
+        expect(newState.searchValue).to.be.equal('');
+      });
 
-      //it('should turn a single partial term to an empty string', function() {
-        //let update = {
-          //...newState,
-          //inputValue: 'Ord',
-          //displayValue: 'Ord',
-        //};
-        //update = reducer(update, actions.goBack());
-        //expect(update.inputValue).to.be.equal('');
-      //});
-    //});
+      it('should turn a single partial term to an empty string', function() {
+        const update = reducer(reducer(newState, submitFilter('Ord')), goBack());
+        expect(update.searchValue).to.be.equal('');
+      });
+    });
 
-    //context('when searching against a second level term', function() {
-      //beforeEach(function() {
-        //newState = reducer(
-          //reducer(
-            //initialState,
-            //actions.updateSearch('Order : State', ordersSearchTerms)
-          //),
-          //actions.goBack()
-        //);
-      //});
+    context('when searching against a second level term', function() {
+      beforeEach(function() {
+        newState = reducer(reducer(newState, submitFilter('Order : State')), goBack());
+      });
 
-      //it('should remove the second term', function() {
-        //expect(newState.inputValue).to.be.equal('Order : ');
-      //});
+      it('should remove the second term', function() {
+        expect(newState.searchValue).to.be.equal('Order : ');
+      });
 
-      //it('should update the available searches', function() {
-        //expect(newState.currentOptions.length).to.be.equal(
-          //ordersSearchTerms[0].options.length
-        //);
-        //expect(newState.currentOptions[0].display).to.be.equal(
-          //`Order : ${ordersSearchTerms[0].options[0].term}`
-        //);
-      //});
-    //});
-  //});
+      it('should update the available searches', function() {
+        expect(newState.currentOptions).to.have.length(ordersSearchTerms[0].options.length);
+        expect(newState.currentOptions[0].display).to.be.equal(
+          ordersSearchTerms[0].options[0].displayTerm
+        );
+      });
+    });
+  });
 
   describe('submitFilter()', function() {
     let newState = null;

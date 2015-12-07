@@ -36,7 +36,7 @@ function goBack(state) {
     newSearchTerm = '';
   }
 
-  return updateSearchTerm(state, newSearchTerm);
+  return submitFilter(state, newSearchTerm);
 }
 
 /**
