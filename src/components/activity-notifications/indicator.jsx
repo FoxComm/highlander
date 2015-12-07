@@ -1,17 +1,25 @@
 import React, { PropTypes } from 'react';
 import { Button } from '../common/buttons';
+import { connect } from 'react-redux';
+import { autobind } from 'core-decorators';
+import * as NotificationActions from '../../modules/activity-notifications';
 
+@connect(state => ({notifications: state.activityNotifications}), NotificationActions)
 export default class NotificationIndicator extends React.Component {
 
   static propTypes = {
-    notificationsCount: PropTypes.number
+
   };
 
+  componentDidMount() {
+    this.props.fetchNotifications();
+  }
+
   get indicator() {
-    if (this.props.notificationsCount > 0) {
+    if (this.props.notifications.count > 0) {
       return (
         <div className="fc-activity-notifications__indicator">
-          <span>{ this.props.notificationsCount }</span>
+          <span>{ this.props.notifications.count }</span>
         </div>
       );
     }

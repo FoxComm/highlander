@@ -11,6 +11,7 @@ import countries from './countries';
 import regions from './regions';
 import addressForm from './address-form';
 import reasons from './reasons';
+import activityNotifications from './activity-notifications';
 
 const rootReducer = combineReducers({
   router: routerStateReducer,
@@ -25,6 +26,7 @@ const rootReducer = combineReducers({
   addressForm,
   reasons,
   groups,
+  activityNotifications
 });
 
 export default rootReducer;
