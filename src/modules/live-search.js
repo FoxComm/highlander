@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
 import SearchTerm from '../paragons/search-term';
+import util from 'util';
 
 /**
  * Deletes a saved search by it's index.
@@ -67,7 +68,7 @@ function submitFilter(state, searchTerm) {
       }
     });
 
-    searches.push(searchTerm);
+    searches = state.searches.concat(searchTerm);
     newSearchTerm = '';
   }
 

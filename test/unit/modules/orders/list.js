@@ -91,7 +91,7 @@ describe('modules.orders.list', function() {
       });
 
       it('should not update the search box', function() {
-        expect(newState.searchTerm).to.be.equal(invalidSearchTerm);
+        expect(newState.searchValue).to.be.equal(invalidSearchTerm);
       });
     });
   });
