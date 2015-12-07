@@ -29,9 +29,6 @@ export default class Dropdown extends React.Component {
   }
 
   findTitleByValue(value, props) {
-    if (!props) {
-      props = this.props;
-    }
     if (props.items) {
       return props.items[value];
     } else {
@@ -74,9 +71,6 @@ export default class Dropdown extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
-    // fixme: additional/different checks?
-    // bug: if items not changed it's reset current selected value value
-    // todo: remove selectedValue and title from state
     if (newProps.value != this.state.selectedValue) {
       this.setState({
         selectedValue: newProps.value,
@@ -93,7 +87,7 @@ export default class Dropdown extends React.Component {
       'is_dropdown_open': this.state.open
     });
     const value = this.state.selectedValue || this.props.value;
-    const title = this.state.selectedTitle || this.findTitleByValue(value);
+    const title = this.state.selectedTitle || this.findTitleByValue(value, this.props);
 
     return (
       <div className={classnames} onBlur={this.onBlur} tabIndex="0">

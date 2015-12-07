@@ -10,6 +10,7 @@ import skus from './skus';
 import countries from './countries';
 import regions from './regions';
 import addressForm from './address-form';
+import reasons from './reasons';
 
 const rootReducer = combineReducers({
   router: routerStateReducer,
@@ -22,6 +23,7 @@ const rootReducer = combineReducers({
   countries,
   regions,
   addressForm,
+  reasons,
   groups,
 });
 

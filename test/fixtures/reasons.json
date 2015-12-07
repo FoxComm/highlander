@@ -1,0 +1,25 @@
+{
+  "result": [
+    {
+      "id": 1,
+      "storeAdminId": 1,
+      "body": "Other"
+    },
+    {
+      "id": 2,
+      "storeAdminId": 1,
+      "body": "Cancelled by customer request"
+    },
+    {
+      "id": 3,
+      "storeAdminId": 1,
+      "body": "Cancelled because duplication"
+    }
+  ],
+  "pagination": {
+    "from": 0,
+    "size": 50,
+    "pageNo": 1,
+    "total": 3
+  }
+}
