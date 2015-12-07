@@ -1,6 +1,6 @@
--- Types for materialized views casting to generate proper json keys
+-- fake tables for materialized views casting to generate proper json keys
 
-create type export_addresses as (
+create table export_addresses (
     address1            text,
     address2            text,
     city                text,
@@ -11,13 +11,13 @@ create type export_addresses as (
     currency            character(3)
 );
 
-create type export_assignees as (
+create table export_assignees (
     first_name  text,
     last_name   text,
     assigned_at text
 );
 
-create type export_customers as (
+create table export_customers (
     name                text,
     email               text,
     is_blacklisted      boolean,
@@ -26,41 +26,41 @@ create type export_customers as (
     revenue             integer
 );
 
-create type export_line_items as (
+create table export_line_items (
     status  text,
     sku     text,
     name    text,
     price   integer
 );
 
-create type export_orders as (
+create table export_orders (
     reference_number text,
     status           text,
     created_at       text,
     placed_at        text
 );
 
-create type export_payments as (
-    payment_method_type text,
+create table export_payments (
+    payment_method_table text,
     amount              integer,
     currency            character(3)
 );
 
-create type export_rmas as (
+create table export_rmas (
     reference_number text,
     status           text,
-    rma_type         text,
+    rma_table        text,
     placed_at        text
 );
 
-create type export_shipments as (
+create table export_shipments (
     status                      text,
     shipping_price              integer,
     admin_display_name          text,
     storefront_display_name     text
 );
 
-create type export_skus as (
+create table export_skus (
     sku     text,
     name    text,
     price   integer
