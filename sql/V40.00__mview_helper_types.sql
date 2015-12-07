@@ -8,7 +8,7 @@ create type export_addresses as (
     region_name         text,
     country_name        text,
     continent           text,
-    currency            currency
+    currency            character(3)
 );
 
 create type export_assignees as (
@@ -43,7 +43,7 @@ create type export_orders as (
 create type export_payments as (
     payment_method_type text,
     amount              integer,
-    currency            currency
+    currency            character(3)
 );
 
 create type export_rmas as (
