@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import ContentBox from '../content-box/content-box';
+import NotificationItem from '../activity-notifications/item';
 import { PrimaryButton } from '../common/buttons';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
@@ -7,6 +8,13 @@ import * as NotificationActions from '../../modules/activity-notifications';
 
 @connect(state => ({notifications: state.activityNotifications}), NotificationActions)
 export default class NotificationPanel extends React.Component {
+
+  get items() {
+    const items = this.props.notifications.notifications;
+    return items.map(item => {
+      return (<NotificationItem />);
+    });
+  }
 
   get footer() {
     return (
@@ -29,7 +37,7 @@ export default class NotificationPanel extends React.Component {
           <ContentBox title='Notifications'
                       className="fc-activity-notifications__box"
                       footer={ this.footer }>
-            Notifications!
+            { this.items }
           </ContentBox>
         </div>
       );
