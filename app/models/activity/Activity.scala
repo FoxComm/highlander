@@ -87,7 +87,6 @@ object Activities extends TableQueryWithId[Activity, Activities](
   implicit val formats: DefaultFormats.type = DefaultFormats
 
     def log(a: OpaqueActivity)(implicit context: ActivityContext, ec: ExecutionContext) = {
-      println(s"Saving activity: ${a.activityType} data: ${render(a.data)} context: ${render(context)}")
       create(Activity(
         activityType = a.activityType,
         data = a.data,

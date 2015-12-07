@@ -17,9 +17,6 @@ import scala.language.implicitConversions
  * They implicitly convert to an OpaqueActivity which means you can use like so
  *
  *   Activities.log(<Tailored Activity>)
- *
- * For now the convertion is one way as the Ashes interface is what really cares about
- * parsing these.
  */
 
 
