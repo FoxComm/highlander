@@ -257,21 +257,22 @@ class CustomerIntegrationTest extends IntegrationTestBase
       //Check the activity log to see if it was created
       val activity = Activities.filterByData(
         CustomerInfoChanged.typeName, 
-        "customer_id", customer.id.toString).result.headOption.run().futureValue.value
+        "customerId", customer.id.toString).result.headOption.run().futureValue.value
 
       //make sure the activity has all the correct information
       activity.activityType must === (CustomerInfoChanged.typeName)
 
-      (activity.data \ "customer_id") must === (JInt(customer.id))
-      (activity.data \ "old") must === (
-        ("name" → customer.name.getOrElse("")) ~ 
-        ("email" → customer.email) ~ 
-        ("phone" → customer.phoneNumber.getOrElse("")))
+      val customerInfoChanged = activity.data.extract[CustomerInfoChanged]
 
-      (activity.data \ "new") must === (
-        ("name" → payload.name.getOrElse("")) ~ 
-        ("email" → payload.email.getOrElse("")) ~ 
-        ("phone" → payload.phoneNumber.getOrElse("")))
+      customerInfoChanged.customerId must === (customer.id)
+
+      customerInfoChanged.oldInfo must === (
+        payloads.UpdateCustomerPayload(
+          name = customer.name,
+          email = Some(customer.email),
+          phoneNumber = customer.phoneNumber))
+
+      customerInfoChanged.newInfo must === (payload)
     }
 
     "fails if email is already in use" in new Fixture {

@@ -57,11 +57,10 @@ object CustomerRoutes {
           }
         } ~
         (patch & pathEnd & entity(as[UpdateCustomerPayload])) { payload ⇒
-          goodOrFailures {
-            //TODO We need to extract action id from request head. Each request has a uuid
-            //which nginx generates and we can use that as the action id.
-            implicit val ac = ActivityContext(userId = admin.id, userType="admin", actionId="ABC")
-            CustomerManager.update(customerId, payload)
+          activityContext(admin) { implicit ac ⇒
+            goodOrFailures {
+              CustomerManager.update(customerId, payload)
+            }
           }
         } ~
         (post & path("activate") & pathEnd & entity(as[ActivateCustomerPayload])) { payload ⇒

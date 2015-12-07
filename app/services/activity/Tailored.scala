@@ -6,6 +6,9 @@ import payloads.UpdateCustomerPayload
 import org.json4s._
 import org.json4s.JsonAST.JValue
 import org.json4s.JsonDSL._
+import org.json4s.jackson.Serialization.{write ⇒ json}
+import org.json4s.DefaultFormats
+import org.json4s.Extraction
 
 import scala.language.implicitConversions
 
@@ -28,19 +31,11 @@ final case class CustomerInfoChanged(
 object CustomerInfoChanged {
   val typeName = "customer_contact_changed"
 
-  private def asJson(j: UpdateCustomerPayload) = {
-    ("name" → j.name) ~
-    ("email" → j.email) ~
-    ("phone" → j.phoneNumber)
-  }
+  implicit val formats: DefaultFormats.type = DefaultFormats
 
   implicit def typed2opaque(a: CustomerInfoChanged) : OpaqueActivity = {
     val t = typeName
-    val d = (
-      ("customer_id" → a.customerId) ~
-      ("old" → asJson(a.oldInfo)) ~
-      ("new" → asJson(a.newInfo)))
-    OpaqueActivity(t, d)
+    OpaqueActivity(t, Extraction.decompose(a))
   }
 }
 

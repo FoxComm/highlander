@@ -57,6 +57,6 @@ class Connections(tag: Tag) extends GenericTable.TableWithId[Connection](tag, "a
 object Connections extends TableQueryWithId[Connection, Connections](
   idLens = GenLens[Connection](_.id))(new Connections(_)) {
 
-    private [this] def filterByTrail(trailId: Int) = filter(_.trailId === trailId)
+    def filterByTrail(trailId: Int) = filter(_.trailId === trailId)
 
   }

@@ -4,11 +4,15 @@ import scala.concurrent.{ExecutionContext, Future}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import akka.http.scaladsl.server.{Directive1, StandardRoute}
+import akka.http.scaladsl.model.headers.RawHeader
 
 import services.Result
 import slick.driver.PostgresDriver.api._
 import utils.Http._
 import utils.Slick.implicits.ResultWithMetadata
+
+import models.StoreAdmin
+import models.activity.ActivityContext
 
 object CustomDirectives {
 
@@ -29,7 +33,18 @@ object CustomDirectives {
     }
   }
 
+
   val EmptySortAndPage: SortAndPage = SortAndPage(None, None, None)
+
+  def activityContext(admin : StoreAdmin) : Directive1[ActivityContext] = {
+    optionalHeaderValueByName("x-request-id").map {
+      case (Some(uuid)) ⇒  
+        ActivityContext(userId = admin.id, userType="admin", transactionId=uuid)
+      case (None) ⇒  
+        //TODO Generate uuid here
+        ActivityContext(userId = admin.id, userType="admin", transactionId="") 
+    }
+  }
 
   def sortAndPage: Directive1[SortAndPage] =
     parameters(('from.as[Int].?, 'size.as[Int].?, 'sortBy.as[String].?)).as(SortAndPage)
