@@ -15,8 +15,7 @@ Navigation:
 
 * PostgresSQL 9.4.x
 * Elasticsearch 1.7.x
-* Zookeeper 3.x.x
-* Kafka 0.9.x - quick installation [guide](https://github.com/FoxComm/FoxComm/blob/kafka/kafka/README.md)
+* Kafka 0.9.x with Zookeeper - see quick installation [guide](https://github.com/FoxComm/FoxComm/blob/kafka/kafka/README.md).
 * [Schema Registry](https://github.com/confluentinc/schema-registry)
 * [Bottled Water](https://github.com/FoxComm/bottledwater-pg)
 
