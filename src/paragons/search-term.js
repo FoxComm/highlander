@@ -112,24 +112,14 @@ export default class SearchTerm {
 }
 
 function normalizeSearchTerm(searchTerm) {
-  const comps = searchTerm.split(':');
-  let ret = '';
-  for(let i = 0; i < comps.length; i++) {
-    if (i != 0) {
-      ret += ' : ';
-    }
-    ret += comps[i].trim().toLowerCase();
-  }
-  return ret;
+  return _.reduce(searchTerm.split(':'), (result, term) => {
+    const sep = result !== '' ? ' : ' : '';
+    return `${result}${sep}${term.trim().toLowerCase()}`;
+  }, '');
 }
 
 function removeValue(searchTerm) {
-  // Find the last color and extract everything after that.
+  // Find the last colon and extract everything after that.
   const lastIdx = searchTerm.lastIndexOf(':');
-  if (lastIdx > -1) {
-    const term = searchTerm.slice(0, lastIdx).trim();
-    return term;
-  } else {
-    return searchTerm;
-  }
+  return lastIdx > -1 ? searchTerm.slice(0, lastIdx).trim() : searchTerm;
 }

@@ -24,5 +24,5 @@ export {
   deleteSearchFilter,
   goBack,
   submitFilter,
-  updateSearch
+  updateSearch,
 };
