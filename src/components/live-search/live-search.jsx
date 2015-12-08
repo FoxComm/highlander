@@ -93,8 +93,9 @@ export default class LiveSearch extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const isVisible = nextProps.state.searchValue !== '' 
-      && nextProps.state.currentOptions.length > 0;
+    const isVisible = nextProps.state.currentOptions.length > 0 &&
+      (nextProps.state.searches.length != this.props.state.searches.length ||
+       nextProps.state.searchValue !== '');
 
     this.setState({
       ...this.state,
@@ -123,6 +124,14 @@ export default class LiveSearch extends React.Component {
         optionsVisible: true
       });
     }
+  }
+
+  @autobind
+  blur() {
+    this.setState({
+      ...this.state,
+      optionsVisible: false
+    });
   }
 
   @autobind
@@ -204,6 +213,7 @@ export default class LiveSearch extends React.Component {
             placeholder="Add another filter or keyword search"
             onChange={this.change}
             onFocus={this.inputFocus}
+            onBlur={this.blur}
             onKeyDown={this.keyDown}
             pills={this.props.state.searches}
             value={this.state.searchDisplay} />
