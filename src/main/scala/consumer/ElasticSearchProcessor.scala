@@ -5,14 +5,11 @@ import scala.concurrent.ExecutionContext
 import com.sksamuel.elastic4s.{EdgeNGramTokenFilter, LowercaseTokenFilter, StandardTokenizer,
 CustomAnalyzerDefinition, ElasticClient, ElasticsearchClientUri}
 import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s.mappings.FieldType._
 import org.elasticsearch.common.settings.ImmutableSettings
 import org.elasticsearch.indices.IndexMissingException
 
-import org.json4s.JsonAST.{JInt, JObject, JField, JValue, JString}
+import org.json4s.JsonAST.{JInt, JObject, JField, JString}
 import org.json4s.jackson.JsonMethods._
-
-import ElasticSearchMappings._
 
 /**
  * This is a JsonProcessor which processes json and indexs it into elastic search.
@@ -72,6 +69,7 @@ class ElasticSearchProcessor(uri: String, cluster: String, indexName: String, to
     parse(document) \ "id" match {
       case JInt(jid) ⇒
         println(s"Indexing document with ID $jid from topic $topic...\r\n$document")
+
         client.execute {
           index into indexName / topic id jid doc PassthroughSource(document)
         }.await()
@@ -84,18 +82,12 @@ class ElasticSearchProcessor(uri: String, cluster: String, indexName: String, to
 
 object ElasticSearchProcessor {
 
-  val customerJsonFields = List("orders", "purchased_items", "shipping_addresses", "billing_addresses", 
-    "save_for_later")
-
-  val orderJsonFields = List("customer", "line_items", "payments", "shipments", "shipping_addresses", 
-    "billing_addresses", "assignees", "rmas")
-
   def topicInfo(topic: String): Option[List[String]] = {
     topic match {
+      case "customers_search_view"    ⇒ Some(ElasticSearchMappings.customerJsonFields)
+      case "orders_search_view"       ⇒ Some(ElasticSearchMappings.orderJsonFields)
       case "countries"                ⇒ Some(List.empty)
       case "regions"                  ⇒ Some(List.empty)
-      case "customers_search_view"    ⇒ Some(customerJsonFields)
-      case "orders_search_view"       ⇒ Some(orderJsonFields)
       case _                          ⇒ None
     }    
   }

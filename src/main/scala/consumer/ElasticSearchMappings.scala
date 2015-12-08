@@ -4,6 +4,12 @@ import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.mappings.FieldType._
 
 object ElasticSearchMappings {
+  val customerJsonFields = List("orders", "purchased_items", "shipping_addresses", "billing_addresses",
+    "save_for_later")
+
+  val orderJsonFields = List("customer", "line_items", "payments", "shipments", "shipping_addresses",
+    "billing_addresses", "assignees", "rmas")
+
   def countries = {
     "countries" as (
       "id"        typed IntegerType,
@@ -31,7 +37,7 @@ object ElasticSearchMappings {
       "country"           typed StringType analyzer "autocomplete",
       "continent"         typed StringType analyzer "autocomplete",
       "currency"          typed  StringType analyzer "autocomplete"
-      )
+    )
   }
 
   def customers = {
