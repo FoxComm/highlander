@@ -41,7 +41,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
         val response = GET(s"v1/orders/${order.refNum}")
         response.status must === (StatusCodes.OK)
-        val fullOrder = response.as[FullOrder.Root]
+        val fullOrder = response.withResultTypeOf[FullOrder.Root].result
         fullOrder.paymentStatus must not be defined
         fullOrder.paymentMethods mustBe empty
       }
@@ -53,7 +53,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
         val response = GET(s"v1/orders/${order.refNum}")
         response.status must === (StatusCodes.OK)
-        val fullOrder = response.as[FullOrder.Root]
+        val fullOrder = response.withResultTypeOf[FullOrder.Root].result
 
         fullOrder.paymentStatus.value must === (CreditCardCharge.Auth)
         // fullOrder.paymentMethods.head.value.status must === (CreditCardCharge.Auth)
@@ -66,7 +66,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
         val response = GET(s"v1/orders/${order.refNum}")
         response.status must === (StatusCodes.OK)
-        val fullOrder = response.as[FullOrder.Root]
+        val fullOrder = response.withResultTypeOf[FullOrder.Root].result
 
         fullOrder.paymentStatus.value must === (CreditCardCharge.Cart)
         // fullOrder.payment.value.status must === (CreditCardCharge.Auth)
@@ -340,13 +340,13 @@ class OrderIntegrationTest extends IntegrationTestBase
     "can be viewed with order" in new Fixture {
       val response1 = GET(s"v1/orders/${order.referenceNumber}")
       response1.status must === (StatusCodes.OK)
-      val responseOrder1 = response1.as[FullOrder.Root]
+      val responseOrder1 = response1.withResultTypeOf[FullOrder.Root].result
       responseOrder1.assignees mustBe empty
 
       POST(s"v1/orders/${order.referenceNumber}/assignees", Assignment(Seq(storeAdmin.id)))
       val response2 = GET(s"v1/orders/${order.referenceNumber}")
       response2.status must === (StatusCodes.OK)
-      val responseOrder2 = response2.as[FullOrder.Root]
+      val responseOrder2 = response2.withResultTypeOf[FullOrder.Root].result
       responseOrder2.assignees must not be empty
       responseOrder2.assignees.map(_.assignee) mustBe Seq(StoreAdminResponse.build(storeAdmin))
     }
@@ -563,7 +563,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       val fullOrderResponse = GET(s"v1/orders/${order.referenceNumber}")
       fullOrderResponse.status must === (StatusCodes.OK)
-      checkOrder(fullOrderResponse.as[FullOrder.Root])
+      checkOrder(fullOrderResponse.withResultTypeOf[FullOrder.Root].result)
 
       def checkOrder(fullOrder: FullOrder.Root) = {
         val addr = fullOrder.shippingAddress.value
@@ -585,7 +585,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       //get order and make sure it has a shipping address
       val fullOrderResponse = GET(s"v1/orders/${order.referenceNumber}")
       fullOrderResponse.status must === (StatusCodes.OK)
-      val fullOrder = fullOrderResponse.as[FullOrder.Root]
+      val fullOrder = fullOrderResponse.withResultTypeOf[FullOrder.Root].result
       fullOrder.shippingAddress mustBe defined
 
       //delete the shipping address

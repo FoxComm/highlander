@@ -61,10 +61,7 @@ object OrderRoutes {
       pathPrefix("orders" / orderRefNumRegex) { refNum ⇒
         (get & pathEnd) {
           goodOrFailures {
-            val finder = Orders.findByRefNum(refNum)
-            finder.selectOne { order ⇒
-              DbResult.fromDbio(Slick.fullOrder(finder))
-            }
+            OrderQueries.findOne(refNum)
           }
         } ~
         (patch & pathEnd & entity(as[UpdateOrderPayload])) { payload ⇒

@@ -150,7 +150,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       responseObj1.errors mustBe empty
 
       val updOrderResponse1 = GET(s"v1/orders/$orderRef1")
-      val updOrder1 = updOrderResponse1.as[FullOrder.Root]
+      val updOrder1 = updOrderResponse1.withResultTypeOf[FullOrder.Root].result
       updOrder1.assignees.map(_.assignee) must === (Seq(StoreAdminResponse.build(admin)))
 
       // Don't complain about duplicates
@@ -161,11 +161,11 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       responseObj2.errors mustBe empty
 
       val updOrderResponse2 = GET(s"v1/orders/$orderRef1")
-      val updOrder2 = updOrderResponse2.as[FullOrder.Root]
+      val updOrder2 = updOrderResponse2.withResultTypeOf[FullOrder.Root].result
       updOrder2.assignees.map(_.assignee) must === (Seq(StoreAdminResponse.build(admin)))
 
       val updOrderResponse3 = GET(s"v1/orders/$orderRef2")
-      val updOrder3 = updOrderResponse3.as[FullOrder.Root]
+      val updOrder3 = updOrderResponse3.withResultTypeOf[FullOrder.Root].result
       updOrder3.assignees.map(_.assignee) must === (Seq(StoreAdminResponse.build(admin)))
     }
 
@@ -209,13 +209,13 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       val updOrder1 = GET(s"v1/orders/$orderRef1")
       updOrder1.status must === (StatusCodes.OK)
 
-      val updOrder1Root = updOrder1.as[FullOrder.Root]
+      val updOrder1Root = updOrder1.withResultTypeOf[FullOrder.Root].result
       updOrder1Root.assignees mustBe empty
 
       val updOrder2 = GET(s"v1/orders/$orderRef2")
       updOrder2.status must === (StatusCodes.OK)
 
-      val updOrder2Root = updOrder2.as[FullOrder.Root]
+      val updOrder2Root = updOrder2.withResultTypeOf[FullOrder.Root].result
       updOrder2Root.assignees.map(_.assignee) must === (Seq(StoreAdminResponse.build(admin)))
     }
 
