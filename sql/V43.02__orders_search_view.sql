@@ -37,8 +37,10 @@ select distinct on (o.id)
     s.count as shipment_count,
     s.shipments as shipments,
     -- Addresses
-    a.shipping_addresses,
-    a.billing_addresses,
+    osa.count as shipping_addresses_count,
+    osa.addresses as shipping_addresses,
+    oba.count as billing_addresses_count,
+    oba.addresses as billing_addresses,
     -- Assignments
     ass.count as assignment_count,
     ass.assignees as assignees,
@@ -54,7 +56,8 @@ inner join order_credit_card_payments_view as ccp on (o.id = ccp.order_id)
 inner join order_gift_card_payments_view as gcp on (o.id = gcp.order_id)
 inner join order_store_credit_payments_view as scp on (o.id = scp.order_id)
 inner join order_shipments_view as s on (o.id = s.order_id)
-inner join order_addresses_view as a on (o.id = a.order_id)
+inner join order_shipping_addresses_view as osa on (o.id = osa.order_id)
+inner join order_billing_addresses_view as oba on (o.id = oba.order_id)
 inner join order_assignments_view as ass on (o.id = ass.order_id)
 inner join order_rmas_view as rma on (o.id = rma.order_id)
 order by o.id;
