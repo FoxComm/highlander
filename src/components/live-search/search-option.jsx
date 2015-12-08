@@ -3,11 +3,7 @@ import MenuItem from '../menu/menu-item';
 
 const SearchOption = props => {
   const {option, clickAction, ...rest} = props;
-  let action = null;
-
-  if (option.displayAction) {
-    action = ` : ${option.displayAction}`;
-  }
+  const action = option.displayAction ? ` : ${option.displayAction}` : null;
 
   const click = (event) => {
     event.preventDefault();
@@ -22,8 +18,8 @@ const SearchOption = props => {
 
   return (
     <MenuItem onClick={click} onMouseDown={preventClickSelection} onMouseUp={preventClickSelection} {...rest}>
-      <span className='fc-search-option-term'>{option.displayTerm}</span>
-      <span className='fc-search-option-action'>{action}</span>
+      <span className='fc-search-option__term'>{option.displayTerm}</span>
+      <span className='fc-search-option__action'>{action}</span>
     </MenuItem>
   );
 };

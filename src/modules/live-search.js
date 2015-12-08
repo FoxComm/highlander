@@ -73,34 +73,26 @@ function liveSearchReducer(actionTypes, searchTerms) {
 }
 
 function createLiveSearchActionTypes(namespace) {
-  const actionTypes = [
-    'DELETE_SEARCH_FILTER',
-    'GO_BACK',
-    'SUBMIT_FILTER'
-  ];
+  const actionTypes = {
+    DELETE_SEARCH_FILTER: 'DELETE_SEARCH_FILTER',
+    GO_BACK: 'GO_BACK',
+    SUBMIT_FILTER: 'SUBMIT_FILTER'
+  };
 
-  return _.transform(actionTypes, (result, type) => {
-    const name = `${namespace.toUpperCase()}_${type}`;
-    result[type] = name;
-  });
+  return _.mapValues(actionTypes, type => `${namespace.toUpperCase()}_${type}`);
 }
 
-function _createAction(namespace, description, ...args) {
-  const name = `${namespace.toUpperCase()}_${description}`;
-  return createAction(name, ...args);
-}
-
-function createLiveSearchActions(namespace) {
+function createLiveSearchActions(actionTypes) {
   return {
-    deleteSearchFilter: _createAction(namespace, 'DELETE_SEARCH_FILTER', (idx) => ({idx})),
-    goBack: _createAction(namespace, 'GO_BACK'),
-    submitFilter: _createAction(namespace, 'SUBMIT_FILTER', (searchTerm) => ({searchTerm})),
+    deleteSearchFilter: createAction(actionTypes.DELETE_SEARCH_FILTER, (idx) => ({idx})),
+    goBack: createAction(actionTypes.GO_BACK),
+    submitFilter: createAction(actionTypes.SUBMIT_FILTER, (searchTerm) => ({searchTerm})),
   };
 }
 
 export default function makeLiveSearch(namespace, searchOptions) {
-  const actions = createLiveSearchActions(namespace);
   const actionTypes = createLiveSearchActionTypes(namespace);
+  const actions = createLiveSearchActions(actionTypes);
   const reducer = liveSearchReducer(actionTypes, searchOptions);
   return { reducer: reducer, actions: actions };
 }
