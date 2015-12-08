@@ -15,7 +15,7 @@ export function fetchActivityTrail(entity, from) {
   };
 }
 
-function mergeActivities(activities, newActivities) {
+function mergeActivities(activities = [], newActivities) {
   const merged = updateItems(activities, newActivities);
 
   return _.values(merged).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));

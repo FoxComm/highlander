@@ -30,6 +30,7 @@ const rootReducer = combineReducers({
   storeCreditTypes,
   groups,
   activityNotifications,
+  activityTrail,
 });
 
 export default rootReducer;

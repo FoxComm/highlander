@@ -17,7 +17,7 @@ import Customer from './components/customers/customer';
 import CustomerDetails from './components/customers/details';
 import Notes from './components/notes/notes';
 import Notifications from './components/notifications/notifications';
-import ActivityTrail from './components/activity-trail/activity-trail';
+import ActivityTrailPage from './components/activity-trail/activity-trail-page';
 import GiftCards from './components/gift-cards/gift-cards';
 import NewGiftCard from './components/gift-cards/gift-cards-new';
 import GiftCard from './components/gift-cards/gift-card';
@@ -40,14 +40,14 @@ const routes = (
       <IndexRoute name='rma-details' component={RmaDetails}/>
       <Route name='rma-notes' path='notes' component={Notes}/>
       <Route name='rma-notifications' path='notifications' component={Notifications}/>
-      <Route name='rma-activity-trail' path='activity-trail' component={ActivityTrail}/>
+      <Route name='rma-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
     </Route>
     <Route name='order' path='orders/:order' component={Order}>
       <IndexRoute name='order-details' component={OrderDetails}/>
       <Route name='order-notes' path='notes' component={Notes}/>
       <Route name='order-returns' path='returns' component={RmaChildList}/>
       <Route name='order-notifications' path='notifications' component={Notifications}/>
-      <Route name='order-activity-trail' path='activity-trail' component={ActivityTrail}/>
+      <Route name='order-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
     </Route>
     <Route name='customers' path='customers' component={Customers}/>
     <Route name='customers-new' path='customers/new' component={NewCustomer} />
@@ -66,7 +66,7 @@ const routes = (
     <Route name='giftcard' path='gift-cards/:giftcard' component={GiftCard}>
       <IndexRoute name='gift-card-transactions' component={GiftCardTransactions} />
       <Route name='gift-card-notes' path='notes' component={Notes} />
-      <Route name='gift-card-activity-trail' path='activity-trail' component={ActivityTrail} />
+      <Route name='gift-card-activity-trail' path='activity-trail' component={ActivityTrailPage} />
     </Route>
     <Route name='style-guide' path='style-guide' component={StyleGuide}>
       <IndexRoute name='style-guide-grid' component={StyleGuideGrid} />
