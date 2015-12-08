@@ -68,7 +68,7 @@ export default class Viewers extends React.Component {
       'fc-viewers-item': true,
       'is-locker': viewer.isLocker
     });
-    return <li className={classnames} key={viewer.id}><UserInitials model={viewer}/></li>;
+    return <li className={classnames} key={viewer.id}><UserInitials {...viewer}/></li>;
   }
 
   render() {
