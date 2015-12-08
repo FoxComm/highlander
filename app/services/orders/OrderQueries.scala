@@ -4,12 +4,15 @@ import scala.concurrent.ExecutionContext
 
 import models.{OrderPayments, Customers, Orders, javaTimeSlickMapper}
 import OrderPayments.scope._
-import responses.AllOrders
+import responses.{FullOrder, TheResponse, AllOrders}
+import services.{Result, CartValidator}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives
 import utils.CustomDirectives.SortAndPage
 import utils.Slick._
 import utils.Slick.implicits._
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 
 object OrderQueries {
 
@@ -52,4 +55,11 @@ object OrderQueries {
       })
     })
   }
+
+  def findOne(refNum: String)
+    (implicit ec: ExecutionContext, db: Database): Result[TheResponse[FullOrder.Root]] = (for {
+    order     ← * <~ Orders.mustFindByRefNum(refNum)
+    validated ← * <~ CartValidator(order).validate
+    response  ← * <~ FullOrder.fromOrder(order).toXor
+  } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).runT()
 }
