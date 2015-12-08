@@ -76,7 +76,7 @@ GET phoenix/customers_search_view/_search
 
 ```json
 {
-   "took": 15,
+   "took": 5,
    "timed_out": false,
    "_shards": {
       "total": 5,
@@ -129,17 +129,8 @@ GET phoenix/customers_search_view/_search
                      "price": 3300
                   }
                ],
+               "shipping_addresses_count": 2,
                "shipping_addresses": [
-                  {
-                     "address1": "3345 Orchard Lane",
-                     "address2": null,
-                     "city": "Avon Lake",
-                     "zip": "44012",
-                     "region": "Ohio",
-                     "country": "United States",
-                     "continent": "North America",
-                     "currency": "USD"
-                  },
                   {
                      "address1": "3104 Canterbury Court",
                      "address2": "★ ★ ★",
@@ -149,19 +140,20 @@ GET phoenix/customers_search_view/_search
                      "country": "United States",
                      "continent": "North America",
                      "currency": "USD"
-                  }
-               ],
-               "billing_addresses": [
+                  },
                   {
-                     "address1": "3564 Haymond Rocks Road",
+                     "address1": "3345 Orchard Lane",
                      "address2": null,
-                     "city": "Grants Pass",
-                     "zip": "97526",
-                     "region": "Oregon",
+                     "city": "Avon Lake",
+                     "zip": "44012",
+                     "region": "Ohio",
                      "country": "United States",
                      "continent": "North America",
                      "currency": "USD"
-                  },
+                  }
+               ],
+               "billing_addresses_count": 1,
+               "billing_addresses": [
                   {
                      "address1": "3564 Haymond Rocks Road",
                      "address2": null,
