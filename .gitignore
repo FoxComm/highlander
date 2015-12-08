@@ -22,6 +22,7 @@ build/Release
 
 # IDEs
 .idea
+.iml
 
 # Dependency directory
 # Commenting this out is preferred by some people, see
@@ -43,3 +44,6 @@ public/admin.*
 
 .DS_Store
 .#*
+
+# Vim
+*.swp
