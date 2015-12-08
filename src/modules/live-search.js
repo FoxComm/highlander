@@ -16,14 +16,7 @@ function deleteSearchFilter(state, idx) {
 
 function goBack(state) {
   const lastColonIdx = _.trim(state.searchValue, ' :').lastIndexOf(':');
-
-  let newSearchTerm = null;
-  if (lastColonIdx > 0) {
-    newSearchTerm = `${state.searchValue.slice(0, lastColonIdx - 1)} : `;
-  } else {
-    newSearchTerm = '';
-  }
-
+  const newSearchTerm = lastColonIdx > 0 ? `${state.searchValue.slice(0, lastColonIdx - 1)} : ` : '';
   return submitFilter(state, newSearchTerm);
 }
 
@@ -60,7 +53,7 @@ function liveSearchReducer(actionTypes, searchTerms) {
     searchValue: ''
   };
 
-  return (state = initialState, action) => { 
+  return (state = initialState, action) => {
     const payload = action.payload;
 
     switch (action.type) {

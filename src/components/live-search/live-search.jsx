@@ -43,8 +43,8 @@ export default class LiveSearch extends React.Component {
       if (applicable) {
         const key = `search-option-${idx}`;
         const klass = classNames({
-          'is-active': this.state.selectionIndex == idx,
-          'is-first': idx == 0
+          '__active': this.state.selectionIndex == idx,
+          '__first': idx == 0
         });
 
         result.push(
@@ -57,8 +57,8 @@ export default class LiveSearch extends React.Component {
       }
     });
 
-    const menuClass = classNames('fc-live-search__go-back-item is-last', {
-      'is-active': this.state.selectionIndex == this.state.searchOptions.length
+    const menuClass = classNames('fc-live-search__go-back-item __last', {
+      '__active': this.state.selectionIndex == this.state.searchOptions.length
     });
 
     const goBack = (
@@ -156,8 +156,8 @@ export default class LiveSearch extends React.Component {
             newSearchDisplay = this.state.searchValue;
           }
 
-          this.setState({ 
-            ...this.state, 
+          this.setState({
+            ...this.state,
             optionsVisible: true,
             searchDisplay: newSearchDisplay,
             selectionIndex: newIdx

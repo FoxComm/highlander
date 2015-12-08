@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import makePagination from '../pagination';
 import makeLiveSearch from '../live-search';
 import { createAction, createReducer } from 'redux-act';
@@ -13,7 +12,7 @@ const {
 } = liveSearch.actions;
 
 const {
-  reducer, 
+  reducer,
   actions: {fetch, setFetchParams}
 } = makePagination('/orders', 'ORDERS', liveSearch.reducer);
 
