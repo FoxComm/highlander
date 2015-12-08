@@ -5,8 +5,8 @@ create table export_addresses (
     address2            text,
     city                text,
     zip                 text,
-    region_name         text,
-    country_name        text,
+    region              text,
+    country             text,
     continent           text,
     currency            character(3)
 );
@@ -34,10 +34,15 @@ create table export_line_items (
 );
 
 create table export_orders (
-    reference_number text,
-    status           text,
-    created_at       text,
-    placed_at        text
+    reference_number    text,
+    status              text,
+    created_at          text,
+    placed_at           text,
+    sub_total           integer,
+    shipping_total      integer,
+    adjustments_total   integer,
+    taxes_total         integer,
+    grand_total         integer
 );
 
 create table export_payments (
