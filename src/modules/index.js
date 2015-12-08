@@ -26,7 +26,7 @@ const rootReducer = combineReducers({
   addressForm,
   reasons,
   groups,
-  activityNotifications
+  activityNotifications,
 });
 
 export default rootReducer;

@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import classNames from 'classNames';
 import { Button } from '../common/buttons';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
@@ -8,7 +9,12 @@ import * as NotificationActions from '../../modules/activity-notifications';
 export default class NotificationIndicator extends React.Component {
 
   static propTypes = {
-
+    notifications: PropTypes.shape({
+      count: PropTypes.number,
+      displayed: PropTypes.bool
+    }),
+    toggleNotifiactions: PropTypes.func,
+    fetchNotifications: PropTypes.func
   };
 
   componentDidMount() {
@@ -26,10 +32,13 @@ export default class NotificationIndicator extends React.Component {
   }
 
   render() {
+    const classes = classNames('fc-activity-notifications__toggle', {
+      '_active': this.props.notifications.displayed
+    });
     return (
       <div className="fc-activity-notifications">
         <Button icon="bell"
-                className="fc-activity-notifications__toggle"
+                className={ classes }
                 onClick={ this.props.toggleNotifiactions }>
           { this.indicator }
         </Button>

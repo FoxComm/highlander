@@ -7,6 +7,14 @@
   &__toggle {
     .colors(@color-decor5, @color-transparent);
     height: 6.5rem;
+
+    &:hover {
+      .colors(@color-decor32, @color-decor0);
+    }
+
+    &._active {
+      color: @color-decor32;
+    }
   }
 
   &__indicator {
@@ -28,11 +36,12 @@
     z-index: 1050;
     .width(370px);
     .max-height(560px);
+    box-shadow: 0 2px 8px 0 @color-decor55;
 
     & .fc-content-box-header {
       .height(44px);
       .colors(@color-decor1, @color-decor12);
-      .font-spec(14px, 600, 19px);
+      .font-spec(14px, @semibold, 19px);
       border-bottom: 1px solid @color-decor9;
       .margin-bottom(0);
     }
@@ -57,7 +66,7 @@
   }
 
   &__overlay {
-    position: absolute;
+    position: fixed;
     .top(0);
     .bottom(0);
     .left(0);
@@ -67,7 +76,65 @@
 }
 
 .fc-activity-notification-item {
+  border-bottom: 1px solid @color-decor9;
+  border-top: 1px solid @color-white;
+
+  &._not-read {
+    background: @color-decor54;
+    border-top: 1px solid @color-decor54;
+
+    &:hover {
+      background: @color-decor49;
+      border-top: 1px solid @color-decor49;
+    }
+  }
+
+  &__info {
+    .clearfix();
+  }
+
   &__content {
     .margin(10px);
+  }
+
+  &__time {
+    .font-spec(13px, @normal, 16px);
+    color: @color-decor53;
+    .margin(5px 0);
+  }
+
+  &__type {
+    float: left;
+    width: pxtorem(24px);
+    color: @color-decor5;
+    font-size: pxtorem(24px);
+    line-height: pxtorem(30px);
+    text-align: center;
+  }
+
+  &__body {
+    float: right;
+    width: 85%;
+    .font-spec(14px, @normal, 19px);
+    color: @color-decor1;
+  }
+
+  &__author {
+    display: inline;
+    .margin-right(5px);
+  }
+
+  &__text {
+    display: inline;
+  }
+
+  &__link {
+    color: @color-decor1;
+    .font-spec(14px, @normal, 19px);
+    text-decoration: underline;
+  }
+
+  &__link:hover {
+    color: @color-decor15;
   }
 }

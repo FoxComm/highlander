@@ -9,6 +9,14 @@ import * as NotificationActions from '../../modules/activity-notifications';
 @connect(state => ({notifications: state.activityNotifications}), NotificationActions)
 export default class NotificationPanel extends React.Component {
 
+  static propTypes = {
+    notifications: PropTypes.shape({
+      notifications: PropTypes.array,
+      displayed: PropTypes.bool
+    }),
+    toggleNotifiactions: PropTypes.func
+  };
+
   get items() {
     const items = this.props.notifications.notifications;
     return items.map(item => {
