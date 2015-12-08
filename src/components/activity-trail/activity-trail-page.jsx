@@ -5,7 +5,6 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 // components
-import UserInitials from '../users/initials';
 import ActivityTrail from './activity-trail';
 
 // redux

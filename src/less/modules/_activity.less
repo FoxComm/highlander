@@ -1,0 +1,30 @@
+
+.fc-activity {
+  background: @color-white;
+  border: 1px solid #D9D9D9;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.30);
+  border-radius: 3px;
+  padding: 20px;
+  display: flex;
+
+  &__controls {
+    align-self: flex-end;
+  }
+
+  &__body {
+    flex-grow: 1;
+
+    .initials {
+      vertical-align: top;
+      margin-right: 12px;
+    }
+  }
+
+  &__timestamp {
+    font-size: 13px;
+    color: #B9B9B9;
+    line-height: 16px;
+    margin-bottom: 12px;
+  }
+
+}
