@@ -66,7 +66,6 @@ const buildText = (item) => {
 const NotificationItem = (props) => {
   const origin = _.get(props, ['item', 'body', 'origin']);
   const isRead = _.get(props, ['item', 'isRead']);
-  console.log(isRead);
   const classes = classNames('fc-activity-notification-item', {
     '_not-read': !isRead
   });
