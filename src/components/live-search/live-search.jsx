@@ -20,6 +20,7 @@ export default class LiveSearch extends React.Component {
 
     this.state = {
       optionsVisible: false,
+      pills: props.state.searches,
       searchDisplay: props.state.searchValue,
       searchOptions: props.state.currentOptions,
       searchValue: props.state.searchValue,
@@ -36,7 +37,24 @@ export default class LiveSearch extends React.Component {
 
   get searchOptions() {
     const options = _.transform(this.state.searchOptions, (result, option, idx) => {
-      result.push(this.renderSearchOption(option, this.state.searchValue, idx, this.state.selectionIndex));
+      const applicable = this.state.searchOptions.length == 1
+        || _.startsWith(option.displayTerm, this.state.searchValue);
+
+      if (applicable) {
+        const key = `search-option-${idx}`;
+        const klass = classNames({
+          'is-active': this.state.selectionIndex == idx,
+          'is-first': idx == 0
+        });
+
+        result.push(
+          <SearchOption
+            className={klass}
+            key={key}
+            option={option}
+            clickAction={this.props.submitFilter} />
+        );
+      }
     });
 
     const menuClass = classNames('fc-live-search__go-back-item is-last', {
@@ -74,32 +92,15 @@ export default class LiveSearch extends React.Component {
     );
   }
 
-  renderSearchOption(option, searchTerm, idx, selectionIndex) {
-    if (_.startsWith(option.displayTerm, searchTerm)) {
-      const key = `search-option-${idx}`;
-      const klass = classNames({
-        'is-active': selectionIndex == idx,
-        'is-first': idx == 0
-      });
-
-      return ( 
-        <SearchOption
-          className={klass}
-          key={key}  
-          option={option} 
-          clickAction={this.props.submitFilter} />
-      );
-    }
-  }
-
   componentWillReceiveProps(nextProps) {
     const isVisible = nextProps.state.currentOptions.length > 0 &&
-      (nextProps.state.searches.length != this.props.state.searches.length ||
+      (nextProps.state.searches.length != this.state.pills.length ||
        nextProps.state.searchValue !== '');
 
     this.setState({
       ...this.state,
       optionsVisible: isVisible,
+      pills: nextProps.state.searches,
       searchDisplay: nextProps.state.searchValue,
       searchOptions: nextProps.state.currentOptions,
       searchValue: nextProps.state.searchValue,
@@ -194,8 +195,8 @@ export default class LiveSearch extends React.Component {
         break;
       case 8:
         // Backspace
-        if (_.isEmpty(this.state.searchValue) && !_.isEmpty(this.props.state.searches)) {
-          this.props.deleteSearchFilter(this.props.state.searches.length - 1);
+        if (_.isEmpty(this.state.searchValue) && !_.isEmpty(this.state.pills)) {
+          this.props.deleteSearchFilter(this.state.pills.length - 1);
         }
         break;
     }
@@ -215,7 +216,7 @@ export default class LiveSearch extends React.Component {
             onFocus={this.inputFocus}
             onBlur={this.blur}
             onKeyDown={this.keyDown}
-            pills={this.props.state.searches}
+            pills={this.state.pills}
             value={this.state.searchDisplay} />
         </form>
         <div>
