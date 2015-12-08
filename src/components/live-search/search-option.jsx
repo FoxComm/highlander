@@ -9,13 +9,25 @@ const SearchOption = props => {
     action = ` : ${option.displayAction}`;
   }
 
+  const click = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    clickAction(option.selectionValue);
+  };
+
+  const preventClickSelection = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+  };
+
   return (
-    <MenuItem onClick={() => props.clickAction(option.selectionValue)} {...rest}>
+    <MenuItem onClick={click} onMouseDown={preventClickSelection} onMouseUp={preventClickSelection} {...rest}>
       <span className='fc-search-option-term'>{option.displayTerm}</span>
       <span className='fc-search-option-action'>{action}</span>
     </MenuItem>
   );
 };
+
 
 SearchOption.propTypes = {
   clickAction: PropTypes.func,
