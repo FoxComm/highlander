@@ -1,5 +1,5 @@
 const criteriaOptions = {
-  blacklisted: {
+  isBlacklisted: {
     title: 'Blacklisted status',
     type: 'bool'
   },

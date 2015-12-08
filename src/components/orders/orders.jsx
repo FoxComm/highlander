@@ -61,7 +61,7 @@ export default class Orders extends React.Component {
         <TableCell>{row.email}</TableCell>
         <TableCell><Status value={row.orderStatus} model={"order"}/></TableCell>
         <TableCell><Status value={row.paymentStatus} model={"payment"}/></TableCell>
-        <TableCell><Status value={row.shipmentStatus} model={"shipment"}/></TableCell>
+        <TableCell><Status value={row.shippingStatus} model={"shipment"}/></TableCell>
         <TableCell><Currency value={row.total}/></TableCell>
       </TableRow>
     );
