@@ -75,14 +75,13 @@ If you have troubles with building `avro-c` dependency for bottledwater extensio
 
 1. Update some data:
 
-	```
-	$ psql phoenix_development
-	$ update customers set name = 'Hijacked by Pavel' where id = 1;
+	```plsql
+	update customers set name = 'Hijacked by Pavel' where id = 1;
 	```
 
 2. [Refresh](https://github.com/FoxComm/green-river/issues/5) related materialized views:
 
-	```sql
+	```plsql
 	refresh materialized view concurrently customers_ranking;
 	refresh materialized view concurrently customer_orders_view;
 	refresh materialized view concurrently customer_purchased_items_view;
@@ -104,11 +103,15 @@ If you have troubles with building `avro-c` dependency for bottledwater extensio
 
 Drop replication slot in `psql phoenix_development` if bottledwater can't start properly:
 
-	$ select pg_drop_replication_slot('bottledwater');
+	```plsql
+	select pg_drop_replication_slot('bottledwater');
+	```
 
 Drop extension:
 	
-	$ drop extension bottledwater;
+	```plsql
+	drop extension bottledwater;
+	```
 
 Wipe all queue metadata:
 
