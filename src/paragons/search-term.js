@@ -1,18 +1,15 @@
 import _ from 'lodash';
 import util from 'util';
 
+const flatMap = _.compose(_.flatten, _.map);
+
 /**
  * SearchTerm represents a single term in the context of either the Live Search
  * or the Dynamic Customer Group.
  */
 export default class SearchTerm {
   static potentialTerms(searchTerms, str) {
-    return _.transform(searchTerms, (result, term) => {
-      const visible = term.applicableTerms(str);
-      if (!_.isEmpty(visible)) {
-        result.push(...visible);
-      }
-    });
+    return flatMap(searchTerms, term => term.applicableTerms(str));
   }
 
   constructor(searchTermJson, parentTitle = '') {
@@ -69,9 +66,7 @@ export default class SearchTerm {
     if (this.matchesSearchTerm(search)) {
       terms.push(this);
     } else if (_.startsWith(nSearch, nTerm) && !_.isEmpty(this._options)) {
-      terms = _.transform(this._options, (result, option) => {
-        _.forEach(option.applicableTerms(search), term => result.push(term));
-      });
+      terms = flatMap(this._options, option => option.applicableTerms(search));
     }
 
     return terms;
