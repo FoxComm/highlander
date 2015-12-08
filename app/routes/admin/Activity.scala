@@ -34,15 +34,13 @@ object Activity {
         } 
       } ~
       pathPrefix("trails" / Segment/ IntNumber) { (dimension, objectId) ⇒ 
-        (post & pathEnd) { 
-          activityContext(admin) { implicit ac ⇒ 
-            entity(as[AppendActivity]) { payload ⇒
-              goodOrFailures {
-                TrailManager.appendActivityByObjectId(dimension, objectId, payload)
-              }
+        (post & pathEnd & activityContext(admin)) { implicit ac ⇒ 
+          entity(as[AppendActivity]) { payload ⇒
+            goodOrFailures {
+              TrailManager.appendActivityByObjectId(dimension, objectId, payload)
             }
           }
-        } 
+        }
       }
     }
   }

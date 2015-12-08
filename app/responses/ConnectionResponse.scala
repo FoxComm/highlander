@@ -21,10 +21,11 @@ object ActivityConnectionResponse {
     id: Int, 
     dimension: String,
     objectId: Int,
+    trailId: Int,
     activityId: Int,
     previousId: Option[Int],
     nextId: Option[Int],
-    data: Json,
+    data: Option[Json],
     connectedBy: ActivityContext,
     createdAt: Instant) extends ResponseItem
 
@@ -33,6 +34,7 @@ object ActivityConnectionResponse {
         id = c.id,
         dimension = d.name,
         objectId = objectId,
+        trailId = c.trailId,
         activityId = c.activityId,
         previousId = c.previousId,
         nextId = c.nextId,

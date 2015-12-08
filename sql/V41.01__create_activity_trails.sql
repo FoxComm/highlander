@@ -3,7 +3,7 @@ create table activity_trails(
     dimension_id integer,
     object_id integer, 
     tail_connection_id integer null,
-    data jsonb,
+    data jsonb null,
     created_at timestamp without time zone default (now() at time zone 'utc'),
     foreign key (dimension_id) references activity_dimensions(id) on update restrict on delete restrict
 );

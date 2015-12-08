@@ -28,7 +28,7 @@ final case class Trail(
   dimensionId: Int,
   objectId: Int,
   tailConnectionId: Option[Int] = None,
-  data: Json = JNothing,   
+  data: Option[Json] = None,   
   createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[Trail]
   with Validation[Trail]
@@ -38,7 +38,7 @@ class Trails(tag: Tag) extends GenericTable.TableWithId[Trail](tag, "activity_tr
   def dimensionId = column[Int]("dimension_id")
   def objectId = column[Int]("object_id")
   def tailConnectionId = column[Option[Int]]("tail_connection_id")
-  def data = column[Json]("data")
+  def data = column[Option[Json]]("data")
   def createdAt = column[Instant]("created_at")
 
   def * = (id, dimensionId, objectId, tailConnectionId, data, createdAt) <> ((Trail.apply _).tupled, Trail.unapply)
