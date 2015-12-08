@@ -2,6 +2,15 @@
 
 How to install "Green River" project locally.
 
+Navigation:
+
+* [Requirements](#requirements)
+* [Building](#building)
+* [Configuration](#configuration)
+* [Running](#running)
+* [Testing](#testing)
+* [Troubleshooting](#troubleshooting)
+
 ## Requirements
 
 * PostgresSQL 9.4.x
@@ -62,10 +71,32 @@ If you have troubles with building `avro-c` dependency for bottledwater extensio
 	$ sbt -Denv=localhost consume
 	```
 
-4. Check data in Elasticsearch:
+## Testing
+
+1. Update some data:
 
 	```
-	$ curl -XGET 'http://localhost:9200/phoenix/regions/_search'
+	$ psql phoenix_development
+	$ update customers set name = 'Hijacked by Pavel' where id = 1;
+	```
+
+2. [Refresh](https://github.com/FoxComm/green-river/issues/5) related materialized views:
+
+	```sql
+	refresh materialized view concurrently customers_ranking;
+	refresh materialized view concurrently customer_orders_view;
+	refresh materialized view concurrently customer_purchased_items_view;
+	refresh materialized view concurrently customer_addresses_view;
+	refresh materialized view concurrently customer_store_credit_view;
+	refresh materialized view concurrently customer_save_for_later_view;
+
+	refresh materialized view concurrently customers_search_view;
+	```
+
+3. Check data in Elasticsearch:
+
+	```
+	$ curl -XGET 'http://localhost:9200/phoenix/customers_search_view/_search'
 	```
 
 ## Troubleshooting

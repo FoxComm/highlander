@@ -48,7 +48,7 @@ GET phoenix/customers_search_view/_search
                 "and": [
                     {"bool": {"must": {"query": {"match": {"name": "Adil"}}}}},
                     {"term": {"is_blacklisted": false}},
-                    {"range": {"date_joined": {"gt": "2015-12-03"}}},
+                    {"range": {"joined_at": {"gt": "2015-12-03"}}},
                     {"range": {"order_count": {"gte": 1}}},
                     {
                         "nested": {
@@ -57,7 +57,7 @@ GET phoenix/customers_search_view/_search
                                 "bool": {
                                     "must" : [
                                          {"term": {"status": "shipped"}},
-                                         {"range": {"date_placed": {"gt": "2015-12-03"}}}
+                                         {"range": {"placed_at": {"gt": "2015-12-03"}}}
                                     ]
                                 }
                             }
@@ -76,7 +76,7 @@ GET phoenix/customers_search_view/_search
 
 ```json
 {
-   "took": 4,
+   "took": 15,
    "timed_out": false,
    "_shards": {
       "total": 5,
@@ -99,20 +99,24 @@ GET phoenix/customers_search_view/_search
                "is_disabled": true,
                "is_guest": false,
                "is_blacklisted": false,
-               "date_joined": "2015-12-04",
+               "joined_at": "2015-12-08",
+               "rank": null,
                "revenue": 0,
-               "rank": 0,
-               "store_credit_count": 0,
-               "store_credit_total": 0,
                "order_count": 1,
                "orders": [
                   {
                      "reference_number": "BR10005",
                      "status": "shipped",
-                     "date_placed": "2015-12-04"
+                     "created_at": "2015-12-08",
+                     "placed_at": "2015-12-07",
+                     "sub_total": 4800,
+                     "shipping_total": 0,
+                     "adjustments_total": 0,
+                     "taxes_total": 240,
+                     "grand_total": 5040
                   }
                ],
-               "purchased_items_count": 2,
+               "purchased_item_count": 2,
                "purchased_items": [
                   {
                      "sku": "SKU-SHH",
@@ -127,24 +131,24 @@ GET phoenix/customers_search_view/_search
                ],
                "shipping_addresses": [
                   {
-                     "address1": "3104 Canterbury Court",
-                     "address2": "★ ★ ★",
-                     "city": "Cornelius",
-                     "zip": "28031",
-                     "region_name": "North Carolina",
-                     "country_name": "United States",
-                     "country_continent": "North America",
-                     "country_currency": "USD"
-                  },
-                  {
                      "address1": "3345 Orchard Lane",
                      "address2": null,
                      "city": "Avon Lake",
                      "zip": "44012",
-                     "region_name": "Ohio",
-                     "country_name": "United States",
-                     "country_continent": "North America",
-                     "country_currency": "USD"
+                     "region": "Ohio",
+                     "country": "United States",
+                     "continent": "North America",
+                     "currency": "USD"
+                  },
+                  {
+                     "address1": "3104 Canterbury Court",
+                     "address2": "★ ★ ★",
+                     "city": "Cornelius",
+                     "zip": "28031",
+                     "region": "North Carolina",
+                     "country": "United States",
+                     "continent": "North America",
+                     "currency": "USD"
                   }
                ],
                "billing_addresses": [
@@ -153,13 +157,25 @@ GET phoenix/customers_search_view/_search
                      "address2": null,
                      "city": "Grants Pass",
                      "zip": "97526",
-                     "region_name": "Oregon",
-                     "country_name": "United States",
-                     "country_continent": "North America",
-                     "country_currency": "USD"
+                     "region": "Oregon",
+                     "country": "United States",
+                     "continent": "North America",
+                     "currency": "USD"
+                  },
+                  {
+                     "address1": "3564 Haymond Rocks Road",
+                     "address2": null,
+                     "city": "Grants Pass",
+                     "zip": "97526",
+                     "region": "Oregon",
+                     "country": "United States",
+                     "continent": "North America",
+                     "currency": "USD"
                   }
                ],
-               "saved_for_later_count": 0,
+               "store_credit_count": 0,
+               "store_credit_total": 0,
+               "save_for_later_count": 0,
                "save_for_later": []
             }
          }
