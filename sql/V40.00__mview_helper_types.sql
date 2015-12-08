@@ -41,7 +41,7 @@ create table export_orders (
 );
 
 create table export_payments (
-    payment_method_table text,
+    payment_method_type text,
     amount              integer,
     currency            character(3)
 );
@@ -49,7 +49,7 @@ create table export_payments (
 create table export_rmas (
     reference_number text,
     status           text,
-    rma_table        text,
+    rma_type         text,
     placed_at        text
 );
 
