@@ -4,6 +4,13 @@
     padding: 0;
   }
 
+  .initials {
+    width: pxtorem(28px);
+    height: pxtorem(28px);
+    color: @color-white;
+    line-height: pxtorem(28px);
+  }
+
   &__container {
     .margin(10px);
   }
@@ -56,6 +63,10 @@
   &__empty-list {
     .font-spec(14px, @semibold, 19px);
     color: @color-decor7;
+    .margin-left(5px);
+  }
+
+  &__watcher-cell, &__assignee-cell {
     .margin-left(5px);
   }
 }
