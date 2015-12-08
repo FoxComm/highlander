@@ -5,7 +5,6 @@ import com.stripe.model.{Card, Customer => StripeCustomer}
 import models.OrderPayments.scope._
 import models.{Addresses, CreditCard, CreditCards, Customer, Customers, CustomersRanks, Order, OrderPayments, Orders,
 PaymentMethod, Regions, Rma, Rmas, StoreAdmins}
-import models.activity.Activities
 import org.mockito.Mockito.{reset, when}
 import org.mockito.{Matchers => m}
 import org.scalatest.mock.MockitoSugar
@@ -15,7 +14,6 @@ import responses.CustomerResponse
 import services.CreditCardFailure.StripeFailure
 import services.orders.OrderPaymentUpdater
 import services.{CannotUseInactiveCreditCard, CreditCardManager, CustomerEmailNotUnique, GeneralFailure, NotFoundFailure404, Result}
-import services.activity.CustomerInfoChanged
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
@@ -234,36 +232,6 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val updated = response.as[responses.CustomerResponse.Root]
       (updated.name, updated.email, updated.phoneNumber) must === ((payload.name, newEmail, payload
         .phoneNumber))
-    }
-
-    "successfully creates activity after updating customer attributes" in new Fixture {
-
-      //Update email, name, and phone number
-      val payload = payloads.UpdateCustomerPayload(name = "Crazy Larry".some, email = "crazy.lary@crazy.com".some,
-        phoneNumber = "666 666 6666".some)
-
-      val response = PATCH(s"v1/customers/${customer.id}", payload)
-      response.status must === (StatusCodes.OK)
-
-      //Check the activity log to see if it was created
-      val activity = Activities.filterByData(
-        CustomerInfoChanged.typeName, 
-        "customerId", customer.id.toString).result.headOption.run().futureValue.value
-
-      //make sure the activity has all the correct information
-      activity.activityType must === (CustomerInfoChanged.typeName)
-
-      val customerInfoChanged = activity.data.extract[CustomerInfoChanged]
-
-      customerInfoChanged.customerId must === (customer.id)
-
-      customerInfoChanged.oldInfo must === (
-        payloads.UpdateCustomerPayload(
-          name = customer.name,
-          email = Some(customer.email),
-          phoneNumber = customer.phoneNumber))
-
-      customerInfoChanged.newInfo must === (payload)
     }
 
     "fails if email is already in use" in new Fixture {
