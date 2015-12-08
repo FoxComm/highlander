@@ -23,9 +23,11 @@ import utils.{ADT, FSM, GenericTable, ModelWithLockParameter, TableQueryWithLock
 
 import scala.concurrent.ExecutionContext
 
-final case class Order(id: Int = 0, referenceNumber: String = "", customerId: Int,
+final case class Order(
+  id: Int = 0, referenceNumber: String = "", customerId: Int,
   status: Status = Cart, isLocked: Boolean = false, placedAt: Option[Instant] = None,
-  remorsePeriodEnd: Option[Instant] = None, rmaCount: Int = 0, currency: Currency = Currency.USD)
+  remorsePeriodEnd: Option[Instant] = None, rmaCount: Int = 0, currency: Currency = Currency.USD,
+  subTotal: Int = 0, shippingTotal: Int = 0, adjustmentsTotal: Int = 0, taxesTotal: Int = 0, grandTotal: Int = 0)
   extends ModelWithLockParameter[Order]
   with FSM[Order.Status, Order]
   with Lockable[Order]
@@ -107,8 +109,15 @@ class Orders(tag: Tag) extends GenericTable.TableWithLock[Order](tag, "orders") 
   def rmaCount = column[Int]("rma_count")
   def currency = column[Currency]("currency")
 
+  def subTotal = column[Int]("sub_total")
+  def shippingTotal = column[Int]("shipping_total")
+  def adjustmentsTotal = column[Int]("adjustments_total")
+  def taxesTotal = column[Int]("taxes_total")
+  def grandTotal = column[Int]("grand_total")
+
   def * = (id, referenceNumber, customerId, status, isLocked, placedAt, remorsePeriodEnd,
-    rmaCount, currency) <>((Order.apply _).tupled, Order.unapply)
+    rmaCount, currency, subTotal, shippingTotal, adjustmentsTotal,
+    taxesTotal, grandTotal) <>((Order.apply _).tupled, Order.unapply)
 
   def assignees = OrderAssignments.filter(_.orderId === id).flatMap(_.assignee)
 }

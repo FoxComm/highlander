@@ -2,6 +2,8 @@ package services
 
 import models.rules.QueryStatement
 import models.{Addresses, Customers, OrderLineItem, OrderLineItemSku, OrderLineItemSkus, OrderLineItems, OrderShippingAddresses, Orders, ShippingMethods, Skus}
+
+import services.orders.OrderTotaler
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
@@ -133,6 +135,8 @@ class ShippingManagerTest extends IntegrationTestBase {
       lineItemSku ← * <~ OrderLineItemSkus.create(OrderLineItemSku(skuId = sku.id, orderId = order.id))
       lineItem    ← * <~ OrderLineItems.create(OrderLineItem(orderId = order.id, originId = lineItemSku.id,
         originType = OrderLineItem.SkuItem))
+
+      order       ← * <~ OrderTotaler.saveTotals(order)
     } yield (customer, order)).runT().futureValue.rightVal
 
     val californiaId = 4129
@@ -251,6 +255,9 @@ val conditions = parse(
         originId = expensiveLineItemSku.id, originType = OrderLineItem.SkuItem))
       expensiveAddress ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id, isDefaultShipping = false))
       _ ← * <~ OrderShippingAddresses.copyFromAddress(address = expensiveAddress, orderId = expensiveOrder.id)
+
+      cheapOrder      ← * <~ OrderTotaler.saveTotals(cheapOrder)
+      expensiveOrder  ← * <~ OrderTotaler.saveTotals(expensiveOrder)
     } yield(shippingMethod, cheapOrder, expensiveOrder)).runT().futureValue.rightVal
   }
 

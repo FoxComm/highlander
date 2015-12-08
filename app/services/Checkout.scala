@@ -50,8 +50,7 @@ final case class Checkout(cart: Order, cartValidator: CartValidation)
       gcAdjs        = giftCards.getOrElse(List.empty).foldLeft(0)(_ + _.getAmount.abs)
       scAdjs        = storeCredits.getOrElse(List.empty).foldLeft(0)(_ + _.getAmount.abs)
 
-      total         ← OrderTotaler.grandTotal(cart).map(_.getOrElse(0))
-      ccs           ← authCreditCard(orderTotal = total, internalPaymentTotal = gcAdjs + scAdjs)
+      ccs           ← authCreditCard(orderTotal = cart.grandTotal, internalPaymentTotal = gcAdjs + scAdjs)
     } yield (giftCards, storeCredits)).map { case (gc, sc) ⇒
       // not-so-easy-way to combine error messages from both Xors
       gc.map(_ ⇒ {}).combine(sc.map(_ ⇒ {}))

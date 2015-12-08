@@ -89,12 +89,10 @@ final case class CartValidator(cart: Order)(implicit db: Database, ec: Execution
       }
     }
 
-    OrderTotaler.grandTotal(cart).flatMap {
-      case Some(grandTotal) if grandTotal > 0 ⇒
-        OrderPayments.findAllByOrderId(cart.id).result.flatMap(availableFunds(grandTotal, _))
-
-      case _ ⇒
-        lift(response)
+    if (cart.grandTotal > 0) {
+      OrderPayments.findAllByOrderId(cart.id).result.flatMap(availableFunds(cart.grandTotal, _))
+    } else {
+      lift(response)
     }
   }
 

@@ -61,7 +61,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
   }
 
   "GET /v1/orders" - {
-    "wtf: find all" in {
+    "find all" in {
       val cId = Customers.create(Factories.customer).run().futureValue.rightVal.id
       Orders.create(Factories.order.copy(customerId = cId)).run().futureValue.rightVal
 
@@ -81,7 +81,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
         paymentStatus = Some("FIXME"),
         shippingStatus = Some("FIXME"),
         placedAt = None,
-        total = None,
+        total = 0,
         remorsePeriodEnd = None)
 
       actual must === (expected)

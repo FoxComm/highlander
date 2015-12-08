@@ -15,30 +15,47 @@ class OrderTotalerTest extends IntegrationTestBase {
 
   "OrderTotalerTest" - {
     "subTotal" - {
-      "isEmpty when there are no line items" in new Fixture {
+      "is zero when there are no line items" in new Fixture {
         val subTotal = OrderTotaler.subTotal(order).run().futureValue
 
-        subTotal mustBe 'empty
+        subTotal === 0
       }
 
       "includes both SKU line items and purchased gift cards" in new AllLineItemsFixture {
-        val subTotal = OrderTotaler.subTotal(order).run().futureValue.value
+        val subTotal = OrderTotaler.subTotal(order).run().futureValue
 
         subTotal must === (sku.price + giftCard.originalBalance)
       }
 
       "uses SKU line items only if order purchases no gift cards" in new SkuLineItemsFixture {
-        val subTotal = OrderTotaler.subTotal(order).run().futureValue.value
+        val subTotal = OrderTotaler.subTotal(order).run().futureValue
 
         subTotal must === (sku.price)
       }
     }
 
-    "grandTotal" - {
-      "isEmpty when there are no line items" in new Fixture {
-        val grandTotal = OrderTotaler.grandTotal(order).run().futureValue
+    "taxes" - {
+      "are hardcoded to 5%" in new SkuLineItemsFixture {
+        val totals = OrderTotaler.totals(order).run().futureValue
+        val taxes = (sku.price * 0.05).toInt
 
-        grandTotal mustBe 'empty
+        totals.subTotal === sku.price
+        totals.shipping === 0
+        totals.taxes === taxes
+        totals.adjustments === 0
+        totals.total === (totals.subTotal + taxes)
+      }
+    }
+
+    "totals" - {
+      "all are zero when there are no line items and no adjustments" in new Fixture {
+        val totals = OrderTotaler.totals(order).run().futureValue
+
+        totals.subTotal mustBe 0
+        totals.shipping mustBe 0
+        totals.taxes mustBe 0
+        totals.adjustments mustBe 0
+        totals.total mustBe 0
       }
     }
   }

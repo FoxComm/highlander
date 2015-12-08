@@ -45,16 +45,14 @@ object ShippingManager {
   private def getShippingData(order: Order)(implicit db: Database, ec: ExecutionContext): DBIO[ShippingData] = {
     for {
       orderShippingAddress ← models.OrderShippingAddresses.findByOrderIdWithRegions(order.id).result.headOption
-      subTotal ← OrderTotaler.subTotal(order)
-      grandTotal ← OrderTotaler.grandTotal(order)
       skus ← (for {
         liSku ← OrderLineItemSkus.findByOrderId(order.id)
         skus ← Skus if skus.id === liSku.skuId
       } yield skus).result
     } yield ShippingData(
       order = order,
-      orderTotal = grandTotal.getOrElse(0),
-      orderSubTotal = subTotal.getOrElse(0),
+      orderTotal = order.grandTotal,
+      orderSubTotal = order.subTotal,
       shippingAddress = orderShippingAddress.map(_._1),
       shippingRegion = orderShippingAddress.map(_._2),
       skus = skus)
