@@ -1,9 +1,9 @@
 
+import _ from 'lodash';
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 import { haveType } from '../state-helpers';
 import { get, assoc } from 'sprout-data';
-import _ from 'lodash';
 import OrderParagon from '../../paragons/order';
 
 const _createLineItemAction = (description, ...args) => {
@@ -110,6 +110,7 @@ const reducer = createReducer({
     const order = _.get(payload, 'result', payload);
     const skus = _.get(order, 'lineItems.skus', []);
     const itemList = collectLineItems(skus);
+
     return {
       ...state,
       isFetching: false,

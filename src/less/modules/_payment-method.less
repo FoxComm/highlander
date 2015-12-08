@@ -9,6 +9,24 @@
     .font-spec(22px, 600, 26px);
     .margin(5px 10px 0 0);
   }
+
+}
+
+.fc-order-payment {
+  &.fc-editable-content-box.is-editing .fc-table {
+    .fc-table-th:last-child {
+      width: 100px;
+    }
+
+    // FIXME: should probably use a container for buttons
+    .fc-table-td:last-child {
+      .padding(1.5rem 0 0 0);
+
+      .fc-btn {
+        .margin(0 5px);
+      }
+    }
+  }
 }
 
 .fc-payment-method-details {

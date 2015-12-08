@@ -5,7 +5,7 @@ import CustomerInfo from './customer-info';
 import OrderLineItems from './order-line-items';
 import OrderShippingAddress from './shipping-address';
 import OrderShippingMethod from './order-shipping-method';
-import OrderPayment from './payment';
+import Payments from './payments';
 
 const OrderDetails = props => {
   if (_.isEmpty(props.order.currentOrder)) {
@@ -20,7 +20,7 @@ const OrderDetails = props => {
             <OrderLineItems {...props} />
             <OrderShippingAddress order={order} />
             <OrderShippingMethod {...props} />
-            <OrderPayment order={order} />
+            <Payments {...props} />
           </div>
           <div className="fc-order-details-aside">
             <TotalsSummary entity={order} title={order.title} />
