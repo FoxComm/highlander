@@ -241,7 +241,7 @@ export default class LiveSearch extends React.Component {
           <div className='fc-col-md-1-1 fc-live-search__search-control'>
             <form>
               <PilledInput
-                button={this.props.searchButton}
+                button={<button className="fc-btn">Save Search</button>}
                 onPillClose={(pill, idx) => this.props.deleteSearchFilter(idx)}
                 onPillClick={(pill, idx) => this.props.deleteSearchFilter(idx)}
                 formatPill={this.formatPill}
