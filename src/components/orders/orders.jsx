@@ -10,7 +10,6 @@ import SectionTitle from '../section-title/section-title';
 import { connect } from 'react-redux';
 import * as ordersActions from '../../modules/orders/list';
 import LocalNav from '../local-nav/local-nav';
-import PilledSearch from '../pilled-search/pilled-search';
 import Currency from '../common/currency';
 import Status from '../common/status';
 import LiveSearch from '../live-search/live-search';
