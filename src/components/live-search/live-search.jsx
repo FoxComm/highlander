@@ -45,15 +45,15 @@ export default class LiveSearch extends React.Component {
       return [
         ...result,
         <SearchOption
-          className={classNames({ '__active': selectedIdx == idx, '__first': idx == 0 })}
+          className={classNames({ '_active': selectedIdx == idx, '_first': idx == 0 })}
           key={`search-option-${idx}`}
           option={option}
           clickAction={this.props.submitFilter} />
       ];
     }, []);
 
-    const menuClass = classNames('fc-live-search__go-back-item __last', {
-      '__active': this.state.selectionIndex == this.state.searchOptions.length
+    const menuClass = classNames('fc-live-search__go-back-item _last', {
+      '_active': this.state.selectionIndex == this.state.searchOptions.length
     });
 
     const goBack = (
