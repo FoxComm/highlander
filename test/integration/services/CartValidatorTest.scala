@@ -4,6 +4,7 @@ import cats.implicits._
 import models.{GiftCardManual, CreditCards, Customers, GiftCard, GiftCardManuals, GiftCards, Order, OrderLineItem,
 OrderLineItemSku, OrderLineItemSkus, OrderLineItems, OrderPayments, Orders, Reasons, Skus, StoreAdmins}
 import services.CartFailures._
+import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT._
@@ -18,30 +19,32 @@ class CartValidatorTest extends IntegrationTestBase {
 
   "CartValidator" - {
 
+    def refresh(cart: Order) = Orders.refresh(cart).run().futureValue
+
     "has warnings" - {
       "if the cart has no items" in new Fixture {
-        val result = CartValidator(cart).validate.run().futureValue.rightVal
+        val result = CartValidator(refresh(cart)).validate.run().futureValue.rightVal
 
         result.alerts mustBe 'empty
         result.warnings.value.toList must contain(EmptyCart(cart.refNum))
       }
 
       "if the cart has no shipping address" in new Fixture {
-        val result = CartValidator(cart).validate.run().futureValue.rightVal
+        val result = CartValidator(refresh(cart)).validate.run().futureValue.rightVal
 
         result.alerts mustBe 'empty
         result.warnings.value.toList must contain(NoShipAddress(cart.refNum))
       }
 
       "if the cart has no shipping method" in new Fixture {
-        val result = CartValidator(cart).validate.run().futureValue.rightVal
+        val result = CartValidator(refresh(cart)).validate.run().futureValue.rightVal
 
         result.alerts mustBe 'empty
         result.warnings.value.toList must contain(NoShipMethod(cart.refNum))
       }
 
       "if the cart has line items but no payment methods" in new LineItemsFixture {
-        val result = CartValidator(cart).validate.run().futureValue.rightVal
+        val result = CartValidator(refresh(cart)).validate.run().futureValue.rightVal
 
         result.alerts mustBe 'empty
         result.warnings.value.toList must contain(InsufficientFunds(cart.refNum))
@@ -60,7 +63,7 @@ class CartValidatorTest extends IntegrationTestBase {
             amount = sku.price.some, paymentMethodId = giftCard.id))
         } yield payment).runT().futureValue.rightVal
 
-        val result = CartValidator(cart).validate.run().futureValue.rightVal
+        val result = CartValidator(refresh(cart)).validate.run().futureValue.rightVal
 
         result.alerts mustBe 'empty
         result.warnings.value.toList must contain(InsufficientFunds(cart.refNum))
@@ -69,7 +72,7 @@ class CartValidatorTest extends IntegrationTestBase {
 
     "never has warnings for sufficient funds" - {
       "if there is no grandTotal" in new Fixture {
-        val result = CartValidator(cart).validate.run().futureValue.rightVal
+        val result = CartValidator(refresh(cart)).validate.run().futureValue.rightVal
 
         result.alerts mustBe 'empty
         result.warnings.value.toList mustNot contain(InsufficientFunds(cart.refNum))
@@ -77,14 +80,16 @@ class CartValidatorTest extends IntegrationTestBase {
 
       "if the grandTotal == 0" in new LineItemsFixture {
         Skus.findById(sku.id).extract.map(_.price).update(0).run().futureValue
-        val result = CartValidator(cart).validate.run().futureValue.rightVal
+        OrderTotaler.saveTotals(cart).run().futureValue.rightVal
+
+        val result = CartValidator(refresh(cart)).validate.run().futureValue.rightVal
 
         result.alerts mustBe 'empty
         result.warnings.value.toList mustNot contain(InsufficientFunds(cart.refNum))
       }
 
       "if a credit card is present" in new CreditCartFixture with LineItemsFixture {
-        val result = CartValidator(cart).validate.run().futureValue.rightVal
+        val result = CartValidator(refresh(cart)).validate.run().futureValue.rightVal
 
         result.alerts mustBe 'empty
         result.warnings.value.toList mustNot contain(InsufficientFunds(cart.refNum))
@@ -101,6 +106,8 @@ class CartValidatorTest extends IntegrationTestBase {
       sku   ← * <~ Skus.create(Factories.skus.head)
       _     ← * <~ OrderLineItemSkus.create(OrderLineItemSku(skuId = sku.id, orderId = cart.id))
       items ← * <~ OrderLineItems.create(OrderLineItem.buildSku(cart, sku))
+
+      _     ← * <~ OrderTotaler.saveTotals(cart)
     } yield (sku, items)).runT().futureValue.rightVal
   }
 

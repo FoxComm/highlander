@@ -14,6 +14,7 @@ import org.json4s.jackson.JsonMethods._
 import payloads.{Assignment, UpdateLineItemsPayload, UpdateOrderPayload}
 import responses.{FullOrder, StoreAdminResponse}
 import services.CartFailures._
+import services.orders.OrderTotaler
 import services.{LockedFailure, NotFoundFailure404, NotLockedFailure, StatusTransitionNotAllowed}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
@@ -709,6 +710,8 @@ class OrderIntegrationTest extends IntegrationTestBase
       lowShippingMethod      ← * <~ ShippingMethods.create(lowSm)
       inactiveShippingMethod ← * <~ ShippingMethods.create(lowShippingMethod.copy(isActive = false))
       highShippingMethod     ← * <~ ShippingMethods.create(highSm)
+
+      _                      ← * <~ OrderTotaler.saveTotals(order)
     } yield (lowShippingMethod, inactiveShippingMethod, highShippingMethod)).runT().futureValue.rightVal
   }
 

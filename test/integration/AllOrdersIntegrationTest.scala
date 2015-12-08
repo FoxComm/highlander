@@ -81,7 +81,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
         paymentStatus = Some("FIXME"),
         shippingStatus = Some("FIXME"),
         placedAt = None,
-        total = None,
+        total = 0,
         remorsePeriodEnd = None)
 
       actual must === (expected)

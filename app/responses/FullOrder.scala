@@ -20,13 +20,6 @@ object FullOrder {
   final case class Totals(subTotal: Int, taxes: Int, shipping: Int, adjustments: Int, total: Int) extends ResponseItem
 
   object Totals {
-    def build(subTotal: Int, shipping: Int, adjustments: Int): Totals = {
-      val taxes = ((subTotal - adjustments + shipping) * 0.05).toInt
-
-      Totals(subTotal = subTotal, taxes = taxes, shipping = shipping, adjustments = adjustments,
-        total = (adjustments - (subTotal + taxes + shipping)).abs)
-    }
-
     def empty: Totals = Totals(0,0,0,0,0)
   }
 
@@ -166,13 +159,9 @@ object FullOrder {
     }
   }
 
-  // TODO: Use utils.Money
-  private def totals(order: Order, shipMethod: Option[ShippingMethod])
-    (implicit ec: ExecutionContext): DBIO[Totals] = for {
-    maybeSubTotal ← OrderTotaler.subTotal(order)
-    subTotal = maybeSubTotal.getOrElse(0)
-    shipping = shipMethod.map(_.price).getOrElse(0)
-  } yield Totals.build(subTotal = subTotal, shipping = shipping, adjustments = 0)
+  private def totals(order: Order): Totals =
+    Totals(subTotal = order.subTotal, shipping = order.shippingTotal, adjustments = order.adjustmentsTotal,
+    taxes = order.taxesTotal, total = order.grandTotal)
 
   private def fetchOrderDetails(order: Order)(implicit ec: ExecutionContext) = {
     val shippingMethodQ = for {
@@ -198,9 +187,8 @@ object FullOrder {
       scPayments ← OrderPayments.findAllStoreCreditsByOrderId(order.id).result
       assignments ← OrderAssignments.filter(_.orderId === order.id).result
       admins ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.assigneeId))).result
-      totals ← totals(order, shipMethod)
       lockedBy ← currentLock(order)
     } yield (customer, lineItems, shipMethod, shipAddress, payments, gcPayments, scPayments, assignments.zip(admins),
-      giftCards, Option(totals), lockedBy)
+      giftCards, Some(totals(order)), lockedBy)
   }
 }

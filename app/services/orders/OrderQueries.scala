@@ -46,11 +46,10 @@ object OrderQueries {
     }
 
     sortedQuery.result.flatMap(xor ⇒ xorMapDbio(xor) { results ⇒
-      val roots = results.map {
+      DBIO.successful(results.map {
         case ((order, customer), payment) ⇒
           AllOrders.build(order, customer, payment)
-      }
-      DBIO.sequence(roots)
+      })
     })
   }
 }

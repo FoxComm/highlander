@@ -8,6 +8,7 @@ OrderLineItemSku, OrderLineItemSkus, OrderLineItems, OrderPayment, OrderPayments
 OrderShippingAddresses, OrderShippingMethod, OrderShippingMethods, Orders, Shipment, Shipments, Sku, StoreCredit,
 StoreCreditManual, StoreCreditManuals, StoreCredits}
 import services.GeneralFailure
+import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT.implicits._
 import utils.DbResultT.{DbResultT, _}
@@ -39,6 +40,7 @@ trait OrderSeeds {
     addr  ← * <~ getDefaultAddress(customerId)
     _     ← * <~ OrderShippingAddresses.create(OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
     _     ← * <~ Notes.createAll(orderNotes.map(_.copy(referenceId = order.id)))
+    _     ← * <~ OrderTotaler.saveTotals(order)
   } yield order
 
   def createOrder2(customerId: Customer#Id, skus: Seq[Sku])(implicit db: Database): DbResultT[Order] = for {
@@ -51,6 +53,7 @@ trait OrderSeeds {
     _      ← * <~ StoreCredits.capture(sc, op.id.some, totals) // or auth?
     addr   ← * <~ getDefaultAddress(customerId)
     _      ← * <~ OrderShippingAddresses.create(OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
+    _     ← * <~ OrderTotaler.saveTotals(order)
   } yield order
 
   def createOrder3(customerId: Customer#Id, skus: Seq[Sku])(implicit db: Database): DbResultT[Order] = {
@@ -71,6 +74,7 @@ trait OrderSeeds {
       ))
       addr   ← * <~ getDefaultAddress(customerId)
       _      ← * <~ OrderShippingAddresses.create(OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
+      _     ← * <~ OrderTotaler.saveTotals(order)
     } yield order
   }
 
@@ -81,6 +85,7 @@ trait OrderSeeds {
     _     ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(orderId = order.id, amount = none))
     addr  ← * <~ getDefaultAddress(customerId)
     _     ← * <~ OrderShippingAddresses.create(OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
+    _     ← * <~ OrderTotaler.saveTotals(order)
   } yield order
 
   def createOrder5(customerId: Customer#Id, skus: Seq[Sku], shipMethod: OrderShippingMethod#Id)
@@ -93,6 +98,7 @@ trait OrderSeeds {
     addr  ← * <~ getDefaultAddress(customerId)
     shipA ← * <~ OrderShippingAddresses.create(OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
     shipM ← * <~ OrderShippingMethods.create(OrderShippingMethod(orderId = order.id, shippingMethodId = shipMethod))
+    _     ← * <~ OrderTotaler.saveTotals(order)
     _     ← * <~ Shipments.create(Shipment(orderId = order.id, orderShippingMethodId = shipM.id.some,
                       shippingAddressId = shipA.id.some))
   } yield order

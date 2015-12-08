@@ -20,24 +20,19 @@ object AllOrders {
     shippingStatus: Option[String] = None,
     placedAt: Option[Instant] = None,
     remorsePeriodEnd: Option[Instant] = None,
-    total: Option[Int] = None
-  ) extends ResponseItem
+    total: Int) extends ResponseItem
 
   def build(order: Order, customer: Customer, payment: Option[OrderPayment])
-    (implicit ec: ExecutionContext): DBIO[Root] = {
-    OrderTotaler.grandTotal(order).map { grandTotal ⇒
-      Root(
-        referenceNumber = order.referenceNumber,
-        email = customer.email,
-        name = customer.name,
-        orderStatus = order.status,
-        // TODO: FIXME
-        paymentStatus = Some("FIXME"),
-        shippingStatus = Some("FIXME"),
-        placedAt = order.placedAt,
-        remorsePeriodEnd = order.getRemorsePeriodEnd,
-        total = grandTotal
-      )
-    }
-  }
+    (implicit ec: ExecutionContext): Root = Root(
+      referenceNumber = order.referenceNumber,
+      name = customer.name,
+      email = customer.email,
+      orderStatus = order.status,
+      // TODO: FIXME
+      paymentStatus = Some("FIXME"),
+      shippingStatus = Some("FIXME"),
+      placedAt = order.placedAt,
+      remorsePeriodEnd = order.getRemorsePeriodEnd,
+      total = order.grandTotal
+  )
 }

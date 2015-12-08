@@ -4,6 +4,7 @@ import models.rules.QueryStatement
 import models.{Addresses, Customers, OrderLineItem, OrderLineItemSku, OrderLineItemSkus, OrderLineItems,
 OrderShippingAddresses, Orders, Sku, Skus, StoreAdmins}
 import org.json4s.jackson.JsonMethods._
+import services.orders.OrderTotaler
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
@@ -149,6 +150,7 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
       sku         ← * <~ Skus.create(Factories.skus.head.copy(name = Some("Donkey"), price = 27))
       lineItemSku ← * <~ OrderLineItemSkus.create(OrderLineItemSku(orderId = order.id, skuId = sku.id))
       lineItems   ← * <~ OrderLineItems.create(OrderLineItem(orderId = order.id, originId = lineItemSku.id))
+      _           ← * <~ OrderTotaler.saveTotals(order)
     } yield (address, shipAddress)).runT().futureValue.rightVal
   }
 

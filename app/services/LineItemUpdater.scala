@@ -6,6 +6,7 @@ OrderLineItemGiftCard, OrderLineItemGiftCards, OrderLineItemSku, OrderLineItemSk
 import payloads.{AddGiftCardLineItem, UpdateLineItemsPayload}
 import responses.FullOrder.refreshAndFullOrder
 import responses.{FullOrder, TheResponse}
+import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
@@ -24,6 +25,8 @@ object LineItemUpdater {
     gc     ← * <~ GiftCards.create(GiftCard.buildLineItem(balance = p.balance, originId = origin.id, currency = p.currency))
     liGc   ← * <~ OrderLineItemGiftCards.create(OrderLineItemGiftCard(giftCardId = gc.id, orderId = order.id))
     _      ← * <~ OrderLineItems.create(OrderLineItem.buildGiftCard(order, liGc))
+    // update changed totals
+    order  ← * <~ OrderTotaler.saveTotals(order)
     valid  ← * <~ CartValidator(order).validate
     result ← * <~ refreshAndFullOrder(order).toXor
   } yield TheResponse.build(result, alerts = valid.alerts, warnings = valid.warnings)).runT()
@@ -36,6 +39,8 @@ object LineItemUpdater {
     order    ← * <~ Orders.mustFindByRefNum(refNum)
     _        ← * <~ order.mustBeCart
     _        ← * <~ GiftCards.filter(_.id === giftCard.id).update(GiftCard.update(giftCard, payload))
+    // update changed totals
+    order  ← * <~ OrderTotaler.saveTotals(order)
     valid    ← * <~ CartValidator(order).validate
     result   ← * <~ refreshAndFullOrder(order).toXor
   } yield TheResponse.build(result, alerts = valid.alerts, warnings = valid.warnings)).runT()
@@ -50,6 +55,8 @@ object LineItemUpdater {
     _     ← * <~ OrderLineItems.filter(_.originId === order.id).giftCards.delete
     _     ← * <~ GiftCards.filter(_.id === gc.id).delete
     _     ← * <~ GiftCardOrders.filter(_.id === gc.originId).delete
+    // update changed totals
+    order ← * <~ OrderTotaler.saveTotals(order)
     valid ← * <~ CartValidator(order).validate
     res   ← * <~ refreshAndFullOrder(order).toXor
   } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runT()
@@ -59,6 +66,8 @@ object LineItemUpdater {
     order ← * <~ Orders.mustFindByRefNum(refNum)
     _     ← * <~ order.mustBeCart
     _     ← * <~ updateQuantities(order, payload)
+    // update changed totals
+    order ← * <~ OrderTotaler.saveTotals(order)
     valid ← * <~ CartValidator(order).validate
     res   ← * <~ refreshAndFullOrder(order).toXor
   } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runT()
@@ -70,6 +79,8 @@ object LineItemUpdater {
       order ← * <~ Orders.findActiveOrderByCustomer(customer).one.mustFindOr(failure)
       _     ← * <~ order.mustBeCart
       _     ← * <~ updateQuantities(order, payload)
+      // update changed totals
+      order ← * <~ OrderTotaler.saveTotals(order)
       valid ← * <~ CartValidator(order).validate
       res   ← * <~ refreshAndFullOrder(order).toXor
     } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runT()
