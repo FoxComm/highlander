@@ -39,6 +39,8 @@ object Seeds {
         Await.result(db.run(SeedsGenerator.insertRankingSeeds(1700).transactionally), 7.second)
       case _ ⇒ None
     }
+
+    db.close()
   }
 
   val today = Instant.now().atZone(ZoneId.of("UTC"))
