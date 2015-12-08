@@ -73,7 +73,9 @@ object ElasticSearchMappings {
         "price" typed IntegerType
       ),
       // Addresses
+      "shipping_addresses_count" typed IntegerType,
       addresses("shipping_addresses"),
+      "billing_addresses_count" typed IntegerType,
       addresses("billing_addresses"),
       // Store credits
       "store_credit_total"    typed IntegerType,
@@ -141,7 +143,9 @@ object ElasticSearchMappings {
         "storefront_display_name" typed StringType analyzer "autocomplete"
       ),
       // Addresses
+      "shipping_addresses_count" typed IntegerType,
       addresses("shipping_addresses"),
+      "billing_addresses_count" typed IntegerType,
       addresses("billing_addresses"),
       // Assignments
       "assignment_count"    typed IntegerType,

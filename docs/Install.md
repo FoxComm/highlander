@@ -86,7 +86,8 @@ If you have troubles with building `avro-c` dependency for bottledwater extensio
 	refresh materialized view concurrently customers_ranking;
 	refresh materialized view concurrently customer_orders_view;
 	refresh materialized view concurrently customer_purchased_items_view;
-	refresh materialized view concurrently customer_addresses_view;
+	refresh materialized view concurrently customer_shipping_addresses_view;
+	refresh materialized view concurrently customer_billing_addresses_view;
 	refresh materialized view concurrently customer_store_credit_view;
 	refresh materialized view concurrently customer_save_for_later_view;
 
@@ -104,6 +105,10 @@ If you have troubles with building `avro-c` dependency for bottledwater extensio
 Drop replication slot in `psql phoenix_development` if bottledwater can't start properly:
 
 	$ select pg_drop_replication_slot('bottledwater');
+
+Drop extension:
+	
+	$ drop extension bottledwater;
 
 Wipe all queue metadata:
 
