@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import classnames from 'classnames';
+import _ from 'lodash';
 
 const TabView = props => {
   const klass = classnames(
@@ -12,7 +13,7 @@ const TabView = props => {
      : null;
 
   return (
-    <li className={klass}>
+    <li className={klass} onClick={props.onClick}>
       {icon}
       {props.children}
     </li>
@@ -23,11 +24,13 @@ TabView.propTypes = {
   selector: PropTypes.string,
   children: PropTypes.node,
   draggable: PropTypes.bool,
-  selected: PropTypes.bool
+  selected: PropTypes.bool,
+  onClick: PropTypes.func
 };
 
 TabView.defaultProps = {
   draggable: true,
+  onClick: _.noop,
   selected: false
 };
 

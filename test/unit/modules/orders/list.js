@@ -5,7 +5,7 @@ import util from 'util';
 const ordersSearchTerms = require('../../../fixtures/orders-search-terms.js');
 const makeLiveSearch = importSource('modules/live-search.js');
 const { reducer: reducer, actions: actions } = makeLiveSearch('TEST', ordersSearchTerms);
-const { deleteSearchFilter, goBack, submitFilter } = actions;
+const { deleteSearchFilter, goBack, selectSavedSearch, submitFilter } = actions;
 
 const selectedSearch = (state) => state.savedSearches[state.selectedSearch];
 
@@ -88,6 +88,20 @@ describe('modules.orders.list', function() {
       it('should not update the search box', function() {
         expect(searchState.searchValue).to.be.equal(invalidSearchTerm);
       });
+    });
+  });
+
+  describe('selectSavedSearch()', function() {
+    let newState = null;
+
+    it('should have All selected by default', function() {
+      newState = reducer(undefined, submitFilter(''));
+      expect(newState.selectedSearch).to.be.equal('All');
+    });
+
+    it('should be able to select remorse hold', function() {
+      newState = reducer(undefined, selectSavedSearch('Remorse Hold'));
+      expect(newState.selectedSearch).to.be.equal('Remorse Hold');
     });
   });
 });

@@ -34,6 +34,17 @@ function goBack(state) {
   return submitFilter(state, newSearchTerm);
 }
 
+function selectSavedSearch(state, searchName) {
+  if (!_.isEmpty(state.savedSearches[searchName])) {
+    return {
+      ...state,
+      selectedSearch: searchName
+    };
+  }
+
+  return state;
+}
+
 function submitFilter(state, searchTerm) {
   // First update the available terms.
   let searches = state.savedSearches['All'].searches;
@@ -69,7 +80,22 @@ function liveSearchReducer(actionTypes, searchTerms) {
       'All': {
         ...emptyState,
         currentOptions: terms
-      }
+      },
+      'Remorse Hold': {
+        ...emptyState,
+        currentOptions: terms,
+        searches: ['Order : State : Remorse Hold']
+      },
+      'Manual Hold': {
+        ...emptyState,
+        currentOptions: terms,
+        searches: ['Order : State : Manual Hold']
+      },
+      'Fraud Hold': {
+        ...emptyState,
+        currentOptions: terms,
+        searches: ['Order : State : Fraud Hold']
+      },
     }
   };
 
@@ -82,6 +108,9 @@ function liveSearchReducer(actionTypes, searchTerms) {
 
       case actionTypes.GO_BACK:
         return goBack(state);
+
+      case actionTypes.SELECT_SAVED_SEARCH:
+        return selectSavedSearch(state, payload.searchName);
 
       case actionTypes.SUBMIT_FILTER:
         return submitFilter(state, payload.searchTerm);
@@ -96,6 +125,7 @@ function createLiveSearchActionTypes(namespace) {
   const actionTypes = {
     DELETE_SEARCH_FILTER: 'DELETE_SEARCH_FILTER',
     GO_BACK: 'GO_BACK',
+    SELECT_SAVED_SEARCH: 'SELECT_SAVED_SEARCH',
     SUBMIT_FILTER: 'SUBMIT_FILTER'
   };
 
@@ -106,6 +136,7 @@ function createLiveSearchActions(actionTypes) {
   return {
     deleteSearchFilter: createAction(actionTypes.DELETE_SEARCH_FILTER, (idx) => ({idx})),
     goBack: createAction(actionTypes.GO_BACK),
+    selectSavedSearch: createAction(actionTypes.SELECT_SAVED_SEARCH, (searchName) => ({searchName})),
     submitFilter: createAction(actionTypes.SUBMIT_FILTER, (searchTerm) => ({searchTerm})),
   };
 }

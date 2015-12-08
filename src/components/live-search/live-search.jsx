@@ -8,6 +8,11 @@ import Menu from '../menu/menu';
 import MenuItem from '../menu/menu-item';
 import PilledInput from '../pilled-search/pilled-input';
 import SearchOption from './search-option';
+import TabListView from '../tabs/tabs';
+import TabView from '../tabs/tab';
+import TableView from '../table/tableview';
+import TableRow from '../table/row';
+import TableCell from '../table/cell';
 
 const currentSearch = (searchState) => {
   return searchState.savedSearches[searchState.selectedSearch];
@@ -36,8 +41,13 @@ export default class LiveSearch extends React.Component {
   static propTypes = {
     deleteSearchFilter: PropTypes.func.isRequired,
     goBack: PropTypes.func.isRequired,
+    selectSavedSearch: PropTypes.func.isRequired,
     submitFilter: PropTypes.func.isRequired,
-    state: PropTypes.object.isRequired
+    state: PropTypes.object.isRequired,
+    columns: PropTypes.array.isRequired,
+    data: PropTypes.node.isRequired,
+    renderRow: PropTypes.func,
+    setState: PropTypes.func
   };
 
   get searchOptions() {
@@ -74,6 +84,25 @@ export default class LiveSearch extends React.Component {
         {!_.isEmpty(this.state.searchValue) && goBack}
       </Menu>
     );
+  }
+
+  get savedSearches() {
+    const tabs = _.keys(this.props.searches.savedSearches).map(search => {
+      const draggable = search !== 'All';
+      const selected = search === this.props.searches.selectedSearch;
+
+      return (
+        <TabView 
+          draggable={draggable}
+          selected={selected}
+          onClick={() => this.props.selectSavedSearch(search)}
+          >
+          {search}
+        </TabView>
+      );
+    });
+
+    return <TabListView>{tabs}</TabListView>;
   }
 
   formatPill(pill, idx, props) {
@@ -204,23 +233,38 @@ export default class LiveSearch extends React.Component {
 
   render() {
     return (
-      <div className='fc-live-search fc-col-md-1-1'>
-        <form>
-          <PilledInput
-            button={<button className="fc-btn">Save Search</button>}
-            onPillClose={(pill, idx) => this.props.deleteSearchFilter(idx)}
-            onPillClick={(pill, idx) => this.props.deleteSearchFilter(idx)}
-            formatPill={this.formatPill}
-            placeholder="Add another filter or keyword search"
-            onChange={this.change}
-            onFocus={this.inputFocus}
-            onBlur={this.blur}
-            onKeyDown={this.keyDown}
-            pills={this.state.pills}
-            value={this.state.searchDisplay} />
-        </form>
-        <div>
-          {this.state.optionsVisible && this.searchOptions}
+      <div className='fc-live-search'>
+        <div className="fc-live-search__header">
+          {this.savedSearches}
+        </div>
+        <div className="fc-grid fc-list-page-content">
+          <div className='fc-col-md-1-1 fc-live-search__search-control'>
+            <form>
+              <PilledInput
+                button={this.props.searchButton}
+                onPillClose={(pill, idx) => this.props.deleteSearchFilter(idx)}
+                onPillClick={(pill, idx) => this.props.deleteSearchFilter(idx)}
+                formatPill={this.formatPill}
+                placeholder="Add another filter or keyword search"
+                onChange={this.change}
+                onFocus={this.inputFocus}
+                onBlur={this.blur}
+                onKeyDown={this.keyDown}
+                pills={this.state.pills}
+                value={this.state.searchDisplay} />
+            </form>
+            <div>
+              {this.state.optionsVisible && this.searchOptions}
+            </div>
+          </div>
+          <div className="fc-col-md-1-1">
+            <TableView
+              columns={this.props.columns}
+              data={this.props.data}
+              renderRow={this.props.renderRow}
+              setState={this.props.setState}
+            />
+          </div>
         </div>
       </div>
     );

@@ -1,11 +1,11 @@
 import React, { PropTypes } from 'react';
-import TableView from '../table/tableview';
-import TableRow from '../table/row';
-import TableCell from '../table/cell';
 import Link from '../link/link';
 import { DateTime } from '../common/datetime';
 import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
+import TableView from '../table/tableview';
+import TableRow from '../table/row';
+import TableCell from '../table/cell';
 import SectionTitle from '../section-title/section-title';
 import { connect } from 'react-redux';
 import * as ordersActions from '../../modules/orders/list';
@@ -15,6 +15,7 @@ import Currency from '../common/currency';
 import Status from '../common/status';
 import LiveSearch from '../live-search/live-search';
 import util from 'util';
+import _ from 'lodash';
 
 const actions = {
   ...ordersActions,
@@ -90,31 +91,18 @@ export default class Orders extends React.Component {
             <a href="">Insights</a>
             <a href="">Activity Trail</a>
           </LocalNav>
-          <TabListView>
-            <TabView draggable={false} selected={true}>All</TabView>
-            <TabView>Remorse Hold</TabView>
-            <TabView>Last 30 Days</TabView>
-            <TabView>Manual Hold</TabView>
-            <TabView>Fraud Hold</TabView>
-          </TabListView>
         </div>
-        <div className="fc-grid fc-list-page-content">
-          <LiveSearch
-            state={this.props.orders}
-            goBack={this.props.goBack}
-            deleteSearchFilter={this.props.deleteSearchFilter}
-            submitFilter={this.props.submitFilter}
-            searches={this.props.search}
-          />
-          <div className="fc-col-md-1-1">
-            <TableView
-              columns={this.props.tableColumns}
-              data={this.props.orders}
-              renderRow={renderRow}
-              setState={this.props.fetch}
-            />
-          </div>
-        </div>
+        <LiveSearch 
+          goBack={this.props.goBack}
+          deleteSearchFilter={this.props.deleteSearchFilter}
+          selectSavedSearch={this.props.selectSavedSearch}
+          submitFilter={this.props.submitFilter}
+          searches={this.props.search}
+          columns={this.props.tableColumns}
+          data={this.props.orders}
+          renderRow={renderRow}
+          setState={this.props.fetch}
+        />
       </div>
     );
   }
