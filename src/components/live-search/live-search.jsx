@@ -39,10 +39,14 @@ export default class LiveSearch extends React.Component {
       result.push(this.renderSearchOption(option, this.state.searchValue, idx, this.state.selectionIndex));
     });
 
+    const menuClass = classNames('fc-live-search__go-back-item is-last', {
+      'is-active': this.state.selectionIndex == this.state.searchOptions.length
+    });
+
     return (
       <Menu>
         {options}
-        <MenuItem className='fc-live-search__go-back-item' onClick={this.props.goBack}>
+        <MenuItem className={menuClass} onClick={this.props.goBack}>
           <i className='icon-back' />
           Back
         </MenuItem>
@@ -126,13 +130,20 @@ export default class LiveSearch extends React.Component {
         if (!_.isEmpty(this.state.searchOptions)) {
           const newIdx = Math.min(
             this.state.selectionIndex + 1, 
-            this.state.searchOptions.length - 1
+            this.state.searchOptions.length
           );
+
+          let newSearchDisplay;
+          if (newIdx < this.state.searchOptions.length) {
+            newSearchDisplay = this.state.searchOptions[newIdx].selectionValue;
+          } else {
+            newSearchDisplay = this.state.searchValue;
+          }
 
           this.setState({ 
             ...this.state, 
             optionsVisible: true,
-            searchDisplay: this.state.searchOptions[newIdx].selectionValue,
+            searchDisplay: newSearchDisplay,
             selectionIndex: newIdx
           });
         }
@@ -160,7 +171,11 @@ export default class LiveSearch extends React.Component {
       case 13:
         // Enter
         event.preventDefault();
-        this.props.submitFilter(this.state.searchDisplay);
+        if (this.state.selectionIndex < this.state.searchOptions.length) {
+          this.props.submitFilter(this.state.searchDisplay);
+        } else if (this.state.selectionIndex != -1) {
+          this.props.goBack();
+        }
         break;
       case 8:
         // Backspace
