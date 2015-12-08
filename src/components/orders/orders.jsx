@@ -24,7 +24,10 @@ export default class Orders extends React.Component {
     orders: PropTypes.shape({
       rows: PropTypes.array.isRequired,
       total: PropTypes.number
-    })
+    }),
+    deleteSearchFilter: PropTypes.func,
+    goBack: PropTypes.func,
+    submitFilter: PropTypes.func
   };
 
   static defaultProps = {
