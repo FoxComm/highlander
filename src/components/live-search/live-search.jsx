@@ -9,6 +9,10 @@ import MenuItem from '../menu/menu-item';
 import PilledInput from '../pilled-search/pilled-input';
 import SearchOption from './search-option';
 
+const currentSearch = (searchState) => {
+  return searchState.savedSearches[searchState.selectedSearch];
+};
+
 /**
  * LiveSearch is a search bar dynamic faceted search that exists on most of the
  * list pages. State for filters being created exist on the component, whereas
@@ -18,12 +22,13 @@ export default class LiveSearch extends React.Component {
   constructor(props, context) {
     super(props, context);
 
+    const search = currentSearch(props.searches);
     this.state = {
       optionsVisible: false,
-      pills: props.searches.searches,
-      searchDisplay: props.searches.searchValue,
-      searchOptions: props.searches.currentOptions,
-      searchValue: props.searches.searchValue,
+      pills: search.searches,
+      searchDisplay: search.searchValue,
+      searchOptions: search.currentOptions,
+      searchValue: search.searchValue,
       selectionIndex: -1
     };
   }
@@ -88,17 +93,17 @@ export default class LiveSearch extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const isVisible = nextProps.searches.currentOptions.length > 0 &&
-      (nextProps.searches.searches.length != this.state.pills.length ||
-       nextProps.searches.searchValue !== '');
+    const search = currentSearch(nextProps.searches);
+    const isVisible = search.currentOptions.length > 0 &&
+      (search.searches.length != this.state.pills.length || search.searchValue !== '');
 
     this.setState({
       ...this.state,
       optionsVisible: isVisible,
-      pills: nextProps.searches.searches,
-      searchDisplay: nextProps.searches.searchValue,
-      searchOptions: nextProps.searches.currentOptions,
-      searchValue: nextProps.searches.searchValue,
+      pills: search.searches,
+      searchDisplay: search.searchValue,
+      searchOptions: search.currentOptions,
+      searchValue: search.searchValue,
       selectionIndex: -1
     });
   }

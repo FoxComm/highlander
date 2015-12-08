@@ -2,27 +2,41 @@ import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
 import SearchTerm from '../paragons/search-term';
 import util from 'util';
+import { assoc } from 'sprout-data';
+
+const emptyState = {
+  options: [],
+  searches: [],
+  searchValue: '',
+  selectedIndex: -1
+};
 
 function deleteSearchFilter(state, idx) {
-  if (!_.isEmpty(state.searches) && _.isEmpty(state.searchValue)) {
-    return {
-      ...state,
-      searches: _.without(state.searches, state.searches[idx])
+  const curSearches = state.savedSearches[state.selectedSearch].searches;
+  const curValue = state.savedSearches[state.selectedSearch].searchValue;
+
+  if (!_.isEmpty(curSearches) && _.isEmpty(curValue)) {
+    const updatedState = {
+      ...state.savedSearches[state.selectedSearch],
+      searches: newSearches
     };
+    const newSearches = _.without(curSearches, curSearches[idx]);
+    return assoc(state, ['savedSearches', state.selectedSearch], updatedState);
   }
 
   return state;
 }
 
 function goBack(state) {
-  const lastColonIdx = _.trim(state.searchValue, ' :').lastIndexOf(':');
-  const newSearchTerm = lastColonIdx > 0 ? `${state.searchValue.slice(0, lastColonIdx - 1)} : ` : '';
+  const curState = state.savedSearches[state.selectedSearch].searchValue;
+  const lastColonIdx = _.trim(curState, ' :').lastIndexOf(':');
+  const newSearchTerm = lastColonIdx > 0 ? `${curState.slice(0, lastColonIdx - 1)} : ` : '';
   return submitFilter(state, newSearchTerm);
 }
 
 function submitFilter(state, searchTerm) {
   // First update the available terms.
-  let searches = state.searches;
+  let searches = state.savedSearches['All'].searches;
   let newSearchTerm = searchTerm;
   let options = SearchTerm.potentialTerms(state.potentialOptions, searchTerm);
 
@@ -30,27 +44,33 @@ function submitFilter(state, searchTerm) {
   if (options.length == 1 && options[0].selectTerm(searchTerm)) {
     newSearchTerm = '';
     options = SearchTerm.potentialTerms(state.potentialOptions, newSearchTerm);
-    searches = [...state.searches, searchTerm];
+    searches = [...state.savedSearches[state.selectedSearch].searches, searchTerm];
   }
 
   // Third, update the state.
-  return {
-    ...state,
+  const updatedState = {
+    ...state.savedSearches[state.selectedSearch],
     currentOptions: options,
     searches: searches,
     searchValue: newSearchTerm
   };
+
+  return assoc(state, ['savedSearches', state.selectedSearch], updatedState);
 }
+
 
 function liveSearchReducer(actionTypes, searchTerms) {
   const terms = searchTerms.map(st => new SearchTerm(st));
 
   const initialState = {
-    currentOptions: terms,
     potentialOptions: terms,
-    selectedIndex: -1,
-    searches: [],
-    searchValue: ''
+    selectedSearch: 'All',
+    savedSearches: {
+      'All': {
+        ...emptyState,
+        currentOptions: terms
+      }
+    }
   };
 
   return (state = initialState, action) => {
