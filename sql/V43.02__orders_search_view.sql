@@ -4,9 +4,15 @@ select distinct on (o.id)
     o.id as id,
     o.reference_number as reference_number,
     o.status as status,
-    to_char(o.created_at, 'YYYY-MM-dd') as date_created,
-    to_char(o.placed_at, 'YYYY-MM-dd') as date_placed,
+    to_char(o.created_at, 'YYYY-MM-dd') as created_at,
+    to_char(o.placed_at, 'YYYY-MM-dd') as placed_at,
     o.currency as currency,
+    -- Totals
+    o.sub_total as sub_total,
+    o.shipping_total as shipping_total,
+    o.adjustments_total as adjustments_total,
+    o.taxes_total as taxes_total,
+    o.grand_total as grand_total,
     -- Customer
     json_build_object(
         'name', c.name,
