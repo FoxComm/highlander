@@ -111,9 +111,6 @@ const reducer = createReducer({
     const skus = _.get(order, 'lineItems.skus', []);
     const itemList = collectLineItems(skus);
 
-    // TODO: this is a hack for now
-    payload = _.get(payload, 'result', payload);
-
     return {
       ...state,
       isFetching: false,

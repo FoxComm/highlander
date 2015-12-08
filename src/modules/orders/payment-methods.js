@@ -14,25 +14,31 @@ export const orderPaymentMethodRequestFailed = _createAction('REQUEST_FAILED');
 export const orderPaymentMethodStartEdit = _createAction('START_EDIT');
 export const orderPaymentMethodStopEdit = _createAction('STOP_EDIT');
 
-export function deleteOrderPaymentMethod(orderRefNum, type, gcCode) {
-  const path = pathForPaymentMethod(type, gcCode);
-
+function deleteOrderPaymentMethod(path) {
   return dispatch => {
-    return Api.delete(`/orders/${orderRefNum}/payment-methods/${path}`)
+    return Api.delete(path)
       .then(order => dispatch(orderSuccess(order)))
       .catch(err => dispatch(setError(err)));
   };
 }
 
-const pathForPaymentMethod = (type, gcCode) => {
-  switch(type) {
-    case 'giftCard':
-      return `gift-cards/${gcCode}`;
-    case 'creditCard':
-      return 'credit-cards';
-    case 'storeCredit':
-      return 'store-credit';
-  }
+export function deleteOrderGiftCardPayment(orderRefNum, code) {
+  const path = `${basePath(orderRefNum)}/gift-cards/${code}`;
+  return deleteOrderPaymentMethod(path);
+}
+
+export function deleteOrderStoreCreditPayment(orderRefNum) {
+  const path = `${basePath(orderRefNum)}/store-credit`;
+  return deleteOrderPaymentMethod(path);
+}
+
+export function deleteOrderCreditCardPayment(orderRefNum) {
+  const path = `${basePath(orderRefNum)}/credit-cards`;
+  return deleteOrderPaymentMethod(path);
+}
+
+function basePath(refNum) {
+  return `/orders/${refNum}/payment-methods`;
 };
 
 const initialState = {

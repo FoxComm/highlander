@@ -25,6 +25,10 @@ export default class Order {
     return _.isEmpty(this.referenceNumber);
   }
 
+  get refNum() {
+    return this.referenceNumber;
+  }
+
   get title() {
     return this.isCart ? 'Cart' : 'Order';
   }
