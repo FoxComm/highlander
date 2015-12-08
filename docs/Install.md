@@ -20,7 +20,7 @@ If you have troubles with building `avro-c` dependency for bottledwater extensio
 ## Configuration
 
 * Elasticsearch - specify `cluster.name` in elasticsearch config
-* Postgres - see [configuration](https://github.com/FoxComm/bottledwater-pg#configuration)
+* Postgres - see [configuration](https://github.com/FoxComm/bottledwater-pg#configuration) section.
 * Schema Registry - prepare basic configuration file:
 
 	```
@@ -70,6 +70,13 @@ If you have troubles with building `avro-c` dependency for bottledwater extensio
 
 ## Troubleshooting
 
-Drop replication slot in `psql` (don't forget to specify a schema via `\c`) if bottledwater won't start properly:
+Drop replication slot in `psql phoenix_development` if bottledwater can't start properly:
 
 	$ select pg_drop_replication_slot('bottledwater');
+
+Wipe all queue metadata:
+
+	$ sudo service zookeeper stop
+	$ sudo rm -rf /tmp/*
+	$ sudo rm -rf /var/lib/zookeeper/*
+	$ sudo service zookeeper start
