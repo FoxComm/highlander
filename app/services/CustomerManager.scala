@@ -130,7 +130,6 @@ object CustomerManager {
 
   private def logUpdate(customer: Customer, payload: UpdateCustomerPayload)
   (implicit ec: ExecutionContext, db: Database, ac: ActivityContext) = {
-    println(s"Saving id ${customer.id}")
     Activities.log(
       CustomerInfoChanged(
         customerId = customer.id,

@@ -27,7 +27,7 @@ final case class Connection(
   previousId: Option[Int], 
   nextId: Option[Int], 
   data: Json, 
-  connectedBy: Json,
+  connectedBy: ActivityContext,
   createdAt: Instant = Instant.now) extends ModelWithIdParameter[Connection]
                                     with    Validation[Connection]
 
@@ -39,7 +39,7 @@ class Connections(tag: Tag) extends GenericTable.TableWithId[Connection](tag, "a
   def previousId = column[Option[Int]]("previous_id")
   def nextId = column[Option[Int]]("next_id")
   def data = column[Json]("data")
-  def connectedBy = column[Json]("connected_by")
+  def connectedBy = column[ActivityContext]("connected_by")
   def createdAt = column[Instant]("created_at")
 
   def * = (

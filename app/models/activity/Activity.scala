@@ -73,7 +73,12 @@ class Activities(tag: Tag) extends GenericTable.TableWithId[Activity](tag, "acti
   def context = column[ActivityContext]("context")
   def createdAt = column[Instant]("created_at")
 
-  def * = (id, activityType, data, context, createdAt) <> ((Activity.apply _).tupled, Activity.unapply)
+  def * = (
+    id, 
+    activityType, 
+    data, 
+    context, 
+    createdAt) <> ((Activity.apply _).tupled, Activity.unapply)
 
 }
 

@@ -288,6 +288,14 @@ object Slick {
     }
 
     implicit class EnrichedDBIOpt[R](val dbio: DBIO[Option[R]]) extends AnyVal {
+
+      def findOrCreate(r: DbResult[R])(implicit ec: ExecutionContext): DbResult[R] = {
+        dbio.flatMap { 
+          case Some(model) ⇒ DbResult.good(model)
+          case None ⇒  r
+        }
+      }
+
       def mustFindOr(notFoundFailure: Failure)(implicit ec: ExecutionContext): DbResult[R] = dbio.flatMap {
         case Some(model) ⇒ DbResult.good(model)
         case None ⇒ DbResult.failure(notFoundFailure)

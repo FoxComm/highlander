@@ -19,14 +19,13 @@ import scala.language.implicitConversions
  *   Activities.log(<Tailored Activity>)
  */
 
-
 final case class CustomerInfoChanged(
   customerId: Int, 
   oldInfo: UpdateCustomerPayload,
   newInfo: UpdateCustomerPayload)
 
 object CustomerInfoChanged {
-  val typeName = "customer_contact_changed"
+  val typeName = "customer_info_changed"
 
   implicit val formats: DefaultFormats.type = DefaultFormats
 

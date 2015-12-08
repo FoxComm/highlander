@@ -64,6 +64,7 @@ class Service(
       logRequestResult("admin-customer-routes")(routes.admin.CustomerRoutes.routes) ~
       logRequestResult("admin-giftcard-routes")(routes.admin.GiftCardRoutes.routes) ~
       logRequestResult("admin-rma-routes")(routes.admin.RmaRoutes.routes) ~
+      logRequestResult("admin-activity-routes")(routes.admin.Activity.routes) ~
       logRequestResult("customer-routes")(routes.Customer.routes) ~
       logRequestResult("public-routes")(routes.Public.routes)
     }
