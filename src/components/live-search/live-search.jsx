@@ -43,13 +43,17 @@ export default class LiveSearch extends React.Component {
       'is-active': this.state.selectionIndex == this.state.searchOptions.length
     });
 
+    const goBack = (
+      <MenuItem className={menuClass} onClick={this.props.goBack}>
+        <i className='icon-back' />
+        Back
+      </MenuItem>
+    );
+
     return (
       <Menu>
         {options}
-        <MenuItem className={menuClass} onClick={this.props.goBack}>
-          <i className='icon-back' />
-          Back
-        </MenuItem>
+        {!_.isEmpty(this.state.searchValue) && goBack}
       </Menu>
     );
   }
@@ -83,7 +87,7 @@ export default class LiveSearch extends React.Component {
           className={klass}
           key={key}  
           option={option} 
-          clickAction={this.props.submitSearch} />
+          clickAction={this.props.submitFilter} />
       );
     }
   }
@@ -127,11 +131,13 @@ export default class LiveSearch extends React.Component {
       case 40:
         // Down arrow
         event.preventDefault();
-        if (!_.isEmpty(this.state.searchOptions)) {
-          const newIdx = Math.min(
-            this.state.selectionIndex + 1, 
-            this.state.searchOptions.length
-          );
+        if (!_.isEmpty(this.state.searchOptions) || !_.isEmpty(this.state.searchValue)) {
+          // Allow the selection of go back when there is a search term.
+          const maxLength = _.isEmpty(this.state.searchValue)
+            ? this.state.searchOptions.length - 1
+            : this.state.searchOptions.length;
+
+          const newIdx = Math.min(this.state.selectionIndex + 1, maxLength);
 
           let newSearchDisplay;
           if (newIdx < this.state.searchOptions.length) {
@@ -191,11 +197,11 @@ export default class LiveSearch extends React.Component {
       <div className='fc-live-search fc-col-md-1-1'>
         <form>
           <PilledInput
-            button={this.props.searchButton}
+            button={<button className="fc-btn">Save Search</button>}
             onPillClose={(pill, idx) => this.props.deleteSearchFilter(idx)}
             onPillClick={(pill, idx) => this.props.deleteSearchFilter(idx)}
             formatPill={this.formatPill}
-            placeholder={this.props.placeholder}
+            placeholder="Add another filter or keyword search"
             onChange={this.change}
             onFocus={this.inputFocus}
             onKeyDown={this.keyDown}
