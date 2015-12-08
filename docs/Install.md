@@ -16,7 +16,7 @@ Navigation:
 * PostgresSQL 9.4.x
 * Elasticsearch 1.7.x
 * Zookeeper 3.x.x
-* Kafka 0.9.x
+* Kafka 0.9.x - quick installation [guide](https://github.com/FoxComm/FoxComm/blob/kafka/kafka/README.md)
 * [Schema Registry](https://github.com/confluentinc/schema-registry)
 * [Bottled Water](https://github.com/FoxComm/bottledwater-pg)
 
@@ -28,7 +28,7 @@ If you have troubles with building `avro-c` dependency for bottledwater extensio
 
 ## Configuration
 
-* Elasticsearch - specify `cluster.name` in elasticsearch config
+* Elasticsearch - specify `cluster.name` in elasticsearch config.
 * Postgres - see [configuration](https://github.com/FoxComm/bottledwater-pg#configuration) section.
 * Schema Registry - prepare basic configuration file:
 
@@ -46,7 +46,7 @@ If you have troubles with building `avro-c` dependency for bottledwater extensio
 	* Note: you can get proper Kafka consumer `groupId` via command-line tool: 
 
 		```
-		$ $KAFKA_HOME/bin/kafka-consumer-groups.sh --list --zookeeper=localhost:2181
+		$ su kafka && ~/bin/kafka-consumer-groups.sh --list --zookeeper=localhost:2181
 		```
 
 ## Running
@@ -55,7 +55,7 @@ If you have troubles with building `avro-c` dependency for bottledwater extensio
 
 	```
 	$ service elastisearch start
-	$ $KAFKA_HOME/bin/kafka-server-start.sh ./config/server.properties
+	$ su kafka && ~/bin/kafka-server-start.sh ./config/server.properties
 	$ schema-registry-start ~/schema-registry.properties
 	```
 
