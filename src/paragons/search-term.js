@@ -4,7 +4,7 @@ import util from 'util';
 /**
  * SearchTerm represents a single term in the context of either the Live Search
  * or the Dynamic Customer Group.
- */ 
+ */
 export default class SearchTerm {
   static potentialTerms(searchTerms, str) {
     return _.transform(searchTerms, (result, term) => {
@@ -21,21 +21,14 @@ export default class SearchTerm {
     } else {
       this._term = `${parentTitle} : ${searchTermJson.term}`;
     }
-    
+
     this._type = searchTermJson.type;
 
     if (!_.isEmpty(searchTermJson.options)) {
       this._options = searchTermJson.options.map(o => new SearchTerm(o, this._term));
-    }
-
-    if (!_.isEmpty(searchTermJson.suggestions)) {
-      this._suggestions = searchTermJson.suggestions.map(s => {
-        const suggestion = {
-          options: [],
-          suggestions: [],
-          term: s,
-          type: 'value'
-        };
+    } else if (!_.isEmpty(searchTermJson.suggestions)) {
+      this._options = searchTermJson.suggestions.map(s => {
+        const suggestion = { options: [], suggestions: [], term: s, type: 'value' };
         return new SearchTerm(suggestion, this._term);
       });
     }
@@ -65,35 +58,42 @@ export default class SearchTerm {
    * Finds the search terms that are applicable based on a given search value.
    * It may either be the current term, or one if its child options/suggestions.
    * @param {string} search The search term so search against.
-   * @return {array} An array of search terms that should be visible. An empty
+   * @return {Array} An array of search terms that should be visible. An empty
    *                 list if none are found.
    */
   applicableTerms(search) {
     const nSearch = normalizeSearchTerm(search);
     const nTerm = this.displayTerm.toLowerCase();
+    let terms = [];
 
-    if (_.startsWith(nTerm, nSearch)) {
-      return [this];
-    } else if (_.startsWith(nSearch, nTerm)) {
-      if (!_.isEmpty(this._options)) {
-        return _.transform(this._options, (result, option) => {
-          _.forEach(option.applicableTerms(search), term => result.push(term));
-        });
-      } else if (!_.isEmpty(this._suggestions)) {
-        return _.transform(this._suggestions, (result, suggestion) => {
-          _.forEach(suggestion.applicableTerms(search), term => result.push(term));
-        });
-      } else if (this._type != 'value' && nSearch.length > nTerm.length) {
-        // Truncate the search term because of the effect on the value.
-        // Don't do this for value options, because we always want exact matches.
-        if (removeValue(nSearch) == nTerm) {
-          return [this];
-        }
-      }
+    if (this.matchesSearchTerm(search)) {
+      terms.push(this);
+    } else if (_.startsWith(nSearch, nTerm) && !_.isEmpty(this._options)) {
+      terms = _.transform(this._options, (result, option) => {
+        _.forEach(option.applicableTerms(search), term => result.push(term));
+      });
     }
 
-    return [];
+    return terms;
   }
+
+  /**
+   * Checks to see a specific search term is a match for a given search string.
+   * It does not check to see if any child terms match.
+   * @param {string} search The search string to search against.
+   * @returns {bool} True if the term matches, false otherwise.
+   */
+  matchesSearchTerm(search) {
+    const nSearch = normalizeSearchTerm(search).toLowerCase();
+    const nTerm = this.displayTerm.toLowerCase();
+
+    if (_.startsWith(nTerm, nSearch)) {
+      return true;
+    } else if (_.isEmpty(this._options) && this._type != 'value') {
+      return nSearch.length && removeValue(nSearch) == nTerm;
+    }
+  }
+
 
   selectTerm(search) {
     // Eliminate a hanging colon, we don't want to think an empty string
@@ -103,10 +103,8 @@ export default class SearchTerm {
 
     if (this._type == 'value') {
       return nSearch === nTerm;
-    } else {
-      if (_.isEmpty(this._options) && _.isEmpty(this._suggestions)) {
-        return nSearch.length > nTerm.length && removeValue(nSearch) === nTerm;
-      }
+    } else if (_.isEmpty(this._options)) {
+      return nSearch.length > nTerm.length && removeValue(nSearch) === nTerm;
     }
 
     return false;

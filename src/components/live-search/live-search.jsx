@@ -36,26 +36,21 @@ export default class LiveSearch extends React.Component {
   };
 
   get searchOptions() {
-    const options = _.transform(this.state.searchOptions, (result, option, idx) => {
-      const applicable = this.state.searchOptions.length == 1
-        || _.startsWith(option.displayTerm, this.state.searchValue);
-
-      if (applicable) {
-        const key = `search-option-${idx}`;
-        const klass = classNames({
-          '__active': this.state.selectionIndex == idx,
-          '__first': idx == 0
-        });
-
-        result.push(
-          <SearchOption
-            className={klass}
-            key={key}
-            option={option}
-            clickAction={this.props.submitFilter} />
-        );
+    const selectedIdx = this.state.selectionIndex;
+    const options = _.reduce(this.state.searchOptions, (result, option, idx) => {
+      if (!option.matchesSearchTerm(this.state.searchValue)) {
+        return result;
       }
-    });
+
+      return [
+        ...result,
+        <SearchOption
+          className={classNames({ '__active': selectedIdx == idx, '__first': idx == 0 })}
+          key={`search-option-${idx}`}
+          option={option}
+          clickAction={this.props.submitFilter} />
+      ];
+    }, []);
 
     const menuClass = classNames('fc-live-search__go-back-item __last', {
       '__active': this.state.selectionIndex == this.state.searchOptions.length
