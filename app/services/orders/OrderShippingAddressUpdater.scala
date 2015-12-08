@@ -57,7 +57,8 @@ object OrderShippingAddressUpdater {
     order       ← * <~ mustFindOrderByRefNum(refNum)
     _           ← * <~ order.mustBeCart
     shipAddress ← * <~ mustFindShipAddressForOrder(order)
-    _           ← * <~ OrderShippingAddresses.update(OrderShippingAddress.fromPatchPayload(shipAddress, payload))
+    patch       =      OrderShippingAddress.fromPatchPayload(shipAddress, payload)
+    _           ← * <~ OrderShippingAddresses.update(shipAddress, patch)
     validated   ← * <~ CartValidator(order).validate
     response    ← * <~ FullOrder.refreshAndFullOrder(order).toXor
   } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).runT()

@@ -1,9 +1,13 @@
 package utils
 
-import java.time.{Duration, ZoneId, Instant}
+import java.time.{ZonedDateTime, Duration, ZoneId, Instant}
 
 package object time {
   val UTC = ZoneId.of("UTC")
+
+  def today: ZonedDateTime = Instant.now().atZone(UTC)
+
+  def yesterday: ZonedDateTime = Instant.now().atZone(UTC).minusDays(1)
 
   implicit class RichInstant(val instant: Instant) extends AnyVal {
     def minuteOfHour: Int          = utc.getMinute

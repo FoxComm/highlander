@@ -13,6 +13,7 @@ import utils.DbResultT.implicits._
 import utils.DbResultT.{DbResultT, _}
 import utils.Money.Currency
 import utils.Slick.implicits._
+import utils.time
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -84,7 +85,8 @@ trait OrderSeeds {
 
   def createOrder5(customerId: Customer#Id, skus: Seq[Sku], shipMethod: OrderShippingMethod#Id)
     (implicit db: Database): DbResultT[Order] = for {
-    order ← * <~ Orders.create(Order(status = Shipped, customerId = customerId))
+    order ← * <~ Orders.create(Order(status = Shipped,
+      customerId = customerId, placedAt = Some(time.yesterday.toInstant)))
     _     ← * <~ addSkusToOrder(skus.map(_.id), order.id, OrderLineItem.Shipped)
     cc    ← * <~ getCc(customerId) // TODO: auth
     op    ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(orderId = order.id, amount = none))
