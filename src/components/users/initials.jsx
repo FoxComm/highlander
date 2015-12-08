@@ -1,31 +1,30 @@
 import React, { PropTypes } from 'react';
 
-export default class UserInitials extends React.Component {
-  initials() {
-    let user = this.props.model;
-    return `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`;
-  }
+const initials = (user) => {
+  const [firstName, lastName] = user.name.split(' ');
+  return `${firstName.charAt(0)}${lastName.charAt(0)}`;
+};
 
-  tooltip() {
-    let user = this.props.model;
-    return (
-      <div className="fc-tooltip fc-tooltip-left">
-        <div className="fc-strong">{`${user.firstName} ${user.lastName}`}</div>
-        {user.email && (<div>{`${user.email}`}</div>)}
-      </div>
-    );
-  }
+const tooltip = (user) => {
+  return (
+    <div className="fc-tooltip fc-tooltip-left">
+      <div className="fc-strong">{ user.name }</div>
+      {user.email && (<div>{ user.email }</div>)}
+    </div>
+  );
+};
 
-  render() {
-    return (
-      <div className="initials fc-with-tooltip">
-        {this.initials()}
-        {this.tooltip()}
-      </div>
-    );
-  }
-}
+const UserInitials = (props) => {
+  return (
+    <div className="initials fc-with-tooltip">
+      { initials(props.model) }
+      { tooltip(props.model) }
+    </div>
+  );
+};
 
 UserInitials.propTypes = {
   model: PropTypes.object
 };
+
+export default UserInitials;
