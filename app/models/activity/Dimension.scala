@@ -2,11 +2,18 @@ package models.activity
 
 import java.time.Instant
 
+import cats.data.ValidatedNel
 import monocle.macros.GenLens
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
 import org.json4s.JsonAST.JValue
+
+import services.Failure
+
 import utils.ExPostgresDriver.api._
 import utils.time.JavaTimeSlickMapper._
+import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
+
+import Validation._
+
 
 import Aliases.Json
 
@@ -20,7 +27,15 @@ final case class Dimension(
   name: String, 
   description: String)
   extends ModelWithIdParameter[Dimension]
-  with Validation[Dimension]
+  with Validation[Dimension] {
+
+    val nameRegex = """([a-zA-Z0-9-_]*)""".r
+
+    override def validate: ValidatedNel[Failure, Dimension] = {
+      matches(name, nameRegex, "name").map{case _ ⇒  this}
+    }
+
+  }
 
 class Dimensions(tag: Tag) extends GenericTable.TableWithId[Dimension](tag, "activity_dimensions")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)

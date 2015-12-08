@@ -14,15 +14,21 @@ import utils.Slick.implicits._
 import utils.Slick._
 
 import models.activity.ActivityContext
-import models.activity.Trails
-import models.activity.Trail
-import models.activity.Connections
 import models.activity.Connection
+import models.activity.Connections
+import models.activity.Dimension
+import models.activity.Dimensions
+import models.activity.Trail
+import models.activity.Trails
 
 import payloads.CreateTrail
 import payloads.AppendActivity
 
+import responses.ActivityConnectionResponse
+
 object TrailManager {
+
+    val dimensionDescription = "Automatically Generated"
 
     def trailNotFound(dimensionId: Int, objectId: Int): NotFoundFailure404 = NotFoundFailure404(Trail, (dimensionId, objectId))
     def connectionNotFound(connectionId: Int): NotFoundFailure404 = NotFoundFailure404(Connection, connectionId)
@@ -38,16 +44,25 @@ object TrailManager {
       } yield trail.id).runT()
     
 
+    /**
+     * The append function will create a dimension and trail if they don't exist.
+     * The idea here is to lazily create resources to save space and query time.
+     */
     def appendActivityByObjectId(
-      dimensionId: Int, 
+      dimensionName: String, 
       objectId: Int, 
       payload: AppendActivity) 
-    (implicit context: ActivityContext, ec: ExecutionContext, db: Database) : Result[Int] =
+    (implicit context: ActivityContext, ec: ExecutionContext, db: Database) : Result[ActivityConnectionResponse.Root] =
       (for { 
 
+        //find or create the dimension
+        dimension ← * <~ Dimensions.findByName(dimensionName).one.findOrCreate { 
+          Dimensions.create(Dimension(name = dimensionName, description = dimensionDescription))
+        }
+
         //find or create
-        trail ← * <~ Trails.findByObjectId(dimensionId, objectId).one.findOrCreate { 
-          Trails.create(Trail(dimensionId = dimensionId, objectId = objectId))
+        trail ← * <~ Trails.findByObjectId(dimension.id, objectId).one.findOrCreate { 
+          Trails.create(Trail(dimensionId = dimension.id, objectId = objectId))
         }
 
         //save old tail connection id
@@ -55,7 +70,7 @@ object TrailManager {
 
         //insert new tail, point previous to old tail
         newTail ← * <~ Connections.create(Connection(
-          dimensionId = dimensionId, 
+          dimensionId = dimension.id, 
           trailId = trail.id, 
           activityId = payload.activityId,
           previousId = maybeOldTailId,
@@ -68,7 +83,7 @@ object TrailManager {
 
         //update old tail if there was one
         _ ← * <~ updateTail(maybeOldTailId, newTail.id)
-      } yield (newTail.id)).runT()
+      } yield (ActivityConnectionResponse.build(objectId, dimension, newTail))).runT()
 
     private def updateTail(maybeOldTailId: Option[Int], newTailId: Int) 
     (implicit ec: ExecutionContext, db: Database) : DbResultT[Unit] = { 
