@@ -52,7 +52,7 @@ export default class LiveSearch extends React.Component {
       ];
     }, []);
 
-    const menuClass = classNames('fc-live-search__go-back-item _last', {
+    const menuClass = classNames('fc-live-search__go-back _last', {
       '_active': this.state.selectionIndex == this.state.searchOptions.length
     });
 
