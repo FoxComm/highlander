@@ -103,15 +103,15 @@ If you have troubles with building `avro-c` dependency for bottledwater extensio
 
 Drop replication slot in `psql phoenix_development` if bottledwater can't start properly:
 
-	```plsql
-	select pg_drop_replication_slot('bottledwater');
-	```
+```plsql
+select pg_drop_replication_slot('bottledwater');
+```
 
 Drop extension:
 	
-	```plsql
-	drop extension bottledwater;
-	```
+```plsql
+drop extension bottledwater;
+```
 
 Wipe all queue metadata:
 
