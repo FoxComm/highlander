@@ -24,8 +24,8 @@ object ActivityMain {
     val avroSchemaRegistryUrl = conf.getString(s"$env.avro.schemaRegistryUrl")
     val kafkaBroker           = conf.getString(s"$env.kafka.broker")
     val kafkaGroupId          = conf.getString(s"$env.kafka.groupId")
-    val activityTopic         = conf.getString(s"kafka.activityTopic")
-    val phoenixUri            = conf.getString(s"$env.phoenix.uri")
+    val activityTopic         = conf.getString(s"$env.activity.kafka.topic")
+    val phoenixUri            = conf.getString(s"$env.activity.kafka.phoenix.uri")
 
     val activityLinkers = Seq.empty
     val activityProcessor = new ActivityProcessor(phoenixUri, activityLinkers)

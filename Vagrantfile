@@ -4,7 +4,8 @@
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/vivid64"
   # PostgreSQL
-  config.vm.network :forwarded_port, guest: 5432, host: 5432, auto_correct: false
+  config.vm.network :forwarded_port, guest: 5432, host: 5432, auto_correct: true
+  config.vm.network :forwarded_port, guest: 9090, host: 9090, auto_correct: true
 
   config.vm.network "private_network", ip: "192.168.10.111"
 
@@ -18,7 +19,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.provider :virtualbox do |vb|
     vb.cpus = 2
-    vb.memory = 3048
+    vb.memory = 4048
   end
 
   config.vm.provider :vmware_fusion do |v, override|

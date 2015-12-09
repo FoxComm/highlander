@@ -173,9 +173,11 @@ systemctl enable postgresql &> /dev/null
 runService postgresql
 
 echo Configuring DB
+
 sudo -u postgres createuser -s root || {
     echo "postgres: root user already created, ignoring"
 }
+
 sudo -u postgres createuser -s vagrant || {
     echo "postgres: vagrant user already created, ignorng"
 }
