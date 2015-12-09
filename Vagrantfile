@@ -8,6 +8,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.network "private_network", ip: "192.168.10.111"
 
+  config.vm.synced_folder "../bottledwater-pg/", "/bottledwater"
   config.vm.synced_folder "../phoenix-scala/", "/phoenix"
 
   config.vm.provision "fix-no-tty", type: "shell" do |s|

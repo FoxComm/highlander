@@ -109,7 +109,7 @@ cp /vagrant/vagrant/templates/libsnappy.pc /usr/local/lib/pkgconfig/libsnappy.pc
 echo \    bottledwater
 BW_DIR=${BUILD}/bottledwater
 if [[ ! -d ${BW_DIR} ]]; then
-  git clone https://github.com/confluentinc/bottledwater-pg.git ${BW_DIR}
+  git clone /bottledwater ${BW_DIR}
   cd ${BW_DIR}
   make clean && make && make install
   cp kafka/bottledwater client/bwtest /usr/local/bin
@@ -173,11 +173,18 @@ systemctl enable postgresql &> /dev/null
 runService postgresql
 
 echo Configuring DB
+sudo -u postgres createuser -s root || {
+    echo "postgres: root user already created, ignoring"
+}
+sudo -u postgres createuser -s vagrant || {
+    echo "postgres: vagrant user already created, ignorng"
+}
+
 su - postgres -c 'cd /phoenix && make configure'
 
 echo Staring services:
 
-START_US=( kafka zookeeper elasticsearch schema-registry )
+START_US=( zookeeper kafka elasticsearch schema-registry )
 for START_ME in "${START_US[@]}"
 do
 	echo \    ${START_ME}
