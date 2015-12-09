@@ -1,18 +1,18 @@
 const criteriaOptions = {
-  isBlacklisted: {
+  is_blacklisted: {
     title: 'Blacklisted status',
     type: 'bool'
   },
-  region: {
-    title: 'Region',
-    type: 'enum',
-    suggestions: []
-  },
+  //region: {
+  //  title: 'Region',
+  //  type: 'enum',
+  //  suggestions: []
+  //},
   revenue: {
     title: 'Total Sales',
     type: 'currency'
   },
-  date_joined: {
+  joined_at: {
     title: 'Date Joined',
     type: 'date'
   }
@@ -23,14 +23,15 @@ const criteriaOperators = {
     eq: 'is'
   },
   date: {
-    '>': 'is after',
-    '<': 'is before',
-    'between': 'between'
+    'gt': 'is after',
+    'lt': 'is before',
+    'gt__lt': 'between',
   },
   number: {
-    '=': 'is equal to',
-    '>': 'is greater than',
-    '<': 'is less than'
+    'eq': 'is equal to',
+    'gt': 'is greater than',
+    'lt': 'is less than',
+    'gt__lt': 'between'
   },
   enum: {
     'has': 'is one of',

@@ -9,8 +9,16 @@ import NewGroupBase from './new-group-base.jsx';
 import QueryBuilder from './query-builder';
 import { connect } from 'react-redux';
 import { assoc } from 'sprout-data';
+import { autobind } from 'core-decorators';
+import * as GroupBuilderActions from '../../modules/groups/builder';
 
+
+@connect(state => state.groups.builder, GroupBuilderActions)
 export default class NewDynamicGroup extends React.Component {
+
+  static propTypes = {
+    submitQuery: PropTypes.func.isRequired,
+  };
 
   constructor(props, context) {
     super(props, context);
@@ -18,6 +26,19 @@ export default class NewDynamicGroup extends React.Component {
       name: '',
       matchCriteria: 'all'
     };
+  }
+
+  @autobind
+  onSubmit() {
+    this.props.submitQuery();
+  }
+
+  get searchResults() {
+    if (this.props.searchResults) {
+      return (
+        <textarea readOnly={true} value={JSON.stringify(this.props.searchResults)}></textarea>
+      );
+    }
   }
 
   render() {
@@ -30,7 +51,7 @@ export default class NewDynamicGroup extends React.Component {
       <NewGroupBase title='New Dynamic Customer Group'
                   alternativeId='groups-new-manual'
                   alternativeTitle='manual group'>
-        <Form>
+        <Form onSubmit={this.onSubmit}>
           <FormField label='Group Name'
                      labelClassName='fc-group-new-title fc-group-new-name'>
             <input id='nameField'
@@ -54,7 +75,8 @@ export default class NewDynamicGroup extends React.Component {
             </span>
             <span className='fc-group-new-match-span'>of the following criteria:</span>
           </div>
-          <QueryBuilder/>
+          <QueryBuilder {...this.props}/>
+          {this.searchResults}
           <div className='fc-group-new-form-submits'>
             <Link to='customers'>Cancel</Link>
             <Button>Make Manual Group</Button>
