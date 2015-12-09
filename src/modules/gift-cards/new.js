@@ -20,8 +20,10 @@ const textToBalance = value => value * 100;
 export function suggestCustomers(term) {
   return dispatch => {
     return Api.get(`/customers/searchForNewOrder`, {term})
-      .then(response => dispatch(setSuggestedCustomers(response.result)))
-      .catch(err => dispatch(setSuggestedCustomers([])));
+      .then(
+        response => dispatch(setSuggestedCustomers(response.result)),
+        err => dispatch(setSuggestedCustomers([]))
+      );
   };
 }
 
@@ -41,8 +43,10 @@ const initialState = {
 export function fetchTypes() {
   return dispatch => {
     Api.get(`/gift-cards/types`)
-      .then(types => dispatch(setTypes(types)))
-      .catch(err => dispatch(setError(err)));
+      .then(
+        types => dispatch(setTypes(types)),
+        err => dispatch(setError(err))
+      );
   };
 }
 

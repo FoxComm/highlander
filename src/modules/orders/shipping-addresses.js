@@ -34,24 +34,30 @@ export const spliceError = _createAction('SPLICE_ERROR', (error, index) => [erro
 export function chooseAddress(refNum, addressId) {
   return dispatch => {
     return Api.patch(`/orders/${refNum}/shipping-address/${addressId}`)
-      .then(order => dispatch(orderSuccess(order)))
-      .catch(err => dispatch(setError(err)));
+      .then(
+        order => dispatch(orderSuccess(order)),
+        err => dispatch(setError(err))
+      );
   };
 }
 
 export function deleteShippingAddress(refNum) {
   return dispatch => {
     return Api.delete(`/orders/${refNum}/shipping-address`)
-      .then(order => dispatch(orderSuccess(order)))
-      .catch(err => dispatch(setError(err)));
+      .then(
+        order => dispatch(orderSuccess(order)),
+        err => dispatch(setError(err))
+      );
   };
 }
 
 export function patchShippingAddress(refNum, data) {
   return dispatch => {
     return Api.patch(`/orders/${refNum}/shipping-address`, data)
-      .then(order => dispatch(orderSuccess(order)))
-      .catch(err => dispatch(setError(err)));
+      .then(
+        order => dispatch(orderSuccess(order)),
+        err => dispatch(setError(err))
+      );
   };
 }
 

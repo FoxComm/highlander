@@ -11,8 +11,10 @@ export function fetchRma(id) {
   return dispatch => {
     dispatch(requestRma(id));
     Api.get(`/rmas/${id}`)
-      .then(rma => dispatch(rmaSuccess(rma)))
-      .catch(err => dispatch(failRma(id, err, fetchRma)));
+      .then(
+        rma => dispatch(rmaSuccess(rma)),
+        err => dispatch(failRma(id, err, fetchRma))
+      );
   };
 }
 

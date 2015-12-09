@@ -64,8 +64,10 @@ export function createActions(url, namespace) {
   const fetch = fetchData => dispatch => {
     dispatch(actionFetch());
     return Api.get(url, pickFetchParams(fetchData))
-      .then(orders => dispatch(actionReceived(orders)))
-      .catch(err => dispatch(actionFetchFailed(err, fetch)));
+      .then(
+        result => dispatch(actionReceived(result)),
+        err => dispatch(actionFetchFailed(err, fetch))
+      );
   };
 
   const setFetchParams = (state, fetchParams) => dispatch => {

@@ -39,8 +39,10 @@ export function fetchRmas(entity={entityType: 'rma'}, newFetchParams) {
     dispatch(actionFetch(entity));
     dispatch(actionSetFetchParams(entity, newFetchParams));
     return Api.get(uri, fetchParams)
-      .then(json => dispatch(actionReceived(entity, json)))
-      .catch(err => dispatch(actionFetchFailed(entity, err)));
+      .then(
+        json => dispatch(actionReceived(entity, json)),
+        err => dispatch(actionFetchFailed(entity, err))
+      );
   };
 }
 

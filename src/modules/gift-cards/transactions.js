@@ -12,8 +12,10 @@ export function fetchTransactions(id) {
   return dispatch => {
     dispatch(requestTransactions(id));
     return Api.get(`/gift-cards/${id}/transactions`)
-      .then(json => dispatch(receiveTransactions(id, json)))
-      .catch(err => dispatch(failTransactions(id, err)));
+      .then(
+        json => dispatch(receiveTransactions(id, json)),
+        err => dispatch(failTransactions(id, err))
+      );
   };
 }
 

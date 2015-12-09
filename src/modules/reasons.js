@@ -18,8 +18,10 @@ export function fetchReasons(reasonType) {
     dispatch(reasonsRequested());
 
     return Api.get(`/reasons/${reasonType}`)
-      .then(json => dispatch(reasonsReceived(json, reasonType)))
-      .catch(err => dispatch(reasonsFailed(err)));
+      .then(
+        json => dispatch(reasonsReceived(json, reasonType)),
+        err => dispatch(reasonsFailed(err))
+      );
   };
 }
 

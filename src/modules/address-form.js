@@ -55,12 +55,16 @@ export function submitForm(form, customerId, formData) {
 
     if (state.isAdding) {
       return dispatch(createAddress(customerId, formData))
-        .then(address => dispatch(setError(form, null)) && address)
-        .catch(err => dispatch(setError(form, err)) && err);
+        .then(
+          address => dispatch(setError(form, null)) && address,
+          err => dispatch(setError(form, err)) && err
+        );
     } else {
       return dispatch(patchAddress(customerId, state.addressId, formData))
-        .then(address => dispatch(setError(form, null)) && address)
-        .catch(err => dispatch(setError(form, err)) && err);
+        .then(
+          address => dispatch(setError(form, null)) && address,
+          err => dispatch(setError(form, err)) && err
+        );
     }
   };
 }

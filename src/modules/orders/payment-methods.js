@@ -17,8 +17,10 @@ export const orderPaymentMethodStopEdit = _createAction('STOP_EDIT');
 function deleteOrderPaymentMethod(path) {
   return dispatch => {
     return Api.delete(path)
-      .then(order => dispatch(orderSuccess(order)))
-      .catch(err => dispatch(setError(err)));
+      .then(
+        order => dispatch(orderSuccess(order)),
+        err => dispatch(setError(err))
+      );
   };
 }
 
@@ -39,7 +41,7 @@ export function deleteOrderCreditCardPayment(orderRefNum) {
 
 function basePath(refNum) {
   return `/orders/${refNum}/payment-methods`;
-};
+}
 
 const initialState = {
   isEditing: false,
