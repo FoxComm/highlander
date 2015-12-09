@@ -10,10 +10,10 @@ export default class NotificationIndicator extends React.Component {
 
   static propTypes = {
     notifications: PropTypes.shape({
-      count: PropTypes.number,
-      displayed: PropTypes.bool
+      count: PropTypes.number.isRequired,
+      displayed: PropTypes.bool.isRequired
     }),
-    toggleNotifiactions: PropTypes.func,
+    toggleNotifications: PropTypes.func,
     fetchNotifications: PropTypes.func
   };
 
@@ -39,7 +39,7 @@ export default class NotificationIndicator extends React.Component {
       <div className="fc-activity-notifications">
         <Button icon="bell"
                 className={ classes }
-                onClick={ this.props.toggleNotifiactions }>
+                onClick={ this.props.toggleNotifications }>
           { this.indicator }
         </Button>
       </div>

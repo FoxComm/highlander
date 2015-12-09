@@ -15,13 +15,6 @@ const icon = (item) => {
   }
 };
 
-/**
-* Bob Saget changed the email address on Customer 541543252.
-* You assigned yourself to Order 541543252.
-* Bree swineford unassigned you from Order 541543252.
-* Bree swineford assigned you to Order 541543252.
-*/
-
 const buildDelimeter = (action) => {
   switch(action) {
     case 'assigned':
@@ -97,7 +90,7 @@ NotificationItem.propTypes = {
   item: PropTypes.shape({
     createdAt: PropTypes.string,
     body: PropTypes.shape({
-      origin: PropTypes.obj
+      origin: PropTypes.object.isRequired
     })
   })
 };

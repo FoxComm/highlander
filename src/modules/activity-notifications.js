@@ -5,7 +5,7 @@ import { createAction, createReducer } from 'redux-act';
 import { deepMerge } from 'sprout-data';
 
 const notificationsReceived = createAction('NOTIFICATIONS_RECEIVED');
-export const toggleNotifiactions = createAction('NOTIFICATIONS_TOGGLE');
+export const toggleNotifications = createAction('NOTIFICATIONS_TOGGLE');
 
 export function fetchNotifications() {
   return (dispatch) => {
@@ -132,7 +132,7 @@ const reducer = createReducer({
       count: data.length
     };
   },
-  [toggleNotifiactions]: state => {
+  [toggleNotifications]: state => {
     const displayed = state.displayed;
     return {
       ...state,

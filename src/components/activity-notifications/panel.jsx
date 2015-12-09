@@ -14,20 +14,20 @@ export default class NotificationPanel extends React.Component {
       notifications: PropTypes.array,
       displayed: PropTypes.bool
     }),
-    toggleNotifiactions: PropTypes.func
+    toggleNotifications: PropTypes.func
   };
 
   get items() {
     const items = this.props.notifications.notifications;
     return items.map(item => {
-      return (<NotificationItem item={ item } key={`notification-item-${item.id}`}/>);
+      return (<NotificationItem item={item} key={`notification-item-${item.id}`}/>);
     });
   }
 
   get footer() {
     return (
       <div className="fc-activity-notifications__footer">
-        <PrimaryButton onClick={ () => console.log('Not implemented yet') }
+        <PrimaryButton onClick={() => console.log('Not implemented yet')}
                        className="fc-activity-notifications__footer-button">
           View All
         </PrimaryButton>
@@ -40,12 +40,12 @@ export default class NotificationPanel extends React.Component {
       return (
         <div>
           <div className="fc-activity-notifications__overlay"
-               onClick={ this.props.toggleNotifiactions }>
+               onClick={this.props.toggleNotifications}>
           </div>
           <ContentBox title='Notifications'
                       className="fc-activity-notifications__box"
-                      footer={ this.footer }>
-            { this.items }
+                      footer={this.footer}>
+            {this.items }
           </ContentBox>
         </div>
       );
