@@ -37,6 +37,8 @@ export default class Orders extends React.Component {
     }),
     cloneSearch: PropTypes.func,
     deleteSearchFilter: PropTypes.func,
+    editSearchNameStart: PropTypes.func,
+    editSearchNameCancel: PropTypes.func,
     goBack: PropTypes.func,
     submitFilter: PropTypes.func
   };
@@ -97,6 +99,8 @@ export default class Orders extends React.Component {
           cloneSearch={this.props.cloneSearch}
           goBack={this.props.goBack}
           deleteSearchFilter={this.props.deleteSearchFilter}
+          editSearchNameStart={this.props.editSearchNameStart}
+          editSearchNameCancel={this.props.editSearchNameCancel}
           selectSavedSearch={this.props.selectSavedSearch}
           submitFilter={this.props.submitFilter}
           searches={this.props.search}

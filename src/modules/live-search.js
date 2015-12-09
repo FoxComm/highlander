@@ -16,6 +16,7 @@ const emptyState = {
 function cloneSearch(state, name = 'Unnamed Search') {
   const toClone = {
     ...state.savedSearches[state.selectedSearch],
+    name: '',
     isDirty: true,
     isEditingName: true
   };
@@ -45,6 +46,19 @@ function deleteSearchFilter(state, idx) {
   }
 
   return state;
+}
+
+function editSearchNameStart(state) {
+  return assoc(state, ['savedSearches', state.selectedSearch, 'isEditingName'], true);
+}
+
+function editSearchNameCancel(state) {
+  return assoc(state, ['savedSearches', state.selectedSearch, 'isEditingName'], false);
+}
+
+function editSearchNameComplete(state, newName) {
+  const newState = assoc(state, ['savedSearches', state.selectedSearch, 'name'], newName);
+  return assoc(newState, ['savedSearches', state.selectedSearch, 'isEditingName'], false);
 }
 
 function goBack(state) {
@@ -98,23 +112,27 @@ function liveSearchReducer(actionTypes, searchTerms) {
     savedSearches: {
       'All': {
         ...emptyState,
+        name: 'All',
         currentOptions: terms
       },
       'Remorse Hold': {
         ...emptyState,
+        name: 'Remorse Hold',
         currentOptions: terms,
         searches: ['Order : State : Remorse Hold']
       },
       'Manual Hold': {
         ...emptyState,
+        name: 'Manual Hold',
         currentOptions: terms,
         searches: ['Order : State : Manual Hold']
       },
       'Fraud Hold': {
         ...emptyState,
+        name: 'Fraud Hold',
         currentOptions: terms,
         searches: ['Order : State : Fraud Hold']
-      },
+      }
     }
   };
 
@@ -124,6 +142,15 @@ function liveSearchReducer(actionTypes, searchTerms) {
     switch (action.type) {
       case actionTypes.CLONE_SEARCH:
         return cloneSearch(state, payload.name);
+
+      case actionTypes.EDIT_SEARCH_NAME_START:
+        return editSearchNameStart(state);
+
+      case actionTypes.EDIT_SEARCH_NAME_CANCEL:
+        return editSearchNameCancel(state);
+
+      case actionTypes.EDIT_SEARCH_NAME_COMPLETE:
+        return editSearchNameComplete(state, payload.newName);
 
       case actionTypes.DELETE_SEARCH_FILTER:
         return deleteSearchFilter(state, payload.idx);
@@ -147,6 +174,9 @@ function createLiveSearchActionTypes(namespace) {
   const actionTypes = {
     CLONE_SEARCH: 'CLONE_SEARCH',
     DELETE_SEARCH_FILTER: 'DELETE_SEARCH_FILTER',
+    EDIT_SEARCH_NAME_START: 'EDIT_SEARCH_START',
+    EDIT_SEARCH_NAME_CANCEL: 'EDIT_SEARCH_CANCEL',
+    EDIT_SEARCH_NAME_COMPLETE: 'EDIT_SEARCH_NAME_COMPLETE',
     GO_BACK: 'GO_BACK',
     SELECT_SAVED_SEARCH: 'SELECT_SAVED_SEARCH',
     SUBMIT_FILTER: 'SUBMIT_FILTER'
@@ -159,6 +189,9 @@ function createLiveSearchActions(actionTypes) {
   return {
     cloneSearch: createAction(actionTypes.CLONE_SEARCH, (name) => ({name})),
     deleteSearchFilter: createAction(actionTypes.DELETE_SEARCH_FILTER, (idx) => ({idx})),
+    editSearchNameStart: createAction(actionTypes.EDIT_SEARCH_NAME_START),
+    editSearchNameCancel: createAction(actionTypes.EDIT_SEARCH_NAME_CANCEL),
+    editSearchNameComplete: createAction(actionTypes.EDIT_SEARCH_NAME_COMPLETE, (newName) => ({newName})),
     goBack: createAction(actionTypes.GO_BACK),
     selectSavedSearch: createAction(actionTypes.SELECT_SAVED_SEARCH, (searchName) => ({searchName})),
     submitFilter: createAction(actionTypes.SUBMIT_FILTER, (searchTerm) => ({searchTerm})),

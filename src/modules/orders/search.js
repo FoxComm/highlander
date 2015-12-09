@@ -3,7 +3,16 @@ import searchTerms from './search-terms';
 
 const {
   reducer,
-  actions: { cloneSearch, deleteSearchFilter, goBack, selectSavedSearch, submitFilter }
+  actions: {
+    cloneSearch,
+    deleteSearchFilter,
+    editSearchNameStart,
+    editSearchNameCancel,
+    editSearchNameComplete,
+    goBack,
+    selectSavedSearch,
+    submitFilter
+  }
 } = makeLiveSearch('ORDERS', searchTerms);
 
 export default reducer;
@@ -11,6 +20,9 @@ export default reducer;
 export {
   cloneSearch,
   deleteSearchFilter,
+  editSearchNameStart,
+  editSearchNameCancel,
+  editSearchNameComplete,
   goBack,
   selectSavedSearch,
   submitFilter

@@ -25,6 +25,7 @@ export default class EditableTabView extends React.Component {
       return (
         <div className="fc-tab__edit-content fc-form-field">
           <input
+            className="fc-tab__edit-content-input"
             type="text"
             placeholder="Name your search"
             value=""
