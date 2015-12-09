@@ -9,7 +9,7 @@ import MenuItem from '../menu/menu-item';
 import PilledInput from '../pilled-search/pilled-input';
 import SearchOption from './search-option';
 import TabListView from '../tabs/tabs';
-import TabView from '../tabs/tab';
+import EditableTabView from '../tabs/editable-tab';
 import TableView from '../table/tableview';
 import TableRow from '../table/row';
 import TableCell from '../table/cell';
@@ -29,6 +29,7 @@ export default class LiveSearch extends React.Component {
 
     const search = currentSearch(props.searches);
     this.state = {
+      isFocused: false,
       optionsVisible: false,
       pills: search.searches,
       searchDisplay: search.searchValue,
@@ -39,16 +40,26 @@ export default class LiveSearch extends React.Component {
   }
 
   static propTypes = {
+    cloneSearch: PropTypes.func.isRequired,
     deleteSearchFilter: PropTypes.func.isRequired,
     goBack: PropTypes.func.isRequired,
     selectSavedSearch: PropTypes.func.isRequired,
     submitFilter: PropTypes.func.isRequired,
-    state: PropTypes.object.isRequired,
+    search: PropTypes.object.isRequired,
     columns: PropTypes.array.isRequired,
     data: PropTypes.node.isRequired,
     renderRow: PropTypes.func,
     setState: PropTypes.func
   };
+
+  get isDirty() {
+    return currentSearch(this.props.searches).isDirty;
+  }
+
+  get isEditingName() {
+    const searches = this.props.searches;
+    return currentSearch(this.props.searches).isEditingName;
+  }
 
   get searchOptions() {
     const selectedIdx = this.state.selectionIndex;
@@ -88,21 +99,35 @@ export default class LiveSearch extends React.Component {
 
   get savedSearches() {
     const tabs = _.keys(this.props.searches.savedSearches).map(search => {
-      const draggable = search !== 'All';
       const selected = search === this.props.searches.selectedSearch;
+      const editing = selected && this.isEditingName;
+      const draggable = !editing && search !== 'All';
 
       return (
-        <TabView 
+        <EditableTabView
+          defaultValue={search}
           draggable={draggable}
+          editing={editing}
           selected={selected}
           onClick={() => this.props.selectSavedSearch(search)}
-          >
-          {search}
-        </TabView>
+        />
       );
     });
 
     return <TabListView>{tabs}</TabListView>;
+  }
+
+  get searchButton() {
+    const clickAction = (event) => {
+      event.preventDefault();
+      this.props.cloneSearch();
+    };
+
+    return (
+      <button className="fc-btn" onClick={clickAction}>
+        Save Search
+      </button>
+    );
   }
 
   formatPill(pill, idx, props) {
@@ -123,7 +148,7 @@ export default class LiveSearch extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     const search = currentSearch(nextProps.searches);
-    const isVisible = search.currentOptions.length > 0 &&
+    const isVisible = this.state.isFocused && search.currentOptions.length > 0 &&
       (search.searches.length != this.state.pills.length || search.searchValue !== '');
 
     this.setState({
@@ -151,6 +176,7 @@ export default class LiveSearch extends React.Component {
     if (!_.isEmpty(this.state.searchOptions)) {
       this.setState({
         ...this.state,
+        isFocused: true,
         optionsVisible: true
       });
     }
@@ -160,6 +186,7 @@ export default class LiveSearch extends React.Component {
   blur() {
     this.setState({
       ...this.state,
+      isFocused: false,
       optionsVisible: false
     });
   }
@@ -241,7 +268,7 @@ export default class LiveSearch extends React.Component {
           <div className='fc-col-md-1-1 fc-live-search__search-control'>
             <form>
               <PilledInput
-                button={<button className="fc-btn">Save Search</button>}
+                button={this.searchButton}
                 onPillClose={(pill, idx) => this.props.deleteSearchFilter(idx)}
                 onPillClick={(pill, idx) => this.props.deleteSearchFilter(idx)}
                 formatPill={this.formatPill}

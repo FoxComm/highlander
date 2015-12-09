@@ -5,11 +5,29 @@ import util from 'util';
 const ordersSearchTerms = require('../../../fixtures/orders-search-terms.js');
 const makeLiveSearch = importSource('modules/live-search.js');
 const { reducer: reducer, actions: actions } = makeLiveSearch('TEST', ordersSearchTerms);
-const { deleteSearchFilter, goBack, selectSavedSearch, submitFilter } = actions;
+const { cloneSearch, deleteSearchFilter, goBack, selectSavedSearch, submitFilter } = actions;
 
 const selectedSearch = (state) => state.savedSearches[state.selectedSearch];
 
 describe('modules.orders.list', function() {
+  describe('cloneSearch()', function() {
+    let newState = null;
+
+    beforeEach(function() {
+      newState = reducer(reducer(undefined, submitFilter('Order : ID : 5')), cloneSearch());
+    });
+
+    it('should create a new search that matched the previously selected search', function() {
+      expect(newState.selectedSearch).to.be.equal('Unnamed Search');
+      expect(selectedSearch(newState).searches).to.have.length(1);
+    });
+
+    it('should be in a dirty state and editing the name', function() {
+      expect(selectedSearch(newState).isDirty).to.be.true;
+      expect(selectedSearch(newState).isEditingName).to.be.true;
+    });
+  });
+
   describe('goBack()', function() {
     let newState = null;
     let searchState = null;

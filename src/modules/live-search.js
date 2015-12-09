@@ -5,11 +5,32 @@ import util from 'util';
 import { assoc } from 'sprout-data';
 
 const emptyState = {
+  isDirty: false,
+  isEditingName: false,
   options: [],
   searches: [],
   searchValue: '',
   selectedIndex: -1
 };
+
+function cloneSearch(state, name = 'Unnamed Search') {
+  const toClone = {
+    ...state.savedSearches[state.selectedSearch],
+    isDirty: true,
+    isEditingName: true
+  };
+
+  const newState = {
+    ...state,
+    selectedSearch: name,
+    savedSearches: {
+      ...state.savedSearches,
+      'Unnamed Search': toClone
+    }
+  };
+
+  return newState;
+}
 
 function deleteSearchFilter(state, idx) {
   const curSearches = state.savedSearches[state.selectedSearch].searches;
@@ -46,7 +67,7 @@ function selectSavedSearch(state, searchName) {
 
 function submitFilter(state, searchTerm) {
   // First update the available terms.
-  let searches = state.savedSearches['All'].searches;
+  let searches = state.savedSearches[state.selectedSearch].searches;
   let newSearchTerm = searchTerm;
   let options = SearchTerm.potentialTerms(state.potentialOptions, searchTerm);
 
@@ -67,7 +88,6 @@ function submitFilter(state, searchTerm) {
 
   return assoc(state, ['savedSearches', state.selectedSearch], updatedState);
 }
-
 
 function liveSearchReducer(actionTypes, searchTerms) {
   const terms = searchTerms.map(st => new SearchTerm(st));
@@ -102,6 +122,9 @@ function liveSearchReducer(actionTypes, searchTerms) {
     const payload = action.payload;
 
     switch (action.type) {
+      case actionTypes.CLONE_SEARCH:
+        return cloneSearch(state, payload.name);
+
       case actionTypes.DELETE_SEARCH_FILTER:
         return deleteSearchFilter(state, payload.idx);
 
@@ -122,6 +145,7 @@ function liveSearchReducer(actionTypes, searchTerms) {
 
 function createLiveSearchActionTypes(namespace) {
   const actionTypes = {
+    CLONE_SEARCH: 'CLONE_SEARCH',
     DELETE_SEARCH_FILTER: 'DELETE_SEARCH_FILTER',
     GO_BACK: 'GO_BACK',
     SELECT_SAVED_SEARCH: 'SELECT_SAVED_SEARCH',
@@ -133,6 +157,7 @@ function createLiveSearchActionTypes(namespace) {
 
 function createLiveSearchActions(actionTypes) {
   return {
+    cloneSearch: createAction(actionTypes.CLONE_SEARCH, (name) => ({name})),
     deleteSearchFilter: createAction(actionTypes.DELETE_SEARCH_FILTER, (idx) => ({idx})),
     goBack: createAction(actionTypes.GO_BACK),
     selectSavedSearch: createAction(actionTypes.SELECT_SAVED_SEARCH, (searchName) => ({searchName})),

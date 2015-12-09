@@ -3,14 +3,14 @@ import classnames from 'classnames';
 import _ from 'lodash';
 
 const TabView = props => {
-  const klass = classnames(
-    'fc-tab',
-     { 'fc-tab-draggable': props.draggable },
-     { 'fc-tab-selected': props.selected });
+  const klass = classnames('fc-tab', props.className, {
+    '_draggable': props.draggable,
+    '_selected': props.selected
+  });
 
-   const icon = props.draggable
-     ? <i className='fc-tab-icon icon-drag-drop'></i>
-     : null;
+  const icon = props.draggable
+    ? <i className='fc-tab__icon icon-drag-drop' />
+    : null;
 
   return (
     <li className={klass} onClick={props.onClick}>
@@ -21,6 +21,7 @@ const TabView = props => {
 };
 
 TabView.propTypes = {
+  className: PropTypes.string,
   selector: PropTypes.string,
   children: PropTypes.node,
   draggable: PropTypes.bool,

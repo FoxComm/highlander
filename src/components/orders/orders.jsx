@@ -35,6 +35,7 @@ export default class Orders extends React.Component {
       rows: PropTypes.array.isRequired,
       total: PropTypes.number
     }),
+    cloneSearch: PropTypes.func,
     deleteSearchFilter: PropTypes.func,
     goBack: PropTypes.func,
     submitFilter: PropTypes.func
@@ -92,7 +93,8 @@ export default class Orders extends React.Component {
             <a href="">Activity Trail</a>
           </LocalNav>
         </div>
-        <LiveSearch 
+        <LiveSearch
+          cloneSearch={this.props.cloneSearch}
           goBack={this.props.goBack}
           deleteSearchFilter={this.props.deleteSearchFilter}
           selectSavedSearch={this.props.selectSavedSearch}
