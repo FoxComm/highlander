@@ -26,11 +26,13 @@ export function createGiftCard() {
     };
 
     return Api.post('/gift-cards', postData)
-      .then(results => {
-        const giftCards = _.filter(results, {success: true}).map(entry => entry.giftCard);
-        dispatch(actionAddEntities(giftCards));
-      })
-      .catch(err => console.error(err));
+      .then(
+        results => {
+          const giftCards = _.filter(results, {success: true}).map(entry => entry.giftCard);
+          dispatch(actionAddEntities(giftCards));
+        },
+        err => console.error(err)
+      );
   };
 }
 

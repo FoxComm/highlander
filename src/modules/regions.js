@@ -8,8 +8,10 @@ const regionsFailed = createAction('REGIONS_FAILED');
 export function fetchRegions() {
   return dispatch => {
     return Api.get(`/regions`)
-      .then(regions => dispatch(regionsReceived(regions)))
-      .catch(err => dispatch(regionsFailed(err)));
+      .then(
+        regions => dispatch(regionsReceived(regions)),
+        err => dispatch(regionsFailed(err))
+      );
   };
 }
 

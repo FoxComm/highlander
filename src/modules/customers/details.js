@@ -28,16 +28,20 @@ export function fetchCustomer(id) {
   return dispatch => {
     dispatch(requestCustomer(id));
     Api.get(`/customers/${id}`)
-      .then(customer => dispatch(receiveCustomer(id, customer)))
-      .catch(err => dispatch(failCustomer(id, err, fetchCustomer)));
+      .then(
+        customer => dispatch(receiveCustomer(id, customer)),
+        err => dispatch(failCustomer(id, err, fetchCustomer))
+      );
   };
 }
 
 export function editCustomer(id, data) {
   return dispatch => {
     Api.patch(`/customers/${id}`, data)
-      .then(customer => dispatch(updateCustomer(id, customer)))
-      .catch(err => dispatch(failCustomer(id, err, editCustomer)));
+      .then(
+        customer => dispatch(updateCustomer(id, customer)),
+        err => dispatch(failCustomer(id, err, editCustomer))
+      );
   };
 }
 
@@ -47,8 +51,10 @@ export function toggleDisableStatus(id, isDisabled) {
     dispatch(submitToggleDisableStatus(id));
 
     Api.post(`/customers/${id}/disable`, {disabled: isDisabled})
-      .then(customer => dispatch(receivedDisableStatus(id, customer)))
-      .catch(err => dispatch(failChangeStatus(id, err)));
+      .then(
+        customer => dispatch(receivedDisableStatus(id, customer)),
+        err => dispatch(failChangeStatus(id, err))
+      );
   };
 }
 
@@ -58,8 +64,10 @@ export function toggleBlacklisted(id, isBlacklisted) {
     dispatch(submitToggleBlacklisted(id));
 
     Api.post(`/customers/${id}/blacklist`, {blacklisted: isBlacklisted})
-      .then(customer => dispatch(receivedBlacklisted(id, customer)))
-      .catch(err => dispatch(failChangeStatus(id, err)));
+      .then(
+        customer => dispatch(receivedBlacklisted(id, customer)),
+        err => dispatch(failChangeStatus(id, err))
+      );
   };
 }
 

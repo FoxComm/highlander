@@ -14,8 +14,10 @@ export function fetchSkus() {
   return dispatch => {
     dispatch(requestSkus());
     return Api.get('/skus')
-      .then(skus => dispatch(receiveSkus(skus)))
-      .catch(err => dispatch(failSkus(err)));
+      .then(
+        skus => dispatch(receiveSkus(skus)),
+        err => dispatch(failSkus(err))
+      );
   };
 }
 

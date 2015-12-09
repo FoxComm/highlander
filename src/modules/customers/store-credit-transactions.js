@@ -36,8 +36,10 @@ export function fetchStoreCreditTransactions(entity, newFetchParams) {
     dispatch(actionFetch(entity));
     dispatch(actionSetFetchParams(entity, newFetchParams));
     Api.get(storeCreditTransactionsUrl(customerId), fetchParams)
-      .then(json => dispatch(actionReceived(entity, json)))
-      .catch(err => dispatch(actionFetchFailed(entity, err)));
+      .then(
+        json => dispatch(actionReceived(entity, json)),
+        err => dispatch(actionFetchFailed(entity, err))
+      );
   };
 }
 

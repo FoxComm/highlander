@@ -44,22 +44,28 @@ function creditCardDefaultUrl(customerId, cardId) {
 
 function fetchForCustomer(id, dispatch) {
   Api.get(creditCardsUrl(id))
-    .then(cards => dispatch(receiveCustomerCreditCards(id, cards)))
-    .catch(err => dispatch(failCustomerCreditCards(id, err)));
+    .then(
+      cards => dispatch(receiveCustomerCreditCards(id, cards)),
+      err => dispatch(failCustomerCreditCards(id, err))
+    );
 }
 
 function setDefaultCreditCard(customerId, cardId, onSuccess) {
   const payload = {isDefault: true};
   Api.post(creditCardDefaultUrl(customerId, cardId), payload)
-    .then(() => onSuccess())
-    .catch(err => dispatch(failCustomerCreditCards(customerId, err)));
+    .then(
+      () => onSuccess(),
+      err => dispatch(failCustomerCreditCards(customerId, err))
+    );
 }
 
 function resetDefaultCreditCard(customerId, cardId, currentDefaultId, onSuccess) {
   const resetPayload = {isDefault: false};
   Api.post(creditCardDefaultUrl(customerId, currentDefaultId), resetPayload)
-    .then(() => setDefaultCreditCard(customerId, cardId, onSuccess))
-    .catch(err => dispatch(failCustomerCreditCards(customerId, err)));
+    .then(
+      () => setDefaultCreditCard(customerId, cardId, onSuccess),
+      err => dispatch(failCustomerCreditCards(customerId, err))
+    );
 }
 
 export function fetchCreditCards(id) {
@@ -83,22 +89,26 @@ export function createCreditCard(id) {
     if (isDefault && currentDefault) {
       const currentDefaultId = currentDefault.id;
       Api.post(creditCardsUrl(id), cardData)
-        .then((card) => {
-          resetDefaultCreditCard(id, card.id, currentDefaultId, () => {
-            dispatch(closeNewCustomerCreditCard(id));
-            fetchForCustomer(id, dispatch);
-          });
-        })
-        .catch(err => dispatch(failCustomerCreditCards(id, err)));
+        .then(
+          (card) => {
+            resetDefaultCreditCard(id, card.id, currentDefaultId, () => {
+              dispatch(closeNewCustomerCreditCard(id));
+              fetchForCustomer(id, dispatch);
+            });
+          },
+          err => dispatch(failCustomerCreditCards(id, err))
+        );
     } else if (isDefault && _.isEmpty(currentDefault)) {
       Api.post(creditCardsUrl(id), cardData)
-        .then((card) => {
-          setDefaultCreditCard(id, card.id, () => {
-            dispatch(closeNewCustomerCreditCard(id));
-            fetchForCustomer(id, dispatch);
-          });
-        })
-        .catch(err => dispatch(failCustomerCreditCards(id, err)));
+        .then(
+          (card) => {
+            setDefaultCreditCard(id, card.id, () => {
+              dispatch(closeNewCustomerCreditCard(id));
+              fetchForCustomer(id, dispatch);
+            });
+          },
+          err => dispatch(failCustomerCreditCards(id, err))
+        );
     } else {
       Api.post(creditCardsUrl(id), cardData)
         .then(() => {
@@ -117,11 +127,13 @@ export function confirmCreditCardDeletion(id) {
     const cards = _.get(getState(), 'customers.creditCards', {});
     const creditCardId = _.get(cards, [id, 'deletingId']);
     Api.delete(creditCardUrl(id, creditCardId))
-      .then(() => {
-        dispatch(closeDeleteCustomerCreditCard(id));
-        fetchForCustomer(id, dispatch);
-      })
-      .catch(err => dispatch(failCustomerCreditCards(id, err)));
+      .then(
+        () => {
+          dispatch(closeDeleteCustomerCreditCard(id));
+          fetchForCustomer(id, dispatch);
+        },
+        err => dispatch(failCustomerCreditCards(id, err))
+      );
   };
 }
 
@@ -139,27 +151,35 @@ export function saveCreditCard(id) {
     if (isDefault && currentDefault && currentDefault.id !== creditCardId) {
       const currentDefaultId = currentDefault.id;
       Api.patch(creditCardUrl(id, creditCardId), form)
-        .then((card) => {
-          resetDefaultCreditCard(id, card.id, currentDefaultId, () => {
-            dispatch(closeEditCustomerCreditCard(id));
-            fetchForCustomer(id, dispatch);
-          });
-        }).catch(err => dispatch(failCustomerCreditCards(id, err)));
+        .then(
+          (card) => {
+            resetDefaultCreditCard(id, card.id, currentDefaultId, () => {
+              dispatch(closeEditCustomerCreditCard(id));
+              fetchForCustomer(id, dispatch);
+            });
+          },
+          err => dispatch(failCustomerCreditCards(id, err))
+        );
     } else if (isDefault && _.isEmpty(currentDefault)) {
       Api.patch(creditCardUrl(id, creditCardId), form)
-        .then((card) => {
-          setDefaultCreditCard(id, card.id, () => {
-            dispatch(closeEditCustomerCreditCard(id));
-            fetchForCustomer(id, dispatch);
-          });
-        }).catch(err => dispatch(failCustomerCreditCards(id, err)));
+        .then(
+          (card) => {
+            setDefaultCreditCard(id, card.id, () => {
+              dispatch(closeEditCustomerCreditCard(id));
+              fetchForCustomer(id, dispatch);
+            });
+          },
+          err => dispatch(failCustomerCreditCards(id, err))
+        );
     } else {
       Api.patch(creditCardUrl(id, creditCardId), form)
-        .then(() => {
-          dispatch(closeEditCustomerCreditCard(id));
-          fetchForCustomer(id, dispatch);
-        })
-        .catch(err => dispatch(failCustomerCreditCards(id, err)));
+        .then(
+          () => {
+            dispatch(closeEditCustomerCreditCard(id));
+            fetchForCustomer(id, dispatch);
+          },
+          err => dispatch(failCustomerCreditCards(id, err))
+        );
     }
   };
 }
@@ -174,21 +194,19 @@ export function toggleDefault(customerId, creditCardId) {
     const card = _.find(cardsArray, card => card.id === creditCardId);
     const payload = {isDefault: !card.isDefault};
 
+    const errHandler = err => dispatch(failCustomerCreditCards(customerId, err));
+
     if (!_.isEmpty(currentDefault)) {
       const currentDefaultId = currentDefault.id;
       const resetPayload = {isDefault: false};
+
+
       Api.post(creditCardDefaultUrl(customerId, currentDefaultId), resetPayload)
-        .then(() => {
-          Api.post(creditCardDefaultUrl(customerId, creditCardId), payload)
-            .then(() => {
-              fetchForCustomer(customerId, dispatch);
-            });
-         }).catch(err => dispatch(failCustomerCreditCards(customerId, err)));
+        .then(() => Api.post(creditCardDefaultUrl(customerId, creditCardId), payload), errHandler)
+        .then(() => fetchForCustomer(customerId, dispatch), errHandler);
     } else {
       Api.post(creditCardDefaultUrl(customerId, creditCardId), payload)
-        .then(() => {
-          fetchForCustomer(customerId, dispatch);
-         }).catch(err => dispatch(failCustomerCreditCards(customerId, err)));
+        .then(() => fetchForCustomer(customerId, dispatch), errHandler);
     }
   };
 }

@@ -14,8 +14,10 @@ export function createCustomer() {
     dispatch(submitCustomer());
 
     Api.post('/customers', customerNew)
-      .then(data => dispatch(openCustomerDetails(data)))
-      .catch(err => dispatch(failNewCustomer(err)));
+      .then(
+        data => dispatch(openCustomerDetails(data)),
+        err => dispatch(failNewCustomer(err))
+      );
   };
 }
 

@@ -42,8 +42,10 @@ export function fetchNotes(entity, newFetchParams) {
     dispatch(actionFetch(entity));
     dispatch(actionSetFetchParams(entity, newFetchParams));
     Api.get(notesUri(entity), fetchParams)
-      .then(json => dispatch(actionReceived(entity, json)))
-      .catch(err => dispatch(actionFetchFailed(entity, err)));
+      .then(
+        json => dispatch(actionReceived(entity, json)),
+        err => dispatch(actionFetchFailed(entity, err))
+      );
   };
 }
 
@@ -51,8 +53,10 @@ export function createNote(entity, data) {
   return dispatch => {
     dispatch(stopAddingOrEditingNote(entity));
     Api.post(notesUri(entity), data)
-      .then(json => dispatch(actionAddEntity(entity, json)))
-      .catch(err => dispatch(notesFailed(entity, err)));
+      .then(
+        json => dispatch(actionAddEntity(entity, json)),
+        err => dispatch(notesFailed(entity, err))
+      );
   };
 }
 
@@ -60,8 +64,10 @@ export function editNote(entity, id, data) {
   return dispatch => {
     dispatch(stopAddingOrEditingNote(entity));
     Api.patch(notesUri(entity, id), data)
-      .then(json => dispatch(updateNotes(entity, [json])))
-      .catch(err => dispatch(notesFailed(entity, err)));
+      .then(
+        json => dispatch(updateNotes(entity, [json])),
+        err => dispatch(notesFailed(entity, err))
+      );
   };
 }
 
@@ -69,8 +75,10 @@ export function deleteNote(entity, id) {
   return dispatch => {
     dispatch(stopDeletingNote(entity, id));
     Api.delete(notesUri(entity, id))
-      .then(json => dispatch(actionRemoveEntity(entity, {id})))
-      .catch(err => dispatch(notesFailed(entity, err)));
+      .then(
+        json => dispatch(actionRemoveEntity(entity, {id})),
+        err => dispatch(notesFailed(entity, err))
+      );
   };
 }
 

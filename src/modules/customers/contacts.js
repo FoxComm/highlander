@@ -18,8 +18,10 @@ const failCustomer = _createAction('FAIL', (id, err) => [id, err]);
 export function updateCustomerContacts(id, data) {
   return dispatch => {
     Api.patch(`/customers/${id}`, data)
-      .then(customer => dispatch(customerUpdated(id, customer)))
-      .catch(err => dispatch(failCustomer(id, err)));
+      .then(
+        customer => dispatch(customerUpdated(id, customer)),
+        err => dispatch(failCustomer(id, err))
+      );
   };
 }
 

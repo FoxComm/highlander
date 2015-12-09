@@ -21,11 +21,13 @@ export function fetchShippingMethods(order) {
   return dispatch => {
     dispatch(orderShippingMethodRequest());
     return Api.get(`/shipping-methods/${order.referenceNumber}`)
-      .then(methods => {
-        dispatch(orderShippingMethodRequestSuccess(methods));
-        dispatch(orderShippingMethodStartEdit());
-      })
-      .catch(err => dispatch(orderShippingMethodRequestFailed(err)));
+      .then(
+        methods => {
+          dispatch(orderShippingMethodRequestSuccess(methods));
+          dispatch(orderShippingMethodStartEdit());
+        },
+        err => dispatch(orderShippingMethodRequestFailed(err))
+      );
   };
 }
 
@@ -34,11 +36,13 @@ export function updateShippingMethod(order, shippingMethod) {
     dispatch(orderShippingMethodUpdate());
     const payload = { shippingMethodId: shippingMethod.id };
     return Api.patch(`/orders/${order.referenceNumber}/shipping-method`, payload)
-      .then(order => {
-        dispatch(orderShippingMethodUpdateSuccess());
-        dispatch(orderSuccess(order));
-      })
-      .catch(err => dispatch(orderShippingMethodUpdateFailed(err)));
+      .then(
+        order => {
+          dispatch(orderShippingMethodUpdateSuccess());
+          dispatch(orderSuccess(order));
+        },
+        err => dispatch(orderShippingMethodUpdateFailed(err))
+      );
   };
 }
 

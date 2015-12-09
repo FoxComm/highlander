@@ -22,8 +22,10 @@ export function fetchGiftCard(id) {
   return dispatch => {
     dispatch(requestGiftCard(id));
     Api.get(`/gift-cards/${id}`)
-      .then(card => dispatch(receiveGiftCard(id, card)))
-      .catch(err => dispatch(failGiftCard(id, err, fetchGiftCard)));
+      .then(
+        card => dispatch(receiveGiftCard(id, card)),
+        err => dispatch(failGiftCard(id, err, fetchGiftCard))
+      );
   };
 }
 
@@ -38,8 +40,10 @@ export function fetchGiftCardIfNeeded(id) {
 export function editGiftCard(id, data) {
   return dispatch => {
     Api.patch(`/gift-cards/${id}`, data)
-      .then(card => dispatch(updateGiftCard(id, card)))
-      .catch(err => dispatch(failGiftCard(id, err, editGiftCard)));
+      .then(
+        card => dispatch(updateGiftCard(id, card)),
+        err => dispatch(failGiftCard(id, err, editGiftCard))
+      );
   };
 }
 

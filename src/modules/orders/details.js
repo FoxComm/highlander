@@ -26,8 +26,10 @@ export function fetchOrder(refNum) {
   return dispatch => {
     dispatch(orderRequest(refNum));
     return Api.get(`/orders/${refNum}`)
-      .then(order => dispatch(orderSuccess(order)))
-      .catch(err => dispatch(orderFailed(err, fetchOrder)));
+      .then(
+        order => dispatch(orderSuccess(order)),
+        err => dispatch(orderFailed(err, fetchOrder))
+      );
   };
 }
 
@@ -35,8 +37,10 @@ export function updateOrder(id, data) {
   return dispatch => {
     dispatch(orderRequest(id));
     Api.patch(`/orders/${id}`, data)
-      .then(order => dispatch(orderSuccess(order)))
-      .catch(err => dispatch(orderFailed(id, err, updateOrder)));
+      .then(
+        order => dispatch(orderSuccess(order)),
+        err => dispatch(orderFailed(id, err, updateOrder))
+      );
   };
 }
 
@@ -49,11 +53,13 @@ export function updateLineItemCount(order, sku, quantity, confirmDelete = true) 
 
       const payload = [{ sku: sku, quantity: quantity }];
       return Api.post(`/orders/${order.referenceNumber}/line-items`, payload)
-        .then(order => {
-          dispatch(orderLineItemsRequestSuccess(sku));
-          dispatch(orderSuccess(order.result));
-        })
-        .catch(err => dispatch(orderLineItemsRequestFailed(err, updateLineItemCount)));
+        .then(
+          order => {
+            dispatch(orderLineItemsRequestSuccess(sku));
+            dispatch(orderSuccess(order.result));
+          },
+          err => dispatch(orderLineItemsRequestFailed(err, updateLineItemCount))
+        );
     }
   };
 }
@@ -66,8 +72,10 @@ export function increaseRemorsePeriod(refNum) {
   return dispatch => {
     dispatch(orderRequest(refNum));
     return Api.post(`/orders/${refNum}/increase-remorse-period`)
-      .then(order => dispatch(orderSuccess(order)))
-      .catch(err => dispatch(orderFailed(err, fetchOrder)));
+      .then(
+        order => dispatch(orderSuccess(order)),
+        err => dispatch(orderFailed(err, fetchOrder))
+      );
   };
 }
 

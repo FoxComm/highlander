@@ -47,22 +47,26 @@ export function fetchStoreCredits(entity, newFetchParams) {
     dispatch(actionFetch(entity));
     dispatch(actionSetFetchParams(entity, newFetchParams));
     Api.get(storeCreditsUrl(customerId), fetchParams)
-      .then(json => dispatch(actionReceived(entity, json)))
-      .catch(err => dispatch(actionFetchFailed(entity, err)));
+      .then(
+        json => dispatch(actionReceived(entity, json)),
+        err => dispatch(actionFetchFailed(entity, err))
+      );
   };
 }
 
-export function saveStatusChange(entity,) {
+export function saveStatusChange(entity) {
   return (dispatch, getState) => {
     const customerId = entity.entityId;
     const creditToChange = get(getState(), ['customers', 'storeCredits', customerId, 'storeCreditToChange']);
 
     Api.patch(updateStoreCreditsUrl(creditToChange.id), creditToChange)
-      .then(json => {
-        dispatch(cancelChange(customerId));
-        dispatch(updateStoreCredits(customerId, creditToChange.id, json));
-      })
-      .catch(err => dispatch(actionFetchFailed(entity, err)));
+      .then(
+        json => {
+          dispatch(cancelChange(customerId));
+          dispatch(updateStoreCredits(customerId, creditToChange.id, json));
+        },
+        err => dispatch(actionFetchFailed(entity, err))
+      );
   };
 }
 

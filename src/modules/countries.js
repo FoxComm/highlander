@@ -14,16 +14,20 @@ const countriesFailed = createAction('COUNTRIES_FAILED');
 export function fetchCountry(countryId) {
   return dispatch => {
     return Api.get(`/countries/${countryId}`)
-      .then(json => dispatch(countryReceived(json)) && json)
-      .catch(err => dispatch(countryFailed(id, err)) && err);
+      .then(
+        json => dispatch(countryReceived(json)) && json,
+        err => dispatch(countryFailed(id, err)) && err
+      );
   };
 }
 
 export function fetchCountries() {
   return dispatch => {
     return Api.get('/countries')
-      .then(json => dispatch(countriesReceived(json)))
-      .catch(err => dispatch(countriesFailed(err)));
+      .then(
+        json => dispatch(countriesReceived(json)),
+        err => dispatch(countriesFailed(err))
+      );
   };
 }
 
