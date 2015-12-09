@@ -12,6 +12,7 @@
     display: flex;
     justify-content: space-between;
     align-items: baseline;
+    .margin-bottom(10px);
   }
 
   &__title {
@@ -28,5 +29,25 @@
     .font-spec(12px, @semibold, 17px);
     text-decoration: underline;
     color: @color-decor15;
+  }
+
+  &__add-button {
+    width: pxtorem(28px);
+    height: pxtorem(28px);
+    .padding(0 10px);
+    .colors(@color-decor7, @color-white);
+    border: 2px dashed @color-decor7;
+    border-radius: 3px;
+    line-height: 24px;
+  }
+
+  &__add-button:hover {
+    border-color: @color-decor6; // change color does not invoke full border redraw
+  }
+
+  &__users-row {
+    display: flex;
+    justify-content: flex-start;
+    flex-wrap: wrap;
   }
 }
