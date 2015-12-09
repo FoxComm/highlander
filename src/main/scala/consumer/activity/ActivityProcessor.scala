@@ -13,6 +13,7 @@ import org.elasticsearch.indices.IndexMissingException
 
 import org.json4s.JsonAST.{JValue, JInt, JObject, JField, JString}
 import org.json4s.jackson.JsonMethods._
+import org.json4s.DefaultFormats
 
 import consumer.JsonProcessor
 import consumer.AvroJsonHelper
@@ -29,30 +30,40 @@ final case class Activity(
   context: ActivityContext,
   createdAt: Instant = Instant.now)
 
-trait ActivityLinker {
-  def process(offset: Long, activity: Activity)(implicit ec: ExecutionContext)
+final case class Connection(
+  dimension: String,
+  objectId: String,
+  data: JValue,
+  activityId: Int)
+
+trait ActivityConnector {
+  def process(offset: Long, activity: Activity)(implicit ec: ExecutionContext) : Seq[Connection]
 }
 
 /**
  * This is a JsonProcessor which listens to the activity stream and processes the activity
- * using a sequence of activity linkers
+ * using a sequence of activity connectors
  */
-class ActivityProcessor(phoenixUri: String, linkers: Seq[ActivityLinker])
+class ActivityProcessor(phoenixUri: String, connectors: Seq[ActivityConnector])
   extends JsonProcessor {
 
-  val activityJsonFields = Map(
-    "id" → "id", 
-    "activity_type" → "activityType", 
-    "data" → "data", 
-    "context" → "context",
-    "created_at" → "createdAt")
+    implicit val formats: DefaultFormats.type = DefaultFormats
 
-  def beforeAction()(implicit ec: ExecutionContext) {}
+    val activityJsonFields = Map(
+      "id" → "id", 
+      "activity_type" → "activityType", 
+      "data" → "data", 
+      "context" → "context",
+      "created_at" → "createdAt")
 
-  def process(offset: Long, topic: String, inputJson: String)(implicit ec: ExecutionContext): Unit = {
-    Console.err.println(s"${topic} ${offset}: ${inputJson}")
-    val activityJson = AvroJsonHelper.transformJson(inputJson, activityJsonFields)
-    val activity = 
-  }
+    def beforeAction()(implicit ec: ExecutionContext) {}
+
+    def process(offset: Long, topic: String, inputJson: String)(implicit ec: ExecutionContext): Unit = {
+      Console.err.println(s"${topic} ${offset}: ${inputJson}")
+      val activityJson = AvroJsonHelper.transformJson(inputJson, activityJsonFields)
+      val activity =  parse(activityJson).extract[Activity]
+
+      val connections = connectors.flatMap(_.process(offset, activity))
+    }
 
 }
