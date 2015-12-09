@@ -56,7 +56,7 @@ class ElasticSearchProcessor(uri: String, cluster: String, indexName: String, to
   def process(offset: Long, topic: String, inputJson: String)(implicit ec: ExecutionContext): Unit = {
     ElasticSearchProcessor.topicInfo(topic) match {
       case Some(jsonFields) ⇒ 
-        val document = ElasticSearchProcessor.transformJson(inputJson, jsonFields)
+        val document = AvroJsonHelper.transformJson(inputJson, jsonFields)
         save(document, topic)
       case _ ⇒ 
         println(s"Skipping information from topic $topic")      
@@ -82,27 +82,13 @@ class ElasticSearchProcessor(uri: String, cluster: String, indexName: String, to
 
 object ElasticSearchProcessor {
 
-  def topicInfo(topic: String): Option[List[String]] = {
+  def topicInfo(topic: String): Option[Map[String, String]] = {
     topic match {
       case "customers_search_view"    ⇒ Some(ElasticSearchMappings.customerJsonFields)
       case "orders_search_view"       ⇒ Some(ElasticSearchMappings.orderJsonFields)
-      case "countries"                ⇒ Some(List.empty)
-      case "regions"                  ⇒ Some(List.empty)
+      case "countries"                ⇒ Some(Map.empty)
+      case "regions"                  ⇒ Some(Map.empty)
       case _                          ⇒ None
     }    
-  }
-
-  def transformJson(json: String, jsonList: List[String]): String = {
-    // Reduce Avro type annotations
-    val unwrapTypes = parse(json).transformField {
-      case JField(name, (JObject(JField(typeName, value) :: Nil))) ⇒ (name, value)
-    }
-
-    // Convert escaped json fields to AST
-    val unescapeJson = unwrapTypes.transformField {
-      case JField(name, JString(text)) if jsonList.contains(name) ⇒ (name, parse(text))
-    }
-
-    compact(render(unescapeJson))
   }
 }

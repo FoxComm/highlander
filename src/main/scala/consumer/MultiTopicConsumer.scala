@@ -9,7 +9,11 @@ import org.apache.kafka.clients.consumer._
 /**
  * Consumer using Kafka's new 0.9.0.0 consumer API
  */
-class MultiTopicConsumer(topics: Seq[String], groupId: String, broker: String, processor: MessageProcessor,
+class MultiTopicConsumer(
+  topics: Seq[String], 
+  groupId: String, 
+  broker: String, 
+  processor: MessageProcessor,
   timeout: Long = 1000) {
 
   val props = new Properties()

@@ -9,6 +9,9 @@ import io.confluent.kafka.serializers.AbstractKafkaAvroDeserializer
 import org.apache.avro.generic.GenericDatumWriter
 import org.apache.avro.io.EncoderFactory
 
+import org.json4s.JsonAST.{JInt, JObject, JField, JString}
+import org.json4s.jackson.JsonMethods._
+
 /**
  * Reads kafka processor that reads expects messages in kafka to be from bottledwater-pg
  * which are serialized using Avro.
@@ -41,5 +44,25 @@ class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)
     } catch {
       case e: Throwable ⇒ Console.err.println(s"Error consuming avro message $e")
     }
+  }
+}
+
+/**
+ * Helper functions to transform json comming from bottledwater into something
+ * more reasonable.
+ */
+object AvroJsonHelper { 
+  def transformJson(json: String, fields: Map[String, String]): String = {
+    // Reduce Avro type annotations
+    val unwrapTypes = parse(json).transformField {
+      case JField(name, (JObject(JField(typeName, value) :: Nil))) ⇒ (name, value)
+    }
+
+    // Convert escaped json fields to AST
+    val unescapeJson = unwrapTypes.transformField {
+      case JField(name, JString(text)) if fields.contains(name) ⇒ (fields(name), parse(text))
+    }
+
+    compact(render(unescapeJson))
   }
 }

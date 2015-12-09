@@ -1,0 +1,58 @@
+package consumer.activity
+
+import java.time.Instant
+
+import scala.concurrent.ExecutionContext
+
+import com.sksamuel.elastic4s.{EdgeNGramTokenFilter, LowercaseTokenFilter, StandardTokenizer,
+CustomAnalyzerDefinition, ElasticClient, ElasticsearchClientUri}
+import com.sksamuel.elastic4s.ElasticDsl._
+
+import org.elasticsearch.common.settings.ImmutableSettings
+import org.elasticsearch.indices.IndexMissingException
+
+import org.json4s.JsonAST.{JValue, JInt, JObject, JField, JString}
+import org.json4s.jackson.JsonMethods._
+
+import consumer.JsonProcessor
+import consumer.AvroJsonHelper
+
+final case class ActivityContext(
+  userId: Int,
+  userType: String,
+  transactionId: String)
+
+final case class Activity(
+  id: Int = 0, 
+  activityType: String, 
+  data: JValue, 
+  context: ActivityContext,
+  createdAt: Instant = Instant.now)
+
+trait ActivityLinker {
+  def process(offset: Long, activity: Activity)(implicit ec: ExecutionContext)
+}
+
+/**
+ * This is a JsonProcessor which listens to the activity stream and processes the activity
+ * using a sequence of activity linkers
+ */
+class ActivityProcessor(phoenixUri: String, linkers: Seq[ActivityLinker])
+  extends JsonProcessor {
+
+  val activityJsonFields = Map(
+    "id" → "id", 
+    "activity_type" → "activityType", 
+    "data" → "data", 
+    "context" → "context",
+    "created_at" → "createdAt")
+
+  def beforeAction()(implicit ec: ExecutionContext) {}
+
+  def process(offset: Long, topic: String, inputJson: String)(implicit ec: ExecutionContext): Unit = {
+    Console.err.println(s"${topic} ${offset}: ${inputJson}")
+    val activityJson = AvroJsonHelper.transformJson(inputJson, activityJsonFields)
+    val activity = 
+  }
+
+}

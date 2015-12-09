@@ -5,9 +5,9 @@ import scala.collection.JavaConversions._
 import com.typesafe.config._
 
 /**
- * Simple test that will run against staging and index customers in the stage ES.
+ * Program which consumes several bottledwater topics and indexes them in Elastic Search
  */
-object Main {
+object EsMain {
   val environmentProperty = "env"
   val defaultEnvironment  = "default"
 
@@ -27,12 +27,20 @@ object Main {
     val kafkaTopics           = conf.getStringList(s"kafka.topics").toIndexedSeq.toSeq
 
     // Init processors & consumer
-    val esProcessor = new ElasticSearchProcessor(uri = elasticSearchUrl, cluster = elasticSearchCluster,
-      indexName = elasticSearchIndex, topics = kafkaTopics)
+    val esProcessor = new ElasticSearchProcessor(
+      uri = elasticSearchUrl, 
+      cluster = elasticSearchCluster,
+      indexName = elasticSearchIndex, 
+      topics = kafkaTopics)
 
-    val avroProcessor = new AvroProcessor(schemaRegistryUrl = avroSchemaRegistryUrl, processor = esProcessor)
+    val avroProcessor = new AvroProcessor(
+      schemaRegistryUrl = avroSchemaRegistryUrl, 
+      processor = esProcessor)
 
-    val consumer = new MultiTopicConsumer(topics = kafkaTopics, broker = kafkaBroker, groupId = kafkaGroupId,
+    val consumer = new MultiTopicConsumer(
+      topics = kafkaTopics, 
+      broker = kafkaBroker, 
+      groupId = kafkaGroupId,
       processor = avroProcessor)
 
     // Execture beforeAction
