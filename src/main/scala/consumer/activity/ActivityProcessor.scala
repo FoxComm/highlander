@@ -64,6 +64,16 @@ class ActivityProcessor(phoenixUri: String, connectors: Seq[ActivityConnector])
       val activity =  parse(activityJson).extract[Activity]
 
       val connections = connectors.flatMap(_.process(offset, activity))
+
+      process(connections)
+    }
+
+    def process(cs: Seq[Connection]) { 
+      cs.foreach(connectUsingPhoenix)
+    }
+
+    def connectUsingPhoenix(c: Connection) { 
+      //This is where we call the connect endpoint in phoenix
     }
 
 }
