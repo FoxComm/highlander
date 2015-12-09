@@ -3,10 +3,17 @@
 #
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/vivid64"
-  config.vm.network :forwarded_port, guest: 8181, host: 8181, auto_correct: true
-  config.vm.network :forwarded_port, guest: 9300, host: 9300, auto_correct: true
-  config.vm.network :forwarded_port, guest: 9092, host: 9092, auto_correct: true
-  config.vm.network :forwarded_port, guest: 8081, host: 8081, auto_correct: true
+  # PostgreSQL
+  config.vm.network :forwarded_port, guest: 5432, host: 5432, auto_correct: false
+
+  config.vm.network "private_network", ip: "192.168.10.111"
+
+  config.vm.synced_folder "../phoenix-scala/", "/phoenix"
+
+  config.vm.provision "fix-no-tty", type: "shell" do |s|
+      s.privileged = false
+      s.inline = "sudo sed -i '/tty/!s/mesg n/tty -s \\&\\& mesg n/' /root/.profile"
+  end
 
   config.vm.provider :virtualbox do |vb|
     vb.cpus = 2
