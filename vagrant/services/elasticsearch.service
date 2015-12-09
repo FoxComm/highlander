@@ -1,0 +1,10 @@
+[Service]
+WorkingDirectory=/vagrant
+ExecStart=/bin/bash vagrant/run_elasticsearch.sh /home/vagrant/build/elasticsearch
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=elasticsearch
+
+[Install]
+WantedBy=multi-user.target

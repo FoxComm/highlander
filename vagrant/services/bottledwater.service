@@ -1,10 +1,10 @@
 [Service]
 WorkingDirectory=/vagrant
-ExecStart=/bin/bash vagrant/run_kafka.sh /home/vagrant/kafka
+ExecStart=/bin/bash vagrant/run_bottledwater.sh
 Restart=always
 StandardOutput=syslog
 StandardError=syslog
-SyslogIdentifier=kafka
+SyslogIdentifier=bottledwater
 
 [Install]
 WantedBy=multi-user.target
