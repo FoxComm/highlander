@@ -5,6 +5,8 @@ import cats.data.Xor
 import cats.implicits._
 import models.Customers.scope._
 import models.{Customer, Customers, Orders, StoreAdmin, javaTimeSlickMapper}
+import models.activity.Activities
+import models.activity.ActivityContext
 import payloads.{ActivateCustomerPayload, CreateCustomerPayload, CustomerSearchForNewOrder, UpdateCustomerPayload}
 import responses.CustomerResponse._
 import slick.driver.PostgresDriver.api._
@@ -15,6 +17,7 @@ import utils.Slick.UpdateReturning._
 import utils.Slick.implicits._
 import utils.jdbc._
 
+import services.activity.CustomerInfoChanged
 import scala.concurrent.ExecutionContext
 
 object CustomerManager {
@@ -125,8 +128,17 @@ object CustomerManager {
     } yield root).value
   }
 
+  private def logUpdate(customer: Customer, payload: UpdateCustomerPayload)
+  (implicit ec: ExecutionContext, db: Database, ac: ActivityContext) = {
+    Activities.log(
+      CustomerInfoChanged(
+        customerId = customer.id,
+        oldInfo = UpdateCustomerPayload(customer.name, Some(customer.email), customer.phoneNumber),
+        newInfo = payload))
+  }
+
   def update(customerId: Int, payload: UpdateCustomerPayload)
-    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = {
 
     swapDatabaseFailure {
       (for {
@@ -137,6 +149,7 @@ object CustomerManager {
           email = payload.email.getOrElse(customer.email),
           phoneNumber = payload.phoneNumber.fold(customer.phoneNumber)(Some(_))
         ))
+        _ ← * <~ logUpdate(customer, payload)
       } yield build(updated)).runT()
     } { (NotUnique, CustomerEmailNotUnique) }
 

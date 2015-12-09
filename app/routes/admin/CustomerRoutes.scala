@@ -4,6 +4,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.{Customers, StoreAdmin}
+import models.activity.ActivityContext
 import payloads.{ActivateCustomerPayload, CreateAddressPayload, UpdateCustomerPayload}
 import services.{AddressManager, CreditCardManager, CustomerCreditConverter, CustomerManager, StoreCreditAdjustmentsService, StoreCreditService}
 import slick.driver.PostgresDriver.api._
@@ -16,7 +17,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 object CustomerRoutes {
 
-  def routes(implicit ec: ExecutionContext, db: Database,
+  def routes(implicit ec: ExecutionContext, db: Database, 
     mat: Materializer, storeAdminAuth: AsyncAuthenticator[StoreAdmin], apis: Apis) = {
 
     authenticateBasicAsync(realm = "admin", storeAdminAuth) { admin ⇒
@@ -48,8 +49,10 @@ object CustomerRoutes {
           }
         } ~
         (patch & pathEnd & entity(as[UpdateCustomerPayload])) { payload ⇒
-          goodOrFailures {
-            CustomerManager.update(customerId, payload)
+          activityContext(admin) { implicit ac ⇒
+            goodOrFailures {
+              CustomerManager.update(customerId, payload)
+            }
           }
         } ~
         (post & path("activate") & pathEnd & entity(as[ActivateCustomerPayload])) { payload ⇒

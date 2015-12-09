@@ -83,9 +83,9 @@ The type is used to understand how to decode the json for visualization.
 
 An activity object is also immutable since it tracks changes to state but is NOT state.
 
-\subsection{Dimensions and Trails}
+\subsection{Dimensions}
 
-So what are dimensions? Dimensions are a collection of activity trails. 
+Dimensions are a set of activity trails. 
 
 \begin{lstlisting}
     case class Dimension(
@@ -106,33 +106,42 @@ dimension.
 Another example, watch list is just another activity trail. So we would have a \emph{watched\_activities}
 dimension. 
 
-\subsection{Connection}
+\subsection{Trails}
+
+Trails are implemented as a double linked list of connection nodes. The trail belongs to 
+some dimension and points to the tail connection node..
+
+\begin{lstlisting}
+    case class Trail(
+        id: Id, 
+        dimensionId: Id,
+        tailConnectionId: String)
+\end{lstlisting}
+
+The tailConnectionId points to the tail connection in the trail.
+
+\subsection{Connection Nodes}
 
 Each activity exists in many trails. The trails are modeled as doubly-linked lists where
-a node in the list is called a Connection. It connects an activity to a trail.
+a node in the list is called a Connection. It is called that because it connects an activity to a trail.
 
 \begin{lstlisting}
     case class Connection(
         id: Id, 
         dimension: Id, 
+        trail: Id,
         activity: Id, 
         previous: Id, 
         next: Id, 
-        tail: Id,
-        trailId: Id,
         data: Json)
 \end{lstlisting}
 
-Each activity is connected to a trail by a connection creating a doubly linked list. Each
-trail belongs to some dimension. 
+Each activity is connected to a trail by a connection node. Each trail belongs to some dimension. 
 
-Each list has a tail activity and the tail activity has a connection where
-the \emph{previous} points to the last activity in the trail and the \emph{next} points to the oldest activity (the head).
+Each trail has a tail connection where the \emph{previous} points to the last activity in the trail 
+and the \emph{next} points to the oldest activity (the head).
 
-Each connection points to the tail for optimization purposes. We can create an
-index on the tail id to do quick queries based on the dimension.
-
-Each connection also has a trailId which is used to quickly query for all connections grouped
+Each connection also has a trail id which is used to quickly query for all connections grouped
 by that id. The use case is if a dimension represents activity for a type of object, say customer,
 where we can put the customer id as the trail id. 
 

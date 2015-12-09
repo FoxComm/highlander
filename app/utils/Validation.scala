@@ -9,6 +9,8 @@ import com.wix.accord.RuleViolation
 import com.wix.accord.combinators._
 import services.{Failure, GeneralFailure}
 
+import scala.util.matching.Regex
+
 trait Validation[M] {
   def validate: ValidatedNel[Failure, M]
 }
@@ -91,6 +93,9 @@ object Validation {
 
     withinNumberOfYears(year, today.getMonthValue, 20, msg)
   }
+
+  def matches(value: String, regex: Regex, constraint: String): ValidatedNel[Failure, Unit] =
+    toValidatedNel(constraint, new MatchesRegex(regex.pattern, partialMatchAllowed = false).apply(value))
 
   def matches(value: String, regex: String, constraint: String): ValidatedNel[Failure, Unit] =
     toValidatedNel(constraint, new MatchesRegex(regex.r.pattern, partialMatchAllowed = false).apply(value))
