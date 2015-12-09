@@ -3,7 +3,7 @@
 + Parameters
     + code: `ABC-123` (required, string) - Gift card code
 
-### List [GET /v1/gift-cards/{?size,from,sortBy}]
+### List [GET /v1/gift-cards{?size,from,sortBy}]
 
 + Parameters
     + size:   1           (optional, number)       - Page size.
@@ -27,11 +27,6 @@
 + Response 200 (application/json)
     + Attributes (GiftCards)
 
-### List Types [GET /v1/gift-cards/types]
-
-+ Response 200 (application/json)
-    + Attributes (array[GiftCardOriginTypeResponse])
-
 ### View [GET]
 
 + Response 200 (application/json)
@@ -46,8 +41,6 @@ If `quantity` parameter is provided in payload, multiple GiftCard will be genera
     + Attributes (GiftCardCreatePayload)
 + Response 200 (application/json)
     + Attributes (GiftCard)
-+ Response 400 (application/json)
-    + Attributes (Errors)
 
 ### Update Status [PATCH]
 
@@ -55,8 +48,6 @@ If `quantity` parameter is provided in payload, multiple GiftCard will be genera
     + Attributes (GiftCardUpdateStatusPayload)
 + Response 200 (application/json)
     + Attributes (GiftCard)
-+ Response 400 (application/json)
-    + Attributes (Errors)
 
 ### Bulk Update Status [PATCH /v1/gift-cards]
 
@@ -74,13 +65,11 @@ Converts GiftCard to specified customer's Store Credit if it's active and has no
     + customerId: 1 (required, number) - Customer ID.
 + Response 200 (application/json)
     + Attributes (StoreCredit)
-+ Response 400 (application/json)
-    + Attributes (Errors)
 
-### List Adjustments [GET /v1/gift-cards/{code}/transactions/{?size,from,sortBy}]
+### List Transactions [GET /v1/gift-cards/{code}/transactions/{?size,from,sortBy}]
 
 + Parameters
-    + code: `ABC-123` (required, string) - Gift card code
+    + code: `ABC-123` (required, string)           - Gift card code
     + size:   1           (optional, number)       - Page size.
     + from:   1           (optional, number)       - Start element (counting from 0) or # of elements to skip.
     + sortBy: `createdAt` (optional, enum[string]) - Field to sort by (`-fieldName` for descending order).

@@ -2,56 +2,41 @@
 
 ## CustomerResponse
 + id: 1 (required, number) - Unique identifier.
-+ name: Pavel Kiselev (optional, string) - Full Name
-+ email: `pavel@foxcommerce.com` (required, string) - E-mail.
++ name: `John Smith` (optional, string) - Full name.
++ email: `john@smith.com` (required, string) - E-mail.
 + phoneNumber: `123-444-4388` (optional, string) - Phone number.
-+ location: `Donkeyville, USA` (optional, string) - Location.
++ location: `San Francisco, CA` (optional, string) - Location.
 + modality: `Desktop[PC]` (optional, string) - Client.
 + createdAt: `2015-09-10T14:55:50Z` (required, string) - Creation date.
-+ disabled: false (required, boolean) - customer is disabled
-+ isGuest: false (required, boolean) - customer is guest
-+ isBlacklisted: false (required, boolean) - customer is blacklisted( for fraud for example)
-
-## CustomerResponseWithNumOrders
-- Include CustomerResponse
-+ numOrders: 15 (optional, number) - count of total orders placed by customer
-
-## CustomerResponseWithRegionsAndRank
-- Include CustomerResponse
-+ billingRegion: `Montana` (optional, string) - default billing region
-+ shippingRegion: `Montana` (optional, string) - default shipping region
-+ rank: 1 (optional, number) - rank is calculated as percentile from net revenue
-+ totalSales: 15000 (optional, number) - total revenue from customer
++ disabled: false (required, boolean) - Defines whether account is disabled.
++ isGuest: false (required, boolean) - Defines whether account is guest.
++ isBlacklisted: false (required, boolean) - Defines whether account is added to blacklisted.
++ rank: 1 (optional, number) - Customer ranking.
++ numOrders: 1 (optional, number) - Total number of orders.
++ totalSales: 100 (optional, number) - Customers sales stats.
++ billingRegion: `California` (optional, string) - Billing region name.
++ shippingRegion: `California` (optional, string) - Shipping region name.
 
 ## CustomerCreatePayload
-+ email: "user@example.org" (required, string) - Customer email.
-+ name: "John Doe" (optional, string) - Customer full name.
-+ password: "password" (optional, string) - Customer password.
++ email: `user@example.org` (required, string) - Customer email.
++ name: `John Smith` (optional, string) - Customer full name.
++ password: `password` (optional, string) - Customer password.
 + isGuest: false (optional, boolean) - create customer as guest if true.
 
 ## CustomerUpdatePayload
-+ email: "new@example.org" (optional, string)
-+ name: "Jane Doe" (optional, string)
-+ phoneNumber: "555 55 55" (optional, string)
++ email: `new@example.org` (optional, string)
++ name: `Jane Smith` (optional, string)
++ phoneNumber: `555 55 55` (optional, string)
 
 ## CustomerActivatePayload
-+ name: "John doe" (required, string)
++ name: `John Smith` (required, string)
 
-## CustomerToggleActivePayload
-+ disabled: true (required, boolean) - flag for new status
+## CustomerToggleDisablePayload
++ disabled: false (required, boolean) - Defines whether account is disabled.
 
-## CustomerToggleBlacklistedPayload
-+ blacklisted: true (required, boolean) - flag for new status
-
+## CustomerToggleBlacklistPayload
++ blacklisted: true (required, boolean) - Defines whether account is added to blacklisted.
 
 ## CustomersList
-+ result     (required, array[CustomerResponse]) - The resulting list of CustomerResponse-s.
-- Include ResultMetadata
-
-## CustomersListWithNumOrders
-+ result     (required, array[CustomerResponseWithNumOrders])
-- Include ResultMetadata
-
-## CustomersListWithRegions
-+ result     (required, array[CustomerResponseWithRegionsAndRank])
++ result     (required, array[CustomerResponse])
 - Include ResultMetadata

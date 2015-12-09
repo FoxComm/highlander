@@ -123,6 +123,14 @@
 ### RmaSkuLineItemPayload
 + sku: `ABC-123` (required, string) - SKU.
 + reasonId: 1 (required, number) - Return reason.
++ quantity: 1 (required, number) - Quantity.
++ isReturnItem: true (required, boolean) - Defines whether it's an item for return.
++ inventoryDisposition: `putaway` (required, enum[string]) - Inventory disposition.
+    + Members
+        + `putaway`
+        + `damage`
+        + `recovery`
+        + `discontinued`
 
 ### RmaGiftCardLineItemPayload
 + code: `ABC-123` (required, string) - Gift card code.
@@ -135,7 +143,7 @@
 + assignees (required, array[number]) - StoreAdmin IDs.
 
 ### RmaBulkAssignPayload
-+ referenceNumbers (required, array[string]) - RMA reference numbers.
++ referenceNumbers: `ABC-123.1` (required, array[string]) - RMA reference numbers.
 + assigneeId: 1 (required, number) - StoreAdmin ID.
 
 ### RmaPaymentPayload

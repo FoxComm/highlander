@@ -98,6 +98,10 @@ object RmaFailures {
   final case class EmptyRma(refNum: String) extends Failure {
     override def description = List(s"rma with referenceNumber=$refNum has no line items")
   }
+
+  final case class SkuNotFoundInOrder(sku: String, refNum: String) extends Failure {
+    override def description = List(s"line item with sku=$sku not found in order with referenceNumber=$refNum")
+  }
 }
 
 object CartFailures {

@@ -31,7 +31,6 @@ object OrderQueries {
         case "isLocked"                   ⇒ if (s.asc) order.isLocked.asc             else order.isLocked.desc
         case "placedAt"                   ⇒ if (s.asc) order.placedAt.asc             else order.placedAt.desc
         case "remorsePeriodEnd"           ⇒ if (s.asc) order.remorsePeriodEnd.asc     else order.remorsePeriodEnd.desc
-        case "customer_id"                ⇒ if (s.asc) customer.id.asc                else customer.id.desc
         case "customer_isDisabled"        ⇒ if (s.asc) customer.isDisabled.asc        else customer.isDisabled.desc
         case "customer_disabledBy"        ⇒ if (s.asc) customer.disabledBy.asc        else customer.disabledBy.desc
         case "customer_isBlacklisted"     ⇒ if (s.asc) customer.isBlacklisted.asc     else customer.isBlacklisted.desc

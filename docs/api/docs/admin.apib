@@ -1,10 +1,12 @@
 # Phoenix: Store Admin
 
-All routes related to store admin (not store front).
+All endpoints related to store administration (requires store admin authentication).
 
 <!-- include(objects/common.apib) -->
+<!-- include(objects/credit_cards.apib) -->
 <!-- include(objects/customers.apib) -->
 <!-- include(objects/gift_card.apib) -->
+<!-- include(objects/location.apib) -->
 <!-- include(objects/notes.apib) -->
 <!-- include(objects/order.apib) -->
 <!-- include(objects/reasons.apib) -->
@@ -12,50 +14,50 @@ All routes related to store admin (not store front).
 <!-- include(objects/store_credit.apib) -->
 <!-- include(objects/save_for_later.apib) -->
 
+## Group Common
+
+Helper endpoints with meta-information (gift card types, reasons, etc.)
+
+<!-- include(admin_common.apib) -->
+
 ## Group Customers
 
-Customers represents a core type of our system.
+Customer represents an account of person who buys products in the store.
 
 <!-- include(admin_customers.apib) -->
 
-## Group Reason
-
-Reasons are widely-used descriptions of various management actions, e.g. cancellation of GiftCard.
-
-<!-- include(admin_reasons.apib) -->
-
-## Group Gift Card
-
-Gift Card is a tender type created and maintained by FoxCommerce. Gift Cards are not related to any customer account.
-
-<!-- include(admin_gift_cards.apib) -->
-
-## Group Store Credit
-
-StoreCredit is a tender type created and maintained by FoxCommerce. Store Credits are always tied to a customer account.
-
-<!-- include(admin_store_credits.apib) -->
-
 ## Group Orders
 
-Orders, oh my!
+Order mainly consists of list of line items, payment methods, shipments and calculated totals. It is always related to specific customer account.
 
 <!-- include(admin_orders.apib) -->
 
-## Group Notes
+## Group RMAs
 
-Notes for various entities.
-
-<!-- include(admin_notes.apib) -->
-
-## Group Returns
-
-Returns are frequently called RMA (return merchandise authorization).
+RMA is abbreviation for "Return Merchandise Authorization". RMA is always related to particular Order, but one order can have multiple RMAs.
 
 <!-- include(admin_rmas.apib) -->
 
-## Group Save for later
+## Group Gift Cards
 
-They'll buy it... Later.
+Gift Card is a payment method with unique code, not related to any customer account.
+
+<!-- include(admin_gift_cards.apib) -->
+
+## Group Store Credits
+
+Store Credit is a payment method always tied to specific customer account. One customer can have multiple store credits.
+
+<!-- include(admin_store_credits.apib) -->
+
+## Group Save For Later
+
+Save For Later concept is similar to wishlists - a list of products that customer wants to save for future purchases.
 
 <!-- include(admin_save_for_later.apib) -->
+
+## Group Notes
+
+Notes represent additional text data added by store admins to orders, RMAs and gift cards, viewable by other store admins.
+
+<!-- include(admin_notes.apib) -->

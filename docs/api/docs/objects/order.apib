@@ -46,28 +46,19 @@
         + `FulfillmentStarted`
         + `Shipped`
 
-### Shipment
-+ id: 1 (required, number) - ID.
-+ orderId: 1 (required, number) - Order ID.
-+ Include ShippingStatus
-+ shippingPrice (optional, number) - Shipping price.
-
 ### ListOrder
 + referenceNumber: `ABC-123` (required, string) - Unique identifier.
-+ name: Yax Fuentes (optional, string) - Customer full name.
-+ email: yax@yax.com (required, string) - Customer email.
++ name: `John Smith` (optional, string) - Customer full name.
++ email: `john@smith.com` (required, string) - Customer email.
 + Include OrderStatus
 + Include PaymentStatus
 + Include ShippingStatus
 + placedAt: `2015-09-10T14:55:50Z` (optional, string) - Timestamp of when order was placed.
-+ remorsePeriodEnd: `2015-09-10T15:25:50Z` (optional, string) - Timestamp of when remorse period ends.
-+ customer (required, CustomerResponse) - associated customer.
-+ rmas (optional, array[Rma]) - list of associated RMAs.
 + total (required, number) - grand total value.
 
 ### FullOrder
 + id: 1 (required, number) - Unique identifier.
-+ referenceNumber: ABC-123 (required, string) - Order reference number.
++ referenceNumber: `ABC-123` (required, string) - Order reference number.
 + Include OrderStatus
 + Include ShippingStatus
 + Include PaymentStatus
@@ -80,8 +71,9 @@
 + shippingAddress (optional, OrderShippingAddress) - Shipping address.
 + assignees (required, array[OrderAssignee]) - Order assignees.
 + remorsePeriodEnd: `2015-09-10T14:55:50Z` (optional, string) - Remorse period end.
-+ payment (optional, DisplayPayment) - Order payment.
++ paymentMethods (optional, array[DisplayPayment]) - Order payment.
 + lockedBy (optional, StoreAdminResponse) - Currently locked by.
++ warnings: `List of validation errors and warnings` (optional, array[string]) - Warnings.
 
 ### OrderAssignee
 + assignee (required, StoreAdminResponse) - Assigned store admin.
@@ -89,38 +81,26 @@
 
 ### OrderShippingAddress
 + id: 1 (required, number) - Unique ID.
-+ orderId: 1 (required, number) - Associated Order ID.
-+ regionId: 1 (required, number) - Associated region ID.
-+ name: `Default` (required, string) - Address record name.
-+ address1: `38 Donkey Street` (required, string) - Actual address.
-+ address2: `... or 39 Donkey Street` (optional, string) - Additional address line.
++ region (required, Region) - Associated region.
++ name: `Home` (required, string) - Address record name.
++ address1: `38 Baker Street` (required, string) - Actual address.
++ address2: `39 Baker Street` (optional, string) - Additional address line.
 + city: `Donkeyville` (required, string) - City.
 + zip: `55555` (required, string) - Zip code.
-+ phoneNumber: `55555555555` (optional, string) - Phone number.
++ isDefault: false (required, boolean) - Defines whether shipping address is default.
 
 ### ShippingMethod
 + id: 1 (required, number) - Unique ID.
-+ adminDisplayName: `FIXME` (optional, string) - Display name in Admin panel.
-+ storefrontDisplayName: `FIXME` (optional, string) - Store front display name.
-+ shippingCarrierId: 1 (optional, number) - Carrier ID.
++ name: `UPS Ground` (optional, string) - Display name in Admin panel.
 + price: 10 (required, number) - Price of shipping.
-+ isActive: true (required, boolean) - Active flag.
-+ conditions (optional, QueryStatement) - Possible conditions.
-+ restrictions (optional, QueryStatement) - Possible restrictions.
-
-### QueryStatement
-+ fixme: `FIXME` (required, string) - TBD.
++ isEnabled: true (required, boolean) - Defines whether shipping method is enabled in store.
 
 ### DisplayPayment
-+ amount: 10 (required, number) - Payment amount.
-+ status: `auth` (required, string) - Payment status.
-+ referenceNumber: `ABC-123` (required, string) - Reference number.
-+ paymentMethod (required, DisplayPaymentMethod) - Payment method.
-
-### DisplayPaymentMethod
-+ cardType: `visa` (required, string) - Card type.
-+ cardExp: `FIXME` (required, string) - Card expiration date.
-+ cardNumber: `FIXME` (required, string) - Card number.
++ type (required, enum[string]) - Payment method type.
+    + Members
+        + `CreditCard`
+        + `GiftCard`
+        + `StoreCredit`
 
 ### Totals
 + subTotal: 100 (required, number) - Subtotal.
@@ -149,22 +129,38 @@
 + sourceType: `order` (required, string) - Adjustment source type.
 + reason: `Lorem ipsum` (required, string) - Adjustment reason.
 
-### SelectedShippingMethod
-+ id: 1 (required, number)
-+ code: UPS5DAY (required, string)
-+ name: `UPS 5-Day Shipping` (required, string)
-+ price: 595 (required, number)
-
 ### CreateCartPayload
-+ customerId: 1 (optional, number)
-+ email: yax@yax.com (optional, string)
++ customerId: 1 (optional, number) - Customer ID.
++ email: `john@smith.com` (optional, string) - Customer e-mail.
 
 ### UpdateLineItemsPayload
-+ sku: `SKU-YAX` (required, string)
-+ quantity: 5 (required, number)
++ sku: `SKU-YAX` (required, string) - SKU.
++ quantity: 5 (required, number) - Quantity.
 
-### CreateShippingAddressPayload
-+ shippingMethodId: 1 (required, number)
+### UpdateShippingMethodPayload
++ shippingMethodId: 1 (required, number) - Shipping method ID.
+
+### CreditCardPaymentPayload
++ creditCardId: 1 (required, number) - Credit Card ID
+
+### GiftCardPaymentPayload
++ code: `ABC-123` (required, string) - Gift card code.
++ amount: 10 (required, number) - Amount to pay.
+
+### StoreCreditPaymentPayload
++ amount: 10 (required, number) - Amount to pay.
+
+### OrderBulkStatusUpdatePayload
++ referenceNumbers: `ABC-123` (required, array[string]) - Order reference numbers.
+- Include OrderStatus
++ reasonId: 1 (optional, number) - Cancellation reason.
+
+### OrderAssignPayload
++ assignees (required, array[number]) - StoreAdmin IDs.
+
+### OrderBulkAssignPayload
++ referenceNumbers: `ABC-123` (required, array[string]) - Order reference numbers.
++ assigneeId: 1 (required, number) - StoreAdmin ID.
 
 ### OrderList
 + result (required, array[ListOrder]) - The resulting list of ListOrder-s.

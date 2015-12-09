@@ -63,7 +63,7 @@ object Customer {
               LineItemUpdater.updateQuantitiesOnCustomersOrder(customer, reqItems)
             }
           } ~
-          (get & path(PathEnd)) {
+          (get & pathEnd) {
             goodOrFailures {
               val finder = Orders.findActiveOrderByCustomer(customer)
               finder.selectOne { order ⇒ DbResult.fromDbio(fullOrder(finder)) }

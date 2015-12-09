@@ -1,4 +1,35 @@
-## Order [/v1/notes/order/{refNum}/{noteId}]
+## Customer Note [/v1/notes/customer/{customerId}/{noteId}]
+
++ Parameters
+    + customerId: 1 (required, number) - Customer ID
+    + noteId: 1 (required, number) - Note ID
+
+### List [GET /v1/notes/customer/{customerId}]
+
++ Parameters
+    + customerId: 1 (required, number) - Customer ID
++ Response 200 (application/json)
+    + Attributes (AdminNotes)
+
+### Create [POST /v1/notes/customer/{customerId}]
+
++ Request (application/json)
+    + Attributes (AdminNote)
++ Response 200 (application/json)
+    + Attributes (AdminNote)
+
+### Edit [PATCH]
+
++ Request (application/json)
+    + Attributes (AdminNote)
++ Response 200 (application/json)
+    + Attributes (AdminNote)
+
+### Delete [DELETE]
+
++ Response 204 (application/json)
+
+## Order Note [/v1/notes/order/{refNum}/{noteId}]
 
 + Parameters
     + refNum: `ABCD1234-11` (required, string) - Order reference number
@@ -16,18 +47,20 @@
 + Request (application/json)
     + Attributes (AdminNote)
 + Response 200 (application/json)
+    + Attributes (AdminNote)
 
 ### Edit [PATCH]
 
 + Request (application/json)
     + Attributes (AdminNote)
 + Response 200 (application/json)
+    + Attributes (AdminNote)
 
 ### Delete [DELETE]
 
 + Response 204 (application/json)
 
-## Gift Card [/v1/notes/gift-card/{code}/{noteId}]
+## Gift Card Note [/v1/notes/gift-card/{code}/{noteId}]
 
 + Parameters
     + code: `ABC-123` (required, string) - Gift card code
@@ -45,27 +78,29 @@
 + Request (application/json)
     + Attributes (AdminNote)
 + Response 200 (application/json)
+    + Attributes (AdminNote)
 
 ### Edit [PATCH]
 
 + Request (application/json)
     + Attributes (AdminNote)
 + Response 200 (application/json)
+    + Attributes (AdminNote)
 
 ### Delete [DELETE]
 
 + Response 204 (application/json)
 
-## Return [/v1/notes/rma/{code}/{noteId}]
+## RMA Note [/v1/notes/rma/{code}/{noteId}]
 
 + Parameters
-    + code: `ABC-123` (required, string) - Return code
+    + code: `ABC-123` (required, string) - RMA code
     + noteId: 1 (required, number) - Note ID
 
 ### List [GET /v1/notes/rma/{code}]
 
 + Parameters
-    + code: `ABC-123` (required, string) - Return code
+    + code: `ABC-123` (required, string) - RMA code
 + Response 200 (application/json)
     + Attributes (AdminNotes)
 
@@ -74,12 +109,14 @@
 + Request (application/json)
     + Attributes (AdminNote)
 + Response 200 (application/json)
+    + Attributes (AdminNote)
 
 ### Edit [PATCH]
 
 + Request (application/json)
     + Attributes (AdminNote)
 + Response 200 (application/json)
+    + Attributes (AdminNote)
 
 ### Delete [DELETE]
 

@@ -1,9 +1,9 @@
 ## Customer [/v1/customers/{id}]
 
 + Parameters
-    + id: 1 (required, number) - Unique Customer ID.
+    + id: 1 (required, number) - Customer ID.
 
-### List [GET /v1/customers/{?size,from,sortBy}]
+### List [GET /v1/customers{?size,from,sortBy}]
 
 + Parameters
     + size:   1           (optional, number)       - Page size.
@@ -24,12 +24,12 @@
 			+ `isGuest`
             + `createdAt`
 + Response 200 (application/json)
-    + Attributes (CustomersListWithRegions)
+    + Attributes (CustomersList)
 
 ### View [GET]
 
 + Response 200 (application/json)
-    + Attributes (CustomerResponseWithRegionsAndRank)
+    + Attributes (CustomerResponse)
 
 ### Create [POST /v1/customers]
 
@@ -37,8 +37,6 @@
     + Attributes (CustomerCreatePayload)
 + Response 200 (application/json)
     + Attributes (CustomerResponse)
-+ Response 400 (application/json)
-    + Attributes (Errors)
 
 ### Update [PATCH]
 
@@ -47,34 +45,25 @@
 + Response 200 (application/json)
     + Attributes (CustomerResponse)
 
-### Toggle disabled flag [POST /v1/customers/{id}/disable]
+### Enable / Disable [POST /v1/customers/{id}/disable]
 
 + Parameters
     + id: 1 (required, number)
 + Request (application/json)
-	+ Attributes(CustomerToggleActivePayload)
+	+ Attributes(CustomerToggleDisablePayload)
 + Response 200 (application/json)
     + Attributes (CustomerResponse)
 
-### Toggle blacklisted flag [POST /v1/customers/{id}/blacklist]
+### Add To / Remove From Blacklist [POST /v1/customers/{id}/blacklist]
 
 + Parameters
     + id: 1 (required, number)
 + Request (application/json)
-    + Attributes(CustomerToggleBlacklistedPayload)
+    + Attributes(CustomerToggleBlacklistPayload)
 + Response 200 (application/json)
-    + Attributes (CustomerResponse)
+    + Attributes (CustomerResponse) 
 
-
-### Search customers for new order page [GET /v1/customers/searchForNewOrder?term={term}]
-
-+ Parameters
-    + term: `yax` (required, string) - should be at least 2 characters
-
-+ Response 200 (application/json)
-    + Attributes (CustomersListWithNumOrders)
-
-### Activate guest customer [POST /v1/customers/{id}/activate]
+### Activate Guest [POST /v1/customers/{id}/activate]
 
 + Parameters
     + id: 1 (required, number)
@@ -83,12 +72,212 @@
 + Response 200 (application/json)
     + Attributes (CustomerResponse)
 
-### Total Store Credit [GET /v1/customers/{id}/payment-methods/store-credit/totals]
+## Address [/v1/customers/{customerId}/addresses/{addressId}]
 
 + Parameters
-    + id: 1 (required, number) - Unique Customer ID.
+    + customerId: 1 (required, number) - Customer ID.
+    + addressId: 1 (required, number) - Address ID.
+
+### List [GET /v1/customers/{customerId}/addresses{?size,from,sortBy}]
+
++ Parameters
+    + customerId: 1       (required, number)       - Cusotomer unique ID.
+    + size:   1           (optional, number)       - Page size.
+    + from:   1           (optional, number)       - Start element (counting from 0) or # of elements to skip.
+    + sortBy: `id` (optional, enum[string]) - Field to sort by (`-fieldName` for descending order).
+        + Members
+            + `id`
+            + `regionId`
+            + `name`
+            + `address1`
+            + `address2`
+            + `city`
+            + `zip`
+            + `isDefaultShipping`
+            + `phoneNumber`
+            + `deletedAt`
+            + `region_id`
+            + `region_countryId`
+            + `region_name`
+            + `region_abbreviation`
++ Response 200 (application/json)
+    + Attributes (Addresses)
+
+### View [GET]
 
 + Response 200 (application/json)
+    + Attributes (Address)
+
+### Create [POST /v1/customers/{customerId}/addresses]
+
++ Parameters
+    + customerId: 1 (required, number) - Customer ID.
++ Request (application/json)
+    + Attributes(CreateAddressPayload)
++ Response 200 (application/json)
+    + Attributes (Address)
+
+### Update [PATCH /v1/customers/{customerId}/addresses/{addressId}]
+
++ Parameters
+    + customerId: 1 (required, number) - Customer ID.
+    + addressId: 1 (required, number) - Address ID.
++ Request (application/json)
+    + Attributes(UpdateAddressPayload)
++ Response 200 (application/json)
+    + Attributes (Address)
+
+### Set as Default [POST /v1/customers/{customerId}/addresses/{addressId}/default]
+
++ Parameters
+    + customerId: 1 (required, number) - Customer ID.
+    + addressId: 1 (required, number) - Address ID.
++ Response 204 (application/json)
+
+### Remove Default Address [DELETE /v1/customers/{customerId}/addresses/default]
+
+This endpoint removes `isDefault` flag from any existing customer address.
+
++ Parameters
+    + customerId: 1 (required, number) - Customer ID.
++ Response 204 (application/json)
+
+### Delete [DELETE /v1/customers/{customerId}/addresses/{addressId}]
+
++ Parameters
+    + customerId: 1 (required, number) - Customer ID.
+    + addressId: 1 (required, number) - Address ID.
++ Response 204 (application/json)
+
+## Credit Card [/v1/customers/{customerId}/payment-methods/credit-cards/{creditCardId}]
+
++ Parameters
+    + customerId: 1 (required, number) - Customer ID.
+    + creditCard: 1 (required, number) - Credit card ID.
+
+### List [GET /v1/customers/{customerId}/payment-methods/credit-cards{?size,from,sortBy}]
+
++ Parameters
+    + customerId: 1       (required, number)       - Cusotomer unique ID.
+    + size:   1           (optional, number)       - Page size.
+    + from:   1           (optional, number)       - Start element (counting from 0) or # of elements to skip.
+    + sortBy: `id` (optional, enum[string]) - Field to sort by (`-fieldName` for descending order).
+        + Members
+            + `id`
+            + `parentId`
+            + `gatewayCustomerId`
+            + `gatewayCardId`
+            + `holderName`
+            + `lastFour`
+            + `isDefault`
+            + `address1Check`
+            + `zipCheck`
+            + `inWallet`
+            + `deletedAt`
+            + `regionId`
+            + `addressName`
+            + `address1`
+            + `address2`
+            + `city`
+            + `zip`
++ Response 200 (application/json)
+    + Attributes (CreditCards)
+
+### Create [POST /v1/customers/{customerId}/payment-methods/credit-cards]
+
++ Parameters
+    + customerId: 1 (required, number) - Customer ID.
++ Request (application/json)
+    + Attributes(CreditCardCreatePayload)
++ Response 200 (application/json)
+    + Attributes (CreditCard)
+
+### Update [PATCH]
+
++ Request (application/json)
+    + Attributes(CreditCardUpdatePayload)
++ Response 204 (application/json)
+
+### Set as Default [POST /v1/customers/{customerId}/payment-methods/credit-cards/{creditCardId}/default]
+
++ Parameters
+    + customerId: 1 (required, number) - Customer ID.
+    + creditCard: 1 (required, number) - Credit card ID.
++ Request (application/json)
+    + Attributes(CreditCardToggleDefaultPayload)
++ Response 200 (application/json)
+    + Attributes (CreditCard)
+
+### Delete [DELETE]
+
++ Response 204 (application/json)
+
+## Store Credit [/v1/customer/{customerId}/payment-methods/store-credits/{storeCreditId}]
+
++ Parameters
+    + customerId: 1 (required, number) - Customer ID.
+    + storeCreditId: 1 (required, number) - Store Credit ID.
+
+### List [GET /v1/customer/{customerId}/payment-methods/store-credits/{?size,from,sortBy}]
+
++ Parameters
+    + customerId: 1       (required, number)       - Customer ID.
+    + size:   1           (optional, number)       - Page size.
+    + from:   1           (optional, number)       - Start element (counting from 0) or # of elements to skip.
+    + sortBy: `createdAt` (optional, enum[string]) - Field to sort by (`-fieldName` for descending order).
+        + Members
+            + `id`
+            + `originId`
+            + `originType`
+            + `customerId`
+            + `currency`
+            + `originalBalance`
+            + `currentBalance`
+            + `availableBalance`
+            + `canceledAmount`
+            + `canceledReason`
+            + `createdAt`
++ Response 200 (application/json)
+    + Attributes (StoreCredits)
+
+### Create [POST /v1/customer/{customerId}/payment-methods/store-credits]
+
++ Request (application/json)
+    + Attributes (StoreCreditCreateSinglePayload)
++ Response 200 (application/json)
+    + Attributes (StoreCredit)
+
+### Total [GET /v1/customers/{customerId}/payment-methods/store-credit/totals]
+
++ Parameters
+    + customerId: 1 (required, number) - Unique Customer ID.
++ Response 200 (application/json)
     + Attributes (StoreCreditTotals)
-+ Response 404 (application/json)
-    + Attributes (Errors)
+
+### Convert To Gift Card [POST /v1/customer/{customerId}/payment-methods/store-credits/{storeCreditId}/convert]
+
++ Parameters
+    + customerId: 1 (required, number) - Customer ID.
+    + storeCreditId: 1 (required, number) - Store Credit ID.
++ Response 200 (application/json)
+    + Attributes (GiftCard)
+
+### List Transactions [GET /v1/customer/{customerId}/payment-methods/store-credits/transactions{?size,from,sortBy}]
+
+This endpoint returns transactions for all customer store credits.
+
++ Parameters
+    + customerId: 1       (required, number)       - Customer ID.
+    + size:   1           (optional, number)       - Page size.
+    + from:   1           (optional, number)       - Start element (counting from 0) or # of elements to skip.
+    + sortBy: `createdAt` (optional, enum[string]) - Field to sort by (`-fieldName` for descending order).
+        + Members
+            + `id`
+            + `storeCreditId`
+            + `orderPaymentId`
+            + `debit`
+            + `availableBalance`
+            + `status`
+            + `createdAt`
++ Response 200 (application/json)
+    + Attributes (StoreCredits)

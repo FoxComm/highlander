@@ -2,15 +2,18 @@ package utils.seeds
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import models.{Note, Notes, Rma, RmaLineItem, RmaLineItemSku, RmaLineItemSkus, RmaLineItems, RmaReason, RmaReasons, Rmas}
+import models.{Orders, Note, Notes, Rma, RmaLineItem, RmaLineItemSku, RmaLineItemSkus, RmaLineItems, RmaReason,
+RmaReasons, Rmas}
+import utils.Slick.implicits._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 
 trait RmaSeeds {
 
   def createRmas: DbResultT[Unit] = for {
+    order ← * <~ Orders.findOneById(1).safeGet.toXor
     _ ← * <~ RmaReasons.createAll(rmaReasons)
-    _ ← * <~ Rmas.create(rma)
+    _ ← * <~ Rmas.create(rma.copy(orderRefNum = order.referenceNumber))
     _ ← * <~ RmaLineItemSkus.createAll(rmaLineItemSkus)
     _ ← * <~ RmaLineItems.createAll(rmaLineItems)
     _ ← * <~ Notes.createAll(rmaNotes)

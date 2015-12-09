@@ -2,7 +2,7 @@ package utils
 
 import models.rules.{Condition, QueryStatement}
 import models.{CreditCardCharge, GiftCard, GiftCardAdjustment, Order, OrderLineItem, PaymentMethod, Rma, RmaLineItem,
-RmaReason, Shipment, StoreCredit, StoreCreditAdjustment}
+RmaReason, Shipment, StoreCredit, StoreCreditAdjustment, Reason}
 import org.json4s.jackson
 import responses.CountryWithRegions
 
@@ -21,6 +21,7 @@ object JsonFormatters {
     StoreCredit.Status.jsonFormat +
     StoreCredit.OriginType.jsonFormat +
     StoreCreditAdjustment.Status.jsonFormat +
+    Reason.ReasonType.jsonFormat +
     Rma.Status.jsonFormat +
     Rma.RmaType.jsonFormat +
     RmaLineItem.InventoryDisposition.jsonFormat +

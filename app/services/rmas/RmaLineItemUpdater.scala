@@ -5,6 +5,7 @@ import payloads.{RmaGiftCardLineItemsPayload, RmaShippingCostLineItemsPayload, R
 import responses.RmaResponse.Root
 import services.rmas.Helpers._
 import services.{NotFoundFailure400, NotFoundFailure404, Result, ShipmentNotFoundFailure}
+import services.RmaFailures.SkuNotFoundInOrder
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
@@ -16,7 +17,6 @@ import scala.concurrent.ExecutionContext
 object RmaLineItemUpdater {
 
   // FIXME: Fetch reasons with `mustFindOneById`, cc @anna
-
   def addSkuLineItem(refNum: String, payload: RmaSkuLineItemsPayload)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
       // Checks
@@ -26,7 +26,7 @@ object RmaLineItemUpdater {
         .one.mustFindOr(NotFoundFailure400(RmaReason, payload.reasonId))
       oli       ← * <~ OrderLineItemSkus.join(Skus).on(_.skuId === _.id)
         .filter { case (oli, sku) ⇒ oli.orderId === rma.orderId && sku.sku === payload.sku }
-        .one.mustFindOr(NotFoundFailure404(Sku, payload.sku))
+        .one.mustFindOr(SkuNotFoundInOrder(payload.sku, rma.orderRefNum))
       // Inserts
       origin    ← * <~ RmaLineItemSkus.create(RmaLineItemSku(rmaId = rma.id, skuId = oli._2.id))
       li        ← * <~ RmaLineItems.create(RmaLineItem.buildSku(rma, reason, origin, payload))
@@ -39,7 +39,7 @@ object RmaLineItemUpdater {
       // Checks
       rma       ← * <~ mustFindPendingRmaByRefNum(refNum)
       lineItem  ← * <~ RmaLineItems.join(RmaLineItemSkus).on(_.originId === _.id)
-        .filter { case (oli, sku) ⇒ oli.id === lineItemId }
+        .filter { case (oli, sku) ⇒ oli.rmaId === rma.id && oli.id === lineItemId }
         .one.mustFindOr(NotFoundFailure400(RmaLineItem, lineItemId))
       // Deletes
       _         ← * <~ RmaLineItems.filter(_.id === lineItemId).delete
@@ -69,7 +69,7 @@ object RmaLineItemUpdater {
       // Checks
       rma       ← * <~ mustFindPendingRmaByRefNum(refNum)
       lineItem  ← * <~ RmaLineItems.join(RmaLineItemGiftCards).on(_.originId === _.id)
-        .filter { case (oli, sku) ⇒ oli.id === lineItemId }
+        .filter { case (oli, sku) ⇒ oli.rmaId === rma.id && oli.id === lineItemId }
         .one.mustFindOr(NotFoundFailure400(RmaLineItem, lineItemId))
       // Deletes
       _         ← * <~ RmaLineItems.filter(_.id === lineItemId).delete
@@ -97,7 +97,7 @@ object RmaLineItemUpdater {
       // Checks
       rma       ← * <~ mustFindPendingRmaByRefNum(refNum)
       lineItem  ← * <~ RmaLineItems.join(RmaLineItemShippingCosts).on(_.originId === _.id)
-        .filter { case (oli, sku) ⇒ oli.id === lineItemId }
+        .filter { case (oli, sku) ⇒ oli.rmaId === rma.id && oli.id === lineItemId }
         .one.mustFindOr(NotFoundFailure400(RmaLineItem, lineItemId))
       // Deletes
       _         ← * <~ RmaLineItems.filter(_.id === lineItemId).delete

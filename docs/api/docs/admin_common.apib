@@ -1,5 +1,7 @@
 ### List Reasons [GET /v1/reasons]
 
+Reasons are widely-used descriptions of various management actions, e.g. cancellation of gift card or purpose of it's creation.
+
 + Parameters
     + size:   1           (optional, number)       - Page size.
     + from:   1           (optional, number)       - Start element (counting from 0) or # of elements to skip.
@@ -27,9 +29,19 @@
             + `parentId`
             + `body`
 + Response 200 (application/json)
-    + Attributes (Reasons)    
+    + Attributes (Reasons)
 
-### List Rma Reasons [GET /v1/rma-reasons]
+### List Gift Card Types [GET /v1/gift-cards/types]
+
++ Response 200 (application/json)
+    + Attributes (array[GiftCardOriginTypeResponse])
+
+### List Store Credit Types [GET /v1/store-credits/types]
+
++ Response 200 (application/json)
+    + Attributes (array[StoreCreditOriginTypeResponse])
+
+### List RMA Reasons [GET /v1/rma-reasons]
 
 + Parameters
     + size:   1           (optional, number)       - Page size.
@@ -43,4 +55,4 @@
             + `createdAt`
             + `deletedAt`
 + Response 200 (application/json)
-    + Attributes (RmaReasons)
+    + Attributes (RmaReasons)    

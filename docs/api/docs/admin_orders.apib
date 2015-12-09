@@ -1,24 +1,46 @@
-## Orders [/v1/orders]
+## Orders [/v1/orders/{refNum}]
 
-### List [GET]
++ Parameters
+    + refNum: `ABC-123` (required, string) - Order referenceNumber.
+
+### List [GET /v1/orders{?size,from,sortBy}]
 
 Lists basic information of Orders for a quick table view to drill-down into
 orders further.
 
-+ Request (application/json)
++ Parameters
+    + size:   1           (optional, number)       - Page size.
+    + from:   1           (optional, number)       - Start element (counting from 0) or # of elements to skip.
+    + sortBy: `id`        (optional, enum[string]) - Field to sort by (`-fieldName` for descending order).
+        + Members
+            + `id`
+            + `referenceNumber`
+            + `customerId`
+            + `status`
+            + `isLocked`
+            + `placedAt`
+            + `remorsePeriodEnd`
+            + `customer_isDisabled`
+            + `customer_disabledBy`
+            + `customer_isBlacklisted`
+            + `customer_blacklistedBy`
+            + `customer_blacklistedReason`
+            + `customer_email`
+            + `customer_name`
+            + `customer_phoneNumber`
+            + `customer_location`
+            + `customer_modality`
+            + `customer_isGuest`
+            + `customer_createdAt`
 + Response 200 (application/json)
   + Attributes (OrderList)
 
-### Search [GET /v1/orders/search?term={term}]
+### View [GET]
 
-Searches order by reference number or related customer name.
-
-+ Parameters
-    + term: `ABC-123` (required, string) - refNum or customer name, should be at least 2 characters
 + Response 200 (application/json)
-    + Attributes (OrderList)
+  + Attributes (FullOrder)
 
-### Create [POST]
+### Create [POST /v1/orders]
 
 Creates a cart for an existing customer (or guest account) when `customerId`
 given or creates a cart along with a new guest account when `email` is given.
@@ -27,67 +49,152 @@ given or creates a cart along with a new guest account when `email` is given.
     + Attributes (CreateCartPayload)
 + Response 200 (application/json)
     + Attributes (FullOrder)
-+ Response 400 (application/json)
-    + Attributes (Errors)
 
-## Line Items [/v1/orders/{refNum}/line-items]
+### Bulk Update Status [PATCH /v1/orders]
 
-### Add SKUs [POST]
++ Request (application/json)
+    + Attributes (OrderBulkStatusUpdatePayload)
++ Response 200 (application/json)
+    + Attributes (OrderList)
+
+### Lock [POST /v1/orders/{refNum}/lock]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Order reference number
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Unlock [POST /v1/orders/{refNum}/unlock]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Order reference number
++ Response 200 (application/json)
+    + Attributes (FullOrder)    
+
+### Increase Remorse Period [POST /v1/orders/{refNum}/increase-remorse-period]
+
+Order must be in `remorseHold` status.
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Order reference number
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Update SKU Line Items [POST /v1/orders/{refNum}/line-items]
 
 + Parameters
     + refNum: `ABC-123` (required, string) - Order referenceNumber.
 + Request (application/json)
-    + Attributes (UpdateLineItemsPayload)
+    + Attributes (array[UpdateLineItemsPayload])
 + Response 200 (application/json)
     + Attributes (FullOrder)
-+ Response 400 (application/json)
-    + Attributes (Errors)
 
-### Add Gift Card [POST /v1/orders/{refNum}/gift-cards]
+## Gift Card Line Items [/v1/orders/{refNum}/gift-cards/{code}]
+
+### Add [POST /v1/orders/{refNum}/gift-cards]
 
 + Parameters
     + refNum: `ABC-123` (required, string) - Order referenceNumber.
 + Request (application/json)
-    + Attributes (GiftCardCreatePayload)
+    + Attributes (GiftCardSingleCreatePayload)
 + Response 200 (application/json)
     + Attributes (FullOrder)
-+ Response 400 (application/json)
-    + Attributes (Errors)
 
-### Edit Gift Card [PATCH /v1/orders/{refNum}/gift-cards/{code}]
+### Edit [PATCH]
 
 + Parameters
     + refNum: `ABC-123` (required, string) - Order referenceNumber.
     + code: `ABC-123` (required, string) - Gift Card code.
 + Request (application/json)
-    + Attributes (GiftCardCreatePayload)
+    + Attributes (GiftCardSingleCreatePayload)
 + Response 200 (application/json)
     + Attributes (FullOrder)
-+ Response 400 (application/json)
-    + Attributes (Errors)
 
-### Delete Gift Card [DELETE /v1/orders/{refNum}/gift-cards/{code}]
+### Delete [DELETE]
 
 + Parameters
     + refNum: `ABC-123` (required, string) - Order referenceNumber.
     + code: `ABC-123` (required, string) - Gift Card code.
 + Response 200 (application/json)
     + Attributes (FullOrder)
-+ Response 400 (application/json)
-    + Attributes (Errors)
+
+## Credit Card Payments [/v1/orders/{refNum}/payment-methods/credit-cards]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Order reference number
+
+### Add [POST]
+
++ Request (application/json)
+    + Attributes (CreditCardPaymentPayload)
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Edit [PATCH]
+
++ Request (application/json)
+    + Attributes (CreditCardPaymentPayload)
++ Response 200 (application/json)
+    + Attributes (FullOrder)    
+
+### Delete [DELETE]
+
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+## Gift Card Payments [/v1/orders/{refNum}/payment-methods/gift-cards]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Order reference number
+
+### Add [POST]
+
++ Request (application/json)
+    + Attributes (GiftCardPaymentPayload)
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Edit [PATCH]
+
++ Request (application/json)
+    + Attributes (GiftCardPaymentPayload)
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Delete [DELETE]
+
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+## Store Credit Payments [/v1/orders/{refNum}/payment-methods/store-credits]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Order reference number
+
+### Add [POST]
+
++ Request (application/json)
+    + Attributes (StoreCreditPaymentPayload)
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Edit [PATCH]
+
++ Request (application/json)
+    + Attributes (StoreCreditPaymentPayload)
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Delete [DELETE]
+
++ Response 200 (application/json)
+    + Attributes (FullOrder)    
 
 ## Shipping Method [/v1/orders/{refNum}/shipping-methods]
 
 Shipping methods are used to describe the ways that the contents of a cart can
 transported to the customer. All actions that occur against this set of
 endpoints modify which shipping method is used by the cart.
-
-### List [GET]
-
-Returns the list of all shipping methods that may be applied to this cart.
-
-+ Response 200 (application/json)
-    + Attributes (ShippingMethod)
 
 ### Update [PATCH]
 
@@ -96,7 +203,7 @@ Changes the shipping method to a cart.
 + Parameters
     + refNum: 1 (required, string) - Order referenceNumber
 + Request (application/json)
-    + Attributes (CreateShippingAddressPayload)
+    + Attributes (UpdateShippingMethodPayload)
 + Response 200 (application/json)
     + Attributes (FullOrder)
 
@@ -107,3 +214,61 @@ Removes the shipping method from the cart.
 + Parameters
     + refNum: 1 (required, string) - Order reference number
 + Response 204
+
+## Shipping Address [/v1/orders/{refNum}/shipping-address]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Order reference number
+
+### Add [POST]
+
++ Request (application/json)
+    + Attributes (CreateAddressPayload)
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Add By Address ID [PATCH /v1/orders/{refNum}/shipping-address/{addressId}]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Order reference number.
+    + addressId: 1 (required, number) - Address ID.
++ Response 200 (application/json)
+    + Attributes (FullOrder)    
+
+### Update [PATCH]
+
++ Request (application/json)
+    + Attributes (UpdateAddressPayload)
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Delete [DELETE]
+
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+## Assignees [/v1/orders/{refNum}/assignees]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Order reference number
+
+### Assign [POST]
+
++ Request (application/json)
+    + Attributes (RmaAssignPayload)
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Bulk Assign [POST /v1/orders/assignees]
+
++ Request (application/json)
+    + Attributes (OrderBulkAssignPayload)
++ Response 200 (application/json)
+    + Attributes (OrderList)
+
+### Bulk Unassign [POST /v1/orders/assignees/delete]
+
++ Request (application/json)
+    + Attributes (OrderBulkAssignPayload)
++ Response 200 (application/json)
+    + Attributes (OrderList)
