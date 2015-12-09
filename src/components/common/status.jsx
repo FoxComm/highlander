@@ -1,17 +1,10 @@
 import React, { PropTypes } from 'react';
 import { get } from 'sprout-data';
 
+import { statusTitles as orderStatuses } from '../../paragons/order';
+
 export const statuses = {
-  order: {
-    cart: 'Cart',
-    remorseHold: 'Remorse Hold',
-    manualHold: 'Manual Hold',
-    fraudHold: 'Fraud Hold',
-    fulfillmentStarted: 'Fulfillment Started',
-    canceled: 'Canceled',
-    partiallyShipped: 'Partially Shipped',
-    shipped: 'Shipped'
-  },
+  order: orderStatuses,
   payment: {
     cart: 'Cart'
   },

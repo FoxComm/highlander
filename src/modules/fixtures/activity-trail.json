@@ -6,7 +6,8 @@
       "author": "Bree Swineford",
       "target": "order",
       "order": {
-        "id": 123456789
+        "referenceNumber": "123456789",
+        "orderStatus": "cart"
       }
     },
     "createdAt": "2015-12-07T21:18:35.996Z"
@@ -18,7 +19,8 @@
       "author": "Bree Swineford",
       "newState": "Fullfillment",
       "order": {
-        "id": 123456789
+        "referenceNumber": "123456789",
+        "orderStatus": "fulfillmentStarted"
       }
     },
     "createdAt": "2015-12-07T21:14:35.996Z"
@@ -29,7 +31,7 @@
     "data": {
       "author": "Albert Einstein",
       "order": {
-        "id": 374638912
+        "referenceNumber": "374638912"
       },
       "previousAddress": {
           "id": 3,
@@ -68,7 +70,7 @@
       "quantity": 2,
       "name": "Nike Dri-Fit Short-Slevel Women’s Running Shirt",
       "order": {
-        "id": 374638912
+        "referenceNumber": "374638912"
       }
     },
     "createdAt": "2015-11-07T21:14:35.996Z"
@@ -81,7 +83,7 @@
       "quantity": 1,
       "name": "Nike Air Max 2015",
       "order": {
-        "id": 374638912
+        "referenceNumber": "374638912"
       }
     },
     "createdAt": "2015-11-07T21:14:35.996Z"

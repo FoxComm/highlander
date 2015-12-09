@@ -5,7 +5,7 @@ import moment from 'moment';
 import React, { PropTypes } from 'react';
 
 // components
-import Activity from './activity';
+import Activity, { getActivityRepresentative } from './activities';
 
 function createTimeMark(time, daysDiff) {
   switch (daysDiff) {
@@ -48,24 +48,27 @@ export function injectTimeMarks(activities) {
   });
 }
 
-const renderActivityItem = activity => {
+const renderActivityItem = (activity, idx) => {
   if (activity.type === 'mark') {
     return (
-      <li className="fc-activity-trail__mark">
+      <li className="fc-activity-trail__mark" key={`mark_${idx}`}>
         {activity.title}
       </li>
     );
   } else {
-    return <Activity activity={activity} />;
+    return <Activity activity={activity} key={`activity_${idx}`} />;
   }
 };
 
 const ActivityTrailList = props => {
-  const withTimeMarks = injectTimeMarks(props.activities);
+  // filter only known activities
+  const activities = _.filter(props.activities, activity => !!getActivityRepresentative(activity));
+
+  const withTimeMarks = injectTimeMarks(activities);
 
   return (
     <ul className="fc-activity-trail">
-      {withTimeMarks.map(activity => renderActivityItem(activity))}
+      {withTimeMarks.map((activity, idx) => renderActivityItem(activity, idx))}
     </ul>
   );
 };

@@ -7,7 +7,7 @@ const AddressDetails = props => {
 
   return (
     <ul className="fc-address-details">
-      <li className="name">{address.name}</li>
+      {address.name && <li className="name">{address.name}</li>}
       <li>{address.address1}</li>
       {address.address2 && <li>{address.address2}</li>}
       <li>
