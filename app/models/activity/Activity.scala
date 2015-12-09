@@ -15,8 +15,6 @@ import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import utils.Slick.implicits._
 
-//import com.github.tminglei.slickpg._
-
 import utils.ExPostgresDriver.api._
 import utils.JsonFormatters
 import utils.time.JavaTimeSlickMapper._
@@ -98,8 +96,8 @@ object Activities extends TableQueryWithId[Activity, Activities](
         context = context))
     }
 
-    def filterByType(activityType: ActivityType) = filter(_.activityType === activityType)
-    def filterByData(key: String, value: String ) = filter(_.data+>>(key) === value)
-    def filterByData(activityType: ActivityType, key: String, value: String ) = 
+    def filterByType(activityType: ActivityType) : QuerySeq = filter(_.activityType === activityType)
+    def filterByData(key: String, value: String ) : QuerySeq = filter(_.data+>>(key) === value)
+    def filterByData(activityType: ActivityType, key: String, value: String ) : QuerySeq = 
       filter(_.activityType === activityType).filter(_.data+>>(key) === value)
   }

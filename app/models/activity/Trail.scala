@@ -42,6 +42,8 @@ class Trails(tag: Tag) extends GenericTable.TableWithId[Trail](tag, "activity_tr
   def createdAt = column[Instant]("created_at")
 
   def * = (id, dimensionId, objectId, tailConnectionId, data, createdAt) <> ((Trail.apply _).tupled, Trail.unapply)
+
+  def dimension = foreignKey(Dimensions.tableName, dimensionId, Dimensions)(_.id)
 }
 
 object Trails extends TableQueryWithId[Trail, Trails](

@@ -52,6 +52,10 @@ class Connections(tag: Tag) extends GenericTable.TableWithId[Connection](tag, "a
     data, 
     connectedBy, 
     createdAt) <> ((Connection.apply _).tupled, Connection.unapply)
+
+  def activity = foreignKey(Activities.tableName, activityId, Activities)(_.id)
+  def dimension = foreignKey(Dimensions.tableName, dimensionId, Dimensions)(_.id)
+  def trail = foreignKey(Trails.tableName, trailId, Trails)(_.id)
 }
 
 object Connections extends TableQueryWithId[Connection, Connections](

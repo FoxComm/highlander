@@ -77,7 +77,7 @@ class ActivityTrailIntegrationTest extends IntegrationTestBase
       //Check the activity log to see if it was created
       val activity = Activities.filterByData(
         CustomerInfoChanged.typeName, 
-        "customerId", customer.id.toString).result.headOption.run().futureValue.value
+        "customerId", customer.id.toString).result.one.futureValue.value
 
       //make sure the activity has all the correct information
       activity.activityType must === (CustomerInfoChanged.typeName)
@@ -113,7 +113,7 @@ class ActivityTrailIntegrationTest extends IntegrationTestBase
       //Check the activity log to see if it was created
       val activity = Activities.filterByData(
         CustomerInfoChanged.typeName, 
-        "customerId", customer.id.toString).result.headOption.run().futureValue.value
+        "customerId", customer.id.toString).result.one.futureValue.value
 
       //make sure the activity has all the correct information
       activity.activityType must === (CustomerInfoChanged.typeName)
@@ -127,12 +127,12 @@ class ActivityTrailIntegrationTest extends IntegrationTestBase
       appendedConnection.nextId must === (None)
 
       //make sure the dimension was created
-      val dimension = Dimensions.findByName(customerActivity).result.headOption.run().futureValue.value
+      val dimension = Dimensions.findByName(customerActivity).result.one.futureValue.value
 
       dimension.name must === (customerActivity)
 
       //make sure the trail was created
-      val trail = Trails.findById(appendedConnection.trailId).result.headOption.run().futureValue.value
+      val trail = Trails.findById(appendedConnection.trailId).result.one.futureValue.value
 
       //make sure things are linked up correctly
       trail.id must === (appendedConnection.trailId)
@@ -164,12 +164,12 @@ class ActivityTrailIntegrationTest extends IntegrationTestBase
             val appendedConnection = appendActivity(dimensionName, objectId, activity.id)
 
             //make sure the dimension was created
-            val dimension = Dimensions.findByName(dimensionName).result.headOption.run().futureValue.value
+            val dimension = Dimensions.findByName(dimensionName).result.one.futureValue.value
 
             dimension.name must === (dimensionName)
 
             //make sure the trail was created
-            val trail = Trails.findById(appendedConnection.trailId).result.headOption.run().futureValue.value
+            val trail = Trails.findById(appendedConnection.trailId).result.one.futureValue.value
 
             //make sure the trail is created correctly if it didn't exist
             trail.id must === (appendedConnection.trailId)

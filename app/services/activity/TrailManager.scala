@@ -28,10 +28,7 @@ import responses.ActivityConnectionResponse
 
 object TrailManager {
 
-    val dimensionDescription = "Automatically Generated"
-
-    def trailNotFound(dimensionId: Int, objectId: Int): NotFoundFailure404 = NotFoundFailure404(Trail, (dimensionId, objectId))
-    def connectionNotFound(connectionId: Int): NotFoundFailure404 = NotFoundFailure404(Connection, connectionId)
+    val autoDescription = "Automatically Generated"
 
     def createTrail(payload: Trail)
     (implicit ec: ExecutionContext, db: Database): Result[Int] = 
@@ -57,7 +54,7 @@ object TrailManager {
 
         //find or create the dimension
         dimension ← * <~ Dimensions.findByName(dimensionName).one.findOrCreate { 
-          Dimensions.create(Dimension(name = dimensionName, description = dimensionDescription))
+          Dimensions.create(Dimension(name = dimensionName, description = autoDescription))
         }
 
         //find or create
@@ -90,7 +87,7 @@ object TrailManager {
       maybeOldTailId match {
         case Some(oldTailId) ⇒  
           for {
-            oldTail ← * <~ Connections.findById(oldTailId).extract.one.mustFindOr(connectionNotFound(oldTailId))
+            oldTail ← * <~ Connections.mustFindById(oldTailId)
               _ ← * <~ Connections.update(oldTail, oldTail.copy(nextId = Some(newTailId)))
           } yield Unit
         case None ⇒  pure(Unit)
