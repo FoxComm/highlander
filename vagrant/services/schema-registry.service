@@ -1,10 +1,10 @@
 [Service]
 WorkingDirectory=/vagrant
-ExecStart=/bin/bash vagrant/run_elasticsearch.sh /home/vagrant/elasticsearch
+ExecStart=/bin/bash vagrant/run_schema-registry.sh
 Restart=always
 StandardOutput=syslog
 StandardError=syslog
-SyslogIdentifier=elasticsearch
+SyslogIdentifier=schema-registry
 
 [Install]
 WantedBy=multi-user.target

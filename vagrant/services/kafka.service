@@ -1,10 +1,10 @@
 [Service]
 WorkingDirectory=/vagrant
-ExecStart=/bin/bash vagrant/run_zookeeper.sh /home/vagrant/kafka
+ExecStart=/bin/bash vagrant/run_kafka.sh /home/vagrant/build/kafka
 Restart=always
 StandardOutput=syslog
 StandardError=syslog
-SyslogIdentifier=zookeeper
+SyslogIdentifier=kafka
 
 [Install]
 WantedBy=multi-user.target
