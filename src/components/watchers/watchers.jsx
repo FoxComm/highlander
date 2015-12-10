@@ -11,6 +11,7 @@ import Panel from '../panel/panel';
 import { AddButton } from '../common/buttons';
 import UserInitials from '../users/initials';
 import { Button } from '../common/buttons';
+import { ModalContainer } from '../modal/base';
 
 // redux
 import * as WatchersActions from '../../modules/watchers';
@@ -74,8 +75,12 @@ export default class Watchers extends React.Component {
   get assignees() {
     if (_.isEmpty(this.props.assignees)) {
       return (
-        <div className="fc-watchers__empty-list fc-watchers__assignees-empty">
-          Unassigned
+        <div className="fc-watchers__assignees-row">
+          <AddButton className="fc-watchers__add-button"
+                       onClick={() => this.props.showAddingModal(this.entity)}/>
+          <div className="fc-watchers__empty-list fc-watchers__assignees-empty">
+            Unassigned
+          </div>
         </div>
       );
     } else {
@@ -86,8 +91,12 @@ export default class Watchers extends React.Component {
   get watchers() {
     if (_.isEmpty(this.props.watchers)) {
       return (
-        <div className="fc-watchers__empty-list fc-watchers__watchers-empty">
-          Unwatched
+        <div className="fc-watchers__watchers-row">
+          <AddButton className="fc-watchers__add-button"
+                       onClick={() => this.props.showAddingModal(this.entity)}/>
+          <div className="fc-watchers__empty-list fc-watchers__watchers-empty">
+            Unwatched
+          </div>
         </div>
       );
     } else {
@@ -95,9 +104,9 @@ export default class Watchers extends React.Component {
     }
   }
 
-  renderCell(user) {
+  renderCell(user, key) {
     return (
-      <div className="fc-watchers__cell">
+      <div className="fc-watchers__cell" key={key}>
         <UserInitials name={user.name} email={user.email}/>
       </div>
     );
@@ -111,7 +120,7 @@ export default class Watchers extends React.Component {
     });
     const buttonClass = classNames('fc-watchers__toggle-watchers-btn', {
       '_active': active
-    })
+    });
     return (
       <div className="fc-watchers__rest-cell">
         <Button icon="list"
@@ -130,21 +139,23 @@ export default class Watchers extends React.Component {
   buildRow(users, className, group) {
     const rowClass = classNames("fc-watchers__users-row", className);
     if (users.length <= this.maxDisplayed) {
-      const cells = users.map(watcher => this.renderCell(watcher));
+      const cells = users.map((watcher, idx) => this.renderCell(watcher, `cell-${group}-${idx}`));
       return (
         <div className={rowClass}>
-          <AddButton className="fc-watchers__add-button"/>
+          <AddButton className="fc-watchers__add-button"
+                     onClick={() => this.props.showAddingModal(this.entity)}/>
           {cells}
         </div>
       );
     } else {
       const displayedWatchers = users.slice(0, this.maxDisplayed - 1);
       const hiddenWatchers = users.slice(this.maxDisplayed - 1);
-      const displayedCells = displayedWatchers.map(watcher => this.renderCell(watcher));
-      const hiddenCells = hiddenWatchers.map(watcher => this.renderCell(watcher));
+      const displayedCells = displayedWatchers.map((watcher, idx) => this.renderCell(watcher, `cell-${group}-${idx}`));
+      const hiddenCells = hiddenWatchers.map((watcher, idx) => this.renderCell(watcher, `cell-hidden-${group}-${idx}`));
       return (
         <div className={rowClass}>
-          <AddButton className="fc-watchers__add-button"/>
+          <AddButton className="fc-watchers__add-button"
+                     onClick={() => this.props.showAddingModal(this.entity)}/>
           {displayedCells}
           {this.buildHiddenRow(hiddenCells, group)}
         </div>
@@ -180,6 +191,9 @@ export default class Watchers extends React.Component {
             {this.watchers}
           </div>
         </div>
+        <ModalContainer isVisible={this.props.data.modalDisplayed}>
+          Add new watcher!
+        </ModalContainer>
       </Panel>
     );
   }
