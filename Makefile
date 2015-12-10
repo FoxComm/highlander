@@ -11,7 +11,7 @@ migrate:
 migrate-info:
 	${FLYWAY} info
 
-resetdb:
+resetdb: clean
 	dropdb --if-exists phoenix_development
 	dropdb --if-exists phoenix_test
 	dropuser --if-exists phoenix
