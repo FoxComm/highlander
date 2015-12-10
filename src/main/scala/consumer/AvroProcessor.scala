@@ -52,7 +52,8 @@ class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implici
  * more reasonable.
  */
 object AvroJsonHelper { 
-  def transformJson(json: String, fields: Map[String, String]): String = {
+  type FieldMap = Map[String, String]
+  def transformJson(json: String, fields: FieldMap): String = {
     // Reduce Avro type annotations
     val unwrapTypes = parse(json).transformField {
       case JField(name, (JObject(JField(typeName, value) :: Nil))) ⇒  { 

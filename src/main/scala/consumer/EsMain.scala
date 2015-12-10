@@ -4,9 +4,13 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.collection.JavaConversions._
 import com.typesafe.config.ConfigFactory
 
+import consumer.elastic.ElasticSearchProcessor
+import consumer.elastic.AvroTransformers
+
 /**
  * Program which consumes several bottledwater topics and indexes them in Elastic Search
  */
+
 object EsMain {
   val environmentProperty = "env"
   val defaultEnvironment  = "default"
@@ -26,12 +30,17 @@ object EsMain {
     val kafkaGroupId          = conf.getString(s"$env.kafka.groupId")
     val kafkaTopics           = conf.getStringList(s"kafka.topics").toIndexedSeq.toSeq
 
+    val transformers = Map(
+      "customers_search_view" →  AvroTransformers.CustomerSearchView(),
+      "orders_search_view" →  AvroTransformers.OrderSearchView())
+
     // Init processors & consumer
     val esProcessor = new ElasticSearchProcessor(
       uri = elasticSearchUrl, 
       cluster = elasticSearchCluster,
       indexName = elasticSearchIndex, 
-      topics = kafkaTopics)
+      topics = kafkaTopics,
+      jsonTransformers = transformers)
 
     val avroProcessor = new AvroProcessor(
       schemaRegistryUrl = avroSchemaRegistryUrl, 
