@@ -5,16 +5,18 @@ import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import * as NotificationActions from '../../modules/activity-notifications';
 
-@connect(state => ({notifications: state.activityNotifications}), NotificationActions)
+@connect(state => state.activityNotifications, NotificationActions)
 export default class NotificationIndicator extends React.Component {
 
   static propTypes = {
-    notifications: PropTypes.shape({
-      count: PropTypes.number.isRequired,
-      displayed: PropTypes.bool.isRequired
-    }),
+    count: PropTypes.number.isRequired,
+    displayed: PropTypes.bool,
     toggleNotifications: PropTypes.func,
     fetchNotifications: PropTypes.func
+  };
+
+  static defaultProps = {
+    displayed: false
   };
 
   componentDidMount() {
@@ -22,10 +24,10 @@ export default class NotificationIndicator extends React.Component {
   }
 
   get indicator() {
-    if (this.props.notifications.count > 0) {
+    if (this.props.count > 0) {
       return (
         <div className="fc-activity-notifications__indicator">
-          <span>{ this.props.notifications.count }</span>
+          <span>{ this.props.count }</span>
         </div>
       );
     }
@@ -33,7 +35,7 @@ export default class NotificationIndicator extends React.Component {
 
   render() {
     const classes = classNames('fc-activity-notifications__toggle', {
-      '_active': this.props.notifications.displayed
+      '_active': this.props.displayed
     });
     return (
       <div className="fc-activity-notifications">

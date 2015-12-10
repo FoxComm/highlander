@@ -6,19 +6,21 @@ import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import * as NotificationActions from '../../modules/activity-notifications';
 
-@connect(state => ({notifications: state.activityNotifications}), NotificationActions)
+@connect(state => state.activityNotifications, NotificationActions)
 export default class NotificationPanel extends React.Component {
 
   static propTypes = {
-    notifications: PropTypes.shape({
-      notifications: PropTypes.array,
-      displayed: PropTypes.bool
-    }),
+    notifications: PropTypes.array,
+    displayed: PropTypes.bool,
     toggleNotifications: PropTypes.func
   };
 
+  static defaultProps = {
+    displayed: false
+  }
+
   get items() {
-    const items = this.props.notifications.notifications;
+    const items = this.props.notifications;
     return items.map(item => {
       return (<NotificationItem item={item} key={`notification-item-${item.id}`}/>);
     });
@@ -36,7 +38,7 @@ export default class NotificationPanel extends React.Component {
   }
 
   get body() {
-    if (this.props.notifications.displayed) {
+    if (this.props.displayed) {
       return (
         <div>
           <div className="fc-activity-notifications__overlay"
