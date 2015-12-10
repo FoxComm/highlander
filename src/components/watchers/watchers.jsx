@@ -4,6 +4,22 @@ import { AddButton } from '../common/buttons';
 
 export default class Watchers extends React.Component {
 
+  get assignees() {
+    return (
+      <div className="fc-watchers__empty-list">
+        Unassigned
+      </div>
+    );
+  }
+
+  get watchers() {
+    return (
+      <div className="fc-watchers__empty-list">
+        Unwatched
+      </div>
+    );
+  }
+
   render() {
     return (
       <Panel className="fc-watchers">
@@ -17,9 +33,8 @@ export default class Watchers extends React.Component {
             </div>
           </div>
           <div className="fc-watchers__users-row">
-            <div className="fc-watchers__add-control">
-              <AddButton className="fc-watchers__add-button"/>
-            </div>
+            <AddButton className="fc-watchers__add-button"/>
+            {this.assignees}
           </div>
           <div className="fc-watchers__title-row">
             <div className="fc-watchers__title">
@@ -31,6 +46,7 @@ export default class Watchers extends React.Component {
           </div>
           <div className="fc-watchers__users-row">
             <AddButton className="fc-watchers__add-button"/>
+            {this.watchers}
           </div>
         </div>
       </Panel>
