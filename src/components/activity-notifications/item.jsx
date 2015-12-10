@@ -1,6 +1,10 @@
+
+// libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
-import classNames from 'classNames';
+import classNames from 'classnames';
+
+// components
 import { DateTime } from '../common/datetime';
 import UserInitials from '../users/initials';
 import { IndexLink, Link } from '../link';

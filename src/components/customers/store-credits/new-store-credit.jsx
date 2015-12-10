@@ -1,5 +1,15 @@
+
+// libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
+import classNames from 'classnames';
+import { autobind } from 'core-decorators';
+import { connect } from 'react-redux';
+import { ReasonType } from '../../../lib/reason-utils';
+import { codeToName } from '../../../lib/language-utils';
+import { transitionTo } from '../../../route-helpers';
+
+// components
 import SectionTitle from '../../section-title/section-title';
 import FormField from '../../forms/formfield';
 import Form from '../../forms/form';
@@ -7,12 +17,8 @@ import { Link } from '../../link';
 import { PrimaryButton } from '../../common/buttons';
 import Dropdown from '../../dropdown/dropdown';
 import Currency from '../../common/currency';
-import { transitionTo } from '../../../route-helpers';
-import { ReasonType } from '../../../lib/reason-utils';
-import { codeToName } from '../../../lib/language-utils';
-import classNames from 'classNames';
-import { autobind } from 'core-decorators';
-import { connect } from 'react-redux';
+
+// redux
 import * as CustomerActions from '../../../modules/customers/details';
 import * as NewStoreCreditActions from '../../../modules/customers/new-store-credit';
 import * as ScTypesActions from '../../../modules/store-credit-types';
