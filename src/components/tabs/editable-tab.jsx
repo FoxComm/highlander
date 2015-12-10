@@ -35,15 +35,15 @@ export default class EditableTabView extends React.Component {
   }
 
   get dirtyState() {
-    if (this.props.dirty) {
-      return <div>*</div>;
-    }
+     if (this.props.dirty) {
+      return <div className="fc-editable-tab__dirty-icon">&nbsp;</div>;
+     }
   }
 
   get editButton() {
     if (!this.props.editing) {
       return (
-        <button className="fc-tab__edit-icon" onClick={this.props.startEdit}>
+        <button className="fc-editable-tab__edit-icon" onClick={this.props.startEdit}>
           <i className="icon-edit"/>
         </button>
       );
@@ -53,10 +53,10 @@ export default class EditableTabView extends React.Component {
   get tabContent() {
     if (this.props.editing) {
       return (
-        <div className="fc-tab__edit-content fc-form-field">
+        <div className="fc-editable-tab__content fc-form-field">
           <input
             autoFocus
-            className="fc-tab__edit-content-input"
+            className="fc-editable-tab__content-input"
             type="text"
             onBlur={() => this.props.completeEdit(this.state.editValue)}
             onChange={this.changeInput}
@@ -64,7 +64,7 @@ export default class EditableTabView extends React.Component {
             placeholder="Name your search"
             value={this.state.editValue}
           />
-          <div className="fc-tab__edit-content-close">
+          <div className="fc-editable-tab__content-close">
             <a
               onClick={this.props.cancelEdit}
               onMouseDown={this.preventAction}
@@ -102,11 +102,13 @@ export default class EditableTabView extends React.Component {
 
   render() {
     return (
-      <TabView className={this.className} {...this.props}>
+      <div className="fc-editable-tab">
         {this.dirtyState}
-        {this.tabContent}
-        {this.editButton}
-      </TabView>
+        <TabView className={this.className} {...this.props}>
+          {this.tabContent}
+          {this.editButton}
+        </TabView>
+      </div>
     );
   }
 }

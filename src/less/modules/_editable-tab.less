@@ -1,0 +1,53 @@
+.fc-editable-tab {
+  display: flex;
+  flex-direction: column;
+
+  &__content {
+    .width(312px);
+    display: flex;
+    align-items: center;
+
+    &-input {
+      flex-grow: 1;
+    }
+
+    &-close {
+      .font-spec(32px);
+      .margin-left(15px);
+      .margin-right(5px);
+    }
+  }
+
+  &__dirty-icon {
+    .height(6px);
+    .margin(3px auto -9px);
+    .width(6px);
+    border-radius: 50%;
+    background-color: @color-decor24;
+    z-index: 10;
+  }
+
+  &__edit-icon {
+    .font-spec(13px);
+    .width(20px);
+    align-self: flex-start;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+
+    > i.icon-edit {
+      color: @color-decor1;
+      opacity: 0.5;
+      .padding-top(4px);
+      padding-right: 0;
+      display: none;
+    }
+
+    &:hover {
+      > i.icon-edit {
+        opacity: 1;
+      }
+    }
+  }
+}
