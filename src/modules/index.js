@@ -12,6 +12,7 @@ import regions from './regions';
 import addressForm from './address-form';
 import reasons from './reasons';
 import activityNotifications from './activity-notifications';
+import storeCreditTypes from './store-credit-types';
 
 const rootReducer = combineReducers({
   router: routerStateReducer,
@@ -25,6 +26,7 @@ const rootReducer = combineReducers({
   regions,
   addressForm,
   reasons,
+  storeCreditTypes,
   groups,
   activityNotifications,
 });

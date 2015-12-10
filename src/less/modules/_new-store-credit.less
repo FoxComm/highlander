@@ -1,0 +1,60 @@
+.fc-store-credit-form {
+  &__input-group {
+    .margin-bottom(40px);
+  }
+
+  &__label {
+    .margin-bottom(15px);
+    font-weight: 600;
+  }
+
+  &__controls {
+    .margin-top(50px);
+  }
+
+  &__gc-value {
+    .font-spec(32px, 600, 43px);
+    color: @color-decor8;
+  }
+
+  &__controls {
+    margin-top: 1rem;
+  }
+
+  &__submit {
+    margin-left: 5rem;
+    margin-top: pxtorem(-10px);
+  }
+
+  &__input-group-amount {
+    .margin-bottom(20px);
+  }
+
+  &__balance-value {
+    .inline-block();
+    cursor: pointer;
+    background: @color-white;
+    border: 2px solid @color-decor7;
+    .padding(8px 16px);
+    border-radius: 3px;
+    .margin-right(5px);
+
+    &._selected {
+      border: 4px solid @color-decor39;
+    }
+  }
+
+  &__balances {
+    .margin-top(20px);
+    .margin-bottom(40px);
+    a.btn {
+      .margin-right(10px);
+      .padding-left(5px);
+      .padding-right(5px);
+    }
+  }
+
+  .fc-dropdown {
+    max-width: inherit;
+  }
+}

@@ -32,7 +32,6 @@ export default class Form extends React.Component {
     event.preventDefault();
 
     let isValid = true;
-
     this._emit('submit', (isFieldValid) => {
       if (!isFieldValid) isValid = false;
     });
