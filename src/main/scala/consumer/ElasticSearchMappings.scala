@@ -6,19 +6,19 @@ import com.sksamuel.elastic4s.mappings.FieldType._
 object ElasticSearchMappings {
   val customerJsonFields = Map(
     "orders" → "orders", 
-    "purchased_items" → "purchased_items", 
-    "shipping_addresses" → "shipping_addresses", 
-    "billing_addresses" → "billing_addresses",
-    "save_for_later" → "save_for_later"
+    "purchased_items" → "purchasedItems", 
+    "shipping_addresses" → "shippingAddresses", 
+    "billing_addresses" → "billingAddresses",
+    "save_for_later" → "saveForLater"
   )
 
   val orderJsonFields = Map(
     "customer" → "customer", 
-    "line_items" → "line_items", 
+    "line_items" → "lineItems", 
     "payments" → "payments", 
     "shipments" → "shipments", 
-    "shipping_addresses" → "shipping_addresses",
-    "billing_addresses" → "billing_addresses", 
+    "shipping_addresses" → "shippingAddresses",
+    "billing_addresses" → "billingAddresses", 
     "assignees" → "assignees", 
     "rmas" → "rmas"
   )
@@ -35,7 +35,7 @@ object ElasticSearchMappings {
   def regions = {
     "regions" as (
       "id"          typed IntegerType,
-      "country_id"  typed IntegerType,
+      "countryId"  typed IntegerType,
       "name"        typed StringType analyzer "autocomplete"
     )
   }
@@ -59,43 +59,43 @@ object ElasticSearchMappings {
       "id"                    typed IntegerType,
       "name"                  typed StringType analyzer "autocomplete",
       "email"                 typed StringType analyzer "autocomplete",
-      "is_disabled"           typed BooleanType,
-      "is_guest"              typed BooleanType,
-      "is_blacklisted"        typed BooleanType,
-      "joined_at"             typed DateType,
+      "isDisabled"           typed BooleanType,
+      "isGuest"              typed BooleanType,
+      "isBlacklisted"        typed BooleanType,
+      "joinedAt"             typed DateType,
       "revenue"               typed IntegerType,
       "rank"                  typed IntegerType,
       // Orders
-      "order_count"           typed IntegerType,
+      "orderCount"           typed IntegerType,
       "orders"                nested (
-        "reference_number"    typed StringType analyzer "autocomplete",
+        "referenceNumber"    typed StringType analyzer "autocomplete",
         "status"              typed StringType index "not_analyzed",
-        "created_at"          typed DateType,
-        "placed_at"           typed DateType,
-        "sub_total"           typed IntegerType,
-        "shipping_total"      typed IntegerType,
-        "adjustments_total"   typed IntegerType,
-        "taxes_total"         typed IntegerType,
-        "grand_total"         typed IntegerType
+        "createdAt"          typed DateType,
+        "placedAt"           typed DateType,
+        "subTotal"           typed IntegerType,
+        "shippingTotal"      typed IntegerType,
+        "adjustmentsTotal"   typed IntegerType,
+        "taxesTotal"         typed IntegerType,
+        "grandTotal"         typed IntegerType
       ),
       // Purchased items
-      "purchased_item_count"  typed IntegerType,
-      "purchased_items"       nested (
+      "purchasedItemCount"  typed IntegerType,
+      "purchasedItems"       nested (
         "sku"   typed StringType analyzer "autocomplete",
         "name"  typed StringType analyzer "autocomplete",
         "price" typed IntegerType
       ),
       // Addresses
-      "shipping_addresses_count" typed IntegerType,
-      addresses("shipping_addresses"),
-      "billing_addresses_count" typed IntegerType,
-      addresses("billing_addresses"),
+      "shippingAddressesCount" typed IntegerType,
+      addresses("shippingAddresses"),
+      "billingAddressesCount" typed IntegerType,
+      addresses("billingAddresses"),
       // Store credits
-      "store_credit_total"    typed IntegerType,
-      "store_credit_count"    typed IntegerType,
+      "storeCreditTotal"    typed IntegerType,
+      "storeCreditCount"    typed IntegerType,
       // Saved for later
-      "saved_for_later_count" typed IntegerType,
-      "saved_for_later"       nested (
+      "savedForLaterCount" typed IntegerType,
+      "savedForLater"       nested (
         "sku"     typed StringType analyzer "autocomplete",
         "name"    typed StringType analyzer "autocomplete",
         "price"   typed IntegerType
@@ -104,32 +104,32 @@ object ElasticSearchMappings {
   }
 
   def orders = {
-    "orders_search_view" as (
+    "ordersSearchView" as (
       // Order
       "id"                  typed IntegerType,
-      "reference_number"    typed StringType analyzer "autocomplete",
+      "referenceNumber"    typed StringType analyzer "autocomplete",
       "status"              typed StringType index "not_analyzed",
-      "created_at"          typed DateType,
-      "placed_at"           typed DateType,
+      "createdAt"          typed DateType,
+      "placedAt"           typed DateType,
       "currency"            typed StringType index "not_analyzed",
       // Totals
-      "sub_total"           typed IntegerType,
-      "shipping_total"      typed IntegerType,
-      "adjustments_total"   typed IntegerType,
-      "taxes_total"         typed IntegerType,
-      "grand_total"         typed IntegerType,
+      "subTotal"           typed IntegerType,
+      "shippingTotal"      typed IntegerType,
+      "adjustmentsTotal"   typed IntegerType,
+      "taxesTotal"         typed IntegerType,
+      "grandTotal"         typed IntegerType,
       // Customer
       "customer"            nested (
         "name"                  typed StringType analyzer "autocomplete",
         "email"                 typed StringType analyzer "autocomplete",
-        "is_blacklisted"        typed BooleanType,
-        "joined_at"             typed DateType,
+        "isBlacklisted"        typed BooleanType,
+        "joinedAt"             typed DateType,
         "revenue"               typed IntegerType,
         "rank"                  typed IntegerType
       ),
       // Line items
-      "line_item_cont"      typed IntegerType,
-      "line_items"          nested (
+      "lineItemCount"      typed IntegerType,
+      "lineItems"          nested (
         "status"  typed StringType index "not_analyzed",
         "sku"     typed StringType analyzer "autocomplete",
         "name"    typed StringType analyzer "autocomplete",
@@ -137,43 +137,43 @@ object ElasticSearchMappings {
       ),
       // Payments
       "payments"            nested (
-        "payment_method_type" typed StringType index "not_analyzed",
+        "paymentMethodType" typed StringType index "not_analyzed",
         "amount"              typed IntegerType,
         "currency"            typed StringType index "not_analyzed"
       ),
-      "credit_card_count"   typed IntegerType,
-      "credit_card_total"   typed IntegerType,
-      "gift_card_count"     typed IntegerType,
-      "gift_card_total"     typed IntegerType,
-      "store_credit_count"  typed IntegerType,
-      "store_credit_total"  typed IntegerType,
+      "creditCardCount"   typed IntegerType,
+      "creditCardTotal"   typed IntegerType,
+      "giftCardCount"     typed IntegerType,
+      "giftCardTotal"     typed IntegerType,
+      "storeCreditCount"  typed IntegerType,
+      "storeCreditTotal"  typed IntegerType,
       // Shipments
-      "shipment_count"      typed IntegerType,
+      "shipmentCount"      typed IntegerType,
       "shipments"           nested (
         "status"                  typed StringType index "not_analyzed",
-        "shipping_price"          typed IntegerType,
-        "admin_display_name"      typed StringType analyzer "autocomplete",
-        "storefront_display_name" typed StringType analyzer "autocomplete"
+        "shippingPrice"          typed IntegerType,
+        "adminDisplayName"      typed StringType analyzer "autocomplete",
+        "storefrontDisplayName" typed StringType analyzer "autocomplete"
       ),
       // Addresses
-      "shipping_addresses_count" typed IntegerType,
-      addresses("shipping_addresses"),
-      "billing_addresses_count" typed IntegerType,
-      addresses("billing_addresses"),
+      "shippingAddressesCount" typed IntegerType,
+      addresses("shippingAddresses"),
+      "billingAddressesCount" typed IntegerType,
+      addresses("billingAddresses"),
       // Assignments
-      "assignment_count"    typed IntegerType,
+      "assignmentCount"    typed IntegerType,
       "assignees"           nested (
-        "first_name"    typed StringType analyzer "autocomplete",
-        "last_name"     typed StringType analyzer "autocomplete",
-        "assigned_at"   typed DateType
+        "firstName"    typed StringType analyzer "autocomplete",
+        "lastName"     typed StringType analyzer "autocomplete",
+        "assignedAt"   typed DateType
       ),
       // RMAs
-      "rma_count"           typed IntegerType,
+      "rmaCount"           typed IntegerType,
       "rmas"                nested (
-        "reference_number"  typed StringType analyzer "autocomplete",
+        "referenceNumber"  typed StringType analyzer "autocomplete",
         "status"            typed StringType index "not_analyzed",
-        "rma_type"          typed StringType index "not_analyzed",
-        "placed_at"         typed DateType
+        "rmaType"          typed StringType index "not_analyzed",
+        "placedAt"         typed DateType
       )
     )
   }
