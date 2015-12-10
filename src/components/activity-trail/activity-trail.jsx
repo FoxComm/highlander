@@ -6,6 +6,7 @@ import React, { PropTypes } from 'react';
 
 // components
 import Activity, { getActivityRepresentative } from './activities';
+import { Button } from '../common/buttons';
 
 function createTimeMark(time, daysDiff) {
   switch (daysDiff) {
@@ -82,18 +83,30 @@ const renderActivityItem = (activity, idx) => {
 const ActivityTrail = props => {
   // filter only known activities
   const activities = _.filter(props.activities, activity => !!getActivityRepresentative(activity));
-
   const withTimeMarks = injectTimeMarks(activities);
+
+  let olderButton = null;
+
+  if (props.hasMore) {
+    olderButton = (
+      <li className="fc-activity-trail__load-more">
+        <Button onClick={props.fetchMore}>Older...</Button>
+      </li>
+    );
+  }
 
   return (
     <ul className="fc-activity-trail">
       {withTimeMarks.map((activity, idx) => renderActivityItem(activity, idx))}
+      {olderButton}
     </ul>
   );
 };
 
 ActivityTrail.propTypes = {
   activities: PropTypes.array.isRequired,
+  hasMore: PropTypes.bool,
+  fetchMore: PropTypes.func,
 };
 
 export default ActivityTrail;
