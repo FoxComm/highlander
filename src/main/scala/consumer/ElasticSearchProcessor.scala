@@ -20,12 +20,13 @@ import org.json4s.jackson.JsonMethods.parse
  * we don't duplicate entries in ES.
  */
 class ElasticSearchProcessor(uri: String, cluster: String, indexName: String, topics: Seq[String])
+(implicit ec: ExecutionContext)
   extends JsonProcessor {
 
   val settings = ImmutableSettings.settingsBuilder().put("cluster.name", cluster).build()
   val client = ElasticClient.remote(settings, ElasticsearchClientUri(uri))
 
-  def beforeAction()(implicit ec: ExecutionContext): Unit = {
+  def beforeAction(): Unit = {
 
     try {
       println(s"Deleting index $indexName...")
@@ -53,7 +54,7 @@ class ElasticSearchProcessor(uri: String, cluster: String, indexName: String, to
     }.await()
   }
 
-  def process(offset: Long, topic: String, inputJson: String)(implicit ec: ExecutionContext): Unit = {
+  def process(offset: Long, topic: String, inputJson: String): Unit = {
     ElasticSearchProcessor.topicInfo(topic) match {
       case Some(jsonFields) ⇒ 
         val document = AvroJsonHelper.transformJson(inputJson, jsonFields)

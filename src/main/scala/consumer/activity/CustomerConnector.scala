@@ -7,9 +7,9 @@ import scala.concurrent.ExecutionContext
 import org.json4s.JsonAST.{JInt, JNothing}
 import org.json4s.jackson.JsonMethods._
 
-final case class CustomerConnector() extends ActivityConnector {
+final case class CustomerConnector()(implicit ec: ExecutionContext) extends ActivityConnector {
   val dimension = "customer"
-  def process(offset: Long, activity: Activity)(implicit ec: ExecutionContext) : Seq[Connection] = {
+  def process(offset: Long, activity: Activity) : Seq[Connection] = {
     activity.data \ "customerId" match {
       case JInt(customerId) ⇒  Seq(createConnection(customerId, activity.id))
       case _ ⇒ Seq.empty

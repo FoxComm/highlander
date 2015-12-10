@@ -1,13 +1,25 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 #
+require 'fileutils'
+
+CONFIG = File.join(File.dirname(__FILE__), "vagrant.local.rb")
+
+$vb_memory = 4048
+$vb_cpu = 2
+$vb_host = "192.168.10.111"
+
+if File.readable?(CONFIG)
+  require CONFIG
+end
+
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/vivid64"
   # PostgreSQL
   config.vm.network :forwarded_port, guest: 5432, host: 5432, auto_correct: true
   config.vm.network :forwarded_port, guest: 9090, host: 9090, auto_correct: true
 
-  config.vm.network "private_network", ip: "192.168.10.111"
+  config.vm.network "private_network", ip: $vb_host
 
   config.vm.synced_folder "../bottledwater-pg/", "/bottledwater"
   config.vm.synced_folder "../phoenix-scala/", "/phoenix"
@@ -18,14 +30,14 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.provider :virtualbox do |vb|
-    vb.cpus = 2
-    vb.memory = 4048
+    vb.cpus = $vb_cpu
+    vb.memory = $vb_memory
   end
 
   config.vm.provider :vmware_fusion do |v, override|
     override.vm.box_url = "https://s3.eu-central-1.amazonaws.com/ffuenf-vagrantboxes/ubuntu/ubuntu-15.04-server-amd64_vmware.box"
-    v.vmx["memsize"] = 3048
-    v.vmx["numvcpus"] = 2
+    v.vmx["memsize"] = $vb_memory
+    v.vmx["numvcpus"] = $vb_cpu
   end
 
   config.vm.provider :google do |g, override|

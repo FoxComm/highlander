@@ -21,6 +21,10 @@ fuzzyKill() {
   kill -9 `ps aux | grep $1 | awk '{print $2}'` 2>/dev/null || true
 }
 
+apacheFastestMirror()  {
+  curl -s http://www.apache.org/dyn/closer.cgi/?asjson=1 | tail -n 2 | awk '/preferred/ { print $2 }' | tr -d '"'
+}
+
 BUILD=/home/vagrant/build
 PROVISIONED=/home/vagrant/.provisioned
 PSQL="psql -h localhost -U phoenix -d phoenix_development"
@@ -68,6 +72,8 @@ touch ${PROVISIONED}
 # Build and install dependencies
 cd ${BUILD}
 
+APACHE_MIRROR="$(apacheFastestMirror)"
+
 echo Building and hacking dependencies:
 echo \    scala
 if [ ! -e scala-2.11.7.deb ]; then
@@ -78,7 +84,7 @@ fi
 echo \    kafka
 KAFKA_DIR=${BUILD}/kafka
 if [[ ! -d ${KAFKA_DIR} ]]; then
-  wget http://apache.cs.utah.edu/kafka/0.9.0.0/kafka_2.11-0.9.0.0.tgz --progress=bar:force
+  wget -c "${APACHE_MIRROR}/kafka/0.9.0.0/kafka_2.11-0.9.0.0.tgz" --progress=bar:force
   tar -zxf kafka_2.11-0.9.0.0.tgz
   mv kafka_2.11-0.9.0.0 ${KAFKA_DIR}
 fi
@@ -86,7 +92,7 @@ fi
 echo \    elasticsearch
 ES_DIR=${BUILD}/elasticsearch
 if [[ ! -d ${ES_DIR} ]]; then
-  wget https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.7.3.zip --progress=bar:force
+  wget -c https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.7.3.zip --progress=bar:force
   unzip -q elasticsearch-1.7.3.zip &&
   mv elasticsearch-1.7.3 ${ES_DIR}
 fi
@@ -95,7 +101,7 @@ echo \    avro
 AVRO=avro-c-1.7.7
 if [[ ! -d ${BUILD}/${AVRO} ]]; then
   cd ${BUILD}
-  curl -s -o ${AVRO}.tar.gz -SL http://archive.apache.org/dist/avro/avro-1.7.7/c/avro-c-1.7.7.tar.gz
+  curl -s -o ${AVRO}.tar.gz -SL "${APACHE_MIRROR}/avro/avro-1.7.7/c/avro-c-1.7.7.tar.gz"
   tar -xzf ${AVRO}.tar.gz
   mkdir ${AVRO}/build && cd ${AVRO}/build
   cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_BUILD_TYPE=RelWithDebInfo
@@ -206,9 +212,21 @@ runService bottledwater
 echo \    consumer
 runService consumer
 
+echo
+echo "Allowing unprivileged user to view/filter journalctl logs"
+usermod -a -G systemd-journal vagrant
+
+echo
 echo All started and probably running! Run:
 echo "vagrant ssh -c 'sudo journalctl --pager-end --catalog --follow --lines=100'"
 echo "to watch current execution log (probably just SBT being slow)."
+echo "Use 'journalctl -u foo -u bar' to only view messages for 'foo' and 'bar' services"
+# http://wiki.bash-hackers.org/syntax/pe#substring_removal
+for FULL_NAME in /vagrant/vagrant/services/*; do
+  SERVICE_NAME=${FULL_NAME##*/} # Remove path (everything up to and including last slash)
+  SERVICES="$SERVICES ${SERVICE_NAME%.*} " # Remove extension and append space
+done
+echo "Service list: $SERVICES"
 echo "To test, run:"
 echo "curl -s -XGET 'http://localhost:9200/phoenix/customers_search_view/_search' | jq '.'"
 echo

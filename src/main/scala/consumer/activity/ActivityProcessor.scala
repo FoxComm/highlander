@@ -48,7 +48,7 @@ final case class Connection(
 final case class AppendActivity(activityId: Int, data: JValue)
 
 trait ActivityConnector {
-  def process(offset: Long, activity: Activity)(implicit ec: ExecutionContext) : Seq[Connection]
+  def process(offset: Long, activity: Activity): Seq[Connection]
 }
 
 final case class PhoenixConnectionInfo(
@@ -61,6 +61,7 @@ final case class PhoenixConnectionInfo(
  * using a sequence of activity connectors
  */
 class ActivityProcessor(phoenix : PhoenixConnectionInfo, connectors: Seq[ActivityConnector])
+(implicit ec: ExecutionContext)
   extends JsonProcessor {
 
     implicit val formats: DefaultFormats.type = DefaultFormats
@@ -75,9 +76,9 @@ class ActivityProcessor(phoenix : PhoenixConnectionInfo, connectors: Seq[Activit
       "context" → "context",
       "created_at" → "createdAt")
 
-    def beforeAction()(implicit ec: ExecutionContext) {}
+    def beforeAction(){}
 
-    def process(offset: Long, topic: String, inputJson: String)(implicit ec: ExecutionContext): Unit = {
+    def process(offset: Long, topic: String, inputJson: String): Unit = {
       val activityJson = AvroJsonHelper.transformJson(inputJson, activityJsonFields)
 
       val activity =  parse(activityJson).extract[Activity]

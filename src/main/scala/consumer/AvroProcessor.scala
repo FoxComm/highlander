@@ -21,14 +21,14 @@ import org.json4s.jackson.JsonMethods.{render, compact, parse}
  * It then converts the avro to json and gives whatever json processor you give it that
  * json to work with.
  */
-class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)
+class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implicit ec: ExecutionContext) 
   extends AbstractKafkaAvroDeserializer
   with MessageProcessor {
 
   this.schemaRegistry = new CachedSchemaRegistryClient(schemaRegistryUrl, DEFAULT_MAX_SCHEMAS_PER_SUBJECT)
   val encoderFactory = EncoderFactory.get()
 
-  def process(offset: Long, topic: String, message: Array[Byte])(implicit ec: ExecutionContext) {
+  def process(offset: Long, topic: String, message: Array[Byte]){
     try {
       val stream = new ByteArrayOutputStream
       val obj = deserialize(message)
