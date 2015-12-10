@@ -38,7 +38,10 @@ export default class LiveSearch extends React.Component {
   static propTypes = {
     cloneSearch: PropTypes.func.isRequired,
     deleteSearchFilter: PropTypes.func.isRequired,
+    editSearchNameCancel: PropTypes.func,
+    editSearchNameComplete: PropTypes.func,
     goBack: PropTypes.func.isRequired,
+    saveSearch: PropTypes.func,
     selectSavedSearch: PropTypes.func.isRequired,
     submitFilter: PropTypes.func.isRequired,
     search: PropTypes.object.isRequired,
@@ -101,6 +104,7 @@ export default class LiveSearch extends React.Component {
       const selected = idx === this.props.searches.selectedSearch;
       const editing = selected && this.isEditingName;
       const draggable = !editing && search.name !== 'All';
+      const dirty = this.props.searches.savedSearches[idx].isDirty;
 
       const startEdit = (event) => {
         event.preventDefault();
@@ -112,6 +116,7 @@ export default class LiveSearch extends React.Component {
         <EditableTabView
           defaultValue={search.name}
           draggable={draggable}
+          dirty={dirty}
           editing={editing}
           selected={selected}
           cancelEdit={this.props.editSearchNameCancel}
@@ -126,14 +131,20 @@ export default class LiveSearch extends React.Component {
   }
 
   get searchButton() {
+    const shouldSaveNew = this.currentSearch.name === 'All';
+    const buttonContents = `${shouldSaveNew ? 'Save' : 'Update'} Search`;
     const clickAction = (event) => {
       event.preventDefault();
-      this.props.cloneSearch();
+      if (shouldSaveNew) {
+        this.props.cloneSearch();
+      } else {
+        this.props.saveSearch();
+      }
     };
 
     return (
       <button className="fc-btn" onClick={clickAction}>
-        Save Search
+        {buttonContents}
       </button>
     );
   }

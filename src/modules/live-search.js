@@ -86,6 +86,10 @@ function goBack(state) {
   return submitFilter(state, newSearchTerm);
 }
 
+function saveSearch(state) {
+  return assoc(state, ['savedSearches', state.selectedSearch, 'isDirty'], false);
+}
+
 function selectSavedSearch(state, idx) {
   if (idx > -1 && idx < state.savedSearches.length) {
     return assoc(state,
@@ -102,18 +106,21 @@ function submitFilter(state, searchTerm) {
   let searches = state.savedSearches[state.selectedSearch].searches;
   let newSearchTerm = searchTerm;
   let options = SearchTerm.potentialTerms(state.potentialOptions, searchTerm);
+  let isDirty = state.savedSearches[state.selectedSearch].isDirty;
 
   // Second, if there is only one term, see if we can turn it into a saved search.
   if (options.length == 1 && options[0].selectTerm(searchTerm)) {
     newSearchTerm = '';
     options = SearchTerm.potentialTerms(state.potentialOptions, newSearchTerm);
     searches = [...state.savedSearches[state.selectedSearch].searches, searchTerm];
+    isDirty = true;
   }
 
   // Third, update the state.
   const updatedState = {
     ...state.savedSearches[state.selectedSearch],
     currentOptions: options,
+    isDirty: isDirty,
     searches: searches,
     searchValue: newSearchTerm
   };
@@ -173,6 +180,9 @@ function liveSearchReducer(actionTypes, searchTerms) {
       case actionTypes.GO_BACK:
         return goBack(state);
 
+      case actionTypes.SAVE_SEARCH:
+        return saveSearch(state);
+
       case actionTypes.SELECT_SAVED_SEARCH:
         return selectSavedSearch(state, payload.idx);
 
@@ -193,6 +203,7 @@ function createLiveSearchActionTypes(namespace) {
     EDIT_SEARCH_NAME_CANCEL: 'EDIT_SEARCH_CANCEL',
     EDIT_SEARCH_NAME_COMPLETE: 'EDIT_SEARCH_NAME_COMPLETE',
     GO_BACK: 'GO_BACK',
+    SAVE_SEARCH: 'SAVE_SEARCH',
     SELECT_SAVED_SEARCH: 'SELECT_SAVED_SEARCH',
     SUBMIT_FILTER: 'SUBMIT_FILTER'
   };
@@ -208,8 +219,9 @@ function createLiveSearchActions(actionTypes) {
     editSearchNameCancel: createAction(actionTypes.EDIT_SEARCH_NAME_CANCEL),
     editSearchNameComplete: createAction(actionTypes.EDIT_SEARCH_NAME_COMPLETE, (newName) => ({newName})),
     goBack: createAction(actionTypes.GO_BACK),
+    saveSearch: createAction(actionTypes.SAVE_SEARCH),
     selectSavedSearch: createAction(actionTypes.SELECT_SAVED_SEARCH, (idx) => ({idx})),
-    submitFilter: createAction(actionTypes.SUBMIT_FILTER, (searchTerm) => ({searchTerm})),
+    submitFilter: createAction(actionTypes.SUBMIT_FILTER, (searchTerm) => ({searchTerm}))
   };
 }
 

@@ -18,6 +18,7 @@ export default class EditableTabView extends React.Component {
     cancelEdit: PropTypes.func,
     completeEdit: PropTypes.func,
     defaultValue: PropTypes.string.isRequired,
+    dirty: PropTypes.bool,
     editing: PropTypes.bool,
     startEdit: PropTypes.func
   };
@@ -33,6 +34,22 @@ export default class EditableTabView extends React.Component {
     return classnames({ '_editing': this.props.editing });
   }
 
+  get dirtyState() {
+    if (this.props.dirty) {
+      return <div>*</div>;
+    }
+  }
+
+  get editButton() {
+    if (!this.props.editing) {
+      return (
+        <button className="fc-tab__edit-icon" onClick={this.props.startEdit}>
+          <i className="icon-edit"/>
+        </button>
+      );
+    }
+  }
+
   get tabContent() {
     if (this.props.editing) {
       return (
@@ -43,6 +60,7 @@ export default class EditableTabView extends React.Component {
             type="text"
             onBlur={() => this.props.completeEdit(this.state.editValue)}
             onChange={this.changeInput}
+            onKeyDown={this.keyDown}
             placeholder="Name your search"
             value={this.state.editValue}
           />
@@ -61,22 +79,20 @@ export default class EditableTabView extends React.Component {
     }
   }
 
-  get editButton() {
-    if (!this.props.editing) {
-      return (
-        <button className="fc-tab__edit-icon" onClick={this.props.startEdit}>
-          <i className="icon-edit"/>
-        </button>
-      );
-    }
-  }
-
   @autobind
   changeInput({target}) {
     this.setState({
       ...this.state,
       editValue: target.value
     });
+  }
+
+  @autobind
+  keyDown(event) {
+    if (event.keyCode == 13) {
+      event.preventDefault();
+      this.props.completeEdit(this.state.editValue);
+    }
   }
 
   preventAction(event) {
@@ -87,6 +103,7 @@ export default class EditableTabView extends React.Component {
   render() {
     return (
       <TabView className={this.className} {...this.props}>
+        {this.dirtyState}
         {this.tabContent}
         {this.editButton}
       </TabView>

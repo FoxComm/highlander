@@ -10,6 +10,7 @@ const {
     editSearchNameCancel,
     editSearchNameComplete,
     goBack,
+    saveSearch,
     selectSavedSearch,
     submitFilter
   }
@@ -24,6 +25,7 @@ export {
   editSearchNameCancel,
   editSearchNameComplete,
   goBack,
+  saveSearch,
   selectSavedSearch,
   submitFilter
 };

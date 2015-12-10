@@ -41,6 +41,7 @@ export default class Orders extends React.Component {
     editSearchNameCancel: PropTypes.func,
     editSearchNameComplete: PropTypes.func,
     goBack: PropTypes.func,
+    saveSearch: PropTypes.func,
     submitFilter: PropTypes.func
   };
 
@@ -103,6 +104,7 @@ export default class Orders extends React.Component {
           editSearchNameStart={this.props.editSearchNameStart}
           editSearchNameCancel={this.props.editSearchNameCancel}
           editSearchNameComplete={this.props.editSearchNameComplete}
+          saveSearch={this.props.saveSearch}
           selectSavedSearch={this.props.selectSavedSearch}
           submitFilter={this.props.submitFilter}
           searches={this.props.search}
