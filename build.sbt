@@ -51,7 +51,10 @@ lazy val phoenixScala = (project in file(".")).
         "com.typesafe.akka"    %% "akka-agent"               % akkaV,
         "com.typesafe.akka"    %% "akka-stream-experimental" % akkaHttpV,
         "com.typesafe.akka"    %% "akka-http-experimental"   % akkaHttpV,
-        "de.heikoseeberger"    %% "akka-http-json4s"         % "1.0.0"
+        "de.heikoseeberger"    %% "akka-http-json4s"         % "1.0.0",
+
+        //cats
+        "org.spire-math"       %% "cats"                      % "0.3.0"
       )
     },
     (mainClass in Compile) := Some("consumer.Main")

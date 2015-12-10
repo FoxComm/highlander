@@ -4,6 +4,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.collection.JavaConversions._
 import com.typesafe.config._
 
+import consumer.activity.PhoenixConnectionInfo
 import consumer.activity.ActivityProcessor
 import consumer.activity.CustomerConnector
 import consumer.activity.AdminConnector
@@ -28,9 +29,16 @@ object ActivityMain {
     val kafkaGroupId          = conf.getString(s"$env.kafka.groupId")
     val activityTopic         = conf.getString(s"$env.activity.kafka.topic")
     val phoenixUri            = conf.getString(s"$env.activity.kafka.phoenix.url")
+    val phoenixUser           = conf.getString(s"$env.activity.kafka.phoenix.user")
+    val phoenixPass           = conf.getString(s"$env.activity.kafka.phoenix.pass")
+
+    val phoenix = PhoenixConnectionInfo(
+      uri = phoenixUri, 
+      user = phoenixUser,
+      pass = phoenixPass)
 
     val activityConnectors = Seq(CustomerConnector(), AdminConnector())
-    val activityProcessor = new ActivityProcessor(phoenixUri, activityConnectors)
+    val activityProcessor = new ActivityProcessor(phoenix, activityConnectors)
 
     val avroProcessor = new AvroProcessor(
       schemaRegistryUrl = avroSchemaRegistryUrl, 
