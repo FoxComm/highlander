@@ -5,6 +5,11 @@ Restart=always
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=elasticsearch
+TimeoutStartSec=5s
+RestartSec=10s
 
 [Install]
 WantedBy=multi-user.target
+
+[Unit]
+RequiresMountsFor=/vagrant

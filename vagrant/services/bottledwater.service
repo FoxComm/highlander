@@ -5,6 +5,12 @@ Restart=always
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=bottledwater
+TimeoutStartSec=5s
+RestartSec=10s
 
 [Install]
 WantedBy=multi-user.target
+
+[Unit]
+Requires=schema-registry.service
+After=schema-registry.service

@@ -5,6 +5,12 @@ Restart=always
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=zookeeper
+TimeoutStartSec=5s
+RestartSec=10s
 
 [Install]
 WantedBy=multi-user.target
+
+[Unit]
+Requires=elasticsearch.service
+After=elasticsearch.service
