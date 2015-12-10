@@ -18,13 +18,13 @@ describe('modules.orders.list', function() {
     });
 
     it('should create a new search that matched the previously selected search', function() {
-      expect(newState.selectedSearch).to.be.equal('Unnamed Search');
+      expect(selectedSearch(newState).name).to.be.equal('');
       expect(selectedSearch(newState).searches).to.have.length(1);
     });
 
-    it('should be in a dirty state and editing the name', function() {
-      expect(selectedSearch(newState).isDirty).to.be.true;
+    it('should be in a new state and editing the name', function() {
       expect(selectedSearch(newState).isEditingName).to.be.true;
+      expect(selectedSearch(newState).isNew).to.be.true;
     });
   });
 
@@ -114,12 +114,12 @@ describe('modules.orders.list', function() {
 
     it('should have All selected by default', function() {
       newState = reducer(undefined, submitFilter(''));
-      expect(newState.selectedSearch).to.be.equal('All');
+      expect(newState.selectedSearch).to.be.equal(0);
     });
 
     it('should be able to select remorse hold', function() {
       newState = reducer(undefined, selectSavedSearch('Remorse Hold'));
-      expect(newState.selectedSearch).to.be.equal('Remorse Hold');
+      expect(newState.selectedSearch).to.be.equal(1);
     });
   });
 });

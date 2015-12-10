@@ -14,10 +14,6 @@ import TableView from '../table/tableview';
 import TableRow from '../table/row';
 import TableCell from '../table/cell';
 
-const currentSearch = (searchState) => {
-  return searchState.savedSearches[searchState.selectedSearch];
-};
-
 /**
  * LiveSearch is a search bar dynamic faceted search that exists on most of the
  * list pages. State for filters being created exist on the component, whereas
@@ -27,7 +23,7 @@ export default class LiveSearch extends React.Component {
   constructor(props, context) {
     super(props, context);
 
-    const search = currentSearch(props.searches);
+    const search = props.searches.savedSearches[props.searches.selectedSearch];
     this.state = {
       isFocused: false,
       optionsVisible: false,
@@ -52,13 +48,16 @@ export default class LiveSearch extends React.Component {
     setState: PropTypes.func
   };
 
+  get currentSearch() {
+    return this.props.searches.savedSearches[this.props.searches.selectedSearch];
+  };
+
   get isDirty() {
-    return currentSearch(this.props.searches).isDirty;
+    return this.currentSearch.isDirty;
   }
 
   get isEditingName() {
-    const searches = this.props.searches;
-    return currentSearch(this.props.searches).isEditingName;
+    return this.currentSearch.isEditingName;
   }
 
   get searchOptions() {
@@ -98,18 +97,20 @@ export default class LiveSearch extends React.Component {
   }
 
   get savedSearches() {
-    const tabs = _.keys(this.props.searches.savedSearches).map(search => {
-      const selected = search === this.props.searches.selectedSearch;
+    const tabs = _.map(this.props.searches.savedSearches, (search, idx) => {
+      const selected = idx === this.props.searches.selectedSearch;
       const editing = selected && this.isEditingName;
-      const draggable = !editing && search !== 'All';
+      const draggable = !editing && idx !== 'All';
 
       return (
         <EditableTabView
-          defaultValue={search}
+          defaultValue={search.name}
           draggable={draggable}
           editing={editing}
           selected={selected}
-          onClick={() => this.props.selectSavedSearch(search)}
+          cancelEdit={this.props.editSearchNameCancel}
+          completeEdit={this.props.editSearchNameComplete}
+          onClick={() => this.props.selectSavedSearch(search.name)}
         />
       );
     });
@@ -147,7 +148,7 @@ export default class LiveSearch extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const search = currentSearch(nextProps.searches);
+    const search = nextProps.searches.savedSearches[nextProps.searches.selectedSearch];
     const isVisible = this.state.isFocused && search.currentOptions.length > 0 &&
       (search.searches.length != this.state.pills.length || search.searchValue !== '');
 

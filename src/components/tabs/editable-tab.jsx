@@ -1,18 +1,28 @@
 import React, { PropTypes } from 'react';
 import classnames from 'classnames';
 import TabView from './tab';
+import { autobind } from 'core-decorators';
+import _ from 'lodash';
 
 export default class EditableTabView extends React.Component {
   constructor(props, context) {
     super(props, context);
+
+    this.state = {
+      editValue: props.defaultValue
+    };
   }
 
   static propTypes = {
+    cancelEdit: PropTypes.func,
+    completeEdit: PropTypes.func,
     defaultValue: PropTypes.string.isRequired,
     editing: PropTypes.bool
   };
 
   static defaultProps = {
+    cancelEdit: _.noop,
+    completeEdit: _.noop,
     editing: false
   };
 
@@ -25,13 +35,19 @@ export default class EditableTabView extends React.Component {
       return (
         <div className="fc-tab__edit-content fc-form-field">
           <input
+            autoFocus
             className="fc-tab__edit-content-input"
             type="text"
+            onBlur={() => this.props.completeEdit(this.state.editValue)}
+            onChange={this.changeInput}
             placeholder="Name your search"
-            value=""
+            value={this.state.editValue}
           />
           <div className="fc-tab__edit-content-close">
-            <a onClick={() => console.log("Not Yet")}>
+            <a
+              onClick={this.props.cancelEdit}
+              onMouseDown={this.preventAction}
+              onMouseUp={this.preventAction}>
               &times;
             </a>
           </div>
@@ -40,6 +56,19 @@ export default class EditableTabView extends React.Component {
     } else {
       return this.props.defaultValue;
     }
+  }
+
+  @autobind
+  changeInput({target}) {
+    this.setState({
+      ...this.state,
+      editValue: target.value
+    });
+  }
+
+  preventAction(event) {
+    event.preventDefault();
+    event.stopPropagation();
   }
 
   render() {

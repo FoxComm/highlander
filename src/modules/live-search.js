@@ -7,27 +7,25 @@ import { assoc } from 'sprout-data';
 const emptyState = {
   isDirty: false,
   isEditingName: false,
+  isNew: false,
   options: [],
   searches: [],
   searchValue: '',
   selectedIndex: -1
 };
 
-function cloneSearch(state, name = 'Unnamed Search') {
+function cloneSearch(state) {
   const toClone = {
     ...state.savedSearches[state.selectedSearch],
     name: '',
-    isDirty: true,
-    isEditingName: true
+    isEditingName: true,
+    isNew: true
   };
 
   const newState = {
     ...state,
-    selectedSearch: name,
-    savedSearches: {
-      ...state.savedSearches,
-      'Unnamed Search': toClone
-    }
+    selectedSearch: state.savedSearches.length,
+    savedSearches: [...state.savedSearches, toClone]
   };
 
   return newState;
@@ -53,12 +51,31 @@ function editSearchNameStart(state) {
 }
 
 function editSearchNameCancel(state) {
+  const currentState = state.savedSearches[state.selectedSearch];
+  if (currentState.isNew) {
+    const searches = [
+      ...state.savedSearches.slice(0, state.selectedSearch),
+      ...state.savedSearches.slice(state.selectedSearch + 1)
+    ];
+    return {
+      ...state,
+      savedSearches: searches,
+      selectedSearch: 0
+    };
+  }
   return assoc(state, ['savedSearches', state.selectedSearch, 'isEditingName'], false);
 }
 
 function editSearchNameComplete(state, newName) {
-  const newState = assoc(state, ['savedSearches', state.selectedSearch, 'name'], newName);
-  return assoc(newState, ['savedSearches', state.selectedSearch, 'isEditingName'], false);
+  if (!_.isEmpty(newName)) {
+    const newState = assoc(state,
+      ['savedSearches', state.selectedSearch, 'name'], newName,
+      ['savedSearches', state.selectedSearch, 'isEditingName'], false
+    );
+    return newState;
+  }
+
+  return state;
 }
 
 function goBack(state) {
@@ -69,11 +86,9 @@ function goBack(state) {
 }
 
 function selectSavedSearch(state, searchName) {
-  if (!_.isEmpty(state.savedSearches[searchName])) {
-    return {
-      ...state,
-      selectedSearch: searchName
-    };
+  const newSelectedSearch = _.findIndex(state.savedSearches, 'name', searchName);
+  if (newSelectedSearch != -1) {
+    return { ...state, selectedSearch: newSelectedSearch };
   }
 
   return state;
@@ -108,32 +123,29 @@ function liveSearchReducer(actionTypes, searchTerms) {
 
   const initialState = {
     potentialOptions: terms,
-    selectedSearch: 'All',
-    savedSearches: {
-      'All': {
+    selectedSearch: 0,
+    savedSearches: [
+      {
         ...emptyState,
         name: 'All',
         currentOptions: terms
-      },
-      'Remorse Hold': {
+      }, {
         ...emptyState,
         name: 'Remorse Hold',
         currentOptions: terms,
         searches: ['Order : State : Remorse Hold']
-      },
-      'Manual Hold': {
+      }, {
         ...emptyState,
         name: 'Manual Hold',
         currentOptions: terms,
         searches: ['Order : State : Manual Hold']
-      },
-      'Fraud Hold': {
+      }, {
         ...emptyState,
         name: 'Fraud Hold',
         currentOptions: terms,
         searches: ['Order : State : Fraud Hold']
       }
-    }
+    ]
   };
 
   return (state = initialState, action) => {
@@ -141,7 +153,7 @@ function liveSearchReducer(actionTypes, searchTerms) {
 
     switch (action.type) {
       case actionTypes.CLONE_SEARCH:
-        return cloneSearch(state, payload.name);
+        return cloneSearch(state);
 
       case actionTypes.EDIT_SEARCH_NAME_START:
         return editSearchNameStart(state);
@@ -187,7 +199,7 @@ function createLiveSearchActionTypes(namespace) {
 
 function createLiveSearchActions(actionTypes) {
   return {
-    cloneSearch: createAction(actionTypes.CLONE_SEARCH, (name) => ({name})),
+    cloneSearch: createAction(actionTypes.CLONE_SEARCH),
     deleteSearchFilter: createAction(actionTypes.DELETE_SEARCH_FILTER, (idx) => ({idx})),
     editSearchNameStart: createAction(actionTypes.EDIT_SEARCH_NAME_START),
     editSearchNameCancel: createAction(actionTypes.EDIT_SEARCH_NAME_CANCEL),
