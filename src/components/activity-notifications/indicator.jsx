@@ -1,8 +1,14 @@
+
+// libs
 import React, { PropTypes } from 'react';
-import classNames from 'classNames';
-import { Button } from '../common/buttons';
+import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
+
+// components
+import { Button } from '../common/buttons';
+
+// redux
 import * as NotificationActions from '../../modules/activity-notifications';
 
 @connect(state => state.activityNotifications, NotificationActions)
