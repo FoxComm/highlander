@@ -42,9 +42,9 @@ describe('Watchers', function() {
     ];
 
     watchers = shallowRender(
-      <Watchers assignees={assignees} />
+      <Watchers assignees={assignees} watchers={[]} />
     );
-    const cells = ShallowTestUtils.findAllWithClass(watchers, "fc-watchers__assignee-cell");
+    const cells = ShallowTestUtils.findAllWithClass(watchers, "fc-watchers__cell");
     expect(cells).not.to.be.empty;
     expect(cells.length).to.be.equal(assignees.length);
   });
@@ -56,11 +56,35 @@ describe('Watchers', function() {
     ];
 
     watchers = shallowRender(
-      <Watchers watchers={watcherList} />
+      <Watchers watchers={watcherList} assignees={[]} />
     );
-    const cells = ShallowTestUtils.findAllWithClass(watchers, "fc-watchers__watcher-cell");
+    const cells = ShallowTestUtils.findAllWithClass(watchers, "fc-watchers__cell");
     expect(cells).not.to.be.empty;
     expect(cells.length).to.be.equal(watcherList.length);
+  });
+
+  it('should render rest controll when there are more than 7 watchers', function *() {
+    const watcherList = [
+      {name: 'Donkey Admin'},
+      {name: 'Admin Donkey'},
+      {name: 'Donkey Admin'},
+      {name: 'Admin Donkey'},
+      {name: 'Donkey Admin'},
+      {name: 'Admin Donkey'},
+      {name: 'Donkey Admin'},
+      {name: 'Admin Donkey'},
+      {name: 'Donkey Admin'},
+      {name: 'Admin Donkey'}
+    ];
+
+    watchers = shallowRender(
+      <Watchers watchers={watcherList} assignees={[]} />
+    );
+    const cells = ShallowTestUtils.findAllWithClass(watchers, "fc-watchers__cell");
+    expect(cells).not.to.be.empty;
+    expect(cells.length).to.be.equal(watcherList.length);
+    expect(ShallowTestUtils.findWithClass(watchers, 'fc-watchers__rest-cell')).not.to.be.empty;
+    expect(ShallowTestUtils.findWithClass(watchers, 'fc-watchers__rest-block')).not.to.be.empty;
   });
 
 });

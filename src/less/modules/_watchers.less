@@ -55,7 +55,7 @@
   &__users-row {
     display: flex;
     justify-content: flex-start;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     flex-direction: row;
     align-items: baseline;
   }
@@ -66,7 +66,26 @@
     .margin-left(5px);
   }
 
-  &__watcher-cell, &__assignee-cell {
-    .margin-left(5px);
+  &__cell {
+    margin-left: 5px;
+  }
+
+  &__rest-block {
+    display: none;
+    position: absolute;
+    background: @color-white;
+    border: 1px solid @color-decor9;
+    border-radius: 3px;
+    box-shadow: 0px 3px 4px 0px @color-decor51;
+
+    .fc-watchers__users-row {
+      margin: 10px;
+    }
+  }
+
+  &__rest-cell:hover .fc-watchers__rest-block {
+    display: block;
+    left: 100%;
+    transform: translateX(-100%);
   }
 }
