@@ -46,8 +46,9 @@ function deleteSearchFilter(state, idx) {
   return state;
 }
 
-function editSearchNameStart(state) {
-  return assoc(state, ['savedSearches', state.selectedSearch, 'isEditingName'], true);
+function editSearchNameStart(state, idx) {
+  const newState = selectSavedSearch(state, idx);
+  return assoc(newState, ['savedSearches', newState.selectedSearch, 'isEditingName'], true);
 }
 
 function editSearchNameCancel(state) {
@@ -85,10 +86,12 @@ function goBack(state) {
   return submitFilter(state, newSearchTerm);
 }
 
-function selectSavedSearch(state, searchName) {
-  const newSelectedSearch = _.findIndex(state.savedSearches, 'name', searchName);
-  if (newSelectedSearch != -1) {
-    return { ...state, selectedSearch: newSelectedSearch };
+function selectSavedSearch(state, idx) {
+  if (idx > -1 && idx < state.savedSearches.length) {
+    return assoc(state,
+      ['selectedSearch'], idx,
+      ['savedSearches', state.selectedSearch, 'isEditingName'], false
+    );
   }
 
   return state;
@@ -156,7 +159,7 @@ function liveSearchReducer(actionTypes, searchTerms) {
         return cloneSearch(state);
 
       case actionTypes.EDIT_SEARCH_NAME_START:
-        return editSearchNameStart(state);
+        return editSearchNameStart(state, payload.idx);
 
       case actionTypes.EDIT_SEARCH_NAME_CANCEL:
         return editSearchNameCancel(state);
@@ -171,7 +174,7 @@ function liveSearchReducer(actionTypes, searchTerms) {
         return goBack(state);
 
       case actionTypes.SELECT_SAVED_SEARCH:
-        return selectSavedSearch(state, payload.searchName);
+        return selectSavedSearch(state, payload.idx);
 
       case actionTypes.SUBMIT_FILTER:
         return submitFilter(state, payload.searchTerm);
@@ -201,11 +204,11 @@ function createLiveSearchActions(actionTypes) {
   return {
     cloneSearch: createAction(actionTypes.CLONE_SEARCH),
     deleteSearchFilter: createAction(actionTypes.DELETE_SEARCH_FILTER, (idx) => ({idx})),
-    editSearchNameStart: createAction(actionTypes.EDIT_SEARCH_NAME_START),
+    editSearchNameStart: createAction(actionTypes.EDIT_SEARCH_NAME_START, (idx) => ({idx})),
     editSearchNameCancel: createAction(actionTypes.EDIT_SEARCH_NAME_CANCEL),
     editSearchNameComplete: createAction(actionTypes.EDIT_SEARCH_NAME_COMPLETE, (newName) => ({newName})),
     goBack: createAction(actionTypes.GO_BACK),
-    selectSavedSearch: createAction(actionTypes.SELECT_SAVED_SEARCH, (searchName) => ({searchName})),
+    selectSavedSearch: createAction(actionTypes.SELECT_SAVED_SEARCH, (idx) => ({idx})),
     submitFilter: createAction(actionTypes.SUBMIT_FILTER, (searchTerm) => ({searchTerm})),
   };
 }

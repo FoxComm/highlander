@@ -100,7 +100,13 @@ export default class LiveSearch extends React.Component {
     const tabs = _.map(this.props.searches.savedSearches, (search, idx) => {
       const selected = idx === this.props.searches.selectedSearch;
       const editing = selected && this.isEditingName;
-      const draggable = !editing && idx !== 'All';
+      const draggable = !editing && search.name !== 'All';
+
+      const startEdit = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        this.props.editSearchNameStart(idx);
+      };
 
       return (
         <EditableTabView
@@ -110,7 +116,8 @@ export default class LiveSearch extends React.Component {
           selected={selected}
           cancelEdit={this.props.editSearchNameCancel}
           completeEdit={this.props.editSearchNameComplete}
-          onClick={() => this.props.selectSavedSearch(search.name)}
+          startEdit={startEdit}
+          onClick={() => this.props.selectSavedSearch(idx)}
         />
       );
     });

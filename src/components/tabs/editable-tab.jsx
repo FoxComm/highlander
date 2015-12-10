@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import classnames from 'classnames';
+import  { Button } from '../common/buttons';
 import TabView from './tab';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
@@ -17,13 +18,15 @@ export default class EditableTabView extends React.Component {
     cancelEdit: PropTypes.func,
     completeEdit: PropTypes.func,
     defaultValue: PropTypes.string.isRequired,
-    editing: PropTypes.bool
+    editing: PropTypes.bool,
+    startEdit: PropTypes.func
   };
 
   static defaultProps = {
     cancelEdit: _.noop,
     completeEdit: _.noop,
-    editing: false
+    editing: false,
+    startEdit: _.noop
   };
 
   get className() {
@@ -58,6 +61,16 @@ export default class EditableTabView extends React.Component {
     }
   }
 
+  get editButton() {
+    if (!this.props.editing) {
+      return (
+        <button className="fc-tab__edit-icon" onClick={this.props.startEdit}>
+          <i className="icon-edit"/>
+        </button>
+      );
+    }
+  }
+
   @autobind
   changeInput({target}) {
     this.setState({
@@ -75,6 +88,7 @@ export default class EditableTabView extends React.Component {
     return (
       <TabView className={this.className} {...this.props}>
         {this.tabContent}
+        {this.editButton}
       </TabView>
     );
   }

@@ -118,7 +118,7 @@ describe('modules.orders.list', function() {
     });
 
     it('should be able to select remorse hold', function() {
-      newState = reducer(undefined, selectSavedSearch('Remorse Hold'));
+      newState = reducer(undefined, selectSavedSearch(1));
       expect(newState.selectedSearch).to.be.equal(1);
     });
   });
