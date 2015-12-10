@@ -20,9 +20,6 @@ export default class ActivityTrailPage extends React.Component {
     }).isRequired
   };
 
-  static defaultProps = {
-  };
-
   componentDidMount() {
     this.props.fetchActivityTrail(this.props.entity);
   }

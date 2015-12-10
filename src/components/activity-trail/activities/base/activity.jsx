@@ -2,10 +2,10 @@
 // libs
 import { autobind } from 'core-decorators';
 import React, { PropTypes } from 'react';
-import moment from 'moment';
 
 // components
 import { Button } from '../../../common/buttons';
+import { Time } from '../../../common/datetime';
 import UserInitials from '../../../users/initials';
 
 export default class Activity extends React.Component {
@@ -90,7 +90,7 @@ export default class Activity extends React.Component {
         <div className="fc-activity__head-content">
           <div className="fc-activity__body">
             <div className="fc-activity__timestamp">
-              { moment(activity.createdAt).format('LT') }
+              <Time value={activity.createdAt} />
             </div>
             <div className="fc-activity__info">
               <UserInitials name={data.author} />
