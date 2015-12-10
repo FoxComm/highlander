@@ -18,6 +18,10 @@
       background: #d9d9d9;
     }
 
+    &.fc-activity:after {
+      left: 41px; // 42px - border size of .fc-activity
+    }
+
     &:last-child:after {
       display: none;
     }
@@ -31,5 +35,18 @@
     padding: 10px 0;
     width: 84px;
     text-align: center;
+  }
+
+  .fc-activity + &__mark {
+    margin-top: 20px;
+    &:before {
+      content: "";
+      position: absolute;
+      top: -21px;
+      left: 42px;
+      height: 21px;
+      width: 2px;
+      background: #d9d9d9;
+    }
   }
 }
